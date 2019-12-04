@@ -1,0 +1,13 @@
+Makefile*
+build/
+debug/
+release/
+local_settings.pri
+!features/local_settings.pri
+*.pro.user
+*.autosave
+*.directory
+*.qmake.stash
+*.o
+linuxBuild.txt
+unittests.xml
