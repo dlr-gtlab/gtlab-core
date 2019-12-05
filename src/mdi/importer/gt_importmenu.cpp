@@ -1,0 +1,153 @@
+/* GTlab - Gas Turbine laboratory
+ * Source File: gt_importmenu.cpp
+ * copyright 2009-2016 by DLR
+ *
+ *  Created on: 08.11.2016
+ *  Author: Stanislaus Reitenbach (AT-TW)
+ *  Tel.: +49 2203 601 2907
+ */
+
+#include <QSignalMapper>
+#include <QWizard>
+#include <QDebug>
+
+#include "gt_application.h"
+#include "gt_importhandler.h"
+#include "gt_importermetadata.h"
+#include "gt_project.h"
+#include "gt_abstractimporter.h"
+#include "gt_abstractimporterpage.h"
+#include "gt_objectmemento.h"
+#include "gt_objectmementodiff.h"
+#include "gt_command.h"
+
+#include "gt_importmenu.h"
+
+GtImportMenu::GtImportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
+    m_signalMapper(new QSignalMapper(this)),
+    m_obj(obj)
+{
+    setTitle(tr("Import"));
+    setIcon(gtApp->icon(QStringLiteral("importIcon_16.png")));
+
+    connect(m_signalMapper, SIGNAL(mapped(QObject*)),
+            SLOT(onActionTrigger(QObject*)));
+
+    QList<GtImporterMetaData> importerList =
+            gtImportHandler->importerMetaData(obj->metaObject()->className());
+
+
+    if (!importerList.isEmpty())
+    {
+        foreach (const GtImporterMetaData& imp, importerList)
+        {
+
+            QAction* act = addAction(imp.icon(),
+                                     imp.id() + QStringLiteral("..."));
+
+            connect(act, SIGNAL(triggered(bool)), m_signalMapper, SLOT(map()));
+            m_signalMapper->setMapping(act, act);
+
+            m_actions.insert(act, imp.classname());
+        }
+    }
+}
+
+void
+GtImportMenu::onActionTrigger(QObject* obj)
+{
+    // check object
+    if (m_obj == Q_NULLPTR)
+    {
+        return;
+    }
+
+    GtProject* project = m_obj->findParent<GtProject*>();
+
+    if (project == Q_NULLPTR)
+    {
+        return;
+    }
+
+    // get action
+    QAction* act = qobject_cast<QAction*>(obj);
+
+    // check action
+    if (act == Q_NULLPTR)
+    {
+        return;
+    }
+
+    // get classname of importer corresponding to action
+    const QString str = m_actions.value(act);
+
+    // check whether classname is empty
+    if (str.isEmpty())
+    {
+        return;
+    }
+
+    qDebug() << "importer triggered! (" << str << ")";
+
+    // get importer corresponding to classname
+    GtAbstractImporter* importer = gtImportHandler->newImporter(str);
+
+    // check importer
+    if (importer == Q_NULLPTR)
+    {
+        return;
+    }
+
+    // clone object data
+    GtObject* objCopy = m_obj->clone();
+
+    // check clones object data
+    if (objCopy == Q_NULLPTR)
+    {
+        return;
+    }
+
+    // create wizard
+    QWizard wizard;
+    wizard.setWindowTitle(tr("Import Wizard"));
+
+    /// Turn  off the "?"-Button in the header
+    Qt::WindowFlags flags = wizard.windowFlags();
+    flags = flags & (~Qt::WindowContextHelpButtonHint);
+    wizard.setWindowFlags(flags);
+
+    // get wizard pages
+    QList<GtAbstractImporterPage*> pages = importer->pages(objCopy);
+
+    // append pages to wizard
+    foreach (GtAbstractImporterPage* page, pages)
+    {
+        wizard.addPage(page);
+    }
+
+    if (wizard.exec())
+    {
+        GtObjectMemento mementoOrig = m_obj->toMemento();
+        GtObjectMemento mementoNew = objCopy->toMemento();
+
+        GtObjectMementoDiff diff(mementoOrig, mementoNew);
+
+        if (!diff.isNull())
+        {
+            QString msg = tr("Import") +
+                             QStringLiteral(" ") +
+                             importer->objectName() +
+                             QStringLiteral(" ") +
+                             m_obj->objectName();
+
+            GtCommand command = gtApp->startCommand(project, msg);
+
+            m_obj->applyDiff(diff);
+
+            gtApp->endCommand(command);
+        }
+    }
+
+    delete objCopy;
+    delete importer;
+}

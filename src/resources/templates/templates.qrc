@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/templates">
+        <file>empty_project.xml</file>
+        <file>empty_module.xml</file>
+    </qresource>
+</RCC>

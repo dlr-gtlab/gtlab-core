@@ -1,0 +1,41 @@
+# GTlab - Coding Style File
+
+--style=allman
+
+# whitespace characters
+# --------------------------------
+# void Foo()
+# {
+# ....if (isBar1 && isBar2)
+# ....bar();
+# }
+# --------------------------------
+--indent=spaces=4
+
+# broken bracket style
+# --------------------------------
+# int Foo(bool isBar)
+# {
+#    if (isBar)
+#    {
+#        bar();
+#        return 1;
+#    }
+#    else
+#        return 0;
+# }
+# --------------------------------
+--style=bsd
+--style=break
+
+
+--unpad-paren
+--pad-oper
+--pad-header
+--indent-col1-comments
+--align-pointer=type
+--add-brackets
+--max-code-length=80
+--break-after-logical
+--break-blocks
+indent-switches

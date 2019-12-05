@@ -1,0 +1,786 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GtMainWin</class>
+ <widget class="QMainWindow" name="GtMainWin">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1009</width>
+    <height>727</height>
+   </rect>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::DefaultContextMenu</enum>
+  </property>
+  <property name="windowTitle">
+   <string>GTlab</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/icons/icons.qrc">
+    <normaloff>:/icons/gtdIcon.png</normaloff>:/icons/gtdIcon.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QMdiArea" name="mdiArea">
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
+      </property>
+      <property name="background">
+       <brush brushstyle="Dense2Pattern">
+        <color alpha="255">
+         <red>160</red>
+         <green>160</green>
+         <blue>160</blue>
+        </color>
+       </brush>
+      </property>
+      <property name="viewMode">
+       <enum>QMdiArea::TabbedView</enum>
+      </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+      <property name="tabsMovable">
+       <bool>true</bool>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
+      <property name="tabPosition">
+       <enum>QTabWidget::North</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1009</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
+      <string>&amp;Import</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/icons/icons.qrc">
+       <normaloff>:/icons/importIcon.png</normaloff>:/icons/importIcon.png</iconset>
+     </property>
+     <addaction name="actionImportProject"/>
+     <addaction name="separator"/>
+    </widget>
+    <widget class="QMenu" name="menuSession">
+     <property name="title">
+      <string>&amp;Session</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/icons/icons.qrc">
+       <normaloff>:/icons/sessionIcon.png</normaloff>:/icons/sessionIcon.png</iconset>
+     </property>
+    </widget>
+    <addaction name="actionNewProject"/>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="actionCloseProject"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Project"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="actionDuplicate_Project"/>
+    <addaction name="separator"/>
+    <addaction name="menuSession"/>
+    <addaction name="actionEditSessions"/>
+    <addaction name="separator"/>
+    <addaction name="menuImport"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>&amp;Window</string>
+    </property>
+    <widget class="QMenu" name="menuPerspective">
+     <property name="title">
+      <string>&amp;Show Perspective</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/icons/icons.qrc">
+       <normaloff>:/icons/arrowrightIcon.png</normaloff>:/icons/arrowrightIcon.png</iconset>
+     </property>
+     <addaction name="actionDesignerPerspective"/>
+     <addaction name="actionPerformancePerspective"/>
+    </widget>
+    <widget class="QMenu" name="menuDock_Widgets">
+     <property name="title">
+      <string>Dock Widgets</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/icons/icons.qrc">
+       <normaloff>:/icons/dockIcon.png</normaloff>:/icons/dockIcon.png</iconset>
+     </property>
+    </widget>
+    <addaction name="menuPerspective"/>
+    <addaction name="actionEditPerspectives"/>
+    <addaction name="separator"/>
+    <addaction name="actionTileWindows"/>
+    <addaction name="actionCascadeWindows"/>
+    <addaction name="separator"/>
+    <addaction name="menuDock_Widgets"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionHelpContents"/>
+    <addaction name="actionExamples"/>
+    <addaction name="separator"/>
+    <addaction name="actionCheck_for_update"/>
+    <addaction name="actionBug_Report"/>
+    <addaction name="actionChangelog"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuUpdate_available">
+    <property name="title">
+     <string>&amp;Update available!</string>
+    </property>
+    <addaction name="actionInstall_Update"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuDev">
+    <property name="title">
+     <string>&amp;Dev</string>
+    </property>
+    <addaction name="actionState_Browser"/>
+    <addaction name="actionMemento_Viewer"/>
+    <addaction name="separator"/>
+    <addaction name="actionPerformance_Map_Editor"/>
+    <addaction name="actionCarpet_Plot_Test"/>
+    <addaction name="actionTemplateTest"/>
+    <addaction name="actionWidgetStructure"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuOptions"/>
+   <addaction name="menuHelp"/>
+   <addaction name="menuDev"/>
+   <addaction name="menuUpdate_available"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="projectToolBar">
+   <property name="windowTitle">
+    <string>Project ToolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNewProject"/>
+   <addaction name="actionImportProject"/>
+   <addaction name="actionSave_Project"/>
+  </widget>
+  <widget class="QToolBar" name="undoBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowTitle">
+    <string>Undo Toolbar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionPrint"/>
+  </widget>
+  <widget class="QToolBar" name="viewerToolbar">
+   <property name="windowTitle">
+    <string>MDI ToolBar</string>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionTileWindows"/>
+   <addaction name="actionCascadeWindows"/>
+  </widget>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/closeIcon_16.png</normaloff>:/icons/closeIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionNewProject">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/addProjectIcon_24.png</normaloff>:/icons/addProjectIcon_24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;New Project</string>
+   </property>
+   <property name="toolTip">
+    <string>Create New Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionTileWindows">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/tileWindowIcon_24.png</normaloff>:/icons/tileWindowIcon_24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Tile Windows</string>
+   </property>
+   <property name="toolTip">
+    <string>Tile Windows</string>
+   </property>
+  </action>
+  <action name="actionCascadeWindows">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/cascadeWindowIcon_24.png</normaloff>:/icons/cascadeWindowIcon_24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Cascade Windows</string>
+   </property>
+   <property name="toolTip">
+    <string>Cascade Windows</string>
+   </property>
+  </action>
+  <action name="actionImportProject">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/importProjectIcon_24.png</normaloff>:/icons/importProjectIcon_24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Project to Session...</string>
+   </property>
+   <property name="toolTip">
+    <string>Import Project</string>
+   </property>
+  </action>
+  <action name="actionSaveProject">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/saveProjectIcon_24.png</normaloff>:/icons/saveProjectIcon_24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save All Projects</string>
+   </property>
+   <property name="toolTip">
+    <string>Save All Projects</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionUndoHistory">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/historyIcon_16.png</normaloff>:/icons/historyIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Command History</string>
+   </property>
+   <property name="toolTip">
+    <string>Command History</string>
+   </property>
+  </action>
+  <action name="actionDesignerPerspective">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/bladesIcon.png</normaloff>:/icons/bladesIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>PreDesign</string>
+   </property>
+   <property name="toolTip">
+    <string>Change to PreDesign Perspective</string>
+   </property>
+  </action>
+  <action name="actionPerformancePerspective">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/DPcalculator_16.png</normaloff>:/icons/DPcalculator_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Performance</string>
+   </property>
+   <property name="toolTip">
+    <string>Change to Performance Perspective</string>
+   </property>
+  </action>
+  <action name="actionHelpContents">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/questionIcon_16.png</normaloff>:/icons/questionIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Help Contents</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/infoIcon_16.png</normaloff>:/icons/infoIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;About GTlab</string>
+   </property>
+  </action>
+  <action name="actionOpen_Project">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/openProjectIcon_16.png</normaloff>:/icons/openProjectIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave_Project">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/saveProjectIcon_24.png</normaloff>:/icons/saveProjectIcon_24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/configIcon_16.png</normaloff>:/icons/configIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Return</string>
+   </property>
+  </action>
+  <action name="actionDesigner_Perspective">
+   <property name="text">
+    <string>Designer Perspective</string>
+   </property>
+  </action>
+  <action name="actionPerformance_Perspective">
+   <property name="text">
+    <string>Performance Perspective</string>
+   </property>
+  </action>
+  <action name="actionShow_Plot">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/postIcon.png</normaloff>:/icons/postIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Plot</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionCloseProject">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/closeProjectIcon_16.png</normaloff>:/icons/closeProjectIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Close Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+W</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/printerIcon_24.png</normaloff>:/icons/printerIcon_24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Print</string>
+   </property>
+   <property name="toolTip">
+    <string>Print current view</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionCheck_for_update">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/updateIcon.png</normaloff>:/icons/updateIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Check for &amp;Updates...</string>
+   </property>
+  </action>
+  <action name="actionInstall_Update">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/updateIcon.png</normaloff>:/icons/updateIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Install Update</string>
+   </property>
+  </action>
+  <action name="actionBug_Report">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/devModeOnly/mantisIcon.png</normaloff>:/icons/devModeOnly/mantisIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Bug Report</string>
+   </property>
+  </action>
+  <action name="actionChangelog">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/logIcon_16.png</normaloff>:/icons/logIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Changelog</string>
+   </property>
+  </action>
+  <action name="actionMap_Collection">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/collectionIcon_16.png</normaloff>:/icons/collectionIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Map Collection</string>
+   </property>
+  </action>
+  <action name="actionLayer_Manager">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/layerIcon.png</normaloff>:/icons/layerIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Layer Manager</string>
+   </property>
+  </action>
+  <action name="actionProcessQueue">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/queueIcon_16.png</normaloff>:/icons/queueIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Process Queue</string>
+   </property>
+  </action>
+  <action name="actionFrom_S2M">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/gridIcon.png</normaloff>:/icons/gridIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>S2M...</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save As...</string>
+   </property>
+  </action>
+  <action name="actionExamples">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/examplesIcon_16.png</normaloff>:/icons/examplesIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Examples</string>
+   </property>
+  </action>
+  <action name="actionCalculatorCollection">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/calculatorIcon_16.png</normaloff>:/icons/calculatorIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Calculator Collection</string>
+   </property>
+  </action>
+  <action name="actionMaterialCollection">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/materialsIcon_16.png</normaloff>:/icons/materialsIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Material Collection</string>
+   </property>
+  </action>
+  <action name="actionRCERemoteConnection">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/connectionIcon_16.png</normaloff>:/icons/connectionIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>RCE Remote Connection</string>
+   </property>
+  </action>
+  <action name="actionCollection_Test">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/collectionIcon_16.png</normaloff>:/icons/collectionIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Collection Test</string>
+   </property>
+  </action>
+  <action name="actionNetwork_Access_Manager">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/networkIcon_16.png</normaloff>:/icons/networkIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Network Access Manager</string>
+   </property>
+  </action>
+  <action name="actionModel_View_Test">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/globalsIcon_16.png</normaloff>:/icons/globalsIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Model View Test</string>
+   </property>
+  </action>
+  <action name="actionPerformance_Map_Editor">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/mapIcon_16.png</normaloff>:/icons/mapIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Performance Map Editor</string>
+   </property>
+  </action>
+  <action name="actionMemento_Viewer">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/devModeOnly/mementoIcon.png</normaloff>:/icons/devModeOnly/mementoIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Memento Viewer</string>
+   </property>
+  </action>
+  <action name="actionSessionBrowser">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/zoomIcon_16.png</normaloff>:/icons/zoomIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Session Browser</string>
+   </property>
+  </action>
+  <action name="actionEditSessions">
+   <property name="text">
+    <string>Edit Sessions</string>
+   </property>
+  </action>
+  <action name="actionPreDesignPlotTest">
+   <property name="text">
+    <string>PreDesign Plot Test</string>
+   </property>
+  </action>
+  <action name="actionPerformanceModelEditor">
+   <property name="text">
+    <string>Performance Model Editor</string>
+   </property>
+  </action>
+  <action name="actionEditPerspectives">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/perspectivesIcon_16.png</normaloff>:/icons/perspectivesIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit Perspectives</string>
+   </property>
+  </action>
+  <action name="actionCarpet_Plot_Test">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/carpetPlotIcon2.png</normaloff>:/icons/carpetPlotIcon2.png</iconset>
+   </property>
+   <property name="text">
+    <string>Carpet Plot Test</string>
+   </property>
+  </action>
+  <action name="actionTemplateTest">
+   <property name="text">
+    <string>Template Test</string>
+   </property>
+  </action>
+  <action name="actionState_Browser">
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/devModeOnly/stateIcon.png</normaloff>:/icons/devModeOnly/stateIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>State Browser</string>
+   </property>
+  </action>
+  <action name="actionDuplicate_Project">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons/icons.qrc">
+     <normaloff>:/icons/duplicateIcon_16.png</normaloff>:/icons/duplicateIcon_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Duplicate Project...</string>
+   </property>
+  </action>
+  <action name="actiontest">
+   <property name="text">
+    <string>test</string>
+   </property>
+  </action>
+  <action name="actionWidgetStructure">
+   <property name="text">
+    <string>Widget Structure</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../resources/icons/icons.qrc"/>
+  <include location="../../resources/icons/icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>GtMainWin</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>selectViewMove()</slot>
+  <slot>selectViewZoom()</slot>
+  <slot>changeAxisLocked()</slot>
+  <slot>newProject()</slot>
+  <slot>tileWindows()</slot>
+  <slot>cascadeWindows()</slot>
+  <slot>printPlotInterface()</slot>
+  <slot>openProject()</slot>
+  <slot>newComponent()</slot>
+  <slot>addProcess()</slot>
+  <slot>addLayer()</slot>
+  <slot>saveAllProjects()</slot>
+ </slots>
+</ui>
