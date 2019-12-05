@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>outputdock.qml</file>
+    </qresource>
+</RCC>

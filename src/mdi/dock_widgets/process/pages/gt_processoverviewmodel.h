@@ -1,0 +1,155 @@
+/* GTlab - Gas Turbine laboratory
+ * Source File: gt_processoverviewmodel.h
+ * copyright 2009-2017 by DLR
+ *
+ *  Created on: 03.11.2017
+ *  Author: Stanislaus Reitenbach (AT-TW)
+ *  Tel.: +49 2203 601 2907
+ */
+
+#ifndef GT_PROCESSOVERVIEWMODEL_H
+#define GT_PROCESSOVERVIEWMODEL_H
+
+#include <QAbstractItemModel>
+
+class GtProcessCategoryItem;
+class GtAbstractProcessItem;
+
+/**
+ * @brief The GtProcessOverviewModel class
+ */
+class GtProcessOverviewModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    enum Roles
+    {
+        CategoryRole = Qt::UserRole + 1,
+        CollapseRole
+    };
+
+    /**
+     * @brief Constructor.
+     * @param parent Parent object.
+     */
+    GtProcessOverviewModel(QObject* parent = Q_NULLPTR);
+
+    /**
+     *  Destructor
+     */
+    virtual ~GtProcessOverviewModel() Q_DECL_OVERRIDE;
+
+    /**
+     * @brief Virtual function to implement specific model setup.
+     */
+    virtual void setUpModel() = 0;
+
+    /**
+     * @brief rowCount
+     * @param parent
+     * @return
+     */
+    int rowCount(
+            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+
+    /**
+     * @brief columnCount
+     * @param parent
+     * @return
+     */
+    int columnCount(
+            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+
+    /**
+     * @brief data
+     * @param index
+     * @param role
+     * @return
+     */
+    QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+
+    /**
+     * @brief setData
+     * @param index
+     * @param value
+     * @param role
+     * @return
+     */
+    bool setData(const QModelIndex &index, const QVariant &value,
+                 int role) Q_DECL_OVERRIDE;
+
+    /**
+     * @brief index
+     * @param row
+     * @param col
+     * @param parent
+     * @return
+     */
+    QModelIndex index(int row,
+                      int col,
+                      const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+
+    /**
+     * @brief parent
+     * @param index
+     * @return
+     */
+    QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
+
+    /**
+     * @brief itemFromIndex
+     * @param index
+     * @return
+     */
+    GtAbstractProcessItem* itemFromIndex(const QModelIndex& index) const;
+
+protected:
+    /**
+     * @brief Returns identification string of given process item.
+     * @param item Process item.
+     * @return Identification string of process item.
+     */
+    virtual QString id(GtAbstractProcessItem* item) const = 0;
+
+    /**
+     * @brief Returns version string of given process item.
+     * @param item Process item.
+     * @return Version string of process item.
+     */
+    virtual QString version(GtAbstractProcessItem* item) const = 0;
+
+    /**
+     * @brief Returns icon of given process item.
+     * @param item Process item.
+     * @return Icon of process item.
+     */
+    virtual QIcon icon(GtAbstractProcessItem* item) const = 0;
+
+    /**
+     * @brief Returns description of given process item.
+     * @param item Process item.
+     * @return description of process item.
+     */
+    virtual QString description(GtAbstractProcessItem* item) const = 0;
+
+    /**
+     * @brief categoryItem
+     * @param id
+     * @return
+     */
+    GtProcessCategoryItem* categoryItem(const QString& id);
+
+private:
+    /// Categories and calculator data
+    QList<GtProcessCategoryItem*> m_categories;
+
+    /**
+     * @brief indexFromItem
+     * @param item
+     * @return
+     */
+    QModelIndex indexFromItem(GtAbstractProcessItem* item) const;
+};
+
+#endif // GT_PROCESSOVERVIEWMODEL_H
