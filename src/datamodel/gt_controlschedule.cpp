@@ -9,11 +9,13 @@
 
 #include "gt_controlschedule.h"
 
+
 GtControlSchedule::GtControlSchedule() :
-    m_schedule("ControlSchedule",
-               "Control Schedule",
-               QStringLiteral("Schedule"),
-               this)
+    m_schedule("ControlSchedule", "Control Schedule",
+               QStringLiteral("Schedule"), this),
+    m_active("activeSchedule", "Active Schedule",
+             "If the schedule is set true, the schedule is autmatic used in "
+             "the DLR performance (DLRp²) calclulations.", true)
 {
     setFlag(UserDeletable);
     setFlag(UserRenamable);
@@ -21,6 +23,7 @@ GtControlSchedule::GtControlSchedule() :
     setUserHidden(false);
 
     registerProperty(m_schedule, "Schedule");
+    registerProperty(m_active, "Schedule");
 }
 
 bool
@@ -56,3 +59,16 @@ GtControlSchedule::isTransient()
 
     return false;
 }
+
+bool
+GtControlSchedule::isActive()
+{
+    return m_active.getVal();
+}
+
+void
+GtControlSchedule::setActive(const bool& active)
+{
+   m_active.setVal(active);
+}
+

@@ -10,7 +10,6 @@
 #define GTCONTROLSCHEDULEUI_H
 
 #include "gt_mdi_exports.h"
-
 #include "gt_objectui.h"
 
 /**
@@ -50,6 +49,46 @@ public:
      * @return
      */
     QRegExp validatorRegExp() Q_DECL_OVERRIDE;
+
+public slots:
+
+    /**
+     * @brief is schedule activated
+     * @param obj: schedule ptr
+     * @return is activated
+     */
+    bool isActivated(GtObject* obj);
+
+    /**
+     * @brief is schedule deactivated
+     * @param obj: schedule ptr
+     * @return is deactivated
+     */
+    bool isDeactivated(GtObject* obj);
+
+    /**
+     * @brief activate schedule
+     * @param obj: schedule ptr
+     */
+    void activate(GtObject* obj);
+
+    /**
+     * @brief deactivate schedule
+     * @param obj: schedule ptr
+     */
+    void deactivate(GtObject* obj);
+
+
+protected:
+    /**
+     * @brief if the conrtol is inactive the font change to italic and the name
+     * is striked out // if active the default fonts is setted
+     * @param obj: pointer to control scheduele object
+     * @param role: role
+     * @param column: column
+     * @return current font settings
+     */
+    QVariant specificData(GtObject* obj, int role, int column) const override;
 };
 
 #endif // GTCONTROLSCHEDULEUI_H
