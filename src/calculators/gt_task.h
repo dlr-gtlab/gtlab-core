@@ -159,8 +159,7 @@ public:
         {
             if (obj == Q_NULLPTR)
             {
-                gtInfo() << "obj is null";
-                return Q_NULLPTR;
+                continue;
             }
 
             if (obj->uuid() == uuid)
@@ -169,6 +168,8 @@ public:
             }
         }
 
+        gtWarning() << "obj not found - uuid =" << uuid;
+        
         return Q_NULLPTR;
     }
 
@@ -186,7 +187,7 @@ public:
         {
             if (obj == Q_NULLPTR)
             {
-                return Q_NULLPTR;
+                continue;
             }
 
             if (obj->objectPath() == path.toString())
@@ -194,6 +195,8 @@ public:
                 return qobject_cast<T>(obj);
             }
         }
+
+        gtWarning() << "obj not found - path =" << path.toString();
 
         return Q_NULLPTR;
     }
