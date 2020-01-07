@@ -118,7 +118,7 @@ public:
         {
             if (obj == Q_NULLPTR)
             {
-                return Q_NULLPTR;
+                continue;
             }
 
             GtObject* retval = obj->getObjectByUuid(uuid);
