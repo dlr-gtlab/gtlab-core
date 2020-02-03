@@ -20,3 +20,9 @@ BUILD_APP =                     true
 # tests
 BUILD_UNITTESTS =               false
 BUILD_REGRESSIONTESTS =         false
+
+
+GTLAB_LOGGING_PATH = $${DEV_TOOLS}
+GTLAB_NUMERICS_PATH = $${DEV_TOOLS}
+
+SPLINE_LIB_PATH = $${DEV_TOOLS}\ThirdPartyLibraries\SplineLib
