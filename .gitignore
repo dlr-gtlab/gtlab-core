@@ -11,3 +11,4 @@ local_settings.pri
 *.o
 linuxBuild.txt
 unittests.xml
+!tests/build/
