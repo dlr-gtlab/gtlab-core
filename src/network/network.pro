@@ -67,11 +67,14 @@ SOURCES += \
     gt_downloaditem.cpp \
     gt_downloader.cpp
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel
+LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging -lGTlabDatamodel
 
 unix {
     QMAKE_CXXFLAGS += -std=c++11
 }
 
-
+copyHeaders($$HEADERS)
+unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
+win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
+######################################################################
 ######################################################################

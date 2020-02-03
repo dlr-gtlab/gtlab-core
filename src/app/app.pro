@@ -16,7 +16,7 @@ win32 {
 
 TARGET = GTlab
 
-QT += widgets testlib
+QT += widgets
 TEMPLATE = app
 CONFIG += silent
 CONFIG += c++11
@@ -56,9 +56,20 @@ HEADERS += \
 SOURCES += \
     app.cpp
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabCore -lqwt -lGTlabMdi -lGTlabGui -lGTlabNetwork
+LIBS += -L$${BUILD_DEST}/modules
+LIBS += -L$${BUILD_DEST}
+
+LIBS += -lGTlabDatamodel -lGTlabCalculators -lGTlabCore -lGTlabMdi -lGTlabGui
+LIBS += -lGTlabNetwork
+
+# GTLAB UTILITIES
+LIBS += -lGTlabNumerics -lGTlabPhysics -lGTlabLogging
+
+# THIRD PARTY LIBRARIES
+LIBS += -lqwt -lSplineLib -lnlopt
 
 # add search paths to shared libraries
 unix: QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN:\$$ORIGIN/modules\''
 
+unix: copyExecutableToEnvironmentPath($${DESTDIR}/,$${TARGET})
 ######################################################################

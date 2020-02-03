@@ -100,11 +100,14 @@ SOURCES += \
 
 RESOURCES += ../resources/templates/templates.qrc
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork
+LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork
 
 unix {
     QMAKE_CXXFLAGS += -std=c++11
 }
 
-
+copyHeaders($$HEADERS)
+unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
+win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
+######################################################################
 ######################################################################

@@ -12,7 +12,7 @@ include( $${PWD}/../../settings.pri )
 
 TARGET = GTlabMdi
 
-QT += core widgets xml printsupport network qml
+QT += core widgets xml printsupport network
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
@@ -563,7 +563,14 @@ RESOURCES += ../resources/icons/icons.qrc \
     ../resources/pixmaps/pixmaps.qrc \
     ../resources/qml/qml.qrc
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabNetwork -lGTlabCalculators -lGTlabCore -lqwt -lSplineLib
+LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging
+LIBS += -lGTlabDatamodel -lGTlabNetwork -lGTlabCalculators -lGTlabCore
 
+#THIRD PARTY
+LIBS += -lSplineLib -lqwt
 
+copyHeaders($$HEADERS)
+unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
+win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
+######################################################################
 ######################################################################

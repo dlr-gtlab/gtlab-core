@@ -185,6 +185,11 @@ unix {
     QMAKE_CXXFLAGS += -std=c++11
 }
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabLogging -lSplineLib
+LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging
+LIBS += -lSplineLib
 
+copyHeaders($$HEADERS)
+unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
+win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
+######################################################################
 ######################################################################
