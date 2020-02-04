@@ -109,6 +109,9 @@ GtPropertyTreeView::setObject(GtObject* obj)
     if (m_model->object() != obj)
     {
         m_model->setObject(obj);
+        /// Fix to handle signals from resetting the model
+        QCoreApplication::processEvents();
+        
         expandAll();
         resizeColumns();
     }
