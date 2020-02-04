@@ -32,6 +32,13 @@ INCLUDEPATH += $${GTLAB_NUMERICS_PATH}/include/numerics
 LIBS        += -L$${GTLAB_NUMERICS_PATH}/lib/numerics
 DEPENDPATH  += $${GTLAB_NUMERICS_PATH}/lib/numerics
 
+# Physics
+INCLUDEPATH += $${GTLAB_PHYSICS_PATH}/include/physics
+LIBS        += -L$${GTLAB_PHYSICS_PATH}/lib/physics
+DEPENDPATH  += $${GTLAB_PHYSICS_PATH}/lib/physics
+
+
+
 #### THIRD PARTY LIBRARIES
 # SplineLib
 INCLUDEPATH += $${SPLINE_LIB_PATH}/include
