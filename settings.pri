@@ -55,6 +55,11 @@ INCLUDEPATH += $${DEV_TOOLS}/ThirdPartyLibraries/Qwt/include
 LIBS        += -L$${DEV_TOOLS}/ThirdPartyLibraries/Qwt/lib
 DEPENDPATH  += $${DEV_TOOLS}/ThirdPartyLibraries/Qwt/lib
 
+## NLOPT
+INCLUDEPATH += $${DEV_TOOLS}/ThirdPartyLibraries/NLopt/include
+LIBS        += -L$${DEV_TOOLS}/ThirdPartyLibraries/NLopt/lib
+DEPENDPATH  += $${DEV_TOOLS}/ThirdPartyLibraries/NLopt/lib
+
 # Google Test
 #INCLUDEPATH += C:/devel/googletest-master/googletest/include
 #win32 {
