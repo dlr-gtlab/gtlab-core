@@ -16,7 +16,7 @@ win32 {
 
 TARGET = GTlab
 
-QT += widgets
+QT += widgets testlib
 TEMPLATE = app
 CONFIG += silent
 CONFIG += c++11

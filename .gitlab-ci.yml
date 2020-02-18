@@ -10,9 +10,24 @@ buildWindows512:
     - Win7Qt512
   artifacts:
     paths:
-      - lib/core/GTlabNumerics.dll
-      - lib/core/GTlabNumerics.lib
-      - lib/core/GTlabNumerics.pdb
+      - lib/core/GTlabDatamodel.dll
+      - lib/core/GTlabDatamodel.lib
+      - lib/core/GTlabDatamodel.pdb
+      - lib/core/GTlabCalculators.dll
+      - lib/core/GTlabCalculators.lib
+      - lib/core/GTlabCalculators.pdb
+      - lib/core/GTlabCore.dll
+      - lib/core/GTlabCore.lib
+      - lib/core/GTlabCore.pdb
+      - lib/core/GTlabNetwork.dll
+      - lib/core/GTlabNetwork.lib
+      - lib/core/GTlabNetwork.pdb	
+      - lib/core/GTlabGui.dll
+      - lib/core/GTlabGui.lib
+      - lib/core/GTlabGui.pdb	
+      - lib/core/GTlabMdi.dll
+      - lib/core/GTlabMdi.lib
+      - lib/core/GTlabMdi.pdb		  
       - build/GTlabUnitTest.exe
       - build/GTlabUnitTest.pdb
       - buildLog.txt
@@ -29,23 +44,23 @@ nightlyBuildWindowsQt512:
     - master    
        
 
-#badges:
-#  stage: badges
-#  script:
-#    - $CommitNumber = git rev-list --count HEAD
-#    - .\tests\badges\badges.bat --run commits $CommitNumber
-#    - $statistics = git diff --shortstat 4b825dc642cb6eb9a060e54bf8d69288fbee4904
-#    - $filesRaw,$linesRaw = $statistics.split(',')
-#    - $fileNumber = $filesRaw.split(' ')[1]
-#    - $linenumber = $linesRaw.split(' ')[1]
-#    - .\tests\badges\badges.bat --run files $fileNumber
-#    - .\tests\badges\badges.bat --bw .\buildLog.txt .
-#
-#  tags:
-#    - Windows7
-#  artifacts:
-#    paths:
-#      - "New_commits.svg"
-#      - "New_files.svg"
-#      - "New_BuildWarn-W.svg"
-#  
+badges:
+  stage: badges
+  script:
+    - $CommitNumber = git rev-list --count HEAD
+    - .\tests\badges\badges.bat --run commits $CommitNumber
+    - $statistics = git diff --shortstat 4b825dc642cb6eb9a060e54bf8d69288fbee4904
+    - $filesRaw,$linesRaw = $statistics.split(',')
+    - $fileNumber = $filesRaw.split(' ')[1]
+    - $linenumber = $linesRaw.split(' ')[1]
+    - .\tests\badges\badges.bat --run files $fileNumber
+    - .\tests\badges\badges.bat --bw .\buildLog.txt .
+
+  tags:
+    - Win7Qt512
+  artifacts:
+    paths:
+      - "New_commits.svg"
+      - "New_files.svg"
+      - "New_BuildWarn-W.svg"
+  
