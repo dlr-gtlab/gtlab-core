@@ -11,6 +11,7 @@
 
 #include "gt_datamodel_exports.h"
 #include "gt_table.h"
+#include "gt_boolproperty.h"
 #include "gt_controlscheduleproperty.h"
 
 
@@ -39,10 +40,27 @@ public:
      */
     bool isTransient();
 
+    /**
+     * @brief is schedule active
+     * @return state
+     */
+    bool isActive();
+
+    /**
+     * @brief activate or deactivate schedule
+     * @param state
+     */
+    void setActive(const bool& active);
+
 private:
 
     /// Schedule property
     GtControlScheduleProperty m_schedule;
+
+    /// activate or deactivate the control schedule
+    /// -> active:: the schedule will be used in any performance calulation
+    GtBoolProperty m_active;
+
 };
 
 #endif // GTCONTROLSCHEDULE_H
