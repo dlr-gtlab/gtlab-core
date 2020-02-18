@@ -18,22 +18,32 @@ CONFIG(debug, debug|release) {
     }
 }
 
+TARGET_DIR_NAME = core
+LIB_BUILD_DEST = ../../lib/$${TARGET_DIR_NAME}
+
 #### LIBRARIES
 # Logging
-INCLUDEPATH += $${DEV_TOOLS}/include/logging
-LIBS        += -L$${DEV_TOOLS}/lib/logging
-DEPENDPATH  += $${DEV_TOOLS}/lib/logging
+INCLUDEPATH += $${GTLAB_LOGGING_PATH}/include/logging
+LIBS        += -L$${GTLAB_LOGGING_PATH}/lib/logging
+DEPENDPATH  += $${GTLAB_LOGGING_PATH}/lib/logging
 
 # Numerics
-INCLUDEPATH += $${DEV_TOOLS}/include/numerics
-LIBS        += -L$${DEV_TOOLS}/lib/numerics
-DEPENDPATH  += $${DEV_TOOLS}/lib/numerics
+INCLUDEPATH += $${GTLAB_NUMERICS_PATH}/include/numerics
+LIBS        += -L$${GTLAB_NUMERICS_PATH}/lib/numerics
+DEPENDPATH  += $${GTLAB_NUMERICS_PATH}/lib/numerics
+
+# Physics
+INCLUDEPATH += $${GTLAB_PHYSICS_PATH}/include/physics
+LIBS        += -L$${GTLAB_PHYSICS_PATH}/lib/physics
+DEPENDPATH  += $${GTLAB_PHYSICS_PATH}/lib/physics
+
+
 
 #### THIRD PARTY LIBRARIES
 # SplineLib
-INCLUDEPATH += $${DEV_TOOLS}/ThirdPartyLibraries/SplineLib/include
-LIBS        += -L$${DEV_TOOLS}/ThirdPartyLibraries/SplineLib/lib
-DEPENDPATH  += $${DEV_TOOLS}/ThirdPartyLibraries/SplineLib/lib
+INCLUDEPATH += $${SPLINE_LIB_PATH}/include
+LIBS        += -L$${SPLINE_LIB_PATH}/lib
+DEPENDPATH  += $${SPLINE_LIB_PATH}/lib
 
 # minpack
 INCLUDEPATH += $${DEV_TOOLS}/ThirdPartyLibraries/minpack/include
@@ -44,6 +54,11 @@ DEPENDPATH  += $${DEV_TOOLS}/ThirdPartyLibraries/minpack/lib
 INCLUDEPATH += $${DEV_TOOLS}/ThirdPartyLibraries/Qwt/include
 LIBS        += -L$${DEV_TOOLS}/ThirdPartyLibraries/Qwt/lib
 DEPENDPATH  += $${DEV_TOOLS}/ThirdPartyLibraries/Qwt/lib
+
+## NLOPT
+INCLUDEPATH += $${DEV_TOOLS}/ThirdPartyLibraries/NLopt/include
+LIBS        += -L$${DEV_TOOLS}/ThirdPartyLibraries/NLopt/lib
+DEPENDPATH  += $${DEV_TOOLS}/ThirdPartyLibraries/NLopt/lib
 
 # Google Test
 #INCLUDEPATH += C:/devel/googletest-master/googletest/include
@@ -62,7 +77,7 @@ DEPENDPATH  += $${DEV_TOOLS}/ThirdPartyLibraries/Qwt/lib
 #}
 
 #### PATH SETTINGS
-BUILD_DEST = ../../build
+BUILD_DEST = ../../lib/core
 
 #COVERAGE {
     # code coverage settings
@@ -70,4 +85,166 @@ BUILD_DEST = ../../build
 #    unix: LIBS += -lgcov
 #}
 
+######################################################################
+
+## FUNCTION DEFINITION FOR COPY FUNCTION
+mkpath($${PWD}/include/$${TARGET_DIR_NAME})
+
+defineTest(copyHeaders) {
+
+    files = $$1
+
+    dir = $${PWD}/../../include/$${TARGET_DIR_NAME}
+    win32:dir ~= s,/,\\,g
+
+    win32 {
+
+        QMAKE_POST_LINK += $$QMAKE_COPY $$shell_quote(*.h) $$shell_quote($$dir) $$escape_expand(\\n\\t)
+
+        dirNames =
+
+        for(file, files) {
+
+            exists($$file) {
+
+                dirName = $$dirname(file)
+
+                !isEmpty(dirName) {
+
+                    !contains(dirNames, $$dirName) {
+
+                        dirNames += $$dirName
+                        sourceDir = $${PWD}/$${dirName}/*.h
+
+                        win32:sourceDir ~= s,/,\\,g
+
+                        exists($${sourceDir}) {
+
+                            QMAKE_POST_LINK += $$QMAKE_COPY $$shell_quote($${sourceDir}) $$shell_quote($$dir) $$escape_expand(\\n\\t)
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+    unix {
+        QMAKE_POST_LINK += find . -name $$shell_quote(*.h) -exec cp $$shell_quote({}) $$shell_quote($$dir) \; $$escape_expand(\\n\\t)
+    }
+
+    export(QMAKE_POST_LINK)
+
+    return(true)
+}
+
+defineTest(copyHeaders2) {
+
+    files = $$1
+
+    dir = $${PWD}/../../../include/$${TARGET_DIR_NAME}
+    win32:dir ~= s,/,\\,g
+
+    win32 {
+
+        QMAKE_POST_LINK += $$QMAKE_COPY $$shell_quote(*.h) $$shell_quote($$dir) $$escape_expand(\\n\\t)
+
+        dirNames =
+
+        for(file, files) {
+
+            exists($$file) {
+
+                dirName = $$dirname(file)
+
+                !isEmpty(dirName) {
+
+                    !contains(dirNames, $$dirName) {
+
+                        dirNames += $$dirName
+                        sourceDir = $${PWD}/$${dirName}/*.h
+
+                        win32:sourceDir ~= s,/,\\,g
+
+                        exists($${sourceDir}) {
+
+                            QMAKE_POST_LINK += $$QMAKE_COPY $$shell_quote($${sourceDir}) $$shell_quote($$dir) $$escape_expand(\\n\\t)
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+    unix {
+        QMAKE_POST_LINK += find . -name $$shell_quote(*.h) -exec cp $$shell_quote({}) $$shell_quote($$dir) \; $$escape_expand(\\n\\t)
+    }
+
+    export(QMAKE_POST_LINK)
+
+    return(true)
+}
+
+defineTest(copyToEnvironmentPath) {
+
+    !isEmpty(GTLAB_ENVIRONMENT_PATH) {
+
+        dllPath = $$1
+        win32:dllPath ~= s,/,\\,g
+
+        args = $$ARGS
+
+        count(args, 2) {
+
+            environmentPath = $$2
+        } else {
+
+            environmentPath = $${GTLAB_ENVIRONMENT_PATH}
+        }
+
+        win32:environmentPath ~= s,/,\\,g
+
+        exists($$environmentPath) {
+
+            win32: QMAKE_POST_LINK += $$QMAKE_COPY $$shell_quote($$dllPath) $$shell_quote($$environmentPath) $$escape_expand(\\n\\t)
+            unix:  QMAKE_POST_LINK += find $$LIB_BUILD_DEST -name $$shell_quote(*.so*) -exec cp $$shell_quote({}) $$shell_quote($$environmentPath) \; $$escape_expand(\\n\\t)
+
+            export(QMAKE_POST_LINK)
+
+            return(true)
+        } else {
+
+            warning(GTLAB_ENVIRONMENT_PATH ($${environmentPath}) does not exist!)
+        }
+    }
+
+    return(false)
+}
+
+defineTest(copyExecutableToEnvironmentPath) {
+    !isEmpty(GTLAB_ENVIRONMENT_PATH) {
+        exePath = $$1
+        win32:exePath ~= s,/,\\,g
+
+        exeName = $$2
+        args = $$ARGS
+
+        environmentPath = $${GTLAB_ENVIRONMENT_PATH}
+
+        win32:environmentPath ~= s,/,\\,g
+
+        exists($$environmentPath) {
+
+            win32: QMAKE_POST_LINK += $$QMAKE_COPY $$shell_quote($$exePath) $$shell_quote($$environmentPath) $$escape_expand(\\n\\t)
+            unix:  QMAKE_POST_LINK += find $$exePath -name $$shell_quote($$exeName) -exec cp $$shell_quote({}) $$shell_quote($$environmentPath) \; $$escape_expand(\\n\\t)
+
+            export(QMAKE_POST_LINK)
+
+            return(true)
+        } else {
+
+            warning(GTLAB_ENVIRONMENT_PATH ($${environmentPath}) does not exist!)
+        }
+    }
+    return(false)
+}
 ######################################################################

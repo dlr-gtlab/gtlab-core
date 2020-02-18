@@ -110,7 +110,10 @@ SOURCES += \
     gt_parameterloop.cpp \
     gt_calculatorhelperfactory.cpp
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabNetwork
+LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging -lGTlabDatamodel -lGTlabNetwork
 
-
+copyHeaders($$HEADERS)
+unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
+win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
+######################################################################
 ######################################################################

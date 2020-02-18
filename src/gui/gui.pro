@@ -130,6 +130,11 @@ SOURCES += \
 RESOURCES += ../resources/icons/icons.qrc \
     ../resources/pixmaps/pixmaps.qrc
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork -lGTlabCore -lqwt -lGTlabMdi
+LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork -lGTlabCore -lqwt -lGTlabMdi
+
+copyHeaders($$HEADERS)
+unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
+win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
+######################################################################
 
 ######################################################################

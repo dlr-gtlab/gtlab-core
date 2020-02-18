@@ -1,0 +1,66 @@
+stages:
+  - build
+  - badges
+
+buildWindows512:
+  stage: build
+  script:
+    - .\tests\build\build-512.bat 1>buildLog.txt
+  tags:
+    - Win7Qt512
+  artifacts:
+    paths:
+      - lib/core/GTlabDatamodel.dll
+      - lib/core/GTlabDatamodel.lib
+      - lib/core/GTlabDatamodel.pdb
+      - lib/core/GTlabCalculators.dll
+      - lib/core/GTlabCalculators.lib
+      - lib/core/GTlabCalculators.pdb
+      - lib/core/GTlabCore.dll
+      - lib/core/GTlabCore.lib
+      - lib/core/GTlabCore.pdb
+      - lib/core/GTlabNetwork.dll
+      - lib/core/GTlabNetwork.lib
+      - lib/core/GTlabNetwork.pdb	
+      - lib/core/GTlabGui.dll
+      - lib/core/GTlabGui.lib
+      - lib/core/GTlabGui.pdb	
+      - lib/core/GTlabMdi.dll
+      - lib/core/GTlabMdi.lib
+      - lib/core/GTlabMdi.pdb		  
+      - lib/GTlab.exe
+      - lib/GTlabConsole.exe
+      - buildLog.txt
+    when: always  	  
+      
+nightlyBuildWindowsQt512:
+  stage: build
+  script:
+    - .\tests\build\build-nightly-512.bat
+    - .\tests\build\copyHeaders-512.bat
+  tags:
+    - Win7Qt512
+  only:
+    - master    
+       
+
+badges:
+  stage: badges
+  script:
+    - $CommitNumber = git rev-list --count HEAD
+    - .\tests\badges\badges.bat --run commits $CommitNumber
+    - $statistics = git diff --shortstat 4b825dc642cb6eb9a060e54bf8d69288fbee4904
+    - $filesRaw,$linesRaw = $statistics.split(',')
+    - $fileNumber = $filesRaw.split(' ')[1]
+    - $linenumber = $linesRaw.split(' ')[1]
+    - .\tests\badges\badges.bat --run files $fileNumber
+    - .\tests\badges\badges.bat --bw .\buildLog.txt .
+
+  tags:
+    - Win7Qt512
+  artifacts:
+    paths:
+      - "New_commits.svg"
+      - "New_files.svg"
+      - "New_BuildWarn-W.svg"
+  
