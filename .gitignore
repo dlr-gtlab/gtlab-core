@@ -12,3 +12,5 @@ local_settings.pri
 linuxBuild.txt
 unittests.xml
 !tests/build/
+lib/
+include/

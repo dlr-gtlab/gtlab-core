@@ -16,6 +16,7 @@ buildWindows512:
       - build/GTlabUnitTest.exe
       - build/GTlabUnitTest.pdb
       - buildLog.txt
+    when: always  	  
       
 nightlyBuildWindowsQt512:
   stage: build
