@@ -28,8 +28,8 @@ buildWindows512:
       - lib/core/GTlabMdi.dll
       - lib/core/GTlabMdi.lib
       - lib/core/GTlabMdi.pdb		  
-      - build/GTlabUnitTest.exe
-      - build/GTlabUnitTest.pdb
+      - lib/GTlab.exe
+      - lib/GTlabConsole.exe
       - buildLog.txt
     when: always  	  
       
