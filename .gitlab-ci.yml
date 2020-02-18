@@ -1,6 +1,6 @@
 stages:
   - build
-#  - badges
+  - badges
 
 buildWindows512:
   stage: build
