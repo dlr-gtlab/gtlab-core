@@ -40,7 +40,7 @@ nightlyBuildWindowsQt512:
     - .\tests\build\copyHeaders-512.bat
   tags:
     - Win7Qt512
-  only:
+  except:
     - master    
        
 
