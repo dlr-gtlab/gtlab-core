@@ -14,6 +14,7 @@
 #include <QUuid>
 #include <QPointF>
 #include <QDataStream>
+#include <QtGlobal>
 #include <QDebug>
 
 #include <cfloat>
@@ -1328,6 +1329,7 @@ QDataStream& operator<<(QDataStream& s, const QList<bool>& vector)
     return s;
 }
 
+#if QT_VERSION >= 0x051200
 QDataStream& operator>>(QDataStream& s, QStringList& vector)
 {
     size_t size = 0;
@@ -1348,6 +1350,7 @@ QDataStream& operator<<(QDataStream& s, const QStringList& vector)
     }
     return s;
 }
+#endif
 
 void
 GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,

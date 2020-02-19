@@ -40,11 +40,11 @@ main(int argc, char* argv[])
 
     QApplication::setApplicationVersion(GtApplication::versionToString());
 
+#if QT_VERSION >= 0x051200
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 
     QApplication a(argc, argv);
-
-//    a.setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QPixmap pixmap(":pixmaps/splash.png");
 
