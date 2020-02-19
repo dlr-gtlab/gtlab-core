@@ -12,24 +12,18 @@ buildWindows512:
     paths:
       - lib/core/GTlabDatamodel-d.dll
       - lib/core/GTlabDatamodel-d.lib
-      - lib/core/GTlabDatamodel-d.pdb
       - lib/core/GTlabCalculators-d.dll
       - lib/core/GTlabCalculators-d.lib
-      - lib/core/GTlabCalculators-d.pdb
       - lib/core/GTlabCore-d.dll
       - lib/core/GTlabCore-d.lib
-      - lib/core/GTlabCore-d.pdb
       - lib/core/GTlabNetwork-d.dll
       - lib/core/GTlabNetwork-d.lib
-      - lib/core/GTlabNetwork-d.pdb	
-      - lib/core/GTlabGui-d.dll
-      - lib/core/GTlabGui-d.lib
-      - lib/core/GTlabGui-d.pdb	
+      - build/GTlabGui-d.dll
+      - build/GTlabGui-d.lib
       - lib/core/GTlabMdi-d.dll
-      - lib/core/GTlabMdi-d.lib
-      - lib/core/GTlabMdi-d.pdb		  
-      - lib/GTlab.exe
-      - lib/GTlabConsole.exe
+      - lib/core/GTlabMdi-d.lib	  
+      - build/GTlab.exe
+      - build/GTlabConsole.exe
       - buildLog.txt
     when: always  	  
       
