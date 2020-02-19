@@ -10,7 +10,11 @@
 
 include( $${PWD}/../../settings.pri )
 
-TARGET = GTlabCore
+CONFIG(debug, debug|release){
+    TARGET = GTlabCore-d
+} else {
+    TARGET = GTlabCore
+}
 
 QT += core xml network
 TEMPLATE = lib
@@ -100,14 +104,16 @@ SOURCES += \
 
 RESOURCES += ../resources/templates/templates.qrc
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork
+LIBS += -L$${BUILD_DEST}
+
+CONFIG(debug, debug|release){
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabNetwork-d
+} else {
+    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork
+}
 
 unix {
     QMAKE_CXXFLAGS += -std=c++11
 }
 
-copyHeaders($$HEADERS)
-unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
-win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
-######################################################################
 ######################################################################

@@ -10,7 +10,11 @@
 
 include( $${PWD}/../../settings.pri )
 
-TARGET = GTlabCalculators
+CONFIG(debug, debug|release){
+    TARGET = GTlabCalculators-d
+} else {
+    TARGET = GTlabCalculators
+}
 
 QT += core xml
 TEMPLATE = lib
@@ -110,10 +114,12 @@ SOURCES += \
     gt_parameterloop.cpp \
     gt_calculatorhelperfactory.cpp
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging -lGTlabDatamodel -lGTlabNetwork
+LIBS += -L$${BUILD_DEST}
 
-copyHeaders($$HEADERS)
-unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
-win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
-######################################################################
+CONFIG(debug, debug|release){
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabNetwork-d
+} else {
+    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabNetwork
+}
+
 ######################################################################

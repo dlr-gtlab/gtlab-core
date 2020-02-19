@@ -14,7 +14,6 @@
 #include <QSettings>
 #include <QProcess>
 #include <QDir>
-#include <QAbstractItemModelTester>
 #include <QDebug>
 
 #include "gt_mainwin.h"
@@ -27,6 +26,10 @@
 #include "gt_moduleloader.h"
 #include "gt_datamodel.h"
 #include "gt_refusedpluginsdialog.h"
+
+#ifdef GT_MODELTEST
+#include <QAbstractItemModelTester>
+#endif
 
 int
 main(int argc, char* argv[])
@@ -153,7 +156,11 @@ main(int argc, char* argv[])
 
     gtLogModel->setMaxLogLength(mll);
 
+#ifdef GT_MODELTEST
     new QAbstractItemModelTester(gtDataModel,QAbstractItemModelTester::FailureReportingMode::Fatal, qApp);
+#else
+    qDebug() << "model test disabled!";
+#endif
 
     GtMainWin w;
 

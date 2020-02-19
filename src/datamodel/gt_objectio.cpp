@@ -1265,6 +1265,89 @@ QDataStream& operator<<(QDataStream& s, const QVector<double>& vector)
     return s;
 }
 
+QDataStream& operator>>(QDataStream& s, QList<QPointF>& vector)
+{
+    size_t size = 0;
+    s >> size;
+
+    for (size_t i = 0; i < size; ++i) {
+        s >> vector;
+    }
+    return s;
+}
+
+QDataStream& operator<<(QDataStream& s, const QList<QPointF>& vector)
+{
+    s << vector.size();
+
+    for(auto v : vector) {
+        s << v;
+    }
+    return s;
+}
+
+QDataStream& operator>>(QDataStream& s, QList<int>& vector)
+{
+    size_t size = 0;
+    s >> size;
+
+    for (size_t i = 0; i < size; ++i) {
+        s >> vector;
+    }
+    return s;
+}
+
+QDataStream& operator<<(QDataStream& s, const QList<int>& vector)
+{
+    s << vector.size();
+
+    for(auto v : vector) {
+        s << v;
+    }
+    return s;
+}
+
+QDataStream& operator>>(QDataStream& s, QList<bool>& vector)
+{
+    size_t size = 0;
+    s >> size;
+
+    for (size_t i = 0; i < size; ++i) {
+        s >> vector;
+    }
+    return s;
+}
+
+QDataStream& operator<<(QDataStream& s, const QList<bool>& vector)
+{
+    s << vector.size();
+
+    for(auto v : vector) {
+        s << v;
+    }
+    return s;
+}
+
+QDataStream& operator>>(QDataStream& s, QStringList& vector)
+{
+    size_t size = 0;
+    s >> size;
+
+    for (size_t i = 0; i < size; ++i) {
+        s >> vector;
+    }
+    return s;
+}
+
+QDataStream& operator<<(QDataStream& s, const QStringList& vector)
+{
+    s << vector.size();
+
+    for(auto v : vector) {
+        s << v;
+    }
+    return s;
+}
 
 void
 GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
@@ -1282,14 +1365,14 @@ GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
                 "QStringList");
     static RegisterStreamOperators< QVector<double> > streamOp_QDoubleVector(
                 "QVector<double>");
-//    static RegisterStreamOperators< QList<int> > streamOp_QIntList(
-//                "QList<int>");
-//    static RegisterStreamOperators< QList<bool> > streamOp_QBoolList(
-//                "QList<bool>");
-//    static RegisterStreamOperators< QList<QPointF> > streamOp_QPointFList(
-//                "QList<QPointF>");
-//    static RegisterStreamOperators< QStringList > streamOp_QStringList(
-//                "QStringList");
+    static RegisterStreamOperators< QList<int> > streamOp_QIntList(
+                "QList<int>");
+    static RegisterStreamOperators< QList<bool> > streamOp_QBoolList(
+                "QList<bool>");
+    static RegisterStreamOperators< QList<QPointF> > streamOp_QPointFList(
+                "QList<QPointF>");
+    static RegisterStreamOperators< QStringList > streamOp_QStringList(
+                "QStringList");
 
     if (var.type() == type_QDoubleVector)
     {

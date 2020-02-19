@@ -10,7 +10,11 @@
 
 include( $${PWD}/../../settings.pri )
 
-TARGET = GTlabGui
+CONFIG(debug, debug|release){
+    TARGET = GTlabGui-d
+} else {
+    TARGET = GTlabGui
+}
 
 QT += core widgets network xml
 TEMPLATE = lib
@@ -130,11 +134,12 @@ SOURCES += \
 RESOURCES += ../resources/icons/icons.qrc \
     ../resources/pixmaps/pixmaps.qrc
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork -lGTlabCore -lqwt -lGTlabMdi
+LIBS += -L$${BUILD_DEST}
 
-copyHeaders($$HEADERS)
-unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
-win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
-######################################################################
+CONFIG(debug, debug|release){
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabNetwork-d -lGTlabCore-d -lqwtd -lGTlabMdi-d
+} else {
+    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork -lGTlabCore -lqwt -lGTlabMdi
+}
 
 ######################################################################
