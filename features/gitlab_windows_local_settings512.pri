@@ -21,7 +21,6 @@ BUILD_APP =                     true
 BUILD_UNITTESTS =               false
 BUILD_REGRESSIONTESTS =         false
 
-
 GTLAB_LOGGING_PATH = $${DEV_TOOLS}
 GTLAB_NUMERICS_PATH = $${DEV_TOOLS}
 GTLAB_PHYSICS_PATH = $${DEV_TOOLS}
