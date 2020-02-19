@@ -18,8 +18,27 @@ CONFIG(debug, debug|release) {
     }
 }
 
-TARGET_DIR_NAME = core
-LIB_BUILD_DEST = ../../lib/$${TARGET_DIR_NAME}
+#### DEPLOYMENT ####
+contains(BUILD_DEPLOY, true) {
+
+    TARGET_DIR_NAME = core
+    GTLAB_ENVIRONMENT_PATH = $${PWD}/lib/$${TARGET_DIR_NAME}
+    mkpath($${GTLAB_ENVIRONMENT_PATH})
+
+    dir = $${GTLAB_ENVIRONMENT_PATH}
+
+    win32 {
+        dir ~= s,/,\\,g
+
+        QMAKE_POST_LINK += if not exist $$shell_quote($$dir) $$QMAKE_MKDIR $$shell_quote($$dir) $$escape_expand(\\n\\t)
+    }
+
+    unix {
+        QMAKE_POST_LINK += $$QMAKE_CHK_DIR_EXISTS $$shell_quote($$dir) || $$QMAKE_MKDIR $$shell_quote($$dir) $$escape_expand(\\n\\t)
+    }
+
+    include( deployment.pri )
+}
 
 #### LIBRARIES
 # Logging

@@ -123,3 +123,11 @@ CONFIG(debug, debug|release){
 }
 
 ######################################################################
+
+contains(BUILD_DEPLOY, true) {
+
+    copyHeaders($$HEADERS)
+    copyToEnvironmentPath()
+}
+
+######################################################################

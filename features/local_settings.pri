@@ -21,6 +21,9 @@ BUILD_APP =                     true
 BUILD_UNITTESTS =               false
 BUILD_REGRESSIONTESTS =         false
 
+# deployment settings
+BUILD_DEPLOY =                  true
+
 # First Party
 GTLAB_LOGGING_PATH = $${DEV_TOOLS}
 GTLAB_NUMERICS_PATH = $${DEV_TOOLS}
