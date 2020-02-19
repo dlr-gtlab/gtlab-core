@@ -10,24 +10,24 @@ buildWindows512:
     - Win7Qt512
   artifacts:
     paths:
-      - lib/core/GTlabDatamodel.dll
-      - lib/core/GTlabDatamodel.lib
-      - lib/core/GTlabDatamodel.pdb
-      - lib/core/GTlabCalculators.dll
-      - lib/core/GTlabCalculators.lib
-      - lib/core/GTlabCalculators.pdb
-      - lib/core/GTlabCore.dll
-      - lib/core/GTlabCore.lib
-      - lib/core/GTlabCore.pdb
-      - lib/core/GTlabNetwork.dll
-      - lib/core/GTlabNetwork.lib
-      - lib/core/GTlabNetwork.pdb	
-      - lib/core/GTlabGui.dll
-      - lib/core/GTlabGui.lib
-      - lib/core/GTlabGui.pdb	
-      - lib/core/GTlabMdi.dll
-      - lib/core/GTlabMdi.lib
-      - lib/core/GTlabMdi.pdb		  
+      - lib/core/GTlabDatamodel-d.dll
+      - lib/core/GTlabDatamodel-d.lib
+      - lib/core/GTlabDatamodel-d.pdb
+      - lib/core/GTlabCalculators-d.dll
+      - lib/core/GTlabCalculators-d.lib
+      - lib/core/GTlabCalculators-d.pdb
+      - lib/core/GTlabCore-d.dll
+      - lib/core/GTlabCore-d.lib
+      - lib/core/GTlabCore-d.pdb
+      - lib/core/GTlabNetwork-d.dll
+      - lib/core/GTlabNetwork-d.lib
+      - lib/core/GTlabNetwork-d.pdb	
+      - lib/core/GTlabGui-d.dll
+      - lib/core/GTlabGui-d.lib
+      - lib/core/GTlabGui-d.pdb	
+      - lib/core/GTlabMdi-d.dll
+      - lib/core/GTlabMdi-d.lib
+      - lib/core/GTlabMdi-d.pdb		  
       - lib/GTlab.exe
       - lib/GTlabConsole.exe
       - buildLog.txt
@@ -40,7 +40,7 @@ nightlyBuildWindowsQt512:
     - .\tests\build\copyHeaders-512.bat
   tags:
     - Win7Qt512
-  except:
+  only:
     - master    
        
 
