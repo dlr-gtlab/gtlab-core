@@ -10,9 +10,13 @@
 
 include( $${PWD}/../../settings.pri )
 
-TARGET = GTlabMdi
+CONFIG(debug, debug|release){
+    TARGET = GTlabMdi-d
+} else {
+    TARGET = GTlabMdi
+}
 
-QT += core widgets xml printsupport network
+QT += core widgets xml printsupport network qml
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
@@ -563,14 +567,12 @@ RESOURCES += ../resources/icons/icons.qrc \
     ../resources/pixmaps/pixmaps.qrc \
     ../resources/qml/qml.qrc
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging
-LIBS += -lGTlabDatamodel -lGTlabNetwork -lGTlabCalculators -lGTlabCore
+LIBS += -L$${BUILD_DEST}
 
-#THIRD PARTY
-LIBS += -lSplineLib -lqwt
+CONFIG(debug, debug|release){
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabNetwork-d -lGTlabCalculators-d -lGTlabCore-d -lqwtd -lSplineLib-d
+} else {
+    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabNetwork -lGTlabCalculators -lGTlabCore -lqwt -lSplineLib
+}
 
-copyHeaders($$HEADERS)
-unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
-win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
-######################################################################
 ######################################################################

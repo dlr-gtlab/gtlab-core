@@ -16,13 +16,20 @@ win32 {
 
 TARGET = GTlab
 
-QT += widgets testlib
+QT += widgets
 TEMPLATE = app
 CONFIG += silent
 CONFIG += c++11
 
 #DEFINES += GT_LICENCE
 #CONFIG += GT_LICENCE
+
+#DEFINES += GT_MODELTEST
+#CONFIG += GT_MODELTEST
+
+GT_MODELTEST {
+QT += testlib
+}
 
 CONFIG(debug, debug|release){
     DESTDIR = $${BUILD_DEST}/debug-app
@@ -56,20 +63,15 @@ HEADERS += \
 SOURCES += \
     app.cpp
 
-LIBS += -L$${BUILD_DEST}/modules
 LIBS += -L$${BUILD_DEST}
 
-LIBS += -lGTlabDatamodel -lGTlabCalculators -lGTlabCore -lGTlabMdi -lGTlabGui
-LIBS += -lGTlabNetwork
-
-# GTLAB UTILITIES
-LIBS += -lGTlabNumerics -lGTlabPhysics -lGTlabLogging
-
-# THIRD PARTY LIBRARIES
-LIBS += -lqwt -lSplineLib -lnlopt
+CONFIG(debug, debug|release){
+LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabCore-d -lqwtd -lGTlabMdi-d -lGTlabGui-d -lGTlabNetwork-d
+} else {
+LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabCore -lqwt -lGTlabMdi -lGTlabGui -lGTlabNetwork
+}
 
 # add search paths to shared libraries
 unix: QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN:\$$ORIGIN/modules\''
 
-unix: copyExecutableToEnvironmentPath($${DESTDIR}/,$${TARGET})
 ######################################################################

@@ -55,20 +55,15 @@ SOURCES += \
     batch.cpp \
     batchremote.cpp \
 
-LIBS += -L$${BUILD_DEST}/modules
 LIBS += -L$${BUILD_DEST}
 
-LIBS += -lGTlabDatamodel -lGTlabCalculators -lGTlabCore
-LIBS += -lGTlabMdi -lGTlabNetwork
-
-# GTLAB UTILITIES
-LIBS += -lGTlabNumerics -lGTlabPhysics -lGTlabLogging
-
-# THIRD PARTY LIBRARIES
-LIBS += -lqwt -lSplineLib -lnlopt
+CONFIG(debug, debug|release){
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabCore-d -lqwtd -lGTlabMdi-d -lGTlabNetwork-d
+} else {
+    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabCore -lqwt -lGTlabMdi -lGTlabNetwork
+}
 
 # add search paths to shared libraries
 unix: QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN:\$$ORIGIN/modules\''
 
-unix: copyExecutableToEnvironmentPath($${DESTDIR}/, $${TARGET})
 ######################################################################

@@ -10,7 +10,11 @@
 
 include( ../../settings.pri )
 
-TARGET = GTlabDatamodel
+CONFIG(debug, debug|release){
+    TARGET = GTlabDatamodel-d
+} else {
+    TARGET = GTlabDatamodel
+}
 
 QT += core xml
 TEMPLATE = lib
@@ -185,11 +189,12 @@ unix {
     QMAKE_CXXFLAGS += -std=c++11
 }
 
-LIBS += -L$${BUILD_DEST} -lGTlabNumerics -lGTlabPhysics -lGTlabLogging
-LIBS += -lSplineLib
+LIBS += -L$${BUILD_DEST}
 
-copyHeaders($$HEADERS)
-unix:   copyToEnvironmentPath($${DESTDIR}/$${TARGET}.so*)
-win32:  copyToEnvironmentPath($${DESTDIR}/$${TARGET}.dll)
-######################################################################
+CONFIG(debug, debug|release){
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lSplineLib-d
+} else {
+    LIBS += -lGTlabNumerics -lGTlabLogging -lSplineLib
+}
+
 ######################################################################
