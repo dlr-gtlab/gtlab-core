@@ -1329,7 +1329,7 @@ QDataStream& operator<<(QDataStream& s, const QList<bool>& vector)
     return s;
 }
 
-#if QT_VERSION >= 0x051200
+#if QT_VERSION >= 0x050900
 QDataStream& operator>>(QDataStream& s, QStringList& vector)
 {
     size_t size = 0;

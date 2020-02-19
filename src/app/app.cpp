@@ -14,6 +14,7 @@
 #include <QSettings>
 #include <QProcess>
 #include <QDir>
+#include <QtGlobal>
 #include <QDebug>
 
 #include "gt_mainwin.h"
@@ -40,7 +41,7 @@ main(int argc, char* argv[])
 
     QApplication::setApplicationVersion(GtApplication::versionToString());
 
-#if QT_VERSION >= 0x051200
+#if QT_VERSION >= 0x050900
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
