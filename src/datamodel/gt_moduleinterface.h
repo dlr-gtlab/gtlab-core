@@ -45,7 +45,7 @@ public:
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(GtModuleInterface,
-                    "de.dlr.gtlab.GtModuleInterface/1.2")
+                    "de.dlr.gtlab.GtModuleInterface/1.6")
 QT_END_NAMESPACE
 
 #endif // GT_MODULEINTERFACE_H
