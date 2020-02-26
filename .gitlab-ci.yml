@@ -1,5 +1,6 @@
 stages:
   - build
+  - codingstyle
   - badges
 
 buildWindows512:
@@ -32,12 +33,92 @@ nightlyBuildWindowsQt512:
   script:
     - .\tests\build\build-nightly-512.bat
     - .\tests\build\copyHeaders-512.bat
+  artifacts:
+    paths:
+      - lib/core/GTlabDatamodel.dll
+      - lib/core/GTlabDatamodel.lib
+      - lib/core/GTlabCalculators.dll
+      - lib/core/GTlabCalculators.lib
+      - lib/core/GTlabCore.dll
+      - lib/core/GTlabCore.lib
+      - lib/core/GTlabNetwork.dll
+      - lib/core/GTlabNetwork.lib
+      - build/GTlabGui.dll
+      - build/GTlabGui.lib
+      - lib/core/GTlabMdi.dll
+      - lib/core/GTlabMdi.lib	  
+      - build/GTlab.exe
+      - build/GTlabConsole.exe	  
+      - include/core/*.h   		  
   tags:
     - Win7Qt512
   only:
     - master    
        
+buildWindows504:
+  stage: build
+  script:
+    - .\tests\build\build-504.bat 1>buildLog.txt
+  tags:
+    - Windows7
+  artifacts:
+    paths:
+      - lib/core/GTlabDatamodel-d.dll
+      - lib/core/GTlabDatamodel-d.lib
+      - lib/core/GTlabCalculators-d.dll
+      - lib/core/GTlabCalculators-d.lib
+      - lib/core/GTlabCore-d.dll
+      - lib/core/GTlabCore-d.lib
+      - lib/core/GTlabNetwork-d.dll
+      - lib/core/GTlabNetwork-d.lib
+      - build/GTlabGui-d.dll
+      - build/GTlabGui-d.lib
+      - lib/core/GTlabMdi-d.dll
+      - lib/core/GTlabMdi-d.lib	  
+      - build/GTlab.exe
+      - build/GTlabConsole.exe
+      - buildLog.txt
+    when: always  	  
+      
+nightlyBuildWindowsQt504:
+  stage: build
+  script:
+    - .\tests\build\build-nightly-504.bat
+    - .\tests\build\copyHeaders-504.bat
+  artifacts:
+    paths:
+      - lib/core/GTlabDatamodel.dll
+      - lib/core/GTlabDatamodel.lib
+      - lib/core/GTlabCalculators.dll
+      - lib/core/GTlabCalculators.lib
+      - lib/core/GTlabCore.dll
+      - lib/core/GTlabCore.lib
+      - lib/core/GTlabNetwork.dll
+      - lib/core/GTlabNetwork.lib
+      - build/GTlabGui.dll
+      - build/GTlabGui.lib
+      - lib/core/GTlabMdi.dll
+      - lib/core/GTlabMdi.lib	  
+      - build/GTlab.exe
+      - build/GTlabConsole.exe
+      - buildLog.txt
+      - include/core/*.h   	  
+  tags:
+    - Windows7
+  only:
+    - master    
 
+codingstyle:
+  stage: codingstyle
+  script:
+    - .\tests\codingstyle\runCodingstyle.bat 1>codingStyleLog.txt
+  tags:
+    - Windows7
+  artifacts:
+    paths:
+      - "nsiqcppstyle_report.xml"
+      - codingStyleLog.txt
+    expire_in: 1 week
 badges:
   stage: badges
   script:
@@ -49,7 +130,7 @@ badges:
     - $linenumber = $linesRaw.split(' ')[1]
     - .\tests\badges\badges.bat --run files $fileNumber
     - .\tests\badges\badges.bat --bw .\buildLog.txt .
-
+    - .\tests\badges\badges.bat --cs .\codingStyleLog.txt .	
   tags:
     - Win7Qt512
   artifacts:
