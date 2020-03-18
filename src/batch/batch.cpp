@@ -400,7 +400,7 @@ int main(int argc, char* argv[])
     }
 
     // application initialization
-    GtApplication app(qApp);
+    GtApplication app(qApp, true);
     app.init();
 
     // save to system environment (temporary)
