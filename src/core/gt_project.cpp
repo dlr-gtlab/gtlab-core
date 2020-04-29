@@ -338,7 +338,7 @@ GtProject::readModuleData()
 
         GtObject* obj = gtObjectFactory->newObject(packageId);
 
-        if (obj == NULL)
+        if (obj == nullptr)
         {
             gtWarning() << objectName() << ": "
                         << tr("Failed to create module package!")
@@ -348,7 +348,7 @@ GtProject::readModuleData()
 
         GtPackage* package = qobject_cast<GtPackage*>(obj);
 
-        if (package == NULL)
+        if (package == nullptr)
         {
             gtWarning() << objectName() << ": "
                         << tr("Failed to create module package!")
@@ -396,11 +396,6 @@ GtProject::saveModuleData()
             continue;
         }
 
-        QString filename = m_path + QDir::separator() + mid.toLower() +
-                           moduleExtension();
-
-        QFile file(filename);
-
         QDomDocument document;
         QDomProcessingInstruction header = document.createProcessingInstruction(
                 QStringLiteral("xml"),
@@ -422,18 +417,16 @@ GtProject::saveModuleData()
             continue;
         }
 
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        QString filename = m_path + QDir::separator() + mid.toLower() +
+                           moduleExtension();
+
+        if (!saveProjectFiles(filename, document))
         {
-            gtWarning() << objectName() << QStringLiteral(": ")
-                        << tr("Failed to save module data!")
-                        << QStringLiteral(" (") << mid << QStringLiteral(")");
+            gtWarning() << "\t |->" << QStringLiteral(" (") << mid
+                        << QStringLiteral(")");
+
             continue;
         }
-
-        QTextStream stream(&file);
-        stream << document.toString(5);
-
-        file.close();
     }
 
     return true;
@@ -479,19 +472,10 @@ GtProject::saveProjectOverallData()
 
     QString filename = m_path + QDir::separator() + mainFilename();
 
-    QFile file(filename);
-
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!saveProjectFiles(filename, document))
     {
-        gtWarning() << objectName() << QStringLiteral(": ")
-                    << tr("Failed to save project data!");
         return false;
     }
-
-    QTextStream stream(&file);
-    stream << document.toString(5);
-
-    file.close();
 
     return true;
 }
@@ -646,6 +630,73 @@ GtProject::renameOldModuleFile(const QString& path, const QString& modId)
     file.rename(path + QDir::separator() + modId.toLower() + moduleExtension());
 }
 
+bool
+GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
+{
+    /// create file with name 'path + _new'
+    QString tempFilePath = filePath + QStringLiteral("_new");
+
+    QFile file(tempFilePath);
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        gtWarning() << objectName() << QStringLiteral(": ")
+                    << tr("Failed to save project data!");
+
+        return false;
+    }
+
+    QTextStream stream(&file);
+    stream << doc.toString(5);
+
+    file.close();
+
+    //rename files
+    /// => existing from 'path' to 'path + _backup'
+    /// => the new file from 'path + _new' to 'path'
+
+    /// rename existing file (old state)
+    QFile origFile(filePath);
+
+    if (origFile.exists())
+    {
+        /// remove old backup file
+        QFile backupFile(filePath + QStringLiteral("_backup"));
+
+        if (backupFile.exists())
+        {
+            if (!backupFile.remove())
+            {
+                gtError() << "Could not delete existing backup file ' "
+                          << backupFile.fileName() << "!";
+
+                return false;
+            }
+        }
+
+        /// rename active file to backup
+        if (!origFile.rename(filePath + QStringLiteral("_backup")))
+        {
+            gtError() << "Could not rename '" << origFile.fileName()
+                      << "' to '" << filePath + QStringLiteral("_backup")
+                      << "'!";
+
+            return false;
+        }
+    }
+
+    /// rename new file to active (new state)
+    if (!file.rename(filePath))
+    {
+        gtError() << "Could not rename project file ('" << tempFilePath
+                  << "' to '" << filePath << "'!";
+
+        return false;
+    }
+
+    return true;
+}
+
 GtProject::~GtProject()
 {
 //    qDebug() << "project deleted!";
@@ -691,7 +742,7 @@ GtProject::labelData()
 GtTask*
 GtProject::findProcess(const QString& val)
 {
-    GtTask* retval = NULL;
+    GtTask* retval = nullptr;
 
     GtProcessData* pdata = processData();
 

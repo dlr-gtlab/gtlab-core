@@ -260,6 +260,14 @@ private:
      */
     void renameOldModuleFile(const QString& path, const QString& modId);
 
+    /**
+     * @brief save project files
+     * @param filePath : file path
+     * @param doc : document
+     * @return success
+     */
+    bool saveProjectFiles(const QString& filePath, const QDomDocument& doc);
+
 };
 
 #endif // GTPROJECT_H
