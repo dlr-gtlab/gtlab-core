@@ -8,6 +8,7 @@
  */
 
 #include <QDomDocument>
+#include <QXmlStreamWriter>
 #include <QDir>
 #include <QDebug>
 
@@ -651,6 +652,10 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
 
     file.close();
 
+    // new ordered attribute stream writer algorithm
+    saveProjectFilesOrderedAttribute(filePath, doc);
+
+
     //rename files
     /// => existing from 'path' to 'path + _backup'
     /// => the new file from 'path + _new' to 'path'
@@ -693,6 +698,94 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
 
         return false;
     }
+
+    return true;
+}
+
+bool
+GtProject::saveProjectFilesOrderedAttribute(const QString& filePath,
+                                            const QDomDocument& doc)
+{
+    QFile file_ordered_attr(filePath + QStringLiteral("_ordered"));
+
+    if (!file_ordered_attr.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        gtError() << objectName() << QStringLiteral(": ")
+                  << tr("Failed to save project data!");
+
+        return false;
+    }
+
+    QXmlStreamWriter str_w(&file_ordered_attr);
+    str_w.setAutoFormatting(true);
+
+    str_w.writeStartDocument(QStringLiteral("1.0"));
+
+    QDomElement rootElement = doc.documentElement();
+
+    if (!rootElement.isNull())
+    {
+        if (!saveElementOrderedAttribute(rootElement, str_w))
+        {
+            gtError() << objectName() << QStringLiteral(": ")
+                      << tr("Failed to save project data!");
+
+            return false;
+        }
+    }
+
+    str_w.writeEndDocument();
+
+    return true;
+}
+
+bool
+GtProject::saveElementOrderedAttribute(const QDomElement& element,
+                                       QXmlStreamWriter& writer)
+{
+    writer.writeStartElement(element.tagName());
+
+    // attributes
+    QStringList attr_ids;
+    QDomNamedNodeMap attr_nodes = element.attributes();
+
+    for (int i = 0; i < attr_nodes.size(); ++i)
+    {
+        QDomNode attr_node = attr_nodes.item(i);
+        QDomAttr attr = attr_node.toAttr();
+        attr_ids << attr.name();
+    }
+
+    attr_ids.sort();
+
+    foreach (const QString& attr_id, attr_ids)
+    {
+        writer.writeAttribute(attr_id, element.attribute(attr_id));
+    }
+
+    if (element.hasChildNodes())
+    {
+        QDomNode c_node = element.firstChild();
+
+        while (!c_node.isNull())
+        {
+            if (c_node.nodeType() == QDomNode::TextNode)
+            {
+                writer.writeCharacters(c_node.toText().data());
+            }
+            else if (c_node.nodeType() == QDomNode::ElementNode)
+            {
+                if (!saveElementOrderedAttribute(c_node.toElement(), writer))
+                {
+                    return false;
+                }
+            }
+
+            c_node = c_node.nextSibling();
+        }
+    }
+
+    writer.writeEndElement();
 
     return true;
 }

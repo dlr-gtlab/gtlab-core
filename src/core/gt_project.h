@@ -19,6 +19,7 @@
 #include "gt_stringproperty.h"
 
 class QDomDocument;
+class QXmlStreamWriter;
 class QDomElement;
 class GtProcessData;
 class GtTask;
@@ -267,6 +268,24 @@ private:
      * @return success
      */
     bool saveProjectFiles(const QString& filePath, const QDomDocument& doc);
+
+    /**
+     * @brief saveProjectFilesOrderedAttribute
+     * @param filePath
+     * @param doc
+     * @return
+     */
+    bool saveProjectFilesOrderedAttribute(const QString& filePath,
+                                          const QDomDocument& doc);
+
+    /**
+     * @brief saveElementOrderedAttribute
+     * @param element
+     * @param writer
+     * @return
+     */
+    bool saveElementOrderedAttribute(const QDomElement& element,
+                                     QXmlStreamWriter& writer);
 
 };
 
