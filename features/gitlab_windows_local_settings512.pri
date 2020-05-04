@@ -18,7 +18,7 @@ BUILD_BATCH =                   true
 BUILD_APP =                     true
 
 # tests
-BUILD_UNITTESTS =               false
+BUILD_UNITTESTS =               true
 BUILD_REGRESSIONTESTS =         false
 
 # deployment settings

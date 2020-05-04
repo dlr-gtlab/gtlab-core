@@ -41,9 +41,6 @@ INCLUDEPATH += .\
     ../core \
     ../core/provider \
     ../mdi \
-    ../utilities/logging \
-    ../utilities/numerics \
-    ../utilities/numerics/bspline \
     ../datamodel/property
 
 DESTDIR = $${BUILD_DEST}

@@ -44,11 +44,7 @@ CONFIG(debug, debug|release){
     UI_DIR = $${BUILD_DEST}/release-datamodel/ui
 }
 INCLUDEPATH += .\
-    property \
-    ../utilities/logging \
-    ../utilities/numerics \
-    ../utilities/numerics/bspline \
-    ../utilities/physics
+    property
 
 DESTDIR = $${BUILD_DEST}
 
