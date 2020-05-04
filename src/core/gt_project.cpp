@@ -8,6 +8,7 @@
  */
 
 #include <QDomDocument>
+#include <QXmlStreamWriter>
 #include <QDir>
 #include <QDebug>
 
@@ -23,6 +24,7 @@
 #include "gt_labeldata.h"
 #include "gt_label.h"
 #include "gt_loadprojecthelper.h"
+#include "gt_xmlutilities.h"
 #include "gt_logging.h"
 
 GtProject::GtProject(const QString& path) :
@@ -634,22 +636,16 @@ bool
 GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
 {
     /// create file with name 'path + _new'
-    QString tempFilePath = filePath + QStringLiteral("_new");
+    const QString tempFilePath = filePath + QStringLiteral("_new");
 
-    QFile file(tempFilePath);
-
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    // new ordered attribute stream writer algorithm
+    if (!GtXmlUtilities::writeDomDocumentToFile( tempFilePath, doc, true))
     {
-        gtWarning() << objectName() << QStringLiteral(": ")
-                    << tr("Failed to save project data!");
+        gtError() << objectName() << QStringLiteral(": ")
+                  << tr("Failed to save project data!");
 
         return false;
     }
-
-    QTextStream stream(&file);
-    stream << doc.toString(5);
-
-    file.close();
 
     //rename files
     /// => existing from 'path' to 'path + _backup'
@@ -686,7 +682,7 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
     }
 
     /// rename new file to active (new state)
-    if (!file.rename(filePath))
+    if (!QFile(tempFilePath).rename(filePath))
     {
         gtError() << "Could not rename project file ('" << tempFilePath
                   << "' to '" << filePath << "'!";

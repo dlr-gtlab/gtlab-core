@@ -19,6 +19,7 @@
 #include "gt_stringproperty.h"
 
 class QDomDocument;
+class QXmlStreamWriter;
 class QDomElement;
 class GtProcessData;
 class GtTask;

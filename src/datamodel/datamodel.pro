@@ -73,6 +73,7 @@ HEADERS += \
     gt_datazone0d.h \
     gt_result.h \
     gt_tablevalues.h \
+    gt_xmlutilities.h \
     property/gt_objectlinkproperty.h \
     gt_datazonetable.h \
     gt_objectmementodiff.h \
@@ -138,6 +139,7 @@ SOURCES += \
     gt_datazone0d.cpp \
     gt_result.cpp \
     gt_tablevalues.cpp \
+    gt_xmlutilities.cpp \
     property/gt_objectlinkproperty.cpp \
     gt_datazonetable.cpp \
     gt_objectmementodiff.cpp \
