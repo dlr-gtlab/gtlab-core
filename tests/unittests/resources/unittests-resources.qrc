@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/unittests">
+        <file>keroseneprp.xml</file>
+    </qresource>
+</RCC>

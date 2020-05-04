@@ -86,10 +86,6 @@ INCLUDEPATH += post \
     ../core/settings \
     ../core/collection \
     ../datamodel/property \
-    ../utilities/logging \
-    ../utilities/numerics \
-    ../utilities/physics \
-    ../utilities/numerics/bspline \
     ../versioncontrol
 
 

@@ -1,5 +1,6 @@
 stages:
   - build
+  - test
   - codingstyle
   - badges
 
@@ -25,6 +26,7 @@ buildWindows512:
       - lib/core/GTlabMdi-d.lib	  
       - build/GTlab.exe
       - build/GTlabConsole.exe
+      - build/GTlabUnitTest.exe
       - buildLog.txt
     when: always  	  
       
@@ -77,6 +79,7 @@ buildWindows504:
       - lib/core/GTlabMdi-d.lib	  
       - build/GTlab.exe
       - build/GTlabConsole.exe
+      - build/GTlabUnitTest.exe
       - buildLog.txt
     when: always  	  
       
@@ -107,6 +110,41 @@ nightlyBuildWindowsQt504:
     - Windows7
   only:
     - master    
+
+
+#testWin512:
+#  stage: test
+#  script:
+#    - .\tests\unittests\runUnittestsQt512.bat
+#  dependencies:
+#    - buildWindows512
+#  tags:
+#    - Win7Qt512
+#  artifacts:
+#    paths:
+#      #- "GTlabUnitTestCoverage.xml"
+#      #- "CoverageReport*"
+#      #- "New_Coverage.svg"
+#      - "unittests.xml"
+#    reports:
+#      junit: unittests.xml  
+
+#testWin504:
+#  stage: test
+#  script:
+#    - .\tests\unittests\runUnittestsQt504.bat
+#  dependencies:
+#    - buildWindows504
+#  tags:
+#    - Windows7
+#  artifacts:
+#    paths:
+#      - "GTlabUnitTestCoverage.xml"
+#      - "CoverageReport*"
+#      - "New_Coverage.svg"
+#      - "unittests.xml"
+#    reports:
+#      junit: unittests.xml  
 
 codingstyle:
   stage: codingstyle
