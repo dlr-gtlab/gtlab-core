@@ -269,24 +269,6 @@ private:
      */
     bool saveProjectFiles(const QString& filePath, const QDomDocument& doc);
 
-    /**
-     * @brief saveProjectFilesOrderedAttribute
-     * @param filePath
-     * @param doc
-     * @return
-     */
-    bool saveProjectFilesOrderedAttribute(const QString& filePath,
-                                          const QDomDocument& doc);
-
-    /**
-     * @brief saveElementOrderedAttribute
-     * @param element
-     * @param writer
-     * @return
-     */
-    bool saveElementOrderedAttribute(const QDomElement& element,
-                                     QXmlStreamWriter& writer);
-
 };
 
 #endif // GTPROJECT_H

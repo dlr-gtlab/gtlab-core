@@ -24,6 +24,7 @@
 #include "gt_labeldata.h"
 #include "gt_label.h"
 #include "gt_loadprojecthelper.h"
+#include "gt_xmlutilities.h"
 #include "gt_logging.h"
 
 GtProject::GtProject(const QString& path) :
@@ -635,26 +636,16 @@ bool
 GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
 {
     /// create file with name 'path + _new'
-    QString tempFilePath = filePath + QStringLiteral("_new");
+    const QString tempFilePath = filePath + QStringLiteral("_new");
 
-    QFile file(tempFilePath);
-
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    // new ordered attribute stream writer algorithm
+    if (!GtXmlUtilities::writeDomDocumentToFile( tempFilePath, doc, true))
     {
-        gtWarning() << objectName() << QStringLiteral(": ")
-                    << tr("Failed to save project data!");
+        gtError() << objectName() << QStringLiteral(": ")
+                  << tr("Failed to save project data!");
 
         return false;
     }
-
-    QTextStream stream(&file);
-    stream << doc.toString(5);
-
-    file.close();
-
-    // new ordered attribute stream writer algorithm
-    saveProjectFilesOrderedAttribute(filePath, doc);
-
 
     //rename files
     /// => existing from 'path' to 'path + _backup'
@@ -691,101 +682,13 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
     }
 
     /// rename new file to active (new state)
-    if (!file.rename(filePath))
+    if (!QFile(tempFilePath).rename(filePath))
     {
         gtError() << "Could not rename project file ('" << tempFilePath
                   << "' to '" << filePath << "'!";
 
         return false;
     }
-
-    return true;
-}
-
-bool
-GtProject::saveProjectFilesOrderedAttribute(const QString& filePath,
-                                            const QDomDocument& doc)
-{
-    QFile file_ordered_attr(filePath + QStringLiteral("_ordered"));
-
-    if (!file_ordered_attr.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        gtError() << objectName() << QStringLiteral(": ")
-                  << tr("Failed to save project data!");
-
-        return false;
-    }
-
-    QXmlStreamWriter str_w(&file_ordered_attr);
-    str_w.setAutoFormatting(true);
-
-    str_w.writeStartDocument(QStringLiteral("1.0"));
-
-    QDomElement rootElement = doc.documentElement();
-
-    if (!rootElement.isNull())
-    {
-        if (!saveElementOrderedAttribute(rootElement, str_w))
-        {
-            gtError() << objectName() << QStringLiteral(": ")
-                      << tr("Failed to save project data!");
-
-            return false;
-        }
-    }
-
-    str_w.writeEndDocument();
-
-    return true;
-}
-
-bool
-GtProject::saveElementOrderedAttribute(const QDomElement& element,
-                                       QXmlStreamWriter& writer)
-{
-    writer.writeStartElement(element.tagName());
-
-    // attributes
-    QStringList attr_ids;
-    QDomNamedNodeMap attr_nodes = element.attributes();
-
-    for (int i = 0; i < attr_nodes.size(); ++i)
-    {
-        QDomNode attr_node = attr_nodes.item(i);
-        QDomAttr attr = attr_node.toAttr();
-        attr_ids << attr.name();
-    }
-
-    attr_ids.sort();
-
-    foreach (const QString& attr_id, attr_ids)
-    {
-        writer.writeAttribute(attr_id, element.attribute(attr_id));
-    }
-
-    if (element.hasChildNodes())
-    {
-        QDomNode c_node = element.firstChild();
-
-        while (!c_node.isNull())
-        {
-            if (c_node.nodeType() == QDomNode::TextNode)
-            {
-                writer.writeCharacters(c_node.toText().data());
-            }
-            else if (c_node.nodeType() == QDomNode::ElementNode)
-            {
-                if (!saveElementOrderedAttribute(c_node.toElement(), writer))
-                {
-                    return false;
-                }
-            }
-
-            c_node = c_node.nextSibling();
-        }
-    }
-
-    writer.writeEndElement();
 
     return true;
 }
