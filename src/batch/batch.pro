@@ -55,9 +55,21 @@ SOURCES += \
 LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release){
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabCore-d -lqwtd -lGTlabMdi-d -lGTlabNetwork-d
+    # UTILITIES
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d
+    # CORE
+    LIBS += -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabCore-d
+    LIBS += -lGTlabMdi-d -lGTlabNetwork-d
+    # THIRD PARTY
+    LIBS += -lqwtd
 } else {
-    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabCore -lqwt -lGTlabMdi -lGTlabNetwork
+    # UTILITIES
+    LIBS += -lGTlabNumerics -lGTlabLogging
+    # CORE
+    LIBS += -lGTlabDatamodel -lGTlabCalculators -lGTlabCore
+    LIBS += -lGTlabMdi -lGTlabNetwork
+    # THIRD PARTY
+    LIBS +=  -lqwt
 }
 
 # add search paths to shared libraries
