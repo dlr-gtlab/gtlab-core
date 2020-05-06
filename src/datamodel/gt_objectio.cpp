@@ -1247,7 +1247,8 @@ namespace
 
 QDataStream& operator>>(QDataStream& s, QVector<double>& vector)
 {
-    size_t size = 0;
+    //size_t size = 0;
+    quint64 size = 0;
     s >> size;
 
     for (size_t i = 0; i < size; ++i) {
@@ -1268,7 +1269,8 @@ QDataStream& operator<<(QDataStream& s, const QVector<double>& vector)
 
 QDataStream& operator>>(QDataStream& s, QList<QPointF>& vector)
 {
-    size_t size = 0;
+    //size_t size = 0;
+    quint64 size = 0;
     s >> size;
 
     for (size_t i = 0; i < size; ++i) {
@@ -1289,7 +1291,8 @@ QDataStream& operator<<(QDataStream& s, const QList<QPointF>& vector)
 
 QDataStream& operator>>(QDataStream& s, QList<int>& vector)
 {
-    size_t size = 0;
+    //size_t size = 0;
+    quint64 size = 0;
     s >> size;
 
     for (size_t i = 0; i < size; ++i) {
@@ -1310,7 +1313,8 @@ QDataStream& operator<<(QDataStream& s, const QList<int>& vector)
 
 QDataStream& operator>>(QDataStream& s, QList<bool>& vector)
 {
-    size_t size = 0;
+    //size_t size = 0;
+    quint64 size = 0;
     s >> size;
 
     for (size_t i = 0; i < size; ++i) {
@@ -1332,7 +1336,8 @@ QDataStream& operator<<(QDataStream& s, const QList<bool>& vector)
 #if QT_VERSION >= 0x050900
 QDataStream& operator>>(QDataStream& s, QStringList& vector)
 {
-    size_t size = 0;
+    //size_t size = 0;
+    quint64 size = 0;
     s >> size;
 
     for (size_t i = 0; i < size; ++i) {
