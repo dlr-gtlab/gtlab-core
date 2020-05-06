@@ -100,6 +100,10 @@ GtProcessImporter::import(GtObject* data, QFile &file)
         }
     }
 
+    /// give new uuid to avoid doubled uuid usage
+    /// reset uuids of children, too.
+    obj->newUuid(true);
+
     data->appendChild(obj);
 
     return true;
