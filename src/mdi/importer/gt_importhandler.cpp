@@ -13,11 +13,14 @@
 #include "gt_abstractimporter.h"
 #include "gt_logging.h"
 
+#include "gt_processimporter.h"
+
 #include "gt_importhandler.h"
 
 GtImportHandler::GtImportHandler(QObject* parent) : QObject(parent)
 {
-
+    /// Static exporter class registration
+    registerClass(GT_METADATA(GtProcessImporter));
 }
 
 GtImportHandler*

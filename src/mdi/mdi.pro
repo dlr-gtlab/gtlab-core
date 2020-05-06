@@ -74,7 +74,9 @@ INCLUDEPATH += post \
     object_ui \
     undoredo \
     importer \
+    importer/processImporter \
     exporter \
+    exporter/processExporter \
     exporter/scheduleExporter \
     exporter/dataZoneExporter \
     collection \
@@ -327,7 +329,9 @@ HEADERS += \
     exporter/dataZoneExporter/gt_datazonedatexporter.h \
     tools/gt_contourrunnable.h \
     dock_widgets/properties/items/gt_propertyfreestringitem.h \
-    gt_finishedprocessloadinghelper.h
+    gt_finishedprocessloadinghelper.h \
+    exporter/processExporter/gt_processexporter.h \
+    importer/processImporter/gt_processimporter.h
 
 SOURCES += \
     dialogs/gt_environmentdialog.cpp \
@@ -557,7 +561,9 @@ SOURCES += \
     exporter/dataZoneExporter/gt_datazonedatexporter.cpp \
     tools/gt_contourrunnable.cpp \
     dock_widgets/properties/items/gt_propertyfreestringitem.cpp \
-    gt_finishedprocessloadinghelper.cpp
+    gt_finishedprocessloadinghelper.cpp \
+    exporter/processExporter/gt_processexporter.cpp \
+    importer/processImporter/gt_processimporter.cpp
 
 RESOURCES += ../resources/icons/icons.qrc \
     ../resources/pixmaps/pixmaps.qrc \
