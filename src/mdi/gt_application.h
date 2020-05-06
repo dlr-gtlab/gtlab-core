@@ -39,7 +39,7 @@ public:
     /**
      * @brief GtApplication
      */
-    GtApplication(QCoreApplication* parent);
+    GtApplication(QCoreApplication* parent, bool devMode = false);
 
     /**
      * @brief ~GtApplication

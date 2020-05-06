@@ -34,7 +34,7 @@
 
 #include "gt_application.h"
 
-GtApplication::GtApplication(QCoreApplication* parent) :
+GtApplication::GtApplication(QCoreApplication* parent, bool devMode) :
     GtCoreApplication(parent),
     m_perspective(Q_NULLPTR),
     m_guiModuleLoader(Q_NULLPTR),
@@ -57,6 +57,8 @@ GtApplication::GtApplication(QCoreApplication* parent) :
 
     connect(&m_undoStack, SIGNAL(canRedoChanged(bool)),
             SLOT(onUndoStackChange()));
+
+    m_devMode = devMode;
 }
 
 GtApplication::~GtApplication()
