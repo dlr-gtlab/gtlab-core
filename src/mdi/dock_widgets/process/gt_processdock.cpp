@@ -53,6 +53,10 @@
 #include "gt_relativeobjectlinkproperty.h"
 #include "gt_objectui.h"
 #include "gt_stylesheets.h"
+#include "gt_importhandler.h"
+#include "gt_importmenu.h"
+#include "gt_exporthandler.h"
+#include "gt_exportmenu.h"
 
 #include "gt_processdock.h"
 
@@ -911,6 +915,12 @@ GtProcessDock::customContextMenu(const QPoint& pos)
 
         menu.addSeparator();
 
+        GtImportMenu* imenu = new GtImportMenu(m_processData, &menu);
+
+        menu.addMenu(imenu);
+
+        menu.addSeparator();
+
         QAction* actpaste = menu.addAction("Paste");
         actpaste->setIcon(gtApp->icon("pasteIcon_16.png"));
         actpaste->setEnabled(false);
@@ -1009,6 +1019,32 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     actrename->setIcon(gtApp->icon("inputIcon_16.png"));
 
     menu.addSeparator();
+
+    // importer menu
+    QList<GtImporterMetaData> importerList =
+            gtImportHandler->importerMetaData(obj->metaObject()->className());
+
+    if (!importerList.isEmpty())
+    {
+        GtImportMenu* imenu = new GtImportMenu(obj, &menu);
+
+        menu.addMenu(imenu);
+
+        menu.addSeparator();
+    }
+
+    // exporter menu
+    QList<GtExporterMetaData> exporterList =
+            gtExportHandler->exporterMetaData(obj->metaObject()->className());
+
+    if (!exporterList.isEmpty())
+    {
+        GtExportMenu* emenu = new GtExportMenu(obj, &menu);
+
+        menu.addMenu(emenu);
+
+        menu.addSeparator();
+    }
 
     QAction* actclone = menu.addAction("Clone");
     actclone->setIcon(gtApp->icon("cloneIcon_16.png"));
@@ -1165,6 +1201,32 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     }
 
     menu.addSeparator();
+
+    // importer menu
+    QList<GtImporterMetaData> importerList =
+            gtImportHandler->importerMetaData(obj->metaObject()->className());
+
+    if (!importerList.isEmpty())
+    {
+        GtImportMenu* imenu = new GtImportMenu(obj, &menu);
+
+        menu.addMenu(imenu);
+
+        menu.addSeparator();
+    }
+
+    // exporter menu
+    QList<GtExporterMetaData> exporterList =
+            gtExportHandler->exporterMetaData(obj->metaObject()->className());
+
+    if (!exporterList.isEmpty())
+    {
+        GtExportMenu* emenu = new GtExportMenu(obj, &menu);
+
+        menu.addMenu(emenu);
+
+        menu.addSeparator();
+    }
 
     QAction* actclone = menu.addAction("Clone");
     actclone->setIcon(gtApp->icon("cloneIcon_16.png"));
