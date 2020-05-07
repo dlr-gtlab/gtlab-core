@@ -41,6 +41,8 @@ public:
      * @brief Main import function.
      * @param Pointer to datamodel member.
      * @param Reference to file selected by user.
+     * @note The imported object and all its children get new uuids
+     * to avoid doubled usage
      * @return Whether import successfully finished or not.
      */
     bool import(GtObject* data, QFile& file) Q_DECL_OVERRIDE;
