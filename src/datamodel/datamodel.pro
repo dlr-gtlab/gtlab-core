@@ -62,7 +62,6 @@ HEADERS += \
     gt_moduleinterface.h \
     gt_moduleloader.h \
     gt_package.h \
-    gt_spline.h \
     gt_table.h \
     gt_tablescalers.h \
     gt_tableparser.h \
@@ -97,9 +96,6 @@ HEADERS += \
     gt_objectmodel.h \
     property/gt_filechooserproperty.h \
     property/gt_dynamicpropertycontainer.h \
-    property/gt_controlscheduleproperty.h \
-    gt_controlschedule.h \
-    gt_controlscheduleparser.h \
     gt_propertyfactory.h \
     property/gt_propertyconnection.h \
     property/gt_nozzlemapproperty.h \
@@ -107,14 +103,11 @@ HEADERS += \
     gt_propertyfactory.h \
     property/gt_openfilenameproperty.h \
     property/gt_savefilenameproperty.h \
-    gt_controlschedulegroup.h \
     property/gt_existingdirectoryproperty.h \
     property/gt_objectpathproperty.h \
     gt_objectpath.h \
     property/gt_relativeobjectlinkproperty.h \
     property/gt_doublelistproperty.h \
-    gt_splinecp.h \
-    gt_splineutilities.h \
     gt_bleedtable.h \
     gt_tablegroup.h \
     property/gt_freestringproperty.h
@@ -129,7 +122,6 @@ SOURCES += \
     gt_datamodelmodule.cpp \
     gt_moduleloader.cpp \
     gt_package.cpp \
-    gt_spline.cpp \
     gt_table.cpp \
     gt_tableparser.cpp \
     gt_tableaxis.cpp \
@@ -162,23 +154,17 @@ SOURCES += \
     gt_objectmodel.cpp \
     property/gt_filechooserproperty.cpp \
     property/gt_dynamicpropertycontainer.cpp \
-    property/gt_controlscheduleproperty.cpp \
-    gt_controlschedule.cpp \
-    gt_controlscheduleparser.cpp \
     gt_propertyfactory.cpp \
     property/gt_propertyconnection.cpp \
     property/gt_nozzlemapproperty.cpp \
     gt_nozzlemap.cpp \
     property/gt_openfilenameproperty.cpp \
     property/gt_savefilenameproperty.cpp \
-    gt_controlschedulegroup.cpp \
     property/gt_existingdirectoryproperty.cpp \
     property/gt_objectpathproperty.cpp \
     gt_objectpath.cpp \
     property/gt_relativeobjectlinkproperty.cpp \
     property/gt_doublelistproperty.cpp \
-    gt_splinecp.cpp \
-    gt_splineutilities.cpp \
     gt_bleedtable.cpp \
     gt_tablegroup.cpp \
     property/gt_freestringproperty.cpp
@@ -190,9 +176,9 @@ unix {
 LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release){
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lSplineLib-d
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d
 } else {
-    LIBS += -lGTlabNumerics -lGTlabLogging -lSplineLib
+    LIBS += -lGTlabNumerics -lGTlabLogging
 }
 
 ######################################################################

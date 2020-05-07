@@ -49,7 +49,6 @@ INCLUDEPATH += post \
     tools \
     dialogs \
     tools/graphic_items \
-    mdi_items/schedule_editor \
     mdi_items/memento_viewer \
     mdi_items/process_env \
     mdi_items/process_env/entities \
@@ -58,7 +57,6 @@ INCLUDEPATH += post \
     mdi_items/state_viewer \
     mdi_items/result_viewer \
     mdi_items/collection_env \
-    mdi_items/spline_editor \
     mdi_items/examples \
     dock_widgets/output \
     dock_widgets/explorer \
@@ -77,7 +75,6 @@ INCLUDEPATH += post \
     importer/processImporter \
     exporter \
     exporter/processExporter \
-    exporter/scheduleExporter \
     exporter/dataZoneExporter \
     collection \
     ../datamodel \
@@ -127,7 +124,6 @@ HEADERS += \
     tools/gt_listview.h \
     object_ui/gt_packageui.h \
     object_ui/gt_objectgroupui.h \
-    tools/graphic_items/gt_graphicssplineitem.h \
     tools/gt_searchwidget.h \
     tools/gt_treeview.h \
     dock_widgets/properties/gt_propertiesdock.h \
@@ -226,13 +222,9 @@ HEADERS += \
     dock_widgets/properties/gt_propertyitemfactory.h \
     dock_widgets/process/gt_processfiltermodel.h \
     mdi_items/memento_viewer/gt_mementoeditor.h \
-    dock_widgets/properties/items/gt_propertycontrolscheduleitem.h \
-    dock_widgets/properties/editors/gt_propertycontrolscheduleeditor.h \
-    object_ui/gt_controlscheduleui.h \
     mdi_items/result_viewer/gt_resultviewer.h \
     mdi_items/result_viewer/gt_resulttableview.h \
     mdi_items/result_viewer/gt_datazonemodel.h \
-    mdi_items/schedule_editor/gt_controlscheduleeditor.h \
     undoredo/gt_mementochangecommand.h \
     gt_processexecutor.h \
     gt_datamodel.h \
@@ -289,7 +281,6 @@ HEADERS += \
     tools/gt_downloaddialog.h \
     mdi_items/collection_env/gt_collectionloadingwidget.h \
     post/gt_scrollarea.h \
-    object_ui/gt_controlschedulegroupui.h \
     tools/gt_environmentmodel.h \
     gt_applicationprivate.h \
     object_ui/gt_datazoneui.h \
@@ -316,16 +307,7 @@ HEADERS += \
     post/gt_scaleproperty.h \
     gt_stylesheets.h \
     dock_widgets/output/gt_taskhistorymodel.h \
-    mdi_items/schedule_editor/gt_controlscheduleplot.h \
-    mdi_items/schedule_editor/gt_controlschedulecanvas.h \
-    exporter/scheduleExporter/gt_scheduleexporter.h \
-    exporter/scheduleExporter/gt_schedulexmlexporter.h \
-    mdi_items/schedule_editor/gt_controlschedulemodel.h \
     exporter/dataZoneExporter/gt_datazonecsvexporter.h \
-    object_ui/gt_splineui.h \
-    mdi_items/spline_editor/gt_splineeditor.h \
-    mdi_items/spline_editor/gt_splineplot.h \
-    mdi_items/spline_editor/gt_splineplotcanvas.h \
     exporter/dataZoneExporter/gt_datazonedatexporter.h \
     tools/gt_contourrunnable.h \
     dock_widgets/properties/items/gt_propertyfreestringitem.h \
@@ -365,7 +347,6 @@ SOURCES += \
     tools/gt_listview.cpp \
     object_ui/gt_packageui.cpp \
     object_ui/gt_objectgroupui.cpp \
-    tools/graphic_items/gt_graphicssplineitem.cpp \
     tools/gt_searchwidget.cpp \
     tools/gt_treeview.cpp \
     dock_widgets/properties/gt_propertiesdock.cpp \
@@ -462,13 +443,9 @@ SOURCES += \
     dock_widgets/properties/gt_propertyitemfactory.cpp \
     dock_widgets/process/gt_processfiltermodel.cpp \
     mdi_items/memento_viewer/gt_mementoeditor.cpp \
-    dock_widgets/properties/items/gt_propertycontrolscheduleitem.cpp \
-    dock_widgets/properties/editors/gt_propertycontrolscheduleeditor.cpp \
-    object_ui/gt_controlscheduleui.cpp \
     mdi_items/result_viewer/gt_resultviewer.cpp \
     mdi_items/result_viewer/gt_resulttableview.cpp \
     mdi_items/result_viewer/gt_datazonemodel.cpp \
-    mdi_items/schedule_editor/gt_controlscheduleeditor.cpp \
     undoredo/gt_mementochangecommand.cpp \
     gt_processexecutor.cpp \
     gt_datamodel.cpp \
@@ -521,7 +498,6 @@ SOURCES += \
     tools/gt_downloaddialog.cpp \
     mdi_items/collection_env/gt_collectionloadingwidget.cpp \
     post/gt_scrollarea.cpp \
-    object_ui/gt_controlschedulegroupui.cpp \
     tools/gt_environmentmodel.cpp \
     gt_applicationprivate.cpp \
     object_ui/gt_datazoneui.cpp \
@@ -548,16 +524,7 @@ SOURCES += \
     post/gt_scaleproperty.cpp \
     gt_stylesheets.cpp \
     dock_widgets/output/gt_taskhistorymodel.cpp \
-    mdi_items/schedule_editor/gt_controlscheduleplot.cpp \
-    mdi_items/schedule_editor/gt_controlschedulecanvas.cpp \
-    exporter/scheduleExporter/gt_scheduleexporter.cpp \
-    exporter/scheduleExporter/gt_schedulexmlexporter.cpp \
-    mdi_items/schedule_editor/gt_controlschedulemodel.cpp \
     exporter/dataZoneExporter/gt_datazonecsvexporter.cpp \
-    object_ui/gt_splineui.cpp \
-    mdi_items/spline_editor/gt_splineeditor.cpp \
-    mdi_items/spline_editor/gt_splineplot.cpp \
-    mdi_items/spline_editor/gt_splineplotcanvas.cpp \
     exporter/dataZoneExporter/gt_datazonedatexporter.cpp \
     tools/gt_contourrunnable.cpp \
     dock_widgets/properties/items/gt_propertyfreestringitem.cpp \
@@ -572,9 +539,9 @@ RESOURCES += ../resources/icons/icons.qrc \
 LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release){
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabNetwork-d -lGTlabCalculators-d -lGTlabCore-d -lqwtd -lSplineLib-d
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabNetwork-d -lGTlabCalculators-d -lGTlabCore-d -lqwtd
 } else {
-    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabNetwork -lGTlabCalculators -lGTlabCore -lqwt -lSplineLib
+    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabNetwork -lGTlabCalculators -lGTlabCore -lqwt
 }
 
 ######################################################################

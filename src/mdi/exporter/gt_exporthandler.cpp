@@ -15,9 +15,8 @@
 #include "gt_abstractexporter.h"
 #include "gt_logging.h"
 
+
 #include "gt_processexporter.h"
-#include "gt_scheduleexporter.h"
-#include "gt_schedulexmlexporter.h"
 #include "gt_datazonecsvexporter.h"
 #include "gt_datazonedatexporter.h"
 
@@ -25,8 +24,6 @@ GtExportHandler::GtExportHandler(QObject* parent) : QObject(parent)
 {
     /// Static exporter class registration
     registerClass(GT_METADATA(GtProcessExporter));
-    registerClass(GT_METADATA(GtpScheduleXmlExporter));
-    registerClass(GT_METADATA(GtScheduleExporter));
     registerClass(GT_METADATA(GtDataZoneCsvExporter));
     registerClass(GT_METADATA(GtDataZoneDatExporter));
 }

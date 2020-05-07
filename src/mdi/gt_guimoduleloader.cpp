@@ -46,17 +46,11 @@
 #include "gt_label.h"
 #include "gt_labelui.h"
 #include "gt_datazoneui.h"
-#include "gt_controlschedule.h"
-#include "gt_controlscheduleui.h"
 #include "gt_loop.h"
 #include "gt_residualloop.h"
 #include "gt_parameterloop.h"
 #include "gt_loopui.h"
 #include "gt_nozzlemap.h"
-#include "gt_controlschedulegroup.h"
-#include "gt_controlschedulegroupui.h"
-#include "gt_spline.h"
-#include "gt_splineui.h"
 
 GtGuiModuleLoader::GtGuiModuleLoader()
 {
@@ -80,18 +74,13 @@ GtGuiModuleLoader::GtGuiModuleLoader()
                      GT_METADATA(GtDataZoneUI));
     registerObjectUI(GT_CLASSNAME(GtLabel),
                      GT_METADATA(GtLabelUI));
-    registerObjectUI(GT_CLASSNAME(GtControlSchedule),
-                     GT_METADATA(GtControlScheduleUI));
+
     registerObjectUI(GT_CLASSNAME(GtLoop),
                      GT_METADATA(GtLoopUI));
     registerObjectUI(GT_CLASSNAME(GtResidualLoop),
                      GT_METADATA(GtLoopUI));
     registerObjectUI(GT_CLASSNAME(GtParameterLoop),
                      GT_METADATA(GtLoopUI));
-    registerObjectUI(GT_CLASSNAME(GtControlScheduleGroup),
-                     GT_METADATA(GtControlScheduleGroupUI));
-    registerObjectUI(GT_CLASSNAME(GtSpline),
-                     GT_METADATA(GtSplineUI));
 }
 
 GtGuiModuleLoader::~GtGuiModuleLoader()
