@@ -25,12 +25,10 @@
 #include "gt_labelusageviewer.h"
 #include "gt_sessionviewer.h"
 #include "gt_stateviewer.h"
-#include "gt_controlscheduleeditor.h"
 #include "gt_resultviewer.h"
 #include "gt_processmonitoring.h"
 #include "gt_collectioneditor.h"
 #include "gt_examplesmdiwidget.h"
-#include "gt_splineeditor.h"
 
 // dock widgets
 #include "gt_outputdock.h"
@@ -45,9 +43,6 @@ GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
     m_area(NULL)
 {
     // static mdi items
-    m_knownClasses.insert(GT_CLASSNAME(GtControlScheduleEditor),
-                          GT_METADATA(GtControlScheduleEditor));
-
     m_knownClasses.insert(GT_CLASSNAME(GtMementoViewer),
                           GT_METADATA(GtMementoViewer));
 
@@ -77,9 +72,6 @@ GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
 
     m_knownClasses.insert(GT_CLASSNAME(GtExamplesMdiWidget),
                           GT_METADATA(GtExamplesMdiWidget));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtSplineEditor),
-                          GT_METADATA(GtSplineEditor));
 
     // static dock widgets
     m_dockWidgets.insert(GT_CLASSNAME(GtOutputDock),

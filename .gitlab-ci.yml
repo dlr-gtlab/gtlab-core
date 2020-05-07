@@ -176,4 +176,7 @@ badges:
       - "New_commits.svg"
       - "New_files.svg"
       - "New_BuildWarn-W.svg"
+      - "New_CodingStyle.svg"
+  only:
+    - master   	  
   

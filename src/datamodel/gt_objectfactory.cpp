@@ -18,7 +18,6 @@
 #include "gt_datamodelinterface.h"
 #include "gt_moduleinterface.h"
 #include "gt_datamodelmodule.h"
-#include "gt_spline.h"
 #include "gt_table.h"
 #include "gt_tableaxis.h"
 #include "gt_tablevalues.h"
@@ -30,12 +29,8 @@
 #include "gt_datazonetable.h"
 #include "gt_datazonetablelist.h"
 #include "gt_abstractdatazone.h"
-#include "gt_controlschedule.h"
 #include "gt_propertyconnection.h"
 #include "gt_nozzlemap.h"
-#include "gt_controlschedulegroup.h"
-#include "gt_spline.h"
-#include "gt_splinecp.h"
 #include "gt_bleedtable.h"
 #include "gt_tablegroup.h"
 //#include "gt_datazonetablemainaxis.h"
@@ -44,9 +39,6 @@ GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
 {
     m_knownClasses.insert(GT_CLASSNAME(GtObjectGroup),
                           GT_METADATA(GtObjectGroup));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtSpline),
-                          GT_METADATA(GtSpline));
 
     m_knownClasses.insert(GT_CLASSNAME(GtTable),
                           GT_METADATA(GtTable));
@@ -86,18 +78,6 @@ GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
                           
     m_knownClasses.insert(GT_CLASSNAME(GtNozzleMap),
                           GT_METADATA(GtNozzleMap));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtControlSchedule),
-                          GT_METADATA(GtControlSchedule));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtControlScheduleGroup),
-                          GT_METADATA(GtControlScheduleGroup));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtSpline),
-                          GT_METADATA(GtSpline));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtSplineCP),
-                          GT_METADATA(GtSplineCP));
 
     m_knownClasses.insert(GT_CLASSNAME(GtBleedTable),
                           GT_METADATA(GtBleedTable));

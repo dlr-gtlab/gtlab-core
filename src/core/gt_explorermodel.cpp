@@ -14,7 +14,6 @@
 #include "gt_processdata.h"
 #include "gt_labeldata.h"
 #include "gt_table.h"
-#include "gt_controlschedule.h"
 
 GtExplorerModel::GtExplorerModel(QObject* parent) :
     GtTreeFilterModel(parent)

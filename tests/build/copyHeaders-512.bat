@@ -1,5 +1,7 @@
 SET NIGHTLYBUILD=G:\AT-TW\GTlab\Nightly_Builds_512
 
+if exist "%NIGHTLYBUILD%\include\core\" rmdir /s /q %NIGHTLYBUILD%\include\core\
+
 if not exist "%NIGHTLYBUILD%\include\core\" mkdir %NIGHTLYBUILD%\include\core\
 if not exist "%NIGHTLYBUILD%\lib\core\" mkdir %NIGHTLYBUILD%\lib\core\
 

@@ -51,12 +51,6 @@ INCLUDEPATH += $${GTLAB_NUMERICS_PATH}/include/numerics
 LIBS        += -L$${GTLAB_NUMERICS_PATH}/lib/numerics
 DEPENDPATH  += $${GTLAB_NUMERICS_PATH}/lib/numerics
 
-#### THIRD PARTY LIBRARIES
-# SplineLib
-INCLUDEPATH += $${SPLINE_LIB_PATH}/include
-LIBS        += -L$${SPLINE_LIB_PATH}/lib
-DEPENDPATH  += $${SPLINE_LIB_PATH}/lib
-
 # minpack
 INCLUDEPATH += $${MINPACK_PATH}/include
 LIBS        += -L$${MINPACK_PATH}/lib
