@@ -1886,7 +1886,23 @@ GtProcessDock::pasteElement(const QModelIndex& parentIndex)
 void
 GtProcessDock::skipCalculator(const QModelIndex& index, bool skip)
 {
+    QString msg;
+
+    if (skip == true)
+    {
+        msg = "Skip";
+    }
+    else
+    {
+        msg = "Unskip";
+    }
+
+    msg.append(" Selected Calculator");
+
+    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), msg);
     skipCalculator(calcByModelIndex(index), skip);
+
+    gtApp->endCommand(cmd);
 }
 
 void
@@ -1909,10 +1925,26 @@ GtProcessDock::skipCalculator(const QList<QModelIndex>& indexList, bool skip)
         }
     }
 
+    QString msg;
+
+    if (skip == true)
+    {
+        msg = "Skip";
+    }
+    else
+    {
+        msg = "Unskip";
+    }
+
+    msg.append(" Selected Calculators");
+
+    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), msg);
     foreach (GtCalculator* calc, calcs)
     {
         skipCalculator(calc, skip);
     }
+
+    gtApp->endCommand(cmd);
 }
 
 void
