@@ -68,7 +68,6 @@ HEADERS += \
     gt_explorermodel.h \
     provider/gt_projectprovider.h \
     gt_treefiltermodel.h \
-    gt_resultsmodel.h \
     gt_checkablestringlistmodel.h \
     gt_coremoduleloader.h \
     gt_runnable.h \
@@ -92,7 +91,6 @@ SOURCES += \
     gt_explorermodel.cpp \
     provider/gt_projectprovider.cpp \
     gt_treefiltermodel.cpp \
-    gt_resultsmodel.cpp \
     gt_checkablestringlistmodel.cpp \
     gt_coremoduleloader.cpp \
     gt_runnable.cpp \

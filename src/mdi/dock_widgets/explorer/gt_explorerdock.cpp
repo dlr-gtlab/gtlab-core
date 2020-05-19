@@ -38,13 +38,10 @@
 #include "gt_datamodel.h"
 #include "gt_styledmodel.h"
 #include "gt_explorermodel.h"
-#include "gt_resultsmodel.h"
 
 GtExplorerDock::GtExplorerDock() :
-    m_viewMode(DATA_VIEW),
     m_model(Q_NULLPTR),
-    m_styledModel(Q_NULLPTR),
-    m_resultsModel(Q_NULLPTR)
+    m_styledModel(Q_NULLPTR)
 {
     setObjectName(tr("Explorer"));
 
@@ -87,25 +84,6 @@ GtExplorerDock::GtExplorerDock() :
     m_searchWidget = new GtSearchWidget;
     toolbarLayout->addWidget(m_searchWidget);
 
-    m_viewModeBox = new QComboBox;
-    m_viewModeBox->setStyleSheet(GtStyleSheets::selectionComboBox("85", "110"));
-
-    m_viewModeBox->addItem(gtApp->icon(QStringLiteral("emptyIcon_16.png")),
-                           QStringLiteral("Data View"));
-    m_viewModeBox->addItem(gtApp->icon(QStringLiteral("dataIcon_16.png")),
-                           QStringLiteral("Results View"));
-
-    QFont font = m_viewModeBox->font();
-    font.setPointSize(8);
-    m_viewModeBox->setFont(font);
-    m_viewModeBox->setFrame(true);
-    m_viewModeBox->setLayoutDirection(Qt::LeftToRight);
-    m_viewModeBox->setMinimumWidth(85);
-    m_viewModeBox->setMaximumHeight(18);
-    m_viewModeBox->setIconSize(QSize(12, 12));
-
-    toolbarLayout->addWidget(m_viewModeBox);
-
     m_view->setFrameStyle(QTreeView::NoFrame);
     m_view->setEditTriggers(QTreeView::SelectedClicked);
     m_view->setIconSize(QSize(16, 16));
@@ -136,8 +114,8 @@ GtExplorerDock::GtExplorerDock() :
             this, &GtExplorerDock::deleteElements);
     connect(m_view, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(customContextMenuDataView(QPoint)));
-    connect(m_viewModeBox, SIGNAL(currentIndexChanged(int)),
-            SLOT(switchViewMode(int)));
+    //connect(m_viewModeBox, SIGNAL(currentIndexChanged(int)),
+    //        SLOT(switchViewMode(int)));
     connect(this, SIGNAL(selectedObjectChanged(GtObject*)),
             gtApp, SIGNAL(objectSelected(GtObject*)));
     connect(m_view, SIGNAL(clicked(QModelIndex)),
@@ -155,11 +133,9 @@ GtExplorerDock::GtExplorerDock() :
 
 
     m_model = new GtExplorerModel(this);
-    m_resultsModel = new GtResultsModel(m_model);
     m_styledModel = new GtStyledModel(m_model);
     m_styledModel->setSourceModel(gtDataModel);
     m_model->setSourceModel(m_styledModel);
-    m_resultsModel->setSourceModel(m_model);
     m_view->setModel(m_model);
 
     connect(m_view->selectionModel(),
@@ -168,7 +144,7 @@ GtExplorerDock::GtExplorerDock() :
             Qt::UniqueConnection);
 
     onSessionChanged();
-    switchViewMode(m_viewModeBox->currentIndex());
+    //switchViewMode(m_viewModeBox->currentIndex());
 }
 
 GtExplorerDock::~GtExplorerDock()
@@ -457,15 +433,6 @@ GtExplorerDock::mapToSource(const QModelIndex& index)
 
     QModelIndex tmp = index;
 
-    // view mode
-    if (m_viewMode == RESULTS_VIEW)
-    {
-        if (!mapToSourceHelper(tmp, m_resultsModel))
-        {
-            return QModelIndex();
-        }
-    }
-
     if (!mapToSourceHelper(tmp, m_model))
     {
         return QModelIndex();
@@ -499,15 +466,6 @@ GtExplorerDock::mapFromSource(const QModelIndex& index)
         return QModelIndex();
     }
 
-    // view mode
-    if (m_viewMode == RESULTS_VIEW)
-    {
-        if (!mapFromSourceHelper(tmp, m_model, m_resultsModel))
-        {
-            return QModelIndex();
-        }
-    }
-
     return  tmp;
 }
 
@@ -518,14 +476,7 @@ GtExplorerDock::saveExpandStates()
 
     QModelIndexList list;
 
-    if (m_viewMode == DATA_VIEW)
-    {
-        list = m_model->getPersistentIndexList();
-    }
-    else
-    {
-        list = m_resultsModel->getPersistentIndexList();
-    }
+    list = m_model->getPersistentIndexList();
 
     foreach (QModelIndex index, list)
     {
@@ -548,14 +499,7 @@ GtExplorerDock::saveExpandStatesToSettings()
 
     QModelIndexList list;
 
-    if (m_viewMode == DATA_VIEW)
-    {
-        list = m_model->getPersistentIndexList();
-    }
-    else
-    {
-        list = m_resultsModel->getPersistentIndexList();
-    }
+    list = m_model->getPersistentIndexList();
 
     foreach (QModelIndex index, list)
     {
@@ -580,14 +524,7 @@ GtExplorerDock::restoreExpandStates(const QStringList& list)
 {
     QAbstractItemModel* model = Q_NULLPTR;
 
-    if (m_viewMode == DATA_VIEW)
-    {
-        model = m_model;
-    }
-    else
-    {
-        model = m_resultsModel;
-    }
+    model = m_model;
 
     m_view->setUpdatesEnabled(false);
 
@@ -614,40 +551,6 @@ GtExplorerDock::restoreExpandStatesHelper(const QStringList& expandedItems,
                                       model->index(0, 0, index));
         }
     }
-}
-
-void
-GtExplorerDock::switchViewMode(int mode)
-{
-    QStringList lastExpandState = m_expandStates;
-    saveExpandStates();
-
-    if (mode == 0)
-    {
-        m_viewMode = DATA_VIEW;
-        m_view->setModel(m_model);
-    }
-    else
-    {
-        m_viewMode = RESULTS_VIEW;
-        m_view->setModel(m_resultsModel);
-    }
-
-    if (lastExpandState.isEmpty())
-    {
-        restoreExpandStates(m_expandStates);
-    }
-    else
-    {
-        restoreExpandStates(lastExpandState);
-    }
-
-    filterData(m_searchWidget->text());
-
-    connect(m_view->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
-            Qt::UniqueConnection);
 }
 
 void
@@ -735,21 +638,8 @@ GtExplorerDock::onMdiItemRequested(const QModelIndex& index)
 void
 GtExplorerDock::filterData(const QString& val)
 {
-    if (m_viewMode == DATA_VIEW)
-    {
-        m_resultsModel->setFilterFixedString(QString());
-        m_model->filterData(val);
-    }
-    else
-    {
-        m_model->filterData(QString());
-        m_resultsModel->setFilterRegExp(val);
-    }
+    m_model->filterData(val);
 
-    //    if (m_model)
-//    {
-//        m_model->filterData(val);
-//    }
     restoreExpandStates(m_expandStates);
 }
 
