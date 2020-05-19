@@ -20,8 +20,8 @@
 #include <cfloat>
 #include <typeinfo>
 
-#include "gt_objectio.h"
 #include "gt_object.h"
+#include "gt_dummyobject.h"
 #include "gt_objectfactory.h"
 #include "gt_logging.h"
 #include "gt_objectmemento.h"
@@ -29,6 +29,8 @@
 #include "gt_abstractproperty.h"
 #include "gt_dynamicpropertycontainer.h"
 #include "gt_propertyfactory.h"
+
+#include "gt_objectio.h"
 
 const QString GtObjectIO::S_OBJECT_TAG = QStringLiteral("object");
 const QString GtObjectIO::S_OBJECTLIST_TAG = QStringLiteral("objectlist");
@@ -173,8 +175,17 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     // global object element
     GtObjectMemento::MementoData data;
 
+    const GtDummyObject* d_obj = qobject_cast<const GtDummyObject*>(o);
+
     // class name
-    data.className = o->metaObject()->className();
+    if (d_obj == Q_NULLPTR)
+    {
+        data.className = o->metaObject()->className();
+    }
+    else
+    {
+        data.className = d_obj->origClassName();
+    }
 
     // uuid
     QString uuid(o->uuid());
@@ -287,7 +298,7 @@ GtObjectIO::toObject(const GtObjectMemento& memento, GtObject* parent)
 GtObject*
 GtObjectIO::toObjectHelper(const QDomElement& element, GtObject* parent)
 {
-    GtObject* retval = NULL;
+    GtObject* retval = Q_NULLPTR;
 
     QString fieldClass = element.attribute(S_CLASS_TAG);
     QString fieldUuid = element.attribute(S_UUID_TAG);
@@ -308,36 +319,39 @@ GtObjectIO::toObjectHelper(const QDomElement& element, GtObject* parent)
             /* Check class and uuid */
             if (retval->metaObject()->className() != fieldClass)
             {
-                retval = NULL;
+                retval = Q_NULLPTR;
             }
 
             if (retval && (retval->uuid() != fieldUuid) && !retval->isDefault())
             {
-                retval = NULL;
+                retval = Q_NULLPTR;
             }
         }
     }
 
-    if (retval == NULL)
+    if (retval == Q_NULLPTR)
     {
-        if (m_factory == NULL)
+        if (m_factory == Q_NULLPTR)
         {
             qCritical() << "ERROR: no factory set!";
-            return NULL;
+            return Q_NULLPTR;
         }
 
         retval = m_factory->newObject(fieldClass, parent);
+
+        if (retval == Q_NULLPTR)
+        {
+            // no class found in factory. we need a dummy object here
+            gtWarning() << "could not recreate object of unknown type " <<
+                           fieldClass << "...";
+
+            GtDummyObject* d_obj = new GtDummyObject(parent);
+            d_obj->setOrigClassName(fieldClass);
+            retval = d_obj;
+        }
     }
 
-    if (retval)
-    {
-        mergeObject(element, retval);
-    }
-    else
-    {
-        gtWarning() << "could not recreate object!" << " ("
-                    << fieldClass << ")";
-    }
+    mergeObject(element, retval);
 
     return retval;
 }
@@ -614,6 +628,12 @@ GtObjectIO::mergeObjectProperties(const QDomElement& element,
         return;
     }
 
+    if (obj->isDummy())
+    {
+        mergeDummyProperies(element, obj);
+        return;
+    }
+
     QString fieldClass = element.attribute(S_CLASS_TAG);
     QString fieldUuid = element.attribute(S_UUID_TAG);
 
@@ -771,6 +791,104 @@ GtObjectIO::mergeObjectProperties(const QDomElement& element,
 }
 
 void
+GtObjectIO::mergeDummyProperies(const QDomElement& element, GtObject* obj)
+{
+    GtDummyObject* d_obj = qobject_cast<GtDummyObject*>(obj);
+
+    if (d_obj == Q_NULLPTR)
+    {
+        return;
+    }
+
+    /* static properties */
+    QDomElement propElement = element.firstChildElement();
+
+    while (!propElement.isNull())
+    {   
+        if ((propElement.tagName() == S_PROPERTY_TAG) ||
+                (propElement.tagName() == S_PROPERTYLIST_TAG))
+        {
+            QString fieldType = propElement.attribute(S_TYPE_TAG);
+            QString fieldName = propElement.attribute(S_NAME_TAG);
+
+            if (!fieldType.isEmpty() && !fieldName.isEmpty())
+            {
+                QVariant val;
+
+                if (propElement.tagName() == S_PROPERTY_TAG)
+                {
+                    val = propertyToVariant(propElement.text(), fieldType);
+                }
+                else if (propElement.tagName() == S_PROPERTYLIST_TAG)
+                {
+                    val = propertyListToVariant(propElement.text(), fieldType);
+                }
+
+                QString fieldActive = propElement.attribute(S_ACTIVE_TAG);
+                bool opt = false;
+                bool act = true;
+
+                if (!fieldActive.isEmpty())
+                {
+                    opt = true;
+                    act = QVariant(fieldActive).toBool();
+                }
+
+
+
+                if (propElement.tagName() == S_PROPERTY_TAG)
+                {
+                    d_obj->addDummyProperty(fieldName, fieldType, opt, act,
+                                            val);
+                }
+                else if (propElement.tagName() == S_PROPERTYLIST_TAG)
+                {
+                    d_obj->addDummyPropertyList(fieldName, fieldType, opt, act,
+                                                val);
+                }
+            }
+            else
+            {
+                qWarning() << "WARNING: property corrupted!";
+            }
+        }
+
+        propElement = propElement.nextSiblingElement();
+    }
+
+//    /* property lists */
+//    QDomElement listElement = element.firstChildElement(S_PROPERTYLIST_TAG);
+
+//    while (!listElement.isNull())
+//    {
+//        QString fieldType = listElement.attribute(S_TYPE_TAG);
+//        QString fieldName = listElement.attribute(S_NAME_TAG);
+
+//        if (!fieldType.isEmpty() && !fieldName.isEmpty())
+//        {
+//            QVariant val = propertyListToVariant(listElement.text(), fieldType);
+//            QString fieldActive = listElement.attribute(S_ACTIVE_TAG);
+//            bool opt = false;
+//            bool act = true;
+
+//            if (!fieldActive.isEmpty())
+//            {
+//                opt = true;
+//                act = QVariant(fieldActive).toBool();
+//            }
+
+//            d_obj->addDummyPropertyList(fieldName, fieldType, opt, act, val);
+//        }
+//        else
+//        {
+//            qWarning() << "WARNING: property corrupted!";
+//        }
+
+//        listElement = listElement.nextSiblingElement(S_PROPERTYLIST_TAG);
+//    }
+}
+
+void
 GtObjectIO::mergeDynamicProperties(const QDomElement& element, GtObject* obj)
 {
     const QString dynConId = element.attribute(S_NAME_TAG);
@@ -886,6 +1004,39 @@ GtObjectIO::writeProperties(GtObjectMemento::MementoData& data,
 {
     const QMetaObject* meta = obj->metaObject();
 
+    const GtDummyObject* d_obj = qobject_cast<const GtDummyObject*>(obj);
+
+    if (d_obj != Q_NULLPTR)
+    {
+        foreach (GtDummyObject::DummyProperty d_p,
+                 d_obj->dummyProperties())
+        {
+            // static property
+            GtObjectMemento::MementoData::PropertyData mprop;
+            mprop.name = d_p.m_id;
+            mprop.data = d_p.m_val;
+            mprop.isOptional = d_p.m_optional;
+            mprop.isActive = d_p.m_active;
+
+            data.properties.push_back(mprop);
+        }
+
+//        foreach (GtDummyObject::DummyProperty d_p,
+//                 d_obj->dummyPropertyLists())
+//        {
+//            // static property
+//            GtObjectMemento::MementoData::PropertyData mprop;
+//            mprop.name = d_p.m_id;
+//            mprop.data = d_p.m_val;
+//            mprop.isOptional = d_p.m_optional;
+//            mprop.isActive = d_p.m_active;
+
+//            data.properties.push_back(mprop);
+//        }
+
+        return;
+    }
+
     // static properties
     QList<GtAbstractProperty*> props = obj->properties();
     QSet<QString> storedProps;
@@ -928,6 +1079,7 @@ GtObjectIO::writeProperties(GtObjectMemento::MementoData& data,
             p.data = QString(e.valueToKey(p.data.toInt()));
         }
         data.properties.push_back(p);
+
     }
 }
 
@@ -948,56 +1100,98 @@ void
 GtObjectIO::readProperties(GtObjectMemento::MementoData& data,
                            const QDomElement& element)
 {
-    // static properties
-    QDomElement propElement = element.firstChildElement(S_PROPERTY_TAG);
+
+    QDomElement propElement = element.firstChildElement();
 
     while (!propElement.isNull())
     {
-        GtObjectMemento::MementoData::PropertyData propData;
-
-        readPropertyHelper(propData, propElement);
-
-        data.properties.push_back(propData);
-
-        propElement = propElement.nextSiblingElement(S_PROPERTY_TAG);
-    }
-
-    // property lists
-    QDomElement listElement = element.firstChildElement(S_PROPERTYLIST_TAG);
-
-    while (!listElement.isNull())
-    {
-        QString fieldType = listElement.attribute(S_TYPE_TAG);
-        QString fieldName = listElement.attribute(S_NAME_TAG);
-
-        if (!fieldType.isEmpty() && !fieldName.isEmpty())
+        if (propElement.tagName() == S_PROPERTY_TAG)
         {
             GtObjectMemento::MementoData::PropertyData propData;
-            propData.name = fieldName;
-            propData.data = propertyListToVariant(listElement.text(),
-                                                  fieldType);
+
+            readPropertyHelper(propData, propElement);
+
+            data.properties.push_back(propData);
+        }
+        else if (propElement.tagName() == S_PROPERTYLIST_TAG)
+        {
+            QString fieldType = propElement.attribute(S_TYPE_TAG);
+            QString fieldName = propElement.attribute(S_NAME_TAG);
+
+            if (!fieldType.isEmpty() && !fieldName.isEmpty())
+            {
+                GtObjectMemento::MementoData::PropertyData propData;
+                propData.name = fieldName;
+                propData.data = propertyListToVariant(propElement.text(),
+                                                      fieldType);
+
+                data.properties.push_back(propData);
+            }
+        }
+        else if (propElement.tagName() == S_DYNAMICPROPERTIES_TAG)
+        {
+            GtObjectMemento::MementoData::PropertyData propData;
+            propData.isDynamicContainer = true;
+            propData.name = propElement.attribute(S_NAME_TAG);
+
+            readDynamicProperties(propData, propElement);
 
             data.properties.push_back(propData);
         }
 
-        listElement = listElement.nextSiblingElement(S_PROPERTYLIST_TAG);
+        propElement = propElement.nextSiblingElement();
     }
 
-    // dynamic properties
-    QDomElement dynElement = element.firstChildElement(S_DYNAMICPROPERTIES_TAG);
+//    // static properties
+//    QDomElement propElement = element.firstChildElement(S_PROPERTY_TAG);
 
-    while (!dynElement.isNull())
-    {
-        GtObjectMemento::MementoData::PropertyData propData;
-        propData.isDynamicContainer = true;
-        propData.name = dynElement.attribute(S_NAME_TAG);
+//    while (!propElement.isNull())
+//    {
+//        GtObjectMemento::MementoData::PropertyData propData;
 
-        readDynamicProperties(propData, dynElement);
+//        readPropertyHelper(propData, propElement);
 
-        data.properties.push_back(propData);
+//        data.properties.push_back(propData);
 
-        dynElement = dynElement.nextSiblingElement(S_DYNAMICPROPERTIES_TAG);
-    }
+//        propElement = propElement.nextSiblingElement(S_PROPERTY_TAG);
+//    }
+
+//    // property lists
+//    QDomElement listElement = element.firstChildElement(S_PROPERTYLIST_TAG);
+
+//    while (!listElement.isNull())
+//    {
+//        QString fieldType = listElement.attribute(S_TYPE_TAG);
+//        QString fieldName = listElement.attribute(S_NAME_TAG);
+
+//        if (!fieldType.isEmpty() && !fieldName.isEmpty())
+//        {
+//            GtObjectMemento::MementoData::PropertyData propData;
+//            propData.name = fieldName;
+//            propData.data = propertyListToVariant(listElement.text(),
+//                                                  fieldType);
+
+//            data.properties.push_back(propData);
+//        }
+
+//        listElement = listElement.nextSiblingElement(S_PROPERTYLIST_TAG);
+//    }
+
+//    // dynamic properties
+//    QDomElement dynElement = element.firstChildElement(S_DYNAMICPROPERTIES_TAG);
+
+//    while (!dynElement.isNull())
+//    {
+//        GtObjectMemento::MementoData::PropertyData propData;
+//        propData.isDynamicContainer = true;
+//        propData.name = dynElement.attribute(S_NAME_TAG);
+
+//        readDynamicProperties(propData, dynElement);
+
+//        data.properties.push_back(propData);
+
+//        dynElement = dynElement.nextSiblingElement(S_DYNAMICPROPERTIES_TAG);
+//    }
 }
 
 void
@@ -1405,7 +1599,7 @@ GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
     else if (var.type() == type_QStringList)
     {
         valStr = listToString(var.value<QStringList>());
-        typeStr = QStringLiteral("string");
+        typeStr = QStringLiteral("QString");
     }
     else
     {
@@ -1456,7 +1650,9 @@ GtObjectIO::propertyListToDomElement(const QString& name,
     element.setAttribute(S_NAME_TAG, name);
 
     QString varStr, varType;
+
     propertyListStringType(var, varStr, varType);
+
     element.setAttribute(S_TYPE_TAG, varType);
 
     QDomText t = doc.createTextNode(varStr);
@@ -1466,9 +1662,19 @@ GtObjectIO::propertyListToDomElement(const QString& name,
 }
 
 QVariant
-GtObjectIO::propertyToVariant(const QString& value, const QString& /*type*/)
+GtObjectIO::propertyToVariant(const QString& value, const QString& type)
 {
-    return QVariant(value);
+//    return QVariant(value);
+
+    std::string str = type.toStdString();
+    const char* p = str.c_str();
+
+    QVariant::Type v_type = QVariant::nameToType(p);
+    QVariant retval(value);
+
+    retval.convert(v_type);
+
+    return retval;
 }
 
 QVariant
@@ -1489,7 +1695,21 @@ GtObjectIO::propertyListToVariant(const QString& value, const QString& type)
 
         var.setValue(list);
     }
-    else if (type == QStringLiteral("string"))
+    else if (type == QStringLiteral("bool"))
+    {
+        QVector<QStringRef> strList =
+                QStringRef(&value).split(';', QString::SkipEmptyParts);
+        QList<bool> list;
+        list.reserve(strList.size());
+
+        for (int i = 0; i < strList.size(); i++)
+        {
+            list[i] = QVariant(strList[i].toString()).toBool();
+        }
+
+        var.setValue(list);
+    }
+    else if (type == QStringLiteral("QString"))
     {
         QStringList list = value.split(QStringLiteral(";"));
         var.setValue(list);

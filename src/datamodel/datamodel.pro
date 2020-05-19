@@ -50,6 +50,7 @@ DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
     gt_datamodel_exports.h \
+    gt_dummyobject.h \
     gt_object.h \
     gt_objectfactory.h \
     gt_datamodelinterface.h \
@@ -113,6 +114,7 @@ HEADERS += \
     property/gt_freestringproperty.h
 
 SOURCES += \
+    gt_dummyobject.cpp \
     gt_object.cpp \
     gt_objectfactory.cpp \
     gt_abstractobjectfactory.cpp \

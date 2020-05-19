@@ -26,9 +26,13 @@ public:
 
     QDir newTempDir();
 
+    void setRemoveTempPath(bool val);
+
     ~GtTestHelper();
 
 private:
+    bool m_removeTempPath;
+
     GtTestHelper();
 
     QString tempPath();

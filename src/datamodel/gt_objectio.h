@@ -186,6 +186,14 @@ private:
                                GtObject* obj);
 
     /**
+     * @brief mergeDummyProperies
+     * @param element
+     * @param obj
+     */
+    void mergeDummyProperies(const QDomElement& element,
+                             GtObject* obj);
+
+    /**
      * @brief mergeDynamicProperties
      * @param element
      * @param obj

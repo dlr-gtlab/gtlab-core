@@ -11,7 +11,6 @@
 #include <QSignalMapper>
 #include <QDebug>
 
-#include "gt_object.h"
 #include "gt_objectmemento.h"
 #include "gt_abstractobjectfactory.h"
 #include "gt_abstractproperty.h"
@@ -20,6 +19,9 @@
 #include "gt_label.h"
 #include "gt_objectmementodiff.h"
 #include "gt_objectio.h"
+#include "gt_dummyobject.h"
+
+#include "gt_object.h"
 
 GtObject::GtObject(GtObject* parent) :
     m_factory(NULL),
@@ -45,6 +47,31 @@ GtObject::ObjectFlags
 GtObject::objectFlags()
 {
     return m_objectFlags;
+}
+
+bool
+GtObject::isDummy()
+{
+    if (qobject_cast<GtDummyObject*>(this) != Q_NULLPTR)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool
+GtObject::hasDummyChildren()
+{
+    foreach (GtObject* c, findChildren<GtObject*>())
+    {
+        if (c->isDummy())
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 GtObjectMemento
@@ -393,6 +420,20 @@ GtObject::acceptChangesRecursively()
 void
 GtObject::debugObjectTree(int indent)
 {
+    GtDummyObject* d_obj = qobject_cast<GtDummyObject*>(this);
+
+    if (d_obj != Q_NULLPTR)
+    {
+        // debug dummy properties
+        foreach (GtDummyObject::DummyProperty dp,
+                 d_obj->dummyProperties())
+        {
+            qDebug() << ": " << dp.m_id << " [" << dp.m_type << ", "
+                     << dp.m_optional << ", " << dp.m_active << ", "
+                     << dp.m_val << "]";
+        }
+    }
+
     QString str = QStringLiteral("|-> ");
 
     for (int i = 0; i < indent; i++)
