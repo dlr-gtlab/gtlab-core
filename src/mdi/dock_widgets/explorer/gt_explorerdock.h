@@ -20,7 +20,6 @@ class GtExplorerView;
 class GtResultsView;
 class GtExplorerModel;
 class GtStyledModel;
-class GtResultsModel;
 class GtObject;
 class GtSearchWidget;
 
@@ -30,12 +29,6 @@ class GtSearchWidget;
 class GtExplorerDock : public GtDockWidget
 {
     Q_OBJECT
-
-    enum ViewModes
-    {
-        DATA_VIEW,
-        RESULTS_VIEW
-    };
 
 public:
     /**
@@ -59,9 +52,6 @@ public:
     virtual void initAfterStartup() Q_DECL_OVERRIDE;
 
 private:
-    /// Current view mode
-    ViewModes m_viewMode;
-
     /// Tree view
     GtExplorerView* m_view;
 
@@ -72,16 +62,13 @@ private:
     QPointer<GtStyledModel> m_styledModel;
 
     /// Results model
-    QPointer<GtResultsModel> m_resultsModel;
+    //QPointer<GtResultsModel> m_resultsModel;
 
     /// Expand states
     QStringList m_expandStates;
 
     /// Search widget
     GtSearchWidget* m_searchWidget;
-
-    /// View mode combobox
-    QComboBox* m_viewModeBox;
 
     /**
      * @brief objectContextMenu
@@ -189,11 +176,6 @@ private:
                                    QModelIndex startIndex);
 
 private slots:
-    /**
-     * @brief switchViewMode
-     * @param mode
-     */
-    void switchViewMode(int mode);
 
     /**
      * @brief onSessionChanged
