@@ -240,6 +240,11 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 
     updateButtons(m_processData);
 
+    if (project == Q_NULLPTR)
+    {
+        m_addElementButton->setEnabled(false);
+    }
+
     m_view->expandAll();
     m_view->resizeColumns();
 
