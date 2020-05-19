@@ -8,6 +8,7 @@
  */
 
 #include <QIcon>
+#include <QFont>
 #include <QVariant>
 
 #include "gt_objectui.h"
@@ -129,8 +130,23 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
     {
         switch (role)
         {
+            case Qt::ToolTipRole:
+            {
+                if (obj->isDummy())
+                {
+                    return "Object of unknown class!";
+                }
+
+                return QVariant();
+            }
+
             case Qt::DecorationRole:
             {
+                if (obj->isDummy())
+                {
+                    return gtApp->icon("unknownIcon.png");
+                }
+
                 return icon(obj);
             }
 
@@ -147,6 +163,25 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
 
                 break;
             }
+
+            case Qt::BackgroundColorRole:
+            {
+                if (obj->isDummy())
+                {
+                    return QColor(255, 140, 140);
+                }
+            }
+
+            case Qt::FontRole:
+            {
+                if (obj->isDummy())
+                {
+                    QFont font;
+                    font.setBold(true);
+                    font.setItalic(true);
+                    return font;
+                }
+            }
         }
     }
     else if (column == 1)
@@ -155,6 +190,11 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
         {
             case Qt::DecorationRole:
             {
+                if (obj->isDummy() || obj->hasDummyChildren())
+                {
+                    return gtApp->icon("unknownIcon.png");
+                }
+
                 if (obj->newlyCreated())
                 {
                     return gtApp->icon(QStringLiteral("addIcon_16.png"));
@@ -176,7 +216,18 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                 {
                     return tr("Contains changes");
                 }
+
+                return QVariant();
             }
+
+            case Qt::BackgroundColorRole:
+            {
+                if (obj->isDummy())
+                {
+                    return QColor(255, 140, 140);
+                }
+            }
+
         }
     }
 

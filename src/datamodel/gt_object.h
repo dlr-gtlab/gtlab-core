@@ -61,6 +61,19 @@ public:
     GtObject::ObjectFlags objectFlags();
 
     /**
+     * @brief Returns true if object is a dummy. Otherwise false is returned.
+     * @return True if object is a dummy.
+     */
+    bool isDummy();
+
+    /**
+     * @brief Returns true if object has children of type dummy.
+     * Otherwise false is returned.
+     * @return True if object has children of type dummy.
+     */
+    bool hasDummyChildren();
+
+    /**
      * @brief Creates a memento of the internal object state.
      * @param clone
      * @return

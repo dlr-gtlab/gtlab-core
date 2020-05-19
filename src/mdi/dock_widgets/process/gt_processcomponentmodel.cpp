@@ -11,7 +11,6 @@
 #include <QMimeData>
 #include <QFont>
 
-#include "gt_processcomponentmodel.h"
 #include "gt_project.h"
 #include "gt_application.h"
 #include "gt_objectlinkproperty.h"
@@ -26,6 +25,9 @@
 #include "gt_processdata.h"
 #include "gt_processdock.h"
 #include "gt_propertyconnection.h"
+#include "gt_dummyobject.h"
+
+#include "gt_processcomponentmodel.h"
 
 GtProcessComponentModel::GtProcessComponentModel(QObject* parent) :
     GtStyledModel(parent)
@@ -41,13 +43,13 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
     // switch roles
     switch (role)
     {
-        case Qt::ToolTipRole:
-        {
-            return QVariant();
-        }
-
         case Qt::DisplayRole:
         {
+            if (col != 0)
+            {
+                return QVariant();
+            }
+
             GtObject* item = static_cast<GtObject*>(
                                  index.internalPointer());
 
@@ -56,7 +58,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
 
             if (pc == Q_NULLPTR)
             {
-                return QVariant();
+                return item->objectName();
             }
 
             if (pc->currentState() ==
@@ -87,7 +89,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
 
             if (pc == Q_NULLPTR)
             {
-                return QVariant();
+                return GtStyledModel::data(index, role);
             }
 
             if (col == 0)
@@ -144,7 +146,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
 
             if (pc == Q_NULLPTR)
             {
-                return QVariant();
+                return GtStyledModel::data(index, role);
             }
 
             GtCalculator* calc = qobject_cast<GtCalculator*>(pc);

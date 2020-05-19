@@ -23,6 +23,9 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_stringproperty.h"
 #include "gt_variantproperty.h"
+#include "gt_doublelistproperty.h"
+#include "gt_existingdirectoryproperty.h"
+#include "gt_openfilenameproperty.h"
 
 class TestSpecialGtObject : public GtObjectGroup
 {
@@ -37,6 +40,11 @@ class TestSpecialGtObject : public GtObjectGroup
 //    Q_PROPERTY(QString linkProp READ getLink WRITE setLink)
 //    Q_PROPERTY(QString strProp READ getString WRITE setString)
     Q_PROPERTY(QVector<double> dVec READ getDoubleVec WRITE setDoubleVec)
+//    Q_PROPERTY(QVector<int> iVec MEMBER intVec)
+//    Q_PROPERTY(QList<QPointF> pVec MEMBER pointVec)
+//    Q_PROPERTY(QList<int> iList MEMBER intList)
+    Q_PROPERTY(QStringList strList MEMBER stringList)
+//    Q_PROPERTY(QList<bool> bList MEMBER boolList)
 
 public:
     Q_INVOKABLE TestSpecialGtObject() {
@@ -51,8 +59,19 @@ public:
         m_linkProp = new GtObjectLinkProperty("linkProp", "Test Link", QString(), QString(), this, QStringList());
         m_strProp = new GtStringProperty("strProp", "Test String", QString(), "Test");
         m_varProp = new GtVariantProperty("Test Variant", QString());
+        GtDoubleListProperty* doubleListProp =
+                new GtDoubleListProperty("dblList", "Double List Property");
+        GtExistingDirectoryProperty* exDirProp =
+                new GtExistingDirectoryProperty("exDir", "Existing Directory",
+                                                "Existing Directory Property");
+        GtOpenFileNameProperty* fileChooser =
+                new GtOpenFileNameProperty("fileChooser", "File Chooser",
+                                           "File Chooser",
+                                           QStringList() << "dat");
 
         m_intProp->setOptional(true);
+
+        boolList << true << false << true;
 
         registerProperty(*m_boolProp);
         registerProperty(*m_doubleProp);
@@ -66,6 +85,9 @@ public:
         registerProperty(*m_linkProp);
         registerProperty(*m_strProp);
         registerProperty(*m_varProp);
+        registerProperty(*doubleListProp);
+        registerProperty(*exDirProp);
+        registerProperty(*fileChooser);
     };
 
     bool getBool()
@@ -168,14 +190,11 @@ public:
         doubleVec = value;
     }
 
-
-protected:
     virtual bool childAccepted(GtObject* child) Q_DECL_OVERRIDE
     {
         return qobject_cast<GtObjectGroup*>(child);
     };
 
-private:
     GtBoolProperty* m_boolProp;
 
     GtDoubleProperty* m_doubleProp;
@@ -199,6 +218,16 @@ private:
     GtVariantProperty* m_varProp;
 
     QVector<double> doubleVec;
+
+    QList<QPointF> pointVec;
+
+    QList<int> intList;
+
+    QVector<int> intVec;
+
+    QStringList stringList;
+
+    QList<bool> boolList;
 
 };
 

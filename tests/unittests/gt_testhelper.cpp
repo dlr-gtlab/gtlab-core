@@ -14,7 +14,7 @@
 
 #include "gt_testhelper.h"
 
-GtTestHelper::GtTestHelper()
+GtTestHelper::GtTestHelper() : m_removeTempPath(true)
 {
 
 }
@@ -48,11 +48,17 @@ GtTestHelper::newTempDir()
     return retval;
 }
 
+void
+GtTestHelper::setRemoveTempPath(bool val)
+{
+    m_removeTempPath = val;
+}
+
 GtTestHelper::~GtTestHelper()
 {
     QDir tempDir(tempPath());
 
-    if (tempDir.exists())
+    if (tempDir.exists() && m_removeTempPath)
     {
         tempDir.removeRecursively();
     }

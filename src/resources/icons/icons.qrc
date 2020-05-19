@@ -474,5 +474,6 @@
         <file>engine_installation_16.png</file>
         <file>engine_installation_24.png</file>
         <file>engine_installation_32.png</file>
+		<file>unknownIcon.png</file>
     </qresource>
 </RCC>
