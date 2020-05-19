@@ -600,7 +600,7 @@ GtProjectUI::duplicateProject(GtObject* obj)
         return;
     }
 
-    bool ok;
+    bool ok = true;
 
     QString id = gtDataModel->uniqueObjectName(project->objectName(),
                  gtApp->session());
@@ -1326,7 +1326,7 @@ GtProjectUI::renameProject(GtObject* obj)
 
     gtDebug() << "new project name = " << text;
 
-    bool ok;
+    bool ok = true;
 
     if (text.isEmpty())
     {
