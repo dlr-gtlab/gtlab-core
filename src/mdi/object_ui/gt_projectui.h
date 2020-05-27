@@ -226,6 +226,12 @@ public slots:
      */
     bool canRenameProject(GtObject* obj);
 
+    /**
+     * @brief Shows footprint of selected project.
+     * @param obj Selected project
+     */
+    void showFootprint(GtObject* obj);
+
 };
 
 #endif // GTPROJECTUI_H

@@ -13,6 +13,7 @@
 #include "gt_core_exports.h"
 
 #include <QString>
+#include <QMap>
 
 class GtFootprintImpl;
 
@@ -85,6 +86,12 @@ public:
     GT_CORE_EXPORT bool isNewerRelease() const;
 
     /**
+     * @brief Returns footprint framework version converted to string.
+     * @return Footprint version
+     */
+    GT_CORE_EXPORT QString versionToString() const;
+
+    /**
      * @brief Returns a list of all modules and the corresponding version
      * numbers that are unknown in the current GTlab environment.
      * @return list of unknown modules and the corresponding version numbers
@@ -99,6 +106,14 @@ public:
      * numbers
      */
     GT_CORE_EXPORT QMap<QString, int> incompatibleModules() const;
+
+    /**
+     * @brief Returns a list of all modules and the corresponding version
+     * numbers that exists in a higher version within the GTlab framework.
+     * @return list of updated modules and the corresponding version
+     * numbers
+     */
+    GT_CORE_EXPORT QMap<QString, int> updatedModules() const;
 
 private:
     /// Private implementation

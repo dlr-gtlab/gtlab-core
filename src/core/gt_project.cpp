@@ -25,6 +25,7 @@
 #include "gt_label.h"
 #include "gt_loadprojecthelper.h"
 #include "gt_xmlutilities.h"
+#include "gt_footprint.h"
 #include "gt_logging.h"
 
 GtProject::GtProject(const QString& path) :
@@ -454,6 +455,14 @@ GtProject::saveProjectOverallData()
     rootElement.setAttribute(QStringLiteral("projectname"), objectName());
     rootElement.setAttribute(QStringLiteral("version"),
                              gtApp->versionToString());
+
+    // footprint
+    QDomDocument footPrintDoc;
+    GtFootprint footPrint;
+    footPrintDoc.setContent(footPrint.exportToXML(), true);
+
+    rootElement.appendChild(footPrintDoc.documentElement());
+
 
     if (!saveModuleMetaData(rootElement, document))
     {
@@ -921,4 +930,59 @@ GtProject::renameProject(const QString& str)
     acceptChanges();
 
     return true;
+}
+
+QString
+GtProject::readFootprint()
+{
+    QString filename = m_path + QDir::separator() + mainFilename();
+
+    QFile file(filename);
+
+    if (!file.exists())
+    {
+        qWarning() << "WARNING: file does not exists!";
+        qWarning() << " |-> " << filename;
+
+        return QString();
+    }
+
+    QDomDocument document;
+
+    QString errorStr;
+    int errorLine;
+    int errorColumn;
+
+    if (!document.setContent(&file, true, &errorStr, &errorLine, &errorColumn))
+    {
+        gtDebug() << tr("XML ERROR!") << " " << tr("line") << ": "
+                  << errorLine << " " << tr("column") << ": "
+                  << errorColumn << " -> " << errorStr;
+
+        return QString();
+    }
+
+    QDomElement root = document.documentElement();
+
+    if (root.isNull() || (root.tagName() != QLatin1String("GTLAB")))
+    {
+        gtDebug() << "ERROR: Invalid GTlab project file!";
+        return QString();
+    }
+
+    QString retval;
+
+    QDomElement ftprnt =
+            root.firstChildElement(QStringLiteral("env-footprint"));
+
+    if (ftprnt.isNull())
+    {
+        gtDebug() << "Footprint not found in project file!";
+        return QString();
+    }
+
+    QTextStream stream(&retval);
+    ftprnt.save(stream, 4);
+
+    return retval;
 }

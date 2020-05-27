@@ -59,6 +59,7 @@ HEADERS += \
     gt_coreapplication.h \
     gt_core_exports.h \
     gt_footprint.h \
+    gt_projectanalyzer.h \
     gt_session.h \
     gt_project.h \
     settings/gt_settingsitem.h \
@@ -82,6 +83,7 @@ HEADERS += \
 SOURCES += \
     gt_coreapplication.cpp \
     gt_footprint.cpp \
+    gt_projectanalyzer.cpp \
     gt_session.cpp \
     gt_project.cpp \
     settings/gt_settingsitem.cpp \

@@ -97,6 +97,7 @@ HEADERS += \
     gt_mdiinterface.h \
     gt_mdiitem.h \
     gt_mdilauncher.h \
+    tools/gt_projectanalyzerdialog.h \
     tools/gt_ruler.h \
     tools/gt_grid.h \
     tools/gt_graphicsscene.h \
@@ -320,6 +321,7 @@ SOURCES += \
     gt_application.cpp \
     gt_mdiitem.cpp \
     gt_mdilauncher.cpp \
+    tools/gt_projectanalyzerdialog.cpp \
     tools/gt_ruler.cpp \
     tools/gt_grid.cpp \
     tools/gt_graphicsscene.cpp \

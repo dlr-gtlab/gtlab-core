@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QTreeWidget>
 
 #include "gt_project.h"
 #include "gt_projectprovider.h"
@@ -42,6 +43,7 @@
 #include "gt_saveprojectmessagebox.h"
 #include "gt_regexp.h"
 #include "gt_inputdialog.h"
+#include "gt_footprint.h"
 
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
@@ -120,6 +122,12 @@ GtProjectUI::GtProjectUI()
         //        vc = new GtdVersionControlCore(vcInterface, differ);
 
     }
+
+    addSingleAction(tr("Show Project Footprint"),
+                    QStringLiteral("infoBlueIcon_16.png"),
+                    QStringLiteral("showFootprint"));
+
+    addSeparator();
 
     addSingleAction(tr("Show in Explorer"),
                     QStringLiteral("folder_16.png"),
@@ -1382,4 +1390,183 @@ GtProjectUI::canRenameProject(GtObject* obj)
     }
 
     return true;
+}
+
+void
+GtProjectUI::showFootprint(GtObject* obj)
+{
+    GtProject* project = qobject_cast<GtProject*>(obj);
+
+    if (project == Q_NULLPTR)
+    {
+        return;
+    }
+
+    // read footprint of saved project file
+    GtFootprint footprint(project->readFootprint());
+
+    if (!footprint.isValid())
+    {
+        gtWarning() << "no footprint found in project!";
+
+        QMessageBox mb;
+        mb.setIcon(QMessageBox::Information);
+        mb.setWindowTitle(tr("Footprint Not Found"));
+        mb.setWindowIcon(gtApp->icon("componentsIcon_16.png"));
+        mb.setText(tr("No footprint was found in the project file.\nIt seems "
+                      "that the project was created with a GTlab version "
+                      "< 1.6.\n\nSaving the project with a GTlab version >= "
+                      "1.6 allows the recording of a footprint."));
+        mb.setStandardButtons(QMessageBox::Ok);
+        mb.setDefaultButton(QMessageBox::Ok);
+        mb.exec();
+        return;
+    }
+
+    GtFootprint frameworkFootpring;
+
+    const QString projectHash =
+            QString::fromStdString(footprint.generateHash().toStdString());
+
+    const QString frameworkHash =
+            QString::fromStdString(
+                frameworkFootpring.generateHash().toStdString());
+
+    const QString projectVersion = footprint.versionToString();
+    const QString frameworkVersion = frameworkFootpring.versionToString();
+
+    QDialog dialog;
+    dialog.setWindowIcon(gtApp->icon("componentsIcon_16.png"));
+    dialog.setWindowTitle(tr("Footprint Information"));
+
+    QVBoxLayout* mLay = new QVBoxLayout;
+
+    QTreeWidget* tWid = new QTreeWidget;
+    tWid->setColumnCount(3);
+    tWid->setHeaderLabels(QStringList() << "" << "Project" << "Framework");
+
+    if (gtApp->devMode())
+    {
+        QTreeWidgetItem* hashItem = new QTreeWidgetItem(QStringList() <<
+                                                        "Hash" <<
+                                                        projectHash <<
+                                                        frameworkHash);
+        tWid->addTopLevelItem(hashItem);
+    }
+
+    QTreeWidgetItem* versionItem = new QTreeWidgetItem(QStringList() <<
+                                                       "Version" <<
+                                                       projectVersion <<
+                                                       frameworkVersion);
+
+    if (footprint.isNewerRelease())
+    {
+        versionItem->setBackgroundColor(1, QColor(255, 0, 0, 100));
+        versionItem->setBackgroundColor(2, QColor(255, 0, 0, 100));
+    }
+    else if (footprint.isOlderRelease())
+    {
+        versionItem->setBackgroundColor(1, QColor(255, 255, 0, 100));
+        versionItem->setBackgroundColor(2, QColor(255, 255, 0, 100));
+    }
+
+    tWid->addTopLevelItem(versionItem);
+
+    QMap<QString, int> unknownModules = footprint.unknownModules();
+
+    if (!unknownModules.isEmpty())
+    {
+        QTreeWidgetItem* unknownRoot =
+                new QTreeWidgetItem(QStringList() << "Unknown Modules");
+
+        for(auto e : unknownModules.keys())
+        {
+            QTreeWidgetItem* unknownModule =
+                    new QTreeWidgetItem(QStringList() << e <<
+                                        QString::number(
+                                            unknownModules.value(e)));
+
+            unknownModule->setBackgroundColor(1, QColor(255, 0, 0, 100));
+            unknownModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
+
+            unknownRoot->addChild(unknownModule);
+        }
+
+        tWid->addTopLevelItem(unknownRoot);
+    }
+
+    QMap<QString, int> incompatibleModules = footprint.incompatibleModules();
+
+    if (!incompatibleModules.isEmpty())
+    {
+        QTreeWidgetItem* incompatibleRoot =
+                new QTreeWidgetItem(QStringList() << "Incompatible Modules");
+
+        for(auto e : incompatibleModules.keys())
+        {
+            QTreeWidgetItem* incompatibleModule =
+                    new QTreeWidgetItem(QStringList() << e <<
+                                        QString::number(
+                                            incompatibleModules.value(e)) <<
+                                        QString::number(
+                                            gtApp->moduleVersion(e)));
+
+            incompatibleModule->setBackgroundColor(1, QColor(255, 0, 0, 100));
+            incompatibleModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
+
+            incompatibleRoot->addChild(incompatibleModule);
+        }
+
+        tWid->addTopLevelItem(incompatibleRoot);
+    }
+
+    QMap<QString, int> updatedModules = footprint.updatedModules();
+
+    if (!updatedModules.isEmpty())
+    {
+        QTreeWidgetItem* updatedRoot =
+                new QTreeWidgetItem(QStringList() << "Updated Modules");
+
+        for(auto e : updatedModules.keys())
+        {
+            QTreeWidgetItem* updatedModule =
+                    new QTreeWidgetItem(QStringList() << e <<
+                                        QString::number(
+                                            updatedModules.value(e)) <<
+                                        QString::number(
+                                            gtApp->moduleVersion(e)));
+
+            updatedModule->setBackgroundColor(1, QColor(255, 255, 0, 100));
+            updatedModule->setBackgroundColor(2, QColor(255, 255, 0, 100));
+
+            updatedRoot->addChild(updatedModule);
+        }
+
+        tWid->addTopLevelItem(updatedRoot);
+    }
+
+    mLay->addWidget(tWid);
+
+    QHBoxLayout* btnLay = new QHBoxLayout;
+
+    QSpacerItem* spacer = new QSpacerItem(10, 20, QSizePolicy::Expanding,
+                                          QSizePolicy::Minimum);
+
+    btnLay->addSpacerItem(spacer);
+
+    QPushButton* okBtn = new QPushButton(tr("Ok"));
+
+    connect(okBtn, SIGNAL(clicked()), &dialog, SLOT(accept()));
+
+    btnLay->addWidget(okBtn);
+
+    mLay->addLayout(btnLay);
+
+    dialog.setLayout(mLay);
+
+    dialog.resize(500, 400);
+    tWid->setColumnWidth(0, 200);
+    tWid->expandAll();
+
+    dialog.exec();
 }

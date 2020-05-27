@@ -61,6 +61,12 @@ GtCoreProcessExecutor::runTask(GtTask* task)
         return false;
     }
 
+    if (task->hasDummyChildren())
+    {
+        gtError() << "Tasks with objects of unknown type cannot be executed!";
+        return false;
+    }
+
     // check whether queue already contains same task
     if (taskQueued(task))
     {
