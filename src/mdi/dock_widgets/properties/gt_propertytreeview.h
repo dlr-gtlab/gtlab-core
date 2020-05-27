@@ -63,7 +63,7 @@ public:
      * @brief setObject
      * @param obj
      */
-    void setObject(GtObject* obj);
+    void setObject(GtObject* obj, bool processEvents = true);
 
     /**
      * @brief setScope

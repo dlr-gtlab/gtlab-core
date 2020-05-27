@@ -43,7 +43,7 @@ protected:
      * @brief showEvent
      * @param e
      */
-    void showEvent(QShowEvent* e);
+    void showEvent(QShowEvent* e) Q_DECL_OVERRIDE;
 
 private:
     /// Process wizard

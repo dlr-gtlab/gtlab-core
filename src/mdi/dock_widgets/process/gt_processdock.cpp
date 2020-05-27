@@ -589,7 +589,7 @@ GtProcessDock::updateButtons(GtObject* obj)
 void
 GtProcessDock::updateRunButton()
 {
-    if (m_currentProcess == Q_NULLPTR)
+    if (m_currentProcess == Q_NULLPTR || m_currentProcess->hasDummyChildren())
     {
         m_runButton->setEnabled(false);
         m_runButton->setText(tr("Run"));

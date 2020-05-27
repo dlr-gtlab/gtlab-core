@@ -131,6 +131,12 @@ public:
      */
     bool renameProject(const QString& str);
 
+    /**
+     * @brief Reads footprint out of project file.
+     * @return Footprint
+     */
+    QString readFootprint();
+
 protected:
     /**
      * @brief GtProject

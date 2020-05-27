@@ -18,6 +18,8 @@
 #include "gt_project.h"
 #include "gt_command.h"
 #include "gt_settings.h"
+#include "gt_projectanalyzer.h"
+#include "gt_projectanalyzerdialog.h"
 
 #include "gt_datamodel.h"
 
@@ -371,4 +373,15 @@ GtDataModel::onProjectDataLoaded()
     appendProjectData(project, data);
 
     gtApp->settings()->setLastProject(project->objectName());
+
+    // analyse project information
+    GtProjectAnalyzer analyzer(project);
+
+    if (analyzer.hasIrregularities())
+    {
+        GtProjectAnalyzerDialog dialog(&analyzer);
+        dialog.resize(500, 400);
+
+        dialog.exec();
+    }
 }

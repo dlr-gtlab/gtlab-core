@@ -91,7 +91,9 @@ void GtCalculatorSettingsPage::initializePage()
             SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
             SLOT(onComponentDataChange()));
 
-    m_view->setObject(m_component);
+    m_view->setObject(m_component, false);
+
+    QWizardPage::initializePage();
 }
 
 void

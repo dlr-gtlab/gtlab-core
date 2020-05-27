@@ -10,7 +10,6 @@
 #include <QDomDocument>
 #include <QXmlStreamWriter>
 #include <QCryptographicHash>
-#include <QMap>
 
 #include "gt_coreapplication.h"
 #include <gt_logging.h>
@@ -244,6 +243,14 @@ GtFootprint::isNewerRelease() const
     return false;
 }
 
+QString
+GtFootprint::versionToString() const
+{
+    return QString::number(m_pimpl->m_core_ver_major) + QStringLiteral(".") +
+            QString::number(m_pimpl->m_core_ver_minor) + QStringLiteral(".") +
+            QString::number(m_pimpl->m_core_ver_patch);
+}
+
 QMap<QString, int>
 GtFootprint::unknownModules() const
 {
@@ -272,7 +279,27 @@ GtFootprint::incompatibleModules() const
     foreach (const QString& mid, m_pimpl->m_modules.keys())
     {
         if ((envFootPrint.m_pimpl->m_modules.contains(mid)) &&
-                (envFootPrint.m_pimpl->m_modules.value(mid) !=
+                (envFootPrint.m_pimpl->m_modules.value(mid) <
+                 m_pimpl->m_modules.value(mid)))
+        {
+            retval.insert(mid, m_pimpl->m_modules.value(mid));
+        }
+    }
+
+    return retval;
+}
+
+QMap<QString, int>
+GtFootprint::updatedModules() const
+{
+    QMap<QString, int> retval;
+
+    GtFootprint envFootPrint;
+
+    foreach (const QString& mid, m_pimpl->m_modules.keys())
+    {
+        if ((envFootPrint.m_pimpl->m_modules.contains(mid)) &&
+                (envFootPrint.m_pimpl->m_modules.value(mid) >
                  m_pimpl->m_modules.value(mid)))
         {
             retval.insert(mid, m_pimpl->m_modules.value(mid));
