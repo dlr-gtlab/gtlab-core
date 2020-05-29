@@ -59,11 +59,12 @@ GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
 
     QLabel* copyLabel =
             new QLabel(QStringLiteral(
-                "GTlab - Gas Turbine laboratory\ncopyright 2009-2018 by DLR"));
+                "GTlab - Gas Turbine laboratory\ncopyright 2009-2020 by DLR"));
 
     hLayout->addWidget(copyLabel);
 
-    QString vers = gtApp->versionToString() + QStringLiteral("\nHydrogen");
+    QString vers = gtApp->versionToString() + QStringLiteral("-RC3") +
+                   QStringLiteral("\nHydrogen");
 
     QLabel* versLabel = new QLabel(vers);
     versLabel->setAlignment(Qt::AlignRight);
