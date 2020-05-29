@@ -18,6 +18,7 @@
 #include "gt_coredatamodel.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_propertyconnection.h"
+#include "gt_footprint.h"
 
 GtProjectProvider::GtProjectProvider(QObject* parent) : QObject(parent),
     m_project(NULL)
@@ -464,6 +465,11 @@ GtProjectProvider::generateMainProjectFile()
     QString str = QStringLiteral("<MODULE name=\"$$module$$\"/>");
 
     data.replace(QStringLiteral("$$projectname$$"), m_pName);
+
+    // footprint
+    GtFootprint footprint;
+
+    data.replace(QStringLiteral("$$footprint$$"), footprint.exportToXML());
 
     QString modStr;
 
