@@ -17,7 +17,8 @@ What you need:
   - NLopt (v2.6.1)
   - (optional) GoogleTest (v1.10.0)
 - Qt 5.12
-- Microsoft Visual Studio Build Tools 2017
+- (MS Windows) Microsoft Visual Studio Build Tools 2017
+- (Linux) GCC
 
 ## Building GTlab
 
@@ -26,12 +27,13 @@ also possible to use an IDE of your choice.
 
 ### QtCreator
 
--   Copy local_settings.pri form features directory to GTlab root
+-   Copy *local_settings.pri* form *features* directory to GTlab *root*
     directory
--   Edit DEV_TOOLS path inside the local_settings.pri to GTlab-DevTools location on 
+-   Edit *DEV_TOOLS* path inside the *local_settings.pri* to GTlab-DevTools location on 
     your system
--   Run QtCreator
--   Open gtlab.pro
+-   Run *QtCreator*
+-   Open *gtlab.pro*
+-   Run *qmake*
 -   Build!
 
 ### Additional Settings
