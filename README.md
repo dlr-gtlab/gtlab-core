@@ -9,13 +9,13 @@ GTlab is an interactive, cross-platform simulation and pre-design environment fo
 What you need:
 
 - GTlab-DevTools
-  - GTlab-Logging ([v1.0.0](https://gitlab.dlr.de/at-twk/gtlab-logging/-/releases/v1.0.0))
-  - GTlab-Numerics ([v1.0.0](https://gitlab.dlr.de/at-twk/gtlab-numerics/-/releases/v1.0.0))
-  - SplineLib ([v1.0.0](https://gitlab.dlr.de/at-twk/spline-library/-/releases/v1.0.0))
-  - MINPACK (v1.3.6)
-  - QWT (v6.1.4)
-  - NLopt (v2.6.1)
-  - (optional) GoogleTest (v1.10.0)
+  - GTlab-Logging
+  - GTlab-Numerics
+  - SplineLib
+  - MINPACK
+  - QWT
+  - NLopt
+  - (optional) GoogleTest
 - Qt 5.12
 - (MS Windows) Microsoft Visual Studio Build Tools 2017
 - (Linux) GCC
