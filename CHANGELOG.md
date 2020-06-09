@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - XML attributes within project files are saved in alphabetical order - #59
 - Exporter and Importer for Processelements - #58
 - Backup functionality for project files when the project is saved - #10
+- Changelog file in repository - #72
+- Installation steps in readme - #4
 
 ### Changed
 - Migration to new build configuration (Qt12, MSVC 2017 Build Tools)
