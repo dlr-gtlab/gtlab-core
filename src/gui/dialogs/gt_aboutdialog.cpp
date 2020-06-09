@@ -63,7 +63,7 @@ GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
 
     hLayout->addWidget(copyLabel);
 
-    QString vers = gtApp->versionToString() + QStringLiteral("-RC3") +
+    QString vers = gtApp->versionToString() +
                    QStringLiteral("\nHydrogen");
 
     QLabel* versLabel = new QLabel(vers);
