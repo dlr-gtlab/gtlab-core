@@ -41,11 +41,9 @@ GtProcessExecutor::handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
         // start timer
         //timer.start();
 
-        GtObjectMementoDiff* sumDiff = new GtObjectMementoDiff;
-
         GtFinishedProcessLoadingHelper* helper =
-                new GtFinishedProcessLoadingHelper(&changedData, sumDiff,
-                                                   m_source, m_taskName);
+                new GtFinishedProcessLoadingHelper(&changedData, m_source,
+                                                   m_taskName);
 
         connect(helper, SIGNAL(finished()), SLOT(onHelperFinished()));
 
