@@ -8,11 +8,10 @@
 
 GtFinishedProcessLoadingHelper::GtFinishedProcessLoadingHelper(
         QList<GtObjectMemento>* data,
-        GtObjectMementoDiff* sumDiff,
         QPointer<GtObject> source,
         QString taskName) :
     m_data(data),
-    m_sumDiff(sumDiff),
+    m_sumDiff(new GtObjectMementoDiff),
     m_source(source),
     m_taskName(taskName)
 {
@@ -21,7 +20,7 @@ GtFinishedProcessLoadingHelper::GtFinishedProcessLoadingHelper(
 
 GtFinishedProcessLoadingHelper::~GtFinishedProcessLoadingHelper()
 {
-
+    delete m_sumDiff;
 }
 
 void

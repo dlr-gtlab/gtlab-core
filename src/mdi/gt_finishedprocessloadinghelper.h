@@ -34,7 +34,6 @@ public:
      * @param taskName
      */
     GtFinishedProcessLoadingHelper(QList<GtObjectMemento>* data,
-                                   GtObjectMementoDiff* sumDiff,
                                    QPointer<GtObject> source,
                                    QString taskName);
 
