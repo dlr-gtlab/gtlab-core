@@ -56,6 +56,7 @@ GtContour::calcContour(GtTable* table, QString param,
     {
         GtContourRunnable* cr = Q_NULLPTR;
 
+
         if (i != isoValues.size()-1)
         {
             cr = new GtContourRunnable(tableMemento,
@@ -230,9 +231,21 @@ GtContour::setData(GtTable* table, QString paramName, int iDim, int jDim)
             newYvalues.append(axis1Min + j * (axis1Max - axis1Min)
                                   / (jDim - 1));
 
-            newZvalues.append(table->getValue2D(paramName,
-                                                newXvalues.at(counter),
-                                                newYvalues.at(counter)));
+            double res = 0.0;
+
+            try
+            {
+                res = table->getValue2D(paramName,
+                                        newXvalues.at(counter),
+                                        newYvalues.at(counter));
+            }
+            catch (GTlabException& e)
+            {
+                gtError() << "Exception" << e.what() << "in " << e.where();
+                return false;
+            }
+
+            newZvalues.append(res);
 
             counter++;
         }

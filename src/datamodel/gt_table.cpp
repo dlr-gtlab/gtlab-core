@@ -171,7 +171,23 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
     int n = getAxisSize(axisIndex);
     QList<GtTableAxis*> axList = getAxesList();
 
-    GtNumerics::GtInterpolator* curInterp = axList.at(axisIndex)->interpolator();
+    GtTableAxis* currentAxis = axList.at(axisIndex);
+
+    if (currentAxis == Q_NULLPTR)
+    {
+        throw GTlabException("Table::approxDimension()",
+                             "currentAxis is Q_NULLPTR.");
+    }
+
+    GtNumerics::GtInterpolator* curInterp = currentAxis->interpolator();
+
+    if (curInterp == Q_NULLPTR)
+    {
+        /// Reinitialize the method helped to solve an error
+        currentAxis->setInterMethod(currentAxis->interMethod());
+
+        curInterp = currentAxis->interpolator();
+    }
 
     if (curInterp == Q_NULLPTR)
     {
@@ -187,7 +203,7 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
 
         const GtNumerics::darray& xx = getAxisTicks(axisIndex);
 
-        if (axList.at(axisIndex) == Q_NULLPTR)
+        if (currentAxis == Q_NULLPTR)
         {
             throw GTlabException("Table::approxDimension()",
                                  "Axis is Q_NULLPTR.");
@@ -208,24 +224,24 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
 
         if (x < xx[0])
         {
-            if (axList.at(axisIndex)->loExtrapolator() == NULL)
+            if (currentAxis->loExtrapolator() == NULL)
             {
                 throw GTlabException("Table::approxDimension()",
                                      "loExtrapolation forbidden.");
             }
 
-            return axList.at(axisIndex)->loExtrapolator()->calc(x, 0, curInterp,
+            return currentAxis->loExtrapolator()->calc(x, 0, curInterp,
                     xx, yy);
         }
         else if (x > xx[n - 1])
         {
-            if (axList.at(axisIndex)->hiExtrapolator() == NULL)
+            if (currentAxis->hiExtrapolator() == NULL)
             {
                 throw GTlabException("Table::approxDimension()",
                                      "hiExtrapolation forbidden.");
             }
 
-            return axList.at(axisIndex)->hiExtrapolator()->calc(x, n - 1,
+            return currentAxis->hiExtrapolator()->calc(x, n - 1,
                     curInterp, xx,
                     yy);
         }
@@ -500,6 +516,16 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
 
     GtNumerics::GtInterpolator* Interp0 = axList.at(0)->interpolator();
     GtNumerics::GtInterpolator* Interp1 = axList.at(1)->interpolator();
+
+
+    if (Interp0 == Q_NULLPTR || Interp1 == Q_NULLPTR)
+    {
+        axList.at(0)->setInterMethod(axList.at(0)->interMethod());
+        axList.at(1)->setInterMethod(axList.at(1)->interMethod());
+
+        Interp0 = axList.at(0)->interpolator();
+        Interp1 = axList.at(1)->interpolator();
+    }
 
     if (Interp0 == Q_NULLPTR || Interp1 == Q_NULLPTR)
     {

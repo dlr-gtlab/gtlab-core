@@ -9,6 +9,8 @@
 #ifndef GT_DATAZONECSVEXPORTER_H
 #define GT_DATAZONECSVEXPORTER_H
 
+#include "gt_mdi_exports.h"
+
 #include <QFile>
 #include <QTextStream>
 
@@ -24,7 +26,7 @@ class GtDataZone0D;
  *
  * Currently its working for up to 4 dimensional datazones
  */
-class GtDataZoneCsvExporter : public GtAbstractExporter
+class GT_MDI_EXPORT GtDataZoneCsvExporter : public GtAbstractExporter
 {
     Q_OBJECT
 
@@ -67,15 +69,6 @@ public:
      */
     QList<GtAbstractExporterPage*> pages(GtObject* data) Q_DECL_OVERRIDE;
 
-private:
-    /**
-     * @brief writing of 0-dimensional tables to a .csv file
-     * @param data data zone for export
-     * @param file file to write in
-     * @return
-     */
-    bool write0Ddata(GtDataZone0D* data, QFile& file);
-
     /**
      * @brief writing of multidimensional tables to a .csv file
      * dependent on the dimension the following helper functions will be used
@@ -84,6 +77,15 @@ private:
      * @return
      */
     bool writeMultiDimData(GtDataZone* data, QFile& file);
+
+private:
+    /**
+     * @brief writing of 0-dimensional tables to a .csv file
+     * @param data data zone for export
+     * @param file file to write in
+     * @return
+     */
+    bool write0Ddata(GtDataZone0D* data, QFile& file);
 
     /**
      * @brief writing of 1D tables to a .csv file

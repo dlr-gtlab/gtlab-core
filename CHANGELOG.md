@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - BugFix: Potential memory leak in ProcessExecutor - #75
 
+### Fixed:
+- BugFix: ContourPlot crash (Maps/AeroPlots) is fixed by several safty functions #74
+
 ## [1.6.0] - 2020-06-05
 ### Added
 - ProjectAnalyzer to identify corrupted save data and framework incompatibilities - #65, #64, #62
