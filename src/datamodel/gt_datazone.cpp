@@ -83,7 +83,18 @@ GtDataZone::value1D(QString param, double x0, bool* ok)
         {
             *ok = true;
         }
-        return tab->getValue1D(param, x0);
+        double val = 0.0;
+
+        try
+        {
+            val = tab->getValue1D(param, x0);
+        }
+        catch (GTlabException& e)
+        {
+            *ok = false;
+        }
+
+        return val;
     }
 
     if (ok != Q_NULLPTR)
@@ -176,7 +187,18 @@ GtDataZone::value1DVector(QString param, QVector<double> ticks, bool *ok)
         QVector<double> retVal;
         foreach(double tick, ticks)
         {
-            retVal.append(tab->getValue1D(param, tick));
+
+            double val = 0.0;
+
+            try
+            {
+                val = tab->getValue1D(param, tick);
+            }
+            catch (GTlabException& e)
+            {
+                *ok = false;
+            }
+            retVal.append(val);
         }
 
         return retVal;
@@ -220,7 +242,19 @@ GtDataZone::value2D(QString param, double x0, double x1, bool* ok)
         {
             *ok = true;
         }
-        return tab->getValue2D(param, x0, x1);
+
+        double result = 0.0;
+
+        try
+        {
+            result = tab->getValue2D(param, x0, x1);
+        }
+        catch (GTlabException& e)
+        {
+            *ok = false;
+        }
+
+        return result;
     }
 
     if (ok != Q_NULLPTR)
@@ -260,7 +294,18 @@ GtDataZone::value3D(QString param, double x0, double x1, double x2, bool *ok)
         {
             *ok = true;
         }
-        return tab->getValue3D(param, x0, x1, x2);
+
+        double val = 0.0;
+        try
+        {
+            val = tab->getValue3D(param, x0, x1, x2);
+        }
+        catch (GTlabException& e)
+        {
+            *ok = false;
+        }
+
+        return val;
     }
 
     if (ok != Q_NULLPTR)

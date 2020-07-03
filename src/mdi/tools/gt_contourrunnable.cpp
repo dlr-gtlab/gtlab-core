@@ -755,11 +755,24 @@ GtContourRunnable::toXY(QPolygonF& polysToTransform, const GtTable& table)
 
     for (int i = 0; i < polysToTransform.size(); i++)
     {
+        double resX = 0.0;
+        double resY = 0.0;
 
-        QPointF p = QPointF(table.getValue2D("x", polysToTransform[i].x(),
-                                             polysToTransform[i].y()),
-                            table.getValue2D("y", polysToTransform[i].x(),
-                                             polysToTransform[i].y()));
+        try
+        {
+            resX = table.getValue2D("x", polysToTransform[i].x(),
+                                    polysToTransform[i].y());
+            resY = table.getValue2D("y", polysToTransform[i].x(),
+                                    polysToTransform[i].y());
+        }
+        catch (GTlabException& e)
+        {
+            gtError() << "Exception in GtContourRunnable::toXY"
+                      << "what: " << e.what()
+                      << "where:" << e.where();
+        }
+
+        QPointF p = QPointF(resX, resY);
 
         polysXY << p;
     }
