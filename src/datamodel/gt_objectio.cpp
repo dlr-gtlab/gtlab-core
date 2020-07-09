@@ -1709,7 +1709,8 @@ GtObjectIO::propertyListToVariant(const QString& value, const QString& type)
 
         var.setValue(list);
     }
-    else if (type == QStringLiteral("QString"))
+    else if (type == QStringLiteral("QString") ||
+             type == QStringLiteral("string"))
     {
         QStringList list = value.split(QStringLiteral(";"));
         var.setValue(list);
