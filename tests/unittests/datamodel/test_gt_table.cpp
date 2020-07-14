@@ -9,7 +9,11 @@
 
 #include "gtest/gtest.h"
 
+#include <QMetaProperty>
+
 #include "gt_table.h"
+#include "gt_objectmemento.h"
+#include "gt_objectfactory.h"
 
 /// This is a test fixture that does a init for each test
 class TestGtTable : public ::testing::Test , public GtTable
@@ -562,6 +566,67 @@ TEST_F(TestGtTable, getAxisSize)
     // EXPECT FAILURE AND RETURN-Value 0:
     ASSERT_EQ(m_table2->getAxisSize(3), 0);
     ASSERT_EQ(m_table->getAxisSize(0), 0);
+}
+
+TEST_F(TestGtTable, testInterpolators)
+{
+    GtTable* testTable = new GtTable();
+    testTable->setObjectName("testTable");
+
+    QVector<double> ticks;
+    ticks.append(0);
+    ticks.append(1);
+    ticks.append(2);
+    ticks.append(3);
+
+    QString axisID = "axisID";
+    QString desc = "descritption";
+    QString unit = "Kelvin";
+    GtTableAxis::ExtrapMethod loExMethod;
+    GtTableAxis::InterpMethod intMethod;
+    GtTableAxis::ExtrapMethod hiExtMethod;
+
+    loExMethod = GtTableAxis::ExtrapMethod::E_CONST;
+    intMethod = GtTableAxis::InterpMethod::I_CATMULL;
+    hiExtMethod = GtTableAxis::ExtrapMethod::E_LINEAR;
+
+    bool success = false;
+
+    success = testTable->addAxis(axisID, desc, unit, loExMethod, intMethod,
+                                 hiExtMethod, ticks);
+
+    ASSERT_TRUE(success);
+
+    QList<GtTableAxis*> axes = testTable->getAxesList();
+
+    ASSERT_EQ(axes.size(), 1);
+
+    GtObjectMemento mem = testTable->toMemento();
+
+    GtObject* memObj = mem.restore(gtObjectFactory);
+
+    ASSERT_TRUE(memObj != Q_NULLPTR);
+
+    GtTable* memTable = qobject_cast<GtTable*>(memObj);
+
+    const QMetaObject* metaObject = memTable->metaObject();
+    QStringList properties;
+    for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i)
+        properties << QString::fromLatin1(metaObject->property(i).name());
+
+    ASSERT_EQ(properties.size(), 3);
+
+    ASSERT_TRUE(memTable != Q_NULLPTR);
+
+    QList<GtTableAxis*> memAxes = memTable->getAxesList();
+
+    ASSERT_EQ(memAxes.size(), 1);
+
+    ASSERT_EQ(axes.first()->hiExtMethod(), memAxes.first()->hiExtMethod());
+    ASSERT_EQ(axes.first()->loExtMethod(), memAxes.first()->loExtMethod());
+    ASSERT_EQ(axes.first()->interMethod(), memAxes.first()->interMethod());
+
+    delete testTable;
 }
 
 
