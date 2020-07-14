@@ -1672,7 +1672,10 @@ GtObjectIO::propertyToVariant(const QString& value, const QString& type)
     QVariant::Type v_type = QVariant::nameToType(p);
     QVariant retval(value);
 
-    retval.convert(v_type);
+    if (v_type != QVariant::Invalid)
+    {
+        retval.convert(v_type);
+    }
 
     return retval;
 }

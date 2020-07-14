@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.3] - 2020-07-14
+### Fixed
+- BugFix: Invalid conversion from given type to variant - #77
+
 ## [1.6.2] - 2020-07-09
 ### Fixed
 - BugFix: Deserialization of property lists of old type "string" - #76
