@@ -26,13 +26,6 @@ GtFinishedProcessLoadingHelper::~GtFinishedProcessLoadingHelper()
 void
 GtFinishedProcessLoadingHelper::run()
 {
-    QDir tempDir;
-
-    if (gtApp->devMode())
-    {
-        tempDir = gtApp->applicationTempDir();
-    }
-
     for (int i = 0; i < m_data->size(); ++i)
     {
         GtObjectMemento memento = m_data->at(i);
@@ -43,25 +36,6 @@ GtFinishedProcessLoadingHelper::run()
         {
             GtObjectMemento old = target->toMemento(true);
             GtObjectMementoDiff diff(old, memento);
-
-            //if (!tempDir.absolutePath().isEmpty() && gtApp->devMode())
-            //{
-            //    QString filename = target->objectName() +
-            //                       QStringLiteral(".xml");
-            //
-            //    QFile file(tempDir.absoluteFilePath(filename));
-            //
-            //    if (file.open(QFile::WriteOnly))
-            //    {
-            //        QTextStream TextStream(&file);
-            //        TextStream << diff.toByteArray();
-            //        TextStream << "######### new";
-            //        TextStream << memento.toByteArray();
-            //        TextStream << "######### old";
-            //        TextStream << old.toByteArray();
-            //        file.close();
-            //    }
-            //}
 
             m_sumDiff->operator <<(diff);
         }

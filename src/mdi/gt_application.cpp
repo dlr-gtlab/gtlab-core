@@ -70,6 +70,14 @@ GtApplication::~GtApplication()
     }
 
     QApplication::clipboard()->clear();
+
+    // remove temp directory
+    gtDebug() << "deleting temp dir...";
+    QString tmpPath = QCoreApplication::applicationDirPath() + QDir::separator()
+                      + QStringLiteral("temp");
+
+    QDir dir(tmpPath);
+    dir.removeRecursively();
 }
 
 QIcon
