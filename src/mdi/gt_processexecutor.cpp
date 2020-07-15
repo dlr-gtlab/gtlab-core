@@ -77,8 +77,11 @@ GtProcessExecutor::onHelperFinished()
     {
         return;
     }
+
     if (helper->sumDiff()->isNull())
     {
+        helper->deleteLater();
+
         return;
     }
 
