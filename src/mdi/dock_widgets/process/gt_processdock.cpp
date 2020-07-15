@@ -540,6 +540,11 @@ GtProcessDock::componentIsReady(GtProcessComponent* comp)
 void
 GtProcessDock::filterData(const QString& val)
 {
+    if (m_filterModel == Q_NULLPTR)
+    {
+        return;
+    }
+
     m_filterModel->setFilterRegExp(val);
 
     if (m_rootIndex.isValid())
