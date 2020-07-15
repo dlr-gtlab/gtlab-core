@@ -40,44 +40,47 @@ GtProcessView::resizeEvent(QResizeEvent* event)
 void
 GtProcessView::keyPressEvent(QKeyEvent* event)
 {
-    QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
-
-    if (indexes.size() == 2)
+    if (selectionModel() != Q_NULLPTR)
     {
-        QModelIndex index = indexes.first();
+        QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
 
-        if (event->modifiers() == Qt::ControlModifier)
+        if (indexes.size() == 2)
         {
-            if (event->key() == Qt::Key_V)
+            QModelIndex index = indexes.first();
+
+            if (event->modifiers() == Qt::ControlModifier)
             {
-                emit pasteProcessElement(index);
-            }
-            else if (event->key() == Qt::Key_C)
-            {
-                if (index.isValid())
+                if (event->key() == Qt::Key_V)
                 {
-                    emit copyProcessElement(index);
-                    event->accept();
-                    return;
+                    emit pasteProcessElement(index);
                 }
-            }
-            else if (event->key() == Qt::Key_X)
-            {
-                if (index.isValid())
+                else if (event->key() == Qt::Key_C)
                 {
-                    emit cutProcessElement(index);
-                    event->accept();
-                    return;
+                    if (index.isValid())
+                    {
+                        emit copyProcessElement(index);
+                        event->accept();
+                        return;
+                    }
+                }
+                else if (event->key() == Qt::Key_X)
+                {
+                    if (index.isValid())
+                    {
+                        emit cutProcessElement(index);
+                        event->accept();
+                        return;
+                    }
                 }
             }
         }
-    }
 
-    if (event->key() == Qt::Key_Delete)
-    {
+        if (event->key() == Qt::Key_Delete)
+        {
             emit deleteProcessElements(indexes);
-    }
+        }
 
+    }
 
     GtTreeView::keyPressEvent(event);
 }
