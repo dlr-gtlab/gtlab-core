@@ -51,6 +51,13 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
     m_devMode(false),
     m_dataModel(new GtCoreDatamodel(parent))
 {
+    /// set locale to international standard for unix OS
+#if defined(Q_OS_UNIX)
+    setlocale(LC_ALL, "C");
+#endif
+    ///
+
+
     //    qDebug() << "GtCoreApplication";
     //    init();
 }
