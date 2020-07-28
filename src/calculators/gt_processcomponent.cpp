@@ -105,7 +105,7 @@ QList<GtAbstractProperty*>
 GtProcessComponent::readWriteProperties()
 {
     // get all properties
-    QList<GtAbstractProperty*> retval = properties();
+    QList<GtAbstractProperty*> retval = fullPropertyList();
 
     // iterate over properties and remove all monitoring properties
     foreach (GtAbstractProperty* prop, retval)
