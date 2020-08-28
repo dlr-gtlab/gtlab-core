@@ -5,8 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Convinience function to add datazones to resul-objects with labels easier  - #83
+
+## [1.6.4] - 2020-07-28
 ### Fixed
 - BugFix: Fix crashes within the Process DockWidget if no selected project is open - #50
+- BugFix: Potential memory leak in ProcessExecutor - #78
+- BugFix: Auto delete application temp folder - #73
+- BugFix: Locale options for linux builds - #80
+
+### Added
+- Handling of subproperties in connection editor - #39
 
 ## [1.6.3] - 2020-07-14
 ### Fixed

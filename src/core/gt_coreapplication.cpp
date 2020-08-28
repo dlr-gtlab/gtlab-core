@@ -39,7 +39,7 @@
 GtCoreApplication* GtCoreApplication::m_self = 0;
 int GtCoreApplication::m_major = 1;
 int GtCoreApplication::m_minor = 6;
-int GtCoreApplication::m_patchLevel = 3;
+int GtCoreApplication::m_patchLevel = 4;
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
     QObject(parent),
@@ -51,6 +51,13 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
     m_devMode(false),
     m_dataModel(new GtCoreDatamodel(parent))
 {
+    /// set locale to international standard for unix OS
+#if defined(Q_OS_UNIX)
+    setlocale(LC_ALL, "C");
+#endif
+    ///
+
+
     //    qDebug() << "GtCoreApplication";
     //    init();
 }
