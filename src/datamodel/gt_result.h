@@ -31,16 +31,23 @@ public:
 
     /**
      * @brief labels
-     * @return
+     * @return all label objects used under this result object
      */
     QList<GtLabel*> labels();
 
     /**
      * @brief labelNames
-     * @return
+     * @return all label names used under this result object
      */
     QStringList labelNames();
 
+    /**
+     * @brief addObjectToLabel
+     * @param obj - object to add (e.g.datazone)
+     * @param labelName - name of the label to use
+     * @return true if successfull, else false
+     */
+    bool addObjectToLabel(GtObject* obj, QString labelName);
 };
 
 #endif // GTRESULT_H
