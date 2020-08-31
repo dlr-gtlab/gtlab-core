@@ -110,7 +110,49 @@ nightlyBuildWindowsQt504:
     - Windows7
   only:
     - master    
+     
+buildLinux:
+  stage: build
+  before_script:
+    # add permissions
+    - chmod +x ./tests/build/build-512.sh
+  script:
+    - ./tests/build/build-512.sh 1 > build_log_linux.txt
+  tags:
+    - LinuxTest
+  artifacts:
+    paths:
+    - build_log_linux.txt
+    - lib/core/*.so*
+    - build/GTlab
+    - build/GTlabConsole
+    - build/libGTlabGui.so
 
+guiTests:
+  stage: test
+  tags:
+    - LinuxTest
+  dependencies:
+    - buildLinux
+  before_script:
+    # add permissions
+    - chmod +x ./tests/guitests/run_guitests.sh
+  script:
+    # xvfb to run a virtual display
+    - xvfb-run ./tests/guitests/run_guitests.sh
+  artifacts:
+    paths:
+      - ./gui_tests_web
+      - ./gui_tests_junits
+      - ./gui_tests_stdout*.txt     
+      - ./gui_tests_server_stdout.txt  
+      - ./gui_tests_server_stdout.txt
+      - ./guitests_badge.svg  
+    reports:
+      junit: ./gui_tests_junits/junit*.xml
+    name: "guitesting results"
+    expire_in: 1 week
+    when: always
 
 #testWin512:
 #  stage: test
