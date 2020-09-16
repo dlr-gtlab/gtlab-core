@@ -76,17 +76,13 @@ GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
 
     QStringList list = deserializeStringList(in);
 
-    if (list.size() >= 2)
-    {
-        if (list.value(1) != macAddress())
-        {
-            gtError() << "Invalid access data file! ("
-                      << filename << ") - internal adress error!";
-            return false;
-        }
+    // number of header lines
+    const int nhl = list.size() % 4;
 
+    if (list.size() >= 1 && nhl == 1)
+    {
         qDebug() << "   |-> reading data...";
-        list.removeFirst();
+
         list.removeFirst();
 
         while (!list.isEmpty())
@@ -262,7 +258,6 @@ GtAccessManager::saveAccessData()
 
         QStringList output;
         output << group->objectName();
-        output << macAddress();
 
         foreach (GtAccessData data, group->accessData())
         {
