@@ -108,8 +108,9 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                 line->setFrameShadow(QFrame::Sunken);
                 mLay->addWidget(line);
 
-                QSpacerItem* spacer2 = new QSpacerItem(10, 10, QSizePolicy::Minimum,
-                                                      QSizePolicy::Expanding);
+                QSpacerItem* spacer2 = new QSpacerItem(10, 10,
+                                                       QSizePolicy::Minimum,
+                                                       QSizePolicy::Expanding);
                 mLay->addSpacerItem(spacer2);
             }
         }
