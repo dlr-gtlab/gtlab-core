@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - BugFix: Information about differences in version of the framework and project within ProjectAnalyzerDialog - #81
 - BugFix: Invalidation of Access Data for Collections - #90
+- BugFix: Wrong index in access data model when access data is removed - #92
 
 ## [1.6.4] - 2020-07-28
 ### Fixed

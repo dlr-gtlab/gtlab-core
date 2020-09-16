@@ -210,12 +210,9 @@ GtAccessGroupModel::removeAccessData(const QModelIndex& index)
         return false;
     }
 
-    if (!m_group->removeAccessData(index.row()))
-    {
-        return false;
-    }
-
     beginRemoveRows(QModelIndex(), index.row(), index.row());
+
+    m_group->removeAccessData(index.row());
 
     endRemoveRows();
 
