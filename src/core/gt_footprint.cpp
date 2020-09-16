@@ -163,7 +163,7 @@ GtFootprint::isCompatible() const
         return true;
     }
 
-    if (isOlderRelease() || isNewerRelease())
+    if (isNewerRelease())
     {
         return false;
     }
