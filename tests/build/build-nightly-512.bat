@@ -1,5 +1,5 @@
 net use g: \\kpfiler1.intra.dlr.de\AT-KP
-copy features\gitlab_windows_local_settings-nightly512.pri local_settings.pri
+copy features\gitlab_pipeline_local_settings.pri local_settings.pri
 
 call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\AUXILIARY\\BUILD\\vcvarsall.bat" amd64
 

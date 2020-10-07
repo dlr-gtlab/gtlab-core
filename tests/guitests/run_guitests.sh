@@ -3,7 +3,7 @@ BASEDIR=$(dirname "$0")
 # path to GTlab
 GTLAB_DIR=$PWD/build
 # path to dev tools
-DEVTOOLS_DIR=/home/gitlab-runner/gtlab-devtools
+# DEVTOOLS_DIR=/home/gitlab-runner/gtlab-devtools
 # path to Qt-gcc_64
 QT_DIR=/opt/Qt/5.12.5/gcc_64
 # path to the squish install directory

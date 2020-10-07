@@ -83,6 +83,7 @@ CONFIG(debug, debug|release){
     LIBS += -lqwt
 }
 
+
 # add search paths to shared libraries
 unix: QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN:\$$ORIGIN/modules\''
 

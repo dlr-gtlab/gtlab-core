@@ -1,4 +1,4 @@
-SET NIGHTLYBUILD=G:\AT-TW\GTlab\Nightly_Builds_512
+REM SET NIGHTLYBUILD=G:\AT-TW\GTlab\Nightly_Builds_512
 
 if exist "%NIGHTLYBUILD%\include\core\" rmdir /s /q %NIGHTLYBUILD%\include\core\
 

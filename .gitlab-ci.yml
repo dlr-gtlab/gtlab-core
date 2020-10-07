@@ -14,22 +14,31 @@ buildWindows512:
     paths:
       - lib/core/GTlabDatamodel-d.dll
       - lib/core/GTlabDatamodel-d.lib
+      - build/GTlabDatamodel-d.pdb
       - lib/core/GTlabCalculators-d.dll
       - lib/core/GTlabCalculators-d.lib
+      - build/GTlabCalculators-d.pdb
       - lib/core/GTlabCore-d.dll
       - lib/core/GTlabCore-d.lib
+      - build/GTlabCore-d.pdb
       - lib/core/GTlabNetwork-d.dll
       - lib/core/GTlabNetwork-d.lib
+      - build/GTlabNetwork-d.pdb
+      - build/GTlabGui-d.pdb
       - build/GTlabGui-d.dll
       - build/GTlabGui-d.lib
       - lib/core/GTlabMdi-d.dll
-      - lib/core/GTlabMdi-d.lib	  
+      - lib/core/GTlabMdi-d.lib
+      - build/GTlabMdi-d.pdb		  
       - build/GTlab.exe
       - build/GTlabConsole.exe
       - build/GTlabUnitTest.exe
       - buildLog.txt
     when: always  	  
-      
+  variables:
+    DEVTOOLS: "C:\\devel\\GTlab-DevTools\\stable\\1_6"   
+    BUILD_UNIT: "true"
+    
 nightlyBuildWindowsQt512:
   stage: build
   script:
@@ -56,79 +65,32 @@ nightlyBuildWindowsQt512:
     - Win7Qt512
   only:
     - master    
-       
-buildWindows504:
-  stage: build
-  script:
-    - .\tests\build\build-504.bat 1>buildLog.txt
-  tags:
-    - Windows7
-  artifacts:
-    paths:
-      - lib/core/GTlabDatamodel-d.dll
-      - lib/core/GTlabDatamodel-d.lib
-      - lib/core/GTlabCalculators-d.dll
-      - lib/core/GTlabCalculators-d.lib
-      - lib/core/GTlabCore-d.dll
-      - lib/core/GTlabCore-d.lib
-      - lib/core/GTlabNetwork-d.dll
-      - lib/core/GTlabNetwork-d.lib
-      - build/GTlabGui-d.dll
-      - build/GTlabGui-d.lib
-      - lib/core/GTlabMdi-d.dll
-      - lib/core/GTlabMdi-d.lib	  
-      - build/GTlab.exe
-      - build/GTlabConsole.exe
-      - build/GTlabUnitTest.exe
-      - buildLog.txt
-    when: always  	  
-      
-nightlyBuildWindowsQt504:
-  stage: build
-  script:
-    - .\tests\build\build-nightly-504.bat
-    - .\tests\build\copyHeaders-504.bat
-  artifacts:
-    paths:
-      - lib/core/GTlabDatamodel.dll
-      - lib/core/GTlabDatamodel.lib
-      - lib/core/GTlabCalculators.dll
-      - lib/core/GTlabCalculators.lib
-      - lib/core/GTlabCore.dll
-      - lib/core/GTlabCore.lib
-      - lib/core/GTlabNetwork.dll
-      - lib/core/GTlabNetwork.lib
-      - build/GTlabGui.dll
-      - build/GTlabGui.lib
-      - lib/core/GTlabMdi.dll
-      - lib/core/GTlabMdi.lib	  
-      - build/GTlab.exe
-      - build/GTlabConsole.exe
-      - buildLog.txt
-      - include/core/*.h   	  
-  tags:
-    - Windows7
-  only:
-    - master    
-     
+  variables:
+    DEVTOOLS: "C:\\devel\\GTlab-DevTools\\stable\\1_6"           
+    NIGHTLYBUILD: "G:\\AT-TW\\GTlab\\Nightly_Builds_512"
+    BUILD_UNIT: "false"
+    
 buildLinux:
   stage: build
   before_script:
     # add permissions
     - chmod +x ./tests/build/build-512.sh
   script:
-    - ./tests/build/build-512.sh 1 > build_log_linux.txt
+    - ./tests/build/build-512.sh 1 > linuxBuild.txt
   tags:
     - LinuxTest
   artifacts:
     paths:
-    - build_log_linux.txt
+    - linuxBuild.txt
     - lib/core/*.so*
     - build/GTlab
     - build/GTlabConsole
     - build/libGTlabGui.so
-
+  variables:
+    DEVTOOLS: "/home/gitlab-runner/gtlab-devtools"     
+    BUILD_UNIT: "false"    
 guiTests:
+  needs: ["buildLinux"]
   stage: test
   tags:
     - LinuxTest
@@ -153,47 +115,35 @@ guiTests:
     name: "guitesting results"
     expire_in: 1 week
     when: always
+  variables:
+    DEVTOOLS_DIR: "/home/gitlab-runner/gtlab-devtools"    
 
-#testWin512:
-#  stage: test
-#  script:
-#    - .\tests\unittests\runUnittestsQt512.bat
-#  dependencies:
-#    - buildWindows512
-#  tags:
-#    - Win7Qt512
-#  artifacts:
-#    paths:
-#      #- "GTlabUnitTestCoverage.xml"
-#      #- "CoverageReport*"
-#      #- "New_Coverage.svg"
-#      - "unittests.xml"
-#    reports:
-#      junit: unittests.xml  
-
-#testWin504:
-#  stage: test
-#  script:
-#    - .\tests\unittests\runUnittestsQt504.bat
-#  dependencies:
-#    - buildWindows504
-#  tags:
-#    - Windows7
-#  artifacts:
-#    paths:
-#      - "GTlabUnitTestCoverage.xml"
-#      - "CoverageReport*"
-#      - "New_Coverage.svg"
-#      - "unittests.xml"
-#    reports:
-#      junit: unittests.xml  
+testWin512:
+  needs: ["buildWindows512"]
+  stage: test
+  script:
+    - .\tests\unittests\runUnittestsQt512.bat
+  dependencies:
+    - buildWindows512
+  tags:
+    - Win7Qt512
+  artifacts:
+    paths:
+      - "unittests.xml"
+      - "GTlabUnitTestCoverage.xml"   
+      - CoverageReport*      
+    reports:
+      junit: unittests.xml
+    expire_in: 1 week
+  variables:
+    DEVTOOLS: "C:\\devel\\GTlab-DevTools\\stable\\1_6" 
 
 codingstyle:
   stage: codingstyle
   script:
     - .\tests\codingstyle\runCodingstyle.bat 1>codingStyleLog.txt
   tags:
-    - Windows7
+    - Win7Qt512
   artifacts:
     paths:
       - "nsiqcppstyle_report.xml"
@@ -207,17 +157,22 @@ badges:
     - $statistics = git diff --shortstat 4b825dc642cb6eb9a060e54bf8d69288fbee4904
     - $filesRaw,$linesRaw = $statistics.split(',')
     - $fileNumber = $filesRaw.split(' ')[1]
-    - $linenumber = $linesRaw.split(' ')[1]
     - .\tests\badges\badges.bat --run files $fileNumber
     - .\tests\badges\badges.bat --bw .\buildLog.txt .
     - .\tests\badges\badges.bat --cs .\codingStyleLog.txt .	
+    - .\tests\badges\badges.bat --cl .\GTlabUnitTestCoverage.xml .
+    - .\tests\badges\badges.bat --cc .\GTlabUnitTestCoverage.xml .
+    - .\tests\badges\badges.bat --bw .\linuxBuild.txt .  
   tags:
     - Win7Qt512
   artifacts:
     paths:
       - "New_commits.svg"
+      - "New_lines.svg"
       - "New_files.svg"
       - "New_BuildWarn-W.svg"
+      - "New_BuildWarn-L.svg"
       - "New_CodingStyle.svg"
-  
+      - "New_Coverage.svg"
+    expire_in: 26 week  
   
