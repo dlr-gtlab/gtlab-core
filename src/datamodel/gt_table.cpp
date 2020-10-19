@@ -189,6 +189,14 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
         curInterp = currentAxis->interpolator();
     }
 
+    if (curInterp->getMinPoints() > getAxisTicks(axisIndex).size())
+    {
+        gtError() << "invalid number of points for the selected interpolator";
+        gtError() << "The table has " << getAxisTicks(axisIndex).size()
+                  << "points but the interpolation method requires "
+                  << curInterp->getMinPoints();
+    }
+
     if (curInterp == Q_NULLPTR)
     {
         throw GTlabException("Table::approxDimension()",
@@ -220,6 +228,11 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
             indices[axisIndex] = i;
 
             yy[i] = approxDimension(valsId, axisIndex - 1, indices, coords);
+        }
+
+        if (xx.size() < 2)
+        {
+            return yy[0];
         }
 
         if (x < xx[0])
@@ -268,6 +281,11 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
 
         int i = GtNumerics::locate(x, xx);
         int j = GtNumerics::subArrayIndex(i, n, sliceSize);
+
+        if (xx.size() < 2)
+        {
+            return yy[0];
+        }
 
         if (x < xx[0])
         {
