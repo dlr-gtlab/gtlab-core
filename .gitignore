@@ -9,6 +9,7 @@ local_settings.pri
 *.directory
 *.qmake.stash
 *.o
+*.pyc
 linuxBuild.txt
 unittests.xml
 !tests/build/

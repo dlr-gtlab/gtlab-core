@@ -6,7 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+
+### Fixed 
+
+## [1.7.0] - TBD
+### Added
 - Convinience function to add datazones to resul-objects with labels easier  - #83
+
+### Fixed
+- BugFix: Small check in table class prevents crash on linux for tables with only one point
+- BugFix: Unitconversion for a non-dimensional unit
+
+
+## [1.6.5] - 2020-09-16
+### Fixed
+- BugFix: Information about differences in version of the framework and project within ProjectAnalyzerDialog - #81
+- BugFix: Invalidation of Access Data for Collections - #90
+- BugFix: Wrong index in access data model when access data is removed - #92
+
 
 ## [1.6.4] - 2020-07-28
 ### Fixed

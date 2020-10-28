@@ -61,7 +61,13 @@ CONFIG(debug, debug|release){
     LIBS += -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabCore-d
     LIBS += -lGTlabMdi-d -lGTlabNetwork-d
     # THIRD PARTY
-    LIBS += -lqwtd
+    win32 {
+        LIBS += -lqwtd
+    }
+    unix {
+        LIBS += -lqwt
+        LIBS += -lcminpack
+    }
 } else {
     # UTILITIES
     LIBS += -lGTlabNumerics -lGTlabLogging
@@ -70,6 +76,10 @@ CONFIG(debug, debug|release){
     LIBS += -lGTlabMdi -lGTlabNetwork
     # THIRD PARTY
     LIBS +=  -lqwt
+
+    unix {
+        LIBS += -lcminpack
+    }
 }
 
 # add search paths to shared libraries

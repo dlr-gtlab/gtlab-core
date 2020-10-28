@@ -1,5 +1,19 @@
+LIB_DIR=./lib/$TARGETDIRNAME
+QT_DIR=/opt/Qt/5.12.5/gcc_64
 
-export LIBRARY_PATH=./lib/core
-export LD_LIBRARY_PATH=./lib/core
-
-./build/GTlabUnitTest --gtest_output=xml:unittests.xml 
+export LIBRARY_PATH=$LIB_DIR:$LIBRARY_PATH
+export LIBRARY_PATH=$QT_DIR:$LIBRARY_PATH
+export LIBRARY_PATH=$QT_DIR/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/lib/core:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/lib/logging:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/lib/numerics:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/lib/physics:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/ThirdPartyLibraries:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/ThirdPartyLibraries/Qwt/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/ThirdPartyLibraries/SplineLib/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/ThirdPartyLibraries/minpack/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS/ThirdPartyLibraries/NLopt/lib:$LIBRARY_PATH
+export LD_LIBRARY_PATH=$LIBRARY_PATH
+./build/$UNITTESTSNAME --gtest_output=xml:unittests.xml

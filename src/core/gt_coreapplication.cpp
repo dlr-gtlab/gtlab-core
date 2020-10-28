@@ -39,7 +39,7 @@
 GtCoreApplication* GtCoreApplication::m_self = 0;
 int GtCoreApplication::m_major = 1;
 int GtCoreApplication::m_minor = 6;
-int GtCoreApplication::m_patchLevel = 4;
+int GtCoreApplication::m_patchLevel = 5;
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
     QObject(parent),

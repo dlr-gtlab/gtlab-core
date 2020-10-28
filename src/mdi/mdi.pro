@@ -541,9 +541,27 @@ RESOURCES += ../resources/icons/icons.qrc \
 LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release){
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabNetwork-d -lGTlabCalculators-d -lGTlabCore-d -lqwtd
+    # GTlab Utilities
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d
+    #GTlab Core
+    LIBS += -lGTlabDatamodel-d -lGTlabNetwork-d -lGTlabCalculators-d
+    LIBS += -lGTlabCore-d
+    #Third Party Libraries
+    win32 {
+        LIBS += -lqwtd
+    }
+    unix {
+        LIBS += -lqwt
+    }
+
 } else {
-    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabNetwork -lGTlabCalculators -lGTlabCore -lqwt
+    # GTlab Utilities
+    LIBS += -lGTlabNumerics -lGTlabLogging
+    #GTlab Core
+    LIBS += -lGTlabDatamodel -lGTlabNetwork -lGTlabCalculators
+    LIBS += -lGTlabCore
+    #Third Party Libraries
+    LIBS += -lqwt
 }
 
 ######################################################################

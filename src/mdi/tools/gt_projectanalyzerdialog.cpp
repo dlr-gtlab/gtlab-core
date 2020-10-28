@@ -71,6 +71,49 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                                                   QSizePolicy::Expanding);
             mLay->addSpacerItem(spacer2);
         }
+        else
+        {
+            if (footprint.isNewerRelease())
+            {
+                QHBoxLayout* ftrntInfoLay = new QHBoxLayout;
+
+                QLabel* ftrntIcon = new QLabel;
+                ftrntIcon->setPixmap(
+                            gtApp->icon("errorIcon.png").pixmap(32, 32));
+
+                QSpacerItem* spacer = new QSpacerItem(10, 20,
+                                                      QSizePolicy::Minimum,
+                                                      QSizePolicy::Minimum);
+
+                QLabel* ftrntInfo =
+                        new QLabel(tr("The project was last edited with a newer"
+                                      " release than the current used release"
+                                      " of the GTlab framework.\n\n") +
+                                   "Framework =\t" +
+                                   GtFootprint().versionToString() + "\n" +
+                                   "Project =\t\t" +
+                                   footprint.versionToString() +
+                                   "\n\nThis can lead to unexpected behavior.");
+
+                ftrntInfoLay->addWidget(ftrntIcon);
+                ftrntInfoLay->addSpacerItem(spacer);
+                ftrntInfoLay->addWidget(ftrntInfo);
+                mLay->addLayout(ftrntInfoLay);
+
+                // horizontal line
+                QFrame* line = new QFrame;
+                line->setObjectName(QString::fromUtf8("line"));
+                line->setGeometry(QRect(320, 150, 118, 3));
+                line->setFrameShape(QFrame::HLine);
+                line->setFrameShadow(QFrame::Sunken);
+                mLay->addWidget(line);
+
+                QSpacerItem* spacer2 = new QSpacerItem(10, 10,
+                                                       QSizePolicy::Minimum,
+                                                       QSizePolicy::Expanding);
+                mLay->addSpacerItem(spacer2);
+            }
+        }
 
         // analyse unknown modules
         QMap<QString, int> unknownModules = footprint.unknownModules();
