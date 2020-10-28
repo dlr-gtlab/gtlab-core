@@ -10,6 +10,8 @@
 #ifndef TEST_GT_OBJECT_H
 #define TEST_GT_OBJECT_H
 
+#include <QPointF>
+
 #include "gt_objectgroup.h"
 
 #include "gt_boolproperty.h"

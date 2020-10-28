@@ -134,12 +134,42 @@ SOURCES += \
 RESOURCES += ../resources/icons/icons.qrc \
     ../resources/pixmaps/pixmaps.qrc
 
+unix {
+    QMAKE_CXXFLAGS += -std=c++11
+}
+
 LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release){
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabNetwork-d -lGTlabCore-d -lqwtd -lGTlabMdi-d
+    # GTlab Utilities
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d
+    #GTlab Core
+    LIBS += -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabNetwork-d
+    LIBS += -lGTlabCore-d -lGTlabMdi-d
+    #Third Party Libraries
+    win32 {
+        LIBS += -lqwtd
+    }
+    unix {
+        LIBS += -lqwt
+    }
+
 } else {
-    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork -lGTlabCore -lqwt -lGTlabMdi
+    # GTlab Utilities
+    LIBS += -lGTlabNumerics -lGTlabLogging
+    # GTLab Core
+    LIBS += -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork
+    LIBS += -lGTlabCore -lGTlabMdi
+    #Third Party Libraries
+    LIBS += -lqwt
 }
+
+######################################################################
+
+#contains(BUILD_DEPLOY, true) {
+#
+#    copyHeaders($$HEADERS)
+#    copyToEnvironmentPath()
+#}
 
 ######################################################################

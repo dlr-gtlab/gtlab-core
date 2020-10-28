@@ -18,7 +18,7 @@ BUILD_BATCH =                   true
 BUILD_APP =                     true
 
 # tests
-BUILD_UNITTESTS =               $$(BUILD_UNIT)
+BUILD_UNITTESTS =               $$(BUILDUNITTESTS)
 BUILD_REGRESSIONTESTS =         false
 
 # deployment settings

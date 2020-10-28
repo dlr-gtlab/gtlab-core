@@ -108,12 +108,28 @@ CONFIG(debug, debug|release){
     # Core
     LIBS += -lGTlabMdi-d -lGTlabDatamodel-d -lGTlabNetwork-d
     LIBS += -lGTlabCalculators-d -lGTlabCore-d
+
+    # THIRD PARTY
+    win32 {
+        LIBS += -lqwtd
+    }
+    unix {
+        LIBS += -lqwt
+        LIBS += -lcminpack
+    }
 } else {
     #Utilities
     LIBS += -lGTlabLogging -lGTlabNumerics
    # Core
     LIBS += -lGTlabMdi -lGTlabDatamodel -lGTlabNetwork
     LIBS += -lGTlabCalculators -lGTlabCore
+
+    # THIRD PARTY
+    LIBS += -lqwt
+
+    unix {
+        LIBS += -lcminpack
+    }
 }
 
 # third party
@@ -121,7 +137,12 @@ equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 12) {
     message(Qt Version 5.12 or newer)
 
         CONFIG(debug, debug|release){
+        win32 {
                 LIBS += -lgtestd
+        }
+        unix {
+                LIBS += -lgtest
+        }
         } else {
                 LIBS += -lgtest
         }

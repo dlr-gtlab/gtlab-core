@@ -658,7 +658,6 @@ void GtUnitConverter<T>::initialize()
     m_factorMap.insert(GtUnit::kinematicViscosity, kinematicViscosityFac);
 
 
-
     /** Non Dimensional Percentage **/
 
     QMap<QString, double> nonDimensionalPercentage;
@@ -668,6 +667,17 @@ void GtUnitConverter<T>::initialize()
 
     m_factorMap.insert(GtUnit::NonDimensionalPercentage,
                        nonDimensionalPercentage);
+
+
+    /** Non Dimensional **/
+
+    QMap<QString, double> nonDimensional;
+
+    nonDimensional["-"] = 1.0;
+
+    m_factorMap.insert(GtUnit::NonDimensional,
+                       nonDimensional);
+
 
 
     /** CUSTOM **/
