@@ -234,7 +234,39 @@ GtMainWin::closeEvent(QCloseEvent* event)
 {
     if (!m_forceQuit)
     {
-        if (gtApp->hasProjectChanges())
+        /// A process is running
+        if (gtProcessExecutor->currentRunningTask() != Q_NULLPTR)
+        {
+            QMessageBox mb;
+            mb.setIcon(QMessageBox::Question);
+            mb.setWindowTitle(tr("Confirm Exit"));
+            mb.setWindowIcon(gtApp->icon("closeIcon_16.png"));
+            mb.setText(tr("Attention: \n"
+                          "You try to exit GTlab while  a process is running \n"
+                          "Are you sure quit?"));
+            mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            mb.setDefaultButton(QMessageBox::No);
+            int ret = mb.exec();
+
+            switch (ret)
+            {
+                case QMessageBox::Yes:
+                {
+                    break;
+                }
+
+                case QMessageBox::No:
+                {
+                    event->ignore();
+                    return;
+                }
+
+                default:
+                    break;
+            }
+        }
+        /// There is unsaved data
+        else if (gtApp->hasProjectChanges())
         {
             GtSaveProjectMessageBox mb;
             int ret = mb.exec();
@@ -256,7 +288,6 @@ GtMainWin::closeEvent(QCloseEvent* event)
                 {
                     event->ignore();
                     return;
-                    break;
                 }
 
                 default:
@@ -285,7 +316,6 @@ GtMainWin::closeEvent(QCloseEvent* event)
                 {
                     event->ignore();
                     return;
-                    break;
                 }
 
                 default:
@@ -515,7 +545,7 @@ GtMainWin::updateSessionList()
     {
         ui->menuSession->addSeparator();
 
-        if (m_switchSessionMapper == NULL)
+        if (m_switchSessionMapper == Q_NULLPTR)
         {
             m_switchSessionMapper = new QSignalMapper(this);
             connect(m_switchSessionMapper, SIGNAL(mapped(QObject*)),
@@ -560,7 +590,7 @@ GtMainWin::updatePerspectiveList()
     {
         ui->menuPerspective->addSeparator();
 
-        if (m_switchPerspectiveMapper == NULL)
+        if (m_switchPerspectiveMapper == Q_NULLPTR)
         {
             m_switchPerspectiveMapper = new QSignalMapper(this);
             connect(m_switchPerspectiveMapper, SIGNAL(mapped(QObject*)),
@@ -786,7 +816,7 @@ GtMainWin::printCurrentMdiItem()
     }
     else
     {
-        QMessageBox::information(0, "Print error", "No view open!",
+        QMessageBox::information(Q_NULLPTR, "Print error", "No view open!",
                                  QMessageBox::Ok);
     }
 }
@@ -829,7 +859,7 @@ GtMainWin::openHelpContents()
 
     if (!process->waitForStarted())
     {
-        QMessageBox::critical(0, QObject::tr("GTlab"),
+        QMessageBox::critical(Q_NULLPTR, QObject::tr("GTlab"),
                               QObject::tr("Unable to launch HelpContents.\n"
                                           "Please install documentation."));
 
@@ -1029,7 +1059,6 @@ GtMainWin::runUpdate()
             case QMessageBox::Cancel:
             {
                 return;
-                break;
             }
 
             default:
@@ -1057,7 +1086,6 @@ GtMainWin::runUpdate()
             case QMessageBox::Cancel:
             {
                 return;
-                break;
             }
 
             default:
