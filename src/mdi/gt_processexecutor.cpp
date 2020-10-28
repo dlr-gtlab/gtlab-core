@@ -8,7 +8,6 @@
  */
 
 #include <QDebug>
-#include <QElapsedTimer>
 
 #include "gt_application.h"
 #include "gt_task.h"
@@ -20,7 +19,8 @@
 #include "gt_processexecutor.h"
 
 GtProcessExecutor::GtProcessExecutor(QObject* parent) :
-    GtCoreProcessExecutor(parent)
+    GtCoreProcessExecutor(parent),
+    m_task(Q_NULLPTR)
 {
 }
 
@@ -34,7 +34,7 @@ GtProcessExecutor::handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
     // calculators included in the task
     if (m_source != Q_NULLPTR)
     {
-        m_taskName = task->objectName();
+        m_task = task;
         // create timer
         //QElapsedTimer timer;
 
@@ -43,7 +43,7 @@ GtProcessExecutor::handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
 
         GtFinishedProcessLoadingHelper* helper =
                 new GtFinishedProcessLoadingHelper(&changedData, m_source,
-                                                   m_taskName);
+                                                   m_task->objectName());
 
         connect(helper, SIGNAL(finished()), SLOT(onHelperFinished()));
 
@@ -85,7 +85,7 @@ GtProcessExecutor::onHelperFinished()
         return;
     }
 
-    const QString commandMsg = m_taskName +
+    const QString commandMsg = m_task->objectName() +
                                QStringLiteral(" ") +
                                tr("run");
 
@@ -93,6 +93,11 @@ GtProcessExecutor::onHelperFinished()
 
     if (!m_source->applyDiff(*helper->sumDiff()))
     {
+        gtError() << tr("Data changes from the task")
+                  << m_task->objectName()
+                  << tr("could not feed back to datamodel");
+
+        m_task->setState(GtProcessComponent::FAILED);
         qDebug() << "Diff not succesfully applied!";
     }
     else
