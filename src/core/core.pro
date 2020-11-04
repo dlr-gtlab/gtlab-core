@@ -59,6 +59,7 @@ HEADERS += \
     gt_coreapplication.h \
     gt_core_exports.h \
     gt_footprint.h \
+    gt_globals.h \
     gt_projectanalyzer.h \
     gt_session.h \
     gt_project.h \

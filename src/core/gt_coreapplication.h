@@ -261,6 +261,13 @@ public:
     static int patchLevel();
 
     /**
+     * @brief Returns additional version information of the application (e.g.
+     * alpha, beta, rc, etc.)
+     * @return additional version information
+     */
+    static std::string additionalVersionInfo();
+
+    /**
      * @brief Returns version string including major, minor and patch version.
      * @return Version string.
      */
@@ -386,6 +393,9 @@ private:
 
     /// Application patch level
     static int m_patchLevel;
+
+    /// Application additional version information (alpha, beta, etc.)
+    static std::string m_additional;
 
 signals:
     /**
