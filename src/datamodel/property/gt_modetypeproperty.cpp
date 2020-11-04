@@ -11,7 +11,7 @@
 
 GtModeTypeProperty::GtModeTypeProperty(const QString& name,
                                        const QString& brief) :
-    GtStringProperty(QString(), name, brief)
+    GtStringProperty(QString(), name, brief, name)
 {
     m_storeMemento = false;
 }

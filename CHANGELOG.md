@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BugFix: Small check in table class prevents crash on linux for tables with only one point
 - BugFix: Unitconversion for a non-dimensional unit
 
+### Added
+- ModeTypeProperty getVal() returns mode type id  - #34
+- Improved comparison og ModeProperty and ModeTypeProperty - #34
 
 ## [1.6.5] - 2020-09-16
 ### Fixed
