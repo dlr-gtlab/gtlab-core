@@ -24,6 +24,8 @@ class GT_DATAMODEL_EXPORT GtModeProperty : public GtProperty<QString>
     Q_OBJECT
 
 public:
+    using GtProperty<QString>::operator=;
+
     GtModeProperty(const QString& ident,
                    const QString& name,
                    const QString& brief);

@@ -40,6 +40,9 @@ contains(BUILD_DEPLOY, true) {
     include( deployment.pri )
 }
 
+LIBS        += -L$${DEV_TOOLS}/bin
+DEPENDPATH  += $${DEV_TOOLS}/bin
+
 #### LIBRARIES
 # Logging
 INCLUDEPATH += $${GTLAB_LOGGING_PATH}/include/logging
