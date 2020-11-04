@@ -141,7 +141,7 @@ guiTests:
     - chmod +x ./tests/guitests/run_guitests.sh
   script:
     # xvfb to run a virtual display
-    - xvfb-run ./tests/guitests/run_guitests.sh
+    - xvfb-run -a ./tests/guitests/run_guitests.sh
   artifacts:
     paths:
       - ./gui_tests_web

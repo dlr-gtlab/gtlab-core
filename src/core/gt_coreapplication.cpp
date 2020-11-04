@@ -33,13 +33,15 @@
 #include "gt_abstractloadinghelper.h"
 #include "gt_environment.h"
 #include "gt_command.h"
+#include "gt_globals.h"
 
 #include "QsLogDest.h"
 
 GtCoreApplication* GtCoreApplication::m_self = 0;
-int GtCoreApplication::m_major = 1;
-int GtCoreApplication::m_minor = 6;
-int GtCoreApplication::m_patchLevel = 5;
+int GtCoreApplication::m_major = GT_VERSION_MAJOR;
+int GtCoreApplication::m_minor = GT_VERSION_MINOR;
+int GtCoreApplication::m_patchLevel = GT_VERSION_PATCH;
+std::string GtCoreApplication::m_additional = GT_VERSION_ADDITIONAL;
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
     QObject(parent),
@@ -565,12 +567,28 @@ GtCoreApplication::patchLevel()
     return m_patchLevel;
 }
 
+std::string
+GtCoreApplication::additionalVersionInfo()
+{
+    return m_additional;
+}
+
 QString
 GtCoreApplication::versionToString()
 {
+    QString addStr = QString::fromStdString(m_additional);
+
+    if (addStr.isEmpty())
+    {
+        return QString::number(majorRelease()) + QStringLiteral(".") +
+                QString::number(minorRelease()) + QStringLiteral(".") +
+                QString::number(patchLevel());
+    }
+
     return QString::number(majorRelease()) + QStringLiteral(".") +
             QString::number(minorRelease()) + QStringLiteral(".") +
-            QString::number(patchLevel());
+            QString::number(patchLevel()) + QStringLiteral(" - ") +
+            addStr;
 }
 
 QDir
