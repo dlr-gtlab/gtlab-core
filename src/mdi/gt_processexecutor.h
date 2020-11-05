@@ -51,7 +51,8 @@ private slots:
     void onHelperFinished();
 
 private:
-    QString m_taskName;
+    /// Task
+    GtTask* m_task;
 
 };
 
