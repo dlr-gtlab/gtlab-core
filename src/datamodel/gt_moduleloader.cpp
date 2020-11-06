@@ -146,7 +146,7 @@ GtModuleLoader::moduleDatamodelInterfaceIds()
     return retval;
 }
 
-int
+GtVersionNumber
 GtModuleLoader::moduleVersion(const QString& id)
 {
     if (m_plugins.contains(id))
@@ -154,7 +154,7 @@ GtModuleLoader::moduleVersion(const QString& id)
         return m_plugins.value(id)->version();
     }
 
-    return -1;
+    return GtVersionNumber();
 }
 
 QString
@@ -382,17 +382,9 @@ GtModuleLoader::checkDependency(const QVariantList& deps)
     {
         QVariantMap mitem = var.toMap();
 
-        bool success = false;
-
         const QString name = mitem.value(QStringLiteral("name")).toString();
-        const int version =
-                mitem.value(QStringLiteral("version")).toInt(&success);
-
-        if (!success)
-        {
-            gtWarning() << "could not read version information!";
-            return false;
-        }
+        const GtVersionNumber version(
+                mitem.value(QStringLiteral("version")).toString());
 
         //        gtDebug() << "dep = " << name;
 
@@ -403,7 +395,7 @@ GtModuleLoader::checkDependency(const QVariantList& deps)
         }
 
         // check version
-        const int depVersion = m_plugins.value(name)->version();
+        const GtVersionNumber depVersion = m_plugins.value(name)->version();
 
         if (depVersion != version)
         {

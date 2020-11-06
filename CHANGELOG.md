@@ -12,14 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.7.0] - TBD
 ### Added
 - Convinience function to add datazones to resul-objects with labels easier  - #83
+- ModeTypeProperty getVal() returns mode type id  - #34
+- Improved comparison og ModeProperty and ModeTypeProperty - #34
+
+### Changed
+- New general indication of version numbers. Used in modules and calculators, among others. - #89
 
 ### Fixed
 - BugFix: Small check in table class prevents crash on linux for tables with only one point
 - BugFix: Unitconversion for a non-dimensional unit
-
-### Added
-- ModeTypeProperty getVal() returns mode type id  - #34
-- Improved comparison og ModeProperty and ModeTypeProperty - #34
 
 ## [1.6.5] - 2020-09-16
 ### Fixed

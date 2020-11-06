@@ -16,6 +16,7 @@
 #include <QMap>
 
 class GtFootprintImpl;
+class GtVersionNumber;
 
 /**
  * @brief The GtFootprint class provides information about the footprint of a
@@ -96,7 +97,7 @@ public:
      * numbers that are unknown in the current GTlab environment.
      * @return list of unknown modules and the corresponding version numbers
      */
-    GT_CORE_EXPORT QMap<QString, int> unknownModules() const;
+    GT_CORE_EXPORT QMap<QString, GtVersionNumber> unknownModules() const;
 
     /**
      * @brief Returns a list of all modules and the corresponding version
@@ -105,7 +106,7 @@ public:
      * @return list of incompatible modules and the corresponding version
      * numbers
      */
-    GT_CORE_EXPORT QMap<QString, int> incompatibleModules() const;
+    GT_CORE_EXPORT QMap<QString, GtVersionNumber> incompatibleModules() const;
 
     /**
      * @brief Returns a list of all modules and the corresponding version
@@ -113,7 +114,7 @@ public:
      * @return list of updated modules and the corresponding version
      * numbers
      */
-    GT_CORE_EXPORT QMap<QString, int> updatedModules() const;
+    GT_CORE_EXPORT QMap<QString, GtVersionNumber> updatedModules() const;
 
 private:
     /// Private implementation

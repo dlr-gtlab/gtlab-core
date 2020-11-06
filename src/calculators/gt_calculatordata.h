@@ -13,6 +13,7 @@
 #include "gt_calculators_exports.h"
 
 #include "gt_abstractprocessdata.h"
+#include "gt_versionnumber.h"
 
 #include <QStringList>
 #include <QMetaObject>
@@ -91,7 +92,7 @@ public:
     QString category;
 
     /// Calculator version.
-    double version;
+    GtVersionNumber version;
 
 private:
     /// Calculator meta data.

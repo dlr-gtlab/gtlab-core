@@ -20,6 +20,7 @@ class QJsonObject;
 class QPluginLoader;
 class QDir;
 class GtModuleInterface;
+class GtVersionNumber;
 
 /**
  * @brief The GtModuleLoader class
@@ -67,7 +68,7 @@ public:
      * @param module identification string
      * @return module version number
      */
-    int moduleVersion(const QString& id);
+    GtVersionNumber moduleVersion(const QString& id);
 
     /**
      * @brief Returns description of module for given id. Returns empty
