@@ -26,6 +26,7 @@
 #include "gt_loadprojecthelper.h"
 #include "gt_xmlutilities.h"
 #include "gt_footprint.h"
+#include "gt_versionnumber.h"
 #include "gt_logging.h"
 
 GtProject::GtProject(const QString& path) :
@@ -501,7 +502,7 @@ GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
         QDomElement moduleElement = doc.createElement(QStringLiteral("MODULE"));
         moduleElement.setAttribute(QStringLiteral("name"), mid);
         moduleElement.setAttribute(QStringLiteral("version"),
-                                   gtApp->moduleVersion(mid));
+                                   gtApp->moduleVersion(mid).toString());
         modulesElement.appendChild(moduleElement);
     }
 

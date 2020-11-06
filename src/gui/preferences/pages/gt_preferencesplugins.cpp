@@ -14,12 +14,14 @@
 #include <QLabel>
 #include <QHeaderView>
 
-#include "gt_preferencesplugins.h"
 #include "gt_objectfactory.h"
 #include "gt_processfactory.h"
 #include "gt_factorygroup.h"
 #include "gt_mdilauncher.h"
 #include "gt_application.h"
+#include "gt_versionnumber.h"
+
+#include "gt_preferencesplugins.h"
 
 GtPreferencesPlugins::GtPreferencesPlugins()
 {
@@ -40,7 +42,7 @@ GtPreferencesPlugins::GtPreferencesPlugins()
     {
         QStringList nfo;
         nfo << id;
-        nfo << QString::number(gtApp->moduleVersion(id));
+        nfo << gtApp->moduleVersion(id).toString();
         QTreeWidgetItem* item = new QTreeWidgetItem(nfo);
         item->setIcon(0, gtApp->icon("pluginIcon_16.png"));
         item->setToolTip(0,gtApp->moduleDescription(id));

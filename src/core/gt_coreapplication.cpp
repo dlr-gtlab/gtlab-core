@@ -33,6 +33,7 @@
 #include "gt_abstractloadinghelper.h"
 #include "gt_environment.h"
 #include "gt_command.h"
+#include "gt_versionnumber.h"
 #include "gt_globals.h"
 
 #include "QsLogDest.h"
@@ -511,7 +512,7 @@ GtCoreApplication::moduleDatamodelInterfaceIds()
     return m_moduleLoader->moduleDatamodelInterfaceIds();
 }
 
-int
+GtVersionNumber
 GtCoreApplication::moduleVersion(const QString& id)
 {
     if (m_moduleLoader == NULL)
@@ -576,19 +577,16 @@ GtCoreApplication::additionalVersionInfo()
 QString
 GtCoreApplication::versionToString()
 {
-    QString addStr = QString::fromStdString(m_additional);
+    return GtCoreApplication::version().toString();
+}
 
-    if (addStr.isEmpty())
-    {
-        return QString::number(majorRelease()) + QStringLiteral(".") +
-                QString::number(minorRelease()) + QStringLiteral(".") +
-                QString::number(patchLevel());
-    }
-
-    return QString::number(majorRelease()) + QStringLiteral(".") +
-            QString::number(minorRelease()) + QStringLiteral(".") +
-            QString::number(patchLevel()) + QStringLiteral(" - ") +
-            addStr;
+GtVersionNumber
+GtCoreApplication::version()
+{
+    return GtVersionNumber(GtCoreApplication::majorRelease(),
+                           GtCoreApplication::minorRelease(),
+                           GtCoreApplication::patchLevel(),
+                           QString::fromStdString(m_additional));
 }
 
 QDir

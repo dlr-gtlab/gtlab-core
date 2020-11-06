@@ -31,6 +31,7 @@ class GtObject;
 class GtCoreDatamodel;
 class GtAbstractLoadingHelper;
 class GtCommand;
+class GtVersionNumber;
 
 /**
  * @brief The GtApplication class
@@ -225,7 +226,7 @@ public:
      * @param module identification string
      * @return module version number
      */
-    int moduleVersion(const QString& id);
+    GtVersionNumber moduleVersion(const QString& id);
 
     /**
      * @brief Returns description of module for given id. Returns empty
@@ -272,6 +273,13 @@ public:
      * @return Version string.
      */
     static QString versionToString();
+
+    /**
+     * @brief Returns version information including major, minor and patch
+     * version.
+     * @return Version information.
+     */
+    static GtVersionNumber version();
 
     /**
      * @brief Returns global temporary directory of the application.

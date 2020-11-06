@@ -17,6 +17,7 @@
 
 #include "gt_application.h"
 #include "gt_footprint.h"
+#include "gt_versionnumber.h"
 
 #include "gt_projectanalyzerdialog.h"
 
@@ -116,7 +117,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
         }
 
         // analyse unknown modules
-        QMap<QString, int> unknownModules = footprint.unknownModules();
+        QMap<QString, GtVersionNumber> unknownModules = footprint.unknownModules();
 
         if (!unknownModules.isEmpty())
         {
@@ -137,7 +138,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
         }
 
         // analyse incompatible modules
-        QMap<QString, int> incompatibleModules =
+        QMap<QString, GtVersionNumber> incompatibleModules =
                 footprint.incompatibleModules();
 
         if (!incompatibleModules.isEmpty())
@@ -153,10 +154,8 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             {
                 QTreeWidgetItem* incompatibleModule =
                         new QTreeWidgetItem(QStringList() << e <<
-                                            QString::number(
-                                                incompatibleModules.value(e)) <<
-                                            QString::number(
-                                                gtApp->moduleVersion(e)));
+                                     incompatibleModules.value(e).toString() <<
+                                     gtApp->moduleVersion(e).toString());
 
                 incompatibleModule->setBackgroundColor(1,
                                                        QColor(255, 0, 0, 100));

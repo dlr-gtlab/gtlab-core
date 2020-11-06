@@ -110,7 +110,7 @@ GtCalculatorOverviewModel::version(GtAbstractProcessItem* item) const
 
     GtCalculatorData calcData = calcItem->calculatorData();
 
-    return QString::number(calcData->version);
+    return calcData->version.toString();
 }
 
 QIcon

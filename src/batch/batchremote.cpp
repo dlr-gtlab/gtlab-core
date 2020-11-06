@@ -22,6 +22,7 @@
 #include "gt_task.h"
 #include "gt_coreprocessexecutor.h"
 #include "gt_objectgroup.h"
+#include "gt_versionnumber.h"
 
 bool
 BatchRemote::checkInput(QString inputName, QString version, bool silent,
@@ -115,8 +116,8 @@ BatchRemote::checkInput(QString inputName, QString version, bool silent,
                 while (!modulesElement.isNull())
                 {
                     QString currentModule = modulesElement.attribute("name");
-                    QString currentModuleVersion =
-                            modulesElement.attribute("version");
+                    GtVersionNumber currentModuleVersion(
+                                modulesElement.attribute("version"));
 
 
                     // check for module existance
@@ -127,8 +128,8 @@ BatchRemote::checkInput(QString inputName, QString version, bool silent,
                     }
 
                     // check for module version
-                    int mv = gtApp->moduleVersion(currentModule);
-                    if (mv != currentModuleVersion.toInt())
+                    if (gtApp->moduleVersion(currentModule) !=
+                            currentModuleVersion)
                     {
                         qDebug() << "ERROR: Module-Version not existing!";
                         return false;
@@ -393,7 +394,7 @@ BatchRemote::run(QString inputName, QString outputName , QString version)
                         (QStringLiteral("MODULE"));
                 moduleElement.setAttribute(QStringLiteral("name"), moduleId);
                 moduleElement.setAttribute(QStringLiteral("version"),
-                                           gtApp->moduleVersion(moduleId));
+                                    gtApp->moduleVersion(moduleId).toString());
                 modulesRootElement.appendChild(moduleElement);
             }
 
