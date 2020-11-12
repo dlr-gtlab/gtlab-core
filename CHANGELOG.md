@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Convinience function to add datazones to resul-objects with labels easier  - #83
 - ModeTypeProperty getVal() returns mode type id  - #34
 - Improved comparison og ModeProperty and ModeTypeProperty - #34
+- Option to remove multiple projects from session - #32
 
 ### Changed
 - New general indication of version numbers. Used in modules and calculators, among others. - #89
