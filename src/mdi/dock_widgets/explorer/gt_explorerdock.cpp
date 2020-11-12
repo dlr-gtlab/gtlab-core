@@ -385,6 +385,25 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
     {
         gtError() << "object list is empty!";
         return;
+    }    
+
+
+    QList<GtProject*> projectsList;
+    /// handle the special case of only projects selected
+    bool allProjects = true;
+
+    foreach (GtObject* obj, objs)
+    {
+        GtProject* proj = qobject_cast<GtProject*>(obj);
+        if (qobject_cast<GtProject*>(obj) == Q_NULLPTR)
+        {
+            allProjects = false;
+            break;
+        }
+        else
+        {
+            projectsList.append(proj);
+        }
     }
 
     bool oneDeletable = false;
@@ -398,16 +417,30 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
         }
     }
 
-    if (!oneDeletable)
+    if (!oneDeletable && !allProjects)
     {
         return;
     }
 
     QMenu menu(this);
 
-    QAction* actionDelete = menu.addAction(
+
+    QAction* actionDelete = nullptr;
+    QAction* actionRemoveProjects = nullptr;
+
+    if (oneDeletable)
+    {
+        actionDelete = menu.addAction(
                                 gtApp->icon(QStringLiteral("closeIcon_16.png")),
                                 tr("Delete"));
+    }
+
+    if (allProjects)
+    {
+       actionRemoveProjects = menu.addAction(
+                   gtApp->icon(QStringLiteral("closeIcon_16.png")),
+                   tr("Delete from session"));
+    }
 
     QAction* a = menu.exec(QCursor::pos());
 
@@ -418,6 +451,25 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
         if (project != Q_NULLPTR)
         {
             deleteElements(m_view->selectionModel()->selectedIndexes());
+        }
+    }
+    else if (a == actionRemoveProjects)
+    {
+        gtInfo() << "Remove several projects";
+
+        foreach (GtProject* p, projectsList)
+        {
+            if (p->isOpen())
+            {
+                gtWarning() << tr("Open project cannot be removed "
+                                  "from session");
+                return;
+            }
+        }
+
+        foreach (GtProject* p, projectsList)
+        {
+            gtDataModel->deleteProject(p);
         }
     }
 

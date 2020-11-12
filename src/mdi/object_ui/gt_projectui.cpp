@@ -176,8 +176,6 @@ GtProjectUI::icon(GtObject* obj) const
     {
         return gtApp->icon("closedProjectIcon_16.png");
     }
-
-    return QIcon();
 }
 
 void
