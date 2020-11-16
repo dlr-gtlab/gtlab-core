@@ -16,6 +16,8 @@
 #include <QStringList>
 #include <QMap>
 
+#include "gt_versionnumber.h"
+
 #define gtApp (GtCoreApplication::instance())
 
 class QCoreApplication;
@@ -31,7 +33,6 @@ class GtObject;
 class GtCoreDatamodel;
 class GtAbstractLoadingHelper;
 class GtCommand;
-class GtVersionNumber;
 
 /**
  * @brief The GtApplication class

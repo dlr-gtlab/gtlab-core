@@ -46,8 +46,9 @@ public:
      * @param major Major version number
      * @param additional Addition version information (e.g. alpha, rc, etc.)
      */
-    GT_DATAMODEL_EXPORT GtVersionNumber(int major,
-                                   const QString& additional = QString());
+    GT_DATAMODEL_EXPORT explicit GtVersionNumber(
+            int major,
+            const QString& additional = QString());
 
     /**
      * @brief Produces a null version.
