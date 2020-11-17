@@ -270,7 +270,7 @@ GtProcessConnectionModel::indexFromItem(GtProcessConnectionItem* item) const
     // check row
     if (row == -1)
     {
-        qWarning() << "WARNING (GtProcessMonitoringModel::indexFromItem): " <<
+        qWarning() << "WARNING (GtProcessConnectionModel::indexFromItem): " <<
                       "row == -1!";
         return QModelIndex();
     }

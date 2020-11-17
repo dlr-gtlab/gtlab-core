@@ -9,12 +9,10 @@
 
 
 class GtPostTemplateItem;
-class QwtPlotRenderer;
 class QPrinter;
 class QPainter;
 class QRect;
 class GtDataZoneTableList;
-class QwtPlotMarker;
 class GtAbstractChartProvider;
 
 
@@ -137,7 +135,7 @@ public:
     /**
      * @brief initShowHideMarkers
      */
-    void initShowHideMarkers();
+    virtual void initShowHideMarkers();
 
     /**
      * @brief providerName
@@ -151,10 +149,9 @@ protected:
 
     void deleteDztList();
 
-    GtDataZoneTableList* m_dztList;
+    GtDataZoneTableList* m_dztList;   
 
-    QList<QwtPlotMarker*> m_plotMarker;
-
+    GtAbstractChartProvider* chartProvider();
 private:
 
     GtPostTemplateItem* m_data;
@@ -165,8 +162,6 @@ private:
 
     /// List of UI actions
     GtActionList m_actionList;
-
-    GtAbstractChartProvider* chartProvider();
 
 private slots:
 

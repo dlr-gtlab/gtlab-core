@@ -26,7 +26,6 @@
 #include "gt_sessionviewer.h"
 #include "gt_stateviewer.h"
 #include "gt_resultviewer.h"
-#include "gt_processmonitoring.h"
 #include "gt_collectioneditor.h"
 #include "gt_examplesmdiwidget.h"
 
@@ -63,9 +62,6 @@ GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
 
     m_knownClasses.insert(GT_CLASSNAME(GtResultViewer),
                           GT_METADATA(GtResultViewer));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtProcessMonitoring),
-                          GT_METADATA(GtProcessMonitoring));
 
     m_knownClasses.insert(GT_CLASSNAME(GtCollectionEditor),
                           GT_METADATA(GtCollectionEditor));

@@ -20,7 +20,6 @@
 #include "QVBoxLayout"
 #include "QLabel"
 #include "QPushButton"
-#include <qwt_plot_renderer.h>
 #include <QPrinter>
 
 #include "QsLog.h"

@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Module version information based on the framework versioning format (major, minor, patch)  - #89
 
+### Removed
+- Process monitoring and dependency to qwt libranry - #9
+
 ## [1.7.0-alpha1] - 2020-11-06
 ### Added
 - Convinience function to add datazones to resul-objects with labels easier  - #83
