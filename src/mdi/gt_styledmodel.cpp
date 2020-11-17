@@ -37,7 +37,7 @@ GtStyledModel::data(const QModelIndex& index, int role) const
 
     if (item)
     {
-        GtObjectUI* oui = gtApp->objectUI(item);
+        GtObjectUI* oui = gtApp->defaultObjectUI(item);
 
         if (oui)
         {

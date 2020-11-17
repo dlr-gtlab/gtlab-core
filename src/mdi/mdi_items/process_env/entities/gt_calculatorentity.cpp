@@ -68,7 +68,7 @@ GtCalculatorEntity::init()
 //        setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
         setOpacity(0.7);
 
-        GtObjectUI* oui = gtApp->objectUI(m_calculator);
+        GtObjectUI* oui = gtApp->defaultObjectUI(m_calculator);
         if (oui)
         {
             m_icon = oui->icon(m_calculator).pixmap(16, 16);

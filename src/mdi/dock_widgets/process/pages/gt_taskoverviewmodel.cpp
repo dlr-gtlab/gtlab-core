@@ -124,7 +124,7 @@ GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
 
     if (extendedData == Q_NULLPTR || extendedData->icon.isNull())
     {
-        GtObjectUI* oui = gtApp->objectUI(taskData->metaData().className());
+        GtObjectUI* oui = gtApp->defaultObjectUI(taskData->metaData().className());
 
         if (oui != Q_NULLPTR)
         {
