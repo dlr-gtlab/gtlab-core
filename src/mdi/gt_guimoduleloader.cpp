@@ -85,10 +85,13 @@ GtGuiModuleLoader::GtGuiModuleLoader()
 
 GtGuiModuleLoader::~GtGuiModuleLoader()
 {
-    qDeleteAll(m_uiObjsTmp);
+    for (auto key : m_uiObjs.keys())
+    {
+        qDeleteAll(m_uiObjs.value(key));
+    }
 }
 
-GtObjectUI*
+GtObjectUIList
 GtGuiModuleLoader::objectUI(GtObject* obj)
 {
     // TODO: check assert !!!!
@@ -97,12 +100,12 @@ GtGuiModuleLoader::objectUI(GtObject* obj)
     return objectUI(obj->metaObject()->className());
 }
 
-GtObjectUI*
+GtObjectUIList
 GtGuiModuleLoader::objectUI(const QString& classname)
 {
     if (!m_uiObjs.contains(classname))
     {
-        return Q_NULLPTR;
+        return GtObjectUIList();
     }
 
     return m_uiObjs.value(classname);
@@ -113,7 +116,7 @@ GtGuiModuleLoader::knownUIObjects()
 {
     QStringList retval;
 
-    for (auto key : m_uiObjsTmp.keys())
+    for (auto key : m_uiObjs.keys())
     {
         retval << key;
     }
@@ -274,30 +277,6 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
         {
             QMetaObject metaobj = uis.value(key);
             registerObjectUI(key, metaobj);
-//            if (m_uiObjsTmp.contains(metaobj.className()))
-//            {
-////                GtObjectUI uioTmp = m_uiObjs.
-
-////                m_uiObjsTmp.append(uio);
-//                gtDebug() << "duplicate ui object skipped!";
-//                m_uiObjs.insert(key, m_uiObjsTmp.value(metaobj.className()));
-//            }
-//            else
-//            {
-//                GtObjectUI* uio =
-//                        qobject_cast<GtObjectUI*>(uis.value(key).newInstance());
-////                gtDebug() << "duplicate ui object already skipped!";
-////                delete uio;
-//                if (uio)
-//                {
-//                    m_uiObjs.insert(key, uio);
-//                    m_uiObjsTmp.insert(key, uio);
-//                }
-//                else
-//                {
-//                    gtDebug() << "ui object not invokable!";
-//                }
-//            }
         }
     }
 
@@ -340,24 +319,14 @@ void
 GtGuiModuleLoader::registerObjectUI(const char* classId,
                                     const QMetaObject& metaObj)
 {
-    if (m_uiObjsTmp.contains(metaObj.className()))
-    {
-//        gtDebug() << "duplicate ui object skipped!";
-        m_uiObjs.insert(classId, m_uiObjsTmp.value(metaObj.className()));
-    }
-    else
-    {
-        GtObjectUI* uio = qobject_cast<GtObjectUI*>(metaObj.newInstance());
+    GtObjectUI* uio = qobject_cast<GtObjectUI*>(metaObj.newInstance());
 
-        if (uio)
-        {
-            m_uiObjs.insert(classId, uio);
-            m_uiObjsTmp.insert(metaObj.className(), uio);
-        }
-        else
-        {
-            gtDebug() << "ui object not invokable!";
-        }
+    if (uio == Q_NULLPTR)
+    {
+        gtError() << "ui object not invokable! (" << classId << ")";
+        return;
     }
+
+    m_uiObjs[classId].append(uio);
 }
 

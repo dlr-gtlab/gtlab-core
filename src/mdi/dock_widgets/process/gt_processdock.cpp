@@ -3152,7 +3152,7 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                     {
                         QIcon icn;
 
-                        GtObjectUI* oui = gtApp->objectUI(
+                        GtObjectUI* oui = gtApp->defaultObjectUI(
                                     taskData->metaData().className());
 
                         if (oui != Q_NULLPTR)

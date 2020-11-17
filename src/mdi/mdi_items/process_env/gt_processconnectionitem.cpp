@@ -132,7 +132,7 @@ GtProcessConnectionItem::data(int column, int role)
                     }
                     else
                     {
-                        GtObjectUI* oui = gtApp->objectUI(m_component);
+                        GtObjectUI* oui = gtApp->defaultObjectUI(m_component);
 
                         if (oui)
                         {
