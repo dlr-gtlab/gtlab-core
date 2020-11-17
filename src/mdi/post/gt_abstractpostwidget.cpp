@@ -17,8 +17,6 @@
 
 #include <QWidget>
 #include <QsLog.h>
-#include "qwt_plot_marker.h"
-
 
 GtAbstractPostWidget::GtAbstractPostWidget(QWidget* w) :
     QWidget(w),
@@ -142,23 +140,7 @@ GtAbstractPostWidget::setIconString(const QString& iconString)
 void
 GtAbstractPostWidget::initShowHideMarkers()
 {
-    if (chartProvider() == Q_NULLPTR)
-    {
-        return;
-    }
 
-    foreach (QwtPlotMarker* m, m_plotMarker)
-    {
-        m->hide();
-    }
-
-    if (chartProvider()->showmarkers())
-    {
-        foreach (QwtPlotMarker* m, m_plotMarker)
-        {
-            m->show();
-        }
-    }
 }
 
 QString
@@ -243,42 +225,12 @@ GtAbstractPostWidget::updatePlots()
 bool
 GtAbstractPostWidget::canShowMarkers(GtObject*)
 {
-    if (m_plotMarker.size() == 0)
-    {
-        return false;
-    }
-
-    if (m_plotMarker.first() == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    if (m_plotMarker.first()->isVisible())
-    {
-        return false;
-    }
-
-    return true;
+    return false;
 }
 
 bool
 GtAbstractPostWidget::canHideMarkers(GtObject*)
 {
-    if (m_plotMarker.size() == 0)
-    {
-        return false;
-    }
-
-    if (m_plotMarker.first() == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    if (m_plotMarker.first()->isVisible())
-    {
-        return true;
-    }
-
     return false;
 }
 
@@ -308,31 +260,11 @@ GtAbstractPostWidget::chartProvider()
 void
 GtAbstractPostWidget::hideMarkers(GtObject*)
 {
-    foreach (QwtPlotMarker* m, m_plotMarker)
-    {
-        m->hide();
-    }
 
-    if (chartProvider() == Q_NULLPTR)
-    {
-        return;
-    }
-
-    chartProvider()->setShowmarkers(false);
 }
 
 void
 GtAbstractPostWidget::showMarkers(GtObject*)
 {
-    foreach (QwtPlotMarker* m, m_plotMarker)
-    {
-        m->show();
-    }
 
-    if (chartProvider() == Q_NULLPTR)
-    {
-        return;
-    }
-
-    chartProvider()->setShowmarkers(true);
 }

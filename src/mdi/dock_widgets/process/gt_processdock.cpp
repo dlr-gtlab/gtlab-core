@@ -36,7 +36,6 @@
 #include "gt_calculatorprovider.h"
 #include "gt_processfiltermodel.h"
 #include "gt_coreprocessexecutor.h"
-#include "gt_processmonitoring.h"
 #include "gt_processconnectioneditor.h"
 #include "gt_objectmementodiff.h"
 #include "gt_loop.h"
@@ -1151,10 +1150,6 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     else if (a == actstop)
     {
         terminateProcess();
-    }
-    else if (a == actmon)
-    {
-        gtMdiLauncher->open(GT_CLASSNAME(GtProcessMonitoring), obj);
     }
     else if (a == actconnect)
     {

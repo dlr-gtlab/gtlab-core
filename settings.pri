@@ -59,11 +59,6 @@ INCLUDEPATH += $${MINPACK_PATH}/include
 LIBS        += -L$${MINPACK_PATH}/lib
 DEPENDPATH  += $${MINPACK_PATH}/lib
 
-## Qwt
-INCLUDEPATH += $${QWT_PATH}/include
-LIBS        += -L$${QWT_PATH}/lib
-DEPENDPATH  += $${QWT_PATH}/lib
-
 ## NLOPT
 INCLUDEPATH += $${NLOPT_PATH}/include
 LIBS        += -L$${NLOPT_PATH}/lib
