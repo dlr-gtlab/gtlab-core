@@ -12,7 +12,6 @@
 #include "gt_calculatordata.h"
 
 GtCalculatorDataImpl::GtCalculatorDataImpl(const QMetaObject& metaData) :
-    version(-1.),
     m_metaData(metaData)
 {
     description.clear();
@@ -28,7 +27,7 @@ GtCalculatorDataImpl::metaData() const
 bool
 GtCalculatorDataImpl::isValid() const
 {
-    if (version < 0)
+    if (version.isNull())
     {
         return false;
     }

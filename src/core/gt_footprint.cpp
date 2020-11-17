@@ -458,7 +458,7 @@ GtFootprintImpl::readData(const QString& data)
             return false;
         }
 
-        temp_modules.insert(tmp_mod_id, tmp_mod_ver);
+        temp_modules.insert(tmp_mod_id, GtVersionNumber(tmp_mod_ver));
 
         elm_module_it =
                 elm_module_it.nextSiblingElement(QStringLiteral("module"));

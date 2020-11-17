@@ -517,7 +517,7 @@ GtCoreApplication::moduleVersion(const QString& id)
 {
     if (m_moduleLoader == NULL)
     {
-        return -1;
+        return GtVersionNumber();
     }
 
     return m_moduleLoader->moduleVersion(id);
