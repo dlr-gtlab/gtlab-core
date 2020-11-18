@@ -71,10 +71,23 @@ GtProject::moduleExtension()
     return QStringLiteral(".gtmod");
 }
 
+QString
+GtProject::comment() const
+{
+    return m_comment;
+}
+
+void
+GtProject::setComment(const QString& comment)
+{
+    m_comment = comment;
+    changed();
+}
+
 bool
 GtProject::loadMetaData()
 {
-//    qDebug() << "loading " << m_path << "...";
+    //    qDebug() << "loading " << m_path << "...";
 
     QDomElement root = readProjectData();
 
@@ -92,6 +105,15 @@ GtProject::loadMetaData()
     }
 
     setObjectName(projectname);
+
+    // read comment
+    QDomElement cdata = root.firstChildElement(QStringLiteral("comment"));
+
+    if (!cdata.isNull())
+    {
+        gtDebug() << "(" << projectname << ") comment found!";
+        m_comment = cdata.text();
+    }
 
     // module meta data
     readModuleMetaData(root);
@@ -464,6 +486,11 @@ GtProject::saveProjectOverallData()
 
     rootElement.appendChild(footPrintDoc.documentElement());
 
+    QDomElement commentElement =
+            document.createElement(QStringLiteral("comment"));
+    QDomText cTxt = document.createTextNode(m_comment);
+    commentElement.appendChild(cTxt);
+    rootElement.appendChild(commentElement);
 
     if (!saveModuleMetaData(rootElement, document))
     {

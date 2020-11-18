@@ -46,7 +46,9 @@ GtXmlUtilities::writeDomElementOrderedAttribute(const QDomElement& element,
         {
             if (c_node.nodeType() == QDomNode::TextNode)
             {
-                writer.writeCharacters(c_node.toText().data());
+                // remove carriage returns to avoid double definitions
+                writer.writeCharacters(
+                            c_node.toText().data().remove(QRegExp("[\\r]")));
             }
             else if (c_node.nodeType() == QDomNode::ElementNode)
             {

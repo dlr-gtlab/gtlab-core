@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Ability to extend the object UI for existing classes  - #95
+- Ability to write project specific comments  - #70
+- Removing multiple selected projects from project explorer - #32
+- Warning while closing GTlab if process is still running - #27
+- GtResult: Convenience function to add result to label - #83
 
 ### Changed
 - Module version information based on the framework versioning format (major, minor, patch)  - #89
+- GtModeTypeProperty.getVal() is returning objectName instead of empty string - #34
+
+### Fixed
+- Removed inconsistency in handling of non-dimensional unit - #33
+
+### Removed
+- Removed: Qwt dependency - #9 
 
 ### Removed
 - Process monitoring and dependency to qwt libranry - #9
