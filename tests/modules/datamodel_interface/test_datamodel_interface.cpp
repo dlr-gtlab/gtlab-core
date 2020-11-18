@@ -19,7 +19,7 @@
 GtVersionNumber
 TestDatamodelInterface::version()
 {
-    return 1;
+    return GtVersionNumber(1);
 }
 
 QString
