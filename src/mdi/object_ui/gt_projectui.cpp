@@ -128,6 +128,11 @@ GtProjectUI::GtProjectUI()
                     QStringLiteral("infoBlueIcon_16.png"),
                     QStringLiteral("showFootprint"));
 
+    addSingleAction(tr("Edit Comment"),
+                    QStringLiteral("commentIcon.png"),
+                    QStringLiteral("editComment"),
+                    QStringLiteral("canEditComment"));
+
     addSeparator();
 
     addSingleAction(tr("Show in Explorer"),
@@ -211,26 +216,36 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
     }
     else if (column == 1)
     {
-        if (gtApp->devMode())
+        switch (role)
         {
-            switch (role)
+        case Qt::DecorationRole:
+        {
+            GtProject* project = qobject_cast<GtProject*>(obj);
+
+            if (project != Q_NULLPTR)
             {
-                case Qt::DecorationRole:
+                if (!project->comment().isEmpty())
                 {
-                    GtProject* project = qobject_cast<GtProject*>(obj);
-
-                    if (project != Q_NULLPTR)
-                    {
-                        if (project->isOpen())
-                        {
-                            return gtApp->icon(
-                                        "devModeOnly/own_switchOffIcon.png");
-                        }
-                    }
-
-                    break;
+                    return gtApp->icon("commentIcon.png");
                 }
             }
+
+            break;
+        }
+        case Qt::ToolTipRole:
+        {
+            GtProject* project = qobject_cast<GtProject*>(obj);
+
+            if (project != Q_NULLPTR)
+            {
+                if (!project->comment().isEmpty())
+                {
+                    return project->comment();
+                }
+            }
+
+            break;
+        }
         }
     }
 
@@ -1564,4 +1579,47 @@ GtProjectUI::showFootprint(GtObject* obj)
     tWid->expandAll();
 
     dialog.exec();
+}
+
+void
+GtProjectUI::editComment(GtObject* obj)
+{
+    GtProject* project = qobject_cast<GtProject*>(obj);
+
+    if (project == Q_NULLPTR)
+    {
+        return;
+    }
+
+    if (!project->isOpen())
+    {
+        return;
+    }
+
+    bool ok;
+
+    QWidget parent;
+    QString text = QInputDialog::getMultiLineText(&parent,
+                                                  "Edit Project Comment",
+                                                  "Comment:",
+                                                  project->comment(),
+                                                  &ok);
+
+    if (ok && (text != project->comment()))
+    {
+        project->setComment(text);
+    }
+}
+
+bool
+GtProjectUI::canEditComment(GtObject* obj)
+{
+    GtProject* project = qobject_cast<GtProject*>(obj);
+
+    if (project == Q_NULLPTR)
+    {
+        return false;
+    }
+
+    return project->isOpen();
 }

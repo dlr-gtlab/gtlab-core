@@ -422,7 +422,7 @@ GtFootprintImpl::readData(const QString& data)
     {
         // temporary module variables
         QString tmp_mod_id;
-        int tmp_mod_ver = 0;
+        QString tmp_mod_ver;
 
         QDomElement elm_module_it_id =
                 elm_module_it.firstChildElement(QStringLiteral("id"));
@@ -444,13 +444,7 @@ GtFootprintImpl::readData(const QString& data)
 
         tmp_mod_id = elm_module_it_id.text();
 
-        tmp_mod_ver = elm_module_it_ver.text().toInt(&conv_success);
-
-        if (!conv_success)
-        {
-            gtError() << "footprint data corrupted!";
-            return false;
-        }
+        tmp_mod_ver = elm_module_it_ver.text();
 
         if (temp_modules.contains(tmp_mod_id))
         {

@@ -137,6 +137,18 @@ public:
      */
     QString readFootprint();
 
+    /**
+     * @brief Returns user defined comment string.
+     * @return User defined comment string.
+     */
+    QString comment() const;
+
+    /**
+     * @brief Sets user defined comment string.
+     * @param comment New user defined comment string.
+     */
+    void setComment(const QString& comment);
+
 protected:
     /**
      * @brief GtProject
@@ -180,6 +192,9 @@ private:
 
     /// Project path property. Only used for visualization in the GUI.
     GtStringProperty m_pathProp;
+
+    /// User definable comment
+    QString m_comment;
 
     /**
      * @brief loadMetaData
