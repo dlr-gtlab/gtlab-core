@@ -1,14 +1,14 @@
 ########################################################
-###############GTlab Pipeline Version 1.0.1 ############
+###############GTlab Pipeline Version 1.1.0 ############
 ########################################################
 # This is a slight changed version and 
-# the copy stage is currently missing
+# the nightly copy stage is currently missing
 
 # Environment variables to use in the pipeline globally
 variables:
   PROFILENAME: gtlab.pro
   TARGETDIRNAME: core
-  TARGETNAME: GTlabPreDesign
+  TARGETNAME: GTlab
   UNITTESTSNAME: GTlabUnitTest
   
   DEVTOOLS_Win: "C:\\devel\\GTlab-DevTools\\stable\\1_6"
@@ -17,6 +17,7 @@ variables:
 stages:
   - build
   - test
+  - copy
   - codequality
   - badges
 
@@ -26,30 +27,19 @@ debugBuildWin512:
   script:
     - .\tests\build\build-512.bat 1>buildLog.txt
   tags:
-    - Win7Qt512
+    - Win10
   artifacts:
     paths:
-      - lib/core/GTlabDatamodel-d.dll
-      - lib/core/GTlabDatamodel-d.lib
-      - build/GTlabDatamodel-d.pdb
-      - lib/core/GTlabCalculators-d.dll
-      - lib/core/GTlabCalculators-d.lib
-      - build/GTlabCalculators-d.pdb
-      - lib/core/GTlabCore-d.dll
-      - lib/core/GTlabCore-d.lib
-      - build/GTlabCore-d.pdb
-      - lib/core/GTlabNetwork-d.dll
-      - lib/core/GTlabNetwork-d.lib
-      - build/GTlabNetwork-d.pdb
-      - build/GTlabGui-d.pdb
+      - lib/$TARGETDIRNAME/*-d.dll
+      - lib/$TARGETDIRNAME/*-d.lib
+      - build/*-d.pdb
       - build/GTlabGui-d.dll
       - build/GTlabGui-d.lib
-      - lib/core/GTlabMdi-d.dll
-      - lib/core/GTlabMdi-d.lib
-      - build/GTlabMdi-d.pdb		  
-      - build/GTlab.exe
+      - build/$TARGETNAME.exe
       - build/GTlabConsole.exe
-      - build/GTlabUnitTest.exe
+      - build/$UNITTESTSNAME.exe
+      - build/$UNITTESTSNAME.pdb
+      - include/$TARGETDIRNAME/*.h
       - buildLog.txt
     when: always  	  
   variables:
@@ -63,18 +53,18 @@ releaseBuildWin512:
     - .\tests\build\build-512.bat
   artifacts:
     paths:
-      - lib/core/*.dll
-      - lib/core/*.lib
+      - lib/$TARGETDIRNAME/*.dll
+      - lib/$TARGETDIRNAME/*.lib
       - build/GTlabGui.dll
-      - build/GTlabGui.lib  
-      - build/GTlab.exe
-      - build/GTlabConsole.exe	  
-      - include\$TARGETDIRNAME\*.h   		  
+      - build/GTlabGui.lib
+      - build/$TARGETNAME.exe
+      - build/GTlabConsole.exe
+      - include/$TARGETDIRNAME/*.h
   tags:
-    - Win7Qt512
+    - Win10
   only:
     - master
-    - tags   
+    - tags
   variables:
     BUILDMODE: release
     BUILDUNITTESTS: "false"
@@ -92,8 +82,8 @@ debugBuildLinux512:
   artifacts:
     paths:
     - linuxBuild.txt
-    - lib/core/*.so*
-    - build/GTlab
+    - lib/$TARGETDIRNAME/*.so*
+    - build/$TARGETNAME
     - build/GTlabConsole
     - build/libGTlabGui-d.so*
     - build/$UNITTESTSNAME
@@ -117,10 +107,10 @@ releaseBuildLinux512:
     - tags
   artifacts:
     paths:
-    - lib/core/*.so*
-    - build/GTlab
+    - lib/$TARGETDIRNAME/*.so*
+    - build/$TARGETNAME
     - build/GTlabConsole
-    - build/libGTlabGui-d.so*
+    - build/libGTlabGui.so*
     - include/$TARGETDIRNAME/*.h
     expire_in: 1 week
   variables:
@@ -168,7 +158,7 @@ testWin512:
   dependencies:
     - debugBuildWin512
   tags:
-    - Win7Qt512
+    - Win10
   artifacts:
     paths:
       - "unittests.xml"
@@ -201,7 +191,22 @@ testLinux512:
   variables:
     DEVTOOLS: "$DEVTOOLS_Linux"
 
-
+# copy files to servers
+copyDeployment:
+  stage: copy
+  script:
+    - .\tests\build\copyHeaders-deployment.bat
+  dependencies:
+    - debugBuildWin512
+    - releaseBuildWin512
+  tags:
+    - Win10
+  only:
+    - tags
+  variables:
+    BINDIRECTORY: bin
+    DEBUGBINDIRECTORY: binDebug
+    
 # code quality
 codingstyle:
   needs: []
@@ -210,7 +215,7 @@ codingstyle:
   script:
     - '& $env:CODINGSTYLETOOL --ci --output=xml -o .\ -f  .\features\filefilter.txt .\src 1>codingStyleLog.txt'
   tags:
-    - Win7Qt512
+    - Win10
   except:
     - tags
   dependencies:
@@ -256,18 +261,12 @@ badges:
     - '& $env:BADGEGENERATOR --cc .\${UNITTESTSNAME}Coverage.xml .'
     - '& $env:BADGEGENERATOR --cl .\${UNITTESTSNAME}Coverage.xml .'
   tags:
-    - Win7Qt512
+    - Win10
   except:
     - tags
   artifacts:
     paths:
-      - "New_commits.svg"
-      - "New_files.svg"
-      - "New_BuildWarn-W.svg"
-      - "New_BuildWarn-L.svg"
-      - "New_CodingStyle.svg"
-      - "New_Coverage.svg"
-      - "New_lines.svg"
+      - "New_*.svg"
     expire_in: 52 week
   variables:
     BADGEGENERATOR: C:\devel\BadgeBuilder\BadgeGenerator.exe

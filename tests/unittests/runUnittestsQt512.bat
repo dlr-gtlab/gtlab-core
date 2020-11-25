@@ -1,8 +1,6 @@
 REM THIS IS A SCRIPT TO PREPARE AND RUN UNITTESTS
 
-SET PATH=%PATH%;lib;lib\core;build;C:\Qt\5.12.6\msvc2017_64\bin;%DEVTOOLS%\binDebug;
-
-REM build\DLRperformanceUnitTest.exe --gtest_output=xml:unittests.xml 
+SET PATH=%PATH%;build;lib;lib\%TARGETDIRNAME%;C:\Qt\5.12.6\msvc2017_64\bin;%DEVTOOLS%\binDebug;
 
 SET PROGRAMPATH="C:\Program Files\OpenCppCoverage"
 
