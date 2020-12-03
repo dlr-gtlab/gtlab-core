@@ -112,7 +112,7 @@ releaseBuildLinux512:
     - ./tests/build/build-512.sh
   tags:
     - LinuxTest
-  only:
+  except:
     - master
     - tags
   artifacts:
