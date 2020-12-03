@@ -40,8 +40,12 @@ contains(BUILD_DEPLOY, true) {
     include( deployment.pri )
 }
 
+# Do not enable this for linux (otherwise these libs will be used instead
+# of new ones in case of release
+win32 {
 LIBS        += -L$${DEV_TOOLS}/bin
 DEPENDPATH  += $${DEV_TOOLS}/bin
+}
 
 #### LIBRARIES
 # Logging
