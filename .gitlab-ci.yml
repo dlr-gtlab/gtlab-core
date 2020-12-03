@@ -73,7 +73,7 @@ releaseBuildWin512:
   tags:
     - Win7Qt512
   only:
-    - master
+    - master*
     - tags   
   variables:
     BUILDMODE: release
@@ -112,8 +112,8 @@ releaseBuildLinux512:
     - ./tests/build/build-512.sh
   tags:
     - LinuxTest
-  except:
-    - master
+  only:
+    - master*
     - tags
   artifacts:
     paths:
