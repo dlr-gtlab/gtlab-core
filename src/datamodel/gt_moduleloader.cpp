@@ -14,6 +14,8 @@
 #include <QCoreApplication>
 #include <QStandardPaths>
 #include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSettings>
 
 #include "gt_moduleinterface.h"
@@ -51,9 +53,49 @@ GtModuleLoader::load()
 
     if (modulesDir.exists())
     {
+        // initialize module blacklist
+        QFile excludeFile(qApp->applicationDirPath() + QDir::separator() +
+                          QStringLiteral("_exclude.json"));
+
+        QStringList excludeList;
+
+        if (excludeFile.exists())
+        {
+            gtDebug() << "module exclude file found!";
+
+            if (excludeFile.open(QIODevice::ReadOnly))
+            {
+                QByteArray data = excludeFile.readAll();
+                QJsonDocument doc(QJsonDocument::fromJson(data));
+
+                QJsonObject json = doc.object();
+
+                excludeFile.close();
+
+                QVariantList exModList =
+                        json.value(QStringLiteral("modules")
+                                   ).toArray().toVariantList();
+
+                foreach (const QVariant& exMod, exModList)
+                {
+                    QVariantMap modItem = exMod.toMap();
+                    const QString name =
+                            modItem.value(QStringLiteral("id")).toString();
+
+                    excludeList << name;
+
+                    gtWarning() << "excluding " << name << " module!";
+                }
+            }
+            else
+            {
+                qWarning() << "could not read module exclude file information!";
+            }
+        }
+
         QStringList entryList = modulesDir.entryList(QDir::Files);
 
-        if (!loadHelper(entryList, modulesDir))
+        if (!loadHelper(entryList, modulesDir, excludeList))
         {
             gtWarning() << QObject::tr("Could not resolve plugin dependencies");
 
@@ -267,7 +309,8 @@ GtModuleLoader::metaArray(const QJsonObject& metaData, const QString& id)
 }
 
 bool
-GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir)
+GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
+                           const QStringList& excludeList)
 {
     // check whether module entry list is empty
     if (entries.isEmpty())
@@ -330,7 +373,8 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir)
                 GtModuleInterface* plugin =
                         qobject_cast<GtModuleInterface*>(instance);
 
-                if (plugin && check(plugin))
+                if (plugin && !excludeList.contains(plugin->ident()) &&
+                        check(plugin))
                 {
                     insert(plugin);
                 }
@@ -362,12 +406,12 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir)
         return false;
     }
 
-    if (loadHelper(entries, modulesDir))
+    if (loadHelper(entries, modulesDir, excludeList))
     {
         return true;
     }
 
-    return loadHelper(entries, modulesDir);
+    return loadHelper(entries, modulesDir, excludeList);
 }
 
 bool

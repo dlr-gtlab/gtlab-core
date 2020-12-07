@@ -134,7 +134,8 @@ private:
      * @param modulesDir
      * @return
      */
-    bool loadHelper(QStringList& entries, const QDir& modulesDir);
+    bool loadHelper(QStringList& entries, const QDir& modulesDir,
+                    const QStringList& excludeList);
 
     /**
      * @brief checkDependency
