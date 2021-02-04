@@ -8,7 +8,6 @@
 
 #include "test_dmi_package.h"
 #include "test_dmi_class.h"
-#include "test_dmi_packageui.h"
 
 /**
  * generated (v 0.1)
@@ -43,7 +42,7 @@ TestDatamodelInterface::data()
 {
     QList<QMetaObject> metaData;
 
-    metaData << GT_METADATA(TestDmiClass);
+    metaData << GT_METADATA(TestDmClass);
 
     return metaData;
 }
@@ -58,46 +57,4 @@ bool
 TestDatamodelInterface::standAlone()
 {
     return true;
-}
-
-QList<QMetaObject>
-TestDatamodelInterface::mdiItems()
-{
-    QList<QMetaObject> retval;
-
-    return retval;
-}
-
-QList<QMetaObject>
-TestDatamodelInterface::dockWidgets()
-{
-    QList<QMetaObject> retval;
-
-    return retval;
-}
-
-QMap<const char*, QMetaObject>
-TestDatamodelInterface::uiItems()
-{
-    QMap<const char*, QMetaObject> retval;
-
-    retval.insert(GT_CLASSNAME(TestDmiPackage), GT_METADATA(TestDmiPackageUI));
-
-    return retval;
-}
-
-QList<QMetaObject>
-TestDatamodelInterface::postItems()
-{
-    QList<QMetaObject> retval;
-
-    return retval;
-}
-
-QList<QMetaObject>
-TestDatamodelInterface::postPlots()
-{
-    QList<QMetaObject> retval;
-
-    return retval;
 }

@@ -13,7 +13,10 @@ CONFIG += ordered console
 CONFIG += c++11
 
 SUBDIRS += datamodel_interface
-SUBDIRS += datamodel_interface_ext
+SUBDIRS += mdi_interface
+SUBDIRS += mdi_interface_ext
+SUBDIRS += module_interface
 
+RESOURCES += ../../src/resources/icons/icons.qrc
 
 ######################################################################

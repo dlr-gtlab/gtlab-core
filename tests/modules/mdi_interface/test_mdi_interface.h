@@ -1,13 +1,13 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: test_datamodel_interface_ext
+ * Source File: test_mdi_interface
  * copyright 2009-2019 by DLR
- * 
- * Created on: 27.05.2020
- * Author: S. Reitenbach 
+ *
+ * Created on: 12.08.2020
+ * Author: M. Bröcker
  */
 
-#ifndef TEST_DATAMODEL_INTERFACE_EXT_H
-#define TEST_DATAMODEL_INTERFACE_EXT_H
+#ifndef TEST_DATAMODEL_INTERFACE_H
+#define TEST_DATAMODEL_INTERFACE_H
 
 #include "gt_moduleinterface.h"
 #include "gt_datamodelinterface.h"
@@ -15,24 +15,24 @@
 #include "gt_versionnumber.h"
 
 /**
- * @brief The TestDatamodelInterfaceExt class
+ * @brief The TestMdiInterface class
  */
-class TestDatamodelInterfaceExt : public QObject,
-		public GtModuleInterface,
+class TestMdiInterface : public QObject,
+        public GtModuleInterface,
         public GtDatamodelInterface,
         public GtMdiInterface
  {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "de.dlr.gtlab.GtModuleInterface/0.1"
-                      FILE "test_datamodel_interface_ext.json")
+                      FILE "test_mdi_interface.json")
 					  
     Q_INTERFACES(GtModuleInterface)
-	Q_INTERFACES(GtDatamodelInterface)
+    Q_INTERFACES(GtDatamodelInterface)
     Q_INTERFACES(GtMdiInterface)
 
 public:
 
-    /**
+	/**
      * @brief Returns current version number of module
      * @return version number
      */
@@ -49,7 +49,7 @@ public:
      * @return description
      */
     QString description() const Q_DECL_OVERRIDE;
-
+	 
     /**
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
@@ -104,5 +104,5 @@ public:
 
 };
 
-#endif // TEST_DATAMODEL_INTERFACE_EXT_H
+#endif // TEST_DATAMODEL_INTERFACE_H
  

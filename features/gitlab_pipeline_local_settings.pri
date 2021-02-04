@@ -20,6 +20,7 @@ BUILD_APP =                     true
 # tests
 BUILD_UNITTESTS =               $$(BUILDUNITTESTS)
 BUILD_REGRESSIONTESTS =         false
+BUILD_TESTMODULES =             true
 
 # deployment settings
 BUILD_DEPLOY =                  true

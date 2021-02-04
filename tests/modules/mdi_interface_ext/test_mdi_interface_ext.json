@@ -1,0 +1,5 @@
+{
+	"dependencies" : [
+		{ "name" : "Test Mdi Interface", "version" : "1.2.3" }
+	]
+}

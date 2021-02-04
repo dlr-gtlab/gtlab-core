@@ -15,7 +15,7 @@
 /**
  * @brief The TestDmiClass class
  */
-class TestDmiClass : public GtObject
+class TestDmClass : public GtObject
 {
     Q_OBJECT
 
@@ -23,7 +23,7 @@ public:
     /**
      * @brief Constructor.
      */
-    Q_INVOKABLE TestDmiClass();
+    Q_INVOKABLE TestDmClass();
 
 };
 

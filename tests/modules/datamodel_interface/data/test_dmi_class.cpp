@@ -9,7 +9,7 @@
 
 #include "test_dmi_class.h"
 
-TestDmiClass::TestDmiClass()
+TestDmClass::TestDmClass()
 {
     setObjectName("DMI Object");
 }

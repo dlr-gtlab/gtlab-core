@@ -13,9 +13,9 @@ include($${PWD}/../../../settings.pri)
 BUILD_DEST = ../../../build/modules
 
 CONFIG(debug, debug|release){
-    TARGET = testDatamodelInterfaceExt-d
+    TARGET = testMdiInterface-d
 } else {
-    TARGET = testDatamodelInterfaceExt
+    TARGET = testMdiInterface
 }
 
 QT += core widgets xml svg
@@ -25,38 +25,46 @@ CONFIG += plugin
 CONFIG += silent
 CONFIG += c++11
 
+DEFINES += TEST_MDI_INTERFACE_DLL
+
 INCLUDEPATH += . \
-    ../datamodel_interface
+    mdi \
+    data
 
 # Core
 INCLUDEPATH += ../../../include/core
 LIBS        += -L../../..//lib/core
 DEPENDPATH  += ../../../lib/core
 
-LIBS        += -L$${BUILD_DEST}
-DEPENDPATH  += $${BUILD_DEST}
-
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
-    test_datamodel_interface_ext.h  \
-    test_dmi_ext_package.h \
-    test_dmi_ext_packageui.h
+    data/test_mdi_data.h \
+    data/test_mdi_package.h \
+    mdi/test_mdi_dockwidget.h \
+    mdi/test_mdi_packageui.h \
+    mdi/test_mdi_viewer.h \
+    test_mdi_interface_exports.h  \
+    test_mdi_interface.h
 
 
 SOURCES += \
-    test_datamodel_interface_ext.cpp  \
-    test_dmi_ext_package.cpp \
-    test_dmi_ext_packageui.cpp
+    data/test_mdi_data.cpp \
+    data/test_mdi_package.cpp \
+    mdi/test_mdi_dockwidget.cpp \
+    mdi/test_mdi_packageui.cpp \
+    mdi/test_mdi_viewer.cpp \
+    test_mdi_interface.cpp
 
 CONFIG(debug, debug|release){
     # GTLAB CORE
     LIBS += -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabNumerics-d -lGTlabCalculators-d
     LIBS += -lGTlabCore-d -lGTlabMdi-d -lGTlabNetwork-d
-    LIBS += -ltestDatamodelInterface-d
 } else {
     # GTLAB CORE
     LIBS += -lGTlabLogging -lGTlabDatamodel -lGTlabNumerics -lGTlabCalculators
     LIBS += -lGTlabCore -lGTlabMdi -lGTlabNetwork
-    LIBS += -ltestDatamodelInterface
 }
+
+# add search paths to shared libraries
+unix: QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN:\$$ORIGIN/..\''

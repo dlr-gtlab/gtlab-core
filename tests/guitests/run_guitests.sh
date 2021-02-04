@@ -2,15 +2,13 @@ BASEDIR=$(dirname "$0")
 
 # path to GTlab
 GTLAB_DIR=$PWD/build
-# path to dev tools
-# DEVTOOLS_DIR=/home/gitlab-runner/gtlab-devtools
 # path to Qt-gcc_64
 QT_DIR=/opt/Qt/5.12.5/gcc_64
 # path to the squish install directory
 SQUISH_DIR=/home/gitlab-runner/squish-6.6.0-qt-5.12/bin
 
 # testsuites to test (sperated by spaces)
-TESTSUITES="gtlab_core_gui_tests"
+TESTSUITES="gtlab_core_gui_tests gtlab_interface_tests"
 # base folder of shared scripts
 SHARED_SCRIPTS_DIR="/home/gitlab-runner/squish-gui-testing/common"
 # folder to shared scripts (sperated by spaces)

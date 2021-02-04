@@ -6,15 +6,16 @@
  * Author: S. Reitenbach
  */
 
-#include "test_dmi_package.h"
-#include "test_dmi_ext_package.h"
-#include "test_dmi_ext_packageui.h"
+#include "test_mdi_package.h"
+#include "test_mdi_ext_package.h"
+#include "test_mdi_ext_packageui.h"
+#include "test_mdi_ext_viewer.h"
 
 /**
  * generated (v 0.1)
  */
 
-#include "test_datamodel_interface_ext.h"
+#include "test_mdi_interface_ext.h"
 
 GtVersionNumber
 TestDatamodelInterfaceExt::version()
@@ -25,13 +26,13 @@ TestDatamodelInterfaceExt::version()
 QString
 TestDatamodelInterfaceExt::ident() const
 {
-    return "Test Datamodel Interface Ext";
+    return "Test Mdi Interface Ext";
 }
 
 QString
 TestDatamodelInterfaceExt::description() const
 {
-    return "Test Datamodel Interface Ext";
+    return "Test Mdi Interface Ext";
 }
 
 
@@ -49,7 +50,7 @@ TestDatamodelInterfaceExt::data()
 QMetaObject
 TestDatamodelInterfaceExt::package()
 {
-    return GT_METADATA(TestDmiExtPackage);
+    return GT_METADATA(TestMdiExtPackage);
 }
 
 bool
@@ -62,6 +63,8 @@ QList<QMetaObject>
 TestDatamodelInterfaceExt::mdiItems()
 {
     QList<QMetaObject> retval;
+
+    retval << GT_METADATA(TestMdiExtViewer);
 
     return retval;
 }
@@ -79,7 +82,7 @@ TestDatamodelInterfaceExt::uiItems()
 {
     QMap<const char*, QMetaObject> retval;
 
-    retval.insert(GT_CLASSNAME(TestDmiPackage), GT_METADATA(TestDmiExtPackageUI));
+    retval.insert(GT_CLASSNAME(TestMdiPackage), GT_METADATA(TestMdiExtPackageUI));
 
     return retval;
 }

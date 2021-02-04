@@ -6,10 +6,10 @@
  * Author: S. Reitenbach 
  */
 
-#include "test_dmi_ext_package.h"
+#include "test_mdi_ext_package.h"
 
 ///generated (v 0.1)
-TestDmiExtPackage::TestDmiExtPackage()
+TestMdiExtPackage::TestMdiExtPackage()
 {
-    setObjectName("Test DMI Ext Package");
+    setObjectName("Test MDI EXT Package");
 }
