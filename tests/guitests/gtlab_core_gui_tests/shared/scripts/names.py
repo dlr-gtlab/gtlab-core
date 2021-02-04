@@ -2,10 +2,10 @@ import sys
 import os
 
 #generate os-compatible path
-def generateImportPath(*path):
+def  __generateImportPath(*path):
     joinedPath = path[0]
     for i in range(1, len(path)):
-        subPath     = path[i]
+        subPath = path[i]
         if os.name == 'nt':
             joinedPath += '\\'
         else:
@@ -14,7 +14,7 @@ def generateImportPath(*path):
     return joinedPath
 
 # add path to custom, gloabl object_map
-sys.path.append(generateImportPath('..', '..', 'common', 'shared_object_names'))
+sys.path.append(__generateImportPath('..', '..', 'common', 'shared_object_names'))
 
 from objectmaphelper import *
 # add custom, global object_map

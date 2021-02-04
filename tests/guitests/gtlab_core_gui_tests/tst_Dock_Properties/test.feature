@@ -8,9 +8,9 @@ Feature: Test specific features of the properties dock
 
         Given GTlab is running
 	  	  And the dock widgets 'Explorer, Properties' are visible
-          And the standard testing project is open
-          Then the property 'Path' exists
-    #     And the subentry 'PreDesign > Fan' is selected
+         When the standard testing project is opened
+         Then the property 'Path' exists
+    #     And the entry 'PreDesign > Fan' is selected
 	#	 Then under the category 'Main' the property 'Center of Gravity > cogZ' exists
 	#	  And has the unit 'm'
 	#	  And has the value '0'

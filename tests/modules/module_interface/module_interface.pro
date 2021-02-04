@@ -13,9 +13,9 @@ include($${PWD}/../../../settings.pri)
 BUILD_DEST = ../../../build/modules
 
 CONFIG(debug, debug|release){
-    TARGET = testDatamodelInterface-d
+    TARGET = testModuleInterface-d
 } else {
-    TARGET = testDatamodelInterface
+    TARGET = testModuleInterface
 }
 
 QT += core widgets xml svg
@@ -25,10 +25,7 @@ CONFIG += plugin
 CONFIG += silent
 CONFIG += c++11
 
-DEFINES += TEST_DATAMODEL_INTERFACE_DLL
-
 INCLUDEPATH += . \
-	data
 
 # Core
 INCLUDEPATH += ../../../include/core
@@ -38,16 +35,11 @@ DEPENDPATH  += ../../../lib/core
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
-    test_datamodel_interface_exports.h  \
-    test_datamodel_interface.h  \
-    data/test_dmi_class.h \
-    data/test_dmi_package.h
+    test_module_interface.h
 
 
 SOURCES += \
-    test_datamodel_interface.cpp  \
-    data/test_dmi_class.cpp \
-    data/test_dmi_package.cpp
+    test_module_interface.cpp 
 
 CONFIG(debug, debug|release){
     # GTLAB CORE

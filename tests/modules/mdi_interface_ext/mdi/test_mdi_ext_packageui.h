@@ -15,7 +15,7 @@
 /**
  * @brief The TestDmiExtPackageUI class
  */
-class TestDmiExtPackageUI : public GtObjectUI
+class TestMdiExtPackageUI : public GtObjectUI
 {
     Q_OBJECT
 
@@ -23,7 +23,14 @@ public:
     /**
      * @brief Constructor.
      */
-    Q_INVOKABLE TestDmiExtPackageUI();
+    Q_INVOKABLE TestMdiExtPackageUI();
+
+    /**
+     * @brief Test that the package icon will not be changed
+     * @param obj
+     * @return invalid QIcon
+     */
+    QIcon icon(GtObject *obj) const Q_DECL_OVERRIDE;
 
     /**
      * @brief Test for open with interface. Adds two entries
@@ -32,6 +39,13 @@ public:
      * @return
      */
     QStringList openWith(GtObject* obj) Q_DECL_OVERRIDE;
+
+    /**
+     * @brief Test that this doubleClicked function is not called
+     * @param obj
+     * @return
+     */
+    void doubleClicked(GtObject *obj) Q_DECL_OVERRIDE;
 
 public slots:
     /**

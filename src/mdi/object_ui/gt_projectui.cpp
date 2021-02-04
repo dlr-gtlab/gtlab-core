@@ -734,7 +734,7 @@ GtProjectUI::deleteProject(GtObject* obj)
             if (dir.removeRecursively())
             {
                 gtInfo() << tr("Project has been deleted "
-                               "from hard-disk successflly");
+                               "from hard-disk successfully");
             }
             else
             {

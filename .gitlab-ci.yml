@@ -103,8 +103,9 @@ debugBuildLinux512:
     - lib/$TARGETDIRNAME/*.so*
     - build/$TARGETNAME
     - build/GTlabConsole
-    - build/libGTlabGui-d.so*
+    - build/*.so*
     - build/$UNITTESTSNAME
+    - build/modules
     when: always
     expire_in: 1 week
   variables:
@@ -156,7 +157,6 @@ guiTests:
       - ./gui_tests_junits
       - ./gui_tests_stdout*.txt     
       - ./gui_tests_server_stdout.txt  
-      - ./gui_tests_server_stdout.txt
       - ./guitests_badge.svg  
     reports:
       junit: ./gui_tests_junits/junit*.xml

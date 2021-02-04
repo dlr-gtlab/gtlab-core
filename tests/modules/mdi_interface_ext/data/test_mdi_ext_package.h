@@ -15,7 +15,7 @@
 /**
  * @brief The TestDmiExtPackage class
  */
-class TestDmiExtPackage : public GtPackage
+class TestMdiExtPackage : public GtPackage
 {
     Q_OBJECT
 
@@ -24,7 +24,7 @@ public:
     /**
       * @brief TestDmiExtPackage
       */
-    Q_INVOKABLE TestDmiExtPackage();
+    Q_INVOKABLE TestMdiExtPackage();
 
 };
 

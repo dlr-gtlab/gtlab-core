@@ -1,10 +1,9 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: test_dmi_packageui.h
+ * Source File: test_mdi_packageui
  * copyright 2009-2020 by DLR
  *
- *  Created on: 15.11.2020
- *  Author: Stanislaus Reitenbach (AT-TWK)
- *  Tel.: +49 2203 601 2907
+ * Created on: 12.08.2020
+ * Author: M. Bröcker
  */
 
 #ifndef TESTDMIPACKAGEUI_H
@@ -15,7 +14,7 @@
 /**
  * @brief The TestDmiPackageUI class
  */
-class TestDmiPackageUI : public GtObjectUI
+class TestMdiPackageUI : public GtObjectUI
 {
     Q_OBJECT
 
@@ -23,7 +22,14 @@ public:
     /**
      * @brief Constructor
      */
-    Q_INVOKABLE TestDmiPackageUI();
+    Q_INVOKABLE TestMdiPackageUI();
+
+    /**
+     * @brief Icon Test
+     * @param obj
+     * @return globalIcon.png
+     */
+    QIcon icon(GtObject *obj) const Q_DECL_OVERRIDE;
 
     /**
      * @brief Test for open with interface. Adds two entries
@@ -32,6 +38,13 @@ public:
      * @return
      */
     QStringList openWith(GtObject* obj) Q_DECL_OVERRIDE;
+
+    /**
+     * @brief Test for doubleclicked.
+     * @param obj
+     * @return
+     */
+    void doubleClicked(GtObject *obj) Q_DECL_OVERRIDE;
 
 public slots:
     /**
