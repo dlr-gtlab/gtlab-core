@@ -393,7 +393,26 @@ copyForDeploymentWin:
   only:
     - tags
   variables:
-    PLATFORMNAME: windows
+    PLATFORMNAME:  windows
+    RELEASESTATUS: stable
+#    CATEGORY: 02_core
+
+copyForDeploymentWinUnstable:
+  stage: copy
+  script:
+    - .\tests\build\copyHeaders-deployment.bat
+  dependencies:
+    - debugBuildWin512Unstable
+    - releaseBuildWin512Unstable
+  tags:
+    - Win10
+  only:
+    - tags
+  variables:
+    PLATFORMNAME:  windows
+    RELEASESTATUS: unstable
+#    CATEGORY: 02_core
+
 
 copyForDeploymentLinux:
   stage: copy
@@ -408,7 +427,25 @@ copyForDeploymentLinux:
   only:
     - tags
   variables:
-    PLATFORMNAME: linux
+    PLATFORMNAME:  linux
+    RELEASESTATUS: stable
+#    CATEGORY: 02_core
+
+copyForDeploymentLinuxUnstable:
+  stage: copy
+  script:
+    - .\tests\build\copyHeaders-deployment.bat
+  dependencies:
+    - debugBuildLinux512Unstable
+    - releaseBuildLinux512Unstable
+  tags:
+    - Win10
+  only:
+    - tags
+  variables:
+    PLATFORMNAME:  linux
+    RELEASESTATUS: unstable
+
 
 # code quality
 codingstyle:
