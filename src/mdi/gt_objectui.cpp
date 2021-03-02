@@ -16,6 +16,7 @@
 #include "gt_application.h"
 #include "gt_mdilauncher.h"
 #include "gt_object.h"
+#include "gt_regexp.h"
 
 GtObjectUI::GtObjectUI()
 {
@@ -96,19 +97,19 @@ GtObjectUI::addSeparator()
 bool
 GtObjectUI::hasValidationRegExp()
 {
-    return false;
+    return true;
 }
 
 QRegExp
 GtObjectUI::validatorRegExp()
 {
-    return QRegExp("");
+    return GtRegExp::onlyLettersAndNumbersAndSpace();
 }
 
 QIcon
 GtObjectUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon(QStringLiteral("emptyIcon_16.png"));;
+    return gtApp->icon(QStringLiteral("emptyIcon_16.png"));
 }
 
 QVariant

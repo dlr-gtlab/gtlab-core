@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed 
 - BugFix: Small check in table class prevents crash on linux for tables with only one point
+- Changed ObjectUI Standard Behaviour for renaming to allow spaces - #109
 
 
 ## [1.6.5] - 2020-09-16
