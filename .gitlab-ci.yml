@@ -478,11 +478,28 @@ cppcheck:
     - source env/bin/activate
     - python3 -m pip install cppcheck-codequality
   script:
-    - cppcheck --xml --enable=all src/ 2> cppcheck_out.xml
+    - cppcheck --xml --suppress=unusedFunction --enable=all src/ 2> cppcheck_out.xml
     - cppcheck-codequality --input-file=cppcheck_out.xml --output-file=codequality.json
   artifacts:
     reports:
       codequality: codequality.json      
+
+pages:
+  needs: []
+  dependencies:
+  stage: badges
+  tags:
+    - LinuxTest
+  script:
+    - doxygen features/doxygenConfig
+    - mkdir public
+    - mv doc/html/* public/
+  only:
+    - master
+    - tag
+  artifacts:
+     paths:
+       - public/
       
 # badges
 badges:
