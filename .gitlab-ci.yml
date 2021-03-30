@@ -1,5 +1,5 @@
 ########################################################
-###############GTlab Pipeline Version 1.4.0 ############
+###############GTlab Pipeline Version 1.4.3 ############
 ########################################################
 # This is a slight changed version and 
 # --> the nightly copy stage is currently missing
@@ -9,7 +9,7 @@
 
 # Environment variables to use in the pipeline globally
 variables:
-  PIPELINEVERSION: "1.4.0"
+  PIPELINEVERSION: "1.4.3"
 
   #PROFILENAME: gtlab.pro
   #TARGETDIRNAME: core
@@ -30,14 +30,27 @@ stages:
 
 devtoolsUpdateWindows:
   stage: update
+  allow_failure: true
   script:
-    - '& $env:MAINTENANCETOOL --silentUpdate'
+    - '& $env:MAINTENANCETOOL up --confirm-command'
   only:
-    - master
+    - master  
   tags:
     - Win10
   variables:
     MAINTENANCETOOL: "C:\\devel\\GTlab-DevTools\\Setup GTlab-DevTools.exe"  
+
+devtoolsUpdateLinux:
+  stage: update
+  script:
+    - cd /home/gitlab-runner/GTlab-Devtools/
+    - ./Setup\ GTlab-DevTools up --confirm-command
+  only:
+    - master  
+  tags:
+    - Linux
+  variables:
+    MAINTENANCETOOL: "/home/gitlab-runner/GTlab-Devtools/" 
 
 # Windows build
 debugBuildWin512:
