@@ -42,6 +42,7 @@ devtoolsUpdateWindows:
 
 devtoolsUpdateLinux:
   stage: update
+  allow_failure: true  
   script:
     - cd /home/gitlab-runner/GTlab-Devtools/
     - ./Setup\ GTlab-DevTools up --confirm-command
