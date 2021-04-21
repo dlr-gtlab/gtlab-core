@@ -1,0 +1,7 @@
+{
+   SuppressLibXMLleaks
+   Memcheck:Leak
+   match-leak-kinds: definite
+   obj:/usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so
+   obj:/home/gitlab-runner/GTlab-Devtools/stable/1_6/ThirdPartyLibraries/LibXML/libDebug/libxml2.so.2
+}

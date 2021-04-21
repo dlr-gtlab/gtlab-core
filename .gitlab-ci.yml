@@ -1,5 +1,5 @@
 ########################################################
-###############GTlab Pipeline Version 1.4.3 ############
+###############GTlab Pipeline Version 1.5.0 ############
 ########################################################
 # This is a slight changed version and 
 # --> the nightly copy stage is currently missing
@@ -9,52 +9,38 @@
 
 # Environment variables to use in the pipeline globally
 variables:
-  PIPELINEVERSION: "1.4.3"
+  PIPELINEVERSION: "1.5.0"
 
-  #PROFILENAME: gtlab.pro
-  #TARGETDIRNAME: core
-  #TARGETNAME: GTlab
-  #UNITTESTSNAME: GTlabUnitTest
-  
-  #DEVTOOLS_Win: "C:\\devel\\GTlab-DevTools\\stable\\1_6"
-  #DEVTOOLS_Linux: "/home/gitlab-runner/GTlab-Devtools/stable/1_6"
-
+# inlcude some templates from this file
+include:
+  - project: 'at-twk/gitlab-templates'
+    file: '/ci-templates/.ci-templates.yml'
+    
 stages:
   - update
   - build
   - test
+  - guiTestStable
+  - guiTestUnstable
   - regressionTest
   - copy
   - codequality
   - badges
 
 devtoolsUpdateWindows:
+  extends: .devToolsUpdateWindows
   stage: update
-  allow_failure: true
-  script:
-    - '& $env:MAINTENANCETOOL up --confirm-command'
   only:
     - master  
-  tags:
-    - Win10
-  variables:
-    MAINTENANCETOOL: "C:\\devel\\GTlab-DevTools\\Setup GTlab-DevTools.exe"  
 
 devtoolsUpdateLinux:
+  extends: .devToolsUpdateLinux
   stage: update
-  allow_failure: true  
-  script:
-    - cd /home/gitlab-runner/GTlab-Devtools/
-    - ./Setup\ GTlab-DevTools up --confirm-command
   only:
     - master  
-  tags:
-    - Linux
-  variables:
-    MAINTENANCETOOL: "/home/gitlab-runner/GTlab-Devtools/" 
 
 # Windows build
-debugBuildWin512:
+windowsBuildDebug:
   stage: build
   script:
     - .\tests\build\build-512.bat 1>buildLog.txt
@@ -73,94 +59,49 @@ debugBuildWin512:
       - build/$UNITTESTSNAME.pdb
       - include/$TARGETDIRNAME/*.h
       - buildLog.txt
-    when: always  	  
+    expire_in: 1 week
+    when: always
   variables:
     BUILDMODE: debug
     BUILDUNITTESTS: "true"
-    DEVTOOLS: $DEVTOOLS_Win_Stable
+  parallel:
+    matrix: 
+      - DEVTOOLS: [$DEVTOOLS_Win_Stable, $DEVTOOLS_Win_Unstable]
     
-releaseBuildWin512:
+windowsBuildRelease:
   stage: build
   script:
     - .\tests\build\build-512.bat
-  artifacts:
-    paths:
-      - lib/$TARGETDIRNAME/*.dll
-      - lib/$TARGETDIRNAME/*.lib
-      - build/GTlabGui.dll
-      - build/GTlabGui.lib
-      - build/$TARGETNAME.exe
-      - build/GTlabConsole.exe
-      - include/$TARGETDIRNAME/*.h
   tags:
     - Win10
   only:
     - master
     - tags
-  variables:
-    BUILDMODE: release
-    BUILDUNITTESTS: "false"
-    DEVTOOLS: $DEVTOOLS_Win_Stable        
-
-# Windows build unstable
-debugBuildWin512Unstable:
-  stage: build
-  script:
-    - .\tests\build\build-512.bat 1>buildLog.txt
-  tags:
-    - Win10
   artifacts:
     paths:
-      - lib/$TARGETDIRNAME/*-d.dll
-      - lib/$TARGETDIRNAME/*-d.lib
-      - build/*-d.pdb
-      - build/GTlabGui-d.dll
-      - build/GTlabGui-d.lib
-      - build/$TARGETNAME.exe
-      - build/GTlabConsole.exe
-      - build/$UNITTESTSNAME.exe
-      - build/$UNITTESTSNAME.pdb
-      - include/$TARGETDIRNAME/*.h
-      - buildLog.txt
-    when: always  	  
-  variables:
-    BUILDMODE: debug
-    BUILDUNITTESTS: "true"
-    DEVTOOLS: $DEVTOOLS_Win_Unstable
-    
-releaseBuildWin512Unstable:
-  stage: build
-  script:
-    - .\tests\build\build-512.bat
-  artifacts:
-    paths:
-      - lib/$TARGETDIRNAME/*.dll
-      - lib/$TARGETDIRNAME/*.lib
+      - lib\$TARGETDIRNAME\$TARGETNAME.dll
+      - lib\$TARGETDIRNAME\$TARGETNAME.lib
+      - include\$TARGETDIRNAME\*.h
       - build/GTlabGui.dll
       - build/GTlabGui.lib
       - build/$TARGETNAME.exe
       - build/GTlabConsole.exe
-      - include/$TARGETDIRNAME/*.h
-  tags:
-    - Win10
-  only:
-    - master
-    - tags
+    expire_in: 1 week
+    when: always
   variables:
     BUILDMODE: release
     BUILDUNITTESTS: "false"
-    DEVTOOLS: $DEVTOOLS_Win_Unstable        
-
+  parallel:
+    matrix: 
+      - DEVTOOLS: [$DEVTOOLS_Win_Stable, $DEVTOOLS_Win_Unstable]  
     
+
 # Linux build
-debugBuildLinux512:
+linuxBuildDebug:
   stage: build
-  before_script:
-    - chmod +x ./tests/build/build-512.sh
-  script:
-    - ./tests/build/build-512.sh |& tee linuxBuild.txt
+  extends: .buildLinux  
   tags:
-    - LinuxTest 
+    - Linux
   artifacts:
     paths:
     - linuxBuild.txt
@@ -174,16 +115,15 @@ debugBuildLinux512:
   variables:
     BUILDMODE: debug
     BUILDUNITTESTS: "true"
-    DEVTOOLS: $DEVTOOLS_Linux_Stable
-    
-releaseBuildLinux512:
+  parallel:
+    matrix: 
+      - DEVTOOLS: [$DEVTOOLS_Linux_Stable, $DEVTOOLS_Linux_Unstable] 
+
+linuxBuildRelease:
   stage: build
-  before_script:
-    - chmod a+rwx ./tests/build/build-512.sh
-  script:
-    - ./tests/build/build-512.sh
+  extends: .buildLinux  
   tags:
-    - LinuxTest
+    - Linux
   only:
     - master
     - tags
@@ -198,64 +138,13 @@ releaseBuildLinux512:
   variables:
     BUILDMODE: release
     BUILDUNITTESTS: "false"
-    DEVTOOLS: $DEVTOOLS_Linux_Stable
+  parallel:
+    matrix: 
+      - DEVTOOLS: [$DEVTOOLS_Linux_Stable, $DEVTOOLS_Linux_Unstable]    
 
-# Linux build
-debugBuildLinux512Unstable:
-  stage: build
-  before_script:
-    - chmod +x ./tests/build/build-512.sh
-  script:
-    - ./tests/build/build-512.sh |& tee linuxBuild.txt
-  tags:
-    - LinuxTest 
-  artifacts:
-    paths:
-    - linuxBuild.txt
-    - lib/$TARGETDIRNAME/*.so*
-    - build/$TARGETNAME
-    - build/GTlabConsole
-    - build/libGTlabGui-d.so*
-    - build/$UNITTESTSNAME
-    when: always
-    expire_in: 1 week
-  variables:
-    BUILDMODE: debug
-    BUILDUNITTESTS: "true"
-    DEVTOOLS: $DEVTOOLS_Linux_Unstable
-    
-releaseBuildLinux512Unstable:
-  stage: build
-  before_script:
-    - chmod a+rwx ./tests/build/build-512.sh
-  script:
-    - ./tests/build/build-512.sh
-  tags:
-    - LinuxTest
-  only:
-    - master
-    - tags
-  artifacts:
-    paths:
-    - lib/$TARGETDIRNAME/*.so*
-    - build/$TARGETNAME
-    - build/GTlabConsole
-    - build/libGTlabGui.so*
-    - include/$TARGETDIRNAME/*.h
-    expire_in: 1 week
-  variables:
-    BUILDMODE: release
-    BUILDUNITTESTS: "false"
-    DEVTOOLS: $DEVTOOLS_Linux_Unstable
 
-# GUI Testing
-guiTests:
-  needs: ["debugBuildLinux512"]
-  stage: test
-  tags:
-    - LinuxTest
-  dependencies:
-    - debugBuildLinux512
+# Template for the two GUI-Testing jobs
+.guiTestTemplate:
   before_script:
     # add permissions
     - chmod +x ./tests/guitests/run_guitests.sh
@@ -275,276 +164,149 @@ guiTests:
     name: "guitesting results"
     expire_in: 1 week
     when: always
+
+# GUI Testing
+guiTests:
+  stage: guiTestStable
+  extends: .guiTestTemplate  
+  tags:
+    - Linux
+  dependencies:
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
   variables:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Stable    
 
 # GUI Testing Unstable
 guiTestsUnstable:
-  needs: ["debugBuildLinux512Unstable"]
-  stage: test
+  stage: guiTestUnstable
+  extends: .guiTestTemplate    
   tags:
-    - LinuxTest
+    - Linux
   dependencies:
-    - debugBuildLinux512Unstable
-  before_script:
-    # add permissions
-    - chmod +x ./tests/guitests/run_guitests.sh
-  script:
-    # xvfb to run a virtual display
-    - xvfb-run -a ./tests/guitests/run_guitests.sh
-  artifacts:
-    paths:
-      - ./gui_tests_web
-      - ./gui_tests_junits
-      - ./gui_tests_stdout*.txt     
-      - ./gui_tests_server_stdout.txt  
-      - ./gui_tests_server_stdout.txt
-      - ./guitests_badge.svg  
-    reports:
-      junit: ./gui_tests_junits/junit*.xml
-    name: "guitesting results"
-    expire_in: 1 week
-    when: always
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
   variables:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable   
     
 # run tests using the binary built before
 testWin512:
-  needs: ["debugBuildWin512"]
-  stage: test
-  script:
-    - .\tests\unittests\runUnittestsQt512.bat
-    - get-content CoverageReport*\index.html    
-  dependencies:
-    - debugBuildWin512
-  tags:
-    - Win10
-  artifacts:
-    paths:
-      - "unittests.xml"
-      - ${UNITTESTSNAME}Coverage.xml
-      - CoverageReport* 
-    reports:
-      junit: unittests.xml
-      cobertura: ${UNITTESTSNAME}Coverage.xml  
-    expire_in: 1 week
+  extends: .winTestTemplate
+  needs: ["windowsBuildDebug: [$DEVTOOLS_Win_Stable]"]
+  dependencies: ["windowsBuildDebug: [$DEVTOOLS_Win_Stable]"]
   variables:
     DEVTOOLS: $DEVTOOLS_Win_Stable
 
 testWin512Unstable:
-  needs: ["debugBuildWin512Unstable"]
-  stage: test
-  script:
-    - .\tests\unittests\runUnittestsQt512.bat
-    - get-content CoverageReport*\index.html    
-  dependencies:
-    - debugBuildWin512Unstable
-  tags:
-    - Win10
-  artifacts:
-    paths:
-      - "unittests.xml"
-      - ${UNITTESTSNAME}Coverage.xml
-      - CoverageReport* 
-    reports:
-      junit: unittests.xml
-      cobertura: ${UNITTESTSNAME}Coverage.xml  
-    expire_in: 1 week
+  extends: .winTestTemplate
+  needs: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
+  dependencies: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
   variables:
-    DEVTOOLS: $DEVTOOLS_Win_Unstable
-    
+    DEVTOOLS: $DEVTOOLS_Win_Unstable  
+
 testLinux512:
-  needs: ["debugBuildLinux512"]
+  extends: .linuxTestTemplate
+  needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"]
+  dependencies:
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
+  variables:
+    DEVTOOLS: $DEVTOOLS_Linux_Stable    
+
+testLinux512Unstable:
+  extends: .linuxTestTemplate
+  needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"]
+  dependencies:
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+  variables:
+    DEVTOOLS: $DEVTOOLS_Linux_Unstable   
+
+valgrind:
+  needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"]
   stage: test
   before_script:
-    - chmod +x ./tests/unittests/runUnittests.sh
+    - chmod +x ./tests/memcheck/runValgrind.sh
   script:
-    - ./tests/unittests/runUnittests.sh
+    - xvfb-run -a ./tests/memcheck/runValgrind.sh
   dependencies:
-    - debugBuildLinux512
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
   tags:
-    - LinuxTest 
+    - Linux
   artifacts:
     paths:
-      - "unittests.xml"
+      - valgrind-report.xml
     expire_in: 1 week
-    reports:
-      junit: unittests.xml
   variables:
     DEVTOOLS: $DEVTOOLS_Linux_Stable
 
-testLinux512Unstable:
-  needs: ["debugBuildLinux512Unstable"]
-  stage: test
-  before_script:
-    - chmod +x ./tests/unittests/runUnittests.sh
+.copyTemplate:
   script:
-    - ./tests/unittests/runUnittests.sh
-  dependencies:
-    - debugBuildLinux512Unstable
+    - .\tests\build\copyHeaders-deployment.bat
+    - .\tests\build\copyBin.bat
+  only:
+    - tags
   tags:
-    - LinuxTest 
-  artifacts:
-    paths:
-      - "unittests.xml"
-    expire_in: 1 week
-    reports:
-      junit: unittests.xml
-  variables:
-    DEVTOOLS: $DEVTOOLS_Linux_Unstable
+    - Win10  
     
 # copy files to servers
 copyForDeploymentWin:
   stage: copy
-  script:
-    - .\tests\build\copyHeaders-deployment.bat
-    - .\tests\build\copyBin.bat
+  extends: .copyTemplate
   dependencies:
-    - debugBuildWin512
-    - releaseBuildWin512
-  tags:
-    - Win10
-  only:
-    - tags
+    - "windowsBuildDebug: [$DEVTOOLS_Win_Stable]"
+    - "windowsBuildRelease: [$DEVTOOLS_Win_Stable]"
   variables:
     PLATFORMNAME:  windows
     RELEASESTATUS: stable
-#    CATEGORY: 02_core
 
 copyForDeploymentWinUnstable:
   stage: copy
-  script:
-    - .\tests\build\copyHeaders-deployment.bat
+  extends: .copyTemplate
   dependencies:
-    - debugBuildWin512Unstable
-    - releaseBuildWin512Unstable
-  tags:
-    - Win10
-  only:
-    - tags
+    - "windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"
+    - "windowsBuildRelease: [$DEVTOOLS_Win_Unstable]"
   variables:
     PLATFORMNAME:  windows
     RELEASESTATUS: unstable
-#    CATEGORY: 02_core
-
 
 copyForDeploymentLinux:
   stage: copy
-  script:
-    - .\tests\build\copyHeaders-deployment.bat
-    - .\tests\build\copyBin.bat
+  extends: .copyTemplate
   dependencies:
-    - debugBuildLinux512
-    - releaseBuildLinux512
-  tags:
-    - Win10
-  only:
-    - tags
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
+    - "linuxBuildRelease: [$DEVTOOLS_Linux_Stable]"
   variables:
     PLATFORMNAME:  linux
     RELEASESTATUS: stable
-#    CATEGORY: 02_core
 
 copyForDeploymentLinuxUnstable:
   stage: copy
-  script:
-    - .\tests\build\copyHeaders-deployment.bat
+  extends: .copyTemplate
   dependencies:
-    - debugBuildLinux512Unstable
-    - releaseBuildLinux512Unstable
-  tags:
-    - Win10
-  only:
-    - tags
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+    - "linuxBuildRelease: [$DEVTOOLS_Linux_Unstable]"
   variables:
     PLATFORMNAME:  linux
     RELEASESTATUS: unstable
 
-
 # code quality
 codingstyle:
-  needs: []
   stage: codequality
-  allow_failure: true
-  script:
-    - '& $env:CODINGSTYLETOOL --ci --output=xml -o .\ -f  .\features\filefilter.txt .\src 1>codingStyleLog.txt'
-  tags:
-    - Win10
+  extends: .codingStyleTemplate 
   except:
     - tags
-  dependencies:
-  artifacts:
-    paths:
-      - "nsiqcppstyle_report.xml"
-      - codingStyleLog.txt   
-    expire_in: 1 week
-  variables:
-    CODINGSTYLETOOL: "C:\\Program Files\\nsiqcppstyle_0.2.2.3\\nsiqcppstyle\\nsiqcppstyle"
-    
+ 
 cppcheck:
-  needs: []
   stage: codequality
-  allow_failure: true
-  tags:
-    - LinuxTest 
-  before_script:
-    - python3 -m venv env
-    - source env/bin/activate
-    - python3 -m pip install cppcheck-codequality
-  script:
-    - cppcheck --xml --suppress=unusedFunction --enable=all src/ 2> cppcheck_out.xml
-    - cppcheck-codequality --input-file=cppcheck_out.xml --output-file=codequality.json
-  artifacts:
-    reports:
-      codequality: codequality.json      
-
+  extends: .cppCheckTemplate 
+   
 pages:
-  needs: []
-  dependencies:
   stage: badges
-  tags:
-    - LinuxTest
-  script:
-    - doxygen features/doxygenConfig
-    - mkdir public
-    - mv doc/html/* public/
+  extends: .pageTemplate 
   only:
     - master
     - tag
-  artifacts:
-     paths:
-       - public/
-      
+
 # badges
 badges:
   stage: badges
-  dependencies:
-    - debugBuildWin512
-    - debugBuildLinux512
-    - testWin512
-    - testLinux512
-    - codingstyle
-  script:
-    - $CommitNumber = git rev-list --count HEAD
-    - $statistics = git diff --shortstat 4b825dc642cb6eb9a060e54bf8d69288fbee4904
-    - $filesRaw,$linesRaw = $statistics.split(',')
-    - $fileNumber = $filesRaw.split(' ')[1]
-    - $linenumber = $linesRaw.split(' ')[1]
-    - '& $env:BADGEGENERATOR --run files $fileNumber'
-    - '& $env:BADGEGENERATOR --run commits $CommitNumber'
-    - '& $env:BADGEGENERATOR --bw .\buildLog512.txt .'
-    - '& $env:BADGEGENERATOR --bw .\linuxBuild.txt .'
-    - '& $env:BADGEGENERATOR --cs .\codingStyleLog.txt .'
-    - '& $env:BADGEGENERATOR --cc .\${UNITTESTSNAME}Coverage.xml .'
-    - '& $env:BADGEGENERATOR --cl .\${UNITTESTSNAME}Coverage.xml .'
-    - '& $env:BADGEGENERATOR --dp "Pipeline-Version" ${PIPELINEVERSION} .'
-  tags:
-    - Win10
+  extends: .badgeTemplate 
   except:
     - tags
-  artifacts:
-    paths:
-      - "New_*.svg"
-    expire_in: 4 week
-  variables:
-    BADGEGENERATOR: C:\devel\BadgeBuilder\BadgeGenerator.exe
