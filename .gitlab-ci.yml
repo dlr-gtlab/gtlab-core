@@ -79,8 +79,8 @@ windowsBuildRelease:
     - tags
   artifacts:
     paths:
-      - lib\$TARGETDIRNAME\$TARGETNAME.dll
-      - lib\$TARGETDIRNAME\$TARGETNAME.lib
+      - lib/$TARGETDIRNAME/*.dll
+      - lib/$TARGETDIRNAME/*.lib
       - include\$TARGETDIRNAME\*.h
       - build/GTlabGui.dll
       - build/GTlabGui.lib
