@@ -19,19 +19,19 @@ GtAbstractObjectFactory::GtAbstractObjectFactory(bool silent) : m_silent(silent)
 GtObject*
 GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
 {
-    GtObject* retval = 0;
+    GtObject* retval = nullptr;
     if (m_knownClasses.contains(className))
     {
         const QMetaObject& mo = m_knownClasses[className];
         retval = newObject(mo, parent);
-        if (retval == 0)
+        if (retval == nullptr)
         {
             if (!m_silent)
             {
                 qCritical() << "GtObjectFactory : Error creating " << className;
                 qDebug() << knownClasses();
             }
-            return NULL;
+            return nullptr;
         }
     }
     else
@@ -41,7 +41,7 @@ GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
             // TODO: uncomment
 //            qWarning() << "WARNING: classname not found! (" << className << ")";
         }
-        return NULL;
+        return nullptr;
     }
 
     retval->setFactory(this);
@@ -144,15 +144,15 @@ GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData)
 GtObject*
 GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent)
 {
-    GtObject* retval = 0;
+    GtObject* retval = nullptr;
 
     retval = qobject_cast<GtObject*>(metaObj.newInstance());
-    if (retval == 0)
+    if (retval == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
 
-    if (parent != 0)
+    if (parent != nullptr)
     {
         parent->appendChild(retval);
     }
@@ -170,7 +170,10 @@ GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData)
         {
             if (!m_silent)
             {
-                qWarning() << "class name already exists!";
+                qWarning() << "class name '"
+                              + classname
+                              + "' already exists!";
+
             }
             return true;
         }
@@ -196,7 +199,7 @@ bool
 GtAbstractObjectFactory::invokable(const QMetaObject& metaObj)
 {
     GtObject* obj = newObject(metaObj);
-    if (obj == NULL)
+    if (obj == nullptr)
     {
         if (!m_silent)
         {
