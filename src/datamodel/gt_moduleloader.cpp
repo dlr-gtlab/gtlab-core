@@ -441,10 +441,19 @@ GtModuleLoader::checkDependency(const QVariantList& deps)
         // check version
         const GtVersionNumber depVersion = m_plugins.value(name)->version();
 
-        if (depVersion != version)
+        if (depVersion < version)
         {
-            gtWarning() << "wrong version of dependency!";
+            gtError() << "dependecy -" << name << "- is outdated! (needed: >="
+                      << version.toString() << " ; current: "
+                      << depVersion.toString();
             return false;
+        }
+        else if (depVersion > version)
+        {
+            gtWarning() << "dependecy -" << name << "- has a newer version "
+                        << "than the module requires. (needed: >="
+                        << version.toString() << " ; current: "
+                        << depVersion.toString();
         }
     }
 
