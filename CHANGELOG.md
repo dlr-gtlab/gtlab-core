@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2021-04-30
+### Changed
+- Modules are only excluded if the dependencies have a lower version number than required by the module
+
 ## [1.7.0-rc2] - 2020-12-21
 ### Added
 - Funciotnality to exclude modules on framework startup  - #102

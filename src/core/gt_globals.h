@@ -13,7 +13,7 @@
 #define GT_VERSION_MAJOR 1
 #define GT_VERSION_MINOR 7
 #define GT_VERSION_PATCH 0
-#define GT_VERSION_ADDITIONAL "rc2"
+#define GT_VERSION_ADDITIONAL ""
 
 /*
    GT_VERSION is (major << 16) + (minor << 8) + patch.
