@@ -119,6 +119,13 @@ unix {
     QMAKE_CXXFLAGS += -std=c++11
 }
 
+unix:{
+    # suppress the default RPATH if you wish
+    QMAKE_LFLAGS_RPATH=
+    # add your own with quoting gyrations to make sure $ORIGIN gets to the command line unexpanded
+    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
+}
+
 ######################################################################
 
 contains(BUILD_DEPLOY, true) {
