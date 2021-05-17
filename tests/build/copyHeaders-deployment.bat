@@ -1,4 +1,4 @@
-@echo off
+REM @echo off
 
 SET SERVERPATH=C:\deployment\%PLATFORMNAME%\%CATEGORY%\%CI_PROJECT_NAME%\%CI_COMMIT_TAG%
 
