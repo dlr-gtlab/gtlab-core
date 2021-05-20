@@ -12,9 +12,15 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QPainter>
+#include <QPushButton>
 #include <QIcon>
+#include <QDateTime>
+#include <QFile>
 
 #include "gt_application.h"
+#include "gt_filedialog.h"
+#include "gt_footprint.h"
+#include "gt_logging.h"
 
 #include "gt_aboutdialog.h"
 
@@ -59,7 +65,7 @@ GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
 
     QLabel* copyLabel =
             new QLabel(QStringLiteral(
-                "GTlab - Gas Turbine laboratory\ncopyright 2009-2020 by DLR"));
+                "GTlab - Gas Turbine laboratory\ncopyright 2009-2021 by DLR"));
 
     hLayout->addWidget(copyLabel);
 
@@ -73,11 +79,55 @@ GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
 
     layout->addLayout(hLayout);
 
+    layout->addSpacerItem(new QSpacerItem(5, 5, QSizePolicy::Minimum,
+                                          QSizePolicy::Minimum));
+
+    QHBoxLayout* btnLayout = new QHBoxLayout;
+
+
+    btnLayout->addSpacerItem(new QSpacerItem(10, 20, QSizePolicy::Expanding,
+                                             QSizePolicy::Minimum));
+
+    QPushButton* exportFootprintBtn =
+            new QPushButton(tr("Export Framework Footprint"));
+    exportFootprintBtn->setIcon(gtApp->icon(QStringLiteral("exportIcon.png")));
+    exportFootprintBtn->setFocusPolicy(Qt::NoFocus);
+    btnLayout->addWidget(exportFootprintBtn);
+
+    layout->addLayout(btnLayout);
+
     layout->setSpacing(0);
 
     setLayout(layout);
 
-    setMinimumSize(465, 350);
-    setMaximumSize(465, 350);
+    setMinimumSize(465, 380);
+    setMaximumSize(465, 380);
+
+    connect(exportFootprintBtn, SIGNAL(clicked()), SLOT(exportFootprint()));
+}
+
+void
+GtAboutDialog::exportFootprint()
+{
+    QString initFileName = QDateTime::currentDateTime().toString("yyyy-MM-dd") +
+                           QStringLiteral("_gtlab_env_footprint.xml");
+
+    QString filename = GtFileDialog::getSaveFileName(this,
+                       tr("Choose File"),
+                       QString(), tr("XML files (*.xml)"),
+                       initFileName);
+
+    QFile file(filename);
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        gtError() << tr("Could not open file!");
+        return;
+    }
+
+    QTextStream stream(&file);
+    stream << GtFootprint().exportToXML();
+
+    file.close();
 }
 
