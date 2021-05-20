@@ -80,7 +80,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
         ui->menuTools->menuAction()->setVisible(false);
 
-        ui->actionBug_Report->setVisible(false);
+//        ui->actionBug_Report->setVisible(false);
 
         ui->actionDuplicate_Project->setVisible(false);
 
@@ -825,7 +825,7 @@ void
 GtMainWin::runBugReport()
 {
     QString link =
-        QStringLiteral("https://mantis.dlr.de/mantis/login_page.php");
+        QStringLiteral("https://gitlab.dlr.de/gtlab-bugtracking/gtlab-issuetracking/-/issues");
     QDesktopServices::openUrl(QUrl(link));
 }
 
