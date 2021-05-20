@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Changed
+- Update check functionality uses maintenance tool command line interface instead of parsing log files - #121
+
 ## [1.7.1] - 2021-05-17
 ### Fixed
 - RPATH fix for all core libraries
