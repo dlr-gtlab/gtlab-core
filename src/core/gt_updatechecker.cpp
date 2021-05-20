@@ -10,98 +10,219 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QProcess>
+#include <QDomDocument>
 
+#include "gt_globals.h"
 #include "gt_logging.h"
 
 #include "gt_updatechecker.h"
 
-GtUpdateChecker::GtUpdateChecker(QObject* parent) : QObject(parent)
+GtUpdateChecker::GtUpdateChecker(QObject* parent) : QObject(parent),
+    m_extendedInfo(false),
+    m_errorCode(-100)
 {
 
 }
 
 void
+GtUpdateChecker::enableExtendedInfo(bool val)
+{
+    m_extendedInfo = val;
+}
+
+void
 GtUpdateChecker::checkForUpdate()
+{
+    m_pkgList.clear();
+    m_errorCode = updateHelper();
+
+    if (m_errorCode != 0)
+    {
+        emit error(m_errorCode, m_errorMessage);
+    }
+    else
+    {
+        emit updateAvailable();
+    }
+}
+
+int
+GtUpdateChecker::updateHelper()
 {
     gtDebug() << "update check...";
     QDir path(qApp->applicationDirPath());
 
     if (!path.cdUp())
     {
-        emit error(1, tr("Maintanance tool not found!"));
-        return;
+        m_errorMessage = tr("Maintanance tool not found!");
+        return 1;
     }
 
-    QString maintainance(QStringLiteral("MaintenanceTool"));
+    QString maintainance(QStringLiteral(GT_MAINTENANCETOOL));
 
 #ifdef Q_OS_WIN32
-    maintainance = QStringLiteral("MaintenanceTool.exe");
+    maintainance = QStringLiteral(GT_MAINTENANCETOOL) +
+                   QStringLiteral(".exe");
 #endif
 
     if (!QFile(path.absoluteFilePath(maintainance)).exists())
     {
-        emit error(1, tr("Maintanance tool not found!"));
-        return;
+        m_errorMessage = tr("Maintanance tool not found!");
+        return 1;
     }
 
     QProcess ps;
     QString progName = path.absolutePath() + QDir::separator() +
                        maintainance;
     QStringList arguments;
-    arguments << QStringLiteral("--checkupdates");
+    arguments << QStringLiteral("ch");
     ps.start(progName, arguments);
 
     gtDebug() << "running maintenance tool...";
 
     if (!ps.waitForFinished(30000))
     {
-        gtDebug() << "timed out!";
-        emit error(2, tr("Timed out!"));
-        return;
+        m_errorMessage = tr("Timed out!");
+        return 2;
     }
 
-    QFile file(path.absoluteFilePath(QStringLiteral("InstallationLog.txt")));
-
-    if (!file.exists())
+    if (ps.exitCode() != 0)
     {
-        emit error(3, tr("Update file not found!"));
-        return;
+        m_errorMessage = tr("Could not establish connection to update server!");
+        return 3;
     }
 
-    if (!file.open(QFile::ReadOnly))
+    gtDebug() << "connection established! reading update info...";
+
+    QString outStr = QLatin1String(ps.readAllStandardOutput());
+
+    if (!outStr.contains(QStringLiteral("<updates>")))
     {
-        emit error(4, tr("Could not open update file!"));
-        return;
+        m_errorMessage = tr("No updates available!");
+        return 6;
     }
 
-    QString data = QString::fromLatin1(file.readAll());
-    QStringList rowdata = data.split(QRegExp(QStringLiteral("[\r\n]")),
-                                     QString::SkipEmptyParts);
-
-    gtDebug() << "last line = " << rowdata.last();
-
-    if (rowdata.last().contains(QStringLiteral("Connection refused")))
+    if (m_extendedInfo)
     {
-        emit error(5, tr("Connection refused!"));
-        return;
-    }
-    else if (rowdata.last().contains(QStringLiteral("no updates available")))
-    {
-        emit error(6, tr("No updates available!"));
-        return;
-    }
-    else if (rowdata.last().contains(QStringLiteral("Failure")))
-    {
-        emit error(7, rowdata.last());
-        return;
-    }
-    else if (rowdata.last().contains(QStringLiteral("Error")))
-    {
-        emit error(8, rowdata.last());
-        return;
+        int firstIdx = outStr.indexOf(QStringLiteral("<updates>"));
+        int lastIdx = outStr.lastIndexOf(QStringLiteral("</updates>"));
+
+        QString outStrTrimmed = outStr.mid(firstIdx, lastIdx);
+
+        QString errorStr;
+        int errorLine;
+        int errorColumn;
+
+        QDomDocument document;
+        if (!document.setContent(outStrTrimmed, true, &errorStr, &errorLine, &errorColumn))
+        {
+            gtError() << "update data error!";
+            gtError() << "  |-> " << errorLine << ";" << errorColumn << " - " <<
+                         errorStr;
+
+            m_errorMessage = tr("Update data error!");
+            return 4;
+        }
+
+        QDomElement elm_root = document.documentElement();
+
+        QDomElement pkg_element_it =
+                elm_root.firstChildElement(QStringLiteral("update"));
+
+        while (!pkg_element_it.isNull())
+        {
+            PackageInfo pkg_info;
+            pkg_info.m_id = pkg_element_it.attribute(QStringLiteral("id"));
+            pkg_info.m_name = pkg_element_it.attribute(QStringLiteral("name"));
+            pkg_info.m_newVers =
+                    pkg_element_it.attribute(QStringLiteral("version"));
+
+            if (!readExtendedInfo(progName, pkg_info))
+            {
+                m_errorMessage = tr("Update data error!");
+                return 4;
+            }
+
+            m_pkgList << pkg_info;
+
+            pkg_element_it =
+                    pkg_element_it.nextSiblingElement(QStringLiteral("update"));
+        }
+
+        gtDebug() << "update available for:";
+
+        foreach (const PackageInfo& pkg_info, m_pkgList)
+        {
+            gtDebug() << "- " << pkg_info.m_name << " (" <<
+                         pkg_info.m_currentVers << " -> " <<
+
+                         pkg_info.m_newVers << ")";
+        }
+
     }
 
-    file.close();
+    return 0;
+}
 
-    emit updateAvailable();
+QList<GtUpdateChecker::PackageInfo>
+GtUpdateChecker::pkgList() const
+{
+    return m_pkgList;
+}
+
+bool
+GtUpdateChecker::readExtendedInfo(const QString& mTool,
+                                  GtUpdateChecker::PackageInfo& pkgInfo)
+{
+    QProcess ps;
+
+    QStringList arguments;
+    arguments << QStringLiteral("li");
+    arguments << pkgInfo.m_id;
+
+    ps.start(mTool, arguments);
+
+    gtDebug() << "running maintenance tool...";
+
+    if (!ps.waitForFinished(30000))
+    {
+        return false;
+    }
+
+    QString outStr = QLatin1String(ps.readAllStandardOutput());
+
+    int firstIdx = outStr.indexOf(QStringLiteral("<localpackages>"));
+    int lastIdx = outStr.lastIndexOf(QStringLiteral("</localpackages>"));
+
+    QString outStrTrimmed = outStr.mid(firstIdx, lastIdx);
+
+    QString errorStr;
+    int errorLine;
+    int errorColumn;
+
+    QDomDocument document;
+    if (!document.setContent(outStrTrimmed, true, &errorStr, &errorLine, &errorColumn))
+    {
+        gtError() << "update data error!";
+        gtError() << "  |-> " << errorLine << ";" << errorColumn << " - " <<
+                     errorStr;
+
+        return false;
+    }
+
+    QDomElement elm_root = document.documentElement();
+
+    QDomElement pkg_element_it =
+            elm_root.firstChildElement(QStringLiteral("package"));
+
+    while (!pkg_element_it.isNull())
+    {
+        pkgInfo.m_currentVers =
+                pkg_element_it.attribute(QStringLiteral("version"));
+
+        pkg_element_it =
+                pkg_element_it.nextSiblingElement(QStringLiteral("package"));
+    }
+
+    return true;
 }

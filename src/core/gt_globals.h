@@ -14,6 +14,7 @@
 #define GT_VERSION_MINOR 7
 #define GT_VERSION_PATCH 1
 #define GT_VERSION_ADDITIONAL ""
+#define GT_MAINTENANCETOOL "MaintenanceTool"
 
 /*
    GT_VERSION is (major << 16) + (minor << 8) + patch.

@@ -1098,7 +1098,12 @@ GtMainWin::runUpdate()
     QDir path(QApplication::applicationDirPath());
     path.cdUp();
 
-    QProcess::startDetached(path.absoluteFilePath("MaintenanceTool"));
+    QStringList arguments;
+    arguments << QStringLiteral("--su");
+
+    QProcess::startDetached(path.absoluteFilePath(GT_MAINTENANCETOOL),
+                            arguments);
+
     close();
 }
 

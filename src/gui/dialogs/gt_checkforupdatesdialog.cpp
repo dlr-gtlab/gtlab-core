@@ -14,6 +14,9 @@
 #include <QPushButton>
 #include <QMovie>
 #include <QThread>
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QFont>
 
 #include "gt_application.h"
 #include "gt_updatechecker.h"
@@ -72,6 +75,10 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     layout->addLayout(textLay);
 
+    m_tableWid = new QTableWidget;
+
+    layout->addWidget(m_tableWid);
+
     layout->addSpacerItem(new QSpacerItem(10, 10,
                                           QSizePolicy::Minimum,
                                           QSizePolicy::Expanding));
@@ -111,8 +118,8 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
     setLayout(layout);
 
     setMaximumWidth(350);
-    setMinimumHeight(210);
-    setMaximumHeight(210);
+    setMinimumHeight(310);
+    setMaximumHeight(310);
 
     checkForUpdate();
 }
@@ -122,6 +129,8 @@ GtCheckForUpdatesDialog::checkForUpdate()
 {
     gtInfo() << "checking for updates...";
 
+    m_tableWid->hide();
+
     m_txtLabel->setText(tr("searching..."));
     m_progressLabel->setVisible(true);
     m_checkButton->setEnabled(false);
@@ -129,11 +138,11 @@ GtCheckForUpdatesDialog::checkForUpdate()
 
     QThread* thread = new QThread;
     GtUpdateChecker* check = new GtUpdateChecker;
+    check->enableExtendedInfo(true);
     check->moveToThread(thread);
 
     connect(thread, SIGNAL(started()), check, SLOT(checkForUpdate()));
     connect(check, SIGNAL(updateAvailable()), thread, SLOT(quit()));
-    connect(check, SIGNAL(updateAvailable()), check, SLOT(deleteLater()));
     connect(check, SIGNAL(updateAvailable()), this, SLOT(updateAvailable()));
     connect(check, SIGNAL(error(int, QString)), thread, SLOT(quit()));
     connect(check, SIGNAL(error(int, QString)),
@@ -155,6 +164,48 @@ GtCheckForUpdatesDialog::updateAvailable()
     m_txtLabel->setText("<b><font color='darkgreen'>" +
                         tr("New updates available!") +
                         "</font></b>");
+
+    GtUpdateChecker* check = qobject_cast<GtUpdateChecker*>(sender());
+
+    if (check == Q_NULLPTR)
+    {
+        return;
+    }
+
+    QList<GtUpdateChecker::PackageInfo> pkgList = check->pkgList();
+
+    m_tableWid->setRowCount(pkgList.count());
+    m_tableWid->setColumnCount(3);
+
+    foreach (const GtUpdateChecker::PackageInfo& pkg_info, pkgList)
+    {
+        m_tableWid->setItem(0, 0, new QTableWidgetItem(pkg_info.m_name));
+        m_tableWid->setItem(0, 1, new QTableWidgetItem(pkg_info.m_currentVers));
+        m_tableWid->setItem(0, 2, new QTableWidgetItem(pkg_info.m_newVers));
+    }
+
+    m_tableWid->setHorizontalHeaderLabels(QStringList() << "Package" <<
+                                        "Installed Version" <<
+                                        "New Version");
+    m_tableWid->verticalHeader()->hide();
+    QFont font = m_tableWid->font();
+    font.setPointSize(7);
+    m_tableWid->setFont(font);
+
+    m_tableWid->setShowGrid(false);
+
+    m_tableWid->setColumnWidth(0, 150);
+    m_tableWid->setColumnWidth(1, 95);
+    m_tableWid->setColumnWidth(2, 80);
+    m_tableWid->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    m_tableWid->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    m_tableWid->verticalHeader()->setDefaultSectionSize(20);
+
+    m_tableWid->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    m_tableWid->show();
+
+    check->deleteLater();
 }
 
 void
