@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update check functionality uses maintenance tool command line interface instead of parsing log files - #121
 - Bug report url changed and enabled for non dev mode - #122
 
+### Added
+- Functionality to export framework footprint information  - #124
+
 ## [1.7.1] - 2021-05-17
 ### Fixed
 - RPATH fix for all core libraries
@@ -19,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.7.0-rc2] - 2020-12-21
 ### Added
-- Funciotnality to exclude modules on framework startup  - #102
+- Functionality to exclude modules on framework startup  - #102
 
 ### Changed
 - Framework version macro included in gtApp header
