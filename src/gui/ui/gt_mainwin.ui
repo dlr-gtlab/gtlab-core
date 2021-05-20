@@ -82,7 +82,7 @@
      <x>0</x>
      <y>0</y>
      <width>1009</width>
-     <height>20</height>
+     <height>24</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
@@ -528,7 +528,7 @@
   <action name="actionBug_Report">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/devModeOnly/mantisIcon.png</normaloff>:/icons/devModeOnly/mantisIcon.png</iconset>
+     <normaloff>:/icons/bugIcon.png</normaloff>:/icons/bugIcon.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Bug Report</string>
@@ -748,6 +748,7 @@
   </action>
  </widget>
  <resources>
+  <include location="../../resources/icons/icons.qrc"/>
   <include location="../../resources/icons/icons.qrc"/>
   <include location="../../resources/icons/icons.qrc"/>
  </resources>

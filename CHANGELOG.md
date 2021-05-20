@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Update check functionality uses maintenance tool command line interface instead of parsing log files - #121
+- Bug report url changed and enabled for non dev mode - #122
 
 ## [1.7.1] - 2021-05-17
 ### Fixed
