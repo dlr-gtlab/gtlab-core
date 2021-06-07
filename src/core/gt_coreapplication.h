@@ -16,6 +16,8 @@
 #include <QStringList>
 #include <QMap>
 
+#include "gt_globals.h"
+
 #define gtApp (GtCoreApplication::instance())
 
 class QCoreApplication;
@@ -31,6 +33,7 @@ class GtObject;
 class GtCoreDatamodel;
 class GtAbstractLoadingHelper;
 class GtCommand;
+class GtVersionNumber;
 
 /**
  * @brief The GtApplication class
@@ -225,7 +228,7 @@ public:
      * @param module identification string
      * @return module version number
      */
-    int moduleVersion(const QString& id);
+    GtVersionNumber moduleVersion(const QString& id);
 
     /**
      * @brief Returns description of module for given id. Returns empty
@@ -261,10 +264,24 @@ public:
     static int patchLevel();
 
     /**
+     * @brief Returns additional version information of the application (e.g.
+     * alpha, beta, rc, etc.)
+     * @return additional version information
+     */
+    static std::string additionalVersionInfo();
+
+    /**
      * @brief Returns version string including major, minor and patch version.
      * @return Version string.
      */
     static QString versionToString();
+
+    /**
+     * @brief Returns version information including major, minor and patch
+     * version.
+     * @return Version information.
+     */
+    static GtVersionNumber version();
 
     /**
      * @brief Returns global temporary directory of the application.
@@ -386,6 +403,9 @@ private:
 
     /// Application patch level
     static int m_patchLevel;
+
+    /// Application additional version information (alpha, beta, etc.)
+    static std::string m_additional;
 
 signals:
     /**

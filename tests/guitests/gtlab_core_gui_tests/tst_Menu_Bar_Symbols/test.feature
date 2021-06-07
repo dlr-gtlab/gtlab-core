@@ -8,7 +8,7 @@ Feature: GTlab has multiple toolbuttons in the main menu bar to acces certain fu
 		Given 	GTlab is running
 		Then 	the 'Create New Project' toolbutton is enabled
 		When 	the toolbutton is pressed
-		Then 	the 'New Project' Wizard is enabled
+		Then 	the 'New Project' wizard is enabled
 
     Scenario: 	If no Project is open, you cannot save a project
 		Given   GTlab is running

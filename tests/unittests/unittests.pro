@@ -111,10 +111,9 @@ CONFIG(debug, debug|release){
 
     # THIRD PARTY
     win32 {
-        LIBS += -lqwtd
+
     }
     unix {
-        LIBS += -lqwt
         LIBS += -lcminpack
     }
 } else {
@@ -125,8 +124,6 @@ CONFIG(debug, debug|release){
     LIBS += -lGTlabCalculators -lGTlabCore
 
     # THIRD PARTY
-    LIBS += -lqwt
-
     unix {
         LIBS += -lcminpack
     }

@@ -84,6 +84,12 @@ contains(BUILD_REGRESSIONTESTS, true) {
     SUBDIRS += tests/regressiontests
 }
 
+#### TEST MODULES ####
+contains(BUILD_TESTMODULES, true) {
+    message("BUILD_TESTMODULES = true")
+    SUBDIRS += tests/modules
+}
+
 #### TRANSLATIONS ####
 TRANSLATIONS = translations/gtlab_de.ts
 

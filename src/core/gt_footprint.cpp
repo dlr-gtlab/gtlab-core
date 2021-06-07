@@ -12,6 +12,7 @@
 #include <QCryptographicHash>
 
 #include "gt_coreapplication.h"
+#include "gt_versionnumber.h"
 #include <gt_logging.h>
 
 #include "gt_footprint.h"
@@ -29,7 +30,7 @@ public:
     int m_core_ver_patch;
 
     /// Module ids and versions
-    QMap<QString, int> m_modules;
+    QMap<QString, GtVersionNumber> m_modules;
 
     /**
      * @brief readData
@@ -98,7 +99,7 @@ GtFootprint::generateHash() const
     foreach (const QString& mid, mids)
     {
         hash.addData(mid.toUtf8());
-        hash.addData(QString::number(m_pimpl->m_modules.value(mid)).toUtf8());
+        hash.addData(m_pimpl->m_modules.value(mid).toString().toUtf8());
     }
 
     return hash.result().toHex();
@@ -141,7 +142,7 @@ GtFootprint::exportToXML() const
 
         stream.writeTextElement(QStringLiteral("id"), mid);
         stream.writeTextElement(QStringLiteral("ver"),
-                                QString::number(m_pimpl->m_modules.value(mid)));
+                                m_pimpl->m_modules.value(mid).toString());
 
         stream.writeEndElement(); // module
     }
@@ -251,10 +252,10 @@ GtFootprint::versionToString() const
             QString::number(m_pimpl->m_core_ver_patch);
 }
 
-QMap<QString, int>
+QMap<QString, GtVersionNumber>
 GtFootprint::unknownModules() const
 {
-    QMap<QString, int> retval;
+    QMap<QString, GtVersionNumber> retval;
 
     GtFootprint envFootPrint;
 
@@ -269,10 +270,10 @@ GtFootprint::unknownModules() const
     return retval;
 }
 
-QMap<QString, int>
+QMap<QString, GtVersionNumber>
 GtFootprint::incompatibleModules() const
 {
-    QMap<QString, int> retval;
+    QMap<QString, GtVersionNumber> retval;
 
     GtFootprint envFootPrint;
 
@@ -289,10 +290,10 @@ GtFootprint::incompatibleModules() const
     return retval;
 }
 
-QMap<QString, int>
+QMap<QString, GtVersionNumber>
 GtFootprint::updatedModules() const
 {
-    QMap<QString, int> retval;
+    QMap<QString, GtVersionNumber> retval;
 
     GtFootprint envFootPrint;
 
@@ -316,7 +317,7 @@ GtFootprintImpl::readData(const QString& data)
     int tmp_core_ver_major = 0;
     int tmp_core_ver_minor = 0;
     int tmp_core_ver_patch = 0;
-    QMap<QString, int> temp_modules;
+    QMap<QString, GtVersionNumber> temp_modules;
 
     QString errorStr;
     int errorLine;
@@ -421,7 +422,7 @@ GtFootprintImpl::readData(const QString& data)
     {
         // temporary module variables
         QString tmp_mod_id;
-        int tmp_mod_ver = 0;
+        QString tmp_mod_ver;
 
         QDomElement elm_module_it_id =
                 elm_module_it.firstChildElement(QStringLiteral("id"));
@@ -443,13 +444,7 @@ GtFootprintImpl::readData(const QString& data)
 
         tmp_mod_id = elm_module_it_id.text();
 
-        tmp_mod_ver = elm_module_it_ver.text().toInt(&conv_success);
-
-        if (!conv_success)
-        {
-            gtError() << "footprint data corrupted!";
-            return false;
-        }
+        tmp_mod_ver = elm_module_it_ver.text();
 
         if (temp_modules.contains(tmp_mod_id))
         {
@@ -457,7 +452,7 @@ GtFootprintImpl::readData(const QString& data)
             return false;
         }
 
-        temp_modules.insert(tmp_mod_id, tmp_mod_ver);
+        temp_modules.insert(tmp_mod_id, GtVersionNumber(tmp_mod_ver));
 
         elm_module_it =
                 elm_module_it.nextSiblingElement(QStringLiteral("module"));

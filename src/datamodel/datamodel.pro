@@ -111,6 +111,7 @@ HEADERS += \
     property/gt_doublelistproperty.h \
     gt_bleedtable.h \
     gt_tablegroup.h \
+    gt_versionnumber.h \
     property/gt_freestringproperty.h
 
 SOURCES += \
@@ -169,6 +170,7 @@ SOURCES += \
     property/gt_doublelistproperty.cpp \
     gt_bleedtable.cpp \
     gt_tablegroup.cpp \
+    gt_versionnumber.cpp \
     property/gt_freestringproperty.cpp
 
 unix {
@@ -181,6 +183,13 @@ CONFIG(debug, debug|release){
     LIBS += -lGTlabNumerics-d -lGTlabLogging-d
 } else {
     LIBS += -lGTlabNumerics -lGTlabLogging
+}
+
+unix:{
+    # suppress the default RPATH if you wish
+    QMAKE_LFLAGS_RPATH=
+    # add your own with quoting gyrations to make sure $ORIGIN gets to the command line unexpanded
+    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
 }
 
 ######################################################################

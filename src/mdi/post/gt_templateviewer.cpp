@@ -18,8 +18,6 @@
 #include "qscrollarea.h"
 #include <QLabel>
 
-#include <qwt_plot_renderer.h>
-
 #include "gt_templateviewer.h"
 #include "gt_application.h"
 #include "gt_project.h"

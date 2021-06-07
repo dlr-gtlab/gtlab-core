@@ -285,11 +285,14 @@ GtCoreProcessExecutor::execute()
 
 void
 GtCoreProcessExecutor::handleTaskFinishedHelper(
-    QList<GtObjectMemento>& changedData, GtTask* /*task*/)
+        QList<GtObjectMemento>& changedData,
+        GtTask* task)
 {
     qDebug() << "handleTaskFinishedHelper batch mode!";
     qDebug() << "changed data = " << changedData.size();
     qDebug() << "source = " << m_source;
+
+    bool ok = true;
 
     // source may be NULL if there are no object links defined in the
     // calculators included in the task
@@ -334,7 +337,12 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
             }
             else
             {
+                gtError() << tr("Data changes from the task")
+                          << task->objectName()
+                          << tr("could not feed back to datamodel");
+                gtDebug() << tr("Target for memento diff not found");
                 qDebug() << "ERROR: target not found!";
+                ok = false;
             }
         }
 
@@ -353,8 +361,21 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
 
         if (!m_source->applyDiff(sumDiff))
         {
+            gtError() << tr("Data changes from the task")
+                      << task->objectName()
+                      << tr("could not feed back to datamodel");
             qDebug() << "Diff not succesfully applied!";
+
+            ok = false;
         }
+    }
+
+    if (ok == false)
+    {
+
+        gtDebug() << tr("Process failure because of MementoDiff error");
+        task->setState(GtProcessComponent::FAILED);
+
     }
 
     qDebug() << "handleTaskFinishedHelper end!";

@@ -17,6 +17,8 @@
 class GtObject;
 class GtObjectUI;
 
+typedef QList<GtObjectUI*> GtObjectUIList;
+
 /**
  * @brief The GtGuiModuleLoader class
  */
@@ -34,18 +36,20 @@ public:
     virtual ~GtGuiModuleLoader();
 
     /**
-     * @brief objectUI
-     * @param obj
-     * @return
+     * @brief Returns list of all registered user interfaces objects for given
+     * class.
+     * @param obj Object for retrieving UI classes of the associated class.
+     * @return List of all registered user interfaces objects.
      */
-    GtObjectUI* objectUI(GtObject* obj);
+    GtObjectUIList objectUI(GtObject* obj);
 
     /**
-     * @brief objectUI
-     * @param className
-     * @return
+     * @brief Returns list of all registered user interfaces objects for given
+     * class name.
+     * @param classname Classname for retrieving UI classes.
+     * @return List of all registered user interfaces objects.
      */
-    GtObjectUI* objectUI(const QString& classname);
+    GtObjectUIList objectUI(const QString& classname);
 
     /**
      * @brief knownUIObjects - returns a list of all stored object ui classes
@@ -69,10 +73,7 @@ protected:
 
 private:
     // object specific user interfaces
-    QHash<QString, GtObjectUI*> m_uiObjs;
-
-    // temporary user interface objects
-    QMap<QString, GtObjectUI*> m_uiObjsTmp;
+    QHash<QString, GtObjectUIList> m_uiObjs;
 
     /**
      * @brief registerObjectUI

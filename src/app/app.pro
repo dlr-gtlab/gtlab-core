@@ -73,10 +73,8 @@ CONFIG(debug, debug|release){
     LIBS += -lGTlabMdi-d -lGTlabGui-d -lGTlabNetwork-d
     # THIRD PARTY
     win32 {
-        LIBS += -lqwtd
     }
     unix {
-        LIBS += -lqwt
         LIBS += -lcminpack
     }
 } else {
@@ -86,8 +84,6 @@ CONFIG(debug, debug|release){
     LIBS += -lGTlabDatamodel -lGTlabCalculators -lGTlabCore
     LIBS += -lGTlabMdi -lGTlabGui -lGTlabNetwork
     # THIRD PARTY
-    LIBS += -lqwt
-
     unix {
         LIBS += -lcminpack
     }

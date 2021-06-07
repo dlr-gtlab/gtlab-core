@@ -14,6 +14,8 @@
 
 #include <QtPlugin>
 
+#include "gt_versionnumber.h"
+
 /**
  * @brief The GtModuleInterface class
  */
@@ -27,7 +29,7 @@ public:
      * @brief Returns current version number of module.
      * @return version number
      */
-    virtual int version() = 0;
+    virtual GtVersionNumber version() = 0;
 
     /**
      * @brief Returns module identification string.
@@ -45,7 +47,7 @@ public:
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(GtModuleInterface,
-                    "de.dlr.gtlab.GtModuleInterface/1.6")
+                    "de.dlr.gtlab.GtModuleInterface/1.7")
 QT_END_NAMESPACE
 
 #endif // GT_MODULEINTERFACE_H

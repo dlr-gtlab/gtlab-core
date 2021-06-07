@@ -22,6 +22,8 @@ class GT_DATAMODEL_EXPORT GtModeTypeProperty : public GtStringProperty
     Q_OBJECT
 
 public:
+    using GtProperty<QString>::operator=;
+
     /**
      * @brief GtModeTypeProperty
      * @param name

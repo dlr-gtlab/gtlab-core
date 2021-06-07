@@ -10,11 +10,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed ObjectUI Standard Behaviour for renaming to allow spaces - #109
 
 
+## [1.7.2] - 2021-05-25
+### Changed
+- Update check functionality uses maintenance tool command line interface instead of parsing log files - #121
+- Bug report url changed and enabled for non dev mode - #122
+
+### Added
+- Functionality to export framework footprint information  - #124
+- Functionality to display framework footprint information in command line mode - #125
+
+## [1.7.1] - 2021-05-17
+### Fixed
+- RPATH fix for all core libraries
+
+## [1.7.0] - 2021-04-30
+### Changed
+- Modules are only excluded if the dependencies have a lower version number than required by the module
+
+## [1.7.0-rc2] - 2020-12-21
+### Added
+- Functionality to exclude modules on framework startup  - #102
+
+### Changed
+- Framework version macro included in gtApp header
+
+## [1.7.0-rc1] - 2020-11-18
+### Added
+- Ability to extend the object UI for existing classes  - #95
+- Ability to write project specific comments  - #70
+- Removing multiple selected projects from project explorer - #32
+- Warning while closing GTlab if process is still running - #27
+- GtResult: Convenience function to add result to label - #83
+
+### Changed
+- Module version information based on the framework versioning format (major, minor, patch)  - #89
+- GtModeTypeProperty.getVal() is returning objectName instead of empty string - #34
+
+### Fixed
+- Removed inconsistency in handling of non-dimensional unit - #33
+
+### Removed
+- Process monitoring and dependency to qwt libranry - #9
+
+## [1.7.0-alpha1] - 2020-11-06
+### Added
+- Convinience function to add datazones to resul-objects with labels easier  - #83
+- ModeTypeProperty getVal() returns mode type id  - #34
+- Improved comparison og ModeProperty and ModeTypeProperty - #34
+- Option to remove multiple projects from session - #32
+
+### Changed
+- New general indication of version numbers. Used in modules and calculators, among others. - #89
+
+### Fixed
+- BugFix: Small check in table class prevents crash on linux for tables with only one point
+- BugFix: Unitconversion for a non-dimensional unit
+
 ## [1.6.5] - 2020-09-16
 ### Fixed
 - BugFix: Information about differences in version of the framework and project within ProjectAnalyzerDialog - #81
 - BugFix: Invalidation of Access Data for Collections - #90
 - BugFix: Wrong index in access data model when access data is removed - #92
+
 
 ## [1.6.4] - 2020-07-28
 ### Fixed

@@ -383,16 +383,42 @@ GtApplication::loadPerspectiveData()
     return QPair<QByteArray, QByteArray>();
 }
 
-GtObjectUI*
+QList<GtObjectUI*>
 GtApplication::objectUI(GtObject* obj)
 {
     return m_guiModuleLoader->objectUI(obj);
 }
 
-GtObjectUI*
+QList<GtObjectUI*>
 GtApplication::objectUI(const QString& classname)
 {
     return m_guiModuleLoader->objectUI(classname);
+}
+
+GtObjectUI*
+GtApplication::defaultObjectUI(GtObject* obj)
+{
+    QList<GtObjectUI*> ouis = gtApp->objectUI(obj);
+
+    if (!ouis.isEmpty())
+    {
+        return ouis.first();
+    }
+
+    return Q_NULLPTR;
+}
+
+GtObjectUI*
+GtApplication::defaultObjectUI(const QString& classname)
+{
+    QList<GtObjectUI*> ouis = gtApp->objectUI(classname);
+
+    if (!ouis.isEmpty())
+    {
+        return ouis.first();
+    }
+
+    return Q_NULLPTR;
 }
 
 QStringList

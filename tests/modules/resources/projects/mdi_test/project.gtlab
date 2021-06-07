@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GTLAB projectname="mdi_test" version="1.7.0-rc1">
+    <env-footprint>
+        <hash>5d566d26bfd0bf0cb64c443bd7a3a6549484ac0cb9531684d207d9863d670b4a</hash>
+        <core-ver>
+            <major>1</major>
+            <minor>7</minor>
+            <patch>0</patch>
+        </core-ver>
+        <modules>
+            <module>
+                <id>Test Mdi Interface</id>
+                <ver>1.2.3</ver>
+            </module>
+            <module>
+                <id>Test Mdi Interface Ext</id>
+                <ver>1.2.4</ver>
+            </module>
+        </modules>
+    </env-footprint>
+    <comment></comment>
+    <MODULES>
+        <MODULE name="Test Mdi Interface" version="1.2.3"/>
+    </MODULES>
+    <PROCESSES/>
+    <LABELS>
+        <object class="GtLabel" name="Default" uuid="{ddd76209-1f8e-4d7d-a517-85a70c23fdea}"/>
+    </LABELS>
+</GTLAB>

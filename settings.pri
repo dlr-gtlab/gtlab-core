@@ -40,6 +40,13 @@ contains(BUILD_DEPLOY, true) {
     include( deployment.pri )
 }
 
+# Do not enable this for linux (otherwise these libs will be used instead
+# of new ones in case of release
+win32 {
+LIBS        += -L$${DEV_TOOLS}/bin
+DEPENDPATH  += $${DEV_TOOLS}/bin
+}
+
 #### LIBRARIES
 # Logging
 INCLUDEPATH += $${GTLAB_LOGGING_PATH}/include/logging
@@ -55,11 +62,6 @@ DEPENDPATH  += $${GTLAB_NUMERICS_PATH}/lib/numerics
 INCLUDEPATH += $${MINPACK_PATH}/include
 LIBS        += -L$${MINPACK_PATH}/lib
 DEPENDPATH  += $${MINPACK_PATH}/lib
-
-## Qwt
-INCLUDEPATH += $${QWT_PATH}/include
-LIBS        += -L$${QWT_PATH}/lib
-DEPENDPATH  += $${QWT_PATH}/lib
 
 ## NLOPT
 INCLUDEPATH += $${NLOPT_PATH}/include

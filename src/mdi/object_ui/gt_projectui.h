@@ -232,6 +232,20 @@ public slots:
      */
     void showFootprint(GtObject* obj);
 
+    /**
+     * @brief Opens comment editor if project ist opened.
+     * @param obj Selected project.
+     */
+    void editComment(GtObject* obj);
+
+    /**
+     * @brief Returns true if project is opened so comment can be edited.
+     * Otherwise false is returned.
+     * @param obj Selected project
+     * @return Whether project comment can be edited or not.
+     */
+    bool canEditComment(GtObject* obj);
+
 };
 
 #endif // GTPROJECTUI_H

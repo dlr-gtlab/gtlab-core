@@ -29,8 +29,7 @@ Feature: Test specific features of the explorer widget
         Given GTlab is running
           And the dock widgets 'Explorer, Processes/Calculators' are visible
           And any project is open
-          And any open project is closed
-          And no project is open
+         When any open project is closed
          Then no process elements are listed
           And the 'Run' button is greyed out
           And the 'Add...' button is greyed out

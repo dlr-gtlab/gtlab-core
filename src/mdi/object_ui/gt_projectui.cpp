@@ -44,6 +44,7 @@
 #include "gt_regexp.h"
 #include "gt_inputdialog.h"
 #include "gt_footprint.h"
+#include "gt_versionnumber.h"
 
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
@@ -127,6 +128,11 @@ GtProjectUI::GtProjectUI()
                     QStringLiteral("infoBlueIcon_16.png"),
                     QStringLiteral("showFootprint"));
 
+    addSingleAction(tr("Edit Comment"),
+                    QStringLiteral("commentIcon.png"),
+                    QStringLiteral("editComment"),
+                    QStringLiteral("canEditComment"));
+
     addSeparator();
 
     addSingleAction(tr("Show in Explorer"),
@@ -175,8 +181,6 @@ GtProjectUI::icon(GtObject* obj) const
     {
         return gtApp->icon("closedProjectIcon_16.png");
     }
-
-    return QIcon();
 }
 
 void
@@ -212,26 +216,36 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
     }
     else if (column == 1)
     {
-        if (gtApp->devMode())
+        switch (role)
         {
-            switch (role)
+        case Qt::DecorationRole:
+        {
+            GtProject* project = qobject_cast<GtProject*>(obj);
+
+            if (project != Q_NULLPTR)
             {
-                case Qt::DecorationRole:
+                if (!project->comment().isEmpty())
                 {
-                    GtProject* project = qobject_cast<GtProject*>(obj);
-
-                    if (project != Q_NULLPTR)
-                    {
-                        if (project->isOpen())
-                        {
-                            return gtApp->icon(
-                                        "devModeOnly/own_switchOffIcon.png");
-                        }
-                    }
-
-                    break;
+                    return gtApp->icon("commentIcon.png");
                 }
             }
+
+            break;
+        }
+        case Qt::ToolTipRole:
+        {
+            GtProject* project = qobject_cast<GtProject*>(obj);
+
+            if (project != Q_NULLPTR)
+            {
+                if (!project->comment().isEmpty())
+                {
+                    return project->comment();
+                }
+            }
+
+            break;
+        }
         }
     }
 
@@ -720,7 +734,7 @@ GtProjectUI::deleteProject(GtObject* obj)
             if (dir.removeRecursively())
             {
                 gtInfo() << tr("Project has been deleted "
-                               "from hard-disk successflly");
+                               "from hard-disk successfully");
             }
             else
             {
@@ -1176,7 +1190,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
 
             modElement.setAttribute(QStringLiteral("name"), str);
             modElement.setAttribute(QStringLiteral("version"),
-                                    gtApp->moduleVersion(str));
+                                    gtApp->moduleVersion(str).toString());
 
             modsElement.appendChild(modElement);
         }
@@ -1472,7 +1486,7 @@ GtProjectUI::showFootprint(GtObject* obj)
 
     tWid->addTopLevelItem(versionItem);
 
-    QMap<QString, int> unknownModules = footprint.unknownModules();
+    QMap<QString, GtVersionNumber> unknownModules = footprint.unknownModules();
 
     if (!unknownModules.isEmpty())
     {
@@ -1483,8 +1497,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         {
             QTreeWidgetItem* unknownModule =
                     new QTreeWidgetItem(QStringList() << e <<
-                                        QString::number(
-                                            unknownModules.value(e)));
+                                        unknownModules.value(e).toString());
 
             unknownModule->setBackgroundColor(1, QColor(255, 0, 0, 100));
             unknownModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
@@ -1495,7 +1508,8 @@ GtProjectUI::showFootprint(GtObject* obj)
         tWid->addTopLevelItem(unknownRoot);
     }
 
-    QMap<QString, int> incompatibleModules = footprint.incompatibleModules();
+    QMap<QString, GtVersionNumber> incompatibleModules =
+            footprint.incompatibleModules();
 
     if (!incompatibleModules.isEmpty())
     {
@@ -1506,10 +1520,8 @@ GtProjectUI::showFootprint(GtObject* obj)
         {
             QTreeWidgetItem* incompatibleModule =
                     new QTreeWidgetItem(QStringList() << e <<
-                                        QString::number(
-                                            incompatibleModules.value(e)) <<
-                                        QString::number(
-                                            gtApp->moduleVersion(e)));
+                                   incompatibleModules.value(e).toString() <<
+                                   gtApp->moduleVersion(e).toString());
 
             incompatibleModule->setBackgroundColor(1, QColor(255, 0, 0, 100));
             incompatibleModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
@@ -1520,7 +1532,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         tWid->addTopLevelItem(incompatibleRoot);
     }
 
-    QMap<QString, int> updatedModules = footprint.updatedModules();
+    QMap<QString, GtVersionNumber> updatedModules = footprint.updatedModules();
 
     if (!updatedModules.isEmpty())
     {
@@ -1531,10 +1543,8 @@ GtProjectUI::showFootprint(GtObject* obj)
         {
             QTreeWidgetItem* updatedModule =
                     new QTreeWidgetItem(QStringList() << e <<
-                                        QString::number(
-                                            updatedModules.value(e)) <<
-                                        QString::number(
-                                            gtApp->moduleVersion(e)));
+                                        updatedModules.value(e).toString() <<
+                                        gtApp->moduleVersion(e).toString());
 
             updatedModule->setBackgroundColor(1, QColor(255, 255, 0, 100));
             updatedModule->setBackgroundColor(2, QColor(255, 255, 0, 100));
@@ -1569,4 +1579,47 @@ GtProjectUI::showFootprint(GtObject* obj)
     tWid->expandAll();
 
     dialog.exec();
+}
+
+void
+GtProjectUI::editComment(GtObject* obj)
+{
+    GtProject* project = qobject_cast<GtProject*>(obj);
+
+    if (project == Q_NULLPTR)
+    {
+        return;
+    }
+
+    if (!project->isOpen())
+    {
+        return;
+    }
+
+    bool ok;
+
+    QWidget parent;
+    QString text = QInputDialog::getMultiLineText(&parent,
+                                                  "Edit Project Comment",
+                                                  "Comment:",
+                                                  project->comment(),
+                                                  &ok);
+
+    if (ok && (text != project->comment()))
+    {
+        project->setComment(text);
+    }
+}
+
+bool
+GtProjectUI::canEditComment(GtObject* obj)
+{
+    GtProject* project = qobject_cast<GtProject*>(obj);
+
+    if (project == Q_NULLPTR)
+    {
+        return false;
+    }
+
+    return project->isOpen();
 }

@@ -215,54 +215,84 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 
     actionOpen->setVisible(false);
 
-    GtObjectUI* oui = gtApp->objectUI(obj);
+    QList<GtObjectUI*> ouis = gtApp->objectUI(obj);
     QString openStr;
+    QStringList openList;
+    QVector<QPair<GtObjectUI*, QList<GtObjectUIActionGroup> > > actionGroups;
+    QVector<QPair<GtObjectUI*, QList<GtObjectUIAction> > > actions;
 
-    if (oui)
+    for (int i = 0; i < ouis.size(); ++i)
     {
-        // open with
-        QStringList openList = oui->openWith(obj);
+        GtObjectUI* oui = ouis[i];
 
-        if (!openList.isEmpty())
-        {
-            actionOpen->setVisible(true);
-            openStr = openList.first();
-            if (openList.size() > 1)
-            {
-                GtOpenWithMenu* openWith = new GtOpenWithMenu(openList,
-                                                              obj,
-                                                              &menu);
-                menu.addMenu(openWith);
-            }
-            menu.addSeparator();
-        }
+        openList.append(oui->openWith(obj));
 
-        // custom menu
         if (oui->hasActionGroups())
         {
-            foreach(GtObjectUIActionGroup actGroup, oui->actionGroups())
-            {
-                QMenu* submenu = new QMenu(actGroup.name());
-                GtCustomActionMenu* cmenu =
-                        new GtCustomActionMenu(actGroup.actions(), obj, oui,
-                                               submenu);
-
-                Q_UNUSED(cmenu)
-                submenu->setIcon(gtApp->icon(actGroup.icon()));
-                menu.addMenu(submenu);
-            }
+            actionGroups.push_back(
+                        QPair<GtObjectUI*,
+                        QList<GtObjectUIActionGroup> >(oui,
+                                                       oui->actionGroups()));
         }
 
         if (oui->hasActions())
         {
-            GtCustomActionMenu* cmenu = new GtCustomActionMenu(oui->actions(),
-                                                               obj, oui,
-                                                               &menu);
+            actions.push_back(
+                        QPair<GtObjectUI*,
+                        QList<GtObjectUIAction> >(oui, oui->actions()));
+        }
+    }
+
+    // open with
+    if (!openList.isEmpty())
+    {
+        actionOpen->setVisible(true);
+        openStr = openList.first();
+        if (openList.size() > 1)
+        {
+            GtOpenWithMenu* openWith = new GtOpenWithMenu(openList,
+                                                          obj,
+                                                          &menu);
+            menu.addMenu(openWith);
+        }
+        menu.addSeparator();
+    }
+
+    // custom menu
+    bool hasCustomMenu = false;
+
+    if (!actionGroups.isEmpty() || !actions.isEmpty())
+    {
+        hasCustomMenu = true;
+    }
+
+    for (int i = 0; i < actionGroups.size(); ++i)
+    {
+        foreach(GtObjectUIActionGroup actGroup, actionGroups[i].second)
+        {
+            QMenu* submenu = new QMenu(actGroup.name());
+            GtCustomActionMenu* cmenu =
+                    new GtCustomActionMenu(actGroup.actions(), obj,
+                                           actionGroups[i].first,
+                                           submenu);
 
             Q_UNUSED(cmenu)
-
+            submenu->setIcon(gtApp->icon(actGroup.icon()));
+            menu.addMenu(submenu);
         }
+    }
 
+    for (int i = 0; i < actions.size(); ++i)
+    {
+        GtCustomActionMenu* cmenu =
+                new GtCustomActionMenu(actions[i].second, obj,
+                                       actions[i].first, &menu);
+
+        Q_UNUSED(cmenu)
+    }
+
+    if (hasCustomMenu)
+    {
         menu.addSeparator();
     }
 
@@ -385,6 +415,25 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
     {
         gtError() << "object list is empty!";
         return;
+    }    
+
+
+    QList<GtProject*> projectsList;
+    /// handle the special case of only projects selected
+    bool allProjects = true;
+
+    foreach (GtObject* obj, objs)
+    {
+        GtProject* proj = qobject_cast<GtProject*>(obj);
+        if (qobject_cast<GtProject*>(obj) == Q_NULLPTR)
+        {
+            allProjects = false;
+            break;
+        }
+        else
+        {
+            projectsList.append(proj);
+        }
     }
 
     bool oneDeletable = false;
@@ -398,16 +447,30 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
         }
     }
 
-    if (!oneDeletable)
+    if (!oneDeletable && !allProjects)
     {
         return;
     }
 
     QMenu menu(this);
 
-    QAction* actionDelete = menu.addAction(
+
+    QAction* actionDelete = nullptr;
+    QAction* actionRemoveProjects = nullptr;
+
+    if (oneDeletable)
+    {
+        actionDelete = menu.addAction(
                                 gtApp->icon(QStringLiteral("closeIcon_16.png")),
                                 tr("Delete"));
+    }
+
+    if (allProjects)
+    {
+       actionRemoveProjects = menu.addAction(
+                   gtApp->icon(QStringLiteral("closeIcon_16.png")),
+                   tr("Delete from session"));
+    }
 
     QAction* a = menu.exec(QCursor::pos());
 
@@ -418,6 +481,25 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
         if (project != Q_NULLPTR)
         {
             deleteElements(m_view->selectionModel()->selectedIndexes());
+        }
+    }
+    else if (a == actionRemoveProjects)
+    {
+        gtInfo() << "Remove several projects";
+
+        foreach (GtProject* p, projectsList)
+        {
+            if (p->isOpen())
+            {
+                gtWarning() << tr("Open project cannot be removed "
+                                  "from session");
+                return;
+            }
+        }
+
+        foreach (GtProject* p, projectsList)
+        {
+            gtDataModel->deleteProject(p);
         }
     }
 
@@ -618,7 +700,7 @@ GtExplorerDock::onMdiItemRequested(const QModelIndex& index)
         return;
     }
 
-    GtObjectUI* oui = gtApp->objectUI(item);
+    GtObjectUI* oui = gtApp->defaultObjectUI(item);
 
     if (oui == Q_NULLPTR)
     {

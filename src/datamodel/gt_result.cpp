@@ -39,3 +39,17 @@ GtResult::labelNames()
 
     return retval;
 }
+
+bool
+GtResult::addObjectToLabel(GtObject* obj, QString labelName)
+{
+    GtLabel* label = findDirectChild<GtLabel*>(labelName);
+
+    if (label == Q_NULLPTR)
+    {
+        label = new GtLabel(labelName);
+        appendChild(label);
+    }
+
+    return label->appendChild(obj);
+}

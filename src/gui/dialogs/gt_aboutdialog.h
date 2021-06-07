@@ -66,6 +66,12 @@ public:
      */
     GtAboutDialog(QWidget* parent = Q_NULLPTR);
 
+private slots:
+    /**
+     * @brief Exports footprint of current framework configuration.
+     */
+    void exportFootprint();
+
 };
 
 #endif // GTABOUTDIALOG_H

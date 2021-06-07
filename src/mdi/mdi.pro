@@ -23,7 +23,6 @@ CONFIG += silent
 CONFIG += c++11
 
 DEFINES += GT_MDI_DLL
-DEFINES += QWT_DLL
 
 #### use qml widget instead of qwidgets
 #DEFINES += GT_QML_WIDGETS
@@ -230,11 +229,6 @@ HEADERS += \
     gt_processexecutor.h \
     gt_datamodel.h \
     object_ui/gt_loopui.h \
-    mdi_items/process_env/gt_processmonitoring.h \
-    mdi_items/process_env/gt_processmonitoringitem.h \
-    mdi_items/process_env/gt_processmonitoringmodel.h \
-    mdi_items/process_env/gt_processmonitoringview.h \
-    mdi_items/process_env/gt_processmonitoringdelegate.h \
     mdi_items/process_env/gt_processconnectioneditor.h \
     mdi_items/process_env/gt_processconnectionmodel.h \
     mdi_items/process_env/entities/gt_processconnectionview.h \
@@ -452,11 +446,6 @@ SOURCES += \
     gt_processexecutor.cpp \
     gt_datamodel.cpp \
     object_ui/gt_loopui.cpp \
-    mdi_items/process_env/gt_processmonitoring.cpp \
-    mdi_items/process_env/gt_processmonitoringitem.cpp \
-    mdi_items/process_env/gt_processmonitoringmodel.cpp \
-    mdi_items/process_env/gt_processmonitoringview.cpp \
-    mdi_items/process_env/gt_processmonitoringdelegate.cpp \
     mdi_items/process_env/gt_processconnectioneditor.cpp \
     mdi_items/process_env/gt_processconnectionmodel.cpp \
     mdi_items/process_env/entities/gt_processconnectionview.cpp \
@@ -546,13 +535,6 @@ CONFIG(debug, debug|release){
     #GTlab Core
     LIBS += -lGTlabDatamodel-d -lGTlabNetwork-d -lGTlabCalculators-d
     LIBS += -lGTlabCore-d
-    #Third Party Libraries
-    win32 {
-        LIBS += -lqwtd
-    }
-    unix {
-        LIBS += -lqwt
-    }
 
 } else {
     # GTlab Utilities
@@ -560,8 +542,13 @@ CONFIG(debug, debug|release){
     #GTlab Core
     LIBS += -lGTlabDatamodel -lGTlabNetwork -lGTlabCalculators
     LIBS += -lGTlabCore
-    #Third Party Libraries
-    LIBS += -lqwt
+}
+
+unix:{
+    # suppress the default RPATH if you wish
+    QMAKE_LFLAGS_RPATH=
+    # add your own with quoting gyrations to make sure $ORIGIN gets to the command line unexpanded
+    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
 }
 
 ######################################################################

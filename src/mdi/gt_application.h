@@ -37,12 +37,12 @@ class GT_MDI_EXPORT GtApplication : public GtCoreApplication
 
 public:
     /**
-     * @brief GtApplication
+     * @brief Constructor.
      */
     GtApplication(QCoreApplication* parent, bool devMode = false);
 
     /**
-     * @brief ~GtApplication
+     * @brief Destructor.
      */
     virtual ~GtApplication();
 
@@ -58,7 +58,7 @@ public:
     /**
      * @brief loadModules
      */
-    virtual void loadModules();
+    virtual void loadModules() Q_DECL_OVERRIDE;
 
     /**
      * @brief perspectiveIds
@@ -127,18 +127,37 @@ public:
     QPair<QByteArray, QByteArray> loadPerspectiveData();
 
     /**
-     * @brief objectUI
-     * @param obj
-     * @return
+     * @brief Returns list of all registered user interfaces objects for given
+     * class.
+     * @param obj Object for retrieving UI classes of the associated class.
+     * @return List of all registered user interfaces objects.
      */
-    GtObjectUI* objectUI(GtObject* obj);
+    QList<GtObjectUI*> objectUI(GtObject* obj);
 
     /**
-     * @brief objectUI
-     * @param classname
-     * @return
+     * @brief Returns list of all registered user interfaces objects for given
+     * class name.
+     * @param classname Classname for retrieving UI classes.
+     * @return List of all registered user interfaces objects.
      */
-    GtObjectUI* objectUI(const QString& classname);
+    QList<GtObjectUI*> objectUI(const QString& classname);
+
+    /**
+     * @brief Returns default user interface object. if no user interface object
+     * is found, nullptr is returned.
+     * @param obj Object for retrieving default UI class of the associated
+     * class.
+     * @return Default user interface object.
+     */
+    GtObjectUI* defaultObjectUI(GtObject* obj);
+
+    /**
+     * @brief Returns default user interface object. if no user interface object
+     * is found, nullptr is returned.
+     * @param classname Classname for retrieving default UI class.
+     * @return Default user interface object.
+     */
+    GtObjectUI* defaultObjectUI(const QString& classname);
 
     /**
      * @brief knownUIObjects - returns a list of all stored object ui classes

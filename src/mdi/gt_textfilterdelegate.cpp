@@ -48,7 +48,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
         {
             if (m_validatorflag == uiFilter)
             {
-                GtObjectUI* oui = gtApp->objectUI(obj);
+                GtObjectUI* oui = gtApp->defaultObjectUI(obj);
 
                 if (oui != Q_NULLPTR)
                 {

@@ -23,6 +23,7 @@
 #include "gt_projectprovider.h"
 #include "gt_processdata.h"
 #include "gt_task.h"
+#include "gt_footprint.h"
 #include "batchremote.h"
 
 using namespace std;
@@ -326,6 +327,8 @@ const QStringList CLO_RUNPRO = QStringList() << QStringLiteral("run-pro") <<
                             QStringLiteral("rp");
 const QStringList CLO_SAVE = QStringList() << QStringLiteral("save") <<
                              QStringLiteral("s");
+const QStringList CLO_FOOTPRINT = QStringList() << QStringLiteral("footprint") <<
+                             QStringLiteral("fp");
 
 int main(int argc, char* argv[])
 {
@@ -364,13 +367,15 @@ int main(int argc, char* argv[])
                                      "<output.xml>");
     QCommandLineOption runOption(
                 CLO_RUN, "Executes a given process of a given project. "
-                         "\nUsage: --run-pro <project_id> <process_id>");
+                         "\nUsage: --run <project_id> <process_id>");
     QCommandLineOption runOptionPro(
                 CLO_RUNPRO, "Executes a given process of a given project file. "
-                            "\nUsage: --run <project_file> <process_id>");
+                            "\nUsage: --run-pro <project_file> <process_id>");
     QCommandLineOption saveOption(CLO_SAVE,
                                   "Saves the project after a successful "
                                   "process execution.");
+    QCommandLineOption footprintOption(CLO_FOOTPRINT,
+                                  "Displays framework footprint.");
 
 
     parser.addOption(sessionOption);
@@ -381,16 +386,18 @@ int main(int argc, char* argv[])
     parser.addOption(runOption);
     parser.addOption(runOptionPro);
     parser.addOption(saveOption);
+    parser.addOption(footprintOption);
 
     parser.process(a);
 
-    bool arr[4] = {false};
+    bool arr[5] = {false};
     arr[0] = parser.isSet(checkMetaOption);
     arr[1] = parser.isSet(runMetaOption);
     arr[2] = parser.isSet(runOption);
     arr[3] = parser.isSet(runOptionPro);
+    arr[4] = parser.isSet(footprintOption);
 
-    if (!isExactlyOneTrue(arr, 4))
+    if (!isExactlyOneTrue(arr, 5))
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("Invalid argument! "
@@ -436,6 +443,14 @@ int main(int argc, char* argv[])
 
     // initialize modules
     app.initModules();
+
+    if (parser.isSet(footprintOption))
+    {
+        std::cout << GtFootprint().exportToXML().toStdString() <<
+                     std::endl;
+
+        return 0;
+    }
 
     // check meta input
     if (parser.isSet(checkMetaOption))

@@ -57,7 +57,6 @@ INCLUDEPATH += .\
     ../mdi/tools \
     ../mdi/object_ui \
     ../mdi/mdi_items/memento_viewer \
-    ../utilities/logging \
     ../datamodel/property \
     ../network \
     ../mdi/mdi_items/collection_env \
@@ -146,22 +145,19 @@ CONFIG(debug, debug|release){
     #GTlab Core
     LIBS += -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabNetwork-d
     LIBS += -lGTlabCore-d -lGTlabMdi-d
-    #Third Party Libraries
-    win32 {
-        LIBS += -lqwtd
-    }
-    unix {
-        LIBS += -lqwt
-    }
-
 } else {
     # GTlab Utilities
     LIBS += -lGTlabNumerics -lGTlabLogging
     # GTLab Core
     LIBS += -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork
     LIBS += -lGTlabCore -lGTlabMdi
-    #Third Party Libraries
-    LIBS += -lqwt
+}
+
+unix:{
+    # suppress the default RPATH if you wish
+    QMAKE_LFLAGS_RPATH=
+    # add your own with quoting gyrations to make sure $ORIGIN gets to the command line unexpanded
+    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
 }
 
 ######################################################################

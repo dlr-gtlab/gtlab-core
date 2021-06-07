@@ -14,6 +14,7 @@
 
 class QLabel;
 class QPushButton;
+class QTableWidget;
 
 /**
  * @brief The GtCheckForUpdatesDialog class
@@ -41,6 +42,9 @@ private:
 
     /// Run update button
     QPushButton* m_updateButton;
+
+    /// Table widget to show available package updates
+    QTableWidget* m_tableWid;
 
 private slots:
     /**
