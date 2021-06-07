@@ -9,19 +9,7 @@
 
 # Environment variables to use in the pipeline globally
 variables:
-<<<<<<< HEAD
   PIPELINEVERSION: "1.5.0"
-=======
-  PIPELINEVERSION: "1.3.2"
-
-  PROFILENAME: gtlab.pro
-  TARGETDIRNAME: core
-  TARGETNAME: GTlab
-  UNITTESTSNAME: GTlabUnitTest
-  
-  DEVTOOLS_Win: "C:\\devel\\GTlab-DevTools\\stable\\1_7"
-  DEVTOOLS_Linux: "/home/gitlab-runner/GTlab-Devtools/stable/1_7"
->>>>>>> master_1_7
 
 # inlcude some templates from this file
 include:
@@ -98,17 +86,8 @@ windowsBuildRelease:
       - build/GTlabGui.lib
       - build/$TARGETNAME.exe
       - build/GTlabConsole.exe
-<<<<<<< HEAD
     expire_in: 1 week
     when: always
-=======
-      - include/$TARGETDIRNAME/*.h
-  tags:
-    - Win10
-  #only:
-  #  - master
-  #  - tags   
->>>>>>> master_1_7
   variables:
     BUILDMODE: release
     BUILDUNITTESTS: "false"
@@ -145,17 +124,10 @@ linuxBuildRelease:
   stage: build
   extends: .buildLinux  
   tags:
-<<<<<<< HEAD
     - Linux
   only:
     - master
     - tags
-=======
-    - LinuxTest
-  #only:
-  #  - master
-  #  - tags
->>>>>>> master_1_7
   artifacts:
     paths:
     - lib/$TARGETDIRNAME/*.so*
@@ -268,7 +240,6 @@ valgrind:
   script:
     - .\tests\build\copyHeaders-deployment.bat
     - .\tests\build\copyBin.bat
-<<<<<<< HEAD
   only:
     - tags
   tags:
@@ -281,15 +252,6 @@ copyForDeploymentWin:
   dependencies:
     - "windowsBuildDebug: [$DEVTOOLS_Win_Stable]"
     - "windowsBuildRelease: [$DEVTOOLS_Win_Stable]"
-=======
-  dependencies:
-    - debugBuildWin512
-    - releaseBuildWin512
-  tags:
-    - Win10
-#  only:
-#    - tags
->>>>>>> master_1_7
   variables:
     PLATFORMNAME:  windows
     RELEASESTATUS: stable
@@ -308,7 +270,6 @@ copyForDeploymentLinux:
   stage: copy
   extends: .copyTemplate
   dependencies:
-<<<<<<< HEAD
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
     - "linuxBuildRelease: [$DEVTOOLS_Linux_Stable]"
   variables:
@@ -321,14 +282,6 @@ copyForDeploymentLinuxUnstable:
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
     - "linuxBuildRelease: [$DEVTOOLS_Linux_Unstable]"
-=======
-    - debugBuildLinux512
-    - releaseBuildLinux512
-  tags:
-    - Win10
-#  only:
-#    - tags
->>>>>>> master_1_7
   variables:
     PLATFORMNAME:  linux
     RELEASESTATUS: unstable
