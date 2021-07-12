@@ -21,6 +21,6 @@ GtOperatingPointUI::GtOperatingPointUI()
 QIcon
 GtOperatingPointUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon(QStringLiteral("devModeOnly/pointsIcon.png"));
+    return gtApp->icon(QStringLiteral("globalsIcon.png"));
 }
 

@@ -85,7 +85,7 @@ GtProcessEditor::GtProcessEditor()
     // temporary preview mode button
     QPushButton* previewButton = new QPushButton;
     previewButton->setIcon(
-                gtApp->icon(QStringLiteral("devModeOnly/revbrosIcon.png")));
+                gtApp->icon(QStringLiteral("resultsIcon_16.png")));
     previewButton->setMaximumSize(QSize(20, 20));
     previewButton->setFlat(true);
     previewButton->setToolTip(tr("Preview Mode"));

@@ -82,7 +82,7 @@
      <x>0</x>
      <y>0</y>
      <width>1009</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
@@ -662,7 +662,7 @@
   <action name="actionMemento_Viewer">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/devModeOnly/mementoIcon.png</normaloff>:/icons/devModeOnly/mementoIcon.png</iconset>
+     <normaloff>:/icons/own_editPen.png</normaloff>:/icons/own_editPen.png</iconset>
    </property>
    <property name="text">
     <string>Memento Viewer</string>
@@ -718,7 +718,7 @@
   <action name="actionState_Browser">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/devModeOnly/stateIcon.png</normaloff>:/icons/devModeOnly/stateIcon.png</iconset>
+     <normaloff>:/icons/propertyIcon.png</normaloff>:/icons/propertyIcon.png</iconset>
    </property>
    <property name="text">
     <string>State Browser</string>

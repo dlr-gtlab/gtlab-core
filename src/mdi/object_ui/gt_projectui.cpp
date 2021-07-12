@@ -109,7 +109,7 @@ GtProjectUI::GtProjectUI()
         //                  QStringLiteral("canTestCheckout"));
 
         addSingleAction(tr("Enable Version Control"),
-                        QStringLiteral("devModeOnly/own_switchOffIcon.png"),
+                        QStringLiteral("checkSmallIcon_16.png"),
                         QStringLiteral("enableVersionControl"),
                         QStringLiteral("canEnableVersionControl"),
                         QStringLiteral("canEnableVersionControl"));

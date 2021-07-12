@@ -46,7 +46,7 @@ GtStateViewer::GtStateViewer()
 QIcon
 GtStateViewer::icon() const
 {
-    return gtApp->icon("devModeOnly/stateIcon.png");
+    return gtApp->icon("emptyElementIcon.png");
 }
 
 void

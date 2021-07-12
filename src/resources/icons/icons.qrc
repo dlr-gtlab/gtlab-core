@@ -7,9 +7,7 @@
         <file>tileWindowIcon.png</file>
         <file>addElementIcon.png</file>
         <file>materialsIcon.png</file>
-        <file>devModeOnly/cloudIcon.png</file>
         <file>connectionIcon.png</file>
-        <file>devModeOnly/pointsIcon.png</file>
         <file>logIcon.png</file>
         <file>pluginIcon.png</file>
         <file>moveIcon.png</file>
@@ -44,7 +42,6 @@
         <file>clearIcon_16.png</file>
         <file>clearIcon_24.png</file>
         <file>cutIcon.png</file>
-        <file>devModeOnly/mementoIcon.png</file>
         <file>clearIcon2.png</file>
         <file>clearIcon2_16.png</file>
         <file>clearIcon2_24.png</file>
@@ -171,9 +168,6 @@
         <file>labelsIcon_24.png</file>
         <file>globalIcon.png</file>
         <file>frameIcon.png</file>
-        <file>devModeOnly/helloWorldIcon.png</file>
-        <file>devModeOnly/own_switchOffIcon.png</file>
-        <file>devModeOnly/own_switchOnIcon.png</file>
         <file>pathSettingsIcon.png</file>
         <file>questionIcon.png</file>
         <file>questionIcon_16.png</file>
@@ -367,8 +361,6 @@
         <file>gastypesIcon_24.png</file>
         <file>globalsIcon_16.png</file>
         <file>globalsIcon_24.png</file>
-        <file>devModeOnly/helloWorldIcon_16.png</file>
-        <file>devModeOnly/helloWorldIcon_24.png</file>
         <file>historyIcon_16.png</file>
         <file>historyIcon_24.png</file>
         <file>importIcon_16.png</file>
@@ -441,11 +433,6 @@
         <file>loginIcon_24.png</file>
         <file>openIcon_16.png</file>
         <file>openIcon_24.png</file>
-        <file>devModeOnly/diffIcon.png</file>
-        <file>devModeOnly/mantisIcon.png</file>
-        <file>devModeOnly/stateIcon.png</file>
-        <file>devModeOnly/scriptIcon.png</file>
-        <file>devModeOnly/revbrosIcon.png</file>
         <file>updateIcon_16.png</file>
         <file>updateIcon_24.png</file>
         <file>loopIcon_16.png</file>
@@ -474,7 +461,7 @@
         <file>engine_installation_16.png</file>
         <file>engine_installation_24.png</file>
         <file>engine_installation_32.png</file>
-		<file>unknownIcon.png</file>
-		<file>commentIcon.png</file>
+        <file>unknownIcon.png</file>
+        <file>commentIcon.png</file>
     </qresource>
 </RCC>

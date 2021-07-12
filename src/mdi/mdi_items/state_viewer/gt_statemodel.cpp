@@ -84,7 +84,7 @@ GtStateModel::data(const QModelIndex& index, int role) const
                 else if (qobject_cast<GtState*>(item))
                 {
                     return gtApp->icon(
-                                QStringLiteral("devModeOnly/stateIcon.png"));
+                                QStringLiteral("emptyElementIcon.png"));
                 }
 
                 break;

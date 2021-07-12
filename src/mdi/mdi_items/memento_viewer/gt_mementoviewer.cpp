@@ -40,7 +40,7 @@ GtMementoViewer::~GtMementoViewer()
 QIcon
 GtMementoViewer::icon() const
 {
-    return gtApp->icon(QStringLiteral("devModeOnly/diffIcon.png"));
+    return gtApp->icon(QStringLiteral("cloneIcon.png"));
 }
 
 bool
