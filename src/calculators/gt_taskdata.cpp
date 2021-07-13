@@ -12,7 +12,6 @@
 #include "gt_taskdata.h"
 
 GtTaskDataImpl::GtTaskDataImpl(const QMetaObject& metaData) :
-    version(-1.),
     m_metaData(metaData)
 {
     description.clear();
@@ -25,9 +24,10 @@ GtTaskDataImpl::metaData() const
     return m_metaData;
 }
 
-bool GtTaskDataImpl::isValid() const
+bool
+GtTaskDataImpl::isValid() const
 {
-    if (version < 0)
+    if (version.isNull())
     {
         return false;
     }
