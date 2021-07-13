@@ -26,13 +26,13 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
     // Default tasks
     GtTaskData simpleTask = GT_TASK_DATA(GtTask);
     simpleTask->id = QStringLiteral("Simple Task");
-    simpleTask->version = 0.1;
+    simpleTask->version = GtVersionNumber(0,1);
     simpleTask->status = GtTaskDataImpl::RELEASE;
     registerTaskData(simpleTask);
 
     GtTaskData loopTask = GT_TASK_DATA(GtLoop);
     loopTask->id = QStringLiteral("Loop");
-    loopTask->version = 0.1;
+    loopTask->version = GtVersionNumber(0,1);
     loopTask->description = tr("Repeats execution until maixmum "
                                "number of iterations is reached.");
     loopTask->status = GtTaskDataImpl::RELEASE;
@@ -40,7 +40,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
 
     GtTaskData residualLoopTask = GT_TASK_DATA(GtResidualLoop);
     residualLoopTask->id = QStringLiteral("Residual Loop");
-    residualLoopTask->version = 0.1;
+    residualLoopTask->version = GtVersionNumber(0,1);
     residualLoopTask->description = tr("Repeats execution until residuals "
                                        "are less than defined value or "
                                        "maximum number of iterations "
@@ -50,11 +50,11 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
 
     GtTaskData parameterLoop = GT_TASK_DATA(GtParameterLoop);
     parameterLoop->id = QStringLiteral("Parameter Loop");
-    parameterLoop->version = 0.1;
+    parameterLoop->version = GtVersionNumber(0,1);
     parameterLoop->description = tr("Repeats execution for a number of steps."
                                     "Sets a parameter to a new value "
                                     "between start and end value");
-    parameterLoop->status = GtTaskDataImpl::PROTOTYPE;
+    parameterLoop->status = GtTaskDataImpl::RELEASE;
     registerTaskData(parameterLoop);
 }
 
@@ -62,8 +62,8 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
 GtTaskFactory*
 GtTaskFactory::instance()
 {
-    static GtTaskFactory* retval = 0;
-    if (retval == 0)
+    static GtTaskFactory* retval = Q_NULLPTR;
+    if (retval == Q_NULLPTR)
     {
         retval = new GtTaskFactory(qApp);
     }
