@@ -99,7 +99,7 @@ GtTaskOverviewModel::version(GtAbstractProcessItem* item) const
 
     GtTaskData taskData = taskItem->taskData();
 
-    return QString::number(taskData->version);
+    return taskData->version.toString();
 }
 
 QIcon
