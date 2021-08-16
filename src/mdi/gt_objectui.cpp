@@ -53,6 +53,17 @@ GtObjectUI::addSingleAction(const QString& actionText,
 }
 
 void
+GtObjectUI::addSingleAction(
+        const QString& actionText,  const QString& actionIcon,
+        const QString& actionMethod, const QString& actionVerification,
+        const QKeySequence& shortcut)
+{
+    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
+                                        actionVerification, QString(),
+                                        shortcut);
+}
+
+void
 GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionIcon,
                             const QString& actionMethod)
@@ -62,9 +73,30 @@ GtObjectUI::addSingleAction(const QString& actionText,
 
 void
 GtObjectUI::addSingleAction(const QString& actionText,
+                            const QString& actionIcon,
+                            const QString& actionMethod,
+                            const QKeySequence& shortcut)
+{
+    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
+                                        QString(), QString(), shortcut);
+}
+
+
+void
+GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionMethod)
 {
     m_singleActions << GtObjectUIAction(actionText, actionMethod);
+}
+
+void
+GtObjectUI::addSingleAction(const QString& actionText,
+                            const QString& actionMethod,
+                            const QKeySequence& shortcut)
+{
+    m_singleActions << GtObjectUIAction(actionText, actionMethod,
+                                        QString(), QString(), QString(),
+                                        shortcut);
 }
 
 void

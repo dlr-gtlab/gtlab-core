@@ -84,7 +84,7 @@ GtExplorerView::keyPressEvent(QKeyEvent *event)
 
     if (event->key() == Qt::Key_Delete)
     {
-            emit deleteElementsRequest(indexes);
+        emit deleteElementsRequest(indexes);
     }
 
     GtTreeView::keyPressEvent(event);

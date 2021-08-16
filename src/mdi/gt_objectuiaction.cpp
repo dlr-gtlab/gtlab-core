@@ -18,12 +18,14 @@ GtObjectUIAction::GtObjectUIAction(const QString& txt,
                                    const QString& mthd,
                                    const QString& icn,
                                    const QString& ver,
-                                   const QString& visible) :
+                                   const QString& visible,
+                                   const QKeySequence& shortcut) :
     m_txt(txt),
     m_icon(icn),
     m_method(mthd),
     m_ver(ver),
-    m_visible(visible)
+    m_visible(visible),
+    m_shortCut(shortcut)
 {
 
 }
@@ -56,5 +58,11 @@ const QString&
 GtObjectUIAction::visibilityMethod() const
 {
     return m_visible;
+}
+
+const QKeySequence&
+GtObjectUIAction::shortCut() const
+{
+    return m_shortCut;
 }
 
