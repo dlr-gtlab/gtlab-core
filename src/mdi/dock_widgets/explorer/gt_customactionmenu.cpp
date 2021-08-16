@@ -39,9 +39,10 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
         if (!a.visibilityMethod().isEmpty())
         {
             bool visible = false;
-            QMetaObject::invokeMethod(m_parentObj, a.visibilityMethod().toLatin1(),
-                                      Q_RETURN_ARG(bool, visible),
-                                      Q_ARG(GtObject*, m_targetObj));
+            QMetaObject::invokeMethod(
+                        m_parentObj, a.visibilityMethod().toLatin1(),
+                        Q_RETURN_ARG(bool, visible),
+                        Q_ARG(GtObject*, m_targetObj));
 
             if (!visible)
             {
@@ -64,10 +65,23 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
         if (!a.verificationMethod().isEmpty())
         {
             bool verified = false;
-            QMetaObject::invokeMethod(m_parentObj, a.verificationMethod().toLatin1(),
+            QMetaObject::invokeMethod(m_parentObj,
+                                      a.verificationMethod().toLatin1(),
                                       Q_RETURN_ARG(bool, verified),
                                       Q_ARG(GtObject*, m_targetObj));
             act->setEnabled(verified);
+        }
+
+        if (!a.shortCut().isEmpty())
+        {
+            act->setShortcut(a.shortCut());
+            act->setShortcutContext(Qt::ApplicationShortcut);
+
+            QWidget* parent = qobject_cast<QWidget*>(menu->parent());
+            if (parent != nullptr)
+            {
+                parent->addAction(act);
+            }
         }
 
         connect(act, SIGNAL(triggered(bool)), m_signalMapper, SLOT(map()));

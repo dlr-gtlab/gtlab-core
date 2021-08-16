@@ -13,6 +13,7 @@
 #include "gt_mdi_exports.h"
 
 #include <QObject>
+#include <QKeySequence>
 
 #include "gt_objectuiaction.h"
 #include "gt_objectuiactiongroup.h"
@@ -145,6 +146,17 @@ protected:
      * @param actionMethod
      */
     void addSingleAction(const QString& actionText, const QString& actionIcon,
+                         const QString& actionMethod,
+                         const QString& actionVerification,
+                         const QKeySequence& shortcut);
+
+    /**
+     * @brief addAction
+     * @param actionText
+     * @param actionIcon
+     * @param actionMethod
+     */
+    void addSingleAction(const QString& actionText, const QString& actionIcon,
                          const QString& actionMethod);
 
     /**
@@ -154,6 +166,28 @@ protected:
      */
     void addSingleAction(const QString& actionText,
                          const QString& actionMethod);
+
+    /**
+     * @brief addSingleAction
+     * @param actionText
+     * @param actionMethod
+     * @param shortcut
+     */
+    void addSingleAction(const QString& actionText,
+                         const QString& actionMethod,
+                         const QKeySequence &shortcut);
+
+    /**
+     * @brief addSingleAction
+     * @param actionText
+     * @param actionIcon
+     * @param actionMethod
+     * @param shortcut
+     */
+    void addSingleAction(const QString &actionText,
+                         const QString &actionIcon,
+                         const QString &actionMethod,
+                         const QKeySequence &shortcut);
 
     /**
      * @brief addGroupActions
@@ -181,6 +215,7 @@ protected:
      * @brief addSeparator
      */
     void addSeparator();
+
 
 private:
     /// List of custom actions

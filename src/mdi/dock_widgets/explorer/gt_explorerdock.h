@@ -39,7 +39,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~GtExplorerDock();
+    virtual ~GtExplorerDock() override;
 
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
@@ -175,6 +175,13 @@ private:
                                    QAbstractItemModel* model,
                                    QModelIndex startIndex);
 
+    /**
+     * @brief keyPressEvent
+     * @param event - key press event to handle
+     */
+    void keyPressEvent(QKeyEvent* event) override;
+
+
 private slots:
 
     /**
@@ -215,9 +222,15 @@ private slots:
 
     /**
      * @brief customContextMenuDataView
-     * @param pos
+     * @param pos of the mouse while the request of the context menu
      */
     void customContextMenuDataView(const QPoint& pos);
+
+    /**
+     * @brief customContextMenuDataView
+     * @param index of first selected item
+     */
+    void customContextMenuDataView(const QModelIndex &index);
 
     /**
      * @brief beginResetView
@@ -240,6 +253,12 @@ signals:
      * @brief selectedObjectChanged
      */
     void selectedObjectChanged(GtObject*);
+
+    /**
+     * @brief contextMenuKeyPressSignal
+     * Signal to emit if the context menu is requested by the key press of F2
+     */
+    void contextMenuKeyPressSignal(QModelIndex);
 
 };
 

@@ -154,6 +154,10 @@ GtProcessDock::GtProcessDock() :
             SLOT(deleteProcessElements(QList<QModelIndex>)));
     connect(m_view, SIGNAL(pasteProcessElement(QModelIndex)),
             SLOT(pasteElement(QModelIndex)));
+    connect(m_view, SIGNAL(runTaskElement(QModelIndex)),
+            SLOT(runProcess()));
+    connect(m_view, SIGNAL(skipCalcultorElement(QModelIndex, bool)),
+            SLOT(skipCalculator(QModelIndex, bool)));
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
@@ -551,7 +555,7 @@ GtProcessDock::filterData(const QString& val)
         return;
     }
 
-    m_view->setModel(NULL);
+    m_view->setModel(Q_NULLPTR);
 
     if (m_processData)
     {
@@ -975,6 +979,10 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     QAction* actrun = menu.addAction(tr("Run Task"));
     QAction* actstop = menu.addAction(tr("Stop Task"));
 
+    /// This line is only for the entry in the context menu and
+    /// does not trigger the action
+    actrun->setShortcut(gtApp->getShortCutSequence("runProcess"));
+
     if (qobject_cast<GtProcessData*>(obj->parent()))
     {
         actrun->setVisible(true);
@@ -1059,20 +1067,20 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     actclone->setIcon(gtApp->icon("cloneIcon_16.png"));
 
     QAction* actcut = menu.addAction("Cut");
-    actcut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_X));
+    actcut->setShortcut(gtApp->getShortCutSequence("cut"));
     actcut->setIcon(gtApp->icon("cutIcon_16.png"));
 
     QAction* actcopy = menu.addAction("Copy");
-    actcopy->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+    actcopy->setShortcut(gtApp->getShortCutSequence("copy"));
     actcopy->setIcon(gtApp->icon("copyIcon_16.png"));
     QAction* actpaste = menu.addAction("Paste");
     actpaste->setIcon(gtApp->icon("pasteIcon_16.png"));
-    actpaste->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_V));
+    actpaste->setShortcut(gtApp->getShortCutSequence("paste"));
     actpaste->setEnabled(false);
     menu.addSeparator();
     QAction* actdelete = menu.addAction("Delete");
     actdelete->setIcon(gtApp->icon("closeIcon_16.png"));
-    actdelete->setShortcut(QKeySequence(Qt::Key_Delete));
+    actdelete->setShortcut(gtApp->getShortCutSequence("delete"));
 
     QClipboard* clipboard = QApplication::clipboard();
     const QMimeData* mimeData = clipboard->mimeData();
@@ -1237,23 +1245,23 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     actclone->setIcon(gtApp->icon("cloneIcon_16.png"));
 
     QAction* actcut = menu.addAction("Cut");
-    actcut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_X));
+    actcut->setShortcut(gtApp->getShortCutSequence("cut"));
     actcut->setIcon(gtApp->icon("cutIcon_16.png"));
 
     QAction* actcopy = menu.addAction("Copy");
-    actcopy->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+    actcopy->setShortcut(gtApp->getShortCutSequence("copy"));
     actcopy->setIcon(gtApp->icon("copyIcon_16.png"));
 
     QAction* actpaste = menu.addAction("Paste");
     actpaste->setIcon(gtApp->icon("pasteIcon_16.png"));
-    actpaste->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_V));
+    actpaste->setShortcut(gtApp->getShortCutSequence("paste"));
     actpaste->setEnabled(false);
 
     menu.addSeparator();
 
     QAction* actdelete = menu.addAction("Delete");
     actdelete->setIcon(gtApp->icon("closeIcon_16.png"));
-    actdelete->setShortcut(QKeySequence(Qt::Key_Delete));
+    actdelete->setShortcut(gtApp->getShortCutSequence("delete"));
 
     if (!componentIsReady(obj))
     {

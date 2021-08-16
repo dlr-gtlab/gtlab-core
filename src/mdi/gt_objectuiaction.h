@@ -13,6 +13,7 @@
 #include "gt_mdi_exports.h"
 
 #include <QString>
+#include <QKeySequence>
 
 /**
  * @brief The GtObjectUIAction class
@@ -31,7 +32,8 @@ public:
     GtObjectUIAction(const QString& txt, const QString& mthd,
                      const QString& icn = QString(),
                      const QString& ver = QString(),
-                     const QString& visible = QString());
+                     const QString& visible = QString(),
+                     const QKeySequence& shortCut = QKeySequence());
 
     /**
      * @brief text
@@ -63,6 +65,12 @@ public:
      */
     const QString& visibilityMethod() const;
 
+    /**
+     * @brief shortCut
+     * @return Short cut connected to the action
+     */
+    const QKeySequence& shortCut() const;
+
 private:
     /// Action text
     QString m_txt;
@@ -79,6 +87,7 @@ private:
     /// Visibility identificator method
     QString m_visible;
 
+    QKeySequence m_shortCut;
 };
 
 typedef QList<GtObjectUIAction> GtActionList;

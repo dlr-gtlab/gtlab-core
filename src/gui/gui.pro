@@ -73,6 +73,7 @@ HEADERS += \
     preferences/pages/gt_preferencesplugins.h \
     preferences/pages/gt_preferenceslanguage.h \
     preferences/pages/gt_preferencessession.h \
+    preferences/pages/gt_preferencesshortcuts.h \
     widgets/gt_sessionlistwidget.h \
     preferences/pages/gt_preferencesperspective.h \
     widgets/gt_perspectiveslistwidget.h \
@@ -107,6 +108,7 @@ SOURCES += \
     preferences/pages/gt_preferencesplugins.cpp \
     preferences/pages/gt_preferenceslanguage.cpp \
     preferences/pages/gt_preferencessession.cpp \
+    preferences/pages/gt_preferencesshortcuts.cpp \
     widgets/gt_sessionlistwidget.cpp \
     preferences/pages/gt_preferencesperspective.cpp \
     widgets/gt_perspectiveslistwidget.cpp \

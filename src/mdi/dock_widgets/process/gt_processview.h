@@ -55,19 +55,19 @@ protected:
 signals:
     /**
      * @brief pasteProcessElement
-     * @param index
+     * @param index - modelindex for which the signal is emited
      */
     void pasteProcessElement(const QModelIndex& index);
 
     /**
      * @brief copyProcessElement
-     * @param index
+     * @param index - modelindex for which the signal is emited
      */
     void copyProcessElement(const QModelIndex& index);
 
     /**
      * @brief cutProcessElement
-     * @param index
+     * @param index - modelindex for which the signal is emited
      */
     void cutProcessElement(const QModelIndex& index);
 
@@ -77,6 +77,18 @@ signals:
      */
     void deleteProcessElements(const QList<QModelIndex>& indexList);
 
+    /**
+     * @brief runTaskElement
+     * @param index - modelindex for which the signal is emited
+     */
+    void runTaskElement(const QModelIndex& index);
+
+    /**
+     * @brief skipCalcultorElement
+     * @param index - modelindex for which the signal is emited
+     * @param skip - bool as flag to skip or unskip
+     */
+    void skipCalcultorElement(const QModelIndex& index, bool skip);
 };
 
 #endif // GTPROCESSVIEW_H

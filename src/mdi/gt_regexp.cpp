@@ -82,3 +82,8 @@ GtRegExp::forDoublesLists()
 {
     return QRegExp(("[eE0-9\\-\\.\\;]+"));
 }
+
+QRegExp GtRegExp::forShortCuts()
+{
+    return QRegExp("((Alt*|Shift*|Ctrl*)[A-Z\\+]*)|F[0-9][0-2]*|Del");
+}

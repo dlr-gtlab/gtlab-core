@@ -96,6 +96,8 @@ HEADERS += \
     gt_mdiinterface.h \
     gt_mdiitem.h \
     gt_mdilauncher.h \
+    gt_shortcut.h \
+    gt_shortcuts.h \
     tools/gt_projectanalyzerdialog.h \
     tools/gt_ruler.h \
     tools/gt_grid.h \
@@ -315,6 +317,8 @@ SOURCES += \
     gt_application.cpp \
     gt_mdiitem.cpp \
     gt_mdilauncher.cpp \
+    gt_shortcut.cpp \
+    gt_shortcuts.cpp \
     tools/gt_projectanalyzerdialog.cpp \
     tools/gt_ruler.cpp \
     tools/gt_grid.cpp \

@@ -48,38 +48,65 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
         {
             QModelIndex index = indexes.first();
 
-            if (event->modifiers() == Qt::ControlModifier)
+            if (gtApp->compareKeyEvent(event, "runProcess"))
             {
-                if (event->key() == Qt::Key_V)
+                if (index.isValid())
                 {
-                    emit pasteProcessElement(index);
+                    emit runTaskElement(index);
+                    event->accept();
+                    return;
                 }
-                else if (event->key() == Qt::Key_C)
+            }
+
+            if (gtApp->compareKeyEvent(event, "copy"))
+            {
+                if (index.isValid())
                 {
-                    if (index.isValid())
-                    {
-                        emit copyProcessElement(index);
-                        event->accept();
-                        return;
-                    }
+                    emit copyProcessElement(index);
+                    event->accept();
+                    return;
                 }
-                else if (event->key() == Qt::Key_X)
+            }
+            if (gtApp->compareKeyEvent(event, "paste"))
+            {
+                emit pasteProcessElement(index);
+            }
+
+            if (gtApp->compareKeyEvent(event, "cut"))
+            {
+                if (index.isValid())
                 {
-                    if (index.isValid())
-                    {
-                        emit cutProcessElement(index);
-                        event->accept();
-                        return;
-                    }
+                    emit cutProcessElement(index);
+                    event->accept();
+                    return;
+                }
+            }
+
+            if (gtApp->compareKeyEvent(event, "skipProcess"))
+            {
+                if (index.isValid())
+                {
+                    emit skipCalcultorElement(index, true);
+                    event->accept();
+                    return;
+                }
+            }
+
+            if (gtApp->compareKeyEvent(event, "unskipProcess"))
+            {
+                if (index.isValid())
+                {
+                    emit skipCalcultorElement(index, false);
+                    event->accept();
+                    return;
                 }
             }
         }
 
-        if (event->key() == Qt::Key_Delete)
+        if (gtApp->compareKeyEvent(event, "delete"))
         {
             emit deleteProcessElements(indexes);
         }
-
     }
 
     GtTreeView::keyPressEvent(event);

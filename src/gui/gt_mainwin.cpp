@@ -107,7 +107,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     undoAct->setIcon(gtApp->icon(QStringLiteral("undoIcon_24.png")));
     undoAct->setText(tr("Undo"));
     ui->undoBar->addAction(undoAct);
-    undoAct ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Z));
+    undoAct->setShortcut(gtApp->getShortCutSequence("undo"));
 
     // redo action
     QAction* redoAct = gtApp->undoStack()->createRedoAction(ui->undoBar,
@@ -115,7 +115,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     redoAct->setIcon(gtApp->icon(QStringLiteral("redoIcon_24.png")));
     redoAct->setText(tr("Redo"));
     ui->undoBar->addAction(redoAct);
-    redoAct ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Y));
+    redoAct->setShortcut(gtApp->getShortCutSequence("redo"));
 
     // edit menu initialization
     ui->menuEdit->addAction(undoAct);

@@ -28,20 +28,20 @@ class GtProcessConnectionView : public GtTreeView
 public:
     /**
      * @brief Constructor.
-     * @param Parent wirget.
+     * @param parent - Parent widget.
      */
     GtProcessConnectionView(QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief Sets given graphics view to current graphics view.
-     * @param New graphics view widget.
+     * @param graphicsView - New graphics view widget.
      */
     void setGraphicsView(GtProcessConnectionGraphicsView* graphicsView);
 
     /**
      * @brief Returns the last visible item in the tree view or invalid model
      * index if not found any.
-     * @param Starting index
+     * @param index - Starting index
      * @return Last visible index.
      */
     QModelIndex lastVisibleIndex(const QModelIndex& index = QModelIndex());
@@ -49,7 +49,7 @@ public:
     /**
      * @brief Returns last visible parent index for given process connection
      * item.
-     * @param Starting index.
+     * @param item - Starting index.
      * @return Last visible parent index.
      */
     QModelIndex lastVisibleParentIndex(GtProcessConnectionItem* item);
@@ -57,7 +57,7 @@ public:
     /**
      * @brief Returns last visible parent index for given process connection
      * item.
-     * @param Starting index.
+     * @param index - Starting index.
      * @return Last visible parent index.
      */
     QModelIndex lastVisibleParentIndex(const QModelIndex& index);
@@ -71,8 +71,8 @@ public:
     /**
      * @brief Returns process connection item corresponding to given
      * identification strings.
-     * @param UUID of component.
-     * @param Property identification string.
+     * @param uuid - UUID of component.
+     * @param propId - Property identification string.
      * @return Process connection item.
      */
     GtProcessConnectionItem* itemById(const QString& uuid,
@@ -87,13 +87,13 @@ protected:
      */
     void drawRow(QPainter *painter,
                  const QStyleOptionViewItem &option,
-                 const QModelIndex &index) const Q_DECL_OVERRIDE;
+                 const QModelIndex &index) const override;
 
     /**
      * @brief paintEvent
      * @param event
      */
-    void paintEvent(QPaintEvent* event) Q_DECL_OVERRIDE;
+    void paintEvent(QPaintEvent* event) override;
 
 private:
     /// Pointer to graphics view widget.
