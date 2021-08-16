@@ -181,7 +181,6 @@ HEADERS += \
     dock_widgets/process/gt_processcomponentmodel.h \
     post/gt_templateviewerlistwidget.h \
     post/gt_stringmapcontainer.h \
-    post/gt_doublemapcontainer.h \
     post/gt_abstractwizard.h \
     tools/gt_filedialog.h \
     dock_widgets/labels/gt_labelsdock.h \
@@ -399,7 +398,6 @@ SOURCES += \
     dock_widgets/process/gt_processcomponentmodel.cpp \
     post/gt_templateviewerlistwidget.cpp \
     post/gt_stringmapcontainer.cpp \
-    post/gt_doublemapcontainer.cpp \
     tools/gt_filedialog.cpp \
     dock_widgets/labels/gt_labelsdock.cpp \
     dock_widgets/properties/items/gt_propertylabelitem.cpp \
