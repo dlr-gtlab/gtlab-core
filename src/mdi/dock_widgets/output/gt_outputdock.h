@@ -18,6 +18,8 @@ class GtListView;
 class GtTreeView;
 class GtFilteredLogModel;
 class GtTaskHistoryModel;
+
+class QPushButton;
 //class GtPythonScriptingConsole;
 
 /**
@@ -71,6 +73,23 @@ private:
      */
     void removeItems(const QModelIndexList& indexes);
 
+    /**
+     * @brief keyPressEvent
+     * @param event - key press event to handle
+     */
+    void keyPressEvent(QKeyEvent* event) override;
+
+    /// debug button (hide/show)
+    QPushButton* m_debugButton;
+
+    /// info button (hide/show)
+    QPushButton* m_infoButton;
+
+    /// warning button (hide/show)
+    QPushButton* m_warningButton;
+
+    /// error button (hide/show)
+    QPushButton* m_errorButton;
 private slots:
     /**
      * @brief Just a test output method.

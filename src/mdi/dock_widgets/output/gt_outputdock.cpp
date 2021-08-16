@@ -44,7 +44,11 @@
 GtOutputDock::GtOutputDock() :
     m_listView(Q_NULLPTR),
     m_taskPageView(Q_NULLPTR),
-    m_historyModel(Q_NULLPTR)
+    m_historyModel(Q_NULLPTR),
+    m_debugButton(Q_NULLPTR),
+    m_infoButton(Q_NULLPTR),
+    m_warningButton(Q_NULLPTR),
+    m_errorButton(Q_NULLPTR)
 {
     setObjectName(tr("Output"));
 
@@ -157,52 +161,52 @@ GtOutputDock::GtOutputDock() :
         connect(testButton, SIGNAL(clicked(bool)), SLOT(testOutput()));
 
         // debug message button
-        QPushButton* debugButton = new QPushButton;
-        debugButton->setIcon(gtApp->icon("bugIcon.png"));
-        debugButton->setMaximumSize(QSize(20, 20));
-        debugButton->setFlat(true);
-        debugButton->setCheckable(true);
-        debugButton->setChecked(true);
-        debugButton->setToolTip(tr("Show/Hide Debug Output"));
-        filterLayout->addWidget(debugButton);
-        connect(debugButton, SIGNAL(toggled(bool)),
+        m_debugButton = new QPushButton;
+        m_debugButton->setIcon(gtApp->icon("bugIcon.png"));
+        m_debugButton->setMaximumSize(QSize(20, 20));
+        m_debugButton->setFlat(true);
+        m_debugButton->setCheckable(true);
+        m_debugButton->setChecked(true);
+        m_debugButton->setToolTip(tr("Show/Hide Debug Output"));
+        filterLayout->addWidget(m_debugButton);
+        connect(m_debugButton, SIGNAL(toggled(bool)),
                 m_model, SLOT(toggleDebugLevel(bool)));
     }
 
     // info message button
-    QPushButton* infoButton = new QPushButton;
-    infoButton->setIcon(gtApp->icon("infoBlueIcon_16.png"));
-    infoButton->setMaximumSize(QSize(20, 20));
-    infoButton->setFlat(true);
-    infoButton->setCheckable(true);
-    infoButton->setChecked(true);
-    infoButton->setToolTip(tr("Show/Hide Info Output"));
-    filterLayout->addWidget(infoButton);
-    connect(infoButton, SIGNAL(toggled(bool)),
+    m_infoButton = new QPushButton;
+    m_infoButton->setIcon(gtApp->icon("infoBlueIcon_16.png"));
+    m_infoButton->setMaximumSize(QSize(20, 20));
+    m_infoButton->setFlat(true);
+    m_infoButton->setCheckable(true);
+    m_infoButton->setChecked(true);
+    m_infoButton->setToolTip(tr("Show/Hide Info Output"));
+    filterLayout->addWidget(m_infoButton);
+    connect(m_infoButton, SIGNAL(toggled(bool)),
             m_model, SLOT(toggleInfoLevel(bool)));
 
     // warning message button
-    QPushButton* warningButton = new QPushButton;
-    warningButton->setIcon(gtApp->icon("processFailedIcon_16.png"));
-    warningButton->setMaximumSize(QSize(20, 20));
-    warningButton->setFlat(true);
-    warningButton->setCheckable(true);
-    warningButton->setChecked(true);
-    warningButton->setToolTip(tr("Show/Hide Warning Output"));
-    filterLayout->addWidget(warningButton);
-    connect(warningButton, SIGNAL(toggled(bool)),
+    m_warningButton = new QPushButton;
+    m_warningButton->setIcon(gtApp->icon("processFailedIcon_16.png"));
+    m_warningButton->setMaximumSize(QSize(20, 20));
+    m_warningButton->setFlat(true);
+    m_warningButton->setCheckable(true);
+    m_warningButton->setChecked(true);
+    m_warningButton->setToolTip(tr("Show/Hide Warning Output"));
+    filterLayout->addWidget(m_warningButton);
+    connect(m_warningButton, SIGNAL(toggled(bool)),
             m_model, SLOT(toggleWarningLevel(bool)));
 
     // error message button
-    QPushButton* errorButton = new QPushButton;
-    errorButton->setIcon(gtApp->icon("errorIcon_16.png"));
-    errorButton->setMaximumSize(QSize(20, 20));
-    errorButton->setFlat(true);
-    errorButton->setCheckable(true);
-    errorButton->setChecked(true);
-    errorButton->setToolTip(tr("Show/Hide Error Output"));
-    filterLayout->addWidget(errorButton);
-    connect(errorButton, SIGNAL(toggled(bool)),
+    m_errorButton = new QPushButton;
+    m_errorButton->setIcon(gtApp->icon("errorIcon_16.png"));
+    m_errorButton->setMaximumSize(QSize(20, 20));
+    m_errorButton->setFlat(true);
+    m_errorButton->setCheckable(true);
+    m_errorButton->setChecked(true);
+    m_errorButton->setToolTip(tr("Show/Hide Error Output"));
+    filterLayout->addWidget(m_errorButton);
+    connect(m_errorButton, SIGNAL(toggled(bool)),
             m_model, SLOT(toggleErrorLevel(bool)));
 
     defaultLayout->addLayout(filterLayout);
@@ -299,6 +303,78 @@ GtOutputDock::removeItems(const QModelIndexList &indexes)
         m_listView->scrollTo(beforeFirst,
                              QListView::ScrollHint::PositionAtCenter);
         bar->update();
+    }
+}
+
+void
+GtOutputDock::keyPressEvent(QKeyEvent* event)
+{
+    if (m_model != nullptr)
+    {
+        if (gtApp->compareKeyEvent(event, "toggleDebugOutput"))
+        {
+            if (m_debugButton != nullptr)
+            {
+                if (m_debugButton->isChecked())
+                {
+                    m_debugButton->setChecked(false);
+                    m_model->toggleDebugLevel(false);
+                }
+                else
+                {
+                    m_debugButton->setChecked(true);
+                    m_model->toggleDebugLevel(true);
+                }
+            }
+        }
+        if (gtApp->compareKeyEvent(event, "toggleInfoOutput"))
+        {
+            if (m_infoButton != nullptr)
+            {
+                if (m_infoButton->isChecked())
+                {
+                    m_infoButton->setChecked(false);
+                    m_model->toggleInfoLevel(false);
+                }
+                else
+                {
+                    m_infoButton->setChecked(true);
+                    m_model->toggleInfoLevel(true);
+                }
+            }
+        }
+        if (gtApp->compareKeyEvent(event, "toggleWarningOutput"))
+        {
+            if (m_warningButton != nullptr)
+            {
+                if (m_warningButton->isChecked())
+                {
+                    m_warningButton->setChecked(false);
+                    m_model->toggleWarningLevel(false);
+                }
+                else
+                {
+                    m_warningButton->setChecked(true);
+                    m_model->toggleWarningLevel(true);
+                }
+            }
+        }
+        if (gtApp->compareKeyEvent(event, "toggleErrorOutput"))
+        {
+            if (m_errorButton != nullptr)
+            {
+                if (m_errorButton->isChecked())
+                {
+                    m_errorButton->setChecked(false);
+                    m_model->toggleErrorLevel(false);
+                }
+                else
+                {
+                    m_errorButton->setChecked(true);
+                    m_model->toggleErrorLevel(true);
+                }
+            }
+        }
     }
 }
 

@@ -172,6 +172,31 @@ public:
      */
     QStringList explorerExpandStates();
 
+    /**
+     * @brief shortcutsTable
+     * @return combination of current and default short cuts as a table
+     * The default short cuts are added to the returned map if they are not part of
+     * the map from the settings
+     */
+    QMap<QString, QStringList> shortcutsTable() const;
+
+    /**
+     * @brief setShortcutsTable
+     * @param shortcutsTable - table to set in the settings
+     */
+    void setShortcutsTable(QMap<QString, QStringList> shortcutsTable);
+
+    /**
+     * @brief initialShortCuts
+     * @return the default shortcuts as a variant (QMap<QString, QStringList>)
+     */
+    QVariant initialShortCuts() const;
+
+    /**
+     * @brief intialShortCutsMap
+     * @return the dafault short cuts as a map
+     */
+    QMap<QString, QStringList> intialShortCutsMap();
 protected:
     /**
      * @brief GtSettings
@@ -217,6 +242,10 @@ private:
 
     /// Explorer dock widget expand states setting
     GtSettingsItem* m_explorerExpandStates;
+
+    /// Settings for short cuts in GTlab
+    GtSettingsItem* m_shortcutsTable;
+
 
 };
 

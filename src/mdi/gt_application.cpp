@@ -14,6 +14,7 @@
 #include <QUndoStack>
 #include <QUuid>
 #include <QDebug>
+#include <QKeyEvent>
 
 #include "gt_mdilauncher.h"
 #include "gt_guimoduleloader.h"
@@ -31,6 +32,7 @@
 #include "gt_project.h"
 #include "gt_logging.h"
 #include "gt_saveprojectmessagebox.h"
+#include "gt_shortcuts.h"
 
 #include "gt_application.h"
 
@@ -59,6 +61,8 @@ GtApplication::GtApplication(QCoreApplication* parent, bool devMode) :
             SLOT(onUndoStackChange()));
 
     m_devMode = devMode;
+
+    GtShortCuts* cuts = new GtShortCuts(this);
 }
 
 GtApplication::~GtApplication()
@@ -100,7 +104,7 @@ void
 GtApplication::loadModules()
 {
     //    qDebug() << "GtApplication::loadModules";
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == Q_NULLPTR)
     {
         m_guiModuleLoader = new GtGuiModuleLoader;
         m_moduleLoader = m_guiModuleLoader;
@@ -139,7 +143,7 @@ GtApplication::initPerspective(const QString& id)
         }
     }
 
-    if (m_perspective == NULL)
+    if (m_perspective == Q_NULLPTR)
     {
         // load perspective info
 
@@ -381,6 +385,30 @@ GtApplication::loadPerspectiveData()
     }
 
     return QPair<QByteArray, QByteArray>();
+}
+
+void
+GtApplication::initShortCuts()
+{
+    /// Short cuts from settings
+    QMap<QString, QStringList> tab = settings()->shortcutsTable();
+
+    /// Short cuts from default list
+    QMap<QString, QStringList> tabBasic = settings()->intialShortCutsMap();
+
+    /// if short cut in default list, but not in settings add it to settings
+    for (QString k : tabBasic.keys())
+    {
+        if (!tab.keys().contains(k))
+        {
+            tab.insert(k, tabBasic.value(k));
+        }
+    }
+
+    settings()->setShortcutsTable(tab);
+
+    /// initialize the short cut objects of the application
+    shortCuts()->initialize(tab);
 }
 
 QList<GtObjectUI*>
@@ -630,6 +658,60 @@ GtObject*
 GtApplication::selectedObject()
 {
     return m_selectedObject;
+}
+
+QKeySequence
+GtApplication::getShortCutSequence(const QString& id) const
+{
+    GtShortCuts* s = shortCuts();
+
+    if (s == nullptr)
+    {
+        return QKeySequence();
+    }
+
+    return s->getKey(id);
+}
+
+bool
+GtApplication::compareKeyEvent(QKeyEvent* keyEvent, const QString& id) const
+{
+    GtShortCuts* s = shortCuts();
+
+    if (s == nullptr)
+    {
+        gtError() << tr("Short cuts list not found");
+        return false;
+    }
+
+    if (s->isEmpty())
+    {
+        gtError() << tr("No shortcut registrations found");
+        return false;
+    }
+
+    QKeySequence k = s->getKey(id);
+
+    if (k.isEmpty())
+    {
+        gtError() << tr("No ShortCut registered for ") << id;
+        return false;
+    }
+
+    /// a key sequence may contain multiple alternatives to use as short-cut
+    /// but for a correct comparison only one can be compared
+    if (k.count() != 1)
+    {
+        return false;
+    }
+
+    return k[0] == (keyEvent->key() | keyEvent->modifiers());
+}
+
+GtShortCuts*
+GtApplication::shortCuts() const
+{
+    return findChild<GtShortCuts*>();
 }
 
 bool

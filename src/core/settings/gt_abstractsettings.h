@@ -38,13 +38,13 @@ protected:
     /**
      * @brief GtAbstractSettings
      */
-    GtAbstractSettings(GtObject* parent = NULL);
+    GtAbstractSettings(GtObject* parent = Q_NULLPTR);
 
     /**
      * @brief registerSetting
-     * @param ident
-     * @param initVal
-     * @return
+     * @param ident - identification string
+     * @param initVal - initial value as variant
+     * @return the new registered settings item
      */
     GtSettingsItem* registerSetting(const QString& ident,
                                     const QVariant& initVal = QVariant());

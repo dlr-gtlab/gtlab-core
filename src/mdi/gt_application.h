@@ -1,4 +1,4 @@
-/* GTlab - Gas Turbine laboratory
+﻿/* GTlab - Gas Turbine laboratory
  * Source File:
  * copyright 2009-2015 by DLR
  *
@@ -23,6 +23,7 @@
 #include <QMutex>
 #include <QPointer>
 
+class QKeyEvent;
 class GtPerspective;
 class GtObjectUI;
 class GtObject;
@@ -30,6 +31,7 @@ class GtGuiModuleLoader;
 class GtAbstractProperty;
 class GtProcessExecutor;
 class GtApplicationPrivate;
+class GtShortCuts;
 
 class GT_MDI_EXPORT GtApplication : public GtCoreApplication
 {
@@ -127,6 +129,12 @@ public:
     QPair<QByteArray, QByteArray> loadPerspectiveData();
 
     /**
+     * @brief initShortCuts - intializaion of the short-cuts based
+     * on the settings
+     */
+    void initShortCuts();
+
+    /**
      * @brief Returns list of all registered user interfaces objects for given
      * class.
      * @param obj Object for retrieving UI classes of the associated class.
@@ -222,6 +230,26 @@ public:
      */
     GtObject* selectedObject();
 
+    /**
+     * @brief getShortCutSequence
+     * @param id - identification string of the short cut
+     * @return key sequence for the short cut
+     */
+    QKeySequence getShortCutSequence(const QString& id) const;
+
+    /**
+     * @brief compareKeyEvent
+     * @param event - event to check
+     * @param id - id of the short cut
+     * @return true if the event is ok for the short cut
+     */
+    bool compareKeyEvent(QKeyEvent* event, const QString& id) const;
+
+    /**
+     * @brief shortCuts
+     * @return pointer to the short cuts list object
+     */
+    GtShortCuts* shortCuts() const;
 private:
     /// List of user specific perspective ids
     QStringList m_perspectiveIds;

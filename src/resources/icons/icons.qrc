@@ -463,5 +463,6 @@
         <file>engine_installation_32.png</file>
         <file>unknownIcon.png</file>
         <file>commentIcon.png</file>
+        <file>input2Icon.png</file>
     </qresource>
 </RCC>

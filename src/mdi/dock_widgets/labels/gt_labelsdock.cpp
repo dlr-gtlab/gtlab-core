@@ -290,40 +290,22 @@ GtLabelsDock::deleteUsages(const QModelIndex& index, bool deleteLabel)
     {
         case QMessageBox::Yes:
         {
-//            GtProject* project = label->findParent<GtProject*>();
+            QList<GtObject*> objsToDelete;
 
-//            if (project != Q_NULLPTR)
-//            {
-//                QString delMsg = tr("Delete Label") + QStringLiteral(" - ") +
-//                                 label->objectName();
-//                gtApp->startCommand(project, delMsg);
-//            }
+            if (deleteLabel)
+            {
+                objsToDelete << label;
+            }
 
-        QList<GtObject*> objsToDelete;
+            foreach (GtLabel* l, labels)
+            {
+                objsToDelete << l;
+            }
 
-        if (deleteLabel)
-        {
-            //            gtDataModel->deleteFromModel(label);
-            objsToDelete << label;
-        }
-
-
-
-        foreach (GtLabel* l, labels)
-        {
-            objsToDelete << l;
-        }
-
-        gtDataModel->deleteFromModel(objsToDelete);
-
-        //            if (project != Q_NULLPTR)
-//            {
-//                gtApp->endCommand();
-//            }
+            gtDataModel->deleteFromModel(objsToDelete);
 
             break;
         }
-
         case QMessageBox::Cancel:
         {
             break;
@@ -423,10 +405,12 @@ GtLabelsDock::customContextMenu(const QPoint& pos)
         actrename->setIcon(gtApp->icon(QStringLiteral("inputIcon_16.png")));
 
         QAction* actfindusages = menu.addAction(tr("Find Usages"));
-        actfindusages->setIcon(gtApp->icon(QStringLiteral("resultsIcon_16.png")));
+        actfindusages->setIcon(
+                    gtApp->icon(QStringLiteral("resultsIcon_16.png")));
 
         QAction* actdeleteusages = menu.addAction(tr("Delete Usages"));
-        actdeleteusages->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+        actdeleteusages->setIcon(
+                    gtApp->icon(QStringLiteral("closeIcon_16.png")));
 
         menu.addSeparator();
 

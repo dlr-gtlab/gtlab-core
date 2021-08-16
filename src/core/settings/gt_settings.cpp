@@ -8,6 +8,8 @@
  */
 
 #include <QSettings>
+#include <QMap>
+#include <QKeySequence>
 
 #include "gt_settings.h"
 #include "gt_settingsitem.h"
@@ -55,6 +57,140 @@ GtSettings::GtSettings()
             registerSetting(
                 QStringLiteral("application/explorer/expandstates"),
                 QStringList());
+
+    m_shortcutsTable = registerSetting(
+                QStringLiteral("application/general/shortCuts"),
+                initialShortCuts());
+
+}
+
+QMap<QString, QStringList>
+GtSettings::shortcutsTable() const
+{
+    QVariant val = QSettings().value(m_shortcutsTable->ident());
+
+    QMap<QString, QVariant> helpingMap = val.toMap();
+
+    QMap<QString, QStringList> retVal;
+
+    for (QString s : helpingMap.keys())
+    {
+        QVariant v = helpingMap.value(s);
+
+        QStringList list = v.toStringList();
+
+        retVal.insert(s, list);
+    }
+
+    return retVal;
+}
+
+void
+GtSettings::setShortcutsTable(QMap<QString, QStringList> shortcutsTable)
+{
+    QMap<QString, QVariant> helpingMap;
+
+    for (QString s : shortcutsTable.keys())
+    {
+        QStringList list = shortcutsTable.value(s);
+        helpingMap.insert(s, QVariant(list));
+    }
+
+    QVariant val(helpingMap);
+
+    QSettings().setValue(m_shortcutsTable->ident(), val);
+}
+
+QVariant
+GtSettings::initialShortCuts() const
+{
+    QMap<QString, QVariant> shortCutData;
+
+    QString catCore = QStringLiteral("Core");
+    QString catOutput = QStringLiteral("Output Dock");
+
+    /// openContectMenu
+    QStringList s1 = {QKeySequence(Qt::Key_F2).toString(), catCore};
+    shortCutData.insert(QStringLiteral("OpenContextMenu"), s1);
+
+    /// ShowFootprint
+    QStringList s2 = {QKeySequence(Qt::CTRL + Qt::Key_I).toString(), catCore};
+    shortCutData.insert(QStringLiteral("ShowFootprint"), s2);
+
+    /// redo
+    QStringList s3 = {QKeySequence(Qt::CTRL + Qt::Key_Y).toString(), catCore};
+    shortCutData.insert(QStringLiteral("redo"), s3);
+
+    /// undo
+    QStringList s4 = {QKeySequence(Qt::CTRL + Qt::Key_Z).toString(), catCore};
+    shortCutData.insert(QStringLiteral("undo"), s4);
+
+    /// cut
+    QStringList s5 = {QKeySequence(Qt::CTRL + Qt::Key_X).toString(), catCore};
+    shortCutData.insert(QStringLiteral("cut"), s5);
+
+    /// copy
+    QStringList s6 = {QKeySequence(Qt::CTRL + Qt::Key_C).toString(), catCore};
+    shortCutData.insert(QStringLiteral("copy"), s6);
+
+    /// paste
+    QStringList s7 = {QKeySequence(Qt::CTRL + Qt::Key_V).toString(), catCore};
+    shortCutData.insert(QStringLiteral("paste"), s7);
+
+    /// delete
+    QStringList s8 = {QKeySequence(Qt::Key_Delete).toString(), catCore};
+    shortCutData.insert(QStringLiteral("delete"), s8);
+
+    /// runProcess
+    QStringList s9 = {QKeySequence(Qt::CTRL + Qt::Key_R).toString(), catCore};
+    shortCutData.insert(QStringLiteral("runProcess"), s9);
+
+    /// unskipProcess
+    QStringList s10 = {QKeySequence(Qt::CTRL + Qt::Key_T).toString(), catCore};
+    shortCutData.insert(QStringLiteral("unskipProcess"), s10);
+
+    /// skipProcess
+    QStringList s11 = {QKeySequence(Qt::CTRL + Qt::Key_G).toString(), catCore};
+    shortCutData.insert(QStringLiteral("skipProcess"), s11);
+
+    /// toggleDebugOutput
+    QStringList s12 = {QKeySequence(Qt::CTRL + Qt::Key_D).toString(),
+                       catOutput};
+    shortCutData.insert(QStringLiteral("toggleDebugOutput"), s12);
+
+    /// toggleInfoOutput
+    QStringList s13 = {QKeySequence(Qt::CTRL + Qt::Key_I).toString(),
+                       catOutput};
+    shortCutData.insert(QStringLiteral("toggleInfoOutput"), s13);
+
+    /// toggleWarningOutput
+    QStringList s14 = {QKeySequence(Qt::CTRL + Qt::Key_W).toString(),
+                       catOutput};
+    shortCutData.insert(QStringLiteral("toggleWarningOutput"), s14);
+
+    /// toggleErrorOutput
+    QStringList s15 = {QKeySequence(Qt::CTRL + Qt::Key_E).toString(),
+                       catOutput};
+    shortCutData.insert(QStringLiteral("toggleErrorOutput"), s15);
+
+    return QVariant(shortCutData);
+}
+
+QMap<QString, QStringList>
+GtSettings::intialShortCutsMap()
+{
+    QVariant v = initialShortCuts();
+
+    QMap<QString, QVariant> map = v.toMap();
+
+    QMap<QString, QStringList> retVal;
+
+    for (QString k : map.keys())
+    {
+        retVal.insert(k, map.value(k).toStringList());
+    }
+
+    return retVal;
 }
 
 QString

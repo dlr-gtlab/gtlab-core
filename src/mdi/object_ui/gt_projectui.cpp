@@ -126,7 +126,8 @@ GtProjectUI::GtProjectUI()
 
     addSingleAction(tr("Show Project Footprint"),
                     QStringLiteral("infoBlueIcon_16.png"),
-                    QStringLiteral("showFootprint"));
+                    QStringLiteral("showFootprint"),
+                    gtApp->getShortCutSequence("ShowFootprint"));
 
     addSingleAction(tr("Edit Comment"),
                     QStringLiteral("commentIcon.png"),
@@ -308,7 +309,6 @@ GtProjectUI::openProject(GtObject* obj)
                 case QMessageBox::Cancel:
                 {
                     return;
-                    break;
                 }
 
                 default:
@@ -336,7 +336,6 @@ GtProjectUI::openProject(GtObject* obj)
                 case QMessageBox::Cancel:
                 {
                     return;
-                    break;
                 }
 
                 default:
@@ -422,7 +421,6 @@ GtProjectUI::closeProject(GtObject* obj)
             case QMessageBox::Cancel:
             {
                 return;
-                break;
             }
 
             default:
@@ -717,8 +715,8 @@ GtProjectUI::deleteProject(GtObject* obj)
         return;
     }
 
-    GtConfirmDeleteProjectDialog confirmationDialog(NULL,
-            project->objectName());
+    GtConfirmDeleteProjectDialog confirmationDialog(
+                nullptr, project->objectName());
 
     if (confirmationDialog.exec())
     {

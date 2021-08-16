@@ -141,6 +141,9 @@ main(int argc, char* argv[])
     // perspective initialization
     app.initPerspective();
 
+    // chort cuts initialization
+    app.initShortCuts();
+
 //    gtApp->setLanguage("de");
 
 //    qDebug() << "system language: " << QLocale::system();

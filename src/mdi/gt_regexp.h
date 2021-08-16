@@ -96,6 +96,12 @@ namespace GtRegExp
      * @return
      */
     QRegExp GT_MDI_EXPORT forDoublesLists();
+
+    /**
+     * @brief forShortCuts
+     * @return regexp for short cuts
+     */
+    QRegExp GT_MDI_EXPORT forShortCuts();
 }
 
 #endif // GTREGEXP_H

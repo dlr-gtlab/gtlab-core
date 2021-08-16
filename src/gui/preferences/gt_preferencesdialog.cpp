@@ -20,6 +20,7 @@
 #include "gt_preferencesperspective.h"
 #include "gt_preferencesaccess.h"
 #include "gt_preferencespathsettings.h"
+#include "gt_preferencesshortcuts.h"
 #include "gt_application.h"
 #include "gt_accessmanager.h"
 
@@ -44,6 +45,7 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem)
     m_pagesWidget->addWidget(new GtPreferencesApp);
     m_pagesWidget->addWidget(new GtPreferencesSession);
     m_pagesWidget->addWidget(new GtPreferencesPerspective);
+    m_pagesWidget->addWidget(new GtPreferencesShortCuts);
     m_pagesWidget->addWidget(new GtPreferencesPlugins);
     m_pagesWidget->addWidget(new GtPreferencesLanguage);
     m_pagesWidget->addWidget(new GtPreferencesAccess);
@@ -78,7 +80,7 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem)
 
     setWindowTitle(tr("Preferences"));
     setWindowIcon(gtApp->icon("configIcon_16.png"));
-    setFixedHeight(470);
+    setFixedHeight(530);
     setFixedWidth(600);
 }
 
@@ -103,7 +105,7 @@ GtPreferencesDialog::saveChanges()
     {
         GtPreferencesPage* page = dynamic_cast<GtPreferencesPage*>(pageList[i]);
 
-        if (page != NULL)
+        if (page != Q_NULLPTR)
         {
             page->saveSettings();
         }
@@ -138,6 +140,14 @@ GtPreferencesDialog::createIcons()
     perspectivesButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     perspectivesButton->setWhatsThis(tr("Perspectives Configurations"));
     perspectivesButton->setSizeHint(QSize(100, 50));
+
+    QListWidgetItem* shortCutButton = new QListWidgetItem(m_contentsWidget);
+    shortCutButton->setIcon(gtApp->icon("input2Icon.png"));
+    shortCutButton->setText(tr("Short Cuts"));
+    shortCutButton->setTextAlignment(Qt::AlignHCenter);
+    shortCutButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    shortCutButton->setWhatsThis(tr("Short Cuts"));
+    shortCutButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* pluginsButton = new QListWidgetItem(m_contentsWidget);
     pluginsButton->setIcon(gtApp->icon("pluginSettingsIcon.png"));

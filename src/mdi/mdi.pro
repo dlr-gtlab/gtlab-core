@@ -96,6 +96,8 @@ HEADERS += \
     gt_mdiinterface.h \
     gt_mdiitem.h \
     gt_mdilauncher.h \
+    gt_shortcut.h \
+    gt_shortcuts.h \
     tools/gt_projectanalyzerdialog.h \
     tools/gt_ruler.h \
     tools/gt_grid.h \
@@ -181,7 +183,6 @@ HEADERS += \
     dock_widgets/process/gt_processcomponentmodel.h \
     post/gt_templateviewerlistwidget.h \
     post/gt_stringmapcontainer.h \
-    post/gt_doublemapcontainer.h \
     post/gt_abstractwizard.h \
     tools/gt_filedialog.h \
     dock_widgets/labels/gt_labelsdock.h \
@@ -315,6 +316,8 @@ SOURCES += \
     gt_application.cpp \
     gt_mdiitem.cpp \
     gt_mdilauncher.cpp \
+    gt_shortcut.cpp \
+    gt_shortcuts.cpp \
     tools/gt_projectanalyzerdialog.cpp \
     tools/gt_ruler.cpp \
     tools/gt_grid.cpp \
@@ -399,7 +402,6 @@ SOURCES += \
     dock_widgets/process/gt_processcomponentmodel.cpp \
     post/gt_templateviewerlistwidget.cpp \
     post/gt_stringmapcontainer.cpp \
-    post/gt_doublemapcontainer.cpp \
     tools/gt_filedialog.cpp \
     dock_widgets/labels/gt_labelsdock.cpp \
     dock_widgets/properties/items/gt_propertylabelitem.cpp \

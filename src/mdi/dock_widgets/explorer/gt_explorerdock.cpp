@@ -114,6 +114,8 @@ GtExplorerDock::GtExplorerDock() :
             this, &GtExplorerDock::deleteElements);
     connect(m_view, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(customContextMenuDataView(QPoint)));
+    connect(this, SIGNAL(contextMenuKeyPressSignal(QModelIndex)),
+            SLOT(customContextMenuDataView(QModelIndex)));
     //connect(m_viewModeBox, SIGNAL(currentIndexChanged(int)),
     //        SLOT(switchViewMode(int)));
     connect(this, SIGNAL(selectedObjectChanged(GtObject*)),
@@ -203,7 +205,7 @@ GtExplorerDock::initAfterStartup()
 void
 GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 {
-    if (obj == NULL)
+    if (obj == Q_NULLPTR)
     {
         return;
     }
@@ -636,6 +638,36 @@ GtExplorerDock::restoreExpandStatesHelper(const QStringList& expandedItems,
 }
 
 void
+GtExplorerDock::keyPressEvent(QKeyEvent* event)
+{
+    if (m_view != nullptr)
+    {
+        if (m_view->selectionModel() != nullptr)
+        {
+            QModelIndexList indexlist =
+                    m_view->selectionModel()->selectedIndexes();
+
+            if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
+            {
+                if (indexlist.isEmpty())
+                {
+                    return;
+                }
+
+                QModelIndex first = indexlist.first();
+
+                if (first.isValid())
+                {
+                    emit contextMenuKeyPressSignal(first);
+                    event->accept();
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void
 GtExplorerDock::onSessionChanged()
 {
     if (gtApp->session() == Q_NULLPTR)
@@ -732,19 +764,19 @@ GtExplorerDock::onSearchEnabled()
 }
 
 void
-GtExplorerDock::customContextMenuDataView(const QPoint& pos)
+GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
 {
     QModelIndexList indexlist = m_view->selectionModel()->selectedIndexes();
 
     if (indexlist.size() > 0 && indexlist.size() < 4)
     {
-        QModelIndex indexUnderMouse = m_view->indexAt(pos);
+        QModelIndex indexUnderMouse = indexOrigin;
 
         indexUnderMouse = mapToSource(indexUnderMouse);
 
         if (!indexUnderMouse.isValid())
         {
-            qDebug() << "indexUnderMouse invalid!";
+            qDebug() << "origin index invalid!";
             return;
         }
 
@@ -775,6 +807,14 @@ GtExplorerDock::customContextMenuDataView(const QPoint& pos)
 
         objectContextMenu(selectedObjects);
     }
+}
+
+void
+GtExplorerDock::customContextMenuDataView(const QPoint& pos)
+{
+    QModelIndex indexUnderMouse = m_view->indexAt(pos);
+
+    customContextMenuDataView(indexUnderMouse);
 }
 
 void
