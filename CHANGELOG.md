@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Shortcut settings for GTlab including the introduction of several new shortcuts and the option to maintain them in the preferences - #112
 - Versionnumber based on GTVersionnumber for tasks - #129
+###Removed
+- Removed DoubleMap container to be added to the post module - #116
+
 
 ## [1.7.2] - 2021-05-25
 ### Changed
