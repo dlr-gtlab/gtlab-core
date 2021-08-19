@@ -66,8 +66,6 @@ GtGuiModuleLoader::GtGuiModuleLoader()
                      GT_METADATA(GtCalculatorUI));
     registerObjectUI(GT_CLASSNAME(GtResult),
                      GT_METADATA(GtResultUI));
-    registerObjectUI(GT_CLASSNAME(GtLabel),
-                     GT_METADATA(GtOperatingPointUI));
     registerObjectUI(GT_CLASSNAME(GtDataZone0D),
                      GT_METADATA(GtDataZoneUI));
     registerObjectUI(GT_CLASSNAME(GtDataZone),
