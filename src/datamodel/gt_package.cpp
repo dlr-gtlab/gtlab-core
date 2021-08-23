@@ -33,8 +33,8 @@ GtPackage::readData(const QDomElement& root)
             if (dobj)
             {
                 // TODO: warning for unknown data element
-                gtDebug() << tr("default object found!") << " ("
-                          << dobj->objectName() << ") " << tr("restoring...");
+                //gtDebug() << tr("default object found!") << " ("
+                //          << dobj->objectName() << ") " << tr("restoring...");
                 dobj->setFactory(gtObjectFactory);
                 dobj->fromMemento(memento);
             }

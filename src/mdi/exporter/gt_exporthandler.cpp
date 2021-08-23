@@ -44,7 +44,7 @@ GtExportHandler::registerClass(QMetaObject metaObj)
 {
     QString classname = metaObj.className();
 
-    gtDebug() << "register exporter = " << classname;
+    //gtDebug() << "register exporter = " << classname;
 
     if (knownClass(classname))
     {
