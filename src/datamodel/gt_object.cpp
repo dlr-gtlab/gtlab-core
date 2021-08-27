@@ -24,7 +24,7 @@
 #include "gt_object.h"
 
 GtObject::GtObject(GtObject* parent) :
-    m_factory(NULL),
+    m_factory(Q_NULLPTR),
     m_propertyMapper(new QSignalMapper(this))
 {
     if (parent)
@@ -44,7 +44,7 @@ GtObject::GtObject(GtObject* parent) :
 }
 
 GtObject::ObjectFlags
-GtObject::objectFlags()
+GtObject::objectFlags() const
 {
     return m_objectFlags;
 }
@@ -61,7 +61,7 @@ GtObject::isDummy()
 }
 
 bool
-GtObject::hasDummyChildren()
+GtObject::hasDummyChildren() const
 {
     foreach (GtObject* c, findChildren<GtObject*>())
     {
@@ -75,7 +75,7 @@ GtObject::hasDummyChildren()
 }
 
 GtObjectMemento
-GtObject::toMemento(bool clone)
+GtObject::toMemento(bool clone) const
 {
     return GtObjectMemento(this, clone);
 }
@@ -84,7 +84,7 @@ void
 GtObject::fromMemento(const GtObjectMemento& memento)
 {
     // check for factory
-    if (m_factory == NULL)
+    if (m_factory == Q_NULLPTR)
     {
         qDebug() << "factory is null";
         return;
@@ -107,14 +107,14 @@ GtObject::revertDiff(GtObjectMementoDiff& diff)
 }
 
 GtObject*
-GtObject::copy()
+GtObject::copy() const
 {
     // check for factory
-    if (m_factory == NULL)
+    if (m_factory == Q_NULLPTR)
     {
         gtError() << tr("No factory set!") << QStringLiteral("(")
                   << objectName() << QStringLiteral(")");
-        return NULL;
+        return Q_NULLPTR;
     }
 
     // generate memento
@@ -122,21 +122,21 @@ GtObject::copy()
 
     if (memento.isNull())
     {
-        return NULL;
+        return Q_NULLPTR;
     }
 
     return memento.restore(m_factory);
 }
 
 GtObject*
-GtObject::clone()
+GtObject::clone() const
 {
     // check for factory
-    if (m_factory == NULL)
+    if (m_factory == Q_NULLPTR)
     {
         gtError() << tr("No factory set!") << QStringLiteral("(")
                   << objectName() << QStringLiteral(")");
-        return NULL;
+        return Q_NULLPTR;
     }
 
     // generate memento
@@ -144,7 +144,7 @@ GtObject::clone()
 
     if (memento.isNull())
     {
-        return NULL;
+        return Q_NULLPTR;
     }
 
     return memento.restore(m_factory);
@@ -153,7 +153,7 @@ GtObject::clone()
 bool
 GtObject::appendChild(GtObject* c)
 {
-    if (c == NULL)
+    if (c == Q_NULLPTR)
     {
         return false;
     }
@@ -278,7 +278,7 @@ GtObject::newUuid(bool renewChildUUIDs)
 }
 
 QString
-GtObject::calcHash()
+GtObject::calcHash() const
 {
     GtObjectMemento mem = this->toMemento();
     mem.calculateHashes();
@@ -287,7 +287,7 @@ GtObject::calcHash()
 }
 
 bool
-GtObject::isDefault()
+GtObject::isDefault() const
 {
     return (objectFlags() & GtObject::DefaultComponent);
 }
@@ -299,7 +299,7 @@ GtObject::setDefault(bool val)
 }
 
 bool
-GtObject::isUserHidden()
+GtObject::isUserHidden() const
 {
     return (objectFlags() & GtObject::UserHidden);
 }
@@ -311,13 +311,13 @@ GtObject::setUserHidden(bool val)
 }
 
 bool
-GtObject::isRenamable()
+GtObject::isRenamable() const
 {
     return (objectFlags() & GtObject::UserRenamable);
 }
 
 bool
-GtObject::isDeletable()
+GtObject::isDeletable() const
 {
     if (isDefault())
     {
@@ -330,7 +330,7 @@ GtObject::isDeletable()
 void
 GtObject::setFactory(GtAbstractObjectFactory* factory)
 {
-    if (factory == NULL && !factory->knownClass(metaObject()->className()))
+    if (factory == Q_NULLPTR && !factory->knownClass(metaObject()->className()))
     {
         return;
     }
@@ -352,19 +352,19 @@ GtObject::childNumber()
 }
 
 GtObject*
-GtObject::parentObject()
+GtObject::parentObject() const
 {
     return qobject_cast<GtObject*>(parent());
 }
 
 GtResult*
-GtObject::results()
+GtObject::results() const
 {
     return findDirectChild<GtResult*>();
 }
 
 QStringList
-GtObject::labelIds()
+GtObject::labelIds() const
 {
     QStringList retval;
 
@@ -380,19 +380,19 @@ GtObject::labelIds()
 }
 
 bool
-GtObject::hasChanges()
+GtObject::hasChanges() const
 {
     return (objectFlags() & GtObject::HasOwnChanges);
 }
 
 bool
-GtObject::hasChildChanged()
+GtObject::hasChildChanged() const
 {
     return (objectFlags() & GtObject::HasChildChanges);
 }
 
 bool
-GtObject::newlyCreated()
+GtObject::newlyCreated() const
 {
     return (objectFlags() & GtObject::NewlyCreated);
 }
@@ -479,7 +479,7 @@ GtObject::fullPropertyList() const
 }
 
 GtAbstractProperty*
-GtObject::findProperty(const QString& id)
+GtObject::findProperty(const QString& id) const
 {
     foreach (GtAbstractProperty* property, m_properties)
     {
@@ -500,7 +500,7 @@ GtObject::findProperty(const QString& id)
 }
 
 GtAbstractProperty*
-GtObject::findPropertyByName(const QString& name)
+GtObject::findPropertyByName(const QString& name) const
 {
     foreach (GtAbstractProperty* property, m_properties)
     {
@@ -528,7 +528,7 @@ GtObject::changed()
 }
 
 QString
-GtObject::objectPath(QString& str)
+GtObject::objectPath(QString& str) const
 {
     if (!str.isEmpty())
     {
@@ -583,7 +583,7 @@ GtObject::getObjectByPath(QStringList& objectPath)
 }
 
 QString
-GtObject::objectPath()
+GtObject::objectPath() const
 {
     QString str;
 
@@ -604,7 +604,7 @@ GtObject::setFlag(GtObject::ObjectFlag flag, bool enable)
 }
 
 GtAbstractObjectFactory*
-GtObject::factory()
+GtObject::factory() const
 {
     return m_factory;
 }
@@ -650,7 +650,7 @@ GtObject::getObjectByUuid(const QString& objectUUID)
 }
 
 GtObject*
-GtObject::getDirectChildByUuid(const QString& objectUUID)
+GtObject::getDirectChildByUuid(const QString& objectUUID) const
 {
     QList<GtObject*> list = findDirectChildren<GtObject*>();
 
@@ -715,7 +715,7 @@ GtObject::fullPropertyListHelper(GtAbstractProperty* p,
 }
 
 void
-GtObject::newChildUUIDs(GtObject* parent)
+GtObject::newChildUUIDs(GtObject* parent) const
 {
     foreach(GtObject* child, parent->findChildren<GtObject*>())
     {
