@@ -239,8 +239,6 @@ HEADERS += \
     mdi_items/process_env/entities/gt_processpropertyconnectionentity.h \
     mdi_items/process_env/gt_processconnectionscene.h \
     tools/gt_projectspecwidget.h \
-    dock_widgets/properties/items/gt_propertynozzlemapitem.h \
-    dock_widgets/properties/editors/gt_propertynozzlemapeditor.h \
     importer/gt_importerinterface.h \
     importer/gt_abstractimporter.h \
     importer/gt_importhandler.h \
@@ -457,8 +455,6 @@ SOURCES += \
     mdi_items/process_env/entities/gt_processpropertyconnectionentity.cpp \
     mdi_items/process_env/gt_processconnectionscene.cpp \
     tools/gt_projectspecwidget.cpp \
-    dock_widgets/properties/items/gt_propertynozzlemapitem.cpp \
-    dock_widgets/properties/editors/gt_propertynozzlemapeditor.cpp \
     importer/gt_abstractimporter.cpp \
     importer/gt_importhandler.cpp \
     importer/gt_importermetadata.cpp \
