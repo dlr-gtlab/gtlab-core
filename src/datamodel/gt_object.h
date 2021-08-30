@@ -52,13 +52,13 @@ public:
      * @brief GtObject
      * @param parent
      */
-    GtObject(GtObject* parent = NULL);
+    GtObject(GtObject* parent = Q_NULLPTR);
 
     /**
      * @brief objectFlags
      * @return
      */
-    GtObject::ObjectFlags objectFlags();
+    GtObject::ObjectFlags objectFlags() const;
 
     /**
      * @brief Returns true if object is a dummy. Otherwise false is returned.
@@ -71,14 +71,14 @@ public:
      * Otherwise false is returned.
      * @return True if object has children of type dummy.
      */
-    bool hasDummyChildren();
+    bool hasDummyChildren() const;
 
     /**
      * @brief Creates a memento of the internal object state.
      * @param clone
      * @return
      */
-    GtObjectMemento toMemento(bool clone = true);
+    GtObjectMemento toMemento(bool clone = true) const;
 
     /**
      * @brief fromMemento
@@ -104,7 +104,7 @@ public:
      * @brief copy
      * @return
      */
-    GtObject* copy();
+    GtObject* copy() const;
 
     //    template <class T = GtObject*>
     //    T copy()
@@ -130,7 +130,7 @@ public:
      * @brief clone
      * @return
      */
-    GtObject* clone();
+    GtObject* clone() const;
 
     //    template <class T = GtObject*>
     //    T clone()
@@ -191,13 +191,13 @@ public:
      * @brief Calculates object specific hash.
      * @return Object specific hash.
      */
-    QString calcHash();
+    QString calcHash() const;
 
     /**
      * @brief isDefault
      * @return
      */
-    bool isDefault();
+    bool isDefault() const;
 
     /**
      * @brief setDefault
@@ -210,7 +210,7 @@ public:
      * returned.
      * @return User hidden flag state.
      */
-    bool isUserHidden();
+    bool isUserHidden() const;
 
     /**
      * @brief Sets user hidden flag by given value.
@@ -222,14 +222,14 @@ public:
      * @brief isRenamable
      * @return
      */
-    bool isRenamable();
+    bool isRenamable() const;
 
     /**
      * @brief Returns true if object is user deletable and not default,
      * otherwise returns false.
      * @return Deletable flag
      */
-    bool isDeletable();
+    bool isDeletable() const;
 
     /**
      * @brief setFactory
@@ -248,20 +248,20 @@ public:
      * NULL if no parent exists or parent is not a GtObject.
      * @return parent object
      */
-    GtObject* parentObject();
+    GtObject* parentObject() const;
 
     /**
      * @brief results
-     * @return
+     * @return pointer to child results object
      */
-    GtResult* results();
+    GtResult* results() const;
 
     /**
      * @brief Returns all label identification strings stored in results of
      * object and all child objects.
      * @return List of label identification strings.
      */
-    QStringList labelIds();
+    QStringList labelIds() const;
 
     /**
     * @brief collectDzt
@@ -269,7 +269,7 @@ public:
     */
     virtual GtDataZoneTable* createDzt(bool* ok = Q_NULLPTR)
     {
-        Q_UNUSED(ok);
+        Q_UNUSED(ok)
         return Q_NULLPTR;
     }
 
@@ -277,19 +277,19 @@ public:
      * @brief hasChanges
      * @return
      */
-    bool hasChanges();
+    bool hasChanges() const;
 
     /**
      * @brief hasChildChanged
      * @return
      */
-    bool hasChildChanged();
+    bool hasChildChanged() const;
 
     /**
      * @brief newlyCreated
      * @return
      */
-    bool newlyCreated();
+    bool newlyCreated() const;
 
     /**
      * @brief acceptChanges
@@ -325,22 +325,22 @@ public:
      * @param id
      * @return
      */
-    Q_INVOKABLE GtAbstractProperty* findProperty(const QString& id);
+    Q_INVOKABLE GtAbstractProperty* findProperty(const QString& id) const;
 
     /**
-     * @brief findProperty
-     * @param name
-     * @return
+     * @brief findPropertyByName
+     * @param name to use to search property
+     * @return pointer to abstract property or nullptr if the property
+     * could not be found
      */
-    GtAbstractProperty* findPropertyByName(const QString& name);
+    GtAbstractProperty* findPropertyByName(const QString& name) const;
 
     /**
-     * @brief Returns all properties of type T
-     * @param Type
-     * @return
+     * @brief propertiesByType
+     * @return all properties of type T
      */
     template <class T>
-    QList<T> propertiesByType()
+    QList<T> propertiesByType() const
     {
         QList<T> retVal;
 
@@ -359,8 +359,9 @@ public:
 
     /**
      * @brief Returns child count
-     * @param name
-     * @return
+     * @param name - optional string parameter to caount only children with
+     * the given name.
+     * @return number of direct children of the given template class
      */
     template <class T>
     int childCount(const QString& name = QString()) const
@@ -372,13 +373,13 @@ public:
 
     /**
      * @brief findParent
-     * @param name
-     * @return
+     * @param name - optional string to define object by name
+     * @return first parent obejct of the given template class
      */
     template <class T>
     T findParent(const QString& name = QString())
     {
-        if (parent() != NULL)
+        if (parent() != Q_NULLPTR)
         {
             T temp = qobject_cast<T>(parent());
 
@@ -400,7 +401,7 @@ public:
 
     /**
      * @brief findRoot
-     * @param name
+     * @param last
      * @return
      */
     template <class T>
@@ -408,7 +409,7 @@ public:
     {
         GtObject* pObj = parentObject();
 
-        if (pObj != NULL)
+        if (pObj != Q_NULLPTR)
         {
             last = qobject_cast<T>(pObj);
 
@@ -426,7 +427,6 @@ public:
     /**
      * @brief findDirectChildren
      * @param name
-     * @param sorted
      * @return
      */
     template <class T>
@@ -437,8 +437,8 @@ public:
 
     /**
      * @brief findDirectChild
-     * @param name
-     * @return
+     * @param name - optional string to search child with given name
+     * @return return pointer to first child of the template class
      */
     template <class T>
     T findDirectChild(const QString& name = QString()) const
@@ -448,9 +448,9 @@ public:
 
     /**
      * @brief insertChild
-     * @param pos
-     * @param obj
-     * @return
+     * @param pos - position to insert child to. Is not allowed to be negative
+     * @param obj - object to insert as child
+     * @return bool value to show success
      */
     template <class T>
     bool insertChild(int pos, T obj)
@@ -482,7 +482,7 @@ public:
 
         appendChild(obj);
 
-        foreach (T element, elementsBehindPos)
+        for (T element : elementsBehindPos)
         {
             element->setParent(this);
         }
@@ -502,7 +502,7 @@ public:
      * @param objectUUID
      * @return
      */
-    GtObject* getDirectChildByUuid(const QString& objectUUID);
+    GtObject* getDirectChildByUuid(const QString& objectUUID) const;
 
     /**
      * @brief getObjectByPath
@@ -522,7 +522,7 @@ public:
      * @brief objectPath
      * @return
      */
-    QString objectPath();
+    QString objectPath() const;
 
     /**
      * @brief setFlag
@@ -534,7 +534,7 @@ public:
      * @brief factory
      * @return
      */
-    GtAbstractObjectFactory* factory();
+    GtAbstractObjectFactory* factory() const;
 
     //public slots:
     //    void changed();
@@ -597,7 +597,7 @@ private:
      * @brief objectPath
      * @return
      */
-    QString objectPath(QString& str);
+    QString objectPath(QString& str) const;
 
     /**
      * @brief connectProperty
@@ -617,7 +617,7 @@ private:
      * @brief renews child uuids recursively for all child objects
      * @param parent parent object
      */
-    void newChildUUIDs(GtObject* parent);
+    void newChildUUIDs(GtObject* parent) const;
 
 private slots:
     /**
