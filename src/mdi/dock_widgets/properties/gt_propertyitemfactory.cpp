@@ -28,9 +28,6 @@
 #include "gt_existingdirectoryproperty.h"
 #include "gt_propertyfilechooseritem.h"
 
-#include "gt_nozzlemapproperty.h"
-#include "gt_propertynozzlemapitem.h"
-
 #include "gt_accessselectionproperty.h"
 #include "gt_propertyaccessselectionitem.h"
 
@@ -61,9 +58,6 @@ GtPropertyItemFactory::GtPropertyItemFactory(QObject* parent) : QObject(parent)
 
     m_knownClasses.insert(GT_CLASSNAME(GtExistingDirectoryProperty),
                           GT_METADATA(GtPropertyFileChooserItem));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtNozzleMapProperty),
-                          GT_METADATA(GtPropertyNozzleMapItem));
 
     m_knownClasses.insert(GT_CLASSNAME(GtAccessSelectionProperty),
                           GT_METADATA(GtPropertyAccessSelectionItem));

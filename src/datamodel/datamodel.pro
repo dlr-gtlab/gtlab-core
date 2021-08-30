@@ -99,8 +99,6 @@ HEADERS += \
     property/gt_dynamicpropertycontainer.h \
     gt_propertyfactory.h \
     property/gt_propertyconnection.h \
-    property/gt_nozzlemapproperty.h \
-    gt_nozzlemap.h \
     gt_propertyfactory.h \
     property/gt_openfilenameproperty.h \
     property/gt_savefilenameproperty.h \
@@ -159,8 +157,6 @@ SOURCES += \
     property/gt_dynamicpropertycontainer.cpp \
     gt_propertyfactory.cpp \
     property/gt_propertyconnection.cpp \
-    property/gt_nozzlemapproperty.cpp \
-    gt_nozzlemap.cpp \
     property/gt_openfilenameproperty.cpp \
     property/gt_savefilenameproperty.cpp \
     property/gt_existingdirectoryproperty.cpp \

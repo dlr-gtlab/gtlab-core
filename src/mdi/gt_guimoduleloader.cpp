@@ -50,7 +50,6 @@
 #include "gt_residualloop.h"
 #include "gt_parameterloop.h"
 #include "gt_loopui.h"
-#include "gt_nozzlemap.h"
 
 GtGuiModuleLoader::GtGuiModuleLoader()
 {

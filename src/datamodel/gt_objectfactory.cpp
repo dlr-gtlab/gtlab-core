@@ -30,7 +30,6 @@
 #include "gt_datazonetablelist.h"
 #include "gt_abstractdatazone.h"
 #include "gt_propertyconnection.h"
-#include "gt_nozzlemap.h"
 #include "gt_bleedtable.h"
 #include "gt_tablegroup.h"
 //#include "gt_datazonetablemainaxis.h"
@@ -76,9 +75,6 @@ GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
     m_knownClasses.insert(GT_CLASSNAME(GtPropertyConnection),
                           GT_METADATA(GtPropertyConnection));
                           
-    m_knownClasses.insert(GT_CLASSNAME(GtNozzleMap),
-                          GT_METADATA(GtNozzleMap));
-
     m_knownClasses.insert(GT_CLASSNAME(GtBleedTable),
                           GT_METADATA(GtBleedTable));
 
