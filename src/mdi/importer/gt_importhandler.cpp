@@ -39,7 +39,7 @@ GtImportHandler::registerClass(QMetaObject metaObj)
 {
     QString classname = metaObj.className();
 
-    gtDebug() << "register importer = " << classname;
+    //gtDebug() << "register importer = " << classname;
 
     if (knownClass(classname))
     {

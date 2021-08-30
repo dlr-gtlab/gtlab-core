@@ -111,7 +111,7 @@ GtProject::loadMetaData()
 
     if (!cdata.isNull())
     {
-        gtDebug() << "(" << projectname << ") comment found!";
+        //gtDebug() << "(" << projectname << ") comment found!";
         m_comment = cdata.text();
     }
 
