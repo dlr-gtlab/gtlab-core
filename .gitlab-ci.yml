@@ -211,15 +211,14 @@ guiTests:
 # GUI Testing Unstable
 guiTestsUnstable:
   stage: guiTestUnstable
-  extends: .guiTestTemplate    
+  extends: .guiTestTemplate
   tags:
     - Linux
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
     - if: $CI_COMMIT_TAG == null
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
-  needs: 
+  needs:
       - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
       - job: "testLinux512Unstable"
         artifacts: false
@@ -229,6 +228,24 @@ guiTestsUnstable:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
   variables:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable      
+
+guiTestsUnstableTag:
+  stage: guiTestUnstable
+  extends: .guiTestTemplate
+  tags:
+    - Linux
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
+  needs:
+      - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+      - job: "testLinux512Unstable"
+        artifacts: false
+  dependencies:
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+  variables:
+    DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable
 
 # run tests using the binary built before
 testWin512:
