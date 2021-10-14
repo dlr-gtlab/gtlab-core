@@ -1,5 +1,5 @@
 ########################################################
-###############GTlab Pipeline Version 1.5.0 ############
+###########GTlab Pipeline Version 2.0.0 ###########
 ########################################################
 # This is a slight changed version and 
 # --> the nightly copy stage is currently missing
@@ -9,13 +9,13 @@
 
 # Environment variables to use in the pipeline globally
 variables:
-  PIPELINEVERSION: "1.5.0"
+  PIPELINEVERSION: "2.0.0"
 
 # inlcude some templates from this file
 include:
   - project: 'at-twk/gitlab-templates'
     file: '/ci-templates/.ci-templates.yml'
-    
+   
 stages:
   - update
   - build
@@ -27,6 +27,28 @@ stages:
   - codequality
   - badges
 
+# Templates
+.debugBuildRules:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: $CI_COMMIT_TAG == null
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ && $DEVTOOLS == "$DEVTOOLS_Win_Stable" # win stable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/  && $DEVTOOLS == "$DEVTOOLS_Win_Unstable" # win unstable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ && $DEVTOOLS == "$DEVTOOLS_Linux_Stable" # linux stable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/  && $DEVTOOLS == "$DEVTOOLS_Linux_Unstable" # linux unstable tag
+
+.releaseBuildRules:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: $CI_COMMIT_BRANCH == "master" # -master
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ && $DEVTOOLS == "$DEVTOOLS_Win_Stable" # stable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ && $DEVTOOLS == "$DEVTOOLS_Win_Unstable" # unstable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ && $DEVTOOLS == "$DEVTOOLS_Linux_Stable" # linux stable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/  && $DEVTOOLS == "$DEVTOOLS_Linux_Unstable" # linux unstable tag
+
+# DevTools Update
 devtoolsUpdateWindows:
   extends: .devToolsUpdateWindows
   stage: update
@@ -42,6 +64,8 @@ devtoolsUpdateLinux:
 # Windows build
 windowsBuildDebug:
   stage: build
+  extends: 
+    - .debugBuildRules
   script:
     - .\tests\build\build-512.bat 1>buildLog.txt
   tags:
@@ -66,17 +90,16 @@ windowsBuildDebug:
     BUILDUNITTESTS: "true"
   parallel:
     matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Win_Stable, $DEVTOOLS_Win_Unstable]
+      - DEVTOOLS: [$DEVTOOLS_Win_Stable, $DEVTOOLS_Win_Unstable] 
     
 windowsBuildRelease:
   stage: build
+  extends: 
+    - .releaseBuildRules
   script:
     - .\tests\build\build-512.bat
   tags:
     - Win10
-  only:
-    - master
-    - tags
   artifacts:
     paths:
       - lib/$TARGETDIRNAME/*.dll
@@ -93,13 +116,14 @@ windowsBuildRelease:
     BUILDUNITTESTS: "false"
   parallel:
     matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Win_Stable, $DEVTOOLS_Win_Unstable]  
-    
+      - DEVTOOLS: [$DEVTOOLS_Win_Stable, $DEVTOOLS_Win_Unstable] 
 
 # Linux build
 linuxBuildDebug:
   stage: build
-  extends: .buildLinux  
+  extends: 
+    - .debugBuildRules
+    - .buildLinux 
   tags:
     - Linux
   artifacts:
@@ -121,13 +145,12 @@ linuxBuildDebug:
       - DEVTOOLS: [$DEVTOOLS_Linux_Stable, $DEVTOOLS_Linux_Unstable] 
 
 linuxBuildRelease:
-  stage: build
-  extends: .buildLinux  
+  stage: build 
+  extends: 
+    - .releaseBuildRules
+    - .buildLinux 
   tags:
     - Linux
-  only:
-    - master
-    - tags
   artifacts:
     paths:
     - lib/$TARGETDIRNAME/*.so*
@@ -143,7 +166,6 @@ linuxBuildRelease:
     matrix: 
       - DEVTOOLS: [$DEVTOOLS_Linux_Stable, $DEVTOOLS_Linux_Unstable]    
 
-
 # Template for the two GUI-Testing jobs
 .guiTestTemplate:
   before_script:
@@ -152,6 +174,7 @@ linuxBuildRelease:
   script:
     # xvfb to run a virtual display
     - xvfb-run -a ./tests/guitests/run_guitests.sh
+  retry: 2
   artifacts:
     paths:
       - ./gui_tests_web
@@ -171,10 +194,19 @@ guiTests:
   extends: .guiTestTemplate  
   tags:
     - Linux
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: $CI_COMMIT_TAG == null
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ # stable tag
+  needs: 
+      - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
+      - job: "testLinux512"
+        artifacts: false
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
   variables:
-    DEVTOOLS_DIR: $DEVTOOLS_Linux_Stable    
+    DEVTOOLS_DIR: $DEVTOOLS_Linux_Stable 
 
 # GUI Testing Unstable
 guiTestsUnstable:
@@ -182,28 +214,45 @@ guiTestsUnstable:
   extends: .guiTestTemplate    
   tags:
     - Linux
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: $CI_COMMIT_TAG == null
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
+  needs: 
+      - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+      - job: "testLinux512Unstable"
+        artifacts: false
+      - job: "guiTests"
+        artifacts: false
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
   variables:
-    DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable   
-    
+    DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable      
+
 # run tests using the binary built before
 testWin512:
-  extends: .winTestTemplate
+  extends: 
+    - .winTestTemplate
+    - .debugBuildRules
   needs: ["windowsBuildDebug: [$DEVTOOLS_Win_Stable]"]
   dependencies: ["windowsBuildDebug: [$DEVTOOLS_Win_Stable]"]
   variables:
     DEVTOOLS: $DEVTOOLS_Win_Stable
 
 testWin512Unstable:
-  extends: .winTestTemplate
+  extends: 
+    - .winTestTemplate
+    - .debugBuildRules
   needs: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
   dependencies: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
   variables:
     DEVTOOLS: $DEVTOOLS_Win_Unstable  
 
 testLinux512:
-  extends: .linuxTestTemplate
+  extends: 
+    - .linuxTestTemplate
+    - .debugBuildRules
   needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"]
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
@@ -211,7 +260,9 @@ testLinux512:
     DEVTOOLS: $DEVTOOLS_Linux_Stable    
 
 testLinux512Unstable:
-  extends: .linuxTestTemplate
+  extends: 
+    - .linuxTestTemplate
+    - .debugBuildRules
   needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"]
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
@@ -219,6 +270,8 @@ testLinux512Unstable:
     DEVTOOLS: $DEVTOOLS_Linux_Unstable   
 
 valgrind:
+  extends: 
+    - .debugBuildRules
   needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"]
   stage: test
   before_script:
@@ -236,55 +289,64 @@ valgrind:
   variables:
     DEVTOOLS: $DEVTOOLS_Linux_Stable
 
+# copy templates
 .copyTemplate:
   script:
     - .\tests\build\copyHeaders-deployment.bat
     - .\tests\build\copyBin.bat
-  only:
-    - tags
   tags:
-    - Win10  
+    - Win10
+
+.unstableTagTemplate:
+  extends: .copyTemplate
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/
+  variables:
+    RELEASESTATUS: unstable
+
+.stableTagTemplate:
+  extends: .copyTemplate
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/
+  variables:
+    RELEASESTATUS: stable
     
 # copy files to servers
 copyForDeploymentWin:
   stage: copy
-  extends: .copyTemplate
+  extends: .stableTagTemplate
   dependencies:
     - "windowsBuildDebug: [$DEVTOOLS_Win_Stable]"
     - "windowsBuildRelease: [$DEVTOOLS_Win_Stable]"
   variables:
     PLATFORMNAME:  windows
-    RELEASESTATUS: stable
 
 copyForDeploymentWinUnstable:
   stage: copy
-  extends: .copyTemplate
+  extends: .unstableTagTemplate
   dependencies:
     - "windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"
     - "windowsBuildRelease: [$DEVTOOLS_Win_Unstable]"
   variables:
     PLATFORMNAME:  windows
-    RELEASESTATUS: unstable
 
 copyForDeploymentLinux:
   stage: copy
-  extends: .copyTemplate
+  extends: .stableTagTemplate
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
     - "linuxBuildRelease: [$DEVTOOLS_Linux_Stable]"
   variables:
     PLATFORMNAME:  linux
-    RELEASESTATUS: stable
 
 copyForDeploymentLinuxUnstable:
   stage: copy
-  extends: .copyTemplate
+  extends: .unstableTagTemplate
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
     - "linuxBuildRelease: [$DEVTOOLS_Linux_Unstable]"
   variables:
     PLATFORMNAME:  linux
-    RELEASESTATUS: unstable
 
 # code quality
 codingstyle:

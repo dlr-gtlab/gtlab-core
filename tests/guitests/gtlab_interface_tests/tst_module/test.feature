@@ -9,6 +9,8 @@ Feature: Test the Module Interface
 
     Scenario: Test whether the Module is listed correctly in the Preferences
 
+        # enable the required plugins incase they caused a crash  
+        Given the plugins 'ModuleInterface' are marked as reenabled at startup
         Given GTlab is running
           And the Preferences are open
          When the 'Plugins' tab in the Preferences is pressed

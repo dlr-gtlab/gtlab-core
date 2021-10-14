@@ -9,6 +9,8 @@ Feature: Test the Datamodel Interface
 
     Scenario: Create a test project and check the implemented package
 
+        # enable the required plugins incase they caused a crash  
+        Given the plugins 'DatamodelInterface' are marked as reenabled at startup
         Given GTlab is running
           And the dock widget 'Explorer' is visible
          Then the project 'dm_test' does not exists
