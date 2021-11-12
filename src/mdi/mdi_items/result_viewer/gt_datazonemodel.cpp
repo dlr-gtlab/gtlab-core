@@ -23,10 +23,23 @@ GtDataZoneModel::GtDataZoneModel(QObject* parent) : QAbstractTableModel(parent),
 
 }
 
+GtDataZoneModel::~GtDataZoneModel()
+{
+    if (m_result != Q_NULLPTR)
+    {
+        m_result->releaseData(GtExternalizedObject::Discard);
+    }
+}
+
 void
 GtDataZoneModel::setResultData(GtAbstractDataZone* data)
 {
     if (data == Q_NULLPTR)
+    {
+        return;
+    }
+
+    if (!data->fetchData())
     {
         return;
     }
@@ -36,11 +49,12 @@ GtDataZoneModel::setResultData(GtAbstractDataZone* data)
         disconnect(m_result.data(), SIGNAL(dataChanged(GtObject*)), this,
                    SLOT(onResultChanged()));
 
-
         disconnect(this, SIGNAL(axIndexChanges(int)), this,
                    SLOT(indexChanged()));
         disconnect(this, SIGNAL(tickIndexChanges(int)), this,
                    SLOT(indexChanged()));
+
+        m_result->releaseData(GtExternalizedObject::Discard);
     }
 
     beginResetModel();
@@ -53,7 +67,6 @@ GtDataZoneModel::setResultData(GtAbstractDataZone* data)
                SLOT(indexChanged()));
     connect(this, SIGNAL(tickIndexChanges(int)), this,
                SLOT(indexChanged()));
-
 
     endResetModel();
 }
@@ -125,6 +138,10 @@ void
 GtDataZoneModel::clearResultData()
 {
     beginResetModel();
+    if (m_result != Q_NULLPTR)
+    {
+        m_result->releaseData(GtExternalizedObject::Discard);
+    }
     m_result = Q_NULLPTR;
     endResetModel();
 }

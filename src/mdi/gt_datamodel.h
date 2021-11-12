@@ -70,6 +70,13 @@ public:
      */
      bool openProject(GtProject* project) Q_DECL_OVERRIDE;
 
+     /**
+      * @brief Saves given project.
+      * @param Project pointer.
+      * @return Whether project could be saved or not
+      */
+      bool saveProject(GtProject* project) Q_DECL_OVERRIDE;
+
     /**
      * @brief Appends given children to given parent object.
      * @param List of child objects
@@ -159,6 +166,11 @@ private slots:
      * @brief onProjectDataLoaded
      */
     void onProjectDataLoaded();
+
+    /**
+     * @brief onProjectDataSaved emits projectSaved when saving was successfull
+     */
+    void onProjectDataSaved();
 
 signals:
     /**

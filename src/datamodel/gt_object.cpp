@@ -20,6 +20,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_objectio.h"
 #include "gt_dummyobject.h"
+#include "gt_externalizedobject.h"
 
 #include "gt_object.h"
 
@@ -50,9 +51,20 @@ GtObject::objectFlags() const
 }
 
 bool
-GtObject::isDummy()
+GtObject::isDummy() const
 {
-    if (qobject_cast<GtDummyObject*>(this) != Q_NULLPTR)
+    if (qobject_cast<const GtDummyObject*>(this) != Q_NULLPTR)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool
+GtObject::isExternalizedObject() const
+{
+    if (qobject_cast<const GtExternalizedObject*>(this) != Q_NULLPTR)
     {
         return true;
     }

@@ -12,15 +12,14 @@
 
 #include "gt_datamodel_exports.h"
 
-#include "gt_object.h"
+#include "gt_externalizedh5object.h"
 
 #include <QStringList>
-
 
 /**
  * @brief The GtAbstractDataZone class
  */
-class GT_DATAMODEL_EXPORT GtAbstractDataZone : public GtObject
+class GT_DATAMODEL_EXPORT GtAbstractDataZone : public GtExternalizedH5Object
 {
     Q_OBJECT
 
@@ -51,6 +50,24 @@ protected:
      * @brief GtAbstractDataZone
      */
     Q_INVOKABLE GtAbstractDataZone();
+
+    /**
+     * @brief doFetch method to implement for fetching the externalized data.
+     * @return success
+     */
+    virtual bool doFetchData() = 0;
+
+    /**
+     * @brief doExternalize method to implement for externalizing the data.
+     * @return success
+     */
+    virtual bool doExternalizeData() = 0;
+
+    /**
+     * @brief doClearExternalizedData method to implement for clearing the
+     * externalized data. Should not emit a signal or set any object flags.
+     */
+    virtual void doClearExternalizedData() = 0;
 
     /// Parameter names
     QStringList m_params;

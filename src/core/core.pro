@@ -61,6 +61,7 @@ HEADERS += \
     gt_footprint.h \
     gt_globals.h \
     gt_projectanalyzer.h \
+    gt_saveprojecthelper.h \
     gt_session.h \
     gt_project.h \
     settings/gt_settingsitem.h \
@@ -85,6 +86,7 @@ SOURCES += \
     gt_coreapplication.cpp \
     gt_footprint.cpp \
     gt_projectanalyzer.cpp \
+    gt_saveprojecthelper.cpp \
     gt_session.cpp \
     gt_project.cpp \
     settings/gt_settingsitem.cpp \

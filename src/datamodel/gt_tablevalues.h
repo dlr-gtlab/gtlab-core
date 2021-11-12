@@ -51,6 +51,11 @@ public:
     template <class F>
     void scaleValuesByFunction(F& functionObject);
 
+    /**
+     * @brief clearValues clears the values
+     */
+    void clearValues();
+
 private:
     /// Axis unit
     QString m_unit;

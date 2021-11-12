@@ -104,7 +104,7 @@ public:
      * @param Project pointer
      * @return Whether project could be saved or not
      */
-    bool saveProject(GtProject* project);
+    virtual bool saveProject(GtProject* project);
 
     /**
      * @brief Closes given project.

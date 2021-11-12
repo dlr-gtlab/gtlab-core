@@ -29,6 +29,7 @@ public:
      * @param parent
      */
     GtDataZoneModel(QObject* parent = Q_NULLPTR);
+    ~GtDataZoneModel();
 
     /**
      * @brief setResultData

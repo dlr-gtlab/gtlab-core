@@ -246,6 +246,12 @@ public slots:
      */
     bool canEditComment(GtObject* obj);
 
+    /**
+     * @brief openProjectSettings opens the project settings
+     * @param obj Selected project
+     */
+    void openProjectSettings(GtObject* obj);
+
 };
 
 #endif // GTPROJECTUI_H

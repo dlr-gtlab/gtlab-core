@@ -31,11 +31,6 @@ public:
     GtLoadProjectHelper(GtProject* proj);
 
     /**
-     * @brief Desturctor.
-     */
-    virtual ~GtLoadProjectHelper();
-
-    /**
      * @brief run
      */
     void run() Q_DECL_OVERRIDE;

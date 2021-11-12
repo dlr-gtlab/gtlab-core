@@ -64,7 +64,14 @@ public:
      * @brief Returns true if object is a dummy. Otherwise false is returned.
      * @return True if object is a dummy.
      */
-    bool isDummy();
+    bool isDummy() const;
+
+    /**
+     * @brief Returns true if object is a externalized object. Otherwise false
+     * is returned.
+     * @return True if object is a externalized object.
+     */
+    bool isExternalizedObject() const;
 
     /**
      * @brief Returns true if object has children of type dummy.
@@ -630,7 +637,6 @@ private slots:
      * @brief onChildDataChanged
      */
     void onChildDataChanged();
-
 
 signals:
     /**

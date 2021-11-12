@@ -231,6 +231,13 @@ public:
     int nDims() const;
 
     /**
+     * @brief dimensions returns a vector where the length is equal to nDims and
+     * each entry contains the number of ticks for the axis
+     * @return
+     */
+    QVector<int> dimensions() const;
+
+    /**
      * @brief tabVals
      * @param valsId
      * @return

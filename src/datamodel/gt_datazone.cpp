@@ -10,7 +10,13 @@
 #include "gt_datazone.h"
 #include "gt_table.h"
 #include "gt_tableaxis.h"
-#include "QDebug"
+#include "gt_logging.h"
+
+#if GT_H5
+#include "gt_h5file.h"
+#include "gt_h5dataset.h"
+#include "gt_h5data.h"
+#endif
 
 GtDataZone::GtDataZone()
 {
@@ -20,6 +26,136 @@ GtDataZone::GtDataZone()
     appendChild(table);
 
     setFlag(UserDeletable);
+}
+
+bool
+GtDataZone::doFetchData()
+{
+#if GT_H5
+    GtTable* table = this->table();
+    if (!table)
+    {
+        gtError() << "HDF5: Could not read from the dataset! (null table)";
+        return false;
+    }
+
+    // retrieve rows and cols of table
+    uint rows = m_params.length();
+    uint cols = GtH5DataSpace::sum(table->dimensions());
+
+    // retrieve table values
+    QList<GtTableValues*> tabVals = table->findDirectChildren<GtTableValues*>();
+
+    if (tabVals.length() != rows)
+    {
+        gtError() << "HDF5: Could not read from the dataset! "
+                     "(incompatible dimensions)";
+        return false;
+    }
+
+    // open the associated dataset
+    GtH5File file;
+    GtH5DataSet dataset;
+    if (!getDataSet(file, dataset))
+    {
+        gtError() << "HDF5: Could not open the dataset!";
+        return false;
+    }
+
+    // check for equal dimensions
+    if (dataset.dataSpace() != GtH5DataSpace({ rows, cols }))
+    {
+        gtError() << "HDF5: Could not read from the dataset! "
+                     "(incompatible dimensions)";
+        return false;
+    }
+
+    // read the data from the dataset
+    GtH5Data<double> values;
+
+    if (!dataset.read(values))
+    {
+        gtError() << "HDF5: Could not read from the dataset!";
+        return false;
+    }
+
+    // deserialize the data
+    for (uint row = 0; row < rows; ++row)
+    {
+        tabVals.at(row)->setValues(values.data().mid(row * cols, cols));
+    }
+
+    return true;
+#else
+    return true;
+#endif
+}
+
+bool
+GtDataZone::doExternalizeData()
+{
+#if GT_H5
+    GtTable* table = this->table();
+    if (!table)
+    {
+        gtError() << "HDF5: Could not write to the dataset! (null table)";
+        return false;
+    }
+
+    // retrieve rows and cols of table
+    uint rows = m_params.length();
+    uint cols = GtH5DataSpace::sum(table->dimensions());
+
+    // serialize the data
+    GtH5Data<double> values;
+    values.reserve(rows * cols);
+
+    for (auto* tabVal : table->findDirectChildren<GtTableValues*>())
+    {
+        values.append(tabVal->values());
+    }
+
+    if (values.length() != rows * cols)
+    {
+        gtError() << "HDF5: Could not write to the dataset! "
+                     "(incompatible dimensions)";
+        return false;
+    }
+
+    // open the associated dataset
+    GtH5File file;
+    GtH5DataSet dataset;
+    if (!createDataSet(file, dataset, values, GtH5DataSpace{ rows, cols }))
+    {
+        gtError() << "HDF5: Could not open the dataset!";
+        return false;
+    }
+
+    // write the data to the dataset
+    if (!dataset.write(values))
+    {
+        gtError() << "HDF5: Could not write to the dataset!";
+        return false;
+    }
+
+    return true;
+#else
+    return true;
+#endif
+}
+
+void
+GtDataZone::doClearExternalizedData()
+{
+    if (!table())
+    {
+        return;
+    }
+
+    for (auto* tableVal : table()->findDirectChildren<GtTableValues*>())
+    {
+        tableVal->clearValues();
+    }
 }
 
 int

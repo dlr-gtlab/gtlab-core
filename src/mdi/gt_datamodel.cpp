@@ -15,11 +15,16 @@
 #include "gt_session.h"
 #include "gt_application.h"
 #include "gt_loadprojecthelper.h"
+#include "gt_saveprojecthelper.h"
 #include "gt_project.h"
 #include "gt_command.h"
 #include "gt_settings.h"
 #include "gt_projectanalyzer.h"
 #include "gt_projectanalyzerdialog.h"
+
+#include "gt_state.h"
+#include "gt_statehandler.h"
+#include "gt_externalizationsettings.h"
 
 #include "gt_datamodel.h"
 
@@ -140,6 +145,24 @@ GtDataModel::openProject(GtProject* project)
     // loading procedure
     GtLoadProjectHelper* helper = new GtLoadProjectHelper(project);
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataLoaded()));
+
+    gtApp->loadingProcedure(helper);
+
+    return true;
+}
+
+bool
+GtDataModel::saveProject(GtProject *project)
+{
+    // check pointer
+    if (project == Q_NULLPTR)
+    {
+        return false;
+    }
+
+    // saving procedure
+    GtSaveProjectHelper* helper = new GtSaveProjectHelper(project);
+    connect(helper, SIGNAL(finished()), SLOT(onProjectDataSaved()));
 
     gtApp->loadingProcedure(helper);
 
@@ -374,6 +397,27 @@ GtDataModel::onProjectDataLoaded()
 
     gtApp->settings()->setLastProject(project->objectName());
 
+    // initialize states
+    GtState* enableState = gtStateHandler->initializeState(project,
+                                    QStringLiteral("ExternalizationSettings"),
+                                    QStringLiteral("Enable Externalization"),
+                                    QStringLiteral("enable_externalization"),
+                                    false, project);
+
+    GtState* autoState = gtStateHandler->initializeState(project,
+                                    QStringLiteral("ExternalizationSettings"),
+                                    QStringLiteral("Auto Externalize on Save"),
+                                    QStringLiteral("auto_externalization"),
+                                    false, project);
+
+    gtExternalizationSettings->onEnbaleExternalizationChanged(enableState->getValue());
+    gtExternalizationSettings->onAutoExternalizationChanged(autoState->getValue());
+
+    connect(enableState, SIGNAL(valueChanged(QVariant)),
+            gtExternalizationSettings, SLOT(onEnbaleExternalizationChanged(QVariant)));
+    connect(autoState, SIGNAL(valueChanged(QVariant)),
+            gtExternalizationSettings, SLOT(onAutoExternalizationChanged(QVariant)));
+
     // analyse project information
     GtProjectAnalyzer analyzer(project);
 
@@ -383,5 +427,34 @@ GtDataModel::onProjectDataLoaded()
         dialog.resize(500, 400);
 
         dialog.exec();
+    }
+}
+
+void
+GtDataModel::onProjectDataSaved()
+{
+    GtSaveProjectHelper* helper = qobject_cast<GtSaveProjectHelper*>(sender());
+
+    if (helper == Q_NULLPTR)
+    {
+        return;
+    }
+    GtProject* project = helper->project();
+
+    if (project == Q_NULLPTR)
+    {
+        helper->deleteLater();
+        return;
+    }
+
+    // check if saving was usccessfull
+    bool success = helper->success();
+
+    helper->deleteLater();
+
+    // emit project saved event
+    if (success)
+    {
+        emit projectSaved(project);
     }
 }

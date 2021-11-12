@@ -9,7 +9,7 @@
 
 # Environment variables to use in the pipeline globally
 variables:
-  PIPELINEVERSION: "2.0.0"
+  PIPELINEVERSION: "2.0.0-unstable"
 
 # inlcude some templates from this file
 include:
@@ -90,7 +90,7 @@ windowsBuildDebug:
     BUILDUNITTESTS: "true"
   parallel:
     matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Win_Stable, $DEVTOOLS_Win_Unstable] 
+      - DEVTOOLS: [$DEVTOOLS_Win_Unstable] 
     
 windowsBuildRelease:
   stage: build
@@ -116,7 +116,7 @@ windowsBuildRelease:
     BUILDUNITTESTS: "false"
   parallel:
     matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Win_Stable, $DEVTOOLS_Win_Unstable] 
+      - DEVTOOLS: [$DEVTOOLS_Win_Unstable] 
 
 # Linux build
 linuxBuildDebug:
@@ -142,7 +142,7 @@ linuxBuildDebug:
     BUILDUNITTESTS: "true"
   parallel:
     matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Linux_Stable, $DEVTOOLS_Linux_Unstable] 
+      - DEVTOOLS: [$DEVTOOLS_Linux_Unstable] 
 
 linuxBuildRelease:
   stage: build 
@@ -164,7 +164,7 @@ linuxBuildRelease:
     BUILDUNITTESTS: "false"
   parallel:
     matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Linux_Stable, $DEVTOOLS_Linux_Unstable]    
+      - DEVTOOLS: [$DEVTOOLS_Linux_Unstable]    
 
 # Template for the two GUI-Testing jobs
 .guiTestTemplate:
@@ -189,7 +189,7 @@ linuxBuildRelease:
     when: always
 
 # GUI Testing
-guiTests:
+.guiTests:
   stage: guiTestStable
   extends: .guiTestTemplate  
   tags:
@@ -222,8 +222,6 @@ guiTestsUnstable:
       - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
       - job: "testLinux512Unstable"
         artifacts: false
-      - job: "guiTests"
-        artifacts: false
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
   variables:
@@ -248,7 +246,7 @@ guiTestsUnstableTag:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable
 
 # run tests using the binary built before
-testWin512:
+.testWin512:
   extends: 
     - .winTestTemplate
     - .debugBuildRules
@@ -266,7 +264,7 @@ testWin512Unstable:
   variables:
     DEVTOOLS: $DEVTOOLS_Win_Unstable  
 
-testLinux512:
+.testLinux512:
   extends: 
     - .linuxTestTemplate
     - .debugBuildRules
@@ -289,14 +287,14 @@ testLinux512Unstable:
 valgrind:
   extends: 
     - .debugBuildRules
-  needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"]
+  needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"]
   stage: test
   before_script:
     - chmod +x ./tests/memcheck/runValgrind.sh
   script:
     - xvfb-run -a ./tests/memcheck/runValgrind.sh
   dependencies:
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
   tags:
     - Linux
   artifacts:
@@ -304,7 +302,7 @@ valgrind:
       - valgrind-report.xml
     expire_in: 1 week
   variables:
-    DEVTOOLS: $DEVTOOLS_Linux_Stable
+    DEVTOOLS: $DEVTOOLS_Linux_Unstable
 
 # copy templates
 .copyTemplate:
@@ -329,7 +327,7 @@ valgrind:
     RELEASESTATUS: stable
     
 # copy files to servers
-copyForDeploymentWin:
+.copyForDeploymentWin:
   stage: copy
   extends: .stableTagTemplate
   dependencies:
@@ -347,7 +345,7 @@ copyForDeploymentWinUnstable:
   variables:
     PLATFORMNAME:  windows
 
-copyForDeploymentLinux:
+.copyForDeploymentLinux:
   stage: copy
   extends: .stableTagTemplate
   dependencies:
@@ -389,3 +387,7 @@ badges:
   extends: .badgeTemplate 
   except:
     - tags
+  dependencies:
+    - "windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"
+    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+    

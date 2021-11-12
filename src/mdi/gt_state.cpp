@@ -33,6 +33,7 @@ void
 GtState::onPropertyChange()
 {
     emit valueChanged(this);
+    emit valueChanged(m_property->get());
 }
 
 GtState::~GtState()

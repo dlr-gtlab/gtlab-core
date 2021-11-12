@@ -68,6 +68,21 @@ INCLUDEPATH += $${NLOPT_PATH}/include
 LIBS        += -L$${NLOPT_PATH}/lib
 DEPENDPATH  += $${NLOPT_PATH}/lib
 
+## HDF5
+INCLUDEPATH += $${HDF5_PATH}/include
+CONFIG(debug, debug|release) {
+    LIBS        += -L$${HDF5_PATH}/libDebug
+    DEPENDPATH  += $${HDF5_PATH}/libDebug
+} else {
+    LIBS        += -L$${HDF5_PATH}/lib
+    DEPENDPATH  += $${HDF5_PATH}/lib
+}
+
+# GTlab HDF5 Wrapper
+INCLUDEPATH += $${GTLAB_H5_PATH}/include/h5
+LIBS        += -L$${GTLAB_H5_PATH}/lib/h5
+DEPENDPATH  += $${GTLAB_H5_PATH}/lib/h5
+
 # Google Test
 #INCLUDEPATH += C:/devel/googletest-master/googletest/include
 #win32 {
