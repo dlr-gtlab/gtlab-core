@@ -20,11 +20,6 @@ GtLoadProjectHelper::GtLoadProjectHelper(GtProject* proj) :
 {
 }
 
-GtLoadProjectHelper::~GtLoadProjectHelper()
-{
-    gtDebug() << "GtLoadProjectHelper deleted!";
-}
-
 void
 GtLoadProjectHelper::run()
 {
@@ -42,6 +37,8 @@ GtLoadProjectHelper::run()
 
     // label data
     m_objects.append(m_project->readLabelData(moduleData));
+
+    m_project->resetAllExternalizedObjects(m_objects);
 
     foreach (QObject* obj, m_objects)
     {

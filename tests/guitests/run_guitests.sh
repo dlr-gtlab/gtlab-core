@@ -34,10 +34,15 @@ cp -r $SHARED_SCRIPTS_DIR $PWD/$BASEDIR/common
 echo "setting paths to libs..."
 export LIBRARY_PATH=$GTLAB_DIR/../lib/core
 export LIBRARY_PATH=$GTLAB_DIR:$LIBRARY_PATH
-export LIBRARY_PATH=$DEVTOOLS_DIR/lib/numerics:$LIBRARY_PATH
 export LIBRARY_PATH=$DEVTOOLS_DIR/lib/logging:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS_DIR/lib/numerics:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS_DIR/lib/physics:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS_DIR/lib/h5:$LIBRARY_PATH
 export LIBRARY_PATH=$DEVTOOLS_DIR/ThirdPartyLibraries/Qwt/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS_DIR/ThirdPartyLibraries/SplineLib/lib:$LIBRARY_PATH
 export LIBRARY_PATH=$DEVTOOLS_DIR/ThirdPartyLibraries/minpack/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS_DIR/ThirdPartyLibraries/NLopt/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$DEVTOOLS_DIR/ThirdPartyLibraries/hdf5/lib:$LIBRARY_PATH
 export LIBRARY_PATH=$QT_DIR/lib:$LIBRARY_PATH
 export LD_LIBRARY_PATH=$LIBRARY_PATH
 

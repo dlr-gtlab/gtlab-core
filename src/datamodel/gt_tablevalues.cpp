@@ -72,4 +72,10 @@ GtTableValues::scale(double factor)
     }
 }
 
+void
+GtTableValues::clearValues()
+{
+    m_vals.clear();
+}
+
 

@@ -43,6 +43,7 @@ CONFIG(debug, debug|release){
     RCC_DIR = $${BUILD_DEST}/release-datamodel/rcc
     UI_DIR = $${BUILD_DEST}/release-datamodel/ui
 }
+
 INCLUDEPATH += .\
     property
 
@@ -51,6 +52,11 @@ DESTDIR = $${BUILD_DEST}
 HEADERS += \
     gt_datamodel_exports.h \
     gt_dummyobject.h \
+    gt_externalizationsettings.h \
+    gt_externalizedh5object.h \
+    gt_externalizedobject.h \
+    gt_externalizedobjecthelper.h \
+    gt_h5filemanager.h \
     gt_object.h \
     gt_objectfactory.h \
     gt_datamodelinterface.h \
@@ -114,6 +120,10 @@ HEADERS += \
 
 SOURCES += \
     gt_dummyobject.cpp \
+    gt_externalizationsettings.cpp \
+    gt_externalizedh5object.cpp \
+    gt_externalizedobject.cpp \
+    gt_h5filemanager.cpp \
     gt_object.cpp \
     gt_objectfactory.cpp \
     gt_abstractobjectfactory.cpp \
@@ -175,10 +185,25 @@ unix {
 
 LIBS += -L$${BUILD_DEST}
 
-CONFIG(debug, debug|release){
+CONFIG(debug, debug|release) {
     LIBS += -lGTlabNumerics-d -lGTlabLogging-d
 } else {
     LIBS += -lGTlabNumerics -lGTlabLogging
+}
+
+contains(USE_HDF5, true) {
+    message("USE_HDF5 = true")
+
+    DEFINES += H5_BUILT_AS_DYNAMIC_LIB
+    DEFINES += GT_H5
+
+    CONFIG(debug, debug|release) {
+        LIBS += -lhdf5 -lhdf5_cpp
+        LIBS += -lGTlabH5-d
+    } else {
+        LIBS += -lhdf5 -lhdf5_cpp
+        LIBS += -lGTlabH5
+    }
 }
 
 unix:{

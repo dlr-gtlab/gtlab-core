@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BugFix: Small check in table class prevents crash on linux for tables with only one point
 - Changed ObjectUI Standard Behaviour for renaming to allow spaces - #109
 
+### Changed
+- Saving a project was moved to a separate thread - #127
+- Changed the class structure for Datazones to make use of the externalization feature - #127
+
 ### Added
+- Integrated the hdf5 data format and added support to ex-/internalize datasets at runtime including the option to enable this feature on a project basis - #127
 - Shortcut settings for GTlab including the introduction of several new shortcuts and the option to maintain them in the preferences - #112
 - Versionnumber based on GTVersionnumber for tasks - #129
 

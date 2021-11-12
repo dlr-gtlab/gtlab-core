@@ -10,9 +10,99 @@
 #include "gt_datazone0d.h"
 #include "gt_logging.h"
 
+#if GT_H5
+#include "gt_h5file.h"
+#include "gt_h5dataset.h"
+#include "gt_h5compounddata.h"
+#endif
+
 GtDataZone0D::GtDataZone0D()
 {
     setFlag(UserDeletable);
+}
+
+bool
+GtDataZone0D::doFetchData()
+{
+#if GT_H5
+    // open the associated dataset
+    GtH5File file;
+    GtH5DataSet dataset;
+    if (!getDataSet(file, dataset))
+    {
+        gtError() << "HDF5: Could not open the dataset!";
+        return false;
+    }
+
+    // read the data from the dataset
+    GtH5Data<QString, QString, double> data;
+
+    if (!dataset.read(data))
+    {
+        gtError() << "HDF5: Could not read from the dataset!";
+        return false;
+    }
+
+    // deserialize the data
+    data.deserialize(m_params, m_units, m_values);
+
+    return isValid();
+#else
+    return true;
+#endif
+}
+
+bool
+GtDataZone0D::doExternalizeData()
+{
+#if GT_H5
+    // serialize the data
+    GtH5Data<QString, QString, double> data(m_params, m_units, m_values);
+
+    if (data.isEmpty())
+    {
+        gtError() << "HDF5: Could not write to the dataset! (data is empty)";
+        return false;
+    }
+
+    // open the associated dataset
+    GtH5File file;
+    GtH5DataSet dataset;
+    if (!createDataSet(file, dataset, data, m_params.length()))
+    {
+        gtError() << "HDF5: Could not open the dataset!";
+        return false;
+    }
+
+    // write the data to the dataset
+    if (!dataset.write(data))
+    {
+        gtError() << "HDF5: Could not write to the dataset!";
+        return false;
+    }
+
+    return true;
+#else
+    return true;
+#endif
+}
+
+void
+GtDataZone0D::doClearExternalizedData()
+{
+    m_params.clear();
+    m_values.clear();
+    m_units.clear();
+}
+
+void
+GtDataZone0D::clearData()
+{
+    m_params.clear();
+    m_values.clear();
+    m_units.clear();
+
+    changed();
 }
 
 bool
@@ -237,17 +327,6 @@ GtDataZone0D::value(QString paramName, bool* ok)
     }
 
     return m_values.at(index);
-}
-
-
-void
-GtDataZone0D::clearData()
-{
-    m_params.clear();
-    m_values.clear();
-    m_units.clear();
-
-    changed();
 }
 
 bool

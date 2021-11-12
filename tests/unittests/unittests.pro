@@ -115,6 +115,10 @@ CONFIG(debug, debug|release){
     }
     unix {
         LIBS += -lcminpack
+        contains(USE_HDF5, true) {
+            LIBS += -lhdf5 -lhdf5_cpp
+            LIBS += -lGTlabH5-d
+        }
     }
 } else {
     #Utilities
@@ -126,6 +130,10 @@ CONFIG(debug, debug|release){
     # THIRD PARTY
     unix {
         LIBS += -lcminpack
+        contains(USE_HDF5, true) {
+            LIBS += -lhdf5 -lhdf5_cpp
+            LIBS += -lGTlabH5
+        }
     }
 }
 

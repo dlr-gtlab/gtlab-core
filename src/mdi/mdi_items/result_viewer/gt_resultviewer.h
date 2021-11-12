@@ -52,6 +52,7 @@ public slots:
     void axSelectorChanged(int index);
 
     void tickSelectorChanged(int index);
+
 private:
     /// Label
     QLabel* m_label;

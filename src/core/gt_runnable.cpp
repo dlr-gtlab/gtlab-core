@@ -17,6 +17,8 @@
 #include "gt_task.h"
 #include "gt_project.h"
 #include "gt_logging.h"
+#include "gt_externalizedobject.h"
+#include "gt_h5filemanager.h"
 
 GtRunnable::GtRunnable()
 {
@@ -34,6 +36,9 @@ GtRunnable::run()
     bool success = true;
 
     readObjects();
+
+    // create a new temp hdf5 file for this process
+    int h5FileId = gtH5FileManager->createNewTempFile();
 
     // set all states to QUEUED
     foreach (GtProcessComponent* calc, m_queue)
@@ -77,12 +82,18 @@ GtRunnable::run()
         qDebug() << "--- calculator execution finished ---";
         qDebug() << "";
 
+        // commit the temp hdf5 datasets to the main datamodel
+        gtH5FileManager->commitObjectsInTempFile(h5FileId, m_linkedObjects);
+
         writeObjects();
     }
     else
     {
         qDebug() << "--- calculator execution failed ---";
         qDebug() << "";
+
+        // remove the temp hdf5 file
+        gtH5FileManager->removeTempFile(h5FileId);
     }
 
     m_successfulRun = success;
@@ -190,7 +201,7 @@ GtRunnable::clearTempDir(const QString& path)
 void
 GtRunnable::readObjects()
 {
-    foreach (GtObjectMemento memento, m_inputData)
+    for (GtObjectMemento& memento : m_inputData)
     {
         GtObject* obj = memento.restore(gtObjectFactory);
 
@@ -198,13 +209,18 @@ GtRunnable::readObjects()
         {
             m_linkedObjects.append(obj);
         }
+
+        for (auto* externObj : obj->findChildren<GtExternalizedObject*>())
+        {
+            externObj->resetRefCount();
+        }
     }
 }
 
 void
 GtRunnable::writeObjects()
 {
-    foreach (GtObject* obj, m_linkedObjects)
+    for (GtObject* obj : m_linkedObjects)
     {
         m_outputData << GtObjectMemento(obj);
     }

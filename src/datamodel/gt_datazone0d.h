@@ -143,6 +143,25 @@ public:
      */
     void clearData();
 
+protected:
+
+    /**
+     * @brief doFetch fetches the externalized data.
+     * @return success
+     */
+    bool doFetchData() Q_DECL_OVERRIDE;
+
+    /**
+     * @brief doExternalize externalizes the fetched data.
+     * @return success
+     */
+    bool doExternalizeData() Q_DECL_OVERRIDE;
+
+    /**
+     * @brief doClearExternalizedData clears the data.
+     */
+    void doClearExternalizedData() Q_DECL_OVERRIDE;
+
 private:
 
     /// Parameter values

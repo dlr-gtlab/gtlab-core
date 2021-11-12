@@ -108,6 +108,7 @@ signals:
      * @brief valueChanged
      */
     void valueChanged(GtState*);
+    void valueChanged(QVariant);
 
     /**
      * @brief renamed

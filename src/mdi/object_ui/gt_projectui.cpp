@@ -14,6 +14,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QListView>
 #include <QCheckBox>
 #include <QDebug>
@@ -49,6 +50,11 @@
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
 #include "gt_objectfactory.h"
+
+#include "gt_externalizationsettings.h"
+#include "gt_externalizedobject.h"
+#include "gt_statehandler.h"
+#include "gt_state.h"
 
 #include "gt_projectui.h"
 
@@ -122,6 +128,10 @@ GtProjectUI::GtProjectUI()
         //        GtdVCSDBInterface * vcInterface = new GtdVCSDBInterface;
         //        vc = new GtdVersionControlCore(vcInterface, differ);
 
+        addSingleAction(tr("Open Project Settings..."),
+                        QStringLiteral("processIcon_16.png"),
+                        QStringLiteral("openProjectSettings"),
+                        QStringLiteral("canSaveProject"));
     }
 
     addSingleAction(tr("Show Project Footprint"),
@@ -1620,4 +1630,132 @@ GtProjectUI::canEditComment(GtObject* obj)
     }
 
     return project->isOpen();
+}
+
+void
+GtProjectUI::openProjectSettings(GtObject* obj)
+{
+    GtProject* project = qobject_cast<GtProject*>(obj);
+
+    if (project == Q_NULLPTR)
+    {
+        return;
+    }
+
+    // count number of externalized objects
+    int counter = 0;
+    auto externObjects(project->findChildren<GtExternalizedObject*>());
+    for (auto* externObj : externObjects)
+    {
+        counter += externObj->isFetched();
+    }
+
+    bool canExternalize = canCloseProject(project);
+
+    // create dialog
+    QDialog dialog;
+    dialog.setWindowIcon(gtApp->icon("componentsIcon_16.png"));
+    dialog.setWindowTitle(tr("Project Settings"));
+    dialog.resize(400, 300);
+
+    Qt::WindowFlags flags = dialog.windowFlags();
+    flags = flags & (~Qt::WindowContextHelpButtonHint);
+    dialog.setWindowFlags(flags);
+
+    // add entries for the hdf5 specific settings
+    QCheckBox enableExternalizationCBox("enable Externalization");
+    QCheckBox autoExternalizeCBox("auto externalize on save");
+    QRadioButton externalizeBtn("Externalize all datasets");
+    QRadioButton internalizeBtn("Internalize all datasets");
+    QLabel datasetCountLabel(QString::number(counter) + " of " +
+                             QString::number(externObjects.length()) +
+                             " datasets are internalized");
+
+
+    QSpacerItem* vSpacer = new QSpacerItem(10, 20, QSizePolicy::Minimum,
+                                          QSizePolicy::Expanding);
+    QFrame line;
+    line.setFrameShape(QFrame::HLine);
+    line.setFrameShadow(QFrame::Sunken);
+
+    // retrieve the states
+    GtState* enableState = gtStateHandler->initializeState(project,
+                                    QStringLiteral("ExternalizationSettings"),
+                                    QStringLiteral("Enable Externalization"),
+                                    QStringLiteral("enable_externalization"),
+                                    true, project, false);
+
+    GtState* autoState = gtStateHandler->initializeState(project,
+                                    QStringLiteral("ExternalizationSettings"),
+                                    QStringLiteral("Auto Externalize on Save"),
+                                    QStringLiteral("auto_externalization"),
+                                    true, project);
+
+    // set the initial settings values
+    enableExternalizationCBox.setChecked(autoState->getValue().toBool());
+    autoExternalizeCBox.setChecked(enableState->getValue().toBool());
+    externalizeBtn.setChecked(true);
+    if (!canExternalize)
+    {
+        externalizeBtn.setEnabled(false);
+        internalizeBtn.setEnabled(false);
+    }
+
+    // tab layout for the hdf5 settings
+    QGridLayout gLay;
+    gLay.addWidget(&enableExternalizationCBox, 1, 1);
+    gLay.addWidget(&autoExternalizeCBox, 2, 1);
+    gLay.addWidget(&line, 3, 1, 1, 3);
+    gLay.addWidget(&datasetCountLabel, 4, 1);
+    gLay.addWidget(&externalizeBtn, 5, 1);
+    gLay.addWidget(&internalizeBtn, 6, 1);
+    gLay.addItem(vSpacer, 7, 1);
+
+    QTabWidget* tabs = new QTabWidget;
+    QWidget* base = new QWidget;
+    base->setLayout(&gLay);
+    tabs->addTab(base, QStringLiteral("HDF5"));
+
+    // horizontal layout
+    QPushButton* closeBtn = new QPushButton("Close");
+    QPushButton* applyBtn = new QPushButton("Apply");
+    closeBtn->setFixedSize(100, 25);
+    applyBtn->setFixedSize(100, 25);
+
+    QSpacerItem* hSpacer = new QSpacerItem(10, 20, QSizePolicy::Expanding,
+                                          QSizePolicy::Minimum);
+    QHBoxLayout* hLay = new QHBoxLayout;
+    hLay->addItem(hSpacer);
+    hLay->addWidget(closeBtn);
+    hLay->addWidget(applyBtn);
+
+    // vertival layout
+    QVBoxLayout* vLay = new QVBoxLayout;
+    vLay->addWidget(tabs);
+    vLay->addLayout(hLay);
+    dialog.setLayout(vLay);
+
+    // signals
+    connect(closeBtn, SIGNAL(clicked()), &dialog, SLOT(reject()));
+    connect(applyBtn, SIGNAL(clicked()), &dialog, SLOT(accept()));
+
+    // esecute
+    int status = dialog.exec();
+    enableState->setValue(enableExternalizationCBox.isChecked());
+    autoState->setValue(autoExternalizeCBox.isChecked());
+
+    if (!canExternalize || !status)
+    {
+        return;
+    }
+
+    // only externalize/internalize on 'apply'
+    if (externalizeBtn.isChecked())
+    {
+        project->externalizeAllChildren();
+    }
+    else
+    {
+        project->internalizeAllChildren();
+    }
 }

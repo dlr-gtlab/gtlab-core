@@ -1255,6 +1255,20 @@ GtTable::setUnit(const QString& unit)
     m_unit = unit;
 }
 
+QVector<int>
+GtTable:: dimensions() const
+{
+    QVector<int> dims(nDims());
+    QList<GtTableAxis*> axis(getAxesList());
+
+    for (int i = 0; i < nDims(); ++i)
+    {
+        dims[i] = axis.at(i)->ticks().length();
+    }
+
+    return dims;
+}
+
 
 GtNumerics::darray
 GtTable::tabVals(const QString& valsId) const

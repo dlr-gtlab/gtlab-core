@@ -158,7 +158,7 @@ public:
     struct MementoData
     {
         QString className, uuid, ident;
-        
+
         struct PropertyData
         {
             QString name;

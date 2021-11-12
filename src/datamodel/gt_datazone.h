@@ -134,10 +134,10 @@ public:
      * @param units parameter units
      */
     void setData2D(QStringList params,
-              QVector<double> ticks1,
-              QVector<double> ticks2,
-              QString axisName1, QString axisName2,
-              QMap<QString, QVector<double> > vals,
+                   QVector<double> ticks1,
+                   QVector<double> ticks2,
+                   QString axisName1, QString axisName2,
+                   QMap<QString, QVector<double> > vals,
                    QStringList units);
 
     /**
@@ -280,11 +280,31 @@ public:
      */
     void setData1Dfrom2DDataZone(GtDataZone* dataZone2D, int fixedAxisNumber,
                                  int fixedAxisTick);
-    
-     /**
-     * @brief clears current data
+
+    /**
+    * @brief clears current data
+    */
+   void clearData();
+
+protected:
+
+    /**
+     * @brief doFetch fetches the externalized data.
+     * @return success
      */
-    void clearData();
+    bool doFetchData() Q_DECL_OVERRIDE;
+
+    /**
+     * @brief doExternalize externalizes the fetched data.
+     * @return success
+     */
+    bool doExternalizeData() Q_DECL_OVERRIDE;
+
+    /**
+     * @brief doClearExternalizedData clears the data.
+     */
+    void doClearExternalizedData() Q_DECL_OVERRIDE;
+
 private:
 
     /**

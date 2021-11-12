@@ -19,12 +19,13 @@
 #include "gt_abstractdatazone.h"
 #include "gt_datazone.h"
 #include "gt_stylesheets.h"
+#include "gt_externalizedobjecthelper.h"
 
 #include "gt_resultviewer.h"
 
 GtResultViewer::GtResultViewer() :
-    m_model(Q_NULLPTR),
     m_label(Q_NULLPTR),
+    m_model(Q_NULLPTR),
     m_axSelection(Q_NULLPTR),
     m_tickSelection(Q_NULLPTR),
     m_fixedValueLabel(Q_NULLPTR)
@@ -86,12 +87,7 @@ GtResultViewer::setData(GtObject* obj)
 {
     m_model->clearResultData();
 
-    if (obj == Q_NULLPTR)
-    {
-        return;
-    }
-
-    GtAbstractDataZone* dataZone = qobject_cast<GtAbstractDataZone*>(obj);
+    GtExternalizedObjectHelper<GtAbstractDataZone> dataZone(obj, GtExternalizedObject::Discard);
 
     if (dataZone == Q_NULLPTR)
     {
@@ -124,6 +120,7 @@ GtResultViewer::setData(GtObject* obj)
                     this, SLOT(tickSelectorChanged(int)));
         }
     }
+
     m_model->setResultData(dataZone);
 
     m_model->m_indeOfInterestAx1 = 0;

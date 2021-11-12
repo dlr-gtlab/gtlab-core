@@ -38,6 +38,8 @@ class GT_CORE_EXPORT GtProject : public GtObject
     friend class GtSession;
     friend class GtProjectProvider;
     friend class GtLoadProjectHelper;
+    friend class GtSaveProjectHelper;
+    friend class GtProjectUI;
 
 public:
     /**
@@ -289,6 +291,26 @@ private:
      * @return success
      */
     bool saveProjectFiles(const QString& filePath, const QDomDocument& doc);
+
+    /**
+     * @brief internalizeAllChildren tries to fetch all GtExternalizedObjects.
+     * Can be used to archive backwards compatibility to earlier versions of
+     * gtlab.
+     * @return true if all objects were fetched.
+     */
+    bool internalizeAllChildren();
+
+    /**
+     * @brief externalizeAllChildren externalize all GtExternalizedObjects.
+     * @return true if all objects were externalized.
+     */
+    bool externalizeAllChildren();
+
+    /**
+     * @brief resetAllExternalizedObjects resets the ref count for each
+     * GtExternalizedObject.
+     */
+    void resetAllExternalizedObjects(const GtObjectList& modules);
 
 };
 

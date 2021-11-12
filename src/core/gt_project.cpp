@@ -28,6 +28,7 @@
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
 #include "gt_logging.h"
+#include "gt_externalizedobject.h"
 
 GtProject::GtProject(const QString& path) :
     m_path(path),
@@ -728,6 +729,77 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
     }
 
     return true;
+}
+
+bool
+GtProject::internalizeAllChildren()
+{
+    gtDebug() << "internalizing all datasets...";
+
+    int counter = 0;
+    bool res = true;
+    for (GtExternalizedObject* obj : findChildren<GtExternalizedObject*>())
+    {
+        if (obj->isFetched())
+        {
+            continue;
+        }
+        if (!obj->fetchData())
+        {
+            gtWarning() << "WARNING:" << obj->objectPath()
+                        << "could not be fetched!";
+            res = false;
+            continue;
+        }
+        // reset object properties
+        obj->setObjectState(GtExternalizedObject::Fetched, true);
+        obj->setProperty("refCount", QVariant(1));
+        obj->setProperty("h5Reference", QVariant(0));
+        obj->setProperty("cachedHash", QString());
+        ++counter;
+    }
+    gtDebug() << "internalized" << counter << "objects!";
+    return res;
+}
+
+bool
+GtProject::externalizeAllChildren()
+{
+    gtDebug() << "externalizing all datasets...";
+
+    int counter = 0;
+    bool res = true;
+    for (GtExternalizedObject* obj : findChildren<GtExternalizedObject*>())
+    {
+        if (!obj->isFetched())
+        {
+            continue;
+        }
+        if (!obj->releaseData(GtExternalizedObject::Externalize))
+        {
+            gtWarning() << "WARNING:" << obj->objectPath()
+                        << "could not be externalized!";
+            res = false;
+            continue;
+        }
+        ++counter;
+    }
+    gtDebug() << "externalized" << counter << "objects!";
+    return res;
+}
+
+void
+GtProject::resetAllExternalizedObjects(const GtObjectList& modules)
+{
+    for (GtObject* module : modules)
+    {
+        if (module == Q_NULLPTR) continue;
+
+        for (auto* obj : module->findChildren<GtExternalizedObject*>())
+        {
+            obj->resetRefCount();
+        }
+    }
 }
 
 GtProject::~GtProject()
