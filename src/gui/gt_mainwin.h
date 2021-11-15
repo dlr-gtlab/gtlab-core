@@ -163,16 +163,6 @@ private slots:
     void openMementoViewer();
 
     /**
-     * @brief openCarpetPlotTest
-     */
-    void openCarpetPlotTest();
-
-    /**
-     * @brief openTemplateViewerTest
-     */
-    void openTemplateViewerTest();
-
-    /**
      * @brief Just a test method
      */
     void openPreDesignPlot();

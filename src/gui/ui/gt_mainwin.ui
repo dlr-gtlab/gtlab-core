@@ -196,8 +196,6 @@
     <addaction name="actionMemento_Viewer"/>
     <addaction name="separator"/>
     <addaction name="actionPerformance_Map_Editor"/>
-    <addaction name="actionCarpet_Plot_Test"/>
-    <addaction name="actionTemplateTest"/>
     <addaction name="actionWidgetStructure"/>
    </widget>
    <addaction name="menuFile"/>
@@ -699,20 +697,6 @@
    </property>
    <property name="text">
     <string>Edit Perspectives</string>
-   </property>
-  </action>
-  <action name="actionCarpet_Plot_Test">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/carpetPlotIcon2.png</normaloff>:/icons/carpetPlotIcon2.png</iconset>
-   </property>
-   <property name="text">
-    <string>Carpet Plot Test</string>
-   </property>
-  </action>
-  <action name="actionTemplateTest">
-   <property name="text">
-    <string>Template Test</string>
    </property>
   </action>
   <action name="actionState_Browser">
