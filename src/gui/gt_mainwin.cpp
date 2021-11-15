@@ -155,12 +155,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(showPerspectivePreferences()));
     connect(ui->actionMemento_Viewer, SIGNAL(triggered(bool)),
             SLOT(openMementoViewer()));
-    connect(ui->actionCarpet_Plot_Test, SIGNAL(triggered(bool)),
-            SLOT(openCarpetPlotTest()));
     connect(ui->actionExamples, SIGNAL(triggered(bool)),
             SLOT(openExamplesWidget()));
-    connect(ui->actionTemplateTest, SIGNAL(triggered(bool)),
-            SLOT(openTemplateViewerTest()));
     connect(ui->actionUndoHistory, SIGNAL(triggered(bool)),
             SLOT(openCommandHistory()));
     connect(ui->actionProcessQueue, SIGNAL(triggered(bool)),
@@ -618,24 +614,6 @@ void
 GtMainWin::openMementoViewer()
 {
     gtMdiLauncher->open(GtMementoViewer::staticMetaObject.className());
-}
-
-void GtMainWin::openCarpetPlotTest()
-{
-    if (!gtMdiLauncher->open("GttCarpetPlot"))
-    {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not opencarpet plot!");
-    }
-}
-
-void GtMainWin::openTemplateViewerTest()
-{
-    if (!gtMdiLauncher->open("GtTemplateViewer"))
-    {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not open template viewer plot!");
-    }
 }
 
 void
