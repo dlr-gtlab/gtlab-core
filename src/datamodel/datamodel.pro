@@ -107,7 +107,6 @@ HEADERS += \
     gt_objectpath.h \
     property/gt_relativeobjectlinkproperty.h \
     property/gt_doublelistproperty.h \
-    gt_bleedtable.h \
     gt_tablegroup.h \
     gt_versionnumber.h \
     property/gt_freestringproperty.h
@@ -164,7 +163,6 @@ SOURCES += \
     gt_objectpath.cpp \
     property/gt_relativeobjectlinkproperty.cpp \
     property/gt_doublelistproperty.cpp \
-    gt_bleedtable.cpp \
     gt_tablegroup.cpp \
     gt_versionnumber.cpp \
     property/gt_freestringproperty.cpp
