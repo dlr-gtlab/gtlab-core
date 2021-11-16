@@ -22,8 +22,8 @@
 GtSelectFileToExportPage::GtSelectFileToExportPage(
         GtObject* obj, GtAbstractExporter* exporter) :
     GtAbstractExporterPage(obj),
-    m_fileExtension(exporter->extension()),
-    m_exporter(exporter)
+    m_exporter(exporter),
+    m_fileExtension(exporter->extension())
 {
     if (m_exporter != Q_NULLPTR)
     {
@@ -123,14 +123,14 @@ GtSelectFileToExportPage::selectFilePath()
     ext.remove(QStringLiteral(")"));
     QStringList extSplit = ext.split(".", QString::SkipEmptyParts);
 
-    QString initFilenName = object()->objectName().toLower() +
-                            QStringLiteral(".") + extSplit.last();
+    QString initFileName = object()->objectName().toLower() +
+                           QStringLiteral(".") + extSplit.last();
 
-    initFilenName.replace(" ", "_");
+    initFileName.replace(" ", "_");
 
     QString filename = GtFileDialog::getSaveFileName(this,
                        tr("Choose File"),
-                       initFilenName, m_fileExtension);
+                       QString(), m_fileExtension, initFileName);
 
     gtDebug() << "selected file = " << filename;
 
