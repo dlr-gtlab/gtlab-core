@@ -94,9 +94,6 @@ GtProcessDock::GtProcessDock() :
     m_view = new GtProcessView(this);
 
     frame->setLayout(frameLayout);
-    QPalette palette = frame->palette();
-    palette.setColor(backgroundRole(), QColor(255, 255, 255));
-    frame->setPalette(palette);
     frame->setAutoFillBackground(true);
     frame->setFrameShape(m_view->frameShape());
     frame->setFrameStyle(m_view->frameStyle());

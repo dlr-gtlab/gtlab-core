@@ -10,6 +10,8 @@
 #include "gt_abstractprocessprovider.h"
 #include "gt_project.h"
 #include "gt_processwizard.h"
+#include "gt_palette.h"
+#include "gt_application.h"
 
 #include "gt_processwizardpage.h"
 
@@ -17,7 +19,7 @@ GtProcessWizardPage::GtProcessWizardPage() :
     m_provider(Q_NULLPTR),
     m_scope(Q_NULLPTR)
 {
-
+    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 }
 
 GtAbstractProcessProvider*

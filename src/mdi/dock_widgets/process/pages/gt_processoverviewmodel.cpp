@@ -118,8 +118,13 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
             }
 
             case Qt::BackgroundRole:
-                return QColor(246, 246, 246);
-
+            {
+                if (!gtApp->inDarkMode())
+                {
+                    return QColor(246, 246, 246);
+                }
+                break;
+            }
             case CategoryRole:
                 return true;
 
@@ -159,7 +164,10 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 1)
                 {
-                    return QColor(Qt::gray);
+                    if (!gtApp->inDarkMode())
+                    {
+                        return QColor(Qt::gray);
+                    }
                 }
 
                 break;

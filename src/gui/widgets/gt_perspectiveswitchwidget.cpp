@@ -29,10 +29,6 @@ GtPerspectiveSwitchWidget::GtPerspectiveSwitchWidget(QWidget* parent) :
     lay->addWidget(m_list);
     setLayout(lay);
 
-    QPalette pal = palette();
-    pal.setColor(QPalette::Window, Qt::white);
-    setPalette(pal);
-
     init();
 }
 

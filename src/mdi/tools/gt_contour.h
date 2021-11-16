@@ -15,7 +15,6 @@
 #include "gt_table.h"
 
 class QPolygonF;
-class QColor;
 
 /**
  * @brief The GtContour class

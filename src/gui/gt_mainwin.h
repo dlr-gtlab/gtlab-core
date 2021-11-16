@@ -116,6 +116,12 @@ private:
      */
     void widgetStructureHelper(QWidget* wid, int indent);
 
+    /**
+     * @brief setTheme
+     * @param dark - true for dark mode, false for default
+     */
+    void setTheme(bool dark);
+
 private slots:
     /**
      * @brief showProjectWizard
@@ -346,6 +352,11 @@ private slots:
      * @brief onWidgetStructureClicked
      */
     void onWidgetStructureClicked();
+
+    /**
+     * @brief onChangeThemeClicked
+     */
+    void onChangeThemeClicked();
 
 signals:
     /**

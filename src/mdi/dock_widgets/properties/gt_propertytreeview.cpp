@@ -158,13 +158,13 @@ void GtPropertyTreeView::drawRow(QPainter* painter,
 
     if (isCategory)
     {
-        opt.palette.setColor(QPalette::AlternateBase, QColor(Qt::white));
+        //opt.palette.setColor(QPalette::AlternateBase, QColor(Qt::white));
     }
     else
     {
-        const QColor c(240, 240, 240);
-        painter->fillRect(option.rect, c);
-        opt.palette.setColor(QPalette::AlternateBase, c.lighter(104));
+        //const QColor c(240, 240, 240);
+        //painter->fillRect(option.rect, c);
+        //opt.palette.setColor(QPalette::AlternateBase, c.lighter(104));
     }
 
     GtTreeView::drawRow(painter, opt, index);

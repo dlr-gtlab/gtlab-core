@@ -47,9 +47,6 @@ GtTemplateViewer::GtTemplateViewer() :
     connect(&m_timer, SIGNAL(timeout()), SLOT(reloadWidgets()));
 
     QFrame* frame = new QFrame;
-    QPalette palette = frame->palette();
-    palette.setColor(frame->backgroundRole(), QColor(255, 255, 255));
-    frame->setPalette(palette);
     frame->setAutoFillBackground(true);
 
     m_titleLineEdit = new QLabel();

@@ -8,13 +8,15 @@
  */
 
 #include "gt_object.h"
+#include "gt_palette.h"
+#include "gt_application.h"
 
 #include "gt_abstractimporterpage.h"
 
 GtAbstractImporterPage::GtAbstractImporterPage(GtObject* obj) :
     m_obj(obj)
 {
-
+    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 }
 
 GtObject*

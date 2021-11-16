@@ -25,8 +25,6 @@
 #include "gt_processdata.h"
 #include "gt_processdock.h"
 #include "gt_propertyconnection.h"
-#include "gt_dummyobject.h"
-
 #include "gt_processcomponentmodel.h"
 
 GtProcessComponentModel::GtProcessComponentModel(QObject* parent) :

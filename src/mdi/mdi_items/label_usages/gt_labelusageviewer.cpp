@@ -33,9 +33,6 @@ GtLabelUsageViewer::GtLabelUsageViewer()
     QVBoxLayout* frameLayout = new QVBoxLayout;
     frame->setLayout(frameLayout);
 
-    QPalette palette = frame->palette();
-    palette.setColor(widget()->backgroundRole(), QColor(255, 255, 255));
-    frame->setPalette(palette);
     frame->setAutoFillBackground(true);
 
     m_label = new QLabel(tr("No usage found!"));

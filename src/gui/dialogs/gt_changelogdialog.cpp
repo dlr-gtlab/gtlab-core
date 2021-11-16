@@ -60,9 +60,6 @@ void
 GtChangelogDialog::setToPopup()
 {
     setWindowFlags(Qt::Popup);
-    QPalette pal = palette();
-    pal.setColor(QPalette::Window, Qt::white);
-    setPalette(pal);
 }
 
 bool

@@ -8,7 +8,6 @@
  */
 
 #include <QDebug>
-#include <QColor>
 #include <QBrush>
 #include <QFont>
 

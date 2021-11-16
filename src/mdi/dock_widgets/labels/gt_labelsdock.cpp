@@ -62,10 +62,6 @@ GtLabelsDock::GtLabelsDock() :
     widget->setFrameStyle(m_listView->frameStyle());
     widget->setFrameShadow(m_listView->frameShadow());
 
-    QPalette palette = widget->palette();
-    palette.setColor(backgroundRole(), QColor(255, 255, 255));
-    widget->setPalette(palette);
-
     widget->setAutoFillBackground(true);
 
     m_listView->setFrameStyle(QListView::NoFrame);

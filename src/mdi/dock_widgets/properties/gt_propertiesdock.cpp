@@ -69,9 +69,6 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(Q_NULLPTR)
 
     //    toolbarLayout->addWidget(calcSettingBtn);
 
-    QPalette palette = frame->palette();
-    palette.setColor(backgroundRole(), QColor(255, 255, 255));
-    frame->setPalette(palette);
     frame->setAutoFillBackground(true);
     frame->setFrameShape(m_treeView->frameShape());
     frame->setFrameStyle(m_treeView->frameStyle());

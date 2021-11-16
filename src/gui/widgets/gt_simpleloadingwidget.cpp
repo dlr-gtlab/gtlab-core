@@ -32,9 +32,6 @@ GtSimpleLoadingWidget::GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
     flags = flags & (~Qt::WindowContextHelpButtonHint);
     setWindowFlags(flags);
 
-    QPalette pal = palette();
-    pal.setColor(backgroundRole(), QColor(255, 255, 255));
-    setPalette(pal);
     setAutoFillBackground(true);
 
     QVBoxLayout* lay = new QVBoxLayout;

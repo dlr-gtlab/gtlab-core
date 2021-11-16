@@ -231,7 +231,18 @@ public:
     GtObject* selectedObject();
 
     /**
-     * @brief getShortCutSequence
+     * @brief inDarkMode
+     * @return true if application is in dark mode
+     */
+    bool inDarkMode();
+
+    /**
+     * @brief setDarkMode
+     * @param dark - true if the app should be set to dark
+     */
+    void setDarkMode(bool dark);
+
+    /** @brief getShortCutSequence
      * @param id - identification string of the short cut
      * @return key sequence for the short cut
      */
@@ -274,6 +285,9 @@ private:
 
     /// Stores currently selected object
     QPointer<GtObject> m_selectedObject;
+
+    ///
+    bool m_darkMode;
 
     /**
      * @brief readPerspectiveIds

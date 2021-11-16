@@ -36,9 +36,9 @@ GtPropertyIdDelegate::paint(QPainter* painter,
 
     QStyleOptionViewItemV3 opt = option;
 
-    const QColor c(240, 240, 240);
-    painter->fillRect(option.rect, c);
-    opt.palette.setColor(QPalette::AlternateBase, c.lighter(104));
+    //const QColor c(240, 240, 240);
+    //painter->fillRect(option.rect, c);
+    //opt.palette.setColor(QPalette::AlternateBase, c.lighter(104));
 
     QStyledItemDelegate::paint(painter, opt, index);
 

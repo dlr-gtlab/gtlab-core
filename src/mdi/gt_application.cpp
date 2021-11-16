@@ -32,6 +32,7 @@
 #include "gt_project.h"
 #include "gt_logging.h"
 #include "gt_saveprojectmessagebox.h"
+#include "gt_palette.h"
 #include "gt_shortcuts.h"
 
 #include "gt_application.h"
@@ -61,6 +62,7 @@ GtApplication::GtApplication(QCoreApplication* parent, bool devMode) :
             SLOT(onUndoStackChange()));
 
     m_devMode = devMode;
+    m_darkMode = false;
 
     GtShortCuts* cuts = new GtShortCuts(this);
 }
@@ -712,6 +714,18 @@ GtShortCuts*
 GtApplication::shortCuts() const
 {
     return findChild<GtShortCuts*>();
+}
+
+bool
+GtApplication::inDarkMode()
+{
+    return m_darkMode;
+}
+
+void
+GtApplication::setDarkMode(bool dark)
+{
+    m_darkMode = dark;
 }
 
 bool

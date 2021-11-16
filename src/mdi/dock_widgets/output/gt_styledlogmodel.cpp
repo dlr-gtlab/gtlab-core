@@ -115,6 +115,6 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
         }
     }
 
-    return QIdentityProxyModel::data(index, role);;
+    return QIdentityProxyModel::data(index, role);
 }
 

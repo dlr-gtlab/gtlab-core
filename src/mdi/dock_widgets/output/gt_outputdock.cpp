@@ -70,7 +70,7 @@ GtOutputDock::GtOutputDock() :
 
     // default page
     QWidget* defaultPage = new QWidget(this);
-    tab->addTab(defaultPage, "Application");
+    tab->addTab(defaultPage, tr("Application"));
     QVBoxLayout* defaultLayout = new QVBoxLayout;
     defaultLayout->setContentsMargins(0, 0, 0, 0);
     defaultLayout->setSpacing(0);
