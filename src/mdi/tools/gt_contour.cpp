@@ -10,7 +10,6 @@
 #include "gt_contour.h"
 
 #include <QPolygonF>
-#include <QColor>
 #include <QThreadPool>
 
 #include "gt_contourrunnable.h"

@@ -169,32 +169,32 @@ GtPropertyItem::data(int column, int role) const
             break;
         }
 
-        case Qt::ForegroundRole:
-        {
-            if (!m_property->isActive())
-            {
-                return QColor(120, 120, 120);
-            }
+//        case Qt::ForegroundRole:
+//        {
+//            if (!m_property->isActive())
+//            {
+//                return QColor(120, 120, 120);
+//            }
 
-            break;
-        }
+//            break;
+//        }
 
-        case Qt::BackgroundRole:
-        {
-            if (column == 2)
-            {
-                if (!m_property->isActive() || m_property->isReadOnly())
-                {
-                    return QColor(245, 245, 245);
-                }
-                else
-                {
-                    return QColor(255, 255, 255);
-                }
-            }
+//        case Qt::BackgroundRole:
+//        {
+//            if (column == 2)
+//            {
+//                if (!m_property->isActive() || m_property->isReadOnly())
+//                {
+//                    return QColor(245, 245, 245);
+//                }
+//                else
+//                {
+//                    return QColor(255, 255, 255);
+//                }
+//            }
 
-            break;
-        }
+//            break;
+//        }
 
         case Qt::FontRole:
         {

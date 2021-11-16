@@ -9,12 +9,15 @@
 
 #include "gt_abstractprojectwizardpage.h"
 #include "gt_projectprovider.h"
+#include "gt_palette.h"
+#include "gt_application.h"
 
 GtAbstractProjectWizardPage::GtAbstractProjectWizardPage(
         GtProjectProvider* provider, QWidget* parent) : QWizardPage(parent),
     m_provider(provider)
 {
 
+    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 }
 
 bool

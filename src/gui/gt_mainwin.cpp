@@ -17,6 +17,8 @@
 #include <QThread>
 #include <QTimer>
 #include <QDebug>
+#include <QStyleFactory>
+#include <QSettings>
 
 #include "gt_mainwin.h"
 #include "ui_gt_mainwin.h"
@@ -47,6 +49,7 @@
 #include "gt_processqueuemodel.h"
 #include "gt_processqueuewidget.h"
 #include "gt_saveprojectmessagebox.h"
+#include "gt_palette.h"
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
@@ -208,8 +211,23 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(closeProject()));
     connect(ui->actionWidgetStructure, SIGNAL(triggered(bool)),
             SLOT(onWidgetStructureClicked()));
+    connect(ui->actionChangeTheme, SIGNAL(triggered(bool)),
+            SLOT(onChangeThemeClicked()));
 
     loadPerspectiveSettings();
+
+    bool darkMode = false;
+#ifdef Q_OS_WIN
+    QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",QSettings::NativeFormat);
+    if (settings.value("AppsUseLightTheme") == 0)
+    {
+        darkMode = true;
+    }
+#endif
+
+    gtApp->setDarkMode(darkMode);
+
+    setTheme(darkMode);
 }
 
 GtMainWin::~GtMainWin()
@@ -293,6 +311,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
         else
         {
             QMessageBox mb;
+            mb.setPalette(qApp->palette());
             mb.setIcon(QMessageBox::Question);
             mb.setWindowTitle("Confirm Exit");
             mb.setWindowIcon(gtApp->icon("closeIcon_16.png"));
@@ -428,7 +447,8 @@ GtMainWin::checkForUpdate()
     thread->start();
 }
 
-void GtMainWin::widgetStructureHelper(QWidget* wid, int indent)
+void
+GtMainWin::widgetStructureHelper(QWidget* wid, int indent)
 {
     QList<QWidget*> childs =
             wid->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly);
@@ -1246,4 +1266,46 @@ GtMainWin::onWidgetStructureClicked()
     {
         widgetStructureHelper(wid, 1);
     }
+}
+
+void
+GtMainWin::onChangeThemeClicked()
+{
+    bool oldDarkVal = gtApp->inDarkMode();
+
+    gtApp->setDarkMode(!oldDarkVal);
+    setTheme(!oldDarkVal);
+}
+
+void
+GtMainWin::setTheme(bool dark)
+{
+    QPalette p;
+    if (!dark)
+    {
+        p = GtPalette::standardTheme();
+        qApp->setPalette(p);
+
+        QString style = "Default";
+#ifdef Q_OS_WIN
+        style = "windowsvista";
+#endif
+        qApp->setStyle(QStyleFactory::create(style));
+        qApp->setStyleSheet("QToolTip { color: black; "
+                            "background-color: white; "
+                            "border: 1px solid black; }");
+    }
+    else
+    {
+        p = GtPalette::darkTheme();
+        qApp->setPalette(p);
+        qApp->setStyle(QStyleFactory::create("Fusion"));
+        qApp->setStyleSheet("QToolTip { color: #ffffff; "
+                            "background-color: #2a82da; "
+                            "border: 1px solid white; }");
+    }
+
+    ui->viewerToolbar->setPalette(p);
+    ui->menubar->setPalette(p);
+    ui->mdiArea->setPalette(p);
 }

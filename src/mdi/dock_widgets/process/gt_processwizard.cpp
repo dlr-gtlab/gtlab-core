@@ -25,6 +25,7 @@
 #include "gt_task.h"
 #include "gt_extendedtaskdata.h"
 #include "gt_taskfactory.h"
+#include "gt_palette.h"
 
 #include "gt_calculatoroverviewpage.h"
 #include "gt_calculatorsettingspage.h"
@@ -44,6 +45,8 @@ GtProcessWizard::GtProcessWizard(GtProject* project,
     setWindowFlags(flags);
 
     setWindowTitle(tr("New Calculator Wizard"));
+
+    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 
     if (!provider->componentInitialized())
     {

@@ -74,11 +74,7 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
     }
     case Qt::BackgroundRole:
     {
-        if (col == 0)
-        {
-            return QColor(245, 245, 245);
-        }
-        else if (col == 1)
+        if (col == 1)
         {
             if (m_vars.value(valId).isNull())
             {

@@ -8,59 +8,40 @@
  */
 
 #include "gt_stylesheets.h"
-
+#include "gt_application.h"
+#include <QCoreApplication>
 
 QString
 GtStyleSheets::buttonStyleSheet()
 {
-    QString text = "QPushButton { border: 1px solid gray;"
+    QString text = "QPushButton { "
+                   "border: 1px solid gray;"
                    "border-radius: 4px;"
-                   "background-color:white;"
                    "min-width: 70px;"
-                   "min-height:22px}"
-                   "QPushButton:hover{background-color:"
-                   "rgb(220,235,250)}"
-                   "QPushButton:disabled {background-color:"
-                   "rgb(240,240,240)}"
-                   "QPushButton:pressed{background-color:"
-                   "rgb(180,213,246)}";
-
+                   "min-height:22px}";
     return text;
 }
 
 QString
 GtStyleSheets::buttonStyleSheet2()
 {
-    QString text = "QPushButton { border: 1px solid gray;"
+    QString text = "QPushButton { "
+                   "border: 1px solid gray;"
                    "border-radius: 4px;"
                    "background-color:white;"
                    "min-width: 70px;"
-                   "min-height:20px}"
-                   "QPushButton:hover{background-color:"
-                   "rgb(220,235,250)}"
-                   "QPushButton:disabled {background-color:"
-                   "rgb(240,240,240)}"
-                   "QPushButton:pressed{background-color:"
-                   "rgb(180,213,246)}";
-
+                   "min-height:20px}";
     return text;
 }
 
 QString
 GtStyleSheets::performanceTaskElementDelBtn()
 {
-    QString text = "QPushButton { border: 0px solid gray;"
+    QString text = "QPushButton { "
+                   "border: 0px solid gray;"
                    "border-radius: 4px;"
-                   "background-color: white;"
                    "min-width: 22px;"
-                   "min-height:22px}"
-                   "QPushButton:hover{"
-                   "background-color:rgb(220,235,250)}"
-                   "QPushButton:disabled {"
-                   "background-color:rgb(240,240,240)}"
-                   "QPushButton:pressed{"
-                   "background-color:rgb(180,213,246)}";
-
+                   "min-height:22px}";
     return text;
 }
 
@@ -76,27 +57,29 @@ GtStyleSheets::standardLineEdit()
 QString
 GtStyleSheets::warningLabel()
 {
-    QString text = "QLabel { background-color : white; color : red; }";
+    if (gtApp->inDarkMode())
+    {
+        return "QLabel { background-color : black; color : red; }";
+    }
 
-    return text;
+    return "QLabel { background-color : white; color : red; }";
 }
 
 QString
 GtStyleSheets::standardLabel()
 {
-    QString text = "QLabel { background-color : white; color : black; }";
+    if (gtApp->inDarkMode())
+    {
+        return "QLabel { background-color : black; color : white; }";
+    }
 
-    return text;
+    return "QLabel { background-color : white; color : black; }";
 }
 QString
 GtStyleSheets::performanceTaskLineEdit0()
 {
     QString text = "QLineEdit {  border: 0px solid gray;"
-                   "border-radius: 4px;}"
-                   "QLineEdit:hover{"
-                   "background-color:rgb(220,235,250)}"
-                   "QPushButton:pressed{"
-                   "background-color:rgb(180,213,246)}";
+                   "border-radius: 4px;}";
 
     return text;
 }
@@ -107,13 +90,7 @@ GtStyleSheets::processRunButton(QString stdBackgroundRGB)
     QString text = "QPushButton { border: 1px solid gray;"
                    "border-radius: 4px;"
                    "background-color:"+ stdBackgroundRGB +";"
-                   "min-width: 70px;min-height:22px}"
-                   "QPushButton:hover{"
-                   "background-color:rgb(220,235,250)}"
-                   "QPushButton:disabled {"
-                   "background-color:rgb(240,240,240)}"
-                   "QPushButton:pressed{"
-                   "background-color:rgb(180,213,246)}";
+                   "min-width: 70px;min-height:22px}";
 
     return text;
 }
@@ -123,13 +100,8 @@ GtStyleSheets::selectionComboBox(QString minWidth, QString maxWidth)
 {
     QString text = "QComboBox { border: 1px solid gray;"
                    "border-radius: 4px;"
-                   "background-color: white;"
                    "min-width:" + minWidth + "px;max-width: " + maxWidth + "px;"
                    "min-height:15px}"
-                   "QComboBox:hover{"
-                   "background-color:rgb(220,235,250)}"
-                   "QComboBox:disabled {"
-                   "background-color:rgb(240,240,240)}"
                    "QComboBox::drop-down {"
                    "subcontrol-origin: padding;"
                    "subcontrol-position: top right;"
@@ -148,6 +120,11 @@ GtStyleSheets::selectionComboBox(QString minWidth, QString maxWidth)
 QString
 GtStyleSheets::resultViewerTitleLabel()
 {
+    if (gtApp->inDarkMode())
+    {
+        return "QLabel { background-color : black; color : white; }";
+    }
+
     return "QLabel { background-color : #f2f3f5; color : black; }";
 }
 
@@ -164,13 +141,7 @@ GtStyleSheets::coloredCarpetPlotBtn(QColor col)
                                         "," + blue + ");"
                    "min-width: 22px;"
                    "max-width: 40px;"
-                   "min-height:22px}"
-                   "QPushButton:hover{"
-                   "background-color:rgb(220,235,250)}"
-                   "QPushButton:disabled {"
-                   "background-color:rgb(240,240,240)}"
-                   "QPushButton:pressed{"
-                   "background-color:rgb(180,213,246)}";
+                   "min-height:22px}";
 
     return text;
 }

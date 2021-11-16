@@ -197,6 +197,7 @@
     <addaction name="separator"/>
     <addaction name="actionPerformance_Map_Editor"/>
     <addaction name="actionWidgetStructure"/>
+    <addaction name="actionChangeTheme"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -728,6 +729,11 @@
   <action name="actionWidgetStructure">
    <property name="text">
     <string>Widget Structure</string>
+   </property>
+  </action>
+  <action name="actionChangeTheme">
+   <property name="text">
+    <string>Change Theme</string>
    </property>
   </action>
  </widget>

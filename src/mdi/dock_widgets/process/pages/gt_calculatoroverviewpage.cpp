@@ -21,6 +21,9 @@
 #include "gt_calculatorsettingspage.h"
 #include "gt_customprocesswizard.h"
 #include "gt_processwizardpage.h"
+#include "gt_palette.h"
+#include "gt_application.h"
+
 
 #include "gt_calculatoroverviewpage.h"
 
@@ -63,6 +66,8 @@ GtCalculatorOverviewPage::GtCalculatorOverviewPage(GtProcessWizard* parent) :
             SIGNAL(completeChanged()));
     connect(m_view, SIGNAL(doubleClicked(QModelIndex)),
             SLOT(onDoubleClicked(QModelIndex)));
+
+    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 }
 
 GtCalculatorOverviewPage::~GtCalculatorOverviewPage()

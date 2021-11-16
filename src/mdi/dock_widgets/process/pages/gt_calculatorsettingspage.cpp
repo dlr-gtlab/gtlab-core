@@ -19,6 +19,8 @@
 #include "gt_objectmemento.h"
 #include "gt_processfactory.h"
 #include "gt_project.h"
+#include "gt_palette.h"
+#include "gt_application.h"
 
 #include "gt_calculatorsettingspage.h"
 
@@ -51,6 +53,8 @@ GtCalculatorSettingsPage::GtCalculatorSettingsPage(GtProject* project,
             m_view->filterModel(), SLOT(setFilterRegExp(QString)));
     connect(searchWidget, SIGNAL(textChanged(QString)),
             m_view->filterModel(), SLOT(setFilterRegExp(QString)));
+
+    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 }
 
 void GtCalculatorSettingsPage::initializePage()

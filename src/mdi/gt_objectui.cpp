@@ -201,10 +201,17 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return QColor(255, 140, 140);
+                    if (gtApp->inDarkMode())
+                    {
+                        return QColor(255, 130, 25);
+                    }
+                    else
+                    {
+                        return QColor(255, 140, 140);
+                    }
                 }
+                break;
             }
-
             case Qt::FontRole:
             {
                 if (obj->isDummy())
@@ -237,6 +244,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                     return gtApp->icon(
                                 QStringLiteral("exclamationIcon_16.png"));
                 }
+                break;
             }
 
             case Qt::ToolTipRole:
@@ -257,7 +265,14 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return QColor(255, 140, 140);
+                    if (gtApp->inDarkMode())
+                    {
+                        return QColor(255, 130, 25);
+                    }
+                    else
+                    {
+                        return QColor(255, 140, 140);
+                    }
                 }
             }
 

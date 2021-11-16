@@ -15,6 +15,7 @@
 #include <QWizardPage>
 #include <QPointer>
 
+
 class GtProcessWizard;
 class GtAbstractProcessProvider;
 class GtProject;

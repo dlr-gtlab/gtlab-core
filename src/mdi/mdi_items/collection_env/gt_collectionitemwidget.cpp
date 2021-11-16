@@ -151,9 +151,9 @@ GtCollectionItemWidget::newFrame()
     QFrame* frame = new QFrame(this);
 
     frame->setAutoFillBackground(true);
-    QPalette p = frame->palette();
-    p.setColor(frame->backgroundRole(), Qt::white);
-    frame->setPalette(p);
+    //QPalette p = frame->palette();
+    //p.setColor(frame->backgroundRole(), Qt::white);
+    //frame->setPalette(p);
     frame->setFrameShape(QFrame::Box);
     frame->setFrameShadow(QFrame::Sunken);
 
