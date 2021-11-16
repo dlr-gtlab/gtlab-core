@@ -11,6 +11,7 @@
 #define TEST_GT_OBJECT_H
 
 #include <QPointF>
+#include <QRegExpValidator>
 
 #include "gt_objectgroup.h"
 
@@ -28,6 +29,7 @@
 #include "gt_doublelistproperty.h"
 #include "gt_existingdirectoryproperty.h"
 #include "gt_openfilenameproperty.h"
+#include "gt_regexp.h"
 
 class TestSpecialGtObject : public GtObjectGroup
 {
@@ -51,15 +53,24 @@ class TestSpecialGtObject : public GtObjectGroup
 public:
     Q_INVOKABLE TestSpecialGtObject() {
         m_boolProp = new GtBoolProperty("boolProp", "Test Bool", QString());
-        m_doubleProp = new GtDoubleProperty("doubleProp", "Test Double", QString(), GtUnit::Category::Angle);
-        m_fileProp = new GtOpenFileNameProperty("fileProp", "Test File", QString(), QStringList());
+        m_doubleProp = new GtDoubleProperty("doubleProp", "Test Double",
+                                            QString(), GtUnit::Category::Angle);
+        m_fileProp = new GtOpenFileNameProperty("fileProp", "Test File",
+                                                QString(), QStringList());
         m_groupProp = new GtGroupProperty("Test Group", QString());
-        m_intProp = new GtIntProperty("intProp", "Test Int", QString(), GtUnit::Category::Angle);
-        m_labelProp = new GtLabelProperty("labelProp", "Test Label", QString(), this);
+        m_intProp = new GtIntProperty("intProp", "Test Int", QString(),
+                                      GtUnit::Category::Angle);
+        m_labelProp = new GtLabelProperty("labelProp", "Test Label",
+                                          QString(), this);
         m_modeProp = new GtModeProperty("modeProp", "Test Mode", QString());
         m_modeTypeProp = new GtModeTypeProperty("Test Type", QString());
-        m_linkProp = new GtObjectLinkProperty("linkProp", "Test Link", QString(), QString(), this, QStringList());
-        m_strProp = new GtStringProperty("strProp", "Test String", QString(), "Test");
+        m_linkProp = new GtObjectLinkProperty("linkProp", "Test Link",
+                                              QString(), QString(),
+                                              this, QStringList());
+        m_strProp = new GtStringProperty(
+                    "strProp", "Test String",  QString(), "Test",
+                    new QRegExpValidator(GtRegExp::onlyLettersAndNumbers(),
+                                         this));
         m_varProp = new GtVariantProperty("Test Variant", QString());
         GtDoubleListProperty* doubleListProp =
                 new GtDoubleListProperty("dblList", "Double List Property");
@@ -90,7 +101,7 @@ public:
         registerProperty(*doubleListProp);
         registerProperty(*exDirProp);
         registerProperty(*fileChooser);
-    };
+    }
 
     bool getBool()
     {
@@ -195,7 +206,7 @@ public:
     virtual bool childAccepted(GtObject* child) Q_DECL_OVERRIDE
     {
         return qobject_cast<GtObjectGroup*>(child);
-    };
+    }
 
     GtBoolProperty* m_boolProp;
 

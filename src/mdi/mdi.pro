@@ -294,7 +294,6 @@ HEADERS += \
     mdi_items/examples/gt_examplegraphicalitem.h \
     mdi_items/examples/gt_examplestabwidget.h \
     gt_textfilterdelegate.h \
-    gt_regexp.h \
     tools/gt_saveprojectmessagebox.h \
     tools/gt_deleteitemmessagebox.h \
     dialogs/gt_inputdialog.h \
@@ -305,7 +304,6 @@ HEADERS += \
     exporter/dataZoneExporter/gt_datazonecsvexporter.h \
     exporter/dataZoneExporter/gt_datazonedatexporter.h \
     tools/gt_contourrunnable.h \
-    dock_widgets/properties/items/gt_propertyfreestringitem.h \
     gt_finishedprocessloadinghelper.h \
     exporter/processExporter/gt_processexporter.h \
     importer/processImporter/gt_processimporter.h
@@ -507,7 +505,6 @@ SOURCES += \
     mdi_items/examples/gt_examplegraphicalitem.cpp \
     mdi_items/examples/gt_examplestabwidget.cpp \
     gt_textfilterdelegate.cpp \
-    gt_regexp.cpp \
     tools/gt_saveprojectmessagebox.cpp \
     tools/gt_deleteitemmessagebox.cpp \
     dialogs/gt_inputdialog.cpp \
@@ -518,7 +515,6 @@ SOURCES += \
     exporter/dataZoneExporter/gt_datazonecsvexporter.cpp \
     exporter/dataZoneExporter/gt_datazonedatexporter.cpp \
     tools/gt_contourrunnable.cpp \
-    dock_widgets/properties/items/gt_propertyfreestringitem.cpp \
     gt_finishedprocessloadinghelper.cpp \
     exporter/processExporter/gt_processexporter.cpp \
     importer/processImporter/gt_processimporter.cpp

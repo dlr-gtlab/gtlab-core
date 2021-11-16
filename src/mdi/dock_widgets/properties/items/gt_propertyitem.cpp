@@ -18,6 +18,7 @@
 #include "gt_propertymodel.h"
 #include "gt_groupproperty.h"
 #include "gt_modeproperty.h"
+#include "gt_stringproperty.h"
 #include "gt_propertychangecommand.h"
 #include "gt_application.h"
 #include "gt_propertyvaluedelegate.h"
@@ -351,9 +352,19 @@ GtPropertyItem::editorWidget(QWidget* parent,
         case QVariant::String:
         {
             QLineEdit* lineEdit = new QLineEdit(parent);
+            QValidator* validator = nullptr;
+            GtStringProperty* s = qobject_cast<GtStringProperty*>(m_property);
 
-            QValidator* validator = new QRegExpValidator(
-                GtRegExp::forExpressions(), lineEdit);
+            if (s != nullptr)
+            {
+                validator = s->validator();
+            }
+            else
+            {
+                validator = new QRegExpValidator(GtRegExp::forExpressions(),
+                                                 lineEdit);
+            }
+
             lineEdit->setValidator(validator);
 
             return lineEdit;
@@ -361,7 +372,6 @@ GtPropertyItem::editorWidget(QWidget* parent,
 
         default:
             return GtAbstractPropertyItem::editorWidget(parent, delegate);
-            break;
     }
 
     return Q_NULLPTR;

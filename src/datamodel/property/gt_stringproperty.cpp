@@ -8,6 +8,8 @@
  */
 
 #include "gt_stringproperty.h"
+#include <QValidator>
+#include "gt_regexp.h"
 
 GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
 {
@@ -18,12 +20,16 @@ GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
     m_unitCategory = GtUnit::Category::None;
     m_value = QString();
     m_initValue = QString();
+
+    m_validator = new QRegExpValidator(
+                GtRegExp::forExpressions(), this);
 }
 
 GtStringProperty::GtStringProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief,
-                                   const QString& value)
+                                   const QString& value,
+                                   QValidator* validator)
 {
     setObjectName(name);
 
@@ -32,6 +38,17 @@ GtStringProperty::GtStringProperty(const QString& ident,
     m_unitCategory = GtUnit::Category::None;
     m_value = value;
     m_initValue = value;
+
+    if (validator != nullptr)
+    {
+        m_validator = validator;
+        m_validator->setParent(this);
+    }
+    else
+    {
+        m_validator = new QRegExpValidator(
+                    GtRegExp::forExpressions(), this);
+    }
 }
 
 QVariant
@@ -55,7 +72,7 @@ GtStringProperty::setValueFromVariant(const QVariant& val,
 
     setVal(val.toString(), success);
 
-    if (success != 0)
+    if (success != nullptr)
     {
         retval = *success;
     }
@@ -65,4 +82,14 @@ GtStringProperty::setValueFromVariant(const QVariant& val,
 
 GtStringProperty::~GtStringProperty()
 {
+    if (m_validator != nullptr)
+    {
+        delete m_validator;
+    }
+}
+
+QValidator*
+GtStringProperty::validator()
+{
+    return m_validator;
 }
