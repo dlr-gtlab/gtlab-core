@@ -115,7 +115,7 @@ HEADERS += \
     property/gt_doublelistproperty.h \
     gt_tablegroup.h \
     gt_versionnumber.h \
-    property/gt_freestringproperty.h
+    gt_regexp.h
 
 SOURCES += \
     gt_dummyobject.cpp \
@@ -175,7 +175,7 @@ SOURCES += \
     property/gt_doublelistproperty.cpp \
     gt_tablegroup.cpp \
     gt_versionnumber.cpp \
-    property/gt_freestringproperty.cpp
+    gt_regexp.cpp
 
 unix {
     QMAKE_CXXFLAGS += -std=c++11

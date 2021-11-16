@@ -36,9 +36,6 @@
 
 #include "gt_propertyitemfactory.h"
 
-#include "gt_freestringproperty.h"
-#include "gt_propertyfreestringitem.h"
-
 GtPropertyItemFactory::GtPropertyItemFactory(QObject* parent) : QObject(parent)
 {
     m_knownClasses.insert(GT_CLASSNAME(GtLabelProperty),
@@ -64,16 +61,13 @@ GtPropertyItemFactory::GtPropertyItemFactory(QObject* parent) : QObject(parent)
 
     m_knownClasses.insert(GT_CLASSNAME(GtDoubleListProperty),
                           GT_METADATA(GtPropertyDoubleListItem));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtFreeStringProperty),
-                          GT_METADATA(GtPropertyFreeStringItem));
 }
 
 GtPropertyItemFactory*
 GtPropertyItemFactory::instance()
 {
-    static GtPropertyItemFactory* retval = 0;
-    if (retval == 0)
+    static GtPropertyItemFactory* retval = Q_NULLPTR;
+    if (retval == Q_NULLPTR)
     {
         retval = new GtPropertyItemFactory(qApp);
     }

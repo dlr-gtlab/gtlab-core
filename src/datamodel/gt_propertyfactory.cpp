@@ -14,7 +14,6 @@
 #include "gt_doubleproperty.h"
 #include "gt_intproperty.h"
 #include "gt_stringproperty.h"
-#include "gt_freestringproperty.h"
 
 #include "gt_propertyfactory.h"
 
@@ -31,9 +30,6 @@ GtPropertyFactory::GtPropertyFactory(QObject* parent) : QObject(parent)
 
     m_knownClasses.insert(GT_CLASSNAME(GtStringProperty),
                           GT_METADATA(GtStringProperty));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtFreeStringProperty),
-                          GT_METADATA(GtFreeStringProperty));
 }
 
 GtPropertyFactory*

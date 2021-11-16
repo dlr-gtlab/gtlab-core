@@ -11,7 +11,7 @@
 
 #include <QRegExp>
 
-#include "gt_mdi_exports.h"
+#include "gt_datamodel_exports.h"
 
 /**
  * namespace for RegualrExpressions, used in GTlab
@@ -22,86 +22,87 @@ namespace GtRegExp
      * @brief woUmlauts - accepts all but ä ö ü ß
      * @return
      */
-    QRegExp GT_MDI_EXPORT woUmlauts();
+    QRegExp GT_DATAMODEL_EXPORT woUmlauts();
 
     /**
      * @brief umlauts - accept äöüßÄÖÜ
      * @return
      */
-    QRegExp GT_MDI_EXPORT umlauts();
+    QRegExp GT_DATAMODEL_EXPORT umlauts();
 
     /**
      * @brief umlautsAnsSpecialChar
      * - accepts äöüßÄÖÜ .:,;#?+~* /&%$§!"{}
      * @return
      */
-    QRegExp GT_MDI_EXPORT umlautsAndSpecialChar();
+    QRegExp GT_DATAMODEL_EXPORT umlautsAndSpecialChar();
 
     /**
      * @brief onlyLetters - accepts all letter (a-z and A-Z) with a
      * minimal length of 1
      * @return
      */
-    QRegExp GT_MDI_EXPORT onlyLetters();
+    QRegExp GT_DATAMODEL_EXPORT onlyLetters();
 
     /**
      * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
      * and numbers (0-9) and -  and _ with a minimal length of 1
      * @return
      */
-    QRegExp GT_MDI_EXPORT onlyLettersAndNumbers();
+    QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbers();
 
     /**
      * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
      * and numbers (0-9) and -  and _ with a minimal length of 1 and dot
      * @return
      */
-    QRegExp GT_MDI_EXPORT onlyLettersAndNumbersAndDot();
+    QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDot();
 
     /**
      * @brief onlyLettersAndNumbersAndSpace - accepts all letter (a-z and A-Z)
      * and numbers (0-9) and -  and _ and space with a minimal length of 1
      * @return
      */
-    QRegExp GT_MDI_EXPORT onlyLettersAndNumbersAndSpace();
+    QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndSpace();
 
     /**
      * @brief forUnits - accepts all letters and numbers and some
      * special symbols typical used for units
      * @return
      */
-    QRegExp GT_MDI_EXPORT forUnits();
+    QRegExp GT_DATAMODEL_EXPORT forUnits();
 
     /**
      * @brief forExpressions
      * @return
      */
-    QRegExp GT_MDI_EXPORT forExpressions();
+    QRegExp GT_DATAMODEL_EXPORT forExpressions();
 
     /**
      * @brief forStations - accepts a combination
      * of an S and one to three numbers
      * @return
      */
-    QRegExp GT_MDI_EXPORT forStations();
+    QRegExp GT_DATAMODEL_EXPORT forStations();
 
     /**
      * @brief forDoubles
      * @return
      */
-    QRegExp GT_MDI_EXPORT forDoubles();
+    QRegExp GT_DATAMODEL_EXPORT forDoubles();
 
     /**
      * @brief forDoublesLists
-     * @return
+     * @return regexp for double lists
      */
-    QRegExp GT_MDI_EXPORT forDoublesLists();
+    QRegExp GT_DATAMODEL_EXPORT forDoublesLists();
 
     /**
      * @brief forShortCuts
      * @return regexp for short cuts
      */
-    QRegExp GT_MDI_EXPORT forShortCuts();
+    QRegExp GT_DATAMODEL_EXPORT forShortCuts();
+
 }
 
 #endif // GTREGEXP_H
