@@ -141,7 +141,7 @@ operator!=(const GtVersionNumber& v1, const GtVersionNumber& v2)
 bool
 operator>(const GtVersionNumber& v1, const GtVersionNumber& v2)
 {
-    if (GtVersionNumber::compare(v1, v2) == 1)
+    if (GtVersionNumber::compare(v1, v2) > 0)
     {
         return true;
     }
@@ -152,7 +152,7 @@ operator>(const GtVersionNumber& v1, const GtVersionNumber& v2)
 bool
 operator<(const GtVersionNumber& v1, const GtVersionNumber& v2)
 {
-    if (GtVersionNumber::compare(v1, v2) == -1)
+    if (GtVersionNumber::compare(v1, v2) < 0)
     {
         return true;
     }
