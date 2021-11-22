@@ -14,9 +14,14 @@
 
 #include "gt_testhelper.h"
 
-GtTestHelper::GtTestHelper() : m_removeTempPath(true)
-{
+GtTestHelper::GtTestHelper()
+{    
+    QDir tempDir(tempPath());
 
+    if (tempDir.exists())
+    {
+        tempDir.removeRecursively();
+    }
 }
 
 GtTestHelper*
@@ -48,20 +53,36 @@ GtTestHelper::newTempDir()
     return retval;
 }
 
-void
-GtTestHelper::setRemoveTempPath(bool val)
+QStringList
+GtTestHelper::randomStringList(int length)
 {
-    m_removeTempPath = val;
+    QStringList retVal;
+    retVal.reserve(length);
+
+    for (int i = 0; i < length; ++i)
+    {
+        retVal.append(QUuid::createUuid().toString());
+    }
+
+    return retVal;
+}
+
+QVector<double>
+GtTestHelper::randomDataVector(int length)
+{
+    QVector<double> retVal;
+    retVal.reserve(length);
+
+    for (int i = 0; i < length; ++i)
+    {
+        retVal.append(qrand() * 0.9);
+    }
+
+    return retVal;
 }
 
 GtTestHelper::~GtTestHelper()
 {
-    QDir tempDir(tempPath());
-
-    if (tempDir.exists() && m_removeTempPath)
-    {
-        tempDir.removeRecursively();
-    }
 }
 
 QString

@@ -6,6 +6,7 @@
 #include "gt_datazone.h"
 #include "gt_datazonetablemainaxis.h"
 #include "gt_datazone0d.h"
+#include "gt_externalizedobjecthelper.h"
 //#include "gt_objectfactory.h"
 
 
@@ -377,7 +378,6 @@ GtDataZoneTable::allAxisTicksMap()
 {
     QMap<QString, QVector<double>> retval;
 
-
     if (nSubDims() > 0)
     {
         GtDataZone* dz = qobject_cast<GtDataZone*>(data().at(0));
@@ -499,12 +499,15 @@ double
 GtDataZoneTable::value2D(QString param, int mainX, int mainY, int mainZ,
                          double x, double y, bool* ok)
 {
-    GtAbstractDataZone* adz = Q_NULLPTR;
-    adz = dataZone(mainX, mainY, mainZ);
+    GtExternalizedObjectHelper<GtAbstractDataZone> adz
+            (dataZone(mainX, mainY, mainZ), GtExternalizedObject::Discard);
 
-    if (adz == Q_NULLPTR)
+    if (!adz.isValid())
     {
-        *ok = false;
+        if (ok)
+        {
+            *ok = false;
+        }
         return 0.0;
     }
 
@@ -513,7 +516,10 @@ GtDataZoneTable::value2D(QString param, int mainX, int mainY, int mainZ,
 
     if (dzND == Q_NULLPTR)
     {
-        *ok = false;
+        if (ok)
+        {
+            *ok = false;
+        }
         return 0.0;
     }
 
@@ -534,15 +540,18 @@ GtDataZoneTable::value2D(QString param,
 }
 
 double
-GtDataZoneTable::value1D(QString param,int mainX, int mainY, int mainZ,
+GtDataZoneTable::value1D(QString param, int mainX, int mainY, int mainZ,
                          double x, bool* ok)
 {
-    GtAbstractDataZone* adz = Q_NULLPTR;
-    adz = dataZone(mainX, mainY, mainZ);
+    GtExternalizedObjectHelper<GtAbstractDataZone> adz
+            (dataZone(mainX, mainY, mainZ), GtExternalizedObject::Discard);
 
-    if (adz == Q_NULLPTR)
+    if (!adz.isValid())
     {
-        *ok = false;
+        if (ok)
+        {
+            *ok = false;
+        }
         return 0.0;
     }
 
@@ -551,7 +560,10 @@ GtDataZoneTable::value1D(QString param,int mainX, int mainY, int mainZ,
 
     if (dzND == Q_NULLPTR)
     {
-        *ok = false;
+        if (ok)
+        {
+            *ok = false;
+        }
         return 0.0;
     }
 
@@ -577,10 +589,10 @@ double
 GtDataZoneTable::value0D(QString param, int mainX, int mainY, int mainZ,
                          bool* ok)
 {
-    GtAbstractDataZone* adz = Q_NULLPTR;
-    adz = dataZone(mainX, mainY, mainZ);
+    GtExternalizedObjectHelper<GtAbstractDataZone> adz
+            (dataZone(mainX, mainY, mainZ), GtExternalizedObject::Discard);
 
-    if (adz == Q_NULLPTR)
+    if (!adz.isValid())
     {
         if (ok)
         {
@@ -597,10 +609,10 @@ double
 GtDataZoneTable::valueFrom0Ddata(QString param, GtAbstractDataZone* adz,
                                  bool* ok)
 {
-    GtDataZone0D* dz0D = Q_NULLPTR;
-    dz0D = qobject_cast<GtDataZone0D*>(adz);
+    GtExternalizedObjectHelper<GtDataZone0D> dz0D
+            (adz, GtExternalizedObject::Discard);
 
-    if (dz0D == Q_NULLPTR)
+    if (!dz0D.isValid())
     {
         if (ok != Q_NULLPTR)
         {
@@ -654,17 +666,12 @@ GtDataZoneTable::value0D(QString param,
 double
 GtDataZoneTable::value0DfromOP(QString param, QString OP, bool *ok)
 {
-//    QStringList OPpath = OP.split(";");
-
-    //QString axis = OPpath.at(0);
-//    QString label = OPpath.at(0);
-//    QString op = OPpath.at(1);
-
     int mainXnumber = xPtr()->indexOf(OP);
 
-    GtAbstractDataZone* adz = dataZone(mainXnumber, 0, 0);
+    GtExternalizedObjectHelper<GtAbstractDataZone> adz
+            (dataZone(mainXnumber, 0, 0), GtExternalizedObject::Discard);
 
-    if (adz == Q_NULLPTR)
+    if (!adz.isValid())
     {
         if (ok != Q_NULLPTR)
         {
@@ -682,11 +689,10 @@ GtDataZoneTable::subAxisTicks(QString id)
 {
     QStringList retval;
 
-    GtDataZone* dz = Q_NULLPTR;
+    GtExternalizedObjectHelper<GtDataZone> dz
+            (data().at(0), GtExternalizedObject::Discard);
 
-    dz = qobject_cast<GtDataZone*>(data().at(0));
-
-    if (dz == Q_NULLPTR)
+    if (!dz.isValid())
     {
         // e.g. if it is 0D-data
         return retval;
@@ -734,7 +740,8 @@ GtDataZoneTable::zAxisIndexFromString(QString str)
 QStringList
 GtDataZoneTable::params()
 {
-    GtAbstractDataZone* dz = data().first();
+    GtExternalizedObjectHelper<GtAbstractDataZone> dz
+            (data().first(), GtExternalizedObject::Discard);
 
     return dz->params();
 }
@@ -744,7 +751,8 @@ GtDataZoneTable::unitFromParam(QString param)
 {
     QString retval;
 
-    GtAbstractDataZone* dz = data().first();
+    GtExternalizedObjectHelper<GtAbstractDataZone> dz
+            (data().first(), GtExternalizedObject::Discard);
 
     retval = dz->unit(param);
 

@@ -12,8 +12,11 @@
 
 #define gtTestHelper (GtTestHelper::instance())
 
+#include <QVector>
+
 class QDir;
 class QString;
+class QStringList;
 
 class GtTestHelper
 {
@@ -26,12 +29,23 @@ public:
 
     QDir newTempDir();
 
-    void setRemoveTempPath(bool val);
+    /**
+     * @brief randomStringList generates a random string list (uuids)
+     * @param length length of the list
+     * @return list
+     */
+    QStringList randomStringList(int length);
+
+    /**
+     * @brief randomStringList generates a random doubles
+     * @param length length of the list
+     * @return list
+     */
+    QVector<double> randomDataVector(int length);
 
     ~GtTestHelper();
 
 private:
-    bool m_removeTempPath;
 
     GtTestHelper();
 

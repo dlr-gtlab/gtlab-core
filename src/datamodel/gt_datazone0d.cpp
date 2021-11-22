@@ -326,6 +326,11 @@ GtDataZone0D::value(QString paramName, bool* ok)
         return 0.0;
     }
 
+    if (ok)
+    {
+        *ok = true;
+    }
+
     return m_values.at(index);
 }
 

@@ -16,6 +16,7 @@
 #include "gt_logging.h"
 #include "gt_datazone.h"
 #include "gt_datazone0d.h"
+#include "gt_externalizedobjecthelper.h"
 
 GtDataZoneDatExporter::GtDataZoneDatExporter()
 {
@@ -41,9 +42,13 @@ GtDataZoneDatExporter::icon() const
 }
 
 bool
-GtDataZoneDatExporter::doExport(GtObject* data, QFile& file)
+GtDataZoneDatExporter::doExport(GtObject* object, QFile& file)
 {
-    if (data == Q_NULLPTR)
+    // fetch datazone for the duration of this function call
+    GtExternalizedObjectHelper<GtAbstractDataZone> data
+            (object, GtExternalizedObject::Discard);
+
+    if (!data.isValid())
     {
         gtError() << tr("Data corrupted!");
         return false;
@@ -64,6 +69,7 @@ GtDataZoneDatExporter::doExport(GtObject* data, QFile& file)
         }
 
         file.close();
+        return true;
     }
 
     GtDataZone* dataZone = qobject_cast<GtDataZone*>(data);
@@ -75,9 +81,10 @@ GtDataZoneDatExporter::doExport(GtObject* data, QFile& file)
         }
 
         file.close();
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 QString

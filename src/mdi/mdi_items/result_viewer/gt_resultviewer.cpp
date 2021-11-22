@@ -87,9 +87,10 @@ GtResultViewer::setData(GtObject* obj)
 {
     m_model->clearResultData();
 
-    GtExternalizedObjectHelper<GtAbstractDataZone> dataZone(obj, GtExternalizedObject::Discard);
+    GtExternalizedObjectHelper<GtAbstractDataZone> dataZone
+            (obj, GtExternalizedObject::Discard);
 
-    if (dataZone == Q_NULLPTR)
+    if (!dataZone.isValid())
     {
         return;
     }

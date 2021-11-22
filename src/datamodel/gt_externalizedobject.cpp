@@ -176,14 +176,18 @@ GtExternalizedObject::releaseData(ReleaseFlag mode)
         updateCachedHash(hash);
     }
 
+    // ref count should not be below 0
+    if (m_refCount < 0)
+    {
+        m_refCount = 0;
+    }
+
     // dont clear if data is in use or was not externalized before
     if (m_refCount > 0 || m_states & Standalone)
     {
         return true;
     }
 
-    // ref count should be 0 now
-    m_refCount = 0;
     // clear fetched state
     m_states = m_states & ~Fetched;
     // data can be cleared
