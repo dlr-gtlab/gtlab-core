@@ -6,8 +6,6 @@
 #include "gt_posttemplateitem.h"
 
 class GtDataZoneTableList;
-class GtDataZoneTable;
-class GtStringContainer;
 class GtObjectGroup;
 
 typedef QList<QColor> colorList;

@@ -111,7 +111,7 @@ public:
     int nSubDims();
 
     /**
-     * @brief get all UIQUE params of all Datazones that are in all
+     * @brief get all UNIQUE params of all Datazones that are in all
      * datazonetables of this list
      * @return
      */

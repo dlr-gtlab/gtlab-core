@@ -38,7 +38,6 @@ TEST_F(TestGtDummyObject, toMemento)
 {
     QDir tmpDir = gtTestHelper->newTempDir();
     tmpDir.cdUp();
-    gtTestHelper->setRemoveTempPath(false);
 
     // create object memento of unknown object
     m_obj.setDouble(123.4);

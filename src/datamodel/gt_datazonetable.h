@@ -4,8 +4,8 @@
 #include "gt_datamodel_exports.h"
 
 #include "gt_object.h"
-#include "QStringList"
-#include "QVector"
+#include <QStringList>
+#include <QVector>
 #include "gt_datazonetablemainaxis.h"
 
 class GtAbstractDataZone;

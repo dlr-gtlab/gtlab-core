@@ -14,7 +14,6 @@
 
 #include "gt_abstractexporter.h"
 
-class GtAbstractDataZone;
 class GtDataZone;
 class GtDataZone0D;
 
