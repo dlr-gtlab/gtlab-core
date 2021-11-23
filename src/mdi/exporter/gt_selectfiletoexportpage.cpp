@@ -118,13 +118,17 @@ GtSelectFileToExportPage::selectFilePath()
         return;
     }
 
-    QString ext = m_fileExtension;
-    ext.remove(QStringLiteral("(*"));
-    ext.remove(QStringLiteral(")"));
-    QStringList extSplit = ext.split(".", QString::SkipEmptyParts);
+    QString initFileName = object()->objectName().toLower();
 
-    QString initFileName = object()->objectName().toLower() +
-                           QStringLiteral(".") + extSplit.last();
+    if (m_fileExtension.contains(QStringLiteral(".")))
+    {
+        QString ext = m_fileExtension;
+        ext.remove(QStringLiteral("(*"));
+        ext.remove(QStringLiteral(")"));
+        QStringList extSplit = ext.split(".", QString::SkipEmptyParts);
+
+        initFileName += QStringLiteral(".") + extSplit.last();
+    }
 
     initFileName.replace(" ", "_");
 
