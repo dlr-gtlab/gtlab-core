@@ -365,7 +365,14 @@ private:
      * @param index
      * @return
      */
-    GtCalculator* calcByModelIndex(QModelIndex index);
+    GtCalculator* calcByModelIndex(const QModelIndex& index);
+
+    /**
+     * @brief calcByModelIndex
+     * @param index
+     * @return
+     */
+    GtTask* taskByModelIndex(const QModelIndex& index);
 
     /**
      * @brief Updates property connections in a copied object based on the

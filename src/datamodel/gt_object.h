@@ -81,6 +81,13 @@ public:
     bool hasDummyChildren() const;
 
     /**
+     * @brief Returns true if any parent object is of type dummy.
+     * Otherwise false is returned.
+     * @return True if any parent object is of type dummy.
+     */
+    bool hasDummyParents() const;
+
+    /**
      * @brief Creates a memento of the internal object state.
      * @param clone
      * @return
