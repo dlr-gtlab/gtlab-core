@@ -46,6 +46,19 @@ void
 GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionIcon,
                             const QString& actionMethod,
+                            const QString& actionVerification,
+                            const QString& actionVisibility,
+                            const QKeySequence& shortcut)
+{
+    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
+                                        actionVerification, actionVisibility,
+                                        shortcut);
+}
+
+void
+GtObjectUI::addSingleAction(const QString& actionText,
+                            const QString& actionIcon,
+                            const QString& actionMethod,
                             const QString& actionVerification)
 {
     m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,

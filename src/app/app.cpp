@@ -114,6 +114,9 @@ main(int argc, char* argv[])
     // language initialization
     app.initLanguage();
 
+    // chort cuts initialization
+    app.initShortCuts();
+
     // datamodel initialization
     app.initDatamodel();
 
@@ -140,9 +143,6 @@ main(int argc, char* argv[])
 
     // perspective initialization
     app.initPerspective();
-
-    // chort cuts initialization
-    app.initShortCuts();
 
 //    gtApp->setLanguage("de");
 
