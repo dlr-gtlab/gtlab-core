@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BugFix: Small check in table class prevents crash on linux for tables with only one point
 - Changed ObjectUI Standard Behaviour for renaming to allow spaces - #109
 - GtVersionNumber: correct function for operator '>' and '<' -#159 
+- GtProcessDock: Dummy process elements are no longer mutable - #162
 
 ### Changed
 - Saving a project was moved to a separate thread - #127

@@ -297,7 +297,7 @@ GtProcessDock::addEmptyTaskToRoot()
 }
 
 GtCalculator*
-GtProcessDock::calcByModelIndex(QModelIndex index)
+GtProcessDock::calcByModelIndex(const QModelIndex& index)
 {
     if (!index.isValid())
     {
@@ -316,14 +316,30 @@ GtProcessDock::calcByModelIndex(QModelIndex index)
         return Q_NULLPTR;
     }
 
-    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+    return qobject_cast<GtCalculator*>(gtDataModel->objectFromIndex(srcIndex));
+}
 
-    if (obj != Q_NULLPTR)
+GtTask*
+GtProcessDock::taskByModelIndex(const QModelIndex& index)
+{
+    if (!index.isValid())
     {
-        return qobject_cast<GtCalculator*>(obj);
+        return Q_NULLPTR;
     }
 
-    return Q_NULLPTR;
+    QModelIndex srcIndex = mapToSource(index);
+
+    if (!srcIndex.isValid())
+    {
+        return Q_NULLPTR;
+    }
+
+    if (srcIndex.model() != gtDataModel)
+    {
+        return Q_NULLPTR;
+    }
+
+    return qobject_cast<GtTask*>(gtDataModel->objectFromIndex(srcIndex));
 }
 
 void
@@ -583,7 +599,8 @@ GtProcessDock::updateButtons(GtObject* obj)
 
     setCurrentProcess(findRootTaskHelper(obj));
 
-    if (qobject_cast<GtCalculator*>(obj))
+    if (!obj || qobject_cast<GtCalculator*>(obj) || obj->isDummy() ||
+            obj->hasDummyParents())
     {
         m_addElementButton->setEnabled(false);
     }
@@ -972,6 +989,9 @@ GtProcessDock::customContextMenu(const QPoint& pos)
 void
 GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 {
+    // incomplete processelements should not be modified
+    bool hasInvalidParents = obj->hasDummyParents();
+
     QMenu menu(this);
     QAction* actrun = menu.addAction(tr("Run Task"));
     QAction* actstop = menu.addAction(tr("Stop Task"));
@@ -989,14 +1009,6 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     {
         actrun->setVisible(false);
         actstop->setVisible(false);
-    }
-
-    QAction* actmon = menu.addAction(tr("Open Monitoring Table"));
-    actmon->setIcon(gtApp->icon(QStringLiteral("monitoringIcon.png")));
-
-    if (!gtApp->devMode())
-    {
-        actmon->setVisible(false);
     }
 
     menu.addSeparator();
@@ -1041,9 +1053,9 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     if (!importerList.isEmpty())
     {
         GtImportMenu* imenu = new GtImportMenu(obj, &menu);
+        imenu->setEnabled(!hasInvalidParents);
 
         menu.addMenu(imenu);
-
         menu.addSeparator();
     }
 
@@ -1054,9 +1066,9 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     if (!exporterList.isEmpty())
     {
         GtExportMenu* emenu = new GtExportMenu(obj, &menu);
+        emenu->setEnabled(!obj->hasDummyChildren());
 
         menu.addMenu(emenu);
-
         menu.addSeparator();
     }
 
@@ -1079,27 +1091,30 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     actdelete->setIcon(gtApp->icon("closeIcon_16.png"));
     actdelete->setShortcut(gtApp->getShortCutSequence("delete"));
 
-    QClipboard* clipboard = QApplication::clipboard();
-    const QMimeData* mimeData = clipboard->mimeData();
-
-    if ((mimeData != Q_NULLPTR) &&
-            (mimeData->hasFormat(QStringLiteral("GtObject"))))
+    if (!hasInvalidParents)
     {
-        GtObjectMemento memento(mimeData->data(QStringLiteral("GtObject")));
+        QClipboard* clipboard = QApplication::clipboard();
+        const QMimeData* mimeData = clipboard->mimeData();
 
-        if (memento.canCastTo(GtCalculator::staticMetaObject.className(),
-                              gtProcessFactory))
+        if ((mimeData != Q_NULLPTR) &&
+                (mimeData->hasFormat(QStringLiteral("GtObject"))))
         {
-            actpaste->setEnabled(true);
-        }
-        else if (memento.canCastTo(GtTask::staticMetaObject.className(),
-                                   gtProcessFactory))
-        {
-            actpaste->setEnabled(true);
+            GtObjectMemento memento(mimeData->data(QStringLiteral("GtObject")));
+
+            if (memento.canCastTo(GtCalculator::staticMetaObject.className(),
+                                  gtProcessFactory))
+            {
+                actpaste->setEnabled(true);
+            }
+            else if (memento.canCastTo(GtTask::staticMetaObject.className(),
+                                       gtProcessFactory))
+            {
+                actpaste->setEnabled(true);
+            }
         }
     }
 
-    if (!componentIsReady(obj))
+    if (!componentIsReady(obj) || hasInvalidParents)
     {
         actrun->setEnabled(false);
         actconnect->setEnabled(false);
@@ -1178,6 +1193,9 @@ void
 GtProcessDock::calculatorContextMenu(GtCalculator* obj,
                                      const QModelIndex& index)
 {
+    // incomplete processelements should not be modified
+    bool hasInvalidParents = obj->hasDummyParents();
+
     QMenu menu(this);
     QAction* actconfig = menu.addAction("Config...");
     actconfig->setIcon(gtApp->icon("configIcon_16.png"));
@@ -1219,9 +1237,9 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     if (!importerList.isEmpty())
     {
         GtImportMenu* imenu = new GtImportMenu(obj, &menu);
+        imenu->setEnabled(!hasInvalidParents);
 
         menu.addMenu(imenu);
-
         menu.addSeparator();
     }
 
@@ -1234,7 +1252,6 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
         GtExportMenu* emenu = new GtExportMenu(obj, &menu);
 
         menu.addMenu(emenu);
-
         menu.addSeparator();
     }
 
@@ -1260,7 +1277,7 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     actdelete->setIcon(gtApp->icon("closeIcon_16.png"));
     actdelete->setShortcut(gtApp->getShortCutSequence("delete"));
 
-    if (!componentIsReady(obj))
+    if (!componentIsReady(obj) || hasInvalidParents)
     {
         actconfig->setEnabled(false);
         actconnect->setEnabled(false);
@@ -1338,13 +1355,24 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
 
     bool allSkipped = true;
     bool allUnskipped = true;
+    int dummyObjects = 0;
 
-    foreach (QModelIndex index, indexList)
+    for (const QModelIndex& index : indexList)
     {
+        GtTask* task = taskByModelIndex(index);
+
+        if (task != Q_NULLPTR)
+        {
+            dummyObjects += (task->isDummy() || task->hasDummyParents());
+            continue;
+        }
+
         GtCalculator* calc = calcByModelIndex(index);
 
         if (calc != Q_NULLPTR)
         {
+            dummyObjects += (calc->isDummy() || calc->hasDummyParents());
+
             if (!calc->isSkipped())
             {
                 allSkipped = false;
@@ -1357,13 +1385,24 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
         }
     }
 
-    if (allSkipped)
+    if (allUnskipped)
+    {
+        unskipCalcs->setVisible(false);
+    }
+    else if (allSkipped)
     {
         skipCalcs->setVisible(false);
     }
-    else if (allUnskipped)
+
+    // dummy objects cannot be deleted
+    if (dummyObjects > 0)
     {
-        unskipCalcs->setVisible(false);
+        deleteElements->setEnabled(false);
+    }
+    if (dummyObjects == indexList.length())
+    {
+        skipCalcs->setEnabled(false);
+        unskipCalcs->setEnabled(false);
     }
 
     QAction* a = menu.exec(QCursor::pos());

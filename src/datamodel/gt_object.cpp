@@ -75,7 +75,7 @@ GtObject::isExternalizedObject() const
 bool
 GtObject::hasDummyChildren() const
 {
-    foreach (GtObject* c, findChildren<GtObject*>())
+    for (const GtObject* c : findChildren<GtObject*>())
     {
         if (c->isDummy())
         {
@@ -84,6 +84,18 @@ GtObject::hasDummyChildren() const
     }
 
     return false;
+}
+
+bool
+GtObject::hasDummyParents() const
+{
+    if (parentObject() == Q_NULLPTR)
+    {
+        return false;
+    }
+
+    // recursively search for parent dummy objects
+    return parentObject()->isDummy() || parentObject()->hasDummyParents();
 }
 
 GtObjectMemento
