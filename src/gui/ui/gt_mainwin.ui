@@ -82,7 +82,7 @@
      <x>0</x>
      <y>0</y>
      <width>1009</width>
-     <height>24</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
@@ -197,7 +197,6 @@
     <addaction name="separator"/>
     <addaction name="actionPerformance_Map_Editor"/>
     <addaction name="actionWidgetStructure"/>
-    <addaction name="actionChangeTheme"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>

@@ -197,6 +197,12 @@ public:
      * @return the dafault short cuts as a map
      */
     QMap<QString, QStringList> intialShortCutsMap();
+
+    QString themeMode();
+
+    bool darkMode();
+
+    void setThemeMode(const QString& theme);
 protected:
     /**
      * @brief GtSettings
@@ -246,7 +252,8 @@ private:
     /// Settings for short cuts in GTlab
     GtSettingsItem* m_shortcutsTable;
 
-
+    /// Settings for theme selection
+    GtSettingsItem* m_themeSelection;
 };
 
 #endif // GTSETTINGS_H

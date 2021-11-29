@@ -62,7 +62,6 @@ GtApplication::GtApplication(QCoreApplication* parent, bool devMode) :
             SLOT(onUndoStackChange()));
 
     m_devMode = devMode;
-    m_darkMode = false;
 
     GtShortCuts* cuts = new GtShortCuts(this);
 }
@@ -726,6 +725,7 @@ void
 GtApplication::setDarkMode(bool dark)
 {
     m_darkMode = dark;
+    emit themeChanged(dark);
 }
 
 bool

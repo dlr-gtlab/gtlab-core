@@ -211,23 +211,10 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(closeProject()));
     connect(ui->actionWidgetStructure, SIGNAL(triggered(bool)),
             SLOT(onWidgetStructureClicked()));
-    connect(ui->actionChangeTheme, SIGNAL(triggered(bool)),
-            SLOT(onChangeThemeClicked()));
+    connect(gtApp, SIGNAL(themeChanged(bool)),
+            SLOT(setTheme(bool)));
 
     loadPerspectiveSettings();
-
-    bool darkMode = false;
-#ifdef Q_OS_WIN
-    QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",QSettings::NativeFormat);
-    if (settings.value("AppsUseLightTheme") == 0)
-    {
-        darkMode = true;
-    }
-#endif
-
-    gtApp->setDarkMode(darkMode);
-
-    setTheme(darkMode);
 }
 
 GtMainWin::~GtMainWin()
@@ -1269,38 +1256,44 @@ GtMainWin::onWidgetStructureClicked()
 }
 
 void
-GtMainWin::onChangeThemeClicked()
-{
-    bool oldDarkVal = gtApp->inDarkMode();
-
-    gtApp->setDarkMode(!oldDarkVal);
-    setTheme(!oldDarkVal);
-}
-
-void
 GtMainWin::setTheme(bool dark)
 {
     QPalette p;
     if (!dark)
     {
-        p = GtPalette::standardTheme();
-        qApp->setPalette(p);
-
         QString style = "Default";
 #ifdef Q_OS_WIN
         style = "windowsvista";
 #endif
+        gtDebug() << QStyleFactory::keys();
+
+        p = GtPalette::standardTheme();
+
+        qApp->setPalette(p);
         qApp->setStyle(QStyleFactory::create(style));
         qApp->setStyleSheet("QToolTip { color: black; "
+                            "background-color: white; "
+                            "border: 1px solid black; }");
+
+        this->setPalette(p);
+        this->setStyle(QStyleFactory::create(style));
+        this->setStyleSheet("QToolTip { color: black; "
                             "background-color: white; "
                             "border: 1px solid black; }");
     }
     else
     {
         p = GtPalette::darkTheme();
+
         qApp->setPalette(p);
         qApp->setStyle(QStyleFactory::create("Fusion"));
         qApp->setStyleSheet("QToolTip { color: #ffffff; "
+                            "background-color: #2a82da; "
+                            "border: 1px solid white; }");
+
+        this->setPalette(p);
+        this->setStyle(QStyleFactory::create("Fusion"));
+        this->setStyleSheet("QToolTip { color: #ffffff; "
                             "background-color: #2a82da; "
                             "border: 1px solid white; }");
     }

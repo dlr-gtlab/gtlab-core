@@ -15,7 +15,6 @@
 
 #include "gt_dockwidget.h"
 
-class QComboBox;
 class GtExplorerView;
 class GtResultsView;
 class GtExplorerModel;

@@ -10,6 +10,7 @@
 #include <QSettings>
 #include <QMap>
 #include <QKeySequence>
+#include <QString>
 
 #include "gt_settings.h"
 #include "gt_settingsitem.h"
@@ -62,6 +63,9 @@ GtSettings::GtSettings()
                 QStringLiteral("application/general/shortCuts"),
                 initialShortCuts());
 
+    m_themeSelection = registerSetting(
+                        QStringLiteral("application/general/themeSelection"),
+                        QStringLiteral("system"));
 }
 
 QMap<QString, QStringList>
@@ -191,6 +195,57 @@ GtSettings::intialShortCutsMap()
     }
 
     return retVal;
+}
+
+QString
+GtSettings::themeMode()
+{
+    QVariant val = QSettings().value(m_themeSelection->ident());
+    return val.toString();
+}
+
+bool
+GtSettings::darkMode()
+{
+    QVariant val = QSettings().value(m_themeSelection->ident());
+    QString s = val.toString();
+
+    if (s.toStdString() == ("dark"))
+    {
+        return true;
+    }
+    else if (s.toStdString() == ("bright"))
+    {
+        return false;
+    }
+    else    // system mode
+    {
+#ifdef Q_OS_WIN
+        std::string set = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
+        QString set2 = QString::fromStdString(set);
+
+        std::string a = "AppsUseLightTheme";
+        QString a2 = QString::fromStdString(a);
+
+        QSettings settings(set2 ,QSettings::NativeFormat);
+        if (settings.value(a2) == 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+#else //Dark mode detection is inactive for linux
+        return false;
+#endif
+    }
+}
+
+void
+GtSettings::setThemeMode(const QString& theme)
+{
+    QSettings().setValue(m_themeSelection->ident(), theme);
 }
 
 QString
