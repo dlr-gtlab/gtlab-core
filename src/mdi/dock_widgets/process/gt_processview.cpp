@@ -101,6 +101,16 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
                     return;
                 }
             }
+
+            if (gtApp->compareKeyEvent(event, "rename"))
+            {
+                if (index.isValid())
+                {
+                    emit renameProcessElement(index);
+                    event->accept();
+                    return;
+                }
+            }
         }
 
         if (gtApp->compareKeyEvent(event, "delete"))
