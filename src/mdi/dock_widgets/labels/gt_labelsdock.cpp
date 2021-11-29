@@ -57,6 +57,7 @@ GtLabelsDock::GtLabelsDock() :
     m_listView = new GtListView;
     m_listView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_listView->setItemDelegate(new GtLabelDelegate(this));
+    m_listView->setSelectionMode(GtListView::ExtendedSelection);
 
     widget->setFrameShape(m_listView->frameShape());
     widget->setFrameStyle(m_listView->frameStyle());
@@ -293,7 +294,95 @@ GtLabelsDock::deleteUsages(const QModelIndex& index, bool deleteLabel)
                 objsToDelete << label;
             }
 
-            foreach (GtLabel* l, labels)
+            for (GtLabel* l : labels)
+            {
+                objsToDelete << l;
+            }
+
+            gtDataModel->deleteFromModel(objsToDelete);
+
+            break;
+        }
+        case QMessageBox::Cancel:
+        {
+            break;
+        }
+    }
+}
+
+void
+GtLabelsDock::deleteMultipleUsages(const QModelIndexList& indexes,
+                                   bool deleteLabels)
+{
+    if (m_project == Q_NULLPTR)
+    {
+        return;
+    }
+
+    QList<GtObject*> labels;
+    QList<GtLabel*> usages;
+
+    for (const QModelIndex& idx : indexes)
+    {
+        if (!idx.isValid())
+        {
+            continue;
+        }
+
+        GtLabel* label = labelFromIndex(idx);
+
+        if (label == Q_NULLPTR)
+        {
+            continue;
+        }
+
+        usages.append(m_project->findLabelUsages(label));
+        labels.append(label);
+    }
+
+    int nou = usages.size();
+
+    QString msg;
+
+    if (nou <= 0)
+    {
+        if (!deleteLabels)
+        {
+            QMessageBox::information(this, tr("No usages found"),
+                                     tr("No usages found!"), QMessageBox::Ok,
+                                     QMessageBox::Ok);
+            return;
+        }
+
+        msg = tr("Delete selected labels?");
+    }
+    else
+    {
+        msg = tr("Delete all") + QStringLiteral(" <b>") + QString::number(nou) +
+              QStringLiteral("</b> ") + tr("data entries of selected labels?");
+    }
+
+    QMessageBox mb;
+    mb.setIcon(QMessageBox::Question);
+    mb.setWindowTitle(tr("Delete selected Labels"));
+    mb.setWindowIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    mb.setText(msg);
+    mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+    mb.setDefaultButton(QMessageBox::Yes);
+    int ret = mb.exec();
+
+    switch (ret)
+    {
+        case QMessageBox::Yes:
+        {
+            QList<GtObject*> objsToDelete;
+
+            if (deleteLabels)
+            {
+                objsToDelete << labels;
+            }
+
+            for (GtLabel* l : usages)
             {
                 objsToDelete << l;
             }
@@ -389,12 +478,36 @@ GtLabelsDock::customContextMenu(const QPoint& pos)
         return;
     }
 
-    QModelIndex index = m_listView->indexAt(pos);
+    QModelIndexList indexes;
 
-    QModelIndex srcIndex = mapToSource(index);
-
-    if (srcIndex.isValid())
+    // multiselection
+    if (m_listView->selectionModel() != Q_NULLPTR)
     {
+        indexes = m_listView->selectionModel()->selectedIndexes();
+    }
+    else
+    {
+        // check index at cursor
+        QModelIndex index = m_listView->indexAt(pos);
+
+        if (!index.isValid())
+        {
+            return;
+        }
+
+        indexes.append(index);
+    }
+
+    if (indexes.isEmpty())
+    {
+        return;
+    }
+
+    // conetx menu for single label
+    if (indexes.length() == 1)
+    {
+        QModelIndex index = indexes.at(0);
+
         QMenu menu(this);
 
         QAction* actrename = menu.addAction(tr("Rename"));
@@ -431,6 +544,31 @@ GtLabelsDock::customContextMenu(const QPoint& pos)
         {
             deleteUsages(index);
         }
+
+        return;
+    }
+
+    // conetx menu for multiple labels
+    QMenu menu(this);
+
+    QAction* actdeleteusages = menu.addAction(tr("Delete Usages"));
+    actdeleteusages->setIcon(
+                gtApp->icon(QStringLiteral("closeIcon_16.png")));
+
+    menu.addSeparator();
+
+    QAction* actdelete = menu.addAction(tr("Delete Labels"));
+    actdelete->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+
+    QAction* a = menu.exec(QCursor::pos());
+
+    if (a == actdeleteusages)
+    {
+        deleteMultipleUsages(indexes, false);
+    }
+    else if (a == actdelete)
+    {
+        deleteMultipleUsages(indexes, true);
     }
 }
 

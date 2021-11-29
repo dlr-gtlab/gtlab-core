@@ -116,6 +116,14 @@ private:
      */
     void deleteUsages(const QModelIndex& index, bool deleteLabel = true);
 
+    /**
+     * @brief Deletes all usages of given labels inside current project.
+     * @param Label indexes.
+     * @param Delete label indicator.
+     */
+    void deleteMultipleUsages(const QModelIndexList& indexes,
+                              bool deleteLabels = true);
+
 private slots:
     /**
      * @brief filterData
