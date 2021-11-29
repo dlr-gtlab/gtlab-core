@@ -14,12 +14,39 @@
 QString
 GtStyleSheets::buttonStyleSheet()
 {
-    QString text = "QPushButton { "
-                   "border: 1px solid gray;"
-                   "border-radius: 4px;"
-                   "min-width: 70px;"
-                   "min-height:22px}";
-    return text;
+    QString border = "border: 1px solid gray;"
+                     "border-radius: 4px;";
+
+    QString size = "min-width: 70px;"
+                   "min-height:22px;";
+
+    if (!gtApp->inDarkMode())
+    {
+        return "QAbstractButton { "
+                + border +
+               "background-color:white;"
+                + size + "}"
+               "QAbstractButton:hover{background-color:"
+               "rgb(220,235,250)}"
+               "QAbstractButton:disabled {background-color:"
+               "rgb(240,240,240)}"
+               "QAbstractButton:pressed{background-color:"
+               "rgb(180,213,246)}";
+
+    }
+    else
+    {
+        return "QAbstractButton { "
+                + border
+                + size + "}"
+               "QAbstractButton:hover{background-color:"
+               "rgb(180,200,200)}"
+               "QAbstractButton:disabled {background-color:"
+               "rgb(180,180,180)}"
+               "QAbstractButton:pressed{background-color:"
+               "rgb(180,213,213)}";
+
+    }
 }
 
 QString

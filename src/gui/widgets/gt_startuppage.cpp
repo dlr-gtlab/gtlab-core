@@ -14,6 +14,7 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QVBoxLayout>
+#include <QToolButton>
 
 #include "gt_application.h"
 #include "gt_settings.h"
@@ -49,31 +50,90 @@ GtStartupPage::GtStartupPage()
 
     QGridLayout* btnGridLay = new QGridLayout;
 
-    QSize iconSize(110, 110);
+    QString welcomebuttonStyleSheet;
 
-    QPushButton* newProjBtn = new QPushButton;
-    newProjBtn->setIcon(QIcon(":/pixmaps/openProjectPix.png"));
+    QString border = "border: 1px solid gray;"
+                     "border-radius: 4px;";
+
+    QString size = "min-width: 110px;"
+                   "min-height:110px;";
+
+    if (!gtApp->inDarkMode())
+    {
+        welcomebuttonStyleSheet =  "QAbstractButton { "
+                + border +
+               "background-color:white;"
+                + size +
+                "font: bold;}"
+               "QAbstractButton:hover{background-color:"
+               "rgb(220,235,250)}"
+               "QAbstractButton:disabled {background-color:"
+               "rgb(240,240,240)}"
+               "QAbstractButton:pressed{background-color:"
+               "rgb(180,213,246)}";
+    }
+    else
+    {
+        welcomebuttonStyleSheet =  "QAbstractButton { "
+                + border +
+                "background-color:#2d2d2d;" /// the same as 45,45,45 RGB
+                + size +
+                "font: bold;}"
+               "QAbstractButton:hover{background-color:"
+               "rgb(180,200,200)}"
+               "QAbstractButton:disabled {background-color:"
+               "rgb(180,180,180)}"
+               "QAbstractButton:pressed{background-color:"
+               "rgb(180,213,213)}";
+    }
+
+    QIcon newP = QIcon(":/icons/addProjectIcon.png");
+    QIcon examples = QIcon(":/icons/examplesIcon.png");
+    QIcon helpIcon = QIcon(":/icons/questionIcon.png");
+    QIcon infoIcon = QIcon(":/icons/infoIcon.png");
+
+    QSize iconSize(80, 80);
+
+    QToolButton* newProjBtn = new QToolButton;
+    newProjBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    newProjBtn->setIcon(newP);
     newProjBtn->setIconSize(iconSize);
-    newProjBtn->setStyleSheet(GtStyleSheets::buttonStyleSheet());
+    newProjBtn->setStyleSheet(welcomebuttonStyleSheet);
+    newProjBtn->setText(tr("New Project"));
     btnGridLay->addWidget(newProjBtn, 0, 0);
 
-    QPushButton* examplesBtn = new QPushButton;
-    examplesBtn->setIcon(QIcon(":/pixmaps/examplesPix.png"));
+    QToolButton* examplesBtn = new QToolButton;
+    examplesBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    examplesBtn->setIcon(examples);
     examplesBtn->setIconSize(iconSize);
-    examplesBtn->setStyleSheet(GtStyleSheets::buttonStyleSheet());
+    examplesBtn->setStyleSheet(welcomebuttonStyleSheet);
+    examplesBtn->setText(tr("Examples"));
     btnGridLay->addWidget(examplesBtn, 0, 1);
 
-    QPushButton* helpBtn = new QPushButton;
-    helpBtn->setIcon(QIcon(":/pixmaps/helpPix.png"));
+    QToolButton* helpBtn = new QToolButton;
+    helpBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    helpBtn->setIcon(helpIcon);
     helpBtn->setIconSize(iconSize);
-    helpBtn->setStyleSheet(GtStyleSheets::buttonStyleSheet());
+    helpBtn->setStyleSheet(welcomebuttonStyleSheet);
+    helpBtn->setText(tr("Help Contents"));
     btnGridLay->addWidget(helpBtn, 1, 0);
 
-    QPushButton* infoBtn = new QPushButton;
-    infoBtn->setIcon(QIcon(":/pixmaps/infoPix.png"));
+    QToolButton* infoBtn = new QToolButton(this);
+    infoBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    infoBtn->setIcon(infoIcon);
     infoBtn->setIconSize(iconSize);
-    infoBtn->setStyleSheet(GtStyleSheets::buttonStyleSheet());
+    infoBtn->setText("Info");
+    infoBtn->setStyleSheet(welcomebuttonStyleSheet);
+
+
+                //QSize(110, 120));
     btnGridLay->addWidget(infoBtn, 1, 1);
+
+    //QPushButton* infoBtn = new QPushButton;
+    //infoBtn->setIcon(QIcon(":/pixmaps/infoPix.png"));
+    //infoBtn->setIconSize(iconSize);
+    //infoBtn->setStyleSheet(GtStyleSheets::buttonStyleSheet());
+    //btnGridLay->addWidget(infoBtn, 1, 1);
 
     connect(newProjBtn, SIGNAL(clicked(bool)), this, SIGNAL(newProject()));
     connect(examplesBtn, SIGNAL(clicked(bool)), this,

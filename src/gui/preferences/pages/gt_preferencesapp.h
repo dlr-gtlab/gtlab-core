@@ -14,6 +14,7 @@
 
 class QCheckBox;
 class QSpinBox;
+class QComboBox;
 
 /**
  * @brief The GtPreferencesApp class
@@ -51,6 +52,9 @@ private:
 
     /// Max. logging length spin box
     QSpinBox* m_maxLogSpin;
+
+    /// Select the theme to use (by system, dark, bright)
+    QComboBox* m_themeSelection;
 
     /**
      * @brief loadSettings

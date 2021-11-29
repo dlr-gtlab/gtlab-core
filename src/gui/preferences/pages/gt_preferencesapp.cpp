@@ -12,6 +12,8 @@
 #include <QFormLayout>
 #include <QSpinBox>
 #include <QLabel>
+#include <QComboBox>
+#include <QSettings>
 
 #include "gt_application.h"
 #include "gt_settings.h"
@@ -76,6 +78,12 @@ GtPreferencesApp::GtPreferencesApp()
 
     formLay->addRow(tr("Max. logging length:"), m_maxLogSpin);
 
+    m_themeSelection = new QComboBox(this);
+    m_themeSelection->addItem(tr("System selection"));
+    m_themeSelection->addItem(tr("Bright mode"));
+    m_themeSelection->addItem(tr("Dark mode"));
+    formLay->addRow(tr("Theme section:"), m_themeSelection);
+
     generalLayout->addLayout(formLay);
 
     generalLayout->addStretch(1);
@@ -126,6 +134,21 @@ GtPreferencesApp::GtPreferencesApp()
 
     m_maxLogSpin->setValue(gtApp->settings()->maxLogLength());
 
+    QString themeMode = gtApp->settings()->themeMode();
+    if (themeMode == "bright")
+    {
+        m_themeSelection->setCurrentIndex(1);
+    }
+    else if (themeMode == "dark")
+    {
+        m_themeSelection->setCurrentIndex(2);
+    }
+    else
+    {
+        m_themeSelection->setCurrentIndex(0);
+    }
+
+
 //    connect(m_autoSaveModifications, SIGNAL(clicked(bool)),
 //            SLOT(onAutoSaveTriggered(bool)));
 }
@@ -161,6 +184,25 @@ GtPreferencesApp::saveSettings()
     }
 
     gtApp->settings()->setMaxLogLength(m_maxLogSpin->value());
+
+    int index = m_themeSelection->currentIndex();
+
+    if (index == 1)
+    {
+        gtApp->settings()->setThemeMode("bright");
+        gtApp->setDarkMode(false);
+    }
+    else if (index == 2)
+    {
+        gtApp->settings()->setThemeMode("dark");
+        gtApp->setDarkMode(true);
+    }
+    else
+    {
+        gtApp->settings()->setThemeMode("system");
+
+        gtApp->setDarkMode(gtApp->settings()->darkMode());
+    }
 }
 
 void

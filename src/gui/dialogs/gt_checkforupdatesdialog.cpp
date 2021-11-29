@@ -161,7 +161,14 @@ GtCheckForUpdatesDialog::updateAvailable()
     m_progressLabel->setVisible(false);
     m_updateButton->setEnabled(true);
     m_checkButton->setEnabled(true);
-    m_txtLabel->setText("<b><font color='darkgreen'>" +
+
+    QString fontString = "darkgreen";
+    if (gtApp->inDarkMode())
+    {
+        fontString = "green";
+    }
+
+    m_txtLabel->setText("<b><font color='" + fontString + "'>" +
                         tr("New updates available!") +
                         "</font></b>");
 
@@ -218,26 +225,33 @@ GtCheckForUpdatesDialog::noUpdateAvailable(int errorCode, const QString& str)
     gtDebug() << "Error code = " << errorCode;
     gtDebug() << "Error message = " << str;
 
+    QString fontString = "darkred";
+    if (gtApp->inDarkMode())
+    {
+        fontString = "red";
+    }
+
+
     switch (errorCode)
     {
     case 1:
-        m_txtLabel->setText("<font color='darkred'>" +
+        m_txtLabel->setText("<font color='" + fontString + "'>" +
                             tr("Maintenance Tool not found!") + "</font>");
         break;
     case 2:
-        m_txtLabel->setText("<font color='darkred'>" +
+        m_txtLabel->setText("<font color='" + fontString + "'>" +
                             tr("Timed out!") + "</font>");
         break;
     case 3:
-        m_txtLabel->setText("<font color='darkred'>" +
+        m_txtLabel->setText("<font color='" + fontString + "'>" +
                             tr("Update file not found!") + "</font>");
         break;
     case 4:
-        m_txtLabel->setText("<font color='darkred'>" +
+        m_txtLabel->setText("<font color='" + fontString + "'>" +
                             tr("Could not open update file!") + "</font>");
         break;
     case 5:
-        m_txtLabel->setText("<font color='darkred'>" +
+        m_txtLabel->setText("<font color='" + fontString + "'>" +
                             tr("Connection refused!") + "<br>" +
                             tr("Please check yout internet"
                             " connection.") + "</font>");
@@ -248,12 +262,12 @@ GtCheckForUpdatesDialog::noUpdateAvailable(int errorCode, const QString& str)
                                "Please check again in the future."));
         break;
     case 7:
-        m_txtLabel->setText("<font color='darkred'>" +
+        m_txtLabel->setText("<font color='" + fontString + "'>" +
                             tr("Failure!") + "<br>" + tr("Please try again"
                             " later.") + "</font>");
         break;
     case 8:
-        m_txtLabel->setText("<font color='darkred'>" +
+        m_txtLabel->setText("<font color='" + fontString + "'>" +
                             tr("Error!") + "<br>" + tr("Please try again"
                             " later.") + "</font>");
         break;

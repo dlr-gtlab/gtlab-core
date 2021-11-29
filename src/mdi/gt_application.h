@@ -350,6 +350,11 @@ signals:
      */
     void loadingProcedureRun(GtAbstractLoadingHelper* helper);
 
+    /**
+     * @brief themeChanged
+     * @param dark - flag if new theme is dark or not
+     */
+    void themeChanged(bool dark);
 };
 
 #endif // GTAPPLICATION_H

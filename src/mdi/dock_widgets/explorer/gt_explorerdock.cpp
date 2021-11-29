@@ -10,7 +10,6 @@
 #include <QVBoxLayout>
 #include <QFrame>
 #include <QCheckBox>
-#include <QComboBox>
 #include <QMenu>
 #include <QDebug>
 
