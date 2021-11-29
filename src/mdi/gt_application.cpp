@@ -669,10 +669,20 @@ GtApplication::getShortCutSequence(const QString& id) const
 
     if (s == nullptr)
     {
+        gtDebug() << tr("Try to find short cut for ") << id
+                  << tr("in System failed for empty list of shotcuts");
         return QKeySequence();
     }
 
-    return s->getKey(id);
+    QKeySequence retVal = s->getKey(id);
+
+    if (retVal.isEmpty())
+    {
+        gtDebug() << tr("Try to find short cut for ") << id
+                  << tr("in System failed");
+    }
+
+    return retVal;
 }
 
 bool

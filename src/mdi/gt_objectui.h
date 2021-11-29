@@ -124,10 +124,27 @@ protected:
      * @param actionIcon
      * @param actionMethod
      */
-    void addSingleAction(const QString& actionText, const QString& actionIcon,
+    void addSingleAction(const QString& actionText,
+                         const QString& actionIcon,
                          const QString& actionMethod,
                          const QString& actionVerification,
                          const QString& actionVisibility);
+
+    /**
+     * @brief addSingleAction
+     * @param actionText
+     * @param actionIcon
+     * @param actionMethod
+     * @param actionVerification
+     * @param actionVisibility
+     * @param shortcut
+     */
+    void addSingleAction(const QString& actionText,
+                         const QString& actionIcon,
+                         const QString& actionMethod,
+                         const QString& actionVerification,
+                         const QString& actionVisibility,
+                         const QKeySequence& shortcut);
 
     /**
      * @brief addAction
