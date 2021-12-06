@@ -229,6 +229,12 @@ public slots:
     void copyElement(const QModelIndex& index);
 
     /**
+     * @brief renameElement open texteditor to rename the object which is
+     * selected in the process view
+     */
+    void renameElement();
+
+    /**
      * @brief clones process element at index
      * @param index
      */

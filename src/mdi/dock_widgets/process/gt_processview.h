@@ -89,6 +89,12 @@ signals:
      * @param skip - bool as flag to skip or unskip
      */
     void skipCalcultorElement(const QModelIndex& index, bool skip);
+
+    /**
+     * @brief renameProcessElement
+     * @param index - modelindex for which the signal is emited
+     */
+    void renameProcessElement(const QModelIndex& index);
 };
 
 #endif // GTPROCESSVIEW_H

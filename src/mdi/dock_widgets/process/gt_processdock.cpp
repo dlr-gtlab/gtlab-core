@@ -155,6 +155,8 @@ GtProcessDock::GtProcessDock() :
             SLOT(runProcess()));
     connect(m_view, SIGNAL(skipCalcultorElement(QModelIndex, bool)),
             SLOT(skipCalculator(QModelIndex, bool)));
+    connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
+            SLOT(renameElement()));
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
@@ -1043,6 +1045,7 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     //    actglobals->setIcon(gtApp->icon("globalsIcon_16.png"));
     QAction* actrename = menu.addAction("Rename");
     actrename->setIcon(gtApp->icon("inputIcon_16.png"));
+    actrename->setShortcut(gtApp->getShortCutSequence("rename"));
 
     menu.addSeparator();
 
@@ -1222,6 +1225,7 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
 
     QAction* actrename = menu.addAction("Rename");
     actrename->setIcon(gtApp->icon("inputIcon_16.png"));
+    actrename->setShortcut(gtApp->getShortCutSequence("rename"));
 
     if (!obj->isRenamable())
     {
@@ -1510,6 +1514,17 @@ GtProcessDock::copyElement(const QModelIndex& index)
     QApplication::clipboard()->setMimeData(mimeData);
 
     delete copy;
+}
+
+void
+GtProcessDock::renameElement()
+{
+    QModelIndex srcIndex = m_view->currentIndex();
+
+    if (srcIndex.isValid())
+    {
+        m_view->edit(m_view->currentIndex());
+    }
 }
 
 void

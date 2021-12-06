@@ -330,9 +330,11 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     QAction* actrename = menu.addAction("Rename");
     actrename->setIcon(gtApp->icon("inputIcon_16.png"));
 
+
     if (obj->isRenamable())
     {
         menu.addSeparator();
+        actrename->setShortcut(gtApp->getShortCutSequence("rename"));
     }
     else
     {
