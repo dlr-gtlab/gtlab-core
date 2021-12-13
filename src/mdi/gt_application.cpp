@@ -86,11 +86,17 @@ GtApplication::~GtApplication()
 }
 
 QIcon
-GtApplication::icon(const QString iconName)
+GtApplication::icon(QString iconPath)
 {
     QIcon icon;
-    icon.addFile(QString(":/icons/" + iconName), QSize(), QIcon::Normal,
-                 QIcon::Off);
+    // check if icon is an absolute resource path
+    if (!iconPath.startsWith(":/"))
+    {
+        // preprend default resource path for icons
+        iconPath.prepend(QStringLiteral(":/icons/"));
+    }
+
+    icon.addFile(iconPath, QSize(), QIcon::Normal, QIcon::Off);
     return icon;
 }
 

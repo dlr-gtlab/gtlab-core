@@ -48,9 +48,10 @@ public:
      */
     virtual ~GtApplication();
 
-    /** Creates a new icon from resource file.
-        @param iconName Name of icon file */
-    static QIcon icon(const QString iconName);
+    /** Creates a new icon from a resource file.
+     *  @param iconPath Relative or custom resource path to a icon file.
+     */
+    static QIcon icon(QString iconPath);
 
     /**
      * @brief initMdiLauncher
