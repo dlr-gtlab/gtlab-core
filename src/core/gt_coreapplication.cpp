@@ -52,6 +52,7 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
     m_translator(Q_NULLPTR),
     m_moduleLoader(Q_NULLPTR),
     m_devMode(false),
+    m_batchMode(false),
     m_dataModel(new GtCoreDatamodel(parent))
 {
     /// set locale to international standard for unix OS
@@ -813,6 +814,12 @@ bool
 GtCoreApplication::devMode()
 {
     return m_devMode;
+}
+
+bool
+GtCoreApplication::batchMode()
+{
+    return m_batchMode;
 }
 
 const

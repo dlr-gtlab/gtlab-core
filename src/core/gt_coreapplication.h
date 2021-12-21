@@ -129,6 +129,12 @@ public:
     bool devMode();
 
     /**
+     * @brief Returns whether application runs in batch mode.
+     * @return batchMode indicator
+     */
+    bool batchMode();
+
+    /**
      * @brief sessionIds
      * @return
      */
@@ -357,6 +363,9 @@ protected:
 
     /// Development run indicator
     bool m_devMode;
+
+    /// Application is started in batch mode
+    bool m_batchMode;
 
     /// Date model pointer
     GtCoreDatamodel* m_dataModel;

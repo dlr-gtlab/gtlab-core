@@ -25,6 +25,7 @@
 #include "gt_collectioninterface.h"
 #include "gt_accessmanager.h"
 #include "gt_collectionsettings.h"
+#include "gt_application.h"
 
 // default ui object includes
 #include "gt_project.h"
@@ -38,7 +39,6 @@
 #include "gt_result.h"
 #include "gt_resultui.h"
 #include "gt_label.h"
-#include "gt_operatingpointui.h"
 #include "gt_tasklink.h"
 #include "gt_processlinkui.h"
 #include "gt_datazone0d.h"
@@ -71,7 +71,6 @@ GtGuiModuleLoader::GtGuiModuleLoader()
                      GT_METADATA(GtDataZoneUI));
     registerObjectUI(GT_CLASSNAME(GtLabel),
                      GT_METADATA(GtLabelUI));
-
     registerObjectUI(GT_CLASSNAME(GtLoop),
                      GT_METADATA(GtLoopUI));
     registerObjectUI(GT_CLASSNAME(GtResidualLoop),
@@ -125,6 +124,11 @@ bool
 GtGuiModuleLoader::check(GtModuleInterface* plugin)
 {
     bool retval = GtCoreModuleLoader::check(plugin);
+
+    if (gtApp->batchMode())
+    {
+        return retval;
+    }
 
     if (retval)
     {

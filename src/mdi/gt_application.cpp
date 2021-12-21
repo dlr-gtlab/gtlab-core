@@ -37,7 +37,9 @@
 
 #include "gt_application.h"
 
-GtApplication::GtApplication(QCoreApplication* parent, bool devMode) :
+GtApplication::GtApplication(QCoreApplication* parent,
+                             bool devMode,
+                             bool batchMode) :
     GtCoreApplication(parent),
     m_perspective(Q_NULLPTR),
     m_guiModuleLoader(Q_NULLPTR),
@@ -62,6 +64,8 @@ GtApplication::GtApplication(QCoreApplication* parent, bool devMode) :
             SLOT(onUndoStackChange()));
 
     m_devMode = devMode;
+    m_batchMode = batchMode;
+    m_darkMode = false;
 
     // apppend shortcuts object
     new GtShortCuts(this);
