@@ -41,7 +41,9 @@ public:
     /**
      * @brief Constructor.
      */
-    GtApplication(QCoreApplication* parent, bool devMode = false);
+    GtApplication(QCoreApplication* parent,
+                  bool devMode = false,
+                  bool batchMode = false);
 
     /**
      * @brief Destructor.

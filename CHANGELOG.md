@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed 
+- Initial structure to avoid loading of GUI elements in console mode - #2
 - Exporter: Setting an invalid or empty file extension will no longer crash GTlab - #130
 - BugFix: Small check in table class prevents crash on linux for tables with only one point
 - Changed ObjectUI Standard Behaviour for renaming to allow spaces - #109
