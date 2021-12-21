@@ -96,13 +96,6 @@ namespace GtRegExp
      * @return regexp for double lists
      */
     QRegExp GT_DATAMODEL_EXPORT forDoublesLists();
-
-    /**
-     * @brief forShortCuts
-     * @return regexp for short cuts
-     */
-    QRegExp GT_DATAMODEL_EXPORT forShortCuts();
-
 }
 
 #endif // GTREGEXP_H

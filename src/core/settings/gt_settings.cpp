@@ -114,83 +114,81 @@ GtSettings::initialShortCuts() const
     QString catOutput = QStringLiteral("Output Dock");
 
     /// rename object
-    shortCutData.insert(QStringLiteral("rename"),
-                        QStringList{QKeySequence(Qt::Key_F2).toString(),
-                                    catCore});
+    shortCutData.insert(QStringLiteral("rename"), QStringList{
+                            QKeySequence(Qt::Key_F2).toString(), catCore });
 
     /// openContectMenu
-    shortCutData.insert(QStringLiteral("OpenContextMenu"),
-                        QStringList{QKeySequence(Qt::Key_F4).toString(),
-                                    catCore});
+    shortCutData.insert(QStringLiteral("OpenContextMenu"), QStringList{
+                            QKeySequence(Qt::Key_F4).toString(), catCore });
 
     /// ShowFootprint
-    shortCutData.insert(QStringLiteral("ShowFootprint"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_I).toString(), catCore});
+    shortCutData.insert(QStringLiteral("ShowFootprint"), QStringList{
+                            QKeySequence(Qt::CTRL + Qt::Key_I).toString(),
+                            catCore });
     /// redo
-    shortCutData.insert(QStringLiteral("redo"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_Y).toString(), catCore});
+    shortCutData.insert(QStringLiteral("redo"), QStringList{
+                            QKeySequence(QKeySequence::Redo).toString(),
+                            catCore });
 
     /// undo
-    shortCutData.insert(QStringLiteral("undo"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_Z).toString(), catCore});
+    shortCutData.insert(QStringLiteral("undo"), QStringList{
+                            QKeySequence(QKeySequence::Undo).toString(),
+                            catCore });
 
     /// cut
-    shortCutData.insert(QStringLiteral("cut"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_X).toString(), catCore});
+    shortCutData.insert(QStringLiteral("cut"), QStringList{
+                            QKeySequence(QKeySequence::Cut).toString(),
+                            catCore });
 
     /// copy
-    shortCutData.insert(QStringLiteral("copy"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_C).toString(), catCore});
+    shortCutData.insert(QStringLiteral("copy"), QStringList{
+                            QKeySequence(QKeySequence::Copy).toString(),
+                            catCore });
 
     /// paste
-    shortCutData.insert(QStringLiteral("paste"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_V).toString(), catCore});
+    shortCutData.insert(QStringLiteral("paste"), QStringList{
+                            QKeySequence(QKeySequence::Paste).toString(),
+                            catCore });
 
     /// delete
-    shortCutData.insert(QStringLiteral("delete"),
-                        QStringList{QKeySequence(Qt::Key_Delete).toString(),
-                                    catCore});
+    shortCutData.insert(QStringLiteral("delete"), QStringList{
+                            QKeySequence(QKeySequence::Delete).toString(),
+                            catCore });
 
     /// runProcess
-    shortCutData.insert(QStringLiteral("runProcess"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_R).toString(), catCore});
+    shortCutData.insert(QStringLiteral("runProcess"), QStringList{
+                            QKeySequence(Qt::CTRL + Qt::Key_R).toString(),
+                            catCore });
 
     /// unskipProcess
-    shortCutData.insert(QStringLiteral("unskipProcess"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_T).toString(), catCore});
+    shortCutData.insert(QStringLiteral("unskipProcess"), QStringList{
+                            QKeySequence(Qt::CTRL + Qt::Key_T).toString(),
+                            catCore });
 
     /// skipProcess
-    shortCutData.insert(QStringLiteral("skipProcess"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_G).toString(), catCore});
+    shortCutData.insert(QStringLiteral("skipProcess"), QStringList{
+                            QKeySequence(Qt::CTRL + Qt::Key_G).toString(),
+                            catCore });
 
     /// toggleDebugOutput
-    shortCutData.insert(QStringLiteral("toggleDebugOutput"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_D).toString(), catOutput});
+    shortCutData.insert(QStringLiteral("toggleDebugOutput"), QStringList{
+                            QKeySequence(Qt::CTRL + Qt::Key_D).toString(),
+                            catOutput });
 
     /// toggleInfoOutput
-    shortCutData.insert(QStringLiteral("toggleInfoOutput"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_I).toString(), catOutput});
+    shortCutData.insert(QStringLiteral("toggleInfoOutput"), QStringList{
+                            QKeySequence(Qt::CTRL + Qt::Key_I).toString(),
+                            catOutput });
 
     /// toggleWarningOutput
-    shortCutData.insert(QStringLiteral("toggleWarningOutput"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_W).toString(), catOutput});
+    shortCutData.insert(QStringLiteral("toggleWarningOutput"), QStringList{
+                            QKeySequence(Qt::CTRL + Qt::Key_W).toString(),
+                            catOutput });
 
     /// toggleErrorOutput
-    shortCutData.insert(QStringLiteral("toggleErrorOutput"),
-                        QStringList{QKeySequence(Qt::CTRL +
-                                    Qt::Key_E).toString(), catOutput});
+    shortCutData.insert(QStringLiteral("toggleErrorOutput"), QStringList{
+                            QKeySequence(Qt::CTRL + Qt::Key_E).toString(),
+                            catOutput });
 
     return QVariant(shortCutData);
 }

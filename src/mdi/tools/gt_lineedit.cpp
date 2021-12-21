@@ -17,6 +17,14 @@ GtLineEdit::GtLineEdit(QWidget* parent) : QLineEdit(parent)
 }
 
 void
+GtLineEdit::focusInEvent(QFocusEvent* event)
+{
+    emit focusIn();
+
+    QLineEdit::focusInEvent(event);
+}
+
+void
 GtLineEdit::focusOutEvent(QFocusEvent* event)
 {
     if (text().isEmpty())

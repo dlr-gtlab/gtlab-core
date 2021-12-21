@@ -41,6 +41,10 @@ private:
 
     /// table widget of the main layout
     QTableWidget* m_tab;
+
+private slots:
+
+    void restoreDefaults();
 };
 
 #endif // GTPREFERENCESSHORTCUTS_H

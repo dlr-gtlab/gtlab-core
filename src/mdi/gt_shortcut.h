@@ -61,7 +61,7 @@ public:
      * @brief categoryString
      * @return category as a string
      */
-    QString category();
+    QString category() const;
 private:
     ///
     QString m_id;

@@ -188,13 +188,15 @@ public:
 
     /**
      * @brief initialShortCuts
-     * @return the default shortcuts as a variant (QMap<QString, QStringList>)
+     * @return the default shortcuts as a variant (QMap<QString, QStringList>).
+     * QStringList contains two elements (keysequence and category)
      */
     QVariant initialShortCuts() const;
 
     /**
      * @brief intialShortCutsMap
-     * @return the dafault short cuts as a map
+     * @return the dafault short cuts as a map. QStringList contains two
+     * elements (keysequence and category)
      */
     QMap<QString, QStringList> intialShortCutsMap();
 
