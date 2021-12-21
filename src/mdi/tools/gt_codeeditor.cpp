@@ -13,6 +13,7 @@
 
 #include "gt_codeeditor.h"
 #include "gt_linenumberarea.h"
+#include "gt_application.h"
 
 GtCodeEditor::GtCodeEditor(QWidget* parent) : QPlainTextEdit(parent)
 {
@@ -193,7 +194,15 @@ void
 GtCodeEditor::lineNumberAreaPaintEvent(QPaintEvent* event)
 {
     QPainter painter(m_lineNumberArea);
-    painter.fillRect(event->rect(), Qt::lightGray);
+
+    if (gtApp->inDarkMode())
+    {
+        painter.fillRect(event->rect(), Qt::darkGray);
+    }
+    else
+    {
+        painter.fillRect(event->rect(), Qt::lightGray);
+    }
 
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();

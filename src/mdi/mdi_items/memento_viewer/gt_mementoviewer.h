@@ -36,13 +36,16 @@ public:
 
     /** Virtual function to specify item specific icon.
         @return Object specific icon */
-    virtual QIcon icon() const;
+    virtual QIcon icon() const override;
 
     /**
      * @brief allowsMultipleInstances
-     * @return
+     * @return true because the memento viewer can be opened multiple times
      */
-    bool allowsMultipleInstances();
+    bool allowsMultipleInstances() override;
+
+public slots:
+    void onThemeChanged() override;
 
 private:
     /// Xml highlighter

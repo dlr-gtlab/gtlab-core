@@ -11,6 +11,7 @@
 #define GT_STARTUPPAGE_H
 
 #include <QFrame>
+#include <QToolButton>
 
 /**
  * @brief The GtStartupPage class
@@ -35,6 +36,12 @@ public:
      * @return Object specific icon.
      */
     virtual QIcon icon() const;
+
+public slots:
+    /**
+     * @brief onThemeChange - handle the change between the GUI theme options
+     */
+    void onThemeChange();
 
 private slots:
     /**
@@ -68,6 +75,28 @@ signals:
      * @brief openExamplesWidget
      */
     void openExamplesWidget();
+
+private:
+    /// main frame
+    QFrame* m_frame;
+
+    /// Button to start new project
+    QToolButton* m_newProjBtn;
+
+    /// Button to open example
+    QToolButton* m_examplesBtn;
+
+    /// button to open help menu
+    QToolButton* m_helpBtn;
+
+    /// button to open info menu
+    QToolButton* m_infoBtn;
+
+    /**
+     * @brief initialize widget content
+     */
+    void initializeTheme();
+
 
 };
 

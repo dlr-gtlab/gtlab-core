@@ -53,8 +53,18 @@ GtCollectionEditor::GtCollectionEditor() :
     frame->setAutoFillBackground(true);
     frame->setFrameShape(QFrame::Box);
     frame->setFrameShadow(QFrame::Raised);
-    frame->setStyleSheet(
-                "#frame {border-image: url(:/pixmaps/startup-background.png)}");
+
+    if (gtApp->inDarkMode())
+    {
+        frame->setStyleSheet("#frame {border-image: "
+                             "url(:/pixmaps/startup-background_dark.png)}");
+    }
+    else
+    {
+        frame->setStyleSheet("#frame {border-image: "
+                             "url(:/pixmaps/startup-background.png)}");
+
+    }
 
     QVBoxLayout* frameLay = new QVBoxLayout;
     frameLay->setContentsMargins(10, 10, 10, 10);
@@ -390,6 +400,9 @@ GtCollectionEditor::generateCollectionSettings()
     }
 
     m_collectionSettings->setParent(this);
+
+    connect(gtApp, SIGNAL(themeChanged(bool)),
+            m_collectionSettings, SIGNAL(themeChanged()));
 }
 
 void

@@ -16,9 +16,10 @@
 
 #include "gt_processconnectionscene.h"
 #include "gt_processconnectionitem.h"
-
 #include "gt_processpropertyportentity.h"
 
+#include "gt_application.h"
+#include "gt_palette.h"
 #include "gt_logging.h"
 
 GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
@@ -267,7 +268,14 @@ GtProcessPropertyPortEntity::propertyId()
 void
 GtProcessPropertyPortEntity::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    setBrush(QBrush(Qt::white));
+    if (!gtApp->inDarkMode())
+    {
+        setBrush(QBrush(Qt::white));
+    }
+    else
+    {
+        setBrush(QBrush(GtPalette::basicDarkColor()));
+    }
 
     QApplication::restoreOverrideCursor();
     QApplication::setOverrideCursor(Qt::OpenHandCursor);

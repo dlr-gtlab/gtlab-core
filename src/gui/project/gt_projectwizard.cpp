@@ -8,6 +8,8 @@
  */
 
 #include "gt_projectwizard.h"
+#include "gt_application.h"
+#include "gt_palette.h"
 
 #include "gt_projectprovider.h"
 #include "gt_projectwizardstart.h"
@@ -15,14 +17,12 @@
 #include "gt_projectwizardmodules.h"
 #include "gt_projectwizardimport.h"
 
-GtProjectWizard::GtProjectWizard(GtProjectProvider* provider) :
+GtProjectWizard::GtProjectWizard(GtProjectProvider* provider,
+                                 QWidget* parent) :
+    GtWizard(parent),
     m_provider(provider)
 {
     setWindowTitle(tr("New Project Wizard"));
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
 
     // init pages
     if (provider)
@@ -32,5 +32,6 @@ GtProjectWizard::GtProjectWizard(GtProjectProvider* provider) :
         setPage(ModulesPage, new GtProjectWizardModules(provider, this));
         setPage(ImportPage, new GtProjectWizardImport(provider, this));
     }
+
 }
 

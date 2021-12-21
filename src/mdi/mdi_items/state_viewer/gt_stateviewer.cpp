@@ -50,6 +50,12 @@ GtStateViewer::icon() const
 }
 
 void
+GtStateViewer::onThemeChanged()
+{
+    /// nothing to do here
+}
+
+void
 GtStateViewer::reloadModel()
 {
     m_model->reload();

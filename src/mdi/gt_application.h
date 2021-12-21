@@ -242,8 +242,9 @@ public:
     /**
      * @brief setDarkMode
      * @param dark - true if the app should be set to dark
+     * @param initial -  true if this is the first set
      */
-    void setDarkMode(bool dark);
+    void setDarkMode(bool dark, bool initial = false);
 
     /** @brief getShortCutSequence
      * @param id - identification string of the short cut

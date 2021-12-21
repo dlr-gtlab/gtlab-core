@@ -12,6 +12,8 @@
 
 #include "gt_addtaskglobalbutton.h"
 #include "gt_taskentity.h"
+#include "gt_application.h"
+#include "gt_palette.h"
 
 GtAddTaskGlobalButton::GtAddTaskGlobalButton(GtTaskEntity* parent) :
     QGraphicsObject(parent),
@@ -31,7 +33,14 @@ GtAddTaskGlobalButton::paint(QPainter* painter,
 {
     painter->save();
 
-    painter->setBrush(QBrush(Qt::white));
+    if (!gtApp->inDarkMode())
+    {
+        painter->setBrush(QBrush(Qt::white));
+    }
+    else
+    {
+        painter->setBrush(QBrush(GtPalette::basicDarkColor()));
+    }
 
     painter->drawRoundedRect(boundingRect(), 3, 3);
     painter->drawLine(0., -3., 0., 3.);

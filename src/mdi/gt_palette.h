@@ -38,6 +38,12 @@ namespace GtPalette
      * @param dark - true for dark mode, else false
      */
     GT_MDI_EXPORT void applyThemeToWidget(QWidget* w, bool dark);
+
+    /**
+     * @brief basicDarkColor
+     * @return return basic dark color
+     */
+    GT_MDI_EXPORT QColor basicDarkColor();
 }
 
 #endif // GTPALETTE_H

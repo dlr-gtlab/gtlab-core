@@ -1,13 +1,6 @@
 <RCC>
     <qresource prefix="/pixmaps">
         <file>splash.png</file>
-        <file>templateViewerBarChartBottomAxis.png</file>
-        <file>templateViewerBarChartAdditional.png</file>
-        <file>templateViewerBarChartParameter.png</file>
-        <file>templateViewerXyPlotGrid.png</file>
-        <file>templateViewerXyPlotSchar.png</file>
-        <file>templateViewerXyPlotXAxis.png</file>
-        <file>templateViewerXyPlotYAxis.png</file>
         <file>print-headline.png</file>
         <file>changelogLogo.png</file>
         <file>dbLogo.png</file>
@@ -18,14 +11,8 @@
         <file>loadingBig.gif</file>
         <file>progressbar.gif</file>
         <file>loading.gif</file>
-        <file>templateViewerCarpetPlotCarpetAxes.png</file>
-        <file>templateViewerCarpetPlotXYAxes.png</file>
         <file>gt-logo.png</file>
-        <file>openProjectPix.png</file>
-        <file>importProjectPix.png</file>
-        <file>helpPix.png</file>
-        <file>infoPix.png</file>
         <file>loading2.gif</file>
-		<file>examplesPix.png</file>
+        <file>startup-background_dark.png</file>
     </qresource>
 </RCC>

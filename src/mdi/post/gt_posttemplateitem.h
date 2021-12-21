@@ -5,7 +5,6 @@
 
 #include "gt_object.h"
 #include "gt_abstractpostwidget.h"
-#include "gt_abstractwizard.h"
 #include "gt_datazonetablelist.h"
 
 

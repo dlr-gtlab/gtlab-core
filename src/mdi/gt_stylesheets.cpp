@@ -58,6 +58,16 @@ GtStyleSheets::buttonStyleSheet2()
                    "background-color:white;"
                    "min-width: 70px;"
                    "min-height:20px}";
+
+    if (gtApp->inDarkMode())
+    {
+        text = "QPushButton { "
+               "border: 1px solid gray;"
+               "border-radius: 4px;"
+               "min-width: 70px;"
+               "min-height:20px}";
+    }
+
     return text;
 }
 
@@ -105,7 +115,8 @@ GtStyleSheets::standardLabel()
 QString
 GtStyleSheets::performanceTaskLineEdit0()
 {
-    QString text = "QLineEdit {  border: 0px solid gray;"
+    QString text = "QLineEdit {  "
+                   "border: 0px solid gray;"
                    "border-radius: 4px;}";
 
     return text;

@@ -17,7 +17,6 @@ GtAbstractProjectWizardPage::GtAbstractProjectWizardPage(
     m_provider(provider)
 {
 
-    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 }
 
 bool

@@ -119,6 +119,12 @@ public slots:
      */
     virtual void print();
 
+    /**
+     * @brief onThemeChanged
+     * Implementation to hande the change betewwn dark and bright mode
+     */
+    virtual void onThemeChanged();
+
 protected:
     /**
      * @brief GtMdiItem

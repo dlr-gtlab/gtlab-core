@@ -12,6 +12,7 @@
 #include "gt_ruler.h"
 #include "gt_graphicsview.h"
 #include "gt_grid.h"
+#include "gt_application.h"
 
 GtRuler::GtRuler(Qt::Orientation o) : QWidget(),
     m_orientation(o), m_needsRepaint(true)
@@ -21,7 +22,7 @@ GtRuler::GtRuler(Qt::Orientation o) : QWidget(),
     m_cursorArrow.lineTo(3,-3);
     setMinimumHeight(20);
     setMinimumWidth(20);
-    setStyleSheet("background-color:white;");
+    //setStyleSheet("background-color:white;");
 }
 
 QFont
@@ -35,18 +36,25 @@ GtRuler::getFont() const
 void
 GtRuler::paintEvent(QPaintEvent* e)
 {
+    Qt::GlobalColor c = Qt::black;
+
+    if (gtApp->inDarkMode())
+    {
+        c = Qt::white;
+    }
+
     QPainter wPainter(this);
     wPainter.drawImage(1, 1, m_buffer);
 
     if (m_orientation==Qt::Horizontal) {
         wPainter.translate(m_cursorPos.x() + 1, height() -1 );
-        wPainter.fillPath(m_cursorArrow, Qt::black);
+        wPainter.fillPath(m_cursorArrow, c);
     }
     else
     {
         wPainter.rotate(-90);
         wPainter.translate(-m_cursorPos.y() - 1, width() - 1);
-        wPainter.fillPath(m_cursorArrow, Qt::black);
+        wPainter.fillPath(m_cursorArrow, c);
     }
 
     QWidget::paintEvent(e);
@@ -75,7 +83,7 @@ QSize
 GtRuler::getFontSizeHint(const QString &str) const
 {
     QFontMetrics fm(getFont());
-    QSize size(fm.width(str), fm.height());
+    QSize size(int(fm.width(str) * 1.5), fm.height());
 
     if (m_orientation == Qt::Vertical)
     {

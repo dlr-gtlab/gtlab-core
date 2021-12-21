@@ -55,6 +55,13 @@ protected:
 
     int  processDefaultText(int i, const QString& rstrText);
 
+public slots:
+    /**
+     * @brief onThemeChanged - handles reaction on change of the GUI theme
+     * Changes the colors for the highlights and rehighlights the text
+     */
+    void onThemeChanged();
+
 private:
     void init();
 

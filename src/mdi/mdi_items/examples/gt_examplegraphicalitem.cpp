@@ -53,13 +53,27 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry* data,
 
     m_picFrame = new QFrame;
 
+    if (gtApp->inDarkMode())
+    {
+        m_picFrame->setStyleSheet(
+                    "QWidget { border: 1px solid gray;"
+                    "border-radius: 4px;"
+                    //"background-color: white;"
+                    "min-width: 70px;min-height:22px}"
+                    "QWidget:hover{background-color:rgb(180,200,200)}"
+                    "QWidget:pressed{background-color:rgb(180,213,213)}");
+    }
+    else
+    {
+        m_picFrame->setStyleSheet(
+                    "QWidget { border: 1px solid gray;"
+                    "border-radius: 4px;"
+                    "background-color: white;"
+                    "min-width: 70px;min-height:22px}"
+                    "QWidget:hover{background-color:rgb(220,235,250)}"
+                    "QWidget:pressed{background-color:rgb(180,213,246)}");
+    }
 
-    m_picFrame->setStyleSheet(
-                "QWidget { border: 1px solid gray;"
-                "border-radius: 4px;background-color: white;"
-                "min-width: 70px;min-height:22px}"
-                "QWidget:hover{background-color:rgb(220,235,250)}"
-                "QWidget:pressed{background-color:rgb(180,213,246)}");
 
     m_picFrame->setFrameShape(QFrame::Box);
 
@@ -124,13 +138,13 @@ GtExampleGraphicalItem::mousePressEvent(QMouseEvent* event)
 void
 GtExampleGraphicalItem::enterEvent(QEvent* event)
 {
-    QPalette pal(palette());
+    //QPalette pal(palette());
 
-    pal.setColor(QPalette::Background, QColor(210, 225, 245));
+    //pal.setColor(QPalette::Background, QColor(210, 225, 245));
 
     setAutoFillBackground(true);
 
-    setPalette(pal);
+    //setPalette(pal);
 
     QWidget::enterEvent(event);
 }

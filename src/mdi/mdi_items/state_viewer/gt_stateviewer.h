@@ -32,8 +32,13 @@ public:
      * @brief Virtual function to specify item specific icon.
      * @return Object specific icon.
      */
-    virtual QIcon icon() const;
+    virtual QIcon icon() const override;
 
+public slots:
+    /**
+     * @brief onThemeChanged - how to handle theme change
+     */
+    void onThemeChanged() override;
 private:
     /// Model
     GtStateModel* m_model;

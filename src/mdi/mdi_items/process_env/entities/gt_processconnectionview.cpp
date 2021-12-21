@@ -172,19 +172,9 @@ void GtProcessConnectionView::drawRow(QPainter* painter,
     QStyleOptionViewItemV3 opt = option;
 
     // check whether index has property role
-    bool isProperty =
-            index.data(GtProcessConnectionModel::PropertyRole).toBool();
+    //bool isProperty =
+    //        index.data(GtProcessConnectionModel::PropertyRole).toBool();
 
-//    if (isProperty)
-//    {
-//        opt.palette.setColor(QPalette::AlternateBase, QColor(Qt::white));
-//    }
-//    else
-//    {
-//        const QColor c(240, 240, 240);
-//        painter->fillRect(option.rect, c);
-////        opt.palette.setColor(QPalette::AlternateBase, c.lighter(104));
-//    }
 
     GtTreeView::drawRow(painter, opt, index);
 

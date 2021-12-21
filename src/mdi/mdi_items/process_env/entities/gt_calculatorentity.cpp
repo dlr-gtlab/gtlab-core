@@ -29,6 +29,7 @@
 #include "gt_tasklinkentity.h"
 #include "gt_datamodel.h"
 #include "gt_logging.h"
+#include "gt_palette.h"
 
 GtCalculatorEntity::GtCalculatorEntity(GtTask* task,
                                        QGraphicsItem* parent) :
@@ -101,12 +102,27 @@ GtCalculatorEntity::paint(QPainter* painter,
     // title
     if (isSelected())
     {
-        painter->setBrush(QBrush(Qt::white));
+        if (gtApp->inDarkMode())
+        {
+            painter->setBrush(QBrush(GtPalette::basicDarkColor()));
+        }
+        else
+        {
+            painter->setBrush(QBrush(Qt::white));
+        }
     }
     else
     {
-        painter->setBrush(QBrush(Qt::gray));
+        if (gtApp->inDarkMode())
+        {
+            painter->setBrush(QBrush(Qt::darkGray));
+        }
+        else
+        {
+            painter->setBrush(QBrush(Qt::gray));
+        }
     }
+
     QPainterPath titlePath;
     titlePath.setFillRule(Qt::WindingFill);
     titlePath.addRoundedRect(QRect(0, 0, m_w, 20), 5, 5);

@@ -99,6 +99,7 @@ HEADERS += \
     gt_palette.h \
     gt_shortcut.h \
     gt_shortcuts.h \
+    gt_wizard.h \
     tools/gt_projectanalyzerdialog.h \
     tools/gt_ruler.h \
     tools/gt_grid.h \
@@ -183,7 +184,6 @@ HEADERS += \
     dock_widgets/process/gt_processcomponentmodel.h \
     post/gt_templateviewerlistwidget.h \
     post/gt_stringmapcontainer.h \
-    post/gt_abstractwizard.h \
     tools/gt_filedialog.h \
     dock_widgets/labels/gt_labelsdock.h \
     dock_widgets/properties/items/gt_propertylabelitem.h \
@@ -315,6 +315,7 @@ SOURCES += \
     gt_palette.cpp \
     gt_shortcut.cpp \
     gt_shortcuts.cpp \
+    gt_wizard.cpp \
     tools/gt_projectanalyzerdialog.cpp \
     tools/gt_ruler.cpp \
     tools/gt_grid.cpp \
@@ -417,7 +418,6 @@ SOURCES += \
     mdi_items/state_viewer/gt_stateviewer.cpp \
     mdi_items/state_viewer/gt_statemodel.cpp \
     post/gt_posttemplatepath.cpp \
-    post/gt_abstractwizard.cpp \
     gt_stategroup.cpp \
     dock_widgets/calculators/gt_calculatorsdock.cpp \
     dock_widgets/process/gt_processwizard.cpp \

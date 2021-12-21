@@ -124,9 +124,17 @@ GtExamplesMdiWidget::setBasicLayoutToTabPage(QScrollArea* tabPage,
     frame->setAutoFillBackground(true);
     frame->setFrameShape(QFrame::Box);
     frame->setFrameShadow(QFrame::Raised);
-    frame->setStyleSheet("#frame {border-image:"
-                         "url(:/pixmaps/startup-background.png)}");
 
+    if (gtApp->inDarkMode())
+    {
+        frame->setStyleSheet("#frame {border-image:"
+                             "url(:/pixmaps/startup-background_dark.png)}");
+    }
+    else
+    {
+        frame->setStyleSheet("#frame {border-image:"
+                             "url(:/pixmaps/startup-background.png)}");
+    }
     QGridLayout* grid = new QGridLayout;
     grid->setObjectName("grid");
 

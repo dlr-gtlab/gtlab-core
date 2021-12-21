@@ -17,12 +17,13 @@ QPalette
 GtPalette::darkTheme()
 {
     QPalette palette;
-    QColor darkColor = QColor(45,45,45);
+    QColor darkColor = basicDarkColor();
     QColor disabledColor = QColor(127,127,127);
 
     palette.setColor(QPalette::Window, darkColor);
+    palette.setColor(QPalette::Background, darkColor);
     palette.setColor(QPalette::WindowText, Qt::white);
-    palette.setColor(QPalette::Base, QColor(18,18,18));
+    palette.setColor(QPalette::Base, darkColor); //QColor(18,18,18));
     palette.setColor(QPalette::AlternateBase, darkColor);   
     palette.setColor(QPalette::ToolTipBase, Qt::white);
     palette.setColor(QPalette::ToolTipText, Qt::white);
@@ -50,6 +51,7 @@ GtPalette::standardTheme()
     QColor disabledColor = QColor(127, 127, 127);
 
     palette.setColor(QPalette::Window, mainColor);
+    palette.setColor(QPalette::Background, mainColor);
     palette.setColor(QPalette::WindowText, Qt::black);
     palette.setColor(QPalette::Base, Qt::white);
     palette.setColor(QPalette::AlternateBase, mainColor);
@@ -66,8 +68,6 @@ GtPalette::standardTheme()
     palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
                      disabledColor);
 
-    //palette.setColor(QPalette::ColorRole::Background, Qt::white);
-
     return palette;
 }
 
@@ -76,8 +76,8 @@ GtPalette::applyThemeToWidget(QWidget* w, bool dark)
 {
     if (dark)
     {
-        w->setPalette(GtPalette::darkTheme());
         w->setStyle(QStyleFactory::create("Fusion"));
+        w->setPalette(GtPalette::darkTheme());
         w->setStyleSheet("QToolTip { color: #ffffff; "
                       "background-color: #2a82da; "
                       "border: 1px solid white; }");
@@ -86,12 +86,18 @@ GtPalette::applyThemeToWidget(QWidget* w, bool dark)
     {
         w->setPalette(GtPalette::standardTheme());
         QString style = "Default";
-//#ifdef Q_OS_WIN
-//        style = "Windows";
-//#endif
+#ifdef Q_OS_WIN
+        style = "windowsvista";
+#endif
         w->setStyle(QStyleFactory::create(style));
         w->setStyleSheet("QToolTip { color: black; "
                       "background-color: white; "
                       "border: 1px solid black; }");
     }
+}
+
+QColor
+GtPalette::basicDarkColor()
+{
+    return QColor(45,45,45);
 }

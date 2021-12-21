@@ -154,18 +154,7 @@ void GtPropertyTreeView::drawRow(QPainter* painter,
 {
     QStyleOptionViewItemV3 opt = option;
 
-    bool isCategory = index.data(GtPropertyModel::CategoryRole).toBool();
-
-    if (isCategory)
-    {
-        //opt.palette.setColor(QPalette::AlternateBase, QColor(Qt::white));
-    }
-    else
-    {
-        //const QColor c(240, 240, 240);
-        //painter->fillRect(option.rect, c);
-        //opt.palette.setColor(QPalette::AlternateBase, c.lighter(104));
-    }
+    //bool isCategory = index.data(GtPropertyModel::CategoryRole).toBool();
 
     GtTreeView::drawRow(painter, opt, index);
 

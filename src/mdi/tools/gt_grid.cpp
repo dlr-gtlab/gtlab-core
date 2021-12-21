@@ -11,7 +11,7 @@
 #include "gt_grid.h"
 #include "gt_graphicsview.h"
 #include "gt_ruler.h"
-//#include "QsLog.h"
+#include "gt_application.h"
 #include <QtMath>
 #include <QDebug>
 
@@ -30,9 +30,16 @@ GtGrid::GtGrid(GtGraphicsView& view) :
     m_hgColor(QColor(200, 200, 255, 125)),
     m_vgColor(QColor(200, 200, 255, 125)),
     m_gpColor(QColor(100, 100, 155)),
-    m_hRuler(NULL),
-    m_vRuler(NULL)
+    m_hRuler(Q_NULLPTR),
+    m_vRuler(Q_NULLPTR)
 {
+    if (gtApp->inDarkMode())
+    {
+        m_hgColor = QColor(200, 200, 255, 125);
+        m_vgColor = QColor(200, 200, 255, 125);
+        m_gpColor = QColor(100, 100, 155);
+    }
+
 }
 
 void
@@ -111,7 +118,7 @@ GtGrid::setGridPointColor(const QColor &color)
 void
 GtGrid::paintGrid(QPainter* painter, const QRectF &rect)
 {
-    if (painter == NULL)
+    if (painter == Q_NULLPTR)
     {
         return;
     }
@@ -127,14 +134,14 @@ GtGrid::paintGrid(QPainter* painter, const QRectF &rect)
         paintAxis(painter, rect);
     }
 
-    if (m_hRuler != NULL && m_hRuler->needsRepaint())
+    if (m_hRuler != Q_NULLPTR && m_hRuler->needsRepaint())
     {
         m_rect = rect;
         paintRuler(m_hRuler);
         m_hRuler->setNeedsRepaint(false);
     }
 
-    if (m_vRuler != NULL && m_vRuler->needsRepaint())
+    if (m_vRuler != Q_NULLPTR && m_vRuler->needsRepaint())
     {
         m_rect = rect;
         paintRuler(m_vRuler);
@@ -147,8 +154,8 @@ GtGrid::paintGrid(QPainter* painter, const QRectF &rect)
 QPointF
 GtGrid::computeTopLeftGridPoint(const QPointF& p)
 {
-    int tmpWidth = getScaledGrid(Qt::Horizontal);
-    int tmpHeight = getScaledGrid(Qt::Vertical);
+    int tmpWidth = int(getScaledGrid(Qt::Horizontal));
+    int tmpHeight = int(getScaledGrid(Qt::Vertical));
 
     qreal xV = floor( p.x() / tmpWidth ) * tmpWidth;
     qreal yV = floor( p.y() / tmpHeight ) * tmpHeight;
@@ -159,8 +166,8 @@ GtGrid::computeTopLeftGridPoint(const QPointF& p)
 QPointF
 GtGrid::computeNearestGridPoint(const QPointF& p)
 {
-    int tmpWidth = getScaledGrid(Qt::Horizontal);
-    int tmpHeight = getScaledGrid(Qt::Vertical);
+    int tmpWidth = int(getScaledGrid(Qt::Horizontal));
+    int tmpHeight = int(getScaledGrid(Qt::Vertical));
 
     qreal x = floor( p.x() / tmpWidth ) * tmpWidth;
     qreal y = floor( p.y() / tmpHeight ) * tmpHeight;
@@ -183,12 +190,12 @@ GtGrid::setGridScaleFactor(int val)
 {
     m_gridFactor = val;
 
-    if (m_hRuler != NULL)
+    if (m_hRuler != Q_NULLPTR)
     {
         m_hRuler->setNeedsRepaint(true);
     }
 
-    if ( m_vRuler != NULL)
+    if ( m_vRuler != Q_NULLPTR)
     {
         m_vRuler->setNeedsRepaint(true);
     }
@@ -198,7 +205,7 @@ GtGrid::setGridScaleFactor(int val)
 void
 GtGrid::paintRuler(GtRuler* ruler)
 {
-    if (ruler == NULL)
+    if (ruler == Q_NULLPTR)
     {
         qWarning() << "WARNING: ruler == NULL";
 //        QLOG_WARN() << "WARNING: ruler == NULL";
@@ -231,9 +238,17 @@ GtGrid::paintRuler(GtRuler* ruler)
                      ruler->palette().color(QPalette::Window));
 
 
+    Qt::GlobalColor c = Qt::black;
+
+    if (gtApp->inDarkMode())
+    {
+        c = Qt::white;
+    }
+    painter.setPen(c);
+
     if (ruler->orientation() == Qt::Horizontal)
     {
-        int tmpWidth = getScaledGrid(Qt::Horizontal);
+        int tmpWidth = int(getScaledGrid(Qt::Horizontal));
 
         qreal left = int(m_rect.left()) - (int(m_rect.left()) % tmpWidth);
 
@@ -253,12 +268,13 @@ GtGrid::paintRuler(GtRuler* ruler)
             QRect rect(tmp.x() - size.width() / 2, h - 5 - size.height(),
                        size.width(), size.height());
             painter.setFont(ruler->getFont());
+
             painter.drawText(rect, Qt::AlignTop | Qt::AlignHCenter, tstr);
         }
     }
     else
     {
-        int tmpHeight = getScaledGrid(Qt::Vertical);
+        int tmpHeight = int(getScaledGrid(Qt::Vertical));
 
         qreal top = int(m_rect.top()) - (int(m_rect.top()) % tmpHeight);
 
@@ -331,8 +347,8 @@ GtGrid::paintGridLines(QPainter* painter, const QRectF& rect)
     QVarLengthArray<QLineF, 100> hLines;
     QVarLengthArray<QLineF, 100> vLines;
 
-    int tmpWidth = getScaledGrid(Qt::Horizontal);
-    int tmpHeight = getScaledGrid(Qt::Vertical);
+    int tmpWidth = int(getScaledGrid(Qt::Horizontal));
+    int tmpHeight = int(getScaledGrid(Qt::Vertical));
 
     qreal left = int(rect.left()) - (int(rect.left()) % tmpWidth);
     qreal top = int(rect.top()) - (int(rect.top()) % tmpHeight);
@@ -370,7 +386,7 @@ GtGrid::paintAxis(QPainter* painter, const QRectF& rect)
     pen.setColor(QColor(150, 150, 150));
     painter->setPen(pen);
 
-    painter->drawLine(rect.left(), 0, rect.right(), 0);
+    painter->drawLine(int(rect.left()), 0, int(rect.right()), 0);
 }
 
 qreal
@@ -417,7 +433,7 @@ GtGrid::getScaledGrid(Qt::Orientation val)
 void GtGrid::drawRotatedText(QPainter* painter, int x, int y,
                               const QString &text)
 {
-    if (painter != NULL)
+    if (painter != Q_NULLPTR)
     {
         painter->save();
         painter->translate(x, y);

@@ -16,6 +16,7 @@
 #include "gt_logging.h"
 #include "gt_collectionitem.h"
 #include "gt_application.h"
+#include "gt_palette.h"
 
 #include "gt_collectionitemwidget.h"
 
@@ -37,8 +38,19 @@ GtCollectionItemWidget::GtCollectionItemWidget(
     frame->setAutoFillBackground(true);
     frame->setFrameShape(QFrame::Box);
     frame->setFrameShadow(QFrame::Raised);
-    frame->setStyleSheet(
-                "#frame {border-image: url(:/pixmaps/startup-background.png)}");
+
+    if (gtApp->inDarkMode())
+    {
+        frame->setStyleSheet("#frame {border-image: "
+                             "url(:/pixmaps/startup-background_dark.png)}");
+    }
+    else
+    {
+        frame->setStyleSheet("#frame {border-image: "
+                             "url(:/pixmaps/startup-background.png)}");
+
+    }
+
 
     QVBoxLayout* frameLay = new QVBoxLayout;
     frameLay->setContentsMargins(10, 10, 10, 10);
@@ -58,7 +70,6 @@ GtCollectionItemWidget::GtCollectionItemWidget(
     scrollArea->setWidgetResizable(true);
 
     QWidget* scrollWidget = new QWidget;
-    scrollWidget->setStyleSheet("background-color:white;");
 
     QVBoxLayout* scrollLay = new QVBoxLayout;
     scrollLay->setContentsMargins(0, 0, 0, 0);
@@ -120,6 +131,8 @@ GtCollectionItemWidget::GtCollectionItemWidget(
 
     setLayout(lay);
 
+    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
+
     resize(600, 400);
 }
 
@@ -151,9 +164,6 @@ GtCollectionItemWidget::newFrame()
     QFrame* frame = new QFrame(this);
 
     frame->setAutoFillBackground(true);
-    //QPalette p = frame->palette();
-    //p.setColor(frame->backgroundRole(), Qt::white);
-    //frame->setPalette(p);
     frame->setFrameShape(QFrame::Box);
     frame->setFrameShadow(QFrame::Sunken);
 
@@ -168,10 +178,10 @@ GtCollectionItemWidget::newBox(const QString& title, const QString& content)
     QVBoxLayout* boxLayout = new QVBoxLayout;
 
     QLabel* boxTitle = new QLabel(QStringLiteral("<b>") + title +
-                                   QStringLiteral("</b>"));
-    QLabel* boxContent = new QLabel(filterString(content));
+                                   QStringLiteral("</b>"), this);
+    QLabel* boxContent = new QLabel(filterString(content), this);
     boxLayout->addWidget(boxTitle);
-    boxLayout->addWidget(boxContent);
+    boxLayout->addWidget(boxContent);    
 
     box->setLayout(boxLayout);
 
@@ -186,7 +196,7 @@ GtCollectionItemWidget::newFileBox(const QStringList& fileNames)
     QVBoxLayout* boxLayout = new QVBoxLayout;
 
     QLabel* boxTitle = new QLabel(QStringLiteral("<b>") + tr("Files") +
-                                   QStringLiteral("</b>"));
+                                   QStringLiteral("</b>"), this);
     boxLayout->addWidget(boxTitle);
 
     foreach (const QString& fileName, fileNames)
@@ -204,12 +214,12 @@ QLayout*
 GtCollectionItemWidget::newFileLayout(const QString& filename)
 {
     QHBoxLayout* fileLay = new QHBoxLayout;
-    QLabel* iconLabel = new QLabel;
+    QLabel* iconLabel = new QLabel(this);
     iconLabel->setMaximumWidth(16);
     iconLabel->setPixmap(
                 gtApp->icon(
                     QStringLiteral("fileIcon_16.png")).pixmap(QSize(16, 16)));
-    QLabel* fileLabel = new QLabel(filename);
+    QLabel* fileLabel = new QLabel(filename, this);
     fileLay->addWidget(iconLabel);
     fileLay->addWidget(fileLabel);
 

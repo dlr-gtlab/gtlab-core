@@ -29,7 +29,7 @@ GtStartupPage::GtStartupPage()
     lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
 
-    QFrame* frame = new QFrame(this);
+    m_frame = new QFrame(this);
 
     QVBoxLayout* frameLay = new QVBoxLayout;
 
@@ -50,6 +50,109 @@ GtStartupPage::GtStartupPage()
 
     QGridLayout* btnGridLay = new QGridLayout;
 
+    QIcon newP = QIcon(":/icons/addProjectIcon.png");
+    QIcon examples = QIcon(":/icons/examplesIcon.png");
+    QIcon helpIcon = QIcon(":/icons/questionIcon.png");
+    QIcon infoIcon = QIcon(":/icons/infoIcon.png");
+
+    QSize iconSize(80, 80);
+
+    m_newProjBtn = new QToolButton;
+    m_newProjBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    m_newProjBtn->setIcon(newP);
+    m_newProjBtn->setIconSize(iconSize);
+    m_newProjBtn->setText(tr("New Project"));
+    btnGridLay->addWidget(m_newProjBtn, 0, 0);
+
+    m_examplesBtn = new QToolButton;
+    m_examplesBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    m_examplesBtn->setIcon(examples);
+    m_examplesBtn->setIconSize(iconSize);
+    m_examplesBtn->setText(tr("Examples"));
+    btnGridLay->addWidget(m_examplesBtn, 0, 1);
+
+    m_helpBtn = new QToolButton;
+    m_helpBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    m_helpBtn->setIcon(helpIcon);
+    m_helpBtn->setIconSize(iconSize);
+    m_helpBtn->setText(tr("Help Contents"));
+    btnGridLay->addWidget(m_helpBtn, 1, 0);
+
+    m_infoBtn = new QToolButton(this);
+    m_infoBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    m_infoBtn->setIcon(infoIcon);
+    m_infoBtn->setIconSize(iconSize);
+    m_infoBtn->setText("Info");
+
+    btnGridLay->addWidget(m_infoBtn, 1, 1);
+
+    connect(m_newProjBtn, SIGNAL(clicked(bool)), this, SIGNAL(newProject()));
+    connect(m_examplesBtn, SIGNAL(clicked(bool)), this,
+            SIGNAL(openExamplesWidget()));
+    connect(m_helpBtn, SIGNAL(clicked(bool)), this, SIGNAL(helpContents()));
+    connect(m_infoBtn, SIGNAL(clicked(bool)), this, SIGNAL(showInfo()));
+
+    gridLay->addLayout(btnGridLay, 1, 1);
+
+    frameLay->addLayout(gridLay);
+
+    m_frame->setLayout(frameLay);
+
+    lay->addWidget(m_frame);
+
+    QHBoxLayout* checkLay = new QHBoxLayout;
+
+    QCheckBox* check = new QCheckBox(tr("Show at Startup"));
+
+    if (gtApp->settings()->showStartupPage())
+    {
+        check->setChecked(true);
+    }
+
+    connect(check, SIGNAL(clicked(bool)), SLOT(showIndicatorToggled(bool)));
+
+    checkLay->addWidget(check);
+    checkLay->setContentsMargins(5, 0, 0, 0);
+
+    lay->addLayout(checkLay);
+
+    setLayout(lay);
+
+    initializeTheme();
+
+    label->setPixmap(QPixmap(":/pixmaps/gt-logo.png"));
+    label->setLayoutDirection(Qt::RightToLeft);
+
+    setFrameShape(QFrame::StyledPanel);
+    setFrameShadow(QFrame::Sunken);
+}
+
+GtStartupPage::~GtStartupPage()
+{
+    gtDebug() << "startup page deleted!";
+}
+
+QIcon
+GtStartupPage::icon() const
+{
+    return gtApp->icon("infoBlueIcon_16.png");
+}
+
+void
+GtStartupPage::onThemeChange()
+{
+    initializeTheme();
+}
+
+void
+GtStartupPage::showIndicatorToggled(bool val)
+{
+    gtApp->settings()->setShowStartupPage(val);
+}
+
+void
+GtStartupPage::initializeTheme()
+{
     QString welcomebuttonStyleSheet;
 
     QString border = "border: 1px solid gray;"
@@ -87,114 +190,25 @@ GtStartupPage::GtStartupPage()
                "rgb(180,213,213)}";
     }
 
-    QIcon newP = QIcon(":/icons/addProjectIcon.png");
-    QIcon examples = QIcon(":/icons/examplesIcon.png");
-    QIcon helpIcon = QIcon(":/icons/questionIcon.png");
-    QIcon infoIcon = QIcon(":/icons/infoIcon.png");
+    m_newProjBtn->setStyleSheet(welcomebuttonStyleSheet);
+    m_helpBtn->setStyleSheet(welcomebuttonStyleSheet);
+    m_examplesBtn->setStyleSheet(welcomebuttonStyleSheet);
+    m_infoBtn->setStyleSheet(welcomebuttonStyleSheet);
 
-    QSize iconSize(80, 80);
+    m_frame->setAutoFillBackground(true);
+    m_frame->setObjectName(QStringLiteral("frame"));
+    m_frame->setAutoFillBackground(true);
+    m_frame->setFrameShape(QFrame::Box);
+    m_frame->setFrameShadow(QFrame::Raised);
 
-    QToolButton* newProjBtn = new QToolButton;
-    newProjBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    newProjBtn->setIcon(newP);
-    newProjBtn->setIconSize(iconSize);
-    newProjBtn->setStyleSheet(welcomebuttonStyleSheet);
-    newProjBtn->setText(tr("New Project"));
-    btnGridLay->addWidget(newProjBtn, 0, 0);
-
-    QToolButton* examplesBtn = new QToolButton;
-    examplesBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    examplesBtn->setIcon(examples);
-    examplesBtn->setIconSize(iconSize);
-    examplesBtn->setStyleSheet(welcomebuttonStyleSheet);
-    examplesBtn->setText(tr("Examples"));
-    btnGridLay->addWidget(examplesBtn, 0, 1);
-
-    QToolButton* helpBtn = new QToolButton;
-    helpBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    helpBtn->setIcon(helpIcon);
-    helpBtn->setIconSize(iconSize);
-    helpBtn->setStyleSheet(welcomebuttonStyleSheet);
-    helpBtn->setText(tr("Help Contents"));
-    btnGridLay->addWidget(helpBtn, 1, 0);
-
-    QToolButton* infoBtn = new QToolButton(this);
-    infoBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    infoBtn->setIcon(infoIcon);
-    infoBtn->setIconSize(iconSize);
-    infoBtn->setText("Info");
-    infoBtn->setStyleSheet(welcomebuttonStyleSheet);
-
-
-                //QSize(110, 120));
-    btnGridLay->addWidget(infoBtn, 1, 1);
-
-    //QPushButton* infoBtn = new QPushButton;
-    //infoBtn->setIcon(QIcon(":/pixmaps/infoPix.png"));
-    //infoBtn->setIconSize(iconSize);
-    //infoBtn->setStyleSheet(GtStyleSheets::buttonStyleSheet());
-    //btnGridLay->addWidget(infoBtn, 1, 1);
-
-    connect(newProjBtn, SIGNAL(clicked(bool)), this, SIGNAL(newProject()));
-    connect(examplesBtn, SIGNAL(clicked(bool)), this,
-            SIGNAL(openExamplesWidget()));
-    connect(helpBtn, SIGNAL(clicked(bool)), this, SIGNAL(helpContents()));
-    connect(infoBtn, SIGNAL(clicked(bool)), this, SIGNAL(showInfo()));
-
-    gridLay->addLayout(btnGridLay, 1, 1);
-
-    frameLay->addLayout(gridLay);
-
-    frame->setLayout(frameLay);
-
-    lay->addWidget(frame);
-
-    QHBoxLayout* checkLay = new QHBoxLayout;
-
-    QCheckBox* check = new QCheckBox(tr("Show at Startup"));
-
-    if (gtApp->settings()->showStartupPage())
+    if (gtApp->inDarkMode())
     {
-        check->setChecked(true);
+        m_frame->setStyleSheet("#frame {border-image: "
+                             "url(:/pixmaps/startup-background_dark.png)}");
     }
-
-    connect(check, SIGNAL(clicked(bool)), SLOT(showIndicatorToggled(bool)));
-
-    checkLay->addWidget(check);
-    checkLay->setContentsMargins(5, 0, 0, 0);
-
-    lay->addLayout(checkLay);
-
-    setLayout(lay);
-
-    frame->setAutoFillBackground(true);
-    frame->setObjectName(QStringLiteral("frame"));
-    frame->setAutoFillBackground(true);
-    frame->setFrameShape(QFrame::Box);
-    frame->setFrameShadow(QFrame::Raised);
-    frame->setStyleSheet(
-                "#frame {border-image: url(:/pixmaps/startup-background.png)}");
-
-    label->setPixmap(QPixmap(":/pixmaps/gt-logo.png"));
-    label->setLayoutDirection(Qt::RightToLeft);
-
-    setFrameShape(QFrame::StyledPanel);
-    setFrameShadow(QFrame::Sunken);
-}
-
-GtStartupPage::~GtStartupPage()
-{
-    gtDebug() << "startup page deleted!";
-}
-
-QIcon
-GtStartupPage::icon() const
-{
-    return gtApp->icon("infoBlueIcon_16.png");
-}
-
-void
-GtStartupPage::showIndicatorToggled(bool val)
-{
-    gtApp->settings()->setShowStartupPage(val);
+    else
+    {
+        m_frame->setStyleSheet("#frame {border-image: "
+                             "url(:/pixmaps/startup-background.png)}");
+    }
 }

@@ -48,3 +48,9 @@ GtMementoViewer::allowsMultipleInstances()
 {
     return true;
 }
+
+void
+GtMementoViewer::onThemeChanged()
+{
+    m_highlighter->onThemeChanged();
+}

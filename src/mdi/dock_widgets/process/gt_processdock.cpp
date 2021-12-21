@@ -347,7 +347,7 @@ GtProcessDock::addCalculator()
     }
 
     GtCalculatorProvider provider;
-    GtProcessWizard wizard(project, &provider);
+    GtProcessWizard wizard(project, &provider, this);
     wizard.resize(560, 500);
 
     if (!wizard.exec())
@@ -414,7 +414,7 @@ GtProcessDock::addTask()
     }
 
     GtTaskProvider provider;
-    GtProcessWizard wizard(project, &provider);
+    GtProcessWizard wizard(project, &provider, this);
     wizard.resize(560, 500);
 
     if (!wizard.exec())
@@ -2049,7 +2049,7 @@ GtProcessDock::configCalculator(GtCalculator* calc)
     //                 "...";
 
     GtCalculatorProvider provider(calc);
-    GtProcessWizard wizard(project, &provider);
+    GtProcessWizard wizard(project, &provider, this);
 
     if (!wizard.exec())
     {
@@ -2092,7 +2092,7 @@ GtProcessDock::configTask(GtTask* task)
     }
 
     GtTaskProvider provider(task);
-    GtProcessWizard wizard(project, &provider);
+    GtProcessWizard wizard(project, &provider, this);
 
     if (!wizard.exec())
     {
@@ -2306,7 +2306,7 @@ GtProcessDock::actionTriggered(QObject* obj)
         task->setFactory(gtProcessFactory);
 
         GtTaskProvider provider(task);
-        GtProcessWizard wizard(gtApp->currentProject(), &provider);
+        GtProcessWizard wizard(gtApp->currentProject(), &provider, this);
         wizard.setWindowTitle(tr("Config ") + taskData->id);
 
         if (!wizard.exec())
@@ -2410,7 +2410,7 @@ GtProcessDock::actionTriggered(QObject* obj)
         calc->setFactory(gtProcessFactory);
 
         GtCalculatorProvider provider(calc);
-        GtProcessWizard wizard(gtApp->currentProject(), &provider);
+        GtProcessWizard wizard(gtApp->currentProject(), &provider, this);
         wizard.setWindowTitle(tr("Config ") + calcData->id);
 
         if (!wizard.exec())

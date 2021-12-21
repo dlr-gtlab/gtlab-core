@@ -461,7 +461,7 @@ GtMainWin::showProjectWizard()
 {
     GtProjectProvider provider;
 
-    GtProjectWizard wizard(&provider);
+    GtProjectWizard wizard(&provider, this);
 
     if (wizard.exec())
     {
@@ -1106,10 +1106,10 @@ GtMainWin::initAfterStartup()
         GtStartupPage* page = new GtStartupPage;
 
         connect(page, SIGNAL(newProject()), SLOT(showProjectWizard()));
-        //connect(page, SIGNAL(importProject()), SLOT(importProject()));
         connect(page, SIGNAL(openExamplesWidget()), SLOT(openExamplesWidget()));
         connect(page, SIGNAL(helpContents()), SLOT(openHelpContents()));
         connect(page, SIGNAL(showInfo()), SLOT(openAboutDialog()));
+        connect(gtApp, SIGNAL(themeChanged(bool)), page, SLOT(onThemeChange()));
 
         QMdiSubWindow* subWin = ui->mdiArea->addSubWindow(page);
         subWin->setWindowTitle(tr("Welcome"));
@@ -1265,8 +1265,6 @@ GtMainWin::setTheme(bool dark)
 #ifdef Q_OS_WIN
         style = "windowsvista";
 #endif
-        gtDebug() << QStyleFactory::keys();
-
         p = GtPalette::standardTheme();
 
         qApp->setPalette(p);
@@ -1280,6 +1278,9 @@ GtMainWin::setTheme(bool dark)
         this->setStyleSheet("QToolTip { color: black; "
                             "background-color: white; "
                             "border: 1px solid black; }");
+
+        QBrush mdiBackground(Qt::gray, Qt::Dense4Pattern);
+        ui->mdiArea->setBackground(mdiBackground);
     }
     else
     {
@@ -1296,6 +1297,9 @@ GtMainWin::setTheme(bool dark)
         this->setStyleSheet("QToolTip { color: #ffffff; "
                             "background-color: #2a82da; "
                             "border: 1px solid white; }");
+
+        QBrush mdiBackground(Qt::darkGray, Qt::Dense4Pattern);
+        ui->mdiArea->setBackground(mdiBackground);
     }
 
     ui->viewerToolbar->setPalette(p);

@@ -17,14 +17,6 @@
 #include "gt_xmlhighlighter.h"
 #include "gt_application.h"
 
-//static const QColor DEFAULT_SYNTAX_CHAR		= Qt::blue;
-//static const QColor DEFAULT_ELEMENT_NAME	= Qt::darkRed;
-//static const QColor DEFAULT_COMMENT			= Qt::darkGreen;
-//static const QColor DEFAULT_ATTRIBUTE_NAME	= Qt::red;
-//static const QColor DEFAULT_ATTRIBUTE_VALUE	= Qt::blue;
-//static const QColor DEFAULT_ERROR			= Qt::darkMagenta;
-//static const QColor DEFAULT_OTHER			= Qt::black;
-
 // Regular expressions for parsing XML borrowed from:
 // http://www.cs.sfu.ca/~cameron/REX.html
 static const QString EXPR_COMMENT			= "<!--[^-]*-([^-][^-]*-)*->";
@@ -366,4 +358,11 @@ GtXmlHighlighter::processDefaultText(int i, const QString& text)
         break;
     }
     return iLength;
+}
+
+void
+GtXmlHighlighter::onThemeChanged()
+{
+    init();
+    rehighlight();
 }

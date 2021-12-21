@@ -12,6 +12,8 @@
 #include <QPropertyAnimation>
 #include "gt_taskentityshadow.h"
 #include "gt_taskentity.h"
+#include "gt_application.h"
+#include "gt_palette.h"
 
 GtTaskEntityShadow::GtTaskEntityShadow(GtTaskEntity* task) :
     m_task(task),
@@ -32,7 +34,15 @@ GtTaskEntityShadow::paint(QPainter* painter,
 {
     painter->save();
 
-    painter->setBrush(QBrush(Qt::white));
+    if (!gtApp->inDarkMode())
+    {
+        painter->setBrush(QBrush(Qt::white));
+    }
+    else
+    {
+        painter->setBrush(QBrush(GtPalette::basicDarkColor()));
+    }
+
     painter->setPen(Qt::NoPen);
 
     QRectF br = boundingRect();

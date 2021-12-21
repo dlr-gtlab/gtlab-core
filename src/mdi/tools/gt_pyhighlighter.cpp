@@ -8,6 +8,7 @@
  */
 
 #include "gt_pyhighlighter.h"
+#include "gt_application.h"
 
 GtPyHighlighter::GtPyHighlighter(QTextDocument* parent)
     : QSyntaxHighlighter(parent)
@@ -32,15 +33,7 @@ GtPyHighlighter::GtPyHighlighter(QTextDocument* parent)
 
     braces = QStringList() << "{" << "}" << "\\(" << "\\)" << "\\[" << "\\]";
 
-    basicStyles.insert("keyword", getTextCharFormat("blue"));
-    basicStyles.insert("operator", getTextCharFormat("red"));
-    basicStyles.insert("brace", getTextCharFormat("darkGray"));
-    basicStyles.insert("defclass", getTextCharFormat("black", "bold"));
-    basicStyles.insert("string", getTextCharFormat("magenta"));
-    basicStyles.insert("string2", getTextCharFormat("darkMagenta"));
-    basicStyles.insert("comment", getTextCharFormat("darkGreen", "italic"));
-    basicStyles.insert("self", getTextCharFormat("black", "italic"));
-    basicStyles.insert("numbers", getTextCharFormat("brown"));
+    initializeStyles();
 
     triSingleQuote.setPattern("'''");
     triDoubleQuote.setPattern("\"\"\"");
@@ -144,6 +137,43 @@ GtPyHighlighter::highlightBlock(const QString& text)
     {
         isInMultilne = matchMultiline(text, triDoubleQuote, 2,
                                       basicStyles.value("string2"));
+    }
+}
+
+void
+GtPyHighlighter::onThemeChanged()
+{
+    initializeStyles();
+    initializeRules();
+    rehighlight();
+}
+
+void
+GtPyHighlighter::initializeStyles()
+{
+    if (!gtApp->inDarkMode())
+    {
+        basicStyles.insert("keyword", getTextCharFormat("blue"));
+        basicStyles.insert("operator", getTextCharFormat("red"));
+        basicStyles.insert("brace", getTextCharFormat("darkGray"));
+        basicStyles.insert("defclass", getTextCharFormat("black", "bold"));
+        basicStyles.insert("string", getTextCharFormat("magenta"));
+        basicStyles.insert("string2", getTextCharFormat("darkMagenta"));
+        basicStyles.insert("comment", getTextCharFormat("darkGreen", "italic"));
+        basicStyles.insert("self", getTextCharFormat("black", "italic"));
+        basicStyles.insert("numbers", getTextCharFormat("brown"));
+    }
+    else
+    {
+        basicStyles.insert("keyword", getTextCharFormat("violet"));
+        basicStyles.insert("operator", getTextCharFormat("white"));
+        basicStyles.insert("brace", getTextCharFormat("white"));
+        basicStyles.insert("defclass", getTextCharFormat("cyan", "bold"));
+        basicStyles.insert("string", getTextCharFormat("palegreen"));
+        basicStyles.insert("string2", getTextCharFormat("palegreen"));
+        basicStyles.insert("comment", getTextCharFormat("gray", "italic"));
+        basicStyles.insert("self", getTextCharFormat("white", "italic"));
+        basicStyles.insert("numbers", getTextCharFormat("yellow"));
     }
 }
 
