@@ -44,7 +44,7 @@ GtShortCut::setKey(const QKeySequence &key)
 
 
 QString
-GtShortCut::category()
+GtShortCut::category() const
 {
     return m_cat;
 }

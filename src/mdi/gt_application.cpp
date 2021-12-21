@@ -63,7 +63,8 @@ GtApplication::GtApplication(QCoreApplication* parent, bool devMode) :
 
     m_devMode = devMode;
 
-    GtShortCuts* cuts = new GtShortCuts(this);
+    // apppend shortcuts object
+    new GtShortCuts(this);
 }
 
 GtApplication::~GtApplication()
@@ -709,15 +710,15 @@ GtApplication::compareKeyEvent(QKeyEvent* keyEvent, const QString& id) const
 
     QKeySequence k = s->getKey(id);
 
+    // shortcut may be empty/not set
     if (k.isEmpty())
     {
-        gtError() << tr("No ShortCut registered for ") << id;
         return false;
     }
 
     /// a key sequence may contain multiple alternatives to use as short-cut
     /// but for a correct comparison only one can be compared
-    if (k.count() != 1)
+    if (k.count() == 0)
     {
         return false;
     }

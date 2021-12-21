@@ -72,20 +72,13 @@ GtShortCuts::getKey(const QString& id) const
         return false;
     }
 
-    GtShortCut* shortCut = nullptr;
-
     for (GtShortCut* c : list)
     {
         if (c->id() == id)
         {
-            shortCut = c;
+            return c->key();
         }
     }
 
-    if (shortCut == nullptr)
-    {
-        return QKeySequence();
-    }
-
-    return shortCut->key();
+    return QKeySequence();
 }
