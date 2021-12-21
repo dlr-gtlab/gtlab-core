@@ -9,7 +9,6 @@
 
 #include <QDebug>
 
-#include "gt_doublemonitoringproperty.h"
 #include "gt_task.h"
 #include "gt_processdata.h"
 #include "gt_objectlinkproperty.h"
