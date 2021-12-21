@@ -12,8 +12,12 @@
 
 #include "gt_calculators_exports.h"
 #include "gt_object.h"
+#include "gt_boolproperty.h"
+#include "gt_objectpath.h"
 
 class GtTask;
+class GtObjectLinkProperty;
+class GtObjectPathProperty;
 
 /**
  * @brief The GtProcessComponent class
@@ -50,10 +54,24 @@ public:
     GtProcessComponent::STATE currentState();
 
     /**
-     * @brief Sets current state of process component.
+     * @brief Returns true if the process component is set to skip mode.
+     * @return Skip indicator.
+     */
+    bool isSkipped();
+
+    /**
+     * @brief Sets the process component skip mode. Root objects cannot be
+     * skipped.
+     * @param Whether the component should be skipped or not.
+     */
+    void setSkipped(bool val);
+
+    /**
+     * @brief Sets current state of process component. Is always set to SKIPPED
+     * if skipped indicator is active.
      * @param New state.
      */
-    virtual void setState(GtProcessComponent::STATE state);
+    void setState(GtProcessComponent::STATE state);
 
     /**
      * @brief Sets current state of process component and all his child
@@ -105,6 +123,34 @@ public:
      */
     bool hasWarnings();
 
+    /**
+     * @brief Returns datamodel object based on given object link property.
+     * If no object is found nullpointer is returned.
+     * @tparam T Object type
+     * @param prop Object link property
+     * @return Object corresponding to given object link property
+     */
+    template <class T>
+    T data(GtObjectLinkProperty& prop)
+    {
+        const QString uuid = dataHelper(prop);
+        return data<T>(uuid);
+    }
+
+    /**
+     * @brief Returns datamodel object based on given object path property.
+     * If no object is found nullpointer is returned.
+     * @tparam T Object type
+     * @param prop Object path property
+     * @return Object corresponding to given object path property
+     */
+    template <class T>
+    T data(GtObjectPathProperty& prop)
+    {
+        const GtObjectPath path = pathHelper(prop);
+        return data<T>(path);
+    }
+
 public slots:
     /**
      * @brief Handles process component state changes.
@@ -137,8 +183,25 @@ private:
     /// Monitoring properties
     QList<GtAbstractProperty*> m_monitorProperties;
 
+    /// Skip indicator
+    GtBoolProperty m_skipped;
+
     /// Warning flag
     bool m_warning;
+
+    /**
+     * @brief Returns uuid string of given object link property.
+     * @param prop Object link property.
+     * @return Uuid string.
+     */
+    QString dataHelper(GtObjectLinkProperty& prop);
+
+    /**
+     * @brief Returns object path of given object path property.
+     * @param prop Object path property.
+     * @return Object path.
+     */
+    GtObjectPath pathHelper(GtObjectPathProperty& prop);
 
 signals:
     /**

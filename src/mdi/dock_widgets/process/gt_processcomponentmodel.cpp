@@ -132,6 +132,8 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
             {
                 return stateToIcon(pc->currentState());
             }
+
+            break;
         }
 
         case Qt::FontRole:
@@ -147,19 +149,16 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                 return GtStyledModel::data(index, role);
             }
 
-            GtCalculator* calc = qobject_cast<GtCalculator*>(pc);
-
-            if (col == 0 && calc != Q_NULLPTR)
+            if (col == 0 && pc->isSkipped())
             {
-                if (calc->isSkipped())
-                {
-                    QFont font =
-                        GtStyledModel::data(index, role).value<QFont>();
-                    font.setItalic(true);
-                    font.setStrikeOut(true);
-                    return font;
-                }
+                QFont font =
+                    GtStyledModel::data(index, role).value<QFont>();
+                font.setItalic(true);
+                font.setStrikeOut(true);
+                return font;
             }
+
+            break;
         }
 
         default:

@@ -41,6 +41,14 @@ GtTask::exec()
 {
     m_runnable = Q_NULLPTR;
 
+    // check skipped indicator
+    if (isSkipped())
+    {
+        setState(GtTask::SKIPPED);
+        gtDebug() << objectName() << tr(" skipped");
+        return true;
+    }
+
     m_runnable = findParent<GtAbstractRunnable*>();
 
     // collect all calculator properties
@@ -471,18 +479,6 @@ GtTask::childHasWarnings()
     }
 
     return false;
-}
-
-QString
-GtTask::dataHelper(GtObjectLinkProperty& prop)
-{
-    return prop.linkedObjectUUID();
-}
-
-GtObjectPath
-GtTask::pathHelper(GtObjectPathProperty& prop)
-{
-    return prop.path();
 }
 
 void
