@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed ObjectUI Standard Behaviour for renaming to allow spaces - #109
 - GtVersionNumber: correct function for operator '>' and '<' -#159 
 - GtProcessDock: Dummy process elements are no longer mutable - #162
+- Examples search path was set to a specific 'examples' dir - #168
 
 ### Changed
 - Saving a project was moved to a separate thread - #127

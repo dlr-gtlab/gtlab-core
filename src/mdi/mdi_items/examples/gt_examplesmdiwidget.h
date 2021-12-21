@@ -9,8 +9,6 @@
 #ifndef GTEXAMPLESMDIWIDGET_H
 #define GTEXAMPLESMDIWIDGET_H
 
-#include "gt_mdi_exports.h"
-
 #include "gt_mdiitem.h"
 
 class QDir;
@@ -24,7 +22,7 @@ class GtExamplesEntry;
  * @brief The GtExamplesMdiWidget class
  * Main Widget for visulaization of example-selection
  */
-class GT_MDI_EXPORT GtExamplesMdiWidget : public GtMdiItem
+class GtExamplesMdiWidget : public GtMdiItem
 {
     Q_OBJECT
 
@@ -40,7 +38,8 @@ public:
     ~GtExamplesMdiWidget();
 
     /** Virtual function to specify item specific icon.
-        @return Object specific icon */
+     *  @return Object specific icon
+     */
     virtual QIcon icon() const;
 
     /**
@@ -52,35 +51,35 @@ public:
     /**
      * @brief showEvent
      */
-    virtual void showEvent();
+    void showEvent();
 
 private:
     /**
-     * @brief Initializes examples path.
+     * @brief Initializes examples path. Path remains empty if initialization
+     * fails
      */
     void initializeExamplesPath();
 
     /**
-     * @brief initialize
-     *  Read mainDir
+     * @brief initializeDirectories. Searchs for example projects and adds them
+     * to the example entries list.
      */
     void initializeDirectories();
 
     /**
      * @brief validateExampleDiretory
-     *  validate directory if all necessary files are inside
+     * validate directory if all necessary files are inside
      * @param dir
-     * @return
+     * @returnd
      */
     bool validateExampleDiretory(QDir* dir);
 
     /**
      * @brief readDirectoryContentToExampleEntry
-     *  Read Content of directory to GtExampleEntry object
-     *
+     * Read Content of directory to GtExampleEntry object
      * @param dir
      * @param entry
-     * @return
+     * @return success
      */
     bool readDirectoryContentToExampleEntry(QDir* dir,
                                             GtExamplesEntry* entry);
