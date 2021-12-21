@@ -23,6 +23,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include "gt_settings.h"
 #include "gt_application.h"
 #include "gt_examplesentry.h"
 #include "gt_examplegraphicalitem.h"
@@ -57,7 +58,7 @@ GtExamplesMdiWidget::initializeDirectories()
 {
     QDir mainDir(m_examplesPath);
 
-    if (!mainDir.exists())
+    if (m_examplesPath.isEmpty() || !mainDir.exists())
     {
         gtWarning() << tr("No Examples found!");
         return;
@@ -74,7 +75,7 @@ GtExamplesMdiWidget::initializeDirectories()
         return;
     }
 
-    gtDebug() << "AllDirs:" << allDirs;
+    gtInfo() << tr("Examples found:") << allDirs.join(", ");
 
     foreach (QString dir, allDirs)
     {
@@ -160,8 +161,6 @@ GtExamplesMdiWidget::initializeWidget()
     lay1->addWidget(m_tabWidget);
 
     QStringList categories = getAllCategories();
-
-    //gtDebug() << "Categories:" << categories;
 
     connect(m_tabWidget, SIGNAL(resized()), this, SLOT(onResized()));
 
@@ -256,7 +255,6 @@ GtExamplesMdiWidget::onResized()
 void
 GtExamplesMdiWidget::onOpenProject(QString exampleName)
 {
-    gtDebug() << "On Open Project";
     QString dirPath = exampleName.split("#").first();
 
     QDialog dialog;
@@ -283,7 +281,7 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
     GtProjectSpecWidget* pspecs = new GtProjectSpecWidget;
     layout->addWidget(pspecs);
 
-    QDir projectDir = QDir::home();
+    QDir projectDir = gtApp->settings()->lastPath();
 
     pspecs->setProjectInformation(id, projectDir.absolutePath());
 
@@ -315,7 +313,7 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
 
     if (dialog.exec())
     {
-        newDirPath = pspecs->pathLine()->text(); //dialog.selectedFiles().first();
+        newDirPath = pspecs->pathLine()->text();
         projectNameNew = pspecs->nameLine()->text();
     }
     else
@@ -324,8 +322,6 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
     }
 
     ////////////////////////////////////////////////////
-
-
 
     QDir oldProjectDir(dirPath + QDir::separator() + "project");
 
@@ -340,8 +336,6 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
     QDir parentDir = newProjectDir;
     parentDir.cdUp();
 
-    //QString exampleName2 = projectNameNew; // exampleName.split("#").last();
-
     if (!parentDir.mkdir(newProjectDir.dirName()))
     {
         gtError() << tr("Could not create new folder")
@@ -350,17 +344,9 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
         return;
     }
 
-    //if (!newProjectDir.cd(exampleName2))
-    //{
-    //    gtWarning() << tr("New Directory not found:") << exampleName2;
-    //    return;
-    //}
-
     QStringList oldDirContent = oldProjectDir.entryList(QDir::NoFilter);
     oldDirContent.removeOne(".");
     oldDirContent.removeOne("..");
-
-    //gtDebug() << "oldDirContent" << oldDirContent;
 
     foreach (QString path, oldDirContent)
     {
@@ -620,9 +606,7 @@ GtExamplesMdiWidget::readDirectoryContentToExampleEntry(QDir* dir,
     }
 
     entry->setName(obj["Name"].toString());
-    //gtDebug() << "Name:" << obj["Name"].toString();
     entry->setCategory(obj["Category"].toString());
-    //gtDebug() << "Category:" << obj["Category"].toString();
 
     QString pixmapFilePath = dir->absoluteFilePath("picture.png");
 

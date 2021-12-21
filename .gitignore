@@ -15,4 +15,5 @@ unittests.xml
 !tests/build/
 lib/
 include/
+examples/
 Collections/

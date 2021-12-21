@@ -24,11 +24,11 @@
 GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry* data,
                                                QWidget* parent) :
     QWidget(parent),
-    m_selected(false),
-    m_picLabel(Q_NULLPTR),
     m_data(Q_NULLPTR),
+    m_picLabel(Q_NULLPTR),
     m_picFrame(Q_NULLPTR),
-    m_zoomButton(Q_NULLPTR)
+    m_zoomButton(Q_NULLPTR),
+    m_selected(false)
 {
     if (data != Q_NULLPTR)
     {
@@ -201,7 +201,7 @@ GtExampleGraphicalItem::showZoom()
                                                Qt::SmoothTransformation);
 
         label->setPixmap(scaledPixmap);
-        label->setStyleSheet("border: 2px solid grey");
+        label->setStyleSheet("border: 1px solid grey");
         layout->addWidget(label);
         layout->addWidget(openButton);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -214,11 +214,12 @@ GtExampleGraphicalItem::showZoom()
             descriptionLabel->setMaximumWidth(600);
             descriptionLabel->setWordWrap(true);
 
-            QFont fnt("Helvetica", 12);
+            QFont fnt("Helvetica", 10);
             //fnt.setBold(true);
 
             descriptionLabel->setAlignment(Qt::AlignCenter);
 
+            descriptionLabel->setMargin(5);
             descriptionLabel->setFont(fnt);
             descriptionLabel->setText(m_description);
 
