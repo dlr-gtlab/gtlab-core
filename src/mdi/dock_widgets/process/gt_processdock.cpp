@@ -154,7 +154,7 @@ GtProcessDock::GtProcessDock() :
     connect(m_view, SIGNAL(runTaskElement(QModelIndex)),
             SLOT(runProcess()));
     connect(m_view, SIGNAL(skipCalcultorElement(QModelIndex, bool)),
-            SLOT(skipCalculator(QModelIndex, bool)));
+            SLOT(skipComponent(QModelIndex, bool)));
     connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
 
@@ -298,8 +298,8 @@ GtProcessDock::addEmptyTaskToRoot()
     }
 }
 
-GtCalculator*
-GtProcessDock::calcByModelIndex(const QModelIndex& index)
+GtProcessComponent*
+GtProcessDock::componentByModelIndex(const QModelIndex &index)
 {
     if (!index.isValid())
     {
@@ -318,30 +318,8 @@ GtProcessDock::calcByModelIndex(const QModelIndex& index)
         return Q_NULLPTR;
     }
 
-    return qobject_cast<GtCalculator*>(gtDataModel->objectFromIndex(srcIndex));
-}
-
-GtTask*
-GtProcessDock::taskByModelIndex(const QModelIndex& index)
-{
-    if (!index.isValid())
-    {
-        return Q_NULLPTR;
-    }
-
-    QModelIndex srcIndex = mapToSource(index);
-
-    if (!srcIndex.isValid())
-    {
-        return Q_NULLPTR;
-    }
-
-    if (srcIndex.model() != gtDataModel)
-    {
-        return Q_NULLPTR;
-    }
-
-    return qobject_cast<GtTask*>(gtDataModel->objectFromIndex(srcIndex));
+    return qobject_cast<GtProcessComponent*>(
+                gtDataModel->objectFromIndex(srcIndex));
 }
 
 void
@@ -995,8 +973,11 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     bool hasInvalidParents = obj->hasDummyParents();
 
     QMenu menu(this);
+
     QAction* actrun = menu.addAction(tr("Run Task"));
+    actrun->setIcon(gtApp->icon("runProcessIcon_16.png"));
     QAction* actstop = menu.addAction(tr("Stop Task"));
+    actstop->setIcon(gtApp->icon("stopIcon_16.png"));
 
     /// This line is only for the entry in the context menu and
     /// does not trigger the action
@@ -1039,10 +1020,30 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 
     menu.addSeparator();
 
-    actrun->setIcon(gtApp->icon("runProcessIcon_16.png"));
-    actstop->setIcon(gtApp->icon("stopIcon_16.png"));
-    //    QAction* actglobals = menu.addAction("Globals");
-    //    actglobals->setIcon(gtApp->icon("globalsIcon_16.png"));
+    QAction* actskip = menu.addAction("Skip");
+    actskip->setIcon(gtApp->icon("skipIcon_16.png"));
+    actskip->setShortcut(gtApp->getShortCutSequence("skipProcess"));
+
+    QAction* actunskip = menu.addAction("Unskip");
+    actunskip->setIcon(gtApp->icon("arrowrightIcon.png"));
+    actunskip->setShortcut(gtApp->getShortCutSequence("unskipProcess"));
+
+    // check if task is root
+    if (obj == obj->rootTask())
+    {
+        actskip->setEnabled(false);
+        actunskip->setEnabled(false);
+    }
+
+    if (!obj->isSkipped())
+    {
+        actunskip->setVisible(false);
+    }
+    else
+    {
+        actskip->setVisible(false);
+    }
+
     QAction* actrename = menu.addAction("Rename");
     actrename->setIcon(gtApp->icon("inputIcon_16.png"));
     actrename->setShortcut(gtApp->getShortCutSequence("rename"));
@@ -1138,7 +1139,6 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 
     if (a == actdelete)
     {
-        //        deleteElement(mapFromSource(index));
         deleteProcessElements(m_view->selectionModel()->selectedIndexes());
     }
     else if (a == actrename)
@@ -1149,6 +1149,14 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
         {
             m_view->edit(idx);
         }
+    }
+    else if (a == actskip)
+    {
+        skipComponent(mapFromSource(index));
+    }
+    else if (a == actunskip)
+    {
+        skipComponent(mapFromSource(index), false);
     }
     else if (a == actcopy)
     {
@@ -1210,9 +1218,11 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
 
     QAction* actskip = menu.addAction("Skip");
     actskip->setIcon(gtApp->icon("skipIcon_16.png"));
+    actskip->setShortcut(gtApp->getShortCutSequence("skipProcess"));
 
     QAction* actunskip = menu.addAction("Unskip");
     actunskip->setIcon(gtApp->icon("arrowrightIcon.png"));
+    actunskip->setShortcut(gtApp->getShortCutSequence("unskipProcess"));
 
     if (!obj->isSkipped())
     {
@@ -1297,7 +1307,6 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
 
     if (a == actdelete)
     {
-        //        deleteElement(mapFromSource(index));
         deleteProcessElements(m_view->selectionModel()->selectedIndexes());
     }
     else if (a == actrename)
@@ -1311,11 +1320,11 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     }
     else if (a == actskip)
     {
-        skipCalculator(mapFromSource(index));
+        skipComponent(mapFromSource(index));
     }
     else if (a == actunskip)
     {
-        skipCalculator(mapFromSource(index), false);
+        skipComponent(mapFromSource(index), false);
     }
     else if (a == actcopy)
     {
@@ -1359,33 +1368,31 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
 
     bool allSkipped = true;
     bool allUnskipped = true;
+    // counter for dummy objects
     int dummyObjects = 0;
+    // counter for root objects
+    int rootObjects  = 0;
 
     for (const QModelIndex& index : indexList)
     {
-        GtTask* task = taskByModelIndex(index);
+        GtProcessComponent* pc = componentByModelIndex(index);
 
-        if (task != Q_NULLPTR)
+        if (pc == Q_NULLPTR || pc->isDummy() || pc->hasDummyParents())
         {
-            dummyObjects += (task->isDummy() || task->hasDummyParents());
+            dummyObjects += 1;
             continue;
         }
 
-        GtCalculator* calc = calcByModelIndex(index);
+        dummyObjects += (pc->hasDummyParents());
+        rootObjects  += (pc->rootTask() == pc);
 
-        if (calc != Q_NULLPTR)
+        if (!pc->isSkipped())
         {
-            dummyObjects += (calc->isDummy() || calc->hasDummyParents());
-
-            if (!calc->isSkipped())
-            {
-                allSkipped = false;
-            }
-
-            if (calc->isSkipped())
-            {
-                allUnskipped = false;
-            }
+            allSkipped = false;
+        }
+        else
+        {
+            allUnskipped = false;
         }
     }
 
@@ -1403,7 +1410,8 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
     {
         deleteElements->setEnabled(false);
     }
-    if (dummyObjects == indexList.length())
+    // root tasks or dummy objects cannot be skipped
+    if (rootObjects + dummyObjects == indexList.length())
     {
         skipCalcs->setEnabled(false);
         unskipCalcs->setEnabled(false);
@@ -1413,11 +1421,11 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
 
     if (a == skipCalcs)
     {
-        skipCalculator(indexList);
+        skipComponent(indexList);
     }
     else if (a == unskipCalcs)
     {
-        skipCalculator(indexList, false);
+        skipComponent(indexList, false);
     }
     else if (a == deleteElements)
     {
@@ -1948,7 +1956,7 @@ GtProcessDock::pasteElement(const QModelIndex& parentIndex)
 }
 
 void
-GtProcessDock::skipCalculator(const QModelIndex& index, bool skip)
+GtProcessDock::skipComponent(const QModelIndex& index, bool skip)
 {
     QString msg;
 
@@ -1961,31 +1969,31 @@ GtProcessDock::skipCalculator(const QModelIndex& index, bool skip)
         msg = "Unskip";
     }
 
-    msg.append(" Selected Calculator");
+    msg.append(" Selected Process Elements");
 
-    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), msg);
-    skipCalculator(calcByModelIndex(index), skip);
+    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), msg);    
+    skipComponent(componentByModelIndex(index), skip);
 
     gtApp->endCommand(cmd);
 }
 
 void
-GtProcessDock::skipCalculator(const QList<QModelIndex>& indexList, bool skip)
+GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
 {
-    QList<GtCalculator*> calcs;
+    QList<GtProcessComponent*> pcs;
 
     foreach (QModelIndex index, indexList)
     {
-        GtCalculator* calc = calcByModelIndex(index);
+        GtProcessComponent* pc = componentByModelIndex(index);
 
-        if (calc == Q_NULLPTR)
+        if (pc == Q_NULLPTR)
         {
             continue;
         }
 
-        if (!calcs.contains(calc))
+        if (!pcs.contains(pc))
         {
-            calcs.append(calc);
+            pcs.append(pc);
         }
     }
 
@@ -2000,26 +2008,26 @@ GtProcessDock::skipCalculator(const QList<QModelIndex>& indexList, bool skip)
         msg = "Unskip";
     }
 
-    msg.append(" Selected Calculators");
+    msg.append(" Selected Process Elements");
 
     GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), msg);
-    foreach (GtCalculator* calc, calcs)
+    foreach (GtProcessComponent* pc, pcs)
     {
-        skipCalculator(calc, skip);
+        skipComponent(pc, skip);
     }
 
     gtApp->endCommand(cmd);
 }
 
 void
-GtProcessDock::skipCalculator(GtCalculator* calc, bool skip)
+GtProcessDock::skipComponent(GtProcessComponent* comp, bool skip)
 {
-    if (calc == Q_NULLPTR)
+    if (comp == Q_NULLPTR)
     {
         return;
     }
 
-    calc->setSkipped(skip);
+    comp->setSkipped(skip);
 }
 
 void

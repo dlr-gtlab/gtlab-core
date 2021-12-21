@@ -8,22 +8,17 @@
  */
 
 #include <QDebug>
-#include <QTime>
-#include <QCoreApplication>
 #include <QDir>
 
 #include "gt_abstractrunnable.h"
-#include "gt_abstractproperty.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_modeproperty.h"
 #include "gt_modetypeproperty.h"
 #include "gt_calculatorexecutorlist.h"
 #include "gt_abstractcalculatorexecutor.h"
 #include "gt_labelproperty.h"
-#include "gt_boolproperty.h"
 #include "gt_environment.h"
 #include "gt_objectpathproperty.h"
-#include "gt_objectpath.h"
 
 #include "gt_calculator.h"
 
@@ -45,7 +40,7 @@ GtCalculator::exec()
     m_tempPath.clear();
 
     // check skipped indicator
-    if (m_skipped)
+    if (isSkipped())
     {
         setState(GtCalculator::SKIPPED);
         gtDebug() << objectName() << tr(" skipped");
@@ -234,34 +229,9 @@ GtCalculator::setExecutionLabel(const QString& label)
 }
 
 bool
-GtCalculator::isSkipped()
-{
-    return m_skipped;
-}
-
-void
-GtCalculator::setSkipped(bool val)
-{
-    m_skipped = val;
-}
-
-bool
 GtCalculator::runFailsOnWarning()
 {
     return m_failRunOnWarning;
-}
-
-void
-GtCalculator::setState(GtProcessComponent::STATE state)
-{
-    if (m_skipped)
-    {
-        GtProcessComponent::setState(GtProcessComponent::SKIPPED);
-    }
-    else
-    {
-        GtProcessComponent::setState(state);
-    }
 }
 
 bool
@@ -276,8 +246,6 @@ GtCalculator::GtCalculator():
     m_execMode(Q_NULLPTR),
     m_labelProperty(Q_NULLPTR),
     m_runnable(Q_NULLPTR),
-    m_skipped(QStringLiteral("skip"), tr("Skip"),
-              tr("Skip Calculator"), false),
     m_failRunOnWarning(QStringLiteral("failOnWarn"), tr("Fail Run on Warning"),
                        tr("Terminate process execution if calculator"
                           " throws a warning."), false)
@@ -319,7 +287,6 @@ GtCalculator::GtCalculator():
     }
 
     registerProperty(*m_execMode, tr("Execution"));
-    registerProperty(m_skipped, tr("Execution"));
     registerProperty(m_failRunOnWarning, tr("Execution"));
 
     setFlag(GtObject::UserRenamable, true);
@@ -355,14 +322,3 @@ GtCalculator::projectPath()
     return m_runnable->projectPath();
 }
 
-QString
-GtCalculator::dataHelper(GtObjectLinkProperty& prop)
-{
-    return prop.linkedObjectUUID();
-}
-
-GtObjectPath
-GtCalculator::pathHelper(GtObjectPathProperty& prop)
-{
-    return prop.path();
-}

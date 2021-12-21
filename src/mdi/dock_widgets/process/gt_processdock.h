@@ -272,22 +272,22 @@ public slots:
     void pasteElement(const QModelIndex& parentIndex);
 
     /**
-     * @brief sets skip status to calculator at index
+     * @brief sets skip status to component at index
      * @param index
      */
-    void skipCalculator(const QModelIndex& index, bool skip = true);
+    void skipComponent(const QModelIndex& index, bool skip = true);
 
     /**
-     * @brief sets skip status to calculators at indexes
-     * @param index
+     * @brief sets skip status to components at indexes
+     * @param indexlist
      */
-    void skipCalculator(const QList<QModelIndex>& indexList, bool skip = true);
+    void skipComponent(const QList<QModelIndex>& indexList, bool skip = true);
 
     /**
-     * @brief sets skip status to calculator
-     * @param calculator
+     * @brief sets skip status to component
+     * @param component
      */
-    void skipCalculator(GtCalculator* calc, bool skip = true);
+    void skipComponent(GtProcessComponent* comp, bool skip = true);
 
 protected:
     /** Event called after current project has changed.
@@ -367,18 +367,11 @@ private:
     bool componentIsReady(GtProcessComponent* comp);
 
     /**
-     * @brief calcByModelIndex
+     * @brief componentByModelIndex
      * @param index
      * @return
      */
-    GtCalculator* calcByModelIndex(const QModelIndex& index);
-
-    /**
-     * @brief calcByModelIndex
-     * @param index
-     * @return
-     */
-    GtTask* taskByModelIndex(const QModelIndex& index);
+    GtProcessComponent* componentByModelIndex(const QModelIndex& index);
 
     /**
      * @brief Updates property connections in a copied object based on the
@@ -509,8 +502,8 @@ private slots:
     void multiSelectionContextMenu(QList<QModelIndex> indexList);
 
     /**
-     * @brief configCalculator
-     * @param calc
+     * @brief Opens the calcualtor configuration wizard.
+     * @param calc Calculator for configuration.
      */
     void configCalculator(GtCalculator* calc);
 

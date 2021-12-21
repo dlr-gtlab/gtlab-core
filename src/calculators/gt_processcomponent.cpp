@@ -12,14 +12,20 @@
 #include "gt_doublemonitoringproperty.h"
 #include "gt_task.h"
 #include "gt_processdata.h"
+#include "gt_objectlinkproperty.h"
+#include "gt_objectpathproperty.h"
 
 #include "gt_processcomponent.h"
 
 GtProcessComponent::GtProcessComponent() :
     m_state(GtProcessComponent::NONE),
+    m_skipped(QStringLiteral("skip"), tr("Skip"),
+              tr("Skip Process Element"), false),
     m_warning(false)
 {
     qRegisterMetaType<GtProcessComponent::STATE>("GtProcessComponent::STATE");
+
+    registerProperty(m_skipped, tr("Execution"));
 }
 
 void
@@ -212,4 +218,33 @@ GtProcessComponent::STATE
 GtProcessComponent::currentState()
 {
     return m_state;
+}
+
+bool
+GtProcessComponent::isSkipped()
+{
+    return m_skipped;
+}
+
+void
+GtProcessComponent::setSkipped(bool val)
+{
+    // skipping a root task is unnecessary
+    if (this == rootTask())
+    {
+        val = false;
+    }
+    m_skipped = val;
+}
+
+QString
+GtProcessComponent::dataHelper(GtObjectLinkProperty& prop)
+{
+    return prop.linkedObjectUUID();
+}
+
+GtObjectPath
+GtProcessComponent::pathHelper(GtObjectPathProperty& prop)
+{
+    return prop.path();
 }

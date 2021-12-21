@@ -10,23 +10,16 @@
 #ifndef GTTASK_H
 #define GTTASK_H
 
-#include "gt_calculators_exports.h"
-
 #include <QEventLoop>
 #include <QPointer>
 
 #include "gt_processcomponent.h"
 #include "gt_objectmemento.h"
-#include "gt_intproperty.h"
 #include "gt_intmonitoringproperty.h"
 #include "gt_monitoringdatatable.h"
 
-#include "gt_objectpath.h"
-
 class GtCalculator;
 class GtAbstractRunnable;
-class GtObjectLinkProperty;
-class GtObjectPathProperty;
 
 /**
  * @brief The GtTask class
@@ -52,7 +45,7 @@ public:
      * @brief Main run method of the process component.
      * @return Whether run process was successful or not.
      */
-    bool exec();
+    bool exec() Q_DECL_OVERRIDE;
 
     /**
      * @brief run
@@ -125,7 +118,7 @@ public:
     /**
      * @brief Called after successfully restoring from memento
      */
-    void onObjectDataMerged();
+    void onObjectDataMerged() Q_DECL_OVERRIDE;
 
     /**
      * @brief Collects all property connections recursively.
@@ -200,36 +193,6 @@ public:
 
         return Q_NULLPTR;
     }
-
-    /**
-     * @brief Returns datamodel object based on given object link property.
-     * If no object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param prop Object link property
-     * @return Object corresponding to given object link property
-     */
-    template <class T>
-    T data(GtObjectLinkProperty& prop)
-    {
-        const QString uuid = dataHelper(prop);
-        return data<T>(uuid);
-    }
-
-    /**
-     * @brief Returns datamodel object based on given object path property.
-     * If no object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param prop Object path property
-     * @return Object corresponding to given object path property
-     */
-    template <class T>
-    T data(GtObjectPathProperty& prop)
-    {
-        const GtObjectPath path = pathHelper(prop);
-
-        return data<T>(path);
-    }
-
 
 public slots:
     /**
@@ -325,20 +288,6 @@ private:
      * @return True if one of the children has warnings.
      */
     bool childHasWarnings();
-
-    /**
-     * @brief Returns uuid string of given object link property.
-     * @param prop Object link property.
-     * @return Uuid string.
-     */
-    QString dataHelper(GtObjectLinkProperty& prop);
-
-    /**
-     * @brief Returns object path of given object path property.
-     * @param prop Object path property.
-     * @return Object path.
-     */
-    GtObjectPath pathHelper(GtObjectPathProperty& prop);
 
 private slots:
     /**
