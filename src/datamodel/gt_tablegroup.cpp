@@ -37,7 +37,7 @@ GtTableGroup::tableNames()
 {
     QStringList retval;
 
-    foreach (GtTable* s, tables())
+    for (GtTable* s : tables())
     {
         if (s == Q_NULLPTR)
         {

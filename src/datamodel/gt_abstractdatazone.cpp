@@ -15,7 +15,7 @@ GtAbstractDataZone::GtAbstractDataZone()
 }
 
 QStringList
-GtAbstractDataZone::params()
+GtAbstractDataZone::params() const
 {
     // has to be the same as table()->tabValsKeys();
     return m_params;
@@ -29,7 +29,7 @@ GtAbstractDataZone::setParams(const QStringList &params)
 }
 
 QStringList
-GtAbstractDataZone::units()
+GtAbstractDataZone::units() const
 {
     // has to be the same as table()->tabValsKeys();
     return m_units;

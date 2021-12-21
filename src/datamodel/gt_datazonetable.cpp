@@ -38,7 +38,7 @@ GtDataZoneTable::GtDataZoneTable(QStringList x, QStringList y, QStringList z,
     //      (Table->DataZoneList->DataZone)
 //    QList<GtAbstractDataZoneList *> retval;
 
-    foreach (GtAbstractDataZone* adz, data)
+    for (GtAbstractDataZone* adz : data)
     {
         if (adz != Q_NULLPTR)
         {
@@ -79,7 +79,7 @@ GtDataZoneTable::setTicks(QStringList z, QStringList x, QStringList y)
 //void
 //GtDataZoneTable::processAbstractList(QList<GtAbstractDataZoneList*> data)
 //{
-//    foreach (GtAbstractDataZoneList* adz, data)
+//    for (GtAbstractDataZoneList* adz : data)
 //    {
 //        if (adz != Q_NULLPTR)
 //        {
@@ -234,7 +234,7 @@ GtDataZoneTable::isValid()
         return false;
     }
 
-    foreach (GtAbstractDataZone* dz, data())
+    for (GtAbstractDataZone* dz : data())
     {
         if (dz == Q_NULLPTR)
         {
@@ -403,11 +403,11 @@ GtDataZoneTable::allAxisTicksString()
 
     QList<QStringList> retvalString;
 
-    foreach (QVector<double> vec, retval)
+    for (const QVector<double>& vec : retval)
     {
         QStringList l;
 
-        foreach (double val, vec)
+        for (const double& val : vec)
         {
             l.append(QString::number(val));
         }
@@ -430,7 +430,7 @@ GtDataZoneTable::allAxisTicksStringMap()
     {
         QStringList l;
 
-        foreach (double val, i.value())
+        for (const double& val : i.value())
         {
             l.append(QString::number(val));
         }
@@ -780,7 +780,7 @@ GtDataZoneTable::findAxis(GtDataZoneTableMainAxis::AxisType axType)
     QList<GtDataZoneTableMainAxis*> axes =
             findDirectChildren<GtDataZoneTableMainAxis*>();
 
-    foreach (GtDataZoneTableMainAxis* axis, axes)
+    for (GtDataZoneTableMainAxis* axis : axes)
     {
         if (axis == Q_NULLPTR)
         {

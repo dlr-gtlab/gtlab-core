@@ -106,7 +106,8 @@ GtDataZone0D::clearData()
 }
 
 bool
-GtDataZone0D::appendData(const QString& name, const QString& unit, double val)
+GtDataZone0D::appendData(const QString& name, const QString& unit,
+                         const double& val)
 {
     if (name.isEmpty())
     {
@@ -136,19 +137,19 @@ GtDataZone0D::appendData(const QString& name, const QString& unit, double val)
 }
 
 bool
-GtDataZone0D::is0D()
+GtDataZone0D::is0D() const
 {
     return true;
 }
 
 int
-GtDataZone0D::nDims()
+GtDataZone0D::nDims() const
 {
     return 0;
 }
 
 void
-GtDataZone0D::addModuleName(QString moduleName)
+GtDataZone0D::addModuleName(const QString& moduleName)
 {
     if (moduleName == "")
     {
@@ -157,7 +158,7 @@ GtDataZone0D::addModuleName(QString moduleName)
 
     QStringList newParamNames;
 
-    foreach (QString param, params())
+    for (const QString& param : params())
     {
         newParamNames.append(moduleName + "." + param);
     }
@@ -180,7 +181,7 @@ GtDataZone0D::setValues(const QVector<double>& values)
 }
 
 QString
-GtDataZone0D::unit(QString param)
+GtDataZone0D::unit(const QString& param) const
 {
     QString retval = QString();
 
@@ -200,9 +201,9 @@ GtDataZone0D::unit(QString param)
 }
 
 bool
-GtDataZone0D::setData(QStringList paramNames,
+GtDataZone0D::setData(const QStringList& paramNames,
                       const QVector<double>& values,
-                      QStringList units)
+                      const QStringList& units)
 {
     clearData();
 
@@ -261,7 +262,7 @@ GtDataZone0D::setValue(const QString& paramName, const double& value)
 }
 
 bool
-GtDataZone0D::appendData(QString paramName, double value)
+GtDataZone0D::appendData(const QString& paramName, const double& value)
 {
     if (paramName.isEmpty())
     {
@@ -309,7 +310,7 @@ GtDataZone0D::appendData(const QList<QString>& paramNames,
 }
 
 double
-GtDataZone0D::value(QString paramName, bool* ok)
+GtDataZone0D::value(const QString &paramName, bool* ok)
 {
     int index = m_params.indexOf(paramName);
 
@@ -335,7 +336,7 @@ GtDataZone0D::value(QString paramName, bool* ok)
 }
 
 bool
-GtDataZone0D::isValid()
+GtDataZone0D::isValid() const
 {
     if (m_params.size() != m_values.size())
     {

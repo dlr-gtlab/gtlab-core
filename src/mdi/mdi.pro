@@ -180,7 +180,6 @@ HEADERS += \
     post/gt_postaction.h \
     post/gt_abstractdataconfigwizard.h \
     post/gt_abstractchartprovider.h \
-    post/gt_dummyresults.h \
     dock_widgets/process/gt_processcomponentmodel.h \
     post/gt_templateviewerlistwidget.h \
     post/gt_stringmapcontainer.h \
@@ -396,7 +395,6 @@ SOURCES += \
     post/gt_postaction.cpp \
     post/gt_abstractdataconfigwizard.cpp \
     post/gt_abstractchartprovider.cpp \
-    post/gt_dummyresults.cpp \
     dock_widgets/process/gt_processcomponentmodel.cpp \
     post/gt_templateviewerlistwidget.cpp \
     post/gt_stringmapcontainer.cpp \

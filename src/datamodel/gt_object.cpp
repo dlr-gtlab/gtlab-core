@@ -304,7 +304,7 @@ GtObject::newUuid(bool renewChildUUIDs)
 QString
 GtObject::calcHash() const
 {
-    GtObjectMemento mem = this->toMemento();
+    GtObjectMemento mem = toMemento();
     mem.calculateHashes();
 
     return mem.fullHash().toHex();

@@ -159,13 +159,13 @@ GtDataZone::doClearExternalizedData()
 }
 
 int
-GtDataZone::nDims()
+GtDataZone::nDims() const
 {
     return table()->nDims();
 }
 
 void
-GtDataZone::addModuleName(QString suffix)
+GtDataZone::addModuleName(const QString& suffix)
 {
     if (suffix == "")
     {
@@ -185,13 +185,13 @@ GtDataZone::addModuleName(QString suffix)
 }
 
 GtTable*
-GtDataZone::table()
+GtDataZone::table() const
 {
     return findDirectChild<GtTable*>("Table");
 }
 
 double
-GtDataZone::value1D(QString param, double x0, bool* ok)
+GtDataZone::value1D(const QString& param, const double &x0, bool* ok) const
 {
     if (nDims() != 1)
     {
@@ -225,7 +225,7 @@ GtDataZone::value1D(QString param, double x0, bool* ok)
         {
             val = tab->getValue1D(param, x0);
         }
-        catch (GTlabException& e)
+        catch (GTlabException& /*e*/)
         {
             *ok = false;
         }
@@ -242,7 +242,7 @@ GtDataZone::value1D(QString param, double x0, bool* ok)
 }
 
 QVector<double>
-GtDataZone::value1DVector(QString param, bool *ok)
+GtDataZone::value1DVector(const QString &param, bool *ok) const
 {
     if (nDims() != 1)
     {
@@ -282,7 +282,7 @@ GtDataZone::value1DVector(QString param, bool *ok)
 }
 
 QVector<double>
-GtDataZone::value1DVector(QString param, QVector<double> ticks, bool *ok)
+GtDataZone::value1DVector(const QString &param, const QVector<double>& ticks, bool *ok) const
 {
     if (nDims() != 1)
     {
@@ -321,7 +321,7 @@ GtDataZone::value1DVector(QString param, QVector<double> ticks, bool *ok)
         }
 
         QVector<double> retVal;
-        foreach(double tick, ticks)
+        for (const double& tick : ticks)
         {
 
             double val = 0.0;
@@ -330,9 +330,12 @@ GtDataZone::value1DVector(QString param, QVector<double> ticks, bool *ok)
             {
                 val = tab->getValue1D(param, tick);
             }
-            catch (GTlabException& e)
+            catch (GTlabException& /*e*/)
             {
-                *ok = false;
+                if (ok != Q_NULLPTR)
+                {
+                    *ok = false;
+                }
             }
             retVal.append(val);
         }
@@ -350,7 +353,8 @@ GtDataZone::value1DVector(QString param, QVector<double> ticks, bool *ok)
 
 
 double
-GtDataZone::value2D(QString param, double x0, double x1, bool* ok)
+GtDataZone::value2D(const QString& param, const double& x0,
+                    const double& x1, bool* ok) const
 {
     if (nDims() != 2)
     {
@@ -385,9 +389,12 @@ GtDataZone::value2D(QString param, double x0, double x1, bool* ok)
         {
             result = tab->getValue2D(param, x0, x1);
         }
-        catch (GTlabException& e)
+        catch (GTlabException& /*e*/)
         {
-            *ok = false;
+            if (ok != Q_NULLPTR)
+            {
+                *ok = false;
+            }
         }
 
         return result;
@@ -402,7 +409,8 @@ GtDataZone::value2D(QString param, double x0, double x1, bool* ok)
 }
 
 double
-GtDataZone::value3D(QString param, double x0, double x1, double x2, bool *ok)
+GtDataZone::value3D(const QString& param, const double& x0, const double& x1,
+                    const double& x2, bool *ok) const
 {
     if (nDims() != 3)
     {
@@ -436,9 +444,12 @@ GtDataZone::value3D(QString param, double x0, double x1, double x2, bool *ok)
         {
             val = tab->getValue3D(param, x0, x1, x2);
         }
-        catch (GTlabException& e)
+        catch (GTlabException& /*e*/)
         {
-            *ok = false;
+            if (ok != Q_NULLPTR)
+            {
+                *ok = false;
+            }
         }
 
         return val;
@@ -453,7 +464,8 @@ GtDataZone::value3D(QString param, double x0, double x1, double x2, bool *ok)
 }
 
 double
-GtDataZone::value4D(QString param, double x0, double x1, double x2, double x3,
+GtDataZone::value4D(const QString& param, const double& x0, const double& x1,
+                    const double& x2, const double& x3,
                     bool *ok)
 {
     if (nDims() != 4)
@@ -494,11 +506,11 @@ GtDataZone::value4D(QString param, double x0, double x1, double x2, double x3,
 }
 
 void
-GtDataZone::setData1D(QStringList params,
-                      QVector<double> ticks,
-                      QString axisName1,
-                      QMap< QString, QVector<double> > vals,
-                      QStringList units)
+GtDataZone::setData1D(const QStringList& params,
+                      const QVector<double>& ticks,
+                      const QString& axisName1,
+                      const QMap< QString, QVector<double> >& vals,
+                      const QStringList& units)
 {
     clearData();
 
@@ -534,8 +546,10 @@ GtDataZone::setData1D(QStringList params,
 }
 
 void
-GtDataZone::setData1D(QStringList params, QMap<double, QVector<double> > vals,
-                      QString axisName1, QStringList units)
+GtDataZone::setData1D(const QStringList& params,
+                      const QMap<double, QVector<double> >& vals,
+                      const QString& axisName1,
+                      const QStringList& units)
 {
     clearData();
 
@@ -552,10 +566,9 @@ GtDataZone::setData1D(QStringList params, QMap<double, QVector<double> > vals,
         return;
     }
 
-    QMap<double, QVector<double> >::iterator mapIter;
-    for (mapIter = vals.begin(); mapIter != vals.end(); ++mapIter)
+    for (const QVector<double>& vec : vals)
     {
-        if (mapIter.value().size() != params.size())
+        if (vec.size() != params.size())
         {
             gtWarning() << tr("Value sizes do not match in DataZone!");
             return;
@@ -572,17 +585,15 @@ GtDataZone::setData1D(QStringList params, QMap<double, QVector<double> > vals,
     // param2: val1, val2, val3
     // param3: val1, val2, val3
 
-    int count = 0;
-    for (mapIter = vals.begin(); mapIter != vals.end(); ++mapIter)
+    for (double key : vals.keys())
     {
-        ticks.append(mapIter.key());
+        ticks.append(key);
 
         for (int j = 0; j < params.size(); j++)
         {
-            double val = mapIter.value().at(j);
+            double val = vals.value(key).at(j);
             newVals[j].append(val);
         }
-        ++count;
     }
 
     table()->addAxis(axisName1, "", "[-]", GtTableAxis::E_LINEAR,
@@ -664,7 +675,7 @@ GtDataZone::setData1Dfrom2DDataZone(GtDataZone* dataZone2D, int fixedAxisNumber,
 
     QMap< QString, QVector<double> > vals;
 
-    foreach (QString param, params)
+    for (const QString& param : params)
     {
         QVector<double> currentVals;
 
@@ -690,13 +701,13 @@ GtDataZone::setData1Dfrom2DDataZone(GtDataZone* dataZone2D, int fixedAxisNumber,
 
 
 void
-GtDataZone::setData2D(QStringList params,
-                      QVector<double> ticks1,
-                      QVector<double> ticks2,
-                      QString axisName1,
-                      QString axisName2,
-                      QMap<QString, QVector<double> > vals,
-                      QStringList units)
+GtDataZone::setData2D(const QStringList& params,
+                      const QVector<double>& ticks1,
+                      const QVector<double>& ticks2,
+                      const QString& axisName1,
+                      const QString& axisName2,
+                      const QMap<QString, QVector<double> > &vals,
+                      const QStringList &units)
 {
     clearData();
 
@@ -706,11 +717,13 @@ GtDataZone::setData2D(QStringList params,
         return;
     }
 
-    table()->addAxis(axisName1, "", "[-]", GtTableAxis::E_LINEAR,
+    GtTable* t = table();
+
+    t->addAxis(axisName1, "", "[-]", GtTableAxis::E_LINEAR,
                  GtTableAxis::I_LINEAR, GtTableAxis::E_LINEAR,
                  ticks1);
 
-    table()->addAxis(axisName2, "", "[-]", GtTableAxis::E_LINEAR,
+    t->addAxis(axisName2, "", "[-]", GtTableAxis::E_LINEAR,
                  GtTableAxis::I_LINEAR, GtTableAxis::E_LINEAR,
                  ticks2);
 
@@ -727,7 +740,7 @@ GtDataZone::setData2D(QStringList params,
             return;
         }
 
-        table()->addValues(param, "", unit, vals.value(param));
+        t->addValues(param, "", unit, vals.value(param));
         m_params.append(param);
         m_units.append(unit);
     }
@@ -750,7 +763,7 @@ GtDataZone::clearData()
 }
 
 bool
-GtDataZone::isValid(QVector<double> ticks, QVector<double> vals)
+GtDataZone::isValid(const QVector<double>& ticks, const QVector<double>& vals) const
 {
     if (ticks.size() != vals.size())
     {
@@ -762,9 +775,9 @@ GtDataZone::isValid(QVector<double> ticks, QVector<double> vals)
 }
 
 bool
-GtDataZone::isValid(QVector<double> ticks1,
-                    QVector<double> ticks2,
-                    QVector<double> vals)
+GtDataZone::isValid(const QVector<double> &ticks1,
+                    const QVector<double> &ticks2,
+                    const QVector<double> &vals) const
 {
     if (ticks1.size() * ticks2.size() != vals.size())
     {
@@ -782,7 +795,7 @@ GtDataZone::description() const
 }
 
 QStringList
-GtDataZone::tabValsKeys()
+GtDataZone::tabValsKeys() const
 {
     GtTable* t = table();
 
@@ -801,7 +814,7 @@ GtDataZone::setDescription(const QString &description)
 }
 
 bool
-GtDataZone::isValid()
+GtDataZone::isValid() const
 {
     if (m_params.size() != table()->tabValsKeys().size())
     {
@@ -825,7 +838,7 @@ GtDataZone::isValid()
 
 
 QString
-GtDataZone::unit(QString param)
+GtDataZone::unit(const QString& param) const
 {
     QString retval = QString();
 
@@ -845,7 +858,7 @@ GtDataZone::unit(QString param)
 }
 
 void
-GtDataZone::axisTicks(QString id, QVector<double> &axTicks)
+GtDataZone::axisTicks(const QString& id, QVector<double> &axTicks) const
 {
     if (axisNames().contains(id))
     {
@@ -858,7 +871,7 @@ GtDataZone::axisTicks(QString id, QVector<double> &axTicks)
 }
 
 void
-GtDataZone::axisTicks(QString id, QStringList& axTicks)
+GtDataZone::axisTicks(const QString &id, QStringList& axTicks) const
 {
     if (axisNames().contains(id))
     {
@@ -866,7 +879,7 @@ GtDataZone::axisTicks(QString id, QStringList& axTicks)
         table()->getAxisTicks(id, ticks);
 
         axTicks.clear();
-        foreach(double tick, ticks)
+        for (const double& tick : ticks)
         {
             axTicks.append(QString::number(tick));
         }
@@ -878,7 +891,7 @@ GtDataZone::axisTicks(QString id, QStringList& axTicks)
 }
 
 QVector<double>
-GtDataZone::axisTicks(QString id)
+GtDataZone::axisTicks(const QString& id) const
 {
     QVector<double> retVal;
 
@@ -888,7 +901,7 @@ GtDataZone::axisTicks(QString id)
 }
 
 QStringList
-GtDataZone::axisTickStrings(QString id)
+GtDataZone::axisTickStrings(const QString &id) const
 {
     QStringList retVal;
 
@@ -898,11 +911,11 @@ GtDataZone::axisTickStrings(QString id)
 }
 
 QStringList
-GtDataZone::axisTickLabels(QString id)
+GtDataZone::axisTickLabels(const QString& id) const
 {
     QStringList retval;
 
-    foreach(double val, axisTicks(id))
+    for (const double& val : axisTicks(id))
     {
         retval.append(id + " = " + QString::number(val));
     }
@@ -911,11 +924,11 @@ GtDataZone::axisTickLabels(QString id)
 }
 
 QVector<QVector<double> >
-GtDataZone::allAxisTicks()
+GtDataZone::allAxisTicks() const
 {
     QVector< QVector<double> > retval;
 
-    foreach(QString str, axisNames())
+    for (const QString& str : axisNames())
     {
         QVector<double> vec = axisTicks(str);
         retval.push_back(vec);
@@ -925,11 +938,11 @@ GtDataZone::allAxisTicks()
 }
 
 QMap<QString, QVector<double> >
-GtDataZone::allAxisTicksMap()
+GtDataZone::allAxisTicksMap() const
 {
     QMap<QString, QVector<double> > retval;
 
-    foreach(QString str, axisNames())
+    for (const QString& str : axisNames())
     {
         QVector<double> vec = axisTicks(str);
 
@@ -940,19 +953,19 @@ GtDataZone::allAxisTicksMap()
 }
 
 QStringList
-GtDataZone::axisNames()
+GtDataZone::axisNames() const
 {
     return table()->getAxesNames();
 }
 
 bool
-GtDataZone::is0D()
+GtDataZone::is0D() const
 {
     return false;
 }
 
 double
-GtDataZone::minValue2D(QString paramName, bool* ok)
+GtDataZone::minValue2D(const QString &paramName, bool* ok)
 {
     double retVal = qPow(10, 20);
 
@@ -965,12 +978,11 @@ GtDataZone::minValue2D(QString paramName, bool* ok)
     QVector<double> firstAxisTicks = axisTicks(axisNames().first());
     QVector<double> secondAxisTicks = axisTicks(axisNames().last());
 
-    for (int i = 0; i < firstAxisTicks.size() ; ++i)
+    for (const double& val1 : firstAxisTicks)
     {
-        for (int j = 0; j < secondAxisTicks.size() ; ++j)
+        for (const double& val2 : secondAxisTicks)
         {
-            double val = value2D(paramName, firstAxisTicks.at(i),
-                                 secondAxisTicks.at(j));
+            double val = value2D(paramName, val1, val2);
 
             if (val < retVal)
             {
@@ -988,7 +1000,7 @@ GtDataZone::minValue2D(QString paramName, bool* ok)
 }
 
 double
-GtDataZone::maxValue2D(QString paramName, bool* ok)
+GtDataZone::maxValue2D(const QString& paramName, bool* ok)
 {
     double retVal = -qPow(10, 20);
 
@@ -1001,12 +1013,11 @@ GtDataZone::maxValue2D(QString paramName, bool* ok)
     QVector<double> firstAxisTicks = axisTicks(axisNames().first());
     QVector<double> secondAxisTicks = axisTicks(axisNames().last());
 
-    for (int i = 0; i < firstAxisTicks.size() ; ++i)
+    for (const double& val1 : firstAxisTicks)
     {
-        for (int j = 0; j < secondAxisTicks.size() ; ++j)
+        for (const double& val2 : secondAxisTicks)
         {
-            double val = value2D(paramName, firstAxisTicks.at(i),
-                                 secondAxisTicks.at(j));
+            double val = value2D(paramName, val1, val2);
 
             if (val > retVal)
             {
@@ -1024,7 +1035,7 @@ GtDataZone::maxValue2D(QString paramName, bool* ok)
 }
 
 double
-GtDataZone::minValue1D(QString paramName, bool *ok)
+GtDataZone::minValue1D(const QString &paramName, bool *ok)
 {
     double retVal = qPow(10, 20);
 
@@ -1036,9 +1047,9 @@ GtDataZone::minValue1D(QString paramName, bool *ok)
 
     QVector<double> firstAxisTicks = axisTicks(axisNames().first());
 
-    for (int i = 0; i < firstAxisTicks.size() ; ++i)
+    for (const double& val1 : firstAxisTicks)
     {
-        double val = value1D(paramName, firstAxisTicks.at(i));
+        double val = value1D(paramName, val1);
 
         if (val < retVal)
         {
@@ -1055,7 +1066,7 @@ GtDataZone::minValue1D(QString paramName, bool *ok)
 }
 
 double
-GtDataZone::maxValue1D(QString paramName, bool *ok)
+GtDataZone::maxValue1D(const QString& paramName, bool *ok)
 {
     double retVal = -qPow(10, 20);
 
@@ -1067,9 +1078,9 @@ GtDataZone::maxValue1D(QString paramName, bool *ok)
 
     QVector<double> firstAxisTicks = axisTicks(axisNames().first());
 
-    for (int i = 0; i < firstAxisTicks.size() ; ++i)
+    for (const double& val1 : firstAxisTicks)
     {
-        double val = value1D(paramName, firstAxisTicks.at(i));
+        double val = value1D(paramName, val1);
 
         if (val > retVal)
         {
