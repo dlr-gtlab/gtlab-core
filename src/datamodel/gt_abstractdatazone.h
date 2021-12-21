@@ -29,21 +29,21 @@ class GT_DATAMODEL_EXPORT GtAbstractDataZone : public GtExternalizedH5Object
 
 public:
 
-    QStringList params();
+    QStringList params() const;
 
     void setParams(const QStringList &params);
 
-    QStringList units();
+    QStringList units() const;
 
     void setUnits(const QStringList &params);
 
-    virtual QString unit(QString param) = 0;
+    virtual QString unit(const QString& param) const = 0;
 
-    virtual bool is0D() = 0;
+    virtual bool is0D() const = 0;
 
-    virtual int nDims() = 0;
+    virtual int nDims() const = 0;
 
-    virtual void addModuleName(QString moduleName) = 0;
+    virtual void addModuleName(const QString& moduleName) = 0;
 
 protected:
     /**

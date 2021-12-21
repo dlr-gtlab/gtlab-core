@@ -120,7 +120,7 @@ GtDataZoneDatExporter::write0Ddata(GtDataZone0D* data, QFile& file)
 
     QString paramLine = " ";
 
-    foreach(QString param, data->params())
+    for (const QString& param : data->params())
     {
         if (param != data->params().last())
         {
@@ -203,11 +203,11 @@ GtDataZoneDatExporter::write1Ddata(GtDataZone* data, QTextStream& out)
     QVector<double> ticks1;
     data->axisTicks(axis1Name, ticks1);
 
-    foreach(double tick1, ticks1)
+    for (const double& tick1 : ticks1)
     {
         QString resLine = " " + QString::number(tick1, 'f', 6) + "\t";
 
-        foreach(QString param, data->params())
+        for (const QString& param : data->params())
         {
             resLine += QString::number(data->value1D(
                                            param, tick1), 'f', 6) + "\t";
@@ -243,18 +243,17 @@ GtDataZoneDatExporter::write2Ddata(GtDataZone* data, QTextStream& out)
     QVector<double> ticks2;
     data->axisTicks(axis1Name, ticks2);
 
-    foreach(double tick1, ticks1)
+    for (const double& tick1 : ticks1)
     {
-        foreach(double tick2, ticks2)
+        for (const double& tick2 : ticks2)
         {
             QString resLine = " " + QString::number(tick1, 'f', 6) + "     "
                     + QString::number(tick2, 'f', 6) + "     ";
 
-            foreach(QString param, data->params())
+            for (const QString& param : data->params())
             {
-                resLine += QString::number(data->value2D(
-                                               param, tick1, tick2), 'f', 6)
-                        + "     ";
+                resLine += QString::number(data->value2D( param, tick1, tick2),
+                                           'f', 6) + "     ";
             }
 
             resLine += "\n";
@@ -292,17 +291,17 @@ GtDataZoneDatExporter::write3Ddata(GtDataZone* data, QTextStream& out)
     QVector<double> ticks3;
     data->axisTicks(axis1Name, ticks3);
 
-    foreach(double tick1, ticks1)
+    for (const double& tick1 : ticks1)
     {
-        foreach(double tick2, ticks2)
+        for (const double& tick2 : ticks2)
         {
-            foreach(double tick3, ticks3)
+            for (const double& tick3 : ticks3)
             {
                 QString resLine = " " + QString::number(tick1, 'f', 6) + "     "
                         + QString::number(tick2, 'f', 6) + "     "
                         + QString::number(tick3, 'f', 6) + "     ";
 
-                foreach(QString param, data->params())
+                for (const QString& param : data->params())
                 {
                     resLine += QString::number(
                                 data->value3D(
@@ -350,13 +349,13 @@ GtDataZoneDatExporter::write4Ddata(GtDataZone* data, QTextStream& out)
     QVector<double> ticks4;
     data->axisTicks(axis1Name, ticks4);
 
-    foreach(double tick1, ticks1)
+    for (const double& tick1 : ticks1)
     {
-        foreach(double tick2, ticks2)
+        for (const double& tick2 : ticks2)
         {
-            foreach(double tick3, ticks3)
+            for (const double& tick3 : ticks3)
             {
-                foreach(double tick4, ticks4)
+                for (const double& tick4 : ticks4)
                 {
                     QString resLine = " "
                             + QString::number(tick1, 'f', 6) + "     "
@@ -364,7 +363,7 @@ GtDataZoneDatExporter::write4Ddata(GtDataZone* data, QTextStream& out)
                             + QString::number(tick3, 'f', 6) + "     "
                             + QString::number(tick4, 'f', 6) + "     ";
 
-                    foreach(QString param, data->params())
+                    for (const QString& param : data->params())
                     {
                         resLine += QString::number(
                                     data->value4D(param, tick1, tick2,
@@ -400,7 +399,7 @@ GtDataZoneDatExporter::writeHeaderLine(QTextStream& out, GtDataZone* dataZone)
 
     axisNames.removeAll(axisNames.first());
 
-    foreach(QString axisName, axisNames)
+    for (const QString& axisName : axisNames)
     {
         nLines *= dataZone->axisTickStrings(axisName).size();
     }
@@ -411,12 +410,12 @@ GtDataZoneDatExporter::writeHeaderLine(QTextStream& out, GtDataZone* dataZone)
 
     variables += "VARIABLES = ";
 
-    foreach(QString axis, dataZone->axisNames())
+    for (const QString& axis : dataZone->axisNames())
     {
         variables += "\"" + axis + "\" ";
     }
 
-    foreach(QString param, dataZone->params())
+    for (const QString& param : dataZone->params())
     {
         variables += "\"" + param + "\" ";
     }
@@ -455,7 +454,7 @@ GtDataZoneDatExporter::writeHeaderLine0D(QTextStream& out,
     QString variables;
 
     variables += "VARIABLES = ";
-    foreach(QString param, dataZone->params())
+    for (const QString& param : dataZone->params())
     {
         variables += "\"" + param + "\" ";
     }

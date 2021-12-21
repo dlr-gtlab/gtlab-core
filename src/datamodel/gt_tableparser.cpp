@@ -90,7 +90,9 @@ GtTableParser::parseTable(QDomElement &root, GtTable *table)
     if (!gridless.isNull())
     {
         QString grid = gridless.text();
-        if (grid == "TRUE" || "True" || "true")
+        if (grid == "TRUE"
+                ||  grid == "True"
+                ||  grid == "true")
         {
             table->setType(GtTable::GRIDLESS);
         }
@@ -405,7 +407,7 @@ GtTableParser::parseDoubleVector(QDomElement &root, bool &success)
     {
         int counter = 0;
 
-        foreach (QString valStr, valStrList)
+        for (const QString& valStr : valStrList)
         {
             double val = valStr.toDouble(&success);
             counter++;

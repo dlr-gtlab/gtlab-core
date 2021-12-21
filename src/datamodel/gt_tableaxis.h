@@ -75,13 +75,13 @@ public:
      * @brief scale Scales the axis ticks by a constant factor.
      * @param factor Scaling factor.
      */
-    void scale(double factor);
+    void scale(const double& factor);
 
     /**
      * @brief size Returns the number of ticks on the axis.
      * @return Number of ticks
      */
-    int size();
+    int size() const;
 
     GtExtrapolator* loExtrapolator() const;
     GtExtrapolator* hiExtrapolator() const;

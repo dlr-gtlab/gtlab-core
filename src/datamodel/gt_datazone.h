@@ -40,7 +40,8 @@ public:
      * @param ok control flag
      * @return
      */
-    double value1D(QString param, double x0, bool* ok = Q_NULLPTR);
+    double value1D(const QString &param, const double& x0,
+                   bool* ok = Q_NULLPTR) const;
 
     /**
      * @brief returns vector of values for 1D data zone based on the
@@ -49,7 +50,8 @@ public:
      * @param ok control flag
      * @return
      */
-    QVector<double> value1DVector(QString param, bool* ok = Q_NULLPTR);
+    QVector<double> value1DVector(const QString& param,
+                                  bool* ok = Q_NULLPTR) const;
 
     /**
      * @brief returns vector of values for 1D data zone based on the
@@ -59,8 +61,9 @@ public:
      * @param ok control flag
      * @return
      */
-    QVector<double> value1DVector(QString param, QVector<double> ticks,
-                                  bool* ok = Q_NULLPTR);
+    QVector<double> value1DVector(const QString& param,
+                                  const QVector<double> &ticks,
+                                  bool* ok = Q_NULLPTR) const;
 
     /**
      * @brief returns value from 2-dimensional table
@@ -70,7 +73,8 @@ public:
      * @param ok control flag
      * @return
      */
-    double value2D(QString param, double x0, double x1, bool* ok = Q_NULLPTR);
+    double value2D(const QString& param, const double& x0, const double& x1,
+                   bool* ok = Q_NULLPTR) const;
 
     /**
      * @brief returns value from 3-dimensional table
@@ -81,8 +85,9 @@ public:
      * @param ok control flag
      * @return
      */
-    double value3D(QString param, double x0, double x1, double x2,
-                   bool* ok = Q_NULLPTR);
+    double value3D(const QString& param, const double& x0, const double& x1,
+                   const double& x2,
+                   bool* ok = Q_NULLPTR) const;
 
     /**
      * @brief returns value from 4-dimensional table
@@ -94,7 +99,8 @@ public:
      * @param ok control flag
      * @return
      */
-    double value4D(QString param, double x0, double x1, double x2, double x3,
+    double value4D(const QString& param, const double& x0, const double& x1,
+                   const double& x2, const double& x3,
                    bool* ok = Q_NULLPTR);
 
     /**
@@ -105,11 +111,11 @@ public:
      * @param vals parameter names and values
      * @param units parameter units
      */
-    void setData1D(QStringList params,
-                   QVector<double> ticks,
-                   QString axisName1,
-                   QMap<QString, QVector<double> > vals,
-                   QStringList units);
+    void setData1D(const QStringList& params,
+                   const QVector<double>& ticks,
+                   const QString& axisName1,
+                   const QMap<QString, QVector<double> >& vals,
+                   const QStringList& units);
 
     /**
      * @brief set 1-dimensional data to table
@@ -118,10 +124,10 @@ public:
      * @param axisName1 axis name
      * @param units parameter units
      */
-    void setData1D(QStringList params,
-                   QMap<double, QVector<double> > vals,
-                   QString axisName1,
-                   QStringList units);
+    void setData1D(const QStringList& params,
+                   const QMap<double, QVector<double> >& vals,
+                   const QString& axisName1,
+                   const QStringList& units);
 
     /**
      * @brief set 2-dimensional data to table
@@ -133,90 +139,90 @@ public:
      * @param vals parameter names and values
      * @param units parameter units
      */
-    void setData2D(QStringList params,
-                   QVector<double> ticks1,
-                   QVector<double> ticks2,
-                   QString axisName1, QString axisName2,
-                   QMap<QString, QVector<double> > vals,
-                   QStringList units);
+    void setData2D(const QStringList& params,
+                   const QVector<double>& ticks1,
+                   const QVector<double>& ticks2,
+                   const QString& axisName1, const QString& axisName2,
+                   const QMap<QString, QVector<double> >& vals,
+                   const QStringList& units);
 
     /**
      * @brief returns unit for a certain parameter
      * @param param parameter name
-     * @return
+     * @return current unit
      */
-    virtual QString unit(QString param) Q_DECL_OVERRIDE;
+    virtual QString unit(const QString& param) const Q_DECL_OVERRIDE;
 
     /**
      * @brief stores axis ticks in argument vector
      * @param id axis id
      * @param axTicks axis ticks vector
      */
-    void axisTicks(QString id, QVector<double>& axTicks);
+    void axisTicks(const QString &id, QVector<double>& axTicks) const;
 
     /**
      * @brief returns axis ticks in argument string list
      * @param id axis id
      * @param axTicks axis ticks string list
      */
-    void axisTicks(QString id, QStringList& axTicks);
+    void axisTicks(const QString& id, QStringList& axTicks) const;
 
     /**
      * @brief returns axis ticks as vector of type double
      * @param id axis id
      * @return axis ticks
      */
-    QVector<double> axisTicks(QString id);
+    QVector<double> axisTicks(const QString &id) const;
 
     /**
      * @brief returns axis ticks as list of type QString
      * @param id axis id
      * @return axis ticks
      */
-   QStringList axisTickStrings(QString id);
+   QStringList axisTickStrings(const QString& id) const;
 
     /**
      * @brief returns axis tick labels i.e. for plots
      * @param id axis id
      * @return axis labels
      */
-    QStringList axisTickLabels(QString id);
+    QStringList axisTickLabels(const QString &id) const;
 
     /**
      * @brief returns ticks of all table axis in one vector
      * @return all axis ticks
      */
-    QVector< QVector<double> > allAxisTicks();
+    QVector< QVector<double> > allAxisTicks() const;
 
     /**
      * @brief returns map of axis names and approriate ticks in form of a vector
      * @return all axis names and ticks
      */
-    QMap<QString, QVector<double> > allAxisTicksMap();
+    QMap<QString, QVector<double> > allAxisTicksMap() const;
 
     /**
      * @brief returns all axis names
      * @return axis names
      */
-    QStringList axisNames();
+    QStringList axisNames() const;
 
     /**
      * @brief check function if table is 0-dimensional
      * @return true in case that dimension of table is 0
      */
-    virtual bool is0D() Q_DECL_OVERRIDE;
+    virtual bool is0D() const Q_DECL_OVERRIDE;
 
     /**
      * @brief returns the number of dimensions
      * @return number of dimensions
      */
-    virtual int nDims() Q_DECL_OVERRIDE;
+    virtual int nDims() const Q_DECL_OVERRIDE;
 
     /**
      * @brief addModuleName
      * @param moduleName
      */
-    void addModuleName(QString suffix) Q_DECL_OVERRIDE;
+    void addModuleName(const QString& suffix) Q_DECL_OVERRIDE;
 
     /**
      * @brief setDescription
@@ -234,7 +240,7 @@ public:
      * @brief tabValsKeys
      * @return
      */
-    QStringList tabValsKeys();
+    QStringList tabValsKeys() const;
 
     /**
      * @brief returns minimum value of 2-dimensional table
@@ -242,7 +248,7 @@ public:
      * @param ok control flag
      * @return
      */
-    double minValue2D(QString paramName, bool* ok = Q_NULLPTR);
+    double minValue2D(const QString& paramName, bool* ok = Q_NULLPTR);
 
     /**
      * @brief returns maximum value of 2-dimensional table
@@ -250,7 +256,7 @@ public:
      * @param ok control flag
      * @return
      */
-    double maxValue2D(QString paramName, bool* ok = Q_NULLPTR);
+    double maxValue2D(const QString& paramName, bool* ok = Q_NULLPTR);
 
     /**
      * @brief returns minimum value of 1-dimensional table
@@ -258,7 +264,7 @@ public:
      * @param ok control flag
      * @return minimum value of 1-dimensional table
      */
-    double minValue1D(QString paramName, bool* ok = Q_NULLPTR);
+    double minValue1D(const QString& paramName, bool* ok = Q_NULLPTR);
 
     /**
      * @brief returns maximum value of 1-dimensional table
@@ -266,7 +272,7 @@ public:
      * @param ok control flag
      * @return maximum value of 1-dimensional table
      */
-    double maxValue1D(QString paramName, bool* ok = Q_NULLPTR);
+    double maxValue1D(const QString &paramName, bool* ok = Q_NULLPTR);
 
     /**
      * @brief setData1Dfrom2DDataZone
@@ -311,13 +317,13 @@ private:
      * @brief returns table object
      * @return table object
      */
-    GtTable* table();
+    GtTable* table() const;
 
     /**
      * @brief checks if data zone is currently valid
      * @return
      */
-    bool isValid();
+    bool isValid() const;
 
     /**
      * @brief isValid
@@ -325,7 +331,7 @@ private:
      * @param vals
      * @return
      */
-    bool isValid(QVector<double> ticks, QVector<double> vals);
+    bool isValid(const QVector<double>& ticks, const QVector<double>& vals) const;
 
     /**
      * @brief isValid
@@ -334,9 +340,9 @@ private:
      * @param vals
      * @return
      */
-    bool isValid(QVector<double> ticks1,
-                 QVector<double> ticks2,
-                 QVector<double> vals);
+    bool isValid(const QVector<double>& ticks1,
+                 const QVector<double>& ticks2,
+                 const QVector<double>& vals) const;
 
     /// data zone description
     QString m_description;

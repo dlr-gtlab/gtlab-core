@@ -41,8 +41,8 @@ public:
      * @param units
      * @return
      */
-    bool setData(QStringList paramNames,
-                 const QVector<double>& values, QStringList units);
+    bool setData(const QStringList &paramNames,
+                 const QVector<double>& values, const QStringList &units);
 
     /**
      * @brief If the given parameter name exists in m_parameterMap its current value
@@ -61,8 +61,8 @@ public:
      * @param value
      * @return
      */
-    bool appendData(QString paramName,
-                    double value);
+    bool appendData(const QString& paramName,
+                    const double& value);
 
     /**
      * @brief Function setValue(const QString &paramName, const double &value)
@@ -83,7 +83,7 @@ public:
      */
     bool appendData(const QString& name,
                     const QString& unit,
-                    double val);
+                    const double& val);
 
     /**
      * @brief Returns the value assigned to the given parameter name (if existent)
@@ -94,13 +94,13 @@ public:
      * @param ok
      * @return
      */
-    double value(QString paramName, bool* ok = Q_NULLPTR);
+    double value(const QString& paramName, bool* ok = Q_NULLPTR);
 
     /**
      * @brief unitFromParam
      * @return
      */
-    virtual QString unit(QString param) Q_DECL_OVERRIDE;
+    virtual QString unit(const QString& param) const Q_DECL_OVERRIDE;
 
     /**
      * @brief values
@@ -118,25 +118,25 @@ public:
      * @brief is0D
      * @return
      */
-    virtual bool is0D() Q_DECL_OVERRIDE;
+    virtual bool is0D() const Q_DECL_OVERRIDE;
 
     /**
      * @brief nDims
      * @return
      */
-    virtual int nDims() Q_DECL_OVERRIDE;
+    virtual int nDims() const Q_DECL_OVERRIDE;
 
     /**
      * @brief addModuleName
      * @param moduleName
      */
-    void addModuleName(QString moduleName) Q_DECL_OVERRIDE;
+    void addModuleName(const QString& moduleName) Q_DECL_OVERRIDE;
 
     /**
      * @brief Returns true if size of params, units and values matches.
      * @return Data validity indicator.
      */
-    bool isValid();
+    bool isValid() const;
 
     /**
      * @brief clearData: Clears parameter map

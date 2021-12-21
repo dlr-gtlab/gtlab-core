@@ -17,9 +17,6 @@
 #include "gt_object.h"
 #include "gt_logging.h"
 
-// temp TODO remove
-#include <QDomElement>
-
 class GT_DATAMODEL_EXPORT GtTable : public GtObject
 {
     Q_OBJECT
@@ -93,7 +90,7 @@ public:
     /** Writes axis values to output vector.
         @param name Name of axis
         @param dvecOut Reference to vector<double> output vector */
-    void getAxisTicks(const QString& name, QVector<double>& dvecOut);
+    void getAxisTicks(const QString& name, QVector<double>& dvecOut) const;
 
     /**
      * @brief axesList Returns a list of all axes.
@@ -127,7 +124,7 @@ public:
      * @param id
      * @return
      */
-    GtTableValues* getVals(const QString id);
+    GtTableValues* getVals(const QString id) const;
 
     /** Returns an inter/extrapolated table value. If extrapolation is not
         permitted and requested data point is outside regular grid an
@@ -262,21 +259,13 @@ public:
      * @brief tabValsKeys
      * @return
      */
-    QList<QString> tabValsKeys();
+    QList<QString> tabValsKeys() const;
 
     /**
      * @brief setTabValsKeysSuffix
      * @param keys
      */
     void setTabValsKeysSuffix(QString keys);
-
-    /**
-     * @brief toDomElement
-     * @param doc
-     * @param valId: optional
-     * @return
-     */
-    QDomElement toDomElement(QDomDocument& doc, QString valId = QString());
 
     /**
      * @brief clear
@@ -302,20 +291,20 @@ public:
      * @param id
      * @return
      */
-    double getMax(QString id, bool* check = Q_NULLPTR);
+    double getMax(const QString& id, bool* check = Q_NULLPTR) const;
 
     /**
      * @brief getMin
      * @param id
      * @return
      */
-    double getMin(QString id, bool* check = Q_NULLPTR);
+    double getMin(const QString& id, bool* check = Q_NULLPTR) const;
 
     /**
      * @brief valueNames
      * @return
      */
-    QStringList valueNames();
+    QStringList valueNames() const;
 
     /**
      * @brief create a String from InterpolationMethode (Enum GtTableAxis)
@@ -345,7 +334,7 @@ private:
     /** Adds the axis name and index to the internal data structure.
         @param axisName Name of axis
         @param axisIndex Index of axis */
-    bool checkAxisName(const QString& axisName);
+    bool checkAxisName(const QString& axisName) const;
 
     /** Approximates the function in one dimension which given by a set of
         discrete table values at a certain point.
@@ -354,7 +343,7 @@ private:
         @param coords Point coordinates
         @return Value of approximated function */
     double approxDimension(const QString& valsId, const int axisIndex,
-                           QVector<int>& indices,
+                           QVector<int> &indices,
                            const QVector<double>& coords) const;
 
     /** Calculates the start index for a 1d-slice.
@@ -372,14 +361,14 @@ private:
         @param indices Indices of slice location
         @return 1d slice */
     GtNumerics::darray getSlice(const QString& valsId, int axisIndex,
-                                const QVector<int>& indices);
+                                const QVector<int>& indices) const;
 
     /** Creates a 1-dimensional valarray slice in direction of specified axis.
         @param axisName Name of axis direction
         @param indices Indices of slice location
         @return 1d slice */
     GtNumerics::darray getSlice(const QString& axisName,
-                                const QVector<int>& indices);
+                                const QVector<int>& indices) const;
 
     /** returns a 1-dimensional slice in direction of specified axis.
         @param axisIndex Index of axis direction
@@ -416,7 +405,7 @@ private:
      * @param axisName
      * @return
      */
-    int axisIndex(const QString& axisName);
+    int axisIndex(const QString& axisName) const;
 
     /**
      * @brief onObjectDataMerged
@@ -467,7 +456,8 @@ GtTable::nDims() const
 }
 
 
-inline int GtTable::getAxisSize(int axisIndex) const
+inline int
+GtTable::getAxisSize(int axisIndex) const
 {
     QList<GtTableAxis*> axList = getAxesList();
 

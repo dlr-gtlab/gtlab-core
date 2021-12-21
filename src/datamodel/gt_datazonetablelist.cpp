@@ -249,7 +249,7 @@ GtDataZoneTableList::onlyXaxisActive()
 GtDataZoneTable*
 GtDataZoneTableList::dzt(QString param)
 {
-    foreach (GtDataZoneTable* t, m_dztList)
+    for (GtDataZoneTable* t : m_dztList)
     {
         if (t->params().contains(param))
         {
@@ -265,7 +265,7 @@ GtDataZoneTableList::dzt(QString param)
 GtDataZoneTable*
 GtDataZoneTableList::dztFromName(QString dztName)
 {
-    foreach (GtDataZoneTable* t, m_dztList)
+    for (GtDataZoneTable* t : m_dztList)
     {
         if (t->objectName() == dztName)
         {
@@ -281,7 +281,7 @@ GtDataZoneTableList::dztFromName(QString dztName)
 void
 GtDataZoneTableList::clearList()
 {
-    foreach(GtDataZoneTable* t, m_dztList)
+    for (GtDataZoneTable* t : m_dztList)
     {
         delete t;
     }
@@ -306,11 +306,11 @@ GtDataZoneTableList::params()
 {
     QStringList paramsUnique;
 
-    foreach(GtDataZoneTable* t, list())
+    for (GtDataZoneTable* t : list())
     {
         if (t != Q_NULLPTR)
         {
-            foreach(QString str, t->params())
+            for (const QString& str : t->params())
             {
                 if (!paramsUnique.contains(str))
                 {
@@ -330,7 +330,7 @@ GtDataZoneTableList::paramsAndUnits()
 
     QStringList allParams = params();
 
-    foreach(QString str, allParams)
+    for (const QString& str : allParams)
     {
         QString unit = unitFromParam(str);
 
@@ -366,7 +366,7 @@ GtDataZoneTableList::paramsWithUnits(QStringList params)
 {
     QStringList paramsUnits;
 
-    foreach(QString str, params)
+    for (const QString& str : params)
     {
         QString unit = unitFromParam(str);
 

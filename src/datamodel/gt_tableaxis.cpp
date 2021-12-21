@@ -1,9 +1,14 @@
 #include "gt_tableaxis.h"
 #include "gt_logging.h"
 
-GtTableAxis::GtTableAxis() : m_loExtrapolator(NULL), m_hiExtrapolator(NULL),
-    m_interpolator(NULL), m_ticks(QVector<double>()),
-    m_loExtMethod(E_LINEAR), m_hiExtMethod(E_LINEAR), m_InterMethod(I_LINEAR)
+GtTableAxis::GtTableAxis() :
+    m_ticks(QVector<double>()),
+    m_loExtMethod(E_LINEAR),
+    m_loExtrapolator(Q_NULLPTR),
+    m_hiExtMethod(E_LINEAR),
+    m_hiExtrapolator(Q_NULLPTR),
+    m_InterMethod(I_LINEAR),
+    m_interpolator(Q_NULLPTR)
 {
 
 }
@@ -74,7 +79,8 @@ GtTableAxis::setLoExtMethod(ExtrapMethod loExtMethod)
 }
 
 
-GtTableAxis::ExtrapMethod GtTableAxis::hiExtMethod() const
+GtTableAxis::ExtrapMethod
+GtTableAxis::hiExtMethod() const
 {
     return m_hiExtMethod;
 }
@@ -130,7 +136,7 @@ GtTableAxis::setUnit(const QString &unit)
 
 
 int
-GtTableAxis::size()
+GtTableAxis::size() const
 {
     return m_ticks.size();
 }
@@ -157,7 +163,8 @@ GtTableAxis::interpolator() const
 }
 
 
-void GtTableAxis::scale(double factor)
+void
+GtTableAxis::scale(const double &factor)
 {
     for (int i = 0; i < m_ticks.size(); ++i)
     {
@@ -169,7 +176,7 @@ void GtTableAxis::scale(double factor)
 GtNumerics::GtExtrapolator*
 GtTableAxis::genExtrap(ExtrapMethod em)
 {
-    GtNumerics::GtExtrapolator* extrap = NULL;
+    GtNumerics::GtExtrapolator* extrap = Q_NULLPTR;
 
     switch (em)
     {
@@ -198,7 +205,7 @@ GtTableAxis::genExtrap(ExtrapMethod em)
 GtNumerics::GtInterpolator*
 GtTableAxis::genInterp(InterpMethod im)
 {
-    GtNumerics::GtInterpolator* interp = NULL;
+    GtNumerics::GtInterpolator* interp = Q_NULLPTR;
 
     switch (im)
     {
