@@ -49,6 +49,13 @@ public:
 protected:
     void highlightBlock(const QString& text);
 
+public slots:
+    /**
+     * @brief onThemeChanged - handles reaction on change of the GUI theme
+     * Changes the colors for the highlights and rehighlights the text
+     */
+    void onThemeChanged();
+
 private:
     QStringList keywords;
 
@@ -58,6 +65,14 @@ private:
 
     QHash<QString, QTextCharFormat> basicStyles;
 
+    /**
+     * @brief initializeStyles - initialize style definitions
+     */
+    void initializeStyles();
+
+    /**
+     * @brief initializeRules - initialize highlighting rules
+     */
     void initializeRules();
 
     //! Highlighst multi-line strings, returns true if after processing we are still within the multi-line section.

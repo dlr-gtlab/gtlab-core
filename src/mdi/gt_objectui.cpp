@@ -200,11 +200,26 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->newlyCreated())
                 {
-                    return QColor(Qt::darkGreen);
+                    if (gtApp->inDarkMode())
+                    {
+                        return QColor(Qt::green);
+                    }
+                    else
+                    {
+                        return QColor(Qt::darkGreen);
+                    }
+
                 }
                 else if (obj->hasChanges() || obj->hasChildChanged())
                 {
-                    return QColor(Qt::blue);
+                    if (gtApp->inDarkMode())
+                    {
+                        return QColor(Qt::blue).lighter();
+                    }
+                    else
+                    {
+                        return QColor(Qt::blue);
+                    }
                 }
 
                 break;

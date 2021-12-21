@@ -11,8 +11,8 @@
 #define GTPROCESSWIZARD_H
 
 #include "gt_mdi_exports.h"
-#include <QWizard>
 #include <QPointer>
+#include "gt_wizard.h"
 
 class GtAbstractProcessProvider;
 class GtCalculatorProvider;
@@ -22,7 +22,7 @@ class GtProject;
 /**
  * @brief The GtProcessWizard class
  */
-class GT_MDI_EXPORT GtProcessWizard : public QWizard
+class GT_MDI_EXPORT GtProcessWizard : public GtWizard
 {
     Q_OBJECT
 
@@ -31,20 +31,24 @@ public:
         startCalculatorPage = 0,
         startTaskPage,
         calculatorSettingsPage,
-        endPage,
+        endPage
     };
 
     /**
      * @brief Constructor.
+     * @param project to add the calculator to
      * @param Calculator provider.
      */
-    GtProcessWizard(GtProject* project, GtCalculatorProvider* provider);
+    GtProcessWizard(GtProject* project, GtCalculatorProvider* provider,
+                    QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief Constructor
+     * @param project to add the task to
      * @param Task provider.
      */
-    GtProcessWizard(GtProject* project, GtTaskProvider* provider);
+    GtProcessWizard(GtProject* project, GtTaskProvider* provider,
+                    QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief Returns process component provider.

@@ -35,7 +35,9 @@
 #include "gt_processwizard.h"
 
 GtProcessWizard::GtProcessWizard(GtProject* project,
-                                 GtCalculatorProvider* provider) :
+                                 GtCalculatorProvider* provider,
+                                 QWidget* parent) :
+    GtWizard(parent),
     m_provider(provider),
     m_scope(project),
     m_execSettingBtn(Q_NULLPTR)
@@ -46,7 +48,16 @@ GtProcessWizard::GtProcessWizard(GtProject* project,
 
     setWindowTitle(tr("New Calculator Wizard"));
 
-    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
+    if (gtApp->inDarkMode())
+    {
+        setAutoFillBackground(true);
+        setWizardStyle(QWizard::WizardStyle::ModernStyle);
+    }
+    else
+    {
+        setWizardStyle(QWizard::AeroStyle);
+        setAutoFillBackground(false);
+    }
 
     if (!provider->componentInitialized())
     {
@@ -129,12 +140,25 @@ GtProcessWizard::GtProcessWizard(GtProject* project,
     }
 }
 
-GtProcessWizard::GtProcessWizard(GtProject* project, GtTaskProvider* provider) :
+GtProcessWizard::GtProcessWizard(GtProject* project, GtTaskProvider* provider,
+                                 QWidget* parent) :
+    GtWizard(parent),
     m_provider(provider),
     m_scope(project),
     m_execSettingBtn(Q_NULLPTR)
 {
     setWindowTitle(tr("New Task Wizard"));
+
+    if (gtApp->inDarkMode())
+    {
+        setAutoFillBackground(true);
+        setWizardStyle(QWizard::WizardStyle::ModernStyle);
+    }
+    else
+    {
+        setWizardStyle(QWizard::AeroStyle);
+        setAutoFillBackground(false);
+    }
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);

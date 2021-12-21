@@ -448,6 +448,8 @@ GtMdiLauncher::open(const QString& id, GtObject* data, QString customId)
             subWin, SLOT(setWindowTitle(QString)));
     connect(mdiItem, SIGNAL(destroyed(QObject*)), subWin,
             SLOT(deleteLater()));
+    connect(gtApp, SIGNAL(themeChanged(bool)), mdiItem,
+            SLOT(onThemeChanged()));
 
     m_openItems.insert(subWin, mdiItem);
 

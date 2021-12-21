@@ -63,6 +63,11 @@ public:
                                       QList<GtCollectionNetworkItem> availableItems,
                                       QList<GtCollectionNetworkItem> updataAvailableItems) = 0;
 
+signals:
+    /**
+     * @brief themeChanged - emit signal for changed theme
+     */
+    void themeChanged();
 };
 
 #endif // GT_ABSTRACTCOLLECTIONSETTINGS_H

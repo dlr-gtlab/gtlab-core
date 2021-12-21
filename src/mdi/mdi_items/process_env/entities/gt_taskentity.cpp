@@ -22,6 +22,7 @@
 #include "gt_taskconnectionentity.h"
 #include "gt_taskpipeentity.h"
 #include "gt_application.h"
+#include "gt_palette.h"
 
 GtTaskEntity::GtTaskEntity(GtTask* task, QGraphicsItem* parent) :
     QGraphicsObject(parent),
@@ -47,7 +48,14 @@ GtTaskEntity::paint(QPainter* painter,
     pen.setCosmetic(true);
     painter->setPen(pen);
 
-    painter->setBrush(QBrush(Qt::white));
+    if (!gtApp->inDarkMode())
+    {
+        painter->setBrush(QBrush(Qt::white));
+    }
+    else
+    {
+        painter->setBrush(QBrush(GtPalette::basicDarkColor()));
+    }
 
     QRectF rect(10., 10., m_w - 20., m_h - 20.);
 
@@ -109,7 +117,7 @@ GtTaskEntity::populateTask()
     // task title
     QGraphicsTextItem* title = new QGraphicsTextItem(this);
     title->setPlainText(m_task->objectName());
-    const int tw = title->boundingRect().width();
+    const int tw = int(title->boundingRect().width());
     title->setPos((m_w / 2) - (tw / 2), m_h - 5);
 
     // datamodel port
@@ -189,7 +197,7 @@ GtTaskEntity::calculateWidth()
     double tmpw = (mostRight->normX() * dnw) -
                   (mostLeft->normX() * dnw) + dnw + 60.;
 
-    return tmpw;
+    return int(tmpw);
 }
 
 int
@@ -218,7 +226,7 @@ GtTaskEntity::calculateFirstRowHeight()
 
     foreach (GtCalculatorEntity* calc, m_subCalcs)
     {
-        int cSize = calc->boundingRect().height();
+        int cSize = int(calc->boundingRect().height());
         if (cSize > maxSize)
         {
             maxSize = cSize;

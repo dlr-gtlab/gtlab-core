@@ -168,7 +168,8 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
         if (eData != Q_NULLPTR && eData->wizard != Q_NULLPTR)
         {
             GtCalculatorProvider provider(calc);
-            GtProcessWizard wizard(gtApp->currentProject(), &provider);
+            GtProcessWizard wizard(gtApp->currentProject(), &provider,
+                                   parentWidget());
 
             if (!wizard.exec())
             {
@@ -203,7 +204,8 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
         if (eData != Q_NULLPTR && eData->wizard != Q_NULLPTR)
         {
             GtTaskProvider provider(task);
-            GtProcessWizard wizard(gtApp->currentProject(), &provider);
+            GtProcessWizard wizard(gtApp->currentProject(), &provider,
+                                   parentWidget());
 
             if (!wizard.exec())
             {

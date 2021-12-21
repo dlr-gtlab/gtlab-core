@@ -173,7 +173,7 @@ main(int argc, char* argv[])
 
     w.show();
 
-    gtApp->setDarkMode(gtApp->settings()->darkMode());
+    gtApp->setDarkMode(gtApp->settings()->darkMode(), true);
 
     splash.finish(&w);
 

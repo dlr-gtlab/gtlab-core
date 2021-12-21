@@ -8,7 +8,6 @@
  */
 
 #include <QSignalMapper>
-#include <QWizard>
 #include <QDebug>
 
 #include "gt_application.h"
@@ -19,6 +18,7 @@
 #include "gt_abstractexporterpage.h"
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
+#include "gt_wizard.h"
 
 #include "gt_exportmenu.h"
 
@@ -107,13 +107,8 @@ GtExportMenu::onActionTrigger(QObject* obj)
     }
 
     // create wizard
-    QWizard wizard;
+    GtWizard wizard(parentWidget());
     wizard.setWindowTitle(tr("Export Wizard"));
-
-    /// Turn  off the "?"-Button in the header
-    Qt::WindowFlags flags = wizard.windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    wizard.setWindowFlags(flags);
 
     // get wizard pages
     QList<GtAbstractExporterPage*> pages = exporter->pages(objCopy);

@@ -208,8 +208,14 @@ GtMdiItem::windowAboutToActive()
 void
 GtMdiItem::print()
 {
-    QMessageBox::information(0, tr("Print error"),
+    QMessageBox::information(Q_NULLPTR, tr("Print error"),
                              tr("MDI Item not printable!"),
                              QMessageBox::Ok);
+}
+
+void
+GtMdiItem::onThemeChanged()
+{
+
 }
 

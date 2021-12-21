@@ -10,15 +10,15 @@
 #ifndef GTPROJECTWIZARD_H
 #define GTPROJECTWIZARD_H
 
-#include <QWizard>
 #include <QPointer>
+#include "gt_wizard.h"
 
 class GtProjectProvider;
 
 /**
  * @brief The GtProjectWizard class
  */
-class GtProjectWizard : public QWizard
+class GtProjectWizard : public GtWizard
 {
     Q_OBJECT
 
@@ -33,8 +33,10 @@ public:
     /**
      * @brief Constructor.
      * @param provider Project provider.
+     * @param parent widget.
      */
-    GtProjectWizard(GtProjectProvider* provider);
+    GtProjectWizard(GtProjectProvider* provider,
+                    QWidget* parent = Q_NULLPTR);
 
 private:
     /// Project provider
