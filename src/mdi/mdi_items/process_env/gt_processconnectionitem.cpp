@@ -17,7 +17,9 @@
 #include "gt_extendedcalculatordata.h"
 #include "gt_application.h"
 #include "gt_doublemonitoringproperty.h"
+#include "gt_stringmonitoringproperty.h"
 #include "gt_intmonitoringproperty.h"
+
 #include "gt_objectui.h"
 #include "gt_processconnectionmodel.h"
 #include "gt_stringproperty.h"
@@ -31,7 +33,8 @@ QStringList GtProcessConnectionItem::m_acceptedPropertyTypes =
                          GT_CLASSNAME(GtDoubleProperty) <<
                          GT_CLASSNAME(GtIntProperty) <<
                          GT_CLASSNAME(GtObjectLinkProperty) <<
-                         GT_CLASSNAME(GtStringProperty);
+                         GT_CLASSNAME(GtStringProperty) <<
+                         GT_CLASSNAME(GtStringMonitoringProperty);
 
 GtProcessConnectionItem::GtProcessConnectionItem(GtProcessComponent* comp) :
     m_component(comp),
@@ -96,6 +99,7 @@ GtProcessConnectionItem::data(int column, int role)
                     return m_property->objectName();
                 }
             }
+            break;
         }
 
         case Qt::DecorationRole:
@@ -146,9 +150,9 @@ GtProcessConnectionItem::data(int column, int role)
                         }
                         else
                         {
-                            GtObjectUI oui;
-                            QVariant value = oui.data(m_component, role,
-                                                      column);
+                            GtObjectUI oui2;
+                            QVariant value = oui2.data(m_component, role,
+                                                       column);
 
                             if (value.isValid())
                             {
@@ -181,7 +185,9 @@ GtProcessConnectionItem::data(int column, int role)
                         return gtApp->icon(QStringLiteral("stringIcon_16.png"));
                     }
                 }
+
             }
+            break;
         }
 
 

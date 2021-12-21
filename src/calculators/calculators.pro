@@ -48,6 +48,7 @@ DESTDIR = $${BUILD_DEST}
 HEADERS += \
     gt_calculators_exports.h \
     gt_processfactory.h \
+    gt_stringmonitoringproperty.h \
     gt_task.h \
     gt_calculator.h \
     gt_processdata.h \
@@ -83,6 +84,7 @@ HEADERS += \
 
 SOURCES += \
     gt_processfactory.cpp \
+    gt_stringmonitoringproperty.cpp \
     gt_task.cpp \
     gt_calculator.cpp \
     gt_processdata.cpp \
