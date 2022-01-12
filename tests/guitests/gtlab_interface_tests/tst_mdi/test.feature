@@ -9,7 +9,7 @@ Feature: Test the mdi interface
 
     Scenario: The module package contains the implemented UI items
 
-        # enable the required plugins incase they caused a crash  
+        # enable the required plugins in case they caused a crash  
         Given the plugins 'MdiInterface' are marked as reenabled at startup
         Given GTlab is running
           And the dock widgets 'Explorer, Output' are visible
