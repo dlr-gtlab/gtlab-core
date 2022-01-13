@@ -179,7 +179,7 @@ public:
      * @param id axis id
      * @return axis ticks
      */
-   QStringList axisTickStrings(const QString& id) const;
+    QStringList axisTickStrings(const QString& id) const;
 
     /**
      * @brief returns axis tick labels i.e. for plots
@@ -201,28 +201,16 @@ public:
     QMap<QString, QVector<double> > allAxisTicksMap() const;
 
     /**
-     * @brief returns all axis names
-     * @return axis names
-     */
-    QStringList axisNames() const;
-
-    /**
      * @brief check function if table is 0-dimensional
      * @return true in case that dimension of table is 0
      */
-    virtual bool is0D() const Q_DECL_OVERRIDE;
-
-    /**
-     * @brief returns the number of dimensions
-     * @return number of dimensions
-     */
-    virtual int nDims() const Q_DECL_OVERRIDE;
+    virtual bool is0D() const override;
 
     /**
      * @brief addModuleName
      * @param moduleName
      */
-    void addModuleName(const QString& suffix) Q_DECL_OVERRIDE;
+    void addModuleName(const QString& suffix) override;
 
     /**
      * @brief setDescription
@@ -291,6 +279,64 @@ public:
     * @brief clears current data
     */
    void clearData();
+
+public slots:
+
+   /**
+    * @brief returns all axis names
+    * @return axis names
+    */
+   QStringList axisNames() const;
+
+   /**
+    * @brief returns the number of dimensions
+    * @return number of dimensions
+    */
+   virtual int nDims() const override;
+
+   /**
+     * @brief val1D - python accessasble getter for a value of the table
+     * @param name - parameter name
+     * @param axisValue - axisvalue
+     * @return table value of parameter with name "name" at defined axisvalue
+     */
+    double val1D(const QString name, const double axisValue);
+
+    /**
+     * @brief val2D - python accessasble getter for a value of the table
+     * @param name - parameter name
+     * @param axisValue1 - first axisvalue
+     * @param axisValue2 - second axisvalue
+     * @return table value of parameter with name "name" at defined axisvalues
+     */
+    double val2D(const QString name, const double axisValue1,
+                 const double axisValue2);
+
+    /**
+     * @brief val3D - python accessasble getter for a value of the table
+     * @param name - parameter name
+     * @param axisValue1 - first axisvalue
+     * @param axisValue2 - second axisvalue
+     * @param axisValue3 - third axisvalue
+     * @return table value of parameter with name "name" at defined axisvalues
+     */
+    double val3D(const QString name, const double axisValue1,
+                 const double axisValue2,
+                 const double axisValue3);
+
+    /**
+     * @brief val4D - python accessasble getter for a value of the table
+     * @param name - parameter name
+     * @param axisValue1 - first axisvalue
+     * @param axisValue2 - second axisvalue
+     * @param axisValue3 - third axisvalue
+     * @param axisValue4 - fourth axisvalue
+     * @return table value of parameter with name "name" at defined axisvalues
+     */
+    double val4D(const QString name, const double axisValue1,
+                 const double axisValue2,
+                 const double axisValue3,
+                 const double axisValue4);
 
 protected:
 
