@@ -24,10 +24,10 @@ CONFIG += silent
 DEFINES += GT_CORE_DLL
 
 # qstring restrictions
-DEFINES += QT_NO_CAST_FROM_ASCII
-DEFINES += QT_NO_CAST_TO_ASCII
-DEFINES += QT_NO_CAST_FROM_BYTEARRAY
-DEFINES += QT_NO_URL_CAST_FROM_STRING
+#DEFINES += QT_NO_CAST_FROM_ASCII
+#DEFINES += QT_NO_CAST_TO_ASCII
+#DEFINES += QT_NO_CAST_FROM_BYTEARRAY
+#DEFINES += QT_NO_URL_CAST_FROM_STRING
 
 CONFIG(debug, debug|release){
     DESTDIR = $${BUILD_DEST}/debug-core
@@ -45,17 +45,57 @@ CONFIG(debug, debug|release){
 INCLUDEPATH += .\
     settings \
     provider \
-    ../datamodel \
-    ../calculators \
-    ../network \
-    ../datamodel/property \
-    ../utilities/numerics \
-    ../utilities/logging \
-    ../versioncontrol
+    process_management \
+    network \
+    ../dataprocessor \
+    ../dataprocessor/property
 
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    network/gt_accessdata.h \
+    network/gt_accessmanager.h \
+    network/gt_accessgroup.h \
+    network/gt_networkinterface.h \
+    network/gt_accessdataconnection.h \
+    network/gt_abstractaccessdataconnection.h \
+    network/gt_accessselectionproperty.h \
+    network/gt_downloaditem.h \
+    network/gt_downloader.h \
+    process_management/gt_processfactory.h \
+    process_management/gt_task.h \
+    process_management/gt_calculator.h \
+    process_management/gt_processdata.h \
+    process_management/gt_processinterface.h \
+    process_management/gt_processmoduleloader.h \
+    process_management/gt_calculatorfactory.h \
+    process_management/gt_taskfactory.h \
+    process_management/gt_tasklink.h \
+    process_management/gt_abstractrunnable.h \
+    process_management/gt_processcomponent.h \
+    process_management/gt_abstractcalculatorexecutor.h \
+    process_management/gt_calculatorexecinterface.h \
+    process_management/gt_calculatorexecutorlist.h \
+    process_management/gt_calculatorprovider.h \
+    process_management/gt_taskprovider.h \
+    process_management/gt_abstractprocessprovider.h \
+    process_management/gt_abstractprocessdata.h \
+    process_management/gt_calculatordata.h \
+    process_management/gt_evaluator.h \
+    process_management/gt_taskrunner.h \
+    process_management/gt_loop.h \
+    process_management/gt_doublemonitoringproperty.h \
+    process_management/gt_monitoringproperty.h \
+    process_management/gt_intmonitoringproperty.h \
+    process_management/gt_monitoringdata.h \
+    process_management/gt_monitoringdatatable.h \
+    process_management/gt_monitoringdataset.h \
+    process_management/gt_environment.h \
+    process_management/gt_taskdata.h \
+    process_management/gt_residualloop.h \
+    process_management/gt_parameterloop.h \
+    process_management/gt_calculatorhelperfactory.h \
+    process_management/gt_stringmonitoringproperty.h \
     gt_coreapplication.h \
     gt_core_exports.h \
     gt_footprint.h \
@@ -83,6 +123,46 @@ HEADERS += \
     gt_command.h
 
 SOURCES += \
+    network/gt_accessdata.cpp \
+    network/gt_accessmanager.cpp \
+    network/gt_accessgroup.cpp \
+    network/gt_accessdataconnection.cpp \
+    network/gt_abstractaccessdataconnection.cpp \
+    network/gt_accessselectionproperty.cpp \
+    network/gt_downloaditem.cpp \
+    network/gt_downloader.cpp \
+    process_management/gt_processfactory.cpp \
+    process_management/gt_task.cpp \
+    process_management/gt_calculator.cpp \
+    process_management/gt_processdata.cpp \
+    process_management/gt_processmoduleloader.cpp \
+    process_management/gt_calculatorfactory.cpp \
+    process_management/gt_taskfactory.cpp \
+    process_management/gt_tasklink.cpp \
+    process_management/gt_abstractrunnable.cpp \
+    process_management/gt_processcomponent.cpp \
+    process_management/gt_abstractcalculatorexecutor.cpp \
+    process_management/gt_calculatorexecutorlist.cpp \
+    process_management/gt_calculatorprovider.cpp \
+    process_management/gt_taskprovider.cpp \
+    process_management/gt_abstractprocessprovider.cpp \
+    process_management/gt_abstractprocessdata.cpp \
+    process_management/gt_calculatordata.cpp \
+    process_management/gt_evaluator.cpp \
+    process_management/gt_taskrunner.cpp \
+    process_management/gt_loop.cpp \
+    process_management/gt_doublemonitoringproperty.cpp \
+    process_management/gt_monitoringproperty.cpp \
+    process_management/gt_intmonitoringproperty.cpp \
+    process_management/gt_monitoringdata.cpp \
+    process_management/gt_monitoringdatatable.cpp \
+    process_management/gt_monitoringdataset.cpp \
+    process_management/gt_environment.cpp \
+    process_management/gt_taskdata.cpp \
+    process_management/gt_residualloop.cpp \
+    process_management/gt_parameterloop.cpp \
+    process_management/gt_calculatorhelperfactory.cpp \
+    process_management/gt_stringmonitoringproperty.cpp \
     gt_coreapplication.cpp \
     gt_footprint.cpp \
     gt_projectanalyzer.cpp \
@@ -112,9 +192,9 @@ RESOURCES += ../resources/templates/templates.qrc
 LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release){
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabNetwork-d
+    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDataProcessor-d
 } else {
-    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDatamodel -lGTlabCalculators -lGTlabNetwork
+    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDataProcessor
 }
 
 unix {

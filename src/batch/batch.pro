@@ -36,10 +36,11 @@ CONFIG(debug, debug|release){
     UI_DIR = $${BUILD_DEST}/release-batch/ui
 }
 INCLUDEPATH += .\
-    ../datamodel \
-    ../calculators \
+    ../dataprocessor \
+    ../dataprocessor/property \
     ../core \
     ../core/provider \
+    ../core/process_management \
     ../mdi \
     ../datamodel/property
 
@@ -58,8 +59,7 @@ CONFIG(debug, debug|release){
     # UTILITIES
     LIBS += -lGTlabNumerics-d -lGTlabLogging-d
     # CORE
-    LIBS += -lGTlabDatamodel-d -lGTlabCalculators-d -lGTlabCore-d
-    LIBS += -lGTlabMdi-d -lGTlabNetwork-d
+    LIBS += -lGTlabDataProcessor-d -lGTlabCore-d
     # THIRD PARTY
     win32 {
     }
@@ -74,8 +74,7 @@ CONFIG(debug, debug|release){
     # UTILITIES
     LIBS += -lGTlabNumerics -lGTlabLogging
     # CORE
-    LIBS += -lGTlabDatamodel -lGTlabCalculators -lGTlabCore
-    LIBS += -lGTlabMdi -lGTlabNetwork
+    LIBS += -lGTlabDataProcessor -lGTlabCore
     # THIRD PARTY
     unix {
         LIBS += -lcminpack

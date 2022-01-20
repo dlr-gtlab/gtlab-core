@@ -10,6 +10,8 @@
 #ifndef GTSHORTCUTEDIT_H
 #define GTSHORTCUTEDIT_H
 
+#include "gt_gui_exports.h"
+
 #include "gt_lineedit.h"
 #include <QKeySequence>
 
@@ -17,7 +19,7 @@
  * @brief The GtShortCutEdit class
  * Used to input a keysequence for a short cut (single key + multiple modifers).
  */
-class GtShortCutEdit : public GtLineEdit
+class GT_GUI_EXPORT GtShortCutEdit : public GtLineEdit
 {
     Q_OBJECT
 

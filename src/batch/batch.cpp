@@ -16,7 +16,7 @@
 #include <QDir>
 #include <QDebug>
 
-#include "gt_application.h"
+#include "gt_coreapplication.h"
 #include "gt_coredatamodel.h"
 #include "gt_coreprocessexecutor.h"
 #include "gt_project.h"
@@ -39,7 +39,7 @@ showSplashScreen()
     cout << "    / /_/ / _  /   _  / / /_/ /_  /_/ /" << endl;
     cout << "    \\____/  /_/    /_/  \\__,_/ /_.___/ " << endl;
     cout << "                                 " <<
-         GtApplication::versionToString().toStdString() << endl;
+         GtCoreApplication::versionToString().toStdString() << endl;
     cout << "******************************************" << endl;
     cout << endl;
 }
@@ -58,7 +58,7 @@ checkMetaInput(const QString& fileName)
     }
 
     if (!BatchRemote::checkInput(fileName,
-                                 GtApplication::versionToString(),
+                                 GtCoreApplication::versionToString(),
                                  false, false))
     {
         qWarning() << QStringLiteral("ERROR: ") <<
@@ -110,7 +110,7 @@ runMetaInput(const QString& inputFileName, const QString& outputFileName)
     qDebug() << "executing process...";
 
     if (!BatchRemote::run(inputFileName, outputFileName,
-                          GtApplication::versionToString()))
+                          GtCoreApplication::versionToString()))
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("process execution failed!");
@@ -336,7 +336,8 @@ int main(int argc, char* argv[])
     QCoreApplication::setOrganizationName("DLR");
     QCoreApplication::setApplicationName("GTlab");
 
-    QCoreApplication::setApplicationVersion(GtApplication::versionToString());
+    QCoreApplication::setApplicationVersion(
+                GtCoreApplication::versionToString());
 
     QApplication a(argc, argv);
 
@@ -407,7 +408,7 @@ int main(int argc, char* argv[])
     }
 
     // application initialization
-    GtApplication app(qApp, true);
+    GtCoreApplication app(qApp);
     app.init();
 
     // save to system environment (temporary)
