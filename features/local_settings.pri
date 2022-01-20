@@ -9,10 +9,7 @@ DEV_TOOLS = C:\GTlab-DevTools
 
 # core build settings
 BUILD_DATAMODEL =               true
-BUILD_CALCULATOR_INTERFACE =    true
-BUILD_NETWORK =                 true
 BUILD_CORE =                    true
-BUILD_MDI =                     true
 BUILD_GUI =                     true
 BUILD_BATCH =                   true
 BUILD_APP =                     true
@@ -21,7 +18,6 @@ USE_HDF5 =                      false
 
 # tests
 BUILD_UNITTESTS =               false
-BUILD_REGRESSIONTESTS =         false
 BUILD_TESTMODULES =             false
 
 # deployment settings

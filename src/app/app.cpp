@@ -27,10 +27,53 @@
 #include "gt_moduleloader.h"
 #include "gt_datamodel.h"
 #include "gt_refusedpluginsdialog.h"
+#include "gt_mdilauncher.h"
+
+#include "gt_mementoviewer.h"
+#include "gt_processeditor.h"
+#include "gt_templateviewer.h"
+#include "gt_labelusageviewer.h"
+#include "gt_sessionviewer.h"
+#include "gt_stateviewer.h"
+#include "gt_resultviewer.h"
+#include "gt_collectioneditor.h"
+#include "gt_examplesmdiwidget.h"
+
+// dock widgets
+#include "gt_outputdock.h"
+#include "gt_explorerdock.h"
+#include "gt_processdock.h"
+#include "gt_propertiesdock.h"
+#include "gt_labelsdock.h"
+#include "gt_postdock.h"
+#include "gt_calculatorsdock.h"
 
 #ifdef GT_MODELTEST
 #include <QAbstractItemModelTester>
 #endif
+
+void
+registerWidgets()
+{
+    gtMdiLauncher->registerClass(GT_METADATA(GtMementoViewer));
+    gtMdiLauncher->registerClass(GT_METADATA(GtProcessEditor));
+    gtMdiLauncher->registerClass(GT_METADATA(GtTemplateViewer));
+    gtMdiLauncher->registerClass(GT_METADATA(GtLabelUsageViewer));
+    gtMdiLauncher->registerClass(GT_METADATA(GtSessionViewer));
+    gtMdiLauncher->registerClass(GT_METADATA(GtStateViewer));
+    gtMdiLauncher->registerClass(GT_METADATA(GtResultViewer));
+    gtMdiLauncher->registerClass(GT_METADATA(GtCollectionEditor));
+    gtMdiLauncher->registerClass(GT_METADATA(GtExamplesMdiWidget));
+
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtOutputDock));
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtExplorerDock));
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtProcessDock));
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtPropertiesDock));
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtLabelsDock));
+    gtMdiLauncher->registerDockWidget(GT_METADATA(GtPostDock));
+    //gtMdiLauncher->registerDockWidget(GT_METADATA(GtCalculatorsDock));
+}
+
 
 int
 main(int argc, char* argv[])
@@ -123,6 +166,8 @@ main(int argc, char* argv[])
     // mdi launcher initialization
     app.initMdiLauncher();
 
+    registerWidgets();
+
     // show refused plugins (application last run crash)
     if (!gtApp->crashedModules().isEmpty())
     {
@@ -161,7 +206,9 @@ main(int argc, char* argv[])
     gtLogModel->setMaxLogLength(mll);
 
 #ifdef GT_MODELTEST
-    new QAbstractItemModelTester(gtDataModel,QAbstractItemModelTester::FailureReportingMode::Fatal, qApp);
+    new QAbstractItemModelTester(gtDataModel,
+                                 QAbstractItemModelTester::FailureReportingMode::Fatal,
+                                 qApp);
 #else
     qDebug() << "model test disabled!";
 #endif

@@ -27,31 +27,13 @@ CONFIG(debug, debug|release) {
 #### DATAMODEL
 contains(BUILD_DATAMODEL, true) {
     message("BUILD_DATAMODEL = true")
-    SUBDIRS += src/datamodel
-}
-
-#### NETWORK
-contains(BUILD_NETWORK, true) {
-    message("BUILD_NETWORK = true")
-    SUBDIRS += src/network
-}
-
-#### CALCULATOR INTERFACE
-contains(BUILD_CALCULATOR_INTERFACE, true) {
-    message("BUILD_CALCULATOR_INTERFACE = true")
-    SUBDIRS += src/calculators
+    SUBDIRS += src/dataprocessor
 }
 
 #### CORE
 contains(BUILD_CORE, true) {
     message("BUILD_CORE = true")
     SUBDIRS += src/core
-}
-
-#### MDI
-contains(BUILD_MDI, true) {
-    message("BUILD_MDI = true")
-    SUBDIRS += src/mdi
 }
 
 #### GUI
@@ -76,12 +58,6 @@ contains(BUILD_APP, true) {
 contains(BUILD_UNITTESTS, true) {
     message("BUILD_UNITTESTS = true")
     SUBDIRS += tests/unittests
-}
-
-#### REGRESSION TESTS ####
-contains(BUILD_REGRESSIONTESTS, true) {
-    message("BUILD_REGRESSIONTESTS = true")
-    SUBDIRS += tests/regressiontests
 }
 
 #### TEST MODULES ####

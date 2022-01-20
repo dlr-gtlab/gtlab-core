@@ -39,25 +39,23 @@ CONFIG += console
 #CURRENT_DIR=$$project_src_dir/tests/unittests
 
 INCLUDEPATH += .\
-    ../../src/datamodel \
-    ../../src/datamodel/property \
-    ../../src/calculators \
+    ../../src/dataprocessor \
+    ../../src/dataprocessor/property \
     ../../src/core \
     ../../src/core/provider \
     ../../src/core/settings \
-    ../../src/mdi \
-    ../../src/mdi/tools \
-    ../../src/mdi/dialogs \
-    ../../src/mdi/dock_widgets \
-    ../../src/mdi/dock_widgets/process \
+    ../../src/core/process_management \
     ../../src/gui \
-    ../../src/gui/dialogs
+    ../../src/gui/tools \
+    ../../src/gui/dialogs \
+    ../../src/gui/dock_widgets \
+    ../../src/gui/dock_widgets/process \
 
 #### HEADERS
 HEADERS += \
     gt_testhelper.h
 HEADERS += datamodel/*.h
-HEADERS += mdi/*.h
+#HEADERS += mdi/*.h
 
 #### SOURCES
 SOURCES += \
@@ -66,7 +64,7 @@ SOURCES += \
 SOURCES += datamodel/*.cpp
 SOURCES += calculators/*.cpp
 SOURCES += core/*.cpp
-SOURCES += mdi/*.cpp
+#SOURCES += mdi/*.cpp
 
 #SOURCES += $${CURRENT_DIR}/mdi/*.cpp
 
@@ -106,8 +104,7 @@ CONFIG(debug, debug|release){
     #Utilities
     LIBS += -lGTlabLogging-d -lGTlabNumerics-d
     # Core
-    LIBS += -lGTlabMdi-d -lGTlabDatamodel-d -lGTlabNetwork-d
-    LIBS += -lGTlabCalculators-d -lGTlabCore-d
+    LIBS += -lGTlabDataProcessor-d -lGTlabCore-d
 
     # THIRD PARTY
     win32 {
@@ -124,8 +121,7 @@ CONFIG(debug, debug|release){
     #Utilities
     LIBS += -lGTlabLogging -lGTlabNumerics
    # Core
-    LIBS += -lGTlabMdi -lGTlabDatamodel -lGTlabNetwork
-    LIBS += -lGTlabCalculators -lGTlabCore
+    LIBS += -lGTlabDataProcessor -lGTlabCore
 
     # THIRD PARTY
     unix {
