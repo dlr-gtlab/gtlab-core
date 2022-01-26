@@ -10,7 +10,7 @@
 # Environment variables to use in the pipeline globally
 variables:
   PIPELINEVERSION: "2.0.0-unstable"
-  GIT_SUBMODULE_STRATEGY: none
+  GIT_SUBMODULE_STRATEGY: none
 
 # inlcude some templates from this file
 include:
