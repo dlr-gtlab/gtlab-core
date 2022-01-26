@@ -762,40 +762,6 @@ GtDataZone::clearData()
     m_params.clear();
 }
 
-double
-GtDataZone::val1D(const QString name,
-                   const double axisValue)
-{
-    return value1D(name, axisValue);
-}
-
-double
-GtDataZone::val2D(const QString name,
-                   const double axisValue1,
-                   const double axisValue2)
-{
-    return value2D(name, axisValue1, axisValue2);
-}
-
-double
-GtDataZone::val3D(const QString name,
-                   const double axisValue1,
-                   const double axisValue2,
-                   const double axisValue3)
-{
-    return value3D(name, axisValue1, axisValue2, axisValue3);
-}
-
-double
-GtDataZone::val4D(const QString name,
-                   const double axisValue1,
-                   const double axisValue2,
-                   const double axisValue3,
-                   const double axisValue4)
-{
-    return value4D(name, axisValue1, axisValue2, axisValue3, axisValue4);
-}
-
 bool
 GtDataZone::isValid(const QVector<double>& ticks,
                     const QVector<double>& vals) const

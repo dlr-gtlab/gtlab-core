@@ -34,16 +34,6 @@ public:
     Q_INVOKABLE GtDataZone();
 
     /**
-     * @brief returns value from 1-dimensional datazone
-     * @param param parameter name
-     * @param x0 axis tick
-     * @param ok control flag
-     * @return
-     */
-    double value1D(const QString &param, const double& x0,
-                   bool* ok = Q_NULLPTR) const;
-
-    /**
      * @brief returns vector of values for 1D data zone based on the
      * defined axis ticks
      * @param param parameter name
@@ -64,44 +54,6 @@ public:
     QVector<double> value1DVector(const QString& param,
                                   const QVector<double> &ticks,
                                   bool* ok = Q_NULLPTR) const;
-
-    /**
-     * @brief returns value from 2-dimensional table
-     * @param param parameter name
-     * @param x0 first dimension axis tick
-     * @param x1 second dimension axis tick
-     * @param ok control flag
-     * @return
-     */
-    double value2D(const QString& param, const double& x0, const double& x1,
-                   bool* ok = Q_NULLPTR) const;
-
-    /**
-     * @brief returns value from 3-dimensional table
-     * @param param parameter name
-     * @param x0 first dimension axis tick
-     * @param x1 second dimension axis tick
-     * @param x2 third dimension axis tick
-     * @param ok control flag
-     * @return
-     */
-    double value3D(const QString& param, const double& x0, const double& x1,
-                   const double& x2,
-                   bool* ok = Q_NULLPTR) const;
-
-    /**
-     * @brief returns value from 4-dimensional table
-     * @param param parameter name
-     * @param x0 first dimension axis tick
-     * @param x1 second dimension axis tick
-     * @param x2 third dimension axis tick
-     * @param x3 fourth dimensio axis tick
-     * @param ok control flag
-     * @return
-     */
-    double value4D(const QString& param, const double& x0, const double& x1,
-                   const double& x2, const double& x3,
-                   bool* ok = Q_NULLPTR);
 
     /**
      * @brief set 1-dimensional data to table
@@ -295,48 +247,52 @@ public slots:
    virtual int nDims() const override;
 
    /**
-     * @brief val1D - python accessasble getter for a value of the table
-     * @param name - parameter name
-     * @param axisValue - axisvalue
-     * @return table value of parameter with name "name" at defined axisvalue
-     */
-    double val1D(const QString name, const double axisValue);
+    * @brief returns value from 1-dimensional datazone
+    * @param param parameter name
+    * @param x0 axis tick
+    * @param ok control flag
+    * @return
+    */
+   double value1D(const QString &param, const double& x0,
+                  bool* ok = Q_NULLPTR) const;
 
-    /**
-     * @brief val2D - python accessasble getter for a value of the table
-     * @param name - parameter name
-     * @param axisValue1 - first axisvalue
-     * @param axisValue2 - second axisvalue
-     * @return table value of parameter with name "name" at defined axisvalues
-     */
-    double val2D(const QString name, const double axisValue1,
-                 const double axisValue2);
+   /**
+    * @brief returns value from 2-dimensional table
+    * @param param parameter name
+    * @param x0 first dimension axis tick
+    * @param x1 second dimension axis tick
+    * @param ok control flag
+    * @return
+    */
+   double value2D(const QString& param, const double& x0, const double& x1,
+                  bool* ok = Q_NULLPTR) const;
 
-    /**
-     * @brief val3D - python accessasble getter for a value of the table
-     * @param name - parameter name
-     * @param axisValue1 - first axisvalue
-     * @param axisValue2 - second axisvalue
-     * @param axisValue3 - third axisvalue
-     * @return table value of parameter with name "name" at defined axisvalues
-     */
-    double val3D(const QString name, const double axisValue1,
-                 const double axisValue2,
-                 const double axisValue3);
+   /**
+    * @brief returns value from 3-dimensional table
+    * @param param parameter name
+    * @param x0 first dimension axis tick
+    * @param x1 second dimension axis tick
+    * @param x2 third dimension axis tick
+    * @param ok control flag
+    * @return
+    */
+   double value3D(const QString& param, const double& x0, const double& x1,
+                  const double& x2,
+                  bool* ok = Q_NULLPTR) const;
 
-    /**
-     * @brief val4D - python accessasble getter for a value of the table
-     * @param name - parameter name
-     * @param axisValue1 - first axisvalue
-     * @param axisValue2 - second axisvalue
-     * @param axisValue3 - third axisvalue
-     * @param axisValue4 - fourth axisvalue
-     * @return table value of parameter with name "name" at defined axisvalues
-     */
-    double val4D(const QString name, const double axisValue1,
-                 const double axisValue2,
-                 const double axisValue3,
-                 const double axisValue4);
+   /**
+    * @brief returns value from 4-dimensional table
+    * @param param parameter name
+    * @param x0 first dimension axis tick
+    * @param x1 second dimension axis tick
+    * @param x2 third dimension axis tick
+    * @param x3 fourth dimensio axis tick
+    * @param ok control flag
+    * @return
+    */
+   double value4D(const QString& param, const double& x0, const double& x1,
+                  const double& x2, const double& x3,
+                  bool* ok = Q_NULLPTR);
 
 protected:
 
