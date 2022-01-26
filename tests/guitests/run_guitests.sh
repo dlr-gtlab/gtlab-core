@@ -8,8 +8,6 @@
 #  - QT_DIR_LINUX: 		Path to Qt gcc_64 directory
 #  - SQUISH_DIR: 		Squish installation directory
 #  - DEVTOOLS_DIR:		GTlab Dev-Tools path
-#  - GUI_TESTING_DIR: 	Path to global testing ressources 
-#    (contains auxiliary scripts and step defintions)
 #
 # local variables:
 
@@ -29,13 +27,13 @@ SQUISH_TIMEOUT=60
 BASEDIR=$(dirname "$0")
 
 # lists all subfolders containg auxiliary scripts
-SCRIPT_DIRS=$(ls -d $GUI_TESTING_DIR/common/*/)
+SCRIPT_DIRS=$(ls -d $BASEDIR/squish_gui_testing/common/*/)
 
 echo "gtlab instance:     '$GTLAB_DIR'"
 echo "dev-tools dir:      '$DEVTOOLS_DIR'"
 echo "qt-gcc install dir: '$QT_DIR_LINUX'"
 echo "squish install dir: '$SQUISH_DIR'"
-echo "gui testing dir:    '$GUI_TESTING_DIR'"
+echo "gui testing dir:    '$BASEDIR/squish_gui_testing/'"
 echo "testsuites to test: '$TESTSUITES'"
 
 # add shared script dirs to squish path
@@ -45,7 +43,7 @@ for DIR in $SCRIPT_DIRS; do
 done
 
 # cp common folder (so that step defintions can be found)
-cp -r $GUI_TESTING_DIR/common $PWD/$BASEDIR/common
+cp -r $BASEDIR/squish_gui_testing/common $PWD/$BASEDIR/common
 
 # setting paths to libs (gtlab dependencies)
 echo "setting paths to libs..."
@@ -115,7 +113,7 @@ done
 $SQUISH_DIR/squishserver --stop
 
 # generate badge
-python3 $GUI_TESTING_DIR/_pipeline/generate_badge.py ./gui_tests_stdout.txt
+python3 $BASEDIR/squish_gui_testing/_pipeline/generate_badge.py ./gui_tests_stdout.txt
 
 # exit with return code
 echo "$RC failed teststuites"
