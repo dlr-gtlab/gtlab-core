@@ -104,7 +104,7 @@ echo "starting gui tests... "
 for SUITE in $TESTSUITES; do
   echo "- testing testsuite: '$SUITE'..." 
   # executing runner on testsuite (generate html, junit and txt log files)
-  $SQUISH_DIR/squishrunner --testsuite $GUI_TESTING_DIR/$SUITE --exitCodeOnFail 1 --reportgen html,./gui_tests_web --reportgen junit,./gui_tests_junits/junit_$SUITE.xml --reportgen stdout,./gui_tests_stdout.txt
+  $SQUISH_DIR/squishrunner --testsuite $BASEDIR/$SUITE --exitCodeOnFail 1 --reportgen html,./gui_tests_web --reportgen junit,./gui_tests_junits/junit_$SUITE.xml --reportgen stdout,./gui_tests_stdout.txt
   # store latest return code
   rc=$?
   # adding rc to old return codes
