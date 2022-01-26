@@ -26,14 +26,17 @@ SQUISH_TIMEOUT=60
 # filepath
 BASEDIR=$(dirname "$0")
 
+# path to submodule
+GUI_TESTING_DIR=$PWD/$BASEDIR/squish_gui_testing
+
 # lists all subfolders containg auxiliary scripts
-SCRIPT_DIRS=$(ls -d $BASEDIR/squish_gui_testing/common/*/)
+SCRIPT_DIRS=$(ls -d $GUI_TESTING_DIR/common/*/)
 
 echo "gtlab instance:     '$GTLAB_DIR'"
 echo "dev-tools dir:      '$DEVTOOLS_DIR'"
 echo "qt-gcc install dir: '$QT_DIR_LINUX'"
 echo "squish install dir: '$SQUISH_DIR'"
-echo "gui testing dir:    '$BASEDIR/squish_gui_testing/'"
+echo "gui testing dir:    '$GUI_TESTING_DIR'"
 echo "testsuites to test: '$TESTSUITES'"
 
 # add shared script dirs to squish path
@@ -43,7 +46,7 @@ for DIR in $SCRIPT_DIRS; do
 done
 
 # cp common folder (so that step defintions can be found)
-cp -r $BASEDIR/squish_gui_testing/common $PWD/$BASEDIR/common
+cp -r $GUI_TESTING_DIR/common $PWD/$BASEDIR/common
 
 # setting paths to libs (gtlab dependencies)
 echo "setting paths to libs..."
@@ -101,7 +104,7 @@ echo "starting gui tests... "
 for SUITE in $TESTSUITES; do
   echo "- testing testsuite: '$SUITE'..." 
   # executing runner on testsuite (generate html, junit and txt log files)
-  $SQUISH_DIR/squishrunner --testsuite $BASEDIR/$SUITE --exitCodeOnFail 1 --reportgen html,./gui_tests_web --reportgen junit,./gui_tests_junits/junit_$SUITE.xml --reportgen stdout,./gui_tests_stdout.txt
+  $SQUISH_DIR/squishrunner --testsuite $GUI_TESTING_DIR/$SUITE --exitCodeOnFail 1 --reportgen html,./gui_tests_web --reportgen junit,./gui_tests_junits/junit_$SUITE.xml --reportgen stdout,./gui_tests_stdout.txt
   # store latest return code
   rc=$?
   # adding rc to old return codes
@@ -113,7 +116,7 @@ done
 $SQUISH_DIR/squishserver --stop
 
 # generate badge
-python3 $BASEDIR/squish_gui_testing/_pipeline/generate_badge.py ./gui_tests_stdout.txt
+python3 $GUI_TESTING_DIR/_pipeline/generate_badge.py ./gui_tests_stdout.txt
 
 # exit with return code
 echo "$RC failed teststuites"
