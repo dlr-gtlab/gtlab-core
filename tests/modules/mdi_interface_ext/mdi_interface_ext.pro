@@ -58,12 +58,12 @@ CONFIG(debug, debug|release){
     # GTLAB CORE
     LIBS += -lGTlabLogging-d -lGTlabNumerics-d
     LIBS += -lGTlabCore-d -lGTlabDataProcessor-d -lGTlabGui-d
-    LIBS += -ltestMdiInterface-d
+    LIBS += -lTestMdiInterface-d
 } else {
     # GTLAB CORE
     LIBS += -lGTlabLogging -lGTlabNumerics
     LIBS += -lGTlabCore -lGTlabDataProcessor -lGTlabGui
-    LIBS += -ltestMdiInterface
+    LIBS += -lTestMdiInterface
 }
 
 # add search paths to shared libraries
