@@ -13,9 +13,9 @@ include($${PWD}/../../../settings.pri)
 BUILD_DEST = ../../../build/modules
 
 CONFIG(debug, debug|release){
-    TARGET = testMdiInterfaceExt-d
+    TARGET = TestMdiInterfaceExt-d
 } else {
-    TARGET = testMdiInterfaceExt
+    TARGET = TestMdiInterfaceExt
 }
 
 QT += core widgets xml svg
@@ -33,7 +33,7 @@ INCLUDEPATH += . \
 
 # Core
 INCLUDEPATH += ../../../include/core
-LIBS        += -L../../..//lib/core
+LIBS        += -L../../../lib/core
 DEPENDPATH  += ../../../lib/core
 
 LIBS        += -L$${BUILD_DEST}

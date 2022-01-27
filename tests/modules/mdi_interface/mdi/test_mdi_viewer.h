@@ -3,6 +3,8 @@
 
 #include "gt_mdiitem.h"
 
+
+class GtGraphicsView;
 /**
  * @brief The TestMdiViewer class
  */
@@ -25,6 +27,8 @@ public:
 
 private:
 
+    /// Graphics view to test basic functionality
+    GtGraphicsView* m_view;
 };
 
 #endif // TESTMDIVIEWER_H
