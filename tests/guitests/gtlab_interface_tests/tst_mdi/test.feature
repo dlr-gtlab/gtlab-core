@@ -9,7 +9,7 @@ Feature: Test the mdi interface
 
     Scenario: The module package contains the implemented UI items
 
-        # enable the required plugins in case they caused a crash  
+        # enable the required plugins in case they caused a crash
         Given the plugins 'MdiInterface' are marked as reenabled at startup
         Given GTlab is running
           And the dock widgets 'Explorer, Output' are visible
@@ -72,6 +72,18 @@ Feature: Test the mdi interface
          When the same action in the context menu of the entry is activated
          Then the mdi tab exists once
 
+    #Scenario: Interaction with the implemented GraphicsView Mdi Item
+
+    #    Given GTlab is running
+    #     Then the dock widget 'Explorer' is visible
+    #     When the project 'mdi_test' is opened - expecting missing modules
+    #      And the entry 'Test MDI Package' is selected
+    #     # double click should open the only listed mdi item
+    #      And double clicked
+    #     Then the mdi tab 'Test Mdi Viewer' exists
+    #      And the widget of type 'GtGraphicsView' exists
+    #     When the widget is zoomed in max
+    #     Then the widget exists
 
     Scenario: Remove the corresponding project from the active session
 

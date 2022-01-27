@@ -7,9 +7,9 @@ Feature: Test the Datamodel Interface
           And only the module 'Test Datamodel Interface' is included at startup
 
 
-    Scenario: Create a test project and check the implemented package
+    Scenario: Create a test project and check the available packages
 
-        # enable the required plugins in case they caused a crash  
+        # enable the required plugins in case they caused a crash
         Given the plugins 'DatamodelInterface' are marked as reenabled at startup
         Given GTlab is running
           And the dock widget 'Explorer' is visible
