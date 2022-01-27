@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+#
 # A quick introduction to implementing scripts for BDD tests:
 #
 # This file contains snippets of script code to be executed as the .feature
@@ -27,5 +27,3 @@
 # Instead of using a string with placeholders, a regular expression can be
 # specified. In that case, make sure to set the (optional) 'regexp' argument
 # to True.
-
-import names

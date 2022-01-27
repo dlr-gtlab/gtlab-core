@@ -1,11 +1,7 @@
 
+Feature: Testing general features of the dock widgets
 
-Feature: Testing specific features of the main window
-
-    Some textual description of the business value of this feature goes
-    here. The text is free-form.
-
-    The description can span multiple paragraphs.
+    Tests the general behaviour of dock widgets (eg. float, anchor, closing, opening)
 
     Scenario Outline: Open each dock widget, then close and reopend it
 
