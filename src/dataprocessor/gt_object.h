@@ -52,7 +52,7 @@ public:
      * @brief GtObject
      * @param parent
      */
-    GtObject(GtObject* parent = Q_NULLPTR);
+    Q_INVOKABLE GtObject(GtObject* parent = Q_NULLPTR);
 
     /**
      * @brief objectFlags

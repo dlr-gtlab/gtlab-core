@@ -144,6 +144,8 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
 
     QStringList allowedClasses = m_prop->allowedClasses();
 
+    gtInfo() << "Allowed classes" << allowedClasses;
+
     if (allowedClasses.contains(obj->metaObject()->className()))
     {
         retval << obj;
@@ -155,6 +157,7 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
 
         foreach(QString s, allowedClasses)
         {
+            gtInfo() << "Check class:" << s;
             GtObject* allowed = factory->newObject(s);
 
             if (allowed == nullptr)
@@ -165,7 +168,13 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
 
             if (obj->metaObject()->inherits(allowed->metaObject()))
             {
+                gtDebug() << "Add " << obj->objectName() << "to list";
                 retval << obj;
+            }
+            else
+            {
+                gtInfo() << obj->metaObject()->className() << "does not "
+                         << "inherit " << allowed->metaObject()->className();
             }
 
             if (allowed != nullptr)
@@ -188,7 +197,7 @@ GtPropertyObjectLinkEditor::selectObjectLink()
 {
     QList<GtObject*> allowedObjs = allowedObjects(m_scope);
 
-//    qDebug() << "####  allowedObjs size = " << allowedObjs.size();
+    gtDebug() << "####  allowedObjs size = " << allowedObjs.size();
 
     if (allowedObjs.size() == 1 && m_prop->get().isEmpty())
     {
@@ -196,8 +205,16 @@ GtPropertyObjectLinkEditor::selectObjectLink()
     }
     else
     {
+        QStringList list;
+        foreach(GtObject* o, allowedObjs)
+        {
+            list.append(o->metaObject()->className());
+        }
+        list.removeDuplicates();
+
+
         GtObjectSelectionDialog dialog(m_scope);
-        dialog.setFilterData(m_prop->allowedClasses());
+        dialog.setFilterData(list);
 
         if (dialog.exec())
         {
