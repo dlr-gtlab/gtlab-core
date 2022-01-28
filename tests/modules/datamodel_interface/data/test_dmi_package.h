@@ -12,6 +12,7 @@
 #include "test_datamodel_interface_exports.h"
 
 #include "gt_package.h"
+#include "gt_objectlinkproperty.h"
 
 /**
  * @brief The TestDmiPackage class
@@ -26,6 +27,9 @@ public:
       * @brief Constructor.
       */
     Q_INVOKABLE TestDmiPackage();
+
+private:
+    GtObjectLinkProperty m_test;
 
 };
 
