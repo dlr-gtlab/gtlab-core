@@ -155,11 +155,11 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
 
         foreach(QString s, allowedClasses)
         {
-            GtObject* allowed =  factory->newObject(s);
+            GtObject* allowed = factory->newObject(s);
 
             if (allowed == nullptr)
             {
-                gtError() << "Cannot read object " << s << "in factory";
+                gtError() << "Cannot read object of class" << s << "in factory";
                 continue;
             }
 

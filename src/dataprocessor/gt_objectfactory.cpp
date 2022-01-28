@@ -35,6 +35,9 @@
 
 GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
 {
+    m_knownClasses.insert(GT_CLASSNAME(GtObject),
+                          GT_METADATA(GtObject));
+
     m_knownClasses.insert(GT_CLASSNAME(GtObjectGroup),
                           GT_METADATA(GtObjectGroup));
 
