@@ -18,6 +18,7 @@
 #include "gt_application.h"
 #include "gt_project.h"
 #include "gt_objectselectiondialog.h"
+#include "gt_objectfactory.h"
 
 #include "gt_propertyobjectlinkeditor.h"
 
@@ -146,6 +147,32 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
     if (allowedClasses.contains(obj->metaObject()->className()))
     {
         retval << obj;
+    }
+    else /// if the class is not directly allowed it might inherit from
+        /// one of the allowed classes
+    {
+        GtObjectFactory* factory = GtObjectFactory::instance();
+
+        foreach(QString s, allowedClasses)
+        {
+            GtObject* allowed =  factory->newObject(s);
+
+            if (allowed == nullptr)
+            {
+                gtError() << "Cannot read object " << s << "in factory";
+                continue;
+            }
+
+            if (obj->metaObject()->inherits(allowed->metaObject()))
+            {
+                retval << obj;
+            }
+
+            if (allowed != nullptr)
+            {
+                delete allowed;
+            }
+        }
     }
 
     foreach (GtObject* child, obj->findDirectChildren<GtObject*>())
