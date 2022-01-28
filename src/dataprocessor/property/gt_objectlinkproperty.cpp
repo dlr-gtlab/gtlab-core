@@ -44,7 +44,11 @@ GtObjectLinkProperty::setValueFromVariant(const QVariant& val,
 
     setVal(val.toString(), success);
 
+<<<<<<< HEAD
     if (success)
+=======
+    if (success != nullptr)
+>>>>>>> 6b59fc3 (add option to disable heritage usage)
     {
         retval = *success;
     }
