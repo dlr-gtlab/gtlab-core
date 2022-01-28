@@ -144,37 +144,30 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
 
     QStringList allowedClasses = m_prop->allowedClasses();
 
-    gtInfo() << "Allowed classes" << allowedClasses;
+    bool heritageMode = m_prop->heritageMode();
 
     if (allowedClasses.contains(obj->metaObject()->className()))
     {
         retval << obj;
     }
-    else /// if the class is not directly allowed it might inherit from
-        /// one of the allowed classes
+    /// if the class is not directly allowed it might inherit from
+    /// one of the allowed classes
+    else if (heritageMode)
     {
         GtObjectFactory* factory = GtObjectFactory::instance();
 
         foreach(QString s, allowedClasses)
         {
-            gtInfo() << "Check class:" << s;
             GtObject* allowed = factory->newObject(s);
 
             if (allowed == nullptr)
             {
-                gtError() << "Cannot read object of class" << s << "in factory";
                 continue;
             }
 
             if (obj->metaObject()->inherits(allowed->metaObject()))
             {
-                gtDebug() << "Add " << obj->objectName() << "to list";
                 retval << obj;
-            }
-            else
-            {
-                gtInfo() << obj->metaObject()->className() << "does not "
-                         << "inherit " << allowed->metaObject()->className();
             }
 
             if (allowed != nullptr)
@@ -197,7 +190,7 @@ GtPropertyObjectLinkEditor::selectObjectLink()
 {
     QList<GtObject*> allowedObjs = allowedObjects(m_scope);
 
-    gtDebug() << "####  allowedObjs size = " << allowedObjs.size();
+    //gtDebug() << "####  allowedObjs size = " << allowedObjs.size();
 
     if (allowedObjs.size() == 1 && m_prop->get().isEmpty())
     {

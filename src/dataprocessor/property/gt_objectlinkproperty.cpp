@@ -15,9 +15,11 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
         const QString& brief,
         const QString& uuid,
         GtObject* obj,
-        const QStringList& allowedClasses) :
+        const QStringList& allowedClasses,
+        bool heritageMode) :
     m_obj(obj),
-    m_allowedClasses(allowedClasses)
+    m_allowedClasses(allowedClasses),
+    m_heritageMode(heritageMode)
 {
     setObjectName(name);
 
@@ -89,4 +91,10 @@ const QStringList&
 GtObjectLinkProperty::allowedClasses()
 {
     return m_allowedClasses;
+}
+
+bool
+GtObjectLinkProperty::heritageMode() const
+{
+    return m_heritageMode;
 }
