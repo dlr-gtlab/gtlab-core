@@ -43,7 +43,7 @@ public:
                          const QString& uuid,
                          GtObject* obj,
                          const QStringList& allowedClasses,
-                         bool heritageMode = true);
+                         bool heritageMode = false);
 
     /**
      * @brief Overloaded function to convert internal property value to
