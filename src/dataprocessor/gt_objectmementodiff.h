@@ -37,7 +37,7 @@ public:
     GtObjectMementoDiff(const GtObjectMemento& left,
                         const GtObjectMemento& right);
 
-    GtObjectMementoDiff(const QByteArray& byteArray);
+    explicit GtObjectMementoDiff(const QByteArray& byteArray);
 
     /**
      * @brief Creates an empty diff.

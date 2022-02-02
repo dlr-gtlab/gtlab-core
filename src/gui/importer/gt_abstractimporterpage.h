@@ -29,7 +29,7 @@ protected:
      * @brief Constructor.
      * @param Object.
      */
-    GtAbstractImporterPage(GtObject* obj);
+    explicit GtAbstractImporterPage(GtObject* obj);
 
     /**
      * @brief Returns data object.

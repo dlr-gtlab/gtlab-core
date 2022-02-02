@@ -156,7 +156,7 @@ protected:
      * @brief GtProject
      * @param path
      */
-    GtProject(const QString& path);
+    explicit GtProject(const QString& path);
 
     /**
      * @brief setModuleIds

@@ -31,13 +31,13 @@ public:
      * @brief Returns list of allowed target classes of exporter.
      * @return List of allowed target exporter.
      */
-    QStringList targets() const Q_DECL_OVERRIDE;
+    QStringList targets() const override;
 
     /**
      * @brief Returns icon of exporter.
      * @return Icon of exporter.
      */
-    QIcon icon() const Q_DECL_OVERRIDE;
+    QIcon icon() const override;
 
     /**
      * @brief Main export function.
@@ -45,20 +45,20 @@ public:
      * @param Reference to file selected by user.
      * @return Whether export successfully finished or not.
      */
-    bool doExport(GtObject* data, QFile& file) Q_DECL_OVERRIDE;
+    bool doExport(GtObject* data, QFile& file) override;
 
     /**
      * @brief Returns file extensions of exporter.
      * @return File extensions of exporter.
      */
-    QString extension() const Q_DECL_OVERRIDE;
+    QString extension() const override;
 
     /**
      * @brief Returns wizard pages of importer based on given object data.
      * @param Object data.
      * @return List of wizard pages.
      */
-    QList<GtAbstractExporterPage*> pages(GtObject* data) Q_DECL_OVERRIDE;
+    QList<GtAbstractExporterPage*> pages(GtObject* data) override;
 
 private:
     /**

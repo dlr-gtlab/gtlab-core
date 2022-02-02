@@ -31,7 +31,7 @@ public:
      * @return new object
      */
     virtual GtObject* newObject(const QString& className,
-                                GtObject* parent = NULL);
+                                GtObject* parent = nullptr);
 
     /**
      * @brief superClassName - returns superclass name of given class
@@ -106,7 +106,7 @@ protected:
     /**
      * @brief GtAbstractObjectFactory
      */
-    GtAbstractObjectFactory(bool silent = false);
+    explicit GtAbstractObjectFactory(bool silent = false);
 
     /**
      * @brief newObject
@@ -115,7 +115,7 @@ protected:
      * @return
      */
     GtObject* newObject(const QMetaObject& metaObj,
-                        GtObject* parent = NULL);
+                        GtObject* parent = nullptr);
 
 private:
     QStringList classHierarchy(const QMetaObject* metaObj);

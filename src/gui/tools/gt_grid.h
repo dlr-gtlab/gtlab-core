@@ -26,7 +26,7 @@ class GT_GUI_EXPORT GtGrid : public QObject
     Q_OBJECT
 
 public:
-    GtGrid(GtGraphicsView& view);
+    explicit GtGrid(GtGraphicsView& view);
 
     /** Sets grid width to given value.
         @param val New grid width */

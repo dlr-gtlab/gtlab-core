@@ -52,7 +52,7 @@ public:
      * @param Project pointer
      * @return Whether project could be closed or not
      */
-    bool closeProject(GtProject* project) Q_DECL_OVERRIDE;
+    bool closeProject(GtProject* project) override;
 
     /**
      * @brief Returns the number of columns for the children of the given
@@ -61,21 +61,21 @@ public:
      * @return Number of columns
      */
     int columnCount(const QModelIndex& parent =
-            QModelIndex()) const Q_DECL_OVERRIDE;
+            QModelIndex()) const override;
 
     /**
      * @brief Opens given project.
      * @param Project pointer.
      * @return Whether project could be opened or not
      */
-     bool openProject(GtProject* project) Q_DECL_OVERRIDE;
+     bool openProject(GtProject* project) override;
 
      /**
       * @brief Saves given project.
       * @param Project pointer.
       * @return Whether project could be saved or not
       */
-      bool saveProject(GtProject* project) Q_DECL_OVERRIDE;
+      bool saveProject(GtProject* project) override;
 
     /**
      * @brief Appends given children to given parent object.
@@ -84,7 +84,7 @@ public:
      * @return ModelIndexList of appended child objects
      */
     QModelIndexList appendChildren(QList<GtObject*> children,
-                                   GtObject* parent) Q_DECL_OVERRIDE;
+                                   GtObject* parent) override;
 
     /**
      * @brief insertChild
@@ -95,21 +95,21 @@ public:
      */
     QModelIndex insertChild(GtObject* child,
                             GtObject* parent,
-                            int row) Q_DECL_OVERRIDE;
+                            int row) override;
 
     /**
      * @brief Deletes given object from datamodel.
      * @param Object
      * @return Whether object was deleted or not
      */
-    bool deleteFromModel(GtObject* obj) Q_DECL_OVERRIDE;
+    bool deleteFromModel(GtObject* obj) override;
 
     /**
      * @brief Deletes given objects sfrom datamodel.
      * @param Object list
      * @return Whether all object were deleted or not
      */
-    bool deleteFromModel(QList<GtObject*> objects) Q_DECL_OVERRIDE;
+    bool deleteFromModel(QList<GtObject*> objects) override;
 
     /**
      * @brief reduceToParents
@@ -122,26 +122,26 @@ protected:
      * @brief Constructor
      * @param parent
      */
-    GtDataModel(QObject* parent = Q_NULLPTR);
+    explicit GtDataModel(QObject* parent = Q_NULLPTR);
 
     /**
      * @brief Returns the drop actions supported by this model.
      * @return Supported drop actions
      */
-    Qt::DropActions supportedDropActions() const Q_DECL_OVERRIDE;
+    Qt::DropActions supportedDropActions() const override;
 
     /**
      * @brief Returns the actions supported by the data in this model.
      * @return Supported drag actions
      */
-    Qt::DropActions supportedDragActions() const Q_DECL_OVERRIDE;
+    Qt::DropActions supportedDragActions() const override;
 
     /**
      * @brief Returns the item flags for the given index.
      * @param Model index
      * @return Item Flags
      */
-    Qt::ItemFlags flags(const QModelIndex& index) const Q_DECL_OVERRIDE;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 private:
     /**

@@ -89,7 +89,7 @@ private:
      * @brief Constructor.
      * @param Parent object.
      */
-    GtPropertyItemFactory(QObject* parent = NULL);
+    explicit GtPropertyItemFactory(QObject* parent = nullptr);
 
 };
 

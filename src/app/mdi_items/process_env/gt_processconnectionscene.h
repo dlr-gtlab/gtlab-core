@@ -32,7 +32,7 @@ public:
      * @brief Constructor.
      * @param Parent widget.
      */
-    GtProcessConnectionScene(GtProcessConnectionGraphicsView* parent);
+    explicit GtProcessConnectionScene(GtProcessConnectionGraphicsView* parent);
 
     /**
      * @brief Destructor.
@@ -55,20 +55,20 @@ protected:
      * @brief mousePressEvent
      * @param mouseEvent
      */
-    void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) Q_DECL_OVERRIDE;
+    void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
 
     /**
      * @brief mouseReleaseEvent
      * @param mouseEvent
      */
     void mouseReleaseEvent(
-            QGraphicsSceneMouseEvent* mouseEvent) Q_DECL_OVERRIDE;
+            QGraphicsSceneMouseEvent* mouseEvent) override;
 
     /**
      * @brief mouseMoveEvent
      * @param event
      */
-    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) Q_DECL_OVERRIDE;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
     /// Pointer ro temporary connection

@@ -23,7 +23,7 @@ public:
     /**
      * @brief GtStateModel
      */
-    GtStateModel(QObject* parent = Q_NULLPTR);
+    explicit GtStateModel(QObject* parent = Q_NULLPTR);
 
     /**
      * @brief columnCount
@@ -31,7 +31,7 @@ public:
      * @return
      */
     virtual int columnCount(
-            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data
@@ -40,7 +40,7 @@ public:
      * @return
      */
     QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                  int role = Qt::DisplayRole) const override;
 
     /**
      * @brief headerData
@@ -50,7 +50,7 @@ public:
      * @return
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Reloads state model.

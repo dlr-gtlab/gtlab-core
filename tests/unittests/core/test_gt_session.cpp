@@ -24,7 +24,7 @@ public:
         m_tmpDir = gtTestHelper->newTempDir();
     }
 
-    QString sessionFilePath() Q_DECL_OVERRIDE
+    QString sessionFilePath() override
     {
         return m_tmpDir.absoluteFilePath(objectName() + ".json");
     }

@@ -29,7 +29,7 @@ public:
      * @brief evaluate
      * @return
      */
-    GtTask::EVALUATION evaluate();
+    GtTask::EVALUATION evaluate() override;
 
 private:
     /// residual value

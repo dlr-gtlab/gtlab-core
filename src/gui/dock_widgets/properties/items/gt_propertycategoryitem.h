@@ -64,7 +64,7 @@ public:
     bool setData(int column,
                  const QVariant &value,
                  GtObject* obj,
-                 int role = Qt::EditRole) Q_DECL_OVERRIDE;
+                 int role = Qt::EditRole) override;
 
 private:
     /// Category identification string

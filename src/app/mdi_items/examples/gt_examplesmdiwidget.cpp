@@ -441,7 +441,6 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
             case QMessageBox::Cancel:
             {
                 return;
-                break;
             }
 
             default:

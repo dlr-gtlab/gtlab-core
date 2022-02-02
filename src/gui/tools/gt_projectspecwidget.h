@@ -29,7 +29,7 @@ public:
      * @brief Constructor.
      * @param Parent widget.
      */
-    GtProjectSpecWidget(QWidget* parent = Q_NULLPTR);
+    explicit GtProjectSpecWidget(QWidget* parent = nullptr);
 
     /**
      * @brief nameLine

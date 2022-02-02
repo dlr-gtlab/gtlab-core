@@ -26,7 +26,7 @@ public:
      * @brief GtTaskPipeEntity
      * @param parent
      */
-    GtTaskPipeEntity(GtTaskEntity* parent);
+    explicit GtTaskPipeEntity(GtTaskEntity* parent);
 
     /**
      * @brief updateShape

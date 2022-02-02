@@ -36,7 +36,7 @@ public:
      * @brief Constructor.
      * Initializes the footprint based on a serialized record (XML-format).
      */
-    GT_CORE_EXPORT GtFootprint(const QString& data);
+    GT_CORE_EXPORT explicit GtFootprint(const QString& data);
 
     /**
      * @brief Destructor.

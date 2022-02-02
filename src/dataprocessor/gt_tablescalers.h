@@ -7,7 +7,7 @@ class GT_DATAMODEL_EXPORT PIScalerFuncObj
 {
 public:
     /** Constructor */
-    PIScalerFuncObj(double scalingFactor)
+    explicit PIScalerFuncObj(double scalingFactor)
         : m_scaler(scalingFactor){}
 
     double operator()(double x)

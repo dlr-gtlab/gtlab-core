@@ -213,25 +213,21 @@ GtPropertyItem::data(int column, int role) const
         case GtPropertyModel::UnitCategoryRole:
         {
             return qVariantFromValue(m_property->unitCategory());
-            break;
         }
 
         case GtPropertyModel::ReadOnlyRole:
         {
             return m_property->isReadOnly();
-            break;
         }
 
         case GtPropertyModel::OptionalRole:
         {
             return m_property->isOptional();
-            break;
         }
 
         case GtPropertyModel::ActiveRole:
         {
             return m_property->isActive();
-            break;
         }
     }
 

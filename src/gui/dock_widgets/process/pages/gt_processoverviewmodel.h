@@ -33,12 +33,12 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    GtProcessOverviewModel(QObject* parent = Q_NULLPTR);
+    explicit GtProcessOverviewModel(QObject* parent = nullptr);
 
     /**
      *  Destructor
      */
-    virtual ~GtProcessOverviewModel() Q_DECL_OVERRIDE;
+    virtual ~GtProcessOverviewModel() override;
 
     /**
      * @brief Virtual function to implement specific model setup.
@@ -51,7 +51,7 @@ public:
      * @return
      */
     int rowCount(
-            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief columnCount
@@ -59,7 +59,7 @@ public:
      * @return
      */
     int columnCount(
-            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data
@@ -67,7 +67,7 @@ public:
      * @param role
      * @return
      */
-    QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief setData
@@ -77,7 +77,7 @@ public:
      * @return
      */
     bool setData(const QModelIndex &index, const QVariant &value,
-                 int role) Q_DECL_OVERRIDE;
+                 int role) override;
 
     /**
      * @brief index
@@ -88,14 +88,14 @@ public:
      */
     QModelIndex index(int row,
                       int col,
-                      const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+                      const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief parent
      * @param index
      * @return
      */
-    QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
+    QModelIndex parent(const QModelIndex& index) const override;
 
     /**
      * @brief itemFromIndex

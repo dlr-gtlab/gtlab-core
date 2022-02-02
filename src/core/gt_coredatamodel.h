@@ -134,7 +134,7 @@ public:
      * @return Number of columns
      */
     virtual int columnCount(const QModelIndex& parent =
-                                QModelIndex()) const Q_DECL_OVERRIDE;
+                                QModelIndex()) const override;
 
     /**
      * @brief Returns the number of rows under the given parent. When the
@@ -144,7 +144,7 @@ public:
      * @return Number of rows
      */
     virtual int rowCount(const QModelIndex& parent =
-                             QModelIndex()) const Q_DECL_OVERRIDE;
+                             QModelIndex()) const override;
 
     /**
      * @brief Returns the index of the item in the model specified by the
@@ -157,7 +157,7 @@ public:
     virtual QModelIndex index(int row,
                               int col,
                               const QModelIndex& parent =
-                                  QModelIndex()) const Q_DECL_OVERRIDE;
+                                  QModelIndex()) const override;
 
     /**
      * @brief Returns the parent of the model item with the given index. If the
@@ -165,7 +165,7 @@ public:
      * @param Model index
      * @return Parent model index
      */
-    virtual QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
+    virtual QModelIndex parent(const QModelIndex& index) const override;
 
     /**
      * @brief Returns the data stored under the given role for the item
@@ -175,7 +175,7 @@ public:
      * @return Data stored in variant
      */
     virtual QVariant data(const QModelIndex& index,
-                          int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                          int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Sets the role data for the item at index to value.
@@ -186,13 +186,13 @@ public:
      */
     virtual bool setData(const QModelIndex& index,
                          const QVariant& value,
-                         int role = Qt::EditRole) Q_DECL_OVERRIDE;
+                         int role = Qt::EditRole) override;
 
     /**
      * @brief mimeTypes
      * @return
      */
-    QStringList mimeTypes() const Q_DECL_OVERRIDE;
+    QStringList mimeTypes() const override;
 
     /**
      * @brief Returns an object that contains serialized items of data
@@ -200,7 +200,7 @@ public:
      * @param List of model indexes
      * @return MimeData
      */
-    QMimeData* mimeData(const QModelIndexList& indexes) const Q_DECL_OVERRIDE;
+    QMimeData* mimeData(const QModelIndexList& indexes) const override;
 
     /**
      * @brief Creates mime data based ob given object.
@@ -321,7 +321,7 @@ protected:
      * @brief Constructor
      * @param parent
      */
-    GtCoreDatamodel(QObject* parent = Q_NULLPTR);
+    explicit GtCoreDatamodel(QObject* parent = Q_NULLPTR);
 
     /**
      * @brief Initialization

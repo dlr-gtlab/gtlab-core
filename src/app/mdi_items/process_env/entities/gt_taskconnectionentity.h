@@ -27,7 +27,7 @@ public:
      * @brief GtTaskConnectionEntity
      * @param parent
      */
-    GtTaskConnectionEntity(QGraphicsItem* parent = Q_NULLPTR);
+    explicit GtTaskConnectionEntity(QGraphicsItem* parent = Q_NULLPTR);
 
     /**
      * @brief setFromPort

@@ -37,7 +37,7 @@ public:
      * @brief Execution process of the calculator.
      * @return Whether execution process was successful or not.
      */
-    bool exec() Q_DECL_OVERRIDE;
+    bool exec() override;
 
     /**
      * @brief Main run method of the calculator.

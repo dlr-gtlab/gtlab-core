@@ -39,7 +39,7 @@ public:
      * @brief Constructor.
      * @param metaData Calculator class meta object.
      */
-    GtExtendedCalculatorDataImpl(const QMetaObject& metaData);
+    explicit GtExtendedCalculatorDataImpl(const QMetaObject& metaData);
 
     /**
      * @brief ~GtExtendedCalculatorDataImpl
@@ -57,7 +57,7 @@ public:
      * @return Returns true if calculator data is valis. Otherwise false is
      * returned.
      */
-    bool isValid() const Q_DECL_OVERRIDE;
+    bool isValid() const override;
 
     /**
      * @brief Generates new extended calculator data based on given meta data.

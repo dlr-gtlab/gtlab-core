@@ -47,7 +47,7 @@ private:
     /**
      * @brief GtProcessFactory
      */
-    GtProcessFactory(QObject* parent = NULL);
+    explicit GtProcessFactory(QObject* parent = nullptr);
 
 };
 

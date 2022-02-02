@@ -135,25 +135,25 @@ protected:
      * @brief hoverEnterEvent
      * @param event
      */
-    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief hoverLeaveEvent
      * @param event
      */
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief mousePressEvent
      * @param event
      */
-    void mousePressEvent(QGraphicsSceneMouseEvent* event) Q_DECL_OVERRIDE;
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 
     /**
      * @brief mouseReleaseEvent
      * @param event
      */
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) Q_DECL_OVERRIDE;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 
     /**
      * @brief paint
@@ -162,7 +162,7 @@ protected:
      * @param widget
      */
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-               QWidget* widget) Q_DECL_OVERRIDE;
+               QWidget* widget) override;
 
 private:
     /// Scale.

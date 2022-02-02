@@ -34,7 +34,7 @@ public:
      * @brief GtProjectProvider
      * @param parent
      */
-    GtProjectProvider(QObject* parent = Q_NULLPTR);
+    explicit GtProjectProvider(QObject* parent = Q_NULLPTR);
 
     /**
      * @brief GtProjectProvider

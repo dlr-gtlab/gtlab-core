@@ -30,7 +30,7 @@ public:
      * @brief Constructor.
      * @param Meta object of importer.
      */
-    GtImporterMetaData(QMetaObject& importer);
+    explicit GtImporterMetaData(QMetaObject& importer);
 
     /**
      * @brief Returns classname of importer.
