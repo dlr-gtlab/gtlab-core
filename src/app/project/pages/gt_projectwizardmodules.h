@@ -36,13 +36,13 @@ public:
      * @brief validatePage
      * @return
      */
-    virtual bool validatePage() Q_DECL_OVERRIDE;
+    virtual bool validatePage() override;
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const Q_DECL_OVERRIDE;
+    virtual bool isComplete() const override;
 
 private:
     GtCheckableStringListModel* m_model;

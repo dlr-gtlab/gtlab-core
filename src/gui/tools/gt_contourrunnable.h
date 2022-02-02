@@ -38,7 +38,7 @@ public:
     /**
      * @brief Runnable run method (overloaded from QRunnable)
      */
-    void run() Q_DECL_OVERRIDE;
+    void run() override;
 
     /**
      * @brief returns iso value

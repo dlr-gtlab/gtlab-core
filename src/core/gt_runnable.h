@@ -34,7 +34,7 @@ public:
     /**
      * @brief run
      */
-    void run() Q_DECL_OVERRIDE;
+    void run() override;
 
     /**
      * @brief appendCalculator
@@ -58,20 +58,20 @@ public:
      * @brief Returns process specific temporary directory.
      * @return
      */
-    QDir tempDir() Q_DECL_OVERRIDE;
+    QDir tempDir() override;
 
     /**
      * @brief Returns path of current project.
      * @return Path to current project.
      */
-    QString projectPath() Q_DECL_OVERRIDE;
+    QString projectPath() override;
 
     /**
      * @brief clearTempDir
      * @param path
      * @return
      */
-    bool clearTempDir(const QString& path) Q_DECL_OVERRIDE;
+    bool clearTempDir(const QString& path) override;
 
 private:
     /// Execution path

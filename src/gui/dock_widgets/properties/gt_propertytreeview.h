@@ -86,19 +86,19 @@ protected:
      */
     void drawRow(QPainter* painter,
                  const QStyleOptionViewItem& option,
-                 const QModelIndex& index) const Q_DECL_OVERRIDE;
+                 const QModelIndex& index) const override;
 
     /**
      * @brief resizeEvent
      * @param event
      */
-    void resizeEvent(QResizeEvent* event) Q_DECL_OVERRIDE;
+    void resizeEvent(QResizeEvent* event) override;
 
     /**
      * @brief mousePressEvent
      * @param event
      */
-    void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+    void mousePressEvent(QMouseEvent* event) override;
 
     /**
      * @brief moveCursor
@@ -107,7 +107,7 @@ protected:
      * @return
      */
     QModelIndex moveCursor(CursorAction cursorAction,
-                           Qt::KeyboardModifiers modifiers) Q_DECL_OVERRIDE;
+                           Qt::KeyboardModifiers modifiers) override;
 
 private:
     /// property model

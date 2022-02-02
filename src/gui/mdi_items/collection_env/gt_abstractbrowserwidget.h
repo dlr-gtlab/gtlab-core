@@ -27,7 +27,7 @@ public:
      * @brief GtAbstractBrowserWidget
      * @param parent
      */
-    GtAbstractBrowserWidget(QWidget* parent = Q_NULLPTR);
+    explicit GtAbstractBrowserWidget(QWidget* parent = nullptr);
 
     /**
      * @brief itemsToDownload

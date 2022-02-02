@@ -33,12 +33,12 @@ public:
      * @brief evaluate
      * @return
      */
-    GtTask::EVALUATION evaluate();
+    GtTask::EVALUATION evaluate() override;
 
-    bool setUp();
+    bool setUp() override;
 
 private:
-    bool runChildElements();
+    bool runChildElements() override;
 
     GtDoubleProperty m_startVal;
 

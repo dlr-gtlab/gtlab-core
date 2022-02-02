@@ -26,7 +26,7 @@ public:
      * @brief GtPostDelegate
      * @param parent
      */
-    GtPostDelegate(GtPostDock* parent);
+    explicit GtPostDelegate(GtPostDock* parent);
 
     /**
      * @brief createEditor
@@ -37,7 +37,7 @@ public:
      */
     QWidget* createEditor(QWidget* parent,
                           const QStyleOptionViewItem& option,
-                          const QModelIndex& index) const Q_DECL_OVERRIDE;
+                          const QModelIndex& index) const override;
 
     /**
      * @brief setEditorData
@@ -45,7 +45,7 @@ public:
      * @param index
      */
     void setEditorData(QWidget* editor,
-                       const QModelIndex& index) const Q_DECL_OVERRIDE;
+                       const QModelIndex& index) const override;
 
     /**
      * @brief setModelData
@@ -55,7 +55,7 @@ public:
      */
     void setModelData(QWidget* editor,
                       QAbstractItemModel* model,
-                      const QModelIndex& index) const Q_DECL_OVERRIDE;
+                      const QModelIndex& index) const override;
 
 private:
     /// Label dock widget

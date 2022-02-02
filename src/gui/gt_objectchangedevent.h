@@ -26,7 +26,7 @@ public:
     /**
      * @brief handle
      */
-    void handle() Q_DECL_OVERRIDE;
+    void handle() override;
 
 private:
     QPointer<GtObject> m_obj;

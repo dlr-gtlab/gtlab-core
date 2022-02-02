@@ -29,12 +29,12 @@ public:
      * @brief GtSaveProjecthelper
      * @param proj
      */
-    GtSaveProjectHelper(GtProject* proj);
+    explicit GtSaveProjectHelper(GtProject* proj);
 
     /**
      * @brief run saves the project
      */
-    void run() Q_DECL_OVERRIDE;
+    void run() override;
 
     /**
      * @brief project

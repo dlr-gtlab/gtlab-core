@@ -41,7 +41,7 @@ public:
      * @param success
      * @return
      */
-    ParamType getVal(const QString& unit, bool* success = 0) const;
+    ParamType getVal(const QString& unit, bool* success = nullptr) const;
 
     /**
      * @brief Setter function for the input value.
@@ -49,7 +49,7 @@ public:
      * @param success
      */
     void setVal(const ParamType& value,
-                bool* success = 0);
+                bool* success = nullptr);
 
     /**
      * @brief Setter function for the input value with unit conversion.
@@ -58,12 +58,12 @@ public:
      * @param success
      */
     void setVal(const ParamType& value, const QString& unit,
-                bool* success = 0);
+                bool* success = nullptr);
 
     /**
      * @brief Reverts property to its initial value.
      */
-    void revert() {
+    void revert() override {
         setVal(m_initValue);
     }
 
@@ -95,8 +95,8 @@ protected:
      * @param success
      * @return
      */
-    virtual ParamType convertFrom(const ParamType &value, const QString& unit,
-                         bool* success = 0);
+    virtual ParamType convertFrom(const ParamType &value,
+                                  const QString& unit, bool* success = nullptr);
 
     /**
      * @brief convertTo
@@ -105,7 +105,7 @@ protected:
      * @return
      */
     virtual ParamType convertTo(const QString& unit,
-                                bool* success = 0) const;
+                                bool* success = nullptr) const;
 
     /**
      * @brief validateValue
@@ -121,12 +121,12 @@ private:
      * @param value
      * @param success
      */
-    void forceSetVal(const ParamType& value, bool* success = 0);
+    void forceSetVal(const ParamType& value, bool* success = nullptr);
 
     /**
      * @brief setValFromConnection
      */
-    void setValFromConnection();
+    void setValFromConnection() override;
 
 };
 

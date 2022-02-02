@@ -24,9 +24,9 @@ class GT_DATAMODEL_EXPORT GtLabel : public GtObject
 public:
     /**
      * @brief Constructor
-     * @param Label identification string initialization
+     * @param id - Label identification string initialization
      */
-    Q_INVOKABLE GtLabel(const QString& id = QString());
+    Q_INVOKABLE explicit GtLabel(const QString& id = QString());
 
 };
 

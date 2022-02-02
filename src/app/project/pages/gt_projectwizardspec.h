@@ -34,13 +34,13 @@ public:
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const Q_DECL_OVERRIDE;
+    virtual bool isComplete() const override;
 
     /**
      * @brief validatePage
      * @return
      */
-    virtual bool validatePage() Q_DECL_OVERRIDE;
+    virtual bool validatePage() override;
 
 private:
     /// Project specification widget.

@@ -103,7 +103,7 @@ public:
      * @param param parameter name
      * @return current unit
      */
-    virtual QString unit(const QString& param) const Q_DECL_OVERRIDE;
+    virtual QString unit(const QString& param) const override;
 
     /**
      * @brief stores axis ticks in argument vector
@@ -300,18 +300,18 @@ protected:
      * @brief doFetch fetches the externalized data.
      * @return success
      */
-    bool doFetchData() Q_DECL_OVERRIDE;
+    bool doFetchData() override;
 
     /**
      * @brief doExternalize externalizes the fetched data.
      * @return success
      */
-    bool doExternalizeData() Q_DECL_OVERRIDE;
+    bool doExternalizeData() override;
 
     /**
      * @brief doClearExternalizedData clears the data.
      */
-    void doClearExternalizedData() Q_DECL_OVERRIDE;
+    void doClearExternalizedData() override;
 
 private:
 

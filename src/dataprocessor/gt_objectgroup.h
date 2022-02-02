@@ -26,7 +26,7 @@ public:
      * @brief GtObjectGroup
      * @param parent
      */
-    Q_INVOKABLE GtObjectGroup(GtObject* parent = NULL);
+    Q_INVOKABLE explicit GtObjectGroup(GtObject* parent = nullptr);
 
 };
 

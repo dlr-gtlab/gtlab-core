@@ -33,7 +33,7 @@ private:
     /**
      * @brief GtPostTemplateFactory
      */
-    GtPostTemplateFactory(QObject* parent = Q_NULLPTR);
+    explicit GtPostTemplateFactory(QObject* parent = nullptr);
 };
 
 #endif // GTPOSTTEMPLATEFACTORY_H

@@ -29,7 +29,7 @@ protected:
      * @brief GtPerspective
      * @param id
      */
-    GtPerspective(const QString& id = QString());
+    explicit GtPerspective(const QString& id = QString());
 
     /**
      * @brief createDefault

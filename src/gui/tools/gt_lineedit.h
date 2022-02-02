@@ -25,7 +25,7 @@ public:
      * @brief GtLineEdit
      * @param parent
      */
-    GtLineEdit(QWidget* parent = Q_NULLPTR);
+    explicit GtLineEdit(QWidget* parent = nullptr);
 
 protected:
 
@@ -33,13 +33,13 @@ protected:
      * @brief focusInEvent overloaded to emit the focusIn event
      * @param event
      */
-    virtual void focusInEvent(QFocusEvent* event) Q_DECL_OVERRIDE;
+    virtual void focusInEvent(QFocusEvent* event) override;
 
     /**
      * @brief focusOutEvent overloaded to emit the focusOut events
      * @param event
      */
-    virtual void focusOutEvent(QFocusEvent* event) Q_DECL_OVERRIDE;
+    virtual void focusOutEvent(QFocusEvent* event) override;
 
 signals:
 

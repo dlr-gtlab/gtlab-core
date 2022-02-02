@@ -67,7 +67,7 @@ private:
      * @brief GtCollectionReply
      * @param parent
      */
-    GtCollectionReply(QObject* parent = Q_NULLPTR);
+    explicit GtCollectionReply(QObject* parent = nullptr);
 
     /**
      * @brief replyReady

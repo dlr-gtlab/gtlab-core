@@ -42,13 +42,13 @@ public:
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) Q_DECL_OVERRIDE;
+                       QWidget* widget = Q_NULLPTR) override;
 
     /**
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const Q_DECL_OVERRIDE;
+    virtual QRectF boundingRect() const override;
 
     /**
      * @brief absoluteHeight
@@ -304,42 +304,42 @@ protected:
      * @param event
      */
     virtual void hoverEnterEvent(
-            QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief hoverLeaveEvent
      * @param event
      */
     virtual void hoverLeaveEvent(
-            QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief hoverMoveEvent
      * @param event
      */
     virtual void hoverMoveEvent(
-            QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief mousePressEvent
      * @param event
      */
     virtual void mousePressEvent(
-            QGraphicsSceneMouseEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneMouseEvent* event) override;
 
     /**
      * @brief mouseMoveEvent
      * @param event
      */
     virtual void mouseMoveEvent(
-            QGraphicsSceneMouseEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneMouseEvent* event) override;
 
     /**
      * @brief mouseReleaseEvent
      * @param event
      */
     virtual void mouseReleaseEvent(
-            QGraphicsSceneMouseEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneMouseEvent* event) override;
 
     template <class T>
     QList<T> findItems()

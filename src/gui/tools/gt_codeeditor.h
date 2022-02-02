@@ -19,7 +19,7 @@ class GT_GUI_EXPORT GtCodeEditor: public QPlainTextEdit
     Q_OBJECT
 
 public:
-    GtCodeEditor(QWidget* parent = NULL);
+    explicit GtCodeEditor(QWidget* parent = nullptr);
 
     void lineNumberAreaPaintEvent(QPaintEvent* event);
 

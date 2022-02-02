@@ -29,7 +29,7 @@ public:
      * @brief Constructor.
      * @param analyzer Initialization of dialog
      */
-    GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer);
+    explicit GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer);
 
 private:
     /// Tab widget pointer

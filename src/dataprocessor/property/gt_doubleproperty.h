@@ -95,7 +95,7 @@ public:
      * @return
      */
     virtual QVariant valueToVariant(const QString& unit,
-                                    bool* success = 0) const Q_DECL_OVERRIDE;
+                                    bool* success = 0) const override;
 
     /**
      * @brief setValueFromVariant
@@ -104,7 +104,7 @@ public:
      */
     virtual bool setValueFromVariant(const QVariant& val,
                                      const QString& unit,
-                                     bool* success = 0) Q_DECL_OVERRIDE;
+                                     bool* success = 0) override;
 
     /**
      * @brief Returns value of low side boundary. 0.0 if no lower boundary is
@@ -152,7 +152,7 @@ protected:
      * @return
      */
     virtual double convertFrom(const double& value, const QString& unit,
-                               bool* success = 0) Q_DECL_OVERRIDE;
+                               bool* success = 0) override;
 
     /**
      * @brief convertTo
@@ -161,7 +161,7 @@ protected:
      * @return
      */
     virtual double convertTo(const QString& unit,
-                             bool* success = 0) const Q_DECL_OVERRIDE;
+                             bool* success = 0) const override;
 
     /**
      * @brief validateValue
@@ -169,7 +169,7 @@ protected:
      * @param unit
      * @return
      */
-    virtual bool validateValue(const double& value) Q_DECL_OVERRIDE;
+    virtual bool validateValue(const double& value) override;
 
 };
 

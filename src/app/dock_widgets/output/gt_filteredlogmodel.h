@@ -79,7 +79,7 @@ protected:
      * @brief GtFilteredLogModel
      * @param parent
      */
-    GtFilteredLogModel(QObject* parent = 0);
+    explicit GtFilteredLogModel(QObject* parent = nullptr);
 
     /**
      * @brief filterAcceptsRow

@@ -29,7 +29,7 @@ public:
     /**
      * @brief Saves environment settings.
      */
-    void saveSettings();
+    void saveSettings() override;
 
 private:
     /// Envirnoment model
@@ -38,7 +38,7 @@ private:
     /**
      * @brief Loades environment settings.
      */
-    void loadSettings();
+    void loadSettings() override;
 
 };
 

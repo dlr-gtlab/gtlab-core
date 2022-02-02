@@ -58,7 +58,7 @@ protected:
      * @brief resizeEvent
      * @param event
      */
-    void resizeEvent(QResizeEvent* event) Q_DECL_OVERRIDE;
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     /// Source model.

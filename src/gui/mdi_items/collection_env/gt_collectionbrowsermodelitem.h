@@ -22,7 +22,7 @@ public:
      * @brief GtCollectionBrowserModelItem
      * @param item
      */
-    GtCollectionBrowserModelItem(const GtCollectionNetworkItem& item);
+    explicit GtCollectionBrowserModelItem(const GtCollectionNetworkItem& item);
 
     /**
      * @brief item

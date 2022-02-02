@@ -26,7 +26,7 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    GtProcessComponentModel(QObject* parent = Q_NULLPTR);
+    explicit GtProcessComponentModel(QObject* parent = Q_NULLPTR);
 
     /**
      * @brief data
@@ -35,7 +35,7 @@ public:
      * @return
      */
     virtual QVariant data(const QModelIndex& index,
-                          int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                          int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns process component state specific icon.
@@ -56,7 +56,7 @@ protected:
      */
     bool moveRows(const QModelIndex& sourceParent, int sourceRow,
                   int count, const QModelIndex& destinationParent,
-                  int destinationChild) Q_DECL_OVERRIDE;
+                  int destinationChild) override;
 
     /**
      * @brief canDropMimeData
@@ -69,7 +69,7 @@ protected:
      */
     bool canDropMimeData(const QMimeData* data, Qt::DropAction action,
                          int row, int column,
-                         const QModelIndex& parent) const Q_DECL_OVERRIDE;
+                         const QModelIndex& parent) const override;
 
     /**
      * @brief dropMimeData
@@ -82,14 +82,14 @@ protected:
      */
     bool dropMimeData(const QMimeData* data, Qt::DropAction action,
                       int row, int column,
-                      const QModelIndex& parent) Q_DECL_OVERRIDE;
+                      const QModelIndex& parent) override;
 
     /**
      * @brief Returns the item flags for the given index.
      * @param Model index
      * @return Item Flags
      */
-    Qt::ItemFlags flags(const QModelIndex& index) const Q_DECL_OVERRIDE;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 private:
     /**

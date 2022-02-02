@@ -28,12 +28,12 @@ public:
     /**
      * @brief GtLoadProjectHelper
      */
-    GtLoadProjectHelper(GtProject* proj);
+    explicit GtLoadProjectHelper(GtProject* proj);
 
     /**
      * @brief run
      */
-    void run() Q_DECL_OVERRIDE;
+    void run() override;
 
     /**
      * @brief loadedObjects

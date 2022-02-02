@@ -16,9 +16,9 @@ GtExporterMetaData::GtExporterMetaData()
     // nothing to do here
 }
 
-GtExporterMetaData::GtExporterMetaData(QMetaObject& importer)
+GtExporterMetaData::GtExporterMetaData(QMetaObject& exporter)
 {
-    initialize(importer);
+    initialize(exporter);
 }
 
 const QString&

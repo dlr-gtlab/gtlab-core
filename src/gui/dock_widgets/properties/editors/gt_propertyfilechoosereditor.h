@@ -31,7 +31,7 @@ public:
      * @brief Constructor.
      * @param Parent.
      */
-    GtPropertyFileChooserEditor(QWidget* parent = Q_NULLPTR);
+    explicit GtPropertyFileChooserEditor(QWidget* parent = nullptr);
 
     /**
      * @brief Sets pointer to corresponding file chooser property.
