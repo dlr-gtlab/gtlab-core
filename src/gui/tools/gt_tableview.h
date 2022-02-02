@@ -22,10 +22,10 @@ class GT_GUI_EXPORT GtTableView : public QTableView
     Q_OBJECT
 
 public:
-    GtTableView(QWidget* parent = Q_NULLPTR);
+    explicit GtTableView(QWidget* parent = nullptr);
 
 protected:
-    virtual void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
+    virtual void keyPressEvent(QKeyEvent* event) override;
 
 signals:
     void searchRequest();

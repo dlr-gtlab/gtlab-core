@@ -30,7 +30,7 @@ public:
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) Q_DECL_OVERRIDE;
+                       QWidget* widget = Q_NULLPTR) override;
 
     /**
      * @brief target
@@ -44,14 +44,14 @@ protected:
      * @param event
      */
     virtual void mouseDoubleClickEvent(
-            QGraphicsSceneMouseEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneMouseEvent* event) override;
 
     /**
      * @brief hoverMoveEvent
      * @param event
      */
     virtual void hoverMoveEvent(
-            QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneHoverEvent* event) override;
 
 private:
     /// Pointer to data model member of task link

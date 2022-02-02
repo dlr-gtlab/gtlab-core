@@ -32,7 +32,7 @@ public:
     /**
      * @brief saveSettings
      */
-    void saveSettings();
+    void saveSettings() override;
 
 private:
     ///
@@ -59,7 +59,7 @@ private:
     /**
      * @brief loadSettings
      */
-    void loadSettings();
+    void loadSettings() override;
 
 private slots:
     //    void selectDirectory();

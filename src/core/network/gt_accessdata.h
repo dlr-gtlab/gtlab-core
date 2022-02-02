@@ -55,7 +55,7 @@ public:
      * @brief Constructor.
      * @param Host name.
      */
-    GtAccessData(const QString& host);
+    explicit GtAccessData(const QString& host);
 
     /**
     * @brief Returns host name.

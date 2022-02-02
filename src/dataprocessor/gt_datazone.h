@@ -151,7 +151,7 @@ public:
      * @param param parameter name
      * @return current unit
      */
-    virtual QString unit(const QString& param) const Q_DECL_OVERRIDE;
+    virtual QString unit(const QString& param) const override;
 
     /**
      * @brief stores axis ticks in argument vector
@@ -210,19 +210,19 @@ public:
      * @brief check function if table is 0-dimensional
      * @return true in case that dimension of table is 0
      */
-    virtual bool is0D() const Q_DECL_OVERRIDE;
+    virtual bool is0D() const override;
 
     /**
      * @brief returns the number of dimensions
      * @return number of dimensions
      */
-    virtual int nDims() const Q_DECL_OVERRIDE;
+    virtual int nDims() const override;
 
     /**
      * @brief addModuleName
      * @param moduleName
      */
-    void addModuleName(const QString& suffix) Q_DECL_OVERRIDE;
+    void addModuleName(const QString& suffix) override;
 
     /**
      * @brief setDescription
@@ -298,18 +298,18 @@ protected:
      * @brief doFetch fetches the externalized data.
      * @return success
      */
-    bool doFetchData() Q_DECL_OVERRIDE;
+    bool doFetchData() override;
 
     /**
      * @brief doExternalize externalizes the fetched data.
      * @return success
      */
-    bool doExternalizeData() Q_DECL_OVERRIDE;
+    bool doExternalizeData() override;
 
     /**
      * @brief doClearExternalizedData clears the data.
      */
-    void doClearExternalizedData() Q_DECL_OVERRIDE;
+    void doClearExternalizedData() override;
 
 private:
 

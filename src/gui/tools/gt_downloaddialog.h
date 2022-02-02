@@ -28,7 +28,7 @@ public:
      * @brief GtDownloadDialog
      * @param parent
      */
-    GtDownloadDialog(QWidget* parent = Q_NULLPTR);
+    explicit GtDownloadDialog(QWidget* parent = nullptr);
 
     /**
      * @brief addFileDownload
@@ -53,7 +53,7 @@ protected:
      * @brief showEvent
      * @param event
      */
-    void showEvent(QShowEvent * event) Q_DECL_OVERRIDE;
+    void showEvent(QShowEvent * event) override;
 
 private:
     /// Downloader

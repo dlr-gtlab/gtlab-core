@@ -27,7 +27,7 @@ public:
      * @brief GtShortCuts
      * @param parent - object to set as parent
      */
-    GtShortCuts(QObject* parent = Q_NULLPTR);
+    explicit GtShortCuts(QObject* parent = nullptr);
 
     /**
      * @brief getKey

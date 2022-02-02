@@ -27,9 +27,9 @@
 class GT_GUI_EXPORT GtXmlHighlighter : public QSyntaxHighlighter
 {
 public:
-    GtXmlHighlighter(QObject* parent);
-    GtXmlHighlighter(QTextDocument* parent);
-    GtXmlHighlighter(QTextEdit* parent);
+    explicit GtXmlHighlighter(QObject* parent);
+    explicit GtXmlHighlighter(QTextDocument* parent);
+    explicit GtXmlHighlighter(QTextEdit* parent);
     ~GtXmlHighlighter();
 
     enum HighlightType

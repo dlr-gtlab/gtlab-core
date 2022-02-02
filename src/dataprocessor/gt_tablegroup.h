@@ -27,7 +27,7 @@ public:
      * @brief GtTableGroup - constructor
      * @param parent
      */
-    Q_INVOKABLE GtTableGroup(GtObject* parent = NULL);
+    Q_INVOKABLE explicit GtTableGroup(GtObject* parent = nullptr);
 
     /**
      * @brief tables - returns a list of all GtTable children

@@ -20,7 +20,7 @@ public:
     GtOutputTester();
 
 protected:
-    void run() Q_DECL_OVERRIDE;
+    void run() override;
 
 };
 

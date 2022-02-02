@@ -36,14 +36,14 @@ public:
     /**
      * @brief initializePage
      */
-    virtual void initializePage() Q_DECL_OVERRIDE;
+    virtual void initializePage() override;
 
 protected:
     /**
      * @brief showEvent
      * @param e
      */
-    void showEvent(QShowEvent* e) Q_DECL_OVERRIDE;
+    void showEvent(QShowEvent* e) override;
 
 private:
     /// Process wizard

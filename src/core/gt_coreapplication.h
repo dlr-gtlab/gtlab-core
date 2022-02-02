@@ -47,7 +47,7 @@ public:
      * @brief GtApplication
      * @param parent
      */
-    GtCoreApplication(QCoreApplication* parent);
+    explicit GtCoreApplication(QCoreApplication* parent);
 
     /**
      * @brief instance

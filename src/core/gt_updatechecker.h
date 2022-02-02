@@ -34,7 +34,7 @@ public:
      * @brief Constructor.
      * @param parent Parent object
      */
-    GtUpdateChecker(QObject* parent = Q_NULLPTR);
+    explicit GtUpdateChecker(QObject* parent = Q_NULLPTR);
 
     /**
      * @brief Enables or disables extended info about available package updates

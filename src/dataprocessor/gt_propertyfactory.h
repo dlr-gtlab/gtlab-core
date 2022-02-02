@@ -36,7 +36,7 @@ public:
      * @return new object
      */
     virtual GtObject* newObject(const QString& className,
-                                GtObject* parent = NULL) Q_DECL_OVERRIDE;
+                                GtObject* parent = nullptr) override;
 
     /**
      * @brief Creates property object based on given classname. Returns
@@ -53,7 +53,7 @@ private:
      * @brief GtPropertyFactory
      * @param parent
      */
-    GtPropertyFactory(QObject* parent = NULL);
+    explicit GtPropertyFactory(QObject* parent = nullptr);
 
 };
 

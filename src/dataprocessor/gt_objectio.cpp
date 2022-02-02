@@ -1432,7 +1432,7 @@ namespace
     class RegisterStreamOperators
     {
     public:
-        RegisterStreamOperators(const char* typeName)
+        explicit RegisterStreamOperators(const char* typeName)
         {
             qRegisterMetaTypeStreamOperators<T>(typeName);
         }

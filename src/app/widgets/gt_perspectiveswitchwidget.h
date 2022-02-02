@@ -26,7 +26,7 @@ public:
      * @brief GtPerspectiveSwitchWidget
      * @param parent
      */
-    GtPerspectiveSwitchWidget(QWidget *parent = Q_NULLPTR);
+    explicit GtPerspectiveSwitchWidget(QWidget* parent = Q_NULLPTR);
 
 protected:
     /**

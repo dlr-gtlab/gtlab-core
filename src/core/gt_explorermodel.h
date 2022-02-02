@@ -28,7 +28,7 @@ public:
      * @brief GtExplorerModel
      * @param parent
      */
-    GtExplorerModel(QObject* parent = 0);
+    explicit GtExplorerModel(QObject* parent = nullptr);
 
     /**
      * @brief ~GtExplorerModel

@@ -28,13 +28,13 @@ public:
     /**
      * @brief saveSettings
      */
-    void saveSettings();
+    void saveSettings() override;
 
 private:
     /**
      * @brief loadSettings
      */
-    void loadSettings();
+    void loadSettings() override;
 
 };
 

@@ -27,19 +27,19 @@ public:
      * @brief Constructor.
      * @param parent Pointer to process wizard.
      */
-    GtTaskOverviewPage(GtProcessWizard* parent);
+    explicit GtTaskOverviewPage(GtProcessWizard* parent);
 
     /**
      * @brief validatePage
      * @return
      */
-    virtual bool validatePage() Q_DECL_OVERRIDE;
+    virtual bool validatePage() override;
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const Q_DECL_OVERRIDE;
+    virtual bool isComplete() const override;
 
 private:
     /// Tree view

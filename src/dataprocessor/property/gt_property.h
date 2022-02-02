@@ -63,7 +63,7 @@ public:
     /**
      * @brief Reverts property to its initial value.
      */
-    void revert() {
+    void revert() override {
         setVal(m_initValue);
     }
 
@@ -95,8 +95,8 @@ protected:
      * @param success
      * @return
      */
-    virtual ParamType convertFrom(const ParamType &value, const QString& unit,
-                         bool* success = nullptr);
+    virtual ParamType convertFrom(const ParamType &value,
+                                  const QString& unit, bool* success = nullptr);
 
     /**
      * @brief convertTo
@@ -126,7 +126,7 @@ private:
     /**
      * @brief setValFromConnection
      */
-    void setValFromConnection();
+    void setValFromConnection() override;
 
 };
 

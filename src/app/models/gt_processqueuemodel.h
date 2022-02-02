@@ -37,7 +37,7 @@ public:
      * @return
      */
     int columnCount(
-            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief rowCount
@@ -45,7 +45,7 @@ public:
      * @return
      */
     int rowCount(
-            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data
@@ -54,7 +54,7 @@ public:
      * @return
      */
     QVariant data(
-            const QModelIndex& index, int role) const Q_DECL_OVERRIDE;
+            const QModelIndex& index, int role) const override;
 
     /**
      * @brief index
@@ -64,14 +64,14 @@ public:
      * @return
      */
     QModelIndex index(int row, int column,
-            const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief parent
      * @param child
      * @return
      */
-    QModelIndex parent(const QModelIndex &child) const Q_DECL_OVERRIDE;
+    QModelIndex parent(const QModelIndex &child) const override;
 
     /**
      * @brief setData
@@ -81,7 +81,7 @@ public:
      * @return
      */
     bool setData(const QModelIndex &index, const QVariant &value,
-                 int role = Qt::EditRole) Q_DECL_OVERRIDE;
+                 int role = Qt::EditRole) override;
 
     /**
      * @brief setProcessExecutor

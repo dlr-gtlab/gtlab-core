@@ -40,7 +40,7 @@ public:
      * @brief GtMainWin
      * @param parent
      */
-    GtMainWin(QWidget* parent = 0);
+    explicit GtMainWin(QWidget* parent = nullptr);
 
     /**
      * @brief ~GtMainWin

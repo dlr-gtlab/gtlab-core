@@ -35,7 +35,7 @@ public:
      * @return
      */
     virtual QVariant valueToVariant(const QString& unit,
-                                    bool* success = 0) const Q_DECL_OVERRIDE;
+                                    bool* success = nullptr) const override;
 
     /**
      * @brief setValueFromVariant
@@ -44,19 +44,19 @@ public:
      */
     virtual bool setValueFromVariant(const QVariant& val,
                                      const QString& unit,
-                                     bool* success = 0) Q_DECL_OVERRIDE;
+                                     bool* success = nullptr) override;
 
     /**
      * @brief properties
      * @return
      */
-    const QList<GtAbstractProperty*>& properties() Q_DECL_OVERRIDE;
+    const QList<GtAbstractProperty*>& properties() override;
 
     /**
      * @brief registerSubProperty
      * @param property
      */
-    void registerSubProperty(GtAbstractProperty& property) Q_DECL_OVERRIDE;
+    void registerSubProperty(GtAbstractProperty& property) override;
 
     /**
      * @brief registerSubProperty
@@ -110,7 +110,7 @@ private:
      * @param unit
      * @return
      */
-    bool validateValue(const QString& value) Q_DECL_OVERRIDE;
+    bool validateValue(const QString& value) override;
 
 };
 

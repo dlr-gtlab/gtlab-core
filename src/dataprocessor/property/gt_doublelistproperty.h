@@ -36,7 +36,7 @@ public:
      * @return
      */
     QVariant valueToVariant(const QString& unit,
-                            bool* success = 0) const Q_DECL_OVERRIDE;
+                            bool* success = 0) const override;
 
     /**
      * @brief setValueFromVariant
@@ -45,7 +45,7 @@ public:
      */
     bool setValueFromVariant(const QVariant& val,
                              const QString& unit,
-                             bool* success = 0) Q_DECL_OVERRIDE;
+                             bool* success = 0) override;
 
     /**
      * @brief Returns property values in form of a string.

@@ -44,7 +44,7 @@ public:
      * @brief GtDummyObject
      * @param parent
      */
-    GtDummyObject(GtObject* parent = Q_NULLPTR);
+    explicit GtDummyObject(GtObject* parent = nullptr);
 
     /**
      * @brief origClassName
