@@ -254,7 +254,7 @@ public slots:
     * @return
     */
    double value1D(const QString &param, const double& x0,
-                  bool* ok = Q_NULLPTR) const;
+                  bool* ok = nullptr) const;
 
    /**
     * @brief returns value from 2-dimensional table
@@ -265,7 +265,7 @@ public slots:
     * @return
     */
    double value2D(const QString& param, const double& x0, const double& x1,
-                  bool* ok = Q_NULLPTR) const;
+                  bool* ok = nullptr) const;
 
    /**
     * @brief returns value from 3-dimensional table
@@ -278,7 +278,7 @@ public slots:
     */
    double value3D(const QString& param, const double& x0, const double& x1,
                   const double& x2,
-                  bool* ok = Q_NULLPTR) const;
+                  bool* ok = nullptr) const;
 
    /**
     * @brief returns value from 4-dimensional table
@@ -292,7 +292,7 @@ public slots:
     */
    double value4D(const QString& param, const double& x0, const double& x1,
                   const double& x2, const double& x3,
-                  bool* ok = Q_NULLPTR);
+                  bool* ok = nullptr);
 
 protected:
 
