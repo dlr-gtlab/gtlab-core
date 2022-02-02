@@ -57,7 +57,7 @@ public:
     /**
      * @brief cleanupPage
      */
-    void cleanupPage() Q_DECL_OVERRIDE;
+    void cleanupPage() override;
 
 protected:
     /**

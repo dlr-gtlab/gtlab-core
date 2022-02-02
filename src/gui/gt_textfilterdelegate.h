@@ -44,7 +44,7 @@ public:
      * @return
      */
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem&,
-                          const QModelIndex&index) const Q_DECL_OVERRIDE;
+                          const QModelIndex&index) const override;
 
     /**
      * @brief setEditorData
@@ -52,7 +52,7 @@ public:
      * @param index
      */
     void setEditorData(QWidget* editor,
-                       const QModelIndex& index) const Q_DECL_OVERRIDE;
+                       const QModelIndex& index) const override;
 
 private:
     validatorflag m_validatorflag;

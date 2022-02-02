@@ -63,7 +63,7 @@ public:
     /**
      * @brief loadModules
      */
-    virtual void loadModules() Q_DECL_OVERRIDE;
+    virtual void loadModules() override;
 
     /**
      * @brief perspectiveIds
@@ -208,12 +208,12 @@ public:
      * @return
      */
     GtCommand startCommand(GtObject* root,
-                           const QString& commandId) Q_DECL_OVERRIDE;
+                           const QString& commandId) override;
 
     /**
      * @brief endCommand
      */
-    void endCommand(const GtCommand& command) Q_DECL_OVERRIDE;
+    void endCommand(const GtCommand& command) override;
 
     /**
      * @brief Returns true if a command was started.
@@ -225,7 +225,7 @@ public:
      * @brief loadingProcedure
      * @param helper
      */
-    void loadingProcedure(GtAbstractLoadingHelper* helper) Q_DECL_OVERRIDE;
+    void loadingProcedure(GtAbstractLoadingHelper* helper) override;
 
     /**
      * @brief Returns currently selected object.

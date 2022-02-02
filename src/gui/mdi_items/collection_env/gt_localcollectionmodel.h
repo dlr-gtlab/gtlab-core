@@ -26,21 +26,21 @@ public:
      * @brief GtLocalCollectionModel
      * @param parent
      */
-    GtLocalCollectionModel(QObject* parent = Q_NULLPTR);
+    explicit GtLocalCollectionModel(QObject* parent = nullptr);
 
     /**
      * @brief rowCount
      * @param parent
      * @return
      */
-    int rowCount(const QModelIndex &parent) const Q_DECL_OVERRIDE;
+    int rowCount(const QModelIndex &parent) const override;
 
     /**
      * @brief columnCount
      * @param parent
      * @return
      */
-    int columnCount(const QModelIndex &parent) const Q_DECL_OVERRIDE;
+    int columnCount(const QModelIndex &parent) const override;
 
     /**
      * @brief data
@@ -48,7 +48,7 @@ public:
      * @param role
      * @return
      */
-    QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief headerData
@@ -58,7 +58,7 @@ public:
      * @return
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role) const Q_DECL_OVERRIDE;
+                        int role) const override;
 
     /**
      * @brief setItems

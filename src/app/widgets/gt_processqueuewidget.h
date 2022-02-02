@@ -25,7 +25,7 @@ public:
      * @brief GtProcessQueueWidget
      * @param model
      */
-    GtProcessQueueWidget(GtProcessQueueModel* model);
+    explicit GtProcessQueueWidget(GtProcessQueueModel* model);
 
     /**
      *  Destructor: deletes model

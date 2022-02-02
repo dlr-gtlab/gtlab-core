@@ -36,14 +36,14 @@ public:
      * @param parent
      * @return
      */
-    int rowCount(const QModelIndex& parent) const Q_DECL_OVERRIDE;
+    int rowCount(const QModelIndex& parent) const override;
 
     /**
      * @brief columnCount
      * @param parent
      * @return
      */
-    int columnCount(const QModelIndex& parent) const Q_DECL_OVERRIDE;
+    int columnCount(const QModelIndex& parent) const override;
 
     /**
      * @brief data
@@ -51,7 +51,7 @@ public:
      * @param role
      * @return
      */
-    QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief setData
@@ -61,7 +61,7 @@ public:
      * @return
      */
     bool setData(const QModelIndex &index, const QVariant &value,
-                 int role) Q_DECL_OVERRIDE;
+                 int role) override;
 
     /**
      * @brief headerData
@@ -71,14 +71,14 @@ public:
      * @return
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role) const Q_DECL_OVERRIDE;
+                        int role) const override;
 
     /**
      * @brief flags
      * @param index
      * @return
      */
-    Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
      * @brief Saves environment variables.

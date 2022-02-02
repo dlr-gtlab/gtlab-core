@@ -24,7 +24,7 @@ public:
      * @brief GtWizard
      * @param parent - parent widget
      */
-    GtWizard(QWidget* parent);
+    explicit GtWizard(QWidget* parent);
 };
 
 #endif // GTWIZARD_H

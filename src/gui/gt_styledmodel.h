@@ -25,7 +25,7 @@ public:
      * @brief GtStyledModel
      * @param parent
      */
-    GtStyledModel(QObject* parent = Q_NULLPTR);
+    explicit GtStyledModel(QObject* parent = nullptr);
 
     /**
      * @brief data
@@ -34,7 +34,7 @@ public:
      * @return
      */
     virtual QVariant data(const QModelIndex& index,
-                          int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                          int role = Qt::DisplayRole) const override;
 
 };
 

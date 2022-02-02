@@ -31,13 +31,13 @@ public:
      * @brief Constructor.
      * @param str Initialization string.
      */
-    GtObjectPath(const QString& str);
+    explicit GtObjectPath(const QString& str);
 
     /**
      * @brief Constructor. Generates objec tpath based on given object.
      * @param obj Initialization object.
      */
-    GtObjectPath(GtObject* obj);
+    explicit GtObjectPath(GtObject* obj);
 
     /**
      * @brief Returns object path separator.

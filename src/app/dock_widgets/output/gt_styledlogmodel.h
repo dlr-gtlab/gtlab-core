@@ -31,14 +31,14 @@ public:
      * @return
      */
     QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                  int role = Qt::DisplayRole) const override;
 
 protected:
     /**
      * @brief GtStyledLogModel
      * @param parent
      */
-    GtStyledLogModel(QObject* parent = Q_NULLPTR);
+    explicit GtStyledLogModel(QObject* parent = Q_NULLPTR);
 
 };
 

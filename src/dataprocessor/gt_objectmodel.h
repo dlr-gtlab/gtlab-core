@@ -29,7 +29,7 @@ public:
      * @brief Constructor.
      * @param Parent object.
      */
-    GtObjectModel(QObject* parent = Q_NULLPTR);
+    explicit GtObjectModel(QObject* parent = nullptr);
 
     /**
      * @brief Constructor.
@@ -50,7 +50,7 @@ public:
      * @return
      */
     virtual int columnCount(
-            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief rowCount
@@ -58,7 +58,7 @@ public:
      * @return
      */
     virtual int rowCount(
-            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief index
@@ -68,14 +68,14 @@ public:
      * @return
      */
     virtual QModelIndex index(int row, int col,
-                const QModelIndex& parent =QModelIndex()) const Q_DECL_OVERRIDE;
+                const QModelIndex& parent =QModelIndex()) const override;
 
     /**
      * @brief parent
      * @param index
      * @return
      */
-    virtual QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
+    virtual QModelIndex parent(const QModelIndex& index) const override;
 
     /**
      * @brief data
@@ -84,7 +84,7 @@ public:
      * @return
      */
     virtual QVariant data(const QModelIndex& index,
-                          int role = Qt::DisplayRole ) const Q_DECL_OVERRIDE;
+                          int role = Qt::DisplayRole ) const override;
 
     /**
      * @brief objectFromIndex

@@ -26,17 +26,17 @@ public:
      * @brief GtAddTaskGlobalButton
      * @param parent
      */
-    GtAddTaskGlobalButton(GtTaskEntity* parent = Q_NULLPTR);
+    explicit GtAddTaskGlobalButton(GtTaskEntity* parent = Q_NULLPTR);
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) Q_DECL_OVERRIDE;
+                       QWidget* widget = Q_NULLPTR) override;
 
     /**
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const Q_DECL_OVERRIDE;
+    virtual QRectF boundingRect() const override;
 
 protected:
     /**
@@ -44,14 +44,14 @@ protected:
      * @param event
      */
     virtual void hoverEnterEvent(
-            QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief hoverLeaveEvent
      * @param event
      */
     virtual void hoverLeaveEvent(
-            QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief runEnterAnimation

@@ -94,7 +94,7 @@ protected:
      * @brief GtSession
      * @param id
      */
-    GtSession(const QString& id);
+    explicit GtSession(const QString& id);
 
     /**
      * @brief GtSession

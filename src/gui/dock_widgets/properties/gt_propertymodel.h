@@ -53,7 +53,7 @@ public:
      * @return
      */
     int rowCount(
-        const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+        const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief columnCount
@@ -61,7 +61,7 @@ public:
      * @return
      */
     int columnCount(
-        const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+        const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data
@@ -70,14 +70,14 @@ public:
      * @return
      */
     QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                  int role = Qt::DisplayRole) const override;
 
     /**
      * @brief flags
      * @param index
      * @return
      */
-    Qt::ItemFlags flags(const QModelIndex& index) const Q_DECL_OVERRIDE;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     /**
      * @brief setData
@@ -88,7 +88,7 @@ public:
      */
     bool setData(const QModelIndex& index,
                  const QVariant& value,
-                 int role = Qt::EditRole) Q_DECL_OVERRIDE;
+                 int role = Qt::EditRole) override;
 
     /**
      * @brief index
@@ -100,14 +100,14 @@ public:
     QModelIndex index(int row,
                       int col,
                       const QModelIndex& parent =
-                          QModelIndex()) const Q_DECL_OVERRIDE;
+                          QModelIndex()) const override;
 
     /**
      * @brief parent
      * @param index
      * @return
      */
-    QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
+    QModelIndex parent(const QModelIndex& index) const override;
 
     /**
      * @brief headerData
@@ -119,7 +119,7 @@ public:
     virtual QVariant headerData(int section,
                                 Qt::Orientation orientation,
                                 int role =
-                                    Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                                    Qt::DisplayRole) const override;
 
     /**
      * @brief setObject

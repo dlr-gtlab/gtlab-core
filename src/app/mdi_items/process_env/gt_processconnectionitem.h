@@ -111,13 +111,13 @@ private:
      * @brief Constructor.
      * @param Process component.
      */
-    GtProcessConnectionItem(GtProcessComponent* comp);
+    explicit GtProcessConnectionItem(GtProcessComponent* comp);
 
     /**
      * @brief Constructor.
      * @param Process component property.
      */
-    GtProcessConnectionItem(GtAbstractProperty* prop);
+    explicit GtProcessConnectionItem(GtAbstractProperty* prop);
 
     /**
      * @brief Returns true if property type is accepted, otherwise returns

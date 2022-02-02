@@ -71,7 +71,7 @@ protected:
      * @brief GtCalculatorExecutorList
      * @param parent
      */
-    GtCalculatorExecutorList(QObject* parent = NULL);
+    explicit GtCalculatorExecutorList(QObject* parent = nullptr);
 
     /**
      * @brief addExecutor

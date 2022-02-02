@@ -35,7 +35,7 @@ public:
      * @return Returns true if connection was successful. Otherwise false is
      * returned.
      */
-    bool testConnection(const GtAccessData& accessData) Q_DECL_OVERRIDE;
+    bool testConnection(const GtAccessData& accessData) override;
 
 private:
     /// Connection test indicator.

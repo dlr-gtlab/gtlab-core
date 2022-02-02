@@ -127,7 +127,7 @@ private:
      * @brief Constructor.
      * @param Parent object.
      */
-    GtAccessManager(QObject* parent = Q_NULLPTR);
+    explicit GtAccessManager(QObject* parent = Q_NULLPTR);
 
     /**
      * @brief Loads access data from hard disk.

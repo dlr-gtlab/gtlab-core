@@ -117,7 +117,7 @@ private:
      * @brief Constructor.
      * @param Parent object
      */
-    GtEnvironment(QObject* parent = NULL);
+    explicit GtEnvironment(QObject* parent = nullptr);
 
     /**
      * @brief Returns current roaming directory path.

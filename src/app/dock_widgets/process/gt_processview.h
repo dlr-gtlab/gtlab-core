@@ -26,7 +26,7 @@ public:
      * @brief GtProcessView
      * @param parent
      */
-    GtProcessView(QWidget* parent = 0);
+    explicit GtProcessView(QWidget* parent = nullptr);
 
     /**
      * @brief resizeColumns
@@ -38,19 +38,19 @@ protected:
      * @brief resizeEvent
      * @param event
      */
-    void resizeEvent(QResizeEvent* event) Q_DECL_OVERRIDE;
+    void resizeEvent(QResizeEvent* event) override;
 
     /**
      * @brief keyPressEvent
      * @param event
      */
-    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent* event) override;
 
     /**
      * @brief mousePressEvent
      * @param event
      */
-    void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+    void mousePressEvent(QMouseEvent* event) override;
 
 signals:
     /**

@@ -52,7 +52,7 @@ public:
      * @brief GtObject
      * @param parent
      */
-    GtObject(GtObject* parent = Q_NULLPTR);
+    explicit GtObject(GtObject* parent = nullptr);
 
     /**
      * @brief objectFlags

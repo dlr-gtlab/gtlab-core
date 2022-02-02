@@ -23,7 +23,7 @@ public:
     /**
      * @brief Constructor.
      */
-    GtProcessFilterModel(QObject* parent = 0);
+    explicit GtProcessFilterModel(QObject* parent = nullptr);
 
 protected:
     /**

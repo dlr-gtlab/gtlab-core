@@ -24,7 +24,7 @@ public:
     /**
      * @brief GtPostTemplatePath
      */
-    GtPostTemplatePath(const QString& path);
+    explicit GtPostTemplatePath(const QString& path);
 
     /**
      * @brief path

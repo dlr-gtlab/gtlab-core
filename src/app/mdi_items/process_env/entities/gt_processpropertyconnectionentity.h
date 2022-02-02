@@ -28,7 +28,7 @@ public:
     /**
      * @brief GtProcessPropertyConnectionEntity
      */
-    GtProcessPropertyConnectionEntity(
+    explicit GtProcessPropertyConnectionEntity(
             GtPropertyConnection* connection = Q_NULLPTR);
 
     /**
@@ -115,20 +115,20 @@ protected:
      * @brief hoverEnterEvent
      * @param event
      */
-    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief hoverLeaveEvent
      * @param event
      */
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) Q_DECL_OVERRIDE;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief contextMenuEvent
      * @param event
      */
     void contextMenuEvent(
-            QGraphicsSceneContextMenuEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneContextMenuEvent* event) override;
 
 private:
     /// Pointer to connection datamodel object.

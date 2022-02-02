@@ -37,7 +37,7 @@ public:
      * @brief GtProcessEditorScene
      * @param parent
      */
-    GtProcessEditorScene(QObject* parent = 0);
+    explicit GtProcessEditorScene(QObject* parent = nullptr);
 
     /**
      * @brief setRoot
@@ -57,28 +57,28 @@ protected:
      * @param event
      */
     virtual void dragEnterEvent(
-            QGraphicsSceneDragDropEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneDragDropEvent* event) override;
 
 //    /**
 //     * @brief mouseReleaseEvent
 //     * @param mouseEvent
 //     */
 //    virtual void mouseReleaseEvent(
-//            QGraphicsSceneMouseEvent* mouseEvent) Q_DECL_OVERRIDE;
+//            QGraphicsSceneMouseEvent* mouseEvent) override;
 
     /**
      * @brief dragLeaveEvent
      * @param event
      */
     virtual void dragLeaveEvent(
-            QGraphicsSceneDragDropEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneDragDropEvent* event) override;
 
 //    /**
 //     * @brief dragMoveEvent
 //     * @param event
 //     */
 //    virtual void dragMoveEvent(
-//            QGraphicsSceneDragDropEvent* event) Q_DECL_OVERRIDE;
+//            QGraphicsSceneDragDropEvent* event) override;
 
     /**
      * @brief populate

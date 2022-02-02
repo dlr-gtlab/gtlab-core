@@ -25,7 +25,7 @@ class GtProcessExecutor : public GtCoreProcessExecutor
     Q_OBJECT
 
 public:
-    GtProcessExecutor(QObject* parent = Q_NULLPTR);
+    explicit GtProcessExecutor(QObject* parent = nullptr);
 
 protected:
     /**
@@ -36,12 +36,12 @@ protected:
      * @param task
      */
     virtual void handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
-                                          GtTask* task) Q_DECL_OVERRIDE;
+                                          GtTask* task) override;
 
     /**
      * @brief execute
      */
-    virtual void execute() Q_DECL_OVERRIDE;
+    virtual void execute() override;
 private slots:
     /**
      * @brief onHelperFinished - reaction on finished signal of loading helper

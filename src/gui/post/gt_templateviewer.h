@@ -51,7 +51,7 @@ public:
      * @brief setData
      * @param obj
      */
-    void setData(GtObject* obj) Q_DECL_OVERRIDE;
+    void setData(GtObject* obj) override;
 
 private:
 
@@ -131,7 +131,7 @@ private:
      * @brief Event called after project was saved.
      * @param project Savend project.
      */
-    void projectSavedEvent(GtProject* project) Q_DECL_OVERRIDE;
+    void projectSavedEvent(GtProject* project) override;
 
 private slots:
 

@@ -150,7 +150,7 @@ private:
      * @brief GtMdiLauncher
      * @param parent
      */
-    GtMdiLauncher(QObject* parent = NULL);
+    explicit GtMdiLauncher(QObject* parent = nullptr);
 
     /// Mdi area widget
     QPointer<QMdiArea> m_area;

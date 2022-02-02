@@ -22,7 +22,7 @@ class GT_CORE_EXPORT GtTreeFilterModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    GtTreeFilterModel(QObject* parent = 0);
+    explicit GtTreeFilterModel(QObject* parent = nullptr);
 
     void setRootIndex(const QModelIndex& index);
 

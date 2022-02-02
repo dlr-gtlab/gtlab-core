@@ -73,7 +73,7 @@ private:
      * @brief Constructor.
      * @param Parent object.
      */
-    GtStateHandler(QObject* parent = NULL);
+    explicit GtStateHandler(QObject* parent = nullptr);
 
     /**
      * @brief findGroup

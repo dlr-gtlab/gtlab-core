@@ -51,7 +51,7 @@ public:
      * @return
      */
     virtual QVariant valueToVariant(
-            const QString& unit, bool* success = nullptr) const Q_DECL_OVERRIDE;
+            const QString& unit, bool* success = nullptr) const override;
 
     /**
      * @brief setValueFromVariant
@@ -60,7 +60,7 @@ public:
      */
     virtual bool setValueFromVariant(
             const QVariant& val, const QString& unit,
-            bool* success = nullptr) Q_DECL_OVERRIDE;
+            bool* success = nullptr) override;
 
     ~GtStringProperty();
 

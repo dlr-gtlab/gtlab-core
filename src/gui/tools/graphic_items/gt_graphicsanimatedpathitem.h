@@ -27,7 +27,7 @@ class GT_GUI_EXPORT GtGraphicsAnimatedPathItem : public QObject,
     Q_PROPERTY(qreal t READ t WRITE setT)
 
 public:
-    GtGraphicsAnimatedPathItem(QGraphicsItem* parent = Q_NULLPTR);
+    explicit GtGraphicsAnimatedPathItem(QGraphicsItem* parent = nullptr);
 
     int t() const;
 

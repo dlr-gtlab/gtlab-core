@@ -33,7 +33,7 @@ public:
      * @brief setData
      * @param obj
      */
-    virtual void setData(GtObject* obj) Q_DECL_OVERRIDE;
+    virtual void setData(GtObject* obj) override;
 
 private:
     /// Information label.

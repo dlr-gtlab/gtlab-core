@@ -40,7 +40,7 @@ public:
      * @brief Constructor.
      * @param metaData
      */
-    GtCalculatorDataImpl(const QMetaObject& metaData);
+    explicit GtCalculatorDataImpl(const QMetaObject& metaData);
 
     /**
      * @brief Returns calculator meta data.
@@ -52,7 +52,7 @@ public:
      * @brief Returns whether calculator data is valid or not.
      * @return Validation.
      */
-    bool isValid() const Q_DECL_OVERRIDE;
+    bool isValid() const override;
 
     /**
      * @brief newCalcData

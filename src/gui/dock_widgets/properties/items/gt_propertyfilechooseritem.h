@@ -43,14 +43,14 @@ public:
      */
     virtual QWidget* editorWidget(
             QWidget* parent,
-            const GtPropertyValueDelegate* delegate) const Q_DECL_OVERRIDE;
+            const GtPropertyValueDelegate* delegate) const override;
 
     /**
      * @brief setEditorData
      * @param var
      */
     virtual void setEditorData(QWidget* editor,
-                               QVariant& var) const Q_DECL_OVERRIDE;
+                               QVariant& var) const override;
 
     /**
      * @brief setModelData
@@ -59,7 +59,7 @@ public:
      */
     virtual void setModelData(QWidget* editor,
                               QAbstractItemModel* model,
-                              const QModelIndex& index) const Q_DECL_OVERRIDE;
+                              const QModelIndex& index) const override;
 
 private:
     /// File chooser property.

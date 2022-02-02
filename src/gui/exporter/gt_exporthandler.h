@@ -42,7 +42,7 @@ public:/**
      * @param metaObject
      * @return
      */
-    bool registerClass(QMetaObject metaObj) Q_DECL_OVERRIDE;
+    bool registerClass(QMetaObject metaObj) override;
 
     /**
      * @brief Returns list of importer which can handle given classname.
@@ -66,7 +66,7 @@ private:
      * @brief GtExportHandler
      * @param parent
      */
-    GtExportHandler(QObject* parent = NULL);
+    explicit GtExportHandler(QObject* parent = nullptr);
 
 };
 

@@ -43,7 +43,7 @@ private:
      * @brief Constructor.
      * @param Parent state container.
      */
-    GtStateGroup(GtStateContainer* parent);
+    explicit GtStateGroup(GtStateContainer* parent);
 
     /**
      * @brief findState

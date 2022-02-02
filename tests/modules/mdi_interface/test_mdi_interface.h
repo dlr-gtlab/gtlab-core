@@ -36,31 +36,31 @@ public:
      * @brief Returns current version number of module
      * @return version number
      */
-    GtVersionNumber version() Q_DECL_OVERRIDE;
+    GtVersionNumber version() override;
 
     /**
      * @brief Returns module identification string.
      * @return identification string
      */
-    QString ident() const Q_DECL_OVERRIDE;
+    QString ident() const override;
 
     /**
      * @brief Returns module description
      * @return description
      */
-    QString description() const Q_DECL_OVERRIDE;
+    QString description() const override;
 	 
     /**
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
      */
-    QList<QMetaObject> data() Q_DECL_OVERRIDE;
+    QList<QMetaObject> data() override;
 
     /**
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
      */
-    QMetaObject package() Q_DECL_OVERRIDE;
+    QMetaObject package() override;
 
     /**
      * @brief Returns true if module is a stand alone module with own
@@ -69,38 +69,38 @@ public:
      * or graphical user interfaces.
      * @return Stand alone indicator.
      */
-    bool standAlone() Q_DECL_OVERRIDE;
+    bool standAlone() override;
 
     /**
      * @brief Returns static meta objects of mdi item classes.
      * @return list including meta objects
      */
-    QList<QMetaObject> mdiItems() Q_DECL_OVERRIDE;
+    QList<QMetaObject> mdiItems() override;
 
     /**
      * @brief Returns static meta objects of dockwidget classes.
      * @return list including meta objects
      */
-    QList<QMetaObject> dockWidgets() Q_DECL_OVERRIDE;
+    QList<QMetaObject> dockWidgets() override;
 
     /**
      * @brief Returns static meta objects of object user interface classes
      * combined with the name of the target class.
      * @return
      */
-    QMap<const char*, QMetaObject> uiItems() Q_DECL_OVERRIDE;
+    QMap<const char*, QMetaObject> uiItems() override;
 
     /**
      * @brief Returns static meta objects of post item classes.
      * @return list including meta objects
      */
-    QList<QMetaObject> postItems() Q_DECL_OVERRIDE;
+    QList<QMetaObject> postItems() override;
 
     /**
      * @brief Returns static meta objects of post plot classes.
      * @return list including meta objects
      */
-    QList<QMetaObject> postPlots() Q_DECL_OVERRIDE;
+    QList<QMetaObject> postPlots() override;
 
 };
 
