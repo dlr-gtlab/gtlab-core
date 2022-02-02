@@ -34,16 +34,6 @@ public:
     Q_INVOKABLE GtDataZone();
 
     /**
-     * @brief returns value from 1-dimensional datazone
-     * @param param parameter name
-     * @param x0 axis tick
-     * @param ok control flag
-     * @return
-     */
-    double value1D(const QString &param, const double& x0,
-                   bool* ok = Q_NULLPTR) const;
-
-    /**
      * @brief returns vector of values for 1D data zone based on the
      * defined axis ticks
      * @param param parameter name
@@ -64,44 +54,6 @@ public:
     QVector<double> value1DVector(const QString& param,
                                   const QVector<double> &ticks,
                                   bool* ok = Q_NULLPTR) const;
-
-    /**
-     * @brief returns value from 2-dimensional table
-     * @param param parameter name
-     * @param x0 first dimension axis tick
-     * @param x1 second dimension axis tick
-     * @param ok control flag
-     * @return
-     */
-    double value2D(const QString& param, const double& x0, const double& x1,
-                   bool* ok = Q_NULLPTR) const;
-
-    /**
-     * @brief returns value from 3-dimensional table
-     * @param param parameter name
-     * @param x0 first dimension axis tick
-     * @param x1 second dimension axis tick
-     * @param x2 third dimension axis tick
-     * @param ok control flag
-     * @return
-     */
-    double value3D(const QString& param, const double& x0, const double& x1,
-                   const double& x2,
-                   bool* ok = Q_NULLPTR) const;
-
-    /**
-     * @brief returns value from 4-dimensional table
-     * @param param parameter name
-     * @param x0 first dimension axis tick
-     * @param x1 second dimension axis tick
-     * @param x2 third dimension axis tick
-     * @param x3 fourth dimensio axis tick
-     * @param ok control flag
-     * @return
-     */
-    double value4D(const QString& param, const double& x0, const double& x1,
-                   const double& x2, const double& x3,
-                   bool* ok = Q_NULLPTR);
 
     /**
      * @brief set 1-dimensional data to table
@@ -179,7 +131,7 @@ public:
      * @param id axis id
      * @return axis ticks
      */
-   QStringList axisTickStrings(const QString& id) const;
+    QStringList axisTickStrings(const QString& id) const;
 
     /**
      * @brief returns axis tick labels i.e. for plots
@@ -201,22 +153,10 @@ public:
     QMap<QString, QVector<double> > allAxisTicksMap() const;
 
     /**
-     * @brief returns all axis names
-     * @return axis names
-     */
-    QStringList axisNames() const;
-
-    /**
      * @brief check function if table is 0-dimensional
      * @return true in case that dimension of table is 0
      */
     virtual bool is0D() const override;
-
-    /**
-     * @brief returns the number of dimensions
-     * @return number of dimensions
-     */
-    virtual int nDims() const override;
 
     /**
      * @brief addModuleName
@@ -291,6 +231,68 @@ public:
     * @brief clears current data
     */
    void clearData();
+
+public slots:
+
+   /**
+    * @brief returns all axis names
+    * @return axis names
+    */
+   QStringList axisNames() const;
+
+   /**
+    * @brief returns the number of dimensions
+    * @return number of dimensions
+    */
+   virtual int nDims() const override;
+
+   /**
+    * @brief returns value from 1-dimensional datazone
+    * @param param parameter name
+    * @param x0 axis tick
+    * @param ok control flag
+    * @return
+    */
+   double value1D(const QString &param, const double& x0,
+                  bool* ok = nullptr) const;
+
+   /**
+    * @brief returns value from 2-dimensional table
+    * @param param parameter name
+    * @param x0 first dimension axis tick
+    * @param x1 second dimension axis tick
+    * @param ok control flag
+    * @return
+    */
+   double value2D(const QString& param, const double& x0, const double& x1,
+                  bool* ok = nullptr) const;
+
+   /**
+    * @brief returns value from 3-dimensional table
+    * @param param parameter name
+    * @param x0 first dimension axis tick
+    * @param x1 second dimension axis tick
+    * @param x2 third dimension axis tick
+    * @param ok control flag
+    * @return
+    */
+   double value3D(const QString& param, const double& x0, const double& x1,
+                  const double& x2,
+                  bool* ok = nullptr) const;
+
+   /**
+    * @brief returns value from 4-dimensional table
+    * @param param parameter name
+    * @param x0 first dimension axis tick
+    * @param x1 second dimension axis tick
+    * @param x2 third dimension axis tick
+    * @param x3 fourth dimensio axis tick
+    * @param ok control flag
+    * @return
+    */
+   double value4D(const QString& param, const double& x0, const double& x1,
+                  const double& x2, const double& x3,
+                  bool* ok = nullptr);
 
 protected:
 
