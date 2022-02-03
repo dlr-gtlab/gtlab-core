@@ -401,8 +401,6 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
 
     if (noe == entries.size())
     {
-        gtWarning() << QObject::tr("Could not resolve plugin dependencies:");
-        gtWarning() << entries;
         return false;
     }
 
@@ -445,7 +443,7 @@ GtModuleLoader::checkDependency(const QVariantList& deps,
         if (depVersion < version)
         {
             gtError() << QObject::tr("Loading ") << moduleFileName
-                      << QObject::tr(": dependency -")
+                      << QObject::tr(": dependecy -")
                       << name << QObject::tr("- is outdated! (needed: >=")
                       << version.toString() << QObject::tr(" ; current: ")
                       << depVersion.toString();
@@ -453,7 +451,7 @@ GtModuleLoader::checkDependency(const QVariantList& deps,
         }
         else if (depVersion > version)
         {
-            gtWarning() << QObject::tr("dependency -") << name
+            gtWarning() << QObject::tr("dependecy -") << name
                         << QObject::tr("- has a newer version ")
                         << QObject::tr("than the module ")
                         << moduleFileName
