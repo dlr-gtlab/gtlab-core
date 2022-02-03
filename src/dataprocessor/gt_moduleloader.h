@@ -139,10 +139,12 @@ private:
 
     /**
      * @brief checkDependency
-     * @param mapItem
-     * @return
+     * @param deps list of dependencies
+     * @param moduleFileName - name of file of the module
+     * @return true if all dependencies are ok
      */
-    bool checkDependency(const QVariantList& deps);
+    bool checkDependency(const QVariantList& deps,
+                         const QString& moduleFileName);
 
     /**
      * @brief debugDependencies

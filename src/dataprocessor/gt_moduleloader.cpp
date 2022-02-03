@@ -355,7 +355,7 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
 //        debugDependencies(modulesDir.absoluteFilePath(fileName));
 
         // check outstanding dependencies
-        if (checkDependency(deps))
+        if (checkDependency(deps, fileName))
         {
             // store temporary module information in loading fail log
             crashed_mods << modulesDir.absoluteFilePath(fileName);
@@ -415,7 +415,8 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
 }
 
 bool
-GtModuleLoader::checkDependency(const QVariantList& deps)
+GtModuleLoader::checkDependency(const QVariantList& deps,
+                                const QString& moduleFileName)
 {
     if (deps.isEmpty())
     {
@@ -443,17 +444,22 @@ GtModuleLoader::checkDependency(const QVariantList& deps)
 
         if (depVersion < version)
         {
-            gtError() << "dependecy -" << name << "- is outdated! (needed: >="
-                      << version.toString() << " ; current: "
+            gtError() << QObject::tr("Loading ") << moduleFileName
+                      << QObject::tr(": dependency -")
+                      << name << QObject::tr("- is outdated! (needed: >=")
+                      << version.toString() << QObject::tr(" ; current: ")
                       << depVersion.toString();
             return false;
         }
         else if (depVersion > version)
         {
-            gtWarning() << "dependecy -" << name << "- has a newer version "
-                        << "than the module requires. (needed: >="
-                        << version.toString() << " ; current: "
-                        << depVersion.toString();
+            gtWarning() << QObject::tr("dependency -") << name
+                        << QObject::tr("- has a newer version ")
+                        << QObject::tr("than the module ")
+                        << moduleFileName
+                        << QObject::tr("requires. (needed: >=")
+                        << version.toString() << QObject::tr(" ; current: ")
+                        << depVersion.toString() << ")";
         }
     }
 
