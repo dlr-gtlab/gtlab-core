@@ -407,19 +407,23 @@ GtProject::saveModuleData()
         return false;
     }
 
-//    gtDebug() << "saving " << objectName() << "...";
+    gtInfo().noquote() << tr("saving project")
+                       << QStringLiteral("\"") + objectName() +
+                          QStringLiteral("\" ...");
 
     foreach (const QString& mid, m_moduleIds)
     {
-        gtDebug() << "saving " << mid << "...";
+        gtDebug().noquote() << tr("saving module data")
+                           << QStringLiteral("\"") + mid +
+                              QStringLiteral("\" ...");
 
         GtPackage* package = findPackage(mid);
 
         if (package == Q_NULLPTR)
         {
-            gtWarning() << objectName() << QStringLiteral(": ")
-                        << tr("Failed to save module data!")
-                        << QStringLiteral(" (") << mid << QStringLiteral(")");
+            gtWarning().noquote()
+                    << tr("Failed to save module data!")
+                    << QStringLiteral("(\"") + mid + QStringLiteral("\")");
             continue;
         }
 
@@ -438,9 +442,9 @@ GtProject::saveModuleData()
 
         if (!package->saveData(rootElement, document))
         {
-            gtWarning() << objectName() << QStringLiteral(": ")
-                        << tr("Failed to save module data!")
-                        << QStringLiteral(" (") << mid << QStringLiteral(")");
+            gtWarning().noquote()
+                    << tr("Failed to save module data!")
+                    << QStringLiteral("(\"") + mid + QStringLiteral("\")");
             continue;
         }
 
@@ -449,9 +453,7 @@ GtProject::saveModuleData()
 
         if (!saveProjectFiles(filename, document))
         {
-            gtWarning() << "\t |->" << QStringLiteral(" (") << mid
-                        << QStringLiteral(")");
-
+            gtWarning() << "\t |->" << mid;
             continue;
         }
     }
@@ -860,9 +862,20 @@ GtProject::findProcess(const QString& val)
 }
 
 GtPackage*
-GtProject::findPackage(const QString& val)
+GtProject::findPackage(const QString& mid)
 {
-    return findDirectChild<GtPackage*>(val);
+    // class name of package
+    QString pkgId{ gtApp->modulePackageId(mid) };
+
+    foreach (GtPackage* pkg, findDirectChildren<GtPackage*>())
+    {
+        if (pkg->metaObject()->className() == pkgId)
+        {
+            return pkg;
+        }
+    }
+
+    return Q_NULLPTR;
 }
 
 const QStringList&
