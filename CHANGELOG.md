@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GtVersionNumber: correct function for operator '>' and '<' -#159 
 - GtProcessDock: Dummy process elements are no longer mutable - #162
 - Examples search path was set to a specific 'examples' dir - #168
+- Fixed a crash when zooming in on a graphics scene containing a dense grid - #179
 
 ### Changed
 - Saving a project was moved to a separate thread - #127
