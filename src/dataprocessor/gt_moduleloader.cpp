@@ -65,8 +65,8 @@ GtModuleLoader::load()
 
             if (excludeFile.open(QIODevice::ReadOnly))
             {
-                QByteArray data = excludeFile.readAll();
-                QJsonDocument doc(QJsonDocument::fromJson(data));
+                QByteArray dat = excludeFile.readAll();
+                QJsonDocument doc(QJsonDocument::fromJson(dat));
 
                 QJsonObject json = doc.object();
 

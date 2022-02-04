@@ -71,8 +71,6 @@ bool
 GtExplorerModel::filterAcceptsRow(int source_row,
                                   const QModelIndex& source_parent) const
 {
-    bool retval = true;
-
     if (source_parent.isValid())
     {
         GtObject* obj = static_cast<GtObject*>(source_parent.internalPointer());
@@ -93,11 +91,7 @@ GtExplorerModel::filterAcceptsRow(int source_row,
         }
     }
 
-    if (retval == true)
-    {
-        return GtTreeFilterModel::filterAcceptsRow(source_row, source_parent);
-    }
+    return GtTreeFilterModel::filterAcceptsRow(source_row, source_parent);
 
-    return retval;
 }
 

@@ -60,7 +60,7 @@ protected:
      * @brief supportedDragActions
      * @return
      */
-    Qt::DropActions supportedDragActions() const;
+    Qt::DropActions supportedDragActions() const override;
 
     /**
      * @brief filterAcceptsRow
@@ -68,8 +68,8 @@ protected:
      * @param source_parent
      * @return
      */
-    virtual bool filterAcceptsRow(int source_row,
-                                  const QModelIndex& source_parent) const;
+    virtual bool filterAcceptsRow(
+            int source_row, const QModelIndex& source_parent) const override;
 
 };
 

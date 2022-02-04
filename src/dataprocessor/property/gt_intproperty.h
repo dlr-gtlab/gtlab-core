@@ -141,7 +141,7 @@ protected:
      * @param unit
      * @return
      */
-    virtual bool validateValue(const int& value);
+    virtual bool validateValue(const int& value) override;
 
 };
 

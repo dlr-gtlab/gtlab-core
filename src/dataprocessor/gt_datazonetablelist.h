@@ -146,7 +146,7 @@ public:
 
 private:
 
-    void onObjectDataMerged();
+    void onObjectDataMerged() override;
 
     /// list of datazonetable
     QList<GtDataZoneTable*> m_dztList;

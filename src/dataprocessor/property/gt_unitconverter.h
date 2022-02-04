@@ -623,7 +623,6 @@ void GtUnitConverter<T>::initialize()
 
     energyDensityFac["Ws/kg"] = 1.0;
     energyDensityFac["Wh/kg"] = 3600.0;
-    energyDensityFac["Wh/kg"] = 3600.0;
     energyDensityFac["kWh/kg"] = 3.6;
     energyDensityFac["Wh/kg"] = 3.6;
     energyDensityFac["kJ/kg"] = 0.001;

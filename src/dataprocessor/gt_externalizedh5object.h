@@ -46,19 +46,19 @@ protected:
      * @brief doFetch method to implement for fetching the externalized data.
      * @return success
      */
-    virtual bool doFetchData() = 0;
+    virtual bool doFetchData() override = 0;
 
     /**
      * @brief doExternalize method to implement for externalizing the data.
      * @return success
      */
-    virtual bool doExternalizeData() = 0;
+    virtual bool doExternalizeData() override = 0;
 
     /**
      * @brief doClearExternalizedData method to implement for clearing the
      * externalized data. Should not emit a signal or set any object flags.
      */
-    virtual void doClearExternalizedData() = 0;
+    virtual void doClearExternalizedData() override = 0;
 
     /**
      * @brief getDataSet attempts opens the dataset associated with this
