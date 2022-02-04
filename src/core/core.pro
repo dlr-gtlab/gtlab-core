@@ -53,6 +53,7 @@ INCLUDEPATH += .\
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    gt_propertyconnectionfunctions.h \
     network/gt_accessdata.h \
     network/gt_accessmanager.h \
     network/gt_accessgroup.h \
@@ -123,6 +124,7 @@ HEADERS += \
     gt_command.h
 
 SOURCES += \
+    gt_propertyconnectionfunctions.cpp \
     network/gt_accessdata.cpp \
     network/gt_accessmanager.cpp \
     network/gt_accessgroup.cpp \

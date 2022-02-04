@@ -10,19 +10,19 @@
 
 #include <QPointer>
 
-#include "test_gt_processdock.h"
+#include "test_gt_processtestclasses.h"
 #include "gt_task.h"
 #include "gt_loop.h"
 #include "gt_calculator.h"
 
 #include "gt_processdata.h"
-#include "gt_processdock.h"
+#include "gt_propertyconnectionfunctions.h"
 #include "gt_objectfactory.h"
 #include "gt_taskfactory.h"
 #include "gt_calculatorfactory.h"
 
 
-class TestGtProcessDock : public ::testing::Test
+class TestGtPropertyConnectionFunctions : public ::testing::Test
 {
 protected:
     virtual void SetUp()
@@ -162,7 +162,7 @@ protected:
     QPointer<TestGtLoop> loop3;
 };
 
-TEST_F(TestGtProcessDock, findConnectionCopy)
+TEST_F(TestGtPropertyConnectionFunctions, findConnectionCopy)
 {
     con1->setSourceUuid("sourceUuid1");
     con1->setTargetUuid("targetUuid1");
@@ -187,8 +187,8 @@ TEST_F(TestGtProcessDock, findConnectionCopy)
     QList<GtPropertyConnection*> cons;
     cons << conCopy << con2 << con3;
 
-    GtPropertyConnection* foundCopy = GtProcessDock::findConnectionCopy(con1,
-                                      cons);
+    GtPropertyConnection* foundCopy =
+            GtPropertyConnectionFunctions::findConnectionCopy(con1, cons);
 
     ASSERT_TRUE(foundCopy != Q_NULLPTR);
     ASSERT_TRUE(foundCopy->sourceUuid() == con1->sourceUuid());
@@ -197,16 +197,18 @@ TEST_F(TestGtProcessDock, findConnectionCopy)
     ASSERT_TRUE(foundCopy->targetProp() == con1->targetProp());
     ASSERT_TRUE(foundCopy->uuid() != con1->uuid());
 
-    foundCopy = GtProcessDock::findConnectionCopy(Q_NULLPTR, cons);
+    foundCopy = GtPropertyConnectionFunctions::findConnectionCopy(Q_NULLPTR,
+                                                                  cons);
 
     ASSERT_TRUE(foundCopy == Q_NULLPTR);
 
     cons.clear();
-    foundCopy = GtProcessDock::findConnectionCopy(con1, cons);
+    foundCopy = GtPropertyConnectionFunctions::findConnectionCopy(con1, cons);
 
     ASSERT_TRUE(foundCopy == Q_NULLPTR);
 
-    foundCopy = GtProcessDock::findConnectionCopy(Q_NULLPTR, cons);
+    foundCopy = GtPropertyConnectionFunctions::findConnectionCopy(Q_NULLPTR,
+                                                                  cons);
 
     ASSERT_TRUE(foundCopy == Q_NULLPTR);
 
@@ -216,7 +218,7 @@ TEST_F(TestGtProcessDock, findConnectionCopy)
     }
 }
 
-TEST_F(TestGtProcessDock, propertyConnectionRelations)
+TEST_F(TestGtPropertyConnectionFunctions, propertyConnectionRelations)
 {
     task->appendChild(calc1);
     task->appendChild(calc2);
@@ -259,7 +261,7 @@ TEST_F(TestGtProcessDock, propertyConnectionRelations)
     /// INTERNAL CONNECTIONS
 
     QList<GtPropertyConnection*> internals =
-        GtProcessDock::internalPropertyConnections(task);
+        GtPropertyConnectionFunctions::internalPropertyConnections(task);
 
     ASSERT_FALSE(internals.isEmpty());
     ASSERT_TRUE(internals.size() == 5);
@@ -269,7 +271,8 @@ TEST_F(TestGtProcessDock, propertyConnectionRelations)
     ASSERT_TRUE(internals.contains(con4));
     ASSERT_TRUE(internals.contains(con5));
 
-    internals = GtProcessDock::internalPropertyConnections(loop);
+    internals =
+            GtPropertyConnectionFunctions::internalPropertyConnections(loop);
 
     ASSERT_FALSE(internals.isEmpty());
     ASSERT_TRUE(internals.size() == 3);
@@ -280,56 +283,58 @@ TEST_F(TestGtProcessDock, propertyConnectionRelations)
     GtTask* task = Q_NULLPTR;
     GtProcessComponent* comp = Q_NULLPTR;
 
-    internals = GtProcessDock::internalPropertyConnections(task);
+    internals =
+            GtPropertyConnectionFunctions::internalPropertyConnections(task);
     ASSERT_TRUE(internals.isEmpty());
 
-    internals = GtProcessDock::internalPropertyConnections(comp);
+    internals =
+            GtPropertyConnectionFunctions::internalPropertyConnections(comp);
     ASSERT_TRUE(internals.isEmpty());
 
     /// LOST CONNECTIONS IN CASE OF COPY/CUT/DELETE
     QList<GtPropertyConnection*> lost =
-        GtProcessDock::lostPropertyConnections(loop);
+        GtPropertyConnectionFunctions::lostPropertyConnections(loop);
 
     ASSERT_FALSE(lost.isEmpty());
     ASSERT_EQ(lost.size(), 1);
     ASSERT_TRUE(lost.contains(con2));
 
-    lost = GtProcessDock::lostPropertyConnections(task);
+    lost = GtPropertyConnectionFunctions::lostPropertyConnections(task);
     ASSERT_TRUE(lost.isEmpty());
 
-    lost = GtProcessDock::lostPropertyConnections(calc1);
+    lost = GtPropertyConnectionFunctions::lostPropertyConnections(calc1);
     ASSERT_FALSE(lost.isEmpty());
     ASSERT_EQ(lost.size(), 1);
     ASSERT_TRUE(lost.contains(con1));
 
-    lost = GtProcessDock::lostPropertyConnections(calc2);
+    lost = GtPropertyConnectionFunctions::lostPropertyConnections(calc2);
     ASSERT_FALSE(lost.isEmpty());
     ASSERT_EQ(lost.size(), 2);
     ASSERT_TRUE(lost.contains(con1));
     ASSERT_TRUE(lost.contains(con2));
 
-    lost = GtProcessDock::lostPropertyConnections(calc3);
+    lost = GtPropertyConnectionFunctions::lostPropertyConnections(calc3);
     ASSERT_FALSE(lost.isEmpty());
     ASSERT_EQ(lost.size(), 3);
     ASSERT_TRUE(lost.contains(con3));
     ASSERT_TRUE(lost.contains(con4));
 
-    lost = GtProcessDock::lostPropertyConnections(calc4);
+    lost = GtPropertyConnectionFunctions::lostPropertyConnections(calc4);
     ASSERT_FALSE(lost.isEmpty());
     ASSERT_EQ(lost.size(), 3);
     ASSERT_TRUE(lost.contains(con3));
     ASSERT_TRUE(lost.contains(con4));
     ASSERT_TRUE(lost.contains(con5));
 
-    lost = GtProcessDock::lostPropertyConnections(calc);
+    lost = GtPropertyConnectionFunctions::lostPropertyConnections(calc);
     ASSERT_TRUE(lost.isEmpty());
 
-    lost = GtProcessDock::lostPropertyConnections(comp);
+    lost = GtPropertyConnectionFunctions::lostPropertyConnections(comp);
     ASSERT_TRUE(lost.isEmpty());
 
     /// ALL RELATED CONNECTIONS
     QList<GtPropertyConnection*> related =
-        GtProcessDock::relatedPropertyConnections(loop);
+        GtPropertyConnectionFunctions::relatedPropertyConnections(loop);
 
     ASSERT_FALSE(related.isEmpty());
     ASSERT_EQ(related.size(), 4);
@@ -338,20 +343,20 @@ TEST_F(TestGtProcessDock, propertyConnectionRelations)
     ASSERT_TRUE(related.contains(con4));
     ASSERT_TRUE(related.contains(con5));
 
-    related = GtProcessDock::relatedPropertyConnections(calc1);
+    related = GtPropertyConnectionFunctions::relatedPropertyConnections(calc1);
 
     ASSERT_FALSE(related.isEmpty());
     ASSERT_TRUE(related.size() == 1);
     ASSERT_TRUE(related.contains(con1));
 
-    related = GtProcessDock::relatedPropertyConnections(calc2);
+    related = GtPropertyConnectionFunctions::relatedPropertyConnections(calc2);
 
     ASSERT_FALSE(related.isEmpty());
     ASSERT_TRUE(related.size() == 2);
     ASSERT_TRUE(related.contains(con1));
     ASSERT_TRUE(related.contains(con2));
 
-    related = GtProcessDock::relatedPropertyConnections(calc3);
+    related = GtPropertyConnectionFunctions::relatedPropertyConnections(calc3);
 
     ASSERT_FALSE(related.isEmpty());
     ASSERT_TRUE(related.size() == 3);
@@ -359,7 +364,7 @@ TEST_F(TestGtProcessDock, propertyConnectionRelations)
     ASSERT_TRUE(related.contains(con3));
     ASSERT_TRUE(related.contains(con4));
 
-    related = GtProcessDock::relatedPropertyConnections(calc4);
+    related = GtPropertyConnectionFunctions::relatedPropertyConnections(calc4);
 
     ASSERT_FALSE(related.isEmpty());
     ASSERT_TRUE(related.size() == 3);
@@ -367,17 +372,17 @@ TEST_F(TestGtProcessDock, propertyConnectionRelations)
     ASSERT_TRUE(related.contains(con4));
     ASSERT_TRUE(related.contains(con5));
 
-    related = GtProcessDock::relatedPropertyConnections(calc);
+    related = GtPropertyConnectionFunctions::relatedPropertyConnections(calc);
     ASSERT_TRUE(related.isEmpty());
 
-    related = GtProcessDock::relatedPropertyConnections(task);
+    related = GtPropertyConnectionFunctions::relatedPropertyConnections(task);
     ASSERT_TRUE(related.isEmpty());
 
-    related = GtProcessDock::relatedPropertyConnections(comp);
+    related = GtPropertyConnectionFunctions::relatedPropertyConnections(comp);
     ASSERT_TRUE(related.isEmpty());
 }
 
-TEST_F(TestGtProcessDock, highestParentTask)
+TEST_F(TestGtPropertyConnectionFunctions, highestParentTask)
 {
     task->appendChild(calc1);
     task->appendChild(calc2);
@@ -387,42 +392,43 @@ TEST_F(TestGtProcessDock, highestParentTask)
     loop2->appendChild(calc4);
     loop2->appendChild(loop3);
 
-    GtTask* highestParent = GtProcessDock::highestParentTask(loop3);
+    GtTask* highestParent =
+            GtPropertyConnectionFunctions::highestParentTask(loop3);
 
     ASSERT_TRUE(highestParent != Q_NULLPTR);
     ASSERT_TRUE(highestParent == task);
 
-    highestParent = GtProcessDock::highestParentTask(loop2);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(loop2);
 
     ASSERT_TRUE(highestParent != Q_NULLPTR);
     ASSERT_TRUE(highestParent == task);
 
-    highestParent = GtProcessDock::highestParentTask(loop);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(loop);
 
     ASSERT_TRUE(highestParent != Q_NULLPTR);
     ASSERT_TRUE(highestParent == task);
 
-    highestParent = GtProcessDock::highestParentTask(task);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(task);
 
     ASSERT_TRUE(highestParent != Q_NULLPTR);
     ASSERT_TRUE(highestParent == task);
 
-    highestParent = GtProcessDock::highestParentTask(calc4);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(calc4);
 
     ASSERT_TRUE(highestParent != Q_NULLPTR);
     ASSERT_TRUE(highestParent == task);
 
-    highestParent = GtProcessDock::highestParentTask(calc3);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(calc3);
 
     ASSERT_TRUE(highestParent != Q_NULLPTR);
     ASSERT_TRUE(highestParent == task);
 
-    highestParent = GtProcessDock::highestParentTask(calc2);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(calc2);
 
     ASSERT_TRUE(highestParent != Q_NULLPTR);
     ASSERT_TRUE(highestParent == task);
 
-    highestParent = GtProcessDock::highestParentTask(calc1);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(calc1);
 
     ASSERT_TRUE(highestParent != Q_NULLPTR);
     ASSERT_TRUE(highestParent == task);
@@ -431,17 +437,17 @@ TEST_F(TestGtProcessDock, highestParentTask)
     GtTask* task = Q_NULLPTR;
     GtProcessComponent* comp = Q_NULLPTR;
 
-    highestParent = GtProcessDock::highestParentTask(calc);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(calc);
     ASSERT_TRUE(highestParent == Q_NULLPTR);
 
-    highestParent = GtProcessDock::highestParentTask(task);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(task);
     ASSERT_TRUE(highestParent == Q_NULLPTR);
 
-    highestParent = GtProcessDock::highestParentTask(comp);
+    highestParent = GtPropertyConnectionFunctions::highestParentTask(comp);
     ASSERT_TRUE(highestParent == Q_NULLPTR);
 }
 
-TEST_F(TestGtProcessDock, findEquivalentObject)
+TEST_F(TestGtPropertyConnectionFunctions, findEquivalentObject)
 {
     ASSERT_TRUE(task->appendChild(calc1));
     ASSERT_TRUE(task->appendChild(calc2));
@@ -460,16 +466,26 @@ TEST_F(TestGtProcessDock, findEquivalentObject)
     ASSERT_EQ(taskCopy->findChildren<GtCalculator*>().size(), 4);
     ASSERT_EQ(taskCopy->findChildren<GtLoop*>().size(), 3);
 
-    GtObject* calc1Copy = GtProcessDock::findEquivalentObject(taskCopy, calc1);
-    GtObject* calc2Copy = GtProcessDock::findEquivalentObject(taskCopy, calc2);
-    GtObject* calc3Copy = GtProcessDock::findEquivalentObject(taskCopy, calc3);
-    GtObject* calc4Copy = GtProcessDock::findEquivalentObject(taskCopy, calc4);
-    GtObject* loop1Copy = GtProcessDock::findEquivalentObject(taskCopy, loop);
-    GtObject* loop2Copy = GtProcessDock::findEquivalentObject(taskCopy, loop2);
-    GtObject* loop3Copy = GtProcessDock::findEquivalentObject(taskCopy, loop3);
-    GtObject* null1 = GtProcessDock::findEquivalentObject(taskCopy, Q_NULLPTR);
-    GtObject* null2 = GtProcessDock::findEquivalentObject(Q_NULLPTR, loop3);
-    GtObject* null3 = GtProcessDock::findEquivalentObject(Q_NULLPTR, Q_NULLPTR);
+    GtObject* calc1Copy = GtPropertyConnectionFunctions::findEquivalentObject(
+                taskCopy, calc1);
+    GtObject* calc2Copy = GtPropertyConnectionFunctions::findEquivalentObject(
+                taskCopy, calc2);
+    GtObject* calc3Copy = GtPropertyConnectionFunctions::findEquivalentObject(
+                taskCopy, calc3);
+    GtObject* calc4Copy = GtPropertyConnectionFunctions::findEquivalentObject(
+                taskCopy, calc4);
+    GtObject* loop1Copy = GtPropertyConnectionFunctions::findEquivalentObject(
+                taskCopy, loop);
+    GtObject* loop2Copy = GtPropertyConnectionFunctions::findEquivalentObject(
+                taskCopy, loop2);
+    GtObject* loop3Copy = GtPropertyConnectionFunctions::findEquivalentObject(
+                taskCopy, loop3);
+    GtObject* null1 = GtPropertyConnectionFunctions::findEquivalentObject(
+                taskCopy, Q_NULLPTR);
+    GtObject* null2 = GtPropertyConnectionFunctions::findEquivalentObject(
+                Q_NULLPTR, loop3);
+    GtObject* null3 = GtPropertyConnectionFunctions::findEquivalentObject(
+                Q_NULLPTR, Q_NULLPTR);
 
     ASSERT_TRUE(calc1Copy != Q_NULLPTR);
     ASSERT_TRUE(calc2Copy != Q_NULLPTR);
@@ -506,7 +522,7 @@ TEST_F(TestGtProcessDock, findEquivalentObject)
     delete taskCopy;
 }
 
-TEST_F(TestGtProcessDock, updateConnectionProperties)
+TEST_F(TestGtPropertyConnectionFunctions, updateConnectionProperties)
 {
     task->appendChild(calc1);
     task->appendChild(calc2);
@@ -558,26 +574,31 @@ TEST_F(TestGtProcessDock, updateConnectionProperties)
     foreach(GtPropertyConnection* propCon, origs)
     {
         GtPropertyConnection* conCopy =
-                GtProcessDock::findConnectionCopy(propCon, copies);
+                GtPropertyConnectionFunctions::findConnectionCopy(propCon,
+                                                                  copies);
 
         ASSERT_TRUE(conCopy != Q_NULLPTR);
 
-        ASSERT_TRUE(GtProcessDock::updateConnectionProperties(propCon, conCopy,
-                                                              task, taskCopy));
+        ASSERT_TRUE(GtPropertyConnectionFunctions::updateConnectionProperties(
+                        propCon, conCopy, task, taskCopy));
 
     }
 
     TestGtCalculator* calc1Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc1));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc1));
 
     TestGtCalculator* calc2Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc2));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc2));
 
     TestGtCalculator* calc3Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc3));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc3));
 
     TestGtCalculator* calc4Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc4));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc4));
 
     ASSERT_TRUE(calc1Copy != Q_NULLPTR);
     ASSERT_TRUE(calc2Copy != Q_NULLPTR);
@@ -605,7 +626,7 @@ TEST_F(TestGtProcessDock, updateConnectionProperties)
     ASSERT_TRUE(copies.last()->targetProp() == calc4Copy->prop2()->ident());
 }
 
-TEST_F(TestGtProcessDock, updateRelativeObjectLinks)
+TEST_F(TestGtPropertyConnectionFunctions, updateRelativeObjectLinks)
 {
     task->appendChild(calc1);
     task->appendChild(calc2);
@@ -630,27 +651,34 @@ TEST_F(TestGtProcessDock, updateRelativeObjectLinks)
     ASSERT_TRUE(taskCopy != Q_NULLPTR);
 
     TestGtCalculator* calc1Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc1));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc1));
 
     TestGtCalculator* calc2Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc2));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc2));
 
     TestGtCalculator* calc3Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc3));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc3));
 
     TestGtCalculator* calc4Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc4));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc4));
 
     ASSERT_TRUE(calc1Copy != Q_NULLPTR);
     ASSERT_TRUE(calc2Copy != Q_NULLPTR);
     ASSERT_TRUE(calc3Copy != Q_NULLPTR);
     ASSERT_TRUE(calc4Copy != Q_NULLPTR);
 
-    ASSERT_FALSE(GtProcessDock::updateRelativeObjectLinks(Q_NULLPTR, taskCopy));
-    ASSERT_FALSE(GtProcessDock::updateRelativeObjectLinks(task, Q_NULLPTR));
-    ASSERT_FALSE(GtProcessDock::updateRelativeObjectLinks(Q_NULLPTR,
-                                                          Q_NULLPTR));
-    ASSERT_TRUE(GtProcessDock::updateRelativeObjectLinks(task, taskCopy));
+    ASSERT_FALSE(GtPropertyConnectionFunctions::updateRelativeObjectLinks(
+                     Q_NULLPTR, taskCopy));
+    ASSERT_FALSE(GtPropertyConnectionFunctions::updateRelativeObjectLinks(
+                     task, Q_NULLPTR));
+    ASSERT_FALSE(GtPropertyConnectionFunctions::updateRelativeObjectLinks(
+                     Q_NULLPTR, Q_NULLPTR));
+    ASSERT_TRUE(GtPropertyConnectionFunctions::updateRelativeObjectLinks(
+                    task, taskCopy));
 
     ASSERT_EQ(calc1Copy->relLink()->getVal(), calc3Copy->uuid());
     ASSERT_EQ(calc2Copy->relLink()->getVal(), calc4Copy->uuid());
@@ -658,16 +686,20 @@ TEST_F(TestGtProcessDock, updateRelativeObjectLinks)
     ASSERT_EQ(calc4Copy->relLink()->getVal(), calc2Copy->uuid());
 
     calc1Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc1));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc1));
 
     calc2Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc2));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc2));
 
     calc3Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc3));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc3));
 
     calc4Copy = qobject_cast<TestGtCalculator*>(
-                GtProcessDock::findEquivalentObject(taskCopy, calc4));
+                GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
+                                                                    calc4));
 
     ASSERT_TRUE(calc1Copy == Q_NULLPTR);
     ASSERT_TRUE(calc2Copy == Q_NULLPTR);
