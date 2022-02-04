@@ -30,6 +30,11 @@ GtPropertyUnitDelegate::createEditor(QWidget* parent,
                                      const QStyleOptionViewItem& option,
                                      const QModelIndex& index) const
 {
+    if (m_comboBox != nullptr)
+    {
+        delete m_comboBox;
+    }
+
     m_comboBox = new QComboBox(parent);
 
     QVariant var = index.data(GtPropertyModel::UnitCategoryRole);

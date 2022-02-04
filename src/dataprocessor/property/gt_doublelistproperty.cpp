@@ -49,7 +49,7 @@ GtDoubleListProperty::setValueFromVariant(const QVariant& val,
             {
                 gtError() << tr("Could not convert double list property!");
 
-                if (success != 0)
+                if (success != nullptr)
                 {
                     *success = retval;
                 }
@@ -60,7 +60,7 @@ GtDoubleListProperty::setValueFromVariant(const QVariant& val,
 
         setVal(vec, success);
 
-        if (success != 0)
+        if (success != nullptr)
         {
             retval = *success;
         }

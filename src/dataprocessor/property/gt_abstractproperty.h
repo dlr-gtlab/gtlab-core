@@ -245,7 +245,8 @@ protected:
     /**
      * @brief GtAbstractProperty
      */
-    GtAbstractProperty()
+    GtAbstractProperty() :
+        m_connection(nullptr)
     {
         m_readOnly = false;
         m_optional = false;
@@ -254,7 +255,6 @@ protected:
         m_storeMemento = true;
         m_category = GtAbstractProperty::Main;
         m_unitCategory = GtUnit::None;
-        m_connection = Q_NULLPTR;
     }
 
     /// Identification string
