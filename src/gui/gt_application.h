@@ -180,7 +180,7 @@ public:
      * @brief switchSession
      * @param id
      */
-    virtual void switchSession(const QString& id);
+    virtual void switchSession(const QString& id) override;
 
     /**
      * @brief undoStack
@@ -189,17 +189,19 @@ public:
     QUndoStack* undoStack();
 
     /**
-     * @brief propertyCommand
+     * @brief propertyCommand - creates an undo command for a property change
+     * event.
      * @param obj
      * @param prop
      * @param newValue
      * @param unit
      * @param root
      */
-    void propertyCommand(GtObject* obj, GtAbstractProperty* prop,
+    void propertyCommand(GtObject* obj,
+                         GtAbstractProperty* prop,
                          const QVariant& newValue,
                          const QString& unit = QString(),
-                         GtObject* root = Q_NULLPTR);
+                         GtObject* root = Q_NULLPTR) override;
 
     /**
      * @brief startCommand
@@ -265,6 +267,7 @@ public:
      * @return pointer to the short cuts list object
      */
     GtShortCuts* shortCuts() const;
+
 private:
     /// List of user specific perspective ids
     QStringList m_perspectiveIds;
@@ -302,7 +305,7 @@ private:
     /**
      * @brief initFirstRun
      */
-    bool initFirstRun();
+    bool initFirstRun() override;
 
 private slots:
     /**

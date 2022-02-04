@@ -329,11 +329,17 @@ protected:
     void init();
 
     /**
+     * @brief Initializes project specific states.
+     * @param project Loaded project.
+     */
+    void initProjectStates(GtProject* project);
+
+    /**
      * @brief Returns the item flags for the given index.
      * @param Model index
      * @return Item Flags
      */
-    Qt::ItemFlags flags(const QModelIndex& index) const;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     /**
      * @brief Returns the root parent index for given model index.

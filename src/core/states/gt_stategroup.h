@@ -13,7 +13,7 @@
 #include <QPointer>
 
 #include "gt_object.h"
-#include "gt_gui_exports.h"
+#include "gt_core_exports.h"
 
 class QSettings;
 class GtStateContainer;
@@ -22,7 +22,7 @@ class GtState;
 /**
  * @brief The GtStateGroup class
  */
-class GT_GUI_EXPORT GtStateGroup : public GtObject
+class GT_CORE_EXPORT GtStateGroup : public GtObject
 {
     Q_OBJECT
 

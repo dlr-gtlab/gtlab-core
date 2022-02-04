@@ -8,7 +8,7 @@
  */
 
 #include "gt_variantproperty.h"
-#include "gt_application.h"
+#include "gt_coreapplication.h"
 #include "gt_object.h"
 
 #include "gt_state.h"

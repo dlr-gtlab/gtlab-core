@@ -7,7 +7,7 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QSettings>
 #include <QDir>
 
@@ -79,8 +79,8 @@ GtStateGroup::loadStateGlobal(GtState* state)
     }
 
     QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                       QApplication::organizationName(),
-                       QApplication::applicationName());
+                       QCoreApplication::organizationName(),
+                       QCoreApplication::applicationName());
 
     settings.beginGroup(objectName());
 
@@ -166,8 +166,8 @@ GtStateGroup::saveStateGlobal(GtState* state)
     }
 
     QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                       QApplication::organizationName(),
-                       QApplication::applicationName());
+                       QCoreApplication::organizationName(),
+                       QCoreApplication::applicationName());
 
     settings.beginGroup(objectName());
 

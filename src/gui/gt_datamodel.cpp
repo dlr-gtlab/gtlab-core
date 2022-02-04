@@ -395,28 +395,9 @@ GtDataModel::onProjectDataLoaded()
 
     appendProjectData(project, data);
 
+    initProjectStates(project);
+
     gtApp->settings()->setLastProject(project->objectName());
-
-    // initialize states
-    GtState* enableState = gtStateHandler->initializeState(project,
-                                    QStringLiteral("ExternalizationSettings"),
-                                    QStringLiteral("Enable Externalization"),
-                                    QStringLiteral("enable_externalization"),
-                                    false, project);
-
-    GtState* autoState = gtStateHandler->initializeState(project,
-                                    QStringLiteral("ExternalizationSettings"),
-                                    QStringLiteral("Auto Externalize on Save"),
-                                    QStringLiteral("auto_externalization"),
-                                    false, project);
-
-    gtExternalizationSettings->onEnbaleExternalizationChanged(enableState->getValue());
-    gtExternalizationSettings->onAutoExternalizationChanged(autoState->getValue());
-
-    connect(enableState, SIGNAL(valueChanged(QVariant)),
-            gtExternalizationSettings, SLOT(onEnbaleExternalizationChanged(QVariant)));
-    connect(autoState, SIGNAL(valueChanged(QVariant)),
-            gtExternalizationSettings, SLOT(onAutoExternalizationChanged(QVariant)));
 
     // analyse project information
     GtProjectAnalyzer analyzer(project);
