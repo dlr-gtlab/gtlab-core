@@ -122,7 +122,7 @@ GtDownloadDialog::cancelDownloadProcess()
 }
 
 void
-GtDownloadDialog::onDownloaderMessage(QString str)
+GtDownloadDialog::onDownloaderMessage(const QString& str)
 {
     QTextCursor cur = m_textEdit->textCursor();
     cur.movePosition(QTextCursor::End);

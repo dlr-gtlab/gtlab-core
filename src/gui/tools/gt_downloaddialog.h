@@ -53,7 +53,7 @@ protected:
      * @brief showEvent
      * @param event
      */
-    void showEvent(QShowEvent * event) override;
+    void showEvent(QShowEvent* event) override;
 
 private:
     /// Downloader
@@ -80,7 +80,7 @@ private slots:
     /**
      * @brief onDownloaderMessage
      */
-    void onDownloaderMessage(QString str);
+    void onDownloaderMessage(const QString& str);
 
     /**
      * @brief onDownloaderFinished

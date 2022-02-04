@@ -176,7 +176,7 @@ private:
         @param element QDomElement memento
         @return New GtObject based on QDomElement memento */
     GtObject* toObjectHelper(const QDomElement& element,
-                       GtObject* handleObjectAdd = NULL);
+                       GtObject* handleObjectAdd = nullptr);
 
     /** Merges all properties found in QDomElement with properties found
         in GtdObject.
@@ -230,8 +230,9 @@ private:
      * @param propData memento property data
      * @param element
      */
-    void readDynamicProperties(GtObjectMemento::MementoData::PropertyData& propData,
-                               const QDomElement& element);
+    void readDynamicProperties(
+            GtObjectMemento::MementoData::PropertyData& propData,
+            const QDomElement& element);
 
     /**
      * @brief writeDynamicProperties
@@ -240,35 +241,37 @@ private:
      * @param stored
      * @param property
      */
-    void writeDynamicProperties(QDomDocument& doc,
-                                QDomElement& root,
-                                const GtObjectMemento::MementoData::PropertyData& property);
+    void writeDynamicProperties(
+            QDomDocument& doc, QDomElement& root,
+            const GtObjectMemento::MementoData::PropertyData& property);
 
     /**
      * @brief writePropertyHelper
      */
-    void writePropertyHelper(QVector<GtObjectMemento::MementoData::PropertyData>& pVec,
-                             QSet<QString>& stored,
-                             GtAbstractProperty* property);
+    void writePropertyHelper(
+            QVector<GtObjectMemento::MementoData::PropertyData>& pVec,
+            QSet<QString>& stored, GtAbstractProperty* property);
 
     /**
      * @brief writePropertyHelper
      */
-    void writePropertyHelper(QDomDocument& doc,
-                             QDomElement& root,
-                             const GtObjectMemento::MementoData::PropertyData& prop);
+    void writePropertyHelper(
+            QDomDocument& doc, QDomElement& root,
+            const GtObjectMemento::MementoData::PropertyData& prop);
 
     /**
      * @brief readPropertyHelper
      */
-    void readPropertyHelper(GtObjectMemento::MementoData::PropertyData& propData,
-                            const QDomElement& element);
+    void readPropertyHelper(
+            GtObjectMemento::MementoData::PropertyData& propData,
+            const QDomElement& element);
 
     /**
      * @brief readDynamicPropertyHelper
      */
-    void readDynamicPropertyHelper(GtObjectMemento::MementoData::PropertyData& propData,
-                                   const QDomElement& element);
+    void readDynamicPropertyHelper(
+            GtObjectMemento::MementoData::PropertyData& propData,
+            const QDomElement& element);
 
 
     /** Creates an QDomElement of a given property.
@@ -348,7 +351,7 @@ private:
      */
     static bool handleDynamicPropertyAdd(GtObject* target,
                                          const QDomElement& objectToAdd,
-                                         const QString index);
+                                         const QString& index);
 
     /**
      * @brief handleDynamicPropertyRemove
@@ -359,7 +362,7 @@ private:
      */
     static bool handleDynamicPropertyRemove(GtObject* target,
                                             const QDomElement& objectToAdd,
-                                            const QString index);
+                                            const QString& index);
 
     /**
      * @brief handleObjectAdd
@@ -369,7 +372,7 @@ private:
      */
     static bool handleObjectAdd(GtObject* parent,
                                 const QDomElement& objectToAdd,
-                                const QString index);
+                                const QString& index);
 
     /**
      * @brief handleObjectRemove
@@ -379,7 +382,7 @@ private:
      */
     static bool handleObjectRemove(GtObject* parent,
                                    const QDomElement& objectToRemove,
-                                   const QString);
+                                   const QString&);
 
     /**
      * @brief handleIndexChanged
@@ -390,7 +393,8 @@ private:
      * @return
      */
     static bool handleIndexChange(GtObject* parent,
-                                   const QDomElement& object, const int newIndex);
+                                  const QDomElement& object,
+                                  const int newIndex);
 
     /**
      * @brief structProperties

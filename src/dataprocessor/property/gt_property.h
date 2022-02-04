@@ -67,7 +67,7 @@ public:
         setVal(m_initValue);
     }
 
-    GtProperty<ParamType>& operator=(ParamType val) {
+    GtProperty<ParamType>& operator=(const ParamType& val) {
         setVal(val);
         return *this;
     }

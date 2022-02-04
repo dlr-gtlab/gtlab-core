@@ -28,8 +28,8 @@ public:
      * @param elementName - the name of the element mentioned to be deleted
      * @param parent - use the specific widget as parent
      */
-    GtDeleteItemMessageBox(QString title, QString elementName,
-                           QWidget* parent = Q_NULLPTR);
+    GtDeleteItemMessageBox(const QString& title, const QString& elementName,
+                           QWidget* parent = nullptr);
 };
 
 #endif // GTDELETEITEMMESSAGEBOX_H

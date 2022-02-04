@@ -307,7 +307,7 @@ GtObjectIO::toObjectHelper(const QDomElement& element, GtObject* parent)
     if (fieldClass.isEmpty() || fieldUuid.isEmpty())
     {
         gtWarning() << "class or uuid field is empty!";
-        return NULL;
+        return nullptr;
     }
 
     if (parent && !fieldName.isEmpty())
@@ -551,7 +551,7 @@ GtObjectIO::revertDiff(GtObjectMementoDiff& diff, GtObject* obj)
 
         GtObject* parentObject = obj->getObjectByUuid(parentUUID);
 
-        if (parentObject == Q_NULLPTR)
+        if (parentObject == nullptr)
         {
             return false;
         }
@@ -623,7 +623,7 @@ void
 GtObjectIO::mergeObjectProperties(const QDomElement& element,
                                   GtObject* obj)
 {
-    if (obj == NULL)
+    if (obj == nullptr)
     {
         return;
     }
@@ -756,9 +756,9 @@ GtObjectIO::mergeObjectProperties(const QDomElement& element,
             {
                 QString listStr;
                 QString listType;
-                QVariant prop = obj->property(fieldName.toLatin1());
+                QVariant currProp = obj->property(fieldName.toLatin1());
 
-                propertyListStringType(prop, listStr, listType);
+                propertyListStringType(currProp, listStr, listType);
                 if (listStr != listElement.text())
                 {
                     obj->setProperty(fieldName.toLatin1(),
@@ -1939,7 +1939,7 @@ GtObjectIO::handleAttributeNodeChange(GtObject* target,
 bool
 GtObjectIO::handleDynamicPropertyAdd(GtObject* /*target*/,
                                      const QDomElement& /*objectToAdd*/,
-                                     const QString /*index*/)
+                                     const QString& /*index*/)
 {
 //    bool ok = true;
 //    int ind = index.toInt(&ok);
@@ -2005,7 +2005,7 @@ GtObjectIO::handleDynamicPropertyAdd(GtObject* /*target*/,
 bool
 GtObjectIO::handleDynamicPropertyRemove(GtObject* /*target*/,
                                         const QDomElement& /*objectToRemove*/,
-                                        const QString /*index*/)
+                                        const QString& /*index*/)
 {
 //    if (objectToRemove.isNull())
 //    {
@@ -2029,7 +2029,7 @@ GtObjectIO::handleDynamicPropertyRemove(GtObject* /*target*/,
 bool
 GtObjectIO::handleObjectAdd(GtObject* parent,
                             const QDomElement& objectToAdd,
-                            const QString index)
+                            const QString& index)
 {
     bool ok = true;
     int ind = index.toInt(&ok);
@@ -2080,7 +2080,7 @@ GtObjectIO::handleObjectAdd(GtObject* parent,
 bool
 GtObjectIO::handleObjectRemove(GtObject* parent,
                                const QDomElement& objectToRemove,
-                               const QString /*index*/)
+                               const QString& /*index*/)
 {
     if (objectToRemove.isNull())
     {

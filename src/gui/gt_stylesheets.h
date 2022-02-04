@@ -50,7 +50,7 @@ namespace GtStyleSheets
      * @return the stylesheet
      *
      */
-    QString GT_GUI_EXPORT processRunButton(QString stdBackgroundRGB);
+    QString GT_GUI_EXPORT processRunButton(const QString &stdBackgroundRGB);
 
     /**
      * @brief performanceTaskLineEdit0
@@ -85,7 +85,8 @@ namespace GtStyleSheets
      * @param maxWidth
      * @return
      */
-    QString GT_GUI_EXPORT selectionComboBox(QString minWidth, QString maxWidth);
+    QString GT_GUI_EXPORT selectionComboBox(const QString& minWidth,
+                                            const QString& maxWidth);
 
     /**
      * @brief resultViewerTitleLabel - standard title line styleSheet for
@@ -98,7 +99,7 @@ namespace GtStyleSheets
      * @brief coloredCarpetPlotBtn - gives carpet plot button a color
      * @return
      */
-    QString GT_GUI_EXPORT coloredCarpetPlotBtn(QColor col);
+    QString GT_GUI_EXPORT coloredCarpetPlotBtn(const QColor& col);
 
 }
 

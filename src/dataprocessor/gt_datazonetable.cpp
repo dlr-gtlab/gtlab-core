@@ -26,7 +26,9 @@ GtDataZoneTable::GtDataZoneTable()
 //    processAbstractList(data);
 //}
 
-GtDataZoneTable::GtDataZoneTable(QStringList x, QStringList y, QStringList z,
+GtDataZoneTable::GtDataZoneTable(const QStringList& x,
+                                 const QStringList& y,
+                                 const QStringList& z,
                                  QList<GtAbstractDataZone *> data)
 {
     initAxes();
@@ -69,7 +71,9 @@ GtDataZoneTable::initAxes()
 }
 
 void
-GtDataZoneTable::setTicks(QStringList z, QStringList x, QStringList y)
+GtDataZoneTable::setTicks(const QStringList& z,
+                          const QStringList& x,
+                          const QStringList& y)
 {
     xPtr()->setTicks(x);
     yPtr()->setTicks(y);
@@ -99,7 +103,7 @@ GtDataZoneTable::setTicks(QStringList z, QStringList x, QStringList y)
 //}
 
 GtDataZoneTableMainAxis*
-GtDataZoneTable::xPtr()
+GtDataZoneTable::xPtr() const
 {
     if (findDirectChild<GtDataZoneTableMainAxis*>("mainX") == Q_NULLPTR)
     {
@@ -112,13 +116,13 @@ GtDataZoneTable::xPtr()
 }
 
 GtDataZoneTableMainAxis*
-GtDataZoneTable::yPtr()
+GtDataZoneTable::yPtr() const
 {
     return findDirectChild<GtDataZoneTableMainAxis*>("mainY");
 }
 
 GtDataZoneTableMainAxis*
-GtDataZoneTable::zPtr()
+GtDataZoneTable::zPtr() const
 {
     return findDirectChild<GtDataZoneTableMainAxis*>("mainZ");
 }
@@ -147,7 +151,7 @@ GtDataZoneTable::setAxisActive(GtDataZoneTableMainAxis::AxisType axType,
 {
     GtDataZoneTableMainAxis* axis = findAxis(axType);
     {
-        if (axis == Q_NULLPTR)
+        if (axis == nullptr)
         {
             // error
             return;
@@ -160,7 +164,7 @@ GtDataZoneTable::setAxisActive(GtDataZoneTableMainAxis::AxisType axType,
 bool
 GtDataZoneTable::onlyXaxisActive()
 {
-    if (xPtr() != Q_NULLPTR && yPtr() != Q_NULLPTR && zPtr() != Q_NULLPTR)
+    if (xPtr() != nullptr && yPtr() != nullptr && zPtr() != nullptr)
     {
         if (xPtr()->active() && !yPtr()->active() && !zPtr()->active())
         {
@@ -172,7 +176,7 @@ GtDataZoneTable::onlyXaxisActive()
 }
 
 QList<GtAbstractDataZone*>
-GtDataZoneTable::data()
+GtDataZoneTable::data() const
 {
     return findDirectChildren<GtAbstractDataZone*>();
 }
@@ -184,7 +188,7 @@ GtDataZoneTable::data()
 //}
 
 GtAbstractDataZone*
-GtDataZoneTable::dataZone(int x, int y, int z)
+GtDataZoneTable::dataZone(int x, int y, int z) const
 {
     // x, y, z indices of their axes, starting at 0
     int idx = xPtr()->size() * yPtr()->size() * z + xPtr()->size() * y + x;
@@ -192,7 +196,7 @@ GtDataZoneTable::dataZone(int x, int y, int z)
     if (idx > data().size())
     {
         // this should not happen
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return data().at(idx);
@@ -214,19 +218,19 @@ GtDataZoneTable::dataZone(int x, int y, int z)
 //}
 
 GtAbstractDataZone*
-GtDataZoneTable::dataZone(int idx)
+GtDataZoneTable::dataZone(int idx) const
 {
     if (idx > data().size())
     {
         // this should not happen
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return data().at(idx);
 }
 
 bool
-GtDataZoneTable::isValid()
+GtDataZoneTable::isValid() const
 {
     if (xPtr()->size() * yPtr()->size() * zPtr()->size() != data().size())
     {
@@ -236,7 +240,7 @@ GtDataZoneTable::isValid()
 
     for (GtAbstractDataZone* dz : data())
     {
-        if (dz == Q_NULLPTR)
+        if (dz == nullptr)
         {
             gtError() << "GtDataZoneTable::isValid() data is null";
             return false;
@@ -247,19 +251,19 @@ GtDataZoneTable::isValid()
 }
 
 bool
-GtDataZoneTable::isEmpty()
+GtDataZoneTable::isEmpty() const
 {
     return data().isEmpty();
 }
 
 QStringList
-GtDataZoneTable::xAxis()
+GtDataZoneTable::xAxis() const
 {
     return xPtr()->ticks();
 }
 
 QString
-GtDataZoneTable::xAxis(int i)
+GtDataZoneTable::xAxis(int i) const
 {
     if (i < xPtr()->size() || i < 0)
     {
@@ -270,13 +274,13 @@ GtDataZoneTable::xAxis(int i)
 }
 
 QStringList
-GtDataZoneTable::yAxis()
+GtDataZoneTable::yAxis() const
 {
     return yPtr()->ticks();
 }
 
 QString
-GtDataZoneTable::yAxis(int i)
+GtDataZoneTable::yAxis(int i) const
 {
     if (i < yPtr()->size() || i < 0)
     {
@@ -287,13 +291,13 @@ GtDataZoneTable::yAxis(int i)
 }
 
 QStringList
-GtDataZoneTable::zAxis()
+GtDataZoneTable::zAxis() const
 {
     return zPtr()->ticks();
 }
 
 QString
-GtDataZoneTable::zAxis(int i)
+GtDataZoneTable::zAxis(int i) const
 {
     if (i < zPtr()->size() || i < 0)
     {
@@ -304,25 +308,25 @@ GtDataZoneTable::zAxis(int i)
 }
 
 int
-GtDataZoneTable::nXDims()
+GtDataZoneTable::nXDims() const
 {
     return xPtr()->size();
 }
 
 int
-GtDataZoneTable::nYDims()
+GtDataZoneTable::nYDims() const
 {
     return yPtr()->size();
 }
 
 int
-GtDataZoneTable::nZDims()
+GtDataZoneTable::nZDims() const
 {
     return zPtr()->size();
 }
 
 bool
-GtDataZoneTable::is0D()
+GtDataZoneTable::is0D() const
 {
     if (data().at(0) != Q_NULLPTR)
     {
@@ -333,7 +337,7 @@ GtDataZoneTable::is0D()
 }
 
 int
-GtDataZoneTable::nSubDims()
+GtDataZoneTable::nSubDims() const
 {
     if (data().size() == 0)
     {
@@ -351,7 +355,7 @@ GtDataZoneTable::nSubDims()
 }
 
 QVector<QVector<double> >
-GtDataZoneTable::allAxisTicks()
+GtDataZoneTable::allAxisTicks() const
 {
     QVector<QVector<double> > retval;
 
@@ -374,7 +378,7 @@ GtDataZoneTable::allAxisTicks()
 }
 
 QMap<QString, QVector<double> >
-GtDataZoneTable::allAxisTicksMap()
+GtDataZoneTable::allAxisTicksMap() const
 {
     QMap<QString, QVector<double>> retval;
 
@@ -397,7 +401,7 @@ GtDataZoneTable::allAxisTicksMap()
 }
 
 QList<QStringList>
-GtDataZoneTable::allAxisTicksString()
+GtDataZoneTable::allAxisTicksString() const
 {
     QVector<QVector<double> > retval = allAxisTicks();
 
@@ -419,7 +423,7 @@ GtDataZoneTable::allAxisTicksString()
 }
 
 QMap<QString, QStringList>
-GtDataZoneTable::allAxisTicksStringMap()
+GtDataZoneTable::allAxisTicksStringMap() const
 {
     QMap<QString, QVector<double>> ticksDoubleMap = allAxisTicksMap();
 
@@ -442,7 +446,7 @@ GtDataZoneTable::allAxisTicksStringMap()
 }
 
 int
-GtDataZoneTable::nMainDims()
+GtDataZoneTable::nMainDims() const
 {
     int dims = 0;
     if (nXDims() > 1)
@@ -458,7 +462,7 @@ GtDataZoneTable::nMainDims()
 }
 
 QStringList
-GtDataZoneTable::subAxisNames()
+GtDataZoneTable::subAxisNames() const
 {
     QStringList retval;
 
@@ -481,7 +485,7 @@ GtDataZoneTable::subAxisNames()
 }
 
 void
-GtDataZoneTable::subAxisTicks(QString id, QVector<double>& dvecOut)
+GtDataZoneTable::subAxisTicks(const QString& id, QVector<double>& dvecOut) const
 {
     GtDataZone* dz = Q_NULLPTR;
 
@@ -496,8 +500,8 @@ GtDataZoneTable::subAxisTicks(QString id, QVector<double>& dvecOut)
 }
 
 double
-GtDataZoneTable::value2D(QString param, int mainX, int mainY, int mainZ,
-                         double x, double y, bool* ok)
+GtDataZoneTable::value2D(const QString& param, int mainX, int mainY, int mainZ,
+                         double x, double y, bool* ok) const
 {
     GtExternalizedObjectHelper<GtAbstractDataZone> adz
             (dataZone(mainX, mainY, mainZ), GtExternalizedObject::Discard);
@@ -527,9 +531,10 @@ GtDataZoneTable::value2D(QString param, int mainX, int mainY, int mainZ,
 }
 
 double
-GtDataZoneTable::value2D(QString param,
-                         QString mainX, QString mainY, QString mainZ,
-                         double x, double y, bool* ok)
+GtDataZoneTable::value2D(const QString& param,
+                         const QString& mainX, const QString& mainY,
+                         const QString& mainZ,
+                         double x, double y, bool* ok) const
 {
     int mainXnumber = xPtr()->indexOf(mainX);
     int mainYnumber = yPtr()->indexOf(mainY);
@@ -540,8 +545,8 @@ GtDataZoneTable::value2D(QString param,
 }
 
 double
-GtDataZoneTable::value1D(QString param, int mainX, int mainY, int mainZ,
-                         double x, bool* ok)
+GtDataZoneTable::value1D(const QString& param, int mainX, int mainY, int mainZ,
+                         double x, bool* ok) const
 {
     GtExternalizedObjectHelper<GtAbstractDataZone> adz
             (dataZone(mainX, mainY, mainZ), GtExternalizedObject::Discard);
@@ -571,11 +576,11 @@ GtDataZoneTable::value1D(QString param, int mainX, int mainY, int mainZ,
 }
 
 double
-GtDataZoneTable::value1D(QString param,
-                         QString mainX,
-                         QString mainY,
-                         QString mainZ,
-                         double x, bool* ok)
+GtDataZoneTable::value1D(const QString& param,
+                         const QString& mainX,
+                         const QString& mainY,
+                         const QString& mainZ,
+                         double x, bool* ok) const
 {
     int mainXnumber = xPtr()->indexOf(mainX);
     int mainYnumber = yPtr()->indexOf(mainY);
@@ -586,8 +591,8 @@ GtDataZoneTable::value1D(QString param,
 }
 
 double
-GtDataZoneTable::value0D(QString param, int mainX, int mainY, int mainZ,
-                         bool* ok)
+GtDataZoneTable::value0D(const QString& param, int mainX, int mainY, int mainZ,
+                         bool* ok) const
 {
     GtExternalizedObjectHelper<GtAbstractDataZone> adz
             (dataZone(mainX, mainY, mainZ), GtExternalizedObject::Discard);
@@ -606,8 +611,8 @@ GtDataZoneTable::value0D(QString param, int mainX, int mainY, int mainZ,
 }
 
 double
-GtDataZoneTable::valueFrom0Ddata(QString param, GtAbstractDataZone* adz,
-                                 bool* ok)
+GtDataZoneTable::valueFrom0Ddata(const QString& param, GtAbstractDataZone* adz,
+                                 bool* ok) const
 {
     GtExternalizedObjectHelper<GtDataZone0D> dz0D
             (adz, GtExternalizedObject::Discard);
@@ -626,9 +631,10 @@ GtDataZoneTable::valueFrom0Ddata(QString param, GtAbstractDataZone* adz,
 }
 
 double
-GtDataZoneTable::value0D(QString param,
-                         QString mainX, QString mainY, QString mainZ,
-                         bool* ok)
+GtDataZoneTable::value0D(const QString& param,
+                         const QString& mainX, const QString& mainY,
+                         const QString& mainZ,
+                         bool* ok) const
 {
     int mainXnumber = xPtr()->indexOf(mainX, ok);
 
@@ -664,7 +670,7 @@ GtDataZoneTable::value0D(QString param,
 }
 
 double
-GtDataZoneTable::value0DfromOP(QString param, QString OP, bool *ok)
+GtDataZoneTable::value0DfromOP(QString param, QString OP, bool *ok) const
 {
     int mainXnumber = xPtr()->indexOf(OP);
 
@@ -685,7 +691,7 @@ GtDataZoneTable::value0DfromOP(QString param, QString OP, bool *ok)
 }
 
 QStringList
-GtDataZoneTable::subAxisTicks(QString id)
+GtDataZoneTable::subAxisTicks(const QString& id) const
 {
     QStringList retval;
 
@@ -702,43 +708,43 @@ GtDataZoneTable::subAxisTicks(QString id)
 }
 
 QString
-GtDataZoneTable::xAxisName()
+GtDataZoneTable::xAxisName() const
 {
     return xPtr()->name();
 }
 
 QString
-GtDataZoneTable::yAxisName()
+GtDataZoneTable::yAxisName() const
 {
     return yPtr()->name();
 }
 
 QString
-GtDataZoneTable::zAxisName()
+GtDataZoneTable::zAxisName() const
 {
     return zPtr()->name();
 }
 
 int
-GtDataZoneTable::xAxisIndexFromString(QString str)
+GtDataZoneTable::xAxisIndexFromString(const QString& str) const
 {
     return xPtr()->indexOf(str);
 }
 
 int
-GtDataZoneTable::yAxisIndexFromString(QString str)
+GtDataZoneTable::yAxisIndexFromString(const QString& str) const
 {
     return yPtr()->indexOf(str);
 }
 
 int
-GtDataZoneTable::zAxisIndexFromString(QString str)
+GtDataZoneTable::zAxisIndexFromString(const QString& str) const
 {
     return zPtr()->indexOf(str);
 }
 
 QStringList
-GtDataZoneTable::params()
+GtDataZoneTable::params() const
 {
     GtExternalizedObjectHelper<GtAbstractDataZone> dz
             (data().first(), GtExternalizedObject::Discard);
@@ -747,7 +753,7 @@ GtDataZoneTable::params()
 }
 
 QString
-GtDataZoneTable::unitFromParam(QString param)
+GtDataZoneTable::unitFromParam(const QString& param) const
 {
     QString retval;
 
@@ -760,7 +766,7 @@ GtDataZoneTable::unitFromParam(QString param)
 }
 
 int
-GtDataZoneTable::dataSize()
+GtDataZoneTable::dataSize() const
 {
     return data().size();
 }

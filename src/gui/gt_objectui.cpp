@@ -120,7 +120,7 @@ GtObjectUI::addActionGroup(GtObjectUIActionGroup actionGroup)
 
 void
 GtObjectUI::addActionGroup(const QString& groupName,
-                           const QList<GtObjectUIAction> actions)
+                           const QList<GtObjectUIAction>& actions)
 {
     m_actionGroups.append(GtObjectUIActionGroup(groupName, actions));
 }
@@ -128,7 +128,7 @@ GtObjectUI::addActionGroup(const QString& groupName,
 void
 GtObjectUI::addActionGroup(const QString& groupName,
                            const QString& groupIcon,
-                           const QList<GtObjectUIAction> actions)
+                           const QList<GtObjectUIAction>& actions)
 {
     m_actionGroups.append(GtObjectUIActionGroup(groupName, actions, groupIcon));
 }
