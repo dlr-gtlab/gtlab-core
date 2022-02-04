@@ -39,7 +39,7 @@ public:
 
     void addUUID(const QString& uuid);
 
-    QColor colorUseRAt(int i);
+    QColor colorUseRAt(int i) const;
 
     QList<QString> colorsUseR() const;
 
@@ -67,19 +67,23 @@ public:
 
     void setSingleColorsUseL(int index, QColor col);
 
-    int bottomIterator(GtDataZoneTableList* dztList, QString bottomAxis,
-                       QVector<double>& axisTicks);
+    int bottomIterator(GtDataZoneTableList* dztList,
+                       const QString& bottomAxis,
+                       QVector<double>& axisTicks) const;
 
     // no usage of 'axisTicks'
-    int bottomIterator(GtDataZoneTableList* dztList, QString bottomAxis);
+    int bottomIterator(GtDataZoneTableList* dztList,
+                       const QString& bottomAxis) const;
 
-    int additionalIterator(GtDataZoneTableList* dztList, QString additionalAxis,
+    int additionalIterator(GtDataZoneTableList* dztList,
+                           const QString& additionalAxis,
                            QStringList scharParameters,
-                           QVector<double>& axisTicks);
+                           QVector<double>& axisTicks) const;
 
     // no usage of 'axisTicks'
-    int additionalIterator(GtDataZoneTableList* dztList, QString additionalAxis,
-                           QStringList scharParameters);
+    int additionalIterator(GtDataZoneTableList* dztList,
+                           const QString& additionalAxis,
+                           QStringList scharParameters) const;
 
     void fixMainValues(GtDataZoneTableList* dztList,
                        QMap<QString, QString> fixedMain,
@@ -88,7 +92,8 @@ public:
     void fixMainValues(QMap<QString, QString> fixedMain,
                        QString& fixXmain, QString& fixYmain, QString& fixZmain);
 
-    QStringList prefixToStringList(QStringList list, QString prefix);
+    QStringList prefixToStringList(const QStringList& list,
+                                   const QString& prefix) const;
 
     bool showmarkers() const;
 
@@ -105,7 +110,7 @@ public:
      * uuids saved in the string containers
      * @return
      */
-    QStringList objectNamesFromContainer();
+    QStringList objectNamesFromContainer() const;
 
     /**
      * @brief clearUUIDsContainer: deletes all containers of uuids

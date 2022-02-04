@@ -13,7 +13,7 @@
 GtAbstractChartProvider::GtAbstractChartProvider() :
     m_showmarkers(true),
     m_showwidgets(true),
-    m_dztUUIDsContainer(Q_NULLPTR)
+    m_dztUUIDsContainer(nullptr)
 {
     GtObjectGroup* UUIDsContainer = new GtObjectGroup;
     UUIDsContainer->setDefault(true);
@@ -31,7 +31,7 @@ GtAbstractChartProvider::uuids() const
     foreach (GtStringContainer* container,
              o->findDirectChildren<GtStringContainer*>())
     {
-        if (container != Q_NULLPTR)
+        if (container != nullptr)
         {
             retval.append(container->entry());
         }
@@ -47,7 +47,7 @@ GtAbstractChartProvider::setUUIDs(const QStringList& uuids)
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
         delete container;
-        container = Q_NULLPTR;
+        container = nullptr;
     }
 
     foreach (QString str, uuids)
@@ -62,7 +62,7 @@ GtAbstractChartProvider::addUUID(const QString& uuid)
     foreach (GtStringContainer* container,
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
-        if (container != Q_NULLPTR)
+        if (container != nullptr)
         {
             if (container->entry() == uuid)
             {
@@ -78,14 +78,14 @@ GtAbstractChartProvider::addUUID(const QString& uuid)
 }
 
 QStringList
-GtAbstractChartProvider::objectNamesFromContainer()
+GtAbstractChartProvider::objectNamesFromContainer() const
 {
     QStringList retval;
 
     foreach (GtStringContainer* container,
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
-        if (container == Q_NULLPTR)
+        if (container == nullptr)
         {
             continue;
         }
@@ -94,7 +94,7 @@ GtAbstractChartProvider::objectNamesFromContainer()
 
         GtObject* obj = gtDataModel->objectByUuid(uuidContainer);
 
-        if (obj == Q_NULLPTR)
+        if (obj == nullptr)
         {
             continue;
         }
@@ -111,7 +111,7 @@ GtAbstractChartProvider::clearUUIDsContainer()
     foreach (GtStringContainer* container,
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
-        if (container == Q_NULLPTR)
+        if (container == nullptr)
         {
             continue;
         }
@@ -121,7 +121,7 @@ GtAbstractChartProvider::clearUUIDsContainer()
 }
 
 QColor
-GtAbstractChartProvider::colorUseRAt(int i)
+GtAbstractChartProvider::colorUseRAt(int i) const
 {
     if (i >= m_colorsR.size())
     {
@@ -264,7 +264,7 @@ GtAbstractChartProvider::setSingleColorsUseL(int index, QColor col)
 
 int
 GtAbstractChartProvider::bottomIterator(GtDataZoneTableList* dztList,
-                                        QString bottomAxis,
+                                        const QString& bottomAxis,
                                         QVector<double>& axisTicks)
 {
     // get how many data sets there are at bottom
@@ -309,7 +309,7 @@ GtAbstractChartProvider::bottomIterator(GtDataZoneTableList* dztList,
 
 int
 GtAbstractChartProvider::bottomIterator(
-        GtDataZoneTableList *dztList, QString bottomAxis)
+        GtDataZoneTableList *dztList, const QString& bottomAxis) const
 {
     QVector<double> axisTicks;
 
@@ -318,9 +318,9 @@ GtAbstractChartProvider::bottomIterator(
 
 int
 GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
-                                            QString additionalAxis,
+                                            const QString& additionalAxis,
                                             QStringList scharParameters,
-                                            QVector<double>& axisTicks)
+                                            QVector<double>& axisTicks) const
 {
     // get how many data sets there are additional (that means schar)
 
@@ -374,8 +374,8 @@ GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
 
 int
 GtAbstractChartProvider::additionalIterator(GtDataZoneTableList *dztList,
-                                            QString additionalAxis,
-                                            QStringList scharParameters)
+                                            const QString& additionalAxis,
+                                            QStringList scharParameters) const
 {
 
     QVector<double> axisTicks;
@@ -412,8 +412,8 @@ GtAbstractChartProvider::fixMainValues(GtDataZoneTableList* dztList,
 
 void
 GtAbstractChartProvider::fixMainValues(QMap<QString, QString> fixedMain,
-                                       QString &fixXmain, QString &fixYmain,
-                                       QString &fixZmain)
+                                       QString& fixXmain, QString& fixYmain,
+                                       QString& fixZmain)
 {
     // get the fix X, Y, Z axis of the main datazonetable
     if (fixedMain.contains("mainX"))
@@ -452,10 +452,10 @@ GtAbstractChartProvider::UUIDsContainer() const
 {
     GtObjectGroup* g = findDirectChild<GtObjectGroup*>("UUID");
 
-    if (g == Q_NULLPTR)
+    if (g == nullptr)
     {
         gtError() << "Group 'UUID' not found in Abstract Chart provider";
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return g;
@@ -474,7 +474,8 @@ GtAbstractChartProvider::setShowmarkers(bool mod)
 }
 
 QStringList
-GtAbstractChartProvider::prefixToStringList(QStringList list, QString prefix)
+GtAbstractChartProvider::prefixToStringList(const QStringList& list,
+                                            const QString &prefix) const
 {
     QStringList stringsMod;
 
