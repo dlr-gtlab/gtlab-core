@@ -249,16 +249,16 @@ GtProcessConnectionGraphicsView::root()
 }
 
 GtProcessPropertyPortEntity*
-GtProcessConnectionGraphicsView::findOutputPortEntity(const QString uuid,
-                                                      const QString propId)
+GtProcessConnectionGraphicsView::findOutputPortEntity(const QString& uuid,
+                                                      const QString& propId)
 {
 //    qDebug() << "#### findOutputPortEntity";
     return findPortEntityHelper(m_outputPorts, uuid, propId);
 }
 
 GtProcessPropertyPortEntity*
-GtProcessConnectionGraphicsView::findInputPortEntity(const QString uuid,
-                                                     const QString propId)
+GtProcessConnectionGraphicsView::findInputPortEntity(const QString& uuid,
+                                                     const QString& propId)
 {
 //    qDebug() << "#### findInputPortEntity";
     return findPortEntityHelper(m_inputPorts, uuid, propId);
@@ -266,8 +266,8 @@ GtProcessConnectionGraphicsView::findInputPortEntity(const QString uuid,
 
 GtProcessPropertyPortEntity*
 GtProcessConnectionGraphicsView::findPortEntityHelper(GtProcessPortMap& map,
-                                                      const QString uuid,
-                                                      const QString propId)
+                                                      const QString& uuid,
+                                                      const QString& propId)
 {
 //    qDebug() << "   |-> " << uuid << "/" << propId;
 

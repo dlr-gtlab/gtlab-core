@@ -71,7 +71,6 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
         formLay->addRow(QStringLiteral("Port:"), m_portLine);
 
         delete con;
-        con = Q_NULLPTR;
     }
 
     m_userDataCheck = new QCheckBox(QStringLiteral("User Data"));

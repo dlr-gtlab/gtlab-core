@@ -110,7 +110,7 @@ GtSession::createDefault()
 }
 
 bool
-GtSession::createEmptySession(const QString id)
+GtSession::createEmptySession(const QString& id)
 {
     QString path = gtApp->roamingPath() + QDir::separator() +
                    QStringLiteral("session");
@@ -149,7 +149,7 @@ GtSession::createEmptySession(const QString id)
 }
 
 bool
-GtSession::duplicateSession(const QString source, const QString target)
+GtSession::duplicateSession(const QString& source, const QString& target)
 {
     QString path = gtApp->roamingPath() + QDir::separator() +
                    QStringLiteral("session");

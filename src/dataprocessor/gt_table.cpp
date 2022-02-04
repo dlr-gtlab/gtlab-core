@@ -21,7 +21,7 @@ GtTable::GtTable()
 }
 
 bool
-GtTable::addAxis(const QString& id, const QString desc, const QString& unit,
+GtTable::addAxis(const QString& id, const QString& desc, const QString& unit,
                  GtTableAxis::ExtrapMethod loExtMethod,
                  GtTableAxis::InterpMethod intMethod,
                  GtTableAxis::ExtrapMethod hiExtMethod,

@@ -126,14 +126,14 @@ protected:
      * @param id
      * @return
      */
-    static bool createEmptySession(const QString id);
+    static bool createEmptySession(const QString& id);
 
     /**
      * @brief duplicateWorkspcae
      * @param id
      * @return
      */
-    static bool duplicateSession(const QString source, const QString target);
+    static bool duplicateSession(const QString& source, const QString& target);
 
     /**
      * @brief setCurrentProject

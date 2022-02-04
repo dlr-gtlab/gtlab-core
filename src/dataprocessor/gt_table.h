@@ -52,7 +52,7 @@ public:
         @param hiExtMethod Extrapolation method at higher end
         @param ticks Reference to vector of ticks */
     bool addAxis(const QString& id,
-                 const QString desc,
+                 const QString& desc,
                  const QString& unit,
                  GtTableAxis::ExtrapMethod loExtMethod,
                  GtTableAxis::InterpMethod intMethod,

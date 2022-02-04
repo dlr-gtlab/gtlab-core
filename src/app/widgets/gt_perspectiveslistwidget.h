@@ -72,7 +72,7 @@ private:
      * @param id
      * @return
      */
-    bool addDataItem(const QString id);
+    bool addDataItem(const QString &id);
 
     /**
      * @brief duplicateDataItem
@@ -80,7 +80,7 @@ private:
      * @param target
      * @return
      */
-    bool duplicateDataItem(const QString source, const QString target);
+    bool duplicateDataItem(const QString& source, const QString& target);
 
 private slots:
     /**

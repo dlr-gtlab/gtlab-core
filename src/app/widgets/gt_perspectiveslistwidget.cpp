@@ -173,7 +173,7 @@ GtPerspectivesListWidget::generateId(const QString& name,
 }
 
 bool
-GtPerspectivesListWidget::addDataItem(const QString id)
+GtPerspectivesListWidget::addDataItem(const QString& id)
 {
     if (!gtApp->newPerspective(id))
     {
@@ -186,8 +186,8 @@ GtPerspectivesListWidget::addDataItem(const QString id)
 }
 
 bool
-GtPerspectivesListWidget::duplicateDataItem(const QString source,
-                                            const QString target)
+GtPerspectivesListWidget::duplicateDataItem(const QString& source,
+                                            const QString& target)
 {
     if (!gtApp->duplicatePerspective(source, target))
     {

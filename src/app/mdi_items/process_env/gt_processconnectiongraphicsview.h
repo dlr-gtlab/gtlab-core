@@ -138,8 +138,8 @@ private:
      * @param Property identification string.
      * @return Property port entity.
      */
-    GtProcessPropertyPortEntity* findOutputPortEntity(const QString uuid,
-                                                      const QString propId);
+    GtProcessPropertyPortEntity* findOutputPortEntity(const QString& uuid,
+                                                      const QString& propId);
 
     /**
      * @brief Returns property port entity based on given object uuid and
@@ -149,8 +149,8 @@ private:
      * @param Property identification string.
      * @return Property port entity.
      */
-    GtProcessPropertyPortEntity* findInputPortEntity(const QString uuid,
-                                                     const QString propId);
+    GtProcessPropertyPortEntity* findInputPortEntity(const QString& uuid,
+                                                     const QString& propId);
 
     /**
      * @brief Returns property port entity based on given object uuid and
@@ -162,8 +162,8 @@ private:
      * @return Property port entity.
      */
     GtProcessPropertyPortEntity* findPortEntityHelper(GtProcessPortMap& map,
-                                                      const QString uuid,
-                                                      const QString propId);
+                                                      const QString &uuid,
+                                                      const QString &propId);
 
 };
 

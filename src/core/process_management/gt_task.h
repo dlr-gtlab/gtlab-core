@@ -148,7 +148,7 @@ public:
      * @return Object corresponding to given uuid
      */
     template <class T>
-    T data(QString uuid)
+    T data(const QString& uuid)
     {
         foreach (GtObject* obj, m_linkedObjects)
         {

@@ -253,6 +253,7 @@ protected:
         m_hidden = false;
         m_storeMemento = true;
         m_category = GtAbstractProperty::Main;
+        m_unitCategory = GtUnit::None;
         m_connection = Q_NULLPTR;
     }
 

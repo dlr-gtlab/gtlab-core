@@ -31,7 +31,8 @@ GtH5FileManager::FileReference::isPathValid() const
 }
 
 GtH5FileManager::GtH5FileManager() :
-    m_idCounter(0)
+    m_idCounter(0),
+    m_projectObject(nullptr)
 {
 
 }
