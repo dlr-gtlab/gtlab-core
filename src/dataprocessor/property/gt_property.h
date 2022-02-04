@@ -79,10 +79,10 @@ protected:
     GtProperty(){}
 
     /// Value
-    ParamType m_value;
+    ParamType m_value = {};
 
     /// Initial value
-    ParamType m_initValue;
+    ParamType m_initValue = {};
 
     /// Pointer to unit converter object
     GtUnitConverter<ParamType>* m_unitConverter =

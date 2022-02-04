@@ -17,7 +17,10 @@
 #include "gt_unitconverter.h"
 
 GtPropertyUnitDelegate::GtPropertyUnitDelegate(QObject* parent) :
-    QStyledItemDelegate(parent)
+    QStyledItemDelegate(parent),
+    m_comboBox(nullptr),
+    m_width(1),
+    m_heigth(1)
 {
 
 }

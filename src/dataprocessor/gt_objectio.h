@@ -149,7 +149,9 @@ public:
      * @param var
      * @return
      */
-    static void propertyListStringType(const QVariant& var, QString& valStr, QString& typeStr);
+    static void propertyListStringType(const QVariant& var,
+                                       QString& valStr,
+                                       QString& typeStr);
 
     /**
      * @brief detect wether a QVariant data element would be stored as propertylist instead of property element.

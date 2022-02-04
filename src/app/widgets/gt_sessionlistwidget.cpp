@@ -140,7 +140,7 @@ GtSessionListWidget::deleteItem()
 {
     QListWidgetItem* item = currentItem();
 
-    if (item == NULL)
+    if (item == nullptr)
     {
         return;
     }
@@ -197,7 +197,7 @@ GtSessionListWidget::generateId(const QString& name, const QStringList& names,
 }
 
 bool
-GtSessionListWidget::addSessionItem(const QString id)
+GtSessionListWidget::addSessionItem(const QString& id)
 {
     if (!gtApp->newSession(id))
     {
@@ -210,8 +210,8 @@ GtSessionListWidget::addSessionItem(const QString id)
 }
 
 bool
-GtSessionListWidget::duplicateSessionItem(const QString source,
-                                              const QString target)
+GtSessionListWidget::duplicateSessionItem(const QString& source,
+                                          const QString& target)
 {
     if (!gtApp->duplicateSession(source, target))
     {

@@ -1509,15 +1509,15 @@ GtTable::toDomElement(QDomDocument& doc, const QString& valId) const
         QDomText nameTxt = doc.createTextNode(getAxesNames().at(i));
         eName.appendChild(nameTxt);
 
-        QDomElement eUnit = doc.createElement("Unit");
+        QDomElement currEUnit = doc.createElement("Unit");
         QString axisUnit = getAxesList().at(i)->unit();
-        QDomText unitTxt = doc.createTextNode(
+        QDomText currUnitTxt = doc.createTextNode(
                                axisUnit);
-        eUnit.appendChild(unitTxt);
+        currEUnit.appendChild(currUnitTxt);
 
-        QDomElement eDesc = doc.createElement("Description");
-        QDomText descTxt = doc.createTextNode(des);
-        eDesc.appendChild(descTxt);
+        QDomElement currEDesc = doc.createElement("Description");
+        QDomText currDescTxt = doc.createTextNode(des);
+        currEDesc.appendChild(currDescTxt);
 
         QDomElement eInterp = doc.createElement("Interpolation");
         QDomText interpTxt = doc.createTextNode(intMethode);

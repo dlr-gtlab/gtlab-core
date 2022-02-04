@@ -9,7 +9,9 @@
 #include "gt_scaleproperty.h"
 
 GtScaleProperty::GtScaleProperty() :
-    m_custom(false)
+    m_custom(false),
+    m_max(1),
+    m_min(0)
 {
 
 }

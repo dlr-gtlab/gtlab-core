@@ -25,8 +25,8 @@
 #include "gt_versionnumber.h"
 
 bool
-BatchRemote::checkInput(QString inputName, QString version, bool silent,
-                        bool checkVersion)
+BatchRemote::checkInput(const QString& inputName, const QString& version,
+                        bool silent, bool checkVersion)
 {
 
     if (!silent)
@@ -238,7 +238,8 @@ BatchRemote::checkInput(QString inputName, QString version, bool silent,
 }
 
 bool
-BatchRemote::run(QString inputName, QString outputName , QString version)
+BatchRemote::run(const QString& inputName, const QString& outputName,
+                 const QString& version)
 {
     qDebug() << "Test runs with Input:" << inputName << "and output:"
              << outputName;
@@ -309,7 +310,7 @@ BatchRemote::run(QString inputName, QString outputName , QString version)
             QDomElement dataElement = dataRoot.firstChildElement();
 
             //QString processName;
-            GtObject* obj = NULL;
+            GtObject* obj = nullptr;
             QList<GtObject*> objectList;
             GtObjectGroup* objectGroup = new GtObjectGroup;
 
@@ -322,7 +323,7 @@ BatchRemote::run(QString inputName, QString outputName , QString version)
                 GtObjectMemento memento(dataElement);
                 obj = memento.restore(gtObjectFactory);
 
-                if (obj == NULL)
+                if (obj == nullptr)
                 {
                     qDebug() << "ERROR: Object" << dataElement.attribute("name")
                              << "not restorable!";
@@ -349,7 +350,7 @@ BatchRemote::run(QString inputName, QString outputName , QString version)
             GtObjectMemento memento(processElement);
             GtTask* process = memento.restore<GtTask*>(gtProcessFactory);
 
-            if (process == NULL)
+            if (process == nullptr)
             {
                 qDebug() << "ERROR: Object" << processElement.attribute("name")
                          << "not restorable!";
@@ -406,8 +407,8 @@ BatchRemote::run(QString inputName, QString outputName , QString version)
 
             foreach (GtObject* object, objectList)
             {
-                GtObjectMemento memento = object->toMemento();
-                dataRootElement.appendChild(memento.documentElement());
+                GtObjectMemento currMemento = object->toMemento();
+                dataRootElement.appendChild(currMemento.documentElement());
             }
 
             rootElement.appendChild(dataRootElement);

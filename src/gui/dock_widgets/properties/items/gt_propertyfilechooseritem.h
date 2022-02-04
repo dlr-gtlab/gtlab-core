@@ -61,10 +61,6 @@ public:
                               QAbstractItemModel* model,
                               const QModelIndex& index) const override;
 
-private:
-    /// File chooser property.
-    GtFileChooserProperty* m_fileChooserProperty;
-
 };
 
 #endif // GTPROPERTYFILECHOOSERITEM_H
