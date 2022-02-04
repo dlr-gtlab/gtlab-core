@@ -194,6 +194,8 @@ GtProcessDock::setCurrentProcess(GtTask* process)
                    this, SLOT(onProcessDestroyed()));
         disconnect(m_currentProcess, SIGNAL(objectNameChanged(QString)),
                    this, SLOT(updateRunButton()));
+        disconnect(m_currentProcess, SIGNAL(skipPropertyChanged()),
+                   this, SLOT(updateRunButton()));
         disconnect(m_currentProcess, SIGNAL(dataChanged(GtObject*)),
                    this, SLOT(onTaskDataChanged(GtObject*)));
     }
@@ -204,6 +206,8 @@ GtProcessDock::setCurrentProcess(GtTask* process)
     {
         connect(process, SIGNAL(destroyed()), SLOT(onProcessDestroyed()));
         connect(process, SIGNAL(objectNameChanged(QString)),
+                SLOT(updateRunButton()));
+        connect(process, SIGNAL(skipPropertyChanged()),
                 SLOT(updateRunButton()));
         connect(process, SIGNAL(dataChanged(GtObject*)),
                 SLOT(onTaskDataChanged(GtObject*)));
@@ -579,8 +583,8 @@ GtProcessDock::updateButtons(GtObject* obj)
 
     setCurrentProcess(findRootTaskHelper(obj));
 
-    if (!obj || qobject_cast<GtCalculator*>(obj) || obj->isDummy() ||
-            obj->hasDummyParents())
+    if (obj && (qobject_cast<GtCalculator*>(obj) || obj->isDummy() ||
+                obj->hasDummyParents()))
     {
         m_addElementButton->setEnabled(false);
     }
@@ -591,10 +595,17 @@ GtProcessDock::updateButtons(GtObject* obj)
 void
 GtProcessDock::updateRunButton()
 {
-    if (m_currentProcess == Q_NULLPTR || m_currentProcess->hasDummyChildren())
+    // no process selected
+    if (m_currentProcess == Q_NULLPTR)
     {
+        m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
+
+        m_runButton->setStyleSheet(
+                    GtStyleSheets::processRunButton("rgb(230,255,230)"));
+
         m_runButton->setEnabled(false);
         m_runButton->setText(tr("Run"));
+        m_runButton->setToolTip(tr("No Process selected"));
         return;
     }
 
@@ -602,8 +613,31 @@ GtProcessDock::updateRunButton()
 
     GtTask* current = gtProcessExecutor->currentRunningTask();
 
-    if (current != Q_NULLPTR && current != m_currentProcess)
+    // no task is running
+    if (current == Q_NULLPTR)
     {
+        m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
+
+        m_runButton->setStyleSheet(
+                    GtStyleSheets::processRunButton("rgb(230,255,230)"));
+
+        if (str.isEmpty())
+        {
+            m_runButton->setEnabled(false);
+            m_runButton->setToolTip(tr("No Process selected"));
+            m_runButton->setText(tr("Run"));
+        }
+        else
+        {
+            m_runButton->setEnabled(true);
+            m_runButton->setToolTip(tr("Run Selected Process"));
+            m_runButton->setText(tr("Run") + " (" + str + ")");
+        }
+    }
+    // a task is running
+    else if (current != m_currentProcess)
+    {
+        // queue
         m_runButton->setIcon(gtApp->icon("queueIcon_16.png"));
 
         m_runButton->setStyleSheet(
@@ -622,50 +656,39 @@ GtProcessDock::updateRunButton()
             m_runButton->setToolTip(tr("Add Selected Process to Queue"));
         }
     }
+    // selected task is running
     else
     {
         m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
 
         m_runButton->setStyleSheet(
-                    GtStyleSheets::processRunButton("rgb(230,255,230)"));
+                    GtStyleSheets::processRunButton("rgb(255,230,230)"));
 
-        if (str.isEmpty())
+        // stopping
+        if (m_currentProcess->currentState() ==
+                GtProcessComponent::TERMINATION_REQUESTED)
         {
+            m_runButton->setIcon(gtApp->icon("stopRequestIcon_16.png"));
             m_runButton->setEnabled(false);
-            m_runButton->setToolTip(tr("No Process selected"));
-            m_runButton->setText(tr("Run"));
+            m_runButton->setToolTip(tr("Terminating process..."));
+            m_runButton->setText(str + tr(" terminating..."));
         }
         else
         {
-            if (m_currentProcess == current)
-            {
-
-                m_runButton->setStyleSheet(GtStyleSheets::processRunButton(
-                                               "rgb(255,230,230)"));
-
-                if (m_currentProcess->currentState() ==
-                        GtProcessComponent::TERMINATION_REQUESTED)
-                {
-                    m_runButton->setIcon(gtApp->icon("stopRequestIcon_16.png"));
-                    m_runButton->setEnabled(false);
-                    m_runButton->setToolTip(tr("Terminating process..."));
-                    m_runButton->setText(str + tr(" terminating..."));
-                }
-                else
-                {
-                    m_runButton->setIcon(gtApp->icon("stopIcon_16.png"));
-                    m_runButton->setEnabled(true);
-                    m_runButton->setToolTip(tr("Stop Selected Process"));
-                    m_runButton->setText(tr("Stop") + " (" + str + ")");
-                }
-            }
-            else
-            {
-                m_runButton->setEnabled(true);
-                m_runButton->setToolTip(tr("Run Selected Process"));
-                m_runButton->setText(tr("Run") + " (" + str + ")");
-            }
+            m_runButton->setIcon(gtApp->icon("stopIcon_16.png"));
+            m_runButton->setEnabled(true);
+            m_runButton->setToolTip(tr("Stop Selected Process"));
+            m_runButton->setText(tr("Stop") + " (" + str + ")");
         }
+    }
+
+    // disable run button if process is not ready, skip running task
+    if (current != m_currentProcess && (m_currentProcess->hasDummyChildren() ||
+                                        m_currentProcess->isSkipped()))
+    {
+        // text, style and icon are already set
+        m_runButton->setEnabled(false);
+        m_runButton->setToolTip(tr("Invalid Process selected"));
     }
 }
 
@@ -1028,13 +1051,6 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     actunskip->setIcon(gtApp->icon("arrowrightIcon.png"));
     actunskip->setShortcut(gtApp->getShortCutSequence("unskipProcess"));
 
-    // check if task is root
-    if (obj == obj->rootTask())
-    {
-        actskip->setEnabled(false);
-        actunskip->setEnabled(false);
-    }
-
     if (!obj->isSkipped())
     {
         actunskip->setVisible(false);
@@ -1370,8 +1386,6 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
     bool allUnskipped = true;
     // counter for dummy objects
     int dummyObjects = 0;
-    // counter for root objects
-    int rootObjects  = 0;
 
     for (const QModelIndex& index : indexList)
     {
@@ -1384,7 +1398,6 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
         }
 
         dummyObjects += (pc->hasDummyParents());
-        rootObjects  += (pc->rootTask() == pc);
 
         if (!pc->isSkipped())
         {
@@ -1410,8 +1423,8 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
     {
         deleteElements->setEnabled(false);
     }
-    // root tasks or dummy objects cannot be skipped
-    if (rootObjects + dummyObjects == indexList.length())
+    // dummy objects cannot be skipped
+    if (dummyObjects == indexList.length())
     {
         skipCalcs->setEnabled(false);
         unskipCalcs->setEnabled(false);

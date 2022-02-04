@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Saving a project was moved to a separate thread - #127
 - Changed the class structure for Datazones to make use of the externalization feature - #127
-- Sub-Tasks can be skipped - #82
+- Tasks can be skipped - #82, #176
 
 ### Added
 - Multiple labels can be selected and deleted at once - #111
