@@ -69,7 +69,8 @@ INCLUDEPATH += .\
     ../core/settings \
     ../core/network \
     ../core/process_management \
-    ../core/provider
+    ../core/provider \
+    ../core/states
 
 DESTDIR = $${BUILD_DEST}
 
@@ -180,10 +181,6 @@ HEADERS += \
     post/gt_abstractwizard.h \
     post/gt_stringcontainer.h \
     post/gt_posttemplatepath.h \
-    gt_state.h \
-    gt_statehandler.h \
-    gt_statecontainer.h \
-    gt_stategroup.h \
     gt_customprocesswizard.h \
     gt_extendedcalculatordata.h \
     importer/gt_importerinterface.h \
@@ -332,12 +329,8 @@ SOURCES += \
     post/gt_templateviewerlistwidget.cpp \
     post/gt_stringmapcontainer.cpp \
     post/gt_stringcontainer.cpp \
-    gt_state.cpp \
-    gt_statehandler.cpp \
-    gt_statecontainer.cpp \
     post/gt_posttemplatepath.cpp \
     post/gt_abstractwizard.cpp \
-    gt_stategroup.cpp \
     gt_extendedcalculatordata.cpp \
     gt_customprocesswizard.cpp \
     gt_processexecutor.cpp \
