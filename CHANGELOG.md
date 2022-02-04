@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Saving a project was moved to a separate thread - #127
 - Changed the class structure for Datazones to make use of the externalization feature - #127
 - Tasks can be skipped - #82, #176
+- Exteded library refactoring - #161
 
 ### Added
 - Multiple labels can be selected and deleted at once - #111
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark mode for GTlab - #163
 - Shortcut settings for GTlab including the introduction of several new shortcuts and the option to maintain them in the preferences - #112, #171
 - Versionnumber based on GtVersionNumber for tasks - #129
+- Add some DataZone functions to Python interface - #177
 
 ### Removed
 - Nozzle map was removed to be added in the map collection - #114 
@@ -73,7 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed inconsistency in handling of non-dimensional unit - #33
 
 ### Removed
-- Process monitoring and dependency to qwt libranry - #9
+- Process monitoring and dependency to qwt library - #9
 
 ## [1.7.0-alpha1] - 2020-11-06
 ### Added
