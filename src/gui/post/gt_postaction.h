@@ -10,7 +10,7 @@ class GtPostAction : public QAction
 public:
     GtPostAction();
 
-    GtPostAction(QString str, QObject* o);
+    GtPostAction(const QString& str, QObject* o);
 };
 
 #endif // GTPOSTACTION_H

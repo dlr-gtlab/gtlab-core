@@ -9,7 +9,7 @@
 GtFinishedProcessLoadingHelper::GtFinishedProcessLoadingHelper(
         QList<GtObjectMemento>* data,
         QPointer<GtObject> source,
-        QString taskName) :
+        const QString& taskName) :
     m_data(data),
     m_sumDiff(new GtObjectMementoDiff),
     m_source(source),

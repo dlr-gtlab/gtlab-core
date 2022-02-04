@@ -10,29 +10,26 @@
 #include "gt_pyhighlighter.h"
 #include "gt_application.h"
 
-GtPyHighlighter::GtPyHighlighter(QTextDocument* parent)
-    : QSyntaxHighlighter(parent)
+GtPyHighlighter::GtPyHighlighter(QTextDocument* parent) :
+    QSyntaxHighlighter(parent),
+    keywords({"and", "assert", "break", "class", "continue", "def",
+             "del", "elif", "else", "except", "exec", "finally",
+             "for", "from", "global", "if", "import", "in" ,
+             "is", "lambda", "not", "or", "pass", "print", "raise",
+             "return", "try", "while", "yield", "None", "True", "False"}),
+    operators({"=",
+              // Comparison
+              "==", "!=", "<", "<=", ">", ">=",
+              // Arithmetic
+              "\\+", "-", "\\*", "/", "//", "%", "\\*\\*",
+              // In-place
+              "\\+=", "-=", "\\*=", "/=", "%=",
+              // Bitwise
+              "\\^", "\\|", "&", "~", ">>", "<<"
+              }),
+    braces({"{", "}", "\\(", "\\)", "\\[", "\\]"})
+
 {
-    keywords = QStringList() << "and" << "assert" << "break" << "class" <<
-               "continue" << "def" <<
-               "del" << "elif" << "else" << "except" << "exec" << "finally" <<
-               "for" << "from" << "global" << "if" << "import" << "in" <<
-               "is" << "lambda" << "not" << "or" << "pass" << "print" <<
-               "raise" << "return" << "try" << "while" << "yield" <<
-               "None" << "True" << "False";
-
-    operators = QStringList() << "=" <<
-                // Comparison
-                "==" << "!=" << "<" << "<=" << ">" << ">=" <<
-                // Arithmetic
-                "\\+" << "-" << "\\*" << "/" << "//" << "%" << "\\*\\*" <<
-                // In-place
-                "\\+=" << "-=" << "\\*=" << "/=" << "%=" <<
-                // Bitwise
-                "\\^" << "\\|" << "&" << "~" << ">>" << "<<";
-
-    braces = QStringList() << "{" << "}" << "\\(" << "\\)" << "\\[" << "\\]";
-
     initializeStyles();
 
     triSingleQuote.setPattern("'''");

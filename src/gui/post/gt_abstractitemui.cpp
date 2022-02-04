@@ -336,7 +336,7 @@ GtAbstractItemUI::moveDown()
 }
 
 void
-GtAbstractItemUI::onProvidernameChanged(QString s)
+GtAbstractItemUI::onProvidernameChanged(const QString& s)
 {
     Q_UNUSED(s)
     // nothing to do in here

@@ -31,7 +31,7 @@ public:
      * @param parent Parent widget
      */
     GtConfirmDeleteProjectDialog(QWidget* parent = Q_NULLPTR,
-                                 QString projectName = "");
+                                 const QString& projectName = "");
 
     /**
      * @brief deleteFromHardDisk

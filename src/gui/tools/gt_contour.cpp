@@ -21,7 +21,7 @@ GtContour::GtContour() :
 }
 
 QHash<QString, QList<QPolygonF> >
-GtContour::calcContour(GtTable* table, QString param,
+GtContour::calcContour(GtTable* table, const QString& param,
                        QStringList isoValues, bool calcPolygons,
                        bool returnPolygonsOnly, bool* check)
 {
@@ -104,8 +104,9 @@ GtContour::calcContour(GtTable* table, QString param,
 }
 
 QList<QPolygonF>
-GtContour::calcContour(GtTable* table, QString param, QString isoValue,
-                       bool calcPolygons, bool returnPolygonsOnly, bool* check)
+GtContour::calcContour(GtTable* table, const QString& param,
+                       const QString& isoValue, bool calcPolygons,
+                       bool returnPolygonsOnly, bool* check)
 {
     QStringList isoValues;
     isoValues.append(isoValue);
@@ -115,7 +116,7 @@ GtContour::calcContour(GtTable* table, QString param, QString isoValue,
 }
 
 QHash<QString, QList<QPolygonF> >
-GtContour::calcContour(GtTable* table, QString param, int nIsoValues,
+GtContour::calcContour(GtTable* table, const QString& param, int nIsoValues,
                        bool calcPolygons, bool returnPolygonsOnly, bool* check)
 {
     if (table == Q_NULLPTR)
@@ -267,13 +268,13 @@ GtContour::setData(GtTable* table, QString paramName, int iDim, int jDim)
 }
 
 QStringList
-GtContour::isoValues()
+GtContour::isoValues() const
 {
     return m_isoValues;
 }
 
 bool
-GtContour::isValid(GtTable* t, QString paramName)
+GtContour::isValid(GtTable* t, const QString& paramName) const
 {
     if (t->getAxesList().size() != 2)
     {

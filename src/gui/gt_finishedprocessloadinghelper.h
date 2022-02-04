@@ -35,7 +35,7 @@ public:
      */
     GtFinishedProcessLoadingHelper(QList<GtObjectMemento>* data,
                                    QPointer<GtObject> source,
-                                   QString taskName);
+                                   const QString& taskName);
 
     /**
      * @brief ~GtFinishedProcessLoadingHelper

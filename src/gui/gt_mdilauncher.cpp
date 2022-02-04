@@ -415,7 +415,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, QString customId)
 }
 
 GtMdiItem*
-GtMdiLauncher::open(const QString& id, QString customId)
+GtMdiLauncher::open(const QString& id, const QString& customId)
 {
-    return open(id, Q_NULLPTR, customId);
+    return open(id, nullptr, customId);
 }

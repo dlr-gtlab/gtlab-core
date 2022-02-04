@@ -556,7 +556,7 @@ GtTemplateViewer::moveWidget(GtTemplateViewer::MoveDirection d)
 }
 
 void
-GtTemplateViewer::setPlotIcon(QAction* actPlot, QString str)
+GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
 {
     if (str == "GtBarProvider")
     {
@@ -593,7 +593,7 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, QString str)
 }
 
 QString
-GtTemplateViewer::shortPlotName(QString providerName)
+GtTemplateViewer::shortPlotName(const QString& providerName) const
 {
     if (providerName == "GtBarProvider")
     {

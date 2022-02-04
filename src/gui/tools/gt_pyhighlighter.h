@@ -19,13 +19,11 @@ class GtHighlightingRule
 {
 public:
     GtHighlightingRule(const QString& patternStr, int n,
-                       const QTextCharFormat& matchingFormat)
-    {
-        originalRuleStr = patternStr;
-        pattern = QRegExp(patternStr);
-        nth = n;
-        format = matchingFormat;
-    }
+                       const QTextCharFormat& matchingFormat) :
+        originalRuleStr(patternStr),
+        pattern(QRegExp(patternStr)),
+        nth(n),
+        format(matchingFormat) {}
 
     QString originalRuleStr;
 

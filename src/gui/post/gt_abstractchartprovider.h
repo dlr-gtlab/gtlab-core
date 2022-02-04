@@ -83,7 +83,7 @@ public:
     // no usage of 'axisTicks'
     int additionalIterator(GtDataZoneTableList* dztList,
                            const QString& additionalAxis,
-                           QStringList scharParameters) const;
+                           const QStringList& scharParameters) const;
 
     void fixMainValues(GtDataZoneTableList* dztList,
                        QMap<QString, QString> fixedMain,

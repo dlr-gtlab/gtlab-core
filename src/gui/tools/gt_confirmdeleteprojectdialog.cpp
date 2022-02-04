@@ -19,9 +19,8 @@
 
 #include "gt_confirmdeleteprojectdialog.h"
 
-GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(QWidget* parent,
-                                                           QString projectName)
-    :
+GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
+        QWidget* parent, const QString& projectName) :
     QDialog(parent),
     m_checkBox(Q_NULLPTR)
 {

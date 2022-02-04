@@ -265,7 +265,7 @@ GtAbstractChartProvider::setSingleColorsUseL(int index, QColor col)
 int
 GtAbstractChartProvider::bottomIterator(GtDataZoneTableList* dztList,
                                         const QString& bottomAxis,
-                                        QVector<double>& axisTicks)
+                                        QVector<double>& axisTicks) const
 {
     // get how many data sets there are at bottom
 
@@ -373,9 +373,9 @@ GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
 }
 
 int
-GtAbstractChartProvider::additionalIterator(GtDataZoneTableList *dztList,
-                                            const QString& additionalAxis,
-                                            QStringList scharParameters) const
+GtAbstractChartProvider::additionalIterator(
+        GtDataZoneTableList* dztList, const QString& additionalAxis,
+        const QStringList& scharParameters) const
 {
 
     QVector<double> axisTicks;

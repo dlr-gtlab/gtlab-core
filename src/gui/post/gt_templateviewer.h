@@ -109,14 +109,14 @@ private:
      * @param actPlot
      * @param str
      */
-    void setPlotIcon(QAction* actPlot, QString str);
+    void setPlotIcon(QAction* actPlot, const QString& str) const;
 
     /**
      * @brief shortPlotName
      * @param providerName
      * @return
      */
-    QString shortPlotName(QString providerName);
+    QString shortPlotName(const QString& providerName) const;
 
     QMutex m_mutex;
 
