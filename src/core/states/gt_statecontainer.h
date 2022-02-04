@@ -62,7 +62,7 @@ private:
      * @param id
      * @return
      */
-    GtStateGroup* findGroup(const QString id);
+    GtStateGroup* findGroup(const QString& id);
 
 };
 

@@ -39,7 +39,7 @@ GtExamplesEntry::pixmapPath() const
 }
 
 void
-GtExamplesEntry::setPixmapPath(QString pixmapPath)
+GtExamplesEntry::setPixmapPath(const QString& pixmapPath)
 {
     m_pixmapPath = pixmapPath;
 }

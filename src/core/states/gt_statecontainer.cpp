@@ -79,7 +79,7 @@ GtStateContainer::initializeState(const QString& groupId, const QString& id,
 }
 
 GtStateGroup*
-GtStateContainer::findGroup(const QString id)
+GtStateContainer::findGroup(const QString& id)
 {
     if (id.isEmpty())
     {

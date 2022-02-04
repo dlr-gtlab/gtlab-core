@@ -28,32 +28,32 @@ public:
 
     // 20.10.2016 changed: only Standard constructor is now invokable
 
-    GtDataZoneTableMainAxis(const QString name, AxisType axType,
+    GtDataZoneTableMainAxis(const QString& name, AxisType axType,
                             QString title = QString());
 
     Q_INVOKABLE GtDataZoneTableMainAxis();
 
-    int size();
+    int size() const;
 
     void setTicks(QStringList ticks);
 
-    QStringList ticks();
+    QStringList ticks() const;
 
-    int indexOf(QString str, bool* ok = Q_NULLPTR);
+    int indexOf(const QString &str, bool* ok = nullptr) const;
 
-    QString name();
+    QString name() const;
 
     void setName(const QString& name);
 
     QString title() const;
 
-    void setTitle(const QString &title);
+    void setTitle(const QString& title);
 
     bool active() const;
 
     void setActive(bool active);
 
-    AxisType axisType();
+    AxisType axisType() const;
 
 private:
 

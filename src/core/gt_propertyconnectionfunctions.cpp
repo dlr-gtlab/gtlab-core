@@ -18,7 +18,7 @@
 GtPropertyConnection*
 GtPropertyConnectionFunctions::findConnectionCopy(
         const GtPropertyConnection* origCon,
-        const QList<GtPropertyConnection*> newCons)
+        const QList<GtPropertyConnection*>& newCons)
 {
     if (origCon == nullptr)
     {

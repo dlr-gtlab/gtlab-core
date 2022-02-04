@@ -670,7 +670,8 @@ GtDataZoneTable::value0D(const QString& param,
 }
 
 double
-GtDataZoneTable::value0DfromOP(QString param, QString OP, bool *ok) const
+GtDataZoneTable::value0DfromOP(const QString& param, const QString& OP,
+                               bool *ok) const
 {
     int mainXnumber = xPtr()->indexOf(OP);
 

@@ -35,7 +35,7 @@ namespace GtPropertyConnectionFunctions
      */
     GT_CORE_EXPORT GtPropertyConnection* findConnectionCopy(
             const GtPropertyConnection* origCon,
-            const QList<GtPropertyConnection *> newCons);
+            const QList<GtPropertyConnection *>& newCons);
 
     /**
      * @brief updates a certain property connection to new values

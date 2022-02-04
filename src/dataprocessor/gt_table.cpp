@@ -464,7 +464,7 @@ GtTable::getUnit() const
 }
 
 GtTableValues*
-GtTable::getVals(const QString id) const
+GtTable::getVals(const QString& id) const
 {
     if (!m_tabVals.contains(id))
     {
@@ -477,7 +477,7 @@ GtTable::getVals(const QString id) const
 
 
 double
-GtTable::getValue(const QString& valsId, const QVector<double>& coords)
+GtTable::getValue(const QString& valsId, const QVector<double>& coords) const
 {
     if (coords.size() != nDims() && m_type == DEFAULT)
     {
@@ -492,7 +492,7 @@ GtTable::getValue(const QString& valsId, const QVector<double>& coords)
 
 
 double
-GtTable::getValue1D(const QString& valsId, double x0)
+GtTable::getValue1D(const QString& valsId, double x0) const
 {
     QVector<double> coords(1);
 
@@ -1187,7 +1187,7 @@ GtTable::getValue5D(const QString& valsId, double x0, double x1, double x2,
 
 
 bool
-GtTable::isAscending(const QVector<double>& ticks)
+GtTable::isAscending(const QVector<double>& ticks) const
 {
     int n = ticks.size();
 

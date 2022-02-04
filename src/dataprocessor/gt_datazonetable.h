@@ -275,8 +275,8 @@ public:
                    const QString& mainY, const QString& mainZ,
                    bool* ok = nullptr) const;
 
-    double value0DfromOP(QString param, QString OP,
-                   bool* ok = nullptr) const;
+    double value0DfromOP(const QString& param, const QString& OP,
+                         bool* ok = nullptr) const;
 
     /**
      * @brief axisTicks

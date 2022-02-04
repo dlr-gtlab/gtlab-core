@@ -12,9 +12,9 @@ GtDataZoneTableList::GtDataZoneTableList() :
 }
 
 bool
-GtDataZoneTableList::addDzt(GtDataZoneTable* dzt, QString uuid)
+GtDataZoneTableList::addDzt(GtDataZoneTable* dzt, const QString& uuid)
 {
-    if (dzt == Q_NULLPTR)
+    if (dzt == nullptr)
     {
         return false;
     }
@@ -35,13 +35,13 @@ GtDataZoneTableList::addDzt(GtDataZoneTable* dzt, QString uuid)
 }
 
 int
-GtDataZoneTableList::size()
+GtDataZoneTableList::size() const
 {
     return m_dztList.size();
 }
 
 bool
-GtDataZoneTableList::isEmpty()
+GtDataZoneTableList::isEmpty() const
 {
     if (size() == 0)
     {
@@ -53,11 +53,11 @@ GtDataZoneTableList::isEmpty()
 
 
 int
-GtDataZoneTableList::numXticks()
+GtDataZoneTableList::numXticks() const
 {
     int retval = 0;
 
-    if (dzt() != Q_NULLPTR)
+    if (dzt() != nullptr)
     {
         retval = dzt()->nXDims();
     }
@@ -66,11 +66,11 @@ GtDataZoneTableList::numXticks()
 }
 
 int
-GtDataZoneTableList::numYticks()
+GtDataZoneTableList::numYticks() const
 {
     int retval = 0;
 
-    if (dzt() != Q_NULLPTR)
+    if (dzt() != nullptr)
     {
         retval = dzt()->nYDims();
     }
@@ -79,11 +79,11 @@ GtDataZoneTableList::numYticks()
 }
 
 int
-GtDataZoneTableList::numZticks()
+GtDataZoneTableList::numZticks() const
 {
     int retval = 0;
 
-    if (dzt() != Q_NULLPTR)
+    if (dzt() != nullptr)
     {
         retval = dzt()->nZDims();
     }
@@ -92,25 +92,25 @@ GtDataZoneTableList::numZticks()
 }
 
 int
-GtDataZoneTableList::xAxisIndexFromString(QString str)
+GtDataZoneTableList::xAxisIndexFromString(const QString& str) const
 {
     return dzt()->xAxisIndexFromString(str);
 }
 
 int
-GtDataZoneTableList::yAxisIndexFromString(QString str)
+GtDataZoneTableList::yAxisIndexFromString(const QString& str) const
 {
     return dzt()->yAxisIndexFromString(str);
 }
 
 int
-GtDataZoneTableList::zAxisIndexFromString(QString str)
+GtDataZoneTableList::zAxisIndexFromString(const QString& str) const
 {
     return dzt()->zAxisIndexFromString(str);
 }
 
 QList<GtDataZoneTable*>
-GtDataZoneTableList::list()
+GtDataZoneTableList::list() const
 {
     return m_dztList;
 }
@@ -124,7 +124,7 @@ GtDataZoneTableList::isValid(GtDataZoneTable* newDzt)
         return true;
     }
 
-    if (newDzt == Q_NULLPTR)
+    if (newDzt == nullptr)
     {
         // something went wrong, first dzt in dztList is a Q_NULLPTR
         gtWarning() << tr("New DataZoneTable is a Nullptr, returning false ");
@@ -133,7 +133,7 @@ GtDataZoneTableList::isValid(GtDataZoneTable* newDzt)
 
     GtDataZoneTable* dztTemp = dzt();
 
-    if (dztTemp == Q_NULLPTR)
+    if (dztTemp == nullptr)
     {
         gtWarning() << tr("dztTemp DataZoneTable is a Nullptr, "
                           "returning false ");
@@ -221,9 +221,9 @@ GtDataZoneTableList::fixMainValues(QMap<QString, QString> fixedMain,
 }
 
 GtDataZoneTable*
-GtDataZoneTableList::dzt()
+GtDataZoneTableList::dzt() const
 {
-    GtDataZoneTable* retval = Q_NULLPTR;
+    GtDataZoneTable* retval = nullptr;
 
     if (m_dztList.size() > 0)
     {
@@ -234,11 +234,11 @@ GtDataZoneTableList::dzt()
 }
 
 bool
-GtDataZoneTableList::onlyXaxisActive()
+GtDataZoneTableList::onlyXaxisActive() const
 {
     GtDataZoneTable* dztt = dzt();
 
-    if (dztt == Q_NULLPTR)
+    if (dztt == nullptr)
     {
         return false;
     }
@@ -247,7 +247,7 @@ GtDataZoneTableList::onlyXaxisActive()
 }
 
 GtDataZoneTable*
-GtDataZoneTableList::dzt(QString param)
+GtDataZoneTableList::dzt(const QString& param) const
 {
     for (GtDataZoneTable* t : m_dztList)
     {
@@ -259,11 +259,11 @@ GtDataZoneTableList::dzt(QString param)
 
     gtDebug() << tr("No datazonetable contains parameter '") << param << "'";
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 GtDataZoneTable*
-GtDataZoneTableList::dztFromName(QString dztName)
+GtDataZoneTableList::dztFromName(const QString& dztName) const
 {
     for (GtDataZoneTable* t : m_dztList)
     {
@@ -275,7 +275,7 @@ GtDataZoneTableList::dztFromName(QString dztName)
 
     gtError() << tr("No datazonetable is named '") << dztName << "'";
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void
@@ -296,19 +296,19 @@ GtDataZoneTableList::onObjectDataMerged()
 }
 
 int
-GtDataZoneTableList::nSubDims()
+GtDataZoneTableList::nSubDims() const
 {
     return dzt()->nSubDims();
 }
 
 QStringList
-GtDataZoneTableList::params()
+GtDataZoneTableList::params() const
 {
     QStringList paramsUnique;
 
     for (GtDataZoneTable* t : list())
     {
-        if (t != Q_NULLPTR)
+        if (t != nullptr)
         {
             for (const QString& str : t->params())
             {
@@ -324,7 +324,7 @@ GtDataZoneTableList::params()
 }
 
 QMap<QString, QString>
-GtDataZoneTableList::paramsAndUnits()
+GtDataZoneTableList::paramsAndUnits() const
 {
     QMap<QString, QString> paramsUnits;
 
@@ -341,13 +341,13 @@ GtDataZoneTableList::paramsAndUnits()
 }
 
 QString
-GtDataZoneTableList::unitFromParam(QString param)
+GtDataZoneTableList::unitFromParam(const QString& param) const
 {
     QString unit;
 
     GtDataZoneTable* t = dzt(param);
 
-    if (t != Q_NULLPTR)
+    if (t != nullptr)
     {
         unit = t->unitFromParam(param);
     }
@@ -362,7 +362,7 @@ GtDataZoneTableList::unitFromParam(QString param)
 }
 
 QStringList
-GtDataZoneTableList::paramsWithUnits(QStringList params)
+GtDataZoneTableList::paramsWithUnits(const QStringList& params) const
 {
     QStringList paramsUnits;
 
@@ -377,9 +377,9 @@ GtDataZoneTableList::paramsWithUnits(QStringList params)
 }
 
 bool
-GtDataZoneTableList::is0D()
+GtDataZoneTableList::is0D() const
 {
-    if (dzt() != Q_NULLPTR)
+    if (dzt() != nullptr)
     {
         return dzt()->is0D();
     }
