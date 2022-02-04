@@ -130,8 +130,6 @@ GtCoreProcessExecutor::terminateAllTasks()
 bool
 GtCoreProcessExecutor::taskQueued(GtTask* task)
 {
-    gtDebug() << "GtCoreProcessExecutor::taskQueued";
-
     if (m_queue.contains(task))
     {
         return true;
