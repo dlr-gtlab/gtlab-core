@@ -248,7 +248,9 @@ GtGrid::paintRuler(GtRuler* ruler)
 
     if (ruler->orientation() == Qt::Horizontal)
     {
-        int tmpWidth = int(getScaledGrid(Qt::Horizontal));
+        int tmpWidth = qCeil(getScaledGrid(Qt::Horizontal));
+
+        Q_ASSERT(tmpWidth > 0);
 
         qreal left = int(m_rect.left()) - (int(m_rect.left()) % tmpWidth);
 
@@ -274,7 +276,9 @@ GtGrid::paintRuler(GtRuler* ruler)
     }
     else
     {
-        int tmpHeight = int(getScaledGrid(Qt::Vertical));
+        int tmpHeight = qCeil(getScaledGrid(Qt::Vertical));
+
+        Q_ASSERT(tmpHeight > 0);
 
         qreal top = int(m_rect.top()) - (int(m_rect.top()) % tmpHeight);
 
@@ -347,8 +351,12 @@ GtGrid::paintGridLines(QPainter* painter, const QRectF& rect)
     QVarLengthArray<QLineF, 100> hLines;
     QVarLengthArray<QLineF, 100> vLines;
 
-    int tmpWidth = int(getScaledGrid(Qt::Horizontal));
-    int tmpHeight = int(getScaledGrid(Qt::Vertical));
+    // qCeil to prevent bad rounding and divison by zero in modulo operation
+    int tmpWidth = qCeil(getScaledGrid(Qt::Horizontal));
+    int tmpHeight = qCeil(getScaledGrid(Qt::Vertical));
+
+    Q_ASSERT(tmpWidth > 0);
+    Q_ASSERT(tmpHeight > 0);
 
     qreal left = int(rect.left()) - (int(rect.left()) % tmpWidth);
     qreal top = int(rect.top()) - (int(rect.top()) % tmpHeight);
