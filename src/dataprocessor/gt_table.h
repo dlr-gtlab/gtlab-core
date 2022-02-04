@@ -17,6 +17,8 @@
 #include "gt_object.h"
 #include "gt_logging.h"
 
+#include <QDomElement>
+
 class GT_DATAMODEL_EXPORT GtTable : public GtObject
 {
     Q_OBJECT
@@ -268,6 +270,15 @@ public:
     void setTabValsKeysSuffix(QString keys);
 
     /**
+     * @brief toDomElement
+     * @param doc
+     * @param valId: optional
+     * @return
+     */
+    QDomElement toDomElement(QDomDocument& doc,
+                             const QString& valId = QString()) const;
+
+    /**
      * @brief clear
      *  Added by JS and not tested yet
      * @return
@@ -291,14 +302,14 @@ public:
      * @param id
      * @return
      */
-    double getMax(const QString& id, bool* check = Q_NULLPTR) const;
+    double getMax(const QString& id, bool* check = nullptr) const;
 
     /**
      * @brief getMin
      * @param id
      * @return
      */
-    double getMin(const QString& id, bool* check = Q_NULLPTR) const;
+    double getMin(const QString& id, bool* check = nullptr) const;
 
     /**
      * @brief valueNames
@@ -310,13 +321,15 @@ public:
      * @brief create a String from InterpolationMethode (Enum GtTableAxis)
      * @return String for xml output
      */
-    QString interExtraPolationString(GtTableAxis::InterpMethod methode);
+    QString interExtraPolationString(
+            const GtTableAxis::InterpMethod& methode) const;
 
     /**
      * @brief create a String from ExtrapolationMethode (Enum GtTableAxis)
      * @return String for xml output
      */
-    QString interExtraPolationString(GtTableAxis::ExtrapMethod methode);
+    QString interExtraPolationString(
+            const GtTableAxis::ExtrapMethod& methode) const;
 
 private:
     /// type of table

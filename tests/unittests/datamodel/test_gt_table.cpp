@@ -523,18 +523,18 @@ TEST_F(TestGtTable, tabValsKeys)
     ASSERT_EQ(m_table->tabValsKeys().size(), 0);
 }
 
-//TEST_F(TestGtTable, toDomElement)
-//{
-//    QDomDocument dom;
-//
-//    ASSERT_THROW(m_table->toDomElement(dom), GTlabException);
-//
-//    ASSERT_THROW(m_table3->toDomElement(dom), GTlabException);
-//
-//    ASSERT_NO_THROW(m_table3->toDomElement(dom, "valuesID"));
-//
-//    ASSERT_NO_THROW(m_table5->toDomElement(dom));
-//}
+TEST_F(TestGtTable, toDomElement)
+{
+    QDomDocument dom;
+
+    ASSERT_THROW(m_table->toDomElement(dom), GTlabException);
+
+    ASSERT_THROW(m_table3->toDomElement(dom), GTlabException);
+
+    ASSERT_NO_THROW(m_table3->toDomElement(dom, "valuesID"));
+
+    ASSERT_NO_THROW(m_table5->toDomElement(dom));
+}
 
 // getValSlices not direct testable (private)
 
