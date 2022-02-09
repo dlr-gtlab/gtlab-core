@@ -267,7 +267,7 @@ public:
      * @brief setTabValsKeysSuffix
      * @param keys
      */
-    void setTabValsKeysSuffix(QString keys);
+    void setTabValsKeysSuffix(const QString& keys);
 
     /**
      * @brief toDomElement

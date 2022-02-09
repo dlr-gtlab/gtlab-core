@@ -424,7 +424,7 @@ GtCollectionLoader::itemIsValid(const QJsonObject& json)
 }
 
 void
-GtCollectionLoader::sortItems(const QList<GtCollectionNetworkItem> items,
+GtCollectionLoader::sortItems(const QList<GtCollectionNetworkItem>& items,
                               QList<GtCollectionNetworkItem>& installedItems,
                               QList<GtCollectionNetworkItem>& availableItems,
                               QList<GtCollectionNetworkItem>& updateAvailableItems)

@@ -105,7 +105,7 @@ private:
      * @param availableItems
      * @param updateAvailableItems
      */
-    void sortItems(const QList<GtCollectionNetworkItem> items,
+    void sortItems(const QList<GtCollectionNetworkItem>& items,
                    QList<GtCollectionNetworkItem>& installedItems,
                    QList<GtCollectionNetworkItem>& availableItems,
                    QList<GtCollectionNetworkItem>& updateAvailableItems);

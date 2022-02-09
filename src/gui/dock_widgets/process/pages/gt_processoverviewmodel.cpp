@@ -89,17 +89,15 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
         switch (role)
         {
             case Qt::DisplayRole:
-            {
                 if (col == 0)
                 {
                     return abstractItem->objectName();
                 }
 
                 break;
-            }
+
 
             case Qt::DecorationRole:
-            {
                 if (col == 0)
                 {
                     if (catItem->collapsed())
@@ -115,16 +113,13 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 }
 
                 break;
-            }
 
             case Qt::BackgroundRole:
-            {
                 if (!gtApp->inDarkMode())
                 {
                     return QColor(246, 246, 246);
                 }
                 break;
-            }
             case CategoryRole:
                 return true;
 
@@ -137,7 +132,6 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
         switch (role)
         {
             case Qt::DisplayRole:
-            {
                 if (col == 0)
                 {
                     return id(abstractItem);
@@ -148,20 +142,16 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 }
 
                 break;
-            }
 
             case Qt::DecorationRole:
-            {
                 if (col == 0)
                 {
                     return icon(abstractItem);
                 }
 
                 break;
-            }
 
             case Qt::ForegroundRole:
-            {
                 if (col == 1)
                 {
                     if (!gtApp->inDarkMode())
@@ -171,12 +161,9 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 }
 
                 break;
-            }
 
             case Qt::ToolTipRole:
-            {
                 return description(abstractItem);
-            }
 
         }
     }

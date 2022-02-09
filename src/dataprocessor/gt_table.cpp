@@ -1427,7 +1427,7 @@ GtTable::valueNames() const
 }
 
 void
-GtTable::setTabValsKeysSuffix(QString suffix)
+GtTable::setTabValsKeysSuffix(const QString& suffix)
 {
     //    if (suffix.size() != m_tabVals.size())
     //    {

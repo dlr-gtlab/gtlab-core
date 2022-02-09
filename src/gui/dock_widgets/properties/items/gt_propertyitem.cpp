@@ -50,7 +50,6 @@ GtPropertyItem::data(int column, int role) const
     switch (role)
     {
         case Qt::DisplayRole:
-        {
             if (column == 0)
             {
                 return m_property->objectName();
@@ -81,10 +80,9 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-        }
+
 
         case Qt::EditRole:
-        {
             if (!m_property->isReadOnly())
             {
                 if (column == 2)
@@ -105,10 +103,8 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-        }
 
         case Qt::DecorationRole:
-        {
             if (m_property->isConnected())
             {
                 if (column == 0)
@@ -118,10 +114,8 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-        }
 
         case Qt::CheckStateRole:
-        {
             if (column == 0)
             {
                 if (m_property->isOptional())
@@ -154,10 +148,8 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-        }
 
         case Qt::ToolTipRole:
-        {
             if (column == 0)
             {
                 return m_property->brief();
@@ -168,20 +160,16 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-        }
 
 //        case Qt::ForegroundRole:
-//        {
 //            if (!m_property->isActive())
 //            {
 //                return QColor(120, 120, 120);
 //            }
 
 //            break;
-//        }
 
 //        case Qt::BackgroundRole:
-//        {
 //            if (column == 2)
 //            {
 //                if (!m_property->isActive() || m_property->isReadOnly())
@@ -195,10 +183,8 @@ GtPropertyItem::data(int column, int role) const
 //            }
 
 //            break;
-//        }
 
         case Qt::FontRole:
-        {
             if (column == 1)
             {
                 QFont font;
@@ -208,27 +194,18 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-        }
 
         case GtPropertyModel::UnitCategoryRole:
-        {
             return qVariantFromValue(m_property->unitCategory());
-        }
 
         case GtPropertyModel::ReadOnlyRole:
-        {
             return m_property->isReadOnly();
-        }
 
         case GtPropertyModel::OptionalRole:
-        {
             return m_property->isOptional();
-        }
 
         case GtPropertyModel::ActiveRole:
-        {
             return m_property->isActive();
-        }
     }
 
     return QVariant();

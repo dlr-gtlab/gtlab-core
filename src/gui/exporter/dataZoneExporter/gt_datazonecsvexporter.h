@@ -134,7 +134,7 @@ private:
      * @param v
      */
     void writeHeaderLineHelper(QTextStream& out, const QString& p,
-                               const QString v, int nParams);
+                               const QString& v, int nParams);
 };
 
 #endif // GT_DATAZONECSVEXPORTER_H

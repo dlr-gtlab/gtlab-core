@@ -117,7 +117,7 @@ public:
      * @param newName
      * @return
      */
-    bool renameFile(QString oldName, QString newName);
+    bool renameFile(const QString& oldName, const QString& newName);
 
     /**
      * @brief createDocHeader

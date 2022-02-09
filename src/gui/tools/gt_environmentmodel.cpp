@@ -51,42 +51,46 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
 
     const QString valId = m_vars.keys()[row];
 
+    QVariant retVal = QVariant();
+
     switch (role)
     {
     case Qt::EditRole:
+        break;
+
     case Qt::DisplayRole:
-    {
         if (col == 0)
         {
-            return valId;
+            retVal = valId;
         }
         else if (col == 1)
         {
-            return m_vars.value(valId);
+            retVal = m_vars.value(valId);
         }
-    }
-    case Qt::FontRole:
-    {
-        QFont fnt;
-        fnt.setPointSize(8);
-        fnt.setFamily("Arial");
-        return fnt;
-    }
+        break;
     case Qt::BackgroundRole:
-    {
         if (col == 1)
         {
             if (m_vars.value(valId).isNull())
             {
-                return QColor(214, 170, 170);
+                retVal = QColor(214, 170, 170);
+                break;
             }
         }
+        break;
 
-        return QVariant();
-    }
+    case Qt::FontRole:
+        QFont fnt;
+        fnt.setPointSize(8);
+        fnt.setFamily("Arial");
+        retVal = fnt;
+        break;
+
     }
 
-    return QVariant();
+    return retVal;
+
+
 }
 
 bool

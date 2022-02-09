@@ -925,6 +925,7 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
         case QMessageBox::Yes:
         {
             gtDataModel->deleteFromModel(deletables);
+            break;
         }
 
         case QMessageBox::Cancel:

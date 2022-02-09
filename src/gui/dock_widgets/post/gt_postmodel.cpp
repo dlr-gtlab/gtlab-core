@@ -347,7 +347,7 @@ GtPostModel::createTemplatePath(const QModelIndex& index)
 }
 
 bool
-GtPostModel::renameFile(QString oldName, QString newName)
+GtPostModel::renameFile(const QString& oldName, const QString& newName)
 {
     QDir projectDir;
 

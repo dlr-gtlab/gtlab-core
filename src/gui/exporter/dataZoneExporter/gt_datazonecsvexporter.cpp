@@ -509,7 +509,7 @@ GtDataZoneCsvExporter::writeHeaderLine(QTextStream& out,
 
 void
 GtDataZoneCsvExporter::writeHeaderLineHelper(
-        QTextStream& out, const QString &p, const QString v, int nParams)
+        QTextStream& out, const QString &p, const QString& v, int nParams)
 {
     out << QStringLiteral("\"") << p << QStringLiteral("\";\"") << v <<
            QStringLiteral("\";");
