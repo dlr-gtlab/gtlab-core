@@ -635,7 +635,7 @@ GtDataZone::setData1Dfrom2DDataZone(GtDataZone* dataZone2D, int fixedAxisNumber,
                      "of dimension" << dataZone2D->nDims();
     }
 
-    if (fixedAxisNumber != 0 || fixedAxisNumber != 1)
+    if (fixedAxisNumber != 0 && fixedAxisNumber != 1)
     {
         return;
     }
@@ -841,8 +841,6 @@ GtDataZone::isValid() const
 QString
 GtDataZone::unit(const QString& param) const
 {
-    QString retval = QString();
-
     int index = m_params.indexOf(param);
 
     if (index == -1)
@@ -850,12 +848,10 @@ GtDataZone::unit(const QString& param) const
         gtDebug() << tr("Param ") << param
                   << tr(" could not be found in n-D data, "
                         "no unit can be shown");
-        return retval;
+        return QString();
     }
 
-    retval = m_units.at(index);
-
-    return retval;
+    return m_units.at(index);
 }
 
 void

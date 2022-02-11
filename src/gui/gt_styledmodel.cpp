@@ -71,8 +71,8 @@ GtStyledModel::data(const QModelIndex& index, int role) const
         }
         else
         {
-            GtObjectUI oui;
-            QVariant value = oui.data(item, role, index.column());
+            GtObjectUI currOui;
+            QVariant value = currOui.data(item, role, index.column());
 
             if (value.isValid())
             {
@@ -81,6 +81,6 @@ GtStyledModel::data(const QModelIndex& index, int role) const
         }
     }
 
-    return QIdentityProxyModel::data(index, role);;
+    return QIdentityProxyModel::data(index, role);
 }
 

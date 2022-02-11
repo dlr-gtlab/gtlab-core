@@ -491,10 +491,10 @@ void GtUnitConverter<T>::initialize()
     densityFac["kg/l"] = 1. / 1000.;
     densityFac["t/dm^3"] = 1. / 1000000.;
     densityFac["t/l"] = 1. / 1000000.;
-    densityFac["mg/cm^3"] = 1000000.0 / 1000000.0;
-    densityFac["g/cm^3"] = 1000.0 / 1000000.0;
-    densityFac["kg/cm^3"] = 1.0 / 1000000.0;
-    densityFac["t/cm^3"] = 0.001 / 1000000.0;
+    densityFac["mg/cm^3"] = massFac["mg"] / volumeFac["cm^3"];
+    densityFac["g/cm^3"] = 1000.0 / volumeFac["cm^3"];
+    densityFac["kg/cm^3"] = 1.0 / volumeFac["cm^3"];
+    densityFac["t/cm^3"] = 0.001 / volumeFac["cm^3"];
     densityFac["lbm/in^3"] = 0.0254 * 0.0254 * 0.0254 / 0.45359237;
     densityFac["lbm/ft^3"] = 0.3048 * 0.3048 * 0.3048 / 0.45359237;
     densityFac["lbm/gal"] = 231. * 0.0254 * 0.0254 * 0.0254 / 0.45359237;

@@ -75,11 +75,11 @@ GtProcessConnectionScene::animatePorts()
 
     invalids.removeOne(port);
 
-    foreach (GtProcessPropertyPortEntity* port, valids)
+    foreach (GtProcessPropertyPortEntity* currPort, valids)
     {
-        if (invalids.contains(port))
+        if (invalids.contains(currPort))
         {
-            invalids.removeAll(port);
+            invalids.removeAll(currPort);
         }
     }
 
