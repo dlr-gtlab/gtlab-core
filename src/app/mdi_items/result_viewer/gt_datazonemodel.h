@@ -77,7 +77,7 @@ public:
     /**
      * @brief m_indeOfInterestAx1
      */
-    int m_indeOfInterestAx1;
+    int m_indexOfInterestAx1;
 
     /**
      * @brief m_axOfInterest

@@ -29,7 +29,7 @@ GtAccessDataConnection::testConnection(const GtAccessData& accessData)
 
     QNetworkRequest request(accessData.data());
 
-    QNetworkReply* reply = m_qnam->head(request);;
+    QNetworkReply* reply = m_qnam->head(request);
 
     QTimer timer;
     timer.setSingleShot(true);

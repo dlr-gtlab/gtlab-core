@@ -99,7 +99,7 @@ GtUnit::categoryToString(Category c)
     case Category::Mass:
         return QObject::tr("Mass");
     case Category::Massflow:
-        return QObject::tr("Massflow");;
+        return QObject::tr("Massflow");
     case Category::Power:
         return QObject::tr("Power");
     case Category::Temperature:

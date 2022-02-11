@@ -65,7 +65,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
         }
     }
 
-    QValidator* validator = new QRegExpValidator(regExp, this->parent());;
+    QValidator* validator = new QRegExpValidator(regExp, this->parent());
 
     lineEdit->setValidator(validator);
 
