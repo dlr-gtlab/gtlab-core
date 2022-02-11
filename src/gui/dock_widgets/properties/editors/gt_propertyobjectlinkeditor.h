@@ -27,7 +27,7 @@ class GT_GUI_EXPORT GtPropertyObjectLinkEditor : public QWidget
     Q_OBJECT
 
 public:
-    GtPropertyObjectLinkEditor(QWidget* parent = Q_NULLPTR);
+    explicit GtPropertyObjectLinkEditor(QWidget* parent = nullptr);
 
     /**
      * @brief setObjectLinkProperty

@@ -38,26 +38,26 @@ public:
      * @brief setData
      * @param obj
      */
-    virtual void setData(GtObject* obj) Q_DECL_OVERRIDE;
+    virtual void setData(GtObject* obj) override;
 
     /**
      * @brief objectChangedEvent
      * @param obj
      */
-    virtual void objectChangedEvent(GtObject* obj) Q_DECL_OVERRIDE;
+    virtual void objectChangedEvent(GtObject* obj) override;
 
     /**
      * @brief onStateChangedEvent
      * @param id
      * @param value
      */
-//    virtual void onStateChangedEvent(const GtMdiState* state) Q_DECL_OVERRIDE;
+//    virtual void onStateChangedEvent(const GtMdiState* state) override;
 
 protected:
     /**
      * @brief initialized
      */
-    void initialized() Q_DECL_OVERRIDE;
+    void initialized() override;
 
 private:
     /// Graphics view

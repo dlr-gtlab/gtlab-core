@@ -38,7 +38,7 @@ private:
      * @brief GtObjectFactory
      * @param parent
      */
-    GtObjectFactory(QObject* parent = NULL);
+    explicit GtObjectFactory(QObject* parent = nullptr);
 
 };
 

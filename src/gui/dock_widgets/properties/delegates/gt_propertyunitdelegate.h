@@ -26,7 +26,7 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    GtPropertyUnitDelegate(QObject* parent = Q_NULLPTR);
+    explicit GtPropertyUnitDelegate(QObject* parent = nullptr);
 
     /**
      * @brief createEditor
@@ -37,7 +37,7 @@ public:
      */
     QWidget* createEditor(QWidget* parent,
                           const QStyleOptionViewItem& option,
-                          const QModelIndex& index) const Q_DECL_OVERRIDE;
+                          const QModelIndex& index) const override;
 
     /**
      * @brief setEditorData
@@ -45,7 +45,7 @@ public:
      * @param index
      */
     void setEditorData(QWidget* editor,
-                       const QModelIndex& index) const Q_DECL_OVERRIDE;
+                       const QModelIndex& index) const override;
 
     /**
      * @brief setModelData
@@ -55,7 +55,7 @@ public:
      */
     void setModelData(QWidget* editor,
                       QAbstractItemModel* model,
-                      const QModelIndex& index) const Q_DECL_OVERRIDE;
+                      const QModelIndex& index) const override;
 
     /**
      * @brief updateEditorGeometry
@@ -65,7 +65,7 @@ public:
      */
     void updateEditorGeometry(QWidget* editor,
                               const QStyleOptionViewItem& option,
-                              const QModelIndex&) const Q_DECL_OVERRIDE;
+                              const QModelIndex&) const override;
 
     /**
      * @brief paint
@@ -75,7 +75,7 @@ public:
      */
     void paint(QPainter* painter,
                const QStyleOptionViewItem& option,
-               const QModelIndex& index) const Q_DECL_OVERRIDE;
+               const QModelIndex& index) const override;
 
 private:
     /// Combobox

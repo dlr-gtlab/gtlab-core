@@ -44,7 +44,7 @@ class GT_GUI_EXPORT GtPyHighlighter : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
-    GtPyHighlighter(QTextDocument* parent = Q_NULLPTR);
+    explicit GtPyHighlighter(QTextDocument* parent = Q_NULLPTR);
 
 protected:
     void highlightBlock(const QString& text);

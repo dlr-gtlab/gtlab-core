@@ -63,7 +63,7 @@ public:
      * @brief GtObjectIO
      * @param factory
      */
-    GtObjectIO(GtAbstractObjectFactory* factory = NULL);
+    explicit GtObjectIO(GtAbstractObjectFactory* factory = nullptr);
 
     /** Sets new object factory.
         @param factory GtdAbstractObjectFactory */

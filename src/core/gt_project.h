@@ -85,11 +85,11 @@ public:
     GtTask* findProcess(const QString& val);
 
     /**
-     * @brief findPackage
-     * @param val
-     * @return
+     * @brief Returns the package specified by the module id
+     * @param mid Module id
+     * @return Package
      */
-    GtPackage* findPackage(const QString& val);
+    GtPackage* findPackage(const QString& mid);
 
     /**
      * @brief moduleIds
@@ -156,7 +156,7 @@ protected:
      * @brief GtProject
      * @param path
      */
-    GtProject(const QString& path);
+    explicit GtProject(const QString& path);
 
     /**
      * @brief setModuleIds

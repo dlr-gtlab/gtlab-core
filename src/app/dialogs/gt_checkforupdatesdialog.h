@@ -28,7 +28,7 @@ public:
      * @brief Constructor.
      * @param parent Parent widget
      */
-    GtCheckForUpdatesDialog(QWidget* parent = Q_NULLPTR);
+    explicit GtCheckForUpdatesDialog(QWidget* parent = Q_NULLPTR);
 
 private:
     /// Progress label

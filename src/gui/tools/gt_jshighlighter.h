@@ -44,9 +44,9 @@ public:
         FoldIndicator
     } ColorComponent;
 
-    GtJsHighlighter(QObject* parent);
-    GtJsHighlighter(QTextDocument* parent);
-    GtJsHighlighter(QTextEdit* parent);
+    explicit GtJsHighlighter(QObject* parent);
+    explicit GtJsHighlighter(QTextDocument* parent);
+    explicit GtJsHighlighter(QTextEdit* parent);
     ~GtJsHighlighter();
 
     void setColor(GtJsHighlighter::ColorComponent component,

@@ -27,7 +27,7 @@ public:
      * @brief Constructor.
      * @param mainwin Pointer to GTlab main window
      */
-    GtCornerWidget(GtMainWin* mainwin);
+    explicit GtCornerWidget(GtMainWin* mainwin);
 
     /**
      * @brief showUpdateWidget

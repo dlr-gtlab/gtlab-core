@@ -763,7 +763,8 @@ GtDataZone::clearData()
 }
 
 bool
-GtDataZone::isValid(const QVector<double>& ticks, const QVector<double>& vals) const
+GtDataZone::isValid(const QVector<double>& ticks,
+                    const QVector<double>& vals) const
 {
     if (ticks.size() != vals.size())
     {

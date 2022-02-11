@@ -20,7 +20,7 @@ class GtLabelUsageDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    GtLabelUsageDelegate(QObject* parent);
+    explicit GtLabelUsageDelegate(QObject* parent);
 
     /**
      * @brief paint
@@ -30,7 +30,7 @@ public:
      */
     void paint(QPainter* painter,
                const QStyleOptionViewItem& option,
-               const QModelIndex& index) const Q_DECL_OVERRIDE;
+               const QModelIndex& index) const override;
 
 };
 

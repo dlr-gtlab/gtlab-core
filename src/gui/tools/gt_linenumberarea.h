@@ -17,7 +17,7 @@ class GtCodeEditor;
 class GtLineNumberArea : public QWidget
 {
 public:
-    GtLineNumberArea(GtCodeEditor *editor);
+    explicit GtLineNumberArea(GtCodeEditor* editor);
 
     QSize sizeHint() const;
 

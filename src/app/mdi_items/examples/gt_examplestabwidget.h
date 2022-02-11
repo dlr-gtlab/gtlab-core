@@ -24,7 +24,7 @@ public:
      * @brief GtExamplesTabWidget - Constructor
      * @param parent
      */
-    Q_INVOKABLE GtExamplesTabWidget(QWidget* parent = Q_NULLPTR);
+    Q_INVOKABLE explicit GtExamplesTabWidget(QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief resizeEvent

@@ -37,13 +37,13 @@ public:
      * @brief Virtual function to specify item specific icon.
      * @return Object specific icon.
      */
-    virtual QIcon icon() const Q_DECL_OVERRIDE;
+    virtual QIcon icon() const override;
 
     /**
      * @brief setData
      * @param obj
      */
-    virtual void setData(GtObject* obj) Q_DECL_OVERRIDE;
+    virtual void setData(GtObject* obj) override;
 
 public slots:
 

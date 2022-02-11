@@ -23,7 +23,7 @@ public:
     /**
      * @brief GtPerspectivesListWidget
      */
-    GtPerspectivesListWidget(bool initialize = true, QWidget* parent = NULL);
+    GtPerspectivesListWidget(bool initialize = true, QWidget* parent = nullptr);
 
     /**
      * @brief Perspective list initialization

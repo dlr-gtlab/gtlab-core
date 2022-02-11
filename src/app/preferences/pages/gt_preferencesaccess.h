@@ -30,7 +30,7 @@ public:
     /**
      * @brief saveSettings
      */
-    void saveSettings();
+    void saveSettings() override;
 
 private:
     /// list of access group models.
@@ -42,7 +42,7 @@ private:
     /**
      * @brief loadSettings
      */
-    void loadSettings();
+    void loadSettings() override;
 
 private slots:
     /**

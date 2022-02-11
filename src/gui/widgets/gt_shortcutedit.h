@@ -63,13 +63,13 @@ protected:
      * every event.
      * @param event keyevent
      */
-    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent* event) override;
 
     /**
      * @brief keyReleaseEvent overloaded, accepts every event.
      * @param event
      */
-    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
+    void keyReleaseEvent(QKeyEvent* event) override;
 
 private slots:
 

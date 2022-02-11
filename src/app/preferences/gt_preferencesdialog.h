@@ -27,7 +27,7 @@ public:
     /**
      * @brief GtPreferencesDialog
      */
-    GtPreferencesDialog(int initItem = 0);
+    explicit GtPreferencesDialog(int initItem = 0);
 
 public slots:
     /**

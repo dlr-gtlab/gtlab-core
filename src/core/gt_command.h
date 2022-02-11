@@ -49,7 +49,7 @@ private:
      * @brief Constructor.
      * @param uuid Command identification string
      */
-    GtCommand(const QString& uuid);
+    explicit GtCommand(const QString& uuid);
 
 };
 

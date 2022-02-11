@@ -63,7 +63,7 @@ public:
     /**
      * @brief loadModules
      */
-    virtual void loadModules() Q_DECL_OVERRIDE;
+    virtual void loadModules() override;
 
     /**
      * @brief perspectiveIds
@@ -180,7 +180,7 @@ public:
      * @brief switchSession
      * @param id
      */
-    virtual void switchSession(const QString& id);
+    virtual void switchSession(const QString& id) override;
 
     /**
      * @brief undoStack
@@ -189,17 +189,19 @@ public:
     QUndoStack* undoStack();
 
     /**
-     * @brief propertyCommand
+     * @brief propertyCommand - creates an undo command for a property change
+     * event.
      * @param obj
      * @param prop
      * @param newValue
      * @param unit
      * @param root
      */
-    void propertyCommand(GtObject* obj, GtAbstractProperty* prop,
+    void propertyCommand(GtObject* obj,
+                         GtAbstractProperty* prop,
                          const QVariant& newValue,
                          const QString& unit = QString(),
-                         GtObject* root = Q_NULLPTR);
+                         GtObject* root = Q_NULLPTR) override;
 
     /**
      * @brief startCommand
@@ -208,12 +210,12 @@ public:
      * @return
      */
     GtCommand startCommand(GtObject* root,
-                           const QString& commandId) Q_DECL_OVERRIDE;
+                           const QString& commandId) override;
 
     /**
      * @brief endCommand
      */
-    void endCommand(const GtCommand& command) Q_DECL_OVERRIDE;
+    void endCommand(const GtCommand& command) override;
 
     /**
      * @brief Returns true if a command was started.
@@ -225,7 +227,7 @@ public:
      * @brief loadingProcedure
      * @param helper
      */
-    void loadingProcedure(GtAbstractLoadingHelper* helper) Q_DECL_OVERRIDE;
+    void loadingProcedure(GtAbstractLoadingHelper* helper) override;
 
     /**
      * @brief Returns currently selected object.
@@ -265,6 +267,7 @@ public:
      * @return pointer to the short cuts list object
      */
     GtShortCuts* shortCuts() const;
+
 private:
     /// List of user specific perspective ids
     QStringList m_perspectiveIds;
@@ -302,7 +305,7 @@ private:
     /**
      * @brief initFirstRun
      */
-    bool initFirstRun();
+    bool initFirstRun() override;
 
 private slots:
     /**

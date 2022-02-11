@@ -26,7 +26,7 @@ public:
      * @brief Constructor.
      * @param Parent widget.
      */
-    GtCollectionLoadingWidget(QWidget* parent = Q_NULLPTR);
+    explicit GtCollectionLoadingWidget(QWidget* parent = nullptr);
 
     /**
      * @brief Runs loading animation.

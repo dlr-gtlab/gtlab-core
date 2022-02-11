@@ -24,44 +24,44 @@ public:
      * @brief Constructor.
      * @param parent Parent widget.
      */
-    GtExplorerView(QWidget* parent = 0);
+    explicit GtExplorerView(QWidget* parent = nullptr);
 
 private:
     /**
      * @brief Overloaded resize event.
      * @param event Resize event.
      */
-    void resizeEvent(QResizeEvent* event) Q_DECL_OVERRIDE;
+    void resizeEvent(QResizeEvent* event) override;
 
     /**
      * @brief Overloaded mouse double click event.
      * @param event Mouse event.
      */
-    void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
     
     /**
      * @brief keyPressEvent
      * @param event
      */
-    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent* event) override;
 
     /**
      * @brief dragEnterEvent
      * @param event
      */
-    void dragEnterEvent(QDragEnterEvent* event) Q_DECL_OVERRIDE;
+    void dragEnterEvent(QDragEnterEvent* event) override;
 
     /**
      * @brief dropEvent
      * @param event
      */
-    void dropEvent(QDropEvent* event) Q_DECL_OVERRIDE;
+    void dropEvent(QDropEvent* event) override;
 
     /**
      * @brief dragMoveEvent
      * @param event
      */
-    void dragMoveEvent(QDragMoveEvent* event) Q_DECL_OVERRIDE;
+    void dragMoveEvent(QDragMoveEvent* event) override;
 
     /**
      * @brief Checks if mime data is acceptable or not.

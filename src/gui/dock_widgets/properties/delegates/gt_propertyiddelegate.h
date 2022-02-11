@@ -24,7 +24,7 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    GtPropertyIdDelegate(QObject* parent = Q_NULLPTR);
+    explicit GtPropertyIdDelegate(QObject* parent = nullptr);
 
     /**
      * @brief paint
@@ -34,7 +34,7 @@ public:
      */
     void paint(QPainter* painter,
                const QStyleOptionViewItem& option,
-               const QModelIndex& index) const Q_DECL_OVERRIDE;
+               const QModelIndex& index) const override;
 
 };
 

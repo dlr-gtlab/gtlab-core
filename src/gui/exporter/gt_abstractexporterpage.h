@@ -29,7 +29,7 @@ public:
      * @brief Constructor.
      * @param Object.
      */
-    GtAbstractExporterPage(GtObject* obj);
+    explicit GtAbstractExporterPage(GtObject* obj);
 
     /**
      * @brief Returns data object.

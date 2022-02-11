@@ -24,12 +24,12 @@ public:
      * @brief Constructor.
      * @param parent
      */
-    GtTaskOverviewModel(QObject* parent = Q_NULLPTR);
+    explicit GtTaskOverviewModel(QObject* parent = nullptr);
 
     /**
      * @brief Virtual function to implement specific model setup.
      */
-    void setUpModel() Q_DECL_OVERRIDE;
+    void setUpModel() override;
 
 protected:
     /**
@@ -37,28 +37,28 @@ protected:
      * @param item Process item.
      * @return Identification string of process item.
      */
-    QString id(GtAbstractProcessItem* item) const Q_DECL_OVERRIDE;
+    QString id(GtAbstractProcessItem* item) const override;
 
     /**
      * @brief Returns version string of given process item.
      * @param item Process item.
      * @return Version string of process item.
      */
-    QString version(GtAbstractProcessItem* item) const Q_DECL_OVERRIDE;
+    QString version(GtAbstractProcessItem* item) const override;
 
     /**
      * @brief Returns icon of given process item.
      * @param item Process item.
      * @return Icon of process item.
      */
-    QIcon icon(GtAbstractProcessItem* item) const Q_DECL_OVERRIDE;
+    QIcon icon(GtAbstractProcessItem* item) const override;
 
     /**
      * @brief Returns description of given process item.
      * @param item Process item.
      * @return description of process item.
      */
-    QString description(GtAbstractProcessItem* item) const Q_DECL_OVERRIDE;
+    QString description(GtAbstractProcessItem* item) const override;
 
 };
 

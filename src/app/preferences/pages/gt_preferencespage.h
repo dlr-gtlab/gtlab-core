@@ -31,7 +31,7 @@ protected:
      * @brief GtPreferencesPage
      * @param parent
      */
-    GtPreferencesPage(QWidget* parent = NULL);
+    explicit GtPreferencesPage(QWidget* parent = nullptr);
 
     /**
      * @brief loadSettings

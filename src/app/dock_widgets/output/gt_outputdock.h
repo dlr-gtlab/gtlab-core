@@ -44,7 +44,7 @@ protected:
      * @brief Event called after current project has changed.
      * @param project New current project.
      */
-    void projectChangedEvent(GtProject* project) Q_DECL_OVERRIDE;
+    void projectChangedEvent(GtProject* project) override;
 
 private:
     GtListView* m_listView;

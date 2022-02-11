@@ -26,14 +26,14 @@ public:
      * @brief Constructor.
      * @param Parent widget.
      */
-    GtTreeView(QWidget* parent = Q_NULLPTR);
+    explicit GtTreeView(QWidget* parent = nullptr);
 
 protected:
     /**
      * @brief keyPressEvent
      * @param event
      */
-    virtual void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
+    virtual void keyPressEvent(QKeyEvent* event) override;
 
 signals:
     /**

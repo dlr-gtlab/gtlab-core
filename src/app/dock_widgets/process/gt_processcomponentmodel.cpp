@@ -23,9 +23,11 @@
 #include "gt_task.h"
 #include "gt_taskfactory.h"
 #include "gt_processdata.h"
-#include "gt_processdock.h"
+#include "gt_propertyconnectionfunctions.h"
 #include "gt_propertyconnection.h"
 #include "gt_processcomponentmodel.h"
+
+using namespace GtPropertyConnectionFunctions;
 
 GtProcessComponentModel::GtProcessComponentModel(QObject* parent) :
     GtStyledModel(parent)
@@ -483,14 +485,14 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (droppedObject))
     {
-        internalCons = GtProcessDock::internalPropertyConnections(pComp);
-        lostCons = GtProcessDock::lostPropertyConnections(pComp);
+        internalCons = internalPropertyConnections(pComp);
+        lostCons = lostPropertyConnections(pComp);
     }
 
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (destinationObject))
     {
-        newHighestParent = GtProcessDock::highestParentTask(pComp);
+        newHighestParent = highestParentTask(pComp);
     }
     else if (qobject_cast<GtProcessData*>(destinationObject) != Q_NULLPTR)
     {
@@ -505,7 +507,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (droppedObject))
     {
-        highestParent = GtProcessDock::highestParentTask(pComp);
+        highestParent = highestParentTask(pComp);
     }
 
     if (highestParent == Q_NULLPTR)
@@ -550,7 +552,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         toDelete.append(propCon);
     }
 
-    GtProcessDock::setOffLostConnectionWarnings(lostCons, highestParent);
+    setOffLostConnectionWarnings(lostCons, highestParent);
 
     if (row >= 0)
     {

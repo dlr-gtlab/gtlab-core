@@ -38,7 +38,7 @@ protected:
     /**
      * @brief GtAbstractSettings
      */
-    GtAbstractSettings(GtObject* parent = Q_NULLPTR);
+    explicit GtAbstractSettings(GtObject* parent = Q_NULLPTR);
 
     /**
      * @brief registerSetting

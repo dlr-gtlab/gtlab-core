@@ -10,9 +10,8 @@
 #ifndef GTSTATEHANDLER_H
 #define GTSTATEHANDLER_H
 
-#include "gt_gui_exports.h"
-
 #include "gt_object.h"
+#include "gt_core_exports.h"
 
 class GtState;
 class GtStateContainer;
@@ -23,7 +22,7 @@ class GtProject;
 /**
  * @brief The GtStateHandler class
  */
-class GT_GUI_EXPORT GtStateHandler : public GtObject
+class GT_CORE_EXPORT GtStateHandler : public GtObject
 {
     Q_OBJECT
 
@@ -73,7 +72,7 @@ private:
      * @brief Constructor.
      * @param Parent object.
      */
-    GtStateHandler(QObject* parent = NULL);
+    explicit GtStateHandler(QObject* parent = nullptr);
 
     /**
      * @brief findGroup

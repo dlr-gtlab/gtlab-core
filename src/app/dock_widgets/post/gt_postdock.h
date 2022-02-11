@@ -63,7 +63,7 @@ protected:
      * @param event Current event of given object.
      * @return Returns event filter acceptance.
      */
-    bool eventFilter(QObject* obj, QEvent* event) Q_DECL_OVERRIDE;
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
     /// List view

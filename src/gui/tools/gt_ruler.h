@@ -22,7 +22,7 @@ class GT_GUI_EXPORT GtRuler : public QWidget
     Q_OBJECT
 
 public:
-    GtRuler(Qt::Orientation o = Qt::Horizontal);
+    explicit GtRuler(Qt::Orientation o = Qt::Horizontal);
 
     /** Returns Buffer.
         @return Buffer */

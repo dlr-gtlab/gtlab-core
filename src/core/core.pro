@@ -47,12 +47,14 @@ INCLUDEPATH += .\
     provider \
     process_management \
     network \
+    states \
     ../dataprocessor \
     ../dataprocessor/property
 
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    gt_propertyconnectionfunctions.h \
     network/gt_accessdata.h \
     network/gt_accessmanager.h \
     network/gt_accessgroup.h \
@@ -96,6 +98,10 @@ HEADERS += \
     process_management/gt_parameterloop.h \
     process_management/gt_calculatorhelperfactory.h \
     process_management/gt_stringmonitoringproperty.h \
+    states/gt_state.h \
+    states/gt_stategroup.h \
+    states/gt_statehandler.h \
+    states/gt_statecontainer.h \
     gt_coreapplication.h \
     gt_core_exports.h \
     gt_footprint.h \
@@ -123,6 +129,7 @@ HEADERS += \
     gt_command.h
 
 SOURCES += \
+    gt_propertyconnectionfunctions.cpp \
     network/gt_accessdata.cpp \
     network/gt_accessmanager.cpp \
     network/gt_accessgroup.cpp \
@@ -163,6 +170,10 @@ SOURCES += \
     process_management/gt_parameterloop.cpp \
     process_management/gt_calculatorhelperfactory.cpp \
     process_management/gt_stringmonitoringproperty.cpp \
+    states/gt_state.cpp \
+    states/gt_stategroup.cpp \
+    states/gt_statehandler.cpp \
+    states/gt_statecontainer.cpp \
     gt_coreapplication.cpp \
     gt_footprint.cpp \
     gt_projectanalyzer.cpp \

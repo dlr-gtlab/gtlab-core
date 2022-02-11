@@ -51,13 +51,13 @@ public:
      * @brief validatePage
      * @return
      */
-    bool validatePage() Q_DECL_OVERRIDE;
+    bool validatePage() override;
 
     /**
      * @brief isComplete
      * @return
      */
-    bool isComplete() const Q_DECL_OVERRIDE;
+    bool isComplete() const override;
 
 protected:
     /// Line edit for file path

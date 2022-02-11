@@ -30,7 +30,7 @@ public:
      * @brief Constructor.
      * @param Meta object of exporter.
      */
-    GtExporterMetaData(QMetaObject& importer);
+    explicit GtExporterMetaData(QMetaObject& exporter);
 
     /**
      * @brief Returns classname of exporter.

@@ -40,7 +40,7 @@ public:
      * @brief Constructor.
      * @param metaData Task class meta object.
      */
-    GtExtendedTaskDataImpl(const QMetaObject& metaData);
+    explicit GtExtendedTaskDataImpl(const QMetaObject& metaData);
 
     /**
      * @brief Destructor.
@@ -57,7 +57,7 @@ public:
      * @brief Identifies if task data is valid.
      * @return Returns true if task data is valis. Otherwise false is returned.
      */
-    bool isValid() const Q_DECL_OVERRIDE;
+    bool isValid() const override;
 
     /**
      * @brief Generates new extended task data based on given meta data.
