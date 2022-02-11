@@ -14,7 +14,7 @@
 # directory containg GTlab binaries
 GTLAB_DIR=$PWD/build
 
-# testsuites to test (sperated by spaces)
+# testsuites to test (separated by spaces)
 TESTSUITES="gtlab_core_gui_tests gtlab_interface_tests"
 
 # timeout [min] before other squishrunner instances will be killed 

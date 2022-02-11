@@ -27,12 +27,26 @@ Feature: Test specific features of the process dock
           And the property 'steps' has the value '5'
 
 
-    Scenario: Adding an empty task
+    Scenario: Adding an empty task and setting the skip property
 
         Given GTlab is running in DEV mode
           And the dock widgets 'Explorer, Processes/Calculators' are visible
          When any project is opened
+         # add a new task
           And the 'Add*' button is pressed
          Then a context menu is visible
          When the action 'Empty Task' is activated
          Then the process element 'New Task' exists
+         # skipp the task
+         When the process element is selected
+          And the context menu of the process element is opened
+          And the action 'Skip' is activated
+         Then the text of the entry is crossed out
+          And the 'Add*' button is enabled
+          But the 'Run' button is greyed out
+         # unskipp the task
+         When the context menu of the process element is opened
+          And the action 'Unskip' is activated
+         Then the text of the entry is not crossed out
+          And the 'Add*' button is enabled
+          And the 'Run' button is enabled
