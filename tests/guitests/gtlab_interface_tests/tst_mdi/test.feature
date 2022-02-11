@@ -72,18 +72,18 @@ Feature: Test the mdi interface
          When the same action in the context menu of the entry is activated
          Then the mdi tab exists once
 
-    #Scenario: Interaction with the implemented GraphicsView Mdi Item
+    Scenario: Interaction with the implemented GraphicsView Mdi Item
 
-    #    Given GTlab is running
-    #     Then the dock widget 'Explorer' is visible
-    #     When the project 'mdi_test' is opened - expecting missing modules
-    #      And the entry 'Test MDI Package' is selected
-    #     # double click should open the only listed mdi item
-    #      And double clicked
-    #     Then the mdi tab 'Test Mdi Viewer' exists
-    #      And the widget of type 'GtGraphicsView' exists
-    #     When the widget is zoomed in max
-    #     Then the widget exists
+        Given GTlab is running
+         Then the dock widget 'Explorer' is visible
+         When the project 'mdi_test' is opened - expecting missing modules
+          And the entry 'Test MDI Package' is selected
+         # double click should open the only listed mdi item
+          And double clicked
+         Then the mdi tab 'Test Mdi Viewer' exists
+          And the widget of type 'GtGraphicsView' exists
+         When the widget is zoomed in max
+         Then the widget exists
 
     Scenario: Remove the corresponding project from the active session
 
@@ -91,6 +91,4 @@ Feature: Test the mdi interface
           And the dock widget 'Explorer' is visible
          When the project 'mdi_test' is removed from the session
          Then the project does not exists
-
-
-
+		 
