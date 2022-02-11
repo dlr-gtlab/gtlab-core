@@ -124,7 +124,7 @@ GtResultViewer::setData(GtObject* obj)
 
     m_model->setResultData(dataZone);
 
-    m_model->m_indeOfInterestAx1 = 0;
+    m_model->m_indexOfInterestAx1 = 0;
 
     QString str = dataZone->objectPath();
 
@@ -184,7 +184,7 @@ GtResultViewer::axSelectorChanged(int index)
 void
 GtResultViewer::tickSelectorChanged(int index)
 {
-    m_model->m_indeOfInterestAx1 = index;
+    m_model->m_indexOfInterestAx1 = index;
 
     m_model->tickIndexChanges(index);
 }

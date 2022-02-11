@@ -375,23 +375,23 @@ BatchRemote::run(const QString& inputName, const QString& outputName,
             }
 
              // WRITE OUTPUT
-            QDomDocument document;
+            QDomDocument outputDocument;
             QDomProcessingInstruction header =
-                    document.createProcessingInstruction(
+                    outputDocument.createProcessingInstruction(
                     QStringLiteral("xml"),
                     QStringLiteral("version=\"1.0\" encoding=\"utf-8\""));
-            document.appendChild(header);
+            outputDocument.appendChild(header);
 
             QDomElement rootElement =
-                document.createElement(QStringLiteral("GTLAB"));
+                outputDocument.createElement(QStringLiteral("GTLAB"));
 
             rootElement.setAttribute(QStringLiteral("version"), version);
 
-            QDomElement modulesRootElement = document.createElement
+            QDomElement modulesRootElement = outputDocument.createElement
                                         (QStringLiteral("MODULES"));
             foreach (QString moduleId, modulesList)
             {
-                QDomElement moduleElement = document.createElement
+                QDomElement moduleElement = outputDocument.createElement
                         (QStringLiteral("MODULE"));
                 moduleElement.setAttribute(QStringLiteral("name"), moduleId);
                 moduleElement.setAttribute(QStringLiteral("version"),
@@ -402,7 +402,7 @@ BatchRemote::run(const QString& inputName, const QString& outputName,
             rootElement.appendChild(modulesRootElement);
 
 
-            QDomElement dataRootElement = document.createElement
+            QDomElement dataRootElement = outputDocument.createElement
                                       (QStringLiteral("DATA"));
 
             foreach (GtObject* object, objectList)
@@ -413,7 +413,7 @@ BatchRemote::run(const QString& inputName, const QString& outputName,
 
             rootElement.appendChild(dataRootElement);
 
-            document.appendChild(rootElement);
+            outputDocument.appendChild(rootElement);
 
             QStringList outputDirList = outputName.split("/");
             outputDirList.removeLast();
@@ -431,7 +431,7 @@ BatchRemote::run(const QString& inputName, const QString& outputName,
             qDebug() << outputDir;
 
             QTextStream stream(&outputFile);
-            stream << document.toString(5);
+            stream << outputDocument.toString(5);
             outputFile.close();
 
             QFile oldFile(outputName);

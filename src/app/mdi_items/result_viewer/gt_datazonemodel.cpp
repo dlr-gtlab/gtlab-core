@@ -16,7 +16,10 @@
 
 #include "gt_datazonemodel.h"
 
-GtDataZoneModel::GtDataZoneModel(QObject* parent) : QAbstractTableModel(parent),
+GtDataZoneModel::GtDataZoneModel(QObject* parent) :
+    QAbstractTableModel(parent),
+    m_indexOfInterestAx1(0),
+    m_axOfInterest(0),
     m_result(Q_NULLPTR)
 {
 
@@ -344,7 +347,7 @@ GtDataZoneModel::data(const QModelIndex& index,
                     default:
                         double val = value2D(index.row(), index.column(),
                                              m_axOfInterest,
-                                             m_indeOfInterestAx1,
+                                             m_indexOfInterestAx1,
                                              dz);
                         return val;
                 }

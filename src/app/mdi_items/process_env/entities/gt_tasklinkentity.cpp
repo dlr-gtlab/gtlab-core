@@ -17,7 +17,8 @@
 #include "gt_tasklink.h"
 
 GtTaskLinkEntity::GtTaskLinkEntity(GtTask* task, QGraphicsItem* parent) :
-    GtCalculatorEntity(task, parent)
+    GtCalculatorEntity(task, parent),
+    m_taskLink(nullptr)
 {
 
 }

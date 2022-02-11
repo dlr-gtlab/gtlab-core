@@ -71,9 +71,10 @@ GtCoreApplication::roamingPath()
 {
 #ifdef _WIN32
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-#endif
+#else
     return QStandardPaths::writableLocation(
                 QStandardPaths::GenericConfigLocation);
+#endif
 }
 
 QStringList
@@ -473,7 +474,7 @@ void
 GtCoreApplication::loadModules()
 {
     //    qDebug() << "GtCoreApplication::loadModules";
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         m_moduleLoader = new GtModuleLoader;
         m_moduleLoader->load();
@@ -483,7 +484,7 @@ GtCoreApplication::loadModules()
 QStringList
 GtCoreApplication::moduleIds()
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return QStringList();
     }
@@ -494,7 +495,7 @@ GtCoreApplication::moduleIds()
 QString
 GtCoreApplication::modulePackageId(const QString& id)
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return QString();
     }
@@ -505,7 +506,7 @@ GtCoreApplication::modulePackageId(const QString& id)
 QStringList
 GtCoreApplication::moduleDatamodelInterfaceIds()
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return QStringList();
     }
@@ -516,7 +517,7 @@ GtCoreApplication::moduleDatamodelInterfaceIds()
 GtVersionNumber
 GtCoreApplication::moduleVersion(const QString& id)
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return GtVersionNumber();
     }
