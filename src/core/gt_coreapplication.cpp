@@ -145,7 +145,6 @@ GtCoreApplication::init()
 
     if (qApp->arguments().contains(QStringLiteral("-dev")))
     {
-
         m_devMode = true;
     }
 
