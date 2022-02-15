@@ -120,7 +120,7 @@ GtApplication::loadModules()
     {
         m_guiModuleLoader = new GtGuiModuleLoader;
         m_moduleLoader = m_guiModuleLoader;
-        m_moduleLoader->load();
+        m_moduleLoader->load(false);
     }
 }
 

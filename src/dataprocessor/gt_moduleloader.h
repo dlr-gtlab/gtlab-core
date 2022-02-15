@@ -40,8 +40,12 @@ public:
 
     /**
      * @brief load
+     * @param ignoreCrashList - if set to true the list of crashed modules
+     * will be ignored.
+     *
+     * Should only be used for console application
      */
-    void load();
+    void load(bool ignoreCrashList = false);
 
     /**
      * @brief Returns list of all module environment variables.
@@ -132,10 +136,14 @@ private:
      * @brief loadHelper
      * @param entries
      * @param modulesDir
+     * @param ignoreModuleCrash - the list of modules which crashed before and
+     * should not be loaded will be ignored - not sensefull for GUI application
+     * but for GTlab console application
      * @return
      */
     bool loadHelper(QStringList& entries, const QDir& modulesDir,
-                    const QStringList& excludeList);
+                    const QStringList& excludeList,
+                    bool const ignoreModuleCrash = false);
 
     /**
      * @brief checkDependency

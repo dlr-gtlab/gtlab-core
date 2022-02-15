@@ -71,9 +71,10 @@ GtCoreApplication::roamingPath()
 {
 #ifdef _WIN32
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-#endif
+#else
     return QStandardPaths::writableLocation(
                 QStandardPaths::GenericConfigLocation);
+#endif
 }
 
 QStringList
@@ -146,7 +147,6 @@ GtCoreApplication::init()
 
     if (qApp->arguments().contains(QStringLiteral("-dev")))
     {
-
         m_devMode = true;
     }
 
@@ -252,7 +252,7 @@ GtCoreApplication::initLanguage()
 void
 GtCoreApplication::initSession(const QString& id)
 {
-    if (m_session == NULL)
+    if (m_session == nullptr)
     {
         // load session info
         if (!readSessionIds())
@@ -473,17 +473,17 @@ void
 GtCoreApplication::loadModules()
 {
     //    qDebug() << "GtCoreApplication::loadModules";
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         m_moduleLoader = new GtModuleLoader;
-        m_moduleLoader->load();
+        m_moduleLoader->load(m_batchMode);
     }
 }
 
 QStringList
 GtCoreApplication::moduleIds()
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return QStringList();
     }
@@ -494,7 +494,7 @@ GtCoreApplication::moduleIds()
 QString
 GtCoreApplication::modulePackageId(const QString& id)
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return QString();
     }
@@ -505,7 +505,7 @@ GtCoreApplication::modulePackageId(const QString& id)
 QStringList
 GtCoreApplication::moduleDatamodelInterfaceIds()
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return QStringList();
     }
@@ -516,7 +516,7 @@ GtCoreApplication::moduleDatamodelInterfaceIds()
 GtVersionNumber
 GtCoreApplication::moduleVersion(const QString& id)
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return GtVersionNumber();
     }
@@ -527,7 +527,7 @@ GtCoreApplication::moduleVersion(const QString& id)
 QString
 GtCoreApplication::moduleDescription(const QString& id)
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return QString();
     }
@@ -538,7 +538,7 @@ GtCoreApplication::moduleDescription(const QString& id)
 bool
 GtCoreApplication::hasProjectChanges()
 {
-    if (currentProject() == Q_NULLPTR)
+    if (currentProject() == nullptr)
     {
         return false;
     }
@@ -757,7 +757,7 @@ GtCoreApplication::saveSystemEnvironment() const
 bool
 GtCoreApplication::setLanguage(const QString& id)
 {
-    if (m_translator == NULL)
+    if (m_translator == nullptr)
     {
         m_translator = new QTranslator;
     }
@@ -787,7 +787,7 @@ GtCoreApplication::setLanguage(const QString& id)
 bool
 GtCoreApplication::setToSystemLanguage()
 {
-    if (m_translator == NULL)
+    if (m_translator == nullptr)
     {
         m_translator = new QTranslator;
     }
@@ -901,7 +901,7 @@ GtCoreApplication::currentProject()
         return w->currentProject();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 GtProject*
@@ -914,7 +914,7 @@ GtCoreApplication::findProject(const QString& id)
         return w->findProject(id);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -951,6 +951,6 @@ GtCoreApplication::switchCurrentProject()
     }
     else
     {
-        emit currentProjectChanged(NULL);
+        emit currentProjectChanged(nullptr);
     }
 }

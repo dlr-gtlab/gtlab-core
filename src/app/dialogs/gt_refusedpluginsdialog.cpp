@@ -57,9 +57,8 @@ GtRefusedPluginsDialog::sync() const
 {
     QString iniFileName = gtApp->roamingPath() + QDir::separator() +
                           QStringLiteral("last_run.ini");
+
     QSettings settings(iniFileName, QSettings::IniFormat);
-    QStringList crashed_mods =
-            settings.value(QStringLiteral("loading_crashed")).toStringList();
 
     settings.setValue(QStringLiteral("loading_crashed"),
                       m_model->selectedStringList());

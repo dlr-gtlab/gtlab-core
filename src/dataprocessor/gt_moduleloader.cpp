@@ -37,7 +37,7 @@ GtModuleLoader::~GtModuleLoader()
 }
 
 void
-GtModuleLoader::load()
+GtModuleLoader::load(bool ignoreCrashList)
 {
     QString path = QCoreApplication::applicationDirPath() +
                          QDir::separator() + QStringLiteral("modules");
@@ -95,7 +95,7 @@ GtModuleLoader::load()
 
         QStringList entryList = modulesDir.entryList(QDir::Files);
 
-        if (!loadHelper(entryList, modulesDir, excludeList))
+        if (!loadHelper(entryList, modulesDir, excludeList, ignoreCrashList))
         {
             gtWarning() << QObject::tr("Could not resolve plugin dependencies");
 
@@ -179,7 +179,7 @@ GtModuleLoader::moduleDatamodelInterfaceIds()
       GtDatamodelInterface* dmi =
               dynamic_cast<GtDatamodelInterface*>(m_plugins.value(e));
 
-      if (dmi != Q_NULLPTR && dmi->standAlone())
+      if (dmi != nullptr && dmi->standAlone())
       {
           retval << e;
       }
@@ -241,7 +241,7 @@ GtModuleLoader::initModules()
       GtInitModuleInterface* imi =
               dynamic_cast<GtInitModuleInterface*>(m_plugins.value(e));
 
-      if (imi != Q_NULLPTR)
+      if (imi != nullptr)
       {
           imi->init();
       }
@@ -310,7 +310,8 @@ GtModuleLoader::metaArray(const QJsonObject& metaData, const QString& id)
 
 bool
 GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
-                           const QStringList& excludeList)
+                           const QStringList& excludeList,
+                           bool const ignoreModuleCrash)
 {
     // check whether module entry list is empty
     if (entries.isEmpty())
@@ -326,8 +327,14 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
     QString iniFileName = roamingPath() + QDir::separator() +
                           QStringLiteral("last_run.ini");
     QSettings settings(iniFileName, QSettings::IniFormat);
-    QStringList crashed_mods =
-            settings.value(QStringLiteral("loading_crashed")).toStringList();
+    QStringList crashed_mods = {};
+
+    if (!ignoreModuleCrash)
+    {
+        crashed_mods = settings.value(
+                    QStringLiteral("loading_crashed")).toStringList();
+    }
+
 
     // loading procedure
     foreach (const QString& fileName, entries)
@@ -360,13 +367,16 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
             // store temporary module information in loading fail log
             crashed_mods << modulesDir.absoluteFilePath(fileName);
             settings.setValue(QStringLiteral("loading_crashed"), crashed_mods);
-            settings.sync();
 
+            if (!ignoreModuleCrash)
+            {
+                settings.sync();
+            }
             // no unresolved dependencies found -> load plugin
             QObject* instance = loader.instance();
 
             // check plugin object
-            if (instance != Q_NULLPTR)
+            if (instance != nullptr)
             {
                 gtDebug() << QObject::tr("loading ") << fileName << "...";
 
@@ -392,7 +402,10 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
             // no application crash... clear loading fail log
             crashed_mods.removeLast();
             settings.setValue(QStringLiteral("loading_crashed"), crashed_mods);
-            settings.sync();
+            if (!ignoreModuleCrash)
+            {
+                settings.sync();
+            }
 
             entries.removeOne(fileName);
         }
@@ -450,7 +463,7 @@ GtModuleLoader::checkDependency(const QVariantList& deps)
         }
         else if (depVersion > version)
         {
-            gtWarning() << "dependecy -" << name << "- has a newer version "
+            gtInfo() << "dependecy -" << name << "- has a newer version "
                         << "than the module requires. (needed: >="
                         << version.toString() << " ; current: "
                         << depVersion.toString();
@@ -484,8 +497,9 @@ GtModuleLoader::roamingPath()
 {
 #ifdef _WIN32
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-#endif
+#else
     return QStandardPaths::writableLocation(
                QStandardPaths::GenericConfigLocation);
+#endif
 }
 
