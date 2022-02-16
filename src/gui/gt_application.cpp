@@ -705,15 +705,20 @@ GtApplication::inDarkMode()
 void
 GtApplication::setDarkMode(bool dark, bool initial)
 {
+    bool oldMode = m_darkMode;
+
     m_darkMode = dark;
 
-    if (!initial)
+    if (oldMode != m_darkMode)
     {
-        gtInfo() << tr("Theme was changed.")
-                 << tr("For an optimal view of all displays, "
-                       "it is recommended to restart the application.");
+        if (initial == false)
+        {
+            gtInfo() << tr("Theme was changed.")
+                     << tr("For an optimal view of all displays, "
+                           "it is recommended to restart the application.");
+        }
+        emit themeChanged(dark);
     }
-    emit themeChanged(dark);
 }
 
 bool
