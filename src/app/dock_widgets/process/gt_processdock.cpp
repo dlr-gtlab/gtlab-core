@@ -86,7 +86,8 @@ GtProcessDock::GtProcessDock() :
     m_runButton->setEnabled(false);
 
     m_runButton->setStyleSheet(
-                GtStyleSheets::processRunButton("rgb(230,255,230)"));
+                GtStyleSheets::processRunButton(
+                    GtStyleSheets::runningButtonState::notRunning));
 
     m_addElementButton = new QPushButton(tr("Add..."));
     m_addElementButton->setIcon(gtApp->icon("addIcon_16.png"));
@@ -604,7 +605,8 @@ GtProcessDock::updateRunButton()
         m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
 
         m_runButton->setStyleSheet(
-                    GtStyleSheets::processRunButton("rgb(230,255,230)"));
+                    GtStyleSheets::processRunButton(
+                        GtStyleSheets::runningButtonState::notRunning));
 
         m_runButton->setEnabled(false);
         m_runButton->setText(tr("Run"));
@@ -622,7 +624,8 @@ GtProcessDock::updateRunButton()
         m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
 
         m_runButton->setStyleSheet(
-                    GtStyleSheets::processRunButton("rgb(230,255,230)"));
+                    GtStyleSheets::processRunButton(
+                        GtStyleSheets::runningButtonState::notRunning));
 
         if (str.isEmpty())
         {
@@ -644,7 +647,8 @@ GtProcessDock::updateRunButton()
         m_runButton->setIcon(gtApp->icon("queueIcon_16.png"));
 
         m_runButton->setStyleSheet(
-                    GtStyleSheets::processRunButton("rgb(236,219,184)"));
+                    GtStyleSheets::processRunButton(
+                        GtStyleSheets::runningButtonState::otherProcessRunning));
 
         if (gtProcessExecutor->taskQueued(m_currentProcess))
         {
@@ -665,7 +669,8 @@ GtProcessDock::updateRunButton()
         m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
 
         m_runButton->setStyleSheet(
-                    GtStyleSheets::processRunButton("rgb(255,230,230)"));
+                    GtStyleSheets::processRunButton(
+                        GtStyleSheets::runningButtonState::thisProcessRunning));
 
         // stopping
         if (m_currentProcess->currentState() ==
@@ -1987,7 +1992,7 @@ GtProcessDock::skipComponent(const QModelIndex& index, bool skip)
 
     msg.append(" Selected Process Elements");
 
-    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), msg);    
+    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), msg);
     skipComponent(componentByModelIndex(index), skip);
 
     gtApp->endCommand(cmd);

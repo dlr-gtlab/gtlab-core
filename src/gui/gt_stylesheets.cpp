@@ -23,15 +23,20 @@ GtStyleSheets::buttonStyleSheet()
     if (!gtApp->inDarkMode())
     {
         return "QAbstractButton { "
-                + border +
-               "background-color:white;"
+                + border //+
+               //"background-color:white;"
                 + size + "}"
                "QAbstractButton:hover{background-color:"
-               "rgb(220,235,250)}"
-               "QAbstractButton:disabled {background-color:"
-               "rgb(240,240,240)}"
-               "QAbstractButton:pressed{background-color:"
-               "rgb(180,213,246)}";
+                         "rgb(180,200,200)}"
+                         "QAbstractButton:disabled {background-color:"
+                         "rgb(180,180,180)}"
+                         "QAbstractButton:pressed{background-color:"
+                         "rgb(180,213,213)}";
+               //"rgb(220,235,250)}"
+               //"QAbstractButton:disabled {background-color:"
+               //"rgb(240,240,240)}"
+               //"QAbstractButton:pressed{background-color:"
+               //"rgb(180,213,246)}";
 
     }
     else
@@ -123,8 +128,38 @@ GtStyleSheets::performanceTaskLineEdit0()
 }
 
 QString
-GtStyleSheets::processRunButton(QString stdBackgroundRGB)
+GtStyleSheets::processRunButton(runningButtonState const& state)
 {
+    QString stdBackgroundRGB;
+
+    if (state == runningButtonState::thisProcessRunning)
+    {
+        stdBackgroundRGB = "rgb(255,230,230)";
+
+        if (gtApp->inDarkMode())
+        {
+            stdBackgroundRGB = "rgb(255,230,230)";
+        }
+    }
+    else if (state == runningButtonState::otherProcessRunning)
+    {
+        stdBackgroundRGB = "rgb(236,219,184)";
+
+        if (gtApp->inDarkMode())
+        {
+            stdBackgroundRGB = "rgb(236,219,184)";
+        }
+    }
+    else /// notRunning
+    {
+        stdBackgroundRGB = "rgb(230,255,230)";
+
+        if (gtApp->inDarkMode())
+        {
+            stdBackgroundRGB = "rgb(180,200,200)";
+        }
+    }
+
     QString text = "QPushButton { border: 1px solid gray;"
                    "border-radius: 4px;"
                    "background-color:"+ stdBackgroundRGB +";"
@@ -134,7 +169,8 @@ GtStyleSheets::processRunButton(QString stdBackgroundRGB)
 }
 
 QString
-GtStyleSheets::selectionComboBox(QString minWidth, QString maxWidth)
+GtStyleSheets::selectionComboBox(const QString& minWidth,
+                                 const QString& maxWidth)
 {
     QString text = "QComboBox { border: 1px solid gray;"
                    "border-radius: 4px;"
