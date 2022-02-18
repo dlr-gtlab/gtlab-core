@@ -527,19 +527,17 @@ GtDataZone::setData1D(const QStringList& params,
 
     for (int i = 0; i < params.size(); i++)
     {
-        QString param = params.at(i);
-        QString unit = units.at(i);
-
-        if (!isValid(ticks, vals.value(param)))
+        if (!isValid(ticks, vals.value(params.at(i))))
         {
             gtWarning() << tr("Ticks' size do not match values' size!");
             clearData();
             return;
         }
 
-        table()->addValues(param, "", unit, vals.value(param));
-        m_params.append(param);
-        m_units.append(unit);
+        table()->addValues(params.at(i), "", units.at(i),
+                           vals.value(params.at(i)));
+        m_params.append(params.at(i));
+        m_units.append(units.at(i));
     }
 
     isValid();
@@ -602,9 +600,6 @@ GtDataZone::setData1D(const QStringList& params,
 
     for (int i = 0; i < params.size(); i++)
     {
-        QString param = params.at(i);
-        QString unit = units.at(i);
-
         if (!isValid(ticks, newVals.at(i)))
         {
             gtWarning() << tr("Ticks' size do not match values' size!");
@@ -612,9 +607,9 @@ GtDataZone::setData1D(const QStringList& params,
             return;
         }
 
-        table()->addValues(param, "", unit, newVals.at(i));
-        m_params.append(param);
-        m_units.append(unit);
+        table()->addValues(params.at(i), "", units.at(i), newVals.at(i));
+        m_params.append(params.at(i));
+        m_units.append(units.at(i));
     }
 
     isValid();
@@ -729,10 +724,7 @@ GtDataZone::setData2D(const QStringList& params,
 
     for (int i = 0; i < params.size(); i++)
     {
-        QString param = params.at(i);
-        QString unit = units.at(i);
-
-        if (!isValid(ticks1, ticks2, vals.value(param)))
+        if (!isValid(ticks1, ticks2, vals.value(params.at(i))))
         {
             gtWarning() << tr("Ticks' size do not match values' size "
                               "in DataZone!");
@@ -740,9 +732,9 @@ GtDataZone::setData2D(const QStringList& params,
             return;
         }
 
-        t->addValues(param, "", unit, vals.value(param));
-        m_params.append(param);
-        m_units.append(unit);
+        t->addValues(params.at(i), "", units.at(i), vals.value(params.at(i)));
+        m_params.append(params.at(i));
+        m_units.append(units.at(i));
     }
 
     isValid();

@@ -296,12 +296,10 @@ GtAbstractChartProvider::bottomIterator(GtDataZoneTableList* dztList,
                             "nor a sub axis, abort!");
             return bottomIterator;
         }
-        else
-        {
-            // bottom axis is sub axis, use its axis ticks
-            axisTicks = dztList->dzt()->allAxisTicksMap().value(bottomAxis);
-            bottomIterator = axisTicks.size();
-        }
+
+        // bottom axis is sub axis, use its axis ticks
+        axisTicks = dztList->dzt()->allAxisTicksMap().value(bottomAxis);
+        bottomIterator = axisTicks.size();
     }
 
     return bottomIterator;
@@ -360,13 +358,11 @@ GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
             // additional parameter is None!
             return additionalIterator;
         }
-        else
-        {
-            // additional parameter is one of the sub axes, collect
-            // ticks of 'additional' axis
-            axisTicks = dztList->dzt()->allAxisTicksMap().value(additionalAxis);
-            additionalIterator = axisTicks.size();
-        }
+
+        // additional parameter is one of the sub axes, collect
+        // ticks of 'additional' axis
+        axisTicks = dztList->dzt()->allAxisTicksMap().value(additionalAxis);
+        additionalIterator = axisTicks.size();
     }
 
     return additionalIterator;

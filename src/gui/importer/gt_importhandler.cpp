@@ -74,7 +74,7 @@ GtImportHandler::importerMetaData(const QString& classname)
         return QList<GtImporterMetaData>();
     }
 
-    for (auto e : m_impMeta.keys())
+    for (auto const& e : m_impMeta.keys())
     {
         GtImporterMetaData metaData = m_impMeta.value(e);
 

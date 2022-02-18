@@ -171,7 +171,7 @@ GtEnvironmentModel::flags(const QModelIndex& index) const
 void
 GtEnvironmentModel::saveVariables()
 {
-    for (auto e : m_vars.keys())
+    for (auto const& e : m_vars.keys())
     {
         if (!gtEnvironment->environmentVariableExists(e))
         {

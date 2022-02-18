@@ -90,7 +90,7 @@ GtEnvironment::debugEnvironmentVariables()
     gtDebug() << "ENVIRONMENT VARIABLES:";
     gtDebug() << "-DEFINED--------------";
 
-    for (auto e : m_vars.keys())
+    for (auto const& e : m_vars.keys())
     {
         gtDebug() << e << " = " << m_vars.value(e);
     }
@@ -164,7 +164,7 @@ GtEnvironment::environmentVariableExists(const QString& var)
 }
 
 void
-GtEnvironment::setValue(const QString& var, QVariant val)
+GtEnvironment::setValue(const QString& var, const QVariant& val)
 {
     if (!environmentVariableExists(var))
     {
@@ -212,7 +212,7 @@ GtEnvironment::saveEnvironment()
 
     settings.clear();
 
-    for (auto e : m_vars.keys())
+    for (auto const& e : m_vars.keys())
     {
         settings.setValue(e, m_vars.value(e));
     }

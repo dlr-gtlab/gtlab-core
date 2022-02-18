@@ -55,10 +55,9 @@ GtResidualLoop::evaluate()
         {
             return GtTask::EVAL_FINISHED;
         }
-        else
-        {
-            return GtTask::EVAL_FAILED;
-        }
+
+        return GtTask::EVAL_FAILED;
+
     }
 
     return GtTask::EVAL_OK;

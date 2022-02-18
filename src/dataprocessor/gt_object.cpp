@@ -592,10 +592,8 @@ GtObject::getObjectByPath(QStringList& objectPath)
 
             return child->getObjectByPath(objectPath);
         }
-        else
-        {
-            return Q_NULLPTR;
-        }
+
+        return Q_NULLPTR;
     }
 
     if (objectPath.first() == objectName())

@@ -124,7 +124,7 @@ public:
     //    T copy()
     //    {
     //        // check for factory
-    //        if (m_factory == NULL)
+    //        if (m_factory == nullptr)
     //        {
     //            return NULL;
     //        }
@@ -134,7 +134,7 @@ public:
 
     //        if (memento.isNull())
     //        {
-    //            return NULL;
+    //            return nullptr;
     //        }
 
     //        return memento.restore<T>(m_factory);
@@ -150,7 +150,7 @@ public:
     //    T clone()
     //    {
     //        // check for factory
-    //        if (m_factory == NULL)
+    //        if (m_factory == nullptr)
     //        {
     //            return NULL;
     //        }

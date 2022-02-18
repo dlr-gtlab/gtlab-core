@@ -81,7 +81,7 @@ GtGuiModuleLoader::GtGuiModuleLoader()
 
 GtGuiModuleLoader::~GtGuiModuleLoader()
 {
-    for (auto key : m_uiObjs.keys())
+    for (auto const& key : m_uiObjs.keys())
     {
         qDeleteAll(m_uiObjs.value(key));
     }
@@ -112,7 +112,7 @@ GtGuiModuleLoader::knownUIObjects()
 {
     QStringList retval;
 
-    for (auto key : m_uiObjs.keys())
+    for (auto const& key : m_uiObjs.keys())
     {
         retval << key;
     }

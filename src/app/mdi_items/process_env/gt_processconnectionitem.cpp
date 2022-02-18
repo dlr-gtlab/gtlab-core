@@ -89,15 +89,14 @@ GtProcessConnectionItem::data(int column, int role)
 
                     return m_component->objectName();
                 }
-                else
-                {
-                    if (m_property == Q_NULLPTR)
-                    {
-                        return QVariant();
-                    }
 
-                    return m_property->objectName();
+                if (m_property == Q_NULLPTR)
+                {
+                    return QVariant();
                 }
+
+                return m_property->objectName();
+
             }
             break;
         }
@@ -128,11 +127,10 @@ GtProcessConnectionItem::data(int column, int role)
                         {
                             return eData->icon;
                         }
-                        else
-                        {
-                            return gtApp->icon(
-                                       QStringLiteral("calculatorIcon_16.png"));
-                        }
+
+                        return gtApp->icon(
+                                    QStringLiteral("calculatorIcon_16.png"));
+
                     }
                     else
                     {
@@ -172,15 +170,18 @@ GtProcessConnectionItem::data(int column, int role)
                     {
                         return gtApp->icon(QStringLiteral("doubleIcon_16.png"));
                     }
-                    else if (qobject_cast<GtIntProperty*>(m_property))
+
+                    if (qobject_cast<GtIntProperty*>(m_property))
                     {
                         return gtApp->icon(QStringLiteral("intIcon_16.png"));
                     }
-                    else if (qobject_cast<GtObjectLinkProperty*>(m_property))
+
+                    if (qobject_cast<GtObjectLinkProperty*>(m_property))
                     {
                         return gtApp->icon(QStringLiteral("oIcon_16.png"));
                     }
-                    else if (qobject_cast<GtStringProperty*>(m_property))
+
+                    if (qobject_cast<GtStringProperty*>(m_property))
                     {
                         return gtApp->icon(QStringLiteral("stringIcon_16.png"));
                     }

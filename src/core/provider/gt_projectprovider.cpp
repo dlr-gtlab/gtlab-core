@@ -152,7 +152,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
             QTextStream in(&iniFile);
             QString content = in.readAll();
 
-            for (auto e : uuidMap.keys())
+            for (auto const& e : uuidMap.keys())
             {
                 QString oldUuid = e;
                 oldUuid.remove(QStringLiteral("{"));

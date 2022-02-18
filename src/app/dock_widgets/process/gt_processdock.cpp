@@ -514,13 +514,11 @@ GtProcessDock::findRootTaskHelper(GtObject* obj)
         // object not a task
         return findRootTaskHelper(obj->findParent<GtTask*>());
     }
-    else
+
+    // object a task
+    if (!qobject_cast<GtProcessData*>(obj->parent()))
     {
-        // object a task
-        if (!qobject_cast<GtProcessData*>(obj->parent()))
-        {
-            return findRootTaskHelper(obj->findParent<GtTask*>());
-        }
+        return findRootTaskHelper(obj->findParent<GtTask*>());
     }
 
     return retval;

@@ -111,7 +111,8 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                     return gtApp->icon(QStringLiteral("calculatorIcon_16.png"));
 
                 }
-                else if (qobject_cast<GtTask*>(pc))
+
+                if (qobject_cast<GtTask*>(pc))
                 {
                     QString className = pc->metaObject()->className();
                     GtTaskData taskData =
@@ -455,7 +456,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         return false;
     }
 
-    const QString mimeDataUUID = memento.uuid();
+    QString mimeDataUUID = memento.uuid();
 
     // find object
     GtObject* droppedObject = processData->getObjectByUuid(mimeDataUUID);

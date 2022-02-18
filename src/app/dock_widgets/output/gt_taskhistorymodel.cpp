@@ -298,15 +298,18 @@ GtTaskHistoryModel::stringToTaskState(const QString& str) const
     {
         return GtProcessComponent::FINISHED;
     }
-    else if (str == QLatin1String("FAILED"))
+
+    if (str == QLatin1String("FAILED"))
     {
         return GtProcessComponent::FAILED;
     }
-    else if (str == QLatin1String("WARN_FINISHED"))
+
+    if (str == QLatin1String("WARN_FINISHED"))
     {
         return GtProcessComponent::WARN_FINISHED;
     }
-    else if (str == QLatin1String("TERMINATED"))
+
+    if (str == QLatin1String("TERMINATED"))
     {
         return GtProcessComponent::TERMINATED;
     }

@@ -189,10 +189,9 @@ GtProjectUI::icon(GtObject* obj) const
     {
         return gtApp->icon("componentsIcon_16.png");
     }
-    else
-    {
-        return gtApp->icon("closedProjectIcon_16.png");
-    }
+
+    return gtApp->icon("closedProjectIcon_16.png");
+
 }
 
 void
@@ -1490,7 +1489,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QTreeWidgetItem* unknownRoot =
                 new QTreeWidgetItem(QStringList() << "Unknown Modules");
 
-        for(auto e : unknownModules.keys())
+        for (auto const& e : unknownModules.keys())
         {
             QTreeWidgetItem* unknownModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1513,7 +1512,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QTreeWidgetItem* incompatibleRoot =
                 new QTreeWidgetItem(QStringList() << "Incompatible Modules");
 
-        for(auto e : incompatibleModules.keys())
+        for(auto const&e : incompatibleModules.keys())
         {
             QTreeWidgetItem* incompatibleModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1536,7 +1535,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QTreeWidgetItem* updatedRoot =
                 new QTreeWidgetItem(QStringList() << "Updated Modules");
 
-        for(auto e : updatedModules.keys())
+        for(auto const&e : updatedModules.keys())
         {
             QTreeWidgetItem* updatedModule =
                     new QTreeWidgetItem(QStringList() << e <<

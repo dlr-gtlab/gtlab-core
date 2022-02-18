@@ -174,7 +174,7 @@ GtModuleLoader::moduleDatamodelInterfaceIds()
 {
     QStringList retval;
 
-    for (auto e : m_plugins.keys())
+    for (auto const& e : m_plugins.keys())
     {
       GtDatamodelInterface* dmi =
               dynamic_cast<GtDatamodelInterface*>(m_plugins.value(e));
@@ -224,7 +224,7 @@ GtModuleLoader::modulePackageId(const QString& id)
         }
     }
 
-    return QString();
+    return {};
 }
 
 void
@@ -236,15 +236,15 @@ GtModuleLoader::initModules()
         return;
     }
 
-    for (auto e : m_plugins.keys())
+    for (auto const& e : m_plugins.keys())
     {
-      GtInitModuleInterface* imi =
-              dynamic_cast<GtInitModuleInterface*>(m_plugins.value(e));
+        GtInitModuleInterface* imi =
+                dynamic_cast<GtInitModuleInterface*>(m_plugins.value(e));
 
-      if (imi != Q_NULLPTR)
-      {
-          imi->init();
-      }
+        if (imi != nullptr)
+        {
+            imi->init();
+        }
     }
 
     m_modulesInitialized = true;

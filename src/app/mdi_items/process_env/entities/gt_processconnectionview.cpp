@@ -54,11 +54,10 @@ GtProcessConnectionView::lastVisibleIndex(const QModelIndex& index)
             // There is even deeper hierarchy. Drill down with recursion.
             return lastVisibleIndex(lastIndex);
         }
-        else
-        {
-            // Test the last item in the tree.
-            return lastIndex;
-        }
+
+        // Test the last item in the tree.
+        return lastIndex;
+
     }
 
     // return invalid index

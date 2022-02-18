@@ -93,7 +93,7 @@ GtProjectAnalyzerImpl::readData(GtProject* project)
         if (c->isDummy())
         {
             GtObjectMemento m = c->toMemento();
-            const QString m_class = m.className();
+            QString m_class = m.className();
 
             if (!m_unknownClasses.contains(m_class))
             {

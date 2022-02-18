@@ -19,7 +19,7 @@ GtShortCuts::GtShortCuts(QObject* parent)
 void
 GtShortCuts::initialize(const QMap<QString, QStringList>& tab)
 {    
-    for (QString key : tab.keys())
+    for (QString const& key : tab.keys())
     {
         QKeySequence k = QKeySequence(tab.value(key).first());
         GtShortCut* c = new GtShortCut(key, k, tab.value(key).at(1));

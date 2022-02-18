@@ -325,7 +325,7 @@ bool
 GtCoreDatamodel::closeProject(GtProject* project)
 {
     // check project
-    if (project == NULL)
+    if (project == nullptr)
     {
         return false;
     }
@@ -337,7 +337,7 @@ GtCoreDatamodel::closeProject(GtProject* project)
     }
 
     // check session
-    if (m_session == Q_NULLPTR)
+    if (m_session == nullptr)
     {
         return false;
     }
@@ -381,19 +381,19 @@ bool
 GtCoreDatamodel::deleteProject(GtProject* project)
 {
     // check project
-    if (project == NULL)
+    if (project == nullptr)
     {
         return false;
     }
 
     // check session
-    if (m_session == Q_NULLPTR)
+    if (m_session == nullptr)
     {
         return false;
     }
 
     // search for project within current session
-    if (m_session->findProject(project->objectName()) == NULL)
+    if (m_session->findProject(project->objectName()) == nullptr)
     {
         gtWarning() << tr("Cannot delete project!") << QStringLiteral(" ") <<
                     tr("Project is not inside current session.");
@@ -433,14 +433,14 @@ bool
 GtCoreDatamodel::newProject(GtProject* project)
 {
     // check project
-    if (project == NULL)
+    if (project == nullptr)
     {
         gtDebug() << "GtDataModel::newProject: " << "project == NULL";
         return false;
     }
 
     // check session
-    if (m_session == NULL)
+    if (m_session == nullptr)
     {
         gtDebug() << "GtDataModel::newProject: " << "session == NULL";
         return false;
@@ -495,7 +495,7 @@ GtCoreDatamodel::rowCount(const QModelIndex& parent) const
         return 0;
     }
 
-    if (m_session == Q_NULLPTR)
+    if (m_session == nullptr)
     {
         return 0;
     }
@@ -508,7 +508,7 @@ GtCoreDatamodel::rowCount(const QModelIndex& parent) const
     // get parent item
     GtObject* parentItem = objectFromIndex(parent);
 
-    if (parentItem == Q_NULLPTR)
+    if (parentItem == nullptr)
     {
         return 0;
     }
@@ -651,6 +651,7 @@ GtCoreDatamodel::data(const QModelIndex& index, int role) const
                 // return object uuid
                 return item->uuid();
             }
+            break;
         }
 
         default:

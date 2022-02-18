@@ -253,7 +253,7 @@ GtCoreApplication::initLanguage()
 void
 GtCoreApplication::initSession(const QString& id)
 {
-    if (m_session == NULL)
+    if (m_session == nullptr)
     {
         // load session info
         if (!readSessionIds())
@@ -528,7 +528,7 @@ GtCoreApplication::moduleVersion(const QString& id)
 QString
 GtCoreApplication::moduleDescription(const QString& id)
 {
-    if (m_moduleLoader == NULL)
+    if (m_moduleLoader == nullptr)
     {
         return QString();
     }
@@ -539,7 +539,7 @@ GtCoreApplication::moduleDescription(const QString& id)
 bool
 GtCoreApplication::hasProjectChanges()
 {
-    if (currentProject() == Q_NULLPTR)
+    if (currentProject() == nullptr)
     {
         return false;
     }
@@ -698,7 +698,7 @@ GtCoreApplication::endCommand(const GtCommand& /*command*/)
 void
 GtCoreApplication::loadingProcedure(GtAbstractLoadingHelper* helper)
 {
-    if (helper == Q_NULLPTR)
+    if (helper == nullptr)
     {
         return;
     }
@@ -746,7 +746,7 @@ GtCoreApplication::saveSystemEnvironment() const
 {
      QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
 
-     for(auto e : modEnv.keys())
+     for(auto const& e : modEnv.keys())
      {
          gtDebug() << "sys env var (" << e << ") = " << gtEnvironment->value(e);
 
@@ -758,7 +758,7 @@ GtCoreApplication::saveSystemEnvironment() const
 bool
 GtCoreApplication::setLanguage(const QString& id)
 {
-    if (m_translator == NULL)
+    if (m_translator == nullptr)
     {
         m_translator = new QTranslator;
     }
@@ -788,7 +788,7 @@ GtCoreApplication::setLanguage(const QString& id)
 bool
 GtCoreApplication::setToSystemLanguage()
 {
-    if (m_translator == NULL)
+    if (m_translator == nullptr)
     {
         m_translator = new QTranslator;
     }
@@ -902,7 +902,7 @@ GtCoreApplication::currentProject()
         return w->currentProject();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 GtProject*
@@ -915,7 +915,7 @@ GtCoreApplication::findProject(const QString& id)
         return w->findProject(id);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -923,7 +923,7 @@ GtCoreApplication::setCurrentProject(GtProject* project)
 {
     GtSession* w = session();
 
-    if (w != Q_NULLPTR)
+    if (w != nullptr)
     {
         if (currentProject() == project)
         {
@@ -952,6 +952,6 @@ GtCoreApplication::switchCurrentProject()
     }
     else
     {
-        emit currentProjectChanged(NULL);
+        emit currentProjectChanged(nullptr);
     }
 }

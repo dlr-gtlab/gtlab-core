@@ -149,7 +149,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             tWid->setHeaderLabels(QStringList() << "" << "Project" <<
                                   "Framework");
 
-            for(auto e : incompatibleModules.keys())
+            for (auto const& e : incompatibleModules.keys())
             {
                 QTreeWidgetItem* incompatibleModule =
                         new QTreeWidgetItem(QStringList() << e <<

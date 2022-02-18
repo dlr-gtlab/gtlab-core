@@ -383,9 +383,7 @@ GtDataZoneTableList::is0D() const
     {
         return dzt()->is0D();
     }
-    else
-    {
-        gtWarning() << tr("Fist element of DataZoneTableList is a nulltr.");
-        return false;
-    }
+
+    gtWarning() << tr("Fist element of DataZoneTableList is a nulltr.");
+    return false;
 }

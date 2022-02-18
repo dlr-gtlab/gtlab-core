@@ -228,10 +228,8 @@ GtPyHighlighter::matchMultiline(const QString& text,
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 const QTextCharFormat

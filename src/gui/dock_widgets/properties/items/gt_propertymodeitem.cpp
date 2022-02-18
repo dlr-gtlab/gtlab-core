@@ -52,6 +52,7 @@ GtPropertyModeItem::data(int column, int role) const
                     return modeProperty()->getVal();
                 }
             }
+            break;
         }
         case Qt::ToolTipRole:
         {
@@ -66,10 +67,8 @@ GtPropertyModeItem::data(int column, int role) const
                     {
                         return mode->brief();
                     }
-                    else
-                    {
-                        return modeProperty()->getVal();
-                    }
+
+                    return modeProperty()->getVal();
                 }
             }
         }

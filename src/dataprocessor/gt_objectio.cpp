@@ -1544,7 +1544,8 @@ QDataStream& operator<<(QDataStream& s, const QStringList& vector)
 {
     s << vector.size();
 
-    for(auto v : vector) {
+    for(auto const& v : vector)
+    {
         s << v;
     }
     return s;

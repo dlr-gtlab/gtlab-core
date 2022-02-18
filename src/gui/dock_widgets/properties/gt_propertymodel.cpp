@@ -44,10 +44,8 @@ GtPropertyModel::rowCount(const QModelIndex& parent) const
         {
             return m_properties.count();
         }
-        else
-        {
-            return filteredCategories().count();
-        }
+
+        return filteredCategories().count();
     }
 
     GtAbstractPropertyItem* parentItem = propertyFromIndex(parent);

@@ -292,7 +292,7 @@ GtCollectionLoader::readItemInformation(const QJsonObject& json)
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for (auto e : colStruct.keys())
+    for (auto const& e : colStruct.keys())
     {
         if (json.contains(e))
         {
@@ -352,7 +352,7 @@ GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for (auto e : colStruct.keys())
+    for (auto const& e : colStruct.keys())
     {
         if (json.contains(e))
         {
@@ -402,7 +402,7 @@ GtCollectionLoader::itemIsValid(const QJsonObject& json)
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for (auto e : colStruct.keys())
+    for (auto const& e : colStruct.keys())
     {
         if (!json.contains(e))
         {

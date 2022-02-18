@@ -184,6 +184,7 @@ GtCheckableStringListModel::setData(const QModelIndex& index,
                 emit dataChanged(createIndex(0, 0),
                                  createIndex(m_data.size() - 1, 0));
             }
+            break;
         }
         default:
             break;

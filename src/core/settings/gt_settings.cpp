@@ -77,7 +77,7 @@ GtSettings::shortcutsTable() const
 
     QMap<QString, QStringList> retVal;
 
-    for (QString s : helpingMap.keys())
+    for (QString const& s : helpingMap.keys())
     {
         QVariant v = helpingMap.value(s);
 
@@ -94,7 +94,7 @@ GtSettings::setShortcutsTable(QMap<QString, QStringList> const& shortcutsTable)
 {
     QMap<QString, QVariant> helpingMap;
 
-    for (QString s : shortcutsTable.keys())
+    for (QString const& s : shortcutsTable.keys())
     {
         QStringList list = shortcutsTable.value(s);
         helpingMap.insert(s, QVariant(list));
@@ -202,7 +202,7 @@ GtSettings::intialShortCutsMap()
 
     QMap<QString, QStringList> retVal;
 
-    for (QString k : map.keys())
+    for (QString const& k : map.keys())
     {
         retVal.insert(k, map.value(k).toStringList());
     }

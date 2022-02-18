@@ -410,7 +410,7 @@ GtApplication::initShortCuts()
     QMap<QString, QStringList> tabBasic = settings()->intialShortCutsMap();
 
     /// if short cut in default list, but not in settings add it to settings
-    for (QString k : tabBasic.keys())
+    for (QString const& k : tabBasic.keys())
     {
         if (!tab.keys().contains(k))
         {

@@ -207,10 +207,8 @@ GtAbstractObjectFactory::invokable(const QMetaObject& metaObj)
         }
         return false;
     }
-    else
-    {
-        delete obj;
-    }
+
+    delete obj;
 
     return true;
 }

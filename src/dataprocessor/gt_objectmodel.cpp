@@ -46,10 +46,8 @@ GtObjectModel::rowCount(const QModelIndex& parent) const
         {
             return 0;
         }
-        else
-        {
-            return 1;
-        }
+
+        return 1;
     }
 
     GtObject* parentItem = objectFromIndex(parent);

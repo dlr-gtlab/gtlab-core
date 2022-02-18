@@ -252,14 +252,12 @@ GtPropertyConnectionFunctions::highestParentTask(GtTask* childTask)
     {
         return childTask;
     }
-    else
-    {
-        GtTask* parent = qobject_cast<GtTask*>(childTask->parent());
 
-        if (parent != nullptr)
-        {
-            return highestParentTask(parent);
-        }
+    GtTask* parent = qobject_cast<GtTask*>(childTask->parent());
+
+    if (parent != nullptr)
+    {
+        return highestParentTask(parent);
     }
 
     return nullptr;
@@ -373,7 +371,8 @@ GtPropertyConnectionFunctions::internalPropertyConnections(
     {
         return retVal;
     }
-    else if (GtTask* task = qobject_cast<GtTask*>(pComp))
+
+    if (GtTask* task = qobject_cast<GtTask*>(pComp))
     {
         retVal = internalPropertyConnections(task);
     }

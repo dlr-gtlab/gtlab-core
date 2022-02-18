@@ -105,11 +105,8 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                         return gtApp->icon(
                                     QStringLiteral("arrowrightIcon.png"));
                     }
-                    else
-                    {
-                        return gtApp->icon(
-                                    QStringLiteral("arrowdownIcon.png"));
-                    }
+
+                    return gtApp->icon(QStringLiteral("arrowdownIcon.png"));
                 }
 
                 break;

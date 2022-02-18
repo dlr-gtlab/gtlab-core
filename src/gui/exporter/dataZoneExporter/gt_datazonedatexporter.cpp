@@ -160,25 +160,19 @@ GtDataZoneDatExporter::writeMultiDimData(GtDataZone* data, QFile& file)
         return false;
     }
 
-    if (data->nDims() == 1)
+    switch (data->nDims())
     {
-        return write1Ddata(data, out);
-    }
-    else if (data->nDims() == 2)
-    {
-        return write2Ddata(data, out);
-    }
-    else if (data->nDims() == 3)
-    {
-        return write3Ddata(data, out);
-    }
-    else if (data->nDims() == 4)
-    {
-        return write4Ddata(data, out);
-    }
-    else
-    {
-        gtError() << "Dimension of data zone not supported for .dat export!";
+        case 1:
+            return write1Ddata(data, out);
+        case 2:
+            return write2Ddata(data, out);
+        case 3:
+            return write3Ddata(data, out);
+        case 4:
+            return write4Ddata(data, out);
+        default:
+            gtError() << "Dimension of data zone not supported "
+                         "for .dat export!";
     }
 
     return false;

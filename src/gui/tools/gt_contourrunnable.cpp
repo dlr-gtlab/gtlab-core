@@ -694,7 +694,10 @@ GtContourRunnable::intersection(const double& zVal1, const double& zVal2,
                                 const double& zValIso, const double& axisValue1,
                                 const double& axisValue2, double& val)
 {
-    if (zVal1 != zValIso && zVal2 != zValIso)
+    bool zVal1IsIso = qIsNull(zVal1 - zValIso);
+    bool zVal2IsIso = qIsNull(zVal2 - zValIso);
+
+    if (!zVal1IsIso && !zVal2IsIso)
     {
         if (zVal1 > zValIso &&  zVal2 > zValIso)
         {
@@ -706,19 +709,16 @@ GtContourRunnable::intersection(const double& zVal1, const double& zVal2,
             return false;
         }
 
-        val = getTmpValue(axisValue1, axisValue2,
-                          zVal1, zVal2, zValIso);
+        val = getTmpValue(axisValue1, axisValue2, zVal1, zVal2, zValIso);
 
         return true;
     }
-
-    else if (zVal1 == zValIso && zVal2 != zValIso)
+    else if (zVal1IsIso && !zVal2IsIso)
     {
         val = axisValue1;
         return true;
     }
-
-    else if (zVal1 != zValIso && zVal2 == zValIso)
+    else if (!zVal1IsIso && zVal2IsIso)
     {
         val = axisValue2;
         return true;

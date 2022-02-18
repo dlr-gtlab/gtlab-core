@@ -72,11 +72,10 @@ GtPropertyItem::data(int column, int role) const
                     return QStringLiteral("[") + tmpStr +
                            QStringLiteral("]");
                 }
-                else
-                {
-                    return QStringLiteral("[") + m_currentUnit +
-                           QStringLiteral("]");
-                }
+
+                return QStringLiteral("[") + m_currentUnit +
+                        QStringLiteral("]");
+
             }
 
             break;
@@ -95,10 +94,8 @@ GtPropertyItem::data(int column, int role) const
                     {
                         return m_property->siUnit();
                     }
-                    else
-                    {
-                        return m_currentUnit;
-                    }
+
+                    return m_currentUnit;
                 }
             }
 
@@ -124,10 +121,8 @@ GtPropertyItem::data(int column, int role) const
                     {
                         return Qt::Checked;
                     }
-                    else
-                    {
-                        return Qt::Unchecked;
-                    }
+
+                    return Qt::Unchecked;
                 }
             }
             else if (column == 2)
@@ -140,10 +135,8 @@ GtPropertyItem::data(int column, int role) const
                     {
                         return Qt::Checked;
                     }
-                    else
-                    {
-                        return Qt::Unchecked;
-                    }
+
+                    return Qt::Unchecked;
                 }
             }
 
