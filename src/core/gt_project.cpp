@@ -514,12 +514,7 @@ GtProject::saveProjectOverallData()
 
     QString filename = m_path + QDir::separator() + mainFilename();
 
-    if (!saveProjectFiles(filename, document))
-    {
-        return false;
-    }
-
-    return true;
+    return saveProjectFiles(filename, document);
 }
 
 bool
@@ -826,12 +821,7 @@ GtProject::isOpen()
 {
     // TODO: logic for open or closed projects
 
-    if (childCount<GtObject*>() == 0)
-    {
-        return false;
-    }
-
-    return true;
+    return (childCount<GtObject*>() != 0);
 }
 
 GtProcessData*

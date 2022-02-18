@@ -64,10 +64,5 @@ GtProjectWizardModules::isComplete() const
 {
     QStringList retval = m_model->selectedStringList();
 
-    if (retval.isEmpty())
-    {
-        return false;
-    }
-
-    return true;
+    return !retval.isEmpty();
 }

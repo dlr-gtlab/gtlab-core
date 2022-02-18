@@ -53,23 +53,13 @@ GtObject::objectFlags() const
 bool
 GtObject::isDummy() const
 {
-    if (qobject_cast<const GtDummyObject*>(this) != Q_NULLPTR)
-    {
-        return true;
-    }
-
-    return false;
+    return (qobject_cast<const GtDummyObject*>(this) != nullptr);
 }
 
 bool
 GtObject::isExternalizedObject() const
 {
-    if (qobject_cast<const GtExternalizedObject*>(this) != Q_NULLPTR)
-    {
-        return true;
-    }
-
-    return false;
+    return (qobject_cast<const GtExternalizedObject*>(this) != nullptr);
 }
 
 bool

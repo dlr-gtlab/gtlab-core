@@ -133,12 +133,7 @@ GtEnvironment::addEnvironmentVariables(const QStringList& vars)
 bool
 GtEnvironment::isUndefined(const QString& str)
 {
-    if (m_varsUndefined.contains(str))
-    {
-        return true;
-    }
-
-    return false;
+    return m_varsUndefined.contains(str);
 }
 
 QVariant
@@ -149,18 +144,13 @@ GtEnvironment::value(const QString& var)
         return m_vars.value(var);
     }
 
-    return QVariant();
+    return {};
 }
 
 bool
 GtEnvironment::environmentVariableExists(const QString& var)
 {
-    if (m_vars.contains(var) || m_varsUndefined.contains(var))
-    {
-        return true;
-    }
-
-    return false;
+    return (m_vars.contains(var) || m_varsUndefined.contains(var));
 }
 
 void

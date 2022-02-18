@@ -102,12 +102,7 @@ GtProcessPropertyPortEntity::disconnectPort(
 bool
 GtProcessPropertyPortEntity::isConnected()
 {
-    if (m_connections.isEmpty())
-    {
-        return false;
-    }
-
-    return true;
+    return !m_connections.isEmpty();
 }
 
 GtProcessPropertyPortEntity::PortTypes

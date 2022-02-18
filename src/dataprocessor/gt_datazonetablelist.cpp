@@ -43,12 +43,7 @@ GtDataZoneTableList::size() const
 bool
 GtDataZoneTableList::isEmpty() const
 {
-    if (size() == 0)
-    {
-        return true;
-    }
-
-    return false;
+    return size() == 0;
 }
 
 

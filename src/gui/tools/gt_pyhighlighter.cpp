@@ -224,12 +224,7 @@ GtPyHighlighter::matchMultiline(const QString& text,
     }
 
     // Return True if still inside a multi-line string, False otherwise
-    if (currentBlockState() == inState)
-    {
-        return true;
-    }
-
-    return false;
+    return (currentBlockState() == inState);
 }
 
 const QTextCharFormat

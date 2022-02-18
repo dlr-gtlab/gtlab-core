@@ -1971,7 +1971,7 @@ GtProcessDock::skipComponent(const QModelIndex& index, bool skip)
 {
     QString msg;
 
-    if (skip == true)
+    if (skip)
     {
         msg = "Skip";
     }
@@ -2010,7 +2010,7 @@ GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
 
     QString msg;
 
-    if (skip == true)
+    if (skip)
     {
         msg = "Skip";
     }

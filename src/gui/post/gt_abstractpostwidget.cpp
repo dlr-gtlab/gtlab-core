@@ -111,12 +111,7 @@ GtAbstractPostWidget::addConfigAction(const QString& actionText,
 bool
 GtAbstractPostWidget::hasConfigMenu()
 {
-    if (m_actionList.size() <= 0)
-    {
-        return false;
-    }
-
-    return true;
+    return !m_actionList.isEmpty();
 }
 
 bool

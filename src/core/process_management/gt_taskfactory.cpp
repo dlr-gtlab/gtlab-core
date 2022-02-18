@@ -103,10 +103,5 @@ GtTaskFactory::taskData(const QString& className)
 bool
 GtTaskFactory::taskDataExists(const QString& className)
 {
-    if (m_taskData.contains(className))
-    {
-        return true;
-    }
-
-    return false;
+    return m_taskData.contains(className);
 }

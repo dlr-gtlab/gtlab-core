@@ -61,12 +61,7 @@ GtProjectAnalyzer::hasIrregularities()
 
     GtFootprint footprint(m_pimpl->m_footPrint);
 
-    if (!footPrint().isCompatible())
-    {
-        return true;
-    }
-
-    return false;
+    return !footPrint().isCompatible();
 }
 
 QStringList

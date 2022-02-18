@@ -130,12 +130,7 @@ GtCoreProcessExecutor::terminateAllTasks()
 bool
 GtCoreProcessExecutor::taskQueued(GtTask* task)
 {
-    if (m_queue.contains(task))
-    {
-        return true;
-    }
-
-    return false;
+    return (m_queue.contains(task));
 }
 
 bool
@@ -160,12 +155,7 @@ GtCoreProcessExecutor::currentRunningTask()
 bool
 GtCoreProcessExecutor::taskCurrentlyRunning()
 {
-    if (currentRunningTask() == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    return true;
+    return (currentRunningTask() != nullptr);
 }
 
 QList<QPointer<GtTask> >

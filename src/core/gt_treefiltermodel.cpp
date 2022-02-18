@@ -28,7 +28,7 @@ bool
 GtTreeFilterModel::filterAcceptsRow(int source_row,
                                     const QModelIndex& source_parent) const
 {
-    if (filterRegExp().isEmpty() == false)
+    if (!filterRegExp().isEmpty())
     {
         QModelIndex source_index =
                 sourceModel()->index(source_row,

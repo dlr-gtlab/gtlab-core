@@ -116,7 +116,7 @@ GtPropertyModel::flags(const QModelIndex& index) const
 
         if (var.type() == QVariant::Bool)
         {
-            if (index.data(ReadOnlyRole).toBool() != true)
+            if (!index.data(ReadOnlyRole).toBool())
             {
                 baseFlags |= Qt::ItemIsUserCheckable;
             }

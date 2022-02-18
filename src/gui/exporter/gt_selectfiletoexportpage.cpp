@@ -101,12 +101,7 @@ GtSelectFileToExportPage::validatePage()
 bool
 GtSelectFileToExportPage::isComplete() const
 {
-    if (m_lineEdit->text().isEmpty())
-    {
-        return false;
-    }
-
-    return true;
+    return !m_lineEdit->text().isEmpty();
 }
 
 void

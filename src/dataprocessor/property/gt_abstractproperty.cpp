@@ -346,12 +346,7 @@ GtAbstractProperty::clearConnection()
 bool
 GtAbstractProperty::isConnected()
 {
-    if (m_connection == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    return true;
+    return m_connection != nullptr;
 }
 
 void

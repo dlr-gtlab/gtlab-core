@@ -27,7 +27,7 @@ GtProcessFilterModel::filterAcceptsRow(int source_row,
     bool retval = GtTreeFilterModel::filterAcceptsRow(source_row,
                   source_parent);
 
-    if (retval == false)
+    if (!retval)
     {
         return false;
     }

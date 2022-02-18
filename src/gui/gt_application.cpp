@@ -720,7 +720,7 @@ GtApplication::setDarkMode(bool dark, bool initial)
 {
     m_darkMode = dark;
 
-    if (initial == false)
+    if (!initial)
     {
         gtInfo() << tr("Theme was changed.")
                  << tr("For an optimal view of all displays, "

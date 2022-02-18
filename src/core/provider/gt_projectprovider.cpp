@@ -296,12 +296,7 @@ GtProjectProvider::projectFileExists(const QString& path)
     QFile file(mainFilename);
 
     // check existing project file
-    if (file.exists())
-    {
-        return true;
-    }
-
-    return false;
+    return file.exists();
 }
 
 bool

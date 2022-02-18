@@ -119,65 +119,35 @@ GtVersionNumber::compare(const GtVersionNumber& v1,
 bool
 operator==(const GtVersionNumber&v1, const GtVersionNumber& v2)
 {
-    if (GtVersionNumber::compare(v1, v2) == 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (GtVersionNumber::compare(v1, v2) == 0);
 }
 
 bool
 operator!=(const GtVersionNumber& v1, const GtVersionNumber& v2)
 {
-    if (GtVersionNumber::compare(v1, v2) != 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (GtVersionNumber::compare(v1, v2) != 0);
 }
 
 bool
 operator>(const GtVersionNumber& v1, const GtVersionNumber& v2)
 {
-    if (GtVersionNumber::compare(v1, v2) > 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (GtVersionNumber::compare(v1, v2) > 0);
 }
 
 bool
 operator<(const GtVersionNumber& v1, const GtVersionNumber& v2)
 {
-    if (GtVersionNumber::compare(v1, v2) < 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (GtVersionNumber::compare(v1, v2) < 0);
 }
 
 bool
 operator>=(const GtVersionNumber& v1, const GtVersionNumber& v2)
 {
-    if (GtVersionNumber::compare(v1, v2) >= 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (GtVersionNumber::compare(v1, v2) >= 0);
 }
 
 bool
 operator<=(const GtVersionNumber& v1, const GtVersionNumber& v2)
 {
-    if (GtVersionNumber::compare(v1, v2) <= 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (GtVersionNumber::compare(v1, v2) <= 0);
 }

@@ -64,10 +64,5 @@ GtCalculatorFactory::calculatorData(const QString& className)
 bool
 GtCalculatorFactory::calculatorDataExists(const QString& className)
 {
-    if (m_calcData.contains(className))
-    {
-        return true;
-    }
-
-    return false;
+    return m_calcData.contains(className);
 }

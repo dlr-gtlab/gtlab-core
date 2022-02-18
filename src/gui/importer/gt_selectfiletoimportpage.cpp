@@ -108,12 +108,7 @@ GtSelectFileToImportPage::validatePage()
 bool
 GtSelectFileToImportPage::isComplete() const
 {
-    if (QFile(m_lineEdit->text()).exists())
-    {
-        return true;
-    }
-
-    return false;
+    return QFile(m_lineEdit->text()).exists();
 }
 
 void

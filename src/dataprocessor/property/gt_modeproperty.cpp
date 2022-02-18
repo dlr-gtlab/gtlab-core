@@ -155,11 +155,6 @@ GtModeProperty::updateProperties()
 bool
 GtModeProperty::validateValue(const QString& value)
 {
-    if (!modes().contains(value))
-    {
-        return false;
-    }
-
-    return true;
+    return modes().contains(value);
 }
 

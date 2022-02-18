@@ -724,12 +724,7 @@ GtCoreApplication::checkLicence()
 
     eventLoop.exec();
 
-    if (reply->error() == QNetworkReply::NoError)
-    {
-        return true;
-    }
-
-    return false;
+    return (reply->error() == QNetworkReply::NoError);
 }
 
 void

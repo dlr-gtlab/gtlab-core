@@ -96,12 +96,7 @@ GtAbstractProcessProvider::initComponent(const QMetaObject& metaObj)
 bool
 GtAbstractProcessProvider::componentInitialized()
 {
-    if (m_component == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    return true;
+    return (m_component != Q_NULLPTR);
 }
 
 QString

@@ -127,12 +127,7 @@ GtTaskHistoryModel::setPath(const QString& path)
 bool
 GtTaskHistoryModel::hasChildren(const QModelIndex& parent) const
 {
-    if (!parent.isValid())
-    {
-        return true;
-    }
-
-    return false;
+    return !parent.isValid();
 }
 
 QModelIndex

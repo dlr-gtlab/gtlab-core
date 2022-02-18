@@ -181,12 +181,7 @@ bool
 GtPropertyConnection::isConnected()
 {
     // check source property pointer
-    if (m_sourcePropObj != Q_NULLPTR)
-    {
-        return true;
-    }
-
-    return false;
+    return (m_sourcePropObj != Q_NULLPTR);
 }
 
 void

@@ -623,12 +623,7 @@ GtCalculatorEntity::isLeftMost()
 
     Q_ASSERT(m_calculator == Q_NULLPTR);
 
-    if (m_calculator->childNumber() == 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (m_calculator->childNumber() == 0);
 }
 
 bool
@@ -650,12 +645,7 @@ GtCalculatorEntity::isRightMost()
 
     QList<GtObject*> olist = parent->findDirectChildren<GtObject*>();
 
-    if (m_calculator == olist.last())
-    {
-        return true;
-    }
-
-    return false;
+    return (m_calculator == olist.last());
 }
 
 GtCalculatorEntity*
@@ -765,12 +755,7 @@ GtCalculatorEntity::rightMostLeaf()
 bool
 GtCalculatorEntity::isRoot()
 {
-    if (m_calculator == Q_NULLPTR)
-    {
-        return true;
-    }
-
-    return false;
+    return (m_calculator == Q_NULLPTR);
 }
 
 void
@@ -785,7 +770,6 @@ GtCalculatorEntity::debugNode()
         qDebug() << m_calculator->objectName() << " - (" << m_normX
                  << ", " << m_normY << ")";
     }
-
 
     foreach (GtCalculatorEntity* child, m_subCalcs)
     {

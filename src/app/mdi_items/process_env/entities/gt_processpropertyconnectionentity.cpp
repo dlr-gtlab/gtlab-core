@@ -51,23 +51,13 @@ GtProcessPropertyConnectionEntity::~GtProcessPropertyConnectionEntity()
 bool
 GtProcessPropertyConnectionEntity::startPortExists()
 {
-    if (m_startPort == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    return true;
+    return (m_startPort != Q_NULLPTR);
 }
 
 bool
 GtProcessPropertyConnectionEntity::endPortExists()
 {
-    if (m_endPort == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    return true;
+    return (m_endPort != Q_NULLPTR);
 }
 
 void

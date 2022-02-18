@@ -787,10 +787,5 @@ bool
 GtContourRunnable::lineOnIsoLevel(const double& zVal1, const double& zVal2,
                                   const double& zValIso)
 {
-    if (zVal1 == zValIso && zVal2 == zValIso)
-    {
-        return true;
-    }
-
-    return false;
+    return qIsNull(zVal1 - zValIso) && qIsNull(zVal2 - zValIso);
 }
