@@ -12,7 +12,7 @@
 
 GtDataZoneTableMainAxis::GtDataZoneTableMainAxis(const QString& name,
                                                  AxisType axType,
-                                                 QString title)
+                                                 const QString& title)
 {
     m_name = name;
     m_axType = axType;
@@ -34,9 +34,9 @@ GtDataZoneTableMainAxis::size() const
 }
 
 void
-GtDataZoneTableMainAxis::setTicks(QStringList list)
+GtDataZoneTableMainAxis::setTicks(const QStringList& ticks)
 {
-    m_axisTicks = list;
+    m_axisTicks = ticks;
 }
 
 QStringList

@@ -113,7 +113,7 @@ private:
      *  Set some general basic-layout stuff to the tab-page widget
      * @param tabPage
      */
-    void setBasicLayoutToTabPage(QScrollArea *tabPage, QString category);
+    void setBasicLayoutToTabPage(QScrollArea* tabPage, QString const& category);
 
     /**
      * @brief getCurrentPage
@@ -121,7 +121,7 @@ private:
      * @param category
      * @return
      */
-    QWidget* getCurrentPage(QString category);
+    QWidget* getCurrentPage(const QString& category) const;
 
     /**
      * @brief sortItems
@@ -141,7 +141,7 @@ public slots:
      * Copy the data from Examples-Dir to dir which is choosen inside and
      * opens the project in the current Session
      */
-    void onOpenProject(QString exampleName);
+    void onOpenProject(const QString& exampleName);
 
 };
 

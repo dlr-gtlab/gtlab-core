@@ -333,7 +333,7 @@ private slots:
      * @brief multiSelectionContextMenu
      * @param indexList
      */
-    void multiSelectionContextMenu(QList<QModelIndex> indexList);
+    void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
     /**
      * @brief Opens the calcualtor configuration wizard.

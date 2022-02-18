@@ -90,7 +90,7 @@ GtSettings::shortcutsTable() const
 }
 
 void
-GtSettings::setShortcutsTable(QMap<QString, QStringList> shortcutsTable)
+GtSettings::setShortcutsTable(QMap<QString, QStringList> const& shortcutsTable)
 {
     QMap<QString, QVariant> helpingMap;
 

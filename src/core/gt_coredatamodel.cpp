@@ -70,7 +70,7 @@ GtCoreDatamodel::setSession(GtSession* session)
 
 void
 GtCoreDatamodel::appendProjectData(GtProject* project,
-                                   QList<GtObject*> projectData)
+                                   QList<GtObject*> const& projectData)
 {
     if (projectData.isEmpty())
     {
@@ -99,12 +99,12 @@ GtCoreDatamodel::appendProjectData(GtProject* project,
 }
 
 QModelIndex
-GtCoreDatamodel::rootParent(const QModelIndex& index)
+GtCoreDatamodel::rootParent(const QModelIndex& index) const
 {
     // check index
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     // check parent index
@@ -528,16 +528,16 @@ GtCoreDatamodel::index(int row, int col, const QModelIndex& parent) const
         // check array size
         if (row >= projects.size())
         {
-            return QModelIndex();
+            return {};
         }
 
         // get child object corresponding to row number
         GtObject* childItem = projects[row];
 
         // check object
-        if (childItem == Q_NULLPTR)
+        if (childItem == nullptr)
         {
-            return QModelIndex();
+            return {};
         }
 
         // create index
@@ -548,9 +548,9 @@ GtCoreDatamodel::index(int row, int col, const QModelIndex& parent) const
     GtObject* parentItem = objectFromIndex(parent);
 
     // check parent item
-    if (parentItem == Q_NULLPTR)
+    if (parentItem == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     QList<GtObject*> childItems =
@@ -559,16 +559,16 @@ GtCoreDatamodel::index(int row, int col, const QModelIndex& parent) const
     // check array size
     if (row >= childItems.size())
     {
-        return QModelIndex();
+        return {};
     }
 
     // get child object corresponding to row number
     GtObject* childItem = childItems[row];
 
     // check object
-    if (childItem == Q_NULLPTR)
+    if (childItem == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     // create index
@@ -580,31 +580,31 @@ GtCoreDatamodel::parent(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     // get object from index
     GtObject* childItem = objectFromIndex(index);
 
     // check object
-    if (childItem == Q_NULLPTR)
+    if (childItem == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     // get parent object
     GtObject* parentItem = childItem->parentObject();
 
     // check parent
-    if (parentItem == Q_NULLPTR)
+    if (parentItem == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     // check whether parent object is a session
     if (qobject_cast<GtSession*>(parentItem))
     {
-        return QModelIndex();
+        return {};
     }
 
     // return index
@@ -831,7 +831,7 @@ GtCoreDatamodel::indexFromObject(GtObject* obj, int col) const
     // check row
     if (row < 0)
     {
-        return QModelIndex();
+        return {};
     }
 
     // create index
@@ -842,26 +842,26 @@ QModelIndex
 GtCoreDatamodel::appendChild(GtObject* child, GtObject* parent)
 {
     // check child object
-    if (child == Q_NULLPTR)
+    if (child == nullptr)
     {
         gtWarning() << tr("Could not append child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("child == NULL");
-        return QModelIndex();
+        return {};
     }
 
-    if (child->factory() == Q_NULLPTR)
+    if (child->factory() == nullptr)
     {
         child->setFactory(gtObjectFactory);
     }
 
     // check parent object
-    if (parent == Q_NULLPTR)
+    if (parent == nullptr)
     {
         gtWarning() << tr("Could not append child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // use multi append function
@@ -870,7 +870,7 @@ GtCoreDatamodel::appendChild(GtObject* child, GtObject* parent)
     // check whether child was appended
     if (indexList.isEmpty())
     {
-        return QModelIndex();
+        return {};
     }
 
     // return model index
@@ -878,7 +878,8 @@ GtCoreDatamodel::appendChild(GtObject* child, GtObject* parent)
 }
 
 QModelIndexList
-GtCoreDatamodel::appendChildren(QList<GtObject*> children, GtObject* parent)
+GtCoreDatamodel::appendChildren(QList<GtObject*> const& children,
+                                GtObject* parent)
 {
     // check parent object
     if (parent == Q_NULLPTR)
@@ -928,21 +929,21 @@ QModelIndex
 GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
 {
     // check child object
-    if (child == Q_NULLPTR)
+    if (child == nullptr)
     {
         gtWarning() << tr("Could not insert child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("child == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // check parent object
-    if (parent == Q_NULLPTR)
+    if (parent == nullptr)
     {
         gtWarning() << tr("Could not insert child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // get index of parent object
@@ -954,7 +955,7 @@ GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
         gtWarning() << tr("Could not insert children!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent index invalid");
-        return QModelIndex();
+        return {};
     }
 
     // TODO: check whether child can be appended or not before appending
@@ -963,7 +964,7 @@ GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
 
     if (!parent->insertChild(row, child))
     {
-        return QModelIndex();
+        return {};
     }
 
     endInsertRows();

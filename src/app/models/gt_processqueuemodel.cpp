@@ -97,9 +97,9 @@ GtProcessQueueModel::data(const QModelIndex &index, int role) const
         {
             GtTask* task = m_tasks.at(row);
 
-            if (task == Q_NULLPTR)
+            if (task == nullptr)
             {
-                return QVariant();
+                return {};
             }
 
             if (task->currentState() == GtTask::RUNNING)
@@ -127,6 +127,7 @@ GtProcessQueueModel::data(const QModelIndex &index, int role) const
                 return gtApp->icon(
                            QStringLiteral("networkIcon_16.png"));
             }
+            break;
         }
 
         default:
@@ -140,27 +141,27 @@ QModelIndex
 GtProcessQueueModel::index(int row, int column,
                            const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
 
-    if (m_proExec == Q_NULLPTR)
+    if (m_proExec == nullptr)
     {
         gtDebug() << "No process executor defined";
-        return QModelIndex();
+        return {};
     }
     else if (m_proExec->queue().size() == 0)
     {
         gtDebug() << "No tasks in queue";
-        return QModelIndex();
+        return {};
     }
     else if (column != 0)
     {
         gtDebug() << "Invalid column index";
-        return QModelIndex();
+        return {};
     }
     else if (row >= m_proExec->queue().size())
     {
         gtDebug() << "Invalid row index";
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, column);
@@ -169,17 +170,17 @@ GtProcessQueueModel::index(int row, int column,
 QModelIndex
 GtProcessQueueModel::parent(const QModelIndex &child) const
 {
-    Q_UNUSED(child);
-    return QModelIndex();
+    Q_UNUSED(child)
+    return {};
 }
 
 bool
 GtProcessQueueModel::setData(const QModelIndex &index,
                              const QVariant &value, int role)
 {
-    Q_UNUSED(index);
-    Q_UNUSED(value);
-    Q_UNUSED(role);
+    Q_UNUSED(index)
+    Q_UNUSED(value)
+    Q_UNUSED(role)
     return true;
 }
 

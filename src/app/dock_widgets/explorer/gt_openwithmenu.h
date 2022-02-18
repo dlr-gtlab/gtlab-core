@@ -49,7 +49,7 @@ private:
      * @param className: the original name
      * @return a string defined as a substitute for the original class name
      */
-    QString cleanMenuName(QString className);
+    QString cleanMenuName(const QString& className);
 private slots:
     /**
      * @brief Called after trigger of an action

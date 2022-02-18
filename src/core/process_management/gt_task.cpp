@@ -522,7 +522,7 @@ GtTask::handleRunnableFinished()
 }
 
 void
-GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet set)
+GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
 {
     // append data set to data table and check success
     if (!m_monitoringDataTable.append(iteration, set))

@@ -76,12 +76,12 @@ GtPropertyTreeView::mapToSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     if (index.model() != m_filterModel)
     {
-        return QModelIndex();
+        return {};
     }
 
     return  m_filterModel->mapToSource(index);
@@ -92,12 +92,12 @@ GtPropertyTreeView::mapFromSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     if (index.model() != m_model)
     {
-        return QModelIndex();
+        return {};
     }
 
     return  m_filterModel->mapFromSource(index);

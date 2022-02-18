@@ -14,7 +14,7 @@
 #include "gt_grid.h"
 #include "gt_application.h"
 
-GtRuler::GtRuler(Qt::Orientation o) : QWidget(),
+GtRuler::GtRuler(Qt::Orientation o) :
     m_orientation(o), m_needsRepaint(true)
 {
     m_cursorArrow.moveTo(0,0);

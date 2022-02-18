@@ -417,7 +417,7 @@ GtTemplateViewer::onRefreshRequest()
 }
 
 void
-GtTemplateViewer::createSpecialPlot(QString plotName)
+GtTemplateViewer::createSpecialPlot(const QString& plotName)
 {
     GtObject* obj = gtPostTemplateFactory->newObject(plotName,
                     m_postTemplateDM);

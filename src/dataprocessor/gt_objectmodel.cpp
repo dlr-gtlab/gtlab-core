@@ -69,12 +69,12 @@ GtObjectModel::index(int row, int col, const QModelIndex& parent) const
     {
         if (row >= 1 || row < 0)
         {
-            return QModelIndex();
+            return {};
         }
 
-        if (m_root == Q_NULLPTR)
+        if (m_root == nullptr)
         {
-            return QModelIndex();
+            return {};
         }
 
         return createIndex(row, col, m_root);
@@ -82,9 +82,9 @@ GtObjectModel::index(int row, int col, const QModelIndex& parent) const
 
     GtObject* parentItem = objectFromIndex(parent);
 
-    if (parentItem == Q_NULLPTR)
+    if (parentItem == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtObject* childItem =
@@ -92,7 +92,7 @@ GtObjectModel::index(int row, int col, const QModelIndex& parent) const
 
     if (!childItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, col, childItem);
@@ -103,21 +103,21 @@ GtObjectModel::parent(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     GtObject* childItem = objectFromIndex(index);
 
-    if (childItem == Q_NULLPTR)
+    if (childItem == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtObject* parentItem = childItem->parentObject();
 
-    if (parentItem == Q_NULLPTR)
+    if (parentItem == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     return indexFromObject(parentItem);
@@ -162,7 +162,7 @@ GtObjectModel::objectFromIndex(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return NULL;
+        return nullptr;
     }
 
     return static_cast<GtObject*>(index.internalPointer());
@@ -171,9 +171,9 @@ GtObjectModel::objectFromIndex(const QModelIndex& index) const
 QModelIndex
 GtObjectModel::indexFromObject(GtObject* obj) const
 {
-    if (obj == Q_NULLPTR)
+    if (obj == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     int row = -1;
@@ -184,7 +184,7 @@ GtObjectModel::indexFromObject(GtObject* obj) const
     }
     else
     {
-        if (obj->parent() != Q_NULLPTR)
+        if (obj->parent() != nullptr)
         {
             row = obj->childNumber();
         }
@@ -192,7 +192,7 @@ GtObjectModel::indexFromObject(GtObject* obj) const
 
     if (row == -1)
     {
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, 0, obj);

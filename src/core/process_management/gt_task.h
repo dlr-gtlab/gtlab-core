@@ -203,7 +203,7 @@ public slots:
      * @param Monitoring data map.
      */
     void onMonitoringDataAvailable(int iteration,
-                                   GtMonitoringDataSet set);
+                                   const GtMonitoringDataSet& set);
 
     /**
      * @brief Clears entire monitoring data.

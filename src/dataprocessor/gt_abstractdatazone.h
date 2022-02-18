@@ -31,11 +31,11 @@ public:
 
     QStringList params() const;
 
-    void setParams(const QStringList &params);
+    void setParams(const QStringList& params);
 
     QStringList units() const;
 
-    void setUnits(const QStringList &params);
+    void setUnits(const QStringList& units);
 
     virtual QString unit(const QString& param) const = 0;
 

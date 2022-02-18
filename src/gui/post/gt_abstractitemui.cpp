@@ -312,13 +312,13 @@ GtAbstractItemUI::configurePlot()
             m_widget->data(),
             m_widget, &menu);
 
-    Q_UNUSED(cam);
+    Q_UNUSED(cam)
 
     menu.exec(QCursor::pos());
 }
 
 void
-GtAbstractItemUI::plotNameChanged(QString s)
+GtAbstractItemUI::plotNameChanged(const QString& s)
 {
     m_widget->changePlotName(s);
 }

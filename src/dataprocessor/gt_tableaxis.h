@@ -50,7 +50,7 @@ public:
      * @brief setDescription Setter method for the the axis description.
      * @param description New axis description.
      */
-    void setDescription(const QString &description);
+    void setDescription(const QString& description);
 
     /**
      * @brief ticks Returns
@@ -91,7 +91,7 @@ private:
     QString m_unit;
 
     /// Brief description of axis
-    QString m_brief;
+    QString m_description;
 
     /// Array of axis ticks
     QVector<double> m_ticks;
@@ -123,10 +123,10 @@ private:
 
     /**
      * @brief genInterp
-     * @param em
+     * @param im
      * @return
      */
-    GtNumerics::GtInterpolator* genInterp(InterpMethod em);
+    GtNumerics::GtInterpolator* genInterp(InterpMethod im);
 };
 
 #endif // GT_TABLEAXIS_H

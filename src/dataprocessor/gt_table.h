@@ -265,14 +265,14 @@ public:
 
     /**
      * @brief setTabValsKeysSuffix
-     * @param keys
+     * @param suffix
      */
-    void setTabValsKeysSuffix(const QString& keys);
+    void setTabValsKeysSuffix(const QString& suffix);
 
     /**
      * @brief toDomElement
      * @param doc
-     * @param valId: optional
+     * @param valId : optional
      * @return
      */
     QDomElement toDomElement(QDomDocument& doc,

@@ -42,7 +42,7 @@ GtObjectLinkProperty::setValueFromVariant(const QVariant& val,
 
     setVal(val.toString(), success);
 
-    if (success != 0)
+    if (success != nullptr)
     {
         retval = *success;
     }

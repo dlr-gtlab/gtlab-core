@@ -83,7 +83,7 @@ public:
      * @param Parent object
      * @return ModelIndexList of appended child objects
      */
-    QModelIndexList appendChildren(QList<GtObject*> children,
+    QModelIndexList appendChildren(const QList<GtObject*>& children,
                                    GtObject* parent) override;
 
     /**

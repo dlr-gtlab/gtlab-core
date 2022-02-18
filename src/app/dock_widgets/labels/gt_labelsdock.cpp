@@ -166,7 +166,7 @@ GtLabelsDock::mapToSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     QModelIndex i1 = m_model->mapToSource(index);
@@ -179,7 +179,7 @@ GtLabelsDock::mapFromSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     QModelIndex i1 = m_styledModel->mapFromSource(index);

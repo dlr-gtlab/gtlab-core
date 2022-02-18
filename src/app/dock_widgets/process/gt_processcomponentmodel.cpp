@@ -61,15 +61,14 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                 return item->objectName();
             }
 
-            if (pc->currentState() ==
-                    GtProcessComponent::TERMINATION_REQUESTED)
+            if (pc->currentState() == GtProcessComponent::TERMINATION_REQUESTED)
             {
                 QVariant var = GtStyledModel::data(index, role);
 
                 return var.toString() + QStringLiteral(" (terminating...)");
             }
-            else if (pc->currentState() ==
-                     GtProcessComponent::TERMINATED)
+
+            if (pc->currentState() == GtProcessComponent::TERMINATED)
             {
                 QVariant var = GtStyledModel::data(index, role);
 
@@ -108,11 +107,9 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                     {
                         return eData->icon;
                     }
-                    else
-                    {
-                        return gtApp->icon(
-                                   QStringLiteral("calculatorIcon_16.png"));
-                    }
+
+                    return gtApp->icon(QStringLiteral("calculatorIcon_16.png"));
+
                 }
                 else if (qobject_cast<GtTask*>(pc))
                 {
@@ -389,7 +386,8 @@ GtProcessComponentModel::canDropMimeData(const QMimeData* data,
         {
             return true;
         }
-        else if (GtTask* parentTask = qobject_cast<GtTask*>(parentObj))
+
+        if (GtTask* parentTask = qobject_cast<GtTask*>(parentObj))
         {
             if (parentTask != task)
             {
@@ -613,7 +611,7 @@ GtProcessComponentModel::flags(const QModelIndex& index) const
     // check index
     if (!index.isValid())
     {
-        return 0;
+        return nullptr;
     }
 
     // collect default flags

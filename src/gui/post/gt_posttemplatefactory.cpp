@@ -24,8 +24,8 @@ GtPostTemplateFactory::GtPostTemplateFactory(QObject* parent) : QObject(parent)
 GtPostTemplateFactory*
 GtPostTemplateFactory::instance()
 {
-    static GtPostTemplateFactory* retval = 0;
-    if (retval == 0)
+    static GtPostTemplateFactory* retval = nullptr;
+    if (retval == nullptr)
     {
         retval = new GtPostTemplateFactory(qApp);
     }
@@ -33,7 +33,7 @@ GtPostTemplateFactory::instance()
 }
 
 void
-GtPostTemplateFactory::registerPlots(QList<QMetaObject> metaObjects)
+GtPostTemplateFactory::registerPlots(const QList<QMetaObject>& metaObjects)
 {
     foreach (QMetaObject metaObj, metaObjects)
     {

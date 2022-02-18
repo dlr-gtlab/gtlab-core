@@ -23,9 +23,9 @@ GtCalculatorHelperFactory::GtCalculatorHelperFactory(QObject* parent) :
 GtCalculatorHelperFactory*
 GtCalculatorHelperFactory::instance()
 {
-    static GtCalculatorHelperFactory* retval = 0;
+    static GtCalculatorHelperFactory* retval = nullptr;
 
-    if (retval == 0)
+    if (retval == nullptr)
     {
         retval = new GtCalculatorHelperFactory(qApp);
     }

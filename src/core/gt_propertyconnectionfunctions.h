@@ -174,7 +174,7 @@ namespace GtPropertyConnectionFunctions
      * @param highestParent
      */
     GT_CORE_EXPORT void  setOffLostConnectionWarnings(
-            QList<GtPropertyConnection*> lostCons,
+            const QList<GtPropertyConnection*>& lostCons,
             GtTask* highestParent);
 
     /**

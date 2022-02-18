@@ -135,7 +135,7 @@ public slots:
      */
     GtMdiItem* open(const QString& id,
                     GtObject* data = nullptr,
-                    QString customId = QString());
+                    const QString& customId = QString());
 
     /**
      * @brief open

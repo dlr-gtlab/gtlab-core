@@ -39,7 +39,7 @@ public:
     GtDataZoneTable(const QStringList& x,
                     const QStringList& y,
                     const QStringList& z,
-                    QList<GtAbstractDataZone*> data);
+                    const QList<GtAbstractDataZone *>& data);
 
     /**
      * @brief dataZone
@@ -338,11 +338,11 @@ public:
 
     GtDataZoneTableMainAxis* zPtr() const;
 
-    void setXaxisTitle(QString title);
+    void setXaxisTitle(const QString& title);
 
-    void setYaxisTitle(QString title);
+    void setYaxisTitle(const QString& title);
 
-    void setZaxisTitle(QString title);
+    void setZaxisTitle(const QString& title);
 
     void setAxisActive(GtDataZoneTableMainAxis::AxisType axType, bool mod);
 

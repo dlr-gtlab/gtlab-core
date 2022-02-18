@@ -54,7 +54,7 @@ public:
      * @param Reference to file selected by user.
      * @return Whether export successfully finished or not.
      */
-    bool doExport(GtObject* data, QFile& file) override;
+    bool doExport(GtObject* object, QFile& file) override;
 
     /**
      * @brief Returns file extensions of exporter.

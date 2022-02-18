@@ -538,7 +538,7 @@ GtPropertyConnectionFunctions::relatedPropertyConnections(
 
 void
 GtPropertyConnectionFunctions::setOffLostConnectionWarnings(
-        QList<GtPropertyConnection*> lostCons, GtTask* highestParent)
+        QList<GtPropertyConnection*> const& lostCons, GtTask* highestParent)
 {
     foreach (GtPropertyConnection* propCon, lostCons)
     {

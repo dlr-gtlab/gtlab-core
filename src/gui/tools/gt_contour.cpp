@@ -22,7 +22,7 @@ GtContour::GtContour() :
 
 QHash<QString, QList<QPolygonF> >
 GtContour::calcContour(GtTable* table, const QString& param,
-                       QStringList isoValues, bool calcPolygons,
+                       const QStringList& isoValues, bool calcPolygons,
                        bool returnPolygonsOnly, bool* check)
 {
     m_isoValues.clear();
@@ -173,7 +173,7 @@ GtContour::calcContour(GtTable* table, const QString& param, int nIsoValues,
 }
 
 bool
-GtContour::setData(GtTable* table, QString paramName, int iDim, int jDim)
+GtContour::setData(GtTable* table, const QString& paramName, int iDim, int jDim)
 {
     // ABORT IF GIVEN TABLE IS NOT VALID
     if (!isValid(table, paramName))

@@ -87,7 +87,7 @@ public:
      * @return false if hashes are equal
      */
     bool hasChanges();
-    bool hasChanges(QString otherHash) const;
+    bool hasChanges(const QString& otherHash) const;
 
     /**
      * @brief cachedHash getter for hash property.

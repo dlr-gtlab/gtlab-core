@@ -115,12 +115,12 @@ GtPostModel::addEntry(const QString& str)
 {
     if (str.isEmpty())
     {
-        return QModelIndex();
+        return {};
     }
 
     if (m_entries.contains(str))
     {
-        return QModelIndex();
+        return {};
     }
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size());
@@ -178,7 +178,7 @@ GtPostModel::createDocHeader(QDomDocument& doc)
 }
 
 QDomElement
-GtPostModel::createRoot(QDomDocument& doc, QString name)
+GtPostModel::createRoot(QDomDocument& doc, const QString& name)
 {
     QDomElement root = doc.createElement("GTlabPost");
     root.setAttribute("version", "0.1");
@@ -256,16 +256,16 @@ GtPostModel::refreshData(GtProject* project)
 QModelIndex
 GtPostModel::newPostTemplate()
 {
-    if (m_project == Q_NULLPTR)
+    if (m_project == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     QDir projectDir;
 
     if (!projectPostDirectory(projectDir))
     {
-        return QModelIndex();
+        return {};
     }
 
     QStringList oldEntries = entries();
@@ -303,7 +303,7 @@ GtPostModel::newPostTemplate()
         gtWarning() << objectName() << QStringLiteral(": ")
                     << tr("Failed to save template data!")
                     << QStringLiteral(" (") << id << QStringLiteral(")");
-        return QModelIndex();
+        return {};
     }
 
     QTextStream stream(&file);

@@ -18,7 +18,7 @@ public:
      * @brief registerPlot
      * @param metaObject
      */
-    void registerPlots(QList<QMetaObject> metaObjects);
+    void registerPlots(const QList<QMetaObject>& metaObjects);
 
     /**
      * @brief knownPlots

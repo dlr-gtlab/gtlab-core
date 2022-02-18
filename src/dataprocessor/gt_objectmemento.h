@@ -234,7 +234,8 @@ private:
      * @param element
      * @return
      */
-    bool isRestorable(GtAbstractObjectFactory* factory, QDomElement element);
+    bool isRestorable(GtAbstractObjectFactory* factory,
+                      const QDomElement& element);
 
 };
 

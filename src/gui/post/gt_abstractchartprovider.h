@@ -45,7 +45,7 @@ public:
 
     void setColorsUseR(const QList<QString>& colorsUse);
 
-    void addColorUseR(QColor col);
+    void addColorUseR(const QColor& col);
 
     QColor colorUseLAt(int i);
 
@@ -57,15 +57,15 @@ public:
 
     void setColorsUseL(const QList<QString>& colorsUse);
 
-    void addColorUseL(QColor col);
+    void addColorUseL(const QColor &col);
 
     void clearColorsUseL();
 
     void clearColorsUseR();
 
-    void setSingleColorsUseR(int index, QColor col);
+    void setSingleColorsUseR(int index, const QColor& col);
 
-    void setSingleColorsUseL(int index, QColor col);
+    void setSingleColorsUseL(int index, const QColor& col);
 
     int bottomIterator(GtDataZoneTableList* dztList,
                        const QString& bottomAxis,
@@ -77,7 +77,7 @@ public:
 
     int additionalIterator(GtDataZoneTableList* dztList,
                            const QString& additionalAxis,
-                           QStringList scharParameters,
+                           const QStringList& scharParameters,
                            QVector<double>& axisTicks) const;
 
     // no usage of 'axisTicks'
@@ -86,10 +86,10 @@ public:
                            const QStringList& scharParameters) const;
 
     void fixMainValues(GtDataZoneTableList* dztList,
-                       QMap<QString, QString> fixedMain,
+                       const QMap<QString, QString>& fixedMain,
                        int& fixXmain, int& fixYmain, int& fixZmain);
 
-    void fixMainValues(QMap<QString, QString> fixedMain,
+    void fixMainValues(const QMap<QString, QString> &fixedMain,
                        QString& fixXmain, QString& fixYmain, QString& fixZmain);
 
     QStringList prefixToStringList(const QStringList& list,

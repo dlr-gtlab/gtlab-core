@@ -302,7 +302,7 @@ GtProcessConnectionScene::hidePorts(
 
 QList<QPropertyAnimation*>
 GtProcessConnectionScene::highlightPorts(
-        QList<GtProcessPropertyPortEntity*> ports)
+        QList<GtProcessPropertyPortEntity*> const& ports)
 {
     QList<QPropertyAnimation*> animList;
 

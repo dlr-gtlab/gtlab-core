@@ -14,7 +14,7 @@
 
 GtPropertyChangeCommand::GtPropertyChangeCommand(GtObject* obj,
                                                  GtAbstractProperty* prop,
-                                                 QVariant newVal,
+                                                 const QVariant& newVal,
                                                  const QString& unit,
                                                  GtObject* root,
                                                  QUndoCommand* parent) :

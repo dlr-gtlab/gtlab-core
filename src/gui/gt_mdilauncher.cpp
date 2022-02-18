@@ -303,7 +303,7 @@ GtMdiLauncher::registerCollection(const QString& str,
 }
 
 GtMdiItem*
-GtMdiLauncher::open(const QString& id, GtObject* data, QString customId)
+GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 {
     if (m_area == Q_NULLPTR)
     {

@@ -146,7 +146,7 @@ GtDoubleProperty::setValueFromVariant(const QVariant& val,
     {
         setVal(doubleVal, unit, success);
 
-        if (success != 0)
+        if (success != nullptr)
         {
             retval = *success;
         }

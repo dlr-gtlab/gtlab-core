@@ -89,7 +89,7 @@ private slots:
 
     void configurePlot();
 
-    void plotNameChanged(QString s);
+    void plotNameChanged(const QString &s);
 
     void moveUp();
 

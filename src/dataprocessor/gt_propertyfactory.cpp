@@ -74,7 +74,7 @@ GtPropertyFactory::newProperty(const QString& className,
                 qDebug() << knownClasses();
             }
 
-            return NULL;
+            return nullptr;
         }
 
         retval = qobject_cast<GtAbstractProperty*>(obj);
@@ -92,7 +92,7 @@ GtPropertyFactory::newProperty(const QString& className,
                 qDebug() << knownClasses();
             }
 
-            return NULL;
+            return nullptr;
         }
     }
     else
@@ -103,7 +103,7 @@ GtPropertyFactory::newProperty(const QString& className,
 //            qWarning() << "WARNING: classname not found! (" << className << ")";
         }
 
-        return NULL;
+        return nullptr;
     }
 
     return retval;

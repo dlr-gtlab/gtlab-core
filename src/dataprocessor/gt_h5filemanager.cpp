@@ -69,7 +69,7 @@ GtH5FileManager::createNewTempFile()
 bool
 GtH5FileManager::removeTempFile(int fileId)
 {
-    m_processThread = 0;
+    m_processThread = nullptr;
     if (!m_fileMap.contains(fileId))
     {
         return true;
@@ -107,7 +107,7 @@ GtH5FileManager::commitObjectsInTempFile(int fileId, const GtObjectList& modules
         }
     }
 
-    m_processThread = 0;
+    m_processThread = nullptr;
 
     // no objects where externalized
     if (!m_fileMap.contains(fileId))
@@ -278,7 +278,7 @@ GtH5FileManager::updateFileReference(const GtExternalizedH5Object* obj,
 
 
 void
-GtH5FileManager::reset(GtObject* project, QString projectDir)
+GtH5FileManager::reset(GtObject* project, const QString& projectDir)
 {
     m_projectObject = project;
     m_projectPath = projectDir.toUtf8();

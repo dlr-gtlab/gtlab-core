@@ -77,7 +77,7 @@ private:
      * @brief createSpecialPlot
      * @param plotName
      */
-    void createSpecialPlot(QString plotName);
+    void createSpecialPlot(const QString& plotName);
 
     /**
      * @brief showEvent

@@ -226,7 +226,7 @@ protected:
      * @brief addActionGrou
      * @param actionGroup
      */
-    void addActionGroup(GtObjectUIActionGroup actionGroup);
+    void addActionGroup(const GtObjectUIActionGroup& actionGroup);
 
     /**
      * @brief addSeparator

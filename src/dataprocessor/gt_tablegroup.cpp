@@ -22,7 +22,7 @@ GtTableGroup::tables()
 }
 
 GtTable*
-GtTableGroup::table(QString name)
+GtTableGroup::table(const QString& name)
 {
     if (tableNames().contains(name))
     {

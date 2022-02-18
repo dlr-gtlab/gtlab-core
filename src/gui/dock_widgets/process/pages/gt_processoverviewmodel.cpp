@@ -214,7 +214,7 @@ GtProcessOverviewModel::index(int row, int col,
 
         if (row < 0 || row >= catCount)
         {
-            return QModelIndex();
+            return {};
         }
 
         return createIndex(row, col, m_categories[row]);
@@ -224,7 +224,7 @@ GtProcessOverviewModel::index(int row, int col,
 
     if (!parentItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtAbstractProcessItem* childItem =
@@ -232,7 +232,7 @@ GtProcessOverviewModel::index(int row, int col,
 
     if (!childItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, col, childItem);
@@ -243,21 +243,21 @@ GtProcessOverviewModel::parent(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     GtAbstractProcessItem* childItem = itemFromIndex(index);
 
     if (childItem == Q_NULLPTR)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtObject* parentItem = childItem->parentObject();
 
     if (parentItem == Q_NULLPTR)
     {
-        return QModelIndex();
+        return {};
     }
 
     return indexFromItem(qobject_cast<GtAbstractProcessItem*>(parentItem));
@@ -268,12 +268,12 @@ GtProcessOverviewModel::itemFromIndex(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (index.model() != this)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return static_cast<GtAbstractProcessItem*>(index.internalPointer());
@@ -300,14 +300,14 @@ GtProcessOverviewModel::categoryItem(const QString& id)
 QModelIndex
 GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (item == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     int row = -1;
 
-    if (item->parent() == Q_NULLPTR)
+    if (item->parent() == nullptr)
     {
         row = m_categories.indexOf(qobject_cast<GtProcessCategoryItem*>(item));
     }
@@ -329,7 +329,7 @@ GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
     {
         qWarning() << "WARNING (GtCalculatorOverviewModel::indexFromObject): "
                    << "row == -1!";
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, 0, item);

@@ -29,7 +29,7 @@ public:
      */
     GtPropertyChangeCommand(GtObject* obj,
                             GtAbstractProperty* prop,
-                            QVariant newVal,
+                            const QVariant& newVal,
                             const QString& unit,
                             GtObject* root = Q_NULLPTR,
                             QUndoCommand* parent = Q_NULLPTR);

@@ -102,7 +102,7 @@ GtFilteredLogModel::filterAcceptsRow(int source_row,
         break;
     }
 
-    if (retval == true)
+    if (retval)
     {
         return QSortFilterProxyModel::filterAcceptsRow(source_row,
                                                        source_parent);

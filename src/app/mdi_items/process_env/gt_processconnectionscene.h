@@ -108,7 +108,7 @@ private:
      * @return
      */
     QList<QPropertyAnimation*> highlightPorts(
-            QList<GtProcessPropertyPortEntity*> ports);
+            const QList<GtProcessPropertyPortEntity*>& ports);
 
     /**
      * @brief Returns closest port corresponding to given port and mouse

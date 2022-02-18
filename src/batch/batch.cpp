@@ -296,7 +296,7 @@ runProcessByFile(const QString& projectFile, const QString& processId,
 }
 
 bool
-isExactlyOneTrue(bool* boolAry, int size)
+isExactlyOneTrue(const bool* boolAry, int size)
 {
     bool areAnyTrue = false;
     bool areTwoTrue = false;

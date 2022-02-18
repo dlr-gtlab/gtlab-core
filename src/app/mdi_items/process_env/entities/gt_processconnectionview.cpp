@@ -36,7 +36,7 @@ GtProcessConnectionView::lastVisibleIndex(const QModelIndex& index)
     // check model
     if (model() == Q_NULLPTR)
     {
-        return QModelIndex();
+        return {};
     }
 
     // get row count for given index
@@ -62,24 +62,24 @@ GtProcessConnectionView::lastVisibleIndex(const QModelIndex& index)
     }
 
     // return invalid index
-    return QModelIndex();
+    return {};
 }
 
 QModelIndex
 GtProcessConnectionView::lastVisibleParentIndex(GtProcessConnectionItem* item)
 {
     // check item
-    if (item == Q_NULLPTR)
+    if (item == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtProcessConnectionModel* conMod = connectionModel();
 
     // check model
-    if (conMod == Q_NULLPTR)
+    if (conMod == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     QModelIndex index = conMod->indexFromItem(item);
@@ -114,7 +114,7 @@ GtProcessConnectionView::lastVisibleParentIndex(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     if (!isExpanded(index))
@@ -133,7 +133,7 @@ GtProcessConnectionView::lastVisibleParentIndex(const QModelIndex& index)
 
     if (!parentIndex.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     return lastVisibleParentIndex(parentIndex);

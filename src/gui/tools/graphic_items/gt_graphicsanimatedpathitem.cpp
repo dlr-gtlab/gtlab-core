@@ -15,7 +15,7 @@
 #include "gt_graphicsscene.h"
 
 GtGraphicsAnimatedPathItem::GtGraphicsAnimatedPathItem(QGraphicsItem* parent) :
-    QGraphicsPathItem(parent), m_t(0.0), m_pathAnim(NULL)
+    QGraphicsPathItem(parent), m_t(0.0), m_pathAnim(nullptr)
 {
 
 }
@@ -23,7 +23,7 @@ GtGraphicsAnimatedPathItem::GtGraphicsAnimatedPathItem(QGraphicsItem* parent) :
 int
 GtGraphicsAnimatedPathItem::t() const
 {
-    return m_t;
+    return int(m_t);
 }
 
 void

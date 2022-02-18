@@ -73,16 +73,16 @@ protected:
 
     /**
      * @brief dropMimeData
-     * @param data
+     * @param mimeData
      * @param action
      * @param row
      * @param column
-     * @param parent
+     * @param destinationIndex
      * @return
      */
-    bool dropMimeData(const QMimeData* data, Qt::DropAction action,
+    bool dropMimeData(const QMimeData* mimeData, Qt::DropAction action,
                       int row, int column,
-                      const QModelIndex& parent) override;
+                      const QModelIndex& destinationIndex) override;
 
     /**
      * @brief Returns the item flags for the given index.

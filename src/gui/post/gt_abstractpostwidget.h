@@ -145,7 +145,7 @@ public:
 
 protected:
 
-    void createDztList(QStringList dztUUIDs);
+    void createDztList(const QStringList& dztUUIDs);
 
     void deleteDztList();
 

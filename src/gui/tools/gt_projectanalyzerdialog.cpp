@@ -22,8 +22,7 @@
 #include "gt_projectanalyzerdialog.h"
 
 GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
-    QDialog(),
-    m_tabWid(Q_NULLPTR)
+    m_tabWid(nullptr)
 {
     setWindowTitle(tr("Project Analyzer"));
     setWindowIcon(gtApp->icon("componentsIcon_16.png"));
@@ -31,7 +30,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
     QVBoxLayout* mLay = new QVBoxLayout;
 
     // read information
-    if (analyzer != Q_NULLPTR)
+    if (analyzer != nullptr)
     {
         // analyse footprint
         GtFootprint footprint = analyzer->footPrint();
@@ -192,7 +191,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
         }
     }
 
-    if (m_tabWid != Q_NULLPTR)
+    if (m_tabWid != nullptr)
     {
         QLabel* irregulInfo =
                 new QLabel(tr("Irregularities found in the project file:"));
@@ -226,7 +225,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 QTabWidget*
 GtProjectAnalyzerDialog::tabWidget()
 {
-    if (m_tabWid == Q_NULLPTR)
+    if (m_tabWid == nullptr)
     {
         m_tabWid = new QTabWidget;
     }

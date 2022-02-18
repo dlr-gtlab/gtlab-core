@@ -165,7 +165,7 @@ private:
      * @param fixYmain
      * @param fixZmain
      */
-    void fixMainValues(QMap<QString, QString> fixedMain,
+    void fixMainValues(const QMap<QString, QString>& fixedMain,
                        int& fixXmain, int& fixYmain, int& fixZmain);
 
 };

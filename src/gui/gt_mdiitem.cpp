@@ -55,7 +55,7 @@ GtMdiItem::setData(GtObject* /*obj*/)
 GtMdiItem::~GtMdiItem()
 {
 //    gtError() << "MDI ITEM DESTROYED!";
-    if (m_frame && m_frame->parent() == NULL)
+    if (m_frame && m_frame->parent() == nullptr)
     {
         delete m_frame;
     }

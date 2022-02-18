@@ -147,7 +147,7 @@ GtAbstractChartProvider::setColorsUseR(const QList<QString>& colorsUse)
 }
 
 void
-GtAbstractChartProvider::addColorUseR(QColor col)
+GtAbstractChartProvider::addColorUseR(QColor const& col)
 {
     m_colorsR.append(col.name());
 }
@@ -226,7 +226,7 @@ GtAbstractChartProvider::setColorsUseL(const QList<QString>& colorsUse)
 }
 
 void
-GtAbstractChartProvider::addColorUseL(QColor col)
+GtAbstractChartProvider::addColorUseL(QColor const& col)
 {
     m_colorsL.append(col.name());
 }
@@ -251,13 +251,13 @@ GtAbstractChartProvider::clearColorsUseR()
 }
 
 void
-GtAbstractChartProvider::setSingleColorsUseR(int index, QColor col)
+GtAbstractChartProvider::setSingleColorsUseR(int index, const QColor& col)
 {
     m_colorsR.replace(index, col.name());
 }
 
 void
-GtAbstractChartProvider::setSingleColorsUseL(int index, QColor col)
+GtAbstractChartProvider::setSingleColorsUseL(int index, const QColor& col)
 {
     m_colorsL.replace(index, col.name());
 }
@@ -319,7 +319,7 @@ GtAbstractChartProvider::bottomIterator(
 int
 GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
                                             const QString& additionalAxis,
-                                            QStringList scharParameters,
+                                            const QStringList& scharParameters,
                                             QVector<double>& axisTicks) const
 {
     // get how many data sets there are additional (that means schar)
@@ -386,7 +386,7 @@ GtAbstractChartProvider::additionalIterator(
 
 void
 GtAbstractChartProvider::fixMainValues(GtDataZoneTableList* dztList,
-                                       QMap<QString, QString> fixedMain,
+                                       const QMap<QString, QString>& fixedMain,
                                        int& fixXmain, int& fixYmain,
                                        int& fixZmain)
 {
@@ -411,7 +411,7 @@ GtAbstractChartProvider::fixMainValues(GtDataZoneTableList* dztList,
 }
 
 void
-GtAbstractChartProvider::fixMainValues(QMap<QString, QString> fixedMain,
+GtAbstractChartProvider::fixMainValues(const QMap<QString, QString>& fixedMain,
                                        QString& fixXmain, QString& fixYmain,
                                        QString& fixZmain)
 {

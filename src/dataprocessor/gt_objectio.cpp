@@ -359,7 +359,7 @@ GtObjectIO::toObjectHelper(const QDomElement& element, GtObject* parent)
 void
 GtObjectIO::mergeObject(const QDomElement& element, GtObject* obj)
 {
-    if (obj == NULL)
+    if (obj == nullptr)
     {
         return;
     }

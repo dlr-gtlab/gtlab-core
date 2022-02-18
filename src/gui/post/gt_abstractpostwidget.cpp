@@ -150,7 +150,7 @@ GtAbstractPostWidget::providerName()
 }
 
 void
-GtAbstractPostWidget::createDztList(QStringList dztUUIDs)
+GtAbstractPostWidget::createDztList(const QStringList& dztUUIDs)
 {
     deleteDztList();
 

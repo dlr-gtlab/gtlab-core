@@ -44,11 +44,11 @@ public:
     };
 
     void setHighlightColor(HighlightType type,
-                           QColor color,
+                           const QColor& color,
                            bool foreground = true);
 
     void setHighlightFormat(HighlightType type,
-                            QTextCharFormat format);
+                            const QTextCharFormat& format);
 
 protected:
     void highlightBlock(const QString& rstrText);

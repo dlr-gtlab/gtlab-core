@@ -29,7 +29,7 @@ GtDataZoneTable::GtDataZoneTable()
 GtDataZoneTable::GtDataZoneTable(const QStringList& x,
                                  const QStringList& y,
                                  const QStringList& z,
-                                 QList<GtAbstractDataZone *> data)
+                                 QList<GtAbstractDataZone *> const& data)
 {
     initAxes();
 
@@ -128,19 +128,19 @@ GtDataZoneTable::zPtr() const
 }
 
 void
-GtDataZoneTable::setXaxisTitle(QString title)
+GtDataZoneTable::setXaxisTitle(const QString& title)
 {
     xPtr()->setTitle(title);
 }
 
 void
-GtDataZoneTable::setYaxisTitle(QString title)
+GtDataZoneTable::setYaxisTitle(const QString& title)
 {
     yPtr()->setTitle(title);
 }
 
 void
-GtDataZoneTable::setZaxisTitle(QString title)
+GtDataZoneTable::setZaxisTitle(const QString& title)
 {
     zPtr()->setTitle(title);
 }

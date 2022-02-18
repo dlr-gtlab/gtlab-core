@@ -220,9 +220,10 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     QVector<QPair<GtObjectUI*, QList<GtObjectUIActionGroup> > > actionGroups;
     QVector<QPair<GtObjectUI*, QList<GtObjectUIAction> > > actions;
 
-    for (int i = 0; i < ouis.size(); ++i)
+    //for (int i = 0; i < ouis.size(); ++i)
+    foreach (auto oui, ouis)
     {
-        GtObjectUI* oui = ouis[i];
+        //GtObjectUI* oui = ouis[i];
 
         openList.append(oui->openWith(obj));
 
@@ -281,11 +282,12 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
         }
     }
 
-    for (int i = 0; i < actions.size(); ++i)
+    //for (int i = 0; i < actions.size(); ++i)
+    foreach (auto action, actions)
     {
         GtCustomActionMenu* cmenu =
-                new GtCustomActionMenu(actions[i].second, obj,
-                                       actions[i].first, &menu);
+                new GtCustomActionMenu(action.second, obj,
+                                       action.first, &menu);
 
         Q_UNUSED(cmenu)
     }
@@ -431,10 +433,9 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
             allProjects = false;
             break;
         }
-        else
-        {
-            projectsList.append(proj);
-        }
+
+        projectsList.append(proj);
+
     }
 
     bool oneDeletable = false;
@@ -511,19 +512,19 @@ GtExplorerDock::mapToSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     QModelIndex tmp = index;
 
     if (!mapToSourceHelper(tmp, m_model))
     {
-        return QModelIndex();
+        return {};
     }
 
     if (!mapToSourceHelper(tmp, m_styledModel))
     {
-        return QModelIndex();
+        return {};
     }
 
     return tmp;
@@ -534,19 +535,19 @@ GtExplorerDock::mapFromSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     QModelIndex tmp = index;
 
     if (!mapFromSourceHelper(tmp, gtDataModel, m_styledModel))
     {
-        return QModelIndex();
+        return {};
     }
 
     if (!mapFromSourceHelper(tmp, m_styledModel, m_model))
     {
-        return QModelIndex();
+        return {};
     }
 
     return  tmp;
@@ -767,7 +768,7 @@ GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
 {
     QModelIndexList indexlist = m_view->selectionModel()->selectedIndexes();
 
-    if (indexlist.size() > 0 && indexlist.size() < 4)
+    if (!indexlist.isEmpty() && indexlist.size() < 4)
     {
         QModelIndex indexUnderMouse = indexOrigin;
 
@@ -891,7 +892,8 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
         gtInfo() << "No deletable objects selected!";
         return;
     }
-    else if (deletables.size() != objects.size())
+
+    if (deletables.size() != objects.size())
     {
         foreach(GtObject* obj, objects)
         {

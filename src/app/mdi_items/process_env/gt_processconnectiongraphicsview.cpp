@@ -109,10 +109,7 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
             GtProcessPropertyPortEntity* entity =
                 m_inputPorts.take(e);
 
-            if (entity != Q_NULLPTR)
-            {
-                delete entity;
-            }
+            delete entity;
         }
     }
 

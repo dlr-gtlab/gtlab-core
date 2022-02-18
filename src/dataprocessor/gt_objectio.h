@@ -91,10 +91,10 @@ public:
     GtObjectMemento::MementoData toMemento(const QDomElement& e);
 
     /** Creates new GtObjects from given Memento.
-        @param m GtObjectMemento memento
+        @param memento GtObjectMemento memento
         @return New GtObject based on GtObjectMemento memento */
-    GtObject* toObject(const GtObjectMemento& m,
-                       GtObject* handleObjectAdd = NULL);
+    GtObject* toObject(const GtObjectMemento& memento,
+                       GtObject* parent = nullptr);
 
     /** Merges GtObjects information from given QDomElement.
         @param element QDomElement memento
@@ -178,7 +178,7 @@ private:
         @param element QDomElement memento
         @return New GtObject based on QDomElement memento */
     GtObject* toObjectHelper(const QDomElement& element,
-                       GtObject* handleObjectAdd = nullptr);
+                       GtObject* parent = nullptr);
 
     /** Merges all properties found in QDomElement with properties found
         in GtdObject.

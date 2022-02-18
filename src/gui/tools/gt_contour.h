@@ -46,7 +46,7 @@ public:
      * @return Hash including pairs of iso values and related contor polygons
      */
     QHash<QString, QList<QPolygonF> > calcContour(
-            GtTable* table,  const QString& param, QStringList isoValues,
+            GtTable* table, const QString& param, const QStringList& isoValues,
             bool calcPolygons = false, bool returnPolygonsOnly = false,
             bool* check = nullptr);
 
@@ -92,7 +92,7 @@ public:
      */
     QHash<QString, QList<QPolygonF> > calcContour(
             GtTable* table, const QString &param, int nIsoValues,
-            bool calcPoygons = false, bool returnPolygonsOnly = false,
+            bool calcPolygons = false, bool returnPolygonsOnly = false,
             bool* check = nullptr);
 
     /**
@@ -121,8 +121,11 @@ private:
      * @brief Converts given table to internal data structure for further usage
      * @param table
      * @param paramName
+     * @param iDim
+     * @param jDim
      */
-    bool setData(GtTable* table, QString paramName, int iDim = 0, int jDim = 0);
+    bool setData(GtTable* table, const QString& paramName, int iDim = 0,
+                 int jDim = 0);
 };
 
 #endif // GTCONTOUR_H

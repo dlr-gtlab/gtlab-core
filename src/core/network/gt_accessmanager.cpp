@@ -21,14 +21,14 @@
 #include "gt_accessmanager.h"
 
 GtAccessManager::GtAccessManager(QObject* parent) :
-    QObject(parent), m_qnam(Q_NULLPTR)
+    QObject(parent), m_qnam(nullptr)
 {
 }
 
 bool
 GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
 {
-    if (accessGroup == Q_NULLPTR)
+    if (accessGroup == nullptr)
     {
         return false;
     }
@@ -130,8 +130,8 @@ GtAccessManager::roamingPath()
 GtAccessManager*
 GtAccessManager::instance()
 {
-    static GtAccessManager* retval = 0;
-    if (retval == 0)
+    static GtAccessManager* retval = nullptr;
+    if (retval == nullptr)
     {
         retval = new GtAccessManager(qApp);
     }
@@ -144,12 +144,12 @@ GtAccessManager::addAccessGroup(const QString& id,
 {
     if (id.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (groupExists(id))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtAccessGroup* retval = new GtAccessGroup(id , connection, this);
@@ -326,13 +326,13 @@ GtAccessManager::accessGroup(const QString& id)
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 QNetworkAccessManager*
 GtAccessManager::qnam()
 {
-    if (m_qnam == Q_NULLPTR)
+    if (m_qnam == nullptr)
     {
         m_qnam = new QNetworkAccessManager(this);
     }

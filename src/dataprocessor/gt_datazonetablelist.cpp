@@ -200,7 +200,7 @@ GtDataZoneTableList::isValid(GtDataZoneTable* newDzt)
 }
 
 void
-GtDataZoneTableList::fixMainValues(QMap<QString, QString> fixedMain,
+GtDataZoneTableList::fixMainValues(QMap<QString, QString> const& fixedMain,
                                    int& fixXmain, int& fixYmain, int& fixZmain)
 {
     // get the fix X, Y, Z axis of the main datazonetable

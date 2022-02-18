@@ -30,7 +30,7 @@ public:
 
     void setValues(const QStringList& values);
 
-    void addEntry(QString key, QString value);
+    void addEntry(const QString& key, const QString& value);
 
     bool isValid();
 

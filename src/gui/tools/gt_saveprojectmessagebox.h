@@ -26,8 +26,8 @@ public:
      * Gives it the specific appearance for the usage
      * @param parent - use the specific widget as parent
      */
-    GtSaveProjectMessageBox(QString text = QString(),
-                            QWidget* parent = Q_NULLPTR);
+    GtSaveProjectMessageBox(const QString& text = QString(),
+                            QWidget* parent = nullptr);
 };
 
 #endif // GTSAVEPROJECTMESSAGEBOX_H

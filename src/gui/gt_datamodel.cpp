@@ -50,7 +50,7 @@ GtDataModel::flags(const QModelIndex& index) const
     // check index
     if (!index.isValid())
     {
-        return 0;
+        return nullptr;
     }
 
     // collect default flags
@@ -60,7 +60,7 @@ GtDataModel::flags(const QModelIndex& index) const
     GtObject* object = objectFromIndex(index);
 
     // check object
-    if (object != Q_NULLPTR)
+    if (object != nullptr)
     {
         // add drop enabled flag
         defaultFlags = defaultFlags | Qt::ItemIsDropEnabled;
@@ -75,7 +75,7 @@ void
 GtDataModel::updateObject(GtObject* obj)
 {
     // check object
-    if (obj == Q_NULLPTR)
+    if (obj == nullptr)
     {
         return;
     }
@@ -172,7 +172,7 @@ GtDataModel::saveProject(GtProject *project)
 }
 
 QModelIndexList
-GtDataModel::appendChildren(QList<GtObject*> children, GtObject* parent)
+GtDataModel::appendChildren(const QList<GtObject*>& children, GtObject* parent)
 {
     // check child list
     if (children.isEmpty())
@@ -218,21 +218,21 @@ GtDataModel::appendChildren(QList<GtObject*> children, GtObject* parent)
 QModelIndex
 GtDataModel::insertChild(GtObject* child, GtObject* parent, int row)
 {
-    if (child == Q_NULLPTR)
+    if (child == nullptr)
     {
         gtWarning() << tr("Could not insert child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("child == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // check parent object
-    if (parent == Q_NULLPTR)
+    if (parent == nullptr)
     {
         gtWarning() << tr("Could not insert child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // get index of parent object
@@ -244,7 +244,7 @@ GtDataModel::insertChild(GtObject* child, GtObject* parent, int row)
         gtWarning() << tr("Could not insert children!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent index invalid");
-        return QModelIndex();
+        return {};
     }
 
     QString commandMsg = child->objectName() + QStringLiteral(" ") +

@@ -108,7 +108,7 @@ GtExamplesMdiWidget::initializeDirectories()
 
 void
 GtExamplesMdiWidget::setBasicLayoutToTabPage(QScrollArea* tabPage,
-                                             QString category)
+                                             const QString& category)
 {
     if (!tabPage)
     {
@@ -263,7 +263,7 @@ GtExamplesMdiWidget::onResized()
 }
 
 void
-GtExamplesMdiWidget::onOpenProject(QString exampleName)
+GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
 {
     QString dirPath = exampleName.split("#").first();
 
@@ -431,7 +431,7 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
 }
 
 QWidget*
-GtExamplesMdiWidget::getCurrentPage(QString category)
+GtExamplesMdiWidget::getCurrentPage(const QString& category) const
 {
     return m_tabs.value(category);
 }

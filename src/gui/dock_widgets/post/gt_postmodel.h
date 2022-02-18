@@ -132,7 +132,7 @@ public:
      * @param name
      * @return
      */
-    static QDomElement createRoot(QDomDocument& doc, QString name);
+    static QDomElement createRoot(QDomDocument& doc, const QString& name);
 
     /**
      * @brief deleteEntry
@@ -150,7 +150,7 @@ private:
     /**
      * @brief Fills the directory referenz with project specific post
      * processing path
-     * @param Reference to directory object.
+     * @param dir - Reference to directory object.
      * @return Whether directory was filled or not.
      */
     bool projectPostDirectory(QDir& dir);

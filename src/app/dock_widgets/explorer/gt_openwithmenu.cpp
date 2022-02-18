@@ -57,21 +57,24 @@ GtOpenWithMenu::onActionTrigger(QObject* obj)
 }
 
 QString
-GtOpenWithMenu::cleanMenuName(QString className)
-{
+GtOpenWithMenu::cleanMenuName(const QString& className)
+{   
     if (className == "GtdPreDesignPlot")
     {
         return "Pre Design Plot";
     }
-    else if (className == "GtdPreDesignPlot3D")
+
+    if (className == "GtdPreDesignPlot3D")
     {
         return "3D Pre Design Plot";
     }
-    else if (className == "GtdProfilePlot")
+
+    if (className == "GtdProfilePlot")
     {
         return "Profile Plot";
     }
-    else if (className == "GtdComponentEditor")
+
+    if (className == "GtdComponentEditor")
     {
         return "Component Editor";
     }

@@ -26,8 +26,8 @@ GtImportHandler::GtImportHandler(QObject* parent) : QObject(parent)
 GtImportHandler*
 GtImportHandler::instance()
 {
-    static GtImportHandler* retval = 0;
-    if (retval == 0)
+    static GtImportHandler* retval = nullptr;
+    if (retval == nullptr)
     {
         retval = new GtImportHandler(qApp);
     }

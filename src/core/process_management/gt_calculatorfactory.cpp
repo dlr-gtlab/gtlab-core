@@ -23,8 +23,8 @@ GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
 GtCalculatorFactory*
 GtCalculatorFactory::instance()
 {
-    static GtCalculatorFactory* retval = 0;
-    if (retval == 0)
+    static GtCalculatorFactory* retval = nullptr;
+    if (retval == nullptr)
     {
         retval = new GtCalculatorFactory(qApp);
     }

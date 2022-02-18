@@ -52,13 +52,13 @@ public slots:
      * @brief onEnbaleExternalizationChanged setter for externalization feature
      * @param var
      */
-    void onEnbaleExternalizationChanged(QVariant var);
+    void onEnbaleExternalizationChanged(const QVariant& var);
 
     /**
      * @brief onAutoExternalizationChanged
      * @param var
      */
-    void onAutoExternalizationChanged(QVariant var);
+    void onAutoExternalizationChanged(const QVariant& var);
 
 private:
 

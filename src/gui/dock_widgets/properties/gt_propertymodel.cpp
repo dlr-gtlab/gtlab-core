@@ -20,7 +20,7 @@
 GtPropertyModel::GtPropertyModel(GtObject* scope,
                                  QObject* parent) :
     QAbstractItemModel(parent),
-    m_obj(NULL),
+    m_obj(nullptr),
     m_scope(scope)
 {
 }
@@ -228,7 +228,7 @@ GtPropertyModel::index(int row,
 
         if (row < 0 || row >= propCount)
         {
-            return QModelIndex();
+            return {};
         }
 
         return createIndex(row, col, categories[row]);
@@ -238,7 +238,7 @@ GtPropertyModel::index(int row,
 
     if (!parentItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtAbstractPropertyItem* childItem =
@@ -246,7 +246,7 @@ GtPropertyModel::index(int row,
 
     if (!childItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, col, childItem);
@@ -257,21 +257,21 @@ GtPropertyModel::parent(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     GtAbstractPropertyItem* childItem = propertyFromIndex(index);
 
-    if (childItem == Q_NULLPTR)
+    if (childItem == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtObject* parentItem = childItem->parentObject();
 
-    if (parentItem == Q_NULLPTR)
+    if (parentItem == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     return indexFromProperty(qobject_cast<GtAbstractPropertyItem*>(parentItem));
@@ -287,15 +287,12 @@ QVariant GtPropertyModel::headerData(int section,
         {
             case 0:
                 return tr("Property");
-                break;
 
             case 1:
                 return tr("Unit");
-                break;
 
             case 2:
                 return tr("Value");
-                break;
 
             default:
                 break;
@@ -308,7 +305,7 @@ QVariant GtPropertyModel::headerData(int section,
 void
 GtPropertyModel::setObject(GtObject* obj)
 {
-    if (m_obj != Q_NULLPTR)
+    if (m_obj != nullptr)
     {
         disconnect(m_obj.data(), SIGNAL(destroyed(QObject*)), this,
                    SLOT(resetObject()));
@@ -321,7 +318,7 @@ GtPropertyModel::setObject(GtObject* obj)
 
     m_obj = obj;
 
-    if (m_obj != Q_NULLPTR)
+    if (m_obj != nullptr)
     {
         connect(m_obj.data(), SIGNAL(destroyed(QObject*)), SLOT(resetObject()));
 
@@ -348,17 +345,11 @@ GtPropertyModel::propertyFromIndex(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return NULL;
+        return nullptr;
     }
-
 
     GtAbstractPropertyItem* item =
         static_cast<GtAbstractPropertyItem*>(index.internalPointer());
-
-    if (item  == Q_NULLPTR)
-    {
-        return NULL;
-    }
 
     return item;
 }
@@ -394,7 +385,7 @@ GtPropertyModel::updateModeItem(const QModelIndex& index)
 {
     GtAbstractPropertyItem* item = propertyFromIndex(index);
 
-    if (item == Q_NULLPTR)
+    if (item == nullptr)
     {
         return;
     }
@@ -426,14 +417,14 @@ GtPropertyModel::updateModeItem(const QModelIndex& index)
 QModelIndex
 GtPropertyModel::indexFromProperty(GtAbstractPropertyItem* obj) const
 {
-    if (obj == Q_NULLPTR)
+    if (obj == nullptr)
     {
-        return QModelIndex();
+        return {};
     }
 
     int row = -1;
 
-    if (obj->parent() == Q_NULLPTR)
+    if (obj->parent() == nullptr)
     {
         row = m_properties.indexOf(qobject_cast<GtPropertyCategoryItem*>(obj));
     }
@@ -455,7 +446,7 @@ GtPropertyModel::indexFromProperty(GtAbstractPropertyItem* obj) const
     {
         qWarning() << "WARNING (GtPropertyModel::indexFromObject): " <<
                    "row == -1!";
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, 0, obj);

@@ -144,7 +144,7 @@ GtTaskHistoryModel::index(int row, int col, const QModelIndex& /*parent*/) const
 QModelIndex
 GtTaskHistoryModel::parent(const QModelIndex& /*index*/) const
 {
-    return QModelIndex();
+    return {};
 }
 
 void

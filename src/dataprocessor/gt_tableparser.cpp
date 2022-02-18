@@ -17,7 +17,7 @@ GtTableParser::fromDomElement(QDomElement &root, bool &success)
     {
         gtError() << "Table could not be parsed.";
         delete table;
-        table = NULL;
+        table = nullptr;
     }
 
     return table;

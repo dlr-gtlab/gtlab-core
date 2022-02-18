@@ -113,7 +113,7 @@ GtObjectUI::addSingleAction(const QString& actionText,
 }
 
 void
-GtObjectUI::addActionGroup(GtObjectUIActionGroup actionGroup)
+GtObjectUI::addActionGroup(const GtObjectUIActionGroup& actionGroup)
 {
     m_actionGroups.append(actionGroup);
 }

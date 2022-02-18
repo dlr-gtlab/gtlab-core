@@ -21,7 +21,7 @@
 #include "gt_footprint.h"
 
 GtProjectProvider::GtProjectProvider(QObject* parent) : QObject(parent),
-    m_project(NULL)
+    m_project(nullptr)
 {
     //    m_pName = QStringLiteral("Hello Project");
     //    m_pPath = QStringLiteral("D:/temp/test");
@@ -30,7 +30,7 @@ GtProjectProvider::GtProjectProvider(QObject* parent) : QObject(parent),
 GtProjectProvider::GtProjectProvider(const QString& filename,
                                      QObject* parent) :
     QObject(parent),
-    m_project(NULL)
+    m_project(nullptr)
 {
     QFile file(filename);
 

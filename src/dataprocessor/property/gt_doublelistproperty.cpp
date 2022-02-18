@@ -22,7 +22,8 @@ GtDoubleListProperty::GtDoubleListProperty(const QString& ident,
 }
 
 QVariant
-GtDoubleListProperty::valueToVariant(const QString& unit, bool* success) const
+GtDoubleListProperty::valueToVariant(
+        const QString& /*unit*/, bool* /*success*/) const
 {
     QVariant variant = QVariant::fromValue(m_value);
 
@@ -31,7 +32,7 @@ GtDoubleListProperty::valueToVariant(const QString& unit, bool* success) const
 
 bool
 GtDoubleListProperty::setValueFromVariant(const QVariant& val,
-        const QString& unit,
+        const QString& /*unit*/,
         bool* success)
 {
     bool retval = false;

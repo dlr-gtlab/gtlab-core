@@ -226,10 +226,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 {
     setCurrentProcess();
 
-    if (m_model)
-    {
-        delete m_model;
-    }
+    delete m_model;
 
     m_model = new GtProcessComponentModel(this);
     m_filterModel = new GtProcessFilterModel(m_model);
@@ -1372,7 +1369,7 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
 }
 
 void
-GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
+GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
 {
     QMenu menu(this);
 
@@ -2135,7 +2132,7 @@ GtProcessDock::mapToSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     QModelIndex tmp1 = m_filterModel->mapToSource(index);
@@ -2148,7 +2145,7 @@ GtProcessDock::mapFromSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     QModelIndex tmp1 = m_model->mapFromSource(index);

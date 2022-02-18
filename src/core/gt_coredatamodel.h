@@ -250,7 +250,7 @@ public:
      * @param Parent object
      * @return ModelIndexList of appended child objects
      */
-    virtual QModelIndexList appendChildren(QList<GtObject*> children,
+    virtual QModelIndexList appendChildren(const QList<GtObject*>& children,
                                            GtObject* parent);
 
     /**
@@ -275,7 +275,7 @@ public:
      * @param Object list
      * @return Whether all object were deleted or not
      */
-    virtual bool deleteFromModel(QList<GtObject*> objects);
+    virtual bool deleteFromModel(QList<GtObject *> objects);
 
     /**
      * @brief Creates an unique object name based on given initial string and
@@ -346,14 +346,15 @@ protected:
      * @param Model index
      * @return Root parent
      */
-    QModelIndex rootParent(const QModelIndex& index);
+    QModelIndex rootParent(const QModelIndex& index) const;
 
     /**
      * @brief appendProjectData
      * @param project
      * @param projectData
      */
-    void appendProjectData(GtProject* project, QList<GtObject*> projectData);
+    void appendProjectData(GtProject* project,
+                           const QList<GtObject*>& projectData);
 
 private:
     /// Current session

@@ -34,14 +34,14 @@ GtTableAxis::~GtTableAxis()
 QString
 GtTableAxis::description() const
 {
-    return m_brief;
+    return m_description;
 }
 
 
 void
-GtTableAxis::setDescription(const QString &brief)
+GtTableAxis::setDescription(const QString& description)
 {
-    m_brief = brief;
+    m_description = description;
 }
 
 
