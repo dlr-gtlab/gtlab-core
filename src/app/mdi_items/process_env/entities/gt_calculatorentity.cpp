@@ -180,7 +180,7 @@ GtCalculatorEntity::alignChildren(int maxHeight)
         return;
     }
 
-    int sumW = std::accumulate(std::cbegin(m_subCalcs), std::cend(m_subCalcs), 0.0, [](double sum, const GtCalculatorEntity* ce){
+    int sumW = std::accumulate(std::begin(m_subCalcs), std::end(m_subCalcs), 0.0, [](double sum, const GtCalculatorEntity* ce){
         return sum + ce->boundingRect().width();
     });
 

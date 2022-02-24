@@ -12,6 +12,8 @@
 
 #include "gt_projectanalyzer.h"
 
+#include <memory>
+
 class GtProjectAnalyzerImpl
 {
 public:

@@ -441,7 +441,7 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
 
     }
 
-    bool oneDeletable = std::any_of(std::cbegin(objs), std::cend(objs), [](const GtObject* obj) {
+    bool oneDeletable = std::any_of(std::begin(objs), std::end(objs), [](const GtObject* obj) {
         return obj->isDeletable();
     });
 
@@ -485,7 +485,7 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
     {
         gtInfo() << "Remove several projects";
 
-        if (std::any_of(std::cbegin(projectsList), std::cend(projectsList), [](const GtProject* p) {
+        if (std::any_of(std::begin(projectsList), std::end(projectsList), [](const GtProject* p) {
                 return p->isOpen();
             }))
         {

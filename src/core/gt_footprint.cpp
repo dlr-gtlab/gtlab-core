@@ -17,6 +17,8 @@
 
 #include "gt_footprint.h"
 
+#include <memory>
+
 class GtFootprintImpl
 {
 public:

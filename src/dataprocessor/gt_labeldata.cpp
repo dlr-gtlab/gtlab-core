@@ -105,7 +105,7 @@ GtLabelData::labelExists(const QString& id) const
 {
     auto list = findDirectChildren<GtLabel*>();
 
-    return std::any_of(std::cbegin(list), std::cend(list), [&id](const GtLabel* label) {
+    return std::any_of(std::begin(list), std::end(list), [&id](const GtLabel* label) {
         return label->objectName() == id;
     });
 }
