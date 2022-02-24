@@ -96,7 +96,7 @@ void
 GtTaskLinkEntity::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* /*event*/)
 {
     setCursor(Qt::ArrowCursor);
-    switchTo(this);
+    emit switchTo(this);
 }
 
 void

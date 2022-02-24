@@ -41,6 +41,7 @@
 #include <QDebug>
 
 #include <algorithm>
+#include <memory>
 
 GtExplorerDock::GtExplorerDock() :
     m_model(Q_NULLPTR),
@@ -274,10 +275,9 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
         foreach(GtObjectUIActionGroup actGroup, actionGroups[i].second)
         {
             QMenu* submenu = new QMenu(actGroup.name());
-            GtCustomActionMenu* cmenu =
-                    new GtCustomActionMenu(actGroup.actions(), obj,
-                                           actionGroups[i].first,
-                                           submenu);
+            auto cmenu = std::make_unique<GtCustomActionMenu>(
+                actGroup.actions(), obj,
+                actionGroups[i].first, submenu);
 
             Q_UNUSED(cmenu)
             submenu->setIcon(gtApp->icon(actGroup.icon()));
@@ -288,9 +288,9 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     //for (int i = 0; i < actions.size(); ++i)
     foreach (auto action, actions)
     {
-        GtCustomActionMenu* cmenu =
-                new GtCustomActionMenu(action.second, obj,
-                                       action.first, &menu);
+        auto cmenu = std::make_unique<GtCustomActionMenu>(
+            action.second, obj,
+            action.first, &menu);
 
         Q_UNUSED(cmenu)
     }
@@ -763,7 +763,7 @@ GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
 {
     QModelIndexList indexlist = m_view->selectionModel()->selectedIndexes();
 
-    if (!indexlist.isEmpty() && indexlist.size() < 4)
+    if (indexlist.size() > 0 && indexlist.size() < 4)
     {
         QModelIndex indexUnderMouse = indexOrigin;
 

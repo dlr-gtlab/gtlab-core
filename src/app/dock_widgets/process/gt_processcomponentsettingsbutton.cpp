@@ -145,7 +145,7 @@ GtProcessComponentSettingsButton::updateState()
 void
 GtProcessComponentSettingsButton::openProcessComponentWizard()
 {
-    if (m_pc == Q_NULLPTR)
+    if (!m_pc)
     {
         return;
     }
@@ -165,7 +165,7 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
             dynamic_cast<GtExtendedCalculatorDataImpl*>(
                 calcData.get());
 
-        if (eData != Q_NULLPTR && eData->wizard != Q_NULLPTR)
+        if (eData && eData->wizard)
         {
             GtCalculatorProvider provider(calc);
             GtProcessWizard wizard(gtApp->currentProject(), &provider,
@@ -201,7 +201,7 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
             dynamic_cast<GtExtendedTaskDataImpl*>(
                 taskData.get());
 
-        if (eData != Q_NULLPTR && eData->wizard != Q_NULLPTR)
+        if (eData && eData->wizard)
         {
             GtTaskProvider provider(task);
             GtProcessWizard wizard(gtApp->currentProject(), &provider,

@@ -294,7 +294,7 @@ GtLabelsDock::deleteUsages(const QModelIndex& index, bool deleteLabel)
                 objsToDelete << label;
             }
 
-            for (GtLabel* l : labels)
+            foreach (GtLabel* l, labels)
             {
                 objsToDelete << l;
             }
