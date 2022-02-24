@@ -7,20 +7,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QSignalMapper>
-#include <QFileDialog>
-#include <QKeyEvent>
-#include <QUndoView>
-#include <QMdiSubWindow>
-#include <QDesktopServices>
-#include <QProcess>
-#include <QThread>
-#include <QTimer>
-#include <QDebug>
-#include <QStyleFactory>
-#include <QSettings>
-
 #include "gt_mainwin.h"
+
 #include "ui_gt_mainwin.h"
 #include "gt_application.h"
 #include "gt_preferencesdialog.h"
@@ -50,6 +38,21 @@
 #include "gt_saveprojectmessagebox.h"
 #include "gt_switchprojectmessagebox.h"
 #include "gt_palette.h"
+
+#include <QSignalMapper>
+#include <QFileDialog>
+#include <QKeyEvent>
+#include <QUndoView>
+#include <QMdiSubWindow>
+#include <QDesktopServices>
+#include <QProcess>
+#include <QThread>
+#include <QTimer>
+#include <QDebug>
+#include <QStyleFactory>
+#include <QSettings>
+
+#include  <algorithm>
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
@@ -387,7 +390,7 @@ GtMainWin::updateCollectionEntries()
 {
     QStringList collectionIds = gtMdiLauncher->collectionIds();
 
-    qSort(collectionIds);
+    std::sort(std::begin(collectionIds), std::end(collectionIds));
 
     if (collectionIds.isEmpty())
     {

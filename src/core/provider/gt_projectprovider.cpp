@@ -7,11 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QFile>
-#include <QDir>
-#include <QUuid>
-#include <QDomDocument>
-
 #include "gt_projectprovider.h"
 #include "gt_project.h"
 #include "gt_logging.h"
@@ -19,6 +14,13 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_propertyconnection.h"
 #include "gt_footprint.h"
+
+#include <QFile>
+#include <QDir>
+#include <QUuid>
+#include <QDomDocument>
+
+#include <algorithm>
 
 GtProjectProvider::GtProjectProvider(QObject* parent) : QObject(parent),
     m_project(nullptr)
@@ -302,15 +304,8 @@ GtProjectProvider::projectFileExists(const QString& path)
 bool
 GtProjectProvider::projectExistsInSession(const QString& id)
 {
-    foreach (const QString& idTmp, gtDataModel->projectIds())
-    {
-        if (id == idTmp)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    auto ids = gtDataModel->projectIds();
+    return std::find(std::begin(ids), std::end(ids), id) != std::end(ids);
 }
 
 void GtProjectProvider::mapFromSource()
@@ -584,15 +579,9 @@ GtProjectProvider::generateModuleFiles()
         return true;
     }
 
-    foreach (const QString& modStrItem, m_pModules)
-    {
-        if (!generateModuleFile(modStrItem))
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return std::all_of(std::begin(m_pModules), std::end(m_pModules), [this](const QString& modStrItem) {
+        return generateModuleFile(modStrItem);
+    });
 }
 
 bool

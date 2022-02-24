@@ -267,8 +267,8 @@ GtXmlHighlighter::highlightBlock(const QString& text)
                 else
                 {
                     // Try find multiline comment
-                    QRegExp expression(EXPR_COMMENT_BEGIN); // search comment start
-                    pos = expression.indexIn(text, i - 1);
+                    QRegExp beginCommentExpression(EXPR_COMMENT_BEGIN); // search comment start
+                    pos = beginCommentExpression.indexIn(text, i - 1);
 
                     //if (pos == i - 1) // comment found ?
                     if (pos >= i - 1)

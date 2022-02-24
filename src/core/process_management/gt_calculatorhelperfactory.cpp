@@ -117,12 +117,11 @@ GtCalculatorHelperFactory::connectHelper(
 
     QList<QString> calcHelper = m_calcHelperConnection.value(parentClassName);
 
-    foreach (QString helperName, calcHelper)
+    if (std::any_of(std::begin(calcHelper), std::end(calcHelper), [&helper](const QString& helperName) {
+            return helperName == helper.className();
+        }))
     {
-        if (helperName == helper.className())
-        {
-            return true;
-        }
+        return true;
     }
 
     registerClass(helper);

@@ -39,11 +39,11 @@ GtModuleLoader::~GtModuleLoader()
 void
 GtModuleLoader::load()
 {
+#ifndef Q_OS_ANDROID
     QString path = QCoreApplication::applicationDirPath() +
                          QDir::separator() + QStringLiteral("modules");
-
-#ifdef Q_OS_ANDROID
-    path = QCoreApplication::applicationDirPath();
+#else
+    QString path = QCoreApplication::applicationDirPath();
 #endif
 
     QDir modulesDir(path);
@@ -115,11 +115,11 @@ GtModuleLoader::moduleEnvironmentVars()
 {
     QMap<QString, QString> retval;
 
+#ifndef Q_OS_ANDROID
     QString path = QCoreApplication::applicationDirPath() +
                          QDir::separator() + QStringLiteral("modules");
-
-#ifdef Q_OS_ANDROID
-    path = QCoreApplication::applicationDirPath();
+#else
+    QString path = QCoreApplication::applicationDirPath();
 #endif
 
     QDir modulesDir(path);

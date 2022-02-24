@@ -38,7 +38,7 @@ public:
      * @param className
      * @return name of superclass
      */
-    virtual QString superClassName(const QString& className);
+    virtual QString superClassName(const QString& className) const;
 
     /**
      * @brief classHierarchy
@@ -53,7 +53,7 @@ public:
      * @param className
      * @return whether classname is known or not
      */
-    virtual bool knownClass(const QString& className);
+    virtual bool knownClass(const QString& className) const;
 
     /**
      * @brief knownClasses - returns a list of all stored meta class names
@@ -80,14 +80,14 @@ public:
      * @param plugin
      * @return
      */
-    virtual bool containsDuplicates(const QList<QMetaObject>& metaData);
+    virtual bool containsDuplicates(const QList<QMetaObject>& metaData) const;
 
     /**
      * @brief invokable
      * @param metaObj
      * @return
      */
-    virtual bool invokable(const QMetaObject& metaObj);
+    virtual bool invokable(const QMetaObject& metaObj) const;
 
     /**
      * @brief allInvokable
@@ -115,7 +115,7 @@ protected:
      * @return
      */
     GtObject* newObject(const QMetaObject& metaObj,
-                        GtObject* parent = nullptr);
+                        GtObject* parent = nullptr) const;
 
 private:
     QStringList classHierarchy(const QMetaObject* metaObj);

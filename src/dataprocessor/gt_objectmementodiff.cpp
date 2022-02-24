@@ -7,12 +7,14 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QCryptographicHash>
-#include <QHash>
-
 #include "gt_objectmementodiff.h"
 #include "gt_objectmemento.h"
 #include "gt_objectio.h"
+
+#include <QCryptographicHash>
+#include <QHash>
+
+#include <algorithm>
 
 GtObjectMementoDiff::GtObjectMementoDiff(const GtObjectMemento& left,
         const GtObjectMemento& right)
@@ -283,7 +285,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
     }
 
     QList<int> leftChildIndexSort = leftChildIndexMap.values();
-    qSort(leftChildIndexSort);
+    std::sort(std::begin(leftChildIndexSort), std::end(leftChildIndexSort));
 
     // look for removed children
     foreach (int lchildIndex, leftChildIndexSort)

@@ -92,7 +92,7 @@ TestMdiInterface::uiItems()
 QList<QMetaObject>
 TestMdiInterface::postItems()
 {
-    QList<QMetaObject> retval;
+    QList<QMetaObject> retval{};
 
     return retval;
 }
@@ -100,7 +100,7 @@ TestMdiInterface::postItems()
 QList<QMetaObject>
 TestMdiInterface::postPlots()
 {
-    QList<QMetaObject> retval;
+    QList<QMetaObject> retval{};
 
     return retval;
 }

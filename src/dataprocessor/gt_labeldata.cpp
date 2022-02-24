@@ -7,11 +7,13 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QStringList>
+#include "gt_labeldata.h"
 
 #include "gt_label.h"
 
-#include "gt_labeldata.h"
+#include <QStringList>
+
+#include <algorithm>
 
 GtLabelData::GtLabelData()
 {
@@ -101,17 +103,11 @@ GtLabelData::addDefaultLabel()
 bool
 GtLabelData::labelExists(const QString& id) const
 {
-    QList<GtLabel*> list = findDirectChildren<GtLabel*>();
+    auto list = findDirectChildren<GtLabel*>();
 
-    foreach (GtLabel* label, list)
-    {
-        if (label->objectName() == id)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(std::cbegin(list), std::cend(list), [&id](const GtLabel* label) {
+        return label->objectName() == id;
+    });
 }
 
 bool

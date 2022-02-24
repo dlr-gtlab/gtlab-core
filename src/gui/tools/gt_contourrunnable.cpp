@@ -58,11 +58,11 @@ GtContourRunnable::GtContourRunnable(GtObjectMemento tableMemento,
                                      bool calcIsoPolygons,
                                      bool considerNextIsoValue,
                                      QString nextIsoValue) :
-    m_tableMemento(tableMemento),
-    m_isoValue(isoValue),
+    m_tableMemento(std::move(tableMemento)),
+    m_isoValue(std::move(isoValue)),
     m_calcIsoPolygons(calcIsoPolygons),
     m_considerNextIsoValue(considerNextIsoValue),
-    m_nextIsoValue(nextIsoValue)
+    m_nextIsoValue(std::move(nextIsoValue))
 {
     setAutoDelete(false);
 }

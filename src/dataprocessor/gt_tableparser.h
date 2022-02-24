@@ -27,7 +27,7 @@ public:
      * @param success Reference to success flag (output).
      * @return Pointer to newly created DomElement.
      */
-    GtTable* fromDomElement(QDomElement& root, bool& success);
+    GtTable* fromDomElement(const QDomElement& root, bool& success);
 
     /**
      * @brief fromDomElement Creates a table object from a given XML DomElement.
@@ -36,7 +36,7 @@ public:
      * @param success Reference to success flag (output).
      * @return void
      */
-    void fromDomElement(QDomElement& root, GtTable* table, bool& success);
+    void fromDomElement(const QDomElement& root, GtTable* table, bool& success);
 private:
     /**
      * @brief parseTable Class internal helper method to parse the table.
@@ -44,7 +44,7 @@ private:
      * @param table Pointer to empty table object.
      * @return True if parsing was successful.
      */
-    bool parseTable(QDomElement& root, GtTable* table);
+    bool parseTable(const QDomElement& root, GtTable* table);
 
     /**
      * @brief parseAxes Class internal helper method to parse all axes of the
@@ -53,7 +53,7 @@ private:
      * @param table Pointer to created table object.
      * @return True if parsing was successful.
      */
-    bool parseAxes(QDomElement& root, GtTable* table);
+    bool parseAxes(const QDomElement& root, GtTable* table);
 
     /**
      * @brief parseAxis Class internal helper method to parse a table axis.
@@ -61,7 +61,7 @@ private:
      * @param table Pointer to created table object.
      * @return True if parsing was successful.
      */
-    bool parseAxis(QDomElement& root, GtTable* table);
+    bool parseAxis(const QDomElement& root, GtTable* table);
 
     /**
      * @brief parseValues Class internal helper method to parse the table vals.
@@ -69,7 +69,7 @@ private:
      * @param table Pointer to created table object.
      * @return True if parsing was successfull.
      */
-    bool parseValues(QDomElement& root, GtTable* table);
+    bool parseValues(const QDomElement& root, GtTable* table);
 
     /**
      * @brief parseDoubleVector Internal helper method to parse double arrays.
@@ -77,7 +77,7 @@ private:
      * @param success Reference to success flag (output).
      * @return Double vector of array elements.
      */
-    QVector<double> parseDoubleVector(QDomElement& root, bool& success);
+    QVector<double> parseDoubleVector(const QDomElement& root, bool& success);
 };
 
 #endif // GT_TABLEPARSER_H

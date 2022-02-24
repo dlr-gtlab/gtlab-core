@@ -27,7 +27,7 @@ GtProcessConnectionGraphicsView::GtProcessConnectionGraphicsView(
     m_outputView(outputView),
     m_inputView(inputView),
     m_scene(new GtProcessConnectionScene(this)),
-    m_root(Q_NULLPTR)
+    m_root(nullptr)
 {
     setScene(m_scene);
     setRenderHint(QPainter::Antialiasing);
@@ -38,7 +38,7 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         QPaintEvent* /*event*/)
 {
     // check view
-    if (view == Q_NULLPTR)
+    if (!view)
     {
         return;
     }
@@ -66,7 +66,7 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         GtProcessPortMap tmpMap = m_inputPorts;
         GtProcessConnectionModel* model = m_inputView->connectionModel();
 
-        if (model == Q_NULLPTR)
+        if (!model)
         {
             return;
         }
@@ -85,13 +85,13 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
                 {
                     GtProcessConnectionItem* item = model->itemFromIndex(index);
 
-                    if (item != Q_NULLPTR)
+                    if (item)
                     {
                         GtProcessPropertyPortEntity* entity =
                             updatePortEntity(item, m_inputPorts, rowSize,
                                              i, Qt::AlignRight);
 
-                        if (entity != Q_NULLPTR)
+                        if (entity)
                         {
                             if (tmpMap.contains(item))
                             {
@@ -120,7 +120,7 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         GtProcessPortMap tmpMap = m_outputPorts;
         GtProcessConnectionModel* model = m_outputView->connectionModel();
 
-        if (model == Q_NULLPTR)
+        if (!model)
         {
             return;
         }
@@ -139,13 +139,13 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
                 {
                     GtProcessConnectionItem* item = model->itemFromIndex(index);
 
-                    if (item != Q_NULLPTR)
+                    if (item)
                     {
                         GtProcessPropertyPortEntity* entity =
                             updatePortEntity(item, m_outputPorts, rowSize,
                                              i, Qt::AlignLeft);
 
-                        if (entity != Q_NULLPTR)
+                        if (entity)
                         {
                             if (tmpMap.contains(item))
                             {
@@ -163,7 +163,7 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
             GtProcessPropertyPortEntity* entity =
                 m_outputPorts.take(e);
 
-            if (entity != Q_NULLPTR)
+            if (entity)
             {
                 delete entity;
             }
@@ -188,21 +188,20 @@ GtProcessConnectionGraphicsView::createConnection(
         GtPropertyConnection* connection)
 {
     // check connection
-    if (connection == Q_NULLPTR)
+    if (!connection)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QList<GtProcessPropertyConnectionEntity*> list =
             m_scene->findItems<GtProcessPropertyConnectionEntity*>();
 
     // check whether connection already exists in map
-    foreach (GtProcessPropertyConnectionEntity* entity, list)
+    if (std::any_of(std::begin(list), std::end(list), [&connection](GtProcessPropertyConnectionEntity* entity) {
+            return connection == entity->connection();
+        }))
     {
-        if (connection == entity->connection())
-        {
-            return Q_NULLPTR;
-        }
+        return nullptr;
     }
 
     // check whether connection already exists in map
@@ -281,7 +280,7 @@ GtProcessConnectionGraphicsView::findPortEntityHelper(GtProcessPortMap& map,
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void
@@ -296,7 +295,7 @@ GtProcessConnectionGraphicsView::updateConnections()
     {
         GtPropertyConnection* connection = entity->connection();
 
-        if (connection == Q_NULLPTR)
+        if (!connection)
         {
             continue;
         }
@@ -318,7 +317,7 @@ GtProcessConnectionGraphicsView::updateConnections()
         if (!entity->startPortExists())
         {
             // check view
-            if (m_outputView == Q_NULLPTR)
+            if (!m_outputView)
             {
                 continue;
             }
@@ -327,7 +326,7 @@ GtProcessConnectionGraphicsView::updateConnections()
                     m_outputView->itemById(connection->sourceUuid(),
                                            connection->sourceProp());
 
-            if (item == Q_NULLPTR)
+            if (!item)
             {
                 continue;
             }
@@ -347,7 +346,7 @@ GtProcessConnectionGraphicsView::updateConnections()
         if (!entity->endPortExists())
         {
             // check view
-            if (m_inputView == Q_NULLPTR)
+            if (!m_inputView)
             {
                 continue;
             }
@@ -356,7 +355,7 @@ GtProcessConnectionGraphicsView::updateConnections()
                     m_inputView->itemById(connection->targetUuid(),
                                           connection->targetProp());
 
-            if (item == Q_NULLPTR)
+            if (!item)
             {
                 continue;
             }
@@ -409,17 +408,17 @@ GtProcessConnectionGraphicsView::updatePortEntity(GtProcessConnectionItem* item,
         Qt::AlignmentFlag align)
 {
     // check item
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         qDebug() << "item == Q_NULLPTR";
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // check alignment - only left right supported
     if (align != Qt::AlignRight && align != Qt::AlignLeft)
     {
         qDebug() << "align != Qt::AlignRight || align != Qt::AlignLeft";
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // check whether port entity already exists
@@ -437,7 +436,7 @@ GtProcessConnectionGraphicsView::updatePortEntity(GtProcessConnectionItem* item,
         hDisplacement = frameSize().width();
     }
 
-    GtProcessPropertyPortEntity* retval = Q_NULLPTR;
+    GtProcessPropertyPortEntity* retval = nullptr;
 
     const int portSize = (rowHeight * 3) / 4;
     const int vDisplacement = (rowHeight - portSize) / 2 + 1;

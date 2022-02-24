@@ -46,7 +46,7 @@ GtPropertyCategoryItem::addPropertyItem(GtAbstractProperty* property)
 }
 
 const QString&
-GtPropertyCategoryItem::categoryId()
+GtPropertyCategoryItem::categoryId() const
 {
     return m_id;
 }

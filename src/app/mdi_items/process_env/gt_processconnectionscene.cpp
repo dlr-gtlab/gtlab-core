@@ -325,14 +325,14 @@ GtProcessConnectionScene::closestPort(GtProcessPropertyPortEntity* port,
 {
     QList<GtProcessPropertyPortEntity*> ports = validPorts(port);
 
-    foreach (GtProcessPropertyPortEntity* port, ports)
+    foreach (GtProcessPropertyPortEntity* currentPort, ports)
     {
-        double dx = qAbs(position.x() - port->scenePos().x());
-        double dy = qAbs(position.y() - port->scenePos().y());
+        double dx = qAbs(position.x() - currentPort->scenePos().x());
+        double dy = qAbs(position.y() - currentPort->scenePos().y());
 
         if (qSqrt(dx * dx + dy * dy) < 15.0)
         {
-            return port;
+            return currentPort;
         }
     }
 

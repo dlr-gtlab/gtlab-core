@@ -306,7 +306,7 @@ GtDataZone0D::appendData(const QList<QString>& paramNames,
 }
 
 double
-GtDataZone0D::value(const QString &paramName, bool* ok)
+GtDataZone0D::value(const QString &paramName, bool* ok) const
 {
     int index = m_params.indexOf(paramName);
 

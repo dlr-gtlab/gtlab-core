@@ -7,14 +7,16 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_logging.h"
+
+#include "gt_environment.h"
+
 #include <QCoreApplication>
 #include <QStandardPaths>
 #include <QDir>
 #include <QSettings>
 
-#include "gt_logging.h"
-
-#include "gt_environment.h"
+#include <algorithm>
 
 GtEnvironment*
 GtEnvironment::instance()
@@ -37,7 +39,7 @@ GtEnvironment::varIds()
 
     retval.removeDuplicates();
 
-    qSort(retval);
+    std::sort(std::begin(retval), std::end(retval));
 
     return retval;
 }

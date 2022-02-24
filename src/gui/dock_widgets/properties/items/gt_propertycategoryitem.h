@@ -44,7 +44,7 @@ public:
      * @brief categoryId
      * @return
      */
-    const QString& categoryId();
+    const QString& categoryId() const;
 
     /**
      * @brief data

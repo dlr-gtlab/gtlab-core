@@ -7,10 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QUuid>
-#include <QSignalMapper>
-#include <QDebug>
-
 #include "gt_objectmemento.h"
 #include "gt_abstractobjectfactory.h"
 #include "gt_abstractproperty.h"
@@ -23,6 +19,12 @@
 #include "gt_externalizedobject.h"
 
 #include "gt_object.h"
+
+#include <QUuid>
+#include <QSignalMapper>
+#include <QDebug>
+
+#include <algorithm>
 
 GtObject::GtObject(GtObject* parent) :
     m_factory(Q_NULLPTR),
@@ -65,15 +67,10 @@ GtObject::isExternalizedObject() const
 bool
 GtObject::hasDummyChildren() const
 {
-    for (const GtObject* c : findChildren<GtObject*>())
-    {
-        if (c->isDummy())
-        {
-            return true;
-        }
-    }
-
-    return false;
+    auto c = findChildren<GtObject*>();
+    return std::any_of(std::begin(c), std::end(c), [](const GtObject* obj) {
+        return obj->isDummy();
+    });
 }
 
 bool
@@ -229,15 +226,9 @@ GtObject::appendChild(GtObject* c)
 bool
 GtObject::appendChildren(const QList<GtObject*>& list)
 {
-    foreach (GtObject* c, list)
-    {
-        if (!appendChild(c))
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return std::all_of(std::begin(list), std::end(list), [this](GtObject* child) {
+        return appendChild(child);
+    });
 }
 
 void
@@ -344,7 +335,7 @@ GtObject::isDeletable() const
 void
 GtObject::setFactory(GtAbstractObjectFactory* factory)
 {
-    if (factory == Q_NULLPTR && !factory->knownClass(metaObject()->className()))
+    if (!factory || !factory->knownClass(metaObject()->className()))
     {
         return;
     }

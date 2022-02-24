@@ -7,14 +7,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QVBoxLayout>
-#include <QFrame>
-#include <QCheckBox>
-#include <QMenu>
-#include <QKeyEvent>
-#include <QDebug>
-
 #include "gt_explorerdock.h"
+
 #include "gt_explorerview.h"
 #include "gt_searchwidget.h"
 #include "gt_project.h"
@@ -38,6 +32,15 @@
 #include "gt_datamodel.h"
 #include "gt_styledmodel.h"
 #include "gt_explorermodel.h"
+
+#include <QVBoxLayout>
+#include <QFrame>
+#include <QCheckBox>
+#include <QMenu>
+#include <QKeyEvent>
+#include <QDebug>
+
+#include <algorithm>
 
 GtExplorerDock::GtExplorerDock() :
     m_model(Q_NULLPTR),
@@ -438,16 +441,9 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
 
     }
 
-    bool oneDeletable = false;
-
-    foreach (GtObject* obj, objs)
-    {
-        if (obj->isDeletable())
-        {
-            oneDeletable = true;
-            break;
-        }
-    }
+    bool oneDeletable = std::any_of(std::cbegin(objs), std::cend(objs), [](const GtObject* obj) {
+        return obj->isDeletable();
+    });
 
     if (!oneDeletable && !allProjects)
     {
@@ -489,14 +485,13 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
     {
         gtInfo() << "Remove several projects";
 
-        foreach (GtProject* p, projectsList)
+        if (std::any_of(std::cbegin(projectsList), std::cend(projectsList), [](const GtProject* p) {
+                return p->isOpen();
+            }))
         {
-            if (p->isOpen())
-            {
-                gtWarning() << tr("Open project cannot be removed "
-                                  "from session");
-                return;
-            }
+            gtWarning() << tr("Open project cannot be removed "
+                              "from session");
+            return;
         }
 
         foreach (GtProject* p, projectsList)

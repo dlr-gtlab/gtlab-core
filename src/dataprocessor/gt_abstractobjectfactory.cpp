@@ -49,7 +49,7 @@ GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
 }
 
 QString
-GtAbstractObjectFactory::superClassName(const QString& className)
+GtAbstractObjectFactory::superClassName(const QString& className) const
 {
     if (m_knownClasses.contains(className))
     {
@@ -95,7 +95,7 @@ GtAbstractObjectFactory::classHierarchy(const QMetaObject* metaObj)
 }
 
 bool
-GtAbstractObjectFactory::knownClass(const QString& className)
+GtAbstractObjectFactory::knownClass(const QString& className) const
 {
     return m_knownClasses.contains(className);
 }
@@ -142,7 +142,7 @@ GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData)
 }
 
 GtObject*
-GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent)
+GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent) const
 {
     GtObject* retval = nullptr;
 
@@ -161,7 +161,7 @@ GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent)
 }
 
 bool
-GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData)
+GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData) const
 {
     foreach (const QMetaObject& mobj, metaData)
     {
@@ -184,19 +184,13 @@ GtAbstractObjectFactory::containsDuplicates(const QList<QMetaObject>& metaData)
 bool
 GtAbstractObjectFactory::allInvokable(const QList<QMetaObject>& metaData)
 {
-    foreach (const QMetaObject& mobj, metaData)
-    {
-//        qDebug() << "mobj = " << mobj.className();
-        if (!invokable(mobj))
-        {
-            return false;
-        }
-    }
-    return true;
+    return std::all_of(std::begin(metaData), std::end(metaData), [this](const QMetaObject& mobj) {
+        return invokable(mobj);
+    });
 }
 
 bool
-GtAbstractObjectFactory::invokable(const QMetaObject& metaObj)
+GtAbstractObjectFactory::invokable(const QMetaObject& metaObj) const
 {
     GtObject* obj = newObject(metaObj);
     if (obj == nullptr)

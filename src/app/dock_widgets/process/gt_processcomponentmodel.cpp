@@ -380,7 +380,7 @@ GtProcessComponentModel::canDropMimeData(const QMimeData* data,
             return true;
         }
     }
-    else if (GtTask* task = qobject_cast<GtTask*>(obj))
+    else if (const GtTask* task = qobject_cast<GtTask*>(obj))
     {
         // handle task drop
         if (qobject_cast<GtProcessData*>(parentObj) != Q_NULLPTR)
@@ -388,7 +388,7 @@ GtProcessComponentModel::canDropMimeData(const QMimeData* data,
             return true;
         }
 
-        if (GtTask* parentTask = qobject_cast<GtTask*>(parentObj))
+        if (const GtTask* parentTask = qobject_cast<GtTask*>(parentObj))
         {
             if (parentTask != task)
             {

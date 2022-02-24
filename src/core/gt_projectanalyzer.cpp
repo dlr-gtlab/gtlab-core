@@ -31,8 +31,8 @@ public:
 };
 
 GtProjectAnalyzer::GtProjectAnalyzer(GtProject* project)
+    : m_pimpl{std::make_unique<GtProjectAnalyzerImpl>()}
 {
-    m_pimpl = new GtProjectAnalyzerImpl;
 
     if (project != Q_NULLPTR)
     {
@@ -41,10 +41,7 @@ GtProjectAnalyzer::GtProjectAnalyzer(GtProject* project)
     }
 }
 
-GtProjectAnalyzer::~GtProjectAnalyzer()
-{
-    delete m_pimpl;
-}
+GtProjectAnalyzer::~GtProjectAnalyzer() = default;
 
 bool
 GtProjectAnalyzer::hasIrregularities()

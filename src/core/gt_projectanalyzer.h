@@ -15,6 +15,8 @@
 #include "gt_project.h"
 #include "gt_footprint.h"
 
+#include <memory>
+
 class GtProjectAnalyzerImpl;
 
 /**
@@ -57,7 +59,7 @@ public:
 
 private:
     /// Private implementation
-    GtProjectAnalyzerImpl* m_pimpl;
+    std::unique_ptr<GtProjectAnalyzerImpl> m_pimpl;
 
 };
 

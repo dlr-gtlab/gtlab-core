@@ -190,14 +190,16 @@ GtDataZoneTable::data() const
 GtAbstractDataZone*
 GtDataZoneTable::dataZone(int x, int y, int z) const
 {
-    // x, y, z indices of their axes, starting at 0
-    int idx = xPtr()->size() * yPtr()->size() * z + xPtr()->size() * y + x;
-
-    if (idx > data().size())
+    if (x < 0 || x >= xPtr()->size() ||
+        y < 0 || y >= yPtr()->size() ||
+        z < 0 || z >= zPtr()->size())
     {
-        // this should not happen
+        // out of bounds
         return nullptr;
     }
+
+    // x, y, z indices of their axes, starting at 0
+    int idx = xPtr()->size() * yPtr()->size() * z + xPtr()->size() * y + x;
 
     return data().at(idx);
 }
@@ -220,7 +222,7 @@ GtDataZoneTable::dataZone(int x, int y, int z) const
 GtAbstractDataZone*
 GtDataZoneTable::dataZone(int idx) const
 {
-    if (idx > data().size())
+    if (idx >= data().size())
     {
         // this should not happen
         return nullptr;
@@ -238,13 +240,10 @@ GtDataZoneTable::isValid() const
         return false;
     }
 
-    for (GtAbstractDataZone* dz : data())
-    {
-        if (dz == nullptr)
-        {
-            gtError() << "GtDataZoneTable::isValid() data is null";
-            return false;
-        }
+    const auto d = data();
+    if (std::find(std::begin(d), std::end(d), nullptr) != std::end(d)) {
+        gtError() << "GtDataZoneTable::isValid() data is null";
+        return false;
     }
 
     return true;
@@ -265,7 +264,7 @@ GtDataZoneTable::xAxis() const
 QString
 GtDataZoneTable::xAxis(int i) const
 {
-    if (i < xPtr()->size() || i < 0)
+    if (i < xPtr()->size() && i >= 0)
     {
         return xPtr()->ticks().at(i);
     }
@@ -282,7 +281,7 @@ GtDataZoneTable::yAxis() const
 QString
 GtDataZoneTable::yAxis(int i) const
 {
-    if (i < yPtr()->size() || i < 0)
+    if (i < yPtr()->size() && i >= 0)
     {
         return yPtr()->ticks().at(i);
     }
@@ -299,7 +298,7 @@ GtDataZoneTable::zAxis() const
 QString
 GtDataZoneTable::zAxis(int i) const
 {
-    if (i < zPtr()->size() || i < 0)
+    if (i < zPtr()->size() && i >= 0)
     {
         return zPtr()->ticks().at(i);
     }
@@ -429,12 +428,10 @@ GtDataZoneTable::allAxisTicksStringMap() const
 
     QMap<QString, QStringList> retval;
 
-    QMap<QString, QVector<double>>::iterator i;
-    for (i = ticksDoubleMap.begin(); i != ticksDoubleMap.end(); i++)
+    for (auto i = ticksDoubleMap.begin(); i != ticksDoubleMap.end(); ++i)
     {
         QStringList l;
-
-        for (const double& val : i.value())
+        foreach (const double& val, i.value())
         {
             l.append(QString::number(val));
         }

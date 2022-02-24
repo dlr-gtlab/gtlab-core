@@ -41,10 +41,9 @@ public:
 
 };
 
-GtFootprint::GtFootprint()
+GtFootprint::GtFootprint() :
+    m_pimpl{std::make_unique<GtFootprintImpl>()}
 {
-    m_pimpl = new GtFootprintImpl;
-
     m_pimpl->m_core_ver_major = gtApp->majorRelease();
     m_pimpl->m_core_ver_minor = gtApp->minorRelease();
     m_pimpl->m_core_ver_patch = gtApp->patchLevel();
@@ -58,9 +57,14 @@ GtFootprint::GtFootprint()
     }
 }
 
-GtFootprint::GtFootprint(const QString& data)
+GtFootprint::GtFootprint(const GtFootprint& other) :
+    m_pimpl{std::make_unique<GtFootprintImpl>(*other.m_pimpl)}
 {
-    m_pimpl = new GtFootprintImpl;
+}
+
+GtFootprint::GtFootprint(const QString& data) :
+    m_pimpl{std::make_unique<GtFootprintImpl>()}
+{
     m_pimpl->m_core_ver_major = 0;
     m_pimpl->m_core_ver_minor = 0;
     m_pimpl->m_core_ver_patch = 0;
@@ -68,10 +72,7 @@ GtFootprint::GtFootprint(const QString& data)
     m_pimpl->readData(data);
 }
 
-GtFootprint::~GtFootprint()
-{
-    delete m_pimpl;
-}
+GtFootprint::~GtFootprint() = default;
 
 bool
 GtFootprint::isValid() const

@@ -18,6 +18,19 @@
 #include "gt_datazone0d.h"
 #include "gt_externalizedobjecthelper.h"
 
+namespace
+{
+    auto concatValues = [](const QString& valueList, const QString& value)
+    {
+        return  valueList + "\"" + value + "\" ";
+    };
+
+    QString listToExportString(const QStringList& list)
+    {
+        return std::accumulate(std::begin(list), std::end(list), QString(""), concatValues);
+    }
+}
+
 GtDataZoneDatExporter::GtDataZoneDatExporter()
 {
     setObjectName(tr("to DAT"));
@@ -104,7 +117,7 @@ GtDataZoneDatExporter::pages(GtObject* data)
 }
 
 bool
-GtDataZoneDatExporter::write0Ddata(GtDataZone0D* data, QFile& file)
+GtDataZoneDatExporter::write0Ddata(const GtDataZone0D* data, QFile& file)
 {
     if (data == Q_NULLPTR)
     {
@@ -140,7 +153,7 @@ GtDataZoneDatExporter::write0Ddata(GtDataZone0D* data, QFile& file)
 }
 
 bool
-GtDataZoneDatExporter::writeMultiDimData(GtDataZone* data, QFile& file)
+GtDataZoneDatExporter::writeMultiDimData(const GtDataZone* data, QFile& file)
 {
     if (data == Q_NULLPTR)
     {
@@ -179,7 +192,7 @@ GtDataZoneDatExporter::writeMultiDimData(GtDataZone* data, QFile& file)
 }
 
 bool
-GtDataZoneDatExporter::write1Ddata(GtDataZone* data, QTextStream& out)
+GtDataZoneDatExporter::write1Ddata(const GtDataZone* data, QTextStream& out)
 {
     if (data == Q_NULLPTR)
     {
@@ -215,7 +228,7 @@ GtDataZoneDatExporter::write1Ddata(GtDataZone* data, QTextStream& out)
 }
 
 bool
-GtDataZoneDatExporter::write2Ddata(GtDataZone* data, QTextStream& out)
+GtDataZoneDatExporter::write2Ddata(const GtDataZone* data, QTextStream& out)
 {
     if (data == Q_NULLPTR)
     {
@@ -229,17 +242,23 @@ GtDataZoneDatExporter::write2Ddata(GtDataZone* data, QTextStream& out)
         return false;
     }
 
-    QString axis1Name = data->axisNames().first();
+    const auto axNames = data->axisNames();
+
+    QString axis1Name{"Axis 1"};
+    if (!axNames.isEmpty()) axis1Name = axNames.constFirst();
+
     QVector<double> ticks1;
     data->axisTicks(axis1Name, ticks1);
 
-    QString axis2Name = data->axisNames().last();
-    QVector<double> ticks2;
-    data->axisTicks(axis1Name, ticks2);
+    QString axis2Name{"Axis 2"};
+    if (!axNames.isEmpty()) axis2Name = axNames.constLast();
 
-    for (const double& tick1 : ticks1)
+    QVector<double> ticks2;
+    data->axisTicks(axis2Name, ticks2);
+
+    foreach (const double& tick1, ticks1)
     {
-        for (const double& tick2 : ticks2)
+        foreach (const double& tick2, ticks2)
         {
             QString resLine = " " + QString::number(tick1, 'f', 6) + "     "
                     + QString::number(tick2, 'f', 6) + "     ";
@@ -259,7 +278,7 @@ GtDataZoneDatExporter::write2Ddata(GtDataZone* data, QTextStream& out)
 }
 
 bool
-GtDataZoneDatExporter::write3Ddata(GtDataZone* data, QTextStream& out)
+GtDataZoneDatExporter::write3Ddata(const GtDataZone* data, QTextStream& out)
 {
     if (data == Q_NULLPTR)
     {
@@ -279,11 +298,11 @@ GtDataZoneDatExporter::write3Ddata(GtDataZone* data, QTextStream& out)
 
     QString axis2Name = data->axisNames().at(1);
     QVector<double> ticks2;
-    data->axisTicks(axis1Name, ticks2);
+    data->axisTicks(axis2Name, ticks2);
 
     QString axis3Name = data->axisNames().last();
     QVector<double> ticks3;
-    data->axisTicks(axis1Name, ticks3);
+    data->axisTicks(axis3Name, ticks3);
 
     for (const double& tick1 : ticks1)
     {
@@ -313,7 +332,7 @@ GtDataZoneDatExporter::write3Ddata(GtDataZone* data, QTextStream& out)
 }
 
 bool
-GtDataZoneDatExporter::write4Ddata(GtDataZone* data, QTextStream& out)
+GtDataZoneDatExporter::write4Ddata(const GtDataZone* data, QTextStream& out)
 {
     if (data == Q_NULLPTR)
     {
@@ -333,23 +352,23 @@ GtDataZoneDatExporter::write4Ddata(GtDataZone* data, QTextStream& out)
 
     QString axis2Name = data->axisNames().at(1);
     QVector<double> ticks2;
-    data->axisTicks(axis1Name, ticks2);
+    data->axisTicks(axis2Name, ticks2);
 
     QString axis3Name = data->axisNames().at(2);
     QVector<double> ticks3;
-    data->axisTicks(axis1Name, ticks3);
+    data->axisTicks(axis3Name, ticks3);
 
     QString axis4Name = data->axisNames().last();
     QVector<double> ticks4;
-    data->axisTicks(axis1Name, ticks4);
+    data->axisTicks(axis4Name, ticks4);
 
-    for (const double& tick1 : ticks1)
+    foreach (const double& tick1, ticks1)
     {
-        for (const double& tick2 : ticks2)
+        foreach (const double& tick2, ticks2)
         {
-            for (const double& tick3 : ticks3)
+            foreach (const double& tick3, ticks3)
             {
-                for (const double& tick4 : ticks4)
+                foreach (const double& tick4, ticks4)
                 {
                     QString resLine = " "
                             + QString::number(tick1, 'f', 6) + "     "
@@ -357,7 +376,7 @@ GtDataZoneDatExporter::write4Ddata(GtDataZone* data, QTextStream& out)
                             + QString::number(tick3, 'f', 6) + "     "
                             + QString::number(tick4, 'f', 6) + "     ";
 
-                    for (const QString& param : data->params())
+                    foreach (const QString& param, data->params())
                     {
                         resLine += QString::number(
                                     data->value4D(param, tick1, tick2,
@@ -376,7 +395,7 @@ GtDataZoneDatExporter::write4Ddata(GtDataZone* data, QTextStream& out)
 }
 
 bool
-GtDataZoneDatExporter::writeHeaderLine(QTextStream& out, GtDataZone* dataZone)
+GtDataZoneDatExporter::writeHeaderLine(QTextStream& out, const GtDataZone* dataZone)
 {
     if (dataZone == Q_NULLPTR)
     {
@@ -393,27 +412,16 @@ GtDataZoneDatExporter::writeHeaderLine(QTextStream& out, GtDataZone* dataZone)
 
     axisNames.removeAll(axisNames.first());
 
-    for (const QString& axisName : axisNames)
+    foreach (const auto& axisName, axisNames)
     {
         nLines *= dataZone->axisTickStrings(axisName).size();
     }
 
     QString title = "TITLE = \"GTlab DataZone Export\"\n";
 
-    QString variables;
-
-    variables += "VARIABLES = ";
-
-    for (const QString& axis : dataZone->axisNames())
-    {
-        variables += "\"" + axis + "\" ";
-    }
-
-    for (const QString& param : dataZone->params())
-    {
-        variables += "\"" + param + "\" ";
-    }
-
+    QString variables ("VARIABLES = ");
+    variables += listToExportString(dataZone->axisNames());
+    variables += listToExportString(dataZone->params());
     variables += "\n";
 
     QString zone = "ZONE T = \"" + dataZone->objectName() + "\"\n";
@@ -431,7 +439,7 @@ GtDataZoneDatExporter::writeHeaderLine(QTextStream& out, GtDataZone* dataZone)
 
 bool
 GtDataZoneDatExporter::writeHeaderLine0D(QTextStream& out,
-                                         GtDataZone0D* dataZone)
+                                         const GtDataZone0D* dataZone)
 {
     if (dataZone == Q_NULLPTR)
     {
@@ -445,13 +453,8 @@ GtDataZoneDatExporter::writeHeaderLine0D(QTextStream& out,
 
     QString title = "TITLE = \"GTlab DataZone Export\"\n";
 
-    QString variables;
-
-    variables += "VARIABLES = ";
-    for (const QString& param : dataZone->params())
-    {
-        variables += "\"" + param + "\" ";
-    }
+    QString variables{"VARIABLES = "};
+    variables += listToExportString(dataZone->params());
     variables += "\n";
 
     QString zone = "ZONE T = \"" + dataZone->objectName() + "\"\n";

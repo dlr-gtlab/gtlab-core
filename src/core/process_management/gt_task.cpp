@@ -7,14 +7,16 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-#include <QThreadPool>
-
 #include "gt_task.h"
 #include "gt_calculator.h"
 #include "gt_abstractrunnable.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
+
+#include <QDebug>
+#include <QThreadPool>
+
+#include <algorithm>
 
 GtTask::GtTask() :
     m_maxIter(QStringLiteral("maxIter"), tr("Number Of Iterations"),
@@ -469,16 +471,10 @@ GtTask::collectPropertyConnectionHelper(QList<GtPropertyConnection*>& list,
 bool
 GtTask::childHasWarnings()
 {
-    foreach (GtProcessComponent* child,
-             findDirectChildren<GtProcessComponent*>())
-    {
-        if (child->currentState() == WARN_FINISHED)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    const auto childs = findDirectChildren<GtProcessComponent*>();
+    return std::any_of(std::begin(childs), std::end(childs), [](const GtProcessComponent* child) {
+        return child->currentState() == WARN_FINISHED;
+    });
 }
 
 void

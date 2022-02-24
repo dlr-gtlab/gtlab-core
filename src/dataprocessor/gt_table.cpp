@@ -1369,15 +1369,8 @@ GtTable::getMax(const QString &id, bool* check) const
         return 0.0;
     }
 
-    double max = vals->values().first();
-
-    for (const double& val : vals->values())
-    {
-        if (val > max)
-        {
-            max = val;
-        }
-    }
+    auto values = vals->values();
+    double max = *std::max_element(std::cbegin(values), std::cend(values));
 
     if (check != nullptr)
     {
@@ -1402,15 +1395,8 @@ GtTable::getMin(const QString& id, bool* check) const
         return 0.0;
     }
 
-    double min = vals->values().first();
-
-    for (const double& val : vals->values())
-    {
-        if (val < min)
-        {
-            min = val;
-        }
-    }
+    auto values = vals->values();
+    double min = *std::min_element(std::cbegin(values), std::cend(values));
 
     if (check != nullptr)
     {

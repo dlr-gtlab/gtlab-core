@@ -19,10 +19,7 @@
 class TestSession : public GtSession
 {
 public:
-    TestSession() : GtSession()
-    {
-        m_tmpDir = gtTestHelper->newTempDir();
-    }
+    TestSession() = default;
 
     QString sessionFilePath() override
     {
@@ -40,7 +37,7 @@ public:
     }
 
 private:
-    QDir m_tmpDir;
+    QDir m_tmpDir{gtTestHelper->newTempDir()};
 
 };
 

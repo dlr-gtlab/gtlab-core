@@ -12,19 +12,13 @@
 
 GtDataZoneTableMainAxis::GtDataZoneTableMainAxis(const QString& name,
                                                  AxisType axType,
-                                                 const QString& title)
+                                                 const QString& title) :
+    m_title{title},
+    m_name{name},
+    m_axType{axType},
+    m_active{true}
 {
-    m_name = name;
-    m_axType = axType;
-    m_title = title;
-    m_active = true;
-
     setObjectName(name);
-}
-
-GtDataZoneTableMainAxis::GtDataZoneTableMainAxis()
-{
-
 }
 
 int

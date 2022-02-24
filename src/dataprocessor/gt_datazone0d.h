@@ -94,7 +94,7 @@ public:
      * @param ok
      * @return
      */
-    double value(const QString& paramName, bool* ok = Q_NULLPTR);
+    double value(const QString& paramName, bool* ok = Q_NULLPTR) const;
 
     /**
      * @brief unitFromParam

@@ -39,7 +39,7 @@ GtStateGroup::findState(const QString& id, const QString& path,
 
     GtState* retval = new GtState(id, path, initVal, guardian, this);
 
-    loadState(retval);
+    loadState(*retval);
 
     connect(retval, SIGNAL(valueChanged(GtState*)),
             SLOT(onStateChanged(GtState*)));
@@ -48,13 +48,8 @@ GtStateGroup::findState(const QString& id, const QString& path,
 }
 
 void
-GtStateGroup::loadState(GtState* state)
+GtStateGroup::loadState(GtState& state)
 {
-    if (m_container == Q_NULLPTR)
-    {
-        return;
-    }
-
     if (m_container->project() == Q_NULLPTR)
     {
         loadStateGlobal(state);
@@ -66,14 +61,10 @@ GtStateGroup::loadState(GtState* state)
 }
 
 void
-GtStateGroup::loadStateGlobal(GtState* state)
+GtStateGroup::loadStateGlobal(GtState& state)
 {
-    if (state == Q_NULLPTR)
-    {
-        return;
-    }
 
-    if (!findDirectChildren<GtState*>().contains(state))
+    if (!findDirectChildren<GtState*>().contains(&state))
     {
         return;
     }
@@ -84,18 +75,14 @@ GtStateGroup::loadStateGlobal(GtState* state)
 
     settings.beginGroup(objectName());
 
-    loadStateFromSettings(state, settings);
+    loadStateFromSettings(settings, state);
 }
 
 void
-GtStateGroup::loadStateSpecific(GtState* state)
+GtStateGroup::loadStateSpecific(GtState& state)
 {
-    if (state == Q_NULLPTR)
-    {
-        return;
-    }
 
-    if (!findDirectChildren<GtState*>().contains(state))
+    if (!findDirectChildren<GtState*>().contains(&state))
     {
         return;
     }
@@ -114,17 +101,17 @@ GtStateGroup::loadStateSpecific(GtState* state)
 
     settings.beginGroup(objectName());
 
-    loadStateFromSettings(state, settings);
+    loadStateFromSettings(settings, state);
 }
 
 void
-GtStateGroup::loadStateFromSettings(GtState* state, QSettings& settings)
+GtStateGroup::loadStateFromSettings(const QSettings& settings, GtState& state)
 {
-    QVariant var = settings.value(state->path());
+    QVariant var = settings.value(state.path());
 
     if (var.isValid())
     {
-        state->setValue(var, false);
+        state.setValue(var, false);
     }
 }
 

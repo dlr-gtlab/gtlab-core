@@ -509,12 +509,3 @@ GtJsHighlighter::setKeywords(const QStringList& keywords)
     m_keywords = QSet<QString>::fromList(keywords);
     rehighlight();
 }
-
-struct BlockInfo
-{
-    int position;
-    int number;
-    bool foldable: 1;
-    bool folded : 1;
-
-};

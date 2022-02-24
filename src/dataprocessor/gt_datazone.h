@@ -292,7 +292,7 @@ public slots:
     */
    double value4D(const QString& param, const double& x0, const double& x1,
                   const double& x2, const double& x3,
-                  bool* ok = nullptr);
+                  bool* ok = nullptr) const;
 
 protected:
 

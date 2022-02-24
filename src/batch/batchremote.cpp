@@ -182,14 +182,10 @@ BatchRemote::checkInput(const QString& inputName, const QString& version,
         dataElement = dataElement.nextSiblingElement();
     }
 
-    if (!silent)
-    {
-        std::cout << "done!" << std::endl;
-    }
-
     // process
     if (!silent)
     {
+        std::cout << "done!" << std::endl;
         std::cout << "Restoring Process-Elements...";
     }
 

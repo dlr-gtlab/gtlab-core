@@ -10,6 +10,8 @@
 #include "gt_modeproperty.h"
 #include "gt_modetypeproperty.h"
 
+#include <algorithm>
+
 GtModeProperty::GtModeProperty(const QString& ident, const QString& name,
                                const QString& brief)
 {
@@ -80,15 +82,10 @@ GtModeProperty::registerSubProperty(GtModeTypeProperty& property)
 bool
 GtModeProperty::modeExists(const QString& mode)
 {
-    foreach (GtAbstractProperty* prop, m_subProperties)
-    {
-        if (prop->objectName() == mode)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(std::begin(m_subProperties), std::end(m_subProperties),
+                       [&mode](const GtAbstractProperty* prop) {
+        return prop->objectName() == mode;
+    });
 }
 
 int

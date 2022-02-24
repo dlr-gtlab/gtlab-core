@@ -7,6 +7,12 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_networkinterface.h"
+#include "gt_accessgroup.h"
+#include "gt_logging.h"
+
+#include "gt_accessmanager.h"
+
 #include <QNetworkInterface>
 #include <QCoreApplication>
 #include <QStandardPaths>
@@ -14,11 +20,7 @@
 #include <QNetworkAccessManager>
 #include <QDataStream>
 
-#include "gt_networkinterface.h"
-#include "gt_accessgroup.h"
-#include "gt_logging.h"
-
-#include "gt_accessmanager.h"
+#include <algorithm>
 
 GtAccessManager::GtAccessManager(QObject* parent) :
     QObject(parent), m_qnam(nullptr)
@@ -175,15 +177,9 @@ GtAccessManager::isEmpty()
 bool
 GtAccessManager::groupExists(const QString& id)
 {
-    foreach (GtAccessGroup* group, m_data)
-    {
-        if (group->objectName() == id)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(std::begin(m_data), std::end(m_data), [&id](const GtAccessGroup* group) {
+        return group->objectName() == id;
+    });
 }
 
 QStringList

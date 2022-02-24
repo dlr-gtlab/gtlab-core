@@ -196,22 +196,22 @@ GtPropertyConnectionFunctions::findEquivalentObject(GtObject* parent,
             }
 
             GtObject* origPar = qobject_cast<GtObject*>(origObj->parent());
-            GtObject* parent = qobject_cast<GtObject*>(obj->parent());
+            GtObject* currentParent = qobject_cast<GtObject*>(obj->parent());
 
-            if (origPar == nullptr && parent == nullptr)
+            if (origPar == nullptr && currentParent == nullptr)
             {
                 return obj;
             }
 
             if (origPar->metaObject()->className() !=
-                    parent->metaObject()->className())
+                    currentParent->metaObject()->className())
             {
                 gtDebug() << "Parent class names are different!";
                 continue;
             }
 
             int children =  origPar->childCount<GtObject*>();
-            int childrenTmp = parent->childCount<GtObject*>();
+            int childrenTmp = currentParent->childCount<GtObject*>();
 
             if (children != childrenTmp)
             {
@@ -220,7 +220,7 @@ GtPropertyConnectionFunctions::findEquivalentObject(GtObject* parent,
             }
 
             children = origPar->findChildren<GtObject*>().size();
-            childrenTmp = parent->findChildren<GtObject*>().size();
+            childrenTmp = currentParent->findChildren<GtObject*>().size();
 
             if (children != childrenTmp)
             {

@@ -18,6 +18,28 @@
 #include "gt_h5data.h"
 #endif
 
+namespace
+{
+    template<typename T, typename ErrorCode>
+    T valueAndSetError(T&& t, ErrorCode error, ErrorCode* toSet)
+    {
+        if (toSet) *toSet = error;
+        return std::forward<T>(t);
+    }
+
+    template<typename T>
+    T success(T&& t, bool* ok)
+    {
+        return valueAndSetError(std::forward<T>(t), true, ok);
+    }
+
+    template<typename T>
+    T error(T&& t, bool* ok)
+    {
+        return valueAndSetError(std::forward<T>(t), false, ok);
+    }
+}
+
 GtDataZone::GtDataZone()
 {
     GtTable* table = new GtTable();
@@ -196,49 +218,27 @@ GtDataZone::value1D(const QString& param, const double &x0, bool* ok) const
     if (nDims() != 1)
     {
         gtWarning() << tr("Trying to get a 1D value out of a non-1D Table.");
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return 0.0;
+        return error(0.0, ok);
     }
 
     GtTable* tab = table();
-    if (tab == Q_NULLPTR)
+    if (!tab)
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return 0.0;
+        return error(0.0, ok);
     }
 
     if (!param.isEmpty() && tab->tabValsKeys().contains(param))
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = true;
-        }
-        double val = 0.0;
-
         try
         {
-            val = tab->getValue1D(param, x0);
+            return success(tab->getValue1D(param, x0), ok);
         }
-        catch (GTlabException& /*e*/)
-        {
-            *ok = false;
+        catch (GTlabException& /*e*/) {
+            return error(0.0, ok);
         }
-
-        return val;
     }
 
-    if (ok != Q_NULLPTR)
-    {
-        *ok = false;
-    }
-
-    return 0.0;
+    return error(0.0, ok);
 }
 
 QVector<double>
@@ -247,38 +247,21 @@ GtDataZone::value1DVector(const QString &param, bool *ok) const
     if (nDims() != 1)
     {
         gtWarning() << tr("Trying to get a 1D value out of a non-1D Table.");
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return QVector<double>();
+        return error(QVector<double>(), ok);
     }
 
     GtTable* tab = table();
     if (tab == Q_NULLPTR)
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return QVector<double>();
+        return error(QVector<double>(), ok);
     }
 
     if (!param.isEmpty() && tab->tabValsKeys().contains(param))
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = true;
-        }
-        return tab->getVals(param)->values();
+        return success(tab->getVals(param)->values(), ok);
     }
 
-    if (ok != Q_NULLPTR)
-    {
-        *ok = false;
-    }
-
-    return QVector<double>();
+    return error(QVector<double>(), ok);
 }
 
 QVector<double>
@@ -287,38 +270,23 @@ GtDataZone::value1DVector(const QString &param, const QVector<double>& ticks, bo
     if (nDims() != 1)
     {
         gtWarning() << tr("Trying to get a 1D value out of a non-1D Table.");
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return QVector<double>();
+        return error(QVector<double>(), ok);
     }
 
     GtTable* tab = table();
     if (tab == Q_NULLPTR)
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return QVector<double>();
+        return error(QVector<double>(), ok);
     }
 
     if (!ticks.isEmpty())
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return QVector<double>();
+        return error(QVector<double>(), ok);
     }
 
     if (!param.isEmpty() && tab->tabValsKeys().contains(param))
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = true;
-        }
+        bool success = true;
 
         QVector<double> retVal;
         for (const double& tick : ticks)
@@ -332,20 +300,12 @@ GtDataZone::value1DVector(const QString &param, const QVector<double>& ticks, bo
             }
             catch (GTlabException& /*e*/)
             {
-                if (ok != Q_NULLPTR)
-                {
-                    *ok = false;
-                }
+                success = false;
             }
             retVal.append(val);
         }
 
-        return retVal;
-    }
-
-    if (ok != Q_NULLPTR)
-    {
-        *ok = false;
+        return ::valueAndSetError(retVal, success, ok);
     }
 
     return QVector<double>();
@@ -356,56 +316,32 @@ double
 GtDataZone::value2D(const QString& param, const double& x0,
                     const double& x1, bool* ok) const
 {
+
     if (nDims() != 2)
     {
         gtWarning() << tr("Trying to get a 2D value out of a non-2D Table.");
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return 0.0;
+        return error(0.0, ok);
     }
 
     GtTable* tab = table();
     if (tab == Q_NULLPTR)
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return 0.0;
+        return error(0.0, ok);
     }
 
     if (!param.isEmpty() && tab->tabValsKeys().contains(param))
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = true;
-        }
-
-        double result = 0.0;
-
         try
         {
-            result = tab->getValue2D(param, x0, x1);
+            return success(tab->getValue2D(param, x0, x1), ok);
         }
-        catch (GTlabException& /*e*/)
-        {
-            if (ok != Q_NULLPTR)
-            {
-                *ok = false;
-            }
+        catch (GTlabException& /*e*/) {
+            return error(0.0, ok);
         }
 
-        return result;
     }
 
-    if (ok != Q_NULLPTR)
-    {
-        *ok = false;
-    }
-
-    return 0.0;
+    return error(0.0, ok);
 }
 
 double
@@ -415,94 +351,53 @@ GtDataZone::value3D(const QString& param, const double& x0, const double& x1,
     if (nDims() != 3)
     {
         gtWarning() << tr("Trying to get a 3D value out of a non-3D Table.");
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return 0.0;
+        return error(0.0, ok);
     }
 
     GtTable* tab = table();
-    if (tab == Q_NULLPTR)
+    if (!tab)
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return 0.0;
+        return error(0.0, ok);
     }
 
     if (!param.isEmpty() && tab->tabValsKeys().contains(param))
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = true;
-        }
-
-        double val = 0.0;
         try
         {
-            val = tab->getValue3D(param, x0, x1, x2);
+            return success(tab->getValue3D(param, x0, x1, x2), ok);
         }
-        catch (GTlabException& /*e*/)
-        {
-            if (ok != Q_NULLPTR)
-            {
-                *ok = false;
-            }
+        catch (GTlabException& /*e*/) {
+            return error(0.0, ok);
         }
 
-        return val;
     }
 
-    if (ok != Q_NULLPTR)
-    {
-        *ok = false;
-    }
-
-    return 0.0;
+    return error(0.0, ok);
 }
 
 double
 GtDataZone::value4D(const QString& param, const double& x0, const double& x1,
                     const double& x2, const double& x3,
-                    bool *ok)
+                    bool *ok) const
 {
     if (nDims() != 4)
     {
         gtWarning() << tr("Trying to get a 4D value out of a non-4D Table.");
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return 0.0;
+        return error(0.0, ok);
     }
 
     GtTable* tab = table();
-    if (tab == Q_NULLPTR)
+    if (!tab)
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = false;
-        }
-        return 0.0;
+        return error(0.0, ok);
     }
 
     if (!param.isEmpty() && tab->tabValsKeys().contains(param))
     {
-        if (ok != Q_NULLPTR)
-        {
-            *ok = true;
-        }
-        return tab->getValue4D(param, x0, x1, x2, x3);
+        return success(tab->getValue4D(param, x0, x1, x2, x3), ok);
     }
 
-    if (ok != Q_NULLPTR)
-    {
-        *ok = false;
-    }
-
-    return 0.0;
+    return error(0.0, ok);
 }
 
 void
@@ -564,13 +459,11 @@ GtDataZone::setData1D(const QStringList& params,
         return;
     }
 
-    for (const QVector<double>& vec : vals)
-    {
-        if (vec.size() != params.size())
-        {
-            gtWarning() << tr("Value sizes do not match in DataZone!");
-            return;
-        }
+    if (std::any_of(std::begin(vals), std::end(vals), [&params](const QVector<double>& vec) {
+            return vec.size() != params.size();
+        })) {
+        gtWarning() << tr("Value sizes do not match in DataZone!");
+        return;
     }
 
     QVector<double> ticks;
@@ -649,7 +542,7 @@ GtDataZone::setData1Dfrom2DDataZone(GtDataZone* dataZone2D, int fixedAxisNumber,
         axisName = dataZone2D->axisNames().at(1);
         ticks = dataZone2D->allAxisTicks().at(1);
 
-        if (allAxisTicks().at(0).size() < fixedAxisTick)
+        if (fixedAxisTick >= allAxisTicks().at(0).size())
         {
             return;
         }
@@ -661,7 +554,7 @@ GtDataZone::setData1Dfrom2DDataZone(GtDataZone* dataZone2D, int fixedAxisNumber,
         axisName = dataZone2D->axisNames().at(0);
         ticks = dataZone2D->allAxisTicks().at(0);
 
-        if (allAxisTicks().at(1).size() < fixedAxisTick)
+        if (fixedAxisTick >= allAxisTicks().at(1).size())
         {
             return;
         }
@@ -792,10 +685,7 @@ GtDataZone::tabValsKeys() const
 {
     GtTable* t = table();
 
-    if (t == Q_NULLPTR)
-    {
-        return QStringList();
-    }
+    if (!t) return QStringList();
 
     return t->tabValsKeys();
 }
@@ -958,6 +848,7 @@ GtDataZone::minValue2D(const QString &paramName, bool* ok)
 {
     double retVal = qPow(10, 20);
 
+    // @todo: this seems to be wrong. Issue #195 is created
     if (ok != Q_NULLPTR)
     {
         *ok = false;
@@ -980,12 +871,7 @@ GtDataZone::minValue2D(const QString &paramName, bool* ok)
         }
     }
 
-    if (ok != Q_NULLPTR)
-    {
-        *ok = true;
-    }
-
-    return retVal;
+    return success(retVal, ok);
 }
 
 double
@@ -993,6 +879,7 @@ GtDataZone::maxValue2D(const QString& paramName, bool* ok)
 {
     double retVal = -qPow(10, 20);
 
+    // @todo: this seems to be wrong. Issue #195 is created
     if (ok != Q_NULLPTR)
     {
         *ok = false;
@@ -1015,12 +902,7 @@ GtDataZone::maxValue2D(const QString& paramName, bool* ok)
         }
     }
 
-    if (ok != Q_NULLPTR)
-    {
-        *ok = true;
-    }
-
-    return retVal;
+    return success(retVal, ok);
 }
 
 double
@@ -1028,6 +910,7 @@ GtDataZone::minValue1D(const QString &paramName, bool *ok)
 {
     double retVal = qPow(10, 20);
 
+    // @todo: this seems to be wrong. Issue #195 is created
     if (ok != Q_NULLPTR)
     {
         *ok = false;
@@ -1046,12 +929,7 @@ GtDataZone::minValue1D(const QString &paramName, bool *ok)
         }
     }
 
-    if (ok != Q_NULLPTR)
-    {
-        *ok = true;
-    }
-
-    return retVal;
+    return success(retVal, ok);
 }
 
 double
@@ -1059,6 +937,7 @@ GtDataZone::maxValue1D(const QString& paramName, bool *ok)
 {
     double retVal = -qPow(10, 20);
 
+    // @todo: this seems to be wrong. Issue #195 is created
     if (ok != Q_NULLPTR)
     {
         *ok = false;
@@ -1077,10 +956,5 @@ GtDataZone::maxValue1D(const QString& paramName, bool *ok)
         }
     }
 
-    if (ok != Q_NULLPTR)
-    {
-        *ok = true;
-    }
-
-    return retVal;
+    return success(retVal, ok);
 }

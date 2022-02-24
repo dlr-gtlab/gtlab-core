@@ -216,7 +216,7 @@ GtProcessComponent::hasWarnings()
 }
 
 GtProcessComponent::STATE
-GtProcessComponent::currentState()
+GtProcessComponent::currentState() const
 {
     return m_state;
 }

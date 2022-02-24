@@ -226,16 +226,10 @@ GtAbstractProperty::isOptional() const
 int
 GtAbstractProperty::propertyCount()
 {
-    int n = 0;
-    foreach (GtAbstractProperty* prop, m_subProperties)
-    {
-        if (!prop->isHidden())
-        {
-            n++;
-        }
-    }
-    return n;
-    //return m_subProperties.count();
+    return std::count_if(std::begin(m_subProperties), std::end(m_subProperties),
+                         [](const GtAbstractProperty* prop) {
+        return !prop->isHidden();
+    });
 }
 
 GtAbstractProperty*

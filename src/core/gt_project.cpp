@@ -126,7 +126,7 @@ GtProject::loadMetaData()
 }
 
 void
-GtProject::readModuleMetaData(QDomElement& root)
+GtProject::readModuleMetaData(const QDomElement& root)
 {
     /* module informations */
     QDomElement mdata = root.firstChildElement(QStringLiteral("MODULES"));
@@ -223,7 +223,7 @@ GtProject::readProcessData()
 }
 
 GtObject*
-GtProject::readLabelData(GtObjectList& moduleData)
+GtProject::readLabelData(const GtObjectList& moduleData)
 {
     GtLabelData* data = new GtLabelData;
     data->setDefault(true);
@@ -805,19 +805,19 @@ GtProject::~GtProject()
 }
 
 const QString&
-GtProject::path()
+GtProject::path() const
 {
     return m_path;
 }
 
 bool
-GtProject::isValid()
+GtProject::isValid() const
 {
     return m_valid;
 }
 
 bool
-GtProject::isOpen()
+GtProject::isOpen() const
 {
     // TODO: logic for open or closed projects
 

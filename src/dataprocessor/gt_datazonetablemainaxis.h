@@ -31,7 +31,7 @@ public:
     GtDataZoneTableMainAxis(const QString& name, AxisType axType,
                             const QString& title = QString());
 
-    Q_INVOKABLE GtDataZoneTableMainAxis();
+    Q_INVOKABLE GtDataZoneTableMainAxis() = default;
 
     int size() const;
 
@@ -65,7 +65,7 @@ private:
 
     AxisType m_axType;
 
-    bool m_active;
+    bool m_active{false};
 
 };
 

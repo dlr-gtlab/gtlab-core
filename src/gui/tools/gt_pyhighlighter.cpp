@@ -132,8 +132,7 @@ GtPyHighlighter::highlightBlock(const QString& text)
 
     if (!isInMultilne)
     {
-        isInMultilne = matchMultiline(text, triDoubleQuote, 2,
-                                      basicStyles.value("string2"));
+        matchMultiline(text, triDoubleQuote, 2, basicStyles.value("string2"));
     }
 }
 
@@ -182,8 +181,6 @@ GtPyHighlighter::matchMultiline(const QString& text,
 {
     int start = -1;
     int add = -1;
-    int end = -1;
-    int length = 0;
 
     // If inside triple-single quotes, start at 0
     if (previousBlockState() == inState)
@@ -203,7 +200,9 @@ GtPyHighlighter::matchMultiline(const QString& text,
     while (start >= 0)
     {
         // Look for the ending delimiter
-        end = delimiter.indexIn(text, start + add);
+        int end = delimiter.indexIn(text, start + add);
+
+        int length = 0;
 
         // Ending delimiter on this line?
         if (end >= add)
