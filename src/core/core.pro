@@ -20,6 +20,7 @@ QT += core xml network
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
+CONFIG += c++14
 
 DEFINES += GT_CORE_DLL
 
