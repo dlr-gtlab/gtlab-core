@@ -275,9 +275,10 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
         foreach(GtObjectUIActionGroup actGroup, actionGroups[i].second)
         {
             QMenu* submenu = new QMenu(actGroup.name());
-            auto cmenu = std::make_unique<GtCustomActionMenu>(
-                actGroup.actions(), obj,
-                actionGroups[i].first, submenu);
+            GtCustomActionMenu* cmenu =
+                    new GtCustomActionMenu(actGroup.actions(), obj,
+                                           actionGroups[i].first,
+                                           submenu);
 
             Q_UNUSED(cmenu)
             submenu->setIcon(gtApp->icon(actGroup.icon()));
@@ -285,12 +286,11 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
         }
     }
 
-    //for (int i = 0; i < actions.size(); ++i)
-    foreach (auto action, actions)
+    for (int i = 0; i < actions.size(); ++i)
     {
-        auto cmenu = std::make_unique<GtCustomActionMenu>(
-            action.second, obj,
-            action.first, &menu);
+        GtCustomActionMenu* cmenu =
+                new GtCustomActionMenu(actions[i].second, obj,
+                                       actions[i].first, &menu);
 
         Q_UNUSED(cmenu)
     }
