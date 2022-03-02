@@ -370,14 +370,6 @@ GtCollectionEditor::generateCollectionSettings()
         return;
     }
 
-    if (!m_collection)
-    {
-        gtError() << tr("Could not generate settings!") <<
-                     tr("Invalid collection!");
-
-        return;
-    }
-
     QObject* obj = m_collection->collectionSettings().newInstance();
 
     if (!obj)
