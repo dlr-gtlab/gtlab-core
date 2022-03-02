@@ -75,8 +75,8 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                 return var.toString() + QStringLiteral(" (terminated)");
             }
 
-            break;
         }
+        break;
 
         case Qt::DecorationRole:
         {
@@ -132,9 +132,8 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
             {
                 return stateToIcon(pc->currentState());
             }
-
-            break;
         }
+        break;
 
         case Qt::FontRole:
         {
@@ -157,9 +156,8 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                 font.setStrikeOut(true);
                 return font;
             }
-
-            break;
         }
+        break;
 
         default:
             break;

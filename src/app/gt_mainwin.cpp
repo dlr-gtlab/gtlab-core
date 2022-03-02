@@ -424,10 +424,10 @@ GtMainWin::checkForUpdate()
     connect(check, SIGNAL(updateAvailable()), thread, SLOT(quit()));
     connect(check, SIGNAL(updateAvailable()), check, SLOT(deleteLater()));
     connect(check, SIGNAL(updateAvailable()), this, SLOT(updateAvailable()));
-    connect(check, SIGNAL(error(int, QString)), thread, SLOT(quit()));
-    connect(check, SIGNAL(error(int, QString)),
-            SLOT(noUpdateAvailable(int, QString)));
-    connect(check, SIGNAL(error(int, QString)), check, SLOT(deleteLater()));
+    connect(check, SIGNAL(error(int,QString)), thread, SLOT(quit()));
+    connect(check, SIGNAL(error(int,QString)),
+            SLOT(noUpdateAvailable(int,QString)));
+    connect(check, SIGNAL(error(int,QString)), check, SLOT(deleteLater()));
     connect(this, SIGNAL(destroyed(QObject*)), thread, SLOT(terminate()));
 
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
