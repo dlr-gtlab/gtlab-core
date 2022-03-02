@@ -25,8 +25,8 @@ public:
      * @brief GtAbstractProjectWizardPage
      * @param parent
      */
-    GtAbstractProjectWizardPage(GtProjectProvider* provider,
-                                QWidget* parent = nullptr);
+    explicit GtAbstractProjectWizardPage(GtProjectProvider* provider,
+                                         QWidget* parent = nullptr);
 
 protected:
     /**

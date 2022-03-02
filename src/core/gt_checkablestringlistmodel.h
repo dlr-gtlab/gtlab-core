@@ -33,8 +33,8 @@ public:
      * @param strings
      * @param parent
      */
-    GtCheckableStringListModel(const QStringList& strings,
-                               QObject* parent = nullptr);
+    explicit GtCheckableStringListModel(const QStringList& strings,
+                                        QObject* parent = nullptr);
 
     /**
      * @brief GtCheckableStringListModel

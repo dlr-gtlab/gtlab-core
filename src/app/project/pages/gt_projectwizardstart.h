@@ -23,8 +23,8 @@ public:
      * @param provider
      * @param parent
      */
-    GtProjectWizardStart(GtProjectProvider* provider,
-                         QWidget* parent = nullptr);
+    explicit GtProjectWizardStart(GtProjectProvider* provider,
+                                  QWidget* parent = nullptr);
 
 };
 

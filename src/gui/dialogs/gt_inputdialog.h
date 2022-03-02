@@ -39,8 +39,7 @@ public:
      * @brief Constructor.
      * @param parent Parent widget.
      */
-    GtInputDialog(GtInputDialog::InputMode mode = TextInput,
-                  QWidget* parent = nullptr);
+    explicit GtInputDialog(GtInputDialog::InputMode mode = TextInput, QWidget *parent = nullptr);
 
     /**
      * @brief Sets text of input dialog label.

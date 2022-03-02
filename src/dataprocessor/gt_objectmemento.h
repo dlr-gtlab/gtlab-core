@@ -34,7 +34,7 @@ public:
      * @param obj
      * @param clone
      */
-    GtObjectMemento(const GtObject* obj = nullptr, bool clone = true);
+    explicit GtObjectMemento(const GtObject* obj = nullptr, bool clone = true);
 
     /**
      * @brief GtObjectMemento

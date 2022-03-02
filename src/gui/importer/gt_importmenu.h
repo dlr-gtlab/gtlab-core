@@ -30,8 +30,7 @@ public:
      * @param Object for importer menu.
      * @param Parent widget.
      */
-    GtImportMenu(GtObject* obj,
-                 QWidget* parent = nullptr);
+    explicit GtImportMenu(GtObject *obj, QWidget *parent = nullptr);
 
 private:
     /// mapper for action signals

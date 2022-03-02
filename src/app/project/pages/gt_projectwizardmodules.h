@@ -24,8 +24,8 @@ public:
      * @brief GtProjectWizardModules
      * @param parent
      */
-    GtProjectWizardModules(GtProjectProvider* provider,
-                           QWidget* parent = nullptr);
+    explicit GtProjectWizardModules(GtProjectProvider* provider,
+                                    QWidget* parent = nullptr);
 
     /**
      * @brief ~GtProjectWizardModules

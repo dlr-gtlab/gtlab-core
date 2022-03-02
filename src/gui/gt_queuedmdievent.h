@@ -25,7 +25,7 @@ public:
     /**
      * @brief GtQueuedMdiEvent
      */
-    GtQueuedMdiEvent(GtMdiItem* item) { m_mdiItem = item; }
+    explicit GtQueuedMdiEvent(GtMdiItem* item) { m_mdiItem = item; }
 
     /**
      * @brief handle

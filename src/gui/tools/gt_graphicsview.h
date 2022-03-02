@@ -23,7 +23,7 @@ class GT_GUI_EXPORT GtGraphicsView : public QGraphicsView
     Q_OBJECT
 
 public:
-    GtGraphicsView(GtGraphicsScene* s, QWidget* parent = 0);
+    explicit GtGraphicsView(GtGraphicsScene *s, QWidget *parent = 0);
     ~GtGraphicsView();
 
     /** Returns grid.

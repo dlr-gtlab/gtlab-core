@@ -25,8 +25,8 @@ public:
 //    GtAbstractDataConfigWizard(GtBarProvider* provider,
 //                               QWidget* parent = nullptr);
 
-    GtAbstractDataConfigWizard(GtAbstractChartProvider* provider,
-                               QWidget* parent = nullptr);
+    explicit GtAbstractDataConfigWizard(GtAbstractChartProvider *provider,
+                                        QWidget *parent = nullptr);
 
     GtAbstractDataConfigWizard();
 

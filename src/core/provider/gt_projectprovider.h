@@ -41,14 +41,16 @@ public:
      * @param project
      * @param parent
      */
-    GtProjectProvider(const QString& filename, QObject* parent = nullptr);
+    explicit GtProjectProvider(const QString& filename,
+                               QObject* parent = nullptr);
 
     /**
      * @brief GtProjectProvider
      * @param project
      * @param parent
      */
-    GtProjectProvider(GtProject* project, QObject* parent = nullptr);
+    explicit GtProjectProvider(GtProject* project,
+                               QObject* parent = nullptr);
 
     /**
      * @brief setSource

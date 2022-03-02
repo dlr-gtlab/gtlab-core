@@ -563,7 +563,7 @@ GtDataZone::setData1Dfrom2DDataZone(GtDataZone* dataZone2D, int fixedAxisNumber,
 
     QMap< QString, QVector<double> > vals;
 
-    for (const QString& param : params)
+    for (const QString& param : qAsConst(params))
     {
         QVector<double> currentVals;
 
@@ -758,7 +758,7 @@ GtDataZone::axisTicks(const QString &id, QStringList& axTicks) const
         table()->getAxisTicks(id, ticks);
 
         axTicks.clear();
-        for (const double& tick : ticks)
+        for (const double& tick : qAsConst(ticks))
         {
             axTicks.append(QString::number(tick));
         }
@@ -858,9 +858,9 @@ GtDataZone::minValue2D(const QString &paramName, bool* ok)
     QVector<double> firstAxisTicks = axisTicks(axisNames().first());
     QVector<double> secondAxisTicks = axisTicks(axisNames().last());
 
-    for (const double& val1 : firstAxisTicks)
+    for (const double& val1 : qAsConst(firstAxisTicks))
     {
-        for (const double& val2 : secondAxisTicks)
+        for (const double& val2 : qAsConst(secondAxisTicks))
         {
             double val = value2D(paramName, val1, val2);
 
@@ -889,9 +889,9 @@ GtDataZone::maxValue2D(const QString& paramName, bool* ok)
     QVector<double> firstAxisTicks = axisTicks(axisNames().first());
     QVector<double> secondAxisTicks = axisTicks(axisNames().last());
 
-    for (const double& val1 : firstAxisTicks)
+    for (const double& val1 : qAsConst(firstAxisTicks))
     {
-        for (const double& val2 : secondAxisTicks)
+        for (const double& val2 : qAsConst(secondAxisTicks))
         {
             double val = value2D(paramName, val1, val2);
 
@@ -919,7 +919,7 @@ GtDataZone::minValue1D(const QString &paramName, bool *ok)
 
     QVector<double> firstAxisTicks = axisTicks(axisNames().first());
 
-    for (const double& val1 : firstAxisTicks)
+    for (const double& val1 : qAsConst(firstAxisTicks))
     {
         double val = value1D(paramName, val1);
 
@@ -946,7 +946,7 @@ GtDataZone::maxValue1D(const QString& paramName, bool *ok)
 
     QVector<double> firstAxisTicks = axisTicks(axisNames().first());
 
-    for (const double& val1 : firstAxisTicks)
+    for (const double& val1 : qAsConst(firstAxisTicks))
     {
         double val = value1D(paramName, val1);
 

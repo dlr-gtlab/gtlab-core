@@ -406,7 +406,7 @@ GtDataZoneTable::allAxisTicksString() const
 
     QList<QStringList> retvalString;
 
-    for (const QVector<double>& vec : retval)
+    for (const QVector<double>& vec : qAsConst(retval))
     {
         QStringList l;
 
@@ -784,7 +784,7 @@ GtDataZoneTable::findAxis(GtDataZoneTableMainAxis::AxisType axType)
     QList<GtDataZoneTableMainAxis*> axes =
             findDirectChildren<GtDataZoneTableMainAxis*>();
 
-    for (GtDataZoneTableMainAxis* axis : axes)
+    for (GtDataZoneTableMainAxis* axis : qAsConst(axes))
     {
         if (!axis)
         {

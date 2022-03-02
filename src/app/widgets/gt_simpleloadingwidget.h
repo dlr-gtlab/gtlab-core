@@ -25,8 +25,8 @@ public:
     /**
      * @brief GtSimpleLoadingWidget
      */
-    GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
-                          QWidget* parent = nullptr);
+    explicit GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
+                                   QWidget* parent = nullptr);
 
     /**
      * @brief ~GtSimpleLoadingWidget

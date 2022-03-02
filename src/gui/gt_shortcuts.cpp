@@ -11,6 +11,8 @@
 #include "gt_shortcut.h"
 #include "gt_logging.h"
 
+#include <algorithm>
+
 GtShortCuts::GtShortCuts(QObject* parent)
 {
     setParent(parent);
@@ -43,21 +45,20 @@ GtShortCuts::shortCuts() const
 GtShortCut*
 GtShortCuts::findShortCut(const QString& id, const QString& category) const
 {
-    QList<GtShortCut*> list = shortCuts();
+    const QList<GtShortCut*> list = shortCuts();
 
-    GtShortCut* retVal = nullptr;
-    for (GtShortCut* c : list)
+    auto iter = std::find_if(std::begin(list), std::end(list),
+        [&id, &category](const GtShortCut* c) {
+            return c->id() == id &&  c->category() == category;
+        });
+    if (iter != std::end(list))
     {
-        if (c->id() == id)
-        {
-            if (c->category() == category)
-            {
-                retVal = c;
-            }
-        }
+        return *iter;
     }
-
-    return retVal;
+    else
+    {
+        return nullptr;
+    }
 }
 
 QKeySequence
@@ -72,7 +73,7 @@ GtShortCuts::getKey(const QString& id) const
         return false;
     }
 
-    for (GtShortCut* c : list)
+    for (GtShortCut* c : qAsConst(list))
     {
         if (c->id() == id)
         {

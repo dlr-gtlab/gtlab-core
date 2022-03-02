@@ -28,8 +28,8 @@ public:
      * @param collectionItem
      * @param parent
      */
-    GtCollectionItemWidget(const GtCollectionItem& collectionItem,
-                           QWidget* parent = nullptr);
+    explicit GtCollectionItemWidget(const GtCollectionItem &collectionItem,
+                                    QWidget *parent = nullptr);
 
     /**
      * @brief ~GtCollectionItemWidget

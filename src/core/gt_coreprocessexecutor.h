@@ -36,7 +36,8 @@ public:
      * @brief GtProcessExecutor
      * @param parent QObject
      */
-    GtCoreProcessExecutor(QObject* parent = nullptr, bool save = true);
+    explicit GtCoreProcessExecutor(QObject* parent = nullptr,
+                                   bool save = true);
 
     /**
      * @brief currentInstance

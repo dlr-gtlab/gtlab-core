@@ -38,7 +38,8 @@ protected:
      * @param ident
      * @param initVal
      */
-    GtSettingsItem(const QString& ident, const QVariant& initVal = QVariant());
+    explicit GtSettingsItem(const QString& ident,
+                            const QVariant& initVal = QVariant());
 
 private:
     /// settings item identification string

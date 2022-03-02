@@ -33,8 +33,7 @@ public:
      * @brief Constructor.
      * @param Parent object.
      */
-    GtCollectionLoader(const QString& collectionId,
-                       QObject* parent = nullptr);
+    explicit GtCollectionLoader(const QString &collectionId, QObject *parent = nullptr);
 
     /**
      * @brief Loads local collection items based on given collection.

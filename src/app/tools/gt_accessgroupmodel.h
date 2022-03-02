@@ -28,7 +28,8 @@ public:
      * @brief Constructor.
      * @param Parent object.
      */
-    GtAccessGroupModel(GtAccessGroup* group, QObject* parent = nullptr);
+    explicit GtAccessGroupModel(GtAccessGroup* group,
+                                QObject* parent = nullptr);
 
     /**
      * @brief rowCount

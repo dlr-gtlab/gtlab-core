@@ -29,7 +29,7 @@ public:
     /**
      * @brief GtAbstractPostWidget
      */
-    GtAbstractPostWidget(QWidget* w = nullptr);
+    explicit GtAbstractPostWidget(QWidget *w = nullptr);
 
     /**
      * @brief configActions

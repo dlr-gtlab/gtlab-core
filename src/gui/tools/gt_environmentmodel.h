@@ -29,7 +29,7 @@ public:
      * @param vars Environment variable identification strings
      * @param parent Parent object
      */
-    GtEnvironmentModel(const QStringList& vars, QObject* parent = nullptr);
+    explicit GtEnvironmentModel(const QStringList &vars, QObject *parent = nullptr);
 
     /**
      * @brief rowCount

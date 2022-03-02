@@ -31,8 +31,7 @@ public:
      * @param Data object.
      * @param List of allowed file extensions.
      */
-    GtSelectFileToImportPage(GtObject* obj,
-                             GtAbstractImporter* importer = nullptr);
+    explicit GtSelectFileToImportPage(GtObject *obj, GtAbstractImporter *importer = nullptr);
 
     /**
      * @brief import
