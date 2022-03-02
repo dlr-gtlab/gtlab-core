@@ -15,8 +15,8 @@
 #include "gt_abstractproperty.h"
 
 GtPropertyConnection::GtPropertyConnection() :
-    m_sourcePropObj(Q_NULLPTR),
-    m_targetPropObj(Q_NULLPTR)
+    m_sourcePropObj(nullptr),
+    m_targetPropObj(nullptr)
 {
 
 }
@@ -75,7 +75,7 @@ GtPropertyConnection::makeConnection()
     qDebug() << "#### make connection...";
 
     // check source property pointer
-    if (m_sourcePropObj != Q_NULLPTR)
+    if (m_sourcePropObj)
     {
         // disconnect signals
         connect(m_sourcePropObj.data(), SIGNAL(changed()),
@@ -83,22 +83,22 @@ GtPropertyConnection::makeConnection()
         connect(m_sourcePropObj.data(), SIGNAL(destroyed(QObject*)),
                 this, SLOT(deleteLater()));
 
-        m_sourcePropObj = Q_NULLPTR;
+        m_sourcePropObj = nullptr;
     }
 
     // check target property pointer
-    if (m_targetPropObj != Q_NULLPTR)
+    if (m_targetPropObj)
     {
         m_targetPropObj->clearConnection();
 
-        m_targetPropObj = Q_NULLPTR;
+        m_targetPropObj = nullptr;
     }
 
     // get parent object
     GtObject* parentObj = parentObject();
 
     // check parent object
-    if (parentObj == Q_NULLPTR)
+    if (!parentObj)
     {
         gtError() << tr("No parent found for property connection!");
         return;
@@ -108,7 +108,7 @@ GtPropertyConnection::makeConnection()
     GtObject* sourceObj = parentObj->getObjectByUuid(m_sourceUuid);
 
     // check source object
-    if (sourceObj == Q_NULLPTR)
+    if (!sourceObj)
     {
         gtError() << tr("Property connection could not be established!") <<
                      QStringLiteral(" ") << tr("Source object not found!");
@@ -119,7 +119,7 @@ GtPropertyConnection::makeConnection()
     GtObject* targetObj = parentObj->getObjectByUuid(m_targetUuid);
 
     // check source object
-    if (targetObj == Q_NULLPTR)
+    if (!targetObj)
     {
         gtError() << tr("Property connection could not be established!") <<
                      QStringLiteral(" ") << tr("Target object not found!");
@@ -130,7 +130,7 @@ GtPropertyConnection::makeConnection()
     GtAbstractProperty* sourcePropety = sourceObj->findProperty(m_sourceProp);
 
     // check property
-    if (sourcePropety == Q_NULLPTR)
+    if (!sourcePropety)
     {
         gtError() << tr("Property connection could not be established!") <<
                      QStringLiteral(" ") << tr("Source property not found!");
@@ -141,7 +141,7 @@ GtPropertyConnection::makeConnection()
     GtAbstractProperty* targetPropety = targetObj->findProperty(m_targetProp);
 
     // check property
-    if (targetPropety == Q_NULLPTR)
+    if (!targetPropety)
     {
         gtError() << tr("Property connection could not be established!") <<
                      QStringLiteral(" ") << tr("Target property not found!");
@@ -168,7 +168,7 @@ QVariant
 GtPropertyConnection::valueFromSource()
 {
     // check source property
-    if (m_sourcePropObj == Q_NULLPTR)
+    if (!m_sourcePropObj)
     {
         // no source property set
         return QVariant();
@@ -181,7 +181,7 @@ bool
 GtPropertyConnection::isConnected()
 {
     // check source property pointer
-    return (m_sourcePropObj != Q_NULLPTR);
+    return (m_sourcePropObj != nullptr);
 }
 
 void

@@ -16,8 +16,8 @@
 #include "gt_processwizardpage.h"
 
 GtProcessWizardPage::GtProcessWizardPage() :
-    m_provider(Q_NULLPTR),
-    m_scope(Q_NULLPTR)
+    m_provider(nullptr),
+    m_scope(nullptr)
 {
     GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 }
@@ -51,7 +51,7 @@ GtProcessWizardPage::cleanupPage()
 {
     GtProcessWizard* wiz = qobject_cast<GtProcessWizard*>(wizard());
 
-    if (wiz != Q_NULLPTR)
+    if (wiz)
     {
         wiz->setEnableExecutionSettings(false);
     }

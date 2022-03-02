@@ -34,7 +34,7 @@
 
 #include "gt_logging.h"
 
-GtPostDock::GtPostDock() : m_project(Q_NULLPTR)
+GtPostDock::GtPostDock() : m_project(nullptr)
 {
     setObjectName(tr("Post Processing"));
 
@@ -164,7 +164,7 @@ GtPostDock::projectChangedEvent(GtProject* project)
 
     // enable buttons
 
-    if (m_project != Q_NULLPTR)
+    if (m_project)
     {
         m_addButton->setEnabled(true);
     }
@@ -179,7 +179,7 @@ GtPostDock::eventFilter(QObject* obj, QEvent* event)
         {
             QKeyEvent* keyEvent = dynamic_cast<QKeyEvent*>(event);
 
-            if (keyEvent != Q_NULLPTR)
+            if (keyEvent)
             {
                 if (keyEvent->key() == Qt::Key_Delete)
                 {
@@ -239,7 +239,7 @@ GtPostDock::openTemplateViewer(const QModelIndex& index)
 
     GtPostTemplatePath* path = m_datamodel->createTemplatePath(srcIndex);
 
-    if (path != nullptr)
+    if (path)
     {
         gtMdiLauncher->open(GtTemplateViewer::staticMetaObject.className(),
                             path, path->path());
@@ -298,7 +298,7 @@ GtPostDock::newPostTemplate()
 void
 GtPostDock::customContextMenu(QPoint pos)
 {
-    if (gtApp->currentProject() == nullptr)
+    if (!gtApp->currentProject())
     {
         return;
     }

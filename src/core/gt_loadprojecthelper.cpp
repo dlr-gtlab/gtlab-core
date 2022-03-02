@@ -23,7 +23,7 @@ GtLoadProjectHelper::GtLoadProjectHelper(GtProject* proj) :
 void
 GtLoadProjectHelper::run()
 {
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         return;
     }

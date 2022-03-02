@@ -28,11 +28,11 @@ public:
      * @param parent
      */
     GtCalculatorPropertyEntity(GtAbstractProperty* prop,
-                               QGraphicsItem* parent = Q_NULLPTR);
+                               QGraphicsItem* parent = nullptr);
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) override;
+                       QWidget* widget = nullptr) override;
 
     /**
     * @brief boundingRect

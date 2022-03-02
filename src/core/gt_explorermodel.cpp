@@ -31,19 +31,19 @@ GtExplorerModel::objectFromIndex(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (index.model() != this)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QModelIndex tmp = mapToSource(index);
 
     if (!tmp.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return static_cast<GtObject*>(tmp.internalPointer());

@@ -27,7 +27,7 @@ public:
      * @brief Constructor.
      * @param initCalc Calculator for provider initialization
      */
-    explicit GtCalculatorProvider(GtCalculator* initCalc = Q_NULLPTR);
+    explicit GtCalculatorProvider(GtCalculator* initCalc = nullptr);
 
 };
 

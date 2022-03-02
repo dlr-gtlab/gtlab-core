@@ -65,7 +65,7 @@ GtSimpleLoadingWidget::showEvent(QShowEvent* event)
 {
     QWidget::showEvent(event);
 
-    if (m_helper == Q_NULLPTR)
+    if (!m_helper)
     {
         return;
     }

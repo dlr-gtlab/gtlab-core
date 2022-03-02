@@ -44,7 +44,7 @@ GtCalculatorDataImpl::isValid() const
 
     QObject* obj = m_metaData.newInstance();
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return false;
     }

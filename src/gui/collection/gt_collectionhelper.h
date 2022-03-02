@@ -38,7 +38,7 @@ public:
      */
     GtCollectionHelper(const QList<GtAccessData>& accessDataList,
                        GtCollectionReply* reply,
-                       QObject* parent = Q_NULLPTR);
+                       QObject* parent = nullptr);
 
     /**
      * @brief ~GtCollectionHelper

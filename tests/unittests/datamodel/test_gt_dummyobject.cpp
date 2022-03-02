@@ -63,7 +63,7 @@ TEST_F(TestGtDummyObject, toMemento)
 
     GtObject* newObj = memento.restore(gtObjectFactory);
 
-    ASSERT_FALSE(newObj == Q_NULLPTR);
+    ASSERT_FALSE(newObj == nullptr);
 
     ASSERT_TRUE(newObj->isDummy());
 

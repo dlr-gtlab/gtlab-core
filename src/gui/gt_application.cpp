@@ -42,15 +42,15 @@ GtApplication::GtApplication(QCoreApplication* parent,
                              bool devMode,
                              bool batchMode) :
     GtCoreApplication(parent),
-    m_perspective(Q_NULLPTR),
-    m_guiModuleLoader(Q_NULLPTR),
+    m_perspective(nullptr),
+    m_guiModuleLoader(nullptr),
     m_d(new GtApplicationPrivate(this)),
-    m_selectedObject(Q_NULLPTR)
+    m_selectedObject(nullptr)
 {
     // init process executor in gui mode
     m_processExecutor = new GtProcessExecutor(this);
 
-    if (m_dataModel != Q_NULLPTR)
+    if (m_dataModel)
     {
         delete m_dataModel;
         m_dataModel = new GtDataModel(parent);
@@ -75,7 +75,7 @@ GtApplication::GtApplication(QCoreApplication* parent,
 GtApplication::~GtApplication()
 {
     // cleanup
-    if (m_perspective != Q_NULLPTR)
+    if (m_perspective)
     {
         delete m_perspective;
     }
@@ -117,7 +117,7 @@ void
 GtApplication::loadModules()
 {
     //    qDebug() << "GtApplication::loadModules";
-    if (m_moduleLoader == Q_NULLPTR)
+    if (!m_moduleLoader)
     {
         m_guiModuleLoader = new GtGuiModuleLoader;
         m_moduleLoader = m_guiModuleLoader;
@@ -156,7 +156,7 @@ GtApplication::initPerspective(const QString& id)
         }
     }
 
-    if (m_perspective == Q_NULLPTR)
+    if (!m_perspective)
     {
         // load perspective info
 
@@ -446,7 +446,7 @@ GtApplication::defaultObjectUI(GtObject* obj)
         return ouis.first();
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 GtObjectUI*
@@ -459,7 +459,7 @@ GtApplication::defaultObjectUI(const QString& classname)
         return ouis.first();
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 QStringList
@@ -493,7 +493,7 @@ GtApplication::switchSession(const QString& id)
     GtCoreApplication::switchSession(id);
 
     // TODO: check assert !!!!
-    //    Q_ASSERT(m_session == Q_NULLPTR);
+    //    Q_ASSERT(m_session == nullptr);
 
     m_undoStack.clear();
 }
@@ -520,7 +520,7 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
 {
     m_commandMutex.lock();
 
-    if (root == Q_NULLPTR)
+    if (!root)
     {
         m_commandMutex.unlock();
         qDebug() << tr("root object == NULL!");
@@ -580,7 +580,7 @@ GtApplication::endCommand(const GtCommand& command)
         return;
     }
 
-    if (m_d->m_commandRoot == Q_NULLPTR)
+    if (!m_d->m_commandRoot)
     {
         m_commandMutex.unlock();
         qDebug() << tr("invlid command root!");
@@ -595,7 +595,7 @@ GtApplication::endCommand(const GtCommand& command)
 
     GtSession* root =  m_d->m_commandRoot->findRoot<GtSession*>();
 
-    if (root == Q_NULLPTR)
+    if (!root)
     {
         m_commandMutex.unlock();
         qDebug() << tr("no root object found!");
@@ -607,7 +607,7 @@ GtApplication::endCommand(const GtCommand& command)
     undoStack()->push(changeCommand);
 
     //    // cleanup
-    m_d->m_commandRoot = Q_NULLPTR;
+    m_d->m_commandRoot = nullptr;
     m_d->m_commandId = QString();
 
     m_commandMutex.unlock();
@@ -618,7 +618,7 @@ GtApplication::commandIsRunning()
 {
     m_commandMutex.lock();
 
-    if (m_d->m_commandRoot != Q_NULLPTR)
+    if (m_d->m_commandRoot)
     {
         m_commandMutex.unlock();
         return true;
@@ -631,7 +631,7 @@ GtApplication::commandIsRunning()
 void
 GtApplication::loadingProcedure(GtAbstractLoadingHelper* helper)
 {
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         return;
     }
@@ -650,7 +650,7 @@ GtApplication::getShortCutSequence(const QString& id) const
 {
     GtShortCuts* s = shortCuts();
 
-    if (s == nullptr)
+    if (!s)
     {
         gtDebug() << tr("Try to find short cut for ") << id
                   << tr("in System failed for empty list of shotcuts");
@@ -673,7 +673,7 @@ GtApplication::compareKeyEvent(QKeyEvent* keyEvent, const QString& id) const
 {
     GtShortCuts* s = shortCuts();
 
-    if (s == nullptr)
+    if (!s)
     {
         gtError() << tr("Short cuts list not found");
         return false;

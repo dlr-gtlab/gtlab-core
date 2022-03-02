@@ -27,7 +27,7 @@ public:
      * @brief GtListView - Constructor identical to QListView
      * @param parent - Widget as parent of view
      */
-    explicit GtListView(QWidget* parent = Q_NULLPTR);
+    explicit GtListView(QWidget* parent = nullptr);
 
 protected:
     virtual void keyPressEvent(QKeyEvent* event) override;

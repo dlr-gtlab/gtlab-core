@@ -175,7 +175,7 @@ bool
 GtAbstractProperty::isReadOnly()
 {
     // connected properties are read only by default
-    if (m_connection != Q_NULLPTR)
+    if (m_connection)
     {
         return true;
     }
@@ -243,13 +243,13 @@ GtAbstractProperty::findProperty(const QString& id)
         }
 
         GtAbstractProperty* tmp = sub->findProperty(id);
-        if (tmp != Q_NULLPTR)
+        if (tmp)
         {
             return tmp;
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 GtAbstractProperty*
@@ -263,13 +263,13 @@ GtAbstractProperty::findPropertyByName(const QString &name)
         }
 
         GtAbstractProperty* tmp = sub->findPropertyByName(name);
-        if (tmp != Q_NULLPTR)
+        if (tmp)
         {
             return tmp;
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 bool
@@ -300,13 +300,13 @@ void
 GtAbstractProperty::propertyConnect(GtPropertyConnection* connection)
 {
     // check connection
-    if (connection == Q_NULLPTR)
+    if (!connection)
     {
         return;
     }
 
     // check whether property is already connected
-    if (m_connection != Q_NULLPTR)
+    if (m_connection)
     {
         gtError() << tr("Could not establish property connection!");
         gtError() << QStringLiteral("   |-> ") << connection->sourceUuid() <<
@@ -326,7 +326,7 @@ GtAbstractProperty::propertyConnect(GtPropertyConnection* connection)
 void
 GtAbstractProperty::clearConnection()
 {
-    if (m_connection == Q_NULLPTR)
+    if (!m_connection)
     {
         return;
     }
@@ -334,7 +334,7 @@ GtAbstractProperty::clearConnection()
     disconnect(m_connection.data(), SIGNAL(triggerValueTransfer()),
                this, SLOT(onTriggerValueTransfer()));
 
-    m_connection = Q_NULLPTR;
+    m_connection = nullptr;
 }
 
 bool

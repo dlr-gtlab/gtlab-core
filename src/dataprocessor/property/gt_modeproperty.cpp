@@ -126,7 +126,7 @@ GtModeProperty::typeProperty(const QString& mode)
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 

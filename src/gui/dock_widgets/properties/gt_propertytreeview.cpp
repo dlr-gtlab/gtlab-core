@@ -124,7 +124,7 @@ GtPropertyTreeView::setObject(GtObject* obj, bool processEvents)
 void
 GtPropertyTreeView::setScope(GtObject* project)
 {
-    if (m_model == Q_NULLPTR)
+    if (!m_model)
     {
         return;
     }
@@ -140,7 +140,7 @@ GtPropertyTreeView::setCategoryFilter(const QStringList& filter)
         return;
     }
 
-    if (m_model == Q_NULLPTR)
+    if (!m_model)
     {
         return;
     }
@@ -201,7 +201,7 @@ GtPropertyTreeView::onCollapsed(const QModelIndex& index)
         return;
     }
 
-    if (model() == Q_NULLPTR)
+    if (!model())
     {
         return;
     }
@@ -234,7 +234,7 @@ GtPropertyTreeView::onExpanded(const QModelIndex& index)
         return;
     }
 
-    if (model() == Q_NULLPTR)
+    if (!model())
     {
         return;
     }

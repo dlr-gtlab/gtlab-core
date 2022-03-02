@@ -94,7 +94,7 @@ public:
 
                 retval = qobject_cast<T>(tmp);
 
-                if (retval == Q_NULLPTR)
+                if (!retval)
                 {
                     gtWarning() << QObject::tr("wrong object type!")
                                 << QStringLiteral("(") << ident()

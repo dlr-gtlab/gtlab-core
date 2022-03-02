@@ -25,7 +25,7 @@ GtSelectFileToExportPage::GtSelectFileToExportPage(
     m_exporter(exporter),
     m_fileExtension(exporter->extension())
 {
-    if (m_exporter != Q_NULLPTR)
+    if (m_exporter)
     {
         setTitle(tr("Select") + QStringLiteral(" ") +
                  m_exporter->objectName() + QStringLiteral(" ") +
@@ -68,7 +68,7 @@ GtSelectFileToExportPage::GtSelectFileToExportPage(
 bool
 GtSelectFileToExportPage::doExport(QFile& file)
 {
-    if (m_exporter == Q_NULLPTR)
+    if (!m_exporter)
     {
         gtError() << tr("no exporter set! export function not found!");
         return false;
@@ -108,7 +108,7 @@ void
 GtSelectFileToExportPage::selectFilePath()
 {
     // check object
-    if (object() == Q_NULLPTR)
+    if (!object())
     {
         return;
     }

@@ -21,8 +21,8 @@
 #include "gt_objectchangedevent.h"
 #include "gt_statehandler.h"
 
-GtMdiItem::GtMdiItem() : m_frame(new QFrame), m_d(Q_NULLPTR),
-    m_subWin(Q_NULLPTR), m_queueEvents(false)
+GtMdiItem::GtMdiItem() : m_frame(new QFrame), m_d(nullptr),
+    m_subWin(nullptr), m_queueEvents(false)
 {
     m_frame->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
 
@@ -55,7 +55,7 @@ GtMdiItem::setData(GtObject* /*obj*/)
 GtMdiItem::~GtMdiItem()
 {
 //    gtError() << "MDI ITEM DESTROYED!";
-    if (m_frame && m_frame->parent() == nullptr)
+    if (m_frame && !m_frame->parent())
     {
         delete m_frame;
     }
@@ -208,7 +208,7 @@ GtMdiItem::windowAboutToActive()
 void
 GtMdiItem::print()
 {
-    QMessageBox::information(Q_NULLPTR, tr("Print error"),
+    QMessageBox::information(nullptr, tr("Print error"),
                              tr("MDI Item not printable!"),
                              QMessageBox::Ok);
 }

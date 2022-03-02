@@ -42,7 +42,7 @@ GtPropertyItem::data(int column, int role) const
         return QVariant();
     }
 
-    if (m_property == Q_NULLPTR)
+    if (!m_property)
     {
         return QVariant();
     }
@@ -208,7 +208,7 @@ bool
 GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
                         int role)
 {
-    if (m_property == Q_NULLPTR)
+    if (!m_property)
     {
         return false;
     }
@@ -224,7 +224,7 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
                     // TODO: check whether property can be changed
                     GtSession* root =  obj->findRoot<GtSession*>();
 
-                    if (root != Q_NULLPTR)
+                    if (root)
                     {
                         if (value != m_property->valueToVariant(m_currentUnit))
                         {
@@ -268,7 +268,7 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
                 {
                     GtSession* root =  obj->findRoot<GtSession*>();
 
-                    if (root != Q_NULLPTR)
+                    if (root)
                     {
                         gtApp->propertyCommand(obj, m_property, value,
                                                m_currentUnit, root);
@@ -321,7 +321,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
             QValidator* validator = nullptr;
             GtStringProperty* s = qobject_cast<GtStringProperty*>(m_property);
 
-            if (s != nullptr)
+            if (s)
             {
                 validator = s->validator();
             }
@@ -340,13 +340,13 @@ GtPropertyItem::editorWidget(QWidget* parent,
             return GtAbstractPropertyItem::editorWidget(parent, delegate);
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void
 GtPropertyItem::setEditorData(QWidget* editor, QVariant& var) const
 {
-    if (editor == Q_NULLPTR)
+    if (!editor)
     {
         return;
     }

@@ -365,7 +365,7 @@ GtProject::readModuleData()
 
         GtObject* obj = gtObjectFactory->newObject(packageId);
 
-        if (obj == nullptr)
+        if (!obj)
         {
             gtWarning() << objectName() << ": "
                         << tr("Failed to create module package!")
@@ -375,7 +375,7 @@ GtProject::readModuleData()
 
         GtPackage* package = qobject_cast<GtPackage*>(obj);
 
-        if (package == nullptr)
+        if (!package)
         {
             gtWarning() << objectName() << ": "
                         << tr("Failed to create module package!")
@@ -419,7 +419,7 @@ GtProject::saveModuleData()
 
         GtPackage* package = findPackage(mid);
 
-        if (package == Q_NULLPTR)
+        if (!package)
         {
             gtWarning().noquote()
                     << tr("Failed to save module data!")
@@ -543,7 +543,7 @@ GtProject::saveProcessData(QDomElement& root, QDomDocument& doc)
 
     GtProcessData* pd = processData();
 
-    if (pd != Q_NULLPTR)
+    if (pd)
     {
         foreach (GtTask* task, pd->findDirectChildren<GtTask*>())
         {
@@ -564,7 +564,7 @@ GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
 
     GtLabelData* ld = labelData();
 
-    if (ld != Q_NULLPTR)
+    if (ld)
     {
         foreach (GtLabel* label, ld->findDirectChildren<GtLabel*>())
         {
@@ -634,7 +634,7 @@ GtProject::findLabelUsagesHelper(GtObject* obj, GtLabel* label)
     {
         GtLabel* l = qobject_cast<GtLabel*>(c);
 
-        if (l != Q_NULLPTR)
+        if (l)
         {
             if (l->objectName() == label->objectName())
             {
@@ -790,7 +790,7 @@ GtProject::resetAllExternalizedObjects(const GtObjectList& modules)
 {
     for (GtObject* module : modules)
     {
-        if (module == Q_NULLPTR) continue;
+        if (!module) continue;
 
         for (auto* obj : module->findChildren<GtExternalizedObject*>())
         {
@@ -865,7 +865,7 @@ GtProject::findPackage(const QString& mid)
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 const QStringList&
@@ -877,7 +877,7 @@ GtProject::moduleIds()
 int
 GtProject::numberOfLabelUsages(GtLabel* label)
 {
-    if (label == Q_NULLPTR)
+    if (!label)
     {
         return -1;
     }
@@ -890,7 +890,7 @@ GtProject::findLabelUsages(GtLabel* label)
 {
     QList<GtLabel*> usages;
 
-    if (label == Q_NULLPTR)
+    if (!label)
     {
         return usages;
     }
@@ -941,7 +941,7 @@ GtProject::fromProjectDataMemento(GtObjectMemento& memento)
 
     GtObjectGroup* group = memento.restore<GtObjectGroup*>(gtObjectFactory);
 
-    if (group == Q_NULLPTR)
+    if (!group)
     {
         return false;
     }
@@ -952,7 +952,7 @@ GtProject::fromProjectDataMemento(GtObjectMemento& memento)
     {
         GtPackage* oldPkg = findDirectChild<GtPackage*>(package->objectName());
 
-        if (oldPkg == Q_NULLPTR)
+        if (!oldPkg)
         {
             delete group;
             return false;
@@ -984,7 +984,7 @@ GtProject::renameProject(const QString& str)
         return false;
     }
 
-    if (gtApp->session() == Q_NULLPTR)
+    if (!gtApp->session())
     {
         return false;
     }

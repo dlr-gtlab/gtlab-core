@@ -31,8 +31,8 @@ public:
                             GtAbstractProperty* prop,
                             const QVariant& newVal,
                             const QString& unit,
-                            GtObject* root = Q_NULLPTR,
-                            QUndoCommand* parent = Q_NULLPTR);
+                            GtObject* root = nullptr,
+                            QUndoCommand* parent = nullptr);
 
     /**
      * @brief redo

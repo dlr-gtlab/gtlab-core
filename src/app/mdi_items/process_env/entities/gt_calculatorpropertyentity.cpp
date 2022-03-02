@@ -36,7 +36,7 @@ GtCalculatorPropertyEntity::paint(QPainter* painter,
 QRectF
 GtCalculatorPropertyEntity::boundingRect() const
 {
-    Q_ASSERT(parentItem() == Q_NULLPTR);
+    Q_ASSERT(parentItem() == nullptr);
 
     const QRectF rect = parentItem()->boundingRect();
 

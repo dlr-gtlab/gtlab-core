@@ -27,7 +27,7 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
 
     QVBoxLayout* mainLayout = qobject_cast<QVBoxLayout*>(layout());
 
-    if (mainLayout == Q_NULLPTR)
+    if (!mainLayout)
     {
         return;
     }
@@ -69,7 +69,7 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
     // populate shortcut table
     GtShortCuts* cuts = gtApp->shortCuts();
 
-    if (cuts == Q_NULLPTR)
+    if (!cuts)
     {
         return;
     }
@@ -106,7 +106,7 @@ GtPreferencesShortCuts::saveSettings()
 {
     GtShortCuts* cuts = gtApp->shortCuts();
 
-    if (cuts == Q_NULLPTR || m_tab == Q_NULLPTR)
+    if (!cuts || !m_tab)
     {
         return;
     }
@@ -119,7 +119,7 @@ GtPreferencesShortCuts::saveSettings()
         QWidget* w = m_tab->cellWidget(i, 1);
         GtShortCutEdit* e = qobject_cast<GtShortCutEdit*>(w);
 
-        if (e == Q_NULLPTR)
+        if (!e)
         {
             continue;
         }
@@ -147,7 +147,7 @@ GtPreferencesShortCuts::restoreDefaults()
 {
     auto settingsTable = gtApp->settings()->intialShortCutsMap();
 
-    if (settingsTable.isEmpty() || m_tab == Q_NULLPTR)
+    if (settingsTable.isEmpty() || !m_tab)
     {
         return;
     }
@@ -161,7 +161,7 @@ GtPreferencesShortCuts::restoreDefaults()
         // list with two elements (keysequence and category)
         QStringList list = settingsTable.value(id);
 
-        if (list.length() != 2 || e == Q_NULLPTR)
+        if (list.length() != 2 || !e)
         {
             continue;
         }

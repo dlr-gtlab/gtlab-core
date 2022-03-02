@@ -84,9 +84,9 @@ GtTaskLinkEntity::paint(QPainter* painter,
 GtTask*
 GtTaskLinkEntity::target()
 {
-    if (m_taskLink == Q_NULLPTR)
+    if (!m_taskLink)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_taskLink->target();

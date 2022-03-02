@@ -40,7 +40,7 @@ public:
      * @param parent Parent widget.
      */
     GtInputDialog(GtInputDialog::InputMode mode = TextInput,
-                  QWidget* parent = Q_NULLPTR);
+                  QWidget* parent = nullptr);
 
     /**
      * @brief Sets text of input dialog label.

@@ -18,7 +18,7 @@
 
 GtProcessConnectionView::GtProcessConnectionView(QWidget* parent) :
     GtTreeView(parent),
-    m_graphicsView(Q_NULLPTR)
+    m_graphicsView(nullptr)
 {
 
 }
@@ -34,7 +34,7 @@ QModelIndex
 GtProcessConnectionView::lastVisibleIndex(const QModelIndex& index)
 {
     // check model
-    if (model() == Q_NULLPTR)
+    if (!model())
     {
         return {};
     }
@@ -68,7 +68,7 @@ QModelIndex
 GtProcessConnectionView::lastVisibleParentIndex(GtProcessConnectionItem* item)
 {
     // check item
-    if (item == nullptr)
+    if (!item)
     {
         return {};
     }
@@ -76,7 +76,7 @@ GtProcessConnectionView::lastVisibleParentIndex(GtProcessConnectionItem* item)
     GtProcessConnectionModel* conMod = connectionModel();
 
     // check model
-    if (conMod == nullptr)
+    if (!conMod)
     {
         return {};
     }
@@ -156,9 +156,9 @@ GtProcessConnectionView::itemById(const QString& uuid, const QString& propId)
     GtProcessConnectionModel* connModel = connectionModel();
 
     // check connection model
-    if (connModel == Q_NULLPTR)
+    if (!connModel)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return connModel->itemById(uuid, propId);
@@ -190,7 +190,7 @@ void
 GtProcessConnectionView::paintEvent(QPaintEvent* event)
 {
     // check process connection graphics view
-    if (m_graphicsView != Q_NULLPTR)
+    if (m_graphicsView)
     {
         // update ports
         m_graphicsView->updatePorts(this, event);

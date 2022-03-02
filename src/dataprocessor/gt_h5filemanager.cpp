@@ -122,7 +122,7 @@ GtH5FileManager::commitObjectsInTempFile(int fileId, const GtObjectList& modules
     // acces project
     GtObject* project(m_projectObject);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         gtError() << "commiting hdf5 file failed! (null project)";
         return false;
@@ -148,13 +148,13 @@ bool
 GtH5FileManager::commitObject(GtExternalizedH5Object* cloned,
                               GtExternalizedH5Object* target)
 {
-    if (cloned == Q_NULLPTR)
+    if (!cloned)
     {
         gtError() << "committing object failed! (null cloned object)";
         return false;
     }
     // target may not exist -> object is new
-    if (target == Q_NULLPTR)
+    if (!target)
     {
         // commit dataset to main project tree
         if (!cloned->fetchData())
@@ -332,11 +332,11 @@ GtObject*
 GtH5FileManager::getObjectByUuidHelper(const QString& uuid,
                                        const QList<GtObject*>& modules)
 {
-    GtObject* retVal = Q_NULLPTR;
+    GtObject* retVal = nullptr;
 
     for (GtObject* obj : modules)
     {
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             continue;
         }
@@ -345,7 +345,7 @@ GtH5FileManager::getObjectByUuidHelper(const QString& uuid,
         retVal = obj->getObjectByUuid(uuid);
 
         // object found
-        if (retVal != Q_NULLPTR)
+        if (retVal)
         {
             return retVal;
         }

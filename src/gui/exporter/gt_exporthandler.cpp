@@ -31,8 +31,8 @@ GtExportHandler::GtExportHandler(QObject* parent) : QObject(parent)
 GtExportHandler*
 GtExportHandler::instance()
 {
-    static GtExportHandler* retval = Q_NULLPTR;
-    if (retval == Q_NULLPTR)
+    static GtExportHandler* retval = nullptr;
+    if (!retval)
     {
         retval = new GtExportHandler(qApp);
     }
@@ -100,22 +100,22 @@ GtExportHandler::newExporter(const QString& classname)
 {
     if (!knownClass(classname))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtObject* obj = newObject(classname);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtAbstractExporter* retval = qobject_cast<GtAbstractExporter*>(obj);
 
-    if (retval == Q_NULLPTR)
+    if (!retval)
     {
         delete obj;
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return retval;

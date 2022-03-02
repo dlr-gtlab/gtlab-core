@@ -148,7 +148,7 @@ inline ParamType GtProperty<ParamType>::getVal(const QString &unit,
 {
     if (unit.isEmpty())
     {
-        if (success != nullptr)
+        if (success)
         {
             *success = true;
         }
@@ -160,7 +160,7 @@ inline ParamType GtProperty<ParamType>::getVal(const QString &unit,
 
     ParamType val = convertTo(unit, &tmpSuccess);
 
-    if (success != nullptr)
+    if (success)
     {
         *success = tmpSuccess;
     }
@@ -172,7 +172,7 @@ template<class ParamType>
 inline void GtProperty<ParamType>::setVal(const ParamType& value,
                                           bool* success)
 {
-    if (m_connection != Q_NULLPTR)
+    if (m_connection)
     {
         gtWarning() << tr("Could not set connected property!") << " ("
                     << objectName() << ")";
@@ -186,7 +186,7 @@ template<class ParamType>
 inline void GtProperty<ParamType>::forceSetVal(const ParamType &value,
                                                bool* success)
 {
-    if (success != nullptr)
+    if (success)
     {
         *success = false;
     }
@@ -198,7 +198,7 @@ inline void GtProperty<ParamType>::forceSetVal(const ParamType &value,
 
     m_value = value;
 
-    if (success != nullptr)
+    if (success)
     {
         *success = true;
     }
@@ -212,7 +212,7 @@ inline void GtProperty<ParamType>::setValFromConnection()
     qDebug() << "#### setValFromConnection!";
 
     // check connection
-    if (m_connection == Q_NULLPTR)
+    if (!m_connection)
     {
         return;
     }
@@ -243,7 +243,7 @@ template<class ParamType>
 inline void GtProperty<ParamType>::setVal(const ParamType &value,
                                    const QString &unit, bool* success)
 {
-    if (success != nullptr)
+    if (success)
     {
         *success = false;
     }
@@ -257,7 +257,7 @@ inline void GtProperty<ParamType>::setVal(const ParamType &value,
     bool tmpSuccess = false;
     ParamType tmpVal = convertFrom(value, unit, &tmpSuccess);
 
-    if (success != nullptr)
+    if (success)
     {
         *success = tmpSuccess;
     }

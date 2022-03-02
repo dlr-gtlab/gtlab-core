@@ -46,11 +46,11 @@ std::string GtCoreApplication::m_additional = GT_VERSION_ADDITIONAL;
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
     QObject(parent),
-    m_session(Q_NULLPTR),
+    m_session(nullptr),
     m_settings(new GtSettings),
     m_sessionIds(QStringList() << QStringLiteral("default")),
-    m_translator(Q_NULLPTR),
-    m_moduleLoader(Q_NULLPTR),
+    m_translator(nullptr),
+    m_moduleLoader(nullptr),
     m_devMode(false),
     m_batchMode(false),
     m_dataModel(new GtCoreDatamodel(parent))
@@ -253,7 +253,7 @@ GtCoreApplication::initLanguage()
 void
 GtCoreApplication::initSession(const QString& id)
 {
-    if (m_session == nullptr)
+    if (!m_session)
     {
         // load session info
         if (!readSessionIds())
@@ -297,7 +297,7 @@ GtCoreApplication::switchSession(const QString& id)
     }
 
     // save last used session
-    if (m_session != Q_NULLPTR)
+    if (m_session)
     {
         gtApp->settings()->setLastProject(QStringLiteral(""));
         delete m_session;
@@ -309,7 +309,7 @@ GtCoreApplication::switchSession(const QString& id)
     if (!m_session->isValid())
     {
         delete m_session;
-        m_session = Q_NULLPTR;
+        m_session = nullptr;
         qCritical() << "ERROR: could not load session!";
     }
     else
@@ -474,7 +474,7 @@ void
 GtCoreApplication::loadModules()
 {
     //    qDebug() << "GtCoreApplication::loadModules";
-    if (m_moduleLoader == nullptr)
+    if (!m_moduleLoader)
     {
         m_moduleLoader = new GtModuleLoader;
         m_moduleLoader->load();
@@ -484,7 +484,7 @@ GtCoreApplication::loadModules()
 QStringList
 GtCoreApplication::moduleIds()
 {
-    if (m_moduleLoader == nullptr)
+    if (!m_moduleLoader)
     {
         return QStringList();
     }
@@ -495,7 +495,7 @@ GtCoreApplication::moduleIds()
 QString
 GtCoreApplication::modulePackageId(const QString& id)
 {
-    if (m_moduleLoader == nullptr)
+    if (!m_moduleLoader)
     {
         return QString();
     }
@@ -506,7 +506,7 @@ GtCoreApplication::modulePackageId(const QString& id)
 QStringList
 GtCoreApplication::moduleDatamodelInterfaceIds()
 {
-    if (m_moduleLoader == nullptr)
+    if (!m_moduleLoader)
     {
         return QStringList();
     }
@@ -517,7 +517,7 @@ GtCoreApplication::moduleDatamodelInterfaceIds()
 GtVersionNumber
 GtCoreApplication::moduleVersion(const QString& id)
 {
-    if (m_moduleLoader == nullptr)
+    if (!m_moduleLoader)
     {
         return GtVersionNumber();
     }
@@ -528,7 +528,7 @@ GtCoreApplication::moduleVersion(const QString& id)
 QString
 GtCoreApplication::moduleDescription(const QString& id)
 {
-    if (m_moduleLoader == nullptr)
+    if (!m_moduleLoader)
     {
         return QString();
     }
@@ -539,7 +539,7 @@ GtCoreApplication::moduleDescription(const QString& id)
 bool
 GtCoreApplication::hasProjectChanges()
 {
-    if (currentProject() == nullptr)
+    if (!currentProject())
     {
         return false;
     }
@@ -698,7 +698,7 @@ GtCoreApplication::endCommand(const GtCommand& /*command*/)
 void
 GtCoreApplication::loadingProcedure(GtAbstractLoadingHelper* helper)
 {
-    if (helper == nullptr)
+    if (!helper)
     {
         return;
     }
@@ -730,7 +730,7 @@ GtCoreApplication::checkLicence()
 void
 GtCoreApplication::initModules()
 {
-    if (m_moduleLoader != Q_NULLPTR)
+    if (m_moduleLoader)
     {
         m_moduleLoader->initModules();
     }
@@ -753,7 +753,7 @@ GtCoreApplication::saveSystemEnvironment() const
 bool
 GtCoreApplication::setLanguage(const QString& id)
 {
-    if (m_translator == nullptr)
+    if (!m_translator)
     {
         m_translator = new QTranslator;
     }
@@ -783,7 +783,7 @@ GtCoreApplication::setLanguage(const QString& id)
 bool
 GtCoreApplication::setToSystemLanguage()
 {
-    if (m_translator == nullptr)
+    if (!m_translator)
     {
         m_translator = new QTranslator;
     }
@@ -918,7 +918,7 @@ GtCoreApplication::setCurrentProject(GtProject* project)
 {
     GtSession* w = session();
 
-    if (w != nullptr)
+    if (w)
     {
         if (currentProject() == project)
         {

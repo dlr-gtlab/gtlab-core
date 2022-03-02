@@ -61,7 +61,7 @@ GtDataZoneCsvExporter::doExport(GtObject* object, QFile& file)
     }
 
     GtDataZone0D* dataZone0D = qobject_cast<GtDataZone0D*>(data);
-    if (dataZone0D != Q_NULLPTR)
+    if (dataZone0D)
     {
         if (!write0Ddata(dataZone0D, file))
         {
@@ -73,7 +73,7 @@ GtDataZoneCsvExporter::doExport(GtObject* object, QFile& file)
     }
 
     GtDataZone* dataZone = qobject_cast<GtDataZone*>(data);
-    if (dataZone != Q_NULLPTR)
+    if (dataZone)
     {
         if (!writeMultiDimData(dataZone, file))
         {
@@ -106,7 +106,7 @@ GtDataZoneCsvExporter::pages(GtObject* data)
 bool
 GtDataZoneCsvExporter::write0Ddata(GtDataZone0D* data, QFile& file)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         return false;
     }
@@ -134,7 +134,7 @@ GtDataZoneCsvExporter::write0Ddata(GtDataZone0D* data, QFile& file)
 bool
 GtDataZoneCsvExporter::writeMultiDimData(GtDataZone* data, QFile& file)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         return false;
     }
@@ -172,7 +172,7 @@ GtDataZoneCsvExporter::writeMultiDimData(GtDataZone* data, QFile& file)
 bool
 GtDataZoneCsvExporter::write1Ddata(GtDataZone* data, QTextStream& out)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         gtDebug() << "Ivalid data zone pointer!";
         return false;
@@ -221,7 +221,7 @@ GtDataZoneCsvExporter::write1Ddata(GtDataZone* data, QTextStream& out)
 bool
 GtDataZoneCsvExporter::write2Ddata(GtDataZone* data, QTextStream& out)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         gtDebug() << "Ivalid data zone pointer!";
         return false;
@@ -289,7 +289,7 @@ GtDataZoneCsvExporter::write2Ddata(GtDataZone* data, QTextStream& out)
 bool
 GtDataZoneCsvExporter::write3Ddata(GtDataZone* data, QTextStream& out)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         gtDebug() << "Ivalid data zone pointer!";
         return false;
@@ -374,7 +374,7 @@ GtDataZoneCsvExporter::write3Ddata(GtDataZone* data, QTextStream& out)
 bool
 GtDataZoneCsvExporter::write4Ddata(GtDataZone* data, QTextStream &out)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         gtDebug() << "Ivalid data zone pointer!";
         return false;
@@ -477,7 +477,7 @@ bool
 GtDataZoneCsvExporter::writeHeaderLine(QTextStream& out,
                                        GtAbstractDataZone* dataZone)
 {
-    if (dataZone == Q_NULLPTR)
+    if (!dataZone)
     {
         return false;
     }

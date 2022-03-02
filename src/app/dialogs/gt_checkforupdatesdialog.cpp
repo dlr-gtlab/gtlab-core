@@ -174,7 +174,7 @@ GtCheckForUpdatesDialog::updateAvailable()
 
     GtUpdateChecker* check = qobject_cast<GtUpdateChecker*>(sender());
 
-    if (check == Q_NULLPTR)
+    if (!check)
     {
         return;
     }

@@ -10,7 +10,7 @@
 #include "gt_applicationprivate.h"
 
 GtApplicationPrivate::GtApplicationPrivate(QObject* parent) : QObject(parent),
-    m_commandRoot(Q_NULLPTR)
+    m_commandRoot(nullptr)
 {
 
 }

@@ -29,7 +29,7 @@ public:
      * @param parent
      */
     GtCollectionItemWidget(const GtCollectionItem& collectionItem,
-                           QWidget* parent = Q_NULLPTR);
+                           QWidget* parent = nullptr);
 
     /**
      * @brief ~GtCollectionItemWidget

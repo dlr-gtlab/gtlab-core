@@ -34,7 +34,7 @@ public:
      * @param Parent widget.
      */
     GtAccessDataDialog(GtAccessData& data, const QMetaObject& connection,
-                       QWidget* parent = Q_NULLPTR);
+                       QWidget* parent = nullptr);
 
 private:
     ///

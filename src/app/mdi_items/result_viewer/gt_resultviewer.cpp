@@ -24,11 +24,11 @@
 #include "gt_resultviewer.h"
 
 GtResultViewer::GtResultViewer() :
-    m_label(Q_NULLPTR),
-    m_model(Q_NULLPTR),
-    m_axSelection(Q_NULLPTR),
-    m_tickSelection(Q_NULLPTR),
-    m_fixedValueLabel(Q_NULLPTR)
+    m_label(nullptr),
+    m_model(nullptr),
+    m_axSelection(nullptr),
+    m_tickSelection(nullptr),
+    m_fixedValueLabel(nullptr)
 {
     setObjectName("Result Viewer");
 
@@ -158,7 +158,7 @@ GtResultViewer::axSelectorChanged(int index)
 
     GtAbstractDataZone* dataZone = m_model->getResultData();
 
-    if (dataZone == Q_NULLPTR)
+    if (!dataZone)
     {
         return;
     }

@@ -21,9 +21,9 @@ GtTaskLink::target()
 {
     GtProcessData* pdata = findParent<GtProcessData*>();
 
-    if (pdata == Q_NULLPTR)
+    if (!pdata)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return pdata->findDirectChild<GtTask*>(objectName());

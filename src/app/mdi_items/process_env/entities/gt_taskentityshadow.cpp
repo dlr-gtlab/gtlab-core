@@ -17,8 +17,8 @@
 
 GtTaskEntityShadow::GtTaskEntityShadow(GtTaskEntity* task) :
     m_task(task),
-    m_anim(Q_NULLPTR),
-    m_shadow(Q_NULLPTR)
+    m_anim(nullptr),
+    m_shadow(nullptr)
 {
     m_shadow = new QGraphicsDropShadowEffect(this);
     m_shadow->setOffset(3.0);
@@ -63,12 +63,12 @@ GtTaskEntityShadow::boundingRect() const
 void
 GtTaskEntityShadow::runAnimation()
 {
-    if (m_shadow == Q_NULLPTR)
+    if (!m_shadow)
     {
         return;
     }
 
-    if (m_anim != Q_NULLPTR)
+    if (m_anim)
     {
         return;
     }

@@ -28,7 +28,7 @@ public:
      * @param parent
      */
     GtProjectWizardSpec(GtProjectProvider* provider,
-                        QWidget* parent = Q_NULLPTR);
+                        QWidget* parent = nullptr);
 
     /**
      * @brief isComplete

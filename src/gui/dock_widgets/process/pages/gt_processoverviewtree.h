@@ -28,7 +28,7 @@ public:
      * @param parent
      */
     GtProcessOverviewTree(GtProcessOverviewModel* model,
-                          QWidget* parent = Q_NULLPTR);
+                          QWidget* parent = nullptr);
 
     /**
      * @brief resizeColumns

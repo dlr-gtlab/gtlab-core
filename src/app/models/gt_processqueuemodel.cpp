@@ -22,7 +22,7 @@ GtProcessQueueModel::GtProcessQueueModel(GtProcessExecutor* proExec,
 {
     updateTaskList();
 
-    if (m_proExec != Q_NULLPTR)
+    if (m_proExec)
     {
         connect(m_proExec, &GtProcessExecutor::queueChanged,
                 this, &GtProcessQueueModel::onQueueChanged);
@@ -49,7 +49,7 @@ GtProcessQueueModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
 
-    if (m_proExec == Q_NULLPTR)
+    if (!m_proExec)
     {
         return 0;
     }
@@ -97,7 +97,7 @@ GtProcessQueueModel::data(const QModelIndex &index, int role) const
         {
             GtTask* task = m_tasks.at(row);
 
-            if (task == nullptr)
+            if (!task)
             {
                 return {};
             }
@@ -143,7 +143,7 @@ GtProcessQueueModel::index(int row, int column,
 {
     Q_UNUSED(parent)
 
-    if (m_proExec == nullptr)
+    if (!m_proExec)
     {
         gtDebug() << "No process executor defined";
         return {};
@@ -195,7 +195,7 @@ GtProcessQueueModel::setProcessExecutor(GtProcessExecutor* procExec)
 void
 GtProcessQueueModel::updateTaskList()
 {
-    if (m_proExec != Q_NULLPTR)
+    if (m_proExec)
     {
         m_tasks.clear();
 
@@ -203,7 +203,7 @@ GtProcessQueueModel::updateTaskList()
         {
             foreach (GtTask* task, m_proExec->queue())
             {
-                if (task != Q_NULLPTR)
+                if (task)
                 {
                     m_tasks.append(task);
                 }

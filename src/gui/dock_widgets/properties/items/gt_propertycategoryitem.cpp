@@ -39,7 +39,7 @@ GtPropertyCategoryItem::GtPropertyCategoryItem(GtObject* scope,
 void
 GtPropertyCategoryItem::addPropertyItem(GtAbstractProperty* property)
 {
-    if (property != Q_NULLPTR)
+    if (property)
     {
         gtPropertyItemFactory->newItem(property, m_scope, m_model, this);
     }

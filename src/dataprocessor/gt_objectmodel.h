@@ -36,7 +36,7 @@ public:
      * @param Root object.
      * @param Parent object.
      */
-    GtObjectModel(GtObject* root, QObject* parent = Q_NULLPTR);
+    GtObjectModel(GtObject* root, QObject* parent = nullptr);
 
     /**
      * @brief Sets new root object and resets model.

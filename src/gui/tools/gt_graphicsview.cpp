@@ -75,7 +75,7 @@ GtGraphicsView::setGrid(GtGrid* grid)
 void
 GtGraphicsView::setHorizontalRuler(GtRuler *ruler)
 {
-    if (m_grid == nullptr)
+    if (!m_grid)
     {
         qWarning() << "WARNING: could not set Ruler. Set grid first!";
         return;
@@ -87,7 +87,7 @@ GtGraphicsView::setHorizontalRuler(GtRuler *ruler)
 void
 GtGraphicsView::setVerticalRuler(GtRuler *ruler)
 {
-    if (m_grid == nullptr)
+    if (!m_grid)
     {
         qWarning() << "WARNING: could not set Ruler. Set grid first!";
         return;
@@ -113,14 +113,14 @@ GtGraphicsView::wheelEvent(QWheelEvent* e)
 void
 GtGraphicsView::scrollContentsBy(int dx, int dy)
 {
-    if (m_grid != nullptr)
+    if (m_grid)
     {
-        if (m_hRuler != nullptr)
+        if (m_hRuler)
         {
             m_hRuler->setNeedsRepaint(true);
         }
 
-        if (m_vRuler != nullptr)
+        if (m_vRuler)
         {
             m_vRuler->setNeedsRepaint(true);
         }
@@ -141,7 +141,7 @@ GtGraphicsView::drawBackground(QPainter* painter, const QRectF& rect)
 {
     QGraphicsView::drawBackground(painter, rect);
 
-    if (m_grid != nullptr)
+    if (m_grid)
     {
         if (rect.isValid())
         {
@@ -162,12 +162,12 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
 
     QPointF p = mapToScene(mouseEvent->pos());
 
-    if (m_hRuler != nullptr)
+    if (m_hRuler)
     {
         m_hRuler->setCursorPosition(mouseEvent->pos());
     }
 
-    if (m_vRuler != nullptr)
+    if (m_vRuler)
     {
         m_vRuler->setCursorPosition(mouseEvent->pos());
     }
@@ -212,7 +212,7 @@ GtGraphicsView::setScale(qreal val)
 
     scale(val, val);
 
-    if (m_grid != Q_NULLPTR)
+    if (m_grid)
     {
         m_grid->setGridScaleFactor(getGridFactor());
     }
@@ -283,9 +283,9 @@ GtGraphicsView::getGridFactor()
 void
 GtGraphicsView::repaintRuler()
 {
-    if (m_grid != nullptr)
+    if (m_grid)
     {
-        if (m_hRuler != nullptr)
+        if (m_hRuler)
         {
             //            qDebug() << "#### repainting horizontal ruler...";
             m_grid->paintRuler(m_hRuler);

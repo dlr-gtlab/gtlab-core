@@ -26,7 +26,7 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    explicit GtProcessComponentModel(QObject* parent = Q_NULLPTR);
+    explicit GtProcessComponentModel(QObject* parent = nullptr);
 
     /**
      * @brief data

@@ -45,13 +45,13 @@
 #include <algorithm>
 
 GtOutputDock::GtOutputDock() :
-    m_listView(Q_NULLPTR),
-    m_taskPageView(Q_NULLPTR),
-    m_historyModel(Q_NULLPTR),
-    m_debugButton(Q_NULLPTR),
-    m_infoButton(Q_NULLPTR),
-    m_warningButton(Q_NULLPTR),
-    m_errorButton(Q_NULLPTR)
+    m_listView(nullptr),
+    m_taskPageView(nullptr),
+    m_historyModel(nullptr),
+    m_debugButton(nullptr),
+    m_infoButton(nullptr),
+    m_warningButton(nullptr),
+    m_errorButton(nullptr)
 {
     setObjectName(tr("Output"));
 
@@ -264,7 +264,7 @@ GtOutputDock::projectChangedEvent(GtProject* /*project*/)
 
 //    gtDebug() << "GtOutputDock::projectChangedEvent";
 
-//    if (project == Q_NULLPTR)
+//    if (!project)
 //    {
 //        m_historyModel->clear();
 //    }
@@ -301,7 +301,7 @@ GtOutputDock::removeItems(const QModelIndexList &indexes)
     gtLogModel->removeElementList(indexes, first, last);
 
     QScrollBar* bar = m_listView->verticalScrollBar();
-    if (bar != Q_NULLPTR)
+    if (bar)
     {
         m_listView->scrollTo(beforeFirst,
                              QListView::ScrollHint::PositionAtCenter);
@@ -312,11 +312,11 @@ GtOutputDock::removeItems(const QModelIndexList &indexes)
 void
 GtOutputDock::keyPressEvent(QKeyEvent* event)
 {
-    if (m_model != nullptr)
+    if (m_model)
     {
         if (gtApp->compareKeyEvent(event, "toggleDebugOutput"))
         {
-            if (m_debugButton != nullptr)
+            if (m_debugButton)
             {
                 if (m_debugButton->isChecked())
                 {
@@ -332,7 +332,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
         }
         if (gtApp->compareKeyEvent(event, "toggleInfoOutput"))
         {
-            if (m_infoButton != nullptr)
+            if (m_infoButton)
             {
                 if (m_infoButton->isChecked())
                 {
@@ -348,7 +348,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
         }
         if (gtApp->compareKeyEvent(event, "toggleWarningOutput"))
         {
-            if (m_warningButton != nullptr)
+            if (m_warningButton)
             {
                 if (m_warningButton->isChecked())
                 {
@@ -364,7 +364,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
         }
         if (gtApp->compareKeyEvent(event, "toggleErrorOutput"))
         {
-            if (m_errorButton != nullptr)
+            if (m_errorButton)
             {
                 if (m_errorButton->isChecked())
                 {
@@ -428,7 +428,7 @@ GtOutputDock::scrollToBottom()
 {
     QScrollBar* bar = m_listView->verticalScrollBar();
 
-    if (bar != Q_NULLPTR)
+    if (bar)
     {
         if (bar->value() == bar->maximum())
         {

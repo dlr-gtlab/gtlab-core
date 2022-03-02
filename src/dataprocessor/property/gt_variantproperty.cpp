@@ -39,7 +39,7 @@ GtVariantProperty::setValueFromVariant(const QVariant& val,
 
     setVal(val, unit, success);
 
-    if (success != nullptr)
+    if (success)
     {
         retval = *success;
     }

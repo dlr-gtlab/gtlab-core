@@ -122,7 +122,7 @@ protected:
      * @brief Constructor
      * @param parent
      */
-    explicit GtDataModel(QObject* parent = Q_NULLPTR);
+    explicit GtDataModel(QObject* parent = nullptr);
 
     /**
      * @brief Returns the drop actions supported by this model.

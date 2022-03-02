@@ -56,12 +56,12 @@
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
-    m_switchSessionMapper(Q_NULLPTR),
-    m_switchPerspectiveMapper(Q_NULLPTR),
+    m_switchSessionMapper(nullptr),
+    m_switchPerspectiveMapper(nullptr),
     m_cornerWidget(new GtCornerWidget(this)),
     m_forceQuit(false),
     m_firstTimeShowEvent(true),
-    m_processQueue(Q_NULLPTR)
+    m_processQueue(nullptr)
 {
     // dock widget have to be initialized before setup the ui
     setupDockWidgets();
@@ -237,7 +237,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
     if (!m_forceQuit)
     {
         /// A process is running
-        if (gtProcessExecutor->currentRunningTask() != Q_NULLPTR)
+        if (gtProcessExecutor->currentRunningTask())
         {
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
@@ -332,12 +332,12 @@ GtMainWin::closeEvent(QCloseEvent* event)
 
     gtProcessExecutor->terminateAllTasks();
 
-    if (m_processQueue != Q_NULLPTR)
+    if (m_processQueue)
     {
         m_processQueue->close();
     }
 
-    if (m_undoView != Q_NULLPTR)
+    if (m_undoView)
     {
         m_undoView->close();
     }
@@ -380,7 +380,7 @@ GtMainWin::setupDockWidgets()
             addDockWidget(dock->getDockWidgetArea(), dock);
 
             // add dockwidgets to map and initialize actions with null pointer
-            m_dockWidgets.insert(dock, Q_NULLPTR);
+            m_dockWidgets.insert(dock, nullptr);
         }
     }
 }
@@ -563,7 +563,7 @@ GtMainWin::updateSessionList()
     {
         ui->menuSession->addSeparator();
 
-        if (m_switchSessionMapper == Q_NULLPTR)
+        if (!m_switchSessionMapper)
         {
             m_switchSessionMapper = new QSignalMapper(this);
             connect(m_switchSessionMapper, SIGNAL(mapped(QObject*)),
@@ -608,7 +608,7 @@ GtMainWin::updatePerspectiveList()
     {
         ui->menuPerspective->addSeparator();
 
-        if (m_switchPerspectiveMapper == Q_NULLPTR)
+        if (!m_switchPerspectiveMapper)
         {
             m_switchPerspectiveMapper = new QSignalMapper(this);
             connect(m_switchPerspectiveMapper, SIGNAL(mapped(QObject*)),
@@ -691,7 +691,7 @@ GtMainWin::openExamplesWidget()
 void
 GtMainWin::openCommandHistory()
 {
-    if (m_undoView.data() == Q_NULLPTR)
+    if (!m_undoView.data())
     {
         m_undoView = new QUndoView();
         m_undoView->setWindowTitle(QStringLiteral("GTlab - Command History"));
@@ -706,7 +706,7 @@ GtMainWin::openCommandHistory()
 void
 GtMainWin::openProcessQueue()
 {
-    if (m_processQueue.data() == Q_NULLPTR)
+    if (!m_processQueue.data())
     {
         m_processQueue = new GtProcessQueueWidget(
             new GtProcessQueueModel(gtProcessExecutor));
@@ -784,7 +784,7 @@ GtMainWin::saveAllProjects()
 void
 GtMainWin::onCurrentProjectChanged(GtProject* project)
 {
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         ui->actionSave_Project->setEnabled(false);
         ui->actionSave_As->setEnabled(false);
@@ -811,7 +811,7 @@ GtMainWin::printCurrentMdiItem()
     }
     else
     {
-        QMessageBox::information(Q_NULLPTR, "Print error", "No view open!",
+        QMessageBox::information(nullptr, "Print error", "No view open!",
                                  QMessageBox::Ok);
     }
 }
@@ -854,7 +854,7 @@ GtMainWin::openHelpContents()
 
     if (!process->waitForStarted())
     {
-        QMessageBox::critical(Q_NULLPTR, QObject::tr("GTlab"),
+        QMessageBox::critical(nullptr, QObject::tr("GTlab"),
                               QObject::tr("Unable to launch HelpContents.\n"
                                           "Please install documentation."));
 
@@ -931,7 +931,7 @@ GtMainWin::updateWindowTitle()
     {
         QString newTitle = QStringLiteral("GTlab - ") + gtApp->sessionId();
 
-        if (gtApp->currentProject() != Q_NULLPTR)
+        if (gtApp->currentProject())
         {
             newTitle = newTitle + QStringLiteral(" - ") +
                        gtApp->currentProject()->objectName() +
@@ -951,7 +951,7 @@ GtMainWin::onCollectionEntryClicked()
 {
     QAction* action = qobject_cast<QAction*>(sender());
 
-    if (action == Q_NULLPTR)
+    if (!action)
     {
         return;
     }
@@ -963,7 +963,7 @@ GtMainWin::onCollectionEntryClicked()
 
     GtCollectionEditor* coll = qobject_cast<GtCollectionEditor*>(item);
 
-    if (coll == Q_NULLPTR)
+    if (!coll)
     {
         return;
     }
@@ -972,7 +972,7 @@ GtMainWin::onCollectionEntryClicked()
 
     QMdiSubWindow* subWin = item->subWin();
 
-    if (subWin == Q_NULLPTR)
+    if (!subWin)
     {
         return;
     }
@@ -1013,7 +1013,7 @@ GtMainWin::noUpdateAvailable(int errorCode, const QString& str)
 void
 GtMainWin::runLoadingProcedure(GtAbstractLoadingHelper* helper)
 {
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         return;
     }
@@ -1161,7 +1161,7 @@ GtMainWin::openProject()
 {
     GtProject* project = qobject_cast<GtProject*>(gtApp->selectedObject());
 
-    if (project != Q_NULLPTR && project != gtApp->currentProject())
+    if (project && project != gtApp->currentProject())
     {
         if (!project->isOpen())
         {
@@ -1179,7 +1179,6 @@ GtMainWin::closeProject()
 void
 GtMainWin::onObjectSelected(GtObject* obj)
 {
-
 }
 
 void
@@ -1187,7 +1186,7 @@ GtMainWin::onDockVisibilityChange(bool /*val*/)
 {
     GtDockWidget* dock = qobject_cast<GtDockWidget*>(sender());
 
-    if (dock == Q_NULLPTR)
+    if (!dock)
     {
         return;
     }
@@ -1199,7 +1198,7 @@ GtMainWin::onDockVisibilityChange(bool /*val*/)
 
     QAction* act = m_dockWidgets.value(dock);
 
-    if (act == Q_NULLPTR)
+    if (!act)
     {
         return;
     }
@@ -1224,7 +1223,7 @@ GtMainWin::onDockActionClicked()
 {
     QAction* action = qobject_cast<QAction*>(sender());
 
-    if (action == Q_NULLPTR)
+    if (!action)
     {
         return;
     }

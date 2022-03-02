@@ -207,7 +207,7 @@ GtProcessConnectionGraphicsView::createConnection(
     // check whether connection already exists in map
 //    if (m_connections.contains(connection))
 //    {
-//        return Q_NULLPTR;
+//        return nullptr;
 //    }
 
     // create new conneciton entity
@@ -383,7 +383,7 @@ GtProcessConnectionGraphicsView::updateConnections()
 //        GtProcessPropertyConnectionEntity* entity = m_connections.value(e);
 
 //        // check entity
-//        if (entity == Q_NULLPTR)
+//        if (!entity)
 //        {
 //            continue;
 //        }
@@ -410,7 +410,7 @@ GtProcessConnectionGraphicsView::updatePortEntity(GtProcessConnectionItem* item,
     // check item
     if (!item)
     {
-        qDebug() << "item == Q_NULLPTR";
+        qDebug() << "item == nullptr";
         return nullptr;
     }
 

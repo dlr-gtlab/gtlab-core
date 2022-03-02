@@ -34,7 +34,7 @@ public:
      * @param Parent object.
      */
     GtCollectionLoader(const QString& collectionId,
-                       QObject* parent = Q_NULLPTR);
+                       QObject* parent = nullptr);
 
     /**
      * @brief Loads local collection items based on given collection.

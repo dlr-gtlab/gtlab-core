@@ -102,7 +102,7 @@ GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
 
 GtProcessQueueWidget::~GtProcessQueueWidget()
 {
-    if (m_model != Q_NULLPTR)
+    if (m_model)
     {
         delete m_model;
     }
@@ -121,7 +121,7 @@ GtProcessQueueWidget::onMoveUp()
 
     GtTask* task = gtProcessExecutor->queue().at(selection.row());
 
-    if (task != Q_NULLPTR)
+    if (task)
     {
         gtProcessExecutor->moveTaskUp(task);
     }
@@ -150,7 +150,7 @@ GtProcessQueueWidget::onMoveDown()
 
     GtTask* task = gtProcessExecutor->queue().at(selection.row());
 
-    if (task != Q_NULLPTR)
+    if (task)
     {
         gtProcessExecutor->moveTaskDown(task);
     }
@@ -179,7 +179,7 @@ GtProcessQueueWidget::onRemove()
 
     GtTask* task = gtProcessExecutor->queue().at(selection.row());
 
-    if (task != Q_NULLPTR)
+    if (task)
     {
         gtProcessExecutor->removeFromQueue(task);
     }
@@ -200,7 +200,7 @@ GtProcessQueueWidget::onSelectionChanged()
 
     GtTask* task = gtProcessExecutor->queue().at(selection.row());
 
-    if (task == Q_NULLPTR)
+    if (!task)
     {
         return;
     }
@@ -265,7 +265,7 @@ GtProcessQueueWidget::clearSelection()
 void
 GtProcessQueueWidget::onContextMenuRequest(const QPoint& pos)
 {
-    if (m_view->model() == Q_NULLPTR)
+    if (!m_view->model())
     {
         return;
     }
@@ -287,7 +287,7 @@ GtProcessQueueWidget::onContextMenuRequest(const QPoint& pos)
 
     GtTask* task = gtProcessExecutor->queue().at(selection.row());
 
-    if (task != Q_NULLPTR)
+    if (task)
     {
         QMenu menu(this);
 

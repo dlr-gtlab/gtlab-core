@@ -45,7 +45,7 @@ GtShortCuts::findShortCut(const QString& id, const QString& category) const
 {
     QList<GtShortCut*> list = shortCuts();
 
-    GtShortCut* retVal = Q_NULLPTR;
+    GtShortCut* retVal = nullptr;
     for (GtShortCut* c : list)
     {
         if (c->id() == id)

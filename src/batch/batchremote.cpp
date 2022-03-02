@@ -310,7 +310,7 @@ BatchRemote::run(const QString& inputName, const QString& outputName,
         GtObjectMemento memento(dataElement);
         obj = memento.restore(gtObjectFactory);
 
-        if (obj == nullptr)
+        if (!obj)
         {
             qDebug() << "ERROR: Object" << dataElement.attribute("name")
                      << "not restorable!";
@@ -336,7 +336,7 @@ BatchRemote::run(const QString& inputName, const QString& outputName,
     GtObjectMemento memento(processElement);
     GtTask* process = memento.restore<GtTask*>(gtProcessFactory);
 
-    if (process == nullptr)
+    if (!process)
     {
         qDebug() << "ERROR: Object" << processElement.attribute("name")
                  << "not restorable!";

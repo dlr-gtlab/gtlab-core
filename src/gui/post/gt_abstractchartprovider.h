@@ -31,7 +31,7 @@ public:
 
     virtual GtAbstractPostWidget* createUI(GtPostTemplateItem* /*dm*/,
                                            QWidget* /*parent*/) override
-    { return Q_NULLPTR; }
+    { return nullptr; }
 
     QStringList uuids() const;
 

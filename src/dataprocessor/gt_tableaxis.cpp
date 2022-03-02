@@ -4,11 +4,11 @@
 GtTableAxis::GtTableAxis() :
     m_ticks(QVector<double>()),
     m_loExtMethod(E_LINEAR),
-    m_loExtrapolator(Q_NULLPTR),
+    m_loExtrapolator(nullptr),
     m_hiExtMethod(E_LINEAR),
-    m_hiExtrapolator(Q_NULLPTR),
+    m_hiExtrapolator(nullptr),
     m_InterMethod(I_LINEAR),
-    m_interpolator(Q_NULLPTR)
+    m_interpolator(nullptr)
 {
 
 }
@@ -176,7 +176,7 @@ GtTableAxis::scale(const double &factor)
 GtNumerics::GtExtrapolator*
 GtTableAxis::genExtrap(ExtrapMethod em)
 {
-    GtNumerics::GtExtrapolator* extrap = Q_NULLPTR;
+    GtNumerics::GtExtrapolator* extrap = nullptr;
 
     switch (em)
     {
@@ -205,7 +205,7 @@ GtTableAxis::genExtrap(ExtrapMethod em)
 GtNumerics::GtInterpolator*
 GtTableAxis::genInterp(InterpMethod im)
 {
-    GtNumerics::GtInterpolator* interp = Q_NULLPTR;
+    GtNumerics::GtInterpolator* interp = nullptr;
 
     switch (im)
     {

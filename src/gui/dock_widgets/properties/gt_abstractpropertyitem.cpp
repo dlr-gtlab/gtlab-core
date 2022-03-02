@@ -17,9 +17,9 @@
 #include "gt_abstractpropertyitem.h"
 
 GtAbstractPropertyItem::GtAbstractPropertyItem() :
-    m_model(Q_NULLPTR),
-    m_scope(Q_NULLPTR),
-    m_property(Q_NULLPTR)
+    m_model(nullptr),
+    m_scope(nullptr),
+    m_property(nullptr)
 {
 }
 
@@ -75,7 +75,7 @@ GtAbstractPropertyItem::setScope(GtObject* obj)
 bool
 GtAbstractPropertyItem::isOptional()
 {
-    if (m_property == Q_NULLPTR)
+    if (!m_property)
     {
         return false;
     }
@@ -99,7 +99,7 @@ GtAbstractPropertyItem::setPropertyData(GtAbstractProperty* prop)
 void
 GtAbstractPropertyItem::updateSubProperties()
 {
-    if (m_property == Q_NULLPTR)
+    if (!m_property)
     {
         return;
     }

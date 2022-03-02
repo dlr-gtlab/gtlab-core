@@ -39,7 +39,7 @@ public:
      * @brief Constructor.
      * @param Parent object.
      */
-    explicit GtProcessConnectionModel(QObject* parent = Q_NULLPTR);
+    explicit GtProcessConnectionModel(QObject* parent = nullptr);
 
     /**
      * @brief Destructor.

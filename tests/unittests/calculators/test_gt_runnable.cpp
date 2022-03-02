@@ -41,6 +41,6 @@ protected:
 //    TestCalculator myCalc;
 
 ////    ASSERT_TRUE(obj.appendCalculator(&myCalc));
-////    ASSERT_FALSE(obj.appendCalculator(Q_NULLPTR));
+////    ASSERT_FALSE(obj.appendCalculator(nullptr));
 ////    ASSERT_FALSE(obj.appendCalculator(&myCalc));
 //}

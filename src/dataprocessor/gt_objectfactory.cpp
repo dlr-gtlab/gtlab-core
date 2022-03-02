@@ -81,8 +81,8 @@ GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
 GtObjectFactory*
 GtObjectFactory::instance()
 {
-    static GtObjectFactory* retval = Q_NULLPTR;
-    if (retval == Q_NULLPTR)
+    static GtObjectFactory* retval = nullptr;
+    if (!retval)
     {
         retval = new GtObjectFactory(qApp);
     }

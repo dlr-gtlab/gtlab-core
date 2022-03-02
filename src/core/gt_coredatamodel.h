@@ -219,7 +219,7 @@ public:
      */
     GtObject* objectFromMimeData(const QMimeData* mime,
                                  bool newUuid = false,
-                                 GtAbstractObjectFactory* factory = Q_NULLPTR);
+                                 GtAbstractObjectFactory* factory = nullptr);
 
     /**
      * @brief Returns object corresponding to given index.
@@ -321,7 +321,7 @@ protected:
      * @brief Constructor
      * @param parent
      */
-    explicit GtCoreDatamodel(QObject* parent = Q_NULLPTR);
+    explicit GtCoreDatamodel(QObject* parent = nullptr);
 
     /**
      * @brief Initialization

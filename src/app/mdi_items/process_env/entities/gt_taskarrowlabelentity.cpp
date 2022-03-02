@@ -69,7 +69,7 @@ GtTaskArrowLabelEntity::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
                                                     gtProcessFactory);
 
-    if (obj != Q_NULLPTR)
+    if (obj)
     {
 //        qDebug() << "obj = " << obj->objectName();
 //        qDebug() << "uuid = " << obj->uuid();
@@ -115,7 +115,7 @@ GtTaskArrowLabelEntity::dropEvent(QGraphicsSceneDragDropEvent* event)
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
                                                     gtProcessFactory);
 
-    if (obj != Q_NULLPTR)
+    if (obj)
     {
         emit addNewItem(obj);
     }

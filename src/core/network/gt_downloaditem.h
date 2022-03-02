@@ -56,7 +56,7 @@ private:
      * @brief GtDownloadItem
      * @param parent
      */
-    explicit GtDownloadItem(QObject* parent = Q_NULLPTR);
+    explicit GtDownloadItem(QObject* parent = nullptr);
 
 };
 

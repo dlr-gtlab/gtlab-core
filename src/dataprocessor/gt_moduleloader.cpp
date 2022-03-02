@@ -179,7 +179,7 @@ GtModuleLoader::moduleDatamodelInterfaceIds()
       GtDatamodelInterface* dmi =
               dynamic_cast<GtDatamodelInterface*>(m_plugins.value(e));
 
-      if (dmi != Q_NULLPTR && dmi->standAlone())
+      if (dmi && dmi->standAlone())
       {
           retval << e;
       }
@@ -241,7 +241,7 @@ GtModuleLoader::initModules()
         GtInitModuleInterface* imi =
                 dynamic_cast<GtInitModuleInterface*>(m_plugins.value(e));
 
-        if (imi != nullptr)
+        if (imi)
         {
             imi->init();
         }
@@ -366,7 +366,7 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
             QObject* instance = loader.instance();
 
             // check plugin object
-            if (instance != Q_NULLPTR)
+            if (instance)
             {
                 gtDebug() << QObject::tr("loading ") << fileName << "...";
 

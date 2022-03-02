@@ -32,7 +32,7 @@ public:
     GtPropertyCategoryItem(GtObject* scope,
                            const QString& id,
                            GtPropertyModel* model,
-                           GtObject* parent = Q_NULLPTR);
+                           GtObject* parent = nullptr);
 
     /**
      * @brief addPropertyItem

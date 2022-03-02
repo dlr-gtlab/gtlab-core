@@ -105,14 +105,14 @@ public:
     {
         foreach (QPointer<GtObject> p, m_linkedObjects)
         {
-            if (p == Q_NULLPTR)
+            if (!p)
             {
-                return Q_NULLPTR;
+                return nullptr;
             }
 
             GtObject* obj = p.data();
 
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 continue;
             }
@@ -125,7 +125,7 @@ public:
 
         gtInfo() << "obj not found - uuid =" << uuid;
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     /**
@@ -142,7 +142,7 @@ public:
         {
             GtObject* obj = p.data();
 
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 continue;
             }
@@ -155,7 +155,7 @@ public:
 
         gtInfo() << "obj not found - path =" << path.toString();
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
 protected:

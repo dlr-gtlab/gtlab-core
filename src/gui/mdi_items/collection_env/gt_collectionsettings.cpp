@@ -31,7 +31,7 @@ GtCollectionSettings::setLocalCollectionData(QWidget* widget,
     GtLocalCollectionWidget* wid =
             qobject_cast<GtLocalCollectionWidget*>(widget);
 
-    if (wid == Q_NULLPTR)
+    if (!wid)
     {
         return;
     }
@@ -54,7 +54,7 @@ GtCollectionSettings::setBrowserWidgetData(
 {
     GtBrowserWidget* wid = qobject_cast<GtBrowserWidget*>(widget);
 
-    if (wid == Q_NULLPTR)
+    if (!wid)
     {
         return;
     }

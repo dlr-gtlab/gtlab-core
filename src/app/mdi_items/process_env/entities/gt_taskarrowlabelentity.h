@@ -26,7 +26,7 @@ public:
      * @brief GtTaskArrowLabelEntity
      * @param parent
      */
-    explicit GtTaskArrowLabelEntity(QGraphicsItem* parent = Q_NULLPTR);
+    explicit GtTaskArrowLabelEntity(QGraphicsItem* parent = nullptr);
 
     /**
      * @brief paint

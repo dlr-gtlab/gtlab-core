@@ -21,7 +21,7 @@
 #include "gt_externalizationsettings.h"
 
 GtSession::GtSession(const QString& id) :
-    m_currentProject(Q_NULLPTR)
+    m_currentProject(nullptr)
 {
     setObjectName(id);
     m_valid = fromJsonObject();
@@ -42,7 +42,7 @@ GtSession::loadProjectData(GtProject* project)
 {
     GtObjectList retval;
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return retval;
     }
@@ -65,7 +65,7 @@ GtSession::loadProjectData(GtProject* project)
 bool
 GtSession::saveProjectData(GtProject* project)
 {
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -231,7 +231,7 @@ GtSession::setCurrentProject(const QString& id)
 {
     GtProject* project = findProject(id);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         qWarning() << tr("WARNING: ") <<
                       tr("could not set current project! project id not found");
@@ -244,9 +244,9 @@ GtSession::setCurrentProject(const QString& id)
 bool
 GtSession::setCurrentProject(GtProject* project)
 {
-    if (project == Q_NULLPTR)
+    if (!project)
     {
-        m_currentProject = Q_NULLPTR;
+        m_currentProject = nullptr;
         return true;
     }
 
@@ -285,13 +285,13 @@ GtSession::switchCurrentProject()
         }
     }
 
-    setCurrentProject(Q_NULLPTR);
+    setCurrentProject(nullptr);
 }
 
 void
 GtSession::addProject(GtProject* project)
 {
-    if (project != Q_NULLPTR)
+    if (project)
     {
         project->acceptChanges();
         appendChild(project);
@@ -302,7 +302,7 @@ GtSession::addProject(GtProject* project)
 bool
 GtSession::deleteProject(GtProject* project)
 {
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         gtDebug() << tr("Cannot delete project!")
                   << " project == NULL";
@@ -332,7 +332,7 @@ GtSession::deleteProject(GtProject* project)
 int
 GtSession::projectIndex(GtProject* project)
 {
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }

@@ -113,7 +113,7 @@ GtPreferencesSession::switchSession()
 {
     QListWidgetItem* item = m_list->currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }
@@ -127,7 +127,7 @@ GtPreferencesSession::renameSession()
 {
     QListWidgetItem* item = m_list->currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }
@@ -141,7 +141,7 @@ GtPreferencesSession::onItemSelectionChange()
 {
     QListWidgetItem* item = m_list->currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }

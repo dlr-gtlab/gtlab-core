@@ -23,7 +23,7 @@ public:
     /**
      * @brief GtStateModel
      */
-    explicit GtStateModel(QObject* parent = Q_NULLPTR);
+    explicit GtStateModel(QObject* parent = nullptr);
 
     /**
      * @brief columnCount

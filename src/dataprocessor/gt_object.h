@@ -124,7 +124,7 @@ public:
     //    T copy()
     //    {
     //        // check for factory
-    //        if (m_factory == nullptr)
+    //        if (!m_factory)
     //        {
     //            return NULL;
     //        }
@@ -150,7 +150,7 @@ public:
     //    T clone()
     //    {
     //        // check for factory
-    //        if (m_factory == nullptr)
+    //        if (!m_factory)
     //        {
     //            return NULL;
     //        }
@@ -281,10 +281,10 @@ public:
     * @brief collectDzt
     * @return
     */
-    virtual GtDataZoneTable* createDzt(bool* ok = Q_NULLPTR)
+    virtual GtDataZoneTable* createDzt(bool* ok = nullptr)
     {
         Q_UNUSED(ok)
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     /**
@@ -393,7 +393,7 @@ public:
     template <class T>
     T findParent(const QString& name = QString())
     {
-        if (parent() != Q_NULLPTR)
+        if (parent())
         {
             T temp = qobject_cast<T>(parent());
 
@@ -419,17 +419,17 @@ public:
      * @return
      */
     template <class T>
-    T findRoot(T last = Q_NULLPTR)
+    T findRoot(T last = nullptr)
     {
         GtObject* pObj = parentObject();
 
-        if (pObj != Q_NULLPTR)
+        if (pObj)
         {
             last = qobject_cast<T>(pObj);
 
             T temp = pObj->findRoot<T>(last);
 
-            if (temp != Q_NULLPTR)
+            if (temp)
             {
                 return temp;
             }
@@ -491,7 +491,7 @@ public:
         for (int i = pos; i < list.size(); ++i)
         {
             elementsBehindPos.append(list.at(i));
-            list.at(i)->setParent(Q_NULLPTR);
+            list.at(i)->setParent(nullptr);
         }
 
         appendChild(obj);

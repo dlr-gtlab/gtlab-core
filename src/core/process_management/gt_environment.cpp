@@ -23,7 +23,7 @@ GtEnvironment::instance()
 {
     static GtEnvironment* retval = nullptr;
 
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtEnvironment(qApp);
     }

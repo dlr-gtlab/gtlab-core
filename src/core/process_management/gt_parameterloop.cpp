@@ -93,7 +93,7 @@ GtParameterLoop::runChildElements()
         if (!comp->exec())
         {
 
-            if (calc != Q_NULLPTR)
+            if (calc)
             {
             // calculator run failed
             //setState(GtProcessComponent::FAILED);
@@ -116,7 +116,7 @@ GtParameterLoop::runChildElements()
 
         //GtCalculator* calc = qobject_cast<GtCalculator*>(comp);
 
-        if (calc != Q_NULLPTR && calc->runFailsOnWarning())
+        if (calc && calc->runFailsOnWarning())
         {
             if (calc->currentState() == GtProcessComponent::WARN_FINISHED)
             {

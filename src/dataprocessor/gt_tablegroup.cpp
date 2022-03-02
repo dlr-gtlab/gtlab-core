@@ -29,7 +29,7 @@ GtTableGroup::table(const QString& name)
         return findDirectChild<GtTable*>(name);
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 QStringList
@@ -39,7 +39,7 @@ GtTableGroup::tableNames()
 
     for (GtTable* s : tables())
     {
-        if (s == Q_NULLPTR)
+        if (!s)
         {
             continue;
         }

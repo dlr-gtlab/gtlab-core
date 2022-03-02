@@ -50,7 +50,7 @@ GtStateGroup::findState(const QString& id, const QString& path,
 void
 GtStateGroup::loadState(GtState& state)
 {
-    if (m_container->project() == Q_NULLPTR)
+    if (!m_container->project())
     {
         loadStateGlobal(state);
     }
@@ -89,7 +89,7 @@ GtStateGroup::loadStateSpecific(GtState& state)
 
     GtProject* project = m_container->project();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -124,12 +124,12 @@ GtStateGroup::states()
 void
 GtStateGroup::saveState(GtState* state)
 {
-    if (m_container == Q_NULLPTR)
+    if (!m_container)
     {
         return;
     }
 
-    if (m_container->project() == Q_NULLPTR)
+    if (!m_container->project())
     {
         saveStateGlobal(state);
     }
@@ -142,7 +142,7 @@ GtStateGroup::saveState(GtState* state)
 void
 GtStateGroup::saveStateGlobal(GtState* state)
 {
-    if (state == Q_NULLPTR)
+    if (!state)
     {
         return;
     }
@@ -164,7 +164,7 @@ GtStateGroup::saveStateGlobal(GtState* state)
 void
 GtStateGroup::saveStateSpecific(GtState* state)
 {
-    if (state == Q_NULLPTR)
+    if (!state)
     {
         return;
     }
@@ -176,7 +176,7 @@ GtStateGroup::saveStateSpecific(GtState* state)
 
     GtProject* project = m_container->project();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -194,7 +194,7 @@ GtStateGroup::saveStateSpecific(GtState* state)
 void
 GtStateGroup::saveStateToSettings(GtState* state, QSettings& settings)
 {
-    if (state == Q_NULLPTR)
+    if (!state)
     {
         return;
     }

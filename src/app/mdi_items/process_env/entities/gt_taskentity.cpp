@@ -32,7 +32,7 @@ GtTaskEntity::GtTaskEntity(GtTask* task, QGraphicsItem* parent) :
     m_siblingDistance(0.),
     m_treeDistance(0.),
     m_task(task),
-    m_rootEntity(Q_NULLPTR)
+    m_rootEntity(nullptr)
 {
 //    setAcceptDrops(true);
 }
@@ -84,7 +84,7 @@ GtTaskEntity::populateTask()
     m_subCalcs.clear();
 
     // check for datamodel object
-    if (m_task == Q_NULLPTR)
+    if (!m_task)
     {
         return;
     }
@@ -149,7 +149,7 @@ GtTaskEntity::rootNode()
 void
 GtTaskEntity::calculateSize()
 {
-    if (m_task == Q_NULLPTR)
+    if (!m_task)
     {
         return;
     }
@@ -242,7 +242,7 @@ GtTaskEntity::allChildItems(QGraphicsItem* item)
     {
         QList<QGraphicsItem*> retval;
 
-        if (item == Q_NULLPTR)
+        if (!item)
         {
             item = this;
         }
@@ -270,7 +270,7 @@ GtTaskEntity::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 void
 GtTaskEntity::initializeNodes(GtCalculatorEntity* node, int depth)
 {
-    Q_ASSERT(node == Q_NULLPTR);
+    Q_ASSERT(node == nullptr);
 
     node->setNormX(-1.);
     node->setNormY(depth);
@@ -372,7 +372,7 @@ GtTaskEntity::checkForConflicts(GtCalculatorEntity* node)
 
     GtCalculatorEntity* sibling = node->leftMostSibling();
 
-    while (sibling != Q_NULLPTR && sibling != node)
+    while (sibling && sibling != node)
     {
         QMap<int, double> siblingContour;
         rightContour(sibling, 0., siblingContour);

@@ -24,7 +24,7 @@
 GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
                                                      QWidget* parent) :
     QDialog(parent),
-    m_task(Q_NULLPTR)
+    m_task(nullptr)
 {
     setWindowTitle(tr("Connections"));
 
@@ -87,15 +87,15 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
 
     setLayout(lay);
 
-    if (task != Q_NULLPTR)
+    if (task)
     {
         GtObject* obj = task->clone();
 
-        if (obj != Q_NULLPTR)
+        if (obj)
         {
             m_task = qobject_cast<GtTask*>(obj);
 
-            if (m_task == Q_NULLPTR)
+            if (!m_task)
             {
                 delete obj;
             }
@@ -107,7 +107,7 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
 
 GtProcessConnectionEditor::~GtProcessConnectionEditor()
 {
-    if (m_task != Q_NULLPTR)
+    if (m_task)
     {
         delete m_task;
     }
@@ -116,7 +116,7 @@ GtProcessConnectionEditor::~GtProcessConnectionEditor()
 GtObjectMemento
 GtProcessConnectionEditor::connectionData()
 {
-    if (m_task != Q_NULLPTR)
+    if (m_task)
     {
         return m_task->toMemento();
     }
@@ -128,7 +128,7 @@ void
 GtProcessConnectionEditor::fillData()
 {
     // check task
-    if (m_task == Q_NULLPTR)
+    if (!m_task)
     {
         return;
     }

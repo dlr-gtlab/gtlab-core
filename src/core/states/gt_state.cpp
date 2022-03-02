@@ -63,7 +63,7 @@ GtState::getValue() const
 bool
 GtState::isValid() const
 {
-    if (m_guard == Q_NULLPTR)
+    if (!m_guard)
     {
         return false;
     }

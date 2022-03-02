@@ -180,7 +180,7 @@ GtProjectUI::icon(GtObject* obj) const
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return QIcon();
     }
@@ -203,7 +203,7 @@ GtProjectUI::doubleClicked(GtObject* obj)
 QVariant
 GtProjectUI::specificData(GtObject* obj, int role, int column) const
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return QVariant();
     }
@@ -233,7 +233,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
         {
             GtProject* project = qobject_cast<GtProject*>(obj);
 
-            if (project != Q_NULLPTR)
+            if (project)
             {
                 if (!project->comment().isEmpty())
                 {
@@ -247,7 +247,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
         {
             GtProject* project = qobject_cast<GtProject*>(obj);
 
-            if (project != Q_NULLPTR)
+            if (project)
             {
                 if (!project->comment().isEmpty())
                 {
@@ -333,7 +333,7 @@ GtProjectUI::openProject(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -372,7 +372,7 @@ GtProjectUI::canOpenProject(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -385,7 +385,7 @@ GtProjectUI::closeProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -440,7 +440,7 @@ GtProjectUI::canCloseProject(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -453,7 +453,7 @@ GtProjectUI::saveProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -471,7 +471,7 @@ GtProjectUI::canSaveProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -484,7 +484,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -567,7 +567,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
             provider.duplicateProject(pspecs->nameLine()->text(),
                                       pathNew.absolutePath());
 
-        if (newProject == Q_NULLPTR)
+        if (!newProject)
         {
             gtError() << tr("Could not duplicate project!");
             return;
@@ -595,7 +595,7 @@ GtProjectUI::canSaveProjectAs(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -608,7 +608,7 @@ GtProjectUI::duplicateProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -623,7 +623,7 @@ GtProjectUI::duplicateProject(GtObject* obj)
     QString id = gtDataModel->uniqueObjectName(project->objectName(),
                  gtApp->session());
 
-    QString text = QInputDialog::getText(Q_NULLPTR,
+    QString text = QInputDialog::getText(nullptr,
                                          tr("New Project Name"),
                                          tr("Project name:"),
                                          QLineEdit::Normal,
@@ -664,7 +664,7 @@ GtProjectUI::duplicateProject(GtObject* obj)
         GtProject* newProject =
             provider.duplicateProject(text, pathNew.absolutePath());
 
-        if (newProject == Q_NULLPTR)
+        if (!newProject)
         {
             gtError() << tr("Could not duplicate project!");
             return;
@@ -690,7 +690,7 @@ GtProjectUI::canDuplicateProject(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -703,7 +703,7 @@ GtProjectUI::deleteProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -751,7 +751,7 @@ GtProjectUI::canDeleteProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -764,7 +764,7 @@ GtProjectUI::setCurrentProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -783,7 +783,7 @@ GtProjectUI::setCurrentProject(GtObject* obj)
         // update object entries
         gtDataModel->updateObject(project);
 
-        if (lastProject != Q_NULLPTR)
+        if (lastProject)
         {
             gtDataModel->updateObject(lastProject);
         }
@@ -795,7 +795,7 @@ GtProjectUI::canSetCurrentProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -818,7 +818,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -950,7 +950,7 @@ GtProjectUI::canChooseProjectModule(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -968,7 +968,7 @@ GtProjectUI::testCommit(GtObject* /*obj*/)
 {
     //    GtProject* project = qobject_cast<GtProject*>(obj);
 
-    //    if (project == Q_NULLPTR)
+    //    if (!project)
     //    {
     //        return;
     //    }
@@ -1000,7 +1000,7 @@ GtProjectUI::canTestCommit(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1018,7 +1018,7 @@ GtProjectUI::testCheckout(GtObject* /*obj*/)
 {
     //    GtProject* project = qobject_cast<GtProject*>(obj);
 
-    //    if (project == Q_NULLPTR)
+    //    if (!project)
     //    {
     //        return;
     //    }
@@ -1045,7 +1045,7 @@ GtProjectUI::enableVersionControl(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -1056,7 +1056,7 @@ GtProjectUI::canEnableVersionControl(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1074,14 +1074,14 @@ GtProjectUI::exportMetaData(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
 
     GtProcessData* pd =  project->processData();
 
-    if (pd == Q_NULLPTR)
+    if (!pd)
     {
         return;
     }
@@ -1205,7 +1205,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
             {
                 GtObject* clonedPkg = pkg->clone();
 
-                if (clonedPkg == Q_NULLPTR)
+                if (!clonedPkg)
                 {
                     gtError() << tr("Could not clone package!");
                     return;
@@ -1223,7 +1223,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
                 dataElement.appendChild(mem.documentElement());
 
                 delete clonedPkg;
-                clonedPkg = Q_NULLPTR;
+                clonedPkg = nullptr;
             }
             else
             {
@@ -1240,7 +1240,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
 
         GtTask* task = pd->findDirectChild<GtTask*>(selItems.first());
 
-        if (task == Q_NULLPTR)
+        if (!task)
         {
             return;
         }
@@ -1275,7 +1275,7 @@ GtProjectUI::canExportMetaData(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1293,7 +1293,7 @@ GtProjectUI::showInExplorer(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -1306,12 +1306,12 @@ GtProjectUI::renameProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
 
-    if (gtApp->session() == Q_NULLPTR)
+    if (!gtApp->session())
     {
         return;
     }
@@ -1389,7 +1389,7 @@ GtProjectUI::canRenameProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1407,7 +1407,7 @@ GtProjectUI::showFootprint(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -1582,7 +1582,7 @@ GtProjectUI::editComment(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -1612,7 +1612,7 @@ GtProjectUI::canEditComment(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1625,7 +1625,7 @@ GtProjectUI::openProjectSettings(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }

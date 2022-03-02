@@ -32,7 +32,7 @@ GtFinishedProcessLoadingHelper::run()
 
         GtObject* target = m_source->getObjectByUuid(memento.uuid());
 
-        if (target != Q_NULLPTR)
+        if (target)
         {
             GtObjectMemento old = target->toMemento(true);
             GtObjectMementoDiff diff(old, memento);

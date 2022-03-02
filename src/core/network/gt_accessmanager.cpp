@@ -30,7 +30,7 @@ GtAccessManager::GtAccessManager(QObject* parent) :
 bool
 GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
 {
-    if (accessGroup == nullptr)
+    if (!accessGroup)
     {
         return false;
     }
@@ -133,7 +133,7 @@ GtAccessManager*
 GtAccessManager::instance()
 {
     static GtAccessManager* retval = nullptr;
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtAccessManager(qApp);
     }
@@ -328,7 +328,7 @@ GtAccessManager::accessGroup(const QString& id)
 QNetworkAccessManager*
 GtAccessManager::qnam()
 {
-    if (m_qnam == nullptr)
+    if (!m_qnam)
     {
         m_qnam = new QNetworkAccessManager(this);
     }

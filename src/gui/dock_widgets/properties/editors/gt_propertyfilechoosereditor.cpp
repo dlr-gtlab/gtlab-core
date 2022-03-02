@@ -66,14 +66,14 @@ GtPropertyFileChooserEditor::updateText()
 {
     QString txt;
 
-    if (m_prop != Q_NULLPTR && !m_prop->get().isEmpty())
+    if (m_prop && !m_prop->get().isEmpty())
     {
         txt = m_prop->get();
     }
 
     m_filePath->setText(txt);
 
-    if (qobject_cast<GtExistingDirectoryProperty*>(m_prop) != Q_NULLPTR)
+    if (qobject_cast<GtExistingDirectoryProperty*>(m_prop))
     {
         m_restoreButton->setToolTip(tr("Clear Path"));
         m_selectButton->setToolTip(tr("Select Path"));
@@ -88,7 +88,7 @@ GtPropertyFileChooserEditor::updateText()
 void
 GtPropertyFileChooserEditor::selectFilePath()
 {
-    if (m_prop == Q_NULLPTR)
+    if (!m_prop)
     {
         return;
     }
@@ -108,7 +108,7 @@ GtPropertyFileChooserEditor::selectFilePath()
 
 
 
-    if (qobject_cast<GtSaveFileNameProperty*>(m_prop) != Q_NULLPTR)
+    if (qobject_cast<GtSaveFileNameProperty*>(m_prop))
     {
         GtSaveFileNameProperty* sfnp =
             qobject_cast<GtSaveFileNameProperty*>(m_prop);
@@ -131,7 +131,7 @@ GtPropertyFileChooserEditor::selectFilePath()
                        QString(), selfilter, sfnp->initFileName());
         }
     }
-    else if (qobject_cast<GtExistingDirectoryProperty*>(m_prop) != Q_NULLPTR)
+    else if (qobject_cast<GtExistingDirectoryProperty*>(m_prop))
     {
         filename = GtFileDialog::getExistingDirectory(this,
                    tr("Choose Directory"),
@@ -158,7 +158,7 @@ GtPropertyFileChooserEditor::selectFilePath()
 void
 GtPropertyFileChooserEditor::deleteFilePath()
 {
-    if (m_prop == Q_NULLPTR)
+    if (!m_prop)
     {
         return;
     }

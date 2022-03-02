@@ -66,7 +66,7 @@ public:
      * @param root Root objectt for search.
      * @return linked object.
      */
-    GtObject* linkedObject(GtObject* root = Q_NULLPTR);
+    GtObject* linkedObject(GtObject* root = nullptr);
 
     /**
      * @brief Returns stored root object.

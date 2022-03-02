@@ -20,7 +20,7 @@
 
 GtProcessExecutor::GtProcessExecutor(QObject* parent) :
     GtCoreProcessExecutor(parent),
-    m_task(Q_NULLPTR)
+    m_task(nullptr)
 {
 }
 
@@ -32,7 +32,7 @@ GtProcessExecutor::handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
 
     // source may be NULL if there are no object links defined in the
     // calculators included in the task
-    if (m_source != Q_NULLPTR)
+    if (m_source)
     {
         m_task = task;
         // create timer
@@ -58,7 +58,7 @@ GtProcessExecutor::execute()
 
     GtTaskRunner* runner = executeHelper();
 
-    if (runner == Q_NULLPTR)
+    if (!runner)
     {
         return;
     }
@@ -73,7 +73,7 @@ GtProcessExecutor::onHelperFinished()
     GtFinishedProcessLoadingHelper* helper =
             qobject_cast<GtFinishedProcessLoadingHelper*>(sender());
 
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         return;
     }

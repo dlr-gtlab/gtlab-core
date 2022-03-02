@@ -30,7 +30,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
     QVBoxLayout* mLay = new QVBoxLayout;
 
     // read information
-    if (analyzer != nullptr)
+    if (analyzer)
     {
         // analyse footprint
         GtFootprint footprint = analyzer->footPrint();
@@ -191,7 +191,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
         }
     }
 
-    if (m_tabWid != nullptr)
+    if (m_tabWid)
     {
         QLabel* irregulInfo =
                 new QLabel(tr("Irregularities found in the project file:"));
@@ -225,7 +225,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 QTabWidget*
 GtProjectAnalyzerDialog::tabWidget()
 {
-    if (m_tabWid == nullptr)
+    if (!m_tabWid)
     {
         m_tabWid = new QTabWidget;
     }

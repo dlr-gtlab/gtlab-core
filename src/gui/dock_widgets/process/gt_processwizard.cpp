@@ -40,7 +40,7 @@ GtProcessWizard::GtProcessWizard(GtProject* project,
     GtWizard(parent),
     m_provider(provider),
     m_scope(project),
-    m_execSettingBtn(Q_NULLPTR)
+    m_execSettingBtn(nullptr)
 {
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -77,19 +77,19 @@ GtProcessWizard::GtProcessWizard(GtProject* project,
             dynamic_cast<GtExtendedCalculatorDataImpl*>(
                 calcData.get());
 
-        if (eData != Q_NULLPTR)
+        if (eData)
         {
             setWindowIcon(eData->icon);
 
             QList<GtProcessWizardPage*> cPages;
 
-            if (eData->wizard != Q_NULLPTR)
+            if (eData->wizard)
             {
                 foreach (const QMetaObject& metaObj, eData->wizard->pages())
                 {
                     QObject* obj = metaObj.newInstance();
 
-                    if (obj == Q_NULLPTR)
+                    if (!obj)
                     {
                         cPages.clear();
                         break;
@@ -98,7 +98,7 @@ GtProcessWizard::GtProcessWizard(GtProject* project,
                     GtProcessWizardPage* pwp =
                             qobject_cast<GtProcessWizardPage*>(obj);
 
-                    if (pwp == Q_NULLPTR)
+                    if (!pwp)
                     {
                         delete obj;
                         cPages.clear();
@@ -145,7 +145,7 @@ GtProcessWizard::GtProcessWizard(GtProject* project, GtTaskProvider* provider,
     GtWizard(parent),
     m_provider(provider),
     m_scope(project),
-    m_execSettingBtn(Q_NULLPTR)
+    m_execSettingBtn(nullptr)
 {
     setWindowTitle(tr("New Task Wizard"));
 
@@ -177,7 +177,7 @@ GtProcessWizard::GtProcessWizard(GtProject* project, GtTaskProvider* provider,
     {
         GtTaskData taskData = gtTaskFactory->taskData(classname);
 
-        if (taskData == Q_NULLPTR)
+        if (!taskData)
         {
             return;
         }
@@ -188,20 +188,20 @@ GtProcessWizard::GtProcessWizard(GtProject* project, GtTaskProvider* provider,
                 dynamic_cast<GtExtendedTaskDataImpl*>(
                     taskData.get());
 
-        if (eData != Q_NULLPTR)
+        if (eData)
         {
             // set icon
             setWindowIcon(eData->icon);
 
             QList<GtProcessWizardPage*> cPages;
 
-            if (eData->wizard != Q_NULLPTR)
+            if (eData->wizard)
             {
                 foreach (const QMetaObject& metaObj, eData->wizard->pages())
                 {
                     QObject* obj = metaObj.newInstance();
 
-                    if (obj == Q_NULLPTR)
+                    if (!obj)
                     {
                         cPages.clear();
                         break;
@@ -210,7 +210,7 @@ GtProcessWizard::GtProcessWizard(GtProject* project, GtTaskProvider* provider,
                     GtProcessWizardPage* pwp =
                             qobject_cast<GtProcessWizardPage*>(obj);
 
-                    if (pwp == Q_NULLPTR)
+                    if (!pwp)
                     {
                         delete obj;
                         cPages.clear();
@@ -268,7 +268,7 @@ GtProcessWizard::setEnableExecutionSettings(bool enabled)
     // add execution settings button
     if (enabled)
     {
-        if (m_execSettingBtn == Q_NULLPTR)
+        if (!m_execSettingBtn)
         {
             m_execSettingBtn = new QPushButton(this);
             connect(m_execSettingBtn, SIGNAL(clicked(bool)),
@@ -288,10 +288,10 @@ GtProcessWizard::setEnableExecutionSettings(bool enabled)
     }
     else
     {
-//        if (m_execSettingBtn != Q_NULLPTR)
+//        if (m_execSettingBtn)
 //        {
 //            delete m_execSettingBtn;
-//            m_execSettingBtn = Q_NULLPTR;
+//            m_execSettingBtn = nullptr;
 //        }
 
 //        setButton(QWizard::CustomButton1, m_execSettingBtn);
@@ -308,7 +308,7 @@ GtProcessWizard::setEnableExecutionSettings(bool enabled)
 void
 GtProcessWizard::executionSettings()
 {
-    if (m_provider == Q_NULLPTR)
+    if (!m_provider)
     {
         return;
     }
@@ -324,7 +324,7 @@ GtProcessWizard::executionSettings()
 
     GtCalculator* calc = memento.restore<GtCalculator*>(gtProcessFactory);
 
-    if (calc == Q_NULLPTR)
+    if (!calc)
     {
         return;
     }

@@ -42,7 +42,7 @@ public:
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) override;
+                       QWidget* widget = nullptr) override;
 
     /**
     * @brief boundingRect

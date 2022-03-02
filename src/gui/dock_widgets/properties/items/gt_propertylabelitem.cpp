@@ -34,7 +34,7 @@ GtPropertyLabelItem::labelProperty() const
 QVariant
 GtPropertyLabelItem::data(int column, int role) const
 {
-    if (labelProperty() == Q_NULLPTR)
+    if (!labelProperty())
     {
         return QVariant();
     }
@@ -71,7 +71,7 @@ GtPropertyLabelItem::editorWidget(QWidget* parent,
 void
 GtPropertyLabelItem::setEditorData(QWidget* editor, QVariant& /*var*/) const
 {
-    if (labelProperty() == nullptr)
+    if (!labelProperty())
     {
         return;
     }
@@ -87,7 +87,7 @@ GtPropertyLabelItem::setModelData(QWidget* editor,
                                   QAbstractItemModel* model,
                                   const QModelIndex& index) const
 {
-    if (labelProperty() == nullptr)
+    if (!labelProperty())
     {
         return;
     }
@@ -101,7 +101,7 @@ void
 GtPropertyLabelItem::paint(QPainter* painter,
                            const QStyleOptionViewItem& option) const
 {
-    if (labelProperty() == Q_NULLPTR)
+    if (!labelProperty())
     {
         return;
     }
@@ -138,21 +138,21 @@ GtPropertyLabelItem::paint(QPainter* painter,
 QStringList
 GtPropertyLabelItem::labelList() const
 {
-    if (m_scope == Q_NULLPTR)
+    if (!m_scope)
     {
         return QStringList();
     }
 
     GtProject* project = qobject_cast<GtProject*>(m_scope);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return QStringList();
     }
 
     GtLabelData* labelData = project->labelData();
 
-    if (labelData == Q_NULLPTR)
+    if (!labelData)
     {
         return QStringList();
     }

@@ -201,7 +201,7 @@ public:
                          GtAbstractProperty* prop,
                          const QVariant& newValue,
                          const QString& unit = QString(),
-                         GtObject* root = Q_NULLPTR) override;
+                         GtObject* root = nullptr) override;
 
     /**
      * @brief startCommand

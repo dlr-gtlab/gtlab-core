@@ -38,7 +38,7 @@ protected:
      * @brief GtStyledLogModel
      * @param parent
      */
-    explicit GtStyledLogModel(QObject* parent = Q_NULLPTR);
+    explicit GtStyledLogModel(QObject* parent = nullptr);
 
 };
 

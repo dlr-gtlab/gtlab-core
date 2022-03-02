@@ -175,9 +175,9 @@ GtProcessComponent::rootTask()
         qobject_cast<GtProcessComponent*>(parent());
 
     // check casted parent
-    if (parentComponent == Q_NULLPTR)
+    if (!parentComponent)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // search for root task recursively
@@ -189,7 +189,7 @@ GtProcessComponent::isReady()
 {
     GtTask* root = rootTask();
 
-    if (root == Q_NULLPTR)
+    if (!root)
     {
         return false;
     }

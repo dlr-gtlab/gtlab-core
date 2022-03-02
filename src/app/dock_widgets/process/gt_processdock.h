@@ -183,7 +183,7 @@ private:
      * @brief setCurrentProcess
      * @param process
      */
-    void setCurrentProcess(GtTask* process = Q_NULLPTR);
+    void setCurrentProcess(GtTask* process = nullptr);
 
     /**
      * @brief addTask
@@ -262,7 +262,7 @@ private slots:
      * @brief updateButtons
      * @param obj
      */
-    void updateButtons(GtObject* obj = Q_NULLPTR);
+    void updateButtons(GtObject* obj = nullptr);
 
     /**
      * @brief updateRunButton

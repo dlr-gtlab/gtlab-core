@@ -23,10 +23,10 @@ public:
      * @param parent
      */
 //    GtAbstractDataConfigWizard(GtBarProvider* provider,
-//                               QWidget* parent = Q_NULLPTR);
+//                               QWidget* parent = nullptr);
 
     GtAbstractDataConfigWizard(GtAbstractChartProvider* provider,
-                               QWidget* parent = Q_NULLPTR);
+                               QWidget* parent = nullptr);
 
     GtAbstractDataConfigWizard();
 

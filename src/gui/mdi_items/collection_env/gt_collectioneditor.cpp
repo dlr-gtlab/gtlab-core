@@ -33,16 +33,16 @@
 #include "gt_collectioneditor.h"
 
 GtCollectionEditor::GtCollectionEditor() :
-    m_specificCollectionWidget(Q_NULLPTR),
-    m_specificBrowserWidget(Q_NULLPTR),
-    m_collection(Q_NULLPTR),
-    m_collectionSettings(Q_NULLPTR),
-    m_srcCombo(Q_NULLPTR),
-    m_downloadButton(Q_NULLPTR),
-    m_updateAllButton(Q_NULLPTR),
-    m_selectAllCheckBox(Q_NULLPTR),
-    m_loader(Q_NULLPTR),
-    m_fetchMovie(Q_NULLPTR)
+    m_specificCollectionWidget(nullptr),
+    m_specificBrowserWidget(nullptr),
+    m_collection(nullptr),
+    m_collectionSettings(nullptr),
+    m_srcCombo(nullptr),
+    m_downloadButton(nullptr),
+    m_updateAllButton(nullptr),
+    m_selectAllCheckBox(nullptr),
+    m_loader(nullptr),
+    m_fetchMovie(nullptr)
 {
     setObjectName(tr("Collection"));
 
@@ -98,7 +98,7 @@ GtCollectionEditor::GtCollectionEditor() :
 void
 GtCollectionEditor::generateCollectionSpecificWidgets()
 {
-    if (m_collectionSettings == Q_NULLPTR)
+    if (!m_collectionSettings)
     {
         return;
     }
@@ -185,7 +185,7 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
 void
 GtCollectionEditor::loadLocalCollection()
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         return;
     }
@@ -200,7 +200,7 @@ GtCollectionEditor::loadLocalCollection()
 void
 GtCollectionEditor::fillSourceList()
 {
-    if (m_srcCombo == Q_NULLPTR)
+    if (!m_srcCombo)
     {
         return;
     }
@@ -208,7 +208,7 @@ GtCollectionEditor::fillSourceList()
     GtAccessGroup* accessGroup =
             gtAccessManager->accessGroup(m_collection->collectionId());
 
-    if (accessGroup == Q_NULLPTR)
+    if (!accessGroup)
     {
         return;
     }
@@ -225,7 +225,7 @@ GtCollectionEditor::setBrowserCollection(
         const QList<GtCollectionNetworkItem>& availableItems,
         const QList<GtCollectionNetworkItem>& updataAvailableItems)
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         return;
     }
@@ -265,7 +265,7 @@ GtCollectionEditor::onTabChange(int tab)
 void
 GtCollectionEditor::reloadNetworkCollection()
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         return;
     }
@@ -275,7 +275,7 @@ GtCollectionEditor::reloadNetworkCollection()
 //        return;
 //    }
 
-    if (m_srcCombo == Q_NULLPTR)
+    if (!m_srcCombo)
     {
         return;
     }
@@ -285,25 +285,25 @@ GtCollectionEditor::reloadNetworkCollection()
         return;
     }
 
-    if (m_fetchMovie != Q_NULLPTR)
+    if (m_fetchMovie)
     {
         m_fetchMovie->setVisible(true);
         m_fetchMovie->runAnimation();
     }
 
-    if (m_specificBrowserWidget != Q_NULLPTR)
+    if (m_specificBrowserWidget)
     {
         m_specificBrowserWidget->setVisible(false);
     }
 
-    if (m_selectAllCheckBox != Q_NULLPTR)
+    if (m_selectAllCheckBox)
     {
         m_selectAllCheckBox->setEnabled(false);
     }
 
     gtDebug() << "reloading network collection...";
 
-    if (m_loader == Q_NULLPTR)
+    if (!m_loader)
     {
         m_loader = new GtCollectionLoader(m_collection->collectionId(),
                                           this);
@@ -316,7 +316,7 @@ GtCollectionEditor::reloadNetworkCollection()
     GtAccessGroup* accessGroup =
             gtAccessManager->accessGroup(m_collection->collectionId());
 
-    if (accessGroup != Q_NULLPTR)
+    if (accessGroup)
     {
         const int index = m_srcCombo->currentIndex();
 
@@ -343,7 +343,7 @@ GtCollectionEditor::reloadNetworkCollection()
 void
 GtCollectionEditor::setCollection(GtCollectionInterface* collection)
 {
-    if (collection == Q_NULLPTR)
+    if (!collection)
     {
         return;
     }
@@ -362,7 +362,7 @@ GtCollectionEditor::setCollection(GtCollectionInterface* collection)
 void
 GtCollectionEditor::generateCollectionSettings()
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Could not generate settings!") <<
                      tr("Collection not found!");
@@ -370,7 +370,7 @@ GtCollectionEditor::generateCollectionSettings()
         return;
     }
 
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Could not generate settings!") <<
                      tr("Invalid collection!");
@@ -380,7 +380,7 @@ GtCollectionEditor::generateCollectionSettings()
 
     QObject* obj = m_collection->collectionSettings().newInstance();
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         gtError() << tr("Could not generate settings!") <<
                      tr("Invalid settings meta data!");
@@ -390,7 +390,7 @@ GtCollectionEditor::generateCollectionSettings()
 
     m_collectionSettings = qobject_cast<GtAbstractCollectionSettings*>(obj);
 
-    if (m_collectionSettings == Q_NULLPTR)
+    if (!m_collectionSettings)
     {
         delete obj;
 
@@ -411,7 +411,7 @@ GtCollectionEditor::onCollectionReply()
 {
     GtCollectionReply* reply = qobject_cast<GtCollectionReply*>(sender());
 
-    if (reply == Q_NULLPTR)
+    if (!reply)
     {
         return;
     }
@@ -431,18 +431,18 @@ GtCollectionEditor::onCollectionReply()
 
     reply->deleteLater();
 
-    if (m_fetchMovie != Q_NULLPTR)
+    if (m_fetchMovie)
     {
         m_fetchMovie->setVisible(false);
         m_fetchMovie->stopAnimation();
     }
 
-    if (m_specificBrowserWidget != Q_NULLPTR)
+    if (m_specificBrowserWidget)
     {
         m_specificBrowserWidget->setVisible(true);
     }
 
-    if (m_selectAllCheckBox != Q_NULLPTR)
+    if (m_selectAllCheckBox)
     {
         m_selectAllCheckBox->setEnabled(true);
     }
@@ -460,7 +460,7 @@ GtCollectionEditor::onCollectionReply()
 void
 GtCollectionEditor::onBrowserSelectionChange()
 {
-    if (m_specificBrowserWidget == Q_NULLPTR)
+    if (!m_specificBrowserWidget)
     {
         return;
     }
@@ -478,7 +478,7 @@ GtCollectionEditor::onBrowserSelectionChange()
 void
 GtCollectionEditor::onSelectAllCheckToggled(bool checked)
 {
-    if (m_specificBrowserWidget == Q_NULLPTR)
+    if (!m_specificBrowserWidget)
     {
         return;
     }
@@ -498,12 +498,12 @@ GtCollectionEditor::onSelectAllCheckToggled(bool checked)
 void
 GtCollectionEditor::downloadSelectedItems()
 {
-    if (m_specificBrowserWidget == Q_NULLPTR)
+    if (!m_specificBrowserWidget)
     {
         return;
     }
 
-    if (m_loader == Q_NULLPTR)
+    if (!m_loader)
     {
         return;
     }
@@ -529,12 +529,12 @@ GtCollectionEditor::downloadSelectedItems()
 void
 GtCollectionEditor::updateAllItems()
 {
-    if (m_specificBrowserWidget == Q_NULLPTR)
+    if (!m_specificBrowserWidget)
     {
         return;
     }
 
-    if (m_loader == Q_NULLPTR)
+    if (!m_loader)
     {
         return;
     }

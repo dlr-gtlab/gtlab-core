@@ -39,7 +39,7 @@ GtStringProperty::GtStringProperty(const QString& ident,
     m_value = value;
     m_initValue = value;
 
-    if (validator != nullptr)
+    if (validator)
     {
         m_validator = validator;
         m_validator->setParent(this);
@@ -72,7 +72,7 @@ GtStringProperty::setValueFromVariant(const QVariant& val,
 
     setVal(val.toString(), success);
 
-    if (success != nullptr)
+    if (success)
     {
         retval = *success;
     }
@@ -82,7 +82,7 @@ GtStringProperty::setValueFromVariant(const QVariant& val,
 
 GtStringProperty::~GtStringProperty()
 {
-    if (m_validator != nullptr)
+    if (m_validator)
     {
         delete m_validator;
     }

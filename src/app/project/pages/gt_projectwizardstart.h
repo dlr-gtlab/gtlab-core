@@ -24,7 +24,7 @@ public:
      * @param parent
      */
     GtProjectWizardStart(GtProjectProvider* provider,
-                         QWidget* parent = Q_NULLPTR);
+                         QWidget* parent = nullptr);
 
 };
 

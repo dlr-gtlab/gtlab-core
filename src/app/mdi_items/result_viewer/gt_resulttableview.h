@@ -24,7 +24,7 @@ public:
      * @brief GtResultTableView
      * @param parent
      */
-    explicit GtResultTableView(QWidget* parent = Q_NULLPTR);
+    explicit GtResultTableView(QWidget* parent = nullptr);
 
 protected:
     /**

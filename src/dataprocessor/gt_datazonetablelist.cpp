@@ -14,7 +14,7 @@ GtDataZoneTableList::GtDataZoneTableList() :
 bool
 GtDataZoneTableList::addDzt(GtDataZoneTable* dzt, const QString& uuid)
 {
-    if (dzt == nullptr)
+    if (!dzt)
     {
         return false;
     }
@@ -52,7 +52,7 @@ GtDataZoneTableList::numXticks() const
 {
     int retval = 0;
 
-    if (dzt() != nullptr)
+    if (dzt())
     {
         retval = dzt()->nXDims();
     }
@@ -65,7 +65,7 @@ GtDataZoneTableList::numYticks() const
 {
     int retval = 0;
 
-    if (dzt() != nullptr)
+    if (dzt())
     {
         retval = dzt()->nYDims();
     }
@@ -78,7 +78,7 @@ GtDataZoneTableList::numZticks() const
 {
     int retval = 0;
 
-    if (dzt() != nullptr)
+    if (dzt())
     {
         retval = dzt()->nZDims();
     }
@@ -119,16 +119,16 @@ GtDataZoneTableList::isValid(GtDataZoneTable* newDzt)
         return true;
     }
 
-    if (newDzt == nullptr)
+    if (!newDzt)
     {
-        // something went wrong, first dzt in dztList is a Q_NULLPTR
+        // something went wrong, first dzt in dztList is a nullptr
         gtWarning() << tr("New DataZoneTable is a Nullptr, returning false ");
         return false;
     }
 
     GtDataZoneTable* dztTemp = dzt();
 
-    if (dztTemp == nullptr)
+    if (!dztTemp)
     {
         gtWarning() << tr("dztTemp DataZoneTable is a Nullptr, "
                           "returning false ");
@@ -233,7 +233,7 @@ GtDataZoneTableList::onlyXaxisActive() const
 {
     GtDataZoneTable* dztt = dzt();
 
-    if (dztt == nullptr)
+    if (!dztt)
     {
         return false;
     }
@@ -303,7 +303,7 @@ GtDataZoneTableList::params() const
 
     for (GtDataZoneTable* t : list())
     {
-        if (t != nullptr)
+        if (t)
         {
             for (const QString& str : t->params())
             {
@@ -342,7 +342,7 @@ GtDataZoneTableList::unitFromParam(const QString& param) const
 
     GtDataZoneTable* t = dzt(param);
 
-    if (t != nullptr)
+    if (t)
     {
         unit = t->unitFromParam(param);
     }
@@ -374,7 +374,7 @@ GtDataZoneTableList::paramsWithUnits(const QStringList& params) const
 bool
 GtDataZoneTableList::is0D() const
 {
-    if (dzt() != nullptr)
+    if (dzt())
     {
         return dzt()->is0D();
     }

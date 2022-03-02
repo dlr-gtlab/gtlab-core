@@ -221,7 +221,7 @@ GtPostModel::refreshData(GtProject* project)
 {
     m_project = project;
 
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         setTemplateData(QStringList());
         return;
@@ -256,7 +256,7 @@ GtPostModel::refreshData(GtProject* project)
 QModelIndex
 GtPostModel::newPostTemplate()
 {
-    if (m_project == nullptr)
+    if (!m_project)
     {
         return {};
     }
@@ -319,12 +319,12 @@ GtPostModel::createTemplatePath(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (index.model() != this)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QString filename = indexToFilename(index);
@@ -333,14 +333,14 @@ GtPostModel::createTemplatePath(const QModelIndex& index)
 
     if (filename.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QDir projectDir;
 
     if (!projectPostDirectory(projectDir))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return new GtPostTemplatePath(projectDir.absoluteFilePath(filename));
@@ -439,7 +439,7 @@ GtPostModel::renameFile(const QString& oldName, const QString& newName)
 bool
 GtPostModel::projectPostDirectory(QDir& dir)
 {
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         return false;
     }

@@ -27,7 +27,7 @@
 #include <algorithm>
 
 GtObject::GtObject(GtObject* parent) :
-    m_factory(Q_NULLPTR),
+    m_factory(nullptr),
     m_propertyMapper(new QSignalMapper(this))
 {
     if (parent)
@@ -76,7 +76,7 @@ GtObject::hasDummyChildren() const
 bool
 GtObject::hasDummyParents() const
 {
-    if (parentObject() == Q_NULLPTR)
+    if (!parentObject())
     {
         return false;
     }
@@ -95,7 +95,7 @@ void
 GtObject::fromMemento(const GtObjectMemento& memento)
 {
     // check for factory
-    if (m_factory == Q_NULLPTR)
+    if (!m_factory)
     {
         qDebug() << "factory is null";
         return;
@@ -121,11 +121,11 @@ GtObject*
 GtObject::copy() const
 {
     // check for factory
-    if (m_factory == Q_NULLPTR)
+    if (!m_factory)
     {
         gtError() << tr("No factory set!") << QStringLiteral("(")
                   << objectName() << QStringLiteral(")");
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // generate memento
@@ -133,7 +133,7 @@ GtObject::copy() const
 
     if (memento.isNull())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return memento.restore(m_factory);
@@ -143,11 +143,11 @@ GtObject*
 GtObject::clone() const
 {
     // check for factory
-    if (m_factory == Q_NULLPTR)
+    if (!m_factory)
     {
         gtError() << tr("No factory set!") << QStringLiteral("(")
                   << objectName() << QStringLiteral(")");
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // generate memento
@@ -155,7 +155,7 @@ GtObject::clone() const
 
     if (memento.isNull())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return memento.restore(m_factory);
@@ -164,7 +164,7 @@ GtObject::clone() const
 bool
 GtObject::appendChild(GtObject* c)
 {
-    if (c == Q_NULLPTR)
+    if (!c)
     {
         return false;
     }
@@ -181,7 +181,7 @@ GtObject::appendChild(GtObject* c)
     }
 
     // disconnect old signals and slots
-    if (c->parent() != Q_NULLPTR)
+    if (c->parent())
     {
         disconnect(c, SIGNAL(dataChanged(GtObject*)),
                    c->parent(), SIGNAL(dataChanged(GtObject*)));
@@ -234,7 +234,7 @@ GtObject::appendChildren(const QList<GtObject*>& list)
 void
 GtObject::disconnectFromParent()
 {
-    if (parent() != Q_NULLPTR)
+    if (parent())
     {
         disconnect(this, SIGNAL(dataChanged(GtObject*)),
                    parent(), SIGNAL(dataChanged(GtObject*)));
@@ -251,7 +251,7 @@ GtObject::disconnectFromParent()
                    parent(), SIGNAL(childAppended(GtObject*, GtObject*)));
     }
 
-    setParent(Q_NULLPTR);
+    setParent(nullptr);
 }
 
 QString
@@ -427,7 +427,7 @@ GtObject::debugObjectTree(int indent)
 {
     GtDummyObject* d_obj = qobject_cast<GtDummyObject*>(this);
 
-    if (d_obj != Q_NULLPTR)
+    if (d_obj)
     {
         // debug dummy properties
         foreach (GtDummyObject::DummyProperty dp,
@@ -495,13 +495,13 @@ GtObject::findProperty(const QString& id) const
 
         GtAbstractProperty* tmp = property->findProperty(id);
 
-        if (tmp != Q_NULLPTR)
+        if (tmp)
         {
             return tmp;
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 GtAbstractProperty*
@@ -516,13 +516,13 @@ GtObject::findPropertyByName(const QString& name) const
 
         GtAbstractProperty* tmp = property->findPropertyByName(name);
 
-        if (tmp != Q_NULLPTR)
+        if (tmp)
         {
             return tmp;
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void
@@ -542,7 +542,7 @@ GtObject::objectPath(QString& str) const
 
     str.insert(0, objectName());
 
-    if (parentObject() != Q_NULLPTR)
+    if (parentObject())
     {
         return parentObject()->objectPath(str);
     }
@@ -555,7 +555,7 @@ GtObject::getObjectByPath(QStringList& objectPath)
 {
     if (objectPath.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (objectPath.size() > 1)
@@ -566,15 +566,15 @@ GtObject::getObjectByPath(QStringList& objectPath)
 
             GtObject* child = findDirectChild<GtObject*>(objectPath.first());
 
-            if (child == Q_NULLPTR)
+            if (!child)
             {
-                return Q_NULLPTR;
+                return nullptr;
             }
 
             return child->getObjectByPath(objectPath);
         }
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (objectPath.first() == objectName())
@@ -582,7 +582,7 @@ GtObject::getObjectByPath(QStringList& objectPath)
         return this;
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 QString
@@ -637,7 +637,7 @@ GtObject::getObjectByUuid(const QString& objectUUID)
         return this;
     }
 
-    GtObject* retval = Q_NULLPTR;
+    GtObject* retval = nullptr;
 
     QList<GtObject*> list = findChildren<GtObject*>();
 
@@ -665,7 +665,7 @@ GtObject::getDirectChildByUuid(const QString& objectUUID) const
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 GtObject*
@@ -701,7 +701,7 @@ GtObject::fullPropertyListHelper(GtAbstractProperty* p,
                                  QList<GtAbstractProperty*>& list) const
 {
     // check property
-    if (p == Q_NULLPTR)
+    if (!p)
     {
         return;
     }

@@ -30,7 +30,7 @@ public:
      * @brief Constructor.
      * @param parent Parent widget
      */
-    GtConfirmDeleteProjectDialog(QWidget* parent = Q_NULLPTR,
+    GtConfirmDeleteProjectDialog(QWidget* parent = nullptr,
                                  const QString& projectName = "");
 
     /**

@@ -41,7 +41,7 @@ GtOpenWithMenu::onActionTrigger(QObject* obj)
 {
     QAction* act = qobject_cast<QAction*>(obj);
 
-    if (act == Q_NULLPTR)
+    if (!act)
     {
         return;
     }

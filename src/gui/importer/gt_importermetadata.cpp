@@ -52,7 +52,7 @@ GtImporterMetaData::initialize(QMetaObject& importer)
     QObject* qobj = importer.newInstance();
 
     // check object
-    if (qobj == Q_NULLPTR)
+    if (!qobj)
     {
         return;
     }
@@ -61,7 +61,7 @@ GtImporterMetaData::initialize(QMetaObject& importer)
     GtAbstractImporter* imp = qobject_cast<GtAbstractImporter*>(qobj);
 
     // check casted importer object
-    if (imp == Q_NULLPTR)
+    if (!imp)
     {
         // object nor an abstract importer -> delete qobject
         delete qobj;

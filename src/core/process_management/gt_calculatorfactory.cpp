@@ -24,7 +24,7 @@ GtCalculatorFactory*
 GtCalculatorFactory::instance()
 {
     static GtCalculatorFactory* retval = nullptr;
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtCalculatorFactory(qApp);
     }

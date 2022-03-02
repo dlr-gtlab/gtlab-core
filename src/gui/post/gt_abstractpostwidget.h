@@ -29,7 +29,7 @@ public:
     /**
      * @brief GtAbstractPostWidget
      */
-    GtAbstractPostWidget(QWidget* w = Q_NULLPTR);
+    GtAbstractPostWidget(QWidget* w = nullptr);
 
     /**
      * @brief configActions
@@ -231,7 +231,7 @@ public slots:
     /**
      * @brief updatePlot
      */
-    virtual void initFillingUI(GtObject* = Q_NULLPTR) {}
+    virtual void initFillingUI(GtObject* = nullptr) {}
 
 signals:
 

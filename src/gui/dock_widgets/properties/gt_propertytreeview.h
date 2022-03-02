@@ -32,7 +32,7 @@ public:
      * @brief Constructor.
      * @param parent Parent widget.
      */
-    GtPropertyTreeView(GtObject* scope, QWidget* parent = Q_NULLPTR);
+    explicit GtPropertyTreeView(GtObject* scope, QWidget* parent = nullptr);
 
     /**
      * @brief Resizes columns to contents.

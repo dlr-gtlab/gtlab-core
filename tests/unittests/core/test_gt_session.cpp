@@ -67,7 +67,7 @@ protected:
 TEST_F(TestGtSession, instance)
 {
     ASSERT_FALSE(m_session->isValid());
-//    ASSERT_TRUE(m_session->model() == Q_NULLPTR);
+//    ASSERT_TRUE(m_session->model() == nullptr);
 }
 
 TEST_F(TestGtSession, roamingPath)

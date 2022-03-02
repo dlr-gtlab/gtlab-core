@@ -63,11 +63,11 @@
 using namespace GtPropertyConnectionFunctions;
 
 GtProcessDock::GtProcessDock() :
-    m_model(Q_NULLPTR),
-    m_filterModel(Q_NULLPTR),
-    m_processData(Q_NULLPTR),
-    m_currentProcess(Q_NULLPTR),
-    m_project(Q_NULLPTR),
+    m_model(nullptr),
+    m_filterModel(nullptr),
+    m_processData(nullptr),
+    m_currentProcess(nullptr),
+    m_project(nullptr),
     m_actionMapper(new QSignalMapper(this))
 {
     setObjectName(tr("Processes/Calculators"));
@@ -246,7 +246,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 
     updateButtons(m_processData);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         m_addElementButton->setEnabled(false);
     }
@@ -265,7 +265,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 void
 GtProcessDock::addEmptyTaskToRoot()
 {
-    if (m_processData == Q_NULLPTR)
+    if (!m_processData)
     {
         return;
     }
@@ -307,19 +307,19 @@ GtProcessDock::componentByModelIndex(const QModelIndex &index)
 {
     if (!index.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QModelIndex srcIndex = mapToSource(index);
 
     if (!srcIndex.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (srcIndex.model() != gtDataModel)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return qobject_cast<GtProcessComponent*>(
@@ -338,14 +338,14 @@ GtProcessDock::addCalculator()
 
     GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
 
     GtProject* project = obj->findParent<GtProject*>();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -369,7 +369,7 @@ GtProcessDock::addCalculator()
     GtProcessComponent* newObj = memento.restore<GtProcessComponent*>(
                                      gtProcessFactory);
 
-    if (newObj == Q_NULLPTR)
+    if (!newObj)
     {
         return;
     }
@@ -404,16 +404,16 @@ GtProcessDock::addCalculator()
 void
 GtProcessDock::addTask()
 {
-    if (m_processData == Q_NULLPTR)
+    if (!m_processData)
     {
         return;
     }
 
     GtProject* project = m_processData->findParent<GtProject*>();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
-        gtError() << "project == Q_NULLPTR";
+        gtError() << "project == nullptr";
         return;
     }
 
@@ -426,7 +426,7 @@ GtProcessDock::addTask()
         return;
     }
 
-    GtObject* parentObj = Q_NULLPTR;
+    GtObject* parentObj = nullptr;
 
     if (!m_view->currentIndex().isValid())
     {
@@ -445,7 +445,7 @@ GtProcessDock::addTask()
         parentObj = gtDataModel->objectFromIndex(srcIndex);
     }
 
-    if (parentObj == Q_NULLPTR)
+    if (!parentObj)
     {
         return;
     }
@@ -460,7 +460,7 @@ GtProcessDock::addTask()
     GtProcessComponent* newObj = memento.restore<GtProcessComponent*>(
                                      gtProcessFactory);
 
-    if (newObj == Q_NULLPTR)
+    if (!newObj)
     {
         return;
     }
@@ -500,16 +500,16 @@ GtProcessDock::addTask()
 GtTask*
 GtProcessDock::findRootTaskHelper(GtObject* obj)
 {
-    GtTask* retval = Q_NULLPTR;
+    GtTask* retval = nullptr;
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return retval;
     }
 
     retval = qobject_cast<GtTask*>(obj);
 
-    if (retval == Q_NULLPTR)
+    if (!retval)
     {
         // object not a task
         return findRootTaskHelper(obj->findParent<GtTask*>());
@@ -527,7 +527,7 @@ GtProcessDock::findRootTaskHelper(GtObject* obj)
 bool
 GtProcessDock::componentIsReady(GtProcessComponent* comp)
 {
-    if (comp == Q_NULLPTR)
+    if (!comp)
     {
         return false;
     }
@@ -538,7 +538,7 @@ GtProcessDock::componentIsReady(GtProcessComponent* comp)
 void
 GtProcessDock::filterData(const QString& val)
 {
-    if (m_filterModel == Q_NULLPTR)
+    if (!m_filterModel)
     {
         return;
     }
@@ -550,7 +550,7 @@ GtProcessDock::filterData(const QString& val)
         return;
     }
 
-    m_view->setModel(Q_NULLPTR);
+    m_view->setModel(nullptr);
 
     if (m_processData)
     {
@@ -594,7 +594,7 @@ void
 GtProcessDock::updateRunButton()
 {
     // no process selected
-    if (m_currentProcess == Q_NULLPTR)
+    if (!m_currentProcess)
     {
         m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
 
@@ -612,7 +612,7 @@ GtProcessDock::updateRunButton()
     GtTask* current = gtProcessExecutor->currentRunningTask();
 
     // no task is running
-    if (current == Q_NULLPTR)
+    if (!current)
     {
         m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
 
@@ -756,11 +756,11 @@ GtProcessDock::runProcess()
     {
         GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-        if (obj != Q_NULLPTR)
+        if (obj)
         {
             GtTask* task = findRootTaskHelper(obj);
 
-            if (task != Q_NULLPTR)
+            if (task)
             {
                 if (task->currentState() ==
                         GtProcessComponent::RUNNING)
@@ -779,7 +779,7 @@ GtProcessDock::runProcess()
 void
 GtProcessDock::terminateProcess()
 {
-    if (m_currentProcess == Q_NULLPTR)
+    if (!m_currentProcess)
     {
         return;
     }
@@ -848,7 +848,7 @@ GtProcessDock::addElement()
 
         GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             return;
         }
@@ -885,7 +885,7 @@ GtProcessDock::addElement()
 void
 GtProcessDock::customContextMenu(const QPoint& pos)
 {
-    if (m_view->model() == Q_NULLPTR)
+    if (!m_view->model())
     {
         return;
     }
@@ -899,7 +899,7 @@ GtProcessDock::customContextMenu(const QPoint& pos)
         {
             GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 return;
             }
@@ -956,8 +956,8 @@ GtProcessDock::customContextMenu(const QPoint& pos)
         QClipboard* clipboard = QApplication::clipboard();
         const QMimeData* mimeData = clipboard->mimeData();
 
-        if ((mimeData != Q_NULLPTR) &&
-                (mimeData->hasFormat(QStringLiteral("GtObject"))))
+        if (mimeData &&
+                mimeData->hasFormat(QStringLiteral("GtObject")))
         {
             GtObjectMemento memento(mimeData->data(QStringLiteral("GtObject")));
 
@@ -1114,8 +1114,8 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
         QClipboard* clipboard = QApplication::clipboard();
         const QMimeData* mimeData = clipboard->mimeData();
 
-        if ((mimeData != Q_NULLPTR) &&
-                (mimeData->hasFormat(QStringLiteral("GtObject"))))
+        if (mimeData &&
+                mimeData->hasFormat(QStringLiteral("GtObject")))
         {
             GtObjectMemento memento(mimeData->data(QStringLiteral("GtObject")));
 
@@ -1389,7 +1389,7 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
     {
         GtProcessComponent* pc = componentByModelIndex(index);
 
-        if (pc == Q_NULLPTR || pc->isDummy() || pc->hasDummyParents())
+        if (!pc || pc->isDummy() || pc->hasDummyParents())
         {
             dummyObjects += 1;
             continue;
@@ -1466,14 +1466,14 @@ GtProcessDock::copyElement(const QModelIndex& index)
 
     GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
 
     GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(obj);
 
-    if (pComp == Q_NULLPTR)
+    if (!pComp)
     {
         return;
     }
@@ -1488,9 +1488,9 @@ GtProcessDock::copyElement(const QModelIndex& index)
     GtTask* origTask = qobject_cast<GtTask*>(pComp);
     GtTask* newTask = qobject_cast<GtTask*>(copy);
 
-    if (newTask != Q_NULLPTR && origTask != Q_NULLPTR)
+    if (newTask && origTask)
     {
-        if (qobject_cast<GtProcessData*>(origTask->parent()) != Q_NULLPTR)
+        if (qobject_cast<GtProcessData*>(origTask->parent()))
         {
             mapPropertyConnections(origTask, newTask);
         }
@@ -1498,7 +1498,7 @@ GtProcessDock::copyElement(const QModelIndex& index)
         {
             GtTask* origTaskClone = qobject_cast<GtTask*>(origTask->clone());
 
-            if (origTaskClone == Q_NULLPTR)
+            if (!origTaskClone)
             {
                 return;
             }
@@ -1511,7 +1511,7 @@ GtProcessDock::copyElement(const QModelIndex& index)
                 GtObject* conClone = propCon->clone();
                 GtObject* conCopy = propCon->copy();
 
-                if (conClone != Q_NULLPTR && conCopy != Q_NULLPTR)
+                if (conClone && conCopy)
                 {
                     origTaskClone->appendChild(conClone);
                     newTask->appendChild(conCopy);
@@ -1568,14 +1568,14 @@ GtProcessDock::cloneElement(const QModelIndex& index)
 
     GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
 
     GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(obj);
 
-    if (pComp == Q_NULLPTR)
+    if (!pComp)
     {
         return;
     }
@@ -1587,7 +1587,7 @@ GtProcessDock::cloneElement(const QModelIndex& index)
 
     GtObject* parent = obj->parentObject();
 
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         return;
     }
@@ -1595,7 +1595,7 @@ GtProcessDock::cloneElement(const QModelIndex& index)
     GtObject* cloned = obj->copy();
 
     // check cloned object
-    if (cloned == Q_NULLPTR)
+    if (!cloned)
     {
         return;
     }
@@ -1603,9 +1603,9 @@ GtProcessDock::cloneElement(const QModelIndex& index)
     GtTask* origTask = qobject_cast<GtTask*>(obj);
     GtTask* newTask = qobject_cast<GtTask*>(cloned);
 
-    if (newTask != Q_NULLPTR && origTask != Q_NULLPTR)
+    if (newTask && origTask)
     {
-        if (qobject_cast<GtProcessData*>(origTask->parent()) != Q_NULLPTR)
+        if (qobject_cast<GtProcessData*>(origTask->parent()))
         {
             mapPropertyConnections(origTask, newTask);
         }
@@ -1614,7 +1614,7 @@ GtProcessDock::cloneElement(const QModelIndex& index)
             GtTask* origTaskClone =
                 qobject_cast<GtTask*>(origTask->clone());
 
-            if (origTaskClone == Q_NULLPTR)
+            if (!origTaskClone)
             {
                 return;
             }
@@ -1627,7 +1627,7 @@ GtProcessDock::cloneElement(const QModelIndex& index)
                 GtObject* conClone = propCon->clone();
                 GtObject* conCopy = propCon->copy();
 
-                if (conClone != Q_NULLPTR && conCopy != Q_NULLPTR)
+                if (conClone && conCopy)
                 {
                     origTaskClone->appendChild(conClone);
                     newTask->appendChild(conCopy);
@@ -1671,14 +1671,14 @@ GtProcessDock::cutElement(const QModelIndex& index)
 
     GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
 
     GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(obj);
 
-    if (pComp == Q_NULLPTR)
+    if (!pComp)
     {
         return;
     }
@@ -1688,7 +1688,7 @@ GtProcessDock::cutElement(const QModelIndex& index)
         return;
     }
 
-    if (m_processData == Q_NULLPTR)
+    if (!m_processData)
     {
         return;
     }
@@ -1697,9 +1697,9 @@ GtProcessDock::cutElement(const QModelIndex& index)
 
     QList<GtObject*> toDelete;
 
-    if (qobject_cast<GtTask*>(pComp) != Q_NULLPTR)
+    if (qobject_cast<GtTask*>(pComp))
     {
-        if (qobject_cast<GtProcessData*>(pComp->parent()) == Q_NULLPTR)
+        if (!qobject_cast<GtProcessData*>(pComp->parent()))
         {
             GtTask* child = qobject_cast<GtTask*>(pComp);
 
@@ -1759,7 +1759,7 @@ GtProcessDock::deleteProcessElements(const QList<QModelIndex>& indexList)
 
         GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             continue;
         }
@@ -1830,7 +1830,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
                     gtProcessFactory);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         gtError() << tr("Could not restore object from clipboard!");
         return;
@@ -1840,7 +1840,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     {
         GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(parent);
 
-        if (pComp == Q_NULLPTR)
+        if (!pComp)
         {
             return;
         }
@@ -1857,7 +1857,7 @@ GtProcessDock::pasteElement(GtObject* parent)
 void
 GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 {
-    if (obj == Q_NULLPTR || parent == Q_NULLPTR)
+    if (!obj || !parent)
     {
         return;
     }
@@ -1871,7 +1871,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     {
         GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(parent);
 
-        if (pComp == Q_NULLPTR)
+        if (!pComp)
         {
             return;
         }
@@ -1899,18 +1899,18 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 
     foreach (GtPropertyConnection* propCon, propCons)
     {
-        propCon->setParent(Q_NULLPTR);
+        propCon->setParent(nullptr);
     }
 
     QModelIndex srcIndex = gtDataModel->appendChild(obj, parent);
 
     GtTask* task = qobject_cast<GtTask*>(obj);
 
-    if (task != Q_NULLPTR)
+    if (task)
     {
         GtTask* highestParent = highestParentTask(task);
 
-        if (highestParent != Q_NULLPTR)
+        if (highestParent)
         {
             foreach (GtPropertyConnection* propCon, propCons)
             {
@@ -1958,7 +1958,7 @@ GtProcessDock::pasteElement(const QModelIndex& parentIndex)
 
     GtObject* parent = gtDataModel->objectFromIndex(srcParentIndex);
 
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         return;
     }
@@ -1997,7 +1997,7 @@ GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
     {
         GtProcessComponent* pc = componentByModelIndex(index);
 
-        if (pc == Q_NULLPTR)
+        if (!pc)
         {
             continue;
         }
@@ -2033,7 +2033,7 @@ GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
 void
 GtProcessDock::skipComponent(GtProcessComponent* comp, bool skip)
 {
-    if (comp == Q_NULLPTR)
+    if (!comp)
     {
         return;
     }
@@ -2044,14 +2044,14 @@ GtProcessDock::skipComponent(GtProcessComponent* comp, bool skip)
 void
 GtProcessDock::configCalculator(GtCalculator* calc)
 {
-    if (calc == Q_NULLPTR)
+    if (!calc)
     {
         return;
     }
 
     GtProject* project = calc->findParent<GtProject*>();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -2085,7 +2085,7 @@ GtProcessDock::configCalculator(GtCalculator* calc)
 void
 GtProcessDock::configTask(GtTask* task)
 {
-    if (task == Q_NULLPTR)
+    if (!task)
     {
         return;
     }
@@ -2097,7 +2097,7 @@ GtProcessDock::configTask(GtTask* task)
 
     GtProject* project = gtApp->currentProject();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -2176,7 +2176,7 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
     GtObject* obj = gtDataModel->objectFromIndex(index);
 
     // check object
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
@@ -2185,7 +2185,7 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
     GtProcessComponent* comp = qobject_cast<GtProcessComponent*>(obj);
 
     // check casted process component
-    if (comp == Q_NULLPTR)
+    if (!comp)
     {
         return;
     }
@@ -2194,14 +2194,14 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
     GtTask* rootTask = comp->rootTask();
 
     // check root task
-    if (rootTask == Q_NULLPTR)
+    if (!rootTask)
     {
         return;
     }
 
     GtProject* project = rootTask->findParent<GtProject*>();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -2271,14 +2271,14 @@ GtProcessDock::onTaskDataChanged(GtObject* obj)
 void
 GtProcessDock::actionTriggered(QObject* obj)
 {
-    if (gtApp->currentProject() == Q_NULLPTR)
+    if (!gtApp->currentProject())
     {
         return;
     }
 
     QAction* act = qobject_cast<QAction*>(obj);
 
-    if (act == Q_NULLPTR)
+    if (!act)
     {
         return;
     }
@@ -2301,14 +2301,14 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         QObject* newObj = taskData->metaData().newInstance();
 
-        if (newObj == Q_NULLPTR)
+        if (!newObj)
         {
             return;
         }
 
         GtTask* task = qobject_cast<GtTask*>(newObj);
 
-        if (task == Q_NULLPTR)
+        if (!task)
         {
             delete newObj;
             return;
@@ -2338,7 +2338,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         QModelIndex srcIndex = mapToSource(m_view->currentIndex());
 
-        GtObject* parentObj = Q_NULLPTR;
+        GtObject* parentObj = nullptr;
 
         if (srcIndex.isValid())
         {
@@ -2349,7 +2349,7 @@ GtProcessDock::actionTriggered(QObject* obj)
             parentObj = m_processData;
         }
 
-        if (parentObj == Q_NULLPTR)
+        if (!parentObj)
         {
             delete task;
             return;
@@ -2390,7 +2390,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         GtObject* currentObj = gtDataModel->objectFromIndex(srcIndex);
 
-        if (currentObj == Q_NULLPTR)
+        if (!currentObj)
         {
             return;
         }
@@ -2405,14 +2405,14 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         QObject* newObj = calcData->metaData().newInstance();
 
-        if (newObj == Q_NULLPTR)
+        if (!newObj)
         {
             return;
         }
 
         GtCalculator* calc = qobject_cast<GtCalculator*>(newObj);
 
-        if (calc == Q_NULLPTR)
+        if (!calc)
         {
             delete newObj;
             return;
@@ -2484,7 +2484,7 @@ GtProcessDock::mapPropertyConnections(GtTask* orig,
     {
         GtPropertyConnection* newCon = findConnectionCopy(origCon, newCons);
 
-        if (newCon == Q_NULLPTR)
+        if (!newCon)
         {
             gtDebug() << "Could not find copied connection...";
             continue;
@@ -2536,7 +2536,7 @@ GtProcessDock::updateLastUsedElementList(const QString& str)
 void
 GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
 {
-    if (menu == Q_NULLPTR)
+    if (!menu)
     {
         return;
     }
@@ -2576,7 +2576,7 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                             dynamic_cast<GtExtendedTaskDataImpl*>(
                                 taskData.get());
 
-                    if (extendedData == Q_NULLPTR ||
+                    if (extendedData == nullptr ||
                         extendedData->icon.isNull())
                     {
                         QIcon icn;
@@ -2584,9 +2584,9 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                         GtObjectUI* oui = gtApp->defaultObjectUI(
                                     taskData->metaData().className());
 
-                        if (oui != Q_NULLPTR)
+                        if (oui)
                         {
-                            icn = oui->icon(Q_NULLPTR);
+                            icn = oui->icon(nullptr);
                         }
 
                         if (icn.isNull())
@@ -2629,7 +2629,7 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                             dynamic_cast<GtExtendedCalculatorDataImpl*>(
                                 calcData.get());
 
-                    if (extendedData == Q_NULLPTR ||
+                    if (extendedData == nullptr ||
                         extendedData->icon.isNull())
                     {
                         act->setIcon(gtApp->icon(QStringLiteral(
@@ -2655,7 +2655,7 @@ GtProcessDock::deleteProcessComponent(GtObject* obj)
 {
     GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(obj);
 
-    if (pComp == Q_NULLPTR)
+    if (!pComp)
     {
         return;
     }

@@ -26,7 +26,7 @@ public:
      * @brief GtObjectFilterModel
      * @param parent
      */
-    explicit GtObjectFilterModel(QObject* parent = Q_NULLPTR);
+    explicit GtObjectFilterModel(QObject* parent = nullptr);
 
     /**
      * @brief setFilterData

@@ -35,7 +35,7 @@ GtProcessConnectionModel::setRoot(GtTask* task)
     beginResetModel();
 
     // check root item
-    if (m_root != nullptr)
+    if (m_root)
     {
         // root item exists - delete it
         delete m_root;
@@ -45,7 +45,7 @@ GtProcessConnectionModel::setRoot(GtTask* task)
     }
 
     // check task
-    if (task != nullptr)
+    if (task)
     {
         // create data tree
         createDataTree(task);
@@ -67,7 +67,7 @@ GtProcessConnectionModel::setMode(GtProcessConnectionModel::Modes mode)
     m_mode = mode;
 
     // check root item. if exists reset entire model
-    if (m_root != nullptr)
+    if (m_root)
     {
         setRoot(qobject_cast<GtTask*>(m_root));
     }
@@ -77,7 +77,7 @@ int
 GtProcessConnectionModel::rowCount(const QModelIndex& parent) const
 {
     // check root
-    if (m_root == nullptr)
+    if (!m_root)
     {
         return 0;
     }
@@ -92,7 +92,7 @@ GtProcessConnectionModel::rowCount(const QModelIndex& parent) const
     GtProcessConnectionItem* parentItem = itemFromIndex(parent);
 
     // check item
-    if (parentItem == nullptr)
+    if (!parentItem)
     {
         return 0;
     }
@@ -120,7 +120,7 @@ GtProcessConnectionModel::data(const QModelIndex& index, int role) const
     GtProcessConnectionItem* item = itemFromIndex(index);
 
     // check item
-    if (item == nullptr)
+    if (!item)
     {
         return QVariant();
     }
@@ -147,7 +147,7 @@ GtProcessConnectionModel::index(int row, int col,
     if (!parent.isValid())
     {
         // root item
-        if (m_root == nullptr)
+        if (!m_root)
         {
             // no root set
             return {};
@@ -167,7 +167,7 @@ GtProcessConnectionModel::index(int row, int col,
     GtProcessConnectionItem* parentItem = itemFromIndex(parent);
 
     // check item
-    if (parentItem == nullptr)
+    if (!parentItem)
     {
         return {};
     }
@@ -177,7 +177,7 @@ GtProcessConnectionModel::index(int row, int col,
           parentItem->findDirectChildren<GtProcessConnectionItem*>().value(row);
 
     // check child item
-    if (childItem == nullptr)
+    if (!childItem)
     {
         return {};
     }
@@ -199,7 +199,7 @@ GtProcessConnectionModel::parent(const QModelIndex& index) const
     GtProcessConnectionItem* childItem = itemFromIndex(index);
 
     // check item
-    if (childItem == nullptr)
+    if (!childItem)
     {
         return {};
     }
@@ -208,7 +208,7 @@ GtProcessConnectionModel::parent(const QModelIndex& index) const
     GtObject* parentItem = childItem->parentObject();
 
     // check parent item
-    if (parentItem == nullptr)
+    if (!parentItem)
     {
         return {};
     }
@@ -238,7 +238,7 @@ QModelIndex
 GtProcessConnectionModel::indexFromItem(GtProcessConnectionItem* item) const
 {
     // check item
-    if (item == nullptr)
+    if (!item)
     {
         return {};
     }
@@ -247,7 +247,7 @@ GtProcessConnectionModel::indexFromItem(GtProcessConnectionItem* item) const
     int row = -1;
 
     // check parent item
-    if (item->parent() == nullptr)
+    if (!item->parent())
     {
         // check whether item is root
         if (m_root != item)
@@ -280,7 +280,7 @@ GtProcessConnectionItem*
 GtProcessConnectionModel::itemById(const QString& uuid, const QString& propId)
 {
     // check root
-    if (m_root == nullptr)
+    if (!m_root)
     {
         return nullptr;
     }
@@ -293,13 +293,13 @@ void
 GtProcessConnectionModel::createDataTree(GtTask* task)
 {
     // check task
-    if (task == nullptr)
+    if (!task)
     {
         return;
     }
 
     // check root
-    if (m_root != nullptr)
+    if (m_root)
     {
         // root element already exists
         return;
@@ -321,13 +321,13 @@ GtProcessConnectionModel::createDataTree(GtProcessComponent* component,
                                          GtProcessConnectionItem* item)
 {
     // check process component
-    if (component == nullptr)
+    if (!component)
     {
         return;
     }
 
     // check process monitoring item
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }
@@ -413,7 +413,7 @@ void
 GtProcessConnectionModel::onObjectDataChanged(GtObject* obj)
 {
     // check object
-    if (obj == nullptr)
+    if (!obj)
     {
         return;
     }
@@ -422,7 +422,7 @@ GtProcessConnectionModel::onObjectDataChanged(GtObject* obj)
     GtProcessConnectionItem* item = qobject_cast<GtProcessConnectionItem*>(obj);
 
     // check casted process monitoring item
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }

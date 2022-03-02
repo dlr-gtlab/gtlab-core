@@ -35,7 +35,7 @@ public:
      * @param parent
      */
     GtTaskArrowEntity(ArrowTypes type = ARROW_DIRECT,
-                      GtCalculatorEntity* parent = Q_NULLPTR);
+                      GtCalculatorEntity* parent = nullptr);
 
     /**
      * @brief link

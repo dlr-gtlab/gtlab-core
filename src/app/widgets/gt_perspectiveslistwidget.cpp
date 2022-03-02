@@ -69,7 +69,7 @@ GtPerspectivesListWidget::renameItem()
 {
     QListWidgetItem* item = currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }
@@ -99,7 +99,7 @@ GtPerspectivesListWidget::duplicateItem()
 {
     QListWidgetItem* item = currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }
@@ -114,7 +114,7 @@ GtPerspectivesListWidget::deleteItem()
 {
     QListWidgetItem* item = currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }

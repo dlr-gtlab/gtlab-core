@@ -104,7 +104,7 @@ GtRunnable::run()
 bool
 GtRunnable::appendCalculator(GtProcessComponent* calc)
 {
-    if (calc == Q_NULLPTR)
+    if (!calc)
     {
         return false;
     }
@@ -136,7 +136,7 @@ GtRunnable::requestInterruption()
     {
         GtTask* task = qobject_cast<GtTask*>(calc);
 
-        if (task != Q_NULLPTR)
+        if (task)
         {
             tasks << task;
         }
@@ -184,7 +184,7 @@ GtRunnable::tempDir()
 QString
 GtRunnable::projectPath()
 {
-    if (gtApp->currentProject() == Q_NULLPTR)
+    if (!gtApp->currentProject())
     {
         return QString();
     }
@@ -205,7 +205,7 @@ GtRunnable::readObjects()
     {
         GtObject* obj = memento.restore(gtObjectFactory);
 
-        if (obj != Q_NULLPTR)
+        if (obj)
         {
             m_linkedObjects.append(obj);
         }

@@ -20,14 +20,14 @@ GtDataZoneModel::GtDataZoneModel(QObject* parent) :
     QAbstractTableModel(parent),
     m_indexOfInterestAx1(0),
     m_axOfInterest(0),
-    m_result(Q_NULLPTR)
+    m_result(nullptr)
 {
 
 }
 
 GtDataZoneModel::~GtDataZoneModel()
 {
-    if (m_result != Q_NULLPTR)
+    if (m_result)
     {
         m_result->releaseData(GtExternalizedObject::Discard);
     }
@@ -36,7 +36,7 @@ GtDataZoneModel::~GtDataZoneModel()
 void
 GtDataZoneModel::setResultData(GtAbstractDataZone* data)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         return;
     }
@@ -46,7 +46,7 @@ GtDataZoneModel::setResultData(GtAbstractDataZone* data)
         return;
     }
 
-    if (m_result != Q_NULLPTR)
+    if (m_result)
     {
         disconnect(m_result.data(), SIGNAL(dataChanged(GtObject*)), this,
                    SLOT(onResultChanged()));
@@ -140,18 +140,18 @@ void
 GtDataZoneModel::clearResultData()
 {
     beginResetModel();
-    if (m_result != Q_NULLPTR)
+    if (m_result)
     {
         m_result->releaseData(GtExternalizedObject::Discard);
     }
-    m_result = Q_NULLPTR;
+    m_result = nullptr;
     endResetModel();
 }
 
 int
 GtDataZoneModel::rowCount(const QModelIndex& parent) const
 {
-    if (parent.isValid() || m_result == Q_NULLPTR)
+    if (parent.isValid() || !m_result)
     {
         return 0;
     }
@@ -171,7 +171,7 @@ GtDataZoneModel::rowCount(const QModelIndex& parent) const
 int
 GtDataZoneModel::columnCount(const QModelIndex& parent) const
 {
-    if (parent.isValid() || m_result == Q_NULLPTR)
+    if (parent.isValid() || !m_result)
     {
         return 0;
     }
@@ -210,9 +210,9 @@ QVariant
 GtDataZoneModel::data(const QModelIndex& index,
                       int role) const
 {
-    if (m_result == Q_NULLPTR)
+    if (!m_result)
     {
-        gtDebug() << "Error - GtDataZoneModel::data - m_result == Q_NULLPTR";
+        gtDebug() << "Error - GtDataZoneModel::data - m_result == nullptr";
         return QVariant();
     }
 

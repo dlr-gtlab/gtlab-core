@@ -24,7 +24,7 @@ public:
      * @brief GtMementoEditor
      * @param parent
      */
-    explicit GtMementoEditor(QWidget* parent = Q_NULLPTR);
+    explicit GtMementoEditor(QWidget* parent = nullptr);
 
 protected:
     /**

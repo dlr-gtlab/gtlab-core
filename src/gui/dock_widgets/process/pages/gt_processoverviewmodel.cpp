@@ -26,10 +26,10 @@ GtProcessOverviewModel::~GtProcessOverviewModel()
 {
     foreach (GtProcessCategoryItem* cat, m_categories)
     {
-        if (cat != Q_NULLPTR)
+        if (cat)
         {
             delete cat;
-            cat = Q_NULLPTR;
+            cat = nullptr;
         }
     }
 }
@@ -44,7 +44,7 @@ GtProcessOverviewModel::rowCount(const QModelIndex& parent) const
 
     GtAbstractProcessItem* parentItem = itemFromIndex(parent);
 
-    if (parentItem == Q_NULLPTR)
+    if (!parentItem)
     {
         return 0;
     }
@@ -76,7 +76,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
 
     GtAbstractProcessItem* abstractItem = itemFromIndex(index);
 
-    if (abstractItem == Q_NULLPTR)
+    if (!abstractItem)
     {
         return QVariant();
     }
@@ -181,7 +181,7 @@ GtProcessOverviewModel::setData(const QModelIndex& index,
     {
         GtAbstractProcessItem* pItem = itemFromIndex(index);
 
-        if (pItem == Q_NULLPTR)
+        if (!pItem)
         {
             return false;
         }
@@ -189,7 +189,7 @@ GtProcessOverviewModel::setData(const QModelIndex& index,
         GtProcessCategoryItem* catItem =
             qobject_cast<GtProcessCategoryItem*>(pItem);
 
-        if (catItem == Q_NULLPTR)
+        if (!catItem)
         {
             return false;
         }
@@ -245,14 +245,14 @@ GtProcessOverviewModel::parent(const QModelIndex& index) const
 
     GtAbstractProcessItem* childItem = itemFromIndex(index);
 
-    if (childItem == Q_NULLPTR)
+    if (!childItem)
     {
         return {};
     }
 
     GtObject* parentItem = childItem->parentObject();
 
-    if (parentItem == Q_NULLPTR)
+    if (!parentItem)
     {
         return {};
     }
@@ -297,14 +297,14 @@ GtProcessOverviewModel::categoryItem(const QString& id)
 QModelIndex
 GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
 {
-    if (item == nullptr)
+    if (!item)
     {
         return {};
     }
 
     int row = -1;
 
-    if (item->parent() == nullptr)
+    if (!item->parent())
     {
         row = m_categories.indexOf(qobject_cast<GtProcessCategoryItem*>(item));
     }

@@ -23,7 +23,7 @@ GtCalculatorExecutorList::GtCalculatorExecutorList(QObject* parent) :
 bool
 GtCalculatorExecutorList::addExecutor(GtCalculatorExecInterface* executor)
 {
-    if (executor == nullptr)
+    if (!executor)
     {
         return false;
     }
@@ -50,7 +50,7 @@ GtCalculatorExecutorList::generateExecutor(const QString& id)
 
     GtCalculatorExecInterface* cei = m_calcExecs.value(id);
 
-    if (cei == nullptr)
+    if (!cei)
     {
         return nullptr;
     }
@@ -59,7 +59,7 @@ GtCalculatorExecutorList::generateExecutor(const QString& id)
 
     QObject* obj = meta.newInstance();
 
-    if (obj == nullptr)
+    if (!obj)
     {
         return nullptr;
     }
@@ -67,7 +67,7 @@ GtCalculatorExecutorList::generateExecutor(const QString& id)
     GtAbstractCalculatorExecutor* retval =
             qobject_cast<GtAbstractCalculatorExecutor*>(obj);
 
-    if (retval == nullptr)
+    if (!retval)
     {
         // free memory
         delete obj;
@@ -86,7 +86,7 @@ GtCalculatorExecutorList::generateSettings(const QString& id)
 
     GtCalculatorExecInterface* cei = m_calcExecs.value(id);
 
-    if (cei == nullptr)
+    if (!cei)
     {
         return QList<GtAbstractProperty*>();
     }
@@ -98,7 +98,7 @@ GtCalculatorExecutorList*
 GtCalculatorExecutorList::instance()
 {
     static GtCalculatorExecutorList* retval = nullptr;
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtCalculatorExecutorList(qApp);
     }

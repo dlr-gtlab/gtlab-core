@@ -24,13 +24,13 @@
 GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry* data,
                                                QWidget* parent) :
     QWidget(parent),
-    m_data(Q_NULLPTR),
-    m_picLabel(Q_NULLPTR),
-    m_picFrame(Q_NULLPTR),
-    m_zoomButton(Q_NULLPTR),
+    m_data(nullptr),
+    m_picLabel(nullptr),
+    m_picFrame(nullptr),
+    m_zoomButton(nullptr),
     m_selected(false)
 {
-    if (data != Q_NULLPTR)
+    if (data != nullptr)
     {
         m_data = data;
     }

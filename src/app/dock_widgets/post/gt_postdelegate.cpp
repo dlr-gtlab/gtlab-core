@@ -72,7 +72,7 @@ GtPostDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
         return;
     }
 
-    if (m_dock == Q_NULLPTR)
+    if (!m_dock)
     {
         return;
     }

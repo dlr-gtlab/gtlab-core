@@ -32,7 +32,7 @@ public:
      * @param List of allowed file extensions.
      */
     GtSelectFileToImportPage(GtObject* obj,
-                             GtAbstractImporter* importer = Q_NULLPTR);
+                             GtAbstractImporter* importer = nullptr);
 
     /**
      * @brief import

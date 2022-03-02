@@ -23,7 +23,7 @@
 
 GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     QWidget(parent),
-    m_scope(Q_NULLPTR)
+    m_scope(nullptr)
 {
     QHBoxLayout* lay = new QHBoxLayout;
     m_objectId = new QLineEdit;
@@ -60,9 +60,9 @@ GtPropertyObjectLinkEditor::setObjectLinkProperty(GtObjectLinkProperty* prop)
 {
     m_prop = prop;
 
-    if (m_prop == Q_NULLPTR)
+    if (!m_prop)
     {
-        qDebug() << "m_prop == Q_NULLPTR";
+        qDebug() << "m_prop == nullptr";
     }
 
     updateText();
@@ -77,17 +77,17 @@ GtPropertyObjectLinkEditor::setScope(GtObject* scope)
 bool
 GtPropertyObjectLinkEditor::validObjectSelected()
 {
-    if (m_prop == Q_NULLPTR)
+    if (!m_prop)
     {
         return false;
     }
 
-    if (m_scope == Q_NULLPTR)
+    if (!m_scope)
     {
         return false;
     }
 
-    if (m_scope->getObjectByUuid(m_prop->linkedObjectUUID()) == Q_NULLPTR)
+    if (!m_scope->getObjectByUuid(m_prop->linkedObjectUUID()))
     {
         return false;
     }
@@ -98,14 +98,14 @@ GtPropertyObjectLinkEditor::validObjectSelected()
 GtObject*
 GtPropertyObjectLinkEditor::selectedObject()
 {
-    if (m_prop == Q_NULLPTR)
+    if (!m_prop)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
-    if (m_scope == Q_NULLPTR)
+    if (!m_scope)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_scope->getObjectByUuid(m_prop->linkedObjectUUID());
@@ -116,13 +116,13 @@ GtPropertyObjectLinkEditor::updateText()
 {
     QString txt = QStringLiteral("-");
 
-    if (m_prop != Q_NULLPTR && m_scope != Q_NULLPTR)
+    if (m_prop && m_scope)
     {
         const QString uuid = m_prop->linkedObjectUUID();
 
         GtObject* linkedObject = m_scope->getObjectByUuid(uuid);
 
-        if (linkedObject != Q_NULLPTR)
+        if (linkedObject)
         {
             txt = linkedObject->objectName();
         }
@@ -134,7 +134,7 @@ GtPropertyObjectLinkEditor::updateText()
 QList<GtObject*>
 GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return QList<GtObject*>();
     }
@@ -176,7 +176,7 @@ GtPropertyObjectLinkEditor::selectObjectLink()
         {
             GtObject* obj = dialog.currentObject();
 
-            if (obj != Q_NULLPTR)
+            if (obj)
             {
                 m_prop->setVal(obj->uuid());
             }

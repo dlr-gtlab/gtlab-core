@@ -26,7 +26,7 @@ public:
      * @brief Constructor.
      * @param initTask Task for provider initialization
      */
-    explicit GtTaskProvider(GtTask* initTask = Q_NULLPTR);
+    explicit GtTaskProvider(GtTask* initTask = nullptr);
 
 };
 

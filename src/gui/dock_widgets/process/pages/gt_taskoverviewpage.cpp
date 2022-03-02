@@ -75,15 +75,15 @@ GtTaskOverviewPage::GtTaskOverviewPage(GtProcessWizard* parent) :
 bool
 GtTaskOverviewPage::validatePage()
 {
-    if (m_wizard == Q_NULLPTR)
+    if (!m_wizard)
     {
-        gtError() << "m_wizard == Q_NULLPTR";
+        gtError() << "m_wizard == nullptr";
         return false;
     }
 
-    if (m_wizard->provider() == Q_NULLPTR)
+    if (!m_wizard->provider())
     {
-        gtError() << "m_wizard->provider() == Q_NULLPTR";
+        gtError() << "m_wizard->provider() == nullptr";
         return false;
     }
 
@@ -99,17 +99,17 @@ GtTaskOverviewPage::validatePage()
 
     GtAbstractProcessItem* aItem = m_view->sourceModel()->itemFromIndex(index);
 
-    if (aItem == Q_NULLPTR)
+    if (!aItem)
     {
-        gtError() << "aItem == Q_NULLPTR";
+        gtError() << "aItem == nullptr";
         return false;
     }
 
     GtProcessTaskItem* pItem = qobject_cast<GtProcessTaskItem*>(aItem);
 
-    if (pItem == Q_NULLPTR)
+    if (!pItem)
     {
-        gtError() << "pItem == Q_NULLPTR";
+        gtError() << "pItem == nullptr";
         return false;
     }
 
@@ -135,7 +135,7 @@ GtTaskOverviewPage::validatePage()
         dynamic_cast<GtExtendedTaskDataImpl*>(
             pItem->taskData().get());
 
-    if (eData == Q_NULLPTR || eData->wizard == Q_NULLPTR)
+    if (!eData || !eData->wizard)
     {
         m_wizard->setPage(GtProcessWizard::calculatorSettingsPage,
                           new GtCalculatorSettingsPage(m_wizard->scope(),
@@ -150,7 +150,7 @@ GtTaskOverviewPage::validatePage()
         {
             QObject* obj = metaObj.newInstance();
 
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 qDebug() << "page not invokable!";
                 cPages.clear();
@@ -159,7 +159,7 @@ GtTaskOverviewPage::validatePage()
 
             GtProcessWizardPage* pwp = qobject_cast<GtProcessWizardPage*>(obj);
 
-            if (pwp == Q_NULLPTR)
+            if (!pwp)
             {
                 qDebug() << "page corrupted!";
                 delete obj;
@@ -194,7 +194,7 @@ GtTaskOverviewPage::validatePage()
 bool
 GtTaskOverviewPage::isComplete() const
 {
-    if (m_view == Q_NULLPTR)
+    if (!m_view)
     {
         return false;
     }

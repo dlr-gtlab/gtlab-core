@@ -36,7 +36,7 @@ GtProjectAnalyzer::GtProjectAnalyzer(GtProject* project)
     : m_pimpl{std::make_unique<GtProjectAnalyzerImpl>()}
 {
 
-    if (project != Q_NULLPTR)
+    if (project)
     {
         // read information
         m_pimpl->readData(project);

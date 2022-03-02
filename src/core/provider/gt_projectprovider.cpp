@@ -68,9 +68,9 @@ GtProject*
 GtProjectProvider::duplicateProject(const QString& newId,
                                     const QString& newPath)
 {
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QString tmpId = m_pName;
@@ -79,7 +79,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
 
     m_pName = newId;
     m_pPath = newPath;
-    m_project = Q_NULLPTR;
+    m_project = nullptr;
 
     GtProject* retval = project();
 
@@ -88,7 +88,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
     {
         GtObject* copiedObj = obj->clone();
 
-        if (copiedObj == Q_NULLPTR)
+        if (!copiedObj)
         {
             gtError() << tr("Could not copy object!");
             continue;
@@ -125,7 +125,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
         GtPropertyConnection* propCon =
                 qobject_cast<GtPropertyConnection*>(obj);
 
-        if (propCon != Q_NULLPTR)
+        if (propCon)
         {
             if (uuidMap.contains(propCon->sourceUuid()))
             {
@@ -191,7 +191,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
             {
                 gtError() << "could not create copy of post directory";
                 delete retval;
-                return Q_NULLPTR;
+                return nullptr;
             }
         }
 
@@ -221,7 +221,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
 bool
 GtProjectProvider::apply()
 {
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         gtError() << tr("could not apply changes") << QStringLiteral("!")
                   << QStringLiteral("(project == NULL)");
@@ -321,7 +321,7 @@ void GtProjectProvider::mapFromSource()
 void
 GtProjectProvider::mapToSource()
 {
-    if (m_project != Q_NULLPTR)
+    if (m_project)
     {
         if (m_project->isOpen())
         {
@@ -374,7 +374,7 @@ GtProjectProvider::generateFiles()
 bool
 GtProjectProvider::modifyFiles()
 {
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         return false;
     }
@@ -491,7 +491,7 @@ GtProjectProvider::generateMainProjectFile()
 bool
 GtProjectProvider::modifyMainProjectFile()
 {
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         return false;
     }
@@ -655,7 +655,7 @@ QList<GtObjectLinkProperty*>
 GtProjectProvider::objectLinkProperties(GtObject* obj)
 {
     // check object
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return QList<GtObjectLinkProperty*>();
     }
@@ -667,7 +667,7 @@ GtProjectProvider::objectLinkProperties(GtObject* obj)
         GtObjectLinkProperty* linkProp =
                 qobject_cast<GtObjectLinkProperty*>(prop);
 
-        if (linkProp != Q_NULLPTR)
+        if (linkProp)
         {
             retval << linkProp;
         }
@@ -680,7 +680,7 @@ QList<GtAbstractProperty*>
 GtProjectProvider::fullObjectPropertyList(GtObject* obj)
 {
     // check object
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return QList<GtAbstractProperty*>();
     }
@@ -699,7 +699,7 @@ QList<GtAbstractProperty*>
 GtProjectProvider::fullPropertyList(GtAbstractProperty* p)
 {
     // check property
-    if (p == Q_NULLPTR)
+    if (!p)
     {
         return QList<GtAbstractProperty*>();
     }
@@ -720,7 +720,7 @@ void
 GtProjectProvider::resetUuid(GtObject* obj, QMap<QString, QString>& mapping)
 {
     // check object
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }

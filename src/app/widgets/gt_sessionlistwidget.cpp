@@ -71,7 +71,7 @@ GtSessionListWidget::renameItem()
 {
     QListWidgetItem* item = currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }
@@ -112,7 +112,7 @@ GtSessionListWidget::duplicateItem()
 {
     QListWidgetItem* curItem = currentItem();
 
-    if (curItem == nullptr)
+    if (!curItem)
     {
         return;
     }
@@ -140,7 +140,7 @@ GtSessionListWidget::deleteItem()
 {
     QListWidgetItem* item = currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }

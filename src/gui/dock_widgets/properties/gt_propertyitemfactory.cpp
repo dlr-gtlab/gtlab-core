@@ -66,8 +66,8 @@ GtPropertyItemFactory::GtPropertyItemFactory(QObject* parent) : QObject(parent)
 GtPropertyItemFactory*
 GtPropertyItemFactory::instance()
 {
-    static GtPropertyItemFactory* retval = Q_NULLPTR;
-    if (retval == Q_NULLPTR)
+    static GtPropertyItemFactory* retval = nullptr;
+    if (!retval)
     {
         retval = new GtPropertyItemFactory(qApp);
     }
@@ -78,7 +78,7 @@ GtAbstractPropertyItem*
 GtPropertyItemFactory::newItem(GtAbstractProperty* property, GtObject* scope,
                                GtPropertyModel* model, GtObject* parent)
 {
-    GtAbstractPropertyItem* retval = Q_NULLPTR;
+    GtAbstractPropertyItem* retval = nullptr;
 
     if (!knownClass(property->metaObject()->className()))
     {
@@ -90,7 +90,7 @@ GtPropertyItemFactory::newItem(GtAbstractProperty* property, GtObject* scope,
     {
         GtObject* obj = newObject(property->metaObject()->className(), parent);
 
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             gtDebug() << tr("could not recreate property item!") <<
                          QStringLiteral(" - ") <<
@@ -100,7 +100,7 @@ GtPropertyItemFactory::newItem(GtAbstractProperty* property, GtObject* scope,
         {
             retval = qobject_cast<GtAbstractPropertyItem*>(obj);
 
-            if (retval == Q_NULLPTR)
+            if (!retval)
             {
                 gtDebug() << tr("object not a property item!") <<
                              QStringLiteral(" - ") <<
@@ -111,7 +111,7 @@ GtPropertyItemFactory::newItem(GtAbstractProperty* property, GtObject* scope,
     }
 
 
-    if (retval == Q_NULLPTR)
+    if (!retval)
     {
         // create default property item
 //        gtDebug() << tr("creating default property item...");

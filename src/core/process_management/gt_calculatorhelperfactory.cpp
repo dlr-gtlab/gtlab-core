@@ -25,7 +25,7 @@ GtCalculatorHelperFactory::instance()
 {
     static GtCalculatorHelperFactory* retval = nullptr;
 
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtCalculatorHelperFactory(qApp);
     }
@@ -40,12 +40,12 @@ GtCalculatorHelperFactory::newCalculatorHelper(const QString& helperClassName,
 {
     if (helperClassName.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QList<GtObject*> gtObjs = parent->findDirectChildren<GtObject*>(objName);
@@ -54,7 +54,7 @@ GtCalculatorHelperFactory::newCalculatorHelper(const QString& helperClassName,
 
     foreach (GtObject* gtObj, gtObjs)
     {
-        if (gtObj != Q_NULLPTR)
+        if (gtObj)
         {
             if (QString::fromUtf8(gtObj->metaObject()->className()) ==
                     helperClassName &&
@@ -71,10 +71,10 @@ GtCalculatorHelperFactory::newCalculatorHelper(const QString& helperClassName,
     }
     else if (founds.size() > 1)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
-    GtObject* retval = Q_NULLPTR;
+    GtObject* retval = nullptr;
 
     QList<QString> helperClasses = m_calcHelperConnection.value(
                                      QString::fromUtf8(parent->metaObject()->
@@ -85,7 +85,7 @@ GtCalculatorHelperFactory::newCalculatorHelper(const QString& helperClassName,
         {
             retval = newObject(helperClass);
 
-            if (retval == Q_NULLPTR)
+            if (!retval)
             {
                 return retval;
             }
@@ -103,7 +103,7 @@ GtCalculatorHelperFactory::newCalculatorHelper(const QString& helperClassName,
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 bool

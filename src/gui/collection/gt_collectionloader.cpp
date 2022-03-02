@@ -37,7 +37,7 @@ GtCollectionLoader::loadLocalCollection()
 {
     QList<GtCollectionItem> retval;
 
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return retval;
@@ -151,7 +151,7 @@ GtCollectionLoader::downloadCollectionItems(
 QString
 GtCollectionLoader::collectionPath()
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return QString();
@@ -251,7 +251,7 @@ GtCollectionLoader::loadLocalCollectionItem(const QString& path)
 GtCollectionItem
 GtCollectionLoader::readItemInformation(const QJsonObject& json)
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return GtCollectionItem();
@@ -310,7 +310,7 @@ GtCollectionNetworkItem
 GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
         const QJsonObject& json)
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return GtCollectionNetworkItem();
@@ -369,7 +369,7 @@ GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
 bool
 GtCollectionLoader::itemIsValid(const QJsonObject& json)
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return false;
@@ -470,13 +470,13 @@ GtCollectionLoader::onHelperFinished()
     gtDebug() << "helper finished!";
     GtCollectionHelper* helper = qobject_cast<GtCollectionHelper*>(sender());
 
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         // TODO error
         return;
     }
 
-    if (helper->reply() == Q_NULLPTR)
+    if (!helper->reply())
     {
         gtError() << tr("Invalid connection reply!");
         return;

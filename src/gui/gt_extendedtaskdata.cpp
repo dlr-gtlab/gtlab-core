@@ -13,14 +13,14 @@
 
 GtExtendedTaskDataImpl::GtExtendedTaskDataImpl(const QMetaObject& metaData) :
     GtTaskDataImpl(metaData),
-    wizard(Q_NULLPTR)
+    wizard(nullptr)
 {
 
 }
 
 GtExtendedTaskDataImpl::~GtExtendedTaskDataImpl()
 {
-    if (wizard != Q_NULLPTR)
+    if (wizard)
     {
         delete wizard;
     }

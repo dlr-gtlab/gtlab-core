@@ -33,7 +33,7 @@ GtAccessSelectionProperty::accessData()
 {
     GtAccessGroup* group = gtAccessManager->accessGroup(m_accessId);
 
-    if (group == Q_NULLPTR)
+    if (!group)
     {
         return GtAccessData(QString());
     }

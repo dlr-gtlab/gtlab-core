@@ -101,7 +101,7 @@ GtPreferencesPerspective::switchPerspective()
 {
     QListWidgetItem* item = m_list->currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }
@@ -115,7 +115,7 @@ GtPreferencesPerspective::renamePerspective()
 {
     QListWidgetItem* item = m_list->currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }
@@ -129,7 +129,7 @@ GtPreferencesPerspective::onItemSelectionChange()
 {
     QListWidgetItem* item = m_list->currentItem();
 
-    if (item == nullptr)
+    if (!item)
     {
         return;
     }

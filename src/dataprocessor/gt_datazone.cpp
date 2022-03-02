@@ -251,7 +251,7 @@ GtDataZone::value1DVector(const QString &param, bool *ok) const
     }
 
     GtTable* tab = table();
-    if (tab == Q_NULLPTR)
+    if (!tab)
     {
         return error(QVector<double>(), ok);
     }
@@ -274,7 +274,7 @@ GtDataZone::value1DVector(const QString &param, const QVector<double>& ticks, bo
     }
 
     GtTable* tab = table();
-    if (tab == Q_NULLPTR)
+    if (!tab)
     {
         return error(QVector<double>(), ok);
     }
@@ -324,7 +324,7 @@ GtDataZone::value2D(const QString& param, const double& x0,
     }
 
     GtTable* tab = table();
-    if (tab == Q_NULLPTR)
+    if (!tab)
     {
         return error(0.0, ok);
     }
@@ -849,7 +849,7 @@ GtDataZone::minValue2D(const QString &paramName, bool* ok)
     double retVal = qPow(10, 20);
 
     // @todo: this seems to be wrong. Issue #195 is created
-    if (ok != Q_NULLPTR)
+    if (ok)
     {
         *ok = false;
         return retVal;
@@ -880,7 +880,7 @@ GtDataZone::maxValue2D(const QString& paramName, bool* ok)
     double retVal = -qPow(10, 20);
 
     // @todo: this seems to be wrong. Issue #195 is created
-    if (ok != Q_NULLPTR)
+    if (ok)
     {
         *ok = false;
         return retVal;
@@ -911,7 +911,7 @@ GtDataZone::minValue1D(const QString &paramName, bool *ok)
     double retVal = qPow(10, 20);
 
     // @todo: this seems to be wrong. Issue #195 is created
-    if (ok != Q_NULLPTR)
+    if (ok)
     {
         *ok = false;
         return retVal;
@@ -938,7 +938,7 @@ GtDataZone::maxValue1D(const QString& paramName, bool *ok)
     double retVal = -qPow(10, 20);
 
     // @todo: this seems to be wrong. Issue #195 is created
-    if (ok != Q_NULLPTR)
+    if (ok)
     {
         *ok = false;
         return retVal;

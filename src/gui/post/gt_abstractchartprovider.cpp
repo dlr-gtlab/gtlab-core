@@ -31,7 +31,7 @@ GtAbstractChartProvider::uuids() const
     foreach (GtStringContainer* container,
              o->findDirectChildren<GtStringContainer*>())
     {
-        if (container != nullptr)
+        if (container)
         {
             retval.append(container->entry());
         }
@@ -62,7 +62,7 @@ GtAbstractChartProvider::addUUID(const QString& uuid)
     foreach (GtStringContainer* container,
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
-        if (container != nullptr)
+        if (container)
         {
             if (container->entry() == uuid)
             {
@@ -85,7 +85,7 @@ GtAbstractChartProvider::objectNamesFromContainer() const
     foreach (GtStringContainer* container,
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
-        if (container == nullptr)
+        if (!container)
         {
             continue;
         }
@@ -94,7 +94,7 @@ GtAbstractChartProvider::objectNamesFromContainer() const
 
         GtObject* obj = gtDataModel->objectByUuid(uuidContainer);
 
-        if (obj == nullptr)
+        if (!obj)
         {
             continue;
         }
@@ -111,7 +111,7 @@ GtAbstractChartProvider::clearUUIDsContainer()
     foreach (GtStringContainer* container,
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
-        if (container == nullptr)
+        if (!container)
         {
             continue;
         }
@@ -448,7 +448,7 @@ GtAbstractChartProvider::UUIDsContainer() const
 {
     GtObjectGroup* g = findDirectChild<GtObjectGroup*>("UUID");
 
-    if (g == nullptr)
+    if (!g)
     {
         gtError() << "Group 'UUID' not found in Abstract Chart provider";
         return nullptr;

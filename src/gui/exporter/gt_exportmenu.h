@@ -31,7 +31,7 @@ public:
      * @param Parent widget.
      */
     GtExportMenu(GtObject* obj,
-                 QWidget* parent = Q_NULLPTR);
+                 QWidget* parent = nullptr);
 
 private:
     /// mapper for action signals

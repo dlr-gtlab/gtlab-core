@@ -33,8 +33,8 @@
 #include "gt_logging.h"
 
 GtLabelsDock::GtLabelsDock() :
-    m_labelData(Q_NULLPTR),
-    m_project(Q_NULLPTR)
+    m_labelData(nullptr),
+    m_project(nullptr)
 {
     setObjectName(tr("Labels"));
 
@@ -142,19 +142,19 @@ GtLabelsDock::projectChangedEvent(GtProject* project)
     m_exportButton->setEnabled(false);
     m_addButton->setEnabled(false);
 
-    m_listView->setModel(Q_NULLPTR);
+    m_listView->setModel(nullptr);
     m_styledModel->setSourceModel(gtDataModel);
 
-    m_labelData = Q_NULLPTR;
+    m_labelData = nullptr;
     m_project = project;
 
-    if (m_project != Q_NULLPTR)
+    if (m_project)
     {
         m_addButton->setEnabled(true);
 
         m_labelData = m_project->labelData();
 
-        if (m_labelData != Q_NULLPTR)
+        if (m_labelData)
         {
             filterData(m_search->text());
         }
@@ -195,14 +195,14 @@ GtLabelsDock::findUsages(const QModelIndex& index)
         return;
     }
 
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         return;
     }
 
     GtLabel* label = labelFromIndex(index);
 
-    if (label == Q_NULLPTR)
+    if (!label)
     {
         return;
     }
@@ -236,14 +236,14 @@ GtLabelsDock::deleteUsages(const QModelIndex& index, bool deleteLabel)
         return;
     }
 
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         return;
     }
 
     GtLabel* label = labelFromIndex(index);
 
-    if (label == Q_NULLPTR)
+    if (!label)
     {
         return;
     }
@@ -314,7 +314,7 @@ void
 GtLabelsDock::deleteMultipleUsages(const QModelIndexList& indexes,
                                    bool deleteLabels)
 {
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         return;
     }
@@ -331,7 +331,7 @@ GtLabelsDock::deleteMultipleUsages(const QModelIndexList& indexes,
 
         GtLabel* label = labelFromIndex(idx);
 
-        if (label == Q_NULLPTR)
+        if (!label)
         {
             continue;
         }
@@ -403,14 +403,14 @@ GtLabelsDock::labelFromIndex(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QModelIndex srcIndex = mapToSource(index);
 
     if (!srcIndex.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
@@ -429,9 +429,9 @@ GtLabelsDock::filterData(const QString& val)
 {
     m_model->setFilterRegExp(val);
 
-    m_listView->setModel(Q_NULLPTR);
+    m_listView->setModel(nullptr);
 
-    if (m_labelData != Q_NULLPTR)
+    if (m_labelData)
     {
         QModelIndex srcIndex = gtDataModel->indexFromObject(m_labelData);
         QModelIndex index = mapFromSource(srcIndex);
@@ -448,7 +448,7 @@ GtLabelsDock::filterData(const QString& val)
 void
 GtLabelsDock::newLabel()
 {
-    if (m_labelData == Q_NULLPTR)
+    if (!m_labelData)
     {
         return;
     }
@@ -473,7 +473,7 @@ GtLabelsDock::newLabel()
 void
 GtLabelsDock::customContextMenu(const QPoint& pos)
 {
-    if (m_listView->model() == Q_NULLPTR)
+    if (!m_listView->model())
     {
         return;
     }
@@ -481,7 +481,7 @@ GtLabelsDock::customContextMenu(const QPoint& pos)
     QModelIndexList indexes;
 
     // multiselection
-    if (m_listView->selectionModel() != Q_NULLPTR)
+    if (m_listView->selectionModel())
     {
         indexes = m_listView->selectionModel()->selectedIndexes();
     }

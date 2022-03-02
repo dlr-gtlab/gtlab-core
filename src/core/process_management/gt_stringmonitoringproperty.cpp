@@ -17,7 +17,7 @@ GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
 {
     setReadOnly(true);
 
-    if (m_validator != nullptr)
+    if (m_validator)
     {
         delete m_validator;
     }

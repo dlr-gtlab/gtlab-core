@@ -100,7 +100,7 @@ private:
     template <class T>
     bool mapToSourceHelper(QModelIndex& index, T model)
     {
-        if (model == Q_NULLPTR)
+        if (!model)
         {
             return false;
         }
@@ -138,7 +138,7 @@ private:
             return false;
         }
 
-        if (model == Q_NULLPTR)
+        if (!model)
         {
             return false;
         }

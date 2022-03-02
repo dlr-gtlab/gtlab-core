@@ -160,7 +160,7 @@ GtObjectUI::icon(GtObject* /*obj*/) const
 QVariant
 GtObjectUI::data(GtObject* obj, int role, int column) const
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return QVariant();
     }
@@ -342,7 +342,7 @@ GtObjectUI::hasActionGroups()
 void
 GtObjectUI::doubleClicked(GtObject* obj)
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }

@@ -26,11 +26,11 @@ public:
      * @brief GtAddTaskGlobalButton
      * @param parent
      */
-    explicit GtAddTaskGlobalButton(GtTaskEntity* parent = Q_NULLPTR);
+    explicit GtAddTaskGlobalButton(GtTaskEntity* parent = nullptr);
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) override;
+                       QWidget* widget = nullptr) override;
 
     /**
     * @brief boundingRect

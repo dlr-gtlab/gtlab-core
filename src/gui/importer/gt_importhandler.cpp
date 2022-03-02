@@ -27,7 +27,7 @@ GtImportHandler*
 GtImportHandler::instance()
 {
     static GtImportHandler* retval = nullptr;
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtImportHandler(qApp);
     }
@@ -95,22 +95,22 @@ GtImportHandler::newImporter(const QString& classname)
 {
     if (!knownClass(classname))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtObject* obj = newObject(classname);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtAbstractImporter* retval = qobject_cast<GtAbstractImporter*>(obj);
 
-    if (retval == Q_NULLPTR)
+    if (!retval)
     {
         delete obj;
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return retval;

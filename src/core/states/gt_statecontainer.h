@@ -33,7 +33,7 @@ public:
      * @param Parent object.
      * @param Project object.
      */
-    GtStateContainer(GtObject* parent, GtProject* project = Q_NULLPTR);
+    GtStateContainer(GtObject* parent, GtProject* project = nullptr);
 
     /**
      * @brief Returns state container specific project.

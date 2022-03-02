@@ -29,7 +29,7 @@ public:
      * @param parent
      */
     GtProcessQueueModel(GtProcessExecutor* proExec,
-                        QObject* parent = Q_NULLPTR);
+                        QObject* parent = nullptr);
 
     /**
      * @brief rowCount

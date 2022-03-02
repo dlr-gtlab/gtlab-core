@@ -44,8 +44,8 @@
 #include <memory>
 
 GtExplorerDock::GtExplorerDock() :
-    m_model(Q_NULLPTR),
-    m_styledModel(Q_NULLPTR)
+    m_model(nullptr),
+    m_styledModel(nullptr)
 {
     setObjectName(tr("Explorer"));
 
@@ -170,7 +170,7 @@ GtExplorerDock::initAfterStartup()
     {
         GtProject* proj = gtApp->findProject(gtApp->settings()->lastProject());
 
-        if (proj != Q_NULLPTR)
+        if (proj)
         {
             gtDataModel->openProject(proj);
 
@@ -206,7 +206,7 @@ GtExplorerDock::initAfterStartup()
 void
 GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
@@ -394,7 +394,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     {
         GtProject* project = obj->findRoot<GtProject*>();
 
-        if (project != Q_NULLPTR)
+        if (project)
         {
             gtDataModel->deleteFromModel(obj);
         }
@@ -427,7 +427,7 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
     foreach (GtObject* obj, objs)
     {
         GtProject* proj = qobject_cast<GtProject*>(obj);
-        if (qobject_cast<GtProject*>(obj) == Q_NULLPTR)
+        if (!qobject_cast<GtProject*>(obj))
         {
             allProjects = false;
             break;
@@ -472,7 +472,7 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
     {
         GtProject* project = objs.first()->findRoot<GtProject*>();
 
-        if (project != Q_NULLPTR)
+        if (project)
         {
             deleteElements(m_view->selectionModel()->selectedIndexes());
         }
@@ -565,7 +565,7 @@ GtExplorerDock::saveExpandStates()
 void
 GtExplorerDock::saveExpandStatesToSettings()
 {
-    if (gtApp->currentProject() == Q_NULLPTR)
+    if (!gtApp->currentProject())
     {
         return;
     }
@@ -597,7 +597,7 @@ GtExplorerDock::saveExpandStatesToSettings()
 void
 GtExplorerDock::restoreExpandStates(const QStringList& list)
 {
-    QAbstractItemModel* model = Q_NULLPTR;
+    QAbstractItemModel* model = nullptr;
 
     model = m_model;
 
@@ -631,9 +631,9 @@ GtExplorerDock::restoreExpandStatesHelper(const QStringList& expandedItems,
 void
 GtExplorerDock::keyPressEvent(QKeyEvent* event)
 {
-    if (m_view != nullptr)
+    if (m_view)
     {
-        if (m_view->selectionModel() != nullptr)
+        if (m_view->selectionModel())
         {
             QModelIndexList indexlist =
                     m_view->selectionModel()->selectedIndexes();
@@ -661,7 +661,7 @@ GtExplorerDock::keyPressEvent(QKeyEvent* event)
 void
 GtExplorerDock::onSessionChanged()
 {
-    if (gtApp->session() == Q_NULLPTR)
+    if (!gtApp->session())
     {
         return;
     }
@@ -718,14 +718,14 @@ GtExplorerDock::onMdiItemRequested(const QModelIndex& index)
 
     GtObject* item = gtDataModel->objectFromIndex(srcIndex);
 
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return;
     }
 
     GtObjectUI* oui = gtApp->defaultObjectUI(item);
 
-    if (oui == Q_NULLPTR)
+    if (!oui)
     {
         return;
     }
@@ -734,7 +734,7 @@ GtExplorerDock::onMdiItemRequested(const QModelIndex& index)
 
     GtProject* project = qobject_cast<GtProject*>(item);
 
-    if (project != Q_NULLPTR)
+    if (project)
     {
         m_view->expand(index);
     }
@@ -773,7 +773,7 @@ GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
 
         GtObject* item = gtDataModel->objectFromIndex(indexUnderMouse);
 
-        if (item != Q_NULLPTR)
+        if (item)
         {
             objectContextMenu(item, indexUnderMouse);
         }
@@ -789,7 +789,7 @@ GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
                 QModelIndex mappedIndex = mapToSource(index);
                 GtObject* item = gtDataModel->objectFromIndex(mappedIndex);
 
-                if (item != Q_NULLPTR)
+                if (item)
                 {
                     selectedObjects << item;
                 }
@@ -856,7 +856,7 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
 
         GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             continue;
         }

@@ -25,7 +25,7 @@ GtAccessGroupModel::GtAccessGroupModel(GtAccessGroup* group, QObject* parent) :
 int
 GtAccessGroupModel::rowCount(const QModelIndex& /*parent*/) const
 {
-    if (m_group == Q_NULLPTR)
+    if (!m_group)
     {
         return 0;
     }
@@ -44,7 +44,7 @@ GtAccessGroupModel::data(const QModelIndex& index, int role) const
 {
     QVariant retVal{};
 
-    if (m_group == Q_NULLPTR)
+    if (!m_group)
     {
         return retVal;
     }
@@ -172,7 +172,7 @@ GtAccessGroupModel::headerData(int section, Qt::Orientation orientation,
 bool
 GtAccessGroupModel::addAccessData(const GtAccessData& accessData)
 {
-    if (m_group == Q_NULLPTR)
+    if (!m_group)
     {
         return false;
     }
@@ -206,7 +206,7 @@ GtAccessGroupModel::removeAccessData(const QModelIndex& index)
         return false;
     }
 
-    if (m_group == Q_NULLPTR)
+    if (!m_group)
     {
         return false;
     }
@@ -234,7 +234,7 @@ GtAccessGroupModel::setAccessData(const GtAccessData& accessData,
         return false;
     }
 
-    if (m_group == Q_NULLPTR)
+    if (!m_group)
     {
         return false;
     }

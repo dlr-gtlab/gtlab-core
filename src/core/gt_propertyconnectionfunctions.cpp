@@ -20,7 +20,7 @@ GtPropertyConnectionFunctions::findConnectionCopy(
         const GtPropertyConnection* origCon,
         const QList<GtPropertyConnection*>& newCons)
 {
-    if (origCon == nullptr)
+    if (!origCon)
     {
         return nullptr;
     }
@@ -66,12 +66,12 @@ GtPropertyConnectionFunctions::updateConnectionProperties(
         GtPropertyConnection* copyCon,
         GtTask* orig, GtTask* copy)
 {
-    if (origCon == nullptr || copyCon == nullptr)
+    if (!origCon || !copyCon)
     {
         return false;
     }
 
-    if (orig == nullptr || copy == nullptr)
+    if (!orig || !copy)
     {
         return false;
     }
@@ -79,7 +79,7 @@ GtPropertyConnectionFunctions::updateConnectionProperties(
     GtObject* origSourceObj = orig->getObjectByUuid(origCon->sourceUuid());
     GtObject* origTargetObj = orig->getObjectByUuid(origCon->targetUuid());
 
-    if (origSourceObj == nullptr || origTargetObj == nullptr)
+    if (!origSourceObj || !origTargetObj)
     {
         gtError() << "Could not find original objects...";
         return false;
@@ -88,7 +88,7 @@ GtPropertyConnectionFunctions::updateConnectionProperties(
     GtObject* newSourceObj = findEquivalentObject(copy, origSourceObj);
     GtObject* newTargetObj = findEquivalentObject(copy, origTargetObj);
 
-    if (newSourceObj == nullptr || newTargetObj == nullptr)
+    if (!newSourceObj || !newTargetObj)
     {
         gtError() << "Could not find new objects...";
         return false;
@@ -106,7 +106,7 @@ bool
 GtPropertyConnectionFunctions::updateRelativeObjectLinks(
         GtObject* orig, GtObject* copy)
 {
-    if (orig == nullptr || copy == nullptr)
+    if (!orig || !copy)
     {
         return false;
     }
@@ -116,7 +116,7 @@ GtPropertyConnectionFunctions::updateRelativeObjectLinks(
 
     GtObject* copyClone = copy->clone();
 
-    if (copyClone == nullptr)
+    if (!copyClone)
     {
         return false;
     }
@@ -151,7 +151,7 @@ GtObject*
 GtPropertyConnectionFunctions::findEquivalentObject(GtObject* parent,
                                                     GtObject* origObj)
 {
-    if (parent == nullptr || origObj == nullptr)
+    if (!parent || !origObj)
     {
         return nullptr;
     }
@@ -178,7 +178,7 @@ GtPropertyConnectionFunctions::findEquivalentObject(GtObject* parent,
                 GtAbstractProperty* newProp =
                     obj->findProperty(absProp->ident());
 
-                if (newProp == nullptr)
+                if (!newProp)
                 {
                     continue;
                 }
@@ -198,7 +198,7 @@ GtPropertyConnectionFunctions::findEquivalentObject(GtObject* parent,
             GtObject* origPar = qobject_cast<GtObject*>(origObj->parent());
             GtObject* currentParent = qobject_cast<GtObject*>(obj->parent());
 
-            if (origPar == nullptr && currentParent == nullptr)
+            if (!origPar && !currentParent)
             {
                 return obj;
             }
@@ -238,24 +238,24 @@ GtPropertyConnectionFunctions::findEquivalentObject(GtObject* parent,
 GtTask*
 GtPropertyConnectionFunctions::highestParentTask(GtTask* childTask)
 {
-    if (childTask == nullptr)
+    if (!childTask)
     {
         return nullptr;
     }
 
-    if (childTask->parent() == nullptr)
+    if (!childTask->parent())
     {
         return childTask;
     }
 
-    if (qobject_cast<GtProcessData*>(childTask->parent()) != nullptr)
+    if (qobject_cast<GtProcessData*>(childTask->parent()))
     {
         return childTask;
     }
 
     GtTask* parent = qobject_cast<GtTask*>(childTask->parent());
 
-    if (parent != nullptr)
+    if (parent)
     {
         return highestParentTask(parent);
     }
@@ -266,19 +266,19 @@ GtPropertyConnectionFunctions::highestParentTask(GtTask* childTask)
 GtTask*
 GtPropertyConnectionFunctions::highestParentTask(const GtCalculator* childCalc)
 {
-    if (childCalc == nullptr)
+    if (!childCalc)
     {
         return nullptr;
     }
 
-    if (childCalc->parent() == nullptr)
+    if (!childCalc->parent())
     {
         return nullptr;
     }
 
     GtTask* task = qobject_cast<GtTask*>(childCalc->parent());
 
-    if (task != nullptr)
+    if (task)
     {
         return highestParentTask(task);
     }
@@ -290,7 +290,7 @@ GtTask*
 GtPropertyConnectionFunctions::highestParentTask(
         GtProcessComponent* childComp)
 {
-    if (childComp == nullptr)
+    if (!childComp)
     {
         return nullptr;
     }
@@ -313,14 +313,14 @@ GtPropertyConnectionFunctions::internalPropertyConnections(GtTask *task)
 {
     QList<GtPropertyConnection*> retVal = {};
 
-    if (task == nullptr)
+    if (!task)
     {
         return retVal;
     }
 
     GtTask* highestParent = highestParentTask(task);
 
-    if (highestParent == nullptr)
+    if (!highestParent)
     {
         return retVal;
     }
@@ -335,7 +335,7 @@ GtPropertyConnectionFunctions::internalPropertyConnections(GtTask *task)
         GtObject* targetObj =
             highestParent->getObjectByUuid(propCon->targetUuid());
 
-        if (sourceObj == nullptr || targetObj == nullptr)
+        if (!sourceObj || !targetObj)
         {
             continue;
         }
@@ -385,14 +385,14 @@ GtPropertyConnectionFunctions::lostPropertyConnections(GtTask* task)
 {
     QList<GtPropertyConnection*> retVal;
 
-    if (task == nullptr)
+    if (!task)
     {
         return retVal;
     }
 
     GtTask* highestParent = highestParentTask(task);
 
-    if (highestParent == nullptr)
+    if (!highestParent)
     {
         return retVal;
     }
@@ -407,7 +407,7 @@ GtPropertyConnectionFunctions::lostPropertyConnections(GtTask* task)
         GtObject* targetObj =
             highestParent->getObjectByUuid(propCon->targetUuid());
 
-        if (sourceObj == nullptr || targetObj == nullptr)
+        if (!sourceObj || !targetObj)
         {
             continue;
         }
@@ -482,14 +482,14 @@ GtPropertyConnectionFunctions::relatedPropertyConnections(GtCalculator* calc)
 {
     QList<GtPropertyConnection*> retVal;
 
-    if (calc == nullptr)
+    if (!calc)
     {
         return retVal;
     }
 
     GtTask* highestParent = highestParentTask(calc);
 
-    if (highestParent == nullptr)
+    if (!highestParent)
     {
         return retVal;
     }
@@ -505,7 +505,7 @@ GtPropertyConnectionFunctions::relatedPropertyConnections(GtCalculator* calc)
         GtObject* targetObj =
             highestParent->getObjectByUuid(propCon->targetUuid());
 
-        if (sourceObj == nullptr || targetObj == nullptr)
+        if (!sourceObj || !targetObj)
         {
             continue;
         }
@@ -552,7 +552,7 @@ GtPropertyConnectionFunctions::setOffLostConnectionWarnings(
         GtTask* sourceParent = nullptr;
         GtTask* targetParent = nullptr;
 
-        if (qobject_cast<GtCalculator*>(source) != nullptr)
+        if (qobject_cast<GtCalculator*>(source))
         {
             sourceParent = qobject_cast<GtTask*>(source->parentObject());
         }
@@ -561,7 +561,7 @@ GtPropertyConnectionFunctions::setOffLostConnectionWarnings(
             sourceParent = qobject_cast<GtTask*>(source);
         }
 
-        if (qobject_cast<GtCalculator*>(target) != nullptr)
+        if (qobject_cast<GtCalculator*>(target))
         {
             targetParent = qobject_cast<GtTask*>(target->parentObject());
         }
@@ -570,15 +570,12 @@ GtPropertyConnectionFunctions::setOffLostConnectionWarnings(
             targetParent = qobject_cast<GtTask*>(target);
         }
 
-        if (source != nullptr && target != nullptr)
+        if (source && sourceParent && target && targetParent)
         {
-            if (sourceParent != nullptr &&  targetParent != nullptr)
-            {
-                gtWarning() << "Source:" << source->objectName()
-                            << "in Parent Task:" << sourceParent->objectName();
-                gtWarning() << "Target:" << target->objectName()
-                            << "in Parent Task:" << targetParent->objectName();
-            }
+            gtWarning() << "Source:" << source->objectName()
+                        << "in Parent Task:" << sourceParent->objectName();
+            gtWarning() << "Target:" << target->objectName()
+                        << "in Parent Task:" << targetParent->objectName();
         }
     }
 }
@@ -590,7 +587,7 @@ GtPropertyConnectionFunctions::mapRelativeObjectLink(
         GtObject* copyClone, GtObject* obj,
         GtRelativeObjectLinkProperty* relLink)
 {
-    if (orig == nullptr || copy == nullptr || copyClone == nullptr)
+    if (!orig || !copy || !copyClone)
     {
         return false;
     }
@@ -613,7 +610,7 @@ GtPropertyConnectionFunctions::mapRelativeObjectLink(
 
     GtObject* origTarget = orig->getObjectByUuid(origTargetUUID);
 
-    if (origTarget == nullptr)
+    if (!origTarget)
     {
         gtDebug() << "Could not identify target object...";
         return false;
@@ -622,7 +619,7 @@ GtPropertyConnectionFunctions::mapRelativeObjectLink(
     GtObject* targetCopyClone =
             findEquivalentObject(copyClone, origTarget);
 
-    if (targetCopyClone == nullptr)
+    if (!targetCopyClone)
     {
         gtDebug() << "Could not find equivalent target object...";
         return false;
@@ -630,7 +627,7 @@ GtPropertyConnectionFunctions::mapRelativeObjectLink(
 
     GtObject* objCopyClone =  findEquivalentObject(copyClone, obj);
 
-    if (objCopyClone == nullptr)
+    if (!objCopyClone)
     {
         gtDebug() << "Could not find equivalent object...";
         return false;
@@ -641,7 +638,7 @@ GtPropertyConnectionFunctions::mapRelativeObjectLink(
     GtObject* targetCopy = copy->getObjectByUuid(
                 targetCopyClone->uuid());
 
-    if (objCopy == nullptr || targetCopy == nullptr)
+    if (!objCopy || !targetCopy)
     {
         return false;
     }
@@ -649,7 +646,7 @@ GtPropertyConnectionFunctions::mapRelativeObjectLink(
     GtAbstractProperty* prop =
             objCopy->findProperty(relLink->ident());
 
-    if (prop == nullptr)
+    if (!prop)
     {
         gtDebug() << "Could not find property";
         return false;
@@ -658,7 +655,7 @@ GtPropertyConnectionFunctions::mapRelativeObjectLink(
     GtRelativeObjectLinkProperty*  newRelLink =
             qobject_cast<GtRelativeObjectLinkProperty*>(prop);
 
-    if (newRelLink == nullptr)
+    if (!newRelLink)
     {
         gtDebug() << "Is no relative obj Link!";
         return false;

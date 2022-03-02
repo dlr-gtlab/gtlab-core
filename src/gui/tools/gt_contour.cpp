@@ -26,7 +26,7 @@ GtContour::calcContour(GtTable *table, const QString &param,
   QHash<QString, QList<QPolygonF>> contourLines;
 
   if (!setData(table, param)) {
-    if (check != Q_NULLPTR) {
+    if (check) {
       *check = false;
       return contourLines;
     }
@@ -45,7 +45,7 @@ GtContour::calcContour(GtTable *table, const QString &param,
   QList<GtContourRunnable *> runnables;
 
   for (int i = 0; i < isoValues.size(); i++) {
-    GtContourRunnable *cr = Q_NULLPTR;
+    GtContourRunnable *cr = nullptr;
 
     if (i != isoValues.size() - 1) {
       cr = new GtContourRunnable(tableMemento, isoValues.at(i), calcPolygons,
@@ -95,7 +95,7 @@ QHash<QString, QList<QPolygonF>>
 GtContour::calcContour(GtTable *table, const QString &param, int nIsoValues,
                        bool calcPolygons, bool returnPolygonsOnly,
                        bool *check) {
-  if (table == Q_NULLPTR) {
+  if (!table) {
     return QHash<QString, QList<QPolygonF>>();
   }
 
@@ -111,7 +111,7 @@ GtContour::calcContour(GtTable *table, const QString &param, int nIsoValues,
   }
 
   if (qAbs(max - min) < 1e-10) {
-    if (check != Q_NULLPTR) {
+    if (check) {
       *check = false;
     }
 

@@ -52,7 +52,7 @@ GtCollectionReply::onHelperFinished()
     gtDebug() << "helper finished!";
     GtCollectionHelper* helper = qobject_cast<GtCollectionHelper*>(sender());
 
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         // TODO error
         emit finished();

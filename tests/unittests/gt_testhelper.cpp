@@ -28,7 +28,7 @@ GtTestHelper*
 GtTestHelper::instance()
 {
     static GtTestHelper* retval = nullptr;
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtTestHelper();
     }

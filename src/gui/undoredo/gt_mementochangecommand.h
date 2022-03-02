@@ -24,8 +24,8 @@ class GtMementoChangeCommand : public QUndoCommand
 public:
     GtMementoChangeCommand(const GtObjectMementoDiff& diff,
                            const QString& msg,
-                           GtObject* root = Q_NULLPTR,
-                           QUndoCommand* parent = Q_NULLPTR);
+                           GtObject* root = nullptr,
+                           QUndoCommand* parent = nullptr);
 
     /**
      * @brief redo

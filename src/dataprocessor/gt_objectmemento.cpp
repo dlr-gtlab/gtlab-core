@@ -18,7 +18,7 @@
 
 GtObjectMemento::GtObjectMemento(const GtObject* obj, bool clone)
 {
-    if (obj != nullptr)
+    if (obj)
     {
         GtObjectIO oio;
         m_data = oio.toMemento(obj, clone);
@@ -87,7 +87,7 @@ GtObjectMemento::toByteArray() const
 bool
 GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory)
 {
-    if (factory == Q_NULLPTR)
+    if (!factory)
     {
         gtWarning() << QObject::tr("no factory set!");
         return false;
@@ -99,7 +99,7 @@ GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory)
 bool
 GtObjectMemento::mergeTo(GtObject* obj, GtAbstractObjectFactory* factory) const
 {
-    if (obj == nullptr || factory == nullptr)
+    if (!obj || !factory)
     {
         return false;
     }

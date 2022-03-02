@@ -15,7 +15,7 @@
 #include "gt_customprocesswizard.h"
 
 GtCustomProcessWizard::GtCustomProcessWizard() :
-    m_wizard(Q_NULLPTR)
+    m_wizard(nullptr)
 {
 
 }
@@ -35,12 +35,12 @@ GtCustomProcessWizard::setPage(int id, const QMetaObject& metaPage)
 
     QObject* obj = metaPage.newInstance();
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return false;
     }
 
-    if (qobject_cast<GtProcessWizardPage*>(obj) == Q_NULLPTR)
+    if (!qobject_cast<GtProcessWizardPage*>(obj))
     {
         delete obj;
         return false;

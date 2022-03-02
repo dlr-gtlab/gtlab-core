@@ -28,7 +28,7 @@ GtStateHandler::GtStateHandler(QObject* parent)
 GtStateContainer*
 GtStateHandler::findContainer(GtProject* project)
 {
-    if (project == nullptr)
+    if (!project)
     {
         return nullptr;
     }
@@ -36,7 +36,7 @@ GtStateHandler::findContainer(GtProject* project)
     GtStateContainer* retval =
             findDirectChild<GtStateContainer*>(project->objectName());
 
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtStateContainer(this, project);
         retval->setObjectName(project->objectName());
@@ -49,7 +49,7 @@ GtStateHandler*
 GtStateHandler::instance()
 {
     static GtStateHandler* retval = nullptr;
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtStateHandler(qApp);
     }
@@ -71,13 +71,13 @@ GtStateHandler::initializeState(GtProject* project, const QString& groupId,
                                 const QVariant& initValue, GtObject* guardian,
                                 bool forceInitialization)
 {
-    if (project == nullptr)
+    if (!project)
     {
         return initializeState(groupId, id, path, initValue, guardian,
                                forceInitialization);
     }
 
-    if (guardian == nullptr)
+    if (!guardian)
     {
         return nullptr;
     }
@@ -99,7 +99,7 @@ GtStateHandler::initializeState(GtProject* project, const QString& groupId,
 
     GtStateContainer* container = findContainer(project);
 
-    if (container == nullptr)
+    if (!container)
     {
         return nullptr;
     }

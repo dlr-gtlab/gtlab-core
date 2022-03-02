@@ -149,21 +149,21 @@ protected:
     virtual void TearDown()
     {
         delete m_table;
-        m_table = Q_NULLPTR;
+        m_table = nullptr;
         delete m_table2;
-        m_table2 = Q_NULLPTR;
+        m_table2 = nullptr;
         delete m_table3;
-        m_table3 = Q_NULLPTR;
+        m_table3 = nullptr;
         delete m_table4;
-        m_table4 = Q_NULLPTR;
+        m_table4 = nullptr;
         delete m_table5;
-        m_table5 = Q_NULLPTR;
+        m_table5 = nullptr;
         delete m_table6;
-        m_table6 = Q_NULLPTR;
+        m_table6 = nullptr;
         delete m_table7;
-        m_table7 = Q_NULLPTR;
+        m_table7 = nullptr;
         delete m_table8;
-        m_table8 = Q_NULLPTR;
+        m_table8 = nullptr;
     }
 
     GtTable* m_table;
@@ -180,7 +180,7 @@ protected:
 TEST_F(TestGtTable, ticks)
 {
     GtTableAxis* axis = m_table3->findDirectChild<GtTableAxis*>("axisID");
-    ASSERT_TRUE(axis != Q_NULLPTR);
+    ASSERT_TRUE(axis != nullptr);
 
     QVector <double> ticks = axis->ticks();
 
@@ -279,8 +279,8 @@ TEST_F(TestGtTable, getAxisTicks2)
 TEST_F(TestGtTable, getAxisList)
 {
     ASSERT_EQ(m_table3->getAxesList().size(), 2);
-    ASSERT_TRUE(m_table2->getAxesList().first() != Q_NULLPTR);
-    ASSERT_TRUE(m_table2->getAxesList().at(1) != Q_NULLPTR);
+    ASSERT_TRUE(m_table2->getAxesList().first() != nullptr);
+    ASSERT_TRUE(m_table2->getAxesList().at(1) != nullptr);
 }
 
 TEST_F(TestGtTable, getAxesNames)
@@ -346,7 +346,7 @@ TEST_F(TestGtTable, getUnit)
 
 TEST_F(TestGtTable, getVals)
 {
-    ASSERT_TRUE(m_table3->getVals("valuesID") != Q_NULLPTR);
+    ASSERT_TRUE(m_table3->getVals("valuesID") != nullptr);
 
     ASSERT_THROW(m_table3->getVals("sdgasdg"), GTlabException);
 }
@@ -436,7 +436,7 @@ TEST_F(TestGtTable, scaleAxis)
     ASSERT_EQ(values.at(0), compareValues.at(0));
     ASSERT_EQ(values.at(1), compareValues.at(1));
     ASSERT_EQ(values.at(2), compareValues.at(2));
-    currentAxis = Q_NULLPTR;
+    currentAxis = nullptr;
 }
 
 TEST_F(TestGtTable, scaleValues)
@@ -605,7 +605,7 @@ TEST_F(TestGtTable, testInterpolators)
 
     GtObject* memObj = mem.restore(gtObjectFactory);
 
-    ASSERT_TRUE(memObj != Q_NULLPTR);
+    ASSERT_TRUE(memObj != nullptr);
 
     GtTable* memTable = qobject_cast<GtTable*>(memObj);
 
@@ -616,7 +616,7 @@ TEST_F(TestGtTable, testInterpolators)
 
     ASSERT_EQ(properties.size(), 3);
 
-    ASSERT_TRUE(memTable != Q_NULLPTR);
+    ASSERT_TRUE(memTable != nullptr);
 
     QList<GtTableAxis*> memAxes = memTable->getAxesList();
 

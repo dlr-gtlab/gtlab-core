@@ -22,11 +22,11 @@ class GtTaskEntity : public QGraphicsObject
     Q_OBJECT
 
 public:
-    GtTaskEntity(GtTask* task, QGraphicsItem* parent = Q_NULLPTR);
+    GtTaskEntity(GtTask* task, QGraphicsItem* parent = nullptr);
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) override;
+                       QWidget* widget = nullptr) override;
 
     /**
     * @brief boundingRect
@@ -110,7 +110,7 @@ protected:
      * @param item
      * @return
      */
-    QList<QGraphicsItem*> allChildItems(QGraphicsItem* item = Q_NULLPTR);
+    QList<QGraphicsItem*> allChildItems(QGraphicsItem* item = nullptr);
 
     /**
      * @brief dragEnterEvent

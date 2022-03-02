@@ -72,7 +72,7 @@ GtLocalCollectionWidget::setCustomContextMenuEnabled(bool val)
 void
 GtLocalCollectionWidget::setShowItemInfo(bool val)
 {
-    if (m_model == Q_NULLPTR)
+    if (!m_model)
     {
         return;
     }

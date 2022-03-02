@@ -20,7 +20,7 @@ GtAddTaskGlobalButton::GtAddTaskGlobalButton(GtTaskEntity* parent) :
     m_w(15),
     m_h(12),
     m_taskEntity(parent),
-    m_anim(Q_NULLPTR)
+    m_anim(nullptr)
 {
     setAcceptHoverEvents(true);
     setToolTip(tr("Add Global"));
@@ -72,7 +72,7 @@ GtAddTaskGlobalButton::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 void
 GtAddTaskGlobalButton::runEnterAnimation()
 {
-    if (m_anim == Q_NULLPTR)
+    if (!m_anim)
     {
         m_anim = new QPropertyAnimation(this, "scale");
         m_anim->setDuration(500);
@@ -94,7 +94,7 @@ GtAddTaskGlobalButton::runEnterAnimation()
 void
 GtAddTaskGlobalButton::runLeaveAnimation()
 {
-    if (m_anim == Q_NULLPTR)
+    if (!m_anim)
     {
         m_anim = new QPropertyAnimation(this, "scale");
         m_anim->setDuration(500);

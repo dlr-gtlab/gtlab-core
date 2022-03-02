@@ -41,7 +41,7 @@ GtTask::GtTask() :
 bool
 GtTask::exec()
 {
-    m_runnable = Q_NULLPTR;
+    m_runnable = nullptr;
 
     // check skipped indicator
     if (isSkipped())
@@ -66,7 +66,7 @@ GtTask::exec()
             GtObject* linkedObj =
                 m_runnable->data<GtObject*>(objLink->linkedObjectUUID());
 
-            if (linkedObj != Q_NULLPTR)
+            if (linkedObj)
             {
                 // linked object found -> store inside list
                 m_linkedObjects.append(linkedObj);
@@ -83,7 +83,7 @@ GtTask::exec()
             GtObject* linkedObj =
                 m_runnable->data<GtObject*>(objPath->path());
 
-            if (linkedObj != Q_NULLPTR)
+            if (linkedObj)
             {
                 // linked object found -> store inside list
                 m_linkedObjects.append(linkedObj);
@@ -152,7 +152,7 @@ GtTask::run(GtAbstractRunnable* runnable)
 
     QThreadPool* tp = QThreadPool::globalInstance();
 
-    if (tp == Q_NULLPTR)
+    if (!tp)
     {
         return;
     }
@@ -338,7 +338,7 @@ GtTask::runChildElements()
 
         GtCalculator* calc = qobject_cast<GtCalculator*>(comp);
 
-        if (calc != Q_NULLPTR && calc->runFailsOnWarning())
+        if (calc && calc->runFailsOnWarning())
         {
             if (calc->currentState() == GtProcessComponent::WARN_FINISHED)
             {
@@ -406,7 +406,7 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
                                     GtProcessComponent* component)
 {
     // check component
-    if (component == Q_NULLPTR)
+    if (!component)
     {
         return;
     }
@@ -444,7 +444,7 @@ GtTask::collectPropertyConnectionHelper(QList<GtPropertyConnection*>& list,
                                         GtProcessComponent* component)
 {
     // check component
-    if (component == Q_NULLPTR)
+    if (!component)
     {
         return;
     }

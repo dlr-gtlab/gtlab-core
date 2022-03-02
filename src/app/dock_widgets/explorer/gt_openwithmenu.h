@@ -29,7 +29,7 @@ public:
      * @param parent
      */
     GtOpenWithMenu(const QStringList& list, GtObject* obj,
-                   QWidget* parent = Q_NULLPTR);
+                   QWidget* parent = nullptr);
 
 private:
     /// mapper for action signals

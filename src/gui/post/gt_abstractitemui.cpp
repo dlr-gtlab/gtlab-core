@@ -158,7 +158,7 @@ GtAbstractItemUI::resize()
 void
 GtAbstractItemUI::setWidget(GtAbstractPostWidget* widget)
 {
-    if (widget == Q_NULLPTR)
+    if (!widget)
     {
         gtDebug() << tr("Cannot set Widget in GtAbstractItemUI, "
                         "because widget is a Nullptr.");
@@ -201,7 +201,7 @@ GtAbstractItemUI::createConfigMenu(const QList<GtPostAction*>& /*list*/)
 void
 GtAbstractItemUI::adjustToolBar()
 {
-    if (m_widget == Q_NULLPTR)
+    if (!m_widget)
     {
         gtDebug() << tr("Widget is a Nullptr, cannot adjust toolbar!");
         return;
@@ -234,14 +234,14 @@ GtAbstractItemUI::printEmbedded(QPrinter* printer,
 GtPostTemplateItem*
 GtAbstractItemUI::data()
 {
-    if (m_widget == Q_NULLPTR)
+    if (!m_widget)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
-    if (m_widget->data() == Q_NULLPTR)
+    if (!m_widget->data())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_widget->data();
@@ -295,12 +295,12 @@ GtAbstractItemUI::deletePlot()
 void
 GtAbstractItemUI::configurePlot()
 {
-    if (m_widget == Q_NULLPTR)
+    if (!m_widget)
     {
         gtWarning() << tr("Widget is a Nullptr, cannot show config menu.");
     }
 
-    if (m_widget->data() == Q_NULLPTR)
+    if (!m_widget->data())
     {
         gtWarning() << tr("Data of Widget is a Nullptr, "
                           "cannot show config menu.");

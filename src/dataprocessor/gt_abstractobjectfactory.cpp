@@ -24,7 +24,7 @@ GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
     {
         const QMetaObject& mo = m_knownClasses[className];
         retval = newObject(mo, parent);
-        if (retval == nullptr)
+        if (!retval)
         {
             if (!m_silent)
             {
@@ -83,7 +83,7 @@ GtAbstractObjectFactory::classHierarchy(const QMetaObject* metaObj)
 {
     QStringList retval;
 
-    if (metaObj == Q_NULLPTR)
+    if (!metaObj)
     {
         return retval;
     }
@@ -147,12 +147,12 @@ GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent)
     GtObject* retval = nullptr;
 
     retval = qobject_cast<GtObject*>(metaObj.newInstance());
-    if (retval == nullptr)
+    if (!retval)
     {
         return nullptr;
     }
 
-    if (parent != nullptr)
+    if (parent)
     {
         parent->appendChild(retval);
     }
@@ -193,7 +193,7 @@ bool
 GtAbstractObjectFactory::invokable(const QMetaObject& metaObj) const
 {
     GtObject* obj = newObject(metaObj);
-    if (obj == nullptr)
+    if (!obj)
     {
         if (!m_silent)
         {

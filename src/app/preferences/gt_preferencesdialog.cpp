@@ -105,7 +105,7 @@ GtPreferencesDialog::saveChanges()
     {
         GtPreferencesPage* page = dynamic_cast<GtPreferencesPage*>(pageList[i]);
 
-        if (page != Q_NULLPTR)
+        if (page)
         {
             page->saveSettings();
         }

@@ -62,8 +62,8 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
 GtTaskFactory*
 GtTaskFactory::instance()
 {
-    static GtTaskFactory* retval = Q_NULLPTR;
-    if (retval == Q_NULLPTR)
+    static GtTaskFactory* retval = nullptr;
+    if (!retval)
     {
         retval = new GtTaskFactory(qApp);
     }

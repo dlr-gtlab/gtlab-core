@@ -40,17 +40,17 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
     /// Standart regExp
     QRegExp regExp = GtRegExp::onlyLettersAndNumbers();
 
-    if (proj != Q_NULLPTR)
+    if (proj)
     {
         GtObject* obj = proj->getObjectByUuid(uuid);
 
-        if (obj != Q_NULLPTR)
+        if (obj)
         {
             if (m_validatorflag == uiFilter)
             {
                 GtObjectUI* oui = gtApp->defaultObjectUI(obj);
 
-                if (oui != Q_NULLPTR)
+                if (oui)
                 {
                     if (oui->hasValidationRegExp())
                     {

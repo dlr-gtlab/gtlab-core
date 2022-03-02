@@ -75,7 +75,7 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
 
     setFilterData(QStringList());
 
-    if (root != Q_NULLPTR)
+    if (root)
     {
         qDebug() << "#### " << root->objectName();
     }

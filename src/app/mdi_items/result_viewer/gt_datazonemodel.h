@@ -28,7 +28,7 @@ public:
      * @brief GtDataZoneModel
      * @param parent
      */
-    explicit GtDataZoneModel(QObject* parent = Q_NULLPTR);
+    explicit GtDataZoneModel(QObject* parent = nullptr);
 
     ~GtDataZoneModel();
 

@@ -39,7 +39,7 @@
 #include "gt_examplesmdiwidget.h"
 
 GtExamplesMdiWidget::GtExamplesMdiWidget() :
-    m_tabWidget(Q_NULLPTR)
+    m_tabWidget(nullptr)
 {
     setObjectName(tr("Examples"));
 
@@ -152,12 +152,12 @@ GtExamplesMdiWidget::initializeWidget()
 
     QFrame* frame = qobject_cast<QFrame*>(widget());
 
-    if (frame != Q_NULLPTR)
+    if (frame != nullptr)
     {
         frame->setFrameStyle(QFrame::NoFrame);
     }
 
-    if (mainWidget == Q_NULLPTR)
+    if (mainWidget == nullptr)
     {
         return;
     }
@@ -222,7 +222,7 @@ GtExamplesMdiWidget::sortItems()
 
     foreach (GtExampleGraphicalItem* item, m_graphicalItems)
     {
-        if (item->m_data == Q_NULLPTR)
+        if (item->m_data == nullptr)
         {
             continue;
         }
@@ -233,7 +233,7 @@ GtExamplesMdiWidget::sortItems()
 
         QGridLayout* lay = page->findChild<QGridLayout*>("grid");
 
-        if (lay == Q_NULLPTR)
+        if (lay == nullptr)
         {
             gtDebug() << tr("Layout not found");
             continue;
@@ -490,7 +490,7 @@ GtExamplesMdiWidget::initializeExamplesPath()
 bool
 GtExamplesMdiWidget::validateExampleDiretory(QDir* dir)
 {
-    if (dir == Q_NULLPTR)
+    if (dir == nullptr)
     {
         gtDebug() << tr("Dir is NullPtr");
         return false;

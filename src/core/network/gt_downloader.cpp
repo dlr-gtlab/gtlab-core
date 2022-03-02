@@ -60,7 +60,7 @@ GtDownloader::queueSize()
 void
 GtDownloader::exec()
 {
-    if (m_current != nullptr)
+    if (m_current)
     {
         gtError() << tr("Could not start download proccess!") <<
                   QStringLiteral(" ") << tr("Download already running!");
@@ -114,13 +114,13 @@ GtDownloader::onReplyFinished()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (reply == nullptr)
+    if (!reply)
     {
         gtError() << tr("Invalid download reply!");
         return;
     }
 
-    if (reply->error() || m_current == nullptr)
+    if (reply->error() || !m_current)
     {
         gtError() << tr("Could not download data!");
     }
@@ -173,7 +173,7 @@ GtDownloader::onReplyFinished()
 void
 GtDownloader::cancelDownload()
 {
-    if (m_current == nullptr)
+    if (!m_current)
     {
         gtInfo() << tr("Download process not active!");
         return;

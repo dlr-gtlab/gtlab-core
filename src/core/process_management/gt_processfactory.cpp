@@ -25,7 +25,7 @@ GtProcessFactory*
 GtProcessFactory::instance()
 {
     static GtProcessFactory* retval = nullptr;
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtProcessFactory(qApp);
     }

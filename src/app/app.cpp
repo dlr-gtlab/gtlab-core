@@ -135,7 +135,7 @@ main(int argc, char* argv[])
 #ifdef GT_LICENCE
     if (!app.checkLicence())
     {
-        QMessageBox::critical(Q_NULLPTR, "Licence verification",
+        QMessageBox::critical(nullptr, "Licence verification",
                               "Could not verify license!",
                               QMessageBox::Ok, QMessageBox::Ok);
 

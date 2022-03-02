@@ -40,7 +40,7 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    GtPropertyModel(GtObject* scope, QObject* parent = Q_NULLPTR);
+    explicit GtPropertyModel(GtObject* scope, QObject* parent = nullptr);
 
     /**
      * @brief Destructor.

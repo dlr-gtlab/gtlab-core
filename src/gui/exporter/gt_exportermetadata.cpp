@@ -52,7 +52,7 @@ GtExporterMetaData::initialize(QMetaObject& exporter)
     QObject* qobj = exporter.newInstance();
 
     // check object
-    if (qobj == Q_NULLPTR)
+    if (!qobj)
     {
         return;
     }
@@ -61,7 +61,7 @@ GtExporterMetaData::initialize(QMetaObject& exporter)
     GtAbstractExporter* exp = qobject_cast<GtAbstractExporter*>(qobj);
 
     // check casted exporter object
-    if (exp == Q_NULLPTR)
+    if (!exp)
     {
         // object nor an abstract exporter -> delete qobject
         delete qobj;

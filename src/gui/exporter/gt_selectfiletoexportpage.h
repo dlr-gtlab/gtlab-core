@@ -31,8 +31,8 @@ public:
      * @param Data object.
      * @param List of allowed file extensions.
      */
-    GtSelectFileToExportPage(GtObject* obj,
-                             GtAbstractExporter* exporter = Q_NULLPTR);
+    explicit GtSelectFileToExportPage(GtObject* obj,
+                                      GtAbstractExporter* exporter = nullptr);
 
     /**
      * @brief export

@@ -39,7 +39,7 @@ public:
      */
     GtProcessConnectionGraphicsView(GtProcessConnectionView* outputView,
                                     GtProcessConnectionView* inputView,
-                                    QWidget* parent = Q_NULLPTR);
+                                    QWidget* parent = nullptr);
 
     /**
      * @brief Updates ports based on new tree view visualization.

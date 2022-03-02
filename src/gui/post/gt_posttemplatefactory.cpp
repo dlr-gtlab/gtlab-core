@@ -25,7 +25,7 @@ GtPostTemplateFactory*
 GtPostTemplateFactory::instance()
 {
     static GtPostTemplateFactory* retval = nullptr;
-    if (retval == nullptr)
+    if (!retval)
     {
         retval = new GtPostTemplateFactory(qApp);
     }

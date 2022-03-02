@@ -34,13 +34,13 @@ public:
      * @param parent
      */
     GtCheckableStringListModel(const QStringList& strings,
-                               QObject* parent = Q_NULLPTR);
+                               QObject* parent = nullptr);
 
     /**
      * @brief GtCheckableStringListModel
      * @param parent
      */
-    explicit GtCheckableStringListModel(QObject* parent = Q_NULLPTR);
+    explicit GtCheckableStringListModel(QObject* parent = nullptr);
 
     /**
      * @brief stringList

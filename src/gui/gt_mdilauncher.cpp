@@ -19,7 +19,7 @@
 #include "gt_abstractcollectionsettings.h"
 
 GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
-    m_area(Q_NULLPTR)
+    m_area(nullptr)
 {
 
 }
@@ -27,7 +27,7 @@ GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
 QString
 GtMdiLauncher::generateMdiItemId(GtMdiItem* mdiItem)
 {
-    if (mdiItem == Q_NULLPTR)
+    if (!mdiItem)
     {
         return QString();
     }
@@ -48,7 +48,7 @@ GtMdiLauncher::generateMdiItemId(GtMdiItem* mdiItem)
         }
         else
         {
-            if (mdiItem->m_d != Q_NULLPTR)
+            if (mdiItem->m_d)
             {
                 retval = retval + QStringLiteral("#") + mdiItem->m_d->uuid();
             }
@@ -61,7 +61,7 @@ GtMdiLauncher::generateMdiItemId(GtMdiItem* mdiItem)
 bool
 GtMdiLauncher::mdiItemAllowed(GtMdiItem* mdiItem)
 {
-    if (mdiItem == Q_NULLPTR)
+    if (!mdiItem)
     {
         return false;
     }
@@ -109,7 +109,7 @@ GtMdiLauncher::setFocus(const QString& mdiId)
         return;
     }
 
-    if (m_area == Q_NULLPTR)
+    if (!m_area)
     {
         return;
     }
@@ -143,8 +143,8 @@ GtMdiLauncher::onSubWindowClose(QObject* obj)
 GtMdiLauncher*
 GtMdiLauncher::instance()
 {
-    static GtMdiLauncher* retval = Q_NULLPTR;
-    if (retval == Q_NULLPTR)
+    static GtMdiLauncher* retval = nullptr;
+    if (!retval)
     {
         retval = new GtMdiLauncher(qApp);
     }
@@ -190,7 +190,7 @@ GtMdiLauncher::collectionIcon(const QString& id)
 
     GtCollectionInterface* coll = m_collections.value(id);
 
-    if (coll == Q_NULLPTR)
+    if (!coll)
     {
         return QIcon();
     }
@@ -208,7 +208,7 @@ GtMdiLauncher::collectionStructure(const QString& id)
 
     GtCollectionInterface* coll = m_collections.value(id);
 
-    if (coll == Q_NULLPTR)
+    if (!coll)
     {
         return QMap<QString, QMetaType::Type>();
     }
@@ -221,7 +221,7 @@ GtMdiLauncher::collection(const QString& id)
 {
     if (!m_collections.contains(id))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_collections.value(id);
@@ -230,7 +230,7 @@ GtMdiLauncher::collection(const QString& id)
 void
 GtMdiLauncher::print(QMdiSubWindow* subWindow)
 {
-    if (subWindow == Q_NULLPTR)
+    if (!subWindow)
     {
         return;
     }
@@ -305,21 +305,21 @@ GtMdiLauncher::registerCollection(const QString& str,
 GtMdiItem*
 GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 {
-    if (m_area == Q_NULLPTR)
+    if (!m_area)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (!knownClass(id))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtObject* obj = newObject(id);
 
     if (!obj)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtMdiItem* mdiItem = qobject_cast<GtMdiItem*>(obj);
@@ -327,10 +327,10 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     if (!mdiItem)
     {
         delete obj;
-        return Q_NULLPTR;
+        return nullptr;
     }
 
-    if (data != Q_NULLPTR)
+    if (data)
     {
         mdiItem->m_d = data;
     }
@@ -344,7 +344,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     if (!mdiItemAllowed(mdiItem))
     {
-        if ((data != nullptr) && (mdiItem->objectName() == "Result Viewer"))
+        if (data && mdiItem->objectName() == "Result Viewer")
         {
             QList<GtMdiItem*> openItems = m_openItems.values();
 
@@ -361,7 +361,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
         setFocus(generateMdiItemId(mdiItem));
 
         delete obj;
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QWidget* wid = mdiItem->widget();
@@ -406,7 +406,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     subWin->show();
     mdiItem->showEvent();
 
-    if (data != Q_NULLPTR)
+    if (data)
     {
         mdiItem->setData(data);
     }

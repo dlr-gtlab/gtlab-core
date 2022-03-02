@@ -42,7 +42,7 @@ GtDataZoneTable::GtDataZoneTable(const QStringList& x,
 
     for (GtAbstractDataZone* adz : data)
     {
-        if (adz != Q_NULLPTR)
+        if (adz)
         {
             appendChild(adz);
         }
@@ -85,7 +85,7 @@ GtDataZoneTable::setTicks(const QStringList& z,
 //{
 //    for (GtAbstractDataZoneList* adz : data)
 //    {
-//        if (adz != Q_NULLPTR)
+//        if (adz)
 //        {
 //            appendChild(adz);
 //        }
@@ -105,11 +105,11 @@ GtDataZoneTable::setTicks(const QStringList& z,
 GtDataZoneTableMainAxis*
 GtDataZoneTable::xPtr() const
 {
-    if (findDirectChild<GtDataZoneTableMainAxis*>("mainX") == Q_NULLPTR)
+    if (!findDirectChild<GtDataZoneTableMainAxis*>("mainX"))
     {
         gtError() << "xAxis is Null";
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return findDirectChild<GtDataZoneTableMainAxis*>("mainX");
@@ -151,7 +151,7 @@ GtDataZoneTable::setAxisActive(GtDataZoneTableMainAxis::AxisType axType,
 {
     GtDataZoneTableMainAxis* axis = findAxis(axType);
     {
-        if (axis == nullptr)
+        if (!axis)
         {
             // error
             return;
@@ -164,7 +164,7 @@ GtDataZoneTable::setAxisActive(GtDataZoneTableMainAxis::AxisType axType,
 bool
 GtDataZoneTable::onlyXaxisActive()
 {
-    if (xPtr() != nullptr && yPtr() != nullptr && zPtr() != nullptr)
+    if (xPtr() && yPtr() && zPtr())
     {
         if (xPtr()->active() && !yPtr()->active() && !zPtr()->active())
         {
@@ -213,7 +213,7 @@ GtDataZoneTable::dataZone(int x, int y, int z) const
 //    if (idx > dataList().size())
 //    {
 //        // this should not happen
-//        return Q_NULLPTR;
+//        return nullptr;
 //    }
 
 //    return dataList().at(idx);
@@ -327,7 +327,7 @@ GtDataZoneTable::nZDims() const
 bool
 GtDataZoneTable::is0D() const
 {
-    if (data().at(0) != Q_NULLPTR)
+    if (data().at(0))
     {
         return data().at(0)->is0D();
     }
@@ -345,7 +345,7 @@ GtDataZoneTable::nSubDims() const
         return -1;
     }
 
-    if (data().at(0) != Q_NULLPTR)
+    if (data().at(0))
     {
         return data().at(0)->nDims();
     }
@@ -362,7 +362,7 @@ GtDataZoneTable::allAxisTicks() const
     {
         GtDataZone* dz = qobject_cast<GtDataZone*>(data().at(0));
 
-        if (dz == Q_NULLPTR)
+        if (!dz)
         {
             // bad error
             gtDebug() << tr("cannot cast datazonetable into datazone");
@@ -385,7 +385,7 @@ GtDataZoneTable::allAxisTicksMap() const
     {
         GtDataZone* dz = qobject_cast<GtDataZone*>(data().at(0));
 
-        if (dz == Q_NULLPTR)
+        if (!dz)
         {
             // bad error
             gtDebug() << tr("cannot cast datazonetable into datazone");
@@ -467,7 +467,7 @@ GtDataZoneTable::subAxisNames() const
     {
         GtDataZone* dz = qobject_cast<GtDataZone*>(data().at(0));
 
-        if (dz == Q_NULLPTR)
+        if (!dz)
         {
             // bad error
             gtDebug() << tr("cannot cast datazonetable into datazone");
@@ -484,11 +484,11 @@ GtDataZoneTable::subAxisNames() const
 void
 GtDataZoneTable::subAxisTicks(const QString& id, QVector<double>& dvecOut) const
 {
-    GtDataZone* dz = Q_NULLPTR;
+    GtDataZone* dz = nullptr;
 
     dz = qobject_cast<GtDataZone*>(data().at(0));
 
-    if (dz == Q_NULLPTR)
+    if (!dz)
     {
         return;
     }
@@ -512,10 +512,10 @@ GtDataZoneTable::value2D(const QString& param, int mainX, int mainY, int mainZ,
         return 0.0;
     }
 
-    GtDataZone* dzND = Q_NULLPTR;
+    GtDataZone* dzND = nullptr;
     dzND = qobject_cast<GtDataZone*>(adz);
 
-    if (dzND == Q_NULLPTR)
+    if (!dzND)
     {
         if (ok)
         {
@@ -557,10 +557,10 @@ GtDataZoneTable::value1D(const QString& param, int mainX, int mainY, int mainZ,
         return 0.0;
     }
 
-    GtDataZone* dzND = Q_NULLPTR;
+    GtDataZone* dzND = nullptr;
     dzND = qobject_cast<GtDataZone*>(adz);
 
-    if (dzND == Q_NULLPTR)
+    if (!dzND)
     {
         if (ok)
         {
@@ -616,7 +616,7 @@ GtDataZoneTable::valueFrom0Ddata(const QString& param, GtAbstractDataZone* adz,
 
     if (!dz0D.isValid())
     {
-        if (ok != Q_NULLPTR)
+        if (ok)
         {
             *ok = false;
         }
@@ -677,7 +677,7 @@ GtDataZoneTable::value0DfromOP(const QString& param, const QString& OP,
 
     if (!adz.isValid())
     {
-        if (ok != Q_NULLPTR)
+        if (ok)
         {
             *ok = false;
         }
@@ -779,14 +779,14 @@ GtDataZoneTable::dataSize() const
 GtDataZoneTableMainAxis*
 GtDataZoneTable::findAxis(GtDataZoneTableMainAxis::AxisType axType)
 {
-    GtDataZoneTableMainAxis* retval = Q_NULLPTR;
+    GtDataZoneTableMainAxis* retval = nullptr;
 
     QList<GtDataZoneTableMainAxis*> axes =
             findDirectChildren<GtDataZoneTableMainAxis*>();
 
     for (GtDataZoneTableMainAxis* axis : axes)
     {
-        if (axis == Q_NULLPTR)
+        if (!axis)
         {
             // error
             continue;

@@ -41,7 +41,7 @@ protected:
 
 TEST_F(TestGtCoreDataModel, instance)
 {
-    ASSERT_TRUE(m_model != Q_NULLPTR);
+    ASSERT_TRUE(m_model != nullptr);
 
     GtCoreDatamodel* model = gtDataModel;
 
