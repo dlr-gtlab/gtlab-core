@@ -1633,7 +1633,7 @@ GtProjectUI::openProjectSettings(GtObject* obj)
     // count number of externalized objects
     int counter = 0;
     auto externObjects(project->findChildren<GtExternalizedObject*>());
-    for (auto* externObj : externObjects)
+    for (const auto* externObj : qAsConst(externObjects))
     {
         counter += externObj->isFetched();
     }

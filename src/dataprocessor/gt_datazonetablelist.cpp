@@ -276,7 +276,7 @@ GtDataZoneTableList::dztFromName(const QString& dztName) const
 void
 GtDataZoneTableList::clearList()
 {
-    for (GtDataZoneTable* t : m_dztList)
+    for (GtDataZoneTable* t : qAsConst(m_dztList))
     {
         delete t;
     }
@@ -325,7 +325,7 @@ GtDataZoneTableList::paramsAndUnits() const
 
     QStringList allParams = params();
 
-    for (const QString& str : allParams)
+    for (const QString& str : qAsConst(allParams))
     {
         QString unit = unitFromParam(str);
 

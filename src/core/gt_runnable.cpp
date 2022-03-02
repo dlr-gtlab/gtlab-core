@@ -220,7 +220,7 @@ GtRunnable::readObjects()
 void
 GtRunnable::writeObjects()
 {
-    for (GtObject* obj : m_linkedObjects)
+    for (GtObject* obj : qAsConst(m_linkedObjects))
     {
         m_outputData << GtObjectMemento(obj);
     }

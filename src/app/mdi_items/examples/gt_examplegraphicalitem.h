@@ -31,7 +31,7 @@ public:
      * @param data
      * @param parent
      */
-    GtExampleGraphicalItem(GtExamplesEntry* data, QWidget* parent = 0);
+    explicit GtExampleGraphicalItem(GtExamplesEntry* data, QWidget* parent = 0);
 
     GtExamplesEntry* m_data;
 protected:

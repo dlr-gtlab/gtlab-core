@@ -1434,7 +1434,7 @@ GtTable::setTabValsKeysSuffix(const QString& suffix)
 
     m_tabVals.clear();
 
-    for (GtTableValues* v : vlist)
+    for (GtTableValues* v : qAsConst(vlist))
     {
         m_tabVals.insert(suffix + v->objectName(), v);
     }
@@ -1648,8 +1648,7 @@ GtTable::onObjectDataMerged()
 
     QList<GtTableValues*> vlist = findDirectChildren<GtTableValues*>();
 
-    for (GtTableValues* v : vlist)
-    {
+    for (GtTableValues* v : qAsConst(vlist)) {
         m_tabVals.insert(v->objectName(), v);
     }
 }

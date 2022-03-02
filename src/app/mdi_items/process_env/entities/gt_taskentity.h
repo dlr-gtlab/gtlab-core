@@ -22,7 +22,7 @@ class GtTaskEntity : public QGraphicsObject
     Q_OBJECT
 
 public:
-    GtTaskEntity(GtTask* task, QGraphicsItem* parent = nullptr);
+    explicit GtTaskEntity(GtTask* task, QGraphicsItem* parent = nullptr);
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,

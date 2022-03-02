@@ -79,8 +79,7 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
     m_tab->setRowCount(list.count());
 
     int i = 0;
-    for (GtShortCut* s : list)
-    {
+    for (GtShortCut *s : qAsConst(list)) {
         QString id = s->id();
         QString key = s->key().toString();
         QString cat = s->category();

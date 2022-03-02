@@ -407,7 +407,7 @@ GtTableParser::parseDoubleVector(const QDomElement& root, bool& success)
     {
         int counter = 0;
 
-        for (const QString& valStr : valStrList)
+        for (const QString& valStr : qAsConst(valStrList))
         {
             double val = valStr.toDouble(&success);
             counter++;

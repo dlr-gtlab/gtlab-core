@@ -28,8 +28,8 @@ public:
      * @param view
      * @param parent
      */
-    GtProcessQueueModel(GtProcessExecutor* proExec,
-                        QObject* parent = nullptr);
+    explicit GtProcessQueueModel(GtProcessExecutor* proExec,
+                                 QObject* parent = nullptr);
 
     /**
      * @brief rowCount

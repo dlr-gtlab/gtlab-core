@@ -27,8 +27,8 @@ public:
      * @brief GtCalculatorPropertyEntity
      * @param parent
      */
-    GtCalculatorPropertyEntity(GtAbstractProperty* prop,
-                               QGraphicsItem* parent = nullptr);
+    explicit GtCalculatorPropertyEntity(GtAbstractProperty* prop,
+                                        QGraphicsItem* parent = nullptr);
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,
