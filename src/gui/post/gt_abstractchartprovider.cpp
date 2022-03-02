@@ -9,11 +9,12 @@
 #include <QDebug>
 #include <QsLog.h>
 
+#include <QRandomGenerator>
 
 GtAbstractChartProvider::GtAbstractChartProvider() :
+    m_dztUUIDsContainer(nullptr),
     m_showmarkers(true),
-    m_showwidgets(true),
-    m_dztUUIDsContainer(nullptr)
+    m_showwidgets(true)
 {
     GtObjectGroup* UUIDsContainer = new GtObjectGroup;
     UUIDsContainer->setDefault(true);
@@ -180,10 +181,12 @@ GtAbstractChartProvider::fitColorsL(int params)
     }
     else
     {
+        QRandomGenerator randg;
+
         // add colors to match parameter sizes
         for (int i = colors; i < params; ++i)
         {
-            QColor color = QColor::fromHsv(qrand() % 256, 255, 190);
+            QColor color = QColor::fromHsv(randg.generate() % 256, 255, 190);
             addColorUseL(color);
         }
     }
@@ -204,10 +207,12 @@ GtAbstractChartProvider::fitColorsR(int params)
     }
     else
     {
+        QRandomGenerator randg;
+
         // add colors to match parameter sizes
         for (int i = colors; i < params; ++i)
         {
-            QColor color = QColor::fromHsv(qrand() % 256, 255, 190);
+            QColor color = QColor::fromHsv(randg.generate() % 256, 255, 190);
             addColorUseR(color);
         }
     }
@@ -341,7 +346,7 @@ GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
     }
     else if (additionalAxis == "OtherParams")
     {
-        if (scharParameters.size() == 0)
+        if (scharParameters.empty())
         {
             // 'OtherParams' is selected but its size is zero -> error
             gtError() << "Additional params should be more than 0";
