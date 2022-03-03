@@ -154,25 +154,33 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
     /// one of the allowed classes
     else if (heritageMode)
     {
-        GtObjectFactory* factory = GtObjectFactory::instance();
-
         foreach(QString s, allowedClasses)
         {
-            GtObject* allowed = factory->newObject(s);
+            QString superClassName = "-";
+            int saftyCounter = 0;
 
-            if (allowed == nullptr)
-            {
-                continue;
-            }
+            const QMetaObject* currentMetaObject = obj->metaObject();
 
-            if (obj->metaObject()->inherits(allowed->metaObject()))
+            while (superClassName != "GtObject" && saftyCounter < 10)
             {
-                retval << obj;
-            }
+                saftyCounter++;
+                const QMetaObject* currentSuperClass =
+                        currentMetaObject->superClass();
 
-            if (allowed != nullptr)
-            {
-                delete allowed;
+                if (superClassName == nullptr)
+                {
+                    break;
+                }
+
+                superClassName = currentSuperClass->className();
+
+                if (superClassName == s)
+                {
+                    retval << obj;
+                    break;
+                }
+
+                currentMetaObject = currentSuperClass;
             }
         }
     }

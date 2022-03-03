@@ -96,6 +96,8 @@ public:
      */
     bool allInvokable(const QList<QMetaObject>& metaData);
 
+    virtual QMetaObject metaObjectByClassName(QString const& className);
+
 protected:
     /// registered meta objects
     QHash<QString, QMetaObject> m_knownClasses;

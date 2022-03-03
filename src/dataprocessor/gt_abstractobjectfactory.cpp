@@ -195,6 +195,17 @@ GtAbstractObjectFactory::allInvokable(const QList<QMetaObject>& metaData)
     return true;
 }
 
+QMetaObject
+GtAbstractObjectFactory::metaObjectByClassName(const QString &className)
+{
+    if (m_knownClasses.keys().contains(className))
+    {
+        return m_knownClasses[className];
+    }
+
+    return {};
+}
+
 bool
 GtAbstractObjectFactory::invokable(const QMetaObject& metaObj)
 {

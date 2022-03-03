@@ -19,18 +19,18 @@ GtFactoryGroup::GtFactoryGroup()
 GtObject*
 GtFactoryGroup::newObject(const QString& className, GtObject* parent)
 {
-    GtObject* retval = nullptr;
+    GtObject* retval = 0;
 
     foreach (GtAbstractObjectFactory* factory, m_factories)
     {
         if (factory->knownClass(className))
         {
             retval = factory->newObject(className, parent);
-            if (retval == nullptr)
+            if (retval == 0)
             {
                 gtError() << QObject::tr("GtdFactoryGroup : Error creating ")
                           << className;
-                return nullptr;
+                return NULL;
             }
             break;
         }

@@ -77,7 +77,7 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
 
     if (root != Q_NULLPTR)
     {
-        qDebug() << "#### " << root->objectName();
+        qDebug() << "#### " << "root object" << root->objectName();
     }
 }
 
