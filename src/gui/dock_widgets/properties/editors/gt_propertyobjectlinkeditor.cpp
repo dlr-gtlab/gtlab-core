@@ -25,7 +25,7 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     QWidget(parent),
     m_scope(nullptr)
 {
-    QHBoxLayout* lay = new QHBoxLayout;
+    auto lay = new QHBoxLayout;
     m_objectId = new QLineEdit;
 
     QPushButton* restoreButton = new QPushButton(QLatin1String{});
@@ -35,7 +35,7 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     restoreButton->setAutoDefault(false);
     restoreButton->setToolTip(tr("Delete Object Link"));
 
-    QPushButton* selectObjectButton = new QPushButton(QStringLiteral("..."));
+    auto selectObjectButton = new QPushButton(QStringLiteral("..."));
     selectObjectButton->setMaximumWidth(30);
     selectObjectButton->setAutoDefault(false);
     selectObjectButton->setToolTip(tr("Choose Object"));

@@ -76,7 +76,7 @@ GtObjectLinkProperty::linkedObject(GtObject* root)
 }
 
 GtObject*
-GtObjectLinkProperty::object()
+GtObjectLinkProperty::object() const
 {
     return m_obj;
 }
