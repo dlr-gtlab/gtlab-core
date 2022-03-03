@@ -18,7 +18,6 @@
 #include "gt_application.h"
 #include "gt_project.h"
 #include "gt_objectselectiondialog.h"
-#include "gt_objectfactory.h"
 
 #include "gt_propertyobjectlinkeditor.h"
 
