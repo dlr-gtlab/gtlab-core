@@ -180,7 +180,6 @@ HEADERS += \
     dock_widgets/process/gt_processcomponentmodel.h \
     dock_widgets/process/gt_processconnectioneditor.h \
     dock_widgets/process/gt_processcomponentsettingsbutton.h \
-    dock_widgets/process/gt_processfiltermodel.h \
     dock_widgets/calculators/gt_calculatorsdock.h \
     dock_widgets/post/gt_postdelegate.h \
     dock_widgets/post/gt_postdock.h \
@@ -275,7 +274,6 @@ SOURCES += \
     dock_widgets/process/gt_processcomponentmodel.cpp \
     dock_widgets/process/gt_processconnectioneditor.cpp \
     dock_widgets/process/gt_processcomponentsettingsbutton.cpp \
-    dock_widgets/process/gt_processfiltermodel.cpp \
     dock_widgets/calculators/gt_calculatorsdock.cpp \
     dock_widgets/post/gt_postdelegate.cpp \
     dock_widgets/post/gt_postdock.cpp \

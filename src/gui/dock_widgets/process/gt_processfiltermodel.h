@@ -10,12 +10,13 @@
 #ifndef GTPROCESSFILTERMODEL_H
 #define GTPROCESSFILTERMODEL_H
 
+#include "gt_gui_exports.h"
 #include "gt_treefiltermodel.h"
 
 /**
  * @brief The GtProcessFilterModel class
  */
-class GtProcessFilterModel : public GtTreeFilterModel
+class GT_GUI_EXPORT GtProcessFilterModel : public GtTreeFilterModel
 {
     Q_OBJECT
 
