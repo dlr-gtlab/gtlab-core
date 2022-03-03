@@ -77,7 +77,7 @@ public:
      * @brief object
      * @return
      */
-    GtObject* object();
+    GtObject* object() const;
 
     /**
      * @brief linkedObjectUUID
