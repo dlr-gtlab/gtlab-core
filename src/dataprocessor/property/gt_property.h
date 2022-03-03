@@ -41,7 +41,7 @@ public:
      * @param success
      * @return
      */
-    ParamType getVal(const QString& unit, bool* success = 0) const;
+    ParamType getVal(const QString& unit, bool* success = nullptr) const;
 
     /**
      * @brief Setter function for the input value.
@@ -49,7 +49,7 @@ public:
      * @param success
      */
     void setVal(const ParamType& value,
-                bool* success = 0);
+                bool* success = nullptr);
 
     /**
      * @brief Setter function for the input value with unit conversion.
@@ -58,12 +58,12 @@ public:
      * @param success
      */
     void setVal(const ParamType& value, const QString& unit,
-                bool* success = 0);
+                bool* success = nullptr);
 
     /**
      * @brief Reverts property to its initial value.
      */
-    void revert() {
+    void revert() override {
         setVal(m_initValue);
     }
 
@@ -95,8 +95,8 @@ protected:
      * @param success
      * @return
      */
-    virtual ParamType convertFrom(const ParamType &value, const QString& unit,
-                         bool* success = 0);
+    virtual ParamType convertFrom(const ParamType &value,
+                                  const QString& unit, bool* success = nullptr);
 
     /**
      * @brief convertTo
@@ -105,7 +105,7 @@ protected:
      * @return
      */
     virtual ParamType convertTo(const QString& unit,
-                                bool* success = 0) const;
+                                bool* success = nullptr) const;
 
     /**
      * @brief validateValue
@@ -121,34 +121,34 @@ private:
      * @param value
      * @param success
      */
-    void forceSetVal(const ParamType& value, bool* success = 0);
+    void forceSetVal(const ParamType& value, bool* success = nullptr);
 
     /**
      * @brief setValFromConnection
      */
-    void setValFromConnection();
+    void setValFromConnection() override;
 
 };
 
 template<class ParamType>
-ParamType& GtProperty<ParamType>::get()
+inline ParamType& GtProperty<ParamType>::get()
 {
     return m_value;
 }
 
 template<class ParamType>
-ParamType GtProperty<ParamType>::getVal() const
+inline ParamType GtProperty<ParamType>::getVal() const
 {
     return m_value;
 }
 
 template<class ParamType>
-ParamType GtProperty<ParamType>::getVal(const QString &unit,
+inline ParamType GtProperty<ParamType>::getVal(const QString &unit,
                                          bool *success) const
 {
     if (unit.isEmpty())
     {
-        if (success != 0)
+        if (success != nullptr)
         {
             *success = true;
         }
@@ -160,7 +160,7 @@ ParamType GtProperty<ParamType>::getVal(const QString &unit,
 
     ParamType val = convertTo(unit, &tmpSuccess);
 
-    if (success != 0)
+    if (success != nullptr)
     {
         *success = tmpSuccess;
     }
@@ -169,7 +169,8 @@ ParamType GtProperty<ParamType>::getVal(const QString &unit,
 }
 
 template<class ParamType>
-void GtProperty<ParamType>::setVal(const ParamType& value, bool* success)
+inline void GtProperty<ParamType>::setVal(const ParamType& value,
+                                          bool* success)
 {
     if (m_connection != Q_NULLPTR)
     {
@@ -182,9 +183,10 @@ void GtProperty<ParamType>::setVal(const ParamType& value, bool* success)
 }
 
 template<class ParamType>
-void GtProperty<ParamType>::forceSetVal(const ParamType &value, bool* success)
+inline void GtProperty<ParamType>::forceSetVal(const ParamType &value,
+                                               bool* success)
 {
-    if (success != 0)
+    if (success != nullptr)
     {
         *success = false;
     }
@@ -196,7 +198,7 @@ void GtProperty<ParamType>::forceSetVal(const ParamType &value, bool* success)
 
     m_value = value;
 
-    if (success != 0)
+    if (success != nullptr)
     {
         *success = true;
     }
@@ -205,7 +207,7 @@ void GtProperty<ParamType>::forceSetVal(const ParamType &value, bool* success)
 }
 
 template<class ParamType>
-void GtProperty<ParamType>::setValFromConnection()
+inline void GtProperty<ParamType>::setValFromConnection()
 {
     qDebug() << "#### setValFromConnection!";
 
@@ -238,10 +240,10 @@ void GtProperty<ParamType>::setValFromConnection()
 }
 
 template<class ParamType>
-void GtProperty<ParamType>::setVal(const ParamType &value,
+inline void GtProperty<ParamType>::setVal(const ParamType &value,
                                    const QString &unit, bool* success)
 {
-    if (success != 0)
+    if (success != nullptr)
     {
         *success = false;
     }
@@ -255,7 +257,7 @@ void GtProperty<ParamType>::setVal(const ParamType &value,
     bool tmpSuccess = false;
     ParamType tmpVal = convertFrom(value, unit, &tmpSuccess);
 
-    if (success != 0)
+    if (success != nullptr)
     {
         *success = tmpSuccess;
     }
@@ -267,7 +269,7 @@ void GtProperty<ParamType>::setVal(const ParamType &value,
 }
 
 template<class ParamType>
-ParamType GtProperty<ParamType>::convertFrom(const ParamType& value,
+inline ParamType GtProperty<ParamType>::convertFrom(const ParamType& value,
                                     const QString& /*unit*/,
                                     bool* success)
 {
@@ -279,7 +281,7 @@ ParamType GtProperty<ParamType>::convertFrom(const ParamType& value,
 }
 
 template<class ParamType>
-ParamType GtProperty<ParamType>::convertTo(const QString& /*unit*/,
+inline ParamType GtProperty<ParamType>::convertTo(const QString& /*unit*/,
                                             bool* success) const
 {
     *success = false;
@@ -290,7 +292,7 @@ ParamType GtProperty<ParamType>::convertTo(const QString& /*unit*/,
 }
 
 template<class ParamType>
-bool GtProperty<ParamType>::validateValue(const ParamType& /*value*/)
+inline bool GtProperty<ParamType>::validateValue(const ParamType& /*value*/)
 {
     return true;
 }

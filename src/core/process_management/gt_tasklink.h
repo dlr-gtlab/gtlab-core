@@ -35,7 +35,7 @@ public:
      */
     GtTask* target();
 
-    bool run();
+    bool run() override;
 
 };
 

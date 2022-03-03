@@ -42,13 +42,13 @@ public:
 
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
-    virtual Qt::DockWidgetArea getDockWidgetArea() Q_DECL_OVERRIDE;
+    virtual Qt::DockWidgetArea getDockWidgetArea() override;
 
     /**
      * @brief Virtual function to add functionality after application
      * startup was successful
      */
-    virtual void initAfterStartup() Q_DECL_OVERRIDE;
+    virtual void initAfterStartup() override;
 
 private:
     /// Tree view

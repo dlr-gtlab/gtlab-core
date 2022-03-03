@@ -25,6 +25,8 @@ GtProcessComponent::GtProcessComponent() :
     qRegisterMetaType<GtProcessComponent::STATE>("GtProcessComponent::STATE");
 
     registerProperty(m_skipped, tr("Execution"));
+
+    connect(&m_skipped, SIGNAL(changed()), SIGNAL(skipPropertyChanged()));
 }
 
 void
@@ -220,7 +222,7 @@ GtProcessComponent::currentState()
 }
 
 bool
-GtProcessComponent::isSkipped()
+GtProcessComponent::isSkipped() const
 {
     return m_skipped;
 }
@@ -228,11 +230,6 @@ GtProcessComponent::isSkipped()
 void
 GtProcessComponent::setSkipped(bool val)
 {
-    // skipping a root task is unnecessary
-    if (this == rootTask())
-    {
-        val = false;
-    }
     m_skipped = val;
 }
 

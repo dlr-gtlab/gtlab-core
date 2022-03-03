@@ -33,31 +33,31 @@ public:
      * @brief Returns current version number of module
      * @return version number
      */
-    GtVersionNumber version() Q_DECL_OVERRIDE;
+    GtVersionNumber version() override;
 
     /**
      * @brief Returns module identification string.
      * @return identification string
      */
-    QString ident() const Q_DECL_OVERRIDE;
+    QString ident() const override;
 
     /**
      * @brief Returns module description
      * @return description
      */
-    QString description() const Q_DECL_OVERRIDE;
+    QString description() const override;
 	 
     /**
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
      */
-    QList<QMetaObject> data() Q_DECL_OVERRIDE;
+    QList<QMetaObject> data() override;
 
     /**
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
      */
-    QMetaObject package() Q_DECL_OVERRIDE;
+    QMetaObject package() override;
 
     /**
      * @brief Returns true if module is a stand alone module with own
@@ -66,7 +66,7 @@ public:
      * or graphical user interfaces.
      * @return Stand alone indicator.
      */
-    bool standAlone() Q_DECL_OVERRIDE;
+    bool standAlone() override;
 };
 
 #endif // TEST_DATAMODEL_INTERFACE_H

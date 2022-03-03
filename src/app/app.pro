@@ -77,6 +77,7 @@ INCLUDEPATH += .\
     ../core/settings \
     ../core/network \
     ../core/provider \
+    ../core/states \
     ../gui \
     ../gui/exporter \
     ../gui/importer \

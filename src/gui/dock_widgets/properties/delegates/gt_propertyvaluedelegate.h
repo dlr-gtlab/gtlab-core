@@ -21,7 +21,7 @@ class GtPropertyValueDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    GtPropertyValueDelegate(GtPropertyTreeView* parent = Q_NULLPTR);
+    explicit GtPropertyValueDelegate(GtPropertyTreeView* parent = nullptr);
 
     /**
      * @brief createEditor
@@ -32,7 +32,7 @@ public:
      */
     QWidget* createEditor(QWidget* parent,
                           const QStyleOptionViewItem& option,
-                          const QModelIndex& index) const Q_DECL_OVERRIDE;
+                          const QModelIndex& index) const override;
 
     /**
      * @brief setEditorData
@@ -40,7 +40,7 @@ public:
      * @param index
      */
     void setEditorData(QWidget* editor,
-                       const QModelIndex& index) const Q_DECL_OVERRIDE;
+                       const QModelIndex& index) const override;
 
     /**
      * @brief setModelData
@@ -50,7 +50,7 @@ public:
      */
     void setModelData(QWidget* editor,
                       QAbstractItemModel* model,
-                      const QModelIndex& index) const Q_DECL_OVERRIDE;
+                      const QModelIndex& index) const override;
 
     /**
      * @brief displayText
@@ -59,7 +59,7 @@ public:
      * @return
      */
     QString displayText(const QVariant& value,
-                        const QLocale& locale) const Q_DECL_OVERRIDE;
+                        const QLocale& locale) const override;
 
     /**
      * @brief updateEditorGeometry
@@ -69,7 +69,7 @@ public:
      */
 //    void updateEditorGeometry(QWidget* editor,
 //                              const QStyleOptionViewItem& option,
-//                              const QModelIndex& index) const Q_DECL_OVERRIDE;
+//                              const QModelIndex& index) const override;
 
     /**
      * @brief paint
@@ -79,7 +79,7 @@ public:
      */
     void paint(QPainter* painter,
                const QStyleOptionViewItem& option,
-               const QModelIndex& index) const Q_DECL_OVERRIDE;
+               const QModelIndex& index) const override;
 
 private:
     /// Property tree view.

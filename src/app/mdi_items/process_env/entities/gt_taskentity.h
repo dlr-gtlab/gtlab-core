@@ -26,13 +26,13 @@ public:
 
     virtual void paint(QPainter* painter,
                        const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) Q_DECL_OVERRIDE;
+                       QWidget* widget = Q_NULLPTR) override;
 
     /**
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const Q_DECL_OVERRIDE;
+    virtual QRectF boundingRect() const override;
 
     /**
      * @brief populateTask
@@ -117,7 +117,7 @@ protected:
      * @param event
      */
     virtual void dragEnterEvent(
-            QGraphicsSceneDragDropEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneDragDropEvent* event) override;
 
 
 private:

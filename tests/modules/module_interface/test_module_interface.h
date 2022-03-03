@@ -30,19 +30,19 @@ public:
      * @brief Returns current version number of module
      * @return version number
      */
-    GtVersionNumber version() Q_DECL_OVERRIDE;
+    GtVersionNumber version() override;
 
     /**
      * @brief Returns module identification string.
      * @return identification string
      */
-    QString ident() const Q_DECL_OVERRIDE;
+    QString ident() const override;
 
     /**
      * @brief Returns module description
      * @return description
      */
-    QString description() const Q_DECL_OVERRIDE;
+    QString description() const override;
 };
 
 #endif // TEST_MODULE_INTERFACE_H

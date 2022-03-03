@@ -55,7 +55,7 @@ INCLUDEPATH += .\
 HEADERS += \
     gt_testhelper.h
 HEADERS += datamodel/*.h
-#HEADERS += mdi/*.h
+HEADERS += core/*.h
 
 #### SOURCES
 SOURCES += \

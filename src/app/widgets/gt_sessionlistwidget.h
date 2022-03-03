@@ -25,7 +25,7 @@ public:
      * @param initialize
      * @param parent
      */
-    GtSessionListWidget(bool initialize = true, QWidget* parent = NULL);
+    GtSessionListWidget(bool initialize = true, QWidget* parent = nullptr);
 
     /**
      * @brief Session list initialization

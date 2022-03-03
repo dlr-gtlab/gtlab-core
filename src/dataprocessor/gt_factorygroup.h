@@ -32,7 +32,7 @@ public:
      * @return new object
      */
     GtObject* newObject(const QString& className,
-                        GtObject* parent = NULL) Q_DECL_OVERRIDE;
+                        GtObject* parent = nullptr) override;
 
     /**
      * @brief knownClass - returns true if classname is registered in the
@@ -40,48 +40,48 @@ public:
      * @param className
      * @return whether classname is known or not
      */
-    bool knownClass(const QString& className) Q_DECL_OVERRIDE;
+    bool knownClass(const QString& className) override;
 
     /**
      * @brief superClassName - returns superclass name of given class
      * @param className
      * @return name of superclass
      */
-    QString superClassName(const QString& className) Q_DECL_OVERRIDE;
+    QString superClassName(const QString& className) override;
 
     /**
      * @brief knownClasses - returns a list of all stored meta class names
      * @return class name list
      */
-    QStringList knownClasses() const Q_DECL_OVERRIDE;
+    QStringList knownClasses() const override;
 
     /**
      * @brief registerClass
      * @param metaObject
      * @return
      */
-    bool registerClass(QMetaObject metaObj) Q_DECL_OVERRIDE;
+    bool registerClass(QMetaObject metaObj) override;
 
     /**
      * @brief registerClasses
      * @param metaObject
      * @return
      */
-    bool registerClasses(const QList<QMetaObject>& metaData) Q_DECL_OVERRIDE;
+    bool registerClasses(const QList<QMetaObject>& metaData) override;
 
     /**
      * @brief containsDuplicates
      * @param plugin
      * @return
      */
-    bool containsDuplicates(const QList<QMetaObject>& metaData) Q_DECL_OVERRIDE;
+    bool containsDuplicates(const QList<QMetaObject>& metaData) override;
 
     /**
      * @brief invokable
      * @param metaObj
      * @return
      */
-    bool invokable(const QMetaObject& metaObj) Q_DECL_OVERRIDE;
+    bool invokable(const QMetaObject& metaObj) override;
 
     /**
      * @brief classHierarchy
@@ -89,7 +89,7 @@ public:
      * @return
      */
     virtual QStringList classHierarchy(
-            const QString& className) Q_DECL_OVERRIDE;
+            const QString& className) override;
 
     /**
      * @brief addFactory

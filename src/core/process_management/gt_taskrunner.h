@@ -35,7 +35,7 @@ public:
     /**
      * @brief Constructor.
      */
-    GtTaskRunner(GtTask* task);
+    explicit GtTaskRunner(GtTask* task);
 
     /**
      * @brief Destructor.

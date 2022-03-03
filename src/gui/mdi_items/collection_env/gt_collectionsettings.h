@@ -31,7 +31,7 @@ public:
      * @brief localCollectionWidget
      * @param parent
      */
-    virtual QWidget* localCollectionWidget(QWidget* parent) Q_DECL_OVERRIDE;
+    virtual QWidget* localCollectionWidget(QWidget* parent) override;
 
     /**
      * @brief setLocalCollectionData
@@ -39,13 +39,13 @@ public:
      * @param items
      */
     virtual void setLocalCollectionData(QWidget* widget,
-                                        QList<GtCollectionItem> items) Q_DECL_OVERRIDE;
+                                        QList<GtCollectionItem> items) override;
 
     /**
      * @brief browseCollectionWidget
      * @param parent
      */
-    virtual GtAbstractBrowserWidget* browserWidget(QWidget* parent) Q_DECL_OVERRIDE;
+    virtual GtAbstractBrowserWidget* browserWidget(QWidget* parent) override;
 
     /**
      * @brief setBrowserWidgetData
@@ -57,7 +57,7 @@ public:
     virtual void setBrowserWidgetData(GtAbstractBrowserWidget* widget,
                                       QList<GtCollectionNetworkItem> installedItems,
                                       QList<GtCollectionNetworkItem> availableItems,
-                                      QList<GtCollectionNetworkItem> updataAvailableItems) Q_DECL_OVERRIDE;
+                                      QList<GtCollectionNetworkItem> updataAvailableItems) override;
 
 };
 

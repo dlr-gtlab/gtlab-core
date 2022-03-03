@@ -34,7 +34,7 @@ public:
      * @brief Constructor
      * @param Parent object
      */
-    GtPostModel(QObject* parent = Q_NULLPTR);
+    explicit GtPostModel(QObject* parent = nullptr);
 
     /**
      * @brief rowCount
@@ -42,7 +42,7 @@ public:
      * @return
      */
     int rowCount(
-            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data
@@ -51,7 +51,7 @@ public:
      * @return
      */
     QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                  int role = Qt::DisplayRole) const override;
 
     /**
      * @brief setData
@@ -61,7 +61,7 @@ public:
      * @return
      */
     bool setData(const QModelIndex &index,
-                 const QVariant &value, int role) Q_DECL_OVERRIDE;
+                 const QVariant &value, int role) override;
 
     /**
      * @brief flags

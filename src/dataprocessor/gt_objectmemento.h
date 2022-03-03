@@ -34,19 +34,19 @@ public:
      * @param obj
      * @param clone
      */
-    GtObjectMemento(const GtObject* obj = NULL, bool clone = true);
+    GtObjectMemento(const GtObject* obj = nullptr, bool clone = true);
 
     /**
      * @brief GtObjectMemento
      * @param element
      */
-    GtObjectMemento(const QDomElement& element);
+    explicit GtObjectMemento(const QDomElement& element);
 
     /**
      * @brief GtObjectMemento
      * @param byteArray
      */
-    GtObjectMemento(const QByteArray& byteArray);
+    explicit GtObjectMemento(const QByteArray& byteArray);
 
     /**
      * @brief interface from QDomElement

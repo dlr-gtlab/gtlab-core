@@ -100,7 +100,7 @@ public:
      * @brief unitFromParam
      * @return
      */
-    virtual QString unit(const QString& param) const Q_DECL_OVERRIDE;
+    virtual QString unit(const QString& param) const override;
 
     /**
      * @brief values
@@ -118,19 +118,19 @@ public:
      * @brief is0D
      * @return
      */
-    virtual bool is0D() const Q_DECL_OVERRIDE;
+    virtual bool is0D() const override;
 
     /**
      * @brief nDims
      * @return
      */
-    virtual int nDims() const Q_DECL_OVERRIDE;
+    virtual int nDims() const override;
 
     /**
      * @brief addModuleName
      * @param moduleName
      */
-    void addModuleName(const QString& moduleName) Q_DECL_OVERRIDE;
+    void addModuleName(const QString& moduleName) override;
 
     /**
      * @brief Returns true if size of params, units and values matches.
@@ -149,18 +149,18 @@ protected:
      * @brief doFetch fetches the externalized data.
      * @return success
      */
-    bool doFetchData() Q_DECL_OVERRIDE;
+    bool doFetchData() override;
 
     /**
      * @brief doExternalize externalizes the fetched data.
      * @return success
      */
-    bool doExternalizeData() Q_DECL_OVERRIDE;
+    bool doExternalizeData() override;
 
     /**
      * @brief doClearExternalizedData clears the data.
      */
-    void doClearExternalizedData() Q_DECL_OVERRIDE;
+    void doClearExternalizedData() override;
 
 private:
 

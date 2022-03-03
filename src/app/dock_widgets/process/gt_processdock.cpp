@@ -56,8 +56,11 @@
 #include "gt_importmenu.h"
 #include "gt_exporthandler.h"
 #include "gt_exportmenu.h"
+#include "gt_propertyconnectionfunctions.h"
 
 #include "gt_processdock.h"
+
+using namespace GtPropertyConnectionFunctions;
 
 GtProcessDock::GtProcessDock() :
     m_model(Q_NULLPTR),
@@ -194,6 +197,8 @@ GtProcessDock::setCurrentProcess(GtTask* process)
                    this, SLOT(onProcessDestroyed()));
         disconnect(m_currentProcess, SIGNAL(objectNameChanged(QString)),
                    this, SLOT(updateRunButton()));
+        disconnect(m_currentProcess, SIGNAL(skipPropertyChanged()),
+                   this, SLOT(updateRunButton()));
         disconnect(m_currentProcess, SIGNAL(dataChanged(GtObject*)),
                    this, SLOT(onTaskDataChanged(GtObject*)));
     }
@@ -204,6 +209,8 @@ GtProcessDock::setCurrentProcess(GtTask* process)
     {
         connect(process, SIGNAL(destroyed()), SLOT(onProcessDestroyed()));
         connect(process, SIGNAL(objectNameChanged(QString)),
+                SLOT(updateRunButton()));
+        connect(process, SIGNAL(skipPropertyChanged()),
                 SLOT(updateRunButton()));
         connect(process, SIGNAL(dataChanged(GtObject*)),
                 SLOT(onTaskDataChanged(GtObject*)));
@@ -579,8 +586,8 @@ GtProcessDock::updateButtons(GtObject* obj)
 
     setCurrentProcess(findRootTaskHelper(obj));
 
-    if (!obj || qobject_cast<GtCalculator*>(obj) || obj->isDummy() ||
-            obj->hasDummyParents())
+    if (obj && (qobject_cast<GtCalculator*>(obj) || obj->isDummy() ||
+                obj->hasDummyParents()))
     {
         m_addElementButton->setEnabled(false);
     }
@@ -591,10 +598,17 @@ GtProcessDock::updateButtons(GtObject* obj)
 void
 GtProcessDock::updateRunButton()
 {
-    if (m_currentProcess == Q_NULLPTR || m_currentProcess->hasDummyChildren())
+    // no process selected
+    if (m_currentProcess == Q_NULLPTR)
     {
+        m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
+
+        m_runButton->setStyleSheet(
+                    GtStyleSheets::processRunButton("rgb(230,255,230)"));
+
         m_runButton->setEnabled(false);
         m_runButton->setText(tr("Run"));
+        m_runButton->setToolTip(tr("No Process selected"));
         return;
     }
 
@@ -602,8 +616,31 @@ GtProcessDock::updateRunButton()
 
     GtTask* current = gtProcessExecutor->currentRunningTask();
 
-    if (current != Q_NULLPTR && current != m_currentProcess)
+    // no task is running
+    if (current == Q_NULLPTR)
     {
+        m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
+
+        m_runButton->setStyleSheet(
+                    GtStyleSheets::processRunButton("rgb(230,255,230)"));
+
+        if (str.isEmpty())
+        {
+            m_runButton->setEnabled(false);
+            m_runButton->setToolTip(tr("No Process selected"));
+            m_runButton->setText(tr("Run"));
+        }
+        else
+        {
+            m_runButton->setEnabled(true);
+            m_runButton->setToolTip(tr("Run Selected Process"));
+            m_runButton->setText(tr("Run") + " (" + str + ")");
+        }
+    }
+    // a task is running
+    else if (current != m_currentProcess)
+    {
+        // queue
         m_runButton->setIcon(gtApp->icon("queueIcon_16.png"));
 
         m_runButton->setStyleSheet(
@@ -622,50 +659,39 @@ GtProcessDock::updateRunButton()
             m_runButton->setToolTip(tr("Add Selected Process to Queue"));
         }
     }
+    // selected task is running
     else
     {
         m_runButton->setIcon(gtApp->icon("runProcessIcon_16.png"));
 
         m_runButton->setStyleSheet(
-                    GtStyleSheets::processRunButton("rgb(230,255,230)"));
+                    GtStyleSheets::processRunButton("rgb(255,230,230)"));
 
-        if (str.isEmpty())
+        // stopping
+        if (m_currentProcess->currentState() ==
+                GtProcessComponent::TERMINATION_REQUESTED)
         {
+            m_runButton->setIcon(gtApp->icon("stopRequestIcon_16.png"));
             m_runButton->setEnabled(false);
-            m_runButton->setToolTip(tr("No Process selected"));
-            m_runButton->setText(tr("Run"));
+            m_runButton->setToolTip(tr("Terminating process..."));
+            m_runButton->setText(str + tr(" terminating..."));
         }
         else
         {
-            if (m_currentProcess == current)
-            {
-
-                m_runButton->setStyleSheet(GtStyleSheets::processRunButton(
-                                               "rgb(255,230,230)"));
-
-                if (m_currentProcess->currentState() ==
-                        GtProcessComponent::TERMINATION_REQUESTED)
-                {
-                    m_runButton->setIcon(gtApp->icon("stopRequestIcon_16.png"));
-                    m_runButton->setEnabled(false);
-                    m_runButton->setToolTip(tr("Terminating process..."));
-                    m_runButton->setText(str + tr(" terminating..."));
-                }
-                else
-                {
-                    m_runButton->setIcon(gtApp->icon("stopIcon_16.png"));
-                    m_runButton->setEnabled(true);
-                    m_runButton->setToolTip(tr("Stop Selected Process"));
-                    m_runButton->setText(tr("Stop") + " (" + str + ")");
-                }
-            }
-            else
-            {
-                m_runButton->setEnabled(true);
-                m_runButton->setToolTip(tr("Run Selected Process"));
-                m_runButton->setText(tr("Run") + " (" + str + ")");
-            }
+            m_runButton->setIcon(gtApp->icon("stopIcon_16.png"));
+            m_runButton->setEnabled(true);
+            m_runButton->setToolTip(tr("Stop Selected Process"));
+            m_runButton->setText(tr("Stop") + " (" + str + ")");
         }
+    }
+
+    // disable run button if process is not ready, skip running task
+    if (current != m_currentProcess && (m_currentProcess->hasDummyChildren() ||
+                                        m_currentProcess->isSkipped()))
+    {
+        // text, style and icon are already set
+        m_runButton->setEnabled(false);
+        m_runButton->setToolTip(tr("Invalid Process selected"));
     }
 }
 
@@ -1028,13 +1054,6 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     actunskip->setIcon(gtApp->icon("arrowrightIcon.png"));
     actunskip->setShortcut(gtApp->getShortCutSequence("unskipProcess"));
 
-    // check if task is root
-    if (obj == obj->rootTask())
-    {
-        actskip->setEnabled(false);
-        actunskip->setEnabled(false);
-    }
-
     if (!obj->isSkipped())
     {
         actunskip->setVisible(false);
@@ -1370,8 +1389,6 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
     bool allUnskipped = true;
     // counter for dummy objects
     int dummyObjects = 0;
-    // counter for root objects
-    int rootObjects  = 0;
 
     for (const QModelIndex& index : indexList)
     {
@@ -1384,7 +1401,6 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
         }
 
         dummyObjects += (pc->hasDummyParents());
-        rootObjects  += (pc->rootTask() == pc);
 
         if (!pc->isSkipped())
         {
@@ -1410,8 +1426,8 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> indexList)
     {
         deleteElements->setEnabled(false);
     }
-    // root tasks or dummy objects cannot be skipped
-    if (rootObjects + dummyObjects == indexList.length())
+    // dummy objects cannot be skipped
+    if (dummyObjects == indexList.length())
     {
         skipCalcs->setEnabled(false);
         unskipCalcs->setEnabled(false);
@@ -2489,650 +2505,6 @@ GtProcessDock::mapPropertyConnections(GtTask* orig,
     return true;
 }
 
-bool
-GtProcessDock::mapRelativeObjectLink(GtObject* orig, GtObject* copy,
-                                     GtObject* copyClone, GtObject* obj,
-                                     GtRelativeObjectLinkProperty* relLink)
-{
-    if (orig == Q_NULLPTR || copy == Q_NULLPTR || copyClone == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    if (copy->uuid() != copyClone->uuid())
-    {
-        return false;
-    }
-
-    if (orig->uuid() == copy->uuid())
-    {
-        return false;
-    }
-
-    QString origTargetUUID = relLink->getVal();
-    if (origTargetUUID.isEmpty())
-    {
-        return true;
-    }
-
-    GtObject* origTarget = orig->getObjectByUuid(origTargetUUID);
-
-    if (origTarget == Q_NULLPTR)
-    {
-        gtDebug() << "Could not identify target object...";
-        return false;
-    }
-
-    GtObject* targetCopyClone =
-            findEquivalentObject(copyClone, origTarget);
-
-    if (targetCopyClone == Q_NULLPTR)
-    {
-        gtDebug() << "Could not find equivalent target object...";
-        return false;
-    }
-
-    GtObject* objCopyClone =  findEquivalentObject(copyClone, obj);
-
-    if (objCopyClone == Q_NULLPTR)
-    {
-        gtDebug() << "Could not find equivalent object...";
-        return false;
-    }
-
-    GtObject* objCopy = copy->getObjectByUuid(objCopyClone->uuid());
-
-    GtObject* targetCopy = copy->getObjectByUuid(
-                targetCopyClone->uuid());
-
-    if (objCopy == Q_NULLPTR || targetCopy == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    GtAbstractProperty* prop =
-            objCopy->findProperty(relLink->ident());
-
-    if (prop == Q_NULLPTR)
-    {
-        gtDebug() << "Could not find property";
-        return false;
-    }
-
-    GtRelativeObjectLinkProperty*  newRelLink =
-            qobject_cast<GtRelativeObjectLinkProperty*>(prop);
-
-    if (newRelLink == Q_NULLPTR)
-    {
-        gtDebug() << "Is no relative obj Link!";
-        return false;
-    }
-
-    newRelLink->setVal(targetCopy->uuid());
-
-    return true;
-}
-
-GtPropertyConnection*
-GtProcessDock::findConnectionCopy(GtPropertyConnection* origCon,
-                                  QList<GtPropertyConnection*> newCons)
-{
-    if (origCon == Q_NULLPTR)
-    {
-        return Q_NULLPTR;
-    }
-
-    if (newCons.isEmpty())
-    {
-        return Q_NULLPTR;
-    }
-
-    foreach (GtPropertyConnection* newCon, newCons)
-    {
-        bool check = true;
-
-        if (newCon->sourceUuid() != origCon->sourceUuid())
-        {
-            check = false;
-        }
-        else if (newCon->targetUuid() != origCon->targetUuid())
-        {
-            check = false;
-        }
-        else if (newCon->sourceProp() != origCon->sourceProp())
-        {
-            check = false;
-        }
-        else if (newCon->targetProp() != origCon->targetProp())
-        {
-            check = false;
-        }
-
-        if (check)
-        {
-            return newCon;
-        }
-    }
-
-    return Q_NULLPTR;
-}
-
-bool
-GtProcessDock::updateConnectionProperties(GtPropertyConnection* origCon,
-        GtPropertyConnection* copyCon,
-        GtTask* orig, GtTask* copy)
-{
-    if (origCon == Q_NULLPTR || copyCon == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    if (orig == Q_NULLPTR || copy == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    GtObject* origSourceObj = orig->getObjectByUuid(origCon->sourceUuid());
-    GtObject* origTargetObj = orig->getObjectByUuid(origCon->targetUuid());
-
-    if (origSourceObj == Q_NULLPTR || origTargetObj == Q_NULLPTR)
-    {
-        gtError() << "Could not find original objects...";
-        return false;
-    }
-
-    GtObject* newSourceObj = findEquivalentObject(copy, origSourceObj);
-    GtObject* newTargetObj = findEquivalentObject(copy, origTargetObj);
-
-    if (newSourceObj == Q_NULLPTR || newTargetObj == Q_NULLPTR)
-    {
-        gtError() << "Could not find new objects...";
-        return false;
-    }
-
-    copyCon->setSourceUuid(newSourceObj->uuid());
-    copyCon->setTargetUuid(newTargetObj->uuid());
-
-    gtDebug() << "Connection updated successfully!";
-
-    return true;
-}
-
-bool
-GtProcessDock::updateRelativeObjectLinks(GtObject* orig, GtObject* copy)
-{
-    if (orig == Q_NULLPTR || copy == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    QList<GtObject*> origObjects = orig->findChildren<GtObject*>();
-    origObjects.append(orig);
-
-    GtObject* copyClone = copy->clone();
-
-    if (copyClone == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    if (copyClone->uuid() != copy->uuid())
-    {
-        return false;
-    }
-
-    foreach (GtObject* obj, origObjects)
-    {
-        QList<GtRelativeObjectLinkProperty*> relLinks =
-            obj->propertiesByType<GtRelativeObjectLinkProperty*>();
-
-        foreach (GtRelativeObjectLinkProperty* relLink, relLinks)
-        {
-            if (!mapRelativeObjectLink(orig, copy, copyClone, obj, relLink))
-            {
-                gtDebug() << "Failed to update relative object link!";
-                continue;
-            }
-            gtDebug() << "Successfully Updated Relative Object Link!";
-        }
-    }
-
-    delete copyClone;
-
-    return true;
-}
-
-GtObject*
-GtProcessDock::findEquivalentObject(GtObject* parent, GtObject* origObj)
-{
-    if (parent == Q_NULLPTR || origObj == Q_NULLPTR)
-    {
-        return Q_NULLPTR;
-    }
-
-    QString name = origObj->objectName();
-    QString className = origObj->toMemento().className();
-
-    QList<GtObject*> objects = parent->findChildren<GtObject*>();
-    objects.append(parent);
-
-    foreach (GtObject* obj, objects)
-    {
-        QString nameTmp = obj->objectName();
-        QString classNameTmp = obj->toMemento().className();
-
-        if (nameTmp == name && classNameTmp == className)
-        {
-            QList<GtAbstractProperty*> props = origObj->properties();
-
-            bool cont = false;
-
-            foreach (GtAbstractProperty* absProp, props)
-            {
-                GtAbstractProperty* newProp =
-                    obj->findProperty(absProp->ident());
-
-                if (newProp == Q_NULLPTR)
-                {
-                    continue;
-                }
-
-                if (absProp->valueToVariant() != newProp->valueToVariant())
-                {
-                    cont = true;
-                    break;
-                }
-            }
-
-            if (cont)
-            {
-                continue;
-            }
-
-            GtObject* origPar = qobject_cast<GtObject*>(origObj->parent());
-            GtObject* parent = qobject_cast<GtObject*>(obj->parent());
-
-            if (origPar == Q_NULLPTR && parent == Q_NULLPTR)
-            {
-                return obj;
-            }
-
-            if (origPar->toMemento().className() !=
-                    parent->toMemento().className())
-            {
-                gtDebug() << "Parent class names are different!";
-                continue;
-            }
-
-            int children =  origPar->childCount<GtObject*>();
-            int childrenTmp = parent->childCount<GtObject*>();
-
-            if (children != childrenTmp)
-            {
-                gtDebug() << "Number of direct children are different!";
-                continue;
-            }
-
-            children = origPar->findChildren<GtObject*>().size();
-            childrenTmp = parent->findChildren<GtObject*>().size();
-
-            if (children != childrenTmp)
-            {
-                gtDebug() << "Number of children different!";
-                continue;
-            }
-
-            return obj;
-        }
-    }
-
-    return Q_NULLPTR;
-}
-
-GtTask*
-GtProcessDock::highestParentTask(GtTask* childTask)
-{
-    if (childTask == Q_NULLPTR)
-    {
-        return Q_NULLPTR;
-    }
-
-    if (childTask->parent() == Q_NULLPTR)
-    {
-        return childTask;
-    }
-
-    if (qobject_cast<GtProcessData*>(childTask->parent()) != Q_NULLPTR)
-    {
-        return childTask;
-    }
-    else
-    {
-        GtTask* parent = qobject_cast<GtTask*>(childTask->parent());
-
-        if (parent != Q_NULLPTR)
-        {
-            return highestParentTask(parent);
-        }
-    }
-
-    return Q_NULLPTR;
-}
-
-GtTask*
-GtProcessDock::highestParentTask(GtCalculator* childCalc)
-{
-    if (childCalc == Q_NULLPTR)
-    {
-        return Q_NULLPTR;
-    }
-
-    if (childCalc->parent() == Q_NULLPTR)
-    {
-        return Q_NULLPTR;
-    }
-
-    GtTask* task = qobject_cast<GtTask*>(childCalc->parent());
-
-    if (task != Q_NULLPTR)
-    {
-        return highestParentTask(task);
-    }
-
-    return Q_NULLPTR;
-}
-
-GtTask*
-GtProcessDock::highestParentTask(GtProcessComponent* childComp)
-{
-    if (childComp == Q_NULLPTR)
-    {
-        return Q_NULLPTR;
-    }
-
-    if (GtTask* task = qobject_cast<GtTask*>(childComp))
-    {
-        return highestParentTask(task);
-    }
-
-    if (GtCalculator* calc = qobject_cast<GtCalculator*>(childComp))
-    {
-        return highestParentTask(calc);
-    }
-
-    return Q_NULLPTR;
-}
-
-QList<GtPropertyConnection*>
-GtProcessDock::internalPropertyConnections(GtTask* task)
-{
-    QList<GtPropertyConnection*> retVal;
-
-    if (task == Q_NULLPTR)
-    {
-        return retVal;
-    }
-
-    GtTask* highestParent = highestParentTask(task);
-
-    if (highestParent == Q_NULLPTR)
-    {
-        return retVal;
-    }
-
-    QList<GtPropertyConnection*> allPropCons =
-        highestParent->findChildren<GtPropertyConnection*>();
-
-    foreach (GtPropertyConnection* propCon, allPropCons)
-    {
-        GtObject* sourceObj =
-            highestParent->getObjectByUuid(propCon->sourceUuid());
-        GtObject* targetObj =
-            highestParent->getObjectByUuid(propCon->targetUuid());
-
-        if (sourceObj == Q_NULLPTR || targetObj == Q_NULLPTR)
-        {
-            continue;
-        }
-
-        QList<GtObject*> allChildren = task->findChildren<GtObject*>();
-
-        if (allChildren.contains(sourceObj) && allChildren.contains(targetObj))
-        {
-            retVal.append(propCon);
-        }
-        else if (sourceObj == qobject_cast<GtObject*>(task) &&
-                 allChildren.contains(targetObj))
-        {
-            retVal.append(propCon);
-        }
-        else if (targetObj == qobject_cast<GtObject*>(task) &&
-                 allChildren.contains(sourceObj))
-        {
-            retVal.append(propCon);
-        }
-    }
-
-    return retVal;
-}
-
-QList<GtPropertyConnection*>
-GtProcessDock::internalPropertyConnections(GtProcessComponent* pComp)
-{
-    QList<GtPropertyConnection*> retVal;
-
-    if (qobject_cast<GtCalculator*>(pComp))
-    {
-        return retVal;
-    }
-    else if (GtTask* task = qobject_cast<GtTask*>(pComp))
-    {
-        retVal = internalPropertyConnections(task);
-    }
-
-    return retVal;
-}
-
-QList<GtPropertyConnection*>
-GtProcessDock::lostPropertyConnections(GtTask* task)
-{
-    QList<GtPropertyConnection*> retVal;
-
-    if (task == Q_NULLPTR)
-    {
-        return retVal;
-    }
-
-    GtTask* highestParent = highestParentTask(task);
-
-    if (highestParent == Q_NULLPTR)
-    {
-        return retVal;
-    }
-
-    QList<GtPropertyConnection*> allPropCons =
-        highestParent->findChildren<GtPropertyConnection*>();
-
-    foreach (GtPropertyConnection* propCon, allPropCons)
-    {
-        GtObject* sourceObj =
-            highestParent->getObjectByUuid(propCon->sourceUuid());
-        GtObject* targetObj =
-            highestParent->getObjectByUuid(propCon->targetUuid());
-
-        if (sourceObj == Q_NULLPTR || targetObj == Q_NULLPTR)
-        {
-            continue;
-        }
-
-        QList<GtObject*> allChildren = task->findChildren<GtObject*>();
-
-        if (allChildren.contains(sourceObj) &&
-                !allChildren.contains(targetObj))
-        {
-            if (qobject_cast<GtObject*>(task) != targetObj)
-            {
-                retVal.append(propCon);
-            }
-        }
-        else if (!allChildren.contains(sourceObj) &&
-                 allChildren.contains(targetObj))
-        {
-            if (qobject_cast<GtObject*>(task) != sourceObj)
-            {
-                retVal.append(propCon);
-            }
-        }
-    }
-
-    return retVal;
-}
-
-QList<GtPropertyConnection*>
-GtProcessDock::lostPropertyConnections(GtCalculator* calc)
-{
-    return relatedPropertyConnections(calc);
-}
-
-QList<GtPropertyConnection*>
-GtProcessDock::lostPropertyConnections(GtProcessComponent* pComp)
-{
-    if (GtTask* task = qobject_cast<GtTask*>(pComp))
-    {
-        return lostPropertyConnections(task);
-    }
-    else if (GtCalculator* calc = qobject_cast<GtCalculator*>(pComp))
-    {
-        return lostPropertyConnections(calc);
-    }
-
-    return QList<GtPropertyConnection*>();
-}
-
-QList<GtPropertyConnection*>
-GtProcessDock::relatedPropertyConnections(GtTask* task)
-{
-    QList<GtPropertyConnection*> retVal;
-
-    foreach (GtPropertyConnection* propCon,
-             internalPropertyConnections(task))
-    {
-        retVal.append(propCon);
-    }
-
-    foreach (GtPropertyConnection* propCon,
-             lostPropertyConnections(task))
-    {
-        retVal.append(propCon);
-    }
-
-    return retVal;
-}
-
-QList<GtPropertyConnection*>
-GtProcessDock::relatedPropertyConnections(GtCalculator* calc)
-{
-    QList<GtPropertyConnection*> retVal;
-
-    if (calc == Q_NULLPTR)
-    {
-        return retVal;
-    }
-
-    GtTask* highestParent = highestParentTask(calc);
-
-    if (highestParent == Q_NULLPTR)
-    {
-        return retVal;
-    }
-
-    QList<GtPropertyConnection*> allPropCons =
-        highestParent->findChildren<GtPropertyConnection*>();
-
-    foreach (GtPropertyConnection* propCon, allPropCons)
-    {
-        GtObject* sourceObj =
-            highestParent->getObjectByUuid(propCon->sourceUuid());
-
-        GtObject* targetObj =
-            highestParent->getObjectByUuid(propCon->targetUuid());
-
-        if (sourceObj == Q_NULLPTR || targetObj == Q_NULLPTR)
-        {
-            continue;
-        }
-
-        if (calc == sourceObj || calc == targetObj)
-        {
-            retVal.append(propCon);
-        }
-    }
-
-    return retVal;
-}
-
-QList<GtPropertyConnection*>
-GtProcessDock::relatedPropertyConnections(GtProcessComponent* comp)
-{
-    if (GtTask* task = qobject_cast<GtTask*>(comp))
-    {
-        return relatedPropertyConnections(task);
-    }
-    else if (GtCalculator* calc = qobject_cast<GtCalculator*>(comp))
-    {
-        return relatedPropertyConnections(calc);
-    }
-
-    return QList<GtPropertyConnection*>();
-}
-
-void
-GtProcessDock::setOffLostConnectionWarnings(
-    QList<GtPropertyConnection*> lostCons, GtTask* highestParent)
-{
-    foreach (GtPropertyConnection* propCon, lostCons)
-    {
-        GtObject* source = highestParent->getObjectByUuid(
-                               propCon->sourceUuid());
-
-        GtObject* target = highestParent->getObjectByUuid(
-                               propCon->targetUuid());
-
-        gtWarning() << "WARNING: Losing property connection!";
-
-        GtTask* sourceParent = Q_NULLPTR;
-        GtTask* targetParent = Q_NULLPTR;
-
-        if (qobject_cast<GtCalculator*>(source) != Q_NULLPTR)
-        {
-            sourceParent = qobject_cast<GtTask*>(source->parentObject());
-        }
-        else
-        {
-            sourceParent = qobject_cast<GtTask*>(source);
-        }
-
-        if (qobject_cast<GtCalculator*>(target) != Q_NULLPTR)
-        {
-            targetParent = qobject_cast<GtTask*>(target->parentObject());
-        }
-        else
-        {
-            targetParent = qobject_cast<GtTask*>(target);
-        }
-
-        if (source != Q_NULLPTR && target != Q_NULLPTR)
-        {
-            if (sourceParent != Q_NULLPTR &&  targetParent != Q_NULLPTR)
-            {
-                gtWarning() << "Source:" << source->objectName()
-                            << "in Parent Task:" << sourceParent->objectName();
-                gtWarning() << "Target:" << target->objectName()
-                            << "in Parent Task:" << targetParent->objectName();
-            }
-        }
-    }
-}
 
 void
 GtProcessDock::updateLastUsedElementList(const QString& str)

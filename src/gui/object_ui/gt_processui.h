@@ -29,14 +29,14 @@ public:
      * Virtual function to specify object specific icon.
      * @return Object specific icon
      */
-    virtual QIcon icon(GtObject* obj) const Q_DECL_OVERRIDE;
+    virtual QIcon icon(GtObject* obj) const override;
 
     /**
      * @brief openWith
      * @param obj
      * @return
      */
-    QStringList openWith(GtObject* obj) Q_DECL_OVERRIDE;
+    QStringList openWith(GtObject* obj) override;
 
     /**
      * @brief hasValidationRegExp

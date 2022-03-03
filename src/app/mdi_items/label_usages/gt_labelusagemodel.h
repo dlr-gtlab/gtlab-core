@@ -26,7 +26,7 @@ public:
      * @brief GtLabelUsageModel
      * @param parent
      */
-    GtLabelUsageModel(QObject* parent = Q_NULLPTR);
+    explicit GtLabelUsageModel(QObject* parent = Q_NULLPTR);
 
     /**
      * @brief rowCount
@@ -34,7 +34,7 @@ public:
      * @return
      */
     int rowCount(
-            const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+            const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data
@@ -43,7 +43,7 @@ public:
      * @return
      */
     QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                  int role = Qt::DisplayRole) const override;
 
     /**
      * @brief setLabelUsage

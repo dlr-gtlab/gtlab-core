@@ -24,7 +24,7 @@ protected:
      * @brief Constructor.
      * @param Parent.
      */
-    GtAbstractProcessItem(QObject* /*parent*/ = Q_NULLPTR) {};
+    explicit GtAbstractProcessItem(QObject* /*parent*/ = nullptr) {}
 
 };
 

@@ -24,7 +24,7 @@ public:
     /**
      * @brief GtApplicationPrivate
      */
-    GtApplicationPrivate(QObject* parent = Q_NULLPTR);
+    explicit GtApplicationPrivate(QObject* parent = nullptr);
 
     /// Command object memento
     GtObjectMemento m_commandMemento;

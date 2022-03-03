@@ -28,24 +28,24 @@ public:
      * @brief Constructor.
      * @param Parent.
      */
-    GtCalculatorOverviewPage(GtProcessWizard* parent);
+    explicit GtCalculatorOverviewPage(GtProcessWizard* parent);
 
     /**
      *
      */
-    virtual ~GtCalculatorOverviewPage() Q_DECL_OVERRIDE;
+    virtual ~GtCalculatorOverviewPage() override;
 
     /**
      * @brief validatePage
      * @return
      */
-    virtual bool validatePage() Q_DECL_OVERRIDE;
+    virtual bool validatePage() override;
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const Q_DECL_OVERRIDE;
+    virtual bool isComplete() const override;
 
 private:
     /// Tree view

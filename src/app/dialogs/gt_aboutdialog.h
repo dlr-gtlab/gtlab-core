@@ -24,7 +24,7 @@ public:
      * @brief GtAboutLogo
      * @param parent
      */
-    GtAboutLogo(QWidget* parent = Q_NULLPTR);
+    explicit GtAboutLogo(QWidget* parent = Q_NULLPTR);
 
 protected:
     /**
@@ -62,9 +62,9 @@ class GtAboutDialog : public QDialog
 public:
     /**
      * @brief Constructor
-     * @param Parent widget
+     * @param parent widget
      */
-    GtAboutDialog(QWidget* parent = Q_NULLPTR);
+    explicit GtAboutDialog(QWidget* parent = Q_NULLPTR);
 
 private slots:
     /**

@@ -27,6 +27,7 @@ class QDir;
 class GtSession;
 class GtProject;
 class GtSettings;
+class GtAbstractProperty;
 class GtModuleLoader;
 class GtDataModel;
 class GtObject;
@@ -47,7 +48,7 @@ public:
      * @brief GtApplication
      * @param parent
      */
-    GtCoreApplication(QCoreApplication* parent);
+    explicit GtCoreApplication(QCoreApplication* parent);
 
     /**
      * @brief instance
@@ -171,6 +172,22 @@ public:
      * @param id
      */
     virtual void switchSession(const QString& id);
+
+    /**
+     * @brief propertyCommand - virtual helper method for creating an undo
+     * command for a property change event in graphical mode.
+     * \warning Undo commands are not supported in batch mode!
+     * @param obj
+     * @param prop
+     * @param newValue
+     * @param unit
+     * @param root
+     */
+    virtual void propertyCommand(GtObject* /*obj*/,
+                                 GtAbstractProperty* /*prop*/,
+                                 const QVariant& /*newValue*/,
+                                 const QString& /*unit*/ = QString(),
+                                 GtObject* /*root*/ = nullptr) {}
 
     /**
      * @brief renameSession

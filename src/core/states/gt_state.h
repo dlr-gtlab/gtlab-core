@@ -10,7 +10,7 @@
 #ifndef GTSTATE_H
 #define GTSTATE_H
 
-#include "gt_gui_exports.h"
+#include "gt_core_exports.h"
 
 #include <QPointer>
 #include <QVariant>
@@ -23,7 +23,7 @@ class GtStateGroup;
 /**
  * @brief The GtState class
  */
-class GT_GUI_EXPORT GtState : public GtObject
+class GT_CORE_EXPORT GtState : public GtObject
 {
     Q_OBJECT
 

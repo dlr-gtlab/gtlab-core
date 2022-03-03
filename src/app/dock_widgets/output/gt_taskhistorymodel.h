@@ -28,7 +28,7 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    GtTaskHistoryModel(QObject* parent);
+    explicit GtTaskHistoryModel(QObject* parent);
 
     /**
      * @brief rowCount
@@ -36,7 +36,7 @@ public:
      * @return
      */
     int rowCount(
-        const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+        const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief rowCount
@@ -44,7 +44,7 @@ public:
      * @return
      */
     int columnCount(
-        const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+        const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data
@@ -53,7 +53,7 @@ public:
      * @return
      */
     QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+                  int role = Qt::DisplayRole) const override;
 
     /**
      * @brief headerData
@@ -64,7 +64,7 @@ public:
      */
     QVariant headerData(int section,
                         Qt::Orientation orientation,
-                        int role) const Q_DECL_OVERRIDE;
+                        int role) const override;
 
     /**
      * @brief Clears history data model.
@@ -82,7 +82,7 @@ public:
      * @param parent
      * @return
      */
-    bool hasChildren(const QModelIndex& parent) const Q_DECL_OVERRIDE;
+    bool hasChildren(const QModelIndex& parent) const override;
 
     /**
      * @brief index
@@ -94,14 +94,14 @@ public:
     QModelIndex index(int row,
                       int col,
                       const QModelIndex& parent =
-                          QModelIndex()) const Q_DECL_OVERRIDE;
+                          QModelIndex()) const override;
 
     /**
      * @brief parent
      * @param index
      * @return
      */
-    QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
+    QModelIndex parent(const QModelIndex& index) const override;
 
 private:
     /// Entry structure

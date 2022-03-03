@@ -23,7 +23,7 @@ class GT_GUI_EXPORT GtAbstractItemUI : public QWidget
     Q_OBJECT
 
 public:
-    Q_INVOKABLE GtAbstractItemUI(GtAbstractPostWidget* widget);
+    Q_INVOKABLE explicit GtAbstractItemUI(GtAbstractPostWidget* widget);
 
 //    void refresh();
 

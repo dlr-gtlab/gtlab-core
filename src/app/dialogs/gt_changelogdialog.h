@@ -26,7 +26,7 @@ public:
      * @brief Constructor
      * @param Parent widget
      */
-    GtChangelogDialog(QWidget* parent = Q_NULLPTR);
+    explicit GtChangelogDialog(QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief Called for popup changelog notification.

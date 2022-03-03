@@ -78,7 +78,7 @@ private:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    GtCalculatorHelperFactory(QObject* parent);
+    explicit GtCalculatorHelperFactory(QObject* parent);
 };
 
 #endif // GT_CALCULATORHELPERFACTORY_H

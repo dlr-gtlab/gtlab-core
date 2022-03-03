@@ -29,7 +29,7 @@ public:
     /**
      * @brief GtLocalCollectionWidget
      */
-    GtLocalCollectionWidget(QWidget* parent = Q_NULLPTR);
+    explicit GtLocalCollectionWidget(QWidget* parent = nullptr);
 
     /**
      * @brief setItems

@@ -68,7 +68,7 @@ private:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    GtTaskFactory(QObject* parent = NULL);
+    explicit GtTaskFactory(QObject* parent = nullptr);
 
 };
 

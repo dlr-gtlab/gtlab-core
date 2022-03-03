@@ -203,7 +203,7 @@ public:
         doubleVec = value;
     }
 
-    virtual bool childAccepted(GtObject* child) Q_DECL_OVERRIDE
+    virtual bool childAccepted(GtObject* child) override
     {
         return qobject_cast<GtObjectGroup*>(child);
     }

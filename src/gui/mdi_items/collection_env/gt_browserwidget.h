@@ -28,7 +28,7 @@ public:
      * @brief GtBrowserWidget
      * @param parent
      */
-    GtBrowserWidget(QWidget* parent = Q_NULLPTR);
+    explicit GtBrowserWidget(QWidget* parent = nullptr);
 
     /**
      * @brief setItems
@@ -44,23 +44,23 @@ public:
      * @brief itemsToDownload
      * @return
      */
-    QList<GtCollectionNetworkItem> itemsToDownload() Q_DECL_OVERRIDE;
+    QList<GtCollectionNetworkItem> itemsToDownload() override;
 
     /**
      * @brief itemsToUpdate
      * @return
      */
-    QList<GtCollectionNetworkItem> itemsToUpdate() Q_DECL_OVERRIDE;
+    QList<GtCollectionNetworkItem> itemsToUpdate() override;
 
     /**
      * @brief selectAllItems
      */
-    void selectAllItems() Q_DECL_OVERRIDE;
+    void selectAllItems() override;
 
     /**
      * @brief unselectAllItems
      */
-    void unselectAllItems() Q_DECL_OVERRIDE;
+    void unselectAllItems() override;
 
 private:
     /// collection browser model.

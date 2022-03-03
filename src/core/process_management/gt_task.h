@@ -47,7 +47,7 @@ public:
      * @brief Main run method of the process component.
      * @return Whether run process was successful or not.
      */
-    bool exec() Q_DECL_OVERRIDE;
+    bool exec() override;
 
     /**
      * @brief run
@@ -120,7 +120,7 @@ public:
     /**
      * @brief Called after successfully restoring from memento
      */
-    void onObjectDataMerged() Q_DECL_OVERRIDE;
+    void onObjectDataMerged() override;
 
     /**
      * @brief Collects all property connections recursively.

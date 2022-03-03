@@ -29,7 +29,7 @@ public:
      * @param obj
      * @return globalIcon.png
      */
-    QIcon icon(GtObject *obj) const Q_DECL_OVERRIDE;
+    QIcon icon(GtObject *obj) const override;
 
     /**
      * @brief Test for open with interface. Adds two entries
@@ -37,14 +37,14 @@ public:
      * @param obj
      * @return
      */
-    QStringList openWith(GtObject* obj) Q_DECL_OVERRIDE;
+    QStringList openWith(GtObject* obj) override;
 
     /**
      * @brief Test for doubleclicked.
      * @param obj
      * @return
      */
-    void doubleClicked(GtObject *obj) Q_DECL_OVERRIDE;
+    void doubleClicked(GtObject *obj) override;
 
 public slots:
     /**

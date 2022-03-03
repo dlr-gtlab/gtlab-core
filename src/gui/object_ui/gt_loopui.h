@@ -29,7 +29,7 @@ public:
      * Virtual function to specify object specific icon.
      * @return Object specific icon
      */
-    virtual QIcon icon(GtObject* obj) const Q_DECL_OVERRIDE;
+    virtual QIcon icon(GtObject* obj) const override;
 
     /**
      * @brief hasValidationRegExp
@@ -53,7 +53,7 @@ protected:
      */
     QVariant specificData(GtObject* obj,
                           int role,
-                          int column) const Q_DECL_OVERRIDE;
+                          int column) const override;
 
 };
 

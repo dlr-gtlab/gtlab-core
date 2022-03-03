@@ -29,13 +29,13 @@ public:
      * @brief Returns list of allowed target classes of importer.
      * @return List of allowed target classes.
      */
-    QStringList targets() const Q_DECL_OVERRIDE;
+    QStringList targets() const override;
 
     /**
      * @brief Returns icon of importer.
      * @return Icon of importer.
      */
-    QIcon icon() const Q_DECL_OVERRIDE;
+    QIcon icon() const override;
 
     /**
      * @brief Main import function.
@@ -45,13 +45,13 @@ public:
      * to avoid doubled usage
      * @return Whether import successfully finished or not.
      */
-    bool import(GtObject* data, QFile& file) Q_DECL_OVERRIDE;
+    bool import(GtObject* data, QFile& file) override;
 
     /**
      * @brief Returns list of allowed file extensions of importer.
      * @return List of allowed file extensions of importer.
      */
-    QStringList extensions() const Q_DECL_OVERRIDE;
+    QStringList extensions() const override;
 };
 
 #endif // GTPROCESSIMPORTER_H

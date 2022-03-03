@@ -26,7 +26,7 @@ public:
      * @brief GtTaskArrowLabelEntity
      * @param parent
      */
-    GtTaskArrowLabelEntity(QGraphicsItem* parent = Q_NULLPTR);
+    explicit GtTaskArrowLabelEntity(QGraphicsItem* parent = Q_NULLPTR);
 
     /**
      * @brief paint
@@ -36,13 +36,13 @@ public:
      */
     void paint(QPainter *painter,
                const QStyleOptionGraphicsItem *option,
-               QWidget *widget) Q_DECL_OVERRIDE;
+               QWidget *widget) override;
 
     /**
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const Q_DECL_OVERRIDE;
+    virtual QRectF boundingRect() const override;
 
 protected:
     /**
@@ -50,21 +50,21 @@ protected:
      * @param event
      */
     virtual void dragEnterEvent(
-            QGraphicsSceneDragDropEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneDragDropEvent* event) override;
 
     /**
      * @brief dragLeaveEvent
      * @param event
      */
     virtual void dragLeaveEvent(
-            QGraphicsSceneDragDropEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneDragDropEvent* event) override;
 
     /**
      * @brief dropEvent
      * @param event
      */
     virtual void dropEvent(
-            QGraphicsSceneDragDropEvent* event) Q_DECL_OVERRIDE;
+            QGraphicsSceneDragDropEvent* event) override;
 
 signals:
     void addNewItem(GtObject* obj);

@@ -26,14 +26,14 @@ public:
      * @brief GtDynamicPropertyContainer
      * @param name
      */
-    GtDynamicPropertyContainer(const QString& name);
+    explicit GtDynamicPropertyContainer(const QString& name);
 
     /**
      * @brief valueToVariant
      * @return
      */
     virtual QVariant valueToVariant(const QString& unit,
-                                    bool* success = 0) const Q_DECL_OVERRIDE;
+                                    bool* success = nullptr) const override;
 
     /**
      * @brief setValueFromVariant
@@ -41,14 +41,14 @@ public:
      * @return
      */
     bool setValueFromVariant(const QVariant& val, const QString& unit,
-                             bool* success = 0) Q_DECL_OVERRIDE;
+                             bool* success = nullptr) override;
 
     /**
      * @brief registerSubProperty
      * @param property
      */
     virtual void registerSubProperty(
-            GtAbstractProperty& property) Q_DECL_OVERRIDE;
+            GtAbstractProperty& property) override;
 
     /**
      * @brief deleteSubProperty

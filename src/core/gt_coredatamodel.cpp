@@ -16,6 +16,9 @@
 #include "gt_coreapplication.h"
 #include "gt_command.h"
 #include "gt_logging.h"
+#include "gt_state.h"
+#include "gt_statehandler.h"
+#include "gt_externalizationsettings.h"
 
 #include "gt_coredatamodel.h"
 
@@ -127,6 +130,37 @@ GtCoreDatamodel::init()
     m_self = this;
 }
 
+void
+GtCoreDatamodel::initProjectStates(GtProject* project)
+{
+    // initialize externalization states
+    GtState* enableState = gtStateHandler->initializeState(project,
+                                    QStringLiteral("ExternalizationSettings"),
+                                    QStringLiteral("Enable Externalization"),
+                                    QStringLiteral("enable_externalization"),
+                                    false, project);
+
+    GtState* autoState = gtStateHandler->initializeState(project,
+                                    QStringLiteral("ExternalizationSettings"),
+                                    QStringLiteral("Auto Externalize on Save"),
+                                    QStringLiteral("auto_externalization"),
+                                    false, project);
+
+    // set init values
+    gtExternalizationSettings->onEnbaleExternalizationChanged(
+                enableState->getValue());
+    gtExternalizationSettings->onAutoExternalizationChanged(
+                autoState->getValue());
+
+    // update values if states change
+    connect(enableState, SIGNAL(valueChanged(QVariant)),
+            gtExternalizationSettings,
+            SLOT(onEnbaleExternalizationChanged(QVariant)));
+    connect(autoState, SIGNAL(valueChanged(QVariant)),
+            gtExternalizationSettings,
+            SLOT(onAutoExternalizationChanged(QVariant)));
+}
+
 GtSession*
 GtCoreDatamodel::session()
 {
@@ -222,6 +256,8 @@ GtCoreDatamodel::openProject(GtProject* project)
     GtObjectList data = m_session->loadProjectData(project);
 
     appendProjectData(project, data);
+
+    initProjectStates(project);
 
     // check project data
     //    if (data.isEmpty())

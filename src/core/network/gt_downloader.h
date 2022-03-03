@@ -24,7 +24,7 @@ public:
      * @brief GtDownloader
      * @param parent
      */
-    GtDownloader(QObject* parent = Q_NULLPTR);
+    explicit GtDownloader(QObject* parent = Q_NULLPTR);
 
     /**
      * @brief addFileDownload

@@ -57,11 +57,10 @@ public:
      * @brief Returns true if the process component is set to skip mode.
      * @return Skip indicator.
      */
-    bool isSkipped();
+    bool isSkipped() const;
 
     /**
-     * @brief Sets the process component skip mode. Root objects cannot be
-     * skipped.
+     * @brief Sets the process component skip mode.
      * @param Whether the component should be skipped or not.
      */
     void setSkipped(bool val);
@@ -204,6 +203,11 @@ private:
     GtObjectPath pathHelper(GtObjectPathProperty& prop);
 
 signals:
+    /**
+     * @brief Emitted if skip property changed.
+     */
+    void skipPropertyChanged();
+
     /**
      * @brief Emitted on state change.
      */

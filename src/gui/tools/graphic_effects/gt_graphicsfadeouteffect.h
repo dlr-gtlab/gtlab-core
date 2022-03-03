@@ -21,7 +21,7 @@ class GT_GUI_EXPORT GtGraphicsFadeOutEffect : public QGraphicsOpacityEffect
     Q_OBJECT
 
 public:
-    GtGraphicsFadeOutEffect(QObject* parent = Q_NULLPTR);
+    explicit GtGraphicsFadeOutEffect(QObject* parent = nullptr);
 
 private:
     QPropertyAnimation* m_anim;
