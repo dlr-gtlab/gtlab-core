@@ -7,8 +7,6 @@
  */
 
 #include "test_dmi_package.h"
-#include "gt_datazone.h"
-#include "gt_datazone0d.h"
 
 ///generated (v 0.1)
 TestDmiPackage::TestDmiPackage()
