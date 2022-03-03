@@ -71,13 +71,13 @@ public:
      * @brief linkedObject
      * @return
      */
-    GtObject* linkedObject(GtObject* root = Q_NULLPTR);
+    GtObject* linkedObject(GtObject* root = nullptr);
 
     /**
      * @brief object
      * @return
      */
-    GtObject* object();
+    GtObject* object() const;
 
     /**
      * @brief linkedObjectUUID

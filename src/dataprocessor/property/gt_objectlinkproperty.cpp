@@ -57,26 +57,26 @@ GtObjectLinkProperty::linkedObject(GtObject* root)
 {
     if (m_value.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtObject* rootObject = root;
 
-    if (rootObject == Q_NULLPTR)
+    if (rootObject == nullptr)
     {
         rootObject = object()->findRoot<GtObject*>(object());
     }
 
-    if (rootObject == Q_NULLPTR)
+    if (rootObject == nullptr)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return rootObject->getObjectByUuid(m_value);
 }
 
 GtObject*
-GtObjectLinkProperty::object()
+GtObjectLinkProperty::object() const
 {
     return m_obj;
 }

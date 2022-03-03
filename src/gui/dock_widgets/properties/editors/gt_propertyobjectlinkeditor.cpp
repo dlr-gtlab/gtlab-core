@@ -23,19 +23,19 @@
 
 GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     QWidget(parent),
-    m_scope(Q_NULLPTR)
+    m_scope(nullptr)
 {
-    QHBoxLayout* lay = new QHBoxLayout;
+    auto lay = new QHBoxLayout;
     m_objectId = new QLineEdit;
 
-    QPushButton* restoreButton = new QPushButton(QStringLiteral(""));
+    auto restoreButton = new QPushButton(QStringLiteral(""));
     restoreButton->setIcon(gtApp->icon(QStringLiteral("restoreIcon_16.png")));
     restoreButton->setFlat(true);
     restoreButton->setMaximumWidth(15);
     restoreButton->setAutoDefault(false);
     restoreButton->setToolTip(tr("Delete Object Link"));
 
-    QPushButton* selectObjectButton = new QPushButton(QStringLiteral("..."));
+    auto selectObjectButton = new QPushButton(QStringLiteral("..."));
     selectObjectButton->setMaximumWidth(30);
     selectObjectButton->setAutoDefault(false);
     selectObjectButton->setToolTip(tr("Choose Object"));
@@ -60,9 +60,9 @@ GtPropertyObjectLinkEditor::setObjectLinkProperty(GtObjectLinkProperty* prop)
 {
     m_prop = prop;
 
-    if (m_prop == Q_NULLPTR)
+    if (m_prop == nullptr)
     {
-        qDebug() << "m_prop == Q_NULLPTR";
+        qDebug() << "m_prop == nullptr";
     }
 
     updateText();
@@ -77,17 +77,17 @@ GtPropertyObjectLinkEditor::setScope(GtObject* scope)
 bool
 GtPropertyObjectLinkEditor::validObjectSelected()
 {
-    if (m_prop == Q_NULLPTR)
+    if (m_prop == nullptr)
     {
         return false;
     }
 
-    if (m_scope == Q_NULLPTR)
+    if (m_scope == nullptr)
     {
         return false;
     }
 
-    if (m_scope->getObjectByUuid(m_prop->linkedObjectUUID()) == Q_NULLPTR)
+    if (m_scope->getObjectByUuid(m_prop->linkedObjectUUID()) == nullptr)
     {
         return false;
     }
@@ -98,14 +98,14 @@ GtPropertyObjectLinkEditor::validObjectSelected()
 GtObject*
 GtPropertyObjectLinkEditor::selectedObject()
 {
-    if (m_prop == Q_NULLPTR)
+    if (m_prop == nullptr)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
-    if (m_scope == Q_NULLPTR)
+    if (m_scope == nullptr)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_scope->getObjectByUuid(m_prop->linkedObjectUUID());
@@ -116,13 +116,13 @@ GtPropertyObjectLinkEditor::updateText()
 {
     QString txt = QStringLiteral("-");
 
-    if (m_prop != Q_NULLPTR && m_scope != Q_NULLPTR)
+    if (m_prop != nullptr && m_scope != nullptr)
     {
         const QString uuid = m_prop->linkedObjectUUID();
 
         GtObject* linkedObject = m_scope->getObjectByUuid(uuid);
 
-        if (linkedObject != Q_NULLPTR)
+        if (linkedObject != nullptr)
         {
             txt = linkedObject->objectName();
         }
@@ -134,7 +134,7 @@ GtPropertyObjectLinkEditor::updateText()
 QList<GtObject*>
 GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
 {
-    if (obj == Q_NULLPTR)
+    if (obj == nullptr)
     {
         return QList<GtObject*>();
     }
@@ -220,7 +220,7 @@ GtPropertyObjectLinkEditor::selectObjectLink()
         {
             GtObject* obj = dialog.currentObject();
 
-            if (obj != Q_NULLPTR)
+            if (obj != nullptr)
             {
                 m_prop->setVal(obj->uuid());
             }
