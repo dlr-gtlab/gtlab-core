@@ -11,7 +11,8 @@
 #include <QColor>
 
 #include "gt_environment.h"
-
+#include "gt_palette.h"
+#include "gt_application.h"
 #include "gt_environmentmodel.h"
 
 GtEnvironmentModel::GtEnvironmentModel(const QStringList& vars,
@@ -64,6 +65,7 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         {
             return m_vars.value(valId);
         }
+        break;
     }
     case Qt::FontRole:
     {
@@ -78,7 +80,7 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         {
             if (m_vars.value(valId).isNull())
             {
-                return QColor(214, 170, 170);
+                return GtPalette::environmentModelBack(gtApp->inDarkMode());
             }
         }
 

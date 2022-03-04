@@ -17,6 +17,7 @@
 #include "gt_mdilauncher.h"
 #include "gt_object.h"
 #include "gt_regexp.h"
+#include "gt_palette.h"
 
 GtObjectUI::GtObjectUI()
 {
@@ -200,26 +201,13 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->newlyCreated())
                 {
-                    if (gtApp->inDarkMode())
-                    {
-                        return QColor(Qt::green);
-                    }
-                    else
-                    {
-                        return QColor(Qt::darkGreen);
-                    }
-
+                    return GtPalette::newObjectForgroundColor(
+                                gtApp->inDarkMode());
                 }
                 else if (obj->hasChanges() || obj->hasChildChanged())
                 {
-                    if (gtApp->inDarkMode())
-                    {
-                        return QColor(Qt::blue).lighter();
-                    }
-                    else
-                    {
-                        return QColor(Qt::blue);
-                    }
+                    return GtPalette::changedObjectForgroundColor(
+                                gtApp->inDarkMode());
                 }
 
                 break;
@@ -229,14 +217,8 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    if (gtApp->inDarkMode())
-                    {
-                        return QColor(255, 130, 25);
-                    }
-                    else
-                    {
-                        return QColor(255, 140, 140);
-                    }
+                    return GtPalette::dummyObjectBackgroundColor(
+                                gtApp->inDarkMode());
                 }
                 break;
             }
@@ -293,14 +275,8 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    if (gtApp->inDarkMode())
-                    {
-                        return QColor(255, 130, 25);
-                    }
-                    else
-                    {
-                        return QColor(255, 140, 140);
-                    }
+                    return GtPalette::dummyObjectBackgroundColor(
+                                gtApp->inDarkMode());
                 }
             }
 

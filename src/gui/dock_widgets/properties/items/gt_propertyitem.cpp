@@ -7,7 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QColor>
 #include <QFont>
 #include <QLineEdit>
 #include <QSpinBox>
@@ -169,33 +168,6 @@ GtPropertyItem::data(int column, int role) const
 
             break;
         }
-
-//        case Qt::ForegroundRole:
-//        {
-//            if (!m_property->isActive())
-//            {
-//                return QColor(120, 120, 120);
-//            }
-
-//            break;
-//        }
-
-//        case Qt::BackgroundRole:
-//        {
-//            if (column == 2)
-//            {
-//                if (!m_property->isActive() || m_property->isReadOnly())
-//                {
-//                    return QColor(245, 245, 245);
-//                }
-//                else
-//                {
-//                    return QColor(255, 255, 255);
-//                }
-//            }
-
-//            break;
-//        }
 
         case Qt::FontRole:
         {

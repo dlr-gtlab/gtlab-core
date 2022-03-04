@@ -43,6 +43,30 @@ namespace GtPalette
      * @return return basic dark color
      */
     GT_GUI_EXPORT QColor basicDarkColor();
+
+    GT_GUI_EXPORT QColor dummyObjectBackgroundColor(bool dark);
+
+    GT_GUI_EXPORT QColor newObjectForgroundColor(bool dark);
+
+    GT_GUI_EXPORT QColor changedObjectForgroundColor(bool dark);
+
+    GT_GUI_EXPORT QColor footprintWarningColor(bool dark);
+
+    GT_GUI_EXPORT QColor footprintErrorColor(bool dark);
+
+    GT_GUI_EXPORT QColor loggingWarnTextColor(bool dark);
+
+    GT_GUI_EXPORT QColor loggingErrorTextColor(bool dark);
+
+    GT_GUI_EXPORT QColor loggingFatalTextColor(bool dark);
+
+    GT_GUI_EXPORT QColor loggingFatalBackgroundColor(bool dark);
+
+    GT_GUI_EXPORT QColor collectionAvailableItemBackground(bool dark);
+
+    GT_GUI_EXPORT QColor collectionInstalledItemBackground(bool dark);
+
+    GT_GUI_EXPORT QColor environmentModelBack(bool dark);
 }
 
 #endif // GTPALETTE_H

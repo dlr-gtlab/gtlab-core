@@ -138,13 +138,7 @@ GtExampleGraphicalItem::mousePressEvent(QMouseEvent* event)
 void
 GtExampleGraphicalItem::enterEvent(QEvent* event)
 {
-    //QPalette pal(palette());
-
-    //pal.setColor(QPalette::Background, QColor(210, 225, 245));
-
     setAutoFillBackground(true);
-
-    //setPalette(pal);
 
     QWidget::enterEvent(event);
 }
