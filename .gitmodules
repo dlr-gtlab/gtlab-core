@@ -1,3 +1,6 @@
-[submodule "tests/guitests/squish_gui_testing"]
-	path = tests/guitests/squish_gui_testing
-	url = https://gitlab.dlr.de/at-twk/squish---gui-testing
+[submodule "tests/guitests/testing_resources"]
+	path = tests/guitests/testing_resources
+	url = https://gitlab.dlr.de/at-twk/gui-testing/testing-resources.git
+[submodule "tests/guitests/gtlab_core_tests"]
+	path = tests/guitests/gtlab_core_tests
+	url = https://gitlab.dlr.de/at-twk/gui-testing/tests-for-gtlab-core.git
