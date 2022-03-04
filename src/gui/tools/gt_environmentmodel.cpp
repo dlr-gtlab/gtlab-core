@@ -10,6 +10,8 @@
 #include "gt_environmentmodel.h"
 
 #include "gt_environment.h"
+#include "gt_palette.h"
+#include "gt_application.h"
 #include "gt_algorithms.h"
 
 #include <QFont>
@@ -69,24 +71,23 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
             retVal = m_vars.value(valId);
         }
         break;
+
+    case Qt::FontRole:
+    {
+        QFont fnt;
+        fnt.setPointSize(8);
+        fnt.setFamily("Arial");
+        return fnt;
+    }
     case Qt::BackgroundRole:
         if (col == 1)
         {
             if (m_vars.value(valId).isNull())
             {
-                retVal = QColor(214, 170, 170);
-                break;
+                return GtPalette::environmentModelBack(gtApp->inDarkMode());
             }
         }
         break;
-
-    case Qt::FontRole:
-        QFont fnt;
-        fnt.setPointSize(8);
-        fnt.setFamily("Arial");
-        retVal = fnt;
-        break;
-
     }
 
     return retVal;

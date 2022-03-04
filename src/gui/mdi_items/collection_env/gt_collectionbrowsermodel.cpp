@@ -10,6 +10,7 @@
 #include <QIcon>
 
 #include "gt_application.h"
+#include "gt_palette.h"
 
 #include "gt_collectionbrowsermodel.h"
 
@@ -78,7 +79,9 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             }
             else if (role == Qt::BackgroundRole)
             {
-                return QColor(180, 229, 190);
+                return GtPalette::collectionAvailableItemBackground(
+                            gtApp->inDarkMode());
+
             }
 
             break;
@@ -110,7 +113,8 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             }
             else if (role == Qt::BackgroundRole)
             {
-                return QColor(240, 240, 240);
+                return GtPalette::collectionInstalledItemBackground(
+                            gtApp->inDarkMode());
             }
 
             break;

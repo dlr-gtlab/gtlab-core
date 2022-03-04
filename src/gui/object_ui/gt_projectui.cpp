@@ -57,6 +57,7 @@
 #include "gt_statehandler.h"
 #include "gt_state.h"
 #include "gt_algorithms.h"
+#include "gt_palette.h"
 
 #include "gt_projectui.h"
 
@@ -1470,15 +1471,19 @@ GtProjectUI::showFootprint(GtObject* obj)
                                                        projectVersion <<
                                                        frameworkVersion);
 
+
+    bool darkMode = gtApp->inDarkMode();
+    QColor warnC = GtPalette::footprintWarningColor(darkMode);
+    QColor errorC = GtPalette::footprintErrorColor(darkMode);
     if (footprint.isNewerRelease())
     {
-        versionItem->setBackgroundColor(1, QColor(255, 0, 0, 100));
-        versionItem->setBackgroundColor(2, QColor(255, 0, 0, 100));
+        versionItem->setBackgroundColor(1, errorC);
+        versionItem->setBackgroundColor(2, errorC);
     }
     else if (footprint.isOlderRelease())
     {
-        versionItem->setBackgroundColor(1, QColor(255, 255, 0, 100));
-        versionItem->setBackgroundColor(2, QColor(255, 255, 0, 100));
+        versionItem->setBackgroundColor(1, warnC);
+        versionItem->setBackgroundColor(2, warnC);
     }
 
     tWid->addTopLevelItem(versionItem);
@@ -1496,8 +1501,8 @@ GtProjectUI::showFootprint(GtObject* obj)
                     new QTreeWidgetItem(QStringList() << e <<
                                         unknownModules.value(e).toString());
 
-            unknownModule->setBackgroundColor(1, QColor(255, 0, 0, 100));
-            unknownModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
+            unknownModule->setBackgroundColor(1, errorC);
+            unknownModule->setBackgroundColor(2, errorC);
 
             unknownRoot->addChild(unknownModule);
         });
@@ -1520,8 +1525,8 @@ GtProjectUI::showFootprint(GtObject* obj)
                                    incompatibleModules.value(e).toString() <<
                                    gtApp->moduleVersion(e).toString());
 
-            incompatibleModule->setBackgroundColor(1, QColor(255, 0, 0, 100));
-            incompatibleModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
+            incompatibleModule->setBackgroundColor(1, errorC);
+            incompatibleModule->setBackgroundColor(2, errorC);
 
             incompatibleRoot->addChild(incompatibleModule);
         });
@@ -1543,8 +1548,8 @@ GtProjectUI::showFootprint(GtObject* obj)
                                         updatedModules.value(e).toString() <<
                                         gtApp->moduleVersion(e).toString());
 
-            updatedModule->setBackgroundColor(1, QColor(255, 255, 0, 100));
-            updatedModule->setBackgroundColor(2, QColor(255, 255, 0, 100));
+            updatedModule->setBackgroundColor(1, warnC);
+            updatedModule->setBackgroundColor(2, warnC);
 
             updatedRoot->addChild(updatedModule);
         });
