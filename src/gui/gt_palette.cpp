@@ -99,5 +99,107 @@ GtPalette::applyThemeToWidget(QWidget* w, bool dark)
 QColor
 GtPalette::basicDarkColor()
 {
-    return QColor(45,45,45);
+    return {45, 45, 45};        //QColor(45, 45, 45);
+}
+
+QColor
+GtPalette::dummyObjectBackgroundColor(bool dark)
+{
+    if (dark)
+    {
+        return {255, 130, 25};  //QColor(255, 130, 25);
+    }
+    else
+    {
+        return {255, 140, 140}; //QColor(255, 140, 140);
+    }
+}
+
+QColor
+GtPalette::newObjectForgroundColor(bool dark)
+{
+    if (dark)
+    {
+        return {Qt::green};
+    }
+    else
+    {
+        return {Qt::darkGreen};
+    }
+}
+
+QColor
+GtPalette::changedObjectForgroundColor(bool dark)
+{
+    if (dark)
+    {
+        return QColor(Qt::blue).lighter();
+    }
+    else
+    {
+        return {Qt::blue};
+    }
+}
+
+QColor
+GtPalette::footprintWarningColor(bool dark)
+{
+    Q_UNUSED(dark)
+    return {255, 255, 0, 100};  //QColor(255, 255, 0, 100);
+}
+
+QColor
+GtPalette::footprintErrorColor(bool dark)
+{
+    Q_UNUSED(dark)
+    return {255, 0, 0, 100};    //QColor(255, 0, 0, 100);
+}
+
+QColor
+GtPalette::loggingWarnTextColor(bool dark)
+{
+    Q_UNUSED(dark)
+    return {255, 100, 0};       //QColor(255, 100, 0);
+}
+
+QColor
+GtPalette::loggingErrorTextColor(bool dark)
+{
+    Q_UNUSED(dark)
+    return {139, 0, 0};         //QColor(139, 0, 0);
+}
+
+QColor
+GtPalette::loggingFatalTextColor(bool dark)
+{
+    Q_UNUSED(dark)
+    return {255, 255, 255};     //QColor(255, 255, 255);
+}
+
+QColor
+GtPalette::loggingFatalBackgroundColor(bool dark)
+{
+    Q_UNUSED(dark)
+    return {120, 20, 20};       //QColor(120, 20, 20);
+}
+
+QColor
+GtPalette::collectionAvailableItemBackground(bool dark)
+{
+    Q_UNUSED(dark)
+    return {180, 229, 190};     //QColor(180, 229, 190);
+}
+
+QColor
+GtPalette::collectionInstalledItemBackground(bool dark)
+{
+    Q_UNUSED(dark)
+    return {240, 240, 240};     //QColor(240, 240, 240);
+}
+
+QColor
+GtPalette::environmentModelBack(bool dark)
+{
+    Q_UNUSED(dark)
+    return {214, 170, 170};     //QColor(214, 170, 170);
 }

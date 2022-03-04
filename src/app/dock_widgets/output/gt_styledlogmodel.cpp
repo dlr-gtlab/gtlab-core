@@ -13,6 +13,7 @@
 #include "gt_styledlogmodel.h"
 #include "gt_logmodel.h"
 #include "gt_application.h"
+#include "gt_palette.h"
 
 #include "QsLogLevel.h"
 
@@ -62,17 +63,17 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             const int level =
                 gtLogModel->data(index,
                                  GtLogModel::LogLevelRole).toInt();
-
+            bool darkMode = gtApp->inDarkMode();
             switch (level)
             {
                 case QsLogging::WarnLevel:
-                    return QColor(255, 100, 0);
+                    return GtPalette::loggingWarnTextColor(darkMode);
 
                 case QsLogging::ErrorLevel:
-                    return QColor(139, 0, 0);
+                    return GtPalette::loggingErrorTextColor(darkMode);
 
                 case QsLogging::FatalLevel:
-                    return QColor(255, 255, 255);
+                    return GtPalette::loggingFatalTextColor(darkMode);
             }
         }
 
@@ -107,10 +108,12 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             const int level =
                 gtLogModel->data(index, GtLogModel::LogLevelRole).toInt();
 
+            bool darkMode = gtApp->inDarkMode();
+
             switch (level)
             {
                 case QsLogging::FatalLevel:
-                    return QColor(120, 20, 20);
+                    return GtPalette::loggingFatalBackgroundColor(darkMode);
             }
         }
     }
