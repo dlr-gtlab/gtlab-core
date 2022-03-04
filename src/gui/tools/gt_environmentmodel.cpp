@@ -17,6 +17,7 @@
 #include <QFont>
 #include <QColor>
 
+
 GtEnvironmentModel::GtEnvironmentModel(const QStringList& vars,
                                        QObject* parent) :
     QAbstractTableModel(parent)
