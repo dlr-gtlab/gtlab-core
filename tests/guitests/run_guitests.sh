@@ -36,7 +36,7 @@ echo "gtlab instance:     '$GTLAB_DIR'"
 echo "dev-tools dir:      '$DEVTOOLS_DIR'"
 echo "qt-gcc install dir: '$QT_DIR_LINUX'"
 echo "squish install dir: '$SQUISH_DIR'"
-echo -e "testsuites to test: '\n$TESTSUITES'"
+echo -e "testsuites to test: '\n$TESTSUITES\n'"
 
 # add shared script dirs to squish path
 for DIR in $SCRIPT_DIRS; do
@@ -45,7 +45,7 @@ for DIR in $SCRIPT_DIRS; do
 done
 
 # setting paths to libs (gtlab dependencies)
-echo "setting paths to libs..."
+echo "setting library path variable..."
 LIBRARY_PATH=$GTLAB_DIR/../lib/core
 LIBRARY_PATH=$GTLAB_DIR:$LIBRARY_PATH
 LIBRARY_PATH=$DEVTOOLS_DIR/lib/logging:$LIBRARY_PATH
@@ -112,7 +112,7 @@ done
 $SQUISH_DIR/squishserver --stop
 
 # generate badge
-# python3 $GUI_TESTING_DIR/_pipeline/generate_badge.py ./gui_tests_stdout.txt
+python $BASEDIR/testing_resources/_badge/generate_badge.py ./gui_tests_stdout.txt
 
 # exit with return code
 echo "$RC failed teststuites"
