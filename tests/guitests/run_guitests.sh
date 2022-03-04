@@ -112,7 +112,7 @@ done
 $SQUISH_DIR/squishserver --stop
 
 # generate badge
-python $BASEDIR/testing_resources/_badge/generate_badge.py ./gui_tests_stdout.txt
+python3 $BASEDIR/testing_resources/_badge/generate_badge.py ./gui_tests_stdout.txt
 
 # exit with return code
 echo "$RC failed teststuites"
