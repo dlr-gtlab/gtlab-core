@@ -24,10 +24,10 @@ SQUISH_TIMEOUT=50
 BASEDIR=$(dirname "$0")
 
 # lists all subfolders containg auxiliary scripts
-SCRIPT_DIRS=$(ls -d $BASEDIR/testing_resources/*/)
+SCRIPT_DIRS=$(ls -d $PWD/$BASEDIR/testing_resources/*/)
 
 # gtlabs core testsuites
-CORE_TESTS=$(ls -d $BASEDIR/gtlab_core_tests/*/)
+CORE_TESTS=$(ls -d $PWD/$BASEDIR/gtlab_core_tests/*/)
 
 # testsuites to test (separated by spaces)
 TESTSUITES=$CORE_TESTS
@@ -36,7 +36,7 @@ echo "gtlab instance:     '$GTLAB_DIR'"
 echo "dev-tools dir:      '$DEVTOOLS_DIR'"
 echo "qt-gcc install dir: '$QT_DIR_LINUX'"
 echo "squish install dir: '$SQUISH_DIR'"
-echo -e "testsuites to test:\n$TESTSUITES"
+echo -e "testsuites to test: '\n$TESTSUITES'"
 
 # add shared script dirs to squish path
 for DIR in $SCRIPT_DIRS; do
@@ -98,7 +98,7 @@ RC=0
 # iterate through every testsuite and execute it
 echo "starting gui tests... "
 for TESTSUITE in $TESTSUITES; do
-  echo "- testing testsuite: '$SUITE'..." 
+  echo "- testing testsuite: '$TESTSUITE'..." 
   # executing runner on testsuite (generate html, junit and txt log files)
   $SQUISH_DIR/squishrunner --testsuite $TESTSUITE --exitCodeOnFail 1 --reportgen html,./gui_tests_web --reportgen junit,./gui_tests_junits/junit_$SUITE.xml --reportgen stdout,./gui_tests_stdout.txt
   # store latest return code
