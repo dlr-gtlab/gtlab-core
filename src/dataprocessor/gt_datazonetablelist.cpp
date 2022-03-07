@@ -244,33 +244,40 @@ GtDataZoneTableList::onlyXaxisActive() const
 GtDataZoneTable*
 GtDataZoneTableList::dzt(const QString& param) const
 {
-    for (GtDataZoneTable* t : m_dztList)
+    auto iter = std::find_if(std::begin(m_dztList), std::end(m_dztList),
+                             [&param](const GtDataZoneTable* t) {
+        return t->params().contains(param);
+    });
+
+    if (iter != std::end(m_dztList))
     {
-        if (t->params().contains(param))
-        {
-            return t;
-        }
+        return *iter;
     }
-
-    gtDebug() << tr("No datazonetable contains parameter '") << param << "'";
-
-    return nullptr;
+    else
+    {
+        gtDebug() << tr("No datazonetable contains parameter '") << param
+                  << "'";
+        return nullptr;
+    }
 }
 
 GtDataZoneTable*
 GtDataZoneTableList::dztFromName(const QString& dztName) const
 {
-    for (GtDataZoneTable* t : m_dztList)
+    auto iter = std::find_if(std::begin(m_dztList), std::end(m_dztList),
+                             [&dztName](const GtDataZoneTable* t) {
+        return t->objectName() == dztName;
+    });
+
+    if (iter != std::end(m_dztList))
     {
-        if (t->objectName() == dztName)
-        {
-            return t;
-        }
+        return *iter;
     }
-
-    gtError() << tr("No datazonetable is named '") << dztName << "'";
-
-    return nullptr;
+    else
+    {
+        gtError() << tr("No datazonetable is named '") << dztName << "'";
+        return nullptr;
+    }
 }
 
 void

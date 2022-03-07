@@ -224,7 +224,7 @@ GtAbstractProperty::isOptional() const
 }
 
 int
-GtAbstractProperty::propertyCount()
+GtAbstractProperty::propertyCount() const
 {
     return std::count_if(std::begin(m_subProperties), std::end(m_subProperties),
                          [](const GtAbstractProperty* prop) {

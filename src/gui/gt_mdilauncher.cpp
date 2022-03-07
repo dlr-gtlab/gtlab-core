@@ -351,9 +351,9 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
             foreach (GtMdiItem* openItem, openItems)
             {
                 if (openItem->objectName() == mdiItem->objectName())
-                {
+                { // cppcheck-suppress useStlAlgorithm
                     emit openItem->tryReopening(openItem->m_d.data());
-					break;
+                    break;
                 }
             }
         }

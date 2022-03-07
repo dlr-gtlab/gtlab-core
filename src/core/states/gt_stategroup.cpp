@@ -29,13 +29,12 @@ GtStateGroup::findState(const QString& id, const QString& path,
 {
     QList<GtState*> states = findDirectChildren<GtState*>();
 
-    foreach (GtState* state, states)
-    {
-        if (state->path() == path)
-        {
-            return state;
-        }
-    }
+    auto iter = std::find_if(std::begin(states), std::end(states),
+                             [&path](const GtState* state) {
+        return state->path() == path;
+    });
+
+    if (iter != std::end(states)) return *iter;
 
     GtState* retval = new GtState(id, path, initVal, guardian, this);
 

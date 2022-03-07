@@ -857,15 +857,13 @@ GtProject::findPackage(const QString& mid)
     // class name of package
     QString pkgId{ gtApp->modulePackageId(mid) };
 
-    foreach (GtPackage* pkg, findDirectChildren<GtPackage*>())
-    {
-        if (pkg->metaObject()->className() == pkgId)
-        {
-            return pkg;
-        }
-    }
+    auto childs = findDirectChildren<GtPackage*>();
+    auto iter = std::find_if(std::begin(childs), std::end(childs),
+                 [&pkgId](const GtPackage* pkg) {
+        return pkg->metaObject()->className() == pkgId;
+    });
 
-    return nullptr;
+    return iter != std::end(childs) ? *iter : nullptr;
 }
 
 const QStringList&

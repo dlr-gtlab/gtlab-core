@@ -69,7 +69,7 @@ public:
      * @brief Returns state path.
      * @return State path.
      */
-    const QString& path();
+    const QString& path() const;
 
 protected:
     /**

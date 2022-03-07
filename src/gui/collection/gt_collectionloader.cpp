@@ -438,7 +438,7 @@ GtCollectionLoader::sortItems(const QList<GtCollectionNetworkItem>& items,
         foreach (GtCollectionItem localItem, localCollection)
         {
             if (item.uuid() == localItem.uuid())
-            {
+            { // cppcheck-suppress useStlAlgorithm
                 itemInstalled = true;
 
                 item.m_installedVersion = localItem.version();

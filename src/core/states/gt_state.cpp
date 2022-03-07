@@ -98,7 +98,7 @@ GtState::id()
 }
 
 const QString&
-GtState::path()
+GtState::path() const
 {
     return m_path;
 }

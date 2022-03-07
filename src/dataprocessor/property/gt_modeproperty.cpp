@@ -79,27 +79,28 @@ GtModeProperty::registerSubProperty(GtModeTypeProperty& property)
     }
 }
 
+GtAbstractProperty*
+getProperty(const QList<GtAbstractProperty*>& props, const QString& mode)
+{
+    auto iter =  std::find_if(std::begin(props), std::end(props),
+                              [&mode](const GtAbstractProperty* prop) {
+        return prop->objectName() == mode;
+    });
+
+    return iter != std::end(props) ? *iter : nullptr;
+}
+
 bool
 GtModeProperty::modeExists(const QString& mode)
 {
-    return std::any_of(std::begin(m_subProperties), std::end(m_subProperties),
-                       [&mode](const GtAbstractProperty* prop) {
-        return prop->objectName() == mode;
-    });
+    return getProperty(m_subProperties, mode) != nullptr;
 }
 
 int
 GtModeProperty::propertyCount(const QString& mode)
 {
-    foreach (GtAbstractProperty* prop, m_subProperties)
-    {
-        if (prop->objectName() == mode)
-        {
-            return prop->propertyCount();
-        }
-    }
-
-    return 0;
+    const auto* prop= getProperty(m_subProperties, mode);
+    return prop ? prop->propertyCount() : 0;
 }
 
 QStringList
@@ -118,15 +119,8 @@ GtModeProperty::modes()
 GtModeTypeProperty*
 GtModeProperty::typeProperty(const QString& mode)
 {
-    foreach (GtAbstractProperty* prop, m_subProperties)
-    {
-        if (prop->objectName() == mode)
-        {
-            return qobject_cast<GtModeTypeProperty*>(prop);
-        }
-    }
-
-    return nullptr;
+    auto* prop = getProperty(m_subProperties, mode);
+    return prop ? qobject_cast<GtModeTypeProperty*>(prop) : nullptr;
 }
 
 

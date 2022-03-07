@@ -52,7 +52,7 @@ GtRunnable::run()
     foreach (GtProcessComponent* calc, m_queue)
     {
         if (!calc->exec())
-        {
+        { // cppcheck-suppress useStlAlgorithm
             gtError() << "Calculator execution failed!";
             success = false;
 

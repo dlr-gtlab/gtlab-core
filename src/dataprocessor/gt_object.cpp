@@ -637,35 +637,14 @@ GtObject::getObjectByUuid(const QString& objectUUID)
         return this;
     }
 
-    GtObject* retval = nullptr;
 
-    QList<GtObject*> list = findChildren<GtObject*>();
-
-    foreach (GtObject* obj, list)
-    {
-        if (obj->uuid() == objectUUID)
-        {
-            return obj;
-        }
-    }
-
-    return retval;
+    return findObject(objectUUID, findChildren<GtObject*>());
 }
 
 GtObject*
 GtObject::getDirectChildByUuid(const QString& objectUUID) const
 {
-    QList<GtObject*> list = findDirectChildren<GtObject*>();
-
-    foreach (GtObject* obj, list)
-    {
-        if (obj->uuid() == objectUUID)
-        {
-            return obj;
-        }
-    }
-
-    return nullptr;
+    return findObject(objectUUID, findDirectChildren<GtObject*>());
 }
 
 GtObject*

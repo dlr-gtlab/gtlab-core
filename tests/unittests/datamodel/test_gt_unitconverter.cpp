@@ -3765,8 +3765,6 @@ TEST_F(TestGtUnitConverter, convertNonDimensional)
     ASSERT_TRUE(check);
     ASSERT_DOUBLE_EQ(valsBasic, 0.8);
 
-    GtUnit::Category cat2 = GtUnit::NonDimensional;
-
     // input
     double val2 = 0.8;
     bool check2 = false;

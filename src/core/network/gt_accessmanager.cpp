@@ -314,15 +314,12 @@ GtAccessManager::deserializeStringList(const QString& str)
 GtAccessGroup*
 GtAccessManager::accessGroup(const QString& id)
 {
-    foreach (GtAccessGroup* group, m_data)
-    {
-        if (group->objectName() == id)
-        {
-            return group;
-        }
-    }
+    auto iter = std::find_if(std::begin(m_data), std::end(m_data),
+                 [&id](const GtAccessGroup* group) {
+        return group->objectName() == id;
+    });
 
-    return nullptr;
+    return iter != std::end(m_data) ? *iter : nullptr;
 }
 
 QNetworkAccessManager*

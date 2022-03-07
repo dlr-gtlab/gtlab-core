@@ -14,6 +14,8 @@
 
 #include <QObject>
 
+#include <algorithm>
+
 class QSignalMapper;
 class GtObjectMemento;
 class GtAbstractObjectFactory;
@@ -669,5 +671,17 @@ typedef QList<GtObject*> GtObjectList;
 
 Q_DECLARE_METATYPE(GtObject*)
 Q_DECLARE_OPERATORS_FOR_FLAGS(GtObject::ObjectFlags)
+
+template <typename ListOfObjectPtrs>
+inline GtObject*
+findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
+{
+    auto iter = std::find_if(std::begin(list), std::end(list),
+                             [&objectUUID](const GtObject * obj) {
+        return obj->uuid() == objectUUID;
+    });
+
+    return iter != std::end(list) ? *iter : nullptr;
+}
 
 #endif // GTOBJECT_H

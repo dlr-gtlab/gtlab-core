@@ -279,7 +279,7 @@ GtSession::switchCurrentProject()
     foreach (GtProject* project, projTmp)
     {
         if (project->isOpen())
-        {
+        { // cppcheck-suppress useStlAlgorithm
             setCurrentProject(project);
             return;
         }

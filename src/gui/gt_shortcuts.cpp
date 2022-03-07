@@ -20,8 +20,8 @@ GtShortCuts::GtShortCuts(QObject* parent)
 
 void
 GtShortCuts::initialize(const QMap<QString, QStringList>& tab)
-{    
-    for (QString const& key : tab.keys())
+{
+    foreach (QString const& key, tab.keys())
     {
         QKeySequence k = QKeySequence(tab.value(key).first());
         GtShortCut* c = new GtShortCut(key, k, tab.value(key).at(1));
@@ -64,22 +64,19 @@ GtShortCuts::findShortCut(const QString& id, const QString& category) const
 QKeySequence
 GtShortCuts::getKey(const QString& id) const
 {
-    QList<GtShortCut*>list = shortCuts();
+    const QList<GtShortCut*>list = shortCuts();
 
     if (shortCuts().isEmpty())
     {
         gtWarning() << "No shortCut registered";
 
-        return false;
+        return QKeySequence{};
     }
 
-    for (GtShortCut* c : qAsConst(list))
-    {
-        if (c->id() == id)
-        {
-            return c->key();
-        }
-    }
+    auto iter = std::find_if(std::begin(list), std::end(list),
+                             [&id](const GtShortCut* c) {
+        return c->id() == id;
+    });
 
-    return QKeySequence();
+    return iter != std::end(list) ? (*iter)->key() : QKeySequence{};
 }

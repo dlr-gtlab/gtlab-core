@@ -38,13 +38,11 @@ GtAccessSelectionProperty::accessData()
         return GtAccessData(QString());
     }
 
-    foreach (GtAccessData data, group->accessData())
-    {
-        if (data.host() == getVal())
-        {
-            return data;
-        }
-    }
+    const auto& data = group->accessData();
+    auto iter = std::find_if(std::begin(data), std::end(data),
+                             [this](const GtAccessData& data) {
+        return data.host() == getVal();
+    });
 
-    return GtAccessData(QString());
+    return iter != std::end(data) ? *iter : GtAccessData(QString());
 }

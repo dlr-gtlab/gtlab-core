@@ -125,14 +125,18 @@ GtLabelData::renameLabel(const QString& oldId, const QString& newId)
 
     QList<GtLabel*> list = findDirectChildren<GtLabel*>();
 
-    foreach (GtLabel* label, list)
-    {
-        if (label->objectName() == oldId)
-        {
-            label->setObjectName(newId);
-            return true;
-        }
-    }
+    auto iter = std::find_if(std::begin(list), std::end(list),
+                             [&oldId](const GtLabel * label) {
+        return label->objectName() == oldId;
+    });
 
-    return false;
+    if (iter != std::end(list))
+    {
+        (*iter)->setObjectName(newId);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

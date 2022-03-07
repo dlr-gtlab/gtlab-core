@@ -282,7 +282,7 @@ GtProcessOverviewModel::categoryItem(const QString& id)
     foreach (GtProcessCategoryItem* i, m_categories)
     {
         if (i->objectName() == id)
-        {
+        { // cppcheck-suppress useStlAlgorithm
             return i;
         }
     }

@@ -189,7 +189,7 @@ public:
      * @brief Returns number of sub properties
      * @return
      */
-    int propertyCount();
+    int propertyCount() const;
 
     /**
      * @brief findProperty
