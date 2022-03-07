@@ -14,7 +14,7 @@
 # directory containg GTlab binaries
 GTLAB_DIR=$PWD/build
 
-# timeout [min] before other squishrunner instances will be killed 
+# timeout [min] before squishserver instance will be killed 
 SQUISH_TIMEOUT=50
 
 
@@ -105,13 +105,14 @@ for TESTSUITE in $TESTSUITES; do
   rc=$?
   # adding rc to old return codes
   ((RC=RC+rc))
-  echo "- tests finished with $rc"
+  echo "  tests finished with $rc"
 done
 
 # stop squish server
 $SQUISH_DIR/squishserver --stop
 
 # generate badge
+echo "generating badge..."
 python3 $BASEDIR/testing_resources/_badge/generate_badge.py ./gui_tests_stdout.txt
 
 # exit with return code
