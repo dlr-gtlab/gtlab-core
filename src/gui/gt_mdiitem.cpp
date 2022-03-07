@@ -89,7 +89,7 @@ GtMdiItem::subWin()
 }
 
 bool
-GtMdiItem::allowsMultipleInstances()
+GtMdiItem::allowsMultipleInstances() const
 {
     return false;
 }

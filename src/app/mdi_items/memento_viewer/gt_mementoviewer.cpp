@@ -44,7 +44,7 @@ GtMementoViewer::icon() const
 }
 
 bool
-GtMementoViewer::allowsMultipleInstances()
+GtMementoViewer::allowsMultipleInstances() const
 {
     return true;
 }

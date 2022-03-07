@@ -9,6 +9,8 @@
 #ifndef GTEXAMPLEGRAPHICALITEM_H
 #define GTEXAMPLEGRAPHICALITEM_H
 
+#include "gt_examplesentry.h"
+
 #include <QWidget>
 
 class QLabel;
@@ -31,9 +33,9 @@ public:
      * @param data
      * @param parent
      */
-    explicit GtExampleGraphicalItem(GtExamplesEntry* data, QWidget* parent = 0);
+    explicit GtExampleGraphicalItem(GtExamplesEntry data, QWidget* parent = 0);
 
-    GtExamplesEntry* m_data;
+    GtExamplesEntry m_data;
 protected:
     /**
      * @brief mousePressEvent

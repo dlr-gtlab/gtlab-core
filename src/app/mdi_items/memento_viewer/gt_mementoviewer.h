@@ -40,7 +40,7 @@ public:
      * @brief allowsMultipleInstances
      * @return true because the memento viewer can be opened multiple times
      */
-    bool allowsMultipleInstances() override;
+    bool allowsMultipleInstances() const override;
 
 public slots:
     void onThemeChanged() override;

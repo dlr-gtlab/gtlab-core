@@ -34,26 +34,22 @@ public:
      */
     Q_INVOKABLE GtExamplesMdiWidget();
 
-    /**
-     *  Destructor: clears list of validDir-objects
-     */
-    ~GtExamplesMdiWidget();
 
     /** Virtual function to specify item specific icon.
      *  @return Object specific icon
      */
-    virtual QIcon icon() const;
+    QIcon icon() const override;
 
     /**
      * @brief allowsMultipleInstances
      * @return
      */
-    bool allowsMultipleInstances();
+    bool allowsMultipleInstances() const override;
 
     /**
      * @brief showEvent
      */
-    void showEvent();
+    void showEvent() override;
 
 private:
     /**
@@ -74,7 +70,7 @@ private:
      * @param dir
      * @returnd
      */
-    bool validateExampleDiretory(QDir* dir);
+    bool validateExampleDiretory(const QDir& dir) const;
 
     /**
      * @brief readDirectoryContentToExampleEntry
@@ -83,15 +79,15 @@ private:
      * @param entry
      * @return success
      */
-    bool readDirectoryContentToExampleEntry(QDir* dir,
-                                            GtExamplesEntry* entry);
+    bool readDirectoryContentToExampleEntry(const QDir& dir,
+                                            GtExamplesEntry& entry);
     /**
      * @brief initializeWidget
      * initialize the tabView
      */
     void initializeWidget();
 
-    QList<GtExamplesEntry*> m_examplesEntries;
+    QList<GtExamplesEntry> m_examplesEntries;
 
     QList<GtExampleGraphicalItem*> m_graphicalItems;
 

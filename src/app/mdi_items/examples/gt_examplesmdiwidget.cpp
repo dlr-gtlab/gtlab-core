@@ -50,10 +50,6 @@ GtExamplesMdiWidget::GtExamplesMdiWidget() :
     initializeWidget();
 }
 
-GtExamplesMdiWidget::~GtExamplesMdiWidget()
-{
-    qDeleteAll(m_examplesEntries);
-}
 
 void
 GtExamplesMdiWidget::initializeDirectories()
@@ -83,16 +79,16 @@ GtExamplesMdiWidget::initializeDirectories()
     {
         QDir curDir(mainDir.absolutePath() + "/" + dir);
 
-        if (!validateExampleDiretory(&curDir))
+        if (!validateExampleDiretory(curDir))
         {
             gtWarning() << tr("Invalid Example:")
                         << mainDir.absolutePath() + "/" + dir;
             continue;
         }
 
-        GtExamplesEntry* entry = new GtExamplesEntry;
+        GtExamplesEntry entry;
 
-        if (readDirectoryContentToExampleEntry(&curDir, entry))
+        if (readDirectoryContentToExampleEntry(curDir, entry))
         {
             m_examplesEntries.append(entry);
         }
@@ -101,7 +97,6 @@ GtExamplesMdiWidget::initializeDirectories()
         {
             gtWarning() << tr("Reading directory failed:")
                         << mainDir.absolutePath() + "/" + dir;
-            delete entry;
         }
     }
 }
@@ -185,7 +180,7 @@ GtExamplesMdiWidget::initializeWidget()
         m_tabs.insert(cat, tabpage);
     }
 
-    foreach (GtExamplesEntry* entry, m_examplesEntries)
+    foreach (const auto& entry, m_examplesEntries)
     {
         GtExampleGraphicalItem* item = new
         GtExampleGraphicalItem(entry);
@@ -222,12 +217,8 @@ GtExamplesMdiWidget::sortItems()
 
     foreach (GtExampleGraphicalItem* item, m_graphicalItems)
     {
-        if (item->m_data == nullptr)
-        {
-            continue;
-        }
 
-        QString category = item->m_data->category();
+        QString category = item->m_data.category();
 
         QWidget* page = getCurrentPage(category);
 
@@ -441,9 +432,9 @@ GtExamplesMdiWidget::getAllCategories()
 {
     QStringList retVal;
 
-    foreach (GtExamplesEntry* entry, m_examplesEntries)
+    foreach (const auto& entry, m_examplesEntries)
     {
-        retVal.append(entry->category());
+        retVal.append(entry.category());
     }
 
     retVal.removeDuplicates();
@@ -458,7 +449,7 @@ GtExamplesMdiWidget::icon() const
 }
 
 bool
-GtExamplesMdiWidget::allowsMultipleInstances()
+GtExamplesMdiWidget::allowsMultipleInstances() const
 {
     return false;
 }
@@ -488,21 +479,16 @@ GtExamplesMdiWidget::initializeExamplesPath()
 }
 
 bool
-GtExamplesMdiWidget::validateExampleDiretory(QDir* dir)
+GtExamplesMdiWidget::validateExampleDiretory(const QDir &dir) const
 {
-    if (dir == nullptr)
-    {
-        gtDebug() << tr("Dir is NullPtr");
-        return false;
-    }
 
-    if (!dir->exists())
+    if (!dir.exists())
     {
         gtDebug() << tr("Dir not found");
         return false;
     }
 
-    QFile indexFile(dir->absoluteFilePath("index.json"));
+    QFile indexFile(dir.absoluteFilePath("index.json"));
 
     if (!indexFile.exists())
     {
@@ -510,7 +496,7 @@ GtExamplesMdiWidget::validateExampleDiretory(QDir* dir)
         return false;
     }
 
-    QDir projectDir(dir->absolutePath() + QDir::separator() + "project");
+    QDir projectDir(dir.absolutePath() + QDir::separator() + "project");
 
     if (!projectDir.exists())
     {
@@ -532,24 +518,12 @@ GtExamplesMdiWidget::validateExampleDiretory(QDir* dir)
 }
 
 bool
-GtExamplesMdiWidget::readDirectoryContentToExampleEntry(QDir* dir,
-                                                        GtExamplesEntry* entry)
+GtExamplesMdiWidget::readDirectoryContentToExampleEntry(const QDir& dir,
+                                                        GtExamplesEntry& entry)
 {
-    if (!dir)
-    {
-        gtDebug() << tr("Dir is Nullptr");
-        return false;
-    }
+    QFile indexFile(dir.absoluteFilePath("index.json"));
 
-    if (!entry)
-    {
-        gtDebug() << tr("Entry is Nullptr");
-        return false;
-    }
-
-    QFile indexFile(dir->absoluteFilePath("index.json"));
-
-    entry->setDirPath(dir->absolutePath());
+    entry.setDirPath(dir.absolutePath());
 
     if (!indexFile.exists())
     {
@@ -584,15 +558,15 @@ GtExamplesMdiWidget::readDirectoryContentToExampleEntry(QDir* dir,
 
     if (obj.contains("Description"))
     {
-        entry->setDescription(obj["Description"].toString());
+        entry.setDescription(obj["Description"].toString());
     }
 
-    entry->setName(obj["Name"].toString());
-    entry->setCategory(obj["Category"].toString());
+    entry.setName(obj["Name"].toString());
+    entry.setCategory(obj["Category"].toString());
 
-    QString pixmapFilePath = dir->absoluteFilePath("picture.png");
+    QString pixmapFilePath = dir.absoluteFilePath("picture.png");
 
-    entry->setPixmapPath(pixmapFilePath);
+    entry.setPixmapPath(pixmapFilePath);
 
     return true;
 }
