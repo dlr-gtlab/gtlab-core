@@ -10,6 +10,7 @@
 #define GTEXAMPLESMDIWIDGET_H
 
 #include "gt_mdiitem.h"
+#include "gt_examplesentry.h"
 #include <QMap>
 
 class QDir;
@@ -18,7 +19,6 @@ class QWidget;
 
 class GtExamplesTabWidget;
 class GtExampleGraphicalItem;
-class GtExamplesEntry;
 
 /**
  * @brief The GtExamplesMdiWidget class
