@@ -221,9 +221,9 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
 
             GtCommand command =
                 gtApp->startCommand(gtApp->currentProject(),
-                                    calc->objectName() +
+                                    task->objectName() +
                                     tr(" configuration changed"));
-            calc->fromMemento(memento);
+            task->fromMemento(memento);
             gtApp->endCommand(command);
         }
     }
