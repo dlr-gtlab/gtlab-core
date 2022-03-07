@@ -89,8 +89,8 @@ $SQUISH_DIR/squishserver --config addAUT GTlab $GTLAB_DIR
 echo "starting squishserver... "
 konsole -e $SQUISH_DIR/squishserver --verbose --daemon --logfile $PWD/gui_tests_server_stdout.txt &
 
-# give it some time to start
-sleep 5
+# give the server some time to start
+sleep 10
 
 # return code to keep track of failed tests
 RC=0
