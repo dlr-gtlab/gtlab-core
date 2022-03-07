@@ -414,6 +414,8 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
     if (!gtDataModel->newProject(project))
     {
         delete project;
+        gtError() << tr("Invalid example project");
+        return;
     }
 
     if (gtApp->hasProjectChanges())
