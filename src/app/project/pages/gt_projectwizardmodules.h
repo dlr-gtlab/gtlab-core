@@ -30,19 +30,19 @@ public:
     /**
      * @brief ~GtProjectWizardModules
      */
-    virtual ~GtProjectWizardModules();
+    ~GtProjectWizardModules() override;
 
     /**
      * @brief validatePage
      * @return
      */
-    virtual bool validatePage() override;
+    bool validatePage() override;
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const override;
+    bool isComplete() const override;
 
 private:
     GtCheckableStringListModel* m_model;

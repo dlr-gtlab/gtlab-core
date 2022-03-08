@@ -113,7 +113,7 @@ GtDataZoneTableList::list() const
 bool
 GtDataZoneTableList::isValid(GtDataZoneTable* newDzt)
 {
-    if (m_dztList.size() == 0)
+    if (m_dztList.empty())
     {
         // first datazoneTable, so no check nessecary, everything is fine
         return true;

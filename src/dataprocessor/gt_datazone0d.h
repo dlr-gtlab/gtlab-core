@@ -100,7 +100,7 @@ public:
      * @brief unitFromParam
      * @return
      */
-    virtual QString unit(const QString& param) const override;
+    QString unit(const QString& param) const override;
 
     /**
      * @brief values
@@ -118,13 +118,13 @@ public:
      * @brief is0D
      * @return
      */
-    virtual bool is0D() const override;
+    bool is0D() const override;
 
     /**
      * @brief nDims
      * @return
      */
-    virtual int nDims() const override;
+    int nDims() const override;
 
     /**
      * @brief addModuleName

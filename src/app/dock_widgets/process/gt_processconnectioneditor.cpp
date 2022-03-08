@@ -107,10 +107,7 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
 
 GtProcessConnectionEditor::~GtProcessConnectionEditor()
 {
-    if (m_task)
-    {
-        delete m_task;
-    }
+    delete m_task;
 }
 
 GtObjectMemento

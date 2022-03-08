@@ -33,7 +33,7 @@ public:
     /**
      * @brief ~GtExplorerModel
      */
-    virtual ~GtExplorerModel();
+    ~GtExplorerModel() override;
 
     /**
      * @brief objectFromIndex
@@ -68,8 +68,8 @@ protected:
      * @param source_parent
      * @return
      */
-    virtual bool filterAcceptsRow(
-            int source_row, const QModelIndex& source_parent) const override;
+    bool filterAcceptsRow(int source_row,
+                          const QModelIndex& source_parent) const override;
 
 };
 

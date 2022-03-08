@@ -29,7 +29,8 @@
 
 GtCalculatorOverviewPage::GtCalculatorOverviewPage(GtProcessWizard* parent) :
     QWizardPage(parent),
-    m_wizard(parent)
+    m_wizard(parent),
+    m_model{std::make_unique<GtCalculatorOverviewModel>()}
 {
     setTitle(tr("Select Calculator"));
 
@@ -38,9 +39,7 @@ GtCalculatorOverviewPage::GtCalculatorOverviewPage(GtProcessWizard* parent) :
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    m_model = new GtCalculatorOverviewModel;
-
-    m_view = new GtProcessOverviewTree(m_model, this);
+    m_view = new GtProcessOverviewTree(m_model.get(), this);
     m_view->setFrameStyle(QTreeView::NoFrame);
     m_view->setHeaderHidden(true);
     m_view->expandAll();
@@ -70,13 +69,7 @@ GtCalculatorOverviewPage::GtCalculatorOverviewPage(GtProcessWizard* parent) :
     GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 }
 
-GtCalculatorOverviewPage::~GtCalculatorOverviewPage()
-{
-    if (m_model)
-    {
-        delete m_model;
-    }
-}
+GtCalculatorOverviewPage::~GtCalculatorOverviewPage() = default;
 
 bool
 GtCalculatorOverviewPage::validatePage()

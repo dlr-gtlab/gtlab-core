@@ -37,7 +37,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~GtProcessConnectionEditor();
+    ~GtProcessConnectionEditor() override;
 
     /**
      * @brief Returns connection data in form of task memento.

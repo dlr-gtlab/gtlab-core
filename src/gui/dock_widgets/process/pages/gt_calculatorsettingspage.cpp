@@ -69,10 +69,6 @@ void GtCalculatorSettingsPage::initializePage()
         return;
     }
 
-    if (m_component)
-    {
-        delete m_component;
-    }
 
     GtObjectMemento memento = m_wizard->provider()->componentData();
 
@@ -82,6 +78,7 @@ void GtCalculatorSettingsPage::initializePage()
         return;
     }
 
+    delete m_component;
     m_component = memento.restore<GtProcessComponent*>(gtProcessFactory);
 
     if (!m_component)

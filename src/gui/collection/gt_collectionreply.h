@@ -28,11 +28,6 @@ class GtCollectionReply : public QObject
 
 public:
     /**
-     * @brief ~GtCollectionReply
-     */
-    virtual ~GtCollectionReply();
-
-    /**
      * @brief installedItems
      * @return
      */

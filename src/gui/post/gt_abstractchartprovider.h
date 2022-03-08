@@ -29,8 +29,8 @@ public:
 
     Q_INVOKABLE GtAbstractChartProvider();
 
-    virtual GtAbstractPostWidget* createUI(GtPostTemplateItem* /*dm*/,
-                                           QWidget* /*parent*/) override
+    GtAbstractPostWidget* createUI(GtPostTemplateItem* /*dm*/,
+                                   QWidget* /*parent*/) override
     { return nullptr; }
 
     QStringList uuids() const;

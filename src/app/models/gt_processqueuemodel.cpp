@@ -18,7 +18,8 @@
 
 GtProcessQueueModel::GtProcessQueueModel(GtProcessExecutor* proExec,
                                          QObject* parent) :
-    m_proExec(proExec), QAbstractItemModel(parent)
+    QAbstractItemModel(parent),
+    m_proExec(proExec)
 {
     updateTaskList();
 
@@ -29,7 +30,7 @@ GtProcessQueueModel::GtProcessQueueModel(GtProcessExecutor* proExec,
 
         if (!m_proExec->queue().isEmpty())
         {
-            connect(m_proExec->queue().first(),
+            connect(qAsConst(m_proExec)->queue().first(),
                     SIGNAL(stateChanged(GtProcessComponent::STATE)),
                     this, SLOT(onStateChanged()));
         }
@@ -86,7 +87,7 @@ GtProcessQueueModel::data(const QModelIndex &index, int role) const
     {
         case Qt::DisplayRole:
         {
-            if (m_tasks.size() == 0 && row == 0)
+            if (m_tasks.empty() && row == 0)
             {
                 return "No tasks running or queued!";
             }
@@ -148,7 +149,7 @@ GtProcessQueueModel::index(int row, int column,
         gtDebug() << "No process executor defined";
         return {};
     }
-    else if (m_proExec->queue().size() == 0)
+    else if (m_proExec->queue().empty())
     {
         gtDebug() << "No tasks in queue";
         return {};

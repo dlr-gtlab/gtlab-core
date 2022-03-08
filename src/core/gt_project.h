@@ -45,7 +45,7 @@ public:
     /**
      * @brief ~GtProject
      */
-    virtual ~GtProject();
+    ~GtProject() override;
 
     /**
      * @brief Returns path to project directory on hard drive

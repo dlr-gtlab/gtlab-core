@@ -56,8 +56,7 @@ protected:
      * @brief dragEnterEvent
      * @param event
      */
-    virtual void dragEnterEvent(
-            QGraphicsSceneDragDropEvent* event) override;
+    void dragEnterEvent(QGraphicsSceneDragDropEvent* event) override;
 
 //    /**
 //     * @brief mouseReleaseEvent
@@ -70,8 +69,7 @@ protected:
      * @brief dragLeaveEvent
      * @param event
      */
-    virtual void dragLeaveEvent(
-            QGraphicsSceneDragDropEvent* event) override;
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent* event) override;
 
 //    /**
 //     * @brief dragMoveEvent

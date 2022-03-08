@@ -11,8 +11,9 @@
 #define GTPROCESSPROPERTYPORTENTITY_H
 
 #include <QGraphicsEllipseItem>
-
 #include <QPointer>
+
+#include <memory>
 
 class QPropertyAnimation;
 class QTimer;
@@ -46,11 +47,6 @@ public:
                                 double height,
                                 GtProcessPropertyPortEntity::PortTypes typ,
                                 GtProcessConnectionItem* item);
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~GtProcessPropertyPortEntity();
 
     /**
      * @brief Connects port entity to given connection entity.
@@ -172,13 +168,13 @@ private:
     GtProcessPropertyPortEntity::PortTypes m_type;
 
     /// Animation
-    QPointer<QPropertyAnimation> m_anim;
+    QPointer<QPropertyAnimation> m_anim{nullptr};
 
     /// Pointer to connection
     QList<GtProcessPropertyConnectionEntity*> m_connections;
 
     /// Signle shot timer
-    QPointer<QTimer> m_timer;
+    std::unique_ptr<QTimer> m_timer{};
 
     /// Pointer to corresponding process connection item
     GtProcessConnectionItem* m_item;

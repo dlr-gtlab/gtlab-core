@@ -38,17 +38,17 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~GtExplorerDock() override;
+    ~GtExplorerDock() override;
 
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
-    virtual Qt::DockWidgetArea getDockWidgetArea() override;
+    Qt::DockWidgetArea getDockWidgetArea() override;
 
     /**
      * @brief Virtual function to add functionality after application
      * startup was successful
      */
-    virtual void initAfterStartup() override;
+    void initAfterStartup() override;
 
 private:
     /// Tree view

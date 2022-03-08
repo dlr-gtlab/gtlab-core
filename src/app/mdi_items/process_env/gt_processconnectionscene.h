@@ -34,11 +34,6 @@ public:
      */
     explicit GtProcessConnectionScene(GtProcessConnectionGraphicsView* parent);
 
-    /**
-     * @brief Destructor.
-     */
-    virtual ~GtProcessConnectionScene();
-
 public slots:
     /**
      * @brief Runs an animation based on selected port entity.

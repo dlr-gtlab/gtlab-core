@@ -39,8 +39,7 @@ protected:
      * @param painter
      * @param rect
      */
-    virtual void drawForeground(QPainter * painter,
-                                const QRectF & rect) override;
+    void drawForeground(QPainter * painter, const QRectF & rect) override;
 
 private:
     /// Show legend indicator

@@ -81,7 +81,7 @@ GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
     // number of header lines
     const int nhl = list.size() % 4;
 
-    if (list.size() >= 1 && nhl == 1)
+    if (!list.empty() && nhl == 1)
     {
         qDebug() << "   |-> reading data...";
 

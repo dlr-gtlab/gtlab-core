@@ -31,7 +31,7 @@ protected:
      * @brief keyPressEvent
      * @param event
      */
-    virtual void keyPressEvent(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
     /**

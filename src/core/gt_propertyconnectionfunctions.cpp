@@ -198,7 +198,7 @@ GtPropertyConnectionFunctions::findEquivalentObject(GtObject* parent,
             GtObject* origPar = qobject_cast<GtObject*>(origObj->parent());
             GtObject* currentParent = qobject_cast<GtObject*>(obj->parent());
 
-            if (!origPar && !currentParent)
+            if (!origPar || !currentParent)
             {
                 return obj;
             }

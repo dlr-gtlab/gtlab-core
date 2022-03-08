@@ -42,29 +42,26 @@ public:
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
 
 protected:
     /**
      * @brief dragEnterEvent
      * @param event
      */
-    virtual void dragEnterEvent(
-            QGraphicsSceneDragDropEvent* event) override;
+    void dragEnterEvent(QGraphicsSceneDragDropEvent* event) override;
 
     /**
      * @brief dragLeaveEvent
      * @param event
      */
-    virtual void dragLeaveEvent(
-            QGraphicsSceneDragDropEvent* event) override;
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent* event) override;
 
     /**
      * @brief dropEvent
      * @param event
      */
-    virtual void dropEvent(
-            QGraphicsSceneDragDropEvent* event) override;
+    void dropEvent(QGraphicsSceneDragDropEvent* event) override;
 
 signals:
     void addNewItem(GtObject* obj);

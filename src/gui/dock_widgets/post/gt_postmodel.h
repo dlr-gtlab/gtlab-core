@@ -68,7 +68,7 @@ public:
      * @param index
      * @return
      */
-    Qt::ItemFlags flags(const QModelIndex& index) const;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     /**
      * @brief Returns post template entry list.

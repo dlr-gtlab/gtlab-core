@@ -30,7 +30,7 @@ public:
      */
     explicit GtDataZoneModel(QObject* parent = nullptr);
 
-    ~GtDataZoneModel();
+    ~GtDataZoneModel() override;
 
     /**
      * @brief setResultData

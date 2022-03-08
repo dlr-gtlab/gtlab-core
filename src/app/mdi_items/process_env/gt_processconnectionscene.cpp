@@ -33,15 +33,6 @@ GtProcessConnectionScene::GtProcessConnectionScene(
 {
 
 }
-
-GtProcessConnectionScene::~GtProcessConnectionScene()
-{
-    if (m_animationGroup)
-    {
-        delete m_animationGroup;
-    }
-}
-
 void
 GtProcessConnectionScene::animatePorts()
 {
@@ -83,7 +74,7 @@ GtProcessConnectionScene::animatePorts()
         }
     }
 
-    m_animationGroup = new QParallelAnimationGroup;
+    m_animationGroup = new QParallelAnimationGroup(this);
 
     foreach (QPropertyAnimation* anim, highlightPorts(valids))
     {
@@ -110,7 +101,7 @@ GtProcessConnectionScene::resetPorts()
         delete m_animationGroup;
     }
 
-    m_animationGroup = new QParallelAnimationGroup();
+    m_animationGroup = new QParallelAnimationGroup(this);
 
 
     foreach (GtProcessPropertyPortEntity* port, ports)

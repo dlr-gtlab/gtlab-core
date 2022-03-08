@@ -30,11 +30,11 @@ public:
     /**
      * @brief ~GtMementoViewer
      */
-    virtual ~GtMementoViewer();
+    ~GtMementoViewer() override;
 
     /** Virtual function to specify item specific icon.
         @return Object specific icon */
-    virtual QIcon icon() const override;
+    QIcon icon() const override;
 
     /**
      * @brief allowsMultipleInstances

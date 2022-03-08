@@ -66,7 +66,7 @@ GtTaskOverviewPage::GtTaskOverviewPage(GtProcessWizard* parent) :
     connect(searchWidget, SIGNAL(textChanged(QString)),
             m_view->filterModel(), SLOT(setFilterRegExp(QString)));
     connect(m_view->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             SIGNAL(completeChanged()));
     connect(m_view, SIGNAL(doubleClicked(QModelIndex)),
             SLOT(onDoubleClicked(QModelIndex)));

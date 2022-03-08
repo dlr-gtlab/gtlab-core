@@ -24,10 +24,7 @@
 
 GtCalculator::~GtCalculator()
 {
-    if (m_labelProperty)
-    {
-        delete m_labelProperty;
-    }
+    delete m_labelProperty;
 }
 
 bool

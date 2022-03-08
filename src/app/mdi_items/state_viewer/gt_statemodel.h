@@ -30,8 +30,7 @@ public:
      * @param parent
      * @return
      */
-    virtual int columnCount(
-            const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data

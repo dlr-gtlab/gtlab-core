@@ -30,15 +30,15 @@ public:
     explicit GtCalculatorPropertyEntity(GtAbstractProperty* prop,
                                         QGraphicsItem* parent = nullptr);
 
-    virtual void paint(QPainter* painter,
-                       const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = nullptr) override;
+    void paint(QPainter* painter,
+               const QStyleOptionGraphicsItem* option,
+               QWidget* widget = nullptr) override;
 
     /**
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
 
 private:
     /// property

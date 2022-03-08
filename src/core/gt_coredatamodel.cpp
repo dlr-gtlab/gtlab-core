@@ -724,7 +724,7 @@ GtCoreDatamodel::mimeTypes() const
 QMimeData*
 GtCoreDatamodel::mimeData(const QModelIndexList& indexes) const
 {
-    if (indexes.size() > 0)
+    if (!indexes.empty())
     {
         QModelIndex index = indexes.value(0);
 

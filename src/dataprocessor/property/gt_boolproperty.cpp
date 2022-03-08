@@ -55,8 +55,3 @@ GtBoolProperty::setValueFromVariant(const QVariant& val,
 
     return true;
 }
-
-GtBoolProperty::~GtBoolProperty()
-{
-}
-

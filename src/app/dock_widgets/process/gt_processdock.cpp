@@ -156,8 +156,8 @@ GtProcessDock::GtProcessDock() :
             SLOT(pasteElement(QModelIndex)));
     connect(m_view, SIGNAL(runTaskElement(QModelIndex)),
             SLOT(runProcess()));
-    connect(m_view, SIGNAL(skipCalcultorElement(QModelIndex, bool)),
-            SLOT(skipComponent(QModelIndex, bool)));
+    connect(m_view, SIGNAL(skipCalcultorElement(QModelIndex,bool)),
+            SLOT(skipComponent(QModelIndex,bool)));
     connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
 
@@ -254,11 +254,10 @@ GtProcessDock::projectChangedEvent(GtProject* project)
     m_view->expandAll();
     m_view->resizeColumns();
 
-    connect(m_model, SIGNAL(rowsAboutToBeMoved(QModelIndex, int,
-                            int, QModelIndex,
-                            int)),
+    connect(m_model,
+            SIGNAL(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
             SLOT(onRowsAboutToBeMoved()));
-    connect(m_model, SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int)),
+    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
             SLOT(onRowsMoved()));
 }
 
@@ -564,8 +563,8 @@ GtProcessDock::filterData(const QString& val)
             m_view->setModel(m_filterModel);
             m_view->setRootIndex(m_rootIndex);
             connect(m_view->selectionModel(),
-                    SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-                    SLOT(onCurrentChanged(QModelIndex, QModelIndex)),
+                    SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                    SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
                     Qt::UniqueConnection);
             m_view->setCurrentIndex(QModelIndex());
         }

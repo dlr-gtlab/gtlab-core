@@ -28,7 +28,7 @@ GtPropertyFileChooserEditor::GtPropertyFileChooserEditor(QWidget* parent) :
     m_filePath = new QLineEdit;
     lay->addWidget(m_filePath);
 
-    m_restoreButton = new QPushButton(QStringLiteral(""));
+    m_restoreButton = new QPushButton(QLatin1String{});
     m_restoreButton->setIcon(gtApp->icon(QStringLiteral("restoreIcon_16.png")));
     m_restoreButton->setFlat(true);
     m_restoreButton->setMaximumWidth(15);

@@ -221,7 +221,7 @@ bool GtContour::isValid(GtTable *t, const QString &paramName) const {
     return false;
   }
 
-  if (t->tabValsKeys().size() < 1) {
+  if (t->tabValsKeys().empty()) {
     gtError() << QObject::tr("There are no values in this table, cannot "
                              "perform any contour calculation.");
 

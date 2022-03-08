@@ -1,35 +1,7 @@
 #include "gt_tableaxis.h"
 #include "gt_logging.h"
 
-GtTableAxis::GtTableAxis() :
-    m_ticks(QVector<double>()),
-    m_loExtMethod(E_LINEAR),
-    m_loExtrapolator(nullptr),
-    m_hiExtMethod(E_LINEAR),
-    m_hiExtrapolator(nullptr),
-    m_InterMethod(I_LINEAR),
-    m_interpolator(nullptr)
-{
-
-}
-
-
-GtTableAxis::~GtTableAxis()
-{
-    if (m_loExtrapolator)
-    {
-        delete m_loExtrapolator;
-    }
-    if (m_hiExtrapolator)
-    {
-        delete m_hiExtrapolator;
-    }
-    if (m_interpolator)
-    {
-        delete m_interpolator;
-    }
-}
-
+GtTableAxis::~GtTableAxis() = default;
 
 QString
 GtTableAxis::description() const
@@ -69,13 +41,7 @@ void
 GtTableAxis::setLoExtMethod(ExtrapMethod loExtMethod)
 {
     m_loExtMethod = loExtMethod;
-
-    if (m_loExtrapolator)
-    {
-        delete m_loExtrapolator;
-    }
-
-    m_loExtrapolator = genExtrap(m_loExtMethod);
+    m_loExtrapolator.reset(genExtrap(m_loExtMethod));
 }
 
 
@@ -90,13 +56,7 @@ void
 GtTableAxis::setHiExtMethod(const ExtrapMethod hiExtMethod)
 {
     m_hiExtMethod = hiExtMethod;
-
-    if (m_hiExtrapolator)
-    {
-        delete m_hiExtrapolator;
-    }
-
-    m_hiExtrapolator = genExtrap(m_hiExtMethod);
+    m_hiExtrapolator.reset(genExtrap(m_hiExtMethod));
 }
 
 
@@ -110,14 +70,7 @@ void
 GtTableAxis::setInterMethod(const InterpMethod interMethod)
 {
     m_InterMethod = interMethod;
-
-
-    if (m_interpolator)
-    {
-        delete m_interpolator;
-    }
-
-    m_interpolator = genInterp(m_InterMethod);
+    m_interpolator.reset(genInterp(m_InterMethod));
 }
 
 
@@ -145,21 +98,21 @@ GtTableAxis::size() const
 GtExtrapolator*
 GtTableAxis::loExtrapolator() const
 {
-    return m_loExtrapolator;
+    return m_loExtrapolator.get();
 }
 
 
 GtExtrapolator*
 GtTableAxis::hiExtrapolator() const
 {
-    return m_hiExtrapolator;
+    return m_hiExtrapolator.get();
 }
 
 
 GtNumerics::GtInterpolator*
 GtTableAxis::interpolator() const
 {
-    return m_interpolator;
+    return m_interpolator.get();
 }
 
 

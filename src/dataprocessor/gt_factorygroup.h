@@ -88,8 +88,7 @@ public:
      * @param className
      * @return
      */
-    virtual QStringList classHierarchy(
-            const QString& className) override;
+    QStringList classHierarchy(const QString& className) override;
 
     /**
      * @brief addFactory

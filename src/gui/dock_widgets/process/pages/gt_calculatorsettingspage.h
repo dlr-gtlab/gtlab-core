@@ -36,7 +36,7 @@ public:
     /**
      * @brief initializePage
      */
-    virtual void initializePage() override;
+    void initializePage() override;
 
 protected:
     /**

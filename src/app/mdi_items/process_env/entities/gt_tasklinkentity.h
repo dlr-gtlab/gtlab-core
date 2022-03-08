@@ -28,9 +28,9 @@ public:
     GtTaskLinkEntity(GtTaskLink* calc,
                      GtCalculatorEntity* parent);
 
-    virtual void paint(QPainter* painter,
-                       const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = nullptr) override;
+    void paint(QPainter* painter,
+               const QStyleOptionGraphicsItem* option,
+               QWidget* widget = nullptr) override;
 
     /**
      * @brief target
@@ -43,15 +43,13 @@ protected:
      * @brief mouseDoubleClickEvent
      * @param event
      */
-    virtual void mouseDoubleClickEvent(
-            QGraphicsSceneMouseEvent* event) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
     /**
      * @brief hoverMoveEvent
      * @param event
      */
-    virtual void hoverMoveEvent(
-            QGraphicsSceneHoverEvent* event) override;
+    void hoverMoveEvent(QGraphicsSceneHoverEvent* event) override;
 
 private:
     /// Pointer to data model member of task link

@@ -41,11 +41,6 @@ public:
                        QObject* parent = nullptr);
 
     /**
-     * @brief ~GtCollectionHelper
-     */
-    virtual ~GtCollectionHelper();
-
-    /**
      * @brief Returns loaded collection items.
      * @return List of loaded collection items.
      */

@@ -12,6 +12,8 @@
 #include <QString>
 #include <QVector>
 
+#include <memory>
+
 using namespace GtNumerics;
 
 class GT_DATAMODEL_EXPORT GtTableAxis : public GtObject
@@ -31,14 +33,14 @@ public:
     enum InterpMethod {I_LINEAR, I_LAGRANGE2, I_LAGRANGE3, I_CATMULL,
                        I_LOGARITHMIC};
     enum ExtrapMethod {E_NONE, E_CONST, E_LINEAR, E_LAGRANGE2};
-    Q_ENUMS(InterpMethod)
-    Q_ENUMS(ExtrapMethod)
+    Q_ENUM(InterpMethod)
+    Q_ENUM(ExtrapMethod)
 
     /** Constructor */
-    Q_INVOKABLE GtTableAxis();
+    Q_INVOKABLE GtTableAxis() = default;
 
     /** Deconstructor */
-    ~GtTableAxis();
+    ~GtTableAxis() override;
 
     /**
      * @brief description Getter method for the the axis description.
@@ -94,25 +96,25 @@ private:
     QString m_description;
 
     /// Array of axis ticks
-    QVector<double> m_ticks;
+    QVector<double> m_ticks{};
 
     /// Extrapolation method on lower boundary side
-    ExtrapMethod m_loExtMethod;
+    ExtrapMethod m_loExtMethod{E_LINEAR};
 
     /// Pointer to low extrapolator object
-    GtExtrapolator* m_loExtrapolator;
+    std::unique_ptr<GtExtrapolator> m_loExtrapolator;
 
     /// Extrapolation method on higher boundary side
-    ExtrapMethod m_hiExtMethod;
+    ExtrapMethod m_hiExtMethod{E_LINEAR};
 
     /// Pointer to high extrapolator object
-    GtExtrapolator* m_hiExtrapolator;
+    std::unique_ptr<GtExtrapolator> m_hiExtrapolator;
 
     /// Interpolation method
-    InterpMethod m_InterMethod;
+    InterpMethod m_InterMethod{I_LINEAR};
 
     /// Pointer to interpolator object
-    GtNumerics::GtInterpolator* m_interpolator;
+    std::unique_ptr<GtNumerics::GtInterpolator> m_interpolator;
 
     /**
      * @brief genExtrap

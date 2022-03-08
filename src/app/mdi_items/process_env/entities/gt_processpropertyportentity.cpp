@@ -28,21 +28,11 @@ GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
     QGraphicsEllipseItem(x, y , width, height),
     m_scale(1.0),
     m_type(typ),
-    m_anim(nullptr),
-    m_timer(nullptr),
     m_item(item)
 {
     setBrush(QBrush(Qt::darkGray));
     setFlags(QGraphicsItem::ItemIsSelectable);
     setAcceptHoverEvents(true);
-}
-
-GtProcessPropertyPortEntity::~GtProcessPropertyPortEntity()
-{
-    if (m_timer)
-    {
-        delete m_timer;
-    }
 }
 
 bool
@@ -316,11 +306,11 @@ GtProcessPropertyPortEntity::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
         if (!m_timer)
         {
-            m_timer = new QTimer;
+            m_timer.reset(new QTimer);
             m_timer->setSingleShot(true);
             m_timer->setInterval(100);
 
-            connect(m_timer.data(), &QTimer::timeout,
+            connect(m_timer.get(), &QTimer::timeout,
                     pcScene, &GtProcessConnectionScene::animatePorts);
         }
 
@@ -334,8 +324,7 @@ GtProcessPropertyPortEntity::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     if (m_timer)
     {
         m_timer->stop();
-        delete m_timer;
-        m_timer = nullptr;
+        m_timer.reset();
     }
 
     GtProcessConnectionScene* pcScene =
@@ -421,10 +410,6 @@ GtProcessPropertyPortEntity::updateShape()
         {
             setVisible(true);
         }
-    }
-    else
-    {
-
     }
 }
 

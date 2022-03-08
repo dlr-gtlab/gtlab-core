@@ -31,7 +31,7 @@ public:
      * Virtual function to specify object specific icon.
      * @return Object specific icon
      */
-    virtual QIcon icon(GtObject* obj) const override;
+    QIcon icon(GtObject* obj) const override;
 
     /**
      * @brief openWith

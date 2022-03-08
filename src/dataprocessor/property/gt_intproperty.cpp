@@ -195,7 +195,3 @@ GtIntProperty::validateValue(const int& value)
 
     return true;
 }
-
-GtIntProperty::~GtIntProperty()
-{
-}

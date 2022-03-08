@@ -9,18 +9,6 @@
 
 #include "gt_tablevalues.h"
 
-GtTableValues::GtTableValues()
-{
-
-}
-
-
-GtTableValues::~GtTableValues()
-{
-
-}
-
-
 QString
 GtTableValues::description() const
 {

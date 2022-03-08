@@ -49,8 +49,8 @@ public:
      * @param success Whether conversion was successfull or not.
      * @return Value as QVariant
      */
-    virtual QVariant valueToVariant(const QString& unit,
-                                    bool* success = nullptr) const override;
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override;
 
     /**
      * @brief Overloaded function to set internal property value from given
@@ -60,9 +60,9 @@ public:
      * @param success Whether the value could be set or not
      * @return
      */
-    virtual bool setValueFromVariant(const QVariant& val,
-                                     const QString& unit,
-                                     bool* success = nullptr) override;
+    bool setValueFromVariant(const QVariant& val,
+                             const QString& unit,
+                             bool* success = nullptr) override;
 
     /**
      * @brief linkedObject

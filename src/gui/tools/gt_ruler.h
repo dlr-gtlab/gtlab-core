@@ -61,7 +61,7 @@ protected:
     /** Resize Ruler scale
      * @param e resize event
      */
-    virtual void resizeEvent(QResizeEvent* e);
+    void resizeEvent(QResizeEvent* e) override;
 
 private:
     /// Orientation indicator

@@ -54,10 +54,7 @@ GtCalculatorOverviewModel::setUpModel()
 
         if (!catItem->addItem(pItem))
         {
-            if (pItem)
-            {
-                delete pItem;
-            }
+            delete pItem;
         }
     }
 }

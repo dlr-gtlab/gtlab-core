@@ -24,15 +24,15 @@ class GtTaskEntity : public QGraphicsObject
 public:
     explicit GtTaskEntity(GtTask* task, QGraphicsItem* parent = nullptr);
 
-    virtual void paint(QPainter* painter,
-                       const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = nullptr) override;
+    void paint(QPainter* painter,
+               const QStyleOptionGraphicsItem* option,
+               QWidget* widget = nullptr) override;
 
     /**
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
 
     /**
      * @brief populateTask
@@ -116,8 +116,7 @@ protected:
      * @brief dragEnterEvent
      * @param event
      */
-    virtual void dragEnterEvent(
-            QGraphicsSceneDragDropEvent* event) override;
+    void dragEnterEvent(QGraphicsSceneDragDropEvent* event) override;
 
 
 private:

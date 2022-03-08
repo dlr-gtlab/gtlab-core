@@ -215,10 +215,6 @@ GtDoubleProperty::validateValue(const double& value)
     return true;
 }
 
-GtDoubleProperty::~GtDoubleProperty()
-{
-}
-
 double
 GtDoubleProperty::initialValue() const
 {

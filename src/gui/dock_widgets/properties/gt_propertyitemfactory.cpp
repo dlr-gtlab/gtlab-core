@@ -157,9 +157,9 @@ GtPropertyItemFactory::registerPropertyItems(
         return false;
     }
 
-    for (auto key : map.keys())
+    for (auto iter = std::begin(map); iter != std::end(map); ++iter)
     {
-        registerPropertyItem(key, map.value(key));
+        registerPropertyItem(iter.key(), map.value(iter.key()));
     }
 
     return true;
@@ -169,9 +169,9 @@ bool
 GtPropertyItemFactory::propertyItemsExists(
         const QMap<const char*, QMetaObject>& map)
 {
-    for (auto key : map.keys())
+    for (auto iter = std::begin(map); iter != std::end(map); ++iter)
     {
-        if (knownClass(key))
+        if (knownClass(iter.key()))
         {
             return true;
         }

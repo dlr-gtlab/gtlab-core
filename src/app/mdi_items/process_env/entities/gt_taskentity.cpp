@@ -488,7 +488,7 @@ GtTaskEntity::maxContourValue(const QMap<int, double>& map)
 {
     double max = 0.;
 
-    for (auto e : map.keys())
+    foreach (const auto& e, map.keys())
     {
         if (map.value(e) > max)
         {

@@ -31,7 +31,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~GtCalculator();
+    ~GtCalculator() override;
 
     /**
      * @brief Execution process of the calculator.

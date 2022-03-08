@@ -174,7 +174,7 @@ GtModuleLoader::moduleDatamodelInterfaceIds()
 {
     QStringList retval;
 
-    for (auto const& e : m_plugins.keys())
+    foreach (auto const& e, m_plugins.keys())
     {
       GtDatamodelInterface* dmi =
               dynamic_cast<GtDatamodelInterface*>(m_plugins.value(e));

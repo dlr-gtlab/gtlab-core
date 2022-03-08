@@ -484,7 +484,7 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
     // distinguish "types"
     QDomElement diffObj;
     bool diffObjEmpty = true;
-    QVariantList leftPropList, rightPropList;
+
     if (GtObjectIO::usePropertyList(leftProp.data))
     {
         diffObj = this->createElement(GtObjectIO::S_DIFF_PROPLIST_CHANGE_TAG);

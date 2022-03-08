@@ -28,11 +28,6 @@ GtCollectionHelper::GtCollectionHelper(
 
 }
 
-GtCollectionHelper::~GtCollectionHelper()
-{
-    //gtFatal() << "#### collection helper deleted!";
-}
-
 QList<GtCollectionHelperData>
 GtCollectionHelper::collectionItems() const
 {

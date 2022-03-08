@@ -409,7 +409,7 @@ GtDataZone::setData1D(const QStringList& params,
 {
     clearData();
 
-    if (params.size() <= 0 || params.size() != vals.size())
+    if (params.empty() || params.size() != vals.size())
     {
         gtWarning() << tr("Param sizes do not match in DataZone!");
         return;
@@ -446,7 +446,7 @@ GtDataZone::setData1D(const QStringList& params,
 {
     clearData();
 
-    if (params.size() <= 0 || params.size() != vals.first().size())
+    if (params.empty() || params.size() != vals.first().size())
     {
         gtWarning() << tr("Param sizes do not match in DataZone!");
         gtInfo() << "Params:" << params << "Values:" << vals.first().size();

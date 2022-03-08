@@ -34,7 +34,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~GtProcessPropertyConnectionEntity();
+    ~GtProcessPropertyConnectionEntity() override;
 
     /**
      * @brief Returns true if start port exists, otherwise returns false.

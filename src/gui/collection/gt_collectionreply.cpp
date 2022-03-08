@@ -12,11 +12,6 @@
 
 #include "gt_collectionreply.h"
 
-GtCollectionReply::~GtCollectionReply()
-{
-    //gtFatal() << "#### collection reply deleted!";
-}
-
 QList<GtCollectionNetworkItem>
 GtCollectionReply::installedItems() const
 {

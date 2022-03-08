@@ -36,7 +36,7 @@ public:
 
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
-    virtual Qt::DockWidgetArea getDockWidgetArea();
+    Qt::DockWidgetArea getDockWidgetArea() override;
 
     /**
      * @brief renameFile
@@ -55,7 +55,7 @@ public:
 protected:
     /** Event called after current project has changed.
         @param new current project */
-    virtual void projectChangedEvent(GtProject* project);
+    void projectChangedEvent(GtProject* project) override;
 
     /**
      * @brief Event filter to catch key press events of given object.

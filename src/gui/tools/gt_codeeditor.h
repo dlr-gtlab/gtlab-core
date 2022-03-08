@@ -26,15 +26,15 @@ public:
     int lineNumberAreaWidth();
 
 protected:
-    void resizeEvent(QResizeEvent* event);
+    void resizeEvent(QResizeEvent* event) override;
 
-    virtual void dragEnterEvent(QDragEnterEvent* event);
+    void dragEnterEvent(QDragEnterEvent* event) override;
 
-    virtual void dragMoveEvent(QDragMoveEvent* event);
+    void dragMoveEvent(QDragMoveEvent* event) override;
 
-    virtual void dropEvent(QDropEvent* event);
+    void dropEvent(QDropEvent* event) override;
 
-    virtual void wheelEvent(QWheelEvent* event);
+    void wheelEvent(QWheelEvent* event) override;
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);

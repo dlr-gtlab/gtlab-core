@@ -423,7 +423,7 @@ private:
     /**
      * @brief onObjectDataMerged
      */
-    virtual void onObjectDataMerged() override;
+    void onObjectDataMerged() override;
 
     /**
      * @brief phiInterpolatedVal: Necessary for stage maps in multistage compr

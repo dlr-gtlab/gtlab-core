@@ -103,7 +103,7 @@ public:
      * @param param parameter name
      * @return current unit
      */
-    virtual QString unit(const QString& param) const override;
+    QString unit(const QString& param) const override;
 
     /**
      * @brief stores axis ticks in argument vector
@@ -156,7 +156,7 @@ public:
      * @brief check function if table is 0-dimensional
      * @return true in case that dimension of table is 0
      */
-    virtual bool is0D() const override;
+    bool is0D() const override;
 
     /**
      * @brief addModuleName
@@ -244,7 +244,7 @@ public slots:
     * @brief returns the number of dimensions
     * @return number of dimensions
     */
-   virtual int nDims() const override;
+   int nDims() const override;
 
    /**
     * @brief returns value from 1-dimensional datazone

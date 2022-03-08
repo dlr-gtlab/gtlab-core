@@ -41,19 +41,19 @@ protected:
      * @brief mousePressEvent
      * @param event
      */
-    virtual void mousePressEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event) override;
 
     /**
      * @brief enterEvent
      * @param event
      */
-    virtual void enterEvent(QEvent* event);
+    void enterEvent(QEvent* event) override;
 
     /**
      * @brief leaveEvent
      * @param event
      */
-    virtual void leaveEvent(QEvent* event);
+    void leaveEvent(QEvent* event) override;
 
 private:
     QPixmap m_pixmap;

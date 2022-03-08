@@ -31,13 +31,13 @@ protected:
      * @brief paintEvent
      * @param e
      */
-    void paintEvent(QPaintEvent* e);
+    void paintEvent(QPaintEvent* e) override;
 
     /**
      * @brief mouseDoubleClickEvent
      * @param event
      */
-    void mouseDoubleClickEvent(QMouseEvent* event);
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 private:
     /**

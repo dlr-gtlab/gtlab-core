@@ -33,13 +33,13 @@ protected:
      * @brief keyPressEvent
      * @param event
      */
-    virtual void keyPressEvent(QKeyEvent * event);
+    void keyPressEvent(QKeyEvent * event) override;
 
     /**
      * @brief keyReleaseEvent
      * @param event
      */
-    virtual void keyReleaseEvent(QKeyEvent * event);
+    void keyReleaseEvent(QKeyEvent * event) override;
 
 private:
     /// List of all perspective ids

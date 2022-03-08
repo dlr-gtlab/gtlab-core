@@ -17,12 +17,8 @@
 #include "gt_unitconverter.h"
 
 GtPropertyUnitDelegate::GtPropertyUnitDelegate(QObject* parent) :
-    QStyledItemDelegate(parent),
-    m_comboBox(nullptr),
-    m_width(1),
-    m_heigth(1)
+    QStyledItemDelegate(parent)
 {
-
 }
 
 QWidget*
@@ -30,11 +26,7 @@ GtPropertyUnitDelegate::createEditor(QWidget* parent,
                                      const QStyleOptionViewItem& option,
                                      const QModelIndex& index) const
 {
-    if (m_comboBox)
-    {
-        delete m_comboBox;
-    }
-
+    delete m_comboBox;
     m_comboBox = new QComboBox(parent);
 
     QVariant var = index.data(GtPropertyModel::UnitCategoryRole);

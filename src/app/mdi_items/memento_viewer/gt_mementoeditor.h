@@ -31,7 +31,7 @@ protected:
      * @brief dropEvent
      * @param event
      */
-    virtual void dropEvent(QDropEvent* event);
+    void dropEvent(QDropEvent* event) override;
 
 };
 

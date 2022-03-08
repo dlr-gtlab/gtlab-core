@@ -19,11 +19,6 @@ GtGraphicsScene::GtGraphicsScene(QObject *parent) :
 {
 }
 
-GtGraphicsScene::~GtGraphicsScene()
-{
-//    qDebug() << "Graphics Scene deleted!";
-}
-
 //void
 //GtdGraphicsScene::setPointSelectionMode(bool val)
 //{

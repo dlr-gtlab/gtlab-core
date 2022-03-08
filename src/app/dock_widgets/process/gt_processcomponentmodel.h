@@ -34,8 +34,8 @@ public:
      * @param role
      * @return
      */
-    virtual QVariant data(const QModelIndex& index,
-                          int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns process component state specific icon.

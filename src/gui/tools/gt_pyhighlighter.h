@@ -45,7 +45,7 @@ public:
     explicit GtPyHighlighter(QTextDocument* parent = nullptr);
 
 protected:
-    void highlightBlock(const QString& text);
+    void highlightBlock(const QString& text) override;
 
 public slots:
     /**

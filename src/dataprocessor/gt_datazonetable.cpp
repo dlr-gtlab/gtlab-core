@@ -338,7 +338,7 @@ GtDataZoneTable::is0D() const
 int
 GtDataZoneTable::nSubDims() const
 {
-    if (data().size() == 0)
+    if (data().empty())
     {
         gtWarning() << tr("There is no GtAbstractDataZone in GtDataZoneTable '")
                   << objectName() << "'";

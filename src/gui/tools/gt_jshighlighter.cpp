@@ -27,10 +27,6 @@ GtJsHighlighter::GtJsHighlighter(QTextEdit* parent)
     init();
 }
 
-GtJsHighlighter::~GtJsHighlighter()
-{
-}
-
 void
 GtJsHighlighter::init()
 {

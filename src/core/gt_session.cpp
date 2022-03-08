@@ -179,10 +179,6 @@ GtSession::duplicateSession(const QString& source, const QString& target)
     return file.copy(dir.absoluteFilePath(targetFilename));
 }
 
-GtSession::~GtSession()
-{
-}
-
 GtProject*
 GtSession::currentProject() const
 {

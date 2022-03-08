@@ -31,7 +31,7 @@ public:
      *  Overloaded Resize event of the QTabWidget
      * @param e
      */
-    void resizeEvent(QResizeEvent* e);
+    void resizeEvent(QResizeEvent* e) override;
 
 signals:
     /**

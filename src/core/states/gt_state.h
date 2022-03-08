@@ -33,7 +33,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~GtState();
+    ~GtState() override;
 
     /**
      * @brief Sets state value.

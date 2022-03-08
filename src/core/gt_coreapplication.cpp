@@ -46,11 +46,8 @@ std::string GtCoreApplication::m_additional = GT_VERSION_ADDITIONAL;
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
     QObject(parent),
-    m_session(nullptr),
     m_settings(new GtSettings),
     m_sessionIds(QStringList() << QStringLiteral("default")),
-    m_translator(nullptr),
-    m_moduleLoader(nullptr),
     m_devMode(false),
     m_batchMode(false),
     m_dataModel(new GtCoreDatamodel(parent))
@@ -300,23 +297,21 @@ GtCoreApplication::switchSession(const QString& id)
     if (m_session)
     {
         gtApp->settings()->setLastProject(QStringLiteral(""));
-        delete m_session;
     }
 
     // open new session
-    m_session = new GtSession(id);
+    m_session.reset(new GtSession(id));
 
     if (!m_session->isValid())
     {
-        delete m_session;
-        m_session = nullptr;
+        m_session.reset();
         qCritical() << "ERROR: could not load session!";
     }
     else
     {
         qDebug() << tr("loaded session: ") << m_session->objectName();
         settings()->setLastSession(id);
-        m_dataModel->setSession(m_session);
+        m_dataModel->setSession(m_session.get());
         emit sessionChanged(id);
     }
 
@@ -476,7 +471,7 @@ GtCoreApplication::loadModules()
     //    qDebug() << "GtCoreApplication::loadModules";
     if (!m_moduleLoader)
     {
-        m_moduleLoader = new GtModuleLoader;
+        m_moduleLoader = std::make_unique<GtModuleLoader>();
         m_moduleLoader->load();
     }
 }
@@ -755,7 +750,7 @@ GtCoreApplication::setLanguage(const QString& id)
 {
     if (!m_translator)
     {
-        m_translator = new QTranslator;
+        m_translator = std::make_unique<QTranslator>();
     }
 
     if (id == QLatin1String("de"))
@@ -767,7 +762,7 @@ GtCoreApplication::setLanguage(const QString& id)
             return false;
         }
 
-        qApp->installTranslator(m_translator);
+        qApp->installTranslator(m_translator.get());
     }
     else
     {
@@ -785,7 +780,7 @@ GtCoreApplication::setToSystemLanguage()
 {
     if (!m_translator)
     {
-        m_translator = new QTranslator;
+        m_translator = std::make_unique<QTranslator>();
     }
 
     bool s = m_translator->load(QLocale::system(), QStringLiteral("gtlab"),
@@ -793,7 +788,7 @@ GtCoreApplication::setToSystemLanguage()
 
     if (s)
     {
-        qApp->installTranslator(m_translator);
+        qApp->installTranslator(m_translator.get());
         return true;
     }
 
@@ -826,28 +821,7 @@ QStringList& GtCoreApplication::sessionIds()
     return m_sessionIds;
 }
 
-GtCoreApplication::~GtCoreApplication()
-{
-    if (m_session)
-    {
-        delete m_session;
-    }
-
-    if (m_settings)
-    {
-        delete m_settings;
-    }
-
-    if (m_translator)
-    {
-        delete m_translator;
-    }
-
-    if (m_moduleLoader)
-    {
-        delete m_moduleLoader;
-    }
-}
+GtCoreApplication::~GtCoreApplication() = default;
 
 GtCoreApplication*
 GtCoreApplication::instance()
@@ -865,7 +839,7 @@ GtCoreApplication::instance()
 GtSession*
 GtCoreApplication::session()
 {
-    return m_session;
+    return m_session.get();
 }
 
 QString
@@ -884,7 +858,7 @@ GtCoreApplication::sessionId()
 GtSettings*
 GtCoreApplication::settings()
 {
-    return m_settings;
+    return m_settings.get();
 }
 
 GtProject*

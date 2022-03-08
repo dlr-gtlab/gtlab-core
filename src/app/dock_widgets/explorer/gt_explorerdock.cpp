@@ -759,7 +759,7 @@ GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
 {
     QModelIndexList indexlist = m_view->selectionModel()->selectedIndexes();
 
-    if (indexlist.size() > 0 && indexlist.size() < 4)
+    if (!indexlist.empty() && indexlist.size() < 4)
     {
         QModelIndex indexUnderMouse = indexOrigin;
 

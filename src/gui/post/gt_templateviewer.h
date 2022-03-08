@@ -45,7 +45,7 @@ public:
     /**
      * @brief Desturctor.
      */
-    virtual ~GtTemplateViewer();
+    ~GtTemplateViewer() override;
 
     /**
      * @brief setData

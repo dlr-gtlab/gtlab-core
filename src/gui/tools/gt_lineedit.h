@@ -33,13 +33,13 @@ protected:
      * @brief focusInEvent overloaded to emit the focusIn event
      * @param event
      */
-    virtual void focusInEvent(QFocusEvent* event) override;
+    void focusInEvent(QFocusEvent* event) override;
 
     /**
      * @brief focusOutEvent overloaded to emit the focusOut events
      * @param event
      */
-    virtual void focusOutEvent(QFocusEvent* event) override;
+    void focusOutEvent(QFocusEvent* event) override;
 
 signals:
 

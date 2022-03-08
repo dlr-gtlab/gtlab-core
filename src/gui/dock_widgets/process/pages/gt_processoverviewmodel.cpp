@@ -19,19 +19,12 @@
 GtProcessOverviewModel::GtProcessOverviewModel(QObject* parent) :
     QAbstractItemModel(parent)
 {
-
 }
 
 GtProcessOverviewModel::~GtProcessOverviewModel()
 {
-    foreach (GtProcessCategoryItem* cat, m_categories)
-    {
-        if (cat)
-        {
-            delete cat;
-            cat = nullptr;
-        }
-    }
+    qDeleteAll(m_categories);
+    m_categories.clear();
 }
 
 int

@@ -92,7 +92,7 @@ protected:
      * @brief resizeEvent
      * @param event
      */
-    virtual void resizeEvent(QResizeEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     /// Pointer to output view widget.

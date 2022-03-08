@@ -33,9 +33,9 @@ public:
 
     void setT(int t);
 
-    virtual void paint(QPainter* painter,
-                       const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = nullptr);
+    void paint(QPainter* painter,
+               const QStyleOptionGraphicsItem* option,
+               QWidget* widget = nullptr) override;
 
 public slots:
     void runPathAnimation();

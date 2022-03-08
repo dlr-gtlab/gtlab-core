@@ -102,10 +102,7 @@ GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
 
 GtProcessQueueWidget::~GtProcessQueueWidget()
 {
-    if (m_model)
-    {
-        delete m_model;
-    }
+    delete m_model;
 }
 
 void

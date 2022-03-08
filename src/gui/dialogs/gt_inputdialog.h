@@ -142,7 +142,7 @@ protected:
      * @brief showEvent
      * @param event
      */
-    virtual void showEvent(QShowEvent* event) override;
+    void showEvent(QShowEvent* event) override;
 
 private:
     /// Label text.

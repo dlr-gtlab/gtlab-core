@@ -79,7 +79,7 @@ public:
     template <class T = GtObject*>
     T restore(GtAbstractObjectFactory* factory, bool newUuid = false)
     {
-        T retval = NULL;
+        T retval = nullptr;
 
         if (factory)
         {

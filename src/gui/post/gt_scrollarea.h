@@ -16,9 +16,9 @@ class GtScrollArea : public QScrollArea
 public:
     GtScrollArea();
 
-    void keyPressEvent(QKeyEvent* e);
+    void keyPressEvent(QKeyEvent* e) override;
 
-    void wheelEvent(QWheelEvent* e);
+    void wheelEvent(QWheelEvent* e) override;
 };
 
 #endif // GTSCROLLAREA_H

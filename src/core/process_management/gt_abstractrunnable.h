@@ -39,7 +39,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~GtAbstractRunnable();
+    ~GtAbstractRunnable() override;
 
     /**
      * @brief linkedObjects

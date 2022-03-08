@@ -104,10 +104,10 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         }
 
         // clear hidden ports
-        for (auto e : tmpMap.keys())
+        foreach (const auto& e, tmpMap.keys())
         {
             GtProcessPropertyPortEntity* entity =
-                m_inputPorts.take(e);
+                m_inputPorts.take(std::move(e));
 
             delete entity;
         }
@@ -158,10 +158,10 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         }
 
         // clear hidden ports
-        for (auto e : tmpMap.keys())
+        foreach (const auto& e, tmpMap.keys())
         {
             GtProcessPropertyPortEntity* entity =
-                m_outputPorts.take(e);
+                m_outputPorts.take(std::move(e));
 
             if (entity)
             {
@@ -267,7 +267,7 @@ GtProcessConnectionGraphicsView::findPortEntityHelper(GtProcessPortMap& map,
 {
 //    qDebug() << "   |-> " << uuid << "/" << propId;
 
-    for (auto e : map.keys())
+    foreach (const auto& e, map.keys())
     {
 //        qDebug() << "   |-> " << e->parentComponentUuid() << "/" <<
 //                    e->propertyId();

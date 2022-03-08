@@ -12,10 +12,6 @@ template<class ParamType>
 class GtProperty : public GtAbstractProperty
 {
 public:
-    /**
-     * @brief ~GtProperty
-     */
-    virtual ~GtProperty(){}
 
     /**
      * @brief Returns a reference to the parameter value.
@@ -25,7 +21,8 @@ public:
 
     ParamType& operator()(void){return m_value;}
 
-    virtual operator ParamType () const {
+    virtual operator ParamType () const
+    {
         return getVal();
     }
 
