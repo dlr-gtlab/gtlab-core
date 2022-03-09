@@ -383,9 +383,9 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     mdiItem->initialized();
 
     connect(subWin,
-            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates)),
+            SIGNAL(windowStateChanged(Qt::WindowStates,Qt::WindowStates)),
             mdiItem,
-            SLOT(windowStateChanged(Qt::WindowStates, Qt::WindowStates)));
+            SLOT(windowStateChanged(Qt::WindowStates,Qt::WindowStates)));
     connect(subWin, SIGNAL(aboutToActivate()), mdiItem,
             SLOT(windowAboutToActive()));
     connect(subWin, SIGNAL(destroyed(QObject*)), mdiItem,
