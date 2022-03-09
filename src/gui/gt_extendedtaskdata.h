@@ -45,12 +45,13 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~GtExtendedTaskDataImpl();
+    ~GtExtendedTaskDataImpl() override;
 
     /// Task icon
     QIcon icon;
 
     /// Custom task wizard
+    /// Owning. @TODO: consider encapsulation
     GtCustomProcessWizard* wizard;
 
     /**

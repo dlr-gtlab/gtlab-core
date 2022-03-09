@@ -805,7 +805,7 @@ GtMainWin::printCurrentMdiItem()
 {
     qDebug() << "print requested...";
 
-    if (ui->mdiArea->subWindowList().size() >= 1)
+    if (!ui->mdiArea->subWindowList().empty())
     {
         gtMdiLauncher->print(ui->mdiArea->currentSubWindow());
     }

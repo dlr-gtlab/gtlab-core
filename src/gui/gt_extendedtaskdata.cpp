@@ -20,10 +20,7 @@ GtExtendedTaskDataImpl::GtExtendedTaskDataImpl(const QMetaObject& metaData) :
 
 GtExtendedTaskDataImpl::~GtExtendedTaskDataImpl()
 {
-    if (wizard)
-    {
-        delete wizard;
-    }
+    delete wizard;
 }
 
 bool

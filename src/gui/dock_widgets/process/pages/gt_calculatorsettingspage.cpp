@@ -89,7 +89,7 @@ void GtCalculatorSettingsPage::initializePage()
     m_component->setParent(this);
 
     connect(m_component.data(),
-            SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
+            SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
             SLOT(onComponentDataChange()));
 
     m_view->setObject(m_component, false);

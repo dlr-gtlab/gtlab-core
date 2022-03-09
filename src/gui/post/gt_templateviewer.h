@@ -82,7 +82,7 @@ private:
     /**
      * @brief showEvent
      */
-    void showEvent();
+    void showEvent() override;
 
     QVBoxLayout* m_layplot;
 
@@ -195,7 +195,7 @@ public slots:
     /**
      * @brief print
      */
-    void print();
+    void print() override;
 
     /**
      * @brief onFileChanged

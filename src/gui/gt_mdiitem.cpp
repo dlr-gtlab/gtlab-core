@@ -141,11 +141,7 @@ GtMdiItem::onProjectChanged(GtProject* project)
 {
     if (m_queueEvents)
     {
-        GtProjectChangedEvent* old = takeEvent<GtProjectChangedEvent>();
-        if (old)
-        {
-            delete old;
-        }
+        delete takeEvent<GtProjectChangedEvent>();
 
         m_eventQueue << new GtProjectChangedEvent(this, project);
     }
@@ -166,11 +162,7 @@ GtMdiItem::onObjectChanged(GtObject* obj)
 {
     if (m_queueEvents)
     {
-        GtObjectChangedEvent* old = takeEvent<GtObjectChangedEvent>();
-        if (old)
-        {
-            delete old;
-        }
+        delete takeEvent<GtObjectChangedEvent>();
 
         m_eventQueue << new GtObjectChangedEvent(this, obj);
     }

@@ -599,7 +599,7 @@ GtDataZone::setData2D(const QStringList& params,
 {
     clearData();
 
-    if (params.size() <= 0 || params.size() != vals.size())
+    if (params.empty() || params.size() != vals.size())
     {
         gtWarning() << tr("Param sizes do not match in DataZone!");
         return;

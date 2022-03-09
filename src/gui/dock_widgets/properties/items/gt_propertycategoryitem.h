@@ -52,7 +52,7 @@ public:
      * @param role
      * @return
      */
-    QVariant data(int column, int role) const;
+    QVariant data(int column, int role) const override;
 
     /**
      * @brief setData

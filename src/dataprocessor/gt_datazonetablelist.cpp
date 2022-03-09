@@ -220,7 +220,7 @@ GtDataZoneTableList::dzt() const
 {
     GtDataZoneTable* retval = nullptr;
 
-    if (m_dztList.size() > 0)
+    if (!m_dztList.empty())
     {
         retval = m_dztList.first();
     }

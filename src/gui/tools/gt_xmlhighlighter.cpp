@@ -43,10 +43,6 @@ GtXmlHighlighter::GtXmlHighlighter(QTextEdit* parent)
     init();
 }
 
-GtXmlHighlighter::~GtXmlHighlighter()
-{
-}
-
 void
 GtXmlHighlighter::init()
 {

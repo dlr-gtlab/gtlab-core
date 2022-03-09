@@ -30,10 +30,6 @@ GtPropertyItem::GtPropertyItem() :
 {
 }
 
-GtPropertyItem::~GtPropertyItem()
-{
-}
-
 QVariant
 GtPropertyItem::data(int column, int role) const
 {

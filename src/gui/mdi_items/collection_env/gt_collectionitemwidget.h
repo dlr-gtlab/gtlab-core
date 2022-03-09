@@ -34,7 +34,7 @@ public:
     /**
      * @brief ~GtCollectionItemWidget
      */
-    virtual ~GtCollectionItemWidget();
+    ~GtCollectionItemWidget() override;
 
 private:
     /// Filter string.

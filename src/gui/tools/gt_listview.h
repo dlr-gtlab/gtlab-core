@@ -30,7 +30,7 @@ public:
     explicit GtListView(QWidget* parent = nullptr);
 
 protected:
-    virtual void keyPressEvent(QKeyEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
 
 signals:
     /**

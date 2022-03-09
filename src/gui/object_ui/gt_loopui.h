@@ -35,13 +35,13 @@ public:
      * @brief hasValidationRegExp
      * @return true, because element has validator
      */
-    bool hasValidationRegExp();
+    bool hasValidationRegExp() override;
 
     /**
      * @brief validatorRegExp
      * @return Regexp to accept letters, digits, -, _, and space
      */
-    QRegExp validatorRegExp();
+    QRegExp validatorRegExp() override;
 
 protected:
     /**

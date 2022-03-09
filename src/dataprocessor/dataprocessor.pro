@@ -20,7 +20,7 @@ QT += core xml
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
-CONFIG += c++11
+CONFIG += c++14
 
 DEFINES += GT_DATAMODEL_DLL
 

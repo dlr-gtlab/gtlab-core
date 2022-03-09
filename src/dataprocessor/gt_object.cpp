@@ -185,30 +185,30 @@ GtObject::appendChild(GtObject* c)
     {
         disconnect(c, SIGNAL(dataChanged(GtObject*)),
                    c->parent(), SIGNAL(dataChanged(GtObject*)));
-        disconnect(c, SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
+        disconnect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
                    c->parent(),
-                   SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)));
-        disconnect(c, SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
+                   SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)));
+        disconnect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
                    c->parent(), SLOT(onChildDataChanged()));
         disconnect(c, SIGNAL(dataChanged(GtObject*)),
                    c->parent(), SLOT(onChildDataChanged()));
         disconnect(c, SIGNAL(destroyed(QObject*)),
                    c->parent(), SLOT(changed()));
-        disconnect(c, SIGNAL(childAppended(GtObject*, GtObject*)),
-                   c->parent(), SIGNAL(childAppended(GtObject*, GtObject*)));
+        disconnect(c, SIGNAL(childAppended(GtObject*,GtObject*)),
+                   c->parent(), SIGNAL(childAppended(GtObject*,GtObject*)));
     }
 
     c->setParent(this);
 
     connect(c, SIGNAL(dataChanged(GtObject*)), SIGNAL(dataChanged(GtObject*)),
             Qt::DirectConnection);
-    connect(c, SIGNAL(childAppended(GtObject*, GtObject*)),
+    connect(c, SIGNAL(childAppended(GtObject*,GtObject*)),
             SIGNAL(childAppended(GtObject*, GtObject*)),
             Qt::DirectConnection);
-    connect(c, SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
-            SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
+    connect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
+            SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
             Qt::DirectConnection);
-    connect(c, SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
+    connect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
             SLOT(onChildDataChanged()),
             Qt::DirectConnection);
     connect(c, SIGNAL(dataChanged(GtObject*)), SLOT(onChildDataChanged()),

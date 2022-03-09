@@ -74,10 +74,8 @@ GtImportHandler::importerMetaData(const QString& classname)
         return QList<GtImporterMetaData>();
     }
 
-    for (auto const& e : m_impMeta.keys())
+    for (auto const& metaData : qAsConst(m_impMeta))
     {
-        GtImporterMetaData metaData = m_impMeta.value(e);
-
         foreach (const QString& str, metaData.targets())
         {
             if (str == classname)

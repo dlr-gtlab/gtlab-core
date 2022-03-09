@@ -41,7 +41,7 @@ public:
      * @brief ~GtFinishedProcessLoadingHelper
      * destructor is empty
      */
-    virtual ~GtFinishedProcessLoadingHelper();
+    ~GtFinishedProcessLoadingHelper() override;
 
     /**
      * @brief run

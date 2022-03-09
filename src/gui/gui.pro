@@ -20,7 +20,7 @@ QT += core widgets network xml printsupport qml
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
-CONFIG += c++11
+CONFIG += c++14
 
 DEFINES += GT_GUI_DLL
 

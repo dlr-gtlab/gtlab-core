@@ -45,7 +45,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~GtPropertyModel();
+    ~GtPropertyModel() override;
 
     /**
      * @brief rowCount
@@ -116,10 +116,8 @@ public:
      * @param role
      * @return
      */
-    virtual QVariant headerData(int section,
-                                Qt::Orientation orientation,
-                                int role =
-                                    Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief setObject

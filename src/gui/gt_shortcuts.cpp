@@ -21,10 +21,10 @@ GtShortCuts::GtShortCuts(QObject* parent)
 void
 GtShortCuts::initialize(const QMap<QString, QStringList>& tab)
 {
-    foreach (QString const& key, tab.keys())
+    for (auto iter = std::begin(tab); iter != std::end(tab); ++iter)
     {
-        QKeySequence k = QKeySequence(tab.value(key).first());
-        GtShortCut* c = new GtShortCut(key, k, tab.value(key).at(1));
+        QKeySequence k = QKeySequence(iter.value().first());
+        GtShortCut* c = new GtShortCut(iter.key(), k, iter.value().at(1));
         c->setParent(this);
     }
 }

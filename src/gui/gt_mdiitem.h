@@ -134,7 +134,7 @@ protected:
     /**
      * @brief ~GtMdiItem
      */
-    virtual ~GtMdiItem();
+    ~GtMdiItem() override;
 
     /**
      * @brief initialized

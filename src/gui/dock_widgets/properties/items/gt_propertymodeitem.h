@@ -35,7 +35,7 @@ public:
      * @param role
      * @return
      */
-    virtual QVariant data(int column, int role) const override;
+    QVariant data(int column, int role) const override;
 
     /**
      * @brief setData
@@ -44,10 +44,10 @@ public:
      * @param role
      * @return
      */
-    virtual bool setData(int column,
-                         const QVariant& value,
-                         GtObject* obj,
-                         int role = Qt::EditRole) override;
+    bool setData(int column,
+                 const QVariant& value,
+                 GtObject* obj,
+                 int role = Qt::EditRole) override;
 
     /**
      * @brief modeProperty
@@ -59,25 +59,24 @@ public:
      * @brief editorWidget
      * @return
      */
-    virtual QWidget* editorWidget(
-        QWidget* parent,
+    QWidget* editorWidget(QWidget* parent,
         const GtPropertyValueDelegate* delegate) const override;
 
     /**
      * @brief setEditorData
      * @param var
      */
-    virtual void setEditorData(QWidget* editor,
-                               QVariant& var) const override;
+    void setEditorData(QWidget* editor,
+                       QVariant& var) const override;
 
     /**
      * @brief setModelData
      * @param editor
      * @param model
      */
-    virtual void setModelData(QWidget* editor,
-                              QAbstractItemModel* model,
-                              const QModelIndex& index) const override;
+    void setModelData(QWidget* editor,
+                      QAbstractItemModel* model,
+                      const QModelIndex& index) const override;
 
     /**
      * @brief paint

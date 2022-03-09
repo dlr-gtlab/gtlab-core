@@ -32,17 +32,12 @@ public:
     Q_INVOKABLE GtPropertyItem();
 
     /**
-     * @brief ~GtPropertyItem
-     */
-    virtual ~GtPropertyItem();
-
-    /**
      * @brief data
      * @param column
      * @param role
      * @return
      */
-    virtual QVariant data(int column, int role) const;
+    QVariant data(int column, int role) const override;
 
     /**
      * @brief setData
@@ -51,17 +46,16 @@ public:
      * @param role
      * @return
      */
-    virtual bool setData(int column,
-                         const QVariant& value,
-                         GtObject* obj,
-                         int role = Qt::EditRole) override;
+    bool setData(int column,
+                 const QVariant& value,
+                 GtObject* obj,
+                 int role = Qt::EditRole) override;
 
     /**
      * @brief editorWidget
      * @return
      */
-    virtual QWidget* editorWidget(
-        QWidget* parent,
+    QWidget* editorWidget(QWidget* parent,
         const GtPropertyValueDelegate* delegate) const override;
 
     /**
@@ -70,17 +64,17 @@ public:
      * @param var
      * @param scope
      */
-    virtual void setEditorData(QWidget* editor,
-                               QVariant& var) const override;
+    void setEditorData(QWidget* editor,
+                       QVariant& var) const override;
 
     /**
      * @brief setModelData
      * @param editor
      * @param model
      */
-    virtual void setModelData(QWidget* editor,
-                              QAbstractItemModel* model,
-                              const QModelIndex& index) const override;
+    void setModelData(QWidget* editor,
+                      QAbstractItemModel* model,
+                      const QModelIndex& index) const override;
 
 protected:
     /// current unit

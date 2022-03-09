@@ -29,10 +29,6 @@ GtProcessModuleLoader::GtProcessModuleLoader()
 {
 }
 
-GtProcessModuleLoader::~GtProcessModuleLoader()
-{
-}
-
 bool
 GtProcessModuleLoader::check(GtModuleInterface* plugin)
 {

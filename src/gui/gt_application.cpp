@@ -42,7 +42,6 @@ GtApplication::GtApplication(QCoreApplication* parent,
                              bool devMode,
                              bool batchMode) :
     GtCoreApplication(parent),
-    m_perspective(nullptr),
     m_guiModuleLoader(nullptr),
     m_d(new GtApplicationPrivate(this)),
     m_selectedObject(nullptr)
@@ -74,12 +73,6 @@ GtApplication::GtApplication(QCoreApplication* parent,
 
 GtApplication::~GtApplication()
 {
-    // cleanup
-    if (m_perspective)
-    {
-        delete m_perspective;
-    }
-
     QApplication::clipboard()->clear();
 
     // remove temp directory
@@ -196,14 +189,8 @@ GtApplication::switchPerspective(const QString& id)
 
     emit perspectiveAboutToBeChanged();
 
-    // save last used perspective
-    if (m_perspective)
-    {
-        delete m_perspective;
-    }
-
-    // open new perspective
-    m_perspective = new GtPerspective(tmpId);
+    // save last used perspective and open new perspective
+    m_perspective.reset(new GtPerspective(tmpId));
 
     qDebug() << tr("loaded perspective: ") << m_perspective->objectName();
     settings()->setLastPerspective(tmpId);

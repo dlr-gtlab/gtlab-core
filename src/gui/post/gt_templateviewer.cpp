@@ -142,15 +142,8 @@ GtTemplateViewer::~GtTemplateViewer()
 {
     saveButtonClicked();
 
-    if (m_templatePath)
-    {
-        delete m_templatePath;
-    }
-
-    if (m_postTemplateDM)
-    {
-        delete m_postTemplateDM;
-    }
+    delete m_templatePath;
+    delete m_postTemplateDM;
 }
 
 void

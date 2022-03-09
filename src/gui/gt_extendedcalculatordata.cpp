@@ -20,10 +20,7 @@ GtExtendedCalculatorDataImpl::GtExtendedCalculatorDataImpl(
 
 GtExtendedCalculatorDataImpl::~GtExtendedCalculatorDataImpl()
 {
-    if (wizard)
-    {
-        delete wizard;
-    }
+    delete wizard;
 }
 
 bool

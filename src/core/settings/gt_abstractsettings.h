@@ -32,7 +32,7 @@ public:
     /**
      * @brief ~GtAbstractSettings
      */
-    virtual ~GtAbstractSettings();
+    ~GtAbstractSettings() override;
 
 protected:
     /**

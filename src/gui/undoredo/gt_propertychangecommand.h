@@ -37,12 +37,12 @@ public:
     /**
      * @brief redo
      */
-    virtual void redo();
+    void redo() override;
 
     /**
      * @brief undo
      */
-    virtual void undo();
+    void undo() override;
 
 private:
     ///
