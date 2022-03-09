@@ -19,6 +19,7 @@
 #include "gt_logging.h"
 #include "gt_h5filemanager.h"
 #include "gt_externalizationsettings.h"
+#include "gt_algorithms.h"
 
 GtSession::GtSession(const QString& id) :
     m_currentProject(nullptr)
@@ -405,7 +406,7 @@ GtSession::fromJsonObject()
     QJsonObject projects = json[QStringLiteral("projects")].toObject();
 
 //    qDebug() << "projects:";
-    for (auto const& e : projects.keys())
+    for_each_key(projects, [&](const QString& e)
     {
 //        qDebug() << "   |-> " << e;
         GtProject* project = new GtProject(e);
@@ -422,7 +423,7 @@ GtSession::fromJsonObject()
         {
             addProject(project);
         }
-    }
+    });
 
     return true;
 }

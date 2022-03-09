@@ -35,6 +35,7 @@
 #include "gt_command.h"
 #include "gt_versionnumber.h"
 #include "gt_globals.h"
+#include "gt_algorithms.h"
 
 #include "QsLogDest.h"
 
@@ -736,13 +737,13 @@ GtCoreApplication::saveSystemEnvironment() const
 {
      QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
 
-     for(auto const& e : modEnv.keys())
+     for_each_key(modEnv, [](const QString& e)
      {
          gtDebug() << "sys env var (" << e << ") = " << gtEnvironment->value(e);
 
          const QByteArray sysEnvVar = gtEnvironment->value(e).toByteArray();
          qputenv(e.toUtf8().constData(), sysEnvVar);
-     }
+     });
 }
 
 bool

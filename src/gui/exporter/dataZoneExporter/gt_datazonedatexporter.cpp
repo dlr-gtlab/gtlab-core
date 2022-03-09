@@ -133,7 +133,7 @@ GtDataZoneDatExporter::write0Ddata(const GtDataZone0D* data, QFile& file)
 
     QString paramLine = " ";
 
-    for (const QString& param : data->params())
+    foreach (const QString& param, data->params())
     {
         if (param != data->params().last())
         {
@@ -210,11 +210,11 @@ GtDataZoneDatExporter::write1Ddata(const GtDataZone* data, QTextStream& out)
     QVector<double> ticks1;
     data->axisTicks(axis1Name, ticks1);
 
-    for (const double& tick1 : ticks1)
+    foreach (const double& tick1, ticks1)
     {
         QString resLine = " " + QString::number(tick1, 'f', 6) + "\t";
 
-        for (const QString& param : data->params())
+        foreach (const QString& param, data->params())
         {
             resLine += QString::number(data->value1D(
                                            param, tick1), 'f', 6) + "\t";
@@ -263,7 +263,7 @@ GtDataZoneDatExporter::write2Ddata(const GtDataZone* data, QTextStream& out)
             QString resLine = " " + QString::number(tick1, 'f', 6) + "     "
                     + QString::number(tick2, 'f', 6) + "     ";
 
-            for (const QString& param : data->params())
+            foreach (const QString& param, data->params())
             {
                 resLine += QString::number(data->value2D( param, tick1, tick2),
                                            'f', 6) + "     ";
@@ -304,17 +304,17 @@ GtDataZoneDatExporter::write3Ddata(const GtDataZone* data, QTextStream& out)
     QVector<double> ticks3;
     data->axisTicks(axis3Name, ticks3);
 
-    for (const double& tick1 : ticks1)
+    foreach (const double& tick1, ticks1)
     {
-        for (const double& tick2 : ticks2)
+        foreach (const double& tick2, ticks2)
         {
-            for (const double& tick3 : ticks3)
+            foreach (const double& tick3, ticks3)
             {
                 QString resLine = " " + QString::number(tick1, 'f', 6) + "     "
                         + QString::number(tick2, 'f', 6) + "     "
                         + QString::number(tick3, 'f', 6) + "     ";
 
-                for (const QString& param : data->params())
+                foreach (const QString& param, data->params())
                 {
                     resLine += QString::number(
                                 data->value3D(

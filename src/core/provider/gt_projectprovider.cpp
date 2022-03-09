@@ -14,6 +14,7 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_propertyconnection.h"
 #include "gt_footprint.h"
+#include "gt_algorithms.h"
 
 #include <QFile>
 #include <QDir>
@@ -154,7 +155,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
             QTextStream in(&iniFile);
             QString content = in.readAll();
 
-            for (auto const& e : uuidMap.keys())
+            for_each_key (uuidMap, [&](const QString& e)
             {
                 QString oldUuid = e;
                 oldUuid.remove(QStringLiteral("{"));
@@ -165,7 +166,7 @@ GtProjectProvider::duplicateProject(const QString& newId,
                 newUuid.remove(QStringLiteral("}"));
 
                 content.replace(oldUuid, newUuid);
-            }
+            });
 
             QFile newIniFile(newDirectory.absoluteFilePath(
                                  QStringLiteral("project.ini")));

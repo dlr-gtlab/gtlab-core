@@ -158,7 +158,7 @@ GtDataZone0D::addModuleName(const QString& moduleName)
 
     QStringList newParamNames;
 
-    for (const QString& param : params())
+    foreach (const QString& param, params())
     {
         newParamNames.append(moduleName + "." + param);
     }

@@ -56,6 +56,7 @@
 #include "gt_externalizedobject.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
+#include "gt_algorithms.h"
 
 #include "gt_projectui.h"
 
@@ -1489,7 +1490,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QTreeWidgetItem* unknownRoot =
                 new QTreeWidgetItem(QStringList() << "Unknown Modules");
 
-        for (auto const& e : unknownModules.keys())
+        for_each_key(unknownModules, [&](const QString& e)
         {
             QTreeWidgetItem* unknownModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1499,7 +1500,7 @@ GtProjectUI::showFootprint(GtObject* obj)
             unknownModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
 
             unknownRoot->addChild(unknownModule);
-        }
+        });
 
         tWid->addTopLevelItem(unknownRoot);
     }
@@ -1512,7 +1513,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QTreeWidgetItem* incompatibleRoot =
                 new QTreeWidgetItem(QStringList() << "Incompatible Modules");
 
-        for(auto const&e : incompatibleModules.keys())
+        for_each_key(incompatibleModules, [&](const QString& e)
         {
             QTreeWidgetItem* incompatibleModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1523,7 +1524,7 @@ GtProjectUI::showFootprint(GtObject* obj)
             incompatibleModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
 
             incompatibleRoot->addChild(incompatibleModule);
-        }
+        });
 
         tWid->addTopLevelItem(incompatibleRoot);
     }
@@ -1535,7 +1536,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QTreeWidgetItem* updatedRoot =
                 new QTreeWidgetItem(QStringList() << "Updated Modules");
 
-        for(auto const&e : updatedModules.keys())
+        for_each_key(updatedModules, [&](const QString& e)
         {
             QTreeWidgetItem* updatedModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1546,7 +1547,7 @@ GtProjectUI::showFootprint(GtObject* obj)
             updatedModule->setBackgroundColor(2, QColor(255, 255, 0, 100));
 
             updatedRoot->addChild(updatedModule);
-        }
+        });
 
         tWid->addTopLevelItem(updatedRoot);
     }

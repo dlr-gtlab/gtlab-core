@@ -7,13 +7,15 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_settings.h"
+#include "gt_settingsitem.h"
+#include "gt_algorithms.h"
+
 #include <QSettings>
 #include <QMap>
 #include <QKeySequence>
 #include <QString>
 
-#include "gt_settings.h"
-#include "gt_settingsitem.h"
 
 GtSettings::GtSettings()
 {
@@ -77,14 +79,14 @@ GtSettings::shortcutsTable() const
 
     QMap<QString, QStringList> retVal;
 
-    for (QString const& s : helpingMap.keys())
+    for_each_key(helpingMap, [&](const QString& s)
     {
         QVariant v = helpingMap.value(s);
 
         QStringList list = v.toStringList();
 
         retVal.insert(s, list);
-    }
+    });
 
     return retVal;
 }
@@ -94,11 +96,11 @@ GtSettings::setShortcutsTable(QMap<QString, QStringList> const& shortcutsTable)
 {
     QMap<QString, QVariant> helpingMap;
 
-    for (QString const& s : shortcutsTable.keys())
+    for_each_key(shortcutsTable, [&](const QString& s)
     {
         QStringList list = shortcutsTable.value(s);
         helpingMap.insert(s, QVariant(list));
-    }
+    });
 
     QVariant val(helpingMap);
 
@@ -202,10 +204,10 @@ GtSettings::intialShortCutsMap()
 
     QMap<QString, QStringList> retVal;
 
-    for (QString const& k : map.keys())
+    for_each_key(map, [&](const QString& k)
     {
         retVal.insert(k, map.value(k).toStringList());
-    }
+    });
 
     return retVal;
 }

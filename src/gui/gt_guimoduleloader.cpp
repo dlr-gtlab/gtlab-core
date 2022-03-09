@@ -50,6 +50,7 @@
 #include "gt_residualloop.h"
 #include "gt_parameterloop.h"
 #include "gt_loopui.h"
+#include "gt_algorithms.h"
 
 GtGuiModuleLoader::GtGuiModuleLoader()
 {
@@ -81,10 +82,10 @@ GtGuiModuleLoader::GtGuiModuleLoader()
 
 GtGuiModuleLoader::~GtGuiModuleLoader()
 {
-    for (auto const& key : m_uiObjs.keys())
+    for_each_key(m_uiObjs, [this](const QString& key)
     {
         qDeleteAll(m_uiObjs.value(key));
-    }
+    });
 }
 
 GtObjectUIList
@@ -112,10 +113,10 @@ GtGuiModuleLoader::knownUIObjects()
 {
     QStringList retval;
 
-    for (auto const& key : m_uiObjs.keys())
+    for_each_key(m_uiObjs, [&retval](const QString& key)
     {
         retval << key;
-    }
+    });
 
     return retval;
 }
@@ -274,11 +275,11 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 
         QMap<const char*, QMetaObject> uis = mdip->uiItems();
 
-        for (auto key : uis.keys())
+        for_each_key(uis, [&](const char* key)
         {
             QMetaObject metaobj = uis.value(key);
             registerObjectUI(key, metaobj);
-        }
+        });
     }
 
     // importer interface

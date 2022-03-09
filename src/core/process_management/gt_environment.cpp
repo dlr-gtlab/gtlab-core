@@ -6,10 +6,10 @@
  *  Author: Stanislaus Reitenbach (AT-TW)
  *  Tel.: +49 2203 601 2907
  */
+#include "gt_environment.h"
 
 #include "gt_logging.h"
-
-#include "gt_environment.h"
+#include "gt_algorithms.h"
 
 #include <QCoreApplication>
 #include <QStandardPaths>
@@ -92,10 +92,10 @@ GtEnvironment::debugEnvironmentVariables()
     gtDebug() << "ENVIRONMENT VARIABLES:";
     gtDebug() << "-DEFINED--------------";
 
-    for (auto const& e : m_vars.keys())
+    for_each_key (m_vars, [&](const QString& e)
     {
         gtDebug() << e << " = " << m_vars.value(e);
-    }
+    });
 
     if (!m_varsUndefined.isEmpty())
     {
@@ -204,10 +204,10 @@ GtEnvironment::saveEnvironment()
 
     settings.clear();
 
-    for (auto const& e : m_vars.keys())
+    for_each_key (m_vars, [&](const QString& e)
     {
         settings.setValue(e, m_vars.value(e));
-    }
+    });
 }
 
 void

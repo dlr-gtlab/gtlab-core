@@ -17,6 +17,7 @@
 #include "gt_application.h"
 #include "gt_collectioninterface.h"
 #include "gt_abstractcollectionsettings.h"
+#include "gt_algorithms.h"
 
 GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
     m_area(nullptr)
@@ -116,7 +117,7 @@ GtMdiLauncher::setFocus(const QString& mdiId)
 
     QList<QMdiSubWindow*> list = m_area->subWindowList();
 
-    for (auto e : m_openItems.keys())
+    for_each_key(m_openItems, [&](const QObject* e)
     {
         if (generateMdiItemId(m_openItems.value(e)) == mdiId)
         {
@@ -128,7 +129,7 @@ GtMdiLauncher::setFocus(const QString& mdiId)
                 }
             }
         }
-    }
+    });
 }
 
 void
@@ -245,7 +246,7 @@ bool
 GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 {
 
-    if (m_dockWidgets.keys().contains(metaObj.className()))
+    if (m_dockWidgets.contains(metaObj.className()))
     {
         qWarning() << tr("Dockwidget") << metaObj.className()
                    << tr("already registered");

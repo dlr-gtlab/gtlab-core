@@ -14,7 +14,7 @@
 #include "gt_application.h"
 #include "gt_abstractexporter.h"
 #include "gt_logging.h"
-
+#include "gt_algorithms.h"
 
 #include "gt_processexporter.h"
 #include "gt_datazonecsvexporter.h"
@@ -79,7 +79,7 @@ GtExportHandler::exporterMetaData(const QString& classname)
         return QList<GtExporterMetaData>();
     }
 
-    for (auto const& e : m_expMeta.keys())
+    for_each_key(m_expMeta, [&](const QString& e)
     {
         GtExporterMetaData metaData = m_expMeta.value(e);
 
@@ -90,7 +90,7 @@ GtExportHandler::exporterMetaData(const QString& classname)
                 retval << metaData;
             }
         }
-    }
+    });
 
     return retval;
 }

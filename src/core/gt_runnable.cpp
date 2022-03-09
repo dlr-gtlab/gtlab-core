@@ -210,7 +210,7 @@ GtRunnable::readObjects()
             m_linkedObjects.append(obj);
         }
 
-        for (auto* externObj : obj->findChildren<GtExternalizedObject*>())
+        foreach (auto* externObj, obj->findChildren<GtExternalizedObject*>())
         {
             externObj->resetRefCount();
         }

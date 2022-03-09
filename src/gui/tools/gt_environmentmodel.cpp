@@ -7,12 +7,13 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QFont>
-#include <QColor>
+#include "gt_environmentmodel.h"
 
 #include "gt_environment.h"
+#include "gt_algorithms.h"
 
-#include "gt_environmentmodel.h"
+#include <QFont>
+#include <QColor>
 
 GtEnvironmentModel::GtEnvironmentModel(const QStringList& vars,
                                        QObject* parent) :
@@ -49,7 +50,7 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    const QString valId = m_vars.keys()[row];
+    const QString valId = ith_iter(m_vars, row).key();
 
     QVariant retVal = QVariant();
 
@@ -111,7 +112,7 @@ GtEnvironmentModel::setData(const QModelIndex& index,
         return false;
     }
 
-    const QString valId = m_vars.keys()[row];
+    const QString valId = ith_iter(m_vars, row).key();
 
     switch (role)
     {
@@ -171,7 +172,7 @@ GtEnvironmentModel::flags(const QModelIndex& index) const
 void
 GtEnvironmentModel::saveVariables()
 {
-    for (auto const& e : m_vars.keys())
+    for_each_key(m_vars, [this](const QString& e)
     {
         if (!gtEnvironment->environmentVariableExists(e))
         {
@@ -180,7 +181,7 @@ GtEnvironmentModel::saveVariables()
 
         QVariant variant = m_vars.value(e);
         gtEnvironment->setValue(e, variant);
-    }
+    });
 
     gtEnvironment->saveEnvironment();
 }

@@ -7,6 +7,15 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_moduleloader.h"
+
+#include "gt_moduleinterface.h"
+#include "gt_initmoduleinterface.h"
+#include "gt_datamodelinterface.h"
+#include "gt_objectfactory.h"
+#include "gt_logging.h"
+#include "gt_algorithms.h"
+
 #include <QDebug>
 #include <QDir>
 #include <QPluginLoader>
@@ -17,14 +26,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
-
-#include "gt_moduleinterface.h"
-#include "gt_initmoduleinterface.h"
-#include "gt_datamodelinterface.h"
-#include "gt_objectfactory.h"
-#include "gt_logging.h"
-
-#include "gt_moduleloader.h"
 
 GtModuleLoader::GtModuleLoader() :
     m_modulesInitialized(false)
@@ -173,8 +174,7 @@ QStringList
 GtModuleLoader::moduleDatamodelInterfaceIds()
 {
     QStringList retval;
-
-    foreach (auto const& e, m_plugins.keys())
+    for_each_key(m_plugins, [&](const QString& e)
     {
       GtDatamodelInterface* dmi =
               dynamic_cast<GtDatamodelInterface*>(m_plugins.value(e));
@@ -183,7 +183,7 @@ GtModuleLoader::moduleDatamodelInterfaceIds()
       {
           retval << e;
       }
-    }
+    });
 
     return retval;
 }
@@ -236,10 +236,10 @@ GtModuleLoader::initModules()
         return;
     }
 
-    for (auto const& e : m_plugins.keys())
+    for (auto const& value : qAsConst(m_plugins))
     {
         GtInitModuleInterface* imi =
-                dynamic_cast<GtInitModuleInterface*>(m_plugins.value(e));
+                dynamic_cast<GtInitModuleInterface*>(value);
 
         if (imi)
         {

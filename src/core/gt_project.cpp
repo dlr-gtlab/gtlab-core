@@ -735,7 +735,7 @@ GtProject::internalizeAllChildren()
 
     int counter = 0;
     bool res = true;
-    for (GtExternalizedObject* obj : findChildren<GtExternalizedObject*>())
+    foreach (GtExternalizedObject* obj, findChildren<GtExternalizedObject*>())
     {
         if (obj->isFetched())
         {
@@ -766,7 +766,7 @@ GtProject::externalizeAllChildren()
 
     int counter = 0;
     bool res = true;
-    for (GtExternalizedObject* obj : findChildren<GtExternalizedObject*>())
+    foreach (GtExternalizedObject* obj, findChildren<GtExternalizedObject*>())
     {
         if (!obj->isFetched())
         {
@@ -792,7 +792,7 @@ GtProject::resetAllExternalizedObjects(const GtObjectList& modules)
     {
         if (!module) continue;
 
-        for (auto* obj : module->findChildren<GtExternalizedObject*>())
+        foreach (auto* obj, module->findChildren<GtExternalizedObject*>())
         {
             obj->resetRefCount();
         }

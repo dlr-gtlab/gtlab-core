@@ -308,11 +308,11 @@ GtDataZoneTableList::params() const
 {
     QStringList paramsUnique;
 
-    for (GtDataZoneTable* t : list())
+    foreach (GtDataZoneTable* t, list())
     {
         if (t)
         {
-            for (const QString& str : t->params())
+            foreach (const QString& str, t->params())
             {
                 if (!paramsUnique.contains(str))
                 {

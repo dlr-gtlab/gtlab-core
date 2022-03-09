@@ -10,6 +10,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_objectmemento.h"
 #include "gt_objectio.h"
+#include "gt_algorithms.h"
 
 #include <QCryptographicHash>
 #include <QHash>
@@ -262,7 +263,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
             handleObjectAdded(rchildElem, rchildIndex, diffObj);
 
             completeMap.insert(rchild.data().uuid, rchildIndex);
-            foreach(QString uuid, completeMap.keys())
+            for_each_key(completeMap, [&](const QString& uuid)
             {
                 if (uuid != rchild.data().uuid)
                 {
@@ -270,7 +271,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
                     {
                         completeMap.insert(uuid, completeMap.value(uuid) + 1);
 
-                        if (!indexChangeMap.keys().contains(uuid))
+                        if (!indexChangeMap.contains(uuid))
                         {
                             indexChangeMap.insert(uuid, 1);
                         }
@@ -280,7 +281,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
                         }
                     }
                 }
-            }
+            });
         }
     }
 
@@ -297,14 +298,14 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         handleObjectRemoved(lchildElem, lchildIndex, diffObj);
 
         int completeMapIndex = completeMap.value(lchild.data().uuid);
-        foreach(QString uuid, completeMap.keys())
+        for_each_key(completeMap, [&](const QString& uuid)
         {
             if (uuid != lchild.data().uuid)
             {
                 int index = completeMap.value(uuid);
                 if (index > completeMapIndex)
                 {
-                    if (indexChangeMap.keys().contains(uuid))
+                    if (indexChangeMap.contains(uuid))
                     {
                         indexChangeMap.insert(uuid, indexChangeMap.value(uuid) - 1);
                     }
@@ -314,21 +315,21 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
                     }
                 }
             }
-        }
+        });
 
-        if (indexChangeMap.keys().contains(lchild.data().uuid))
+        if (indexChangeMap.contains(lchild.data().uuid))
         {
             indexChangeMap.remove(lchild.data().uuid);
         }
     }
 
-    foreach(QString uuid, indexChangeMap.keys())
+    for_each_key(indexChangeMap, [&](const QString& uuid)
     {
         if (indexChangeMap.value(uuid) == 0)
         {
             indexChangeMap.remove(uuid);
         }
-    }
+    });
 
 //  look for index changes
     QHash<QString, int> lchildMap;
@@ -345,11 +346,11 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         rchildMap.insert(rchild.data().uuid, rchildIndex);
     }
 
-    foreach(QString uuid, rchildMap.keys())
+    for_each_key(rchildMap, [&](const QString& uuid)
     {
-        if (!lchildMap.keys().contains(uuid))
+        if (!lchildMap.contains(uuid))
         {
-            continue;
+            return;
         }
 
         int indexOld = lchildMap.value(uuid);
@@ -370,7 +371,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
             QDomElement childElem = oio.toDomElement(rchild, *this, false);
             handleIndexChanged(childElem, indexOld, indexNew, diffObj);
         }
-    }
+    });
 
     if (!diffObjectEmpty)
     {

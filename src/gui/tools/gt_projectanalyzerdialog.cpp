@@ -18,6 +18,7 @@
 #include "gt_application.h"
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
+#include "gt_algorithms.h"
 
 #include "gt_projectanalyzerdialog.h"
 
@@ -124,13 +125,13 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 
             QListWidget* umListWid = new QListWidget;
 
-            foreach (const QString& str, unknownModules.keys())
+            for_each_key(unknownModules, [&](const QString& str)
             {
                 QListWidgetItem* lItem =
                         new QListWidgetItem(gtApp->icon("pluginIcon.png"),
                                             str);
                 umListWid->addItem(lItem);
-            }
+            });
 
             tabWid->addTab(umListWid, gtApp->icon("errorIcon_16.png"),
                            tr("Unknown Modules"));
@@ -148,8 +149,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             tWid->setColumnCount(3);
             tWid->setHeaderLabels(QStringList() << "" << "Project" <<
                                   "Framework");
-
-            for (auto const& e : incompatibleModules.keys())
+            for_each_key(incompatibleModules, [&](const QString& e)
             {
                 QTreeWidgetItem* incompatibleModule =
                         new QTreeWidgetItem(QStringList() << e <<
@@ -163,7 +163,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                 incompatibleModule->setIcon(0, gtApp->icon("pluginIcon.png"));
 
                 tWid->addTopLevelItem(incompatibleModule);
-            }
+            });
 
             tWid->setColumnWidth(0, 200);
 

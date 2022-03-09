@@ -38,6 +38,7 @@
 #include "gt_saveprojectmessagebox.h"
 #include "gt_switchprojectmessagebox.h"
 #include "gt_palette.h"
+#include "gt_algorithms.h"
 
 #include <QSignalMapper>
 #include <QFileDialog>
@@ -1136,7 +1137,7 @@ GtMainWin::initAfterStartup()
     emit guiInitialized();
 
     // initialize dock widgets
-    for (auto e : m_dockWidgets.keys())
+    for_each_key (m_dockWidgets, [this](GtDockWidget* e)
     {
         // add entries to menu
         QAction* dockAct =
@@ -1151,7 +1152,7 @@ GtMainWin::initAfterStartup()
         connect(dockAct, SIGNAL(triggered(bool)), SLOT(onDockActionClicked()));
 
         e->initAfterStartup();
-    }
+    });
 
     m_firstTimeShowEvent = false;
 }
@@ -1228,13 +1229,13 @@ GtMainWin::onDockActionClicked()
         return;
     }
 
-    for (auto e : m_dockWidgets.keys())
+    for_each_key(m_dockWidgets, [this, action](GtDockWidget* e)
     {
         if (m_dockWidgets.value(e) == action)
         {
             e->setVisible(action->isChecked());
         }
-    }
+    });
 }
 
 void

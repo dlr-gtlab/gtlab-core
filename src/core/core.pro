@@ -55,6 +55,7 @@ INCLUDEPATH += .\
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    gt_algorithms.h \
     gt_propertyconnectionfunctions.h \
     network/gt_accessdata.h \
     network/gt_accessmanager.h \

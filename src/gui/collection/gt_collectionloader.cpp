@@ -7,14 +7,7 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QDirIterator>
-#include <QJsonParseError>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QThread>
+#include "gt_collectionloader.h"
 
 #include "gt_logging.h"
 #include "gt_collectionnetworkitem.h"
@@ -23,8 +16,16 @@
 #include "gt_collectionreply.h"
 #include "gt_collectionhelper.h"
 #include "gt_downloaddialog.h"
+#include "gt_algorithms.h"
 
-#include "gt_collectionloader.h"
+#include <QCoreApplication>
+#include <QDir>
+#include <QDirIterator>
+#include <QJsonParseError>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QThread>
 
 GtCollectionLoader::GtCollectionLoader(const QString& collectionId,
                                        QObject* parent) : QObject(parent)
@@ -292,7 +293,7 @@ GtCollectionLoader::readItemInformation(const QJsonObject& json)
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for (auto const& e : colStruct.keys())
+    for_each_key(colStruct, [&](const QString& e)
     {
         if (json.contains(e))
         {
@@ -301,7 +302,7 @@ GtCollectionLoader::readItemInformation(const QJsonObject& json)
 
             retval.m_properties.insert(e, var);
         }
-    }
+    });
 
     return retval;
 }
@@ -352,7 +353,7 @@ GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for (auto const& e : colStruct.keys())
+    for_each_key(colStruct, [&](const QString& e)
     {
         if (json.contains(e))
         {
@@ -361,7 +362,7 @@ GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
 
             retval.m_properties.insert(e, var);
         }
-    }
+    });
 
     return retval;
 }
@@ -402,8 +403,11 @@ GtCollectionLoader::itemIsValid(const QJsonObject& json)
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for (auto const& e : colStruct.keys())
+    // check
+
+    for (auto iter = colStruct.begin(); iter != colStruct.end(); ++iter)
     {
+        const auto& e = iter.key();
         if (!json.contains(e))
         {
             gtError() << e << QStringLiteral(" ") << tr("not found!");
