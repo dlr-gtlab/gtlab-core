@@ -15,6 +15,7 @@
 #include "gt_project.h"
 #include "gt_logging.h"
 #include "gt_posttemplatepath.h"
+#include "gt_coredatamodel.h"
 
 #include "gt_postmodel.h"
 
@@ -270,8 +271,7 @@ GtPostModel::newPostTemplate()
 
     QStringList oldEntries = entries();
 
-    QString id = uniquePostTemplateIdHelper(QStringLiteral("New_Template"),
-                                            oldEntries);
+    QString id = getUniqueName(QStringLiteral("New_Template"), oldEntries);
 
     QString filename = createFilename(id);
 

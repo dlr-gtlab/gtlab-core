@@ -55,9 +55,9 @@ public:
      * @param updataAvailableItems
      */
     void setBrowserWidgetData(GtAbstractBrowserWidget* widget,
-                              QList<GtCollectionNetworkItem> installedItems,
-                              QList<GtCollectionNetworkItem> availableItems,
-                              QList<GtCollectionNetworkItem> updataAvailableItems) override;
+        const QList<GtCollectionNetworkItem>& installedItems,
+        const QList<GtCollectionNetworkItem>& availableItems,
+        const QList<GtCollectionNetworkItem>& updataAvailableItems) override;
 
 };
 

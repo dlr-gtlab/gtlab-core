@@ -581,6 +581,10 @@ GtCollectionBrowserModel::itemFromIndex(const QModelIndex& index)
 
             return m_installedItems[row].item();
         }
+        case InstalledItemGroup:
+        case AvailableItemGroup:
+        case UpdateAvailableItemGroup:
+            return {};
     }
 
     return GtCollectionItem();

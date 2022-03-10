@@ -1079,7 +1079,9 @@ GtCoreDatamodel::uniqueObjectName(const QString& name, GtObject* parent)
     QList<GtObject*> childs = parent->findDirectChildren<GtObject*>();
 
     // return unique object name
-    return uniqueObjectNameHelper(name, childs);
+    return getUniqueName(name, childs, [](const GtObject* o){
+        return o->objectName();
+    });
 }
 
 QString

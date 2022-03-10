@@ -175,41 +175,6 @@ private:
      * @return Template data model index.
      */
     QModelIndex addEntry(const QString& str);
-
-    /**
-     * @brief uniqueObjectNameHelper
-     * @param name
-     * @param objs
-     * @param initName
-     * @param iteration
-     * @return
-     */
-    QString uniquePostTemplateIdHelper(const QString& name,
-                                       const QStringList& strings,
-                                       QString initName = QString(),
-                                       int iteration = 0)
-    {
-        foreach (const QString& str, strings)
-        {
-            if (name == str)
-            {
-                if (initName.isEmpty())
-                {
-                    initName = name;
-                }
-
-                iteration++;
-
-                QString new_name = initName + QStringLiteral("[") +
-                        QString::number(iteration + 1) + QStringLiteral("]");
-
-                return uniquePostTemplateIdHelper(new_name, strings, initName,
-                                              iteration);
-            }
-        }
-
-        return name;
-    }
 };
 
 #endif // GTPOSTMODEL_H

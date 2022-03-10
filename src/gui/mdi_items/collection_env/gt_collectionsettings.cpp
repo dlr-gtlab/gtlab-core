@@ -48,9 +48,9 @@ GtCollectionSettings::browserWidget(QWidget* parent)
 void
 GtCollectionSettings::setBrowserWidgetData(
         GtAbstractBrowserWidget* widget,
-        QList<GtCollectionNetworkItem> installedItems,
-        QList<GtCollectionNetworkItem> availableItems,
-        QList<GtCollectionNetworkItem> updataAvailableItems)
+        const QList<GtCollectionNetworkItem>& installedItems,
+        const QList<GtCollectionNetworkItem>& availableItems,
+        const QList<GtCollectionNetworkItem>& updataAvailableItems)
 {
     GtBrowserWidget* wid = qobject_cast<GtBrowserWidget*>(widget);
 

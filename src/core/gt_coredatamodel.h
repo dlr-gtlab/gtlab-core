@@ -364,42 +364,6 @@ private:
      */
     void setSession(GtSession* session);
 
-    /**
-     * @brief uniqueObjectNameHelper
-     * @param name
-     * @param objs
-     * @param initName
-     * @param iteration
-     * @return
-     */
-    template<typename T>
-    QString uniqueObjectNameHelper(const QString& name,
-                                   const QList<T*>& objs,
-                                   QString initName = QString(),
-                                   int iteration = 0)
-    {
-        foreach (T* o, objs)
-        {
-            if (name == o->objectName())
-            {
-                if (initName.isEmpty())
-                {
-                    initName = name;
-                }
-
-                iteration++;
-
-                QString new_name = initName + QStringLiteral("[") +
-                                   QString::number(iteration + 1) + QStringLiteral("]");
-
-                return uniqueObjectNameHelper(new_name, objs, initName,
-                                              iteration);
-            }
-        }
-
-        return name;
-    }
-
 signals:
     /**
      * @brief Emitted after successful project save.
@@ -408,5 +372,63 @@ signals:
     void projectSaved(GtProject* project);
 
 };
+
+template<typename ObjectList, typename GetNameFunc>
+QString _getUniqueName_impl(const QString& name,
+                   const ObjectList& objs,
+                   GetNameFunc getName,
+                   QString initName,
+                   int iteration)
+{
+
+    auto iter = std::find_if(std::begin(objs), std::end(objs),
+                             [&](const typename ObjectList::value_type& o)
+    {
+        return name == getName(o);
+    });
+
+    if (iter == std::end(objs)) return name;
+
+    if (initName.isEmpty()) initName = name;
+
+    QString new_name = initName + QStringLiteral("[") +
+                       QString::number(iteration + 1) + QStringLiteral("]");
+
+    return _getUniqueName_impl(new_name, objs, getName,
+                               initName, iteration + 1);
+}
+
+/**
+ * @brief Returns a unique name given a list of objects names
+ *
+ * @param name The base name. If e.g. "aa" already exists, "aa[1]" is returned
+ * @param objs List of objects to query from
+ * @param func A function to get the name from an object
+ * @return A unique name
+ */
+template<typename ObjectList, typename GetNameFunc>
+QString getUniqueName(const QString& name,
+                      const ObjectList& objs,
+                      GetNameFunc getName)
+{
+    return _getUniqueName_impl(name, objs, getName, {}, 1);
+}
+
+/**
+ * @brief Returns a unique name given a list of names
+ *
+ * @param name The base name. If e.g. "aa" already exists, "aa[1]" is returned
+ * @param names List of names to query from
+ * @return A unique name
+ */
+template<typename StringList>
+QString getUniqueName(const QString& name,
+                      const StringList& names)
+{
+    auto func = [](const typename StringList::value_type& listItem) {
+        return QString(listItem);
+    };
+    return _getUniqueName_impl(name, names, func, {}, 1);
+}
 
 #endif // GTCOREDATAMODEL_H

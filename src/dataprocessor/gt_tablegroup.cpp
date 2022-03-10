@@ -9,6 +9,8 @@
 
 #include "gt_tablegroup.h"
 
+#include <algorithm>
+
 GtTableGroup::GtTableGroup(GtObject* parent) :
     GtObjectGroup(parent)
 {
@@ -37,15 +39,11 @@ GtTableGroup::tableNames()
 {
     QStringList retval;
 
-    for (GtTable* s : tables())
+    const auto tbls = tables();
+    std::for_each(std::begin(tbls), std::end(tbls), [&](const GtTable* s)
     {
-        if (!s)
-        {
-            continue;
-        }
-
-        retval.append(s->objectName());
-    }
+        if(s) retval.append(s->objectName());
+    });
 
     return retval;
 }

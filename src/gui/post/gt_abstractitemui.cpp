@@ -298,6 +298,7 @@ GtAbstractItemUI::configurePlot()
     if (!m_widget)
     {
         gtWarning() << tr("Widget is a Nullptr, cannot show config menu.");
+        return;
     }
 
     if (!m_widget->data())
