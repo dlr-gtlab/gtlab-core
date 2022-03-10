@@ -115,7 +115,8 @@ HEADERS += \
     property/gt_doublelistproperty.h \
     gt_tablegroup.h \
     gt_versionnumber.h \
-    gt_regexp.h
+    gt_regexp.h \
+    gt_algorithms.h
 
 SOURCES += \
     gt_dummyobject.cpp \
