@@ -16,6 +16,7 @@
 #include "gt_processpropertyconnectionentity.h"
 #include "gt_propertyconnection.h"
 #include "gt_task.h"
+#include "gt_algorithms.h"
 
 #include "gt_processconnectiongraphicsview.h"
 
@@ -104,13 +105,10 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         }
 
         // clear hidden ports
-        foreach (const auto& e, tmpMap.keys())
+        for_each_key(tmpMap, [&](GtProcessConnectionItem* e)
         {
-            GtProcessPropertyPortEntity* entity =
-                m_inputPorts.take(std::move(e));
-
-            delete entity;
-        }
+            delete m_inputPorts.take(e);
+        });
     }
 
     // check whether view is equal to output view
@@ -158,16 +156,10 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         }
 
         // clear hidden ports
-        foreach (const auto& e, tmpMap.keys())
+        for_each_key(tmpMap, [&](GtProcessConnectionItem* e)
         {
-            GtProcessPropertyPortEntity* entity =
-                m_outputPorts.take(std::move(e));
-
-            if (entity)
-            {
-                delete entity;
-            }
-        }
+            delete m_outputPorts.take(std::move(e));
+        });
     }
 
     updateConnections();
@@ -267,12 +259,13 @@ GtProcessConnectionGraphicsView::findPortEntityHelper(GtProcessPortMap& map,
 {
 //    qDebug() << "   |-> " << uuid << "/" << propId;
 
-    foreach (const auto& e, map.keys())
+    for (auto iter = map.begin(); iter != map.end(); ++iter)
     {
+        auto* e = iter.key();
 //        qDebug() << "   |-> " << e->parentComponentUuid() << "/" <<
 //                    e->propertyId();
 
-        if (e->parentComponentUuid() == uuid && e->propertyId() == propId)
+        if (e && e->parentComponentUuid() == uuid && e->propertyId() == propId)
         {
 //            qDebug() << "   |-> found!";
 

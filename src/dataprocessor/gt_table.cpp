@@ -401,7 +401,8 @@ GtTable::getAxesNames() const
 {
     QStringList names;
 
-    for (GtTableAxis* axis : getAxesList())
+    const auto axes = getAxesList();
+    for (GtTableAxis* axis : axes)
     {
         names.append(axis->objectName());
     }

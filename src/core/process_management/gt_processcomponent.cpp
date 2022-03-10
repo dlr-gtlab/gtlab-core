@@ -85,7 +85,7 @@ GtProcessComponent::setState(GtProcessComponent::STATE state)
     changed();
 
     // emit state changed signal
-    stateChanged(m_state);
+    emit stateChanged(m_state);
 }
 
 void

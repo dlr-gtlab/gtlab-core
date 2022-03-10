@@ -84,7 +84,7 @@ GtProcessEditorScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 //        qDebug() << "uuid = " << obj->uuid();
         delete obj;
 
-        emit setPreviewMode();
+        setPreviewMode();
 
 //        event->accept();
     }

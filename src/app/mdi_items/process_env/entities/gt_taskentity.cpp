@@ -7,12 +7,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QPainter>
-#include <QGraphicsTextItem>
-#include <QGraphicsSceneDragDropEvent>
-#include <QDebug>
-
 #include "gt_taskentity.h"
+
 #include "gt_task.h"
 #include "gt_calculator.h"
 #include "gt_calculatorentity.h"
@@ -23,6 +19,13 @@
 #include "gt_taskpipeentity.h"
 #include "gt_application.h"
 #include "gt_palette.h"
+
+#include <QPainter>
+#include <QGraphicsTextItem>
+#include <QGraphicsSceneDragDropEvent>
+#include <QDebug>
+
+#include <algorithm>
 
 GtTaskEntity::GtTaskEntity(GtTask* task, QGraphicsItem* parent) :
     QGraphicsObject(parent),
@@ -486,16 +489,6 @@ GtTaskEntity::centerNodesBetween(GtCalculatorEntity* leftNode,
 double
 GtTaskEntity::maxContourValue(const QMap<int, double>& map)
 {
-    double max = 0.;
-
-    foreach (const auto& e, map.keys())
-    {
-        if (map.value(e) > max)
-        {
-            max = map.value(e);
-        }
-    }
-
-    return max;
+    return *std::max_element(std::begin(map), std::end(map));
 }
 

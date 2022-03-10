@@ -84,7 +84,7 @@ GtDownloader::loadNextItem()
     if (m_queue.isEmpty())
     {
         gtInfo() << tr("All files downloaded!");
-        message(tr("All files downloaded!"));
+        emit message(tr("All files downloaded!"));
         emit finished();
         return;
     }

@@ -178,7 +178,7 @@ GtResultViewer::axSelectorChanged(int index)
 
     m_model->m_axOfInterest = index;
 
-    m_model->axIndexChanges(index);
+    emit m_model->axIndexChanges(index);
 }
 
 void
@@ -186,5 +186,5 @@ GtResultViewer::tickSelectorChanged(int index)
 {
     m_model->m_indexOfInterestAx1 = index;
 
-    m_model->tickIndexChanges(index);
+    emit m_model->tickIndexChanges(index);
 }

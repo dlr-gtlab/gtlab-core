@@ -98,36 +98,37 @@ value2D(int row, int column, int axOfInterest, int indexOfInterest,
         return -1;
     }
 
+    auto ticks = dz->allAxisTicks();
     if (axOfInterest == 0)
     {
-        if (dz->allAxisTicks().first().size() < indexOfInterest)
+        if (ticks.first().size() < indexOfInterest)
         {
             return -1;
         }
-        if (dz->allAxisTicks().at(1).size() < column - 2)
+        if (ticks.at(1).size() < column - 2)
         {
             return -1;
         }
 
 
         return dz->value2D(params[row - 1],
-                dz->allAxisTicks().first().at(indexOfInterest),
-                dz->allAxisTicks().at(1).at(column - 2));
+                ticks.first().at(indexOfInterest),
+                ticks.at(1).at(column - 2));
     }
     else if (axOfInterest == 1)
     {
-        if (dz->allAxisTicks().first().size() < column - 2)
+        if (ticks.first().size() < column - 2)
         {
             return -1;
         }
-        if (dz->allAxisTicks().at(1).size() < indexOfInterest)
+        if (ticks.at(1).size() < indexOfInterest)
         {
             return -1;
         }
 
         return dz->value2D(params[row - 1],
-                dz->allAxisTicks().first().at(column - 2),
-                dz->allAxisTicks().at(1).at(indexOfInterest));
+                ticks.first().at(column - 2),
+                ticks.at(1).at(indexOfInterest));
 
     }
     else

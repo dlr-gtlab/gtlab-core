@@ -184,14 +184,15 @@ GtDataZoneCsvExporter::write1Ddata(GtDataZone* data, QTextStream& out)
         return false;
     }
 
-    QString axisName = data->axisNames().first();
+    auto axisNames = data->axisNames();
+    QString axisName = axisNames.first();
     QVector<double> ticks;
     data->axisTicks(axisName, ticks);
 
     out << QStringLiteral("\"") << axisName << QStringLiteral("\";");
     out << QStringLiteral("\"") << "-" << QStringLiteral("\";");
 
-    for (const double& tick : ticks)
+    for (const double& tick : qAsConst(ticks))
     {
         out << QString::number(tick) << QStringLiteral(";");
     }
@@ -206,7 +207,7 @@ GtDataZoneCsvExporter::write1Ddata(GtDataZone* data, QTextStream& out)
         out <<  QStringLiteral("\"")
              << data->unit(param) << QStringLiteral("\";");
 
-        for (const double& tick : ticks)
+        for (const double& tick : qAsConst(ticks))
         {
             out << QString::number(data->value1D(param, tick))
                 << QStringLiteral(";");
@@ -233,8 +234,9 @@ GtDataZoneCsvExporter::write2Ddata(GtDataZone* data, QTextStream& out)
         return false;
     }
 
-    QString axisName1 = data->axisNames().first();
-    QString axisName2 = data->axisNames().last();
+    auto axisNames = data->axisNames();
+    QString axisName1 = axisNames.first();
+    QString axisName2 = axisNames.last();
 
     QVector<double> axis1Ticks = data->axisTicks(axisName1);
     QVector<double> axis2Ticks = data->axisTicks(axisName2);
@@ -271,9 +273,9 @@ GtDataZoneCsvExporter::write2Ddata(GtDataZone* data, QTextStream& out)
         out <<  QStringLiteral("\"")
              << data->unit(param) << QStringLiteral("\";");
 
-        for (const double& tick1 : axis1Ticks)
+        for (const double& tick1 : qAsConst(axis1Ticks))
         {
-            for (const double& tick2 : axis2Ticks)
+            for (const double& tick2 : qAsConst(axis2Ticks))
             {
                 out << QString::number(data->value2D(param, tick1, tick2))
                     << QStringLiteral(";");
@@ -301,9 +303,10 @@ GtDataZoneCsvExporter::write3Ddata(GtDataZone* data, QTextStream& out)
         return false;
     }
 
-    QString axisName1 = data->axisNames().first();
-    QString axisName2 = data->axisNames().at(1);
-    QString axisName3 =data->axisNames().last();
+    auto axisNames = data->axisNames();
+    QString axisName1 = axisNames.first();
+    QString axisName2 = axisNames.at(1);
+    QString axisName3 = axisNames.last();
 
     QVector<double> axis1Ticks = data->axisTicks(axisName1);
     QVector<double> axis2Ticks = data->axisTicks(axisName2);
@@ -352,11 +355,11 @@ GtDataZoneCsvExporter::write3Ddata(GtDataZone* data, QTextStream& out)
         out <<  QStringLiteral("\"")
              << data->unit(param) << QStringLiteral("\";");
 
-        for (const double& tick1 : axis1Ticks)
+        for (const double& tick1 : qAsConst(axis1Ticks))
         {
-            for (const double& tick2 : axis2Ticks)
+            for (const double& tick2 : qAsConst(axis2Ticks))
             {
-                for (const double& tick3 : axis3Ticks)
+                for (const double& tick3 : qAsConst(axis3Ticks))
                 {
                     out << QString::number(data->value3D(param,
                                                          tick1, tick2, tick3))
@@ -386,10 +389,11 @@ GtDataZoneCsvExporter::write4Ddata(GtDataZone* data, QTextStream &out)
         return false;
     }
 
-    QString axisName1 = data->axisNames().first();
-    QString axisName2 = data->axisNames().at(1);
-    QString axisName3 =data->axisNames().at(2);
-    QString axisName4 =data->axisNames().last();
+    const auto axisNames = data->axisNames();
+    QString axisName1 = axisNames.first();
+    QString axisName2 = axisNames.at(1);
+    QString axisName3 = axisNames.at(2);
+    QString axisName4 = axisNames.last();
 
     QVector<double> axis1Ticks = data->axisTicks(axisName1);
     QVector<double> axis2Ticks = data->axisTicks(axisName2);
@@ -450,13 +454,13 @@ GtDataZoneCsvExporter::write4Ddata(GtDataZone* data, QTextStream &out)
         out <<  QStringLiteral("\"")
              << data->unit(param) << QStringLiteral("\";");
 
-        for (const double& tick1 : axis1Ticks)
+        for (const double& tick1 : qAsConst(axis1Ticks))
         {
-            for (const double& tick2 : axis2Ticks)
+            for (const double& tick2 : qAsConst(axis2Ticks))
             {
-                for (const double& tick3 : axis3Ticks)
+                for (const double& tick3 : qAsConst(axis3Ticks))
                 {
-                    for (const double& tick4 : axis4Ticks)
+                    for (const double& tick4 : qAsConst(axis4Ticks))
                     {
                         out << QString::number(data->value4D(param, tick1,
                                                              tick2, tick3,

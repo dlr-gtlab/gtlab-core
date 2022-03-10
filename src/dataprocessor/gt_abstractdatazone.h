@@ -29,11 +29,11 @@ class GT_DATAMODEL_EXPORT GtAbstractDataZone : public GtExternalizedH5Object
 
 public:
 
-    QStringList params() const;
+    const QStringList& params() const;
 
     void setParams(const QStringList& params);
 
-    QStringList units() const;
+    const QStringList& units() const;
 
     void setUnits(const QStringList& units);
 
