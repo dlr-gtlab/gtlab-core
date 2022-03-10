@@ -35,6 +35,8 @@ GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
     setAcceptHoverEvents(true);
 }
 
+GtProcessPropertyPortEntity::~GtProcessPropertyPortEntity() = default;
+
 bool
 GtProcessPropertyPortEntity::connectPort(
         GtProcessPropertyConnectionEntity* connection)

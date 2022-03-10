@@ -366,19 +366,19 @@ public:
 
 protected:
     /// Current session
-    std::unique_ptr<GtSession> m_session{nullptr};
+    std::unique_ptr<GtSession> m_session;
 
     /// Settings
-    std::unique_ptr<GtSettings> m_settings{nullptr};
+    std::unique_ptr<GtSettings> m_settings;
 
     /// List of user specific session ids
     QStringList m_sessionIds;
 
     /// Translator
-    std::unique_ptr<QTranslator> m_translator{nullptr};
+    std::unique_ptr<QTranslator> m_translator;
 
     /// Module loader
-    std::unique_ptr<GtModuleLoader> m_moduleLoader{nullptr};
+    std::unique_ptr<GtModuleLoader> m_moduleLoader;
 
     /// Development run indicator
     bool m_devMode;

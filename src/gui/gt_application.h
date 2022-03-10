@@ -275,7 +275,7 @@ private:
     QStringList m_perspectiveIds;
 
     /// Current perspective
-    std::unique_ptr<GtPerspective> m_perspective{nullptr};
+    std::unique_ptr<GtPerspective> m_perspective;
 
     /// gui specific module loader
     GtGuiModuleLoader* m_guiModuleLoader;

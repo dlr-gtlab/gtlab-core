@@ -47,6 +47,7 @@ public:
                                 double height,
                                 GtProcessPropertyPortEntity::PortTypes typ,
                                 GtProcessConnectionItem* item);
+    ~GtProcessPropertyPortEntity() override;
 
     /**
      * @brief Connects port entity to given connection entity.
@@ -168,13 +169,13 @@ private:
     GtProcessPropertyPortEntity::PortTypes m_type;
 
     /// Animation
-    QPointer<QPropertyAnimation> m_anim{nullptr};
+    QPointer<QPropertyAnimation> m_anim;
 
     /// Pointer to connection
     QList<GtProcessPropertyConnectionEntity*> m_connections;
 
     /// Signle shot timer
-    std::unique_ptr<QTimer> m_timer{};
+    std::unique_ptr<QTimer> m_timer;
 
     /// Pointer to corresponding process connection item
     GtProcessConnectionItem* m_item;
