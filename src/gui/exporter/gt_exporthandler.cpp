@@ -23,9 +23,9 @@
 GtExportHandler::GtExportHandler(QObject* parent) : QObject(parent)
 {
     /// Static exporter class registration
-    registerClass(GT_METADATA(GtProcessExporter));
-    registerClass(GT_METADATA(GtDataZoneCsvExporter));
-    registerClass(GT_METADATA(GtDataZoneDatExporter));
+    GtExportHandler::registerClass(GT_METADATA(GtProcessExporter));
+    GtExportHandler::registerClass(GT_METADATA(GtDataZoneCsvExporter));
+    GtExportHandler::registerClass(GT_METADATA(GtDataZoneDatExporter));
 }
 
 GtExportHandler*
