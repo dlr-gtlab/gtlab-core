@@ -433,12 +433,10 @@ private:
     template<class T>
     static inline QString listToString(const T& t)
     {
-        QString str;
-
-        foreach (const auto& m, t)
-        {
-            str += m + ';';
-        }
+        QString str = std::accumulate(std::begin(t), std::end(t), QString(""),
+                        [](const QString& str, const typename T::value_type& m) {
+            return str + m + ";";
+        });
         str.truncate(str.size()-1);
 
         return str;

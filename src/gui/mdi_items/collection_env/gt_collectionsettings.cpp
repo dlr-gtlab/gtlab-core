@@ -36,7 +36,7 @@ GtCollectionSettings::setLocalCollectionData(QWidget* widget,
         return;
     }
 
-    wid->setItems(items);
+    wid->setItems(std::move(items));
 }
 
 GtAbstractBrowserWidget*
