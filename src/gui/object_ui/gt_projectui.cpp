@@ -264,6 +264,54 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
     return QVariant();
 }
 
+bool GtProjectUI::saveAndCloseCurrentProject()
+{
+    if (gtApp->hasProjectChanges())
+    {
+
+        QString text = tr("Found changes in current project.\n"
+                          "Do you want to save all your changes "
+                          "before opening new project?");
+
+        GtSaveProjectMessageBox mb(text);
+        int ret = mb.exec();
+
+        if (ret == QMessageBox::Yes)
+        {
+            gtDataModel->saveProject(gtApp->currentProject());
+        }
+        else if (ret == QMessageBox::Cancel) {
+            return false;
+        }
+    }
+
+    gtDataModel->closeProject(gtApp->currentProject());
+    return true;
+}
+
+
+void GtProjectUI::switchToProject(GtProject& toProject)
+{
+    if (&toProject == gtApp->currentProject())
+    {
+        return;
+    }
+
+
+    if (gtApp->currentProject() && !gtApp->hasProjectChanges())
+    {
+        GtSwitchProjectMessageBox mb;
+        if (mb.exec() == QMessageBox::Cancel)
+        {
+            return;
+        }
+    }
+
+    saveAndCloseCurrentProject();
+
+    gtDataModel->openProject(&toProject);
+}
+
 void
 GtProjectUI::openProject(GtObject* obj)
 {
@@ -293,65 +341,7 @@ GtProjectUI::openProject(GtObject* obj)
         return;
     }
 
-    if (project != gtApp->currentProject())
-    {
-        if (gtApp->hasProjectChanges())
-        {
-            QString text = tr("Found changes in current project.\n"
-                              "Do you want to save all your changes "
-                              "before opening new project?");
-
-            GtSaveProjectMessageBox mb(text);
-            int ret = mb.exec();
-
-            switch (ret)
-            {
-                case QMessageBox::Yes:
-                {
-                    gtDataModel->saveProject(gtApp->currentProject());
-                    break;
-                }
-
-                case QMessageBox::No:
-                {
-                    break;
-                }
-
-                case QMessageBox::Cancel:
-                {
-                    return;
-                }
-
-                default:
-                    break;
-            }
-        }
-        else if (gtApp->currentProject() != Q_NULLPTR)
-        {
-            GtSwitchProjectMessageBox mb;
-            int ret = mb.exec();
-
-            switch (ret)
-            {
-                case QMessageBox::Yes:
-                {
-                    break;
-                }
-
-                case QMessageBox::Cancel:
-                {
-                    return;
-                }
-
-                default:
-                    break;
-            }
-        }
-
-        gtDataModel->closeProject(gtApp->currentProject());
-    }
-
-    gtDataModel->openProject(project);
+    switchToProject(*project);
     //    if (gtApp->devMode())
     //    {
     //    // open version control data

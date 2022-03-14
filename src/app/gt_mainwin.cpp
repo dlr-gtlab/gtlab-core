@@ -494,76 +494,17 @@ GtMainWin::importProject()
     GtProjectProvider provider(filename);
     GtProject* loadedProject = provider.project();
 
-    if (gtDataModel->newProject(loadedProject))
-    {
-        return;
-    }
+    bool isNewProject = gtDataModel->newProject(loadedProject);
+
 
     // the project already exists in the session, open this instead
     auto projectInSession = gtDataModel->findProject(loadedProject->objectName());
-    delete loadedProject;
+
+    if (!isNewProject) delete loadedProject;
 
     if (projectInSession && !projectInSession->isOpen())
     {
-        if (projectInSession != gtApp->currentProject())
-        {
-            if (gtApp->hasProjectChanges())
-            {
-                QString text = tr("Found changes in current project.\n"
-                                  "Do you want to save all your changes "
-                                  "before opening new project?");
-
-                GtSaveProjectMessageBox mb(text);
-                int ret = mb.exec();
-
-                switch (ret)
-                {
-                    case QMessageBox::Yes:
-                    {
-                        gtDataModel->saveProject(gtApp->currentProject());
-                        break;
-                    }
-
-                    case QMessageBox::No:
-                    {
-                        break;
-                    }
-
-                    case QMessageBox::Cancel:
-                    {
-                        return;
-                    }
-
-                    default:
-                        break;
-                }
-            }
-            else if (gtApp->currentProject() != Q_NULLPTR)
-            {
-                GtSwitchProjectMessageBox mb;
-                int ret = mb.exec();
-
-                switch (ret)
-                {
-                    case QMessageBox::Yes:
-                    {
-                        break;
-                    }
-
-                    case QMessageBox::Cancel:
-                    {
-                        return;
-                    }
-
-                    default:
-                        break;
-                }
-            }
-
-            gtDataModel->closeProject(gtApp->currentProject());
-        }
-
-        gtDataModel->openProject(projectInSession);
+        GtProjectUI::switchToProject(*projectInSession);
     }
     else
     {

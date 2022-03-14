@@ -25,6 +25,7 @@
 
 #include "gt_settings.h"
 #include "gt_application.h"
+#include "gt_projectui.h"
 #include "gt_examplesentry.h"
 #include "gt_examplegraphicalitem.h"
 #include "gt_examplestabwidget.h"
@@ -418,39 +419,10 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
         return;
     }
 
-    if (gtApp->hasProjectChanges())
+    if (!GtProjectUI::saveAndCloseCurrentProject())
     {
-        QString text = tr("Found changes in the opened project.\n"
-                          "Do you want to save all your changes "
-                          "before opening the example project?");
-
-        GtSaveProjectMessageBox mb(text);
-        int ret = mb.exec();
-
-        switch (ret)
-        {
-            case QMessageBox::Yes:
-            {
-                gtDataModel->saveProject(gtApp->currentProject());
-                break;
-            }
-
-            case QMessageBox::No:
-            {
-                break;
-            }
-
-            case QMessageBox::Cancel:
-            {
-                return;
-            }
-
-            default:
-                break;
-        }
+        return;
     }
-
-    gtDataModel->closeProject(gtApp->currentProject());
 
     if (!gtDataModel->openProject(project))
     {
