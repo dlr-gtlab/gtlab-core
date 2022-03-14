@@ -48,6 +48,7 @@
 #include "gt_processqueuemodel.h"
 #include "gt_processqueuewidget.h"
 #include "gt_saveprojectmessagebox.h"
+#include "gt_switchprojectmessagebox.h"
 #include "gt_palette.h"
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
@@ -504,7 +505,69 @@ GtMainWin::importProject()
 
     if (projectInSession && !projectInSession->isOpen())
     {
+        if (projectInSession != gtApp->currentProject())
+        {
+            if (gtApp->hasProjectChanges())
+            {
+                QString text = tr("Found changes in current project.\n"
+                                  "Do you want to save all your changes "
+                                  "before opening new project?");
+
+                GtSaveProjectMessageBox mb(text);
+                int ret = mb.exec();
+
+                switch (ret)
+                {
+                    case QMessageBox::Yes:
+                    {
+                        gtDataModel->saveProject(gtApp->currentProject());
+                        break;
+                    }
+
+                    case QMessageBox::No:
+                    {
+                        break;
+                    }
+
+                    case QMessageBox::Cancel:
+                    {
+                        return;
+                    }
+
+                    default:
+                        break;
+                }
+            }
+            else if (gtApp->currentProject() != Q_NULLPTR)
+            {
+                GtSwitchProjectMessageBox mb;
+                int ret = mb.exec();
+
+                switch (ret)
+                {
+                    case QMessageBox::Yes:
+                    {
+                        break;
+                    }
+
+                    case QMessageBox::Cancel:
+                    {
+                        return;
+                    }
+
+                    default:
+                        break;
+                }
+            }
+
+            gtDataModel->closeProject(gtApp->currentProject());
+        }
+
         gtDataModel->openProject(projectInSession);
+    }
+    else
+    {
+        gtWarning() << "Cannot open the project";
     }
 }
 

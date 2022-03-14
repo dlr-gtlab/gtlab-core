@@ -42,6 +42,7 @@
 #include "gt_processexecutor.h"
 #include "gt_confirmdeleteprojectdialog.h"
 #include "gt_saveprojectmessagebox.h"
+#include "gt_switchprojectmessagebox.h"
 #include "gt_regexp.h"
 #include "gt_inputdialog.h"
 #include "gt_footprint.h"
@@ -327,13 +328,7 @@ GtProjectUI::openProject(GtObject* obj)
         }
         else if (gtApp->currentProject() != Q_NULLPTR)
         {
-            QMessageBox mb;
-            mb.setIcon(QMessageBox::Question);
-            mb.setWindowTitle("Confirm Switch Project");
-            mb.setWindowIcon(gtApp->icon("jumpToIcon.png"));
-            mb.setText(QString("Switch project?"));
-            mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-            mb.setDefaultButton(QMessageBox::Cancel);
+            GtSwitchProjectMessageBox mb;
             int ret = mb.exec();
 
             switch (ret)
