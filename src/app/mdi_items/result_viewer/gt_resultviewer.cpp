@@ -95,7 +95,7 @@ GtResultViewer::setData(GtObject* obj)
         return;
     }
 
-    GtDataZone* dz = qobject_cast<GtDataZone*>(dataZone);
+    GtDataZone* dz = qobject_cast<GtDataZone*>(dataZone.get());
 
     if (dz)
     {
@@ -122,7 +122,7 @@ GtResultViewer::setData(GtObject* obj)
         }
     }
 
-    m_model->setResultData(dataZone);
+    m_model->setResultData(dataZone.get());
 
     m_model->m_indexOfInterestAx1 = 0;
 
@@ -146,9 +146,9 @@ GtResultViewer::setData(GtObject* obj)
 
     m_label->setText(id);
 
-    connect(dataZone, SIGNAL(destroyed(QObject*)), m_model,
+    connect(dataZone.get(), SIGNAL(destroyed(QObject*)), m_model,
             SLOT(clearResultData()));
-    connect(dataZone, SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
+    connect(dataZone.get(), SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
 }
 
 void

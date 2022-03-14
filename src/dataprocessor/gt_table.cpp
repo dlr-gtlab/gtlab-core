@@ -8,6 +8,7 @@
 #include "gt_table.h"
 #include "gt_tableaxis.h"
 #include "gt_tablevalues.h"
+#include "gt_algorithms.h"
 
 #include <QList>
 
@@ -1324,19 +1325,8 @@ GtTable::tabValsKeys() const
 void
 GtTable::clear()
 {
-    for (GtTableAxis* ax : getAxesList())
-    {
-        delete ax;
-        ax = nullptr;
-    }
-
-    for (const QString& key : tabValsKeys())
-    {
-        if (getVals(key))
-        {
-            delete getVals(key);
-        }
-    }
+    qDeleteAll(getAxesList());
+    qDeleteAll(m_tabVals);
 
     m_tabVals.clear();
     m_description.clear();

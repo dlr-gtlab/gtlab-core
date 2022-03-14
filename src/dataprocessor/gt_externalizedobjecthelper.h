@@ -51,10 +51,10 @@ public:
      * @return pointer to object
      */
     ExternalizedObject* operator->(void) { return ptr; }
+    ExternalizedObject* get() { return ptr; }
 
     // casting
-    operator ExternalizedObject*() { return ptr; }
-    operator bool() { return isValid(); }
+    explicit operator ExternalizedObject*() { return ptr; }
 };
 
 

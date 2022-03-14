@@ -512,8 +512,7 @@ GtDataZoneTable::value2D(const QString& param, int mainX, int mainY, int mainZ,
         return 0.0;
     }
 
-    GtDataZone* dzND = nullptr;
-    dzND = qobject_cast<GtDataZone*>(adz);
+    GtDataZone* dzND = qobject_cast<GtDataZone*>(adz.get());
 
     if (!dzND)
     {
@@ -558,7 +557,7 @@ GtDataZoneTable::value1D(const QString& param, int mainX, int mainY, int mainZ,
     }
 
     GtDataZone* dzND = nullptr;
-    dzND = qobject_cast<GtDataZone*>(adz);
+    dzND = qobject_cast<GtDataZone*>(adz.get());
 
     if (!dzND)
     {
@@ -604,7 +603,7 @@ GtDataZoneTable::value0D(const QString& param, int mainX, int mainY, int mainZ,
         return 0.0;
     }
 
-    return valueFrom0Ddata(param, adz, ok);
+    return valueFrom0Ddata(param, adz.get(), ok);
 }
 
 double
@@ -685,7 +684,7 @@ GtDataZoneTable::value0DfromOP(const QString& param, const QString& OP,
         return 0.0;
     }
 
-    return valueFrom0Ddata(param, adz, ok);
+    return valueFrom0Ddata(param, adz.get(), ok);
 }
 
 QStringList

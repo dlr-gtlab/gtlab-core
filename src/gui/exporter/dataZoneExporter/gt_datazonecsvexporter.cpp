@@ -60,7 +60,7 @@ GtDataZoneCsvExporter::doExport(GtObject* object, QFile& file)
         return false;
     }
 
-    GtDataZone0D* dataZone0D = qobject_cast<GtDataZone0D*>(data);
+    GtDataZone0D* dataZone0D = qobject_cast<GtDataZone0D*>(data.get());
     if (dataZone0D)
     {
         if (!write0Ddata(dataZone0D, file))
@@ -72,7 +72,7 @@ GtDataZoneCsvExporter::doExport(GtObject* object, QFile& file)
         return true;
     }
 
-    GtDataZone* dataZone = qobject_cast<GtDataZone*>(data);
+    GtDataZone* dataZone = qobject_cast<GtDataZone*>(data.get());
     if (dataZone)
     {
         if (!writeMultiDimData(dataZone, file))
