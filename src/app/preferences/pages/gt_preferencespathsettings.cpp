@@ -33,7 +33,7 @@ GtPreferencesPathSettings::GtPreferencesPathSettings()
 
     layout()->addWidget(view);
 
-    loadSettings();
+    loadSettingsImpl();
 }
 
 void
@@ -43,7 +43,13 @@ GtPreferencesPathSettings::saveSettings()
 }
 
 void
-GtPreferencesPathSettings::loadSettings()
+GtPreferencesPathSettings::loadSettingsImpl()
 {
 //    gtEnvironment->debugEnvironmentVariables();
+}
+
+void
+GtPreferencesPathSettings::loadSettings()
+{
+    loadSettingsImpl();
 }
