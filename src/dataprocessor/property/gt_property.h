@@ -153,8 +153,7 @@ inline ParamType GtProperty<ParamType>::getVal(const QString &unit,
         return getVal();
     }
 
-    bool tmpSuccess;
-
+    bool tmpSuccess = false;
     ParamType val = convertTo(unit, &tmpSuccess);
 
     if (success)
