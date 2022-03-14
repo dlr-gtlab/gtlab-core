@@ -130,14 +130,12 @@ GtDataModel::openProject(GtProject* project)
         return false;
     }
 
-    qDebug() << "GtDataModel::A";
     // check if project is already open
     if (project->isOpen())
     {
         return false;
     }
 
-    qDebug() << "GtDataModel::B";
 
     // check whether a project is already open
     if (gtDataModel->currentProject() != Q_NULLPTR)
@@ -145,14 +143,12 @@ GtDataModel::openProject(GtProject* project)
         return false;
     }
 
-    qDebug() << "GtDataModel::C";
     // loading procedure
     GtLoadProjectHelper* helper = new GtLoadProjectHelper(project);
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataLoaded()));
 
     gtApp->loadingProcedure(helper);
 
-    qDebug() << "GtDataModel::D";
 
     return true;
 }
