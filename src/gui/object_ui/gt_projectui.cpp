@@ -280,7 +280,8 @@ bool GtProjectUI::saveAndCloseCurrentProject()
         {
             gtDataModel->saveProject(gtApp->currentProject());
         }
-        else if (ret == QMessageBox::Cancel) {
+        else if (ret == QMessageBox::Cancel)
+        {
             return false;
         }
     }
@@ -307,7 +308,10 @@ void GtProjectUI::switchToProject(GtProject& toProject)
         }
     }
 
-    saveAndCloseCurrentProject();
+    if (!saveAndCloseCurrentProject())
+    {
+        return;
+    }
 
     gtDataModel->openProject(&toProject);
 }
