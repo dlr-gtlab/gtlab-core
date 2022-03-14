@@ -300,7 +300,6 @@ BatchRemote::run(const QString& inputName, const QString& outputName,
     //QString processName;
     GtObject* obj = nullptr;
     QList<GtObject*> objectList;
-    GtObjectGroup* objectGroup = new GtObjectGroup;
 
     qDebug() << "Restoring DATA";
 
@@ -320,10 +319,6 @@ BatchRemote::run(const QString& inputName, const QString& outputName,
         objectList.append(obj);
         qDebug() << "done!";
         dataElement = dataElement.nextSiblingElement();
-    }
-    foreach (GtObject* object, objectList)
-    {
-        objectGroup->appendChild(object);
     }
 
     qDebug() << "Restoring PROCESS";
@@ -351,6 +346,12 @@ BatchRemote::run(const QString& inputName, const QString& outputName,
     std::cout << "Process execution" << std::endl;
 
     GtCoreProcessExecutor executor;
+
+    GtObjectGroup* objectGroup = new GtObjectGroup;
+    foreach (GtObject* object, objectList)
+    {
+        objectGroup->appendChild(object);
+    }
     executor.setSource(objectGroup);
     executor.runTask(process);
 

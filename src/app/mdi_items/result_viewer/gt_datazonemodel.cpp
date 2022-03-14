@@ -181,22 +181,23 @@ GtDataZoneModel::columnCount(const QModelIndex& parent) const
 
     if (dz)
     {
+        auto allTicks = dz->allAxisTicks();
         if (dz->nDims() == 1)
         {
-            return dz->allAxisTicks().first().size() + 2;
+            return allTicks.first().size() + 2;
         }
         else if (dz->nDims() == 2)
         {
             int index = abs(m_axOfInterest - 1);
 
-            if (dz->allAxisTicks().size() < index)
+            if (allTicks.size() < index)
             {
                 //gtWarning() << "Error in ColumnCount for DataZone";
                 //gtDebug() << "This error only occurs in Debug-Mode";
                 return 0;
             }
 
-            return dz->allAxisTicks().at(index).size() + 2;
+            return allTicks.at(index).size() + 2;
         }
         else
         {

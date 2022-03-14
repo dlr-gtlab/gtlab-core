@@ -472,6 +472,8 @@ GtMainWin::showProjectWizard()
         if (!gtDataModel->newProject(project))
         {
             delete project;
+            gtError() << "Created project can not be added to session. Abort";
+            return;
         }
         else
         {

@@ -22,7 +22,7 @@
 
 
 GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
-    m_model(model), QWidget()
+    QWidget(), m_model(model)
 {
     setWindowTitle("GTlab - Process Queue");
 

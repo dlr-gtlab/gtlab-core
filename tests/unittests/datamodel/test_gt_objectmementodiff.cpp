@@ -1210,9 +1210,10 @@ TEST_F(TestGtObjectMementoDiff, dataZone0DChange)
 
     ASSERT_TRUE(dataZone.revertDiff(diff));
 
-    ASSERT_DOUBLE_EQ(dataZone.values()[0], 0.577965226358801);
-    ASSERT_DOUBLE_EQ(dataZone.values()[1], 11.8776138797173);
-    ASSERT_DOUBLE_EQ(dataZone.values()[2], 0.930368302276224);
+    auto dataZoneValues = dataZone.values();
+    ASSERT_DOUBLE_EQ(dataZoneValues[0], 0.577965226358801);
+    ASSERT_DOUBLE_EQ(dataZoneValues[1], 11.8776138797173);
+    ASSERT_DOUBLE_EQ(dataZoneValues[2], 0.930368302276224);
 }
 
 TEST_F(TestGtObjectMementoDiff, objectNameChange)

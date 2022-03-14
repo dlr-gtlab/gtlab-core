@@ -278,9 +278,12 @@ TEST_F(TestGtTable, getAxisTicks2)
 
 TEST_F(TestGtTable, getAxisList)
 {
-    ASSERT_EQ(m_table3->getAxesList().size(), 2);
-    ASSERT_TRUE(m_table2->getAxesList().first() != nullptr);
-    ASSERT_TRUE(m_table2->getAxesList().at(1) != nullptr);
+    auto table2Axes = m_table2->getAxesList();
+
+    ASSERT_EQ(table2Axes.size(), 2);
+
+    EXPECT_TRUE(table2Axes.first() != nullptr);
+    EXPECT_TRUE(table2Axes.at(1) != nullptr);
 }
 
 TEST_F(TestGtTable, getAxesNames)

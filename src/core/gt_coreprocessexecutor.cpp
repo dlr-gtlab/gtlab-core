@@ -33,8 +33,9 @@ GtCoreProcessExecutor* GtCoreProcessExecutor::m_self = 0;
 
 GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, bool save) :
     QObject(parent),
-    m_save(save),
-    m_current(nullptr), m_source(nullptr)
+    m_current(nullptr),
+    m_source(nullptr),
+    m_save(save)
 {
     // initialize
     init();
