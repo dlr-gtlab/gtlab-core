@@ -11,6 +11,7 @@
 #include "gt_table.h"
 #include "gt_tableaxis.h"
 #include "gt_logging.h"
+#include "gt_algorithms.h"
 
 #if GT_H5
 #include "gt_h5file.h"
@@ -476,7 +477,7 @@ GtDataZone::setData1D(const QStringList& params,
     // param2: val1, val2, val3
     // param3: val1, val2, val3
 
-    for (double key : vals.keys())
+    for_each_key (vals, [&](double key)
     {
         ticks.append(key);
 
@@ -485,7 +486,7 @@ GtDataZone::setData1D(const QStringList& params,
             double val = vals.value(key).at(j);
             newVals[j].append(val);
         }
-    }
+    });
 
     table()->addAxis(axisName1, "", "[-]", GtTableAxis::E_LINEAR,
                  GtTableAxis::I_LINEAR, GtTableAxis::E_LINEAR,
@@ -794,7 +795,8 @@ GtDataZone::axisTickLabels(const QString& id) const
 {
     QStringList retval;
 
-    for (const double& val : axisTicks(id))
+    auto ticks = axisTicks(id);
+    for (const double& val : qAsConst(ticks))
     {
         retval.append(id + " = " + QString::number(val));
     }
@@ -807,7 +809,8 @@ GtDataZone::allAxisTicks() const
 {
     QVector< QVector<double> > retval;
 
-    for (const QString& str : axisNames())
+    auto names = axisNames();
+    for (const QString& str : qAsConst(names))
     {
         QVector<double> vec = axisTicks(str);
         retval.push_back(vec);
@@ -821,7 +824,8 @@ GtDataZone::allAxisTicksMap() const
 {
     QMap<QString, QVector<double> > retval;
 
-    for (const QString& str : axisNames())
+    auto names = axisNames();
+    for (const QString& str : qAsConst(names))
     {
         QVector<double> vec = axisTicks(str);
 

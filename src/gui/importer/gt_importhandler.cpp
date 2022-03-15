@@ -20,7 +20,7 @@
 GtImportHandler::GtImportHandler(QObject* parent) : QObject(parent)
 {
     /// Static exporter class registration
-    registerClass(GT_METADATA(GtProcessImporter));
+    GtImportHandler::registerClass(GT_METADATA(GtProcessImporter));
 }
 
 GtImportHandler*
