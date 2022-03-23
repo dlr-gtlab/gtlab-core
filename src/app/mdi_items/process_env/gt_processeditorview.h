@@ -25,7 +25,7 @@ public:
      * @param s
      * @param parent
      */
-    explicit GtProcessEditorView(GtGraphicsScene* s, QWidget* parent = 0);
+    explicit GtProcessEditorView(GtGraphicsScene* s, QWidget* parent = nullptr);
 
     /**
      * @brief setShowLegend
