@@ -16,14 +16,20 @@
 
 #include "gt_session.h"
 
+#include <memory>
+
 class TestSession : public GtSession
 {
 public:
-    TestSession() = default;
+    explicit TestSession(const QString& sessionPath) :
+        GtSession("testsession", sessionPath),
+        m_sessionPath(sessionPath)
 
-    QString sessionFilePath() override
+    {}
+
+    QString sessionFilePath() const
     {
-        return m_tmpDir.absoluteFilePath(objectName() + ".json");
+        return m_sessionPath;
     }
 
     void _toJsonObject()
@@ -33,11 +39,11 @@ public:
 
     bool _fromJsonObject()
     {
-        return fromJsonObject();
+        return fromJsonObject(sessionFilePath());
     }
 
 private:
-    QDir m_tmpDir{gtTestHelper->newTempDir()};
+    QString m_sessionPath;
 
 };
 
@@ -48,19 +54,15 @@ public:
     static char* argv;
 
 protected:
-    virtual void SetUp()
+    void SetUp() override
     {
         qDebug() << "TestGtSession::SetUp";
+        auto dir  = gtTestHelper->newTempDir();
+        QString sessionPath = dir.absoluteFilePath("testsession.json");
+        m_session = std::make_unique<TestSession>(sessionPath);
 
-        m_session = new TestSession;
-        m_session->setObjectName("Test Session");
     }
-
-    virtual void TearDown()
-    {
-    }
-
-    TestSession* m_session;
+    std::unique_ptr<TestSession> m_session;
 
 };
 

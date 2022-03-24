@@ -21,11 +21,17 @@
 #include "gt_externalizationsettings.h"
 #include "gt_algorithms.h"
 
-GtSession::GtSession(const QString& id) :
+GtSession::GtSession(const QString& id, QString sessionPath) :
     m_currentProject(nullptr)
 {
     setObjectName(id);
-    m_valid = fromJsonObject();
+
+    if (sessionPath.isEmpty())
+    {
+        sessionPath = sessionFilePath(id);
+    }
+
+    m_valid = fromJsonObject(std::move(sessionPath));
 //    m_model = new GtDataModel(this);
 
 //    connect(this, SIGNAL(dataChanged(GtObject*)), SLOT(onTreeDataChange()));
@@ -347,7 +353,7 @@ GtSession::roamingPath()
 bool
 GtSession::toJsonObject()
 {
-    QFile file(sessionFilePath());
+    QFile file(sessionFilePath(objectName()));
 
     if (!file.exists())
     {
@@ -381,9 +387,9 @@ GtSession::toJsonObject()
 }
 
 bool
-GtSession::fromJsonObject()
+GtSession::fromJsonObject(const QString& sessionPath)
 {
-    QFile file(sessionFilePath());
+    QFile file(sessionPath);
 
     if (!file.exists())
     {
@@ -435,13 +441,13 @@ GtSession::onTreeDataChange()
 }
 
 QString
-GtSession::sessionFilePath()
+GtSession::sessionFilePath(const QString& sessionID)
 {
     QDir path(roamingPath());
 
     if (path.exists())
     {
-        return path.absoluteFilePath(objectName() + QStringLiteral(".json"));
+        return path.absoluteFilePath(sessionID + QStringLiteral(".json"));
     }
 
     return QString();

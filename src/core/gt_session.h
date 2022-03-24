@@ -76,7 +76,7 @@ public:
      * @param file
      * @return
      */
-    virtual QString sessionFilePath();
+    static QString sessionFilePath(const QString& sessionID);
 
     /**
      * @brief roamingPath
@@ -88,8 +88,9 @@ protected:
     /**
      * @brief GtSession
      * @param id
+     * @param sessionPath Path to the session. If empty, sessionFilePath(id) will be used
      */
-    explicit GtSession(const QString& id);
+    explicit GtSession(const QString& id, QString sessionPath = "");
 
     /**
      * @brief GtSession
@@ -179,7 +180,7 @@ protected:
      * @brief fromJson
      * @return
      */
-    bool fromJsonObject();
+    bool fromJsonObject(const QString &sessionFilePath);
 
 private:
     ///
