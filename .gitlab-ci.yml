@@ -10,6 +10,7 @@
 # Environment variables to use in the pipeline globally
 variables:
   PIPELINEVERSION: "2.0.0-unstable"
+  GIT_SUBMODULE_STRATEGY: none
 
 # inlcude some templates from this file
 include:
@@ -169,6 +170,9 @@ linuxBuildRelease:
 # Template for the two GUI-Testing jobs
 .guiTestTemplate:
   before_script:
+    # sync submodules
+    - git submodule sync
+    - git submodule update --init
     # add permissions
     - chmod +x ./tests/guitests/run_guitests.sh
   script:
