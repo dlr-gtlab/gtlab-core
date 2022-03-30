@@ -83,6 +83,7 @@ HEADERS += \
     gt_palette.h \
     gt_shortcut.h \
     gt_shortcuts.h \
+    tools/gt_switchprojectmessagebox.h \
     widgets/gt_shortcutedit.h \
     gt_processexecutor.h \
     gt_datamodel.h \
@@ -237,6 +238,7 @@ SOURCES += \
     gt_palette.cpp \
     gt_shortcut.cpp \
     gt_shortcuts.cpp \
+    tools/gt_switchprojectmessagebox.cpp \
     widgets/gt_shortcutedit.cpp \
     gt_guimoduleloader.cpp \
     gt_dockwidget.cpp \

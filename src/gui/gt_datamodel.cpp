@@ -136,6 +136,7 @@ GtDataModel::openProject(GtProject* project)
         return false;
     }
 
+
     // check whether a project is already open
     if (gtDataModel->currentProject() != Q_NULLPTR)
     {
@@ -147,6 +148,7 @@ GtDataModel::openProject(GtProject* project)
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataLoaded()));
 
     gtApp->loadingProcedure(helper);
+
 
     return true;
 }

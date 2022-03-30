@@ -48,6 +48,7 @@
 #include "gt_processqueuemodel.h"
 #include "gt_processqueuewidget.h"
 #include "gt_saveprojectmessagebox.h"
+#include "gt_switchprojectmessagebox.h"
 #include "gt_palette.h"
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
@@ -141,8 +142,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(saveCurrentProjectAs()));
     connect(ui->actionDuplicate_Project, SIGNAL(triggered(bool)),
             SLOT(duplicateCurrentProject()));
-    connect(ui->actionImportProject, SIGNAL(triggered(bool)),
-            SLOT(importProject()));
     connect(ui->actionPreferences, SIGNAL(triggered(bool)),
             SLOT(showPreferences()));
     connect(ui->actionPerformance_Map_Editor, SIGNAL(triggered(bool)),
@@ -205,7 +204,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     connect(ui->actionInstall_Update, SIGNAL(triggered(bool)),
             SLOT(runUpdate()));
     connect(ui->actionOpen_Project, SIGNAL(triggered(bool)),
-            SLOT(openProject()));
+            SLOT(importProject()));
     connect(ui->actionCloseProject, SIGNAL(triggered(bool)),
             SLOT(closeProject()));
     connect(ui->actionWidgetStructure, SIGNAL(triggered(bool)),
@@ -470,8 +469,10 @@ GtMainWin::showProjectWizard()
         {
             delete project;
         }
-
-        GtProjectUI::openProject(project);
+        else
+        {
+            GtProjectUI::openProject(project);
+        }
     }
 }
 
@@ -485,15 +486,29 @@ GtMainWin::importProject()
                        QString(), selfilter);
 
     // project provider from file loader
-    if (!filename.isEmpty())
+    if (filename.isEmpty())
     {
-        GtProjectProvider provider(filename);
-        GtProject* project = provider.project();
+        return;
+    }
 
-        if (!gtDataModel->newProject(project))
-        {
-            delete project;
-        }
+    GtProjectProvider provider(filename);
+    GtProject* loadedProject = provider.project();
+
+    bool isNewProject = gtDataModel->newProject(loadedProject);
+
+
+    // the project already exists in the session, open this instead
+    auto projectInSession = gtDataModel->findProject(loadedProject->objectName());
+
+    if (!isNewProject) delete loadedProject;
+
+    if (projectInSession && !projectInSession->isOpen())
+    {
+        GtProjectUI::switchToProject(*projectInSession);
+    }
+    else
+    {
+        gtWarning() << "Cannot open the project";
     }
 }
 
@@ -779,7 +794,6 @@ GtMainWin::onCurrentProjectChanged(GtProject* project)
         ui->actionSave_As->setEnabled(true);
         ui->actionDuplicate_Project->setEnabled(true);
         ui->actionCloseProject->setEnabled(true);
-        ui->actionOpen_Project->setEnabled(false);
     }
 }
 
@@ -1162,17 +1176,7 @@ GtMainWin::closeProject()
 void
 GtMainWin::onObjectSelected(GtObject* obj)
 {
-    ui->actionOpen_Project->setEnabled(false);
 
-    GtProject* project = qobject_cast<GtProject*>(obj);
-
-    if (project != Q_NULLPTR)
-    {
-        if (project != gtApp->currentProject())
-        {
-            ui->actionOpen_Project->setEnabled(true);
-        }
-    }
 }
 
 void

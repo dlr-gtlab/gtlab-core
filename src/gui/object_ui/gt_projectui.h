@@ -53,6 +53,20 @@ protected:
 
 public slots:
     /**
+     * @brief Asks, whether to save current project changes
+     * and performs the save
+     *
+     * Returns false, if aborted, otherwise true
+     */
+    static bool saveAndCloseCurrentProject();
+
+    /**
+     * @brief Switches the project and performs user queries
+     * how to do it
+     */
+    static void switchToProject(class GtProject& project);
+
+    /**
      * @brief openProject
      * @param obj
      */

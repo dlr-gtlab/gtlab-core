@@ -34,6 +34,7 @@
 #include "gt_saveprojectmessagebox.h"
 #include "gt_palette.h"
 #include "gt_shortcuts.h"
+#include "gt_projectui.h"
 
 #include "gt_application.h"
 
@@ -483,36 +484,9 @@ GtApplication::switchSession(const QString& id)
         return;
     }
 
-    if (gtApp->hasProjectChanges())
+    if (!GtProjectUI::saveAndCloseCurrentProject())
     {
-        QString text = tr("Found changes in current project.\n"
-                          "Do you want to save all your changes "
-                          "before switching session?");
-
-        GtSaveProjectMessageBox mb(text);
-        int ret = mb.exec();
-
-        switch (ret)
-        {
-            case QMessageBox::Yes:
-            {
-                gtDataModel->saveProject(gtApp->currentProject());
-                break;
-            }
-
-            case QMessageBox::No:
-            {
-                break;
-            }
-
-            case QMessageBox::Cancel:
-            {
-                return;
-            }
-
-            default:
-                break;
-        }
+        return;
     }
 
 
