@@ -208,6 +208,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionNewProject"/>
+   <addaction name="actionOpen_Project"/>
    <addaction name="actionSave_Project"/>
   </widget>
   <widget class="QToolBar" name="undoBar">
