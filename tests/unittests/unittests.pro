@@ -53,6 +53,7 @@ INCLUDEPATH += .\
 
 #### HEADERS
 HEADERS += \
+    datamodel/test_gt_enumproperty.h \
     gt_testhelper.h
 HEADERS += datamodel/*.h
 HEADERS += core/*.h

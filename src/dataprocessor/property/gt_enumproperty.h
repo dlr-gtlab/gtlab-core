@@ -121,8 +121,9 @@ GtEnumProperty<T>::GtEnumProperty(const QString& ident,
     const QMetaEnum metaEnum = QMetaEnum::fromType<T>();
     for (int i = 0; i < metaEnum.keyCount(); i++)
     {
-        const GtModeTypeProperty subProperty(metaEnum.key(i), "");
-        registerSubProperty(subProperty);
+        GtModeTypeProperty *subProperty = new GtModeTypeProperty(metaEnum.key(i), "");
+        subProperty->setParent(this);
+        registerSubProperty(*subProperty);
     }
 }
 
