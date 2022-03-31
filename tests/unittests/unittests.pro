@@ -59,6 +59,7 @@ HEADERS += core/*.h
 
 #### SOURCES
 SOURCES += \
+    datamodel/test_gt_enumproperty.cpp \
     main.cpp \
     gt_testhelper.cpp
 SOURCES += datamodel/*.cpp
