@@ -10,29 +10,26 @@
 #include "gt_pyhighlighter.h"
 #include "gt_application.h"
 
-GtPyHighlighter::GtPyHighlighter(QTextDocument* parent)
-    : QSyntaxHighlighter(parent)
+GtPyHighlighter::GtPyHighlighter(QTextDocument* parent) :
+    QSyntaxHighlighter(parent),
+    keywords({"and", "assert", "break", "class", "continue", "def",
+             "del", "elif", "else", "except", "exec", "finally",
+             "for", "from", "global", "if", "import", "in" ,
+             "is", "lambda", "not", "or", "pass", "print", "raise",
+             "return", "try", "while", "yield", "None", "True", "False"}),
+    operators({"=",
+              // Comparison
+              "==", "!=", "<", "<=", ">", ">=",
+              // Arithmetic
+              "\\+", "-", "\\*", "/", "//", "%", "\\*\\*",
+              // In-place
+              "\\+=", "-=", "\\*=", "/=", "%=",
+              // Bitwise
+              "\\^", "\\|", "&", "~", ">>", "<<"
+              }),
+    braces({"{", "}", "\\(", "\\)", "\\[", "\\]"})
+
 {
-    keywords = QStringList() << "and" << "assert" << "break" << "class" <<
-               "continue" << "def" <<
-               "del" << "elif" << "else" << "except" << "exec" << "finally" <<
-               "for" << "from" << "global" << "if" << "import" << "in" <<
-               "is" << "lambda" << "not" << "or" << "pass" << "print" <<
-               "raise" << "return" << "try" << "while" << "yield" <<
-               "None" << "True" << "False";
-
-    operators = QStringList() << "=" <<
-                // Comparison
-                "==" << "!=" << "<" << "<=" << ">" << ">=" <<
-                // Arithmetic
-                "\\+" << "-" << "\\*" << "/" << "//" << "%" << "\\*\\*" <<
-                // In-place
-                "\\+=" << "-=" << "\\*=" << "/=" << "%=" <<
-                // Bitwise
-                "\\^" << "\\|" << "&" << "~" << ">>" << "<<";
-
-    braces = QStringList() << "{" << "}" << "\\(" << "\\)" << "\\[" << "\\]";
-
     initializeStyles();
 
     triSingleQuote.setPattern("'''");
@@ -135,8 +132,7 @@ GtPyHighlighter::highlightBlock(const QString& text)
 
     if (!isInMultilne)
     {
-        isInMultilne = matchMultiline(text, triDoubleQuote, 2,
-                                      basicStyles.value("string2"));
+        matchMultiline(text, triDoubleQuote, 2, basicStyles.value("string2"));
     }
 }
 
@@ -185,8 +181,6 @@ GtPyHighlighter::matchMultiline(const QString& text,
 {
     int start = -1;
     int add = -1;
-    int end = -1;
-    int length = 0;
 
     // If inside triple-single quotes, start at 0
     if (previousBlockState() == inState)
@@ -206,7 +200,9 @@ GtPyHighlighter::matchMultiline(const QString& text,
     while (start >= 0)
     {
         // Look for the ending delimiter
-        end = delimiter.indexIn(text, start + add);
+        int end = delimiter.indexIn(text, start + add);
+
+        int length = 0;
 
         // Ending delimiter on this line?
         if (end >= add)
@@ -227,14 +223,7 @@ GtPyHighlighter::matchMultiline(const QString& text,
     }
 
     // Return True if still inside a multi-line string, False otherwise
-    if (currentBlockState() == inState)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (currentBlockState() == inState);
 }
 
 const QTextCharFormat

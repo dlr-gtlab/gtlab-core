@@ -24,20 +24,20 @@ public:
      * @brief GtAboutLogo
      * @param parent
      */
-    explicit GtAboutLogo(QWidget* parent = Q_NULLPTR);
+    explicit GtAboutLogo(QWidget* parent = nullptr);
 
 protected:
     /**
      * @brief paintEvent
      * @param e
      */
-    void paintEvent(QPaintEvent* e);
+    void paintEvent(QPaintEvent* e) override;
 
     /**
      * @brief mouseDoubleClickEvent
      * @param event
      */
-    void mouseDoubleClickEvent(QMouseEvent* event);
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 private:
     /**
@@ -64,7 +64,7 @@ public:
      * @brief Constructor
      * @param parent widget
      */
-    explicit GtAboutDialog(QWidget* parent = Q_NULLPTR);
+    explicit GtAboutDialog(QWidget* parent = nullptr);
 
 private slots:
     /**

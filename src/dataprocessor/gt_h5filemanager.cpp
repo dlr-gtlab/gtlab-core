@@ -12,6 +12,7 @@
 #include "gt_externalizationsettings.h"
 #include "gt_externalizedh5object.h"
 #include "gt_logging.h"
+#include "gt_algorithms.h"
 
 #include <QDir>
 #include <QDirIterator>
@@ -31,7 +32,9 @@ GtH5FileManager::FileReference::isPathValid() const
 }
 
 GtH5FileManager::GtH5FileManager() :
-    m_idCounter(0)
+    m_idCounter(0),
+    m_projectObject(nullptr),
+    m_processThread(nullptr)
 {
 
 }
@@ -67,7 +70,7 @@ GtH5FileManager::createNewTempFile()
 bool
 GtH5FileManager::removeTempFile(int fileId)
 {
-    m_processThread = 0;
+    m_processThread = nullptr;
     if (!m_fileMap.contains(fileId))
     {
         return true;
@@ -93,7 +96,7 @@ GtH5FileManager::commitObjectsInTempFile(int fileId, const GtObjectList& modules
     // externalize all objects that changed
     for (GtObject* obj : modules)
     {
-        for (auto* externObj : obj->findChildren<GtExternalizedObject*>())
+        foreach (auto* externObj, obj->findChildren<GtExternalizedObject*>())
         {
             // externalize every object that is still fetched
             if (externObj->isFetched() && externObj->refCount() > 0)
@@ -105,7 +108,7 @@ GtH5FileManager::commitObjectsInTempFile(int fileId, const GtObjectList& modules
         }
     }
 
-    m_processThread = 0;
+    m_processThread = nullptr;
 
     // no objects where externalized
     if (!m_fileMap.contains(fileId))
@@ -120,14 +123,14 @@ GtH5FileManager::commitObjectsInTempFile(int fileId, const GtObjectList& modules
     // acces project
     GtObject* project(m_projectObject);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         gtError() << "commiting hdf5 file failed! (null project)";
         return false;
     }
 
     // iterate over each object within the hdf5 file
-    for (const QString& uuid : file.uuidMap.keys())
+    for_each_key (file.uuidMap, [&](const QString& uuid)
     {
         // search for object by uuid in all temp module objects
         GtExternalizedH5Object* cloned = qobject_cast<GtExternalizedH5Object*>(
@@ -137,7 +140,7 @@ GtH5FileManager::commitObjectsInTempFile(int fileId, const GtObjectList& modules
                     project->getObjectByUuid(uuid));
 
         commitObject(cloned, target);
-    }
+    });
 
     return true;
 }
@@ -146,13 +149,13 @@ bool
 GtH5FileManager::commitObject(GtExternalizedH5Object* cloned,
                               GtExternalizedH5Object* target)
 {
-    if (cloned == Q_NULLPTR)
+    if (!cloned)
     {
         gtError() << "committing object failed! (null cloned object)";
         return false;
     }
     // target may not exist -> object is new
-    if (target == Q_NULLPTR)
+    if (!target)
     {
         // commit dataset to main project tree
         if (!cloned->fetchData())
@@ -276,7 +279,7 @@ GtH5FileManager::updateFileReference(const GtExternalizedH5Object* obj,
 
 
 void
-GtH5FileManager::reset(GtObject* project, QString projectDir)
+GtH5FileManager::reset(GtObject* project, const QString& projectDir)
 {
     m_projectObject = project;
     m_projectPath = projectDir.toUtf8();
@@ -330,11 +333,11 @@ GtObject*
 GtH5FileManager::getObjectByUuidHelper(const QString& uuid,
                                        const QList<GtObject*>& modules)
 {
-    GtObject* retVal = Q_NULLPTR;
+    GtObject* retVal = nullptr;
 
     for (GtObject* obj : modules)
     {
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             continue;
         }
@@ -343,7 +346,7 @@ GtH5FileManager::getObjectByUuidHelper(const QString& uuid,
         retVal = obj->getObjectByUuid(uuid);
 
         // object found
-        if (retVal != Q_NULLPTR)
+        if (retVal)
         {
             return retVal;
         }

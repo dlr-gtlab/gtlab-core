@@ -111,7 +111,7 @@ public:
      * @brief Virtual function to specify if mdi item allows multiple instances.
      * @return Multiple instances indicator.
      */
-    virtual bool allowsMultipleInstances();
+    virtual bool allowsMultipleInstances() const;
 
 public slots:
     /**
@@ -134,7 +134,7 @@ protected:
     /**
      * @brief ~GtMdiItem
      */
-    virtual ~GtMdiItem();
+    ~GtMdiItem() override;
 
     /**
      * @brief initialized

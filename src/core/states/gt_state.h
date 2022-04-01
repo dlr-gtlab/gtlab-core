@@ -33,7 +33,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~GtState();
+    ~GtState() override;
 
     /**
      * @brief Sets state value.
@@ -69,7 +69,7 @@ public:
      * @brief Returns state path.
      * @return State path.
      */
-    const QString& path();
+    const QString& path() const;
 
 protected:
     /**

@@ -20,15 +20,15 @@
 GtProcessOverviewTree::GtProcessOverviewTree(GtProcessOverviewModel* model,
                                              QWidget* parent) :
     GtTreeView(parent),
-    m_model(Q_NULLPTR),
-    m_filterModel(Q_NULLPTR)
+    m_model(nullptr),
+    m_filterModel(nullptr)
 {
     setAnimated(true);
     setRootIsDecorated(false);
 
     m_model = model;
 
-    if (m_model != Q_NULLPTR)
+    if (m_model)
     {
         m_model->setUpModel();
         m_filterModel = new GtTreeFilterModel(m_model);
@@ -89,7 +89,7 @@ GtProcessOverviewTree::resizeEvent(QResizeEvent* event)
 void
 GtProcessOverviewTree::setCollapsed(const QModelIndex& index, bool val)
 {
-    if (model() == Q_NULLPTR)
+    if (!model())
     {
         return;
     }

@@ -31,12 +31,12 @@ GtCollectionSettings::setLocalCollectionData(QWidget* widget,
     GtLocalCollectionWidget* wid =
             qobject_cast<GtLocalCollectionWidget*>(widget);
 
-    if (wid == Q_NULLPTR)
+    if (!wid)
     {
         return;
     }
 
-    wid->setItems(items);
+    wid->setItems(std::move(items));
 }
 
 GtAbstractBrowserWidget*
@@ -48,13 +48,13 @@ GtCollectionSettings::browserWidget(QWidget* parent)
 void
 GtCollectionSettings::setBrowserWidgetData(
         GtAbstractBrowserWidget* widget,
-        QList<GtCollectionNetworkItem> installedItems,
-        QList<GtCollectionNetworkItem> availableItems,
-        QList<GtCollectionNetworkItem> updataAvailableItems)
+        const QList<GtCollectionNetworkItem>& installedItems,
+        const QList<GtCollectionNetworkItem>& availableItems,
+        const QList<GtCollectionNetworkItem>& updataAvailableItems)
 {
     GtBrowserWidget* wid = qobject_cast<GtBrowserWidget*>(widget);
 
-    if (wid == Q_NULLPTR)
+    if (!wid)
     {
         return;
     }

@@ -148,11 +148,11 @@ public:
      * @return Object corresponding to given uuid
      */
     template <class T>
-    T data(QString uuid)
+    T data(const QString& uuid)
     {
         foreach (GtObject* obj, m_linkedObjects)
         {
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 continue;
             }
@@ -165,7 +165,7 @@ public:
 
         gtWarning() << "obj not found - uuid =" << uuid;
         
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     /**
@@ -180,7 +180,7 @@ public:
     {
         foreach (GtObject* obj, m_linkedObjects)
         {
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 continue;
             }
@@ -193,7 +193,7 @@ public:
 
         gtWarning() << "obj not found - path =" << path.toString();
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
 public slots:
@@ -203,7 +203,7 @@ public slots:
      * @param Monitoring data map.
      */
     void onMonitoringDataAvailable(int iteration,
-                                   GtMonitoringDataSet set);
+                                   const GtMonitoringDataSet& set);
 
     /**
      * @brief Clears entire monitoring data.

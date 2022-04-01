@@ -24,7 +24,7 @@ public:
      * @brief GtDownloader
      * @param parent
      */
-    explicit GtDownloader(QObject* parent = Q_NULLPTR);
+    explicit GtDownloader(QObject* parent = nullptr);
 
     /**
      * @brief addFileDownload
@@ -33,7 +33,7 @@ public:
      * @param targetFileName
      */
     void addFileDownload(const QString& url, const QString& downloadPath,
-                         QString targetFileName = QString());
+                         const QString& targetFileName = QString());
 
     /**
      * @brief GtDownloadItem
@@ -42,7 +42,7 @@ public:
      * @param targetFileName
      */
     void addFileDownload(const QUrl& url, const QString& downloadPath,
-                         QString targetFileName = QString());
+                         const QString& targetFileName = QString());
 
     /**
      * @brief queueSize

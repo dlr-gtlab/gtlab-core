@@ -27,20 +27,20 @@ public:
      * @param provider
      * @param parent
      */
-    GtProjectWizardSpec(GtProjectProvider* provider,
-                        QWidget* parent = Q_NULLPTR);
+    explicit GtProjectWizardSpec(GtProjectProvider* provider,
+                                 QWidget* parent = nullptr);
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const override;
+    bool isComplete() const override;
 
     /**
      * @brief validatePage
      * @return
      */
-    virtual bool validatePage() override;
+    bool validatePage() override;
 
 private:
     /// Project specification widget.

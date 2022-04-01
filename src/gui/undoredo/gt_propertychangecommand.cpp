@@ -14,7 +14,7 @@
 
 GtPropertyChangeCommand::GtPropertyChangeCommand(GtObject* obj,
                                                  GtAbstractProperty* prop,
-                                                 QVariant newVal,
+                                                 const QVariant& newVal,
                                                  const QString& unit,
                                                  GtObject* root,
                                                  QUndoCommand* parent) :
@@ -27,7 +27,7 @@ GtPropertyChangeCommand::GtPropertyChangeCommand(GtObject* obj,
                   QObject::tr("changed");
     setText(str);
 
-    if (m_root == Q_NULLPTR)
+    if (!m_root)
     {
         m_root = obj;
     }
@@ -42,7 +42,7 @@ GtPropertyChangeCommand::GtPropertyChangeCommand(GtObject* obj,
 void
 GtPropertyChangeCommand::redo()
 {
-    if (m_root == Q_NULLPTR)
+    if (!m_root)
     {
         gtError() << QObject::tr("root object not found!")
                   << QStringLiteral(" ")
@@ -52,7 +52,7 @@ GtPropertyChangeCommand::redo()
 
     GtObject* obj = m_root->getObjectByUuid(m_uuid);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         gtError() << QObject::tr("object not found!")
                   << QStringLiteral(" ")
@@ -61,7 +61,7 @@ GtPropertyChangeCommand::redo()
     }
 
     GtAbstractProperty* prop = obj->findProperty(m_id);
-    if (prop == Q_NULLPTR)
+    if (!prop)
     {
         gtError() << QObject::tr("property not found!")
                   << QStringLiteral(" ")
@@ -79,7 +79,7 @@ GtPropertyChangeCommand::redo()
 void
 GtPropertyChangeCommand::undo()
 {
-    if (m_root == Q_NULLPTR)
+    if (!m_root)
     {
         gtError() << QObject::tr("root object not found!")
                   << QStringLiteral(" ")
@@ -89,7 +89,7 @@ GtPropertyChangeCommand::undo()
 
     GtObject* obj = m_root->getObjectByUuid(m_uuid);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         gtError() << QObject::tr("object not found!")
                   << QStringLiteral(" ")
@@ -98,7 +98,7 @@ GtPropertyChangeCommand::undo()
     }
 
     GtAbstractProperty* prop = obj->findProperty(m_id);
-    if (prop == Q_NULLPTR)
+    if (!prop)
     {
         gtError() << QObject::tr("property not found!")
                   << QStringLiteral(" ")

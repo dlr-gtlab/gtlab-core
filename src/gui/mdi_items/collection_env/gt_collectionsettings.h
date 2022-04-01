@@ -31,21 +31,21 @@ public:
      * @brief localCollectionWidget
      * @param parent
      */
-    virtual QWidget* localCollectionWidget(QWidget* parent) override;
+    QWidget* localCollectionWidget(QWidget* parent) override;
 
     /**
      * @brief setLocalCollectionData
      * @param editor
      * @param items
      */
-    virtual void setLocalCollectionData(QWidget* widget,
-                                        QList<GtCollectionItem> items) override;
+    void setLocalCollectionData(QWidget* widget,
+                                QList<GtCollectionItem> items) override;
 
     /**
      * @brief browseCollectionWidget
      * @param parent
      */
-    virtual GtAbstractBrowserWidget* browserWidget(QWidget* parent) override;
+    GtAbstractBrowserWidget* browserWidget(QWidget* parent) override;
 
     /**
      * @brief setBrowserWidgetData
@@ -54,10 +54,10 @@ public:
      * @param availableItems
      * @param updataAvailableItems
      */
-    virtual void setBrowserWidgetData(GtAbstractBrowserWidget* widget,
-                                      QList<GtCollectionNetworkItem> installedItems,
-                                      QList<GtCollectionNetworkItem> availableItems,
-                                      QList<GtCollectionNetworkItem> updataAvailableItems) override;
+    void setBrowserWidgetData(GtAbstractBrowserWidget* widget,
+        const QList<GtCollectionNetworkItem>& installedItems,
+        const QList<GtCollectionNetworkItem>& availableItems,
+        const QList<GtCollectionNetworkItem>& updataAvailableItems) override;
 
 };
 

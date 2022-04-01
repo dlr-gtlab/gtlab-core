@@ -25,8 +25,8 @@ class GT_DATAMODEL_EXPORT GtTableValues : public GtObject
     Q_PROPERTY(QVector<double> values READ values WRITE setValues)
     Q_PROPERTY(QString unit READ unit WRITE setUnit)
 public:
-    Q_INVOKABLE GtTableValues();
-    ~GtTableValues();
+    Q_INVOKABLE GtTableValues() = default;
+    ~GtTableValues() override = default;
 
     /**
      * @brief description Getter method for the values description.

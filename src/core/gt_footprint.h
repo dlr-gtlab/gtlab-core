@@ -15,6 +15,8 @@
 #include <QString>
 #include <QMap>
 
+#include <memory>
+
 class GtFootprintImpl;
 class GtVersionNumber;
 
@@ -31,6 +33,8 @@ public:
      * Represents the footprint of the current GTlab environment.
      */
     GT_CORE_EXPORT GtFootprint();
+
+    GT_CORE_EXPORT GtFootprint(const GtFootprint&);
 
     /**
      * @brief Constructor.
@@ -118,7 +122,7 @@ public:
 
 private:
     /// Private implementation
-    GtFootprintImpl* m_pimpl;
+    std::unique_ptr<GtFootprintImpl> m_pimpl;
 
 };
 

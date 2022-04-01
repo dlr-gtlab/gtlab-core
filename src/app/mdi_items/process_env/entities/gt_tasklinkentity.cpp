@@ -17,7 +17,8 @@
 #include "gt_tasklink.h"
 
 GtTaskLinkEntity::GtTaskLinkEntity(GtTask* task, QGraphicsItem* parent) :
-    GtCalculatorEntity(task, parent)
+    GtCalculatorEntity(task, parent),
+    m_taskLink(nullptr)
 {
 
 }
@@ -83,9 +84,9 @@ GtTaskLinkEntity::paint(QPainter* painter,
 GtTask*
 GtTaskLinkEntity::target()
 {
-    if (m_taskLink == Q_NULLPTR)
+    if (!m_taskLink)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_taskLink->target();
@@ -95,7 +96,7 @@ void
 GtTaskLinkEntity::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* /*event*/)
 {
     setCursor(Qt::ArrowCursor);
-    switchTo(this);
+    emit switchTo(this);
 }
 
 void

@@ -7,12 +7,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QPainter>
-#include <QGraphicsTextItem>
-#include <QGraphicsSceneDragDropEvent>
-#include <QDebug>
-
 #include "gt_taskentity.h"
+
 #include "gt_task.h"
 #include "gt_calculator.h"
 #include "gt_calculatorentity.h"
@@ -24,6 +20,13 @@
 #include "gt_application.h"
 #include "gt_palette.h"
 
+#include <QPainter>
+#include <QGraphicsTextItem>
+#include <QGraphicsSceneDragDropEvent>
+#include <QDebug>
+
+#include <algorithm>
+
 GtTaskEntity::GtTaskEntity(GtTask* task, QGraphicsItem* parent) :
     QGraphicsObject(parent),
     m_w(200),
@@ -32,7 +35,7 @@ GtTaskEntity::GtTaskEntity(GtTask* task, QGraphicsItem* parent) :
     m_siblingDistance(0.),
     m_treeDistance(0.),
     m_task(task),
-    m_rootEntity(Q_NULLPTR)
+    m_rootEntity(nullptr)
 {
 //    setAcceptDrops(true);
 }
@@ -84,7 +87,7 @@ GtTaskEntity::populateTask()
     m_subCalcs.clear();
 
     // check for datamodel object
-    if (m_task == Q_NULLPTR)
+    if (!m_task)
     {
         return;
     }
@@ -149,7 +152,7 @@ GtTaskEntity::rootNode()
 void
 GtTaskEntity::calculateSize()
 {
-    if (m_task == Q_NULLPTR)
+    if (!m_task)
     {
         return;
     }
@@ -242,7 +245,7 @@ GtTaskEntity::allChildItems(QGraphicsItem* item)
     {
         QList<QGraphicsItem*> retval;
 
-        if (item == Q_NULLPTR)
+        if (!item)
         {
             item = this;
         }
@@ -270,7 +273,7 @@ GtTaskEntity::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 void
 GtTaskEntity::initializeNodes(GtCalculatorEntity* node, int depth)
 {
-    Q_ASSERT(node == Q_NULLPTR);
+    Q_ASSERT(node == nullptr);
 
     node->setNormX(-1.);
     node->setNormY(depth);
@@ -372,7 +375,7 @@ GtTaskEntity::checkForConflicts(GtCalculatorEntity* node)
 
     GtCalculatorEntity* sibling = node->leftMostSibling();
 
-    while (sibling != Q_NULLPTR && sibling != node)
+    while (sibling && sibling != node)
     {
         QMap<int, double> siblingContour;
         rightContour(sibling, 0., siblingContour);
@@ -486,16 +489,6 @@ GtTaskEntity::centerNodesBetween(GtCalculatorEntity* leftNode,
 double
 GtTaskEntity::maxContourValue(const QMap<int, double>& map)
 {
-    double max = 0.;
-
-    for (auto e : map.keys())
-    {
-        if (map.value(e) > max)
-        {
-            max = map.value(e);
-        }
-    }
-
-    return max;
+    return *std::max_element(std::begin(map), std::end(map));
 }
 

@@ -30,17 +30,17 @@ public:
     /**
      * @brief ~GtMementoViewer
      */
-    virtual ~GtMementoViewer();
+    ~GtMementoViewer() override;
 
     /** Virtual function to specify item specific icon.
         @return Object specific icon */
-    virtual QIcon icon() const override;
+    QIcon icon() const override;
 
     /**
      * @brief allowsMultipleInstances
      * @return true because the memento viewer can be opened multiple times
      */
-    bool allowsMultipleInstances() override;
+    bool allowsMultipleInstances() const override;
 
 public slots:
     void onThemeChanged() override;

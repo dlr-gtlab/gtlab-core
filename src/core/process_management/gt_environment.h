@@ -101,7 +101,7 @@ public:
      * @param var Environment variable identification string
      * @param val New environment variable value
      */
-    void setValue(const QString& var, QVariant val);
+    void setValue(const QString& var, const QVariant& val);
 
 private:
     /// Hash of environment variables

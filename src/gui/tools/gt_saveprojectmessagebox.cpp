@@ -11,7 +11,7 @@
 
 #include "gt_saveprojectmessagebox.h"
 
-GtSaveProjectMessageBox::GtSaveProjectMessageBox(QString text,
+GtSaveProjectMessageBox::GtSaveProjectMessageBox(const QString& text,
                                                  QWidget* parent) :
     QMessageBox(parent)
 {

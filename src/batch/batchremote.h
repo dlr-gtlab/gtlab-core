@@ -20,21 +20,23 @@ namespace BatchRemote
 
     /**
      * @brief checks input-file if data can be restored and versions are correct
-     * @param inputName: complete path (including the name) of input-file
-     * @param version: Version of GTlab used to check if input-file is ok
+     * @param inputName - complete path (including the name) of input-file
+     * @param version - Version of GTlab used to check if input-file is ok
      * @return
      */
-    bool checkInput(QString inputName, QString version, bool silent = false,
+    bool checkInput(const QString &inputName, const QString &version,
+                    bool silent = false,
                     bool checkVersion = true);
 
     /**
      * @brief starts execution of calculators in the input-file (checks before)
-     * @param inputName:  complete path (including the name) of input-file
-     * @param outputName:  complete path (including the name) of output-file
-     * @param version: Version of GTlab used to check if input-file is ok
+     * @param inputName - complete path (including the name) of input-file
+     * @param outputName - complete path (including the name) of output-file
+     * @param version - Version of GTlab used to check if input-file is ok
      * @return
      */
-    bool run(QString inputName, QString outputName, QString version);
+    bool run(const QString& inputName, const QString& outputName,
+             const QString& version);
 
 }
 

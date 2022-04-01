@@ -24,10 +24,7 @@
 
 GtCalculator::~GtCalculator()
 {
-    if (m_labelProperty != Q_NULLPTR)
-    {
-        delete m_labelProperty;
-    }
+    delete m_labelProperty;
 }
 
 bool
@@ -49,7 +46,7 @@ GtCalculator::exec()
 
     qDebug() << objectName() << "::exec()";
     // initialize pointer to runnable
-    m_runnable = Q_NULLPTR;
+    m_runnable = nullptr;
 
     // initialize calculator
     setState(GtCalculator::RUNNING);
@@ -58,7 +55,7 @@ GtCalculator::exec()
     m_runnable = findParent<GtAbstractRunnable*>();
 
     // check whether runnable was found
-    if (m_runnable == Q_NULLPTR)
+    if (!m_runnable)
     {
         setState(GtCalculator::FAILED);
         return false;
@@ -77,7 +74,7 @@ GtCalculator::exec()
             GtObject* linkedObj =
                 m_runnable->data<GtObject*>(objLink->linkedObjectUUID());
 
-            if (linkedObj != Q_NULLPTR)
+            if (linkedObj)
             {
                 // linked object found -> store inside list
                 m_linkedObjects.append(linkedObj);
@@ -94,7 +91,7 @@ GtCalculator::exec()
             GtObject* linkedObj =
                 m_runnable->data<GtObject*>(objPath->path());
 
-            if (linkedObj != Q_NULLPTR)
+            if (linkedObj)
             {
                 // linked object found -> store inside list
                 m_linkedObjects.append(linkedObj);
@@ -117,7 +114,7 @@ GtCalculator::exec()
         GtAbstractCalculatorExecutor* executor =
             gtCalcExecList->executor(execMode);
 
-        if (executor == Q_NULLPTR)
+        if (!executor)
         {
             // executor plugin not found
             gtError() << tr("Calculator execution plugin error!");
@@ -147,7 +144,7 @@ GtCalculator::exec()
     // handle temporary path cleanup
     if (!m_tempPath.isEmpty() && m_deleteTempPath)
     {
-        if (m_runnable != Q_NULLPTR)
+        if (m_runnable)
         {
             if (!m_runnable->clearTempDir(m_tempPath))
             {
@@ -201,7 +198,7 @@ GtCalculator::linkedObjects()
 QDir
 GtCalculator::tempDir()
 {
-    if (m_runnable == Q_NULLPTR)
+    if (!m_runnable)
     {
         return QDir();
     }
@@ -243,9 +240,9 @@ GtCalculator::run()
 
 GtCalculator::GtCalculator():
     m_deleteTempPath(true),
-    m_execMode(Q_NULLPTR),
-    m_labelProperty(Q_NULLPTR),
-    m_runnable(Q_NULLPTR),
+    m_execMode(nullptr),
+    m_labelProperty(nullptr),
+    m_runnable(nullptr),
     m_failRunOnWarning(QStringLiteral("failOnWarn"), tr("Fail Run on Warning"),
                        tr("Terminate process execution if calculator"
                           " throws a warning."), false)
@@ -314,7 +311,7 @@ GtCalculator::hideLabelProperty(bool val)
 QString
 GtCalculator::projectPath()
 {
-    if (m_runnable == Q_NULLPTR)
+    if (!m_runnable)
     {
         return QString();
     }

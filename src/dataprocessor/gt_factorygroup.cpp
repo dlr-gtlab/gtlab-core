@@ -11,10 +11,7 @@
 #include "gt_object.h"
 #include "gt_logging.h"
 
-GtFactoryGroup::GtFactoryGroup()
-{
-
-}
+#include <algorithm>
 
 GtObject*
 GtFactoryGroup::newObject(const QString& className, GtObject* parent)
@@ -45,21 +42,16 @@ GtFactoryGroup::newObject(const QString& className, GtObject* parent)
 }
 
 bool
-GtFactoryGroup::knownClass(const QString& className)
+GtFactoryGroup::knownClass(const QString& className) const
 {
-    foreach (GtAbstractObjectFactory* factory, m_factories)
-    {
-        if (factory->knownClass(className))
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(std::begin(m_factories), std::end(m_factories),
+                       [&className](const GtAbstractObjectFactory* factory) {
+        return factory->knownClass(className);
+    });
 }
 
 QString
-GtFactoryGroup::superClassName(const QString& className)
+GtFactoryGroup::superClassName(const QString& className) const
 {
     foreach (GtAbstractObjectFactory* factory, m_factories)
     {
@@ -101,31 +93,21 @@ GtFactoryGroup::registerClasses(const QList<QMetaObject>& /*metaData*/)
 }
 
 bool
-GtFactoryGroup::containsDuplicates(const QList<QMetaObject>& metaData)
+GtFactoryGroup::containsDuplicates(const QList<QMetaObject>& metaData) const
 {
-    foreach (GtAbstractObjectFactory* factory, m_factories)
-    {
-        if (factory->containsDuplicates(metaData))
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(std::begin(m_factories), std::end(m_factories),
+                       [&metaData](const GtAbstractObjectFactory* factory) {
+        return factory->containsDuplicates(metaData);
+    });
 }
 
 bool
-GtFactoryGroup::invokable(const QMetaObject& metaObj)
+GtFactoryGroup::invokable(const QMetaObject& metaObj) const
 {
-    foreach (GtAbstractObjectFactory* factory, m_factories)
-    {
-        if (factory->invokable(metaObj))
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(std::begin(m_factories), std::end(m_factories),
+                       [&metaObj](const GtAbstractObjectFactory* factory) {
+        return factory->invokable(metaObj);
+    });
 }
 
 QStringList

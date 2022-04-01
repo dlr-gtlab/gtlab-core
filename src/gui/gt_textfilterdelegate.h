@@ -34,7 +34,7 @@ public:
     /**
      * @brief GtTextFilterDelegate - Constructor
      */
-    GtTextFilterDelegate(QObject* parent, validatorflag filter = uiFilter);
+    explicit GtTextFilterDelegate(QObject *parent, validatorflag filter = uiFilter);
 
     /**
      * @brief createEditor

@@ -19,7 +19,7 @@ TARGET = GTlab
 QT += widgets xml network
 TEMPLATE = app
 CONFIG += silent
-CONFIG += c++11
+CONFIG += c++14
 
 #DEFINES += GT_LICENCE
 #CONFIG += GT_LICENCE

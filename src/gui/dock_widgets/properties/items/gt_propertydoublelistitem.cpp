@@ -27,7 +27,7 @@ GtPropertyDoubleListItem::data(int column, int role) const
 {
     GtDoubleListProperty* listProp = doubleListProperty();
 
-    if (listProp == Q_NULLPTR)
+    if (!listProp)
     {
         return QVariant();
     }
@@ -53,7 +53,7 @@ GtPropertyDoubleListItem::setData(int column, const QVariant& value,
 {
     GtDoubleListProperty* listProp = doubleListProperty();
 
-    if (listProp == Q_NULLPTR)
+    if (!listProp)
     {
         return false;
     }

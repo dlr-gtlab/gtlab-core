@@ -8,6 +8,7 @@
 #include "gt_table.h"
 #include "gt_tableaxis.h"
 #include "gt_tablevalues.h"
+#include "gt_algorithms.h"
 
 #include <QList>
 
@@ -21,7 +22,7 @@ GtTable::GtTable()
 }
 
 bool
-GtTable::addAxis(const QString& id, const QString desc, const QString& unit,
+GtTable::addAxis(const QString& id, const QString& desc, const QString& unit,
                  GtTableAxis::ExtrapMethod loExtMethod,
                  GtTableAxis::InterpMethod intMethod,
                  GtTableAxis::ExtrapMethod hiExtMethod,
@@ -112,7 +113,7 @@ GtTable::addValues(const QString& id, const QString& desc,
     }
 
     GtTableValues* tabVals = findDirectChild<GtTableValues*>(id);
-    if (tabVals == nullptr)
+    if (!tabVals)
     {
         tabVals = new GtTableValues;
         appendChild(tabVals);
@@ -130,7 +131,7 @@ GtTable::addValues(const QString& id, const QString& desc,
 bool
 GtTable::addValues(GtTableValues* tv)
 {
-    if (tv == nullptr)
+    if (!tv)
     {
         return false;
     }
@@ -173,7 +174,7 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
 
     GtTableAxis* currentAxis = axList.at(axisIndex);
 
-    if (currentAxis == nullptr)
+    if (!currentAxis)
     {
         throw GTlabException("Table::approxDimension()",
                              "currentAxis is nullptr.");
@@ -181,7 +182,7 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
 
     GtNumerics::GtInterpolator* curInterp = currentAxis->interpolator();
 
-    if (curInterp == nullptr)
+    if (!curInterp)
     {
         /// Reinitialize the method helped to solve an error
         currentAxis->setInterMethod(currentAxis->interMethod());
@@ -197,7 +198,7 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
                   << curInterp->getMinPoints();
     }
 
-    if (curInterp == nullptr)
+    if (!curInterp)
     {
         throw GTlabException("Table::approxDimension()",
                              "curInterp is nullptr.");
@@ -211,7 +212,7 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
 
         const GtNumerics::darray& xx = getAxisTicks(axisIndex);
 
-        if (currentAxis == nullptr)
+        if (!currentAxis)
         {
             throw GTlabException("Table::approxDimension()",
                                  "Axis is nullptr.");
@@ -237,7 +238,7 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
 
         if (x < xx[0])
         {
-            if (currentAxis->loExtrapolator() == nullptr)
+            if (!currentAxis->loExtrapolator())
             {
                 throw GTlabException("Table::approxDimension()",
                                      "loExtrapolation forbidden.");
@@ -248,7 +249,7 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
         }
         else if (x > xx[n - 1])
         {
-            if (currentAxis->hiExtrapolator() == nullptr)
+            if (!currentAxis->hiExtrapolator())
             {
                 throw GTlabException("Table::approxDimension()",
                                      "hiExtrapolation forbidden.");
@@ -271,7 +272,7 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
         const GtNumerics::darray& yy = getValSlice(valsId, 0, indices);
         const GtNumerics::darray& xx = getAxisTicks(0);
 
-        if (axList.at(0) == nullptr)
+        if (!axList.at(0))
         {
             throw GTlabException("Table::approxDimension()",
                                  "Axis at 0 is nullptr.");
@@ -356,7 +357,7 @@ GtTable::getAxisTicks(int axisIndex) const
                              "Unkown axis index.");
     }
 
-    if (axList.at(axisIndex) == nullptr)
+    if (!axList.at(axisIndex))
     {
         throw GTlabException("Table::getAxisTicks()",
                              "Axis at index is nullptr.");
@@ -401,7 +402,8 @@ GtTable::getAxesNames() const
 {
     QStringList names;
 
-    for (GtTableAxis* axis : getAxesList())
+    const auto axes = getAxesList();
+    for (GtTableAxis* axis : axes)
     {
         names.append(axis->objectName());
     }
@@ -464,7 +466,7 @@ GtTable::getUnit() const
 }
 
 GtTableValues*
-GtTable::getVals(const QString id) const
+GtTable::getVals(const QString& id) const
 {
     if (!m_tabVals.contains(id))
     {
@@ -477,7 +479,7 @@ GtTable::getVals(const QString id) const
 
 
 double
-GtTable::getValue(const QString& valsId, const QVector<double>& coords)
+GtTable::getValue(const QString& valsId, const QVector<double>& coords) const
 {
     if (coords.size() != nDims() && m_type == DEFAULT)
     {
@@ -492,7 +494,7 @@ GtTable::getValue(const QString& valsId, const QVector<double>& coords)
 
 
 double
-GtTable::getValue1D(const QString& valsId, double x0)
+GtTable::getValue1D(const QString& valsId, double x0) const
 {
     QVector<double> coords(1);
 
@@ -518,7 +520,7 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
 
     QList<GtTableAxis*> axList = getAxesList();
 
-    if (axList.at(0) == nullptr || axList.at(1) == nullptr)
+    if (!axList.at(0) || !axList.at(1))
     {
         throw GTlabException("Table::getValue2D()",
                              "Axis is nullptr.");
@@ -536,7 +538,7 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
     GtNumerics::GtInterpolator* Interp1 = axList.at(1)->interpolator();
 
 
-    if (Interp0 == nullptr || Interp1 == nullptr)
+    if (!Interp0 || !Interp1)
     {
         axList.at(0)->setInterMethod(axList.at(0)->interMethod());
         axList.at(1)->setInterMethod(axList.at(1)->interMethod());
@@ -545,7 +547,7 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
         Interp1 = axList.at(1)->interpolator();
     }
 
-    if (Interp0 == nullptr || Interp1 == nullptr)
+    if (!Interp0 || !Interp1)
     {
         throw GTlabException("Table::getValue2D()",
                              "Interpolator is nullptr.");
@@ -579,7 +581,7 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
 
         if (x0 < xx0[0])
         {
-            if (axList.at(0)->loExtrapolator() == nullptr)
+            if (!axList.at(0)->loExtrapolator())
             {
                 throw GTlabException("Table::approxDimension()",
                                      "loExtrapolation forbidden.");
@@ -590,7 +592,7 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
         }
         else if (x0 > xx0[n0 - 1])
         {
-            if (axList.at(0)->hiExtrapolator() == nullptr)
+            if (!axList.at(0)->hiExtrapolator())
             {
                 throw GTlabException("Table::approxDimension()",
                                      "hiExtrapolation forbidden.");
@@ -607,7 +609,7 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
 
     if (x1 < xx1[0])
     {
-        if (axList.at(1)->loExtrapolator() == nullptr)
+        if (!axList.at(1)->loExtrapolator())
         {
             throw GTlabException("Table::approxDimension()",
                                  "loExtrapolation forbidden.");
@@ -617,7 +619,7 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
     }
     else if (x1 > xx1[n1 - 1])
     {
-        if (axList.at(1)->hiExtrapolator() == nullptr)
+        if (!axList.at(1)->hiExtrapolator())
         {
             throw GTlabException("Table::approxDimension()",
                                  "hiExtrapolation forbidden.");
@@ -637,9 +639,9 @@ GtTable::getValue2DatIndices(const QString &valsId, int axisIndex1,
                              int axisIndex2, bool* check) const
 {
     GtTableValues* tableVals = findDirectChild<GtTableValues*>(valsId);
-    if (tableVals == nullptr)
+    if (!tableVals)
     {
-        if (check != nullptr)
+        if (check)
         {
             *check = false;
         }
@@ -663,7 +665,7 @@ GtTable::getValue2DatIndices(const QString &valsId, int axisIndex1,
 
     if (index > tableVals->values().size()-1)
     {
-        if (check != nullptr)
+        if (check)
         {
             *check = false;
         }
@@ -912,7 +914,7 @@ GtTable::getValue3D(const QString& valsId, double x0, double x1,
 
     for (int i = 0; i < 3; i++)
     {
-        if (axList.at(i) == nullptr)
+        if (!axList.at(i))
         {
             QString where = QString("Axis ")
                     + QString::number(i)
@@ -927,7 +929,7 @@ GtTable::getValue3D(const QString& valsId, double x0, double x1,
     GtNumerics::GtInterpolator* Interp1 = axList.at(1)->interpolator();
     GtNumerics::GtInterpolator* Interp2 = axList.at(2)->interpolator();
 
-    if (Interp0 == nullptr || Interp1 == nullptr || Interp2 == nullptr)
+    if (!Interp0 || !Interp1 || !Interp2)
     {
         throw GTlabException("Table::getValue3D()",
                              "Interpolator is nullptr.");
@@ -1034,7 +1036,7 @@ GtTable::getValue4D(const QString& valsId, double x0, double x1, double x2,
 
     for (int i = 0; i < 4; i++)
     {
-        if (axList.at(i) == nullptr)
+        if (!axList.at(i))
         {
             QString where = QString("Axis ")
                     + QString::number(i)
@@ -1187,7 +1189,7 @@ GtTable::getValue5D(const QString& valsId, double x0, double x1, double x2,
 
 
 bool
-GtTable::isAscending(const QVector<double>& ticks)
+GtTable::isAscending(const QVector<double>& ticks) const
 {
     int n = ticks.size();
 
@@ -1323,19 +1325,8 @@ GtTable::tabValsKeys() const
 void
 GtTable::clear()
 {
-    for (GtTableAxis* ax : getAxesList())
-    {
-        delete ax;
-        ax = nullptr;
-    }
-
-    for (const QString& key : tabValsKeys())
-    {
-        if (getVals(key))
-        {
-            delete getVals(key);
-        }
-    }
+    qDeleteAll(getAxesList());
+    qDeleteAll(m_tabVals);
 
     m_tabVals.clear();
     m_description.clear();
@@ -1359,9 +1350,9 @@ GtTable::getMax(const QString &id, bool* check) const
 {
     GtTableValues* vals = getVals(id);
 
-    if (vals == nullptr)
+    if (!vals)
     {
-        if (check != nullptr)
+        if (check)
         {
             *check = false;
         }
@@ -1369,17 +1360,10 @@ GtTable::getMax(const QString &id, bool* check) const
         return 0.0;
     }
 
-    double max = vals->values().first();
+    auto values = vals->values();
+    double max = *std::max_element(std::begin(values), std::end(values));
 
-    for (const double& val : vals->values())
-    {
-        if (val > max)
-        {
-            max = val;
-        }
-    }
-
-    if (check != nullptr)
+    if (check)
     {
         *check = true;
     }
@@ -1392,9 +1376,9 @@ GtTable::getMin(const QString& id, bool* check) const
 {
     GtTableValues* vals = getVals(id);
 
-    if (vals == nullptr)
+    if (!vals)
     {
-        if (check != nullptr)
+        if (check)
         {
             *check = false;
         }
@@ -1402,17 +1386,10 @@ GtTable::getMin(const QString& id, bool* check) const
         return 0.0;
     }
 
-    double min = vals->values().first();
+    auto values = vals->values();
+    double min = *std::min_element(std::begin(values), std::end(values));
 
-    for (const double& val : vals->values())
-    {
-        if (val < min)
-        {
-            min = val;
-        }
-    }
-
-    if (check != nullptr)
+    if (check)
     {
         *check = true;
     }
@@ -1427,7 +1404,7 @@ GtTable::valueNames() const
 }
 
 void
-GtTable::setTabValsKeysSuffix(QString suffix)
+GtTable::setTabValsKeysSuffix(const QString& suffix)
 {
     //    if (suffix.size() != m_tabVals.size())
     //    {
@@ -1448,7 +1425,7 @@ GtTable::setTabValsKeysSuffix(QString suffix)
 
     m_tabVals.clear();
 
-    for (GtTableValues* v : vlist)
+    for (GtTableValues* v : qAsConst(vlist))
     {
         m_tabVals.insert(suffix + v->objectName(), v);
     }
@@ -1492,7 +1469,7 @@ GtTable::toDomElement(QDomDocument& doc, const QString& valId) const
         QString lowExtMethod = "linear";
         QString highExtraMethod = "linear";
 
-        if (currAxe != nullptr)
+        if (currAxe)
         {
             des = currAxe->description();
 
@@ -1509,15 +1486,15 @@ GtTable::toDomElement(QDomDocument& doc, const QString& valId) const
         QDomText nameTxt = doc.createTextNode(getAxesNames().at(i));
         eName.appendChild(nameTxt);
 
-        QDomElement eUnit = doc.createElement("Unit");
+        QDomElement currEUnit = doc.createElement("Unit");
         QString axisUnit = getAxesList().at(i)->unit();
-        QDomText unitTxt = doc.createTextNode(
+        QDomText currUnitTxt = doc.createTextNode(
                                axisUnit);
-        eUnit.appendChild(unitTxt);
+        currEUnit.appendChild(currUnitTxt);
 
-        QDomElement eDesc = doc.createElement("Description");
-        QDomText descTxt = doc.createTextNode(des);
-        eDesc.appendChild(descTxt);
+        QDomElement currEDesc = doc.createElement("Description");
+        QDomText currDescTxt = doc.createTextNode(des);
+        currEDesc.appendChild(currDescTxt);
 
         QDomElement eInterp = doc.createElement("Interpolation");
         QDomText interpTxt = doc.createTextNode(intMethode);
@@ -1662,8 +1639,7 @@ GtTable::onObjectDataMerged()
 
     QList<GtTableValues*> vlist = findDirectChildren<GtTableValues*>();
 
-    for (GtTableValues* v : vlist)
-    {
+    for (GtTableValues* v : qAsConst(vlist)) {
         m_tabVals.insert(v->objectName(), v);
     }
 }

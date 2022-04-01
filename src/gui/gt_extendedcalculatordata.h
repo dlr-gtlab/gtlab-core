@@ -44,12 +44,13 @@ public:
     /**
      * @brief ~GtExtendedCalculatorDataImpl
      */
-    virtual ~GtExtendedCalculatorDataImpl();
+    ~GtExtendedCalculatorDataImpl() override;
 
     /// Calculator icon
     QIcon icon;
 
     /// Custom calculator wizard
+    /// Owning. @TODO: consider encapsulation
     GtCustomProcessWizard* wizard;
 
     /**

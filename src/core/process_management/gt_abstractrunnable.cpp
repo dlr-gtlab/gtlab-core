@@ -49,7 +49,7 @@ GtAbstractRunnable::outputData()
 bool
 GtAbstractRunnable::appendProcessComponent(GtProcessComponent* comp)
 {
-    if (comp == Q_NULLPTR)
+    if (!comp)
     {
         return false;
     }

@@ -40,7 +40,7 @@ public:
      * @param Calculator provider.
      */
     GtProcessWizard(GtProject* project, GtCalculatorProvider* provider,
-                    QWidget* parent = Q_NULLPTR);
+                    QWidget* parent = nullptr);
 
     /**
      * @brief Constructor
@@ -48,7 +48,7 @@ public:
      * @param Task provider.
      */
     GtProcessWizard(GtProject* project, GtTaskProvider* provider,
-                    QWidget* parent = Q_NULLPTR);
+                    QWidget* parent = nullptr);
 
     /**
      * @brief Returns process component provider.

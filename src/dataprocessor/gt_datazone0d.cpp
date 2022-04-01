@@ -158,7 +158,7 @@ GtDataZone0D::addModuleName(const QString& moduleName)
 
     QStringList newParamNames;
 
-    for (const QString& param : params())
+    foreach (const QString& param, params())
     {
         newParamNames.append(moduleName + "." + param);
     }
@@ -183,8 +183,6 @@ GtDataZone0D::setValues(const QVector<double>& values)
 QString
 GtDataZone0D::unit(const QString& param) const
 {
-    QString retval = QString();
-
     int index = m_params.indexOf(param);
 
     if (index == -1)
@@ -192,12 +190,10 @@ GtDataZone0D::unit(const QString& param) const
         gtDebug() << tr("Param ") << param
                   << tr(" could not be found in 0D data, "
                         "no unit can be shown");
-        return retval;
+        return QString();
     }
 
-    retval = m_units.at(index);
-
-    return retval;
+    return m_units.at(index);
 }
 
 bool
@@ -310,7 +306,7 @@ GtDataZone0D::appendData(const QList<QString>& paramNames,
 }
 
 double
-GtDataZone0D::value(const QString &paramName, bool* ok)
+GtDataZone0D::value(const QString &paramName, bool* ok) const
 {
     int index = m_params.indexOf(paramName);
 

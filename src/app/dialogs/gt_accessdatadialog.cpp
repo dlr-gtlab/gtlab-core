@@ -28,7 +28,7 @@
 GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
                                        const QMetaObject& connection,
                                        QWidget* parent) :
-    QDialog(parent), m_data(data), m_portLine(Q_NULLPTR),
+    QDialog(parent), m_data(data), m_portLine(nullptr),
     m_connectionMetaData(connection)
 {
     setWindowTitle(tr("Add Access Data"));
@@ -62,7 +62,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
 
     GtAbstractAccessDataConnection* con = newConnectionObject();
 
-    if (con != Q_NULLPTR && con->requestPort())
+    if (con && con->requestPort())
     {
         m_portLine = new QSpinBox;
         m_portLine->setRange(-1, 65535);
@@ -71,7 +71,6 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
         formLay->addRow(QStringLiteral("Port:"), m_portLine);
 
         delete con;
-        con = Q_NULLPTR;
     }
 
     m_userDataCheck = new QCheckBox(QStringLiteral("User Data"));
@@ -152,12 +151,12 @@ GtAccessDataDialog::newConnectionObject()
 {
     QObject* obj = m_connectionMetaData.newInstance();
 
-    if (obj != Q_NULLPTR)
+    if (obj)
     {
         GtAbstractAccessDataConnection* retval =
                 qobject_cast<GtAbstractAccessDataConnection*>(obj);
 
-        if (retval == Q_NULLPTR)
+        if (!retval)
         {
             delete obj;
         }
@@ -167,7 +166,7 @@ GtAccessDataDialog::newConnectionObject()
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void
@@ -175,7 +174,7 @@ GtAccessDataDialog::saveAccessData()
 {
     int port = -1;
 
-    if (m_portLine != Q_NULLPTR)
+    if (m_portLine)
     {
         port = m_portLine->value();
     }
@@ -203,7 +202,7 @@ GtAccessDataDialog::testConnection()
 
     int port = -1;
 
-    if (m_portLine != Q_NULLPTR)
+    if (m_portLine)
     {
         port = m_portLine->value();
     }
@@ -220,7 +219,7 @@ GtAccessDataDialog::testConnection()
 
     GtAbstractAccessDataConnection* con = newConnectionObject();
 
-    if (con == Q_NULLPTR)
+    if (!con)
     {
         return;
     }

@@ -39,7 +39,7 @@ public:
      */
     GtProcessConnectionGraphicsView(GtProcessConnectionView* outputView,
                                     GtProcessConnectionView* inputView,
-                                    QWidget* parent = Q_NULLPTR);
+                                    QWidget* parent = nullptr);
 
     /**
      * @brief Updates ports based on new tree view visualization.
@@ -92,7 +92,7 @@ protected:
      * @brief resizeEvent
      * @param event
      */
-    virtual void resizeEvent(QResizeEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     /// Pointer to output view widget.
@@ -138,8 +138,8 @@ private:
      * @param Property identification string.
      * @return Property port entity.
      */
-    GtProcessPropertyPortEntity* findOutputPortEntity(const QString uuid,
-                                                      const QString propId);
+    GtProcessPropertyPortEntity* findOutputPortEntity(const QString& uuid,
+                                                      const QString& propId);
 
     /**
      * @brief Returns property port entity based on given object uuid and
@@ -149,8 +149,8 @@ private:
      * @param Property identification string.
      * @return Property port entity.
      */
-    GtProcessPropertyPortEntity* findInputPortEntity(const QString uuid,
-                                                     const QString propId);
+    GtProcessPropertyPortEntity* findInputPortEntity(const QString& uuid,
+                                                     const QString& propId);
 
     /**
      * @brief Returns property port entity based on given object uuid and
@@ -162,8 +162,8 @@ private:
      * @return Property port entity.
      */
     GtProcessPropertyPortEntity* findPortEntityHelper(GtProcessPortMap& map,
-                                                      const QString uuid,
-                                                      const QString propId);
+                                                      const QString &uuid,
+                                                      const QString &propId);
 
 };
 

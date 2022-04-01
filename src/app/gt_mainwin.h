@@ -45,24 +45,24 @@ public:
     /**
      * @brief ~GtMainWin
      */
-    virtual ~GtMainWin();
+    ~GtMainWin() override;
 
 protected:
     /** Called after window is opened
         @param show event */
-    virtual void showEvent(QShowEvent* event);
+    void showEvent(QShowEvent* event) override;
 
     /**
      * @brief closeEvent
      * @param event
      */
-    virtual void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 
     /**
      * @brief keyPressEvent
      * @param event
      */
-    virtual void keyPressEvent(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent* event) override;
 
 private:
     /// UI Form

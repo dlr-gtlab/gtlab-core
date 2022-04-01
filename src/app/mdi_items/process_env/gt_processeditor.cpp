@@ -113,7 +113,7 @@ GtProcessEditor::GtProcessEditor()
 void
 GtProcessEditor::setData(GtObject* obj)
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }

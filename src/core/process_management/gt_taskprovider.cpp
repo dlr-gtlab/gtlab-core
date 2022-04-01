@@ -13,7 +13,7 @@
 
 GtTaskProvider::GtTaskProvider(GtTask* initTask)
 {
-    if (initTask != Q_NULLPTR)
+    if (initTask)
     {
         if (initComponent(initTask->metaObject()))
         {

@@ -23,7 +23,7 @@ public:
      * @brief Test that only one instance of this item can be created
      * @return false
      */
-    bool allowsMultipleInstances();
+    bool allowsMultipleInstances() const override;
 
 private:
 

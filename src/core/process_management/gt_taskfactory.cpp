@@ -28,7 +28,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
     simpleTask->id = QStringLiteral("Simple Task");
     simpleTask->version = GtVersionNumber(0,1);
     simpleTask->status = GtTaskDataImpl::RELEASE;
-    registerTaskData(simpleTask);
+    GtTaskFactory::registerTaskData(simpleTask);
 
     GtTaskData loopTask = GT_TASK_DATA(GtLoop);
     loopTask->id = QStringLiteral("Loop");
@@ -36,7 +36,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
     loopTask->description = tr("Repeats execution until maixmum "
                                "number of iterations is reached.");
     loopTask->status = GtTaskDataImpl::RELEASE;
-    registerTaskData(loopTask);
+    GtTaskFactory::registerTaskData(loopTask);
 
     GtTaskData residualLoopTask = GT_TASK_DATA(GtResidualLoop);
     residualLoopTask->id = QStringLiteral("Residual Loop");
@@ -46,7 +46,7 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
                                        "maximum number of iterations "
                                        "is reached.");
     residualLoopTask->status = GtTaskDataImpl::RELEASE;
-    registerTaskData(residualLoopTask);
+    GtTaskFactory::registerTaskData(residualLoopTask);
 
     GtTaskData parameterLoop = GT_TASK_DATA(GtParameterLoop);
     parameterLoop->id = QStringLiteral("Parameter Loop");
@@ -55,15 +55,15 @@ GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
                                     "Sets a parameter to a new value "
                                     "between start and end value");
     parameterLoop->status = GtTaskDataImpl::RELEASE;
-    registerTaskData(parameterLoop);
+    GtTaskFactory::registerTaskData(parameterLoop);
 }
 
 
 GtTaskFactory*
 GtTaskFactory::instance()
 {
-    static GtTaskFactory* retval = Q_NULLPTR;
-    if (retval == Q_NULLPTR)
+    static GtTaskFactory* retval = nullptr;
+    if (!retval)
     {
         retval = new GtTaskFactory(qApp);
     }
@@ -103,10 +103,5 @@ GtTaskFactory::taskData(const QString& className)
 bool
 GtTaskFactory::taskDataExists(const QString& className)
 {
-    if (m_taskData.contains(className))
-    {
-        return true;
-    }
-
-    return false;
+    return m_taskData.contains(className);
 }

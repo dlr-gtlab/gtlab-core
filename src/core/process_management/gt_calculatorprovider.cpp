@@ -14,7 +14,7 @@
 
 GtCalculatorProvider::GtCalculatorProvider(GtCalculator* initCalc)
 {
-    if (initCalc != Q_NULLPTR)
+    if (initCalc)
     {
         if (initComponent(initCalc->metaObject()))
         {

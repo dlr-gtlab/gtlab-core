@@ -28,7 +28,7 @@ GtCalculatorSettingsPage::GtCalculatorSettingsPage(GtProject* project,
         GtProcessWizard* parent) :
     QWizardPage(parent),
     m_wizard(parent),
-    m_component(Q_NULLPTR)
+    m_component(nullptr)
 {
     setTitle(tr("Settings"));
 
@@ -59,20 +59,16 @@ GtCalculatorSettingsPage::GtCalculatorSettingsPage(GtProject* project,
 
 void GtCalculatorSettingsPage::initializePage()
 {
-    if (m_wizard == Q_NULLPTR)
+    if (!m_wizard)
     {
         return;
     }
 
-    if (m_wizard->provider() == Q_NULLPTR)
+    if (!m_wizard->provider())
     {
         return;
     }
 
-    if (m_component != Q_NULLPTR)
-    {
-        delete m_component;
-    }
 
     GtObjectMemento memento = m_wizard->provider()->componentData();
 
@@ -82,9 +78,10 @@ void GtCalculatorSettingsPage::initializePage()
         return;
     }
 
+    delete m_component;
     m_component = memento.restore<GtProcessComponent*>(gtProcessFactory);
 
-    if (m_component == Q_NULLPTR)
+    if (!m_component)
     {
         return;
     }
@@ -92,7 +89,7 @@ void GtCalculatorSettingsPage::initializePage()
     m_component->setParent(this);
 
     connect(m_component.data(),
-            SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
+            SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
             SLOT(onComponentDataChange()));
 
     m_view->setObject(m_component, false);
@@ -109,17 +106,17 @@ GtCalculatorSettingsPage::showEvent(QShowEvent* /*e*/)
 void
 GtCalculatorSettingsPage::onComponentDataChange()
 {
-    if (m_component == Q_NULLPTR)
+    if (!m_component)
     {
         return;
     }
 
-    if (m_wizard == Q_NULLPTR)
+    if (!m_wizard)
     {
         return;
     }
 
-    if (m_wizard->provider() == Q_NULLPTR)
+    if (!m_wizard->provider())
     {
         return;
     }

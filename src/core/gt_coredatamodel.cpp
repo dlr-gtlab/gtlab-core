@@ -25,7 +25,7 @@
 GtCoreDatamodel* GtCoreDatamodel::m_self = 0;
 
 GtCoreDatamodel::GtCoreDatamodel(QObject* parent) : QAbstractItemModel(parent),
-    m_session(Q_NULLPTR)
+    m_session(nullptr)
 {
     init();
 }
@@ -46,7 +46,7 @@ GtCoreDatamodel::flags(const QModelIndex& index) const
     GtObject* object = objectFromIndex(index);
 
     // check object
-    if (object != Q_NULLPTR)
+    if (object)
     {
         // check if object is renamable
         if (object->isRenamable() && index.column() == 0)
@@ -70,7 +70,7 @@ GtCoreDatamodel::setSession(GtSession* session)
 
 void
 GtCoreDatamodel::appendProjectData(GtProject* project,
-                                   QList<GtObject*> projectData)
+                                   QList<GtObject*> const& projectData)
 {
     if (projectData.isEmpty())
     {
@@ -99,12 +99,12 @@ GtCoreDatamodel::appendProjectData(GtProject* project,
 }
 
 QModelIndex
-GtCoreDatamodel::rootParent(const QModelIndex& index)
+GtCoreDatamodel::rootParent(const QModelIndex& index) const
 {
     // check index
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     // check parent index
@@ -171,7 +171,7 @@ GtProject*
 GtCoreDatamodel::currentProject()
 {
     // check session
-    if (m_session != Q_NULLPTR)
+    if (m_session)
     {
         // return current project from session
         return m_session->currentProject();
@@ -185,7 +185,7 @@ GtProject*
 GtCoreDatamodel::findProject(const QString& id)
 {
     // check session
-    if (m_session != Q_NULLPTR)
+    if (m_session)
     {
         // return project corresponding to given identification string
         return m_session->findProject(id);
@@ -199,7 +199,7 @@ QList<GtProject*>
 GtCoreDatamodel::projects() const
 {
     // check session
-    if (m_session != Q_NULLPTR)
+    if (m_session)
     {
         // return project list of current session
         return m_session->projects();
@@ -213,7 +213,7 @@ QStringList
 GtCoreDatamodel::projectIds() const
 {
     // check session
-    if (m_session != Q_NULLPTR)
+    if (m_session)
     {
         // return project identification string list of current session
         return m_session->projectIds();
@@ -235,7 +235,7 @@ GtCoreDatamodel::openProject(GtProject* project)
     qDebug() << "GtCoreDatamodel::openProject";
 
     // check project pointer
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -247,7 +247,7 @@ GtCoreDatamodel::openProject(GtProject* project)
     }
 
     // check whether a project is already open
-    if (gtDataModel->currentProject() != Q_NULLPTR)
+    if (gtDataModel->currentProject())
     {
         return false;
     }
@@ -300,13 +300,13 @@ GtCoreDatamodel::saveProject(GtProject* project)
     bool retval = false;
 
     // check pointer
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return retval;
     }
 
     // check session
-    if (m_session != Q_NULLPTR)
+    if (m_session)
     {
         // save project data of given project
         retval = m_session->saveProjectData(project);
@@ -325,7 +325,7 @@ bool
 GtCoreDatamodel::closeProject(GtProject* project)
 {
     // check project
-    if (project == NULL)
+    if (!project)
     {
         return false;
     }
@@ -337,7 +337,7 @@ GtCoreDatamodel::closeProject(GtProject* project)
     }
 
     // check session
-    if (m_session == Q_NULLPTR)
+    if (!m_session)
     {
         return false;
     }
@@ -381,19 +381,19 @@ bool
 GtCoreDatamodel::deleteProject(GtProject* project)
 {
     // check project
-    if (project == NULL)
+    if (!project)
     {
         return false;
     }
 
     // check session
-    if (m_session == Q_NULLPTR)
+    if (!m_session)
     {
         return false;
     }
 
     // search for project within current session
-    if (m_session->findProject(project->objectName()) == NULL)
+    if (!m_session->findProject(project->objectName()))
     {
         gtWarning() << tr("Cannot delete project!") << QStringLiteral(" ") <<
                     tr("Project is not inside current session.");
@@ -433,14 +433,14 @@ bool
 GtCoreDatamodel::newProject(GtProject* project)
 {
     // check project
-    if (project == NULL)
+    if (!project)
     {
         gtDebug() << "GtDataModel::newProject: " << "project == NULL";
         return false;
     }
 
     // check session
-    if (m_session == NULL)
+    if (!m_session)
     {
         gtDebug() << "GtDataModel::newProject: " << "session == NULL";
         return false;
@@ -495,7 +495,7 @@ GtCoreDatamodel::rowCount(const QModelIndex& parent) const
         return 0;
     }
 
-    if (m_session == Q_NULLPTR)
+    if (!m_session)
     {
         return 0;
     }
@@ -508,7 +508,7 @@ GtCoreDatamodel::rowCount(const QModelIndex& parent) const
     // get parent item
     GtObject* parentItem = objectFromIndex(parent);
 
-    if (parentItem == Q_NULLPTR)
+    if (!parentItem)
     {
         return 0;
     }
@@ -528,16 +528,16 @@ GtCoreDatamodel::index(int row, int col, const QModelIndex& parent) const
         // check array size
         if (row >= projects.size())
         {
-            return QModelIndex();
+            return {};
         }
 
         // get child object corresponding to row number
         GtObject* childItem = projects[row];
 
         // check object
-        if (childItem == Q_NULLPTR)
+        if (!childItem)
         {
-            return QModelIndex();
+            return {};
         }
 
         // create index
@@ -548,9 +548,9 @@ GtCoreDatamodel::index(int row, int col, const QModelIndex& parent) const
     GtObject* parentItem = objectFromIndex(parent);
 
     // check parent item
-    if (parentItem == Q_NULLPTR)
+    if (!parentItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     QList<GtObject*> childItems =
@@ -559,16 +559,16 @@ GtCoreDatamodel::index(int row, int col, const QModelIndex& parent) const
     // check array size
     if (row >= childItems.size())
     {
-        return QModelIndex();
+        return {};
     }
 
     // get child object corresponding to row number
     GtObject* childItem = childItems[row];
 
     // check object
-    if (childItem == Q_NULLPTR)
+    if (!childItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     // create index
@@ -580,31 +580,31 @@ GtCoreDatamodel::parent(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     // get object from index
     GtObject* childItem = objectFromIndex(index);
 
     // check object
-    if (childItem == Q_NULLPTR)
+    if (!childItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     // get parent object
     GtObject* parentItem = childItem->parentObject();
 
     // check parent
-    if (parentItem == Q_NULLPTR)
+    if (!parentItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     // check whether parent object is a session
     if (qobject_cast<GtSession*>(parentItem))
     {
-        return QModelIndex();
+        return {};
     }
 
     // return index
@@ -630,7 +630,7 @@ GtCoreDatamodel::data(const QModelIndex& index, int role) const
                 GtObject* item = objectFromIndex(index);
 
                 // check object
-                if (item != Q_NULLPTR)
+                if (item)
                 {
                     // return object identification string
                     return item->objectName();
@@ -646,11 +646,12 @@ GtCoreDatamodel::data(const QModelIndex& index, int role) const
             GtObject* item = objectFromIndex(index);
 
             // check object
-            if (item != Q_NULLPTR)
+            if (item)
             {
                 // return object uuid
                 return item->uuid();
             }
+            break;
         }
 
         default:
@@ -686,7 +687,7 @@ GtCoreDatamodel::setData(const QModelIndex& index, const QVariant& value,
     GtObject* item = objectFromIndex(index);
 
     // check object
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return false;
     }
@@ -723,7 +724,7 @@ GtCoreDatamodel::mimeTypes() const
 QMimeData*
 GtCoreDatamodel::mimeData(const QModelIndexList& indexes) const
 {
-    if (indexes.size() > 0)
+    if (!indexes.empty())
     {
         QModelIndex index = indexes.value(0);
 
@@ -742,7 +743,7 @@ QMimeData*
 GtCoreDatamodel::mimeDataFromObject(GtObject* obj, bool newUuid) const
 {
     // check object
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return NULL;
     }
@@ -764,15 +765,15 @@ GtCoreDatamodel::objectFromMimeData(const QMimeData* mime, bool newUuid,
                                     GtAbstractObjectFactory* factory)
 {
     // check mime data
-    if (mime == Q_NULLPTR)
+    if (!mime)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // check mime data format
     if (!mime->hasFormat(QStringLiteral("GtObject")))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // restore memento from mime data
@@ -781,11 +782,11 @@ GtCoreDatamodel::objectFromMimeData(const QMimeData* mime, bool newUuid,
     // check memento
     if (memento.isNull())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // check factory. if no factory was set, use default object factory
-    if (factory == Q_NULLPTR)
+    if (!factory)
     {
         factory = gtObjectFactory;
     }
@@ -799,7 +800,7 @@ GtCoreDatamodel::objectFromIndex(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return static_cast<GtObject*>(index.internalPointer());
@@ -831,7 +832,7 @@ GtCoreDatamodel::indexFromObject(GtObject* obj, int col) const
     // check row
     if (row < 0)
     {
-        return QModelIndex();
+        return {};
     }
 
     // create index
@@ -842,26 +843,26 @@ QModelIndex
 GtCoreDatamodel::appendChild(GtObject* child, GtObject* parent)
 {
     // check child object
-    if (child == Q_NULLPTR)
+    if (!child)
     {
         gtWarning() << tr("Could not append child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("child == NULL");
-        return QModelIndex();
+        return {};
     }
 
-    if (child->factory() == Q_NULLPTR)
+    if (!child->factory())
     {
         child->setFactory(gtObjectFactory);
     }
 
     // check parent object
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         gtWarning() << tr("Could not append child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // use multi append function
@@ -870,7 +871,7 @@ GtCoreDatamodel::appendChild(GtObject* child, GtObject* parent)
     // check whether child was appended
     if (indexList.isEmpty())
     {
-        return QModelIndex();
+        return {};
     }
 
     // return model index
@@ -878,10 +879,11 @@ GtCoreDatamodel::appendChild(GtObject* child, GtObject* parent)
 }
 
 QModelIndexList
-GtCoreDatamodel::appendChildren(QList<GtObject*> children, GtObject* parent)
+GtCoreDatamodel::appendChildren(QList<GtObject*> const& children,
+                                GtObject* parent)
 {
     // check parent object
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         gtWarning() << tr("Could not append children!") <<
                     QStringLiteral(" - ") <<
@@ -928,21 +930,21 @@ QModelIndex
 GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
 {
     // check child object
-    if (child == Q_NULLPTR)
+    if (!child)
     {
         gtWarning() << tr("Could not insert child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("child == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // check parent object
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         gtWarning() << tr("Could not insert child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // get index of parent object
@@ -954,7 +956,7 @@ GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
         gtWarning() << tr("Could not insert children!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent index invalid");
-        return QModelIndex();
+        return {};
     }
 
     // TODO: check whether child can be appended or not before appending
@@ -963,7 +965,7 @@ GtCoreDatamodel::insertChild(GtObject* child, GtObject* parent, int row)
 
     if (!parent->insertChild(row, child))
     {
-        return QModelIndex();
+        return {};
     }
 
     endInsertRows();
@@ -976,7 +978,7 @@ bool
 GtCoreDatamodel::deleteFromModel(GtObject* obj)
 {
     // check object
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         gtWarning() << tr("Could not delete object!") <<
                     QStringLiteral(" - ") <<
@@ -1068,7 +1070,7 @@ GtCoreDatamodel::uniqueObjectName(const QString& name, GtObject* parent)
     }
 
     // check parent object
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         return QString();
     }
@@ -1077,7 +1079,9 @@ GtCoreDatamodel::uniqueObjectName(const QString& name, GtObject* parent)
     QList<GtObject*> childs = parent->findDirectChildren<GtObject*>();
 
     // return unique object name
-    return uniqueObjectNameHelper(name, childs);
+    return getUniqueName(name, childs, [](const GtObject* o){
+        return o->objectName();
+    });
 }
 
 QString
@@ -1113,9 +1117,9 @@ GtCoreDatamodel::objectByPath(const QString& objectPath)
     QStringList list = objectPath.split(QStringLiteral(";"));
 
     // check session
-    if (m_session == Q_NULLPTR)
+    if (!m_session)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // return object
@@ -1128,13 +1132,13 @@ GtCoreDatamodel::objectByUuid(const QString& objectUuid)
     // check uuid string
     if (objectUuid.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // check session
-    if (m_session == Q_NULLPTR)
+    if (!m_session)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // return object

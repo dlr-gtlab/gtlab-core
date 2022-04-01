@@ -69,7 +69,7 @@ private:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    explicit GtCalculatorFactory(QObject* parent = Q_NULLPTR);
+    explicit GtCalculatorFactory(QObject* parent = nullptr);
 
 };
 

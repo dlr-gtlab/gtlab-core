@@ -29,10 +29,6 @@ GtProcessModuleLoader::GtProcessModuleLoader()
 {
 }
 
-GtProcessModuleLoader::~GtProcessModuleLoader()
-{
-}
-
 bool
 GtProcessModuleLoader::check(GtModuleInterface* plugin)
 {
@@ -91,7 +87,7 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin)
 
     GtNetworkInterface* neti = dynamic_cast<GtNetworkInterface*>(plugin);
 
-    if (neti != Q_NULLPTR)
+    if (neti)
     {
         if (gtAccessManager->groupExists(neti->accessId()))
         {
@@ -102,7 +98,7 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin)
 
         QObject* obj = meta.newInstance();
 
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             return false;
         }
@@ -166,7 +162,7 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
 
     GtNetworkInterface* neti = dynamic_cast<GtNetworkInterface*>(plugin);
 
-    if (neti != Q_NULLPTR)
+    if (neti)
     {
         gtAccessManager->addAccessGroup(neti->accessId(),
                                         neti->accessConnection());

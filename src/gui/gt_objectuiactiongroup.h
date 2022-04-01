@@ -31,7 +31,7 @@ public:
      * @brief GtObjectUIActionGroup
      */
     GtObjectUIActionGroup(const QString& groupName,
-                          const QList<GtObjectUIAction> actions,
+                          const QList<GtObjectUIAction>& actions,
                           const QString& icon = QString());
     /**
      * @brief actions

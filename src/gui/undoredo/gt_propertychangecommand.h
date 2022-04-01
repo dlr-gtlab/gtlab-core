@@ -29,20 +29,20 @@ public:
      */
     GtPropertyChangeCommand(GtObject* obj,
                             GtAbstractProperty* prop,
-                            QVariant newVal,
+                            const QVariant& newVal,
                             const QString& unit,
-                            GtObject* root = Q_NULLPTR,
-                            QUndoCommand* parent = Q_NULLPTR);
+                            GtObject* root = nullptr,
+                            QUndoCommand* parent = nullptr);
 
     /**
      * @brief redo
      */
-    virtual void redo();
+    void redo() override;
 
     /**
      * @brief undo
      */
-    virtual void undo();
+    void undo() override;
 
 private:
     ///

@@ -43,24 +43,6 @@ protected:
     Q_INVOKABLE GtExternalizedH5Object();
 
     /**
-     * @brief doFetch method to implement for fetching the externalized data.
-     * @return success
-     */
-    virtual bool doFetchData() = 0;
-
-    /**
-     * @brief doExternalize method to implement for externalizing the data.
-     * @return success
-     */
-    virtual bool doExternalizeData() = 0;
-
-    /**
-     * @brief doClearExternalizedData method to implement for clearing the
-     * externalized data. Should not emit a signal or set any object flags.
-     */
-    virtual void doClearExternalizedData() = 0;
-
-    /**
      * @brief getDataSet attempts opens the dataset associated with this
      * object and returns the file and dataset as reference. Dataset is opened
      * in ReadOnly mode and cannot be modified. File reference must stay in

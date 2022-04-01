@@ -57,26 +57,26 @@ private:
      * @brief Loads state. Location depends on state container settings.
      * @param State.
      */
-    void loadState(GtState* state);
+    void loadState(GtState& state);
 
     /**
      * @brief loadStateGlobal
      * @param state
      */
-    void loadStateGlobal(GtState* state);
+    void loadStateGlobal(GtState& state);
 
     /**
      * @brief loadStateSpecific
      * @param state
      */
-    void loadStateSpecific(GtState* state);
+    void loadStateSpecific(GtState& state);
 
     /**
      * @brief loadStateFromSettings
-     * @param state
-     * @param settings
+     * @param settings[in]
+     * @param state[out]
      */
-    void loadStateFromSettings(GtState* state, QSettings& settings);
+    void loadStateFromSettings(const QSettings& settings, GtState& state);
 
     /**
      * @brief Saves state. Location depends on state container settings.

@@ -20,8 +20,8 @@
 
 GtAbstractPostWidget::GtAbstractPostWidget(QWidget* w) :
     QWidget(w),
-    m_dztList(Q_NULLPTR),
-    m_data(Q_NULLPTR),
+    m_dztList(nullptr),
+    m_data(nullptr),
     m_printable(true),
     m_iconString(QString())
 {
@@ -111,12 +111,7 @@ GtAbstractPostWidget::addConfigAction(const QString& actionText,
 bool
 GtAbstractPostWidget::hasConfigMenu()
 {
-    if (m_actionList.size() <= 0)
-    {
-        return false;
-    }
-
-    return true;
+    return !m_actionList.isEmpty();
 }
 
 bool
@@ -150,7 +145,7 @@ GtAbstractPostWidget::providerName()
 }
 
 void
-GtAbstractPostWidget::createDztList(QStringList dztUUIDs)
+GtAbstractPostWidget::createDztList(const QStringList& dztUUIDs)
 {
     deleteDztList();
 
@@ -167,7 +162,7 @@ GtAbstractPostWidget::createDztList(QStringList dztUUIDs)
     {
         GtObject* o = gtDataModel->objectByUuid(uuid);
 
-        if (o == Q_NULLPTR)
+        if (!o)
         {
             gtDebug() << "Cannot find data for uuid" << uuid;
             continue;
@@ -175,7 +170,7 @@ GtAbstractPostWidget::createDztList(QStringList dztUUIDs)
 
         GtObject* parent = o->findParent<GtObject*>();
 
-        if (parent == Q_NULLPTR)
+        if (!parent)
         {
             gtWarning() << tr("Parent of object'") << o->objectName()
                         << tr(" could not be found");
@@ -193,7 +188,7 @@ GtAbstractPostWidget::createDztList(QStringList dztUUIDs)
 
         GtDataZoneTable* dzt = o->createDzt();
 
-        if (dzt == Q_NULLPTR)
+        if (!dzt)
         {
             gtWarning() << tr("DataZoneTable cannot be collected. "
                             "Path to object: '") << uuid;
@@ -209,10 +204,10 @@ GtAbstractPostWidget::createDztList(QStringList dztUUIDs)
 void
 GtAbstractPostWidget::deleteDztList()
 {
-    if (m_dztList != Q_NULLPTR)
+    if (m_dztList)
     {
         delete m_dztList;
-        m_dztList = Q_NULLPTR;
+        m_dztList = nullptr;
     }
 }
 
@@ -237,21 +232,21 @@ GtAbstractPostWidget::canHideMarkers(GtObject*)
 GtAbstractChartProvider*
 GtAbstractPostWidget::chartProvider()
 {
-    if (m_data == Q_NULLPTR)
+    if (!m_data)
     {
         gtWarning() << tr("Data is NULL in Abstract Post Widget");
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtAbstractChartProvider* acp =
             qobject_cast<GtAbstractChartProvider*>(m_data);
 
-    if (acp == Q_NULLPTR)
+    if (!acp)
     {
         gtWarning() << tr("Data cannot be casted into Abstract Chart Provider");
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return acp;

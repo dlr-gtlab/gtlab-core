@@ -23,8 +23,8 @@ class GT_GUI_EXPORT GtGraphicsView : public QGraphicsView
     Q_OBJECT
 
 public:
-    GtGraphicsView(GtGraphicsScene* s, QWidget* parent = 0);
-    ~GtGraphicsView();
+    explicit GtGraphicsView(GtGraphicsScene *s, QWidget *parent = 0);
+    ~GtGraphicsView() override;
 
     /** Returns grid.
         @return Grid pointer */
@@ -71,13 +71,13 @@ protected:
     /// GtdGraphicsScene
     GtGraphicsScene* m_scene;
 
-    virtual void wheelEvent(QWheelEvent *e);
+    void wheelEvent(QWheelEvent *e) override;
 
-    virtual void scrollContentsBy(int dx, int dy);
+    void scrollContentsBy(int dx, int dy) override;
 
-    virtual void drawBackground(QPainter *painter, const QRectF &rect);
+    void drawBackground(QPainter *painter, const QRectF &rect) override;
 
-    virtual void mouseMoveEvent(QMouseEvent* mouseEvent);
+    void mouseMoveEvent(QMouseEvent* mouseEvent) override;
 
     /** Sets view scale to given factor.
         @param val New Scale factor */

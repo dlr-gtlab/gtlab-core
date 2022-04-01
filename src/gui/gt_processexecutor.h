@@ -35,13 +35,13 @@ protected:
      * @param changedData
      * @param task
      */
-    virtual void handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
-                                          GtTask* task) override;
+    void handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
+                                  GtTask* task) override;
 
     /**
      * @brief execute
      */
-    virtual void execute() override;
+    void execute() override;
 private slots:
     /**
      * @brief onHelperFinished - reaction on finished signal of loading helper

@@ -28,8 +28,6 @@ GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
     QGraphicsEllipseItem(x, y , width, height),
     m_scale(1.0),
     m_type(typ),
-    m_anim(Q_NULLPTR),
-    m_timer(Q_NULLPTR),
     m_item(item)
 {
     setBrush(QBrush(Qt::darkGray));
@@ -37,20 +35,14 @@ GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
     setAcceptHoverEvents(true);
 }
 
-GtProcessPropertyPortEntity::~GtProcessPropertyPortEntity()
-{
-    if (m_timer != Q_NULLPTR)
-    {
-        delete m_timer;
-    }
-}
+GtProcessPropertyPortEntity::~GtProcessPropertyPortEntity() = default;
 
 bool
 GtProcessPropertyPortEntity::connectPort(
         GtProcessPropertyConnectionEntity* connection)
 {
     // check connection
-    if (connection == Q_NULLPTR)
+    if (!connection)
     {
         return false;
     }
@@ -102,12 +94,7 @@ GtProcessPropertyPortEntity::disconnectPort(
 bool
 GtProcessPropertyPortEntity::isConnected()
 {
-    if (m_connections.isEmpty())
-    {
-        return false;
-    }
-
-    return true;
+    return !m_connections.isEmpty();
 }
 
 GtProcessPropertyPortEntity::PortTypes
@@ -119,7 +106,7 @@ GtProcessPropertyPortEntity::portType()
 QPropertyAnimation*
 GtProcessPropertyPortEntity::hidePortAnim()
 {
-    if (m_anim != Q_NULLPTR)
+    if (m_anim)
     {
         m_anim->stop();
     }
@@ -136,7 +123,7 @@ GtProcessPropertyPortEntity::hidePortAnim()
 QPropertyAnimation*
 GtProcessPropertyPortEntity::highlightPortAnim()
 {
-    if (m_anim != Q_NULLPTR)
+    if (m_anim)
     {
         m_anim->stop();
     }
@@ -153,7 +140,7 @@ GtProcessPropertyPortEntity::highlightPortAnim()
 QPropertyAnimation*
 GtProcessPropertyPortEntity::resetPortAnim()
 {
-    if (m_anim != Q_NULLPTR)
+    if (m_anim)
     {
         m_anim->stop();
     }
@@ -170,7 +157,7 @@ bool
 GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
 {
     // check port
-    if (port == Q_NULLPTR)
+    if (!port)
     {
         return false;
     }
@@ -224,7 +211,7 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
 QVariant
 GtProcessPropertyPortEntity::propertyValue()
 {
-    if (m_item == Q_NULLPTR)
+    if (!m_item)
     {
         return QVariant();
     }
@@ -235,7 +222,7 @@ GtProcessPropertyPortEntity::propertyValue()
 QString
 GtProcessPropertyPortEntity::propertyClassName()
 {
-    if (m_item == Q_NULLPTR)
+    if (!m_item)
     {
         return QString();
     }
@@ -246,7 +233,7 @@ GtProcessPropertyPortEntity::propertyClassName()
 QString
 GtProcessPropertyPortEntity::parentComponentUuid()
 {
-    if (m_item == Q_NULLPTR)
+    if (!m_item)
     {
         return QString();
     }
@@ -257,7 +244,7 @@ GtProcessPropertyPortEntity::parentComponentUuid()
 QString
 GtProcessPropertyPortEntity::propertyId()
 {
-    if (m_item == Q_NULLPTR)
+    if (!m_item)
     {
         return QString();
     }
@@ -300,7 +287,7 @@ GtProcessPropertyPortEntity::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
     if (event->button() == Qt::LeftButton)
     {
-        if (scene() == Q_NULLPTR)
+        if (!scene())
         {
             return;
         }
@@ -314,18 +301,18 @@ GtProcessPropertyPortEntity::mousePressEvent(QGraphicsSceneMouseEvent* event)
         GtProcessConnectionScene* pcScene =
                 qobject_cast<GtProcessConnectionScene*>(scene());
 
-        if (pcScene == Q_NULLPTR)
+        if (!pcScene)
         {
             return;
         }
 
-        if (m_timer == Q_NULLPTR)
+        if (!m_timer)
         {
-            m_timer = new QTimer;
+            m_timer.reset(new QTimer);
             m_timer->setSingleShot(true);
             m_timer->setInterval(100);
 
-            connect(m_timer.data(), &QTimer::timeout,
+            connect(m_timer.get(), &QTimer::timeout,
                     pcScene, &GtProcessConnectionScene::animatePorts);
         }
 
@@ -336,17 +323,16 @@ GtProcessPropertyPortEntity::mousePressEvent(QGraphicsSceneMouseEvent* event)
 void
 GtProcessPropertyPortEntity::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-    if (m_timer != Q_NULLPTR)
+    if (m_timer)
     {
         m_timer->stop();
-        delete m_timer;
-        m_timer = Q_NULLPTR;
+        m_timer.reset();
     }
 
     GtProcessConnectionScene* pcScene =
             qobject_cast<GtProcessConnectionScene*>(scene());
 
-    if (pcScene != Q_NULLPTR)
+    if (pcScene)
     {
         pcScene->clearSelection();
         pcScene->resetPorts();
@@ -426,10 +412,6 @@ GtProcessPropertyPortEntity::updateShape()
         {
             setVisible(true);
         }
-    }
-    else
-    {
-
     }
 }
 

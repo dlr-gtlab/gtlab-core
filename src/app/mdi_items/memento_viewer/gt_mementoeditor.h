@@ -24,14 +24,14 @@ public:
      * @brief GtMementoEditor
      * @param parent
      */
-    explicit GtMementoEditor(QWidget* parent = Q_NULLPTR);
+    explicit GtMementoEditor(QWidget* parent = nullptr);
 
 protected:
     /**
      * @brief dropEvent
      * @param event
      */
-    virtual void dropEvent(QDropEvent* event);
+    void dropEvent(QDropEvent* event) override;
 
 };
 

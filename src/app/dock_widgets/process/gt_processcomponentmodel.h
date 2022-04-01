@@ -26,7 +26,7 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    explicit GtProcessComponentModel(QObject* parent = Q_NULLPTR);
+    explicit GtProcessComponentModel(QObject* parent = nullptr);
 
     /**
      * @brief data
@@ -34,8 +34,8 @@ public:
      * @param role
      * @return
      */
-    virtual QVariant data(const QModelIndex& index,
-                          int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns process component state specific icon.
@@ -73,16 +73,16 @@ protected:
 
     /**
      * @brief dropMimeData
-     * @param data
+     * @param mimeData
      * @param action
      * @param row
      * @param column
-     * @param parent
+     * @param destinationIndex
      * @return
      */
-    bool dropMimeData(const QMimeData* data, Qt::DropAction action,
+    bool dropMimeData(const QMimeData* mimeData, Qt::DropAction action,
                       int row, int column,
-                      const QModelIndex& parent) override;
+                      const QModelIndex& destinationIndex) override;
 
     /**
      * @brief Returns the item flags for the given index.

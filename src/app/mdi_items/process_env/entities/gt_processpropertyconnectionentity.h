@@ -29,12 +29,12 @@ public:
      * @brief GtProcessPropertyConnectionEntity
      */
     explicit GtProcessPropertyConnectionEntity(
-            GtPropertyConnection* connection = Q_NULLPTR);
+            GtPropertyConnection* connection = nullptr);
 
     /**
      * @brief Destructor.
      */
-    virtual ~GtProcessPropertyConnectionEntity();
+    ~GtProcessPropertyConnectionEntity() override;
 
     /**
      * @brief Returns true if start port exists, otherwise returns false.

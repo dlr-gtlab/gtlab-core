@@ -16,7 +16,6 @@
 #include <QDebug>
 
 GtGrid::GtGrid(GtGraphicsView& view) :
-    QObject(),
     m_view(view),
     m_width(100),
     m_height(100),
@@ -30,8 +29,8 @@ GtGrid::GtGrid(GtGraphicsView& view) :
     m_hgColor(QColor(200, 200, 255, 125)),
     m_vgColor(QColor(200, 200, 255, 125)),
     m_gpColor(QColor(100, 100, 155)),
-    m_hRuler(Q_NULLPTR),
-    m_vRuler(Q_NULLPTR)
+    m_hRuler(nullptr),
+    m_vRuler(nullptr)
 {
     if (gtApp->inDarkMode())
     {
@@ -118,7 +117,7 @@ GtGrid::setGridPointColor(const QColor &color)
 void
 GtGrid::paintGrid(QPainter* painter, const QRectF &rect)
 {
-    if (painter == Q_NULLPTR)
+    if (!painter)
     {
         return;
     }
@@ -134,14 +133,14 @@ GtGrid::paintGrid(QPainter* painter, const QRectF &rect)
         paintAxis(painter, rect);
     }
 
-    if (m_hRuler != Q_NULLPTR && m_hRuler->needsRepaint())
+    if (m_hRuler && m_hRuler->needsRepaint())
     {
         m_rect = rect;
         paintRuler(m_hRuler);
         m_hRuler->setNeedsRepaint(false);
     }
 
-    if (m_vRuler != Q_NULLPTR && m_vRuler->needsRepaint())
+    if (m_vRuler && m_vRuler->needsRepaint())
     {
         m_rect = rect;
         paintRuler(m_vRuler);
@@ -160,7 +159,7 @@ GtGrid::computeTopLeftGridPoint(const QPointF& p)
     qreal xV = floor( p.x() / tmpWidth ) * tmpWidth;
     qreal yV = floor( p.y() / tmpHeight ) * tmpHeight;
 
-    return QPointF(xV, yV);
+    return {xV, yV};
 }
 
 QPointF
@@ -182,7 +181,7 @@ GtGrid::computeNearestGridPoint(const QPointF& p)
         y += tmpHeight;
     }
 
-    return QPointF(x, y);
+    return {x, y};
 }
 
 void
@@ -190,12 +189,12 @@ GtGrid::setGridScaleFactor(int val)
 {
     m_gridFactor = val;
 
-    if (m_hRuler != Q_NULLPTR)
+    if (m_hRuler)
     {
         m_hRuler->setNeedsRepaint(true);
     }
 
-    if ( m_vRuler != Q_NULLPTR)
+    if ( m_vRuler)
     {
         m_vRuler->setNeedsRepaint(true);
     }
@@ -205,7 +204,7 @@ GtGrid::setGridScaleFactor(int val)
 void
 GtGrid::paintRuler(GtRuler* ruler)
 {
-    if (ruler == Q_NULLPTR)
+    if (!ruler)
     {
         qWarning() << "WARNING: ruler == NULL";
 //        QLOG_WARN() << "WARNING: ruler == NULL";
@@ -343,7 +342,7 @@ GtGrid::showGrid(bool val)
 void
 GtGrid::paintGridLines(QPainter* painter, const QRectF& rect)
 {
-    if (painter == nullptr)
+    if (!painter)
     {
         return;
     }
@@ -429,10 +428,9 @@ GtGrid::getScaledGrid(Qt::Orientation val)
         {
             return (length * qPow(2, m_gridFactor + 1));
         }
-        else
-        {
-            return (length * qPow(2, m_gridFactor));
-        }
+
+        return (length * qPow(2, m_gridFactor));
+
     }
 
     return length;
@@ -441,7 +439,7 @@ GtGrid::getScaledGrid(Qt::Orientation val)
 void GtGrid::drawRotatedText(QPainter* painter, int x, int y,
                               const QString &text)
 {
-    if (painter != Q_NULLPTR)
+    if (painter)
     {
         painter->save();
         painter->translate(x, y);

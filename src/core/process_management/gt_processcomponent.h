@@ -51,7 +51,7 @@ public:
      * @brief Returns current state of the process component.
      * @return Current state of process component.
      */
-    GtProcessComponent::STATE currentState();
+    GtProcessComponent::STATE currentState() const;
 
     /**
      * @brief Returns true if the process component is set to skip mode.

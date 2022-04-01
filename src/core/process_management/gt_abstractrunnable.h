@@ -39,7 +39,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~GtAbstractRunnable();
+    ~GtAbstractRunnable() override;
 
     /**
      * @brief linkedObjects
@@ -111,25 +111,25 @@ public:
     {
         if (uuid.isEmpty())
         {
-            return Q_NULLPTR;
+            return nullptr;
         }
 
         foreach (GtObject* obj, m_linkedObjects)
         {
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 continue;
             }
 
             GtObject* retval = obj->getObjectByUuid(uuid);
 
-            if (retval != Q_NULLPTR)
+            if (retval)
             {
                 return qobject_cast<T>(retval);
             }
         }
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     /**
@@ -144,20 +144,20 @@ public:
     {
         if (path.isEmpty())
         {
-            return Q_NULLPTR;
+            return nullptr;
         }
 
         foreach (GtObject* obj, m_linkedObjects)
         {
             GtObject* retval = path.getObject(obj);
 
-            if (retval != Q_NULLPTR)
+            if (retval)
             {
                 return qobject_cast<T>(retval);
             }
         }
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
 protected:

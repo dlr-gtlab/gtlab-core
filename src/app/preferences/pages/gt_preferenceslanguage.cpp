@@ -64,10 +64,10 @@ GtPreferencesLanguage::GtPreferencesLanguage()
             QString id = locale.nativeLanguageName() + " ("
                          + locale.name() + ")";
 
-            QListWidgetItem* item = new QListWidgetItem(id);
 
             if (fileName == language)
             {
+                QListWidgetItem* item = new QListWidgetItem(id);
                 QFont font = item->font();
                 font.setBold(true);
                 item->setFont(font);

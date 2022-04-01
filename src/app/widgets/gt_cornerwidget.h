@@ -39,9 +39,6 @@ private:
     /// Pointer to GTlab main window
     GtMainWin* m_mainwin;
 
-    /// Main layout
-    QHBoxLayout* m_layout;
-
     /// Update label
     QPointer<QLabel> m_updateLabel;
 

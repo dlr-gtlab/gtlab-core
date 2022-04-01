@@ -94,17 +94,17 @@ public:
      * @brief valueToVariant
      * @return
      */
-    virtual QVariant valueToVariant(const QString& unit,
-                                    bool* success = 0) const override;
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = 0) const override;
 
     /**
      * @brief setValueFromVariant
      * @param val
      * @return
      */
-    virtual bool setValueFromVariant(const QVariant& val,
-                                     const QString& unit,
-                                     bool* success = 0) override;
+    bool setValueFromVariant(const QVariant& val,
+                             const QString& unit,
+                             bool* success = 0) override;
 
     /**
      * @brief Returns value of low side boundary. 0.0 if no lower boundary is
@@ -119,11 +119,6 @@ public:
      * @return High side boundary.
      */
     double highSideBoundary() const;
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~GtDoubleProperty();
 
     /**
      * @brief initialValue of double property (0.0 if not specified)
@@ -151,8 +146,8 @@ protected:
      * @param success
      * @return
      */
-    virtual double convertFrom(const double& value, const QString& unit,
-                               bool* success = 0) override;
+    double convertFrom(const double& value, const QString& unit,
+                       bool* success = 0) override;
 
     /**
      * @brief convertTo
@@ -160,8 +155,8 @@ protected:
      * @param success
      * @return
      */
-    virtual double convertTo(const QString& unit,
-                             bool* success = 0) const override;
+    double convertTo(const QString& unit,
+                     bool* success = 0) const override;
 
     /**
      * @brief validateValue
@@ -169,7 +164,7 @@ protected:
      * @param unit
      * @return
      */
-    virtual bool validateValue(const double& value) override;
+    bool validateValue(const double& value) override;
 
 };
 

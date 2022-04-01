@@ -50,6 +50,7 @@
 #include "gt_residualloop.h"
 #include "gt_parameterloop.h"
 #include "gt_loopui.h"
+#include "gt_algorithms.h"
 
 GtGuiModuleLoader::GtGuiModuleLoader()
 {
@@ -81,17 +82,17 @@ GtGuiModuleLoader::GtGuiModuleLoader()
 
 GtGuiModuleLoader::~GtGuiModuleLoader()
 {
-    for (auto key : m_uiObjs.keys())
+    for_each_key(m_uiObjs, [this](const QString& key)
     {
         qDeleteAll(m_uiObjs.value(key));
-    }
+    });
 }
 
 GtObjectUIList
 GtGuiModuleLoader::objectUI(GtObject* obj)
 {
     // TODO: check assert !!!!
-//    Q_ASSERT(obj == Q_NULLPTR);
+//    Q_ASSERT(obj == nullptr);
 
     return objectUI(obj->metaObject()->className());
 }
@@ -112,10 +113,10 @@ GtGuiModuleLoader::knownUIObjects()
 {
     QStringList retval;
 
-    for (auto key : m_uiObjs.keys())
+    for_each_key(m_uiObjs, [&retval](const QString& key)
     {
         retval << key;
-    }
+    });
 
     return retval;
 }
@@ -135,7 +136,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin)
         GtMdiInterface* mdip = dynamic_cast<GtMdiInterface*>(plugin);
 
         // contains dynamic linked mdi classes
-        if (mdip != Q_NULLPTR)
+        if (mdip)
         {
             if (gtMdiLauncher->containsDuplicates(mdip->mdiItems()))
             {
@@ -175,7 +176,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin)
         // importer interface
         GtImporterInterface* impp = dynamic_cast<GtImporterInterface*>(plugin);
 
-        if (impp != Q_NULLPTR)
+        if (impp)
         {
             if (gtImportHandler->containsDuplicates(impp->importer()))
             {
@@ -191,7 +192,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin)
         // exporter interface
         GtExporterInterface* expp = dynamic_cast<GtExporterInterface*>(plugin);
 
-        if (expp != Q_NULLPTR)
+        if (expp)
         {
             if (gtExportHandler->containsDuplicates(expp->exporter()))
             {
@@ -207,7 +208,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin)
         // property interface
         GtPropertyInterface* prop = dynamic_cast<GtPropertyInterface*>(plugin);
 
-        if (prop != Q_NULLPTR)
+        if (prop)
         {
             if (gtPropertyItemFactory->propertyItemsExists(
                         prop->propertyItems()))
@@ -226,13 +227,13 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin)
         GtCollectionInterface* coll =
                 dynamic_cast<GtCollectionInterface*>(plugin);
 
-        if (coll != Q_NULLPTR)
+        if (coll)
         {
             QMetaObject meta = coll->collectionSettings();
 
             QObject* obj = meta.newInstance();
 
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 gtWarning() << plugin->ident() << QStringLiteral(": ") <<
                            QObject::tr("Could not invoke collection settings!");
@@ -274,17 +275,17 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 
         QMap<const char*, QMetaObject> uis = mdip->uiItems();
 
-        for (auto key : uis.keys())
+        for_each_key(uis, [&](const char* key)
         {
             QMetaObject metaobj = uis.value(key);
             registerObjectUI(key, metaobj);
-        }
+        });
     }
 
     // importer interface
     GtImporterInterface* impp = dynamic_cast<GtImporterInterface*>(plugin);
 
-    if (impp != Q_NULLPTR)
+    if (impp)
     {
         gtImportHandler->registerClasses(impp->importer());
     }
@@ -292,7 +293,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     // exporter interface
     GtExporterInterface* expp = dynamic_cast<GtExporterInterface*>(plugin);
 
-    if (expp != Q_NULLPTR)
+    if (expp)
     {
         gtExportHandler->registerClasses(expp->exporter());
     }
@@ -300,7 +301,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     // property interface
     GtPropertyInterface* prop = dynamic_cast<GtPropertyInterface*>(plugin);
 
-    if (prop != Q_NULLPTR)
+    if (prop)
     {
         gtPropertyItemFactory->registerPropertyItems(prop->propertyItems());
     }
@@ -309,7 +310,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     GtCollectionInterface* coll =
             dynamic_cast<GtCollectionInterface*>(plugin);
 
-    if (coll != Q_NULLPTR)
+    if (coll)
     {
         gtMdiLauncher->registerCollection(coll->collectionId(),
                                           coll);
@@ -322,7 +323,7 @@ GtGuiModuleLoader::registerObjectUI(const char* classId,
 {
     GtObjectUI* uio = qobject_cast<GtObjectUI*>(metaObj.newInstance());
 
-    if (uio == Q_NULLPTR)
+    if (!uio)
     {
         gtError() << "ui object not invokable! (" << classId << ")";
         return;

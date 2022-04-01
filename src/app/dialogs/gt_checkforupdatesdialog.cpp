@@ -144,10 +144,10 @@ GtCheckForUpdatesDialog::checkForUpdate()
     connect(thread, SIGNAL(started()), check, SLOT(checkForUpdate()));
     connect(check, SIGNAL(updateAvailable()), thread, SLOT(quit()));
     connect(check, SIGNAL(updateAvailable()), this, SLOT(updateAvailable()));
-    connect(check, SIGNAL(error(int, QString)), thread, SLOT(quit()));
-    connect(check, SIGNAL(error(int, QString)),
-            SLOT(noUpdateAvailable(int, QString)));
-    connect(check, SIGNAL(error(int, QString)), check, SLOT(deleteLater()));
+    connect(check, SIGNAL(error(int,QString)), thread, SLOT(quit()));
+    connect(check, SIGNAL(error(int,QString)),
+            SLOT(noUpdateAvailable(int,QString)));
+    connect(check, SIGNAL(error(int,QString)), check, SLOT(deleteLater()));
     connect(this, SIGNAL(finished(int)), thread, SLOT(terminate()));
 
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
@@ -174,7 +174,7 @@ GtCheckForUpdatesDialog::updateAvailable()
 
     GtUpdateChecker* check = qobject_cast<GtUpdateChecker*>(sender());
 
-    if (check == Q_NULLPTR)
+    if (!check)
     {
         return;
     }

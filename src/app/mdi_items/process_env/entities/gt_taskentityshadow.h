@@ -31,15 +31,15 @@ public:
      */
     explicit GtTaskEntityShadow(GtTaskEntity* task);
 
-    virtual void paint(QPainter* painter,
-                       const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) override;
+    void paint(QPainter* painter,
+               const QStyleOptionGraphicsItem* option,
+               QWidget* widget = nullptr) override;
 
     /**
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
 
     /**
      * @brief runAnimation

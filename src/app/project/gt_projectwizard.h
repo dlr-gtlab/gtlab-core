@@ -35,8 +35,8 @@ public:
      * @param provider Project provider.
      * @param parent widget.
      */
-    GtProjectWizard(GtProjectProvider* provider,
-                    QWidget* parent = Q_NULLPTR);
+    explicit GtProjectWizard(GtProjectProvider* provider,
+                             QWidget* parent = nullptr);
 
 private:
     /// Project provider

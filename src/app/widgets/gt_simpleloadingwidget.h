@@ -25,32 +25,32 @@ public:
     /**
      * @brief GtSimpleLoadingWidget
      */
-    GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
-                          QWidget* parent = Q_NULLPTR);
+    explicit GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
+                                   QWidget* parent = nullptr);
 
     /**
      * @brief ~GtSimpleLoadingWidget
      */
-    virtual ~GtSimpleLoadingWidget();
+    ~GtSimpleLoadingWidget() override;
 
 protected:
     /**
      * @brief showEvent
      * @param event
      */
-    virtual void showEvent(QShowEvent* event);
+    void showEvent(QShowEvent* event) override;
 
     /**
      * @brief closeEvent
      * @param event
      */
-    virtual void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 
     /**
      * @brief keyPressEvent
      * @param event
      */
-    virtual void keyPressEvent(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent* event) override;
 
 private:
     /// Loading animation

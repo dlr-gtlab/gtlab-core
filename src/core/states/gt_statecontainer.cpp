@@ -18,7 +18,7 @@ GtStateContainer::GtStateContainer(GtObject* parent, GtProject* project) :
     GtObject(parent),
     m_project(project)
 {
-    if (m_project != Q_NULLPTR)
+    if (m_project)
     {
         setObjectName(m_project->objectName());
         connect(project, SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
@@ -41,31 +41,31 @@ GtStateContainer::initializeState(const QString& groupId, const QString& id,
                                   const QVariant& initValue,
                                   GtObject* guardian, bool forceInitialization)
 {
-    if (guardian == Q_NULLPTR)
+    if (!guardian)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (groupId.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (id.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (path.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtStateGroup* group = findGroup(groupId);
 
-    if (group == Q_NULLPTR)
+    if (!group)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtState* state = group->findState(id, path, initValue, guardian);
@@ -79,16 +79,16 @@ GtStateContainer::initializeState(const QString& groupId, const QString& id,
 }
 
 GtStateGroup*
-GtStateContainer::findGroup(const QString id)
+GtStateContainer::findGroup(const QString& id)
 {
     if (id.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtStateGroup* retval = findDirectChild<GtStateGroup*>(id);
 
-    if (retval == Q_NULLPTR)
+    if (!retval)
     {
         retval = new GtStateGroup(this);
         retval->setObjectName(id);

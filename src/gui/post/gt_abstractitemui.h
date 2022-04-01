@@ -89,7 +89,7 @@ private slots:
 
     void configurePlot();
 
-    void plotNameChanged(QString s);
+    void plotNameChanged(const QString &s);
 
     void moveUp();
 
@@ -100,7 +100,7 @@ private slots:
      * reaction on a changed provider Name: reset the plot title to QString s
      * @param s - new name
      */
-    void onProvidernameChanged(QString s);
+    void onProvidernameChanged(const QString& s);
 };
 
 #endif // GTABSTRACTITEMUI_H

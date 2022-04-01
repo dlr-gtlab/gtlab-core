@@ -128,7 +128,7 @@ public:
      * @param project current project object
      * @param projectDir path to the project dir
      */
-    void reset(GtObject* project, QString projectDir);
+    void reset(GtObject* project, const QString& projectDir);
 
 private:
 

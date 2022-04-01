@@ -108,14 +108,14 @@ GtPreferencesAccess::addAccessData()
 
     GtAccessGroup* group = groups[tab];
 
-    if (group == Q_NULLPTR)
+    if (!group)
     {
         return;
     }
 
     QObject* obj = group->connectionMetaData().newInstance();
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
@@ -123,7 +123,7 @@ GtPreferencesAccess::addAccessData()
     GtAbstractAccessDataConnection* con =
             qobject_cast<GtAbstractAccessDataConnection*>(obj);
 
-    if (con == Q_NULLPTR)
+    if (!con)
     {
         delete obj;
         return;
@@ -174,7 +174,7 @@ GtPreferencesAccess::onDoubleClicked(const QModelIndex& index)
 
     GtAccessGroup* group = groups[tab];
 
-    if (group == Q_NULLPTR)
+    if (!group)
     {
         return;
     }
@@ -220,7 +220,7 @@ GtPreferencesAccess::onClicked(const QModelIndex& index)
 
         GtAccessGroup* group = groups[tab];
 
-        if (group == Q_NULLPTR)
+        if (!group)
         {
             return;
         }
@@ -243,7 +243,7 @@ GtPreferencesAccess::onClicked(const QModelIndex& index)
 
         GtAccessGroup* group = groups[tab];
 
-        if (group == Q_NULLPTR)
+        if (!group)
         {
             return;
         }

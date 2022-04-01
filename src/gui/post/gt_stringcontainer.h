@@ -20,7 +20,7 @@ public:
 
     Q_INVOKABLE GtStringContainer();
 
-    explicit GtStringContainer(QString str);
+    explicit GtStringContainer(const QString& str);
 
     QString entry() const;
 

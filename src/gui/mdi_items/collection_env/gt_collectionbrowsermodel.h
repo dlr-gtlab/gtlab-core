@@ -114,7 +114,7 @@ public:
      * @param index
      * @return
      */
-    virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     /**
      * @brief itemFromIndex

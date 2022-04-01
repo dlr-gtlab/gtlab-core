@@ -34,19 +34,19 @@ GtLabelContainer::label()
 bool
 GtLabelContainer::isValid()
 {
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         return false;
     }
 
-    if (m_label == Q_NULLPTR)
+    if (!m_label)
     {
         return false;
     }
 
     GtLabelData* labelData = m_project->labelData();
 
-    if (labelData == Q_NULLPTR)
+    if (!labelData)
     {
         return false;
     }

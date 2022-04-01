@@ -76,7 +76,7 @@ public:
      * @param file
      * @return
      */
-    virtual QString sessionFilePath();
+    static QString sessionFilePath(const QString& sessionID);
 
     /**
      * @brief roamingPath
@@ -84,17 +84,13 @@ public:
      */
     static QString roamingPath();
 
-    /**
-     * @brief ~GtSession
-     */
-    virtual ~GtSession();
-
 protected:
     /**
      * @brief GtSession
      * @param id
+     * @param sessionPath Path to the session. If empty, sessionFilePath(id) will be used
      */
-    explicit GtSession(const QString& id);
+    explicit GtSession(const QString& id, QString sessionPath = "");
 
     /**
      * @brief GtSession
@@ -126,14 +122,14 @@ protected:
      * @param id
      * @return
      */
-    static bool createEmptySession(const QString id);
+    static bool createEmptySession(const QString& id);
 
     /**
      * @brief duplicateWorkspcae
      * @param id
      * @return
      */
-    static bool duplicateSession(const QString source, const QString target);
+    static bool duplicateSession(const QString& source, const QString& target);
 
     /**
      * @brief setCurrentProject
@@ -184,7 +180,7 @@ protected:
      * @brief fromJson
      * @return
      */
-    bool fromJsonObject();
+    bool fromJsonObject(const QString &sessionFilePath);
 
 private:
     ///

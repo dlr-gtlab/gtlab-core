@@ -1,12 +1,12 @@
 #include "gt_postaction.h"
 
 GtPostAction::GtPostAction() :
-    QAction(QString(), Q_NULLPTR)
+    QAction(QString(), nullptr)
 {
 
 }
 
-GtPostAction::GtPostAction(QString str, QObject* o) :
+GtPostAction::GtPostAction(const QString& str, QObject* o) :
     QAction(str, o)
 {
 

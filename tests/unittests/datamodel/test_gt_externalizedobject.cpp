@@ -167,7 +167,7 @@ TEST_F(TestGtExternalizedObject, hasChanges)
     QString cHash = dz->cachedHash();
 
     // modify values
-    for (QString& p : dz->params())
+    for (const QString& p : dz->params())
     {
         dz->setValue(p, 0);
     }

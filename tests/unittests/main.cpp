@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     GtTestHelper* helper = GtTestHelper::instance();
 
     // set custom path for hdf5 files
-    gtH5FileManager->reset(Q_NULLPTR, helper->newTempDir().path());
+    gtH5FileManager->reset(nullptr, helper->newTempDir().path());
 
     ::testing::InitGoogleTest(&argc, argv);
     int retval = RUN_ALL_TESTS();

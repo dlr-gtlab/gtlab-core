@@ -23,8 +23,8 @@ GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
 GtCalculatorFactory*
 GtCalculatorFactory::instance()
 {
-    static GtCalculatorFactory* retval = 0;
-    if (retval == 0)
+    static GtCalculatorFactory* retval = nullptr;
+    if (!retval)
     {
         retval = new GtCalculatorFactory(qApp);
     }
@@ -64,10 +64,5 @@ GtCalculatorFactory::calculatorData(const QString& className)
 bool
 GtCalculatorFactory::calculatorDataExists(const QString& className)
 {
-    if (m_calcData.contains(className))
-    {
-        return true;
-    }
-
-    return false;
+    return m_calcData.contains(className);
 }

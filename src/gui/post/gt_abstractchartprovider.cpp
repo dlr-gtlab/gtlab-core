@@ -9,11 +9,12 @@
 #include <QDebug>
 #include <QsLog.h>
 
+#include <QRandomGenerator>
 
 GtAbstractChartProvider::GtAbstractChartProvider() :
+    m_dztUUIDsContainer(nullptr),
     m_showmarkers(true),
-    m_showwidgets(true),
-    m_dztUUIDsContainer(Q_NULLPTR)
+    m_showwidgets(true)
 {
     GtObjectGroup* UUIDsContainer = new GtObjectGroup;
     UUIDsContainer->setDefault(true);
@@ -31,7 +32,7 @@ GtAbstractChartProvider::uuids() const
     foreach (GtStringContainer* container,
              o->findDirectChildren<GtStringContainer*>())
     {
-        if (container != Q_NULLPTR)
+        if (container)
         {
             retval.append(container->entry());
         }
@@ -47,7 +48,7 @@ GtAbstractChartProvider::setUUIDs(const QStringList& uuids)
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
         delete container;
-        container = Q_NULLPTR;
+        container = nullptr;
     }
 
     foreach (QString str, uuids)
@@ -62,7 +63,7 @@ GtAbstractChartProvider::addUUID(const QString& uuid)
     foreach (GtStringContainer* container,
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
-        if (container != Q_NULLPTR)
+        if (container)
         {
             if (container->entry() == uuid)
             {
@@ -78,14 +79,14 @@ GtAbstractChartProvider::addUUID(const QString& uuid)
 }
 
 QStringList
-GtAbstractChartProvider::objectNamesFromContainer()
+GtAbstractChartProvider::objectNamesFromContainer() const
 {
     QStringList retval;
 
     foreach (GtStringContainer* container,
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
-        if (container == Q_NULLPTR)
+        if (!container)
         {
             continue;
         }
@@ -94,7 +95,7 @@ GtAbstractChartProvider::objectNamesFromContainer()
 
         GtObject* obj = gtDataModel->objectByUuid(uuidContainer);
 
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             continue;
         }
@@ -111,7 +112,7 @@ GtAbstractChartProvider::clearUUIDsContainer()
     foreach (GtStringContainer* container,
              UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
-        if (container == Q_NULLPTR)
+        if (!container)
         {
             continue;
         }
@@ -121,7 +122,7 @@ GtAbstractChartProvider::clearUUIDsContainer()
 }
 
 QColor
-GtAbstractChartProvider::colorUseRAt(int i)
+GtAbstractChartProvider::colorUseRAt(int i) const
 {
     if (i >= m_colorsR.size())
     {
@@ -147,7 +148,7 @@ GtAbstractChartProvider::setColorsUseR(const QList<QString>& colorsUse)
 }
 
 void
-GtAbstractChartProvider::addColorUseR(QColor col)
+GtAbstractChartProvider::addColorUseR(QColor const& col)
 {
     m_colorsR.append(col.name());
 }
@@ -180,10 +181,12 @@ GtAbstractChartProvider::fitColorsL(int params)
     }
     else
     {
+        QRandomGenerator randg;
+
         // add colors to match parameter sizes
         for (int i = colors; i < params; ++i)
         {
-            QColor color = QColor::fromHsv(qrand() % 256, 255, 190);
+            QColor color = QColor::fromHsv(randg.generate() % 256, 255, 190);
             addColorUseL(color);
         }
     }
@@ -204,10 +207,12 @@ GtAbstractChartProvider::fitColorsR(int params)
     }
     else
     {
+        QRandomGenerator randg;
+
         // add colors to match parameter sizes
         for (int i = colors; i < params; ++i)
         {
-            QColor color = QColor::fromHsv(qrand() % 256, 255, 190);
+            QColor color = QColor::fromHsv(randg.generate() % 256, 255, 190);
             addColorUseR(color);
         }
     }
@@ -226,7 +231,7 @@ GtAbstractChartProvider::setColorsUseL(const QList<QString>& colorsUse)
 }
 
 void
-GtAbstractChartProvider::addColorUseL(QColor col)
+GtAbstractChartProvider::addColorUseL(QColor const& col)
 {
     m_colorsL.append(col.name());
 }
@@ -251,21 +256,21 @@ GtAbstractChartProvider::clearColorsUseR()
 }
 
 void
-GtAbstractChartProvider::setSingleColorsUseR(int index, QColor col)
+GtAbstractChartProvider::setSingleColorsUseR(int index, const QColor& col)
 {
     m_colorsR.replace(index, col.name());
 }
 
 void
-GtAbstractChartProvider::setSingleColorsUseL(int index, QColor col)
+GtAbstractChartProvider::setSingleColorsUseL(int index, const QColor& col)
 {
     m_colorsL.replace(index, col.name());
 }
 
 int
 GtAbstractChartProvider::bottomIterator(GtDataZoneTableList* dztList,
-                                        QString bottomAxis,
-                                        QVector<double>& axisTicks)
+                                        const QString& bottomAxis,
+                                        QVector<double>& axisTicks) const
 {
     // get how many data sets there are at bottom
 
@@ -296,12 +301,10 @@ GtAbstractChartProvider::bottomIterator(GtDataZoneTableList* dztList,
                             "nor a sub axis, abort!");
             return bottomIterator;
         }
-        else
-        {
-            // bottom axis is sub axis, use its axis ticks
-            axisTicks = dztList->dzt()->allAxisTicksMap().value(bottomAxis);
-            bottomIterator = axisTicks.size();
-        }
+
+        // bottom axis is sub axis, use its axis ticks
+        axisTicks = dztList->dzt()->allAxisTicksMap().value(bottomAxis);
+        bottomIterator = axisTicks.size();
     }
 
     return bottomIterator;
@@ -309,7 +312,7 @@ GtAbstractChartProvider::bottomIterator(GtDataZoneTableList* dztList,
 
 int
 GtAbstractChartProvider::bottomIterator(
-        GtDataZoneTableList *dztList, QString bottomAxis)
+        GtDataZoneTableList *dztList, const QString& bottomAxis) const
 {
     QVector<double> axisTicks;
 
@@ -318,9 +321,9 @@ GtAbstractChartProvider::bottomIterator(
 
 int
 GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
-                                            QString additionalAxis,
-                                            QStringList scharParameters,
-                                            QVector<double>& axisTicks)
+                                            const QString& additionalAxis,
+                                            const QStringList& scharParameters,
+                                            QVector<double>& axisTicks) const
 {
     // get how many data sets there are additional (that means schar)
 
@@ -343,7 +346,7 @@ GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
     }
     else if (additionalAxis == "OtherParams")
     {
-        if (scharParameters.size() == 0)
+        if (scharParameters.empty())
         {
             // 'OtherParams' is selected but its size is zero -> error
             gtError() << "Additional params should be more than 0";
@@ -360,22 +363,20 @@ GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
             // additional parameter is None!
             return additionalIterator;
         }
-        else
-        {
-            // additional parameter is one of the sub axes, collect
-            // ticks of 'additional' axis
-            axisTicks = dztList->dzt()->allAxisTicksMap().value(additionalAxis);
-            additionalIterator = axisTicks.size();
-        }
+
+        // additional parameter is one of the sub axes, collect
+        // ticks of 'additional' axis
+        axisTicks = dztList->dzt()->allAxisTicksMap().value(additionalAxis);
+        additionalIterator = axisTicks.size();
     }
 
     return additionalIterator;
 }
 
 int
-GtAbstractChartProvider::additionalIterator(GtDataZoneTableList *dztList,
-                                            QString additionalAxis,
-                                            QStringList scharParameters)
+GtAbstractChartProvider::additionalIterator(
+        GtDataZoneTableList* dztList, const QString& additionalAxis,
+        const QStringList& scharParameters) const
 {
 
     QVector<double> axisTicks;
@@ -386,7 +387,7 @@ GtAbstractChartProvider::additionalIterator(GtDataZoneTableList *dztList,
 
 void
 GtAbstractChartProvider::fixMainValues(GtDataZoneTableList* dztList,
-                                       QMap<QString, QString> fixedMain,
+                                       const QMap<QString, QString>& fixedMain,
                                        int& fixXmain, int& fixYmain,
                                        int& fixZmain)
 {
@@ -411,9 +412,9 @@ GtAbstractChartProvider::fixMainValues(GtDataZoneTableList* dztList,
 }
 
 void
-GtAbstractChartProvider::fixMainValues(QMap<QString, QString> fixedMain,
-                                       QString &fixXmain, QString &fixYmain,
-                                       QString &fixZmain)
+GtAbstractChartProvider::fixMainValues(const QMap<QString, QString>& fixedMain,
+                                       QString& fixXmain, QString& fixYmain,
+                                       QString& fixZmain)
 {
     // get the fix X, Y, Z axis of the main datazonetable
     if (fixedMain.contains("mainX"))
@@ -452,10 +453,10 @@ GtAbstractChartProvider::UUIDsContainer() const
 {
     GtObjectGroup* g = findDirectChild<GtObjectGroup*>("UUID");
 
-    if (g == Q_NULLPTR)
+    if (!g)
     {
         gtError() << "Group 'UUID' not found in Abstract Chart provider";
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return g;
@@ -474,7 +475,8 @@ GtAbstractChartProvider::setShowmarkers(bool mod)
 }
 
 QStringList
-GtAbstractChartProvider::prefixToStringList(QStringList list, QString prefix)
+GtAbstractChartProvider::prefixToStringList(const QStringList& list,
+                                            const QString &prefix) const
 {
     QStringList stringsMod;
 

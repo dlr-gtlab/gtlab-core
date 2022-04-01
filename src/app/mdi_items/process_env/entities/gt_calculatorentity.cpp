@@ -34,10 +34,10 @@
 GtCalculatorEntity::GtCalculatorEntity(GtTask* task,
                                        QGraphicsItem* parent) :
     QGraphicsObject(parent),
-    m_calculator(Q_NULLPTR),
-    m_childLeft(Q_NULLPTR),
-    m_childRight(Q_NULLPTR),
-    m_parentEntity(Q_NULLPTR)
+    m_calculator(nullptr),
+    m_childLeft(nullptr),
+    m_childRight(nullptr),
+    m_parentEntity(nullptr)
 {
     init();
     populateCalculator(task->calculators());
@@ -58,7 +58,7 @@ GtCalculatorEntity::init()
 {
     m_w = 140;
     m_h = 80;
-    m_anim = Q_NULLPTR;
+    m_anim = nullptr;
 
     if (!isRoot())
     {
@@ -180,14 +180,11 @@ GtCalculatorEntity::alignChildren(int maxHeight)
         return;
     }
 
-    int sumW = 0;
+    int sumW = std::accumulate(std::begin(m_subCalcs), std::end(m_subCalcs), 0.0, [](double sum, const GtCalculatorEntity* ce){
+        return sum + ce->boundingRect().width();
+    });
 
-    foreach (GtCalculatorEntity* ce, m_subCalcs)
-    {
-        sumW += ce->boundingRect().width();
-    }
-
-    sumW = sumW + (m_subCalcs.size() - 1) * 60;
+    sumW += (m_subCalcs.size() - 1) * 60;
 
     int tmpH = m_h;
 
@@ -241,7 +238,7 @@ GtCalculatorEntity::populateCalculator()
     qDeleteAll(m_subCalcs);
     m_subCalcs.clear();
 
-    if (m_calculator == Q_NULLPTR)
+    if (!m_calculator)
     {
         return;
     }
@@ -278,7 +275,7 @@ GtCalculatorEntity::populateCalculator(const QList<GtCalculator*>& calcs)
 {
     foreach (GtCalculator* calc, calcs)
     {
-//        GtCalculatorEntity* ce = Q_NULLPTR;
+//        GtCalculatorEntity* ce = nullptr;
 
 //        if (GtTaskLink* taskLink = qobject_cast<GtTaskLink*>(calc))
 //        {
@@ -293,12 +290,12 @@ GtCalculatorEntity::populateCalculator(const QList<GtCalculator*>& calcs)
 //                SIGNAL(switchTo(GtCalculatorEntity*)));
 
 //        m_subCalcs << ce;
-        if (appendCalculator(calc) == Q_NULLPTR)
+        if (!appendCalculator(calc))
         {
             gtError() << tr("Could not create calculator entity!");
         }
 
-//        if (ceTmp != Q_NULLPTR)
+//        if (ceTmp)
 //        {
 //            GtTaskArrowEntity* arrow =
 //                    new GtTaskArrowEntity(GtTaskArrowEntity::ARROW_DIRECT,
@@ -335,10 +332,10 @@ GtCalculatorEntity::insertCalculator(GtCalculator* calc,
     {
         qWarning() << "index error!"
                    << " (GtCalculatorEntity::insertCalculator)";
-        return Q_NULLPTR;
+        return nullptr;
     }
 
-    GtCalculatorEntity* ce = Q_NULLPTR;
+    GtCalculatorEntity* ce = nullptr;
 
     if (GtTaskLink* taskLink = qobject_cast<GtTaskLink*>(calc))
     {
@@ -374,7 +371,7 @@ GtCalculatorEntity::updateArrows()
         for (int i = 1; i < noc; i++)
         {
             const int noa = m_directConnections.size();
-            GtTaskArrowEntity* arrow = Q_NULLPTR;
+            GtTaskArrowEntity* arrow = nullptr;
 
             if ((i - 1) >= noa)
             {
@@ -396,7 +393,7 @@ GtCalculatorEntity::updateArrows()
     {
         // left
         GtCalculatorEntity* leftChild = m_subCalcs.first();
-        if (m_childLeft == Q_NULLPTR)
+        if (!m_childLeft)
         {
             m_childLeft =
                     new GtTaskArrowEntity(GtTaskArrowEntity::ARROW_LEFT_CHILD,
@@ -406,7 +403,7 @@ GtCalculatorEntity::updateArrows()
 
 //        // right
         GtCalculatorEntity* rightChild = m_subCalcs.last();
-        if (m_childRight == Q_NULLPTR)
+        if (!m_childRight)
         {
             m_childRight =
                     new GtTaskArrowEntity(GtTaskArrowEntity::ARROW_RIGHT_CHILD,
@@ -419,7 +416,7 @@ GtCalculatorEntity::updateArrows()
 void
 GtCalculatorEntity::calculateSize()
 {
-    if (m_calculator == Q_NULLPTR)
+    if (!m_calculator)
     {
         return;
     }
@@ -439,7 +436,7 @@ GtCalculatorEntity::calculateSize()
 void
 GtCalculatorEntity::runEnterAnimation()
 {
-    if (m_anim == Q_NULLPTR)
+    if (!m_anim)
     {
         m_anim = new QPropertyAnimation(this, "opacity");
         m_anim->setDuration(300);
@@ -465,7 +462,7 @@ GtCalculatorEntity::runEnterAnimation()
 void
 GtCalculatorEntity::runLeaveAnimation()
 {
-    if (m_anim == Q_NULLPTR)
+    if (!m_anim)
     {
         return;
     }
@@ -599,7 +596,7 @@ GtCalculatorEntity::subNodeCount()
 int
 GtCalculatorEntity::childNumber()
 {
-    if (m_calculator == Q_NULLPTR)
+    if (!m_calculator)
     {
         return 0;
     }
@@ -621,14 +618,9 @@ GtCalculatorEntity::isLeftMost()
         return true;
     }
 
-    Q_ASSERT(m_calculator == Q_NULLPTR);
+    Q_ASSERT(m_calculator == nullptr);
 
-    if (m_calculator->childNumber() == 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (m_calculator->childNumber() == 0);
 }
 
 bool
@@ -639,33 +631,28 @@ GtCalculatorEntity::isRightMost()
         return true;
     }
 
-    Q_ASSERT(m_calculator == Q_NULLPTR);
+    Q_ASSERT(m_calculator == nullptr);
 
     GtObject* parent = m_calculator->parentObject();
 
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         return false;
     }
 
     QList<GtObject*> olist = parent->findDirectChildren<GtObject*>();
 
-    if (m_calculator == olist.last())
-    {
-        return true;
-    }
-
-    return false;
+    return (m_calculator == olist.last());
 }
 
 GtCalculatorEntity*
 GtCalculatorEntity::previousSibling()
 {
-    Q_ASSERT(m_calculator == Q_NULLPTR);
+    Q_ASSERT(m_calculator == nullptr);
 
-    if (m_parentEntity == Q_NULLPTR || isLeftMost())
+    if (m_parentEntity == nullptr || isLeftMost())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_parentEntity->subNodes()[m_calculator->childNumber() - 1];
@@ -674,11 +661,11 @@ GtCalculatorEntity::previousSibling()
 GtCalculatorEntity*
 GtCalculatorEntity::nextSibling()
 {
-    Q_ASSERT(m_calculator == Q_NULLPTR);
+    Q_ASSERT(m_calculator == nullptr);
 
-    if (m_parentEntity == Q_NULLPTR || isRightMost())
+    if (m_parentEntity == nullptr || isRightMost())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_parentEntity->subNodes()[m_calculator->childNumber() + 1];
@@ -687,9 +674,9 @@ GtCalculatorEntity::nextSibling()
 GtCalculatorEntity*
 GtCalculatorEntity::leftMostSibling()
 {
-    if (m_parentEntity == Q_NULLPTR)
+    if (!m_parentEntity)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (isLeftMost())
@@ -705,7 +692,7 @@ GtCalculatorEntity::leftMostChild()
 {
     if (m_subCalcs.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_subCalcs.first();
@@ -716,7 +703,7 @@ GtCalculatorEntity::rightMostChild()
 {
     if (m_subCalcs.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return m_subCalcs.last();
@@ -765,12 +752,7 @@ GtCalculatorEntity::rightMostLeaf()
 bool
 GtCalculatorEntity::isRoot()
 {
-    if (m_calculator == Q_NULLPTR)
-    {
-        return true;
-    }
-
-    return false;
+    return (m_calculator == nullptr);
 }
 
 void
@@ -785,7 +767,6 @@ GtCalculatorEntity::debugNode()
         qDebug() << m_calculator->objectName() << " - (" << m_normX
                  << ", " << m_normY << ")";
     }
-
 
     foreach (GtCalculatorEntity* child, m_subCalcs)
     {
@@ -829,12 +810,12 @@ GtCalculatorEntity::updateShape()
         calc->updateShape();
     }
 
-    if (m_childLeft != Q_NULLPTR)
+    if (m_childLeft)
     {
         m_childLeft->updateShape();
     }
 
-    if (m_childRight != Q_NULLPTR)
+    if (m_childRight)
     {
         m_childRight->updateShape();
     }
@@ -848,12 +829,12 @@ GtCalculatorEntity::setToPreviewMode()
         entity->setToPreviewMode();
     }
 
-    if (m_childLeft != Q_NULLPTR)
+    if (m_childLeft)
     {
         m_childLeft->setToPreviewMode();
     }
 
-    if (m_childRight != Q_NULLPTR)
+    if (m_childRight)
     {
         m_childRight->setToPreviewMode();
     }
@@ -867,11 +848,11 @@ GtCalculatorEntity::setToPreviewMode()
 void
 GtCalculatorEntity::addChild(GtObject* obj)
 {
-    if (obj != Q_NULLPTR)
+    if (obj)
     {
         GtCalculator* calc = qobject_cast<GtCalculator*>(obj);
 
-        if (calc == Q_NULLPTR)
+        if (!calc)
         {
             delete obj;
             return;
@@ -888,7 +869,7 @@ GtCalculatorEntity::addChild(GtObject* obj)
         qDebug() << "GtCalculatorEntity::addChild";
 
 
-        if (appendCalculator(calc) == Q_NULLPTR)
+        if (!appendCalculator(calc))
         {
             gtError() << tr("Could not create calculator entity!");
             return;
@@ -942,7 +923,7 @@ GtCalculatorEntity::calculateFirstRowHeight()
 void
 GtCalculatorEntity::onAnimationFinished()
 {
-    if (m_anim == Q_NULLPTR)
+    if (!m_anim)
     {
         return;
     }

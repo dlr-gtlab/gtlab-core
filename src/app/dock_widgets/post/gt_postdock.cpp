@@ -34,7 +34,7 @@
 
 #include "gt_logging.h"
 
-GtPostDock::GtPostDock() : m_project(Q_NULLPTR)
+GtPostDock::GtPostDock() : m_project(nullptr)
 {
     setObjectName(tr("Post Processing"));
 
@@ -140,7 +140,7 @@ GtPostDock::getDockWidgetArea()
 }
 
 double
-GtPostDock::renameFile(QString oldName, QString newName)
+GtPostDock::renameFile(const QString& oldName, const QString& newName)
 {
     return m_datamodel->renameFile(oldName, newName);
 }
@@ -164,7 +164,7 @@ GtPostDock::projectChangedEvent(GtProject* project)
 
     // enable buttons
 
-    if (m_project != Q_NULLPTR)
+    if (m_project)
     {
         m_addButton->setEnabled(true);
     }
@@ -179,7 +179,7 @@ GtPostDock::eventFilter(QObject* obj, QEvent* event)
         {
             QKeyEvent* keyEvent = dynamic_cast<QKeyEvent*>(event);
 
-            if (keyEvent != Q_NULLPTR)
+            if (keyEvent)
             {
                 if (keyEvent->key() == Qt::Key_Delete)
                 {
@@ -205,7 +205,7 @@ GtPostDock::mapToSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     return m_model->mapToSource(index);
@@ -216,7 +216,7 @@ GtPostDock::mapFromSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     return m_model->mapFromSource(index);
@@ -239,7 +239,7 @@ GtPostDock::openTemplateViewer(const QModelIndex& index)
 
     GtPostTemplatePath* path = m_datamodel->createTemplatePath(srcIndex);
 
-    if (path != Q_NULLPTR)
+    if (path)
     {
         gtMdiLauncher->open(GtTemplateViewer::staticMetaObject.className(),
                             path, path->path());
@@ -298,7 +298,7 @@ GtPostDock::newPostTemplate()
 void
 GtPostDock::customContextMenu(QPoint pos)
 {
-    if (gtApp->currentProject() == Q_NULLPTR)
+    if (!gtApp->currentProject())
     {
         return;
     }

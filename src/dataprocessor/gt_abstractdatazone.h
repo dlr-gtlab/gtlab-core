@@ -29,13 +29,13 @@ class GT_DATAMODEL_EXPORT GtAbstractDataZone : public GtExternalizedH5Object
 
 public:
 
-    QStringList params() const;
+    const QStringList& params() const;
 
-    void setParams(const QStringList &params);
+    void setParams(const QStringList& params);
 
-    QStringList units() const;
+    const QStringList& units() const;
 
-    void setUnits(const QStringList &params);
+    void setUnits(const QStringList& units);
 
     virtual QString unit(const QString& param) const = 0;
 
@@ -50,24 +50,6 @@ protected:
      * @brief GtAbstractDataZone
      */
     Q_INVOKABLE GtAbstractDataZone();
-
-    /**
-     * @brief doFetch method to implement for fetching the externalized data.
-     * @return success
-     */
-    virtual bool doFetchData() override = 0;
-
-    /**
-     * @brief doExternalize method to implement for externalizing the data.
-     * @return success
-     */
-    virtual bool doExternalizeData() override = 0 ;
-
-    /**
-     * @brief doClearExternalizedData method to implement for clearing the
-     * externalized data. Should not emit a signal or set any object flags.
-     */
-    virtual void doClearExternalizedData() override = 0;
 
     /// Parameter names
     QStringList m_params;

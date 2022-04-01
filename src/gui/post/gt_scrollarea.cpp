@@ -24,7 +24,7 @@ GtScrollArea::keyPressEvent(QKeyEvent* e)
 void
 GtScrollArea::wheelEvent(QWheelEvent* e)
 {
-    if (e == Q_NULLPTR)
+    if (!e)
     {
         return;
     }

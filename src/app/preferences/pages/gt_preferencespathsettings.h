@@ -39,7 +39,7 @@ private:
      * @brief Loades environment settings.
      */
     void loadSettings() override;
-
+    void loadSettingsImpl();
 };
 
 #endif // GTPREFERENCESPATHSETTINGS_H

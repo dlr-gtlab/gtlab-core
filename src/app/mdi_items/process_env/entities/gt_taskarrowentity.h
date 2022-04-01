@@ -34,8 +34,8 @@ public:
      * @brief GtTaskArrowEntity
      * @param parent
      */
-    GtTaskArrowEntity(ArrowTypes type = ARROW_DIRECT,
-                      GtCalculatorEntity* parent = Q_NULLPTR);
+    explicit GtTaskArrowEntity(ArrowTypes type = ARROW_DIRECT,
+                               GtCalculatorEntity* parent = nullptr);
 
     /**
      * @brief link

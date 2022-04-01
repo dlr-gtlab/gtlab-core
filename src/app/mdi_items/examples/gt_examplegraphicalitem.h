@@ -9,6 +9,8 @@
 #ifndef GTEXAMPLEGRAPHICALITEM_H
 #define GTEXAMPLEGRAPHICALITEM_H
 
+#include "gt_examplesentry.h"
+
 #include <QWidget>
 
 class QLabel;
@@ -31,27 +33,27 @@ public:
      * @param data
      * @param parent
      */
-    GtExampleGraphicalItem(GtExamplesEntry* data, QWidget* parent = 0);
+    explicit GtExampleGraphicalItem(GtExamplesEntry data, QWidget* parent = 0);
 
-    GtExamplesEntry* m_data;
+    GtExamplesEntry m_data;
 protected:
     /**
      * @brief mousePressEvent
      * @param event
      */
-    virtual void mousePressEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event) override;
 
     /**
      * @brief enterEvent
      * @param event
      */
-    virtual void enterEvent(QEvent* event);
+    void enterEvent(QEvent* event) override;
 
     /**
      * @brief leaveEvent
      * @param event
      */
-    virtual void leaveEvent(QEvent* event);
+    void leaveEvent(QEvent* event) override;
 
 private:
     QPixmap m_pixmap;

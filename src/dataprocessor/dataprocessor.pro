@@ -20,7 +20,7 @@ QT += core xml
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
-CONFIG += c++11
+CONFIG += c++14
 
 DEFINES += GT_DATAMODEL_DLL
 
@@ -115,7 +115,8 @@ HEADERS += \
     property/gt_doublelistproperty.h \
     gt_tablegroup.h \
     gt_versionnumber.h \
-    gt_regexp.h
+    gt_regexp.h \
+    gt_algorithms.h
 
 SOURCES += \
     gt_dummyobject.cpp \

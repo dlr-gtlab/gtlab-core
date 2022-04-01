@@ -56,28 +56,27 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
             GtProcessComponent* pc =
                 qobject_cast<GtProcessComponent*>(item);
 
-            if (pc == Q_NULLPTR)
+            if (!pc)
             {
                 return item->objectName();
             }
 
-            if (pc->currentState() ==
-                    GtProcessComponent::TERMINATION_REQUESTED)
+            if (pc->currentState() == GtProcessComponent::TERMINATION_REQUESTED)
             {
                 QVariant var = GtStyledModel::data(index, role);
 
                 return var.toString() + QStringLiteral(" (terminating...)");
             }
-            else if (pc->currentState() ==
-                     GtProcessComponent::TERMINATED)
+
+            if (pc->currentState() == GtProcessComponent::TERMINATED)
             {
                 QVariant var = GtStyledModel::data(index, role);
 
                 return var.toString() + QStringLiteral(" (terminated)");
             }
 
-            break;
         }
+        break;
 
         case Qt::DecorationRole:
         {
@@ -87,7 +86,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
             GtProcessComponent* pc =
                 qobject_cast<GtProcessComponent*>(item);
 
-            if (pc == Q_NULLPTR)
+            if (!pc)
             {
                 return GtStyledModel::data(index, role);
             }
@@ -104,17 +103,16 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                         dynamic_cast<GtExtendedCalculatorDataImpl*>(
                             calcData.get());
 
-                    if (eData != Q_NULLPTR)
+                    if (eData)
                     {
                         return eData->icon;
                     }
-                    else
-                    {
-                        return gtApp->icon(
-                                   QStringLiteral("calculatorIcon_16.png"));
-                    }
+
+                    return gtApp->icon(QStringLiteral("calculatorIcon_16.png"));
+
                 }
-                else if (qobject_cast<GtTask*>(pc))
+
+                if (qobject_cast<GtTask*>(pc))
                 {
                     QString className = pc->metaObject()->className();
                     GtTaskData taskData =
@@ -124,7 +122,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                         dynamic_cast<GtExtendedTaskDataImpl*>(
                             taskData.get());
 
-                    if (eData != Q_NULLPTR)
+                    if (eData)
                     {
                         return eData->icon;
                     }
@@ -134,9 +132,8 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
             {
                 return stateToIcon(pc->currentState());
             }
-
-            break;
         }
+        break;
 
         case Qt::FontRole:
         {
@@ -146,7 +143,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
             GtProcessComponent* pc =
                 qobject_cast<GtProcessComponent*>(item);
 
-            if (pc == Q_NULLPTR)
+            if (!pc)
             {
                 return GtStyledModel::data(index, role);
             }
@@ -159,9 +156,8 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                 font.setStrikeOut(true);
                 return font;
             }
-
-            break;
         }
+        break;
 
         default:
             break;
@@ -365,7 +361,7 @@ GtProcessComponentModel::canDropMimeData(const QMimeData* data,
                     gtProcessFactory);
 
     // check object
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         gtError() << tr("Could not restore object from mimedata!");
         return false;
@@ -374,22 +370,23 @@ GtProcessComponentModel::canDropMimeData(const QMimeData* data,
     // get parent object
     GtObject* parentObj = static_cast<GtObject*>(parent.internalPointer());
 
-    if (qobject_cast<GtCalculator*>(obj) != Q_NULLPTR)
+    if (qobject_cast<GtCalculator*>(obj))
     {
         // handle calculator drop
-        if (qobject_cast<GtTask*>(parentObj) != Q_NULLPTR)
+        if (qobject_cast<GtTask*>(parentObj))
         {
             return true;
         }
     }
-    else if (GtTask* task = qobject_cast<GtTask*>(obj))
+    else if (const GtTask* task = qobject_cast<GtTask*>(obj))
     {
         // handle task drop
-        if (qobject_cast<GtProcessData*>(parentObj) != Q_NULLPTR)
+        if (qobject_cast<GtProcessData*>(parentObj))
         {
             return true;
         }
-        else if (GtTask* parentTask = qobject_cast<GtTask*>(parentObj))
+
+        if (const GtTask* parentTask = qobject_cast<GtTask*>(parentObj))
         {
             if (parentTask != task)
             {
@@ -431,13 +428,13 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     GtProcessData* processData =
             destinationObject->findParent<GtProcessData*>();
 
-    if (processData == Q_NULLPTR)
+    if (!processData)
     {
         processData = qobject_cast<GtProcessData*>(destinationObject);
     }
 
     // check process data
-    if (processData == Q_NULLPTR)
+    if (!processData)
     {
         return false;
     }
@@ -457,13 +454,13 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         return false;
     }
 
-    const QString mimeDataUUID = memento.uuid();
+    QString mimeDataUUID = memento.uuid();
 
     // find object
     GtObject* droppedObject = processData->getObjectByUuid(mimeDataUUID);
 
     // check object
-    if (droppedObject == Q_NULLPTR)
+    if (!droppedObject)
     {
         return false;
     }
@@ -472,15 +469,15 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     GtObject* droppedObjectParent = droppedObject->parentObject();
 
     // check parent object
-    if (droppedObjectParent == Q_NULLPTR)
+    if (!droppedObjectParent)
     {
         return false;
     }
 
     QList<GtPropertyConnection*> internalCons;
     QList<GtPropertyConnection*> lostCons;
-    GtTask* newHighestParent = Q_NULLPTR;
-    GtTask* highestParent = Q_NULLPTR;
+    GtTask* newHighestParent = nullptr;
+    GtTask* highestParent = nullptr;
 
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (droppedObject))
@@ -494,12 +491,12 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     {
         newHighestParent = highestParentTask(pComp);
     }
-    else if (qobject_cast<GtProcessData*>(destinationObject) != Q_NULLPTR)
+    else if (qobject_cast<GtProcessData*>(destinationObject))
     {
         newHighestParent = qobject_cast<GtTask*>(droppedObject);
     }
 
-    if (newHighestParent == Q_NULLPTR)
+    if (!newHighestParent)
     {
         return false;
     }
@@ -510,7 +507,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         highestParent = highestParentTask(pComp);
     }
 
-    if (highestParent == Q_NULLPTR)
+    if (!highestParent)
     {
         return false;
     }
@@ -613,7 +610,7 @@ GtProcessComponentModel::flags(const QModelIndex& index) const
     // check index
     if (!index.isValid())
     {
-        return 0;
+        return nullptr;
     }
 
     // collect default flags
@@ -644,7 +641,7 @@ GtProcessComponentModel::flags(const QModelIndex& index) const
 QString
 GtProcessComponentModel::toolTip(GtObject* obj) const
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return QString();
     }
@@ -658,7 +655,7 @@ GtProcessComponentModel::toolTip(GtObject* obj) const
         GtObjectLinkProperty* objLink =
             qobject_cast<GtObjectLinkProperty*>(prop);
 
-        if (objLink != Q_NULLPTR)
+        if (objLink)
         {
             GtObject* linkedObj = objLink->linkedObject();
 
@@ -697,7 +694,7 @@ GtProcessComponentModel::objectLinkToolTip(const QString& id, GtObject* obj,
 
     retval = retval + QStringLiteral("<b>") + id + QStringLiteral("<b><br>");
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         retval = retval + QStringLiteral("<font color=\"#ff0000\">") +
                  tr("Linked object not found!") + QStringLiteral("</font>");

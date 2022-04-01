@@ -29,7 +29,7 @@ public:
      * @brief Constructor.
      * @param parent - Parent widget.
      */
-    explicit GtProcessConnectionView(QWidget* parent = Q_NULLPTR);
+    explicit GtProcessConnectionView(QWidget* parent = nullptr);
 
     /**
      * @brief Sets given graphics view to current graphics view.

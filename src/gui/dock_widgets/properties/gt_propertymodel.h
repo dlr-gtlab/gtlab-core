@@ -40,12 +40,12 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    GtPropertyModel(GtObject* scope, QObject* parent = Q_NULLPTR);
+    explicit GtPropertyModel(GtObject* scope, QObject* parent = nullptr);
 
     /**
      * @brief Destructor.
      */
-    virtual ~GtPropertyModel();
+    ~GtPropertyModel() override;
 
     /**
      * @brief rowCount
@@ -116,10 +116,8 @@ public:
      * @param role
      * @return
      */
-    virtual QVariant headerData(int section,
-                                Qt::Orientation orientation,
-                                int role =
-                                    Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief setObject

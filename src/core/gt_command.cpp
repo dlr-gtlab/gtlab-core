@@ -11,9 +11,10 @@
 
 #include "gt_command.h"
 
-GtCommand::GtCommand(const QString& uuid)
+GtCommand::GtCommand(const QString& uuid) :
+    m_id(uuid)
 {
-    m_id = uuid;
+
 }
 
 GtCommand::GtCommand()

@@ -29,7 +29,7 @@ public:
     /**
      * @brief ~GtAbstractLoadingHelper
      */
-    virtual ~GtAbstractLoadingHelper();
+    ~GtAbstractLoadingHelper() override;
 
     /**
      * @brief run

@@ -23,15 +23,14 @@ public:
     /**
      * @brief GtStateModel
      */
-    explicit GtStateModel(QObject* parent = Q_NULLPTR);
+    explicit GtStateModel(QObject* parent = nullptr);
 
     /**
      * @brief columnCount
      * @param parent
      * @return
      */
-    virtual int columnCount(
-            const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data

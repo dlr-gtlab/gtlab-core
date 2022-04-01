@@ -20,10 +20,10 @@ GtTaskArrowEntity::GtTaskArrowEntity(ArrowTypes type,
                                      GtCalculatorEntity* parent) :
     GtGraphicsAnimatedPathItem(parent),
     m_type(type),
-    m_from(Q_NULLPTR),
-    m_to(Q_NULLPTR),
+    m_from(nullptr),
+    m_to(nullptr),
     m_parent(parent),
-    m_head(Q_NULLPTR)
+    m_head(nullptr)
 {
     QColor col(70, 70, 70);
     QPen p = pen();
@@ -44,12 +44,12 @@ void GtTaskArrowEntity::link(GtCalculatorEntity* from, GtCalculatorEntity* to)
 void
 GtTaskArrowEntity::updateShape()
 {
-    if (m_from == Q_NULLPTR || m_to == Q_NULLPTR)
+    if (!m_from || !m_to)
     {
         return;
     }
 
-    if (m_head == Q_NULLPTR)
+    if (!m_head)
     {
         m_head = new QGraphicsPathItem(this);
         QColor col(70, 70, 70);
@@ -149,9 +149,9 @@ GtTaskArrowEntity::setToPreviewMode()
 void
 GtTaskArrowEntity::onItemAdd(GtObject* obj)
 {
-    if (obj != Q_NULLPTR)
+    if (obj)
     {
-        if (m_parent != Q_NULLPTR)
+        if (m_parent)
         {
             m_parent->addChild(obj);
         }

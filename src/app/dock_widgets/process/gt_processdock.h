@@ -47,7 +47,7 @@ public:
 
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
-    virtual Qt::DockWidgetArea getDockWidgetArea();
+    Qt::DockWidgetArea getDockWidgetArea() override;
 
     /**
      * @brief mapToSource
@@ -140,7 +140,7 @@ public slots:
 protected:
     /** Event called after current project has changed.
         @param new current project */
-    virtual void projectChangedEvent(GtProject* project);
+    void projectChangedEvent(GtProject* project) override;
 
 private:
     /// Button to run selected process
@@ -183,7 +183,7 @@ private:
      * @brief setCurrentProcess
      * @param process
      */
-    void setCurrentProcess(GtTask* process = Q_NULLPTR);
+    void setCurrentProcess(GtTask* process = nullptr);
 
     /**
      * @brief addTask
@@ -262,7 +262,7 @@ private slots:
      * @brief updateButtons
      * @param obj
      */
-    void updateButtons(GtObject* obj = Q_NULLPTR);
+    void updateButtons(GtObject* obj = nullptr);
 
     /**
      * @brief updateRunButton
@@ -333,7 +333,7 @@ private slots:
      * @brief multiSelectionContextMenu
      * @param indexList
      */
-    void multiSelectionContextMenu(QList<QModelIndex> indexList);
+    void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
     /**
      * @brief Opens the calcualtor configuration wizard.

@@ -29,7 +29,7 @@ public:
     /**
      * @brief ~GtCoreModuleLoader
      */
-    virtual ~GtCoreModuleLoader();
+    ~GtCoreModuleLoader() override;
 
 protected:
     /**
@@ -37,13 +37,13 @@ protected:
      * @param plugin
      * @return
      */
-    virtual bool check(GtModuleInterface* plugin);
+    bool check(GtModuleInterface* plugin) override;
 
     /**
      * @brief insert
      * @param plugin
      */
-    virtual void insert(GtModuleInterface* plugin);
+    void insert(GtModuleInterface* plugin) override;
 
 };
 

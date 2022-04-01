@@ -12,11 +12,6 @@
 
 #include "gt_collectionreply.h"
 
-GtCollectionReply::~GtCollectionReply()
-{
-    //gtFatal() << "#### collection reply deleted!";
-}
-
 QList<GtCollectionNetworkItem>
 GtCollectionReply::installedItems() const
 {
@@ -52,7 +47,7 @@ GtCollectionReply::onHelperFinished()
     gtDebug() << "helper finished!";
     GtCollectionHelper* helper = qobject_cast<GtCollectionHelper*>(sender());
 
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         // TODO error
         emit finished();

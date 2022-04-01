@@ -45,13 +45,13 @@ GtExternalizationSettings::autoExternalizeOnSave() const
 }
 
 void
-GtExternalizationSettings::onEnbaleExternalizationChanged(QVariant var)
+GtExternalizationSettings::onEnbaleExternalizationChanged(const QVariant& var)
 {
     m_enableExternalization = var.toBool();
 }
 
 void
-GtExternalizationSettings::onAutoExternalizationChanged(QVariant var)
+GtExternalizationSettings::onAutoExternalizationChanged(const QVariant& var)
 {
     m_autoExternalize = var.toBool();
 }

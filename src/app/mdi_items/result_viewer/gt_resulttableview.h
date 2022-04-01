@@ -24,14 +24,14 @@ public:
      * @brief GtResultTableView
      * @param parent
      */
-    explicit GtResultTableView(QWidget* parent = Q_NULLPTR);
+    explicit GtResultTableView(QWidget* parent = nullptr);
 
 protected:
     /**
      * @brief keyPressEvent
      * @param event
      */
-    virtual void keyPressEvent(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
     /**

@@ -29,9 +29,9 @@ public:
 
     Q_INVOKABLE GtAbstractChartProvider();
 
-    virtual GtAbstractPostWidget* createUI(GtPostTemplateItem* /*dm*/,
-                                           QWidget* /*parent*/) override
-    { return Q_NULLPTR; }
+    GtAbstractPostWidget* createUI(GtPostTemplateItem* /*dm*/,
+                                   QWidget* /*parent*/) override
+    { return nullptr; }
 
     QStringList uuids() const;
 
@@ -39,13 +39,13 @@ public:
 
     void addUUID(const QString& uuid);
 
-    QColor colorUseRAt(int i);
+    QColor colorUseRAt(int i) const;
 
     QList<QString> colorsUseR() const;
 
     void setColorsUseR(const QList<QString>& colorsUse);
 
-    void addColorUseR(QColor col);
+    void addColorUseR(const QColor& col);
 
     QColor colorUseLAt(int i);
 
@@ -57,38 +57,43 @@ public:
 
     void setColorsUseL(const QList<QString>& colorsUse);
 
-    void addColorUseL(QColor col);
+    void addColorUseL(const QColor &col);
 
     void clearColorsUseL();
 
     void clearColorsUseR();
 
-    void setSingleColorsUseR(int index, QColor col);
+    void setSingleColorsUseR(int index, const QColor& col);
 
-    void setSingleColorsUseL(int index, QColor col);
+    void setSingleColorsUseL(int index, const QColor& col);
 
-    int bottomIterator(GtDataZoneTableList* dztList, QString bottomAxis,
-                       QVector<double>& axisTicks);
-
-    // no usage of 'axisTicks'
-    int bottomIterator(GtDataZoneTableList* dztList, QString bottomAxis);
-
-    int additionalIterator(GtDataZoneTableList* dztList, QString additionalAxis,
-                           QStringList scharParameters,
-                           QVector<double>& axisTicks);
+    int bottomIterator(GtDataZoneTableList* dztList,
+                       const QString& bottomAxis,
+                       QVector<double>& axisTicks) const;
 
     // no usage of 'axisTicks'
-    int additionalIterator(GtDataZoneTableList* dztList, QString additionalAxis,
-                           QStringList scharParameters);
+    int bottomIterator(GtDataZoneTableList* dztList,
+                       const QString& bottomAxis) const;
+
+    int additionalIterator(GtDataZoneTableList* dztList,
+                           const QString& additionalAxis,
+                           const QStringList& scharParameters,
+                           QVector<double>& axisTicks) const;
+
+    // no usage of 'axisTicks'
+    int additionalIterator(GtDataZoneTableList* dztList,
+                           const QString& additionalAxis,
+                           const QStringList& scharParameters) const;
 
     void fixMainValues(GtDataZoneTableList* dztList,
-                       QMap<QString, QString> fixedMain,
+                       const QMap<QString, QString>& fixedMain,
                        int& fixXmain, int& fixYmain, int& fixZmain);
 
-    void fixMainValues(QMap<QString, QString> fixedMain,
+    void fixMainValues(const QMap<QString, QString> &fixedMain,
                        QString& fixXmain, QString& fixYmain, QString& fixZmain);
 
-    QStringList prefixToStringList(QStringList list, QString prefix);
+    QStringList prefixToStringList(const QStringList& list,
+                                   const QString& prefix) const;
 
     bool showmarkers() const;
 
@@ -105,7 +110,7 @@ public:
      * uuids saved in the string containers
      * @return
      */
-    QStringList objectNamesFromContainer();
+    QStringList objectNamesFromContainer() const;
 
     /**
      * @brief clearUUIDsContainer: deletes all containers of uuids

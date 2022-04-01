@@ -29,7 +29,7 @@ public:
      * @brief Virtual function to specify item specific icon.
      * @return Object specific icon.
      */
-    virtual QIcon icon() const;
+    QIcon icon() const override;
 
 };
 

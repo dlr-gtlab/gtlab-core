@@ -118,7 +118,7 @@ GtSearchWidget::eventFilter(QObject* obj, QEvent* event)
         {
             QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
 
-            if (mouseEvent != Q_NULLPTR)
+            if (mouseEvent)
             {
                 if (mouseEvent->button() == Qt::LeftButton)
                 {

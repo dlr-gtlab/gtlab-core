@@ -34,7 +34,7 @@ public:
      * @param Parent object.
      */
     GtAccessGroup(const QString& id, const QMetaObject& connection,
-                  QObject* parent = Q_NULLPTR);
+                  QObject* parent = nullptr);
 
     /**
      * @brief Adds access data to group.

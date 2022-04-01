@@ -21,21 +21,17 @@
 
 #include "gt_examplegraphicalitem.h"
 
-GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry* data,
+GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry data,
                                                QWidget* parent) :
     QWidget(parent),
-    m_data(Q_NULLPTR),
-    m_picLabel(Q_NULLPTR),
-    m_picFrame(Q_NULLPTR),
-    m_zoomButton(Q_NULLPTR),
+    m_data(std::move(data)),
+    m_picLabel(nullptr),
+    m_picFrame(nullptr),
+    m_zoomButton(nullptr),
     m_selected(false)
 {
-    if (data != Q_NULLPTR)
-    {
-        m_data = data;
-    }
 
-    setObjectName(QString(data->dirPath() + "#" +  data->name()));
+    setObjectName(QString(m_data.dirPath() + "#" +  m_data.name()));
 
     setStyleSheet("border: 0px solid gray;border-radius: 4px");
 
@@ -93,7 +89,7 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry* data,
 
     picLayout->addWidget(m_picLabel);
 
-    QLabel* nameLabel = new QLabel(data->name());
+    QLabel* nameLabel = new QLabel(m_data.name());
     QFont fnt("Helvetica", 9);
     fnt.setBold(true);
 
@@ -117,7 +113,7 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry* data,
 
     picLayout->addWidget(m_zoomButton);
 
-    m_description = m_data->description();
+    m_description = m_data.description();
 
     connect(m_zoomButton, SIGNAL(clicked()), SLOT(showZoom()));
 
@@ -165,13 +161,13 @@ GtExampleGraphicalItem::leaveEvent(QEvent* event)
 void
 GtExampleGraphicalItem::init()
 {
-    setToolTip(m_data->dirPath());
+    setToolTip(m_data.dirPath());
 
-    QFile preview(m_data->pixmapPath());
+    QFile preview(m_data.pixmapPath());
 
     if (preview.exists())
     {
-        if (m_pixmap.load(m_data->pixmapPath()))
+        if (m_pixmap.load(m_data.pixmapPath()))
         {
             QPixmap scaledPixmap = m_pixmap.scaled(m_picFrame->size()
                                                    - QSize(18, 18),

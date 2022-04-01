@@ -19,7 +19,6 @@
 GtPropertyUnitDelegate::GtPropertyUnitDelegate(QObject* parent) :
     QStyledItemDelegate(parent)
 {
-
 }
 
 QWidget*
@@ -27,6 +26,7 @@ GtPropertyUnitDelegate::createEditor(QWidget* parent,
                                      const QStyleOptionViewItem& option,
                                      const QModelIndex& index) const
 {
+    delete m_comboBox;
     m_comboBox = new QComboBox(parent);
 
     QVariant var = index.data(GtPropertyModel::UnitCategoryRole);
@@ -65,7 +65,7 @@ GtPropertyUnitDelegate::setEditorData(QWidget* editor,
 {
     QComboBox* comboBox = static_cast<QComboBox*>(editor);
 
-    if (comboBox == Q_NULLPTR)
+    if (!comboBox)
     {
         return;
     }
@@ -94,7 +94,7 @@ GtPropertyUnitDelegate::setModelData(QWidget* editor,
 {
     QComboBox* comboBox = static_cast<QComboBox*>(editor);
 
-    if (comboBox == Q_NULLPTR)
+    if (!comboBox)
     {
         return;
     }
@@ -112,7 +112,7 @@ GtPropertyUnitDelegate::updateEditorGeometry(QWidget* editor,
         const QStyleOptionViewItem& option,
         const QModelIndex& /*index*/) const
 {
-    if (editor == Q_NULLPTR)
+    if (!editor)
     {
         return;
     }
@@ -136,7 +136,7 @@ GtPropertyUnitDelegate::paint(QPainter* painter,
 {
     bool isCategory = index.data(GtPropertyModel::CategoryRole).toBool();
 
-    if (painter == Q_NULLPTR)
+    if (!painter)
     {
         return;
     }

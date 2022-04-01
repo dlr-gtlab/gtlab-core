@@ -37,7 +37,7 @@ public:
         registerProperty(*m_relObjLink);
     }
 
-    ~TestGtCalculator()
+    ~TestGtCalculator() override
     {
         delete m_doubleProp1;
         delete m_doubleProp2;
@@ -45,7 +45,7 @@ public:
         delete m_relObjLink;
     }
 
-    bool run()
+    bool run() override
     {
         return true;
     }

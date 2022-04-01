@@ -7,14 +7,7 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QDirIterator>
-#include <QJsonParseError>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QThread>
+#include "gt_collectionloader.h"
 
 #include "gt_logging.h"
 #include "gt_collectionnetworkitem.h"
@@ -23,8 +16,16 @@
 #include "gt_collectionreply.h"
 #include "gt_collectionhelper.h"
 #include "gt_downloaddialog.h"
+#include "gt_algorithms.h"
 
-#include "gt_collectionloader.h"
+#include <QCoreApplication>
+#include <QDir>
+#include <QDirIterator>
+#include <QJsonParseError>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QThread>
 
 GtCollectionLoader::GtCollectionLoader(const QString& collectionId,
                                        QObject* parent) : QObject(parent)
@@ -37,7 +38,7 @@ GtCollectionLoader::loadLocalCollection()
 {
     QList<GtCollectionItem> retval;
 
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return retval;
@@ -151,7 +152,7 @@ GtCollectionLoader::downloadCollectionItems(
 QString
 GtCollectionLoader::collectionPath()
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return QString();
@@ -251,7 +252,7 @@ GtCollectionLoader::loadLocalCollectionItem(const QString& path)
 GtCollectionItem
 GtCollectionLoader::readItemInformation(const QJsonObject& json)
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return GtCollectionItem();
@@ -292,7 +293,7 @@ GtCollectionLoader::readItemInformation(const QJsonObject& json)
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for (auto e : colStruct.keys())
+    for_each_key(colStruct, [&](const QString& e)
     {
         if (json.contains(e))
         {
@@ -301,7 +302,7 @@ GtCollectionLoader::readItemInformation(const QJsonObject& json)
 
             retval.m_properties.insert(e, var);
         }
-    }
+    });
 
     return retval;
 }
@@ -310,7 +311,7 @@ GtCollectionNetworkItem
 GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
         const QJsonObject& json)
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return GtCollectionNetworkItem();
@@ -352,7 +353,7 @@ GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for (auto e : colStruct.keys())
+    for_each_key(colStruct, [&](const QString& e)
     {
         if (json.contains(e))
         {
@@ -361,7 +362,7 @@ GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
 
             retval.m_properties.insert(e, var);
         }
-    }
+    });
 
     return retval;
 }
@@ -369,7 +370,7 @@ GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
 bool
 GtCollectionLoader::itemIsValid(const QJsonObject& json)
 {
-    if (m_collection == Q_NULLPTR)
+    if (!m_collection)
     {
         gtError() << tr("Invalid collection!");
         return false;
@@ -402,8 +403,11 @@ GtCollectionLoader::itemIsValid(const QJsonObject& json)
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for (auto e : colStruct.keys())
+    // check
+
+    for (auto iter = colStruct.begin(); iter != colStruct.end(); ++iter)
     {
+        const auto& e = iter.key();
         if (!json.contains(e))
         {
             gtError() << e << QStringLiteral(" ") << tr("not found!");
@@ -424,7 +428,7 @@ GtCollectionLoader::itemIsValid(const QJsonObject& json)
 }
 
 void
-GtCollectionLoader::sortItems(const QList<GtCollectionNetworkItem> items,
+GtCollectionLoader::sortItems(const QList<GtCollectionNetworkItem>& items,
                               QList<GtCollectionNetworkItem>& installedItems,
                               QList<GtCollectionNetworkItem>& availableItems,
                               QList<GtCollectionNetworkItem>& updateAvailableItems)
@@ -438,7 +442,7 @@ GtCollectionLoader::sortItems(const QList<GtCollectionNetworkItem> items,
         foreach (GtCollectionItem localItem, localCollection)
         {
             if (item.uuid() == localItem.uuid())
-            {
+            { // cppcheck-suppress useStlAlgorithm
                 itemInstalled = true;
 
                 item.m_installedVersion = localItem.version();
@@ -470,13 +474,13 @@ GtCollectionLoader::onHelperFinished()
     gtDebug() << "helper finished!";
     GtCollectionHelper* helper = qobject_cast<GtCollectionHelper*>(sender());
 
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         // TODO error
         return;
     }
 
-    if (helper->reply() == Q_NULLPTR)
+    if (!helper->reply())
     {
         gtError() << tr("Invalid connection reply!");
         return;

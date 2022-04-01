@@ -27,7 +27,7 @@ TestMdiViewer::TestMdiViewer()
 }
 
 bool
-TestMdiViewer::allowsMultipleInstances()
+TestMdiViewer::allowsMultipleInstances() const
 {
     return false;
 }

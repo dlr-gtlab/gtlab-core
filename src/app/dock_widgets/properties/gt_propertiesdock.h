@@ -38,7 +38,7 @@ public:
      * @brief Returns the recommended dock widget area in main windows.
      * @return specific dock widget area
      */
-    virtual Qt::DockWidgetArea getDockWidgetArea();
+    Qt::DockWidgetArea getDockWidgetArea() override;
 
 private:
     /// Search widget

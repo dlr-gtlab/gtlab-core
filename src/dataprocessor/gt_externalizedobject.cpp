@@ -57,7 +57,7 @@ GtExternalizedObject::hasChanges()
 }
 
 bool
-GtExternalizedObject::hasChanges(QString otherHash) const
+GtExternalizedObject::hasChanges(const QString& otherHash) const
 {
     return m_cachedHash.isEmpty() || m_cachedHash != otherHash;
 }

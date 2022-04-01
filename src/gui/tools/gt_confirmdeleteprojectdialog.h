@@ -30,8 +30,8 @@ public:
      * @brief Constructor.
      * @param parent Parent widget
      */
-    GtConfirmDeleteProjectDialog(QWidget* parent = Q_NULLPTR,
-                                 QString projectName = "");
+    explicit GtConfirmDeleteProjectDialog(QWidget *parent = nullptr,
+                                          const QString &projectName = "");
 
     /**
      * @brief deleteFromHardDisk

@@ -35,17 +35,16 @@ public:
      * @brief valueToVariant
      * @return
      */
-    QVariant valueToVariant(const QString& unit,
-                            bool* success = 0) const override;
+    QVariant valueToVariant(const QString&,
+                            bool* = nullptr) const override;
 
     /**
      * @brief setValueFromVariant
      * @param val
      * @return
      */
-    bool setValueFromVariant(const QVariant& val,
-                             const QString& unit,
-                             bool* success = 0) override;
+    bool setValueFromVariant(const QVariant& val, const QString&,
+                             bool* success = nullptr) override;
 
     /**
      * @brief Returns property values in form of a string.

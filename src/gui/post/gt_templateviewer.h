@@ -45,7 +45,7 @@ public:
     /**
      * @brief Desturctor.
      */
-    virtual ~GtTemplateViewer();
+    ~GtTemplateViewer() override;
 
     /**
      * @brief setData
@@ -77,12 +77,12 @@ private:
      * @brief createSpecialPlot
      * @param plotName
      */
-    void createSpecialPlot(QString plotName);
+    void createSpecialPlot(const QString& plotName);
 
     /**
      * @brief showEvent
      */
-    void showEvent();
+    void showEvent() override;
 
     QVBoxLayout* m_layplot;
 
@@ -109,14 +109,14 @@ private:
      * @param actPlot
      * @param str
      */
-    void setPlotIcon(QAction* actPlot, QString str);
+    void setPlotIcon(QAction* actPlot, const QString& str) const;
 
     /**
      * @brief shortPlotName
      * @param providerName
      * @return
      */
-    QString shortPlotName(QString providerName);
+    QString shortPlotName(const QString& providerName) const;
 
     QMutex m_mutex;
 
@@ -195,7 +195,7 @@ public slots:
     /**
      * @brief print
      */
-    void print();
+    void print() override;
 
     /**
      * @brief onFileChanged

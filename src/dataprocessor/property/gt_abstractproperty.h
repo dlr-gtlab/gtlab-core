@@ -189,7 +189,7 @@ public:
      * @brief Returns number of sub properties
      * @return
      */
-    int propertyCount();
+    int propertyCount() const;
 
     /**
      * @brief findProperty
@@ -245,7 +245,8 @@ protected:
     /**
      * @brief GtAbstractProperty
      */
-    GtAbstractProperty()
+    GtAbstractProperty() :
+        m_connection(nullptr)
     {
         m_readOnly = false;
         m_optional = false;
@@ -253,7 +254,7 @@ protected:
         m_hidden = false;
         m_storeMemento = true;
         m_category = GtAbstractProperty::Main;
-        m_connection = Q_NULLPTR;
+        m_unitCategory = GtUnit::None;
     }
 
     /// Identification string

@@ -38,12 +38,7 @@ public:
      */
     GtCollectionHelper(const QList<GtAccessData>& accessDataList,
                        GtCollectionReply* reply,
-                       QObject* parent = Q_NULLPTR);
-
-    /**
-     * @brief ~GtCollectionHelper
-     */
-    virtual ~GtCollectionHelper();
+                       QObject* parent = nullptr);
 
     /**
      * @brief Returns loaded collection items.

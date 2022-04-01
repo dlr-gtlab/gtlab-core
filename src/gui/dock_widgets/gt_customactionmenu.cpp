@@ -50,7 +50,7 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
             }
         }
 
-        QAction* act = Q_NULLPTR;
+        QAction* act = nullptr;
 
         if (a.icon().isEmpty())
         {
@@ -78,7 +78,7 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
             act->setShortcutContext(Qt::ApplicationShortcut);
 
             QWidget* parent = qobject_cast<QWidget*>(menu->parent());
-            if (parent != nullptr)
+            if (parent)
             {
                 parent->addAction(act);
             }
@@ -97,7 +97,7 @@ GtCustomActionMenu::onActionTrigger(QObject* obj)
 {
     QAction* act = qobject_cast<QAction*>(obj);
 
-    if (act == Q_NULLPTR)
+    if (!act)
     {
         return;
     }

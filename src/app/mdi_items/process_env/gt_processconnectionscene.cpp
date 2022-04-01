@@ -27,21 +27,12 @@
 GtProcessConnectionScene::GtProcessConnectionScene(
         GtProcessConnectionGraphicsView* parent) :
     GtGraphicsScene(parent),
-    m_tempConnection(Q_NULLPTR),
-    m_animationGroup(Q_NULLPTR),
+    m_tempConnection(nullptr),
+    m_animationGroup(nullptr),
     m_view(parent)
 {
 
 }
-
-GtProcessConnectionScene::~GtProcessConnectionScene()
-{
-    if (m_animationGroup != Q_NULLPTR)
-    {
-        delete m_animationGroup;
-    }
-}
-
 void
 GtProcessConnectionScene::animatePorts()
 {
@@ -56,17 +47,17 @@ GtProcessConnectionScene::animatePorts()
             dynamic_cast<GtProcessPropertyPortEntity*>(itemList.first());
 
     // check port
-    if (port == Q_NULLPTR)
+    if (!port)
     {
         return;
     }
 
-    if (m_animationGroup != Q_NULLPTR)
+    if (m_animationGroup)
     {
         m_animationGroup->stop();
 
         delete m_animationGroup;
-        m_animationGroup = Q_NULLPTR;
+        m_animationGroup = nullptr;
     }
 
     QList<GtProcessPropertyPortEntity*> valids = validPorts(port);
@@ -75,15 +66,15 @@ GtProcessConnectionScene::animatePorts()
 
     invalids.removeOne(port);
 
-    foreach (GtProcessPropertyPortEntity* port, valids)
+    foreach (GtProcessPropertyPortEntity* currPort, valids)
     {
-        if (invalids.contains(port))
+        if (invalids.contains(currPort))
         {
-            invalids.removeAll(port);
+            invalids.removeAll(currPort);
         }
     }
 
-    m_animationGroup = new QParallelAnimationGroup;
+    m_animationGroup = new QParallelAnimationGroup(this);
 
     foreach (QPropertyAnimation* anim, highlightPorts(valids))
     {
@@ -104,13 +95,13 @@ GtProcessConnectionScene::resetPorts()
     QList<GtProcessPropertyPortEntity*> ports =
             findItems<GtProcessPropertyPortEntity*>();
 
-    if (m_animationGroup != Q_NULLPTR)
+    if (m_animationGroup)
     {
         m_animationGroup->stop();
         delete m_animationGroup;
     }
 
-    m_animationGroup = new QParallelAnimationGroup();
+    m_animationGroup = new QParallelAnimationGroup(this);
 
 
     foreach (GtProcessPropertyPortEntity* port, ports)
@@ -132,21 +123,21 @@ void
 GtProcessConnectionScene::mouseReleaseEvent(
         QGraphicsSceneMouseEvent* mouseEvent)
 {
-    if (m_tempConnection != Q_NULLPTR)
+    if (m_tempConnection)
     {
         // check for connection partner
         GtProcessPropertyPortEntity* closePort =
                 closestPort(m_tempConnection->previewPort(),
                             mouseEvent->scenePos());
 
-        if (closePort != Q_NULLPTR)
+        if (closePort)
         {
             createNewConnection(m_tempConnection->previewPort(),
                                 closePort);
         }
 
         delete m_tempConnection;
-        m_tempConnection = Q_NULLPTR;
+        m_tempConnection = nullptr;
 
         resetPorts();
     }
@@ -173,13 +164,13 @@ GtProcessConnectionScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
             return;
         }
 
-        if (m_tempConnection == Q_NULLPTR)
+        if (!m_tempConnection)
         {
             GtProcessPropertyPortEntity* port =
                     dynamic_cast<GtProcessPropertyPortEntity*>(
                         itemList.first());
 
-            if (port != Q_NULLPTR)
+            if (port)
             {
                 m_tempConnection = new GtProcessPropertyConnectionEntity();
                 QPen pen = m_tempConnection->pen();
@@ -202,7 +193,7 @@ GtProcessConnectionScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
                     closestPort(m_tempConnection->previewPort(),
                                 event->scenePos());
 
-            if (closePort != Q_NULLPTR)
+            if (closePort)
             {
                 refreshTempConnection(closePort->pos());
             }
@@ -221,7 +212,7 @@ GtProcessConnectionScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 void
 GtProcessConnectionScene::refreshTempConnection(const QPointF& mousePos)
 {
-    if (m_tempConnection == Q_NULLPTR)
+    if (!m_tempConnection)
     {
         return;
     }
@@ -236,7 +227,7 @@ QList<GtProcessPropertyPortEntity*>
 GtProcessConnectionScene::validPorts(GtProcessPropertyPortEntity* activePort)
 {
     // check active port
-    if (activePort == Q_NULLPTR)
+    if (!activePort)
     {
         return QList<GtProcessPropertyPortEntity*>();
     }
@@ -291,7 +282,7 @@ GtProcessConnectionScene::hidePorts(
     {
         QPropertyAnimation* anim = port->hidePortAnim();
 
-        if (anim != Q_NULLPTR)
+        if (anim)
         {
             retval << anim;
         }
@@ -302,7 +293,7 @@ GtProcessConnectionScene::hidePorts(
 
 QList<QPropertyAnimation*>
 GtProcessConnectionScene::highlightPorts(
-        QList<GtProcessPropertyPortEntity*> ports)
+        QList<GtProcessPropertyPortEntity*> const& ports)
 {
     QList<QPropertyAnimation*> animList;
 
@@ -325,18 +316,18 @@ GtProcessConnectionScene::closestPort(GtProcessPropertyPortEntity* port,
 {
     QList<GtProcessPropertyPortEntity*> ports = validPorts(port);
 
-    foreach (GtProcessPropertyPortEntity* port, ports)
+    foreach (GtProcessPropertyPortEntity* currentPort, ports)
     {
-        double dx = qAbs(position.x() - port->scenePos().x());
-        double dy = qAbs(position.y() - port->scenePos().y());
+        double dx = qAbs(position.x() - currentPort->scenePos().x());
+        double dy = qAbs(position.y() - currentPort->scenePos().y());
 
         if (qSqrt(dx * dx + dy * dy) < 15.0)
         {
-            return port;
+            return currentPort;
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void
@@ -345,27 +336,27 @@ GtProcessConnectionScene::createNewConnection(
         GtProcessPropertyPortEntity* portB)
 {
     // check ports
-    if (portA == Q_NULLPTR || portB == Q_NULLPTR)
+    if (!portA || !portB)
     {
         return;
     }
 
     // check view
-    if (m_view == Q_NULLPTR)
+    if (!m_view)
     {
         return;
     }
 
     // check root task
-    if (m_view->root() == Q_NULLPTR)
+    if (!m_view->root())
     {
         return;
     }
 
     qDebug() << "creating connection!!!!";
 
-    GtProcessPropertyPortEntity* source = Q_NULLPTR;
-    GtProcessPropertyPortEntity* target = Q_NULLPTR;
+    GtProcessPropertyPortEntity* source = nullptr;
+    GtProcessPropertyPortEntity* target = nullptr;
 
     if (portA->portType() == GtProcessPropertyPortEntity::INPUT_PORT)
     {
@@ -397,7 +388,7 @@ GtProcessConnectionScene::createNewConnection(
     GtProcessPropertyConnectionEntity* entity =
             m_view->createConnection(connection);
 
-    if (entity != Q_NULLPTR)
+    if (entity)
     {
         m_view->updateConnections();
 //        entity->runPathAnimation();

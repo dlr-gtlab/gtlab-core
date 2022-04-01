@@ -35,13 +35,13 @@ public:
      */
     GtFinishedProcessLoadingHelper(QList<GtObjectMemento>* data,
                                    QPointer<GtObject> source,
-                                   QString taskName);
+                                   const QString& taskName);
 
     /**
      * @brief ~GtFinishedProcessLoadingHelper
      * destructor is empty
      */
-    virtual ~GtFinishedProcessLoadingHelper();
+    ~GtFinishedProcessLoadingHelper() override;
 
     /**
      * @brief run

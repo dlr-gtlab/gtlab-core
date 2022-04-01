@@ -20,16 +20,16 @@
 #include "gt_downloader.h"
 
 GtDownloader::GtDownloader(QObject* parent) : QObject(parent),
-    m_current(Q_NULLPTR), m_requestAborted(false), m_numberOfFiles(0)
+    m_current(nullptr), m_requestAborted(false), m_numberOfFiles(0)
 {
 
 }
 
 void
 GtDownloader::addFileDownload(const QString& url, const QString& downloadPath,
-                              QString targetFileName)
+                              const QString& targetFileName)
 {
-    GtDownloadItem* downloadItem = new GtDownloadItem(this);
+    auto downloadItem = new GtDownloadItem(this);
 
     downloadItem->m_url = QUrl(url);
     downloadItem->m_path = downloadPath;
@@ -40,9 +40,9 @@ GtDownloader::addFileDownload(const QString& url, const QString& downloadPath,
 
 void
 GtDownloader::addFileDownload(const QUrl& url, const QString& downloadPath,
-                              QString targetFileName)
+                              const QString& targetFileName)
 {
-    GtDownloadItem* downloadItem = new GtDownloadItem(this);
+    auto downloadItem = new GtDownloadItem(this);
 
     downloadItem->m_url = url;
     downloadItem->m_path = downloadPath;
@@ -60,7 +60,7 @@ GtDownloader::queueSize()
 void
 GtDownloader::exec()
 {
-    if (m_current != Q_NULLPTR)
+    if (m_current)
     {
         gtError() << tr("Could not start download proccess!") <<
                   QStringLiteral(" ") << tr("Download already running!");
@@ -84,7 +84,7 @@ GtDownloader::loadNextItem()
     if (m_queue.isEmpty())
     {
         gtInfo() << tr("All files downloaded!");
-        message(tr("All files downloaded!"));
+        emit message(tr("All files downloaded!"));
         emit finished();
         return;
     }
@@ -94,7 +94,7 @@ GtDownloader::loadNextItem()
         gtInfo() << tr("Download process aborted!");
         qDeleteAll(m_queue);
         m_queue.clear();
-        m_current = Q_NULLPTR;
+        m_current = nullptr;
         return;
     }
 
@@ -114,13 +114,13 @@ GtDownloader::onReplyFinished()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (reply == Q_NULLPTR)
+    if (!reply)
     {
         gtError() << tr("Invalid download reply!");
         return;
     }
 
-    if (reply->error() || m_current == Q_NULLPTR)
+    if (reply->error() || !m_current)
     {
         gtError() << tr("Could not download data!");
     }
@@ -163,7 +163,7 @@ GtDownloader::onReplyFinished()
     }
 
     delete m_current;
-    m_current = Q_NULLPTR;
+    m_current = nullptr;
 
     reply->deleteLater();
 
@@ -173,7 +173,7 @@ GtDownloader::onReplyFinished()
 void
 GtDownloader::cancelDownload()
 {
-    if (m_current == Q_NULLPTR)
+    if (!m_current)
     {
         gtInfo() << tr("Download process not active!");
         return;

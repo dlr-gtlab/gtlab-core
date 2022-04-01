@@ -212,7 +212,7 @@ protected:
      * @param actions
      */
     void addActionGroup(const QString& groupName,
-                        const QList<GtObjectUIAction> actions);
+                        const QList<GtObjectUIAction>& actions);
 
     /**
      * @brief addActionGroup
@@ -220,13 +220,13 @@ protected:
      * @param actions
      */
     void addActionGroup(const QString& groupName, const QString& groupIcon,
-                        const QList<GtObjectUIAction> actions);
+                        const QList<GtObjectUIAction>& actions);
 
     /**
      * @brief addActionGrou
      * @param actionGroup
      */
-    void addActionGroup(GtObjectUIActionGroup actionGroup);
+    void addActionGroup(const GtObjectUIActionGroup& actionGroup);
 
     /**
      * @brief addSeparator

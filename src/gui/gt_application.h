@@ -23,6 +23,8 @@
 #include <QMutex>
 #include <QPointer>
 
+#include <memory>
+
 class QKeyEvent;
 class GtPerspective;
 class GtObjectUI;
@@ -41,14 +43,14 @@ public:
     /**
      * @brief Constructor.
      */
-    GtApplication(QCoreApplication* parent,
-                  bool devMode = false,
-                  bool batchMode = false);
+    explicit GtApplication(QCoreApplication* parent,
+                           bool devMode = false,
+                           bool batchMode = false);
 
     /**
      * @brief Destructor.
      */
-    virtual ~GtApplication();
+    ~GtApplication() override;
 
     /** Creates a new icon from a resource file.
      *  @param iconPath Relative or custom resource path to a icon file.
@@ -63,7 +65,7 @@ public:
     /**
      * @brief loadModules
      */
-    virtual void loadModules() override;
+    void loadModules() override;
 
     /**
      * @brief perspectiveIds
@@ -180,7 +182,7 @@ public:
      * @brief switchSession
      * @param id
      */
-    virtual void switchSession(const QString& id) override;
+    void switchSession(const QString& id) override;
 
     /**
      * @brief undoStack
@@ -201,7 +203,7 @@ public:
                          GtAbstractProperty* prop,
                          const QVariant& newValue,
                          const QString& unit = QString(),
-                         GtObject* root = Q_NULLPTR) override;
+                         GtObject* root = nullptr) override;
 
     /**
      * @brief startCommand
@@ -273,7 +275,7 @@ private:
     QStringList m_perspectiveIds;
 
     /// Current perspective
-    GtPerspective* m_perspective;
+    std::unique_ptr<GtPerspective> m_perspective;
 
     /// gui specific module loader
     GtGuiModuleLoader* m_guiModuleLoader;

@@ -26,7 +26,8 @@ GtTreeView::keyPressEvent(QKeyEvent* event)
             emit searchRequest();
             return;
         }
-        else if (event->key() == Qt::Key_C)
+
+        if (event->key() == Qt::Key_C)
         {
             emit copyRequest();
             return;

@@ -35,8 +35,8 @@ GtPropertyFactory::GtPropertyFactory(QObject* parent) : QObject(parent)
 GtPropertyFactory*
 GtPropertyFactory::instance()
 {
-    static GtPropertyFactory* retval = Q_NULLPTR;
-    if (retval == Q_NULLPTR)
+    static GtPropertyFactory* retval = nullptr;
+    if (!retval)
     {
         retval = new GtPropertyFactory(qApp);
     }
@@ -46,7 +46,7 @@ GtPropertyFactory::instance()
 GtObject*
 GtPropertyFactory::newObject(const QString& /*className*/, GtObject* /*parent*/)
 {
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 GtAbstractProperty*
@@ -54,7 +54,7 @@ GtPropertyFactory::newProperty(const QString& className,
                                const QString& id,
                                const QString& name)
 {
-    GtAbstractProperty* retval = Q_NULLPTR;
+    GtAbstractProperty* retval = nullptr;
 
     if (m_knownClasses.contains(className))
     {
@@ -63,7 +63,7 @@ GtPropertyFactory::newProperty(const QString& className,
         QObject* obj = metaObj.newInstance(Q_ARG(QString, id),
                                            Q_ARG(QString, name));
 
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             if (!m_silent)
             {
@@ -74,12 +74,12 @@ GtPropertyFactory::newProperty(const QString& className,
                 qDebug() << knownClasses();
             }
 
-            return NULL;
+            return nullptr;
         }
 
         retval = qobject_cast<GtAbstractProperty*>(obj);
 
-        if (retval == Q_NULLPTR)
+        if (!retval)
         {
             delete obj;
 
@@ -92,7 +92,7 @@ GtPropertyFactory::newProperty(const QString& className,
                 qDebug() << knownClasses();
             }
 
-            return NULL;
+            return nullptr;
         }
     }
     else
@@ -103,7 +103,7 @@ GtPropertyFactory::newProperty(const QString& className,
 //            qWarning() << "WARNING: classname not found! (" << className << ")";
         }
 
-        return NULL;
+        return nullptr;
     }
 
     return retval;

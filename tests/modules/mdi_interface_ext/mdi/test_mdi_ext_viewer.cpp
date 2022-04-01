@@ -6,7 +6,7 @@ TestMdiExtViewer::TestMdiExtViewer()
 }
 
 bool
-TestMdiExtViewer::allowsMultipleInstances()
+TestMdiExtViewer::allowsMultipleInstances() const
 {
     return true;
 }

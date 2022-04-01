@@ -38,13 +38,13 @@ public:
      * @brief setData
      * @param obj
      */
-    virtual void setData(GtObject* obj) override;
+    void setData(GtObject* obj) override;
 
     /**
      * @brief objectChangedEvent
      * @param obj
      */
-    virtual void objectChangedEvent(GtObject* obj) override;
+    void objectChangedEvent(GtObject* obj) override;
 
     /**
      * @brief onStateChangedEvent

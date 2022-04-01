@@ -433,7 +433,7 @@ GtCollectionBrowserModel::index(int row, int column,
 {
     if (!hasIndex(row, column, parent))
     {
-        return QModelIndex();
+        return {};
     }
 
     if (!parent.isValid())
@@ -443,7 +443,7 @@ GtCollectionBrowserModel::index(int row, int column,
 
         if (row < 0 || row >= groups.size())
         {
-            return QModelIndex();
+            return {};
         }
 
         return createIndex(row, column, groups[row]);
@@ -467,11 +467,11 @@ GtCollectionBrowserModel::index(int row, int column,
         }
         else
         {
-            return QModelIndex();
+            return {};
         }
     }
 
-    return QModelIndex();
+    return {};
 }
 
 QModelIndex
@@ -486,7 +486,7 @@ GtCollectionBrowserModel::parent(const QModelIndex& index) const
         case AvailableItemGroup:
         case InstalledItemGroup:
         default:
-            return QModelIndex();
+            return {};
 
         case UpdateAvailableItem:
             return createIndex(0, 0, UpdateAvailableItemGroup);
@@ -498,7 +498,7 @@ GtCollectionBrowserModel::parent(const QModelIndex& index) const
             return createIndex(1, 0, InstalledItemGroup);
     }
 
-    return QModelIndex();
+    return {};
 }
 
 Qt::ItemFlags
@@ -581,6 +581,10 @@ GtCollectionBrowserModel::itemFromIndex(const QModelIndex& index)
 
             return m_installedItems[row].item();
         }
+        case InstalledItemGroup:
+        case AvailableItemGroup:
+        case UpdateAvailableItemGroup:
+            return {};
     }
 
     return GtCollectionItem();

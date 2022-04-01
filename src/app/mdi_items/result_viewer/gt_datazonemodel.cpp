@@ -16,15 +16,18 @@
 
 #include "gt_datazonemodel.h"
 
-GtDataZoneModel::GtDataZoneModel(QObject* parent) : QAbstractTableModel(parent),
-    m_result(Q_NULLPTR)
+GtDataZoneModel::GtDataZoneModel(QObject* parent) :
+    QAbstractTableModel(parent),
+    m_indexOfInterestAx1(0),
+    m_axOfInterest(0),
+    m_result(nullptr)
 {
 
 }
 
 GtDataZoneModel::~GtDataZoneModel()
 {
-    if (m_result != Q_NULLPTR)
+    if (m_result)
     {
         m_result->releaseData(GtExternalizedObject::Discard);
     }
@@ -33,7 +36,7 @@ GtDataZoneModel::~GtDataZoneModel()
 void
 GtDataZoneModel::setResultData(GtAbstractDataZone* data)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         return;
     }
@@ -43,7 +46,7 @@ GtDataZoneModel::setResultData(GtAbstractDataZone* data)
         return;
     }
 
-    if (m_result != Q_NULLPTR)
+    if (m_result)
     {
         disconnect(m_result.data(), SIGNAL(dataChanged(GtObject*)), this,
                    SLOT(onResultChanged()));
@@ -95,36 +98,37 @@ value2D(int row, int column, int axOfInterest, int indexOfInterest,
         return -1;
     }
 
+    auto ticks = dz->allAxisTicks();
     if (axOfInterest == 0)
     {
-        if (dz->allAxisTicks().first().size() < indexOfInterest)
+        if (ticks.first().size() < indexOfInterest)
         {
             return -1;
         }
-        if (dz->allAxisTicks().at(1).size() < column - 2)
+        if (ticks.at(1).size() < column - 2)
         {
             return -1;
         }
 
 
         return dz->value2D(params[row - 1],
-                dz->allAxisTicks().first().at(indexOfInterest),
-                dz->allAxisTicks().at(1).at(column - 2));
+                ticks.first().at(indexOfInterest),
+                ticks.at(1).at(column - 2));
     }
     else if (axOfInterest == 1)
     {
-        if (dz->allAxisTicks().first().size() < column - 2)
+        if (ticks.first().size() < column - 2)
         {
             return -1;
         }
-        if (dz->allAxisTicks().at(1).size() < indexOfInterest)
+        if (ticks.at(1).size() < indexOfInterest)
         {
             return -1;
         }
 
         return dz->value2D(params[row - 1],
-                dz->allAxisTicks().first().at(column - 2),
-                dz->allAxisTicks().at(1).at(indexOfInterest));
+                ticks.first().at(column - 2),
+                ticks.at(1).at(indexOfInterest));
 
     }
     else
@@ -137,18 +141,18 @@ void
 GtDataZoneModel::clearResultData()
 {
     beginResetModel();
-    if (m_result != Q_NULLPTR)
+    if (m_result)
     {
         m_result->releaseData(GtExternalizedObject::Discard);
     }
-    m_result = Q_NULLPTR;
+    m_result = nullptr;
     endResetModel();
 }
 
 int
 GtDataZoneModel::rowCount(const QModelIndex& parent) const
 {
-    if (parent.isValid() || m_result == Q_NULLPTR)
+    if (parent.isValid() || !m_result)
     {
         return 0;
     }
@@ -168,7 +172,7 @@ GtDataZoneModel::rowCount(const QModelIndex& parent) const
 int
 GtDataZoneModel::columnCount(const QModelIndex& parent) const
 {
-    if (parent.isValid() || m_result == Q_NULLPTR)
+    if (parent.isValid() || !m_result)
     {
         return 0;
     }
@@ -177,22 +181,23 @@ GtDataZoneModel::columnCount(const QModelIndex& parent) const
 
     if (dz)
     {
+        auto allTicks = dz->allAxisTicks();
         if (dz->nDims() == 1)
         {
-            return dz->allAxisTicks().first().size() + 2;
+            return allTicks.first().size() + 2;
         }
         else if (dz->nDims() == 2)
         {
             int index = abs(m_axOfInterest - 1);
 
-            if (dz->allAxisTicks().size() < index)
+            if (allTicks.size() < index)
             {
                 //gtWarning() << "Error in ColumnCount for DataZone";
                 //gtDebug() << "This error only occurs in Debug-Mode";
                 return 0;
             }
 
-            return dz->allAxisTicks().at(index).size() + 2;
+            return allTicks.at(index).size() + 2;
         }
         else
         {
@@ -207,9 +212,9 @@ QVariant
 GtDataZoneModel::data(const QModelIndex& index,
                       int role) const
 {
-    if (m_result == Q_NULLPTR)
+    if (!m_result)
     {
-        gtDebug() << "Error - GtDataZoneModel::data - m_result == Q_NULLPTR";
+        gtDebug() << "Error - GtDataZoneModel::data - m_result == nullptr";
         return QVariant();
     }
 
@@ -344,7 +349,7 @@ GtDataZoneModel::data(const QModelIndex& index,
                     default:
                         double val = value2D(index.row(), index.column(),
                                              m_axOfInterest,
-                                             m_indeOfInterestAx1,
+                                             m_indexOfInterestAx1,
                                              dz);
                         return val;
                 }

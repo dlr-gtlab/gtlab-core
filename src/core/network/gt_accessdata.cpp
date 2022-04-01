@@ -102,10 +102,5 @@ GtAccessData::data() const
 bool
 GtAccessData::isEmpty()
 {
-    if (m_host.isEmpty())
-    {
-        return true;
-    }
-
-    return false;
+    return m_host.isEmpty();
 }

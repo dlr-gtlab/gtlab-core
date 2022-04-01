@@ -22,7 +22,7 @@
 #include "gt_command.h"
 #include "gt_logging.h"
 
-GtPropertiesDock::GtPropertiesDock() : m_obj(Q_NULLPTR)
+GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
 {
     setObjectName(tr("Properties"));
 
@@ -100,13 +100,13 @@ GtPropertiesDock::objectSelected(GtObject* obj)
     m_treeView->setObject(obj);
     m_processComponentSettingBtn->setVisible(false);
 
-    if (obj != Q_NULLPTR)
+    if (obj)
     {
         m_treeView->setScope(obj->findParent<GtProject*>());
 
     }
 
-    if (m_obj != Q_NULLPTR)
+    if (m_obj)
     {
         disconnect(m_obj, SIGNAL(destroyed(QObject*)), this,
                    SLOT(refreshTitle()));
@@ -116,7 +116,7 @@ GtPropertiesDock::objectSelected(GtObject* obj)
 
     m_obj = obj;
 
-    if (m_obj != Q_NULLPTR)
+    if (m_obj)
     {
         connect(m_obj.data(), SIGNAL(destroyed(QObject*)),
                 SLOT(refreshTitle()));
@@ -138,7 +138,7 @@ GtPropertiesDock::objectSelected(GtObject* obj)
 void
 GtPropertiesDock::refreshTitle()
 {
-    if (m_obj == Q_NULLPTR)
+    if (!m_obj)
     {
         m_label->setVisible(false);
         return;

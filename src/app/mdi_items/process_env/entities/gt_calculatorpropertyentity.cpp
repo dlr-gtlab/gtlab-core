@@ -36,7 +36,7 @@ GtCalculatorPropertyEntity::paint(QPainter* painter,
 QRectF
 GtCalculatorPropertyEntity::boundingRect() const
 {
-    Q_ASSERT(parentItem() == Q_NULLPTR);
+    Q_ASSERT(parentItem() == nullptr);
 
     const QRectF rect = parentItem()->boundingRect();
 
@@ -48,7 +48,7 @@ GtCalculatorPropertyEntity::populateEntity()
 {
     GtPropertyPortEntity* out = new GtPropertyPortEntity(this);
 
-    const QRectF rect = boundingRect();
+    const QRectF rect = GtCalculatorPropertyEntity::boundingRect();
     out->setPos(rect.width(), rect.height() / 2);
 
     if (!m_property->isReadOnly())

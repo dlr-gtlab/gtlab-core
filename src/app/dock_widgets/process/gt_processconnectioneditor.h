@@ -31,12 +31,13 @@ public:
      * @brief Constructor.
      * @param Parent widget.
      */
-    GtProcessConnectionEditor(GtTask* task, QWidget* parent = Q_NULLPTR);
+    explicit GtProcessConnectionEditor(GtTask* task,
+                                       QWidget* parent = nullptr);
 
     /**
      * @brief Destructor.
      */
-    virtual ~GtProcessConnectionEditor();
+    ~GtProcessConnectionEditor() override;
 
     /**
      * @brief Returns connection data in form of task memento.

@@ -26,7 +26,7 @@ GtSelectFileToImportPage::GtSelectFileToImportPage(
     m_importer(importer)
 
 {
-    if (m_importer != Q_NULLPTR)
+    if (m_importer)
     {
         setTitle(tr("Select") + QStringLiteral(" ") +
                  m_importer->objectName() + QStringLiteral(" ") +
@@ -69,7 +69,7 @@ GtSelectFileToImportPage::GtSelectFileToImportPage(
 bool
 GtSelectFileToImportPage::import(QFile& file)
 {
-    if (m_importer == Q_NULLPTR)
+    if (!m_importer)
     {
         gtError() << tr("no importer set! import function not found!");
         return false;
@@ -108,12 +108,7 @@ GtSelectFileToImportPage::validatePage()
 bool
 GtSelectFileToImportPage::isComplete() const
 {
-    if (QFile(m_lineEdit->text()).exists())
-    {
-        return true;
-    }
-
-    return false;
+    return QFile(m_lineEdit->text()).exists();
 }
 
 void

@@ -7,7 +7,7 @@
 #include <QStringList>
 
 GtTable*
-GtTableParser::fromDomElement(QDomElement &root, bool &success)
+GtTableParser::fromDomElement(const QDomElement& root, bool& success)
 {
     GtTable* table = new GtTable();
 
@@ -17,14 +17,14 @@ GtTableParser::fromDomElement(QDomElement &root, bool &success)
     {
         gtError() << "Table could not be parsed.";
         delete table;
-        table = NULL;
+        table = nullptr;
     }
 
     return table;
 }
 
 void
-GtTableParser::fromDomElement(QDomElement& root, GtTable* table, bool& success)
+GtTableParser::fromDomElement(const QDomElement& root, GtTable* table, bool& success)
 {
     success = parseTable(root, table);
 
@@ -35,7 +35,7 @@ GtTableParser::fromDomElement(QDomElement& root, GtTable* table, bool& success)
 }
 
 bool
-GtTableParser::parseTable(QDomElement &root, GtTable *table)
+GtTableParser::parseTable(const QDomElement& root, GtTable* table)
 {
     // check whether root element is a 'Table'
 
@@ -117,7 +117,7 @@ GtTableParser::parseTable(QDomElement &root, GtTable *table)
 
 
 bool
-GtTableParser::parseAxes(QDomElement &root, GtTable *table)
+GtTableParser::parseAxes(const QDomElement& root, GtTable* table)
 {
     QDomNodeList nodes = root.elementsByTagName("Axis");
 
@@ -144,7 +144,7 @@ GtTableParser::parseAxes(QDomElement &root, GtTable *table)
 
 
 bool
-GtTableParser::parseAxis(QDomElement &root, GtTable *table)
+GtTableParser::parseAxis(const QDomElement& root, GtTable* table)
 {
     // check whether root element is an 'Axis'
 
@@ -373,7 +373,7 @@ GtTableParser::parseAxis(QDomElement &root, GtTable *table)
 }
 
 
-bool GtTableParser::parseValues(QDomElement &root, GtTable *table)
+bool GtTableParser::parseValues(const QDomElement& root, GtTable* table)
 {
     bool valsOk = false;
     QVector<double> vals = parseDoubleVector(root, valsOk);
@@ -393,7 +393,7 @@ bool GtTableParser::parseValues(QDomElement &root, GtTable *table)
 
 
 QVector<double>
-GtTableParser::parseDoubleVector(QDomElement &root, bool &success)
+GtTableParser::parseDoubleVector(const QDomElement& root, bool& success)
 {
     QStringList valStrList = root.text().simplified().split(",");
     QVector<double> vals;
@@ -407,7 +407,7 @@ GtTableParser::parseDoubleVector(QDomElement &root, bool &success)
     {
         int counter = 0;
 
-        for (const QString& valStr : valStrList)
+        for (const QString& valStr : qAsConst(valStrList))
         {
             double val = valStr.toDouble(&success);
             counter++;

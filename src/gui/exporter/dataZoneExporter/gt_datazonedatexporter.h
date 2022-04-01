@@ -45,7 +45,7 @@ public:
      * @param Reference to file selected by user.
      * @return Whether export successfully finished or not.
      */
-    bool doExport(GtObject* data, QFile& file) override;
+    bool doExport(GtObject* object, QFile& file) override;
 
     /**
      * @brief Returns file extensions of exporter.
@@ -67,7 +67,7 @@ private:
      * @param file file to write in
      * @return
      */
-    bool write0Ddata(GtDataZone0D* data, QFile& file);
+    bool write0Ddata(const GtDataZone0D* data, QFile& file);
 
     /**
      * @brief writing of multidimensional tables to a .dat file
@@ -76,7 +76,7 @@ private:
      * @param file file to write in
      * @return
      */
-    bool writeMultiDimData(GtDataZone* data, QFile& file);
+    bool writeMultiDimData(const GtDataZone* data, QFile& file);
 
     /**
      * @brief writing of 1D tables to a .dat file
@@ -84,7 +84,7 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool write1Ddata(GtDataZone* data, QTextStream& out);
+    bool write1Ddata(const GtDataZone* data, QTextStream& out);
 
     /**
      * @brief writing of 2D tables to a .dat file
@@ -92,7 +92,7 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool write2Ddata(GtDataZone* data, QTextStream& out);
+    bool write2Ddata(const GtDataZone* data, QTextStream& out);
 
     /**
      * @brief writing of 3D tables to a .dat file
@@ -100,7 +100,7 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool write3Ddata(GtDataZone* data, QTextStream& out);
+    bool write3Ddata(const GtDataZone* data, QTextStream& out);
 
     /**
      * @brief writing of 4D tables to a .dat file
@@ -108,7 +108,7 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool write4Ddata(GtDataZone* data, QTextStream& out);
+    bool write4Ddata(const GtDataZone* data, QTextStream& out);
 
     /**
      * @brief writeHeaderLine
@@ -116,7 +116,7 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool writeHeaderLine0D(QTextStream& out, GtDataZone0D* dataZone);
+    bool writeHeaderLine0D(QTextStream& out, const GtDataZone0D* dataZone);
 
     /**
      * @brief writing the appropriate tecplot header to the file
@@ -124,7 +124,7 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool writeHeaderLine(QTextStream& out, GtDataZone* dataZone);
+    bool writeHeaderLine(QTextStream& out, const GtDataZone* dataZone);
 };
 
 #endif // GT_DATAZONEDATEXPORTER_H

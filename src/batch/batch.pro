@@ -20,7 +20,7 @@ QT += core xml gui widgets
 TEMPLATE = app
 CONFIG += console
 CONFIG += silent
-CONFIG += c++11
+CONFIG += c++14
 
 CONFIG(debug, debug|release){
     DESTDIR = $${BUILD_DEST}/debug-batch

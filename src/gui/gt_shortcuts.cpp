@@ -11,6 +11,8 @@
 #include "gt_shortcut.h"
 #include "gt_logging.h"
 
+#include <algorithm>
+
 GtShortCuts::GtShortCuts(QObject* parent)
 {
     setParent(parent);
@@ -18,11 +20,11 @@ GtShortCuts::GtShortCuts(QObject* parent)
 
 void
 GtShortCuts::initialize(const QMap<QString, QStringList>& tab)
-{    
-    for (QString key : tab.keys())
+{
+    for (auto iter = std::begin(tab); iter != std::end(tab); ++iter)
     {
-        QKeySequence k = QKeySequence(tab.value(key).first());
-        GtShortCut* c = new GtShortCut(key, k, tab.value(key).at(1));
+        QKeySequence k = QKeySequence(iter.value().first());
+        GtShortCut* c = new GtShortCut(iter.key(), k, iter.value().at(1));
         c->setParent(this);
     }
 }
@@ -43,42 +45,38 @@ GtShortCuts::shortCuts() const
 GtShortCut*
 GtShortCuts::findShortCut(const QString& id, const QString& category) const
 {
-    QList<GtShortCut*> list = shortCuts();
+    const QList<GtShortCut*> list = shortCuts();
 
-    GtShortCut* retVal = Q_NULLPTR;
-    for (GtShortCut* c : list)
+    auto iter = std::find_if(std::begin(list), std::end(list),
+        [&id, &category](const GtShortCut* c) {
+            return c->id() == id &&  c->category() == category;
+        });
+    if (iter != std::end(list))
     {
-        if (c->id() == id)
-        {
-            if (c->category() == category)
-            {
-                retVal = c;
-            }
-        }
+        return *iter;
     }
-
-    return retVal;
+    else
+    {
+        return nullptr;
+    }
 }
 
 QKeySequence
 GtShortCuts::getKey(const QString& id) const
 {
-    QList<GtShortCut*>list = shortCuts();
+    const QList<GtShortCut*>list = shortCuts();
 
     if (shortCuts().isEmpty())
     {
         gtWarning() << "No shortCut registered";
 
-        return false;
+        return QKeySequence{};
     }
 
-    for (GtShortCut* c : list)
-    {
-        if (c->id() == id)
-        {
-            return c->key();
-        }
-    }
+    auto iter = std::find_if(std::begin(list), std::end(list),
+                             [&id](const GtShortCut* c) {
+        return c->id() == id;
+    });
 
-    return QKeySequence();
+    return iter != std::end(list) ? (*iter)->key() : QKeySequence{};
 }

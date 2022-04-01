@@ -24,14 +24,14 @@ public:
      * @brief GtExamplesTabWidget - Constructor
      * @param parent
      */
-    Q_INVOKABLE explicit GtExamplesTabWidget(QWidget* parent = Q_NULLPTR);
+    Q_INVOKABLE explicit GtExamplesTabWidget(QWidget* parent = nullptr);
 
     /**
      * @brief resizeEvent
      *  Overloaded Resize event of the QTabWidget
      * @param e
      */
-    void resizeEvent(QResizeEvent* e);
+    void resizeEvent(QResizeEvent* e) override;
 
 signals:
     /**

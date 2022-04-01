@@ -147,7 +147,7 @@ runProcess(const QString& projectId, const QString& processId,
 
     GtProject* project = gtApp->findProject(projectId);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("project not found!") <<
@@ -170,7 +170,7 @@ runProcess(const QString& projectId, const QString& processId,
     // run process
     GtTask* process = project->findProcess(processId);
 
-    if (process == Q_NULLPTR)
+    if (!process)
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("process not found!") <<
@@ -259,7 +259,7 @@ runProcessByFile(const QString& projectFile, const QString& processId,
     // run process
     GtTask* process = project->findProcess(processId);
 
-    if (process == Q_NULLPTR)
+    if (!process)
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("process not found!") <<
@@ -296,7 +296,7 @@ runProcessByFile(const QString& projectFile, const QString& processId,
 }
 
 bool
-isExactlyOneTrue(bool* boolAry, int size)
+isExactlyOneTrue(const bool* boolAry, int size)
 {
     bool areAnyTrue = false;
     bool areTwoTrue = false;
@@ -436,7 +436,7 @@ int main(int argc, char* argv[])
         app.initSession();
     }
 
-    if (app.session() == Q_NULLPTR)
+    if (!app.session())
     {
         qWarning() << "no session loaded!";
         return -1;

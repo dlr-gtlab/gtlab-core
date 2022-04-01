@@ -52,7 +52,7 @@ GtRunnable::run()
     foreach (GtProcessComponent* calc, m_queue)
     {
         if (!calc->exec())
-        {
+        { // cppcheck-suppress useStlAlgorithm
             gtError() << "Calculator execution failed!";
             success = false;
 
@@ -104,7 +104,7 @@ GtRunnable::run()
 bool
 GtRunnable::appendCalculator(GtProcessComponent* calc)
 {
-    if (calc == Q_NULLPTR)
+    if (!calc)
     {
         return false;
     }
@@ -136,7 +136,7 @@ GtRunnable::requestInterruption()
     {
         GtTask* task = qobject_cast<GtTask*>(calc);
 
-        if (task != Q_NULLPTR)
+        if (task)
         {
             tasks << task;
         }
@@ -184,7 +184,7 @@ GtRunnable::tempDir()
 QString
 GtRunnable::projectPath()
 {
-    if (gtApp->currentProject() == Q_NULLPTR)
+    if (!gtApp->currentProject())
     {
         return QString();
     }
@@ -205,12 +205,12 @@ GtRunnable::readObjects()
     {
         GtObject* obj = memento.restore(gtObjectFactory);
 
-        if (obj != Q_NULLPTR)
+        if (obj)
         {
             m_linkedObjects.append(obj);
         }
 
-        for (auto* externObj : obj->findChildren<GtExternalizedObject*>())
+        foreach (auto* externObj, obj->findChildren<GtExternalizedObject*>())
         {
             externObj->resetRefCount();
         }
@@ -220,7 +220,7 @@ GtRunnable::readObjects()
 void
 GtRunnable::writeObjects()
 {
-    for (GtObject* obj : m_linkedObjects)
+    for (GtObject* obj : qAsConst(m_linkedObjects))
     {
         m_outputData << GtObjectMemento(obj);
     }

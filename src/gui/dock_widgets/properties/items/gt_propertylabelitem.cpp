@@ -34,7 +34,7 @@ GtPropertyLabelItem::labelProperty() const
 QVariant
 GtPropertyLabelItem::data(int column, int role) const
 {
-    if (labelProperty() == Q_NULLPTR)
+    if (!labelProperty())
     {
         return QVariant();
     }
@@ -71,17 +71,15 @@ GtPropertyLabelItem::editorWidget(QWidget* parent,
 void
 GtPropertyLabelItem::setEditorData(QWidget* editor, QVariant& /*var*/) const
 {
-    if (labelProperty() == Q_NULLPTR)
+    if (!labelProperty())
     {
         return;
     }
 
     QComboBox* box = static_cast<QComboBox*>(editor);
 
-    if (labelProperty() != Q_NULLPTR)
-    {
-        box->setCurrentText(labelProperty()->get());
-    }
+    box->setCurrentText(labelProperty()->get());
+
 }
 
 void
@@ -89,24 +87,21 @@ GtPropertyLabelItem::setModelData(QWidget* editor,
                                   QAbstractItemModel* model,
                                   const QModelIndex& index) const
 {
-    if (labelProperty() == Q_NULLPTR)
+    if (!labelProperty())
     {
         return;
     }
 
     QComboBox* box = static_cast<QComboBox*>(editor);
 
-    if (labelProperty() != Q_NULLPTR)
-    {
-        model->setData(index, box->currentText(), Qt::EditRole);
-    }
+    model->setData(index, box->currentText(), Qt::EditRole);
 }
 
 void
 GtPropertyLabelItem::paint(QPainter* painter,
                            const QStyleOptionViewItem& option) const
 {
-    if (labelProperty() == Q_NULLPTR)
+    if (!labelProperty())
     {
         return;
     }
@@ -132,7 +127,7 @@ GtPropertyLabelItem::paint(QPainter* painter,
     double dx = (r.width() - 10) / 2;
     double dy = (r.height() - 10) / 2;
 
-    opt.rect = QRect(r.x() + dx, r.y() + dy, 10, 10);
+    opt.rect = QRect(int(r.x() + dx), int(r.y() + dy), 10, 10);
 
     QApplication::style()->drawPrimitive(QStyle::PE_IndicatorArrowDown,
                                          &opt, painter);
@@ -143,21 +138,21 @@ GtPropertyLabelItem::paint(QPainter* painter,
 QStringList
 GtPropertyLabelItem::labelList() const
 {
-    if (m_scope == Q_NULLPTR)
+    if (!m_scope)
     {
         return QStringList();
     }
 
     GtProject* project = qobject_cast<GtProject*>(m_scope);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return QStringList();
     }
 
     GtLabelData* labelData = project->labelData();
 
-    if (labelData == Q_NULLPTR)
+    if (!labelData)
     {
         return QStringList();
     }

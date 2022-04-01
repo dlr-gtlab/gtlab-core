@@ -31,13 +31,13 @@ public:
      * Virtual function to specify object specific icon.
      * @return Object specific icon
      */
-    virtual QIcon icon(GtObject* obj) const override;
+    QIcon icon(GtObject* obj) const override;
 
     /**
      * @brief doubleClicked
      * @param obj
      */
-    virtual void doubleClicked(GtObject* obj) override;
+    void doubleClicked(GtObject* obj) override;
 
 protected:
     /**

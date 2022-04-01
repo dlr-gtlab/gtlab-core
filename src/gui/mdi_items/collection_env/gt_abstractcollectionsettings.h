@@ -59,9 +59,9 @@ public:
      * @param items
      */
     virtual void setBrowserWidgetData(GtAbstractBrowserWidget* widget,
-                                      QList<GtCollectionNetworkItem> installedItems,
-                                      QList<GtCollectionNetworkItem> availableItems,
-                                      QList<GtCollectionNetworkItem> updataAvailableItems) = 0;
+        const QList<GtCollectionNetworkItem>& installedItems,
+        const QList<GtCollectionNetworkItem>& availableItems,
+        const QList<GtCollectionNetworkItem>& updataAvailableItems) = 0;
 
 signals:
     /**

@@ -12,6 +12,8 @@
 
 #include <QWizardPage>
 
+#include <memory>
+
 class GtProcessWizard;
 class GtProcessOverviewTree;
 class GtCalculatorOverviewModel;
@@ -33,19 +35,19 @@ public:
     /**
      *
      */
-    virtual ~GtCalculatorOverviewPage() override;
+    ~GtCalculatorOverviewPage() override;
 
     /**
      * @brief validatePage
      * @return
      */
-    virtual bool validatePage() override;
+    bool validatePage() override;
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const override;
+    bool isComplete() const override;
 
 private:
     /// Tree view
@@ -55,7 +57,7 @@ private:
     GtProcessWizard* m_wizard;
 
     ////
-    GtCalculatorOverviewModel* m_model;
+    std::unique_ptr<GtCalculatorOverviewModel> m_model;
 
 private slots:
     /**

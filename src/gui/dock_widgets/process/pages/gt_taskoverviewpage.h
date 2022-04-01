@@ -33,13 +33,13 @@ public:
      * @brief validatePage
      * @return
      */
-    virtual bool validatePage() override;
+    bool validatePage() override;
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const override;
+    bool isComplete() const override;
 
 private:
     /// Tree view

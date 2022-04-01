@@ -7,6 +7,12 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_networkinterface.h"
+#include "gt_accessgroup.h"
+#include "gt_logging.h"
+
+#include "gt_accessmanager.h"
+
 #include <QNetworkInterface>
 #include <QCoreApplication>
 #include <QStandardPaths>
@@ -14,21 +20,17 @@
 #include <QNetworkAccessManager>
 #include <QDataStream>
 
-#include "gt_networkinterface.h"
-#include "gt_accessgroup.h"
-#include "gt_logging.h"
-
-#include "gt_accessmanager.h"
+#include <algorithm>
 
 GtAccessManager::GtAccessManager(QObject* parent) :
-    QObject(parent), m_qnam(Q_NULLPTR)
+    QObject(parent), m_qnam(nullptr)
 {
 }
 
 bool
 GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
 {
-    if (accessGroup == Q_NULLPTR)
+    if (!accessGroup)
     {
         return false;
     }
@@ -79,7 +81,7 @@ GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
     // number of header lines
     const int nhl = list.size() % 4;
 
-    if (list.size() >= 1 && nhl == 1)
+    if (!list.empty() && nhl == 1)
     {
         qDebug() << "   |-> reading data...";
 
@@ -130,8 +132,8 @@ GtAccessManager::roamingPath()
 GtAccessManager*
 GtAccessManager::instance()
 {
-    static GtAccessManager* retval = 0;
-    if (retval == 0)
+    static GtAccessManager* retval = nullptr;
+    if (!retval)
     {
         retval = new GtAccessManager(qApp);
     }
@@ -144,12 +146,12 @@ GtAccessManager::addAccessGroup(const QString& id,
 {
     if (id.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (groupExists(id))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtAccessGroup* retval = new GtAccessGroup(id , connection, this);
@@ -175,15 +177,9 @@ GtAccessManager::isEmpty()
 bool
 GtAccessManager::groupExists(const QString& id)
 {
-    foreach (GtAccessGroup* group, m_data)
-    {
-        if (group->objectName() == id)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(std::begin(m_data), std::end(m_data), [&id](const GtAccessGroup* group) {
+        return group->objectName() == id;
+    });
 }
 
 QStringList
@@ -318,21 +314,18 @@ GtAccessManager::deserializeStringList(const QString& str)
 GtAccessGroup*
 GtAccessManager::accessGroup(const QString& id)
 {
-    foreach (GtAccessGroup* group, m_data)
-    {
-        if (group->objectName() == id)
-        {
-            return group;
-        }
-    }
+    auto iter = std::find_if(std::begin(m_data), std::end(m_data),
+                 [&id](const GtAccessGroup* group) {
+        return group->objectName() == id;
+    });
 
-    return Q_NULLPTR;
+    return iter != std::end(m_data) ? *iter : nullptr;
 }
 
 QNetworkAccessManager*
 GtAccessManager::qnam()
 {
-    if (m_qnam == Q_NULLPTR)
+    if (!m_qnam)
     {
         m_qnam = new QNetworkAccessManager(this);
     }

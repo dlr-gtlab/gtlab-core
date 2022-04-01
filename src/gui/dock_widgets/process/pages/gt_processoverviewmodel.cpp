@@ -19,19 +19,12 @@
 GtProcessOverviewModel::GtProcessOverviewModel(QObject* parent) :
     QAbstractItemModel(parent)
 {
-
 }
 
 GtProcessOverviewModel::~GtProcessOverviewModel()
 {
-    foreach (GtProcessCategoryItem* cat, m_categories)
-    {
-        if (cat != Q_NULLPTR)
-        {
-            delete cat;
-            cat = Q_NULLPTR;
-        }
-    }
+    qDeleteAll(m_categories);
+    m_categories.clear();
 }
 
 int
@@ -44,7 +37,7 @@ GtProcessOverviewModel::rowCount(const QModelIndex& parent) const
 
     GtAbstractProcessItem* parentItem = itemFromIndex(parent);
 
-    if (parentItem == Q_NULLPTR)
+    if (!parentItem)
     {
         return 0;
     }
@@ -76,7 +69,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
 
     GtAbstractProcessItem* abstractItem = itemFromIndex(index);
 
-    if (abstractItem == Q_NULLPTR)
+    if (!abstractItem)
     {
         return QVariant();
     }
@@ -89,17 +82,15 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
         switch (role)
         {
             case Qt::DisplayRole:
-            {
                 if (col == 0)
                 {
                     return abstractItem->objectName();
                 }
 
                 break;
-            }
+
 
             case Qt::DecorationRole:
-            {
                 if (col == 0)
                 {
                     if (catItem->collapsed())
@@ -107,24 +98,18 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                         return gtApp->icon(
                                     QStringLiteral("arrowrightIcon.png"));
                     }
-                    else
-                    {
-                        return gtApp->icon(
-                                    QStringLiteral("arrowdownIcon.png"));
-                    }
+
+                    return gtApp->icon(QStringLiteral("arrowdownIcon.png"));
                 }
 
                 break;
-            }
 
             case Qt::BackgroundRole:
-            {
                 if (!gtApp->inDarkMode())
                 {
                     return QColor(246, 246, 246);
                 }
                 break;
-            }
             case CategoryRole:
                 return true;
 
@@ -137,7 +122,6 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
         switch (role)
         {
             case Qt::DisplayRole:
-            {
                 if (col == 0)
                 {
                     return id(abstractItem);
@@ -148,20 +132,16 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 }
 
                 break;
-            }
 
             case Qt::DecorationRole:
-            {
                 if (col == 0)
                 {
                     return icon(abstractItem);
                 }
 
                 break;
-            }
 
             case Qt::ForegroundRole:
-            {
                 if (col == 1)
                 {
                     if (!gtApp->inDarkMode())
@@ -171,12 +151,9 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 }
 
                 break;
-            }
 
             case Qt::ToolTipRole:
-            {
                 return description(abstractItem);
-            }
 
         }
     }
@@ -197,7 +174,7 @@ GtProcessOverviewModel::setData(const QModelIndex& index,
     {
         GtAbstractProcessItem* pItem = itemFromIndex(index);
 
-        if (pItem == Q_NULLPTR)
+        if (!pItem)
         {
             return false;
         }
@@ -205,7 +182,7 @@ GtProcessOverviewModel::setData(const QModelIndex& index,
         GtProcessCategoryItem* catItem =
             qobject_cast<GtProcessCategoryItem*>(pItem);
 
-        if (catItem == Q_NULLPTR)
+        if (!catItem)
         {
             return false;
         }
@@ -227,7 +204,7 @@ GtProcessOverviewModel::index(int row, int col,
 
         if (row < 0 || row >= catCount)
         {
-            return QModelIndex();
+            return {};
         }
 
         return createIndex(row, col, m_categories[row]);
@@ -237,7 +214,7 @@ GtProcessOverviewModel::index(int row, int col,
 
     if (!parentItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtAbstractProcessItem* childItem =
@@ -245,7 +222,7 @@ GtProcessOverviewModel::index(int row, int col,
 
     if (!childItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, col, childItem);
@@ -256,21 +233,21 @@ GtProcessOverviewModel::parent(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     GtAbstractProcessItem* childItem = itemFromIndex(index);
 
-    if (childItem == Q_NULLPTR)
+    if (!childItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtObject* parentItem = childItem->parentObject();
 
-    if (parentItem == Q_NULLPTR)
+    if (!parentItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     return indexFromItem(qobject_cast<GtAbstractProcessItem*>(parentItem));
@@ -281,12 +258,12 @@ GtProcessOverviewModel::itemFromIndex(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (index.model() != this)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return static_cast<GtAbstractProcessItem*>(index.internalPointer());
@@ -298,7 +275,7 @@ GtProcessOverviewModel::categoryItem(const QString& id)
     foreach (GtProcessCategoryItem* i, m_categories)
     {
         if (i->objectName() == id)
-        {
+        { // cppcheck-suppress useStlAlgorithm
             return i;
         }
     }
@@ -313,14 +290,14 @@ GtProcessOverviewModel::categoryItem(const QString& id)
 QModelIndex
 GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (!item)
     {
-        return QModelIndex();
+        return {};
     }
 
     int row = -1;
 
-    if (item->parent() == Q_NULLPTR)
+    if (!item->parent())
     {
         row = m_categories.indexOf(qobject_cast<GtProcessCategoryItem*>(item));
     }
@@ -342,7 +319,7 @@ GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
     {
         qWarning() << "WARNING (GtCalculatorOverviewModel::indexFromObject): "
                    << "row == -1!";
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, 0, item);

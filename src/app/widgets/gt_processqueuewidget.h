@@ -30,7 +30,7 @@ public:
     /**
      *  Destructor: deletes model
      */
-    ~GtProcessQueueWidget();
+    ~GtProcessQueueWidget() override;
 
 private:
     /// Up Button

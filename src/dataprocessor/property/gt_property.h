@@ -12,10 +12,6 @@ template<class ParamType>
 class GtProperty : public GtAbstractProperty
 {
 public:
-    /**
-     * @brief ~GtProperty
-     */
-    virtual ~GtProperty(){}
 
     /**
      * @brief Returns a reference to the parameter value.
@@ -25,7 +21,8 @@ public:
 
     ParamType& operator()(void){return m_value;}
 
-    virtual operator ParamType () const {
+    virtual operator ParamType () const
+    {
         return getVal();
     }
 
@@ -67,7 +64,7 @@ public:
         setVal(m_initValue);
     }
 
-    GtProperty<ParamType>& operator=(ParamType val) {
+    GtProperty<ParamType>& operator=(const ParamType& val) {
         setVal(val);
         return *this;
     }
@@ -79,10 +76,10 @@ protected:
     GtProperty(){}
 
     /// Value
-    ParamType m_value;
+    ParamType m_value = {};
 
     /// Initial value
-    ParamType m_initValue;
+    ParamType m_initValue = {};
 
     /// Pointer to unit converter object
     GtUnitConverter<ParamType>* m_unitConverter =
@@ -148,7 +145,7 @@ inline ParamType GtProperty<ParamType>::getVal(const QString &unit,
 {
     if (unit.isEmpty())
     {
-        if (success != nullptr)
+        if (success)
         {
             *success = true;
         }
@@ -156,11 +153,10 @@ inline ParamType GtProperty<ParamType>::getVal(const QString &unit,
         return getVal();
     }
 
-    bool tmpSuccess;
-
+    bool tmpSuccess = false;
     ParamType val = convertTo(unit, &tmpSuccess);
 
-    if (success != nullptr)
+    if (success)
     {
         *success = tmpSuccess;
     }
@@ -172,7 +168,7 @@ template<class ParamType>
 inline void GtProperty<ParamType>::setVal(const ParamType& value,
                                           bool* success)
 {
-    if (m_connection != Q_NULLPTR)
+    if (m_connection)
     {
         gtWarning() << tr("Could not set connected property!") << " ("
                     << objectName() << ")";
@@ -186,7 +182,7 @@ template<class ParamType>
 inline void GtProperty<ParamType>::forceSetVal(const ParamType &value,
                                                bool* success)
 {
-    if (success != nullptr)
+    if (success)
     {
         *success = false;
     }
@@ -198,7 +194,7 @@ inline void GtProperty<ParamType>::forceSetVal(const ParamType &value,
 
     m_value = value;
 
-    if (success != nullptr)
+    if (success)
     {
         *success = true;
     }
@@ -212,7 +208,7 @@ inline void GtProperty<ParamType>::setValFromConnection()
     qDebug() << "#### setValFromConnection!";
 
     // check connection
-    if (m_connection == Q_NULLPTR)
+    if (!m_connection)
     {
         return;
     }
@@ -243,7 +239,7 @@ template<class ParamType>
 inline void GtProperty<ParamType>::setVal(const ParamType &value,
                                    const QString &unit, bool* success)
 {
-    if (success != nullptr)
+    if (success)
     {
         *success = false;
     }
@@ -257,7 +253,7 @@ inline void GtProperty<ParamType>::setVal(const ParamType &value,
     bool tmpSuccess = false;
     ParamType tmpVal = convertFrom(value, unit, &tmpSuccess);
 
-    if (success != nullptr)
+    if (success)
     {
         *success = tmpSuccess;
     }

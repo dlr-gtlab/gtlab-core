@@ -12,6 +12,8 @@
 
 #include "gt_processoverviewmodel.h"
 
+#include <memory>
+
 /**
  * @brief The GtCalculatorOverviewModel class
  */

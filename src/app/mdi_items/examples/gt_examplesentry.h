@@ -38,7 +38,7 @@ public:
      * @brief setDirPath
      * @param dirPath
      */
-    void setDirPath(const QString &dirPath);
+    void setDirPath(const QString& dirPath);
 
     /**
      * @brief pixmap - get the pixmap of the exampleentry
@@ -50,7 +50,7 @@ public:
      * @brief setPixmap - set the pixmap of the exampleentry
      * @param pixmap
      */
-    void setPixmapPath(QString pixmapPath);
+    void setPixmapPath(const QString& pixmapPath);
 
     /**
      * @brief category - getter
@@ -62,7 +62,7 @@ public:
      * @brief setCategory- setter
      * @param category
      */
-    void setCategory(const QString &category);
+    void setCategory(const QString& category);
 
     /**
      * @brief name - getter
@@ -74,7 +74,7 @@ public:
      * @brief setName - name setter
      * @param name
      */
-    void setName(const QString &name);
+    void setName(const QString& name);
 
     /**
      * @brief description - description getter
@@ -86,7 +86,7 @@ public:
      * @brief setDescription - description setter
      * @param description
      */
-    void setDescription(const QString &description);
+    void setDescription(const QString& description);
 
 private:
     /// path of the example main directory

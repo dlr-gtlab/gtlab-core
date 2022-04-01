@@ -19,7 +19,7 @@ GtPropertyObjectLinkItem::GtPropertyObjectLinkItem()
 QVariant
 GtPropertyObjectLinkItem::data(int column, int role) const
 {
-    if (objectLinkProperty() == Q_NULLPTR)
+    if (!objectLinkProperty())
     {
         return QVariant();
     }
@@ -34,7 +34,7 @@ GtPropertyObjectLinkItem::data(int column, int role) const
         return GtPropertyItem::data(column, role);
     }
 
-    if (m_property == Q_NULLPTR)
+    if (!m_property)
     {
         return QVariant();
     }
@@ -48,14 +48,14 @@ GtPropertyObjectLinkItem::data(int column, int role) const
             {
                 const QString uuid = objectLinkProperty()->linkedObjectUUID();
 
-                if (scope() == Q_NULLPTR)
+                if (!scope())
                 {
                     return QVariant();
                 }
 
                 GtObject* linkedObject = scope()->getObjectByUuid(uuid);
 
-                if (linkedObject == Q_NULLPTR)
+                if (!linkedObject)
                 {
                     return QStringLiteral("-");
                 }
@@ -111,7 +111,7 @@ void
 GtPropertyObjectLinkItem::setEditorData(QWidget* editor,
                                         QVariant& /*var*/) const
 {
-    if (objectLinkProperty() == Q_NULLPTR)
+    if (!objectLinkProperty())
     {
         return;
     }

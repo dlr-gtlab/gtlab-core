@@ -13,17 +13,14 @@
 
 GtExtendedCalculatorDataImpl::GtExtendedCalculatorDataImpl(
         const QMetaObject& metaData) : GtCalculatorDataImpl(metaData),
-    wizard(Q_NULLPTR)
+    wizard(nullptr)
 {
 
 }
 
 GtExtendedCalculatorDataImpl::~GtExtendedCalculatorDataImpl()
 {
-    if (wizard != Q_NULLPTR)
-    {
-        delete wizard;
-    }
+    delete wizard;
 }
 
 bool

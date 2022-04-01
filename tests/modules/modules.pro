@@ -10,7 +10,7 @@
 
 TEMPLATE = subdirs
 CONFIG += ordered console
-CONFIG += c++11
+CONFIG += c++14
 
 SUBDIRS += datamodel_interface
 SUBDIRS += mdi_interface

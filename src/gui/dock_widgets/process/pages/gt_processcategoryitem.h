@@ -30,7 +30,7 @@ public:
      * @param Identification string.
      * @param Parent.
      */
-    GtProcessCategoryItem(const QString& id, QObject* parent = Q_NULLPTR);
+    explicit GtProcessCategoryItem(const QString &id, QObject *parent = nullptr);
 
     /**
      * @brief addItem

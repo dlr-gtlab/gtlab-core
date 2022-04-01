@@ -20,14 +20,14 @@
 GtImportHandler::GtImportHandler(QObject* parent) : QObject(parent)
 {
     /// Static exporter class registration
-    registerClass(GT_METADATA(GtProcessImporter));
+    GtImportHandler::registerClass(GT_METADATA(GtProcessImporter));
 }
 
 GtImportHandler*
 GtImportHandler::instance()
 {
-    static GtImportHandler* retval = 0;
-    if (retval == 0)
+    static GtImportHandler* retval = nullptr;
+    if (!retval)
     {
         retval = new GtImportHandler(qApp);
     }
@@ -74,10 +74,8 @@ GtImportHandler::importerMetaData(const QString& classname)
         return QList<GtImporterMetaData>();
     }
 
-    for (auto e : m_impMeta.keys())
+    for (auto const& metaData : qAsConst(m_impMeta))
     {
-        GtImporterMetaData metaData = m_impMeta.value(e);
-
         foreach (const QString& str, metaData.targets())
         {
             if (str == classname)
@@ -95,22 +93,22 @@ GtImportHandler::newImporter(const QString& classname)
 {
     if (!knownClass(classname))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtObject* obj = newObject(classname);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtAbstractImporter* retval = qobject_cast<GtAbstractImporter*>(obj);
 
-    if (retval == Q_NULLPTR)
+    if (!retval)
     {
         delete obj;
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return retval;
