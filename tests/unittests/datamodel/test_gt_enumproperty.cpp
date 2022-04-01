@@ -6,11 +6,11 @@
  *  Author: David Nelles (AT-TUR)
  *  Tel.: +49 551 709 2708
  */
-#include "gtest/gtest.h"
+#include "test_gt_enumproperty.h"
 
 #include "gt_enumproperty.h"
 
-#include "test_gt_enumproperty.h"
+#include "gtest/gtest.h"
 
 class TestGtEnumProperty : public ::testing::Test
 {

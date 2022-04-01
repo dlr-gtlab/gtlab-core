@@ -10,14 +10,16 @@
 #ifndef GT_ENUMPROPERTY_H
 #define GT_ENUMPROPERTY_H
 
-#include <QMetaEnum>
-
 #include "gt_modeproperty.h"
 #include "gt_modetypeproperty.h"
 
+#include <QMetaEnum>
+
 /**
- * @brief The GtEnumProperty class is a GtModeProperty extension which simplifies storing enums in the datamodel.
- * Additionaly to the regular usage of properties, you have to state the enumeration which values you want to display during declaration.
+ * @brief The GtEnumProperty class is a GtModeProperty extension
+ * which simplifies storing enums in the datamodel.
+ * Additionaly to the regular usage of properties, you have to state the
+ * enumeration which values you want to display during declaration.
  *
  * Example:
  * ```
@@ -58,7 +60,8 @@ public:
     GtEnumProperty<T>& operator=(const T value);
 
     /**
-     * @brief operator T enables implicit converting to the Enum which is stated in the template.
+     * @brief operator T enables implicit converting to the Enum which is stated
+     * in the template.
      * ```
      * MyEnum = GtEnumProperty<MyEnum>::value
      * ```
@@ -89,7 +92,8 @@ public:
 private:
 
     /**
-     * @brief Constant getter function with unit conversion. This method is hidden for GtEnumProperty.
+     * @brief Constant getter function with unit conversion.
+     * This method is hidden for GtEnumProperty.
      * @param unit of the result.
      * @param success holds the success status after the method call completed.
      * @return The string of the currently selected mode as QString.
@@ -98,13 +102,15 @@ private:
                    bool* success = 0) const;
 
     /**
-     * @brief Returns a reference to the parameter value. This method is hidden for GtEnumProperty.
+     * @brief Returns a reference to the parameter value.
+     * This method is hidden for GtEnumProperty.
      * @return
      */
     QString& get();
 
     /**
-     * @brief Setter function for the input value. This method is hidden for GtEnumProperty.
+     * @brief Setter function for the input value.
+     * This method is hidden for GtEnumProperty.
      * @param value which should be set.
      * @param success holds the success status after the method call completed.
      */
@@ -119,9 +125,12 @@ GtEnumProperty<T>::GtEnumProperty(const QString& ident,
     GtModeProperty(ident, name, brief)
 {
     const QMetaEnum metaEnum = QMetaEnum::fromType<T>();
+
     for (int i = 0; i < metaEnum.keyCount(); i++)
     {
-        GtModeTypeProperty *subProperty = new GtModeTypeProperty(metaEnum.key(i), "");
+        GtModeTypeProperty *subProperty =
+                new GtModeTypeProperty(metaEnum.key(i), "");
+
         subProperty->setParent(this);
         registerSubProperty(*subProperty);
     }
