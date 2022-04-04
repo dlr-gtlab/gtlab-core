@@ -20,6 +20,12 @@ class QWidget;
 namespace GtPalette
 {
     /**
+     * @brief currentTheme
+     * @return the current theme depending on the application settings
+     */
+    GT_GUI_EXPORT QPalette currentTheme();
+
+    /**
      * @brief darkTheme
      * @return a dark theme
      */
@@ -34,39 +40,44 @@ namespace GtPalette
     /**
      * @brief applyThemeToWidget
      * @param w - widget to manipulate
-     * @param dark - true for dark mode, else false
      */
-    GT_GUI_EXPORT void applyThemeToWidget(QWidget* w, bool dark);
+    GT_GUI_EXPORT void applyThemeToWidget(QWidget* w);
 
+    namespace Color {
     /**
      * @brief basicDarkColor
      * @return return basic dark color
      */
-    GT_GUI_EXPORT QColor basicDarkColor();
+    GT_GUI_EXPORT QColor basicDark();
 
-    GT_GUI_EXPORT QColor dummyObjectBackgroundColor(bool dark);
+    GT_GUI_EXPORT QColor dummyObjectBackground();
 
-    GT_GUI_EXPORT QColor newObjectForgroundColor(bool dark);
+    GT_GUI_EXPORT QColor newObjectForground();
 
-    GT_GUI_EXPORT QColor changedObjectForgroundColor(bool dark);
+    GT_GUI_EXPORT QColor changedObjectForground();
 
-    GT_GUI_EXPORT QColor footprintWarningColor(bool dark);
+    GT_GUI_EXPORT QColor footprintWarning();
 
-    GT_GUI_EXPORT QColor footprintErrorColor(bool dark);
+    GT_GUI_EXPORT QColor footprintError();
 
-    GT_GUI_EXPORT QColor loggingWarnTextColor(bool dark);
+    GT_GUI_EXPORT QColor infoText();
 
-    GT_GUI_EXPORT QColor loggingErrorTextColor(bool dark);
+    GT_GUI_EXPORT QColor warningText();
 
-    GT_GUI_EXPORT QColor loggingFatalTextColor(bool dark);
+    GT_GUI_EXPORT QColor errorText();
 
-    GT_GUI_EXPORT QColor loggingFatalBackgroundColor(bool dark);
+    GT_GUI_EXPORT QColor fatalText();
 
-    GT_GUI_EXPORT QColor collectionAvailableItemBackground(bool dark);
+    GT_GUI_EXPORT QColor fatalTextBackground();
 
-    GT_GUI_EXPORT QColor collectionInstalledItemBackground(bool dark);
+    GT_GUI_EXPORT QColor collectionAvailableItemBackground();
 
-    GT_GUI_EXPORT QColor environmentModelBack(bool dark);
+    GT_GUI_EXPORT QColor collectionInstalledItemBackground();
+
+    GT_GUI_EXPORT QColor environmentModelBack();
+
+    }
+
 }
 
 #endif // GTPALETTE_H

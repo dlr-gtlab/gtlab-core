@@ -63,17 +63,17 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             const int level =
                 gtLogModel->data(index,
                                  GtLogModel::LogLevelRole).toInt();
-            bool darkMode = gtApp->inDarkMode();
+
             switch (level)
             {
                 case QsLogging::WarnLevel:
-                    return GtPalette::loggingWarnTextColor(darkMode);
+                    return GtPalette::Color::loggingWarnTextColor();
 
                 case QsLogging::ErrorLevel:
-                    return GtPalette::loggingErrorTextColor(darkMode);
+                    return GtPalette::Color::loggingErrorTextColor();
 
                 case QsLogging::FatalLevel:
-                    return GtPalette::loggingFatalTextColor(darkMode);
+                    return GtPalette::Color::loggingFatalTextColor();
             }
         }
 
@@ -108,12 +108,10 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             const int level =
                 gtLogModel->data(index, GtLogModel::LogLevelRole).toInt();
 
-            bool darkMode = gtApp->inDarkMode();
-
             switch (level)
             {
                 case QsLogging::FatalLevel:
-                    return GtPalette::loggingFatalBackgroundColor(darkMode);
+                    return GtPalette::Color::loggingFatalBackgroundColor();
             }
         }
     }

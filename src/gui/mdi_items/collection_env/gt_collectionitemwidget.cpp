@@ -131,7 +131,7 @@ GtCollectionItemWidget::GtCollectionItemWidget(
 
     setLayout(lay);
 
-    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
+    GtPalette::applyThemeToWidget(this);
 
     resize(600, 400);
 }

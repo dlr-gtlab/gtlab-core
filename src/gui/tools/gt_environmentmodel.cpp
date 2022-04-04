@@ -84,7 +84,7 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         {
             if (m_vars.value(valId).isNull())
             {
-                return GtPalette::environmentModelBack(gtApp->inDarkMode());
+                return GtPalette::Color::environmentModelBack();
             }
         }
         break;
