@@ -39,19 +39,18 @@ GtStyleSheets::buttonStyleSheet()
                //"rgb(180,213,246)}";
 
     }
-    else
-    {
-        return "QAbstractButton { "
-                + border
-                + size + "}"
-               "QAbstractButton:hover{background-color:"
-               "rgb(180,200,200)}"
-               "QAbstractButton:disabled {background-color:"
-               "rgb(180,180,180)}"
-               "QAbstractButton:pressed{background-color:"
-               "rgb(180,213,213)}";
 
-    }
+    return "QAbstractButton { "
+            + border
+            + size + "}"
+                     "QAbstractButton:hover{background-color:"
+                     "rgb(180,200,200)}"
+                     "QAbstractButton:disabled {background-color:"
+                     "rgb(180,180,180)}"
+                     "QAbstractButton:pressed{background-color:"
+                     "rgb(180,213,213)}";
+
+
 }
 
 QString
