@@ -126,7 +126,7 @@ GtPreferencesDialog::createIcons()
     configButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* sessionButton = new QListWidgetItem(m_contentsWidget);
-    sessionButton->setIcon(GtGUI::icon("sessionIcon.png"));
+    sessionButton->setIcon(GtGUI::Icon::session16());
     sessionButton->setText(tr("Session"));
     sessionButton->setTextAlignment(Qt::AlignHCenter);
     sessionButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);

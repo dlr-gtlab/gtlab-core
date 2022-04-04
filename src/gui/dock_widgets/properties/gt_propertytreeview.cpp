@@ -216,12 +216,12 @@ GtPropertyTreeView::onCollapsed(const QModelIndex& index)
 
         if (isMonitoring)
         {
-            model()->setData(index, GtGUI::icon("arrowrightBlueIcon.png"),
+            model()->setData(index, GtGUI::Icon::arrowRightBlue(),
                              Qt::DecorationRole);
         }
         else
         {
-            model()->setData(index, GtGUI::icon("arrowrightIcon.png"),
+            model()->setData(index, GtGUI::Icon::arrowRight(),
                              Qt::DecorationRole);
         }
     }

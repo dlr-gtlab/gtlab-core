@@ -71,8 +71,7 @@ GtProcessEditor::GtProcessEditor()
 
     // go forward button
     QPushButton* goForwardButton = new QPushButton;
-    goForwardButton->setIcon(
-                GtGUI::icon(QStringLiteral("arrowrightIcon.png")));
+    goForwardButton->setIcon(GtGUI::Icon::arrowRight());
     goForwardButton->setMaximumSize(QSize(20, 20));
     goForwardButton->setFlat(true);
     goForwardButton->setToolTip(tr("Go Farward"));

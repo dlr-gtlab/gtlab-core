@@ -30,7 +30,7 @@ GtPropertyCategoryItem::GtPropertyCategoryItem(GtObject* scope,
                                                GtPropertyModel* model,
                                                GtObject* parent) :
     m_id(id),
-    m_icon(GtGUI::icon(QStringLiteral("arrowrightIcon.png")))
+    m_icon(GtGUI::Icon::arrowRight())
 {
     setModel(model);
     setScope(scope);
