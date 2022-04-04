@@ -110,7 +110,7 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry data,
 
     m_zoomButton->setVisible(false);
 
-    m_zoomButton->setIcon(GtGUI::icon(QStringLiteral("infoIcon_16.png")));
+    m_zoomButton->setIcon(GtGUI::Icon::info16());
 
     picLayout->addWidget(m_zoomButton);
 

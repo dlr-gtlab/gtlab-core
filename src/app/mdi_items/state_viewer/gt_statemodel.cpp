@@ -71,15 +71,14 @@ GtStateModel::data(const QModelIndex& index, int role) const
                                        QStringLiteral("globalIcon.png"));
                         }
 
-                        return GtGUI::icon(
-                                   QStringLiteral("folder_16.png"));
+                        return GtGUI::Icon::folder16();
                     }
 
                     return GtGUI::icon(QStringLiteral("componentsIcon_16.png"));
                 }
                 else if (qobject_cast<GtStateGroup*>(item))
                 {
-                    return GtGUI::icon(QStringLiteral("folder_16.png"));
+                    return GtGUI::Icon::folder16();
                 }
                 else if (qobject_cast<GtState*>(item))
                 {

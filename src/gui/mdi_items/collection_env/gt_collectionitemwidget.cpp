@@ -29,7 +29,7 @@ GtCollectionItemWidget::GtCollectionItemWidget(
     setAttribute(Qt::WA_DeleteOnClose);
 
     setWindowTitle(collectionItem.ident());
-    setWindowIcon(GtGUI::icon(QStringLiteral("infoIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::info16());
 
     auto lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);
@@ -217,9 +217,7 @@ GtCollectionItemWidget::newFileLayout(const QString& filename)
     auto fileLay = new QHBoxLayout;
     auto iconLabel = new QLabel(this);
     iconLabel->setMaximumWidth(16);
-    iconLabel->setPixmap(
-                GtGUI::icon(
-                    QStringLiteral("fileIcon_16.png")).pixmap(QSize(16, 16)));
+    iconLabel->setPixmap(GtGUI::Icon::file16().pixmap(QSize(16, 16)));
     auto fileLabel = new QLabel(filename, this);
     fileLay->addWidget(iconLabel);
     fileLay->addWidget(fileLabel);

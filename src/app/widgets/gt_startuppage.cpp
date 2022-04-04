@@ -136,7 +136,7 @@ GtStartupPage::~GtStartupPage()
 QIcon
 GtStartupPage::icon() const
 {
-    return GtGUI::icon("infoBlueIcon_16.png");
+    return GtGUI::Icon::infoBlue16();
 }
 
 void

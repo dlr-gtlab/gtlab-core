@@ -24,7 +24,7 @@
 GtChangelogDialog::GtChangelogDialog(QWidget* parent) : QDialog(parent)
 {
     setWindowTitle(tr("Changelog"));
-    setWindowIcon(GtGUI::icon(QStringLiteral("logIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::log16());
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);

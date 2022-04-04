@@ -61,8 +61,7 @@ GtDownloadDialog::GtDownloadDialog(QWidget* parent) : QDialog(parent),
     hLay->addSpacerItem(new QSpacerItem(10, 20, QSizePolicy::Expanding,
                                         QSizePolicy::Minimum));
 
-    m_okButton = new QPushButton(
-                GtGUI::icon(QStringLiteral("checkIcon_16.png")), tr("Ok"));
+    m_okButton = new QPushButton(GtGUI::Icon::check16(), tr("Ok"));
     m_okButton->setVisible(false);
 
     hLay->addWidget(m_okButton);

@@ -153,8 +153,7 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
     hLay->addSpacerItem(spacer);
 
     m_updateAllButton =
-            new QPushButton(GtGUI::icon(QStringLiteral("updateIcon_16.png")),
-                            tr("Update All"));
+            new QPushButton(GtGUI::Icon::update16(), tr("Update All"));
     m_updateAllButton->setVisible(false);
     hLay->addWidget(m_updateAllButton);
 

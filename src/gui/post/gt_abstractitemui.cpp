@@ -63,8 +63,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     m_configButton = new QPushButton();
     m_configButton->setToolTip(tr("Configurate the plot."));
-    m_configButton->setIcon(GtGUI::icon("configIcon_16.png"));
-    m_configButton->setIconSize(QSize(16, 16));
+    m_configButton->setIcon(GtGUI::Icon::config16());
     m_configButton->setFlat(true);
     m_configButton->setMaximumWidth(23);
 
@@ -74,7 +73,6 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
     m_printButton = new QPushButton();
     m_printButton->setToolTip(tr("Print the plot."));
     m_printButton->setIcon(GtGUI::icon("printerIcon_16.png"));
-    m_printButton->setIconSize(QSize(16, 16));
     m_printButton->setFlat(true);
     m_printButton->setMaximumWidth(23);
 
@@ -83,8 +81,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     m_copyButton = new QPushButton();
     m_copyButton->setToolTip(tr("Copy the plot."));
-    m_copyButton->setIcon(GtGUI::icon("copyIcon_16.png"));
-    m_copyButton->setIconSize(QSize(16, 16));
+    m_copyButton->setIcon(GtGUI::Icon::copy16());
     m_copyButton->setFlat(true);
     m_copyButton->setMaximumWidth(23);
 
@@ -94,7 +91,6 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
     m_closeButton = new QPushButton();
     m_closeButton->setToolTip(tr("Delete the plot."));
     m_closeButton->setIcon(GtGUI::Icon::delete16());
-    m_closeButton->setIconSize(QSize(16, 16));
     m_closeButton->setFlat(true);
     m_closeButton->setMaximumWidth(23);
 

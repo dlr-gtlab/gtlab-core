@@ -331,7 +331,7 @@ GtProcessWizard::executionSettings()
 
     QDialog dialog;
     dialog.setWindowTitle(tr("Execution Settings"));
-    dialog.setWindowIcon(GtGUI::icon(QStringLiteral("configIcon_16.png")));
+    dialog.setWindowIcon(GtGUI::Icon::config16());
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);

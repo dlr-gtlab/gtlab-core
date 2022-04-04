@@ -21,6 +21,6 @@ GtPackageUI::GtPackageUI()
 QIcon
 GtPackageUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::icon("pluginIcon_16.png");
+    return GtGUI::Icon::plugin16();
 }
 

@@ -77,7 +77,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return GtGUI::icon(QStringLiteral("updateIcon_16.png"));
+                return GtGUI::Icon::update16();
             }
 
             if (role == Qt::BackgroundRole)
@@ -156,12 +156,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return GtGUI::icon(QStringLiteral("pluginIcon_16.png"));
+                    return GtGUI::Icon::plugin16();
                 }
 
                 if (col == 1)
                 {
-                    return GtGUI::icon(QStringLiteral("infoBlueIcon_16.png"));
+                    return GtGUI::Icon::infoBlue16();
                 }
             }
             else if (role == Qt::CheckStateRole && col == 0)
@@ -209,12 +209,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return GtGUI::icon(QStringLiteral("pluginIcon_16.png"));
+                    return GtGUI::Icon::plugin16();
                 }
 
                 if (col == 1)
                 {
-                    return GtGUI::icon(QStringLiteral("infoBlueIcon_16.png"));
+                    return GtGUI::Icon::infoBlue16();
                 }
             }
             else if (role == Qt::CheckStateRole && col == 0)
@@ -268,12 +268,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return GtGUI::icon(QStringLiteral("pluginIcon_16.png"));
+                    return GtGUI::Icon::plugin16();
                 }
 
                 if (col == 1)
                 {
-                    return GtGUI::icon(QStringLiteral("infoBlueIcon_16.png"));
+                    return GtGUI::Icon::infoBlue16();
                 }
             }
             else if (role == Qt::ForegroundRole)

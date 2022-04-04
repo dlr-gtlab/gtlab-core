@@ -21,7 +21,7 @@ GtCalculatorUI::GtCalculatorUI()
 QIcon
 GtCalculatorUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::icon("calculatorIcon_16.png");
+    return GtGUI::Icon::calculator16();
 }
 
 bool

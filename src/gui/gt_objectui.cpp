@@ -155,7 +155,7 @@ GtObjectUI::validatorRegExp()
 QIcon
 GtObjectUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::icon(QStringLiteral("emptyIcon_16.png"));
+    return GtGUI::Icon::empty16();
 }
 
 QVariant

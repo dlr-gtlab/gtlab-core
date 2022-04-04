@@ -79,7 +79,7 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem)
     setLayout(mainLayout);
 
     setWindowTitle(tr("Preferences"));
-    setWindowIcon(GtGUI::icon("configIcon_16.png"));
+    setWindowIcon(GtGUI::Icon::config16());
     setFixedHeight(530);
     setFixedWidth(600);
 }
