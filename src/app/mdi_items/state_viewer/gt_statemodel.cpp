@@ -82,8 +82,7 @@ GtStateModel::data(const QModelIndex& index, int role) const
                 }
                 else if (qobject_cast<GtState*>(item))
                 {
-                    return GtGUI::icon(
-                                QStringLiteral("emptyElementIcon.png"));
+                    return GtGUI::Icon::emptyElement();
                 }
 
                 break;

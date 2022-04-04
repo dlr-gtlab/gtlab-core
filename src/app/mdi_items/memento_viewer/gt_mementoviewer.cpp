@@ -40,7 +40,7 @@ GtMementoViewer::~GtMementoViewer()
 QIcon
 GtMementoViewer::icon() const
 {
-    return GtGUI::icon(QStringLiteral("cloneIcon.png"));
+    return GtGUI::Icon::clone16();
 }
 
 bool

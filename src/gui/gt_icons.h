@@ -93,6 +93,16 @@ namespace GtGUI
         GT_GUI_EXPORT QIcon open16();
 
         GT_GUI_EXPORT QIcon skip16();
+
+        GT_GUI_EXPORT QIcon process16();
+
+        GT_GUI_EXPORT QIcon emptyElement();
+
+        GT_GUI_EXPORT QIcon arrowRight();
+
+        GT_GUI_EXPORT QIcon arrowRightBlue();
+
+        GT_GUI_EXPORT QIcon global();
     }
 
 }

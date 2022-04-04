@@ -92,7 +92,7 @@ GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
                                              QSizePolicy::Minimum));
 
     auto exportFootprintBtn = new QPushButton(tr("Export Framework Footprint"));
-    exportFootprintBtn->setIcon(GtGUI::icon(QStringLiteral("exportIcon.png")));
+    exportFootprintBtn->setIcon(GtGUI::Icon::export16());
     exportFootprintBtn->setFocusPolicy(Qt::NoFocus);
     btnLayout->addWidget(exportFootprintBtn);
 

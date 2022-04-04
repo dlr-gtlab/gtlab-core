@@ -237,3 +237,32 @@ GtGUI::Icon::skip16()
     return GtGUI::icon(QStringLiteral("skipIcon_16.png"));
 }
 
+QIcon
+GtGUI::Icon::process16()
+{
+    return GtGUI::icon(QStringLiteral("processIcon_16.png"));
+}
+
+QIcon
+GtGUI::Icon::emptyElement()
+{
+    return GtGUI::icon(QStringLiteral("emptyElementIcon.png"));
+}
+
+QIcon
+GtGUI::Icon::arrowRight()
+{
+    return GtGUI::icon(QStringLiteral("arrowrightIcon.png"));
+}
+
+QIcon
+GtGUI::Icon::arrowRightBlue()
+{
+    return GtGUI::icon(QStringLiteral("arrowrightBlueIcon.png"));
+}
+
+QIcon
+GtGUI::Icon::global()
+{
+    return GtGUI::icon(QStringLiteral("globalIcon.png"));
+}

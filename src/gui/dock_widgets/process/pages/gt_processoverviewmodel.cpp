@@ -96,8 +96,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 {
                     if (catItem->collapsed())
                     {
-                        return GtGUI::icon(
-                                    QStringLiteral("arrowrightIcon.png"));
+                        return GtGUI::Icon::arrowRight();
                     }
 
                     return GtGUI::icon(QStringLiteral("arrowdownIcon.png"));
