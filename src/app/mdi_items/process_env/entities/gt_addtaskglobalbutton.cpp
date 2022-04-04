@@ -39,7 +39,7 @@ GtAddTaskGlobalButton::paint(QPainter* painter,
     }
     else
     {
-        painter->setBrush(QBrush(GtPalette::Color::basicDarkColor()));
+        painter->setBrush(QBrush(GtPalette::Color::basicDark()));
     }
 
     painter->drawRoundedRect(boundingRect(), 3, 3);

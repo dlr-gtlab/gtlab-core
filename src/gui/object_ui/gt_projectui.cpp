@@ -1471,8 +1471,8 @@ GtProjectUI::showFootprint(GtObject* obj)
                                                        projectVersion <<
                                                        frameworkVersion);
 
-    QColor warnC = GtPalette::Color::footprintWarningColor();
-    QColor errorC = GtPalette::Color::footprintErrorColor();
+    QColor warnC = GtPalette::Color::footprintWarning();
+    QColor errorC = GtPalette::Color::footprintError();
     if (footprint.isNewerRelease())
     {
         versionItem->setBackgroundColor(1, errorC);
