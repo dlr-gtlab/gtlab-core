@@ -67,13 +67,13 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::WarnLevel:
-                    return GtPalette::Color::loggingWarnTextColor();
+                    return GtPalette::Color::warningText();
 
                 case QsLogging::ErrorLevel:
-                    return GtPalette::Color::loggingErrorTextColor();
+                    return GtPalette::Color::errorText();
 
                 case QsLogging::FatalLevel:
-                    return GtPalette::Color::loggingFatalTextColor();
+                    return GtPalette::Color::fatalText();
             }
         }
 
@@ -111,7 +111,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::FatalLevel:
-                    return GtPalette::Color::loggingFatalBackgroundColor();
+                    return GtPalette::Color::fatalTextBackground();
             }
         }
     }

@@ -201,11 +201,11 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->newlyCreated())
                 {
-                    return GtPalette::Color::newObjectForgroundColor();
+                    return GtPalette::Color::newObjectForground();
                 }
                 else if (obj->hasChanges() || obj->hasChildChanged())
                 {
-                    return GtPalette::Color::changedObjectForgroundColor();
+                    return GtPalette::Color::changedObjectForground();
                 }
 
                 break;
@@ -215,7 +215,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return GtPalette::Color::dummyObjectBackgroundColor();
+                    return GtPalette::Color::dummyObjectBackground();
                 }
                 break;
             }
@@ -274,7 +274,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return GtPalette::Color::dummyObjectBackgroundColor();
+                    return GtPalette::Color::dummyObjectBackground();
                 }
             }
 
