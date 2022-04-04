@@ -835,7 +835,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 
     dialog.setWindowTitle(tr("Project Modules") +
                           QStringLiteral(" - ") + project->objectName());
-    dialog.setWindowIcon(GtGUI::icon(QStringLiteral("pluginIcon_16.png")));
+    dialog.setWindowIcon(GtGUI::Icon::plugin16());
 
     Qt::WindowFlags flags = dialog.windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -862,7 +862,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 
 
     auto okButton = new QPushButton(tr("Ok"));
-    okButton->setIcon(GtGUI::icon(QStringLiteral("checkIcon_16.png")));
+    okButton->setIcon(GtGUI::Icon::check16());
 
     connect(okButton, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
     connect(model, SIGNAL(noItemSelected(bool)), okButton,
@@ -1322,7 +1322,7 @@ GtProjectUI::renameProject(GtObject* obj)
 
 //    dialog.setInputMode(QInputDialog::IntInput);
     dialog.setWindowTitle(tr("Rename Project"));
-    dialog.setWindowIcon(GtGUI::icon(QStringLiteral("inputIcon_16.png")));
+    dialog.setWindowIcon(GtGUI::Icon::input16());
     dialog.setLabelText(tr("Note: The associated project path "
                            "on the hard disk is not changed."
                            "\n\nNew project name:"));

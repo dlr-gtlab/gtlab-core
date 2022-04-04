@@ -42,5 +42,5 @@ GtSessionViewer::GtSessionViewer()
 QIcon
 GtSessionViewer::icon() const
 {
-    return GtGUI::icon("sessionIcon_16.png");
+    return GtGUI::Icon::session16();
 }

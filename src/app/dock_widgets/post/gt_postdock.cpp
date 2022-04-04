@@ -311,7 +311,7 @@ GtPostDock::customContextMenu(QPoint pos)
         QMenu menu(this);
 
         QAction* actrename = menu.addAction(tr("Rename"));
-        actrename->setIcon(GtGUI::icon(QStringLiteral("inputIcon_16.png")));
+        actrename->setIcon(GtGUI::Icon::input16());
 
 
         menu.addSeparator();

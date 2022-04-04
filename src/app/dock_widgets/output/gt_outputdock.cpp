@@ -135,7 +135,7 @@ GtOutputDock::GtOutputDock() :
 
     // clear log button
     QPushButton* clearButton = new QPushButton;
-    clearButton->setIcon(GtGUI::icon("clearIcon_16.png"));
+    clearButton->setIcon(GtGUI::Icon::clear16());
     clearButton->setMaximumSize(QSize(20, 20));
     clearButton->setFlat(true);
     clearButton->setToolTip(tr("Clear Output"));
@@ -157,7 +157,7 @@ GtOutputDock::GtOutputDock() :
     {
         // test message button
         QPushButton* testButton = new QPushButton;
-        testButton->setIcon(GtGUI::icon("fileIcon_16.png"));
+        testButton->setIcon(GtGUI::Icon::file16());
         testButton->setMaximumSize(QSize(20, 20));
         testButton->setFlat(true);
         testButton->setToolTip(tr("Test Output"));
@@ -179,7 +179,7 @@ GtOutputDock::GtOutputDock() :
 
     // info message button
     m_infoButton = new QPushButton;
-    m_infoButton->setIcon(GtGUI::icon("infoBlueIcon_16.png"));
+    m_infoButton->setIcon(GtGUI::Icon::infoBlue16());
     m_infoButton->setMaximumSize(QSize(20, 20));
     m_infoButton->setFlat(true);
     m_infoButton->setCheckable(true);
@@ -191,7 +191,7 @@ GtOutputDock::GtOutputDock() :
 
     // warning message button
     m_warningButton = new QPushButton;
-    m_warningButton->setIcon(GtGUI::icon("processFailedIcon_16.png"));
+    m_warningButton->setIcon(GtGUI::Icon::processFailed16());
     m_warningButton->setMaximumSize(QSize(20, 20));
     m_warningButton->setFlat(true);
     m_warningButton->setCheckable(true);
@@ -473,11 +473,10 @@ GtOutputDock::openContextMenu()
 
     QMenu menu(this);
 
-    QAction* actionCopy = menu.addAction(GtGUI::icon("copyIcon_16.png"),
-                           tr("Copy"));
+    QAction* actionCopy = menu.addAction(GtGUI::Icon::copy16(), tr("Copy"));
 
-    QAction* actionRemove = menu.addAction(GtGUI::icon("clearIcon_16.png"),
-                           tr("Delete"));
+    QAction* actionRemove = menu.addAction(GtGUI::Icon::clear16(),
+                                           tr("Delete"));
 
     QAction* a = menu.exec(QCursor::pos());
 

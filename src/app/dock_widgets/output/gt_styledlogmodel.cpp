@@ -45,10 +45,10 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
                     return GtGUI::icon("bugIcon.png");
 
                 case QsLogging::InfoLevel:
-                    return GtGUI::icon("infoBlueIcon_16.png");
+                    return GtGUI::Icon::infoBlue16();
 
                 case QsLogging::WarnLevel:
-                    return GtGUI::icon("processFailedIcon_16.png");
+                    return GtGUI::Icon::processFailed16();
 
                 case QsLogging::ErrorLevel:
                     return GtGUI::Icon::error16();

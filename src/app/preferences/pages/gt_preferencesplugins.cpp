@@ -45,7 +45,7 @@ GtPreferencesPlugins::GtPreferencesPlugins()
         nfo << id;
         nfo << gtApp->moduleVersion(id).toString();
         QTreeWidgetItem* item = new QTreeWidgetItem(nfo);
-        item->setIcon(0, GtGUI::icon("pluginIcon_16.png"));
+        item->setIcon(0, GtGUI::Icon::plugin16());
         item->setToolTip(0,gtApp->moduleDescription(id));
         datamodelPluginList->addTopLevelItem(item);
     }

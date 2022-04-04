@@ -32,7 +32,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     m_connectionMetaData(connection)
 {
     setWindowTitle(tr("Add Access Data"));
-    setWindowIcon(GtGUI::icon(QStringLiteral("loginIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::login16());
     setMaximumSize(QSize(350, 300));
 
     Qt::WindowFlags flags = windowFlags();
@@ -102,8 +102,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     btnLay->setContentsMargins(9, 9, 9, 9);
 
     m_testConnectionBtn = new QPushButton(tr("Test Connection"));
-    m_testConnectionBtn->setIcon(
-                GtGUI::icon(QStringLiteral("connectionIcon_16.png")));
+    m_testConnectionBtn->setIcon(GtGUI::Icon::connection16());
 
     btnLay->addWidget(m_testConnectionBtn);
 
@@ -112,7 +111,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     btnLay->addSpacerItem(spacer);
 
     m_saveBtn = new QPushButton(tr("Save"));
-    m_saveBtn->setIcon(GtGUI::icon(QStringLiteral("checkIcon_16.png")));
+    m_saveBtn->setIcon(GtGUI::Icon::check16());
 
     btnLay->addWidget(m_saveBtn);
 

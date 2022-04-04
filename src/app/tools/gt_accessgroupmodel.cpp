@@ -121,7 +121,7 @@ GtAccessGroupModel::data(const QModelIndex& index, int role) const
         {
             if (col == 3)
             {
-                retVal = GtGUI::icon(QStringLiteral("configIcon_16.png"));
+                retVal = GtGUI::Icon::config16();
             }
             else if (col == 4)
             {

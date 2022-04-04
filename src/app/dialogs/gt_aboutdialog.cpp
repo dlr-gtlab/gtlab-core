@@ -49,7 +49,7 @@ GtAboutLogo::mouseDoubleClickEvent(QMouseEvent* event)
 GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
 {
     setWindowTitle(tr("About GTlab"));
-    setWindowIcon(GtGUI::icon(QStringLiteral("infoIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::info16());
 
     /// Turn  off the "?"-Button in the header
     Qt::WindowFlags flags = windowFlags();

@@ -115,13 +115,11 @@ GtProcessQueueModel::data(const QModelIndex &index, int role) const
             }
             else if (task->currentState() == GtTask::FINISHED)
             {
-                return GtGUI::icon(
-                           QStringLiteral("checkIcon_16.png"));
+                return GtGUI::Icon::check16();
             }
             else if (task->currentState() == GtTask::FAILED)
             {
-                return GtGUI::icon(
-                           QStringLiteral("processFailedIcon_16.png"));
+                return GtGUI::Icon::processFailed16();
             }
             else if (task->currentState() == GtTask::CONNECTING)
             {

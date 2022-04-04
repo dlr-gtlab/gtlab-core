@@ -28,7 +28,7 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
 {
     setWindowTitle(tr("Connections"));
 
-    setWindowIcon(GtGUI::icon(QStringLiteral("connectionIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::connection16());
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -70,7 +70,7 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
     lay->addLayout(mainLay);
 
     QPushButton* saveButton = new QPushButton(tr("Ok"));
-    saveButton->setIcon(GtGUI::icon(QStringLiteral("checkIcon_16.png")));
+    saveButton->setIcon(GtGUI::Icon::check16());
     QPushButton* closeButton = new QPushButton(tr("Cancel"));
     closeButton->setIcon(GtGUI::Icon::delete16());
 

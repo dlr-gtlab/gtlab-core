@@ -127,7 +127,7 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
         mb.setWindowTitle(tr("Rename Label"));
-        mb.setWindowIcon(GtGUI::icon(QStringLiteral("inputIcon_16.png")));
+        mb.setWindowIcon(GtGUI::Icon::input16());
         mb.setText(msg);
         mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
         mb.setDefaultButton(QMessageBox::Yes);

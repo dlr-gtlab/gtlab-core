@@ -26,7 +26,7 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
     m_root(root)
 {
     setWindowTitle(tr("Choose Object"));
-    setWindowIcon(GtGUI::icon(QStringLiteral("propertyIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::property16());
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);

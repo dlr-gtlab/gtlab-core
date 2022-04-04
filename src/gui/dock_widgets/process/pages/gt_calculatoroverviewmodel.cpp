@@ -134,7 +134,7 @@ GtCalculatorOverviewModel::icon(GtAbstractProcessItem* item) const
 
     if (!extendedData || extendedData->icon.isNull())
     {
-         return GtGUI::icon(QStringLiteral("calculatorIcon_16.png"));
+         return GtGUI::Icon::calculator16();
     }
 
     return extendedData->icon;

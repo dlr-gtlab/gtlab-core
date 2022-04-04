@@ -129,8 +129,7 @@ GtProcessConnectionItem::data(int column, int role)
                             return eData->icon;
                         }
 
-                        return GtGUI::icon(
-                                    QStringLiteral("calculatorIcon_16.png"));
+                        return GtGUI::Icon::calculator16();
 
                     }
                     else

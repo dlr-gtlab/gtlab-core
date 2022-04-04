@@ -29,7 +29,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
     QDialog(parent)
 {
     setWindowTitle(tr("Check for updates"));
-    setWindowIcon(GtGUI::icon(QStringLiteral("updateIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::update16());
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -99,7 +99,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     m_updateButton = new QPushButton;
     m_updateButton->setText(tr("Update"));
-    m_updateButton->setIcon(GtGUI::icon(QStringLiteral("updateIcon_16.png")));
+    m_updateButton->setIcon(GtGUI::Icon::update16());
     m_updateButton->setEnabled(false);
     connect(m_updateButton, SIGNAL(clicked(bool)), SLOT(accept()));
 

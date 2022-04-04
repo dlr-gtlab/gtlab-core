@@ -214,7 +214,7 @@ GtLabelsDock::findUsages(const QModelIndex& index)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Find Usages"));
-        mb.setWindowIcon(GtGUI::icon(QStringLiteral("infoIcon_16.png")));
+        mb.setWindowIcon(GtGUI::Icon::info16());
         mb.setText(QString(tr("No usages found") + QStringLiteral(" !")));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);
@@ -511,11 +511,10 @@ GtLabelsDock::customContextMenu(const QPoint& pos)
         QMenu menu(this);
 
         QAction* actrename = menu.addAction(tr("Rename"));
-        actrename->setIcon(GtGUI::icon(QStringLiteral("inputIcon_16.png")));
+        actrename->setIcon(GtGUI::Icon::input16());
 
         QAction* actfindusages = menu.addAction(tr("Find Usages"));
-        actfindusages->setIcon(
-                    GtGUI::icon(QStringLiteral("resultsIcon_16.png")));
+        actfindusages->setIcon(GtGUI::Icon::results16());
 
         QAction* actdeleteusages = menu.addAction(tr("Delete Usages"));
         actdeleteusages->setIcon(GtGUI::Icon::delete16());

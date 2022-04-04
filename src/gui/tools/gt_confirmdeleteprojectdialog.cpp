@@ -25,7 +25,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     m_checkBox(nullptr)
 {
     setWindowTitle(tr("Delete from Session"));
-    setWindowIcon(GtGUI::icon(QStringLiteral("deleteProjectIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::deleteProject16());
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -107,7 +107,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     QHBoxLayout* buttonsLayout = new QHBoxLayout;
 
     QPushButton* yesButton = new QPushButton(tr("Delete"));
-    yesButton->setIcon(GtGUI::icon(QStringLiteral("deleteProjectIcon_16.png")));
+    yesButton->setIcon(GtGUI::Icon::deleteProject16());
 
     buttonsLayout->addSpacerItem(new QSpacerItem(10, 10,
                                                  QSizePolicy::Expanding,

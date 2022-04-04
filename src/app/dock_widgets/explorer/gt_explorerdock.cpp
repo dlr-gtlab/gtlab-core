@@ -216,7 +216,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     QMenu menu(this);
 
     QAction* actionOpen = menu.addAction(tr("Open"));
-    actionOpen->setIcon(GtGUI::icon("openIcon_16.png"));
+    actionOpen->setIcon(GtGUI::Icon::open16());
 
     actionOpen->setVisible(false);
 
@@ -332,7 +332,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 
     // rename object action
     QAction* actrename = menu.addAction("Rename");
-    actrename->setIcon(GtGUI::icon("inputIcon_16.png"));
+    actrename->setIcon(GtGUI::Icon::input16());
 
 
     if (obj->isRenamable())
@@ -359,7 +359,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     }
 
     //QAction* actionDetails =
-    //        menu.addAction(GtGUI::icon(QStringLiteral("infoIcon_16.png")),
+    //        menu.addAction(GtGUI::Icon::info16(),
     //                       tr("Details"));
     //
     //actionDetails->setEnabled(false);

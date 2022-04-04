@@ -109,7 +109,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                         return eData->icon;
                     }
 
-                    return GtGUI::icon(QStringLiteral("calculatorIcon_16.png"));
+                    return GtGUI::Icon::calculator16();
 
                 }
 
@@ -182,22 +182,22 @@ GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state)
             return GtGUI::Icon::error16();
 
         case GtProcessComponent::FINISHED:
-            return GtGUI::icon(QStringLiteral("checkIcon_16.png"));
+            return GtGUI::Icon::check16();
 
         case GtProcessComponent::CONNECTING:
             return GtGUI::icon(QStringLiteral("networkIcon_16.png"));
 
         case GtProcessComponent::SKIPPED:
-            return GtGUI::icon(QStringLiteral("skipIcon_16.png"));
+            return GtGUI::Icon::skip16();
 
         case GtProcessComponent::TERMINATION_REQUESTED:
             return GtGUI::icon(QStringLiteral("stopRequestIcon_16.png"));
 
         case GtProcessComponent::TERMINATED:
-            return GtGUI::icon(QStringLiteral("stopIcon_16.png"));
+            return GtGUI::Icon::stop16();
 
         case GtProcessComponent::WARN_FINISHED:
-            return GtGUI::icon(QStringLiteral("processFailedIcon_16.png"));
+            return GtGUI::Icon::processFailed16();
 
         default:
             break;
