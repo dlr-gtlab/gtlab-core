@@ -149,7 +149,8 @@ GtEnvironmentModel::headerData(int section, Qt::Orientation orientation,
         {
             return QStringLiteral("Variable");
         }
-        else if (section == 1)
+
+        if (section == 1)
         {
             return QStringLiteral("Value");
         }

@@ -76,7 +76,7 @@ GtTaskEntity::paint(QPainter* painter,
 QRectF
 GtTaskEntity::boundingRect() const
 {
-    return QRectF(0, 0, m_w, m_h);
+    return {0, 0, double(m_w), double(m_h)};
 }
 
 void
@@ -114,21 +114,21 @@ GtTaskEntity::populateTask()
     calculateSize();
 
     // create pipe (entry to exit)
-    GtTaskPipeEntity* pipe = new GtTaskPipeEntity(this);
+    auto pipe = new GtTaskPipeEntity(this);
     pipe->updateShape();
 
     // task title
-    QGraphicsTextItem* title = new QGraphicsTextItem(this);
+    auto title = new QGraphicsTextItem(this);
     title->setPlainText(m_task->objectName());
     const int tw = int(title->boundingRect().width());
     title->setPos((m_w / 2) - (tw / 2), m_h - 5);
 
     // datamodel port
-    GtDataModelPortEntity* dmport = new GtDataModelPortEntity(this);
+    auto dmport = new GtDataModelPortEntity(this);
     dmport->setPos(QPoint(m_w - 20, 10));
 
     // add global button
-    GtAddTaskGlobalButton* btn = new GtAddTaskGlobalButton(this);
+    auto btn = new GtAddTaskGlobalButton(this);
     btn->setPos(10 + btn->boundingRect().width(), 10);
 
     // connections

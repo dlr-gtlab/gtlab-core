@@ -298,8 +298,7 @@ GtProcessPropertyPortEntity::mousePressEvent(QGraphicsSceneMouseEvent* event)
         QApplication::restoreOverrideCursor();
         QApplication::setOverrideCursor(Qt::ClosedHandCursor);
 
-        GtProcessConnectionScene* pcScene =
-                qobject_cast<GtProcessConnectionScene*>(scene());
+        auto pcScene = qobject_cast<GtProcessConnectionScene*>(scene());
 
         if (!pcScene)
         {
@@ -329,8 +328,7 @@ GtProcessPropertyPortEntity::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         m_timer.reset();
     }
 
-    GtProcessConnectionScene* pcScene =
-            qobject_cast<GtProcessConnectionScene*>(scene());
+    auto pcScene = qobject_cast<GtProcessConnectionScene*>(scene());
 
     if (pcScene)
     {

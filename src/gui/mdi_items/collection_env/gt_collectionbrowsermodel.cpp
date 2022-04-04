@@ -28,7 +28,7 @@ GtCollectionBrowserModel::rowCount(const QModelIndex& parent) const
         return groupTypes().size();
     }
 
-    const CollectionItemType itemType = static_cast<CollectionItemType>
+    const auto itemType = static_cast<CollectionItemType>
                                         (parent.internalId());
 
     switch (itemType)
@@ -62,7 +62,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
     const int col = index.column();
 
-    const CollectionItemType itemType = static_cast<CollectionItemType>
+    const auto itemType = static_cast<CollectionItemType>
                                         (index.internalId());
 
     switch (itemType)
@@ -73,11 +73,13 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 return tr("Update available!");
             }
-            else if (role == Qt::DecorationRole && col == 0)
+
+            if (role == Qt::DecorationRole && col == 0)
             {
                 return gtApp->icon(QStringLiteral("updateIcon_16.png"));
             }
-            else if (role == Qt::BackgroundRole)
+
+            if (role == Qt::BackgroundRole)
             {
                 return GtPalette::Color::collectionAvailableItemBackground();
 
@@ -92,7 +94,8 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 return tr("Available");
             }
-            else if (role == Qt::DecorationRole && col == 0)
+
+            if (role == Qt::DecorationRole && col == 0)
             {
                 return gtApp->icon(QStringLiteral("stackIcon.png"));
             }
@@ -106,11 +109,13 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 return tr("Installed");
             }
-            else if (role == Qt::DecorationRole && col == 0)
+
+            if (role == Qt::DecorationRole && col == 0)
             {
                 return gtApp->icon(QStringLiteral("collectionIcon_16.png"));
             }
-            else if (role == Qt::BackgroundRole)
+
+            if (role == Qt::BackgroundRole)
             {
                 return GtPalette::Color::collectionInstalledItemBackground();
             }
@@ -133,12 +138,14 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
                 {
                     return m_updateAvailableItems[row].item().ident();
                 }
-                else if (col == 2)
+
+                if (col == 2)
                 {
                     return QString::number(
                                m_updateAvailableItems[row].item().version());
                 }
-                else if (col == 3)
+
+                if (col == 3)
                 {
                     return QString::number(
                                m_updateAvailableItems[row].item().installedVersion());
@@ -150,7 +157,8 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
                 {
                     return gtApp->icon(QStringLiteral("pluginIcon_16.png"));
                 }
-                else if (col == 1)
+
+                if (col == 1)
                 {
                     return gtApp->icon(QStringLiteral("infoBlueIcon_16.png"));
                 }
@@ -168,10 +176,8 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
                 {
                     return Qt::Checked;
                 }
-                else
-                {
-                    return Qt::Unchecked;
-                }
+
+                return Qt::Unchecked;
             }
 
             break;
@@ -192,7 +198,8 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
                 {
                     return m_availableItems[row].item().ident();
                 }
-                else if (col == 2)
+
+                if (col == 2)
                 {
                     return QString::number(m_availableItems[row].item().version());
                 }
@@ -203,7 +210,8 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
                 {
                     return gtApp->icon(QStringLiteral("pluginIcon_16.png"));
                 }
-                else if (col == 1)
+
+                if (col == 1)
                 {
                     return gtApp->icon(QStringLiteral("infoBlueIcon_16.png"));
                 }
@@ -221,10 +229,8 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
                 {
                     return Qt::Checked;
                 }
-                else
-                {
-                    return Qt::Unchecked;
-                }
+
+                return Qt::Unchecked;
             }
 
             break;
@@ -245,11 +251,13 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
                 {
                     return m_installedItems[row].item().ident();
                 }
-                else if (col == 2)
+
+                if (col == 2)
                 {
                     return QString::number(m_installedItems[row].item().version());
                 }
-                else if (col == 3)
+
+                if (col == 3)
                 {
                     return QString::number(
                                m_installedItems[row].item().installedVersion());
@@ -261,7 +269,8 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
                 {
                     return gtApp->icon(QStringLiteral("pluginIcon_16.png"));
                 }
-                else if (col == 1)
+
+                if (col == 1)
                 {
                     return gtApp->icon(QStringLiteral("infoBlueIcon_16.png"));
                 }
@@ -289,7 +298,7 @@ GtCollectionBrowserModel::setData(const QModelIndex& index,
 
     const int col = index.column();
 
-    const CollectionItemType itemType = static_cast<CollectionItemType>
+    const auto itemType = static_cast<CollectionItemType>
                                         (index.internalId());
 
     switch (itemType)
@@ -450,37 +459,32 @@ GtCollectionBrowserModel::index(int row, int column,
 
         return createIndex(row, column, groups[row]);
     }
-    else
-    {
-        const CollectionItemType itemType =
-            static_cast<CollectionItemType>(parent.internalId());
 
-        if (itemType == UpdateAvailableItemGroup)
-        {
-            return createIndex(row, column, UpdateAvailableItem);
-        }
-        else if (itemType == AvailableItemGroup)
-        {
-            return createIndex(row, column, AvailableItem);
-        }
-        else if (itemType == InstalledItemGroup)
-        {
-            return createIndex(row, column, InstalledItem);
-        }
-        else
-        {
-            return {};
-        }
+    const auto itemType = static_cast<CollectionItemType>(parent.internalId());
+
+    if (itemType == UpdateAvailableItemGroup)
+    {
+        return createIndex(row, column, UpdateAvailableItem);
+    }
+
+    if (itemType == AvailableItemGroup)
+    {
+        return createIndex(row, column, AvailableItem);
+    }
+
+    if (itemType == InstalledItemGroup)
+    {
+        return createIndex(row, column, InstalledItem);
     }
 
     return {};
+
 }
 
 QModelIndex
 GtCollectionBrowserModel::parent(const QModelIndex& index) const
 {
-    const CollectionItemType itemType = static_cast<CollectionItemType>
-                                        (index.internalId());
+    const auto itemType = static_cast<CollectionItemType>(index.internalId());
 
     switch (itemType)
     {
@@ -549,8 +553,7 @@ GtCollectionBrowserModel::itemFromIndex(const QModelIndex& index)
 
     const int row = index.row();
 
-    const CollectionItemType itemType = static_cast<CollectionItemType>
-                                        (index.internalId());
+    const auto itemType = static_cast<CollectionItemType>(index.internalId());
 
     switch (itemType)
     {
@@ -634,14 +637,14 @@ GtCollectionBrowserModel::selectAll()
 {
     beginResetModel();
 
-    for (int i = 0; i < m_updateAvailableItems.size(); i++)
+    for (auto& i : m_updateAvailableItems)
     {
-        m_updateAvailableItems[i].setSelected(true);
+        i.setSelected(true);
     }
 
-    for (int i = 0; i < m_availableItems.size(); i++)
+    for (auto& i : m_availableItems)
     {
-        m_availableItems[i].setSelected(true);
+        i.setSelected(true);
     }
 
     endResetModel();
@@ -652,14 +655,14 @@ GtCollectionBrowserModel::unselectAll()
 {
     beginResetModel();
 
-    for (int i = 0; i < m_updateAvailableItems.size(); i++)
+    for (auto& i : m_updateAvailableItems)
     {
-        m_updateAvailableItems[i].setSelected(false);
+        i.setSelected(false);
     }
 
-    for (int i = 0; i < m_availableItems.size(); i++)
+    for (auto& i : m_availableItems)
     {
-        m_availableItems[i].setSelected(false);
+        i.setSelected(false);
     }
 
     endResetModel();

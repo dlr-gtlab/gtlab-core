@@ -496,9 +496,8 @@ GtApplication::propertyCommand(GtObject* obj, GtAbstractProperty* prop,
                                const QVariant& newValue, const QString& unit,
                                GtObject* root)
 {
-    GtPropertyChangeCommand* command = new GtPropertyChangeCommand(obj, prop,
-            newValue,
-            unit, root);
+    auto command = new GtPropertyChangeCommand(obj, prop, newValue,
+                                               unit, root);
     undoStack()->push(command);
 }
 
@@ -580,7 +579,7 @@ GtApplication::endCommand(const GtCommand& command)
 
     qDebug() << "######## COMMAND END! (" << m_d->m_commandId << ")";
 
-    GtSession* root =  m_d->m_commandRoot->findRoot<GtSession*>();
+    auto root =  m_d->m_commandRoot->findRoot<GtSession*>();
 
     if (!root)
     {
@@ -589,8 +588,8 @@ GtApplication::endCommand(const GtCommand& command)
         return;
     }
 
-    GtMementoChangeCommand* changeCommand =
-        new GtMementoChangeCommand(diff, m_d->m_commandId, root);
+    auto changeCommand = new GtMementoChangeCommand(diff, m_d->m_commandId,
+                                                    root);
     undoStack()->push(changeCommand);
 
     //    // cleanup
@@ -711,7 +710,7 @@ GtApplication::setDarkMode(bool dark, bool initial)
 
     if (oldMode != m_darkMode)
     {
-        if (initial == false)
+        if (!initial)
         {
             gtInfo() << tr("Theme was changed.")
                      << tr("For an optimal view of all displays, "

@@ -1051,8 +1051,7 @@ GtTable::getValue4D(const QString& valsId, double x0, double x1, double x2,
     GtNumerics::GtInterpolator* Interp2 = axList.at(2)->interpolator();
     GtNumerics::GtInterpolator* Interp3 = axList.at(3)->interpolator();
 
-    if (Interp0 == nullptr || Interp1 == nullptr
-            || Interp2 == nullptr || Interp3 == nullptr)
+    if (!Interp0 || !Interp1 || !Interp2 || !Interp3)
     {
         throw GTlabException("Table::getValue4D()",
                              "Interpolator is nullptr.");

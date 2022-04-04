@@ -72,11 +72,11 @@ GtProcessDock::GtProcessDock() :
 {
     setObjectName(tr("Processes/Calculators"));
 
-    QWidget* widget = new QWidget(this);
+    auto widget = new QWidget(this);
     setWidget(widget);
 
-    QFrame* frame = new QFrame;
-    QVBoxLayout* frameLayout = new QVBoxLayout;
+    auto frame = new QFrame;
+    auto frameLayout = new QVBoxLayout;
 
     frameLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -105,8 +105,8 @@ GtProcessDock::GtProcessDock() :
 
     m_view->setFrameStyle(QTreeView::NoFrame);
 
-    GtTextFilterDelegate* delegate = new GtTextFilterDelegate(
-                this, GtTextFilterDelegate::allowSpaces);
+    auto delegate = new GtTextFilterDelegate(this,
+                                             GtTextFilterDelegate::allowSpaces);
 
     m_view->setItemDelegate(delegate);
     m_view->setEditTriggers(QTreeView::SelectedClicked);
@@ -114,13 +114,13 @@ GtProcessDock::GtProcessDock() :
     //    connect(m_dataView, SIGNAL(throwProperties(GtdObject*)),
     //            communicator, SIGNAL(throwProperties(GtdObject*)));
 
-    QHBoxLayout* btnLayout = new QHBoxLayout;
+    auto btnLayout = new QHBoxLayout;
     btnLayout->setContentsMargins(0, 0, 0, 0);
     btnLayout->setSpacing(1);
     btnLayout->addWidget(m_runButton);
     btnLayout->addWidget(m_addElementButton);
 
-    QVBoxLayout* layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(2);
     layout->addLayout(btnLayout);
@@ -280,7 +280,7 @@ GtProcessDock::addEmptyTaskToRoot()
 
     m_view->setFocus();
 
-    GtTask* task = new GtTask;
+    auto task = new GtTask;
     task->setObjectName(taskId);
     task->setFactory(gtProcessFactory);
 
@@ -343,7 +343,7 @@ GtProcessDock::addCalculator()
         return;
     }
 
-    GtProject* project = obj->findParent<GtProject*>();
+    auto project = obj->findParent<GtProject*>();
 
     if (!project)
     {
@@ -366,8 +366,7 @@ GtProcessDock::addCalculator()
         return;
     }
 
-    GtProcessComponent* newObj = memento.restore<GtProcessComponent*>(
-                                     gtProcessFactory);
+    auto newObj = memento.restore<GtProcessComponent*>(gtProcessFactory);
 
     if (!newObj)
     {
@@ -409,7 +408,7 @@ GtProcessDock::addTask()
         return;
     }
 
-    GtProject* project = m_processData->findParent<GtProject*>();
+    auto project = m_processData->findParent<GtProject*>();
 
     if (!project)
     {
@@ -457,8 +456,7 @@ GtProcessDock::addTask()
         return;
     }
 
-    GtProcessComponent* newObj = memento.restore<GtProcessComponent*>(
-                                     gtProcessFactory);
+    auto newObj = memento.restore<GtProcessComponent*>(gtProcessFactory);
 
     if (!newObj)
     {
@@ -728,7 +726,7 @@ GtProcessDock::onDoubleClicked(const QModelIndex& index)
 
     GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-    if (GtTask* task = qobject_cast<GtTask*>(obj))
+    if (auto task = qobject_cast<GtTask*>(obj))
     {
         //        gtMdiLauncher->open(GtProcessEditor::staticMetaObject.className(),
         //                            task);
@@ -739,7 +737,7 @@ GtProcessDock::onDoubleClicked(const QModelIndex& index)
 
         configTask(task);
     }
-    else if (GtCalculator* calc = qobject_cast<GtCalculator*>(obj))
+    else if (auto calc = qobject_cast<GtCalculator*>(obj))
     {
 
         if (!calc->isReady())
@@ -908,11 +906,11 @@ GtProcessDock::customContextMenu(const QPoint& pos)
                 return;
             }
 
-            if (GtTask* p = qobject_cast<GtTask*>(obj))
+            if (auto p = qobject_cast<GtTask*>(obj))
             {
                 processContextMenu(p, srcIndex);
             }
-            else if (GtCalculator* c = qobject_cast<GtCalculator*>(obj))
+            else if (auto c = qobject_cast<GtCalculator*>(obj))
             {
                 calculatorContextMenu(c, srcIndex);
             }
@@ -947,7 +945,7 @@ GtProcessDock::customContextMenu(const QPoint& pos)
 
         menu.addSeparator();
 
-        GtImportMenu* imenu = new GtImportMenu(m_processData, &menu);
+        auto imenu = new GtImportMenu(m_processData, &menu);
 
         menu.addMenu(imenu);
 
@@ -1074,7 +1072,7 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 
     if (!importerList.isEmpty())
     {
-        GtImportMenu* imenu = new GtImportMenu(obj, &menu);
+        auto imenu = new GtImportMenu(obj, &menu);
         imenu->setEnabled(!hasInvalidParents);
 
         menu.addMenu(imenu);
@@ -1087,7 +1085,7 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 
     if (!exporterList.isEmpty())
     {
-        GtExportMenu* emenu = new GtExportMenu(obj, &menu);
+        auto emenu = new GtExportMenu(obj, &menu);
         emenu->setEnabled(!obj->hasDummyChildren());
 
         menu.addMenu(emenu);
@@ -1268,7 +1266,7 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
 
     if (!importerList.isEmpty())
     {
-        GtImportMenu* imenu = new GtImportMenu(obj, &menu);
+        auto imenu = new GtImportMenu(obj, &menu);
         imenu->setEnabled(!hasInvalidParents);
 
         menu.addMenu(imenu);
@@ -1281,7 +1279,7 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
 
     if (!exporterList.isEmpty())
     {
-        GtExportMenu* emenu = new GtExportMenu(obj, &menu);
+        auto emenu = new GtExportMenu(obj, &menu);
 
         menu.addMenu(emenu);
         menu.addSeparator();
@@ -1475,7 +1473,7 @@ GtProcessDock::copyElement(const QModelIndex& index)
         return;
     }
 
-    GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(obj);
+    auto pComp = qobject_cast<GtProcessComponent*>(obj);
 
     if (!pComp)
     {
@@ -1489,8 +1487,8 @@ GtProcessDock::copyElement(const QModelIndex& index)
 
     GtObject* copy = obj->copy();
 
-    GtTask* origTask = qobject_cast<GtTask*>(pComp);
-    GtTask* newTask = qobject_cast<GtTask*>(copy);
+    auto origTask = qobject_cast<GtTask*>(pComp);
+    auto newTask = qobject_cast<GtTask*>(copy);
 
     if (newTask && origTask)
     {
@@ -1500,7 +1498,7 @@ GtProcessDock::copyElement(const QModelIndex& index)
         }
         else
         {
-            GtTask* origTaskClone = qobject_cast<GtTask*>(origTask->clone());
+            auto origTaskClone = qobject_cast<GtTask*>(origTask->clone());
 
             if (!origTaskClone)
             {
@@ -1577,7 +1575,7 @@ GtProcessDock::cloneElement(const QModelIndex& index)
         return;
     }
 
-    GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(obj);
+    auto pComp = qobject_cast<GtProcessComponent*>(obj);
 
     if (!pComp)
     {
@@ -1604,8 +1602,8 @@ GtProcessDock::cloneElement(const QModelIndex& index)
         return;
     }
 
-    GtTask* origTask = qobject_cast<GtTask*>(obj);
-    GtTask* newTask = qobject_cast<GtTask*>(cloned);
+    auto origTask = qobject_cast<GtTask*>(obj);
+    auto newTask = qobject_cast<GtTask*>(cloned);
 
     if (newTask && origTask)
     {
@@ -1680,7 +1678,7 @@ GtProcessDock::cutElement(const QModelIndex& index)
         return;
     }
 
-    GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(obj);
+    auto pComp = qobject_cast<GtProcessComponent*>(obj);
 
     if (!pComp)
     {
@@ -1842,7 +1840,7 @@ GtProcessDock::pasteElement(GtObject* parent)
 
     if (!qobject_cast<GtProcessData*>(parent))
     {
-        GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(parent);
+        auto pComp = qobject_cast<GtProcessComponent*>(parent);
 
         if (!pComp)
         {
@@ -1873,7 +1871,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 
     if (!qobject_cast<GtProcessData*>(parent))
     {
-        GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(parent);
+        auto pComp = qobject_cast<GtProcessComponent*>(parent);
 
         if (!pComp)
         {
@@ -1908,7 +1906,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 
     QModelIndex srcIndex = gtDataModel->appendChild(obj, parent);
 
-    GtTask* task = qobject_cast<GtTask*>(obj);
+    auto task = qobject_cast<GtTask*>(obj);
 
     if (task)
     {
@@ -2053,7 +2051,7 @@ GtProcessDock::configCalculator(GtCalculator* calc)
         return;
     }
 
-    GtProject* project = calc->findParent<GtProject*>();
+    auto project = calc->findParent<GtProject*>();
 
     if (!project)
     {
@@ -2186,7 +2184,7 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
     }
 
     // cast object to process component
-    GtProcessComponent* comp = qobject_cast<GtProcessComponent*>(obj);
+    auto comp = qobject_cast<GtProcessComponent*>(obj);
 
     // check casted process component
     if (!comp)
@@ -2203,7 +2201,7 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
         return;
     }
 
-    GtProject* project = rootTask->findParent<GtProject*>();
+    auto project = rootTask->findParent<GtProject*>();
 
     if (!project)
     {
@@ -2280,7 +2278,7 @@ GtProcessDock::actionTriggered(QObject* obj)
         return;
     }
 
-    QAction* act = qobject_cast<QAction*>(obj);
+    auto act = qobject_cast<QAction*>(obj);
 
     if (!act)
     {
@@ -2414,7 +2412,7 @@ GtProcessDock::actionTriggered(QObject* obj)
             return;
         }
 
-        GtCalculator* calc = qobject_cast<GtCalculator*>(newObj);
+        auto calc = qobject_cast<GtCalculator*>(newObj);
 
         if (!calc)
         {
@@ -2576,11 +2574,11 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
 
                     count++;
 
-                    GtExtendedTaskDataImpl* extendedData =
+                    auto extendedData =
                             dynamic_cast<GtExtendedTaskDataImpl*>(
                                 taskData.get());
 
-                    if (extendedData == nullptr ||
+                    if (!extendedData ||
                         extendedData->icon.isNull())
                     {
                         QIcon icn;
@@ -2629,11 +2627,11 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
 
                     count++;
 
-                    GtExtendedCalculatorDataImpl* extendedData =
+                    auto extendedData =
                             dynamic_cast<GtExtendedCalculatorDataImpl*>(
                                 calcData.get());
 
-                    if (extendedData == nullptr ||
+                    if (!extendedData ||
                         extendedData->icon.isNull())
                     {
                         act->setIcon(gtApp->icon(QStringLiteral(
@@ -2657,7 +2655,7 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
 void
 GtProcessDock::deleteProcessComponent(GtObject* obj)
 {
-    GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>(obj);
+    auto pComp = qobject_cast<GtProcessComponent*>(obj);
 
     if (!pComp)
     {

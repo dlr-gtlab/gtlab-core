@@ -14,12 +14,14 @@
 
 GtAbstractDataConfigWizard::GtAbstractDataConfigWizard(
         GtAbstractChartProvider* /*provider*/, QWidget* parent) :
-    QWizardPage(parent)
+    QWizardPage(parent),
+    m_dztList(nullptr)
 {
     GtPalette::applyThemeToWidget(this);
 }
 
-GtAbstractDataConfigWizard::GtAbstractDataConfigWizard()
+GtAbstractDataConfigWizard::GtAbstractDataConfigWizard() :
+    m_dztList(nullptr)
 {
 
 }
