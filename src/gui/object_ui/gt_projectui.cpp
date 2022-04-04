@@ -180,7 +180,7 @@ GtProjectUI::GtProjectUI()
 QIcon
 GtProjectUI::icon(GtObject* obj) const
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -233,7 +233,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
         {
         case Qt::DecorationRole:
         {
-            GtProject* project = qobject_cast<GtProject*>(obj);
+            auto project = qobject_cast<GtProject*>(obj);
 
             if (project)
             {
@@ -247,7 +247,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
         }
         case Qt::ToolTipRole:
         {
-            GtProject* project = qobject_cast<GtProject*>(obj);
+            auto project = qobject_cast<GtProject*>(obj);
 
             if (project)
             {
@@ -333,7 +333,7 @@ GtProjectUI::openProject(GtObject* obj)
         return;
     }
 
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -440,7 +440,7 @@ GtProjectUI::canCloseProject(GtObject* obj)
         return false;
     }
 
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -453,7 +453,7 @@ GtProjectUI::canCloseProject(GtObject* obj)
 void
 GtProjectUI::saveProject(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -471,7 +471,7 @@ GtProjectUI::saveProject(GtObject* obj)
 bool
 GtProjectUI::canSaveProject(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -484,7 +484,7 @@ GtProjectUI::canSaveProject(GtObject* obj)
 void
 GtProjectUI::saveProjectAs(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -508,9 +508,9 @@ GtProjectUI::saveProjectAs(GtObject* obj)
     flags = flags & (~Qt::WindowContextHelpButtonHint);
     dialog.setWindowFlags(flags);
 
-    QVBoxLayout* layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
 
-    GtProjectSpecWidget* pspecs = new GtProjectSpecWidget;
+    auto pspecs = new GtProjectSpecWidget;
     layout->addWidget(pspecs);
 
     QDir projectDir(project->path());
@@ -520,14 +520,14 @@ GtProjectUI::saveProjectAs(GtObject* obj)
 
     layout->addStretch(1);
 
-    QHBoxLayout* btnLay = new QHBoxLayout;
+    auto btnLay = new QHBoxLayout;
 
-    QPushButton* acceptBtn = new QPushButton(tr("Save"));
+    auto acceptBtn = new QPushButton(tr("Save"));
     acceptBtn->setIcon(gtApp->icon(QStringLiteral("saveProjectIcon_16.png")));
 
     connect(acceptBtn, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
 
-    QPushButton* cancleBtn = new QPushButton(tr("Cancel"));
+    auto cancleBtn = new QPushButton(tr("Cancel"));
     cancleBtn->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
 
     connect(cancleBtn, SIGNAL(clicked(bool)), &dialog, SLOT(reject()));
@@ -595,7 +595,7 @@ GtProjectUI::canSaveProjectAs(GtObject* obj)
     }
 
 
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -608,7 +608,7 @@ GtProjectUI::canSaveProjectAs(GtObject* obj)
 void
 GtProjectUI::duplicateProject(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -690,7 +690,7 @@ GtProjectUI::canDuplicateProject(GtObject* obj)
     }
 
 
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -703,7 +703,7 @@ GtProjectUI::canDuplicateProject(GtObject* obj)
 void
 GtProjectUI::deleteProject(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -751,7 +751,7 @@ GtProjectUI::deleteProject(GtObject* obj)
 bool
 GtProjectUI::canDeleteProject(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -764,7 +764,7 @@ GtProjectUI::canDeleteProject(GtObject* obj)
 void
 GtProjectUI::setCurrentProject(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -795,7 +795,7 @@ GtProjectUI::setCurrentProject(GtObject* obj)
 bool
 GtProjectUI::canSetCurrentProject(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -818,7 +818,7 @@ GtProjectUI::canSetCurrentProject(GtObject* obj)
 void
 GtProjectUI::chooseProjectModule(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -841,17 +841,17 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
     dialog.setWindowFlags(flags);
 
 
-    QVBoxLayout* layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
 
-    QLabel* label = new QLabel(tr("Select project specific modules"));
+    auto label = new QLabel(tr("Select project specific modules"));
     layout->addWidget(label);
 
-    GtCheckableStringListModel* model = new GtCheckableStringListModel(
+    auto model = new GtCheckableStringListModel(
         gtApp->moduleDatamodelInterfaceIds(), &dialog);
 
     model->selectItems(project->moduleIds());
 
-    QListView* view = new QListView;
+    auto view = new QListView;
     view->setModel(model);
     view->setFrameStyle(QListView::NoFrame);
     layout->addWidget(view);
@@ -860,7 +860,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 
 
 
-    QPushButton* okButton = new QPushButton(tr("Ok"));
+    auto okButton = new QPushButton(tr("Ok"));
     okButton->setIcon(gtApp->icon(QStringLiteral("checkIcon_16.png")));
 
     connect(okButton, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
@@ -950,7 +950,7 @@ GtProjectUI::canChooseProjectModule(GtObject* obj)
     }
 
 
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1000,7 +1000,7 @@ GtProjectUI::testCommit(GtObject* /*obj*/)
 bool
 GtProjectUI::canTestCommit(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1045,7 +1045,7 @@ GtProjectUI::canTestCheckout(GtObject* obj)
 void
 GtProjectUI::enableVersionControl(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1056,7 +1056,7 @@ GtProjectUI::enableVersionControl(GtObject* obj)
 bool
 GtProjectUI::canEnableVersionControl(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1074,7 +1074,7 @@ GtProjectUI::canEnableVersionControl(GtObject* obj)
 void
 GtProjectUI::exportMetaData(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1240,7 +1240,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
         QDomElement processElement =
             document.createElement(QStringLiteral("PROCESS"));
 
-        GtTask* task = pd->findDirectChild<GtTask*>(selItems.first());
+        auto task = pd->findDirectChild<GtTask*>(selItems.first());
 
         if (!task)
         {
@@ -1275,7 +1275,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
 bool
 GtProjectUI::canExportMetaData(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1293,7 +1293,7 @@ GtProjectUI::canExportMetaData(GtObject* obj)
 void
 GtProjectUI::showInExplorer(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1306,7 +1306,7 @@ GtProjectUI::showInExplorer(GtObject* obj)
 void
 GtProjectUI::renameProject(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1389,7 +1389,7 @@ GtProjectUI::renameProject(GtObject* obj)
 bool
 GtProjectUI::canRenameProject(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1407,7 +1407,7 @@ GtProjectUI::canRenameProject(GtObject* obj)
 void
 GtProjectUI::showFootprint(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1451,25 +1451,21 @@ GtProjectUI::showFootprint(GtObject* obj)
     dialog.setWindowIcon(gtApp->icon("componentsIcon_16.png"));
     dialog.setWindowTitle(tr("Footprint Information"));
 
-    QVBoxLayout* mLay = new QVBoxLayout;
+    auto mLay = new QVBoxLayout;
 
-    QTreeWidget* tWid = new QTreeWidget;
+    auto tWid = new QTreeWidget;
     tWid->setColumnCount(3);
     tWid->setHeaderLabels(QStringList() << "" << "Project" << "Framework");
 
     if (gtApp->devMode())
     {
-        QTreeWidgetItem* hashItem = new QTreeWidgetItem(QStringList() <<
-                                                        "Hash" <<
-                                                        projectHash <<
-                                                        frameworkHash);
+        auto hashItem = new QTreeWidgetItem(QStringList() << "Hash" <<
+                                            projectHash << frameworkHash);
         tWid->addTopLevelItem(hashItem);
     }
 
-    QTreeWidgetItem* versionItem = new QTreeWidgetItem(QStringList() <<
-                                                       "Version" <<
-                                                       projectVersion <<
-                                                       frameworkVersion);
+    auto versionItem = new QTreeWidgetItem(QStringList() << "Version" <<
+                                           projectVersion << frameworkVersion);
 
     QColor warnC = GtPalette::Color::footprintWarning();
     QColor errorC = GtPalette::Color::footprintError();
@@ -1490,12 +1486,12 @@ GtProjectUI::showFootprint(GtObject* obj)
 
     if (!unknownModules.isEmpty())
     {
-        QTreeWidgetItem* unknownRoot =
+        auto unknownRoot =
                 new QTreeWidgetItem(QStringList() << "Unknown Modules");
 
         for_each_key(unknownModules, [&](const QString& e)
         {
-            QTreeWidgetItem* unknownModule =
+            auto unknownModule =
                     new QTreeWidgetItem(QStringList() << e <<
                                         unknownModules.value(e).toString());
 
@@ -1513,12 +1509,12 @@ GtProjectUI::showFootprint(GtObject* obj)
 
     if (!incompatibleModules.isEmpty())
     {
-        QTreeWidgetItem* incompatibleRoot =
+        auto incompatibleRoot =
                 new QTreeWidgetItem(QStringList() << "Incompatible Modules");
 
         for_each_key(incompatibleModules, [&](const QString& e)
         {
-            QTreeWidgetItem* incompatibleModule =
+            auto incompatibleModule =
                     new QTreeWidgetItem(QStringList() << e <<
                                    incompatibleModules.value(e).toString() <<
                                    gtApp->moduleVersion(e).toString());
@@ -1536,12 +1532,12 @@ GtProjectUI::showFootprint(GtObject* obj)
 
     if (!updatedModules.isEmpty())
     {
-        QTreeWidgetItem* updatedRoot =
+        auto updatedRoot =
                 new QTreeWidgetItem(QStringList() << "Updated Modules");
 
         for_each_key(updatedModules, [&](const QString& e)
         {
-            QTreeWidgetItem* updatedModule =
+            auto updatedModule =
                     new QTreeWidgetItem(QStringList() << e <<
                                         updatedModules.value(e).toString() <<
                                         gtApp->moduleVersion(e).toString());
@@ -1557,14 +1553,14 @@ GtProjectUI::showFootprint(GtObject* obj)
 
     mLay->addWidget(tWid);
 
-    QHBoxLayout* btnLay = new QHBoxLayout;
+    auto btnLay = new QHBoxLayout;
 
-    QSpacerItem* spacer = new QSpacerItem(10, 20, QSizePolicy::Expanding,
-                                          QSizePolicy::Minimum);
+    auto spacer = new QSpacerItem(10, 20, QSizePolicy::Expanding,
+                                  QSizePolicy::Minimum);
 
     btnLay->addSpacerItem(spacer);
 
-    QPushButton* okBtn = new QPushButton(tr("Ok"));
+    auto okBtn = new QPushButton(tr("Ok"));
 
     connect(okBtn, SIGNAL(clicked()), &dialog, SLOT(accept()));
 
@@ -1584,7 +1580,7 @@ GtProjectUI::showFootprint(GtObject* obj)
 void
 GtProjectUI::editComment(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1614,7 +1610,7 @@ GtProjectUI::editComment(GtObject* obj)
 bool
 GtProjectUI::canEditComment(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1627,7 +1623,7 @@ GtProjectUI::canEditComment(GtObject* obj)
 void
 GtProjectUI::openProjectSettings(GtObject* obj)
 {
-    GtProject* project = qobject_cast<GtProject*>(obj);
+    auto project = qobject_cast<GtProject*>(obj);
 
     if (!project)
     {
@@ -1664,8 +1660,8 @@ GtProjectUI::openProjectSettings(GtObject* obj)
                              " datasets are internalized");
 
 
-    QSpacerItem* vSpacer = new QSpacerItem(10, 20, QSizePolicy::Minimum,
-                                          QSizePolicy::Expanding);
+    auto vSpacer = new QSpacerItem(10, 20, QSizePolicy::Minimum,
+                                   QSizePolicy::Expanding);
     QFrame line;
     line.setFrameShape(QFrame::HLine);
     line.setFrameShadow(QFrame::Sunken);
@@ -1703,26 +1699,26 @@ GtProjectUI::openProjectSettings(GtObject* obj)
     gLay.addWidget(&internalizeBtn, 6, 1);
     gLay.addItem(vSpacer, 7, 1);
 
-    QTabWidget* tabs = new QTabWidget;
-    QWidget* base = new QWidget;
+    auto tabs = new QTabWidget;
+    auto base = new QWidget;
     base->setLayout(&gLay);
     tabs->addTab(base, QStringLiteral("HDF5"));
 
     // horizontal layout
-    QPushButton* closeBtn = new QPushButton("Close");
-    QPushButton* applyBtn = new QPushButton("Apply");
+    auto closeBtn = new QPushButton("Close");
+    auto applyBtn = new QPushButton("Apply");
     closeBtn->setFixedSize(100, 25);
     applyBtn->setFixedSize(100, 25);
 
-    QSpacerItem* hSpacer = new QSpacerItem(10, 20, QSizePolicy::Expanding,
+    auto hSpacer = new QSpacerItem(10, 20, QSizePolicy::Expanding,
                                           QSizePolicy::Minimum);
-    QHBoxLayout* hLay = new QHBoxLayout;
+    auto hLay = new QHBoxLayout;
     hLay->addItem(hSpacer);
     hLay->addWidget(closeBtn);
     hLay->addWidget(applyBtn);
 
     // vertival layout
-    QVBoxLayout* vLay = new QVBoxLayout;
+    auto vLay = new QVBoxLayout;
     vLay->addWidget(tabs);
     vLay->addLayout(hLay);
     dialog.setLayout(vLay);

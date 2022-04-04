@@ -31,6 +31,7 @@ GtPalette::darkTheme()
 {
     QPalette palette;
     QColor darkColor = Color::basicDark();
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     QColor disabledColor = QColor(127,127,127);
 
     palette.setColor(QPalette::Window, darkColor);
@@ -46,7 +47,9 @@ GtPalette::darkTheme()
     palette.setColor(QPalette::ButtonText, Qt::white);
     palette.setColor(QPalette::Disabled, QPalette::ButtonText, disabledColor);
     palette.setColor(QPalette::BrightText, Qt::red);
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     palette.setColor(QPalette::Link, QColor(42, 130, 218));
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
     palette.setColor(QPalette::HighlightedText, Qt::black);
     palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
@@ -60,7 +63,9 @@ GtPalette::standardTheme()
 {
     QPalette palette;
 
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     QColor mainColor = QColor(245, 245, 245);
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     QColor disabledColor = QColor(127, 127, 127);
 
     palette.setColor(QPalette::Window, mainColor);
@@ -75,7 +80,9 @@ GtPalette::standardTheme()
     palette.setColor(QPalette::ButtonText, Qt::black);
     palette.setColor(QPalette::Disabled, QPalette::ButtonText, disabledColor);
     palette.setColor(QPalette::BrightText, Qt::red);
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     palette.setColor(QPalette::Link, QColor(42, 130, 218));
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
     palette.setColor(QPalette::HighlightedText, Qt::black);
     palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
@@ -112,6 +119,7 @@ GtPalette::applyThemeToWidget(QWidget* w)
 QColor
 GtPalette::Color::basicDark()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {45, 45, 45};        //QColor(45, 45, 45);
 }
 
@@ -120,12 +128,13 @@ GtPalette::Color::dummyObjectBackground()
 {
     if (gtApp->inDarkMode())
     {
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
         return {255, 130, 25};  //QColor(255, 130, 25);
     }
-    else
-    {
-        return {255, 140, 140}; //QColor(255, 140, 140);
-    }
+
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return {255, 140, 140}; //QColor(255, 140, 140);
+
 }
 
 QColor
@@ -135,10 +144,8 @@ GtPalette::Color::newObjectForground()
     {
         return {Qt::green};
     }
-    else
-    {
-        return {Qt::darkGreen};
-    }
+
+    return {Qt::darkGreen};
 }
 
 QColor
@@ -148,63 +155,70 @@ GtPalette::Color::changedObjectForground()
     {
         return QColor(Qt::blue).lighter();
     }
-    else
-    {
-        return {Qt::blue};
-    }
+
+    return {Qt::blue};
 }
 
 QColor
 GtPalette::Color::footprintWarning()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {255, 255, 0, 100};  //QColor(255, 255, 0, 100);
 }
 
 QColor
 GtPalette::Color::footprintError()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {255, 0, 0, 100};    //QColor(255, 0, 0, 100);
 }
 
 QColor
 GtPalette::Color::warningText()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {255, 100, 0};       //QColor(255, 100, 0);
 }
 
 QColor
 GtPalette::Color::errorText()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {139, 0, 0};         //QColor(139, 0, 0);
 }
 
 QColor
 GtPalette::Color::fatalText()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {255, 255, 255};     //QColor(255, 255, 255);
 }
 
 QColor
 GtPalette::Color::fatalTextBackground()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {120, 20, 20};       //QColor(120, 20, 20);
 }
 
 QColor
 GtPalette::Color::collectionAvailableItemBackground()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {180, 229, 190};     //QColor(180, 229, 190);
 }
 
 QColor
 GtPalette::Color::collectionInstalledItemBackground()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {240, 240, 240};     //QColor(240, 240, 240);
 }
 
 QColor
 GtPalette::Color::environmentModelBack()
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {214, 170, 170};     //QColor(214, 170, 170);
 }
 
@@ -215,8 +229,6 @@ GtPalette::Color::infoText()
     {
         return {Qt::white};
     }
-    else
-    {
-        return {Qt::black};
-    }
+
+    return {Qt::black};
 }

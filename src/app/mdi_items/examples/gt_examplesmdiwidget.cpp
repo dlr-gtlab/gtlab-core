@@ -147,12 +147,12 @@ GtExamplesMdiWidget::initializeWidget()
 
     QFrame* frame = qobject_cast<QFrame*>(widget());
 
-    if (frame != nullptr)
+    if (frame)
     {
         frame->setFrameStyle(QFrame::NoFrame);
     }
 
-    if (mainWidget == nullptr)
+    if (!mainWidget)
     {
         return;
     }
@@ -224,7 +224,7 @@ GtExamplesMdiWidget::sortItems()
 
         QGridLayout* lay = page->findChild<QGridLayout*>("grid");
 
-        if (lay == nullptr)
+        if (!lay)
         {
             gtDebug() << tr("Layout not found");
             continue;

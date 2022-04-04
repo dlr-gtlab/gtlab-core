@@ -148,7 +148,7 @@ GtCalculatorEntity::paint(QPainter* painter,
 QRectF
 GtCalculatorEntity::boundingRect() const
 {
-    return QRectF(0, 0, m_w, m_h);
+    return {0, 0, double(m_w), double(m_h)};
 }
 
 int
@@ -250,8 +250,7 @@ GtCalculatorEntity::populateCalculator()
 
     foreach (GtAbstractProperty* prop, props)
     {
-        GtCalculatorPropertyEntity* pe = new GtCalculatorPropertyEntity(prop,
-                                                                        this);
+        auto pe = new GtCalculatorPropertyEntity(prop, this);
         pe->setPos(tmpPos);
         tmpPos = QPoint(tmpPos.x(),
                         tmpPos.y() + pe->boundingRect().height());
@@ -266,7 +265,7 @@ GtCalculatorEntity::populateCalculator()
     populateCalculator(calcs);
 
     // data model port
-    GtDataModelPortEntity* dmport = new GtDataModelPortEntity(this);
+    auto dmport = new GtDataModelPortEntity(this);
     dmport->setPos(QPoint(m_w - 10, 0));
 }
 
@@ -337,7 +336,7 @@ GtCalculatorEntity::insertCalculator(GtCalculator* calc,
 
     GtCalculatorEntity* ce = nullptr;
 
-    if (GtTaskLink* taskLink = qobject_cast<GtTaskLink*>(calc))
+    if (auto taskLink = qobject_cast<GtTaskLink*>(calc))
     {
         ce = new GtTaskLinkEntity(taskLink, this);
     }
@@ -547,7 +546,7 @@ GtCalculatorEntity::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
         return;
     }
 
-    QDrag* drag = new QDrag(event->widget());
+    auto drag = new QDrag(event->widget());
     QMimeData* mime = gtDataModel->mimeDataFromObject(m_calculator);
     drag->setMimeData(mime);
     drag->exec();
@@ -650,7 +649,7 @@ GtCalculatorEntity::previousSibling()
 {
     Q_ASSERT(m_calculator == nullptr);
 
-    if (m_parentEntity == nullptr || isLeftMost())
+    if (!m_parentEntity || isLeftMost())
     {
         return nullptr;
     }
@@ -663,7 +662,7 @@ GtCalculatorEntity::nextSibling()
 {
     Q_ASSERT(m_calculator == nullptr);
 
-    if (m_parentEntity == nullptr || isRightMost())
+    if (!m_parentEntity || isRightMost())
     {
         return nullptr;
     }
@@ -850,7 +849,7 @@ GtCalculatorEntity::addChild(GtObject* obj)
 {
     if (obj)
     {
-        GtCalculator* calc = qobject_cast<GtCalculator*>(obj);
+        auto calc = qobject_cast<GtCalculator*>(obj);
 
         if (!calc)
         {

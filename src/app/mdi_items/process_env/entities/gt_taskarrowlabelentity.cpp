@@ -54,9 +54,10 @@ GtTaskArrowLabelEntity::paint(QPainter* painter,
                       int(br.width() - 7.), int(br.height() / 2));
 }
 
-QRectF GtTaskArrowLabelEntity::boundingRect() const
+QRectF
+GtTaskArrowLabelEntity::boundingRect() const
 {
-    return QRectF(0, 0, 30, 30);
+    return {0, 0, 30, 30};
 }
 
 void
