@@ -42,7 +42,7 @@ public:
                          const QString& brief,
                          const QString& uuid,
                          GtObject* obj,
-                         const QStringList& allowedClasses,
+                         QStringList  allowedClasses,
                          bool heritageMode = false);
 
     /**

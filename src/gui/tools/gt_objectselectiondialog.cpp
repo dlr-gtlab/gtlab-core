@@ -33,7 +33,7 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
     setWindowFlags(flags);
 
 
-    QVBoxLayout* lay = new QVBoxLayout;
+    auto lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
 
@@ -41,7 +41,7 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
     m_treeView->setFrameStyle(QTreeView::NoFrame);
     lay->addWidget(m_treeView);
 
-    GtSearchWidget* searchWidget = new GtSearchWidget(this);
+    auto searchWidget = new GtSearchWidget(this);
     lay->addWidget(searchWidget);
 
     m_srcModel = new GtObjectModel(this);

@@ -8,6 +8,7 @@
  */
 
 #include "gt_objectlinkproperty.h"
+#include <utility>
 #include "gt_object.h"
 
 GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
@@ -15,10 +16,10 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
         const QString& brief,
         const QString& uuid,
         GtObject* obj,
-        const QStringList& allowedClasses,
+        QStringList  allowedClasses,
         bool heritageMode) :
     m_obj(obj),
-    m_allowedClasses(allowedClasses),
+    m_allowedClasses(std::move(allowedClasses)),
     m_heritageMode(heritageMode)
 {
     setObjectName(name);
