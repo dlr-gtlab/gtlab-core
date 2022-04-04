@@ -12,12 +12,25 @@
 #include <QSettings>
 #include <QWidget>
 #include <QStyleFactory>
+#include "gt_application.h"
+
+
+QPalette
+GtPalette::currentTheme()
+{
+    if (gtApp->inDarkMode())
+    {
+        return darkTheme();
+    }
+
+    return standardTheme();
+}
 
 QPalette
 GtPalette::darkTheme()
 {
     QPalette palette;
-    QColor darkColor = basicDarkColor();
+    QColor darkColor = Color::basicDark();
     QColor disabledColor = QColor(127,127,127);
 
     palette.setColor(QPalette::Window, darkColor);
@@ -72,9 +85,9 @@ GtPalette::standardTheme()
 }
 
 void
-GtPalette::applyThemeToWidget(QWidget* w, bool dark)
+GtPalette::applyThemeToWidget(QWidget* w)
 {
-    if (dark)
+    if (gtApp->inDarkMode())
     {
         w->setStyle(QStyleFactory::create("Fusion"));
         w->setPalette(GtPalette::darkTheme());
@@ -97,15 +110,15 @@ GtPalette::applyThemeToWidget(QWidget* w, bool dark)
 }
 
 QColor
-GtPalette::basicDarkColor()
+GtPalette::Color::basicDark()
 {
     return {45, 45, 45};        //QColor(45, 45, 45);
 }
 
 QColor
-GtPalette::dummyObjectBackgroundColor(bool dark)
+GtPalette::Color::dummyObjectBackground()
 {
-    if (dark)
+    if (gtApp->inDarkMode())
     {
         return {255, 130, 25};  //QColor(255, 130, 25);
     }
@@ -116,9 +129,9 @@ GtPalette::dummyObjectBackgroundColor(bool dark)
 }
 
 QColor
-GtPalette::newObjectForgroundColor(bool dark)
+GtPalette::Color::newObjectForground()
 {
-    if (dark)
+    if (gtApp->inDarkMode())
     {
         return {Qt::green};
     }
@@ -129,9 +142,9 @@ GtPalette::newObjectForgroundColor(bool dark)
 }
 
 QColor
-GtPalette::changedObjectForgroundColor(bool dark)
+GtPalette::Color::changedObjectForground()
 {
-    if (dark)
+    if (gtApp->inDarkMode())
     {
         return QColor(Qt::blue).lighter();
     }
@@ -142,64 +155,68 @@ GtPalette::changedObjectForgroundColor(bool dark)
 }
 
 QColor
-GtPalette::footprintWarningColor(bool dark)
+GtPalette::Color::footprintWarning()
 {
-    Q_UNUSED(dark)
     return {255, 255, 0, 100};  //QColor(255, 255, 0, 100);
 }
 
 QColor
-GtPalette::footprintErrorColor(bool dark)
+GtPalette::Color::footprintError()
 {
-    Q_UNUSED(dark)
     return {255, 0, 0, 100};    //QColor(255, 0, 0, 100);
 }
 
 QColor
-GtPalette::loggingWarnTextColor(bool dark)
+GtPalette::Color::warningText()
 {
-    Q_UNUSED(dark)
     return {255, 100, 0};       //QColor(255, 100, 0);
 }
 
 QColor
-GtPalette::loggingErrorTextColor(bool dark)
+GtPalette::Color::errorText()
 {
-    Q_UNUSED(dark)
     return {139, 0, 0};         //QColor(139, 0, 0);
 }
 
 QColor
-GtPalette::loggingFatalTextColor(bool dark)
+GtPalette::Color::fatalText()
 {
-    Q_UNUSED(dark)
     return {255, 255, 255};     //QColor(255, 255, 255);
 }
 
 QColor
-GtPalette::loggingFatalBackgroundColor(bool dark)
+GtPalette::Color::fatalTextBackground()
 {
-    Q_UNUSED(dark)
     return {120, 20, 20};       //QColor(120, 20, 20);
 }
 
 QColor
-GtPalette::collectionAvailableItemBackground(bool dark)
+GtPalette::Color::collectionAvailableItemBackground()
 {
-    Q_UNUSED(dark)
     return {180, 229, 190};     //QColor(180, 229, 190);
 }
 
 QColor
-GtPalette::collectionInstalledItemBackground(bool dark)
+GtPalette::Color::collectionInstalledItemBackground()
 {
-    Q_UNUSED(dark)
     return {240, 240, 240};     //QColor(240, 240, 240);
 }
 
 QColor
-GtPalette::environmentModelBack(bool dark)
+GtPalette::Color::environmentModelBack()
 {
-    Q_UNUSED(dark)
     return {214, 170, 170};     //QColor(214, 170, 170);
+}
+
+QColor
+GtPalette::Color::infoText()
+{
+    if (gtApp->inDarkMode())
+    {
+        return {Qt::white};
+    }
+    else
+    {
+        return {Qt::black};
+    }
 }

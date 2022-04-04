@@ -16,7 +16,7 @@ GtAbstractDataConfigWizard::GtAbstractDataConfigWizard(
         GtAbstractChartProvider* /*provider*/, QWidget* parent) :
     QWizardPage(parent)
 {
-    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
+    GtPalette::applyThemeToWidget(this);
 }
 
 GtAbstractDataConfigWizard::GtAbstractDataConfigWizard()

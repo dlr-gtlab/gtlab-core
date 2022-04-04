@@ -16,7 +16,7 @@
 GtAbstractExporterPage::GtAbstractExporterPage(GtObject* obj) :
     m_obj(obj)
 {
-    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
+    GtPalette::applyThemeToWidget(this);
 }
 
 GtObject*

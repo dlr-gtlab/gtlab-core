@@ -1471,10 +1471,8 @@ GtProjectUI::showFootprint(GtObject* obj)
                                                        projectVersion <<
                                                        frameworkVersion);
 
-
-    bool darkMode = gtApp->inDarkMode();
-    QColor warnC = GtPalette::footprintWarningColor(darkMode);
-    QColor errorC = GtPalette::footprintErrorColor(darkMode);
+    QColor warnC = GtPalette::Color::footprintWarningColor();
+    QColor errorC = GtPalette::Color::footprintErrorColor();
     if (footprint.isNewerRelease())
     {
         versionItem->setBackgroundColor(1, errorC);

@@ -79,8 +79,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             }
             else if (role == Qt::BackgroundRole)
             {
-                return GtPalette::collectionAvailableItemBackground(
-                            gtApp->inDarkMode());
+                return GtPalette::Color::collectionAvailableItemBackground();
 
             }
 
@@ -113,8 +112,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             }
             else if (role == Qt::BackgroundRole)
             {
-                return GtPalette::collectionInstalledItemBackground(
-                            gtApp->inDarkMode());
+                return GtPalette::Color::collectionInstalledItemBackground();
             }
 
             break;

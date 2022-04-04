@@ -66,7 +66,7 @@ GtCalculatorOverviewPage::GtCalculatorOverviewPage(GtProcessWizard* parent) :
     connect(m_view, SIGNAL(doubleClicked(QModelIndex)),
             SLOT(onDoubleClicked(QModelIndex)));
 
-    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
+    GtPalette::applyThemeToWidget(this);
 }
 
 GtCalculatorOverviewPage::~GtCalculatorOverviewPage() = default;
