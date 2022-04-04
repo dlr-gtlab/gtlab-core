@@ -36,6 +36,7 @@
 #include "gt_scrollarea.h"
 #include "gt_postmodel.h"
 #include "gt_stylesheets.h"
+#include "gt_icons.h"
 
 
 GtTemplateViewer::GtTemplateViewer() :
@@ -78,19 +79,19 @@ GtTemplateViewer::GtTemplateViewer() :
 
     QPushButton* buttonAdd = new QPushButton(tr("Add"));
     buttonAdd->setToolTip("Adds a plot to current template.");
-    buttonAdd->setIcon(GtApplication::icon("addIcon_16.png"));
+    buttonAdd->setIcon(GtGUI::Icon::add16());
     buttonAdd->setMaximumWidth(60);
     buttonAdd->setStyleSheet(GtStyleSheets::buttonStyleSheet());
 
     QPushButton* buttonPDF = new QPushButton(tr("To PDF"));
     buttonPDF->setToolTip("Prints template to PDF.");
-    buttonPDF->setIcon(GtApplication::icon("printPDFIcon.png"));
+    buttonPDF->setIcon(GtGUI::icon("printPDFIcon.png"));
     buttonPDF->setMaximumWidth(60);
     buttonPDF->setStyleSheet(buttonAdd->styleSheet());
 
     QPushButton* buttonPrint = new QPushButton(tr("Print..."));
     buttonPrint->setToolTip("Prints template.");
-    buttonPrint->setIcon(GtApplication::icon("printerIcon_16.png"));
+    buttonPrint->setIcon(GtGUI::icon("printerIcon_16.png"));
     buttonPrint->setMaximumWidth(60);
     buttonPrint->setStyleSheet(buttonAdd->styleSheet());
 
@@ -553,35 +554,35 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
 {
     if (str == "GtBarProvider")
     {
-        actPlot->setIcon(GtApplication::icon("histogramIcon_16.png"));
+        actPlot->setIcon(GtGUI::icon("histogramIcon_16.png"));
     }
     else if (str == "GtXyProvider")
     {
-        actPlot->setIcon(GtApplication::icon("schedules4Icon_16.png"));
+        actPlot->setIcon(GtGUI::icon("schedules4Icon_16.png"));
     }
     else if (str == "GtpXyProvider")
     {
-        actPlot->setIcon(GtApplication::icon("schedules4Icon_16.png"));
+        actPlot->setIcon(GtGUI::icon("schedules4Icon_16.png"));
     }
     else if (str == "GtppMapProvider")
     {
-        actPlot->setIcon(GtApplication::icon("mapIcon_16.png"));
+        actPlot->setIcon(GtGUI::icon("mapIcon_16.png"));
     }
     else if (str == "GtCarpetProvider")
     {
-        actPlot->setIcon(GtApplication::icon("carpetPlotIcon2.png"));
+        actPlot->setIcon(GtGUI::icon("carpetPlotIcon2.png"));
     }
     else if (str == "GtdAeroPlot")
     {
-        actPlot->setIcon(GtApplication::icon("carpetPlotIcon2.png"));
+        actPlot->setIcon(GtGUI::icon("carpetPlotIcon2.png"));
     }
     else if (str == "GtTSDiagramProvider")
     {
-        actPlot->setIcon(GtApplication::icon("tsDiagramm_16.png"));
+        actPlot->setIcon(GtGUI::icon("tsDiagramm_16.png"));
     }
     else
     {
-        actPlot->setIcon(GtApplication::icon("postIcon.png"));
+        actPlot->setIcon(GtGUI::icon("postIcon.png"));
     }
 }
 

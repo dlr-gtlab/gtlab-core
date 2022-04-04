@@ -20,6 +20,7 @@
 #include "gt_mdilauncher.h"
 #include "gt_application.h"
 #include "gt_versionnumber.h"
+#include "gt_icons.h"
 
 #include "gt_preferencesplugins.h"
 
@@ -44,7 +45,7 @@ GtPreferencesPlugins::GtPreferencesPlugins()
         nfo << id;
         nfo << gtApp->moduleVersion(id).toString();
         QTreeWidgetItem* item = new QTreeWidgetItem(nfo);
-        item->setIcon(0, gtApp->icon("pluginIcon_16.png"));
+        item->setIcon(0, GtGUI::icon("pluginIcon_16.png"));
         item->setToolTip(0,gtApp->moduleDescription(id));
         datamodelPluginList->addTopLevelItem(item);
     }

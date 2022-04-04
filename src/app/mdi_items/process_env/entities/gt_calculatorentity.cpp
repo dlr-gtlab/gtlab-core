@@ -29,7 +29,7 @@
 #include "gt_tasklinkentity.h"
 #include "gt_datamodel.h"
 #include "gt_logging.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 
 GtCalculatorEntity::GtCalculatorEntity(GtTask* task,
                                        QGraphicsItem* parent) :
@@ -104,7 +104,7 @@ GtCalculatorEntity::paint(QPainter* painter,
     {
         if (gtApp->inDarkMode())
         {
-            painter->setBrush(QBrush(GtPalette::Color::basicDark()));
+            painter->setBrush(QBrush(GtGUI::Color::basicDark()));
         }
         else
         {

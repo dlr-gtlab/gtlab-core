@@ -11,7 +11,7 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_datamodel.h"
 #include "gt_styledmodel.h"
 
@@ -42,5 +42,5 @@ GtSessionViewer::GtSessionViewer()
 QIcon
 GtSessionViewer::icon() const
 {
-    return gtApp->icon("sessionIcon_16.png");
+    return GtGUI::icon("sessionIcon_16.png");
 }

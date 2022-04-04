@@ -10,7 +10,7 @@
 #include <QIcon>
 #include <QDir>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_collectionitem.h"
 #include "gt_logging.h"
 
@@ -76,11 +76,11 @@ GtLocalCollectionModel::data(const QModelIndex& index, int role) const
     case Qt::DecorationRole:
         if (col == 0)
         {
-            return gtApp->icon(QStringLiteral("propertyIcon_16.png"));
+            return GtGUI::icon(QStringLiteral("propertyIcon_16.png"));
         }
         else if (col == 1)
         {
-            return gtApp->icon(QStringLiteral("infoBlueIcon_16.png"));
+            return GtGUI::icon(QStringLiteral("infoBlueIcon_16.png"));
         }
         break;
     default:

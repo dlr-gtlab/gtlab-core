@@ -47,6 +47,7 @@
 #include "gt_inputdialog.h"
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
+#include "gt_icons.h"
 
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
@@ -57,7 +58,7 @@
 #include "gt_statehandler.h"
 #include "gt_state.h"
 #include "gt_algorithms.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 
 #include "gt_projectui.h"
 
@@ -189,10 +190,10 @@ GtProjectUI::icon(GtObject* obj) const
 
     if (project->isOpen())
     {
-        return gtApp->icon("componentsIcon_16.png");
+        return GtGUI::icon("componentsIcon_16.png");
     }
 
-    return gtApp->icon("closedProjectIcon_16.png");
+    return GtGUI::icon("closedProjectIcon_16.png");
 
 }
 
@@ -239,7 +240,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
             {
                 if (!project->comment().isEmpty())
                 {
-                    return gtApp->icon("commentIcon.png");
+                    return GtGUI::icon("commentIcon.png");
                 }
             }
 
@@ -325,7 +326,7 @@ GtProjectUI::openProject(GtObject* obj)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Open Project"));
-        mb.setWindowIcon(gtApp->icon("openProjectIcon_16.png"));
+        mb.setWindowIcon(GtGUI::icon("openProjectIcon_16.png"));
         mb.setText(tr("Cannot open new project while a task is running."));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);
@@ -502,7 +503,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
     QDialog dialog;
 
     dialog.setWindowTitle(tr("Save Project As..."));
-    dialog.setWindowIcon(gtApp->icon(QStringLiteral("saveProjectIcon_16.png")));
+    dialog.setWindowIcon(GtGUI::Icon::saveProject16());
 
     Qt::WindowFlags flags = dialog.windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -523,12 +524,12 @@ GtProjectUI::saveProjectAs(GtObject* obj)
     auto btnLay = new QHBoxLayout;
 
     auto acceptBtn = new QPushButton(tr("Save"));
-    acceptBtn->setIcon(gtApp->icon(QStringLiteral("saveProjectIcon_16.png")));
+    acceptBtn->setIcon(GtGUI::Icon::saveProject16());
 
     connect(acceptBtn, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
 
     auto cancleBtn = new QPushButton(tr("Cancel"));
-    cancleBtn->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    cancleBtn->setIcon(GtGUI::Icon::delete16());
 
     connect(cancleBtn, SIGNAL(clicked(bool)), &dialog, SLOT(reject()));
     connect(pspecs, SIGNAL(validated(bool)), acceptBtn, SLOT(setEnabled(bool)));
@@ -834,7 +835,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 
     dialog.setWindowTitle(tr("Project Modules") +
                           QStringLiteral(" - ") + project->objectName());
-    dialog.setWindowIcon(gtApp->icon(QStringLiteral("pluginIcon_16.png")));
+    dialog.setWindowIcon(GtGUI::icon(QStringLiteral("pluginIcon_16.png")));
 
     Qt::WindowFlags flags = dialog.windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -861,7 +862,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 
 
     auto okButton = new QPushButton(tr("Ok"));
-    okButton->setIcon(gtApp->icon(QStringLiteral("checkIcon_16.png")));
+    okButton->setIcon(GtGUI::icon(QStringLiteral("checkIcon_16.png")));
 
     connect(okButton, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
     connect(model, SIGNAL(noItemSelected(bool)), okButton,
@@ -892,8 +893,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
             mb.setWindowTitle(tr("Save Project"));
-            mb.setWindowIcon(
-                gtApp->icon(QStringLiteral("saveProjectIcon_16.png")));
+            mb.setWindowIcon(GtGUI::Icon::saveProject16());
             mb.setText(tr("Found unsaved changes.\nDo you want to save ")
                        + tr("your changes?"));
             mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
@@ -1105,7 +1105,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
 
     QDialog dialog;
     dialog.setWindowTitle(tr("Export Meta Data"));
-    dialog.setWindowIcon(gtApp->icon(QStringLiteral("exportIcon_16.png")));
+    dialog.setWindowIcon(GtGUI::Icon::export16());
 
     Qt::WindowFlags flags = dialog.windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -1322,7 +1322,7 @@ GtProjectUI::renameProject(GtObject* obj)
 
 //    dialog.setInputMode(QInputDialog::IntInput);
     dialog.setWindowTitle(tr("Rename Project"));
-    dialog.setWindowIcon(gtApp->icon(QStringLiteral("inputIcon_16.png")));
+    dialog.setWindowIcon(GtGUI::icon(QStringLiteral("inputIcon_16.png")));
     dialog.setLabelText(tr("Note: The associated project path "
                            "on the hard disk is not changed."
                            "\n\nNew project name:"));
@@ -1424,7 +1424,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Footprint Not Found"));
-        mb.setWindowIcon(gtApp->icon("componentsIcon_16.png"));
+        mb.setWindowIcon(GtGUI::icon("componentsIcon_16.png"));
         mb.setText(tr("No footprint was found in the project file.\nIt seems "
                       "that the project was created with a GTlab version "
                       "< 1.6.\n\nSaving the project with a GTlab version >= "
@@ -1448,7 +1448,7 @@ GtProjectUI::showFootprint(GtObject* obj)
     const QString frameworkVersion = frameworkFootpring.versionToString();
 
     QDialog dialog;
-    dialog.setWindowIcon(gtApp->icon("componentsIcon_16.png"));
+    dialog.setWindowIcon(GtGUI::icon("componentsIcon_16.png"));
     dialog.setWindowTitle(tr("Footprint Information"));
 
     auto mLay = new QVBoxLayout;
@@ -1467,8 +1467,8 @@ GtProjectUI::showFootprint(GtObject* obj)
     auto versionItem = new QTreeWidgetItem(QStringList() << "Version" <<
                                            projectVersion << frameworkVersion);
 
-    QColor warnC = GtPalette::Color::footprintWarning();
-    QColor errorC = GtPalette::Color::footprintError();
+    QColor warnC = GtGUI::Color::footprintWarning();
+    QColor errorC = GtGUI::Color::footprintError();
     if (footprint.isNewerRelease())
     {
         versionItem->setBackgroundColor(1, errorC);
@@ -1642,7 +1642,7 @@ GtProjectUI::openProjectSettings(GtObject* obj)
 
     // create dialog
     QDialog dialog;
-    dialog.setWindowIcon(gtApp->icon("componentsIcon_16.png"));
+    dialog.setWindowIcon(GtGUI::icon("componentsIcon_16.png"));
     dialog.setWindowTitle(tr("Project Settings"));
     dialog.resize(400, 300);
 

@@ -14,6 +14,7 @@
 #include "gt_task.h"
 #include "gt_objectfactory.h"
 #include "gt_processdata.h"
+#include "gt_icons.h"
 
 #include "gt_processimporter.h"
 
@@ -42,11 +43,7 @@ GtProcessImporter::targets() const
 QIcon
 GtProcessImporter::icon() const
 {
-    QIcon icon;
-    icon.addFile(QString(":/icons/importIcon_16.png"), QSize(), QIcon::Normal,
-                 QIcon::Off);
-
-    return icon;
+    return GtGUI::Icon::import16();
 }
 
 bool

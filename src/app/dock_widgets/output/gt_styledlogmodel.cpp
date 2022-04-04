@@ -12,8 +12,8 @@
 
 #include "gt_styledlogmodel.h"
 #include "gt_logmodel.h"
-#include "gt_application.h"
-#include "gt_palette.h"
+#include "gt_icons.h"
+#include "gt_colors.h"
 
 #include "QsLogLevel.h"
 
@@ -42,19 +42,19 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::DebugLevel:
-                    return gtApp->icon("bugIcon.png");
+                    return GtGUI::icon("bugIcon.png");
 
                 case QsLogging::InfoLevel:
-                    return gtApp->icon("infoBlueIcon_16.png");
+                    return GtGUI::icon("infoBlueIcon_16.png");
 
                 case QsLogging::WarnLevel:
-                    return gtApp->icon("processFailedIcon_16.png");
+                    return GtGUI::icon("processFailedIcon_16.png");
 
                 case QsLogging::ErrorLevel:
-                    return gtApp->icon("errorIcon_16.png");
+                    return GtGUI::Icon::error16();
 
                 case QsLogging::FatalLevel:
-                    return gtApp->icon("fatalIcon_16.png");
+                    return GtGUI::icon("fatalIcon_16.png");
             }
         }
 
@@ -67,13 +67,13 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::WarnLevel:
-                    return GtPalette::Color::warningText();
+                    return GtGUI::Color::warningText();
 
                 case QsLogging::ErrorLevel:
-                    return GtPalette::Color::errorText();
+                    return GtGUI::Color::errorText();
 
                 case QsLogging::FatalLevel:
-                    return GtPalette::Color::fatalText();
+                    return GtGUI::Color::fatalText();
             }
         }
 
@@ -111,7 +111,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::FatalLevel:
-                    return GtPalette::Color::fatalTextBackground();
+                    return GtGUI::Color::fatalTextBackground();
             }
         }
     }

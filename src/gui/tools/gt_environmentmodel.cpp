@@ -10,7 +10,7 @@
 #include "gt_environmentmodel.h"
 
 #include "gt_environment.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 #include "gt_application.h"
 #include "gt_algorithms.h"
 
@@ -85,7 +85,7 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         {
             if (m_vars.value(valId).isNull())
             {
-                return GtPalette::Color::environmentModelBack();
+                return GtGUI::Color::environmentModelBack();
             }
         }
         break;

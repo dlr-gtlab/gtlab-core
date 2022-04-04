@@ -17,7 +17,7 @@ GtAbstractDataConfigWizard::GtAbstractDataConfigWizard(
     QWizardPage(parent),
     m_dztList(nullptr)
 {
-    GtPalette::applyThemeToWidget(this);
+    GtGUI::applyThemeToWidget(this);
 }
 
 GtAbstractDataConfigWizard::GtAbstractDataConfigWizard() :

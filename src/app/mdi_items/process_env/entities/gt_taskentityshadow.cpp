@@ -13,7 +13,7 @@
 #include "gt_taskentityshadow.h"
 #include "gt_taskentity.h"
 #include "gt_application.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 
 GtTaskEntityShadow::GtTaskEntityShadow(GtTaskEntity* task) :
     m_task(task),
@@ -40,7 +40,7 @@ GtTaskEntityShadow::paint(QPainter* painter,
     }
     else
     {
-        painter->setBrush(QBrush(GtPalette::Color::basicDark()));
+        painter->setBrush(QBrush(GtGUI::Color::basicDark()));
     }
 
     painter->setPen(Qt::NoPen);

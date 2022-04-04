@@ -13,7 +13,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_resulttableview.h"
 #include "gt_datazonemodel.h"
 #include "gt_abstractdatazone.h"
@@ -79,7 +79,7 @@ GtResultViewer::~GtResultViewer()
 QIcon
 GtResultViewer::icon() const
 {
-    return gtApp->icon(QStringLiteral("prpIcon_16.png"));
+    return GtGUI::icon(QStringLiteral("prpIcon_16.png"));
 }
 
 void

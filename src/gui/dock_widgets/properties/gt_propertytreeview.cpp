@@ -22,6 +22,7 @@
 #include "gt_propertyvaluedelegate.h"
 #include "gt_propertyunitdelegate.h"
 #include "gt_project.h"
+#include "gt_icons.h"
 
 GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
                                        QWidget* parent) :
@@ -215,12 +216,12 @@ GtPropertyTreeView::onCollapsed(const QModelIndex& index)
 
         if (isMonitoring)
         {
-            model()->setData(index, gtApp->icon("arrowrightBlueIcon.png"),
+            model()->setData(index, GtGUI::icon("arrowrightBlueIcon.png"),
                              Qt::DecorationRole);
         }
         else
         {
-            model()->setData(index, gtApp->icon("arrowrightIcon.png"),
+            model()->setData(index, GtGUI::icon("arrowrightIcon.png"),
                              Qt::DecorationRole);
         }
     }
@@ -248,12 +249,12 @@ GtPropertyTreeView::onExpanded(const QModelIndex& index)
 
         if (isMonitoring)
         {
-            model()->setData(index, gtApp->icon("arrowdownBlueIcon.png"),
+            model()->setData(index, GtGUI::icon("arrowdownBlueIcon.png"),
                              Qt::DecorationRole);
         }
         else
         {
-            model()->setData(index, gtApp->icon("arrowdownIcon.png"),
+            model()->setData(index, GtGUI::icon("arrowdownIcon.png"),
                              Qt::DecorationRole);
         }
     }

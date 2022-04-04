@@ -13,7 +13,7 @@
 #include <QFile>
 #include <QDir>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_filedialog.h"
 #include "gt_openfilenameproperty.h"
 #include "gt_savefilenameproperty.h"
@@ -29,7 +29,7 @@ GtPropertyFileChooserEditor::GtPropertyFileChooserEditor(QWidget* parent) :
     lay->addWidget(m_filePath);
 
     m_restoreButton = new QPushButton(QLatin1String{});
-    m_restoreButton->setIcon(gtApp->icon(QStringLiteral("restoreIcon_16.png")));
+    m_restoreButton->setIcon(GtGUI::icon(QStringLiteral("restoreIcon_16.png")));
     m_restoreButton->setFlat(true);
     m_restoreButton->setMaximumWidth(15);
     m_restoreButton->setAutoDefault(false);

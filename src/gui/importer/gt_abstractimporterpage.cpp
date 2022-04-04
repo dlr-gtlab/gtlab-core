@@ -16,7 +16,7 @@
 GtAbstractImporterPage::GtAbstractImporterPage(GtObject* obj) :
     m_obj(obj)
 {
-    GtPalette::applyThemeToWidget(this);
+    GtGUI::applyThemeToWidget(this);
 }
 
 GtObject*

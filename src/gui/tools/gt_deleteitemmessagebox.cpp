@@ -7,7 +7,7 @@
  *  Tel.: +49 2203 601 2191
  */
 #include <QIcon>
-#include "gt_application.h"
+#include "gt_icons.h"
 
 #include "gt_deleteitemmessagebox.h"
 
@@ -18,7 +18,7 @@ GtDeleteItemMessageBox::GtDeleteItemMessageBox(const QString& title,
 {
     setIcon(QMessageBox::Question);
     setWindowTitle(title);
-    setWindowIcon(gtApp->icon("closeIcon_16.png"));
+    setWindowIcon(GtGUI::Icon::delete16());
     setText(tr("Delete") + " " + elementName + "?");
     setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     setDefaultButton(QMessageBox::Yes);

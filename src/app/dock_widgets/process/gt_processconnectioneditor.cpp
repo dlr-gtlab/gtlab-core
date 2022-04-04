@@ -11,7 +11,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_processconnectionmodel.h"
 #include "gt_processconnectionview.h"
 #include "gt_processconnectionscene.h"
@@ -28,7 +28,7 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
 {
     setWindowTitle(tr("Connections"));
 
-    setWindowIcon(gtApp->icon(QStringLiteral("connectionIcon_16.png")));
+    setWindowIcon(GtGUI::icon(QStringLiteral("connectionIcon_16.png")));
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -70,9 +70,9 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
     lay->addLayout(mainLay);
 
     QPushButton* saveButton = new QPushButton(tr("Ok"));
-    saveButton->setIcon(gtApp->icon(QStringLiteral("checkIcon_16.png")));
+    saveButton->setIcon(GtGUI::icon(QStringLiteral("checkIcon_16.png")));
     QPushButton* closeButton = new QPushButton(tr("Cancel"));
-    closeButton->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    closeButton->setIcon(GtGUI::Icon::delete16());
 
     connect(closeButton, SIGNAL(clicked()), SLOT(reject()));
     connect(saveButton, SIGNAL(clicked()), SLOT(accept()));

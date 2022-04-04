@@ -18,6 +18,7 @@
 #include "gt_examplesentry.h"
 #include "gt_datamodel.h"
 #include "gt_logging.h"
+#include "gt_icons.h"
 
 #include "gt_examplegraphicalitem.h"
 
@@ -109,7 +110,7 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry data,
 
     m_zoomButton->setVisible(false);
 
-    m_zoomButton->setIcon(gtApp->icon(QStringLiteral("infoIcon_16.png")));
+    m_zoomButton->setIcon(GtGUI::icon(QStringLiteral("infoIcon_16.png")));
 
     picLayout->addWidget(m_zoomButton);
 

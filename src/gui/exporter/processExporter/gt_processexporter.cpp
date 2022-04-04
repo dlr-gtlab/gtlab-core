@@ -15,6 +15,7 @@
 #include "gt_objectmemento.h"
 #include "gt_calculatorfactory.h"
 #include "gt_taskfactory.h"
+#include "gt_icons.h"
 
 #include "gt_processexporter.h"
 
@@ -47,12 +48,7 @@ GtProcessExporter::targets() const
 QIcon
 GtProcessExporter::icon() const
 {
-    QIcon icon;
-    icon.addFile(QString(":/icons/exportIcon_16.png"),
-                 QSize(), QIcon::Normal,
-                 QIcon::Off);
-
-    return icon;
+    return GtGUI::Icon::export16();
 }
 
 bool

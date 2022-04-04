@@ -23,6 +23,7 @@
 #include "gt_project.h"
 #include "gt_datamodel.h"
 #include "gt_task.h"
+#include "gt_icons.h"
 
 #ifdef GT_QML_WIDGETS
 #include <QQuickWidget>
@@ -134,7 +135,7 @@ GtOutputDock::GtOutputDock() :
 
     // clear log button
     QPushButton* clearButton = new QPushButton;
-    clearButton->setIcon(gtApp->icon("clearIcon_16.png"));
+    clearButton->setIcon(GtGUI::icon("clearIcon_16.png"));
     clearButton->setMaximumSize(QSize(20, 20));
     clearButton->setFlat(true);
     clearButton->setToolTip(tr("Clear Output"));
@@ -144,7 +145,7 @@ GtOutputDock::GtOutputDock() :
 
     // export log button
     QPushButton* exportButton = new QPushButton;
-    exportButton->setIcon(gtApp->icon("exportIcon_16.png"));
+    exportButton->setIcon(GtGUI::Icon::export16());
     exportButton->setMaximumSize(QSize(20, 20));
     exportButton->setFlat(true);
     exportButton->setToolTip(tr("Export Output to file"));
@@ -156,7 +157,7 @@ GtOutputDock::GtOutputDock() :
     {
         // test message button
         QPushButton* testButton = new QPushButton;
-        testButton->setIcon(gtApp->icon("fileIcon_16.png"));
+        testButton->setIcon(GtGUI::icon("fileIcon_16.png"));
         testButton->setMaximumSize(QSize(20, 20));
         testButton->setFlat(true);
         testButton->setToolTip(tr("Test Output"));
@@ -165,7 +166,7 @@ GtOutputDock::GtOutputDock() :
 
         // debug message button
         m_debugButton = new QPushButton;
-        m_debugButton->setIcon(gtApp->icon("bugIcon.png"));
+        m_debugButton->setIcon(GtGUI::icon("bugIcon.png"));
         m_debugButton->setMaximumSize(QSize(20, 20));
         m_debugButton->setFlat(true);
         m_debugButton->setCheckable(true);
@@ -178,7 +179,7 @@ GtOutputDock::GtOutputDock() :
 
     // info message button
     m_infoButton = new QPushButton;
-    m_infoButton->setIcon(gtApp->icon("infoBlueIcon_16.png"));
+    m_infoButton->setIcon(GtGUI::icon("infoBlueIcon_16.png"));
     m_infoButton->setMaximumSize(QSize(20, 20));
     m_infoButton->setFlat(true);
     m_infoButton->setCheckable(true);
@@ -190,7 +191,7 @@ GtOutputDock::GtOutputDock() :
 
     // warning message button
     m_warningButton = new QPushButton;
-    m_warningButton->setIcon(gtApp->icon("processFailedIcon_16.png"));
+    m_warningButton->setIcon(GtGUI::icon("processFailedIcon_16.png"));
     m_warningButton->setMaximumSize(QSize(20, 20));
     m_warningButton->setFlat(true);
     m_warningButton->setCheckable(true);
@@ -202,7 +203,7 @@ GtOutputDock::GtOutputDock() :
 
     // error message button
     m_errorButton = new QPushButton;
-    m_errorButton->setIcon(gtApp->icon("errorIcon_16.png"));
+    m_errorButton->setIcon(GtGUI::Icon::error16());
     m_errorButton->setMaximumSize(QSize(20, 20));
     m_errorButton->setFlat(true);
     m_errorButton->setCheckable(true);
@@ -472,10 +473,10 @@ GtOutputDock::openContextMenu()
 
     QMenu menu(this);
 
-    QAction* actionCopy = menu.addAction(gtApp->icon("copyIcon_16.png"),
+    QAction* actionCopy = menu.addAction(GtGUI::icon("copyIcon_16.png"),
                            tr("Copy"));
 
-    QAction* actionRemove = menu.addAction(gtApp->icon("clearIcon_16.png"),
+    QAction* actionRemove = menu.addAction(GtGUI::icon("clearIcon_16.png"),
                            tr("Delete"));
 
     QAction* a = menu.exec(QCursor::pos());
