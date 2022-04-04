@@ -38,8 +38,10 @@ class InterfaceFunction
 public:
     using FunctionType = std::function<QVariantList(const QVariantList&)>;
 
-    InterfaceFunction(QString func_name, FunctionType func, QString help)
-        : m_f(std::move(func)), m_name(std::move(func_name)), m_help(std::move(help))
+    InterfaceFunction(QString func_name, FunctionType func, QString help) :
+        m_f(std::move(func)),
+        m_name(std::move(func_name)),
+        m_help(std::move(help))
     {}
 
     InterfaceFunction() = default;
@@ -162,7 +164,8 @@ QString get_default_help(const QString& function_name)
  *
  *   QVariantList itf_mypow(const QVariantList& args)
  *   {
- *      // check for argument count (2 required) and argument types is ommitted for brevity
+ *      // check for argument count (2 required) and
+ *      // argument types is ommitted for brevity
  *      // but needs to be included in production code!
  *
  *      double value = args[0].toDouble();
@@ -179,12 +182,14 @@ QString get_default_help(const QString& function_name)
  */
 
 template <class Func,
-         typename std::enable_if<std::is_convertible<Func, InterfaceFunction::FunctionType>::value,
-                                 Func>::type* = nullptr>
+    typename std::enable_if<std::is_convertible<Func,
+        InterfaceFunction::FunctionType>::value, Func>::type* = nullptr
+> // only enabled for functions that resemble the dynamic interface
 inline bool register_function(QString ident, Func func, QString help = "")
 {
     InterfaceFunction int_func(ident, std::move(func), std::move(help));
-    return DynamicInterfaceHandler::instance().addInterface(std::move(ident), std::move(int_func));
+    return DynamicInterfaceHandler::instance()
+        .addInterface(std::move(ident), std::move(int_func));
 }
 
 /**
@@ -209,20 +214,23 @@ inline bool register_function(QString ident, Func func, QString help = "")
  */
 
 template <class Func,
-         typename std::enable_if<!std::is_convertible<Func, InterfaceFunction::FunctionType>::value,
-                                 Func>::type* = nullptr> // this is disabled for interface functions
+    typename std::enable_if<!std::is_convertible<Func,
+        InterfaceFunction::FunctionType>::value, Func>::type* = nullptr
+> // this is disabled for interface functions
 inline bool
 register_function(QString ident, const Func& func, QString help = "")
 {
     auto wrapped = gtlab::interface::make_interface_function(ident, func);
 
-    if (help.isEmpty()) {
+    if (help.isEmpty())
+    {
         help = get_default_help<Func>(ident);
     }
 
     InterfaceFunction int_func(ident, wrapped, std::move(help));
 
-    return DynamicInterfaceHandler::instance().addInterface(std::move(ident), std::move(int_func));
+    return DynamicInterfaceHandler::instance()
+        .addInterface(std::move(ident), std::move(int_func));
 }
 
 /**
