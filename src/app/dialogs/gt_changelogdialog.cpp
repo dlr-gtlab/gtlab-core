@@ -16,15 +16,15 @@
 #include <QDir>
 #include <QApplication>
 
-#include "gt_application.h"
 #include "gt_logging.h"
+#include "gt_icons.h"
 
 #include "gt_changelogdialog.h"
 
 GtChangelogDialog::GtChangelogDialog(QWidget* parent) : QDialog(parent)
 {
     setWindowTitle(tr("Changelog"));
-    setWindowIcon(gtApp->icon(QStringLiteral("logIcon_16.png")));
+    setWindowIcon(GtGUI::icon(QStringLiteral("logIcon_16.png")));
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);

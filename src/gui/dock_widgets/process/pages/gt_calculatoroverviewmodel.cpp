@@ -14,6 +14,7 @@
 #include "gt_processcategoryitem.h"
 #include "gt_processcalculatoritem.h"
 #include "gt_extendedcalculatordata.h"
+#include "gt_icons.h"
 
 #include "gt_calculatoroverviewmodel.h"
 
@@ -133,7 +134,7 @@ GtCalculatorOverviewModel::icon(GtAbstractProcessItem* item) const
 
     if (!extendedData || extendedData->icon.isNull())
     {
-         return gtApp->icon(QStringLiteral("calculatorIcon_16.png"));
+         return GtGUI::icon(QStringLiteral("calculatorIcon_16.png"));
     }
 
     return extendedData->icon;

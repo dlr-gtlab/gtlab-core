@@ -20,6 +20,7 @@
 #include "gt_settings.h"
 #include "gt_logging.h"
 #include "gt_stylesheets.h"
+#include "gt_icons.h"
 
 #include "gt_startuppage.h"
 
@@ -135,7 +136,7 @@ GtStartupPage::~GtStartupPage()
 QIcon
 GtStartupPage::icon() const
 {
-    return gtApp->icon("infoBlueIcon_16.png");
+    return GtGUI::icon("infoBlueIcon_16.png");
 }
 
 void

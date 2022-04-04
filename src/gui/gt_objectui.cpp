@@ -13,11 +13,11 @@
 
 #include "gt_objectui.h"
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_mdilauncher.h"
 #include "gt_object.h"
 #include "gt_regexp.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 
 GtObjectUI::GtObjectUI()
 {
@@ -155,7 +155,7 @@ GtObjectUI::validatorRegExp()
 QIcon
 GtObjectUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon(QStringLiteral("emptyIcon_16.png"));
+    return GtGUI::icon(QStringLiteral("emptyIcon_16.png"));
 }
 
 QVariant
@@ -191,7 +191,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return gtApp->icon("unknownIcon.png");
+                    return GtGUI::icon("unknownIcon.png");
                 }
 
                 return icon(obj);
@@ -201,11 +201,11 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->newlyCreated())
                 {
-                    return GtPalette::Color::newObjectForground();
+                    return GtGUI::Color::newObjectForground();
                 }
                 else if (obj->hasChanges() || obj->hasChildChanged())
                 {
-                    return GtPalette::Color::changedObjectForground();
+                    return GtGUI::Color::changedObjectForground();
                 }
 
                 break;
@@ -215,7 +215,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return GtPalette::Color::dummyObjectBackground();
+                    return GtGUI::Color::dummyObjectBackground();
                 }
                 break;
             }
@@ -239,17 +239,17 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy() || obj->hasDummyChildren())
                 {
-                    return gtApp->icon("unknownIcon.png");
+                    return GtGUI::icon("unknownIcon.png");
                 }
 
                 if (obj->newlyCreated())
                 {
-                    return gtApp->icon(QStringLiteral("addIcon_16.png"));
+                    return GtGUI::Icon::add16();
                 }
 
                 if (obj->hasChanges())
                 {
-                    return gtApp->icon(
+                    return GtGUI::icon(
                                 QStringLiteral("exclamationIcon_16.png"));
                 }
                 break;
@@ -274,7 +274,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return GtPalette::Color::dummyObjectBackground();
+                    return GtGUI::Color::dummyObjectBackground();
                 }
             }
 

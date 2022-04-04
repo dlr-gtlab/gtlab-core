@@ -15,6 +15,7 @@
 #include "gt_processtaskitem.h"
 #include "gt_extendedtaskdata.h"
 #include "gt_objectui.h"
+#include "gt_icons.h"
 
 #include "gt_taskoverviewmodel.h"
 
@@ -135,7 +136,7 @@ GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
             }
         }
 
-        return gtApp->icon(QStringLiteral("processIcon_16.png"));
+        return GtGUI::icon(QStringLiteral("processIcon_16.png"));
     }
 
     return extendedData->icon;

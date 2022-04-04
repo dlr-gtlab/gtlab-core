@@ -18,7 +18,7 @@
 #include "gt_taskconnectionentity.h"
 #include "gt_taskpipeentity.h"
 #include "gt_application.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 
 #include <QPainter>
 #include <QGraphicsTextItem>
@@ -57,7 +57,7 @@ GtTaskEntity::paint(QPainter* painter,
     }
     else
     {
-        painter->setBrush(QBrush(GtPalette::Color::basicDark()));
+        painter->setBrush(QBrush(GtGUI::Color::basicDark()));
     }
 
     QRectF rect(10., 10., m_w - 20., m_h - 20.);

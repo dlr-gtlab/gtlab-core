@@ -16,6 +16,7 @@
 #include "gt_logging.h"
 #include "gt_datazone.h"
 #include "gt_datazone0d.h"
+#include "gt_icons.h"
 #include "gt_externalizedobjecthelper.h"
 
 GtDataZoneCsvExporter::GtDataZoneCsvExporter()
@@ -33,12 +34,7 @@ GtDataZoneCsvExporter::targets() const
 QIcon
 GtDataZoneCsvExporter::icon() const
 {
-    QIcon icon;
-    icon.addFile(QString(":/icons/exportIcon_16.png"),
-                 QSize(), QIcon::Normal,
-                 QIcon::Off);
-
-    return icon;
+    return GtGUI::Icon::export16();
 }
 
 bool

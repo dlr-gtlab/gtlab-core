@@ -10,7 +10,8 @@
 #include <QIcon>
 
 #include "gt_application.h"
-#include "gt_palette.h"
+#include "gt_icons.h"
+#include "gt_colors.h"
 
 #include "gt_collectionbrowsermodel.h"
 
@@ -76,12 +77,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return gtApp->icon(QStringLiteral("updateIcon_16.png"));
+                return GtGUI::icon(QStringLiteral("updateIcon_16.png"));
             }
 
             if (role == Qt::BackgroundRole)
             {
-                return GtPalette::Color::collectionAvailableItemBackground();
+                return GtGUI::Color::collectionAvailableItemBackground();
 
             }
 
@@ -97,7 +98,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return gtApp->icon(QStringLiteral("stackIcon.png"));
+                return GtGUI::icon(QStringLiteral("stackIcon.png"));
             }
 
             break;
@@ -112,12 +113,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return gtApp->icon(QStringLiteral("collectionIcon_16.png"));
+                return GtGUI::icon(QStringLiteral("collectionIcon_16.png"));
             }
 
             if (role == Qt::BackgroundRole)
             {
-                return GtPalette::Color::collectionInstalledItemBackground();
+                return GtGUI::Color::collectionInstalledItemBackground();
             }
 
             break;
@@ -155,12 +156,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return gtApp->icon(QStringLiteral("pluginIcon_16.png"));
+                    return GtGUI::icon(QStringLiteral("pluginIcon_16.png"));
                 }
 
                 if (col == 1)
                 {
-                    return gtApp->icon(QStringLiteral("infoBlueIcon_16.png"));
+                    return GtGUI::icon(QStringLiteral("infoBlueIcon_16.png"));
                 }
             }
             else if (role == Qt::CheckStateRole && col == 0)
@@ -208,12 +209,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return gtApp->icon(QStringLiteral("pluginIcon_16.png"));
+                    return GtGUI::icon(QStringLiteral("pluginIcon_16.png"));
                 }
 
                 if (col == 1)
                 {
-                    return gtApp->icon(QStringLiteral("infoBlueIcon_16.png"));
+                    return GtGUI::icon(QStringLiteral("infoBlueIcon_16.png"));
                 }
             }
             else if (role == Qt::CheckStateRole && col == 0)
@@ -267,12 +268,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return gtApp->icon(QStringLiteral("pluginIcon_16.png"));
+                    return GtGUI::icon(QStringLiteral("pluginIcon_16.png"));
                 }
 
                 if (col == 1)
                 {
-                    return gtApp->icon(QStringLiteral("infoBlueIcon_16.png"));
+                    return GtGUI::icon(QStringLiteral("infoBlueIcon_16.png"));
                 }
             }
             else if (role == Qt::ForegroundRole)

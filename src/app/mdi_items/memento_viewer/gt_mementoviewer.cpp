@@ -11,7 +11,7 @@
 #include <QVBoxLayout>
 
 #include "gt_mementoviewer.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_mementoeditor.h"
 #include "gt_xmlhighlighter.h"
 #include "gt_logging.h"
@@ -40,7 +40,7 @@ GtMementoViewer::~GtMementoViewer()
 QIcon
 GtMementoViewer::icon() const
 {
-    return gtApp->icon(QStringLiteral("cloneIcon.png"));
+    return GtGUI::icon(QStringLiteral("cloneIcon.png"));
 }
 
 bool

@@ -17,6 +17,7 @@
 
 #include "gt_application.h"
 #include "gt_checkablestringlistmodel.h"
+#include "gt_icons.h"
 
 #include "gt_refusedpluginsdialog.h"
 
@@ -24,7 +25,7 @@ GtRefusedPluginsDialog::GtRefusedPluginsDialog(QWidget* parent) :
     QDialog(parent)
 {
     setWindowTitle(tr("Disabled Plugins"));
-    setWindowIcon(gtApp->icon(QStringLiteral("pluginIcon_16.png")));
+    setWindowIcon(GtGUI::icon(QStringLiteral("pluginIcon_16.png")));
 
     m_model = new GtCheckableStringListModel(gtApp->crashedModules(), this);
 

@@ -10,7 +10,7 @@
 #include <QIcon>
 
 #include "gt_objectgroupui.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 
 GtObjectGroupUI::GtObjectGroupUI()
 {
@@ -20,6 +20,6 @@ GtObjectGroupUI::GtObjectGroupUI()
 QIcon
 GtObjectGroupUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon("folder_16.png");
+    return GtGUI::icon("folder_16.png");
 }
 

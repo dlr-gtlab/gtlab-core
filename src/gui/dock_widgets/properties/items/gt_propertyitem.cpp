@@ -23,6 +23,7 @@
 #include "gt_propertyvaluedelegate.h"
 #include "gt_session.h"
 #include "gt_regexp.h"
+#include "gt_icons.h"
 
 GtPropertyItem::GtPropertyItem() :
     m_currentUnit(QString())
@@ -101,7 +102,7 @@ GtPropertyItem::data(int column, int role) const
             {
                 if (column == 0)
                 {
-                    return gtApp->icon(QStringLiteral("chainIcon_16.png"));
+                    return GtGUI::icon(QStringLiteral("chainIcon_16.png"));
                 }
             }
 

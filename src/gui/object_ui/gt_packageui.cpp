@@ -11,7 +11,7 @@
 
 #include "gt_packageui.h"
 
-#include "gt_application.h"
+#include "gt_icons.h"
 
 GtPackageUI::GtPackageUI()
 {
@@ -21,6 +21,6 @@ GtPackageUI::GtPackageUI()
 QIcon
 GtPackageUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon("pluginIcon_16.png");
+    return GtGUI::icon("pluginIcon_16.png");
 }
 

@@ -9,7 +9,7 @@
 
 #include "gt_projectwizard.h"
 #include "gt_application.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 
 #include "gt_projectprovider.h"
 #include "gt_projectwizardstart.h"

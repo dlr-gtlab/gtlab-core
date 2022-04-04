@@ -25,7 +25,7 @@
 #include "gt_task.h"
 #include "gt_extendedtaskdata.h"
 #include "gt_taskfactory.h"
-#include "gt_palette.h"
+#include "gt_icons.h"
 
 #include "gt_calculatoroverviewpage.h"
 #include "gt_calculatorsettingspage.h"
@@ -331,7 +331,7 @@ GtProcessWizard::executionSettings()
 
     QDialog dialog;
     dialog.setWindowTitle(tr("Execution Settings"));
-    dialog.setWindowIcon(gtApp->icon(QStringLiteral("configIcon_16.png")));
+    dialog.setWindowIcon(GtGUI::icon(QStringLiteral("configIcon_16.png")));
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);

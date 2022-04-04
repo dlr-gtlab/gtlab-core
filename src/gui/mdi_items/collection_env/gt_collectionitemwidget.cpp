@@ -17,6 +17,7 @@
 #include "gt_collectionitem.h"
 #include "gt_application.h"
 #include "gt_palette.h"
+#include "gt_icons.h"
 
 #include "gt_collectionitemwidget.h"
 
@@ -28,7 +29,7 @@ GtCollectionItemWidget::GtCollectionItemWidget(
     setAttribute(Qt::WA_DeleteOnClose);
 
     setWindowTitle(collectionItem.ident());
-    setWindowIcon(gtApp->icon(QStringLiteral("infoIcon_16.png")));
+    setWindowIcon(GtGUI::icon(QStringLiteral("infoIcon_16.png")));
 
     auto lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);
@@ -112,13 +113,13 @@ GtCollectionItemWidget::GtCollectionItemWidget(
     overviewWidget->setLayout(overviewLay);
 
     tabWidget->addTab(overviewWidget,
-                      gtApp->icon(QStringLiteral("listIcon_16.png")),
+                      GtGUI::icon(QStringLiteral("listIcon_16.png")),
                       tr("Overview"));
 
     auto docWidget = new QWidget;
 
     tabWidget->addTab(docWidget,
-                      gtApp->icon(QStringLiteral("questionIcon_16.png")),
+                      GtGUI::icon(QStringLiteral("questionIcon_16.png")),
                       tr("Documentation"));
 
     tabWidget->setTabEnabled(1, false);
@@ -131,7 +132,7 @@ GtCollectionItemWidget::GtCollectionItemWidget(
 
     setLayout(lay);
 
-    GtPalette::applyThemeToWidget(this);
+    GtGUI::applyThemeToWidget(this);
 
     resize(600, 400);
 }
@@ -217,7 +218,7 @@ GtCollectionItemWidget::newFileLayout(const QString& filename)
     auto iconLabel = new QLabel(this);
     iconLabel->setMaximumWidth(16);
     iconLabel->setPixmap(
-                gtApp->icon(
+                GtGUI::icon(
                     QStringLiteral("fileIcon_16.png")).pixmap(QSize(16, 16)));
     auto fileLabel = new QLabel(filename, this);
     fileLay->addWidget(iconLabel);

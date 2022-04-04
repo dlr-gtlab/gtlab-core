@@ -7,7 +7,7 @@
  *  Tel.: +49 2203 601 2191
  */
 #include <QIcon>
-#include "gt_application.h"
+#include "gt_icons.h"
 
 #include "gt_saveprojectmessagebox.h"
 
@@ -17,7 +17,7 @@ GtSaveProjectMessageBox::GtSaveProjectMessageBox(const QString& text,
 {
     setIcon(QMessageBox::Question);
     setWindowTitle(tr("Save Project"));
-    setWindowIcon(gtApp->icon("saveProjectIcon_16.png"));
+    setWindowIcon(GtGUI::Icon::saveProject16());
 
     if (text.isEmpty())
     {

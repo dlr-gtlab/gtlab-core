@@ -15,7 +15,7 @@
 #include <QFileDialog>
 #include <QRegularExpressionValidator>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_projectprovider.h"
 #include "gt_regexp.h"
 
@@ -99,9 +99,9 @@ GtProjectSpecWidget::setProjectInformation(const QString& initName,
 bool
 GtProjectSpecWidget::updateStates()
 {
-    QPixmap check = gtApp->icon(
+    QPixmap check = GtGUI::icon(
                 QStringLiteral("checkSmallIcon_16.png")).pixmap(QSize(20, 20));
-    QPixmap cross = gtApp->icon(
+    QPixmap cross = GtGUI::icon(
                 QStringLiteral("crossIcon_16.png")).pixmap(QSize(20, 20));
 
     bool retval = true;

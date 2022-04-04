@@ -10,7 +10,7 @@
 #include <QIcon>
 
 #include "gt_calculatorui.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_regexp.h"
 
 GtCalculatorUI::GtCalculatorUI()
@@ -21,7 +21,7 @@ GtCalculatorUI::GtCalculatorUI()
 QIcon
 GtCalculatorUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon("calculatorIcon_16.png");
+    return GtGUI::icon("calculatorIcon_16.png");
 }
 
 bool

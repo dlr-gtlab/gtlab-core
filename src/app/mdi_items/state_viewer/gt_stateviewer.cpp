@@ -11,7 +11,7 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_statemodel.h"
 #include "gt_statehandler.h"
 
@@ -46,7 +46,7 @@ GtStateViewer::GtStateViewer()
 QIcon
 GtStateViewer::icon() const
 {
-    return gtApp->icon("emptyElementIcon.png");
+    return GtGUI::icon("emptyElementIcon.png");
 }
 
 void

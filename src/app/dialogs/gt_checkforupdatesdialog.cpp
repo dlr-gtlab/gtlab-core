@@ -21,6 +21,7 @@
 #include "gt_application.h"
 #include "gt_updatechecker.h"
 #include "gt_logging.h"
+#include "gt_icons.h"
 
 #include "gt_checkforupdatesdialog.h"
 
@@ -28,7 +29,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
     QDialog(parent)
 {
     setWindowTitle(tr("Check for updates"));
-    setWindowIcon(gtApp->icon(QStringLiteral("updateIcon_16.png")));
+    setWindowIcon(GtGUI::icon(QStringLiteral("updateIcon_16.png")));
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -87,7 +88,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     m_checkButton = new QPushButton;
     m_checkButton->setText(tr("Check Again"));
-    m_checkButton->setIcon(gtApp->icon(QStringLiteral("loopIcon_16.png")));
+    m_checkButton->setIcon(GtGUI::icon(QStringLiteral("loopIcon_16.png")));
     connect(m_checkButton, SIGNAL(clicked(bool)), SLOT(checkForUpdate()));
 
     hLay->addWidget(m_checkButton);
@@ -98,7 +99,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     m_updateButton = new QPushButton;
     m_updateButton->setText(tr("Update"));
-    m_updateButton->setIcon(gtApp->icon(QStringLiteral("updateIcon_16.png")));
+    m_updateButton->setIcon(GtGUI::icon(QStringLiteral("updateIcon_16.png")));
     m_updateButton->setEnabled(false);
     connect(m_updateButton, SIGNAL(clicked(bool)), SLOT(accept()));
 
@@ -106,7 +107,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     QPushButton* cancelButton = new QPushButton;
     cancelButton->setText(tr("Cancel"));
-    cancelButton->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    cancelButton->setIcon(GtGUI::Icon::delete16());
     connect(cancelButton, SIGNAL(clicked(bool)), SLOT(reject()));
 
     hLay->addWidget(cancelButton);

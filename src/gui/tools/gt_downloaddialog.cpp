@@ -16,7 +16,7 @@
 #include <QPushButton>
 
 #include "gt_downloader.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 
 #include "gt_downloaddialog.h"
 
@@ -24,7 +24,7 @@ GtDownloadDialog::GtDownloadDialog(QWidget* parent) : QDialog(parent),
     m_downloader(new GtDownloader(this))
 {
     setWindowTitle(tr("Downloader"));
-    setWindowIcon(gtApp->icon(QStringLiteral("dropDownIcon.png")));
+    setWindowIcon(GtGUI::icon(QStringLiteral("dropDownIcon.png")));
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -62,14 +62,12 @@ GtDownloadDialog::GtDownloadDialog(QWidget* parent) : QDialog(parent),
                                         QSizePolicy::Minimum));
 
     m_okButton = new QPushButton(
-                gtApp->icon(QStringLiteral("checkIcon_16.png")), tr("Ok"));
+                GtGUI::icon(QStringLiteral("checkIcon_16.png")), tr("Ok"));
     m_okButton->setVisible(false);
 
     hLay->addWidget(m_okButton);
 
-    m_cancelButton =
-            new QPushButton(gtApp->icon(QStringLiteral("closeIcon_16.png")),
-                            tr("Cancel"));
+    m_cancelButton = new QPushButton(GtGUI::Icon::delete16(), tr("Cancel"));
 
     hLay->addWidget(m_cancelButton);
 

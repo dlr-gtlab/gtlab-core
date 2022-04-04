@@ -9,7 +9,7 @@
 
 #include "gt_abstractprojectwizardpage.h"
 #include "gt_projectprovider.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 #include "gt_application.h"
 
 GtAbstractProjectWizardPage::GtAbstractProjectWizardPage(

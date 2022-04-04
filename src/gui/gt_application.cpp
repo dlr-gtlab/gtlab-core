@@ -32,7 +32,7 @@
 #include "gt_project.h"
 #include "gt_logging.h"
 #include "gt_saveprojectmessagebox.h"
-#include "gt_palette.h"
+#include "gt_icons.h"
 #include "gt_shortcuts.h"
 #include "gt_projectui.h"
 
@@ -85,18 +85,9 @@ GtApplication::~GtApplication()
 }
 
 QIcon
-GtApplication::icon(QString iconPath)
+GtApplication::icon(QString const& iconPath)
 {
-    QIcon icon;
-    // check if icon is an absolute resource path
-    if (!iconPath.startsWith(":/"))
-    {
-        // preprend default resource path for icons
-        iconPath.prepend(QStringLiteral(":/icons/"));
-    }
-
-    icon.addFile(iconPath, QSize(), QIcon::Normal, QIcon::Off);
-    return icon;
+    return GtGUI::icon(iconPath);
 }
 
 void
@@ -463,7 +454,7 @@ GtApplication::switchSession(const QString& id)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Switch Session"));
-        mb.setWindowIcon(gtApp->icon("sessionIcon_16.png"));
+        mb.setWindowIcon(GtGUI::icon("sessionIcon_16.png"));
         mb.setText(tr("Cannot switch session while a task is running."));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);

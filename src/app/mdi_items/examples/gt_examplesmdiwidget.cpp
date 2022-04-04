@@ -35,6 +35,7 @@
 #include "gt_projectspecwidget.h"
 #include "gt_saveprojectmessagebox.h"
 #include "gt_logging.h"
+#include "gt_icons.h"
 
 #include "gt_examplesmdiwidget.h"
 
@@ -266,7 +267,7 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
                  gtApp->session());
 
     dialog.setWindowTitle(tr("Save Example Project As..."));
-    dialog.setWindowIcon(gtApp->icon(QStringLiteral("saveProjectIcon_16.png")));
+    dialog.setWindowIcon(GtGUI::Icon::saveProject16());
 
     Qt::WindowFlags flags = dialog.windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -291,12 +292,12 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
     QHBoxLayout* btnLay = new QHBoxLayout;
 
     QPushButton* acceptBtn = new QPushButton(tr("Save"));
-    acceptBtn->setIcon(gtApp->icon(QStringLiteral("saveProjectIcon_16.png")));
+    acceptBtn->setIcon(GtGUI::Icon::saveProject16());
 
     connect(acceptBtn, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
 
     QPushButton* cancleBtn = new QPushButton(tr("Cancel"));
-    cancleBtn->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    cancleBtn->setIcon(GtGUI::Icon::delete16());
 
     connect(cancleBtn, SIGNAL(clicked(bool)), &dialog, SLOT(reject()));
 
@@ -445,7 +446,7 @@ GtExamplesMdiWidget::getAllCategories()
 QIcon
 GtExamplesMdiWidget::icon() const
 {
-    return gtApp->icon(QStringLiteral("examplesIcon_16.png"));
+    return GtGUI::icon(QStringLiteral("examplesIcon_16.png"));
 }
 
 bool

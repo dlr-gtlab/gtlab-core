@@ -6,17 +6,17 @@
  *  Author: Jens Schmeink (AT-TW)
  *  Tel.: +49 2203 601 2191
  */
-
 #include "gt_palette.h"
+
+#include "gt_colors.h"
+#include "gt_application.h"
 
 #include <QSettings>
 #include <QWidget>
 #include <QStyleFactory>
-#include "gt_application.h"
-
 
 QPalette
-GtPalette::currentTheme()
+GtGUI::currentTheme()
 {
     if (gtApp->inDarkMode())
     {
@@ -27,18 +27,18 @@ GtPalette::currentTheme()
 }
 
 QPalette
-GtPalette::darkTheme()
+GtGUI::darkTheme()
 {
     QPalette palette;
     QColor darkColor = Color::basicDark();
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    QColor disabledColor = QColor(127,127,127);
+    QColor disabledColor = QColor(127, 127, 127);
 
     palette.setColor(QPalette::Window, darkColor);
     palette.setColor(QPalette::Background, darkColor);
     palette.setColor(QPalette::WindowText, Qt::white);
     palette.setColor(QPalette::Base, darkColor); //QColor(18,18,18));
-    palette.setColor(QPalette::AlternateBase, darkColor);   
+    palette.setColor(QPalette::AlternateBase, darkColor);
     palette.setColor(QPalette::ToolTipBase, Qt::white);
     palette.setColor(QPalette::ToolTipText, Qt::white);
     palette.setColor(QPalette::Text, Qt::white);
@@ -59,7 +59,7 @@ GtPalette::darkTheme()
 }
 
 QPalette
-GtPalette::standardTheme()
+GtGUI::standardTheme()
 {
     QPalette palette;
 
@@ -92,19 +92,19 @@ GtPalette::standardTheme()
 }
 
 void
-GtPalette::applyThemeToWidget(QWidget* w)
+GtGUI::applyThemeToWidget(QWidget* w)
 {
     if (gtApp->inDarkMode())
     {
         w->setStyle(QStyleFactory::create("Fusion"));
-        w->setPalette(GtPalette::darkTheme());
+        w->setPalette(GtGUI::darkTheme());
         w->setStyleSheet("QToolTip { color: #ffffff; "
                       "background-color: #2a82da; "
                       "border: 1px solid white; }");
     }
     else
     {
-        w->setPalette(GtPalette::standardTheme());
+        w->setPalette(GtGUI::standardTheme());
         QString style = "Default";
 #ifdef Q_OS_WIN
         style = "windowsvista";
@@ -114,121 +114,4 @@ GtPalette::applyThemeToWidget(QWidget* w)
                       "background-color: white; "
                       "border: 1px solid black; }");
     }
-}
-
-QColor
-GtPalette::Color::basicDark()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {45, 45, 45};        //QColor(45, 45, 45);
-}
-
-QColor
-GtPalette::Color::dummyObjectBackground()
-{
-    if (gtApp->inDarkMode())
-    {
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-        return {255, 130, 25};  //QColor(255, 130, 25);
-    }
-
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 140, 140}; //QColor(255, 140, 140);
-
-}
-
-QColor
-GtPalette::Color::newObjectForground()
-{
-    if (gtApp->inDarkMode())
-    {
-        return {Qt::green};
-    }
-
-    return {Qt::darkGreen};
-}
-
-QColor
-GtPalette::Color::changedObjectForground()
-{
-    if (gtApp->inDarkMode())
-    {
-        return QColor(Qt::blue).lighter();
-    }
-
-    return {Qt::blue};
-}
-
-QColor
-GtPalette::Color::footprintWarning()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 255, 0, 100};  //QColor(255, 255, 0, 100);
-}
-
-QColor
-GtPalette::Color::footprintError()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 0, 0, 100};    //QColor(255, 0, 0, 100);
-}
-
-QColor
-GtPalette::Color::warningText()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 100, 0};       //QColor(255, 100, 0);
-}
-
-QColor
-GtPalette::Color::errorText()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {139, 0, 0};         //QColor(139, 0, 0);
-}
-
-QColor
-GtPalette::Color::fatalText()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 255, 255};     //QColor(255, 255, 255);
-}
-
-QColor
-GtPalette::Color::fatalTextBackground()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {120, 20, 20};       //QColor(120, 20, 20);
-}
-
-QColor
-GtPalette::Color::collectionAvailableItemBackground()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {180, 229, 190};     //QColor(180, 229, 190);
-}
-
-QColor
-GtPalette::Color::collectionInstalledItemBackground()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {240, 240, 240};     //QColor(240, 240, 240);
-}
-
-QColor
-GtPalette::Color::environmentModelBack()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {214, 170, 170};     //QColor(214, 170, 170);
-}
-
-QColor
-GtPalette::Color::infoText()
-{
-    if (gtApp->inDarkMode())
-    {
-        return {Qt::white};
-    }
-
-    return {Qt::black};
 }

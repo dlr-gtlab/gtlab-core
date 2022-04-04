@@ -7,7 +7,7 @@
  *  Tel.: +49 2203 601 2191
  */
 #include <QIcon>
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_switchprojectmessagebox.h"
 
 GtSwitchProjectMessageBox::GtSwitchProjectMessageBox(QWidget* parent) :
@@ -15,7 +15,7 @@ GtSwitchProjectMessageBox::GtSwitchProjectMessageBox(QWidget* parent) :
 {
     setIcon(QMessageBox::Question);
     setWindowTitle("Confirm Switch Project");
-    setWindowIcon(gtApp->icon("jumpToIcon.png"));
+    setWindowIcon(GtGUI::icon("jumpToIcon.png"));
     setText(QString("Switch project?"));
     setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     setDefaultButton(QMessageBox::Cancel);

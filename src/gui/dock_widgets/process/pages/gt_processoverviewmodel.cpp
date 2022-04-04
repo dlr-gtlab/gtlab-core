@@ -13,6 +13,7 @@
 
 #include "gt_application.h"
 #include "gt_processcategoryitem.h"
+#include "gt_icons.h"
 
 #include "gt_processoverviewmodel.h"
 
@@ -95,11 +96,11 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 {
                     if (catItem->collapsed())
                     {
-                        return gtApp->icon(
+                        return GtGUI::icon(
                                     QStringLiteral("arrowrightIcon.png"));
                     }
 
-                    return gtApp->icon(QStringLiteral("arrowdownIcon.png"));
+                    return GtGUI::icon(QStringLiteral("arrowdownIcon.png"));
                 }
 
                 break;

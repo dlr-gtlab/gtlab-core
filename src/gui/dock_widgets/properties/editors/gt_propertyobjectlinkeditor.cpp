@@ -15,7 +15,7 @@
 
 #include "gt_objectlinkproperty.h"
 #include "gt_object.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_project.h"
 #include "gt_objectselectiondialog.h"
 
@@ -29,7 +29,7 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     m_objectId = new QLineEdit;
 
     QPushButton* restoreButton = new QPushButton(QLatin1String{});
-    restoreButton->setIcon(gtApp->icon(QStringLiteral("restoreIcon_16.png")));
+    restoreButton->setIcon(GtGUI::icon(QStringLiteral("restoreIcon_16.png")));
     restoreButton->setFlat(true);
     restoreButton->setMaximumWidth(15);
     restoreButton->setAutoDefault(false);

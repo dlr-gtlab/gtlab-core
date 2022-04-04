@@ -9,7 +9,7 @@
 
 #include <QIcon>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_regexp.h"
 #include "gt_loop.h"
 
@@ -23,7 +23,7 @@ GtLoopUI::GtLoopUI()
 QIcon
 GtLoopUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon(QStringLiteral("loopIcon2_16.png"));
+    return GtGUI::icon(QStringLiteral("loopIcon2_16.png"));
 }
 
 QVariant
