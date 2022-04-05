@@ -74,6 +74,7 @@ private:
      */
     QList<GtObject*> allowedObjects(GtObject* obj);
 
+    QList<GtObject*> allowedSuperClassObjects(GtObject* obj);
 private slots:
     /**
      * @brief selectObjectLink
