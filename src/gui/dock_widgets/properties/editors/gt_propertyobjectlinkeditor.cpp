@@ -153,40 +153,52 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
     /// one of the allowed classes
     else if (useSuperClasses)
     {
-        foreach(QString s, allowedClasses)
-        {
-            QString superClassName = "-";
-            int saftyCounter = 0;
-
-            const QMetaObject* currentMetaObject = obj->metaObject();
-
-            while (superClassName != "GtObject" && saftyCounter < 10)
-            {
-                saftyCounter++;
-                const QMetaObject* currentSuperClass =
-                        currentMetaObject->superClass();
-
-                if (currentSuperClass == nullptr)
-                {
-                    break;
-                }
-
-                superClassName = currentSuperClass->className();
-
-                if (superClassName == s)
-                {
-                    retval << obj;
-                    break;
-                }
-
-                currentMetaObject = currentSuperClass;
-            }
-        }
+        retval += allowedSuperClassObjects(obj);
     }
 
     foreach (GtObject* child, obj->findDirectChildren<GtObject*>())
     {
         retval.append(allowedObjects(child));
+    }
+
+    return retval;
+}
+
+QList<GtObject*>
+GtPropertyObjectLinkEditor::allowedSuperClassObjects(GtObject* obj)
+{
+    QStringList allowedClasses = m_prop->allowedClasses();
+
+    QList<GtObject*> retval;
+
+    for (QString const& s : allowedClasses)
+    {
+        QString superClassName = "-";
+        int saftyCounter = 0;
+
+        const QMetaObject* currentMetaObject = obj->metaObject();
+
+        while (superClassName != "GtObject" && saftyCounter < 10)
+        {
+            saftyCounter++;
+            const QMetaObject* currentSuperClass =
+                    currentMetaObject->superClass();
+
+            if (currentSuperClass == nullptr)
+            {
+                break;
+            }
+
+            superClassName = currentSuperClass->className();
+
+            if (superClassName == s)
+            {
+                retval << obj;
+                break;
+            }
+
+            currentMetaObject = currentSuperClass;
+        }
     }
 
     return retval;
