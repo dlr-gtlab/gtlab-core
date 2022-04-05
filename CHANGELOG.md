@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tasks can be skipped - #82, #176
 - Exteded library refactoring - #161
 - Removed "File->Import Project" menu. Instead, project are imported now via "File->Open Project". - #202
+- Chrashed modules of former runs will not affect console application - #141
 
 ### Added
 - Added dynamic interface to define and use arbitrary functions from other modules - #207
