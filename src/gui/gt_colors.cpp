@@ -10,7 +10,8 @@
 #include "gt_colors.h"
 
 
-#include <QIcon>
+#include <QPainter>
+#include <QRandomGenerator>
 #include "gt_application.h"
 
 QColor
@@ -130,3 +131,36 @@ GtGUI::Color::infoText()
     return {Qt::black};
 }
 
+
+void
+GtGUI::Color::setPaintertoGray(QPainter* painter)
+{
+    if (painter)
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+        painter->setPen(QPen(QColor(70, 70, 70), 1.5));
+        painter->setBrush(Qt::white);
+
+        if (gtApp->inDarkMode())
+        {
+            // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+            painter->setPen(QPen(QColor(170, 170, 170), 1.5));
+            painter->setBrush(QBrush(GtGUI::Color::basicDark()));
+        }
+    }
+}
+
+QColor
+GtGUI::Color::randomColor()
+{
+    QRandomGenerator randg;
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return QColor::fromHsv(randg.generate() % 256, 255, 190);
+}
+
+QColor
+GtGUI::Color::gridLineColor()
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return QColor(200, 200, 255, 125);
+}

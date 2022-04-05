@@ -5,6 +5,7 @@
 #include "gt_objectgroup.h"
 #include "gt_datamodel.h"
 #include "gt_project.h"
+#include "gt_colors.h"
 
 #include <QDebug>
 #include <QsLog.h>
@@ -181,13 +182,10 @@ GtAbstractChartProvider::fitColorsL(int params)
     }
     else
     {
-        QRandomGenerator randg;
-
         // add colors to match parameter sizes
         for (int i = colors; i < params; ++i)
         {
-            QColor color = QColor::fromHsv(randg.generate() % 256, 255, 190);
-            addColorUseL(color);
+            addColorUseL(GtGUI::Color::randomColor());
         }
     }
 }
@@ -207,13 +205,10 @@ GtAbstractChartProvider::fitColorsR(int params)
     }
     else
     {
-        QRandomGenerator randg;
-
         // add colors to match parameter sizes
         for (int i = colors; i < params; ++i)
         {
-            QColor color = QColor::fromHsv(randg.generate() % 256, 255, 190);
-            addColorUseR(color);
+            addColorUseR(GtGUI::Color::randomColor());
         }
     }
 }
