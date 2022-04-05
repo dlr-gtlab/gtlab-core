@@ -153,7 +153,10 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
     /// one of the allowed classes
     else if (useSuperClasses)
     {
-        retval += allowedSuperClassObjects(obj);
+        if (allowedSuperClassObjects(obj))
+        {
+            retval.append(obj);
+        }
     }
 
     foreach (GtObject* child, obj->findDirectChildren<GtObject*>())
@@ -164,44 +167,15 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
     return retval;
 }
 
-QList<GtObject*>
+bool
 GtPropertyObjectLinkEditor::allowedSuperClassObjects(GtObject* obj)
 {
     QStringList allowedClasses = m_prop->allowedClasses();
 
-    QList<GtObject*> retval;
-
-    for (QString const& s : allowedClasses)
-    {
-        QString superClassName = "-";
-        int saftyCounter = 0;
-
-        const QMetaObject* currentMetaObject = obj->metaObject();
-
-        while (superClassName != "GtObject" && saftyCounter < 10)
-        {
-            saftyCounter++;
-            const QMetaObject* currentSuperClass =
-                    currentMetaObject->superClass();
-
-            if (currentSuperClass == nullptr)
-            {
-                break;
-            }
-
-            superClassName = currentSuperClass->className();
-
-            if (superClassName == s)
-            {
-                retval << obj;
-                break;
-            }
-
-            currentMetaObject = currentSuperClass;
-        }
-    }
-
-    return retval;
+    return std::any_of(std::begin(allowedClasses),
+                       std::end(allowedClasses), [obj](const QString& s) {
+        return (isDerivedFromClass(obj, s));
+    });
 }
 
 void

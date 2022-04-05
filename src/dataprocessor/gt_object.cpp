@@ -745,3 +745,39 @@ GtObject::childAccepted(GtObject* /*child*/)
     // accept anything
     return true;
 }
+
+bool
+isDerivedFromClass(GtObject* obj, const QString& superClassName)
+{
+    if (!obj)
+    {
+        return false;
+    }
+
+    if (superClassName.isEmpty())
+    {
+        return false;
+    }
+
+    const QMetaObject* currentMetaObject = obj->metaObject();
+
+    while (superClassName != "QObject")
+    {
+        const QMetaObject* currentSuperClass =
+                currentMetaObject->superClass();
+
+        if (!currentSuperClass)
+        {
+            return false;
+        }
+
+        if (superClassName == currentSuperClass->className())
+        {
+            return true;
+        }
+
+        currentMetaObject = currentSuperClass;
+    }
+
+    return false;
+}

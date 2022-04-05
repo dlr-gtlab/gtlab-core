@@ -8,6 +8,9 @@
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
 
+#include "gt_datazone.h"
+#include "gt_datazone0d.h"
+
 /// This is a test fixture that does a init for each test
 class TestGtObject : public ::testing::Test
 {
@@ -279,4 +282,24 @@ TEST_F(TestGtObject, insertChild)
     ASSERT_FALSE(f & GtObject::NewlyCreated);
 
     delete parentObject;
+}
+
+TEST_F(TestGtObject, isDerivedFromClass)
+{
+    GtDataZone* dz = nullptr;
+    /// Test with nullptr
+    ASSERT_FALSE(isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
+    dz = new GtDataZone;
+    /// test with empty classname
+    ASSERT_FALSE(isDerivedFromClass(dz, ""));
+    /// check valid result
+    ASSERT_TRUE(isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
+    /// check for wrong superclass
+    ASSERT_FALSE(isDerivedFromClass(dz, "GtCalculator"));
+    /// check if object is derived from GtObject
+    ASSERT_TRUE(isDerivedFromClass(dz, "GtObject"));
+    /// check if function stops before QObject
+    ASSERT_FALSE(isDerivedFromClass(dz, "QObject"));
+    ///tidy up
+    delete dz;
 }
