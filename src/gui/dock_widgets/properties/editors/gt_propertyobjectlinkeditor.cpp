@@ -25,17 +25,17 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     QWidget(parent),
     m_scope(nullptr)
 {
-    QHBoxLayout* lay = new QHBoxLayout;
+    auto lay = new QHBoxLayout;
     m_objectId = new QLineEdit;
 
-    QPushButton* restoreButton = new QPushButton(QLatin1String{});
+    auto restoreButton = new QPushButton(QLatin1String{});
     restoreButton->setIcon(gtApp->icon(QStringLiteral("restoreIcon_16.png")));
     restoreButton->setFlat(true);
     restoreButton->setMaximumWidth(15);
     restoreButton->setAutoDefault(false);
     restoreButton->setToolTip(tr("Delete Object Link"));
 
-    QPushButton* selectObjectButton = new QPushButton(QStringLiteral("..."));
+    auto selectObjectButton = new QPushButton(QStringLiteral("..."));
     selectObjectButton->setMaximumWidth(30);
     selectObjectButton->setAutoDefault(false);
     selectObjectButton->setToolTip(tr("Choose Object"));
@@ -143,9 +143,20 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
 
     QStringList allowedClasses = m_prop->allowedClasses();
 
+    bool useSuperClasses = m_prop->linkFromSuperClass();
+
     if (allowedClasses.contains(obj->metaObject()->className()))
     {
         retval << obj;
+    }
+    /// if the class is not directly allowed it might inherit from
+    /// one of the allowed classes
+    else if (useSuperClasses)
+    {
+        if (allowedSuperClassObjects(obj))
+        {
+            retval.append(obj);
+        }
     }
 
     foreach (GtObject* child, obj->findDirectChildren<GtObject*>())
@@ -156,12 +167,23 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
     return retval;
 }
 
+bool
+GtPropertyObjectLinkEditor::allowedSuperClassObjects(GtObject* obj)
+{
+    QStringList allowedClasses = m_prop->allowedClasses();
+
+    return std::any_of(std::begin(allowedClasses),
+                       std::end(allowedClasses), [obj](const QString& s) {
+        return (isDerivedFromClass(obj, s));
+    });
+}
+
 void
 GtPropertyObjectLinkEditor::selectObjectLink()
 {
     QList<GtObject*> allowedObjs = allowedObjects(m_scope);
 
-//    qDebug() << "####  allowedObjs size = " << allowedObjs.size();
+    //gtDebug() << "####  allowedObjs size = " << allowedObjs.size();
 
     if (allowedObjs.size() == 1 && m_prop->get().isEmpty())
     {
@@ -169,8 +191,16 @@ GtPropertyObjectLinkEditor::selectObjectLink()
     }
     else
     {
+        QStringList list;
+        foreach(GtObject* o, allowedObjs)
+        {
+            list.append(o->metaObject()->className());
+        }
+        list.removeDuplicates();
+
+
         GtObjectSelectionDialog dialog(m_scope);
-        dialog.setFilterData(m_prop->allowedClasses());
+        dialog.setFilterData(list);
 
         if (dialog.exec())
         {

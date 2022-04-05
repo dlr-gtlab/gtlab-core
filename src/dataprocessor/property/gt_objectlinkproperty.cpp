@@ -8,6 +8,7 @@
  */
 
 #include "gt_objectlinkproperty.h"
+#include <utility>
 #include "gt_object.h"
 
 GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
@@ -15,9 +16,11 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
         const QString& brief,
         const QString& uuid,
         GtObject* obj,
-        const QStringList& allowedClasses) :
+        QStringList  allowedClasses,
+        bool linkFromSuperClassesEnabled) :
     m_obj(obj),
-    m_allowedClasses(allowedClasses)
+    m_allowedClasses(std::move(allowedClasses)),
+    m_linkFromSuperClassesEnabled(linkFromSuperClassesEnabled)
 {
     setObjectName(name);
 
@@ -74,7 +77,7 @@ GtObjectLinkProperty::linkedObject(GtObject* root)
 }
 
 GtObject*
-GtObjectLinkProperty::object()
+GtObjectLinkProperty::object() const
 {
     return m_obj;
 }
@@ -89,4 +92,10 @@ const QStringList&
 GtObjectLinkProperty::allowedClasses()
 {
     return m_allowedClasses;
+}
+
+bool
+GtObjectLinkProperty::linkFromSuperClass() const
+{
+    return m_linkFromSuperClassesEnabled;
 }

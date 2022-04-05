@@ -684,4 +684,18 @@ findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
     return iter != std::end(list) ? *iter : nullptr;
 }
 
+/**
+ * @brief isDerivedFromClass
+ * @param obj - object to analyze
+ * @param superClassName - name of possible super class
+ * @return true if the class of obj is herited from the super class
+ * given by the name.
+ *
+ * The superclasses are analyzed up to the GtObject class.
+ *
+ * returns false aswell if obj is a nullptr or the superclassname is empty
+ */
+GT_DATAMODEL_EXPORT bool isDerivedFromClass(GtObject* obj,
+                                            QString const& superClassName);
+
 #endif // GTOBJECT_H

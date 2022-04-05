@@ -34,13 +34,16 @@ public:
      * @param uuid Initial uuid.
      * @param obj Source object.
      * @param allowedClasses List of allowed classes.
+     * @param linkFromSuperClassesEnabled mode if objects of classes which inherit allowed
+     * classes should be allowed classes too
      */
     GtObjectLinkProperty(const QString& ident,
                          const QString& name,
                          const QString& brief,
                          const QString& uuid,
                          GtObject* obj,
-                         const QStringList& allowedClasses);
+                         QStringList  allowedClasses,
+                         bool linkFromSuperClassesEnabled = false);
 
     /**
      * @brief Overloaded function to convert internal property value to
@@ -74,7 +77,7 @@ public:
      * @brief object
      * @return
      */
-    GtObject* object();
+    GtObject* object() const;
 
     /**
      * @brief linkedObjectUUID
@@ -88,12 +91,21 @@ public:
      */
     const QStringList& allowedClasses();
 
+    /**
+     * @brief linkFromSuperClass
+     * @return true if classes which inherit
+     * allowed classes should be allowed, too
+     */
+    bool linkFromSuperClass() const;
+
 protected:
     /// Pointer to parent object.
     QPointer<GtObject> m_obj;
 
     /// List of all allowed class names.
     QStringList m_allowedClasses;
+
+    bool m_linkFromSuperClassesEnabled;
 
 };
 
