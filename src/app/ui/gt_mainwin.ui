@@ -389,7 +389,7 @@
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/openProjectIcon_16.png</normaloff>:/icons/openProjectIcon_16.png</iconset>
+     <normaloff>:/icons/openProjectIcon_24.png</normaloff>:/icons/openProjectIcon_24.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Open Project</string>
