@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed "File->Import Project" menu. Instead, project are imported now via "File->Open Project". - #202
 
 ### Added
+- Added dynamic interface to define and use arbitrary functions from other modules - #207
 - Multiple labels can be selected and deleted at once - #111
 - Integrated the hdf5 data format and added support to ex-/internalize datasets at runtime including the option to enable this feature on a project basis - #127
 - Monitoring property for strings - #140

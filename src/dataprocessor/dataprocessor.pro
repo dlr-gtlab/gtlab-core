@@ -116,7 +116,11 @@ HEADERS += \
     gt_tablegroup.h \
     gt_versionnumber.h \
     gt_regexp.h \
-    gt_algorithms.h
+    gt_algorithms.h \
+    gt_mpl.h \
+    gt_variant_convert.h \
+    gt_dynamicinterfacehandler.h \
+    gt_functional_interface.h
 
 SOURCES += \
     gt_dummyobject.cpp \
@@ -176,10 +180,11 @@ SOURCES += \
     property/gt_doublelistproperty.cpp \
     gt_tablegroup.cpp \
     gt_versionnumber.cpp \
-    gt_regexp.cpp
+    gt_regexp.cpp \
+    gt_dynamicinterfacehandler.cpp
 
 unix {
-    QMAKE_CXXFLAGS += -std=c++11
+    QMAKE_CXXFLAGS += -std=c++14
 }
 
 LIBS += -L$${BUILD_DEST}
