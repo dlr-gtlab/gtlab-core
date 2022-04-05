@@ -28,7 +28,7 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     auto lay = new QHBoxLayout;
     m_objectId = new QLineEdit;
 
-    QPushButton* restoreButton = new QPushButton(QLatin1String{});
+    auto restoreButton = new QPushButton(QLatin1String{});
     restoreButton->setIcon(gtApp->icon(QStringLiteral("restoreIcon_16.png")));
     restoreButton->setFlat(true);
     restoreButton->setMaximumWidth(15);
