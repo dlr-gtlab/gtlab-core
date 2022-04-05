@@ -52,15 +52,12 @@ INCLUDEPATH += .\
     ../../src/gui/dock_widgets/process \
 
 #### HEADERS
-HEADERS += \
-    datamodel/test_gt_enumproperty.h \
-    gt_testhelper.h
+HEADERS += gt_testhelper.h
 HEADERS += datamodel/*.h
 HEADERS += core/*.h
 
 #### SOURCES
 SOURCES += \
-    datamodel/test_gt_enumproperty.cpp \
     main.cpp \
     gt_testhelper.cpp
 SOURCES += datamodel/*.cpp
