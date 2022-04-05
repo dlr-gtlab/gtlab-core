@@ -34,7 +34,7 @@ public:
      * @param uuid Initial uuid.
      * @param obj Source object.
      * @param allowedClasses List of allowed classes.
-     * @param heritageMode mode if objects of classes which inherit allowed
+     * @param linkFromSuperClassesEnabled mode if objects of classes which inherit allowed
      * classes should be allowed classes too
      */
     GtObjectLinkProperty(const QString& ident,
@@ -43,7 +43,7 @@ public:
                          const QString& uuid,
                          GtObject* obj,
                          QStringList  allowedClasses,
-                         bool heritageMode = false);
+                         bool linkFromSuperClassesEnabled = false);
 
     /**
      * @brief Overloaded function to convert internal property value to
@@ -92,11 +92,11 @@ public:
     const QStringList& allowedClasses();
 
     /**
-     * @brief heritageMode
+     * @brief linkFromSuperClass
      * @return true if classes which inherit
      * allowed classes should be allowed, too
      */
-    bool heritageMode() const;
+    bool linkFromSuperClass() const;
 
 protected:
     /// Pointer to parent object.
@@ -105,7 +105,7 @@ protected:
     /// List of all allowed class names.
     QStringList m_allowedClasses;
 
-    bool m_heritageMode;
+    bool m_linkFromSuperClassesEnabled;
 
 };
 
