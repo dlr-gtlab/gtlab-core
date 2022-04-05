@@ -386,10 +386,10 @@ GtDataZoneCsvExporter::write4Ddata(GtDataZone* data, QTextStream &out)
     }
 
     const auto axisNames = data->axisNames();
-    QString axisName1 = axisNames.first();
-    QString axisName2 = axisNames.at(1);
-    QString axisName3 = axisNames.at(2);
-    QString axisName4 = axisNames.last();
+    QString const& axisName1 = axisNames.first();
+    QString const& axisName2 = axisNames.at(1);
+    QString const& axisName3 = axisNames.at(2);
+    QString const& axisName4 = axisNames.last();
 
     QVector<double> axis1Ticks = data->axisTicks(axisName1);
     QVector<double> axis2Ticks = data->axisTicks(axisName2);

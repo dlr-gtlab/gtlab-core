@@ -13,6 +13,7 @@
 #include "gt_gui_exports.h"
 #include <QColor>
 
+class QPainter;
 /**
  * namespace for basic gui elements for GTlab Application
  */
@@ -108,6 +109,12 @@ namespace GtGUI
      * @return color for the background of the environmental model view
      */
     GT_GUI_EXPORT QColor environmentModelBack();
+
+    GT_GUI_EXPORT void setPaintertoGray(QPainter* painter);
+
+    GT_GUI_EXPORT QColor randomColor();
+
+    GT_GUI_EXPORT QColor gridLineColor();
 
     }
 
