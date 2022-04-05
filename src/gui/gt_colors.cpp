@@ -164,3 +164,10 @@ GtGUI::Color::gridLineColor()
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return QColor(200, 200, 255, 125);
 }
+
+QColor
+GtGUI::Color::gridPointColor()
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return QColor(100, 100, 155);
+}

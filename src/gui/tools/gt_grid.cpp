@@ -29,16 +29,10 @@ GtGrid::GtGrid(GtGraphicsView& view) :
     m_hideGrid(false),
     m_hgColor(GtGUI::Color::gridLineColor()),
     m_vgColor(GtGUI::Color::gridLineColor()),
-    m_gpColor(QColor(100, 100, 155)),
+    m_gpColor(GtGUI::Color::gridPointColor()),
     m_hRuler(nullptr),
     m_vRuler(nullptr)
 {
-    if (gtApp->inDarkMode())
-    {
-        m_hgColor = GtGUI::Color::gridLineColor();
-        m_vgColor = GtGUI::Color::gridLineColor();
-        m_gpColor = QColor(100, 100, 155);
-    }
 
 }
 
@@ -437,7 +431,8 @@ GtGrid::getScaledGrid(Qt::Orientation val)
     return length;
 }
 
-void GtGrid::drawRotatedText(QPainter* painter, int x, int y,
+void
+GtGrid::drawRotatedText(QPainter* painter, int x, int y,
                               const QString &text)
 {
     if (painter)
