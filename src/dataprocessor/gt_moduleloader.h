@@ -143,7 +143,7 @@ private:
      */
     bool loadHelper(QStringList& entries, const QDir& modulesDir,
                     const QStringList& excludeList,
-                    bool const ignoreModuleCrash = false);
+                    bool ignoreModuleCrash = false);
 
     /**
      * @brief checkDependency

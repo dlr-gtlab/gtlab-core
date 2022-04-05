@@ -145,6 +145,7 @@ GtCoreApplication::init()
 
     if (qApp->arguments().contains(QStringLiteral("-dev")))
     {
+
         m_devMode = true;
     }
 
@@ -472,7 +473,7 @@ GtCoreApplication::loadModules()
     if (!m_moduleLoader)
     {
         m_moduleLoader = std::make_unique<GtModuleLoader>();
-        m_moduleLoader->load();
+        m_moduleLoader->load(m_batchMode);
     }
 }
 

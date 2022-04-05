@@ -52,6 +52,11 @@ GtModuleLoader::load(bool ignoreCrashList)
     modulesDir.setNameFilters(QStringList() << QStringLiteral("*.dll"));
 #endif
 
+    if (ignoreCrashList)
+    {
+        gtWarning() << "Ignore list of formaly crashed modules";
+    }
+
     if (modulesDir.exists())
     {
         // initialize module blacklist
@@ -311,7 +316,7 @@ GtModuleLoader::metaArray(const QJsonObject& metaData, const QString& id)
 bool
 GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
                            const QStringList& excludeList,
-                           bool const ignoreModuleCrash)
+                           bool ignoreModuleCrash)
 {
     // check whether module entry list is empty
     if (entries.isEmpty())
