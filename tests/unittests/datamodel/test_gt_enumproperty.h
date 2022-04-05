@@ -8,7 +8,7 @@ class EnumContainer : public QObject
     Q_OBJECT
 public:
     enum TestEnum {
-        A = 0,
+        A = -1,
         B = 3,
         C
     };

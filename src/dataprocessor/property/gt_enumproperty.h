@@ -32,6 +32,7 @@ class GtEnumProperty : public GtModeProperty
 public:
     /**
      * @brief GtEnumProperty<T> constructor.
+     * The initial value is the enum with the lowest value.
      * @param ident identification string.
      * @param name to describe the property.
      * @param brief is a detailed description, which is displayed in a ToolTip.
@@ -119,9 +120,9 @@ private:
 };
 
 template<typename T>
-GtEnumProperty<T>::GtEnumProperty(const QString& ident,
-                                  const QString& name,
-                                  const QString& brief) :
+inline GtEnumProperty<T>::GtEnumProperty(const QString &ident,
+                                         const QString &name,
+                                         const QString &brief) :
     GtModeProperty(ident, name, brief)
 {
     const QMetaEnum metaEnum = QMetaEnum::fromType<T>();
@@ -137,38 +138,38 @@ GtEnumProperty<T>::GtEnumProperty(const QString& ident,
 }
 
 template<typename T>
-GtEnumProperty<T>::GtEnumProperty(const QString &ident,
-                                  const QString &name,
-                                  const QString &brief,
-                                  const T value) :
+inline GtEnumProperty<T>::GtEnumProperty(const QString &ident,
+                                         const QString &name,
+                                         const QString &brief,
+                                         const T value) :
     GtEnumProperty<T>(ident, name, brief)
 {
     setVal(value);
 }
 
 template<typename T>
-GtEnumProperty<T>& GtEnumProperty<T>::operator=(const T value)
+inline GtEnumProperty<T>& GtEnumProperty<T>::operator=(const T value)
 {
     this->setVal(value);
     return *this;
 }
 
 template<typename T>
-T GtEnumProperty<T>::getVal() const
+inline T GtEnumProperty<T>::getVal() const
 {
     const QString key = GtModeProperty::getVal();
     return T(getMetaEnum().keyToValue(key.toUtf8()));
 }
 
 template<typename T>
-void GtEnumProperty<T>::setVal(const T value,
-                               bool *success)
+inline void GtEnumProperty<T>::setVal(const T value,
+                                      bool *success)
 {
     GtModeProperty::setVal(getMetaEnum().valueToKey(value), success);
 }
 
 template<typename T>
-QMetaEnum GtEnumProperty<T>::getMetaEnum() const
+inline QMetaEnum GtEnumProperty<T>::getMetaEnum() const
 {
     return QMetaEnum::fromType<T>();
 }
