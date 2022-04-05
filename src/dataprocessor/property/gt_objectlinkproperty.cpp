@@ -17,10 +17,10 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
         const QString& uuid,
         GtObject* obj,
         QStringList  allowedClasses,
-        bool heritageMode) :
+        bool linkFromSuperClassesEnabled) :
     m_obj(obj),
     m_allowedClasses(std::move(allowedClasses)),
-    m_heritageMode(heritageMode)
+    m_linkFromSuperClassesEnabled(linkFromSuperClassesEnabled)
 {
     setObjectName(name);
 
@@ -95,7 +95,7 @@ GtObjectLinkProperty::allowedClasses()
 }
 
 bool
-GtObjectLinkProperty::heritageMode() const
+GtObjectLinkProperty::linkFromSuperClass() const
 {
-    return m_heritageMode;
+    return m_linkFromSuperClassesEnabled;
 }

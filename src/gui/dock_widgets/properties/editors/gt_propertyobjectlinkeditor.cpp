@@ -143,7 +143,7 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
 
     QStringList allowedClasses = m_prop->allowedClasses();
 
-    bool heritageMode = m_prop->heritageMode();
+    bool useSuperClasses = m_prop->linkFromSuperClass();
 
     if (allowedClasses.contains(obj->metaObject()->className()))
     {
@@ -151,7 +151,7 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
     }
     /// if the class is not directly allowed it might inherit from
     /// one of the allowed classes
-    else if (heritageMode)
+    else if (useSuperClasses)
     {
         foreach(QString s, allowedClasses)
         {
