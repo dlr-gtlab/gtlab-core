@@ -48,7 +48,7 @@ public:
 
     // We want to have implicit conversion from nullptr as it should behave
     // as a function pointer
-    // NOLINTNEXTLINE
+    // cppcheck-suppress noExplicitConstructor // NOLINTNEXTLINE
     InterfaceFunction(nullptr_t) {}
 
     /**
