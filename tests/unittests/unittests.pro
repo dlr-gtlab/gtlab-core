@@ -52,8 +52,7 @@ INCLUDEPATH += .\
     ../../src/gui/dock_widgets/process \
 
 #### HEADERS
-HEADERS += \
-    gt_testhelper.h
+HEADERS += gt_testhelper.h
 HEADERS += datamodel/*.h
 HEADERS += core/*.h
 

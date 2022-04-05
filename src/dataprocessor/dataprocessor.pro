@@ -80,6 +80,7 @@ HEADERS += \
     gt_result.h \
     gt_tablevalues.h \
     gt_xmlutilities.h \
+    property/gt_enumproperty.h \
     property/gt_objectlinkproperty.h \
     gt_datazonetable.h \
     gt_objectmementodiff.h \
