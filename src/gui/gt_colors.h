@@ -116,6 +116,8 @@ namespace GtGUI
 
     GT_GUI_EXPORT QColor gridLineColor();
 
+    GT_GUI_EXPORT QColor gridPointColor();
+
     }
 
 }
