@@ -134,6 +134,7 @@ HEADERS += \
     object_ui/gt_loopui.h \
     object_ui/gt_datazoneui.h \
     dock_widgets/process/gt_processwizard.h \
+    dock_widgets/process/gt_processfiltermodel.h \
     dock_widgets/process/pages/gt_calculatoroverviewpage.h \
     dock_widgets/process/pages/gt_calculatoroverviewmodel.h \
     dock_widgets/process/pages/gt_abstractprocessitem.h \
@@ -286,6 +287,7 @@ SOURCES += \
     object_ui/gt_loopui.cpp \
     object_ui/gt_datazoneui.cpp \
     dock_widgets/process/gt_processwizard.cpp \
+    dock_widgets/process/gt_processfiltermodel.cpp \
     dock_widgets/process/pages/gt_calculatoroverviewpage.cpp \
     dock_widgets/process/pages/gt_calculatoroverviewmodel.cpp \
     dock_widgets/process/pages/gt_processcategoryitem.cpp \
