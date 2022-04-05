@@ -44,7 +44,7 @@ public:
      * @param newName
      * @return
      */
-    double renameFile(const QString& oldName, const QString& newName);
+    bool renameFile(const QString& oldName, const QString& newName);
 
     /**
      * @brief entries

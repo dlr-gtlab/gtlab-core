@@ -140,7 +140,7 @@ GtPostDock::getDockWidgetArea()
     return Qt::LeftDockWidgetArea;
 }
 
-double
+bool
 GtPostDock::renameFile(const QString& oldName, const QString& newName)
 {
     return m_datamodel->renameFile(oldName, newName);
