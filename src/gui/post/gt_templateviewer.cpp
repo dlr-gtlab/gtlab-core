@@ -800,7 +800,5 @@ GtTemplateViewer::pdfButtonClicked()
     connect(&preview, SIGNAL(paintRequested(QPrinter*)),
             SLOT(printPreview(QPrinter*)));
     preview.exec();
-
-    return;
 }
 

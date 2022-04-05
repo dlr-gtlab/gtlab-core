@@ -337,8 +337,6 @@ GtPropertyItem::setEditorData(QWidget* editor, QVariant& var) const
             GtAbstractPropertyItem::setEditorData(editor, var);
             break;
     }
-
-    return;
 }
 
 void
