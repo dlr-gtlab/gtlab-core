@@ -4,3 +4,6 @@
 [submodule "tests/guitests/gtlab_core_tests"]
 	path = tests/guitests/gtlab_core_tests
 	url = https://gitlab.dlr.de/at-twk/gui-testing/tests-for-gtlab-core.git
+[submodule "tests/pipeline-scripts"]
+	path = tests/pipeline-scripts
+	url = https://gitlab.dlr.de/gtlab-bugtracking/gitlab-pipeline-scripts.git

@@ -14,7 +14,7 @@ variables:
 
 # inlcude some templates from this file
 include:
-  - project: 'at-twk/gitlab-templates'
+  - project: 'gtlab-bugtracking/gitlab-templates'
     file: '/ci-templates/.ci-templates.yml'
    
 stages:
@@ -373,10 +373,12 @@ codingstyle:
   extends: .codingStyleTemplate 
   except:
     - tags
- 
+
 cppcheck:
   stage: codequality
-  extends: .cppCheckTemplate 
+  extends: .cppCheckReportTemplateFunc
+  variables:
+    COMPARE_TO: master
    
 pages:
   stage: badges
