@@ -11,6 +11,11 @@
 
 #include <tuple>
 
+
+#if __cplusplus < 201400
+#error "C++14 or better is required"
+#else
+
 namespace mpl
 {
 
@@ -116,5 +121,7 @@ constexpr void static_foreach(const std::tuple<_Elements...>& aTuple, GenericLam
 }
 
 } // namespace mpl
+
+#endif // c++ 14 required
 
 #endif /* GT_MPL_H */

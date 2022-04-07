@@ -13,6 +13,10 @@
 #include "gt_variant_convert.h"
 #include "gt_mpl.h"
 
+#if __cplusplus < 201400
+#error "C++14 or better is required"
+#else
+
 namespace gtlab {
 namespace interface {
 
@@ -118,5 +122,7 @@ std::function<QVariantList(QVariantList)> make_interface_function(
 
 } // namespace interface
 } // namespace gtlab
+
+#endif // c++ 14 required
 
 #endif // FUNCTIONAL_INTERFACE_H
