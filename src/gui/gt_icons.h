@@ -30,6 +30,8 @@ namespace GtGUI
 
         GT_GUI_EXPORT QIcon error16();
 
+        GT_GUI_EXPORT QIcon error();
+
         GT_GUI_EXPORT QIcon export16();
 
         GT_GUI_EXPORT QIcon import16();
@@ -38,7 +40,19 @@ namespace GtGUI
 
         GT_GUI_EXPORT QIcon deleteProject16();
 
+        GT_GUI_EXPORT QIcon addProject();
+
+        GT_GUI_EXPORT QIcon closedProject16();
+
+        GT_GUI_EXPORT QIcon openProject16();
+
+        GT_GUI_EXPORT QIcon help();
+
+        GT_GUI_EXPORT QIcon info();
+
         GT_GUI_EXPORT QIcon info16();
+
+        GT_GUI_EXPORT QIcon infoBlue();
 
         GT_GUI_EXPORT QIcon infoBlue16();
 
@@ -48,9 +62,21 @@ namespace GtGUI
 
         GT_GUI_EXPORT QIcon addProcess16();
 
+        GT_GUI_EXPORT QIcon processFailed16();
+
+        GT_GUI_EXPORT QIcon skip16();
+
+        GT_GUI_EXPORT QIcon process16();
+
+        GT_GUI_EXPORT QIcon checkSmall16();
+
         GT_GUI_EXPORT QIcon check16();
 
+        GT_GUI_EXPORT QIcon check24();
+
         GT_GUI_EXPORT QIcon clear16();
+
+        GT_GUI_EXPORT QIcon clear2_16();
 
         GT_GUI_EXPORT QIcon config16();
 
@@ -86,23 +112,29 @@ namespace GtGUI
 
         GT_GUI_EXPORT QIcon empty16();
 
-        GT_GUI_EXPORT QIcon processFailed16();
-
         GT_GUI_EXPORT QIcon property16();
 
         GT_GUI_EXPORT QIcon log16();
 
         GT_GUI_EXPORT QIcon open16();
 
-        GT_GUI_EXPORT QIcon skip16();
-
-        GT_GUI_EXPORT QIcon process16();
-
         GT_GUI_EXPORT QIcon emptyElement();
 
         GT_GUI_EXPORT QIcon arrowRight();
 
         GT_GUI_EXPORT QIcon arrowRightBlue();
+
+        GT_GUI_EXPORT QIcon arrowLeft();
+
+        GT_GUI_EXPORT QIcon arrowUp();
+
+        GT_GUI_EXPORT QIcon arrowDown();
+
+        GT_GUI_EXPORT QIcon arrowDownBlue();
+
+        GT_GUI_EXPORT QIcon arrowUpBlueAll();
+
+        GT_GUI_EXPORT QIcon arrowDownBlueAll();
 
         GT_GUI_EXPORT QIcon global();
 
@@ -170,17 +202,11 @@ namespace GtGUI
 
         GT_GUI_EXPORT QIcon search16();
 
-        GT_GUI_EXPORT QIcon clear2_16();
-
-        GT_GUI_EXPORT QIcon check24();
-
         GT_GUI_EXPORT QIcon close24();
 
         GT_GUI_EXPORT QIcon dropdown();
 
         GT_GUI_EXPORT QIcon data16();
-
-        GT_GUI_EXPORT QIcon arrowLeft();
 
         GT_GUI_EXPORT QIcon minimize();
 
@@ -188,27 +214,13 @@ namespace GtGUI
 
         GT_GUI_EXPORT QIcon perspectives16();
 
-        GT_GUI_EXPORT QIcon addProject();
-
         GT_GUI_EXPORT QIcon examples();
-
-        GT_GUI_EXPORT QIcon help();
-
-        GT_GUI_EXPORT QIcon info();
-
-        GT_GUI_EXPORT QIcon arrowUp();
-
-        GT_GUI_EXPORT QIcon arrowDown();
-
-        GT_GUI_EXPORT QIcon arrowDownBlue();
 
         GT_GUI_EXPORT QIcon chain16();
 
         GT_GUI_EXPORT QIcon post();
 
         GT_GUI_EXPORT QIcon labels();
-
-        GT_GUI_EXPORT QIcon closedProject16();
 
         GT_GUI_EXPORT QIcon comment();
 
@@ -230,8 +242,6 @@ namespace GtGUI
 
         GT_GUI_EXPORT QIcon printPDF();
 
-        GT_GUI_EXPORT QIcon openProject16();
-
         GT_GUI_EXPORT QIcon list16();
 
         GT_GUI_EXPORT QIcon question16();
@@ -239,16 +249,6 @@ namespace GtGUI
         GT_GUI_EXPORT QIcon zoom16();
 
         GT_GUI_EXPORT QIcon cross16();
-
-        GT_GUI_EXPORT QIcon checkSmall16();
-
-        GT_GUI_EXPORT QIcon arrowUpBlueAll();
-
-        GT_GUI_EXPORT QIcon arrowDownBlueAll();
-
-        GT_GUI_EXPORT QIcon infoBlue();
-
-        GT_GUI_EXPORT QIcon error();
 
         GT_GUI_EXPORT QIcon jumpTo();
     }
