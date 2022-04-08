@@ -102,7 +102,7 @@ GtPropertyItem::data(int column, int role) const
             {
                 if (column == 0)
                 {
-                    return GtGUI::icon(QStringLiteral("chainIcon_16.png"));
+                    return GtGUI::Icon::chain16();
                 }
             }
 

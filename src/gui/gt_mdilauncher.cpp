@@ -379,7 +379,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     }
     else
     {
-        subWin->setWindowIcon(GtGUI::icon(QStringLiteral("frameIcon.png")));
+        subWin->setWindowIcon(GtGUI::Icon::frame());
     }
 
     mdiItem->initialized();

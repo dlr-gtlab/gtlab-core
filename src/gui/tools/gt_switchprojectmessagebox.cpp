@@ -15,7 +15,7 @@ GtSwitchProjectMessageBox::GtSwitchProjectMessageBox(QWidget* parent) :
 {
     setIcon(QMessageBox::Question);
     setWindowTitle("Confirm Switch Project");
-    setWindowIcon(GtGUI::icon("jumpToIcon.png"));
+    setWindowIcon(GtGUI::Icon::jumpTo());
     setText(QString("Switch project?"));
     setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     setDefaultButton(QMessageBox::Cancel);

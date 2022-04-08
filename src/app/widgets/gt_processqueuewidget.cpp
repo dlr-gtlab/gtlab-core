@@ -33,7 +33,7 @@ GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
     QVBoxLayout* frameLayout = new QVBoxLayout;
 
     m_upButton = new QPushButton(tr("Move Up"));
-    m_upButton->setIcon(GtGUI::icon("arrowupIcon.png"));
+    m_upButton->setIcon(GtGUI::Icon::arrowUp());
     m_upButton->setToolTip(tr("Move up task"));
     QString styleSheet = GtStyleSheets::buttonStyleSheet();
 
@@ -45,7 +45,7 @@ GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
     m_removeButton->setStyleSheet(styleSheet);
 
     m_downButton = new QPushButton(tr("Move Down"));
-    m_downButton->setIcon(GtGUI::icon("arrowdownIcon.png"));
+    m_downButton->setIcon(GtGUI::Icon::arrowDown());
     m_downButton->setToolTip(tr("Move down task"));
     m_downButton->setStyleSheet(styleSheet);
 
@@ -290,11 +290,11 @@ GtProcessQueueWidget::onContextMenuRequest(const QPoint& pos)
         QMenu menu(this);
 
         QAction* actMoveUp = menu.addAction("Move up");
-        actMoveUp->setIcon(GtGUI::icon("arrowupIcon.png"));
+        actMoveUp->setIcon(GtGUI::Icon::arrowUp());
         menu.addSeparator();
 
         QAction* actMoveDown = menu.addAction("Move down");
-        actMoveDown->setIcon(GtGUI::icon("arrowdownIcon.png"));
+        actMoveDown->setIcon(GtGUI::Icon::arrowDown());
         menu.addSeparator();
 
         QAction* actRemove = menu.addAction("Remove");

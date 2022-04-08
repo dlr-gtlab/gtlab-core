@@ -638,7 +638,7 @@ GtProcessDock::updateRunButton()
     else if (current != m_currentProcess)
     {
         // queue
-        m_runButton->setIcon(GtGUI::icon("queueIcon_16.png"));
+        m_runButton->setIcon(GtGUI::Icon::queue16());
 
         m_runButton->setStyleSheet(
                     GtStyleSheets::processRunButton(
@@ -670,7 +670,7 @@ GtProcessDock::updateRunButton()
         if (m_currentProcess->currentState() ==
                 GtProcessComponent::TERMINATION_REQUESTED)
         {
-            m_runButton->setIcon(GtGUI::icon("stopRequestIcon_16.png"));
+            m_runButton->setIcon(GtGUI::Icon::stopRequest16());
             m_runButton->setEnabled(false);
             m_runButton->setToolTip(tr("Terminating process..."));
             m_runButton->setText(str + tr(" terminating..."));
@@ -1030,7 +1030,7 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     QMenu* addMenu = menu.addMenu(GtGUI::Icon::add16(), tr("Add..."));
 
     QAction* addtask = addMenu->addAction(tr("New Task..."));
-    addtask->setIcon(GtGUI::icon(QStringLiteral("addElementIcon_16.png")));
+    addtask->setIcon(GtGUI::Icon::addElement16());
 
     QAction* addcalc = addMenu->addAction(tr("New Calculator..."));
     addcalc->setIcon(GtGUI::Icon::calculator16());

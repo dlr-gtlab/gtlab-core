@@ -112,14 +112,11 @@ GtCollectionItemWidget::GtCollectionItemWidget(
 
     overviewWidget->setLayout(overviewLay);
 
-    tabWidget->addTab(overviewWidget,
-                      GtGUI::icon(QStringLiteral("listIcon_16.png")),
-                      tr("Overview"));
+    tabWidget->addTab(overviewWidget, GtGUI::Icon::list16(), tr("Overview"));
 
     auto docWidget = new QWidget;
 
-    tabWidget->addTab(docWidget,
-                      GtGUI::icon(QStringLiteral("questionIcon_16.png")),
+    tabWidget->addTab(docWidget, GtGUI::Icon::question16(),
                       tr("Documentation"));
 
     tabWidget->setTabEnabled(1, false);

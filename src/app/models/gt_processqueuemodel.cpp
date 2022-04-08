@@ -105,13 +105,11 @@ GtProcessQueueModel::data(const QModelIndex &index, int role) const
 
             if (task->currentState() == GtTask::RUNNING)
             {
-                return GtGUI::icon(
-                           QStringLiteral("inProgressIcon_16.png"));
+                return GtGUI::Icon::inProgress16();
             }
             else if (task->currentState() == GtTask::QUEUED)
             {
-                return GtGUI::icon(
-                           QStringLiteral("sleepIcon_16.png"));
+                return GtGUI::Icon::sleep16();
             }
             else if (task->currentState() == GtTask::FINISHED)
             {
@@ -123,8 +121,7 @@ GtProcessQueueModel::data(const QModelIndex &index, int role) const
             }
             else if (task->currentState() == GtTask::CONNECTING)
             {
-                return GtGUI::icon(
-                           QStringLiteral("networkIcon_16.png"));
+                return GtGUI::Icon::network16();
             }
             break;
         }

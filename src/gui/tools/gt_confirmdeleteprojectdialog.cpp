@@ -42,8 +42,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
 
     QLabel* infoIcon = new QLabel;
 
-    QPixmap pix(":/icons/questionIcon_24.png");
-    infoIcon->setPixmap(pix);
+    infoIcon->setPixmap(GtGUI::Pixmap::question24());
 
     textLayout->addSpacerItem(new QSpacerItem(15, 10, QSizePolicy::Minimum,
                                               QSizePolicy::Minimum));

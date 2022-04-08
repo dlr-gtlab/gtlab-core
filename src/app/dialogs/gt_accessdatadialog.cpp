@@ -43,8 +43,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     lay->setContentsMargins(0, 0, 0, 0);
 
     QLabel* pixLabel = new QLabel;
-    QPixmap logo(QStringLiteral(":/pixmaps/accessLogo.png"));
-    pixLabel->setPixmap(logo);
+    pixLabel->setPixmap(GtGUI::Pixmap::accessLogo());
 
     lay->addWidget(pixLabel);
 

@@ -67,14 +67,13 @@ GtStateModel::data(const QModelIndex& index, int role) const
                     {
                         if (cont->objectName() == QLatin1String("-- Global --"))
                         {
-                            return GtGUI::icon(
-                                       QStringLiteral("globalIcon.png"));
+                            return GtGUI::Icon::global();
                         }
 
                         return GtGUI::Icon::folder16();
                     }
 
-                    return GtGUI::icon(QStringLiteral("componentsIcon_16.png"));
+                    return GtGUI::Icon::components16();
                 }
                 else if (qobject_cast<GtStateGroup*>(item))
                 {

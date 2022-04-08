@@ -71,7 +71,7 @@ GtPerspectiveSwitchWidget::init()
         QFont font = item->font();
         font.setPointSize(12);
         item->setFont(font);
-        item->setIcon(GtGUI::icon(QStringLiteral("perspectivesIcon_16.png")));
+        item->setIcon(GtGUI::Icon::perspectives16());
         m_list->addItem(item);
         item->setSizeHint(QSize(m_list->sizeHint().width(), 30));
         if (ids[i] == gtApp->perspectiveId())

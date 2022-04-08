@@ -42,7 +42,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::DebugLevel:
-                    return GtGUI::icon("bugIcon.png");
+                    return GtGUI::Icon::bug();
 
                 case QsLogging::InfoLevel:
                     return GtGUI::Icon::infoBlue16();
@@ -54,7 +54,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
                     return GtGUI::Icon::error16();
 
                 case QsLogging::FatalLevel:
-                    return GtGUI::icon("fatalIcon_16.png");
+                    return GtGUI::Icon::fatal16();
             }
         }
 

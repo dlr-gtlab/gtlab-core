@@ -79,7 +79,7 @@ GtResultViewer::~GtResultViewer()
 QIcon
 GtResultViewer::icon() const
 {
-    return GtGUI::icon(QStringLiteral("prpIcon_16.png"));
+    return GtGUI::Icon::prp16();
 }
 
 void

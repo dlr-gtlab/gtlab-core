@@ -21,5 +21,5 @@ GtLabelUI::GtLabelUI()
 QIcon
 GtLabelUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::icon(QStringLiteral("labelsIcon.png"));
+    return GtGUI::Icon::labels();
 }

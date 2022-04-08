@@ -27,7 +27,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
     m_tabWid(nullptr)
 {
     setWindowTitle(tr("Project Analyzer"));
-    setWindowIcon(GtGUI::icon("componentsIcon_16.png"));
+    setWindowIcon(GtGUI::Icon::components16());
 
     QVBoxLayout* mLay = new QVBoxLayout;
 
@@ -42,8 +42,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             QHBoxLayout* ftrntInfoLay = new QHBoxLayout;
 
             QLabel* ftrntIcon = new QLabel;
-            ftrntIcon->setPixmap(
-                        GtGUI::icon("infoBlueIcon.png").pixmap(32, 32));
+            ftrntIcon->setPixmap(GtGUI::Icon::infoBlue().pixmap(32, 32));
 
             QSpacerItem* spacer = new QSpacerItem(10, 20,
                                                   QSizePolicy::Expanding,
@@ -80,8 +79,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                 QHBoxLayout* ftrntInfoLay = new QHBoxLayout;
 
                 QLabel* ftrntIcon = new QLabel;
-                ftrntIcon->setPixmap(
-                            GtGUI::icon("errorIcon.png").pixmap(32, 32));
+                ftrntIcon->setPixmap(GtGUI::Icon::error().pixmap(32, 32));
 
                 QSpacerItem* spacer = new QSpacerItem(10, 20,
                                                       QSizePolicy::Minimum,
@@ -129,8 +127,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             for_each_key(unknownModules, [&](const QString& str)
             {
                 QListWidgetItem* lItem =
-                        new QListWidgetItem(GtGUI::icon("pluginIcon.png"),
-                                            str);
+                        new QListWidgetItem(GtGUI::Icon::plugin(), str);
                 umListWid->addItem(lItem);
             });
 
@@ -161,7 +158,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                                                        QColor(255, 0, 0, 100));
                 incompatibleModule->setBackgroundColor(2,
                                                        QColor(255, 0, 0, 100));
-                incompatibleModule->setIcon(0, GtGUI::icon("pluginIcon.png"));
+                incompatibleModule->setIcon(0, GtGUI::Icon::plugin());
 
                 tWid->addTopLevelItem(incompatibleModule);
             });

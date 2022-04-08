@@ -75,15 +75,12 @@ GtCollectionEditor::GtCollectionEditor() :
 
     m_collectionWidget = new QWidget;
 
-    m_tabWidget->addTab(m_collectionWidget,
-                      GtGUI::icon(QStringLiteral("dropDownIcon.png")),
-                      tr("Collection"));
+    m_tabWidget->addTab(m_collectionWidget, GtGUI::Icon::dropdown(),
+                        tr("Collection"));
 
     m_browserWidget = new QWidget;
 
-    m_tabWidget->addTab(m_browserWidget,
-                      GtGUI::icon(QStringLiteral("zoomIcon_16.png")),
-                      tr("Browse"));
+    m_tabWidget->addTab(m_browserWidget, GtGUI::Icon::zoom16(), tr("Browse"));
 
     frameLay->addWidget(m_tabWidget);
 
@@ -158,7 +155,7 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
     hLay->addWidget(m_updateAllButton);
 
     m_downloadButton =
-            new QPushButton(GtGUI::icon(QStringLiteral("dropDownIcon.png")),
+            new QPushButton(GtGUI::Icon::dropdown(),
                             tr("Download Selected"));
 
     m_downloadButton->setEnabled(false);

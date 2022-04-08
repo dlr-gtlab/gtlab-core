@@ -43,7 +43,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     QPushButton* moveUpButton = new QPushButton();
     moveUpButton->setToolTip(tr("Move plot up by one."));
-    moveUpButton->setIcon(GtGUI::icon("arrowUpBlueAll.png"));
+    moveUpButton->setIcon(GtGUI::Icon::arrowUpBlueAll());
     moveUpButton->setIconSize(QSize(16, 16));
     moveUpButton->setFlat(true);
     moveUpButton->setMaximumWidth(23);
@@ -53,7 +53,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     QPushButton* moveDownButton = new QPushButton();
     moveDownButton->setToolTip(tr("Move plot down by one."));
-    moveDownButton->setIcon(GtGUI::icon("arrowDownBlueAll.png"));
+    moveDownButton->setIcon(GtGUI::Icon::arrowDownBlueAll());
     moveDownButton->setIconSize(QSize(16, 16));
     moveDownButton->setFlat(true);
     moveDownButton->setMaximumWidth(23);
@@ -72,7 +72,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     m_printButton = new QPushButton();
     m_printButton->setToolTip(tr("Print the plot."));
-    m_printButton->setIcon(GtGUI::icon("printerIcon_16.png"));
+    m_printButton->setIcon(GtGUI::Icon::printer());
     m_printButton->setFlat(true);
     m_printButton->setMaximumWidth(23);
 
@@ -252,8 +252,8 @@ GtAbstractItemUI::exportPlot()
     QAction* actexport = menu.addAction(tr("Export to PDF..."));
     QAction* expPng = menu.addAction(tr("Export to PNG..."));
 
-    //actprint->setIcon(GtGUI::icon("printerIcon_16.png"));
-    actexport->setIcon(GtGUI::icon("printPDFIcon.png"));
+    //actprint->setIcon(GtGUI::Icon::printer());
+    actexport->setIcon(GtGUI::Icon::printPDF());
     expPng->setIcon(GtGUI::Icon::saveProject16());
 
     QAction* a = menu.exec(QCursor::pos());

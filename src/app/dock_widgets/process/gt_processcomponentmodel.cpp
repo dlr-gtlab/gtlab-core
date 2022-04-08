@@ -173,10 +173,10 @@ GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state)
     switch (state)
     {
         case GtProcessComponent::RUNNING:
-            return GtGUI::icon(QStringLiteral("inProgressIcon_16.png"));
+            return GtGUI::Icon::inProgress16();
 
         case GtProcessComponent::QUEUED:
-            return GtGUI::icon(QStringLiteral("sleepIcon_16.png"));
+            return GtGUI::Icon::sleep16();
 
         case GtProcessComponent::FAILED:
             return GtGUI::Icon::error16();
@@ -185,13 +185,13 @@ GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state)
             return GtGUI::Icon::check16();
 
         case GtProcessComponent::CONNECTING:
-            return GtGUI::icon(QStringLiteral("networkIcon_16.png"));
+            return GtGUI::Icon::network16();
 
         case GtProcessComponent::SKIPPED:
             return GtGUI::Icon::skip16();
 
         case GtProcessComponent::TERMINATION_REQUESTED:
-            return GtGUI::icon(QStringLiteral("stopRequestIcon_16.png"));
+            return GtGUI::Icon::stopRequest16();
 
         case GtProcessComponent::TERMINATED:
             return GtGUI::Icon::stop16();

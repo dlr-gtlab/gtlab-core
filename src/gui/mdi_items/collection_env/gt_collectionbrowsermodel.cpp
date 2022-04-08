@@ -98,7 +98,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return GtGUI::icon(QStringLiteral("stackIcon.png"));
+                return GtGUI::Icon::stack();
             }
 
             break;
@@ -113,7 +113,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return GtGUI::icon(QStringLiteral("collectionIcon_16.png"));
+                return GtGUI::Icon::collection16();
             }
 
             if (role == Qt::BackgroundRole)
@@ -638,14 +638,14 @@ GtCollectionBrowserModel::selectAll()
 {
     beginResetModel();
 
-    for (auto& i : m_updateAvailableItems)
+    for (auto& item : m_updateAvailableItems)
     {
-        i.setSelected(true);
+        item.setSelected(true);
     }
 
-    for (auto& i : m_availableItems)
+    for (auto& item : m_availableItems)
     {
-        i.setSelected(true);
+        item.setSelected(true);
     }
 
     endResetModel();
@@ -656,14 +656,14 @@ GtCollectionBrowserModel::unselectAll()
 {
     beginResetModel();
 
-    for (auto& i : m_updateAvailableItems)
+    for (auto& item : m_updateAvailableItems)
     {
-        i.setSelected(false);
+        item.setSelected(false);
     }
 
-    for (auto& i : m_availableItems)
+    for (auto& item : m_availableItems)
     {
-        i.setSelected(false);
+        item.setSelected(false);
     }
 
     endResetModel();

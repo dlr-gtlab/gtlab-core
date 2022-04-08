@@ -188,7 +188,7 @@ GtExampleGraphicalItem::showZoom()
 {
     if (m_pixmap.isNull())
     {
-        if (m_pixmap.load(QString(":/pixmaps/gt-logo.png")))
+        if (m_pixmap.load(GtGUI::Pixmap::logoString()))
         {
            gtDebug() << tr("No default pic found");
         }

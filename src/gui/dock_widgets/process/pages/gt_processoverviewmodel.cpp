@@ -99,7 +99,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                         return GtGUI::Icon::arrowRight();
                     }
 
-                    return GtGUI::icon(QStringLiteral("arrowdownIcon.png"));
+                    return GtGUI::Icon::arrowDown();
                 }
 
                 break;

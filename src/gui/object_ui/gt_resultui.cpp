@@ -20,6 +20,6 @@ GtResultUI::GtResultUI()
 QIcon
 GtResultUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::icon(QStringLiteral("dataIcon_16.png"));
+    return GtGUI::Icon::data16();
 }
 

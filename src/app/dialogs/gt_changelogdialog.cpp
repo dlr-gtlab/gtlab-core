@@ -36,8 +36,7 @@ GtChangelogDialog::GtChangelogDialog(QWidget* parent) : QDialog(parent)
 
     QLabel* titleLabel = new QLabel;
 
-    titleLabel->setPixmap(QPixmap(
-                              QStringLiteral(":/pixmaps/changelogLogo.png")));
+    titleLabel->setPixmap(GtGUI::Pixmap::changeLogLogo());
 
     layout->addWidget(titleLabel);
 

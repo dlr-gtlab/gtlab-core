@@ -191,7 +191,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return GtGUI::icon("unknownIcon.png");
+                    return GtGUI::Icon::unknown();
                 }
 
                 return icon(obj);
@@ -239,7 +239,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy() || obj->hasDummyChildren())
                 {
-                    return GtGUI::icon("unknownIcon.png");
+                    return GtGUI::Icon::unknown();
                 }
 
                 if (obj->newlyCreated())
@@ -249,8 +249,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
 
                 if (obj->hasChanges())
                 {
-                    return GtGUI::icon(
-                                QStringLiteral("exclamationIcon_16.png"));
+                    return GtGUI::Icon::exclamation16();
                 }
                 break;
             }

@@ -190,10 +190,10 @@ GtProjectUI::icon(GtObject* obj) const
 
     if (project->isOpen())
     {
-        return GtGUI::icon("componentsIcon_16.png");
+        return GtGUI::Icon::components16();
     }
 
-    return GtGUI::icon("closedProjectIcon_16.png");
+    return GtGUI::Icon::closedProject16();
 
 }
 
@@ -240,7 +240,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
             {
                 if (!project->comment().isEmpty())
                 {
-                    return GtGUI::icon("commentIcon.png");
+                    return GtGUI::Icon::comment();
                 }
             }
 
@@ -326,7 +326,7 @@ GtProjectUI::openProject(GtObject* obj)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Open Project"));
-        mb.setWindowIcon(GtGUI::icon("openProjectIcon_16.png"));
+        mb.setWindowIcon(GtGUI::Icon::openProject16());
         mb.setText(tr("Cannot open new project while a task is running."));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);
@@ -1424,7 +1424,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Footprint Not Found"));
-        mb.setWindowIcon(GtGUI::icon("componentsIcon_16.png"));
+        mb.setWindowIcon(GtGUI::Icon::components16());
         mb.setText(tr("No footprint was found in the project file.\nIt seems "
                       "that the project was created with a GTlab version "
                       "< 1.6.\n\nSaving the project with a GTlab version >= "
@@ -1448,7 +1448,7 @@ GtProjectUI::showFootprint(GtObject* obj)
     const QString frameworkVersion = frameworkFootpring.versionToString();
 
     QDialog dialog;
-    dialog.setWindowIcon(GtGUI::icon("componentsIcon_16.png"));
+    dialog.setWindowIcon(GtGUI::Icon::components16());
     dialog.setWindowTitle(tr("Footprint Information"));
 
     auto mLay = new QVBoxLayout;
@@ -1642,7 +1642,7 @@ GtProjectUI::openProjectSettings(GtObject* obj)
 
     // create dialog
     QDialog dialog;
-    dialog.setWindowIcon(GtGUI::icon("componentsIcon_16.png"));
+    dialog.setWindowIcon(GtGUI::Icon::components16());
     dialog.setWindowTitle(tr("Project Settings"));
     dialog.resize(400, 300);
 

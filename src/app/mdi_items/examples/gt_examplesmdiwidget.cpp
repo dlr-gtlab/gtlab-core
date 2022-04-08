@@ -446,7 +446,7 @@ GtExamplesMdiWidget::getAllCategories()
 QIcon
 GtExamplesMdiWidget::icon() const
 {
-    return GtGUI::icon(QStringLiteral("examplesIcon_16.png"));
+    return GtGUI::Icon::examples16();
 }
 
 bool

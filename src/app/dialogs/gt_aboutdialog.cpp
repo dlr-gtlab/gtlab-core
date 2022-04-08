@@ -27,7 +27,7 @@
 
 GtAboutLogo::GtAboutLogo(QWidget* parent) : QWidget(parent), m_clicks(0)
 {
-    m_pixmap.load(QStringLiteral(":/pixmaps/splash.png"));
+    m_pixmap = GtGUI::Pixmap::splash();
 }
 
 void

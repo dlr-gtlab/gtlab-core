@@ -25,7 +25,7 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
 
     // search log button
     m_searchButton = new QPushButton;
-    m_searchButton->setIcon(GtGUI::icon("searchIcon_16.png"));
+    m_searchButton->setIcon(GtGUI::Icon::search16());
     m_searchButton->setMaximumSize(QSize(20, 20));
     m_searchButton->setFlat(true);
     m_searchButton->setToolTip(tr("Search Output"));
@@ -34,7 +34,7 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
             SLOT(enableSearch()));
 
     m_clearButton = new QPushButton;
-    m_clearButton->setIcon(GtGUI::icon("clearIcon2_16.png"));
+    m_clearButton->setIcon(GtGUI::Icon::clear2_16());
     m_clearButton->setMaximumSize(QSize(20, 20));
     m_clearButton->setFlat(true);
     m_clearButton->setToolTip(tr("Clear Search"));

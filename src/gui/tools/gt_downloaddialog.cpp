@@ -24,7 +24,7 @@ GtDownloadDialog::GtDownloadDialog(QWidget* parent) : QDialog(parent),
     m_downloader(new GtDownloader(this))
 {
     setWindowTitle(tr("Downloader"));
-    setWindowIcon(GtGUI::icon(QStringLiteral("dropDownIcon.png")));
+    setWindowIcon(GtGUI::Icon::dropdown());
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
@@ -37,8 +37,7 @@ GtDownloadDialog::GtDownloadDialog(QWidget* parent) : QDialog(parent),
 
     QLabel* titleLabel = new QLabel;
 
-    titleLabel->setPixmap(QPixmap(
-                              QStringLiteral(":/pixmaps/downloaderLogo.png")));
+    titleLabel->setPixmap(GtGUI::Pixmap::downloaderLogo());
 
     layout->addWidget(titleLabel);
 

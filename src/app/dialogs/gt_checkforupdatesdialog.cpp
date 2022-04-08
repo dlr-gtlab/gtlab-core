@@ -41,14 +41,13 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     QLabel* titleLabel = new QLabel;
 
-    titleLabel->setPixmap(QPixmap(
-                              QStringLiteral(":/pixmaps/updateLogo.png")));
+    titleLabel->setPixmap(GtGUI::Pixmap::updateLogo());
 
     layout->addWidget(titleLabel);
 
     m_progressLabel = new QLabel;
-    QMovie* movie = new QMovie(QStringLiteral(":/pixmaps/progressbar.gif"),
-                               QByteArray(), this);
+    auto movie = new QMovie(QStringLiteral(":/pixmaps/progressbar.gif"),
+                            QByteArray(), this);
     m_progressLabel->setMovie(movie);
     movie->start();
     m_progressLabel->setVisible(true);
@@ -88,7 +87,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     m_checkButton = new QPushButton;
     m_checkButton->setText(tr("Check Again"));
-    m_checkButton->setIcon(GtGUI::icon(QStringLiteral("loopIcon_16.png")));
+    m_checkButton->setIcon(GtGUI::Icon::loop16());
     connect(m_checkButton, SIGNAL(clicked(bool)), SLOT(checkForUpdate()));
 
     hLay->addWidget(m_checkButton);

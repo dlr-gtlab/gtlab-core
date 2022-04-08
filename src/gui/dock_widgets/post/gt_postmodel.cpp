@@ -52,7 +52,7 @@ GtPostModel::data(const QModelIndex& index, int role) const
 
         case Qt::DecorationRole:
         {
-            return GtGUI::icon(QStringLiteral("postIcon.png"));
+            return GtGUI::Icon::post();
         }
     }
 

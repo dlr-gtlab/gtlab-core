@@ -27,7 +27,7 @@ public:
     /**
      * @brief Icon Test
      * @param obj
-     * @return globalIcon.png
+     * @return globalIcon
      */
     QIcon icon(GtObject* obj) const override;
 

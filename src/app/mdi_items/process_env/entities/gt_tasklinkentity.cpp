@@ -15,6 +15,7 @@
 #include "gt_calculator.h"
 #include "gt_task.h"
 #include "gt_tasklink.h"
+#include "gt_icons.h"
 
 GtTaskLinkEntity::GtTaskLinkEntity(GtTask* task, QGraphicsItem* parent) :
     GtCalculatorEntity(task, parent),
@@ -112,7 +113,7 @@ GtTaskLinkEntity::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
     else
     {
 //        QApplication::restoreOverrideCursor();
-        QPixmap pixmap(QStringLiteral(":/icons/jumpToIcon.png"));
+        QPixmap pixmap = GtGUI::Pixmap::jumpTo();
         pixmap = pixmap.scaledToWidth(30);
         QCursor cursor(pixmap);
         setCursor(cursor);

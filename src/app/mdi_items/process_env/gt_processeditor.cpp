@@ -61,8 +61,7 @@ GtProcessEditor::GtProcessEditor()
 
     // go back button
     QPushButton* goBackButton = new QPushButton;
-    goBackButton->setIcon(
-                GtGUI::icon(QStringLiteral("arrowleftIcon.png")));
+    goBackButton->setIcon(GtGUI::Icon::arrowLeft());
     goBackButton->setMaximumSize(QSize(20, 20));
     goBackButton->setFlat(true);
     goBackButton->setToolTip(tr("Go Back"));
@@ -92,8 +91,7 @@ GtProcessEditor::GtProcessEditor()
 
     // show properties button
     m_showPropertiesButton = new QPushButton;
-    m_showPropertiesButton->setIcon(
-                GtGUI::icon(QStringLiteral("minimizeIcons.png")));
+    m_showPropertiesButton->setIcon(GtGUI::Icon::minimize());
     m_showPropertiesButton->setMaximumSize(QSize(20, 20));
     m_showPropertiesButton->setFlat(true);
     m_showPropertiesButton->setCheckable(true);

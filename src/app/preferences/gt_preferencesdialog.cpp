@@ -118,7 +118,7 @@ void
 GtPreferencesDialog::createIcons()
 {
     QListWidgetItem* configButton = new QListWidgetItem(m_contentsWidget);
-    configButton->setIcon(GtGUI::icon("applicationIcon.png"));
+    configButton->setIcon(GtGUI::Icon::application());
     configButton->setText(tr("Application"));
     configButton->setTextAlignment(Qt::AlignHCenter);
     configButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -134,7 +134,7 @@ GtPreferencesDialog::createIcons()
     sessionButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* perspectivesButton = new QListWidgetItem(m_contentsWidget);
-    perspectivesButton->setIcon(GtGUI::icon("perspectivesIcon.png"));
+    perspectivesButton->setIcon(GtGUI::Icon::perspectives());
     perspectivesButton->setText(tr("Perspectives"));
     perspectivesButton->setTextAlignment(Qt::AlignHCenter);
     perspectivesButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -142,7 +142,7 @@ GtPreferencesDialog::createIcons()
     perspectivesButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* shortCutButton = new QListWidgetItem(m_contentsWidget);
-    shortCutButton->setIcon(GtGUI::icon("input2Icon.png"));
+    shortCutButton->setIcon(GtGUI::Icon::input2());
     shortCutButton->setText(tr("Short Cuts"));
     shortCutButton->setTextAlignment(Qt::AlignHCenter);
     shortCutButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -150,7 +150,7 @@ GtPreferencesDialog::createIcons()
     shortCutButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* pluginsButton = new QListWidgetItem(m_contentsWidget);
-    pluginsButton->setIcon(GtGUI::icon("pluginSettingsIcon.png"));
+    pluginsButton->setIcon(GtGUI::Icon::pluginSettings());
     pluginsButton->setText(tr("Plugins"));
     pluginsButton->setTextAlignment(Qt::AlignHCenter);
     pluginsButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -158,7 +158,7 @@ GtPreferencesDialog::createIcons()
     pluginsButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* languageButton = new QListWidgetItem(m_contentsWidget);
-    languageButton->setIcon(GtGUI::icon("languageIcon.png"));
+    languageButton->setIcon(GtGUI::Icon::language());
     languageButton->setText(tr("Language"));
     languageButton->setTextAlignment(Qt::AlignHCenter);
     languageButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -166,7 +166,7 @@ GtPreferencesDialog::createIcons()
     languageButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* accessButton = new QListWidgetItem(m_contentsWidget);
-    accessButton->setIcon(GtGUI::icon("loginIcon.png"));
+    accessButton->setIcon(GtGUI::Icon::login());
     accessButton->setText(tr("Access"));
     accessButton->setTextAlignment(Qt::AlignHCenter);
 
@@ -183,7 +183,7 @@ GtPreferencesDialog::createIcons()
     accessButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* pathButton = new QListWidgetItem(m_contentsWidget);
-    pathButton->setIcon(GtGUI::icon("pathSettingsIcon.png"));
+    pathButton->setIcon(GtGUI::Icon::pathSettings());
     pathButton->setText(tr("Environment"));
     pathButton->setTextAlignment(Qt::AlignHCenter);
     pathButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);

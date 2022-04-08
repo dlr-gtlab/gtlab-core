@@ -166,7 +166,7 @@ GtOutputDock::GtOutputDock() :
 
         // debug message button
         m_debugButton = new QPushButton;
-        m_debugButton->setIcon(GtGUI::icon("bugIcon.png"));
+        m_debugButton->setIcon(GtGUI::Icon::bug());
         m_debugButton->setMaximumSize(QSize(20, 20));
         m_debugButton->setFlat(true);
         m_debugButton->setCheckable(true);

@@ -28,6 +28,7 @@
 #include "gt_datamodel.h"
 #include "gt_refusedpluginsdialog.h"
 #include "gt_mdilauncher.h"
+#include "gt_icons.h"
 
 #include "gt_mementoviewer.h"
 #include "gt_processeditor.h"
@@ -90,9 +91,7 @@ main(int argc, char* argv[])
 
     QApplication a(argc, argv);
 
-    QPixmap pixmap(":pixmaps/splash.png");
-
-    QSplashScreen splash(pixmap);
+    QSplashScreen splash(GtGUI::Pixmap::splash());
     splash.show();
 
     GtApplication app(qApp);

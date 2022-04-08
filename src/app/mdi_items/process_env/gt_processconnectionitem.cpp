@@ -168,22 +168,22 @@ GtProcessConnectionItem::data(int column, int role)
 
                     if (qobject_cast<GtDoubleProperty*>(m_property))
                     {
-                        return GtGUI::icon(QStringLiteral("doubleIcon_16.png"));
+                        return GtGUI::Icon::double16();
                     }
 
                     if (qobject_cast<GtIntProperty*>(m_property))
                     {
-                        return GtGUI::icon(QStringLiteral("intIcon_16.png"));
+                        return GtGUI::Icon::int16();
                     }
 
                     if (qobject_cast<GtObjectLinkProperty*>(m_property))
                     {
-                        return GtGUI::icon(QStringLiteral("oIcon_16.png"));
+                        return GtGUI::Icon::o16();
                     }
 
                     if (qobject_cast<GtStringProperty*>(m_property))
                     {
-                        return GtGUI::icon(QStringLiteral("stringIcon_16.png"));
+                        return GtGUI::Icon::string16();
                     }
                 }
 

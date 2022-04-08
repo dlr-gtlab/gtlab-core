@@ -112,7 +112,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     // undo action
     QAction* undoAct = gtApp->undoStack()->createUndoAction(ui->undoBar,
                        tr("Undo"));
-    undoAct->setIcon(GtGUI::icon(QStringLiteral("undoIcon_24.png")));
+    undoAct->setIcon(GtGUI::Icon::undo24());
     undoAct->setText(tr("Undo"));
     ui->undoBar->addAction(undoAct);
     undoAct->setShortcut(gtApp->getShortCutSequence("undo"));
@@ -120,7 +120,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     // redo action
     QAction* redoAct = gtApp->undoStack()->createRedoAction(ui->undoBar,
                        tr("Redo"));
-    redoAct->setIcon(GtGUI::icon(QStringLiteral("redoIcon_24.png")));
+    redoAct->setIcon(GtGUI::Icon::redo24());
     redoAct->setText(tr("Redo"));
     ui->undoBar->addAction(redoAct);
     redoAct->setShortcut(gtApp->getShortCutSequence("redo"));
@@ -699,8 +699,7 @@ GtMainWin::openCommandHistory()
     {
         m_undoView = new QUndoView();
         m_undoView->setWindowTitle(QStringLiteral("GTlab - Command History"));
-        m_undoView->setWindowIcon(GtGUI::icon(QStringLiteral(
-                "historyIcon_16.png")));
+        m_undoView->setWindowIcon(GtGUI::Icon::history16());
         m_undoView->setStack(gtApp->undoStack());
         m_undoView->show();
         m_undoView->setAttribute(Qt::WA_DeleteOnClose, true);

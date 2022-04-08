@@ -23,7 +23,7 @@ GtLoopUI::GtLoopUI()
 QIcon
 GtLoopUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::icon(QStringLiteral("loopIcon2_16.png"));
+    return GtGUI::Icon::loop2_16();
 }
 
 QVariant
