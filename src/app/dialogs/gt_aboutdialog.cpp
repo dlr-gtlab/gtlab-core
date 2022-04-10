@@ -25,9 +25,11 @@
 
 #include "gt_aboutdialog.h"
 
-GtAboutLogo::GtAboutLogo(QWidget* parent) : QWidget(parent), m_clicks(0)
+GtAboutLogo::GtAboutLogo(QWidget* parent) :
+    QWidget(parent),
+    m_clicks(0),
+    m_pixmap(GtGUI::Pixmap::splash())
 {
-    m_pixmap = GtGUI::Pixmap::splash();
 }
 
 void
