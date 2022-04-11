@@ -89,19 +89,22 @@ GtProcessExecutor::onHelperFinished()
                                QStringLiteral(" ") +
                                tr("run");
 
-    GtCommand command = gtApp->startCommand(m_source, commandMsg);
-
-    if (!m_source->applyDiff(*helper->sumDiff()))
+    if (m_source)
     {
-        gtError() << tr("Data changes from the task")
-                  << m_task->objectName()
-                  << tr("could not feed back to datamodel");
 
-        m_task->setState(GtProcessComponent::FAILED);
-        qDebug() << "Diff not succesfully applied!";
-    }
-    else
-    {
+        GtCommand command = gtApp->startCommand(m_source, commandMsg);
+
+        if (!m_source->applyDiff(*helper->sumDiff()))
+        {
+            gtError() << tr("Data changes from the task")
+                      << m_task->objectName()
+                      << tr("could not feed back to datamodel");
+
+            m_task->setState(GtProcessComponent::FAILED);
+            qDebug() << "Diff not succesfully applied!";
+        }
+        else
+        {
 //            const QString commandMsg = task->objectName() +
 //                                       QStringLiteral(" ") +
 //                                       tr("run");
@@ -109,11 +112,15 @@ GtProcessExecutor::onHelperFinished()
 //            GtMementoChangeCommand* command =
 //                    new GtMementoChangeCommand(sumDiff, commandMsg, m_source);
 //            gtApp->undoStack()->push(command);
+        }
+
+        gtApp->endCommand(command);
+
+    }
+    else
+    {
+        gtError() << tr("Unable to find Root object to apply task results");
     }
 
-    gtApp->endCommand(command);
-
     helper->deleteLater();
-
-    //qDebug() << "   |-> diff applied" << timer.elapsed();
 }
