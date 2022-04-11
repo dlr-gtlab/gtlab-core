@@ -9,7 +9,18 @@
 
 #include "test_dmi_class.h"
 
+#include "gt_functional_interface.h"
+#include "gt_dynamicinterfacehandler.h"
+
 TestDmClass::TestDmClass()
 {
+    auto lambda = [](double a, double b) {
+        return a*b;
+    };
+
+    gtlab::interface::register_function(
+                "my_lambda_mult", lambda,
+                "This is a simple multiplication function");
+
     setObjectName("DMI Object");
 }

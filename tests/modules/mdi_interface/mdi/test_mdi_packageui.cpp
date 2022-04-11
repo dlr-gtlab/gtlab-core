@@ -14,6 +14,8 @@
 #include "test_mdi_packageui.h"
 #include "test_mdi_viewer.h"
 
+#include "gt_dynamicinterfacehandler.h"
+
 TestMdiPackageUI::TestMdiPackageUI()
 {
     addSingleAction("Test Action", "testAction");
@@ -26,7 +28,11 @@ TestMdiPackageUI::TestMdiPackageUI()
     addItemActions << GtObjectUIAction("Test Group Action 2",
                                        "testGroupAction2");
 
+    addItemActions << GtObjectUIAction("Interface Function Test",
+                                       "testGroupAction3");
+
     addActionGroup("Test Action Group", addItemActions);
+
 }
 
 QIcon
@@ -70,3 +76,24 @@ TestMdiPackageUI::testGroupAction2(GtObject* /*obj*/)
 {
     gtInfo() << "TEST MDI INTERFACE - TEST GROUP ACTION 2";
 }
+
+void
+TestMdiPackageUI::testGroupAction3(GtObject* /*obj*/)
+{
+    auto func = gtlab::interface::get_function("my_lambda_mult");
+
+    QVariant result = -1.0;
+    if (!func.is_null())
+    {
+        result = func({5, 7});
+    }
+    else
+    {
+        gtError() << "Cannot find Interface function";
+    }
+
+    gtInfo() << "The Result of the multiplication of 5 nd 7 is " << result;
+    gtInfo() << "The description of this function is" << func.help();
+
+}
+

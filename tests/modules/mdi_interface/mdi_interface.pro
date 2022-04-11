@@ -23,7 +23,7 @@ QT += core widgets xml svg
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
-CONFIG += c++11
+CONFIG += c++14
 
 DEFINES += TEST_MDI_INTERFACE_DLL
 
