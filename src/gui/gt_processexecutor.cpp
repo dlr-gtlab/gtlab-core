@@ -89,10 +89,12 @@ GtProcessExecutor::onHelperFinished()
                                QStringLiteral(" ") +
                                tr("run");
 
-    GtCommand command = gtApp->startCommand(m_source, commandMsg);
-
     if (m_source != nullptr)
     {
+
+    GtCommand command = gtApp->startCommand(m_source, commandMsg);
+
+
         if (!m_source->applyDiff(*helper->sumDiff()))
         {
             gtError() << tr("Data changes from the task")
@@ -112,6 +114,10 @@ GtProcessExecutor::onHelperFinished()
 //                    new GtMementoChangeCommand(sumDiff, commandMsg, m_source);
 //            gtApp->undoStack()->push(command);
         }
+
+
+        gtApp->endCommand(command);
+
     }
     else
     {
@@ -119,9 +125,5 @@ GtProcessExecutor::onHelperFinished()
     }
 
 
-    gtApp->endCommand(command);
-
     helper->deleteLater();
-
-    //qDebug() << "   |-> diff applied" << timer.elapsed();
 }
