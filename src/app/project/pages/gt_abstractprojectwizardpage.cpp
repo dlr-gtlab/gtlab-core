@@ -22,11 +22,6 @@ GtAbstractProjectWizardPage::GtAbstractProjectWizardPage(
 bool
 GtAbstractProjectWizardPage::isValid()
 {
-    if (m_provider)
-    {
-        return true;
-    }
-
-    return false;
+    return (m_provider != nullptr);
 }
 

@@ -9,6 +9,8 @@
 
 #include "gt_accessgroup.h"
 
+#include <algorithm>
+
 GtAccessGroup::GtAccessGroup(const QString& id, const QMetaObject& connection,
                              QObject* parent) :
     QObject(parent),
@@ -50,15 +52,9 @@ GtAccessGroup::numberOfAccessData() const
 bool
 GtAccessGroup::hostExists(const QString& host)
 {
-    foreach (GtAccessData data, m_data)
-    {
-        if (data.host() == host)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(std::begin(m_data), std::end(m_data), [&host](const GtAccessData& data) {
+        return data.host() == host;
+    });
 }
 
 bool

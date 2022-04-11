@@ -31,19 +31,19 @@ GtExplorerModel::objectFromIndex(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     if (index.model() != this)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QModelIndex tmp = mapToSource(index);
 
     if (!tmp.isValid())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return static_cast<GtObject*>(tmp.internalPointer());
@@ -71,8 +71,6 @@ bool
 GtExplorerModel::filterAcceptsRow(int source_row,
                                   const QModelIndex& source_parent) const
 {
-    bool retval = true;
-
     if (source_parent.isValid())
     {
         GtObject* obj = static_cast<GtObject*>(source_parent.internalPointer());
@@ -93,11 +91,7 @@ GtExplorerModel::filterAcceptsRow(int source_row,
         }
     }
 
-    if (retval == true)
-    {
-        return GtTreeFilterModel::filterAcceptsRow(source_row, source_parent);
-    }
+    return GtTreeFilterModel::filterAcceptsRow(source_row, source_parent);
 
-    return retval;
 }
 

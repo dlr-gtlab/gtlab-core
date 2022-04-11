@@ -11,7 +11,8 @@
 #include <QValidator>
 #include "gt_regexp.h"
 
-GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
+GtStringProperty::GtStringProperty(const QString& ident, const QString& name) :
+    m_validator(std::make_unique<QRegExpValidator>(GtRegExp::forExpressions()))
 {
     setObjectName(name);
 
@@ -20,9 +21,6 @@ GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
     m_unitCategory = GtUnit::Category::None;
     m_value = QString();
     m_initValue = QString();
-
-    m_validator = new QRegExpValidator(
-                GtRegExp::forExpressions(), this);
 }
 
 GtStringProperty::GtStringProperty(const QString& ident,
@@ -39,15 +37,14 @@ GtStringProperty::GtStringProperty(const QString& ident,
     m_value = value;
     m_initValue = value;
 
-    if (validator != nullptr)
+    if (validator)
     {
-        m_validator = validator;
-        m_validator->setParent(this);
+        m_validator.reset(validator);
     }
     else
     {
-        m_validator = new QRegExpValidator(
-                    GtRegExp::forExpressions(), this);
+        m_validator = std::make_unique<QRegExpValidator>(
+                    GtRegExp::forExpressions());
     }
 }
 
@@ -72,7 +69,7 @@ GtStringProperty::setValueFromVariant(const QVariant& val,
 
     setVal(val.toString(), success);
 
-    if (success != nullptr)
+    if (success)
     {
         retval = *success;
     }
@@ -80,16 +77,11 @@ GtStringProperty::setValueFromVariant(const QVariant& val,
     return retval;
 }
 
-GtStringProperty::~GtStringProperty()
-{
-    if (m_validator != nullptr)
-    {
-        delete m_validator;
-    }
-}
 
 QValidator*
 GtStringProperty::validator()
 {
-    return m_validator;
+    return m_validator.get();
 }
+
+GtStringProperty::~GtStringProperty() = default;

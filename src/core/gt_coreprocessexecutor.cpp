@@ -33,8 +33,9 @@ GtCoreProcessExecutor* GtCoreProcessExecutor::m_self = 0;
 
 GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, bool save) :
     QObject(parent),
-    m_save(save),
-    m_current(Q_NULLPTR), m_source(Q_NULLPTR)
+    m_current(nullptr),
+    m_source(nullptr),
+    m_save(save)
 {
     // initialize
     init();
@@ -55,7 +56,7 @@ GtCoreProcessExecutor::runTask(GtTask* task)
     qDebug() << "GtCoreProcessExecutor::runTask";
 
     // check task
-    if (task == Q_NULLPTR)
+    if (!task)
     {
         qDebug() << "process == NULL";
         return false;
@@ -96,7 +97,7 @@ GtCoreProcessExecutor::runTask(GtTask* task)
 bool
 GtCoreProcessExecutor::terminateTask(GtTask* task)
 {
-    if (task == Q_NULLPTR)
+    if (!task)
     {
         return false;
     }
@@ -106,7 +107,7 @@ GtCoreProcessExecutor::terminateTask(GtTask* task)
         return false;
     }
 
-    if (m_currentRunnable != Q_NULLPTR)
+    if (m_currentRunnable)
     {
         m_currentRunnable->requestInterruption();
     }
@@ -119,7 +120,7 @@ GtCoreProcessExecutor::terminateAllTasks()
 {
     m_queue.clear();
 
-    if (m_current != Q_NULLPTR)
+    if (m_current)
     {
         terminateTask(m_current);
     }
@@ -130,12 +131,7 @@ GtCoreProcessExecutor::terminateAllTasks()
 bool
 GtCoreProcessExecutor::taskQueued(GtTask* task)
 {
-    if (m_queue.contains(task))
-    {
-        return true;
-    }
-
-    return false;
+    return (m_queue.contains(task));
 }
 
 bool
@@ -160,12 +156,7 @@ GtCoreProcessExecutor::currentRunningTask()
 bool
 GtCoreProcessExecutor::taskCurrentlyRunning()
 {
-    if (currentRunningTask() == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    return true;
+    return (currentRunningTask() != nullptr);
 }
 
 QList<QPointer<GtTask> >
@@ -177,7 +168,7 @@ GtCoreProcessExecutor::queue()
 void
 GtCoreProcessExecutor::removeFromQueue(GtTask *task)
 {
-    if (task == Q_NULLPTR)
+    if (!task)
     {
         return;
     }
@@ -200,7 +191,7 @@ GtCoreProcessExecutor::removeFromQueue(GtTask *task)
 void
 GtCoreProcessExecutor::moveTaskUp(GtTask *task)
 {
-    if (task == Q_NULLPTR)
+    if (!task)
     {
         return;
     }
@@ -225,7 +216,7 @@ GtCoreProcessExecutor::moveTaskUp(GtTask *task)
 void
 GtCoreProcessExecutor::moveTaskDown(GtTask *task)
 {
-    if (task == Q_NULLPTR)
+    if (!task)
     {
         return;
     }
@@ -265,7 +256,7 @@ GtCoreProcessExecutor::execute()
 
     GtTaskRunner* runner = executeHelper();
 
-    if (runner == Q_NULLPTR)
+    if (!runner)
     {
         return;
     }
@@ -294,7 +285,7 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
 
     // source may be NULL if there are no object links defined in the
     // calculators included in the task
-    if (m_source != Q_NULLPTR)
+    if (m_source)
     {
         QDir tempDir;
 
@@ -309,7 +300,7 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
             qDebug() << "analysing changed data...";
             GtObject* target = m_source->getObjectByUuid(memento.uuid());
 
-            if (target != Q_NULLPTR)
+            if (target)
             {
                 qDebug() << "target found = " << target->objectName();
                 GtObjectMemento old = target->toMemento(true);
@@ -383,10 +374,10 @@ GtTaskRunner*
 GtCoreProcessExecutor::executeHelper()
 {
     // check whether a task is already running
-    if (m_current != Q_NULLPTR)
+    if (m_current)
     {
         qDebug() << tr("a task is already running");
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // check whether queue is empty
@@ -394,23 +385,23 @@ GtCoreProcessExecutor::executeHelper()
     {
         qDebug() << tr("--> Queue is Empty...No more tasks to execute!");
         emit allTasksCompleted();
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // checkout next task in queue
     m_current = m_queue.first();
 
     // setup source
-    if (m_source == Q_NULLPTR)
+    if (!m_source)
     {
         // find project and put it into source
         m_source = m_current->findParent<GtProject*>();
 
         // check whether source is still a null pointer
-        if (m_source == Q_NULLPTR)
+        if (!m_source)
         {
             gtError() << tr("Source corrupted!");
-            return Q_NULLPTR;
+            return nullptr;
         }
     }
 
@@ -428,10 +419,10 @@ GtCoreProcessExecutor::executeHelper()
     {
         delete m_currentRunnable;
         m_queue.removeAll(m_current);
-        m_current = Q_NULLPTR;
+        m_current = nullptr;
         execute();
         emit queueChanged();
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     // connect task runner signals
@@ -456,14 +447,14 @@ GtCoreProcessExecutor::handleTaskFinished()
     GtTaskRunner* taskRunner = qobject_cast<GtTaskRunner*>(sender());
 
     // check task runne rpointer
-    if (taskRunner == Q_NULLPTR)
+    if (!taskRunner)
     {
         gtFatal() << tr("Sender not a task runner object!");
         return;
     }
 
     // check current task
-    if (m_current == Q_NULLPTR)
+    if (!m_current)
     {
         gtFatal() << tr("Current task corrupted!");
         return;
@@ -477,7 +468,7 @@ GtCoreProcessExecutor::handleTaskFinished()
     QList<GtObjectMemento> changedData = taskRunner->dataToMerge();
 
     // free current task pointer
-    m_current = Q_NULLPTR;
+    m_current = nullptr;
 
     if (m_save)
     {
@@ -499,7 +490,7 @@ GtCoreProcessExecutor::handleTaskFinished()
     qDebug() << "";
 
     // reset source
-    m_source = Q_NULLPTR;
+    m_source = nullptr;
 
     emit queueChanged();
 

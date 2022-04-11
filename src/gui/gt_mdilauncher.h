@@ -134,8 +134,8 @@ public slots:
      * @return
      */
     GtMdiItem* open(const QString& id,
-                    GtObject* data = Q_NULLPTR,
-                    QString customId = QString());
+                    GtObject* data = nullptr,
+                    const QString& customId = QString());
 
     /**
      * @brief open
@@ -143,7 +143,7 @@ public slots:
      * @param customId
      * @return
      */
-    GtMdiItem* open(const QString& id, QString customId);
+    GtMdiItem* open(const QString& id, const QString& customId);
 
 private:
     /**

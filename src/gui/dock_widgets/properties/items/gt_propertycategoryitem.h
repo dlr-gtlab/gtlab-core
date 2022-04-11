@@ -32,7 +32,7 @@ public:
     GtPropertyCategoryItem(GtObject* scope,
                            const QString& id,
                            GtPropertyModel* model,
-                           GtObject* parent = Q_NULLPTR);
+                           GtObject* parent = nullptr);
 
     /**
      * @brief addPropertyItem
@@ -44,7 +44,7 @@ public:
      * @brief categoryId
      * @return
      */
-    const QString& categoryId();
+    const QString& categoryId() const;
 
     /**
      * @brief data
@@ -52,7 +52,7 @@ public:
      * @param role
      * @return
      */
-    QVariant data(int column, int role) const;
+    QVariant data(int column, int role) const override;
 
     /**
      * @brief setData

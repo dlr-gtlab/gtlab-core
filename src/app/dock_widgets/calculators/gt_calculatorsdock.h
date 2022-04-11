@@ -27,7 +27,7 @@ public:
 
     /** Returns the recommended dock widget area in main windows.
         @return dock widget area */
-    virtual Qt::DockWidgetArea getDockWidgetArea();
+    Qt::DockWidgetArea getDockWidgetArea() override;
 
 };
 

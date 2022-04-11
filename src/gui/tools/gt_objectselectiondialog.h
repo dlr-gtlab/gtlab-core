@@ -35,7 +35,7 @@ public:
      * @param root
      * @param parent
      */
-    GtObjectSelectionDialog(GtObject* root, QWidget* parent = Q_NULLPTR);
+    explicit GtObjectSelectionDialog(GtObject *root, QWidget *parent = nullptr);
 
     /**
      * @brief setFilterData

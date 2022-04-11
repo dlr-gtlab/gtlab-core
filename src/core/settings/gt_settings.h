@@ -184,7 +184,7 @@ public:
      * @brief setShortcutsTable
      * @param shortcutsTable - table to set in the settings
      */
-    void setShortcutsTable(QMap<QString, QStringList> shortcutsTable);
+    void setShortcutsTable(const QMap<QString, QStringList>& shortcutsTable);
 
     /**
      * @brief initialShortCuts

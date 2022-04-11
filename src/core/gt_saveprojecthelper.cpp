@@ -21,7 +21,7 @@ GtSaveProjectHelper::GtSaveProjectHelper(GtProject* proj) :
 void
 GtSaveProjectHelper::run()
 {
-    if (m_project == Q_NULLPTR)
+    if (!m_project)
     {
         return;
     }

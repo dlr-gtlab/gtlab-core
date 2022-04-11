@@ -47,7 +47,6 @@ public:
     explicit GtJsHighlighter(QObject* parent);
     explicit GtJsHighlighter(QTextDocument* parent);
     explicit GtJsHighlighter(QTextEdit* parent);
-    ~GtJsHighlighter();
 
     void setColor(GtJsHighlighter::ColorComponent component,
                   const QColor& color);
@@ -59,7 +58,7 @@ public:
     void setKeywords(const QStringList& keywords);
 
 protected:
-    void highlightBlock(const QString& text);
+    void highlightBlock(const QString& text) override;
 
 private:
     QSet<QString> m_keywords;

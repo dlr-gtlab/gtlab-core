@@ -29,7 +29,7 @@ GtAccessDataConnection::testConnection(const GtAccessData& accessData)
 
     QNetworkRequest request(accessData.data());
 
-    QNetworkReply* reply = m_qnam->head(request);;
+    QNetworkReply* reply = m_qnam->head(request);
 
     QTimer timer;
     timer.setSingleShot(true);
@@ -38,7 +38,7 @@ GtAccessDataConnection::testConnection(const GtAccessData& accessData)
     connect(this,  SIGNAL(testFinished()), &loop, SLOT(quit()) );
     connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
-    if (reply != Q_NULLPTR)
+    if (reply)
     {
         connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
     }
@@ -65,7 +65,7 @@ GtAccessDataConnection::onReplyFinished()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (reply == Q_NULLPTR)
+    if (!reply)
     {
         return;
     }

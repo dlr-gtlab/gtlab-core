@@ -42,7 +42,7 @@ GtObjectPathProperty::setValueFromVariant(const QVariant& val,
 
     setVal(val.toString(), success);
 
-    if (success != 0)
+    if (success)
     {
         retval = *success;
     }
@@ -55,19 +55,19 @@ GtObjectPathProperty::linkedObject(GtObject* root)
 {
     if (m_value.isEmpty())
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtObject* rootObject = root;
 
-    if (rootObject == Q_NULLPTR)
+    if (!rootObject)
     {
         rootObject = object()->findRoot<GtObject*>(object());
     }
 
-    if (rootObject == Q_NULLPTR)
+    if (!rootObject)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return rootObject->getObjectByPath(m_value);

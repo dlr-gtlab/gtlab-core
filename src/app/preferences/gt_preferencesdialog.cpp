@@ -105,7 +105,7 @@ GtPreferencesDialog::saveChanges()
     {
         GtPreferencesPage* page = dynamic_cast<GtPreferencesPage*>(pageList[i]);
 
-        if (page != Q_NULLPTR)
+        if (page)
         {
             page->saveSettings();
         }
@@ -191,7 +191,7 @@ GtPreferencesDialog::createIcons()
     pathButton->setSizeHint(QSize(100, 50));
 
     connect(m_contentsWidget,
-            SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
-            SLOT(changePage(QListWidgetItem*, QListWidgetItem*)));
+            SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+            SLOT(changePage(QListWidgetItem*,QListWidgetItem*)));
 }
 

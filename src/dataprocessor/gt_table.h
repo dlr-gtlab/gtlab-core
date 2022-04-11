@@ -52,7 +52,7 @@ public:
         @param hiExtMethod Extrapolation method at higher end
         @param ticks Reference to vector of ticks */
     bool addAxis(const QString& id,
-                 const QString desc,
+                 const QString& desc,
                  const QString& unit,
                  GtTableAxis::ExtrapMethod loExtMethod,
                  GtTableAxis::InterpMethod intMethod,
@@ -126,7 +126,7 @@ public:
      * @param id
      * @return
      */
-    GtTableValues* getVals(const QString id) const;
+    GtTableValues* getVals(const QString& id) const;
 
     /** Returns an inter/extrapolated table value. If extrapolation is not
         permitted and requested data point is outside regular grid an
@@ -134,12 +134,12 @@ public:
         @param coords Vector of size n equal to number of table dimensions
         containing the coordinates of the data point to be interpolated
         @return Table value*/
-    double getValue(const QString& valsId, const QVector<double>& coords);
+    double getValue(const QString& valsId, const QVector<double>& coords) const;
 
     /** Returns an inter/extrapolated value from a 1D-table.
         @param x0 Value on axis 0
         @return Table value */
-    double getValue1D(const QString& valsId, double x0);
+    double getValue1D(const QString& valsId, double x0) const;
 
     /** Returns an inter/extrapolated value from a 2D-table.
         @param valsId Values identification string
@@ -156,7 +156,7 @@ public:
      * @return
      */
     double getValue2DatIndices(const QString& valsId, int axisIndex1,
-                               int axisIndex2, bool* check = Q_NULLPTR) const;
+                               int axisIndex2, bool* check = nullptr) const;
 
     /**
      * @brief getValue2Dgridless: xn and phi axis interpolation
@@ -265,14 +265,14 @@ public:
 
     /**
      * @brief setTabValsKeysSuffix
-     * @param keys
+     * @param suffix
      */
-    void setTabValsKeysSuffix(QString keys);
+    void setTabValsKeysSuffix(const QString& suffix);
 
     /**
      * @brief toDomElement
      * @param doc
-     * @param valId: optional
+     * @param valId : optional
      * @return
      */
     QDomElement toDomElement(QDomDocument& doc,
@@ -399,7 +399,7 @@ private:
     /** Checks wether tick values in double vector are in ascending order
         @param ticks Vector of tick values
         @return true Is ticks are in ascending order */
-    bool isAscending(const QVector<double>& ticks);
+    bool isAscending(const QVector<double>& ticks) const;
 
     /**
      * @brief slice Generates a slice or subset of a linear array,
@@ -423,7 +423,7 @@ private:
     /**
      * @brief onObjectDataMerged
      */
-    virtual void onObjectDataMerged() override;
+    void onObjectDataMerged() override;
 
     /**
      * @brief phiInterpolatedVal: Necessary for stage maps in multistage compr

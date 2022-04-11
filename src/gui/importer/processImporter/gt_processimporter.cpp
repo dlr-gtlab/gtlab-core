@@ -58,7 +58,7 @@ GtProcessImporter::import(GtObject* data, QFile &file)
         return false;
     }
 
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         gtError() << "target is nullptr.";
         return false;
@@ -74,14 +74,14 @@ GtProcessImporter::import(GtObject* data, QFile &file)
     GtObjectMemento memento(a);
     GtObject* obj = memento.restore(gtObjectFactory, true);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         gtError() << "resorted obj is nullptr.";
         return false;
     }
 
     /// validate object to import
-    if (qobject_cast<GtProcessComponent*>(obj) == Q_NULLPTR)
+    if (!qobject_cast<GtProcessComponent*>(obj))
     {
         gtError() << "resorted obj is not of type GtProcessElement.";
         delete obj;
@@ -90,9 +90,9 @@ GtProcessImporter::import(GtObject* data, QFile &file)
 
     /// if the import is not done with a task as parent only tasks are
     /// allowed to be improted
-    if (qobject_cast<GtTask*>(data) == Q_NULLPTR)
+    if (!qobject_cast<GtTask*>(data))
     {
-        if (qobject_cast<GtTask*>(obj) == Q_NULLPTR)
+        if (!qobject_cast<GtTask*>(obj))
         {
             gtError() << "Parent item of a calculator has to be a task";
             delete obj;

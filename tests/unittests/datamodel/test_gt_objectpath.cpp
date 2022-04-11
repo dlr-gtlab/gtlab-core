@@ -126,7 +126,7 @@ TEST_F(TestGtObjectPath, getObject)
     // empty constructor
     GtObjectPath path1;
     GtObject* obj = path1.getObject(m_rootObj);
-    ASSERT_TRUE(obj == Q_NULLPTR);
+    ASSERT_TRUE(obj == nullptr);
 
     // string constructor
     GtObjectPath path2(QStringLiteral("root") + GtObjectPath::separator() +

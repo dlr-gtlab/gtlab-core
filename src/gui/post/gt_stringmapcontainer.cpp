@@ -31,7 +31,7 @@ GtStringMapContainer::setValues(const QStringList& values)
 }
 
 void
-GtStringMapContainer::addEntry(QString key, QString value)
+GtStringMapContainer::addEntry(const QString& key, const QString& value)
 {
     if (!key.isEmpty())
     {

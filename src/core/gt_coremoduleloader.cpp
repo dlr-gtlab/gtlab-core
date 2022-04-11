@@ -28,12 +28,7 @@ GtCoreModuleLoader::~GtCoreModuleLoader()
 bool
 GtCoreModuleLoader::check(GtModuleInterface* plugin)
 {
-    if (!GtProcessModuleLoader::check(plugin))
-    {
-        return false;
-    }
-
-    return true;
+    return GtProcessModuleLoader::check(plugin);
 }
 
 void

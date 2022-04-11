@@ -21,8 +21,8 @@ GtCodeEditor::GtCodeEditor(QWidget* parent) : QPlainTextEdit(parent)
 
     connect(this, SIGNAL(blockCountChanged(int)),
             SLOT(updateLineNumberAreaWidth(int)));
-    connect(this, SIGNAL(updateRequest(QRect, int)),
-            SLOT(updateLineNumberArea(QRect, int)));
+    connect(this, SIGNAL(updateRequest(QRect,int)),
+            SLOT(updateLineNumberArea(QRect,int)));
     connect(this, SIGNAL(cursorPositionChanged()),
             SLOT(highlightCurrentLine()));
 

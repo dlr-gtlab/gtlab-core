@@ -14,7 +14,7 @@
 #include "gt_abstractprocessprovider.h"
 
 GtAbstractProcessProvider::GtAbstractProcessProvider() :
-    m_component(Q_NULLPTR)
+    m_component(nullptr)
 {
 
 }
@@ -22,7 +22,7 @@ GtAbstractProcessProvider::GtAbstractProcessProvider() :
 GtObjectMemento
 GtAbstractProcessProvider::componentData()
 {
-    if (m_component == Q_NULLPTR)
+    if (!m_component)
     {
         return GtObjectMemento();
     }
@@ -33,7 +33,7 @@ GtAbstractProcessProvider::componentData()
 bool
 GtAbstractProcessProvider::setComponentData(const GtObjectMemento& memento)
 {
-    if (m_component == Q_NULLPTR)
+    if (!m_component)
     {
         return false;
     }
@@ -46,7 +46,7 @@ GtAbstractProcessProvider::setComponentData(const GtObjectMemento& memento)
 bool
 GtAbstractProcessProvider::initComponent(const QString& classname)
 {
-    if (m_component != Q_NULLPTR)
+    if (m_component)
     {
         if (m_component->metaObject()->className() == classname)
         {
@@ -58,7 +58,7 @@ GtAbstractProcessProvider::initComponent(const QString& classname)
 
     GtObject* obj = gtProcessFactory->newObject(classname);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         gtDebug() << "could not create new object" <<
                      " (GtAbstractProcessProvider::initComponent)";
@@ -68,7 +68,7 @@ GtAbstractProcessProvider::initComponent(const QString& classname)
 
     m_component = qobject_cast<GtProcessComponent*>(obj);
 
-    if (m_component == Q_NULLPTR)
+    if (!m_component)
     {
         gtDebug() << "could not cast new object" <<
                      " (GtAbstractProcessProvider::initComponent)";
@@ -96,18 +96,13 @@ GtAbstractProcessProvider::initComponent(const QMetaObject& metaObj)
 bool
 GtAbstractProcessProvider::componentInitialized()
 {
-    if (m_component == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    return true;
+    return (m_component != nullptr);
 }
 
 QString
 GtAbstractProcessProvider::componentClassName()
 {
-    if (m_component == Q_NULLPTR)
+    if (!m_component)
     {
         return QString();
     }

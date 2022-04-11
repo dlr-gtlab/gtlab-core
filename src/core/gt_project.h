@@ -45,25 +45,25 @@ public:
     /**
      * @brief ~GtProject
      */
-    virtual ~GtProject();
+    ~GtProject() override;
 
     /**
      * @brief Returns path to project directory on hard drive
      * @return path to project directory
      */
-    const QString& path();
+    const QString& path() const;
 
     /**
      * @brief Returns whether project data is successfully loaded or not
      * @return validation indicator
      */
-    bool isValid();
+    bool isValid() const;
 
     /**
      * @brief isOpen
      * @return
      */
-    bool isOpen();
+    bool isOpen() const;
 
     /**
      * @brief processData
@@ -207,7 +207,7 @@ private:
     /**
      * @brief readModuleMetaData
      */
-    void readModuleMetaData(QDomElement& root);
+    void readModuleMetaData(const QDomElement& root);
 
     /**
      * @brief readProcessData
@@ -219,7 +219,7 @@ private:
      * @brief readLabelData
      * @return
      */
-    GtObject* readLabelData(GtObjectList& moduleData);
+    GtObject* readLabelData(const GtObjectList& moduleData);
 
     /**
      * @brief readModuleData

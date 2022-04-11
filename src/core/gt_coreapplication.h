@@ -16,6 +16,8 @@
 #include <QStringList>
 #include <QMap>
 
+#include <memory>
+
 #include "gt_globals.h"
 
 #define gtApp (GtCoreApplication::instance())
@@ -144,7 +146,7 @@ public:
     /**
      * @brief ~GtApplication
      */
-    virtual ~GtCoreApplication();
+    ~GtCoreApplication() override;
 
     /**
      * @brief initDatamodel
@@ -364,19 +366,19 @@ public:
 
 protected:
     /// Current session
-    GtSession* m_session;
+    std::unique_ptr<GtSession> m_session;
 
     /// Settings
-    GtSettings* m_settings;
+    std::unique_ptr<GtSettings> m_settings;
 
     /// List of user specific session ids
     QStringList m_sessionIds;
 
     /// Translator
-    QTranslator* m_translator;
+    std::unique_ptr<QTranslator> m_translator;
 
     /// Module loader
-    GtModuleLoader* m_moduleLoader;
+    std::unique_ptr<GtModuleLoader> m_moduleLoader;
 
     /// Development run indicator
     bool m_devMode;

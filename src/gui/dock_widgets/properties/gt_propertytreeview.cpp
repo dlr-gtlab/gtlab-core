@@ -76,12 +76,12 @@ GtPropertyTreeView::mapToSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     if (index.model() != m_filterModel)
     {
-        return QModelIndex();
+        return {};
     }
 
     return  m_filterModel->mapToSource(index);
@@ -92,12 +92,12 @@ GtPropertyTreeView::mapFromSource(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     if (index.model() != m_model)
     {
-        return QModelIndex();
+        return {};
     }
 
     return  m_filterModel->mapFromSource(index);
@@ -124,7 +124,7 @@ GtPropertyTreeView::setObject(GtObject* obj, bool processEvents)
 void
 GtPropertyTreeView::setScope(GtObject* project)
 {
-    if (m_model == Q_NULLPTR)
+    if (!m_model)
     {
         return;
     }
@@ -140,7 +140,7 @@ GtPropertyTreeView::setCategoryFilter(const QStringList& filter)
         return;
     }
 
-    if (m_model == Q_NULLPTR)
+    if (!m_model)
     {
         return;
     }
@@ -201,7 +201,7 @@ GtPropertyTreeView::onCollapsed(const QModelIndex& index)
         return;
     }
 
-    if (model() == Q_NULLPTR)
+    if (!model())
     {
         return;
     }
@@ -234,7 +234,7 @@ GtPropertyTreeView::onExpanded(const QModelIndex& index)
         return;
     }
 
-    if (model() == Q_NULLPTR)
+    if (!model())
     {
         return;
     }

@@ -55,14 +55,14 @@ GtTaskOverviewModel::setUpModel()
 QString
 GtTaskOverviewModel::id(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QString();
     }
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (taskItem == Q_NULLPTR)
+    if (!taskItem)
     {
         return QString();
     }
@@ -84,14 +84,14 @@ GtTaskOverviewModel::id(GtAbstractProcessItem* item) const
 QString
 GtTaskOverviewModel::version(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QString();
     }
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (taskItem == Q_NULLPTR)
+    if (!taskItem)
     {
         return QString();
     }
@@ -104,14 +104,14 @@ GtTaskOverviewModel::version(GtAbstractProcessItem* item) const
 QIcon
 GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QIcon();
     }
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (taskItem == Q_NULLPTR)
+    if (!taskItem)
     {
         return QIcon();
     }
@@ -121,13 +121,13 @@ GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
     GtExtendedTaskDataImpl* extendedData =
             dynamic_cast<GtExtendedTaskDataImpl*>(taskData.get());
 
-    if (extendedData == Q_NULLPTR || extendedData->icon.isNull())
+    if (!extendedData || extendedData->icon.isNull())
     {
         GtObjectUI* oui = gtApp->defaultObjectUI(taskData->metaData().className());
 
-        if (oui != Q_NULLPTR)
+        if (oui)
         {
-            QIcon icn = oui->icon(Q_NULLPTR);
+            QIcon icn = oui->icon(nullptr);
 
             if (!icn.isNull())
             {
@@ -144,14 +144,14 @@ GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
 QString
 GtTaskOverviewModel::description(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QString();
     }
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (taskItem == Q_NULLPTR)
+    if (!taskItem)
     {
         return QString();
     }

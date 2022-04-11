@@ -21,7 +21,7 @@
 
 GtInputDialog::GtInputDialog(InputMode mode, QWidget* parent) : QDialog(parent),
     m_currentMode(mode),
-    m_textValidator(Q_NULLPTR),
+    m_textValidator(nullptr),
     m_doubleMax(1000.),
     m_doubleMin(0.),
     m_intMax(1000),
@@ -210,7 +210,7 @@ GtInputDialog::updateInputFields()
     m_doubleEdit->setMaximum(m_doubleMax);
 
     // TextInput mode
-    if (m_textValidator != Q_NULLPTR)
+    if (m_textValidator)
     {
         m_lineEdit->setValidator(m_textValidator);
     }

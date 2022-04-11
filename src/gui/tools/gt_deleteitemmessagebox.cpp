@@ -11,8 +11,8 @@
 
 #include "gt_deleteitemmessagebox.h"
 
-GtDeleteItemMessageBox::GtDeleteItemMessageBox(QString title,
-                                               QString elementName,
+GtDeleteItemMessageBox::GtDeleteItemMessageBox(const QString& title,
+                                               const QString& elementName,
                                                QWidget* parent) :
     QMessageBox(parent)
 {

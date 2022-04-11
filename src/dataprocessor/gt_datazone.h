@@ -41,7 +41,7 @@ public:
      * @return
      */
     QVector<double> value1DVector(const QString& param,
-                                  bool* ok = Q_NULLPTR) const;
+                                  bool* ok = nullptr) const;
 
     /**
      * @brief returns vector of values for 1D data zone based on the
@@ -53,7 +53,7 @@ public:
      */
     QVector<double> value1DVector(const QString& param,
                                   const QVector<double> &ticks,
-                                  bool* ok = Q_NULLPTR) const;
+                                  bool* ok = nullptr) const;
 
     /**
      * @brief set 1-dimensional data to table
@@ -103,7 +103,7 @@ public:
      * @param param parameter name
      * @return current unit
      */
-    virtual QString unit(const QString& param) const override;
+    QString unit(const QString& param) const override;
 
     /**
      * @brief stores axis ticks in argument vector
@@ -156,7 +156,7 @@ public:
      * @brief check function if table is 0-dimensional
      * @return true in case that dimension of table is 0
      */
-    virtual bool is0D() const override;
+    bool is0D() const override;
 
     /**
      * @brief addModuleName
@@ -188,7 +188,7 @@ public:
      * @param ok control flag
      * @return
      */
-    double minValue2D(const QString& paramName, bool* ok = Q_NULLPTR);
+    double minValue2D(const QString& paramName, bool* ok = nullptr);
 
     /**
      * @brief returns maximum value of 2-dimensional table
@@ -196,7 +196,7 @@ public:
      * @param ok control flag
      * @return
      */
-    double maxValue2D(const QString& paramName, bool* ok = Q_NULLPTR);
+    double maxValue2D(const QString& paramName, bool* ok = nullptr);
 
     /**
      * @brief returns minimum value of 1-dimensional table
@@ -204,7 +204,7 @@ public:
      * @param ok control flag
      * @return minimum value of 1-dimensional table
      */
-    double minValue1D(const QString& paramName, bool* ok = Q_NULLPTR);
+    double minValue1D(const QString& paramName, bool* ok = nullptr);
 
     /**
      * @brief returns maximum value of 1-dimensional table
@@ -212,7 +212,7 @@ public:
      * @param ok control flag
      * @return maximum value of 1-dimensional table
      */
-    double maxValue1D(const QString &paramName, bool* ok = Q_NULLPTR);
+    double maxValue1D(const QString &paramName, bool* ok = nullptr);
 
     /**
      * @brief setData1Dfrom2DDataZone
@@ -244,7 +244,7 @@ public slots:
     * @brief returns the number of dimensions
     * @return number of dimensions
     */
-   virtual int nDims() const override;
+   int nDims() const override;
 
    /**
     * @brief returns value from 1-dimensional datazone
@@ -292,7 +292,7 @@ public slots:
     */
    double value4D(const QString& param, const double& x0, const double& x1,
                   const double& x2, const double& x3,
-                  bool* ok = nullptr);
+                  bool* ok = nullptr) const;
 
 protected:
 

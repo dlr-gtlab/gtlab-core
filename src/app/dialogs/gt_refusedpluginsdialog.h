@@ -26,7 +26,7 @@ public:
      * @brief Constructor.
      * @param parent Parent widget.
      */
-    explicit GtRefusedPluginsDialog(QWidget* parent = Q_NULLPTR);
+    explicit GtRefusedPluginsDialog(QWidget* parent = nullptr);
 
     /**
      * @brief Writes any unsaved changes to permanent storage.

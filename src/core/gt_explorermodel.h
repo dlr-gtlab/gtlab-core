@@ -33,7 +33,7 @@ public:
     /**
      * @brief ~GtExplorerModel
      */
-    virtual ~GtExplorerModel();
+    ~GtExplorerModel() override;
 
     /**
      * @brief objectFromIndex
@@ -60,7 +60,7 @@ protected:
      * @brief supportedDragActions
      * @return
      */
-    Qt::DropActions supportedDragActions() const;
+    Qt::DropActions supportedDragActions() const override;
 
     /**
      * @brief filterAcceptsRow
@@ -68,8 +68,8 @@ protected:
      * @param source_parent
      * @return
      */
-    virtual bool filterAcceptsRow(int source_row,
-                                  const QModelIndex& source_parent) const;
+    bool filterAcceptsRow(int source_row,
+                          const QModelIndex& source_parent) const override;
 
 };
 

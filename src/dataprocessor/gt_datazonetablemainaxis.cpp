@@ -10,43 +10,37 @@
 //}
 
 
-GtDataZoneTableMainAxis::GtDataZoneTableMainAxis(const QString name,
+GtDataZoneTableMainAxis::GtDataZoneTableMainAxis(const QString& name,
                                                  AxisType axType,
-                                                 QString title)
+                                                 const QString& title) :
+    m_title{title},
+    m_name{name},
+    m_axType{axType},
+    m_active{true}
 {
-    m_name = name;
-    m_axType = axType;
-    m_title = title;
-    m_active = true;
-
     setObjectName(name);
 }
 
-GtDataZoneTableMainAxis::GtDataZoneTableMainAxis()
-{
-
-}
-
 int
-GtDataZoneTableMainAxis::size()
+GtDataZoneTableMainAxis::size() const
 {
     return m_axisTicks.size();
 }
 
 void
-GtDataZoneTableMainAxis::setTicks(QStringList list)
+GtDataZoneTableMainAxis::setTicks(const QStringList& ticks)
 {
-    m_axisTicks = list;
+    m_axisTicks = ticks;
 }
 
 QStringList
-GtDataZoneTableMainAxis::ticks()
+GtDataZoneTableMainAxis::ticks() const
 {
     return m_axisTicks;
 }
 
 int
-GtDataZoneTableMainAxis::indexOf(QString str, bool* ok)
+GtDataZoneTableMainAxis::indexOf(const QString& str, bool* ok) const
 {
     // if axis does not contain this tick return 0
     if (!m_axisTicks.contains(str))
@@ -70,7 +64,7 @@ GtDataZoneTableMainAxis::indexOf(QString str, bool* ok)
 }
 
 QString
-GtDataZoneTableMainAxis::name()
+GtDataZoneTableMainAxis::name() const
 {
     return m_name;
 }
@@ -105,7 +99,7 @@ GtDataZoneTableMainAxis::setActive(bool active)
 }
 
 GtDataZoneTableMainAxis::AxisType
-GtDataZoneTableMainAxis::axisType()
+GtDataZoneTableMainAxis::axisType() const
 {
     return m_axType;
 }

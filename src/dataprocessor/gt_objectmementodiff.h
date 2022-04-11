@@ -125,10 +125,11 @@ private:
 
     /**
      * @brief Proceeds an added object to the needed diff entry
-     * @param leftRoot
-     * @param changedObj
+     * @param addedObj
+     * @param index
+     * @param diffRoot
      */
-    void handleObjectAdded(const QDomElement& changedObj,
+    void handleObjectAdded(const QDomElement& addedObj,
                            int index,
                            QDomElement& diffRoot);
 

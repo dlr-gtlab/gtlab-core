@@ -29,7 +29,7 @@ public:
     /**
      * @brief GtAbstractPostWidget
      */
-    GtAbstractPostWidget(QWidget* w = Q_NULLPTR);
+    explicit GtAbstractPostWidget(QWidget *w = nullptr);
 
     /**
      * @brief configActions
@@ -145,7 +145,7 @@ public:
 
 protected:
 
-    void createDztList(QStringList dztUUIDs);
+    void createDztList(const QStringList& dztUUIDs);
 
     void deleteDztList();
 
@@ -231,7 +231,7 @@ public slots:
     /**
      * @brief updatePlot
      */
-    virtual void initFillingUI(GtObject* = Q_NULLPTR) {}
+    virtual void initFillingUI(GtObject* = nullptr) {}
 
 signals:
 

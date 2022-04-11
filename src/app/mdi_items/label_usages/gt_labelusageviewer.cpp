@@ -57,7 +57,7 @@ GtLabelUsageViewer::setData(GtObject* obj)
 {
     GtLabelContainer* container = dynamic_cast<GtLabelContainer*>(obj);
 
-    if (container == Q_NULLPTR || !container->isValid())
+    if (!container || !container->isValid())
     {
         return;
     }

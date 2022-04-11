@@ -40,7 +40,7 @@ public:
      * @param name
      * @return
      */
-    GtTable* table(QString name);
+    GtTable* table(const QString& name);
 
     /**
      * @brief tableNames - returns the names of all children GtTables

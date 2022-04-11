@@ -40,7 +40,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~GtTaskRunner();
+    ~GtTaskRunner() override;
 
     /**
      * @brief Varifies and sets all necessary parameter.

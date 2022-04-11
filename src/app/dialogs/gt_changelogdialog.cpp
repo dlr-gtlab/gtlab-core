@@ -65,7 +65,7 @@ GtChangelogDialog::setToPopup()
 bool
 GtChangelogDialog::readChangelog(QTextEdit* textEdit)
 {
-    if (textEdit == Q_NULLPTR)
+    if (!textEdit)
     {
         return false;
     }

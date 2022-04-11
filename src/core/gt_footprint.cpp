@@ -7,15 +7,19 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDomDocument>
-#include <QXmlStreamWriter>
-#include <QCryptographicHash>
+#include "gt_footprint.h"
 
 #include "gt_coreapplication.h"
 #include "gt_versionnumber.h"
 #include <gt_logging.h>
 
-#include "gt_footprint.h"
+#include "gt_algorithms.h"
+
+#include <QDomDocument>
+#include <QXmlStreamWriter>
+#include <QCryptographicHash>
+
+#include <memory>
 
 class GtFootprintImpl
 {
@@ -41,10 +45,9 @@ public:
 
 };
 
-GtFootprint::GtFootprint()
+GtFootprint::GtFootprint() :
+    m_pimpl{std::make_unique<GtFootprintImpl>()}
 {
-    m_pimpl = new GtFootprintImpl;
-
     m_pimpl->m_core_ver_major = gtApp->majorRelease();
     m_pimpl->m_core_ver_minor = gtApp->minorRelease();
     m_pimpl->m_core_ver_patch = gtApp->patchLevel();
@@ -58,9 +61,14 @@ GtFootprint::GtFootprint()
     }
 }
 
-GtFootprint::GtFootprint(const QString& data)
+GtFootprint::GtFootprint(const GtFootprint& other) :
+    m_pimpl{std::make_unique<GtFootprintImpl>(*other.m_pimpl)}
 {
-    m_pimpl = new GtFootprintImpl;
+}
+
+GtFootprint::GtFootprint(const QString& data) :
+    m_pimpl{std::make_unique<GtFootprintImpl>()}
+{
     m_pimpl->m_core_ver_major = 0;
     m_pimpl->m_core_ver_minor = 0;
     m_pimpl->m_core_ver_patch = 0;
@@ -68,10 +76,7 @@ GtFootprint::GtFootprint(const QString& data)
     m_pimpl->readData(data);
 }
 
-GtFootprint::~GtFootprint()
-{
-    delete m_pimpl;
-}
+GtFootprint::~GtFootprint() = default;
 
 bool
 GtFootprint::isValid() const
@@ -259,13 +264,13 @@ GtFootprint::unknownModules() const
 
     GtFootprint envFootPrint;
 
-    foreach (const QString& mid, m_pimpl->m_modules.keys())
+    for_each_key (m_pimpl->m_modules, [&](const QString& mid)
     {
         if (!envFootPrint.m_pimpl->m_modules.contains(mid))
         {
             retval.insert(mid, m_pimpl->m_modules.value(mid));
         }
-    }
+    });
 
     return retval;
 }
@@ -277,7 +282,7 @@ GtFootprint::incompatibleModules() const
 
     GtFootprint envFootPrint;
 
-    foreach (const QString& mid, m_pimpl->m_modules.keys())
+    for_each_key (m_pimpl->m_modules, [&](const QString& mid)
     {
         if ((envFootPrint.m_pimpl->m_modules.contains(mid)) &&
                 (envFootPrint.m_pimpl->m_modules.value(mid) <
@@ -285,7 +290,7 @@ GtFootprint::incompatibleModules() const
         {
             retval.insert(mid, m_pimpl->m_modules.value(mid));
         }
-    }
+    });
 
     return retval;
 }
@@ -297,7 +302,7 @@ GtFootprint::updatedModules() const
 
     GtFootprint envFootPrint;
 
-    foreach (const QString& mid, m_pimpl->m_modules.keys())
+    for_each_key (m_pimpl->m_modules, [&](const QString& mid)
     {
         if ((envFootPrint.m_pimpl->m_modules.contains(mid)) &&
                 (envFootPrint.m_pimpl->m_modules.value(mid) >
@@ -305,7 +310,7 @@ GtFootprint::updatedModules() const
         {
             retval.insert(mid, m_pimpl->m_modules.value(mid));
         }
-    }
+    });
 
     return retval;
 }

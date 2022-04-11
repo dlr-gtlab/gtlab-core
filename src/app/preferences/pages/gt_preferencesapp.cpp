@@ -21,7 +21,9 @@
 
 #include "gt_preferencesapp.h"
 
-GtPreferencesApp::GtPreferencesApp()
+GtPreferencesApp::GtPreferencesApp() :
+    m_autoSaveModifications(nullptr),
+    m_autoSaveInterval(nullptr)
 {
     setTitle(tr("Application"));
 

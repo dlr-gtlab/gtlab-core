@@ -17,10 +17,5 @@ GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
 {
     setReadOnly(true);
 
-    if (m_validator != nullptr)
-    {
-        delete m_validator;
-    }
-
-    m_validator = new QRegExpValidator(GtRegExp::woUmlauts(), this);
+    m_validator = std::make_unique<QRegExpValidator>(GtRegExp::woUmlauts());
 }

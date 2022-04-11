@@ -18,12 +18,12 @@
 #include "gt_application.h"
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
+#include "gt_algorithms.h"
 
 #include "gt_projectanalyzerdialog.h"
 
 GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
-    QDialog(),
-    m_tabWid(Q_NULLPTR)
+    m_tabWid(nullptr)
 {
     setWindowTitle(tr("Project Analyzer"));
     setWindowIcon(gtApp->icon("componentsIcon_16.png"));
@@ -31,7 +31,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
     QVBoxLayout* mLay = new QVBoxLayout;
 
     // read information
-    if (analyzer != Q_NULLPTR)
+    if (analyzer)
     {
         // analyse footprint
         GtFootprint footprint = analyzer->footPrint();
@@ -125,13 +125,13 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 
             QListWidget* umListWid = new QListWidget;
 
-            foreach (const QString& str, unknownModules.keys())
+            for_each_key(unknownModules, [&](const QString& str)
             {
                 QListWidgetItem* lItem =
                         new QListWidgetItem(gtApp->icon("pluginIcon.png"),
                                             str);
                 umListWid->addItem(lItem);
-            }
+            });
 
             tabWid->addTab(umListWid, gtApp->icon("errorIcon_16.png"),
                            tr("Unknown Modules"));
@@ -149,8 +149,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             tWid->setColumnCount(3);
             tWid->setHeaderLabels(QStringList() << "" << "Project" <<
                                   "Framework");
-
-            for(auto e : incompatibleModules.keys())
+            for_each_key(incompatibleModules, [&](const QString& e)
             {
                 QTreeWidgetItem* incompatibleModule =
                         new QTreeWidgetItem(QStringList() << e <<
@@ -164,7 +163,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                 incompatibleModule->setIcon(0, gtApp->icon("pluginIcon.png"));
 
                 tWid->addTopLevelItem(incompatibleModule);
-            }
+            });
 
             tWid->setColumnWidth(0, 200);
 
@@ -192,7 +191,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
         }
     }
 
-    if (m_tabWid != Q_NULLPTR)
+    if (m_tabWid)
     {
         QLabel* irregulInfo =
                 new QLabel(tr("Irregularities found in the project file:"));
@@ -226,7 +225,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 QTabWidget*
 GtProjectAnalyzerDialog::tabWidget()
 {
-    if (m_tabWid == Q_NULLPTR)
+    if (!m_tabWid)
     {
         m_tabWid = new QTabWidget;
     }

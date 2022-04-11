@@ -5,9 +5,10 @@ GtStringContainer::GtStringContainer()
 
 }
 
-GtStringContainer::GtStringContainer(QString str)
+GtStringContainer::GtStringContainer(const QString& str) :
+    m_entry(str)
 {
-    m_entry = str;
+
 }
 
 QString

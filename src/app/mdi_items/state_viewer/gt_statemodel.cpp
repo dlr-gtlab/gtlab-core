@@ -39,7 +39,7 @@ GtStateModel::data(const QModelIndex& index, int role) const
 
     GtObject* item = objectFromIndex(index);
 
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QVariant();
     }
@@ -63,7 +63,7 @@ GtStateModel::data(const QModelIndex& index, int role) const
                 if (GtStateContainer* cont =
                             qobject_cast<GtStateContainer*>(item))
                 {
-                    if (cont->project() == Q_NULLPTR)
+                    if (!cont->project())
                     {
                         if (cont->objectName() == QLatin1String("-- Global --"))
                         {

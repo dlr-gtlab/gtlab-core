@@ -33,14 +33,14 @@ public:
      * @param strings
      * @param parent
      */
-    GtCheckableStringListModel(const QStringList& strings,
-                               QObject* parent = Q_NULLPTR);
+    explicit GtCheckableStringListModel(const QStringList& strings,
+                                        QObject* parent = nullptr);
 
     /**
      * @brief GtCheckableStringListModel
      * @param parent
      */
-    explicit GtCheckableStringListModel(QObject* parent = Q_NULLPTR);
+    explicit GtCheckableStringListModel(QObject* parent = nullptr);
 
     /**
      * @brief stringList
@@ -80,7 +80,7 @@ public:
      * @param index
      * @return
      */
-    virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     /**
      * @brief data
@@ -98,9 +98,9 @@ public:
      * @param role
      * @return
      */
-    virtual bool setData(const QModelIndex& index,
-                         const QVariant& value,
-                         int role = Qt::EditRole) override;
+    bool setData(const QModelIndex& index,
+                 const QVariant& value,
+                 int role = Qt::EditRole) override;
 
     /**
      * @brief selectItems
@@ -137,8 +137,8 @@ public:
      * @param parent
      * @return
      */
-    virtual bool insertRows(int row, int count,
-                     const QModelIndex& parent = QModelIndex()) override;
+    bool insertRows(int row, int count,
+                    const QModelIndex& parent = QModelIndex()) override;
 
     /**
      * @brief removeRows
@@ -147,8 +147,8 @@ public:
      * @param parent
      * @return
      */
-    virtual bool removeRows(int row, int count,
-                     const QModelIndex& parent = QModelIndex()) override;
+    bool removeRows(int row, int count,
+                    const QModelIndex& parent = QModelIndex()) override;
 
     /**
      * @brief supportedDropActions

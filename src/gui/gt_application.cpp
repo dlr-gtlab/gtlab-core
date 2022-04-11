@@ -34,6 +34,7 @@
 #include "gt_saveprojectmessagebox.h"
 #include "gt_palette.h"
 #include "gt_shortcuts.h"
+#include "gt_projectui.h"
 
 #include "gt_application.h"
 
@@ -41,15 +42,14 @@ GtApplication::GtApplication(QCoreApplication* parent,
                              bool devMode,
                              bool batchMode) :
     GtCoreApplication(parent),
-    m_perspective(Q_NULLPTR),
-    m_guiModuleLoader(Q_NULLPTR),
+    m_guiModuleLoader(nullptr),
     m_d(new GtApplicationPrivate(this)),
-    m_selectedObject(Q_NULLPTR)
+    m_selectedObject(nullptr)
 {
     // init process executor in gui mode
     m_processExecutor = new GtProcessExecutor(this);
 
-    if (m_dataModel != Q_NULLPTR)
+    if (m_dataModel)
     {
         delete m_dataModel;
         m_dataModel = new GtDataModel(parent);
@@ -73,12 +73,6 @@ GtApplication::GtApplication(QCoreApplication* parent,
 
 GtApplication::~GtApplication()
 {
-    // cleanup
-    if (m_perspective != Q_NULLPTR)
-    {
-        delete m_perspective;
-    }
-
     QApplication::clipboard()->clear();
 
     // remove temp directory
@@ -116,10 +110,10 @@ void
 GtApplication::loadModules()
 {
     //    qDebug() << "GtApplication::loadModules";
-    if (m_moduleLoader == Q_NULLPTR)
+    if (!m_moduleLoader)
     {
         m_guiModuleLoader = new GtGuiModuleLoader;
-        m_moduleLoader = m_guiModuleLoader;
+        m_moduleLoader.reset(m_guiModuleLoader);
         m_moduleLoader->load();
     }
 }
@@ -155,7 +149,7 @@ GtApplication::initPerspective(const QString& id)
         }
     }
 
-    if (m_perspective == Q_NULLPTR)
+    if (!m_perspective)
     {
         // load perspective info
 
@@ -195,14 +189,8 @@ GtApplication::switchPerspective(const QString& id)
 
     emit perspectiveAboutToBeChanged();
 
-    // save last used perspective
-    if (m_perspective)
-    {
-        delete m_perspective;
-    }
-
-    // open new perspective
-    m_perspective = new GtPerspective(tmpId);
+    // save last used perspective and open new perspective
+    m_perspective.reset(new GtPerspective(tmpId));
 
     qDebug() << tr("loaded perspective: ") << m_perspective->objectName();
     settings()->setLastPerspective(tmpId);
@@ -409,7 +397,7 @@ GtApplication::initShortCuts()
     QMap<QString, QStringList> tabBasic = settings()->intialShortCutsMap();
 
     /// if short cut in default list, but not in settings add it to settings
-    for (QString k : tabBasic.keys())
+    for (QString const& k : tabBasic.keys())
     {
         if (!tab.keys().contains(k))
         {
@@ -445,7 +433,7 @@ GtApplication::defaultObjectUI(GtObject* obj)
         return ouis.first();
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 GtObjectUI*
@@ -458,7 +446,7 @@ GtApplication::defaultObjectUI(const QString& classname)
         return ouis.first();
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 QStringList
@@ -483,43 +471,16 @@ GtApplication::switchSession(const QString& id)
         return;
     }
 
-    if (gtApp->hasProjectChanges())
+    if (!GtProjectUI::saveAndCloseCurrentProject())
     {
-        QString text = tr("Found changes in current project.\n"
-                          "Do you want to save all your changes "
-                          "before switching session?");
-
-        GtSaveProjectMessageBox mb(text);
-        int ret = mb.exec();
-
-        switch (ret)
-        {
-            case QMessageBox::Yes:
-            {
-                gtDataModel->saveProject(gtApp->currentProject());
-                break;
-            }
-
-            case QMessageBox::No:
-            {
-                break;
-            }
-
-            case QMessageBox::Cancel:
-            {
-                return;
-            }
-
-            default:
-                break;
-        }
+        return;
     }
 
 
     GtCoreApplication::switchSession(id);
 
     // TODO: check assert !!!!
-    //    Q_ASSERT(m_session == Q_NULLPTR);
+    //    Q_ASSERT(m_session == nullptr);
 
     m_undoStack.clear();
 }
@@ -546,7 +507,7 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
 {
     m_commandMutex.lock();
 
-    if (root == Q_NULLPTR)
+    if (!root)
     {
         m_commandMutex.unlock();
         qDebug() << tr("root object == NULL!");
@@ -606,7 +567,7 @@ GtApplication::endCommand(const GtCommand& command)
         return;
     }
 
-    if (m_d->m_commandRoot == Q_NULLPTR)
+    if (!m_d->m_commandRoot)
     {
         m_commandMutex.unlock();
         qDebug() << tr("invlid command root!");
@@ -621,7 +582,7 @@ GtApplication::endCommand(const GtCommand& command)
 
     GtSession* root =  m_d->m_commandRoot->findRoot<GtSession*>();
 
-    if (root == Q_NULLPTR)
+    if (!root)
     {
         m_commandMutex.unlock();
         qDebug() << tr("no root object found!");
@@ -633,7 +594,7 @@ GtApplication::endCommand(const GtCommand& command)
     undoStack()->push(changeCommand);
 
     //    // cleanup
-    m_d->m_commandRoot = Q_NULLPTR;
+    m_d->m_commandRoot = nullptr;
     m_d->m_commandId = QString();
 
     m_commandMutex.unlock();
@@ -644,7 +605,7 @@ GtApplication::commandIsRunning()
 {
     m_commandMutex.lock();
 
-    if (m_d->m_commandRoot != Q_NULLPTR)
+    if (m_d->m_commandRoot)
     {
         m_commandMutex.unlock();
         return true;
@@ -657,7 +618,7 @@ GtApplication::commandIsRunning()
 void
 GtApplication::loadingProcedure(GtAbstractLoadingHelper* helper)
 {
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         return;
     }
@@ -676,7 +637,7 @@ GtApplication::getShortCutSequence(const QString& id) const
 {
     GtShortCuts* s = shortCuts();
 
-    if (s == nullptr)
+    if (!s)
     {
         gtDebug() << tr("Try to find short cut for ") << id
                   << tr("in System failed for empty list of shotcuts");
@@ -699,7 +660,7 @@ GtApplication::compareKeyEvent(QKeyEvent* keyEvent, const QString& id) const
 {
     GtShortCuts* s = shortCuts();
 
-    if (s == nullptr)
+    if (!s)
     {
         gtError() << tr("Short cuts list not found");
         return false;
@@ -746,7 +707,7 @@ GtApplication::setDarkMode(bool dark, bool initial)
 {
     m_darkMode = dark;
 
-    if (initial == false)
+    if (!initial)
     {
         gtInfo() << tr("Theme was changed.")
                  << tr("For an optimal view of all displays, "

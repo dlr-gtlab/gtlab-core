@@ -29,7 +29,7 @@ public:
     /**
      * @brief ~GtStartupPage
      */
-    virtual ~GtStartupPage();
+    ~GtStartupPage() override;
 
     /**
      * @brief Virtual function to specify item specific icon.

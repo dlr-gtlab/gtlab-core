@@ -28,9 +28,9 @@ public:
      * @brief GtDataZoneModel
      * @param parent
      */
-    explicit GtDataZoneModel(QObject* parent = Q_NULLPTR);
+    explicit GtDataZoneModel(QObject* parent = nullptr);
 
-    ~GtDataZoneModel();
+    ~GtDataZoneModel() override;
 
     /**
      * @brief setResultData
@@ -77,7 +77,7 @@ public:
     /**
      * @brief m_indeOfInterestAx1
      */
-    int m_indeOfInterestAx1;
+    int m_indexOfInterestAx1;
 
     /**
      * @brief m_axOfInterest

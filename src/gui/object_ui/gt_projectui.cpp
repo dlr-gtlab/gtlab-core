@@ -42,6 +42,7 @@
 #include "gt_processexecutor.h"
 #include "gt_confirmdeleteprojectdialog.h"
 #include "gt_saveprojectmessagebox.h"
+#include "gt_switchprojectmessagebox.h"
 #include "gt_regexp.h"
 #include "gt_inputdialog.h"
 #include "gt_footprint.h"
@@ -55,6 +56,7 @@
 #include "gt_externalizedobject.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
+#include "gt_algorithms.h"
 
 #include "gt_projectui.h"
 
@@ -179,7 +181,7 @@ GtProjectUI::icon(GtObject* obj) const
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return QIcon();
     }
@@ -188,10 +190,9 @@ GtProjectUI::icon(GtObject* obj) const
     {
         return gtApp->icon("componentsIcon_16.png");
     }
-    else
-    {
-        return gtApp->icon("closedProjectIcon_16.png");
-    }
+
+    return gtApp->icon("closedProjectIcon_16.png");
+
 }
 
 void
@@ -203,7 +204,7 @@ GtProjectUI::doubleClicked(GtObject* obj)
 QVariant
 GtProjectUI::specificData(GtObject* obj, int role, int column) const
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return QVariant();
     }
@@ -233,7 +234,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
         {
             GtProject* project = qobject_cast<GtProject*>(obj);
 
-            if (project != Q_NULLPTR)
+            if (project)
             {
                 if (!project->comment().isEmpty())
                 {
@@ -247,7 +248,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
         {
             GtProject* project = qobject_cast<GtProject*>(obj);
 
-            if (project != Q_NULLPTR)
+            if (project)
             {
                 if (!project->comment().isEmpty())
                 {
@@ -261,6 +262,58 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
     }
 
     return QVariant();
+}
+
+bool GtProjectUI::saveAndCloseCurrentProject()
+{
+    if (gtApp->hasProjectChanges())
+    {
+
+        QString text = tr("Found changes in current project.\n"
+                          "Do you want to save all your changes "
+                          "before opening new project?");
+
+        GtSaveProjectMessageBox mb(text);
+        int ret = mb.exec();
+
+        if (ret == QMessageBox::Yes)
+        {
+            gtDataModel->saveProject(gtApp->currentProject());
+        }
+        else if (ret == QMessageBox::Cancel)
+        {
+            return false;
+        }
+    }
+
+    gtDataModel->closeProject(gtApp->currentProject());
+    return true;
+}
+
+
+void GtProjectUI::switchToProject(GtProject& toProject)
+{
+    if (&toProject == gtApp->currentProject())
+    {
+        return;
+    }
+
+
+    if (gtApp->currentProject() && !gtApp->hasProjectChanges())
+    {
+        GtSwitchProjectMessageBox mb;
+        if (mb.exec() == QMessageBox::Cancel)
+        {
+            return;
+        }
+    }
+
+    if (!saveAndCloseCurrentProject())
+    {
+        return;
+    }
+
+    gtDataModel->openProject(&toProject);
 }
 
 void
@@ -281,7 +334,7 @@ GtProjectUI::openProject(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -292,71 +345,7 @@ GtProjectUI::openProject(GtObject* obj)
         return;
     }
 
-    if (project != gtApp->currentProject())
-    {
-        if (gtApp->hasProjectChanges())
-        {
-            QString text = tr("Found changes in current project.\n"
-                              "Do you want to save all your changes "
-                              "before opening new project?");
-
-            GtSaveProjectMessageBox mb(text);
-            int ret = mb.exec();
-
-            switch (ret)
-            {
-                case QMessageBox::Yes:
-                {
-                    gtDataModel->saveProject(gtApp->currentProject());
-                    break;
-                }
-
-                case QMessageBox::No:
-                {
-                    break;
-                }
-
-                case QMessageBox::Cancel:
-                {
-                    return;
-                }
-
-                default:
-                    break;
-            }
-        }
-        else if (gtApp->currentProject() != Q_NULLPTR)
-        {
-            QMessageBox mb;
-            mb.setIcon(QMessageBox::Question);
-            mb.setWindowTitle("Confirm Switch Project");
-            mb.setWindowIcon(gtApp->icon("jumpToIcon.png"));
-            mb.setText(QString("Switch project?"));
-            mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-            mb.setDefaultButton(QMessageBox::Cancel);
-            int ret = mb.exec();
-
-            switch (ret)
-            {
-                case QMessageBox::Yes:
-                {
-                    break;
-                }
-
-                case QMessageBox::Cancel:
-                {
-                    return;
-                }
-
-                default:
-                    break;
-            }
-        }
-
-        gtDataModel->closeProject(gtApp->currentProject());
-    }
-
-    gtDataModel->openProject(project);
+    switchToProject(*project);
     //    if (gtApp->devMode())
     //    {
     //    // open version control data
@@ -384,7 +373,7 @@ GtProjectUI::canOpenProject(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -397,7 +386,7 @@ GtProjectUI::closeProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -452,7 +441,7 @@ GtProjectUI::canCloseProject(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -465,7 +454,7 @@ GtProjectUI::saveProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -483,7 +472,7 @@ GtProjectUI::canSaveProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -496,7 +485,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -579,7 +568,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
             provider.duplicateProject(pspecs->nameLine()->text(),
                                       pathNew.absolutePath());
 
-        if (newProject == Q_NULLPTR)
+        if (!newProject)
         {
             gtError() << tr("Could not duplicate project!");
             return;
@@ -607,7 +596,7 @@ GtProjectUI::canSaveProjectAs(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -620,7 +609,7 @@ GtProjectUI::duplicateProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -635,7 +624,7 @@ GtProjectUI::duplicateProject(GtObject* obj)
     QString id = gtDataModel->uniqueObjectName(project->objectName(),
                  gtApp->session());
 
-    QString text = QInputDialog::getText(Q_NULLPTR,
+    QString text = QInputDialog::getText(nullptr,
                                          tr("New Project Name"),
                                          tr("Project name:"),
                                          QLineEdit::Normal,
@@ -676,7 +665,7 @@ GtProjectUI::duplicateProject(GtObject* obj)
         GtProject* newProject =
             provider.duplicateProject(text, pathNew.absolutePath());
 
-        if (newProject == Q_NULLPTR)
+        if (!newProject)
         {
             gtError() << tr("Could not duplicate project!");
             return;
@@ -702,7 +691,7 @@ GtProjectUI::canDuplicateProject(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -715,7 +704,7 @@ GtProjectUI::deleteProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -763,7 +752,7 @@ GtProjectUI::canDeleteProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -776,7 +765,7 @@ GtProjectUI::setCurrentProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -795,7 +784,7 @@ GtProjectUI::setCurrentProject(GtObject* obj)
         // update object entries
         gtDataModel->updateObject(project);
 
-        if (lastProject != Q_NULLPTR)
+        if (lastProject)
         {
             gtDataModel->updateObject(lastProject);
         }
@@ -807,7 +796,7 @@ GtProjectUI::canSetCurrentProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -830,7 +819,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -962,7 +951,7 @@ GtProjectUI::canChooseProjectModule(GtObject* obj)
 
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -980,7 +969,7 @@ GtProjectUI::testCommit(GtObject* /*obj*/)
 {
     //    GtProject* project = qobject_cast<GtProject*>(obj);
 
-    //    if (project == Q_NULLPTR)
+    //    if (!project)
     //    {
     //        return;
     //    }
@@ -1012,7 +1001,7 @@ GtProjectUI::canTestCommit(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1030,7 +1019,7 @@ GtProjectUI::testCheckout(GtObject* /*obj*/)
 {
     //    GtProject* project = qobject_cast<GtProject*>(obj);
 
-    //    if (project == Q_NULLPTR)
+    //    if (!project)
     //    {
     //        return;
     //    }
@@ -1057,7 +1046,7 @@ GtProjectUI::enableVersionControl(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -1068,7 +1057,7 @@ GtProjectUI::canEnableVersionControl(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1086,14 +1075,14 @@ GtProjectUI::exportMetaData(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
 
     GtProcessData* pd =  project->processData();
 
-    if (pd == Q_NULLPTR)
+    if (!pd)
     {
         return;
     }
@@ -1217,7 +1206,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
             {
                 GtObject* clonedPkg = pkg->clone();
 
-                if (clonedPkg == Q_NULLPTR)
+                if (!clonedPkg)
                 {
                     gtError() << tr("Could not clone package!");
                     return;
@@ -1235,7 +1224,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
                 dataElement.appendChild(mem.documentElement());
 
                 delete clonedPkg;
-                clonedPkg = Q_NULLPTR;
+                clonedPkg = nullptr;
             }
             else
             {
@@ -1252,7 +1241,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
 
         GtTask* task = pd->findDirectChild<GtTask*>(selItems.first());
 
-        if (task == Q_NULLPTR)
+        if (!task)
         {
             return;
         }
@@ -1287,7 +1276,7 @@ GtProjectUI::canExportMetaData(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1305,7 +1294,7 @@ GtProjectUI::showInExplorer(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -1318,12 +1307,12 @@ GtProjectUI::renameProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
 
-    if (gtApp->session() == Q_NULLPTR)
+    if (!gtApp->session())
     {
         return;
     }
@@ -1401,7 +1390,7 @@ GtProjectUI::canRenameProject(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1419,7 +1408,7 @@ GtProjectUI::showFootprint(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -1501,7 +1490,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QTreeWidgetItem* unknownRoot =
                 new QTreeWidgetItem(QStringList() << "Unknown Modules");
 
-        for(auto e : unknownModules.keys())
+        for_each_key(unknownModules, [&](const QString& e)
         {
             QTreeWidgetItem* unknownModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1511,7 +1500,7 @@ GtProjectUI::showFootprint(GtObject* obj)
             unknownModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
 
             unknownRoot->addChild(unknownModule);
-        }
+        });
 
         tWid->addTopLevelItem(unknownRoot);
     }
@@ -1524,7 +1513,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QTreeWidgetItem* incompatibleRoot =
                 new QTreeWidgetItem(QStringList() << "Incompatible Modules");
 
-        for(auto e : incompatibleModules.keys())
+        for_each_key(incompatibleModules, [&](const QString& e)
         {
             QTreeWidgetItem* incompatibleModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1535,7 +1524,7 @@ GtProjectUI::showFootprint(GtObject* obj)
             incompatibleModule->setBackgroundColor(2, QColor(255, 0, 0, 100));
 
             incompatibleRoot->addChild(incompatibleModule);
-        }
+        });
 
         tWid->addTopLevelItem(incompatibleRoot);
     }
@@ -1547,7 +1536,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QTreeWidgetItem* updatedRoot =
                 new QTreeWidgetItem(QStringList() << "Updated Modules");
 
-        for(auto e : updatedModules.keys())
+        for_each_key(updatedModules, [&](const QString& e)
         {
             QTreeWidgetItem* updatedModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1558,7 +1547,7 @@ GtProjectUI::showFootprint(GtObject* obj)
             updatedModule->setBackgroundColor(2, QColor(255, 255, 0, 100));
 
             updatedRoot->addChild(updatedModule);
-        }
+        });
 
         tWid->addTopLevelItem(updatedRoot);
     }
@@ -1594,7 +1583,7 @@ GtProjectUI::editComment(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -1624,7 +1613,7 @@ GtProjectUI::canEditComment(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -1637,7 +1626,7 @@ GtProjectUI::openProjectSettings(GtObject* obj)
 {
     GtProject* project = qobject_cast<GtProject*>(obj);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -1645,7 +1634,7 @@ GtProjectUI::openProjectSettings(GtObject* obj)
     // count number of externalized objects
     int counter = 0;
     auto externObjects(project->findChildren<GtExternalizedObject*>());
-    for (auto* externObj : externObjects)
+    for (const auto* externObj : qAsConst(externObjects))
     {
         counter += externObj->isFetched();
     }

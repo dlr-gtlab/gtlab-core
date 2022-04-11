@@ -92,17 +92,6 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <widget class="QMenu" name="menuImport">
-     <property name="title">
-      <string>&amp;Import</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/icons/icons.qrc">
-       <normaloff>:/icons/importIcon.png</normaloff>:/icons/importIcon.png</iconset>
-     </property>
-     <addaction name="actionImportProject"/>
-     <addaction name="separator"/>
-    </widget>
     <widget class="QMenu" name="menuSession">
      <property name="title">
       <string>&amp;Session</string>
@@ -122,8 +111,6 @@
     <addaction name="separator"/>
     <addaction name="menuSession"/>
     <addaction name="actionEditSessions"/>
-    <addaction name="separator"/>
-    <addaction name="menuImport"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -221,7 +208,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionNewProject"/>
-   <addaction name="actionImportProject"/>
+   <addaction name="actionOpen_Project"/>
    <addaction name="actionSave_Project"/>
   </widget>
   <widget class="QToolBar" name="undoBar">
@@ -315,18 +302,6 @@
     <string>Cascade Windows</string>
    </property>
   </action>
-  <action name="actionImportProject">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/importProjectIcon_24.png</normaloff>:/icons/importProjectIcon_24.png</iconset>
-   </property>
-   <property name="text">
-    <string>Project to Session...</string>
-   </property>
-   <property name="toolTip">
-    <string>Import Project</string>
-   </property>
-  </action>
   <action name="actionSaveProject">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
@@ -410,7 +385,7 @@
   </action>
   <action name="actionOpen_Project">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
@@ -737,7 +712,6 @@
   </action>
  </widget>
  <resources>
-  <include location="../../resources/icons/icons.qrc"/>
   <include location="../../resources/icons/icons.qrc"/>
   <include location="../../resources/icons/icons.qrc"/>
  </resources>

@@ -35,7 +35,7 @@ GtPerspective::createDefault()
 }
 
 bool
-GtPerspective::createEmptyPerspective(const QString id)
+GtPerspective::createEmptyPerspective(const QString& id)
 {
     QString path = gtApp->roamingPath() + QDir::separator() +
                    QStringLiteral("perspective");
@@ -63,7 +63,8 @@ GtPerspective::createEmptyPerspective(const QString id)
 }
 
 bool
-GtPerspective::duplicatePerspective(const QString source, const QString target)
+GtPerspective::duplicatePerspective(const QString& source,
+                                    const QString& target)
 {
     QString path = gtApp->roamingPath() + QDir::separator() +
                    QStringLiteral("perspective");

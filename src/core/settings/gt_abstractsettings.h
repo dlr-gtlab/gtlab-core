@@ -32,13 +32,13 @@ public:
     /**
      * @brief ~GtAbstractSettings
      */
-    virtual ~GtAbstractSettings();
+    ~GtAbstractSettings() override;
 
 protected:
     /**
      * @brief GtAbstractSettings
      */
-    explicit GtAbstractSettings(GtObject* parent = Q_NULLPTR);
+    explicit GtAbstractSettings(GtObject* parent = nullptr);
 
     /**
      * @brief registerSetting

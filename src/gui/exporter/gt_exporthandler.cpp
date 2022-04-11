@@ -14,7 +14,7 @@
 #include "gt_application.h"
 #include "gt_abstractexporter.h"
 #include "gt_logging.h"
-
+#include "gt_algorithms.h"
 
 #include "gt_processexporter.h"
 #include "gt_datazonecsvexporter.h"
@@ -23,16 +23,16 @@
 GtExportHandler::GtExportHandler(QObject* parent) : QObject(parent)
 {
     /// Static exporter class registration
-    registerClass(GT_METADATA(GtProcessExporter));
-    registerClass(GT_METADATA(GtDataZoneCsvExporter));
-    registerClass(GT_METADATA(GtDataZoneDatExporter));
+    GtExportHandler::registerClass(GT_METADATA(GtProcessExporter));
+    GtExportHandler::registerClass(GT_METADATA(GtDataZoneCsvExporter));
+    GtExportHandler::registerClass(GT_METADATA(GtDataZoneDatExporter));
 }
 
 GtExportHandler*
 GtExportHandler::instance()
 {
-    static GtExportHandler* retval = Q_NULLPTR;
-    if (retval == Q_NULLPTR)
+    static GtExportHandler* retval = nullptr;
+    if (!retval)
     {
         retval = new GtExportHandler(qApp);
     }
@@ -79,7 +79,7 @@ GtExportHandler::exporterMetaData(const QString& classname)
         return QList<GtExporterMetaData>();
     }
 
-    for (auto e : m_expMeta.keys())
+    for_each_key(m_expMeta, [&](const QString& e)
     {
         GtExporterMetaData metaData = m_expMeta.value(e);
 
@@ -90,7 +90,7 @@ GtExportHandler::exporterMetaData(const QString& classname)
                 retval << metaData;
             }
         }
-    }
+    });
 
     return retval;
 }
@@ -100,22 +100,22 @@ GtExportHandler::newExporter(const QString& classname)
 {
     if (!knownClass(classname))
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtObject* obj = newObject(classname);
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     GtAbstractExporter* retval = qobject_cast<GtAbstractExporter*>(obj);
 
-    if (retval == Q_NULLPTR)
+    if (!retval)
     {
         delete obj;
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return retval;

@@ -24,8 +24,8 @@ GtProcessFactory::GtProcessFactory(QObject* parent) : QObject(parent)
 GtProcessFactory*
 GtProcessFactory::instance()
 {
-    static GtProcessFactory* retval = 0;
-    if (retval == 0)
+    static GtProcessFactory* retval = nullptr;
+    if (!retval)
     {
         retval = new GtProcessFactory(qApp);
     }

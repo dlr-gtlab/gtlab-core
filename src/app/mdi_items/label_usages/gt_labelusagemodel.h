@@ -26,7 +26,7 @@ public:
      * @brief GtLabelUsageModel
      * @param parent
      */
-    explicit GtLabelUsageModel(QObject* parent = Q_NULLPTR);
+    explicit GtLabelUsageModel(QObject* parent = nullptr);
 
     /**
      * @brief rowCount

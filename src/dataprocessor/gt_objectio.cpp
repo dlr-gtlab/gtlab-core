@@ -178,7 +178,7 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     const GtDummyObject* d_obj = qobject_cast<const GtDummyObject*>(o);
 
     // class name
-    if (d_obj == Q_NULLPTR)
+    if (!d_obj)
     {
         data.className = o->metaObject()->className();
     }
@@ -298,7 +298,7 @@ GtObjectIO::toObject(const GtObjectMemento& memento, GtObject* parent)
 GtObject*
 GtObjectIO::toObjectHelper(const QDomElement& element, GtObject* parent)
 {
-    GtObject* retval = Q_NULLPTR;
+    GtObject* retval = nullptr;
 
     QString fieldClass = element.attribute(S_CLASS_TAG);
     QString fieldUuid = element.attribute(S_UUID_TAG);
@@ -307,7 +307,7 @@ GtObjectIO::toObjectHelper(const QDomElement& element, GtObject* parent)
     if (fieldClass.isEmpty() || fieldUuid.isEmpty())
     {
         gtWarning() << "class or uuid field is empty!";
-        return NULL;
+        return nullptr;
     }
 
     if (parent && !fieldName.isEmpty())
@@ -319,27 +319,27 @@ GtObjectIO::toObjectHelper(const QDomElement& element, GtObject* parent)
             /* Check class and uuid */
             if (retval->metaObject()->className() != fieldClass)
             {
-                retval = Q_NULLPTR;
+                retval = nullptr;
             }
 
             if (retval && (retval->uuid() != fieldUuid) && !retval->isDefault())
             {
-                retval = Q_NULLPTR;
+                retval = nullptr;
             }
         }
     }
 
-    if (retval == Q_NULLPTR)
+    if (!retval)
     {
-        if (m_factory == Q_NULLPTR)
+        if (!m_factory)
         {
             qCritical() << "ERROR: no factory set!";
-            return Q_NULLPTR;
+            return nullptr;
         }
 
         retval = m_factory->newObject(fieldClass, parent);
 
-        if (retval == Q_NULLPTR)
+        if (!retval)
         {
             // no class found in factory. we need a dummy object here
             gtWarning() << "could not recreate object of unknown type " <<
@@ -359,7 +359,7 @@ GtObjectIO::toObjectHelper(const QDomElement& element, GtObject* parent)
 void
 GtObjectIO::mergeObject(const QDomElement& element, GtObject* obj)
 {
-    if (obj == NULL)
+    if (!obj)
     {
         return;
     }
@@ -433,7 +433,7 @@ GtObjectIO::applyDiff(GtObjectMementoDiff& diff, GtObject* obj)
 
         GtObject* parentObject = obj->getObjectByUuid(parentUUID);
 
-        if (parentObject == Q_NULLPTR)
+        if (!parentObject)
         {
             return false;
         }
@@ -551,64 +551,64 @@ GtObjectIO::revertDiff(GtObjectMementoDiff& diff, GtObject* obj)
 
         GtObject* parentObject = obj->getObjectByUuid(parentUUID);
 
-        if (parentObject == Q_NULLPTR)
+        if (!parentObject)
         {
             return false;
         }
 
-        QDomElement diff = parent.firstChildElement();
+        QDomElement domDiff = parent.firstChildElement();
 
-        while (!diff.isNull())
+        while (!domDiff.isNull())
         {
-            if (diff.nodeName() == S_DIFF_OBJ_REMOVE_TAG)
+            if (domDiff.nodeName() == S_DIFF_OBJ_REMOVE_TAG)
             {
                 if (!handleObjectAdd(parentObject,
-                                     diff.firstChildElement(S_OBJECT_TAG),
-                                     diff.attribute(S_DIFF_INDEX_TAG)))
+                                     domDiff.firstChildElement(S_OBJECT_TAG),
+                                     domDiff.attribute(S_DIFF_INDEX_TAG)))
                 {
                     return false;
                 }
             }
-            else if (diff.nodeName() == S_DIFF_OBJ_ADD_TAG)
+            else if (domDiff.nodeName() == S_DIFF_OBJ_ADD_TAG)
             {
                 if (!handleObjectRemove(parentObject,
-                                        diff.firstChildElement(S_OBJECT_TAG),
-                                        diff.attribute(S_DIFF_INDEX_TAG)))
+                                        domDiff.firstChildElement(S_OBJECT_TAG),
+                                        domDiff.attribute(S_DIFF_INDEX_TAG)))
                 {
                     return false;
                 }
             }
-            else if (diff.nodeName() == S_DIFF_INDEX_CHANGED_TAG)
+            else if (domDiff.nodeName() == S_DIFF_INDEX_CHANGED_TAG)
             {
                 bool ok = true;
 
-                int newIndex = diff.attribute(S_DIFF_OLDVAL_TAG).toInt(&ok);
+                int newIndex = domDiff.attribute(S_DIFF_OLDVAL_TAG).toInt(&ok);
                 if (!ok)
                 {
                     return false;
                 }
 
                 if (!handleIndexChange(parentObject,
-                                       diff.firstChildElement(S_OBJECT_TAG),
+                                       domDiff.firstChildElement(S_OBJECT_TAG),
                                        newIndex))
                 {
                     return false;
                 }
             }
-            else if (diff.nodeName() == S_DIFF_PROP_CHANGE_TAG)
+            else if (domDiff.nodeName() == S_DIFF_PROP_CHANGE_TAG)
             {
-                handlePropertyNodeChange(parentObject, diff, false, true);
+                handlePropertyNodeChange(parentObject, domDiff, false, true);
             }
-            else if (diff.nodeName() == S_DIFF_PROPLIST_CHANGE_TAG)
+            else if (domDiff.nodeName() == S_DIFF_PROPLIST_CHANGE_TAG)
             {
-                handlePropertyNodeChange(parentObject, diff, true, true);
+                handlePropertyNodeChange(parentObject, domDiff, true, true);
             }
-            else if (diff.nodeName() == S_DIFF_ATTR_CHANGE_TAG)
+            else if (domDiff.nodeName() == S_DIFF_ATTR_CHANGE_TAG)
             {
-                handleAttributeNodeChange(parentObject, diff, true);
+                handleAttributeNodeChange(parentObject, domDiff, true);
             }
 
-            diff = diff.nextSiblingElement();
+            domDiff = domDiff.nextSiblingElement();
         }
 
         parentObject->onObjectDataMerged();
@@ -623,7 +623,7 @@ void
 GtObjectIO::mergeObjectProperties(const QDomElement& element,
                                   GtObject* obj)
 {
-    if (obj == NULL)
+    if (!obj)
     {
         return;
     }
@@ -664,7 +664,7 @@ GtObjectIO::mergeObjectProperties(const QDomElement& element,
 
             GtAbstractProperty* prop = obj->findProperty(fieldName);
 
-            if (prop != Q_NULLPTR)
+            if (prop)
             {
                 bool s = prop->setValueFromVariant(propertyToVariant(
                                                        propElement.text(),
@@ -730,7 +730,7 @@ GtObjectIO::mergeObjectProperties(const QDomElement& element,
         {
             GtAbstractProperty* prop = obj->findProperty(fieldName);
 
-            if (prop != Q_NULLPTR)
+            if (prop)
             {
                 bool s = prop->setValueFromVariant(propertyListToVariant(
                                                        listElement.text(),
@@ -756,9 +756,9 @@ GtObjectIO::mergeObjectProperties(const QDomElement& element,
             {
                 QString listStr;
                 QString listType;
-                QVariant prop = obj->property(fieldName.toLatin1());
+                QVariant currProp = obj->property(fieldName.toLatin1());
 
-                propertyListStringType(prop, listStr, listType);
+                propertyListStringType(currProp, listStr, listType);
                 if (listStr != listElement.text())
                 {
                     obj->setProperty(fieldName.toLatin1(),
@@ -795,7 +795,7 @@ GtObjectIO::mergeDummyProperies(const QDomElement& element, GtObject* obj)
 {
     GtDummyObject* d_obj = qobject_cast<GtDummyObject*>(obj);
 
-    if (d_obj == Q_NULLPTR)
+    if (!d_obj)
     {
         return;
     }
@@ -901,7 +901,7 @@ GtObjectIO::mergeDynamicProperties(const QDomElement& element, GtObject* obj)
 
     GtAbstractProperty* dynCon = obj->findProperty(dynConId);
 
-    if (dynCon == Q_NULLPTR)
+    if (!dynCon)
     {
         qWarning() << QObject::tr("Dynamic property container not found!") <<
                    QStringLiteral(" (") << dynConId <<
@@ -962,12 +962,12 @@ GtObjectIO::mergeDynamicProperties(const QDomElement& element, GtObject* obj)
 
             bool needsRegistration = false;
 
-            if (prop == Q_NULLPTR)
+            if (!prop)
             {
                 prop = factory->newProperty(className, name, id);
                 needsRegistration = true;
 
-                if (prop == Q_NULLPTR)
+                if (!prop)
                 {
                     qWarning() << QObject::tr("Could not recreate property!") <<
                                QStringLiteral(" (") << className <<
@@ -1006,7 +1006,7 @@ GtObjectIO::writeProperties(GtObjectMemento::MementoData& data,
 
     const GtDummyObject* d_obj = qobject_cast<const GtDummyObject*>(obj);
 
-    if (d_obj != Q_NULLPTR)
+    if (d_obj)
     {
         foreach (GtDummyObject::DummyProperty d_p,
                  d_obj->dummyProperties())
@@ -1287,7 +1287,7 @@ GtObjectIO::writePropertyHelper(QVector<GtObjectMemento::MementoData::PropertyDa
         GtDynamicPropertyContainer* dynCon =
             qobject_cast<GtDynamicPropertyContainer*>(property);
 
-        if (dynCon != Q_NULLPTR)
+        if (dynCon)
         {
             GtObjectMemento::MementoData::PropertyData mprop;
             mprop.name = dynCon->ident();
@@ -1343,22 +1343,17 @@ GtObjectIO::writePropertyHelper(
         QDomDocument& doc, QDomElement& root,
         const GtObjectMemento::MementoData::PropertyData& property)
 {
-    bool isDynamic = false;
-
     if (property.isDynamicContainer)
     {
         QDomElement dynElement = dynamicPropertyElement(doc, root,
                                                         property.name);
         writeDynamicProperties(doc, dynElement, property);
 
-        isDynamic = true;
     }
     else
     {
         // static property
         QDomElement child;
-        QVariantList list;
-        QString listType;
 
         if (!property.enumType.isNull())
         {
@@ -1386,16 +1381,6 @@ GtObjectIO::writePropertyHelper(
 
         root.appendChild(child);
     }
-
-    /* // should not be needed
-    if (!isDynamic)
-    {
-        foreach (const GtObjectMemento::MementoData::PropertyData& pChild, property.childProperties)
-        {
-            writePropertyHelper(doc, root, pChild);
-        }
-    }
-    */
 }
 
 void
@@ -1544,7 +1529,8 @@ QDataStream& operator<<(QDataStream& s, const QStringList& vector)
 {
     s << vector.size();
 
-    for(auto v : vector) {
+    for(auto const& v : vector)
+    {
         s << v;
     }
     return s;
@@ -1689,11 +1675,12 @@ GtObjectIO::propertyListToVariant(const QString& value, const QString& type)
     {
         QVector<QStringRef> strList =
                 QStringRef(&value).split(';', QString::SkipEmptyParts);
-        QVector<double> list(strList.size());
+        QVector<double> list;
+        list.reserve(strList.size());
 
-        for (int i = 0; i < strList.size(); i++)
+        foreach (const auto& val, strList)
         {
-            list[i] = strList[i].toDouble();
+            list.append(val.toDouble());
         }
 
         var.setValue(list);
@@ -1705,9 +1692,9 @@ GtObjectIO::propertyListToVariant(const QString& value, const QString& type)
         QList<bool> list;
         list.reserve(strList.size());
 
-        for (int i = 0; i < strList.size(); i++)
+        foreach (const auto& val, strList)
         {
-            list[i] = QVariant(strList[i].toString()).toBool();
+            list.append(QVariant(val.toString()).toBool());
         }
 
         var.setValue(list);
@@ -1780,23 +1767,11 @@ GtObjectIO::handlePropertyNodeChange(GtObject* target,
         return false;
     }
 
-    QString newVal;
-    QString oldVal;
-
-    if (revert)
-    {
-        newVal = oldValNode.text();
-        oldVal = newValNode.text();
-    }
-    else
-    {
-        newVal = newValNode.text();
-        oldVal = oldValNode.text();
-    }
+    QString newVal = revert ? oldValNode.text() : newValNode.text();
 
     GtAbstractProperty* prop = target->findProperty(propName);
 
-    if (prop == Q_NULLPTR)
+    if (!prop)
     {
         if (target->property(propName.toLatin1()) != newVal)
         {
@@ -1912,19 +1887,7 @@ GtObjectIO::handleAttributeNodeChange(GtObject* target,
         return false;
     }
 
-    QString newVal;
-    QString oldVal;
-
-    if (revert)
-    {
-        newVal = oldValNode.text();
-        oldVal = newValNode.text();
-    }
-    else
-    {
-        newVal = newValNode.text();
-        oldVal = oldValNode.text();
-    }
+    QString newVal = revert? oldValNode.text() : newValNode.text();
 
     QString attrID = change.attribute(S_ID_TAG);
 
@@ -1939,7 +1902,7 @@ GtObjectIO::handleAttributeNodeChange(GtObject* target,
 bool
 GtObjectIO::handleDynamicPropertyAdd(GtObject* /*target*/,
                                      const QDomElement& /*objectToAdd*/,
-                                     const QString /*index*/)
+                                     const QString& /*index*/)
 {
 //    bool ok = true;
 //    int ind = index.toInt(&ok);
@@ -1958,7 +1921,7 @@ GtObjectIO::handleDynamicPropertyAdd(GtObject* /*target*/,
 
 //    GtPropertyFactory* factory = GtPropertyFactory::instance();
 
-//    if (factory == Q_NULLPTR)
+//    if (!factory)
 //    {
 //        return false;
 //    }
@@ -1966,7 +1929,7 @@ GtObjectIO::handleDynamicPropertyAdd(GtObject* /*target*/,
 //    GtDynamicPropertyContainer* dynPropCont =
 //            target->findDirectChild<GtDynamicPropertyContainer*>();
 
-//    if (dynPropCont == Q_NULLPTR)
+//    if (!dynPropCont)
 //    {
 //        gtDebug() << "Could not find dynamic properties container -> could not add property";
 //        return false;
@@ -1988,7 +1951,7 @@ GtObjectIO::handleDynamicPropertyAdd(GtObject* /*target*/,
 //        GtAbstractProperty* newProperty =
 //                myMemento.restore<GtAbstractProperty*>(factory, false);
 
-//        if (newProperty == Q_NULLPTR)
+//        if (!newProperty)
 //        {
 //            gtDebug() << "Could not restore object from memento";
 //            return false;
@@ -2005,7 +1968,7 @@ GtObjectIO::handleDynamicPropertyAdd(GtObject* /*target*/,
 bool
 GtObjectIO::handleDynamicPropertyRemove(GtObject* /*target*/,
                                         const QDomElement& /*objectToRemove*/,
-                                        const QString /*index*/)
+                                        const QString& /*index*/)
 {
 //    if (objectToRemove.isNull())
 //    {
@@ -2016,7 +1979,7 @@ GtObjectIO::handleDynamicPropertyRemove(GtObject* /*target*/,
 //    GtDynamicPropertyContainer* dynPropCont =
 //            target->findDirectChild<GtDynamicPropertyContainer*>();
 
-//    if (dynPropCont == Q_NULLPTR)
+//    if (!dynPropCont)
 //    {
 //        gtDebug() << "Could not find dynamic properties container -> could not add property";
 //        return false;
@@ -2029,7 +1992,7 @@ GtObjectIO::handleDynamicPropertyRemove(GtObject* /*target*/,
 bool
 GtObjectIO::handleObjectAdd(GtObject* parent,
                             const QDomElement& objectToAdd,
-                            const QString index)
+                            const QString& index)
 {
     bool ok = true;
     int ind = index.toInt(&ok);
@@ -2051,7 +2014,7 @@ GtObjectIO::handleObjectAdd(GtObject* parent,
     GtObject* newObj = oio.toObjectHelper(objectToAdd);
 
 
-    if (newObj == Q_NULLPTR)
+    if (!newObj)
     {
         gtDebug() << "Could not restore object from memento";
         return false;
@@ -2063,7 +2026,7 @@ GtObjectIO::handleObjectAdd(GtObject* parent,
     {
         parent->appendChild(newObj);
     }
-    else if (ind < numberOfChildren)
+    else if (ind >= 0)
     {
         parent->insertChild(ind, newObj);
     }
@@ -2080,7 +2043,7 @@ GtObjectIO::handleObjectAdd(GtObject* parent,
 bool
 GtObjectIO::handleObjectRemove(GtObject* parent,
                                const QDomElement& objectToRemove,
-                               const QString /*index*/)
+                               const QString& /*index*/)
 {
     if (objectToRemove.isNull())
     {
@@ -2098,7 +2061,7 @@ GtObjectIO::handleObjectRemove(GtObject* parent,
 
     GtObject* toRemove = parent->getDirectChildByUuid(objUUID);
 
-    if (toRemove == Q_NULLPTR)
+    if (!toRemove)
     {
         qDebug() << "object not found! (" << objUUID << ")";
         qDebug() << "   |-> " << parent->objectName() << " [" <<
@@ -2121,7 +2084,7 @@ GtObjectIO::handleIndexChange(GtObject* parent,
         return false;
     }
 
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         return false;
     }
@@ -2129,12 +2092,12 @@ GtObjectIO::handleIndexChange(GtObject* parent,
     GtObject* toMove = parent->getDirectChildByUuid(
                 object.attribute(S_UUID_TAG));
 
-    if (toMove == Q_NULLPTR)
+    if (!toMove)
     {
         return false;
     }
 
-    toMove->setParent(Q_NULLPTR);
+    toMove->setParent(nullptr);
 
     if (newIndex > parent->findDirectChildren<GtObject*>().size())
     {
@@ -2153,7 +2116,7 @@ GtObjectIO::structProperties(GtObject* obj)
 {
     QList<GtDynamicPropertyContainer*> retval;
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return retval;
     }
@@ -2171,7 +2134,7 @@ GtObjectIO::structPropertyHelper(GtAbstractProperty* prop)
 {
     QList<GtDynamicPropertyContainer*> retval;
 
-    if (prop == Q_NULLPTR)
+    if (!prop)
     {
         return retval;
     }
@@ -2179,14 +2142,14 @@ GtObjectIO::structPropertyHelper(GtAbstractProperty* prop)
     GtDynamicPropertyContainer* sp = qobject_cast<GtDynamicPropertyContainer*>
                                      (prop);
 
-    if (sp != Q_NULLPTR)
+    if (sp)
     {
         retval << sp;
     }
 
-    foreach (GtAbstractProperty* prop, prop->fullProperties())
+    foreach (GtAbstractProperty* currentProp, prop->fullProperties())
     {
-        retval.append(structPropertyHelper(prop));
+        retval.append(structPropertyHelper(currentProp));
     }
 
     return retval;

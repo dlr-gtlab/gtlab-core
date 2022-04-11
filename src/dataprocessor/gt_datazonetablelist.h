@@ -27,126 +27,126 @@ public:
      * @brief addDzt
      * @param dzt
      */
-    bool addDzt(GtDataZoneTable* dzt, QString uuid);
+    bool addDzt(GtDataZoneTable* dzt, const QString& uuid);
 
     /**
      * @brief size
      * @return
      */
-    int size();
+    int size() const;
 
     /**
      * @brief empty
      * @return
      */
-    bool isEmpty();
+    bool isEmpty() const;
 
     /**
      * @brief nXDims
      * @return
      */
-    int numXticks();
+    int numXticks() const;
 
     /**
      * @brief nYDims
      * @return
      */
-    int numYticks();
+    int numYticks() const;
 
     /**
      * @brief nZDims
      * @return
      */
-    int numZticks();
+    int numZticks() const;
 
     /**
      * @brief xAxisIndexFromString
      * @param str
      * @return
      */
-    int xAxisIndexFromString(QString str);
+    int xAxisIndexFromString(const QString& str) const;
 
     /**
      * @brief yAxisIndexFromString
      * @param str
      * @return
      */
-    int yAxisIndexFromString(QString str);
+    int yAxisIndexFromString(const QString& str) const;
 
     /**
      * @brief zAxisIndexFromString
      * @param str
      * @return
      */
-    int zAxisIndexFromString(QString str);
+    int zAxisIndexFromString(const QString &str) const;
 
     /**
      * @brief list
      * @return
      */
-    QList<GtDataZoneTable*> list();
+    QList<GtDataZoneTable*> list() const;
 
     /**
      * @brief dzt
      * @return
      */
-    GtDataZoneTable* dzt();
+    GtDataZoneTable* dzt() const;
 
-    bool onlyXaxisActive();
+    bool onlyXaxisActive() const;
 
     /**
      * @brief dzt
      * @param param
      * @return
      */
-    GtDataZoneTable* dzt(QString param);
+    GtDataZoneTable* dzt(const QString& param) const;
 
 
-    GtDataZoneTable* dztFromName(QString dztName);
+    GtDataZoneTable* dztFromName(const QString& dztName) const;
 
     /**
      * @brief nSubDims
      * @return
      */
-    int nSubDims();
+    int nSubDims() const;
 
     /**
      * @brief get all UNIQUE params of all Datazones that are in all
      * datazonetables of this list
      * @return
      */
-    QStringList params();
+    QStringList params() const;
 
     /**
      * @brief paramsAndUnits
      * @return
      */
-    QMap<QString, QString> paramsAndUnits();
+    QMap<QString, QString> paramsAndUnits() const;
 
     /**
      * @brief unitFromParam
      * @return
      */
-    QString unitFromParam(QString param);
+    QString unitFromParam(const QString& param) const;
 
     /**
      * @brief paramsWithUnits
      * @param params
      * @return
      */
-    QStringList paramsWithUnits(QStringList params);
+    QStringList paramsWithUnits(const QStringList& params) const;
 
     /**
      * @brief is0D
      * @return
      */
-    bool is0D();
+    bool is0D() const;
 
     void clearList();
 
 private:
 
-    void onObjectDataMerged();
+    void onObjectDataMerged() override;
 
     /// list of datazonetable
     QList<GtDataZoneTable*> m_dztList;
@@ -154,7 +154,7 @@ private:
     /**
      * @brief isValid: checks if given datazoneTable has same
      * axes and axes-ticks as the preexisting onces
-     * @param dzt
+     * @param newDzt
      */
     bool isValid(GtDataZoneTable* newDzt);
 
@@ -165,7 +165,7 @@ private:
      * @param fixYmain
      * @param fixZmain
      */
-    void fixMainValues(QMap<QString, QString> fixedMain,
+    void fixMainValues(const QMap<QString, QString>& fixedMain,
                        int& fixXmain, int& fixYmain, int& fixZmain);
 
 };

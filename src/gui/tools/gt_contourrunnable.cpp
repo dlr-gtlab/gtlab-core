@@ -56,13 +56,13 @@
 GtContourRunnable::GtContourRunnable(GtObjectMemento tableMemento,
                                      QString isoValue,
                                      bool calcIsoPolygons,
-                                     bool considerNextValue,
+                                     bool considerNextIsoValue,
                                      QString nextIsoValue) :
-    m_tableMemento(tableMemento),
-    m_isoValue(isoValue),
+    m_tableMemento(std::move(tableMemento)),
+    m_isoValue(std::move(isoValue)),
     m_calcIsoPolygons(calcIsoPolygons),
-    m_considerNextIsoValue(considerNextValue),
-    m_nextIsoValue(nextIsoValue)
+    m_considerNextIsoValue(considerNextIsoValue),
+    m_nextIsoValue(std::move(nextIsoValue))
 {
     setAutoDelete(false);
 }
@@ -694,7 +694,10 @@ GtContourRunnable::intersection(const double& zVal1, const double& zVal2,
                                 const double& zValIso, const double& axisValue1,
                                 const double& axisValue2, double& val)
 {
-    if (zVal1 != zValIso && zVal2 != zValIso)
+    bool zVal1IsIso = qIsNull(zVal1 - zValIso);
+    bool zVal2IsIso = qIsNull(zVal2 - zValIso);
+
+    if (!zVal1IsIso && !zVal2IsIso)
     {
         if (zVal1 > zValIso &&  zVal2 > zValIso)
         {
@@ -706,19 +709,16 @@ GtContourRunnable::intersection(const double& zVal1, const double& zVal2,
             return false;
         }
 
-        val = getTmpValue(axisValue1, axisValue2,
-                          zVal1, zVal2, zValIso);
+        val = getTmpValue(axisValue1, axisValue2, zVal1, zVal2, zValIso);
 
         return true;
     }
-
-    else if (zVal1 == zValIso && zVal2 != zValIso)
+    else if (zVal1IsIso && !zVal2IsIso)
     {
         val = axisValue1;
         return true;
     }
-
-    else if (zVal1 != zValIso && zVal2 == zValIso)
+    else if (!zVal1IsIso && zVal2IsIso)
     {
         val = axisValue2;
         return true;
@@ -787,10 +787,5 @@ bool
 GtContourRunnable::lineOnIsoLevel(const double& zVal1, const double& zVal2,
                                   const double& zValIso)
 {
-    if (zVal1 == zValIso && zVal2 == zValIso)
-    {
-        return true;
-    }
-
-    return false;
+    return qIsNull(zVal1 - zValIso) && qIsNull(zVal2 - zValIso);
 }

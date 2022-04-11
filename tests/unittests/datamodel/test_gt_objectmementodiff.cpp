@@ -78,7 +78,7 @@ TEST_F(TestGtObjectMementoDiff, hasObjectTreeChanges)
 
     ASSERT_FALSE(GtObjectMementoDiff(mem1, mem2).hasObjectTreeChanges());
 
-    obj2.setParent(Q_NULLPTR);
+    obj2.setParent(nullptr);
 
     mem2 = obj1.toMemento();
 
@@ -428,7 +428,7 @@ TEST_F(TestGtObjectMementoDiff, objectAdd)
                  obj2.toMemento().className().toStdString().c_str());
 
     // apply diff
-    obj2.setParent(Q_NULLPTR);
+    obj2.setParent(nullptr);
 
     ASSERT_TRUE(obj1.applyDiff(diff));
 
@@ -566,9 +566,9 @@ TEST_F(TestGtObjectMementoDiff, indexChecks)
     ASSERT_STREQ(objAdd3.firstChildElement("object").attribute("uuid")
                  .toStdString().c_str(), obj3.uuid().toStdString().c_str());
 
-    obj2.setParent(Q_NULLPTR);
-    obj3.setParent(Q_NULLPTR);
-    obj4.setParent(Q_NULLPTR);
+    obj2.setParent(nullptr);
+    obj3.setParent(nullptr);
+    obj4.setParent(nullptr);
 
     ASSERT_TRUE(obj1.applyDiff(diff));
 
@@ -590,9 +590,9 @@ TEST_F(TestGtObjectMementoDiff, indexChecks)
 
     ASSERT_TRUE(children.isEmpty());
 
-    obj2.setParent(Q_NULLPTR);
-    obj3.setParent(Q_NULLPTR);
-    obj4.setParent(Q_NULLPTR);
+    obj2.setParent(nullptr);
+    obj3.setParent(nullptr);
+    obj4.setParent(nullptr);
 
 
     //Removing elements
@@ -607,7 +607,7 @@ TEST_F(TestGtObjectMementoDiff, indexChecks)
 
     ASSERT_FALSE(mem2.isNull());
 
-    newTestObj->setParent(Q_NULLPTR);
+    newTestObj->setParent(nullptr);
 
     GtObjectMemento mem3 = obj1.toMemento();
 
@@ -702,7 +702,7 @@ TEST_F(TestGtObjectMementoDiff, moreIndexChecks)
     qDebug() << diff.toByteArray();
 
     // add and remove multiple children at once
-    tobj2->setParent(Q_NULLPTR);
+    tobj2->setParent(nullptr);
     delete tobj2;
     ASSERT_TRUE(obj1.insertChild(2, tobj5));
     obj1.appendChild(tobj6);
@@ -879,7 +879,7 @@ TEST_F(TestGtObjectMementoDiff, undoRedoIndexChecks)
     TestSpecialGtObject* cobj =
             mem1.restore<TestSpecialGtObject*>(gtObjectFactory);
 
-    ASSERT_TRUE(cobj != Q_NULLPTR);
+    ASSERT_TRUE(cobj != nullptr);
 
     children = cobj->findDirectChildren<TestSpecialGtObject*>();
 
@@ -1101,7 +1101,7 @@ TEST_F(TestGtObjectMementoDiff, appendDiff)
     ASSERT_EQ(diff2.numberOfDiffSteps(), 1);
 
     // full diff
-    obj2.setParent(Q_NULLPTR);
+    obj2.setParent(nullptr);
     obj1.setDouble(47);
 
     GtObjectMementoDiff diff3(mem1, obj1.toMemento());
@@ -1210,9 +1210,10 @@ TEST_F(TestGtObjectMementoDiff, dataZone0DChange)
 
     ASSERT_TRUE(dataZone.revertDiff(diff));
 
-    ASSERT_DOUBLE_EQ(dataZone.values()[0], 0.577965226358801);
-    ASSERT_DOUBLE_EQ(dataZone.values()[1], 11.8776138797173);
-    ASSERT_DOUBLE_EQ(dataZone.values()[2], 0.930368302276224);
+    auto dataZoneValues = dataZone.values();
+    ASSERT_DOUBLE_EQ(dataZoneValues[0], 0.577965226358801);
+    ASSERT_DOUBLE_EQ(dataZoneValues[1], 11.8776138797173);
+    ASSERT_DOUBLE_EQ(dataZoneValues[2], 0.930368302276224);
 }
 
 TEST_F(TestGtObjectMementoDiff, objectNameChange)
@@ -1265,7 +1266,7 @@ TEST_F(TestGtObjectMementoDiff, childChildRedoUndo)
 
     GtObjectMemento mem1 = obj1.toMemento();
 
-    tobj4->setParent(Q_NULLPTR);
+    tobj4->setParent(nullptr);
     obj1.appendChild(tobj4);
 
     o1Childs = obj1.findDirectChildren<GtObject*>();
@@ -1338,8 +1339,8 @@ TEST_F(TestGtObjectMementoDiff, childIndexChanges)
 
     GtObjectMemento mem1 = obj1.toMemento();
 
-    tobj3->setParent(Q_NULLPTR);
-    tobj4->setParent(Q_NULLPTR);
+    tobj3->setParent(nullptr);
+    tobj4->setParent(nullptr);
 
     obj1.appendChild(tobj4);
     obj1.appendChild(tobj3);

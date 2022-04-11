@@ -28,11 +28,6 @@ GtCollectionHelper::GtCollectionHelper(
 
 }
 
-GtCollectionHelper::~GtCollectionHelper()
-{
-    //gtFatal() << "#### collection helper deleted!";
-}
-
 QList<GtCollectionHelperData>
 GtCollectionHelper::collectionItems() const
 {
@@ -85,7 +80,7 @@ GtCollectionHelper::readAccessData(const GtAccessData& accessData)
 
     QNetworkReply* reply = m_qnam->get(QNetworkRequest(url));
 
-    if (reply != Q_NULLPTR)
+    if (reply)
     {
         connect(reply, SIGNAL(finished()), SLOT(onListFetched()));
     }
@@ -151,7 +146,7 @@ GtCollectionHelper::onListFetched()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (reply == Q_NULLPTR)
+    if (!reply)
     {
         return;
     }
@@ -178,7 +173,7 @@ GtCollectionHelper::onItemDataLoaded()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (reply == Q_NULLPTR)
+    if (!reply)
     {
         return;
     }

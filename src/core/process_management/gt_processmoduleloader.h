@@ -27,24 +27,19 @@ public:
      */
     GtProcessModuleLoader();
 
-    /**
-     * @brief ~GtCoreModuleLoader
-     */
-    virtual ~GtProcessModuleLoader();
-
 protected:
     /**
      * @brief check
      * @param plugin
      * @return
      */
-    virtual bool check(GtModuleInterface* plugin);
+    bool check(GtModuleInterface* plugin) override;
 
     /**
      * @brief insert
      * @param plugin
      */
-    virtual void insert(GtModuleInterface* plugin);
+    void insert(GtModuleInterface* plugin) override;
 
 };
 

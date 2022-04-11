@@ -29,7 +29,8 @@
 
 GtCalculatorOverviewPage::GtCalculatorOverviewPage(GtProcessWizard* parent) :
     QWizardPage(parent),
-    m_wizard(parent)
+    m_wizard(parent),
+    m_model{std::make_unique<GtCalculatorOverviewModel>()}
 {
     setTitle(tr("Select Calculator"));
 
@@ -38,9 +39,7 @@ GtCalculatorOverviewPage::GtCalculatorOverviewPage(GtProcessWizard* parent) :
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    m_model = new GtCalculatorOverviewModel;
-
-    m_view = new GtProcessOverviewTree(m_model, this);
+    m_view = new GtProcessOverviewTree(m_model.get(), this);
     m_view->setFrameStyle(QTreeView::NoFrame);
     m_view->setHeaderHidden(true);
     m_view->expandAll();
@@ -70,23 +69,17 @@ GtCalculatorOverviewPage::GtCalculatorOverviewPage(GtProcessWizard* parent) :
     GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
 }
 
-GtCalculatorOverviewPage::~GtCalculatorOverviewPage()
-{
-    if (m_model != Q_NULLPTR)
-    {
-        delete m_model;
-    }
-}
+GtCalculatorOverviewPage::~GtCalculatorOverviewPage() = default;
 
 bool
 GtCalculatorOverviewPage::validatePage()
 {
-    if (m_wizard == Q_NULLPTR)
+    if (!m_wizard)
     {
         return false;
     }
 
-    if (m_wizard->provider() == Q_NULLPTR)
+    if (!m_wizard->provider())
     {
         return false;
     }
@@ -102,7 +95,7 @@ GtCalculatorOverviewPage::validatePage()
 
     GtAbstractProcessItem* aItem = m_view->sourceModel()->itemFromIndex(index);
 
-    if (aItem == Q_NULLPTR)
+    if (!aItem)
     {
         return false;
     }
@@ -110,7 +103,7 @@ GtCalculatorOverviewPage::validatePage()
     GtProcessCalculatorItem* pItem =
             qobject_cast<GtProcessCalculatorItem*>(aItem);
 
-    if (pItem == Q_NULLPTR)
+    if (!pItem)
     {
         return false;
     }
@@ -138,7 +131,7 @@ GtCalculatorOverviewPage::validatePage()
             dynamic_cast<GtExtendedCalculatorDataImpl*>(
                 pItem->calculatorData().get());
 
-    if (eData == Q_NULLPTR || eData->wizard == Q_NULLPTR)
+    if (!eData || !eData->wizard)
     {
         m_wizard->setPage(GtProcessWizard::calculatorSettingsPage,
                           new GtCalculatorSettingsPage(m_wizard->scope(),
@@ -153,7 +146,7 @@ GtCalculatorOverviewPage::validatePage()
         {
             QObject* obj = metaObj.newInstance();
 
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 qDebug() << "page not invokable!";
                 cPages.clear();
@@ -162,7 +155,7 @@ GtCalculatorOverviewPage::validatePage()
 
             GtProcessWizardPage* pwp = qobject_cast<GtProcessWizardPage*>(obj);
 
-            if (pwp == Q_NULLPTR)
+            if (!pwp)
             {
                 qDebug() << "page corrupted!";
                 delete obj;
@@ -201,7 +194,7 @@ GtCalculatorOverviewPage::validatePage()
 bool
 GtCalculatorOverviewPage::isComplete() const
 {
-    if (m_view == Q_NULLPTR)
+    if (!m_view)
     {
         return false;
     }

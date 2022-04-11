@@ -15,7 +15,7 @@ GtObjectUIActionGroup::GtObjectUIActionGroup()
 
 GtObjectUIActionGroup::GtObjectUIActionGroup(
         const QString& groupName,
-        const QList<GtObjectUIAction> actions,
+        const QList<GtObjectUIAction>& actions,
         const QString& icon) :
    m_name(groupName), m_icon(icon)
 {

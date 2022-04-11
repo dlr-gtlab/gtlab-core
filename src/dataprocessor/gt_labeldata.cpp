@@ -7,11 +7,13 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QStringList>
+#include "gt_labeldata.h"
 
 #include "gt_label.h"
 
-#include "gt_labeldata.h"
+#include <QStringList>
+
+#include <algorithm>
 
 GtLabelData::GtLabelData()
 {
@@ -101,17 +103,11 @@ GtLabelData::addDefaultLabel()
 bool
 GtLabelData::labelExists(const QString& id) const
 {
-    QList<GtLabel*> list = findDirectChildren<GtLabel*>();
+    auto list = findDirectChildren<GtLabel*>();
 
-    foreach (GtLabel* label, list)
-    {
-        if (label->objectName() == id)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(std::begin(list), std::end(list), [&id](const GtLabel* label) {
+        return label->objectName() == id;
+    });
 }
 
 bool
@@ -129,14 +125,18 @@ GtLabelData::renameLabel(const QString& oldId, const QString& newId)
 
     QList<GtLabel*> list = findDirectChildren<GtLabel*>();
 
-    foreach (GtLabel* label, list)
-    {
-        if (label->objectName() == oldId)
-        {
-            label->setObjectName(newId);
-            return true;
-        }
-    }
+    auto iter = std::find_if(std::begin(list), std::end(list),
+                             [&oldId](const GtLabel * label) {
+        return label->objectName() == oldId;
+    });
 
-    return false;
+    if (iter != std::end(list))
+    {
+        (*iter)->setObjectName(newId);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

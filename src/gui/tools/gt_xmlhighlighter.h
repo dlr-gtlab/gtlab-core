@@ -30,7 +30,6 @@ public:
     explicit GtXmlHighlighter(QObject* parent);
     explicit GtXmlHighlighter(QTextDocument* parent);
     explicit GtXmlHighlighter(QTextEdit* parent);
-    ~GtXmlHighlighter();
 
     enum HighlightType
     {
@@ -44,14 +43,14 @@ public:
     };
 
     void setHighlightColor(HighlightType type,
-                           QColor color,
+                           const QColor& color,
                            bool foreground = true);
 
     void setHighlightFormat(HighlightType type,
-                            QTextCharFormat format);
+                            const QTextCharFormat& format);
 
 protected:
-    void highlightBlock(const QString& rstrText);
+    void highlightBlock(const QString& rstrText) override;
 
     int  processDefaultText(int i, const QString& rstrText);
 

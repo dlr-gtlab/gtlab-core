@@ -50,7 +50,7 @@ GtDataModel::flags(const QModelIndex& index) const
     // check index
     if (!index.isValid())
     {
-        return 0;
+        return nullptr;
     }
 
     // collect default flags
@@ -60,7 +60,7 @@ GtDataModel::flags(const QModelIndex& index) const
     GtObject* object = objectFromIndex(index);
 
     // check object
-    if (object != Q_NULLPTR)
+    if (object)
     {
         // add drop enabled flag
         defaultFlags = defaultFlags | Qt::ItemIsDropEnabled;
@@ -75,7 +75,7 @@ void
 GtDataModel::updateObject(GtObject* obj)
 {
     // check object
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
@@ -125,7 +125,7 @@ GtDataModel::openProject(GtProject* project)
 {
     qDebug() << "GtDataModel::openProject";
     // check project pointer
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -136,8 +136,9 @@ GtDataModel::openProject(GtProject* project)
         return false;
     }
 
+
     // check whether a project is already open
-    if (gtDataModel->currentProject() != Q_NULLPTR)
+    if (gtDataModel->currentProject())
     {
         return false;
     }
@@ -148,6 +149,7 @@ GtDataModel::openProject(GtProject* project)
 
     gtApp->loadingProcedure(helper);
 
+
     return true;
 }
 
@@ -155,7 +157,7 @@ bool
 GtDataModel::saveProject(GtProject *project)
 {
     // check pointer
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -170,7 +172,7 @@ GtDataModel::saveProject(GtProject *project)
 }
 
 QModelIndexList
-GtDataModel::appendChildren(QList<GtObject*> children, GtObject* parent)
+GtDataModel::appendChildren(const QList<GtObject*>& children, GtObject* parent)
 {
     // check child list
     if (children.isEmpty())
@@ -179,12 +181,12 @@ GtDataModel::appendChildren(QList<GtObject*> children, GtObject* parent)
     }
 
     // check parent
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         return QModelIndexList();
     }
 
-    if (gtApp->currentProject() == Q_NULLPTR)
+    if (!gtApp->currentProject())
     {
         return QModelIndexList();
     }
@@ -216,21 +218,21 @@ GtDataModel::appendChildren(QList<GtObject*> children, GtObject* parent)
 QModelIndex
 GtDataModel::insertChild(GtObject* child, GtObject* parent, int row)
 {
-    if (child == Q_NULLPTR)
+    if (!child)
     {
         gtWarning() << tr("Could not insert child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("child == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // check parent object
-    if (parent == Q_NULLPTR)
+    if (!parent)
     {
         gtWarning() << tr("Could not insert child!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent == NULL");
-        return QModelIndex();
+        return {};
     }
 
     // get index of parent object
@@ -242,7 +244,7 @@ GtDataModel::insertChild(GtObject* child, GtObject* parent, int row)
         gtWarning() << tr("Could not insert children!") <<
                     QStringLiteral(" - ") <<
                     QStringLiteral("parent index invalid");
-        return QModelIndex();
+        return {};
     }
 
     QString commandMsg = child->objectName() + QStringLiteral(" ") +
@@ -331,7 +333,7 @@ GtDataModel::reduceToParents(QList<GtObject*>& toReduce)
     {
         GtObject* parObj = obj->parentObject();
 
-        while (parObj != Q_NULLPTR)
+        while (parObj != nullptr)
         {
             if (toReduce.contains(parObj))
             {
@@ -347,7 +349,7 @@ void
 GtDataModel::onObjectDataChanged(GtObject* obj)
 {
     // check object
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
@@ -376,13 +378,13 @@ GtDataModel::onProjectDataLoaded()
 {
     GtLoadProjectHelper* helper = qobject_cast<GtLoadProjectHelper*>(sender());
 
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         return;
     }
     GtProject* project = helper->project();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         helper->deleteLater();
         return;
@@ -416,13 +418,13 @@ GtDataModel::onProjectDataSaved()
 {
     GtSaveProjectHelper* helper = qobject_cast<GtSaveProjectHelper*>(sender());
 
-    if (helper == Q_NULLPTR)
+    if (!helper)
     {
         return;
     }
     GtProject* project = helper->project();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         helper->deleteLater();
         return;

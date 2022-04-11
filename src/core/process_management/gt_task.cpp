@@ -7,14 +7,16 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-#include <QThreadPool>
-
 #include "gt_task.h"
 #include "gt_calculator.h"
 #include "gt_abstractrunnable.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
+
+#include <QDebug>
+#include <QThreadPool>
+
+#include <algorithm>
 
 GtTask::GtTask() :
     m_maxIter(QStringLiteral("maxIter"), tr("Number Of Iterations"),
@@ -39,7 +41,7 @@ GtTask::GtTask() :
 bool
 GtTask::exec()
 {
-    m_runnable = Q_NULLPTR;
+    m_runnable = nullptr;
 
     // check skipped indicator
     if (isSkipped())
@@ -64,7 +66,7 @@ GtTask::exec()
             GtObject* linkedObj =
                 m_runnable->data<GtObject*>(objLink->linkedObjectUUID());
 
-            if (linkedObj != Q_NULLPTR)
+            if (linkedObj)
             {
                 // linked object found -> store inside list
                 m_linkedObjects.append(linkedObj);
@@ -81,7 +83,7 @@ GtTask::exec()
             GtObject* linkedObj =
                 m_runnable->data<GtObject*>(objPath->path());
 
-            if (linkedObj != Q_NULLPTR)
+            if (linkedObj)
             {
                 // linked object found -> store inside list
                 m_linkedObjects.append(linkedObj);
@@ -150,7 +152,7 @@ GtTask::run(GtAbstractRunnable* runnable)
 
     QThreadPool* tp = QThreadPool::globalInstance();
 
-    if (tp == Q_NULLPTR)
+    if (!tp)
     {
         return;
     }
@@ -336,7 +338,7 @@ GtTask::runChildElements()
 
         GtCalculator* calc = qobject_cast<GtCalculator*>(comp);
 
-        if (calc != Q_NULLPTR && calc->runFailsOnWarning())
+        if (calc && calc->runFailsOnWarning())
         {
             if (calc->currentState() == GtProcessComponent::WARN_FINISHED)
             {
@@ -404,7 +406,7 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
                                     GtProcessComponent* component)
 {
     // check component
-    if (component == Q_NULLPTR)
+    if (!component)
     {
         return;
     }
@@ -442,7 +444,7 @@ GtTask::collectPropertyConnectionHelper(QList<GtPropertyConnection*>& list,
                                         GtProcessComponent* component)
 {
     // check component
-    if (component == Q_NULLPTR)
+    if (!component)
     {
         return;
     }
@@ -469,16 +471,10 @@ GtTask::collectPropertyConnectionHelper(QList<GtPropertyConnection*>& list,
 bool
 GtTask::childHasWarnings()
 {
-    foreach (GtProcessComponent* child,
-             findDirectChildren<GtProcessComponent*>())
-    {
-        if (child->currentState() == WARN_FINISHED)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    const auto childs = findDirectChildren<GtProcessComponent*>();
+    return std::any_of(std::begin(childs), std::end(childs), [](const GtProcessComponent* child) {
+        return child->currentState() == WARN_FINISHED;
+    });
 }
 
 void
@@ -522,7 +518,7 @@ GtTask::handleRunnableFinished()
 }
 
 void
-GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet set)
+GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
 {
     // append data set to data table and check success
     if (!m_monitoringDataTable.append(iteration, set))

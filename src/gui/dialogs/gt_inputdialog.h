@@ -39,8 +39,7 @@ public:
      * @brief Constructor.
      * @param parent Parent widget.
      */
-    GtInputDialog(GtInputDialog::InputMode mode = TextInput,
-                  QWidget* parent = Q_NULLPTR);
+    explicit GtInputDialog(GtInputDialog::InputMode mode = TextInput, QWidget *parent = nullptr);
 
     /**
      * @brief Sets text of input dialog label.
@@ -143,7 +142,7 @@ protected:
      * @brief showEvent
      * @param event
      */
-    virtual void showEvent(QShowEvent* event) override;
+    void showEvent(QShowEvent* event) override;
 
 private:
     /// Label text.

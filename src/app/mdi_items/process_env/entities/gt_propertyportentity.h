@@ -23,17 +23,17 @@ class GtPropertyPortEntity : public QGraphicsObject
     Q_OBJECT
 
 public:
-    explicit GtPropertyPortEntity(QGraphicsItem* parent = Q_NULLPTR);
+    explicit GtPropertyPortEntity(QGraphicsItem* parent = nullptr);
 
-    virtual void paint(QPainter* painter,
-                       const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) override;
+    void paint(QPainter* painter,
+               const QStyleOptionGraphicsItem* option,
+               QWidget* widget = nullptr) override;
 
     /**
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
 
 protected:
     ///
@@ -43,15 +43,13 @@ protected:
      * @brief hoverEnterEvent
      * @param event
      */
-    virtual void hoverEnterEvent(
-            QGraphicsSceneHoverEvent* event) override;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief hoverLeaveEvent
      * @param event
      */
-    virtual void hoverLeaveEvent(
-            QGraphicsSceneHoverEvent* event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief runEnterAnimation

@@ -29,7 +29,7 @@ GtLoopUI::icon(GtObject* /*obj*/) const
 QVariant
 GtLoopUI::specificData(GtObject* obj, int role, int column) const
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return QVariant();
     }
@@ -42,7 +42,7 @@ GtLoopUI::specificData(GtObject* obj, int role, int column) const
             {
                 GtLoop* loop = qobject_cast<GtLoop*>(obj);
 
-                if (loop == Q_NULLPTR)
+                if (!loop)
                 {
                     return QVariant();
                 }

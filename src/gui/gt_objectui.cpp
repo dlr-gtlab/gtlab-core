@@ -113,14 +113,14 @@ GtObjectUI::addSingleAction(const QString& actionText,
 }
 
 void
-GtObjectUI::addActionGroup(GtObjectUIActionGroup actionGroup)
+GtObjectUI::addActionGroup(const GtObjectUIActionGroup& actionGroup)
 {
     m_actionGroups.append(actionGroup);
 }
 
 void
 GtObjectUI::addActionGroup(const QString& groupName,
-                           const QList<GtObjectUIAction> actions)
+                           const QList<GtObjectUIAction>& actions)
 {
     m_actionGroups.append(GtObjectUIActionGroup(groupName, actions));
 }
@@ -128,7 +128,7 @@ GtObjectUI::addActionGroup(const QString& groupName,
 void
 GtObjectUI::addActionGroup(const QString& groupName,
                            const QString& groupIcon,
-                           const QList<GtObjectUIAction> actions)
+                           const QList<GtObjectUIAction>& actions)
 {
     m_actionGroups.append(GtObjectUIActionGroup(groupName, actions, groupIcon));
 }
@@ -160,7 +160,7 @@ GtObjectUI::icon(GtObject* /*obj*/) const
 QVariant
 GtObjectUI::data(GtObject* obj, int role, int column) const
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return QVariant();
     }
@@ -204,11 +204,8 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                     {
                         return QColor(Qt::green);
                     }
-                    else
-                    {
-                        return QColor(Qt::darkGreen);
-                    }
 
+                    return QColor(Qt::darkGreen);
                 }
                 else if (obj->hasChanges() || obj->hasChildChanged())
                 {
@@ -216,10 +213,8 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                     {
                         return QColor(Qt::blue).lighter();
                     }
-                    else
-                    {
-                        return QColor(Qt::blue);
-                    }
+
+                    return QColor(Qt::blue);
                 }
 
                 break;
@@ -233,10 +228,8 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                     {
                         return QColor(255, 130, 25);
                     }
-                    else
-                    {
-                        return QColor(255, 140, 140);
-                    }
+
+                    return QColor(255, 140, 140);
                 }
                 break;
             }
@@ -267,7 +260,8 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                 {
                     return gtApp->icon(QStringLiteral("addIcon_16.png"));
                 }
-                else if (obj->hasChanges())
+
+                if (obj->hasChanges())
                 {
                     return gtApp->icon(
                                 QStringLiteral("exclamationIcon_16.png"));
@@ -281,7 +275,8 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                 {
                     return tr("Newly created");
                 }
-                else if (obj->hasChanges())
+
+                if (obj->hasChanges())
                 {
                     return tr("Contains changes");
                 }
@@ -297,10 +292,8 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                     {
                         return QColor(255, 130, 25);
                     }
-                    else
-                    {
-                        return QColor(255, 140, 140);
-                    }
+
+                    return QColor(255, 140, 140);
                 }
             }
 
@@ -349,7 +342,7 @@ GtObjectUI::hasActionGroups()
 void
 GtObjectUI::doubleClicked(GtObject* obj)
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }

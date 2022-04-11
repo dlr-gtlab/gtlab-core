@@ -147,7 +147,7 @@ GtIntProperty::setValueFromVariant(const QVariant& val,
     {
         setVal(intVal, unit, success);
 
-        if (success != 0)
+        if (success)
         {
             retval = *success;
         }
@@ -194,8 +194,4 @@ GtIntProperty::validateValue(const int& value)
     }
 
     return true;
-}
-
-GtIntProperty::~GtIntProperty()
-{
 }

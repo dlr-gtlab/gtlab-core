@@ -25,7 +25,8 @@ public:
      * @param initialize
      * @param parent
      */
-    GtSessionListWidget(bool initialize = true, QWidget* parent = nullptr);
+    explicit GtSessionListWidget(bool initialize = true,
+                                 QWidget* parent = nullptr);
 
     /**
      * @brief Session list initialization
@@ -74,7 +75,7 @@ private:
      * @param id
      * @return
      */
-    bool addSessionItem(const QString id);
+    bool addSessionItem(const QString& id);
 
     /**
      * @brief duplicateSessionItem
@@ -82,7 +83,7 @@ private:
      * @param target
      * @return
      */
-    bool duplicateSessionItem(const QString source, const QString target);
+    bool duplicateSessionItem(const QString& source, const QString& target);
 
 private slots:
     /**

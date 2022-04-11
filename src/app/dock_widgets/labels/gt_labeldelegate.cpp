@@ -69,21 +69,21 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
         return;
     }
 
-    if (m_dock == Q_NULLPTR)
+    if (!m_dock)
     {
         return;
     }
 
     GtLabel* label = m_dock->labelFromIndex(index);
 
-    if (label == Q_NULLPTR)
+    if (!label)
     {
         return;
     }
 
     GtProject* project = m_dock->project();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }

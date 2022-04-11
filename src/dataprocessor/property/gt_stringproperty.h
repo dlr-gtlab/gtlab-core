@@ -14,6 +14,8 @@
 
 #include "gt_property.h"
 
+#include <memory>
+
 class QValidator;
 
 class GT_DATAMODEL_EXPORT GtStringProperty : public GtProperty<QString>
@@ -50,19 +52,16 @@ public:
      * @brief valueToVariant
      * @return
      */
-    virtual QVariant valueToVariant(
-            const QString& unit, bool* success = nullptr) const override;
+     QVariant valueToVariant(const QString& unit,
+                             bool* success = nullptr) const override;
 
     /**
      * @brief setValueFromVariant
      * @param val
      * @return
      */
-    virtual bool setValueFromVariant(
-            const QVariant& val, const QString& unit,
-            bool* success = nullptr) override;
-
-    ~GtStringProperty();
+    bool setValueFromVariant(const QVariant& val, const QString& unit,
+                             bool* success = nullptr) override;
 
     /**
      * @brief validator
@@ -70,8 +69,10 @@ public:
      */
     QValidator* validator();
 
+    ~GtStringProperty() override;
+
 protected:
-    QValidator* m_validator;
+    std::unique_ptr<QValidator> m_validator;
 };
 
 #endif // GTSTRINGPROPERTY_H

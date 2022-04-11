@@ -37,7 +37,7 @@ public:
      * @param targetFileName
      */
     void addFileDownload(const QString& url, const QString& downloadPath,
-                         QString targetFileName = QString());
+                         const QString& targetFileName = QString());
 
     /**
      * @brief GtDownloadItem
@@ -46,14 +46,14 @@ public:
      * @param targetFileName
      */
     void addFileDownload(const QUrl& url, const QString& downloadPath,
-                         QString targetFileName = QString());
+                         const QString& targetFileName = QString());
 
 protected:
     /**
      * @brief showEvent
      * @param event
      */
-    void showEvent(QShowEvent * event) override;
+    void showEvent(QShowEvent* event) override;
 
 private:
     /// Downloader
@@ -80,7 +80,7 @@ private slots:
     /**
      * @brief onDownloaderMessage
      */
-    void onDownloaderMessage(QString str);
+    void onDownloaderMessage(const QString& str);
 
     /**
      * @brief onDownloaderFinished

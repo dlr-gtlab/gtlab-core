@@ -22,9 +22,9 @@
 GtProcessPropertyConnectionEntity::GtProcessPropertyConnectionEntity(
         GtPropertyConnection* connection) :
     m_connection(connection),
-    m_startPort(Q_NULLPTR),
-    m_endPort(Q_NULLPTR),
-    m_previewPort(Q_NULLPTR),
+    m_startPort(nullptr),
+    m_endPort(nullptr),
+    m_previewPort(nullptr),
     m_start(QPointF(0., 0.)),
     m_end(QPointF(100., 0.))
 {
@@ -37,12 +37,12 @@ GtProcessPropertyConnectionEntity::GtProcessPropertyConnectionEntity(
 
 GtProcessPropertyConnectionEntity::~GtProcessPropertyConnectionEntity()
 {
-    if (m_startPort != Q_NULLPTR)
+    if (m_startPort)
     {
         m_startPort->disconnectPort(this);
     }
 
-    if (m_endPort != Q_NULLPTR)
+    if (m_endPort)
     {
         m_endPort->disconnectPort(this);
     }
@@ -51,23 +51,13 @@ GtProcessPropertyConnectionEntity::~GtProcessPropertyConnectionEntity()
 bool
 GtProcessPropertyConnectionEntity::startPortExists()
 {
-    if (m_startPort == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    return true;
+    return (m_startPort != nullptr);
 }
 
 bool
 GtProcessPropertyConnectionEntity::endPortExists()
 {
-    if (m_endPort == Q_NULLPTR)
-    {
-        return false;
-    }
-
-    return true;
+    return (m_endPort != nullptr);
 }
 
 void
@@ -75,7 +65,7 @@ GtProcessPropertyConnectionEntity::setStartPort(
         GtProcessPropertyPortEntity* port)
 {
     // check port and connect
-    if (port != Q_NULLPTR)
+    if (port)
     {
         port->connectPort(this);
     }
@@ -88,7 +78,7 @@ GtProcessPropertyConnectionEntity::setEndPort(
         GtProcessPropertyPortEntity* port)
 {
     // check port and connect
-    if (port != Q_NULLPTR)
+    if (port)
     {
         port->connectPort(this);
     }
@@ -124,7 +114,7 @@ GtProcessPropertyConnectionEntity::previewPort()
 QPointF
 GtProcessPropertyConnectionEntity::previewPoint()
 {
-    if (m_previewPort == Q_NULLPTR)
+    if (!m_previewPort)
     {
         return QPointF();
     }
@@ -138,12 +128,12 @@ GtProcessPropertyConnectionEntity::updatePath()
     QPointF start = m_start;
     QPointF end = m_end;
 
-    if (m_startPort != Q_NULLPTR)
+    if (m_startPort)
     {
         start = m_startPort->pos();
     }
 
-    if (m_endPort != Q_NULLPTR)
+    if (m_endPort)
     {
         end = m_endPort->pos();
     }
@@ -221,20 +211,20 @@ GtProcessPropertyConnectionEntity::contextMenuEvent(
 
     if (a == actdelete)
     {
-        if (m_connection != Q_NULLPTR)
+        if (m_connection)
         {
-            if (m_startPort != Q_NULLPTR)
+            if (m_startPort)
             {
                 m_startPort->disconnectPort(this);
             }
 
-            if (m_endPort != Q_NULLPTR)
+            if (m_endPort)
             {
                 m_endPort->disconnectPort(this);
             }
 
             delete m_connection;
-            m_connection = Q_NULLPTR;
+            m_connection = nullptr;
 
             deleteLater();
         }
@@ -246,7 +236,7 @@ GtProcessPropertyConnectionEntity::contextMenuEvent(
 QColor
 GtProcessPropertyConnectionEntity::currentColor()
 {
-    if (m_startPort != Q_NULLPTR && m_endPort != Q_NULLPTR)
+    if (m_startPort && m_endPort)
     {
         return QColor(Qt::black);
     }

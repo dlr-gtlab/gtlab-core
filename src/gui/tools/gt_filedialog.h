@@ -34,11 +34,11 @@ public:
      * @param selectedFilter
      * @return
      */
-    static QString getOpenFileName(QWidget* parent = Q_NULLPTR,
+    static QString getOpenFileName(QWidget* parent = nullptr,
                                    const QString& caption = QString(),
                                    const QString& dir = QString(),
                                    const QString& filter = QString(),
-                                   QString* selectedFilter = Q_NULLPTR);
+                                   QString* selectedFilter = nullptr);
 
     /**
      * @brief getSaveFileName
@@ -49,12 +49,12 @@ public:
      * @param selectedFilter
      * @return
      */
-    static QString getSaveFileName(QWidget* parent = Q_NULLPTR,
+    static QString getSaveFileName(QWidget* parent = nullptr,
                                    const QString& caption = QString(),
                                    const QString& dir = QString(),
                                    const QString& filter = QString(),
                                    const QString& initFilename = QString(),
-                                   QString* selectedFilter = Q_NULLPTR);
+                                   QString* selectedFilter = nullptr);
 
     /**
      * @brief getExistingDirectory
@@ -63,7 +63,7 @@ public:
      * @param dir
      * @return
      */
-    static QString getExistingDirectory(QWidget* parent = Q_NULLPTR,
+    static QString getExistingDirectory(QWidget* parent = nullptr,
                                         const QString& caption = QString(),
                                         const QString& dir = QString());
 

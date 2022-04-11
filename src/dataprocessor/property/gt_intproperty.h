@@ -91,17 +91,17 @@ public:
      * @brief valueToVariant
      * @return
      */
-    virtual QVariant valueToVariant(const QString& unit,
-                                    bool* success = nullptr) const override;
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override;
 
     /**
      * @brief setValueFromVariant
      * @param val
      * @return
      */
-    virtual bool setValueFromVariant(const QVariant& val,
-                                     const QString& unit,
-                                     bool* success = nullptr) override;
+    bool setValueFromVariant(const QVariant& val,
+                             const QString& unit,
+                             bool* success = nullptr) override;
 
     /**
      * @brief Returns value of low side boundary. 0 if no lower boundary is
@@ -116,11 +116,6 @@ public:
      * @return High side boundary.
      */
     int highSideBoundary() const;
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~GtIntProperty();
 
 protected:
     /// Perform low boundary check flag (true=perform check)
@@ -141,7 +136,7 @@ protected:
      * @param unit
      * @return
      */
-    virtual bool validateValue(const int& value);
+    bool validateValue(const int& value) override;
 
 };
 

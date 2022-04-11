@@ -7,6 +7,15 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_moduleloader.h"
+
+#include "gt_moduleinterface.h"
+#include "gt_initmoduleinterface.h"
+#include "gt_datamodelinterface.h"
+#include "gt_objectfactory.h"
+#include "gt_logging.h"
+#include "gt_algorithms.h"
+
 #include <QDebug>
 #include <QDir>
 #include <QPluginLoader>
@@ -17,14 +26,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
-
-#include "gt_moduleinterface.h"
-#include "gt_initmoduleinterface.h"
-#include "gt_datamodelinterface.h"
-#include "gt_objectfactory.h"
-#include "gt_logging.h"
-
-#include "gt_moduleloader.h"
 
 GtModuleLoader::GtModuleLoader() :
     m_modulesInitialized(false)
@@ -39,11 +40,11 @@ GtModuleLoader::~GtModuleLoader()
 void
 GtModuleLoader::load()
 {
+#ifndef Q_OS_ANDROID
     QString path = QCoreApplication::applicationDirPath() +
                          QDir::separator() + QStringLiteral("modules");
-
-#ifdef Q_OS_ANDROID
-    path = QCoreApplication::applicationDirPath();
+#else
+    QString path = QCoreApplication::applicationDirPath();
 #endif
 
     QDir modulesDir(path);
@@ -65,8 +66,8 @@ GtModuleLoader::load()
 
             if (excludeFile.open(QIODevice::ReadOnly))
             {
-                QByteArray data = excludeFile.readAll();
-                QJsonDocument doc(QJsonDocument::fromJson(data));
+                QByteArray dat = excludeFile.readAll();
+                QJsonDocument doc(QJsonDocument::fromJson(dat));
 
                 QJsonObject json = doc.object();
 
@@ -115,11 +116,11 @@ GtModuleLoader::moduleEnvironmentVars()
 {
     QMap<QString, QString> retval;
 
+#ifndef Q_OS_ANDROID
     QString path = QCoreApplication::applicationDirPath() +
                          QDir::separator() + QStringLiteral("modules");
-
-#ifdef Q_OS_ANDROID
-    path = QCoreApplication::applicationDirPath();
+#else
+    QString path = QCoreApplication::applicationDirPath();
 #endif
 
     QDir modulesDir(path);
@@ -173,17 +174,16 @@ QStringList
 GtModuleLoader::moduleDatamodelInterfaceIds()
 {
     QStringList retval;
-
-    for (auto e : m_plugins.keys())
+    for_each_key(m_plugins, [&](const QString& e)
     {
       GtDatamodelInterface* dmi =
               dynamic_cast<GtDatamodelInterface*>(m_plugins.value(e));
 
-      if (dmi != Q_NULLPTR && dmi->standAlone())
+      if (dmi && dmi->standAlone())
       {
           retval << e;
       }
-    }
+    });
 
     return retval;
 }
@@ -224,7 +224,7 @@ GtModuleLoader::modulePackageId(const QString& id)
         }
     }
 
-    return QString();
+    return {};
 }
 
 void
@@ -236,15 +236,15 @@ GtModuleLoader::initModules()
         return;
     }
 
-    for (auto e : m_plugins.keys())
+    for (auto const& value : qAsConst(m_plugins))
     {
-      GtInitModuleInterface* imi =
-              dynamic_cast<GtInitModuleInterface*>(m_plugins.value(e));
+        GtInitModuleInterface* imi =
+                dynamic_cast<GtInitModuleInterface*>(value);
 
-      if (imi != Q_NULLPTR)
-      {
-          imi->init();
-      }
+        if (imi)
+        {
+            imi->init();
+        }
     }
 
     m_modulesInitialized = true;
@@ -366,7 +366,7 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
             QObject* instance = loader.instance();
 
             // check plugin object
-            if (instance != Q_NULLPTR)
+            if (instance)
             {
                 gtDebug() << QObject::tr("loading ") << fileName << "...";
 

@@ -18,7 +18,7 @@
 
 GtProcessConnectionView::GtProcessConnectionView(QWidget* parent) :
     GtTreeView(parent),
-    m_graphicsView(Q_NULLPTR)
+    m_graphicsView(nullptr)
 {
 
 }
@@ -34,9 +34,9 @@ QModelIndex
 GtProcessConnectionView::lastVisibleIndex(const QModelIndex& index)
 {
     // check model
-    if (model() == Q_NULLPTR)
+    if (!model())
     {
-        return QModelIndex();
+        return {};
     }
 
     // get row count for given index
@@ -54,32 +54,31 @@ GtProcessConnectionView::lastVisibleIndex(const QModelIndex& index)
             // There is even deeper hierarchy. Drill down with recursion.
             return lastVisibleIndex(lastIndex);
         }
-        else
-        {
-            // Test the last item in the tree.
-            return lastIndex;
-        }
+
+        // Test the last item in the tree.
+        return lastIndex;
+
     }
 
     // return invalid index
-    return QModelIndex();
+    return {};
 }
 
 QModelIndex
 GtProcessConnectionView::lastVisibleParentIndex(GtProcessConnectionItem* item)
 {
     // check item
-    if (item == Q_NULLPTR)
+    if (!item)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtProcessConnectionModel* conMod = connectionModel();
 
     // check model
-    if (conMod == Q_NULLPTR)
+    if (!conMod)
     {
-        return QModelIndex();
+        return {};
     }
 
     QModelIndex index = conMod->indexFromItem(item);
@@ -114,7 +113,7 @@ GtProcessConnectionView::lastVisibleParentIndex(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     if (!isExpanded(index))
@@ -133,7 +132,7 @@ GtProcessConnectionView::lastVisibleParentIndex(const QModelIndex& index)
 
     if (!parentIndex.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     return lastVisibleParentIndex(parentIndex);
@@ -157,9 +156,9 @@ GtProcessConnectionView::itemById(const QString& uuid, const QString& propId)
     GtProcessConnectionModel* connModel = connectionModel();
 
     // check connection model
-    if (connModel == Q_NULLPTR)
+    if (!connModel)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     return connModel->itemById(uuid, propId);
@@ -191,7 +190,7 @@ void
 GtProcessConnectionView::paintEvent(QPaintEvent* event)
 {
     // check process connection graphics view
-    if (m_graphicsView != Q_NULLPTR)
+    if (m_graphicsView)
     {
         // update ports
         m_graphicsView->updatePorts(this, event);

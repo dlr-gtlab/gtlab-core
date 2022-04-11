@@ -25,7 +25,7 @@ public:
     explicit GtTableView(QWidget* parent = nullptr);
 
 protected:
-    virtual void keyPressEvent(QKeyEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
 
 signals:
     void searchRequest();

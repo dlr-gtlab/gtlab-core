@@ -33,7 +33,7 @@ GtPropertyAccessSelectionItem::data(int column, int role) const
         return QVariant();
     }
 
-    if (m_property == Q_NULLPTR)
+    if (!m_property)
     {
         return QVariant();
     }
@@ -50,7 +50,7 @@ GtPropertyAccessSelectionItem::data(int column, int role) const
         {
             if (column == 2)
             {
-                if (selectionProperty() != Q_NULLPTR)
+                if (selectionProperty())
                 {
                     if (selectionProperty()->getVal().isEmpty())
                     {
@@ -70,7 +70,7 @@ bool
 GtPropertyAccessSelectionItem::setData(int column, const QVariant& value,
                                        GtObject* obj, int role)
 {
-    if (selectionProperty() == Q_NULLPTR)
+    if (!selectionProperty())
     {
         return false;
     }
@@ -107,7 +107,7 @@ GtPropertyAccessSelectionItem::editorWidget(
 
     box->addItem(QStringLiteral("<< select >>"));
 
-    if (selectionProperty() != Q_NULLPTR)
+    if (selectionProperty())
     {
         box->addItems(accessDataHosts());
     }
@@ -122,7 +122,7 @@ void
 GtPropertyAccessSelectionItem::setEditorData(QWidget* editor,
                                              QVariant& /*var*/) const
 {
-    if (selectionProperty() == Q_NULLPTR)
+    if (!selectionProperty())
     {
         return;
     }
@@ -144,7 +144,7 @@ GtPropertyAccessSelectionItem::setModelData(QWidget* editor,
                                             QAbstractItemModel* model,
                                             const QModelIndex& index) const
 {
-    if (selectionProperty() == Q_NULLPTR)
+    if (!selectionProperty())
     {
         return;
     }
@@ -158,7 +158,7 @@ void
 GtPropertyAccessSelectionItem::paint(QPainter* painter,
                                      const QStyleOptionViewItem& option) const
 {
-    if (selectionProperty() == Q_NULLPTR)
+    if (!selectionProperty())
     {
         return;
     }
@@ -206,7 +206,7 @@ GtPropertyAccessSelectionItem::selectionProperty() const
 QStringList
 GtPropertyAccessSelectionItem::accessDataHosts() const
 {
-    if (selectionProperty() == Q_NULLPTR)
+    if (!selectionProperty())
     {
         return QStringList();
     }
@@ -214,7 +214,7 @@ GtPropertyAccessSelectionItem::accessDataHosts() const
     GtAccessGroup* group =
         gtAccessManager->accessGroup(selectionProperty()->accessId());
 
-    if (group == Q_NULLPTR)
+    if (!group)
     {
         return QStringList();
     }

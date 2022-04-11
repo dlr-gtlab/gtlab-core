@@ -19,13 +19,11 @@ class GtHighlightingRule
 {
 public:
     GtHighlightingRule(const QString& patternStr, int n,
-                       const QTextCharFormat& matchingFormat)
-    {
-        originalRuleStr = patternStr;
-        pattern = QRegExp(patternStr);
-        nth = n;
-        format = matchingFormat;
-    }
+                       const QTextCharFormat& matchingFormat) :
+        originalRuleStr(patternStr),
+        pattern(QRegExp(patternStr)),
+        nth(n),
+        format(matchingFormat) {}
 
     QString originalRuleStr;
 
@@ -44,10 +42,10 @@ class GT_GUI_EXPORT GtPyHighlighter : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
-    explicit GtPyHighlighter(QTextDocument* parent = Q_NULLPTR);
+    explicit GtPyHighlighter(QTextDocument* parent = nullptr);
 
 protected:
-    void highlightBlock(const QString& text);
+    void highlightBlock(const QString& text) override;
 
 public slots:
     /**

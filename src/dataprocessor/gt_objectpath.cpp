@@ -35,9 +35,9 @@ GtObjectPath::separator()
 GtObject*
 GtObjectPath::getObject(GtObject* src) const
 {
-    if (src == Q_NULLPTR)
+    if (!src)
     {
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QStringList list = toStringList();

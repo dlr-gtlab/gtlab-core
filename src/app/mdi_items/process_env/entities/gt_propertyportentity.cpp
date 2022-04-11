@@ -15,7 +15,7 @@
 GtPropertyPortEntity::GtPropertyPortEntity(QGraphicsItem* parent) :
     QGraphicsObject(parent),
     m_fillColor(QColor(90, 90, 150)),
-    m_anim(Q_NULLPTR)
+    m_anim(nullptr)
 {
     setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIgnoresParentOpacity, true);
@@ -57,7 +57,7 @@ GtPropertyPortEntity::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 void
 GtPropertyPortEntity::runEnterAnimation()
 {
-    if (m_anim == Q_NULLPTR)
+    if (!m_anim)
     {
         m_anim = new QPropertyAnimation(this, "scale");
         m_anim->setDuration(500);
@@ -79,7 +79,7 @@ GtPropertyPortEntity::runEnterAnimation()
 void
 GtPropertyPortEntity::runLeaveAnimation()
 {
-    if (m_anim == Q_NULLPTR)
+    if (!m_anim)
     {
         m_anim = new QPropertyAnimation(this, "scale");
         m_anim->setDuration(500);

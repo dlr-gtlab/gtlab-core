@@ -58,7 +58,7 @@ GtProcessExporter::icon() const
 bool
 GtProcessExporter::doExport(GtObject* data, QFile& file)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         gtError() << tr("Data corrupted!");
         return false;
@@ -66,7 +66,7 @@ GtProcessExporter::doExport(GtObject* data, QFile& file)
 
     GtProcessComponent* element = qobject_cast<GtProcessComponent*>(data);
 
-    if (element == Q_NULLPTR)
+    if (!element)
     {
         gtError() << tr("Process Component corrupted!");
         return false;

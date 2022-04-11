@@ -50,19 +50,17 @@ public:
      * @brief valueToVariant
      * @return
      */
-    virtual QVariant valueToVariant(const QString& unit,
-                                    bool* success = 0) const override;
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = 0) const override;
 
     /**
      * @brief setValueFromVariant
      * @param val
      * @return
      */
-    virtual bool setValueFromVariant(const QVariant& val,
-                                     const QString& unit,
-                                     bool* success = 0) override;
-
-    ~GtBoolProperty();
+     bool setValueFromVariant(const QVariant& val,
+                              const QString& unit,
+                              bool* success = 0) override;
 };
 
 #endif // GTBOOLPROPERTY_H

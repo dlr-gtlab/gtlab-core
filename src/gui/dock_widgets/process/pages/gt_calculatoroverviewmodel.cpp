@@ -44,7 +44,7 @@ GtCalculatorOverviewModel::setUpModel()
 
         GtProcessCategoryItem* catItem = categoryItem(catId);
 
-        if (catItem == Q_NULLPTR)
+        if (!catItem)
         {
             continue;
         }
@@ -54,10 +54,7 @@ GtCalculatorOverviewModel::setUpModel()
 
         if (!catItem->addItem(pItem))
         {
-            if (pItem != Q_NULLPTR)
-            {
-                delete pItem;
-            }
+            delete pItem;
         }
     }
 }
@@ -65,7 +62,7 @@ GtCalculatorOverviewModel::setUpModel()
 QString
 GtCalculatorOverviewModel::id(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QString();
     }
@@ -73,7 +70,7 @@ GtCalculatorOverviewModel::id(GtAbstractProcessItem* item) const
     GtProcessCalculatorItem* calcItem =
             qobject_cast<GtProcessCalculatorItem*>(item);
 
-    if (calcItem == Q_NULLPTR)
+    if (!calcItem)
     {
         return QString();
     }
@@ -95,7 +92,7 @@ GtCalculatorOverviewModel::id(GtAbstractProcessItem* item) const
 QString
 GtCalculatorOverviewModel::version(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QString();
     }
@@ -103,7 +100,7 @@ GtCalculatorOverviewModel::version(GtAbstractProcessItem* item) const
     GtProcessCalculatorItem* calcItem =
             qobject_cast<GtProcessCalculatorItem*>(item);
 
-    if (calcItem == Q_NULLPTR)
+    if (!calcItem)
     {
         return QString();
     }
@@ -116,7 +113,7 @@ GtCalculatorOverviewModel::version(GtAbstractProcessItem* item) const
 QIcon
 GtCalculatorOverviewModel::icon(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QIcon();
     }
@@ -124,7 +121,7 @@ GtCalculatorOverviewModel::icon(GtAbstractProcessItem* item) const
     GtProcessCalculatorItem* calcItem =
             qobject_cast<GtProcessCalculatorItem*>(item);
 
-    if (calcItem == Q_NULLPTR)
+    if (!calcItem)
     {
         return QIcon();
     }
@@ -134,7 +131,7 @@ GtCalculatorOverviewModel::icon(GtAbstractProcessItem* item) const
     GtExtendedCalculatorDataImpl* extendedData =
             dynamic_cast<GtExtendedCalculatorDataImpl*>(calcData.get());
 
-    if (extendedData == Q_NULLPTR || extendedData->icon.isNull())
+    if (!extendedData || extendedData->icon.isNull())
     {
          return gtApp->icon(QStringLiteral("calculatorIcon_16.png"));
     }
@@ -145,7 +142,7 @@ GtCalculatorOverviewModel::icon(GtAbstractProcessItem* item) const
 QString
 GtCalculatorOverviewModel::description(GtAbstractProcessItem* item) const
 {
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QString();
     }
@@ -153,7 +150,7 @@ GtCalculatorOverviewModel::description(GtAbstractProcessItem* item) const
     GtProcessCalculatorItem* calcItem =
             qobject_cast<GtProcessCalculatorItem*>(item);
 
-    if (calcItem == Q_NULLPTR)
+    if (!calcItem)
     {
         return QString();
     }

@@ -79,67 +79,67 @@ protected:
 
     virtual void TearDown()
     {
-        if (con1.data() != Q_NULLPTR)
+        if (con1.data())
         {
             delete con1.data();
         }
 
-        if (con2.data() != Q_NULLPTR)
+        if (con2.data())
         {
             delete con2.data();
         }
 
-        if (con3.data() != Q_NULLPTR)
+        if (con3.data())
         {
             delete con3.data();
         }
 
-        if (con4.data() != Q_NULLPTR)
+        if (con4.data())
         {
             delete con4.data();
         }
 
-        if (con5.data() != Q_NULLPTR)
+        if (con5.data())
         {
             delete con5.data();
         }
 
-        if (calc1.data() != Q_NULLPTR)
+        if (calc1.data())
         {
             delete calc1.data();
         }
 
-        if (calc2.data() != Q_NULLPTR)
+        if (calc2.data())
         {
             delete calc2.data();
         }
 
-        if (calc3.data() != Q_NULLPTR)
+        if (calc3.data())
         {
             delete calc3.data();
         }
 
-        if (calc4.data() != Q_NULLPTR)
+        if (calc4.data())
         {
             delete calc4.data();
         }
 
-        if (task.data() != Q_NULLPTR)
+        if (task.data())
         {
             delete task.data();
         }
 
-        if (loop.data() != Q_NULLPTR)
+        if (loop.data())
         {
             delete loop.data();
         }
 
-        if (loop2.data() != Q_NULLPTR)
+        if (loop2.data())
         {
             delete loop2.data();
         }
 
-        if (loop3.data() != Q_NULLPTR)
+        if (loop3.data())
         {
             delete loop3.data();
         }
@@ -182,7 +182,7 @@ TEST_F(TestGtPropertyConnectionFunctions, findConnectionCopy)
     GtPropertyConnection* conCopy =
         qobject_cast<GtPropertyConnection*>(con1->copy());
 
-    ASSERT_TRUE(conCopy != Q_NULLPTR);
+    ASSERT_TRUE(conCopy != nullptr);
 
     QList<GtPropertyConnection*> cons;
     cons << conCopy << con2 << con3;
@@ -190,29 +190,29 @@ TEST_F(TestGtPropertyConnectionFunctions, findConnectionCopy)
     GtPropertyConnection* foundCopy =
             GtPropertyConnectionFunctions::findConnectionCopy(con1, cons);
 
-    ASSERT_TRUE(foundCopy != Q_NULLPTR);
+    ASSERT_TRUE(foundCopy != nullptr);
     ASSERT_TRUE(foundCopy->sourceUuid() == con1->sourceUuid());
     ASSERT_TRUE(foundCopy->targetUuid() == con1->targetUuid());
     ASSERT_TRUE(foundCopy->sourceProp() == con1->sourceProp());
     ASSERT_TRUE(foundCopy->targetProp() == con1->targetProp());
     ASSERT_TRUE(foundCopy->uuid() != con1->uuid());
 
-    foundCopy = GtPropertyConnectionFunctions::findConnectionCopy(Q_NULLPTR,
+    foundCopy = GtPropertyConnectionFunctions::findConnectionCopy(nullptr,
                                                                   cons);
 
-    ASSERT_TRUE(foundCopy == Q_NULLPTR);
+    ASSERT_TRUE(foundCopy == nullptr);
 
     cons.clear();
     foundCopy = GtPropertyConnectionFunctions::findConnectionCopy(con1, cons);
 
-    ASSERT_TRUE(foundCopy == Q_NULLPTR);
+    ASSERT_TRUE(foundCopy == nullptr);
 
-    foundCopy = GtPropertyConnectionFunctions::findConnectionCopy(Q_NULLPTR,
+    foundCopy = GtPropertyConnectionFunctions::findConnectionCopy(nullptr,
                                                                   cons);
 
-    ASSERT_TRUE(foundCopy == Q_NULLPTR);
+    ASSERT_TRUE(foundCopy == nullptr);
 
-    if (conCopy != Q_NULLPTR)
+    if (conCopy)
     {
         delete conCopy;
     }
@@ -279,9 +279,9 @@ TEST_F(TestGtPropertyConnectionFunctions, propertyConnectionRelations)
     ASSERT_TRUE(internals.contains(con3));
     ASSERT_TRUE(internals.contains(con4));
 
-    GtCalculator* calc = Q_NULLPTR;
-    GtTask* task = Q_NULLPTR;
-    GtProcessComponent* comp = Q_NULLPTR;
+    GtCalculator* calc = nullptr;
+    GtTask* task = nullptr;
+    GtProcessComponent* comp = nullptr;
 
     internals =
             GtPropertyConnectionFunctions::internalPropertyConnections(task);
@@ -395,56 +395,56 @@ TEST_F(TestGtPropertyConnectionFunctions, highestParentTask)
     GtTask* highestParent =
             GtPropertyConnectionFunctions::highestParentTask(loop3);
 
-    ASSERT_TRUE(highestParent != Q_NULLPTR);
+    ASSERT_TRUE(highestParent != nullptr);
     ASSERT_TRUE(highestParent == task);
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(loop2);
 
-    ASSERT_TRUE(highestParent != Q_NULLPTR);
+    ASSERT_TRUE(highestParent != nullptr);
     ASSERT_TRUE(highestParent == task);
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(loop);
 
-    ASSERT_TRUE(highestParent != Q_NULLPTR);
+    ASSERT_TRUE(highestParent != nullptr);
     ASSERT_TRUE(highestParent == task);
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(task);
 
-    ASSERT_TRUE(highestParent != Q_NULLPTR);
+    ASSERT_TRUE(highestParent != nullptr);
     ASSERT_TRUE(highestParent == task);
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(calc4);
 
-    ASSERT_TRUE(highestParent != Q_NULLPTR);
+    ASSERT_TRUE(highestParent != nullptr);
     ASSERT_TRUE(highestParent == task);
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(calc3);
 
-    ASSERT_TRUE(highestParent != Q_NULLPTR);
+    ASSERT_TRUE(highestParent != nullptr);
     ASSERT_TRUE(highestParent == task);
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(calc2);
 
-    ASSERT_TRUE(highestParent != Q_NULLPTR);
+    ASSERT_TRUE(highestParent != nullptr);
     ASSERT_TRUE(highestParent == task);
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(calc1);
 
-    ASSERT_TRUE(highestParent != Q_NULLPTR);
+    ASSERT_TRUE(highestParent != nullptr);
     ASSERT_TRUE(highestParent == task);
 
-    GtCalculator* calc = Q_NULLPTR;
-    GtTask* task = Q_NULLPTR;
-    GtProcessComponent* comp = Q_NULLPTR;
+    GtCalculator* calc = nullptr;
+    GtTask* task = nullptr;
+    GtProcessComponent* comp = nullptr;
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(calc);
-    ASSERT_TRUE(highestParent == Q_NULLPTR);
+    ASSERT_TRUE(highestParent == nullptr);
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(task);
-    ASSERT_TRUE(highestParent == Q_NULLPTR);
+    ASSERT_TRUE(highestParent == nullptr);
 
     highestParent = GtPropertyConnectionFunctions::highestParentTask(comp);
-    ASSERT_TRUE(highestParent == Q_NULLPTR);
+    ASSERT_TRUE(highestParent == nullptr);
 }
 
 TEST_F(TestGtPropertyConnectionFunctions, findEquivalentObject)
@@ -462,7 +462,7 @@ TEST_F(TestGtPropertyConnectionFunctions, findEquivalentObject)
     ASSERT_EQ(task->findChildren<GtCalculator*>().size(), 4);
     ASSERT_EQ(task->findChildren<GtLoop*>().size(), 3);
 
-    ASSERT_TRUE(taskCopy != Q_NULLPTR);
+    ASSERT_TRUE(taskCopy != nullptr);
     ASSERT_EQ(taskCopy->findChildren<GtCalculator*>().size(), 4);
     ASSERT_EQ(taskCopy->findChildren<GtLoop*>().size(), 3);
 
@@ -481,22 +481,22 @@ TEST_F(TestGtPropertyConnectionFunctions, findEquivalentObject)
     GtObject* loop3Copy = GtPropertyConnectionFunctions::findEquivalentObject(
                 taskCopy, loop3);
     GtObject* null1 = GtPropertyConnectionFunctions::findEquivalentObject(
-                taskCopy, Q_NULLPTR);
+                taskCopy, nullptr);
     GtObject* null2 = GtPropertyConnectionFunctions::findEquivalentObject(
-                Q_NULLPTR, loop3);
+                nullptr, loop3);
     GtObject* null3 = GtPropertyConnectionFunctions::findEquivalentObject(
-                Q_NULLPTR, Q_NULLPTR);
+                nullptr, nullptr);
 
-    ASSERT_TRUE(calc1Copy != Q_NULLPTR);
-    ASSERT_TRUE(calc2Copy != Q_NULLPTR);
-    ASSERT_TRUE(calc3Copy != Q_NULLPTR);
-    ASSERT_TRUE(calc4Copy != Q_NULLPTR);
-    ASSERT_TRUE(loop1Copy != Q_NULLPTR);
-    ASSERT_TRUE(loop2Copy != Q_NULLPTR);
-    ASSERT_TRUE(loop3Copy != Q_NULLPTR);
-    ASSERT_TRUE(null1 == Q_NULLPTR);
-    ASSERT_TRUE(null2 == Q_NULLPTR);
-    ASSERT_TRUE(null3 == Q_NULLPTR);
+    ASSERT_TRUE(calc1Copy != nullptr);
+    ASSERT_TRUE(calc2Copy != nullptr);
+    ASSERT_TRUE(calc3Copy != nullptr);
+    ASSERT_TRUE(calc4Copy != nullptr);
+    ASSERT_TRUE(loop1Copy != nullptr);
+    ASSERT_TRUE(loop2Copy != nullptr);
+    ASSERT_TRUE(loop3Copy != nullptr);
+    ASSERT_TRUE(null1 == nullptr);
+    ASSERT_TRUE(null2 == nullptr);
+    ASSERT_TRUE(null3 == nullptr);
 
     ASSERT_TRUE(taskCopy->findDirectChildren<TestGtCalculator*>().first()
                 == calc1Copy);
@@ -559,7 +559,7 @@ TEST_F(TestGtPropertyConnectionFunctions, updateConnectionProperties)
 
     GtTask* taskCopy = qobject_cast<GtTask*>(task->copy());
 
-    ASSERT_TRUE(taskCopy != Q_NULLPTR);
+    ASSERT_TRUE(taskCopy != nullptr);
 
     QList<GtPropertyConnection*> origs =
             task->findDirectChildren<GtPropertyConnection*>();
@@ -577,7 +577,7 @@ TEST_F(TestGtPropertyConnectionFunctions, updateConnectionProperties)
                 GtPropertyConnectionFunctions::findConnectionCopy(propCon,
                                                                   copies);
 
-        ASSERT_TRUE(conCopy != Q_NULLPTR);
+        ASSERT_TRUE(conCopy != nullptr);
 
         ASSERT_TRUE(GtPropertyConnectionFunctions::updateConnectionProperties(
                         propCon, conCopy, task, taskCopy));
@@ -600,10 +600,10 @@ TEST_F(TestGtPropertyConnectionFunctions, updateConnectionProperties)
                 GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
                                                                     calc4));
 
-    ASSERT_TRUE(calc1Copy != Q_NULLPTR);
-    ASSERT_TRUE(calc2Copy != Q_NULLPTR);
-    ASSERT_TRUE(calc3Copy != Q_NULLPTR);
-    ASSERT_TRUE(calc4Copy != Q_NULLPTR);
+    ASSERT_TRUE(calc1Copy != nullptr);
+    ASSERT_TRUE(calc2Copy != nullptr);
+    ASSERT_TRUE(calc3Copy != nullptr);
+    ASSERT_TRUE(calc4Copy != nullptr);
 
     ASSERT_TRUE(copies.first()->sourceUuid() == calc1Copy->uuid());
     ASSERT_TRUE(copies.first()->targetUuid() == calc2Copy->uuid());
@@ -648,7 +648,7 @@ TEST_F(TestGtPropertyConnectionFunctions, updateRelativeObjectLinks)
 
     GtTask* taskCopy = qobject_cast<GtTask*>(task->copy());
 
-    ASSERT_TRUE(taskCopy != Q_NULLPTR);
+    ASSERT_TRUE(taskCopy != nullptr);
 
     TestGtCalculator* calc1Copy = qobject_cast<TestGtCalculator*>(
                 GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
@@ -666,17 +666,17 @@ TEST_F(TestGtPropertyConnectionFunctions, updateRelativeObjectLinks)
                 GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
                                                                     calc4));
 
-    ASSERT_TRUE(calc1Copy != Q_NULLPTR);
-    ASSERT_TRUE(calc2Copy != Q_NULLPTR);
-    ASSERT_TRUE(calc3Copy != Q_NULLPTR);
-    ASSERT_TRUE(calc4Copy != Q_NULLPTR);
+    ASSERT_TRUE(calc1Copy != nullptr);
+    ASSERT_TRUE(calc2Copy != nullptr);
+    ASSERT_TRUE(calc3Copy != nullptr);
+    ASSERT_TRUE(calc4Copy != nullptr);
 
     ASSERT_FALSE(GtPropertyConnectionFunctions::updateRelativeObjectLinks(
-                     Q_NULLPTR, taskCopy));
+                     nullptr, taskCopy));
     ASSERT_FALSE(GtPropertyConnectionFunctions::updateRelativeObjectLinks(
-                     task, Q_NULLPTR));
+                     task, nullptr));
     ASSERT_FALSE(GtPropertyConnectionFunctions::updateRelativeObjectLinks(
-                     Q_NULLPTR, Q_NULLPTR));
+                     nullptr, nullptr));
     ASSERT_TRUE(GtPropertyConnectionFunctions::updateRelativeObjectLinks(
                     task, taskCopy));
 
@@ -701,8 +701,8 @@ TEST_F(TestGtPropertyConnectionFunctions, updateRelativeObjectLinks)
                 GtPropertyConnectionFunctions::findEquivalentObject(taskCopy,
                                                                     calc4));
 
-    ASSERT_TRUE(calc1Copy == Q_NULLPTR);
-    ASSERT_TRUE(calc2Copy == Q_NULLPTR);
-    ASSERT_TRUE(calc3Copy == Q_NULLPTR);
-    ASSERT_TRUE(calc4Copy == Q_NULLPTR);
+    ASSERT_TRUE(calc1Copy == nullptr);
+    ASSERT_TRUE(calc2Copy == nullptr);
+    ASSERT_TRUE(calc3Copy == nullptr);
+    ASSERT_TRUE(calc4Copy == nullptr);
 }

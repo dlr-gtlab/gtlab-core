@@ -31,7 +31,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~GtCalculator();
+    ~GtCalculator() override;
 
     /**
      * @brief Execution process of the calculator.
@@ -82,7 +82,7 @@ public:
 
     /**
      * @brief Sets current execution identification label.
-     * @param New Identification label.
+     * @param label - New Identification label.
      */
     void setExecutionLabel(const QString& label);
 
@@ -101,18 +101,18 @@ public:
      * @return Object corresponding to given uuid
      */
     template <class T>
-    T data(QString uuid)
+    T data(const QString& uuid)
     {
         foreach (QPointer<GtObject> p, m_linkedObjects)
         {
-            if (p == Q_NULLPTR)
+            if (!p)
             {
-                return Q_NULLPTR;
+                return nullptr;
             }
 
             GtObject* obj = p.data();
 
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 continue;
             }
@@ -125,7 +125,7 @@ public:
 
         gtInfo() << "obj not found - uuid =" << uuid;
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     /**
@@ -142,7 +142,7 @@ public:
         {
             GtObject* obj = p.data();
 
-            if (obj == Q_NULLPTR)
+            if (!obj)
             {
                 continue;
             }
@@ -155,7 +155,7 @@ public:
 
         gtInfo() << "obj not found - path =" << path.toString();
 
-        return Q_NULLPTR;
+        return nullptr;
     }
 
 protected:

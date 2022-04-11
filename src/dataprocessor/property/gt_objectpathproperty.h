@@ -48,17 +48,17 @@ public:
      * @brief valueToVariant
      * @return
      */
-    virtual QVariant valueToVariant(const QString& unit,
-                                    bool* success = nullptr) const override;
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override;
 
     /**
      * @brief setValueFromVariant
      * @param val
      * @return
      */
-    virtual bool setValueFromVariant(const QVariant& val,
-                                     const QString& unit,
-                                     bool* success = nullptr) override;
+    bool setValueFromVariant(const QVariant& val,
+                             const QString& unit,
+                             bool* success = nullptr) override;
 
     /**
      * @brief Returns object based on stored object path. Returns null pointer
@@ -66,7 +66,7 @@ public:
      * @param root Root objectt for search.
      * @return linked object.
      */
-    GtObject* linkedObject(GtObject* root = Q_NULLPTR);
+    GtObject* linkedObject(GtObject* root = nullptr);
 
     /**
      * @brief Returns stored root object.

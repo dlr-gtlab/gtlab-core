@@ -26,7 +26,7 @@ public:
      * @brief GtObjectFilterModel
      * @param parent
      */
-    explicit GtObjectFilterModel(QObject* parent = Q_NULLPTR);
+    explicit GtObjectFilterModel(QObject* parent = nullptr);
 
     /**
      * @brief setFilterData
@@ -41,8 +41,8 @@ protected:
      * @param source_parent
      * @return
      */
-    virtual bool filterAcceptsRow(int source_row,
-                                  const QModelIndex& source_parent) const override;
+    bool filterAcceptsRow(int source_row,
+                          const QModelIndex& source_parent) const override;
 
     /**
      * @brief flags

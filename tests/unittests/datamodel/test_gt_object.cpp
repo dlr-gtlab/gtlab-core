@@ -122,7 +122,7 @@ TEST_F(TestGtObject, copy)
 {
     GtObject* myCopy = obj.copy();
 
-    ASSERT_TRUE(myCopy != NULL);
+    ASSERT_TRUE(myCopy != nullptr);
     ASSERT_TRUE(myCopy != &obj);
 
     // check that uuid are not equal
@@ -165,7 +165,7 @@ TEST_F(TestGtObject, getObjectByPath)
 
     GtObject* fo = obj.getObjectByPath(path);
 
-    ASSERT_TRUE(fo != NULL);
+    ASSERT_TRUE(fo != nullptr);
     ASSERT_TRUE(fo == child3);
 }
 
@@ -173,7 +173,7 @@ TEST_F(TestGtObject, clone)
 {
     GtObject* cloned = obj.clone();
 
-    ASSERT_TRUE(cloned != NULL);
+    ASSERT_TRUE(cloned != nullptr);
 
     // check that uuid are equal
     ASSERT_STREQ(cloned->uuid().toStdString().c_str(), obj.uuid().toStdString().c_str());
@@ -186,7 +186,7 @@ TEST_F(TestGtObject, appendChild)
     GtObject* child = new GtObject;
     TestSpecialGtObject* parent = new TestSpecialGtObject;
 
-    ASSERT_FALSE(obj.appendChild(Q_NULLPTR));
+    ASSERT_FALSE(obj.appendChild(nullptr));
 
     ASSERT_TRUE(obj.appendChild(child));
 

@@ -41,11 +41,11 @@ GtResult::labelNames()
 }
 
 bool
-GtResult::addObjectToLabel(GtObject* obj, QString labelName)
+GtResult::addObjectToLabel(GtObject* obj, const QString& labelName)
 {
     GtLabel* label = findDirectChild<GtLabel*>(labelName);
 
-    if (label == Q_NULLPTR)
+    if (!label)
     {
         label = new GtLabel(labelName);
         appendChild(label);

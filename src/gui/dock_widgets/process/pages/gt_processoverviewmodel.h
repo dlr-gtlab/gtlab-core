@@ -38,7 +38,7 @@ public:
     /**
      *  Destructor
      */
-    virtual ~GtProcessOverviewModel() override;
+    ~GtProcessOverviewModel() override;
 
     /**
      * @brief Virtual function to implement specific model setup.

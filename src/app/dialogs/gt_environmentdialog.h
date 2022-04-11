@@ -32,7 +32,7 @@ public:
     GtEnvironmentDialog(const QStringList& envVars,
                         const QString& winTitle,
                         const QString& infoText,
-                        QWidget* parent = Q_NULLPTR);
+                        QWidget* parent = nullptr);
 
 private:
     /// Environment model

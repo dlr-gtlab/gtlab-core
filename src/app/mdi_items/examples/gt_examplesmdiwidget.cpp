@@ -25,6 +25,7 @@
 
 #include "gt_settings.h"
 #include "gt_application.h"
+#include "gt_projectui.h"
 #include "gt_examplesentry.h"
 #include "gt_examplegraphicalitem.h"
 #include "gt_examplestabwidget.h"
@@ -38,7 +39,7 @@
 #include "gt_examplesmdiwidget.h"
 
 GtExamplesMdiWidget::GtExamplesMdiWidget() :
-    m_tabWidget(Q_NULLPTR)
+    m_tabWidget(nullptr)
 {
     setObjectName(tr("Examples"));
 
@@ -49,10 +50,6 @@ GtExamplesMdiWidget::GtExamplesMdiWidget() :
     initializeWidget();
 }
 
-GtExamplesMdiWidget::~GtExamplesMdiWidget()
-{
-    qDeleteAll(m_examplesEntries);
-}
 
 void
 GtExamplesMdiWidget::initializeDirectories()
@@ -82,16 +79,16 @@ GtExamplesMdiWidget::initializeDirectories()
     {
         QDir curDir(mainDir.absolutePath() + "/" + dir);
 
-        if (!validateExampleDiretory(&curDir))
+        if (!validateExampleDiretory(curDir))
         {
             gtWarning() << tr("Invalid Example:")
                         << mainDir.absolutePath() + "/" + dir;
             continue;
         }
 
-        GtExamplesEntry* entry = new GtExamplesEntry;
+        GtExamplesEntry entry;
 
-        if (readDirectoryContentToExampleEntry(&curDir, entry))
+        if (readDirectoryContentToExampleEntry(curDir, entry))
         {
             m_examplesEntries.append(entry);
         }
@@ -100,14 +97,13 @@ GtExamplesMdiWidget::initializeDirectories()
         {
             gtWarning() << tr("Reading directory failed:")
                         << mainDir.absolutePath() + "/" + dir;
-            delete entry;
         }
     }
 }
 
 void
 GtExamplesMdiWidget::setBasicLayoutToTabPage(QScrollArea* tabPage,
-                                             QString category)
+                                             const QString& category)
 {
     if (!tabPage)
     {
@@ -151,12 +147,12 @@ GtExamplesMdiWidget::initializeWidget()
 
     QFrame* frame = qobject_cast<QFrame*>(widget());
 
-    if (frame != Q_NULLPTR)
+    if (frame != nullptr)
     {
         frame->setFrameStyle(QFrame::NoFrame);
     }
 
-    if (mainWidget == Q_NULLPTR)
+    if (mainWidget == nullptr)
     {
         return;
     }
@@ -184,7 +180,7 @@ GtExamplesMdiWidget::initializeWidget()
         m_tabs.insert(cat, tabpage);
     }
 
-    foreach (GtExamplesEntry* entry, m_examplesEntries)
+    foreach (const auto& entry, m_examplesEntries)
     {
         GtExampleGraphicalItem* item = new
         GtExampleGraphicalItem(entry);
@@ -221,18 +217,14 @@ GtExamplesMdiWidget::sortItems()
 
     foreach (GtExampleGraphicalItem* item, m_graphicalItems)
     {
-        if (item->m_data == Q_NULLPTR)
-        {
-            continue;
-        }
 
-        QString category = item->m_data->category();
+        QString category = item->m_data.category();
 
         QWidget* page = getCurrentPage(category);
 
         QGridLayout* lay = page->findChild<QGridLayout*>("grid");
 
-        if (lay == Q_NULLPTR)
+        if (lay == nullptr)
         {
             gtDebug() << tr("Layout not found");
             continue;
@@ -262,7 +254,7 @@ GtExamplesMdiWidget::onResized()
 }
 
 void
-GtExamplesMdiWidget::onOpenProject(QString exampleName)
+GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
 {
     QString dirPath = exampleName.split("#").first();
 
@@ -414,41 +406,14 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
     if (!gtDataModel->newProject(project))
     {
         delete project;
+        gtError() << tr("Invalid example project");
+        return;
     }
 
-    if (gtApp->hasProjectChanges())
+    if (!GtProjectUI::saveAndCloseCurrentProject())
     {
-        QString text = tr("Found changes in the opened project.\n"
-                          "Do you want to save all your changes "
-                          "before opening the example project?");
-
-        GtSaveProjectMessageBox mb(text);
-        int ret = mb.exec();
-
-        switch (ret)
-        {
-            case QMessageBox::Yes:
-            {
-                gtDataModel->saveProject(gtApp->currentProject());
-                break;
-            }
-
-            case QMessageBox::No:
-            {
-                break;
-            }
-
-            case QMessageBox::Cancel:
-            {
-                return;
-            }
-
-            default:
-                break;
-        }
+        return;
     }
-
-    gtDataModel->closeProject(gtApp->currentProject());
 
     if (!gtDataModel->openProject(project))
     {
@@ -457,7 +422,7 @@ GtExamplesMdiWidget::onOpenProject(QString exampleName)
 }
 
 QWidget*
-GtExamplesMdiWidget::getCurrentPage(QString category)
+GtExamplesMdiWidget::getCurrentPage(const QString& category) const
 {
     return m_tabs.value(category);
 }
@@ -467,9 +432,9 @@ GtExamplesMdiWidget::getAllCategories()
 {
     QStringList retVal;
 
-    foreach (GtExamplesEntry* entry, m_examplesEntries)
+    foreach (const auto& entry, m_examplesEntries)
     {
-        retVal.append(entry->category());
+        retVal.append(entry.category());
     }
 
     retVal.removeDuplicates();
@@ -484,7 +449,7 @@ GtExamplesMdiWidget::icon() const
 }
 
 bool
-GtExamplesMdiWidget::allowsMultipleInstances()
+GtExamplesMdiWidget::allowsMultipleInstances() const
 {
     return false;
 }
@@ -514,21 +479,16 @@ GtExamplesMdiWidget::initializeExamplesPath()
 }
 
 bool
-GtExamplesMdiWidget::validateExampleDiretory(QDir* dir)
+GtExamplesMdiWidget::validateExampleDiretory(const QDir &dir) const
 {
-    if (dir == Q_NULLPTR)
-    {
-        gtDebug() << tr("Dir is NullPtr");
-        return false;
-    }
 
-    if (!dir->exists())
+    if (!dir.exists())
     {
         gtDebug() << tr("Dir not found");
         return false;
     }
 
-    QFile indexFile(dir->absoluteFilePath("index.json"));
+    QFile indexFile(dir.absoluteFilePath("index.json"));
 
     if (!indexFile.exists())
     {
@@ -536,7 +496,7 @@ GtExamplesMdiWidget::validateExampleDiretory(QDir* dir)
         return false;
     }
 
-    QDir projectDir(dir->absolutePath() + QDir::separator() + "project");
+    QDir projectDir(dir.absolutePath() + QDir::separator() + "project");
 
     if (!projectDir.exists())
     {
@@ -558,24 +518,12 @@ GtExamplesMdiWidget::validateExampleDiretory(QDir* dir)
 }
 
 bool
-GtExamplesMdiWidget::readDirectoryContentToExampleEntry(QDir* dir,
-                                                        GtExamplesEntry* entry)
+GtExamplesMdiWidget::readDirectoryContentToExampleEntry(const QDir& dir,
+                                                        GtExamplesEntry& entry)
 {
-    if (!dir)
-    {
-        gtDebug() << tr("Dir is Nullptr");
-        return false;
-    }
+    QFile indexFile(dir.absoluteFilePath("index.json"));
 
-    if (!entry)
-    {
-        gtDebug() << tr("Entry is Nullptr");
-        return false;
-    }
-
-    QFile indexFile(dir->absoluteFilePath("index.json"));
-
-    entry->setDirPath(dir->absolutePath());
+    entry.setDirPath(dir.absolutePath());
 
     if (!indexFile.exists())
     {
@@ -610,15 +558,15 @@ GtExamplesMdiWidget::readDirectoryContentToExampleEntry(QDir* dir,
 
     if (obj.contains("Description"))
     {
-        entry->setDescription(obj["Description"].toString());
+        entry.setDescription(obj["Description"].toString());
     }
 
-    entry->setName(obj["Name"].toString());
-    entry->setCategory(obj["Category"].toString());
+    entry.setName(obj["Name"].toString());
+    entry.setCategory(obj["Category"].toString());
 
-    QString pixmapFilePath = dir->absoluteFilePath("picture.png");
+    QString pixmapFilePath = dir.absoluteFilePath("picture.png");
 
-    entry->setPixmapPath(pixmapFilePath);
+    entry.setPixmapPath(pixmapFilePath);
 
     return true;
 }

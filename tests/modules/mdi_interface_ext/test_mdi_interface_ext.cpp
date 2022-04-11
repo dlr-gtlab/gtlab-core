@@ -42,7 +42,7 @@ TestDatamodelInterfaceExt::description() const
 QList<QMetaObject>
 TestDatamodelInterfaceExt::data()
 {
-    QList<QMetaObject> metaData;
+    QList<QMetaObject> metaData{};
 
     return metaData;
 }
@@ -62,7 +62,7 @@ TestDatamodelInterfaceExt::standAlone()
 QList<QMetaObject>
 TestDatamodelInterfaceExt::mdiItems()
 {
-    QList<QMetaObject> retval;
+    QList<QMetaObject> retval{};
 
     retval << GT_METADATA(TestMdiExtViewer);
 
@@ -72,7 +72,7 @@ TestDatamodelInterfaceExt::mdiItems()
 QList<QMetaObject>
 TestDatamodelInterfaceExt::dockWidgets()
 {
-    QList<QMetaObject> retval;
+    QList<QMetaObject> retval{};
 
     return retval;
 }
@@ -90,7 +90,7 @@ TestDatamodelInterfaceExt::uiItems()
 QList<QMetaObject>
 TestDatamodelInterfaceExt::postItems()
 {
-    QList<QMetaObject> retval;
+    QList<QMetaObject> retval{};
 
     return retval;
 }
@@ -98,7 +98,7 @@ TestDatamodelInterfaceExt::postItems()
 QList<QMetaObject>
 TestDatamodelInterfaceExt::postPlots()
 {
-    QList<QMetaObject> retval;
+    QList<QMetaObject> retval{};
 
     return retval;
 }

@@ -29,17 +29,16 @@ GtStateGroup::findState(const QString& id, const QString& path,
 {
     QList<GtState*> states = findDirectChildren<GtState*>();
 
-    foreach (GtState* state, states)
-    {
-        if (state->path() == path)
-        {
-            return state;
-        }
-    }
+    auto iter = std::find_if(std::begin(states), std::end(states),
+                             [&path](const GtState* state) {
+        return state->path() == path;
+    });
+
+    if (iter != std::end(states)) return *iter;
 
     GtState* retval = new GtState(id, path, initVal, guardian, this);
 
-    loadState(retval);
+    loadState(*retval);
 
     connect(retval, SIGNAL(valueChanged(GtState*)),
             SLOT(onStateChanged(GtState*)));
@@ -48,14 +47,9 @@ GtStateGroup::findState(const QString& id, const QString& path,
 }
 
 void
-GtStateGroup::loadState(GtState* state)
+GtStateGroup::loadState(GtState& state)
 {
-    if (m_container == Q_NULLPTR)
-    {
-        return;
-    }
-
-    if (m_container->project() == Q_NULLPTR)
+    if (!m_container->project())
     {
         loadStateGlobal(state);
     }
@@ -66,14 +60,10 @@ GtStateGroup::loadState(GtState* state)
 }
 
 void
-GtStateGroup::loadStateGlobal(GtState* state)
+GtStateGroup::loadStateGlobal(GtState& state)
 {
-    if (state == Q_NULLPTR)
-    {
-        return;
-    }
 
-    if (!findDirectChildren<GtState*>().contains(state))
+    if (!findDirectChildren<GtState*>().contains(&state))
     {
         return;
     }
@@ -84,25 +74,21 @@ GtStateGroup::loadStateGlobal(GtState* state)
 
     settings.beginGroup(objectName());
 
-    loadStateFromSettings(state, settings);
+    loadStateFromSettings(settings, state);
 }
 
 void
-GtStateGroup::loadStateSpecific(GtState* state)
+GtStateGroup::loadStateSpecific(GtState& state)
 {
-    if (state == Q_NULLPTR)
-    {
-        return;
-    }
 
-    if (!findDirectChildren<GtState*>().contains(state))
+    if (!findDirectChildren<GtState*>().contains(&state))
     {
         return;
     }
 
     GtProject* project = m_container->project();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -114,17 +100,17 @@ GtStateGroup::loadStateSpecific(GtState* state)
 
     settings.beginGroup(objectName());
 
-    loadStateFromSettings(state, settings);
+    loadStateFromSettings(settings, state);
 }
 
 void
-GtStateGroup::loadStateFromSettings(GtState* state, QSettings& settings)
+GtStateGroup::loadStateFromSettings(const QSettings& settings, GtState& state)
 {
-    QVariant var = settings.value(state->path());
+    QVariant var = settings.value(state.path());
 
     if (var.isValid())
     {
-        state->setValue(var, false);
+        state.setValue(var, false);
     }
 }
 
@@ -137,12 +123,12 @@ GtStateGroup::states()
 void
 GtStateGroup::saveState(GtState* state)
 {
-    if (m_container == Q_NULLPTR)
+    if (!m_container)
     {
         return;
     }
 
-    if (m_container->project() == Q_NULLPTR)
+    if (!m_container->project())
     {
         saveStateGlobal(state);
     }
@@ -155,7 +141,7 @@ GtStateGroup::saveState(GtState* state)
 void
 GtStateGroup::saveStateGlobal(GtState* state)
 {
-    if (state == Q_NULLPTR)
+    if (!state)
     {
         return;
     }
@@ -177,7 +163,7 @@ GtStateGroup::saveStateGlobal(GtState* state)
 void
 GtStateGroup::saveStateSpecific(GtState* state)
 {
-    if (state == Q_NULLPTR)
+    if (!state)
     {
         return;
     }
@@ -189,7 +175,7 @@ GtStateGroup::saveStateSpecific(GtState* state)
 
     GtProject* project = m_container->project();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -207,7 +193,7 @@ GtStateGroup::saveStateSpecific(GtState* state)
 void
 GtStateGroup::saveStateToSettings(GtState* state, QSettings& settings)
 {
-    if (state == Q_NULLPTR)
+    if (!state)
     {
         return;
     }

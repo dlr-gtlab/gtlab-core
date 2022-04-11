@@ -42,7 +42,7 @@ protected:
      * @param id
      * @return
      */
-    static bool createEmptyPerspective(const QString id);
+    static bool createEmptyPerspective(const QString& id);
 
     /**
      * @brief duplicatePerspective
@@ -50,8 +50,8 @@ protected:
      * @param target
      * @return
      */
-    static bool duplicatePerspective(const QString source,
-                                     const QString target);
+    static bool duplicatePerspective(const QString& source,
+                                     const QString& target);
 
     /**
      * @brief saveGeometry

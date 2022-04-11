@@ -29,7 +29,7 @@ GtMementoChangeCommand::GtMementoChangeCommand(const GtObjectMementoDiff& diff,
 void
 GtMementoChangeCommand::redo()
 {
-    if (m_root == Q_NULLPTR)
+    if (!m_root)
     {
         gtWarning() << QObject::tr("Root object not found!") <<
                        QStringLiteral(" (change command)");
@@ -66,7 +66,7 @@ GtMementoChangeCommand::redo()
 void
 GtMementoChangeCommand::undo()
 {
-    if (m_root == Q_NULLPTR)
+    if (!m_root)
     {
         gtWarning() << QObject::tr("Root object not found!") <<
                        QStringLiteral(" (change command)");

@@ -36,7 +36,7 @@ public:
      * @param Root object.
      * @param Parent object.
      */
-    GtObjectModel(GtObject* root, QObject* parent = Q_NULLPTR);
+    explicit GtObjectModel(GtObject* root, QObject* parent = nullptr);
 
     /**
      * @brief Sets new root object and resets model.
@@ -49,16 +49,14 @@ public:
      * @param parent
      * @return
      */
-    virtual int columnCount(
-            const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief rowCount
      * @param parent
      * @return
      */
-    virtual int rowCount(
-            const QModelIndex& parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief index
@@ -67,15 +65,15 @@ public:
      * @param parent
      * @return
      */
-    virtual QModelIndex index(int row, int col,
-                const QModelIndex& parent =QModelIndex()) const override;
+    QModelIndex index(int row, int col,
+                      const QModelIndex& parent =QModelIndex()) const override;
 
     /**
      * @brief parent
      * @param index
      * @return
      */
-    virtual QModelIndex parent(const QModelIndex& index) const override;
+    QModelIndex parent(const QModelIndex& index) const override;
 
     /**
      * @brief data
@@ -83,8 +81,8 @@ public:
      * @param role
      * @return
      */
-    virtual QVariant data(const QModelIndex& index,
-                          int role = Qt::DisplayRole ) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole ) const override;
 
     /**
      * @brief objectFromIndex

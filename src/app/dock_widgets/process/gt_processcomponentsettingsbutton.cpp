@@ -25,7 +25,7 @@
 #include "gt_processcomponentsettingsbutton.h"
 
 GtProcessComponentSettingsButton::GtProcessComponentSettingsButton() :
-    m_pc(Q_NULLPTR), m_task(Q_NULLPTR)
+    m_pc(nullptr), m_task(nullptr)
 {
     setText(tr("Config..."));
     setIcon(gtApp->icon("configIcon_16.png"));
@@ -40,7 +40,7 @@ GtProcessComponentSettingsButton::GtProcessComponentSettingsButton() :
 void
 GtProcessComponentSettingsButton::setProcessComponent(GtProcessComponent* pc)
 {
-    if (m_task != Q_NULLPTR)
+    if (m_task)
     {
         disconnect(m_task.data(), SIGNAL(destroyed(QObject*)),
                    this, SLOT(updateState()));
@@ -53,14 +53,14 @@ GtProcessComponentSettingsButton::setProcessComponent(GtProcessComponent* pc)
 
     updateState();
 
-    if (m_pc == Q_NULLPTR)
+    if (!m_pc)
     {
         return;
     }
 
     m_task = m_pc->rootTask();
 
-    if (m_task == Q_NULLPTR)
+    if (!m_task)
     {
         return;
     }
@@ -73,7 +73,7 @@ GtProcessComponentSettingsButton::setProcessComponent(GtProcessComponent* pc)
 bool
 GtProcessComponentSettingsButton::hasCustomWizard()
 {
-    if (m_pc == Q_NULLPTR)
+    if (!m_pc)
     {
         return false;
     }
@@ -88,7 +88,7 @@ GtProcessComponentSettingsButton::hasCustomWizard()
             dynamic_cast<GtExtendedCalculatorDataImpl*>(
                 calcData.get());
 
-        if (eData != Q_NULLPTR && eData->wizard != Q_NULLPTR)
+        if (eData && eData->wizard)
         {
             return true;
         }
@@ -103,7 +103,7 @@ GtProcessComponentSettingsButton::hasCustomWizard()
             dynamic_cast<GtExtendedTaskDataImpl*>(
                 taskData.get());
 
-        if (eData != Q_NULLPTR && eData->wizard != Q_NULLPTR)
+        if (eData && eData->wizard)
         {
             return true;
         }
@@ -115,13 +115,13 @@ GtProcessComponentSettingsButton::hasCustomWizard()
 void
 GtProcessComponentSettingsButton::updateState()
 {
-    if (m_task == Q_NULLPTR)
+    if (!m_task)
     {
         setEnabled(false);
         return;
     }
 
-    if (m_pc == Q_NULLPTR || !m_pc->isReady())
+    if (!m_pc || !m_pc->isReady())
     {
         setEnabled(false);
     }
@@ -145,7 +145,7 @@ GtProcessComponentSettingsButton::updateState()
 void
 GtProcessComponentSettingsButton::openProcessComponentWizard()
 {
-    if (m_pc == Q_NULLPTR)
+    if (!m_pc)
     {
         return;
     }
@@ -165,7 +165,7 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
             dynamic_cast<GtExtendedCalculatorDataImpl*>(
                 calcData.get());
 
-        if (eData != Q_NULLPTR && eData->wizard != Q_NULLPTR)
+        if (eData && eData->wizard)
         {
             GtCalculatorProvider provider(calc);
             GtProcessWizard wizard(gtApp->currentProject(), &provider,
@@ -201,7 +201,7 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
             dynamic_cast<GtExtendedTaskDataImpl*>(
                 taskData.get());
 
-        if (eData != Q_NULLPTR && eData->wizard != Q_NULLPTR)
+        if (eData && eData->wizard)
         {
             GtTaskProvider provider(task);
             GtProcessWizard wizard(gtApp->currentProject(), &provider,
@@ -221,9 +221,9 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
 
             GtCommand command =
                 gtApp->startCommand(gtApp->currentProject(),
-                                    calc->objectName() +
+                                    task->objectName() +
                                     tr(" configuration changed"));
-            calc->fromMemento(memento);
+            task->fromMemento(memento);
             gtApp->endCommand(command);
         }
     }

@@ -23,7 +23,7 @@ public:
     /**
      * @brief GtDataModelPortEntity
      */
-    explicit GtDataModelPortEntity(QGraphicsItem* parent = Q_NULLPTR);
+    explicit GtDataModelPortEntity(QGraphicsItem* parent = nullptr);
 
 };
 

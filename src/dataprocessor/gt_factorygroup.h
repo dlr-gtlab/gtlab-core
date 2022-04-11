@@ -23,7 +23,7 @@ public:
     /**
      * @brief GtFactoryGroup
      */
-    GtFactoryGroup();
+    GtFactoryGroup() = default;
 
     /**
      * @brief newObject - generates gtlab objects based on given classname
@@ -40,14 +40,14 @@ public:
      * @param className
      * @return whether classname is known or not
      */
-    bool knownClass(const QString& className) override;
+    bool knownClass(const QString& className) const override;
 
     /**
      * @brief superClassName - returns superclass name of given class
      * @param className
      * @return name of superclass
      */
-    QString superClassName(const QString& className) override;
+    QString superClassName(const QString& className) const override;
 
     /**
      * @brief knownClasses - returns a list of all stored meta class names
@@ -74,22 +74,21 @@ public:
      * @param plugin
      * @return
      */
-    bool containsDuplicates(const QList<QMetaObject>& metaData) override;
+    bool containsDuplicates(const QList<QMetaObject>& metaData) const override;
 
     /**
      * @brief invokable
      * @param metaObj
      * @return
      */
-    bool invokable(const QMetaObject& metaObj) override;
+    bool invokable(const QMetaObject& metaObj) const override;
 
     /**
      * @brief classHierarchy
      * @param className
      * @return
      */
-    virtual QStringList classHierarchy(
-            const QString& className) override;
+    QStringList classHierarchy(const QString& className) override;
 
     /**
      * @brief addFactory

@@ -39,21 +39,21 @@ GtLabelUsageDelegate::paint(QPainter* painter,
     const QRect rect = option.rect;
     int current = 0;
 
-    foreach (const QString& str, subStrs)
+    foreach (const QString& s, subStrs)
     {
 
-        int lineWidth = fm.width(str);
+        int lineWidth = fm.width(s);
 
         const QRect strRect(rect.left() + current,
                             rect.top(),
                             lineWidth,
                             lineHeight);
 
-        painter->drawText(strRect, str);
+        painter->drawText(strRect, s);
 
         // arrow
 
-        if (str == subStrs.last())
+        if (s == subStrs.last())
         {
             return;
         }

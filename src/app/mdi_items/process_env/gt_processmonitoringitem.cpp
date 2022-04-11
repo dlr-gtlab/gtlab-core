@@ -24,12 +24,12 @@
 
 GtProcessMonitoringItem::GtProcessMonitoringItem(GtProcessComponent* comp) :
     m_component(comp),
-    m_property(Q_NULLPTR),
+    m_property(nullptr),
     m_type(GtProcessMonitoringItem::PROCESS_COMPONENT),
     m_checked(false)
 {
     // make connections
-    if (comp != Q_NULLPTR)
+    if (comp)
     {
         connect(comp, SIGNAL(dataChanged(GtObject*)),
                 SLOT(onObjectDataChange()));
@@ -39,7 +39,7 @@ GtProcessMonitoringItem::GtProcessMonitoringItem(GtProcessComponent* comp) :
 }
 
 GtProcessMonitoringItem::GtProcessMonitoringItem(GtAbstractProperty* prop) :
-    m_component(Q_NULLPTR),
+    m_component(nullptr),
     m_property(prop),
     m_type(GtProcessMonitoringItem::MONITORING_PROPERTY),
     m_checked(false),
@@ -71,7 +71,7 @@ GtProcessMonitoringItem::data(int column, int role)
             {
                 if (m_type == GtProcessMonitoringItem::PROCESS_COMPONENT)
                 {
-                    if (m_component == Q_NULLPTR)
+                    if (!m_component)
                     {
                         return QVariant();
                     }
@@ -80,7 +80,7 @@ GtProcessMonitoringItem::data(int column, int role)
                 }
                 else
                 {
-                    if (m_property == Q_NULLPTR)
+                    if (!m_property)
                     {
                         return QVariant();
                     }
@@ -92,7 +92,7 @@ GtProcessMonitoringItem::data(int column, int role)
             {
                 if (m_type == GtProcessMonitoringItem::MONITORING_PROPERTY)
                 {
-                    if (m_property == Q_NULLPTR)
+                    if (!m_property)
                     {
                         return QVariant();
                     }
@@ -104,7 +104,7 @@ GtProcessMonitoringItem::data(int column, int role)
             {
                 if (m_type == GtProcessMonitoringItem::MONITORING_PROPERTY)
                 {
-                    if (m_property == Q_NULLPTR)
+                    if (!m_property)
                     {
                         return QVariant();
                     }
@@ -120,7 +120,7 @@ GtProcessMonitoringItem::data(int column, int role)
             {
                 if (m_type == GtProcessMonitoringItem::PROCESS_COMPONENT)
                 {
-                    if (m_component == Q_NULLPTR)
+                    if (!m_component)
                     {
                         return QVariant();
                     }
@@ -136,7 +136,7 @@ GtProcessMonitoringItem::data(int column, int role)
                             dynamic_cast<GtExtendedCalculatorDataImpl*>(
                                 calcData.get());
 
-                        if (eData != Q_NULLPTR)
+                        if (eData)
                         {
                             return eData->icon;
                         }
@@ -162,9 +162,9 @@ GtProcessMonitoringItem::data(int column, int role)
                         }
                         else
                         {
-                            GtObjectUI oui;
-                            QVariant value = oui.data(m_component, role,
-                                                      column);
+                            GtObjectUI ouiInner;
+                            QVariant value = ouiInner.data(m_component, role,
+                                                           column);
 
                             if (value.isValid())
                             {
@@ -175,7 +175,7 @@ GtProcessMonitoringItem::data(int column, int role)
                 }
                 else
                 {
-                    if (m_property == Q_NULLPTR)
+                    if (!m_property)
                     {
                         return QVariant();
                     }
@@ -194,7 +194,7 @@ GtProcessMonitoringItem::data(int column, int role)
             {
                 if (m_type == GtProcessMonitoringItem::PROCESS_COMPONENT)
                 {
-                    if (m_component == Q_NULLPTR)
+                    if (!m_component)
                     {
                         return QVariant();
                     }
@@ -294,7 +294,7 @@ GtProcessMonitoringItem::componentUuid()
 {
     if (m_type == GtProcessMonitoringItem::PROCESS_COMPONENT)
     {
-        if (m_component != Q_NULLPTR)
+        if (m_component)
         {
             return m_component->uuid();
         }
@@ -308,7 +308,7 @@ GtProcessMonitoringItem::propertyId()
 {
     if (m_type == GtProcessMonitoringItem::MONITORING_PROPERTY)
     {
-        if (m_property != Q_NULLPTR)
+        if (m_property)
         {
             return m_property->ident();
         }

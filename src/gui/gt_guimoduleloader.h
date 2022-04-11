@@ -33,7 +33,7 @@ public:
     /**
      * @brief ~GtGuiModuleLoader
      */
-    virtual ~GtGuiModuleLoader();
+    ~GtGuiModuleLoader() override;
 
     /**
      * @brief Returns list of all registered user interfaces objects for given
@@ -63,13 +63,13 @@ protected:
      * @param plugin
      * @return
      */
-    virtual bool check(GtModuleInterface* plugin);
+    bool check(GtModuleInterface* plugin) override;
 
     /**
      * @brief insert
      * @param plugin
      */
-    virtual void insert(GtModuleInterface* plugin);
+    void insert(GtModuleInterface* plugin) override;
 
 private:
     // object specific user interfaces

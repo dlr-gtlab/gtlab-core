@@ -68,7 +68,7 @@ public:
      * @param index
      * @return
      */
-    Qt::ItemFlags flags(const QModelIndex& index) const;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     /**
      * @brief Returns post template entry list.
@@ -117,7 +117,7 @@ public:
      * @param newName
      * @return
      */
-    bool renameFile(QString oldName, QString newName);
+    bool renameFile(const QString& oldName, const QString& newName);
 
     /**
      * @brief createDocHeader
@@ -132,7 +132,7 @@ public:
      * @param name
      * @return
      */
-    static QDomElement createRoot(QDomDocument& doc, QString name);
+    static QDomElement createRoot(QDomDocument& doc, const QString& name);
 
     /**
      * @brief deleteEntry
@@ -150,7 +150,7 @@ private:
     /**
      * @brief Fills the directory referenz with project specific post
      * processing path
-     * @param Reference to directory object.
+     * @param dir - Reference to directory object.
      * @return Whether directory was filled or not.
      */
     bool projectPostDirectory(QDir& dir);
@@ -175,41 +175,6 @@ private:
      * @return Template data model index.
      */
     QModelIndex addEntry(const QString& str);
-
-    /**
-     * @brief uniqueObjectNameHelper
-     * @param name
-     * @param objs
-     * @param initName
-     * @param iteration
-     * @return
-     */
-    QString uniquePostTemplateIdHelper(const QString& name,
-                                       const QStringList& strings,
-                                       QString initName = QString(),
-                                       int iteration = 0)
-    {
-        foreach (const QString& str, strings)
-        {
-            if (name == str)
-            {
-                if (initName.isEmpty())
-                {
-                    initName = name;
-                }
-
-                iteration++;
-
-                QString new_name = initName + QStringLiteral("[") +
-                        QString::number(iteration + 1) + QStringLiteral("]");
-
-                return uniquePostTemplateIdHelper(new_name, strings, initName,
-                                              iteration);
-            }
-        }
-
-        return name;
-    }
 };
 
 #endif // GTPOSTMODEL_H

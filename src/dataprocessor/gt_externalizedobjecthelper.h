@@ -44,17 +44,17 @@ public:
      * @brief isValid
      * @return whether the pointer is valid (not null)
      */
-    bool isValid() const { return ptr != Q_NULLPTR && ptr->isFetched(); }
+    bool isValid() const { return ptr && ptr->isFetched(); }
 
     /**
      * @brief operator -> to access member functions
      * @return pointer to object
      */
     ExternalizedObject* operator->(void) { return ptr; }
+    ExternalizedObject* get() { return ptr; }
 
     // casting
-    operator ExternalizedObject*() { return ptr; }
-    operator bool() { return isValid(); }
+    explicit operator ExternalizedObject*() { return ptr; }
 };
 
 
@@ -70,7 +70,7 @@ GtExternalizedObjectHelper<ExternalizedObject>::GtExternalizedObjectHelper(
         std::is_base_of<GtExternalizedObject, ExternalizedObject>(),
         "Object must be derived from GtExternalizedObject");
 
-    if (ptr != Q_NULLPTR)
+    if (ptr)
     {
         ptr->fetchData();
     }

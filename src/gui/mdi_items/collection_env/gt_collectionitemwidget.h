@@ -28,13 +28,13 @@ public:
      * @param collectionItem
      * @param parent
      */
-    GtCollectionItemWidget(const GtCollectionItem& collectionItem,
-                           QWidget* parent = Q_NULLPTR);
+    explicit GtCollectionItemWidget(const GtCollectionItem &collectionItem,
+                                    QWidget *parent = nullptr);
 
     /**
      * @brief ~GtCollectionItemWidget
      */
-    virtual ~GtCollectionItemWidget();
+    ~GtCollectionItemWidget() override;
 
 private:
     /// Filter string.

@@ -18,7 +18,7 @@ GtCheckableStringListModel::GtCheckableStringListModel(
 {
     setStringList(strings);
 
-    connect(this, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
+    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
             SLOT(onDataChanged()));
 }
 
@@ -26,7 +26,7 @@ GtCheckableStringListModel::GtCheckableStringListModel(QObject* parent)
     : QAbstractListModel(parent),
       m_mode(MultipleSelection)
 {
-    connect(this, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
+    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
             SLOT(onDataChanged()));
 }
 
@@ -184,6 +184,7 @@ GtCheckableStringListModel::setData(const QModelIndex& index,
                 emit dataChanged(createIndex(0, 0),
                                  createIndex(m_data.size() - 1, 0));
             }
+            break;
         }
         default:
             break;

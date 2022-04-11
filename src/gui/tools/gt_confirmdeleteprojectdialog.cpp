@@ -19,11 +19,10 @@
 
 #include "gt_confirmdeleteprojectdialog.h"
 
-GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(QWidget* parent,
-                                                           QString projectName)
-    :
+GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
+        QWidget* parent, const QString& projectName) :
     QDialog(parent),
-    m_checkBox(Q_NULLPTR)
+    m_checkBox(nullptr)
 {
     setWindowTitle(tr("Delete from Session"));
     setWindowIcon(gtApp->icon(QStringLiteral("deleteProjectIcon_16.png")));

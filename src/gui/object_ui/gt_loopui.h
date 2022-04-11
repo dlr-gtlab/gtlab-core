@@ -29,19 +29,19 @@ public:
      * Virtual function to specify object specific icon.
      * @return Object specific icon
      */
-    virtual QIcon icon(GtObject* obj) const override;
+    QIcon icon(GtObject* obj) const override;
 
     /**
      * @brief hasValidationRegExp
      * @return true, because element has validator
      */
-    bool hasValidationRegExp();
+    bool hasValidationRegExp() override;
 
     /**
      * @brief validatorRegExp
      * @return Regexp to accept letters, digits, -, _, and space
      */
-    QRegExp validatorRegExp();
+    QRegExp validatorRegExp() override;
 
 protected:
     /**

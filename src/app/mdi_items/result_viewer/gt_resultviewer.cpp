@@ -24,11 +24,11 @@
 #include "gt_resultviewer.h"
 
 GtResultViewer::GtResultViewer() :
-    m_label(Q_NULLPTR),
-    m_model(Q_NULLPTR),
-    m_axSelection(Q_NULLPTR),
-    m_tickSelection(Q_NULLPTR),
-    m_fixedValueLabel(Q_NULLPTR)
+    m_label(nullptr),
+    m_model(nullptr),
+    m_axSelection(nullptr),
+    m_tickSelection(nullptr),
+    m_fixedValueLabel(nullptr)
 {
     setObjectName("Result Viewer");
 
@@ -95,7 +95,7 @@ GtResultViewer::setData(GtObject* obj)
         return;
     }
 
-    GtDataZone* dz = qobject_cast<GtDataZone*>(dataZone);
+    GtDataZone* dz = qobject_cast<GtDataZone*>(dataZone.get());
 
     if (dz)
     {
@@ -122,9 +122,9 @@ GtResultViewer::setData(GtObject* obj)
         }
     }
 
-    m_model->setResultData(dataZone);
+    m_model->setResultData(dataZone.get());
 
-    m_model->m_indeOfInterestAx1 = 0;
+    m_model->m_indexOfInterestAx1 = 0;
 
     QString str = dataZone->objectPath();
 
@@ -146,9 +146,9 @@ GtResultViewer::setData(GtObject* obj)
 
     m_label->setText(id);
 
-    connect(dataZone, SIGNAL(destroyed(QObject*)), m_model,
+    connect(dataZone.get(), SIGNAL(destroyed(QObject*)), m_model,
             SLOT(clearResultData()));
-    connect(dataZone, SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
+    connect(dataZone.get(), SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
 }
 
 void
@@ -158,7 +158,7 @@ GtResultViewer::axSelectorChanged(int index)
 
     GtAbstractDataZone* dataZone = m_model->getResultData();
 
-    if (dataZone == Q_NULLPTR)
+    if (!dataZone)
     {
         return;
     }
@@ -178,13 +178,13 @@ GtResultViewer::axSelectorChanged(int index)
 
     m_model->m_axOfInterest = index;
 
-    m_model->axIndexChanges(index);
+    emit m_model->axIndexChanges(index);
 }
 
 void
 GtResultViewer::tickSelectorChanged(int index)
 {
-    m_model->m_indeOfInterestAx1 = index;
+    m_model->m_indexOfInterestAx1 = index;
 
-    m_model->tickIndexChanges(index);
+    emit m_model->tickIndexChanges(index);
 }

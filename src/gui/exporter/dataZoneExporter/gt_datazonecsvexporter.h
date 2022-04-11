@@ -54,7 +54,7 @@ public:
      * @param Reference to file selected by user.
      * @return Whether export successfully finished or not.
      */
-    bool doExport(GtObject* data, QFile& file) override;
+    bool doExport(GtObject* object, QFile& file) override;
 
     /**
      * @brief Returns file extensions of exporter.
@@ -134,7 +134,7 @@ private:
      * @param v
      */
     void writeHeaderLineHelper(QTextStream& out, const QString& p,
-                               const QString v, int nParams);
+                               const QString& v, int nParams);
 };
 
 #endif // GT_DATAZONECSVEXPORTER_H

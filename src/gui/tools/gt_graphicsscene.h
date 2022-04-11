@@ -22,11 +22,6 @@ class GT_GUI_EXPORT GtGraphicsScene : public QGraphicsScene
 public:
     explicit GtGraphicsScene(QObject *parent = 0);
 
-    /**
-     * @brief Destructor.
-     */
-    virtual ~GtGraphicsScene();
-
 //    void setPointSelectionMode(bool val);
 
     template <class T>

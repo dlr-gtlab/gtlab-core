@@ -19,10 +19,10 @@ class GtLineNumberArea : public QWidget
 public:
     explicit GtLineNumberArea(GtCodeEditor* editor);
 
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
 protected:
-    void paintEvent(QPaintEvent* event);
+    void paintEvent(QPaintEvent* event) override;
 
 private:
     GtCodeEditor* m_codeEditor;

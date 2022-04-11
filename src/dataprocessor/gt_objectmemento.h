@@ -34,7 +34,7 @@ public:
      * @param obj
      * @param clone
      */
-    GtObjectMemento(const GtObject* obj = nullptr, bool clone = true);
+    explicit GtObjectMemento(const GtObject* obj = nullptr, bool clone = true);
 
     /**
      * @brief GtObjectMemento
@@ -79,7 +79,7 @@ public:
     template <class T = GtObject*>
     T restore(GtAbstractObjectFactory* factory, bool newUuid = false)
     {
-        T retval = NULL;
+        T retval = nullptr;
 
         if (factory)
         {
@@ -94,7 +94,7 @@ public:
 
                 retval = qobject_cast<T>(tmp);
 
-                if (retval == Q_NULLPTR)
+                if (!retval)
                 {
                     gtWarning() << QObject::tr("wrong object type!")
                                 << QStringLiteral("(") << ident()
@@ -234,7 +234,8 @@ private:
      * @param element
      * @return
      */
-    bool isRestorable(GtAbstractObjectFactory* factory, QDomElement element);
+    bool isRestorable(GtAbstractObjectFactory* factory,
+                      const QDomElement& element);
 
 };
 

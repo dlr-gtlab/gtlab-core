@@ -83,7 +83,7 @@ public:
      * @param Parent object
      * @return ModelIndexList of appended child objects
      */
-    QModelIndexList appendChildren(QList<GtObject*> children,
+    QModelIndexList appendChildren(const QList<GtObject*>& children,
                                    GtObject* parent) override;
 
     /**
@@ -122,7 +122,7 @@ protected:
      * @brief Constructor
      * @param parent
      */
-    explicit GtDataModel(QObject* parent = Q_NULLPTR);
+    explicit GtDataModel(QObject* parent = nullptr);
 
     /**
      * @brief Returns the drop actions supported by this model.

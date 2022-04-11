@@ -57,14 +57,14 @@ void
 GtImportMenu::onActionTrigger(QObject* obj)
 {
     // check object
-    if (m_obj == Q_NULLPTR)
+    if (!m_obj)
     {
         return;
     }
 
     GtProject* project = m_obj->findParent<GtProject*>();
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return;
     }
@@ -73,7 +73,7 @@ GtImportMenu::onActionTrigger(QObject* obj)
     QAction* act = qobject_cast<QAction*>(obj);
 
     // check action
-    if (act == Q_NULLPTR)
+    if (!act)
     {
         return;
     }
@@ -93,7 +93,7 @@ GtImportMenu::onActionTrigger(QObject* obj)
     GtAbstractImporter* importer = gtImportHandler->newImporter(str);
 
     // check importer
-    if (importer == Q_NULLPTR)
+    if (!importer)
     {
         return;
     }
@@ -102,7 +102,7 @@ GtImportMenu::onActionTrigger(QObject* obj)
     GtObject* objCopy = m_obj->clone();
 
     // check clones object data
-    if (objCopy == Q_NULLPTR)
+    if (!objCopy)
     {
         return;
     }

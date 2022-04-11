@@ -25,7 +25,7 @@ GtAccessGroupModel::GtAccessGroupModel(GtAccessGroup* group, QObject* parent) :
 int
 GtAccessGroupModel::rowCount(const QModelIndex& /*parent*/) const
 {
-    if (m_group == Q_NULLPTR)
+    if (!m_group)
     {
         return 0;
     }
@@ -42,9 +42,11 @@ GtAccessGroupModel::columnCount(const QModelIndex& /*parent*/) const
 QVariant
 GtAccessGroupModel::data(const QModelIndex& index, int role) const
 {
-    if (m_group == Q_NULLPTR)
+    QVariant retVal{};
+
+    if (!m_group)
     {
-        return QVariant();
+        return retVal;
     }
 
     const int row = index.row();
@@ -54,7 +56,7 @@ GtAccessGroupModel::data(const QModelIndex& index, int role) const
 
     if (row < 0 || row >= accessDataList.size())
     {
-        return QVariant();
+        return retVal;
     }
 
     switch (role)
@@ -72,12 +74,12 @@ GtAccessGroupModel::data(const QModelIndex& index, int role) const
                              QString::number(accessDataList[row].port());
                 }
 
-                return tmpStr;
+                retVal = tmpStr;
+                break;
             }
 
             break;
         }
-
         case Qt::DisplayRole:
         {
             if (col == 0)
@@ -91,11 +93,13 @@ GtAccessGroupModel::data(const QModelIndex& index, int role) const
                              QString::number(accessDataList[row].port());
                 }
 
-                return tmpStr;
+                retVal = tmpStr;
+                break;
             }
             else if (col == 1)
             {
-                return accessDataList[row].user();
+                retVal = accessDataList[row].user();
+                break;
             }
             else if (col == 2)
             {
@@ -106,7 +110,8 @@ GtAccessGroupModel::data(const QModelIndex& index, int role) const
                     pwStr += "*";
                 }
 
-                return pwStr;
+                retVal = pwStr;
+                break;
             }
 
             break;
@@ -116,29 +121,25 @@ GtAccessGroupModel::data(const QModelIndex& index, int role) const
         {
             if (col == 3)
             {
-                return gtApp->icon(QStringLiteral("configIcon_16.png"));
+                retVal = gtApp->icon(QStringLiteral("configIcon_16.png"));
             }
             else if (col == 4)
             {
-                return gtApp->icon(QStringLiteral("closeIcon_16.png"));
+                retVal = gtApp->icon(QStringLiteral("closeIcon_16.png"));
             }
 
             break;
         }
 
         case Qt::FontRole:
-        {
-            QFont fnt;
-            fnt.setPointSize(8);
-            fnt.setFamily("Arial");
-            return fnt;
-        }
+            retVal = QFont{"Arial", 8};
+            break;
 
         default:
             break;
     }
 
-    return QVariant();
+    return retVal;
 }
 
 QVariant
@@ -171,7 +172,7 @@ GtAccessGroupModel::headerData(int section, Qt::Orientation orientation,
 bool
 GtAccessGroupModel::addAccessData(const GtAccessData& accessData)
 {
-    if (m_group == Q_NULLPTR)
+    if (!m_group)
     {
         return false;
     }
@@ -205,7 +206,7 @@ GtAccessGroupModel::removeAccessData(const QModelIndex& index)
         return false;
     }
 
-    if (m_group == Q_NULLPTR)
+    if (!m_group)
     {
         return false;
     }
@@ -233,7 +234,7 @@ GtAccessGroupModel::setAccessData(const GtAccessData& accessData,
         return false;
     }
 
-    if (m_group == Q_NULLPTR)
+    if (!m_group)
     {
         return false;
     }

@@ -39,7 +39,7 @@ public:
      * @param role
      * @return
      */
-    virtual QVariant data(int column, int role) const override;
+    QVariant data(int column, int role) const override;
 
     /**
      * @brief setData
@@ -48,10 +48,10 @@ public:
      * @param role
      * @return
      */
-    virtual bool setData(int column,
-                         const QVariant& value,
-                         GtObject* obj,
-                         int role = Qt::EditRole) override;
+    bool setData(int column,
+                 const QVariant& value,
+                 GtObject* obj,
+                 int role = Qt::EditRole) override;
 
 };
 

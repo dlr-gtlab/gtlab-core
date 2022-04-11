@@ -30,10 +30,6 @@ GtPropertyItem::GtPropertyItem() :
 {
 }
 
-GtPropertyItem::~GtPropertyItem()
-{
-}
-
 QVariant
 GtPropertyItem::data(int column, int role) const
 {
@@ -42,7 +38,7 @@ GtPropertyItem::data(int column, int role) const
         return QVariant();
     }
 
-    if (m_property == Q_NULLPTR)
+    if (!m_property)
     {
         return QVariant();
     }
@@ -50,7 +46,6 @@ GtPropertyItem::data(int column, int role) const
     switch (role)
     {
         case Qt::DisplayRole:
-        {
             if (column == 0)
             {
                 return m_property->objectName();
@@ -73,18 +68,16 @@ GtPropertyItem::data(int column, int role) const
                     return QStringLiteral("[") + tmpStr +
                            QStringLiteral("]");
                 }
-                else
-                {
-                    return QStringLiteral("[") + m_currentUnit +
-                           QStringLiteral("]");
-                }
+
+                return QStringLiteral("[") + m_currentUnit +
+                        QStringLiteral("]");
+
             }
 
             break;
-        }
+
 
         case Qt::EditRole:
-        {
             if (!m_property->isReadOnly())
             {
                 if (column == 2)
@@ -97,18 +90,14 @@ GtPropertyItem::data(int column, int role) const
                     {
                         return m_property->siUnit();
                     }
-                    else
-                    {
-                        return m_currentUnit;
-                    }
+
+                    return m_currentUnit;
                 }
             }
 
             break;
-        }
 
         case Qt::DecorationRole:
-        {
             if (m_property->isConnected())
             {
                 if (column == 0)
@@ -118,10 +107,8 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-        }
 
         case Qt::CheckStateRole:
-        {
             if (column == 0)
             {
                 if (m_property->isOptional())
@@ -130,10 +117,8 @@ GtPropertyItem::data(int column, int role) const
                     {
                         return Qt::Checked;
                     }
-                    else
-                    {
-                        return Qt::Unchecked;
-                    }
+
+                    return Qt::Unchecked;
                 }
             }
             else if (column == 2)
@@ -146,18 +131,14 @@ GtPropertyItem::data(int column, int role) const
                     {
                         return Qt::Checked;
                     }
-                    else
-                    {
-                        return Qt::Unchecked;
-                    }
+
+                    return Qt::Unchecked;
                 }
             }
 
             break;
-        }
 
         case Qt::ToolTipRole:
-        {
             if (column == 0)
             {
                 return m_property->brief();
@@ -168,20 +149,16 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-        }
 
 //        case Qt::ForegroundRole:
-//        {
 //            if (!m_property->isActive())
 //            {
 //                return QColor(120, 120, 120);
 //            }
 
 //            break;
-//        }
 
 //        case Qt::BackgroundRole:
-//        {
 //            if (column == 2)
 //            {
 //                if (!m_property->isActive() || m_property->isReadOnly())
@@ -195,10 +172,8 @@ GtPropertyItem::data(int column, int role) const
 //            }
 
 //            break;
-//        }
 
         case Qt::FontRole:
-        {
             if (column == 1)
             {
                 QFont font;
@@ -208,27 +183,18 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-        }
 
         case GtPropertyModel::UnitCategoryRole:
-        {
             return qVariantFromValue(m_property->unitCategory());
-        }
 
         case GtPropertyModel::ReadOnlyRole:
-        {
             return m_property->isReadOnly();
-        }
 
         case GtPropertyModel::OptionalRole:
-        {
             return m_property->isOptional();
-        }
 
         case GtPropertyModel::ActiveRole:
-        {
             return m_property->isActive();
-        }
     }
 
     return QVariant();
@@ -238,7 +204,7 @@ bool
 GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
                         int role)
 {
-    if (m_property == Q_NULLPTR)
+    if (!m_property)
     {
         return false;
     }
@@ -254,7 +220,7 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
                     // TODO: check whether property can be changed
                     GtSession* root =  obj->findRoot<GtSession*>();
 
-                    if (root != Q_NULLPTR)
+                    if (root)
                     {
                         if (value != m_property->valueToVariant(m_currentUnit))
                         {
@@ -298,7 +264,7 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
                 {
                     GtSession* root =  obj->findRoot<GtSession*>();
 
-                    if (root != Q_NULLPTR)
+                    if (root)
                     {
                         gtApp->propertyCommand(obj, m_property, value,
                                                m_currentUnit, root);
@@ -351,7 +317,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
             QValidator* validator = nullptr;
             GtStringProperty* s = qobject_cast<GtStringProperty*>(m_property);
 
-            if (s != nullptr)
+            if (s)
             {
                 validator = s->validator();
             }
@@ -370,13 +336,13 @@ GtPropertyItem::editorWidget(QWidget* parent,
             return GtAbstractPropertyItem::editorWidget(parent, delegate);
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void
 GtPropertyItem::setEditorData(QWidget* editor, QVariant& var) const
 {
-    if (editor == Q_NULLPTR)
+    if (!editor)
     {
         return;
     }

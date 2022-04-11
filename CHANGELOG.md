@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed the class structure for Datazones to make use of the externalization feature - #127
 - Tasks can be skipped - #82, #176
 - Exteded library refactoring - #161
+- Removed "File->Import Project" menu. Instead, project are imported now via "File->Open Project". - #202
 
 ### Added
 - Multiple labels can be selected and deleted at once - #111

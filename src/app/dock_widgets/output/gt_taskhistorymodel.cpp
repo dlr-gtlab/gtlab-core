@@ -127,12 +127,7 @@ GtTaskHistoryModel::setPath(const QString& path)
 bool
 GtTaskHistoryModel::hasChildren(const QModelIndex& parent) const
 {
-    if (!parent.isValid())
-    {
-        return true;
-    }
-
-    return false;
+    return !parent.isValid();
 }
 
 QModelIndex
@@ -144,7 +139,7 @@ GtTaskHistoryModel::index(int row, int col, const QModelIndex& /*parent*/) const
 QModelIndex
 GtTaskHistoryModel::parent(const QModelIndex& /*index*/) const
 {
-    return QModelIndex();
+    return {};
 }
 
 void
@@ -298,15 +293,18 @@ GtTaskHistoryModel::stringToTaskState(const QString& str) const
     {
         return GtProcessComponent::FINISHED;
     }
-    else if (str == QLatin1String("FAILED"))
+
+    if (str == QLatin1String("FAILED"))
     {
         return GtProcessComponent::FAILED;
     }
-    else if (str == QLatin1String("WARN_FINISHED"))
+
+    if (str == QLatin1String("WARN_FINISHED"))
     {
         return GtProcessComponent::WARN_FINISHED;
     }
-    else if (str == QLatin1String("TERMINATED"))
+
+    if (str == QLatin1String("TERMINATED"))
     {
         return GtProcessComponent::TERMINATED;
     }

@@ -7,12 +7,13 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QFont>
-#include <QColor>
+#include "gt_environmentmodel.h"
 
 #include "gt_environment.h"
+#include "gt_algorithms.h"
 
-#include "gt_environmentmodel.h"
+#include <QFont>
+#include <QColor>
 
 GtEnvironmentModel::GtEnvironmentModel(const QStringList& vars,
                                        QObject* parent) :
@@ -49,44 +50,48 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    const QString valId = m_vars.keys()[row];
+    const QString valId = ith_iter(m_vars, row).key();
+
+    QVariant retVal = QVariant();
 
     switch (role)
     {
     case Qt::EditRole:
+        break;
+
     case Qt::DisplayRole:
-    {
         if (col == 0)
         {
-            return valId;
+            retVal = valId;
         }
         else if (col == 1)
         {
-            return m_vars.value(valId);
+            retVal = m_vars.value(valId);
         }
-    }
-    case Qt::FontRole:
-    {
-        QFont fnt;
-        fnt.setPointSize(8);
-        fnt.setFamily("Arial");
-        return fnt;
-    }
+        break;
     case Qt::BackgroundRole:
-    {
         if (col == 1)
         {
             if (m_vars.value(valId).isNull())
             {
-                return QColor(214, 170, 170);
+                retVal = QColor(214, 170, 170);
+                break;
             }
         }
+        break;
 
-        return QVariant();
-    }
+    case Qt::FontRole:
+        QFont fnt;
+        fnt.setPointSize(8);
+        fnt.setFamily("Arial");
+        retVal = fnt;
+        break;
+
     }
 
-    return QVariant();
+    return retVal;
+
+
 }
 
 bool
@@ -107,7 +112,7 @@ GtEnvironmentModel::setData(const QModelIndex& index,
         return false;
     }
 
-    const QString valId = m_vars.keys()[row];
+    const QString valId = ith_iter(m_vars, row).key();
 
     switch (role)
     {
@@ -167,7 +172,7 @@ GtEnvironmentModel::flags(const QModelIndex& index) const
 void
 GtEnvironmentModel::saveVariables()
 {
-    for (auto e : m_vars.keys())
+    for_each_key(m_vars, [this](const QString& e)
     {
         if (!gtEnvironment->environmentVariableExists(e))
         {
@@ -176,7 +181,7 @@ GtEnvironmentModel::saveVariables()
 
         QVariant variant = m_vars.value(e);
         gtEnvironment->setValue(e, variant);
-    }
+    });
 
     gtEnvironment->saveEnvironment();
 }

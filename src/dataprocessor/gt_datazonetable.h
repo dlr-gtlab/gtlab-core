@@ -36,8 +36,10 @@ public:
 //    GtDataZoneTable(QStringList x, QStringList y, QStringList z,
 //                    QList<GtAbstractDataZoneList*> data);
 
-    GtDataZoneTable(QStringList x, QStringList y, QStringList z,
-                    QList<GtAbstractDataZone*> data);
+    GtDataZoneTable(const QStringList& x,
+                    const QStringList& y,
+                    const QStringList& z,
+                    const QList<GtAbstractDataZone *>& data);
 
     /**
      * @brief dataZone
@@ -46,7 +48,7 @@ public:
      * @param z
      * @return
      */
-    GtAbstractDataZone* dataZone(int x, int y, int z);
+    GtAbstractDataZone* dataZone(int x, int y, int z) const;
 
 //    GtAbstractDataZoneList* dataZoneList(int x, int y, int z);
 
@@ -55,25 +57,25 @@ public:
      * @param idx
      * @return
      */
-    GtAbstractDataZone* dataZone(int idx);
+    GtAbstractDataZone* dataZone(int idx) const;
 
     /**
      * @brief isValid
      * @return
      */
-    bool isValid();
+    bool isValid() const;
 
     /**
      * @brief isEmpty
      * @return
      */
-    bool isEmpty();
+    bool isEmpty() const;
 
     /**
      * @brief xAxis
      * @return
      */
-    QStringList xAxis();
+    QStringList xAxis() const;
 
 //    QStringList xAxisLists();
 
@@ -82,112 +84,112 @@ public:
      * @param i
      * @return
      */
-    QString xAxis(int i);
+    QString xAxis(int i) const;
 
     /**
      * @brief yAxis
      * @return
      */
-    QStringList yAxis();
+    QStringList yAxis() const;
 
     /**
      * @brief yAxis
      * @param i
      * @return
      */
-    QString yAxis(int i);
+    QString yAxis(int i) const;
 
     /**
      * @brief zAxis
      * @return
      */
-    QStringList zAxis();
+    QStringList zAxis() const;
 
     /**
      * @brief zAxis
      * @param i
      * @return
      */
-    QString zAxis(int i);
+    QString zAxis(int i) const;
 
     /**
      * @brief params
      * @return
      */
-    QStringList params();
+    QStringList params() const;
 
     /**
      * @brief nXDims
      * @return
      */
-    int nXDims();
+    int nXDims() const;
 
     /**
      * @brief nYDims
      * @return
      */
-    int nYDims();
+    int nYDims() const;
 
     /**
      * @brief nZDims
      * @return
      */
-    int nZDims();
+    int nZDims() const;
 
     /**
      * @brief is0D
      * @return
      */
-    bool is0D();
+    bool is0D() const;
 
     /**
      * @brief nSubDims
      * @return
      */
-    int nSubDims();
+    int nSubDims() const;
 
     /**
      * @brief allAxisTicks
      * @return
      */
-    QVector<QVector<double> > allAxisTicks();
+    QVector<QVector<double> > allAxisTicks() const;
 
     /**
      * @brief allAxisTicksMap
      * @return
      */
-    QMap<QString, QVector<double> > allAxisTicksMap();
+    QMap<QString, QVector<double> > allAxisTicksMap() const;
 
     /**
      * @brief allAxisTicksString
      * @return
      */
-    QList<QStringList> allAxisTicksString();
+    QList<QStringList> allAxisTicksString() const;
 
     /**
      * @brief allAxisTicksStringMap
      * @return
      */
-    QMap<QString, QStringList> allAxisTicksStringMap();
+    QMap<QString, QStringList> allAxisTicksStringMap() const;
 
     /**
      * @brief nMainDims
      * @return
      */
-    int nMainDims();
+    int nMainDims() const;
 
     /**
      * @brief subAxisNames
      * @return
      */
-    QStringList subAxisNames();
+    QStringList subAxisNames() const;
 
     /**
      * @brief axisTicks
      * @param id
      * @param dvecOut
      */
-    void subAxisTicks(QString id, QVector<double>& dvecOut);
+    void subAxisTicks(const QString& id, QVector<double>& dvecOut) const;
 
     /**
      * @brief value2D
@@ -200,8 +202,8 @@ public:
      * @param ok
      * @return
      */
-    double value2D(QString param, int mainX, int mainY, int mainZ,
-                   double x, double y, bool* ok = Q_NULLPTR);
+    double value2D(const QString& param, int mainX, int mainY, int mainZ,
+                   double x, double y, bool* ok = nullptr) const;
 
     /**
      * @brief value2D
@@ -214,8 +216,9 @@ public:
      * @param ok
      * @return
      */
-    double value2D(QString param, QString mainX, QString mainY, QString mainZ,
-                   double x, double y, bool* ok = Q_NULLPTR);
+    double value2D(const QString& param, const QString& mainX,
+                   const QString& mainY, const QString& mainZ,
+                   double x, double y, bool* ok = nullptr) const;
 
     /**
      * @brief value1D
@@ -227,8 +230,8 @@ public:
      * @param ok
      * @return
      */
-    double value1D(QString param, int mainX, int mainY, int mainZ,
-                   double x, bool* ok = Q_NULLPTR);
+    double value1D(const QString& param, int mainX, int mainY, int mainZ,
+                   double x, bool* ok = nullptr) const;
 
     /**
      * @brief value1D
@@ -240,8 +243,9 @@ public:
      * @param ok
      * @return
      */
-    double value1D(QString param, QString mainX, QString mainY, QString mainZ,
-                   double x, bool* ok = Q_NULLPTR);
+    double value1D(const QString& param, const QString& mainX,
+                   const QString& mainY, const QString& mainZ,
+                   double x, bool* ok = nullptr) const;
 
     /**
      * @brief value0D
@@ -252,11 +256,11 @@ public:
      * @param ok
      * @return
      */
-    double value0D(QString param, int mainX, int mainY, int mainZ,
-                   bool* ok = Q_NULLPTR);
+    double value0D(const QString& param, int mainX, int mainY, int mainZ,
+                   bool* ok = nullptr) const;
 
-    double valueFrom0Ddata(QString param, GtAbstractDataZone* adz,
-                           bool* ok = Q_NULLPTR);
+    double valueFrom0Ddata(const QString& param, GtAbstractDataZone* adz,
+                           bool* ok = nullptr) const;
 
     /**
      * @brief value0D
@@ -267,77 +271,78 @@ public:
      * @param ok
      * @return
      */
-    double value0D(QString param, QString mainX, QString mainY, QString mainZ,
-                   bool* ok = Q_NULLPTR);
+    double value0D(const QString& param, const QString& mainX,
+                   const QString& mainY, const QString& mainZ,
+                   bool* ok = nullptr) const;
 
-    double value0DfromOP(QString param, QString OP,
-                   bool* ok = Q_NULLPTR);
+    double value0DfromOP(const QString& param, const QString& OP,
+                         bool* ok = nullptr) const;
 
     /**
      * @brief axisTicks
      * @param id
      * @return
      */
-    QStringList subAxisTicks(QString id);
+    QStringList subAxisTicks(const QString& id) const;
 
     /**
      * @brief xAxisName
      * @return
      */
-    QString xAxisName();
+    QString xAxisName() const;
 
     /**
      * @brief yAxisName
      * @return
      */
-    QString yAxisName();
+    QString yAxisName() const;
 
     /**
      * @brief zAxisName
      * @return
      */
-    QString zAxisName();
+    QString zAxisName() const;
 
     /**
      * @brief xAxisIndexFromString
      * @param str
      * @return
      */
-    int xAxisIndexFromString(QString str);
+    int xAxisIndexFromString(const QString& str) const;
 
     /**
      * @brief yAxisIndexFromString
      * @param str
      * @return
      */
-    int yAxisIndexFromString(QString str);
+    int yAxisIndexFromString(const QString& str) const;
 
     /**
      * @brief zAxisIndexFromString
      * @param str
      * @return
      */
-    int zAxisIndexFromString(QString str);
+    int zAxisIndexFromString(const QString& str) const;
 
     /**
      * @brief unitFromParam
      * @return
      */
-    QString unitFromParam(QString param);
+    QString unitFromParam(const QString& param) const;
 
-    int dataSize();
+    int dataSize() const;
 
-    GtDataZoneTableMainAxis* xPtr();
+    GtDataZoneTableMainAxis* xPtr() const;
 
-    GtDataZoneTableMainAxis* yPtr();
+    GtDataZoneTableMainAxis* yPtr() const;
 
-    GtDataZoneTableMainAxis* zPtr();
+    GtDataZoneTableMainAxis* zPtr() const;
 
-    void setXaxisTitle(QString title);
+    void setXaxisTitle(const QString& title);
 
-    void setYaxisTitle(QString title);
+    void setYaxisTitle(const QString& title);
 
-    void setZaxisTitle(QString title);
+    void setZaxisTitle(const QString& title);
 
     void setAxisActive(GtDataZoneTableMainAxis::AxisType axType, bool mod);
 
@@ -345,7 +350,7 @@ public:
 
 private:
 
-    QList<GtAbstractDataZone *> data();
+    QList<GtAbstractDataZone *> data() const;
 
 //    QList<GtAbstractDataZoneList *> dataList();
 
@@ -356,7 +361,9 @@ private:
 
     GtDataZoneTableMainAxis* findAxis(GtDataZoneTableMainAxis::AxisType axType);
     void initAxes();
-    void setTicks(QStringList z, QStringList x, QStringList y);
+    void setTicks(const QStringList& z,
+                  const QStringList& x,
+                  const QStringList& y);
 //    void processAbstractList(QList<GtAbstractDataZoneList*> data);
 };
 

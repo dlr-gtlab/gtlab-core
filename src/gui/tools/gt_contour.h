@@ -46,9 +46,9 @@ public:
      * @return Hash including pairs of iso values and related contor polygons
      */
     QHash<QString, QList<QPolygonF> > calcContour(
-            GtTable* table, QString param, QStringList isoValues,
+            GtTable* table, const QString& param, const QStringList& isoValues,
             bool calcPolygons = false, bool returnPolygonsOnly = false,
-            bool* check = Q_NULLPTR);
+            bool* check = nullptr);
 
     /**
      * @brief Calculates contour for a certain parameter and a given iso value
@@ -66,10 +66,11 @@ public:
      * @param check
      * @return Hash including pairs of iso values and related contor polygons
      */
-    QList<QPolygonF> calcContour(GtTable* table, QString param,
-                                 QString isoValue, bool calcPolygons = false,
+    QList<QPolygonF> calcContour(GtTable* table, const QString& param,
+                                 const QString& isoValue,
+                                 bool calcPolygons = false,
                                  bool returnPolygonsOnly = false,
-                                 bool* check = Q_NULLPTR);
+                                 bool* check = nullptr);
 
     /**
      * @brief Calculates contour for a certain parameter and a given number of
@@ -90,15 +91,15 @@ public:
      * @return Hash including pairs of iso values and related contor polygons
      */
     QHash<QString, QList<QPolygonF> > calcContour(
-            GtTable* table, QString param, int nIsoValues,
-            bool calcPoygons = false, bool returnPolygonsOnly = false,
-            bool* check = Q_NULLPTR);
+            GtTable* table, const QString &param, int nIsoValues,
+            bool calcPolygons = false, bool returnPolygonsOnly = false,
+            bool* check = nullptr);
 
     /**
      * @brief Returns current iso values in ascending order
      * @return list of iso values
      */
-    QStringList isoValues();
+    QStringList isoValues() const;
 
 private:
     /// calculate polygons with 3 or more points for colour contour plot or not
@@ -114,14 +115,17 @@ private:
      * @brief checks if given table is valid for contour calculation
      * @return
      */
-    bool isValid(GtTable* t, QString paramName);
+    bool isValid(GtTable* t, const QString& paramName) const;
 
     /**
      * @brief Converts given table to internal data structure for further usage
      * @param table
      * @param paramName
+     * @param iDim
+     * @param jDim
      */
-    bool setData(GtTable* table, QString paramName, int iDim = 0, int jDim = 0);
+    bool setData(GtTable* table, const QString& paramName, int iDim = 0,
+                 int jDim = 0);
 };
 
 #endif // GTCONTOUR_H

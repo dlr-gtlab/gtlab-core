@@ -32,7 +32,8 @@ GtAbstractProcessData::statusToString(GtAbstractProcessData::DEV_STATUS s)
     return QString();
 }
 
-GtAbstractProcessData::GtAbstractProcessData()
+GtAbstractProcessData::GtAbstractProcessData() :
+    status(PROTOTYPE)
 {
     // nothing to do here
 }

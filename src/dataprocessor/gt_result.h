@@ -47,7 +47,7 @@ public:
      * @param labelName - name of the label to use
      * @return true if successfull, else false
      */
-    bool addObjectToLabel(GtObject* obj, QString labelName);
+    bool addObjectToLabel(GtObject* obj, const QString& labelName);
 };
 
 #endif // GTRESULT_H

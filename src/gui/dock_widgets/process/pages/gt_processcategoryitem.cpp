@@ -20,7 +20,7 @@ GtProcessCategoryItem::GtProcessCategoryItem(const QString& id,
 bool
 GtProcessCategoryItem::addItem(GtAbstractProcessItem* newItem)
 {
-    if (newItem == Q_NULLPTR)
+    if (!newItem)
     {
         return false;
     }

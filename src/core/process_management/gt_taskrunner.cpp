@@ -20,8 +20,8 @@
 
 #include "gt_taskrunner.h"
 
-GtTaskRunner::GtTaskRunner(GtTask* task) : m_task(task), m_runnable(Q_NULLPTR),
-    m_source(Q_NULLPTR)
+GtTaskRunner::GtTaskRunner(GtTask* task) : m_task(task), m_runnable(nullptr),
+    m_source(nullptr)
 {
 }
 
@@ -34,7 +34,7 @@ bool
 GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
 {
     // check runnable
-    if (m_runnable != Q_NULLPTR)
+    if (m_runnable)
     {
         // runable already exists
         gtFatal() << tr("Runnable already exists!");
@@ -42,7 +42,7 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
     }
 
     // check source
-    if (source == Q_NULLPTR)
+    if (!source)
     {
         // no source set
         gtFatal() << tr("Source corrupted!");
@@ -50,7 +50,7 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
     }
 
     // check task
-    if (m_task == Q_NULLPTR)
+    if (!m_task)
     {
         // no task set
         gtFatal() << tr("No task set!");
@@ -87,7 +87,7 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
 
     GtTask* taskCopy = cloneTask();
 
-    if (taskCopy == Q_NULLPTR)
+    if (!taskCopy)
     {
         m_task->setState(GtProcessComponent::FAILED);
         // could not cast task
@@ -112,7 +112,7 @@ void
 GtTaskRunner::run()
 {
     // check runnable
-    if (m_runnable == Q_NULLPTR)
+    if (!m_runnable)
     {
         // runable already exists
         gtFatal() << tr("Runnable corrupted!");
@@ -120,7 +120,7 @@ GtTaskRunner::run()
     }
 
     // check source
-    if (m_source == Q_NULLPTR)
+    if (!m_source)
     {
         // no source set
         gtFatal() << tr("Source corrupted!");
@@ -143,11 +143,11 @@ GtTaskRunner::dataToMerge()
 GtTask*
 GtTaskRunner::cloneTask()
 {
-    GtTask* retval = Q_NULLPTR;
+    GtTask* retval = nullptr;
 
     GtObject* obj = m_task->clone();
 
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         // could not copy task
         gtFatal() << tr("Could not copy task!");
@@ -158,7 +158,7 @@ GtTaskRunner::cloneTask()
     retval = qobject_cast<GtTask*>(obj);
 
     // check copy
-    if (retval == Q_NULLPTR)
+    if (!retval)
     {
         // delete object
         delete obj;
@@ -172,7 +172,7 @@ GtTaskRunner::cloneTask()
         {
             // delete obj
             delete retval;
-            retval = Q_NULLPTR;
+            retval = nullptr;
         }
     }
 
@@ -185,13 +185,13 @@ GtTaskRunner::setupElements(GtProcessComponent* orig,
                             GtProcessComponent* cloned)
 {
     // check original process component
-    if (orig == Q_NULLPTR)
+    if (!orig)
     {
         return false;
     }
 
     // check cloned process component
-    if (cloned == Q_NULLPTR)
+    if (!cloned)
     {
         return false;
     }
@@ -222,13 +222,13 @@ GtTaskRunner::setupElements(GtProcessComponent* orig,
     // check whether process component is a task
     GtTask* tmpTaskOrig = qobject_cast<GtTask*>(orig);
 
-    if (tmpTaskOrig != Q_NULLPTR)
+    if (tmpTaskOrig)
     {
         // cast cloned process component to task
         GtTask* tmpTaskCloned = qobject_cast<GtTask*>(cloned);
 
         // check cloned task object
-        if (tmpTaskCloned != Q_NULLPTR)
+        if (tmpTaskCloned)
         {
             // connect task specific signals
             connect(tmpTaskCloned, &GtTask::monitoringDataTransfer,
@@ -259,7 +259,7 @@ GtTaskRunner::handleRunnableFinished()
     qDebug() << "GtTaskRunner::handleRunnableFinished()";
 
     // check runnable
-    if (m_runnable == Q_NULLPTR)
+    if (!m_runnable)
     {
         gtFatal() << tr("Runnable corrupted!");
         return;
@@ -272,7 +272,7 @@ GtTaskRunner::handleRunnableFinished()
 
     delete m_runnable;
 
-    if (m_task != Q_NULLPTR)
+    if (m_task)
     {
         qDebug() << "monitoring data table size = " <<
                  m_task->monitoringDataSize();
@@ -288,7 +288,7 @@ GtTaskRunner::transferMonitoringProperties()
     GtProcessComponent* component = qobject_cast<GtProcessComponent*>(sender());
 
     // check process component
-    if (component == Q_NULLPTR)
+    if (!component)
     {
         // not a process component
         return;
@@ -311,7 +311,7 @@ GtTaskRunner::transferMonitoringProperties()
         GtAbstractProperty* origProp = orig->findProperty(prop->ident());
 
         // check original property
-        if (origProp == Q_NULLPTR)
+        if (!origProp)
         {
             qWarning() << "original property not found!";
             return;

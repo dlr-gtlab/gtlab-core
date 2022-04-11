@@ -123,7 +123,7 @@ GtStyleSheets::performanceTaskLineEdit0()
 }
 
 QString
-GtStyleSheets::processRunButton(QString stdBackgroundRGB)
+GtStyleSheets::processRunButton(const QString& stdBackgroundRGB)
 {
     QString text = "QPushButton { border: 1px solid gray;"
                    "border-radius: 4px;"
@@ -134,7 +134,8 @@ GtStyleSheets::processRunButton(QString stdBackgroundRGB)
 }
 
 QString
-GtStyleSheets::selectionComboBox(QString minWidth, QString maxWidth)
+GtStyleSheets::selectionComboBox(const QString& minWidth,
+                                 const QString& maxWidth)
 {
     QString text = "QComboBox { border: 1px solid gray;"
                    "border-radius: 4px;"
@@ -167,7 +168,7 @@ GtStyleSheets::resultViewerTitleLabel()
 }
 
 QString
-GtStyleSheets::coloredCarpetPlotBtn(QColor col)
+GtStyleSheets::coloredCarpetPlotBtn(const QColor& col)
 {
     QString red = QString::number(col.toRgb().red());
     QString green = QString::number(col.toRgb().green());

@@ -40,7 +40,7 @@ GtProcessView::resizeEvent(QResizeEvent* event)
 void
 GtProcessView::keyPressEvent(QKeyEvent* event)
 {
-    if (selectionModel() != Q_NULLPTR)
+    if (selectionModel())
     {
         QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
 
@@ -131,7 +131,7 @@ GtProcessView::mousePressEvent(QMouseEvent* event)
 
     if (!index.isValid())
     {
-        if (gtApp->currentProject() == Q_NULLPTR)
+        if (!gtApp->currentProject())
         {
             return;
         }

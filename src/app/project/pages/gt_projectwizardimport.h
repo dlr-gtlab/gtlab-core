@@ -23,9 +23,8 @@ public:
      * @param provider
      * @param parent
      */
-    GtProjectWizardImport(GtProjectProvider* provider,
-                          QWidget* parent = Q_NULLPTR);
-
+    explicit GtProjectWizardImport(GtProjectProvider* provider,
+                                   QWidget* parent = nullptr);
 };
 
 #endif // GTPROJECTWIZARDIMPORT_H

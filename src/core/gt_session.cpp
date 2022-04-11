@@ -19,12 +19,19 @@
 #include "gt_logging.h"
 #include "gt_h5filemanager.h"
 #include "gt_externalizationsettings.h"
+#include "gt_algorithms.h"
 
-GtSession::GtSession(const QString& id) :
-    m_currentProject(Q_NULLPTR)
+GtSession::GtSession(const QString& id, QString sessionPath) :
+    m_currentProject(nullptr)
 {
     setObjectName(id);
-    m_valid = fromJsonObject();
+
+    if (sessionPath.isEmpty())
+    {
+        sessionPath = sessionFilePath(id);
+    }
+
+    m_valid = fromJsonObject(std::move(sessionPath));
 //    m_model = new GtDataModel(this);
 
 //    connect(this, SIGNAL(dataChanged(GtObject*)), SLOT(onTreeDataChange()));
@@ -42,7 +49,7 @@ GtSession::loadProjectData(GtProject* project)
 {
     GtObjectList retval;
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return retval;
     }
@@ -65,7 +72,7 @@ GtSession::loadProjectData(GtProject* project)
 bool
 GtSession::saveProjectData(GtProject* project)
 {
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -110,7 +117,7 @@ GtSession::createDefault()
 }
 
 bool
-GtSession::createEmptySession(const QString id)
+GtSession::createEmptySession(const QString& id)
 {
     QString path = gtApp->roamingPath() + QDir::separator() +
                    QStringLiteral("session");
@@ -149,7 +156,7 @@ GtSession::createEmptySession(const QString id)
 }
 
 bool
-GtSession::duplicateSession(const QString source, const QString target)
+GtSession::duplicateSession(const QString& source, const QString& target)
 {
     QString path = gtApp->roamingPath() + QDir::separator() +
                    QStringLiteral("session");
@@ -177,10 +184,6 @@ GtSession::duplicateSession(const QString source, const QString target)
 //    qDebug() << "targetFilename = " << targetFilename;
 
     return file.copy(dir.absoluteFilePath(targetFilename));
-}
-
-GtSession::~GtSession()
-{
 }
 
 GtProject*
@@ -231,7 +234,7 @@ GtSession::setCurrentProject(const QString& id)
 {
     GtProject* project = findProject(id);
 
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         qWarning() << tr("WARNING: ") <<
                       tr("could not set current project! project id not found");
@@ -244,9 +247,9 @@ GtSession::setCurrentProject(const QString& id)
 bool
 GtSession::setCurrentProject(GtProject* project)
 {
-    if (project == Q_NULLPTR)
+    if (!project)
     {
-        m_currentProject = Q_NULLPTR;
+        m_currentProject = nullptr;
         return true;
     }
 
@@ -279,19 +282,19 @@ GtSession::switchCurrentProject()
     foreach (GtProject* project, projTmp)
     {
         if (project->isOpen())
-        {
+        { // cppcheck-suppress useStlAlgorithm
             setCurrentProject(project);
             return;
         }
     }
 
-    setCurrentProject(Q_NULLPTR);
+    setCurrentProject(nullptr);
 }
 
 void
 GtSession::addProject(GtProject* project)
 {
-    if (project != Q_NULLPTR)
+    if (project)
     {
         project->acceptChanges();
         appendChild(project);
@@ -302,7 +305,7 @@ GtSession::addProject(GtProject* project)
 bool
 GtSession::deleteProject(GtProject* project)
 {
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         gtDebug() << tr("Cannot delete project!")
                   << " project == NULL";
@@ -332,7 +335,7 @@ GtSession::deleteProject(GtProject* project)
 int
 GtSession::projectIndex(GtProject* project)
 {
-    if (project == Q_NULLPTR)
+    if (!project)
     {
         return false;
     }
@@ -350,7 +353,7 @@ GtSession::roamingPath()
 bool
 GtSession::toJsonObject()
 {
-    QFile file(sessionFilePath());
+    QFile file(sessionFilePath(objectName()));
 
     if (!file.exists())
     {
@@ -384,9 +387,9 @@ GtSession::toJsonObject()
 }
 
 bool
-GtSession::fromJsonObject()
+GtSession::fromJsonObject(const QString& sessionPath)
 {
-    QFile file(sessionFilePath());
+    QFile file(sessionPath);
 
     if (!file.exists())
     {
@@ -409,7 +412,7 @@ GtSession::fromJsonObject()
     QJsonObject projects = json[QStringLiteral("projects")].toObject();
 
 //    qDebug() << "projects:";
-    for (auto e : projects.keys())
+    for_each_key(projects, [&](const QString& e)
     {
 //        qDebug() << "   |-> " << e;
         GtProject* project = new GtProject(e);
@@ -426,7 +429,7 @@ GtSession::fromJsonObject()
         {
             addProject(project);
         }
-    }
+    });
 
     return true;
 }
@@ -438,13 +441,13 @@ GtSession::onTreeDataChange()
 }
 
 QString
-GtSession::sessionFilePath()
+GtSession::sessionFilePath(const QString& sessionID)
 {
     QDir path(roamingPath());
 
     if (path.exists())
     {
-        return path.absoluteFilePath(objectName() + QStringLiteral(".json"));
+        return path.absoluteFilePath(sessionID + QStringLiteral(".json"));
     }
 
     return QString();

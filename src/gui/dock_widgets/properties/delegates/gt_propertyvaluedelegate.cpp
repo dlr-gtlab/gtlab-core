@@ -38,7 +38,7 @@ GtPropertyValueDelegate::createEditor(QWidget* parent,
         return item->editorWidget(parent, this);
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void

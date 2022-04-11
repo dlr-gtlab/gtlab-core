@@ -40,15 +40,15 @@ public:
     GtCalculatorEntity(GtCalculator* calc,
                        GtCalculatorEntity* parent);
 
-    virtual void paint(QPainter* painter,
-                       const QStyleOptionGraphicsItem* option,
-                       QWidget* widget = Q_NULLPTR) override;
+    void paint(QPainter* painter,
+               const QStyleOptionGraphicsItem* option,
+               QWidget* widget = nullptr) override;
 
     /**
     * @brief boundingRect
     * @return
     */
-    virtual QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
 
     /**
      * @brief absoluteHeight
@@ -303,43 +303,37 @@ protected:
      * @brief hoverEnterEvent
      * @param event
      */
-    virtual void hoverEnterEvent(
-            QGraphicsSceneHoverEvent* event) override;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief hoverLeaveEvent
      * @param event
      */
-    virtual void hoverLeaveEvent(
-            QGraphicsSceneHoverEvent* event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief hoverMoveEvent
      * @param event
      */
-    virtual void hoverMoveEvent(
-            QGraphicsSceneHoverEvent* event) override;
+    void hoverMoveEvent(QGraphicsSceneHoverEvent* event) override;
 
     /**
      * @brief mousePressEvent
      * @param event
      */
-    virtual void mousePressEvent(
-            QGraphicsSceneMouseEvent* event) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 
     /**
      * @brief mouseMoveEvent
      * @param event
      */
-    virtual void mouseMoveEvent(
-            QGraphicsSceneMouseEvent* event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
     /**
      * @brief mouseReleaseEvent
      * @param event
      */
-    virtual void mouseReleaseEvent(
-            QGraphicsSceneMouseEvent* event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 
     template <class T>
     QList<T> findItems()

@@ -11,6 +11,7 @@
 #include <QDir>
 #include <QUuid>
 #include <QDebug>
+#include <QRandomGenerator>
 
 #include "gt_testhelper.h"
 
@@ -27,8 +28,8 @@ GtTestHelper::GtTestHelper()
 GtTestHelper*
 GtTestHelper::instance()
 {
-    static GtTestHelper* retval = 0;
-    if (retval == 0)
+    static GtTestHelper* retval = nullptr;
+    if (!retval)
     {
         retval = new GtTestHelper();
     }
@@ -73,9 +74,10 @@ GtTestHelper::randomDataVector(int length)
     QVector<double> retVal;
     retVal.reserve(length);
 
+    QRandomGenerator randg;
     for (int i = 0; i < length; ++i)
     {
-        retVal.append(qrand() * 0.9);
+        retVal.append(randg.generate() * 0.9);
     }
 
     return retVal;

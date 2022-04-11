@@ -133,8 +133,7 @@ public:
      * @param Parent model index
      * @return Number of columns
      */
-    virtual int columnCount(const QModelIndex& parent =
-                                QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of rows under the given parent. When the
@@ -143,8 +142,7 @@ public:
      * @param Parent model index
      * @return Number of rows
      */
-    virtual int rowCount(const QModelIndex& parent =
-                             QModelIndex()) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the index of the item in the model specified by the
@@ -154,10 +152,10 @@ public:
      * @param Parent model index
      * @return Model index
      */
-    virtual QModelIndex index(int row,
-                              int col,
-                              const QModelIndex& parent =
-                                  QModelIndex()) const override;
+    QModelIndex index(int row,
+                      int col,
+                      const QModelIndex& parent =
+                      QModelIndex()) const override;
 
     /**
      * @brief Returns the parent of the model item with the given index. If the
@@ -165,7 +163,7 @@ public:
      * @param Model index
      * @return Parent model index
      */
-    virtual QModelIndex parent(const QModelIndex& index) const override;
+    QModelIndex parent(const QModelIndex& index) const override;
 
     /**
      * @brief Returns the data stored under the given role for the item
@@ -174,8 +172,8 @@ public:
      * @param Data role
      * @return Data stored in variant
      */
-    virtual QVariant data(const QModelIndex& index,
-                          int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Sets the role data for the item at index to value.
@@ -184,9 +182,9 @@ public:
      * @param Data role
      * @return Returns true if successful; otherwise returns false.
      */
-    virtual bool setData(const QModelIndex& index,
-                         const QVariant& value,
-                         int role = Qt::EditRole) override;
+    bool setData(const QModelIndex& index,
+                 const QVariant& value,
+                 int role = Qt::EditRole) override;
 
     /**
      * @brief mimeTypes
@@ -219,7 +217,7 @@ public:
      */
     GtObject* objectFromMimeData(const QMimeData* mime,
                                  bool newUuid = false,
-                                 GtAbstractObjectFactory* factory = Q_NULLPTR);
+                                 GtAbstractObjectFactory* factory = nullptr);
 
     /**
      * @brief Returns object corresponding to given index.
@@ -250,7 +248,7 @@ public:
      * @param Parent object
      * @return ModelIndexList of appended child objects
      */
-    virtual QModelIndexList appendChildren(QList<GtObject*> children,
+    virtual QModelIndexList appendChildren(const QList<GtObject*>& children,
                                            GtObject* parent);
 
     /**
@@ -275,7 +273,7 @@ public:
      * @param Object list
      * @return Whether all object were deleted or not
      */
-    virtual bool deleteFromModel(QList<GtObject*> objects);
+    virtual bool deleteFromModel(QList<GtObject *> objects);
 
     /**
      * @brief Creates an unique object name based on given initial string and
@@ -321,7 +319,7 @@ protected:
      * @brief Constructor
      * @param parent
      */
-    explicit GtCoreDatamodel(QObject* parent = Q_NULLPTR);
+    explicit GtCoreDatamodel(QObject* parent = nullptr);
 
     /**
      * @brief Initialization
@@ -346,14 +344,15 @@ protected:
      * @param Model index
      * @return Root parent
      */
-    QModelIndex rootParent(const QModelIndex& index);
+    QModelIndex rootParent(const QModelIndex& index) const;
 
     /**
      * @brief appendProjectData
      * @param project
      * @param projectData
      */
-    void appendProjectData(GtProject* project, QList<GtObject*> projectData);
+    void appendProjectData(GtProject* project,
+                           const QList<GtObject*>& projectData);
 
 private:
     /// Current session
@@ -365,42 +364,6 @@ private:
      */
     void setSession(GtSession* session);
 
-    /**
-     * @brief uniqueObjectNameHelper
-     * @param name
-     * @param objs
-     * @param initName
-     * @param iteration
-     * @return
-     */
-    template<typename T>
-    QString uniqueObjectNameHelper(const QString& name,
-                                   const QList<T*>& objs,
-                                   QString initName = QString(),
-                                   int iteration = 0)
-    {
-        foreach (T* o, objs)
-        {
-            if (name == o->objectName())
-            {
-                if (initName.isEmpty())
-                {
-                    initName = name;
-                }
-
-                iteration++;
-
-                QString new_name = initName + QStringLiteral("[") +
-                                   QString::number(iteration + 1) + QStringLiteral("]");
-
-                return uniqueObjectNameHelper(new_name, objs, initName,
-                                              iteration);
-            }
-        }
-
-        return name;
-    }
-
 signals:
     /**
      * @brief Emitted after successful project save.
@@ -409,5 +372,63 @@ signals:
     void projectSaved(GtProject* project);
 
 };
+
+template<typename ObjectList, typename GetNameFunc>
+QString _getUniqueName_impl(const QString& name,
+                   const ObjectList& objs,
+                   GetNameFunc getName,
+                   QString initName,
+                   int iteration)
+{
+
+    auto iter = std::find_if(std::begin(objs), std::end(objs),
+                             [&](const typename ObjectList::value_type& o)
+    {
+        return name == getName(o);
+    });
+
+    if (iter == std::end(objs)) return name;
+
+    if (initName.isEmpty()) initName = name;
+
+    QString new_name = initName + QStringLiteral("[") +
+                       QString::number(iteration + 1) + QStringLiteral("]");
+
+    return _getUniqueName_impl(new_name, objs, getName,
+                               initName, iteration + 1);
+}
+
+/**
+ * @brief Returns a unique name given a list of objects names
+ *
+ * @param name The base name. If e.g. "aa" already exists, "aa[1]" is returned
+ * @param objs List of objects to query from
+ * @param func A function to get the name from an object
+ * @return A unique name
+ */
+template<typename ObjectList, typename GetNameFunc>
+QString getUniqueName(const QString& name,
+                      const ObjectList& objs,
+                      GetNameFunc getName)
+{
+    return _getUniqueName_impl(name, objs, getName, {}, 1);
+}
+
+/**
+ * @brief Returns a unique name given a list of names
+ *
+ * @param name The base name. If e.g. "aa" already exists, "aa[1]" is returned
+ * @param names List of names to query from
+ * @return A unique name
+ */
+template<typename StringList>
+QString getUniqueName(const QString& name,
+                      const StringList& names)
+{
+    auto func = [](const typename StringList::value_type& listItem) {
+        return QString(listItem);
+    };
+    return _getUniqueName_impl(name, names, func, {}, 1);
+}
 
 #endif // GTCOREDATAMODEL_H

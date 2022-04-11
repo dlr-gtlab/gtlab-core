@@ -18,8 +18,8 @@
 GtTaskPipeEntity::GtTaskPipeEntity(GtTaskEntity* parent) :
     GtGraphicsAnimatedPathItem(parent),
     m_task(parent),
-    m_in(Q_NULLPTR),
-    m_out(Q_NULLPTR)
+    m_in(nullptr),
+    m_out(nullptr)
 {
     QColor col(70, 70, 70);
     QPen p = pen();
@@ -32,12 +32,12 @@ GtTaskPipeEntity::GtTaskPipeEntity(GtTaskEntity* parent) :
 void
 GtTaskPipeEntity::updateShape()
 {
-    if (m_task == Q_NULLPTR)
+    if (!m_task)
     {
         return;
     }
 
-    if (m_in == Q_NULLPTR)
+    if (!m_in)
     {
         m_in = new QGraphicsPathItem(this);
         QColor col(0, 150, 0);
@@ -48,7 +48,7 @@ GtTaskPipeEntity::updateShape()
         m_in->setPen(p);
     }
 
-    if (m_out == Q_NULLPTR)
+    if (!m_out)
     {
         m_out = new QGraphicsPathItem(this);
         QColor col(150, 0, 0);
@@ -100,7 +100,7 @@ GtTaskPipeEntity::updateShape()
 
     GtCalculatorEntity* rootNode = m_task->rootNode();
 
-    if (rootNode != Q_NULLPTR && !rootNode->isLeaf())
+    if (rootNode && !rootNode->isLeaf())
     {
         QList<GtCalculatorEntity*> subNodes = rootNode->subNodes();
 

@@ -94,7 +94,7 @@ GtDownloadDialog::GtDownloadDialog(QWidget* parent) : QDialog(parent),
 void
 GtDownloadDialog::addFileDownload(const QString& url,
                                   const QString& downloadPath,
-                                  QString targetFileName)
+                                  const QString& targetFileName)
 {
     m_downloader->addFileDownload(url, downloadPath, targetFileName);
 }
@@ -102,7 +102,7 @@ GtDownloadDialog::addFileDownload(const QString& url,
 void
 GtDownloadDialog::addFileDownload(const QUrl& url,
                                   const QString& downloadPath,
-                                  QString targetFileName)
+                                  const QString& targetFileName)
 {
     m_downloader->addFileDownload(url, downloadPath, targetFileName);
 }
@@ -122,7 +122,7 @@ GtDownloadDialog::cancelDownloadProcess()
 }
 
 void
-GtDownloadDialog::onDownloaderMessage(QString str)
+GtDownloadDialog::onDownloaderMessage(const QString& str)
 {
     QTextCursor cur = m_textEdit->textCursor();
     cur.movePosition(QTextCursor::End);

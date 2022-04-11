@@ -43,10 +43,6 @@ GtXmlHighlighter::GtXmlHighlighter(QTextEdit* parent)
     init();
 }
 
-GtXmlHighlighter::~GtXmlHighlighter()
-{
-}
-
 void
 GtXmlHighlighter::init()
 {
@@ -79,7 +75,7 @@ GtXmlHighlighter::init()
 }
 
 void
-GtXmlHighlighter::setHighlightColor(HighlightType type, QColor color,
+GtXmlHighlighter::setHighlightColor(HighlightType type, QColor const& color,
                                     bool foreground)
 {
     QTextCharFormat format;
@@ -91,7 +87,8 @@ GtXmlHighlighter::setHighlightColor(HighlightType type, QColor color,
 }
 
 void
-GtXmlHighlighter::setHighlightFormat(HighlightType type, QTextCharFormat format)
+GtXmlHighlighter::setHighlightFormat(HighlightType type,
+                                     QTextCharFormat const& format)
 {
     switch (type)
     {
@@ -266,8 +263,8 @@ GtXmlHighlighter::highlightBlock(const QString& text)
                 else
                 {
                     // Try find multiline comment
-                    QRegExp expression(EXPR_COMMENT_BEGIN); // search comment start
-                    pos = expression.indexIn(text, i - 1);
+                    QRegExp beginCommentExpression(EXPR_COMMENT_BEGIN); // search comment start
+                    pos = beginCommentExpression.indexIn(text, i - 1);
 
                     //if (pos == i - 1) // comment found ?
                     if (pos >= i - 1)
@@ -277,10 +274,8 @@ GtXmlHighlighter::highlightBlock(const QString& text)
                         setCurrentBlockState(InComment);
                         return;
                     }
-                    else
-                    {
-                        processDefaultText(i, text);
-                    }
+
+                    processDefaultText(i, text);
                 }
             }
             else

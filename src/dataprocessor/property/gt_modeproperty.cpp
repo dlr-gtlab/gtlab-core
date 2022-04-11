@@ -10,6 +10,8 @@
 #include "gt_modeproperty.h"
 #include "gt_modetypeproperty.h"
 
+#include <algorithm>
+
 GtModeProperty::GtModeProperty(const QString& ident, const QString& name,
                                const QString& brief)
 {
@@ -77,32 +79,28 @@ GtModeProperty::registerSubProperty(GtModeTypeProperty& property)
     }
 }
 
+GtAbstractProperty*
+getProperty(const QList<GtAbstractProperty*>& props, const QString& mode)
+{
+    auto iter =  std::find_if(std::begin(props), std::end(props),
+                              [&mode](const GtAbstractProperty* prop) {
+        return prop->objectName() == mode;
+    });
+
+    return iter != std::end(props) ? *iter : nullptr;
+}
+
 bool
 GtModeProperty::modeExists(const QString& mode)
 {
-    foreach (GtAbstractProperty* prop, m_subProperties)
-    {
-        if (prop->objectName() == mode)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return getProperty(m_subProperties, mode) != nullptr;
 }
 
 int
 GtModeProperty::propertyCount(const QString& mode)
 {
-    foreach (GtAbstractProperty* prop, m_subProperties)
-    {
-        if (prop->objectName() == mode)
-        {
-            return prop->propertyCount();
-        }
-    }
-
-    return 0;
+    const auto* prop= getProperty(m_subProperties, mode);
+    return prop ? prop->propertyCount() : 0;
 }
 
 QStringList
@@ -121,15 +119,8 @@ GtModeProperty::modes()
 GtModeTypeProperty*
 GtModeProperty::typeProperty(const QString& mode)
 {
-    foreach (GtAbstractProperty* prop, m_subProperties)
-    {
-        if (prop->objectName() == mode)
-        {
-            return qobject_cast<GtModeTypeProperty*>(prop);
-        }
-    }
-
-    return Q_NULLPTR;
+    auto* prop = getProperty(m_subProperties, mode);
+    return prop ? qobject_cast<GtModeTypeProperty*>(prop) : nullptr;
 }
 
 
@@ -155,11 +146,6 @@ GtModeProperty::updateProperties()
 bool
 GtModeProperty::validateValue(const QString& value)
 {
-    if (!modes().contains(value))
-    {
-        return false;
-    }
-
-    return true;
+    return modes().contains(value);
 }
 

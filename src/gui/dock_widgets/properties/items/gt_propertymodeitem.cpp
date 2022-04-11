@@ -31,7 +31,7 @@ GtPropertyModeItem::data(int column, int role) const
         return QVariant();
     }
 
-    if (m_property == Q_NULLPTR)
+    if (!m_property)
     {
         return QVariant();
     }
@@ -47,29 +47,28 @@ GtPropertyModeItem::data(int column, int role) const
         {
             if (column == 2)
             {
-                if (modeProperty() != Q_NULLPTR)
+                if (modeProperty())
                 {
                     return modeProperty()->getVal();
                 }
             }
+            break;
         }
         case Qt::ToolTipRole:
         {
             if (column == 2)
             {
-                if (modeProperty() != Q_NULLPTR)
+                if (modeProperty())
                 {
                     GtModeTypeProperty* mode = modeProperty()->typeProperty(
                                 modeProperty()->get());
 
-                    if (mode != Q_NULLPTR)
+                    if (mode)
                     {
                         return mode->brief();
                     }
-                    else
-                    {
-                        return modeProperty()->getVal();
-                    }
+
+                    return modeProperty()->getVal();
                 }
             }
         }
@@ -82,7 +81,7 @@ bool
 GtPropertyModeItem::setData(int column, const QVariant& value, GtObject* obj,
                             int role)
 {
-    if (modeProperty() == Q_NULLPTR)
+    if (!modeProperty())
     {
         return false;
     }
@@ -117,7 +116,7 @@ GtPropertyModeItem::editorWidget(QWidget* parent,
 {
     QComboBox* box = new QComboBox(parent);
 
-    if (modeProperty() != Q_NULLPTR)
+    if (modeProperty())
     {
         box->addItems(modeProperty()->modes());
     }
@@ -131,7 +130,7 @@ GtPropertyModeItem::editorWidget(QWidget* parent,
 void
 GtPropertyModeItem::setEditorData(QWidget* editor, QVariant& /*var*/) const
 {
-    if (modeProperty() == Q_NULLPTR)
+    if (!modeProperty())
     {
         return;
     }
@@ -143,7 +142,7 @@ GtPropertyModeItem::setEditorData(QWidget* editor, QVariant& /*var*/) const
     GtModeTypeProperty* mode = modeProperty()->typeProperty(
                 modeProperty()->get());
 
-    if (mode != Q_NULLPTR)
+    if (mode)
     {
         box->setToolTip(mode->brief());
     }
@@ -153,7 +152,7 @@ void
 GtPropertyModeItem::setModelData(QWidget* editor, QAbstractItemModel* model,
                                  const QModelIndex& index) const
 {
-    if (modeProperty() == Q_NULLPTR)
+    if (!modeProperty())
     {
         return;
     }
@@ -167,7 +166,7 @@ void
 GtPropertyModeItem::paint(QPainter* painter,
                           const QStyleOptionViewItem& option) const
 {
-    if (modeProperty() == Q_NULLPTR)
+    if (!modeProperty())
     {
         return;
     }

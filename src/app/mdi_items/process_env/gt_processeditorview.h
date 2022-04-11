@@ -25,7 +25,7 @@ public:
      * @param s
      * @param parent
      */
-    GtProcessEditorView(GtGraphicsScene* s, QWidget* parent = 0);
+    explicit GtProcessEditorView(GtGraphicsScene* s, QWidget* parent = nullptr);
 
     /**
      * @brief setShowLegend
@@ -39,8 +39,7 @@ protected:
      * @param painter
      * @param rect
      */
-    virtual void drawForeground(QPainter * painter,
-                                const QRectF & rect) override;
+    void drawForeground(QPainter * painter, const QRectF & rect) override;
 
 private:
     /// Show legend indicator

@@ -21,8 +21,8 @@
 #include "gt_objectchangedevent.h"
 #include "gt_statehandler.h"
 
-GtMdiItem::GtMdiItem() : m_frame(new QFrame), m_d(Q_NULLPTR),
-    m_subWin(Q_NULLPTR), m_queueEvents(false)
+GtMdiItem::GtMdiItem() : m_frame(new QFrame), m_d(nullptr),
+    m_subWin(nullptr), m_queueEvents(false)
 {
     m_frame->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
 
@@ -55,7 +55,7 @@ GtMdiItem::setData(GtObject* /*obj*/)
 GtMdiItem::~GtMdiItem()
 {
 //    gtError() << "MDI ITEM DESTROYED!";
-    if (m_frame && m_frame->parent() == NULL)
+    if (m_frame && !m_frame->parent())
     {
         delete m_frame;
     }
@@ -89,7 +89,7 @@ GtMdiItem::subWin()
 }
 
 bool
-GtMdiItem::allowsMultipleInstances()
+GtMdiItem::allowsMultipleInstances() const
 {
     return false;
 }
@@ -141,11 +141,7 @@ GtMdiItem::onProjectChanged(GtProject* project)
 {
     if (m_queueEvents)
     {
-        GtProjectChangedEvent* old = takeEvent<GtProjectChangedEvent>();
-        if (old)
-        {
-            delete old;
-        }
+        delete takeEvent<GtProjectChangedEvent>();
 
         m_eventQueue << new GtProjectChangedEvent(this, project);
     }
@@ -166,11 +162,7 @@ GtMdiItem::onObjectChanged(GtObject* obj)
 {
     if (m_queueEvents)
     {
-        GtObjectChangedEvent* old = takeEvent<GtObjectChangedEvent>();
-        if (old)
-        {
-            delete old;
-        }
+        delete takeEvent<GtObjectChangedEvent>();
 
         m_eventQueue << new GtObjectChangedEvent(this, obj);
     }
@@ -208,7 +200,7 @@ GtMdiItem::windowAboutToActive()
 void
 GtMdiItem::print()
 {
-    QMessageBox::information(Q_NULLPTR, tr("Print error"),
+    QMessageBox::information(nullptr, tr("Print error"),
                              tr("MDI Item not printable!"),
                              QMessageBox::Ok);
 }

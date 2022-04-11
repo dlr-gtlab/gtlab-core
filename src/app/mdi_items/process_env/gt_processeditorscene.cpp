@@ -23,9 +23,9 @@
 
 GtProcessEditorScene::GtProcessEditorScene(QObject* parent) :
     GtGraphicsScene(parent),
-    m_root(Q_NULLPTR),
-    m_current(Q_NULLPTR),
-    m_temp(Q_NULLPTR),
+    m_root(nullptr),
+    m_current(nullptr),
+    m_temp(nullptr),
     m_model(gtDataModel),
     m_mode(M_DEFAULT)
 {
@@ -36,14 +36,14 @@ GtProcessEditorScene::GtProcessEditorScene(QObject* parent) :
 void
 GtProcessEditorScene::setRoot(GtTask* task)
 {
-    if (m_root != Q_NULLPTR)
+    if (m_root)
     {
         return;
     }
 
 //    GtProcessData* pd = qobject_cast<GtProcessData*>(task->parentObject());
 
-//    if (pd == Q_NULLPTR)
+//    if (!pd)
 //    {
 //        gtError() << "process data not found!";
 //        return;
@@ -78,13 +78,13 @@ GtProcessEditorScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
                                                     gtProcessFactory);
 
-    if (obj != Q_NULLPTR)
+    if (obj)
     {
 //        qDebug() << "obj = " << obj->objectName();
 //        qDebug() << "uuid = " << obj->uuid();
         delete obj;
 
-        emit setPreviewMode();
+        setPreviewMode();
 
 //        event->accept();
     }
@@ -132,7 +132,7 @@ GtProcessEditorScene::dragLeaveEvent(QGraphicsSceneDragDropEvent* event)
 void
 GtProcessEditorScene::populate(GtTask* task)
 {
-    if (task == Q_NULLPTR)
+    if (!task)
     {
         return;
     }
@@ -157,7 +157,7 @@ GtProcessEditorScene::populate(GtTask* task)
 void
 GtProcessEditorScene::switchTo(GtTask* task)
 {
-    if (task == Q_NULLPTR)
+    if (!task)
     {
         return;
     }
@@ -186,28 +186,28 @@ GtProcessEditorScene::switchMode(GtProcessEditorScene::Mode mode)
 
     m_mode = mode;
 
-    if (m_root == Q_NULLPTR)
+    if (!m_root)
     {
         return;
     }
 
     if (mode == M_PREVIEW)
     {
-        if (m_temp != Q_NULLPTR)
+        if (m_temp)
         {
             return;
         }
 
         GtObject* obj = m_current->clone();
 
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             return;
         }
 
         GtTask* preview = qobject_cast<GtTask*>(obj);
 
-        if (preview == Q_NULLPTR)
+        if (!preview)
         {
             delete obj;
             return;
@@ -219,13 +219,13 @@ GtProcessEditorScene::switchMode(GtProcessEditorScene::Mode mode)
     }
     else if (mode == M_DEFAULT)
     {
-        if (m_temp == Q_NULLPTR)
+        if (!m_temp)
         {
             return;
         }
 
         switchTo(m_temp);
-        m_temp = Q_NULLPTR;
+        m_temp = nullptr;
     }
 }
 
@@ -254,7 +254,7 @@ GtProcessEditorScene::isMemberOf(const QModelIndex& child,
 void
 GtProcessEditorScene::onSwitchItem(GtCalculatorEntity* entity)
 {
-    if (entity == Q_NULLPTR)
+    if (!entity)
     {
         return;
     }
@@ -288,7 +288,7 @@ GtProcessEditorScene::onRowsRemoved(const QModelIndex& parent, int start,
 
             GtObject* obj = gtDataModel->objectFromIndex(child);
 
-            if (obj != Q_NULLPTR)
+            if (obj)
             {
                 qDebug() << "deleting " << obj->objectName() << "...";
             }

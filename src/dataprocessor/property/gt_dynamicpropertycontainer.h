@@ -32,8 +32,8 @@ public:
      * @brief valueToVariant
      * @return
      */
-    virtual QVariant valueToVariant(const QString& unit,
-                                    bool* success = nullptr) const override;
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override;
 
     /**
      * @brief setValueFromVariant
@@ -47,8 +47,7 @@ public:
      * @brief registerSubProperty
      * @param property
      */
-    virtual void registerSubProperty(
-            GtAbstractProperty& property) override;
+    void registerSubProperty(GtAbstractProperty& property) override;
 
     /**
      * @brief deleteSubProperty

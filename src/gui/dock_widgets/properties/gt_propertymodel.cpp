@@ -20,7 +20,7 @@
 GtPropertyModel::GtPropertyModel(GtObject* scope,
                                  QObject* parent) :
     QAbstractItemModel(parent),
-    m_obj(NULL),
+    m_obj(nullptr),
     m_scope(scope)
 {
 }
@@ -33,7 +33,7 @@ GtPropertyModel::~GtPropertyModel()
 int
 GtPropertyModel::rowCount(const QModelIndex& parent) const
 {
-    if (m_obj == nullptr)
+    if (!m_obj)
     {
         return 0;
     }
@@ -44,15 +44,13 @@ GtPropertyModel::rowCount(const QModelIndex& parent) const
         {
             return m_properties.count();
         }
-        else
-        {
-            return filteredCategories().count();
-        }
+
+        return filteredCategories().count();
     }
 
     GtAbstractPropertyItem* parentItem = propertyFromIndex(parent);
 
-    if (parentItem == Q_NULLPTR)
+    if (!parentItem)
     {
         return 0;
     }
@@ -69,14 +67,14 @@ GtPropertyModel::columnCount(const QModelIndex& /*parent*/) const
 QVariant
 GtPropertyModel::data(const QModelIndex& index, int role) const
 {
-    if (m_obj == nullptr)
+    if (!m_obj)
     {
         return QVariant();
     }
 
     GtAbstractPropertyItem* item = propertyFromIndex(index);
 
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return QVariant();
     }
@@ -118,7 +116,7 @@ GtPropertyModel::flags(const QModelIndex& index) const
 
         if (var.type() == QVariant::Bool)
         {
-            if (index.data(ReadOnlyRole).toBool() != true)
+            if (!index.data(ReadOnlyRole).toBool())
             {
                 baseFlags |= Qt::ItemIsUserCheckable;
             }
@@ -146,7 +144,7 @@ GtPropertyModel::setData(const QModelIndex& index,
 {
     GtAbstractPropertyItem* item = propertyFromIndex(index);
 
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return false;
     }
@@ -228,7 +226,7 @@ GtPropertyModel::index(int row,
 
         if (row < 0 || row >= propCount)
         {
-            return QModelIndex();
+            return {};
         }
 
         return createIndex(row, col, categories[row]);
@@ -238,7 +236,7 @@ GtPropertyModel::index(int row,
 
     if (!parentItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtAbstractPropertyItem* childItem =
@@ -246,7 +244,7 @@ GtPropertyModel::index(int row,
 
     if (!childItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, col, childItem);
@@ -257,21 +255,21 @@ GtPropertyModel::parent(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return QModelIndex();
+        return {};
     }
 
     GtAbstractPropertyItem* childItem = propertyFromIndex(index);
 
-    if (childItem == Q_NULLPTR)
+    if (!childItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     GtObject* parentItem = childItem->parentObject();
 
-    if (parentItem == Q_NULLPTR)
+    if (!parentItem)
     {
-        return QModelIndex();
+        return {};
     }
 
     return indexFromProperty(qobject_cast<GtAbstractPropertyItem*>(parentItem));
@@ -287,15 +285,12 @@ QVariant GtPropertyModel::headerData(int section,
         {
             case 0:
                 return tr("Property");
-                break;
 
             case 1:
                 return tr("Unit");
-                break;
 
             case 2:
                 return tr("Value");
-                break;
 
             default:
                 break;
@@ -308,7 +303,7 @@ QVariant GtPropertyModel::headerData(int section,
 void
 GtPropertyModel::setObject(GtObject* obj)
 {
-    if (m_obj != Q_NULLPTR)
+    if (m_obj)
     {
         disconnect(m_obj.data(), SIGNAL(destroyed(QObject*)), this,
                    SLOT(resetObject()));
@@ -321,7 +316,7 @@ GtPropertyModel::setObject(GtObject* obj)
 
     m_obj = obj;
 
-    if (m_obj != Q_NULLPTR)
+    if (m_obj)
     {
         connect(m_obj.data(), SIGNAL(destroyed(QObject*)), SLOT(resetObject()));
 
@@ -348,17 +343,11 @@ GtPropertyModel::propertyFromIndex(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
-        return NULL;
+        return nullptr;
     }
-
 
     GtAbstractPropertyItem* item =
         static_cast<GtAbstractPropertyItem*>(index.internalPointer());
-
-    if (item  == Q_NULLPTR)
-    {
-        return NULL;
-    }
 
     return item;
 }
@@ -394,7 +383,7 @@ GtPropertyModel::updateModeItem(const QModelIndex& index)
 {
     GtAbstractPropertyItem* item = propertyFromIndex(index);
 
-    if (item == Q_NULLPTR)
+    if (!item)
     {
         return;
     }
@@ -426,14 +415,14 @@ GtPropertyModel::updateModeItem(const QModelIndex& index)
 QModelIndex
 GtPropertyModel::indexFromProperty(GtAbstractPropertyItem* obj) const
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
-        return QModelIndex();
+        return {};
     }
 
     int row = -1;
 
-    if (obj->parent() == Q_NULLPTR)
+    if (!obj->parent())
     {
         row = m_properties.indexOf(qobject_cast<GtPropertyCategoryItem*>(obj));
     }
@@ -455,7 +444,7 @@ GtPropertyModel::indexFromProperty(GtAbstractPropertyItem* obj) const
     {
         qWarning() << "WARNING (GtPropertyModel::indexFromObject): " <<
                    "row == -1!";
-        return QModelIndex();
+        return {};
     }
 
     return createIndex(row, 0, obj);
@@ -512,20 +501,22 @@ void
 GtPropertyModel::addProperty(GtAbstractProperty* prop)
 {
     QString catId = prop->categoryToString();
-    GtPropertyCategoryItem* cat = Q_NULLPTR;
+    GtPropertyCategoryItem* cat = nullptr;
 
-    foreach (GtPropertyCategoryItem* c, m_properties)
-    {
-        if (c->categoryId() == catId)
-        {
-            cat = c;
-        }
-    }
+    using namespace std;
+    auto catIter = std::find_if(begin(m_properties), end(m_properties),
+                                [&catId](const GtPropertyCategoryItem* c) {
+                                    return c->categoryId() == catId;
+                                });
 
-    if (cat == Q_NULLPTR)
+    if (catIter == end(m_properties))
     {
         cat = new GtPropertyCategoryItem(m_scope, catId, this);
         m_properties << cat;
+    }
+    else
+    {
+        cat = *catIter;
     }
 
     cat->addPropertyItem(prop);
@@ -550,5 +541,5 @@ GtPropertyModel::filteredCategories() const
 void
 GtPropertyModel::resetObject()
 {
-    setObject(Q_NULLPTR);
+    setObject(nullptr);
 }

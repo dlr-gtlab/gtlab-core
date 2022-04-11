@@ -76,7 +76,7 @@ bool
 GtFilteredLogModel::filterAcceptsRow(int source_row,
                                      const QModelIndex& source_parent) const
 {
-    bool retval = true;
+    bool doFilter = true;
 
     const QModelIndex index = sourceModel()->index(source_row, 0,
                                                    source_parent);
@@ -86,28 +86,28 @@ GtFilteredLogModel::filterAcceptsRow(int source_row,
     switch (level)
     {
     case QsLogging::DebugLevel:
-        retval = m_debugLevel;
+        doFilter = m_debugLevel;
         break;
     case QsLogging::InfoLevel:
-        retval = m_infoLevel;
+        doFilter = m_infoLevel;
         break;
     case QsLogging::WarnLevel:
-        retval = m_warningLevel;
+        doFilter = m_warningLevel;
         break;
     case QsLogging::ErrorLevel:
-        retval = m_errorLevel;
+        doFilter = m_errorLevel;
         break;
     case QsLogging::FatalLevel:
-        retval = m_fatalLevel;
+        doFilter = m_fatalLevel;
         break;
     }
 
-    if (retval == true)
+    if (doFilter)
     {
         return QSortFilterProxyModel::filterAcceptsRow(source_row,
                                                        source_parent);
     }
 
-    return retval;
+    return false;
 }
 

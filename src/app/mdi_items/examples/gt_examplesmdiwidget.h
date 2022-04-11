@@ -10,6 +10,7 @@
 #define GTEXAMPLESMDIWIDGET_H
 
 #include "gt_mdiitem.h"
+#include "gt_examplesentry.h"
 #include <QMap>
 
 class QDir;
@@ -18,7 +19,6 @@ class QWidget;
 
 class GtExamplesTabWidget;
 class GtExampleGraphicalItem;
-class GtExamplesEntry;
 
 /**
  * @brief The GtExamplesMdiWidget class
@@ -34,26 +34,22 @@ public:
      */
     Q_INVOKABLE GtExamplesMdiWidget();
 
-    /**
-     *  Destructor: clears list of validDir-objects
-     */
-    ~GtExamplesMdiWidget();
 
     /** Virtual function to specify item specific icon.
      *  @return Object specific icon
      */
-    virtual QIcon icon() const;
+    QIcon icon() const override;
 
     /**
      * @brief allowsMultipleInstances
      * @return
      */
-    bool allowsMultipleInstances();
+    bool allowsMultipleInstances() const override;
 
     /**
      * @brief showEvent
      */
-    void showEvent();
+    void showEvent() override;
 
 private:
     /**
@@ -74,7 +70,7 @@ private:
      * @param dir
      * @returnd
      */
-    bool validateExampleDiretory(QDir* dir);
+    bool validateExampleDiretory(const QDir& dir) const;
 
     /**
      * @brief readDirectoryContentToExampleEntry
@@ -83,15 +79,15 @@ private:
      * @param entry
      * @return success
      */
-    bool readDirectoryContentToExampleEntry(QDir* dir,
-                                            GtExamplesEntry* entry);
+    bool readDirectoryContentToExampleEntry(const QDir& dir,
+                                            GtExamplesEntry& entry);
     /**
      * @brief initializeWidget
      * initialize the tabView
      */
     void initializeWidget();
 
-    QList<GtExamplesEntry*> m_examplesEntries;
+    QList<GtExamplesEntry> m_examplesEntries;
 
     QList<GtExampleGraphicalItem*> m_graphicalItems;
 
@@ -113,7 +109,7 @@ private:
      *  Set some general basic-layout stuff to the tab-page widget
      * @param tabPage
      */
-    void setBasicLayoutToTabPage(QScrollArea *tabPage, QString category);
+    void setBasicLayoutToTabPage(QScrollArea* tabPage, QString const& category);
 
     /**
      * @brief getCurrentPage
@@ -121,7 +117,7 @@ private:
      * @param category
      * @return
      */
-    QWidget* getCurrentPage(QString category);
+    QWidget* getCurrentPage(const QString& category) const;
 
     /**
      * @brief sortItems
@@ -141,7 +137,7 @@ public slots:
      * Copy the data from Examples-Dir to dir which is choosen inside and
      * opens the project in the current Session
      */
-    void onOpenProject(QString exampleName);
+    void onOpenProject(const QString& exampleName);
 
 };
 

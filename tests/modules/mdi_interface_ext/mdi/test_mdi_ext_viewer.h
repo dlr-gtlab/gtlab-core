@@ -21,7 +21,7 @@ public:
      * @brief Test that multiple one instance of this item can be created
      * @return true
      */
-    bool allowsMultipleInstances();
+    bool allowsMultipleInstances() const override;
 
 private:
 

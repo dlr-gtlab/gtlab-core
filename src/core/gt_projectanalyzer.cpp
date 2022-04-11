@@ -12,6 +12,8 @@
 
 #include "gt_projectanalyzer.h"
 
+#include <memory>
+
 class GtProjectAnalyzerImpl
 {
 public:
@@ -31,20 +33,17 @@ public:
 };
 
 GtProjectAnalyzer::GtProjectAnalyzer(GtProject* project)
+    : m_pimpl{std::make_unique<GtProjectAnalyzerImpl>()}
 {
-    m_pimpl = new GtProjectAnalyzerImpl;
 
-    if (project != Q_NULLPTR)
+    if (project)
     {
         // read information
         m_pimpl->readData(project);
     }
 }
 
-GtProjectAnalyzer::~GtProjectAnalyzer()
-{
-    delete m_pimpl;
-}
+GtProjectAnalyzer::~GtProjectAnalyzer() = default;
 
 bool
 GtProjectAnalyzer::hasIrregularities()
@@ -61,12 +60,7 @@ GtProjectAnalyzer::hasIrregularities()
 
     GtFootprint footprint(m_pimpl->m_footPrint);
 
-    if (!footPrint().isCompatible())
-    {
-        return true;
-    }
-
-    return false;
+    return !footPrint().isCompatible();
 }
 
 QStringList
@@ -93,7 +87,7 @@ GtProjectAnalyzerImpl::readData(GtProject* project)
         if (c->isDummy())
         {
             GtObjectMemento m = c->toMemento();
-            const QString m_class = m.className();
+            QString m_class = m.className();
 
             if (!m_unknownClasses.contains(m_class))
             {

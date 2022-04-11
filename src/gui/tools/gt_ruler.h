@@ -56,12 +56,12 @@ public:
 protected:
     /** Overloaded Paint Function
      * @param e paint event */
-    virtual void paintEvent(QPaintEvent* e);
+    void paintEvent(QPaintEvent* e) override;
 
     /** Resize Ruler scale
      * @param e resize event
      */
-    virtual void resizeEvent(QResizeEvent* e);
+    void resizeEvent(QResizeEvent* e) override;
 
 private:
     /// Orientation indicator

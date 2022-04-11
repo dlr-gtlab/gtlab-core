@@ -34,11 +34,6 @@ public:
      */
     explicit GtProcessConnectionScene(GtProcessConnectionGraphicsView* parent);
 
-    /**
-     * @brief Destructor.
-     */
-    virtual ~GtProcessConnectionScene();
-
 public slots:
     /**
      * @brief Runs an animation based on selected port entity.
@@ -108,7 +103,7 @@ private:
      * @return
      */
     QList<QPropertyAnimation*> highlightPorts(
-            QList<GtProcessPropertyPortEntity*> ports);
+            const QList<GtProcessPropertyPortEntity*>& ports);
 
     /**
      * @brief Returns closest port corresponding to given port and mouse

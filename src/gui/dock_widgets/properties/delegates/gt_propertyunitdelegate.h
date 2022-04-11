@@ -79,11 +79,11 @@ public:
 
 private:
     /// Combobox
-    mutable QComboBox* m_comboBox;
+    mutable QComboBox* m_comboBox{nullptr};
 
-    mutable int m_width;
+    mutable int m_width{1};
 
-    mutable int m_heigth;
+    mutable int m_heigth{1};
 
 private slots:
     /**

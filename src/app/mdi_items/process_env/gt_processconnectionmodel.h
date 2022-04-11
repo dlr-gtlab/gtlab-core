@@ -39,12 +39,12 @@ public:
      * @brief Constructor.
      * @param Parent object.
      */
-    explicit GtProcessConnectionModel(QObject* parent = Q_NULLPTR);
+    explicit GtProcessConnectionModel(QObject* parent = nullptr);
 
     /**
      * @brief Destructor.
      */
-    virtual ~GtProcessConnectionModel();
+    ~GtProcessConnectionModel() override;
 
     /**
      * @brief Setups data and resets entire model.
@@ -71,8 +71,7 @@ public:
      * @param parent
      * @return
      */
-    virtual int columnCount(
-            const QModelIndex& parent = QModelIndex()) const override;
+     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data
@@ -80,15 +79,15 @@ public:
      * @param role
      * @return
      */
-    virtual QVariant data(const QModelIndex& index,
-                          int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
 
     /**
      * @brief flags
      * @param index
      * @return
      */
-    virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     /**
      * @brief index

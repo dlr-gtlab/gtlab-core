@@ -6,22 +6,24 @@
  *  Author: Stanislaus Reitenbach (AT-TW)
  *  Tel.: +49 2203 601 2907
  */
+#include "gt_environment.h"
+
+#include "gt_logging.h"
+#include "gt_algorithms.h"
 
 #include <QCoreApplication>
 #include <QStandardPaths>
 #include <QDir>
 #include <QSettings>
 
-#include "gt_logging.h"
-
-#include "gt_environment.h"
+#include <algorithm>
 
 GtEnvironment*
 GtEnvironment::instance()
 {
-    static GtEnvironment* retval = 0;
+    static GtEnvironment* retval = nullptr;
 
-    if (retval == 0)
+    if (!retval)
     {
         retval = new GtEnvironment(qApp);
     }
@@ -37,7 +39,7 @@ GtEnvironment::varIds()
 
     retval.removeDuplicates();
 
-    qSort(retval);
+    std::sort(std::begin(retval), std::end(retval));
 
     return retval;
 }
@@ -90,10 +92,10 @@ GtEnvironment::debugEnvironmentVariables()
     gtDebug() << "ENVIRONMENT VARIABLES:";
     gtDebug() << "-DEFINED--------------";
 
-    for (auto e : m_vars.keys())
+    for_each_key (m_vars, [&](const QString& e)
     {
         gtDebug() << e << " = " << m_vars.value(e);
-    }
+    });
 
     if (!m_varsUndefined.isEmpty())
     {
@@ -133,12 +135,7 @@ GtEnvironment::addEnvironmentVariables(const QStringList& vars)
 bool
 GtEnvironment::isUndefined(const QString& str)
 {
-    if (m_varsUndefined.contains(str))
-    {
-        return true;
-    }
-
-    return false;
+    return m_varsUndefined.contains(str);
 }
 
 QVariant
@@ -149,22 +146,17 @@ GtEnvironment::value(const QString& var)
         return m_vars.value(var);
     }
 
-    return QVariant();
+    return {};
 }
 
 bool
 GtEnvironment::environmentVariableExists(const QString& var)
 {
-    if (m_vars.contains(var) || m_varsUndefined.contains(var))
-    {
-        return true;
-    }
-
-    return false;
+    return (m_vars.contains(var) || m_varsUndefined.contains(var));
 }
 
 void
-GtEnvironment::setValue(const QString& var, QVariant val)
+GtEnvironment::setValue(const QString& var, const QVariant& val)
 {
     if (!environmentVariableExists(var))
     {
@@ -212,10 +204,10 @@ GtEnvironment::saveEnvironment()
 
     settings.clear();
 
-    for (auto e : m_vars.keys())
+    for_each_key (m_vars, [&](const QString& e)
     {
         settings.setValue(e, m_vars.value(e));
-    }
+    });
 }
 
 void

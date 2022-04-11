@@ -15,7 +15,7 @@
 #include "gt_graphicsscene.h"
 
 GtGraphicsAnimatedPathItem::GtGraphicsAnimatedPathItem(QGraphicsItem* parent) :
-    QGraphicsPathItem(parent), m_t(0.0), m_pathAnim(NULL)
+    QGraphicsPathItem(parent), m_t(0.0), m_pathAnim(nullptr)
 {
 
 }
@@ -23,7 +23,7 @@ GtGraphicsAnimatedPathItem::GtGraphicsAnimatedPathItem(QGraphicsItem* parent) :
 int
 GtGraphicsAnimatedPathItem::t() const
 {
-    return m_t;
+    return int(m_t);
 }
 
 void
@@ -37,7 +37,7 @@ GtGraphicsAnimatedPathItem::paint(QPainter* painter,
                                   const QStyleOptionGraphicsItem* option,
                                   QWidget* widget)
 {
-    if (m_pathAnim != Q_NULLPTR)
+    if (m_pathAnim)
     {
         painter->save();
         QPen p = pen();
@@ -60,7 +60,7 @@ GtGraphicsAnimatedPathItem::paint(QPainter* painter,
 void
 GtGraphicsAnimatedPathItem::runPathAnimation()
 {
-    if (m_pathAnim == Q_NULLPTR)
+    if (!m_pathAnim)
     {
         m_pathAnim = new QPropertyAnimation(this, "t");
         m_pathAnim->setDuration(300);

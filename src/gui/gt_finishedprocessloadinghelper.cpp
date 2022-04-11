@@ -9,7 +9,7 @@
 GtFinishedProcessLoadingHelper::GtFinishedProcessLoadingHelper(
         QList<GtObjectMemento>* data,
         QPointer<GtObject> source,
-        QString taskName) :
+        const QString& taskName) :
     m_data(data),
     m_sumDiff(new GtObjectMementoDiff),
     m_source(source),
@@ -32,7 +32,7 @@ GtFinishedProcessLoadingHelper::run()
 
         GtObject* target = m_source->getObjectByUuid(memento.uuid());
 
-        if (target != Q_NULLPTR)
+        if (target)
         {
             GtObjectMemento old = target->toMemento(true);
             GtObjectMementoDiff diff(old, memento);

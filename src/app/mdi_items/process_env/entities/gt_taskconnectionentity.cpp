@@ -37,12 +37,12 @@ void GtTaskConnectionEntity::setToPort(GtPropertyPortEntity* prop)
 void
 GtTaskConnectionEntity::updateShape()
 {
-    if (m_from == Q_NULLPTR)
+    if (!m_from)
     {
         return;
     }
 
-    if (m_to == Q_NULLPTR)
+    if (!m_to)
     {
         return;
     }

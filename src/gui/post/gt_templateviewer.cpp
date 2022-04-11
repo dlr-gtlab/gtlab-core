@@ -39,7 +39,7 @@
 
 
 GtTemplateViewer::GtTemplateViewer() :
-    m_templatePath(Q_NULLPTR), m_titleLineEdit(Q_NULLPTR)
+    m_templatePath(nullptr), m_titleLineEdit(nullptr)
 {
     setObjectName(tr("Template Viewer"));
 
@@ -142,28 +142,21 @@ GtTemplateViewer::~GtTemplateViewer()
 {
     saveButtonClicked();
 
-    if (m_templatePath != Q_NULLPTR)
-    {
-        delete m_templatePath;
-    }
-
-    if (m_postTemplateDM != Q_NULLPTR)
-    {
-        delete m_postTemplateDM;
-    }
+    delete m_templatePath;
+    delete m_postTemplateDM;
 }
 
 void
 GtTemplateViewer::setData(GtObject* obj)
 {
-    if (obj == Q_NULLPTR)
+    if (!obj)
     {
         return;
     }
 
     m_templatePath = qobject_cast<GtPostTemplatePath*>(obj);
 
-    if (m_templatePath == Q_NULLPTR)
+    if (!m_templatePath)
     {
         return;
     }
@@ -239,7 +232,7 @@ GtTemplateViewer::readFromXMLmemento(const QString& path)
 
         GtObject* obj = memento.restore(gtPostTemplateFactory);
 
-        if (obj == Q_NULLPTR)
+        if (!obj)
         {
             gtWarning() << tr("Object cannot be restored while reading "
                               "template viewer post file");
@@ -248,7 +241,7 @@ GtTemplateViewer::readFromXMLmemento(const QString& path)
         // createUIs by calling abstract DM class function
         GtPostTemplateItem* abstractDM = dynamic_cast<GtPostTemplateItem*>(obj);
 
-        if (abstractDM != Q_NULLPTR)
+        if (abstractDM)
         {
             if (!m_postTemplateDM->appendChild(abstractDM))
             {
@@ -266,7 +259,7 @@ GtTemplateViewer::readFromXMLmemento(const QString& path)
 void
 GtTemplateViewer::copyUI(GtPostTemplateItem* ti)
 {
-    if (ti == Q_NULLPTR)
+    if (!ti)
     {
         return;
     }
@@ -305,14 +298,14 @@ GtTemplateViewer::printPreview(QPrinter* printer)
     {
         GtAbstractItemUI* ui = m_itemUIList.at(i);
 
-        if (ui == Q_NULLPTR)
+        if (!ui)
         {
             return;
         }
 
         QString diagramTitle = "";
 
-        if (ui->widget() == Q_NULLPTR)
+        if (!ui->widget())
         {
             gtDebug() << "Data is nullPointer";
         }
@@ -397,7 +390,7 @@ GtTemplateViewer::onRefreshRequest()
 
     GtAbstractPostWidget* wid = qobject_cast<GtAbstractPostWidget*>(sender());
 
-    if (wid == Q_NULLPTR)
+    if (!wid)
     {
         return;
     }
@@ -417,7 +410,7 @@ GtTemplateViewer::onRefreshRequest()
 }
 
 void
-GtTemplateViewer::createSpecialPlot(QString plotName)
+GtTemplateViewer::createSpecialPlot(const QString& plotName)
 {
     GtObject* obj = gtPostTemplateFactory->newObject(plotName,
                     m_postTemplateDM);
@@ -430,7 +423,7 @@ GtTemplateViewer::createSpecialPlot(QString plotName)
 bool
 GtTemplateViewer::createPlot(GtPostTemplateItem* data)
 {
-    if (data == Q_NULLPTR)
+    if (!data)
     {
         gtWarning() << tr("Data is a Nullptr, cannot create Plot.");
 
@@ -439,7 +432,7 @@ GtTemplateViewer::createPlot(GtPostTemplateItem* data)
 
     GtAbstractPostWidget* widget = data->createUI(data, m_plotcontainerwidget);
 
-    if (widget == Q_NULLPTR)
+    if (!widget)
     {
         gtWarning() << tr("Widget is a Nullptr, cannot create Plot.");
 
@@ -480,7 +473,7 @@ GtTemplateViewer::createPlots()
 {
     foreach (GtPostTemplateItem* item, m_postTemplateDM->items())
     {
-        if (item == Q_NULLPTR)
+        if (!item)
         {
             gtWarning() << tr("GtTemplateViewer::createPlots() Item is null");
 
@@ -513,7 +506,7 @@ GtTemplateViewer::moveWidget(GtTemplateViewer::MoveDirection d)
     // sender is the AbstractItemUI
     GtAbstractItemUI* w = qobject_cast<GtAbstractItemUI*>(sender());
 
-    if (w == Q_NULLPTR)
+    if (!w)
     {
         gtWarning() << tr("Abstract item is null");
 
@@ -551,12 +544,12 @@ GtTemplateViewer::moveWidget(GtTemplateViewer::MoveDirection d)
     m_layplot->insertWidget(newIndex, w);
 
     // move child in data model structure
-    item->setParent(Q_NULLPTR);
+    item->setParent(nullptr);
     m_postTemplateDM->insertChild(newIndex, item);
 }
 
 void
-GtTemplateViewer::setPlotIcon(QAction* actPlot, QString str)
+GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
 {
     if (str == "GtBarProvider")
     {
@@ -593,7 +586,7 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, QString str)
 }
 
 QString
-GtTemplateViewer::shortPlotName(QString providerName)
+GtTemplateViewer::shortPlotName(const QString& providerName) const
 {
     if (providerName == "GtBarProvider")
     {
@@ -658,7 +651,7 @@ GtTemplateViewer::projectSavedEvent(GtProject* /*project*/)
 bool
 GtTemplateViewer::deleteUI(GtAbstractItemUI* ai)
 {
-    if (ai == Q_NULLPTR)
+    if (!ai)
     {
         return false;
     }
@@ -671,7 +664,7 @@ GtTemplateViewer::deleteUI(GtAbstractItemUI* ai)
     m_itemUIList.removeOne(ai);
 
 
-    if (ai == Q_NULLPTR)
+    if (!ai)
     {
         gtError() << "ai is a nullptr, damn it!";
     }
@@ -701,7 +694,7 @@ GtTemplateViewer::addButtonClicked()
 
     QAction* a = menu.exec(QCursor::pos());
 
-    if (a == Q_NULLPTR)
+    if (!a)
     {
         return;
     }
@@ -714,7 +707,7 @@ GtTemplateViewer::addButtonClicked()
 void
 GtTemplateViewer::saveButtonClicked()
 {
-    if (m_templatePath == Q_NULLPTR)
+    if (!m_templatePath)
     {
         return;
     }
@@ -756,7 +749,7 @@ GtTemplateViewer::reloadWidgets()
 {
     foreach (GtAbstractPostWidget* w, m_widgetList)
     {
-        if (w != Q_NULLPTR)
+        if (w)
         {
             w->initFillingUI();
         }
@@ -776,7 +769,7 @@ GtTemplateViewer::resizeButtonClicked()
 {
     foreach (GtAbstractItemUI* ui, m_itemUIList)
     {
-        if (ui != Q_NULLPTR)
+        if (ui)
         {
             ui->resize();
         }

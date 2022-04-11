@@ -18,7 +18,7 @@ GtLineNumberArea::GtLineNumberArea(GtCodeEditor* editor) : QWidget(editor),
 QSize
 GtLineNumberArea::sizeHint() const
 {
-    return QSize(m_codeEditor->lineNumberAreaWidth(), 0);
+    return {m_codeEditor->lineNumberAreaWidth(), 0};
 }
 
 void

@@ -105,8 +105,10 @@ main(int argc, char* argv[])
     QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
     QStringList modInitEnvSetup;
 
-    for(auto e : modEnv.keys())
+
+    for(auto iter = modEnv.constBegin(); iter != modEnv.constEnd(); ++iter)
     {
+        const auto& e = iter.key();
         if (!gtEnvironment->environmentVariableExists(e))
         {
             gtEnvironment->addEnvironmentVariable(e);
@@ -133,7 +135,7 @@ main(int argc, char* argv[])
 #ifdef GT_LICENCE
     if (!app.checkLicence())
     {
-        QMessageBox::critical(Q_NULLPTR, "Licence verification",
+        QMessageBox::critical(nullptr, "Licence verification",
                               "Could not verify license!",
                               QMessageBox::Ok, QMessageBox::Ok);
 

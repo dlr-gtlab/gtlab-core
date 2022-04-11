@@ -35,8 +35,8 @@ public:
      * @param parent object for the new object
      * @return new object
      */
-    virtual GtObject* newObject(const QString& className,
-                                GtObject* parent = nullptr) override;
+    GtObject* newObject(const QString& className,
+                        GtObject* parent = nullptr) override;
 
     /**
      * @brief Creates property object based on given classname. Returns
