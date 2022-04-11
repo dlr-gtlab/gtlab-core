@@ -9,10 +9,11 @@
 #ifndef GT_MPL_H
 #define GT_MPL_H
 
+#include "gt_platform.h"
+
 #include <tuple>
 
-
-#if __cplusplus < 201400
+#if CPP_STANDARD_VERSION < 201400
 #error "C++14 or better is required"
 #else
 
