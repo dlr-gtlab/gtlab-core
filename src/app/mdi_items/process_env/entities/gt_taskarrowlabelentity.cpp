@@ -16,7 +16,7 @@
 #include "gt_datamodel.h"
 #include "gt_processfactory.h"
 #include "gt_application.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 
 GtTaskArrowLabelEntity::GtTaskArrowLabelEntity(QGraphicsItem* parent) :
     QGraphicsObject(parent)
@@ -36,14 +36,7 @@ GtTaskArrowLabelEntity::paint(QPainter* painter,
                               const QStyleOptionGraphicsItem* /*option*/,
                               QWidget* /*widget*/)
 {
-    painter->setPen(QPen(QColor(70, 70, 70), 1.5));
-    painter->setBrush(Qt::white);
-
-    if (gtApp->inDarkMode())
-    {
-        painter->setPen(QPen(QColor(170, 170, 170), 1.5));
-        painter->setBrush(QBrush(GtPalette::basicDarkColor()));
-    }
+    GtGUI::Color::setPaintertoGray(painter);
 
     QRectF br = boundingRect();
 
@@ -54,9 +47,10 @@ GtTaskArrowLabelEntity::paint(QPainter* painter,
                       int(br.width() - 7.), int(br.height() / 2));
 }
 
-QRectF GtTaskArrowLabelEntity::boundingRect() const
+QRectF
+GtTaskArrowLabelEntity::boundingRect() const
 {
-    return QRectF(0, 0, 30, 30);
+    return {0, 0, 30, 30};
 }
 
 void

@@ -18,6 +18,7 @@
 #include "gt_examplesentry.h"
 #include "gt_datamodel.h"
 #include "gt_logging.h"
+#include "gt_icons.h"
 
 #include "gt_examplegraphicalitem.h"
 
@@ -109,7 +110,7 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry data,
 
     m_zoomButton->setVisible(false);
 
-    m_zoomButton->setIcon(gtApp->icon(QStringLiteral("infoIcon_16.png")));
+    m_zoomButton->setIcon(GtGUI::Icon::info16());
 
     picLayout->addWidget(m_zoomButton);
 
@@ -134,13 +135,7 @@ GtExampleGraphicalItem::mousePressEvent(QMouseEvent* event)
 void
 GtExampleGraphicalItem::enterEvent(QEvent* event)
 {
-    //QPalette pal(palette());
-
-    //pal.setColor(QPalette::Background, QColor(210, 225, 245));
-
     setAutoFillBackground(true);
-
-    //setPalette(pal);
 
     QWidget::enterEvent(event);
 }
@@ -193,7 +188,7 @@ GtExampleGraphicalItem::showZoom()
 {
     if (m_pixmap.isNull())
     {
-        if (m_pixmap.load(QString(":/pixmaps/gt-logo.png")))
+        if (m_pixmap.load(GtGUI::Pixmap::logoString()))
         {
            gtDebug() << tr("No default pic found");
         }

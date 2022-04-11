@@ -32,6 +32,8 @@
 #include "gt_datamodel.h"
 #include "gt_styledmodel.h"
 #include "gt_explorermodel.h"
+#include "gt_icons.h"
+
 
 #include <QVBoxLayout>
 #include <QFrame>
@@ -214,7 +216,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     QMenu menu(this);
 
     QAction* actionOpen = menu.addAction(tr("Open"));
-    actionOpen->setIcon(gtApp->icon("openIcon_16.png"));
+    actionOpen->setIcon(GtGUI::Icon::open16());
 
     actionOpen->setVisible(false);
 
@@ -280,7 +282,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
                                    actionGroups[i].first,
                                    submenu);
 
-            submenu->setIcon(gtApp->icon(actGroup.icon()));
+            submenu->setIcon(GtGUI::icon(actGroup.icon()));
         }
     }
 
@@ -323,14 +325,14 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     }
 
 //    QAction* actionDelete =
-//            menu.addAction(gtApp->icon("closeIcon_16.png"),
+//            menu.addAction(GtGUI::Icon::delete16(),
 //                           tr("Delete From Session"));
 
 //    menu.addSeparator();
 
     // rename object action
     QAction* actrename = menu.addAction("Rename");
-    actrename->setIcon(gtApp->icon("inputIcon_16.png"));
+    actrename->setIcon(GtGUI::Icon::input16());
 
 
     if (obj->isRenamable())
@@ -343,9 +345,8 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
         actrename->setVisible(false);
     }
 
-    QAction* actionDelete = menu.addAction(
-                                gtApp->icon(QStringLiteral("closeIcon_16.png")),
-                                tr("Delete"));
+    QAction* actionDelete = menu.addAction(GtGUI::Icon::delete16(),
+                                           tr("Delete"));
 
     // delete object action
     if (obj->isDeletable())
@@ -358,7 +359,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     }
 
     //QAction* actionDetails =
-    //        menu.addAction(gtApp->icon(QStringLiteral("infoIcon_16.png")),
+    //        menu.addAction(GtGUI::Icon::info16(),
     //                       tr("Details"));
     //
     //actionDetails->setEnabled(false);
@@ -454,16 +455,14 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
 
     if (oneDeletable)
     {
-        actionDelete = menu.addAction(
-                                gtApp->icon(QStringLiteral("closeIcon_16.png")),
-                                tr("Delete"));
+        actionDelete = menu.addAction(GtGUI::Icon::delete16(),
+                                      tr("Delete"));
     }
 
     if (allProjects)
     {
-       actionRemoveProjects = menu.addAction(
-                   gtApp->icon(QStringLiteral("closeIcon_16.png")),
-                   tr("Delete from session"));
+       actionRemoveProjects = menu.addAction(GtGUI::Icon::delete16(),
+                                             tr("Delete from session"));
     }
 
     QAction* a = menu.exec(QCursor::pos());

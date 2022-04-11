@@ -7,7 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QColor>
 #include <QFont>
 #include <QLineEdit>
 #include <QSpinBox>
@@ -24,6 +23,7 @@
 #include "gt_propertyvaluedelegate.h"
 #include "gt_session.h"
 #include "gt_regexp.h"
+#include "gt_icons.h"
 
 GtPropertyItem::GtPropertyItem() :
     m_currentUnit(QString())
@@ -102,7 +102,7 @@ GtPropertyItem::data(int column, int role) const
             {
                 if (column == 0)
                 {
-                    return gtApp->icon(QStringLiteral("chainIcon_16.png"));
+                    return GtGUI::Icon::chain16();
                 }
             }
 
@@ -149,29 +149,6 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
-
-//        case Qt::ForegroundRole:
-//            if (!m_property->isActive())
-//            {
-//                return QColor(120, 120, 120);
-//            }
-
-//            break;
-
-//        case Qt::BackgroundRole:
-//            if (column == 2)
-//            {
-//                if (!m_property->isActive() || m_property->isReadOnly())
-//                {
-//                    return QColor(245, 245, 245);
-//                }
-//                else
-//                {
-//                    return QColor(255, 255, 255);
-//                }
-//            }
-
-//            break;
 
         case Qt::FontRole:
             if (column == 1)
@@ -360,8 +337,6 @@ GtPropertyItem::setEditorData(QWidget* editor, QVariant& var) const
             GtAbstractPropertyItem::setEditorData(editor, var);
             break;
     }
-
-    return;
 }
 
 void

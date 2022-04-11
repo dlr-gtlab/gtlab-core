@@ -13,7 +13,7 @@
 #include "gt_statecontainer.h"
 #include "gt_stategroup.h"
 #include "gt_state.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 
 #include "gt_statemodel.h"
 
@@ -67,24 +67,21 @@ GtStateModel::data(const QModelIndex& index, int role) const
                     {
                         if (cont->objectName() == QLatin1String("-- Global --"))
                         {
-                            return gtApp->icon(
-                                       QStringLiteral("globalIcon.png"));
+                            return GtGUI::Icon::global();
                         }
 
-                        return gtApp->icon(
-                                   QStringLiteral("folder_16.png"));
+                        return GtGUI::Icon::folder16();
                     }
 
-                    return gtApp->icon(QStringLiteral("componentsIcon_16.png"));
+                    return GtGUI::Icon::components16();
                 }
                 else if (qobject_cast<GtStateGroup*>(item))
                 {
-                    return gtApp->icon(QStringLiteral("folder_16.png"));
+                    return GtGUI::Icon::folder16();
                 }
                 else if (qobject_cast<GtState*>(item))
                 {
-                    return gtApp->icon(
-                                QStringLiteral("emptyElementIcon.png"));
+                    return GtGUI::Icon::emptyElement();
                 }
 
                 break;

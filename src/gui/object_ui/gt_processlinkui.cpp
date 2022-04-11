@@ -10,7 +10,7 @@
 #include <QIcon>
 
 #include "gt_processlinkui.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 
 GtProcessLinkUI::GtProcessLinkUI()
 {
@@ -20,6 +20,6 @@ GtProcessLinkUI::GtProcessLinkUI()
 QIcon
 GtProcessLinkUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon(QStringLiteral("processIcon_16.png"));
+    return GtGUI::Icon::process16();
 }
 

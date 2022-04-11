@@ -11,7 +11,7 @@
 #include <QDir>
 #include <QDomDocument>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_project.h"
 #include "gt_logging.h"
 #include "gt_posttemplatepath.h"
@@ -52,7 +52,7 @@ GtPostModel::data(const QModelIndex& index, int role) const
 
         case Qt::DecorationRole:
         {
-            return gtApp->icon(QStringLiteral("postIcon.png"));
+            return GtGUI::Icon::post();
         }
     }
 

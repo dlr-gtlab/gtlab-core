@@ -36,6 +36,7 @@
 #include "gt_scrollarea.h"
 #include "gt_postmodel.h"
 #include "gt_stylesheets.h"
+#include "gt_icons.h"
 
 
 GtTemplateViewer::GtTemplateViewer() :
@@ -78,19 +79,19 @@ GtTemplateViewer::GtTemplateViewer() :
 
     QPushButton* buttonAdd = new QPushButton(tr("Add"));
     buttonAdd->setToolTip("Adds a plot to current template.");
-    buttonAdd->setIcon(GtApplication::icon("addIcon_16.png"));
+    buttonAdd->setIcon(GtGUI::Icon::add16());
     buttonAdd->setMaximumWidth(60);
     buttonAdd->setStyleSheet(GtStyleSheets::buttonStyleSheet());
 
     QPushButton* buttonPDF = new QPushButton(tr("To PDF"));
     buttonPDF->setToolTip("Prints template to PDF.");
-    buttonPDF->setIcon(GtApplication::icon("printPDFIcon.png"));
+    buttonPDF->setIcon(GtGUI::Icon::printPDF());
     buttonPDF->setMaximumWidth(60);
     buttonPDF->setStyleSheet(buttonAdd->styleSheet());
 
     QPushButton* buttonPrint = new QPushButton(tr("Print..."));
     buttonPrint->setToolTip("Prints template.");
-    buttonPrint->setIcon(GtApplication::icon("printerIcon_16.png"));
+    buttonPrint->setIcon(GtGUI::Icon::printer());
     buttonPrint->setMaximumWidth(60);
     buttonPrint->setStyleSheet(buttonAdd->styleSheet());
 
@@ -288,7 +289,7 @@ GtTemplateViewer::printPreview(QPrinter* printer)
     font.setBold(false);
     painter.setFont(font);
 
-    QPixmap headline(":/pixmaps/print-headline.png");
+    QPixmap headline = GtGUI::Pixmap::printHeadline();
     painter.drawPixmap(50, 130, printer->width() - 100, headline.height(),
                        headline);
 
@@ -553,35 +554,35 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
 {
     if (str == "GtBarProvider")
     {
-        actPlot->setIcon(GtApplication::icon("histogramIcon_16.png"));
+        actPlot->setIcon(GtGUI::Icon::histogram16());
     }
     else if (str == "GtXyProvider")
     {
-        actPlot->setIcon(GtApplication::icon("schedules4Icon_16.png"));
+        actPlot->setIcon(GtGUI::Icon::xyPlot16());
     }
     else if (str == "GtpXyProvider")
     {
-        actPlot->setIcon(GtApplication::icon("schedules4Icon_16.png"));
+        actPlot->setIcon(GtGUI::Icon::xyPlot16());
     }
     else if (str == "GtppMapProvider")
     {
-        actPlot->setIcon(GtApplication::icon("mapIcon_16.png"));
+        actPlot->setIcon(GtGUI::Icon::map16());
     }
     else if (str == "GtCarpetProvider")
     {
-        actPlot->setIcon(GtApplication::icon("carpetPlotIcon2.png"));
+        actPlot->setIcon(GtGUI::Icon::carpetPlot());
     }
     else if (str == "GtdAeroPlot")
     {
-        actPlot->setIcon(GtApplication::icon("carpetPlotIcon2.png"));
+        actPlot->setIcon(GtGUI::Icon::carpetPlot());
     }
     else if (str == "GtTSDiagramProvider")
     {
-        actPlot->setIcon(GtApplication::icon("tsDiagramm_16.png"));
+        actPlot->setIcon(GtGUI::Icon::tsDiagram16());
     }
     else
     {
-        actPlot->setIcon(GtApplication::icon("postIcon.png"));
+        actPlot->setIcon(GtGUI::Icon::post());
     }
 }
 
@@ -799,7 +800,5 @@ GtTemplateViewer::pdfButtonClicked()
     connect(&preview, SIGNAL(paintRequested(QPrinter*)),
             SLOT(printPreview(QPrinter*)));
     preview.exec();
-
-    return;
 }
 

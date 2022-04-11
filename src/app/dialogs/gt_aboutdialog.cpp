@@ -21,15 +21,19 @@
 #include "gt_filedialog.h"
 #include "gt_footprint.h"
 #include "gt_logging.h"
+#include "gt_icons.h"
 
 #include "gt_aboutdialog.h"
 
-GtAboutLogo::GtAboutLogo(QWidget* parent) : QWidget(parent), m_clicks(0)
+GtAboutLogo::GtAboutLogo(QWidget* parent) :
+    QWidget(parent),
+    m_clicks(0),
+    m_pixmap(GtGUI::Pixmap::splash())
 {
-    m_pixmap.load(QStringLiteral(":/pixmaps/splash.png"));
 }
 
-void GtAboutLogo::paintEvent(QPaintEvent* e)
+void
+GtAboutLogo::paintEvent(QPaintEvent* e)
 {
     QPainter paint(this);
     paint.drawPixmap(0, 0, m_pixmap);
@@ -37,7 +41,8 @@ void GtAboutLogo::paintEvent(QPaintEvent* e)
     QWidget::paintEvent(e);
 }
 
-void GtAboutLogo::mouseDoubleClickEvent(QMouseEvent* event)
+void
+GtAboutLogo::mouseDoubleClickEvent(QMouseEvent* event)
 {
     QWidget::mouseDoubleClickEvent(event);
 }
@@ -46,7 +51,7 @@ void GtAboutLogo::mouseDoubleClickEvent(QMouseEvent* event)
 GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
 {
     setWindowTitle(tr("About GTlab"));
-    setWindowIcon(gtApp->icon(QStringLiteral("infoIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::info16());
 
     /// Turn  off the "?"-Button in the header
     Qt::WindowFlags flags = windowFlags();
@@ -88,9 +93,8 @@ GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
     btnLayout->addSpacerItem(new QSpacerItem(10, 20, QSizePolicy::Expanding,
                                              QSizePolicy::Minimum));
 
-    QPushButton* exportFootprintBtn =
-            new QPushButton(tr("Export Framework Footprint"));
-    exportFootprintBtn->setIcon(gtApp->icon(QStringLiteral("exportIcon.png")));
+    auto exportFootprintBtn = new QPushButton(tr("Export Framework Footprint"));
+    exportFootprintBtn->setIcon(GtGUI::Icon::export16());
     exportFootprintBtn->setFocusPolicy(Qt::NoFocus);
     btnLayout->addWidget(exportFootprintBtn);
 

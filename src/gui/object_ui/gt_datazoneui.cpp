@@ -10,6 +10,8 @@
 #include <QIcon>
 
 #include "gt_application.h"
+#include "gt_icons.h"
+
 #include "gt_datazoneui.h"
 
 GtDataZoneUI::GtDataZoneUI()
@@ -20,7 +22,7 @@ GtDataZoneUI::GtDataZoneUI()
 QIcon
 GtDataZoneUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon(QStringLiteral("globalsIcon_16.png"));
+    return GtGUI::Icon::globals16();
 }
 
 QStringList

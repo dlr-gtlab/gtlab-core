@@ -27,6 +27,7 @@
 #include "gt_templateviewer.h"
 #include "gt_posttemplatefactory.h"
 #include "gt_deleteitemmessagebox.h"
+#include "gt_icons.h"
 
 #include "gt_postdock.h"
 #include "gt_postdelegate.h"
@@ -89,7 +90,7 @@ GtPostDock::GtPostDock() : m_project(nullptr)
     {
         // export button
         m_exportButton = new QPushButton;
-        m_exportButton->setIcon(gtApp->icon("exportIcon_16.png"));
+        m_exportButton->setIcon(GtGUI::Icon::export16());
         m_exportButton->setMaximumSize(QSize(20, 20));
         m_exportButton->setFlat(true);
         m_exportButton->setToolTip(tr("Export templates to file"));
@@ -100,7 +101,7 @@ GtPostDock::GtPostDock() : m_project(nullptr)
 
         // import button
         m_importButton = new QPushButton;
-        m_importButton->setIcon(gtApp->icon("importIcon_16.png"));
+        m_importButton->setIcon(GtGUI::Icon::import16());
         m_importButton->setMaximumSize(QSize(20, 20));
         m_importButton->setFlat(true);
         m_importButton->setToolTip(tr("Import templates from file"));
@@ -112,7 +113,7 @@ GtPostDock::GtPostDock() : m_project(nullptr)
 
     // add button
     m_addButton = new QPushButton;
-    m_addButton->setIcon(gtApp->icon("addIcon_16.png"));
+    m_addButton->setIcon(GtGUI::Icon::add16());
     m_addButton->setMaximumSize(QSize(20, 20));
     m_addButton->setFlat(true);
     m_addButton->setToolTip(tr("Add new template"));
@@ -139,7 +140,7 @@ GtPostDock::getDockWidgetArea()
     return Qt::LeftDockWidgetArea;
 }
 
-double
+bool
 GtPostDock::renameFile(const QString& oldName, const QString& newName)
 {
     return m_datamodel->renameFile(oldName, newName);
@@ -310,13 +311,13 @@ GtPostDock::customContextMenu(QPoint pos)
         QMenu menu(this);
 
         QAction* actrename = menu.addAction(tr("Rename"));
-        actrename->setIcon(gtApp->icon(QStringLiteral("inputIcon_16.png")));
+        actrename->setIcon(GtGUI::Icon::input16());
 
 
         menu.addSeparator();
 
         QAction* actdelete = menu.addAction(tr("Delete"));
-        actdelete->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+        actdelete->setIcon(GtGUI::Icon::delete16());
 
         QAction* a = menu.exec(QCursor::pos());
 
@@ -336,7 +337,7 @@ GtPostDock::customContextMenu(QPoint pos)
         QMenu menu(this);
 
         QAction* addtemplate = menu.addAction(tr("Add new template"));
-        addtemplate->setIcon(gtApp->icon(QStringLiteral("addIcon_16.png")));
+        addtemplate->setIcon(GtGUI::Icon::add16());
 
         QAction* a = menu.exec(QCursor::pos());
 

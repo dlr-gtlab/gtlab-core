@@ -13,7 +13,7 @@
 #include "gt_logging.h"
 #include "gt_processexecutor.h"
 #include "gt_task.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 
 
 GtProcessQueueModel::GtProcessQueueModel(GtProcessExecutor* proExec,
@@ -41,14 +41,14 @@ GtProcessQueueModel::GtProcessQueueModel(GtProcessExecutor* proExec,
 int
 GtProcessQueueModel::columnCount(const QModelIndex& parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 1;
 }
 
 int
 GtProcessQueueModel::rowCount(const QModelIndex& parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
 
     if (!m_proExec)
     {
@@ -105,28 +105,23 @@ GtProcessQueueModel::data(const QModelIndex &index, int role) const
 
             if (task->currentState() == GtTask::RUNNING)
             {
-                return gtApp->icon(
-                           QStringLiteral("inProgressIcon_16.png"));
+                return GtGUI::Icon::inProgress16();
             }
             else if (task->currentState() == GtTask::QUEUED)
             {
-                return gtApp->icon(
-                           QStringLiteral("sleepIcon_16.png"));
+                return GtGUI::Icon::sleep16();
             }
             else if (task->currentState() == GtTask::FINISHED)
             {
-                return gtApp->icon(
-                           QStringLiteral("checkIcon_16.png"));
+                return GtGUI::Icon::check16();
             }
             else if (task->currentState() == GtTask::FAILED)
             {
-                return gtApp->icon(
-                           QStringLiteral("processFailedIcon_16.png"));
+                return GtGUI::Icon::processFailed16();
             }
             else if (task->currentState() == GtTask::CONNECTING)
             {
-                return gtApp->icon(
-                           QStringLiteral("networkIcon_16.png"));
+                return GtGUI::Icon::network16();
             }
             break;
         }

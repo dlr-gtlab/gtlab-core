@@ -32,7 +32,7 @@ GtCalculatorSettingsPage::GtCalculatorSettingsPage(GtProject* project,
 {
     setTitle(tr("Settings"));
 
-    QVBoxLayout* layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
 
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
@@ -42,7 +42,7 @@ GtCalculatorSettingsPage::GtCalculatorSettingsPage(GtProject* project,
 
     layout->addWidget(m_view);
 
-    GtSearchWidget* searchWidget = new GtSearchWidget(this);
+    auto searchWidget = new GtSearchWidget(this);
     layout->addWidget(searchWidget);
 
     setLayout(layout);
@@ -54,10 +54,11 @@ GtCalculatorSettingsPage::GtCalculatorSettingsPage(GtProject* project,
     connect(searchWidget, SIGNAL(textChanged(QString)),
             m_view->filterModel(), SLOT(setFilterRegExp(QString)));
 
-    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
+    GtGUI::applyThemeToWidget(this);
 }
 
-void GtCalculatorSettingsPage::initializePage()
+void
+GtCalculatorSettingsPage::initializePage()
 {
     if (!m_wizard)
     {

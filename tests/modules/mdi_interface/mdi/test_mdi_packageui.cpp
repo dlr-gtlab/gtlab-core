@@ -9,6 +9,7 @@
 #include <QIcon>
 
 #include "gt_logging.h"
+#include "gt_icons.h"
 
 #include "test_mdi_packageui.h"
 #include "test_mdi_viewer.h"
@@ -31,7 +32,7 @@ TestMdiPackageUI::TestMdiPackageUI()
 QIcon
 TestMdiPackageUI::icon(GtObject* /*obj*/) const
 {
-    return QIcon(":/icons/globalIcon.png");
+    return GtGUI::Icon::global();
 }
 
 QStringList

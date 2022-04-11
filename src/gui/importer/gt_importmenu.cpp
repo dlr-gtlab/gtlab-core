@@ -20,6 +20,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_command.h"
 #include "gt_wizard.h"
+#include "gt_icons.h"
 
 #include "gt_importmenu.h"
 
@@ -28,7 +29,7 @@ GtImportMenu::GtImportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
     m_obj(obj)
 {
     setTitle(tr("Import"));
-    setIcon(gtApp->icon(QStringLiteral("importIcon_16.png")));
+    setIcon(GtGUI::Icon::import16());
 
     connect(m_signalMapper, SIGNAL(mapped(QObject*)),
             SLOT(onActionTrigger(QObject*)));

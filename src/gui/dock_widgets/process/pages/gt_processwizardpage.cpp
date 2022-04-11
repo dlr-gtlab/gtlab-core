@@ -19,7 +19,7 @@ GtProcessWizardPage::GtProcessWizardPage() :
     m_provider(nullptr),
     m_scope(nullptr)
 {
-    GtPalette::applyThemeToWidget(this, gtApp->inDarkMode());
+    GtGUI::applyThemeToWidget(this);
 }
 
 GtAbstractProcessProvider*

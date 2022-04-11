@@ -11,7 +11,7 @@
 #include <QIcon>
 
 #include "gt_accessgroup.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 
 #include "gt_accessgroupmodel.h"
 
@@ -121,11 +121,11 @@ GtAccessGroupModel::data(const QModelIndex& index, int role) const
         {
             if (col == 3)
             {
-                retVal = gtApp->icon(QStringLiteral("configIcon_16.png"));
+                retVal = GtGUI::Icon::config16();
             }
             else if (col == 4)
             {
-                retVal = gtApp->icon(QStringLiteral("closeIcon_16.png"));
+                retVal = GtGUI::Icon::delete16();
             }
 
             break;

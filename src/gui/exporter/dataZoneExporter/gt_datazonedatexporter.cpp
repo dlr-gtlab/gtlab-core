@@ -17,6 +17,7 @@
 #include "gt_datazone.h"
 #include "gt_datazone0d.h"
 #include "gt_externalizedobjecthelper.h"
+#include "gt_icons.h"
 
 namespace
 {
@@ -46,12 +47,7 @@ GtDataZoneDatExporter::targets() const
 QIcon
 GtDataZoneDatExporter::icon() const
 {
-    QIcon icon;
-    icon.addFile(QString(":/icons/exportIcon_16.png"),
-                 QSize(), QIcon::Normal,
-                 QIcon::Off);
-
-    return icon;
+    return GtGUI::Icon::export16();
 }
 
 bool

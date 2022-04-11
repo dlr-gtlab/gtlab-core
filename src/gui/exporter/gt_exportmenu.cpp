@@ -10,7 +10,7 @@
 #include <QSignalMapper>
 #include <QDebug>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_exporthandler.h"
 #include "gt_exportermetadata.h"
 #include "gt_project.h"
@@ -27,7 +27,7 @@ GtExportMenu::GtExportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
     m_obj(obj)
 {
     setTitle(tr("Export"));
-    setIcon(gtApp->icon(QStringLiteral("exportIcon_16.png")));
+    setIcon(GtGUI::Icon::export16());
 
     connect(m_signalMapper, SIGNAL(mapped(QObject*)),
             SLOT(onActionTrigger(QObject*)));

@@ -75,8 +75,10 @@ INCLUDEPATH += .\
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    gt_colors.h \
     gt_gui_exports.h \
     gt_application.h \
+    gt_icons.h \
     gt_mdiinterface.h \
     gt_mdiitem.h \
     gt_mdilauncher.h \
@@ -234,6 +236,8 @@ HEADERS += \
 
 SOURCES += \
     gt_application.cpp \
+    gt_colors.cpp \
+    gt_icons.cpp \
     gt_mdiitem.cpp \
     gt_mdilauncher.cpp \
     gt_palette.cpp \

@@ -20,6 +20,7 @@
 #include "gt_settings.h"
 #include "gt_logging.h"
 #include "gt_stylesheets.h"
+#include "gt_icons.h"
 
 #include "gt_startuppage.h"
 
@@ -50,37 +51,32 @@ GtStartupPage::GtStartupPage()
 
     QGridLayout* btnGridLay = new QGridLayout;
 
-    QIcon newP = QIcon(":/icons/addProjectIcon.png");
-    QIcon examples = QIcon(":/icons/examplesIcon.png");
-    QIcon helpIcon = QIcon(":/icons/questionIcon.png");
-    QIcon infoIcon = QIcon(":/icons/infoIcon.png");
-
     QSize iconSize(80, 80);
 
     m_newProjBtn = new QToolButton;
     m_newProjBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    m_newProjBtn->setIcon(newP);
+    m_newProjBtn->setIcon(GtGUI::Icon::addProject());
     m_newProjBtn->setIconSize(iconSize);
     m_newProjBtn->setText(tr("New Project"));
     btnGridLay->addWidget(m_newProjBtn, 0, 0);
 
     m_examplesBtn = new QToolButton;
     m_examplesBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    m_examplesBtn->setIcon(examples);
+    m_examplesBtn->setIcon(GtGUI::Icon::examples());
     m_examplesBtn->setIconSize(iconSize);
     m_examplesBtn->setText(tr("Examples"));
     btnGridLay->addWidget(m_examplesBtn, 0, 1);
 
     m_helpBtn = new QToolButton;
     m_helpBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    m_helpBtn->setIcon(helpIcon);
+    m_helpBtn->setIcon(GtGUI::Icon::help());
     m_helpBtn->setIconSize(iconSize);
     m_helpBtn->setText(tr("Help Contents"));
     btnGridLay->addWidget(m_helpBtn, 1, 0);
 
     m_infoBtn = new QToolButton(this);
     m_infoBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    m_infoBtn->setIcon(infoIcon);
+    m_infoBtn->setIcon(GtGUI::Icon::info());
     m_infoBtn->setIconSize(iconSize);
     m_infoBtn->setText("Info");
 
@@ -120,7 +116,7 @@ GtStartupPage::GtStartupPage()
 
     initializeTheme();
 
-    label->setPixmap(QPixmap(":/pixmaps/gt-logo.png"));
+    label->setPixmap(GtGUI::Pixmap::logo());
     label->setLayoutDirection(Qt::RightToLeft);
 
     setFrameShape(QFrame::StyledPanel);
@@ -135,7 +131,7 @@ GtStartupPage::~GtStartupPage()
 QIcon
 GtStartupPage::icon() const
 {
-    return gtApp->icon("infoBlueIcon_16.png");
+    return GtGUI::Icon::infoBlue16();
 }
 
 void

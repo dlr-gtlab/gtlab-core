@@ -10,8 +10,7 @@
 #include <QIcon>
 
 #include "gt_resultui.h"
-
-#include "gt_application.h"
+#include "gt_icons.h"
 
 GtResultUI::GtResultUI()
 {
@@ -21,6 +20,6 @@ GtResultUI::GtResultUI()
 QIcon
 GtResultUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon(QStringLiteral("dataIcon_16.png"));
+    return GtGUI::Icon::data16();
 }
 

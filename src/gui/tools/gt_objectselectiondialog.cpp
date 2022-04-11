@@ -10,7 +10,7 @@
 #include <QVBoxLayout>
 #include <QDebug>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_treeview.h"
 #include "gt_searchwidget.h"
 #include "gt_object.h"
@@ -26,7 +26,7 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
     m_root(root)
 {
     setWindowTitle(tr("Choose Object"));
-    setWindowIcon(gtApp->icon(QStringLiteral("propertyIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::property16());
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);

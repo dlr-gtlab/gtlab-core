@@ -29,6 +29,7 @@
 #include "gt_abstractbrowserwidget.h"
 #include "gt_collectionloadingwidget.h"
 #include "gt_logging.h"
+#include "gt_icons.h"
 
 #include "gt_collectioneditor.h"
 
@@ -74,15 +75,12 @@ GtCollectionEditor::GtCollectionEditor() :
 
     m_collectionWidget = new QWidget;
 
-    m_tabWidget->addTab(m_collectionWidget,
-                      gtApp->icon(QStringLiteral("dropDownIcon.png")),
-                      tr("Collection"));
+    m_tabWidget->addTab(m_collectionWidget, GtGUI::Icon::dropdown(),
+                        tr("Collection"));
 
     m_browserWidget = new QWidget;
 
-    m_tabWidget->addTab(m_browserWidget,
-                      gtApp->icon(QStringLiteral("zoomIcon_16.png")),
-                      tr("Browse"));
+    m_tabWidget->addTab(m_browserWidget, GtGUI::Icon::zoom16(), tr("Browse"));
 
     frameLay->addWidget(m_tabWidget);
 
@@ -152,13 +150,12 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
     hLay->addSpacerItem(spacer);
 
     m_updateAllButton =
-            new QPushButton(gtApp->icon(QStringLiteral("updateIcon_16.png")),
-                            tr("Update All"));
+            new QPushButton(GtGUI::Icon::update16(), tr("Update All"));
     m_updateAllButton->setVisible(false);
     hLay->addWidget(m_updateAllButton);
 
     m_downloadButton =
-            new QPushButton(gtApp->icon(QStringLiteral("dropDownIcon.png")),
+            new QPushButton(GtGUI::Icon::dropdown(),
                             tr("Download Selected"));
 
     m_downloadButton->setEnabled(false);

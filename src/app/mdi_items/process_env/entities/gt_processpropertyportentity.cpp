@@ -19,7 +19,7 @@
 #include "gt_processpropertyportentity.h"
 
 #include "gt_application.h"
-#include "gt_palette.h"
+#include "gt_colors.h"
 #include "gt_logging.h"
 
 GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
@@ -261,7 +261,7 @@ GtProcessPropertyPortEntity::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
     }
     else
     {
-        setBrush(QBrush(GtPalette::basicDarkColor()));
+        setBrush(QBrush(GtGUI::Color::basicDark()));
     }
 
     QApplication::restoreOverrideCursor();
@@ -298,8 +298,7 @@ GtProcessPropertyPortEntity::mousePressEvent(QGraphicsSceneMouseEvent* event)
         QApplication::restoreOverrideCursor();
         QApplication::setOverrideCursor(Qt::ClosedHandCursor);
 
-        GtProcessConnectionScene* pcScene =
-                qobject_cast<GtProcessConnectionScene*>(scene());
+        auto pcScene = qobject_cast<GtProcessConnectionScene*>(scene());
 
         if (!pcScene)
         {
@@ -329,8 +328,7 @@ GtProcessPropertyPortEntity::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         m_timer.reset();
     }
 
-    GtProcessConnectionScene* pcScene =
-            qobject_cast<GtProcessConnectionScene*>(scene());
+    auto pcScene = qobject_cast<GtProcessConnectionScene*>(scene());
 
     if (pcScene)
     {

@@ -26,6 +26,7 @@
 #include "gt_propertyconnectionfunctions.h"
 #include "gt_propertyconnection.h"
 #include "gt_processcomponentmodel.h"
+#include "gt_icons.h"
 
 using namespace GtPropertyConnectionFunctions;
 
@@ -108,7 +109,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                         return eData->icon;
                     }
 
-                    return gtApp->icon(QStringLiteral("calculatorIcon_16.png"));
+                    return GtGUI::Icon::calculator16();
 
                 }
 
@@ -172,40 +173,31 @@ GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state)
     switch (state)
     {
         case GtProcessComponent::RUNNING:
-            return gtApp->icon(
-                       QStringLiteral("inProgressIcon_16.png"));
+            return GtGUI::Icon::inProgress16();
 
         case GtProcessComponent::QUEUED:
-            return gtApp->icon(
-                       QStringLiteral("sleepIcon_16.png"));
+            return GtGUI::Icon::sleep16();
 
         case GtProcessComponent::FAILED:
-            return gtApp->icon(
-                       QStringLiteral("errorIcon_16.png"));
+            return GtGUI::Icon::error16();
 
         case GtProcessComponent::FINISHED:
-            return gtApp->icon(
-                       QStringLiteral("checkIcon_16.png"));
+            return GtGUI::Icon::check16();
 
         case GtProcessComponent::CONNECTING:
-            return gtApp->icon(
-                       QStringLiteral("networkIcon_16.png"));
+            return GtGUI::Icon::network16();
 
         case GtProcessComponent::SKIPPED:
-            return gtApp->icon(
-                       QStringLiteral("skipIcon_16.png"));
+            return GtGUI::Icon::skip16();
 
         case GtProcessComponent::TERMINATION_REQUESTED:
-            return gtApp->icon(
-                       QStringLiteral("stopRequestIcon_16.png"));
+            return GtGUI::Icon::stopRequest16();
 
         case GtProcessComponent::TERMINATED:
-            return gtApp->icon(
-                       QStringLiteral("stopIcon_16.png"));
+            return GtGUI::Icon::stop16();
 
         case GtProcessComponent::WARN_FINISHED:
-            return gtApp->icon(
-                       QStringLiteral("processFailedIcon_16.png"));
+            return GtGUI::Icon::processFailed16();
 
         default:
             break;

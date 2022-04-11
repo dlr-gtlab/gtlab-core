@@ -21,6 +21,7 @@
 #include "gt_command.h"
 #include "gt_extendedtaskdata.h"
 #include "gt_stylesheets.h"
+#include "gt_icons.h"
 
 #include "gt_processcomponentsettingsbutton.h"
 
@@ -28,7 +29,7 @@ GtProcessComponentSettingsButton::GtProcessComponentSettingsButton() :
     m_pc(nullptr), m_task(nullptr)
 {
     setText(tr("Config..."));
-    setIcon(gtApp->icon("configIcon_16.png"));
+    setIcon(GtGUI::Icon::config16());
     setToolTip(tr("Open Wizard"));
     setStyleSheet(GtStyleSheets::buttonStyleSheet());
 

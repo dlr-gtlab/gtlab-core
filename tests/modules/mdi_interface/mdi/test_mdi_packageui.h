@@ -27,9 +27,9 @@ public:
     /**
      * @brief Icon Test
      * @param obj
-     * @return globalIcon.png
+     * @return globalIcon
      */
-    QIcon icon(GtObject *obj) const override;
+    QIcon icon(GtObject* obj) const override;
 
     /**
      * @brief Test for open with interface. Adds two entries
@@ -44,7 +44,7 @@ public:
      * @param obj
      * @return
      */
-    void doubleClicked(GtObject *obj) override;
+    void doubleClicked(GtObject* obj) override;
 
 public slots:
     /**

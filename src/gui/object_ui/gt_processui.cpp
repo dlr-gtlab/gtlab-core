@@ -10,7 +10,7 @@
 #include <QIcon>
 
 #include "gt_processui.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_regexp.h"
 
 GtProcessUI::GtProcessUI()
@@ -21,7 +21,7 @@ GtProcessUI::GtProcessUI()
 QIcon
 GtProcessUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon(QStringLiteral("processIcon_16.png"));
+    return GtGUI::Icon::process16();
 }
 
 QStringList

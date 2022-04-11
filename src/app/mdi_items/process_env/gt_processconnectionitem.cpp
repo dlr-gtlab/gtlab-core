@@ -19,6 +19,7 @@
 #include "gt_doublemonitoringproperty.h"
 #include "gt_stringmonitoringproperty.h"
 #include "gt_intmonitoringproperty.h"
+#include "gt_icons.h"
 
 #include "gt_objectui.h"
 #include "gt_processconnectionmodel.h"
@@ -128,8 +129,7 @@ GtProcessConnectionItem::data(int column, int role)
                             return eData->icon;
                         }
 
-                        return gtApp->icon(
-                                    QStringLiteral("calculatorIcon_16.png"));
+                        return GtGUI::Icon::calculator16();
 
                     }
                     else
@@ -168,22 +168,22 @@ GtProcessConnectionItem::data(int column, int role)
 
                     if (qobject_cast<GtDoubleProperty*>(m_property))
                     {
-                        return gtApp->icon(QStringLiteral("doubleIcon_16.png"));
+                        return GtGUI::Icon::double16();
                     }
 
                     if (qobject_cast<GtIntProperty*>(m_property))
                     {
-                        return gtApp->icon(QStringLiteral("intIcon_16.png"));
+                        return GtGUI::Icon::int16();
                     }
 
                     if (qobject_cast<GtObjectLinkProperty*>(m_property))
                     {
-                        return gtApp->icon(QStringLiteral("oIcon_16.png"));
+                        return GtGUI::Icon::o16();
                     }
 
                     if (qobject_cast<GtStringProperty*>(m_property))
                     {
-                        return gtApp->icon(QStringLiteral("stringIcon_16.png"));
+                        return GtGUI::Icon::string16();
                     }
                 }
 

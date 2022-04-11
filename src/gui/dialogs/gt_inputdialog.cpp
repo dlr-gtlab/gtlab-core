@@ -15,7 +15,7 @@
 #include <QPushButton>
 #include <QIcon>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 
 #include "gt_inputdialog.h"
 
@@ -56,12 +56,12 @@ GtInputDialog::GtInputDialog(InputMode mode, QWidget* parent) : QDialog(parent),
     btnLay->addStretch(1);
 
     m_acceptBtn = new QPushButton(tr("Ok"));
-    m_acceptBtn->setIcon(gtApp->icon(QStringLiteral("checkIcon_24.png")));
+    m_acceptBtn->setIcon(GtGUI::Icon::check24());
     m_acceptBtn->setDefault(true);
     btnLay->addWidget(m_acceptBtn);
 
     m_rejectBtn = new QPushButton(tr("Cancel"));
-    m_rejectBtn->setIcon(gtApp->icon(QStringLiteral("closeIcon_24.png")));
+    m_rejectBtn->setIcon(GtGUI::Icon::close24());
 
     btnLay->addWidget(m_rejectBtn);
 

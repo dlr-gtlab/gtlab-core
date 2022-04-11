@@ -12,6 +12,7 @@
 #include "gt_graphicsview.h"
 #include "gt_ruler.h"
 #include "gt_application.h"
+#include "gt_colors.h"
 #include <QtMath>
 #include <QDebug>
 
@@ -26,18 +27,12 @@ GtGrid::GtGrid(GtGraphicsView& view) :
     m_showGridPoints(false),
     m_showAxis(false),
     m_hideGrid(false),
-    m_hgColor(QColor(200, 200, 255, 125)),
-    m_vgColor(QColor(200, 200, 255, 125)),
-    m_gpColor(QColor(100, 100, 155)),
+    m_hgColor(GtGUI::Color::gridLineColor()),
+    m_vgColor(GtGUI::Color::gridLineColor()),
+    m_gpColor(GtGUI::Color::gridPointColor()),
     m_hRuler(nullptr),
     m_vRuler(nullptr)
 {
-    if (gtApp->inDarkMode())
-    {
-        m_hgColor = QColor(200, 200, 255, 125);
-        m_vgColor = QColor(200, 200, 255, 125);
-        m_gpColor = QColor(100, 100, 155);
-    }
 
 }
 
@@ -436,7 +431,8 @@ GtGrid::getScaledGrid(Qt::Orientation val)
     return length;
 }
 
-void GtGrid::drawRotatedText(QPainter* painter, int x, int y,
+void
+GtGrid::drawRotatedText(QPainter* painter, int x, int y,
                               const QString &text)
 {
     if (painter)

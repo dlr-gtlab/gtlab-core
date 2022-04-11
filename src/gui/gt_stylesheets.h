@@ -20,6 +20,14 @@
  */
 namespace GtStyleSheets
 {
+    enum class runningButtonState
+    {
+        notRunning = 0,
+        thisProcessRunning,
+        otherProcessRunning
+    };
+
+
     /**
     * @brief buttonStyleSheet
     * @return the standard button style sheet (rounded edges,
@@ -44,13 +52,12 @@ namespace GtStyleSheets
      * @brief processRunButton -
      *  Return the Style-Sheet for the run-process-button with a specification
      * for the color
-     * @param stdBackgroundRGB - use a rgb-colorCode like "rgb(XXX,YYY,ZZZ)"
-     * Example usage:
-     *          GtStyleSheets::processRunButton("rgb(236,219,184)");
+     * @param state - current state if the process is running
+     * or not or another one is running
      * @return the stylesheet
      *
      */
-    QString GT_GUI_EXPORT processRunButton(const QString &stdBackgroundRGB);
+    QString GT_GUI_EXPORT processRunButton(runningButtonState const& state);
 
     /**
      * @brief performanceTaskLineEdit0

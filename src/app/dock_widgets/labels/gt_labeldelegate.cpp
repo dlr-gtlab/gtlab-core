@@ -18,6 +18,7 @@
 #include "gt_datamodel.h"
 #include "gt_command.h"
 #include "gt_regexp.h"
+#include "gt_icons.h"
 
 #include "gt_labeldelegate.h"
 
@@ -126,7 +127,7 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
         mb.setWindowTitle(tr("Rename Label"));
-        mb.setWindowIcon(gtApp->icon(QStringLiteral("inputIcon_16.png")));
+        mb.setWindowIcon(GtGUI::Icon::input16());
         mb.setText(msg);
         mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
         mb.setDefaultButton(QMessageBox::Yes);

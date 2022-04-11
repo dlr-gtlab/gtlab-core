@@ -12,7 +12,8 @@
 
 #include "gt_styledlogmodel.h"
 #include "gt_logmodel.h"
-#include "gt_application.h"
+#include "gt_icons.h"
+#include "gt_colors.h"
 
 #include "QsLogLevel.h"
 
@@ -41,19 +42,19 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::DebugLevel:
-                    return gtApp->icon("bugIcon.png");
+                    return GtGUI::Icon::bug();
 
                 case QsLogging::InfoLevel:
-                    return gtApp->icon("infoBlueIcon_16.png");
+                    return GtGUI::Icon::infoBlue16();
 
                 case QsLogging::WarnLevel:
-                    return gtApp->icon("processFailedIcon_16.png");
+                    return GtGUI::Icon::processFailed16();
 
                 case QsLogging::ErrorLevel:
-                    return gtApp->icon("errorIcon_16.png");
+                    return GtGUI::Icon::error16();
 
                 case QsLogging::FatalLevel:
-                    return gtApp->icon("fatalIcon_16.png");
+                    return GtGUI::Icon::fatal16();
             }
         }
 
@@ -66,13 +67,13 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::WarnLevel:
-                    return QColor(255, 100, 0);
+                    return GtGUI::Color::warningText();
 
                 case QsLogging::ErrorLevel:
-                    return QColor(139, 0, 0);
+                    return GtGUI::Color::errorText();
 
                 case QsLogging::FatalLevel:
-                    return QColor(255, 255, 255);
+                    return GtGUI::Color::fatalText();
             }
         }
 
@@ -110,7 +111,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::FatalLevel:
-                    return QColor(120, 20, 20);
+                    return GtGUI::Color::fatalTextBackground();
             }
         }
     }

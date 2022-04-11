@@ -16,6 +16,7 @@
 #include "gt_logging.h"
 #include "gt_datazone.h"
 #include "gt_datazone0d.h"
+#include "gt_icons.h"
 #include "gt_externalizedobjecthelper.h"
 
 GtDataZoneCsvExporter::GtDataZoneCsvExporter()
@@ -33,12 +34,7 @@ GtDataZoneCsvExporter::targets() const
 QIcon
 GtDataZoneCsvExporter::icon() const
 {
-    QIcon icon;
-    icon.addFile(QString(":/icons/exportIcon_16.png"),
-                 QSize(), QIcon::Normal,
-                 QIcon::Off);
-
-    return icon;
+    return GtGUI::Icon::export16();
 }
 
 bool
@@ -390,10 +386,10 @@ GtDataZoneCsvExporter::write4Ddata(GtDataZone* data, QTextStream &out)
     }
 
     const auto axisNames = data->axisNames();
-    QString axisName1 = axisNames.first();
-    QString axisName2 = axisNames.at(1);
-    QString axisName3 = axisNames.at(2);
-    QString axisName4 = axisNames.last();
+    QString const& axisName1 = axisNames.first();
+    QString const& axisName2 = axisNames.at(1);
+    QString const& axisName3 = axisNames.at(2);
+    QString const& axisName4 = axisNames.last();
 
     QVector<double> axis1Ticks = data->axisTicks(axisName1);
     QVector<double> axis2Ticks = data->axisTicks(axisName2);

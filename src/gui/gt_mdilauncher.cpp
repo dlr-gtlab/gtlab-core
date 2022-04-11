@@ -18,6 +18,7 @@
 #include "gt_collectioninterface.h"
 #include "gt_abstractcollectionsettings.h"
 #include "gt_algorithms.h"
+#include "gt_icons.h"
 
 GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
     m_area(nullptr)
@@ -378,7 +379,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     }
     else
     {
-        subWin->setWindowIcon(gtApp->icon(QStringLiteral("frameIcon.png")));
+        subWin->setWindowIcon(GtGUI::Icon::frame());
     }
 
     mdiItem->initialized();

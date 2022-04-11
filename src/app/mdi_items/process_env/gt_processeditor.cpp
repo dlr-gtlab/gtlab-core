@@ -19,7 +19,7 @@
 #include "gt_tasklinkentity.h"
 #include "gt_taskentityshadow.h"
 //#include "gt_mdistate.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 
 GtProcessEditor::GtProcessEditor()
 {
@@ -52,8 +52,7 @@ GtProcessEditor::GtProcessEditor()
 
     // legend button
     m_showLegendButton = new QPushButton;
-    m_showLegendButton->setIcon(
-                gtApp->icon(QStringLiteral("infoBlueIcon_16.png")));
+    m_showLegendButton->setIcon(GtGUI::Icon::infoBlue16());
     m_showLegendButton->setMaximumSize(QSize(20, 20));
     m_showLegendButton->setFlat(true);
     m_showLegendButton->setCheckable(true);
@@ -62,8 +61,7 @@ GtProcessEditor::GtProcessEditor()
 
     // go back button
     QPushButton* goBackButton = new QPushButton;
-    goBackButton->setIcon(
-                gtApp->icon(QStringLiteral("arrowleftIcon.png")));
+    goBackButton->setIcon(GtGUI::Icon::arrowLeft());
     goBackButton->setMaximumSize(QSize(20, 20));
     goBackButton->setFlat(true);
     goBackButton->setToolTip(tr("Go Back"));
@@ -72,8 +70,7 @@ GtProcessEditor::GtProcessEditor()
 
     // go forward button
     QPushButton* goForwardButton = new QPushButton;
-    goForwardButton->setIcon(
-                gtApp->icon(QStringLiteral("arrowrightIcon.png")));
+    goForwardButton->setIcon(GtGUI::Icon::arrowRight());
     goForwardButton->setMaximumSize(QSize(20, 20));
     goForwardButton->setFlat(true);
     goForwardButton->setToolTip(tr("Go Farward"));
@@ -84,8 +81,7 @@ GtProcessEditor::GtProcessEditor()
 
     // temporary preview mode button
     QPushButton* previewButton = new QPushButton;
-    previewButton->setIcon(
-                gtApp->icon(QStringLiteral("resultsIcon_16.png")));
+    previewButton->setIcon(GtGUI::Icon::results16());
     previewButton->setMaximumSize(QSize(20, 20));
     previewButton->setFlat(true);
     previewButton->setToolTip(tr("Preview Mode"));
@@ -95,8 +91,7 @@ GtProcessEditor::GtProcessEditor()
 
     // show properties button
     m_showPropertiesButton = new QPushButton;
-    m_showPropertiesButton->setIcon(
-                gtApp->icon(QStringLiteral("minimizeIcons.png")));
+    m_showPropertiesButton->setIcon(GtGUI::Icon::minimize());
     m_showPropertiesButton->setMaximumSize(QSize(20, 20));
     m_showPropertiesButton->setFlat(true);
     m_showPropertiesButton->setCheckable(true);

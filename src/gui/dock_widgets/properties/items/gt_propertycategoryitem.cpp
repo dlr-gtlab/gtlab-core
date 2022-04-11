@@ -23,13 +23,14 @@
 #include "gt_filechooserproperty.h"
 #include "gt_propertyfilechooseritem.h"
 #include "gt_propertyitemfactory.h"
+#include "gt_icons.h"
 
 GtPropertyCategoryItem::GtPropertyCategoryItem(GtObject* scope,
                                                const QString& id,
                                                GtPropertyModel* model,
                                                GtObject* parent) :
     m_id(id),
-    m_icon(gtApp->icon(QStringLiteral("arrowrightIcon.png")))
+    m_icon(GtGUI::Icon::arrowRight())
 {
     setModel(model);
     setScope(scope);

@@ -16,7 +16,7 @@
 
 #include "gt_searchwidget.h"
 #include "gt_listview.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_project.h"
 #include "gt_mdilauncher.h"
 #include "gt_datamodel.h"
@@ -87,7 +87,7 @@ GtLabelsDock::GtLabelsDock() :
 
     // export button
     m_exportButton = new QPushButton;
-    m_exportButton->setIcon(gtApp->icon("exportIcon_16.png"));
+    m_exportButton->setIcon(GtGUI::Icon::export16());
     m_exportButton->setMaximumSize(QSize(20, 20));
     m_exportButton->setFlat(true);
     m_exportButton->setToolTip(tr("Export labels to file"));
@@ -98,7 +98,7 @@ GtLabelsDock::GtLabelsDock() :
 
     // import button
     m_importButton = new QPushButton;
-    m_importButton->setIcon(gtApp->icon("importIcon_16.png"));
+    m_importButton->setIcon(GtGUI::Icon::import16());
     m_importButton->setMaximumSize(QSize(20, 20));
     m_importButton->setFlat(true);
     m_importButton->setToolTip(tr("Import labels from file"));
@@ -109,7 +109,7 @@ GtLabelsDock::GtLabelsDock() :
 
     // add button
     m_addButton = new QPushButton;
-    m_addButton->setIcon(gtApp->icon("addIcon_16.png"));
+    m_addButton->setIcon(GtGUI::Icon::add16());
     m_addButton->setMaximumSize(QSize(20, 20));
     m_addButton->setFlat(true);
     m_addButton->setToolTip(tr("Add new label"));
@@ -214,7 +214,7 @@ GtLabelsDock::findUsages(const QModelIndex& index)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Find Usages"));
-        mb.setWindowIcon(gtApp->icon(QStringLiteral("infoIcon_16.png")));
+        mb.setWindowIcon(GtGUI::Icon::info16());
         mb.setText(QString(tr("No usages found") + QStringLiteral(" !")));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);
@@ -277,7 +277,7 @@ GtLabelsDock::deleteUsages(const QModelIndex& index, bool deleteLabel)
     QMessageBox mb;
     mb.setIcon(QMessageBox::Question);
     mb.setWindowTitle(tr("Delete Label"));
-    mb.setWindowIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    mb.setWindowIcon(GtGUI::Icon::delete16());
     mb.setText(msg);
     mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     mb.setDefaultButton(QMessageBox::Yes);
@@ -365,7 +365,7 @@ GtLabelsDock::deleteMultipleUsages(const QModelIndexList& indexes,
     QMessageBox mb;
     mb.setIcon(QMessageBox::Question);
     mb.setWindowTitle(tr("Delete selected Labels"));
-    mb.setWindowIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    mb.setWindowIcon(GtGUI::Icon::delete16());
     mb.setText(msg);
     mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     mb.setDefaultButton(QMessageBox::Yes);
@@ -511,20 +511,18 @@ GtLabelsDock::customContextMenu(const QPoint& pos)
         QMenu menu(this);
 
         QAction* actrename = menu.addAction(tr("Rename"));
-        actrename->setIcon(gtApp->icon(QStringLiteral("inputIcon_16.png")));
+        actrename->setIcon(GtGUI::Icon::input16());
 
         QAction* actfindusages = menu.addAction(tr("Find Usages"));
-        actfindusages->setIcon(
-                    gtApp->icon(QStringLiteral("resultsIcon_16.png")));
+        actfindusages->setIcon(GtGUI::Icon::results16());
 
         QAction* actdeleteusages = menu.addAction(tr("Delete Usages"));
-        actdeleteusages->setIcon(
-                    gtApp->icon(QStringLiteral("closeIcon_16.png")));
+        actdeleteusages->setIcon(GtGUI::Icon::delete16());
 
         menu.addSeparator();
 
         QAction* actdelete = menu.addAction(tr("Delete Label"));
-        actdelete->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+        actdelete->setIcon(GtGUI::Icon::delete16());
 
         QAction* a = menu.exec(QCursor::pos());
 
@@ -552,13 +550,12 @@ GtLabelsDock::customContextMenu(const QPoint& pos)
     QMenu menu(this);
 
     QAction* actdeleteusages = menu.addAction(tr("Delete Usages"));
-    actdeleteusages->setIcon(
-                gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    actdeleteusages->setIcon(GtGUI::Icon::delete16());
 
     menu.addSeparator();
 
     QAction* actdelete = menu.addAction(tr("Delete Labels"));
-    actdelete->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    actdelete->setIcon(GtGUI::Icon::delete16());
 
     QAction* a = menu.exec(QCursor::pos());
 

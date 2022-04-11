@@ -16,7 +16,8 @@
 
 #include "gt_processqueuemodel.h"
 #include "gt_processexecutor.h"
-#include "gt_application.h"
+#include "gt_icons.h"
+#include "gt_colors.h"
 #include "gt_task.h"
 #include "gt_stylesheets.h"
 
@@ -26,25 +27,25 @@ GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
 {
     setWindowTitle("GTlab - Process Queue");
 
-    setWindowIcon(gtApp->icon(QStringLiteral("processIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::process16());
 
     QFrame* frame = new QFrame;
     QVBoxLayout* frameLayout = new QVBoxLayout;
 
     m_upButton = new QPushButton(tr("Move Up"));
-    m_upButton->setIcon(gtApp->icon("arrowupIcon.png"));
+    m_upButton->setIcon(GtGUI::Icon::arrowUp());
     m_upButton->setToolTip(tr("Move up task"));
     QString styleSheet = GtStyleSheets::buttonStyleSheet();
 
     m_upButton->setStyleSheet(styleSheet);
 
     m_removeButton = new QPushButton(tr("Remove"));
-    m_removeButton->setIcon(gtApp->icon("closeIcon_16.png"));
+    m_removeButton->setIcon(GtGUI::Icon::delete16());
     m_removeButton->setToolTip(tr("Remove from queue"));
     m_removeButton->setStyleSheet(styleSheet);
 
     m_downButton = new QPushButton(tr("Move Down"));
-    m_downButton->setIcon(gtApp->icon("arrowdownIcon.png"));
+    m_downButton->setIcon(GtGUI::Icon::arrowDown());
     m_downButton->setToolTip(tr("Move down task"));
     m_downButton->setStyleSheet(styleSheet);
 
@@ -289,15 +290,15 @@ GtProcessQueueWidget::onContextMenuRequest(const QPoint& pos)
         QMenu menu(this);
 
         QAction* actMoveUp = menu.addAction("Move up");
-        actMoveUp->setIcon(gtApp->icon("arrowupIcon.png"));
+        actMoveUp->setIcon(GtGUI::Icon::arrowUp());
         menu.addSeparator();
 
         QAction* actMoveDown = menu.addAction("Move down");
-        actMoveDown->setIcon(gtApp->icon("arrowdownIcon.png"));
+        actMoveDown->setIcon(GtGUI::Icon::arrowDown());
         menu.addSeparator();
 
         QAction* actRemove = menu.addAction("Remove");
-        actRemove->setIcon(gtApp->icon("closeIcon_16.png"));
+        actRemove->setIcon(GtGUI::Icon::delete16());
 
         if (selection.row() == 1)
         {

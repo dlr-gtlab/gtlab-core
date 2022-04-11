@@ -19,9 +19,9 @@
 #include <QThread>
 #include <QSpinBox>
 
-#include "gt_application.h"
 #include "gt_accessmanager.h"
 #include "gt_abstractaccessdataconnection.h"
+#include "gt_icons.h"
 
 #include "gt_accessdatadialog.h"
 
@@ -32,7 +32,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     m_connectionMetaData(connection)
 {
     setWindowTitle(tr("Add Access Data"));
-    setWindowIcon(gtApp->icon(QStringLiteral("loginIcon_16.png")));
+    setWindowIcon(GtGUI::Icon::login16());
     setMaximumSize(QSize(350, 300));
 
     Qt::WindowFlags flags = windowFlags();
@@ -43,8 +43,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     lay->setContentsMargins(0, 0, 0, 0);
 
     QLabel* pixLabel = new QLabel;
-    QPixmap logo(QStringLiteral(":/pixmaps/accessLogo.png"));
-    pixLabel->setPixmap(logo);
+    pixLabel->setPixmap(GtGUI::Pixmap::accessLogo());
 
     lay->addWidget(pixLabel);
 
@@ -102,8 +101,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     btnLay->setContentsMargins(9, 9, 9, 9);
 
     m_testConnectionBtn = new QPushButton(tr("Test Connection"));
-    m_testConnectionBtn->setIcon(
-                gtApp->icon(QStringLiteral("connectionIcon_16.png")));
+    m_testConnectionBtn->setIcon(GtGUI::Icon::connection16());
 
     btnLay->addWidget(m_testConnectionBtn);
 
@@ -112,12 +110,12 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     btnLay->addSpacerItem(spacer);
 
     m_saveBtn = new QPushButton(tr("Save"));
-    m_saveBtn->setIcon(gtApp->icon(QStringLiteral("checkIcon_16.png")));
+    m_saveBtn->setIcon(GtGUI::Icon::check16());
 
     btnLay->addWidget(m_saveBtn);
 
     m_cancelBtn = new QPushButton(tr("Cancel"));
-    m_cancelBtn->setIcon(gtApp->icon(QStringLiteral("closeIcon_16.png")));
+    m_cancelBtn->setIcon(GtGUI::Icon::delete16());
 
     btnLay->addWidget(m_cancelBtn);
 

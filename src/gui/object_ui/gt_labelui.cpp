@@ -9,7 +9,7 @@
 
 #include <QIcon>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 
 #include "gt_labelui.h"
 
@@ -21,5 +21,5 @@ GtLabelUI::GtLabelUI()
 QIcon
 GtLabelUI::icon(GtObject* /*obj*/) const
 {
-    return gtApp->icon(QStringLiteral("labelsIcon.png"));
+    return GtGUI::Icon::labels();
 }

@@ -13,7 +13,7 @@
 #include "gt_customactionmenu.h"
 #include "gt_object.h"
 #include "gt_objectui.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_logging.h"
 
 GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
@@ -58,7 +58,7 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
         }
         else
         {
-            act = menu->addAction(gtApp->icon(a.icon()), a.text());
+            act = menu->addAction(GtGUI::icon(a.icon()), a.text());
         }
 
         // verification

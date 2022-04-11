@@ -13,7 +13,7 @@
 #include <QPushButton>
 #include <QHeaderView>
 
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_accessgroupmodel.h"
 #include "gt_accessgroup.h"
 #include "gt_accessdatadialog.h"
@@ -64,9 +64,7 @@ GtPreferencesAccess::GtPreferencesAccess()
 
         lay->addWidget(view);
 
-        QPushButton* btn = new QPushButton(
-                               gtApp->icon(QStringLiteral("addIcon_16.png")),
-                                           tr("Add"));
+        QPushButton* btn = new QPushButton(GtGUI::Icon::add16(), tr("Add"));
 
         connect(btn, SIGNAL(clicked(bool)), SLOT(addAccessData()));
         connect(view, SIGNAL(doubleClicked(QModelIndex)),

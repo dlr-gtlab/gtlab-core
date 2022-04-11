@@ -6,25 +6,39 @@
  *  Author: Jens Schmeink (AT-TW)
  *  Tel.: +49 2203 601 2191
  */
-
 #include "gt_palette.h"
+
+#include "gt_colors.h"
+#include "gt_application.h"
 
 #include <QSettings>
 #include <QWidget>
 #include <QStyleFactory>
 
 QPalette
-GtPalette::darkTheme()
+GtGUI::currentTheme()
+{
+    if (gtApp->inDarkMode())
+    {
+        return darkTheme();
+    }
+
+    return standardTheme();
+}
+
+QPalette
+GtGUI::darkTheme()
 {
     QPalette palette;
-    QColor darkColor = basicDarkColor();
-    QColor disabledColor = QColor(127,127,127);
+    QColor darkColor = Color::basicDark();
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    QColor disabledColor = QColor(127, 127, 127);
 
     palette.setColor(QPalette::Window, darkColor);
     palette.setColor(QPalette::Background, darkColor);
     palette.setColor(QPalette::WindowText, Qt::white);
     palette.setColor(QPalette::Base, darkColor); //QColor(18,18,18));
-    palette.setColor(QPalette::AlternateBase, darkColor);   
+    palette.setColor(QPalette::AlternateBase, darkColor);
     palette.setColor(QPalette::ToolTipBase, Qt::white);
     palette.setColor(QPalette::ToolTipText, Qt::white);
     palette.setColor(QPalette::Text, Qt::white);
@@ -33,7 +47,9 @@ GtPalette::darkTheme()
     palette.setColor(QPalette::ButtonText, Qt::white);
     palette.setColor(QPalette::Disabled, QPalette::ButtonText, disabledColor);
     palette.setColor(QPalette::BrightText, Qt::red);
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     palette.setColor(QPalette::Link, QColor(42, 130, 218));
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
     palette.setColor(QPalette::HighlightedText, Qt::black);
     palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
@@ -43,11 +59,13 @@ GtPalette::darkTheme()
 }
 
 QPalette
-GtPalette::standardTheme()
+GtGUI::standardTheme()
 {
     QPalette palette;
 
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     QColor mainColor = QColor(245, 245, 245);
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     QColor disabledColor = QColor(127, 127, 127);
 
     palette.setColor(QPalette::Window, mainColor);
@@ -62,7 +80,9 @@ GtPalette::standardTheme()
     palette.setColor(QPalette::ButtonText, Qt::black);
     palette.setColor(QPalette::Disabled, QPalette::ButtonText, disabledColor);
     palette.setColor(QPalette::BrightText, Qt::red);
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     palette.setColor(QPalette::Link, QColor(42, 130, 218));
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
     palette.setColor(QPalette::HighlightedText, Qt::black);
     palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
@@ -72,19 +92,19 @@ GtPalette::standardTheme()
 }
 
 void
-GtPalette::applyThemeToWidget(QWidget* w, bool dark)
+GtGUI::applyThemeToWidget(QWidget* w)
 {
-    if (dark)
+    if (gtApp->inDarkMode())
     {
         w->setStyle(QStyleFactory::create("Fusion"));
-        w->setPalette(GtPalette::darkTheme());
+        w->setPalette(GtGUI::darkTheme());
         w->setStyleSheet("QToolTip { color: #ffffff; "
                       "background-color: #2a82da; "
                       "border: 1px solid white; }");
     }
     else
     {
-        w->setPalette(GtPalette::standardTheme());
+        w->setPalette(GtGUI::standardTheme());
         QString style = "Default";
 #ifdef Q_OS_WIN
         style = "windowsvista";
@@ -94,10 +114,4 @@ GtPalette::applyThemeToWidget(QWidget* w, bool dark)
                       "background-color: white; "
                       "border: 1px solid black; }");
     }
-}
-
-QColor
-GtPalette::basicDarkColor()
-{
-    return QColor(45,45,45);
 }

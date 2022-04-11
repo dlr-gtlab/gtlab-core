@@ -14,7 +14,7 @@
 #include "gt_localcollectionmodel.h"
 #include "gt_collectionitem.h"
 #include "gt_collectionitemwidget.h"
-#include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_logging.h"
 
 #include "gt_localcollectionwidget.h"
@@ -155,7 +155,7 @@ GtLocalCollectionWidget::onCustomContextMenuRequested(const QPoint& /*pos*/)
     QMenu menu;
 
     QAction* deleteAction = menu.addAction(
-                gtApp->icon(QStringLiteral("closeIcon_16.png")),
+                GtGUI::Icon::delete16(),
                 tr("Uninstall"));
 
     QAction* a = menu.exec(QCursor::pos());

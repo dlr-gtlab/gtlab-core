@@ -13,6 +13,7 @@
 
 #include "gt_perspectiveswitchwidget.h"
 #include "gt_application.h"
+#include "gt_icons.h"
 #include "gt_logging.h"
 
 GtPerspectiveSwitchWidget::GtPerspectiveSwitchWidget(QWidget* parent) :
@@ -70,7 +71,7 @@ GtPerspectiveSwitchWidget::init()
         QFont font = item->font();
         font.setPointSize(12);
         item->setFont(font);
-        item->setIcon(gtApp->icon(QStringLiteral("perspectivesIcon_16.png")));
+        item->setIcon(GtGUI::Icon::perspectives16());
         m_list->addItem(item);
         item->setSizeHint(QSize(m_list->sizeHint().width(), 30));
         if (ids[i] == gtApp->perspectiveId())

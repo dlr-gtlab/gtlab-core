@@ -32,7 +32,7 @@
 #include "gt_project.h"
 #include "gt_logging.h"
 #include "gt_saveprojectmessagebox.h"
-#include "gt_palette.h"
+#include "gt_icons.h"
 #include "gt_shortcuts.h"
 #include "gt_projectui.h"
 
@@ -85,18 +85,9 @@ GtApplication::~GtApplication()
 }
 
 QIcon
-GtApplication::icon(QString iconPath)
+GtApplication::icon(QString const& iconPath)
 {
-    QIcon icon;
-    // check if icon is an absolute resource path
-    if (!iconPath.startsWith(":/"))
-    {
-        // preprend default resource path for icons
-        iconPath.prepend(QStringLiteral(":/icons/"));
-    }
-
-    icon.addFile(iconPath, QSize(), QIcon::Normal, QIcon::Off);
-    return icon;
+    return GtGUI::icon(iconPath);
 }
 
 void
@@ -463,7 +454,7 @@ GtApplication::switchSession(const QString& id)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Switch Session"));
-        mb.setWindowIcon(gtApp->icon("sessionIcon_16.png"));
+        mb.setWindowIcon(GtGUI::Icon::session16());
         mb.setText(tr("Cannot switch session while a task is running."));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);
@@ -496,9 +487,8 @@ GtApplication::propertyCommand(GtObject* obj, GtAbstractProperty* prop,
                                const QVariant& newValue, const QString& unit,
                                GtObject* root)
 {
-    GtPropertyChangeCommand* command = new GtPropertyChangeCommand(obj, prop,
-            newValue,
-            unit, root);
+    auto command = new GtPropertyChangeCommand(obj, prop, newValue,
+                                               unit, root);
     undoStack()->push(command);
 }
 
@@ -580,7 +570,7 @@ GtApplication::endCommand(const GtCommand& command)
 
     qDebug() << "######## COMMAND END! (" << m_d->m_commandId << ")";
 
-    GtSession* root =  m_d->m_commandRoot->findRoot<GtSession*>();
+    auto root =  m_d->m_commandRoot->findRoot<GtSession*>();
 
     if (!root)
     {
@@ -589,8 +579,8 @@ GtApplication::endCommand(const GtCommand& command)
         return;
     }
 
-    GtMementoChangeCommand* changeCommand =
-        new GtMementoChangeCommand(diff, m_d->m_commandId, root);
+    auto changeCommand = new GtMementoChangeCommand(diff, m_d->m_commandId,
+                                                    root);
     undoStack()->push(changeCommand);
 
     //    // cleanup
@@ -705,15 +695,20 @@ GtApplication::inDarkMode()
 void
 GtApplication::setDarkMode(bool dark, bool initial)
 {
+    bool oldMode = m_darkMode;
+
     m_darkMode = dark;
 
-    if (!initial)
+    if (oldMode != m_darkMode)
     {
-        gtInfo() << tr("Theme was changed.")
-                 << tr("For an optimal view of all displays, "
-                       "it is recommended to restart the application.");
+        if (!initial)
+        {
+            gtInfo() << tr("Theme was changed.")
+                     << tr("For an optimal view of all displays, "
+                           "it is recommended to restart the application.");
+        }
+        emit themeChanged(dark);
     }
-    emit themeChanged(dark);
 }
 
 bool
