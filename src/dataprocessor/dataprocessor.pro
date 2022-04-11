@@ -69,6 +69,7 @@ HEADERS += \
     gt_moduleinterface.h \
     gt_moduleloader.h \
     gt_package.h \
+    gt_platform.h \
     gt_table.h \
     gt_tablescalers.h \
     gt_tableparser.h \

@@ -12,8 +12,9 @@
 
 #include "gt_variant_convert.h"
 #include "gt_mpl.h"
+#include "gt_platform.h"
 
-#if __cplusplus < 201400
+#if CPP_STANDARD_VERSION < 201400
 #error "C++14 or better is required"
 #else
 
