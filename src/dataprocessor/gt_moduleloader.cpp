@@ -442,11 +442,11 @@ GtModuleLoader::checkDependency(const QVariantList& deps,
 
         if (depVersion < version)
         {
-            gtError() << QObject::tr("Loading ") << moduleFileName
-                      << QObject::tr(": dependecy -")
+            gtError() << QObject::tr("Loading")
+                      << moduleFileName + QObject::tr(": dependecy -")
                       << name << QObject::tr("- is outdated! (needed: >=")
-                      << version.toString() << QObject::tr(" ; current: ")
-                      << depVersion.toString();
+                      << version.toString() + QObject::tr("; current:")
+                      << depVersion.toString() + QStringLiteral(")");
             return false;
         }
         else if (depVersion > version)
