@@ -245,6 +245,14 @@ runProcessByFile(const QString& projectFile, const QString& processId,
     GtProjectProvider provider(projectFile);
     GtProject* project = provider.project();
 
+    if (!project)
+    {
+        gtError() << "Cannot load project";
+        return -1;
+    }   
+
+    gtApp->session()->appendChild(project);
+
     if (!gtDataModel->GtCoreDatamodel::openProject(project))
     {
         qWarning() << QStringLiteral("ERROR: ") <<
