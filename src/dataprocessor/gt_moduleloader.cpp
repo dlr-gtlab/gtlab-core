@@ -442,22 +442,25 @@ GtModuleLoader::checkDependency(const QVariantList& deps,
 
         if (depVersion < version)
         {
-            gtError() << QObject::tr("Loading")
-                      << moduleFileName + QObject::tr(": dependecy -")
-                      << name << QObject::tr("- is outdated! (needed: >=")
-                      << version.toString() + QObject::tr("; current:")
-                      << depVersion.toString() + QStringLiteral(")");
+            gtError().noquote() << QObject::tr("Loading")
+                    << moduleFileName + QStringLiteral(":");
+
+            gtError().noquote()
+                    << QObject::tr("Dependency -")
+                    << name << QObject::tr("- is outdated! (needed: >=")
+                    << version.toString() + QObject::tr("; current:")
+                    << depVersion.toString() + QStringLiteral(")");
             return false;
         }
         else if (depVersion > version)
         {
-            gtWarning() << QObject::tr("dependecy -") << name
-                        << QObject::tr("- has a newer version ")
-                        << QObject::tr("than the module ")
-                        << moduleFileName
-                        << QObject::tr("requires. (needed: >=")
-                        << version.toString() << QObject::tr(" ; current: ")
-                        << depVersion.toString() << ")";
+            gtInfo().noquote()
+                    << QObject::tr("Dependency -") << name
+                    << QObject::tr("- has a newer version than the module")
+                    << moduleFileName
+                    << QObject::tr("requires. (needed: >=")
+                    << version.toString() + QObject::tr("; current:")
+                    << depVersion.toString() + QStringLiteral(")");
         }
     }
 

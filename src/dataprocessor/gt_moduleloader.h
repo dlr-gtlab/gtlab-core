@@ -139,7 +139,15 @@ private:
 
     /**
      * @brief checkDependency
-     * @param deps list of dependencies
+     * The dependencies of the module are given by a list and are compared
+     * to the modules which are already loaded by the program
+     * If a needed dependecy is not loaded in as a plugin in the
+     * program the function will return false, else true.
+     * The function will also return false if the needed module is available
+     * but the version is older than defined in the dependency
+     *
+     * @param deps - Variantlist which contains a map of modules and
+     * their version which are needed for the current module to be valid
      * @param moduleFileName - name of file of the module
      * @return true if all dependencies are ok
      */
