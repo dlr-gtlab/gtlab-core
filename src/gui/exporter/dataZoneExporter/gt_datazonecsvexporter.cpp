@@ -10,14 +10,15 @@
 
 #include <QIcon>
 #include <QDateTime>
+#include <QFile>
+#include <QTextStream>
 
-#include "gt_application.h"
+#include "gt_coreapplication.h"
 #include "gt_project.h"
 #include "gt_logging.h"
 #include "gt_datazone.h"
 #include "gt_datazone0d.h"
 #include "gt_icons.h"
-#include "gt_externalizedobjecthelper.h"
 
 GtDataZoneCsvExporter::GtDataZoneCsvExporter()
 {
@@ -41,12 +42,19 @@ bool
 GtDataZoneCsvExporter::doExport(GtObject* object, QFile& file)
 {
     // fetch datazone for the duration of this function call
-    GtExternalizedObjectHelper<GtAbstractDataZone> data
-            (object, GtExternalizedObject::Discard);
+    auto* adz = qobject_cast<GtAbstractDataZone*>(object);
+
+    if (adz == nullptr)
+    {
+        gtError() << tr("Data corrupted!");
+        return false;
+    }
+
+    auto data = adz->fetchData();
 
     if (!data.isValid())
     {
-        gtError() << tr("Data corrupted!");
+        gtError() << tr("Invalid data!");
         return false;
     }
 
@@ -56,28 +64,14 @@ GtDataZoneCsvExporter::doExport(GtObject* object, QFile& file)
         return false;
     }
 
-    GtDataZone0D* dataZone0D = qobject_cast<GtDataZone0D*>(data.get());
-    if (dataZone0D)
+    if (auto* dataZone0D = qobject_cast<GtDataZone0D*>(adz))
     {
-        if (!write0Ddata(dataZone0D, file))
-        {
-            return false;
-        }
-
-        file.close();
-        return true;
+        return write0Ddata(*dataZone0D, file);
     }
 
-    GtDataZone* dataZone = qobject_cast<GtDataZone*>(data.get());
-    if (dataZone)
+    if (auto* dataZone = qobject_cast<GtDataZone*>(adz))
     {
-        if (!writeMultiDimData(dataZone, file))
-        {
-            return false;
-        }
-
-        file.close();
-        return true;
+        return writeMultiDimData(*dataZone, file);
     }
 
     return false;
@@ -100,27 +94,29 @@ GtDataZoneCsvExporter::pages(GtObject* data)
 }
 
 bool
-GtDataZoneCsvExporter::write0Ddata(GtDataZone0D* data, QFile& file)
+GtDataZoneCsvExporter::write0Ddata(GtDataZone0D& dataZone, QFile& file)
 {
-    if (!data)
+    auto data{dataZone.fetchData()};
+
+    if (!data.isValid())
     {
         return false;
     }
 
     QTextStream out(&file);
 
-    if (!writeHeaderLine(out, data))
+    if (!writeHeaderLine(dataZone, data, out))
     {
         return false;
     }
 
-    for (const QString& param : data->params())
+    for (const QString& param : data.params())
     {
         out << QStringLiteral("\"")
             << param << QStringLiteral("\";")
             << QStringLiteral("\"")
-            << data->unit(param) << QStringLiteral("\";")
-            << QString::number(data->value(param)) << QStringLiteral(";")
+            << data.unit(param) << QStringLiteral("\";")
+            << QString::number(data.value(param)) << QStringLiteral(";")
             << QStringLiteral("\n");
     }
 
@@ -128,62 +124,58 @@ GtDataZoneCsvExporter::write0Ddata(GtDataZone0D* data, QFile& file)
 }
 
 bool
-GtDataZoneCsvExporter::writeMultiDimData(GtDataZone* data, QFile& file)
+GtDataZoneCsvExporter::writeMultiDimData(GtDataZone& dataZone, QFile& file)
 {
-    if (!data)
+    auto data{dataZone.fetchData()};
+
+    if (!data.isValid())
     {
         return false;
     }
 
-    if (data->nDims() == 0)
+    if (dataZone.nDims() == 0)
     {
         return false;
     }
 
     QTextStream out(&file);
 
-    if (!writeHeaderLine(out, data))
+    if (!writeHeaderLine(dataZone, data, out))
     {
         return false;
     }
 
-    switch (data->nDims())
+    switch (dataZone.nDims())
     {
         case 1:
-            return write1Ddata(data, out);
+            return write1Ddata(dataZone, data, out);
         case 2:
-            return write2Ddata(data, out);
+            return write2Ddata(dataZone, data, out);
         case 3:
-            return write3Ddata(data, out);
+            return write3Ddata(dataZone, data, out);
         case 4:
-            return write4Ddata(data, out);
+            return write4Ddata(dataZone, data, out);
         default:
-            gtError() << "Dimension of data zone not supported "
-                         "for .csv export!";
+            gtError() << "Dimension of data zone not supported for .csv export!";
+            return false;
     }
-
-    return false;
 }
 
 bool
-GtDataZoneCsvExporter::write1Ddata(GtDataZone* data, QTextStream& out)
+GtDataZoneCsvExporter::write1Ddata(const GtDataZone& dataZone,
+                                   const GtDataZone::Data &data,
+                                   QTextStream& out)
 {
-    if (!data)
-    {
-        gtDebug() << "Ivalid data zone pointer!";
-        return false;
-    }
-
-    if (data->nDims() != 1)
+    if (dataZone.nDims() != 1)
     {
         gtDebug() << "Data zone dimension in unequal to 1!";
         return false;
     }
 
-    auto axisNames = data->axisNames();
-    QString axisName = axisNames.first();
+    auto axisNames = dataZone.axisNames();
+    const auto& axisName = axisNames.first();
     QVector<double> ticks;
-    data->axisTicks(axisName, ticks);
+    dataZone.axisTicks(axisName, ticks);
 
     out << QStringLiteral("\"") << axisName << QStringLiteral("\";");
     out << QStringLiteral("\"") << "-" << QStringLiteral("\";");
@@ -195,17 +187,17 @@ GtDataZoneCsvExporter::write1Ddata(GtDataZone* data, QTextStream& out)
 
     out << QStringLiteral("\n");
 
-    for (const QString& param : data->params())
+    for (const QString& param : data.params())
     {
         out << QStringLiteral("\"")
             << param << QStringLiteral("\";");
 
         out <<  QStringLiteral("\"")
-             << data->unit(param) << QStringLiteral("\";");
+             << data.unit(param) << QStringLiteral("\";");
 
         for (const double& tick : qAsConst(ticks))
         {
-            out << QString::number(data->value1D(param, tick))
+            out << QString::number(data.value1D(param, tick))
                 << QStringLiteral(";");
         }
 
@@ -216,26 +208,22 @@ GtDataZoneCsvExporter::write1Ddata(GtDataZone* data, QTextStream& out)
 }
 
 bool
-GtDataZoneCsvExporter::write2Ddata(GtDataZone* data, QTextStream& out)
+GtDataZoneCsvExporter::write2Ddata(const GtDataZone& dataZone,
+                                   const GtDataZone::Data& data,
+                                   QTextStream& out)
 {
-    if (!data)
-    {
-        gtDebug() << "Ivalid data zone pointer!";
-        return false;
-    }
-
-    if (data->nDims() != 2)
+    if (dataZone.nDims() != 2)
     {
         gtDebug() << "Data zone dimension in unequal to 2!";
         return false;
     }
 
-    auto axisNames = data->axisNames();
-    QString axisName1 = axisNames.first();
-    QString axisName2 = axisNames.last();
+    auto axisNames = dataZone.axisNames();
+    const auto& axisName1 = axisNames.first();
+    const auto& axisName2 = axisNames.last();
 
-    QVector<double> axis1Ticks = data->axisTicks(axisName1);
-    QVector<double> axis2Ticks = data->axisTicks(axisName2);
+    QVector<double> axis1Ticks = dataZone.axisTicks(axisName1);
+    QVector<double> axis2Ticks = dataZone.axisTicks(axisName2);
 
     QString axis1Line;
     QString axis2Line;
@@ -261,19 +249,19 @@ GtDataZoneCsvExporter::write2Ddata(GtDataZone* data, QTextStream& out)
     out << axis1Line << QStringLiteral("\n");
     out << axis2Line << QStringLiteral("\n");
 
-    for (const QString& param : data->params())
+    for (const QString& param : data.params())
     {
         out << QStringLiteral("\"")
             << param << QStringLiteral("\";");
 
         out <<  QStringLiteral("\"")
-             << data->unit(param) << QStringLiteral("\";");
+             << data.unit(param) << QStringLiteral("\";");
 
         for (const double& tick1 : qAsConst(axis1Ticks))
         {
             for (const double& tick2 : qAsConst(axis2Ticks))
             {
-                out << QString::number(data->value2D(param, tick1, tick2))
+                out << QString::number(data.value2D(param, tick1, tick2))
                     << QStringLiteral(";");
             }
         }
@@ -285,28 +273,24 @@ GtDataZoneCsvExporter::write2Ddata(GtDataZone* data, QTextStream& out)
 }
 
 bool
-GtDataZoneCsvExporter::write3Ddata(GtDataZone* data, QTextStream& out)
+GtDataZoneCsvExporter::write3Ddata(const GtDataZone& dataZone,
+                                   const GtDataZone::Data& data,
+                                   QTextStream& out)
 {
-    if (!data)
-    {
-        gtDebug() << "Ivalid data zone pointer!";
-        return false;
-    }
-
-    if (data->nDims() != 3)
+    if (dataZone.nDims() != 3)
     {
         gtDebug() << "Data zone dimension in unequal to 3!";
         return false;
     }
 
-    auto axisNames = data->axisNames();
-    QString axisName1 = axisNames.first();
-    QString axisName2 = axisNames.at(1);
-    QString axisName3 = axisNames.last();
+    auto axisNames = dataZone.axisNames();
+    const auto& axisName1 = axisNames.first();
+    const auto& axisName2 = axisNames.at(1);
+    const auto& axisName3 = axisNames.last();
 
-    QVector<double> axis1Ticks = data->axisTicks(axisName1);
-    QVector<double> axis2Ticks = data->axisTicks(axisName2);
-    QVector<double> axis3Ticks = data->axisTicks(axisName3);
+    QVector<double> axis1Ticks = dataZone.axisTicks(axisName1);
+    QVector<double> axis2Ticks = dataZone.axisTicks(axisName2);
+    QVector<double> axis3Ticks = dataZone.axisTicks(axisName3);
 
     QString axis1Line;
     QString axis2Line;
@@ -343,13 +327,13 @@ GtDataZoneCsvExporter::write3Ddata(GtDataZone* data, QTextStream& out)
     out << axis2Line << QStringLiteral("\n");
     out << axis3Line << QStringLiteral("\n");
 
-    for (const QString& param : data->params())
+    for (const QString& param : data.params())
     {
         out << QStringLiteral("\"")
             << param << QStringLiteral("\";");
 
         out <<  QStringLiteral("\"")
-             << data->unit(param) << QStringLiteral("\";");
+             << data.unit(param) << QStringLiteral("\";");
 
         for (const double& tick1 : qAsConst(axis1Ticks))
         {
@@ -357,8 +341,8 @@ GtDataZoneCsvExporter::write3Ddata(GtDataZone* data, QTextStream& out)
             {
                 for (const double& tick3 : qAsConst(axis3Ticks))
                 {
-                    out << QString::number(data->value3D(param,
-                                                         tick1, tick2, tick3))
+                    out << QString::number(data.value3D(param, tick1,
+                                                        tick2, tick3))
                         << QStringLiteral(";");
                 }
             }
@@ -371,30 +355,26 @@ GtDataZoneCsvExporter::write3Ddata(GtDataZone* data, QTextStream& out)
 }
 
 bool
-GtDataZoneCsvExporter::write4Ddata(GtDataZone* data, QTextStream &out)
+GtDataZoneCsvExporter::write4Ddata(const GtDataZone& dataZone,
+                                   const GtDataZone::Data& data,
+                                   QTextStream& out)
 {
-    if (!data)
-    {
-        gtDebug() << "Ivalid data zone pointer!";
-        return false;
-    }
-
-    if (data->nDims() != 4)
+    if (dataZone.nDims() != 4)
     {
         gtDebug() << "Data zone dimension in unequal to 1!";
         return false;
     }
 
-    const auto axisNames = data->axisNames();
-    QString const& axisName1 = axisNames.first();
-    QString const& axisName2 = axisNames.at(1);
-    QString const& axisName3 = axisNames.at(2);
-    QString const& axisName4 = axisNames.last();
+    auto axisNames = dataZone.axisNames();
+    const auto& axisName1 = axisNames.first();
+    const auto& axisName2 = axisNames.at(1);
+    const auto& axisName3 = axisNames.at(2);
+    const auto& axisName4 = axisNames.last();
 
-    QVector<double> axis1Ticks = data->axisTicks(axisName1);
-    QVector<double> axis2Ticks = data->axisTicks(axisName2);
-    QVector<double> axis3Ticks = data->axisTicks(axisName3);
-    QVector<double> axis4Ticks = data->axisTicks(axisName4);
+    QVector<double> axis1Ticks = dataZone.axisTicks(axisName1);
+    QVector<double> axis2Ticks = dataZone.axisTicks(axisName2);
+    QVector<double> axis3Ticks = dataZone.axisTicks(axisName3);
+    QVector<double> axis4Ticks = dataZone.axisTicks(axisName4);
 
     QString axis1Line;
     QString axis2Line;
@@ -442,13 +422,13 @@ GtDataZoneCsvExporter::write4Ddata(GtDataZone* data, QTextStream &out)
     out << axis3Line << QStringLiteral("\n");
     out << axis4Line << QStringLiteral("\n");
 
-    for (const QString& param : data->params())
+    for (const QString& param : data.params())
     {
         out << QStringLiteral("\"")
             << param << QStringLiteral("\";");
 
         out <<  QStringLiteral("\"")
-             << data->unit(param) << QStringLiteral("\";");
+             << data.unit(param) << QStringLiteral("\";");
 
         for (const double& tick1 : qAsConst(axis1Ticks))
         {
@@ -458,9 +438,9 @@ GtDataZoneCsvExporter::write4Ddata(GtDataZone* data, QTextStream &out)
                 {
                     for (const double& tick4 : qAsConst(axis4Ticks))
                     {
-                        out << QString::number(data->value4D(param, tick1,
-                                                             tick2, tick3,
-                                                             tick4))
+                        out << QString::number(data.value4D(param, tick1,
+                                                            tick2, tick3,
+                                                            tick4))
                             << QStringLiteral(";");
                     }
                 }
@@ -474,24 +454,30 @@ GtDataZoneCsvExporter::write4Ddata(GtDataZone* data, QTextStream &out)
 }
 
 bool
-GtDataZoneCsvExporter::writeHeaderLine(QTextStream& out,
-                                       GtAbstractDataZone* dataZone)
+GtDataZoneCsvExporter::writeHeaderLine(const GtAbstractDataZone& dataZone,
+                                       const GtAbstractDataZone::Data& data,
+                                       QTextStream& out)
 {
-    if (!dataZone)
+    if (!data.isValid())
     {
         return false;
     }
 
-    int nParams = dataZone->params().size();
+    int nParams = data.params().size();
 
     QDateTime now = QDateTime::currentDateTime();
     QString nowStr = now.toString("yyyyMMdd-hh:mm:ss");
 
-    writeHeaderLineHelper(out, "DataZone", dataZone->objectName(),
+    writeHeaderLineHelper(out, "DataZone", dataZone.objectName(),
                           nParams);
-    writeHeaderLineHelper(out, "UUID", dataZone->uuid(),
+    writeHeaderLineHelper(out, "UUID", dataZone.uuid(),
                           nParams);
-    writeHeaderLineHelper(out, "Project", gtApp->currentProject()->objectName(),
+    QString projectName{};
+    if (gtApp && gtApp->currentProject())
+    {
+        projectName = gtApp->currentProject()->objectName();
+    }
+    writeHeaderLineHelper(out, "Project", projectName,
                           nParams);
     writeHeaderLineHelper(out, "Export Time", nowStr,
                           nParams);
@@ -502,8 +488,10 @@ GtDataZoneCsvExporter::writeHeaderLine(QTextStream& out,
 }
 
 void
-GtDataZoneCsvExporter::writeHeaderLineHelper(
-        QTextStream& out, const QString &p, const QString& v, int nParams)
+GtDataZoneCsvExporter::writeHeaderLineHelper(QTextStream& out,
+                                             const QString& p,
+                                             const QString& v,
+                                             int nParams)
 {
     out << QStringLiteral("\"") << p << QStringLiteral("\";\"") << v <<
            QStringLiteral("\";");

@@ -108,7 +108,7 @@ signals:
      * @brief valueChanged
      */
     void valueChanged(GtState*);
-    void valueChanged(QVariant);
+    void valueChanged(const QVariant&);
 
     /**
      * @brief renamed

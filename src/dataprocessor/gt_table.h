@@ -22,7 +22,6 @@
 class GT_DATAMODEL_EXPORT GtTable : public GtObject
 {
     Q_OBJECT
-    Q_ENUMS(GridType)
 
     Q_PROPERTY(QString unit READ getUnit WRITE setUnit)
     Q_PROPERTY(QString description READ getDescription WRITE setDescription)
@@ -41,6 +40,7 @@ public:
         DEFAULT = 0,
         GRIDLESS = 1
     };
+    Q_ENUM(GridType)
 
     /** Adds an axis represented by a vector containing its ticks in ascending
         order to the table.

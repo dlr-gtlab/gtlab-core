@@ -23,7 +23,7 @@ public:
         doubleList = new GtDoubleListProperty("doubleList", "Double List");
 
         registerProperty(*doubleList);
-    };
+    }
 
     QVector<double> getDoubleList() const
     {

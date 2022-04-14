@@ -13,6 +13,7 @@
 #define gtTestHelper (GtTestHelper::instance())
 
 #include <QVector>
+#include <QRandomGenerator>
 
 class QDir;
 class QString;
@@ -30,18 +31,55 @@ public:
     QDir newTempDir();
 
     /**
-     * @brief randomStringList generates a random string list (uuids)
+     * @brief generates a random string list (uuids)
      * @param length length of the list
      * @return list
      */
     QStringList randomStringList(int length);
 
     /**
-     * @brief randomStringList generates a random doubles
+     * @brief generates a random data vector
+     * @tparam T type
      * @param length length of the list
      * @return list
      */
-    QVector<double> randomDataVector(int length);
+    template<typename T = double>
+    QVector<T> randomDataVector(int length)
+    {
+        QVector<T> retVal;
+        retVal.reserve(length);
+
+        for (int i = 0; i < length; ++i)
+        {
+            retVal.append(static_cast<T>(
+                              QRandomGenerator::global()->generateDouble()));
+        }
+
+        return retVal;
+    }
+
+    /**
+     * @brief generates a linear data vector
+     * @tparam T type
+     * @param length length of the list
+     * @return list
+     */
+    template<typename T = double>
+    QVector<T> linearDataVector(int length, T start, T step)
+    {
+        QVector<T> retVal;
+        retVal.reserve(length);
+
+        T value = start;
+        for (int i = 0; i < length; ++i)
+        {
+            retVal.append(value);
+            value += step;
+        }
+
+        return retVal;
+    }
+
 
     ~GtTestHelper();
 

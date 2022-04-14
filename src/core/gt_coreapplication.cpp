@@ -39,7 +39,7 @@
 
 #include "QsLogDest.h"
 
-GtCoreApplication* GtCoreApplication::m_self = 0;
+GtCoreApplication* GtCoreApplication::m_self = nullptr;
 int GtCoreApplication::m_major = GT_VERSION_MAJOR;
 int GtCoreApplication::m_minor = GT_VERSION_MINOR;
 int GtCoreApplication::m_patchLevel = GT_VERSION_PATCH;
@@ -62,6 +62,12 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
 
     //    qDebug() << "GtCoreApplication";
     //    init();
+}
+
+GtCoreApplication::~GtCoreApplication()
+{
+    // clear self ptr -> no dangling ptr
+    m_self = nullptr;
 }
 
 QString
@@ -821,8 +827,6 @@ QStringList& GtCoreApplication::sessionIds()
 
     return m_sessionIds;
 }
-
-GtCoreApplication::~GtCoreApplication() = default;
 
 GtCoreApplication*
 GtCoreApplication::instance()

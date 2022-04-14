@@ -14,9 +14,7 @@
 
 class QLabel;
 class GtDataZoneModel;
-class GtDataZoneModel1D;
 class QComboBox;
-class GtDataZone;
 
 /**
  * @brief The GtResultViewer class

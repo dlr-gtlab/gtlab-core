@@ -483,37 +483,35 @@ GtApplication::undoStack()
 }
 
 void
-GtApplication::propertyCommand(GtObject* obj, GtAbstractProperty* prop,
-                               const QVariant& newValue, const QString& unit,
+GtApplication::propertyCommand(GtObject* obj,
+                               GtAbstractProperty* prop,
+                               const QVariant& newValue,
+                               const QString& unit,
                                GtObject* root)
 {
-    auto command = new GtPropertyChangeCommand(obj, prop, newValue,
-                                               unit, root);
-    undoStack()->push(command);
+    auto* cmd = new GtPropertyChangeCommand(obj, prop, newValue, unit, root);
+    undoStack()->push(cmd);
 }
 
 GtCommand
 GtApplication::startCommand(GtObject* root, const QString& commandId)
 {
-    m_commandMutex.lock();
+    QMutexLocker locker(&m_commandMutex);
 
     if (!root)
     {
-        m_commandMutex.unlock();
         qDebug() << tr("root object == NULL!");
         return GtCommand();
     }
 
     if (commandId.isEmpty())
     {
-        m_commandMutex.unlock();
         qDebug() << tr("cannot start comamnd with empty id!");
         return GtCommand();
     }
 
     if (!m_d->m_commandId.isEmpty())
     {
-        m_commandMutex.unlock();
         gtDebug() << tr("already recording command") << QStringLiteral("...");
         gtDebug() << QStringLiteral("    |-> ") << m_d->m_commandId;
         return GtCommand();
@@ -524,8 +522,6 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
     m_d->m_commandId = commandId;
     m_d->m_commandUuid = QUuid::createUuid().toString();
 
-    m_commandMutex.unlock();
-
     qDebug() << "######## COMMAND STARTED! (" << m_d->m_commandId << ")";
 
     return generateCommand(m_d->m_commandUuid);
@@ -534,32 +530,28 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
 void
 GtApplication::endCommand(const GtCommand& command)
 {
-    m_commandMutex.lock();
+    QMutexLocker locker(&m_commandMutex);
 
     if (m_d->m_commandUuid.isEmpty())
     {
-        m_commandMutex.unlock();
         qDebug() << tr("command uuid is empty!");
         return;
     }
 
     if (!command.isValid())
     {
-        m_commandMutex.unlock();
         qDebug() << tr("command is invlid!");
         return;
     }
 
     if (m_d->m_commandUuid != command.id())
     {
-        m_commandMutex.unlock();
         qDebug() << tr("wrong command uuid!");
         return;
     }
 
     if (!m_d->m_commandRoot)
     {
-        m_commandMutex.unlock();
         qDebug() << tr("invlid command root!");
         return;
     }
@@ -570,38 +562,31 @@ GtApplication::endCommand(const GtCommand& command)
 
     qDebug() << "######## COMMAND END! (" << m_d->m_commandId << ")";
 
-    auto root =  m_d->m_commandRoot->findRoot<GtSession*>();
-
+    auto* root =  m_d->m_commandRoot->findRoot<GtSession*>();
     if (!root)
     {
-        m_commandMutex.unlock();
         qDebug() << tr("no root object found!");
         return;
     }
 
-    auto changeCommand = new GtMementoChangeCommand(diff, m_d->m_commandId,
-                                                    root);
-    undoStack()->push(changeCommand);
+    auto* changeCmd = new GtMementoChangeCommand(diff, m_d->m_commandId, root);
+    undoStack()->push(changeCmd);
 
     //    // cleanup
     m_d->m_commandRoot = nullptr;
     m_d->m_commandId = QString();
-
-    m_commandMutex.unlock();
 }
 
 bool
 GtApplication::commandIsRunning()
 {
-    m_commandMutex.lock();
+    QMutexLocker locker(&m_commandMutex);
 
     if (m_d->m_commandRoot)
     {
-        m_commandMutex.unlock();
         return true;
     }
 
-    m_commandMutex.unlock();
     return false;
 }
 

@@ -9,12 +9,8 @@
 
 #include "gt_datazone0d.h"
 #include "gt_logging.h"
+#include "gt_h5externalizehelper.h"
 
-#if GT_H5
-#include "gt_h5file.h"
-#include "gt_h5dataset.h"
-#include "gt_h5compounddata.h"
-#endif
 
 GtDataZone0D::GtDataZone0D()
 {
@@ -22,66 +18,33 @@ GtDataZone0D::GtDataZone0D()
 }
 
 bool
-GtDataZone0D::doFetchData()
+GtDataZone0D::doFetchData(QVariant& metaData, bool fetchInitialVersion)
 {
-#if GT_H5
-    // open the associated dataset
-    GtH5File file;
-    GtH5DataSet dataset;
-    if (!getDataSet(file, dataset))
-    {
-        gtError() << "HDF5: Could not open the dataset!";
-        return false;
-    }
-
-    // read the data from the dataset
+#ifdef GT_H5
     GtH5Data<QString, QString, double> data;
 
-    if (!dataset.read(data))
+    GtH5ExternalizeHelper h5Worker{*this};
+
+    if (!h5Worker.read(data, metaData, fetchInitialVersion))
     {
-        gtError() << "HDF5: Could not read from the dataset!";
         return false;
     }
 
-    // deserialize the data
     data.deserialize(m_params, m_units, m_values);
-
-    return isValid();
-#else
-    return true;
 #endif
+    return true;
 }
 
 bool
-GtDataZone0D::doExternalizeData()
+GtDataZone0D::doExternalizeData(QVariant& metaData)
 {
-#if GT_H5
+#ifdef GT_H5
     // serialize the data
-    GtH5Data<QString, QString, double> data(m_params, m_units, m_values);
+    GtH5Data<QString, QString, double> data{m_params, m_units, m_values};
 
-    if (data.isEmpty())
-    {
-        gtError() << "HDF5: Could not write to the dataset! (data is empty)";
-        return false;
-    }
+    GtH5ExternalizeHelper h5Worker{*this};
 
-    // open the associated dataset
-    GtH5File file;
-    GtH5DataSet dataset;
-    if (!createDataSet(file, dataset, data, m_params.length()))
-    {
-        gtError() << "HDF5: Could not open the dataset!";
-        return false;
-    }
-
-    // write the data to the dataset
-    if (!dataset.write(data))
-    {
-        gtError() << "HDF5: Could not write to the dataset!";
-        return false;
-    }
-
-    return true;
+    return h5Worker.write(data, metaData);
 #else
     return true;
 #endif
@@ -90,50 +53,11 @@ GtDataZone0D::doExternalizeData()
 void
 GtDataZone0D::doClearExternalizedData()
 {
+#ifdef GT_H5
     m_params.clear();
     m_values.clear();
     m_units.clear();
-}
-
-void
-GtDataZone0D::clearData()
-{
-    m_params.clear();
-    m_values.clear();
-    m_units.clear();
-
-    changed();
-}
-
-bool
-GtDataZone0D::appendData(const QString& name, const QString& unit,
-                         const double& val)
-{
-    if (name.isEmpty())
-    {
-        gtWarning() << tr("could not append data!") << QStringLiteral(" ")
-                    << tr("empty parameter name");
-
-        return false;
-    }
-
-    if (m_params.contains(name))
-    {
-        gtWarning() << tr("could not append data!") << QStringLiteral(" ")
-                    << tr("parameter name already exists");
-
-        return false;
-    }
-
-    m_params.append(name);
-    m_units.append(unit);
-    m_values.append(val);
-
-    isValid();
-
-    changed();
-
-    return true;
+#endif
 }
 
 bool
@@ -148,60 +72,74 @@ GtDataZone0D::nDims() const
     return 0;
 }
 
-void
-GtDataZone0D::addModuleName(const QString& moduleName)
+GtDataZone0DData::GtDataZone0DData(GtDataZone0D* base) :
+    GtAbstractDataZoneData(base)
 {
-    if (moduleName == "")
-    {
-        return;
-    }
 
-    QStringList newParamNames;
-
-    foreach (const QString& param, params())
-    {
-        newParamNames.append(moduleName + "." + param);
-    }
-
-    m_params = newParamNames;
-}
-
-QVector<double>
-GtDataZone0D::values() const
-{
-    return m_values;
 }
 
 void
-GtDataZone0D::setValues(const QVector<double>& values)
+GtDataZone0DData::clearData()
 {
-    m_values.clear();
-    m_values = values;
-    changed();
-}
+    Q_ASSERT(m_base != nullptr);
 
-QString
-GtDataZone0D::unit(const QString& param) const
-{
-    int index = m_params.indexOf(param);
-
-    if (index == -1)
-    {
-        gtDebug() << tr("Param ") << param
-                  << tr(" could not be found in 0D data, "
-                        "no unit can be shown");
-        return QString();
-    }
-
-    return m_units.at(index);
+    base()->doClearExternalizedData();
+    base()->changed();
 }
 
 bool
-GtDataZone0D::setData(const QStringList& paramNames,
-                      const QVector<double>& values,
-                      const QStringList& units)
+GtDataZone0DData::appendData(const QString& name,
+                               const QString& unit,
+                               const double& val)
 {
-    clearData();
+    Q_ASSERT(m_base != nullptr);
+
+    if (name.isEmpty())
+    {
+        gtWarning() << QObject::tr("could not append data!")
+                    << QObject::tr("empty parameter name");
+
+        return false;
+    }
+
+    if (base()->m_params.contains(name))
+    {
+        gtWarning() << QObject::tr("could not append data!")
+                    << QObject::tr("parameter name already exists");
+
+        return false;
+    }
+
+    base()->m_params.append(name);
+    base()->m_units.append(unit);
+    base()->m_values.append(val);
+
+    base()->changed();
+
+    return isValid();
+}
+
+const QVector<double>&
+GtDataZone0DData::values() const
+{
+    Q_ASSERT(m_base != nullptr);
+    return base()->m_values;
+}
+
+void
+GtDataZone0DData::setValues(const QVector<double>& values)
+{
+    Q_ASSERT(m_base != nullptr);
+    base()->m_values = values;
+    base()->changed();
+}
+
+bool
+GtDataZone0DData::setData(const QStringList& paramNames,
+                          const QVector<double>& values,
+                          const QStringList& units)
+{
+    Q_ASSERT(m_base != nullptr);
 
     if (paramNames.size() != values.size())
     {
@@ -226,62 +164,59 @@ GtDataZone0D::setData(const QStringList& paramNames,
         return false;
     }
 
-    m_params = paramNames;
+    base()->m_params = paramNames;
+    base()->m_values = values;
+    base()->m_units = units;
 
-    m_values = values;
+    base()->changed();
 
-    m_units = units;
-
-    isValid();
-
-    changed();
-
-    return true;
+    return isValid();
 }
 
 // TODO check if unit of paramName is the same as the one in m_units(paramName)
 bool
-GtDataZone0D::setValue(const QString& paramName, const double& value)
+GtDataZone0DData::setValue(const QString& paramName, const double& value)
 {
-    int index = m_params.indexOf(paramName);
+    Q_ASSERT(m_base != nullptr);
 
-    if (index == -1 || m_params.size() != m_values.size())
+    int index = base()->m_params.indexOf(paramName);
+
+    if (index == -1 || base()->m_params.size() != base()->m_values.size())
     {
         return false;
     }
 
-    m_values[index] = value;
+    base()->m_values[index] = value;
 
-    changed();
+    base()->changed();
 
     return true;
 }
 
 bool
-GtDataZone0D::appendData(const QString& paramName, const double& value)
+GtDataZone0DData::appendData(const QString& paramName, const double& value)
 {
-    if (paramName.isEmpty())
+    Q_ASSERT(m_base != nullptr);
+
+    if (paramName.isEmpty() || base()->m_params.contains(paramName))
     {
         return false;
     }
 
-    if (m_params.contains(paramName) || m_params.size() != m_values.size())
-    {
-        return false;
-    }
+    base()->m_params.append(paramName);
+    base()->m_values.append(value);
 
-    m_params.append(paramName);
-    m_values.append(value);
-
-    changed();
+    base()->changed();
 
     return true;
 }
 
 bool
-GtDataZone0D::appendData(const QList<QString>& paramNames,
-                         const QVector<double>& values)
+GtDataZone0DData::appendData(const QList<QString>& paramNames,
+                             const QVector<double>& values)
 {
+    Q_ASSERT(m_base != nullptr);
+
     if (paramNames.isEmpty() || values.isEmpty())
     {
         return false;
@@ -300,52 +235,50 @@ GtDataZone0D::appendData(const QList<QString>& paramNames,
         }
     }
 
-    changed();
+    base()->changed();
 
     return true;
 }
 
 double
-GtDataZone0D::value(const QString &paramName, bool* ok) const
+GtDataZone0DData::value(const QString& paramName, bool* ok) const
 {
-    int index = m_params.indexOf(paramName);
+    Q_ASSERT(m_base != nullptr);
 
-    if (index == -1 || m_params.size() != m_values.size())
+    if (ok != nullptr)
     {
-        if (ok)
-        {
-            *ok = false;
-        }
+        *ok = false;
+    }
 
-//        gtWarning() << tr("Value of Parameter '") << paramName
-//                  << tr("'not found in Datazone, returning 0.0");
+    int index = base()->m_params.indexOf(paramName);
 
+    if (index == -1 || base()->m_params.size() != base()->m_values.size())
+    {
         return 0.0;
     }
 
-    if (ok)
+    if (ok != nullptr)
     {
         *ok = true;
     }
-
-    return m_values.at(index);
+    return base()->m_values.at(index);
 }
 
 bool
-GtDataZone0D::isValid() const
+GtDataZone0DData::isValid() const
 {
-    if (m_params.size() != m_values.size())
+    Q_ASSERT(m_base != nullptr);
+
+    if (!GtAbstractDataZoneData::isValid())
     {
-        gtWarning() << tr("Param size does not match value size!");
         return false;
     }
 
-    if (m_params.size() != m_units.size())
+    if (base()->m_params.size() != base()->m_values.size())
     {
-        gtWarning() << tr("Param size does not match units size!");
+        gtWarning() << QObject::tr("Param size does not match value size!");
         return false;
     }
 
     return true;
 }
-

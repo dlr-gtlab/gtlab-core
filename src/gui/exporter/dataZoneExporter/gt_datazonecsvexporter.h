@@ -11,14 +11,16 @@
 
 #include "gt_gui_exports.h"
 
-#include <QFile>
-#include <QTextStream>
-
 #include "gt_abstractexporter.h"
 
+class QFile;
+class QTextStream;
 class GtAbstractDataZone;
-class GtDataZone;
+class GtAbstractDataZoneData;
 class GtDataZone0D;
+class GtDataZone0DData;
+class GtDataZone;
+class GtDataZoneData;
 
 /**
  * @brief The GtDataZoneCsvExporter class
@@ -76,7 +78,7 @@ public:
      * @param file file to write in
      * @return
      */
-    bool writeMultiDimData(GtDataZone* data, QFile& file);
+    bool writeMultiDimData(GtDataZone& dataZone, QFile& file);
 
 private:
     /**
@@ -85,7 +87,7 @@ private:
      * @param file file to write in
      * @return
      */
-    bool write0Ddata(GtDataZone0D* data, QFile& file);
+    bool write0Ddata(GtDataZone0D& dataZone, QFile& file);
 
     /**
      * @brief writing of 1D tables to a .csv file
@@ -93,7 +95,9 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool write1Ddata(GtDataZone* data, QTextStream& out);
+    bool write1Ddata(const GtDataZone& dataZone,
+                     const GtDataZoneData& data,
+                     QTextStream& out);
 
     /**
      * @brief writing of 2D tables to a .csv file
@@ -101,7 +105,9 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool write2Ddata(GtDataZone* data, QTextStream& out);
+    bool write2Ddata(const GtDataZone& dataZone,
+                     const GtDataZoneData& data,
+                     QTextStream& out);
 
     /**
      * @brief writing of 3D tables to a .csv file
@@ -109,7 +115,9 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool write3Ddata(GtDataZone* data, QTextStream& out);
+    bool write3Ddata(const GtDataZone& dataZone,
+                     const GtDataZoneData& data,
+                     QTextStream& out);
 
     /**
      * @brief writing of 4D tables to a .csv file
@@ -117,7 +125,9 @@ private:
      * @param data data zone chosen for export
      * @return
      */
-    bool write4Ddata(GtDataZone* data, QTextStream& out);
+    bool write4Ddata(const GtDataZone& dataZone,
+                     const GtDataZoneData& data,
+                     QTextStream& out);
 
     /**
      * @brief writing the appropriate header to the file
@@ -125,7 +135,9 @@ private:
      * @param dataZone data zone chosen for export
      * @return
      */
-    bool writeHeaderLine(QTextStream& out, GtAbstractDataZone* dataZone);
+    bool writeHeaderLine(const GtAbstractDataZone& dataZone,
+                         const GtAbstractDataZoneData& data,
+                         QTextStream& out);
 
     /**
      * @brief Helper function to write the CSV headers

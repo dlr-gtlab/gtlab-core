@@ -6,7 +6,7 @@
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_testhelper.h"
-#include "gt_externalizationsettings.h"
+#include "gt_externalizationmanager.h"
 
 /// This is a test fixture that does a init for each test
 class TestGtDataZoneTable : public ::testing::Test
@@ -14,6 +14,8 @@ class TestGtDataZoneTable : public ::testing::Test
 protected:
     virtual void SetUp()
     {
+        // enable externalization
+        gtExternalizationManager->enableExternalization(true);
 
         QStringList x;
         x.append("OP1");
@@ -52,7 +54,7 @@ protected:
 
 TEST_F(TestGtDataZoneTable, copy)
 {
-    ASSERT_FALSE(obj1 == nullptr);
+    ASSERT_FALSE(obj1 == Q_NULLPTR);
 
     int subDims = obj1->nSubDims();
 
@@ -61,7 +63,7 @@ TEST_F(TestGtDataZoneTable, copy)
     GtDataZoneTable* dztCopy =
             qobject_cast<GtDataZoneTable*>(obj1->copy());
 
-    ASSERT_FALSE(dztCopy == nullptr);
+    ASSERT_FALSE(dztCopy == Q_NULLPTR);
 
     int subDimsCopy = dztCopy->nSubDims();
 
@@ -157,8 +159,6 @@ TEST_F(TestGtDataZoneTable, isEmpty)
 
 TEST_F(TestGtDataZoneTable, fetch0D)
 {
-    // enable externalization
-    gtExternalizationSettings->onEnbaleExternalizationChanged(true);
 
     // create datazones
     GtDataZone0D* datazone1 = new GtDataZone0D();
@@ -175,15 +175,16 @@ TEST_F(TestGtDataZoneTable, fetch0D)
     QStringList params(gtTestHelper->randomStringList(42));
     QStringList units(QVector<QString>(42, "[-]").toList());
 
-    // set random data and externalize each datazone
+    // set random data
     for (GtAbstractDataZone* adz : data)
     {
         GtDataZone0D* obj = qobject_cast<GtDataZone0D*>(adz);
         ASSERT_NE(obj, nullptr);
 
-        obj->setData(params, gtTestHelper->randomDataVector(42), units);
+        auto data0D = obj->fetchData();
+        ASSERT_TRUE(data0D.isValid());
 
-        ASSERT_TRUE(obj->releaseData(GtExternalizedObject::Externalize));
+        data0D.setData(params, gtTestHelper->randomDataVector(42), units);
     }
 
     // create datazone table
@@ -196,30 +197,9 @@ TEST_F(TestGtDataZoneTable, fetch0D)
     EXPECT_TRUE(dzt.isValid());
     EXPECT_TRUE(dzt.is0D());
 
-    // all datazones should be externalized
-    EXPECT_FALSE(dzt.dataZone(0)->isFetched());
-    EXPECT_FALSE(dzt.dataZone(1)->isFetched());
-    ASSERT_FALSE(dzt.dataZone(2)->isFetched());
-    ASSERT_FALSE(dzt.dataZone(3)->isFetched());
-
-    // functions should auto fetch the datazones if necessary
-    EXPECT_EQ(dzt.params(), params);
-    EXPECT_EQ(dzt.unitFromParam(params.at(0)), "[-]");
-
-    bool ok = true;
-    double value = dzt.value0D(params.at(5), 0, 0, 0, &ok);
-    EXPECT_TRUE(ok);
-
-    // fetch the data and check value
-    ASSERT_TRUE(datazone1->fetchData());
-    EXPECT_EQ(value, datazone1->value(params.at(5)));
-    ASSERT_TRUE(datazone1->releaseData(GtExternalizedObject::Externalize));
-    ASSERT_FALSE(datazone1->isFetched());
-
-    // disable externalization
-    gtExternalizationSettings->onEnbaleExternalizationChanged(false);
-
-    // all datazones should be externalized -> data should not be accessible
-    EXPECT_EQ(dzt.params().length(), 0);
-    EXPECT_EQ(dzt.unitFromParam(params.at(0)), QString());
+    // all datazones should be internalized
+    EXPECT_TRUE(dzt.dataZone(0)->isFetched());
+    EXPECT_TRUE(dzt.dataZone(1)->isFetched());
+    ASSERT_TRUE(dzt.dataZone(2)->isFetched());
+    ASSERT_TRUE(dzt.dataZone(3)->isFetched());
 }

@@ -16,7 +16,6 @@
 #include "gt_objectmementodiff.h"
 #include "gt_objectio.h"
 #include "gt_dummyobject.h"
-#include "gt_externalizedobject.h"
 
 #include "gt_object.h"
 
@@ -56,12 +55,6 @@ bool
 GtObject::isDummy() const
 {
     return (qobject_cast<const GtDummyObject*>(this) != nullptr);
-}
-
-bool
-GtObject::isExternalizedObject() const
-{
-    return (qobject_cast<const GtExternalizedObject*>(this) != nullptr);
 }
 
 bool
@@ -735,6 +728,12 @@ GtObject::registerProperty(GtAbstractProperty& property, const QString& cat)
 
 void
 GtObject::onObjectDataMerged()
+{
+    // nothing to do here
+}
+
+void
+GtObject::onObjectDiffMerged()
 {
     // nothing to do here
 }

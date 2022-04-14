@@ -53,6 +53,11 @@ public:
     explicit GtCoreApplication(QCoreApplication* parent);
 
     /**
+     * @brief ~GtApplication
+     */
+    ~GtCoreApplication() override;
+
+    /**
      * @brief instance
      * @return
      */
@@ -142,11 +147,6 @@ public:
      * @return
      */
     const QStringList& sessionIds();
-
-    /**
-     * @brief ~GtApplication
-     */
-    ~GtCoreApplication() override;
 
     /**
      * @brief initDatamodel

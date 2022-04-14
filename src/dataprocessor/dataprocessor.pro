@@ -50,13 +50,14 @@ INCLUDEPATH += .\
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    gt_abstractexternalizationinterface.h \
     gt_datamodel_exports.h \
     gt_dummyobject.h \
-    gt_externalizationsettings.h \
-    gt_externalizedh5object.h \
+    gt_externalizationmanager.h \
     gt_externalizedobject.h \
-    gt_externalizedobjecthelper.h \
-    gt_h5filemanager.h \
+    gt_externalizedobjectfetcher.h \
+    gt_h5externalizationinterface.h \
+    gt_h5externalizehelper.h \
     gt_object.h \
     gt_objectfactory.h \
     gt_datamodelinterface.h \
@@ -125,11 +126,12 @@ HEADERS += \
     gt_functional_interface.h
 
 SOURCES += \
+    gt_abstractexternalizationinterface.cpp \
     gt_dummyobject.cpp \
-    gt_externalizationsettings.cpp \
-    gt_externalizedh5object.cpp \
+    gt_externalizationmanager.cpp \
     gt_externalizedobject.cpp \
-    gt_h5filemanager.cpp \
+    gt_h5externalizationinterface.cpp \
+    gt_h5externalizehelper.cpp \
     gt_object.cpp \
     gt_objectfactory.cpp \
     gt_abstractobjectfactory.cpp \

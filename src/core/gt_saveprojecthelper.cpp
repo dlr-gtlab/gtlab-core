@@ -10,8 +10,6 @@
 #include "gt_saveprojecthelper.h"
 
 #include "gt_project.h"
-#include "gt_logging.h"
-#include "gt_externalizationsettings.h"
 
 GtSaveProjectHelper::GtSaveProjectHelper(GtProject* proj) :
     m_project(proj), m_success(false)
@@ -34,17 +32,6 @@ GtSaveProjectHelper::run()
     if (!m_project->saveProjectOverallData())
     {
         return;
-    }
-
-    // force externalization or internalization
-    if (gtExternalizationSettings->isExternalizationEnabled() &&
-        gtExternalizationSettings->autoExternalizeOnSave())
-    {
-        // externalizes every child if its still fetched
-        if (!m_project->externalizeAllChildren())
-        {
-            gtWarning() << "could not externalize all data!";
-        }
     }
 
     if (!m_project->saveModuleData())

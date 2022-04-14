@@ -19,7 +19,6 @@
 #include "gt_abstractdatazone.h"
 #include "gt_datazone.h"
 #include "gt_stylesheets.h"
-#include "gt_externalizedobjecthelper.h"
 
 #include "gt_resultviewer.h"
 
@@ -87,17 +86,14 @@ GtResultViewer::setData(GtObject* obj)
 {
     m_model->clearResultData();
 
-    GtExternalizedObjectHelper<GtAbstractDataZone> dataZone
-            (obj, GtExternalizedObject::Discard);
+    auto* dataZone{qobject_cast<GtAbstractDataZone*>(obj)};
 
-    if (!dataZone.isValid())
+    if (dataZone == nullptr)
     {
         return;
     }
 
-    GtDataZone* dz = qobject_cast<GtDataZone*>(dataZone.get());
-
-    if (dz)
+    if (auto* dz = qobject_cast<GtDataZone*>(dataZone))
     {
         if (dz->nDims() == 2)
         {
@@ -122,7 +118,7 @@ GtResultViewer::setData(GtObject* obj)
         }
     }
 
-    m_model->setResultData(dataZone.get());
+    m_model->setResultData(dataZone);
 
     m_model->m_indexOfInterestAx1 = 0;
 
@@ -146,9 +142,9 @@ GtResultViewer::setData(GtObject* obj)
 
     m_label->setText(id);
 
-    connect(dataZone.get(), SIGNAL(destroyed(QObject*)), m_model,
+    connect(dataZone, SIGNAL(destroyed(QObject*)), m_model,
             SLOT(clearResultData()));
-    connect(dataZone.get(), SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
+    connect(dataZone, SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
 }
 
 void
