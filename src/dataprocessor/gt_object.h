@@ -69,13 +69,6 @@ public:
     bool isDummy() const;
 
     /**
-     * @brief Returns true if object is a externalized object. Otherwise false
-     * is returned.
-     * @return True if object is a externalized object.
-     */
-    bool isExternalizedObject() const;
-
-    /**
      * @brief Returns true if object has children of type dummy.
      * Otherwise false is returned.
      * @return True if object has children of type dummy.
@@ -393,7 +386,7 @@ public:
      * @return first parent obejct of the given template class
      */
     template <class T>
-    T findParent(const QString& name = QString())
+    T findParent(const QString& name = QString()) const
     {
         if (parent())
         {
@@ -573,9 +566,14 @@ protected:
     bool registerProperty(GtAbstractProperty& property, const QString& cat);
 
     /**
-     * @brief Called after successfully restoring from memento
+     * @brief Called after successfully restoring or merging data from memento
      */
     virtual void onObjectDataMerged();
+
+    /**
+     * @brief Called after successfully applying/reverting a memento diff
+     */
+    virtual void onObjectDiffMerged();
 
     /**
      * @brief childAccepted

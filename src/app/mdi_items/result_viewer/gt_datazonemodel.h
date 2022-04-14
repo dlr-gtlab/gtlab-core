@@ -13,8 +13,8 @@
 #include <QAbstractTableModel>
 #include <QPointer>
 
-class GtAbstractDataZone;
-class GtDataZone;
+#include "gt_externalizedobjectfetcher.h"
+#include "gt_abstractdatazone.h"
 
 /**
  * @brief The GtDataZoneModel class
@@ -30,29 +30,25 @@ public:
      */
     explicit GtDataZoneModel(QObject* parent = nullptr);
 
-    ~GtDataZoneModel() override;
-
     /**
      * @brief setResultData
      * @param data
      */
-    void setResultData(GtAbstractDataZone* data);
+    void setResultData(GtAbstractDataZone* dataZone);
 
     /**
      * @brief rowCount
      * @param parent
      * @return
      */
-    int rowCount(
-            const QModelIndex& parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief columnCount
      * @param parent
      * @return
      */
-    int columnCount(
-            const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
     /**
      * @brief data
@@ -77,12 +73,12 @@ public:
     /**
      * @brief m_indeOfInterestAx1
      */
-    int m_indexOfInterestAx1;
+    int m_indexOfInterestAx1{0};
 
     /**
      * @brief m_axOfInterest
      */
-    int m_axOfInterest;
+    int m_axOfInterest{0};
 
     /**
      * @brief getResultData
@@ -97,7 +93,8 @@ public slots:
     void clearResultData();
 
 private:
-    QPointer<GtAbstractDataZone> m_result;
+
+    GtExternalizedObjectFetcher<GtAbstractDataZone> m_result{};
 
 signals:
     void axIndexChanges(int index);
@@ -115,17 +112,5 @@ private slots:
      */
     void indexChanged();
 };
-
-/**
- * @brief value2D
- * @param row
- * @param column
- * @param axOfInterest
- * @param indexOfInterest
- * @param dz
- * @return
- */
-double value2D(int row, int column, int axOfInterest, int indexOfInterest,
-               GtDataZone *dz);
 
 #endif // GTDATAZONEMODEL_H

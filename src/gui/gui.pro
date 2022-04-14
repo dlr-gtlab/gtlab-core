@@ -45,6 +45,7 @@ INCLUDEPATH += .\
     dock_widgets \
     tools \
     dialogs \
+    dialogs/project_settings \
     tools/graphic_items \
     mdi_items/collection_env \
     dock_widgets/process \
@@ -228,6 +229,9 @@ HEADERS += \
     gt_objectuiactiongroup.h \
     gt_extendedtaskdata.h \
     dialogs/gt_inputdialog.h \
+    dialogs/project_settings/gt_projectsettingsdialog.h \
+    dialogs/project_settings/gt_projectsettingsexternalizationtab.h \
+    dialogs/project_settings/gt_projectsettingstab.h \
     post/gt_scaleproperty.h \
     gt_stylesheets.h \
     gt_textfilterdelegate.h \
@@ -380,6 +384,9 @@ SOURCES += \
     gt_objectuiactiongroup.cpp \
     gt_extendedtaskdata.cpp \
     dialogs/gt_inputdialog.cpp \
+    dialogs/project_settings/gt_projectsettingsdialog.cpp \
+    dialogs/project_settings/gt_projectsettingsexternalizationtab.cpp \
+    dialogs/project_settings/gt_projectsettingstab.cpp \
     post/gt_scaleproperty.cpp \
     gt_stylesheets.cpp \
     gt_textfilterdelegate.cpp \

@@ -29,6 +29,7 @@
 #include "gt_versionnumber.h"
 #include "gt_logging.h"
 #include "gt_externalizedobject.h"
+#include "gt_externalizationmanager.h"
 
 GtProject::GtProject(const QString& path) :
     m_path(path),
@@ -83,6 +84,12 @@ GtProject::setComment(const QString& comment)
 {
     m_comment = comment;
     changed();
+}
+
+void
+GtProject::setInternalizeOnSave(bool value)
+{
+    m_internalizeOnSave = value;
 }
 
 bool
@@ -393,6 +400,12 @@ GtProject::readModuleData()
             continue;
         }
 
+        /// all externalized objects should fetch its initial version
+        for (auto* o : package->findChildren<GtExternalizedObject*>())
+        {
+            o->setFetchInitialVersion(true);
+        }
+
         retval.append(obj);
     }
 
@@ -407,9 +420,12 @@ GtProject::saveModuleData()
         return false;
     }
 
-    gtInfo().noquote() << tr("saving project")
-                       << QStringLiteral("\"") + objectName() +
-                          QStringLiteral("\" ...");
+    // externalize or internalize objects accordingly
+    if (!saveExternalizedObjectData())
+    {
+        gtError() << tr("Failed to save externalized object data!");
+        // saving may continue
+    }
 
     foreach (const QString& mid, m_moduleIds)
     {
@@ -469,6 +485,10 @@ GtProject::saveProjectOverallData()
         return false;
     }
 
+    gtDebug().noquote() << tr("saving project")
+                        << QStringLiteral("\"") + objectName() +
+                           QStringLiteral("\" ...");
+
     QDomDocument document;
     QDomProcessingInstruction header = document.createProcessingInstruction(
             QStringLiteral("xml"),
@@ -515,6 +535,56 @@ GtProject::saveProjectOverallData()
     QString filename = m_path + QDir::separator() + mainFilename();
 
     return saveProjectFiles(filename, document);
+}
+
+bool
+GtProject::saveExternalizedObjectData()
+{
+    bool success{true};
+    auto objects = findChildren<GtExternalizedObject*>();
+
+    // force internalization of all objects
+    if (m_internalizeOnSave)
+    {
+        gtDebug() << "internalizing object data...";
+
+        // externalization must be enabled
+        auto value = gtExternalizationManager->isExternalizationEnabled();
+        gtExternalizationManager->enableExternalization(true);
+
+        int counter = 0;
+        for (auto* obj : qAsConst(objects))
+        {
+            success &= obj->internalize();
+            counter += obj->isFetched();
+        }
+
+        gtExternalizationManager->enableExternalization(value);
+
+        gtInfo() << tr("successfully internalized") << counter
+                 << tr("out of") << objects.count() << tr("objects!");
+
+        return success;
+    }
+
+    if (!gtExternalizationManager->isExternalizationEnabled())
+    {
+        return true;
+    }
+
+    gtDebug() << "saving externalized object data...";
+
+    for (auto* obj : qAsConst(objects))
+    {
+        // only externalize the object if its not referenced as the data wont be
+        // cleared otherwise and will be saved as memento
+        if (obj->refCount() == 0)
+        {
+            success &= obj->externalize();
+        }
+    }
+
+    return success;
 }
 
 bool
@@ -726,77 +796,6 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
     }
 
     return true;
-}
-
-bool
-GtProject::internalizeAllChildren()
-{
-    gtDebug() << "internalizing all datasets...";
-
-    int counter = 0;
-    bool res = true;
-    foreach (GtExternalizedObject* obj, findChildren<GtExternalizedObject*>())
-    {
-        if (obj->isFetched())
-        {
-            continue;
-        }
-        if (!obj->fetchData())
-        {
-            gtWarning() << "WARNING:" << obj->objectPath()
-                        << "could not be fetched!";
-            res = false;
-            continue;
-        }
-        // reset object properties
-        obj->setObjectState(GtExternalizedObject::Fetched, true);
-        obj->setProperty("refCount", QVariant(1));
-        obj->setProperty("h5Reference", QVariant(0));
-        obj->setProperty("cachedHash", QString());
-        ++counter;
-    }
-    gtDebug() << "internalized" << counter << "objects!";
-    return res;
-}
-
-bool
-GtProject::externalizeAllChildren()
-{
-    gtDebug() << "externalizing all datasets...";
-
-    int counter = 0;
-    bool res = true;
-    foreach (GtExternalizedObject* obj, findChildren<GtExternalizedObject*>())
-    {
-        if (!obj->isFetched())
-        {
-            continue;
-        }
-        if (!obj->releaseData(GtExternalizedObject::Externalize))
-        {
-            gtWarning() << "WARNING:" << obj->objectPath()
-                        << "could not be externalized!";
-            res = false;
-            continue;
-        }
-        ++counter;
-    }
-    gtDebug() << "externalized" << counter << "objects!";
-    return res;
-}
-
-void
-GtProject::resetAllExternalizedObjects(const GtObjectList& modules)
-{
-    for (GtObject* module : modules)
-    {
-        if (!module) continue;
-
-        foreach (auto* obj, module->findChildren<GtExternalizedObject*>())
-        {
-            obj->resetRefCount();
-        }
-    }
 }
 
 GtProject::~GtProject()

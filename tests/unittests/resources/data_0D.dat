@@ -1,0 +1,5 @@
+TITLE = "GTlab DataZone Export"
+VARIABLES = "A" "B" "C" "D" 
+ZONE T = "DZ0D"
+ZONETYPE = ORDERED I = 1 J = 1 K = 1 DATAPACKING = POINT 
+ 0.1    1.2    2.3    3.4

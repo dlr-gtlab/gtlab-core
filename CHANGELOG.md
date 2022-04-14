@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrated the hdf5 data format and added support to ex-/internalize datasets at runtime including the option to enable this feature on a project basis - #127
 - Monitoring property for strings - #140
 - Dark mode for GTlab - #163
+- Project Settings dialog for setting project specific settings (opened using the contextmenu of a project) - #173
 - Shortcut settings for GTlab including the introduction of several new shortcuts and the option to maintain them in the preferences - #112, #171
 - Versionnumber based on GtVersionNumber for tasks - #129
 - Add some DataZone functions to Python interface - #177

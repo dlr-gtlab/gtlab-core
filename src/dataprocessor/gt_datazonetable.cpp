@@ -6,7 +6,6 @@
 #include "gt_datazone.h"
 #include "gt_datazonetablemainaxis.h"
 #include "gt_datazone0d.h"
-#include "gt_externalizedobjecthelper.h"
 //#include "gt_objectfactory.h"
 
 
@@ -360,7 +359,7 @@ GtDataZoneTable::allAxisTicks() const
 
     if (nSubDims() > 0)
     {
-        GtDataZone* dz = qobject_cast<GtDataZone*>(data().at(0));
+        auto* dz = qobject_cast<GtDataZone*>(data().at(0));
 
         if (!dz)
         {
@@ -383,7 +382,7 @@ GtDataZoneTable::allAxisTicksMap() const
 
     if (nSubDims() > 0)
     {
-        GtDataZone* dz = qobject_cast<GtDataZone*>(data().at(0));
+        auto* dz = qobject_cast<GtDataZone*>(data().at(0));
 
         if (!dz)
         {
@@ -465,7 +464,7 @@ GtDataZoneTable::subAxisNames() const
 
     if (nSubDims() > 0)
     {
-        GtDataZone* dz = qobject_cast<GtDataZone*>(data().at(0));
+        auto* dz = qobject_cast<GtDataZone*>(data().at(0));
 
         if (!dz)
         {
@@ -484,9 +483,7 @@ GtDataZoneTable::subAxisNames() const
 void
 GtDataZoneTable::subAxisTicks(const QString& id, QVector<double>& dvecOut) const
 {
-    GtDataZone* dz = nullptr;
-
-    dz = qobject_cast<GtDataZone*>(data().at(0));
+    auto* dz = qobject_cast<GtDataZone*>(data().at(0));
 
     if (!dz)
     {
@@ -500,30 +497,26 @@ double
 GtDataZoneTable::value2D(const QString& param, int mainX, int mainY, int mainZ,
                          double x, double y, bool* ok) const
 {
-    GtExternalizedObjectHelper<GtAbstractDataZone> adz
-            (dataZone(mainX, mainY, mainZ), GtExternalizedObject::Discard);
-
-    if (!adz.isValid())
+    if (ok)
     {
-        if (ok)
-        {
-            *ok = false;
-        }
+        *ok = false;
+    }
+
+    GtAbstractDataZone* adz{dataZone(mainX, mainY, mainZ)};
+
+    if (!adz)
+    {
         return 0.0;
     }
 
-    GtDataZone* dzND = qobject_cast<GtDataZone*>(adz.get());
+    GtDataZone* dzND {qobject_cast<GtDataZone*>(adz)};
 
-    if (!dzND)
+    if (dzND == nullptr)
     {
-        if (ok)
-        {
-            *ok = false;
-        }
         return 0.0;
     }
 
-    return dzND->value2D(param, x, y, ok);
+    return dzND->fetchData().value2D(param, x, y, ok);
 }
 
 double
@@ -536,39 +529,33 @@ GtDataZoneTable::value2D(const QString& param,
     int mainYnumber = yPtr()->indexOf(mainY);
     int mainZnumber = zPtr()->indexOf(mainZ);
 
-    return value2D(param, mainXnumber, mainYnumber, mainZnumber,
-                   x, y, ok);
+    return value2D(param, mainXnumber, mainYnumber, mainZnumber, x, y, ok);
 }
 
 double
 GtDataZoneTable::value1D(const QString& param, int mainX, int mainY, int mainZ,
                          double x, bool* ok) const
 {
-    GtExternalizedObjectHelper<GtAbstractDataZone> adz
-            (dataZone(mainX, mainY, mainZ), GtExternalizedObject::Discard);
-
-    if (!adz.isValid())
+    if (ok)
     {
-        if (ok)
-        {
-            *ok = false;
-        }
+        *ok = false;
+    }
+
+    GtAbstractDataZone* adz{dataZone(mainX, mainY, mainZ)};
+
+    if (!adz)
+    {
         return 0.0;
     }
 
-    GtDataZone* dzND = nullptr;
-    dzND = qobject_cast<GtDataZone*>(adz.get());
+    GtDataZone* dzND{qobject_cast<GtDataZone*>(adz)};
 
-    if (!dzND)
+    if (dzND == nullptr)
     {
-        if (ok)
-        {
-            *ok = false;
-        }
         return 0.0;
     }
 
-    return dzND->value1D(param, x, ok);
+    return dzND->fetchData().value1D(param, x, ok);
 }
 
 double
@@ -582,48 +569,45 @@ GtDataZoneTable::value1D(const QString& param,
     int mainYnumber = yPtr()->indexOf(mainY);
     int mainZnumber = zPtr()->indexOf(mainZ);
 
-    return value1D(param, mainXnumber, mainYnumber, mainZnumber,
-                   x, ok);
+    return value1D(param, mainXnumber, mainYnumber, mainZnumber, x, ok);
 }
 
 double
 GtDataZoneTable::value0D(const QString& param, int mainX, int mainY, int mainZ,
                          bool* ok) const
 {
-    GtExternalizedObjectHelper<GtAbstractDataZone> adz
-            (dataZone(mainX, mainY, mainZ), GtExternalizedObject::Discard);
+    GtAbstractDataZone* adz{dataZone(mainX, mainY, mainZ)};
 
-    if (!adz.isValid())
+    if (ok)
     {
-        if (ok)
-        {
-            *ok = false;
-        }
+        *ok = false;
+    }
 
+    if (!adz)
+    {
         return 0.0;
     }
 
-    return valueFrom0Ddata(param, adz.get(), ok);
+    return valueFrom0Ddata(param, adz, ok);
 }
 
 double
 GtDataZoneTable::valueFrom0Ddata(const QString& param, GtAbstractDataZone* adz,
                                  bool* ok) const
 {
-    GtExternalizedObjectHelper<GtDataZone0D> dz0D
-            (adz, GtExternalizedObject::Discard);
-
-    if (!dz0D.isValid())
+    if (ok != nullptr)
     {
-        if (ok)
-        {
-            *ok = false;
-        }
+        *ok = false;
+    }
 
+    auto* dz0D{qobject_cast<GtDataZone0D*>(adz)};
+
+    if (!dz0D)
+    {
         return 0.0;
     }
 
-    return dz0D->value(param, ok);
+    return dz0D->fetchData().value(param, ok);
 }
 
 double
@@ -634,32 +618,23 @@ GtDataZoneTable::value0D(const QString& param,
 {
     int mainXnumber = xPtr()->indexOf(mainX, ok);
 
-    if (ok)
+    if (ok && !*ok)
     {
-        if (*ok == false)
-        {
-            return 0.0;
-        }
+        return 0.0;
     }
 
     int mainYnumber = yPtr()->indexOf(mainY, ok);
 
-    if (ok)
+    if (ok && !*ok)
     {
-        if (*ok == false)
-        {
-            return 0.0;
-        }
+        return 0.0;
     }
 
     int mainZnumber = zPtr()->indexOf(mainZ, ok);
 
-    if (ok)
+    if (ok && !*ok)
     {
-        if (*ok == false)
-        {
-            return 0.0;
-        }
+        return 0.0;
     }
 
     return value0D(param, mainXnumber, mainYnumber, mainZnumber, ok);
@@ -671,34 +646,30 @@ GtDataZoneTable::value0DfromOP(const QString& param, const QString& OP,
 {
     int mainXnumber = xPtr()->indexOf(OP);
 
-    GtExternalizedObjectHelper<GtAbstractDataZone> adz
-            (dataZone(mainXnumber, 0, 0), GtExternalizedObject::Discard);
-
-    if (!adz.isValid())
+    if (ok)
     {
-        if (ok)
-        {
-            *ok = false;
-        }
+        *ok = false;
+    }
 
+    GtAbstractDataZone* adz{dataZone(mainXnumber, 0, 0)};
+
+    if (!adz)
+    {
         return 0.0;
     }
 
-    return valueFrom0Ddata(param, adz.get(), ok);
+    return valueFrom0Ddata(param, adz, ok);
 }
 
 QStringList
 GtDataZoneTable::subAxisTicks(const QString& id) const
 {
-    QStringList retval;
+    auto* dz{qobject_cast<GtDataZone*>(data().at(0))};
 
-    GtExternalizedObjectHelper<GtDataZone> dz
-            (data().at(0), GtExternalizedObject::Discard);
-
-    if (!dz.isValid())
+    if (!dz)
     {
         // e.g. if it is 0D-data
-        return retval;
+        return {};
     }
 
     return dz->axisTickLabels(id);
@@ -743,23 +714,27 @@ GtDataZoneTable::zAxisIndexFromString(const QString& str) const
 QStringList
 GtDataZoneTable::params() const
 {
-    GtExternalizedObjectHelper<GtAbstractDataZone> dz
-            (data().first(), GtExternalizedObject::Discard);
+    auto dzData{data().first()->fetchData()};
 
-    return dz->params();
+    if (!dzData.isValid())
+    {
+        return QStringList();
+    }
+
+    return dzData.params();
 }
 
 QString
 GtDataZoneTable::unitFromParam(const QString& param) const
 {
-    QString retval;
+    auto dzData{data().first()->fetchData()};
 
-    GtExternalizedObjectHelper<GtAbstractDataZone> dz
-            (data().first(), GtExternalizedObject::Discard);
+    if (!dzData.isValid())
+    {
+        return QString();
+    }
 
-    retval = dz->unit(param);
-
-    return retval;
+    return dzData.unit(param);
 }
 
 int

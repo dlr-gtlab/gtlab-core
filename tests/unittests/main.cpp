@@ -1,24 +1,24 @@
 #include "gtest/gtest.h"
 
 #include <QCoreApplication>
+#include <QScopedPointer>
 #include <QDir>
 
 #include "gt_testhelper.h"
-#include "gt_h5filemanager.h"
+#include "gt_externalizationmanager.h"
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-    GtTestHelper* helper = GtTestHelper::instance();
+    QScopedPointer<GtTestHelper> helper {GtTestHelper::instance()};
 
-    // set custom path for hdf5 files
-    gtH5FileManager->reset(nullptr, helper->newTempDir().path());
+    // set custom path for externalization
+    gtExternalizationManager->updateProjectDir(
+                helper->newTempDir().absolutePath());
 
     ::testing::InitGoogleTest(&argc, argv);
     int retval = RUN_ALL_TESTS();
-
-    delete helper;
 
     return retval;
 }

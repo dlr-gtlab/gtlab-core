@@ -50,6 +50,13 @@ INCLUDEPATH += .\
     ../../src/gui/dialogs \
     ../../src/gui/dock_widgets \
     ../../src/gui/dock_widgets/process \
+    ../../src/gui/dock_widgets/process \
+    ../../src/gui/exporter \
+    ../../src/gui/exporter/dataZoneExporter
+
+INCLUDEPATH += .\
+    ./datamodel \
+    ./core
 
 #### HEADERS
 HEADERS += gt_testhelper.h
@@ -63,6 +70,7 @@ SOURCES += \
 SOURCES += datamodel/*.cpp
 SOURCES += calculators/*.cpp
 SOURCES += core/*.cpp
+SOURCES += exporter/*.cpp
 #SOURCES += mdi/*.cpp
 
 #SOURCES += $${CURRENT_DIR}/mdi/*.cpp
@@ -100,10 +108,12 @@ LIBS += -L$${BUILD_DEST_TEMP}
 
 
 CONFIG(debug, debug|release){
-    #Utilities
+    # Utilities
     LIBS += -lGTlabLogging-d -lGTlabNumerics-d
     # Core
     LIBS += -lGTlabDataProcessor-d -lGTlabCore-d
+    # GUI
+    LIBS += -lGTlabGui-d
 
     # THIRD PARTY
     win32 {
@@ -117,10 +127,12 @@ CONFIG(debug, debug|release){
         }
     }
 } else {
-    #Utilities
+    # Utilities
     LIBS += -lGTlabLogging -lGTlabNumerics
-   # Core
+    # Core
     LIBS += -lGTlabDataProcessor -lGTlabCore
+    # GUI
+    LIBS += -lGTlabGui
 
     # THIRD PARTY
     unix {

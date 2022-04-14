@@ -22,10 +22,6 @@
 #include "gt_projectanalyzer.h"
 #include "gt_projectanalyzerdialog.h"
 
-#include "gt_state.h"
-#include "gt_statehandler.h"
-#include "gt_externalizationsettings.h"
-
 #include "gt_datamodel.h"
 
 GtDataModel::GtDataModel(QObject* parent) : GtCoreDatamodel(parent)
@@ -437,7 +433,9 @@ GtDataModel::onProjectDataSaved()
 
     // emit project saved event
     if (success)
-    {
+    {        
+        gtInfo() << project->objectName() << tr("saved!");
+
         emit projectSaved(project);
     }
 }

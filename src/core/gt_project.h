@@ -151,6 +151,12 @@ public:
      */
     void setComment(const QString& comment);
 
+    /**
+     * @brief sets whether externalized objects should be internalized on save
+     * @param value true if data should be internalized on save
+     */
+    void setInternalizeOnSave(bool value);
+
 protected:
     /**
      * @brief GtProject
@@ -189,6 +195,9 @@ private:
     /// True if project data was successfully loaded
     bool m_valid;
 
+    /// Whether to internalize all external data when saving
+    bool m_internalizeOnSave{false};
+
     /// List of all project module ids
     QStringList m_moduleIds;
 
@@ -200,7 +209,7 @@ private:
 
     /**
      * @brief loadMetaData
-     * @return
+     * @return success
      */
     bool loadMetaData();
 
@@ -229,21 +238,28 @@ private:
 
     /**
      * @brief saveModuleData
-     * @return
+     * @return success
      */
     bool saveModuleData();
 
     /**
-     * @brief saveMetaAndProcessData
-     * @return
+     * @brief saveProjectOverallData
+     * @return success
      */
     bool saveProjectOverallData();
+
+    /**
+     * @brief externalize all objects. If internalizeOnSave flag is set to true
+     * all objects will be internalized instead.
+     * @return success
+     */
+    bool saveExternalizedObjectData();
 
     /**
      * @brief saveModuleMetaData
      * @param root
      * @param doc
-     * @return
+     * @return success
      */
     bool saveModuleMetaData(QDomElement& root, QDomDocument& doc);
 
@@ -251,7 +267,7 @@ private:
      * @brief saveProcessData
      * @param root
      * @param doc
-     * @return
+     * @return success
      */
     bool saveProcessData(QDomElement& root, QDomDocument& doc);
 
@@ -259,7 +275,7 @@ private:
      * @brief saveLabelData
      * @param root
      * @param doc
-     * @return
+     * @return success
      */
     bool saveLabelData(QDomElement& root, QDomDocument& doc);
 
@@ -291,27 +307,6 @@ private:
      * @return success
      */
     bool saveProjectFiles(const QString& filePath, const QDomDocument& doc);
-
-    /**
-     * @brief internalizeAllChildren tries to fetch all GtExternalizedObjects.
-     * Can be used to archive backwards compatibility to earlier versions of
-     * gtlab.
-     * @return true if all objects were fetched.
-     */
-    bool internalizeAllChildren();
-
-    /**
-     * @brief externalizeAllChildren externalize all GtExternalizedObjects.
-     * @return true if all objects were externalized.
-     */
-    bool externalizeAllChildren();
-
-    /**
-     * @brief resetAllExternalizedObjects resets the ref count for each
-     * GtExternalizedObject.
-     */
-    void resetAllExternalizedObjects(const GtObjectList& modules);
-
 };
 
 #endif // GTPROJECT_H

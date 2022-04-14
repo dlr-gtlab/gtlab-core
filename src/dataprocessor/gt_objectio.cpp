@@ -519,6 +519,7 @@ GtObjectIO::applyDiff(GtObjectMementoDiff& diff, GtObject* obj)
         }
 
         parentObject->onObjectDataMerged();
+        parentObject->onObjectDiffMerged();
 
         parent = parent.nextSiblingElement(S_OBJECT_TAG);
     }
@@ -612,6 +613,7 @@ GtObjectIO::revertDiff(GtObjectMementoDiff& diff, GtObject* obj)
         }
 
         parentObject->onObjectDataMerged();
+        parentObject->onObjectDiffMerged();
 
         parent = parent.nextSiblingElement(S_OBJECT_TAG);
     }

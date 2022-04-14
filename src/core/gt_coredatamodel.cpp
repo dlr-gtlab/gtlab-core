@@ -18,7 +18,7 @@
 #include "gt_logging.h"
 #include "gt_state.h"
 #include "gt_statehandler.h"
-#include "gt_externalizationsettings.h"
+#include "gt_externalizationmanager.h"
 
 #include "gt_coredatamodel.h"
 
@@ -137,28 +137,16 @@ GtCoreDatamodel::initProjectStates(GtProject* project)
     GtState* enableState = gtStateHandler->initializeState(project,
                                     QStringLiteral("ExternalizationSettings"),
                                     QStringLiteral("Enable Externalization"),
-                                    QStringLiteral("enable_externalization"),
-                                    false, project);
-
-    GtState* autoState = gtStateHandler->initializeState(project,
-                                    QStringLiteral("ExternalizationSettings"),
-                                    QStringLiteral("Auto Externalize on Save"),
-                                    QStringLiteral("auto_externalization"),
+                                    project->objectPath(),
                                     false, project);
 
     // set init values
-    gtExternalizationSettings->onEnbaleExternalizationChanged(
-                enableState->getValue());
-    gtExternalizationSettings->onAutoExternalizationChanged(
-                autoState->getValue());
+    gtExternalizationManager->enableExternalization(enableState->getValue());
 
     // update values if states change
-    connect(enableState, SIGNAL(valueChanged(QVariant)),
-            gtExternalizationSettings,
-            SLOT(onEnbaleExternalizationChanged(QVariant)));
-    connect(autoState, SIGNAL(valueChanged(QVariant)),
-            gtExternalizationSettings,
-            SLOT(onAutoExternalizationChanged(QVariant)));
+    connect(enableState, SIGNAL(valueChanged(const QVariant&)),
+            gtExternalizationManager,
+            SLOT(enableExternalization(const QVariant&)));
 }
 
 GtSession*

@@ -13,56 +13,100 @@
 
 #include "gt_datazone.h"
 #include "gt_datazone0d.h"
+#include "gt_logging.h"
 
 #include "gt_datazonemodel.h"
 
-GtDataZoneModel::GtDataZoneModel(QObject* parent) :
-    QAbstractTableModel(parent),
-    m_indexOfInterestAx1(0),
-    m_axOfInterest(0),
-    m_result(nullptr)
+namespace
 {
+    double value2D(int row, int column, int axOfInterest, int indexOfInterest,
+                   const GtDataZone& dz, const GtDataZone::Data& data)
+    {
+        const auto& params = data.params();
 
+        if (params.size() < row - 1)
+        {
+            gtDebug() << "Non mathing sizes: params" << params.size()
+                      << " rowIndex" << row;
+            return -1;
+        }
+
+        auto firstAxisTicks = dz.allAxisTicks().first();
+        auto secondAxisTicks = dz.allAxisTicks().at(1);
+
+        if (axOfInterest == 0)
+        {
+            if (firstAxisTicks.size() < indexOfInterest)
+            {
+                return -1;
+            }
+            if (secondAxisTicks.size() < column - 2)
+            {
+                return -1;
+            }
+
+            return data.value2D(params[row - 1],
+                    firstAxisTicks.at(indexOfInterest),
+                    secondAxisTicks.at(column - 2));
+        }
+
+        if (axOfInterest == 1)
+        {
+            if (firstAxisTicks.size() < column - 2)
+            {
+                return -1;
+            }
+            if (secondAxisTicks.size() < indexOfInterest)
+            {
+                return -1;
+            }
+
+            return data.value2D(params[row - 1],
+                    firstAxisTicks.at(column - 2),
+                    secondAxisTicks.at(indexOfInterest));
+        }
+
+        return -1;
+    }
 }
 
-GtDataZoneModel::~GtDataZoneModel()
+GtDataZoneModel::GtDataZoneModel(QObject* parent) :
+    QAbstractTableModel(parent)
 {
-    if (m_result)
-    {
-        m_result->releaseData(GtExternalizedObject::Discard);
-    }
+
 }
 
 void
-GtDataZoneModel::setResultData(GtAbstractDataZone* data)
+GtDataZoneModel::setResultData(GtAbstractDataZone* dataZone)
 {
-    if (!data)
+    if (!dataZone)
     {
         return;
     }
 
-    if (!data->fetchData())
+    auto data{dataZone->fetchData()};
+
+    if (!data.isValid())
     {
         return;
     }
 
     if (m_result)
     {
-        disconnect(m_result.data(), SIGNAL(dataChanged(GtObject*)), this,
+        disconnect(m_result.get(), SIGNAL(dataChanged(GtObject*)), this,
                    SLOT(onResultChanged()));
 
         disconnect(this, SIGNAL(axIndexChanges(int)), this,
                    SLOT(indexChanged()));
         disconnect(this, SIGNAL(tickIndexChanges(int)), this,
                    SLOT(indexChanged()));
-
-        m_result->releaseData(GtExternalizedObject::Discard);
     }
 
     beginResetModel();
 
-    m_result = data;
-    connect(m_result.data(), SIGNAL(dataChanged(GtObject*)), this,
+    m_result.set(dataZone);
+
+    connect(m_result.get(), SIGNAL(dataChanged(GtObject*)), this,
             SLOT(onResultChanged()));
 
     connect(this, SIGNAL(axIndexChanges(int)), this,
@@ -76,76 +120,14 @@ GtDataZoneModel::setResultData(GtAbstractDataZone* data)
 GtAbstractDataZone*
 GtDataZoneModel::getResultData()
 {
-    return m_result;
-}
-
-double
-value2D(int row, int column, int axOfInterest, int indexOfInterest,
-        GtDataZone* dz)
-{
-    if (!dz)
-    {
-        gtDebug() << "Datazone is NULLPTR";
-        return -1;
-    }
-
-    QStringList params = dz->params();
-
-    if (params.size() < row - 1)
-    {
-        gtDebug() << "Non mathing sizes: params" << params.size()
-                  << " rowIndex" << row;
-        return -1;
-    }
-
-    auto ticks = dz->allAxisTicks();
-    if (axOfInterest == 0)
-    {
-        if (ticks.first().size() < indexOfInterest)
-        {
-            return -1;
-        }
-        if (ticks.at(1).size() < column - 2)
-        {
-            return -1;
-        }
-
-
-        return dz->value2D(params[row - 1],
-                ticks.first().at(indexOfInterest),
-                ticks.at(1).at(column - 2));
-    }
-    else if (axOfInterest == 1)
-    {
-        if (ticks.first().size() < column - 2)
-        {
-            return -1;
-        }
-        if (ticks.at(1).size() < indexOfInterest)
-        {
-            return -1;
-        }
-
-        return dz->value2D(params[row - 1],
-                ticks.first().at(column - 2),
-                ticks.at(1).at(indexOfInterest));
-
-    }
-    else
-    {
-        return -1;
-    }
+    return m_result.get();
 }
 
 void
 GtDataZoneModel::clearResultData()
 {
     beginResetModel();
-    if (m_result)
-    {
-        m_result->releaseData(GtExternalizedObject::Discard);
-    }
-    m_result = nullptr;
+    m_result.clear();
     endResetModel();
 }
 
@@ -164,9 +146,9 @@ GtDataZoneModel::rowCount(const QModelIndex& parent) const
 
     if (m_result->nDims() == 0)
     {
-        return m_result->params().count();
+        return m_result.data()->params().count();
     }
-    return m_result->params().count() + 1;
+    return m_result.data()->params().count() + 1;
 }
 
 int
@@ -177,18 +159,18 @@ GtDataZoneModel::columnCount(const QModelIndex& parent) const
         return 0;
     }
 
-    GtDataZone* dz = qobject_cast<GtDataZone*>(m_result);
-
-    if (dz)
+    if (auto* dz = qobject_cast<GtDataZone*>(m_result))
     {
         auto allTicks = dz->allAxisTicks();
+
         if (dz->nDims() == 1)
         {
             return allTicks.first().size() + 2;
         }
-        else if (dz->nDims() == 2)
+
+        if (dz->nDims() == 2)
         {
-            int index = abs(m_axOfInterest - 1);
+            int index = std::abs(m_axOfInterest - 1);
 
             if (allTicks.size() < index)
             {
@@ -199,10 +181,8 @@ GtDataZoneModel::columnCount(const QModelIndex& parent) const
 
             return allTicks.at(index).size() + 2;
         }
-        else
-        {
-            return 0;
-        }
+
+        return 0;
     }
 
     return 3;
@@ -218,186 +198,176 @@ GtDataZoneModel::data(const QModelIndex& index,
         return QVariant();
     }
 
-    //gtDebug() << "Element" << index.row() << "/" << index.column();
+    auto* absData = m_result.data();
 
-    QStringList params = m_result->params();
-    QStringList units = m_result->units();
+    QStringList params = absData->params();
+    QStringList units = absData->units();
 
-    if (index.row() < 0 || index.row() >= params.size() + 1)
+    auto col = index.column();
+    auto row = index.row();
+
+    if (row < 0 || row >= params.size() + 1)
     {
         gtDebug() << "Error - GtDataZoneModel::data - row not ok";
-        gtDebug() << "row:" << index.row() << "params.size" << params.size();
+        gtDebug() << "row:" << row << "params.size" << params.size();
         return QVariant();
     }
 
     if (role == Qt::DisplayRole)
     {
-        GtDataZone* dz = qobject_cast<GtDataZone*>(m_result);
-
-        if (dz)
+        if (auto* dz = qobject_cast<GtDataZone*>(m_result))
         {
             if (dz->nDims() == 1)
             {
-                QVector<double> axisTicks = dz->allAxisTicks().first();
+                auto axisTicks = dz->allAxisTicks().first();
 
-
-                if (index.column() < 0 || index.column()
-                    >= dz->allAxisTicks().first().size() + 2)
+                if (col < 0 || col >= axisTicks.size() + 2)
                 {
                     gtDebug() << "Error - GtDataZoneModel::data - 1D -"
                                  " column not ok";
                     return QVariant();
                 }
 
-                if (index.row() == 0)
+                /// header line
+                if (row == 0)
                 {
                     QString name = dz->axisNames().first();
-                    int indexInParams = dz->params().indexOf(name);
+                    int pIdx = params.indexOf(name);
 
-                    switch (index.column())
+                    switch (col)
                     {
+                        /// parameter
                         case 0:
                             return name;
+                        /// unit
                         case 1:
-                            if (dz->units().size() < indexInParams
-                                || indexInParams == -1)
+                            if (pIdx >= units.size() || pIdx == -1)
                             {
                                 return "unit";
                             }
-                            return dz->units().at(indexInParams);
+                            return units.at(pIdx);
+                        /// tick
                         default:
-                            return dz->allAxisTicks().first().at(
-                                        index.column() - 2);
+                            return axisTicks.at(col - 2);
                     }
                 }
 
-                switch (index.column())
+                /// data row
+                switch (col)
                 {
-                case 0:
-                    return params[index.row() - 1];
-                case 1:
-                    return units[index.row() - 1];
-                default:
-                    return dz->value1D(params[index.row() - 1],
-                            axisTicks.at(index.column() - 2));
+                    /// parameter
+                    case 0:
+                        return params[row - 1];
+                    /// unit
+                    case 1:
+                        return units[row - 1];
+                    /// value
+                    default:
+                        return dz->fetchData().value1D(params[row - 1],
+                                                       axisTicks.at(col - 2));
                 }
-
             }
             else if (dz->nDims() == 2)
             {
-                int variableAxisIndex = abs(m_axOfInterest - 1);
+                int variableAxisIndex = std::abs(m_axOfInterest - 1);
+                auto axisTicks = dz->allAxisTicks().at(variableAxisIndex);
 
-
-                if (index.column() < 0 || index.column()
-                    >= dz->allAxisTicks().at(variableAxisIndex).size() + 2)
+                if (col < 0 || col >= axisTicks.size() + 2)
                 {
                     gtDebug() << "Error - GtDataZoneModel::data - 2D -"
                                  " column not ok";
                     return QVariant();
                 }
 
-                if (index.row() == 0)
+                /// header line
+                if (row == 0)
                 {
-                    QString name;
-
-                    if (dz->axisNames().size() < variableAxisIndex)
+                    auto axisNames = dz->axisNames();
+                    if (axisNames.size() < variableAxisIndex)
                     {
                         return "name";
                     }
 
-                    name = dz->axisNames().at(variableAxisIndex);
+                    auto name = axisNames.at(variableAxisIndex);
+                    int pIdx = params.indexOf(name);
 
-                    int indexInParams = dz->params().indexOf(name);
-
-                    switch (index.column())
+                    switch (col)
                     {
+                        /// parameter
                         case 0:
                             return name;
+                        /// unit
                         case 1:
-                            if (dz->units().size() < indexInParams
-                                || indexInParams == -1)
+                            if (pIdx >= units.size() || pIdx == -1)
                             {
                                 return "unit";
                             }
-                            return dz->units().at(indexInParams);
+                            return units.at(pIdx);
+                        /// tick
                         default:
-                            if (dz->allAxisTicks().at(variableAxisIndex).size()
-                                < index.column()-2)
+                            if (axisTicks.size() < col - 2)
                             {
                                 return -1;
                             }
-
-                            return dz->allAxisTicks().at(variableAxisIndex)
-                                    .at(index.column()-2);
+                            return axisTicks.at(col - 2);
                     }
                 }
 
-                switch (index.column())
+                /// data row
+                switch (col)
                 {
+                    /// parameter
                     case 0:
-                        if (params.size() < index.row()-1)
+                        if (params.size() < row - 1)
                         {
                             return "name";
                         }
-                        return params[index.row()-1];
+                        return params[row - 1];
+                    /// unit
                     case 1:
-                        if (units.size() < index.row()-1)
+                        if (units.size() < row - 1)
                         {
                             return "unit";
                         }
-                        return units[index.row()-1];
+                        return units[row - 1];
+                    /// value
                     default:
-                        double val = value2D(index.row(), index.column(),
-                                             m_axOfInterest,
-                                             m_indexOfInterestAx1,
-                                             dz);
-                        return val;
+                        return value2D(row, col, m_axOfInterest,
+                                       m_indexOfInterestAx1,
+                                       *dz, dz->fetchData());
                 }
             }
         }
-        else
+        else if (auto* dz0D{qobject_cast<GtDataZone0D*>(m_result)})
         {
-            GtDataZone0D* dz0D = qobject_cast<GtDataZone0D*>(m_result);
-            if (!dz0D)
+            if (col < 0 || col >= 3)
             {
                 return QVariant();
             }
 
-            QVector<double> values = dz0D->values();
-
-            if (index.column() < 0 || index.column() >= 3)
+            /// data row
+            switch (col)
             {
-                return QVariant();
-            }
-
-            switch (index.column())
-            {
+                /// parameter
                 case 0:
-                    return params[index.row()];
+                    return params[row];
+                /// unit
                 case 1:
-                    return units[index.row()];
+                    return units[row];
+                /// value
                 case 2:
-                    return values[index.row()];
+                    return dz0D->fetchData().values()[row];
             }
         }
     }
     else if (role == Qt::FontRole)
     {
-        GtDataZone* dz = qobject_cast<GtDataZone*>(m_result);
-
-        if (dz)
+        /// header line
+        if (row == 0 && !m_result->is0D() && m_result->nDims() <= 2)
         {
-            if (dz->nDims() > 2)
-            {
-                return QVariant();
-            }
-
-            if (index.row() == 0)
-            {
-                QFont font;
-                font.setBold(true);
-                return font;
-            }
+            QFont font;
+            font.setBold(true);
+            return font;
         }
     }
     return QVariant();

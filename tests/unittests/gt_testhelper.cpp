@@ -11,9 +11,9 @@
 #include <QDir>
 #include <QUuid>
 #include <QDebug>
-#include <QRandomGenerator>
 
 #include "gt_testhelper.h"
+#include "gt_logging.h"
 
 GtTestHelper::GtTestHelper()
 {    
@@ -23,6 +23,12 @@ GtTestHelper::GtTestHelper()
     {
         tempDir.removeRecursively();
     }
+
+     // setup gt logging
+     QsLogging::Logger& logger = QsLogging::Logger::instance();
+     QsLogging::DestinationPtr debugDestination(
+         QsLogging::DestinationFactory::MakeDebugOutputDestination());
+     logger.addDestination(debugDestination);
 }
 
 GtTestHelper*
@@ -63,21 +69,6 @@ GtTestHelper::randomStringList(int length)
     for (int i = 0; i < length; ++i)
     {
         retVal.append(QUuid::createUuid().toString());
-    }
-
-    return retVal;
-}
-
-QVector<double>
-GtTestHelper::randomDataVector(int length)
-{
-    QVector<double> retVal;
-    retVal.reserve(length);
-
-    QRandomGenerator randg;
-    for (int i = 0; i < length; ++i)
-    {
-        retVal.append(randg.generate() * 0.9);
     }
 
     return retVal;

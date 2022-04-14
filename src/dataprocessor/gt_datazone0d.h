@@ -10,28 +10,59 @@
 #ifndef GTDATAZONE0D_H
 #define GTDATAZONE0D_H
 
-#include "gt_datamodel_exports.h"
-
-#include <QVector>
-#include <QHash>
-#include <QStringList>
-
 #include "gt_abstractdatazone.h"
 
-/**
- * @brief The GtDataZone0D class
- */
-class GT_DATAMODEL_EXPORT GtDataZone0D : public GtAbstractDataZone
-{
-    Q_OBJECT
+#include <QVector>
+#include <QStringList>
 
-    Q_PROPERTY(QVector<double> values READ values WRITE setValues)
+
+class GtDataZone0D;
+class GT_DATAMODEL_EXPORT GtDataZone0DData : public GtAbstractDataZoneData
+{
+    GT_DECL_BASECLASS(GtDataZone0D)
 
 public:
+
+    explicit GtDataZone0DData(GtDataZone0D* base);
+
     /**
-     * @brief GtDataZone0D
+     * @brief Returns true if size of params, units and values matches.
+     * @return Data validity indicator.
      */
-    Q_INVOKABLE GtDataZone0D();
+    bool isValid() const override;
+
+    /**
+     * @brief Returns the value assigned to the given parameter name (if existent)
+     *        If the parameter name is not contained in the current parameter map
+     *        a value of 0.0 will be returned!
+     *        Check bool parameter for success!
+     * @param paramName
+     * @param ok
+     * @return
+     */
+    double value(const QString& paramName, bool* ok = nullptr) const;
+
+    /**
+     * @brief values
+     * @return values
+     */
+    const QVector<double>& values() const;
+
+    /**
+     * @brief setValues
+     * @param values
+     */
+    void setValues(const QVector<double>& values);
+
+    /**
+     * @brief If the given parameter name exists in m_parameterMap its current
+     *        value will be replaced by the given value
+     * @param paramName
+     * @param value
+     * @return
+     */
+    bool setValue(const QString& paramName,
+                  const double& value);
 
     /**
      * @brief Applies a new set of parameters and values to the data zone
@@ -42,17 +73,8 @@ public:
      * @return
      */
     bool setData(const QStringList &paramNames,
-                 const QVector<double>& values, const QStringList &units);
-
-    /**
-     * @brief If the given parameter name exists in m_parameterMap its current value
-     *        will be replaced by the given value
-     * @param paramName
-     * @param value
-     * @return
-     */
-    bool setValue(const QString& paramName,
-                  const double& value);
+                 const QVector<double>& values,
+                 const QStringList& units);
 
     /**
      * @brief if the given parameter name is not yet contained in the current
@@ -86,79 +108,61 @@ public:
                     const double& val);
 
     /**
-     * @brief Returns the value assigned to the given parameter name (if existent)
-     *        If the parameter name is not contained in the current parameter map
-     *        a value of 0.0 will be returned!
-     *        Check bool parameter for success!
-     * @param paramName
-     * @param ok
-     * @return
+     * @brief clearData: Clears parameter map
      */
-    double value(const QString& paramName, bool* ok = nullptr) const;
+    void clearData();
+};
+
+
+/**
+ * @brief The GtDataZone0D class
+ */
+class GT_DATAMODEL_EXPORT GtDataZone0D : public GtAbstractDataZone
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QVector<double> values MEMBER m_values)
+
+    GT_DECL_DATACLASS(GtDataZone0DData)
+
+public:
 
     /**
-     * @brief unitFromParam
-     * @return
+     * @brief GtDataZone0D
      */
-    QString unit(const QString& param) const override;
-
-    /**
-     * @brief values
-     * @return
-     */
-    QVector<double> values() const;
-
-    /**
-     * @brief setValues
-     * @param values
-     */
-    void setValues(const QVector<double>& values);
+    Q_INVOKABLE GtDataZone0D();
 
     /**
      * @brief is0D
-     * @return
+     * @return true
      */
     bool is0D() const override;
 
     /**
      * @brief nDims
-     * @return
+     * @return 0
      */
     int nDims() const override;
-
-    /**
-     * @brief addModuleName
-     * @param moduleName
-     */
-    void addModuleName(const QString& moduleName) override;
-
-    /**
-     * @brief Returns true if size of params, units and values matches.
-     * @return Data validity indicator.
-     */
-    bool isValid() const;
-
-    /**
-     * @brief clearData: Clears parameter map
-     */
-    void clearData();
 
 protected:
 
     /**
-     * @brief doFetch fetches the externalized data.
+     * @brief fetchs the externalized params, units and values properties.
+     * @param metaData metadata for fetching.
+     * @param fetchInitialVersion whether to fetch the intial data version
      * @return success
      */
-    bool doFetchData() override;
+    bool doFetchData(QVariant& metaData, bool fetchInitialVersion) override;
 
     /**
-     * @brief doExternalize externalizes the fetched data.
+     * @brief externalizes the params, units and values properties.
+     * @param metaData metadata for externalizing.
      * @return success
      */
-    bool doExternalizeData() override;
+    bool doExternalizeData(QVariant& metaData) override;
 
     /**
-     * @brief doClearExternalizedData clears the data.
+     * @brief clears the params, values and units
      */
     void doClearExternalizedData() override;
 
@@ -166,7 +170,6 @@ private:
 
     /// Parameter values
     QVector<double> m_values;
-
 };
 
 #endif // GTDATAZONE0D_H
