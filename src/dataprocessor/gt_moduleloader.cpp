@@ -355,7 +355,7 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
 //        debugDependencies(modulesDir.absoluteFilePath(fileName));
 
         // check outstanding dependencies
-        if (checkDependency(deps))
+        if (checkDependency(deps, fileName))
         {
             // store temporary module information in loading fail log
             crashed_mods << modulesDir.absoluteFilePath(fileName);
@@ -401,8 +401,6 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
 
     if (noe == entries.size())
     {
-        gtWarning() << QObject::tr("Could not resolve plugin dependencies:");
-        gtWarning() << entries;
         return false;
     }
 
@@ -415,7 +413,8 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
 }
 
 bool
-GtModuleLoader::checkDependency(const QVariantList& deps)
+GtModuleLoader::checkDependency(const QVariantList& deps,
+                                const QString& moduleFileName)
 {
     if (deps.isEmpty())
     {
@@ -443,17 +442,25 @@ GtModuleLoader::checkDependency(const QVariantList& deps)
 
         if (depVersion < version)
         {
-            gtError() << "dependecy -" << name << "- is outdated! (needed: >="
-                      << version.toString() << " ; current: "
-                      << depVersion.toString();
+            gtError().noquote() << QObject::tr("Loading")
+                    << moduleFileName + QStringLiteral(":");
+
+            gtError().noquote()
+                    << QObject::tr("Dependency -")
+                    << name << QObject::tr("- is outdated! (needed: >=")
+                    << version.toString() + QObject::tr("; current:")
+                    << depVersion.toString() + QStringLiteral(")");
             return false;
         }
         else if (depVersion > version)
         {
-            gtWarning() << "dependecy -" << name << "- has a newer version "
-                        << "than the module requires. (needed: >="
-                        << version.toString() << " ; current: "
-                        << depVersion.toString();
+            gtInfo().noquote()
+                    << QObject::tr("Dependency -") << name
+                    << QObject::tr("- has a newer version than the module")
+                    << moduleFileName
+                    << QObject::tr("requires. (needed: >=")
+                    << version.toString() + QObject::tr("; current:")
+                    << depVersion.toString() + QStringLiteral(")");
         }
     }
 
