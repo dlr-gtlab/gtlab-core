@@ -350,17 +350,15 @@ GtMainWin::closeEvent(QCloseEvent* event)
 void
 GtMainWin::keyPressEvent(QKeyEvent* event)
 {
-    if (event->modifiers() & Qt::AltModifier)
+    if (gtApp->compareKeyEvent(event, "switchPerspective"))
     {
-        if (event->key() == Qt::Key_P)
-        {
-            GtPerspectiveSwitchWidget switchwidget(this);
-            switchwidget.setWindowFlags(Qt::Popup);
-            //            switchwidget.resize(QSize(switchwidget.width(),
-            //                                      switchwidget.height()));
-            //            qDebug() << switchwidget.size();
-            switchwidget.exec();
-        }
+        GtPerspectiveSwitchWidget switchwidget(this);
+        switchwidget.setWindowFlags(Qt::Popup);
+        //            switchwidget.resize(QSize(switchwidget.width(),
+        //                                      switchwidget.height()));
+        //            qDebug() << switchwidget.size();
+        switchwidget.exec();
+        return;
     }
 
     QMainWindow::keyPressEvent(event);
@@ -1180,7 +1178,7 @@ GtMainWin::closeProject()
 }
 
 void
-GtMainWin::onObjectSelected(GtObject* obj)
+GtMainWin::onObjectSelected(GtObject* /* obj */ )
 {
 }
 

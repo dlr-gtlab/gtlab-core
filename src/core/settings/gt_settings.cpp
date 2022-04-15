@@ -70,147 +70,143 @@ GtSettings::GtSettings()
                         QStringLiteral("system"));
 }
 
-QMap<QString, QStringList>
-GtSettings::shortcutsTable() const
+QList<GtShortCutSettingsData>
+GtSettings::shortcutsList() const
 {
     QVariant val = QSettings().value(m_shortcutsTable->ident());
 
     QMap<QString, QVariant> helpingMap = val.toMap();
 
-    QMap<QString, QStringList> retVal;
+    QList<GtShortCutSettingsData> retVal;
 
-    for_each_key(helpingMap, [&](const QString& s)
+    for (QString const & s : helpingMap.keys())
     {
         QVariant v = helpingMap.value(s);
 
         QStringList list = v.toStringList();
 
-        retVal.insert(s, list);
-    });
+        QString cat = list.at(1);
+        QString key = list.at(0);
+
+        bool readOnly = false;
+        if (list.size() > 2)
+        {
+            if (list.at(2) == "true")
+            {
+                readOnly = true;
+            }
+        }
+
+        retVal.append({s, cat, key, readOnly});
+    }
 
     return retVal;
 }
 
 void
-GtSettings::setShortcutsTable(QMap<QString, QStringList> const& shortcutsTable)
+GtSettings::setShortcutsTable(QList<GtShortCutSettingsData> const& list)
 {
     QMap<QString, QVariant> helpingMap;
 
-    for_each_key(shortcutsTable, [&](const QString& s)
+    for (auto const& s : list)
     {
-        QStringList list = shortcutsTable.value(s);
-        helpingMap.insert(s, QVariant(list));
-    });
+        helpingMap.insert(s.id, s.dataToVariant());
+    }
 
-    QVariant val(helpingMap);
-
-    QSettings().setValue(m_shortcutsTable->ident(), val);
+    QSettings().setValue(m_shortcutsTable->ident(), QVariant(helpingMap));
 }
+
 
 QVariant
 GtSettings::initialShortCuts() const
 {
-    QMap<QString, QVariant> shortCutData;
+    QMap<QString, QVariant> shortCutDataMap;
 
+    for (GtShortCutSettingsData const& s : intialShortCutsList())
+    {
+        shortCutDataMap.insert(s.id, s.dataToVariant());
+    }
+
+    return QVariant(shortCutDataMap);
+}
+
+QList<GtShortCutSettingsData>
+GtSettings::intialShortCutsList() const
+{
     QString catCore = QStringLiteral("Core");
-    QString catOutput = QStringLiteral("Output Dock");
+
+    QList<GtShortCutSettingsData> shortCuts;
 
     /// rename object
-    shortCutData.insert(QStringLiteral("rename"), QStringList{
-                            QKeySequence(Qt::Key_F2).toString(), catCore });
+    shortCuts.append({QStringLiteral("rename"), catCore,
+                      QKeySequence(Qt::Key_F2), true});
 
     /// openContectMenu
-    shortCutData.insert(QStringLiteral("OpenContextMenu"), QStringList{
-                            QKeySequence(Qt::Key_F4).toString(), catCore });
+    shortCuts.append({QStringLiteral("OpenContextMenu"), catCore,
+                      QKeySequence(Qt::Key_F4)});
 
     /// ShowFootprint
-    shortCutData.insert(QStringLiteral("ShowFootprint"), QStringList{
-                            QKeySequence(Qt::CTRL + Qt::Key_I).toString(),
-                            catCore });
+    shortCuts.append({QStringLiteral("ShowFootprint"), catCore,
+                      QKeySequence(Qt::CTRL + Qt::Key_I)});
     /// redo
-    shortCutData.insert(QStringLiteral("redo"), QStringList{
-                            QKeySequence(QKeySequence::Redo).toString(),
-                            catCore });
+    shortCuts.append({QStringLiteral("redo"), catCore,
+                      QKeySequence(QKeySequence::Redo), true});
 
     /// undo
-    shortCutData.insert(QStringLiteral("undo"), QStringList{
-                            QKeySequence(QKeySequence::Undo).toString(),
-                            catCore });
+    shortCuts.append({QStringLiteral("undo"), catCore,
+                      QKeySequence(QKeySequence::Undo), true});
 
     /// cut
-    shortCutData.insert(QStringLiteral("cut"), QStringList{
-                            QKeySequence(QKeySequence::Cut).toString(),
-                            catCore });
+    shortCuts.append({QStringLiteral("cut"), catCore,
+                      QKeySequence(QKeySequence::Cut), true});
 
     /// copy
-    shortCutData.insert(QStringLiteral("copy"), QStringList{
-                            QKeySequence(QKeySequence::Copy).toString(),
-                            catCore });
+    shortCuts.append({QStringLiteral("copy"), catCore,
+                      QKeySequence(QKeySequence::Copy), true});
 
     /// paste
-    shortCutData.insert(QStringLiteral("paste"), QStringList{
-                            QKeySequence(QKeySequence::Paste).toString(),
-                            catCore });
+    shortCuts.append({QStringLiteral("paste"), catCore,
+                      QKeySequence(QKeySequence::Paste), true});
 
     /// delete
-    shortCutData.insert(QStringLiteral("delete"), QStringList{
-                            QKeySequence(QKeySequence::Delete).toString(),
-                            catCore });
+    shortCuts.append({QStringLiteral("delete"), catCore,
+                      QKeySequence(QKeySequence::Delete), true});
 
-    /// runProcess
-    shortCutData.insert(QStringLiteral("runProcess"), QStringList{
-                            QKeySequence(Qt::CTRL + Qt::Key_R).toString(),
-                            catCore });
+    /// search
+    shortCuts.append({QStringLiteral("search"), catCore,
+                      QKeySequence(Qt::CTRL + Qt::Key_F)});
 
-    /// unskipProcess
-    shortCutData.insert(QStringLiteral("unskipProcess"), QStringList{
-                            QKeySequence(Qt::CTRL + Qt::Key_T).toString(),
-                            catCore });
+    /// switchPerspective
+    shortCuts.append({QStringLiteral("switchPerspective"), catCore,
+                      QKeySequence(Qt::ALT + Qt::Key_P), true});
 
-    /// skipProcess
-    shortCutData.insert(QStringLiteral("skipProcess"), QStringList{
-                            QKeySequence(Qt::CTRL + Qt::Key_G).toString(),
-                            catCore });
+    /// Preferences
+    shortCuts.append({QStringLiteral("openPreferences"), catCore,
+                      QKeySequence(Qt::ALT + Qt::Key_Enter), true});
 
-    /// toggleDebugOutput
-    shortCutData.insert(QStringLiteral("toggleDebugOutput"), QStringList{
-                            QKeySequence(Qt::CTRL + Qt::Key_D).toString(),
-                            catOutput });
+    /// save
+    shortCuts.append({QStringLiteral("save"), catCore,
+                      QKeySequence(Qt::CTRL + Qt::Key_S), true});
 
-    /// toggleInfoOutput
-    shortCutData.insert(QStringLiteral("toggleInfoOutput"), QStringList{
-                            QKeySequence(Qt::CTRL + Qt::Key_I).toString(),
-                            catOutput });
+    /// new Project
+    shortCuts.append({QStringLiteral("newProject"), catCore,
+                      QKeySequence(Qt::CTRL + Qt::Key_N), true});
 
-    /// toggleWarningOutput
-    shortCutData.insert(QStringLiteral("toggleWarningOutput"), QStringList{
-                            QKeySequence(Qt::CTRL + Qt::Key_W).toString(),
-                            catOutput });
+    /// open Project
+    shortCuts.append({QStringLiteral("openProject"), catCore,
+                      QKeySequence(Qt::CTRL + Qt::Key_O), true});
 
-    /// toggleErrorOutput
-    shortCutData.insert(QStringLiteral("toggleErrorOutput"), QStringList{
-                            QKeySequence(Qt::CTRL + Qt::Key_E).toString(),
-                            catOutput });
+    /// close Project
+    shortCuts.append({QStringLiteral("closeProject"), catCore,
+                      QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_W), true});
 
-    return QVariant(shortCutData);
+    /// help
+    shortCuts.append({QStringLiteral("help"), catCore,
+                      QKeySequence(Qt::Key_F1), true});
+
+    return shortCuts;
 }
 
-QMap<QString, QStringList>
-GtSettings::intialShortCutsMap()
-{
-    QVariant v = initialShortCuts();
-
-    QMap<QString, QVariant> map = v.toMap();
-
-    QMap<QString, QStringList> retVal;
-
-    for_each_key(map, [&](const QString& k)
-    {
-        retVal.insert(k, map.value(k).toStringList());
-    });
-
-    return retVal;
-}
 
 QString
 GtSettings::themeMode()
@@ -417,3 +413,4 @@ GtSettings::explorerExpandStates()
 {
     return QSettings().value(m_explorerExpandStates->ident()).toStringList();
 }
+

@@ -180,7 +180,11 @@ private:
      */
     void keyPressEvent(QKeyEvent* event) override;
 
-
+    /**
+     * @brief firstSelectedIndex
+     * @return
+     */
+    QModelIndex firstSelectedIndex() const;
 private slots:
 
     /**
@@ -255,7 +259,8 @@ signals:
 
     /**
      * @brief contextMenuKeyPressSignal
-     * Signal to emit if the context menu is requested by the key press of F2
+     * Signal to emit if the context menu is requested by the key press
+     * of shortcut
      */
     void contextMenuKeyPressSignal(QModelIndex);
 

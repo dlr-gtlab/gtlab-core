@@ -11,6 +11,7 @@
 #include <QKeyEvent>
 
 #include "gt_application.h"
+#include "gt_logging.h"
 
 #include "gt_processview.h"
 
@@ -48,7 +49,7 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
         {
             QModelIndex index = indexes.first();
 
-            if (gtApp->compareKeyEvent(event, "runProcess"))
+            if (gtApp->compareKeyEvent(event, "runProcess", "GtProcessDock"))
             {
                 if (index.isValid())
                 {
@@ -58,7 +59,7 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
                 }
             }
 
-            if (gtApp->compareKeyEvent(event, "copy"))
+            if (gtApp->compareKeyEvent(event, "copy", "Core"))
             {
                 if (index.isValid())
                 {
@@ -67,12 +68,13 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
                     return;
                 }
             }
-            if (gtApp->compareKeyEvent(event, "paste"))
+            if (gtApp->compareKeyEvent(event, "paste", "Core"))
             {
                 emit pasteProcessElement(index);
+                return;
             }
 
-            if (gtApp->compareKeyEvent(event, "cut"))
+            if (gtApp->compareKeyEvent(event, "cut", "Core"))
             {
                 if (index.isValid())
                 {
@@ -82,7 +84,7 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
                 }
             }
 
-            if (gtApp->compareKeyEvent(event, "skipProcess"))
+            if (gtApp->compareKeyEvent(event, "skipProcess", "GtProcessDock"))
             {
                 if (index.isValid())
                 {
@@ -92,7 +94,7 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
                 }
             }
 
-            if (gtApp->compareKeyEvent(event, "unskipProcess"))
+            if (gtApp->compareKeyEvent(event, "unskipProcess", "GtProcessDock"))
             {
                 if (index.isValid())
                 {
@@ -102,7 +104,7 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
                 }
             }
 
-            if (gtApp->compareKeyEvent(event, "rename"))
+            if (gtApp->compareKeyEvent(event, "rename", "Core"))
             {
                 if (index.isValid())
                 {
@@ -116,10 +118,9 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
         if (gtApp->compareKeyEvent(event, "delete"))
         {
             emit deleteProcessElements(indexes);
+            return;
         }
     }
-
-    GtTreeView::keyPressEvent(event);
 }
 
 void

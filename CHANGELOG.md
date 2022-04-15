@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Monitoring property for strings - #140
 - Dark mode for GTlab - #163
 - Project Settings dialog for setting project specific settings (opened using the contextmenu of a project) - #173
-- Shortcut settings for GTlab including the introduction of several new shortcuts and the option to maintain them in the preferences - #112, #171
+- Shortcut settings for GTlab including the introduction of several new shortcuts and the option to maintain them in the preferences - #112, #171, #172
 - Versionnumber based on GtVersionNumber for tasks - #129
 - Add some DataZone functions to Python interface - #177
 

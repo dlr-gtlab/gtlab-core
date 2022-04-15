@@ -99,6 +99,7 @@ HEADERS += \
     process_management/gt_parameterloop.h \
     process_management/gt_calculatorhelperfactory.h \
     process_management/gt_stringmonitoringproperty.h \
+    settings/gt_shortcutsettingsdata.h \
     states/gt_state.h \
     states/gt_stategroup.h \
     states/gt_statehandler.h \
@@ -171,6 +172,7 @@ SOURCES += \
     process_management/gt_parameterloop.cpp \
     process_management/gt_calculatorhelperfactory.cpp \
     process_management/gt_stringmonitoringproperty.cpp \
+    settings/gt_shortcutsettingsdata.cpp \
     states/gt_state.cpp \
     states/gt_stategroup.cpp \
     states/gt_statehandler.cpp \

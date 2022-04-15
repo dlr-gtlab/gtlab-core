@@ -36,12 +36,9 @@ GtPerspectiveSwitchWidget::GtPerspectiveSwitchWidget(QWidget* parent) :
 void
 GtPerspectiveSwitchWidget::keyPressEvent(QKeyEvent* event)
 {
-    if (event->modifiers() & Qt::AltModifier)
+    if (gtApp->compareKeyEvent(event, "switchPerspective"))
     {
-        if (event->key() == Qt::Key_P)
-        {
-            nextPerspective();
-        }
+        nextPerspective();
     }
 
     QDialog::keyPressEvent(event);
@@ -50,6 +47,8 @@ GtPerspectiveSwitchWidget::keyPressEvent(QKeyEvent* event)
 void
 GtPerspectiveSwitchWidget::keyReleaseEvent(QKeyEvent* event)
 {
+    /// Currently there is no way to check only the modifier of a short cut
+    /// The short cut for switch perspective is set as readOnly
     if (event->key() == Qt::Key_Alt)
     {
         accept();

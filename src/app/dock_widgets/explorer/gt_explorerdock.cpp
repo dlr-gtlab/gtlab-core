@@ -28,6 +28,7 @@
 #include "gt_textfilterdelegate.h"
 #include "gt_deleteitemmessagebox.h"
 #include "gt_stylesheets.h"
+#include "gt_projectui.h"
 
 #include "gt_datamodel.h"
 #include "gt_styledmodel.h"
@@ -372,7 +373,6 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
             if (a->isVisible())
             {
                 anyVisible = true;
-                //gtDebug() << "Visible:" << a->objectName();
                 break;
             }
         }
@@ -627,6 +627,28 @@ GtExplorerDock::restoreExpandStatesHelper(const QStringList& expandedItems,
     }
 }
 
+QModelIndex
+GtExplorerDock::firstSelectedIndex() const
+{
+    if (!m_view)
+    {
+        return {};
+    }
+    if (!m_view->selectionModel())
+    {
+        return {};
+    }
+
+    QModelIndexList indexlist = m_view->selectionModel()->selectedIndexes();
+
+    if (indexlist.isEmpty())
+    {
+        return {};
+    }
+
+    return indexlist.first();
+}
+
 void
 GtExplorerDock::keyPressEvent(QKeyEvent* event)
 {
@@ -634,23 +656,93 @@ GtExplorerDock::keyPressEvent(QKeyEvent* event)
     {
         if (m_view->selectionModel())
         {
-            QModelIndexList indexlist =
-                    m_view->selectionModel()->selectedIndexes();
-
             if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
             {
-                if (indexlist.isEmpty())
-                {
-                    return;
-                }
-
-                QModelIndex first = indexlist.first();
+                QModelIndex first = firstSelectedIndex();
 
                 if (first.isValid())
                 {
                     emit contextMenuKeyPressSignal(first);
                     event->accept();
                     return;
+                }
+            }
+            if (gtApp->compareKeyEvent(event, "rename"))
+            {
+                QModelIndex first = firstSelectedIndex();
+
+                QModelIndex index = mapToSource(first);
+
+                if (!index.isValid())
+                {
+                    return;
+                }
+
+                GtObject* obj = gtDataModel->objectFromIndex(index);
+
+                if (obj)
+                {
+                    auto project = qobject_cast<GtProject*>(obj);
+
+                    // special case to rename a project
+                    if (project)
+                    {
+                        GtObjectUI* oui = gtApp->defaultObjectUI(project);
+
+                        auto projectui = qobject_cast<GtProjectUI*>(oui);
+
+                        if (!projectui)
+                        {
+                            return;
+                        }
+
+                        if (projectui->canRenameProject(project))
+                        {
+                            projectui->renameProject(project);
+                        }
+                        else
+                        {
+                            gtInfo() << tr("Cannot rename open project");
+                        }
+                        return;
+                    }
+                }
+
+                if (first.isValid())
+                {
+                    m_view->edit(first);
+                }
+            }
+
+            if (gtApp->compareKeyEvent(event, "ShowFootprint"))
+            {
+                QModelIndex first = firstSelectedIndex();
+
+                QModelIndex index = mapToSource(first);
+
+                if (!index.isValid())
+                {
+                    return;
+                }
+
+                GtObject* obj = gtDataModel->objectFromIndex(index);
+
+                if (obj)
+                {
+                    auto project = qobject_cast<GtProject*>(obj);
+
+                    // special case to rename a project
+                    if (project)
+                    {
+                        GtObjectUI* oui = gtApp->defaultObjectUI(project);
+
+                        auto projectui = qobject_cast<GtProjectUI*>(oui);
+
+                        if (project && projectui)
+                        {
+                            projectui->showFootprint(project);
+                        }
+                    }
                 }
             }
         }

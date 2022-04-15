@@ -11,6 +11,7 @@
 
 #include "gt_gui_exports.h"
 
+#include "gt_settings.h"
 #include <QObject>
 
 class GtShortCut;
@@ -32,9 +33,11 @@ public:
     /**
      * @brief getKey
      * @param id - id of the shortcut element
+     * @param category - uses to identify the short cut aswell
      * @return key sequence for this entry
      */
-    QKeySequence getKey(const QString& id) const;
+    QKeySequence getKey(const QString& id,
+                        const QString& category = "Core") const;
 
     /**
      * @brief initialize - initialize short cuts based on the information
@@ -44,6 +47,13 @@ public:
      * two elements of the list.
      */
     void initialize(const QMap<QString, QStringList>& tab);
+
+    /**
+     * @brief initialize - initialize short cuts based on the information
+     * from the map
+     * @param list
+     */
+    void initialize(const QList<GtShortCutSettingsData>& list);
 
     /**
      * @brief isEmpty
@@ -64,6 +74,11 @@ public:
      * @return pointer to short cut or nullptr if it cannot be found
      */
     GtShortCut* findShortCut(const QString& id, const QString& category) const;
+
+    void emitChange();
+
+signals:
+    void changed();
 };
 
 #endif // GTSHORTCUTS_H

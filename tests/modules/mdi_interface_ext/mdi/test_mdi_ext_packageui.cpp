@@ -10,13 +10,18 @@
 #include <QIcon>
 
 #include "gt_logging.h"
+#include "gt_application.h"
 
 #include "test_mdi_ext_packageui.h"
 #include "test_mdi_ext_viewer.h"
 
 TestMdiExtPackageUI::TestMdiExtPackageUI()
 {
-    addSingleAction("Test Action 2", "testAction");
+
+    QKeySequence k = registerShortCut(QStringLiteral("testModuleShortCut_ext3"),
+                                      QKeySequence(Qt::Key_F9));
+
+    addSingleAction("Test Action 2", "testAction", k);
 
     QList<GtObjectUIAction> addItemActions;
 
@@ -59,3 +64,4 @@ TestMdiExtPackageUI::testGroupAction(GtObject* /*obj*/)
 {
     gtInfo() << "TEST MDI INTERFACE EXT - TEST GROUP ACTION";
 }
+

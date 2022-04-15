@@ -55,6 +55,35 @@ GtDockWidget::projectSavedEvent(GtProject* project)
     Q_UNUSED(project)
 }
 
+QKeySequence
+GtDockWidget::registerShortCut(const QString& id,
+                               const QKeySequence& k,
+                               bool readOnly)
+{
+    const QMetaObject* m = metaObject();
+    return registerShortCut({id, m->className(), k, readOnly});
+}
+
+QKeySequence
+GtDockWidget::registerShortCut(const GtShortCutSettingsData& data)
+{
+    gtApp->extendShortCuts(data);
+    return getShortCut(data.id);
+}
+
+void
+GtDockWidget::registerShortCuts(const QList<GtShortCutSettingsData>& list)
+{
+    gtApp->extendShortCuts(list);
+}
+
+QKeySequence
+GtDockWidget::getShortCut(const QString &id)
+{
+    const QMetaObject* m = metaObject();
+    return gtApp->getShortCutSequence(id, m->className());
+}
+
 void
 GtDockWidget::onProjectChanged(GtProject* project)
 {

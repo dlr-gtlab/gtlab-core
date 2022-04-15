@@ -18,6 +18,8 @@
 #include "gt_object.h"
 #include "gt_regexp.h"
 #include "gt_colors.h"
+#include "gt_logging.h"
+#include "gt_application.h"
 
 GtObjectUI::GtObjectUI()
 {
@@ -138,6 +140,35 @@ void
 GtObjectUI::addSeparator()
 {
     m_singleActions << GtObjectUIAction();
+}
+
+QKeySequence
+GtObjectUI::registerShortCut(const QString& id,
+                             const QKeySequence& k,
+                             bool readOnly)
+{
+    const QMetaObject* m = metaObject();
+    return registerShortCut({id, m->className(), k, readOnly});
+}
+
+QKeySequence
+GtObjectUI::registerShortCut(const GtShortCutSettingsData &data)
+{
+    gtApp->extendShortCuts(data);
+    return getShortCut(data.id);
+}
+
+void
+GtObjectUI::registerShortCuts(const QList<GtShortCutSettingsData>& list)
+{
+    gtApp->extendShortCuts(list);
+}
+
+QKeySequence
+GtObjectUI::getShortCut(const QString &id)
+{
+    const QMetaObject* m = metaObject();
+    return gtApp->getShortCutSequence(id, m->className());
 }
 
 bool

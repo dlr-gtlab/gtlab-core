@@ -13,9 +13,11 @@
 #include <QPushButton>
 #include <QMenu>
 #include <QMessageBox>
+#include <QKeyEvent>
 
 #include "gt_searchwidget.h"
 #include "gt_listview.h"
+#include "gt_application.h"
 #include "gt_icons.h"
 #include "gt_project.h"
 #include "gt_mdilauncher.h"
@@ -75,6 +77,9 @@ GtLabelsDock::GtLabelsDock() :
 
     connect(m_listView, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(customContextMenu(QPoint)));
+
+    connect(this, SIGNAL(contextMenuKeyPressSignal(QModelIndex)),
+            SLOT(customContextMenu(QModelIndex)));
 
     QHBoxLayout* filterLayout = new QHBoxLayout;
     filterLayout->setContentsMargins(0, 0, 0, 0);
@@ -398,6 +403,39 @@ GtLabelsDock::deleteMultipleUsages(const QModelIndexList& indexes,
     }
 }
 
+void
+GtLabelsDock::keyPressEvent(QKeyEvent* event)
+{
+    if (m_listView->model())
+    {
+        QModelIndexList indexes;
+
+        // multiselection
+        if (m_listView->selectionModel())
+        {
+            indexes = m_listView->selectionModel()->selectedIndexes();
+        }
+
+        if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
+        {
+            if (!indexes.isEmpty())
+            {
+                QModelIndex first = indexes.first();
+
+                if (first.isValid())
+                {
+                    emit contextMenuKeyPressSignal(first);
+                    event->accept();
+                    return;
+                }
+
+            }
+        }
+    }
+
+    GtDockWidget::keyPressEvent(event);
+}
+
 GtLabel*
 GtLabelsDock::labelFromIndex(const QModelIndex& index)
 {
@@ -473,8 +511,24 @@ GtLabelsDock::newLabel()
 void
 GtLabelsDock::customContextMenu(const QPoint& pos)
 {
+    QModelIndex indexUnderMouse = m_listView->indexAt(pos);
+
+    if (!indexUnderMouse.isValid())
+    {
+        gtDebug() << "invalid list view";
+        return;
+    }
+
+    customContextMenu(indexUnderMouse);
+}
+
+
+void
+GtLabelsDock::customContextMenu(const QModelIndex& index)
+{
     if (!m_listView->model())
     {
+        gtDebug() << "invalid list view";
         return;
     }
 
@@ -487,11 +541,9 @@ GtLabelsDock::customContextMenu(const QPoint& pos)
     }
     else
     {
-        // check index at cursor
-        QModelIndex index = m_listView->indexAt(pos);
-
         if (!index.isValid())
         {
+            gtDebug() << "Invalid index";
             return;
         }
 
@@ -500,13 +552,14 @@ GtLabelsDock::customContextMenu(const QPoint& pos)
 
     if (indexes.isEmpty())
     {
+        gtDebug() << "Indexes is empty";
         return;
     }
 
     // conetx menu for single label
     if (indexes.length() == 1)
     {
-        QModelIndex index = indexes.at(0);
+        //QModelIndex index = indexes.at(0);
 
         QMenu menu(this);
 

@@ -12,6 +12,7 @@
 #include <QKeySequence>
 #include <QObject>
 
+#include "gt_settings.h"
 #include "gt_gui_exports.h"
 
 /**
@@ -31,7 +32,7 @@ public:
      * @param cat - category to use to sort shortcut
      */
     GtShortCut(const QString& id, const QKeySequence& key,
-               const QString& cat);
+               const QString& cat, const bool isReadOnly = false);
 
     /**
      * @brief id
@@ -62,15 +63,16 @@ public:
      * @return category as a string
      */
     QString category() const;
+
+    /**
+     * @brief isReadOnly
+     * @return true if the short cut is read only and canoot be modified
+     */
+    bool isReadOnly() const;
+
 private:
-    ///
-    QString m_id;
+    GtShortCutSettingsData m_data;
 
-    ///
-    QKeySequence m_key;
-
-    ///
-    QString m_cat;
 };
 
 #endif // GTSHORTCUT_H

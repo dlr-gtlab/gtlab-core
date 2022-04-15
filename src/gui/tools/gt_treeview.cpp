@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 
 #include "gt_treeview.h"
+#include "gt_application.h"
 
 GtTreeView::GtTreeView(QWidget* parent) : QTreeView(parent)
 {
@@ -19,19 +20,16 @@ GtTreeView::GtTreeView(QWidget* parent) : QTreeView(parent)
 void
 GtTreeView::keyPressEvent(QKeyEvent* event)
 {
-    if (event->modifiers() == Qt::ControlModifier)
+    if (gtApp->compareKeyEvent(event, "search"))
     {
-        if (event->key() == Qt::Key_F)
-        {
-            emit searchRequest();
-            return;
-        }
+        emit searchRequest();
+        return;
+    }
 
-        if (event->key() == Qt::Key_C)
-        {
-            emit copyRequest();
-            return;
-        }
+    if (gtApp->compareKeyEvent(event, "copy"))
+    {
+        emit copyRequest();
+        return;
     }
 
     return QTreeView::keyPressEvent(event);

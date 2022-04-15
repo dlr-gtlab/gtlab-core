@@ -112,6 +112,35 @@ GtMdiItem::setSubWin(QMdiSubWindow* subWin)
     m_subWin = subWin;
 }
 
+QKeySequence
+GtMdiItem::registerShortCut(const QString& id,
+                            const QKeySequence& k,
+                            bool readOnly)
+{
+    const QMetaObject* m = metaObject();
+    return registerShortCut({id, m->className(), k, readOnly});
+}
+
+QKeySequence
+GtMdiItem::registerShortCut(const GtShortCutSettingsData& data)
+{
+    gtApp->extendShortCuts(data);
+    return getShortCut(data.id);
+}
+
+void
+GtMdiItem::registerShortCuts(const QList<GtShortCutSettingsData>& list)
+{
+    gtApp->extendShortCuts(list);
+}
+
+QKeySequence
+GtMdiItem::getShortCut(const QString& id)
+{
+    const QMetaObject* m = metaObject();
+    return gtApp->getShortCutSequence(id, m->className());
+}
+
 void
 GtMdiItem::projectChangedEvent(GtProject* /*project*/)
 {

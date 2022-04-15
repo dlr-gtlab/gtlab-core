@@ -12,6 +12,7 @@
 #include <QApplication>
 #include <QClipboard>
 
+#include "gt_application.h"
 #include "gt_resulttableview.h"
 
 GtResultTableView::GtResultTableView(QWidget* parent) : QTableView(parent)
@@ -26,14 +27,13 @@ GtResultTableView::GtResultTableView(QWidget* parent) : QTableView(parent)
 void
 GtResultTableView::keyPressEvent(QKeyEvent* event)
 {
-    if (event->key() == Qt::Key_C && event->modifiers() & Qt::ControlModifier)
+    if (gtApp->compareKeyEvent(event, "copy"))
     {
         copyToClipboard();
+        return;
     }
-    else
-    {
-        QTableView::keyPressEvent(event);
-    }
+
+    QTableView::keyPressEvent(event);
 }
 
 void
