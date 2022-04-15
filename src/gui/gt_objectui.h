@@ -15,6 +15,7 @@
 #include <QObject>
 #include <QKeySequence>
 
+#include "gt_shortcutsettingsdata.h"
 #include "gt_objectuiaction.h"
 #include "gt_objectuiactiongroup.h"
 
@@ -233,14 +234,46 @@ protected:
      */
     void addSeparator();
 
+protected:
 
+    /**
+     * @brief registerShortCut
+     * @param id - id of the shortcut to use
+     * @param k - key sequence to use
+     * @param readOnly - optional flag to define it as read only
+     * @return the key sequence used for this id
+     */
+    QKeySequence registerShortCut(QString const& id,
+                                  QKeySequence const& k,
+                                  bool readOnly = false);
+
+    /**
+     * @brief registerShortCut
+     * @param data - short cut data to register
+     * @return the key sequence used for this id
+     */
+    QKeySequence registerShortCut(GtShortCutSettingsData const& data);
+
+    /**
+     * @brief registerShortCuts
+     * @param list - list of short cuts to register
+     */
+    void registerShortCuts(QList<GtShortCutSettingsData> const& list);
+
+    /**
+     * @brief getShortCut
+     * @param id - identification string of the short cut to read
+     * @return short cut for this id registered in this object
+     */
+    QKeySequence getShortCut(const QString& id);
 private:
+
+
     /// List of custom actions
     QList<GtObjectUIAction> m_singleActions;
 
     /// List of custom menus
     QList<GtObjectUIActionGroup> m_actionGroups;
-
 };
 
 #endif // GTOBJECTUI_H

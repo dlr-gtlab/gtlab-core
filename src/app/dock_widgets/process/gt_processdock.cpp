@@ -178,6 +178,11 @@ GtProcessDock::GtProcessDock() :
             gtApp, SIGNAL(objectSelected(GtObject*)));
     connect(m_actionMapper, SIGNAL(mapped(QObject*)),
             SLOT(actionTriggered(QObject*)));
+
+    gtDebug() << "Register shortcuts for processdockwidget";
+    registerShortCut("runProcess", QKeySequence(Qt::CTRL + Qt::Key_R));
+    registerShortCut("unskipProcess", QKeySequence(Qt::CTRL + Qt::Key_T));
+    registerShortCut("skipProcess", QKeySequence(Qt::CTRL + Qt::Key_G));
 }
 
 Qt::DockWidgetArea
@@ -887,16 +892,8 @@ GtProcessDock::addElement()
 }
 
 void
-GtProcessDock::customContextMenu(const QPoint& pos)
+GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
 {
-    if (!m_view->model())
-    {
-        return;
-    }
-
-    QModelIndex index = m_view->indexAt(pos);
-    QModelIndex srcIndex = mapToSource(index);
-
     if (srcIndex.isValid())
     {
         if (m_view->selectionModel()->selectedIndexes().size() < 3)
@@ -920,7 +917,7 @@ GtProcessDock::customContextMenu(const QPoint& pos)
         else
         {
             multiSelectionContextMenu(
-                m_view->selectionModel()->selectedIndexes());
+                        m_view->selectionModel()->selectedIndexes());
         }
     }
     else
@@ -989,6 +986,21 @@ GtProcessDock::customContextMenu(const QPoint& pos)
     }
 }
 
+
+void
+GtProcessDock::customContextMenu(const QPoint& pos)
+{
+    if (!m_view->model())
+    {
+        return;
+    }
+
+    QModelIndex index = m_view->indexAt(pos);
+    QModelIndex srcIndex = mapToSource(index);
+
+    customContextMenu(srcIndex);
+}
+
 void
 GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 {
@@ -1004,7 +1016,7 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 
     /// This line is only for the entry in the context menu and
     /// does not trigger the action
-    actrun->setShortcut(gtApp->getShortCutSequence("runProcess"));
+    actrun->setShortcut(getShortCut("runProcess"));
 
     if (qobject_cast<GtProcessData*>(obj->parent()))
     {
@@ -1045,11 +1057,11 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 
     QAction* actskip = menu.addAction("Skip");
     actskip->setIcon(GtGUI::Icon::skip16());
-    actskip->setShortcut(gtApp->getShortCutSequence("skipProcess"));
+    actskip->setShortcut(getShortCut("skipProcess"));
 
     QAction* actunskip = menu.addAction("Unskip");
     actunskip->setIcon(GtGUI::Icon::arrowRight());
-    actunskip->setShortcut(gtApp->getShortCutSequence("unskipProcess"));
+    actunskip->setShortcut(getShortCut("unskipProcess"));
 
     if (!obj->isSkipped())
     {
@@ -1234,11 +1246,11 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
 
     QAction* actskip = menu.addAction("Skip");
     actskip->setIcon(GtGUI::Icon::skip16());
-    actskip->setShortcut(gtApp->getShortCutSequence("skipProcess"));
+    actskip->setShortcut(getShortCut("skipProcess"));
 
     QAction* actunskip = menu.addAction("Unskip");
     actunskip->setIcon(GtGUI::Icon::arrowRight());
-    actunskip->setShortcut(gtApp->getShortCutSequence("unskipProcess"));
+    actunskip->setShortcut(getShortCut("unskipProcess"));
 
     if (!obj->isSkipped())
     {
@@ -2682,3 +2694,22 @@ GtProcessDock::deleteProcessComponent(GtObject* obj)
 
     gtDataModel->deleteFromModel(toDelete);
 }
+
+void
+GtProcessDock::keyPressEvent(QKeyEvent* event)
+{  
+    QModelIndex index = m_view->selectionModel()->selectedIndexes().first();
+
+    QModelIndex srcIndex = mapToSource(index);
+
+    if (!srcIndex.isValid())
+    {
+        return;
+    }
+
+    if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
+    {
+        customContextMenu(srcIndex);
+    }
+}
+

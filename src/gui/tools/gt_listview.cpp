@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 
 #include "gt_listview.h"
+#include "gt_application.h"
 
 GtListView::GtListView(QWidget* parent) : QListView(parent)
 {
@@ -19,22 +20,19 @@ GtListView::GtListView(QWidget* parent) : QListView(parent)
 void
 GtListView::keyPressEvent(QKeyEvent* event)
 {
-    if (event->modifiers() == Qt::ControlModifier)
+    if (gtApp->compareKeyEvent(event, "search"))
     {
-        if (event->key() == Qt::Key_F)
-        {
-            emit searchRequest();
-            return;
-        }
-
-        if (event->key() == Qt::Key_C)
-        {
-            emit copyRequest();
-            return;
-        }
-
+        emit searchRequest();
+        return;
     }
-    else if (event->key() == Qt::Key_Delete)
+
+    if (gtApp->compareKeyEvent(event, "copy"))
+    {
+        emit copyRequest();
+        return;
+    }
+
+    if (gtApp->compareKeyEvent(event, "delete"))
     {
         emit deleteRequest();
         return;

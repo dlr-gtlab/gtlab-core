@@ -77,6 +77,9 @@ GtPostDock::GtPostDock() : m_project(nullptr)
     connect(m_listView, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(customContextMenu(QPoint)));
 
+    connect(this, SIGNAL(contextMenuKeyPressSignal(QModelIndex)),
+            SLOT(customContextMenu(QModelIndex)));
+
     QHBoxLayout* filterLayout = new QHBoxLayout;
     filterLayout->setContentsMargins(0, 0, 0, 0);
     filterLayout->setSpacing(0);
@@ -182,7 +185,8 @@ GtPostDock::eventFilter(QObject* obj, QEvent* event)
 
             if (keyEvent)
             {
-                if (keyEvent->key() == Qt::Key_Delete)
+
+                if (gtApp->compareKeyEvent(keyEvent, "delete"))
                 {
                     QModelIndexList selIdx =
                         m_listView->selectionModel()->selectedIndexes();
@@ -297,14 +301,20 @@ GtPostDock::newPostTemplate()
 }
 
 void
-GtPostDock::customContextMenu(QPoint pos)
+GtPostDock::customContextMenu(QPoint const& pos)
+{
+    QModelIndex index = m_listView->indexAt(pos);
+
+    customContextMenu(index);
+}
+
+void
+GtPostDock::customContextMenu(QModelIndex const& index)
 {
     if (!gtApp->currentProject())
     {
         return;
     }
-
-    QModelIndex index = m_listView->indexAt(pos);
 
     if (index.isValid())
     {
@@ -359,4 +369,37 @@ void
 GtPostDock::onDoubleClicked(const QModelIndex& index)
 {
     openTemplateViewer(index);
+}
+
+void
+GtPostDock::keyPressEvent(QKeyEvent* event)
+{
+    if (m_listView->model())
+    {
+        QModelIndexList indexes;
+
+        // multiselection
+        if (m_listView->selectionModel())
+        {
+            indexes = m_listView->selectionModel()->selectedIndexes();
+        }
+
+        if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
+        {
+            if (!indexes.isEmpty())
+            {
+                QModelIndex first = indexes.first();
+
+                if (first.isValid())
+                {
+                    emit contextMenuKeyPressSignal(first);
+                    event->accept();
+                    return;
+                }
+
+            }
+        }
+    }
+
+    GtDockWidget::keyPressEvent(event);
 }

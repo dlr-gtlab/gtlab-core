@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 
 #include "gt_tableview.h"
+#include "gt_application.h"
 
 GtTableView::GtTableView(QWidget* parent) : QTableView(parent)
 {
@@ -19,19 +20,16 @@ GtTableView::GtTableView(QWidget* parent) : QTableView(parent)
 void
 GtTableView::keyPressEvent(QKeyEvent* event)
 {
-    if (event->modifiers() == Qt::ControlModifier)
+    if (gtApp->compareKeyEvent(event, "search"))
     {
-        if (event->key() == Qt::Key_F)
-        {
-            emit searchRequest();
-            return;
-        }
+        emit searchRequest();
+        return;
+    }
 
-        if (event->key() == Qt::Key_C)
-        {
-            emit copyRequest();
-            return;
-        }
+    if (gtApp->compareKeyEvent(event, "copy"))
+    {
+        emit copyRequest();
+        return;
     }
 
     return QTableView::keyPressEvent(event);

@@ -250,6 +250,12 @@ GtOutputDock::GtOutputDock() :
     layout->addWidget(tab);
 
     widget->setLayout(layout);
+
+    registerShortCut("toggleDebugOutput", QKeySequence(Qt::CTRL + Qt::Key_D));
+    registerShortCut("toggleInfoOutput", QKeySequence(Qt::CTRL + Qt::Key_I));
+    registerShortCut("toggleWarningOutput", QKeySequence(Qt::CTRL + Qt::Key_W));
+    registerShortCut("toggleErrorOutput", QKeySequence(Qt::CTRL + Qt::Key_E));
+    registerShortCut("clearOutput", QKeySequence(Qt::CTRL + Qt::Key_L));
 }
 
 Qt::DockWidgetArea
@@ -378,6 +384,14 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
                     m_model->toggleErrorLevel(true);
                 }
             }
+        }
+        if (gtApp->compareKeyEvent(event, "clearOutput"))
+        {
+            gtLogModel->clearLog();
+        }
+        if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
+        {
+            openContextMenu();
         }
     }
 }

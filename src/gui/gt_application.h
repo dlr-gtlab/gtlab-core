@@ -22,6 +22,7 @@
 #include <QUndoStack>
 #include <QMutex>
 #include <QPointer>
+#include "gt_settings.h"
 
 #include <memory>
 
@@ -254,23 +255,47 @@ public:
 
     /** @brief getShortCutSequence
      * @param id - identification string of the short cut
+     * @param category - if this is not empty the category of the registration
+     * is use dto identify the short cut aswell
      * @return key sequence for the short cut
      */
-    QKeySequence getShortCutSequence(const QString& id) const;
+    QKeySequence getShortCutSequence(const QString& id,
+                                     const QString& category = "Core") const;
 
     /**
      * @brief compareKeyEvent
      * @param event - event to check
      * @param id - id of the short cut
+     * @param category - category to use for the search (Core as default)
      * @return true if the event is ok for the short cut
      */
-    bool compareKeyEvent(QKeyEvent* event, const QString& id) const;
+    bool compareKeyEvent(QKeyEvent* event,
+                         const QString& id,
+                         const QString& category = "Core") const;
 
     /**
      * @brief shortCuts
      * @return pointer to the short cuts list object
      */
     GtShortCuts* shortCuts() const;
+
+    /**
+     * @brief extendShortCuts
+     * @param list of short cuts from another modules
+     */
+    void extendShortCuts(QList<GtShortCutSettingsData>const& list);
+
+    /**
+     * @brief extendShortCuts
+     * @param shortcut to add
+     */
+    void extendShortCuts(const GtShortCutSettingsData &shortcut);
+
+    /**
+     * @brief moduleShortCuts
+     * @return shortcuts registered via interface
+     */
+    QList<GtShortCutSettingsData> moduleShortCuts() const;
 
 private:
     /// List of user specific perspective ids
@@ -296,6 +321,8 @@ private:
 
     /// Stores currently selected object
     QPointer<GtObject> m_selectedObject;
+
+    QList<GtShortCutSettingsData> m_moduleShortCuts;
 
     ///
     bool m_darkMode;
@@ -366,6 +393,12 @@ signals:
      * @param dark - flag if new theme is dark or not
      */
     void themeChanged(bool dark);
+
+    /**
+     * @brief shortCutsChanged - signal to emit if the short cuts
+     * had been modified
+     */
+    void shortCutsChanged();
 };
 
 #endif // GTAPPLICATION_H

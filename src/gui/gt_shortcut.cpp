@@ -8,43 +8,50 @@
  */
 #include "gt_shortcut.h"
 
-GtShortCut::GtShortCut(const QString &id,
-                       const QKeySequence &key,
-                       const QString &cat) :
-    m_id(id),
-    m_key(key),
-    m_cat(cat)
-{
-
+GtShortCut::GtShortCut(const QString& id,
+                       const QKeySequence& key,
+                       const QString& cat,
+                       const bool isReadOnly)
+{  
+    m_data.id = id;
+    m_data.category = cat;
+    m_data.shortCut = key;
+    m_data.isReadOnly = isReadOnly;
 }
 
 QString
 GtShortCut::id() const
 {
-    return m_id;
+    return m_data.id;
 }
 
 void
 GtShortCut::setId(const QString &id)
 {
-    m_id = id;
+    m_data.id = id;
 }
 
 QKeySequence
 GtShortCut::key() const
 {
-    return m_key;
+    return m_data.shortCut;
 }
 
 void
 GtShortCut::setKey(const QKeySequence &key)
 {
-    m_key = key;
+    m_data.shortCut = key;
 }
-
 
 QString
 GtShortCut::category() const
 {
-    return m_cat;
+    return m_data.category;
 }
+
+bool
+GtShortCut::isReadOnly() const
+{
+    return m_data.isReadOnly;
+}
+

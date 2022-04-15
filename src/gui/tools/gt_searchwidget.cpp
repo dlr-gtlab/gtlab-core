@@ -16,6 +16,9 @@
 #include "gt_lineedit.h"
 #include "gt_icons.h"
 #include "gt_stylesheets.h"
+#include "gt_application.h"
+#include "gt_logging.h"
+
 
 GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
 {
@@ -43,13 +46,19 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
     connect(m_clearButton, SIGNAL(clicked(bool)),
             SLOT(disableSearch()));
 
-    m_searchLabel = new QLabel("<font color='grey'>  (Ctrl+F)</font>");
+    QKeySequence s = gtApp->getShortCutSequence("search");
+    QString searchShortCut = s.toString();
+    m_searchLabel = new QLabel("<font color='grey'>  (" + searchShortCut
+                               + ")</font>");
     QFont font = m_searchLabel->font();
     font.setItalic(true);
     font.setPointSize(7);
     m_searchLabel->setFont(font);
     m_searchLabel->installEventFilter(this);
     filterLayout->addWidget(m_searchLabel);
+
+    connect(gtApp, SIGNAL(shortCutsChanged()), this,
+            SLOT(onShortCutChanged()));
 
     m_searchLine = new GtLineEdit;
     m_searchLine->setMaximumHeight(17);
@@ -107,6 +116,15 @@ GtSearchWidget::disableSearch()
     m_searchLine->setVisible(false);
 
     emit searchDisabled();
+}
+
+void
+GtSearchWidget::onShortCutChanged()
+{
+    QKeySequence s = gtApp->getShortCutSequence("search");
+    QString searchShortCut = s.toString();
+    m_searchLabel->setText("<font color='grey'>  (" + searchShortCut
+                           + ")</font>");
 }
 
 bool

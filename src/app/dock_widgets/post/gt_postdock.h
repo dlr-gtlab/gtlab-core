@@ -11,7 +11,7 @@
 #define GTPOSTDOCK_H
 
 #include <QPointer>
-
+#include <QModelIndex>
 #include "gt_dockwidget.h"
 
 class QPushButton;
@@ -116,6 +116,12 @@ private:
      */
     void deleteEntry(const QModelIndex& index);
 
+    /**
+     * @brief keyPressEvent
+     * @param event - key press event to handle
+     */
+    void keyPressEvent(QKeyEvent* event) override;
+
 private slots:
     /**
      * @brief newPostTemplate
@@ -126,7 +132,13 @@ private slots:
      * @brief customContextMenu
      * @param pos
      */
-    void customContextMenu(QPoint pos);
+    void customContextMenu(QPoint const& pos);
+
+    /**
+     * @brief customContextMenu
+     * @param index
+     */
+    void customContextMenu(QModelIndex const& index);
 
     /**
      * @brief filterData
@@ -140,6 +152,13 @@ private slots:
      */
     void onDoubleClicked(const QModelIndex& index);
 
+signals:
+    /**
+     * @brief contextMenuKeyPressSignal
+     * Signal to emit if the context menu is requested by the key press
+     * of shortcut
+     */
+    void contextMenuKeyPressSignal(QModelIndex);
 };
 
 #endif // GTPOSTDOCK_H

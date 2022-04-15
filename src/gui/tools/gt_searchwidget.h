@@ -55,6 +55,11 @@ public slots:
      */
     void disableSearch();
 
+    /**
+     * @brief shortCutChangeReaction
+     */
+    void onShortCutChanged();
+
 protected:
     /**
      * @brief Event filter to catch mouse press events of given object.

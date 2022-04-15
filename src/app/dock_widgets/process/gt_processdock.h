@@ -251,6 +251,18 @@ private:
      */
     void deleteProcessComponent(GtObject* obj);
 
+    /**
+     * @brief keyPressEvent
+     * @param event - key press event to handle
+     */
+    void keyPressEvent(QKeyEvent* event) override;
+
+    /**
+     * @brief customContextMenu
+     * @param srcIndex
+     */
+    void customContextMenu(QModelIndex const& srcIndex);
+
 private slots:
     /**
      * @brief filterData

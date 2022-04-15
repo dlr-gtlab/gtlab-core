@@ -16,11 +16,11 @@
 #include <QUrl>
 #include <QFileInfo>
 
-
 #include "gt_projectprovider.h"
 #include "gt_project.h"
 #include "gt_datamodel.h"
 #include "gt_logging.h"
+#include "gt_application.h"
 
 #include "gt_explorerview.h"
 
@@ -82,9 +82,10 @@ GtExplorerView::keyPressEvent(QKeyEvent *event)
 {
     QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
 
-    if (event->key() == Qt::Key_Delete)
+    if (gtApp->compareKeyEvent(event, "delete"))
     {
         emit deleteElementsRequest(indexes);
+        return;
     }
 
     GtTreeView::keyPressEvent(event);

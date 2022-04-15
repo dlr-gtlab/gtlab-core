@@ -67,6 +67,12 @@ public slots:
     static void switchToProject(class GtProject& project);
 
     /**
+     * @brief Shows footprint of selected project.
+     * @param obj Selected project
+     */
+    void showFootprint(GtObject* obj) const;
+
+    /**
      * @brief openProject
      * @param obj
      */
@@ -238,13 +244,7 @@ public slots:
      * @param obj
      * @return
      */
-    bool canRenameProject(GtObject* obj);
-
-    /**
-     * @brief Shows footprint of selected project.
-     * @param obj Selected project
-     */
-    void showFootprint(GtObject* obj);
+    bool canRenameProject(GtObject* obj) const;
 
     /**
      * @brief Opens comment editor if project ist opened.

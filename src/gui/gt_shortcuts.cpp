@@ -20,11 +20,33 @@ GtShortCuts::GtShortCuts(QObject* parent)
 
 void
 GtShortCuts::initialize(const QMap<QString, QStringList>& tab)
-{
-    for (auto iter = std::begin(tab); iter != std::end(tab); ++iter)
+{    
+    for (const QString& key : tab.keys())
     {
-        QKeySequence k = QKeySequence(iter.value().first());
-        GtShortCut* c = new GtShortCut(iter.key(), k, iter.value().at(1));
+        QKeySequence k = {tab.value(key).first()};
+
+        bool readOnly = false;
+        if (tab.value(key).size() > 2)
+        {
+            if (tab.value(key).at(2) == "true")
+            {
+                readOnly = true;
+            }
+        }
+
+        auto c = new GtShortCut(key, k, tab.value(key).at(1), readOnly);
+        c->setParent(this);
+    }
+}
+
+void
+GtShortCuts::initialize(const QList<GtShortCutSettingsData>& list)
+{
+    for (const GtShortCutSettingsData& s : list)
+    {
+        QKeySequence k = s.shortCut;
+
+        auto c = new GtShortCut(s.id, k, s.category, s.isReadOnly);
         c->setParent(this);
     }
 }
@@ -61,21 +83,36 @@ GtShortCuts::findShortCut(const QString& id, const QString& category) const
     }
 }
 
+void
+GtShortCuts::emitChange()
+{
+    emit changed();
+}
+
 QKeySequence
-GtShortCuts::getKey(const QString& id) const
+GtShortCuts::getKey(const QString& id, const QString& category) const
 {
     const QList<GtShortCut*>list = shortCuts();
 
-    if (shortCuts().isEmpty())
+    if (list.isEmpty())
     {
         gtWarning() << "No shortCut registered";
 
         return QKeySequence{};
     }
 
+
     auto iter = std::find_if(std::begin(list), std::end(list),
-                             [&id](const GtShortCut* c) {
-        return c->id() == id;
+                             [&id, &category](const GtShortCut* c)
+    {
+        if (category.isEmpty())
+        {
+            return c->id() == id;
+        }
+        else
+        {
+            return c->id() == id && c->category() == category;
+        }
     });
 
     return iter != std::end(list) ? (*iter)->key() : QKeySequence{};

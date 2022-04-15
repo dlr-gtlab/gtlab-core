@@ -124,6 +124,12 @@ private:
     void deleteMultipleUsages(const QModelIndexList& indexes,
                               bool deleteLabels = true);
 
+    /**
+     * @brief keyPressEvent
+     * @param event - key press event to handle
+     */
+    void keyPressEvent(QKeyEvent* event) override;
+
 private slots:
     /**
      * @brief filterData
@@ -143,10 +149,22 @@ private slots:
     void customContextMenu(const QPoint& pos);
 
     /**
+     * @brief customContextMenu
+     * @param index - index in the model to open the contextmenu for
+     */
+    void customContextMenu(const QModelIndex& index);
+
+    /**
      * @brief resetModel
      */
     void resetModel();
-
+signals:
+    /**
+     * @brief contextMenuKeyPressSignal
+     * Signal to emit if the context menu is requested by the key press
+     * of shortcut
+     */
+    void contextMenuKeyPressSignal(QModelIndex);
 };
 
 #endif // GTLABELSDOCK_H

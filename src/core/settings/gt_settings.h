@@ -11,8 +11,8 @@
 #define GTSETTINGS_H
 
 #include "gt_core_exports.h"
-
 #include "gt_abstractsettings.h"
+#include "gt_shortcutsettingsdata.h"
 
 /**
  * @brief The GtSettings class
@@ -173,18 +173,16 @@ public:
     QStringList explorerExpandStates();
 
     /**
-     * @brief shortcutsTable
-     * @return combination of current and default short cuts as a table
-     * The default short cuts are added to the returned map if they are not part of
-     * the map from the settings
+     * @brief shortcutsList
+     * @return list of shortcut definitions
      */
-    QMap<QString, QStringList> shortcutsTable() const;
+    QList<GtShortCutSettingsData> shortcutsList() const;
 
     /**
      * @brief setShortcutsTable
-     * @param shortcutsTable - table to set in the settings
+     * @param list - list to set in the settings
      */
-    void setShortcutsTable(const QMap<QString, QStringList>& shortcutsTable);
+    void setShortcutsTable(QList<GtShortCutSettingsData> const& list);
 
     /**
      * @brief initialShortCuts
@@ -194,17 +192,17 @@ public:
     QVariant initialShortCuts() const;
 
     /**
-     * @brief intialShortCutsMap
-     * @return the dafault short cuts as a map. QStringList contains two
-     * elements (keysequence and category)
+     * @brief intialShortCutsList
+     * @return list of default shortcuts as a list
      */
-    QMap<QString, QStringList> intialShortCutsMap();
+    QList<GtShortCutSettingsData> intialShortCutsList() const;
 
     QString themeMode();
 
     bool darkMode();
 
     void setThemeMode(const QString& theme);
+
 protected:
     /**
      * @brief GtSettings

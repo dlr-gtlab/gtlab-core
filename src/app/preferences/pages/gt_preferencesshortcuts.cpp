@@ -49,17 +49,17 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
     m_tab->verticalHeader()->setDefaultSectionSize(20);
     m_tab->verticalHeader()->setSectionsClickable(false);
 
-    QPushButton* restoreBtn = new QPushButton(tr("Restore"), this);
+    auto restoreBtn = new QPushButton(tr("Restore"), this);
     restoreBtn->setToolTip(tr("Restores the default key combinations"));
-    QSpacerItem* spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed,
-                                          QSizePolicy::Expanding);
+    auto spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed,
+                                  QSizePolicy::Expanding);
 
-    QVBoxLayout* blay = new QVBoxLayout;
+    auto blay = new QVBoxLayout;
     blay->addWidget(restoreBtn);
     blay->addItem(spacer);
     blay->addStretch(1);
 
-    QHBoxLayout* hlay = new QHBoxLayout;
+    auto hlay = new QHBoxLayout;
     hlay->addWidget(m_tab);
     hlay->addLayout(blay);
     mainLayout->addLayout(hlay);
@@ -83,21 +83,34 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
         QString id = s->id();
         QString key = s->key().toString();
         QString cat = s->category();
+        bool editable = !s->isReadOnly();
 
-        QTableWidgetItem* idItem = new QTableWidgetItem(id);
+        auto idItem = new QTableWidgetItem(id);
         idItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-        QTableWidgetItem* catItem = new QTableWidgetItem(cat);
+        auto catItem = new QTableWidgetItem(cat);
         catItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-        GtShortCutEdit* edit = new GtShortCutEdit(key, id);
-        edit->setFrame(false);
+        if (editable)
+        {
+            auto edit = new GtShortCutEdit(key, id);
+            edit->setFrame(false);
+            m_tab->setCellWidget(i, 1, edit);
+        }
+        else
+        {
+            auto shortCutItem = new QTableWidgetItem(key);
+            shortCutItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+            shortCutItem->setToolTip("Not editable");
+            m_tab->setItem(i, 1, shortCutItem);
+        }
+
 
         m_tab->setItem(i, 0, idItem);
-        m_tab->setCellWidget(i, 1, edit);
         m_tab->setItem(i, 2, catItem);
         ++i;
     }
+    m_tab->setSortingEnabled(true);
 }
 
 void
@@ -110,8 +123,9 @@ GtPreferencesShortCuts::saveSettings()
         return;
     }
 
-    QMap<QString, QStringList> settingsTable;
+    QList<GtShortCutSettingsData> settingsList;
 
+    bool anyChange = false;
     for (int i = 0; i < m_tab->rowCount(); ++i)
     {
         QString id = m_tab->item(i, 0)->text();
@@ -127,12 +141,22 @@ GtPreferencesShortCuts::saveSettings()
         QString cat = m_tab->item(i, 2)->text();
 
         GtShortCut* current = cuts->findShortCut(id, cat);
-        current->setKey(QKeySequence(key));
 
-        settingsTable.insert(id, QStringList{ key.toString(), cat });
+        if (current->key() != key)
+        {
+            anyChange = true;
+        }
+
+        current->setKey(QKeySequence(key));
+        settingsList.append({id, cat, key, current->isReadOnly()});
     }
 
-    gtApp->settings()->setShortcutsTable(settingsTable);
+    if (anyChange)
+    {
+        cuts->emitChange();
+    }
+
+    gtApp->settings()->setShortcutsTable(settingsList);
 }
 
 void
@@ -144,7 +168,10 @@ GtPreferencesShortCuts::loadSettings()
 void
 GtPreferencesShortCuts::restoreDefaults()
 {
-    auto settingsTable = gtApp->settings()->intialShortCutsMap();
+    auto settingsTable = gtApp->settings()->intialShortCutsList();
+
+    /// add the default vales from the modules
+    settingsTable.append(gtApp->moduleShortCuts());
 
     if (settingsTable.isEmpty() || !m_tab)
     {
@@ -154,17 +181,33 @@ GtPreferencesShortCuts::restoreDefaults()
     for (int i = 0; i < m_tab->rowCount(); ++i)
     {
         QString id = m_tab->item(i, 0)->text();
+        QString cat = m_tab->item(i, 2)->text();
         QWidget* w = m_tab->cellWidget(i, 1);
         GtShortCutEdit* e = qobject_cast<GtShortCutEdit*>(w);
 
         // list with two elements (keysequence and category)
-        QStringList list = settingsTable.value(id);
+        QKeySequence key;
 
-        if (list.length() != 2 || !e)
+
+        for (GtShortCutSettingsData const& entry : settingsTable)
+        {
+            if (entry.id == id && entry.category == cat)
+            { // cppcheck-suppress useStlAlgorithm
+                key = entry.shortCut;
+                break;
+            }
+        }
+
+        if (!e)
         {
             continue;
         }
 
-        e->setKeySequence(QKeySequence(list.at(0)));
+        e->setKeySequence(key);
+    }
+
+    if (GtShortCuts* cuts = gtApp->shortCuts())
+    {
+        cuts->emitChange();
     }
 }

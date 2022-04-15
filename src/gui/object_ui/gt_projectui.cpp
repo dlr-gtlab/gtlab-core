@@ -67,17 +67,20 @@ GtProjectUI::GtProjectUI()
     addSingleAction(tr("Open Project"),
                     QStringLiteral("openProjectIcon_16.png"),
                     QStringLiteral("openProject"),
-                    QStringLiteral("canOpenProject"));
+                    QStringLiteral("canOpenProject"),
+                    gtApp->getShortCutSequence("openProject"));
 
     addSingleAction(tr("Close Project"),
                     QStringLiteral("closeProjectIcon_16.png"),
                     QStringLiteral("closeProject"),
-                    QStringLiteral("canCloseProject"));
+                    QStringLiteral("canCloseProject"),
+                    gtApp->getShortCutSequence("closeProject"));
 
     addSingleAction(tr("Save Project"),
                     QStringLiteral("saveProjectIcon_16.png"),
                     QStringLiteral("saveProject"),
-                    QStringLiteral("canSaveProject"));
+                    QStringLiteral("canSaveProject"),
+                    gtApp->getShortCutSequence("save"));
 
     addSingleAction(tr("Save Project As..."),
                     QStringLiteral("saveProjectIcon_16.png"),
@@ -135,7 +138,8 @@ GtProjectUI::GtProjectUI()
     addSingleAction(tr("Show Project Footprint"),
                     QStringLiteral("infoBlueIcon_16.png"),
                     QStringLiteral("showFootprint"),
-                    gtApp->getShortCutSequence("ShowFootprint"));
+                    gtApp->getShortCutSequence("ShowFootprint")
+                    );
 
     addSingleAction(tr("Edit Comment"),
                     QStringLiteral("commentIcon.png"),
@@ -151,7 +155,8 @@ GtProjectUI::GtProjectUI()
     addSingleAction(tr("Rename Project"),
                     QStringLiteral("inputIcon_16.png"),
                     QStringLiteral("renameProject"),
-                    QStringLiteral("canRenameProject"));
+                    QStringLiteral("canRenameProject"),
+                    gtApp->getShortCutSequence("rename"));
 
     addSeparator();
 
@@ -1381,7 +1386,7 @@ GtProjectUI::renameProject(GtObject* obj)
 }
 
 bool
-GtProjectUI::canRenameProject(GtObject* obj)
+GtProjectUI::canRenameProject(GtObject* obj) const
 {
     auto project = qobject_cast<GtProject*>(obj);
 
@@ -1399,7 +1404,7 @@ GtProjectUI::canRenameProject(GtObject* obj)
 }
 
 void
-GtProjectUI::showFootprint(GtObject* obj)
+GtProjectUI::showFootprint(GtObject* obj) const
 {
     auto project = qobject_cast<GtProject*>(obj);
 

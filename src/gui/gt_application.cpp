@@ -68,7 +68,10 @@ GtApplication::GtApplication(QCoreApplication* parent,
     m_darkMode = false;
 
     // apppend shortcuts object
-    new GtShortCuts(this);
+    auto sc = new GtShortCuts(this);
+
+    connect(sc, SIGNAL(changed()),
+            this, SIGNAL(shortCutsChanged()));
 }
 
 GtApplication::~GtApplication()
@@ -382,17 +385,23 @@ void
 GtApplication::initShortCuts()
 {
     /// Short cuts from settings
-    QMap<QString, QStringList> tab = settings()->shortcutsTable();
+    QList<GtShortCutSettingsData> tab = settings()->shortcutsList();
 
     /// Short cuts from default list
-    QMap<QString, QStringList> tabBasic = settings()->intialShortCutsMap();
+    QList<GtShortCutSettingsData> listBasic = settings()->intialShortCutsList();
 
     /// if short cut in default list, but not in settings add it to settings
-    for (QString const& k : tabBasic.keys())
+    for (GtShortCutSettingsData const& k : listBasic)
     {
-        if (!tab.keys().contains(k))
+        bool contains = std::any_of(std::begin(tab),
+                                    std::end(tab),
+                                    [&k](const GtShortCutSettingsData& k2) {
+            return (k.id == k2.id);
+        });
+
+        if (contains == false)
         {
-            tab.insert(k, tabBasic.value(k));
+            tab.append(k);
         }
     }
 
@@ -608,7 +617,8 @@ GtApplication::selectedObject()
 }
 
 QKeySequence
-GtApplication::getShortCutSequence(const QString& id) const
+GtApplication::getShortCutSequence(const QString& id,
+                                   const QString& category) const
 {
     GtShortCuts* s = shortCuts();
 
@@ -619,7 +629,7 @@ GtApplication::getShortCutSequence(const QString& id) const
         return QKeySequence();
     }
 
-    QKeySequence retVal = s->getKey(id);
+    QKeySequence retVal = s->getKey(id, category);
 
     if (retVal.isEmpty())
     {
@@ -631,7 +641,9 @@ GtApplication::getShortCutSequence(const QString& id) const
 }
 
 bool
-GtApplication::compareKeyEvent(QKeyEvent* keyEvent, const QString& id) const
+GtApplication::compareKeyEvent(QKeyEvent* keyEvent,
+                               const QString& id,
+                               const QString& category) const
 {
     GtShortCuts* s = shortCuts();
 
@@ -647,7 +659,7 @@ GtApplication::compareKeyEvent(QKeyEvent* keyEvent, const QString& id) const
         return false;
     }
 
-    QKeySequence k = s->getKey(id);
+    QKeySequence k = s->getKey(id, category);
 
     // shortcut may be empty/not set
     if (k.isEmpty())
@@ -669,6 +681,38 @@ GtShortCuts*
 GtApplication::shortCuts() const
 {
     return findChild<GtShortCuts*>();
+}
+
+
+void
+GtApplication::extendShortCuts(const QList<GtShortCutSettingsData>& list)
+{
+    GtShortCuts* sList = shortCuts();
+
+    if (!sList)
+    {
+        gtWarning() << "Cannot load additional shortcuts";
+        return;
+    }
+
+    m_moduleShortCuts.append(list);
+
+    sList->initialize(list);
+}
+
+void
+GtApplication::extendShortCuts(const GtShortCutSettingsData& shortcut)
+{
+    QList<GtShortCutSettingsData> list {shortcut};
+
+    extendShortCuts(list);
+}
+
+
+QList<GtShortCutSettingsData>
+GtApplication::moduleShortCuts() const
+{
+    return m_moduleShortCuts;
 }
 
 bool
