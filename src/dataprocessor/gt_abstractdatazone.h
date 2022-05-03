@@ -66,6 +66,13 @@ public:
      * @param params new units
      */
     void setUnits(const QStringList& params);
+
+    /**
+     * @brief hasParam - check if parameter list contains a given parameter
+     * @param param - parameter to check
+     * @return true if parameter list contains param
+     */
+    bool hasParam(const QString& param) const;
 };
 
 

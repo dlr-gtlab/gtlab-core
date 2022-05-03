@@ -89,8 +89,9 @@ GtDataZone0DData::clearData()
 
 bool
 GtDataZone0DData::appendData(const QString& name,
-                               const QString& unit,
-                               const double& val)
+                             const QString& unit,
+                             const double& val,
+                             bool overwrite)
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -104,15 +105,28 @@ GtDataZone0DData::appendData(const QString& name,
 
     if (base()->m_params.contains(name))
     {
-        gtWarning() << QObject::tr("could not append data!")
-                    << QObject::tr("parameter name already exists");
+        if (!overwrite)
+        {
+            gtWarning() << QObject::tr("could not append data!")
+                        << QObject::tr("parameter name already exists");
 
-        return false;
+            return false;
+        }
+
+        int i = base()->m_params.indexOf(name);
+
+        Q_ASSERT(base()->m_params.size() == base()->m_units.size() && base()->m_params.size() == base()->m_values.size() );
+
+        base()->m_units[i] = unit;
+        base()->m_values[i] = val;
+    }
+    else
+    {
+        base()->m_params.append(name);
+        base()->m_units.append(unit);
+        base()->m_values.append(val);
     }
 
-    base()->m_params.append(name);
-    base()->m_units.append(unit);
-    base()->m_values.append(val);
 
     base()->changed();
 
@@ -194,21 +208,11 @@ GtDataZone0DData::setValue(const QString& paramName, const double& value)
 }
 
 bool
-GtDataZone0DData::appendData(const QString& paramName, const double& value)
+GtDataZone0DData::appendData(const QString& paramName,
+                             const double& value,
+                             bool overwrite)
 {
-    Q_ASSERT(m_base != nullptr);
-
-    if (paramName.isEmpty() || base()->m_params.contains(paramName))
-    {
-        return false;
-    }
-
-    base()->m_params.append(paramName);
-    base()->m_values.append(value);
-
-    base()->changed();
-
-    return true;
+    return GtDataZone0DData::appendData(paramName, "-", value, overwrite);
 }
 
 bool
@@ -230,6 +234,36 @@ GtDataZone0DData::appendData(const QList<QString>& paramNames,
     for (int i = 0; i < paramNames.size(); i++)
     {
         if (!appendData(paramNames[i], values[i]))
+        {
+            return false;
+        }
+    }
+
+    base()->changed();
+
+    return true;
+}
+
+bool
+GtDataZone0DData::appendData(const QList<QString>& paramNames,
+                             const QList<QString>& units,
+                             const QVector<double>& values)
+{
+    Q_ASSERT(m_base != nullptr);
+
+    if (paramNames.isEmpty() || values.isEmpty() || units.isEmpty())
+    {
+        return false;
+    }
+
+    if (paramNames.size() != values.size() || paramNames.size() != units.size())
+    {
+        return false;
+    }
+
+    for (int i = 0; i < paramNames.size(); i++)
+    {
+        if (!appendData(paramNames[i], units[i], values[i]))
         {
             return false;
         }

@@ -79,33 +79,63 @@ public:
     /**
      * @brief if the given parameter name is not yet contained in the current
      *        parameter map, it will be inserted and assigned to the given value
-     * @param paramName
-     * @param value
-     * @return
+     *        The default unit will be "-"
+     * @param paramName - name of the parameter to append or overwrite
+     * @param value - value to use
+     * @param overwrite - if true if the parameter already exist the value and
+     * unit will be overwritten.
+     * If the parameter exists and "overwrite" is false the function
+     * will not change the data and return false
+     * @return true in case of success
      */
     bool appendData(const QString& paramName,
-                    const double& value);
+                    const double& value,
+                    bool overwrite = true);
 
     /**
      * @brief Function setValue(const QString &paramName, const double &value)
      *         will be performed for all parameter names
-     * @param paramNames
-     * @param values
-     * @return
+     * If a parameter already exists in the datazone
+     * its value will be overwritten
+     * @param paramNames - list of all parameters to add or update
+     * @param values - values of all parameters to append or update
+     * Both lists have to be of the same size
+     * @return true in case of success
      */
     bool appendData(const QList<QString>& paramNames,
                     const QVector<double>& values);
 
     /**
+     * @brief Function setValue(const QString &paramName, const double &value)
+     *         will be performed for all parameter names
+     * If a parameter already exists in the datazone
+     * its value will be overwritten
+     * @param paramNames - list of all parameters to add or update
+     * @param units - list of all units of all parameters
+     * @param values - values of all parameters
+     * Both lists have to be of the same size
+     * @return true in case of success
+     */
+    bool appendData(const QList<QString>& paramNames,
+                    const QList<QString>& units,
+                    const QVector<double>& values);
+
+    /**
      * @brief appendData
-     * @param name
-     * @param unit
-     * @param val
-     * @return
+     * Appends an element to the datazone or overwrites an existing one
+     * @param name - name of the parameter to add or overwrite
+     * @param unit - unit of the parameter
+     * @param val - value of the parameter
+     * @param overwrite - if true if the parameter already exist the value and
+     * unit will be overwritten.
+     * If the parameter exists and "overwrite" is false the function
+     * will not change the data and return false
+     * @return true in case of success
      */
     bool appendData(const QString& name,
                     const QString& unit,
-                    const double& val);
+                    const double& val,
+                    bool overwrite = true);
 
     /**
      * @brief clearData: Clears parameter map

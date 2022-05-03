@@ -98,3 +98,10 @@ GtAbstractDataZoneData::setUnits(const QStringList &units)
     base()->m_units = units;
     base()->changed();
 }
+
+bool
+GtAbstractDataZoneData::hasParam(const QString& param) const
+{
+    Q_ASSERT(m_base != nullptr);
+    return base()->m_params.contains(param);
+}
