@@ -179,7 +179,6 @@ GtProcessDock::GtProcessDock() :
     connect(m_actionMapper, SIGNAL(mapped(QObject*)),
             SLOT(actionTriggered(QObject*)));
 
-    gtDebug() << "Register shortcuts for processdockwidget";
     registerShortCut("runProcess", QKeySequence(Qt::CTRL + Qt::Key_R));
     registerShortCut("unskipProcess", QKeySequence(Qt::CTRL + Qt::Key_T));
     registerShortCut("skipProcess", QKeySequence(Qt::CTRL + Qt::Key_G));
