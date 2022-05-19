@@ -88,6 +88,8 @@ namespace GtGUI
 
         GT_GUI_EXPORT QIcon session16();
 
+        GT_GUI_EXPORT QIcon session();
+
         GT_GUI_EXPORT QIcon login16();
 
         GT_GUI_EXPORT QIcon update16();
