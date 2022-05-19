@@ -319,9 +319,12 @@ GtOutputDock::removeItems(const QModelIndexList &indexes)
 void
 GtOutputDock::keyPressEvent(QKeyEvent* event)
 {
+    const QMetaObject* m = metaObject();
+    QString cat = m->className();
+
     if (m_model)
     {
-        if (gtApp->compareKeyEvent(event, "toggleDebugOutput"))
+        if (gtApp->compareKeyEvent(event, "toggleDebugOutput", cat))
         {
             if (m_debugButton)
             {
@@ -337,7 +340,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
                 }
             }
         }
-        if (gtApp->compareKeyEvent(event, "toggleInfoOutput"))
+        if (gtApp->compareKeyEvent(event, "toggleInfoOutput", cat))
         {
             if (m_infoButton)
             {
@@ -353,7 +356,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
                 }
             }
         }
-        if (gtApp->compareKeyEvent(event, "toggleWarningOutput"))
+        if (gtApp->compareKeyEvent(event, "toggleWarningOutput", cat))
         {
             if (m_warningButton)
             {
@@ -369,7 +372,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
                 }
             }
         }
-        if (gtApp->compareKeyEvent(event, "toggleErrorOutput"))
+        if (gtApp->compareKeyEvent(event, "toggleErrorOutput", cat))
         {
             if (m_errorButton)
             {
@@ -385,7 +388,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
                 }
             }
         }
-        if (gtApp->compareKeyEvent(event, "clearOutput"))
+        if (gtApp->compareKeyEvent(event, "clearOutput", cat))
         {
             gtLogModel->clearLog();
         }

@@ -714,34 +714,42 @@ GtExplorerDock::keyPressEvent(QKeyEvent* event)
                 }
             }
 
-            if (gtApp->compareKeyEvent(event, "ShowFootprint"))
+            /// General approach to read Shortcut from ui
+            QModelIndex first = firstSelectedIndex();
+            if (!first.isValid())
             {
-                QModelIndex first = firstSelectedIndex();
+                return;
+            }
 
-                QModelIndex index = mapToSource(first);
+            QModelIndex index = mapToSource(first);
+            if (!index.isValid())
+            {
+                return;
+            }
 
-                if (!index.isValid())
+            GtObject* obj = gtDataModel->objectFromIndex(index);
+            if (!obj)
+            {
+                return;
+            }
+
+            GtObjectUI* oui = gtApp->defaultObjectUI(obj);
+            if (!oui)
+            {
+                return;
+            }
+
+            for (auto const& a : oui->actions())
+            {
+                QKeySequence k = a.shortCut();
+
+                if (gtApp->compareKeyEvent(event, k))
                 {
-                    return;
-                }
-
-                GtObject* obj = gtDataModel->objectFromIndex(index);
-
-                if (obj)
-                {
-                    auto project = qobject_cast<GtProject*>(obj);
-
-                    // special case to rename a project
-                    if (project)
+                    if (!QMetaObject::invokeMethod(oui, a.method().toLatin1(),
+                                                   Q_ARG(GtObject*, obj)))
                     {
-                        GtObjectUI* oui = gtApp->defaultObjectUI(project);
-
-                        auto projectui = qobject_cast<GtProjectUI*>(oui);
-
-                        if (project && projectui)
-                        {
-                            projectui->showFootprint(project);
-                        }
+                        gtWarning() << tr("Could not invoke method!") << " ("
+                                    << a.method() << ")";
                     }
                 }
             }
