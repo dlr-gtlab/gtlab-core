@@ -66,4 +66,31 @@ GtTableValues::clearValues()
     m_vals.clear();
 }
 
+void
+GtTableValues::prependValue(const double& val)
+{
+    m_vals.prepend(val);
+}
+
+void
+GtTableValues::appendValue(const double& val)
+{
+    m_vals.append(val);
+}
+
+void
+GtTableValues::insertValue(int index, const double& val)
+{
+    m_vals.insert(index, val);
+}
+
+void
+GtTableValues::replaceValue(int index, const double& val)
+{
+    if (m_vals.size() > index)
+    {
+        m_vals[index] = val;
+    }
+}
+
 

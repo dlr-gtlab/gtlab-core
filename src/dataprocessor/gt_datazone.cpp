@@ -586,6 +586,121 @@ GtDataZoneData::setData1D(const QStringList& params,
     isValid();
 }
 
+bool
+GtDataZoneData::addDataPoint1D(const QMap<QString, double>& vals,
+                               const double& tick,
+                               bool overwrite)
+{
+    Q_ASSERT(m_base != nullptr);
+
+    /// Function only valid for 1-D Datazones
+    if (base()->nDims() != 1)
+    {
+        gtError() << base()->tr("Cannot add 1D-values to ") << base()->nDims()
+                  << base()->tr("-D datazone");
+        return false;
+    }
+
+    QStringList params = vals.keys();
+
+    if (base()->m_params != params)
+    {
+        gtError() << base()->tr("The map does not fit "
+                                "to the given parameters.");
+        gtWarning() << base()->tr("Given parameters are ") << base()->m_params;
+        gtWarning() << base()->tr("Try to set the parameters") << params;
+        return false;
+    }
+
+    QVector<double> axisTicks = base()->axisTicks();
+
+    if (axisTicks.isEmpty())
+    {
+        gtError() << base()->tr("Invalid axis of the datzone");
+        return false;
+    }
+
+    /// option to handle existing tick entry
+    if (axisTicks.contains(tick))
+    {
+        if (!overwrite)
+        {
+            gtError() << base()->tr("Try to overwrite value which is "
+                                    "explicit not allowed");
+            return false;
+        }
+
+        int i = axisTicks.indexOf(tick);
+
+        for (const QString& p : params)
+        {
+            if (auto v = base()->table()->getVals(p))
+            {
+                v->replaceValue(i, vals[p]);
+            }
+        }
+
+        return true;
+    }
+
+    int smallerIndex = -1;
+
+    for (int i = 0; i < axisTicks.size(); ++i)
+    {
+        if (axisTicks[i] > tick)
+        {
+            break;
+        }
+        smallerIndex = i;
+    }
+
+    /// first index
+    if (smallerIndex == -1)
+    {
+        for (const QString& p : params)
+        {
+            if (auto v = base()->table()->getVals(p))
+            {
+                v->prependValue(vals[p]);
+            }
+        }
+
+        auto ax = base()->table()->getAxesList().first();
+        ax->prependTick(tick);
+
+        return true;
+    }
+
+    /// last index
+    if (smallerIndex == axisTicks.size() - 1)
+    {
+        for (const QString& p : params)
+        {
+            if (auto v = base()->table()->getVals(p))
+            {
+                v->appendValue(vals[p]);
+            }
+        }
+
+        auto ax = base()->table()->getAxesList().first();
+        ax->appendTick(tick);
+        return true;
+    }
+
+    for (const QString& p : params)
+    {
+        if (auto v = base()->table()->getVals(p))
+        {
+            v->insertValue(smallerIndex + 1, vals[p]);
+        }
+    }
+
+    auto ax = base()->table()->getAxesList().first();
+    ax->insertTick(smallerIndex + 1, tick);
+
+    return true;
+}
+
 void
 GtDataZoneData::setData1Dfrom2DDataZone(GtDataZone* dataZone2D,
                                         int fixedAxisNumber,
@@ -863,6 +978,25 @@ GtDataZone::axisTicks(const QString& id) const
     QVector<double> retVal;
 
     axisTicks(id, retVal);
+
+    return retVal;
+}
+
+QVector<double>
+GtDataZone::axisTicks(int axisIndex) const
+{
+    QVector<double> retVal;
+
+    QStringList axes = axisNames();
+
+    if (axes.size() <= axisIndex)
+    {
+        gtWarning().nospace() << tr("DataZone does not contain Axis of index'")
+                              << axisIndex << "'";
+        return retVal;
+    }
+
+    axisTicks(axes[axisIndex], retVal);
 
     return retVal;
 }

@@ -115,6 +115,24 @@ GtTableAxis::interpolator() const
     return m_interpolator.get();
 }
 
+void
+GtTableAxis::prependTick(const double& tick)
+{
+    m_ticks.prepend(tick);
+}
+
+void
+GtTableAxis::appendTick(const double& tick)
+{
+    m_ticks.append(tick);
+}
+
+void
+GtTableAxis::insertTick(int index, const double& tick)
+{
+    m_ticks.insert(index, tick);
+}
+
 
 void
 GtTableAxis::scale(const double &factor)
