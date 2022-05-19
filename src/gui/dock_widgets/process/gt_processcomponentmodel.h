@@ -9,6 +9,7 @@
 #ifndef GTPROCESSCOMPONENTMODEL_H
 #define GTPROCESSCOMPONENTMODEL_H
 
+#include "gt_gui_exports.h"
 #include "gt_styledmodel.h"
 #include "gt_processcomponent.h"
 
@@ -17,7 +18,7 @@ class GtObject;
 /**
  * @brief The GtProcessComponentModel class
  */
-class GtProcessComponentModel : public GtStyledModel
+class GT_GUI_EXPORT GtProcessComponentModel : public GtStyledModel
 {
     Q_OBJECT
 

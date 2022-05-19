@@ -177,7 +177,6 @@ HEADERS += \
     dock_widgets/explorer/gt_openwithmenu.h \
     dock_widgets/process/gt_processdock.h \
     dock_widgets/process/gt_processview.h \
-    dock_widgets/process/gt_processcomponentmodel.h \
     dock_widgets/process/gt_processconnectioneditor.h \
     dock_widgets/process/gt_processcomponentsettingsbutton.h \
     dock_widgets/calculators/gt_calculatorsdock.h \
@@ -271,7 +270,6 @@ SOURCES += \
     dock_widgets/explorer/gt_openwithmenu.cpp \
     dock_widgets/process/gt_processdock.cpp \
     dock_widgets/process/gt_processview.cpp \
-    dock_widgets/process/gt_processcomponentmodel.cpp \
     dock_widgets/process/gt_processconnectioneditor.cpp \
     dock_widgets/process/gt_processcomponentsettingsbutton.cpp \
     dock_widgets/calculators/gt_calculatorsdock.cpp \
