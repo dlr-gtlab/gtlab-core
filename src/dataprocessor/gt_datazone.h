@@ -85,6 +85,17 @@ public:
                    const QStringList& units);
 
     /**
+     * @brief addDataPoint1D
+     * @param vals - map of values to set in the datazone
+     * @param tick - main axis value to add the parameter values to
+     * @param overwrite -  if the tick is existing the existing values
+     * will be overwritten if this flag is set to true (default value is true)
+     */
+    bool addDataPoint1D(const QMap<QString, double>& vals,
+                        const double& tick,
+                        bool overwrite = true);
+
+    /**
      * @brief set 2-dimensional data to table
      * @param params parameter names
      * @param ticks1 ticks of first axis
@@ -280,6 +291,13 @@ public:
      * @return axis ticks
      */
     QVector<double> axisTicks(const QString& id) const;
+
+    /**
+     * @brief returns axis ticks as vector of type double
+     * @param axisIndex - index of the axis (default value is 0 for main axis)
+     * @return axis ticks
+     */
+    QVector<double> axisTicks(int axisIndex = 0) const;
 
     /**
      * @brief isOD

@@ -56,6 +56,32 @@ public:
      */
     void clearValues();
 
+    /**
+     * @brief prependValue - prepand value val to the value vector
+     * @param val - value to use
+     */
+    void prependValue(const double& val);
+
+    /**
+     * @brief appendValue - append value val to the value vector
+     * @param val - value to use
+     */
+    void appendValue(const double& val);
+
+    /**
+     * @brief insertValue - insert value val to the value vector
+     * @param index - index to use
+     * @param val - value to use
+     */
+    void insertValue(int index, const double& val);
+
+    /**
+     * @brief replaceValue - replace value val of the value vector
+     * @param index - index to use
+     * @param val - value to use
+     */
+    void replaceValue(int index, const double& val);
+
 private:
     /// Axis unit
     QString m_unit;

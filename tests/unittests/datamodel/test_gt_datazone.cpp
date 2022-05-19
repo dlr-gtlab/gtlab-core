@@ -275,3 +275,82 @@ TEST_F(TestGtDataZone, set1DFrom2D)
     EXPECT_EQ(dz->nDims(), 1);
 }
 
+TEST_F(TestGtDataZone, addDataPoint1D)
+{
+    auto data = dz->fetchData();
+
+    QStringList params = {"ParamA", "ParamB", "ParamC"};
+    QStringList units = {"[kg]", "[K]", "[-]"};
+    QVector<double> ticks = {0.0, 0.5, 1.0};
+    QString axisName = "x";
+    QMap<QString, QVector<double> > vals;
+
+    vals.insert(params[0], {0.0, 1.0, 2.0});
+    vals.insert(params[1], {3.0, 4.0, 5.0});
+    vals.insert(params[2], {6.0, 7.0, 8.0});
+
+
+    data.setData1D(params, ticks, axisName, vals, units);
+
+    bool check = data.isValid() && dz->nDims() == 1;
+
+    ASSERT_TRUE(check);
+    ASSERT_EQ(data.value1D(params[0], 0.75), 1.5);
+
+
+    QMap<QString, double> pointToAdd;
+    pointToAdd.insert(params[0], 12.0);
+    pointToAdd.insert(params[1], 2.0);
+    pointToAdd.insert(params[2], 1.0);
+
+    const double axValue = 0.75;
+    ASSERT_TRUE(data.addDataPoint1D(pointToAdd, axValue));
+
+    qDebug() << "A: relevant parametervector" << data.value1DVector(params[0]);
+    qDebug() << "A: relevant ticks" << dz->axisTicks();
+
+    ASSERT_EQ(data.value1D(params[0], axValue), 12.0);
+
+    QMap<QString, double> pointToAdd2;
+    pointToAdd2.insert(params[0], -12.0);
+    pointToAdd2.insert(params[1], -2.0);
+    pointToAdd2.insert(params[2], -1.0);
+
+    const double axValue2 = 0.5;
+    ASSERT_FALSE(data.addDataPoint1D(pointToAdd2, axValue2, false));
+    ASSERT_TRUE(data.addDataPoint1D(pointToAdd2, axValue2, true));
+
+    qDebug() << "B: relevant parametervector" << data.value1DVector(params[0]);
+    qDebug() << "B: relevant ticks" << dz->axisTicks();
+
+    ASSERT_EQ(data.value1D(params[0], axValue2), -12.0);
+
+
+    QMap<QString, double> pointToAdd3;
+    pointToAdd3.insert(params[0], 151.0);
+    pointToAdd3.insert(params[1], 123.0);
+    pointToAdd3.insert(params[2], 34563.0);
+
+    const double axValue3 = -1.0;
+    ASSERT_TRUE(data.addDataPoint1D(pointToAdd3, axValue3));
+
+    qDebug() << "C: relevant parametervector" << data.value1DVector(params[1]);
+    qDebug() << "C: relevant ticks" << dz->axisTicks();
+
+    ASSERT_EQ(data.value1D(params[1], axValue3), 123.0);
+
+    QMap<QString, double> pointToAdd4;
+    pointToAdd4.insert(params[0], -151.0);
+    pointToAdd4.insert(params[1], -123.0);
+    pointToAdd4.insert(params[2], -34563.0);
+
+    const double axValue4 = 10.0;
+    ASSERT_TRUE(data.addDataPoint1D(pointToAdd4, axValue4));
+
+    qDebug() << "D: relevant parametervector" << data.value1DVector(params[2]);
+    qDebug() << "D: relevant ticks" << dz->axisTicks();
+
+    ASSERT_EQ(data.value1D(params[2], axValue4), -34563.0);
+
+}
+
