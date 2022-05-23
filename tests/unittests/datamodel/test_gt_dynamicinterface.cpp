@@ -170,29 +170,31 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
 
 TEST_F(DynamicInterface, registerFunctionTwice)
 {
-    ASSERT_TRUE(gtlab::interface::register_function("my_test_sum", my_test_sum));
+    ASSERT_TRUE(gtlab::interface::register_function("my_test_sum3", my_test_sum));
 
-    auto func = gtlab::interface::get_function("my_test_sum");
+    auto func = gtlab::interface::get_function("my_test_sum3");
     ASSERT_TRUE(func);
 
-    QVariant result = func({5, 7});
+    const int sum1 = 5;
+    const int sum2 = 7;
 
-    ASSERT_EQ(result.toInt(), 12);
+    QVariant result = func({sum1, sum2});
+
+    EXPECT_EQ(result.toInt(), my_test_sum(sum1, sum2));
 
     auto lambda = [](double a, double b) {
         return  a + b + a + b;
     };
 
-    gtlab::interface::register_function(
-                "my_test_sum", lambda);
+    gtlab::interface::register_function("my_test_sum3", lambda);
 
-    auto func2 = gtlab::interface::get_function("my_test_sum");
+    auto func2 = gtlab::interface::get_function("my_test_sum3");
 
     ASSERT_FALSE(func2.is_null());
 
-    QVariant result2 = func2({5, 7});
+    QVariant result2 = func2({sum1, sum2});
 
-    ASSERT_EQ(result2.toInt(), 24);
+    ASSERT_EQ(result2.toInt(), lambda(sum1, sum2));
 
 }
 
