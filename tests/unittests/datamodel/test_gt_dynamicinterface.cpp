@@ -177,7 +177,7 @@ TEST_F(DynamicInterface, registerFunctionTwice)
 
     QVariant result = func({5, 7});
 
-    ASSERT_EQ(result, 12);
+    ASSERT_EQ(result.toInt(), 12);
 
     auto lambda = [](double a, double b) {
         return  a + b + a + b;
@@ -192,7 +192,7 @@ TEST_F(DynamicInterface, registerFunctionTwice)
 
     QVariant result2 = func2({5, 7});
 
-    ASSERT_EQ(result2, 24);
+    ASSERT_EQ(result2.toInt(), 24);
 
 }
 
