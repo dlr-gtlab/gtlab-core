@@ -26,8 +26,8 @@ DynamicInterfaceHandler::addInterface(const QString& ident, InterfaceFunction fu
 {
     if (m_interfaces.contains(ident))
     {
-        qDebug() << "could not add interface. ident already defined!";
-        return false;
+        qDebug() << "Attention: ident already defined! (ident:" << ident << ")";
+        qDebug() << "Existing interface will be overwritten!";
     }
 
     m_interfaces.insert(ident, func_ptr);

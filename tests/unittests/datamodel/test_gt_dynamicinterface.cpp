@@ -168,6 +168,34 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
     EXPECT_STREQ(help, func.help().toStdString().c_str());
 }
 
+TEST_F(DynamicInterface, registerFunctionTwice)
+{
+    ASSERT_TRUE(gtlab::interface::register_function("my_test_sum", my_test_sum));
+
+    auto func = gtlab::interface::get_function("my_test_sum");
+    ASSERT_TRUE(func);
+
+    QVariant result = func({5, 7});
+
+    ASSERT_EQ(result, 12);
+
+    auto lambda = [](double a, double b) {
+        return  a + b + a + b;
+    };
+
+    gtlab::interface::register_function(
+                "my_test_sum", lambda);
+
+    auto func2 = gtlab::interface::get_function("my_test_sum");
+
+    ASSERT_FALSE(func2.is_null());
+
+    QVariant result2 = func2({5, 7});
+
+    ASSERT_EQ(result2, 24);
+
+}
+
 TEST_F(DynamicInterface, checkName)
 {
     ASSERT_TRUE(gtlab::interface::register_function("my_test_sum3", my_test_sum));
