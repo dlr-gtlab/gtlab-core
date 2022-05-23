@@ -48,6 +48,20 @@ bool can_convert<int>(const QVariant&  v)
     return ok;
 }
 
+
+template <>
+constexpr bool can_convert<QString>(const QVariant& )
+{
+    return true;
+}
+
+template <>
+constexpr bool can_convert<std::string>(const QVariant& )
+{
+    return true;
+}
+
+
 template <typename T>
 QVariant to_variant(const T& t)
 {
@@ -82,5 +96,18 @@ QVariantList to_variant_list(mpl::detail::void_type)
 {
     return {};
 }
+
+template <typename T>
+T from_variant(const QVariant& v)
+{
+    return v.value<T>();
+}
+
+template <>
+std::string from_variant<std::string>(const QVariant& v)
+{
+    return v.toString().toStdString();
+}
+
 
 #endif // VARIANT_CONVERT_H
