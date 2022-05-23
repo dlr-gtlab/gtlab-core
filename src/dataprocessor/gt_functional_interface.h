@@ -73,7 +73,7 @@ struct InterfaceFunctionBuilder
 
             // convert
             std::get<i>(wrapped_function_args) =
-                variant_arg.template value<ArgType>();
+                from_variant<ArgType>(variant_arg);
         });
 
         // execute function

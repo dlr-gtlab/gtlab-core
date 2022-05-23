@@ -12,6 +12,8 @@
 #include "gt_functional_interface.h"
 #include "gt_dynamicinterfacehandler.h"
 
+#include <QString>
+
 class DynamicInterface : public testing::Test
 {};
 
@@ -34,6 +36,36 @@ TEST_F(DynamicInterface, wrapFunction)
 
     // arg 0 cannot be converted into int
     EXPECT_THROW(itf_fun({"bla", 2}), std::runtime_error);
+}
+
+TEST_F(DynamicInterface, wrapQString)
+{
+    auto mystringfunction = [](QString str) {
+        return str;
+    };
+
+    auto itf_fun = gtlab::interface::make_interface_function("mystringfunction",
+                                                             mystringfunction);
+
+    auto result = itf_fun({"Hallo Welt"});
+
+    ASSERT_EQ(1, result.size());
+    EXPECT_STREQ("Hallo Welt", result[0].toString().toStdString().c_str());
+}
+
+TEST_F(DynamicInterface, wrapStdString)
+{
+    auto mystringfunction = [](std::string str) {
+        return str;
+    };
+
+    auto itf_fun = gtlab::interface::make_interface_function("mystringfunction2",
+                                                             mystringfunction);
+
+    auto result = itf_fun({"Hallo Welt"});
+
+    ASSERT_EQ(1, result.size());
+    EXPECT_STREQ("Hallo Welt", result[0].toString().toStdString().c_str());
 }
 
 TEST_F(DynamicInterface, wrapLambda)
