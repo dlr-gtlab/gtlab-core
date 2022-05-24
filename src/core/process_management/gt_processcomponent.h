@@ -122,34 +122,6 @@ public:
      */
     bool hasWarnings();
 
-    /**
-     * @brief Returns datamodel object based on given object link property.
-     * If no object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param prop Object link property
-     * @return Object corresponding to given object link property
-     */
-    template <class T>
-    T data(GtObjectLinkProperty& prop)
-    {
-        const QString uuid = dataHelper(prop);
-        return data<T>(uuid);
-    }
-
-    /**
-     * @brief Returns datamodel object based on given object path property.
-     * If no object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param prop Object path property
-     * @return Object corresponding to given object path property
-     */
-    template <class T>
-    T data(GtObjectPathProperty& prop)
-    {
-        const GtObjectPath path = pathHelper(prop);
-        return data<T>(path);
-    }
-
 public slots:
     /**
      * @brief Handles process component state changes.
@@ -175,19 +147,6 @@ protected:
      */
     void setWarningFlag(bool val);
 
-private:
-    /// Current process component state
-    GtProcessComponent::STATE m_state;
-
-    /// Monitoring properties
-    QList<GtAbstractProperty*> m_monitorProperties;
-
-    /// Skip indicator
-    GtBoolProperty m_skipped;
-
-    /// Warning flag
-    bool m_warning;
-
     /**
      * @brief Returns uuid string of given object link property.
      * @param prop Object link property.
@@ -201,6 +160,19 @@ private:
      * @return Object path.
      */
     GtObjectPath pathHelper(GtObjectPathProperty& prop);
+
+private:
+    /// Current process component state
+    GtProcessComponent::STATE m_state;
+
+    /// Monitoring properties
+    QList<GtAbstractProperty*> m_monitorProperties;
+
+    /// Skip indicator
+    GtBoolProperty m_skipped;
+
+    /// Warning flag
+    bool m_warning;
 
 signals:
     /**

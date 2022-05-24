@@ -18,6 +18,7 @@
 #include "gt_groupproperty.h"
 #include "gt_modeproperty.h"
 #include "gt_stringproperty.h"
+#include "gt_objectpathproperty.h"
 #include "gt_propertychangecommand.h"
 #include "gt_application.h"
 #include "gt_propertyvaluedelegate.h"
@@ -293,10 +294,15 @@ GtPropertyItem::editorWidget(QWidget* parent,
             QLineEdit* lineEdit = new QLineEdit(parent);
             QValidator* validator = nullptr;
             GtStringProperty* s = qobject_cast<GtStringProperty*>(m_property);
+            auto p = qobject_cast<GtObjectPathProperty*>(m_property);
 
             if (s)
             {
                 validator = s->validator();
+            }
+            else if (p)
+            {
+                validator = nullptr;
             }
             else
             {
