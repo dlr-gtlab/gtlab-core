@@ -141,6 +141,34 @@ public:
     bool isInterruptionRequested() const;
 
     /**
+     * @brief Returns datamodel object based on given object link property.
+     * If no object is found nullpointer is returned.
+     * @tparam T Object type
+     * @param prop Object link property
+     * @return Object corresponding to given object link property
+     */
+    template <class T>
+    T data(GtObjectLinkProperty& prop)
+    {
+        const QString uuid = dataHelper(prop);
+        return data<T>(uuid);
+    }
+
+    /**
+     * @brief Returns datamodel object based on given object path property.
+     * If no object is found nullpointer is returned.
+     * @tparam T Object type
+     * @param prop Object path property
+     * @return Object corresponding to given object path property
+     */
+    template <class T>
+    T data(GtObjectPathProperty& prop)
+    {
+        const GtObjectPath path = pathHelper(prop);
+        return data<T>(path);
+    }
+
+    /**
      * @brief Returns datamodel object based on given object uuid. If no
      * object is found nullpointer is returned.
      * @tparam T Object type

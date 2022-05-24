@@ -16,6 +16,7 @@ SUBDIRS += datamodel_interface
 SUBDIRS += mdi_interface
 SUBDIRS += mdi_interface_ext
 SUBDIRS += module_interface
+SUBDIRS += process_interface
 
 RESOURCES += ../../src/resources/icons/icons.qrc
 
