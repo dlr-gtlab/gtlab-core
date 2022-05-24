@@ -178,9 +178,9 @@ TEST_F(DynamicInterface, registerFunctionTwice)
     const int sum1 = 5;
     const int sum2 = 7;
 
-    QVariant result = func({sum1, sum2});
+    QVariantList result = func({sum1, sum2});
 
-    EXPECT_EQ(result.toInt(), my_test_sum(sum1, sum2));
+    EXPECT_EQ(result[0].toInt(), my_test_sum(sum1, sum2));
 
     auto lambda = [](double a, double b) {
         return  a + b + a + b;
@@ -192,9 +192,9 @@ TEST_F(DynamicInterface, registerFunctionTwice)
 
     ASSERT_FALSE(func2.is_null());
 
-    QVariant result2 = func2({sum1, sum2});
+    QVariantList result2 = func2({sum1, sum2});
 
-    ASSERT_EQ(result2.toInt(), lambda(sum1, sum2));
+    ASSERT_EQ(result2[0].toInt(), lambda(sum1, sum2));
 
 }
 
