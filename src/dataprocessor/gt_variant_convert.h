@@ -16,9 +16,15 @@
 #include "gt_mpl.h"
 
 template <typename TargetType>
-bool can_convert(const QVariant&  v)
+bool can_convert(const QVariant&  /*v*/)
 {
     return false;
+}
+
+template <>
+bool can_convert<QVariant>(const QVariant&  /*v*/)
+{
+    return true;
 }
 
 template <>
