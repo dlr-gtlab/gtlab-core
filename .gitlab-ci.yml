@@ -67,6 +67,9 @@ windowsBuildDebug:
   stage: build
   extends: 
     - .debugBuildRules
+  before_script:
+    - git submodule sync
+    - git submodule update --init    
   script:
     - .\tests\pipeline-scripts\build\build-515.bat 1>buildLog.txt
   tags:
@@ -97,6 +100,9 @@ windowsBuildRelease:
   stage: build
   extends: 
     - .releaseBuildRules
+  before_script:
+    - git submodule sync
+    - git submodule update --init    
   script:
     - .\tests\pipeline-scripts\build\build-515.bat
   tags:
