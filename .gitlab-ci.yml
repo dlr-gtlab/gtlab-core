@@ -68,7 +68,7 @@ windowsBuildDebug:
   extends: 
     - .debugBuildRules
   script:
-    - .\tests\build\build-515.bat 1>buildLog.txt
+    - .\tests\pipeline-scripts\build\build-515.bat 1>buildLog.txt
   tags:
     - Win10
   artifacts:
@@ -98,7 +98,7 @@ windowsBuildRelease:
   extends: 
     - .releaseBuildRules
   script:
-    - .\tests\build\build-515.bat
+    - .\tests\pipeline-scripts\build\build-515.bat
   tags:
     - Win10
   artifacts:
