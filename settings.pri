@@ -43,8 +43,13 @@ contains(BUILD_DEPLOY, true) {
 # Do not enable this for linux (otherwise these libs will be used instead
 # of new ones in case of release
 win32 {
-LIBS        += -L$${DEV_TOOLS}/bin
-DEPENDPATH  += $${DEV_TOOLS}/bin
+    CONFIG(debug, debug|release){
+        LIBS        += -L$${DEV_TOOLS}/binDebug
+        DEPENDPATH  += $${DEV_TOOLS}/binDebug
+    } else {
+        LIBS        += -L$${DEV_TOOLS}/bin
+        DEPENDPATH  += $${DEV_TOOLS}/bin
+    }
 }
 
 #### LIBRARIES
