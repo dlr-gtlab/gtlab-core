@@ -43,6 +43,12 @@ public:
      * @return description
      */
     QString description() const override;
+
+    /**
+     * @brief Initializes module. Called on application startup.
+     */
+    void init() override;
+
 };
 
 #endif // TEST_MODULE_INTERFACE_H

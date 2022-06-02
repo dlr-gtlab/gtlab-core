@@ -735,6 +735,7 @@ GtCoreApplication::initModules()
     if (m_moduleLoader)
     {
         m_moduleLoader->initModules();
+        m_moduleLoader->debugModuleUpdater();
     }
 }
 
@@ -750,6 +751,12 @@ GtCoreApplication::saveSystemEnvironment() const
          const QByteArray sysEnvVar = gtEnvironment->value(e).toByteArray();
          qputenv(e.toUtf8().constData(), sysEnvVar);
      });
+}
+
+GtModuleLoader*
+GtCoreApplication::moduleLoader()
+{
+    return m_moduleLoader.get();
 }
 
 bool

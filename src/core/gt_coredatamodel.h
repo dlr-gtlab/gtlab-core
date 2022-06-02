@@ -354,6 +354,8 @@ protected:
     void appendProjectData(GtProject* project,
                            const QList<GtObject*>& projectData);
 
+    void runModuleUpdater(GtProject* project);
+
 private:
     /// Current session
     QPointer<GtSession> m_session;

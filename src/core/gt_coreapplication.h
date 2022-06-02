@@ -364,6 +364,12 @@ public:
      */
     void saveSystemEnvironment() const;
 
+    /**
+     * @brief Returns pointer to module loader
+     * @return Module loader instance
+     */
+    GtModuleLoader* moduleLoader();
+
 protected:
     /// Current session
     std::unique_ptr<GtSession> m_session;

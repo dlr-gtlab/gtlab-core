@@ -809,6 +809,13 @@ GtProject::path() const
     return m_path;
 }
 
+QString
+GtProject::moduleDataPath(const QString &moduleId) const
+{
+    return path() + QDir::separator() + moduleId.toLower() +
+            GtProject::moduleExtension();
+}
+
 bool
 GtProject::isValid() const
 {

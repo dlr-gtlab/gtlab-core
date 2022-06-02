@@ -8,13 +8,14 @@
  */
 
 #include "gt_moduleloader.h"
-
 #include "gt_moduleinterface.h"
 #include "gt_initmoduleinterface.h"
 #include "gt_datamodelinterface.h"
 #include "gt_objectfactory.h"
 #include "gt_logging.h"
 #include "gt_algorithms.h"
+#include "gt_versionnumber.h"
+#include "gt_moduleupdater.h"
 
 #include <QDebug>
 #include <QDir>
@@ -26,6 +27,14 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
+#include <QDomElement>
+
+void
+register_converter(const QString& modId, GtVersionNumber target,
+                   ConverterFunction func)
+{
+    GtModuleUpdater::instance().registerModuleConverter(modId, target, func);
+}
 
 GtModuleLoader::GtModuleLoader() :
     m_modulesInitialized(false)
@@ -238,16 +247,24 @@ GtModuleLoader::initModules()
 
     for (auto const& value : qAsConst(m_plugins))
     {
-        GtInitModuleInterface* imi =
-                dynamic_cast<GtInitModuleInterface*>(value);
-
-        if (imi)
-        {
-            imi->init();
-        }
+        value->init();
     }
 
     m_modulesInitialized = true;
+}
+
+void
+GtModuleLoader::debugModuleUpdater()
+{
+    GtModuleUpdater::instance().debugModuleConverter();
+}
+
+void
+GtModuleLoader::updateModuleData(const QMap<QString,
+                                 GtVersionNumber>& moduleFootprint,
+                                 const QStringList& moduleData)
+{
+    GtModuleUpdater::instance().update(moduleFootprint, moduleData);
 }
 
 bool
@@ -495,4 +512,3 @@ GtModuleLoader::roamingPath()
     return QStandardPaths::writableLocation(
                QStandardPaths::GenericConfigLocation);
 }
-

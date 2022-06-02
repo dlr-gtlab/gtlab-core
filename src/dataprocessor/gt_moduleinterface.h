@@ -16,6 +16,15 @@
 
 #include "gt_versionnumber.h"
 
+class QDomElement;
+
+typedef bool (*ConverterFunction)(QDomElement&, const QString&);
+
+void GT_DATAMODEL_EXPORT register_converter(const QString& modId,
+                                            GtVersionNumber target,
+                                            ConverterFunction func);
+
+
 /**
  * @brief The GtModuleInterface class
  */
@@ -42,6 +51,11 @@ public:
      * @return description
      */
     virtual QString description() const = 0;
+
+    /**
+     * @brief Initializes module. Called on application startup.
+     */
+    virtual void init() = 0;
 
 };
 

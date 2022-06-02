@@ -120,6 +120,8 @@ public:
      */
     GT_CORE_EXPORT QMap<QString, GtVersionNumber> updatedModules() const;
 
+    GT_CORE_EXPORT QMap<QString, GtVersionNumber> modules() const;
+
 private:
     /// Private implementation
     std::unique_ptr<GtFootprintImpl> m_pimpl;

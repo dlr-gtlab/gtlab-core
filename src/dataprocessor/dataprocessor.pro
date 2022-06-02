@@ -58,10 +58,10 @@ HEADERS += \
     gt_externalizedobjectfetcher.h \
     gt_h5externalizationinterface.h \
     gt_h5externalizehelper.h \
+    gt_moduleupdater.h \
     gt_object.h \
     gt_objectfactory.h \
     gt_datamodelinterface.h \
-    gt_initmoduleinterface.h \
     gt_abstractobjectfactory.h \
     gt_objectmemento.h \
     gt_objectio.h \
@@ -132,6 +132,7 @@ SOURCES += \
     gt_externalizedobject.cpp \
     gt_h5externalizationinterface.cpp \
     gt_h5externalizehelper.cpp \
+    gt_moduleupdater.cpp \
     gt_object.cpp \
     gt_objectfactory.cpp \
     gt_abstractobjectfactory.cpp \

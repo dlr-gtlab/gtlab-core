@@ -51,6 +51,11 @@ public:
     QString description() const override;
 
     /**
+     * @brief Initializes module. Called on application startup.
+     */
+    void init() override;
+
+    /**
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
      */

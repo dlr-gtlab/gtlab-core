@@ -53,6 +53,8 @@ public:
      */
     const QString& path() const;
 
+    QString moduleDataPath(const QString& moduleId) const;
+
     /**
      * @brief Returns whether project data is successfully loaded or not
      * @return validation indicator

@@ -8,6 +8,7 @@
  */
 
 #include <QMimeData>
+#include <QDir>
 
 #include "gt_session.h"
 #include "gt_project.h"
@@ -19,6 +20,9 @@
 #include "gt_state.h"
 #include "gt_statehandler.h"
 #include "gt_externalizationmanager.h"
+#include "gt_projectanalyzer.h"
+#include "gt_versionnumber.h"
+#include "gt_moduleloader.h"
 
 #include "gt_coredatamodel.h"
 
@@ -96,6 +100,42 @@ GtCoreDatamodel::appendProjectData(GtProject* project,
 
     // update current project in application
     gtApp->setCurrentProject(project);
+}
+
+void
+GtCoreDatamodel::runModuleUpdater(GtProject* project)
+{
+    if (!project)
+    {
+        return;
+    }
+
+    gtDebug() << "checking for module data updates...";
+
+    GtProjectAnalyzer analyzer(project);
+    GtFootprint footprint = analyzer.footPrint();
+//    QMap<QString, GtVersionNumber> modules = footprint.modules();
+
+
+
+//    // module data to update
+//    for (auto activeModId : project->moduleIds())
+//    {
+//        gtDebug() << "  -> checking " << activeModId;
+    //    }
+
+
+    QStringList tmpModDataFileNames;
+
+    for (auto activeModId : project->moduleIds())
+    {
+        tmpModDataFileNames << project->moduleDataPath(activeModId);
+    }
+
+
+    gtApp->moduleLoader()->updateModuleData(footprint.modules(),
+                                            tmpModDataFileNames);
+
 }
 
 QModelIndex
@@ -239,6 +279,9 @@ GtCoreDatamodel::openProject(GtProject* project)
     {
         return false;
     }
+
+    // project ready to be opened. check for module updater
+    runModuleUpdater(project);
 
     // collect project data
     GtObjectList data = m_session->loadProjectData(project);

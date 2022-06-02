@@ -139,6 +139,9 @@ GtDataModel::openProject(GtProject* project)
         return false;
     }
 
+    // project ready to be opened. check for module updater
+    runModuleUpdater(project);
+
     // loading procedure
     GtLoadProjectHelper* helper = new GtLoadProjectHelper(project);
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataLoaded()));
