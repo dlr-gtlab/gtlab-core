@@ -18,7 +18,7 @@
 
 #define gtObjectFactory (GtObjectFactory::instance())
 
-class GtDatamodelInterface;
+//class GtDatamodelInterface;
 
 /**
  * @brief The GtObjectFactory class

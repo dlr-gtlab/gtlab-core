@@ -127,7 +127,7 @@ GtCoreDatamodel::runModuleUpdater(GtProject* project)
 
     QStringList tmpModDataFileNames;
 
-    for (auto activeModId : project->moduleIds())
+    for (auto& activeModId : project->moduleIds())
     {
         tmpModDataFileNames << project->moduleDataPath(activeModId);
     }

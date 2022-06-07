@@ -34,8 +34,9 @@ public:
         std::vector<VersionUpdateRoutine> routines = m_updateRoutines;
 
         std::sort(routines.begin(),
-                  routines.end(), [] (VersionUpdateRoutine &x,
-                  VersionUpdateRoutine &y) { return x.target < y.target; });
+                  routines.end(), [] (const VersionUpdateRoutine &x,
+                  const VersionUpdateRoutine &y) { return x.target <
+                    y.target; });
 
         for (auto const& r : routines)
         {
