@@ -9,7 +9,6 @@
 
 #include "gt_moduleloader.h"
 #include "gt_moduleinterface.h"
-#include "gt_initmoduleinterface.h"
 #include "gt_datamodelinterface.h"
 #include "gt_objectfactory.h"
 #include "gt_logging.h"

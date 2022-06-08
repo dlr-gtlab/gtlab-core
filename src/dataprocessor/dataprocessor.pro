@@ -58,17 +58,12 @@ HEADERS += \
     gt_externalizedobjectfetcher.h \
     gt_h5externalizationinterface.h \
     gt_h5externalizehelper.h \
-    gt_moduleupdater.h \
     gt_object.h \
     gt_objectfactory.h \
-    gt_datamodelinterface.h \
     gt_abstractobjectfactory.h \
     gt_objectmemento.h \
     gt_objectio.h \
     gt_objectgroup.h \
-    gt_datamodelmodule.h \
-    gt_moduleinterface.h \
-    gt_moduleloader.h \
     gt_package.h \
     gt_platform.h \
     gt_table.h \
@@ -117,12 +112,12 @@ HEADERS += \
     property/gt_relativeobjectlinkproperty.h \
     property/gt_doublelistproperty.h \
     gt_tablegroup.h \
-    gt_versionnumber.h \
     gt_regexp.h \
     gt_algorithms.h \
     gt_mpl.h \
     gt_variant_convert.h \
     gt_dynamicinterfacehandler.h \
+    gt_versionnumber.h \
     gt_functional_interface.h
 
 SOURCES += \
@@ -132,15 +127,12 @@ SOURCES += \
     gt_externalizedobject.cpp \
     gt_h5externalizationinterface.cpp \
     gt_h5externalizehelper.cpp \
-    gt_moduleupdater.cpp \
     gt_object.cpp \
     gt_objectfactory.cpp \
     gt_abstractobjectfactory.cpp \
     gt_objectmemento.cpp \
     gt_objectio.cpp \
     gt_objectgroup.cpp \
-    gt_datamodelmodule.cpp \
-    gt_moduleloader.cpp \
     gt_package.cpp \
     gt_table.cpp \
     gt_tableparser.cpp \
@@ -184,8 +176,8 @@ SOURCES += \
     property/gt_relativeobjectlinkproperty.cpp \
     property/gt_doublelistproperty.cpp \
     gt_tablegroup.cpp \
-    gt_versionnumber.cpp \
     gt_regexp.cpp \
+    gt_versionnumber.cpp \
     gt_dynamicinterfacehandler.cpp
 
 unix {

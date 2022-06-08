@@ -10,7 +10,7 @@
 #ifndef GT_MODULEINTERFACE_H
 #define GT_MODULEINTERFACE_H
 
-#include "gt_datamodel_exports.h"
+#include "gt_core_exports.h"
 
 #include <QtPlugin>
 
@@ -20,7 +20,7 @@ class QDomElement;
 
 typedef bool (*ConverterFunction)(QDomElement&, const QString&);
 
-void GT_DATAMODEL_EXPORT register_converter(const QString& modId,
+void GT_CORE_EXPORT register_converter(const QString& modId,
                                             GtVersionNumber target,
                                             ConverterFunction func);
 
@@ -28,7 +28,7 @@ void GT_DATAMODEL_EXPORT register_converter(const QString& modId,
 /**
  * @brief The GtModuleInterface class
  */
-class GT_DATAMODEL_EXPORT GtModuleInterface
+class GT_CORE_EXPORT GtModuleInterface
 {
 public:
     /** Virtual destructor to keep compilers happy */
