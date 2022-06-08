@@ -53,6 +53,7 @@ HEADERS += \
     gt_abstractexternalizationinterface.h \
     gt_datamodel_exports.h \
     gt_dummyobject.h \
+    gt_dynamicinterface.h \
     gt_externalizationmanager.h \
     gt_externalizedobject.h \
     gt_externalizedobjectfetcher.h \
@@ -122,12 +123,13 @@ HEADERS += \
     gt_algorithms.h \
     gt_mpl.h \
     gt_variant_convert.h \
-    gt_dynamicinterfacehandler.h \
+    internal/gt_dynamicinterfacehandler.h \
     gt_functional_interface.h
 
 SOURCES += \
     gt_abstractexternalizationinterface.cpp \
     gt_dummyobject.cpp \
+    gt_dynamicinterface.cpp \
     gt_externalizationmanager.cpp \
     gt_externalizedobject.cpp \
     gt_h5externalizationinterface.cpp \
@@ -185,7 +187,8 @@ SOURCES += \
     gt_tablegroup.cpp \
     gt_versionnumber.cpp \
     gt_regexp.cpp \
-    gt_dynamicinterfacehandler.cpp
+    internal/gt_dynamicinterfacehandler.cpp
+    internal/gt_dynamicinterface.cpp
 
 unix {
     QMAKE_CXXFLAGS += -std=c++14

@@ -10,9 +10,13 @@
 #include "gtest/gtest.h"
 
 #include "gt_functional_interface.h"
-#include "gt_dynamicinterfacehandler.h"
+#include "gt_dynamicinterface.h"
+
+#include "internal/gt_dynamicinterfacehandler.h"
 
 #include <QString>
+
+using gtlab::interface::make_interface_function;
 
 class DynamicInterface : public testing::Test
 {};
@@ -42,6 +46,7 @@ TEST_F(DynamicInterface, wrapFunction)
 
     // arg 0 cannot be converted into int
     EXPECT_THROW(itf_fun({"bla", 2}), std::runtime_error);
+    EXPECT_STREQ("my_test_sum", itf_fun.name().toStdString().c_str());
 }
 
 TEST_F(DynamicInterface, wrapQString)
@@ -154,7 +159,8 @@ TEST_F(DynamicInterface, getFunctionFailure)
 
 TEST_F(DynamicInterface, registerFunctionNoHelp)
 {
-    ASSERT_TRUE(gtlab::interface::internal::register_function("my_test_sum", my_test_sum));
+    ASSERT_TRUE(gtlab::interface::internal::register_function(
+        make_interface_function("my_test_sum", my_test_sum)));
 
     auto func = gtlab::interface::get_function("my_test_sum");
     ASSERT_TRUE(func);
@@ -166,7 +172,8 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
 {
     auto help = "this is the help of my_test_sum2";
 
-    ASSERT_TRUE(gtlab::interface::internal::register_function("my_test_sum2", my_test_sum, help));
+    ASSERT_TRUE(gtlab::interface::internal::register_function(
+        make_interface_function("my_test_sum2", my_test_sum, help)));
 
     auto func = gtlab::interface::get_function("my_test_sum2");
     ASSERT_TRUE(func);
@@ -176,7 +183,8 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
 
 TEST_F(DynamicInterface, checkName)
 {
-    ASSERT_TRUE(gtlab::interface::internal::register_function("my_test_sum3", my_test_sum));
+    ASSERT_TRUE(gtlab::interface::internal::register_function(
+        make_interface_function("my_test_sum3", my_test_sum)));
 
     auto func = gtlab::interface::get_function("my_test_sum3");
     EXPECT_STREQ("my_test_sum3", func.name().toStdString().c_str());
@@ -184,7 +192,8 @@ TEST_F(DynamicInterface, checkName)
 
 TEST_F(DynamicInterface, passByRef)
 {
-    ASSERT_TRUE(gtlab::interface::internal::register_function("insane_fun", my_insane_test_fun));
+    ASSERT_TRUE(gtlab::interface::internal::register_function(
+        make_interface_function("insane_fun", my_insane_test_fun)));
 
     auto func = gtlab::interface::get_function("insane_fun");
     auto result = func({"S1", "S2", 3, 4});

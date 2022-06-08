@@ -19,8 +19,9 @@ TestDmClass::TestDmClass()
     };
 
     gtlab::interface::internal::register_function(
+        gtlab::interface::make_interface_function(
                 "my_lambda_mult", lambda,
-                "This is a simple multiplication function");
+                "This is a simple multiplication function"));
 
     setObjectName("DMI Object");
 }

@@ -22,15 +22,17 @@ DynamicInterfaceHandler::instance()
 }
 
 bool
-DynamicInterfaceHandler::addInterface(const QString& ident, gtlab::InterfaceFunction func_ptr)
+DynamicInterfaceHandler::addInterface(gtlab::InterfaceFunction func_ptr)
 {
+    const auto& ident = func_ptr.name();
     if (m_interfaces.contains(ident))
     {
-        qDebug() << "could not add interface. ident already defined!";
+        qDebug() << "could not add interface. dynamic function with id='"
+                 << ident << "' already defined!";
         return false;
     }
 
-    m_interfaces.insert(ident, func_ptr);
+    m_interfaces.insert(ident, std::move(func_ptr));
 
     return true;
 }
@@ -49,4 +51,10 @@ DynamicInterfaceHandler::getInterfaceFunc(const QString& ident)
 QStringList DynamicInterfaceHandler::getRegisteredFunctionIDs() const
 {
     return m_interfaces.keys();
+}
+
+bool gtlab::interface::internal::register_function(InterfaceFunction func)
+{
+    return gtlab::internal::DynamicInterfaceHandler::instance()
+        .addInterface(std::move(func));
 }
