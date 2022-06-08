@@ -154,7 +154,7 @@ TEST_F(DynamicInterface, getFunctionFailure)
 
 TEST_F(DynamicInterface, registerFunctionNoHelp)
 {
-    ASSERT_TRUE(gtlab::interface::register_function("my_test_sum", my_test_sum));
+    ASSERT_TRUE(gtlab::interface::priv::register_function("my_test_sum", my_test_sum));
 
     auto func = gtlab::interface::get_function("my_test_sum");
     ASSERT_TRUE(func);
@@ -166,7 +166,7 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
 {
     auto help = "this is the help of my_test_sum2";
 
-    ASSERT_TRUE(gtlab::interface::register_function("my_test_sum2", my_test_sum, help));
+    ASSERT_TRUE(gtlab::interface::priv::register_function("my_test_sum2", my_test_sum, help));
 
     auto func = gtlab::interface::get_function("my_test_sum2");
     ASSERT_TRUE(func);
@@ -176,7 +176,7 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
 
 TEST_F(DynamicInterface, checkName)
 {
-    ASSERT_TRUE(gtlab::interface::register_function("my_test_sum3", my_test_sum));
+    ASSERT_TRUE(gtlab::interface::priv::register_function("my_test_sum3", my_test_sum));
 
     auto func = gtlab::interface::get_function("my_test_sum3");
     EXPECT_STREQ("my_test_sum3", func.name().toStdString().c_str());
@@ -184,7 +184,7 @@ TEST_F(DynamicInterface, checkName)
 
 TEST_F(DynamicInterface, passByRef)
 {
-    ASSERT_TRUE(gtlab::interface::register_function("insane_fun", my_insane_test_fun));
+    ASSERT_TRUE(gtlab::interface::priv::register_function("insane_fun", my_insane_test_fun));
 
     auto func = gtlab::interface::get_function("insane_fun");
     auto result = func({"S1", "S2", 3, 4});

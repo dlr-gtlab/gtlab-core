@@ -105,6 +105,8 @@ private:
     QString m_name, m_help;
 };
 
+namespace priv
+{
 
 class GT_DATAMODEL_EXPORT DynamicInterfaceHandler
 {
@@ -138,8 +140,13 @@ private:
 
 };
 
+} // namespace priv
+
 
 namespace interface
+{
+
+namespace priv
 {
 
 template <typename Func>
@@ -188,7 +195,7 @@ template <class Func,
 inline bool register_function(QString ident, Func func, QString help = "")
 {
     InterfaceFunction int_func(ident, std::move(func), std::move(help));
-    return DynamicInterfaceHandler::instance()
+    return gtlab::priv::DynamicInterfaceHandler::instance()
         .addInterface(std::move(ident), std::move(int_func));
 }
 
@@ -229,9 +236,12 @@ register_function(QString ident, const Func& func, QString help = "")
 
     InterfaceFunction int_func(ident, wrapped, std::move(help));
 
-    return DynamicInterfaceHandler::instance()
+    return gtlab::priv::DynamicInterfaceHandler::instance()
         .addInterface(std::move(ident), std::move(int_func));
 }
+
+} // namespace priv
+
 
 /**
  * @brief Retrieves an interface function from Interface Handler
@@ -245,7 +255,7 @@ register_function(QString ident, const Func& func, QString help = "")
 inline InterfaceFunction
 get_function(const QString& ident)
 {
-    return DynamicInterfaceHandler::instance().getInterfaceFunc(ident);
+    return gtlab::priv::DynamicInterfaceHandler::instance().getInterfaceFunc(ident);
 }
 
 } // namespace interface

@@ -12,7 +12,7 @@
 
 #include "gt_dynamicinterfacehandler.h"
 
-using namespace gtlab;
+using namespace gtlab::priv;
 
 DynamicInterfaceHandler&
 DynamicInterfaceHandler::instance()
@@ -22,7 +22,7 @@ DynamicInterfaceHandler::instance()
 }
 
 bool
-DynamicInterfaceHandler::addInterface(const QString& ident, InterfaceFunction func_ptr)
+DynamicInterfaceHandler::addInterface(const QString& ident, gtlab::InterfaceFunction func_ptr)
 {
     if (m_interfaces.contains(ident))
     {
@@ -35,7 +35,7 @@ DynamicInterfaceHandler::addInterface(const QString& ident, InterfaceFunction fu
     return true;
 }
 
-InterfaceFunction
+gtlab::InterfaceFunction
 DynamicInterfaceHandler::getInterfaceFunc(const QString& ident)
 {
     if (!m_interfaces.contains(ident))
