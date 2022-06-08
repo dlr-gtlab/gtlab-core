@@ -147,6 +147,7 @@ linuxBuildDebug:
   variables:
     BUILDMODE: debug
     BUILDUNITTESTS: "true"
+    QMAKE_EXECUTABLE: "/opt/Qt/5.15.2/gcc_64/bin/qmake"
   parallel:
     matrix: 
       - DEVTOOLS: [$DEVTOOLS_Linux_Unstable] 
@@ -169,6 +170,7 @@ linuxBuildRelease:
   variables:
     BUILDMODE: release
     BUILDUNITTESTS: "false"
+    QMAKE_EXECUTABLE: "/opt/Qt/5.15.2/gcc_64/bin/qmake"
   parallel:
     matrix: 
       - DEVTOOLS: [$DEVTOOLS_Linux_Unstable]    
