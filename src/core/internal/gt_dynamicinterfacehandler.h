@@ -10,7 +10,7 @@
 #ifndef DYNAMICINTERFACEHANDLER_H
 #define DYNAMICINTERFACEHANDLER_H
 
-#include "gt_datamodel_exports.h"
+#include "gt_core_exports.h"
 
 #include "gt_dynamicinterface.h"
 #include "gt_functional_interface.h"
@@ -23,7 +23,7 @@ namespace gtlab
 namespace internal
 {
 
-class GT_DATAMODEL_EXPORT DynamicInterfaceHandler
+class GT_CORE_EXPORT DynamicInterfaceHandler
 {
 
 public:
@@ -66,7 +66,7 @@ namespace internal
 /**
  * @brief Registers an InterfaceFunction to the handler
  */
-GT_DATAMODEL_EXPORT bool register_function(InterfaceFunction func);
+GT_CORE_EXPORT bool register_function(InterfaceFunction func);
 
 } // namespace internal
 } // namespace interface

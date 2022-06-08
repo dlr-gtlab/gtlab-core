@@ -10,7 +10,7 @@
 #ifndef DYNAMICINTERFACE_H
 #define DYNAMICINTERFACE_H
 
-#include "gt_datamodel_exports.h"
+#include "gt_core_exports.h"
 
 #include <QString>
 #include <QVariantList>
@@ -32,7 +32,7 @@ namespace gtlab
  * To convert arbitrary functions into InterfaceFunction,
  * use `auto func = gtlab::interface::make_interface_function(the_function)`
  */
-class InterfaceFunction
+class GT_CORE_EXPORT InterfaceFunction
 {
 public:
     using FunctionType = std::function<QVariantList(const QVariantList&)>;
@@ -115,7 +115,7 @@ namespace interface
  *
  * auto result = itf_mypow({3.0, 2}); // returns QVariantList({9.0})
  */
-GT_DATAMODEL_EXPORT InterfaceFunction
+GT_CORE_EXPORT InterfaceFunction
 get_function(const QString& ident);
 
 }  // namespace interface
