@@ -12,7 +12,7 @@
 
 #include "gt_dynamicinterfacehandler.h"
 
-using namespace gtlab::priv;
+using namespace gtlab::internal;
 
 DynamicInterfaceHandler&
 DynamicInterfaceHandler::instance()

@@ -18,7 +18,7 @@ TestDmClass::TestDmClass()
         return a*b;
     };
 
-    gtlab::interface::priv::register_function(
+    gtlab::interface::internal::register_function(
                 "my_lambda_mult", lambda,
                 "This is a simple multiplication function");
 
