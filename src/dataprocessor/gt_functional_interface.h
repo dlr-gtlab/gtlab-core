@@ -35,50 +35,26 @@ struct InterfaceFunctionBuilder
 
     QVariantList operator()(const QVariantList& variant_list) const
     {
-        const mpl::function_traits<Func> traits;
+        typedef mpl::function_traits<Func> traits;
+
         // check matching number of arguments
-        if (variant_list.size() != traits.nargs)
+        if (variant_list.size() != traits::nargs)
         {
             throw std::runtime_error(
                 "Function argument mismatch in function '" +
                 name.toStdString() +
                 "'. "
                 "Expected " +
-                std::to_string(traits.nargs) + " args, " + "got " +
+                std::to_string(traits::nargs) + " args, " + "got " +
                 std::to_string(variant_list.size()));
         }
 
-        typename mpl::function_traits<Func>::args_type
-            wrapped_function_args;
+        auto wrapped_function_args = from_variant<typename traits::args_type>(variant_list);
 
-        // convert all variant arguments into the argument
-        // types required for the wrapped function
-        mpl::static_for<traits.nargs>(
-            [&variant_list, &wrapped_function_args](const auto i)
-        {
-            typedef typename mpl::function_traits<
-                Func>::template arg<i>::type ArgType;
-            const auto& variant_arg = variant_list.at(i);
-
-            // check if is convertible
-            if (!can_convert<ArgType>(variant_arg))
-            {
-                throw std::runtime_error(
-                    "Cannot convert function argument " +
-                    std::to_string(i) + ". Expecting type '" +
-                    typeid(ArgType).name() + "' got value: " +
-                    variant_arg.toString().toStdString()
-                );
-            }
-
-            // convert
-            std::get<i>(wrapped_function_args) =
-                from_variant<ArgType>(variant_arg);
-        });
-
-        // execute function
-        const auto func_result = decltype(traits)::dispatch(
-            wrapped_function, std::move(wrapped_function_args));
+        // execute function, the arguments could be passed by reference, hence
+        // they cannot be moved
+        const auto func_result = traits::invoke(
+            wrapped_function, wrapped_function_args);
 
         // convert result into variant list
         return to_variant_list(func_result);
