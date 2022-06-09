@@ -270,30 +270,9 @@ guiTestsUnstableTag:
   variables:
     DEVTOOLS: $DEVTOOLS_Win_Stable
 
-# Unit test job on windows machine
-.winTestTemplate2:
-  stage: test
-  variables:
-    TESTRUNNER: .\tests\unittests\runUnittestsQt512.bat
-  script:
-    - '& $env:TESTRUNNER'
-    - get-content CoverageReport*\index.html
-  tags:
-    - Win10
-  artifacts:
-    paths:
-      - "unittests.xml"
-      - ${UNITTESTSNAME}Coverage.xml
-      - CoverageReport*
-    reports:
-      junit: unittests.xml
-      cobertura: ${UNITTESTSNAME}Coverage.xml
-    expire_in: 1 week
-
-
 testWin512Unstable:
   extends: 
-    - .winTestTemplate2
+    - .winTestTemplate
     - .debugBuildRules
   needs: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
   dependencies: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
