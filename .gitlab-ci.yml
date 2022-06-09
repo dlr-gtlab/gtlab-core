@@ -278,7 +278,7 @@ testWin512Unstable:
   dependencies: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
   variables:
     DEVTOOLS: $DEVTOOLS_Win_Unstable
-    TESTRUNNER: .\tests\unittests\runUnittests.bat
+    TESTRUNNER: .\tests\pipeline-scripts\unittests\runUnittestsQt515.bat
 
 .testLinux512:
   extends: 
