@@ -115,5 +115,57 @@ std::string from_variant<std::string>(const QVariant& v)
     return v.toString().toStdString();
 }
 
+namespace detail
+{
+
+template <class T>
+struct from_variant_impl_{};
+
+template <typename ... Tuple>
+struct from_variant_impl_<std::tuple<Tuple...>>
+{
+    // remove const and references from all arguments
+    typedef std::tuple<std::decay_t<Tuple>...> type;
+
+    static type convert(const QVariantList& variant_list)
+    {
+        type tuple;
+
+        constexpr size_t tuple_size = std::tuple_size<type>::value;
+        assert(tuple_size == variant_list.size());
+
+        mpl::static_for<tuple_size>(
+            [&tuple, &variant_list](const auto j)
+            {
+                using ArgType = std::tuple_element_t<j, type>;
+
+                const auto& variant_arg = variant_list.at(j);
+                if (!can_convert<ArgType>(variant_arg)) {
+                    throw std::runtime_error(
+                        "Cannot convert function argument " +
+                        std::to_string(j) + ". Expecting type '" +
+                        typeid(ArgType).name() + "' got value: " +
+                        variant_arg.toString().toStdString()
+                        );
+                }
+
+                std::get<j>(tuple) = from_variant<ArgType>(variant_arg);
+            });
+
+        return tuple;
+    }
+};
+
+} // namespace detail
+
+/**
+ * @brief Converts a QVariantList to a tuple
+ */
+template <typename ReturnTupleType>
+typename detail::from_variant_impl_<ReturnTupleType>::type from_variant(const QVariantList& l)
+{
+    return detail::from_variant_impl_<ReturnTupleType>::convert(l);
+}
+
 
 #endif // VARIANT_CONVERT_H

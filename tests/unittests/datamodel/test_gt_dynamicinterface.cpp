@@ -22,6 +22,12 @@ int my_test_sum (int a, int b)
     return a + b;
 }
 
+QString my_insane_test_fun(const std::string& str1,
+                           QString& str2, double v1, int& v2)
+{
+    return QString("%0,%1,%2,%3").arg(str1.c_str()).arg(str2).arg(v1).arg(v2);
+}
+
 TEST_F(DynamicInterface, wrapFunction)
 {
     auto itf_fun = gtlab::interface::make_interface_function("my_test_sum",
@@ -175,3 +181,14 @@ TEST_F(DynamicInterface, checkName)
     auto func = gtlab::interface::get_function("my_test_sum3");
     EXPECT_STREQ("my_test_sum3", func.name().toStdString().c_str());
 }
+
+TEST_F(DynamicInterface, passByRef)
+{
+    ASSERT_TRUE(gtlab::interface::register_function("insane_fun", my_insane_test_fun));
+
+    auto func = gtlab::interface::get_function("insane_fun");
+    auto result = func({"S1", "S2", 3, 4});
+    ASSERT_EQ(1, result.size());
+    EXPECT_STREQ("S1,S2,3,4", result.at(0).toString().toStdString().c_str());
+}
+
