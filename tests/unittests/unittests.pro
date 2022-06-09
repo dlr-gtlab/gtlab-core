@@ -60,18 +60,18 @@ INCLUDEPATH += .\
 
 #### HEADERS
 HEADERS += gt_testhelper.h
-HEADERS += datamodel/*.h
-HEADERS += core/*.h
+HEADERS += $$files(datamodel/*.h)
+HEADERS += $$files(core/*.h)
 
 #### SOURCES
 SOURCES += \
     main.cpp \
     gt_testhelper.cpp
-SOURCES += datamodel/*.cpp
-SOURCES += calculators/*.cpp
-SOURCES += core/*.cpp
-SOURCES += exporter/*.cpp
-#SOURCES += mdi/*.cpp
+SOURCES += $$files(datamodel/*.cpp)
+SOURCES += $$files(calculators/*.cpp)
+SOURCES += $$files(core/*.cpp)
+SOURCES += $$files(exporter/*.cpp)
+SOURCES += $$files(mdi/*.cpp)
 
 #SOURCES += $${CURRENT_DIR}/mdi/*.cpp
 
