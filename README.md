@@ -16,8 +16,8 @@ What you need:
   - QWT
   - NLopt
   - (optional) GoogleTest
-- Qt 5.12
-- (MS Windows) Microsoft Visual Studio Build Tools 2017
+- Qt 5.15
+- (MS Windows) Microsoft Visual Studio Build Tools 2019
 - (Linux) GCC
 
 ## Building GTlab

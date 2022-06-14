@@ -11,6 +11,8 @@
 variables:
   PIPELINEVERSION: "2.0.0-unstable"
   GIT_SUBMODULE_STRATEGY: none
+  # overriding the global config for now in this branch
+  QT_DIR_LINUX: "/opt/Qt/5.15.2/gcc_64/"
 
 # inlcude some templates from this file
 include:
@@ -67,8 +69,11 @@ windowsBuildDebug:
   stage: build
   extends: 
     - .debugBuildRules
+  before_script:
+    - git submodule sync
+    - git submodule update --init    
   script:
-    - .\tests\build\build-512.bat 1>buildLog.txt
+    - .\tests\pipeline-scripts\build\build-515.bat 1>buildLog.txt
   tags:
     - Win10
   artifacts:
@@ -97,8 +102,11 @@ windowsBuildRelease:
   stage: build
   extends: 
     - .releaseBuildRules
+  before_script:
+    - git submodule sync
+    - git submodule update --init    
   script:
-    - .\tests\build\build-512.bat
+    - .\tests\pipeline-scripts\build\build-515.bat
   tags:
     - Win10
   artifacts:
@@ -141,6 +149,7 @@ linuxBuildDebug:
   variables:
     BUILDMODE: debug
     BUILDUNITTESTS: "true"
+    QMAKE_EXECUTABLE: $QT_DIR_LINUX/bin/qmake
   parallel:
     matrix: 
       - DEVTOOLS: [$DEVTOOLS_Linux_Unstable] 
@@ -163,6 +172,7 @@ linuxBuildRelease:
   variables:
     BUILDMODE: release
     BUILDUNITTESTS: "false"
+    QMAKE_EXECUTABLE: $QT_DIR_LINUX/bin/qmake
   parallel:
     matrix: 
       - DEVTOOLS: [$DEVTOOLS_Linux_Unstable]    
@@ -177,6 +187,7 @@ linuxBuildRelease:
     - chmod +x ./tests/guitests/run_guitests.sh
   script:
     # xvfb to run a virtual display
+    - export QT_DIR_LINUX=/opt/Qt/5.15.2/gcc_64/
     - xvfb-run -a ./tests/guitests/run_guitests.sh
   retry: 2
   artifacts:
@@ -266,7 +277,8 @@ testWin512Unstable:
   needs: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
   dependencies: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
   variables:
-    DEVTOOLS: $DEVTOOLS_Win_Unstable  
+    DEVTOOLS: $DEVTOOLS_Win_Unstable
+    TESTRUNNER: .\tests\pipeline-scripts\unittests\runUnittestsQt515.bat
 
 .testLinux512:
   extends: 

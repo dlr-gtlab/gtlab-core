@@ -306,8 +306,8 @@ TEST_F(TestGtDataZone, addDataPoint1D)
     const double axValue = 0.75;
     ASSERT_TRUE(data.addDataPoint1D(pointToAdd, axValue));
 
-    qDebug() << "A: relevant parametervector" << data.value1DVector(params[0]);
-    qDebug() << "A: relevant ticks" << dz->axisTicks();
+    //qDebug() << "A: relevant parametervector" << data.value1DVector(params[0]);
+    //qDebug() << "A: relevant ticks" << dz->axisTicks();
 
     ASSERT_EQ(data.value1D(params[0], axValue), 12.0);
 
@@ -320,8 +320,8 @@ TEST_F(TestGtDataZone, addDataPoint1D)
     ASSERT_FALSE(data.addDataPoint1D(pointToAdd2, axValue2, false));
     ASSERT_TRUE(data.addDataPoint1D(pointToAdd2, axValue2, true));
 
-    qDebug() << "B: relevant parametervector" << data.value1DVector(params[0]);
-    qDebug() << "B: relevant ticks" << dz->axisTicks();
+    //qDebug() << "B: relevant parametervector" << data.value1DVector(params[0]);
+    //qDebug() << "B: relevant ticks" << dz->axisTicks();
 
     ASSERT_EQ(data.value1D(params[0], axValue2), -12.0);
 
@@ -334,8 +334,8 @@ TEST_F(TestGtDataZone, addDataPoint1D)
     const double axValue3 = -1.0;
     ASSERT_TRUE(data.addDataPoint1D(pointToAdd3, axValue3));
 
-    qDebug() << "C: relevant parametervector" << data.value1DVector(params[1]);
-    qDebug() << "C: relevant ticks" << dz->axisTicks();
+    //qDebug() << "C: relevant parametervector" << data.value1DVector(params[1]);
+    //qDebug() << "C: relevant ticks" << dz->axisTicks();
 
     ASSERT_EQ(data.value1D(params[1], axValue3), 123.0);
 
@@ -347,8 +347,8 @@ TEST_F(TestGtDataZone, addDataPoint1D)
     const double axValue4 = 10.0;
     ASSERT_TRUE(data.addDataPoint1D(pointToAdd4, axValue4));
 
-    qDebug() << "D: relevant parametervector" << data.value1DVector(params[2]);
-    qDebug() << "D: relevant ticks" << dz->axisTicks();
+    //qDebug() << "D: relevant parametervector" << data.value1DVector(params[2]);
+    //qDebug() << "D: relevant ticks" << dz->axisTicks();
 
     ASSERT_EQ(data.value1D(params[2], axValue4), -34563.0);
 
