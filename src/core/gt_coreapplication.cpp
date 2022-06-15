@@ -735,7 +735,6 @@ GtCoreApplication::initModules()
     if (m_moduleLoader)
     {
         m_moduleLoader->initModules();
-        m_moduleLoader->debugModuleUpdater();
     }
 }
 

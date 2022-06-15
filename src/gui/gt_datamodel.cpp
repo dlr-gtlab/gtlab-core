@@ -140,14 +140,19 @@ GtDataModel::openProject(GtProject* project)
     }
 
     // project ready to be opened. check for module updater
-    runModuleUpdater(project);
+    if (project->upgradesAvailable())
+    {
+        gtError() << "(" << project->objectName() << ") "
+                     "project needs updates of data structure!"
+                     " Run upgrade project data command first.";
+        return false;
+    }
 
     // loading procedure
     GtLoadProjectHelper* helper = new GtLoadProjectHelper(project);
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataLoaded()));
 
     gtApp->loadingProcedure(helper);
-
 
     return true;
 }

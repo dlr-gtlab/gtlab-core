@@ -44,6 +44,8 @@ namespace GtGUI
 
         GT_GUI_EXPORT QIcon closedProject16();
 
+        GT_GUI_EXPORT QIcon inconsistentProject16();
+
         GT_GUI_EXPORT QIcon openProject16();
 
         GT_GUI_EXPORT QIcon help();

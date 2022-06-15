@@ -18,15 +18,27 @@
 
 class QDomElement;
 
+/// Function definition for project data upgrades provided by a module
 typedef bool (*ConverterFunction)(QDomElement&, const QString&);
 
-void GT_CORE_EXPORT register_converter(const QString& modId,
-                                            GtVersionNumber target,
-                                            ConverterFunction func);
+/// Project data upgrade routine provided by a module
+struct VersionUpdateRoutine
+{
+    /// Target version for project data upgrade routine
+    GtVersionNumber target;
 
+    /// specific upgrade function
+    ConverterFunction f;
+};
 
 /**
- * @brief The GtModuleInterface class
+ * @brief Main interface that must be implemented by a module in order for it
+ * to be recognized by the framework. All pure virtual functions must be
+ * implemented according to the specifications. This concerns especially the
+ * module identification string, the module version and the module description.
+ * A main() method is not required.
+ * Detailed information:
+ * https://wiki.dlr.de/display/GTLAB/Structure+of+a+GTlab+module
  */
 class GT_CORE_EXPORT GtModuleInterface
 {
@@ -35,34 +47,59 @@ public:
     virtual ~GtModuleInterface() {}
 
     /**
-     * @brief Returns current version number of module.
-     * @return version number
-     */
-    virtual GtVersionNumber version() = 0;
-
-    /**
-     * @brief Returns module identification string.
-     * @return identification string
+     * @brief By implementing this function, the module passes its
+     * identification string to the framework. The module can be uniquely
+     * identified within the framework via the string.
+     * NOTE: This id should usually be specified only once and should not be
+     * modified afterwards. Subsequent changes to the id could lead to
+     * inconsistent data and undefined behavior.
+     * @return identification string of module
      */
     virtual QString ident() const = 0;
 
     /**
-     * @brief Returns module description
-     * @return description
+     * @brief By implementing this function, the module passes its current
+     * version number to the framework. The version number is used within the
+     * framework for identification. In this way, incompatible data sets or
+     * module updates can be detected by the framework.
+     * NOTE: Each time the module is adapted, the version number should be
+     * incremented. Otherwise, unwanted behavior may occur, e.g. inconsistent
+     * data, framework crashes.
+     * @return current version number of module
+     */
+    virtual GtVersionNumber version() = 0;
+
+    /**
+     * @brief By implementing this function, the module passes a short
+     * description to the framework. The description is for information to the
+     * framework user only and has no effect on the functionality.
+     * NOTE: A description can significantly help the user to
+     * understand what functionalities the respective module provides to the
+     * framework.
+     * @return description of the module.
      */
     virtual QString description() const = 0;
 
     /**
+     * @brief In some cases, it is necessary to upgrade the data stored in the
+     * project when the module version is updated. This function can be used to
+     * add your own update routines to the framework.
+     * @return List of all upgrade routines of the module.
+     */
+    virtual QList<VersionUpdateRoutine> updateRoutines() const {
+        return {};
+    };
+
+    /**
      * @brief Initializes module. Called on application startup.
      */
-    virtual void init(){};
+    virtual void init() {};
 
 };
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(GtModuleInterface,
-                    "de.dlr.gtlab.GtModuleInterface/1.7")
+                    "de.dlr.gtlab.GtModuleInterface/2.0")
 QT_END_NAMESPACE
 
 #endif // GT_MODULEINTERFACE_H
-

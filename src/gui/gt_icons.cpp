@@ -770,3 +770,9 @@ GtGUI::Pixmap::printHeadline()
 {
     return {":/pixmaps/print-headline.png"};
 }
+
+QIcon
+GtGUI::Icon::inconsistentProject16()
+{
+    return GtGUI::icon(QStringLiteral("inconsistentProjectIcon_16.png"));
+}

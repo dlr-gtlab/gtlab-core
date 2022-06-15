@@ -91,11 +91,6 @@ public:
      */
     void initModules();
 
-    void debugModuleUpdater();
-
-    void updateModuleData(const QMap<QString, GtVersionNumber>& moduleFootprint,
-                          const QStringList& moduleData);
-
 protected:
     /**
      * @brief check

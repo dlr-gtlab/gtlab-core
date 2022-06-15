@@ -10,6 +10,7 @@
 #include <QDomDocument>
 #include <QXmlStreamWriter>
 #include <QDir>
+#include <QDateTime>
 #include <QDebug>
 
 #include "gt_project.h"
@@ -30,12 +31,15 @@
 #include "gt_logging.h"
 #include "gt_externalizedobject.h"
 #include "gt_externalizationmanager.h"
+#include "gt_moduleupdater.h"
+#include "gt_projectanalyzer.h"
 
 GtProject::GtProject(const QString& path) :
     m_path(path),
     m_pathProp(QStringLiteral("path"), tr("Path"), tr("Project path"), path)
 {
     m_valid = loadMetaData();
+    m_upgradesAvailable = checkForUpgrades();
 
     m_pathProp.setReadOnly(true);
 
@@ -92,6 +96,111 @@ GtProject::setInternalizeOnSave(bool value)
     m_internalizeOnSave = value;
 }
 
+QStringList
+GtProject::availableModuleUpgrades()
+{
+    GtProjectAnalyzer analyzer(this);
+    GtFootprint footprint = analyzer.footPrint();
+
+    return GtModuleUpdater::instance().availableModuleUpgrades(
+                footprint.modules());
+}
+
+QList<GtVersionNumber>
+GtProject::availableUpgrades(const QString& moduleId)
+{
+    GtProjectAnalyzer analyzer(this);
+    GtFootprint footprint = analyzer.footPrint();
+
+    QMap<QString, GtVersionNumber> savedMods = footprint.modules();
+
+    if (savedMods.contains(moduleId))
+    {
+        GtVersionNumber savedVer = savedMods.value(moduleId);
+
+        return GtModuleUpdater::instance().availableUpgrades(moduleId,
+                                                             savedVer);
+    }
+
+    return {};
+}
+
+void
+GtProject::upgradeProjectData()
+{
+    if (!isValid())
+    {
+        return;
+    }
+
+    if (availableModuleUpgrades().isEmpty())
+    {
+        return;
+    }
+
+    GtProjectAnalyzer analyzer(this);
+    GtFootprint footprint = analyzer.footPrint();
+
+    QDir pdir(m_path);
+    pdir.setNameFilters(QStringList() << QStringLiteral("*.gtmod"));
+
+    QStringList entryList;
+
+    for (auto const& modFiles : pdir.entryList(QDir::Files))
+    {
+        entryList << pdir.absoluteFilePath(modFiles);
+    }
+
+    entryList << pdir.absoluteFilePath(mainFilename());
+
+    gtDebug() << "upgrading files: " << entryList;
+
+    GtModuleUpdater::instance().update(footprint.modules(), entryList);
+}
+
+void
+GtProject::createBackup() const
+{
+    if (!isValid())
+    {
+        return;
+    }
+
+    QDir pdir(m_path);
+    pdir.setNameFilters(QStringList() << QStringLiteral("*.gtmod"));
+
+    QStringList entryList = pdir.entryList(QDir::Files);
+
+    QString timeStamp = QDateTime::currentDateTime().toString(
+                "yyyyMMddhhmmss");
+
+    QDir bdir(m_path + QDir::separator() + "backup" + QDir::separator() +
+              timeStamp);
+
+    if (bdir.exists())
+    {
+        gtError() << "backup folder already exists!";
+        return;
+    }
+
+    if (!bdir.mkpath("."))
+    {
+        gtError() << "could not create backup path!";
+        return;
+    }
+
+    // backup module files
+    foreach (const QString& entry, entryList)
+    {
+        QFile file(pdir.absoluteFilePath(entry));
+        file.copy(bdir.absoluteFilePath(entry));
+    }
+
+    // backup project file
+    QFile file(pdir.absoluteFilePath(mainFilename()));
+    file.copy(bdir.absoluteFilePath(mainFilename()));
+}
+
 bool
 GtProject::loadMetaData()
 {
@@ -130,6 +239,20 @@ GtProject::loadMetaData()
     qDebug() << "project meta data loaded! (" << objectName() << ")";
 
     return true;
+}
+
+bool
+GtProject::checkForUpgrades()
+{
+    if (!m_valid)
+    {
+        return false;
+    }
+
+    GtProjectAnalyzer analyzer(this);
+    GtFootprint footprint = analyzer.footPrint();
+
+    return GtModuleUpdater::instance().upgradesAvailable(footprint.modules());
 }
 
 void
@@ -828,6 +951,12 @@ GtProject::isOpen() const
     // TODO: logic for open or closed projects
 
     return (childCount<GtObject*>() != 0);
+}
+
+bool
+GtProject::upgradesAvailable() const
+{
+    return m_upgradesAvailable;
 }
 
 GtProcessData*

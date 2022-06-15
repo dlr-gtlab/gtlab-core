@@ -28,13 +28,6 @@
 #include <QSettings>
 #include <QDomElement>
 
-void
-register_converter(const QString& modId, GtVersionNumber target,
-                   ConverterFunction func)
-{
-    GtModuleUpdater::instance().registerModuleConverter(modId, target, func);
-}
-
 GtModuleLoader::GtModuleLoader() :
     m_modulesInitialized(false)
 {
@@ -252,19 +245,6 @@ GtModuleLoader::initModules()
     m_modulesInitialized = true;
 }
 
-void
-GtModuleLoader::debugModuleUpdater()
-{
-    GtModuleUpdater::instance().debugModuleConverter();
-}
-
-void
-GtModuleLoader::updateModuleData(const QMap<QString,
-                                 GtVersionNumber>& moduleFootprint,
-                                 const QStringList& moduleData)
-{
-    GtModuleUpdater::instance().update(moduleFootprint, moduleData);
-}
 
 bool
 GtModuleLoader::check(GtModuleInterface* plugin)
@@ -301,6 +281,14 @@ void
 GtModuleLoader::insert(GtModuleInterface* plugin)
 {
     m_plugins.insert(plugin->ident(), plugin);
+
+    // register converter funcs
+    foreach (const auto& r, plugin->updateRoutines())
+    {
+      GtModuleUpdater::instance().registerModuleConverter(plugin->ident(),
+                                                          r.target,
+                                                          r.f);
+    }
 
     GtDatamodelInterface* dmp = dynamic_cast<GtDatamodelInterface*>(plugin);
 

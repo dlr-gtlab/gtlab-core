@@ -27,6 +27,7 @@ class GtProjectProvider;
 class GtPackage;
 class GtLabelData;
 class GtLabel;
+class GtVersionNumber;
 
 /**
  * @brief The GtProject class
@@ -53,6 +54,11 @@ public:
      */
     const QString& path() const;
 
+    /**
+     * @brief Returns dataset storage location for given module.
+     * @param moduleId Module identification string.
+     * @return storage location of module specific dataset.
+     */
     QString moduleDataPath(const QString& moduleId) const;
 
     /**
@@ -66,6 +72,12 @@ public:
      * @return
      */
     bool isOpen() const;
+
+    /**
+     * @brief Indicates whether upgrades are available for project data.
+     * @return True if upgrades are available.
+     */
+    bool upgradesAvailable() const;
 
     /**
      * @brief processData
@@ -159,6 +171,34 @@ public:
      */
     void setInternalizeOnSave(bool value);
 
+    /**
+     * @brief eturns the identification strings of all modules for which at
+     * least one upgrade is available.
+     * @return List of module identification strings
+     */
+    QStringList availableModuleUpgrades();
+
+    /**
+     * @brief Gives a list of version numbers of all available upgrades of a
+     * specific module.
+     * @param moduleId identifications string of the module for which upgrades
+     * are to be checked.
+     * @return List of version numbers of upgrad routines.
+     */
+    QList<GtVersionNumber> availableUpgrades(const QString& moduleId);
+
+    /**
+     * @brief Triggers upgrade routine of project data.
+     */
+    void upgradeProjectData();
+
+    /**
+     * @brief Generates a backup of all relevant project data. the backup is
+     * stored in the project directory in a separate folder (/backup). A current
+     * timestamp is used for identification.
+     */
+    void createBackup() const;
+
 protected:
     /**
      * @brief GtProject
@@ -197,6 +237,9 @@ private:
     /// True if project data was successfully loaded
     bool m_valid;
 
+    /// True if project data upgrades are available
+    bool m_upgradesAvailable{false};
+
     /// Whether to internalize all external data when saving
     bool m_internalizeOnSave{false};
 
@@ -214,6 +257,13 @@ private:
      * @return success
      */
     bool loadMetaData();
+
+    /**
+     * @brief Checks for available project data upgrades provided by framework
+     * modules.
+     * @return True if upgrades are available.
+     */
+    bool checkForUpgrades();
 
     /**
      * @brief readModuleMetaData

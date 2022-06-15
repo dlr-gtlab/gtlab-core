@@ -464,5 +464,7 @@
         <file>unknownIcon.png</file>
         <file>commentIcon.png</file>
         <file>input2Icon.png</file>
+        <file>inconsistentProjectIcon_16.png</file>
+        <file>upgradeProjectDataIcon.png</file>
     </qresource>
 </RCC>

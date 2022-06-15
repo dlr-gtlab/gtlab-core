@@ -36,12 +36,21 @@ TestModuleInterface::description() const
     return "Test Module Interface Description";
 }
 
+QList<VersionUpdateRoutine>
+TestModuleInterface::updateRoutines() const
+{
+    QList<VersionUpdateRoutine> retval;
+
+    retval.append({{0, 0, 2}, testConvert});
+    retval.append({{0, 0, 1}, testConvert});
+    retval.append({{0, 1, 4}, testConvert});
+    retval.append({{2, 4, 0}, testConvert});
+
+    return retval;
+}
+
 void
 TestModuleInterface::init()
 {
     // nothing to do here
-    register_converter(this->ident(), {0, 0, 2}, testConvert);
-    register_converter(this->ident(), {0, 0, 1}, testConvert);
-    register_converter(this->ident(), {0, 1, 4}, testConvert);
-    register_converter(this->ident(), {2, 4, 0}, testConvert);
 }

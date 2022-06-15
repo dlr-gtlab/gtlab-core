@@ -44,6 +44,8 @@ public:
      */
     QString description() const override;
 
+    QList<VersionUpdateRoutine> updateRoutines() const override;
+
     /**
      * @brief Initializes module. Called on application startup.
      */
