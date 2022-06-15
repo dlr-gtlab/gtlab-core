@@ -28,8 +28,8 @@ public:
         std::vector<VersionUpdateRoutine> routines = m_updateRoutines;
 
         std::sort(routines.begin(),
-                  routines.end(), [] (const VersionUpdateRoutine &x,
-                  const VersionUpdateRoutine &y) { return x.target <
+                  routines.end(), [] (const VersionUpdateRoutine& x,
+                  const VersionUpdateRoutine& y) { return x.target <
                     y.target; });
 
         for (auto const& r : routines)
@@ -136,8 +136,9 @@ GtModuleUpdater::debugModuleConverter()
         std::vector<VersionUpdateRoutine> routines = u.second.m_updateRoutines;
 
         std::sort(routines.begin(),
-                  routines.end(), [] (VersionUpdateRoutine &x,
-                  VersionUpdateRoutine &y) { return x.target < y.target; });
+                  routines.end(), [] (const VersionUpdateRoutine& x,
+                  const VersionUpdateRoutine& y)
+        { return x.target < y.target; });
 
         for (auto const& r : routines)
         {
@@ -215,15 +216,13 @@ GtModuleUpdater::availableModuleUpgrades(const QMap<QString,
             GtVersionNumber savedVer =
                     moduleFootprint.value(QString::fromStdString(u.first));
 
-            for (auto const& r : u.second.m_updateRoutines)
+            if (std::any_of(u.second.m_updateRoutines.begin(),
+                            u.second.m_updateRoutines.end(),
+                            [savedVer](const VersionUpdateRoutine& r)
+            {return savedVer < r.target;}))
             {
-                if (savedVer < r.target)
-                {
-                    retval << QString::fromStdString(u.first);
-                    break;
-                }
+                retval << QString::fromStdString(u.first);
             }
-
         }
     }
 
@@ -245,8 +244,8 @@ GtModuleUpdater::availableUpgrades(const QString& moduleId,
                     u.second.m_updateRoutines;
 
             std::sort(routines.begin(),
-                      routines.end(), [] (const VersionUpdateRoutine &x,
-                      const VersionUpdateRoutine &y) { return x.target <
+                      routines.end(), [] (const VersionUpdateRoutine& x,
+                      const VersionUpdateRoutine& y) { return x.target <
                         y.target; });
 
             for (auto const& r : routines)

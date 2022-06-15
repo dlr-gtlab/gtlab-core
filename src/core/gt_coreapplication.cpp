@@ -752,12 +752,6 @@ GtCoreApplication::saveSystemEnvironment() const
      });
 }
 
-GtModuleLoader*
-GtCoreApplication::moduleLoader()
-{
-    return m_moduleLoader.get();
-}
-
 bool
 GtCoreApplication::setLanguage(const QString& id)
 {

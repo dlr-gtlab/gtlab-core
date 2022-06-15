@@ -42,12 +42,13 @@ GtProjectUpgradeOverviewPage::GtProjectUpgradeOverviewPage(GtProject* project,
                 tr(" (current)");
 
         const QList<GtVersionNumber> avail = project->availableUpgrades(modId);
-        QString newestVer = avail.last().toString();
 
         if (avail.isEmpty())
         {
             continue;
         }
+
+        QString newestVer = avail.last().toString();
 
         QTreeWidgetItem* rootItem = new QTreeWidgetItem(treeWid, {modId});
         QTreeWidgetItem* child = new QTreeWidgetItem(rootItem, {preVer +
