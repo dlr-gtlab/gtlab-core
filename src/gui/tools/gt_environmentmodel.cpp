@@ -26,8 +26,13 @@ GtEnvironmentModel::GtEnvironmentModel(const QStringList& vars,
 }
 
 int
-GtEnvironmentModel::rowCount(const QModelIndex& /*parent*/) const
+GtEnvironmentModel::rowCount(const QModelIndex& parent) const
 {
+    if (parent.isValid())
+    {
+        return 0;
+    }
+
     return m_vars.size();
 }
 
@@ -45,6 +50,11 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
+    if (index.row() < 0)
+    {
+        return QVariant();
+    }
+
     const int row = index.row();
     const int col = index.column();
 
@@ -53,7 +63,11 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    const QString valId = ith_iter(m_vars, row).key();
+    //auto iterator = ith_iter(m_vars, size_t(row));
+
+    //const QString valId = iterator.key();
+
+    const QString valId = m_vars.keys().at(row);
 
     QVariant retVal = QVariant();
 
@@ -114,7 +128,7 @@ GtEnvironmentModel::setData(const QModelIndex& index,
         return false;
     }
 
-    const QString valId = ith_iter(m_vars, row).key();
+    const QString valId = ith_iter(m_vars, size_t(row)).key();
 
     switch (role)
     {
@@ -192,8 +206,12 @@ GtEnvironmentModel::saveVariables()
 void
 GtEnvironmentModel::init(const QStringList& vars)
 {
+    beginInsertRows(QModelIndex(), m_vars.size(), m_vars.size());
+
     foreach (const QString& var, vars)
     {
         m_vars.insert(var, gtEnvironment->value(var));
     }
+
+    endInsertRows();
 }
