@@ -70,12 +70,12 @@ GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
 
     QLabel* copyLabel =
             new QLabel(QStringLiteral(
-                "GTlab - Gas Turbine laboratory\ncopyright 2009-2021 by DLR"));
+                "GTlab - Gas Turbine laboratory\ncopyright 2009-2022 by DLR"));
 
     hLayout->addWidget(copyLabel);
 
     QString vers = gtApp->versionToString() +
-                   QStringLiteral("\nHydrogen");
+                   QStringLiteral("\nHelium");
 
     QLabel* versLabel = new QLabel(vers);
     versLabel->setAlignment(Qt::AlignRight);
@@ -104,8 +104,8 @@ GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
 
     setLayout(layout);
 
-    setMinimumSize(465, 380);
-    setMaximumSize(465, 380);
+    setMinimumSize(526, 380);
+    setMaximumSize(526, 380);
 
     connect(exportFootprintBtn, SIGNAL(clicked()), SLOT(exportFootprint()));
 }
