@@ -7,7 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QComboBox>
 #include <QApplication>
 #include <QPainter>
 
@@ -26,24 +25,28 @@ GtPropertyUnitDelegate::createEditor(QWidget* parent,
                                      const QStyleOptionViewItem& option,
                                      const QModelIndex& index) const
 {
-    delete m_comboBox;
+    /// No additional delete is needed as the parent-child structure is used
     m_comboBox = new QComboBox(parent);
 
     QVariant var = index.data(GtPropertyModel::UnitCategoryRole);
 
     GtUnit::Category cat = var.value<GtUnit::Category>();
 
-    GtUnitConverter<double>* unitConverter =
-        &GtUnitConverter<double>::instance();
+    QStringList units;
 
-    QStringList units = unitConverter->units(cat);
+    if (GtUnitConverter<double>* unitConverter =
+            &GtUnitConverter<double>::instance())
+    {
+        units = unitConverter->units(cat);
+    }
 
     foreach (const QString& unit, units)
     {
         m_comboBox->addItem(unit);
     }
 
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)),
+
+    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this,
             SLOT(setData(int)));
 
     m_comboBox->setMinimumSize(sizeHint(option, index));
@@ -53,8 +56,7 @@ GtPropertyUnitDelegate::createEditor(QWidget* parent,
 
     m_comboBox->setMinimumContentsLength(3);
 
-    m_comboBox->setSizeAdjustPolicy(
-                QComboBox::AdjustToContents);
+    m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
     return m_comboBox;
 }

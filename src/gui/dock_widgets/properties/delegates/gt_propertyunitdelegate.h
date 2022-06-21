@@ -12,6 +12,9 @@
 
 #include <QStyledItemDelegate>
 
+#include <QComboBox>
+#include <QPointer>
+
 class QComboBox;
 
 /**
@@ -79,7 +82,7 @@ public:
 
 private:
     /// Combobox
-    mutable QComboBox* m_comboBox{nullptr};
+    mutable QPointer<QComboBox> m_comboBox{nullptr};
 
     mutable int m_width{1};
 
