@@ -1628,6 +1628,8 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
             gtDebug() << "backup and overwriting project data...";
             project->createBackup();
             project->upgradeProjectData();
+            gtDataModel->openProject(project);
+            gtApp->setCurrentProject(project);
         }
         else
         {
@@ -1643,7 +1645,10 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
 
             newProject->upgradeProjectData();
             gtDataModel->newProject(newProject);
+            gtApp->setCurrentProject(newProject);
         }
+
+
     }
 }
 

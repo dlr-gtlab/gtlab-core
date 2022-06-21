@@ -11,6 +11,7 @@
 #include <QDomElement>
 
 #include "gt_logging.h"
+#include "gt_xmlutilities.h"
 
 #include "gt_moduleupdater.h"
 
@@ -73,7 +74,15 @@ public:
                     r.f(root, modData);
 
                     // save file
-                    // TODO
+                    // new ordered attribute stream writer algorithm
+                    if (!GtXmlUtilities::writeDomDocumentToFile(modData,
+                                                                document,
+                                                                true))
+                    {
+                        gtError() << "(module data updater) "
+                                  << modData << QStringLiteral(": ")
+                                  << "Failed to save project data!";
+                    }
                 }
             }
             else
@@ -149,7 +158,7 @@ GtModuleUpdater::debugModuleConverter()
 
 void
 GtModuleUpdater::update(const QMap<QString, GtVersionNumber>& moduleFootprint,
-                        const QStringList &files) const
+                        const QStringList& files) const
 {
     for (auto const& u : m_pimpl->m_updater)
     {

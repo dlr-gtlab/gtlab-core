@@ -43,8 +43,8 @@ TestModuleInterface::updateRoutines() const
 
     retval.append({{0, 0, 2}, testConvert});
     retval.append({{0, 0, 1}, testConvert});
-    retval.append({{0, 1, 4}, testConvert});
-    retval.append({{2, 4, 0}, testConvert});
+    retval.append({{0, 1, 0}, testConvert});
+    retval.append({{0, 1, 2, "desc"}, testConvert});
 
     return retval;
 }

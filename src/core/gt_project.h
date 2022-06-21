@@ -359,6 +359,14 @@ private:
      * @return success
      */
     bool saveProjectFiles(const QString& filePath, const QDomDocument& doc);
+
+    /**
+     * @brief Updates module footprint version stored in project file.
+     * New version matches the current module version of the framework.
+     * @param modIds Module identification strings.
+     */
+    void updateModuleFootprint(const QStringList &modIds);
+
 };
 
 #endif // GTPROJECT_H
