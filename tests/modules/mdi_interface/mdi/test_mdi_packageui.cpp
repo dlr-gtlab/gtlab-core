@@ -80,7 +80,7 @@ TestMdiPackageUI::testGroupAction2(GtObject* /*obj*/)
 void
 TestMdiPackageUI::testGroupAction3(GtObject* /*obj*/)
 {
-    auto func = gtlab::interface::get_function("my_lambda_mult");
+    auto func = gtlab::interface::get_function("testdmmod", "my_lambda_mult");
 
     QVariant result = -1.0;
     if (!func.is_null())

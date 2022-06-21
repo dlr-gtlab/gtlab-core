@@ -14,6 +14,14 @@
 
 using namespace gtlab::internal;
 
+namespace
+{
+    QString makeKey(const QString& moduleId, const QString& functionId)
+    {
+        return moduleId + "::" + functionId;
+    }
+}
+
 DynamicInterfaceHandler&
 DynamicInterfaceHandler::instance()
 {
@@ -22,7 +30,8 @@ DynamicInterfaceHandler::instance()
 }
 
 bool
-DynamicInterfaceHandler::addInterface(gtlab::InterfaceFunction func_ptr)
+DynamicInterfaceHandler::addInterface(const QString& moduleId,
+                                      gtlab::InterfaceFunction func_ptr)
 {
     const auto& ident = func_ptr.name();
     if (m_interfaces.contains(ident))
@@ -32,20 +41,22 @@ DynamicInterfaceHandler::addInterface(gtlab::InterfaceFunction func_ptr)
         return false;
     }
 
-    m_interfaces.insert(ident, std::move(func_ptr));
+    m_interfaces.insert(makeKey(moduleId, ident), std::move(func_ptr));
 
     return true;
 }
 
 gtlab::InterfaceFunction
-DynamicInterfaceHandler::getInterfaceFunc(const QString& ident)
+DynamicInterfaceHandler::getInterfaceFunc(const QString& moduleId,
+                                          const QString& functionId)
 {
-    if (!m_interfaces.contains(ident))
+    auto key = makeKey(moduleId, functionId);
+    if (!m_interfaces.contains(key))
     {
         return nullptr;
     }
 
-    return m_interfaces.value(ident);
+    return m_interfaces.value(key);
 }
 
 QStringList DynamicInterfaceHandler::getRegisteredFunctionIDs() const
@@ -53,8 +64,9 @@ QStringList DynamicInterfaceHandler::getRegisteredFunctionIDs() const
     return m_interfaces.keys();
 }
 
-bool gtlab::interface::internal::register_function(InterfaceFunction func)
+bool gtlab::interface::internal::register_function(const QString& moduleId,
+                                              InterfaceFunction func)
 {
     return gtlab::internal::DynamicInterfaceHandler::instance()
-        .addInterface(std::move(func));
+        .addInterface(moduleId, std::move(func));
 }

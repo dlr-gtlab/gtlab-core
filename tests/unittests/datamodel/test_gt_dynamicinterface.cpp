@@ -152,17 +152,18 @@ TEST_F(DynamicInterface, returnVoid)
 
 TEST_F(DynamicInterface, getFunctionFailure)
 {
-    auto func = gtlab::interface::get_function("this_funcion_does_not_exist");
+    auto func = gtlab::interface::get_function("testmod",
+                                               "this_funcion_does_not_exist");
     EXPECT_FALSE(func);
 }
 
 
 TEST_F(DynamicInterface, registerFunctionNoHelp)
 {
-    ASSERT_TRUE(gtlab::interface::internal::register_function(
+    ASSERT_TRUE(gtlab::interface::internal::register_function("testmod",
         make_interface_function("my_test_sum", my_test_sum)));
 
-    auto func = gtlab::interface::get_function("my_test_sum");
+    auto func = gtlab::interface::get_function("testmod", "my_test_sum");
     ASSERT_TRUE(func);
 
     EXPECT_FALSE(func.help().isEmpty());
@@ -172,10 +173,10 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
 {
     auto help = "this is the help of my_test_sum2";
 
-    ASSERT_TRUE(gtlab::interface::internal::register_function(
+    ASSERT_TRUE(gtlab::interface::internal::register_function("testmod",
         make_interface_function("my_test_sum2", my_test_sum, help)));
 
-    auto func = gtlab::interface::get_function("my_test_sum2");
+    auto func = gtlab::interface::get_function("testmod", "my_test_sum2");
     ASSERT_TRUE(func);
 
     EXPECT_STREQ(help, func.help().toStdString().c_str());
@@ -183,19 +184,19 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
 
 TEST_F(DynamicInterface, checkName)
 {
-    ASSERT_TRUE(gtlab::interface::internal::register_function(
+    ASSERT_TRUE(gtlab::interface::internal::register_function("testmod",
         make_interface_function("my_test_sum3", my_test_sum)));
 
-    auto func = gtlab::interface::get_function("my_test_sum3");
+    auto func = gtlab::interface::get_function("testmod", "my_test_sum3");
     EXPECT_STREQ("my_test_sum3", func.name().toStdString().c_str());
 }
 
 TEST_F(DynamicInterface, passByRef)
 {
-    ASSERT_TRUE(gtlab::interface::internal::register_function(
+    ASSERT_TRUE(gtlab::interface::internal::register_function("testmod",
         make_interface_function("insane_fun", my_insane_test_fun)));
 
-    auto func = gtlab::interface::get_function("insane_fun");
+    auto func = gtlab::interface::get_function("testmod", "insane_fun");
     auto result = func({"S1", "S2", 3, 4});
     ASSERT_EQ(1, result.size());
     EXPECT_STREQ("S1,S2,3,4", result.at(0).toString().toStdString().c_str());

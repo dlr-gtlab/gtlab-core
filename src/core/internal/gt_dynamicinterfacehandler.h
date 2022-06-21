@@ -34,14 +34,15 @@ public:
      *
      * Returns false, if a function with the same ID already exists
      */
-    bool addInterface(InterfaceFunction func);
+    bool addInterface(const QString& moduleId, InterfaceFunction func);
 
     /**
      * @brief Gets a function from the handler
      *
      * Returns nullptr, if functions does not exist
      */
-    InterfaceFunction getInterfaceFunc(const QString& id);
+    InterfaceFunction getInterfaceFunc(const QString& moduleId,
+                                       const QString& functionId);
 
     /**
      * @brief Returns the IDs of the registered functions
@@ -66,7 +67,8 @@ namespace internal
 /**
  * @brief Registers an InterfaceFunction to the handler
  */
-GT_CORE_EXPORT bool register_function(InterfaceFunction func);
+GT_CORE_EXPORT bool register_function(const QString& moduleId,
+                                      InterfaceFunction func);
 
 } // namespace internal
 } // namespace interface

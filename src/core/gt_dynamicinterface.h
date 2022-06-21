@@ -111,12 +111,12 @@ namespace interface
  *
  * Usage:
  *
- * auto itf_mypow = interface::get:function("mypow");
+ * auto itf_mypow = interface::get:function("mymodule", "mypow");
  *
  * auto result = itf_mypow({3.0, 2}); // returns QVariantList({9.0})
  */
 GT_CORE_EXPORT InterfaceFunction
-get_function(const QString& ident);
+get_function(const QString& moduleId, const QString& functionId);
 
 }  // namespace interface
 
