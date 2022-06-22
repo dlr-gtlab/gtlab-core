@@ -6,6 +6,8 @@
  * Author: M. Bröcker
  */
 
+#include <QDomElement>
+
 #include "gt_logging.h"
 
 #include "test_module_interface.h"
@@ -14,6 +16,19 @@ bool
 testConvert(QDomElement& xml, const QString& scope)
 {
     gtDebug() << "do convert (" << scope << ")...";
+
+    // rename GtDataZone object if name is equal to "DataZone"
+    QDomElement obj = xml.firstChildElement(QStringLiteral("object"));
+    while (!obj.isNull())
+    {
+        if (obj.attribute("class") == "GtDataZone" &&
+                obj.attribute("name") == "DataZone")
+        {
+            obj.setAttribute("name", "FancyDataZone");
+        }
+
+        obj = obj.nextSiblingElement(QStringLiteral("object"));
+    }
 
     return true;
 }

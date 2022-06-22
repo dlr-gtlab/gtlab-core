@@ -38,6 +38,10 @@ GtProjectUpgradeSettingsPage::GtProjectUpgradeSettingsPage(GtProject* project,
     QRadioButton* saveNew =
             new QRadioButton(tr("Save as a new project."));
 
+    // temporarily disabled. Necessity of a
+    // new functionality for copying aproject.
+    saveNew->setEnabled(false);
+
     layout->addWidget(m_overwrite);
     layout->addWidget(saveNew);
     layout->addWidget(m_specWid);
