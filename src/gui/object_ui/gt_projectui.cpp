@@ -145,8 +145,7 @@ GtProjectUI::GtProjectUI()
     addSingleAction(tr("Show Project Footprint"),
                     QStringLiteral("infoBlueIcon_16.png"),
                     QStringLiteral("showFootprint"),
-                    gtApp->getShortCutSequence("ShowFootprint")
-                    );
+                    gtApp->getShortCutSequence("ShowFootprint"));
 
     addSingleAction(tr("Edit Comment"),
                     QStringLiteral("commentIcon.png"),

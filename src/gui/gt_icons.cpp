@@ -136,6 +136,13 @@ GtGUI::Icon::session16()
 }
 
 QIcon
+GtGUI::Icon::session()
+{
+    return GtGUI::icon(QStringLiteral("sessionIcon.png"));
+}
+
+
+QIcon
 GtGUI::Icon::login16()
 {
     return GtGUI::icon(QStringLiteral("loginIcon_16.png"));

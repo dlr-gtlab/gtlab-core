@@ -264,14 +264,22 @@ public:
 
     /**
      * @brief compareKeyEvent
-     * @param event - event to check
+     * @param keyEvent - event to check
      * @param id - id of the short cut
      * @param category - category to use for the search (Core as default)
      * @return true if the event is ok for the short cut
      */
-    bool compareKeyEvent(QKeyEvent* event,
+    bool compareKeyEvent(QKeyEvent* keyEvent,
                          const QString& id,
                          const QString& category = "Core") const;
+
+    /**
+     * @brief compareKeyEvent
+     * @param keyEvent - event to check
+     * @param k - key sequence to compare
+     * @return true if the event is ok for the short cut
+     */
+    bool compareKeyEvent(QKeyEvent* keyEvent, const QKeySequence &k) const;
 
     /**
      * @brief shortCuts

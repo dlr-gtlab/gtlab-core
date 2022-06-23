@@ -88,6 +88,26 @@ public:
     GtExtrapolator* loExtrapolator() const;
     GtExtrapolator* hiExtrapolator() const;
     GtNumerics::GtInterpolator* interpolator() const;
+
+    /**
+     * @brief prependTick - prepend tick value
+     * @param tick - tick to use
+     */
+    void prependTick(const double& tick);
+
+    /**
+     * @brief appendTick - append tick value
+     * @param tick - tick to use
+     */
+    void appendTick(const double& tick);
+
+    /**
+     * @brief insertTick - insert tick value
+     * @param index - index to use
+     * @param tick - tick to use
+     */
+    void insertTick(int index, const double& tick);
+
 private:
     /// Axis unit
     QString m_unit;

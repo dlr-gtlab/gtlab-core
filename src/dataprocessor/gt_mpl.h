@@ -12,6 +12,7 @@
 #include "gt_platform.h"
 
 #include <tuple>
+#include <functional>
 
 #if CPP_STANDARD_VERSION < 201400
 #error "C++14 or better is required"
@@ -100,8 +101,9 @@ struct function_traits<std::function<ReturnType(Args...)>> {
         typedef typename std::tuple_element<i, args_type>::type type;
     };
 
-    static return_type dispatch(const f_type &f, args_type &&args) {
-        return dispatch_type()(f, std::move(args),
+    template <typename Tuple>
+    static return_type invoke(const f_type &f, Tuple &&args) {
+        return dispatch_type()(f, std::forward<Tuple>(args),
             typename make_index_sequence<nargs>::type());
     }
 };

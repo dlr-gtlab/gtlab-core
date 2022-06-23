@@ -143,6 +143,7 @@ HEADERS += \
     object_ui/gt_datazoneui.h \
     dock_widgets/process/gt_processwizard.h \
     dock_widgets/process/gt_processfiltermodel.h \
+    dock_widgets/process/gt_processcomponentmodel.h \
     dock_widgets/process/pages/gt_calculatoroverviewpage.h \
     dock_widgets/process/pages/gt_calculatoroverviewmodel.h \
     dock_widgets/process/pages/gt_abstractprocessitem.h \
@@ -316,6 +317,7 @@ SOURCES += \
     dock_widgets/process/pages/gt_processtaskitem.cpp \
     dock_widgets/process/pages/gt_processoverviewtree.cpp \
     dock_widgets/process/pages/gt_taskoverviewpage.cpp \
+    dock_widgets/process/gt_processcomponentmodel.cpp \
     dock_widgets/properties/gt_propertymodel.cpp \
     dock_widgets/properties/delegates/gt_propertyiddelegate.cpp \
     dock_widgets/properties/delegates/gt_propertyunitdelegate.cpp \

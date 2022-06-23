@@ -132,7 +132,10 @@ HEADERS += \
     gt_moduleloader.h \
     gt_moduleupgrader.h \
     gt_datamodelinterface.h \
-    gt_command.h
+    gt_command.h \
+    gt_dynamicinterface.h \
+    internal/gt_dynamicinterfacehandler.h \
+    gt_functional_interface.h
 
 SOURCES += \
     gt_propertyconnectionfunctions.cpp \
@@ -205,7 +208,9 @@ SOURCES += \
     gt_abstractloadinghelper.cpp \
     gt_moduleloader.cpp \
     gt_moduleupgrader.cpp \
-    gt_command.cpp
+    gt_command.cpp \
+    gt_dynamicinterface.cpp \
+    internal/gt_dynamicinterfacehandler.cpp
 
 RESOURCES += ../resources/templates/templates.qrc
 

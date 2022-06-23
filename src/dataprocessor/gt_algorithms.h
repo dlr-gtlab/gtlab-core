@@ -66,9 +66,20 @@ bool any_of_keys(QMapType map, Func func)
  * @brief Returns the iterator to the ith element in the container
  */
 template <typename ContainerType>
-typename ContainerType::iterator ith_iter(ContainerType container, size_t i)
+typename ContainerType::iterator
+ith_iter(ContainerType& container, size_t i)
 {
-    auto iter = std::begin(container);
+    auto iter = container.begin();
+    std::advance(iter, i);
+
+    return iter;
+}
+
+template <typename ContainerType>
+typename ContainerType::const_iterator
+ith_iter(const ContainerType& container, size_t i)
+{
+    auto iter = container.begin();
     std::advance(iter, i);
 
     return iter;

@@ -115,10 +115,8 @@ HEADERS += \
     gt_regexp.h \
     gt_algorithms.h \
     gt_mpl.h \
-    gt_variant_convert.h \
-    gt_dynamicinterfacehandler.h \
     gt_versionnumber.h \
-    gt_functional_interface.h
+    gt_variant_convert.h
 
 SOURCES += \
     gt_abstractexternalizationinterface.cpp \
@@ -176,9 +174,8 @@ SOURCES += \
     property/gt_relativeobjectlinkproperty.cpp \
     property/gt_doublelistproperty.cpp \
     gt_tablegroup.cpp \
-    gt_regexp.cpp \
     gt_versionnumber.cpp \
-    gt_dynamicinterfacehandler.cpp
+    gt_regexp.cpp
 
 unix {
     QMAKE_CXXFLAGS += -std=c++14
