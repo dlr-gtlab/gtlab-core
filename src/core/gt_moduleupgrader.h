@@ -7,27 +7,27 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#ifndef GTMODULEUPDATER_H
-#define GTMODULEUPDATER_H
+#ifndef GTMODULEUPGRADER_H
+#define GTMODULEUPGRADER_H
 
 #include <memory>
 
 #include "gt_moduleinterface.h"
 
-class GtModuleUpdaterImpl;
+class GtModuleUpgraderImpl;
 
 /**
  * @brief This class is used to centralize the logic for upgrading project data
  * provided by specific module upgrade routines.
  */
-class GtModuleUpdater
+class GtModuleUpgrader
 {
 public:
     /**
      * @brief Singleton.
      * @return Instance of module updater.
      */
-    static GtModuleUpdater& instance();
+    static GtModuleUpgrader& instance();
 
     /**
      * @brief Rigisters an upgrade routine for a specific module.
@@ -49,7 +49,7 @@ public:
      * that need to be upgraded.
      * @param files All files that contain datasets to be upgraded.
      */
-    void update(const QMap<QString,
+    void upgrade(const QMap<QString,
                 GtVersionNumber>& moduleFootprint,
                 const QStringList& files) const;
 
@@ -75,24 +75,24 @@ public:
     /**
      * @brief Gives a list of version numbers of all available upgrades of a
      * specific module.
-     * @param moduleId identifications string of the module for which upgrades
-     * are to be checked.
+     * @param moduleIdent identifications string of the module for which
+     * upgrades are to be checked.
      * @param savedVer Version of the module used to create the currently
      * saved dataset.
      * @return List of version numbers of upgrade routines.
      */
-    QList<GtVersionNumber> availableUpgrades(const QString& moduleId,
+    QList<GtVersionNumber> availableUpgrades(const QString& moduleIdent,
                                          const GtVersionNumber& savedVer) const;
 
 private:
     /// Private implementation
-    std::unique_ptr<GtModuleUpdaterImpl> m_pimpl;
+    std::unique_ptr<GtModuleUpgraderImpl> m_pimpl;
 
     /**
      * @brief Private constructor.
      */
-    GtModuleUpdater();
+    GtModuleUpgrader();
 
 };
 
-#endif // GTMODULEUPDATER_H
+#endif // GTMODULEUPGRADER_H

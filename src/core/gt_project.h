@@ -151,7 +151,7 @@ public:
      * @brief Reads footprint out of project file.
      * @return Footprint
      */
-    QString readFootprint();
+    QString readFootprint() const;
 
     /**
      * @brief Returns user defined comment string.
@@ -176,7 +176,7 @@ public:
      * least one upgrade is available.
      * @return List of module identification strings
      */
-    QStringList availableModuleUpgrades();
+    QStringList availableModuleUpgrades() const;
 
     /**
      * @brief Gives a list of version numbers of all available upgrades of a
@@ -263,7 +263,7 @@ private:
      * modules.
      * @return True if upgrades are available.
      */
-    bool checkForUpgrades();
+    bool checkForUpgrades() const;
 
     /**
      * @brief readModuleMetaData

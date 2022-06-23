@@ -1623,7 +1623,7 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
 
     if (dialog.exec())
     {
-        if (dialog.overwriteExistingData())
+        if (dialog.overwriteExistingDataAllowed())
         {
             gtDebug() << "backup and overwriting project data...";
             project->createBackup();

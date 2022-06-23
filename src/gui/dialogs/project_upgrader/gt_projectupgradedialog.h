@@ -60,7 +60,7 @@ public:
      * @return True if project data will be overwritten, otherwise a new
      * (cloned) project will be created.
      */
-    bool overwriteExistingData() const;
+    bool overwriteExistingDataAllowed() const;
 
     /**
      * @brief If the project is not overwritten, it is cloned. This function

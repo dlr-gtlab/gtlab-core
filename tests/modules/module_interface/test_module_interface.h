@@ -44,14 +44,8 @@ public:
      */
     QString description() const override;
 
-    QList<VersionUpdateRoutine> updateRoutines() const override;
-
-    /**
-     * @brief Initializes module. Called on application startup.
-     */
-    void init() override;
+    QList<VersionUpgradeRoutine> upgradeRoutines() const override;
 
 };
 
 #endif // TEST_MODULE_INTERFACE_H
- 

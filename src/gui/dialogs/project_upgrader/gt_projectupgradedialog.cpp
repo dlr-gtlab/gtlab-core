@@ -42,7 +42,7 @@ GtProjectUpgradeDialog::updateSettings(bool overwrite, const QString& newId,
 }
 
 bool
-GtProjectUpgradeDialog::overwriteExistingData() const
+GtProjectUpgradeDialog::overwriteExistingDataAllowed() const
 {
     return m_overwrite;
 }

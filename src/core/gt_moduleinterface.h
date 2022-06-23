@@ -22,7 +22,7 @@ class QDomElement;
 typedef bool (*ConverterFunction)(QDomElement&, const QString&);
 
 /// Project data upgrade routine provided by a module
-struct VersionUpdateRoutine
+struct VersionUpgradeRoutine
 {
     /// Target version for project data upgrade routine
     GtVersionNumber target;
@@ -86,7 +86,7 @@ public:
      * add your own update routines to the framework.
      * @return List of all upgrade routines of the module.
      */
-    virtual QList<VersionUpdateRoutine> updateRoutines() const {
+    virtual QList<VersionUpgradeRoutine> upgradeRoutines() const {
         return {};
     };
 

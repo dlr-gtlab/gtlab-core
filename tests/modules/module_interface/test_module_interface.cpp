@@ -51,10 +51,10 @@ TestModuleInterface::description() const
     return "Test Module Interface Description";
 }
 
-QList<VersionUpdateRoutine>
-TestModuleInterface::updateRoutines() const
+QList<VersionUpgradeRoutine>
+TestModuleInterface::upgradeRoutines() const
 {
-    QList<VersionUpdateRoutine> retval;
+    QList<VersionUpgradeRoutine> retval;
 
     retval.append({{0, 0, 2}, testConvert});
     retval.append({{0, 0, 1}, testConvert});
@@ -62,10 +62,4 @@ TestModuleInterface::updateRoutines() const
     retval.append({{0, 1, 2, "desc"}, testConvert});
 
     return retval;
-}
-
-void
-TestModuleInterface::init()
-{
-    // nothing to do here
 }

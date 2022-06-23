@@ -31,7 +31,7 @@
 #include "gt_logging.h"
 #include "gt_externalizedobject.h"
 #include "gt_externalizationmanager.h"
-#include "gt_moduleupdater.h"
+#include "gt_moduleupgrader.h"
 #include "gt_projectanalyzer.h"
 
 GtProject::GtProject(const QString& path) :
@@ -97,12 +97,12 @@ GtProject::setInternalizeOnSave(bool value)
 }
 
 QStringList
-GtProject::availableModuleUpgrades()
+GtProject::availableModuleUpgrades() const
 {
     GtProjectAnalyzer analyzer(this);
     GtFootprint footprint = analyzer.footPrint();
 
-    return GtModuleUpdater::instance().availableModuleUpgrades(
+    return GtModuleUpgrader::instance().availableModuleUpgrades(
                 footprint.modules());
 }
 
@@ -118,7 +118,7 @@ GtProject::availableUpgrades(const QString& moduleId)
     {
         GtVersionNumber savedVer = savedMods.value(moduleId);
 
-        return GtModuleUpdater::instance().availableUpgrades(moduleId,
+        return GtModuleUpgrader::instance().availableUpgrades(moduleId,
                                                              savedVer);
     }
 
@@ -157,7 +157,7 @@ GtProject::upgradeProjectData()
 
     gtDebug() << "upgrading files: " << entryList;
 
-    GtModuleUpdater::instance().update(footprint.modules(), entryList);
+    GtModuleUpgrader::instance().upgrade(footprint.modules(), entryList);
 
     // update project footprint for updated module
     updateModuleFootprint(availUpgrades);
@@ -250,7 +250,7 @@ GtProject::loadMetaData()
 }
 
 bool
-GtProject::checkForUpgrades()
+GtProject::checkForUpgrades() const
 {
     if (!m_valid)
     {
@@ -260,7 +260,7 @@ GtProject::checkForUpgrades()
     GtProjectAnalyzer analyzer(this);
     GtFootprint footprint = analyzer.footPrint();
 
-    return GtModuleUpdater::instance().upgradesAvailable(footprint.modules());
+    return GtModuleUpgrader::instance().upgradesAvailable(footprint.modules());
 }
 
 void
@@ -1267,7 +1267,7 @@ GtProject::renameProject(const QString& str)
 }
 
 QString
-GtProject::readFootprint()
+GtProject::readFootprint() const
 {
     QString filename = m_path + QDir::separator() + mainFilename();
 
