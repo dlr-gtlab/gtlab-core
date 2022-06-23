@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tasks can be skipped - #82, #176
 - Exteded library refactoring - #161
 - Removed "File->Import Project" menu. Instead, project are imported now via "File->Open Project". - #202
+- New Splashscreen
 
 ### Added
 - Added dynamic interface to define and use arbitrary functions from other modules - #207
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shortcut settings for GTlab including the introduction of several new shortcuts and the option to maintain them in the preferences - #112, #171, #172
 - Versionnumber based on GtVersionNumber for tasks - #129
 - Add some DataZone functions to Python interface - #177
+- Project data upgrade functionality to handle datamodel updates - #219
 
 ### Removed
 - Nozzle map was removed to be added in the map collection - #114 
