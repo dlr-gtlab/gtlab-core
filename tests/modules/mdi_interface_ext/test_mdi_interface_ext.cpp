@@ -35,7 +35,6 @@ TestDatamodelInterfaceExt::description() const
     return "Test Mdi Interface Ext";
 }
 
-
 ///gtdatamodelinterface
 ///generated
 

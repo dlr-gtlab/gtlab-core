@@ -33,7 +33,6 @@ TestDatamodelInterface::description() const
     return "Test Datamodel Interface";
 }
 
-
 ///gtdatamodelinterface
 ///generated
 

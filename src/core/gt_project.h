@@ -27,6 +27,7 @@ class GtProjectProvider;
 class GtPackage;
 class GtLabelData;
 class GtLabel;
+class GtVersionNumber;
 
 /**
  * @brief The GtProject class
@@ -54,6 +55,13 @@ public:
     const QString& path() const;
 
     /**
+     * @brief Returns dataset storage location for given module.
+     * @param moduleId Module identification string.
+     * @return storage location of module specific dataset.
+     */
+    QString moduleDataPath(const QString& moduleId) const;
+
+    /**
      * @brief Returns whether project data is successfully loaded or not
      * @return validation indicator
      */
@@ -64,6 +72,12 @@ public:
      * @return
      */
     bool isOpen() const;
+
+    /**
+     * @brief Indicates whether upgrades are available for project data.
+     * @return True if upgrades are available.
+     */
+    bool upgradesAvailable() const;
 
     /**
      * @brief processData
@@ -137,7 +151,7 @@ public:
      * @brief Reads footprint out of project file.
      * @return Footprint
      */
-    QString readFootprint();
+    QString readFootprint() const;
 
     /**
      * @brief Returns user defined comment string.
@@ -156,6 +170,34 @@ public:
      * @param value true if data should be internalized on save
      */
     void setInternalizeOnSave(bool value);
+
+    /**
+     * @brief eturns the identification strings of all modules for which at
+     * least one upgrade is available.
+     * @return List of module identification strings
+     */
+    QStringList availableModuleUpgrades() const;
+
+    /**
+     * @brief Gives a list of version numbers of all available upgrades of a
+     * specific module.
+     * @param moduleId identifications string of the module for which upgrades
+     * are to be checked.
+     * @return List of version numbers of upgrad routines.
+     */
+    QList<GtVersionNumber> availableUpgrades(const QString& moduleId);
+
+    /**
+     * @brief Triggers upgrade routine of project data.
+     */
+    void upgradeProjectData();
+
+    /**
+     * @brief Generates a backup of all relevant project data. the backup is
+     * stored in the project directory in a separate folder (/backup). A current
+     * timestamp is used for identification.
+     */
+    void createBackup() const;
 
 protected:
     /**
@@ -195,6 +237,9 @@ private:
     /// True if project data was successfully loaded
     bool m_valid;
 
+    /// True if project data upgrades are available
+    bool m_upgradesAvailable{false};
+
     /// Whether to internalize all external data when saving
     bool m_internalizeOnSave{false};
 
@@ -212,6 +257,13 @@ private:
      * @return success
      */
     bool loadMetaData();
+
+    /**
+     * @brief Checks for available project data upgrades provided by framework
+     * modules.
+     * @return True if upgrades are available.
+     */
+    bool checkForUpgrades() const;
 
     /**
      * @brief readModuleMetaData
@@ -307,6 +359,14 @@ private:
      * @return success
      */
     bool saveProjectFiles(const QString& filePath, const QDomDocument& doc);
+
+    /**
+     * @brief Updates module footprint version stored in project file.
+     * New version matches the current module version of the framework.
+     * @param modIds Module identification strings.
+     */
+    void updateModuleFootprint(const QStringList &modIds);
+
 };
 
 #endif // GTPROJECT_H

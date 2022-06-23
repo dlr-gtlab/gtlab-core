@@ -10,6 +10,7 @@
 #include <QDomDocument>
 #include <QXmlStreamWriter>
 #include <QDir>
+#include <QDateTime>
 #include <QDebug>
 
 #include "gt_project.h"
@@ -30,12 +31,17 @@
 #include "gt_logging.h"
 #include "gt_externalizedobject.h"
 #include "gt_externalizationmanager.h"
+#include "gt_projectanalyzer.h"
+
+#include "internal/gt_moduleupgrader.h"
+
 
 GtProject::GtProject(const QString& path) :
     m_path(path),
     m_pathProp(QStringLiteral("path"), tr("Path"), tr("Project path"), path)
 {
     m_valid = loadMetaData();
+    m_upgradesAvailable = checkForUpgrades();
 
     m_pathProp.setReadOnly(true);
 
@@ -92,6 +98,120 @@ GtProject::setInternalizeOnSave(bool value)
     m_internalizeOnSave = value;
 }
 
+QStringList
+GtProject::availableModuleUpgrades() const
+{
+    GtProjectAnalyzer analyzer(this);
+    GtFootprint footprint = analyzer.footPrint();
+
+    return gtlab::internal::GtModuleUpgrader::instance()
+        .availableModuleUpgrades(footprint.modules());
+}
+
+QList<GtVersionNumber>
+GtProject::availableUpgrades(const QString& moduleId)
+{
+    GtProjectAnalyzer analyzer(this);
+    GtFootprint footprint = analyzer.footPrint();
+
+    QMap<QString, GtVersionNumber> savedMods = footprint.modules();
+
+    if (savedMods.contains(moduleId))
+    {
+        GtVersionNumber savedVer = savedMods.value(moduleId);
+
+        return gtlab::internal::GtModuleUpgrader::instance()
+            .availableUpgrades(moduleId, savedVer);
+    }
+
+    return {};
+}
+
+void
+GtProject::upgradeProjectData()
+{
+    if (!isValid())
+    {
+        return;
+    }
+
+    const QStringList availUpgrades = availableModuleUpgrades();
+
+    if (availUpgrades.isEmpty())
+    {
+        return;
+    }
+
+    GtProjectAnalyzer analyzer(this);
+    GtFootprint footprint = analyzer.footPrint();
+
+    QDir pdir(m_path);
+    pdir.setNameFilters(QStringList() << QStringLiteral("*.gtmod"));
+
+    QStringList entryList;
+
+    for (auto const& modFiles : pdir.entryList(QDir::Files))
+    {
+        entryList << pdir.absoluteFilePath(modFiles);
+    }
+
+    entryList << pdir.absoluteFilePath(mainFilename());
+
+    gtDebug() << "upgrading files: " << entryList;
+
+    gtlab::internal::GtModuleUpgrader::instance()
+        .upgrade(footprint.modules(), entryList);
+
+    // update project footprint for updated module
+    updateModuleFootprint(availUpgrades);
+
+    m_valid = loadMetaData();
+    m_upgradesAvailable = checkForUpgrades();
+}
+
+void
+GtProject::createBackup() const
+{
+    if (!isValid())
+    {
+        return;
+    }
+
+    QDir pdir(m_path);
+    pdir.setNameFilters(QStringList() << QStringLiteral("*.gtmod"));
+
+    QStringList entryList = pdir.entryList(QDir::Files);
+
+    QString timeStamp = QDateTime::currentDateTime().toString(
+                "yyyyMMddhhmmss");
+
+    QDir bdir(m_path + QDir::separator() + "backup" + QDir::separator() +
+              timeStamp);
+
+    if (bdir.exists())
+    {
+        gtError() << "backup folder already exists!";
+        return;
+    }
+
+    if (!bdir.mkpath("."))
+    {
+        gtError() << "could not create backup path!";
+        return;
+    }
+
+    // backup module files
+    foreach (const QString& entry, entryList)
+    {
+        QFile file(pdir.absoluteFilePath(entry));
+        file.copy(bdir.absoluteFilePath(entry));
+    }
+
+    // backup project file
+    QFile file(pdir.absoluteFilePath(mainFilename()));
+    file.copy(bdir.absoluteFilePath(mainFilename()));
+}
+
 bool
 GtProject::loadMetaData()
 {
@@ -132,9 +252,26 @@ GtProject::loadMetaData()
     return true;
 }
 
+bool
+GtProject::checkForUpgrades() const
+{
+    if (!m_valid)
+    {
+        return false;
+    }
+
+    GtProjectAnalyzer analyzer(this);
+    GtFootprint footprint = analyzer.footPrint();
+
+    return gtlab::internal::GtModuleUpgrader::instance()
+        .upgradesAvailable(footprint.modules());
+}
+
 void
 GtProject::readModuleMetaData(const QDomElement& root)
 {
+    m_moduleIds.clear();
+
     /* module informations */
     QDomElement mdata = root.firstChildElement(QStringLiteral("MODULES"));
 
@@ -155,7 +292,8 @@ GtProject::readModuleMetaData(const QDomElement& root)
         else if (m_moduleIds.contains(mid))
         {
             gtWarning() << objectName() << ": "
-                        <<  tr("Multiple module definition!");
+                        <<  tr("Multiple module definition!")
+                        << " (" << mid << ")";
         }
         else
         {
@@ -798,6 +936,93 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
     return true;
 }
 
+void
+GtProject::updateModuleFootprint(const QStringList& modIds)
+{
+    gtDebug() << "GtProject::updateModuleFootprint...";
+
+    QString filename = m_path + QDir::separator() + mainFilename();
+
+    QFile file(filename);
+
+    if (!file.exists())
+    {
+        qWarning() << "WARNING: file does not exists!";
+        qWarning() << " |-> " << filename;
+        return;
+    }
+
+    QDomDocument document;
+
+    QString errorStr;
+    int errorLine;
+    int errorColumn;
+
+    if (!document.setContent(&file, true, &errorStr, &errorLine, &errorColumn))
+    {
+        gtDebug() << tr("XML ERROR!") << " " << tr("line") << ": "
+                  << errorLine << " " << tr("column") << ": "
+                  << errorColumn << " -> " << errorStr;
+        return;
+    }
+
+    QDomElement pdata = document.documentElement();
+
+    if (pdata.isNull() || (pdata.tagName() != QLatin1String("GTLAB")))
+    {
+        gtDebug() << "ERROR: Invalid GTlab project file!";
+        return;
+    }
+
+    QDomElement footprint = pdata.firstChildElement(
+                QStringLiteral("env-footprint"));
+
+
+    if (footprint.isNull())
+    {
+        return;
+    }
+
+    QDomElement mods = footprint.firstChildElement(QStringLiteral("modules"));
+
+    if (mods.isNull())
+    {
+        return;
+    }
+
+    QDomElement mod = mods.firstChildElement(QStringLiteral("module"));
+    while (!mod.isNull())
+    {
+        QDomElement modIdEl = mod.firstChildElement(QStringLiteral("id"));
+        QDomElement modVerEl = mod.firstChildElement(QStringLiteral("ver"));
+
+        if (!modIdEl.isNull() && !modVerEl.isNull())
+        {
+            if (modIds.contains(modIdEl.text()))
+            {
+                gtDebug() << "updating footprint " << modIdEl.text() << "...";
+                gtDebug() << "file " << filename << "...";
+                gtDebug() << "  |-> old = " << modVerEl.text();
+                gtDebug() << "  |-> new = "
+                          << gtApp->moduleVersion(modIdEl.text()).toString();
+
+                modVerEl.firstChild().setNodeValue(
+                            gtApp->moduleVersion(modIdEl.text()).toString());
+            }
+        }
+
+        mod = mod.nextSiblingElement(QStringLiteral("module"));
+    }
+
+    if (!GtXmlUtilities::writeDomDocumentToFile(filename,
+                                                document,
+                                                true))
+    {
+        gtError() << filename << QStringLiteral(": ")
+                  << "Failed to save project data!";
+    }
+}
+
 GtProject::~GtProject()
 {
 //    qDebug() << "project deleted!";
@@ -807,6 +1032,13 @@ const QString&
 GtProject::path() const
 {
     return m_path;
+}
+
+QString
+GtProject::moduleDataPath(const QString &moduleId) const
+{
+    return path() + QDir::separator() + moduleId.toLower() +
+            GtProject::moduleExtension();
 }
 
 bool
@@ -821,6 +1053,12 @@ GtProject::isOpen() const
     // TODO: logic for open or closed projects
 
     return (childCount<GtObject*>() != 0);
+}
+
+bool
+GtProject::upgradesAvailable() const
+{
+    return m_upgradesAvailable;
 }
 
 GtProcessData*
@@ -1033,7 +1271,7 @@ GtProject::renameProject(const QString& str)
 }
 
 QString
-GtProject::readFootprint()
+GtProject::readFootprint() const
 {
     QString filename = m_path + QDir::separator() + mainFilename();
 

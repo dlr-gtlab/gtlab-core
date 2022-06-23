@@ -53,11 +53,18 @@
 #include "gt_objectfactory.h"
 #include "gt_algorithms.h"
 #include "gt_colors.h"
+#include "gt_projectupgradedialog.h"
 
 #include "gt_projectui.h"
 
 GtProjectUI::GtProjectUI()
 {
+    addSingleAction(tr("Upgrade Project Data..."),
+                    QStringLiteral("upgradeProjectDataIcon.png"),
+                    QStringLiteral("upgradeProjectData"),
+                    QStringLiteral("canUpgradeProjectData"),
+                    QStringLiteral("canUpgradeProjectData"));
+
     addSingleAction(tr("Set as active Project"),
                     QStringLiteral("emptyIcon_16.png"),
                     QStringLiteral("setCurrentProject"),
@@ -191,6 +198,11 @@ GtProjectUI::icon(GtObject* obj) const
         return GtGUI::Icon::components16();
     }
 
+    if (project->upgradesAvailable())
+    {
+        return GtGUI::Icon::inconsistentProject16();
+    }
+
     return GtGUI::Icon::closedProject16();
 
 }
@@ -220,6 +232,22 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
                     QFont font;
                     font.setBold(true);
                     return font;
+                }
+
+                break;
+            }
+            case Qt::ToolTipRole:
+            {
+                auto project = qobject_cast<GtProject*>(obj);
+
+                if (project)
+                {
+                    if (project->upgradesAvailable())
+                    {
+                        return tr("Some of the project data is outdated and "
+                              "requires an upgrade before the project can "
+                              "be opened.");
+                    }
                 }
 
                 break;
@@ -374,6 +402,11 @@ GtProjectUI::canOpenProject(GtObject* obj)
     GtProject* project = qobject_cast<GtProject*>(obj);
 
     if (!project)
+    {
+        return false;
+    }
+
+    if (project->upgradesAvailable())
     {
         return false;
     }
@@ -1573,6 +1606,62 @@ GtProjectUI::showFootprint(GtObject* obj) const
     tWid->expandAll();
 
     dialog.exec();
+}
+
+void
+GtProjectUI::upgradeProjectData(GtObject* obj)
+{
+    auto project = qobject_cast<GtProject*>(obj);
+
+    if (!project)
+    {
+        return;
+    }
+
+    GtProjectUpgradeDialog dialog(project);
+
+    if (dialog.exec())
+    {
+        if (dialog.overwriteExistingDataAllowed())
+        {
+            gtDebug() << "backup and overwriting project data...";
+            project->createBackup();
+            project->upgradeProjectData();
+            gtDataModel->openProject(project);
+            gtApp->setCurrentProject(project);
+        }
+        else
+        {
+            gtDebug() << "upgrading data as new project...";
+            gtDebug() << "  |-> " << dialog.newProjectName();
+            gtDebug() << "  |-> " << dialog.newProjectPath();
+
+            GtProjectProvider provider(project);
+
+            GtProject* newProject =
+                provider.duplicateProject(dialog.newProjectName(),
+                                          dialog.newProjectPath());
+
+            newProject->upgradeProjectData();
+            gtDataModel->newProject(newProject);
+            gtApp->setCurrentProject(newProject);
+        }
+
+
+    }
+}
+
+bool
+GtProjectUI::canUpgradeProjectData(GtObject *obj)
+{
+    auto project = qobject_cast<GtProject*>(obj);
+
+    if (!project)
+    {
+        return false;
+    }
+
+    return project->upgradesAvailable();
 }
 
 void

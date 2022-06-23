@@ -10,7 +10,7 @@
 #ifndef GTMODULELOADER_H
 #define GTMODULELOADER_H
 
-#include "gt_datamodel_exports.h"
+#include "gt_core_exports.h"
 
 #include <QMap>
 #include <QVariantList>
@@ -25,7 +25,7 @@ class GtVersionNumber;
 /**
  * @brief The GtModuleLoader class
  */
-class GT_DATAMODEL_EXPORT GtModuleLoader
+class GT_CORE_EXPORT GtModuleLoader
 {
 public:
     /**

@@ -28,11 +28,11 @@ public:
      * @param data
      * @return
      */
-    void readData(GtProject* project);
+    void readData(const GtProject* project);
 
 };
 
-GtProjectAnalyzer::GtProjectAnalyzer(GtProject* project)
+GtProjectAnalyzer::GtProjectAnalyzer(const GtProject *project)
     : m_pimpl{std::make_unique<GtProjectAnalyzerImpl>()}
 {
 
@@ -76,7 +76,7 @@ GtProjectAnalyzer::footPrint()
 }
 
 void
-GtProjectAnalyzerImpl::readData(GtProject* project)
+GtProjectAnalyzerImpl::readData(const GtProject* project)
 {
     // read footpring of project file
     m_footPrint = project->readFootprint();

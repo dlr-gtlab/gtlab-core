@@ -10,14 +10,14 @@
 #ifndef GT_DATAMODELINTERFACE_H
 #define GT_DATAMODELINTERFACE_H
 
-#include "gt_datamodel_exports.h"
+#include "gt_core_exports.h"
 
 #include <QtPlugin>
 
 /**
  * @brief The GtDatamodelInterface class
  */
-class GT_DATAMODEL_EXPORT GtDatamodelInterface
+class GT_CORE_EXPORT GtDatamodelInterface
 {
 public:
     /** Virtual destructor to keep compilers happy */

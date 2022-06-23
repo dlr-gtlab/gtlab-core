@@ -31,7 +31,7 @@ public:
      * @param project Project for which information and compatibility checks
      * should be made
      */
-    GT_CORE_EXPORT explicit GtProjectAnalyzer(GtProject* project);
+    GT_CORE_EXPORT explicit GtProjectAnalyzer(const GtProject* project);
 
     /**
      * @brief Destructor.

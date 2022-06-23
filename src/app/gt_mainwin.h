@@ -352,6 +352,12 @@ private slots:
      */
     void onWidgetStructureClicked();
 
+    /**
+     * @brief Displays an error dialog including a message.
+     * @param msg Error message to be displayed.
+     */
+    void onLogMessage(const QString& msg, int level);
+
 signals:
     /**
      * @brief Emitted after gui is finally initialized.

@@ -8,13 +8,13 @@
  */
 
 #include "gt_moduleloader.h"
-
 #include "gt_moduleinterface.h"
-#include "gt_initmoduleinterface.h"
 #include "gt_datamodelinterface.h"
 #include "gt_objectfactory.h"
 #include "gt_logging.h"
 #include "gt_algorithms.h"
+#include "gt_versionnumber.h"
+#include "internal/gt_moduleupgrader.h"
 
 #include <QDebug>
 #include <QDir>
@@ -26,6 +26,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
+#include <QDomElement>
 
 GtModuleLoader::GtModuleLoader() :
     m_modulesInitialized(false)
@@ -34,7 +35,6 @@ GtModuleLoader::GtModuleLoader() :
 
 GtModuleLoader::~GtModuleLoader()
 {
-
 }
 
 void
@@ -238,17 +238,12 @@ GtModuleLoader::initModules()
 
     for (auto const& value : qAsConst(m_plugins))
     {
-        GtInitModuleInterface* imi =
-                dynamic_cast<GtInitModuleInterface*>(value);
-
-        if (imi)
-        {
-            imi->init();
-        }
+        value->init();
     }
 
     m_modulesInitialized = true;
 }
+
 
 bool
 GtModuleLoader::check(GtModuleInterface* plugin)
@@ -285,6 +280,13 @@ void
 GtModuleLoader::insert(GtModuleInterface* plugin)
 {
     m_plugins.insert(plugin->ident(), plugin);
+
+    // register converter funcs
+    foreach (const auto& r, plugin->upgradeRoutines())
+    {
+      gtlab::internal::GtModuleUpgrader::instance()
+            .registerModuleConverter(plugin->ident(), r.target, r.f);
+    }
 
     GtDatamodelInterface* dmp = dynamic_cast<GtDatamodelInterface*>(plugin);
 
@@ -495,4 +497,3 @@ GtModuleLoader::roamingPath()
     return QStandardPaths::writableLocation(
                QStandardPaths::GenericConfigLocation);
 }
-

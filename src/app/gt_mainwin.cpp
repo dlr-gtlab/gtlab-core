@@ -53,6 +53,7 @@
 #include <QDebug>
 #include <QStyleFactory>
 #include <QSettings>
+#include "QsLogDest.h"
 
 #include <algorithm>
 
@@ -218,6 +219,15 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(setTheme(bool)));
 
     loadPerspectiveSettings();
+
+    // gui logger destination
+    QsLogging::Logger& logger = QsLogging::Logger::instance();
+
+    QsLogging::DestinationPtr widgetDestination(
+                QsLogging::DestinationFactory::MakeFunctorDestination(
+                    this, SLOT(onLogMessage(QString,int))));
+
+    logger.addDestination(widgetDestination);
 }
 
 GtMainWin::~GtMainWin()
@@ -1248,6 +1258,17 @@ GtMainWin::onWidgetStructureClicked()
     foreach (QWidget* wid, wids)
     {
         widgetStructureHelper(wid, 1);
+    }
+}
+
+void
+GtMainWin::onLogMessage(const QString& msg, int level)
+{
+    if (level > 3) // Pipe errors (level 4) to a message box
+    {
+        QsLogging::Level l = QsLogging::Logger::levelFromInt(level);
+        QMessageBox::critical(this, QsLogging::Logger::levelToString(l),
+                              msg, QMessageBox::Ok);
     }
 }
 

@@ -33,7 +33,6 @@ TestMdiInterface::description() const
     return "Test Mdi Interface";
 }
 
-
 ///gtdatamodelinterface
 ///generated
 

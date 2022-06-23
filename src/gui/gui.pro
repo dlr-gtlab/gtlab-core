@@ -46,6 +46,7 @@ INCLUDEPATH += .\
     tools \
     dialogs \
     dialogs/project_settings \
+    dialogs/project_upgrader \
     tools/graphic_items \
     mdi_items/collection_env \
     dock_widgets/process \
@@ -76,6 +77,10 @@ INCLUDEPATH += .\
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    dialogs/project_upgrader/gt_projectupgradedialog.h \
+    dialogs/project_upgrader/gt_projectupgradeoverviewpage.h \
+    dialogs/project_upgrader/gt_projectupgradesettingspage.h \
+    dialogs/project_upgrader/gt_projectupgradestartpage.h \
     gt_colors.h \
     gt_gui_exports.h \
     gt_application.h \
@@ -240,6 +245,10 @@ HEADERS += \
     importer/processImporter/gt_processimporter.h
 
 SOURCES += \
+    dialogs/project_upgrader/gt_projectupgradedialog.cpp \
+    dialogs/project_upgrader/gt_projectupgradeoverviewpage.cpp \
+    dialogs/project_upgrader/gt_projectupgradesettingspage.cpp \
+    dialogs/project_upgrader/gt_projectupgradestartpage.cpp \
     gt_application.cpp \
     gt_colors.cpp \
     gt_icons.cpp \

@@ -8,6 +8,7 @@
  */
 
 #include <QMimeData>
+#include <QDir>
 
 #include "gt_session.h"
 #include "gt_project.h"
@@ -19,6 +20,8 @@
 #include "gt_state.h"
 #include "gt_statehandler.h"
 #include "gt_externalizationmanager.h"
+#include "gt_projectanalyzer.h"
+#include "gt_versionnumber.h"
 
 #include "gt_coredatamodel.h"
 
@@ -237,6 +240,15 @@ GtCoreDatamodel::openProject(GtProject* project)
     // check whether a project is already open
     if (gtDataModel->currentProject())
     {
+        return false;
+    }
+
+    // project ready to be opened. check for module updater
+    if (project->upgradesAvailable())
+    {
+        gtError() << "(" << project->objectName() << ") "
+                     "project needs updates of data structure!"
+                     " Run upgrade project data command first.";
         return false;
     }
 

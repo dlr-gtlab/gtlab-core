@@ -315,6 +315,12 @@ GtFootprint::updatedModules() const
     return retval;
 }
 
+QMap<QString, GtVersionNumber>
+GtFootprint::modules() const
+{
+    return m_pimpl->m_modules;
+}
+
 bool
 GtFootprintImpl::readData(const QString& data)
 {

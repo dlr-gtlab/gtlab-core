@@ -43,7 +43,9 @@ public:
      * @return description
      */
     QString description() const override;
+
+    QList<VersionUpgradeRoutine> upgradeRoutines() const override;
+
 };
 
 #endif // TEST_MODULE_INTERFACE_H
- 
