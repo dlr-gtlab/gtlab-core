@@ -31,8 +31,10 @@
 #include "gt_logging.h"
 #include "gt_externalizedobject.h"
 #include "gt_externalizationmanager.h"
-#include "gt_moduleupgrader.h"
 #include "gt_projectanalyzer.h"
+
+#include "internal/gt_moduleupgrader.h"
+
 
 GtProject::GtProject(const QString& path) :
     m_path(path),
@@ -102,8 +104,8 @@ GtProject::availableModuleUpgrades() const
     GtProjectAnalyzer analyzer(this);
     GtFootprint footprint = analyzer.footPrint();
 
-    return GtModuleUpgrader::instance().availableModuleUpgrades(
-                footprint.modules());
+    return gtlab::internal::GtModuleUpgrader::instance()
+        .availableModuleUpgrades(footprint.modules());
 }
 
 QList<GtVersionNumber>
@@ -118,8 +120,8 @@ GtProject::availableUpgrades(const QString& moduleId)
     {
         GtVersionNumber savedVer = savedMods.value(moduleId);
 
-        return GtModuleUpgrader::instance().availableUpgrades(moduleId,
-                                                             savedVer);
+        return gtlab::internal::GtModuleUpgrader::instance()
+            .availableUpgrades(moduleId, savedVer);
     }
 
     return {};
@@ -157,7 +159,8 @@ GtProject::upgradeProjectData()
 
     gtDebug() << "upgrading files: " << entryList;
 
-    GtModuleUpgrader::instance().upgrade(footprint.modules(), entryList);
+    gtlab::internal::GtModuleUpgrader::instance()
+        .upgrade(footprint.modules(), entryList);
 
     // update project footprint for updated module
     updateModuleFootprint(availUpgrades);
@@ -260,7 +263,8 @@ GtProject::checkForUpgrades() const
     GtProjectAnalyzer analyzer(this);
     GtFootprint footprint = analyzer.footPrint();
 
-    return GtModuleUpgrader::instance().upgradesAvailable(footprint.modules());
+    return gtlab::internal::GtModuleUpgrader::instance()
+        .upgradesAvailable(footprint.modules());
 }
 
 void

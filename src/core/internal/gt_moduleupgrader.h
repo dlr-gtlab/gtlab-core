@@ -14,7 +14,10 @@
 
 #include "gt_moduleinterface.h"
 
-class GtModuleUpgraderImpl;
+namespace gtlab
+{
+namespace internal
+{
 
 /**
  * @brief This class is used to centralize the logic for upgrading project data
@@ -86,7 +89,8 @@ public:
 
 private:
     /// Private implementation
-    std::unique_ptr<GtModuleUpgraderImpl> m_pimpl;
+    class Impl;
+    std::unique_ptr<Impl> m_pimpl;
 
     /**
      * @brief Private constructor.
@@ -94,5 +98,8 @@ private:
     GtModuleUpgrader();
 
 };
+
+} // namespace internal
+} // namespace gtlab
 
 #endif // GTMODULEUPGRADER_H

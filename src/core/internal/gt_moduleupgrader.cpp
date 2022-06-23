@@ -109,7 +109,12 @@ public:
 
 };
 
-class GtModuleUpgraderImpl
+namespace gtlab
+{
+namespace internal
+{
+
+class GtModuleUpgrader::Impl
 {
 public:
     std::map<std::string, GtModuleUpgradeHelper> m_upgrader;
@@ -288,7 +293,9 @@ GtModuleUpgrader::availableUpgrades(const QString& moduleIdent,
 }
 
 GtModuleUpgrader::GtModuleUpgrader() :
-    m_pimpl{std::make_unique<GtModuleUpgraderImpl>()}
+    m_pimpl{std::make_unique<GtModuleUpgrader::Impl>()}
 {
-
 }
+
+} // namespace internal
+} // namespace gtlab

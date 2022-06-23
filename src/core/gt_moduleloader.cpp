@@ -14,7 +14,7 @@
 #include "gt_logging.h"
 #include "gt_algorithms.h"
 #include "gt_versionnumber.h"
-#include "gt_moduleupgrader.h"
+#include "internal/gt_moduleupgrader.h"
 
 #include <QDebug>
 #include <QDir>
@@ -35,7 +35,6 @@ GtModuleLoader::GtModuleLoader() :
 
 GtModuleLoader::~GtModuleLoader()
 {
-
 }
 
 void
@@ -285,9 +284,8 @@ GtModuleLoader::insert(GtModuleInterface* plugin)
     // register converter funcs
     foreach (const auto& r, plugin->upgradeRoutines())
     {
-      GtModuleUpgrader::instance().registerModuleConverter(plugin->ident(),
-                                                           r.target,
-                                                           r.f);
+      gtlab::internal::GtModuleUpgrader::instance()
+            .registerModuleConverter(plugin->ident(), r.target, r.f);
     }
 
     GtDatamodelInterface* dmp = dynamic_cast<GtDatamodelInterface*>(plugin);
