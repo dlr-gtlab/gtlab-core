@@ -128,7 +128,10 @@ HEADERS += \
     gt_loadprojecthelper.h \
     gt_updatechecker.h \
     gt_abstractloadinghelper.h \
-    gt_command.h
+    gt_command.h \
+    gt_dynamicinterface.h \
+    internal/gt_dynamicinterfacehandler.h \
+    gt_functional_interface.h
 
 SOURCES += \
     gt_propertyconnectionfunctions.cpp \
@@ -199,7 +202,9 @@ SOURCES += \
     gt_loadprojecthelper.cpp \
     gt_updatechecker.cpp \
     gt_abstractloadinghelper.cpp \
-    gt_command.cpp
+    gt_command.cpp \
+    gt_dynamicinterface.cpp \
+    internal/gt_dynamicinterfacehandler.cpp
 
 RESOURCES += ../resources/templates/templates.qrc
 

@@ -16,19 +16,19 @@
 #include "gt_mpl.h"
 
 template <typename TargetType>
-bool can_convert(const QVariant&  /*v*/)
+inline bool can_convert(const QVariant&  /*v*/)
 {
     return false;
 }
 
 template <>
-bool can_convert<QVariant>(const QVariant&  /*v*/)
+inline bool can_convert<QVariant>(const QVariant&  /*v*/)
 {
     return true;
 }
 
 template <>
-bool can_convert<double>(const QVariant&  v)
+inline bool can_convert<double>(const QVariant&  v)
 {
     bool ok = true;
     v.toDouble(&ok);
@@ -37,7 +37,7 @@ bool can_convert<double>(const QVariant&  v)
 }
 
 template <>
-bool can_convert<float>(const QVariant&  v)
+inline bool can_convert<float>(const QVariant&  v)
 {
     bool ok = true;
     v.toFloat(&ok);
@@ -46,7 +46,7 @@ bool can_convert<float>(const QVariant&  v)
 }
 
 template <>
-bool can_convert<int>(const QVariant&  v)
+inline bool can_convert<int>(const QVariant&  v)
 {
     bool ok = true;
     v.toInt(&ok);
@@ -56,39 +56,39 @@ bool can_convert<int>(const QVariant&  v)
 
 
 template <>
-constexpr bool can_convert<QString>(const QVariant& )
+inline constexpr bool can_convert<QString>(const QVariant& )
 {
     return true;
 }
 
 template <>
-constexpr bool can_convert<std::string>(const QVariant& )
+inline constexpr bool can_convert<std::string>(const QVariant& )
 {
     return true;
 }
 
 
 template <typename T>
-QVariant to_variant(const T& t)
+inline QVariant to_variant(const T& t)
 {
     return QVariant(t);
 }
 
 template<>
-QVariant to_variant(const std::string& s)
+inline QVariant to_variant(const std::string& s)
 {
     return QVariant(s.c_str());
 }
 
 
 template <typename T>
-QVariantList to_variant_list(const T& t)
+inline QVariantList to_variant_list(const T& t)
 {
     return {to_variant(t)};
 }
 
 template <typename ...Args>
-QVariantList to_variant_list(const std::tuple<Args...>& t)
+inline QVariantList to_variant_list(const std::tuple<Args...>& t)
 {
     QVariantList list;
     mpl::static_foreach(t, [&list](const auto & v) {
@@ -98,19 +98,19 @@ QVariantList to_variant_list(const std::tuple<Args...>& t)
 }
 
 
-QVariantList to_variant_list(mpl::detail::void_type)
+inline QVariantList to_variant_list(mpl::detail::void_type)
 {
     return {};
 }
 
 template <typename T>
-T from_variant(const QVariant& v)
+inline T from_variant(const QVariant& v)
 {
     return v.value<T>();
 }
 
 template <>
-std::string from_variant<std::string>(const QVariant& v)
+inline std::string from_variant<std::string>(const QVariant& v)
 {
     return v.toString().toStdString();
 }
@@ -162,7 +162,7 @@ struct from_variant_impl_<std::tuple<Tuple...>>
  * @brief Converts a QVariantList to a tuple
  */
 template <typename ReturnTupleType>
-typename detail::from_variant_impl_<ReturnTupleType>::type from_variant(const QVariantList& l)
+inline typename detail::from_variant_impl_<ReturnTupleType>::type from_variant(const QVariantList& l)
 {
     return detail::from_variant_impl_<ReturnTupleType>::convert(l);
 }
