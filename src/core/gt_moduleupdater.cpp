@@ -71,6 +71,7 @@ public:
 
                     QDomElement root = document.documentElement();
 
+                    // Call the module update routine
                     r.f(root, modData);
 
                     // save file
@@ -87,6 +88,7 @@ public:
             }
             else
             {
+                // Skipping update routine, since data does not need this update
                 gtDebug() << "(module data updater) " << r.target.toString()
                           << " - skipped ( <= " << footprintVersion.toString()
                           << " )";

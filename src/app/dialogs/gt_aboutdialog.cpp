@@ -70,7 +70,7 @@ GtAboutDialog::GtAboutDialog(QWidget* parent) : QDialog(parent)
 
     QLabel* copyLabel =
             new QLabel(QStringLiteral(
-                "GTlab - Gas Turbine laboratory\ncopyright 2009-2022 by DLR"));
+                "GTlab - Gas Turbine laboratory\ncopyright 2022 by DLR"));
 
     hLayout->addWidget(copyLabel);
 

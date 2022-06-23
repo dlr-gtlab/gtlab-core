@@ -32,7 +32,7 @@ public:
     /**
      * @brief Rigisters an upgrade routine for a specific module.
      * @param modId Module identification string.
-     * @param target Target version number of module.
+     * @param target Target version of the module data, after using the upgrade function. 
      * @param func Upgrad function.
      */
     void registerModuleConverter(const QString& modId, GtVersionNumber target,
@@ -79,7 +79,7 @@ public:
      * are to be checked.
      * @param savedVer Version of the module used to create the currently
      * saved dataset.
-     * @return List of version numbers of upgrad routines.
+     * @return List of version numbers of upgrade routines.
      */
     QList<GtVersionNumber> availableUpgrades(const QString& moduleId,
                                          const GtVersionNumber& savedVer) const;

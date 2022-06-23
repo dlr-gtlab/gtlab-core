@@ -1264,7 +1264,7 @@ GtMainWin::onWidgetStructureClicked()
 void
 GtMainWin::onLogMessage(const QString& msg, int level)
 {
-    if (level > 3)
+    if (level > 3) // Pipe errors (level 4) to a message box
     {
         QsLogging::Level l = QsLogging::Logger::levelFromInt(level);
         QMessageBox::critical(this, QsLogging::Logger::levelToString(l),
