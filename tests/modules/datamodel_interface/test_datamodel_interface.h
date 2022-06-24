@@ -67,6 +67,9 @@ public:
      * @return Stand alone indicator.
      */
     bool standAlone() override;
+
+    /* Return a custom shared function */
+    QList<gtlab::InterfaceFunction> sharedFunctions() const override;
 };
 
 #endif // TEST_DATAMODEL_INTERFACE_H

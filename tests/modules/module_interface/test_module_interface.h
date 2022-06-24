@@ -46,6 +46,8 @@ public:
 
     QList<VersionUpgradeRoutine> upgradeRoutines() const override;
 
+    QList<gtlab::InterfaceFunction> sharedFunctions() const override;
+
 };
 
 #endif // TEST_MODULE_INTERFACE_H
