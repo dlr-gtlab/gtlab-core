@@ -15,6 +15,7 @@
 #include <QtPlugin>
 
 #include "gt_versionnumber.h"
+#include "gt_dynamicinterface.h"
 
 class QDomElement;
 
@@ -89,6 +90,25 @@ public:
     virtual QList<VersionUpgradeRoutine> upgradeRoutines() const {
         return {};
     };
+
+    /**
+     * @brief Returns the functions that the module likes to share.
+     *
+     * A shared function is a special kind of function that can be
+     * used by other modules or the core framework without the need
+     * to compile against this modules.
+     * This is possible since a shared function of type InterfaceFunction
+     * has a fixed function signature:
+     * QVariantList sharedFunction(const QVariantList&).
+     *
+     * Reimplement `sharedFunctions`, if like to share generally useful
+     * functions with others.
+     *
+     * @return
+     */
+    virtual QList<gtlab::InterfaceFunction> sharedFunctions() const {
+        return {};
+    }
 
     /**
      * @brief Initializes module. Called on application startup.
