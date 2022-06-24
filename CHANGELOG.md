@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New Splashscreen
 
 ### Added
-- Added dynamic interface to define and use arbitrary functions from other modules - #207
+- Added dynamic interface to share arbitrary functions with other modules. These functions need to be defined in the method GtModuleInterface::sharedFunctions - #207, #47
 - Multiple labels can be selected and deleted at once - #111
 - Integrated the hdf5 data format and added support to ex-/internalize datasets at runtime including the option to enable this feature on a project basis - #127
 - Monitoring property for strings - #140
