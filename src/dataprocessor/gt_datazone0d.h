@@ -72,7 +72,7 @@ public:
      * @param units
      * @return
      */
-    bool setData(const QStringList &paramNames,
+    bool setData(const QStringList& paramNames,
                  const QVector<double>& values,
                  const QStringList& units);
 

@@ -14,6 +14,7 @@
 #include "gt_algorithms.h"
 #include "gt_h5externalizehelper.h"
 
+#include <array>
 
 namespace
 {
@@ -40,7 +41,7 @@ namespace
     enum OperatorType { Min, Max };
 
     /// min or max numerical double
-    constexpr double minMaxDouble(OperatorType op)
+    double minMaxDouble(OperatorType op)
     {
         return (op == OperatorType::Max) ? std::numeric_limits<double>::min() :
                                            std::numeric_limits<double>::max();
@@ -57,9 +58,9 @@ namespace
     }
 
     /// helper for min max operator function
-    constexpr auto minMaxOperator(OperatorType op)
+    auto minMaxOperator(OperatorType op)
     {
-        return (op == OperatorType::Max) ? maxFunction : minFunction;
+        return op == OperatorType::Max ? maxFunction : minFunction;
     }
 
     double minMaxHelper1D(const GtDataZoneData& data,
@@ -114,6 +115,39 @@ namespace
         dz.appendChild(table);
 
         return table;
+    }
+
+    /// helper method for accessing value of nDim
+    template <size_t nDim, typename Lambda>
+    double valueHelper(const GtDataZone& dz,
+                       const GtTable* table,
+                       const QString& param,
+                       bool* ok,
+                       Lambda func)
+    {
+        if (dz.nDims() != nDim)
+        {
+            gtWarning() << QObject::tr("Trying to get a")
+                        << QString::number(nDim) +
+                           QObject::tr("D value out of a")
+                        << QString::number(dz.nDims()) +
+                           QObject::tr("D Table!");
+            return error(0.0, ok);
+        }
+
+        if (!table || param.isEmpty() || !table->tabValsKeys().contains(param))
+        {
+            return error(0.0, ok);
+        }
+
+        try
+        {
+            return success(func(*table), ok);
+        }
+        catch (GTlabException& /*e*/)
+        {
+            return error(0.0, ok);
+        }
     }
 }
 
@@ -251,39 +285,6 @@ GtDataZone::table() const
     return findDirectChild<GtTable*>(QStringLiteral("Table"));
 }
 
-double
-GtDataZoneData::value1D(const QString& param, const double& x0, bool* ok) const
-{
-    Q_ASSERT(m_base != nullptr);
-
-    if (base()->nDims() != 1)
-    {
-        gtWarning() << QObject::tr("Trying to get a 1D value out of a non-1D"
-                                   "Table.");
-        return error(0.0, ok);
-    }
-
-    GtTable* tab = base()->table();
-    if (!tab)
-    {
-        return error(0.0, ok);
-    }
-
-    if (!param.isEmpty() && tab->tabValsKeys().contains(param))
-    {
-        try
-        {
-            return success(tab->getValue1D(param, x0), ok);
-        }
-        catch (GTlabException& /*e*/)
-        {
-            return error(0.0, ok);
-        }
-    }
-
-    return error(0.0, ok);
-}
-
 QVector<double>
 GtDataZoneData::value1DVector(const QString& param, bool* ok) const
 {
@@ -291,7 +292,8 @@ GtDataZoneData::value1DVector(const QString& param, bool* ok) const
 
     if (base()->nDims() != 1)
     {
-        gtWarning() << QObject::tr("Trying to get a 1D value out of a non-1D Table.");
+        gtWarning() << QObject::tr("Trying to get a 1D value out of a non-1D "
+                                   "Table.");
         return error(QVector<double>(), ok);
     }
 
@@ -354,236 +356,226 @@ GtDataZoneData::value1DVector(const QString& param,
             retVal.append(val);
         }
 
-        return ::valueAndSetError(retVal, success, ok);
+        return valueAndSetError(retVal, success, ok);
     }
 
     return error(QVector<double>(), ok);
 }
 
-
 double
-GtDataZoneData::value2D(const QString& param, const double& x0,
-                        const double& x1, bool* ok) const
+GtDataZoneData::value1D(const QString& param, double x0, bool* ok) const
 {
     Q_ASSERT(m_base != nullptr);
 
-    if (base()->nDims() != 2)
-    {
-        gtWarning() << QObject::tr("Trying to get a 2D value out of a non-2D Table.");
-        return error(0.0, ok);
-    }
-
-    GtTable* tab = base()->table();
-    if (!tab)
-    {
-        return error(0.0, ok);
-    }
-
-    if (!param.isEmpty() && tab->tabValsKeys().contains(param))
-    {
-        try
-        {
-            return success(tab->getValue2D(param, x0, x1), ok);
-        }
-        catch (GTlabException& /*e*/)
-        {
-            return error(0.0, ok);
-        }
-
-    }
-
-    return error(0.0, ok);
+    return valueHelper<1>(*base(), base()->table(), param, ok,
+                          [&](const GtTable& table) {
+        return table.getValue1D(param, x0);
+    });
 }
 
 double
-GtDataZoneData::value3D(const QString& param, const double& x0,
-                        const double& x1, const double& x2, bool* ok) const
+GtDataZoneData::value2D(const QString& param, double x0, double x1,
+                        bool* ok) const
 {
     Q_ASSERT(m_base != nullptr);
 
-    if (base()->nDims() != 3)
-    {
-        gtWarning() << QObject::tr("Trying to get a 3D value out of a non-3D Table.");
-        return error(0.0, ok);
-    }
-
-    GtTable* tab = base()->table();
-    if (!tab)
-    {
-        return error(0.0, ok);
-    }
-
-    if (!param.isEmpty() && tab->tabValsKeys().contains(param))
-    {
-        try
-        {
-            return success(tab->getValue3D(param, x0, x1, x2), ok);
-        }
-        catch (GTlabException& /*e*/)
-        {
-            return error(0.0, ok);
-        }
-    }
-
-    return error(0.0, ok);
+    return valueHelper<2>(*base(), base()->table(), param, ok,
+                          [&](const GtTable& table) {
+        return table.getValue2D(param, x0, x1);
+    });
 }
 
 double
-GtDataZoneData::value4D(const QString& param, const double& x0,
-                        const double& x1, const double& x2,
-                        const double& x3, bool* ok) const
+GtDataZoneData::value3D(const QString& param, double x0, double x1, double x2,
+                        bool* ok) const
 {
     Q_ASSERT(m_base != nullptr);
 
-    if (base()->nDims() != 4)
-    {
-        gtWarning() << QObject::tr("Trying to get a 4D value out of a non-4D "
-                                   "Table.");
-        return error(0.0, ok);
-    }
-
-    GtTable* tab = base()->table();
-    if (!tab)
-    {
-        return error(0.0, ok);
-    }
-
-    if (!param.isEmpty() && tab->tabValsKeys().contains(param))
-    {
-        return success(tab->getValue4D(param, x0, x1, x2, x3), ok);
-    }
-
-    return error(0.0, ok);
+    return valueHelper<3>(*base(), base()->table(), param, ok,
+                          [&](const GtTable& table) {
+        return table.getValue3D(param, x0, x1, x2);
+    });
 }
 
-void
+double
+GtDataZoneData::value4D(const QString& param, double x0, double x1, double x2,
+                        double x3, bool* ok) const
+{
+    Q_ASSERT(m_base != nullptr);
+
+    return valueHelper<4>(*base(), base()->table(), param, ok,
+                          [&](const GtTable& table) {
+        return table.getValue4D(param, x0, x1, x2, x3);
+    });
+}
+
+bool
+GtDataZoneData::setData(const QStringList& params,
+                        const QMap<QString, QVector<double> >& axisTicks,
+                        const QMap<QString, QVector<double> >& paramValues,
+                        const QStringList& units)
+{
+    Q_ASSERT(m_base != nullptr);
+
+    static auto errMsg = QObject::tr("Setting DataZone Data failed!");
+
+    // basic bounds checking
+    auto size = params.size();
+    if (params.isEmpty() || size != units.size() || size != paramValues.size())
+    {
+        gtError() << errMsg
+                  << QObject::tr("(Parameter sizes differ or are empty)");
+        gtWarning() << size << "parameters vs."
+                    << paramValues.size() << "values vs."
+                    <<  units.size() << "units";
+        clearData();
+        return false;
+    }
+
+    // check if all values have the same size
+    auto valuesSize = paramValues.first().size();
+    bool equalValueSizes = std::all_of(std::cbegin(paramValues),
+                                       std::cend(paramValues),
+                                       [&](auto& vec) {
+        return vec.size() == valuesSize;
+    });
+    if (valuesSize == 0 || !equalValueSizes)
+    {
+        gtError() << errMsg << QObject::tr("(Value sizes differ)");
+        clearData();
+        return false;
+    }
+
+    // check if product of axis ticks equals value size
+    auto totalTicks = std::accumulate(std::cbegin(axisTicks),
+                                      std::cend(axisTicks),
+                                      int{1}, [](auto sum, auto& vec) {
+        return sum * vec.size();
+    });
+    if (axisTicks.isEmpty() || totalTicks != valuesSize)
+    {
+        gtError() << errMsg
+                  << QObject::tr("(Axis ticks do not match value size!)");
+        gtWarning() << totalTicks << "total ticks vs."
+                    << valuesSize << "values per parameter";
+        clearData();
+        return false;
+    }
+
+    // assign params and units
+    base()->m_params = params;
+    base()->m_units = units;
+
+    // setup table
+    auto* tab = base()->table();
+    if (!tab)
+    {
+        tab = createTable(*base());
+    }
+    tab->clear();
+
+    // create axis
+    bool success = true;
+    for_each_key (axisTicks, [&](const QString& axisName) {
+        success &= tab->addAxis(axisName, {}, "[-]", GtTableAxis::E_LINEAR,
+                                GtTableAxis::I_LINEAR, GtTableAxis::E_LINEAR,
+                                axisTicks.value(axisName));
+    });
+    if (!success)
+    {
+        clearData();
+        return false;
+    }
+
+    // set values
+    for (int i = 0; i < size; ++i)
+    {
+        auto& param = params.at(i);
+        auto& values = paramValues.value(param, {});
+        if (values.isEmpty())
+        {
+            gtError() << errMsg << QObject::tr("(Parameter '") + param +
+                         QObject::tr("' was not found in values!)");
+            clearData();
+            return false;
+        }
+        if (!tab->addValues(param, {}, units.at(i), values))
+        {
+            clearData();
+            return false;
+        }
+    }
+
+    return isValid();
+}
+
+bool
 GtDataZoneData::setData1D(const QStringList& params,
                           const QVector<double>& ticks,
-                          const QString& axisName1,
+                          const QString& axisName,
                           const QMap< QString, QVector<double> >& vals,
                           const QStringList& units)
 {
     Q_ASSERT(m_base != nullptr);
 
-    if (params.isEmpty() || params.size() != vals.size() ||
-            params.size() != units.size())
-    {
-        gtWarning() << QObject::tr("Parameter sizes do not match in DataZone!");
-        gtWarning() << params.size() << "parameters vs." << vals.size()
-                    << "values vs." << units.size() << "units";
-        clearData();
-        return;
-    }
-
-    base()->m_params = params;
-    base()->m_units = units;
-
-    auto* tab = base()->table();
-    if (!tab)
-    {
-        tab = createTable(*base());
-    }
-
-    tab->clear();
-    tab->addAxis(axisName1, {}, "[-]", GtTableAxis::E_LINEAR,
-                 GtTableAxis::I_LINEAR, GtTableAxis::E_LINEAR,
-                 ticks);
-
-    for (int i = 0; i < params.size(); i++)
-    {
-        const auto& param = params.at(i);
-        auto pVals = vals.value(param);
-
-        if (!isValid(ticks, pVals))
-        {
-            gtWarning() << QObject::tr("Ticks' size do not match values' "
-                                       "size!");
-            clearData();
-            return;
-        }
-
-        tab->addValues(param, {}, units.at(i), pVals);
-    }
-
-    isValid();
+    QMap< QString, QVector<double> > axis;
+    axis.insert(axisName, ticks);
+    return setData(params, axis, vals, units);
 }
 
-void
+bool
 GtDataZoneData::setData1D(const QStringList& params,
                           const QMap<double, QVector<double> >& vals,
-                          const QString& axisName1,
+                          const QString& axisName,
                           const QStringList& units)
 {
     Q_ASSERT(m_base != nullptr);
 
-    if (params.isEmpty() || params.size() != vals.size() ||
-            params.size() != units.size())
+    auto size = params.size();
+    auto equalValueSizes = std::all_of(std::cbegin(vals),
+                                       std::cend(vals),
+                                       [&](auto& vec) {
+        return vec.size() == size;
+    });
+    if (vals.isEmpty() || !equalValueSizes)
     {
-        gtWarning() << QObject::tr("Parameter sizes do not match in DataZone!");
-        gtWarning() << params.size() << "params vs." << vals.size()
-                    << "values vs." << units.size() << "units";
-        clearData();
-        return;
-    }
-
-    base()->m_params = params;
-    base()->m_units = units;
-
-    auto* tab = base()->table();
-    if (!tab)
-    {
-        tab = createTable(*base());
-    }
-
-    tab->clear();
-
-    if (std::any_of(std::begin(vals), std::end(vals), [&params](auto& vec) {
-            return vec.size() != params.size();
-        })) {
-        gtWarning() << QObject::tr("Value sizes do not match in DataZone!");
-        return;
+        gtError() << QObject::tr("Setting DataZone 1D Data failed!")
+                  << QObject::tr("(Value sizes do not match in DataZone!)");
+        return false;
     }
 
     QVector<double> ticks;
-    QVector< QVector<double> > newVals;
-    newVals.resize(params.size());
+    QVector< QVector<double> > valueVecs;
+    valueVecs.resize(params.size());
+    for (auto& vec : valueVecs)
+    {
+        vec.reserve(size);
+    }
 
     // loop through vals to sort them to
     //           t1,   t2,   t3
     // param1: val1, val2, val3
     // param2: val1, val2, val3
     // param3: val1, val2, val3
-
     for_each_key (vals, [&](double key)
     {
         ticks.append(key);
-
-        for (int j = 0; j < params.size(); j++)
+        for (int i = 0; i < size; ++i)
         {
-            double val = vals.value(key).at(j);
-            newVals[j].append(val);
+            valueVecs[i].append(vals.value(key).at(i));
         }
     });
 
-    base()->table()->addAxis(axisName1, {}, "[-]", GtTableAxis::E_LINEAR,
-                             GtTableAxis::I_LINEAR, GtTableAxis::E_LINEAR,
-                             ticks);
+    QMap< QString, QVector<double> > axis;
+    axis.insert(axisName, ticks);
 
-    for (int i = 0; i < params.size(); i++)
+    QMap< QString, QVector<double> > valueMap;
+    for (int i = 0; i < size; ++i)
     {
-        const auto& values = newVals.at(i);
-
-        if (!isValid(ticks, values))
-        {
-            gtWarning() << base()->tr("Ticks' size do not match values' size!");
-            clearData();
-            return;
-        }
-
-        tab->addValues(params.at(i), {}, units.at(i), values);
+        valueMap.insert(params.at(i), valueVecs.at(i));
     }
 
-    isValid();
+    return setData(params, axis, valueMap, units);
 }
 
 bool
@@ -596,8 +588,8 @@ GtDataZoneData::addDataPoint1D(const QMap<QString, double>& vals,
     /// Function only valid for 1-D Datazones
     if (base()->nDims() != 1)
     {
-        gtError() << base()->tr("Cannot add 1D-values to ") << base()->nDims()
-                  << base()->tr("-D datazone");
+        gtError() << QObject::tr("Cannot add 1D-values to ") << base()->nDims()
+                  << QObject::tr("-D datazone");
         return false;
     }
 
@@ -605,10 +597,10 @@ GtDataZoneData::addDataPoint1D(const QMap<QString, double>& vals,
 
     if (base()->m_params != params)
     {
-        gtError() << base()->tr("The map does not fit "
-                                "to the given parameters.");
-        gtWarning() << base()->tr("Given parameters are ") << base()->m_params;
-        gtWarning() << base()->tr("Try to set the parameters") << params;
+        gtError() << QObject::tr("The map does not fit "
+                                 "to the given parameters.");
+        gtWarning() << QObject::tr("Given parameters are ") << base()->m_params;
+        gtWarning() << QObject::tr("Try to set the parameters") << params;
         return false;
     }
 
@@ -625,8 +617,8 @@ GtDataZoneData::addDataPoint1D(const QMap<QString, double>& vals,
     {
         if (!overwrite)
         {
-            gtError() << base()->tr("Try to overwrite value which is "
-                                    "explicit not allowed");
+            gtError() << QObject::tr("Try to overwrite value which is "
+                                     "explicitly not allowed");
             return false;
         }
 
@@ -701,92 +693,89 @@ GtDataZoneData::addDataPoint1D(const QMap<QString, double>& vals,
     return true;
 }
 
-void
+bool
 GtDataZoneData::setData1Dfrom2DDataZone(GtDataZone* dataZone2D,
-                                        int fixedAxisNumber,
+                                        int fixedAxisIdx,
                                         int fixedAxisTick)
 {
     Q_ASSERT(m_base != nullptr);
 
+    static auto errMsg = QObject::tr("Setting 1-D DataZone from 2-D DataZone "
+                                     "failed!");
+
     if (!dataZone2D)
     {
-        return;
+        gtError() << errMsg << QObject::tr("(Invalid DataZone)");
+        return false;
     }
 
     if (dataZone2D->nDims() != 2)
     {
-        gtError() << "Cannot use setData1Dfrom2DDataZone with a Datazone "
-                     "of dimension" << dataZone2D->nDims();
+        gtError() << errMsg << QObject::tr("(Not a 2D DataZone)");
+        return false;
+    }
+    if (!(fixedAxisIdx == 0 || fixedAxisIdx == 1))
+    {
+        gtError() << errMsg << QObject::tr("(Invalid Axis selected)");
+        return false;
     }
 
-    if (fixedAxisNumber != 0 && fixedAxisNumber != 1)
-    {
-        return;
-    }
+    // is always the oppsoite of fixedAxisIdx (either 0 or 1)
+    auto otherAxisIdx = 1 - fixedAxisIdx;
 
     auto data = dataZone2D->fetchData();
+    if (!data.isValid())
+    {
+        gtError() << errMsg << QObject::tr("(Invalid DataZone Data)");
+        return false;
+    }
     const auto& params = data.params();
     const auto& units = data.units();
 
-    QVector<double> ticks;
-    QString axisName;
+    auto ticks = dataZone2D->allAxisTicks().at(otherAxisIdx);
+    auto axisName = dataZone2D->axisNames().at(otherAxisIdx);
+    auto otherTicks = base()->allAxisTicks().at(fixedAxisIdx);
 
-    double fixedAxisValue;
-    if (fixedAxisNumber == 0)
+    if (fixedAxisTick >= otherTicks.size())
     {
-        axisName = dataZone2D->axisNames().at(1);
-        ticks = dataZone2D->allAxisTicks().at(1);
-        auto otherTicks = base()->allAxisTicks().at(0);
-
-        if (fixedAxisTick >= otherTicks.size())
-        {
-            return;
-        }
-
-        fixedAxisValue = otherTicks.at(fixedAxisTick);
-    }
-    else if (fixedAxisNumber == 1)
-    {
-        axisName = dataZone2D->axisNames().at(0);
-        ticks = dataZone2D->allAxisTicks().at(0);
-        auto otherTicks = base()->allAxisTicks().at(1);
-
-        if (fixedAxisTick >= otherTicks.size())
-        {
-            return;
-        }
-
-        fixedAxisValue = otherTicks.at(fixedAxisTick);
+        return false;
     }
 
-    QMap< QString, QVector<double> > vals;
+    double fixedAxisValue = otherTicks.at(fixedAxisTick);
+
+    QMap< QString, QVector<double> > values;
+    bool ok = true;
+    auto size = params.size();
 
     for (const QString& param : qAsConst(params))
     {
         QVector<double> currentVals;
-
+        currentVals.reserve(size);
         for (int k = 0; k < ticks.size(); ++k)
         {
-            double value = 0;
-            if (fixedAxisNumber == 0)
+            // helper array to access correct coors
+            const std::array<double, 2> coors{ fixedAxisValue, ticks.at(k) };
+            double ax1 = coors[fixedAxisIdx];
+            double ax2 = coors[otherAxisIdx];
+
+            currentVals.append(data.value2D(param, ax1, ax2, &ok));
+
+            if (!ok)
             {
-                value = data.value2D(param, fixedAxisValue, ticks.at(k));
+                return false;
             }
-            else if (fixedAxisNumber == 1)
-            {
-                value = data.value2D(param, ticks.at(k), fixedAxisValue);
-            }
-            currentVals.append(value);
         }
 
-        vals.insert(param, currentVals);
+        values.insert(param, currentVals);
     }
 
-    setData1D(params, ticks, axisName, vals, units);
+    QMap< QString, QVector<double> > axis;
+    axis.insert(axisName, ticks);
+    return setData(params, axis, values, units);
 }
 
 
-void
+bool
 GtDataZoneData::setData2D(const QStringList& params,
                           const QVector<double>& ticks1,
                           const QVector<double>& ticks2,
@@ -797,51 +786,10 @@ GtDataZoneData::setData2D(const QStringList& params,
 {
     Q_ASSERT(m_base != nullptr);
 
-    if (params.isEmpty() || params.size() != vals.size() ||
-            params.size() != units.size())
-    {
-        gtWarning() << QObject::tr("Parameter sizes do not match in DataZone!");
-        gtWarning() << params.size() << "params vs." << vals.size()
-                    << "values vs." << units.size() << "units";
-        clearData();
-        return;
-    }
-
-    base()->m_params = params;
-    base()->m_units = units;
-
-    auto* tab = base()->table();
-    if (!tab)
-    {
-        tab = createTable(*base());
-    }
-
-    tab->clear();
-    tab->addAxis(axisName1, {}, "[-]", GtTableAxis::E_LINEAR,
-                 GtTableAxis::I_LINEAR, GtTableAxis::E_LINEAR,
-                 ticks1);
-
-    tab->addAxis(axisName2, {}, "[-]", GtTableAxis::E_LINEAR,
-                 GtTableAxis::I_LINEAR, GtTableAxis::E_LINEAR,
-                 ticks2);
-
-    for (int i = 0; i < params.size(); i++)
-    {
-        const auto& param = params.at(i);
-        auto pVals = vals.value(param);
-
-        if (!isValid(ticks1, ticks2, pVals))
-        {
-            gtWarning() << QObject::tr("Ticks' size do not match values' size "
-                                       "in DataZone!");
-            clearData();
-            return;
-        }
-
-        tab->addValues(param, {}, units.at(i), pVals);
-    }
-
-    isValid();
+    QMap< QString, QVector<double> > axis;
+    axis.insert(axisName1, ticks1);
+    axis.insert(axisName2, ticks2);
+    return setData(params, axis, vals, units);
 }
 
 void
@@ -864,6 +812,8 @@ GtDataZoneData::isValid() const
 {
     Q_ASSERT(m_base != nullptr);
 
+    static auto errMsg = QObject::tr("Invalid DataZone");
+
     if (!GtAbstractDataZoneData::isValid())
     {
         return false;
@@ -872,43 +822,17 @@ GtDataZoneData::isValid() const
     auto* tab = base()->table();
     if (!tab)
     {
-        gtWarning() << QObject::tr("Null table in DataZone!");
+        gtWarning() << errMsg << QObject::tr("(Null table)");
         return false;
     }
 
     if (base()->m_params.size() != tab->tabValsKeys().size())
     {
-        gtWarning() << QObject::tr("Param does not match table in DataZone!");
+        gtWarning() << errMsg
+                    << QObject::tr("(Param size does not match table)");
 
         gtDebug() << QObject::tr("Size Params:") << base()->m_params.size();
         gtDebug() << QObject::tr("Size Keys:") << tab->tabValsKeys().size();
-        return false;
-    }
-
-    return true;
-}
-
-bool
-GtDataZoneData::isValid(const QVector<double>& ticks,
-                        const QVector<double>& vals)
-{
-    if (ticks.size() != vals.size())
-    {
-        gtWarning() << QObject::tr("Tick-Sizes do not match in DataZone!");
-        return false;
-    }
-
-    return true;
-}
-
-bool
-GtDataZoneData::isValid(const QVector<double>& ticks1,
-                        const QVector<double>& ticks2,
-                        const QVector<double>& vals)
-{
-    if (ticks1.size() * ticks2.size() != vals.size())
-    {
-        gtWarning() << QObject::tr("Tick-Sizes do not match in DataZone!");
         return false;
     }
 
@@ -945,31 +869,23 @@ GtDataZone::axisTicks(const QString& id, QVector<double>& axTicks) const
     }
     else
     {
-        gtWarning().nospace() << tr("DataZone does not contain Axis '")
-                              << id << "'";
+        gtWarning() << tr("DataZone does not contain Axis ")
+                    << "'" + id + "'";
     }
 }
 
 void
 GtDataZone::axisTicks(const QString& id, QStringList& axTicks) const
-{
-    if (axisNames().contains(id))
-    {
-        QVector<double> ticks;
-        table()->getAxisTicks(id, ticks);
+{    
+    QVector<double> ticks;
+    axisTicks(id, ticks);
+    axTicks.clear();
+    axTicks.reserve(ticks.size());
 
-        axTicks.clear();
-
-        for (const double& tick : qAsConst(ticks))
-        {
-            axTicks.append(QString::number(tick));
-        }
-    }
-    else
-    {
-        gtWarning().nospace() << tr("DataZone does not contain Axis '")
-                              << id << "'";
-    }
+    std::transform(std::cbegin(ticks), std::cend(ticks),
+                   std::back_inserter(axTicks), [](auto tick){
+        return QString::number(tick);
+    });
 }
 
 QVector<double>
@@ -991,8 +907,8 @@ GtDataZone::axisTicks(int axisIndex) const
 
     if (axes.size() <= axisIndex)
     {
-        gtWarning().nospace() << tr("DataZone does not contain Axis of index'")
-                              << axisIndex << "'";
+        gtWarning().nospace() << tr("DataZone does not contain Axis of index")
+                              << "'" << axisIndex << "'";
         return retVal;
     }
 

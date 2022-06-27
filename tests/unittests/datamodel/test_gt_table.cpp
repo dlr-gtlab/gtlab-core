@@ -407,7 +407,7 @@ TEST_F(TestGtTable, getValue5D)
 {
     qDebug() << "Funcion getValue5D of GtTable is an empty function";
 
-    ASSERT_EQ(m_table->getValue5D("Test", 1,2,3,4,5),0);
+    ASSERT_THROW(m_table->getValue5D("Test", 1,2,3,4,5), GTlabException);
 }
 
 // isAscending not direct testable (private)

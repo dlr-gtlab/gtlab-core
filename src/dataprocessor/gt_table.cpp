@@ -382,6 +382,7 @@ GtTable::getAxisTicks(const QString& name, QVector<double>& dvecOut) const
     GtNumerics::darray xx = getAxisTicks(index);
 
     dvecOut.clear();
+    dvecOut.reserve(n);
 
     for (int i = 0; i < n; ++i)
     {
@@ -1177,16 +1178,8 @@ double
 GtTable::getValue5D(const QString& valsId, double x0, double x1, double x2,
                     double x3, double x4) const
 {
-    Q_UNUSED(valsId)
-    Q_UNUSED(x0)
-    Q_UNUSED(x1)
-    Q_UNUSED(x2)
-    Q_UNUSED(x3)
-    Q_UNUSED(x4)
-
-    return 0;
+    return getValue(valsId, {x0, x1, x2, x3, x4});
 }
-
 
 bool
 GtTable::isAscending(const QVector<double>& ticks) const
