@@ -30,7 +30,8 @@ defineTest(copyHeaders) {
             QMAKE_POST_LINK += $$QMAKE_COPY $$shell_quote(*.h) $$shell_quote($$dir) $$escape_expand(\\n\\t)
         }
 
-        dirNames =
+        # do not copy internal header files
+        dirNames += internal
 
         for(file, files) {
 

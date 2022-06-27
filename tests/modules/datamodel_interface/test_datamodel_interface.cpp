@@ -9,6 +9,9 @@
 #include "test_dmi_package.h"
 #include "test_dmi_class.h"
 
+#include "gt_functional_interface.h"
+#include "gt_dynamicinterface.h"
+
 /**
  * generated (v 0.1)
  */
@@ -56,4 +59,16 @@ bool
 TestDatamodelInterface::standAlone()
 {
     return true;
+}
+
+QList<gtlab::InterfaceFunction> TestDatamodelInterface::sharedFunctions() const
+{
+    auto lambda = [](double a, double b) {
+        return a*b;
+    };
+
+    auto sharedFunction =  gtlab::interface::make_interface_function(
+        "my_lambda_mult", lambda, "This is a simple multiplication function");
+
+    return {sharedFunction};
 }

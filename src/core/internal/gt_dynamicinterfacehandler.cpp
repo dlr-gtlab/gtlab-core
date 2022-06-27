@@ -7,8 +7,9 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_logging.h"
+
 #include <QCoreApplication>
-#include <QDebug>
 
 #include "gt_dynamicinterfacehandler.h"
 
@@ -34,14 +35,17 @@ DynamicInterfaceHandler::addInterface(const QString& moduleId,
                                       gtlab::InterfaceFunction func_ptr)
 {
     const auto& ident = func_ptr.name();
-    if (m_interfaces.contains(ident))
+
+    auto key = makeKey(moduleId, ident);
+
+    gtDebug() << "Registering shared module function: '" << key << "'.";
+
+    if (m_interfaces.contains(key))
     {
-        qDebug() << "could not add interface. dynamic function with id='"
-                 << ident << "' already defined!";
-        return false;
+        gtWarning() << "Overwriting shared module function '" << key << "'.";
     }
 
-    m_interfaces.insert(makeKey(moduleId, ident), std::move(func_ptr));
+    m_interfaces[key] = std::move(func_ptr);
 
     return true;
 }

@@ -12,6 +12,8 @@
 
 #include "test_module_interface.h"
 
+#include "gt_functional_interface.h"
+
 bool
 testConvert(QDomElement& xml, const QString& scope)
 {
@@ -62,4 +64,17 @@ TestModuleInterface::upgradeRoutines() const
     retval.append({{0, 1, 2, "desc"}, testConvert});
 
     return retval;
+}
+
+double mySquare(double x)
+{
+    return x*x;
+}
+
+QList<gtlab::InterfaceFunction> TestModuleInterface::sharedFunctions() const
+{
+    auto fun = gtlab::interface::make_interface_function("mySquare", mySquare,
+                                              "Returns the square of x");
+
+    return {fun};
 }

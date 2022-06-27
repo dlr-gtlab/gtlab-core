@@ -23,7 +23,7 @@ QT += core widgets xml svg
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
-CONFIG += c++11
+CONFIG += c++14
 
 INCLUDEPATH += . \
                ./calculator \

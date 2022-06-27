@@ -15,6 +15,7 @@
 #include "gt_algorithms.h"
 #include "gt_versionnumber.h"
 #include "internal/gt_moduleupgrader.h"
+#include "internal/gt_dynamicinterfacehandler.h"
 
 #include <QDebug>
 #include <QDir>
@@ -286,6 +287,13 @@ GtModuleLoader::insert(GtModuleInterface* plugin)
     {
       gtlab::internal::GtModuleUpgrader::instance()
             .registerModuleConverter(plugin->ident(), r.target, r.f);
+    }
+
+    // register all interface functions of the module
+    foreach(const auto& sharedFunction, plugin->sharedFunctions())
+    {
+        gtlab::interface::internal::register_function(plugin->ident(),
+                                                      sharedFunction);
     }
 
     GtDatamodelInterface* dmp = dynamic_cast<GtDatamodelInterface*>(plugin);
