@@ -26,13 +26,13 @@ public:
 
     /**
      * @brief checks if data zone is currently valid
-     * @return
+     * @return is valid
      */
     bool isValid() const override;
 
     /**
      * @brief addModuleName
-     * @param moduleName
+     * @param suffix
      */
     void addModuleName(const QString& suffix) override;
 
@@ -59,16 +59,30 @@ public:
                                   bool* ok = nullptr) const;
 
     /**
+     * @brief General setter method for n-dimensional data
+     * @param params Parameter names
+     * @param axisTicks Map of axis names and axis ticks
+     * @param paramValues Map of parameter and values
+     * @param units Parameter units
+     * @return success
+     */
+    bool setData(const QStringList& params,
+                 const QMap<QString, QVector<double> >& axisTicks,
+                 const QMap<QString, QVector<double> >& paramValues,
+                 const QStringList& units);
+
+    /**
      * @brief set 1-dimensional data to table
      * @param params parameter names
      * @param ticks axis ticks
-     * @param axisName1 axis name
+     * @param axisName axis name
      * @param vals parameter names and values
      * @param units parameter units
+     * @return success
      */
-    void setData1D(const QStringList& params,
+    bool setData1D(const QStringList& params,
                    const QVector<double>& ticks,
-                   const QString& axisName1,
+                   const QString& axisName,
                    const QMap<QString, QVector<double> >& vals,
                    const QStringList& units);
 
@@ -76,12 +90,13 @@ public:
      * @brief set 1-dimensional data to table
      * @param params parameter names
      * @param vals axis ticks and values
-     * @param axisName1 axis name
+     * @param axisName axis name
      * @param units parameter units
+     * @return success
      */
-    void setData1D(const QStringList& params,
+    bool setData1D(const QStringList& params,
                    const QMap<double, QVector<double> >& vals,
-                   const QString& axisName1,
+                   const QString& axisName,
                    const QStringList& units);
 
     /**
@@ -90,6 +105,7 @@ public:
      * @param tick - main axis value to add the parameter values to
      * @param overwrite -  if the tick is existing the existing values
      * will be overwritten if this flag is set to true (default value is true)
+     * @return success
      */
     bool addDataPoint1D(const QMap<QString, double>& vals,
                         const double& tick,
@@ -104,8 +120,9 @@ public:
      * @param axisName2 name of second axis
      * @param vals parameter names and values
      * @param units parameter units
+     * @return success
      */
-    void setData2D(const QStringList& params,
+    bool setData2D(const QStringList& params,
                    const QVector<double>& ticks1,
                    const QVector<double>& ticks2,
                    const QString& axisName1,
@@ -120,7 +137,7 @@ public:
      * @param ok control flag
      * @return value
      */
-    double value1D(const QString& param, const double& x0,
+    double value1D(const QString& param, double x0,
                    bool* ok = nullptr) const;
 
     /**
@@ -131,8 +148,8 @@ public:
      * @param ok control flag
      * @return value
      */
-    double value2D(const QString& param, const double& x0,
-                   const double& x1, bool* ok = nullptr) const;
+    double value2D(const QString& param, double x0, double x1,
+                   bool* ok = nullptr) const;
 
     /**
      * @brief Returns value from 3-dimensional table
@@ -143,8 +160,7 @@ public:
      * @param ok control flag
      * @return value
      */
-    double value3D(const QString& param, const double& x0,
-                   const double& x1, const double& x2,
+    double value3D(const QString& param, double x0, double x1, double x2,
                    bool* ok = nullptr) const;
 
     /**
@@ -157,9 +173,8 @@ public:
      * @param ok control flag
      * @return value
      */
-    double value4D(const QString& param, const double& x0,
-                   const double& x1, const double& x2,
-                   const double& x3, bool* ok = nullptr) const;
+    double value4D(const QString& param, double x0, double x1, double x2,
+                   double x3, bool* ok = nullptr) const;
 
     /**
      * @brief returns minimum value of 2-dimensional table
@@ -194,45 +209,20 @@ public:
     double maxValue1D(const QString& paramName, bool* ok = nullptr);
 
     /**
-     * @brief setData1Dfrom2DDataZone
-     *  SetData1D with values from a 2D-DataZone
-     * @param dataZone2D
-     *  the 2D-Datazone to get the values from
-     * @param fixedAxisNumber
-     *  the axis, which is fixed to reduce the dimension
-     * @param fixedAxisTick
-     *  the axis tick of the fixed axis to use to select the values
+     * @brief SetData1D with values from a 2D-DataZone
+     * @param dataZone2D The 2D-Datazone to get the values from
+     * @param fixedAxisIdx The axis, which is fixed to reduce the dimension
+     * @param fixedAxisTick The axis tick of the fixed axis to use to select
+     * the values
      */
-    void setData1Dfrom2DDataZone(GtDataZone* dataZone2D,
-                                 int fixedAxisNumber,
+    bool setData1Dfrom2DDataZone(GtDataZone* dataZone2D,
+                                 int fixedAxisIdx,
                                  int fixedAxisTick);
 
     /**
     * @brief clears current data
     */
    void clearData();
-
-private:
-
-    /**
-     * @brief Checks if size of ticks is equal to values
-     * @param ticks ticks
-     * @param vals param values
-     * @return valid sized ticks and vals
-     */
-    static bool isValid(const QVector<double>& ticks,
-                        const QVector<double>& vals);
-
-    /**
-     * @brief Checks if size of both ticks is equal to values
-     * @param ticks1 first ticks
-     * @param ticks2 seconds ticks
-     * @param vals param values
-     * @return valid sized ticks and vals
-     */
-    static bool isValid(const QVector<double>& ticks1,
-                        const QVector<double>& ticks2,
-                        const QVector<double>& vals);
 };
 
 /**

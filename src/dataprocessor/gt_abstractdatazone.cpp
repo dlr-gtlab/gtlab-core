@@ -26,7 +26,7 @@ GtAbstractDataZoneData::isValid() const
 
     if (base()->m_params.size() != base()->m_units.size())
     {
-        gtWarning() << QObject::tr("Param size does not match units size!");
+        gtWarning() << QObject::tr("Parameter size does not match units size!");
         return false;
     }
 

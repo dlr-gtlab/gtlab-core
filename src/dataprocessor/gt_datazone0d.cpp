@@ -115,7 +115,8 @@ GtDataZone0DData::appendData(const QString& name,
 
         int i = base()->m_params.indexOf(name);
 
-        Q_ASSERT(base()->m_params.size() == base()->m_units.size() && base()->m_params.size() == base()->m_values.size() );
+        Q_ASSERT(base()->m_params.size() == base()->m_units.size() &&
+                 base()->m_params.size() == base()->m_values.size() );
 
         base()->m_units[i] = unit;
         base()->m_values[i] = val;
@@ -155,26 +156,14 @@ GtDataZone0DData::setData(const QStringList& paramNames,
 {
     Q_ASSERT(m_base != nullptr);
 
-    if (paramNames.size() != values.size())
+    auto size = paramNames.size();
+    if (paramNames.empty() || size != values.size() || size != units.size())
     {
-        gtWarning() << "Datazone 0D: Setting data failed, because parameters "
-                       "(" << paramNames.size() << ")" << " are not of same "
-                       "size as values (" << values.size() << ")";
-        return false;
-    }
-
-    if (paramNames.size() != units.size())
-    {
-        gtWarning() << "Datazone 0D: Setting data failed, because parameters "
-                       "(" << paramNames.size() << ")" << " are not of same "
-                       "size as units (" << units.size() << ")";
-        return false;
-    }
-
-    if (paramNames.isEmpty() || values.isEmpty() || units.isEmpty())
-    {
-        gtWarning() << "Datazone 0D: Setting data failed, because parameters, "
-                       "values or units are empty";
+        gtWarning() << QObject::tr("Setting Datazone0D Data failed!")
+                    << QObject::tr("(Parameter sizes differ or are empty)");
+        gtWarning() << size << "parameters vs."
+                    << values.size() << "values vs."
+                    <<  units.size() << "units";
         return false;
     }
 
