@@ -84,12 +84,26 @@ GtExternalizedObject::calcExtHash()
 void
 GtExternalizedObject::onObjectDiffMerged()
 {
-    /// will automatically call fetch & release to check whether the data
-    /// changed and whether the data should be internalized for saving
-    auto data = fetchData();
-    Q_UNUSED(data)
+    /// will automatically check whether the data has changed and whether
+    /// the data should be internalized for saving
+    fetch();
+    release();
 
     return GtObject::onObjectDiffMerged();
+}
+
+bool
+GtExternalizedObject::isDataValid() const
+{
+    // nothing to do here
+    return true;
+}
+
+bool
+GtExternalizedObject::canExternalize() const
+{
+    // nothing to do here
+    return true;
 }
 
 bool
@@ -116,8 +130,8 @@ GtExternalizedObject::fetchHelper()
     // fetch
     if (!doFetchData(m_metaData, fetchInitialVersion()))
     {
-        gtError() << tr("Fetching object failed")
-                  << "object:" << this->objectPath();
+        gtError() << tr("Fetching object failed!")
+                  << "(object path: '" + objectPath() + "')";
         // reset fetched flag
         setExternalizeState(Fetched, false);
         // clear any internalized data
@@ -144,9 +158,9 @@ GtExternalizedObject::release()
     {
         // resource is not fetched
         gtError() << tr("Externalizing object failed!")
-                  << tr("(Object is not fetched)")
+                  << tr("(Object is not fetched,")
                   << "ref count:" << m_refCount
-                  << "object:" << this->objectPath();
+                  << "object path: '" +  this->objectPath() + "')";
         return false;
     }
 
@@ -182,23 +196,27 @@ GtExternalizedObject::externalize()
         return true;
     }
 
+    if (!canExternalize())
+    {
+        gtWarning() << tr("Cannot externalize invalid object:") << objectName();
+        return false;
+    }
+
     // recalculate object hash
     QString hash{calcExtHash()};
 
     // check if not marked for externalization or has changes
-    if (!(m_states & ExternalizeOnSave) && !(m_states & KeepInternalized) &&
-        !hasModifiedData(hash))
+    if (!(m_states & ExternalizeOnSave || m_states & KeepInternalized ||
+          hasModifiedData(hash)))
     {
         return true;
     }
-
-    qDebug() << "externalizing object" << objectName();
 
     // externalize
     if (!doExternalizeData(m_metaData))
     {
         gtError() << tr("Externalizing object failed!")
-                  << "object:" << this->objectPath();
+                  << "(object path: '" + objectPath() + "')";
         return false;
     }
 
@@ -207,6 +225,7 @@ GtExternalizedObject::externalize()
     // update states
     setExternalizeState(FetchInitialVersion, false);
     setExternalizeState(ExternalizeOnSave, false);
+    setExternalizeState(KeepInternalized, false);
 
     // clear data
     if (m_refCount == 0)
@@ -252,24 +271,22 @@ GtExternalizedObject::setExternalizeState(ExternalizeState state, bool enable)
 GtExternalizedObjectData::GtExternalizedObjectData(GtExternalizedObject* base) :
     m_base{base}
 {
-    if (m_base == nullptr)
+    if (m_base)
     {
-        return;
+        m_base->fetch();
     }
-    m_base->fetch();
 }
 
 GtExternalizedObjectData::~GtExternalizedObjectData()
 {
-    if (m_base == nullptr)
+    if (m_base)
     {
-        return;
+        m_base->release();
     }
-    m_base->release();
 }
 
 bool
 GtExternalizedObjectData::isValid() const
 {
-    return m_base != nullptr && m_base->isFetched();
+    return m_base != nullptr && m_base->isFetched() && m_base->isDataValid();
 }

@@ -11,26 +11,56 @@
 #include "gt_logging.h"
 #include "gt_h5externalizehelper.h"
 
-
 GtDataZone0D::GtDataZone0D()
 {
     setFlag(UserDeletable);
+    connect(this, SIGNAL(valuesChanged()), this, SLOT(changed()));
 }
 
 bool
 GtDataZone0D::doFetchData(QVariant& metaData, bool fetchInitialVersion)
 {
 #ifdef GT_H5
-    GtH5Data<QString, QString, double> data;
+    // See issue #249
+    if (m_params.size() == 1 && m_params.first().isEmpty()) m_params.clear();
+    if (m_units.size()  == 1 && m_units.first().isEmpty())  m_units.clear();
 
-    GtH5ExternalizeHelper h5Worker{*this};
+    // datazone may not be fully cleared (e.g. due to diff)
+    // we have to make sure to only restore the missing/empty properties
+    auto paramsDup = m_params;
+    auto unitsDup  = m_units;
+    auto valuesDup = m_values;
 
-    if (!h5Worker.read(data, metaData, fetchInitialVersion))
+    try
     {
+        GenH5::CompData<QString, QString, double> data{};
+
+        GtH5ExternalizeHelper h5Worker{*this};
+
+        if (!h5Worker.read(data, metaData, fetchInitialVersion))
+        {
+            return false;
+        }
+
+        // deserialize will not clear params, units and values
+        doClearExternalizedData();
+        data.deserialize(m_params, m_units, m_values);
+    }
+    catch (GenH5::Exception const& e)
+    {
+        gtWarning() << "Exception:" << e.what();
+        return false;
+    }
+    catch (H5::Exception& /*e*/)
+    {
+        gtWarning() << "HDF5 Exception:";
         return false;
     }
 
-    data.deserialize(m_params, m_units, m_values);
+    // merge data
+    if (m_params.size() == paramsDup.size()) m_params = paramsDup;
+    if (m_units.size()  == unitsDup.size())  m_units  = unitsDup;
+    if (m_values.size() == valuesDup.size()) m_values = valuesDup;
 #endif
     return true;
 }
@@ -39,12 +69,29 @@ bool
 GtDataZone0D::doExternalizeData(QVariant& metaData)
 {
 #ifdef GT_H5
-    // serialize the data
-    GtH5Data<QString, QString, double> data{m_params, m_units, m_values};
+    try
+    {
+        // serialize the data
+        GenH5::CompData<QString, QString, double> data{
+            m_params, m_units, m_values
+        };
+        // set compound type names
+        data.setTypeNames({"params", "values", "units"});
 
-    GtH5ExternalizeHelper h5Worker{*this};
+        GtH5ExternalizeHelper h5Worker{*this};
 
-    return h5Worker.write(data, metaData);
+        return h5Worker.write(data, metaData);
+    }
+    catch (GenH5::Exception const& e)
+    {
+        gtWarning() << "Exception:" << e.what();
+        return false;
+    }
+    catch (H5::Exception const& /*e*/)
+    {
+        gtWarning() << "HDF5 Exception:";
+        return false;
+    }
 #else
     return true;
 #endif
@@ -58,6 +105,25 @@ GtDataZone0D::doClearExternalizedData()
     m_values.clear();
     m_units.clear();
 #endif
+}
+
+bool
+GtDataZone0D::canExternalize() const
+{
+    // can only externalize if data is valid and not empty
+    return isDataValid() && !m_params.empty();
+}
+
+bool
+GtDataZone0D::isDataValid() const
+{
+    if (m_params.size() != m_values.size())
+    {
+        gtWarning() << tr("Invalid DataZone!")
+                    << tr("(Parameter size does not match value size)");
+        return false;
+    }
+    return GtAbstractDataZone::isDataValid();
 }
 
 bool
@@ -79,7 +145,7 @@ GtDataZone0DData::GtDataZone0DData(GtDataZone0D* base) :
 }
 
 void
-GtDataZone0DData::clearData()
+GtDataZone0DData::clearData() &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -91,7 +157,7 @@ bool
 GtDataZone0DData::appendData(const QString& name,
                              const QString& unit,
                              const double& val,
-                             bool overwrite)
+                             bool overwrite) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -142,7 +208,7 @@ GtDataZone0DData::values() const
 }
 
 void
-GtDataZone0DData::setValues(const QVector<double>& values)
+GtDataZone0DData::setValues(const QVector<double>& values) &
 {
     Q_ASSERT(m_base != nullptr);
     base()->m_values = values;
@@ -152,7 +218,7 @@ GtDataZone0DData::setValues(const QVector<double>& values)
 bool
 GtDataZone0DData::setData(const QStringList& paramNames,
                           const QVector<double>& values,
-                          const QStringList& units)
+                          const QStringList& units) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -178,7 +244,7 @@ GtDataZone0DData::setData(const QStringList& paramNames,
 
 // TODO check if unit of paramName is the same as the one in m_units(paramName)
 bool
-GtDataZone0DData::setValue(const QString& paramName, const double& value)
+GtDataZone0DData::setValue(const QString& paramName, const double& value) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -199,14 +265,14 @@ GtDataZone0DData::setValue(const QString& paramName, const double& value)
 bool
 GtDataZone0DData::appendData(const QString& paramName,
                              const double& value,
-                             bool overwrite)
+                             bool overwrite) &
 {
     return GtDataZone0DData::appendData(paramName, "-", value, overwrite);
 }
 
 bool
 GtDataZone0DData::appendData(const QList<QString>& paramNames,
-                             const QVector<double>& values)
+                             const QVector<double>& values) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -236,7 +302,7 @@ GtDataZone0DData::appendData(const QList<QString>& paramNames,
 bool
 GtDataZone0DData::appendData(const QList<QString>& paramNames,
                              const QList<QString>& units,
-                             const QVector<double>& values)
+                             const QVector<double>& values) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -285,23 +351,4 @@ GtDataZone0DData::value(const QString& paramName, bool* ok) const
         *ok = true;
     }
     return base()->m_values.at(index);
-}
-
-bool
-GtDataZone0DData::isValid() const
-{
-    Q_ASSERT(m_base != nullptr);
-
-    if (!GtAbstractDataZoneData::isValid())
-    {
-        return false;
-    }
-
-    if (base()->m_params.size() != base()->m_values.size())
-    {
-        gtWarning() << QObject::tr("Param size does not match value size!");
-        return false;
-    }
-
-    return true;
 }

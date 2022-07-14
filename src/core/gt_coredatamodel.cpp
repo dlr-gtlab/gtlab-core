@@ -141,7 +141,7 @@ GtCoreDatamodel::initProjectStates(GtProject* project)
                                     QStringLiteral("ExternalizationSettings"),
                                     QStringLiteral("Enable Externalization"),
                                     project->objectPath(),
-                                    false, project);
+                                    true, project);
 
     // set init values
     gtExternalizationManager->enableExternalization(enableState->getValue());

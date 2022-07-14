@@ -356,7 +356,11 @@ GtDataZoneModel::data(const QModelIndex& index,
                     return units[row];
                 /// value
                 case 2:
-                    return dz0D->fetchData().values()[row];
+                {
+                    auto values = dz0D->fetchData().values();
+                    Q_ASSERT(values.size() > row);
+                    return values[row];
+                }
             }
         }
     }

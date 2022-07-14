@@ -14,8 +14,10 @@
 #include "gt_datamodel_exports.h"
 #include "gt_logging.h"
 
-#include "gth5_data.h"
-#include "gth5_dataset.h"
+#include "genh5_version.h"
+#include "genh5_data.h"
+#include "genh5_dataset.h"
+#include "genh5_file.h"
 
 class GtExternalizedObject;
 /**
@@ -24,11 +26,6 @@ class GtExternalizedObject;
  */
 class GT_DATAMODEL_EXPORT GtH5ExternalizeHelper
 {
-    // error strings for logging
-    static const QString ERR_PREFIX;
-    static const QString ERR_DATASET_READ;
-    static const QString ERR_DATASET_WRITE;
-
 public:
 
     /**
@@ -42,23 +39,53 @@ public:
      * @tparam T data types of the dataset to write
      * @param data data object
      * @param refVariant varaint containing the reference to a HDF5 dataset
-     * @return success
+     * @return success (will throw if operation fails)
      */
-    template<typename... T>
-    bool write(const GtH5Data<T...>& data,
-               QVariant& refVariant) const;
+    template<typename T>
+    bool write(const GenH5::AbstractData<T>& data,
+               QVariant& refVariant) const noexcept(false);
 
     /**
      * @brief reads the data from the desired dataset
-     * @tparam T data types of the dataset to read
+     * @tparam T data type of the dataset to read
      * @param data data object
      * @param refVariant varaint containing the reference to a HDF5 dataset
-     * @return success
+     * @return success (will throw if operation fails)
      */
-    template<typename... T>
-    bool read(GtH5Data<T...>& data,
+    template<typename T>
+    bool read(GenH5::AbstractData<T>& data,
               QVariant& refVariant,
-              bool fetchInitialVersion) const;
+              bool fetchInitialVersion) const noexcept(false);
+
+    /**
+     * @brief Opens the associated HDF5 file
+     * @param flags Access flags of the file
+     * @param accessBackupFile whether to fetch the backup or main project file
+     * @return file (will throw if operation fails)
+     */
+    GenH5::File openFile(GenH5::FileAccessFlags flags,
+                         bool accessBackupFile = false) const noexcept(false);
+
+    /**
+     * @brief helper method to fetch the desired dataset to (over)write
+     * @param dataType hdf5 datatype
+     * @param dataSpace hdf5 dataspace
+     * @param refVariant varaint containing the reference to a HDF5 dataset
+     * @return datatset (will throw if operation fails)
+     */
+    GenH5::DataSet overwriteDataSet(const GenH5::DataType& dataType,
+                                    const GenH5::DataSpace& dataSpace,
+                                    QVariant& refVariant) const noexcept(false);
+
+    /**
+     * @brief  helper method to fetch the desired dataset (reading purpose only)
+     * @param refVariant varaint containing the reference to a HDF5 dataset
+     * @param fetchInitialVersion whether to fetch the initial version of the
+     * dataset (will fetch from backup file)
+     * @return datatset (will throw if operation fails)
+     */
+    GenH5::DataSet openDataSet(QVariant& refVariant,
+                               bool fetchInitialVersion) const noexcept(false);
 
 private:
 
@@ -66,54 +93,27 @@ private:
     QString m_objClassName;
     /// uuid of the externalized object
     QString m_objUuid;
-
-    /**
-     * @brief helper method to fetch the desired dataset (writing purpose)
-     * @param dataType hdf5 datatype
-     * @param dataSpace hdf5 dataspace
-     * @param refVariant varaint containing the reference to a HDF5 dataset
-     * @return datatset (invalid if operation failed)
-     */
-    GtH5DataSet createDataSet(const GtH5DataType& dataType,
-                              const GtH5DataSpace& dataSpace,
-                              QVariant& refVariant) const;
-
-    /**
-     * @brief  helper method to fetch the desired dataset (reading purpose)
-     * @param refVariant varaint containing the reference to a HDF5 dataset
-     * @param fetchInitialVersion whether to fetch the initial version of the
-     * dataset (will fetch from backup file)
-     * @return datatset (invalid if operation failed)
-     */
-    GtH5DataSet openDataSet(QVariant& refVariant,
-                            bool fetchInitialVersion) const;
 };
 
-template<typename... T>
-bool GtH5ExternalizeHelper::write(const GtH5Data<T...>& data,
-                                  QVariant& refVariant) const
+template<typename T>
+inline bool
+GtH5ExternalizeHelper::write(const GenH5::AbstractData<T>& data,
+                             QVariant& refVariant) const noexcept(false)
 {
     if (data.isEmpty())
     {
-        gtError() << ERR_PREFIX << ERR_DATASET_WRITE
-                  << QObject::tr("(Empty data provided)");
+        gtWarning() << QObject::tr("HDF5: Could not write to the dataset!")
+                    << QObject::tr("(Empty data provided)");
         return false;
     }
 
     // open the associated dataset
-    auto dataset{createDataSet(data.dataType(), data.dataSpace(), refVariant)};
-
-    if (!dataset.isValid())
-    {
-        gtError() << ERR_PREFIX << ERR_DATASET_WRITE
-                  << QObject::tr("(Dataset creation failed)");
-        return false;
-    }
+    auto dset = overwriteDataSet(data.dataType(), data.dataSpace(), refVariant);
 
     // write the data to the dataset
-    if (!dataset.write(data))
+    if (!dset.write(data))
     {
-        gtError() << ERR_PREFIX << ERR_DATASET_WRITE
+        gtError() << QObject::tr("HDF5: Could not write to the dataset!")
                   << QObject::tr("(Writing failed)");
         return false;
     }
@@ -121,25 +121,19 @@ bool GtH5ExternalizeHelper::write(const GtH5Data<T...>& data,
     return true;
 }
 
-template<typename... T>
-bool GtH5ExternalizeHelper::read(GtH5Data<T...>& data,
-                                 QVariant& refVariant,
-                                 bool fetchInitialVersion) const
+template<typename T>
+inline bool
+GtH5ExternalizeHelper::read(GenH5::AbstractData<T>& data,
+                            QVariant& refVariant,
+                            bool fetchInitialVersion) const noexcept(false)
 {
     // open the associated dataset
-    auto dataset{openDataSet(refVariant, fetchInitialVersion)};
-
-    if (!dataset.isValid())
-    {
-        gtError() << ERR_PREFIX << ERR_DATASET_READ
-                  << QObject::tr("(Retrieving dataset failed)");
-        return false;
-    }
+    auto dset = openDataSet(refVariant, fetchInitialVersion);
 
     // read the data from the dataset
-    if (!dataset.read(data))
+    if (!dset.read(data))
     {
-        gtError() << ERR_PREFIX << ERR_DATASET_READ
+        gtError() << QObject::tr("HDF5: Could not read from the dataset!")
                   << QObject::tr("(Writing failed)");
         return false;
     }

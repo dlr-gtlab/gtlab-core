@@ -85,6 +85,17 @@ GtExternalizationManager::updateProjectDir(const QString& projectDir)
 }
 
 void
+GtExternalizationManager::initExternalizedObjects(const GtObject& root)
+{
+    /// all externalized objects should fetch its initial version
+    for (auto* o : root.findChildren<GtExternalizedObject*>())
+    {
+        Q_ASSERT(o);
+        o->setFetchInitialVersion(true);
+    }
+}
+
+void
 GtExternalizationManager::clearProjectDir()
 {
     m_projectDir.clear();

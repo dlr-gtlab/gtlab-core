@@ -30,7 +30,7 @@ BUILD_DEPLOY =                  true
 # First Party
 GTLAB_LOGGING_PATH =    $${DEV_TOOLS}
 GTLAB_NUMERICS_PATH =   $${DEV_TOOLS}
-GTLAB_H5_PATH =         $${DEV_TOOLS}
+GENH5_PATH =            $${DEV_TOOLS} # HDF5 Wrapper
 
 # THIRD PARTY
 GOOGLE_TEST_PATH =      $${DEV_TOOLS}/ThirdPartyLibraries/GoogleTest

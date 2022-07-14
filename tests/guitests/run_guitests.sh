@@ -5,7 +5,7 @@
 # email:  marius.broecker@dlr.de
 # 
 # required system variables:
-#  - QT_DIR_LINUX: 		Path to Qt gcc_64 directory
+#  - QT_DIR_LINUX2:		Path to Qt gcc_64 directory
 #  - SQUISH_DIR: 		Squish installation directory
 #  - DEVTOOLS_DIR:		GTlab Dev-Tools path
 #
@@ -34,7 +34,7 @@ TESTSUITES=$CORE_TESTS
 
 echo "gtlab instance:     '$GTLAB_DIR'"
 echo "dev-tools dir:      '$DEVTOOLS_DIR'"
-echo "qt-gcc install dir: '$QT_DIR_LINUX'"
+echo "qt-gcc install dir: '$QT_DIR_LINUX2'"
 echo "squish install dir: '$SQUISH_DIR'"
 echo -e "testsuites to test: '\n$TESTSUITES\n'"
 
@@ -57,7 +57,7 @@ LIBRARY_PATH=$DEVTOOLS_DIR/ThirdPartyLibraries/SplineLib/lib:$LIBRARY_PATH
 LIBRARY_PATH=$DEVTOOLS_DIR/ThirdPartyLibraries/minpack/lib:$LIBRARY_PATH
 LIBRARY_PATH=$DEVTOOLS_DIR/ThirdPartyLibraries/NLopt/lib:$LIBRARY_PATH
 LIBRARY_PATH=$DEVTOOLS_DIR/ThirdPartyLibraries/hdf5/lib:$LIBRARY_PATH
-LIBRARY_PATH=$QT_DIR_LINUX/lib:$LIBRARY_PATH
+LIBRARY_PATH=$QT_DIR_LINUX2/lib:$LIBRARY_PATH
 export LIBRARY_PATH=$LIBRARY_PATH
 export LD_LIBRARY_PATH=$LIBRARY_PATH
 
@@ -84,13 +84,16 @@ done
 # register AUT
 echo "setting up AUT... "
 $SQUISH_DIR/squishserver --config addAUT GTlab $GTLAB_DIR
+#$SQUISH_DIR/squishserver --config setAUTTimeout 60 			# default 20
+#$SQUISH_DIR/squishserver --config setHardExitTimeout 1000  	# default 200
+#$SQUISH_DIR/squishserver --config setSoftExitTimeout 10000 	# default 2000
 
 # start squish server in new terminal 
 echo "starting squishserver... "
 konsole -e $SQUISH_DIR/squishserver --verbose --daemon --logfile $PWD/gui_tests_server_stdout.txt &
 
 # give the server some time to start
-sleep 10
+sleep 20
 
 # return code to keep track of failed tests
 RC=0

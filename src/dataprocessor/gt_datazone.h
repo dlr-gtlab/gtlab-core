@@ -25,18 +25,6 @@ public:
     explicit GtDataZoneData(GtDataZone* base);
 
     /**
-     * @brief checks if data zone is currently valid
-     * @return is valid
-     */
-    bool isValid() const override;
-
-    /**
-     * @brief addModuleName
-     * @param suffix
-     */
-    void addModuleName(const QString& suffix) override;
-
-    /**
      * @brief returns vector of values for 1D data zone based on the
      * defined axis ticks
      * @param param parameter name
@@ -69,7 +57,7 @@ public:
     bool setData(const QStringList& params,
                  const QMap<QString, QVector<double> >& axisTicks,
                  const QMap<QString, QVector<double> >& paramValues,
-                 const QStringList& units);
+                 const QStringList& units) &;
 
     /**
      * @brief set 1-dimensional data to table
@@ -84,7 +72,7 @@ public:
                    const QVector<double>& ticks,
                    const QString& axisName,
                    const QMap<QString, QVector<double> >& vals,
-                   const QStringList& units);
+                   const QStringList& units) &;
 
     /**
      * @brief set 1-dimensional data to table
@@ -97,7 +85,7 @@ public:
     bool setData1D(const QStringList& params,
                    const QMap<double, QVector<double> >& vals,
                    const QString& axisName,
-                   const QStringList& units);
+                   const QStringList& units) &;
 
     /**
      * @brief addDataPoint1D
@@ -109,7 +97,7 @@ public:
      */
     bool addDataPoint1D(const QMap<QString, double>& vals,
                         const double& tick,
-                        bool overwrite = true);
+                        bool overwrite = true) &;
 
     /**
      * @brief set 2-dimensional data to table
@@ -128,7 +116,7 @@ public:
                    const QString& axisName1,
                    const QString& axisName2,
                    const QMap<QString, QVector<double> >& vals,
-                   const QStringList& units);
+                   const QStringList& units) &;
 
     /**
      * @brief Returns value from 1-dimensional datazone
@@ -217,12 +205,12 @@ public:
      */
     bool setData1Dfrom2DDataZone(GtDataZone* dataZone2D,
                                  int fixedAxisIdx,
-                                 int fixedAxisTick);
+                                 int fixedAxisTick) &;
 
     /**
     * @brief clears current data
     */
-   void clearData();
+   void clearData() &;
 };
 
 /**
@@ -387,6 +375,12 @@ public:
 protected:
 
     /**
+     * @brief Whether the datazone can be externalized
+     * @return can externalize
+     */
+    bool canExternalize() const override;
+
+    /**
      * @brief Fetchs the externalized GtTableValues.
      * @param metaData metadata for fetching.
      * @param fetchInitialVersion whether to fetch the intial version of the
@@ -407,7 +401,16 @@ protected:
      */
     void doClearExternalizedData() override;
 
+    /**
+     * @brief Checks if data zone is currently valid.
+     * @return is valid
+     */
+    bool isDataValid() const override;
+
 private:
+
+    /// data zone description
+    QString m_description{};
 
     /**
      * @brief returns table object
@@ -415,8 +418,11 @@ private:
      */
     GtTable* table() const;
 
-    /// data zone description
-    QString m_description{};
+    /**
+     * @brief This is a delegating method and should not be called directly.
+     * @param moduleName prefix
+     */
+    void addModuleName(const QString& moduleName) override;
 };
 
 #endif // GTDATAZONE_H

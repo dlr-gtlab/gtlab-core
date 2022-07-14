@@ -380,14 +380,14 @@ TEST_F(TestGtDataZone, setDataAndGetValue1D)
     int idx = 0;
     QString param = data.params()[0];
 
-    EXPECT_EQ(data.value1D(param, m_ticks1.at(idx), &success),
-              m_values.value(param)[idx]);
+    EXPECT_DOUBLE_EQ(data.value1D(param, m_ticks1.at(idx), &success),
+                     m_values.value(param)[idx]);
     EXPECT_TRUE(success);
 
     idx = 3;
     param = data.params()[1];
-    EXPECT_EQ(data.value1D(param, m_ticks1.at(idx), &success),
-              m_values.value(param)[idx]);
+    EXPECT_DOUBLE_EQ(data.value1D(param, m_ticks1.at(idx), &success),
+                     m_values.value(param)[idx]);
     EXPECT_TRUE(success);
 
     // invalid param
@@ -416,18 +416,20 @@ TEST_F(TestGtDataZone, setDataAndGetValue2D)
     QString param = data.params()[3];
 
     // 1fst test
-    EXPECT_EQ(data.value2D(param,
-                           m_ticks1.at(idx1), m_ticks2.at(idx2), &success),
-              m_values.value(param)[idx1 + idx2 * m_axis1Size]);
+    EXPECT_DOUBLE_EQ(data.value2D(param,
+                                  m_ticks1.at(idx1), m_ticks2.at(idx2),
+                                  &success),
+                     m_values.value(param)[idx1 + idx2 * m_axis1Size]);
     EXPECT_TRUE(success);
 
     // 2nd test
     idx1 = 3;
     idx2 = 4;
     param = data.params()[1];
-    EXPECT_EQ(data.value2D(param,
-                           m_ticks1.at(idx1), m_ticks2.at(idx2), &success),
-              m_values.value(param)[idx1 + idx2 * m_axis1Size]);
+    EXPECT_DOUBLE_EQ(data.value2D(param,
+                                  m_ticks1.at(idx1), m_ticks2.at(idx2),
+                                  &success),
+                     m_values.value(param)[idx1 + idx2 * m_axis1Size]);
     EXPECT_TRUE(success);
 }
 
@@ -455,12 +457,12 @@ TEST_F(TestGtDataZone, setDataAndGetValue3D)
     QString param = data.params()[5];
 
     // 1fst test
-    EXPECT_EQ(data.value3D(param,
-                           m_ticks1.at(idx1), m_ticks2.at(idx2),
-                           m_ticks3.at(idx3), &success),
-              m_values.value(param)[idx1 +
-                                    idx2 * m_axis1Size +
-                                    idx3 * m_axis1Size * m_axis2Size]);
+    EXPECT_DOUBLE_EQ(data.value3D(param,
+                                  m_ticks1.at(idx1), m_ticks2.at(idx2),
+                                  m_ticks3.at(idx3), &success),
+                     m_values.value(param)[idx1 +
+                                           idx2 * m_axis1Size +
+                                           idx3 * m_axis1Size * m_axis2Size]);
     EXPECT_TRUE(success);
 
     // 2nd test
@@ -468,12 +470,12 @@ TEST_F(TestGtDataZone, setDataAndGetValue3D)
     idx2 = 4;
     idx3 = 0;
     param = data.params()[7];
-    EXPECT_EQ(data.value3D(param,
-                           m_ticks1.at(idx1), m_ticks2.at(idx2),
-                           m_ticks3.at(idx3), &success),
-              m_values.value(param)[idx1 +
-                                    idx2 * m_axis1Size +
-                                    idx3 * m_axis1Size * m_axis2Size]);
+    EXPECT_DOUBLE_EQ(data.value3D(param,
+                                  m_ticks1.at(idx1), m_ticks2.at(idx2),
+                                  m_ticks3.at(idx3), &success),
+                     m_values.value(param)[idx1 +
+                                           idx2 * m_axis1Size +
+                                           idx3 * m_axis1Size * m_axis2Size]);
     EXPECT_TRUE(success);
 }
 
@@ -504,14 +506,15 @@ TEST_F(TestGtDataZone, setDataAndGetValue4D)
     QString param = data.params()[5];
 
     // 1fst test
-    EXPECT_EQ(data.value4D(param,
-                           m_ticks1.at(idx1), m_ticks2.at(idx2),
-                           m_ticks3.at(idx3), m_ticks4.at(idx4), &success),
-              m_values.value(param)[idx1 +
-                                    idx2 * m_axis1Size +
-                                    idx3 * m_axis1Size * m_axis2Size +
-                                    idx4 * m_axis1Size * m_axis2Size *
-                                    m_axis3Size]);
+    EXPECT_DOUBLE_EQ(data.value4D(param,
+                                  m_ticks1.at(idx1), m_ticks2.at(idx2),
+                                  m_ticks3.at(idx3), m_ticks4.at(idx4),
+                                  &success),
+                     m_values.value(param)[idx1 +
+                                           idx2 * m_axis1Size +
+                                           idx3 * m_axis1Size * m_axis2Size +
+                                           idx4 * m_axis1Size * m_axis2Size *
+                                           m_axis3Size]);
     EXPECT_TRUE(success);
 
     // 2nd test
@@ -520,14 +523,15 @@ TEST_F(TestGtDataZone, setDataAndGetValue4D)
     idx3 = 1;
     idx3 = 5;
     param = data.params()[7];
-    EXPECT_EQ(data.value4D(param,
-                           m_ticks1.at(idx1), m_ticks2.at(idx2),
-                           m_ticks3.at(idx3), m_ticks4.at(idx4), &success),
-              m_values.value(param)[idx1 +
-                                    idx2 * m_axis1Size +
-                                    idx3 * m_axis1Size * m_axis2Size +
-                                    idx4 * m_axis1Size * m_axis2Size *
-                                    m_axis3Size]);
+    EXPECT_DOUBLE_EQ(data.value4D(param,
+                                  m_ticks1.at(idx1), m_ticks2.at(idx2),
+                                  m_ticks3.at(idx3), m_ticks4.at(idx4),
+                                  &success),
+                     m_values.value(param)[idx1 +
+                                           idx2 * m_axis1Size +
+                                           idx3 * m_axis1Size * m_axis2Size +
+                                           idx4 * m_axis1Size * m_axis2Size *
+                                           m_axis3Size]);
     EXPECT_TRUE(success);
 }
 

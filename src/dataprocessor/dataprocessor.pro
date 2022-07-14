@@ -192,15 +192,22 @@ CONFIG(debug, debug|release) {
 contains(USE_HDF5, true) {
     message("USE_HDF5 = true")
 
-    DEFINES += H5_BUILT_AS_DYNAMIC_LIB
+    #DEFINES += GENH5_NO_DEPRECATED_SYMBOLS
     DEFINES += GT_H5
 
     CONFIG(debug, debug|release) {
-        LIBS += -lhdf5 -lhdf5_cpp
-        LIBS += -lGTlabH5-d
+        win32 {
+            message("WIN32")
+            LIBS += -lhdf5_D -lhdf5_cpp_D
+        }
+        unix {
+            message("UNIX")
+            LIBS += -lhdf5 -lhdf5_cpp
+        }
+        LIBS += -lGenH5-d
     } else {
         LIBS += -lhdf5 -lhdf5_cpp
-        LIBS += -lGTlabH5
+        LIBS += -lGenH5
     }
 }
 

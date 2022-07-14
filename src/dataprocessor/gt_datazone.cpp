@@ -162,49 +162,57 @@ bool
 GtDataZone::doFetchData(QVariant& metaData, bool fetchInitialVersion)
 {
 #ifdef GT_H5
-    auto* table = this->table();
-    if (!table)
+    try
     {
-        gtError() << tr("HDF5: Could not read from the dataset!")
-                  << tr("(null table)");
+        auto* table = this->table();
+
+        // retrieve rows and cols of table
+        int rows = m_params.size();
+        int cols = GenH5::prod(table->dimensions());
+
+        // retrieve table values
+        auto tabVals = table->findDirectChildren<GtTableValues*>();
+
+        GenH5::Data<double> data;
+
+        GtH5ExternalizeHelper h5Worker{*this};
+
+        // read the data
+        if (!h5Worker.read(data, metaData, fetchInitialVersion))
+        {
+            return false;
+        }
+
+        if (data.size() != rows * cols)
+        {
+            gtError() << tr("HDF5: Could not read from the dataset!")
+                      << tr("(invalid table values dimension)");
+            return false;
+        }
+
+        // deserialize the data
+        for (int row = 0; row < rows; ++row)
+        {
+            auto* tabVal = tabVals.at(row);
+
+            // table values may not be fully cleared (e.g. due to diff) we
+            // have to make sure to only restore the missing/empty table values
+            if (tabVal->values().size() != cols)
+            {
+                // splitt 1D values vector into 2D value vectors of size 'cols'
+                tabVal->setValues(data.mid(row * cols, cols));
+            }
+        }
+    }
+    catch (GenH5::Exception const& e)
+    {
+        gtWarning() << "Exception:" << e.what();
         return false;
     }
-
-    // retrieve rows and cols of table
-    int rows = m_params.length();
-    int cols = GtH5DataSpace::sum(table->dimensions());
-
-    // retrieve table values
-    QList<GtTableValues*> tabVals{table->findDirectChildren<GtTableValues*>()};
-
-    if (tabVals.length() != rows)
+    catch (H5::Exception& /*e*/)
     {
-        gtError() << tr("HDF5: Could not read from the dataset!")
-                  << tr("(invalid table values dimension)");
+        gtWarning() << "HDF5 Exception:";
         return false;
-    }
-
-    // read the data
-    GtH5ExternalizeHelper h5Worker{*this};
-
-    GtH5Data<double> data;
-
-    if (!h5Worker.read(data, metaData, fetchInitialVersion))
-    {
-        return false;
-    }
-
-    if (data.length() != rows * cols)
-    {
-        gtError() << tr("HDF5: Could not read from the dataset!")
-                  << tr("(invalid table values dimension)");
-        return false;
-    }
-
-    // deserialize the data
-    for (int row = 0; row < rows; ++row)
-    {
-        tabVals.at(row)->setValues(data.data().mid(row * cols, cols));
     }
 #endif
     return true;
@@ -214,38 +222,45 @@ bool
 GtDataZone::doExternalizeData(QVariant& metaData)
 {
 #ifdef GT_H5
-    auto* table = this->table();
-    if (!table)
+    try
     {
-        gtError() << tr("HDF5: Could not write to the dataset!")
-                  << tr("(null table)");
+        auto* table = this->table();
+
+        // retrieve rows and cols of table
+        int rows{m_params.size()};
+        int cols{GenH5::prod(table->dimensions())};
+
+        // serialize the data
+        GenH5::Data<double> data;
+        data.reserve(rows * cols);
+
+        for (const auto* tabVal : table->findDirectChildren<GtTableValues*>())
+        {
+            data.append(tabVal->values());
+        }
+
+        if (data.size() != rows * cols)
+        {
+            gtError() << tr("HDF5: Could not write to the dataset!")
+                      << tr("(invalid table values dimension)");
+            return false;
+        }
+
+        GtH5ExternalizeHelper h5Worker{*this};
+
+        // write the data
+        return h5Worker.write(data, metaData);
+    }
+    catch (GenH5::Exception const& e)
+    {
+        gtWarning() << "Exception:" << e.what();
         return false;
     }
-
-    // retrieve rows and cols of table
-    int rows{m_params.length()};
-    int cols{GtH5DataSpace::sum(table->dimensions())};
-
-    // serialize the data
-    GtH5ExternalizeHelper h5Worker{*this};
-
-    GtH5Data<double> data;
-    data.reserve(rows * cols);
-
-    for (const auto* tabVal : table->findDirectChildren<GtTableValues*>())
+    catch (H5::Exception& /*e*/)
     {
-        data.append(tabVal->values());
-    }
-
-    if (data.length() != rows * cols)
-    {
-        gtError() << tr("HDF5: Could not write to the dataset!")
-                  << tr("(invalid table values dimension)");
+        gtWarning() << "HDF5 Exception:";
         return false;
     }
-
-    // serialize the data
-    return h5Worker.write(data, metaData);
 #else
     return true;
 #endif
@@ -265,6 +280,51 @@ GtDataZone::doClearExternalizedData()
         tableVal->clearValues();
     }
 #endif
+}
+
+bool
+GtDataZone::canExternalize() const
+{
+    // can only externalize if data is valid and not empty
+    return isDataValid() && !m_params.empty();
+}
+
+bool
+GtDataZone::isDataValid() const
+{
+    auto* tab = table();
+    if (!tab)
+    {
+        gtWarning() << tr("Invalid DataZone!") << tr("(Null table)");
+        return false;
+    }
+
+    auto size = m_params.size();
+    if (size != tab->tabValsKeys().size() ||
+        size != tab->findDirectChildren<GtTableValues*>().size())
+    {
+        gtWarning() << tr("Invalid DataZone!")
+                    << tr("(Parameter size does not match units size)");
+        gtDebug() << tr("Size Params:") << m_params.size();
+        gtDebug() << tr("Size Keys:  ") << tab->tabValsKeys().size();
+        gtDebug() << tr("Size Values:")
+                  << tab->findDirectChildren<GtTableValues*>().size();
+        return false;
+    }
+    return true;
+}
+
+void
+GtDataZone::addModuleName(const QString& moduleName)
+{
+    if (moduleName.isEmpty() || !table())
+    {
+        return;
+    }
+
+    table()->setTabValsKeysSuffix(moduleName + QStringLiteral("."));
+
+    GtAbstractDataZone::addModuleName(moduleName);
 }
 
 int
@@ -413,7 +473,7 @@ bool
 GtDataZoneData::setData(const QStringList& params,
                         const QMap<QString, QVector<double> >& axisTicks,
                         const QMap<QString, QVector<double> >& paramValues,
-                        const QStringList& units)
+                        const QStringList& units) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -514,7 +574,7 @@ GtDataZoneData::setData1D(const QStringList& params,
                           const QVector<double>& ticks,
                           const QString& axisName,
                           const QMap< QString, QVector<double> >& vals,
-                          const QStringList& units)
+                          const QStringList& units) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -527,7 +587,7 @@ bool
 GtDataZoneData::setData1D(const QStringList& params,
                           const QMap<double, QVector<double> >& vals,
                           const QString& axisName,
-                          const QStringList& units)
+                          const QStringList& units) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -581,7 +641,7 @@ GtDataZoneData::setData1D(const QStringList& params,
 bool
 GtDataZoneData::addDataPoint1D(const QMap<QString, double>& vals,
                                const double& tick,
-                               bool overwrite)
+                               bool overwrite) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -608,7 +668,7 @@ GtDataZoneData::addDataPoint1D(const QMap<QString, double>& vals,
 
     if (axisTicks.isEmpty())
     {
-        gtError() << base()->tr("Invalid axis of the datzone");
+        gtError() << QObject::tr("Invalid axis of the datzone");
         return false;
     }
 
@@ -696,7 +756,7 @@ GtDataZoneData::addDataPoint1D(const QMap<QString, double>& vals,
 bool
 GtDataZoneData::setData1Dfrom2DDataZone(GtDataZone* dataZone2D,
                                         int fixedAxisIdx,
-                                        int fixedAxisTick)
+                                        int fixedAxisTick) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -751,12 +811,12 @@ GtDataZoneData::setData1Dfrom2DDataZone(GtDataZone* dataZone2D,
     {
         QVector<double> currentVals;
         currentVals.reserve(size);
-        for (int k = 0; k < ticks.size(); ++k)
+        for (double tick : qAsConst(ticks))
         {
             // helper array to access correct coors
-            const std::array<double, 2> coors{ fixedAxisValue, ticks.at(k) };
-            double ax1 = coors[fixedAxisIdx];
-            double ax2 = coors[otherAxisIdx];
+            const std::array<double, 2> coors{ fixedAxisValue, tick };
+            double ax1 = coors[static_cast<size_t>(fixedAxisIdx)];
+            double ax2 = coors[static_cast<size_t>(otherAxisIdx)];
 
             currentVals.append(data.value2D(param, ax1, ax2, &ok));
 
@@ -782,7 +842,7 @@ GtDataZoneData::setData2D(const QStringList& params,
                           const QString& axisName1,
                           const QString& axisName2,
                           const QMap<QString, QVector<double> >& vals,
-                          const QStringList& units)
+                          const QStringList& units) &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -793,7 +853,7 @@ GtDataZoneData::setData2D(const QStringList& params,
 }
 
 void
-GtDataZoneData::clearData()
+GtDataZoneData::clearData() &
 {
     Q_ASSERT(m_base != nullptr);
 
@@ -805,38 +865,6 @@ GtDataZoneData::clearData()
 
     base()->m_units.clear();
     base()->m_params.clear();
-}
-
-bool
-GtDataZoneData::isValid() const
-{
-    Q_ASSERT(m_base != nullptr);
-
-    static auto errMsg = QObject::tr("Invalid DataZone");
-
-    if (!GtAbstractDataZoneData::isValid())
-    {
-        return false;
-    }
-
-    auto* tab = base()->table();
-    if (!tab)
-    {
-        gtWarning() << errMsg << QObject::tr("(Null table)");
-        return false;
-    }
-
-    if (base()->m_params.size() != tab->tabValsKeys().size())
-    {
-        gtWarning() << errMsg
-                    << QObject::tr("(Param size does not match table)");
-
-        gtDebug() << QObject::tr("Size Params:") << base()->m_params.size();
-        gtDebug() << QObject::tr("Size Keys:") << tab->tabValsKeys().size();
-        return false;
-    }
-
-    return true;
 }
 
 const QString&
@@ -1014,21 +1042,6 @@ GtDataZone::axisNames() const
 GtDataZoneData::GtDataZoneData(GtDataZone* base) :
     GtAbstractDataZoneData(base)
 { }
-
-void
-GtDataZoneData::addModuleName(const QString& suffix)
-{
-    Q_ASSERT(m_base != nullptr);
-
-    if (suffix.isEmpty())
-    {
-        return;
-    }
-
-    base()->table()->setTabValsKeysSuffix(suffix + QStringLiteral("."));
-
-    GtAbstractDataZoneData::addModuleName(suffix);
-}
 
 double
 GtDataZoneData::minValue2D(const QString& paramName, bool* ok)

@@ -538,11 +538,8 @@ GtProject::readModuleData()
             continue;
         }
 
-        /// all externalized objects should fetch its initial version
-        for (auto* o : package->findChildren<GtExternalizedObject*>())
-        {
-            o->setFetchInitialVersion(true);
-        }
+        // externalized object must be initialized
+        gtExternalizationManager->initExternalizedObjects(*package);
 
         retval.append(obj);
     }
@@ -561,7 +558,7 @@ GtProject::saveModuleData()
     // externalize or internalize objects accordingly
     if (!saveExternalizedObjectData())
     {
-        gtError() << tr("Failed to save externalized object data!");
+        gtWarning() << tr("Failed to save externalized object data!");
         // saving may continue
     }
 

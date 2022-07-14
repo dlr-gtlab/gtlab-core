@@ -83,10 +83,10 @@ CONFIG(debug, debug|release) {
     DEPENDPATH  += $${HDF5_PATH}/lib
 }
 
-# GTlab HDF5 Wrapper
-INCLUDEPATH += $${GTLAB_H5_PATH}/include/h5
-LIBS        += -L$${GTLAB_H5_PATH}/lib/h5
-DEPENDPATH  += $${GTLAB_H5_PATH}/lib/h5
+# HDF5 Wrapper
+INCLUDEPATH += $${GENH5_PATH}/include/h5
+LIBS        += -L$${GENH5_PATH}/lib/h5
+DEPENDPATH  += $${GENH5_PATH}/lib/h5
 
 # Google Test
 #INCLUDEPATH += C:/devel/googletest-master/googletest/include
