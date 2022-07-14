@@ -26,12 +26,6 @@ public:
     explicit GtAbstractDataZoneData(GtAbstractDataZone* base);
 
     /**
-     * @brief Returns true if size of params, units and values matches.
-     * @return Data validity indicator.
-     */
-    bool isValid() const override;
-
-    /**
      * @brief Returns unit of param
      * @return unit
      */
@@ -41,7 +35,7 @@ public:
      * @brief Appends the module name to all parameters
      * @param moduleName name
      */
-    virtual void addModuleName(const QString& moduleName);
+    void addModuleName(const QString& moduleName) &;
 
     /**
      * @brief Returns all parameters
@@ -53,7 +47,7 @@ public:
      * @brief Setter for parameters
      * @param params new params
      */
-    void setParams(const QStringList& params);
+    void setParams(const QStringList& params) &;
 
     /**
      * @brief Returns all units
@@ -63,9 +57,9 @@ public:
 
     /**
      * @brief Setter for units
-     * @param params new units
+     * @param units new units
      */
-    void setUnits(const QStringList& params);
+    void setUnits(const QStringList& units) &;
 
     /**
      * @brief hasParam - check if parameter list contains a given parameter
@@ -104,16 +98,31 @@ public:
     Q_INVOKABLE virtual int nDims() const = 0;
 
 protected:
-    /**
-     * @brief GtAbstractDataZone
-     */
-    Q_INVOKABLE GtAbstractDataZone();
 
     /// Parameter names
     QStringList m_params{};
 
     /// Parameter units
     QStringList m_units{};
+
+    /**
+     * @brief GtAbstractDataZone
+     */
+    Q_INVOKABLE GtAbstractDataZone();
+
+    /**
+     * @brief Returns true if size of params and units matches.
+     * This is a delegating method and should not be called directly.
+     * @return is valid
+     */
+    bool isDataValid() const override;
+
+    /**
+     * @brief Appends the module name to all parameters.This is a delegating
+     * method of GtAbstractDataZoneData and should not be called directly.
+     * @param moduleName name
+     */
+    virtual void addModuleName(const QString& moduleName);
 };
 
 #endif // GTABSTRACTDATAZONE_H

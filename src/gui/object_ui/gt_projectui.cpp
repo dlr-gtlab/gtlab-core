@@ -135,12 +135,12 @@ GtProjectUI::GtProjectUI()
         //        GtProjectDiffPatch * differ = new GtProjectDiffPatch;
         //        GtdVCSDBInterface * vcInterface = new GtdVCSDBInterface;
         //        vc = new GtdVersionControlCore(vcInterface, differ);
-
-        addSingleAction(tr("Open Project Settings..."),
-                        QStringLiteral("processIcon_16.png"),
-                        QStringLiteral("openProjectSettings"),
-                        QStringLiteral("canSaveProject"));
     }
+
+    addSingleAction(tr("Open Project Settings..."),
+                    QStringLiteral("processIcon_16.png"),
+                    QStringLiteral("openProjectSettings"),
+                    QStringLiteral("canSaveProject"));
 
     addSingleAction(tr("Show Project Footprint"),
                     QStringLiteral("infoBlueIcon_16.png"),

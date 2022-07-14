@@ -37,7 +37,7 @@ GtTableValues::setUnit(const QString &unit)
 }
 
 
-QVector<double>
+const QVector<double>&
 GtTableValues::values() const
 {
     return m_vals;

@@ -22,6 +22,7 @@
 
 #define gtExternalizationManager (GtExternalizationManager::instance())
 
+class GtObject;
 class GtExternalizedObject;
 class GtAbstractExternalizationInterface;
 /**
@@ -60,6 +61,13 @@ public:
      * @param projectDir new project dir
      */
     void updateProjectDir(const QString& projectDir);
+
+    /**
+     * @brief initializes all externalized objects. Must be called after the
+     * initial project structure was created
+     * @param root Root object
+     */
+    void initExternalizedObjects(const GtObject& root);
 
     /**
      * @brief clears the project dir. Should be called once a project was

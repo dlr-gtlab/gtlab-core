@@ -117,13 +117,12 @@ CONFIG(debug, debug|release){
 
     # THIRD PARTY
     win32 {
-
     }
     unix {
         LIBS += -lcminpack
         contains(USE_HDF5, true) {
             LIBS += -lhdf5 -lhdf5_cpp
-            LIBS += -lGTlabH5-d
+            LIBS += -lGenH5-d
         }
     }
 } else {
@@ -139,7 +138,7 @@ CONFIG(debug, debug|release){
         LIBS += -lcminpack
         contains(USE_HDF5, true) {
             LIBS += -lhdf5 -lhdf5_cpp
-            LIBS += -lGTlabH5
+            LIBS += -lGenH5
         }
     }
 }
@@ -164,7 +163,6 @@ equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 12) {
 
         LIBS += -lgtest
 }
-
 
 RESOURCES += resources/unittests-resources.qrc
 

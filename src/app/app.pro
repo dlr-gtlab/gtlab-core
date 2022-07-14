@@ -295,7 +295,7 @@ CONFIG(debug, debug|release){
         LIBS += -lcminpack
         contains(USE_HDF5, true) {
             LIBS += -lhdf5 -lhdf5_cpp
-            LIBS += -lGTlabH5-d
+            LIBS += -lGenH5-d
         }
     }
 } else {
@@ -309,7 +309,7 @@ CONFIG(debug, debug|release){
         LIBS += -lcminpack
         contains(USE_HDF5, true) {
             LIBS += -lhdf5 -lhdf5_cpp
-            LIBS += -lGTlabH5
+            LIBS += -lGenH5
         }
     }
 }

@@ -26,12 +26,6 @@ public:
     explicit GtDataZone0DData(GtDataZone0D* base);
 
     /**
-     * @brief Returns true if size of params, units and values matches.
-     * @return Data validity indicator.
-     */
-    bool isValid() const override;
-
-    /**
      * @brief Returns the value assigned to the given parameter name (if existent)
      *        If the parameter name is not contained in the current parameter map
      *        a value of 0.0 will be returned!
@@ -52,7 +46,7 @@ public:
      * @brief setValues
      * @param values
      */
-    void setValues(const QVector<double>& values);
+    void setValues(const QVector<double>& values) &;
 
     /**
      * @brief If the given parameter name exists in m_parameterMap its current
@@ -62,7 +56,7 @@ public:
      * @return
      */
     bool setValue(const QString& paramName,
-                  const double& value);
+                  const double& value) &;
 
     /**
      * @brief Applies a new set of parameters and values to the data zone
@@ -74,7 +68,7 @@ public:
      */
     bool setData(const QStringList& paramNames,
                  const QVector<double>& values,
-                 const QStringList& units);
+                 const QStringList& units) &;
 
     /**
      * @brief if the given parameter name is not yet contained in the current
@@ -90,7 +84,7 @@ public:
      */
     bool appendData(const QString& paramName,
                     const double& value,
-                    bool overwrite = true);
+                    bool overwrite = true) &;
 
     /**
      * @brief Function setValue(const QString &paramName, const double &value)
@@ -103,7 +97,7 @@ public:
      * @return true in case of success
      */
     bool appendData(const QList<QString>& paramNames,
-                    const QVector<double>& values);
+                    const QVector<double>& values) &;
 
     /**
      * @brief Function setValue(const QString &paramName, const double &value)
@@ -118,7 +112,7 @@ public:
      */
     bool appendData(const QList<QString>& paramNames,
                     const QList<QString>& units,
-                    const QVector<double>& values);
+                    const QVector<double>& values) &;
 
     /**
      * @brief appendData
@@ -135,12 +129,12 @@ public:
     bool appendData(const QString& name,
                     const QString& unit,
                     const double& val,
-                    bool overwrite = true);
+                    bool overwrite = true) &;
 
     /**
      * @brief clearData: Clears parameter map
      */
-    void clearData();
+    void clearData() &;
 };
 
 
@@ -151,7 +145,7 @@ class GT_DATAMODEL_EXPORT GtDataZone0D : public GtAbstractDataZone
 {
     Q_OBJECT
 
-    Q_PROPERTY(QVector<double> values MEMBER m_values)
+    Q_PROPERTY(QVector<double> values MEMBER m_values NOTIFY valuesChanged)
 
     GT_DECL_DATACLASS(GtDataZone0DData)
 
@@ -177,6 +171,12 @@ public:
 protected:
 
     /**
+     * @brief Whether the datazone can be externalized
+     * @return can externalize
+     */
+    bool canExternalize() const override;
+
+    /**
      * @brief fetchs the externalized params, units and values properties.
      * @param metaData metadata for fetching.
      * @param fetchInitialVersion whether to fetch the intial data version
@@ -196,10 +196,21 @@ protected:
      */
     void doClearExternalizedData() override;
 
+    /**
+     * @brief Returns true if size of params, units and values matches.
+     * @return is valid
+     */
+    bool isDataValid() const override;
+
 private:
 
     /// Parameter values
     QVector<double> m_values;
+
+signals:
+
+    // signal to trigger changed slot if values have been written
+    void valuesChanged();
 };
 
 #endif // GTDATAZONE0D_H

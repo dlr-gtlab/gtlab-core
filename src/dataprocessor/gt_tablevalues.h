@@ -43,7 +43,7 @@ public:
     QString unit() const;
     void setUnit(const QString &unit);
 
-    QVector<double> values() const;
+    const QVector<double>& values() const;
     void setValues(const QVector<double> &values);
 
     void scale(double factor);

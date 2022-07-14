@@ -60,7 +60,6 @@ T_Data fetchExternalizedData(T_Base* obj)
 /// Marco for adding a dedicated base method impl for accessing the base class.
 /// Muste be placd inside a private block of the class.
 #define GT_DECL_BASECLASS(BaseClass) \
-    friend class BaseClass; \
     private: using Base = BaseClass; \
     template <typename T = Base> T* base() const { \
         return static_cast<T*>(m_base.data()); \
@@ -88,10 +87,10 @@ public:
     GtExternalizedObjectData& operator=(GtExternalizedObjectData&&) = default;
 
     /**
-     * @brief isValid
+     * @brief isValid. Will delegate to virtual iSvaid method of base class
      * @return whether base pointer is valid and object is fetched
      */
-    virtual bool isValid() const;
+    bool isValid() const;
 
 protected:
 
@@ -119,7 +118,7 @@ class GT_DATAMODEL_EXPORT GtExternalizedObject : public GtObject
 
     GT_DECL_DATACLASS(GtExternalizedObjectData)
 
-    friend class GtProject;
+    friend class GtExternalizationManager;
     friend class TestExternalizedObject;
 
 public:
@@ -160,7 +159,20 @@ protected:
     Q_INVOKABLE GtExternalizedObject();
 
     /**
-     * @brief method for fetching the externalized data
+     * @brief Returns whether the object data is valid.
+     * This is a delegating method and should not be called directly.
+     * @return is valid
+     */
+    virtual bool isDataValid() const;
+
+    /**
+     * @brief Returns whether the object can be externalized.
+     * @return can externalize
+     */
+    virtual bool canExternalize() const;
+
+    /**
+     * @brief Method for fetching the externalized data
      * @param metaData data that may need to be saved in between sessions to
      * help fetch the dataset.
      * @param fetchInitialVersion whether to fetch the intial version of the
@@ -170,7 +182,8 @@ protected:
     virtual bool doFetchData(QVariant& metaData, bool fetchInitialVersion) = 0;
 
     /**
-     * @brief doExternalize method to implement for externalizing the data.
+     * @brief Method to implement for externalizing the data. Will only be
+     * called if isValid returns true.
      * @param metaData data that may need to be saved in between sessions to
      * help fetch the dataset.
      * @return success

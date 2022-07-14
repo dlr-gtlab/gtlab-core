@@ -13,7 +13,7 @@
 #include "gt_logging.h"
 #include "gt_externalizationmanager.h"
 
-#include "gth5_file.h"
+#include "genh5_file.h"
 
 #include <QDir>
 #include <QFile>
@@ -40,13 +40,33 @@ void
 GtH5ExternalizationInterface::onProjectLoaded(const QString& /*projectDir*/)
 {
     // file path without suffix
-    QString filePath{h5ProjectFilePath(false)};
+    QString filePath{projectHDF5FilePath(false)};
 
-    QString backupFilePath{h5ProjectFilePath(true)};
+    QString backupFilePath{projectHDF5FilePath(true)};
 
     if (!QFileInfo::exists(filePath))
     {
         gtDebug() << tr("No HDF5 file to backup!");
+        return;
+    }
+
+    // check if file is corrupt. There seems to be no other way than trying to
+    // open the file
+    try
+    {
+        GenH5::File file{filePath.toUtf8(), GenH5::Open};
+        Q_UNUSED(file)
+    }
+    catch (GenH5::FileException const& /*e*/)
+    {
+        gtError() << "HDF5 File may be corrupt! "
+                     "Repair/Delete or swap with the file using the backup! "
+                     "Filepath:" << filePath;
+        return;
+    }
+    catch (H5::Exception const& /*e*/)
+    {
+        gtError() << "HDF5 exception!";
         return;
     }
 
@@ -64,7 +84,7 @@ GtH5ExternalizationInterface::onProjectLoaded(const QString& /*projectDir*/)
 }
 
 QString
-GtH5ExternalizationInterface::h5ProjectFilePath(bool useBackupFile) const
+GtH5ExternalizationInterface::projectHDF5FilePath(bool useBackupFile) const
 {
     QDir projectDir{gtExternalizationManager->projectDir()};
 
@@ -80,6 +100,6 @@ GtH5ExternalizationInterface::h5ProjectFilePath(bool useBackupFile) const
         name += S_BACKUP_SUFFIX;
     }
 
-    return projectDir.absoluteFilePath(name + GtH5File::dotFileSuffix());
+    return projectDir.absoluteFilePath(name + GenH5::File::dotFileSuffix());
 }
 #endif

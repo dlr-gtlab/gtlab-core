@@ -8,8 +8,8 @@
 
 #include "test_dmi_package.h"
 
-#include "gt_datazone.h"
-#include "gt_datazone0d.h"
+#include "test_dmi_class.h"
+#include "gt_abstractdatazone.h"
 
 ///generated (v 0.1)
 TestDmiPackage::TestDmiPackage() :
@@ -18,15 +18,10 @@ TestDmiPackage::TestDmiPackage() :
 {
     setObjectName("Test DMI Package");
 
-    GtDataZone* dz = new GtDataZone;
-    dz->setObjectName("DataZone");
-    appendChild(dz);
-    dz->setDefault(true);
-
-    GtDataZone0D* dz0d = new GtDataZone0D;
-    dz0d->setObjectName("DataZone0D");
-    appendChild(dz0d);
-    dz0d->setDefault(true);
+    TestDmClass* data = new TestDmClass;
+    data->setObjectName("Data");
+    appendChild(data);
+    data->setDefault(true);
 
     registerProperty(m_link);
 }

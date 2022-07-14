@@ -16,23 +16,6 @@ GtAbstractDataZoneData::GtAbstractDataZoneData(GtAbstractDataZone* base) :
     GtExternalizedObjectData{base}
 { }
 
-bool
-GtAbstractDataZoneData::isValid() const
-{
-    if (!GtExternalizedObjectData::isValid())
-    {
-        return false;
-    }
-
-    if (base()->m_params.size() != base()->m_units.size())
-    {
-        gtWarning() << QObject::tr("Parameter size does not match units size!");
-        return false;
-    }
-
-    return true;
-}
-
 QString
 GtAbstractDataZoneData::unit(const QString& param) const
 {
@@ -52,31 +35,22 @@ GtAbstractDataZoneData::unit(const QString& param) const
 }
 
 void
-GtAbstractDataZoneData::addModuleName(const QString& moduleName)
+GtAbstractDataZoneData::addModuleName(const QString& moduleName) &
 {
     Q_ASSERT(m_base != nullptr);
 
-    if (moduleName.isEmpty())
-    {
-        return;
-    }
-
-    for (QString& param : base()->m_params)
-    {
-        param.prepend(moduleName + QStringLiteral("."));
-    }
+    base()->addModuleName(moduleName);
 }
 
 const QStringList&
 GtAbstractDataZoneData::params() const
 {
-    // has to be the same as table()->tabValsKeys();
     Q_ASSERT(m_base != nullptr);
     return base()->m_params;
 }
 
 void
-GtAbstractDataZoneData::setParams(const QStringList &params)
+GtAbstractDataZoneData::setParams(const QStringList& params) &
 {
     Q_ASSERT(m_base != nullptr);
     base()->m_params = params;
@@ -86,13 +60,12 @@ GtAbstractDataZoneData::setParams(const QStringList &params)
 const QStringList&
 GtAbstractDataZoneData::units() const
 {
-    // has to be the same as table()->tabValsKeys();
     Q_ASSERT(m_base != nullptr);
     return base()->m_units;
 }
 
 void
-GtAbstractDataZoneData::setUnits(const QStringList &units)
+GtAbstractDataZoneData::setUnits(const QStringList& units) &
 {
     Q_ASSERT(m_base != nullptr);
     base()->m_units = units;
@@ -104,4 +77,30 @@ GtAbstractDataZoneData::hasParam(const QString& param) const
 {
     Q_ASSERT(m_base != nullptr);
     return base()->m_params.contains(param);
+}
+
+bool
+GtAbstractDataZone::isDataValid() const
+{
+    if (m_params.size() != m_units.size())
+    {
+        gtWarning() << tr("Invalid DataZone!")
+                    << tr("(Parameter size does not match units size)");
+        return false;
+    }
+    return GtExternalizedObject::isDataValid();
+}
+
+void
+GtAbstractDataZone::addModuleName(const QString& moduleName)
+{
+    if (moduleName.isEmpty())
+    {
+        return;
+    }
+
+    for (QString& param : m_params)
+    {
+        param.prepend(moduleName + QStringLiteral("."));
+    }
 }

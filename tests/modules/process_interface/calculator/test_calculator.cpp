@@ -10,7 +10,7 @@ TestCalculator::TestCalculator() :
                   tr("Target Component"), QString(), this,
                   QStringList() << GT_CLASSNAME(GtDataZone) ),
     m_objectPath("prePkg", "TestDmi Package Path",
-                 "TestDmi Package Path", "TestDmiPackage",
+                 "TestDmi Package Path", "Test DMI Package",
                  this, QStringList() << GT_CLASSNAME(TestDmiPackage))
 {
     setObjectName("Test Calculator");

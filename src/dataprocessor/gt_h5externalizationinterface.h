@@ -52,7 +52,7 @@ public:
      * The backup file should not be modified.
      * @return file path to hdf5 file
      */
-    QString h5ProjectFilePath(bool useBackupFile) const;
+    QString projectHDF5FilePath(bool useBackupFile) const;
 
 private:
 

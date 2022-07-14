@@ -12,7 +12,8 @@ variables:
   PIPELINEVERSION: "2.0.0-unstable"
   GIT_SUBMODULE_STRATEGY: none
   # overriding the global config for now in this branch
-  QT_DIR_LINUX: "/opt/Qt/5.15.2/gcc_64/"
+  QT_DIR_LINUX:  "/opt/Qt/5.15.2/gcc_64/"
+  QT_DIR_LINUX2: "/opt/Qt/5.15.2/gcc_64/"
 
 # inlcude some templates from this file
 include:
@@ -149,7 +150,7 @@ linuxBuildDebug:
   variables:
     BUILDMODE: debug
     BUILDUNITTESTS: "true"
-    QMAKE_EXECUTABLE: $QT_DIR_LINUX/bin/qmake
+    QMAKE_EXECUTABLE: $QT_DIR_LINUX2/bin/qmake
   parallel:
     matrix: 
       - DEVTOOLS: [$DEVTOOLS_Linux_Unstable] 
@@ -172,7 +173,7 @@ linuxBuildRelease:
   variables:
     BUILDMODE: release
     BUILDUNITTESTS: "false"
-    QMAKE_EXECUTABLE: $QT_DIR_LINUX/bin/qmake
+    QMAKE_EXECUTABLE: $QT_DIR_LINUX2/bin/qmake
   parallel:
     matrix: 
       - DEVTOOLS: [$DEVTOOLS_Linux_Unstable]    
@@ -187,7 +188,6 @@ linuxBuildRelease:
     - chmod +x ./tests/guitests/run_guitests.sh
   script:
     # xvfb to run a virtual display
-    - export QT_DIR_LINUX=/opt/Qt/5.15.2/gcc_64/
     - xvfb-run -a ./tests/guitests/run_guitests.sh
   retry: 2
   artifacts:
@@ -196,7 +196,7 @@ linuxBuildRelease:
       - ./gui_tests_junits
       - ./gui_tests_stdout*.txt     
       - ./gui_tests_server_stdout.txt  
-      - ./guitests_badge.svg  
+      - ./guitests_badge.svg
     reports:
       junit: ./gui_tests_junits/junit*.xml
     name: "guitesting results"
