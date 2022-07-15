@@ -125,6 +125,7 @@ SOURCES += \
     gt_externalizedobject.cpp \
     gt_h5externalizationinterface.cpp \
     gt_h5externalizehelper.cpp \
+    gt_init_dp.cpp \
     gt_object.cpp \
     gt_objectfactory.cpp \
     gt_abstractobjectfactory.cpp \

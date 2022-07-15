@@ -160,7 +160,6 @@ inline QString GtObjectIO::listToString<QStringList>(const QStringList& t)
 
 GtObjectIO::GtObjectIO(GtAbstractObjectFactory* factory) : m_factory(factory)
 {
-
 }
 
 void
@@ -1412,133 +1411,6 @@ GtObjectIO::writeDynamicPropertyHelper(
     root.appendChild(child);
 }
 
-namespace
-{
-    // we need to be able to serialize these data types
-    template<class T>
-    class RegisterStreamOperators
-    {
-    public:
-        explicit RegisterStreamOperators(const char* typeName)
-        {
-            qRegisterMetaTypeStreamOperators<T>(typeName);
-        }
-    };
-}
-
-QDataStream& operator>>(QDataStream& s, QVector<double>& vector)
-{
-    //size_t size = 0;
-    quint64 size = 0;
-    s >> size;
-
-    for (size_t i = 0; i < size; ++i) {
-        s >> vector;
-    }
-    return s;
-}
-
-QDataStream& operator<<(QDataStream& s, const QVector<double>& vector)
-{
-    s << vector.size();
-
-    for(auto v : vector) {
-        s << v;
-    }
-    return s;
-}
-
-QDataStream& operator>>(QDataStream& s, QList<QPointF>& vector)
-{
-    //size_t size = 0;
-    quint64 size = 0;
-    s >> size;
-
-    for (size_t i = 0; i < size; ++i) {
-        s >> vector;
-    }
-    return s;
-}
-
-QDataStream& operator<<(QDataStream& s, const QList<QPointF>& vector)
-{
-    s << vector.size();
-
-    for(auto v : vector) {
-        s << v;
-    }
-    return s;
-}
-
-QDataStream& operator>>(QDataStream& s, QList<int>& vector)
-{
-    //size_t size = 0;
-    quint64 size = 0;
-    s >> size;
-
-    for (size_t i = 0; i < size; ++i) {
-        s >> vector;
-    }
-    return s;
-}
-
-QDataStream& operator<<(QDataStream& s, const QList<int>& vector)
-{
-    s << vector.size();
-
-    for(auto v : vector) {
-        s << v;
-    }
-    return s;
-}
-
-QDataStream& operator>>(QDataStream& s, QList<bool>& vector)
-{
-    //size_t size = 0;
-    quint64 size = 0;
-    s >> size;
-
-    for (size_t i = 0; i < size; ++i) {
-        s >> vector;
-    }
-    return s;
-}
-
-QDataStream& operator<<(QDataStream& s, const QList<bool>& vector)
-{
-    s << vector.size();
-
-    for(auto v : vector) {
-        s << v;
-    }
-    return s;
-}
-
-#if QT_VERSION >= 0x050900
-QDataStream& operator>>(QDataStream& s, QStringList& vector)
-{
-    //size_t size = 0;
-    quint64 size = 0;
-    s >> size;
-
-    for (size_t i = 0; i < size; ++i) {
-        s >> vector;
-    }
-    return s;
-}
-
-QDataStream& operator<<(QDataStream& s, const QStringList& vector)
-{
-    s << vector.size();
-
-    for(auto const& v : vector)
-    {
-        s << v;
-    }
-    return s;
-}
-#endif
-
 void
 GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
                                    QString& typeStr)
@@ -1553,16 +1425,12 @@ GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
                 "QList<QPointF>");
     static QVariant::Type type_QStringList = QVariant::nameToType(
                 "QStringList");
-    static RegisterStreamOperators< QVector<double> > streamOp_QDoubleVector(
-                "QVector<double>");
-    static RegisterStreamOperators< QList<int> > streamOp_QIntList(
-                "QList<int>");
-    static RegisterStreamOperators< QList<bool> > streamOp_QBoolList(
-                "QList<bool>");
-    static RegisterStreamOperators< QList<QPointF> > streamOp_QPointFList(
-                "QList<QPointF>");
-    static RegisterStreamOperators< QStringList > streamOp_QStringList(
-                "QStringList");
+
+    assert(type_QDoubleVector != QVariant::Invalid);
+    assert(type_QIntList != QVariant::Invalid);
+    assert(type_QBoolList != QVariant::Invalid);
+    assert(type_QPointFList != QVariant::Invalid);
+    assert(type_QStringList == QVariant::StringList);
 
     if (var.type() == type_QDoubleVector)
     {
