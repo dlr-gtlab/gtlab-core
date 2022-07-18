@@ -55,6 +55,8 @@ INCLUDEPATH += .\
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    git/gt_gitprocess.h \
+    git/gt_gitrepository.h \
     gt_propertyconnectionfunctions.h \
     network/gt_accessdata.h \
     network/gt_accessmanager.h \
@@ -138,6 +140,8 @@ HEADERS += \
     gt_functional_interface.h
 
 SOURCES += \
+    git/gt_gitprocess.cpp \
+    git/gt_gitrepository.cpp \
     gt_propertyconnectionfunctions.cpp \
     network/gt_accessdata.cpp \
     network/gt_accessmanager.cpp \
