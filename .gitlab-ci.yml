@@ -343,41 +343,77 @@ valgrind:
     RELEASESTATUS: stable
     
 # copy files to servers
-.copyForDeploymentWin:
+.copyForDeploymentWinDebug:
   stage: copy
   extends: .stableTagTemplate
   dependencies:
     - "windowsBuildDebug: [$DEVTOOLS_Win_Stable]"
+  variables:
+    PLATFORMNAME:  windows
+    DESTDIR: binDebug
+
+.copyForDeploymentWinRelease:
+  stage: copy
+  extends: .stableTagTemplate
+  dependencies:
     - "windowsBuildRelease: [$DEVTOOLS_Win_Stable]"
   variables:
     PLATFORMNAME:  windows
+    DESTDIR: bin
 
-copyForDeploymentWinUnstable:
+copyForDeploymentWinDebugUnstable:
   stage: copy
   extends: .unstableTagTemplate
   dependencies:
     - "windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"
+  variables:
+    PLATFORMNAME:  windows
+    DESTDIR: binDebug
+
+copyForDeploymentWinReleaseUnstable:
+  stage: copy
+  extends: .unstableTagTemplate
+  dependencies:
     - "windowsBuildRelease: [$DEVTOOLS_Win_Unstable]"
   variables:
     PLATFORMNAME:  windows
+    DESTDIR: bin
 
-.copyForDeploymentLinux:
+.copyForDeploymentLinuxDebug:
   stage: copy
   extends: .stableTagTemplate
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
+  variables:
+    PLATFORMNAME:  linux
+    DESTDIR: binDebug
+
+.copyForDeploymentLinuxRelease:
+  stage: copy
+  extends: .stableTagTemplate
+  dependencies:
     - "linuxBuildRelease: [$DEVTOOLS_Linux_Stable]"
   variables:
     PLATFORMNAME:  linux
+    DESTDIR: bin
 
-copyForDeploymentLinuxUnstable:
+copyForDeploymentLinuxDebugUnstable:
   stage: copy
   extends: .unstableTagTemplate
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+  variables:
+    PLATFORMNAME:  linux
+    DESTDIR: binDebug
+
+copyForDeploymentLinuxReleaseUnstable:
+  stage: copy
+  extends: .unstableTagTemplate
+  dependencies:
     - "linuxBuildRelease: [$DEVTOOLS_Linux_Unstable]"
   variables:
     PLATFORMNAME:  linux
+    DESTDIR: bin
 
 # code quality
 codingstyle:
