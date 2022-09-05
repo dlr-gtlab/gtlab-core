@@ -90,9 +90,10 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                                       " release than the current used release"
                                       " of the GTlab framework.\n\n") +
                                    "Framework =\t" +
-                                   GtFootprint().versionToString() + "\n" +
+                                   GtFootprint().frameworkVersion().toString()
+                                   + "\n" +
                                    "Project =\t\t" +
-                                   footprint.versionToString() +
+                                   footprint.frameworkVersion().toString() +
                                    "\n\nThis can lead to unexpected behavior.");
 
                 ftrntInfoLay->addWidget(ftrntIcon);

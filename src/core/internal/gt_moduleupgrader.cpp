@@ -12,6 +12,9 @@
 
 #include "gt_logging.h"
 #include "gt_xmlutilities.h"
+#include "gt_coreupgraderoutines.h"
+#include "gt_coreapplication.h"
+#include "gt_footprint.h"
 
 #include "gt_moduleupgrader.h"
 
@@ -295,6 +298,13 @@ GtModuleUpgrader::availableUpgrades(const QString& moduleIdent,
 GtModuleUpgrader::GtModuleUpgrader() :
     m_pimpl{std::make_unique<GtModuleUpgrader::Impl>()}
 {
+    // register core upgrade routines
+    foreach (const auto& r, gtlab::internal::coreUpgradeRoutines())
+    {
+        registerModuleConverter(GtFootprint::frameworkIdentificationString(),
+                                r.target, r.f);
+    }
+
 }
 
 } // namespace internal

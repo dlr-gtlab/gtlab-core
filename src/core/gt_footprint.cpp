@@ -249,12 +249,21 @@ GtFootprint::isNewerRelease() const
     return false;
 }
 
-QString
-GtFootprint::versionToString() const
+GtVersionNumber
+GtFootprint::frameworkVersion() const
 {
-    return QString::number(m_pimpl->m_core_ver_major) + QStringLiteral(".") +
-            QString::number(m_pimpl->m_core_ver_minor) + QStringLiteral(".") +
-            QString::number(m_pimpl->m_core_ver_patch);
+    return GtVersionNumber(m_pimpl->m_core_ver_major,
+                           m_pimpl->m_core_ver_minor,
+                           m_pimpl->m_core_ver_patch);
+}
+
+QMap<QString, GtVersionNumber>
+GtFootprint::fullVersionInfo() const
+{
+    QMap<QString, GtVersionNumber> retval = modules();
+    retval.insert(frameworkIdentificationString(), frameworkVersion());
+
+    return retval;
 }
 
 QMap<QString, GtVersionNumber>
@@ -319,6 +328,12 @@ QMap<QString, GtVersionNumber>
 GtFootprint::modules() const
 {
     return m_pimpl->m_modules;
+}
+
+QString
+GtFootprint::frameworkIdentificationString()
+{
+    return QStringLiteral("_core");
 }
 
 bool

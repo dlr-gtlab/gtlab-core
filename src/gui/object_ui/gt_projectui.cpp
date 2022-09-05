@@ -1475,8 +1475,9 @@ GtProjectUI::showFootprint(GtObject* obj) const
             QString::fromStdString(
                 frameworkFootpring.generateHash().toStdString());
 
-    const QString projectVersion = footprint.versionToString();
-    const QString frameworkVersion = frameworkFootpring.versionToString();
+    const QString projectVersion = footprint.frameworkVersion().toString();
+    const QString frameworkVersion =
+            frameworkFootpring.frameworkVersion().toString();
 
     QDialog dialog;
     dialog.setWindowIcon(GtGUI::Icon::components16());
