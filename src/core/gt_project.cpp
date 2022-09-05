@@ -104,8 +104,11 @@ GtProject::availableModuleUpgrades() const
     GtProjectAnalyzer analyzer(this);
     GtFootprint footprint = analyzer.footPrint();
 
+    // collect footprints
+    QMap<QString, GtVersionNumber> footprints = footprint.fullVersionInfo();
+
     return gtlab::internal::GtModuleUpgrader::instance()
-        .availableModuleUpgrades(footprint.modules());
+        .availableModuleUpgrades(footprints);
 }
 
 QList<GtVersionNumber>
@@ -114,11 +117,11 @@ GtProject::availableUpgrades(const QString& moduleId)
     GtProjectAnalyzer analyzer(this);
     GtFootprint footprint = analyzer.footPrint();
 
-    QMap<QString, GtVersionNumber> savedMods = footprint.modules();
+    QMap<QString, GtVersionNumber> verInfo = footprint.fullVersionInfo();
 
-    if (savedMods.contains(moduleId))
+    if (verInfo.contains(moduleId))
     {
-        GtVersionNumber savedVer = savedMods.value(moduleId);
+        GtVersionNumber savedVer = verInfo.value(moduleId);
 
         return gtlab::internal::GtModuleUpgrader::instance()
             .availableUpgrades(moduleId, savedVer);
@@ -159,8 +162,11 @@ GtProject::upgradeProjectData()
 
     gtDebug() << "upgrading files: " << entryList;
 
+    // collect all version information
+    QMap<QString, GtVersionNumber> versInfo = footprint.fullVersionInfo();
+
     gtlab::internal::GtModuleUpgrader::instance()
-        .upgrade(footprint.modules(), entryList);
+        .upgrade(versInfo, entryList);
 
     // update project footprint for updated module
     updateModuleFootprint(availUpgrades);
@@ -263,8 +269,11 @@ GtProject::checkForUpgrades() const
     GtProjectAnalyzer analyzer(this);
     GtFootprint footprint = analyzer.footPrint();
 
+    // collect all version information
+    QMap<QString, GtVersionNumber> versInfo = footprint.fullVersionInfo();
+
     return gtlab::internal::GtModuleUpgrader::instance()
-        .upgradesAvailable(footprint.modules());
+        .upgradesAvailable(versInfo);
 }
 
 void
@@ -978,6 +987,36 @@ GtProject::updateModuleFootprint(const QStringList& modIds)
     if (footprint.isNull())
     {
         return;
+    }
+
+    if (modIds.contains(GtFootprint::frameworkIdentificationString()))
+    {
+        QDomElement core_ver =
+                footprint.firstChildElement(QStringLiteral("core-ver"));
+
+        if (core_ver.isNull())
+        {
+            return;
+        }
+
+         QDomElement cor_major =
+                 core_ver.firstChildElement(QStringLiteral("major"));
+         QDomElement cor_minor =
+                 core_ver.firstChildElement(QStringLiteral("minor"));
+         QDomElement cor_patch =
+                 core_ver.firstChildElement(QStringLiteral("patch"));
+
+         if (cor_major.isNull() || cor_minor.isNull() || cor_patch.isNull())
+         {
+             return;
+         }
+
+         cor_major.firstChild().setNodeValue(
+                     QString::number(gtApp->majorRelease()));
+         cor_minor.firstChild().setNodeValue(
+                     QString::number(gtApp->minorRelease()));
+         cor_patch.firstChild().setNodeValue(
+                     QString::number(gtApp->patchLevel()));
     }
 
     QDomElement mods = footprint.firstChildElement(QStringLiteral("modules"));

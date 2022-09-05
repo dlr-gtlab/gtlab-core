@@ -38,9 +38,6 @@ GtProjectUpgradeOverviewPage::GtProjectUpgradeOverviewPage(GtProject* project,
 
     foreach (const QString& modId, project->availableModuleUpgrades())
     {
-        QString preVer =  footprint.modules().value(modId).toString() +
-                tr(" (current)");
-
         const QList<GtVersionNumber> avail = project->availableUpgrades(modId);
 
         if (avail.isEmpty())
@@ -49,8 +46,21 @@ GtProjectUpgradeOverviewPage::GtProjectUpgradeOverviewPage(GtProject* project,
         }
 
         QString newestVer = avail.last().toString();
+        QString preVer;
+        QString modStr = modId;
 
-        QTreeWidgetItem* rootItem = new QTreeWidgetItem(treeWid, {modId});
+        if (modId == GtFootprint::frameworkIdentificationString())
+        {
+            preVer = footprint.frameworkVersion().toString();
+            modStr = "Core Framework";
+        }
+        else
+        {
+            preVer =  footprint.modules().value(modId).toString() +
+                    tr(" (current)");
+        }
+
+        QTreeWidgetItem* rootItem = new QTreeWidgetItem(treeWid, {modStr});
         QTreeWidgetItem* child = new QTreeWidgetItem(rootItem, {preVer +
                                                                 " -> " +
                                                                 newestVer});

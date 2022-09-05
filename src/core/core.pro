@@ -56,6 +56,7 @@ DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
     gt_propertyconnectionfunctions.h \
+    internal/gt_coreupgraderoutines.h \
     network/gt_accessdata.h \
     network/gt_accessmanager.h \
     network/gt_accessgroup.h \
@@ -139,6 +140,7 @@ HEADERS += \
 
 SOURCES += \
     gt_propertyconnectionfunctions.cpp \
+    internal/gt_coreupgraderoutines.cpp \
     network/gt_accessdata.cpp \
     network/gt_accessmanager.cpp \
     network/gt_accessgroup.cpp \

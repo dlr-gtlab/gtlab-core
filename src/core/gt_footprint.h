@@ -91,10 +91,18 @@ public:
     GT_CORE_EXPORT bool isNewerRelease() const;
 
     /**
-     * @brief Returns footprint framework version converted to string.
+     * @brief Returns footprint framework version.
      * @return Footprint version
      */
-    GT_CORE_EXPORT QString versionToString() const;
+    GT_CORE_EXPORT GtVersionNumber frameworkVersion() const;
+
+    /**
+     * @brief Returns a list of all known modules and the corresponding version
+     * numbers. Also core framework version is included.
+     * @return list of modules and the corresponding version
+     * numbers. Also core framework version is included.
+     */
+    GT_CORE_EXPORT QMap<QString, GtVersionNumber> fullVersionInfo() const;
 
     /**
      * @brief Returns a list of all modules and the corresponding version
@@ -127,6 +135,13 @@ public:
      * numbers
      */
     GT_CORE_EXPORT QMap<QString, GtVersionNumber> modules() const;
+
+    /**
+     * @brief Returns identification to store and find version information of
+     * core framework in footprints.
+     * @return Identification string of core framework.
+     */
+    GT_CORE_EXPORT static QString frameworkIdentificationString();
 
 private:
     /// Private implementation
