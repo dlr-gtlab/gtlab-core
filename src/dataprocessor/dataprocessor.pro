@@ -89,6 +89,7 @@ HEADERS += \
     property/gt_boolproperty.h \
     property/gt_doubleproperty.h \
     property/gt_intproperty.h \
+    property/gt_polyvector.h \
     property/gt_property.h \
     property/gt_stringproperty.h \
     property/gt_unit.h \
