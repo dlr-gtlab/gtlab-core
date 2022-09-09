@@ -25,7 +25,7 @@
 #include "gt_processfactory.h"
 #include "gt_session.h"
 #include "gt_settings.h"
-#include "gt_moduleloader.h"
+#include "gt_coremoduleloader.h"
 #include "gt_logging.h"
 #include "gt_logmodel.h"
 #include "gt_coredatamodel.h"
@@ -478,7 +478,7 @@ GtCoreApplication::loadModules()
     //    qDebug() << "GtCoreApplication::loadModules";
     if (!m_moduleLoader)
     {
-        m_moduleLoader = std::make_unique<GtModuleLoader>();
+        m_moduleLoader = std::make_unique<GtCoreModuleLoader>();
         m_moduleLoader->load();
     }
 }

@@ -30,7 +30,7 @@ class GtSession;
 class GtProject;
 class GtSettings;
 class GtAbstractProperty;
-class GtModuleLoader;
+class GtCoreModuleLoader;
 class GtDataModel;
 class GtObject;
 class GtCoreDatamodel;
@@ -378,7 +378,7 @@ protected:
     std::unique_ptr<QTranslator> m_translator;
 
     /// Module loader
-    std::unique_ptr<GtModuleLoader> m_moduleLoader;
+    std::unique_ptr<GtCoreModuleLoader> m_moduleLoader;
 
     /// Development run indicator
     bool m_devMode;
