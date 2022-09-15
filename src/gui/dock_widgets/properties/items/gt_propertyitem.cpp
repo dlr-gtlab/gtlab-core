@@ -191,9 +191,9 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
     {
         case Qt::EditRole:
         {
-            if (!m_property->isReadOnly())
+            if (column == 2)
             {
-                if (column == 2)
+                if (!m_property->isReadOnly())
                 {
                     // TODO: check whether property can be changed
                     GtSession* root =  obj->findRoot<GtSession*>();
@@ -203,7 +203,7 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
                         if (value != m_property->valueToVariant(m_currentUnit))
                         {
                             gtApp->propertyCommand(obj, m_property, value,
-                                                   m_currentUnit, root);
+                                                    m_currentUnit, root);
                         }
                     }
                     else
@@ -213,12 +213,11 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
 
                     return true;
                 }
-
-                if (column == 1)
-                {
-                    m_currentUnit = value.toString();
-                    return true;
-                }
+            }
+            else if (column == 1)
+            {
+                m_currentUnit = value.toString();
+                return true;
             }
 
             break;
