@@ -10,6 +10,10 @@
 #include <QVariant>
 
 #include "gt_dynamicpropertycontainer.h"
+#include "gt_propertyfactory.h"
+#include "gt_exceptions.h"
+
+#include <utility>
 
 GtDynamicPropertyContainer::GtDynamicPropertyContainer(const QString& name)
 {
@@ -61,4 +65,75 @@ GtDynamicPropertyContainer::deleteSubProperty(GtAbstractProperty *property)
     m_subProperties.removeAll(property);
     delete property;
 
+}
+
+GtPropertyStructDefinition::GtPropertyStructDefinition(QString typeName)
+    : instanceTypeName(std::move(typeName))
+{
+}
+
+void
+GtPropertyStructDefinition::defineMember(const QString &id,
+                                         const QString &propertyClassName,
+                                         QVariant defaultVal)
+{
+    PropertyFactoryFunction f = [=](const QString& localId) {
+        auto p = GtPropertyFactory::instance()->newProperty(propertyClassName,
+                                                          localId, localId);
+        if (!p)
+        {
+            gtError() << "Cannot create property of type '" << propertyClassName << "'.";
+            return static_cast<GtAbstractProperty*>(nullptr);
+        }
+
+        p->setValueFromVariant(defaultVal);
+        return p;
+    };
+
+    members.push_back(MemberType{id, f});
+}
+
+void
+GtPropertyStructDefinition::defineMember(const QString &id,
+                                         PropertyFactoryFunction f)
+{
+    members.push_back(MemberType{id, std::move(f)});
+}
+
+std::unique_ptr<GtPropertyStructInstance>
+GtPropertyStructDefinition::newInstance(QString name) const
+{
+    gt::poly_vector<GtAbstractProperty> subProps;
+
+    for (const auto& member : members)
+    {
+        auto newProp = std::unique_ptr<GtAbstractProperty>(
+            member.makeProperty(member.id));
+        subProps.push_back(std::move(newProp));
+    }
+
+    return std::make_unique<GtPropertyStructInstance>(
+        name, instanceTypeName, std::move(subProps));
+}
+
+void GtPropertyStructContainer::registerAllowedType(QString typeID, GtPropertyStructDefinition f)
+{
+    allowedTypes.insert(std::make_pair(typeID, f));
+}
+
+GtPropertyStructInstance &GtPropertyStructContainer::newEntry(QString name, QString typeID)
+{
+    const auto iter = allowedTypes.find(typeID);
+    if (iter == allowedTypes.end())
+    {
+        throw GTlabException(
+            "GtPropertyStructInstance::newEntry",
+            QString("Cannot create a structure of type '%1'.").arg(typeID));
+    }
+
+    const auto& structureDefinition = iter->second;
+
+    m_entries.push_back(structureDefinition.newInstance(name));
+
+    return m_entries[m_entries.size() - 1];
 }
