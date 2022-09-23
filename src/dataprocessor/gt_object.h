@@ -24,6 +24,7 @@ class GtObjectIO;
 class GtResult;
 class GtDataZoneTable;
 class GtObjectMementoDiff;
+class GtPropertyStructContainer;
 
 #define GT_CLASSNAME(A) A::staticMetaObject.className()
 #define GT_METADATA(A) A::staticMetaObject
@@ -346,6 +347,15 @@ public:
     GtAbstractProperty* findPropertyByName(const QString& name) const;
 
     /**
+     * @brief Returns a dynamic sie property given its "id"
+     *
+     * @param id The id
+     * @return A pointer to the property or nullptr, if it cannot be found
+     */
+    GtPropertyStructContainer const * findDynamicSizeProperty(const QString& id) const;
+    GtPropertyStructContainer* findDynamicSizeProperty(const QString& id);
+
+    /**
      * @brief propertiesByType
      * @return all properties of type T
      */
@@ -559,6 +569,8 @@ protected:
      */
     bool registerProperty(GtAbstractProperty& property);
 
+    bool registerPropertyStructContainer(GtPropertyStructContainer& );
+
     /**
      * @brief registerProperty
      * @param property
@@ -604,6 +616,8 @@ private:
 
     /// object properties
     QList<GtAbstractProperty*> m_properties;
+
+    std::vector<std::reference_wrapper<GtPropertyStructContainer>> m_property_lists;
 
     /// mapper for property signals
     QSignalMapper* m_propertyMapper;

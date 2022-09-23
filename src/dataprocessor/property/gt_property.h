@@ -214,7 +214,7 @@ inline void GtProperty<ParamType>::setValFromConnection()
     }
 
     // get source value in form of QVariant
-    QVariant variant = m_connection->valueFromSource();
+    QVariant variant = getConnectedValue(*m_connection);
 
     // check variant
     if (!variant.isValid())

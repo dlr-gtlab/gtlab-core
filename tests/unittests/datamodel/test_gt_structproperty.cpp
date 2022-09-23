@@ -1,57 +1,58 @@
 /* GTlab - Gas Turbine laboratory
  * Source File: test_gt_structproperty
- * copyright 2009-2016 by DLR
+ * copyright 2021 by DLR
  *
- *  Created on: 28.06.2016
- *  Author: Stanislaus Reitenbach (AT-TW)
- *  Tel.: +49 2203 601 2907
+ *  Author: Martin Siggel (AT-TW)
+ *  Tel.: +49 2203 601 2264
  */
 
 #include "gtest/gtest.h"
 
 #include <QVariant>
 
-#include "gt_dynamicpropertycontainer.h"
+#include "gt_structproperty.h"
+
+#include "gt_propertystructcontainer.h"
 #include "gt_doubleproperty.h"
 
-/// This is a test fixture that does a init for each test
-class TestGtStructProperty : public ::testing::Test
+#include "gt_object.h"
+
+struct TestObject : public GtObject
 {
-protected:
-    virtual void SetUp()
+    TestObject() :
+        GtObject()
     {
-        m_prop = new GtDynamicPropertyContainer("test struct");
+
+        GtPropertyStructDefinition envVarStruct("EnvironmentVarsStruct");
+        envVarStruct.defineMember("name", "GtStringProperty", "");
+        envVarStruct.defineMember("value", "GtStringProperty", "");
+
+        environmentVars.registerAllowedType(envVarStruct);
+
+        registerPropertyStructContainer(environmentVars);
     }
 
-    virtual void TearDown()
+    void addEnvironmentVar(QString name, QString value)
     {
-        delete m_prop;
+        auto* vars = findDynamicSizeProperty("environmentVars");
+
+        auto currentSize = vars->size();
+
+        auto& var = vars->newEntry(QString("[%1]").arg(currentSize),
+                                   "EnvironmentVarsStruct");
+        var.setMemberVal("name", name);
+        var.setMemberVal("value", value);
     }
 
-    GtDynamicPropertyContainer* m_prop;
-
+    GtPropertyStructContainer environmentVars{"environmentVars"};
 };
 
-TEST_F(TestGtStructProperty, initialization)
-{
-    ASSERT_EQ(m_prop->unitCategory(), GtUnit::Category::None);
-    ASSERT_TRUE(m_prop->brief().isEmpty());
-}
 
-TEST_F(TestGtStructProperty, setFromVariant)
+/// This is a test fixture
+class TestGtStructProperty : public ::testing::Test
 {
-    bool success = false;
-    ASSERT_FALSE(m_prop->setValueFromVariant(QVariant(), QString(), &success));
-    ASSERT_FALSE(success);
-}
+};
 
-TEST_F(TestGtStructProperty, getFromVariant)
-{
-    bool success = false;
-    QVariant var = m_prop->valueToVariant(QString(), &success);
-    ASSERT_TRUE(var.isNull());
-    ASSERT_FALSE(success);
-}
 
 TEST_F(TestGtStructProperty, buildPoint3d)
 {
@@ -101,4 +102,53 @@ TEST_F(TestGtStructProperty, buildPoint3d)
     EXPECT_EQ(1.0, px->value<double>());
     EXPECT_EQ(2.0, py->value<double>());
     EXPECT_EQ(3.0, pz->value<double>());
+}
+
+TEST_F(TestGtStructProperty, findDynamicSizeProperty)
+{
+    TestObject obj;
+
+    ASSERT_TRUE(obj.findDynamicSizeProperty("environmentVars") != nullptr);
+
+    ASSERT_TRUE(obj.findDynamicSizeProperty("_thisDoesNotExist_") == nullptr);
+}
+
+TEST_F(TestGtStructProperty, checkPropertySize)
+{
+    TestObject obj;
+
+    EXPECT_EQ(0, obj.environmentVars.size());
+
+    auto* props = obj.findDynamicSizeProperty("environmentVars");
+    ASSERT_TRUE(props != nullptr);
+
+    EXPECT_EQ(0, props->size());
+
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+
+    EXPECT_EQ(1, props->size());
+}
+
+TEST_F(TestGtStructProperty, checkContent)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+
+    auto* props = obj.findDynamicSizeProperty("environmentVars");
+    auto& props0 = props->at(0);
+    EXPECT_EQ(QString("[0]"), props0.ident());
+
+    EXPECT_EQ(QString("PATH"), props0.getMemberVal<QString>("name"));
+    EXPECT_EQ(QString("/usr/bin"), props0.getMemberVal<QString>("value"));
+
+    bool okay = true;
+    props0.getMemberVal<QString>("_not_existentent_", &okay);
+    EXPECT_FALSE(okay);
+
+    EXPECT_FALSE(props0.setMemberVal("_not_existentent_", "Welt"));
+    EXPECT_TRUE(props0.setMemberVal("value", "/usr/local/bin"));
+
+    okay = true;
+    props0.getMemberVal<int>("value", &okay);
+    EXPECT_FALSE(okay);
 }

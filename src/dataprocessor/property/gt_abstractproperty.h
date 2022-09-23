@@ -33,6 +33,8 @@ public:
         Custom
     };
 
+    ~GtAbstractProperty();
+
     /**
      * @brief valueAsVariant
      * @return
@@ -132,7 +134,7 @@ public:
      * @brief fullProperties
      * @return
      */
-    const QList<GtAbstractProperty*>& fullProperties();
+    const QList<GtAbstractProperty*>& fullProperties() const;
 
     /**
      * @brief registerSubProperty
@@ -207,6 +209,7 @@ public:
      * @return
      */
     GtAbstractProperty* findProperty(const QString& id);
+    GtAbstractProperty const * findProperty(const QString& id) const;
 
     GtAbstractProperty* findPropertyByName(const QString& name);
 
@@ -255,17 +258,7 @@ protected:
     /**
      * @brief GtAbstractProperty
      */
-    GtAbstractProperty() :
-        m_connection(nullptr)
-    {
-        m_readOnly = false;
-        m_optional = false;
-        m_active = true;
-        m_hidden = false;
-        m_storeMemento = true;
-        m_category = GtAbstractProperty::Main;
-        m_unitCategory = GtUnit::None;
-    }
+    GtAbstractProperty();
 
     /// Identification string
     QString m_id;
@@ -326,6 +319,7 @@ signals:
 
 Q_DECLARE_METATYPE(GtUnit::Category)
 
+QVariant getConnectedValue(const GtPropertyConnection& connection);
 
 
 #endif // GTABSTRACTPROPERTY_H

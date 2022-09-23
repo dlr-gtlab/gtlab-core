@@ -165,7 +165,7 @@ GtPropertyConnection::makeConnection()
 }
 
 QVariant
-GtPropertyConnection::valueFromSource()
+GtPropertyConnection::valueFromSource() const
 {
     // check source property
     if (!m_sourcePropObj)

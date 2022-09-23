@@ -16,6 +16,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_objectio.h"
 #include "gt_dummyobject.h"
+#include "gt_propertystructcontainer.h"
 
 #include "gt_object.h"
 
@@ -518,6 +519,35 @@ GtObject::findPropertyByName(const QString& name) const
     return nullptr;
 }
 
+GtPropertyStructContainer const *
+GtObject::findDynamicSizeProperty(const QString &id) const
+{
+    auto iter = std::find_if(std::begin(m_property_lists),
+                             std::end(m_property_lists),
+                             [&id](const GtPropertyStructContainer& current)
+    {
+        return current.ident() == id;
+    });
+
+    if (iter == m_property_lists.end())
+    {
+        gtError().noquote().nospace() << "Requested dynamic size property '"
+                                      << id << "' does not exist.";
+        return nullptr;
+    }
+
+    auto const & prop = iter->get();
+    return &prop;
+
+}
+
+GtPropertyStructContainer *
+GtObject::findDynamicSizeProperty(const QString &id)
+{
+    return const_cast<GtPropertyStructContainer*>
+        (const_cast<const GtObject*>(this)->findDynamicSizeProperty(id));
+}
+
 void
 GtObject::changed()
 {
@@ -714,6 +744,29 @@ GtObject::registerProperty(GtAbstractProperty& property)
     connectProperty(property);
 
     m_properties.append(&property);
+
+    return true;
+}
+
+bool
+GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
+{
+    auto iter = std::find_if(std::begin(m_property_lists), std::end(m_property_lists), [&](const GtPropertyStructContainer& current)
+    {
+        return &current == &c;
+    });
+
+    if (iter != m_property_lists.end())
+    {
+        gtWarning() << tr("multiple property container registration!")
+                    << QStringLiteral(" Object Name (") << objectName()
+                    << QStringLiteral(")")
+                    << QStringLiteral(" Property Name (") << c.ident()
+                    << QStringLiteral(")");
+        return false;
+    }
+
+    m_property_lists.push_back(c);
 
     return true;
 }
