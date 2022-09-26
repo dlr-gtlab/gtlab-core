@@ -172,5 +172,55 @@ TEST_F(TestGtStructProperty, write)
 
     GtXmlUtilities::writeDomDocumentToFile("test.xml", doc);
 
-   // TODO: check document content
+    QDomElement container = docElem.firstChildElement("property_container");
+    ASSERT_FALSE(container.isNull());
+
+    EXPECT_EQ(QString("environmentVars").toStdString(),
+              container.attribute("name").toStdString());
+
+    // There are 2 variables defined
+    auto prop1 = container.firstChildElement("property");
+    ASSERT_FALSE(prop1.isNull());
+
+    EXPECT_EQ(QString("EnvironmentVarsStruct"), prop1.attribute("type"));
+
+    auto name1 = prop1.firstChildElement();
+    EXPECT_EQ("property", name1.tagName());
+    EXPECT_EQ("name", name1.attribute("name"));
+    EXPECT_EQ("QString", name1.attribute("type"));
+
+    EXPECT_EQ(QString("PATH").toStdString(),
+              name1.text().toStdString());
+
+    auto value1 = name1.nextSiblingElement();
+    EXPECT_EQ("property", value1.tagName());
+    EXPECT_EQ("value", value1.attribute("name"));
+    EXPECT_EQ("QString", value1.attribute("type"));
+
+
+    EXPECT_EQ(QString("/usr/bin").toStdString(),
+              value1.text().toStdString());
+
+    auto prop2 = prop1.nextSiblingElement("property");
+    ASSERT_FALSE(prop2.isNull());
+
+
+    auto name2 = prop2.firstChildElement();
+    EXPECT_EQ("property", name2.tagName());
+    EXPECT_EQ("name", name2.attribute("name"));
+    EXPECT_EQ("QString", name2.attribute("type"));
+    EXPECT_EQ("LD_DEBUG", name2.text());
+
+    auto value2 = name2.nextSiblingElement();
+    EXPECT_EQ("property", value2.tagName());
+    EXPECT_EQ("value", value2.attribute("name"));
+    EXPECT_EQ("QString", value2.attribute("type"));
+
+
+    EXPECT_EQ(QString("1").toStdString(),
+              value2.text().toStdString());
+
+    auto prop3 = prop2.nextSiblingElement("property");
+    ASSERT_TRUE(prop3.isNull());
+
 }
