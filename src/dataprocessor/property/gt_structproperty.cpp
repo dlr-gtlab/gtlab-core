@@ -71,6 +71,7 @@ GtPropertyStructInstance::GtPropertyStructInstance(
     m_childs(std::move(childProps))
 {
     m_id = id;
+    m_storeMemento = true;
 
     for (auto& child : m_childs)
     {

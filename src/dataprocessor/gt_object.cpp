@@ -16,6 +16,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_objectio.h"
 #include "gt_dummyobject.h"
+#include "gt_structproperty.h"
 #include "gt_propertystructcontainer.h"
 
 #include "gt_object.h"
@@ -522,14 +523,14 @@ GtObject::findPropertyByName(const QString& name) const
 GtPropertyStructContainer const *
 GtObject::findDynamicSizeProperty(const QString &id) const
 {
-    auto iter = std::find_if(std::begin(m_property_lists),
-                             std::end(m_property_lists),
+    auto iter = std::find_if(std::begin(m_dynamic_properties),
+                             std::end(m_dynamic_properties),
                              [&id](const GtPropertyStructContainer& current)
     {
         return current.ident() == id;
     });
 
-    if (iter == m_property_lists.end())
+    if (iter == m_dynamic_properties.end())
     {
         gtError().noquote().nospace() << "Requested dynamic size property '"
                                       << id << "' does not exist.";
@@ -546,6 +547,12 @@ GtObject::findDynamicSizeProperty(const QString &id)
 {
     return const_cast<GtPropertyStructContainer*>
         (const_cast<const GtObject*>(this)->findDynamicSizeProperty(id));
+}
+
+const std::vector<std::reference_wrapper<GtPropertyStructContainer> > &
+GtObject::dynamicProperties() const
+{
+    return m_dynamic_properties;
 }
 
 void
@@ -751,12 +758,12 @@ GtObject::registerProperty(GtAbstractProperty& property)
 bool
 GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
 {
-    auto iter = std::find_if(std::begin(m_property_lists), std::end(m_property_lists), [&](const GtPropertyStructContainer& current)
+    auto iter = std::find_if(std::begin(m_dynamic_properties), std::end(m_dynamic_properties), [&](const GtPropertyStructContainer& current)
     {
         return &current == &c;
     });
 
-    if (iter != m_property_lists.end())
+    if (iter != m_dynamic_properties.end())
     {
         gtWarning() << tr("multiple property container registration!")
                     << QStringLiteral(" Object Name (") << objectName()
@@ -766,7 +773,7 @@ GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
         return false;
     }
 
-    m_property_lists.push_back(c);
+    m_dynamic_properties.push_back(c);
 
     return true;
 }

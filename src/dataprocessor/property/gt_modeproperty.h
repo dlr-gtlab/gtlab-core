@@ -50,7 +50,7 @@ public:
      * @brief properties
      * @return
      */
-    const QList<GtAbstractProperty*>& properties() override;
+    const QList<GtAbstractProperty*>& properties() const override;
 
     /**
      * @brief registerSubProperty
@@ -94,7 +94,7 @@ public:
 
 private:
     /// temporary propertylist for selected mode type
-    QList<GtAbstractProperty*> m_tmpProperties;
+    mutable QList<GtAbstractProperty*> m_tmpProperties;
 
     /// current mode type
 //    QString m_current;
@@ -102,7 +102,7 @@ private:
     /**
      * @brief updateProperties
      */
-    void updateProperties();
+    void updateProperties() const;
 
     /**
      * @brief validateValue

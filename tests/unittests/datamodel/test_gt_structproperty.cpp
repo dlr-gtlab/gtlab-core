@@ -14,6 +14,8 @@
 
 #include "gt_propertystructcontainer.h"
 #include "gt_doubleproperty.h"
+#include "gt_objectmemento.h"
+#include "gt_xmlutilities.h"
 
 #include "gt_object.h"
 
@@ -135,6 +137,9 @@ TEST_F(TestGtStructProperty, checkContent)
     obj.addEnvironmentVar("PATH", "/usr/bin");
 
     auto* props = obj.findDynamicSizeProperty("environmentVars");
+
+    ASSERT_EQ(1, props->size());
+
     auto& props0 = props->at(0);
     EXPECT_EQ(QString("[0]"), props0.ident());
 
@@ -151,4 +156,21 @@ TEST_F(TestGtStructProperty, checkContent)
     okay = true;
     props0.getMemberVal<int>("value", &okay);
     EXPECT_FALSE(okay);
+}
+
+TEST_F(TestGtStructProperty, write)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    obj.addEnvironmentVar("LD_DEBUG", "1");
+
+    auto memento = obj.toMemento(false);
+    QDomDocument doc("");
+    auto docElem = memento.documentElement();
+
+    doc.appendChild(docElem);
+
+    GtXmlUtilities::writeDomDocumentToFile("test.xml", doc);
+
+   // TODO: check document content
 }

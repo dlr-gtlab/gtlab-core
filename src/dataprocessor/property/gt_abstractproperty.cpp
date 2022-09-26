@@ -90,7 +90,7 @@ GtAbstractProperty::categoryToString()
 }
 
 const QList<GtAbstractProperty*>&
-GtAbstractProperty::properties()
+GtAbstractProperty::properties() const
 {
     return m_subProperties;
 }

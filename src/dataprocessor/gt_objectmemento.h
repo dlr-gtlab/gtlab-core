@@ -173,7 +173,7 @@ public:
         enum PropertyType
         {
             DATA_T,
-            DYNCONT_T,
+            STRUCT_T,
             ENUM_T // only used by meta properties
         };
 
@@ -200,13 +200,7 @@ public:
             return _type;
         }
 
-        static PropertyData
-        makeDynamicContainer(const QString& dynamicObjectName);
-
-        static PropertyData
-        makeDynamicChild(const QVariant& value,
-                         const QString& dynamicObjectName,
-                         const QString& dynamicTypeName);
+        PropertyData& toStruct(const QString& structTypeName);
 
         PropertyData& fromQMetaProperty(const QMetaProperty& prop,
                                         const QVariant& val);

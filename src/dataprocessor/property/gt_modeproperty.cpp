@@ -46,7 +46,7 @@ GtModeProperty::setValueFromVariant(const QVariant& val,
 }
 
 const QList<GtAbstractProperty*>&
-GtModeProperty::properties()
+GtModeProperty::properties() const
 {
     updateProperties();
 
@@ -125,7 +125,7 @@ GtModeProperty::typeProperty(const QString& mode)
 
 
 void
-GtModeProperty::updateProperties()
+GtModeProperty::updateProperties() const
 {
     m_tmpProperties.clear();
 

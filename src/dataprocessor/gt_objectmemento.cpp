@@ -229,7 +229,6 @@ GtObjectMemento::propertyHashHelper(const PD& property, QCryptographicHash& hash
     propHash.addData((const char*)&property.isOptional, sizeof(property.isOptional));
     propHash.addData((const char*)&property.isActive, sizeof(property.isActive));
     propHash.addData(property.dataType().toUtf8());
-    propHash.addData(property.dynamicObjectName.toUtf8());
 
     auto propertyType = property.type();
     propHash.addData((const char*)&propertyType, sizeof(propertyType));
@@ -278,29 +277,13 @@ PD::setData(const QVariant &val)
     return *this;
 }
 
-PD
-PD::makeDynamicContainer(const QString &objName)
+PD &
+PD::toStruct(const QString &structTypeName)
 {
-    PD pd;
-    pd._type = DYNCONT_T;
-    pd._data = {};
-    pd.dynamicObjectName = objName;
-    pd._dataType = "";
-
-    return pd;
-}
-
-PD
-PD::makeDynamicChild(const QVariant &value, const QString &objName,
-                const QString &dynamicTypeName)
-{
-    PD pd;
-    pd._type = DATA_T;
-    pd._data = value;
-    pd.dynamicObjectName = objName;
-    pd._dataType = dynamicTypeName;
-
-    return pd;
+    _type = STRUCT_T;
+    _dataType = structTypeName;
+    _data = QVariant{}; // null
+    return *this;
 }
 
 

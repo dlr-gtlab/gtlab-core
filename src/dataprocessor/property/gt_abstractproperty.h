@@ -128,7 +128,7 @@ public:
      * @brief properties
      * @return
      */
-    virtual const QList<GtAbstractProperty*>& properties();
+    virtual const QList<GtAbstractProperty*>& properties() const;
 
     /**
      * @brief fullProperties

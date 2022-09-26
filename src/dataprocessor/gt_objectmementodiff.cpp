@@ -223,7 +223,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         }
 
 
-        detectPropertyChanges(left.properties, right.properties, diffObj, false);
+        detectPropertyChanges(left.properties, right.properties, diffObj);
     }
 
     // create map of child object uuids
@@ -416,7 +416,7 @@ GtObjectMementoDiff::handleAttributeChange(const QString& name,
 void
 GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::PropertyData>& leftProperties,
                                            const QVector<GtObjectMemento::PropertyData>& rightProperties,
-                                           QDomElement& diffRoot, bool isDynamic)
+                                           QDomElement& diffRoot)
 
 {
     QHash<QString,const GtObjectMemento::PropertyData*> leftPropMap;
@@ -441,42 +441,20 @@ GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::Proper
         }
         else
         {
-            if (!isDynamic)
-            {
-                // added property, this is not intended to happen!
-                gtDebug() << QObject::tr("Property added in diff, name: ") << rprop.name;
-                // don't do anything for now
-            }
-            else
-            {
-                QDomElement dynPropAdd = this->createElement(GtObjectIO::S_DIFF_DYNPROP_ADD_TAG);
-                int index = 0; // TODO
-                dynPropAdd.setAttribute(GtObjectIO::S_DIFF_INDEX_TAG, QString::number(index));
-                GtObjectIO oio;
-                oio.writeDynamicPropertyHelper(*this, dynPropAdd, rprop);
-                diffRoot.appendChild(dynPropAdd);
-            }
+
+            // added property, this is not intended to happen!
+            gtDebug() << QObject::tr("Property added in diff, name: ") << rprop.name;
+            // don't do anything for now
+
         }
     }
     // look for removed properties
     foreach (const GtObjectMemento::PropertyData* lpropPointer, leftPropMap)
     {
         const GtObjectMemento::PropertyData& lprop (*lpropPointer);
-        if (!isDynamic)
-        {
-            // removed property, this is not intended to happen!
-            gtDebug() << QObject::tr("Property removed in diff, name: ") << lprop.name;
-            // don't do anything for now
-        }
-        else
-        {
-            QDomElement dynPropRem = this->createElement(GtObjectIO::S_DIFF_DYNPROP_REM_TAG);
-            int index = 0; // TODO
-            dynPropRem.setAttribute(GtObjectIO::S_DIFF_INDEX_TAG, QString::number(index));
-            GtObjectIO oio;
-            oio.writeDynamicPropertyHelper(*this, dynPropRem, lprop);
-            diffRoot.appendChild(dynPropRem);
-        }
+        // removed property, this is not intended to happen!
+        gtDebug() << QObject::tr("Property removed in diff, name: ") << lprop.name;
+        // don't do anything for now
     }
 }
 
@@ -517,7 +495,6 @@ GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
         diffObj.setAttribute(GtObjectIO::S_NAME_TAG, leftProp.name);
         diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.dataType());
 
-
         // handle value changes
         if (leftProp.data() != rightProp.data())
         {
@@ -546,30 +523,11 @@ GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
         handleAttributeChange(GtObjectIO::S_ACTIVE_TAG, QVariant(leftProp.isActive).toString(), QVariant(rightProp.isActive).toString(), diffObj);
     }
 
-    if (leftProp.dataType() != rightProp.dataType())
-    {
-        diffObjEmpty = false;
-        handleAttributeChange(GtObjectIO::S_CLASS_TAG, leftProp.dataType(), rightProp.dataType(), diffObj);
-    }
-
-    if (leftProp.dynamicObjectName != rightProp.dynamicObjectName)
-    {
-        diffObjEmpty = false;
-        handleAttributeChange(GtObjectIO::S_ID_TAG, leftProp.dynamicObjectName, rightProp.dynamicObjectName, diffObj);
-    }
-
+    // TODO: handle child properties change
 
     if (!diffObjEmpty)
     {
         diffRoot.appendChild(diffObj);
-    }
-
-
-    // handle dynamic properties
-    if (leftProp.type() == PD::DYNCONT_T || rightProp.type() == PD::DYNCONT_T)
-    {
-        // handle sub-properties
-        detectPropertyChanges(leftProp.childProperties, rightProp.childProperties, diffRoot, true);
     }
 }
 

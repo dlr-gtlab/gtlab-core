@@ -105,7 +105,6 @@ HEADERS += \
     property/gt_labelproperty.h \
     gt_objectmodel.h \
     property/gt_filechooserproperty.h \
-    property/gt_dynamicpropertycontainer.h \
     gt_propertyfactory.h \
     property/gt_propertyconnection.h \
     gt_propertyfactory.h \
@@ -170,7 +169,6 @@ SOURCES += \
     property/gt_labelproperty.cpp \
     gt_objectmodel.cpp \
     property/gt_filechooserproperty.cpp \
-    property/gt_dynamicpropertycontainer.cpp \
     gt_propertyfactory.cpp \
     property/gt_propertyconnection.cpp \
     property/gt_openfilenameproperty.cpp \

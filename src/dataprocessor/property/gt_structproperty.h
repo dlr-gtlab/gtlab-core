@@ -24,6 +24,8 @@
  */
 class GtPropertyStructInstance : public GtGroupProperty
 {
+    Q_OBJECT
+
 public:
     GtPropertyStructInstance(const QString& id, const QString& typeName,
                              gt::poly_vector<GtAbstractProperty>&& childProps);

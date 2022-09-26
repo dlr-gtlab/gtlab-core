@@ -18,6 +18,7 @@ public:
      * @return
      */
     ParamType& get();
+    ParamType const & get() const;
 
     ParamType& operator()(void){return m_value;}
 
@@ -132,6 +133,13 @@ inline ParamType& GtProperty<ParamType>::get()
 {
     return m_value;
 }
+
+template<class ParamType>
+inline ParamType const & GtProperty<ParamType>::get() const
+{
+    return m_value;
+}
+
 
 template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal() const

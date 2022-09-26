@@ -21,7 +21,6 @@ class QDomDocument;
 class GtObject;
 class GtAbstractObjectFactory;
 class GtObjectMementoDiff;
-class GtDynamicPropertyContainer;
 class GtAbstractProperty;
 
 /**
@@ -44,8 +43,6 @@ public:
     static const QString S_PROPERTYLIST_TAG;
     static const QString S_DIFF_INDEX_TAG;
     static const QString S_DIFF_INDEX_CHANGED_TAG;
-    static const QString S_DYNAMICPROPERTY_TAG;
-    static const QString S_DYNAMICPROPERTIES_TAG;
     static const QString S_ENTRY_TAG;
     static const QString S_DIFF_OBJ_REMOVE_TAG;
     static const QString S_DIFF_OBJ_ADD_TAG;
@@ -116,16 +113,6 @@ public:
      */
     static bool revertDiff(GtObjectMementoDiff& diff, GtObject* obj);
 
-    /**
-     * @brief writeDynamicPropertyHelper
-     * @param doc
-     * @param root
-     * @param property
-     */
-    void writeDynamicPropertyHelper(QDomDocument& doc,
-                                    QDomElement& root,
-                                    const GtObjectMemento::PropertyData& property);
-
     /** Converts given QVariant to QString.
         @param var QVariant
         @return QString */
@@ -180,6 +167,10 @@ private:
     void writeProperties(GtObjectMemento& m,
                          const GtObject* obj);
 
+
+    GtObjectMemento::PropertyData
+    toDynamicPropertyData(const GtPropertyStructContainer& vec) const;
+
     /**
      * @brief writeProperties
      * @param root
@@ -190,6 +181,11 @@ private:
                          QDomElement& root,
                          const GtObjectMemento& m);
 
+
+    QDomElement dynamicSizePropToDomElement(
+        const GtObjectMemento::PropertyData& property,
+        QDomDocument& doc);
+
     /**
      * @brief readProperties
      * @param m memento
@@ -199,31 +195,10 @@ private:
                         const QDomElement& element);
 
     /**
-     * @brief readDynamicProperties
-     * @param propData memento property data
-     * @param element
-     */
-    void readDynamicProperties(
-            GtObjectMemento::PropertyData& propData,
-            const QDomElement& element);
-
-    /**
-     * @brief writeDynamicProperties
-     * @param doc
-     * @param root
-     * @param stored
-     * @param property
-     */
-    void writeDynamicProperties(
-            QDomDocument& doc, QDomElement& root,
-            const GtObjectMemento::PropertyData& property);
-
-    /**
      * @brief writePropertyHelper
      */
-    void writePropertyHelper(
-            QVector<GtObjectMemento::PropertyData>& pVec,
-            QSet<QString>& stored, GtAbstractProperty* property);
+    void writePropertyHelper(QVector<GtObjectMemento::PropertyData>& pVec,
+            QSet<QString>& stored, const GtAbstractProperty *property) const;
 
     /**
      * @brief writePropertyHelper
@@ -232,9 +207,6 @@ private:
             QDomDocument& doc, QDomElement& root,
             const GtObjectMemento::PropertyData& prop);
 
-    void writePropertyHelper(QVector<GtObjectMemento::PropertyData>& pVec,
-            QSet<QString>& stored, const GtAbstractProperty *property) const;
-
     /**
      * @brief readPropertyHelper
      */
@@ -242,20 +214,15 @@ private:
             GtObjectMemento::PropertyData& propData,
             const QDomElement& element);
 
-    /**
-     * @brief readDynamicPropertyHelper
-     */
-    void readDynamicPropertyHelper(
-            GtObjectMemento::PropertyData& propData,
-            const QDomElement& element);
-
 
     /** Creates an QDomElement of a given property.
         @param name Name of property
         @param var QVariant of property
+        @param dataType Data type specifier
         @return doc Referened to QDomDocument to generate new QDomElements */
     QDomElement propertyToDomElement(const QString& name,
                                      const QVariant& var,
+                                     const QString &dataType,
                                      QDomDocument& doc);
 
     QDomElement enumerationToDomElement(const QString& name,
@@ -285,17 +252,6 @@ private:
                                           const QString& type);
 
     /**
-     * @brief Returns the element of the dynamic properties branch. If no
-     * brunch exists a new created is returned.
-     * @param doc
-     * @param root
-     * @return
-     */
-    QDomElement dynamicPropertyElement(QDomDocument& doc,
-                                       QDomElement& root,
-                                       const QString& id);
-
-    /**
      * @brief handlePropertyNodeChange
      * @param target
      * @param change
@@ -317,28 +273,6 @@ private:
     static bool handleAttributeNodeChange(GtObject *target,
                                          const QDomElement& change,
                                          const bool revert = false);
-
-    /**
-     * @brief handleDynamicPropertyAdd
-     * @param target
-     * @param toAdd
-     * @param index
-     * @return
-     */
-    static bool handleDynamicPropertyAdd(GtObject* target,
-                                         const QDomElement& objectToAdd,
-                                         const QString& index);
-
-    /**
-     * @brief handleDynamicPropertyRemove
-     * @param target
-     * @param toRemove
-     * @param index
-     * @return
-     */
-    static bool handleDynamicPropertyRemove(GtObject* target,
-                                            const QDomElement& objectToAdd,
-                                            const QString& index);
 
     /**
      * @brief handleObjectAdd
@@ -372,35 +306,6 @@ private:
                                   const QDomElement& object,
                                   const int newIndex);
 
-    /**
-     * @brief structProperties
-     * @return
-     */
-    QList<GtDynamicPropertyContainer*> structProperties(GtObject* obj);
-
-    /**
-     * @brief structPropertyHelper
-     * @param prop
-     * @return
-     */
-    QList<GtDynamicPropertyContainer*> structPropertyHelper(
-        GtAbstractProperty* prop);
-
-    /** Converts all member of a QList/QVector (non pointer) to QVariantList.
-        @param t QList object
-        @return QVariantList of converted QList member */
-    template<class T>
-    static QVariantList convertToVariantList(const T& t)
-    {
-        QVariantList list;
-
-        foreach (auto m, t)
-        {
-            list.append(QVariant(m));
-        }
-
-        return list;
-    }
 
     /** writes all members of a QList/QVector to a string (with ';' delimiter)
      */

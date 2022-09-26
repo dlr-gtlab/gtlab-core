@@ -355,6 +355,9 @@ public:
     GtPropertyStructContainer const * findDynamicSizeProperty(const QString& id) const;
     GtPropertyStructContainer* findDynamicSizeProperty(const QString& id);
 
+    std::vector<std::reference_wrapper<GtPropertyStructContainer>> const &
+    dynamicProperties() const;
+
     /**
      * @brief propertiesByType
      * @return all properties of type T
@@ -617,7 +620,8 @@ private:
     /// object properties
     QList<GtAbstractProperty*> m_properties;
 
-    std::vector<std::reference_wrapper<GtPropertyStructContainer>> m_property_lists;
+    /// dynamic size properties
+    std::vector<std::reference_wrapper<GtPropertyStructContainer>> m_dynamic_properties;
 
     /// mapper for property signals
     QSignalMapper* m_propertyMapper;
