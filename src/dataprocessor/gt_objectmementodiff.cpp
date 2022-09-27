@@ -224,6 +224,9 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
 
 
         detectPropertyChanges(left.properties, right.properties, diffObj);
+        detectDynamicPropertyChanges(left.dynamicSizeProperties,
+                                     right.dynamicSizeProperties,
+                                     diffObj);
     }
 
     // create map of child object uuids
@@ -456,6 +459,175 @@ GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::Proper
         gtDebug() << QObject::tr("Property removed in diff, name: ") << lprop.name;
         // don't do anything for now
     }
+}
+
+void
+GtObjectMementoDiff::detectDynamicPropertyChanges(
+    const QVector<GtObjectMemento::PropertyData>& leftContainers,
+    const QVector<GtObjectMemento::PropertyData>& rightContainers,
+    QDomElement& diffRoot)
+{
+    // we enforce, that the number of dyanmic properties may not change
+    assert (leftContainers.size() == rightContainers.size());
+
+    for (size_t i = 0; i < leftContainers.size(); ++i)
+    {
+        const auto& left = leftContainers[i];
+        const auto& right = rightContainers[i];
+
+        if (left.hash != right.hash)
+        {
+            detectDynamicPropertyChanges(left, right, diffRoot);
+        }
+    }
+}
+
+
+void
+GtObjectMementoDiff::detectDynamicPropertyChanges(
+    const GtObjectMemento::PropertyData& leftContainer,
+    const GtObjectMemento::PropertyData& rightContainer,
+    QDomElement& diffRoot)
+
+{
+    assert(leftContainer.name == rightContainer.name);
+
+    const auto& leftEntries = leftContainer.childProperties;
+    const auto& rightEntries = rightContainer.childProperties;
+
+    using index_t = size_t;
+
+    std::vector<std::pair<index_t, PD>> deleted, added;
+    std::vector<std::tuple<QString, PD, PD>> changed;
+
+    // search, which entries are  deletedf and changed
+    for (size_t leftIdx = 0; leftIdx < leftEntries.size(); ++leftIdx) {
+
+        const auto& leftEntry = leftEntries[leftIdx];
+
+        auto iter = std::find_if(rightEntries.constBegin(),
+                                 rightEntries.constEnd(),
+                                 [&leftEntry](const PD& rightData) {
+            return rightData.name == leftEntry.name;
+        });
+
+        if (iter == rightEntries.cend())
+        {
+            // this entry was removed
+            deleted.emplace_back(leftIdx, leftEntry);
+        }
+        else
+        {
+            // check, whether this entry has been changed
+            const auto& rightEntry = *iter;
+            assert(leftEntry.name == rightEntry.name);
+
+            if (leftEntry.hash != rightEntry.hash)
+            {
+                changed.emplace_back(leftEntry.name, leftEntry, rightEntry);
+            }
+        }
+    }
+
+    // search for added entries
+    for (size_t rightIdx = 0; rightIdx < rightEntries.size(); ++rightIdx) {
+
+        const auto& rightEntry = rightEntries[rightIdx];
+
+        auto iter = std::find_if(leftEntries.constBegin(),
+                                 leftEntries.constEnd(),
+                                 [&rightEntry](const PD& leftData) {
+            return leftData.name == rightEntry.name;
+        });
+
+        if (iter == leftEntries.cend())
+        {
+            // this entry was removed
+            added.emplace_back(rightIdx, rightEntry);
+        }
+    }
+
+    assert(!changed.empty() || !deleted.empty() || !added.empty());
+
+    for (const auto& addedElement : added)
+    {
+        const auto idx = addedElement.first;
+        const auto& elem = addedElement.second;
+        handleContainerElementAdded(leftContainer.name, idx, elem, diffRoot);
+    }
+
+    for (const auto& removedElement : deleted)
+    {
+        const auto idx = removedElement.first;
+        const auto& elem = removedElement.second;
+        handleContainerElementRemoved(leftContainer.name, idx, elem, diffRoot);
+    }
+
+    for (const auto& changedElem : changed)
+    {
+        const auto& nameUUID = std::get<0>(changedElem);
+        const auto& before = std::get<1>(changedElem);
+        const auto& after = std::get<2>(changedElem);
+
+        handleContainerElementChanged(leftContainer.name, nameUUID,
+                                      before, after, diffRoot);
+    }
+}
+
+void
+GtObjectMementoDiff::handleContainerElementAdded(
+    QString containerName,
+    size_t idx,
+    const PD& data,
+    QDomElement& diffRoot)
+{
+    auto newEntryElem = createElement(
+        GtObjectIO::S_DIFF_PROPCONT_ENTRY_ADDED_TAG);
+
+    newEntryElem.setAttribute(GtObjectIO::S_NAME_TAG, containerName);
+    newEntryElem.setAttribute(GtObjectIO::S_DIFF_INDEX_TAG, idx);
+
+    QDomElement propertyElem = GtObjectIO().toDomElement(data, *this);
+    newEntryElem.appendChild(propertyElem);
+
+    diffRoot.appendChild(newEntryElem);
+}
+
+void
+GtObjectMementoDiff::handleContainerElementRemoved(
+    QString containerName,
+    size_t idx,
+    const PD& data,
+    QDomElement& diffRoot)
+{
+    auto removedElem = createElement(
+        GtObjectIO::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG);
+
+    removedElem.setAttribute(GtObjectIO::S_NAME_TAG, containerName);
+    removedElem.setAttribute(GtObjectIO::S_DIFF_INDEX_TAG, idx);
+
+    QDomElement propertyElem = GtObjectIO().toDomElement(data, *this);
+    removedElem.appendChild(propertyElem);
+
+    diffRoot.appendChild(removedElem);
+}
+
+void
+GtObjectMementoDiff::handleContainerElementChanged(const QString& containerName,
+                                                   const QString& elementName,
+                                                   const PD& before,
+                                                   const PD& after,
+                                                   QDomElement& diffRoot)
+{
+    auto changedElem = createElement(
+        GtObjectIO::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG);
+
+    changedElem.setAttribute(GtObjectIO::S_NAME_TAG, containerName);
+    changedElem.setAttribute("entryName", elementName);
+
+    detectPropertyChanges(before.childProperties, after.childProperties, changedElem);
+
+    diffRoot.appendChild(changedElem);
 }
 
 void

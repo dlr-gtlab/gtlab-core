@@ -46,12 +46,14 @@ public:
      * @brief Performs an in-place creation of a new struct instance
      * given the type.
      *
-     * @param Name/id of the entry to create
+     * Note, since we need unique names to reference entries of the container,
+     * the name of the entry will be a UUID
+     *
      * @param typeID The typename / classname of the struct to create
      * @return
      */
     GT_DATAMODEL_EXPORT
-    GtPropertyStructInstance& newEntry(QString name, QString typeID);
+    GtPropertyStructInstance& newEntry(QString typeID);
 
     /**
      * @brief Returns the number of entries in the vector

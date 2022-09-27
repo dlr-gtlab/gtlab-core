@@ -205,6 +205,11 @@ GtObjectMemento::calculateHashes() const
         propertyHashHelper(p, hash, variantHasher);
     }
 
+    foreach(const PropertyData &p, dynamicSizeProperties)
+    {
+        propertyHashHelper(p, hash, variantHasher);
+    }
+
     // store property hash
     m_propertyHash = hash.result();
     hash.reset();

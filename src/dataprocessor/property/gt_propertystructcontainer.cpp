@@ -11,6 +11,8 @@
 #include "gt_structproperty.h"
 #include "gt_exceptions.h"
 
+#include <QUuid>
+
 #include <map>
 #include <utility>
 
@@ -50,7 +52,7 @@ GtPropertyStructContainer::registerAllowedType(
 }
 
 GtPropertyStructInstance&
-GtPropertyStructContainer::newEntry(QString name, QString typeID)
+GtPropertyStructContainer::newEntry(QString typeID)
 {
     const auto iter = pimpl->allowedTypes.find(typeID);
     if (iter == pimpl->allowedTypes.end())
@@ -62,7 +64,9 @@ GtPropertyStructContainer::newEntry(QString name, QString typeID)
 
     const auto& structureDefinition = iter->second;
 
-    pimpl->entries.push_back(structureDefinition.newInstance(name));
+    auto uuidName = QUuid::createUuid().toString();
+
+    pimpl->entries.push_back(structureDefinition.newInstance(uuidName));
 
     return pimpl->entries[pimpl->entries.size() - 1];
 }

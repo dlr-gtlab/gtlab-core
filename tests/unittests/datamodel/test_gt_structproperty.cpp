@@ -16,6 +16,8 @@
 #include "gt_doubleproperty.h"
 #include "gt_objectmemento.h"
 #include "gt_xmlutilities.h"
+#include "gt_objectmementodiff.h"
+
 
 #include "gt_object.h"
 
@@ -37,11 +39,8 @@ struct TestObject : public GtObject
     void addEnvironmentVar(QString name, QString value)
     {
         auto* vars = findDynamicSizeProperty("environmentVars");
+        auto& var = vars->newEntry("EnvironmentVarsStruct");
 
-        auto currentSize = vars->size();
-
-        auto& var = vars->newEntry(QString("[%1]").arg(currentSize),
-                                   "EnvironmentVarsStruct");
         var.setMemberVal("name", name);
         var.setMemberVal("value", value);
     }
@@ -141,7 +140,6 @@ TEST_F(TestGtStructProperty, checkContent)
     ASSERT_EQ(1, props->size());
 
     auto& props0 = props->at(0);
-    EXPECT_EQ(QString("[0]"), props0.ident());
 
     EXPECT_EQ(QString("PATH"), props0.getMemberVal<QString>("name"));
     EXPECT_EQ(QString("/usr/bin"), props0.getMemberVal<QString>("value"));
@@ -172,7 +170,7 @@ TEST_F(TestGtStructProperty, write)
 
     GtXmlUtilities::writeDomDocumentToFile("test.xml", doc);
 
-    QDomElement container = docElem.firstChildElement("property_container");
+    QDomElement container = docElem.firstChildElement("property-container");
     ASSERT_FALSE(container.isNull());
 
     EXPECT_EQ(QString("environmentVars").toStdString(),
@@ -223,4 +221,173 @@ TEST_F(TestGtStructProperty, write)
     auto prop3 = prop2.nextSiblingElement("property");
     ASSERT_TRUE(prop3.isNull());
 
+}
+
+TEST_F(TestGtStructProperty, mementoDiffPlausibility)
+{
+    TestObject obj;
+    auto beforeMemento = obj.toMemento();
+    auto afterMemento = obj.toMemento();
+
+    EXPECT_TRUE(GtObjectMementoDiff(beforeMemento, afterMemento).isNull());
+
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+
+    afterMemento = obj.toMemento();
+    EXPECT_FALSE(GtObjectMementoDiff(beforeMemento, afterMemento).isNull());
+
+}
+
+TEST_F(TestGtStructProperty, mementoDiffElementChanged)
+{    
+    TestObject obj;
+
+    // add entry
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+
+    auto beforeMemento = obj.toMemento();
+
+    // change entry
+    obj.environmentVars.at(0).setMemberVal("value", "/usr/local/bin");
+
+    auto afterMemento = obj.toMemento();
+
+    GtObjectMementoDiff diff(beforeMemento, afterMemento);
+
+
+    /* The diff should like like the following
+    <object name="" uuid="{608b7f9a-d81c-453c-ac99-efc621b753b5}" class="GtObject">
+     <diff-property-container-entry-change name="environmentVars" entryName="{977e7d6f-0a20-4f6c-a027-7bf7ac70cb12}">
+      <diff-property-change name="value" type="QString">
+       <oldVal>/usr/bin</oldVal>
+       <newVal>/usr/local/bin</newVal>
+      </diff-property-change>
+     </diff-property-container-entry-change>
+    </object>
+    */
+
+    ASSERT_FALSE(diff.isNull());
+
+    // check diff content
+    auto objectElem = diff.documentElement();
+    EXPECT_TRUE(objectElem.attribute("uuid") == obj.uuid());
+
+    auto diffElem = objectElem.firstChildElement();
+    ASSERT_TRUE(diffElem.tagName() == "diff-property-container-entry-change");
+    EXPECT_TRUE(diffElem.attribute("name") == "environmentVars");
+    EXPECT_TRUE(diffElem.attribute("entryName") == obj.environmentVars.at(0).ident());
+
+    // only one prop has changed
+    ASSERT_EQ(1, diffElem.childNodes().size());
+
+    auto propChangedElem = diffElem.firstChildElement();
+    ASSERT_TRUE(propChangedElem.tagName() == "diff-property-change");
+    ASSERT_TRUE(propChangedElem.attribute("name") == "value");
+    ASSERT_TRUE(propChangedElem.attribute("type") == "QString");
+
+    ASSERT_EQ(2, propChangedElem.childNodes().size());
+
+    auto oldVal = propChangedElem.firstChildElement("oldVal");
+    ASSERT_FALSE(oldVal.isNull());
+    EXPECT_TRUE(oldVal.text() == "/usr/bin");
+
+    auto newVal = propChangedElem.firstChildElement("newVal");
+    ASSERT_FALSE(newVal.isNull());
+    EXPECT_TRUE(newVal.text() == "/usr/local/bin");
+}
+
+TEST_F(TestGtStructProperty, mementoDiffElementAdded)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    auto beforeMemento = obj.toMemento();
+
+    obj.addEnvironmentVar("LD_LIBRARY_PATH", "/usr/lib");
+    auto afterMemento = obj.toMemento();
+
+    GtObjectMementoDiff diff(beforeMemento, afterMemento);
+
+    ASSERT_FALSE(diff.isNull());
+
+    // check diff content
+    auto objectElem = diff.documentElement();
+    EXPECT_TRUE(objectElem.attribute("uuid") == obj.uuid());
+
+    auto diffElem = objectElem.firstChildElement();
+    ASSERT_TRUE(diffElem.tagName() == "diff-property-container-entry-add");
+    EXPECT_TRUE(diffElem.attribute("name") == "environmentVars");
+    EXPECT_TRUE(diffElem.attribute("index") == "1");
+
+    // next is the new entry
+    EXPECT_EQ(1, diffElem.childNodes().size());
+    auto newEntry = diffElem.firstChildElement();
+
+    EXPECT_TRUE(newEntry.tagName() == "property");
+    EXPECT_TRUE(newEntry.attribute("name") == obj.environmentVars.at(1).ident());
+    EXPECT_TRUE(newEntry.attribute("type") == "EnvironmentVarsStruct");
+
+    // it should have two sub properties
+    ASSERT_EQ(2, newEntry.childNodes().size());
+
+    auto propName = newEntry.firstChildElement();
+    EXPECT_TRUE(propName.tagName() == "property");
+    EXPECT_TRUE(propName.attribute("name") == "name");
+    EXPECT_TRUE(propName.attribute("type") == "QString");
+    EXPECT_TRUE(propName.text() == "LD_LIBRARY_PATH");
+
+    auto propValue = propName.nextSiblingElement();
+    EXPECT_TRUE(propValue.tagName() == "property");
+    EXPECT_TRUE(propValue.attribute("name") == "value");
+    EXPECT_TRUE(propValue.attribute("type") == "QString");
+    EXPECT_TRUE(propValue.text() == "/usr/lib");
+}
+
+TEST_F(TestGtStructProperty, mementoDiffElementRemoved)
+{
+    // instead of removing an element, we simply switch before/after
+    // as removing is not yet implemented
+
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    auto beforeMemento = obj.toMemento();
+
+    obj.addEnvironmentVar("LD_LIBRARY_PATH", "/usr/lib");
+    auto afterMemento = obj.toMemento();
+
+    // Yes, this is intentional
+    GtObjectMementoDiff diff(afterMemento, beforeMemento);
+
+    ASSERT_FALSE(diff.isNull());
+
+    // check diff content
+    auto objectElem = diff.documentElement();
+    EXPECT_TRUE(objectElem.attribute("uuid") == obj.uuid());
+
+    auto diffElem = objectElem.firstChildElement();
+    ASSERT_TRUE(diffElem.tagName() == "diff-property-container-entry-remove");
+    EXPECT_TRUE(diffElem.attribute("name") == "environmentVars");
+    EXPECT_TRUE(diffElem.attribute("index") == "1");
+
+    // next is the new entry
+    EXPECT_EQ(1, diffElem.childNodes().size());
+    auto newEntry = diffElem.firstChildElement();
+
+    EXPECT_TRUE(newEntry.tagName() == "property");
+    EXPECT_TRUE(newEntry.attribute("name") == obj.environmentVars.at(1).ident());
+    EXPECT_TRUE(newEntry.attribute("type") == "EnvironmentVarsStruct");
+
+    // it should have two sub properties
+    ASSERT_EQ(2, newEntry.childNodes().size());
+
+    auto propName = newEntry.firstChildElement();
+    EXPECT_TRUE(propName.tagName() == "property");
+    EXPECT_TRUE(propName.attribute("name") == "name");
+    EXPECT_TRUE(propName.attribute("type") == "QString");
+    EXPECT_TRUE(propName.text() == "LD_LIBRARY_PATH");
+
+    auto propValue = propName.nextSiblingElement();
+    EXPECT_TRUE(propValue.tagName() == "property");
+    EXPECT_TRUE(propValue.attribute("name") == "value");
+    EXPECT_TRUE(propValue.attribute("type") == "QString");
+    EXPECT_TRUE(propValue.text() == "/usr/lib");
 }

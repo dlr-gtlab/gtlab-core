@@ -48,8 +48,9 @@ public:
     static const QString S_DIFF_OBJ_ADD_TAG;
     static const QString S_DIFF_PROP_CHANGE_TAG;
     static const QString S_DIFF_PROPLIST_CHANGE_TAG;
-    static const QString S_DIFF_DYNPROP_ADD_TAG;
-    static const QString S_DIFF_DYNPROP_REM_TAG;
+    static const QString S_DIFF_PROPCONT_ENTRY_ADDED_TAG;
+    static const QString S_DIFF_PROPCONT_ENTRY_REMOVE_TAG;
+    static const QString S_DIFF_PROPCONT_ENTRY_CHANGE_TAG;
     static const QString S_DIFF_ATTR_CHANGE_TAG;
     static const QString S_DIFF_ATTR_REMOVE_TAG;
     static const QString S_DIFF_NEWVAL_TAG;
@@ -89,7 +90,6 @@ public:
      */
     QDomElement toDomElement(const GtObjectMemento::PropertyData& m,
                              QDomDocument& doc);
-
 
     /** Creates Memento from given QDomElement.
         @param e QDomElement with memento data
@@ -199,13 +199,6 @@ private:
      */
     void writePropertyHelper(QVector<GtObjectMemento::PropertyData>& pVec,
             QSet<QString>& stored, const GtAbstractProperty *property) const;
-
-    /**
-     * @brief writePropertyHelper
-     */
-    void writePropertyHelper(
-            QDomDocument& doc, QDomElement& root,
-            const GtObjectMemento::PropertyData& prop);
 
     /**
      * @brief readPropertyHelper

@@ -55,6 +55,12 @@ const QString GtObjectIO::S_DIFF_PROP_CHANGE_TAG =
     QStringLiteral("diff-property-change");
 const QString GtObjectIO::S_DIFF_PROPLIST_CHANGE_TAG =
     QStringLiteral("diff-propertylist-change");
+const QString GtObjectIO::S_DIFF_PROPCONT_ENTRY_ADDED_TAG =
+    QStringLiteral("diff-property-container-entry-add");
+const QString GtObjectIO::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG =
+    QStringLiteral("diff-property-container-entry-remove");
+const QString GtObjectIO::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG =
+    QStringLiteral("diff-property-container-entry-change");
 const QString GtObjectIO::S_DIFF_ATTR_CHANGE_TAG =
     QStringLiteral("diff-attribute-change");
 const QString GtObjectIO::S_DIFF_ATTR_REMOVE_TAG =
@@ -581,7 +587,7 @@ GtObjectIO::writeProperties(QDomDocument& doc,
     foreach (const GtObjectMemento::PropertyData& property,
              memento.properties)
     {
-        writePropertyHelper(doc, root, property);
+        root.appendChild(toDomElement(property, doc));
     }
 
     foreach(const GtObjectMemento::PropertyData& property,
@@ -776,10 +782,10 @@ GtObjectIO::writePropertyHelper(QVector<GtObjectMemento::PropertyData>& pVec,
 }
 
 
-void
-GtObjectIO::writePropertyHelper(
-        QDomDocument& doc, QDomElement& root,
-        const GtObjectMemento::PropertyData& property)
+QDomElement
+GtObjectIO::toDomElement(
+    const GtObjectMemento::PropertyData& property,
+    QDomDocument& doc)
 {
     QDomElement child;
 
@@ -798,7 +804,7 @@ GtObjectIO::writePropertyHelper(
 
         for (const auto& subchild : property.childProperties)
         {
-            writePropertyHelper(doc, child, subchild);
+            child.appendChild(toDomElement(subchild, doc));
         }
         break;
     case PD::PropertyData::DATA_T:
@@ -821,8 +827,7 @@ GtObjectIO::writePropertyHelper(
         child.setAttribute(S_ACTIVE_TAG, actVar.toString());
     }
 
-    root.appendChild(child);
-
+    return child;
 }
 
 QDomElement
@@ -830,17 +835,17 @@ GtObjectIO::dynamicSizePropToDomElement(
     const GtObjectMemento::PropertyData& property,
     QDomDocument& doc)
 {
-    QDomElement child = doc.createElement("property_container");
-    child.setAttribute("name", property.name);
+    QDomElement containerElement = doc.createElement("property-container");
+    containerElement.setAttribute("name", property.name);
 
-    // GTlab properties
-    foreach (const GtObjectMemento::PropertyData& property,
+    // GTlab properties0
+    foreach (const GtObjectMemento::PropertyData& childProperty,
              property.childProperties)
     {
-        writePropertyHelper(doc, child, property);
+        containerElement.appendChild(toDomElement(childProperty, doc));
     }
 
-    return child;
+    return containerElement;
 }
 
 void
@@ -980,7 +985,7 @@ GtObjectIO::propertyListToVariant(const QString& value, const QString& type)
     if (type == QStringLiteral("double"))
     {
         QVector<QStringRef> strList =
-                QStringRef(&value).split(';', QString::SkipEmptyParts);
+                QStringRef(&value).split(';', Qt::SkipEmptyParts);
         QVector<double> list;
         list.reserve(strList.size());
 
@@ -994,7 +999,7 @@ GtObjectIO::propertyListToVariant(const QString& value, const QString& type)
     else if (type == QStringLiteral("bool"))
     {
         QVector<QStringRef> strList =
-                QStringRef(&value).split(';', QString::SkipEmptyParts);
+                QStringRef(&value).split(';', Qt::SkipEmptyParts);
         QList<bool> list;
         list.reserve(strList.size());
 
