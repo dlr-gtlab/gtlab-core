@@ -491,4 +491,3 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
 
     return true;
 }
-
