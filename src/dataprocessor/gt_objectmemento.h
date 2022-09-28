@@ -157,6 +157,9 @@ public:
      */
     struct MementoData
     {
+        const GtObjectMemento::MementoData* findChild(const QString& uuid) const;
+
+
         QString className, uuid, ident;
 
         struct PropertyData
@@ -164,13 +167,52 @@ public:
             QString name;
             bool isOptional = false;
             bool isActive = true;
-            bool isDynamicContainer = false;
-            QString dynamicClassName;
             QString dynamicObjectName;
-            QString enumType;
-            QVariant data;
-            QVector<PropertyData> childProperties;
+
+            enum PropertyType
+            {
+                DATA_T,
+                DYNCONT_T,
+                ENUM_T // only used by meta properties
+            };
+
+            const QVariant& data() const
+            {
+                return _data;
+            }
+
+            PropertyData& setData(const QVariant& val);
+
+            static PropertyData
+            makeDynamicContainer(const QString& dynamicObjectName);
+
+            static PropertyData
+            makeDynamicChild(const QVariant& value,
+                             const QString& dynamicObjectName,
+                             const QString& dynamicTypeName);
+
+            const QString& dataType() const
+            {
+                return _dataType;
+            }
+
+            const PropertyType& type() const
+            {
+                return _type;
+            }
+
+            PropertyData& fromQMetaProperty(const QMetaProperty& prop,
+                                            const QVariant& val);
+
+
+            QVector<PropertyData> childProperties; /// sub properties
             mutable QByteArray hash;
+
+        private:
+            QVariant _data;    /// The data as a variant
+            QString _dataType; /// The type of the data
+            PropertyType _type  {DATA_T};
+
         };
         QVector<PropertyData> properties;
         

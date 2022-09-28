@@ -17,6 +17,8 @@
 
 #include <algorithm>
 
+using PD = GtObjectMemento::MementoData::PropertyData;
+
 GtObjectMementoDiff::GtObjectMementoDiff(const GtObjectMemento& left,
         const GtObjectMemento& right)
 {
@@ -259,7 +261,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
             diffObjectEmpty = false;
             // added child
             GtObjectIO oio;
-            QDomElement rchildElem = oio.toDomElement(rchild, *this, false); 
+            QDomElement rchildElem = oio.toDomElement(rchild, *this, false);
             handleObjectAdded(rchildElem, rchildIndex, diffObj);
 
             completeMap.insert(rchild.data().uuid, rchildIndex);
@@ -486,7 +488,7 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
     QDomElement diffObj;
     bool diffObjEmpty = true;
 
-    if (GtObjectIO::usePropertyList(leftProp.data))
+    if (GtObjectIO::usePropertyList(leftProp.data()))
     {
         diffObj = this->createElement(GtObjectIO::S_DIFF_PROPLIST_CHANGE_TAG);
         diffObj.setAttribute(GtObjectIO::S_NAME_TAG, leftProp.name);
@@ -497,8 +499,8 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
 
         QString leftVal, leftType;
         QString rightVal, rightType;
-        GtObjectIO::propertyListStringType(leftProp.data, leftVal, leftType);
-        GtObjectIO::propertyListStringType(rightProp.data, rightVal, rightType);
+        GtObjectIO::propertyListStringType(leftProp.data(), leftVal, leftType);
+        GtObjectIO::propertyListStringType(rightProp.data(), rightVal, rightType);
 
         diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftType);
 
@@ -512,24 +514,26 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
     {
         diffObj = this->createElement(GtObjectIO::S_DIFF_PROP_CHANGE_TAG);
         diffObj.setAttribute(GtObjectIO::S_NAME_TAG, leftProp.name);
-        if (!leftProp.enumType.isNull())
+
+        if (leftProp.type() != PD::ENUM_T)
         {
-            diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.enumType);
+            diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.dataType());
         }
         else
         {
-            diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.data.typeName());
+            diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.data().typeName());
         }
 
+
         // handle value changes
-        if (leftProp.data != rightProp.data)
+        if (leftProp.data() != rightProp.data())
         {
             diffObjEmpty = false;
             QDomElement oldVal = this->createElement(GtObjectIO::S_DIFF_OLDVAL_TAG);
             QDomElement newVal = this->createElement(GtObjectIO::S_DIFF_NEWVAL_TAG);
 
-            oldVal.appendChild(this->createTextNode(GtObjectIO::variantToString(leftProp.data)));
-            newVal.appendChild(this->createTextNode(GtObjectIO::variantToString(rightProp.data)));
+            oldVal.appendChild(this->createTextNode(GtObjectIO::variantToString(leftProp.data())));
+            newVal.appendChild(this->createTextNode(GtObjectIO::variantToString(rightProp.data())));
 
             diffObj.appendChild(oldVal);
             diffObj.appendChild(newVal);
@@ -549,10 +553,10 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
         handleAttributeChange(GtObjectIO::S_ACTIVE_TAG, QVariant(leftProp.isActive).toString(), QVariant(rightProp.isActive).toString(), diffObj);
     }
 
-    if (leftProp.dynamicClassName != rightProp.dynamicClassName)
+    if (leftProp.dataType() != rightProp.dataType())
     {
         diffObjEmpty = false;
-        handleAttributeChange(GtObjectIO::S_CLASS_TAG, leftProp.dynamicClassName, rightProp.dynamicClassName, diffObj);
+        handleAttributeChange(GtObjectIO::S_CLASS_TAG, leftProp.dataType(), rightProp.dataType(), diffObj);
     }
 
     if (leftProp.dynamicObjectName != rightProp.dynamicObjectName)
@@ -569,7 +573,7 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
 
 
     // handle dynamic properties
-    if (leftProp.isDynamicContainer || rightProp.isDynamicContainer)
+    if (leftProp.type() == PD::DYNCONT_T || rightProp.type() == PD::DYNCONT_T)
     {
         // handle sub-properties
         detectPropertyChanges(leftProp.childProperties, rightProp.childProperties, diffRoot, true);

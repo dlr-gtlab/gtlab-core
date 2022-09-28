@@ -11,10 +11,13 @@
 #include <QBuffer>
 #include <QIODevice>
 #include <QDataStream>
+#include <QMetaProperty>
 
 #include "gt_objectmemento.h"
 #include "gt_objectio.h"
 #include "gt_abstractobjectfactory.h"
+
+using PD = GtObjectMemento::MementoData::PropertyData;
 
 GtObjectMemento::GtObjectMemento(const GtObject* obj, bool clone)
 {
@@ -219,7 +222,7 @@ GtObjectMemento::calculateHashes() const
 }
 
 void
-GtObjectMemento::propertyHashHelper(const GtObjectMemento::MementoData::PropertyData& property, QCryptographicHash& hash, VariantHasher& variantHasher) const
+GtObjectMemento::propertyHashHelper(const PD& property, QCryptographicHash& hash, VariantHasher& variantHasher) const
 {
     QCryptographicHash propHash(QCryptographicHash::Sha256);
 
@@ -227,11 +230,12 @@ GtObjectMemento::propertyHashHelper(const GtObjectMemento::MementoData::Property
     propHash.addData(property.name.toUtf8());
     propHash.addData((const char*)&property.isOptional, sizeof(property.isOptional));
     propHash.addData((const char*)&property.isActive, sizeof(property.isActive));
-    propHash.addData((const char*)&property.isDynamicContainer, sizeof(property.isDynamicContainer));
-    propHash.addData(property.dynamicClassName.toUtf8());
+    propHash.addData(property.dataType().toUtf8());
     propHash.addData(property.dynamicObjectName.toUtf8());
-    propHash.addData(property.enumType.toUtf8());
-    variantHasher.addToHash(propHash, property.data);
+
+    auto propertyType = property.type();
+    propHash.addData((const char*)&propertyType, sizeof(propertyType));
+    variantHasher.addToHash(propHash, property.data());
 
     // loop recursively through all child properties
     foreach(const MementoData::PropertyData& p, property.childProperties)
@@ -307,4 +311,69 @@ GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory,
     }
 
     return true;
+}
+
+PD &
+PD::setData(const QVariant &val)
+{
+    _data = val;
+    _dataType = val.typeName();
+    return *this;
+}
+
+PD
+PD::makeDynamicContainer(const QString &objName)
+{
+    PD pd;
+    pd._type = DYNCONT_T;
+    pd._data = {};
+    pd.dynamicObjectName = objName;
+    pd._dataType = "";
+
+    return pd;
+}
+
+PD
+PD::makeDynamicChild(const QVariant &value, const QString &objName,
+                const QString &dynamicTypeName)
+{
+    PD pd;
+    pd._type = DATA_T;
+    pd._data = value;
+    pd.dynamicObjectName = objName;
+    pd._dataType = dynamicTypeName;
+
+    return pd;
+}
+
+
+PD &
+PD::fromQMetaProperty(const QMetaProperty &prop, const QVariant& val)
+{
+    name = prop.name();
+    setData(val);
+    if (prop.isEnumType())
+    {
+        _type = ENUM_T;
+        _dataType = prop.typeName();
+        QMetaEnum e = prop.enumerator();
+        _data = QString(e.valueToKey(_data.toInt()));
+    }
+
+    return *this;
+}
+
+const GtObjectMemento::MementoData* GtObjectMemento::MementoData::findChild(const QString &uuid) const
+{
+    auto iter = std::find_if(childObjects.begin(), childObjects.end(),
+                 [&uuid](const GtObjectMemento& child) {
+        return uuid == child.uuid();
+    });
+
+    if (iter == childObjects.end())
+    {
+        return nullptr;
+    }
+
+    return &iter->data();
 }

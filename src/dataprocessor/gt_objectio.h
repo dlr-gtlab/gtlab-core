@@ -13,6 +13,8 @@
 #include <QObject>
 #include <QPointF>
 #include <QSet>
+// TODO: remove
+#include "gt_datamodel_exports.h"
 
 #include "gt_objectmemento.h"
 
@@ -63,6 +65,7 @@ public:
      * @brief GtObjectIO
      * @param factory
      */
+    GT_DATAMODEL_EXPORT
     explicit GtObjectIO(GtAbstractObjectFactory* factory = nullptr);
 
     /** Sets new object factory.
@@ -101,6 +104,12 @@ public:
         @param obj GtObject */
     void mergeObject(const QDomElement& element,
                      GtObject* obj);
+
+    void mergeObject(const GtObjectMemento::MementoData& data, GtObject& obj) const;
+
+    GT_DATAMODEL_EXPORT
+    std::unique_ptr<GtObject>
+    fromMementoToObject(const GtObjectMemento::MementoData& data) const;
 
     /**
      * @brief applyDiff
