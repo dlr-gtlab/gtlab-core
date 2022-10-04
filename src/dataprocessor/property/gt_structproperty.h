@@ -134,6 +134,9 @@ public:
     /**
      * Function definition to create a property with the
      * identifier 'id'
+     *
+     * Note: we currently omit the "name" argument, as name is used
+     * to store the dynamic type of the struct
      */
     using PropertyFactoryFunction =
         std::function<GtAbstractProperty*(const QString& id)>;

@@ -9,7 +9,6 @@
 
 #include <QCoreApplication>
 
-#include "gt_object.h"
 #include "gt_boolproperty.h"
 #include "gt_doubleproperty.h"
 #include "gt_intproperty.h"
@@ -17,20 +16,50 @@
 
 #include "gt_propertyfactory.h"
 
+template <class T>
+void GtPropertyFactory::registerQObjectClass(){
+
+    auto factory = [this](const QString& id, const QString& name) -> GtAbstractProperty* {
+
+        const QMetaObject& metaObj = T::staticMetaObject;
+
+        std::unique_ptr<QObject> obj(metaObj.newInstance(
+                                        Q_ARG(QString, id),
+                                        Q_ARG(QString, name)));
+
+
+        GtAbstractProperty* retval = nullptr;
+        if (obj)
+        {
+            retval = qobject_cast<GtAbstractProperty*>(obj.get());
+        }
+
+        if (!retval && !m_silent)
+        {
+            qCritical() << QStringLiteral("GtPropertyFactory : ") <<
+                tr("Error casting property") <<
+                QStringLiteral(" ") <<
+                T::staticMetaObject.className();
+            qDebug() << knownClasses();
+        }
+
+        obj.release();
+        return retval;
+    };
+
+
+    registerProperty(T::staticMetaObject.className(), std::move(factory));
+}
+
 GtPropertyFactory::GtPropertyFactory(QObject* parent) : QObject(parent)
 {
-    m_knownClasses.insert(GT_CLASSNAME(GtBoolProperty),
-                          GT_METADATA(GtBoolProperty));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtDoubleProperty),
-                          GT_METADATA(GtDoubleProperty));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtIntProperty),
-                          GT_METADATA(GtIntProperty));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtStringProperty),
-                          GT_METADATA(GtStringProperty));
+    registerQObjectClass<GtBoolProperty>();
+    registerQObjectClass<GtDoubleProperty>();
+    registerQObjectClass<GtIntProperty>();
+    registerQObjectClass<GtStringProperty>();
 }
+
+GtPropertyFactory::~GtPropertyFactory() = default;
 
 GtPropertyFactory*
 GtPropertyFactory::instance()
@@ -43,68 +72,54 @@ GtPropertyFactory::instance()
     return retval;
 }
 
-GtObject*
-GtPropertyFactory::newObject(const QString& /*className*/, GtObject* /*parent*/)
+
+QStringList GtPropertyFactory::knownClasses() const
 {
-    return nullptr;
+    return m_knownFactories.keys();
 }
 
 GtAbstractProperty*
 GtPropertyFactory::newProperty(const QString& className,
                                const QString& id,
-                               const QString& name)
+                               const QString& name) const
 {
-    GtAbstractProperty* retval = nullptr;
-
-    if (m_knownClasses.contains(className))
+    if (m_knownFactories.contains(className))
     {
-        const QMetaObject& metaObj = m_knownClasses[className];
-
-        QObject* obj = metaObj.newInstance(Q_ARG(QString, id),
-                                           Q_ARG(QString, name));
-
-        if (!obj)
-        {
-            if (!m_silent)
-            {
-                qCritical() << QStringLiteral("GtPropertyFactory : ") <<
-                               tr("Error creating") <<
-                               QStringLiteral(" ") <<
-                               className;
-                qDebug() << knownClasses();
-            }
-
-            return nullptr;
-        }
-
-        retval = qobject_cast<GtAbstractProperty*>(obj);
-
-        if (!retval)
-        {
-            delete obj;
-
-            if (!m_silent)
-            {
-                qCritical() << QStringLiteral("GtPropertyFactory : ") <<
-                               tr("Error casting property") <<
-                               QStringLiteral(" ") <<
-                               className;
-                qDebug() << knownClasses();
-            }
-
-            return nullptr;
-        }
+        return m_knownFactories[className](id, name);
     }
     else
     {
         if (!m_silent)
         {
-            // TODO: uncomment
-//            qWarning() << "WARNING: classname not found! (" << className << ")";
+            qWarning() << "WARNING: classname not found! (" << className << ")";
         }
 
         return nullptr;
     }
+}
 
-    return retval;
+GtPropertyFactory&
+GtPropertyFactory::registerProperty(const QString &className,
+                                    FactoryFunction factory)
+{
+    if (m_knownFactories.contains(className))
+    {
+        gtWarning().noquote().nospace()
+            << "Overwriting already registered Property type '"
+            << className << " in GtPropertyFactory.";
+    }
+
+    m_knownFactories.insert(className, std::move(factory));
+
+    return *this;
+}
+
+GtPropertyFactory &GtPropertyFactory::unregisterProperty(const QString &className)
+{
+    if (m_knownFactories.contains(className))
+    {
+        m_knownFactories.remove(className);
+    }
+
+    return *this;
 }

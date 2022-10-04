@@ -961,7 +961,6 @@ GtObjectIO::propertyListToDomElement(const QString& name,
 QVariant
 GtObjectIO::propertyToVariant(const QString& value, const QString& type)
 {
-//    return QVariant(value);
 
     std::string str = type.toStdString();
     const char* p = str.c_str();
