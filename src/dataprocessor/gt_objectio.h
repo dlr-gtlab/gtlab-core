@@ -113,15 +113,18 @@ public:
      */
     static bool revertDiff(GtObjectMementoDiff& diff, GtObject* obj);
 
-    /** Converts given QVariant to QString.
-        @param var QVariant
-        @return QString */
+    /**
+     *  Converts given QVariant to QString.
+     *  @param var QVariant
+     *  @return QString
+     */
     static inline QString variantToString(const QVariant& var)
     {
-        if (var.type() == QMetaType::QPointF)
+        if (var.type() == QVariant::PointF)
         {
             QPointF val = var.toPointF();
-            return QString::number(val.x()) + QStringLiteral("_") + QString::number(val.y());
+            return QString::number(val.x()) + QStringLiteral("_")
+                   + QString::number(val.y());
         }
         else
         {
@@ -139,20 +142,11 @@ public:
                                        QString& typeStr);
 
     /**
-     * @brief detect wether a QVariant data element would be stored as propertylist instead of property element.
+     * @brief detect wether a QVariant data element would
+     *        be stored as propertylist instead of property element.
      */
     static inline bool usePropertyList(const QVariant& var)
     {
-//        QSet<QVariant::Type> listTypes;
-//        if (listTypes.isEmpty())
-//        {
-//            listTypes.insert(QVariant::nameToType("QList<int>"));
-//            listTypes.insert(QVariant::nameToType("QList<bool>"));
-//            listTypes.insert(QVariant::nameToType("QList<QPointF>"));
-//            listTypes.insert(QVariant::nameToType("QVector<double>"));
-//            listTypes.insert(QVariant::nameToType("QStringList"));
-//        }
-
         return S_LISTTYPES.contains(var.typeName());
     }
 private:

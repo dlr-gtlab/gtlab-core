@@ -470,7 +470,7 @@ GtObjectMementoDiff::detectDynamicPropertyChanges(
     // we enforce, that the number of dyanmic properties may not change
     assert (leftContainers.size() == rightContainers.size());
 
-    for (size_t i = 0; i < leftContainers.size(); ++i)
+    for (int i = 0; i < leftContainers.size(); ++i)
     {
         const auto& left = leftContainers[i];
         const auto& right = rightContainers[i];
@@ -495,13 +495,13 @@ GtObjectMementoDiff::detectDynamicPropertyChanges(
     const auto& leftEntries = leftContainer.childProperties;
     const auto& rightEntries = rightContainer.childProperties;
 
-    using index_t = size_t;
+    using index_t = int;
 
     std::vector<std::pair<index_t, PD>> deleted, added;
     std::vector<std::tuple<QString, PD, PD>> changed;
 
     // search, which entries are  deletedf and changed
-    for (size_t leftIdx = 0; leftIdx < leftEntries.size(); ++leftIdx) {
+    for (int leftIdx = 0; leftIdx < leftEntries.size(); ++leftIdx) {
 
         const auto& leftEntry = leftEntries[leftIdx];
 
@@ -530,7 +530,7 @@ GtObjectMementoDiff::detectDynamicPropertyChanges(
     }
 
     // search for added entries
-    for (size_t rightIdx = 0; rightIdx < rightEntries.size(); ++rightIdx) {
+    for (int rightIdx = 0; rightIdx < rightEntries.size(); ++rightIdx) {
 
         const auto& rightEntry = rightEntries[rightIdx];
 
@@ -577,7 +577,7 @@ GtObjectMementoDiff::detectDynamicPropertyChanges(
 void
 GtObjectMementoDiff::handleContainerElementAdded(
     QString containerName,
-    size_t idx,
+    int idx,
     const PD& data,
     QDomElement& diffRoot)
 {
@@ -596,7 +596,7 @@ GtObjectMementoDiff::handleContainerElementAdded(
 void
 GtObjectMementoDiff::handleContainerElementRemoved(
     QString containerName,
-    size_t idx,
+    int idx,
     const PD& data,
     QDomElement& diffRoot)
 {

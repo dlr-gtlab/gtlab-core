@@ -172,13 +172,13 @@ private:
      */
     void handleContainerElementAdded(
         QString containerName,
-        size_t idx,
+        int idx,
         const GtObjectMemento::PropertyData& entryData,
         QDomElement& diffRoot);
 
     void handleContainerElementRemoved(
         QString containerName,
-        size_t idx,
+        int idx,
         const GtObjectMemento::PropertyData& entryData,
         QDomElement& diffRoot);
 
