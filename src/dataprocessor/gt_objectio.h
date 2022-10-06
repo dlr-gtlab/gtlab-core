@@ -96,12 +96,12 @@ public:
     /** Creates new GtObjects from given Memento.
         @param memento GtObjectMemento memento
         @return New GtObject based on GtObjectMemento memento */
-    GtObject* toObject(const GtObjectMemento& memento,
-                       GtObject* parent = nullptr);
+    GtObject* toObject(const GtObjectMemento& memento);
 
     /** Merges GtObjects information from given QDomElement.
         @param element QDomElement memento
         @param obj GtObject */
+    [[deprecated]]
     void mergeObject(const QDomElement& element,
                      GtObject* obj);
 
@@ -186,6 +186,7 @@ private:
     /** Creates new GtObjects from given QDomElement.
         @param element QDomElement memento
         @return New GtObject based on QDomElement memento */
+    [[deprecated]]
     GtObject* toObjectHelper(const QDomElement& element,
                        GtObject* parent = nullptr);
 
@@ -193,6 +194,7 @@ private:
         in GtdObject.
         @param element QDomElement memento
         @param obj GtdObject */
+    [[deprecated]]
     void mergeObjectProperties(const QDomElement& element,
                                GtObject* obj);
 
@@ -201,6 +203,7 @@ private:
      * @param element
      * @param obj
      */
+    [[deprecated]]
     void mergeDummyProperies(const QDomElement& element,
                              GtObject* obj);
 

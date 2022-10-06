@@ -108,9 +108,7 @@ GtObjectMemento::mergeTo(GtObject* obj, GtAbstractObjectFactory* factory) const
     }
 
     GtObjectIO oio(factory);
-    oio.mergeObject(documentElement(), obj);
-
-    return true;
+    return oio.mergeObject(data(), *obj);
 }
 
 const QString&
@@ -363,11 +361,11 @@ PD::fromQMetaProperty(const QMetaProperty &prop, const QVariant& val)
     return *this;
 }
 
-const GtObjectMemento::MementoData* GtObjectMemento::MementoData::findChild(const QString &uuid) const
+const GtObjectMemento::MementoData* GtObjectMemento::MementoData::findChild(const QString &ident) const
 {
     auto iter = std::find_if(childObjects.begin(), childObjects.end(),
-                 [&uuid](const GtObjectMemento& child) {
-        return uuid == child.uuid();
+                 [&ident](const GtObjectMemento& child) {
+        return ident == child.ident();
     });
 
     if (iter == childObjects.end())

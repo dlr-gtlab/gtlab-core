@@ -157,7 +157,7 @@ public:
      */
     struct MementoData
     {
-        const GtObjectMemento::MementoData* findChild(const QString& uuid) const;
+        const GtObjectMemento::MementoData* findChild(const QString& ident) const;
 
 
         QString className, uuid, ident;
@@ -181,6 +181,7 @@ public:
                 return _data;
             }
 
+            GT_DATAMODEL_EXPORT
             PropertyData& setData(const QVariant& val);
 
             static PropertyData

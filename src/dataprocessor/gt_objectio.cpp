@@ -289,9 +289,9 @@ GtObjectIO::toMemento(const QDomElement& e)
 }
 
 GtObject*
-GtObjectIO::toObject(const GtObjectMemento& memento, GtObject* parent)
+GtObjectIO::toObject(const GtObjectMemento& memento)
 {
-  return toObjectHelper(memento.documentElement(), parent);
+   return fromMementoToObject(memento.data()).release();
 }
 
 GtObject*
@@ -508,18 +508,20 @@ GtObjectIO::mergeObject(const GtObjectMemento::MementoData& data, GtObject& obj)
         assert(child);
 
         // check, that memento data contain object
-        auto const * mementoChild = data.findChild(child->uuid());
+        auto const * mementoChild = data.findChild(child->objectName());
 
-        bool canBeMerged = false;
+        bool wasMerged = false;
 
         // can only be merged if name and uuid match
-        if (mementoChild && mementoChild->ident == child->objectName())
+        if (mementoChild && mementoChild->uuid == child->uuid())
         {
+            assert(mementoChild->ident == child->objectName());
+
             // read in props of mementochild to child
-            canBeMerged = mergeObject(*mementoChild, *child);
+            wasMerged = mergeObject(*mementoChild, *child);
         }
 
-        if (!child->isDefault() && !canBeMerged)
+        if (!child->isDefault() && !wasMerged)
         {
             // the child object could not be merged, we need to read
             // it back in later
@@ -534,7 +536,12 @@ GtObjectIO::mergeObject(const GtObjectMemento::MementoData& data, GtObject& obj)
     {
         // skip if mementoChild already in object,
         // it has been alrady merged before
-        if (obj.findDirectChild<GtObject*>(mementoChild.ident())) continue;
+        auto childObj = obj.getDirectChildByUuid(mementoChild.uuid());
+
+        // double check that if it was properly merged
+        assert(!childObj || childObj->objectName() == mementoChild.ident());
+
+        if (childObj) continue;
 
         auto newObject = fromMementoToObject(mementoChild.data());
         if (newObject)
@@ -2070,7 +2077,9 @@ GtObjectIO::handleObjectAdd(GtObject* parent,
 
     GtObjectFactory* factory = GtObjectFactory::instance();
     GtObjectIO oio(factory);
-    GtObject* newObj = oio.toObjectHelper(objectToAdd);
+
+    auto mementoData = oio.toMemento(objectToAdd);
+    auto newObj = oio.fromMementoToObject(mementoData);
 
 
     if (!newObj)
@@ -2083,11 +2092,11 @@ GtObjectIO::handleObjectAdd(GtObject* parent,
 
     if (ind >= numberOfChildren)
     {
-        parent->appendChild(newObj);
+        parent->appendChild(newObj.release());
     }
     else if (ind >= 0)
     {
-        parent->insertChild(ind, newObj);
+        parent->insertChild(ind, newObj.release());
     }
     else
     {

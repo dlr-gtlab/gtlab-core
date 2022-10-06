@@ -176,8 +176,7 @@ TEST_F(TestFromMemento, mergeObject)
 
     auto memento = obj1.toMemento();
 
-    GtObjectIO io(GtObjectFactory::instance());
-    EXPECT_TRUE(io.mergeObject(memento.data(), obj2));
+    EXPECT_TRUE(memento.mergeTo(&obj2, GtObjectFactory::instance()));
 
     EXPECT_EQ(1, obj2.childCount<GtObject*>());
     EXPECT_TRUE(child2->uuid() == child1->uuid());
@@ -187,7 +186,7 @@ TEST_F(TestFromMemento, mergeObject)
     // will be recreated, i.e. get the old uuid
     child2->setUuid("bla");
 
-    EXPECT_TRUE(io.mergeObject(memento.data(), obj2));
+    EXPECT_TRUE(memento.mergeTo(&obj2, GtObjectFactory::instance()));
 
     EXPECT_EQ(1, obj2.childCount<GtObject*>());
 
@@ -202,8 +201,7 @@ TEST_F(TestFromMemento, mergeNonMatchingObject)
 
     auto memento = testobj.toMemento();
 
-    GtObjectIO io(GtObjectFactory::instance());
-    EXPECT_FALSE(io.mergeObject(memento.data(), o));
+    EXPECT_FALSE(memento.mergeTo(&o, GtObjectFactory::instance()));
 }
 
 TEST_F(TestFromMemento, mergeDummyObject)
@@ -233,9 +231,8 @@ TEST_F(TestFromMemento, mergeDummyObject)
     EXPECT_EQ("fart", obj->uuid().toStdString());
     EXPECT_EQ("inThisRoom", obj->objectName().toStdString());
 
-    auto dummy = qobject_cast<GtDummyObject*>(obj.get());
-    ASSERT_TRUE(dummy != nullptr);
-    EXPECT_EQ("ugly", dummy->origClassName().toStdString());
+    auto mementoCopy = obj->toMemento(false);
+    EXPECT_EQ("ugly", mementoCopy.className());
 }
 
 TEST_F(TestFromMemento, noFactory)
