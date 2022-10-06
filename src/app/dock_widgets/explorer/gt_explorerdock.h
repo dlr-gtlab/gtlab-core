@@ -185,6 +185,24 @@ private:
      * @return
      */
     QModelIndex firstSelectedIndex() const;
+
+    /**
+     * @brief listElements
+     * @param parent - parent index
+     * @return list of all child elements of the given index parent in the model
+     */
+    QModelIndexList listElements(const QModelIndex& parent) const;
+
+public slots:
+
+    /**
+     * @brief selectObjectByUuid
+     * Find a object in the model by uuid and
+     * select the index of this object in the view
+     * @param uuid - uuid to match
+     */
+    void selectObjectByUuid(QString const& uuid);
+
 private slots:
 
     /**

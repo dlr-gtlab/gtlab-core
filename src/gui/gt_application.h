@@ -409,6 +409,14 @@ signals:
      * had been modified
      */
     void shortCutsChanged();
+
+    /**
+     * @brief selectionByUuidRequested
+     * Emit signal to select an object
+     *  in the explorer dockwidget based on its uuid
+     * @param uuid - uuid to the object to select in the dock widget
+     */
+    void selectionByUuidRequested(QString uuid);
 };
 
 #endif // GTAPPLICATION_H

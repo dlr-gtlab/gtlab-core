@@ -116,9 +116,6 @@ private:
     /// filter model
     GtTreeFilterModel* m_filterModel;
 
-    /// Value delegate
-    GtPropertyValueDelegate* m_valDelegate;
-
 private slots:
     /**
      * @brief onCollapsed

@@ -20,6 +20,7 @@ class GtPropertyModel;
 class QAbstractItemModel;
 class QPainter;
 class QStyleOptionViewItem;
+class QMimeData;
 class GtPropertyValueDelegate;
 class GtObject;
 class GtPropertyItemFactory;
@@ -99,6 +100,28 @@ public:
      * @return
      */
     bool isOptional();
+
+    /**
+     * @brief acceptDrop
+     * Overwrite, if the property item should accept some mime data
+     * to be dropped
+     * @param data - mime data to check
+     * @return false by default
+     */
+    virtual bool acceptDrop(const QMimeData* data) const;
+
+    /**
+     * @brief dropMimeData
+     * Overwrite, if the property item should react when some mime data is dropped
+     * does nothing by default
+     *
+     * If this function should be used the acceptDrop function
+     * has to be overwritten as well
+     *
+     * @param data - mime data to check
+     * @return false by default
+     */
+    virtual bool dropMimeData(const QMimeData* data);
 
 protected:
     /// Property model.

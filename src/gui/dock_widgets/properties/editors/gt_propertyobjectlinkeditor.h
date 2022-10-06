@@ -58,6 +58,23 @@ public:
      */
     void updateText();
 
+    /**
+     * @brief dropEvent
+     * overrides function of QWidget to handle a drop event with the event 
+     * If the mime data of the event contain information of a valid
+     * object which is a valid object for the objectlinkproperty
+     * the uuid of the object is set as the new value of the object link
+     */
+    void dropEvent(QDropEvent* event) override;
+
+    /**
+     * @brief dragEnterEvent
+     * overrides function of QWidget to handle a drag enter event with the event 
+     * If the mime data of the event contain information of a valid
+     * object which is a valid object for the objectlinkproperty
+     * the widget accepts the drag enter into the window
+     */
+    void dragEnterEvent(QDragEnterEvent* e) override;
 private:
     ///
     QLineEdit* m_objectId;
@@ -86,6 +103,11 @@ private slots:
      */
     void deleteObjectLink();
 
+    /**
+     * @brief findObject
+     * find the object of the objectlink property in the explorer dock widget
+     */
+    void findObject();
 signals:
     /**
      * @brief objectSelected

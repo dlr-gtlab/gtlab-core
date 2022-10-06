@@ -7,8 +7,11 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include <QMimeData>
 #include "gt_objectlinkproperty.h"
 #include "gt_propertyobjectlinkeditor.h"
+#include "gt_datamodel.h"
+#include "gt_objectfactory.h"
 
 #include "gt_propertyobjectlinkitem.h"
 
@@ -129,4 +132,40 @@ GtPropertyObjectLinkItem::setModelData(QWidget* /*editor*/,
                                        const QModelIndex& /*index*/) const
 {
     // nothing to do here
+}
+
+bool
+GtPropertyObjectLinkItem::acceptDrop(const QMimeData* mime) const
+{
+    if (!objectLinkProperty())
+    {
+        return false;
+    }
+
+    GtObject* obj = gtDataModel->objectFromMimeData(mime, false,
+                                                    gtObjectFactory);
+
+    return obj != nullptr && objectLinkProperty()->allowedClasses().contains(
+               obj->metaObject()->className());
+}
+
+bool
+GtPropertyObjectLinkItem::dropMimeData(const QMimeData* mime)
+{
+    if (!objectLinkProperty())
+    {
+        return false;
+    }
+
+    GtObject* obj = gtDataModel->objectFromMimeData(mime, false,
+                                                    gtObjectFactory);
+
+    if (obj && objectLinkProperty()->allowedClasses().contains(
+                obj->metaObject()->className()))
+    {
+        objectLinkProperty()->setVal(obj->uuid());
+        return true;
+    }
+
+    return false;
 }

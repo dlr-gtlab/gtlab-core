@@ -79,6 +79,21 @@ public:
                       QAbstractItemModel* model,
                       const QModelIndex& index) const override;
 
+    /**
+     * @brief acceptDrop
+     * @param mime data to check if it should be used
+     * @return true if the mime data should be accepted
+     */
+    bool acceptDrop(const QMimeData* mime) const override;
+
+    /**
+     * @brief dropMimeData
+     * handles mime data that are dropped
+     * @param mime
+     * @return true in case of success
+     */
+    bool dropMimeData(const QMimeData* mime) override;
+
 };
 
 #endif // GTPROPERTYOBJECTLINKITEM_H

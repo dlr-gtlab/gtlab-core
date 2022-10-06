@@ -11,18 +11,18 @@
 #include <QPainter>
 #include <QHeaderView>
 #include <QScrollBar>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 
 #include "gt_propertytreeview.h"
 #include "gt_propertymodel.h"
-#include "gt_abstractproperty.h"
-#include "gt_unitconverter.h"
-#include "gt_application.h"
 #include "gt_treefiltermodel.h"
 #include "gt_propertyiddelegate.h"
 #include "gt_propertyvaluedelegate.h"
 #include "gt_propertyunitdelegate.h"
-#include "gt_project.h"
 #include "gt_icons.h"
+#include "gt_logging.h"
 
 GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
                                        QWidget* parent) :
@@ -33,6 +33,12 @@ GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
     setRootIsDecorated(false);
     setAnimated(true);
 
+    setDragDropMode(DropOnly);
+    setAcceptDrops(true);
+    setDropIndicatorShown(true);
+    setDragDropOverwriteMode(true);
+
+
     connect(this, SIGNAL(collapsed(QModelIndex)),
             SLOT(onCollapsed(QModelIndex)));
     connect(this, SIGNAL(expanded(QModelIndex)),
@@ -41,12 +47,12 @@ GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
     header()->setDefaultSectionSize(20);
 
     GtPropertyIdDelegate* idDelegate = new GtPropertyIdDelegate(this);
-    m_valDelegate = new GtPropertyValueDelegate(this);
+    GtPropertyValueDelegate* valDelegate = new GtPropertyValueDelegate(this);
     GtPropertyUnitDelegate* unitDelegate = new GtPropertyUnitDelegate(this);
 
     setItemDelegateForColumn(0, idDelegate);
     setItemDelegateForColumn(1, unitDelegate);
-    setItemDelegateForColumn(2, m_valDelegate);
+    setItemDelegateForColumn(2, valDelegate);
 
     m_model = new GtPropertyModel(scope, this);
     m_filterModel = new GtTreeFilterModel(m_model);
@@ -149,9 +155,10 @@ GtPropertyTreeView::setCategoryFilter(const QStringList& filter)
     m_model->setCategoryFilter(filter);
 }
 
-void GtPropertyTreeView::drawRow(QPainter* painter,
-                                 const QStyleOptionViewItem& option,
-                                 const QModelIndex& index) const
+void
+GtPropertyTreeView::drawRow(QPainter* painter,
+                            const QStyleOptionViewItem& option,
+                            const QModelIndex& index) const
 {
     QStyleOptionViewItemV3 opt = option;
 

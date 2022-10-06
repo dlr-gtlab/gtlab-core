@@ -176,6 +176,41 @@ public:
      */
     void setCategoryFilter(const QStringList& filter);
 
+    /**
+     * @brief canDropMimeData
+     * Overwritten function to check if the given mime data is valid
+     * to be dropped
+     * @param data
+     * @param action
+     * @param row
+     * @param column
+     * @param parent
+     * @return true if the data is allowed to be used
+     */
+    bool canDropMimeData(const QMimeData* data, Qt::DropAction action,
+                         int row, int column,
+                         const QModelIndex& parent) const override;
+    /**
+     * @brief dropMimeData
+     * Overwritten function to handle drop of mime data
+     * @param data
+     * @param action
+     * @param row
+     * @param column
+     * @param parent
+     * @return true if the data could be handled
+     */
+    bool dropMimeData(const QMimeData* data,
+                      Qt::DropAction action,
+                      int row, int column,
+                      const QModelIndex& parent) override;
+
+    /**
+     * @brief mimeTypes
+     * @return
+     */
+    QStringList mimeTypes() const override;
+
 private:
     /// pointer to current object
     QPointer<GtObject> m_obj;

@@ -17,7 +17,6 @@
 #include "gt_modeproperty.h"
 #include "gt_modetypeproperty.h"
 #include "gt_propertyvaluedelegate.h"
-#include "gt_propertyitemfactory.h"
 
 GtPropertyModeItem::GtPropertyModeItem()
 {

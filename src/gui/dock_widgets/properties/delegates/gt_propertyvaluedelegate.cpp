@@ -14,7 +14,6 @@
 #include "gt_propertyvaluedelegate.h"
 #include "gt_propertytreeview.h"
 #include "gt_abstractpropertyitem.h"
-#include "gt_project.h"
 
 GtPropertyValueDelegate::GtPropertyValueDelegate(GtPropertyTreeView* parent) :
     QStyledItemDelegate(parent),

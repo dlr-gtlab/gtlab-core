@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Versionnumber based on GtVersionNumber for tasks - #129
 - Add some DataZone functions to Python interface - #177
 - Project data upgrade functionality to handle datamodel updates - #219
+- ObjectLink properties got an button to jump to linked object in explorer dock widget #128
+- ObjectLink properties can be set by a drag and drop of objects from the explorer dock widget - #128
 
 ### Removed
 - Nozzle map was removed to be added in the map collection - #114 
