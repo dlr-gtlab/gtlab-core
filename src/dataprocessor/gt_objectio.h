@@ -105,7 +105,7 @@ public:
     void mergeObject(const QDomElement& element,
                      GtObject* obj);
 
-    void mergeObject(const GtObjectMemento::MementoData& data, GtObject& obj) const;
+    bool mergeObject(const GtObjectMemento::MementoData& data, GtObject& obj) const;
 
     GT_DATAMODEL_EXPORT
     std::unique_ptr<GtObject>

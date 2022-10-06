@@ -68,6 +68,9 @@ public:
      */
     virtual bool registerClass(QMetaObject metaObj);
 
+    bool unregisterClass(QMetaObject metaObj);
+
+
     /**
      * @brief registerClasses
      * @param metaObject

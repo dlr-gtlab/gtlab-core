@@ -36,6 +36,10 @@ protected:
 
 TEST_F(TestGtDummyObject, toMemento)
 {
+    // make sure, the object is not known to the factory
+    GtObjectFactory::instance()
+            ->unregisterClass(TestSpecialGtObject::staticMetaObject);
+
     QDir tmpDir = gtTestHelper->newTempDir();
     tmpDir.cdUp();
 

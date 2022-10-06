@@ -10,6 +10,9 @@ local_settings.pri
 *.qmake.stash
 *.o
 *.pyc
+*.gcov
+*.gcno
+moc_*
 *qml_qmlcache.qrc
 linuxBuild.txt
 unittests.xml

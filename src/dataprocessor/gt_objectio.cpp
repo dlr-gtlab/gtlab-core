@@ -356,41 +356,65 @@ GtObjectIO::toObjectHelper(const QDomElement& element, GtObject* parent)
 }
 
 
-void
-readDummyProperties(const GtObjectMemento::MementoData& data,
-                    GtDummyObject& obj)
+bool
+readDummyProperty(const GtObjectMemento::MementoData::PropertyData& p,
+                  GtDummyObject& obj)
 {
-    assert(obj.uuid() == data.uuid);
 
-    /* static properties */
-    for (auto const & p :  data.properties)
+    QString const fieldType = p.dataType();
+    QString const fieldName = p.name;
+
+    if (fieldType.isEmpty() || fieldName.isEmpty())
     {
-
-        QString const fieldType = p.dataType();
-        QString const fieldName = p.name;
-
-
-        if (fieldType.isEmpty() || fieldName.isEmpty())
-        {
-            gtWarning() << "Skipping corrupted property!";
-            continue;
-        }
-
-        auto const val = p.data();
-        auto const opt = p.isOptional;
-        auto const act = p.isActive;
-
-        if (!GtObjectIO::usePropertyList(val))
-        {
-            obj.addDummyProperty(fieldName, fieldType, opt, act, val);
-        }
-        else
-        {
-            obj.addDummyPropertyList(fieldName, fieldType, opt, act, val);
-        }
-
-
+        return false;
     }
+
+    auto const & val = p.data();
+    auto const opt = p.isOptional;
+    auto const act = p.isActive;
+
+    if (!GtObjectIO::usePropertyList(val))
+    {
+        obj.addDummyProperty(fieldName, fieldType, opt, act, val);
+    }
+    else
+    {
+        obj.addDummyPropertyList(fieldName, fieldType, opt, act, val);
+    }
+
+    return true;
+}
+
+bool
+readProperty(const GtObjectMemento::MementoData::PropertyData& p, GtObject& obj)
+{
+
+    QString fieldType = p.dataType();
+    QString fieldName = p.name;
+
+    if (fieldType.isEmpty() || fieldName.isEmpty())
+    {
+        return false;
+    }
+
+    auto* prop = obj.findProperty(fieldName);
+
+    if (prop)
+    {
+        // it is an abstract property
+        prop->setActive(p.isActive);
+        prop->setValueFromVariant(p.data());
+        // TODO: should this be set by the reader ???
+        //prop->setOptional(p.isOptional);
+    }
+    // set the data to a qproperty
+    else if (obj.property(fieldName.toLatin1()) != p.data() &&
+             !obj.setProperty(fieldName.toLatin1(), p.data()))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 void
@@ -399,36 +423,20 @@ readProperties(const GtObjectMemento::MementoData& data,
 {
     assert(obj.uuid() == data.uuid);
 
-    if (obj.isDummy())
-    {
-        return readDummyProperties(data, *qobject_cast<GtDummyObject*>(&obj));
-    }
+    bool isDummy = obj.isDummy();
+    auto * dummyObject = qobject_cast<GtDummyObject*>(&obj);
 
-    assert(obj.metaObject()->className() == data.className);
+    assert(isDummy || obj.metaObject()->className() == data.className);
+    assert(!isDummy || dummyObject);
 
 
     for (auto const & p :  data.properties)
     {
-        QString fieldType = p.dataType();
-        QString fieldName = p.name;
+        bool success = !isDummy ?
+                    readProperty(p, obj) :
+                    readDummyProperty(p, *dummyObject);
 
-        if (fieldType.isEmpty() || fieldName.isEmpty())
-        {
-            gtWarning() << "Skipping corrupted property!";
-            continue;
-        }
-
-        auto* prop = obj.findProperty(fieldName);
-
-        if (prop)
-        {
-            // it is an abstract property
-            prop->setActive(p.isActive);
-            prop->setValueFromVariant(p.data());
-        }
-        // set the data to a qproperty
-        else if (obj.property(fieldName.toLatin1()) != p.data() &&
-                 !obj.setProperty(fieldName.toLatin1(), p.data()))
+        if (!success)
         {
 
             gtWarning() << QObject::tr("could not find property") <<
@@ -459,7 +467,7 @@ GtObjectIO::fromMementoToObject(const GtObjectMemento::MementoData& data) const
     {
         // no class found in factory. we need a dummy object here
         gtWarning().nospace().noquote()
-            << "Could not recreate object of unknown type '"
+            << "Creating dummy object for unknown class '"
             << clzname << "'.";
 
         auto tmp = new GtDummyObject(nullptr);
@@ -467,37 +475,32 @@ GtObjectIO::fromMementoToObject(const GtObjectMemento::MementoData& data) const
         obj.reset(tmp);
     }
 
-    obj->setUuid(data.uuid);
-    obj->setObjectName(data.ident);
-
 
     mergeObject(data, *obj);
 
     return obj;
 }
 
-void
+bool
 GtObjectIO::mergeObject(const GtObjectMemento::MementoData& data, GtObject& obj) const
 {
 
-    if (obj.metaObject()->className() != data.className)
+    if (!obj.isDummy() && obj.metaObject()->className() != data.className)
     {
-        //gtError() << "Object class name and object type does not match";
+        gtError() << "Object class name and object type does not match";
 
-        //return;
+        return false;
     }
 
-    assert(obj.uuid() == data.uuid);
-    assert(obj.objectName() == data.ident);
+    obj.setUuid(data.uuid);
+    obj.setObjectName(data.ident);
+
 
     ::readProperties(data, obj);
 
     // child objects
 
     auto childs = obj.findDirectChildren<GtObject*>();
-
-    // Defer deletion as we iterate over these objetcs
-    QList<GtObject*> objectsToRemove;
 
     // loop over all existing childs in the current object
     for (auto& child : childs)
@@ -507,25 +510,24 @@ GtObjectIO::mergeObject(const GtObjectMemento::MementoData& data, GtObject& obj)
         // check, that memento data contain object
         auto const * mementoChild = data.findChild(child->uuid());
 
+        bool canBeMerged = false;
+
         // can only be merged if name and uuid match
         if (mementoChild && mementoChild->ident == child->objectName())
         {
             // read in props of mementochild to child
-            mergeObject(*mementoChild, *child);
+            canBeMerged = mergeObject(*mementoChild, *child);
         }
 
-        else if (!child->isDefault())
+        if (!child->isDefault() && !canBeMerged)
         {
             // the child object could not be merged, we need to read
             // it back in later
 
             // remove child, if it is not in memento and not a default child
-            objectsToRemove.append(child);
-            // TODO: check if we can directly delete the child
+            delete child;
         }
     }
-
-    qDeleteAll(objectsToRemove);
 
     // loop over all childs in memento, that are not yet in the object
     for (auto const & mementoChild : data.childObjects)
@@ -541,6 +543,8 @@ GtObjectIO::mergeObject(const GtObjectMemento::MementoData& data, GtObject& obj)
         }
 
     }
+
+    return true;
 }
 
 

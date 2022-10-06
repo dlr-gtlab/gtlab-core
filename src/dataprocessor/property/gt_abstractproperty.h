@@ -46,6 +46,12 @@ public:
      */
     Q_INVOKABLE QVariant valueToVariant() const;
 
+    template <typename T>
+    T value() const
+    {
+        return valueToVariant().value<T>();
+    }
+
     /**
      * @brief setValueFromVariant
      * @param val
