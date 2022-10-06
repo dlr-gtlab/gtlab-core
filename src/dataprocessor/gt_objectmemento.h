@@ -64,6 +64,8 @@ public:
     QByteArray toByteArray() const;
 
     /**
+     * TODO: move to object io
+     *
      * @brief isRestorable
      * @param factory
      * @return
@@ -240,11 +242,6 @@ public:
     void calculateHashes() const;
 
 private:
-    /**
-     * @brief cached XML document
-     */
-    mutable QDomDocument m_domDocument;
-
     /**
      * @brief internal data that represents a GtObject
      */

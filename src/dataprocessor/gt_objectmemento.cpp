@@ -34,21 +34,18 @@ GtObjectMemento::GtObjectMemento(const QDomElement& element)
     {
         GtObjectIO oio;
         m_data = oio.toMemento(element);
-
-        // cache XML document
-        QDomNode node = m_domDocument.importNode(element, true);
-        m_domDocument.appendChild(node);
     }
 }
 
 GtObjectMemento::GtObjectMemento(const QByteArray& byteArray)
 {
-    m_domDocument.setContent(byteArray);
-    if (!m_domDocument.isNull())
-    {
-        GtObjectIO oio;
-        m_data = oio.toMemento(m_domDocument.documentElement());
-    }
+
+    QDomDocument doc;
+    doc.setContent(byteArray);
+
+    GtObjectIO oio;
+    m_data = oio.toMemento(doc.documentElement());
+
 }
 
 bool
@@ -60,31 +57,33 @@ GtObjectMemento::isNull() const
 QDomElement
 GtObjectMemento::documentElement() const
 {
+    QDomDocument doc;
+
     // create XML representation if necessary
-    if (m_domDocument.isNull() && !isNull())
+    if (!isNull())
     {
         GtObjectIO oio;
-        QDomElement e = oio.toDomElement(*this, m_domDocument);
-        m_domDocument.appendChild(e);
+
+        QDomElement e = oio.toDomElement(*this, doc);
+        doc.appendChild(e);
     }
 
-    // delegate to internal QDomDocument
-    return m_domDocument.documentElement();
+    return doc.documentElement();
 }
 
 QByteArray
 GtObjectMemento::toByteArray() const
 {
+    QDomDocument doc;
     // create XML representation if necessary
-    if (m_domDocument.isNull() && !isNull())
+    if (!isNull())
     {
         GtObjectIO oio;
-        QDomElement e = oio.toDomElement(*this, m_domDocument);
-        m_domDocument.appendChild(e);
+        QDomElement e = oio.toDomElement(*this, doc);
+        doc.appendChild(e);
     }
 
-    // delegate to internal QDomDocument
-    return m_domDocument.toByteArray();
+    return doc.toByteArray();
 }
 
 bool
