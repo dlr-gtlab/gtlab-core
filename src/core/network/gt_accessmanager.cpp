@@ -83,8 +83,6 @@ GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
 
     if (!list.empty() && nhl == 1)
     {
-        qDebug() << "   |-> reading data...";
-
         list.removeFirst();
 
         while (!list.isEmpty())

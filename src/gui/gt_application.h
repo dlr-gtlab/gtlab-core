@@ -22,9 +22,10 @@
 #include <QUndoStack>
 #include <QMutex>
 #include <QPointer>
-#include "gt_settings.h"
 
 #include <memory>
+
+#include "gt_shortcutsettingsdata.h"
 
 class QKeyEvent;
 class GtPerspective;
@@ -46,7 +47,7 @@ public:
      */
     explicit GtApplication(QCoreApplication* parent,
                            bool devMode = false,
-                           bool batchMode = false);
+                           AppMode mode = AppMode::Gui);
 
     /**
      * @brief Destructor.

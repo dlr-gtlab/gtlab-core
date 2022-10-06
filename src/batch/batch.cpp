@@ -10,7 +10,6 @@
 #include <iostream>
 
 #include <QApplication>
-#include <QCommandLineParser>
 #include <QDomDocument>
 #include <QObject>
 #include <QDir>
@@ -21,10 +20,12 @@
 #include "gt_coreprocessexecutor.h"
 #include "gt_project.h"
 #include "gt_projectprovider.h"
-#include "gt_processdata.h"
+#include "internal/gt_commandlinefunctionhandler.h"
 #include "gt_task.h"
 #include "gt_footprint.h"
 #include "batchremote.h"
+#include "gt_consoleparser.h"
+#include "gt_versionnumber.h"
 
 using namespace std;
 
@@ -38,50 +39,73 @@ showSplashScreen()
     cout << "    _  / __ __  /  __  /_  __ `/_  __ \\" << endl;
     cout << "    / /_/ / _  /   _  / / /_/ /_  /_/ /" << endl;
     cout << "    \\____/  /_/    /_/  \\__,_/ /_.___/ " << endl;
-    cout << "                                 " <<
-         GtCoreApplication::versionToString().toStdString() << endl;
+    cout << "                                 "
+         << GtCoreApplication::versionToString().toStdString() << endl;
     cout << "******************************************" << endl;
     cout << endl;
 }
 
 int
-checkMetaInput(const QString& fileName)
+checkMetaInput(const QStringList& args)
 {
+    GtCommandLineParser p;
+    p.parse(args);
+
+    if (p.positionalArguments().size() != 1)
+    {
+        qWarning() << QStringLiteral("ERROR: ")
+                   << QObject::tr("Invalid size of arguments for check meta!"
+                                  "Exactly one argument is required");
+        return -1;
+    }
+
+    QString fileName = p.positionalArguments().constFirst();
+
     qDebug() << "meta input check...";
 
     if (fileName.isEmpty())
     {
-        qWarning() << QStringLiteral("ERROR: ") <<
-                   QObject::tr("file name is empty!");
-
+        qWarning() << QStringLiteral("ERROR: ")
+                   << QObject::tr("file name is empty!");
         return -1;
     }
 
-    if (!BatchRemote::checkInput(fileName,
-                                 GtCoreApplication::versionToString(),
+    if (!BatchRemote::checkInput(fileName, GtCoreApplication::versionToString(),
                                  false, false))
     {
-        qWarning() << QStringLiteral("ERROR: ") <<
-                   QObject::tr("meta input invalid!");
-
+        qWarning() << QStringLiteral("ERROR: ")
+                   << QObject::tr("meta input invalid!");
         return -1;
     }
 
     qDebug() << "meta input ok!";
-
     return 0;
 }
 
 int
-runMetaInput(const QString& inputFileName, const QString& outputFileName)
+runMetaInput(const QStringList& args)
 {
+    GtCommandLineParser p;
+    p.parse(args);
+
+    if (p.positionalArguments().size() < 2)
+    {
+        qWarning() << "Invalid arguments for runMetaInput.";
+        qWarning() << "Two arguments needed as <Input> <Output>";
+
+        return -1;
+    }
+
+
+    QString inputFileName = p.positionalArguments().constFirst();
+    QString outputFileName = p.positionalArguments().at(1);
+
     qDebug() << "meta input run...";
 
     if (inputFileName.isEmpty())
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("input file name is empty!");
-
         return -1;
     }
 
@@ -89,23 +113,20 @@ runMetaInput(const QString& inputFileName, const QString& outputFileName)
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("output file name is empty!");
-
         return -1;
     }
 
     qDebug() << "   input file name: " << inputFileName;
     qDebug() << "   output file name: " << outputFileName;
 
-    int inputCheck = checkMetaInput(inputFileName);
+    int inputCheck = checkMetaInput({inputFileName});
 
     if (inputCheck != 0)
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("meta input run failed!");
-
         return inputCheck;
     }
-
 
     qDebug() << "executing process...";
 
@@ -114,7 +135,6 @@ runMetaInput(const QString& inputFileName, const QString& outputFileName)
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("process execution failed!");
-
         return -1;
     }
 
@@ -255,9 +275,10 @@ runProcessByFile(const QString& projectFile, const QString& processId,
 
     if (!gtDataModel->GtCoreDatamodel::openProject(project))
     {
-        qWarning() << QStringLiteral("ERROR: ") <<
-                   QObject::tr("could not open project!") <<
-                   QStringLiteral(" (") << projectFile << QStringLiteral(")");
+        qWarning() << QStringLiteral("ERROR: ")
+                   << QObject::tr("could not open project!")
+                   << QStringLiteral(" (") << projectFile
+                   << QStringLiteral(")");
 
         return -1;
     }
@@ -269,9 +290,9 @@ runProcessByFile(const QString& projectFile, const QString& processId,
 
     if (!process)
     {
-        qWarning() << QStringLiteral("ERROR: ") <<
-                   QObject::tr("process not found!") <<
-                   QStringLiteral(" (") << processId << QStringLiteral(")");
+        qWarning() << QStringLiteral("ERROR: ")
+                   << QObject::tr("process not found!")
+                   << QStringLiteral(" (") << processId << QStringLiteral(")");
 
         return -1;
     }
@@ -292,10 +313,10 @@ runProcessByFile(const QString& projectFile, const QString& processId,
     {
         if (!gtDataModel->saveProject(project))
         {
-            qWarning() << QStringLiteral("ERROR: ") <<
-                       QObject::tr("project could not besaved!") <<
-                       QStringLiteral(" (") << projectFile <<
-                       QStringLiteral(")");
+            qWarning() << QStringLiteral("ERROR: ")
+                       << QObject::tr("project could not besaved!")
+                       << QStringLiteral(" (") << projectFile
+                       << QStringLiteral(")");
             return -1;
         }
     }
@@ -303,40 +324,186 @@ runProcessByFile(const QString& projectFile, const QString& processId,
     return 0;
 }
 
-bool
-isExactlyOneTrue(const bool* boolAry, int size)
+void
+printRunHelp()
 {
-    bool areAnyTrue = false;
-    bool areTwoTrue = false;
+    std::cout << std::endl;
+    std::cout << "This is the help for the GTlab run function" << std::endl;
+    std::cout << std::endl;
 
-    for (int i = 0; (!areTwoTrue) && (i < size); i++)
-    {
-        areTwoTrue = (areAnyTrue && boolAry[i]);
-        areAnyTrue |= boolAry[i];
-    }
+    std::cout << "There are two basic methods to start a process:" << std::endl;
+    std::cout << "\tDefine the project by name from the current session"
+                 "(default option or --name or -n)" << std::endl;
+    std::cout  << "\tGTlabConsole.exe run -f <projectName> <processname> [-s] "
+               << std::endl;
 
-    return ((areAnyTrue) && (!areTwoTrue));
+    std::cout << std::endl;
+    std::cout << "\tDefine the project by file (use the option --file or -f"
+              << std::endl;
+    std::cout << "\tGTlabConsole.exe run [-n] <fileName> <processname> [-s]  "
+              << std::endl;
+
+    std::cout << std::endl;
+
+    std::cout << "\tAdditionally you can set the option -s or --save"
+              << std::endl;
+    std::cout << "\tWith this option the results of the successfull process are"
+              << " saved in the datamodel" << std::endl;
+
+    std::cout << std::endl;
 }
 
-// comamnd line options
-const QStringList CLO_SESSION = QStringList() << QStringLiteral("session") <<
-                                QStringLiteral("se");
-const QString CLO_PROJECT = QStringLiteral("project");
-const QString CLO_PROCESS = QStringLiteral("process");
-const QStringList CLO_CHECK_META =
-    QStringList() << QStringLiteral("check_meta") <<
-    QStringLiteral("cm");
-const QStringList CLO_RUN_META =
-    QStringList() << QStringLiteral("run_meta") <<
-    QStringLiteral("rm");
-const QStringList CLO_RUN = QStringList() << QStringLiteral("run") <<
-                            QStringLiteral("r");
-const QStringList CLO_RUNPRO = QStringList() << QStringLiteral("run-pro") <<
-                            QStringLiteral("rp");
-const QStringList CLO_SAVE = QStringList() << QStringLiteral("save") <<
-                             QStringLiteral("s");
-const QStringList CLO_FOOTPRINT = QStringList() << QStringLiteral("footprint") <<
-                             QStringLiteral("fp");
+int
+run(QStringList const& args)
+{
+    GtCommandLineParser p;
+    p.addHelpOption();
+    p.addOption("save", {"save", "s"},
+                "save the process result after successfull run");
+    p.addOption("file", {"file", "f"},
+                "file to gtlab project");
+    p.addOption("name", {"name", "n"},
+                "name of project in current session");
+
+    if (!p.parse(args))
+    {
+        qWarning() << "Run method without arguments is invalid";
+        return -1;
+    }
+
+    if (p.helpOption())
+    {
+        printRunHelp();
+        return 0;
+    }
+
+    bool save = false;
+
+    if (p.option("save"))
+    {
+        save = true;
+        std::cout << "Activate save option" << std::endl;
+    }
+
+    if (p.option("file"))
+    {
+        if (p.positionalArguments().size() != 2)
+        {
+            qWarning() << "Invalid usage of file option";
+            return -1;
+        }
+
+        return runProcessByFile(p.positionalArguments().at(0),
+                p.positionalArguments().at(1), save);
+    }
+
+    if (p.option("name"))
+    {
+        if (p.positionalArguments().size() != 2)
+        {
+            qWarning() << "Invalid usage of name option";
+            return -1;
+        }
+
+        return runProcess(p.positionalArguments().at(0),
+                p.positionalArguments().at(1), save);
+    }
+
+    return -1;
+}
+
+int
+showFootprint(const QStringList& args)
+{
+    Q_UNUSED(args)
+    std::cout << GtFootprint().exportToXML().toStdString() << std::endl;
+
+    return 0;
+}
+
+void
+initPosArgument(QString const& id,
+                std::function<int(const QStringList&)> func,
+                QString const& brief,
+                QList<GtCommandLineOption> const& options = {},
+                QList<GtCommandLineFunctionArgument> const& args = {},
+                bool defaultHelp = true)
+{
+    auto fun = GtCommandLineInterface::make_commandLineFunction(
+                id, func, brief);
+    fun.setOptions(options)
+            .setArgs(args)
+            .setUseDefaultHelp(defaultHelp);
+
+    gtlab::commandline::register_function(fun);
+}
+
+void
+initSystemOptions()
+{
+    /// Add options for positional arguments to the command line interface
+    initPosArgument("footprint", showFootprint, "Displays framework footprint");
+    initPosArgument("check_meta", checkMetaInput,
+                    "Checks given meta process data."
+                    "\n\t\t\tUsage: check_meta <input.xml>");
+    initPosArgument("run_meta", runMetaInput,
+                    "Executes given meta process data. "
+                    "Results are stored in given output file."
+                    "\n\t\t\tUsage; run_meta <input.xml> <output.xml>");
+    QList<GtCommandLineOption> runOptions;
+    runOptions.append(GtCommandLineOption{
+                          {"save", "s"},
+                          "Saves datamodel after successfull process run"});
+    runOptions.append(GtCommandLineOption{
+                          {"name", "n"}, "Define project by name"});
+    runOptions.append(GtCommandLineOption{
+                          {"file", "f"}, "Define project by file"});
+    initPosArgument("run", run,
+                    "\tExecutes a process. \n\t\t\t"
+                    "To define a project name and a process name is the "
+                    "default used option to execute this command."
+                    "\n\t\t\tUse --help for more details.",
+                    runOptions,
+                    QList<GtCommandLineFunctionArgument>(),
+                    false);
+}
+
+int
+initModuleTest(QStringList const& arguments, GtCoreApplication& app)
+{
+    GtCommandLineParser p;
+    p.parse(arguments);
+
+    qDebug() << "Start testing to load module file";
+
+    if (p.positionalArguments().isEmpty())
+    {
+        qWarning() << QStringLiteral("ERROR: ")
+                   << QObject::tr("invalid arguments");
+        return -1;
+    }
+
+    // extract path to the module to load
+    QString moduleToLoad = p.positionalArguments().constFirst();
+
+    qDebug() << "Check module:" << moduleToLoad;
+
+    // load GTlab modules
+    app.loadModules();
+
+    // calculator initialization
+    app.initCalculators();
+
+    // initialize modules
+    app.initModules();
+
+    // check if module is loaded
+    qDebug() << "Use footprint as a first test";
+    std::cout << GtFootprint().exportToXML().toStdString() << endl;
+
+    return -1;
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -349,74 +516,58 @@ int main(int argc, char* argv[])
 
     QApplication a(argc, argv);
 
+    QStringList args = a.arguments();
+
+    if (args.isEmpty())
+    {
+        return -1;
+    }
+    /// Remove the function name itself from arguments
+    args.removeFirst();
+
     showSplashScreen();
 
-    // parse arguments
-    QCommandLineParser parser;
-    parser.setApplicationDescription("GTlab Console");
+    // Setup parser for main function
+    GtConsoleParser parser;
+    parser.addOption("dev",
+                     {QStringLiteral("dev")},
+                     "Activate the developer mode");
     parser.addHelpOption();
-    parser.addVersionOption();
+    parser.addOption("session",
+                     {"session", "se"},
+                     "Defines a session to be used for "
+                     "execution."
+                     "\n\t\t\tUsage: --session <session_id>");
+    parser.addOption("version",
+                     {"version", "v"},
+                     "\tDisplays the version number of GTlab");
 
-    QCommandLineOption sessionOption(QStringList() << CLO_SESSION,
-                                     "Defines a session to be used for "
-                                     "execution."
-                                     "\nUsage: --session=<session_id>",
-                                     "name");
-    //    QCommandLineOption projectOption(QStringList() << CLO_PROJECT,
-    //                                     "Use project <name>.", "name");
-    //    QCommandLineOption processOption(QStringList() << CLO_PROCESS,
-    //                                     "Run process <name>.", "name");
-    QCommandLineOption checkMetaOption(CLO_CHECK_META,
-                                       "Checks given meta process data."
-                                       "\nUsage: -- check_meta <input.xml>");
-    QCommandLineOption runMetaOption(CLO_RUN_META,
-                                     "Executes given meta process data. "
-                                     "Results are stored in given output file."
-                                     "\nUsage; --run_meta <input.xml> "
-                                     "<output.xml>");
-    QCommandLineOption runOption(
-                CLO_RUN, "Executes a given process of a given project. "
-                         "\nUsage: --run <project_id> <process_id>");
-    QCommandLineOption runOptionPro(
-                CLO_RUNPRO, "Executes a given process of a given project file. "
-                            "\nUsage: --run-pro <project_file> <process_id>");
-    QCommandLineOption saveOption(CLO_SAVE,
-                                  "Saves the project after a successful "
-                                  "process execution.");
-    QCommandLineOption footprintOption(CLO_FOOTPRINT,
-                                  "Displays framework footprint.");
-
-
-    parser.addOption(sessionOption);
-    //    parser.addOption(projectOption);
-    //    parser.addOption(processOption);
-    parser.addOption(checkMetaOption);
-    parser.addOption(runMetaOption);
-    parser.addOption(runOption);
-    parser.addOption(runOptionPro);
-    parser.addOption(saveOption);
-    parser.addOption(footprintOption);
-
-    parser.process(a);
-
-    bool arr[5] = {false};
-    arr[0] = parser.isSet(checkMetaOption);
-    arr[1] = parser.isSet(runMetaOption);
-    arr[2] = parser.isSet(runOption);
-    arr[3] = parser.isSet(runOptionPro);
-    arr[4] = parser.isSet(footprintOption);
-
-    if (!isExactlyOneTrue(arr, 5))
+    if (!parser.parse(args))
     {
-        qWarning() << QStringLiteral("ERROR: ") <<
-                   QObject::tr("Invalid argument! "
-                               "Use --help for command overview.");
-
+        std::cout << "Parsing arguments failed" << std::endl;
         return -1;
     }
 
+    /// Add options for positional arguments to the command line interface
+    initSystemOptions();
+
     // application initialization
-    GtCoreApplication app(qApp);
+    GtCoreApplication app(qApp, GtCoreApplication::AppMode::Batch);
+
+    // Load module option
+    if (parser.option("dev"))
+    {
+        app.setDevMode(true);
+    }
+
+    // Load module option
+    if (parser.option("version"))
+    {
+        std::cout << "GTlab version:" << std::endl;
+        std::cout << app.version().toString().toStdString() << std::endl;
+        return 0;
+    }
+
     app.init();
 
     // save to system environment (temporary)
@@ -428,6 +579,12 @@ int main(int argc, char* argv[])
     // datamodel initialization
     app.initDatamodel();
 
+    // Load module option
+    if (parser.argument("load_module"))
+    {
+        return initModuleTest(parser.arguments(), app);
+    }
+
     // load GTlab modules
     app.loadModules();
 
@@ -435,9 +592,12 @@ int main(int argc, char* argv[])
     app.initCalculators();
 
     // session initialization
-    if (parser.isSet(sessionOption))
+    if (parser.option("session"))
     {
-        app.initSession(parser.value(sessionOption));
+        QString sessionValue = parser.optionValue("session").toString();
+        std::cout << "Select session: " << sessionValue.toStdString()
+                  << std::endl;
+        app.initSession(sessionValue);
     }
     else
     {
@@ -453,85 +613,63 @@ int main(int argc, char* argv[])
     // initialize modules
     app.initModules();
 
-    if (parser.isSet(footprintOption))
-    {
-        std::cout << GtFootprint().exportToXML().toStdString() <<
-                     std::endl;
+    QStringList commands =
+            GtCommandLineFunctionHandler::instance().getRegisteredFunctionIDs();
 
-        return 0;
+    for (QString const& s: qAsConst(commands))
+    {
+        GtCommandLineFunction f =
+                GtCommandLineFunctionHandler::instance().getInterfaceFunc(s);
+        parser.addPositionalArgument(f);
     }
 
-    // check meta input
-    if (parser.isSet(checkMetaOption))
+    QString mainArg = parser.firstPositionalArgument();
+    if (mainArg.isEmpty())
     {
-        QStringList metaInputs = parser.positionalArguments();
-
-        if (metaInputs.size() != 1)
+        /// show main application help if it is requested
+        if (parser.helpOption())
         {
-            qWarning() << QStringLiteral("ERROR: ") <<
-                       QObject::tr("please specifify one meta input file!");
-
-            return -1;
+            parser.showHelp();
+            return 0;
         }
 
-        return checkMetaInput(metaInputs.first());
+        qWarning() << "No valid argument could be found in the arguments:";
+        parser.debugArguments();
+        return -1;
     }
 
-    // run meta input
-    if (parser.isSet(runMetaOption))
+    if (commands.contains(mainArg))
     {
-        QStringList metaInputs = parser.positionalArguments();
+        GtCommandLineFunction f =
+                GtCommandLineFunctionHandler::instance().getInterfaceFunc(
+                    mainArg);
 
-        if (metaInputs.size() != 2)
+        /// check if the default help flag is part of the arguments
+        if (parser.helpOption())
         {
-            qWarning() << QStringLiteral("ERROR: ") <<
-                       QObject::tr("please specifify one meta input file "
-                                   "and one output file!");
-
-            return -1;
+            if (f.useDefaultHelp())
+            {
+                f.showDefaultHelp();
+                return 0;
+            }
         }
 
-        return runMetaInput(metaInputs[0], metaInputs[1]);
+        /// remove the argument which lead to this function call
+        parser.removeArg(mainArg);
+
+        /// if a customHelpIs
+        return f(parser.arguments());
     }
-
-    // run process
-    if (parser.isSet(runOption))
+    else
     {
-        const bool saveProject = parser.isSet(saveOption);
-
-        QStringList processIds = parser.positionalArguments();
-
-        if (processIds.size() != 2)
-        {
-            qWarning() << QStringLiteral("ERROR: ") <<
-                       QObject::tr("invalid process id!");
-
-            return -1;
-        }
-
-        return runProcess(processIds[0], processIds[1], saveProject);
-    }
-
-    // run process by file
-    if (parser.isSet(runOptionPro))
-    {
-        const bool saveProject = parser.isSet(saveOption);
-
-        QStringList processIds = parser.positionalArguments();
-
-        if (processIds.size() != 2)
-        {
-            qWarning() << QStringLiteral("ERROR: ") <<
-                       QObject::tr("invalid process id!");
-
-            return -1;
-        }
-
-        return runProcessByFile(processIds[0], processIds[1], saveProject);
+        qCritical() << "Invalid command" << mainArg;
+        return -1;
     }
 
     qWarning() << QObject::tr("invalid arguments! "
-                              "use --help for further information.");
+                              "use run --help for further information.");
+
+    parser.showHelp();
 
     return -1;
 }

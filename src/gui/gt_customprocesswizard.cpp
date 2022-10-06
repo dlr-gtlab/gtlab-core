@@ -11,6 +11,7 @@
 
 #include "gt_processwizardpage.h"
 #include "gt_processwizard.h"
+#include "gt_application.h"
 
 #include "gt_customprocesswizard.h"
 
@@ -23,6 +24,11 @@ GtCustomProcessWizard::GtCustomProcessWizard() :
 bool
 GtCustomProcessWizard::setPage(int id, const QMetaObject& metaPage)
 {
+    if (gtApp->batchMode())
+    {
+        return true;
+    }
+
     if (id < 1)
     {
         return false;

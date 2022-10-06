@@ -45,12 +45,12 @@ int GtCoreApplication::m_minor = GT_VERSION_MINOR;
 int GtCoreApplication::m_patchLevel = GT_VERSION_PATCH;
 std::string GtCoreApplication::m_additional = GT_VERSION_ADDITIONAL;
 
-GtCoreApplication::GtCoreApplication(QCoreApplication* parent) :
+GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     QObject(parent),
     m_settings(new GtSettings),
     m_sessionIds(QStringList() << QStringLiteral("default")),
     m_devMode(false),
-    m_batchMode(false),
+    m_appMode(batch),
     m_dataModel(new GtCoreDatamodel(parent))
 {
     /// set locale to international standard for unix OS
@@ -151,7 +151,6 @@ GtCoreApplication::init()
 
     if (qApp->arguments().contains(QStringLiteral("-dev")))
     {
-
         m_devMode = true;
     }
 
@@ -212,7 +211,6 @@ GtCoreApplication::loadLastSession()
 
     if (m_sessionIds.contains(lastSession))
     {
-        qDebug() << "restoring last session...";
         switchSession(lastSession);
     }
     else
@@ -245,7 +243,6 @@ GtCoreApplication::initLanguage()
 
     if (language.isEmpty())
     {
-        gtInfo() << "using local system language!";
         setToSystemLanguage();
     }
     else
@@ -296,8 +293,7 @@ GtCoreApplication::switchSession(const QString& id)
 {
     if (!m_sessionIds.contains(id))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("session id not found!");
+        gtWarning() << tr("WARNING") << ": " << tr("session id not found!");
     }
 
     // save last used session
@@ -316,7 +312,6 @@ GtCoreApplication::switchSession(const QString& id)
     }
     else
     {
-        qDebug() << tr("loaded session: ") << m_session->objectName();
         settings()->setLastSession(id);
         m_dataModel->setSession(m_session.get());
         emit sessionChanged(id);
@@ -814,14 +809,20 @@ GtCoreApplication::devMode()
     return m_devMode;
 }
 
+void
+GtCoreApplication::setDevMode(bool val)
+{
+    m_devMode = val;
+}
+
 bool
 GtCoreApplication::batchMode()
 {
-    return m_batchMode;
+    return m_appMode == AppMode::Batch;
 }
 
-const
-QStringList& GtCoreApplication::sessionIds()
+const QStringList&
+GtCoreApplication::sessionIds()
 {
     readSessionIds();
 

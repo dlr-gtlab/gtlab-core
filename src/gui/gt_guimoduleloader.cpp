@@ -23,7 +23,6 @@
 #include "gt_propertyinterface.h"
 #include "gt_propertyitemfactory.h"
 #include "gt_collectioninterface.h"
-#include "gt_accessmanager.h"
 #include "gt_collectionsettings.h"
 #include "gt_application.h"
 
@@ -264,7 +263,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     GtMdiInterface* mdip = dynamic_cast<GtMdiInterface*>(plugin);
 
     // contains dynamic linked mdi classes
-    if (mdip)
+    if (mdip && !gtApp->batchMode())
     {
         gtPostTemplateFactory->registerClasses(mdip->postItems());
 

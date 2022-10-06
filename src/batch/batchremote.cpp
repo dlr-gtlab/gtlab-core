@@ -28,7 +28,6 @@ bool
 BatchRemote::checkInput(const QString& inputName, const QString& version,
                         bool silent, bool checkVersion)
 {
-
     if (!silent)
     {
         qDebug() << "Start Check!";
@@ -38,7 +37,7 @@ BatchRemote::checkInput(const QString& inputName, const QString& version,
 
     if (!currentFile.exists())
     {
-        qDebug() << "File does not exist";
+        qDebug() << "File does not exist:" << inputName;
         std::cout << "File does not exist" << std::endl;
         return false;
     }

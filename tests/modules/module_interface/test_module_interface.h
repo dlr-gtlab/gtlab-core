@@ -48,6 +48,8 @@ public:
 
     QList<gtlab::InterfaceFunction> sharedFunctions() const override;
 
+    QList<GtCommandLineFunction> commandLineFunctions() const override;
+
 };
 
 #endif // TEST_MODULE_INTERFACE_H

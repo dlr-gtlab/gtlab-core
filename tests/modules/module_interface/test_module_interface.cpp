@@ -9,10 +9,14 @@
 #include <QDomElement>
 
 #include "gt_logging.h"
+#include "gt_commandlinefunction.h"
+#include "gt_commandlineparser.h"
 
 #include "test_module_interface.h"
 
 #include "gt_functional_interface.h"
+
+#include <iostream>
 
 bool
 testConvert(QDomElement& xml, const QString& scope)
@@ -66,15 +70,73 @@ TestModuleInterface::upgradeRoutines() const
     return retval;
 }
 
-double mySquare(double x)
+double
+mySquare(double x)
 {
     return x*x;
 }
 
-QList<gtlab::InterfaceFunction> TestModuleInterface::sharedFunctions() const
+QList<gtlab::InterfaceFunction>
+TestModuleInterface::sharedFunctions() const
 {
-    auto fun = gtlab::interface::make_interface_function("mySquare", mySquare,
-                                              "Returns the square of x");
+    auto fun = gtlab::interface::make_interface_function(
+                "mySquare", mySquare, "Returns the square of x");
+
+    return {fun};
+}
+
+namespace test_module_batch_command {
+
+
+void
+showHelp()
+{
+    std::cout << "For the test function there is a custom parsing implmented"
+              << std::endl;
+
+    std::cout << std::endl;
+
+    std::cout << "The function test_function can be used to join its arguments"
+              << " with the # symbol between the arguments" << std::endl;
+
+    std::cout << "Therefore use the function like this:" << std::endl;
+    std::cout << "\t test_function <Argument1> <Argument2> ... <ArgumentN>"
+              << std::endl;
+}
+
+int
+mainFun(QStringList const& args)
+{
+    GtCommandLineParser p;
+    p.addHelpOption();
+
+
+    if (!p.parse(args))
+    {
+        gtError() << "Empty argument list";
+        return -1;
+    }
+
+    if (p.helpOption())
+    {
+        showHelp();
+        return 0;
+    }
+
+    gtInfo() << args.join("#");
+    return 0;
+}
+
+}
+QList<GtCommandLineFunction>
+TestModuleInterface::commandLineFunctions() const
+{
+    /// The constructor
+    auto fun = GtCommandLineInterface::make_commandLineFunction(
+                "test_function", test_module_batch_command::mainFun,
+                "combines arguments");
+    /// demonstration to set options by a chain of setters
+    fun.setUseDefaultHelp(false).setArgs({}).setOptions({});
 
     return {fun};
 }

@@ -221,8 +221,6 @@ GtProject::createBackup() const
 bool
 GtProject::loadMetaData()
 {
-    //    qDebug() << "loading " << m_path << "...";
-
     QDomElement root = readProjectData();
 
     if (root.isNull())
@@ -251,9 +249,6 @@ GtProject::loadMetaData()
 
     // module meta data
     readModuleMetaData(root);
-
-//    qDebug() << "... done!";
-    qDebug() << "project meta data loaded! (" << objectName() << ")";
 
     return true;
 }

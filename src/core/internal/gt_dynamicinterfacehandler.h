@@ -13,7 +13,6 @@
 #include "gt_core_exports.h"
 
 #include "gt_dynamicinterface.h"
-#include "gt_functional_interface.h"
 
 #include <QVariantList>
 #include <QMap>
