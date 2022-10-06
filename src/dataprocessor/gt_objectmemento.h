@@ -36,9 +36,6 @@ public:
      */
     explicit GtObjectMemento(const GtObject* obj = nullptr, bool clone = true);
 
-    struct MementoData;
-    explicit GtObjectMemento(const GtObjectMemento::MementoData&);
-
     /**
      * @brief GtObjectMemento
      * @param element
@@ -149,18 +146,21 @@ public:
      * @return
      */
     const QString& className() const;
+    GtObjectMemento& setClassName(const QString& className);
 
     /**
      * @brief uuid
      * @return
      */
     const QString& uuid() const;
+    GtObjectMemento& setUuid(const QString& uuid);
 
     /**
      * @brief ident
      * @return
      */
     const QString& ident() const;
+    GtObjectMemento& setIdent(const QString& ident);
 
     /**
      * @brief canCastTo
@@ -169,77 +169,63 @@ public:
      */
     bool canCastTo(const QString& classname, GtAbstractObjectFactory* factory);
 
-    /**
-     * @brief internal data structure for storing GtObject data
-     */
-    struct MementoData
+    const GtObjectMemento* findChild(const QString& ident) const;
+
+
+    struct PropertyData
     {
-        const GtObjectMemento* findChild(const QString& ident) const;
-
-
-        QString className, uuid, ident;
-
-        struct PropertyData
+        enum PropertyType
         {
-            QString name;
-            bool isOptional = false;
-            bool isActive = true;
-            QString dynamicObjectName;
-
-            enum PropertyType
-            {
-                DATA_T,
-                DYNCONT_T,
-                ENUM_T // only used by meta properties
-            };
-
-            const QVariant& data() const
-            {
-                return _data;
-            }
-
-            GT_DATAMODEL_EXPORT
-            PropertyData& setData(const QVariant& val);
-
-            static PropertyData
-            makeDynamicContainer(const QString& dynamicObjectName);
-
-            static PropertyData
-            makeDynamicChild(const QVariant& value,
-                             const QString& dynamicObjectName,
-                             const QString& dynamicTypeName);
-
-            const QString& dataType() const
-            {
-                return _dataType;
-            }
-
-            const PropertyType& type() const
-            {
-                return _type;
-            }
-
-            PropertyData& fromQMetaProperty(const QMetaProperty& prop,
-                                            const QVariant& val);
-
-
-            QVector<PropertyData> childProperties; /// sub properties
-            mutable QByteArray hash;
-
-        private:
-            QVariant _data;    /// The data as a variant
-            QString _dataType; /// The type of the data
-            PropertyType _type  {DATA_T};
-
+            DATA_T,
+            DYNCONT_T,
+            ENUM_T // only used by meta properties
         };
-        QVector<PropertyData> properties;
-        
-        QVector<GtObjectMemento> childObjects;
+
+        QString name;
+        bool isOptional = false;
+        bool isActive = true;
+        QString dynamicObjectName;
+
+        const QVariant& data() const
+        {
+            return _data;
+        }
+
+        GT_DATAMODEL_EXPORT
+        PropertyData& setData(const QVariant& val);
+
+        const QString& dataType() const
+        {
+            return _dataType;
+        }
+
+        const PropertyType& type() const
+        {
+            return _type;
+        }
+
+        static PropertyData
+        makeDynamicContainer(const QString& dynamicObjectName);
+
+        static PropertyData
+        makeDynamicChild(const QVariant& value,
+                         const QString& dynamicObjectName,
+                         const QString& dynamicTypeName);
+
+        PropertyData& fromQMetaProperty(const QMetaProperty& prop,
+                                        const QVariant& val);
+
+
+        QVector<PropertyData> childProperties; /// sub properties
+        mutable QByteArray hash;
+
+    private:
+        QVariant _data;    /// The data as a variant
+        QString _dataType; /// The type of the data
+        PropertyType _type  {DATA_T};
+
     };
-    /**
-     * @brief directly access memento data
-     */
-    const MementoData& data() const {return m_data;}
+
 
     /**
      * @brief get hash of this object's properties
@@ -256,18 +242,19 @@ public:
      */
     void calculateHashes() const;
 
+    QVector<PropertyData> properties;
+    QVector<PropertyData> dynamicSizeProperties;
+    QVector<GtObjectMemento> childObjects;
+
 private:
-    /**
-     * @brief internal data that represents a GtObject
-     */
-    MementoData m_data;
+    QString m_className, m_uuid, m_ident;
 
     /**
      * @brief cached hashes of a GtObject (properties only) and the full GtObject (including all its children)
      */
     mutable QByteArray m_propertyHash, m_fullHash;
 
-    void propertyHashHelper(const MementoData::PropertyData& property, QCryptographicHash& hash, VariantHasher& variantHasher) const;
+    void propertyHashHelper(const PropertyData& property, QCryptographicHash& hash, VariantHasher& variantHasher) const;
 
 
 };

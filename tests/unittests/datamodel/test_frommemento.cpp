@@ -205,23 +205,22 @@ TEST_F(TestFromMemento, mergeNonMatchingObject)
 
 TEST_F(TestFromMemento, mergeDummyObject)
 {
-    GtObjectMemento::MementoData data;
-    data.className = "ugly";
-    data.uuid      = "fart";
-    data.ident     = "inThisRoom";
+    auto memento = GtObjectMemento{}
+        .setClassName("ugly")
+        .setUuid("fart")
+        .setIdent("inThisRoom");
 
-    GtObjectMemento::MementoData::PropertyData doubleProp;
+    GtObjectMemento::PropertyData doubleProp;
     doubleProp.setData(2.0);
     doubleProp.name = "shitty_double";
 
-    GtObjectMemento::MementoData::PropertyData stringListProp;
+    GtObjectMemento::PropertyData stringListProp;
     stringListProp.setData(QStringList({"move", "your", "ass"}));
     stringListProp.name = "crazy_list";
 
-    data.properties = {doubleProp, stringListProp};
+    memento.properties = {doubleProp, stringListProp};
 
-    auto obj = GtObjectMemento(data)
-                   .toObject(*GtObjectFactory::instance());
+    auto obj = memento.toObject(*GtObjectFactory::instance());
 
     ASSERT_TRUE(obj != nullptr);
     ASSERT_TRUE(obj->isDummy());

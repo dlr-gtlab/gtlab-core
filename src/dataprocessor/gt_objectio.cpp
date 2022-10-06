@@ -168,22 +168,22 @@ GtObjectIO::setFactory(GtAbstractObjectFactory* factory)
     m_factory = factory;
 }
 
-GtObjectMemento::MementoData
+GtObjectMemento
 GtObjectIO::toMemento(const GtObject* o, bool clone)
 {
     // global object element
-    GtObjectMemento::MementoData data;
+    GtObjectMemento memento;
 
     const GtDummyObject* d_obj = qobject_cast<const GtDummyObject*>(o);
 
     // class name
     if (!d_obj)
     {
-        data.className = o->metaObject()->className();
+        memento.setClassName(o->metaObject()->className());
     }
     else
     {
-        data.className = d_obj->origClassName();
+        memento.setClassName(d_obj->origClassName());
     }
 
     // uuid
@@ -194,53 +194,53 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
         uuid = QUuid::createUuid().toString();
     }
 
-    data.uuid = uuid;
+    memento.setUuid(uuid);
 
     // object name
-    data.ident = o->objectName();
+    memento.setIdent(o->objectName());
 
     // store property information
-    writeProperties(data, o);
+    writeProperties(memento, o);
 
     // child objects
     QList<GtObject*> directChildren = o->findDirectChildren<GtObject*>();
-    data.childObjects.reserve(directChildren.size());
+    memento.childObjects.reserve(directChildren.size());
 
     foreach (const GtObject* child, directChildren)
     {
         // recursion through GtObjectMemento constructor
-        data.childObjects.push_back(GtObjectMemento(child, clone));
+        memento.childObjects.push_back(GtObjectMemento(child, clone));
     }
 
-    return data;
+    return memento;
 }
 
 QDomElement
-GtObjectIO::toDomElement(const GtObjectMemento& m, QDomDocument& doc,
+GtObjectIO::toDomElement(const GtObjectMemento& memento, QDomDocument& doc,
                          bool skipChildren)
 {
     // global object element
     QDomElement element = doc.createElement(S_OBJECT_TAG);
 
     // class name
-    element.setAttribute(S_CLASS_TAG, m.data().className);
+    element.setAttribute(S_CLASS_TAG, memento.className());
 
     // uuid
-    element.setAttribute(S_UUID_TAG, m.data().uuid);
+    element.setAttribute(S_UUID_TAG, memento.uuid());
 
     // object name
-    element.setAttribute(S_NAME_TAG, m.data().ident);
+    element.setAttribute(S_NAME_TAG, memento.ident());
 
     // store property information
-    writeProperties(doc, element, m.data());
+    writeProperties(doc, element, memento);
 
     // children
-    if (!skipChildren && !m.data().childObjects.isEmpty())
+    if (!skipChildren && ! memento.childObjects.isEmpty())
     {
         QDomElement childElement =
             doc.createElement(S_OBJECTLIST_TAG);
 
-        foreach(const GtObjectMemento& child, m.data().childObjects)
+        foreach(const GtObjectMemento& child, memento.childObjects)
         {
             childElement.appendChild(toDomElement(child, doc));
         }
@@ -251,23 +251,18 @@ GtObjectIO::toDomElement(const GtObjectMemento& m, QDomDocument& doc,
     return element;
 }
 
-GtObjectMemento::MementoData
+GtObjectMemento
 GtObjectIO::toMemento(const QDomElement& e)
 {
     // global object element
-    GtObjectMemento::MementoData data;
 
-    // class name
-    data.className = e.attribute(S_CLASS_TAG);
-
-    // uuid
-    data.uuid = e.attribute(S_UUID_TAG);
-
-    // object name
-    data.ident = e.attribute(S_NAME_TAG);
+    auto memento = GtObjectMemento{}
+        .setClassName(e.attribute(S_CLASS_TAG))
+        .setUuid(e.attribute(S_UUID_TAG))
+        .setIdent(e.attribute(S_NAME_TAG));
 
     // store property information
-    readProperties(data, e);
+    readProperties(memento, e);
 
     // child objects
     QDomElement children = e.firstChildElement(S_OBJECTLIST_TAG);
@@ -279,13 +274,13 @@ GtObjectIO::toMemento(const QDomElement& e)
         while (!compElement.isNull())
         {
             // recursion through GtObjectMemento constructor
-            data.childObjects.push_back(GtObjectMemento(compElement));
+            memento.childObjects.push_back(GtObjectMemento(compElement));
 
             compElement = compElement.nextSiblingElement(S_OBJECT_TAG);
         }
     }
 
-    return data;
+    return memento;
 }
 
 GtObject*
@@ -1001,7 +996,7 @@ GtObjectIO::mergeDynamicProperties(const QDomElement& element, GtObject* obj)
 }
 
 void
-GtObjectIO::writeProperties(GtObjectMemento::MementoData& data,
+GtObjectIO::writeProperties(GtObjectMemento& memento,
                             const GtObject* obj)
 {
     const QMetaObject* meta = obj->metaObject();
@@ -1014,13 +1009,13 @@ GtObjectIO::writeProperties(GtObjectMemento::MementoData& data,
                  d_obj->dummyProperties())
         {
             // static property
-            GtObjectMemento::MementoData::PropertyData mprop;
+            GtObjectMemento::PropertyData mprop;
             mprop.name = d_p.m_id;
             mprop.setData(d_p.m_val);
             mprop.isOptional = d_p.m_optional;
             mprop.isActive = d_p.m_active;
 
-            data.properties.push_back(mprop);
+            memento.properties.push_back(mprop);
         }
 
 //        foreach (GtDummyObject::DummyProperty d_p,
@@ -1046,8 +1041,9 @@ GtObjectIO::writeProperties(GtObjectMemento::MementoData& data,
     // GTlab properties
     foreach (GtAbstractProperty* property, props)
     {
-        writePropertyHelper(data.properties, storedProps, property);
+        writePropertyHelper(memento.properties, storedProps, property);
     }
+
 
     // meta properties
     for (int i = 0; i < meta->propertyCount(); ++i)
@@ -1071,8 +1067,8 @@ GtObjectIO::writeProperties(GtObjectMemento::MementoData& data,
             continue;
         }
 
-        data.properties.push_back(
-            GtObjectMemento::MementoData::PropertyData()
+        memento.properties.push_back(
+            GtObjectMemento::PropertyData()
                 .fromQMetaProperty(prop, prop.read(obj)));
     }
 }
@@ -1080,18 +1076,18 @@ GtObjectIO::writeProperties(GtObjectMemento::MementoData& data,
 void
 GtObjectIO::writeProperties(QDomDocument& doc,
                             QDomElement& root,
-                            const GtObjectMemento::MementoData& data)
+                            const GtObjectMemento& memento)
 {
     // GTlab properties
-    foreach (const GtObjectMemento::MementoData::PropertyData& property,
-             data.properties)
+    foreach (const GtObjectMemento::PropertyData& property,
+             memento.properties)
     {
         writePropertyHelper(doc, root, property);
     }
 }
 
 void
-GtObjectIO::readProperties(GtObjectMemento::MementoData& data,
+GtObjectIO::readProperties(GtObjectMemento& memento,
                            const QDomElement& element)
 {
 
@@ -1101,11 +1097,11 @@ GtObjectIO::readProperties(GtObjectMemento::MementoData& data,
     {
         if (propElement.tagName() == S_PROPERTY_TAG)
         {
-            GtObjectMemento::MementoData::PropertyData propData;
+            GtObjectMemento::PropertyData propData;
 
             readPropertyHelper(propData, propElement);
 
-            data.properties.push_back(propData);
+            memento.properties.push_back(propData);
         }
         else if (propElement.tagName() == S_PROPERTYLIST_TAG)
         {
@@ -1114,22 +1110,22 @@ GtObjectIO::readProperties(GtObjectMemento::MementoData& data,
 
             if (!fieldType.isEmpty() && !fieldName.isEmpty())
             {
-                GtObjectMemento::MementoData::PropertyData propData;
+                GtObjectMemento::PropertyData propData;
                 propData.name = fieldName;
                 propData.setData(propertyListToVariant(propElement.text(),
                                                        fieldType));
 
-                data.properties.push_back(propData);
+                memento.properties.push_back(propData);
             }
         }
         else if (propElement.tagName() == S_DYNAMICPROPERTIES_TAG)
         {
-             auto propData = GtObjectMemento::MementoData::PropertyData
+             auto propData = GtObjectMemento::PropertyData
                 ::makeDynamicContainer(propElement.attribute(S_NAME_TAG));
 
             readDynamicProperties(propData, propElement);
 
-            data.properties.push_back(propData);
+            memento.properties.push_back(propData);
         }
 
         propElement = propElement.nextSiblingElement();
@@ -1189,7 +1185,7 @@ GtObjectIO::readProperties(GtObjectMemento::MementoData& data,
 
 void
 GtObjectIO::readPropertyHelper(
-        GtObjectMemento::MementoData::PropertyData& propData,
+        GtObjectMemento::PropertyData& propData,
         const QDomElement& element)
 {
     QString fieldType = element.attribute(S_TYPE_TAG);
@@ -1230,9 +1226,9 @@ GtObjectIO::readPropertyHelper(
 void
 GtObjectIO::writeDynamicProperties(QDomDocument& doc,
                                    QDomElement& root,
-                                   const GtObjectMemento::MementoData::PropertyData& property)
+                                   const GtObjectMemento::PropertyData& property)
 {
-    foreach (const GtObjectMemento::MementoData::PropertyData& pChild, property.childProperties)
+    foreach (const GtObjectMemento::PropertyData& pChild, property.childProperties)
     {
         QDomElement entryElement = doc.createElement(S_ENTRY_TAG);
         writeDynamicPropertyHelper(doc, entryElement, pChild);
@@ -1242,12 +1238,12 @@ GtObjectIO::writeDynamicProperties(QDomDocument& doc,
 }
 
 void
-GtObjectIO::readDynamicProperties(GtObjectMemento::MementoData::PropertyData& propData,
+GtObjectIO::readDynamicProperties(GtObjectMemento::PropertyData& propData,
                                   const QDomElement& element)
 {
     QDomElement entryElement = element.firstChildElement(S_ENTRY_TAG);
 
-    using PD = GtObjectMemento::MementoData::PropertyData;
+    using PD = GtObjectMemento::PropertyData;
 
     while (!entryElement.isNull())
     {
@@ -1267,7 +1263,7 @@ GtObjectIO::readDynamicProperties(GtObjectMemento::MementoData::PropertyData& pr
 }
 
 void
-GtObjectIO::writePropertyHelper(QVector<GtObjectMemento::MementoData::PropertyData>& pVec,
+GtObjectIO::writePropertyHelper(QVector<GtObjectMemento::PropertyData>& pVec,
                                 QSet<QString>& stored,
                                 GtAbstractProperty* property)
 {
@@ -1283,11 +1279,11 @@ GtObjectIO::writePropertyHelper(QVector<GtObjectMemento::MementoData::PropertyDa
         GtDynamicPropertyContainer* dynCon =
             qobject_cast<GtDynamicPropertyContainer*>(property);
 
-        using PD = GtObjectMemento::MementoData::PropertyData;
+        using PD = GtObjectMemento::PropertyData;
 
         if (dynCon)
         {
-            GtObjectMemento::MementoData::PropertyData mprop
+            GtObjectMemento::PropertyData mprop
                 = PD::makeDynamicContainer(dynCon->ident());
 
             foreach (GtAbstractProperty* pChild, dynCon->fullProperties())
@@ -1314,7 +1310,7 @@ GtObjectIO::writePropertyHelper(QVector<GtObjectMemento::MementoData::PropertyDa
         else
         {
             // static property
-            GtObjectMemento::MementoData::PropertyData mprop;
+            GtObjectMemento::PropertyData mprop;
             mprop.name = property->ident();
             mprop.setData(property->valueToVariant());
             mprop.isOptional = property->isOptional();
@@ -1336,12 +1332,13 @@ GtObjectIO::writePropertyHelper(QVector<GtObjectMemento::MementoData::PropertyDa
     }
 }
 
+
 void
 GtObjectIO::writePropertyHelper(
         QDomDocument& doc, QDomElement& root,
-        const GtObjectMemento::MementoData::PropertyData& property)
+        const GtObjectMemento::PropertyData& property)
 {
-    using PD = GtObjectMemento::MementoData::PropertyData;
+    using PD = GtObjectMemento::PropertyData;
     if (property.type() == PD::DYNCONT_T)
     {
         QDomElement dynElement = dynamicPropertyElement(doc, root,
@@ -1384,7 +1381,7 @@ GtObjectIO::writePropertyHelper(
 void
 GtObjectIO::writeDynamicPropertyHelper(
         QDomDocument& doc, QDomElement& root,
-        const GtObjectMemento::MementoData::PropertyData& property)
+        const GtObjectMemento::PropertyData& property)
 {
     QDomElement child = propertyToDomElement(property.name, property.data(), doc);
     child.setTagName(S_DYNAMICPROPERTY_TAG);

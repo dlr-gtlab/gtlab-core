@@ -112,15 +112,16 @@ private:
     /**
      * @brief detectPropertyChanges
      */
-    void detectPropertyChanges(const QVector<GtObjectMemento::MementoData::PropertyData>& leftProperties,
-                               const QVector<GtObjectMemento::MementoData::PropertyData>& rightProperties,
+
+    void detectPropertyChanges(const QVector<GtObjectMemento::PropertyData>& leftProperties,
+                               const QVector<GtObjectMemento::PropertyData>& rightProperties,
                                QDomElement& diffRoot, bool isDynamic);
 
     /**
      * @brief handlePropertyChange
      */
-    void handlePropertyChange(const GtObjectMemento::MementoData::PropertyData& leftProp,
-                              const GtObjectMemento::MementoData::PropertyData& rightProp,
+    void handlePropertyChange(const GtObjectMemento::PropertyData& leftProp,
+                              const GtObjectMemento::PropertyData& rightProp,
                               QDomElement& diffRoot);
 
     /**

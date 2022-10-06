@@ -19,28 +19,24 @@
 #include "gt_abstractproperty.h"
 #include "gt_dummyobject.h"
 
-using PD = GtObjectMemento::MementoData::PropertyData;
+using PD = GtObjectMemento::PropertyData;
 
 GtObjectMemento::GtObjectMemento(const GtObject* obj, bool clone)
 {
     if (obj)
     {
         GtObjectIO oio;
-        m_data = oio.toMemento(obj, clone);
+        *this = oio.toMemento(obj, clone);
     }
 }
 
-GtObjectMemento::GtObjectMemento(const GtObjectMemento::MementoData &d)
-    : m_data(d)
-{
-}
 
 GtObjectMemento::GtObjectMemento(const QDomElement& element)
 {
     if (!element.isNull())
     {
         GtObjectIO oio;
-        m_data = oio.toMemento(element);
+        *this = oio.toMemento(element);
     }
 }
 
@@ -53,14 +49,14 @@ GtObjectMemento::GtObjectMemento(const QByteArray& byteArray)
         return;
     }
 
-    m_data = GtObjectIO().toMemento(doc.documentElement());
+    *this = GtObjectIO().toMemento(doc.documentElement());
 
 }
 
 bool
 GtObjectMemento::isNull() const
 {
-    return m_data.uuid.isNull();
+    return uuid().isNull();
 }
 
 QDomElement
@@ -72,7 +68,6 @@ GtObjectMemento::documentElement() const
     if (!isNull())
     {
         GtObjectIO oio;
-
         QDomElement e = oio.toDomElement(*this, doc);
         doc.appendChild(e);
     }
@@ -109,19 +104,40 @@ GtObjectMemento::mergeTo(GtObject* obj, GtAbstractObjectFactory* factory) const
 const QString&
 GtObjectMemento::className() const
 {
-    return m_data.className;
+    return m_className;
+}
+
+GtObjectMemento&
+GtObjectMemento::setClassName(const QString &className)
+{
+    m_className = className;
+    return *this;
 }
 
 const QString&
 GtObjectMemento::uuid() const
 {
-    return m_data.uuid;
+    return m_uuid;
+}
+
+GtObjectMemento&
+GtObjectMemento::setUuid(const QString &uuid)
+{
+    m_uuid = uuid;
+    return *this;
 }
 
 const QString&
 GtObjectMemento::ident() const
 {
-    return m_data.ident;
+    return m_ident;
+}
+
+GtObjectMemento&
+GtObjectMemento::setIdent(const QString &ident)
+{
+    m_ident = ident;
+    return *this;
 }
 
 bool
@@ -190,12 +206,12 @@ GtObjectMemento::calculateHashes() const
     QCryptographicHash hash(QCryptographicHash::Sha256);
 
     // hash members
-    hash.addData(m_data.className.toUtf8());
-    hash.addData(m_data.uuid.toUtf8());
-    hash.addData(m_data.ident.toUtf8());
+    hash.addData(className().toUtf8());
+    hash.addData(uuid().toUtf8());
+    hash.addData(ident().toUtf8());
     // hash properties
     VariantHasher variantHasher;
-    foreach(const MementoData::PropertyData &p, m_data.properties)
+    foreach(const auto &p, properties)
     {
         propertyHashHelper(p, hash, variantHasher);
     }
@@ -206,10 +222,10 @@ GtObjectMemento::calculateHashes() const
 
     // hash over property hash and child elements
     hash.addData(m_propertyHash);
-    for (int i = 0; i < m_data.childObjects.size(); i++)
+    for (int i = 0; i < childObjects.size(); i++)
     {
-        m_data.childObjects[i].calculateHashes();
-        hash.addData(m_data.childObjects[i].m_fullHash);
+        childObjects[i].calculateHashes();
+        hash.addData(childObjects[i].m_fullHash);
     }
     m_fullHash = hash.result();
 }
@@ -231,7 +247,7 @@ GtObjectMemento::propertyHashHelper(const PD& property, QCryptographicHash& hash
     variantHasher.addToHash(propHash, property.data());
 
     // loop recursively through all child properties
-    foreach(const MementoData::PropertyData& p, property.childProperties)
+    foreach(const auto& p, property.childProperties)
     {
         propertyHashHelper(p, propHash, variantHasher);
     }
@@ -251,26 +267,18 @@ GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory) const
         return false;
     }
 
-    const QString classname = m_data.className;
-
-    if (!factory->knownClass(classname))
+    if (!factory->knownClass(className()))
     {
-        gtWarning() << QObject::tr("class ") << classname
+        gtWarning() << QObject::tr("class ") << className()
                     << QObject::tr(" not known!");
         return false;
     }
 
-    /* child informations */
 
-    for  (const auto& child : m_data.childObjects)
-    {
-        if (!child.isRestorable(factory))
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return std::all_of(childObjects.begin(), childObjects.end(),
+                       [&factory](const GtObjectMemento& child) {
+        return child.isRestorable(factory);
+    });
 }
 
 PD &
@@ -324,7 +332,7 @@ PD::fromQMetaProperty(const QMetaProperty &prop, const QVariant& val)
 }
 
 const GtObjectMemento*
-GtObjectMemento::MementoData::findChild(const QString &ident) const
+GtObjectMemento::findChild(const QString &ident) const
 {
     auto iter = std::find_if(childObjects.begin(), childObjects.end(),
                  [&ident](const GtObjectMemento& child) {
@@ -340,8 +348,7 @@ GtObjectMemento::MementoData::findChild(const QString &ident) const
 }
 
 bool
-readDummyProperty(const GtObjectMemento::MementoData::PropertyData& p,
-                  GtDummyObject& obj)
+readDummyProperty(const PD& p, GtDummyObject& obj)
 {
 
     QString const fieldType = p.dataType();
@@ -369,7 +376,7 @@ readDummyProperty(const GtObjectMemento::MementoData::PropertyData& p,
 }
 
 bool
-readProperty(const GtObjectMemento::MementoData::PropertyData& p, GtObject& obj)
+readProperty(const PD& p, GtObject& obj)
 {
 
     QString fieldType = p.dataType();
@@ -402,19 +409,19 @@ readProperty(const GtObjectMemento::MementoData::PropertyData& p, GtObject& obj)
 
 
 void
-readProperties(const GtObjectMemento::MementoData& data,
+readProperties(const GtObjectMemento& memento,
                GtObject& obj)
 {
-    assert(obj.uuid() == data.uuid);
+    assert(obj.uuid() == memento.uuid());
 
     bool isDummy = obj.isDummy();
     auto * dummyObject = qobject_cast<GtDummyObject*>(&obj);
 
-    assert(isDummy || obj.metaObject()->className() == data.className);
+    assert(isDummy || obj.metaObject()->className() == memento.className());
     assert(!isDummy || dummyObject);
 
 
-    for (auto const & p :  data.properties)
+    for (auto const & p :  memento.properties)
     {
         bool success = !isDummy ?
                            readProperty(p, obj) :
@@ -424,7 +431,7 @@ readProperties(const GtObjectMemento::MementoData& data,
         {
 
             gtWarning() << QObject::tr("could not find property") <<
-                QStringLiteral(" (") << data.className <<
+                QStringLiteral(" (") << memento.className() <<
                 QStringLiteral("::") << p.name <<
                 QStringLiteral(")");
             gtWarning() << "     |-> "
@@ -438,19 +445,17 @@ std::unique_ptr<GtObject>
 GtObjectMemento::toObject(GtAbstractObjectFactory& factory) const
 {
 
-    auto clzname = m_data.className;
-
-    std::unique_ptr<GtObject> obj(factory.newObject(clzname, nullptr));
+    std::unique_ptr<GtObject> obj(factory.newObject(className(), nullptr));
 
     if (!obj)
     {
         // no class found in factory. we need a dummy object here
         gtWarning().nospace().noquote()
             << "Creating dummy object for unknown class '"
-            << clzname << "'.";
+            << className() << "'.";
 
         auto tmp = new GtDummyObject(nullptr);
-        tmp->setOrigClassName(clzname);
+        tmp->setOrigClassName(className());
         obj.reset(tmp);
     }
 
@@ -464,20 +469,18 @@ bool
 GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
 {
 
-    const GtObjectMemento::MementoData& data = m_data;
-
-    if (!obj.isDummy() && obj.metaObject()->className() != data.className)
+    if (!obj.isDummy() && obj.metaObject()->className() != className())
     {
         gtError() << "Object class name and object type does not match";
 
         return false;
     }
 
-    obj.setUuid(data.uuid);
-    obj.setObjectName(data.ident);
+    obj.setUuid(uuid());
+    obj.setObjectName(ident());
 
 
-    ::readProperties(m_data, obj);
+    ::readProperties(*this, obj);
 
     // child objects
 
@@ -489,7 +492,7 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
         assert(child);
 
         // check, that memento data contain object
-        auto const * mementoChild = data.findChild(child->objectName());
+        auto const * mementoChild = findChild(child->objectName());
 
         bool wasMerged = false;
 
@@ -513,7 +516,7 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
     }
 
     // loop over all childs in memento, that are not yet in the object
-    for (auto const & mementoChild : data.childObjects)
+    for (auto const & mementoChild : childObjects)
     {
         // skip if mementoChild already in object,
         // it has been alrady merged before
