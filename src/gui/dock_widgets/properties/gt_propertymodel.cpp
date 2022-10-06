@@ -130,6 +130,8 @@ GtPropertyModel::flags(const QModelIndex& index) const
                 {
                     baseFlags |= Qt::ItemIsEditable;
                 }
+
+                baseFlags |= Qt::ItemIsDropEnabled;
             }
         }
     }
@@ -275,9 +277,9 @@ GtPropertyModel::parent(const QModelIndex& index) const
     return indexFromProperty(qobject_cast<GtAbstractPropertyItem*>(parentItem));
 }
 
-QVariant GtPropertyModel::headerData(int section,
-                                     Qt::Orientation orientation,
-                                     int role) const
+QVariant
+GtPropertyModel::headerData(int section, Qt::Orientation orientation,
+                            int role) const
 {
     if ((orientation == Qt::Horizontal) && (role == Qt::DisplayRole))
     {
@@ -495,6 +497,54 @@ GtPropertyModel::setCategoryFilter(const QStringList& filter)
     m_catFilter = filter;
 
     endResetModel();
+}
+
+
+bool
+GtPropertyModel::canDropMimeData(const QMimeData* data,
+                                 Qt::DropAction action,
+                                 int row, int column,
+                                 const QModelIndex& parent) const
+{
+    Q_UNUSED(row)
+    Q_UNUSED(column)
+    Q_UNUSED(action)
+
+
+    if (!parent.isValid() || parent.data().isNull() )
+    {
+        return false;
+    }
+
+    GtAbstractPropertyItem* prop = propertyFromIndex(parent);
+
+    return prop != nullptr && prop->acceptDrop(data);
+}
+
+bool
+GtPropertyModel::dropMimeData(const QMimeData* data,
+                              Qt::DropAction action,
+                              int row, int column,
+                              const QModelIndex& parent)
+{
+    Q_UNUSED(row)
+    Q_UNUSED(column)
+    Q_UNUSED(action)
+
+    if (!parent.isValid() || parent.data().isNull() )
+    {
+        return false;
+    }
+
+    GtAbstractPropertyItem* prop = propertyFromIndex(parent);
+
+    return prop != nullptr && prop->dropMimeData(data);
+}
+
+QStringList
+GtPropertyModel::mimeTypes() const
+{
+    return {"GtObject"};
 }
 
 void

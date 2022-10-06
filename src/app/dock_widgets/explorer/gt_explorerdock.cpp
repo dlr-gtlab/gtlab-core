@@ -130,6 +130,8 @@ GtExplorerDock::GtExplorerDock() :
             SLOT(onMdiItemRequested(QModelIndex)));
     connect(gtApp, SIGNAL(sessionChanged(QString)),
             SLOT(onSessionChanged()));
+    connect(gtApp, SIGNAL(selectionByUuidRequested(QString)),
+            SLOT(selectObjectByUuid(QString)));
     connect(gtDataModel, SIGNAL(triggerBeginResetDataModelView()),
             SLOT(beginResetView()));
     connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
@@ -647,6 +649,86 @@ GtExplorerDock::firstSelectedIndex() const
     }
 
     return indexlist.first();
+}
+
+
+QModelIndexList
+GtExplorerDock::listElements(QModelIndex const& parent) const
+{
+    QModelIndexList retVal;
+
+    if (!parent.isValid())
+    {
+        return retVal;
+    }
+
+    int count = m_model->rowCount(parent);
+
+    for (int i = 0; i < count; i++)
+    {
+        QModelIndex childIndex = m_model->index(i, 0, parent);
+
+        if (childIndex.isValid() && !retVal.contains(childIndex))
+        {
+            retVal.append(childIndex);
+            retVal += listElements(childIndex);
+        }
+    }
+
+    return retVal;
+}
+
+void
+GtExplorerDock::selectObjectByUuid(const QString& uuid)
+{
+    if (!gtApp->currentProject())
+    {
+        return;
+    }
+
+    QModelIndexList list;
+
+    for(int i = 0; i < m_model->rowCount(); i++)
+    {
+        QModelIndex index = m_model->index(i, 0);
+
+        for (const QModelIndex& i2 : listElements(index))
+        {
+            if (!list.contains(i2))
+            {
+                list.append(i2);
+            }
+        }
+    }
+
+    auto iter = std::find_if(std::begin(list), std::end(list),
+                             [&uuid](const QModelIndex& index)
+    {
+        if (!index.isValid())
+        {
+            return false;
+        }
+
+        return index.data(GtCoreDatamodel::UuidRole).toString() == uuid;
+    });
+
+    if (iter != std::end(list))
+    {
+        QModelIndex indexMapper = mapToSource(*iter);
+
+        GtObject* obj = gtDataModel->objectFromIndex(indexMapper);
+
+        if (obj)
+        {
+            m_view->setCurrentIndex(*iter);
+            m_view->scrollTo(*iter);
+            emit selectedObjectChanged(obj);
+        }
+        else
+        {
+            gtWarning() << "Cannot select the requested object";
+        }
+    }
 }
 
 void

@@ -12,12 +12,17 @@
 #include <QHBoxLayout>
 #include <QDialog>
 #include <QTreeView>
+#include <QDropEvent>
+#include <QDragEnterEvent>
+#include <QMimeData>
 
 #include "gt_objectlinkproperty.h"
 #include "gt_object.h"
 #include "gt_icons.h"
-#include "gt_project.h"
 #include "gt_objectselectiondialog.h"
+#include "gt_application.h"
+#include "gt_datamodel.h"
+#include "gt_objectfactory.h"
 
 #include "gt_propertyobjectlinkeditor.h"
 
@@ -27,6 +32,8 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
 {
     auto lay = new QHBoxLayout;
     m_objectId = new QLineEdit;
+
+    setAcceptDrops(true);
 
     QPushButton* restoreButton = new QPushButton(QLatin1String{});
     restoreButton->setIcon(GtGUI::Icon::restore16());
@@ -40,10 +47,20 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     selectObjectButton->setAutoDefault(false);
     selectObjectButton->setToolTip(tr("Choose Object"));
 
+    auto findObjectButton = new QPushButton(QLatin1String{});
+    findObjectButton->setIcon(GtGUI::Icon::jumpTo());
+    findObjectButton->setMaximumWidth(15);
+    findObjectButton->setAutoDefault(false);
+    findObjectButton->setToolTip(tr("Find Object"));
+
     setLayout(lay);
     lay->addWidget(m_objectId);
+    lay->addWidget(findObjectButton);
+    lay->addSpacing(1);
     lay->addWidget(restoreButton);
+    lay->addSpacing(1);
     lay->addWidget(selectObjectButton);
+
 
     lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
@@ -53,6 +70,7 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     connect(selectObjectButton, SIGNAL(clicked(bool)),
             SLOT(selectObjectLink()));
     connect(restoreButton, SIGNAL(clicked(bool)), SLOT(deleteObjectLink()));
+    connect(findObjectButton, SIGNAL(clicked(bool)), SLOT(findObject()));
 }
 
 void
@@ -124,11 +142,44 @@ GtPropertyObjectLinkEditor::updateText()
 
         if (linkedObject)
         {
+
             txt = linkedObject->objectName();
         }
     }
 
     m_objectId->setText(txt);
+}
+
+void
+GtPropertyObjectLinkEditor::dropEvent(QDropEvent* event)
+{
+    const QMimeData* mime = event->mimeData();
+
+    GtObject* obj = gtDataModel->objectFromMimeData(mime, false,
+                                                    gtObjectFactory);
+
+    if (obj && m_prop->allowedClasses().contains(obj->metaObject()->className()))
+    {
+        m_prop->setVal(obj->uuid());
+        updateText();
+        emit objectSelected();
+    }
+
+}
+
+void
+GtPropertyObjectLinkEditor::dragEnterEvent(QDragEnterEvent* e)
+{
+    const QMimeData* mime = e->mimeData();
+
+    GtObject* obj = gtDataModel->objectFromMimeData(mime, false,
+                                                    gtObjectFactory);
+    if (obj && m_prop->allowedClasses().contains(obj->metaObject()->className()))
+    {
+        e->accept();
+        return;
+    }
+    e->ignore();
 }
 
 QList<GtObject*>
@@ -176,6 +227,19 @@ GtPropertyObjectLinkEditor::allowedSuperClassObjects(GtObject* obj)
                        std::end(allowedClasses), [obj](const QString& s) {
         return (isDerivedFromClass(obj, s));
     });
+}
+
+void
+GtPropertyObjectLinkEditor::findObject()
+{
+    QString uuid = m_prop->getVal();
+
+    if (uuid.isEmpty())
+    {
+        return;
+    }
+
+    emit gtApp->selectionByUuidRequested(uuid);
 }
 
 void

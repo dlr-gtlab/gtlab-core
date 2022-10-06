@@ -166,7 +166,6 @@ GtExplorerView::checkMimeData(const QMimeData* mimeData)
 
     if (urls.size() != 1)
     {
-        gtDebug() << "url size != 1";
         return false;
     }
 

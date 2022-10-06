@@ -83,6 +83,22 @@ GtAbstractPropertyItem::isOptional()
     return m_property->isOptional();
 }
 
+bool
+GtAbstractPropertyItem::acceptDrop(const QMimeData* data) const
+{
+    Q_UNUSED(data)
+    /// nothing to do here
+    return false;
+}
+
+bool
+GtAbstractPropertyItem::dropMimeData(const QMimeData* data)
+{
+    Q_UNUSED(data)
+    /// nothing to do here
+    return false;
+}
+
 void
 GtAbstractPropertyItem::setModel(GtPropertyModel* model)
 {
