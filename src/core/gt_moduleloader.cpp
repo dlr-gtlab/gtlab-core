@@ -16,6 +16,7 @@
 #include "gt_versionnumber.h"
 #include "internal/gt_moduleupgrader.h"
 #include "internal/gt_dynamicinterfacehandler.h"
+#include "internal/gt_commandlinefunctionhandler.h"
 
 #include <QDebug>
 #include <QDir>
@@ -294,6 +295,12 @@ GtModuleLoader::insert(GtModuleInterface* plugin)
     {
         gtlab::interface::internal::register_function(plugin->ident(),
                                                       sharedFunction);
+    }
+
+    // register all commandline functions of the module
+    foreach(const auto& commandLineFunction, plugin->commandLineFunctions())
+    {
+        gtlab::commandline::register_function(commandLineFunction);
     }
 
     GtDatamodelInterface* dmp = dynamic_cast<GtDatamodelInterface*>(plugin);

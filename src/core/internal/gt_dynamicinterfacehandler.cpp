@@ -38,8 +38,6 @@ DynamicInterfaceHandler::addInterface(const QString& moduleId,
 
     auto key = makeKey(moduleId, ident);
 
-    gtDebug() << "Registering shared module function: '" << key << "'.";
-
     if (m_interfaces.contains(key))
     {
         gtWarning() << "Overwriting shared module function '" << key << "'.";
@@ -63,12 +61,14 @@ DynamicInterfaceHandler::getInterfaceFunc(const QString& moduleId,
     return m_interfaces.value(key);
 }
 
-QStringList DynamicInterfaceHandler::getRegisteredFunctionIDs() const
+QStringList
+DynamicInterfaceHandler::getRegisteredFunctionIDs() const
 {
     return m_interfaces.keys();
 }
 
-bool gtlab::interface::internal::register_function(const QString& moduleId,
+bool
+gtlab::interface::internal::register_function(const QString& moduleId,
                                               InterfaceFunction func)
 {
     return gtlab::internal::DynamicInterfaceHandler::instance()

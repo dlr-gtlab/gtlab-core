@@ -48,10 +48,12 @@ DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
     batchremote.h \
+    gt_consoleparser.h
 
 SOURCES += \
     batch.cpp \
     batchremote.cpp \
+    gt_consoleparser.cpp
 
 LIBS += -L$${BUILD_DEST}
 

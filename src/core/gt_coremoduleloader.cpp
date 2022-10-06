@@ -13,8 +13,6 @@
 
 #include "gt_moduleinterface.h"
 
-#include "gt_logging.h"
-
 GtCoreModuleLoader::GtCoreModuleLoader()
 {
 

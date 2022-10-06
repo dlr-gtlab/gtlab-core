@@ -46,11 +46,20 @@ class GT_CORE_EXPORT GtCoreApplication : public QObject
     Q_OBJECT
 
 public:
+    /// Enumeration to handle the application mode of the application
+    enum class AppMode
+    {
+        Batch = 0,
+        Gui
+    };
+
     /**
      * @brief GtApplication
      * @param parent
+     * @param mode - indicator if application is started as batch application
      */
-    explicit GtCoreApplication(QCoreApplication* parent);
+    explicit GtCoreApplication(QCoreApplication* parent,
+                               AppMode mode = AppMode::Gui);
 
     /**
      * @brief ~GtApplication
@@ -62,6 +71,7 @@ public:
      * @return
      */
     static GtCoreApplication* instance();
+
 
     /**
      * @brief Initialization
@@ -135,6 +145,13 @@ public:
      * @return dev indicator
      */
     bool devMode();
+
+    /**
+     * @brief setDevMode to the given val to define
+     * whether application runs in dev mode.
+     * @param val to set dev indicator
+     */
+    void setDevMode(bool val);
 
     /**
      * @brief Returns whether application runs in batch mode.
@@ -384,7 +401,7 @@ protected:
     bool m_devMode;
 
     /// Application is started in batch mode
-    bool m_batchMode;
+    AppMode m_appMode;
 
     /// Date model pointer
     GtCoreDatamodel* m_dataModel;

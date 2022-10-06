@@ -40,7 +40,7 @@
 
 GtApplication::GtApplication(QCoreApplication* parent,
                              bool devMode,
-                             bool batchMode) :
+                             AppMode batchMode) :
     GtCoreApplication(parent),
     m_guiModuleLoader(nullptr),
     m_d(new GtApplicationPrivate(this)),
@@ -64,7 +64,7 @@ GtApplication::GtApplication(QCoreApplication* parent,
             SLOT(onUndoStackChange()));
 
     m_devMode = devMode;
-    m_batchMode = batchMode;
+    m_appMode = batchMode;
     m_darkMode = false;
 
     // apppend shortcuts object

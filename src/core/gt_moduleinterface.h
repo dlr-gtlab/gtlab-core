@@ -16,6 +16,7 @@
 
 #include "gt_versionnumber.h"
 #include "gt_dynamicinterface.h"
+#include "gt_commandlinefunction.h"
 
 class QDomElement;
 
@@ -107,6 +108,19 @@ public:
      * @return
      */
     virtual QList<gtlab::InterfaceFunction> sharedFunctions() const {
+        return {};
+    }
+
+    /**
+     * @brief Returns the commandline functions that the module
+     * offers for the GTlab batcj application.
+     *
+     * Reimplement `commandLineFunctions`, if like to add a command to
+     * the console application
+     *
+     */
+    virtual QList<GtCommandLineFunction> commandLineFunctions() const
+    {
         return {};
     }
 
