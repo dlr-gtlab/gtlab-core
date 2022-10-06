@@ -36,6 +36,9 @@ public:
      */
     explicit GtObjectMemento(const GtObject* obj = nullptr, bool clone = true);
 
+    struct MementoData;
+    explicit GtObjectMemento(const GtObjectMemento::MementoData&);
+
     /**
      * @brief GtObjectMemento
      * @param element
@@ -56,6 +59,7 @@ public:
     /**
      * @brief interface from QDomElement
      */
+    [[deprecated ("Use GtObjectIO::toDomElement instead.")]]
     QDomElement documentElement() const;
 
     /**
@@ -70,7 +74,7 @@ public:
      * @param factory
      * @return
      */
-    bool isRestorable(GtAbstractObjectFactory* factory);
+    bool isRestorable(GtAbstractObjectFactory* factory) const;
 
     /**
      * @brief restore
@@ -85,7 +89,7 @@ public:
 
         if (factory)
         {
-            GtObject* tmp = createObject(factory);
+            auto tmp = toObject(*factory).release();
 
             if (tmp)
             {
@@ -122,11 +126,22 @@ public:
     }
 
     /**
+     * @brief Creates a gtobject from the memento
+     * @param factory An object factory to create object instances
+     *
+     * @return A pointer to an object or nullptr, if it could not be created.
+     */
+    std::unique_ptr<GtObject> toObject(GtAbstractObjectFactory& factory) const;
+
+    /**
      * @brief mergeTo
      * @param obj
      * @param factory
      * @return
      */
+    bool mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const;
+
+    [[deprecated ("Use mergeTo using references instead of pointers")]]
     bool mergeTo(GtObject* obj, GtAbstractObjectFactory* factory) const;
 
     /**
@@ -159,7 +174,7 @@ public:
      */
     struct MementoData
     {
-        const GtObjectMemento::MementoData* findChild(const QString& ident) const;
+        const GtObjectMemento* findChild(const QString& ident) const;
 
 
         QString className, uuid, ident;
@@ -254,28 +269,6 @@ private:
 
     void propertyHashHelper(const MementoData::PropertyData& property, QCryptographicHash& hash, VariantHasher& variantHasher) const;
 
-    /**
-     * @brief attribute
-     * @param id
-     * @return
-     */
-    QString attribute(const QString& id) const;
-
-    /**
-     * @brief createObject
-     * @param factory
-     * @return
-     */
-    GtObject* createObject(GtAbstractObjectFactory* factory);
-
-    /**
-     * @brief isRestorable
-     * @param factory
-     * @param element
-     * @return
-     */
-    bool isRestorable(GtAbstractObjectFactory* factory,
-                      const QDomElement& element);
 
 };
 

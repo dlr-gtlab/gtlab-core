@@ -96,6 +96,7 @@ public:
     /** Creates new GtObjects from given Memento.
         @param memento GtObjectMemento memento
         @return New GtObject based on GtObjectMemento memento */
+    [[deprecated("Use GtObjectMemento::toObject instead")]]
     GtObject* toObject(const GtObjectMemento& memento);
 
     /** Merges GtObjects information from given QDomElement.
@@ -104,12 +105,6 @@ public:
     [[deprecated]]
     void mergeObject(const QDomElement& element,
                      GtObject* obj);
-
-    bool mergeObject(const GtObjectMemento::MementoData& data, GtObject& obj) const;
-
-    GT_DATAMODEL_EXPORT
-    std::unique_ptr<GtObject>
-    fromMementoToObject(const GtObjectMemento::MementoData& data) const;
 
     /**
      * @brief applyDiff
@@ -409,20 +404,6 @@ private:
     static bool handleIndexChange(GtObject* parent,
                                   const QDomElement& object,
                                   const int newIndex);
-
-    /**
-     * @brief structProperties
-     * @return
-     */
-    QList<GtDynamicPropertyContainer*> structProperties(GtObject* obj);
-
-    /**
-     * @brief structPropertyHelper
-     * @param prop
-     * @return
-     */
-    QList<GtDynamicPropertyContainer*> structPropertyHelper(
-        GtAbstractProperty* prop);
 
     /** Converts all member of a QList/QVector (non pointer) to QVariantList.
         @param t QList object

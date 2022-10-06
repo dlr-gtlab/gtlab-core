@@ -35,8 +35,7 @@ public:
 
 GtObject* fromMementoNew(const GtObjectMemento& m)
 {
-    GtObjectIO op(GtObjectFactory::instance());
-    return op.fromMementoToObject(m.data()).release();
+    return m.toObject(*GtObjectFactory::instance()).release();
 }
 
 TEST_F(TestFromMemento, abstractProperties)
@@ -176,7 +175,7 @@ TEST_F(TestFromMemento, mergeObject)
 
     auto memento = obj1.toMemento();
 
-    EXPECT_TRUE(memento.mergeTo(&obj2, GtObjectFactory::instance()));
+    EXPECT_TRUE(memento.mergeTo(obj2, *GtObjectFactory::instance()));
 
     EXPECT_EQ(1, obj2.childCount<GtObject*>());
     EXPECT_TRUE(child2->uuid() == child1->uuid());
@@ -186,7 +185,7 @@ TEST_F(TestFromMemento, mergeObject)
     // will be recreated, i.e. get the old uuid
     child2->setUuid("bla");
 
-    EXPECT_TRUE(memento.mergeTo(&obj2, GtObjectFactory::instance()));
+    EXPECT_TRUE(memento.mergeTo(obj2, *GtObjectFactory::instance()));
 
     EXPECT_EQ(1, obj2.childCount<GtObject*>());
 
@@ -201,7 +200,7 @@ TEST_F(TestFromMemento, mergeNonMatchingObject)
 
     auto memento = testobj.toMemento();
 
-    EXPECT_FALSE(memento.mergeTo(&o, GtObjectFactory::instance()));
+    EXPECT_FALSE(memento.mergeTo(o, *GtObjectFactory::instance()));
 }
 
 TEST_F(TestFromMemento, mergeDummyObject)
@@ -221,9 +220,8 @@ TEST_F(TestFromMemento, mergeDummyObject)
 
     data.properties = {doubleProp, stringListProp};
 
-
-    GtObjectIO io(GtObjectFactory::instance());
-    auto obj = io.fromMementoToObject(data);
+    auto obj = GtObjectMemento(data)
+                   .toObject(*GtObjectFactory::instance());
 
     ASSERT_TRUE(obj != nullptr);
     ASSERT_TRUE(obj->isDummy());
@@ -233,12 +231,4 @@ TEST_F(TestFromMemento, mergeDummyObject)
 
     auto mementoCopy = obj->toMemento(false);
     EXPECT_EQ("ugly", mementoCopy.className());
-}
-
-TEST_F(TestFromMemento, noFactory)
-{
-    GtObjectMemento::MementoData data;
-
-    auto obj = GtObjectIO().fromMementoToObject(data);
-    EXPECT_TRUE(obj == nullptr);
 }
