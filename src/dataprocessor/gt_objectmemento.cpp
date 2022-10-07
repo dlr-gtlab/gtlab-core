@@ -471,20 +471,14 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
 
     if (!obj.isDummy() && obj.metaObject()->className() != className())
     {
-        gtError() << "Object class name and object type does not match";
-
         return false;
     }
 
     obj.setUuid(uuid());
     obj.setObjectName(ident());
-
-
     ::readProperties(*this, obj);
 
-    // child objects
-
-    auto childs = obj.findDirectChildren<GtObject*>();
+    const auto childs = obj.findDirectChildren<GtObject*>();
 
     // loop over all existing childs in the current object
     for (auto& child : childs)
@@ -494,45 +488,28 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
         // check, that memento data contain object
         auto const * mementoChild = findChild(child->objectName());
 
-        bool wasMerged = false;
-
-        // can only be merged if name and uuid match
-        if (mementoChild && mementoChild->uuid() == child->uuid())
+        // if there is not memento for the current obj, we need to remove it
+        if (!mementoChild)
         {
-            assert(mementoChild->ident() == child->objectName());
-
-            // read in props of mementochild to child
-            wasMerged = mementoChild->mergeTo(*child, factory);
+            if (!obj.isDefault()) delete child;
+            continue;
         }
 
-        if (!child->isDefault() && !wasMerged)
+        if (!mementoChild->mergeTo(*child, factory) && !child->isDefault())
         {
-            // the child object could not be merged, we need to read
-            // it back in later
-
-            // remove child, if it is not in memento and not a default child
-            delete child;
+             delete child;
         }
     }
 
     // loop over all childs in memento, that are not yet in the object
     for (auto const & mementoChild : childObjects)
     {
-        // skip if mementoChild already in object,
-        // it has been alrady merged before
-        auto childObj = obj.getDirectChildByUuid(mementoChild.uuid());
-
-        // double check that if it was properly merged
-        assert(!childObj || childObj->objectName() == mementoChild.ident());
-
-        if (childObj) continue;
+        // skip if it has been already merged before
+        if (obj.getDirectChildByUuid(mementoChild.uuid())) continue;
 
         auto newObject = mementoChild.toObject(factory);
-        if (newObject)
-        {
-            obj.appendChild(newObject.release());
-        }
-
+        assert(newObject != nullptr);
+        obj.appendChild(newObject.release());
     }
 
     return true;
