@@ -102,18 +102,6 @@ public:
         @return GtObjectMemento memento */
     GtObjectMemento toMemento(const QDomElement& e);
 
-    /** Creates new GtObjects from given Memento.
-        @param memento GtObjectMemento memento
-        @return New GtObject based on GtObjectMemento memento */
-    [[deprecated("Use GtObjectMemento::toObject instead")]]
-    GtObject* toObject(const GtObjectMemento& memento);
-
-    /** Merges GtObjects information from given QDomElement.
-        @param element QDomElement memento
-        @param obj GtObject */
-    [[deprecated]]
-    void mergeObject(const QDomElement& element,
-                     GtObject* obj);
 
     /**
      * @brief applyDiff
@@ -186,38 +174,6 @@ public:
 private:
     /// Pointer to current object factory
     GtAbstractObjectFactory* m_factory;
-
-    /** Creates new GtObjects from given QDomElement.
-        @param element QDomElement memento
-        @return New GtObject based on QDomElement memento */
-    [[deprecated]]
-    GtObject* toObjectHelper(const QDomElement& element,
-                       GtObject* parent = nullptr);
-
-    /** Merges all properties found in QDomElement with properties found
-        in GtdObject.
-        @param element QDomElement memento
-        @param obj GtdObject */
-    [[deprecated]]
-    void mergeObjectProperties(const QDomElement& element,
-                               GtObject* obj);
-
-    /**
-     * @brief mergeDummyProperies
-     * @param element
-     * @param obj
-     */
-    [[deprecated]]
-    void mergeDummyProperies(const QDomElement& element,
-                             GtObject* obj);
-
-    /**
-     * @brief mergeDynamicProperties
-     * @param element
-     * @param obj
-     */
-    void mergeDynamicProperties(const QDomElement& element,
-                                GtObject* obj);
 
     /**
      * @brief writeProperties
