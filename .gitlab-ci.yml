@@ -65,18 +65,35 @@ devtoolsUpdateLinux:
   only:
     - master  
 
+.buildWindows:
+  stage: build
+  tags:
+    - windows
+    - docker
+  image: dlr-at/gtlabdev-msvc-2019
+  before_script:
+    - '& $VCvarsall'
+    - '& echo "Using Devtools: $DEVTOOLS"'
+    - '& echo "Using QMake: $QMAKE_PATH"'
+    - '& echo "Build-Config: $BUILDMODE"'
+  script:
+    - copy features\gitlab_pipeline_local_settings.pri local_settings.pri
+    - '& $QMAKE_PATH $PROFILENAME -spec win32-msvc "CONFIG+=$BUILDMODE"'
+    - '& $JOM_PATH'
+  variables:
+    VCvarsall: "C:\\devel\\vcvars2019_64.ps1"
+    QMAKE_PATH: C:\\Qt\\Qt5.15\\5.15.2\\msvc2019_64\\bin\\qmake.exe
+    JOM_PATH: C:\\Qt\\Qt5.15\\Tools\\QtCreator\\bin\\jom\\jom.exe
+    GIT_SUBMODULE_STRATEGY: "recursive"
+    GIT_STRATEGY: "clone"
+
+
 # Windows build
 windowsBuildDebug:
   stage: build
   extends: 
-    - .debugBuildRules
-  before_script:
-    - git submodule sync
-    - git submodule update --init    
-  script:
-    - .\tests\pipeline-scripts\build\build-515.bat 1>buildLog.txt
-  tags:
-    - Win10
+    - .debugBuildRules 
+    - .buildWindows
   artifacts:
     paths:
       - lib/$TARGETDIRNAME/*-d.dll
@@ -89,7 +106,6 @@ windowsBuildDebug:
       - build/$UNITTESTSNAME.exe
       - build/$UNITTESTSNAME.pdb
       - include/$TARGETDIRNAME/*.h
-      - buildLog.txt
     expire_in: 1 week
     when: always
   variables:
@@ -103,13 +119,7 @@ windowsBuildRelease:
   stage: build
   extends: 
     - .releaseBuildRules
-  before_script:
-    - git submodule sync
-    - git submodule update --init    
-  script:
-    - .\tests\pipeline-scripts\build\build-515.bat
-  tags:
-    - Win10
+    - .buildWindows
   artifacts:
     paths:
       - lib/$TARGETDIRNAME/*.dll
