@@ -480,7 +480,7 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
         // if there is not memento for the current obj, we need to remove it
         if (!mementoChild)
         {
-            if (!obj.isDefault()) delete child;
+            if (!child->isDefault()) delete child;
             continue;
         }
 
