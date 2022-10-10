@@ -56,7 +56,6 @@ public:
     /**
      * @brief interface from QDomElement
      */
-    [[deprecated ("Use GtObjectIO::toDomElement instead.")]]
     QDomElement documentElement() const;
 
     /**
@@ -137,9 +136,6 @@ public:
      * @return
      */
     bool mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const;
-
-    [[deprecated ("Use mergeTo using references instead of pointers")]]
-    bool mergeTo(GtObject* obj, GtAbstractObjectFactory* factory) const;
 
     /**
      * @brief className

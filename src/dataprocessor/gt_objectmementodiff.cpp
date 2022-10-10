@@ -223,7 +223,6 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         }
 
 
-
         detectPropertyChanges(left.properties, right.properties, diffObj, false);
     }
 
@@ -516,15 +515,7 @@ GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
     {
         diffObj = this->createElement(GtObjectIO::S_DIFF_PROP_CHANGE_TAG);
         diffObj.setAttribute(GtObjectIO::S_NAME_TAG, leftProp.name);
-
-        if (leftProp.type() != PD::ENUM_T)
-        {
-            diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.dataType());
-        }
-        else
-        {
-            diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.data().typeName());
-        }
+        diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.dataType());
 
 
         // handle value changes

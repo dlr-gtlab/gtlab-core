@@ -13,8 +13,6 @@
 #include <QObject>
 #include <QPointF>
 #include <QSet>
-// TODO: remove
-#include "gt_datamodel_exports.h"
 
 #include "gt_objectmemento.h"
 
@@ -65,7 +63,6 @@ public:
      * @brief GtObjectIO
      * @param factory
      */
-    GT_DATAMODEL_EXPORT
     explicit GtObjectIO(GtAbstractObjectFactory* factory = nullptr);
 
     /** Sets new object factory.
@@ -374,6 +371,20 @@ private:
     static bool handleIndexChange(GtObject* parent,
                                   const QDomElement& object,
                                   const int newIndex);
+
+    /**
+     * @brief structProperties
+     * @return
+     */
+    QList<GtDynamicPropertyContainer*> structProperties(GtObject* obj);
+
+    /**
+     * @brief structPropertyHelper
+     * @param prop
+     * @return
+     */
+    QList<GtDynamicPropertyContainer*> structPropertyHelper(
+        GtAbstractProperty* prop);
 
     /** Converts all member of a QList/QVector (non pointer) to QVariantList.
         @param t QList object

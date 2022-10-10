@@ -90,17 +90,6 @@ GtObjectMemento::toByteArray() const
     return doc.toByteArray();
 }
 
-bool
-GtObjectMemento::mergeTo(GtObject* obj, GtAbstractObjectFactory* factory) const
-{
-    if (!obj || !factory)
-    {
-        return false;
-    }
-
-    return mergeTo(*obj, *factory);
-}
-
 const QString&
 GtObjectMemento::className() const
 {

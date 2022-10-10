@@ -1477,3 +1477,47 @@ GtObjectIO::handleIndexChange(GtObject* parent,
 
     return true;
 }
+
+QList<GtDynamicPropertyContainer*>
+GtObjectIO::structProperties(GtObject* obj)
+{
+    QList<GtDynamicPropertyContainer*> retval;
+
+    if (!obj)
+    {
+        return retval;
+    }
+
+    foreach (GtAbstractProperty* prop, obj->properties())
+    {
+        retval.append(structPropertyHelper(prop));
+    }
+
+    return retval;
+}
+
+QList<GtDynamicPropertyContainer*>
+GtObjectIO::structPropertyHelper(GtAbstractProperty* prop)
+{
+    QList<GtDynamicPropertyContainer*> retval;
+
+    if (!prop)
+    {
+        return retval;
+    }
+
+    GtDynamicPropertyContainer* sp = qobject_cast<GtDynamicPropertyContainer*>
+        (prop);
+
+    if (sp)
+    {
+        retval << sp;
+    }
+
+    foreach (GtAbstractProperty* currentProp, prop->fullProperties())
+    {
+        retval.append(structPropertyHelper(currentProp));
+    }
+
+    return retval;
+}

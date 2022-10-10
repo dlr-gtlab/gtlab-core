@@ -323,4 +323,5 @@ signals:
 Q_DECLARE_METATYPE(GtUnit::Category)
 
 
+
 #endif // GTABSTRACTPROPERTY_H

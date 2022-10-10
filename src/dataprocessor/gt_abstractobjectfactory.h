@@ -68,8 +68,12 @@ public:
      */
     virtual bool registerClass(QMetaObject metaObj);
 
+    /**
+     * @brief Removes a class from the factory
+     * @param metaObj The meta object of the class to remove
+     * @return
+     */
     bool unregisterClass(QMetaObject metaObj);
-
 
     /**
      * @brief registerClasses
