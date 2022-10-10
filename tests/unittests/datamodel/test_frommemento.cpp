@@ -8,20 +8,6 @@
 
 #include <QObject>
 
-class ObjectWithDefaultChild : public GtObject
-{
-public:
-
-    ObjectWithDefaultChild()
-        : child(new TestSpecialGtObject)
-    {
-        child->setDefault(true);
-        appendChild(child);
-    }
-
-    TestSpecialGtObject * child;
-};
-
 /**
  * @brief These tests assume the functionality
  * of toMemento
@@ -246,6 +232,20 @@ TEST_F(TestFromMemento, mergeDummyObject)
 
 TEST_F(TestFromMemento, loadWithDefault)
 {
+    class ObjectWithDefaultChild : public GtObject
+    {
+    public:
+
+        ObjectWithDefaultChild()
+            : child(new TestSpecialGtObject)
+        {
+            child->setDefault(true);
+            appendChild(child);
+        }
+
+        TestSpecialGtObject * child;
+    };
+
     ObjectWithDefaultChild o;
     o.setUuid("o_uuid_old");
 
