@@ -10,7 +10,7 @@
 
 include($${PWD}/../../../settings.pri)
 
-BUILD_DEST = ../../../build/modules
+BUILD_DEST = $${BUILD_DEST}/modules
 
 CONFIG(debug, debug|release){
     TARGET = TestMdiInterfaceExt-d
@@ -24,6 +24,8 @@ TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
 CONFIG += c++14
+
+DEFINES += "GT_MODULE_ID=\"Test Mdi Interface Ext\""
 
 INCLUDEPATH += . \
     data \

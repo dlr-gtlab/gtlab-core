@@ -10,7 +10,7 @@
 
 include($${PWD}/../../../settings.pri)
 
-BUILD_DEST = ../../../build/modules
+BUILD_DEST = $${BUILD_DEST}/modules
 
 CONFIG(debug, debug|release){
     TARGET = TestMdiInterface-d
@@ -26,6 +26,7 @@ CONFIG += silent
 CONFIG += c++14
 
 DEFINES += TEST_MDI_INTERFACE_DLL
+DEFINES += "GT_MODULE_ID=\"Test Mdi Interface\""
 
 INCLUDEPATH += . \
     mdi \

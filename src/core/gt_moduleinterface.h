@@ -17,6 +17,12 @@
 #include "gt_versionnumber.h"
 #include "gt_dynamicinterface.h"
 #include "gt_commandlinefunction.h"
+#include "gt_object.h"
+
+#define GT_MODULE \
+    QString ident() const final { \
+        return GT_MODULENAME(); \
+    }
 
 class QDomElement;
 

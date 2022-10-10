@@ -31,6 +31,8 @@ GT_MODELTEST {
 QT += testlib
 }
 
+DEFINES += GT_MODULE_ID=App
+
 CONFIG(debug, debug|release){
     DESTDIR = $${BUILD_DEST}/debug-app
     OBJECTS_DIR = $${BUILD_DEST}/debug-app/obj

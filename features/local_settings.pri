@@ -20,6 +20,9 @@ USE_HDF5 =                      false
 BUILD_UNITTESTS =               false
 BUILD_TESTMODULES =             false
 
+# log line numbers 
+#DEFINES += GT_LOG_LINE_NUMBERS
+
 # deployment settings
 BUILD_DEPLOY =                  true
 

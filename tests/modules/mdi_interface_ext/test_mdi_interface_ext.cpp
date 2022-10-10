@@ -24,12 +24,6 @@ TestDatamodelInterfaceExt::version()
 }
 
 QString
-TestDatamodelInterfaceExt::ident() const
-{
-    return "Test Mdi Interface Ext";
-}
-
-QString
 TestDatamodelInterfaceExt::description() const
 {
     return "Test Mdi Interface Ext";

@@ -1,9 +1,9 @@
 /* GTlab - Gas Turbine laboratory
  * Source File: test_datamodel_interface
  * copyright 2009-2019 by DLR
- * 
+ *
  * Created on: 27.05.2020
- * Author: S. Reitenbach 
+ * Author: S. Reitenbach
  */
 
 #ifndef TEST_DATAMODEL_INTERFACE_H
@@ -17,36 +17,32 @@
  * @brief The TestDatamodelInterface class
  */
 class TestDatamodelInterface : public QObject,
-		public GtModuleInterface,
+        public GtModuleInterface,
         public GtDatamodelInterface
  {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "de.dlr.gtlab.GtModuleInterface/0.1"
                       FILE "test_datamodel_interface.json")
-					  
+
     Q_INTERFACES(GtModuleInterface)
     Q_INTERFACES(GtDatamodelInterface)
 
+    GT_MODULE
+
 public:
 
-	/**
+    /**
      * @brief Returns current version number of module
      * @return version number
      */
     GtVersionNumber version() override;
 
     /**
-     * @brief Returns module identification string.
-     * @return identification string
-     */
-    QString ident() const override;
-
-    /**
      * @brief Returns module description
      * @return description
      */
     QString description() const override;
-	 
+
     /**
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
@@ -73,4 +69,4 @@ public:
 };
 
 #endif // TEST_DATAMODEL_INTERFACE_H
- 
+
