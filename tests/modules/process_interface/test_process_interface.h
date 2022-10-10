@@ -22,23 +22,19 @@ class TestProcessInterface : public QObject,
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "de.dlr.gtlab.GtProcessInterface/0.1"
                       FILE "test_process_interface.json")
-					  
+
     Q_INTERFACES(GtModuleInterface)
     Q_INTERFACES(GtProcessInterface)
 
+    GT_MODULE
+
 public:
 
-	/**
+    /**
      * @brief Returns current version number of module
      * @return version number
      */
     GtVersionNumber version() override;
-
-    /**
-     * @brief Returns module identification string.
-     * @return identification string
-     */
-    QString ident() const override;
 
     /**
      * @brief Returns module description

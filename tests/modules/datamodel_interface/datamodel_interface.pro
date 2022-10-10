@@ -10,7 +10,7 @@
 
 include($${PWD}/../../../settings.pri)
 
-BUILD_DEST = ../../../build/modules
+BUILD_DEST = $${BUILD_DEST}/modules
 
 CONFIG(debug, debug|release){
     TARGET = TestDatamodelInterface-d
@@ -26,9 +26,10 @@ CONFIG += silent
 CONFIG += c++14
 
 DEFINES += TEST_DATAMODEL_INTERFACE_DLL
+DEFINES += "GT_MODULE_ID=\"Test Datamodel Interface\""
 
 INCLUDEPATH += . \
-	data
+    data
 
 # Core
 INCLUDEPATH += ../../../include/core

@@ -16,7 +16,7 @@ QT += xml core sql widgets
 
 TARGET = GTlabUnitTest
 
-BUILD_DEST_TEMP = $${BUILD_DEST}/../build
+BUILD_DEST_TEMP = $${BUILD_DEST}
 
 CONFIG(debug, debug|release){
     DESTDIR = $${BUILD_DEST_TEMP}/debug-unittests
@@ -35,6 +35,8 @@ CONFIG(debug, debug|release){
 CONFIG += silent
 CONFIG += c++14
 CONFIG += console
+
+DEFINES += GT_MODULE_ID=Unittests
 
 #CURRENT_DIR=$$project_src_dir/tests/unittests
 

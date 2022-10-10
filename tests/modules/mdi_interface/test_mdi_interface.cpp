@@ -22,12 +22,6 @@ TestMdiInterface::version()
 }
 
 QString
-TestMdiInterface::ident() const
-{
-    return "Test Mdi Interface";
-}
-
-QString
 TestMdiInterface::description() const
 {
     return "Test Mdi Interface";

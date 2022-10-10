@@ -46,12 +46,6 @@ TestModuleInterface::version()
 }
 
 QString
-TestModuleInterface::ident() const
-{
-    return "Test Module Interface";
-}
-
-QString
 TestModuleInterface::description() const
 {
     return "Test Module Interface Description";

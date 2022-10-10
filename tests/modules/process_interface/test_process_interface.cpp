@@ -17,12 +17,6 @@ TestProcessInterface::version()
 }
 
 QString
-TestProcessInterface::ident() const
-{
-    return "Test Process Interface";
-}
-
-QString
 TestProcessInterface::description() const
 {
     return "Test Process Interface Description";

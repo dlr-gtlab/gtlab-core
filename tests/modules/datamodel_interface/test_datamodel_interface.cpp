@@ -25,12 +25,6 @@ TestDatamodelInterface::version()
 }
 
 QString
-TestDatamodelInterface::ident() const
-{
-    return "Test Datamodel Interface";
-}
-
-QString
 TestDatamodelInterface::description() const
 {
     return "Test Datamodel Interface";

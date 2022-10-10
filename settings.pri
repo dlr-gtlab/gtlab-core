@@ -105,7 +105,7 @@ DEPENDPATH  += $${GENH5_PATH}/lib/h5
 #}
 
 #### PATH SETTINGS
-BUILD_DEST = ../../build
+BUILD_DEST = $${PWD}/build
 
 #COVERAGE {
     # code coverage settings

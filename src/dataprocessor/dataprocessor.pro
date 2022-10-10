@@ -23,6 +23,7 @@ CONFIG += silent
 CONFIG += c++14
 
 DEFINES += GT_DATAMODEL_DLL
+DEFINES += GT_MODULE_ID=DataProcessor
 
 # qstring restrictions
 #DEFINES += QT_NO_CAST_FROM_ASCII
@@ -76,6 +77,7 @@ HEADERS += \
     gt_datazone0d.h \
     gt_result.h \
     gt_tablevalues.h \
+    gt_utilities.h \
     gt_xmlutilities.h \
     property/gt_enumproperty.h \
     property/gt_objectlinkproperty.h \

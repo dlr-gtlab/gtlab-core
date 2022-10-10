@@ -18,17 +18,19 @@
  * @brief The TestDatamodelInterfaceExt class
  */
 class TestDatamodelInterfaceExt : public QObject,
-		public GtModuleInterface,
+        public GtModuleInterface,
         public GtDatamodelInterface,
         public GtMdiInterface
- {
+{
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "de.dlr.gtlab.GtModuleInterface/0.1"
                       FILE "test_mdi_interface_ext.json")
-					  
+
     Q_INTERFACES(GtModuleInterface)
-	Q_INTERFACES(GtDatamodelInterface)
+    Q_INTERFACES(GtDatamodelInterface)
     Q_INTERFACES(GtMdiInterface)
+
+    GT_MODULE
 
 public:
 
@@ -37,12 +39,6 @@ public:
      * @return version number
      */
     GtVersionNumber version() override;
-
-    /**
-     * @brief Returns module identification string.
-     * @return identification string
-     */
-    QString ident() const override;
 
     /**
      * @brief Returns module description

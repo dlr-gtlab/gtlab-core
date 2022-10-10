@@ -10,6 +10,7 @@ local_settings.pri
 *.qmake.stash
 *.o
 *.pyc
+*qml_qmlcache.qrc
 linuxBuild.txt
 unittests.xml
 !tests/build/

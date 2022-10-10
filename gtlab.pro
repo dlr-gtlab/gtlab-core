@@ -12,7 +12,7 @@ include( local_settings.pri )
 
 TEMPLATE = subdirs
 CONFIG += ordered console
-CONFIG += c++11
+CONFIG += c++14
 
 #### ARTISTIC STYLE FILE
 DISTFILES  += style.astylerc
