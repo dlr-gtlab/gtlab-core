@@ -5,10 +5,22 @@
 #include "gt_objectmemento.h"
 #include "gt_objectio.h"
 #include "gt_objectfactory.h"
-#include "gt_dummyobject.h"
 
 #include <QObject>
 
+class ObjectWithDefaultChild : public GtObject
+{
+public:
+
+    ObjectWithDefaultChild()
+        : child(new TestSpecialGtObject)
+    {
+        child->setDefault(true);
+        appendChild(child);
+    }
+
+    TestSpecialGtObject * child;
+};
 
 /**
  * @brief These tests assume the functionality
@@ -230,4 +242,50 @@ TEST_F(TestFromMemento, mergeDummyObject)
 
     auto mementoCopy = obj->toMemento(false);
     EXPECT_EQ("ugly", mementoCopy.className());
+}
+
+TEST_F(TestFromMemento, loadWithDefault)
+{
+    ObjectWithDefaultChild o;
+    o.setUuid("o_uuid_old");
+
+    o.child->setUuid("child_uuid_old");
+    o.child->setDouble(567.);
+
+    ASSERT_EQ(1, o.childCount<GtObject*>());
+
+    GtObjectMemento m = o.toMemento(false);
+
+    TestSpecialGtObject * const oldChildAddr = o.child;
+
+    ASSERT_TRUE(m.childObjects.size() == 1);
+    ASSERT_TRUE(m.childObjects[0].properties[1].dataType() == "double");
+
+    m.childObjects[0].properties[1].setData(789.);
+
+    m.mergeTo(o, *gtObjectFactory);
+
+    ASSERT_EQ(1, o.childCount<GtObject*>());
+
+    // Since the uuids have been regenerated when building the memento
+    // also the child uid must have been changed!
+    EXPECT_NE(o.child->uuid(), QString("child_uuid_old"));
+
+    // the double prop needs to be 789., since we entered it into the memento
+    EXPECT_DOUBLE_EQ(789., o.child->getDouble());
+
+    EXPECT_EQ(oldChildAddr, o.child);
+
+    m.childObjects.clear();
+    m.mergeTo(o, *gtObjectFactory);
+
+    // the child must remain, since it is default
+    EXPECT_EQ(1, o.childCount<GtObject*>());
+    EXPECT_EQ(oldChildAddr, o.child);
+
+    ObjectWithDefaultChild o2;
+    o2.child->setDefault(false);
+
+    m.mergeTo(o2, *gtObjectFactory);
+    EXPECT_EQ(0, o2.childCount<GtObject*>());
 }
