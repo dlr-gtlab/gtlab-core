@@ -40,9 +40,9 @@ GtStartupPage::GtStartupPage()
 
     QVBoxLayout* frameLay = new QVBoxLayout;
 
-    QLabel* label = new QLabel;
+    m_logoLabel = new QLabel;
 
-    frameLay->addWidget(label);
+    frameLay->addWidget(m_logoLabel);
 
     QGridLayout* gridLay = new QGridLayout;
 
@@ -122,8 +122,11 @@ GtStartupPage::GtStartupPage()
 
     initializeTheme();
 
-    label->setPixmap(gt::gui::pixmap::logo());
-    label->setLayoutDirection(Qt::RightToLeft);
+    m_logoLabel->setPixmap(GtGUI::Pixmap::logo());
+    m_logoLabel->setLayoutDirection(Qt::RightToLeft);
+
+    setFrameShape(QFrame::StyledPanel);
+    setFrameShadow(QFrame::Sunken);
 }
 
 QIcon
@@ -194,6 +197,9 @@ GtStartupPage::initializeTheme()
     m_frame->setAutoFillBackground(true);
     m_frame->setFrameShape(QFrame::Box);
     m_frame->setFrameShadow(QFrame::Raised);
+
+    m_logoLabel->setPixmap(GtGUI::Pixmap::logo());
+    m_logoLabel->setLayoutDirection(Qt::RightToLeft);
 
     if (gtApp->inDarkMode())
     {

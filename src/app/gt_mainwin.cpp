@@ -38,6 +38,7 @@
 #include "gt_icons.h"
 #include "gt_palette.h"
 #include "gt_algorithms.h"
+#include "gt_toolbarhandler.h"
 
 #include <gt_logdest.h>
 
@@ -55,6 +56,9 @@
 #include <QSettings>
 #include <QShortcut>
 
+#include <QQuickWidget>
+#include <QQmlContext>
+
 #include <algorithm>
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
@@ -64,7 +68,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     m_cornerWidget(new GtCornerWidget(this)),
     m_forceQuit(false),
     m_firstTimeShowEvent(true),
-    m_processQueue(nullptr)
+    m_processQueue(nullptr),
+    m_toolBarHandler{std::make_unique<GtToolbarHandler>()}
 {
     // dock widget have to be initialized before setup the ui
     setupDockWidgets();
@@ -137,6 +142,19 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui->menubar->setCornerWidget(m_cornerWidget);
 
     // connections
+    connect(m_toolBarHandler.get(), SIGNAL(newProjectButtonClicked()),
+            SLOT(showProjectWizard()));
+    connect(m_toolBarHandler.get(), SIGNAL(saveProjectButtonClicked()),
+            SLOT(saveCurrentProject()));
+    connect(m_toolBarHandler.get(), SIGNAL(openProjectButtonClicked()),
+            SLOT(importProject()));
+    connect(m_toolBarHandler.get(), SIGNAL(undoButtonClicked()),
+            gtApp->undoStack(), SLOT(undo()));
+    connect(m_toolBarHandler.get(), SIGNAL(redoButtonClicked()),
+            gtApp->undoStack(), SLOT(redo()));
+    connect(gtApp, SIGNAL(objectSelected(GtObject*)),
+            m_toolBarHandler.get(), SLOT(onObjectSelected(GtObject*)));
+
     connect(ui->actionNewProject, SIGNAL(triggered(bool)),
             SLOT(showProjectWizard()));
     connect(ui->actionSave_Project, SIGNAL(triggered(bool)),
@@ -216,6 +234,47 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(openAboutModulesDialog()));
 
     loadPerspectiveSettings();
+	
+    connect(ui->mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
+            SLOT(onEditorWindowActive(QMdiSubWindow*)));
+
+    loadPerspectiveSettings();
+
+    // gui logger destination
+    QsLogging::Logger& logger = QsLogging::Logger::instance();
+
+    QsLogging::DestinationPtr widgetDestination(
+                QsLogging::DestinationFactory::MakeFunctorDestination(
+                    this, SLOT(onLogMessage(QString,int))));
+
+    logger.addDestination(widgetDestination);
+
+    ui->qmlToolBar->setStyleSheet("QToolBar {border-bottom: 0px solid black; border-top: 0px solid black;}");
+
+    m_myqmlwid = new QQuickWidget;
+    ui->qmlToolBar->addWidget(m_myqmlwid);
+
+   m_myqmlwid->resize(QSize(1500, 50));
+    m_myqmlwid->setResizeMode(QQuickWidget::SizeRootObjectToView);
+//    m_myqmlwid->rootContext()->setContextProperty("_cppModel",
+//                                                   m_model);
+
+
+//    m_myqmlwid->rootContext()->setContextProperty("global_fullname",
+//                                                  my_client.userFullName());
+//    m_myqmlwid->rootContext()->setContextProperty("global_icon",
+//                                                  my_client.userAvatarUrl());
+    m_myqmlwid->rootContext()->setContextProperty("mainwin",
+                                                  this);
+    m_myqmlwid->rootContext()->setContextProperty("gtapp",
+                                                  gtApp);
+    m_myqmlwid->rootContext()->setContextProperty("undostack",
+                                                  gtApp->undoStack());
+    m_myqmlwid->rootContext()->setContextProperty("handler",
+                                                  m_toolBarHandler.get());
+
+    m_myqmlwid->setSource(QUrl("qrc:/qml/toolbar.qml"));
+
 }
 
 GtMainWin::~GtMainWin()
@@ -363,6 +422,14 @@ GtMainWin::keyPressEvent(QKeyEvent* event)
     }
 
     QMainWindow::keyPressEvent(event);
+}
+
+void
+GtMainWin::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+
+    m_myqmlwid->resize(QSize(this->width(), 50));
 }
 
 void
@@ -787,12 +854,14 @@ GtMainWin::onCurrentProjectChanged(GtProject* project)
         ui->actionSave_Project->setEnabled(false);
         ui->actionSave_As->setEnabled(false);
         ui->actionCloseProject->setEnabled(false);
+        emit projectOpened(false);
     }
     else
     {
         ui->actionSave_Project->setEnabled(true);
         ui->actionSave_As->setEnabled(true);
         ui->actionCloseProject->setEnabled(true);
+        emit projectOpened(true);
     }
 }
 
@@ -1251,6 +1320,24 @@ GtMainWin::onWidgetStructureClicked()
     {
         widgetStructureHelper(wid, 1);
     }
+}
+
+void
+GtMainWin::onLogMessage(const QString& msg, int level)
+{
+    if (level > 3) // Pipe errors (level 4) to a message box
+    {
+        QsLogging::Level l = QsLogging::Logger::levelFromInt(level);
+        QMessageBox::critical(this, QsLogging::Logger::levelToString(l),
+                              msg, QMessageBox::Ok);
+    }
+}
+
+void
+GtMainWin::onEditorWindowActive(QMdiSubWindow* window)
+{
+
+    emit currentMdiItemPrintable(gtMdiLauncher->isPrintable(window));
 }
 
 void

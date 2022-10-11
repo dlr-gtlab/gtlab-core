@@ -113,6 +113,12 @@ public:
      */
     virtual bool allowsMultipleInstances() const;
 
+    /**
+     * @brief Virtual function to specify if mdi item is printable.
+     * @return Printable indicator.
+     */
+    virtual bool isPrintable() const;
+
 public slots:
     /**
      * @brief print

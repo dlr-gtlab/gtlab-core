@@ -271,6 +271,22 @@ GtMdiLauncher::print(QWidget* subWindow)
 }
 
 bool
+GtMdiLauncher::isPrintable(QMdiSubWindow* subWindow) const
+{
+    if (!subWindow)
+    {
+        return false;
+    }
+
+    if (m_openItems.contains(subWindow))
+    {
+        return m_openItems.value(subWindow)->isPrintable();
+    }
+
+    return false;
+}
+
+bool
 GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 {
 

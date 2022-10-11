@@ -7,6 +7,7 @@
  *  Tel.: +49 2203 601 2191
  */
 #include "gt_icons.h"
+#include "gt_application.h"
 
 #include <QPainter>
 #include <QApplication>
@@ -1597,6 +1598,17 @@ QIcon
 gt::gui::icon::letter::i()
 {
     return gt::gui::getIcon(QStringLiteral("letters/iLetterIcon.png"));
+}
+
+QPixmap
+GtGUI::Pixmap::logo()
+{
+    if (gtApp->inDarkMode())
+    {
+        return {":/pixmaps/gt-logo-dark.png"};
+    }
+
+    return {":/pixmaps/gt-logo.png"};
 }
 
 QIcon

@@ -96,6 +96,12 @@ public:
     void print(QWidget *subWindow);
 
     /**
+     * @brief Returns true in mdi item for given subwindow is printable.
+     * @param subWindow
+     */
+    bool isPrintable(QMdiSubWindow* subWindow) const;
+
+    /**
      * @brief registerDockWidget
      * @param metaObj - meta object of dockwidget to add
      * @return true in case of success, else false

@@ -246,7 +246,7 @@ public:
      * @brief inDarkMode
      * @return true if application is in dark mode
      */
-    bool inDarkMode();
+    Q_INVOKABLE bool inDarkMode();
 
     /**
      * @brief setDarkMode

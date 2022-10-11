@@ -14,6 +14,8 @@
 
 class QFrame;
 class QToolButton;
+class QLabel;
+
 /**
  * @brief The GtStartupPage class
  */
@@ -87,6 +89,9 @@ private:
 
     /// button to open info menu
     QToolButton* m_infoBtn;
+
+    /// Placeholder for gtlab logo
+    QLabel* m_logoLabel;
 
     /**
      * @brief initialize widget content

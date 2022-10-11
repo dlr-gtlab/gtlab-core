@@ -10,6 +10,8 @@
 #ifndef GTMAINWIN_H
 #define GTMAINWIN_H
 
+#include <memory>
+
 #include <QMainWindow>
 #include <QMap>
 #include <QPointer>
@@ -26,7 +28,10 @@ class GtAbstractLoadingHelper;
 class GtObject;
 class GtDockWidget;
 class GtProcessQueueWidget;
+class GtToolbarHandler;
 class QUndoView;
+class QQuickWidget;
+class QMdiSubWindow;
 
 /**
  * @brief The GtMainWin class
@@ -70,6 +75,12 @@ protected:
      */
     void keyPressEvent(QKeyEvent* event) override;
 
+    /**
+     * @brief resizeEvent
+     * @param event
+     */
+    void resizeEvent(QResizeEvent* event) override;
+
 private:
     /// UI Form
     Ui::GtMainWin* ui;
@@ -97,6 +108,12 @@ private:
 
     /// Pointer to Undo View Widget
     QPointer<QUndoView> m_undoView;
+
+    /// Qml toolbar widget
+    QQuickWidget* m_myqmlwid;
+
+    /// Qml toolbar handler
+    std::unique_ptr<GtToolbarHandler> m_toolBarHandler;
 
     /**
      * @brief setupDockWidgets
@@ -354,11 +371,33 @@ private slots:
      */
     void onWidgetStructureClicked();
 
+    /**
+     * @brief Displays an error dialog including a message.
+     * @param msg Error message to be displayed.
+     */
+    void onLogMessage(const QString& msg, int level);
+
+    /**
+     * @brief Called by activate an mdi item.
+     * @param mdi sub window
+     */
+    void onEditorWindowActive(QMdiSubWindow* window);
+
 signals:
     /**
      * @brief Emitted after gui is finally initialized.
      */
     void guiInitialized();
+
+    /**
+     * @brief Emitted after project was opened or closed.
+     */
+    void projectOpened(bool);
+
+    /**
+     * @brief Emitted if current selected mdi item is printable
+     */
+    void currentMdiItemPrintable(bool);
 
 };
 
