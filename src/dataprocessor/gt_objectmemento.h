@@ -180,7 +180,6 @@ public:
         QString name;
         bool isOptional = false;
         bool isActive = true;
-        QString dynamicObjectName;
 
         const QVariant& data() const
         {
@@ -215,6 +214,16 @@ public:
         PropertyType _type  {DATA_T};
 
     };
+
+
+    /**
+     * @brief Searches a property by its name
+     * @param list The list to search for
+     * @param name The property name
+     * @return Pointer to the property or nullptr
+     */
+    static PropertyData const *
+    findPropertyByName(const QVector<PropertyData>& list, const QString& name);
 
 
     /**

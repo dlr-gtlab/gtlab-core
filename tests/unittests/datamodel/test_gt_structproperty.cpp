@@ -18,6 +18,7 @@
 #include "gt_objectmemento.h"
 #include "gt_xmlutilities.h"
 #include "gt_objectmementodiff.h"
+#include "gt_objectfactory.h"
 
 
 #include "gt_object.h"
@@ -35,6 +36,7 @@ struct TestObject : public GtObject
         environmentVars.registerAllowedType(envVarStruct);
 
         registerPropertyStructContainer(environmentVars);
+        setObjectName("testobject");
     }
 
     void addEnvironmentVar(QString name, QString value)
@@ -222,6 +224,55 @@ TEST_F(TestGtStructProperty, write)
     auto prop3 = prop2.nextSiblingElement("property");
     ASSERT_TRUE(prop3.isNull());
 
+}
+
+TEST_F(TestGtStructProperty, readFromMemento)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    obj.addEnvironmentVar("LD_DEBUG", "1");
+
+    auto memento = obj.toMemento(false);
+
+    TestObject newObj;
+
+    EXPECT_EQ(0, newObj.environmentVars.size());
+
+    memento.mergeTo(newObj, *gtObjectFactory);
+
+    // check equality of both objects by comparing the mementos
+    EXPECT_TRUE(GtObjectMementoDiff(memento, newObj.toMemento()).isNull());
+
+    ASSERT_EQ(2, newObj.environmentVars.size());
+
+    const auto& entry0 = newObj.environmentVars[0];
+    EXPECT_EQ(QString("PATH"), entry0.getMemberVal<QString>("name"));
+    EXPECT_EQ(QString("/usr/bin"), entry0.getMemberVal<QString>("value"));
+
+    const auto& entry1 = newObj.environmentVars[1];
+    EXPECT_EQ(QString("LD_DEBUG"), entry1.getMemberVal<QString>("name"));
+    EXPECT_EQ(QString("1"), entry1.getMemberVal<QString>("value"));
+}
+
+TEST_F(TestGtStructProperty, readMissingDynprop)
+{
+    TestObject obj;
+
+    auto memento = obj.toMemento(false);
+    // remove the dynamic property from the memento
+    memento.dynamicSizeProperties.clear();
+
+    TestObject newObj;
+    newObj.addEnvironmentVar("PATH", "/usr/bin");
+    newObj.addEnvironmentVar("LD_DEBUG", "1");
+
+    EXPECT_EQ(2, newObj.environmentVars.size());
+
+    // hence, the memento should not delete / change the
+    // environment vars, since it was deleted from the memento
+    memento.mergeTo(newObj, *gtObjectFactory);
+
+    EXPECT_EQ(2, newObj.environmentVars.size());
 }
 
 TEST_F(TestGtStructProperty, mementoDiffPlausibility)

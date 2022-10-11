@@ -53,7 +53,7 @@ public:
      * @return
      */
     GT_DATAMODEL_EXPORT
-    GtPropertyStructInstance& newEntry(QString typeID);
+    GtPropertyStructInstance& newEntry(QString typeID, QString id="");
 
     /**
      * @brief Returns the number of entries in the vector
@@ -116,6 +116,9 @@ public:
      */
     GT_DATAMODEL_EXPORT
     const GtPropertyStructInstance& at(size_t idx) const;
+
+    GT_DATAMODEL_EXPORT
+    void clear();
 
 private:
     struct Impl;

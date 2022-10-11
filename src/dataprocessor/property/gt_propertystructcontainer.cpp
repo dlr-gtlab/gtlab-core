@@ -52,7 +52,7 @@ GtPropertyStructContainer::registerAllowedType(
 }
 
 GtPropertyStructInstance&
-GtPropertyStructContainer::newEntry(QString typeID)
+GtPropertyStructContainer::newEntry(QString typeID, QString id)
 {
     const auto iter = pimpl->allowedTypes.find(typeID);
     if (iter == pimpl->allowedTypes.end())
@@ -64,9 +64,12 @@ GtPropertyStructContainer::newEntry(QString typeID)
 
     const auto& structureDefinition = iter->second;
 
-    auto uuidName = QUuid::createUuid().toString();
+    if (id.isEmpty())
+    {
+        id = QUuid::createUuid().toString();QUuid::createUuid().toString();
+    }
 
-    pimpl->entries.push_back(structureDefinition.newInstance(uuidName));
+    pimpl->entries.push_back(structureDefinition.newInstance(std::move(id)));
 
     return pimpl->entries[pimpl->entries.size() - 1];
 }
@@ -105,6 +108,11 @@ const GtPropertyStructInstance&
 GtPropertyStructContainer::at(size_t idx) const
 {
     return pimpl->entries.at(idx);
+}
+
+void GtPropertyStructContainer::clear()
+{
+    pimpl->entries.clear();
 }
 
 GtPropertyStructInstance&

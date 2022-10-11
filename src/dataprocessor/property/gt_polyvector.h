@@ -217,6 +217,11 @@ namespace gt
             return *values.at(idx);
         }
 
+        void clear()
+        {
+            values.clear();
+        }
+
     private:
         std::vector<std::unique_ptr<BaseType>> values;
     };

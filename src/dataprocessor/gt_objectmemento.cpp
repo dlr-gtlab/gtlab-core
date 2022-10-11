@@ -18,6 +18,9 @@
 #include "gt_abstractobjectfactory.h"
 #include "gt_abstractproperty.h"
 #include "gt_dummyobject.h"
+#include "gt_propertystructcontainer.h"
+#include "gt_structproperty.h"
+#include "gt_exceptions.h"
 
 using PD = GtObjectMemento::PropertyData;
 
@@ -324,6 +327,18 @@ GtObjectMemento::findChild(const QString &ident) const
     return &*iter;
 }
 
+const GtObjectMemento::PropertyData *
+GtObjectMemento::findPropertyByName(const QVector<PropertyData> &list,
+                                    const QString& name)
+{
+    auto iter = std::find_if(std::begin(list), std::end(list),
+                 [&name](const PropertyData& childProp) {
+        return childProp.name == name;
+    });
+
+    return iter != list.end() ? &*iter : nullptr;
+}
+
 bool
 readDummyProperty(const PD& p, GtDummyObject& obj)
 {
@@ -418,6 +433,88 @@ readProperties(const GtObjectMemento& memento,
     }
 }
 
+void readPropertyStructEntry(const PD& propStruct, GtPropertyStructContainer& c)
+{
+    // all entries must be struct. Since the user cannot
+    // modify a memento directly, an assertion is best here
+    assert(propStruct.type() == PD::STRUCT_T);
+
+    auto const & membersInMemento = propStruct.childProperties;
+
+    try
+    {
+        auto& structEntry = c.newEntry(propStruct.dataType(),
+                                       propStruct.name);
+
+        // copy all member values into the new entry
+        for (auto& member : structEntry.properties())
+        {
+            if (!member) continue;
+
+            auto prop = GtObjectMemento::findPropertyByName(membersInMemento,
+                                                            member->ident());
+
+            if (prop)
+            {
+                member->setValueFromVariant(prop->data());
+            }
+            else
+            {
+                // property does not exist
+                gtError() << "Property '" << member->ident()
+                          << "' does not exist in memento";
+            }
+        }
+
+    }
+    catch (GTlabException& e)
+    {
+        // might fail, if the datatype cannot be created in newEntry
+        gtError() << e.what();
+    }
+
+}
+
+void readStructContainer(const PD& prop, GtPropertyStructContainer& c)
+{
+
+    // remove all entries from the container and add the new ones
+    // from the memento
+    c.clear();
+
+    for (const auto& entryInMemento : prop.childProperties)
+    {
+        readPropertyStructEntry(entryInMemento, c);
+
+    }
+}
+
+void
+readDynamicProperties(const GtObjectMemento& memento, GtObject& obj)
+{
+    const auto& memdynProps = memento.dynamicSizeProperties;
+
+
+    for (GtPropertyStructContainer & c : obj.dynamicProperties())
+    {
+        auto iter = std::find_if(std::begin(memdynProps), std::end(memdynProps),
+                    [&c](const GtObjectMemento::PropertyData& mementoProp) {
+            return mementoProp.name == c.ident();
+        });
+
+        if (iter != std::end(memdynProps))
+        {
+            readStructContainer(*iter, c);
+        }
+        else
+        {
+            gtWarning().noquote().nospace()
+                    << "No memento found for dynamic property '"
+                    << c.ident() << "' of object '" << memento.ident() << "'.";
+        }
+    }
+}
+
 std::unique_ptr<GtObject>
 GtObjectMemento::toObject(GtAbstractObjectFactory& factory) const
 {
@@ -454,6 +551,7 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
     obj.setUuid(uuid());
     obj.setObjectName(ident());
     ::readProperties(*this, obj);
+    ::readDynamicProperties(*this, obj);
 
     const auto childs = obj.findDirectChildren<GtObject*>();
 
