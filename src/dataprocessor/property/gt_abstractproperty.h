@@ -319,6 +319,7 @@ signals:
 
 Q_DECLARE_METATYPE(GtUnit::Category)
 
+GT_DATAMODEL_EXPORT
 QVariant getConnectedValue(const GtPropertyConnection& connection);
 
 
