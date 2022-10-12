@@ -10,7 +10,7 @@ class GtMarkdownEditor : public QWidget
     Q_OBJECT
 
 public:
-    GtMarkdownEditor(const QString& content, QWidget* parent = nullptr);
+    explicit GtMarkdownEditor(const QString& content, QWidget* parent = nullptr);
 
 private:
     QQuickWidget* m_qmlwid;
