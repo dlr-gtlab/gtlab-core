@@ -549,8 +549,15 @@ GtObject::findDynamicSizeProperty(const QString &id)
         (const_cast<const GtObject*>(this)->findDynamicSizeProperty(id));
 }
 
-const std::vector<std::reference_wrapper<GtPropertyStructContainer> > &
+std::vector<std::reference_wrapper<const GtPropertyStructContainer> >
 GtObject::dynamicProperties() const
+{
+    return {std::begin(m_dynamic_properties), std::end(m_dynamic_properties)};
+
+}
+
+std::vector<std::reference_wrapper<GtPropertyStructContainer>>&
+GtObject::dynamicProperties()
 {
     return m_dynamic_properties;
 }
