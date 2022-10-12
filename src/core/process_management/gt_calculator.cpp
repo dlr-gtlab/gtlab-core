@@ -22,10 +22,35 @@
 
 #include "gt_calculator.h"
 
-GtCalculator::~GtCalculator()
+struct GtCalculator::Impl
 {
-    delete m_labelProperty;
-}
+    explicit Impl(GtCalculator& q) :
+        labelProperty(QStringLiteral("execLabel"),
+                      tr("Label"), tr("Execution label"),
+                      &q),
+        failRunOnWarning(QStringLiteral("failOnWarn"),
+                         tr("Fail Run on Warning"),
+                         tr("Terminate process execution if calculator"
+                         " throws a warning."), false)
+    {}
+
+    /// Execution mode indicator.
+    GtModeProperty* execMode {nullptr};
+
+    /// Execution label property
+    GtLabelProperty labelProperty;
+
+    /// Path to process/project specific temporary path.
+    QString tempPath;
+
+    /// Pointer to runnable associated to the calculator.
+    GtAbstractRunnable* runnable {nullptr};
+
+    /// Fail run on warning indicator.
+    GtBoolProperty failRunOnWarning;
+};
+
+GtCalculator::~GtCalculator() = default;
 
 bool
 GtCalculator::exec()
@@ -34,7 +59,7 @@ GtCalculator::exec()
     m_linkedObjects.clear();
 
     // revert temp directory
-    m_tempPath.clear();
+    pimpl->tempPath.clear();
 
     // check skipped indicator
     if (isSkipped())
@@ -46,16 +71,16 @@ GtCalculator::exec()
 
     qDebug() << objectName() << "::exec()";
     // initialize pointer to runnable
-    m_runnable = nullptr;
+    pimpl->runnable = nullptr;
 
     // initialize calculator
     setState(GtCalculator::RUNNING);
 
     // set associated runnable
-    m_runnable = findParent<GtAbstractRunnable*>();
+    pimpl->runnable = findParent<GtAbstractRunnable*>();
 
     // check whether runnable was found
-    if (!m_runnable)
+    if (!pimpl->runnable)
     {
         setState(GtCalculator::FAILED);
         return false;
@@ -72,7 +97,7 @@ GtCalculator::exec()
         {
             // object link property found
             GtObject* linkedObj =
-                m_runnable->data<GtObject*>(objLink->linkedObjectUUID());
+                pimpl->runnable->data<GtObject*>(objLink->linkedObjectUUID());
 
             if (linkedObj)
             {
@@ -89,7 +114,7 @@ GtCalculator::exec()
         {
             // object path property found
             GtObject* linkedObj =
-                m_runnable->data<GtObject*>(objPath->path());
+                pimpl->runnable->data<GtObject*>(objPath->path());
 
             if (linkedObj)
             {
@@ -104,7 +129,7 @@ GtCalculator::exec()
     }
 
     // current execution mode identification string
-    QString execMode = m_execMode->get();
+    QString execMode = pimpl->execMode->get();
     qDebug() << "|-> exec mode: " << execMode;
 
     if (execMode != "local")
@@ -142,14 +167,14 @@ GtCalculator::exec()
     }
 
     // handle temporary path cleanup
-    if (!m_tempPath.isEmpty() && m_deleteTempPath)
+    if (!pimpl->tempPath.isEmpty() && m_deleteTempPath)
     {
-        if (m_runnable)
+        if (pimpl->runnable)
         {
-            if (!m_runnable->clearTempDir(m_tempPath))
+            if (!pimpl->runnable->clearTempDir(pimpl->tempPath))
             {
                 gtWarning() << tr("could not remove temp dir") << "! - "
-                            << m_tempPath;
+                            << pimpl->tempPath;
             }
         }
     }
@@ -174,19 +199,19 @@ GtCalculator::exec()
 const QString&
 GtCalculator::execMode()
 {
-    return m_execMode->get();
+    return pimpl->execMode->get();
 }
 
 void
 GtCalculator::setExecMode(const QString& execMode)
 {
-    m_execMode->setVal(execMode);
+    pimpl->execMode->setVal(execMode);
 }
 
 void
 GtCalculator::setExecModeLocal()
 {
-    m_execMode->setVal("local");
+    pimpl->execMode->setVal("local");
 }
 
 const QList<QPointer<GtObject>>&
@@ -198,37 +223,37 @@ GtCalculator::linkedObjects()
 QDir
 GtCalculator::tempDir()
 {
-    if (!m_runnable)
+    if (!pimpl->runnable)
     {
         return QDir();
     }
 
     // check whether temporary dir was already set
-    if (m_tempPath.isEmpty())
+    if (pimpl->tempPath.isEmpty())
     {
         // create new temporary directory
-        m_tempPath = m_runnable->tempDir().absolutePath();
+        pimpl->tempPath = pimpl->runnable->tempDir().absolutePath();
     }
 
-    return QDir(m_tempPath);
+    return QDir(pimpl->tempPath);
 }
 
 const QString&
 GtCalculator::executionLabel()
 {
-    return m_labelProperty->get();
+    return pimpl->labelProperty.get();
 }
 
 void
 GtCalculator::setExecutionLabel(const QString& label)
 {
-    m_labelProperty->setVal(label);
+    pimpl->labelProperty.setVal(label);
 }
 
 bool
 GtCalculator::runFailsOnWarning()
 {
-    return m_failRunOnWarning;
+    return pimpl->failRunOnWarning;
 }
 
 bool
@@ -240,32 +265,23 @@ GtCalculator::run()
 
 GtCalculator::GtCalculator():
     m_deleteTempPath(true),
-    m_execMode(nullptr),
-    m_labelProperty(nullptr),
-    m_runnable(nullptr),
-    m_failRunOnWarning(QStringLiteral("failOnWarn"), tr("Fail Run on Warning"),
-                       tr("Terminate process execution if calculator"
-                          " throws a warning."), false)
+    pimpl(std::make_unique<GtCalculator::Impl>(*this))
 {
     setObjectName(QStringLiteral("Calculator"));
 
-    // execution label property
-    m_labelProperty = new GtLabelProperty(QStringLiteral("execLabel"),
-                                          tr("Label"), tr("Execution label"),
-                                          this);
-    registerProperty(*m_labelProperty, tr("Execution"));
+    registerProperty(pimpl->labelProperty, tr("Execution"));
 
     // execution mode property
-    m_execMode = new GtModeProperty(QStringLiteral("execMode"),
+    pimpl->execMode = new GtModeProperty(QStringLiteral("execMode"),
                                     tr("Mode"),
                                     tr("Execution mode"));
-    m_execMode->setParent(this);
+    pimpl->execMode->setParent(this);
 
     // local execution mode
     GtModeTypeProperty* localMode = new GtModeTypeProperty("local",
             tr("local"));
     localMode->setParent(this);
-    m_execMode->registerSubProperty(*localMode);
+    pimpl->execMode->registerSubProperty(*localMode);
 
     // collect plugin execution modes
     foreach (const QString& str, gtCalcExecList->executorIds())
@@ -280,11 +296,11 @@ GtCalculator::GtCalculator():
             pluginMode->registerSubProperty(*execSetting);
         }
 
-        m_execMode->registerSubProperty(*pluginMode);
+        pimpl->execMode->registerSubProperty(*pluginMode);
     }
 
-    registerProperty(*m_execMode, tr("Execution"));
-    registerProperty(m_failRunOnWarning, tr("Execution"));
+    registerProperty(*pimpl->execMode, tr("Execution"));
+    registerProperty(pimpl->failRunOnWarning, tr("Execution"));
 
     setFlag(GtObject::UserRenamable, true);
 }
@@ -305,17 +321,17 @@ GtCalculator::environmentVariable(const QString& var)
 void
 GtCalculator::hideLabelProperty(bool val)
 {
-    m_labelProperty->hide(val);
+    pimpl->labelProperty.hide(val);
 }
 
 QString
 GtCalculator::projectPath()
 {
-    if (!m_runnable)
+    if (!pimpl->runnable)
     {
         return QString();
     }
 
-    return m_runnable->projectPath();
+    return pimpl->runnable->projectPath();
 }
 

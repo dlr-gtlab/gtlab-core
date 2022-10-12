@@ -15,6 +15,8 @@
 
 #include <QPointer>
 
+#include <memory>
+
 class QDir;
 class GtModeProperty;
 class GtLabelProperty;
@@ -221,21 +223,8 @@ protected:
     QString projectPath();
 
 private:
-    /// Execution mode indicator.
-    GtModeProperty* m_execMode;
-
-    /// Execution label property
-    QPointer<GtLabelProperty> m_labelProperty;
-
-    /// Path to process/project specific temporary path.
-    QString m_tempPath;
-
-    /// Pointer to runnable associated to the calculator.
-    GtAbstractRunnable* m_runnable;
-
-    /// Fail run on warning indicator.
-    GtBoolProperty m_failRunOnWarning;
-
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
 
 Q_DECLARE_METATYPE(GtCalculator*)
