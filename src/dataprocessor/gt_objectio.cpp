@@ -43,6 +43,8 @@ const QString GtObjectIO::S_OPTIONAL_TAG = QStringLiteral("optional");
 const QString GtObjectIO::S_ACTIVE_TAG = QStringLiteral("active");
 const QString GtObjectIO::S_PROPERTY_TAG = QStringLiteral("property");
 const QString GtObjectIO::S_PROPERTYLIST_TAG = QStringLiteral("propertylist");
+const QString GtObjectIO::S_PROPERTYCONT_TAG =
+    QStringLiteral("property-container");
 const QString GtObjectIO::S_DIFF_INDEX_TAG = QStringLiteral("index");
 const QString GtObjectIO::S_DIFF_INDEX_CHANGED_TAG =
         QStringLiteral("diff-index-changed");
@@ -73,6 +75,12 @@ const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
                                             << QStringLiteral("QList<QPointF>")
                                             << QStringLiteral("QVector<double>")
                                             << QStringLiteral("QStringList");
+
+QVariant
+propertyToVariant(const QString& value, const QString& type);
+
+GtObjectMemento::PropertyData
+readProperty(const QDomElement& element, bool& error);
 
 /** specialization for QVector<double>
  */
@@ -259,7 +267,8 @@ GtObjectIO::toMemento(const QDomElement& e)
         .setIdent(e.attribute(S_NAME_TAG));
 
     // store property information
-    readProperties(memento, e);
+    memento.properties = readProperties(e);
+    memento.dynamicSizeProperties = readPropertyContainers(e);
 
     // child objects
     QDomElement children = e.firstChildElement(S_OBJECTLIST_TAG);
@@ -597,10 +606,10 @@ GtObjectIO::writeProperties(QDomDocument& doc,
     }
 }
 
-void
-GtObjectIO::readProperties(GtObjectMemento& memento,
-                           const QDomElement& element)
+QVector<GtObjectMemento::PropertyData>
+GtObjectIO::readProperties(const QDomElement& element) const
 {
+    QVector<GtObjectMemento::PropertyData> properties;
 
     QDomElement propElement = element.firstChildElement();
 
@@ -608,11 +617,11 @@ GtObjectIO::readProperties(GtObjectMemento& memento,
     {
         if (propElement.tagName() == S_PROPERTY_TAG)
         {
-            GtObjectMemento::PropertyData propData;
+            bool error = false;
+            GtObjectMemento::PropertyData propData = readProperty(propElement,
+                                                                  error);
 
-            readPropertyHelper(propData, propElement);
-
-            memento.properties.push_back(propData);
+            if (!error) properties.push_back(propData);
         }
         else if (propElement.tagName() == S_PROPERTYLIST_TAG)
         {
@@ -626,88 +635,142 @@ GtObjectIO::readProperties(GtObjectMemento& memento,
                 propData.setData(propertyListToVariant(propElement.text(),
                                                        fieldType));
 
-                memento.properties.push_back(propData);
+                properties.push_back(propData);
             }
         }
 
         propElement = propElement.nextSiblingElement();
     }
 
-//    // static properties
-//    QDomElement propElement = element.firstChildElement(S_PROPERTY_TAG);
-
-//    while (!propElement.isNull())
-//    {
-//        GtObjectMemento::MementoData::PropertyData propData;
-
-//        readPropertyHelper(propData, propElement);
-
-//        data.properties.push_back(propData);
-
-//        propElement = propElement.nextSiblingElement(S_PROPERTY_TAG);
-//    }
-
-//    // property lists
-//    QDomElement listElement = element.firstChildElement(S_PROPERTYLIST_TAG);
-
-//    while (!listElement.isNull())
-//    {
-//        QString fieldType = listElement.attribute(S_TYPE_TAG);
-//        QString fieldName = listElement.attribute(S_NAME_TAG);
-
-//        if (!fieldType.isEmpty() && !fieldName.isEmpty())
-//        {
-//            GtObjectMemento::MementoData::PropertyData propData;
-//            propData.name = fieldName;
-//            propData.data = propertyListToVariant(listElement.text(),
-//                                                  fieldType);
-
-//            data.properties.push_back(propData);
-//        }
-
-//        listElement = listElement.nextSiblingElement(S_PROPERTYLIST_TAG);
-//    }
+    return properties;
 
 }
 
-void
-GtObjectIO::readPropertyHelper(
-        GtObjectMemento::PropertyData& propData,
-        const QDomElement& element)
+/**
+ * @brief Helper function to read multiple property entries
+ *
+ * @param readPropDataFromXml Function (QDomElement, bool& error)
+ *          to read a child element returning a PropertyData entry
+ * @param parentElement The parent xml element containing the properties
+ * @param propertyTag Xml tag name for the property
+ * @return Vector of property data
+ */
+template <typename ReadPDFromXmlFun>
+QVector<GtObjectMemento::PropertyData>
+readPropertyElements(ReadPDFromXmlFun readPropDataFromXml,
+                     const QDomElement& parentElement,
+                     const QString& propertyTag)
 {
-    QString fieldType = element.attribute(S_TYPE_TAG);
-    QString fieldName = element.attribute(S_NAME_TAG);
+    QVector<GtObjectMemento::PropertyData> childs;
+
+    auto elem = parentElement.firstChildElement(propertyTag);
+
+    while (!elem.isNull())
+    {
+        bool error = false;
+        auto entry = readPropDataFromXml(elem.toElement(), error);
+
+        if (!error) childs.push_back(std::move(entry));
+
+        elem = elem.nextSiblingElement(propertyTag);
+    }
+
+    return childs;
+}
+
+
+GtObjectMemento::PropertyData
+readStructPropertyEntry(const QDomElement& entryElem, bool& error)
+{
+    assert(entryElem.tagName() == GtObjectIO::S_PROPERTY_TAG);
+
+    error = true;
+    GtObjectMemento::PropertyData pd;
+
+    const auto typeName = entryElem.attribute(GtObjectIO::S_TYPE_TAG);
+    const auto name = entryElem.attribute(GtObjectIO::S_NAME_TAG);
+
+    if (typeName.isEmpty())
+    {
+        gtError().noquote().nospace()
+                << "Empty type in property container entry on line "
+                  << entryElem.lineNumber();
+        return pd;
+    }
+
+    if (name.isEmpty())
+    {
+        gtError().noquote().nospace()
+                << "Empty name in property container entry on line "
+                  << entryElem.lineNumber();
+        return pd;
+    }
+
+    pd.toStruct(typeName);
+    pd.name = name;
+
+    pd.childProperties = readPropertyElements(readProperty,
+                                              entryElem,
+                                              GtObjectIO::S_PROPERTY_TAG);
+
+    error = false;
+    return pd;
+}
+
+GtObjectMemento::PropertyData
+readPropertyContainer(const QDomElement& containerElem, bool& error)
+{
+    error = true;
+    assert(containerElem.tagName() == GtObjectIO::S_PROPERTYCONT_TAG);
+
+    GtObjectMemento::PropertyData pd;
+    pd.name = containerElem.attribute(GtObjectIO::S_NAME_TAG);
+    pd.childProperties = readPropertyElements(readStructPropertyEntry,
+                                              containerElem,
+                                              GtObjectIO::S_PROPERTY_TAG);
+
+
+    error = false;
+    return pd;
+}
+
+QVector<GtObjectMemento::PropertyData>
+GtObjectIO::readPropertyContainers(const QDomElement& element) const
+{
+    assert(element.tagName() == S_OBJECT_TAG);
+
+    return readPropertyElements(readPropertyContainer,
+                                element,
+                                GtObjectIO::S_PROPERTYCONT_TAG);
+}
+
+GtObjectMemento::PropertyData
+readProperty(const QDomElement& element, bool& error)
+{
+
+    error = true;
+    GtObjectMemento::PropertyData propData;
+
+    QString fieldType = element.attribute(GtObjectIO::S_TYPE_TAG);
+    QString fieldName = element.attribute(GtObjectIO::S_NAME_TAG);
 
     propData.name = fieldName;
     propData.setData(propertyToVariant(element.text(), fieldType));
 
-    QString fieldActive = element.attribute(S_ACTIVE_TAG);
+    QString fieldActive = element.attribute(GtObjectIO::S_ACTIVE_TAG);
     if (!fieldActive.isEmpty())
     {
         propData.isOptional = true;
         propData.isActive = QVariant(fieldActive).toBool();
     }
-    QString fieldOptional = element.attribute(S_OPTIONAL_TAG);
+    QString fieldOptional = element.attribute(GtObjectIO::S_OPTIONAL_TAG);
     if (!fieldOptional.isEmpty())
     {
         propData.isOptional = QVariant(fieldOptional).toBool();
     }
 
-
-    /* // should not be needed!
-    QDomElement propElement = element.firstChildElement(S_PROPERTY_TAG);
-
-    while (!propElement.isNull())
-    {
-        GtObjectMemento::MementoData::PropertyData childPropData;
-
-        readPropertyHelper(childPropData, propElement);
-
-        propData.childProperties.push_back(childPropData);
-
-        propElement = propElement.nextSiblingElement(S_PROPERTY_TAG);
-    }
-    */
+    error = false;
+    return propData;
 }
 
 
@@ -836,7 +899,7 @@ GtObjectIO::dynamicSizePropToDomElement(
     QDomDocument& doc)
 {
     QDomElement containerElement = doc.createElement("property-container");
-    containerElement.setAttribute("name", property.name);
+    containerElement.setAttribute(S_NAME_TAG, property.name);
 
     // GTlab properties0
     foreach (const GtObjectMemento::PropertyData& childProperty,
@@ -959,7 +1022,7 @@ GtObjectIO::propertyListToDomElement(const QString& name,
 }
 
 QVariant
-GtObjectIO::propertyToVariant(const QString& value, const QString& type)
+propertyToVariant(const QString& value, const QString& type)
 {
 
     std::string str = type.toStdString();

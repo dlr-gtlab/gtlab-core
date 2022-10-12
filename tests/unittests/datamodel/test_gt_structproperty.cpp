@@ -275,6 +275,70 @@ TEST_F(TestGtStructProperty, readMissingDynprop)
     EXPECT_EQ(2, newObj.environmentVars.size());
 }
 
+TEST_F(TestGtStructProperty, readXmlToMemento)
+{
+    QString xmlstr = R"(<?xml version="1.0" encoding="UTF-8"?>
+<object class="GtObject" name="testobject" uuid="{objuid}">
+    <property-container name="environmentVars">
+        <property name="{p1uid}" type="EnvironmentVarsStruct">
+            <property name="name" type="QString">PATH</property>
+            <property name="value" type="QString">/usr/bin</property>
+        </property>
+        <property name="{p2uid}" type="EnvironmentVarsStruct">
+            <property name="name" type="QString">LD_DEBUG</property>
+            <property name="value" type="QString">1</property>
+        </property>
+    </property-container>
+</object>)";
+
+    QDomDocument doc;
+    ASSERT_TRUE(doc.setContent(xmlstr));
+
+    GtObjectMemento m(doc.documentElement());
+
+    EXPECT_EQ("{objuid}", m.uuid());
+    EXPECT_EQ(0, m.childObjects.size());
+    EXPECT_EQ(0, m.properties.size());
+
+    ASSERT_EQ(1, m.dynamicSizeProperties.size());
+
+    const auto& cont = m.dynamicSizeProperties[0];
+    EXPECT_EQ("environmentVars", cont.name.toStdString());
+
+    ASSERT_EQ(2, cont.childProperties.size());
+
+    auto entry0 = cont.childProperties[0];
+    EXPECT_EQ("{p1uid}", entry0.name);
+    EXPECT_EQ("EnvironmentVarsStruct", entry0.dataType());
+
+    ASSERT_EQ(2, entry0.childProperties.size());
+    auto e0p0 = entry0.childProperties[0];
+    EXPECT_EQ("name", e0p0.name.toStdString());
+    EXPECT_EQ("QString", e0p0.dataType().toStdString());
+    EXPECT_EQ("PATH", e0p0.data().toString().toStdString());
+
+    auto e0p1 = entry0.childProperties[1];
+    EXPECT_EQ("value", e0p1.name.toStdString());
+    EXPECT_EQ("QString", e0p1.dataType().toStdString());
+    EXPECT_EQ("/usr/bin", e0p1.data().toString().toStdString());
+
+    auto entry1 = cont.childProperties[1];
+    EXPECT_EQ("{p2uid}", entry1.name);
+    EXPECT_EQ("EnvironmentVarsStruct", entry1.dataType());
+
+
+    ASSERT_EQ(2, entry1.childProperties.size());
+    auto e1p0 = entry1.childProperties[0];
+    EXPECT_EQ("name", e1p0.name.toStdString());
+    EXPECT_EQ("QString", e1p0.dataType().toStdString());
+    EXPECT_EQ("LD_DEBUG", e1p0.data().toString().toStdString());
+
+    auto e1p1 = entry1.childProperties[1];
+    EXPECT_EQ("value", e1p1.name.toStdString());
+    EXPECT_EQ("QString", e1p1.dataType().toStdString());
+    EXPECT_EQ("1", e1p1.data().toString().toStdString());
+}
+
 TEST_F(TestGtStructProperty, mementoDiffPlausibility)
 {
     TestObject obj;

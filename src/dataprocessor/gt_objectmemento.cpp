@@ -457,6 +457,7 @@ void readPropertyStructEntry(const PD& propStruct, GtPropertyStructContainer& c)
             if (prop)
             {
                 member->setValueFromVariant(prop->data());
+                member->setActive(prop->isActive);
             }
             else
             {

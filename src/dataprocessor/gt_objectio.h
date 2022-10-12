@@ -41,6 +41,7 @@ public:
     static const QString S_ACTIVE_TAG;
     static const QString S_PROPERTY_TAG;
     static const QString S_PROPERTYLIST_TAG;
+    static const QString S_PROPERTYCONT_TAG;
     static const QString S_DIFF_INDEX_TAG;
     static const QString S_DIFF_INDEX_CHANGED_TAG;
     static const QString S_ENTRY_TAG;
@@ -182,24 +183,24 @@ private:
 
     /**
      * @brief readProperties
-     * @param m memento
      * @param element
      */
-    void readProperties(GtObjectMemento& m,
-                        const QDomElement& element);
+    QVector<GtObjectMemento::PropertyData>  readProperties(
+                        const QDomElement& element) const;
+
+    /**
+     * @brief readStructProperties
+     * @param element
+     * @return
+     */
+    QVector<GtObjectMemento::PropertyData> readPropertyContainers(
+            const QDomElement& element) const;
 
     /**
      * @brief writePropertyHelper
      */
     void writePropertyHelper(QVector<GtObjectMemento::PropertyData>& pVec,
             QSet<QString>& stored, const GtAbstractProperty *property) const;
-
-    /**
-     * @brief readPropertyHelper
-     */
-    void readPropertyHelper(
-            GtObjectMemento::PropertyData& propData,
-            const QDomElement& element);
 
 
     /** Creates an QDomElement of a given property.
@@ -225,11 +226,6 @@ private:
                                          const QVariant& var,
                                          QDomDocument& doc);
 
-    /** Converts given property to QVariant.
-        @param value Property value
-        @param type Property type
-        @return QVariant */
-    static QVariant propertyToVariant(const QString& value, const QString&);
 
     /** Converts given property list to QVariant.
         @param value Property list value
