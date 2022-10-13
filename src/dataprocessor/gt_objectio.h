@@ -34,6 +34,7 @@ public:
     static const QString S_UUID_TAG;
     static const QString S_CLASS_TAG;
     static const QString S_NAME_TAG;
+    static const QString S_ENTRY_NAME_TAG;
     static const QString S_TYPE_TAG;
     static const QString S_ID_TAG;
     static const QString S_VALUE_TAG;
@@ -226,13 +227,6 @@ private:
                                          const QVariant& var,
                                          QDomDocument& doc);
 
-
-    /** Converts given property list to QVariant.
-        @param value Property list value
-        @param type Property type
-        @return QVariant */
-    static QVariant propertyListToVariant(const QString& value,
-                                          const QString& type);
 
     /**
      * @brief handlePropertyNodeChange

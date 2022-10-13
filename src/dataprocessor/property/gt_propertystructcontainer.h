@@ -55,6 +55,9 @@ public:
     GT_DATAMODEL_EXPORT
     GtPropertyStructInstance& newEntry(QString typeID, QString id="");
 
+    GtPropertyStructInstance const * findEntry(const QString& id) const;
+    GtPropertyStructInstance * findEntry(const QString& id);
+
     /**
      * @brief Returns the number of entries in the vector
      */

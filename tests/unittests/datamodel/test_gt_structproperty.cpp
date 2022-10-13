@@ -508,6 +508,49 @@ TEST_F(TestGtStructProperty, mementoDiffElementRemoved)
     EXPECT_TRUE(propValue.text() == "/usr/lib");
 }
 
+TEST_F(TestGtStructProperty, applyDiffElementChanged)
+{
+    TestObject obj;
+
+    // add entry
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+
+    auto beforeMemento = obj.toMemento();
+
+    TestObject obj2;
+    // create a clone
+    beforeMemento.mergeTo(obj2, *gtObjectFactory);
+
+    ASSERT_EQ(obj.uuid(), obj2.uuid());
+    ASSERT_EQ(1, obj2.environmentVars.size());
+
+    // change entry
+    auto& obj2Entry = obj2.environmentVars.at(0);
+    obj2Entry.setMemberVal("value", "/usr/local/bin");
+    obj2Entry.setMemberVal("name", "LD_LIBRARY_PATH");
+
+    auto afterMemento = obj2.toMemento();
+
+    GtObjectMementoDiff diff(beforeMemento, afterMemento);
+
+    EXPECT_TRUE(obj.applyDiff(diff));
+
+    auto& objEntry = obj.environmentVars.at(0);
+    EXPECT_EQ("/usr/local/bin",
+        objEntry.getMemberVal<QString>("value").toStdString());
+    EXPECT_EQ("LD_LIBRARY_PATH",
+              objEntry.getMemberVal<QString>("name").toStdString());
+
+
+    // revert diff to obj2, it should result in the original obj data
+    EXPECT_TRUE(obj2.revertDiff(diff));
+
+    EXPECT_EQ("/usr/bin",
+              obj2Entry.getMemberVal<QString>("value").toStdString());
+    EXPECT_EQ("PATH",
+              obj2Entry.getMemberVal<QString>("name").toStdString());
+}
+
 TEST_F(TestGtStructProperty, createByFactory)
 {
     TestObject obj;

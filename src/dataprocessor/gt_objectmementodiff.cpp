@@ -623,9 +623,10 @@ GtObjectMementoDiff::handleContainerElementChanged(const QString& containerName,
         GtObjectIO::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG);
 
     changedElem.setAttribute(GtObjectIO::S_NAME_TAG, containerName);
-    changedElem.setAttribute("entryName", elementName);
+    changedElem.setAttribute(GtObjectIO::S_ENTRY_NAME_TAG, elementName);
 
-    detectPropertyChanges(before.childProperties, after.childProperties, changedElem);
+    detectPropertyChanges(before.childProperties, after.childProperties,
+                          changedElem);
 
     diffRoot.appendChild(changedElem);
 }

@@ -74,6 +74,31 @@ GtPropertyStructContainer::newEntry(QString typeID, QString id)
     return pimpl->entries[pimpl->entries.size() - 1];
 }
 
+const GtPropertyStructInstance *
+GtPropertyStructContainer::findEntry(const QString &id) const
+{
+    auto iter = std::find_if(std::begin(pimpl->entries), std::end(pimpl->entries),
+                             [&id](const GtPropertyStructInstance& entry) {
+        return id == entry.ident();
+
+    });
+
+    if (iter == pimpl->entries.end())
+    {
+        return nullptr;
+    }
+
+    return &*iter;
+}
+
+GtPropertyStructInstance *
+GtPropertyStructContainer::findEntry(const QString &id)
+{
+    auto ret = static_cast<const GtPropertyStructContainer*>(this)
+                   ->findEntry(id);
+    return const_cast<GtPropertyStructInstance*>(ret);
+}
+
 size_t
 GtPropertyStructContainer::size() const
 {
