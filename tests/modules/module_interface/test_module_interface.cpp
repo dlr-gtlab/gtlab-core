@@ -11,12 +11,17 @@
 #include "gt_logging.h"
 #include "gt_commandlinefunction.h"
 #include "gt_commandlineparser.h"
+#include "gt_moduleloader.h"
 
 #include "test_module_interface.h"
 
 #include "gt_functional_interface.h"
 
 #include <iostream>
+
+// macros to convert an argument to string
+#define MACRO_TO_STR_HELPER(X) #X
+#define MACRO_TO_STR(X) MACRO_TO_STR_HELPER(X)
 
 bool
 testConvert(QDomElement& xml, const QString& scope)
@@ -133,4 +138,11 @@ TestModuleInterface::commandLineFunctions() const
     fun.setUseDefaultHelp(false).setArgs({}).setOptions({});
 
     return {fun};
+}
+
+void
+TestModuleInterface::afterLoad(GtModuleLoader& loader)
+{
+    auto moduleIds = loader.moduleIds();
+    assert(moduleIds.contains(MACRO_TO_STR(GT_MODULE_ID)));
 }

@@ -46,6 +46,8 @@ public:
 
     QList<GtCommandLineFunction> commandLineFunctions() const override;
 
+    void afterLoad(GtModuleLoader& loader) override;
+
 };
 
 #endif // TEST_MODULE_INTERFACE_H
