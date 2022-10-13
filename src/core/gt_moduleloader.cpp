@@ -394,6 +394,7 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
                         check(plugin))
                 {
                     insert(plugin);
+                    plugin->afterLoad(*this);
                 }
                 else
                 {

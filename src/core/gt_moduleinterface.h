@@ -25,6 +25,7 @@
     }
 
 class QDomElement;
+class GtModuleLoader;
 
 /// Function definition for project data upgrades provided by a module
 typedef bool (*ConverterFunction)(QDomElement&, const QString&);
@@ -129,6 +130,14 @@ public:
     {
         return {};
     }
+
+    /**
+     * @brief Is called directly after loading the module. It can be used to
+     * interact with the loading process of the modules.
+     * @param loader The GtModuleLoader reference to interact with the
+     * module loading process.
+     */
+    virtual void afterLoad(GtModuleLoader& /*loader*/) {};
 
     /**
      * @brief Initializes module. Called on application startup.
