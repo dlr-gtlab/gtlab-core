@@ -603,6 +603,10 @@ TEST_F(TestGtStructProperty, applyDiffElementAdded)
 
     EXPECT_FALSE(obj.revertDiff(diff));
     ASSERT_EQ(1, obj.environmentVars.size());
+
+    obj.environmentVars.clear();
+    EXPECT_FALSE(obj.applyDiff(diff));
+    ASSERT_EQ(0, obj.environmentVars.size());
 }
 
 TEST_F(TestGtStructProperty, applyDiffElementRemoved)
