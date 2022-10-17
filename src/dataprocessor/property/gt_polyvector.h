@@ -45,6 +45,11 @@ namespace gt
                 return **current;
             }
 
+            BaseType* operator->()
+            {
+                return current->get();
+            }
+
             bool operator==(const iterator& other) const
             {
                 return current == other.current;
@@ -93,6 +98,11 @@ namespace gt
             const BaseType& operator*()
             {
                 return **current;
+            }
+
+            BaseType const * operator->()
+            {
+                return current->get();
             }
 
             bool operator==(const const_iterator& other) const

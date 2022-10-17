@@ -28,6 +28,7 @@
 #include "gt_abstractproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
+#include "gt_exceptions.h"
 
 #include "gt_objectio.h"
 
@@ -120,6 +121,11 @@ namespace
                           const QDomElement& diffTag,
                           DiffMode mode);
 
+    bool
+    handlePropContEntryAddRemove(GtObject& parentObject,
+                                 const QDomElement& diffTag,
+                                 DiffMode mode);
+
     using diffFunc = std::function<bool(GtObject&, const QDomElement&, DiffMode)>;
     std::map<QString, diffFunc>& getDiffFuncs()
     {
@@ -135,6 +141,10 @@ namespace
                             handleAttributeNodeChange),
              std::make_pair(GtObjectIO::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG,
                             handlePropContEntryChanged),
+             std::make_pair(GtObjectIO::S_DIFF_PROPCONT_ENTRY_ADDED_TAG,
+                            handlePropContEntryAddRemove),
+             std::make_pair(GtObjectIO::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG,
+                            handlePropContEntryAddRemove),
 
              std::make_pair(GtObjectIO::S_DIFF_PROP_CHANGE_TAG,
                 [](GtObject& obj, const QDomElement& tag , DiffMode mode) {
@@ -1241,7 +1251,7 @@ handlePropContEntryChanged(GtObject& parentObject,
     QString entryId = propContElemC.attribute(GtObjectIO::S_ENTRY_NAME_TAG);
 
     auto entry = container->findEntry(entryId);
-    if (!entry)
+    if (entry == container->end())
     {
         gtError() << "Invalid entryName value in memento diff";
         return false;
@@ -1284,11 +1294,100 @@ handlePropContEntryChanged(GtObject& parentObject,
     return true;
 }
 
+bool handlePropContEntryAdd(const QDomElement& diffTag,
+                            GtPropertyStructContainer& container)
+{
+
+    QDomElement structElement =
+        diffTag.firstChildElement(GtObjectIO::S_PROPERTY_TAG);
+
+    if (structElement.isNull())
+    {
+        return true;
+    }
+
+    auto uuid = structElement.attribute(GtObjectIO::S_NAME_TAG);
+
+    // check of object element already included
+    auto iter = container.findEntry(uuid);
+    if (iter != container.end())
+    {
+        return false;
+    }
+
+    auto typeId = structElement.attribute(GtObjectIO::S_TYPE_TAG);
+    auto idxStr = diffTag.attribute(GtObjectIO::S_DIFF_INDEX_TAG);
+
+    bool okay = false;
+    auto idx = idxStr.toInt(&okay);
+
+    if (!okay || idx < 0 || idx > container.size())
+        return false; // index cannot be parsed
+
+    auto pos = container.begin();
+    std::advance(pos, idx);
+
+    // convert xml to memento
+    bool error = true;
+    auto pd = readStructPropertyEntry(structElement, error);
+    if (error)
+        return false;
+
+    try
+    {
+        // might throw due to unknown typeid
+        auto& entry = container.newEntry(typeId, pos, uuid);
+
+        // import memento to struct
+        importStructEntryFromMemento(pd, entry);
+    }
+    catch(GTlabException& e)
+    {
+        gtError() << e.what();
+    }
+
+    return true;
+}
+
+bool handlePropContEntryRemove(const QDomElement& diffTag,
+                               GtPropertyStructContainer& container)
+{
+    QDomElement structElement =
+        diffTag.firstChildElement(GtObjectIO::S_PROPERTY_TAG);
+
+    if (structElement.isNull())
+    {
+        return true;
+    }
+
+    auto uuid = structElement.attribute(GtObjectIO::S_NAME_TAG);
+
+    // remove
+    if (uuid.isEmpty())
+    {
+        return false;
+    }
+
+    auto iter = container.findEntry(uuid);
+    if (iter == container.end())
+    {
+        // uuid not in container
+        return false;
+    }
+
+    container.removeEntry(iter);
+
+    return true;
+}
+
 bool
 handlePropContEntryAddRemove(GtObject& parentObject,
-                             const QDomElement& propContElemC, DiffMode mode)
+                             const QDomElement& diffTag, DiffMode mode)
 {
-    QString containerName = propContElemC.attribute(GtObjectIO::S_NAME_TAG);
+    assert(diffTag.tagName() == GtObjectIO::S_DIFF_PROPCONT_ENTRY_ADDED_TAG ||
+           diffTag.tagName() == GtObjectIO::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG);
+
+    const QString containerName = diffTag.attribute(GtObjectIO::S_NAME_TAG);
 
     if (containerName.isEmpty())
     {
@@ -1303,9 +1402,14 @@ handlePropContEntryAddRemove(GtObject& parentObject,
         return false;
     }
 
+    const bool doAdd =
+        (diffTag.tagName() == GtObjectIO::S_DIFF_PROPCONT_ENTRY_ADDED_TAG) !=
+        (mode == DiffMode::Revert);
 
-
-    return true;
+    if (doAdd)
+        return handlePropContEntryAdd(diffTag, *container);
+    else
+        return handlePropContEntryRemove(diffTag, *container);
 }
 
 bool
@@ -1455,20 +1559,17 @@ bool handleObjectAddRemove(GtObject& target,
     assert(diffTag.tagName() == GtObjectIO::S_DIFF_OBJ_ADD_TAG ||
            diffTag.tagName() == GtObjectIO::S_DIFF_OBJ_REMOVE_TAG);
 
-    auto objectTag = diffTag.firstChildElement(GtObjectIO::S_OBJECT_TAG);
-    auto index = diffTag.attribute(GtObjectIO::S_DIFF_INDEX_TAG);
-    bool doAdd = diffTag.tagName() == GtObjectIO::S_DIFF_OBJ_ADD_TAG;
+    const auto objectTag = diffTag.firstChildElement(GtObjectIO::S_OBJECT_TAG);
+    const auto index = diffTag.attribute(GtObjectIO::S_DIFF_INDEX_TAG);
 
-    if (mode == DiffMode::Revert) doAdd = !doAdd;
+    const bool doAdd =
+        (diffTag.tagName() == GtObjectIO::S_DIFF_OBJ_ADD_TAG) !=
+        (mode == DiffMode::Revert);
 
     if (doAdd)
-    {
         return handleObjectAdd(target, objectTag, index);
-    }
     else
-    {
         return handleObjectRemove(target, objectTag, index);
-    }
 }
 
 bool

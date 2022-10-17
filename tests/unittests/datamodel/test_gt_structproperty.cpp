@@ -551,11 +551,120 @@ TEST_F(TestGtStructProperty, applyDiffElementChanged)
               obj2Entry.getMemberVal<QString>("name").toStdString());
 }
 
+TEST_F(TestGtStructProperty, applyDiffElementAdded)
+{
+    TestObject obj;
+
+    // add entry
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+
+    auto beforeMemento = obj.toMemento();
+
+    TestObject obj2;
+    // create a clone
+    beforeMemento.mergeTo(obj2, *gtObjectFactory);
+    obj2.addEnvironmentVar("LD_LIBRARY_PATH", "/usr/lib");
+    ASSERT_EQ(2, obj2.environmentVars.size());
+
+    auto afterMemento = obj2.toMemento();
+
+    GtObjectMementoDiff diff(beforeMemento, afterMemento);
+    ASSERT_FALSE(diff.isNull());
+
+    // Apply diff to first obj, it should recreate the second item
+    EXPECT_TRUE(obj.applyDiff(diff));
+
+    ASSERT_EQ(2, obj.environmentVars.size());
+
+    EXPECT_EQ("PATH", obj.environmentVars[0]
+                          .getMemberVal<QString>("name").toStdString());
+    EXPECT_EQ("/usr/bin", obj.environmentVars[0]
+                              .getMemberVal<QString>("value").toStdString());
+    EXPECT_EQ("LD_LIBRARY_PATH", obj.environmentVars[1]
+                                     .getMemberVal<QString>("name").toStdString());
+    EXPECT_EQ("/usr/lib", obj.environmentVars[1]
+                              .getMemberVal<QString>("value").toStdString());
+
+    // make sure the uuids match, since apply must recover these
+    EXPECT_EQ(obj.environmentVars[1].ident(), obj2.environmentVars[1].ident());
+
+    // applying again should fail, size must be still 2
+    EXPECT_FALSE(obj.applyDiff(diff));
+    EXPECT_EQ(2, obj.environmentVars.size());
+
+    // revert diff, object must only include the first entry (path, /usr/bin)
+    EXPECT_TRUE(obj.revertDiff(diff));
+    EXPECT_EQ(1, obj.environmentVars.size());
+
+    EXPECT_EQ("PATH",
+              obj.environmentVars[0].getMemberVal<QString>("name").toStdString());
+    EXPECT_EQ("/usr/bin",
+              obj.environmentVars[0].getMemberVal<QString>("value").toStdString());
+
+    EXPECT_FALSE(obj.revertDiff(diff));
+    ASSERT_EQ(1, obj.environmentVars.size());
+}
+
+TEST_F(TestGtStructProperty, applyDiffElementRemoved)
+{
+    TestObject obj;
+
+    // add entry
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    obj.addEnvironmentVar("LD_LIBRARY_PATH", "/usr/lib");
+
+    auto beforeUuid = obj.environmentVars[1].ident();
+
+    auto beforeMemento = obj.toMemento();
+    auto afterMemento = beforeMemento;
+    afterMemento.dynamicSizeProperties[0].childProperties.remove(1);
+
+    GtObjectMementoDiff diff(beforeMemento, afterMemento);
+    ASSERT_FALSE(diff.isNull());
+
+    EXPECT_TRUE(obj.applyDiff(diff));
+
+    ASSERT_EQ(1, obj.environmentVars.size());
+
+    EXPECT_EQ("PATH", obj.environmentVars[0]
+                          .getMemberVal<QString>("name").toStdString());
+    EXPECT_EQ("/usr/bin", obj.environmentVars[0]
+                              .getMemberVal<QString>("value").toStdString());
+
+
+    // applying again should fail, size must be still 2
+    EXPECT_FALSE(obj.applyDiff(diff));
+    EXPECT_EQ(1, obj.environmentVars.size());
+
+    // revert diff, object must only include the first entry (path, /usr/bin)
+    EXPECT_TRUE(obj.revertDiff(diff));
+    ASSERT_EQ(2, obj.environmentVars.size());
+
+    const auto &var0 = obj.environmentVars[0];
+    const auto &var1 = obj.environmentVars[1];
+
+    EXPECT_EQ("PATH",
+              var0.getMemberVal<QString>("name").toStdString());
+    EXPECT_EQ("/usr/bin",
+              var0.getMemberVal<QString>("value").toStdString());
+    EXPECT_EQ("LD_LIBRARY_PATH",
+              var1.getMemberVal<QString>("name").toStdString());
+    EXPECT_EQ("/usr/lib",
+              var1.getMemberVal<QString>("value").toStdString());
+
+    // make sure the uuids match, since apply must recover these
+    EXPECT_EQ(beforeUuid, obj.environmentVars[1].ident());
+
+    EXPECT_FALSE(obj.revertDiff(diff));
+    ASSERT_EQ(2, obj.environmentVars.size());
+}
+
 TEST_F(TestGtStructProperty, createByFactory)
 {
     TestObject obj;
 
-    auto const * prop = GtPropertyFactory::instance()->newProperty("EnvironmentVarsStruct", "id1", "id1");
+    auto const * prop = GtPropertyFactory::instance()
+                           ->newProperty("EnvironmentVarsStruct", "id1", "id1");
 
     EXPECT_TRUE(prop == nullptr);
 
@@ -563,9 +672,11 @@ TEST_F(TestGtStructProperty, createByFactory)
         return &obj.environmentVars.newEntry("EnvironmentVarsStruct");
     };
 
-    GtPropertyFactory::instance()->registerProperty("EnvironmentVarsStruct", func);
+    GtPropertyFactory::instance()
+        ->registerProperty("EnvironmentVarsStruct", func);
 
-    prop = GtPropertyFactory::instance()->newProperty("EnvironmentVarsStruct", "id1", "id1");
+    prop = GtPropertyFactory::instance()
+               ->newProperty("EnvironmentVarsStruct", "id1", "id1");
 
     ASSERT_TRUE(prop != nullptr);
     EXPECT_TRUE(prop->findProperty("value") != nullptr);

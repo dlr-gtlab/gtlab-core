@@ -105,29 +105,27 @@ GtPropertyStructContainer::removeEntry(iterator position)
     return pimpl->entries.erase(position);
 }
 
-const GtPropertyStructInstance *
+GtPropertyStructContainer::const_iterator
 GtPropertyStructContainer::findEntry(const QString &id) const
 {
-    auto iter = std::find_if(std::begin(pimpl->entries), std::end(pimpl->entries),
+    auto iter = std::find_if(begin(), end(),
                              [&id](const GtPropertyStructInstance& entry) {
         return id == entry.ident();
 
     });
 
-    if (iter == pimpl->entries.end())
-    {
-        return nullptr;
-    }
-
-    return &*iter;
+    return iter;
 }
 
-GtPropertyStructInstance *
+GtPropertyStructContainer::iterator
 GtPropertyStructContainer::findEntry(const QString &id)
 {
-    auto ret = static_cast<const GtPropertyStructContainer*>(this)
-                   ->findEntry(id);
-    return const_cast<GtPropertyStructInstance*>(ret);
+    auto iter = std::find_if(begin(), end(),
+                            [&id](const GtPropertyStructInstance& entry) {
+        return id == entry.ident();
+    });
+
+    return iter;
 }
 
 size_t

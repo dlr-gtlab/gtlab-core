@@ -89,8 +89,8 @@ public:
     GT_DATAMODEL_EXPORT
     iterator removeEntry(iterator position);
 
-    GtPropertyStructInstance const * findEntry(const QString& id) const;
-    GtPropertyStructInstance * findEntry(const QString& id);
+    const_iterator findEntry(const QString& id) const;
+    iterator findEntry(const QString& id);
 
     /**
      * @brief Returns the number of entries in the vector
