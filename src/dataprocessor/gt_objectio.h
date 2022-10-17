@@ -228,61 +228,6 @@ private:
                                          QDomDocument& doc);
 
 
-    /**
-     * @brief handlePropertyNodeChange
-     * @param target
-     * @param change
-     * @param revert
-     * @return
-     */
-    static bool handlePropertyNodeChange(GtObject *target,
-                                         const QDomElement& change,
-                                         const bool list = false,
-                                         const bool revert = false);
-
-    /**
-     * @brief handlePropertyNodeChange
-     * @param target
-     * @param change
-     * @param revert
-     * @return
-     */
-    static bool handleAttributeNodeChange(GtObject *target,
-                                         const QDomElement& change,
-                                         const bool revert = false);
-
-    /**
-     * @brief handleObjectAdd
-     * @param target
-     * @param objectToAdd
-     * @return
-     */
-    static bool handleObjectAdd(GtObject* parent,
-                                const QDomElement& objectToAdd,
-                                const QString& index);
-
-    /**
-     * @brief handleObjectRemove
-     * @param parent
-     * @param objectToAdd
-     * @return
-     */
-    static bool handleObjectRemove(GtObject* parent,
-                                   const QDomElement& objectToRemove,
-                                   const QString&);
-
-    /**
-     * @brief handleIndexChanged
-     * @param parent
-     * @param object
-     * @param oldIndex
-     * @param newIndex
-     * @return
-     */
-    static bool handleIndexChange(GtObject* parent,
-                                  const QDomElement& object,
-                                  const int newIndex);
-
 
     /** writes all members of a QList/QVector to a string (with ';' delimiter)
      */

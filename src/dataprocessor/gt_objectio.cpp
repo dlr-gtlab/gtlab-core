@@ -77,14 +77,16 @@ const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
                                             << QStringLiteral("QVector<double>")
                                             << QStringLiteral("QStringList");
 
-enum class DiffMode
-{
-    Apply,
-    Revert
-};
 
 namespace
 {
+
+    enum class DiffMode
+    {
+        Apply,
+        Revert
+    };
+
     QVariant
     propertyToVariant(const QString& value, const QString& type);
     QVariant
@@ -97,6 +99,26 @@ namespace
     bool
     handlePropContEntryChanged(GtObject& parentObject,
                                const QDomElement& propContElemC, DiffMode mode);
+
+    bool
+    handleIndexChange(GtObject* parent,
+                      const QDomElement& indChanges, DiffMode mode);
+
+    bool
+    handlePropertyNodeChange(GtObject* target,
+                             const QDomElement &change,
+                             const bool list,
+                             DiffMode mode);
+
+    bool
+    handleAttributeNodeChange(GtObject* target,
+                              const QDomElement& change,
+                              DiffMode mode);
+
+    bool
+    handleObjectAddRemove(GtObject* target,
+                          const QDomElement& diffTag,
+                          DiffMode mode);
 }
 
 /** specialization for QVector<double>
@@ -307,6 +329,76 @@ GtObjectIO::toMemento(const QDomElement& e)
 }
 
 bool
+applyDiffOnObject(QDomElement& parent, GtObject* parentObject, DiffMode mode)
+{
+    if (parent.isNull())
+    {
+        return true;
+    }
+
+    if (!parentObject)
+    {
+        return false;
+    }
+
+    QDomElement diffTag = parent.firstChildElement();
+    while (!diffTag.isNull())
+    {
+        const auto& tag = diffTag.tagName();
+
+        if (tag == GtObjectIO::S_DIFF_OBJ_REMOVE_TAG ||
+            tag == GtObjectIO::S_DIFF_OBJ_ADD_TAG)
+        {
+            // handle removes
+            if (!handleObjectAddRemove(parentObject, diffTag, mode))
+            {
+                return false;
+            }
+        }
+
+        else if (tag == GtObjectIO::S_DIFF_INDEX_CHANGED_TAG)
+        {
+            if (!handleIndexChange(parentObject, diffTag, mode))
+            {
+                return false;
+            }
+        }
+        else if (tag == GtObjectIO::S_DIFF_PROP_CHANGE_TAG)
+        {
+            handlePropertyNodeChange(parentObject, diffTag, false,
+                                     mode);
+        }
+        else if (tag  == GtObjectIO::S_DIFF_ATTR_CHANGE_TAG)
+        {
+            // handle object attribute changes
+            handleAttributeNodeChange(parentObject, diffTag,
+                                      mode);
+        }
+        else if (tag == GtObjectIO::S_DIFF_PROPLIST_CHANGE_TAG)
+        {
+            // handle prop list changes
+            handlePropertyNodeChange(parentObject, diffTag, true,
+                                     mode);
+        }
+        else if (tag == GtObjectIO::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG)
+        {
+            // handle property container element changed
+            handlePropContEntryChanged(*parentObject, diffTag,
+                                      mode);
+        }
+        else if (tag == GtObjectIO::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG)
+        {
+            //handlePropContEntryChanged(*parentObject, propContElemRem, DiffMode::Apply);
+        }
+
+        diffTag = diffTag.nextSiblingElement();
+    }
+
+
+    return true;
+}
+
+bool
 GtObjectIO::applyDiff(GtObjectMementoDiff& diff, GtObject* obj)
 {
     if (diff.isNull())
@@ -331,99 +423,10 @@ GtObjectIO::applyDiff(GtObjectMementoDiff& diff, GtObject* obj)
 
         GtObject* parentObject = obj->getObjectByUuid(parentUUID);
 
-        if (!parentObject)
+
+        if (!applyDiffOnObject(parent, parentObject, DiffMode::Apply))
         {
             return false;
-        }
-
-        // handle removes
-        QDomElement rem = parent.firstChildElement(S_DIFF_OBJ_REMOVE_TAG);
-        while (!rem.isNull())
-        {
-            if (!handleObjectRemove(parentObject,
-                                    rem.firstChildElement(S_OBJECT_TAG),
-                                    rem.attribute(S_DIFF_INDEX_TAG)))
-            {
-                return false;
-            }
-
-            rem = rem.nextSiblingElement(S_DIFF_OBJ_REMOVE_TAG);
-        }
-
-        // handle adds
-        QDomElement adds = parent.firstChildElement(S_DIFF_OBJ_ADD_TAG);
-        while (!adds.isNull())
-        {
-            if (!handleObjectAdd(parentObject,
-                                 adds.firstChildElement(S_OBJECT_TAG),
-                                 adds.attribute(S_DIFF_INDEX_TAG)))
-            {
-                return false;
-            }
-
-            adds = adds.nextSiblingElement(S_DIFF_OBJ_ADD_TAG);
-        }
-
-        // handle index changes
-        QDomElement indChanges = parent.firstChildElement(
-                    S_DIFF_INDEX_CHANGED_TAG);
-        while (!indChanges.isNull())
-        {
-            bool ok = true;
-
-            int newIndex = indChanges.attribute(S_DIFF_NEWVAL_TAG).toInt(&ok);
-            if (!ok)
-            {
-                return false;
-            }
-
-            if (!handleIndexChange(parentObject,
-                                   indChanges.firstChildElement(S_OBJECT_TAG),
-                                   newIndex))
-            {
-                return false;
-            }
-
-            indChanges = indChanges.nextSiblingElement(
-                        S_DIFF_INDEX_CHANGED_TAG);
-        }
-
-        // handle prop changes
-        QDomElement propC = parent.firstChildElement(S_DIFF_PROP_CHANGE_TAG);
-        while (!propC.isNull())
-        {
-            handlePropertyNodeChange(parentObject, propC);
-
-            propC = propC.nextSiblingElement(S_DIFF_PROP_CHANGE_TAG);
-        }
-
-        // handle prop list changes
-        QDomElement propLC =
-                parent.firstChildElement(S_DIFF_PROPLIST_CHANGE_TAG);
-        while (!propLC.isNull())
-        {
-            handlePropertyNodeChange(parentObject, propLC, true);
-
-            propLC = propLC.nextSiblingElement(S_DIFF_PROPLIST_CHANGE_TAG);
-        }
-
-        // handle property container element changed
-        QDomElement propContElemC =
-            parent.firstChildElement(S_DIFF_PROPCONT_ENTRY_CHANGE_TAG);
-        while (!propContElemC.isNull())
-        {
-            handlePropContEntryChanged(*parentObject, propContElemC, DiffMode::Apply);
-
-            propContElemC = propContElemC.nextSiblingElement(S_DIFF_PROPCONT_ENTRY_CHANGE_TAG);
-        }
-
-        // handle object attribute changes
-        QDomElement propOA = parent.firstChildElement(S_DIFF_ATTR_CHANGE_TAG);
-        while (!propOA.isNull())
-        {
-            handleAttributeNodeChange(parentObject, propOA);
-
-            propOA = propOA.nextSiblingElement(S_DIFF_ATTR_CHANGE_TAG);
         }
 
         parentObject->onObjectDataMerged();
@@ -460,70 +463,10 @@ GtObjectIO::revertDiff(GtObjectMementoDiff& diff, GtObject* obj)
 
         GtObject* parentObject = obj->getObjectByUuid(parentUUID);
 
-        if (!parentObject)
+
+        if (!applyDiffOnObject(parent, parentObject, DiffMode::Revert))
         {
             return false;
-        }
-
-        QDomElement domDiff = parent.firstChildElement();
-
-        while (!domDiff.isNull())
-        {
-            if (domDiff.nodeName() == S_DIFF_OBJ_REMOVE_TAG)
-            {
-                if (!handleObjectAdd(parentObject,
-                                     domDiff.firstChildElement(S_OBJECT_TAG),
-                                     domDiff.attribute(S_DIFF_INDEX_TAG)))
-                {
-                    return false;
-                }
-            }
-            else if (domDiff.nodeName() == S_DIFF_OBJ_ADD_TAG)
-            {
-                if (!handleObjectRemove(parentObject,
-                                        domDiff.firstChildElement(S_OBJECT_TAG),
-                                        domDiff.attribute(S_DIFF_INDEX_TAG)))
-                {
-                    return false;
-                }
-            }
-            else if (domDiff.nodeName() == S_DIFF_INDEX_CHANGED_TAG)
-            {
-                bool ok = true;
-
-                int newIndex = domDiff.attribute(S_DIFF_OLDVAL_TAG).toInt(&ok);
-                if (!ok)
-                {
-                    return false;
-                }
-
-                if (!handleIndexChange(parentObject,
-                                       domDiff.firstChildElement(S_OBJECT_TAG),
-                                       newIndex))
-                {
-                    return false;
-                }
-            }
-            else if (domDiff.nodeName() == S_DIFF_PROP_CHANGE_TAG)
-            {
-                handlePropertyNodeChange(parentObject, domDiff, false, true);
-            }
-            else if (domDiff.nodeName() == S_DIFF_PROPLIST_CHANGE_TAG)
-            {
-                handlePropertyNodeChange(parentObject, domDiff, true, true);
-            }
-            else if (domDiff.nodeName() == S_DIFF_PROPCONT_ENTRY_CHANGE_TAG)
-            {
-                // handle property container element changed
-                handlePropContEntryChanged(*parentObject, domDiff, DiffMode::Revert);
-            }
-
-            else if (domDiff.nodeName() == S_DIFF_ATTR_CHANGE_TAG)
-            {
-                handleAttributeNodeChange(parentObject, domDiff, true);
-            }
-
-            domDiff = domDiff.nextSiblingElement();
         }
 
         parentObject->onObjectDataMerged();
@@ -1277,6 +1220,8 @@ applyDiffProperty(GtAbstractProperty* prop, const QDomElement& propDiffElem,
 }
 
 bool
+// This must be non-const, this is a false positive
+// cppcheck-suppress constParameter
 handlePropContEntryChanged(GtObject& parentObject,
                            const QDomElement& propContElemC, DiffMode mode)
 {
@@ -1342,15 +1287,37 @@ handlePropContEntryChanged(GtObject& parentObject,
     return true;
 }
 
-} // unnamed namespace
+bool
+handlePropContEntryAddRemove(GtObject& parentObject,
+                             const QDomElement& propContElemC, DiffMode mode)
+{
+    QString containerName = propContElemC.attribute(GtObjectIO::S_NAME_TAG);
+
+    if (containerName.isEmpty())
+    {
+        gtError() << "Empty container name in memento diff. Cannot apply";
+        return false;
+    }
+
+    auto container = parentObject.findDynamicSizeProperty(containerName);
+    if (!container)
+    {
+        gtError() << "Invalid container name in memento diff. Cannot apply";
+        return false;
+    }
+
+
+
+    return true;
+}
 
 bool
-GtObjectIO::handlePropertyNodeChange(GtObject* target,
-                                     const QDomElement &change,
-                                     const bool list,
-                                     const bool revert)
+handlePropertyNodeChange(GtObject* target,
+                         const QDomElement &change,
+                         const bool list,
+                         DiffMode mode)
 {
-    QString propName = change.attribute(S_NAME_TAG);
+    QString propName = change.attribute(GtObjectIO::S_NAME_TAG);
 
     if (propName.isEmpty())
     {
@@ -1360,9 +1327,6 @@ GtObjectIO::handlePropertyNodeChange(GtObject* target,
     GtAbstractProperty* prop = target->findProperty(propName);
 
     // ------------------------------------------------------- //
-
-    DiffMode mode = revert ? DiffMode::Revert : DiffMode::Apply;
-
 
     if (prop)
     {
@@ -1375,23 +1339,24 @@ GtObjectIO::handlePropertyNodeChange(GtObject* target,
 }
 
 bool
-GtObjectIO::handleAttributeNodeChange(GtObject* target,
-                                      const QDomElement& change,
-                                      const bool revert)
+handleAttributeNodeChange(GtObject* target,
+                          const QDomElement& change,
+                          DiffMode mode)
 {
-    QDomElement newValNode = change.firstChildElement(S_DIFF_NEWVAL_TAG);
-    QDomElement oldValNode = change.firstChildElement(S_DIFF_OLDVAL_TAG);
+    QDomElement newValNode = change.firstChildElement(GtObjectIO::S_DIFF_NEWVAL_TAG);
+    QDomElement oldValNode = change.firstChildElement(GtObjectIO::S_DIFF_OLDVAL_TAG);
 
     if (newValNode.isNull() || oldValNode.isNull())
     {
         return false;
     }
 
-    QString newVal = revert? oldValNode.text() : newValNode.text();
+    QString newVal = mode == DiffMode::Revert ? oldValNode.text()
+                                              : newValNode.text();
 
-    QString attrID = change.attribute(S_ID_TAG);
+    QString attrID = change.attribute(GtObjectIO::S_ID_TAG);
 
-    if (attrID == S_NAME_TAG)
+    if (attrID == GtObjectIO::S_NAME_TAG)
     {
         target->setObjectName(newVal);
     }
@@ -1400,9 +1365,9 @@ GtObjectIO::handleAttributeNodeChange(GtObject* target,
 }
 
 bool
-GtObjectIO::handleObjectAdd(GtObject* parent,
-                            const QDomElement& objectToAdd,
-                            const QString& index)
+handleObjectAdd(GtObject* parent,
+                const QDomElement& objectToAdd,
+                const QString& index)
 {
     bool ok = true;
     int ind = index.toInt(&ok);
@@ -1453,9 +1418,9 @@ GtObjectIO::handleObjectAdd(GtObject* parent,
 }
 
 bool
-GtObjectIO::handleObjectRemove(GtObject* parent,
-                               const QDomElement& objectToRemove,
-                               const QString& /*index*/)
+handleObjectRemove(GtObject* parent,
+                   const QDomElement& objectToRemove,
+                   const QString& /*index*/)
 {
     if (objectToRemove.isNull())
     {
@@ -1463,7 +1428,7 @@ GtObjectIO::handleObjectRemove(GtObject* parent,
         return false;
     }
 
-    const QString objUUID = objectToRemove.attribute(S_UUID_TAG);
+    const QString objUUID = objectToRemove.attribute(GtObjectIO::S_UUID_TAG);
 
     if (objUUID.isEmpty())
     {
@@ -1486,12 +1451,34 @@ GtObjectIO::handleObjectRemove(GtObject* parent,
     return true;
 }
 
-bool
-GtObjectIO::handleIndexChange(GtObject* parent,
-                              const QDomElement& object,
-                              const int newIndex)
+bool handleObjectAddRemove(GtObject* target,
+                           const QDomElement& diffTag,
+                           DiffMode mode)
 {
-    if (object.isNull())
+    assert(diffTag.tagName() == GtObjectIO::S_DIFF_OBJ_ADD_TAG ||
+           diffTag.tagName() == GtObjectIO::S_DIFF_OBJ_REMOVE_TAG);
+
+    auto objectTag = diffTag.firstChildElement(GtObjectIO::S_OBJECT_TAG);
+    auto index = diffTag.attribute(GtObjectIO::S_DIFF_INDEX_TAG);
+    bool doAdd = diffTag.tagName() == GtObjectIO::S_DIFF_OBJ_ADD_TAG;
+
+    if (mode == DiffMode::Revert) doAdd = !doAdd;
+
+    if (doAdd)
+    {
+        return handleObjectAdd(target, objectTag, index);
+    }
+    else
+    {
+        return handleObjectRemove(target, objectTag, index);
+    }
+}
+
+bool
+handleIndexChange(GtObject* parent,
+                  const QDomElement& indChanges, DiffMode mode)
+{
+    if (indChanges.isNull())
     {
         return false;
     }
@@ -1501,8 +1488,26 @@ GtObjectIO::handleIndexChange(GtObject* parent,
         return false;
     }
 
+    bool ok = true;
+
+    auto tag = mode == DiffMode::Apply ? GtObjectIO::S_DIFF_NEWVAL_TAG
+                                       : GtObjectIO::S_DIFF_OLDVAL_TAG;
+
+    int newIndex = indChanges.attribute(tag).toInt(&ok);
+    if (!ok)
+    {
+        return false;
+    }
+
+    auto object = indChanges.firstChildElement(GtObjectIO::S_OBJECT_TAG);
+
+    if (object.isNull())
+    {
+        return false;
+    }
+
     GtObject* toMove = parent->getDirectChildByUuid(
-                object.attribute(S_UUID_TAG));
+                object.attribute(GtObjectIO::S_UUID_TAG));
 
     if (!toMove)
     {
@@ -1522,3 +1527,5 @@ GtObjectIO::handleIndexChange(GtObject* parent,
 
     return true;
 }
+
+} // namespace
