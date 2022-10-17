@@ -73,7 +73,7 @@ public:
      * @param metaObj The meta object of the class to remove
      * @return
      */
-    bool unregisterClass(QMetaObject metaObj);
+    bool unregisterClass(const QMetaObject& metaObj);
 
     /**
      * @brief registerClasses

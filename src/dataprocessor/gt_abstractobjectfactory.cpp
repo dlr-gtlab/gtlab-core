@@ -125,7 +125,8 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj)
     return true;
 }
 
-bool GtAbstractObjectFactory::unregisterClass(QMetaObject metaObj)
+bool
+GtAbstractObjectFactory::unregisterClass(const QMetaObject& metaObj)
 {
     QString classname = metaObj.className();
 

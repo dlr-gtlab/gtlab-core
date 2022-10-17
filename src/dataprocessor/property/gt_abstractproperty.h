@@ -46,6 +46,10 @@ public:
      */
     Q_INVOKABLE QVariant valueToVariant() const;
 
+    /**
+     * @brief Gets and cast the value into type T
+     * @return The value of type T
+     */
     template <typename T>
     T value() const
     {
