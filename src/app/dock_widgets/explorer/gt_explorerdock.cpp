@@ -229,11 +229,8 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     QVector<QPair<GtObjectUI*, QList<GtObjectUIActionGroup> > > actionGroups;
     QVector<QPair<GtObjectUI*, QList<GtObjectUIAction> > > actions;
 
-    //for (int i = 0; i < ouis.size(); ++i)
-    foreach (auto oui, ouis)
+    for (auto* oui : qAsConst(ouis))
     {
-        //GtObjectUI* oui = ouis[i];
-
         openList.append(oui->openWith(obj));
 
         if (oui->hasActionGroups())
@@ -285,7 +282,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
                                    actionGroups[i].first,
                                    submenu);
 
-            submenu->setIcon(GtGUI::icon(actGroup.icon()));
+            submenu->setIcon(actGroup.icon());
         }
     }
 
@@ -327,16 +324,9 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
         menu.addSeparator();
     }
 
-//    QAction* actionDelete =
-//            menu.addAction(GtGUI::Icon::delete16(),
-//                           tr("Delete From Session"));
-
-//    menu.addSeparator();
-
     // rename object action
     QAction* actrename = menu.addAction("Rename");
     actrename->setIcon(GtGUI::Icon::input16());
-
 
     if (obj->isRenamable())
     {
@@ -815,23 +805,18 @@ GtExplorerDock::keyPressEvent(QKeyEvent* event)
                 return;
             }
 
-            GtObjectUI* oui = gtApp->defaultObjectUI(obj);
-            if (!oui)
+            for (auto* oui : gtApp->objectUI(obj))
             {
-                return;
-            }
+                assert(oui);
 
-            for (auto const& a : oui->actions())
-            {
-                QKeySequence k = a.shortCut();
-
-                if (gtApp->compareKeyEvent(event, k))
+                // only add single actions
+                for (auto const& a : oui->actions())
                 {
-                    if (!QMetaObject::invokeMethod(oui, a.method().toLatin1(),
-                                                   Q_ARG(GtObject*, obj)))
+                    QKeySequence k = a.shortCut();
+
+                    if (gtApp->compareKeyEvent(event, k))
                     {
-                        gtWarning() << tr("Could not invoke method!") << " ("
-                                    << a.method() << ")";
+                        a.method()(oui, obj);
                     }
                 }
             }

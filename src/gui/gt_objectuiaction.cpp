@@ -9,23 +9,33 @@
 
 #include "gt_objectuiaction.h"
 
+#include "gt_application.h"
+#include "gt_icons.h"
+#include "gt_logging.h"
+
 GtObjectUIAction::GtObjectUIAction()
 {
 
 }
 
-GtObjectUIAction::GtObjectUIAction(const QString& txt,
-                                   const QString& mthd,
-                                   const QString& icn,
-                                   const QString& ver,
-                                   const QString& visible,
+GtObjectUIAction::GtObjectUIAction(const QString& text,
+                                   const QString& method,
+                                   const QString& icon,
+                                   const QString& verification,
+                                   const QString& visibility,
                                    const QKeySequence& shortcut) :
-    m_txt(txt),
-    m_icon(icn),
-    m_method(mthd),
-    m_ver(ver),
-    m_visible(visible),
+    m_text(text),
+    m_icon(GtGUI::icon(icon)),
     m_shortCut(shortcut)
+{
+    setActionMethod(method);
+    setVerificationMethod(verification);
+    setVisibilityMethod(visibility);
+}
+
+GtObjectUIAction::GtObjectUIAction(const QString& text, InvokableActionMethod method) :
+    m_text(text),
+    m_method(std::move(method))
 {
 
 }
@@ -33,36 +43,171 @@ GtObjectUIAction::GtObjectUIAction(const QString& txt,
 const QString&
 GtObjectUIAction::text() const
 {
-    return m_txt;
+    return m_text;
 }
 
-const QString&
+const QIcon&
 GtObjectUIAction::icon() const
 {
     return m_icon;
 }
 
-const QString&
+const GtObjectUIAction::InvokableActionMethod&
 GtObjectUIAction::method() const
 {
     return m_method;
 }
 
-const QString&
+const GtObjectUIAction::InvokableVerificationMethod&
 GtObjectUIAction::verificationMethod() const
 {
-    return m_ver;
+    return m_verification;
 }
 
-const QString&
+const GtObjectUIAction::InvokableVisibilityMethod&
 GtObjectUIAction::visibilityMethod() const
 {
-    return m_visible;
+    return m_visibility;
 }
 
 const QKeySequence&
 GtObjectUIAction::shortCut() const
 {
     return m_shortCut;
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setIcon(const QIcon& icon)
+{
+    m_icon = icon;
+    return *this;
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setIcon(const QString& icon)
+{
+    return setIcon(GtGUI::icon(icon));
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setVerificationMethod(InvokableVerificationMethod method)
+{
+    m_verification = std::move(method);
+    return *this;
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setVerificationMethod(VerificationMethod method)
+{
+    // parent object not needed here
+    return setVisibilityMethod([m = std::move(method)]
+                               (QObject* /*parent*/, GtObject* target){
+        return m && m(target);
+    });
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setVerificationMethod(const QString& methodName)
+{
+    if (methodName.isEmpty())
+    {
+        m_verification = nullptr;
+        return *this;
+    }
+
+    // wrap meta method call in lambda
+    return setVerificationMethod([=](QObject* parent, GtObject* target) {
+        bool verified = false;
+        if (!QMetaObject::invokeMethod(parent, methodName.toLatin1(),
+                                       Q_RETURN_ARG(bool, verified),
+                                       Q_ARG(GtObject*, target)))
+        {
+            gtWarning().nospace()
+                    << QObject::tr("Could not invoke verification method!")
+                    << " (" << methodName << ")";
+        }
+
+        return verified;
+    });
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setVisibilityMethod(InvokableVisibilityMethod method)
+{
+    m_verification = std::move(method);
+    return *this;
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setVisibilityMethod(VisibilityMethod method)
+{
+    // parent object not needed here
+    return setVisibilityMethod([m = std::move(method)]
+                               (QObject* /*parent*/, GtObject* target){
+        return m && m(target);
+    });
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setVisibilityMethod(const QString& methodName)
+{
+    if (methodName.isEmpty())
+    {
+        m_visibility = nullptr;
+        return *this;
+    }
+
+    // wrap meta method call in lambda
+    return setVisibilityMethod([=](QObject* parent, GtObject* target) {
+        bool visible = false;
+        if (!QMetaObject::invokeMethod(parent, methodName.toLatin1(),
+                                       Q_RETURN_ARG(bool, visible),
+                                       Q_ARG(GtObject*, target)))
+        {
+            gtWarning().nospace()
+                    << QObject::tr("Could not invoke visibility method!")
+                    << " (" << methodName << ")";
+        }
+        return visible;
+    });
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setShortCut(const QKeySequence& shortCut)
+{
+    m_shortCut = shortCut;
+    return *this;
+}
+
+GtObjectUIAction&
+GtObjectUIAction::registerShortCut(const QString& id,
+                                   const QString& cat,
+                                   const QKeySequence& k,
+                                   bool readOnly)
+{
+    gtApp->extendShortCuts({id, cat, k, readOnly});
+    m_shortCut = gtApp->getShortCutSequence(id, cat);
+    return *this;
+}
+
+void
+GtObjectUIAction::setActionMethod(const QString& methodName)
+{
+    if (methodName.isEmpty())
+    {
+        m_method = nullptr;
+        return;
+    }
+
+    // wrap meta method call in lambda
+    m_method = [=](QObject* parent, GtObject* target) {
+        if (!QMetaObject::invokeMethod(parent, methodName.toLatin1(),
+                                       Q_ARG(GtObject*, target)))
+        {
+            gtWarning().nospace()
+                    << QObject::tr("Could not invoke method!")
+                    << " (" << methodName << ")";
+        }
+    };
 }
 

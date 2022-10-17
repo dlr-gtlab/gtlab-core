@@ -90,9 +90,7 @@ GtGuiModuleLoader::~GtGuiModuleLoader()
 GtObjectUIList
 GtGuiModuleLoader::objectUI(GtObject* obj)
 {
-    // TODO: check assert !!!!
-//    Q_ASSERT(obj == nullptr);
-
+    assert(obj);
     return objectUI(obj->metaObject()->className());
 }
 

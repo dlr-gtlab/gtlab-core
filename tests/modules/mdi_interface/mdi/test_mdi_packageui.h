@@ -57,20 +57,13 @@ public slots:
      * @brief Test for specific context menu group action.
      * @param obj
      */
-    void testGroupAction1(GtObject* obj);
-
-
-    /**
-     * @brief Second test for specific context menu group action.
-     * @param obj
-     */
-    void testGroupAction2(GtObject* obj);
+    void testGroupAction(GtObject* obj);
 
     /**
      * @brief Second test for specific context menu group action.
      * @param obj
      */
-    void testGroupAction3(GtObject* obj);
+    void testDynamicInterface(GtObject* obj);
 };
 
 #endif // TESTDMIPACKAGEUI_H

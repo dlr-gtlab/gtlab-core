@@ -12,23 +12,26 @@
 #include "gt_logging.h"
 #include "gt_application.h"
 
+#include "gt_package.h"
 #include "test_mdi_ext_packageui.h"
 #include "test_mdi_ext_viewer.h"
+
+#include "gt_icons.h"
 
 TestMdiExtPackageUI::TestMdiExtPackageUI()
 {
 
-    QKeySequence k = registerShortCut(QStringLiteral("testModuleShortCut_ext3"),
-                                      QKeySequence(Qt::Key_F9));
+    auto k = registerShortCut(QStringLiteral("testMdiExtShortCut_1"),
+                              QKeySequence(Qt::Key_F9));
 
-    addSingleAction("Test Action 2", "testAction", k);
+    addSingleAction("Test Action 2", "testAction")
+        .setShortCut(k);
 
-    QList<GtObjectUIAction> addItemActions;
-
-    addItemActions << GtObjectUIAction("Test Group Action",
-                                       "testGroupAction");
-
-    addActionGroup("Test Action Group 2", addItemActions);
+    addActionGroup("Test Action Group 2")
+        .setIcon("folder_16.png")
+        << makeSingleAction("Test Group Action", "testGroupAction")
+            .registerShortCut("testMdiExtShortCut_2", "testMdiExt",
+                              QKeySequence(Qt::Key_F10), true);
 }
 
 QIcon

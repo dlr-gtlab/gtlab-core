@@ -32,31 +32,61 @@ public:
      */
     GtObjectUIActionGroup(const QString& groupName,
                           const QList<GtObjectUIAction>& actions,
-                          const QString& icon = QString());
+                          const QString& icon = {});
     /**
      * @brief actions
      * @return list of actions
      */
-    const QList<GtObjectUIAction> actions();
+    const QList<GtObjectUIAction>& actions() const;
 
     /**
      * @brief name
      * @return group name
      */
-    const QString name();
+    const QString& name() const;
 
     /**
      * @brief icon
      * @return icon
      */
-    const QString icon();
+    const QIcon& icon() const;
+
+    /**
+     * @brief Reserves space for size actions
+     * @param size
+     */
+    void reserve(int size);
+
+    /**
+     * @brief Dedicated setter for the UI icon
+     * @param icon Icon
+     * @return This
+     */
+    GtObjectUIActionGroup& setIcon(const QIcon& icon);
+
+    /**
+     * @brief Overload. Accepts a string instead
+     * @param icon Icon name or path
+     * @return This
+     */
+    GtObjectUIActionGroup& setIcon(const QString& icon);
+
+    /**
+     * @brief Appends the action to the group
+     * @param action Action to append
+     * @return This
+     */
+    GtObjectUIActionGroup& operator<<(GtObjectUIAction const& action);
 
 private:
+    /// List of actions
     QList<GtObjectUIAction> m_actions;
 
+    /// Group action text
     QString m_name;
 
-    QString m_icon;
+    /// Group action icon
+    QIcon m_icon;
 };
 
 #endif // GTOBJECTUIACTIONGROUP_H
