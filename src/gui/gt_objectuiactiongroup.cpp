@@ -8,37 +8,63 @@
  */
 #include "gt_objectuiactiongroup.h"
 
-GtObjectUIActionGroup::GtObjectUIActionGroup()
-{
+#include "gt_icons.h"
 
-}
+GtObjectUIActionGroup::GtObjectUIActionGroup() = default;
 
 GtObjectUIActionGroup::GtObjectUIActionGroup(
         const QString& groupName,
         const QList<GtObjectUIAction>& actions,
         const QString& icon) :
-   m_name(groupName), m_icon(icon)
+   m_name(groupName),
+   m_icon(GtGUI::icon(icon))
 {
-    foreach(GtObjectUIAction action, actions)
+    for (GtObjectUIAction const& action : actions)
     {
         m_actions.append(action);
     }
 }
 
-const QList<GtObjectUIAction>
-GtObjectUIActionGroup::actions()
+const QList<GtObjectUIAction>&
+GtObjectUIActionGroup::actions() const
 {
     return m_actions;
 }
 
-const QString
-GtObjectUIActionGroup::name()
+const QString&
+GtObjectUIActionGroup::name() const
 {
     return m_name;
 }
 
-const QString
-GtObjectUIActionGroup::icon()
+const QIcon&
+GtObjectUIActionGroup::icon() const
 {
     return m_icon;
+}
+
+void
+GtObjectUIActionGroup::reserve(int size)
+{
+    m_actions.reserve(size);
+}
+
+GtObjectUIActionGroup&
+GtObjectUIActionGroup::setIcon(const QIcon& icon)
+{
+    m_icon = icon;
+    return *this;
+}
+
+GtObjectUIActionGroup&
+GtObjectUIActionGroup::setIcon(const QString& icon)
+{
+    return setIcon(GtGUI::icon(icon));
+}
+
+GtObjectUIActionGroup&
+GtObjectUIActionGroup::operator<<(const GtObjectUIAction& action)
+{
+    m_actions << action;
+    return *this;
 }

@@ -16,6 +16,21 @@
 #include "gt_icons.h"
 #include "gt_logging.h"
 
+/// helper method to get parent QWidget (skips QMenus)
+inline QWidget*
+findParentWidget(QMenu*  menu)
+{
+    auto* parent = qobject_cast<QWidget*>(menu->parent());
+
+    // skip if its a menu
+    if (auto* m = qobject_cast<QMenu*>(parent))
+    {
+        return findParentWidget(m);
+    }
+
+    return parent;
+}
+
 GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
                                        GtObject* targetObj,
                                        QObject* parentObject,
@@ -30,55 +45,43 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
 
     foreach (const GtObjectUIAction& a, list)
     {
+        // separator
         if (a.text().isEmpty())
         {
             menu->addSeparator();
             continue;
         }
 
-        if (!a.visibilityMethod().isEmpty())
+        // visibility
+        if (!a.method() ||
+            (a.visibilityMethod() &&
+            !a.visibilityMethod()(m_parentObj, m_targetObj)))
         {
-            bool visible = false;
-            QMetaObject::invokeMethod(
-                        m_parentObj, a.visibilityMethod().toLatin1(),
-                        Q_RETURN_ARG(bool, visible),
-                        Q_ARG(GtObject*, m_targetObj));
-
-            if (!visible)
-            {
-                continue;
-            }
+            continue;
         }
 
-        QAction* act = nullptr;
+        // text
+        QAction* act = menu->addAction(a.text());
 
-        if (a.icon().isEmpty())
+        // icon
+        if (!a.icon().isNull())
         {
-            act = menu->addAction(a.text());
-        }
-        else
-        {
-            act = menu->addAction(GtGUI::icon(a.icon()), a.text());
+            act->setIcon(a.icon());
         }
 
         // verification
-        if (!a.verificationMethod().isEmpty())
+        if (a.verificationMethod())
         {
-            bool verified = false;
-            QMetaObject::invokeMethod(m_parentObj,
-                                      a.verificationMethod().toLatin1(),
-                                      Q_RETURN_ARG(bool, verified),
-                                      Q_ARG(GtObject*, m_targetObj));
-            act->setEnabled(verified);
+            act->setEnabled(a.verificationMethod()(m_parentObj, m_targetObj));
         }
 
+        // shortcut
         if (!a.shortCut().isEmpty())
         {
             act->setShortcut(a.shortCut());
             act->setShortcutContext(Qt::ApplicationShortcut);
 
-            QWidget* parent = qobject_cast<QWidget*>(menu->parent());
-            if (parent)
+            if (QWidget* parent = findParentWidget(menu))
             {
                 parent->addAction(act);
             }
@@ -95,19 +98,9 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
 void
 GtCustomActionMenu::onActionTrigger(QObject* obj)
 {
-    QAction* act = qobject_cast<QAction*>(obj);
-
-    if (!act)
+    if (QAction* act = qobject_cast<QAction*>(obj))
     {
-        return;
-    }
-
-    const GtObjectUIAction& val = m_actions.value(act);
-
-    if (!QMetaObject::invokeMethod(m_parentObj, val.method().toLatin1(),
-                                   Q_ARG(GtObject*, m_targetObj)))
-    {
-        gtWarning() << tr("Could not invoke method!") << " ("
-                    << val.method() << ")";
+        const GtObjectUIAction& val = m_actions.value(act);
+        val.method()(m_parentObj, m_targetObj);
     }
 }

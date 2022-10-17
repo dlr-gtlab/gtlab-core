@@ -98,11 +98,40 @@ GtObjectUI::addSingleAction(const QString& actionText,
 }
 
 
-void
+GtObjectUIAction&
 GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionMethod)
 {
-    m_singleActions << GtObjectUIAction(actionText, actionMethod);
+    m_singleActions << makeSingleAction(actionText, actionMethod);
+    return m_singleActions.last();
+}
+
+
+GtObjectUIAction&
+GtObjectUI::addSingleAction(const QString& actionText,
+                            ActionFunction actionMethod)
+{
+    m_singleActions << makeSingleAction(actionText, std::move(actionMethod));
+    return m_singleActions.last();
+}
+
+GtObjectUIAction
+GtObjectUI::makeSingleAction(const QString& actionText,
+                             const QString& actionMethod)
+{
+    return GtObjectUIAction(actionText, actionMethod);
+}
+
+GtObjectUIAction
+GtObjectUI::makeSingleAction(const QString& actionText,
+                             ActionFunction actionMethod)
+{
+    // parent object not needed here
+    return GtObjectUIAction(actionText,
+                            [m = std::move(actionMethod)]
+                            (QObject* /*parent*/, GtObject* target){
+        if (m) m(target);
+    });
 }
 
 void
@@ -113,6 +142,16 @@ GtObjectUI::addSingleAction(const QString& actionText,
     m_singleActions << GtObjectUIAction(actionText, actionMethod,
                                         QString(), QString(), QString(),
                                         shortcut);
+}
+
+
+GtObjectUIActionGroup&
+GtObjectUI::addActionGroup(const QString& groupName, int sizeHint)
+{
+    m_actionGroups << GtObjectUIActionGroup(groupName, {});
+    auto& last = m_actionGroups.last();
+    last.reserve(sizeHint);
+    return last;
 }
 
 void

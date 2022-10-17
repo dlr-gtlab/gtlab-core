@@ -18,21 +18,20 @@
 
 TestMdiPackageUI::TestMdiPackageUI()
 {
-    addSingleAction("Test Action", "testAction");
+    using namespace GtGUI;
 
-    QList<GtObjectUIAction> addItemActions;
+    addSingleAction("Test Action", "testAction")
+        .registerShortCut("testMdiShortCut", QKeySequence{"Alt+R"})
+        .setIcon(Icon::config16());
 
-    addItemActions << GtObjectUIAction("Test Group Action 1",
-                                       "testGroupAction1");
-
-    addItemActions << GtObjectUIAction("Test Group Action 2",
-                                       "testGroupAction2");
-
-    addItemActions << GtObjectUIAction("Interface Function Test",
-                                       "testGroupAction3");
-
-    addActionGroup("Test Action Group", addItemActions);
-
+    addActionGroup("Test Action Group", 3)
+        .setIcon(Icon::folder16())
+        << makeSingleAction("Test Group Action 1", "testGroupAction")
+        << makeSingleAction("Test Group Action 2",
+                            [](GtObject* /*obj*/){
+              gtInfo() << "TEST MDI INTERFACE - TEST GROUP ACTION 2";
+           })
+        << makeSingleAction("Interface Function Test", "testDynamicInterface");
 }
 
 QIcon
@@ -66,34 +65,27 @@ TestMdiPackageUI::testAction(GtObject* /*obj*/)
 }
 
 void
-TestMdiPackageUI::testGroupAction1(GtObject* /*obj*/)
+TestMdiPackageUI::testGroupAction(GtObject* /*obj*/)
 {
     gtInfo() << "TEST MDI INTERFACE - TEST GROUP ACTION 1";
 }
 
 void
-TestMdiPackageUI::testGroupAction2(GtObject* /*obj*/)
-{
-    gtInfo() << "TEST MDI INTERFACE - TEST GROUP ACTION 2";
-}
-
-void
-TestMdiPackageUI::testGroupAction3(GtObject* /*obj*/)
+TestMdiPackageUI::testDynamicInterface(GtObject* /*obj*/)
 {
     auto func = gtlab::interface::get_function("Test Datamodel Interface",
                                                "my_lambda_mult");
 
     QVariant result = -1.0;
-    if (!func.is_null())
-    {
-        result = func({5, 7});
-    }
-    else
+    if (func.is_null())
     {
         gtError() << "Cannot find Interface function";
+        return;
     }
 
-    gtInfo() << "The Result of the multiplication of 5 nd 7 is " << result;
+    result = func({5, 7});
+
+    gtInfo() << "The Result of the multiplication of 5 and 7 is" << result;
     gtInfo() << "The description of this function is" << func.help();
 
 }

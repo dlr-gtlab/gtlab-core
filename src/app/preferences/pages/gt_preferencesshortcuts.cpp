@@ -40,9 +40,6 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
                                                  tr("Category")});
     m_tab->verticalHeader()->hide();
     m_tab->setShowGrid(false);
-    m_tab->setColumnWidth(0, 150);
-    m_tab->setColumnWidth(1, 100);
-    m_tab->setColumnWidth(2, 100);
 
     m_tab->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     m_tab->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
@@ -111,6 +108,7 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
         ++i;
     }
     m_tab->setSortingEnabled(true);
+    m_tab->resizeColumnsToContents();
 }
 
 void

@@ -19,7 +19,6 @@
 #include "gt_objectuiaction.h"
 #include "gt_objectuiactiongroup.h"
 
-class QIcon;
 class GtObject;
 
 /**
@@ -30,6 +29,9 @@ class GT_GUI_EXPORT GtObjectUI : public QObject
     Q_OBJECT
 
 public:
+
+    using ActionFunction = GtObjectUIAction::ActionMethod;
+
     /**
      * @brief GtObjectUI
      */
@@ -109,7 +111,9 @@ public:
      * @return
      */
     virtual QRegExp validatorRegExp();
+
 protected:
+
     /**
      * @brief specificData
      * @param obj
@@ -120,11 +124,68 @@ protected:
     virtual QVariant specificData(GtObject* obj, int role, int column) const;
 
     /**
+     * @brief Constructs a single action object and returns it as a reference.
+     * Useful for specify its properties after a function call.
+     * NOTE: Reference may become invalid if a new action has been added.
+     * @param actionText Action name
+     * @param actionMethod Action method to invoke. Must be invokable 
+     * from MOS (Meta Object System).
+     * @return Action reference
+     */
+    GtObjectUIAction& addSingleAction(const QString& actionText,
+                                      const QString& actionMethod);
+
+    /**
+     * @brief Overload.Accepts a lambda or function pointer.
+     * @param actionText Action name
+     * @param actionMethod Method/Function/lambda to invoke
+     * @return Action reference
+     */
+    GtObjectUIAction& addSingleAction(const QString& actionText,
+                                      ActionFunction actionMethod);
+
+    /**
+     * @brief Constructs a single action object. Does not append it to the
+     * objects list of actions. Useful for adding actions to a group.
+     * @param actionText Action name
+     * @param actionMethod Action method to invoke. Must be invokable from MOS.
+     * @return Action
+     */
+    GtObjectUIAction makeSingleAction(const QString& actionText,
+                                      const QString& actionMethod);
+
+    /**
+     * @brief Overload.Accepts a lambda or function pointer.
+     * @param actionText Action name
+     * @param actionMethod Method/Function/lambda to invoke
+     * @return Action
+     */
+    GtObjectUIAction makeSingleAction(const QString& actionText,
+                                      ActionFunction actionMethod);
+
+    /**
+     * @brief Constructs an empty group action object and returns it as a
+     * reference.Useful for adding the actions after a function call.
+     * NOTE: Reference may become invalid if a new action has been added.
+     * @param groupName Group name
+     * @param sizeHint A hint for the number of actions to be added.
+     * Prevents unnecessary allocations.
+     * @return Group reference
+     */
+    GtObjectUIActionGroup& addActionGroup(const QString& groupName,
+                                          int sizeHint = 1);
+
+    /**
      * @brief addAction
      * @param actionText
      * @param actionIcon
      * @param actionMethod
      */
+    [[deprecated("Use dedicated setters instead: "
+                 "addSingleAction(<text>, <method>)"
+                 "  .setIcon(<icon>)"
+                 "  .setVerificationMethod(<method>)"
+                 "  .setVisibilityMethod(<method>)")]]
     void addSingleAction(const QString& actionText,
                          const QString& actionIcon,
                          const QString& actionMethod,
@@ -140,6 +201,12 @@ protected:
      * @param actionVisibility
      * @param shortcut
      */
+    [[deprecated("Use dedicated setters instead: "
+                 "addSingleAction(<text>, <method>)"
+                 "  .setIcon(<icon>)"
+                 "  .setVerificationMethod(<method>)"
+                 "  .setVisibilityMethod(<method>)"
+                 "  .setShortCut(<key_seq>)")]]
     void addSingleAction(const QString& actionText,
                          const QString& actionIcon,
                          const QString& actionMethod,
@@ -153,7 +220,12 @@ protected:
      * @param actionIcon
      * @param actionMethod
      */
-    void addSingleAction(const QString& actionText, const QString& actionIcon,
+    [[deprecated("Use dedicated setters instead: "
+                 "addSingleAction(<text>, <method>)"
+                 "  .setIcon(<icon>)"
+                 "  .setVerificationMethod(<method>)")]]
+    void addSingleAction(const QString& actionText,
+                         const QString& actionIcon,
                          const QString& actionMethod,
                          const QString& actionVerification);
 
@@ -163,7 +235,13 @@ protected:
      * @param actionIcon
      * @param actionMethod
      */
-    void addSingleAction(const QString& actionText, const QString& actionIcon,
+    [[deprecated("Use dedicated setters instead: "
+                 "addSingleAction(<text>, <method>)"
+                 "  .setIcon(<icon>)"
+                 "  .setVerificationMethod(<method>)"
+                 "  .setShortCut(<key_seq>)")]]
+    void addSingleAction(const QString& actionText,
+                         const QString& actionIcon,
                          const QString& actionMethod,
                          const QString& actionVerification,
                          const QKeySequence& shortcut);
@@ -174,15 +252,11 @@ protected:
      * @param actionIcon
      * @param actionMethod
      */
-    void addSingleAction(const QString& actionText, const QString& actionIcon,
-                         const QString& actionMethod);
-
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionMethod
-     */
+    [[deprecated("Use dedicated setters instead: "
+                 "addSingleAction(<text>, <method>)"
+                 "  .setIcon(<icon>)")]]
     void addSingleAction(const QString& actionText,
+                         const QString& actionIcon,
                          const QString& actionMethod);
 
     /**
@@ -191,6 +265,9 @@ protected:
      * @param actionMethod
      * @param shortcut
      */
+    [[deprecated("Use dedicated setters instead: "
+                 "addSingleAction(<text>, <method>)"
+                 "  .setShortCut(<key_seq>)")]]
     void addSingleAction(const QString& actionText,
                          const QString& actionMethod,
                          const QKeySequence &shortcut);
@@ -202,16 +279,24 @@ protected:
      * @param actionMethod
      * @param shortcut
      */
-    void addSingleAction(const QString &actionText,
-                         const QString &actionIcon,
-                         const QString &actionMethod,
-                         const QKeySequence &shortcut);
+    [[deprecated("Use dedicated setters instead: "
+                 "addSingleAction(<text>, <method>)"
+                 "  .setIcon(<icon>)"
+                 "  .setShortCut(<key_seq>)")]]
+    void addSingleAction(const QString& actionText,
+                         const QString& actionIcon,
+                         const QString& actionMethod,
+                         const QKeySequence& shortcut);
 
     /**
      * @brief addGroupActions
      * @param groupName
      * @param actions
      */
+    [[deprecated("Use dedicated setters instead: "
+                 "addActionGroup(<text>)"
+                 "  << makeSingleAction(...)"
+                 "  << makeSingleAction(...)")]]
     void addActionGroup(const QString& groupName,
                         const QList<GtObjectUIAction>& actions);
 
@@ -220,7 +305,13 @@ protected:
      * @param groupName
      * @param actions
      */
-    void addActionGroup(const QString& groupName, const QString& groupIcon,
+    [[deprecated("Use dedicated setters instead: "
+                 "addActionGroup(<text>)"
+                 "  .setIcon(<icon>)"
+                 "  << makeSingleAction(...)"
+                 "  << makeSingleAction(...)")]]
+    void addActionGroup(const QString& groupName,
+                        const QString& groupIcon,
                         const QList<GtObjectUIAction>& actions);
 
     /**
@@ -233,8 +324,6 @@ protected:
      * @brief addSeparator
      */
     void addSeparator();
-
-protected:
 
     /**
      * @brief registerShortCut
@@ -266,8 +355,8 @@ protected:
      * @return short cut for this id registered in this object
      */
     QKeySequence getShortCut(const QString& id);
-private:
 
+private:
 
     /// List of custom actions
     QList<GtObjectUIAction> m_singleActions;
