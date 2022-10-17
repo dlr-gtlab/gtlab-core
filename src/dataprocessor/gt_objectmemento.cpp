@@ -433,39 +433,47 @@ readProperties(const GtObjectMemento& memento,
     }
 }
 
-void readPropertyStructEntry(const PD& propStruct, GtPropertyStructContainer& c)
+void importStructEntryFromMemento(const PD& propStruct,
+                                  GtPropertyStructInstance& structEntry)
+{
+    assert(propStruct.type() == PD::STRUCT_T);
+
+    auto const & membersInMemento = propStruct.childProperties;
+
+    // copy all member values into the new entry
+    for (auto& member : structEntry.properties())
+    {
+        if (!member) continue;
+
+        auto prop = GtObjectMemento::findPropertyByName(membersInMemento,
+                                                        member->ident());
+
+        if (prop)
+        {
+            member->setValueFromVariant(prop->data());
+            member->setActive(prop->isActive);
+        }
+        else
+        {
+            // property does not exist
+            gtError() << "Property '" << member->ident()
+                      << "' does not exist in memento";
+        }
+    }
+}
+
+void createNewStructEntryFromMemento(const PD& propStruct, GtPropertyStructContainer& c)
 {
     // all entries must be struct. Since the user cannot
     // modify a memento directly, an assertion is best here
     assert(propStruct.type() == PD::STRUCT_T);
-
-    auto const & membersInMemento = propStruct.childProperties;
 
     try
     {
         auto& structEntry = c.newEntry(propStruct.dataType(),
                                        propStruct.name);
 
-        // copy all member values into the new entry
-        for (auto& member : structEntry.properties())
-        {
-            if (!member) continue;
-
-            auto prop = GtObjectMemento::findPropertyByName(membersInMemento,
-                                                            member->ident());
-
-            if (prop)
-            {
-                member->setValueFromVariant(prop->data());
-                member->setActive(prop->isActive);
-            }
-            else
-            {
-                // property does not exist
-                gtError() << "Property '" << member->ident()
-                          << "' does not exist in memento";
-            }
-        }
+        importStructEntryFromMemento(propStruct, structEntry);
 
     }
     catch (GTlabException& e)
@@ -485,7 +493,7 @@ void readStructContainer(const PD& prop, GtPropertyStructContainer& c)
 
     for (const auto& entryInMemento : prop.childProperties)
     {
-        readPropertyStructEntry(entryInMemento, c);
+        createNewStructEntryFromMemento(entryInMemento, c);
 
     }
 }

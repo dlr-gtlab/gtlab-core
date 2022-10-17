@@ -258,4 +258,8 @@ private:
 
 };
 
+GT_DATAMODEL_EXPORT
+void importStructEntryFromMemento(const GtObjectMemento::PropertyData& propStruct,
+                                  class GtPropertyStructInstance& structEntry);
+
 #endif // GTOBJECTMEMENTO_H
