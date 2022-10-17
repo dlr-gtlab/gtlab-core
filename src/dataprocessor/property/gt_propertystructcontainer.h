@@ -11,6 +11,8 @@
 
 #include "gt_datamodel_exports.h"
 
+#include "gt_polyvector.h"
+
 #include <QString>
 
 #include <memory>
@@ -25,6 +27,11 @@ class GtPropertyStructDefinition;
 class GtPropertyStructContainer
 {
 public:
+    using iterator =
+        gt::poly_vector<GtPropertyStructInstance>::iterator;
+    using const_iterator =
+        gt::poly_vector<GtPropertyStructInstance>::const_iterator;
+
     GT_DATAMODEL_EXPORT
     GtPropertyStructContainer(const QString& ident, const QString& name);
 
@@ -50,10 +57,37 @@ public:
      * the name of the entry will be a UUID
      *
      * @param typeID The typename / classname of the struct to create
+     * @param id Optional id of the entry. If not set, a uuid
+     *           will be set as the id
      * @return
      */
     GT_DATAMODEL_EXPORT
     GtPropertyStructInstance& newEntry(QString typeID, QString id="");
+
+    /**
+     * @brief Performs an in-place insertion of a new struct instance
+     * given the type.
+     *
+     * Note, since we need unique names to reference entries of the container,
+     * the name of the entry will be a UUID
+     *
+     * @param typeID The typename / classname of the struct to create
+     * @param id Optional id of the entry. If not set, a uuid
+     *           will be set as the id
+     * @param position Iterator to the position of the new entry
+     * @return
+     */
+    GT_DATAMODEL_EXPORT
+    GtPropertyStructInstance& newEntry(QString typeID,
+                                       const_iterator position, QString id="");
+
+    /**
+     * @brief Removes an Entry from the container
+     * @param position Iterator to the element to be removed
+     * @return Iterator following the removed element.
+     */
+    GT_DATAMODEL_EXPORT
+    iterator removeEntry(iterator position);
 
     GtPropertyStructInstance const * findEntry(const QString& id) const;
     GtPropertyStructInstance * findEntry(const QString& id);
@@ -122,6 +156,30 @@ public:
 
     GT_DATAMODEL_EXPORT
     void clear();
+
+    /**
+     * @brief Begin Iterator
+     */
+    GT_DATAMODEL_EXPORT
+    iterator begin();
+
+    /**
+     * @brief Begin Iterator
+     */
+    GT_DATAMODEL_EXPORT
+    const_iterator begin() const;
+
+    /**
+     * @brief End Iterator
+     */
+    GT_DATAMODEL_EXPORT
+    iterator end();
+
+    /**
+     * @brief End Iterator
+     */
+    GT_DATAMODEL_EXPORT
+    const_iterator end() const;
 
 private:
     struct Impl;

@@ -16,6 +16,23 @@
 #include <map>
 #include <utility>
 
+
+namespace gt
+{
+
+template<class T> struct add_const { typedef const T type; };
+
+template< class T >
+using add_const_t    = typename add_const<T>::type;
+
+template <class T>
+constexpr add_const_t<T>& as_const(T& t) noexcept
+{
+    return t;
+}
+
+}
+
 struct GtPropertyStructContainer::Impl
 {
     Impl(const QString& ident, const QString& name) :
@@ -54,6 +71,13 @@ GtPropertyStructContainer::registerAllowedType(
 GtPropertyStructInstance&
 GtPropertyStructContainer::newEntry(QString typeID, QString id)
 {
+    return newEntry(typeID, end(), id);
+}
+
+GtPropertyStructInstance&
+GtPropertyStructContainer::newEntry(QString typeID, const_iterator position,
+                                    QString id)
+{
     const auto iter = pimpl->allowedTypes.find(typeID);
     if (iter == pimpl->allowedTypes.end())
     {
@@ -69,9 +93,16 @@ GtPropertyStructContainer::newEntry(QString typeID, QString id)
         id = QUuid::createUuid().toString();QUuid::createUuid().toString();
     }
 
-    pimpl->entries.push_back(structureDefinition.newInstance(std::move(id)));
+    pimpl->entries.insert(position,
+                          structureDefinition.newInstance(std::move(id)));
 
     return pimpl->entries[pimpl->entries.size() - 1];
+}
+
+GtPropertyStructContainer::iterator
+GtPropertyStructContainer::removeEntry(iterator position)
+{
+    return pimpl->entries.erase(position);
 }
 
 const GtPropertyStructInstance *
@@ -138,6 +169,30 @@ GtPropertyStructContainer::at(size_t idx) const
 void GtPropertyStructContainer::clear()
 {
     pimpl->entries.clear();
+}
+
+GtPropertyStructContainer::iterator
+GtPropertyStructContainer::begin()
+{
+    return pimpl->entries.begin();
+}
+
+GtPropertyStructContainer::const_iterator
+GtPropertyStructContainer::begin() const
+{
+    return gt::as_const(pimpl->entries).begin();
+}
+
+GtPropertyStructContainer::iterator
+GtPropertyStructContainer::end()
+{
+    return pimpl->entries.end();
+}
+
+GtPropertyStructContainer::const_iterator
+GtPropertyStructContainer::end() const
+{
+    return gt::as_const(pimpl->entries).end();
 }
 
 GtPropertyStructInstance&

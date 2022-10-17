@@ -82,6 +82,12 @@ namespace gt
             using pointer = BaseType*; // or also value_type*
             using reference = BaseType&;
 
+            // we allow an implicit convert here
+            // cppcheck-suppress noExplicitConstructor // NOLINTNEXTLINE
+            const_iterator(const iterator& it) :
+                current(it.current)
+            {}
+
             friend poly_vector;
 
             const BaseType& operator*()
@@ -152,17 +158,46 @@ namespace gt
             auto ptr = std::make_unique<Derived>(std::move(v));
             values.emplace_back(std::move(ptr));
         }
+
         /**
-     * @brief In place creation at the end of the vector with
-     * the argument of the constructor of derived
-     *
-     * Example: Assuming a constructor of Derived(string, int),
-     *
-     * gt::poly_vector<Base> v;
-     * v.emplace_back<Derived>("astring", 1):
-     *
-     * @param params
-     */
+         * @brief Inserts an element at the specified location in the container
+         *        before the value specified with pos.
+         * @param pos Iterator before which the content will be inserted.
+         *            pos may be the end() iterator
+         * @param v_ptr The value to be inserted
+         * @return  Iterator pointing to the inserted value.
+         */
+        template <typename Derived,
+                  std::enable_if_t<std::is_base_of<BaseType, Derived>::value,
+                                   bool> = true>
+        iterator insert(const_iterator pos, std::unique_ptr<Derived> v_ptr)
+        {
+            auto it = values.insert(pos.current, std::move(v_ptr));
+            return iterator(std::move(it));
+        }
+
+        /**
+         * @brief Erases the specified elements from the container.
+         * @param pos iterator to the element to remove
+         * @return Iterator following the removed element.
+         */
+        iterator erase(iterator pos)
+        {
+            return iterator(values.erase(pos.current));
+        }
+
+
+        /**
+         * @brief In place creation at the end of the vector with
+         * the argument of the constructor of derived
+         *
+         * Example: Assuming a constructor of Derived(string, int),
+         *
+         * gt::poly_vector<Base> v;
+         * v.emplace_back<Derived>("astring", 1):
+         *
+         * @param params
+         */
         template <typename Derived, typename... Args,
                   std::enable_if_t<std::is_base_of<BaseType, Derived>::value,
                                    bool> = true>
