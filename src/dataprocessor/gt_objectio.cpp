@@ -101,24 +101,56 @@ namespace
                                const QDomElement& propContElemC, DiffMode mode);
 
     bool
-    handleIndexChange(GtObject* parent,
+    handleIndexChange(GtObject& parent,
                       const QDomElement& indChanges, DiffMode mode);
 
     bool
-    handlePropertyNodeChange(GtObject* target,
+    handlePropertyNodeChange(GtObject& target,
                              const QDomElement &change,
                              const bool list,
                              DiffMode mode);
 
     bool
-    handleAttributeNodeChange(GtObject* target,
+    handleAttributeNodeChange(GtObject& target,
                               const QDomElement& change,
                               DiffMode mode);
 
     bool
-    handleObjectAddRemove(GtObject* target,
+    handleObjectAddRemove(GtObject& target,
                           const QDomElement& diffTag,
                           DiffMode mode);
+
+    using diffFunc = std::function<bool(GtObject&, const QDomElement&, DiffMode)>;
+    std::map<QString, diffFunc>& getDiffFuncs()
+    {
+        static std::map<QString, diffFunc> funcMap =
+            {
+             std::make_pair(GtObjectIO::S_DIFF_OBJ_REMOVE_TAG,
+                            handleObjectAddRemove),
+             std::make_pair(GtObjectIO::S_DIFF_OBJ_ADD_TAG,
+                            handleObjectAddRemove),
+             std::make_pair(GtObjectIO::S_DIFF_INDEX_CHANGED_TAG,
+                            handleIndexChange),
+             std::make_pair(GtObjectIO::S_DIFF_ATTR_CHANGE_TAG,
+                            handleAttributeNodeChange),
+             std::make_pair(GtObjectIO::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG,
+                            handlePropContEntryChanged),
+
+             std::make_pair(GtObjectIO::S_DIFF_PROP_CHANGE_TAG,
+                [](GtObject& obj, const QDomElement& tag , DiffMode mode) {
+                    return  handlePropertyNodeChange(obj, tag, false,
+                                                    mode);
+                }),
+
+             std::make_pair(GtObjectIO::S_DIFF_PROPLIST_CHANGE_TAG,
+                [](GtObject& obj, const QDomElement& tag , DiffMode mode) {
+                    return  handlePropertyNodeChange(obj, tag, true,
+                                                    mode);
+                }),
+             };
+
+        return funcMap;
+    }
 }
 
 /** specialization for QVector<double>
@@ -328,6 +360,7 @@ GtObjectIO::toMemento(const QDomElement& e)
     return memento;
 }
 
+
 bool
 applyDiffOnObject(QDomElement& parent, GtObject* parentObject, DiffMode mode)
 {
@@ -341,61 +374,25 @@ applyDiffOnObject(QDomElement& parent, GtObject* parentObject, DiffMode mode)
         return false;
     }
 
+    bool okay = true;
+
+    const auto& diffFuncs = getDiffFuncs();
+
     QDomElement diffTag = parent.firstChildElement();
     while (!diffTag.isNull())
     {
-        const auto& tag = diffTag.tagName();
+        auto iter = diffFuncs.find(diffTag.tagName());
 
-        if (tag == GtObjectIO::S_DIFF_OBJ_REMOVE_TAG ||
-            tag == GtObjectIO::S_DIFF_OBJ_ADD_TAG)
+        if (iter != diffFuncs.end())
         {
-            // handle removes
-            if (!handleObjectAddRemove(parentObject, diffTag, mode))
-            {
-                return false;
-            }
-        }
-
-        else if (tag == GtObjectIO::S_DIFF_INDEX_CHANGED_TAG)
-        {
-            if (!handleIndexChange(parentObject, diffTag, mode))
-            {
-                return false;
-            }
-        }
-        else if (tag == GtObjectIO::S_DIFF_PROP_CHANGE_TAG)
-        {
-            handlePropertyNodeChange(parentObject, diffTag, false,
-                                     mode);
-        }
-        else if (tag  == GtObjectIO::S_DIFF_ATTR_CHANGE_TAG)
-        {
-            // handle object attribute changes
-            handleAttributeNodeChange(parentObject, diffTag,
-                                      mode);
-        }
-        else if (tag == GtObjectIO::S_DIFF_PROPLIST_CHANGE_TAG)
-        {
-            // handle prop list changes
-            handlePropertyNodeChange(parentObject, diffTag, true,
-                                     mode);
-        }
-        else if (tag == GtObjectIO::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG)
-        {
-            // handle property container element changed
-            handlePropContEntryChanged(*parentObject, diffTag,
-                                      mode);
-        }
-        else if (tag == GtObjectIO::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG)
-        {
-            //handlePropContEntryChanged(*parentObject, propContElemRem, DiffMode::Apply);
+            // call diff function
+            okay = okay && iter->second(*parentObject, diffTag, mode);
         }
 
         diffTag = diffTag.nextSiblingElement();
     }
 
-
-    return true;
+    return okay;
 }
 
 bool
@@ -1083,7 +1080,7 @@ propertyListToVariant(const QString& value, const QString& type)
     return var;
 }
 
-bool applyDiffQProperty(QObject* target, const QDomElement& change, bool isPropList, DiffMode mode)
+bool applyDiffQProperty(QObject& target, const QDomElement& change, bool isPropList, DiffMode mode)
 {
     QString propType = change.attribute(GtObjectIO::S_TYPE_TAG);
     QString propName = change.attribute(GtObjectIO::S_NAME_TAG);
@@ -1103,17 +1100,17 @@ bool applyDiffQProperty(QObject* target, const QDomElement& change, bool isPropL
 
     QString newVal = mode==DiffMode::Revert ? oldValNode.text() : newValNode.text();
 
-    if (target->property(propName.toLatin1()) != newVal)
+    if (target.property(propName.toLatin1()) != newVal)
     {
         if (!isPropList)
         {
-            return target->setProperty(propName.toLatin1(),
+            return target.setProperty(propName.toLatin1(),
                                           propertyToVariant(newVal,
                                                             propType));
         }
         else
         {
-            return target->setProperty(propName.toLatin1(),
+            return target.setProperty(propName.toLatin1(),
                                           propertyListToVariant(newVal,
                                                                 propType));
         }
@@ -1312,7 +1309,7 @@ handlePropContEntryAddRemove(GtObject& parentObject,
 }
 
 bool
-handlePropertyNodeChange(GtObject* target,
+handlePropertyNodeChange(GtObject& target,
                          const QDomElement &change,
                          const bool list,
                          DiffMode mode)
@@ -1324,7 +1321,7 @@ handlePropertyNodeChange(GtObject* target,
         return false;
     }
 
-    GtAbstractProperty* prop = target->findProperty(propName);
+    GtAbstractProperty* prop = target.findProperty(propName);
 
     // ------------------------------------------------------- //
 
@@ -1339,7 +1336,7 @@ handlePropertyNodeChange(GtObject* target,
 }
 
 bool
-handleAttributeNodeChange(GtObject* target,
+handleAttributeNodeChange(GtObject& target,
                           const QDomElement& change,
                           DiffMode mode)
 {
@@ -1358,14 +1355,14 @@ handleAttributeNodeChange(GtObject* target,
 
     if (attrID == GtObjectIO::S_NAME_TAG)
     {
-        target->setObjectName(newVal);
+        target.setObjectName(newVal);
     }
 
     return true;
 }
 
 bool
-handleObjectAdd(GtObject* parent,
+handleObjectAdd(GtObject& parent,
                 const QDomElement& objectToAdd,
                 const QString& index)
 {
@@ -1397,15 +1394,15 @@ handleObjectAdd(GtObject* parent,
         return false;
     }
 
-    int numberOfChildren = parent->findDirectChildren<GtObject*>().size();
+    int numberOfChildren = parent.findDirectChildren<GtObject*>().size();
 
     if (ind >= numberOfChildren)
     {
-        parent->appendChild(newObj.release());
+        parent.appendChild(newObj.release());
     }
     else if (ind >= 0)
     {
-        parent->insertChild(ind, newObj.release());
+        parent.insertChild(ind, newObj.release());
     }
     else
     {
@@ -1418,7 +1415,7 @@ handleObjectAdd(GtObject* parent,
 }
 
 bool
-handleObjectRemove(GtObject* parent,
+handleObjectRemove(GtObject& parent,
                    const QDomElement& objectToRemove,
                    const QString& /*index*/)
 {
@@ -1436,13 +1433,13 @@ handleObjectRemove(GtObject* parent,
         return false;
     }
 
-    GtObject* toRemove = parent->getDirectChildByUuid(objUUID);
+    GtObject* toRemove = parent.getDirectChildByUuid(objUUID);
 
     if (!toRemove)
     {
         qDebug() << "object not found! (" << objUUID << ")";
-        qDebug() << "   |-> " << parent->objectName() << " [" <<
-                    parent->uuid() << "]";
+        qDebug() << "   |-> " << parent.objectName() << " [" <<
+                    parent.uuid() << "]";
         return false;
     }
 
@@ -1451,7 +1448,7 @@ handleObjectRemove(GtObject* parent,
     return true;
 }
 
-bool handleObjectAddRemove(GtObject* target,
+bool handleObjectAddRemove(GtObject& target,
                            const QDomElement& diffTag,
                            DiffMode mode)
 {
@@ -1475,15 +1472,10 @@ bool handleObjectAddRemove(GtObject* target,
 }
 
 bool
-handleIndexChange(GtObject* parent,
+handleIndexChange(GtObject& parent,
                   const QDomElement& indChanges, DiffMode mode)
 {
     if (indChanges.isNull())
-    {
-        return false;
-    }
-
-    if (!parent)
     {
         return false;
     }
@@ -1506,7 +1498,7 @@ handleIndexChange(GtObject* parent,
         return false;
     }
 
-    GtObject* toMove = parent->getDirectChildByUuid(
+    GtObject* toMove = parent.getDirectChildByUuid(
                 object.attribute(GtObjectIO::S_UUID_TAG));
 
     if (!toMove)
@@ -1516,13 +1508,13 @@ handleIndexChange(GtObject* parent,
 
     toMove->setParent(nullptr);
 
-    if (newIndex > parent->findDirectChildren<GtObject*>().size())
+    if (newIndex > parent.findDirectChildren<GtObject*>().size())
     {
-        parent->appendChild(toMove);
+        parent.appendChild(toMove);
     }
     else
     {
-        parent->insertChild(newIndex, toMove);
+        parent.insertChild(newIndex, toMove);
     }
 
     return true;
