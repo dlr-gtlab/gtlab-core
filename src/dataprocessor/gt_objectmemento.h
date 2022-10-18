@@ -64,11 +64,13 @@ public:
     QByteArray toByteArray() const;
 
     /**
+     * TODO: move to object io
+     *
      * @brief isRestorable
      * @param factory
      * @return
      */
-    bool isRestorable(GtAbstractObjectFactory* factory);
+    bool isRestorable(GtAbstractObjectFactory* factory) const;
 
     /**
      * @brief restore
@@ -83,7 +85,7 @@ public:
 
         if (factory)
         {
-            GtObject* tmp = createObject(factory);
+            auto tmp = toObject(*factory).release();
 
             if (tmp)
             {
@@ -120,30 +122,41 @@ public:
     }
 
     /**
+     * @brief Creates a gtobject from the memento
+     * @param factory An object factory to create object instances
+     *
+     * @return A pointer to an object or nullptr, if it could not be created.
+     */
+    std::unique_ptr<GtObject> toObject(GtAbstractObjectFactory& factory) const;
+
+    /**
      * @brief mergeTo
      * @param obj
      * @param factory
      * @return
      */
-    bool mergeTo(GtObject* obj, GtAbstractObjectFactory* factory) const;
+    bool mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const;
 
     /**
      * @brief className
      * @return
      */
     const QString& className() const;
+    GtObjectMemento& setClassName(const QString& className);
 
     /**
      * @brief uuid
      * @return
      */
     const QString& uuid() const;
+    GtObjectMemento& setUuid(const QString& uuid);
 
     /**
      * @brief ident
      * @return
      */
     const QString& ident() const;
+    GtObjectMemento& setIdent(const QString& ident);
 
     /**
      * @brief canCastTo
@@ -152,34 +165,63 @@ public:
      */
     bool canCastTo(const QString& classname, GtAbstractObjectFactory* factory);
 
-    /**
-     * @brief internal data structure for storing GtObject data
-     */
-    struct MementoData
-    {
-        QString className, uuid, ident;
+    const GtObjectMemento* findChild(const QString& ident) const;
 
-        struct PropertyData
+
+    struct PropertyData
+    {
+        enum PropertyType
         {
-            QString name;
-            bool isOptional = false;
-            bool isActive = true;
-            bool isDynamicContainer = false;
-            QString dynamicClassName;
-            QString dynamicObjectName;
-            QString enumType;
-            QVariant data;
-            QVector<PropertyData> childProperties;
-            mutable QByteArray hash;
+            DATA_T,
+            DYNCONT_T,
+            ENUM_T // only used by meta properties
         };
-        QVector<PropertyData> properties;
-        
-        QVector<GtObjectMemento> childObjects;
+
+        QString name;
+        bool isOptional = false;
+        bool isActive = true;
+        QString dynamicObjectName;
+
+        const QVariant& data() const
+        {
+            return _data;
+        }
+
+        GT_DATAMODEL_EXPORT
+        PropertyData& setData(const QVariant& val);
+
+        const QString& dataType() const
+        {
+            return _dataType;
+        }
+
+        const PropertyType& type() const
+        {
+            return _type;
+        }
+
+        static PropertyData
+        makeDynamicContainer(const QString& dynamicObjectName);
+
+        static PropertyData
+        makeDynamicChild(const QVariant& value,
+                         const QString& dynamicObjectName,
+                         const QString& dynamicTypeName);
+
+        PropertyData& fromQMetaProperty(const QMetaProperty& prop,
+                                        const QVariant& val);
+
+
+        QVector<PropertyData> childProperties; /// sub properties
+        mutable QByteArray hash;
+
+    private:
+        QVariant _data;    /// The data as a variant
+        QString _dataType; /// The type of the data
+        PropertyType _type  {DATA_T};
+
     };
-    /**
-     * @brief directly access memento data
-     */
-    const MementoData& data() const {return m_data;}
+
 
     /**
      * @brief get hash of this object's properties
@@ -196,46 +238,20 @@ public:
      */
     void calculateHashes() const;
 
-private:
-    /**
-     * @brief cached XML document
-     */
-    mutable QDomDocument m_domDocument;
+    QVector<PropertyData> properties;
+    QVector<PropertyData> dynamicSizeProperties;
+    QVector<GtObjectMemento> childObjects;
 
-    /**
-     * @brief internal data that represents a GtObject
-     */
-    MementoData m_data;
+private:
+    QString m_className, m_uuid, m_ident;
 
     /**
      * @brief cached hashes of a GtObject (properties only) and the full GtObject (including all its children)
      */
     mutable QByteArray m_propertyHash, m_fullHash;
 
-    void propertyHashHelper(const MementoData::PropertyData& property, QCryptographicHash& hash, VariantHasher& variantHasher) const;
+    void propertyHashHelper(const PropertyData& property, QCryptographicHash& hash, VariantHasher& variantHasher) const;
 
-    /**
-     * @brief attribute
-     * @param id
-     * @return
-     */
-    QString attribute(const QString& id) const;
-
-    /**
-     * @brief createObject
-     * @param factory
-     * @return
-     */
-    GtObject* createObject(GtAbstractObjectFactory* factory);
-
-    /**
-     * @brief isRestorable
-     * @param factory
-     * @param element
-     * @return
-     */
-    bool isRestorable(GtAbstractObjectFactory* factory,
-                      const QDomElement& element);
 
 };
 

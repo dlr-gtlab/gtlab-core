@@ -11,6 +11,10 @@ local_settings.pri
 *.o
 *.pyc
 *qml_qmlcache.qrc
+*.gcov
+*.gcno
+moc_*
+.qtc_clangd/
 linuxBuild.txt
 unittests.xml
 !tests/build/

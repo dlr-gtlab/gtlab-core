@@ -73,8 +73,7 @@ public:
         @param o GtObject pointer
         @param clone Wether identiy information should be cloned or not
         @return GtObjectMemento memento */
-    GtObjectMemento::MementoData toMemento(const GtObject* o,
-                                           bool clone = true);
+    GtObjectMemento toMemento(const GtObject* o, bool clone = true);
 
     /** Creates QDomElement from given GtObjectMemento.
         @param m GtObjectMemento
@@ -85,22 +84,21 @@ public:
                              QDomDocument& doc,
                              bool skipChildren = false);
 
+    /**
+     * Converts property memento data element into a dom element
+     * 
+     * @param m A memento property
+     * @param doc[in/out] A document to create elements from
+     */
+    QDomElement toDomElement(const GtObjectMemento::PropertyData& m,
+                             QDomDocument& doc);
+
+
     /** Creates Memento from given QDomElement.
         @param e QDomElement with memento data
         @return GtObjectMemento memento */
-    GtObjectMemento::MementoData toMemento(const QDomElement& e);
+    GtObjectMemento toMemento(const QDomElement& e);
 
-    /** Creates new GtObjects from given Memento.
-        @param memento GtObjectMemento memento
-        @return New GtObject based on GtObjectMemento memento */
-    GtObject* toObject(const GtObjectMemento& memento,
-                       GtObject* parent = nullptr);
-
-    /** Merges GtObjects information from given QDomElement.
-        @param element QDomElement memento
-        @param obj GtObject */
-    void mergeObject(const QDomElement& element,
-                     GtObject* obj);
 
     /**
      * @brief applyDiff
@@ -126,7 +124,7 @@ public:
      */
     void writeDynamicPropertyHelper(QDomDocument& doc,
                                     QDomElement& root,
-                                    const GtObjectMemento::MementoData::PropertyData& property);
+                                    const GtObjectMemento::PropertyData& property);
 
     /** Converts given QVariant to QString.
         @param var QVariant
@@ -174,42 +172,14 @@ private:
     /// Pointer to current object factory
     GtAbstractObjectFactory* m_factory;
 
-    /** Creates new GtObjects from given QDomElement.
-        @param element QDomElement memento
-        @return New GtObject based on QDomElement memento */
-    GtObject* toObjectHelper(const QDomElement& element,
-                       GtObject* parent = nullptr);
-
-    /** Merges all properties found in QDomElement with properties found
-        in GtdObject.
-        @param element QDomElement memento
-        @param obj GtdObject */
-    void mergeObjectProperties(const QDomElement& element,
-                               GtObject* obj);
-
-    /**
-     * @brief mergeDummyProperies
-     * @param element
-     * @param obj
-     */
-    void mergeDummyProperies(const QDomElement& element,
-                             GtObject* obj);
-
-    /**
-     * @brief mergeDynamicProperties
-     * @param element
-     * @param obj
-     */
-    void mergeDynamicProperties(const QDomElement& element,
-                                GtObject* obj);
-
     /**
      * @brief writeProperties
      * @param m memento
      * @param obj
      */
-    void writeProperties(GtObjectMemento::MementoData& data,
+    void writeProperties(GtObjectMemento& m,
                          const GtObject* obj);
+
     /**
      * @brief writeProperties
      * @param root
@@ -218,13 +188,14 @@ private:
      */
     void writeProperties(QDomDocument& doc,
                          QDomElement& root,
-                         const GtObjectMemento::MementoData& data);
+                         const GtObjectMemento& m);
+
     /**
      * @brief readProperties
      * @param m memento
      * @param element
      */
-    void readProperties(GtObjectMemento::MementoData& data,
+    void readProperties(GtObjectMemento& m,
                         const QDomElement& element);
 
     /**
@@ -233,7 +204,7 @@ private:
      * @param element
      */
     void readDynamicProperties(
-            GtObjectMemento::MementoData::PropertyData& propData,
+            GtObjectMemento::PropertyData& propData,
             const QDomElement& element);
 
     /**
@@ -245,13 +216,13 @@ private:
      */
     void writeDynamicProperties(
             QDomDocument& doc, QDomElement& root,
-            const GtObjectMemento::MementoData::PropertyData& property);
+            const GtObjectMemento::PropertyData& property);
 
     /**
      * @brief writePropertyHelper
      */
     void writePropertyHelper(
-            QVector<GtObjectMemento::MementoData::PropertyData>& pVec,
+            QVector<GtObjectMemento::PropertyData>& pVec,
             QSet<QString>& stored, GtAbstractProperty* property);
 
     /**
@@ -259,20 +230,23 @@ private:
      */
     void writePropertyHelper(
             QDomDocument& doc, QDomElement& root,
-            const GtObjectMemento::MementoData::PropertyData& prop);
+            const GtObjectMemento::PropertyData& prop);
+
+    void writePropertyHelper(QVector<GtObjectMemento::PropertyData>& pVec,
+            QSet<QString>& stored, const GtAbstractProperty *property) const;
 
     /**
      * @brief readPropertyHelper
      */
     void readPropertyHelper(
-            GtObjectMemento::MementoData::PropertyData& propData,
+            GtObjectMemento::PropertyData& propData,
             const QDomElement& element);
 
     /**
      * @brief readDynamicPropertyHelper
      */
     void readDynamicPropertyHelper(
-            GtObjectMemento::MementoData::PropertyData& propData,
+            GtObjectMemento::PropertyData& propData,
             const QDomElement& element);
 
 

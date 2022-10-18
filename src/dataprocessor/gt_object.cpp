@@ -95,7 +95,7 @@ GtObject::fromMemento(const GtObjectMemento& memento)
     }
 
     // merge data
-    memento.mergeTo(this, m_factory);
+    memento.mergeTo(*this, *m_factory);
 }
 
 bool

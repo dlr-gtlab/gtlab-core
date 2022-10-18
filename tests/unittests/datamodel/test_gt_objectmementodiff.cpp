@@ -29,7 +29,11 @@ protected:
         obj2.setObjectName("Object2");
         obj2.setFactory(gtObjectFactory);
 
-        gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject);
+
+        if (!gtObjectFactory->knownClass("TestSpecialGtObject"))
+        {
+            gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject);
+        }
     }
 
     virtual void TearDown()

@@ -126,6 +126,20 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj)
 }
 
 bool
+GtAbstractObjectFactory::unregisterClass(const QMetaObject& metaObj)
+{
+    QString classname = metaObj.className();
+
+    if (knownClass(classname))
+    {
+        m_knownClasses.remove(classname);
+        return true;
+    }
+
+    return false;
+}
+
+bool
 GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData)
 {
     if (containsDuplicates(metaData))

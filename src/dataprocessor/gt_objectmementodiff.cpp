@@ -17,6 +17,8 @@
 
 #include <algorithm>
 
+using PD = GtObjectMemento::PropertyData;
+
 GtObjectMementoDiff::GtObjectMementoDiff(const GtObjectMemento& left,
         const GtObjectMemento& right)
 {
@@ -174,7 +176,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         return true;
     }
 
-    if (left.data().uuid != right.data().uuid)
+    if (left.uuid() != right.uuid())
     {
         gtWarning() << QObject::tr("root objects not equal!");
         QDomElement rootError =
@@ -192,9 +194,9 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
 
     // create diff element to store changes
     QDomElement diffObj = this->createElement(GtObjectIO::S_OBJECT_TAG);
-    diffObj.setAttribute(GtObjectIO::S_NAME_TAG, left.data().ident);
-    diffObj.setAttribute(GtObjectIO::S_UUID_TAG, left.data().uuid);
-    diffObj.setAttribute(GtObjectIO::S_CLASS_TAG, left.data().className);
+    diffObj.setAttribute(GtObjectIO::S_NAME_TAG, left.ident());
+    diffObj.setAttribute(GtObjectIO::S_UUID_TAG, left.uuid());
+    diffObj.setAttribute(GtObjectIO::S_CLASS_TAG, left.className());
     // modified child elements are stored in their own element
     // this way we may not want to actually add the diffObj element (if empty)!
     bool diffObjectEmpty = true;
@@ -204,46 +206,46 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
     {
         diffObjectEmpty = false;
 
-        if (left.data().className != right.data().className)
+        if (left.className() != right.className())
         {
             handleAttributeChange(GtObjectIO::S_CLASS_TAG,
-                                  left.data().className,
-                                  right.data().className,
+                                  left.className(),
+                                  right.className(),
                                   diffObj);
         }
 
-        if (left.data().ident != right.data().ident)
+        if (left.ident() != right.ident())
         {
             handleAttributeChange(GtObjectIO::S_NAME_TAG,
-                                  left.data().ident,
-                                  right.data().ident,
+                                  left.ident(),
+                                  right.ident(),
                                   diffObj);
         }
 
 
-        detectPropertyChanges(left.data().properties, right.data().properties, diffObj, false);
+        detectPropertyChanges(left.properties, right.properties, diffObj, false);
     }
 
     // create map of child object uuids
     QHash<QString,int> leftChildIndexMap;
     QHash<QString, int> completeMap;
     QHash<QString, int> indexChangeMap;
-    for (int lchildIndex = 0; lchildIndex < left.data().childObjects.size(); lchildIndex++)
+    for (int lchildIndex = 0; lchildIndex < left.childObjects.size(); lchildIndex++)
     {
-        const GtObjectMemento& lchild(left.data().childObjects[lchildIndex]);
-        leftChildIndexMap.insert(lchild.data().uuid, lchildIndex);
-        completeMap.insert(lchild.data().uuid, lchildIndex);
+        const GtObjectMemento& lchild(left.childObjects[lchildIndex]);
+        leftChildIndexMap.insert(lchild.uuid(), lchildIndex);
+        completeMap.insert(lchild.uuid(), lchildIndex);
     }
 
     // look for modified/added children
-    for (int rchildIndex = 0; rchildIndex < right.data().childObjects.size(); rchildIndex++)
+    for (int rchildIndex = 0; rchildIndex < right.childObjects.size(); rchildIndex++)
     {
-        const GtObjectMemento& rchild (right.data().childObjects[rchildIndex]);
-        auto lchildIter = leftChildIndexMap.find(rchild.data().uuid);
+        const GtObjectMemento& rchild (right.childObjects[rchildIndex]);
+        auto lchildIter = leftChildIndexMap.find(rchild.uuid());
         if (lchildIter != leftChildIndexMap.end())
         {
             // check for modifications
-            const GtObjectMemento& lchild(left.data().childObjects[*lchildIter]);
+            const GtObjectMemento& lchild(left.childObjects[*lchildIter]);
             if (lchild.fullHash() != rchild.fullHash())
             {
                 if (!makeDiff(lchild, rchild, diffRoot))
@@ -259,13 +261,13 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
             diffObjectEmpty = false;
             // added child
             GtObjectIO oio;
-            QDomElement rchildElem = oio.toDomElement(rchild, *this, false); 
+            QDomElement rchildElem = oio.toDomElement(rchild, *this, false);
             handleObjectAdded(rchildElem, rchildIndex, diffObj);
 
-            completeMap.insert(rchild.data().uuid, rchildIndex);
+            completeMap.insert(rchild.uuid(), rchildIndex);
             for_each_key(completeMap, [&](const QString& uuid)
             {
-                if (uuid != rchild.data().uuid)
+                if (uuid != rchild.uuid())
                 {
                     if (completeMap.value(uuid) >= rchildIndex)
                     {
@@ -292,15 +294,15 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
     foreach (int lchildIndex, leftChildIndexSort)
     {
         diffObjectEmpty = false;
-        const GtObjectMemento& lchild(left.data().childObjects[lchildIndex]);
+        const GtObjectMemento& lchild(left.childObjects[lchildIndex]);
         GtObjectIO oio;
         QDomElement lchildElem = oio.toDomElement(lchild, *this, false);
         handleObjectRemoved(lchildElem, lchildIndex, diffObj);
 
-        int completeMapIndex = completeMap.value(lchild.data().uuid);
+        int completeMapIndex = completeMap.value(lchild.uuid());
         for_each_key(completeMap, [&](const QString& uuid)
         {
-            if (uuid != lchild.data().uuid)
+            if (uuid != lchild.uuid())
             {
                 int index = completeMap.value(uuid);
                 if (index > completeMapIndex)
@@ -317,9 +319,9 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
             }
         });
 
-        if (indexChangeMap.contains(lchild.data().uuid))
+        if (indexChangeMap.contains(lchild.uuid()))
         {
-            indexChangeMap.remove(lchild.data().uuid);
+            indexChangeMap.remove(lchild.uuid());
         }
     }
 
@@ -333,17 +335,17 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
 
 //  look for index changes
     QHash<QString, int> lchildMap;
-    for (int lchildIndex = 0; lchildIndex < left.data().childObjects.size(); lchildIndex++)
+    for (int lchildIndex = 0; lchildIndex < left.childObjects.size(); lchildIndex++)
     {
-        const GtObjectMemento& lchild(left.data().childObjects[lchildIndex]);
-        lchildMap.insert(lchild.data().uuid, lchildIndex);
+        const GtObjectMemento& lchild(left.childObjects[lchildIndex]);
+        lchildMap.insert(lchild.uuid(), lchildIndex);
     }
 
     QHash<QString,int> rchildMap;
-    for (int rchildIndex = 0; rchildIndex < right.data().childObjects.size(); rchildIndex++)
+    for (int rchildIndex = 0; rchildIndex < right.childObjects.size(); rchildIndex++)
     {
-        const GtObjectMemento& rchild(right.data().childObjects[rchildIndex]);
-        rchildMap.insert(rchild.data().uuid, rchildIndex);
+        const GtObjectMemento& rchild(right.childObjects[rchildIndex]);
+        rchildMap.insert(rchild.uuid(), rchildIndex);
     }
 
     for_each_key(rchildMap, [&](const QString& uuid)
@@ -366,7 +368,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         if (diff != 0)
         {
             diffObjectEmpty = false;
-            const GtObjectMemento& rchild (right.data().childObjects[indexNew]);
+            const GtObjectMemento& rchild (right.childObjects[indexNew]);
             GtObjectIO oio;
             QDomElement childElem = oio.toDomElement(rchild, *this, false);
             handleIndexChanged(childElem, indexOld, indexNew, diffObj);
@@ -412,23 +414,24 @@ GtObjectMementoDiff::handleAttributeChange(const QString& name,
 }
 
 void
-GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::MementoData::PropertyData>& leftProperties,
-                                           const QVector<GtObjectMemento::MementoData::PropertyData>& rightProperties,
+GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::PropertyData>& leftProperties,
+                                           const QVector<GtObjectMemento::PropertyData>& rightProperties,
                                            QDomElement& diffRoot, bool isDynamic)
+
 {
-    QHash<QString,const GtObjectMemento::MementoData::PropertyData*> leftPropMap;
-    foreach (const GtObjectMemento::MementoData::PropertyData& lprop, leftProperties)
+    QHash<QString,const GtObjectMemento::PropertyData*> leftPropMap;
+    foreach (const GtObjectMemento::PropertyData& lprop, leftProperties)
     {
         leftPropMap.insert(lprop.name, &lprop);
     }
     // look for modified / added properties
-    foreach (const GtObjectMemento::MementoData::PropertyData& rprop, rightProperties)
+    foreach (const GtObjectMemento::PropertyData& rprop, rightProperties)
     {
         auto lpropIter = leftPropMap.find(rprop.name);
         if (lpropIter != leftPropMap.end())
         {
             // check for modifications
-            const GtObjectMemento::MementoData::PropertyData& lprop (**lpropIter);
+            const GtObjectMemento::PropertyData& lprop (**lpropIter);
             if (lprop.hash != rprop.hash)
             {
                 handlePropertyChange(lprop, rprop, diffRoot);
@@ -456,9 +459,9 @@ GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::Mement
         }
     }
     // look for removed properties
-    foreach (const GtObjectMemento::MementoData::PropertyData* lpropPointer, leftPropMap)
+    foreach (const GtObjectMemento::PropertyData* lpropPointer, leftPropMap)
     {
-        const GtObjectMemento::MementoData::PropertyData& lprop (*lpropPointer);
+        const GtObjectMemento::PropertyData& lprop (*lpropPointer);
         if (!isDynamic)
         {
             // removed property, this is not intended to happen!
@@ -478,15 +481,15 @@ GtObjectMementoDiff::detectPropertyChanges(const QVector<GtObjectMemento::Mement
 }
 
 void
-GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::PropertyData& leftProp,
-                                          const GtObjectMemento::MementoData::PropertyData& rightProp,
+GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
+                                          const PD& rightProp,
                                           QDomElement& diffRoot)
 {
     // distinguish "types"
     QDomElement diffObj;
     bool diffObjEmpty = true;
 
-    if (GtObjectIO::usePropertyList(leftProp.data))
+    if (GtObjectIO::usePropertyList(leftProp.data()))
     {
         diffObj = this->createElement(GtObjectIO::S_DIFF_PROPLIST_CHANGE_TAG);
         diffObj.setAttribute(GtObjectIO::S_NAME_TAG, leftProp.name);
@@ -497,8 +500,8 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
 
         QString leftVal, leftType;
         QString rightVal, rightType;
-        GtObjectIO::propertyListStringType(leftProp.data, leftVal, leftType);
-        GtObjectIO::propertyListStringType(rightProp.data, rightVal, rightType);
+        GtObjectIO::propertyListStringType(leftProp.data(), leftVal, leftType);
+        GtObjectIO::propertyListStringType(rightProp.data(), rightVal, rightType);
 
         diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftType);
 
@@ -512,24 +515,18 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
     {
         diffObj = this->createElement(GtObjectIO::S_DIFF_PROP_CHANGE_TAG);
         diffObj.setAttribute(GtObjectIO::S_NAME_TAG, leftProp.name);
-        if (!leftProp.enumType.isNull())
-        {
-            diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.enumType);
-        }
-        else
-        {
-            diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.data.typeName());
-        }
+        diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.dataType());
+
 
         // handle value changes
-        if (leftProp.data != rightProp.data)
+        if (leftProp.data() != rightProp.data())
         {
             diffObjEmpty = false;
             QDomElement oldVal = this->createElement(GtObjectIO::S_DIFF_OLDVAL_TAG);
             QDomElement newVal = this->createElement(GtObjectIO::S_DIFF_NEWVAL_TAG);
 
-            oldVal.appendChild(this->createTextNode(GtObjectIO::variantToString(leftProp.data)));
-            newVal.appendChild(this->createTextNode(GtObjectIO::variantToString(rightProp.data)));
+            oldVal.appendChild(this->createTextNode(GtObjectIO::variantToString(leftProp.data())));
+            newVal.appendChild(this->createTextNode(GtObjectIO::variantToString(rightProp.data())));
 
             diffObj.appendChild(oldVal);
             diffObj.appendChild(newVal);
@@ -549,10 +546,10 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
         handleAttributeChange(GtObjectIO::S_ACTIVE_TAG, QVariant(leftProp.isActive).toString(), QVariant(rightProp.isActive).toString(), diffObj);
     }
 
-    if (leftProp.dynamicClassName != rightProp.dynamicClassName)
+    if (leftProp.dataType() != rightProp.dataType())
     {
         diffObjEmpty = false;
-        handleAttributeChange(GtObjectIO::S_CLASS_TAG, leftProp.dynamicClassName, rightProp.dynamicClassName, diffObj);
+        handleAttributeChange(GtObjectIO::S_CLASS_TAG, leftProp.dataType(), rightProp.dataType(), diffObj);
     }
 
     if (leftProp.dynamicObjectName != rightProp.dynamicObjectName)
@@ -569,7 +566,7 @@ GtObjectMementoDiff::handlePropertyChange(const GtObjectMemento::MementoData::Pr
 
 
     // handle dynamic properties
-    if (leftProp.isDynamicContainer || rightProp.isDynamicContainer)
+    if (leftProp.type() == PD::DYNCONT_T || rightProp.type() == PD::DYNCONT_T)
     {
         // handle sub-properties
         detectPropertyChanges(leftProp.childProperties, rightProp.childProperties, diffRoot, true);
