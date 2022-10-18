@@ -137,7 +137,7 @@ public:
      * @param loader The GtModuleLoader reference to interact with the
      * module loading process.
      */
-    virtual void afterLoad(GtModuleLoader& /*loader*/) {};
+    virtual void onLoad() {};
 
     /**
      * @brief Initializes module. Called on application startup.

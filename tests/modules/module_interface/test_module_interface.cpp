@@ -137,8 +137,7 @@ TestModuleInterface::commandLineFunctions() const
 }
 
 void
-TestModuleInterface::afterLoad(GtModuleLoader& loader)
+TestModuleInterface::onLoad()
 {
-    auto moduleIds = loader.moduleIds();
-    assert(moduleIds.contains(GT_MODULENAME()));
+
 }
