@@ -25,7 +25,6 @@
     }
 
 class QDomElement;
-class GtModuleLoader;
 
 /// Function definition for project data upgrades provided by a module
 typedef bool (*ConverterFunction)(QDomElement&, const QString&);

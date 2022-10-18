@@ -11,7 +11,6 @@
 #include "gt_logging.h"
 #include "gt_commandlinefunction.h"
 #include "gt_commandlineparser.h"
-#include "gt_moduleloader.h"
 
 #include "test_module_interface.h"
 
