@@ -134,8 +134,6 @@ public:
     /**
      * @brief Is called directly after loading the module. It can be used to
      * interact with the loading process of the modules.
-     * @param loader The GtModuleLoader reference to interact with the
-     * module loading process.
      */
     virtual void onLoad() {};
 
