@@ -17,22 +17,6 @@
 #include <utility>
 
 
-namespace gt
-{
-
-template<class T> struct add_const { typedef const T type; };
-
-template< class T >
-using add_const_t    = typename add_const<T>::type;
-
-template <class T>
-constexpr add_const_t<T>& as_const(T& t) noexcept
-{
-    return t;
-}
-
-}
-
 struct GtPropertyStructContainer::Impl
 {
     Impl(const QString& ident, const QString& name) :
@@ -178,7 +162,7 @@ GtPropertyStructContainer::begin()
 GtPropertyStructContainer::const_iterator
 GtPropertyStructContainer::begin() const
 {
-    return gt::as_const(pimpl->entries).begin();
+    return pimpl->entries.begin();
 }
 
 GtPropertyStructContainer::iterator
@@ -190,7 +174,7 @@ GtPropertyStructContainer::end()
 GtPropertyStructContainer::const_iterator
 GtPropertyStructContainer::end() const
 {
-    return gt::as_const(pimpl->entries).end();
+    return pimpl->entries.end();
 }
 
 GtPropertyStructInstance&
