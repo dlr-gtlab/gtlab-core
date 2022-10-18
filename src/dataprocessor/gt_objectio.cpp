@@ -127,7 +127,7 @@ namespace
                                  DiffMode mode);
 
     using diffFunc = std::function<bool(GtObject&, const QDomElement&, DiffMode)>;
-    std::map<QString, diffFunc>& getDiffFuncs()
+    std::map<QString, diffFunc> const & getDiffFuncs()
     {
         static std::map<QString, diffFunc> funcMap =
             {
