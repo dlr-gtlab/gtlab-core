@@ -38,29 +38,29 @@ struct InterfaceFunctionBuilder
 
     QVariantList operator()(const QVariantList& variant_list) const
     {
-        typedef mpl::function_traits<Func> traits;
+        using f_traits = gt::mpl::function_traits<Func>;
 
         // check matching number of arguments
-        if (variant_list.size() != traits::nargs)
+        if (variant_list.size() != f_traits::nargs)
         {
             throw std::runtime_error(
                 "Function argument mismatch in function '" +
                 name.toStdString() +
                 "'. "
                 "Expected " +
-                std::to_string(traits::nargs) + " args, " + "got " +
+                std::to_string(f_traits::nargs) + " args, " + "got " +
                 std::to_string(variant_list.size()));
         }
 
-        auto wrapped_function_args = from_variant<typename traits::args_type>(variant_list);
+        auto wrapped_function_args = gt::from_variant<typename f_traits::args_type>(variant_list);
 
         // execute function, the arguments could be passed by reference, hence
         // they cannot be moved
-        const auto func_result = traits::invoke(
+        const auto func_result = f_traits::invoke(
             wrapped_function, wrapped_function_args);
 
         // convert result into variant list
-        return to_variant_list(func_result);
+        return gt::to_variant_list(func_result);
     }
 
     Func wrapped_function;
@@ -166,7 +166,6 @@ InterfaceFunction make_interface_function(
     {
         help = get_default_help<Func>(funcName);
     }
-
 
     return InterfaceFunction(funcName, std::forward<Func>(f), help);
 }

@@ -18,6 +18,9 @@
 #error "C++14 or better is required"
 #else
 
+namespace gt
+{
+
 namespace mpl
 {
 
@@ -124,6 +127,8 @@ constexpr void static_foreach(const std::tuple<_Elements...>& aTuple, GenericLam
 }
 
 } // namespace mpl
+
+} // namespace gt
 
 #endif // c++ 14 required
 
