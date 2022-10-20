@@ -25,3 +25,4 @@ Collections/
 modules/
 .qtc_clangd/
 src/gui/_resources_qml_qml_qmlcache.qrc
+buildDebug/

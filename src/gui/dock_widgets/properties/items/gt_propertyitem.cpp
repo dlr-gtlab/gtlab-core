@@ -273,8 +273,8 @@ GtPropertyItem::editorWidget(QWidget* parent,
         case QVariant::Double:
         {
             QLineEdit* lineEdit = new QLineEdit(parent);
-            QDoubleValidator* validator = new QDoubleValidator(lineEdit);
-            lineEdit->setValidator(validator);
+            lineEdit->setValidator(new QRegExpValidator(
+                                       GtRegExp::forDoubles(), lineEdit));
             return lineEdit;
         }
 

@@ -13,7 +13,9 @@
 #include "gt_datazone.h"
 #include "gt_datazone0d.h"
 
-TestDmClass::TestDmClass()
+TestDmClass::TestDmClass() :
+    m_value("value", "Value", "Value to use in Example",
+            GtUnit::EnergyDensity, 1.0)
 {
     setObjectName("DMI Object");
 
@@ -46,4 +48,6 @@ TestDmClass::TestDmClass()
     dz0dEmpty->setObjectName("DataZone0D-Empty");
     appendChild(dz0dEmpty);
     dz0dEmpty->setDefault(true);
+
+    registerProperty(m_value);
 }

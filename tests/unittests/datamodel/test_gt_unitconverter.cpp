@@ -1082,7 +1082,7 @@ TEST_F(TestGtUnitConverter, convertMassMomentInertiaFrom)
 
     // check
     ASSERT_TRUE(check);
-    ASSERT_NEAR(retval, 337120880.753733, 0.001);
+    ASSERT_NEAR(retval, 337120880.750438, 0.001);
 
     // ### slug meter
 
@@ -3307,6 +3307,162 @@ TEST_F(TestGtUnitConverter, convertEnergyFrom)
     ASSERT_TRUE(check);
     ASSERT_DOUBLE_EQ(valFtlbf, 18.9814512766396056);
 }
+
+
+/// Energy Density
+TEST_F(TestGtUnitConverter, convertEnergyDensity)
+{
+    GtUnit::Category cat = GtUnit::EnergyDensity;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(), "J/kg");
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "EnergyDensity");
+}
+
+TEST_F(TestGtUnitConverter, convertEnergyDensityTo)
+{
+
+    GtUnit::Category cat = GtUnit::EnergyDensity;
+
+    // input
+    double val = 1.4e4;
+    bool check = false;
+
+    // convert
+    double valKjkg = m_conv->To(cat, "kJ/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valKjkg, 1.4e1);
+
+    // convert
+    double valWskg = m_conv->To(cat, "Ws/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valWskg, 1.4e4);
+
+    // convert
+    double valWhkg = m_conv->To(cat, "Wh/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valWhkg, 3.88888888888888888);
+
+    // convert
+    double valkWhkg = m_conv->To(cat, "kWh/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valkWhkg, 3.88888888888888888e-3);
+
+    // convert
+    double valkWskg = m_conv->To(cat, "kWs/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valkWskg, 1.4e1);
+
+    // convert
+    double valMJkg = m_conv->To(cat, "MJ/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMJkg, 1.4e-2);
+
+    // convert
+    double valMWskg = m_conv->To(cat, "MWs/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMWskg, 1.4e-2);
+
+    // convert
+    double valMWhkg = m_conv->To(cat, "MWh/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMWhkg, 3.88888888888888888e-6);
+}
+
+TEST_F(TestGtUnitConverter, convertEnergyDensityFrom)
+{
+    GtUnit::Category cat = GtUnit::EnergyDensity;
+
+    // input
+    double val = 14.;
+    bool check = false;
+
+    // convert
+    double valJkg = m_conv->from(cat, "J/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valJkg, 14.);
+
+    // convert
+    double valWskg = m_conv->from(cat, "Ws/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valWskg, 14.);
+
+    // convert
+    double valWhkg = m_conv->from(cat, "Wh/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valWhkg, 5.04e4);
+
+    // convert
+    double valkWhkg = m_conv->from(cat, "kWh/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valkWhkg, 5.04e7);
+
+    // convert
+    double valkJkg = m_conv->from(cat, "kJ/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valkJkg, 1.4e4);
+
+    // convert
+    double valkWskg = m_conv->from(cat, "kWs/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valkWskg, 1.4e4);
+
+    // convert
+    double valMJkg = m_conv->from(cat, "MJ/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMJkg, 1.4e7);
+
+    // convert
+    double valMWskg = m_conv->from(cat, "MWs/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMWskg, 1.4e7);
+
+
+    // convert
+    double valMWhkg = m_conv->from(cat, "MWh/kg", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMWhkg, 5.04e10);
+}
+
 
 
 /// Power
