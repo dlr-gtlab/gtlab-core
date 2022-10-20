@@ -156,7 +156,6 @@ SOURCES += \
     property/gt_intproperty.cpp \
     property/gt_stringproperty.cpp \
     property/gt_unit.cpp \
-    property/gt_unitconverter.cpp \
     property/gt_groupproperty.cpp \
     property/gt_modetypeproperty.cpp \
     property/gt_modeproperty.cpp \

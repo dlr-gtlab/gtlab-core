@@ -11,6 +11,7 @@
 #define TESTDMICLASS_H
 
 #include "gt_object.h"
+#include "gt_doubleproperty.h"
 
 /**
  * @brief The TestDmiClass class
@@ -25,6 +26,8 @@ public:
      */
     Q_INVOKABLE TestDmClass();
 
+private:
+    GtDoubleProperty m_value;
 };
 
 #endif // TESTDMICLASS_H

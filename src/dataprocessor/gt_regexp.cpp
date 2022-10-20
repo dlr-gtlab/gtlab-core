@@ -74,7 +74,7 @@ GtRegExp::forStations()
 QRegExp
 GtRegExp::forDoubles()
 {
-    return QRegExp(("[eE0-9\\-\\.]+"));
+    return QRegExp(("-?[0-9]+.*[E,e]?-?[0-9]*"));
 }
 
 QRegExp
