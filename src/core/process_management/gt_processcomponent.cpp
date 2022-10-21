@@ -8,11 +8,15 @@
  */
 
 #include <QDebug>
+#include <QDir>
 
 #include "gt_task.h"
 #include "gt_processdata.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
+#include "gt_environment.h"
+#include "gt_abstractrunnable.h"
+#include "gt_monitoringproperty.h"
 
 #include "gt_processcomponent.h"
 
@@ -161,18 +165,18 @@ GtProcessComponent::resetMonitoringProperties()
     }
 }
 
-GtTask*
-GtProcessComponent::rootTask()
+
+template <typename T, typename U>
+T rootTaskHelper(U object)
 {
     // check whether parent is from process data type
-    if (qobject_cast<GtProcessData*>(parent()))
+    if (qobject_cast<const GtProcessData*>(object->parent()))
     {
-        return qobject_cast<GtTask*>(this);
+        return qobject_cast<T>(object);
     }
 
     // cast parent to process component
-    GtProcessComponent* parentComponent =
-        qobject_cast<GtProcessComponent*>(parent());
+    auto* parentComponent = qobject_cast<U>(object->parent());
 
     // check casted parent
     if (!parentComponent)
@@ -181,13 +185,26 @@ GtProcessComponent::rootTask()
     }
 
     // search for root task recursively
-    return parentComponent->rootTask();
+    return rootTaskHelper<T>(parentComponent);
+}
+
+const GtTask*
+GtProcessComponent::rootTask() const
+{
+    return rootTaskHelper<const GtTask*>(this);
+}
+
+GtTask*
+GtProcessComponent::rootTask()
+{
+    return rootTaskHelper<GtTask*>(this);
+
 }
 
 bool
-GtProcessComponent::isReady()
+GtProcessComponent::isReady() const
 {
-    GtTask* root = rootTask();
+    const GtTask* root = rootTask();
 
     if (!root)
     {
@@ -210,7 +227,7 @@ GtProcessComponent::isReady()
 }
 
 bool
-GtProcessComponent::hasWarnings()
+GtProcessComponent::hasWarnings() const
 {
     return m_warning;
 }
@@ -234,13 +251,56 @@ GtProcessComponent::setSkipped(bool val)
 }
 
 QString
-GtProcessComponent::dataHelper(GtObjectLinkProperty& prop)
+GtProcessComponent::dataHelper(GtObjectLinkProperty& prop) const
 {
     return prop.linkedObjectUUID();
 }
 
 GtObjectPath
-GtProcessComponent::pathHelper(GtObjectPathProperty& prop)
+GtProcessComponent::pathHelper(GtObjectPathProperty& prop) const
 {
     return prop.path();
+}
+
+
+QString
+GtProcessComponent::environmentVariable(const QString& var) const
+{
+    QVariant variant = gtEnvironment->value(var);
+
+    if (variant.isNull())
+    {
+        return {};
+    }
+
+    return variant.toString();
+}
+
+QString
+GtProcessComponent::projectPath() const
+{
+    if (!m_runnable)
+    {
+        return {};
+    }
+
+    return m_runnable->projectPath();
+}
+
+QDir
+GtProcessComponent::tempDir()
+{
+    if (!m_runnable)
+    {
+        return {};
+    }
+
+    // check whether temporary dir was already set
+    if (m_tempPath.isEmpty())
+    {
+        // create new temporary directory
+        m_tempPath = m_runnable->tempDir().absolutePath();
+    }
+
+    return QDir(m_tempPath);
 }

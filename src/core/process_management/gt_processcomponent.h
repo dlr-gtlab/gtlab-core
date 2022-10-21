@@ -15,6 +15,8 @@
 #include "gt_boolproperty.h"
 #include "gt_objectpath.h"
 
+class QDir;
+class GtAbstractRunnable;
 class GtTask;
 class GtObjectLinkProperty;
 class GtObjectPathProperty;
@@ -104,8 +106,15 @@ public:
     void resetMonitoringProperties();
 
     /**
-     * @brief Returns root task of current process component. Null pointer will
-     * be returned if no root task was found.
+     * @brief Returns const pointer to root task of current process component.
+     *  Null pointer will be returned if no root task was found.
+     * @return Root task.
+     */
+    const GtTask* rootTask() const;
+
+    /**
+     * @brief Returns pointer to root task of current process component.
+     *  Null pointer will be returned if no root task was found.
      * @return Root task.
      */
     GtTask* rootTask();
@@ -114,13 +123,112 @@ public:
      * @brief isReady
      * @return
      */
-    bool isReady();
+    bool isReady() const;
 
     /**
      * @brief Returns state of warning flag.
      * @return Warning flag.
      */
-    bool hasWarnings();
+    bool hasWarnings() const;
+
+    /**
+     * @brief Returns process and project specific temporary directory.
+     * @return Temporary directory object.
+     */
+    QDir tempDir();
+
+    /**
+     * @brief Returns datamodel object based on given object link property.
+     * If no object is found nullpointer is returned.
+     * @tparam T Object type
+     * @param prop Object link property
+     * @return Object corresponding to given object link property
+     */
+    template <class T = GtObject*>
+    T data(GtObjectLinkProperty& prop)
+    {
+        const QString uuid = dataHelper(prop);
+        return data<T>(uuid);
+    }
+
+    /**
+     * @brief Returns datamodel object based on given object path property.
+     * If no object is found nullpointer is returned.
+     * @tparam T Object type
+     * @param prop Object path property
+     * @return Object corresponding to given object path property
+     */
+    template <class T = GtObject*>
+    T data(GtObjectPathProperty& prop)
+    {
+        const GtObjectPath path = pathHelper(prop);
+        return data<T>(path);
+    }
+
+    /**
+     * @brief Returns datamodel object based on given object uuid. If no
+     * object is found nullpointer is returned.
+     * @tparam T Object type
+     * @param uuid Object uuid string
+     * @return Object corresponding to given uuid
+     */
+    template <class T = GtObject*>
+    T data(const QString& uuid)
+    {
+        foreach (QPointer<GtObject> p, m_linkedObjects)
+        {
+            if (!p)
+            {
+                return nullptr;
+            }
+
+            GtObject* obj = p.data();
+
+            if (!obj)
+            {
+                continue;
+            }
+
+            if (obj->uuid() == uuid)
+            {
+                return qobject_cast<T>(obj);
+            }
+        }
+
+        gtInfo() << "obj not found - uuid =" << uuid;
+
+        return nullptr;
+    }
+
+    /**
+     * @brief Returns datamodel object based on given object path. If no
+     * object is found nullpointer is returned.
+     * @tparam T Object type
+     * @param path Object path
+     * @return Object corresponding to given object path
+     */
+    template <class T = GtObject*>
+    T data(const GtObjectPath& path)
+    {
+        foreach (QPointer<GtObject> p, m_linkedObjects)
+        {
+            GtObject* obj = p.data();
+
+            if (!obj)
+            {
+                continue;
+            }
+
+            if (obj->objectPath() == path.toString())
+            {
+                return qobject_cast<T>(obj);
+            }
+        }
+
+        gtInfo() << "obj not found - path =" << path.toString();
+
+        return nullptr;
+    }
 
 public slots:
     /**
@@ -152,15 +260,38 @@ protected:
      * @param prop Object link property.
      * @return Uuid string.
      */
-    QString dataHelper(GtObjectLinkProperty& prop);
+    QString dataHelper(GtObjectLinkProperty& prop) const;
 
     /**
      * @brief Returns object path of given object path property.
      * @param prop Object path property.
      * @return Object path.
      */
-    GtObjectPath pathHelper(GtObjectPathProperty& prop);
+    GtObjectPath pathHelper(GtObjectPathProperty& prop) const;
 
+    /**
+     * @brief Returns string value of environment variable corresponding to
+     * given identification string.
+     * @param var Environment variable identification string
+     * @return String value of environment variable
+     */
+    QString environmentVariable(const QString& var) const;
+
+    /**
+     * @brief Returns path of current project.
+     * Note: only possible when calculator is already running.
+     * @return Pasth of current project.
+     */
+    QString projectPath() const;
+
+    /// Runnable pointer
+    QPointer<GtAbstractRunnable> m_runnable;
+
+    /// Path to process/project specific temporary path.
+    QString m_tempPath;
+
+    /// List of linked datamodel objects.
+    QList<QPointer<GtObject>> m_linkedObjects;
 private:
     /// Current process component state
     GtProcessComponent::STATE m_state;

@@ -91,20 +91,20 @@ getProperty(const QList<GtAbstractProperty*>& props, const QString& mode)
 }
 
 bool
-GtModeProperty::modeExists(const QString& mode)
+GtModeProperty::modeExists(const QString& mode) const
 {
     return getProperty(m_subProperties, mode) != nullptr;
 }
 
 int
-GtModeProperty::propertyCount(const QString& mode)
+GtModeProperty::propertyCount(const QString& mode) const
 {
     const auto* prop= getProperty(m_subProperties, mode);
     return prop ? prop->propertyCount() : 0;
 }
 
 QStringList
-GtModeProperty::modes()
+GtModeProperty::modes() const
 {
     QStringList retval;
 

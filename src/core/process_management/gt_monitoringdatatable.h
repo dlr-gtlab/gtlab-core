@@ -36,7 +36,7 @@ public:
      * @brief Returns size of monitoring data table.
      * @return Size of monitoring data table.
      */
-    int size();
+    int size() const;
 
     /**
      * @brief Appends data set to data table. Returns false if iteration number

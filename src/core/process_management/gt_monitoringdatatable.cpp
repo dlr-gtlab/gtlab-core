@@ -23,7 +23,7 @@ GtMonitoringDataTable::clear()
 }
 
 int
-GtMonitoringDataTable::size()
+GtMonitoringDataTable::size() const
 {
     return m_data.size();
 }

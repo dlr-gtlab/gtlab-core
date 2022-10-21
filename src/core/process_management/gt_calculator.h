@@ -11,6 +11,8 @@
 #define GTCALCULATOR_H
 
 #include "gt_core_exports.h"
+#include "gt_labelproperty.h"
+#include "gt_modeproperty.h"
 #include "gt_processcomponent.h"
 
 #include <QPointer>
@@ -69,12 +71,6 @@ public:
     const QList<QPointer<GtObject> >& linkedObjects();
 
     /**
-     * @brief Returns process and project specific temporary directory.
-     * @return Temporary directory object.
-     */
-    QDir tempDir();
-
-    /**
      * @brief Returns current execution identification label.
      * @return Identification label.
      */
@@ -93,118 +89,14 @@ public:
      */
     bool runFailsOnWarning();
 
-    /**
-     * @brief Returns datamodel object based on given object link property.
-     * If no object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param prop Object link property
-     * @return Object corresponding to given object link property
-     */
-    template <class T>
-    T data(GtObjectLinkProperty& prop)
-    {
-        const QString uuid = dataHelper(prop);
-        return data<T>(uuid);
-    }
-
-    /**
-     * @brief Returns datamodel object based on given object path property.
-     * If no object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param prop Object path property
-     * @return Object corresponding to given object path property
-     */
-    template <class T>
-    T data(GtObjectPathProperty& prop)
-    {
-        const GtObjectPath path = pathHelper(prop);
-        return data<T>(path);
-    }
-
-    /**
-     * @brief Returns datamodel object based on given object uuid. If no
-     * object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param uuid Object uuid string
-     * @return Object corresponding to given uuid
-     */
-    template <class T>
-    T data(const QString& uuid)
-    {
-        foreach (QPointer<GtObject> p, m_linkedObjects)
-        {
-            if (!p)
-            {
-                return nullptr;
-            }
-
-            GtObject* obj = p.data();
-
-            if (!obj)
-            {
-                continue;
-            }
-
-            if (obj->uuid() == uuid)
-            {
-                return qobject_cast<T>(obj);
-            }
-        }
-
-        gtInfo() << "obj not found - uuid =" << uuid;
-
-        return nullptr;
-    }
-
-    /**
-     * @brief Returns datamodel object based on given object path. If no
-     * object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param path Object path
-     * @return Object corresponding to given object path
-     */
-    template <class T>
-    T data(const GtObjectPath& path)
-    {
-        foreach (QPointer<GtObject> p, m_linkedObjects)
-        {
-            GtObject* obj = p.data();
-
-            if (!obj)
-            {
-                continue;
-            }
-
-            if (obj->objectPath() == path.toString())
-            {
-                return qobject_cast<T>(obj);
-            }
-        }
-
-        gtInfo() << "obj not found - path =" << path.toString();
-
-        return nullptr;
-    }
-
 protected:
     /**
      * @brief Constructor
      */
     GtCalculator();
 
-    /// List of linked datamodel objects.
-    QList<QPointer<GtObject>> m_linkedObjects;
-
     /// Delete temporary path indicator
     bool m_deleteTempPath;
-
-    /**
-     * @brief Returns string value of environment variable corresponding to
-     * given identification string.
-     * @param var Environment variable identification string
-     * @return String value of environment variable
-     */
-    QString environmentVariable(const QString& var);
 
     /**
      * @brief Hides or Shows the label property.
@@ -213,25 +105,12 @@ protected:
      */
     void hideLabelProperty(bool val = true);
 
-    /**
-     * @brief Returns path of current project.
-     * Note: only possible when calculator is already running.
-     * @return Pasth of current project.
-     */
-    QString projectPath();
-
 private:
     /// Execution mode indicator.
-    GtModeProperty* m_execMode;
+    GtModeProperty m_execMode;
 
     /// Execution label property
-    QPointer<GtLabelProperty> m_labelProperty;
-
-    /// Path to process/project specific temporary path.
-    QString m_tempPath;
-
-    /// Pointer to runnable associated to the calculator.
-    GtAbstractRunnable* m_runnable;
+    GtLabelProperty m_labelProperty;
 
     /// Fail run on warning indicator.
     GtBoolProperty m_failRunOnWarning;

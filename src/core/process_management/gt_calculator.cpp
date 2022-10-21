@@ -17,15 +17,11 @@
 #include "gt_calculatorexecutorlist.h"
 #include "gt_abstractcalculatorexecutor.h"
 #include "gt_labelproperty.h"
-#include "gt_environment.h"
 #include "gt_objectpathproperty.h"
 
 #include "gt_calculator.h"
 
-GtCalculator::~GtCalculator()
-{
-    delete m_labelProperty;
-}
+GtCalculator::~GtCalculator() = default;
 
 bool
 GtCalculator::exec()
@@ -104,7 +100,7 @@ GtCalculator::exec()
     }
 
     // current execution mode identification string
-    QString execMode = m_execMode->get();
+    QString execMode = m_execMode.get();
     qDebug() << "|-> exec mode: " << execMode;
 
     if (execMode != "local")
@@ -174,19 +170,19 @@ GtCalculator::exec()
 const QString&
 GtCalculator::execMode()
 {
-    return m_execMode->get();
+    return m_execMode.get();
 }
 
 void
 GtCalculator::setExecMode(const QString& execMode)
 {
-    m_execMode->setVal(execMode);
+    m_execMode.setVal(execMode);
 }
 
 void
 GtCalculator::setExecModeLocal()
 {
-    m_execMode->setVal("local");
+    m_execMode.setVal("local");
 }
 
 const QList<QPointer<GtObject>>&
@@ -195,34 +191,16 @@ GtCalculator::linkedObjects()
     return m_linkedObjects;
 }
 
-QDir
-GtCalculator::tempDir()
-{
-    if (!m_runnable)
-    {
-        return QDir();
-    }
-
-    // check whether temporary dir was already set
-    if (m_tempPath.isEmpty())
-    {
-        // create new temporary directory
-        m_tempPath = m_runnable->tempDir().absolutePath();
-    }
-
-    return QDir(m_tempPath);
-}
-
 const QString&
 GtCalculator::executionLabel()
 {
-    return m_labelProperty->get();
+    return m_labelProperty.get();
 }
 
 void
 GtCalculator::setExecutionLabel(const QString& label)
 {
-    m_labelProperty->setVal(label);
+    m_labelProperty.setVal(label);
 }
 
 bool
@@ -240,38 +218,36 @@ GtCalculator::run()
 
 GtCalculator::GtCalculator():
     m_deleteTempPath(true),
-    m_execMode(nullptr),
-    m_labelProperty(nullptr),
-    m_runnable(nullptr),
+    // execution mode property
+    m_execMode(QStringLiteral("execMode"), tr("Mode"), tr("Execution mode")),
+    // execution label property
+    m_labelProperty(QStringLiteral("execLabel"),
+                    tr("Label"), tr("Execution label"), this),
     m_failRunOnWarning(QStringLiteral("failOnWarn"), tr("Fail Run on Warning"),
                        tr("Terminate process execution if calculator"
                           " throws a warning."), false)
 {
+    m_runnable = nullptr;
     setObjectName(QStringLiteral("Calculator"));
 
-    // execution label property
-    m_labelProperty = new GtLabelProperty(QStringLiteral("execLabel"),
-                                          tr("Label"), tr("Execution label"),
-                                          this);
-    registerProperty(*m_labelProperty, tr("Execution"));
 
-    // execution mode property
-    m_execMode = new GtModeProperty(QStringLiteral("execMode"),
-                                    tr("Mode"),
-                                    tr("Execution mode"));
-    m_execMode->setParent(this);
+
+    registerProperty(m_labelProperty, tr("Execution"));
+
+
 
     // local execution mode
-    GtModeTypeProperty* localMode = new GtModeTypeProperty("local",
-            tr("local"));
+    auto* localMode = new GtModeTypeProperty("local", tr("local"));
     localMode->setParent(this);
-    m_execMode->registerSubProperty(*localMode);
+    m_execMode.registerSubProperty(*localMode);
+
 
     // collect plugin execution modes
     foreach (const QString& str, gtCalcExecList->executorIds())
     {
-        GtModeTypeProperty* pluginMode = new GtModeTypeProperty(str, str);
+        auto* pluginMode = new GtModeTypeProperty(str, str);
         pluginMode->setParent(this);
+
 
         // collect exec mode specific settings
         foreach (GtAbstractProperty* execSetting, gtCalcExecList->settings(str))
@@ -280,42 +256,19 @@ GtCalculator::GtCalculator():
             pluginMode->registerSubProperty(*execSetting);
         }
 
-        m_execMode->registerSubProperty(*pluginMode);
+        m_execMode.registerSubProperty(*pluginMode);
     }
 
-    registerProperty(*m_execMode, tr("Execution"));
+    registerProperty(m_execMode, tr("Execution"));
     registerProperty(m_failRunOnWarning, tr("Execution"));
 
     setFlag(GtObject::UserRenamable, true);
 }
 
-QString
-GtCalculator::environmentVariable(const QString& var)
-{
-    QVariant variant = gtEnvironment->value(var);
-
-    if (variant.isNull())
-    {
-        return QString();
-    }
-
-    return variant.toString();
-}
-
 void
 GtCalculator::hideLabelProperty(bool val)
 {
-    m_labelProperty->hide(val);
+    m_labelProperty.hide(val);
 }
 
-QString
-GtCalculator::projectPath()
-{
-    if (!m_runnable)
-    {
-        return QString();
-    }
-
-    return m_runnable->projectPath();
-}
 

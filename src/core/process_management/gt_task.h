@@ -21,7 +21,7 @@
 #include "gt_monitoringdatatable.h"
 
 class GtCalculator;
-class GtAbstractRunnable;
+
 
 /**
  * @brief The GtTask class
@@ -97,7 +97,7 @@ public:
      * @brief Returns size of monitoring data table.
      * @return Size of monitoring data table.
      */
-    int monitoringDataSize();
+    int monitoringDataSize() const;
 
     /**
      * @brief Returns reference to monitoring data table.
@@ -109,13 +109,13 @@ public:
      * @brief Returns number of max. iteration steps.
      * @return Max. number of iteration steps.
      */
-    int maxIterationSteps();
+    int maxIterationSteps() const;
 
     /**
      * @brief Returns current iteration step.
      * @return Current iteration step.
      */
-    int currentIterationStep();
+    int currentIterationStep() const;
 
     /**
      * @brief Called after successfully restoring from memento
@@ -140,90 +140,6 @@ public:
      */
     bool isInterruptionRequested() const;
 
-    /**
-     * @brief Returns datamodel object based on given object link property.
-     * If no object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param prop Object link property
-     * @return Object corresponding to given object link property
-     */
-    template <class T>
-    T data(GtObjectLinkProperty& prop)
-    {
-        const QString uuid = dataHelper(prop);
-        return data<T>(uuid);
-    }
-
-    /**
-     * @brief Returns datamodel object based on given object path property.
-     * If no object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param prop Object path property
-     * @return Object corresponding to given object path property
-     */
-    template <class T>
-    T data(GtObjectPathProperty& prop)
-    {
-        const GtObjectPath path = pathHelper(prop);
-        return data<T>(path);
-    }
-
-    /**
-     * @brief Returns datamodel object based on given object uuid. If no
-     * object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param uuid Object uuid string
-     * @return Object corresponding to given uuid
-     */
-    template <class T>
-    T data(const QString& uuid)
-    {
-        foreach (GtObject* obj, m_linkedObjects)
-        {
-            if (!obj)
-            {
-                continue;
-            }
-
-            if (obj->uuid() == uuid)
-            {
-                return qobject_cast<T>(obj);
-            }
-        }
-
-        gtWarning() << "obj not found - uuid =" << uuid;
-        
-        return nullptr;
-    }
-
-    /**
-     * @brief Returns datamodel object based on given object path. If no
-     * object is found nullpointer is returned.
-     * @tparam T Object type
-     * @param path Object path
-     * @return Object corresponding to given object path
-     */
-    template <class T>
-    T data(const GtObjectPath& path)
-    {
-        foreach (GtObject* obj, m_linkedObjects)
-        {
-            if (!obj)
-            {
-                continue;
-            }
-
-            if (obj->objectPath() == path.toString())
-            {
-                return qobject_cast<T>(obj);
-            }
-        }
-
-        gtWarning() << "obj not found - path =" << path.toString();
-
-        return nullptr;
-    }
-
 public slots:
     /**
      * @brief Called when monitoring data is available.
@@ -239,9 +155,6 @@ public slots:
     void clearMonitoringData();
 
 protected: 
-    /// List of linked datamodel objects.
-    QList<QPointer<GtObject> > m_linkedObjects;
-
     /// Maximal number of iteration steps
     GtIntProperty m_maxIter;
 
@@ -278,9 +191,6 @@ protected:
     GtMonitoringDataSet collectMonitoringData();
 
 private:
-    /// Runnable pointer
-    QPointer<GtAbstractRunnable> m_runnable;
-
     /// Event loop
     QEventLoop m_eventLoop;
 
@@ -317,7 +227,7 @@ private:
      * @brief Returns whether one of the children has warnings.
      * @return True if one of the children has warnings.
      */
-    bool childHasWarnings();
+    bool childHasWarnings() const;
 
 private slots:
     /**
