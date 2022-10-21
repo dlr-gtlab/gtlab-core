@@ -21,6 +21,28 @@
 
 #include "gt_calculator.h"
 
+struct GtCalculator::Impl
+{
+    Impl(GtCalculator& pub)
+      : execMode(QStringLiteral("execMode"), tr("Mode"), tr("Execution mode")),
+        // execution label property
+        labelProperty(QStringLiteral("execLabel"),
+                      tr("Label"), tr("Execution label"), &pub),
+        failRunOnWarning(QStringLiteral("failOnWarn"), tr("Fail Run on Warning"),
+                         tr("Terminate process execution if calculator"
+                            " throws a warning."), false)
+    {}
+
+    /// Execution mode indicator.
+    GtModeProperty execMode;
+
+    /// Execution label property
+    GtLabelProperty labelProperty;
+
+    /// Fail run on warning indicator.
+    GtBoolProperty failRunOnWarning;
+};
+
 GtCalculator::~GtCalculator() = default;
 
 bool
@@ -100,7 +122,7 @@ GtCalculator::exec()
     }
 
     // current execution mode identification string
-    QString execMode = m_execMode.get();
+    QString execMode = pimpl->execMode.get();
     qDebug() << "|-> exec mode: " << execMode;
 
     if (execMode != "local")
@@ -170,19 +192,19 @@ GtCalculator::exec()
 const QString&
 GtCalculator::execMode()
 {
-    return m_execMode.get();
+    return pimpl->execMode.get();
 }
 
 void
 GtCalculator::setExecMode(const QString& execMode)
 {
-    m_execMode.setVal(execMode);
+    pimpl->execMode.setVal(execMode);
 }
 
 void
 GtCalculator::setExecModeLocal()
 {
-    m_execMode.setVal("local");
+    pimpl->execMode.setVal("local");
 }
 
 const QList<QPointer<GtObject>>&
@@ -194,19 +216,19 @@ GtCalculator::linkedObjects()
 const QString&
 GtCalculator::executionLabel()
 {
-    return m_labelProperty.get();
+    return pimpl->labelProperty.get();
 }
 
 void
 GtCalculator::setExecutionLabel(const QString& label)
 {
-    m_labelProperty.setVal(label);
+    pimpl->labelProperty.setVal(label);
 }
 
 bool
 GtCalculator::runFailsOnWarning()
 {
-    return m_failRunOnWarning;
+    return pimpl->failRunOnWarning;
 }
 
 bool
@@ -219,27 +241,21 @@ GtCalculator::run()
 GtCalculator::GtCalculator():
     m_deleteTempPath(true),
     // execution mode property
-    m_execMode(QStringLiteral("execMode"), tr("Mode"), tr("Execution mode")),
-    // execution label property
-    m_labelProperty(QStringLiteral("execLabel"),
-                    tr("Label"), tr("Execution label"), this),
-    m_failRunOnWarning(QStringLiteral("failOnWarn"), tr("Fail Run on Warning"),
-                       tr("Terminate process execution if calculator"
-                          " throws a warning."), false)
+    pimpl(std::make_unique<Impl>(*this))
 {
     m_runnable = nullptr;
     setObjectName(QStringLiteral("Calculator"));
 
 
 
-    registerProperty(m_labelProperty, tr("Execution"));
+    registerProperty(pimpl->labelProperty, tr("Execution"));
 
 
 
     // local execution mode
     auto* localMode = new GtModeTypeProperty("local", tr("local"));
     localMode->setParent(this);
-    m_execMode.registerSubProperty(*localMode);
+    pimpl->execMode.registerSubProperty(*localMode);
 
 
     // collect plugin execution modes
@@ -256,11 +272,11 @@ GtCalculator::GtCalculator():
             pluginMode->registerSubProperty(*execSetting);
         }
 
-        m_execMode.registerSubProperty(*pluginMode);
+        pimpl->execMode.registerSubProperty(*pluginMode);
     }
 
-    registerProperty(m_execMode, tr("Execution"));
-    registerProperty(m_failRunOnWarning, tr("Execution"));
+    registerProperty(pimpl->execMode, tr("Execution"));
+    registerProperty(pimpl->failRunOnWarning, tr("Execution"));
 
     setFlag(GtObject::UserRenamable, true);
 }
@@ -268,7 +284,7 @@ GtCalculator::GtCalculator():
 void
 GtCalculator::hideLabelProperty(bool val)
 {
-    m_labelProperty.hide(val);
+    pimpl->labelProperty.hide(val);
 }
 
 
