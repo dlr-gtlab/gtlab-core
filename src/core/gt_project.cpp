@@ -17,14 +17,12 @@
 #include "gt_processdata.h"
 #include "gt_task.h"
 #include "gt_processfactory.h"
-#include "gt_factorygroup.h"
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_coreapplication.h"
 #include "gt_package.h"
 #include "gt_labeldata.h"
 #include "gt_label.h"
-#include "gt_loadprojecthelper.h"
 #include "gt_xmlutilities.h"
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
@@ -1117,6 +1115,28 @@ GtProject::findProcess(const QString& val)
     }
 
     return retval;
+}
+
+QStringList
+GtProject::taksIds()
+{
+    QList<GtTask*> tasks;
+
+    if (GtProcessData* pdata = processData())
+    {
+        tasks = pdata->findDirectChildren<GtTask*>();
+    }
+
+    QStringList retVal;
+    for (auto t : qAsConst(tasks))
+    {
+        if (t)
+        {
+            retVal.append(t->objectName());
+        }
+    }
+
+    return retVal;
 }
 
 GtPackage*

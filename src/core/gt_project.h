@@ -99,6 +99,12 @@ public:
     GtTask* findProcess(const QString& val);
 
     /**
+     * @brief taksIds
+     * @return string list of the names of the tasks that are children of that project
+     */
+    QStringList taksIds();
+
+    /**
      * @brief Returns the package specified by the module id
      * @param mid Module id
      * @return Package
@@ -267,6 +273,7 @@ private:
 
     /**
      * @brief readModuleMetaData
+     * @param root element to start the read function from
      */
     void readModuleMetaData(const QDomElement& root);
 

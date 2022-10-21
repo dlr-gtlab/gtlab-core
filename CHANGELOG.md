@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project data upgrade functionality to handle datamodel updates - #219
 - ObjectLink properties got an button to jump to linked object in explorer dock widget #128
 - ObjectLink properties can be set by a drag and drop of objects from the explorer dock widget - #128
+- New function for the batch application to list current sessions, projects and tasks - #292
 
 ### Removed
 - Nozzle map was removed to be added in the map collection - #114 
