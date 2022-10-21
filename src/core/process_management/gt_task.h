@@ -15,6 +15,8 @@
 #include <QEventLoop>
 #include <QPointer>
 
+#include <memory>
+
 #include "gt_processcomponent.h"
 #include "gt_objectmemento.h"
 #include "gt_intmonitoringproperty.h"
@@ -42,6 +44,7 @@ public:
      * @brief GtTask
      */
     Q_INVOKABLE GtTask();
+    ~GtTask() override;
 
     /**
      * @brief Main run method of the process component.
@@ -191,17 +194,8 @@ protected:
     GtMonitoringDataSet collectMonitoringData();
 
 private:
-    /// Event loop
-    QEventLoop m_eventLoop;
-
-    /// List of all data to merge
-    QList<GtObjectMemento> m_dataToMerge;
-
-    /// Monitoring data table
-    GtMonitoringDataTable m_monitoringDataTable;
-
-    /// Interruption flag
-    QAtomicInt m_interrupt;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
     /**
      * @brief Helper for collecting all monitoring data recursively.

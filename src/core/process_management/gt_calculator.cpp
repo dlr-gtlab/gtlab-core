@@ -24,7 +24,7 @@
 
 struct GtCalculator::Impl
 {
-    Impl(GtCalculator& pub)
+    explicit Impl(GtCalculator& pub)
       : execMode(QStringLiteral("execMode"), tr("Mode"), tr("Execution mode")),
         // execution label property
         labelProperty(QStringLiteral("execLabel"),

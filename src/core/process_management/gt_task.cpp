@@ -18,17 +18,33 @@
 
 #include <algorithm>
 
+struct GtTask::Impl
+{
+    /// Event loop
+    QEventLoop eventLoop;
+
+    /// List of all data to merge
+    QList<GtObjectMemento> dataToMerge;
+
+    /// Monitoring data table
+    GtMonitoringDataTable monitoringDataTable;
+
+    /// Interruption flag
+    QAtomicInt interrupt;
+};
+
 GtTask::GtTask() :
     m_maxIter(QStringLiteral("maxIter"), tr("Number Of Iterations"),
               tr("Number of iteration steps"), GtUnit::Category::None,
               GtIntProperty::BoundLow, 1, 1),
     m_currentIter(QStringLiteral("currentIter"), tr("Current Iteration")),
-    m_lastEval(GtTask::EVAL_FINISHED)
+    m_lastEval(GtTask::EVAL_FINISHED),
+    pimpl(std::make_unique<Impl>())
 {
     setObjectName(QStringLiteral("Task"));
 
     connect(this, &GtTask::finished,
-            &m_eventLoop, &QEventLoop::quit);
+            &pimpl->eventLoop, &QEventLoop::quit);
 
     setState(GtTask::NONE);
     setFlag(GtObject::UserRenamable, true);
@@ -37,6 +53,8 @@ GtTask::GtTask() :
 
     qRegisterMetaType<GtMonitoringDataSet>("GtMonitoringDataSet");
 }
+
+GtTask::~GtTask() = default;
 
 bool
 GtTask::exec()
@@ -146,7 +164,7 @@ void
 GtTask::run(GtAbstractRunnable* r)
 {
     setState(GtTask::RUNNING);
-    m_dataToMerge.clear();
+    pimpl->dataToMerge.clear();
 
     setRunnable(r);
 
@@ -166,7 +184,7 @@ GtTask::run(GtAbstractRunnable* r)
 
     qDebug() << "#### exec event loop...";
 
-    m_eventLoop.exec();
+    pimpl->eventLoop.exec();
 
     qDebug() << "#### exec finished";
 }
@@ -186,7 +204,7 @@ GtTask::processComponents()
 QList<GtObjectMemento>&
 GtTask::dataToMerge()
 {
-    return m_dataToMerge;
+    return pimpl->dataToMerge;
 }
 
 bool
@@ -248,13 +266,13 @@ GtTask::runIteration()
 int
 GtTask::monitoringDataSize() const
 {
-    return m_monitoringDataTable.size();
+    return pimpl->monitoringDataTable.size();
 }
 
 const GtMonitoringDataTable&
 GtTask::monitoringDataTable()
 {
-    return m_monitoringDataTable;
+    return pimpl->monitoringDataTable;
 }
 
 int
@@ -392,14 +410,14 @@ GtTask::collectPropertyConnections()
 void
 GtTask::requestInterruption()
 {
-    m_interrupt.testAndSetOrdered(0, 1);
+    pimpl->interrupt.testAndSetOrdered(0, 1);
     setState(TERMINATION_REQUESTED);
 }
 
 bool
 GtTask::isInterruptionRequested() const
 {
-    return static_cast<int>(m_interrupt);
+    return static_cast<int>(pimpl->interrupt);
 }
 
 void
@@ -491,7 +509,7 @@ GtTask::handleRunnableFinished()
     }
     else
     {
-        m_dataToMerge.append(runnable()->outputData());
+        pimpl->dataToMerge.append(runnable()->outputData());
     }
 
     disconnect(runnable().data(), &GtAbstractRunnable::runnableFinished,
@@ -522,7 +540,7 @@ void
 GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
 {
     // append data set to data table and check success
-    if (!m_monitoringDataTable.append(iteration, set))
+    if (!pimpl->monitoringDataTable.append(iteration, set))
     {
         qWarning() << tr("Could not append data set!");
         return;
@@ -537,5 +555,5 @@ GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
 void
 GtTask::clearMonitoringData()
 {
-    m_monitoringDataTable.clear();
+    pimpl->monitoringDataTable.clear();
 }
