@@ -69,20 +69,20 @@ public:
      * @param mode
      * @return
      */
-    bool modeExists(const QString& mode);
+    bool modeExists(const QString& mode) const;
 
     /**
      * @brief propertyCount
      * @param mode
      * @return
      */
-    int propertyCount(const QString& mode);
+    int propertyCount(const QString& mode) const;
 
     /**
      * @brief modes
      * @return
      */
-    QStringList modes();
+    QStringList modes() const;
 
     /**
      * @brief typeProperty - return the ProperttyObject of

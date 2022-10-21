@@ -89,7 +89,6 @@ HEADERS += \
     process_management/gt_abstractprocessprovider.h \
     process_management/gt_abstractprocessdata.h \
     process_management/gt_calculatordata.h \
-    process_management/gt_evaluator.h \
     process_management/gt_taskrunner.h \
     process_management/gt_loop.h \
     process_management/gt_doublemonitoringproperty.h \
@@ -173,7 +172,6 @@ SOURCES += \
     process_management/gt_abstractprocessprovider.cpp \
     process_management/gt_abstractprocessdata.cpp \
     process_management/gt_calculatordata.cpp \
-    process_management/gt_evaluator.cpp \
     process_management/gt_taskrunner.cpp \
     process_management/gt_loop.cpp \
     process_management/gt_doublemonitoringproperty.cpp \
