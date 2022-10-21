@@ -421,6 +421,136 @@ showFootprint(const QStringList& args)
     return 0;
 }
 
+int
+listFun(const QStringList& args)
+{
+    std::cout << "List elements of GTlab application" << std::endl;
+
+    GtCommandLineParser p;
+    p.addHelpOption();
+    p.addOption("project", {"project", "p"}, "show projects");
+    p.addOption("session", {"session", "s"}, "show sessions");
+    p.addOption("tasks", {"taks", "t"}, "show tasks");
+
+    if (!p.parse(args))
+    {
+        std::cout << "List method without arguments is invalid" << std::endl;
+        return -1;
+    }
+
+    if (p.helpOption())
+    {
+        std::cout << std::endl;
+        std::cout << "This is the help for the GTlab list function" << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "You can list the sessions, projects in the "
+                     "current session or tasks in the project" << std::endl;
+
+        std::cout << std::endl;
+        std::cout << "\tUse the options" << std::endl;
+        std::cout << "\tGTlabConsole.exe list [-s] [-p] [-t]=<ProjectID>"
+                  << std::endl;
+
+        std::cout << std::endl;
+
+        std::cout << "\tFor the tasks the project has to be specified"
+                  << std::endl;
+
+        std::cout << std::endl;
+        return 0;
+    }
+
+    bool anySelection = false;
+    if (p.option("session"))
+    {
+        QStringList sessions = gtApp->sessionIds();
+
+        std::cout << "Sessions in GTlab:" << std::endl;
+        for (QString const& s : sessions)
+        {
+            std::cout << "\t" << s.toStdString() << "\n";
+        }
+        std::cout << std::endl;
+        anySelection = true;
+    }
+
+    if (p.option("project"))
+    {
+        GtSession* s = gtApp->session();
+
+        if (!s)
+        {
+            std::cout << "Cannot find current session" << std::endl;
+            return -1;
+        }
+
+        QStringList projects = s->projectIds();
+
+        std::cout << "Projects in GTlab session "
+                  << s->objectName().toStdString()
+                  << std::endl;
+        for (QString const& pro : qAsConst(projects))
+        {
+            std::cout << "\t" << pro.toStdString() << "\n";
+        }
+        std::cout << std::endl;
+        anySelection = true;
+    }
+
+    if (p.option("tasks"))
+    {
+        QString projectId = p.optionValue("tasks").toString();
+
+        if (projectId.isEmpty())
+        {
+            std::cout << "Specify project id for taks list like "
+                      << " list -t=<PROJECT_ID>" << std::endl;
+
+            return -1;
+        }
+
+        GtProject* project = gtApp->findProject(projectId);
+
+        if (!project)
+        {
+            std::cout << "The given project is not a valid project of the "
+                         "current session";
+            return -1;
+        }
+
+        if (!gtDataModel->GtCoreDatamodel::openProject(project))
+        {
+            std::cout << "Could not open the given project" << std::endl;
+
+            return -1;
+        }
+
+        QStringList taskNames = project->taksIds();
+
+        std::cout << "Taks in GTlab project "
+                  << project->objectName().toStdString()
+                  << std::endl;
+        for (QString const& t : qAsConst(taskNames))
+        {
+            std::cout << "\t" << t.toStdString() << "\n";
+        }
+        anySelection = true;
+    }
+
+    if (!anySelection)
+    {
+        std::cout << "List elements needs at least one option to run"
+                  << std::endl;
+        std::cout << "open help for more details"
+                  << std::endl;
+    }
+
+
+    return 0;
+}
+
+
 void
 initPosArgument(QString const& id,
                 std::function<int(const QStringList&)> func,
@@ -466,6 +596,10 @@ initSystemOptions()
                     runOptions,
                     QList<GtCommandLineFunctionArgument>(),
                     false);
+
+
+    initPosArgument("list", listFun,
+                    "\tShow list of session, projects or tasks.");
 }
 
 int
