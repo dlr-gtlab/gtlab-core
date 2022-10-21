@@ -20,17 +20,46 @@
 
 #include "gt_processcomponent.h"
 
+struct GtProcessComponent::Impl
+{
+    Impl() :
+        state(GtProcessComponent::NONE),
+        skipped(QStringLiteral("skip"), tr("Skip"),
+                  tr("Skip Process Element"), false),
+        warning(false)
+    {}
+
+// protected members
+    /// Runnable pointer
+    QPointer<GtAbstractRunnable> runnable;
+
+    /// Path to process/project specific temporary path.
+    QString tempPath;
+
+    /// List of linked datamodel objects.
+    QList<QPointer<GtObject>> linkedObjects;
+// private members
+    /// Current process component state
+    GtProcessComponent::STATE state;
+
+    /// Monitoring properties
+    QList<GtAbstractProperty*> monitorProperties;
+
+    /// Skip indicator
+    GtBoolProperty skipped;
+
+    /// Warning flag
+    bool warning;
+};
+
 GtProcessComponent::GtProcessComponent() :
-    m_state(GtProcessComponent::NONE),
-    m_skipped(QStringLiteral("skip"), tr("Skip"),
-              tr("Skip Process Element"), false),
-    m_warning(false)
+    pimpl(std::make_unique<Impl>())
 {
     qRegisterMetaType<GtProcessComponent::STATE>("GtProcessComponent::STATE");
 
-    registerProperty(m_skipped, tr("Execution"));
+    registerProperty(pimpl->skipped, tr("Execution"));
 
-    connect(&m_skipped, SIGNAL(changed()), SIGNAL(skipPropertyChanged()));
+    connect(&pimpl->skipped, SIGNAL(changed()), SIGNAL(skipPropertyChanged()));
 }
 
 void
@@ -58,13 +87,13 @@ GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
     }
 
     // append property to monitoring container
-    m_monitorProperties << &property;
+    pimpl->monitorProperties << &property;
 }
 
 void
 GtProcessComponent::setWarningFlag(bool val)
 {
-    m_warning = val;
+    pimpl->warning = val;
 }
 
 void
@@ -77,19 +106,19 @@ void
 GtProcessComponent::setState(GtProcessComponent::STATE state)
 {
     // check whether new state is already the corrent state
-    if (state == m_state)
+    if (state == pimpl->state)
     {
         return;
     }
 
     // set new state
-    m_state = state;
+    pimpl->state = state;
 
     // emit global object changed signal
     changed();
 
     // emit state changed signal
-    emit stateChanged(m_state);
+    emit stateChanged(pimpl->state);
 }
 
 void
@@ -109,7 +138,7 @@ GtProcessComponent::setStateRecursively(GtProcessComponent::STATE state)
 const QList<GtAbstractProperty*>&
 GtProcessComponent::monitoringProperties()
 {
-    return m_monitorProperties;
+    return pimpl->monitorProperties;
 }
 
 QList<GtAbstractProperty*>
@@ -121,7 +150,7 @@ GtProcessComponent::readWriteProperties()
     // iterate over properties and remove all monitoring properties
     foreach (GtAbstractProperty* prop, retval)
     {
-        if (m_monitorProperties.contains(prop))
+        if (pimpl->monitorProperties.contains(prop))
         {
             retval.removeOne(prop);
         }
@@ -229,25 +258,27 @@ GtProcessComponent::isReady() const
 bool
 GtProcessComponent::hasWarnings() const
 {
-    return m_warning;
+    return pimpl->warning;
 }
+
+GtProcessComponent::~GtProcessComponent() = default;
 
 GtProcessComponent::STATE
 GtProcessComponent::currentState() const
 {
-    return m_state;
+    return pimpl->state;
 }
 
 bool
 GtProcessComponent::isSkipped() const
 {
-    return m_skipped;
+    return pimpl->skipped;
 }
 
 void
 GtProcessComponent::setSkipped(bool val)
 {
-    m_skipped = val;
+    pimpl->skipped = val;
 }
 
 QString
@@ -279,28 +310,67 @@ GtProcessComponent::environmentVariable(const QString& var) const
 QString
 GtProcessComponent::projectPath() const
 {
-    if (!m_runnable)
+    if (!pimpl->runnable)
     {
         return {};
     }
 
-    return m_runnable->projectPath();
+    return pimpl->runnable->projectPath();
 }
+
+const QPointer<GtAbstractRunnable>&
+GtProcessComponent::runnable() const
+{
+    return pimpl->runnable;
+}
+
+GtProcessComponent&
+GtProcessComponent::setRunnable(QPointer<GtAbstractRunnable> p)
+{
+    pimpl->runnable = std::move(p);
+    return *this;
+}
+
+QString
+GtProcessComponent::tempPath() const
+{
+    return pimpl->tempPath;
+}
+
+GtProcessComponent&
+GtProcessComponent::setTempPath(QString path)
+{
+    pimpl->tempPath = std::move(path);
+    return *this;
+}
+
+const QList<QPointer<GtObject> >&
+GtProcessComponent::linkedObjects() const
+{
+    return pimpl->linkedObjects;
+}
+
+QList<QPointer<GtObject> >&
+GtProcessComponent::linkedObjects()
+{
+    return pimpl->linkedObjects;
+}
+
 
 QDir
 GtProcessComponent::tempDir()
 {
-    if (!m_runnable)
+    if (!pimpl->runnable)
     {
         return {};
     }
 
     // check whether temporary dir was already set
-    if (m_tempPath.isEmpty())
+    if (pimpl->tempPath.isEmpty())
     {
         // create new temporary directory
-        m_tempPath = m_runnable->tempDir().absolutePath();
+        pimpl->tempPath = pimpl->runnable->tempDir().absolutePath();
     }
 
-    return QDir(m_tempPath);
+    return QDir(pimpl->tempPath);
 }

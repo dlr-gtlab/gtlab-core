@@ -16,6 +16,7 @@
 #include "gt_processcomponent.h"
 
 #include <QPointer>
+#include <memory>
 
 class QDir;
 class GtModeProperty;
@@ -68,7 +69,7 @@ public:
      * @brief Returns list of all linked datamodel objects.
      * @return List of linked datamodel objects.
      */
-    const QList<QPointer<GtObject> >& linkedObjects();
+    using GtProcessComponent::linkedObjects;
 
     /**
      * @brief Returns current execution identification label.
@@ -106,15 +107,8 @@ protected:
     void hideLabelProperty(bool val = true);
 
 private:
-    /// Execution mode indicator.
-    GtModeProperty m_execMode;
-
-    /// Execution label property
-    GtLabelProperty m_labelProperty;
-
-    /// Fail run on warning indicator.
-    GtBoolProperty m_failRunOnWarning;
-
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
 
 Q_DECLARE_METATYPE(GtCalculator*)

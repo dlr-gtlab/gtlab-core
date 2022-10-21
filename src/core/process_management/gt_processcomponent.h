@@ -43,6 +43,8 @@ public:
         TERMINATED // 9
     };
 
+    ~GtProcessComponent() override;
+
     /**
      * @brief Main execution method of the process component.
      * @return Whether execution procedure was successful or not.
@@ -175,7 +177,7 @@ public:
     template <class T = GtObject*>
     T data(const QString& uuid)
     {
-        foreach (QPointer<GtObject> p, m_linkedObjects)
+        foreach (QPointer<GtObject> p, linkedObjects())
         {
             if (!p)
             {
@@ -210,7 +212,7 @@ public:
     template <class T = GtObject*>
     T data(const GtObjectPath& path)
     {
-        foreach (QPointer<GtObject> p, m_linkedObjects)
+        foreach (QPointer<GtObject> p, linkedObjects())
         {
             GtObject* obj = p.data();
 
@@ -284,26 +286,20 @@ protected:
      */
     QString projectPath() const;
 
-    /// Runnable pointer
-    QPointer<GtAbstractRunnable> m_runnable;
+    const QPointer<GtAbstractRunnable>&  runnable() const;
+    GtProcessComponent&  setRunnable(QPointer<GtAbstractRunnable> p);
 
     /// Path to process/project specific temporary path.
-    QString m_tempPath;
+    QString tempPath() const;
+    GtProcessComponent& setTempPath(QString);
 
     /// List of linked datamodel objects.
-    QList<QPointer<GtObject>> m_linkedObjects;
+    const QList<QPointer<GtObject>>& linkedObjects() const;
+    QList<QPointer<GtObject>>& linkedObjects();
+
 private:
-    /// Current process component state
-    GtProcessComponent::STATE m_state;
-
-    /// Monitoring properties
-    QList<GtAbstractProperty*> m_monitorProperties;
-
-    /// Skip indicator
-    GtBoolProperty m_skipped;
-
-    /// Warning flag
-    bool m_warning;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
 signals:
     /**
