@@ -41,7 +41,7 @@ GtTask::GtTask() :
 bool
 GtTask::exec()
 {
-    m_runnable = nullptr;
+    setRunnable(nullptr);
 
     // check skipped indicator
     if (isSkipped())
@@ -51,7 +51,7 @@ GtTask::exec()
         return true;
     }
 
-    m_runnable = findParent<GtAbstractRunnable*>();
+    setRunnable(findParent<GtAbstractRunnable*>());
 
     // collect all calculator properties
     QList<GtAbstractProperty*> props = fullPropertyList();
@@ -64,12 +64,12 @@ GtTask::exec()
         {
             // object link property found
             GtObject* linkedObj =
-                m_runnable->data<GtObject*>(objLink->linkedObjectUUID());
+                runnable()->data<GtObject*>(objLink->linkedObjectUUID());
 
             if (linkedObj)
             {
                 // linked object found -> store inside list
-                m_linkedObjects.append(linkedObj);
+                linkedObjects().append(linkedObj);
             }
             else
             {
@@ -81,12 +81,12 @@ GtTask::exec()
         {
             // object path property found
             GtObject* linkedObj =
-                m_runnable->data<GtObject*>(objPath->path());
+                runnable()->data<GtObject*>(objPath->path());
 
             if (linkedObj)
             {
                 // linked object found -> store inside list
-                m_linkedObjects.append(linkedObj);
+                linkedObjects().append(linkedObj);
             }
             else
             {
@@ -143,12 +143,12 @@ GtTask::exec()
 }
 
 void
-GtTask::run(GtAbstractRunnable* runnable)
+GtTask::run(GtAbstractRunnable* r)
 {
     setState(GtTask::RUNNING);
     m_dataToMerge.clear();
 
-    m_runnable = runnable;
+    setRunnable(r);
 
     QThreadPool* tp = QThreadPool::globalInstance();
 
@@ -157,12 +157,12 @@ GtTask::run(GtAbstractRunnable* runnable)
         return;
     }
 
-    m_runnable->setAutoDelete(false);
+    runnable()->setAutoDelete(false);
 
-    connect(m_runnable.data(), &GtAbstractRunnable::runnableFinished,
+    connect(runnable().data(), &GtAbstractRunnable::runnableFinished,
             this, &GtTask::handleRunnableFinished);
 
-    tp->start(m_runnable);
+    tp->start(runnable());
 
     qDebug() << "#### exec event loop...";
 
@@ -485,19 +485,19 @@ GtTask::handleRunnableFinished()
 
     qDebug() << "GtTask::handleRunnableFinished()";
 
-    if (!m_runnable->successful())
+    if (!runnable()->successful())
     {
         success = false;
     }
     else
     {
-        m_dataToMerge.append(m_runnable->outputData());
+        m_dataToMerge.append(runnable()->outputData());
     }
 
-    disconnect(m_runnable.data(), &GtAbstractRunnable::runnableFinished,
+    disconnect(runnable().data(), &GtAbstractRunnable::runnableFinished,
                this, &GtTask::handleRunnableFinished);
 
-    delete m_runnable;
+    delete runnable();
 
     if (success)
     {

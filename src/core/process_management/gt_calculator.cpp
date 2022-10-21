@@ -18,6 +18,7 @@
 #include "gt_abstractcalculatorexecutor.h"
 #include "gt_labelproperty.h"
 #include "gt_objectpathproperty.h"
+#include "gt_modeproperty.h"
 
 #include "gt_calculator.h"
 
@@ -49,10 +50,10 @@ bool
 GtCalculator::exec()
 {
     // clear old linked objects
-    m_linkedObjects.clear();
+    linkedObjects().clear();
 
     // revert temp directory
-    m_tempPath.clear();
+    setTempPath("");
 
     // check skipped indicator
     if (isSkipped())
@@ -64,16 +65,16 @@ GtCalculator::exec()
 
     qDebug() << objectName() << "::exec()";
     // initialize pointer to runnable
-    m_runnable = nullptr;
+    setRunnable(nullptr);
 
     // initialize calculator
     setState(GtCalculator::RUNNING);
 
     // set associated runnable
-    m_runnable = findParent<GtAbstractRunnable*>();
+    setRunnable(findParent<GtAbstractRunnable*>());
 
     // check whether runnable was found
-    if (!m_runnable)
+    if (!runnable())
     {
         setState(GtCalculator::FAILED);
         return false;
@@ -90,12 +91,12 @@ GtCalculator::exec()
         {
             // object link property found
             GtObject* linkedObj =
-                m_runnable->data<GtObject*>(objLink->linkedObjectUUID());
+                runnable()->data<GtObject*>(objLink->linkedObjectUUID());
 
             if (linkedObj)
             {
                 // linked object found -> store inside list
-                m_linkedObjects.append(linkedObj);
+                linkedObjects().append(linkedObj);
             }
             else
             {
@@ -107,12 +108,12 @@ GtCalculator::exec()
         {
             // object path property found
             GtObject* linkedObj =
-                m_runnable->data<GtObject*>(objPath->path());
+                runnable()->data<GtObject*>(objPath->path());
 
             if (linkedObj)
             {
                 // linked object found -> store inside list
-                m_linkedObjects.append(linkedObj);
+                linkedObjects().append(linkedObj);
             }
             else
             {
@@ -160,14 +161,14 @@ GtCalculator::exec()
     }
 
     // handle temporary path cleanup
-    if (!m_tempPath.isEmpty() && m_deleteTempPath)
+    if (!tempPath().isEmpty() && m_deleteTempPath)
     {
-        if (m_runnable)
+        if (runnable())
         {
-            if (!m_runnable->clearTempDir(m_tempPath))
+            if (!runnable()->clearTempDir(tempPath()))
             {
                 gtWarning() << tr("could not remove temp dir") << "! - "
-                            << m_tempPath;
+                            << tempPath();
             }
         }
     }
@@ -207,12 +208,6 @@ GtCalculator::setExecModeLocal()
     pimpl->execMode.setVal("local");
 }
 
-const QList<QPointer<GtObject>>&
-GtCalculator::linkedObjects()
-{
-    return m_linkedObjects;
-}
-
 const QString&
 GtCalculator::executionLabel()
 {
@@ -243,7 +238,7 @@ GtCalculator::GtCalculator():
     // execution mode property
     pimpl(std::make_unique<Impl>(*this))
 {
-    m_runnable = nullptr;
+    setRunnable(nullptr);
     setObjectName(QStringLiteral("Calculator"));
 
 

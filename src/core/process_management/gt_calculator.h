@@ -69,7 +69,7 @@ public:
      * @brief Returns list of all linked datamodel objects.
      * @return List of linked datamodel objects.
      */
-    const QList<QPointer<GtObject> >& linkedObjects();
+    using GtProcessComponent::linkedObjects;
 
     /**
      * @brief Returns current execution identification label.
