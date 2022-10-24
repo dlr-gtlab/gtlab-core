@@ -344,10 +344,10 @@ GtProcessComponent::setTempPath(QString path)
     return *this;
 }
 
-const QList<QPointer<GtObject> >&
+QList<GtObject const * >
 GtProcessComponent::linkedObjects() const
 {
-    return pimpl->linkedObjects;
+    return {pimpl->linkedObjects.begin(), pimpl->linkedObjects.end()};
 }
 
 QList<QPointer<GtObject> >&
