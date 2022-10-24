@@ -29,7 +29,7 @@ class GtPropertyStructInstance : public GtGroupProperty
 
 public:
     GtPropertyStructInstance(const QString& id, const QString& typeName,
-                             gt::poly_vector<GtAbstractProperty>&& childProps);
+                             gt::PolyVector<GtAbstractProperty>&& childProps);
 
     /**
      * @brief Sets value of a member of the struct
@@ -92,7 +92,7 @@ public:
     }
 
 private:
-    gt::poly_vector<GtAbstractProperty> m_childs;
+    gt::PolyVector<GtAbstractProperty> m_childs;
 };
 
 /**

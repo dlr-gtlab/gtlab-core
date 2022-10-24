@@ -16,10 +16,10 @@ namespace gt
 {
 
     /**
- * @brief The poly_vector class implements a vector of polymorphic objects.
+ * @brief The PolyVector class implements a vector of polymorphic objects.
  *
  * It replaces something like std::vector<BaseClass*> with
- * gt::poly_vector<BaseClass>. It removes the memory management from
+ * gt::PolyVector<BaseClass>. It removes the memory management from
  * the user but keeps the same semantics as std::vector.
  *
  * Note: As pushing elements into the container moves the ownership to
@@ -27,7 +27,7 @@ namespace gt
  * must be creatible otherwise.
  */
     template <typename BaseType>
-    class poly_vector
+    class PolyVector
     {
     public:
         struct iterator
@@ -38,7 +38,7 @@ namespace gt
             using pointer = BaseType*; // or also value_type*
             using reference = BaseType&;
 
-            friend poly_vector;
+            friend PolyVector;
 
             BaseType& operator*()
             {
@@ -93,7 +93,7 @@ namespace gt
                 current(it.current)
             {}
 
-            friend poly_vector;
+            friend PolyVector;
 
             const BaseType& operator*()
             {
@@ -135,7 +135,7 @@ namespace gt
                 current;
         };
 
-        poly_vector() = default;
+        PolyVector() = default;
 
 
         /**
@@ -203,7 +203,7 @@ namespace gt
          *
          * Example: Assuming a constructor of Derived(string, int),
          *
-         * gt::poly_vector<Base> v;
+         * gt::PolyVector<Base> v;
          * v.emplace_back<Derived>("astring", 1):
          *
          * @param params

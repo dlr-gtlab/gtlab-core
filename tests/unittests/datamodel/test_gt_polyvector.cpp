@@ -56,7 +56,7 @@ struct DerivedNotCopyable : public Base
 
 TEST_F(TestPolyVector, emplace)
 {
-    gt::poly_vector<Base> vec;
+    gt::PolyVector<Base> vec;
 
     vec.emplace_back<Base>();
     vec.emplace_back<DerivedCopyable>();
@@ -73,7 +73,7 @@ TEST_F(TestPolyVector, emplace)
 
 TEST_F(TestPolyVector, push_back)
 {
-    gt::poly_vector<Base> vec;
+    gt::PolyVector<Base> vec;
 
     vec.push_back(std::make_unique<Base>());
     vec.push_back(std::make_unique<DerivedCopyable>());

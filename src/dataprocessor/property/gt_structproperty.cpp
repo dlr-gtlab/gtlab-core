@@ -28,7 +28,7 @@ GtPropertyStructDefinition::defineMember(const QString& id,
 std::unique_ptr<GtPropertyStructInstance>
 GtPropertyStructDefinition::newInstance(QString name) const
 {
-    gt::poly_vector<GtAbstractProperty> subProps;
+    gt::PolyVector<GtAbstractProperty> subProps;
 
     for (const auto& member : members)
     {
@@ -43,7 +43,7 @@ GtPropertyStructDefinition::newInstance(QString name) const
 
 GtPropertyStructInstance::GtPropertyStructInstance(
     const QString& id, const QString& typeName,
-    gt::poly_vector<GtAbstractProperty>&& childProps) :
+    gt::PolyVector<GtAbstractProperty>&& childProps) :
     GtGroupProperty(typeName, ""),
     m_childs(std::move(childProps))
 {

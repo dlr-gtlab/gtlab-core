@@ -28,9 +28,9 @@ class GtPropertyStructContainer
 {
 public:
     using iterator =
-        gt::poly_vector<GtPropertyStructInstance>::iterator;
+        gt::PolyVector<GtPropertyStructInstance>::iterator;
     using const_iterator =
-        gt::poly_vector<GtPropertyStructInstance>::const_iterator;
+        gt::PolyVector<GtPropertyStructInstance>::const_iterator;
 
     GT_DATAMODEL_EXPORT
     GtPropertyStructContainer(const QString& ident, const QString& name);
