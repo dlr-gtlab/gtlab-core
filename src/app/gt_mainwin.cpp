@@ -71,7 +71,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     ui->setupUi(this);
 
-    ui->mdiArea->setActivationOrder(QMdiArea::ActivationHistoryOrder);
 
     // hide some stuff
     ui->menuUpdate_available->menuAction()->setVisible(false);
@@ -109,6 +108,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     // mdi launcher initialization
     gtMdiLauncher->setMdiArea(ui->mdiArea);
+
+    ui->mdiArea->tabBar()->setExpanding(true);
 
     // undo action
     QAction* undoAct = gtApp->undoStack()->createUndoAction(ui->undoBar,
@@ -201,10 +202,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             Qt::DirectConnection);
     connect(gtApp, SIGNAL(objectSelected(GtObject*)),
             SLOT(onObjectSelected(GtObject*)));
-    connect(ui->actionCascadeWindows, SIGNAL(triggered()), ui->mdiArea,
-            SLOT(cascadeSubWindows()), Qt::UniqueConnection);
-    connect(ui->actionTileWindows, SIGNAL(triggered()), ui->mdiArea,
-            SLOT(tileSubWindows()), Qt::UniqueConnection);
     connect(ui->actionCheck_for_update, SIGNAL(triggered()),
             SLOT(openCheckForUpdatesDialog()));
     connect(ui->actionInstall_Update, SIGNAL(triggered(bool)),
@@ -816,9 +813,9 @@ GtMainWin::printCurrentMdiItem()
 {
     qDebug() << "print requested...";
 
-    if (!ui->mdiArea->subWindowList().empty())
+    if (ui->mdiArea->count() != 0)
     {
-        gtMdiLauncher->print(ui->mdiArea->currentSubWindow());
+        gtMdiLauncher->print(ui->mdiArea->currentWidget());
     }
     else
     {
@@ -981,7 +978,7 @@ GtMainWin::onCollectionEntryClicked()
 
     coll->setCollection(gtMdiLauncher->collection(colId));
 
-    QMdiSubWindow* subWin = item->subWin();
+    QWidget* subWin = item->widget();
 
     if (!subWin)
     {
@@ -1132,10 +1129,9 @@ GtMainWin::initAfterStartup()
         connect(page, SIGNAL(showInfo()), SLOT(openAboutDialog()));
         connect(gtApp, SIGNAL(themeChanged(bool)), page, SLOT(onThemeChange()));
 
-        QMdiSubWindow* subWin = ui->mdiArea->addSubWindow(page);
-        subWin->setWindowTitle(tr("Welcome"));
-        subWin->setWindowIcon(page->icon());
-        subWin->show();
+        ui->mdiArea->addTab(page, page->icon(), tr("Welcome"));
+        ui->mdiArea->setCurrentWidget(page);
+        page->show();
     }
 
     // search for updates
@@ -1296,8 +1292,6 @@ GtMainWin::setTheme(bool dark)
                             "background-color: white; "
                             "border: 1px solid black; }");
 
-        QBrush mdiBackground(Qt::gray, Qt::Dense4Pattern);
-        ui->mdiArea->setBackground(mdiBackground);
     }
     else
     {
@@ -1315,11 +1309,8 @@ GtMainWin::setTheme(bool dark)
                             "background-color: #2a82da; "
                             "border: 1px solid white; }");
 
-        QBrush mdiBackground(Qt::darkGray, Qt::Dense4Pattern);
-        ui->mdiArea->setBackground(mdiBackground);
     }
 
-    ui->viewerToolbar->setPalette(p);
     ui->menubar->setPalette(p);
     ui->mdiArea->setPalette(p);
 }

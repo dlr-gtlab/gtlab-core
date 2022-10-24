@@ -9,6 +9,7 @@
 
 #include <QCoreApplication>
 #include <QMdiArea>
+#include <QTabWidget>
 #include <QMdiSubWindow>
 #include <QDebug>
 
@@ -16,7 +17,6 @@
 #include "gt_mdiitem.h"
 #include "gt_application.h"
 #include "gt_collectioninterface.h"
-#include "gt_abstractcollectionsettings.h"
 #include "gt_algorithms.h"
 #include "gt_icons.h"
 
@@ -31,7 +31,7 @@ GtMdiLauncher::generateMdiItemId(GtMdiItem* mdiItem)
 {
     if (!mdiItem)
     {
-        return QString();
+        return {};
     }
 
     QString retval = mdiItem->metaObject()->className();
@@ -116,21 +116,30 @@ GtMdiLauncher::setFocus(const QString& mdiId)
         return;
     }
 
-    QList<QMdiSubWindow*> list = m_area->subWindowList();
+    QList<QWidget*> list;
+    for (int i = 0; i < m_area->count(); ++i)
+    {
+        if (m_area->widget(i))
+        {
+            list.append(m_area->widget(i));
+        }
+    }
 
     for_each_key(m_openItems, [&](const QObject* e)
     {
         if (generateMdiItemId(m_openItems.value(e)) == mdiId)
         {
-            foreach (QMdiSubWindow* listItem, list)
+            foreach (QWidget* listItem, list)
             {
                 if (listItem == e)
                 {
+                    m_area->setCurrentWidget(listItem);
                     listItem->setFocus();
                 }
             }
         }
     });
+
 }
 
 void
@@ -139,6 +148,16 @@ GtMdiLauncher::onSubWindowClose(QObject* obj)
     if (m_openItems.contains(obj))
     {
         m_openItems.remove(obj);
+    }
+}
+
+void
+GtMdiLauncher::onCloseTabRequest(int i)
+{
+    if (QWidget* w = m_area->widget(i))
+    {
+        m_area->removeTab(i);
+        delete w;
     }
 }
 
@@ -154,7 +173,7 @@ GtMdiLauncher::instance()
 }
 
 void
-GtMdiLauncher::setMdiArea(QMdiArea* area)
+GtMdiLauncher::setMdiArea(QTabWidget* area)
 {
     if (m_area)
     {
@@ -162,6 +181,9 @@ GtMdiLauncher::setMdiArea(QMdiArea* area)
     }
 
     m_area = area;
+
+    connect(m_area, SIGNAL(tabCloseRequested(int)), this,
+            SLOT(onCloseTabRequest(int)));
 }
 
 QStringList
@@ -187,14 +209,14 @@ GtMdiLauncher::collectionIcon(const QString& id)
 {
     if (!m_collections.contains(id))
     {
-        return QIcon();
+        return {};
     }
 
     GtCollectionInterface* coll = m_collections.value(id);
 
     if (!coll)
     {
-        return QIcon();
+        return {};
     }
 
     return coll->collectionIcon();
@@ -205,14 +227,14 @@ GtMdiLauncher::collectionStructure(const QString& id)
 {
     if (!m_collections.contains(id))
     {
-        return QMap<QString, QMetaType::Type>();
+        return {};
     }
 
     GtCollectionInterface* coll = m_collections.value(id);
 
     if (!coll)
     {
-        return QMap<QString, QMetaType::Type>();
+        return {};
     }
 
     return coll->collectionStructure();
@@ -230,7 +252,7 @@ GtMdiLauncher::collection(const QString& id)
 }
 
 void
-GtMdiLauncher::print(QMdiSubWindow* subWindow)
+GtMdiLauncher::print(QWidget* subWindow)
 {
     if (!subWindow)
     {
@@ -342,8 +364,6 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
         mdiItem->m_cid = customId;
     }
 
-    qDebug()  << "mdiItem id = " << generateMdiItemId(mdiItem);
-
     if (!mdiItemAllowed(mdiItem))
     {
         if (data && mdiItem->objectName() == "Result Viewer")
@@ -368,44 +388,36 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     QWidget* wid = mdiItem->widget();
 
-    QMdiSubWindow* subWin = m_area->addSubWindow(wid);
-    subWin->setWindowTitle(mdiItem->objectName());
-
     QIcon icon = mdiItem->icon();
 
     if (!icon.isNull())
-    {
-        subWin->setWindowIcon(mdiItem->icon());
+    {       
+        m_area->addTab(wid, mdiItem->icon(), mdiItem->objectName());
     }
     else
     {
-        subWin->setWindowIcon(GtGUI::Icon::frame());
+        m_area->addTab(wid, GtGUI::Icon::frame(), mdiItem->objectName());
     }
 
     mdiItem->initialized();
 
-    connect(subWin,
-            SIGNAL(windowStateChanged(Qt::WindowStates,Qt::WindowStates)),
-            mdiItem,
-            SLOT(windowStateChanged(Qt::WindowStates,Qt::WindowStates)));
-    connect(subWin, SIGNAL(aboutToActivate()), mdiItem,
-            SLOT(windowAboutToActive()));
-    connect(subWin, SIGNAL(destroyed(QObject*)), mdiItem,
+    connect(wid, SIGNAL(destroyed(QObject*)), mdiItem,
            SLOT(deleteLater()));
-    connect(subWin, SIGNAL(destroyed(QObject*)),
+    connect(wid, SIGNAL(destroyed(QObject*)),
             SLOT(onSubWindowClose(QObject*)));
     connect(mdiItem, SIGNAL(objectNameChanged(QString)),
-            subWin, SLOT(setWindowTitle(QString)));
-    connect(mdiItem, SIGNAL(destroyed(QObject*)), subWin,
+            wid, SLOT(setWindowTitle(QString)));
+    connect(mdiItem, SIGNAL(destroyed(QObject*)), wid,
             SLOT(deleteLater()));
     connect(gtApp, SIGNAL(themeChanged(bool)), mdiItem,
             SLOT(onThemeChanged()));
 
-    m_openItems.insert(subWin, mdiItem);
+    m_openItems.insert(wid, mdiItem);
 
-    mdiItem->setSubWin(subWin);
+    mdiItem->setSubWin(wid);
 
-    subWin->show();
+    m_area->setCurrentWidget(wid);
+    wid->show();
     mdiItem->showEvent();
 
     if (data)

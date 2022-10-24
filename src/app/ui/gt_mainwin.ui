@@ -20,6 +20,12 @@
    <iconset resource="../../resources/icons/icons.qrc">
     <normaloff>:/icons/gtdIcon.png</normaloff>:/icons/gtdIcon.png</iconset>
   </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="leftMargin">
@@ -35,42 +41,21 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QMdiArea" name="mdiArea">
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
+     <widget class="QTabWidget" name="mdiArea">
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="lineWidth">
-       <number>0</number>
-      </property>
-      <property name="background">
-       <brush brushstyle="Dense2Pattern">
-        <color alpha="255">
-         <red>160</red>
-         <green>160</green>
-         <blue>160</blue>
-        </color>
-       </brush>
-      </property>
-      <property name="viewMode">
-       <enum>QMdiArea::TabbedView</enum>
+      <property name="currentIndex">
+       <number>-1</number>
       </property>
       <property name="documentMode">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="tabsClosable">
        <bool>true</bool>
       </property>
-      <property name="tabsMovable">
+      <property name="movable">
        <bool>true</bool>
-      </property>
-      <property name="tabShape">
-       <enum>QTabWidget::Rounded</enum>
-      </property>
-      <property name="tabPosition">
-       <enum>QTabWidget::North</enum>
       </property>
      </widget>
     </item>
@@ -141,8 +126,6 @@
     <addaction name="menuPerspective"/>
     <addaction name="actionEditPerspectives"/>
     <addaction name="separator"/>
-    <addaction name="actionTileWindows"/>
-    <addaction name="actionCascadeWindows"/>
     <addaction name="separator"/>
     <addaction name="menuDock_Widgets"/>
    </widget>
@@ -232,25 +215,6 @@
    </attribute>
    <addaction name="actionPrint"/>
   </widget>
-  <widget class="QToolBar" name="viewerToolbar">
-   <property name="windowTitle">
-    <string>MDI ToolBar</string>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="movable">
-    <bool>false</bool>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionTileWindows"/>
-   <addaction name="actionCascadeWindows"/>
-  </widget>
   <action name="actionExit">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
@@ -276,30 +240,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
-   </property>
-  </action>
-  <action name="actionTileWindows">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/tileWindowIcon_24.png</normaloff>:/icons/tileWindowIcon_24.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Tile Windows</string>
-   </property>
-   <property name="toolTip">
-    <string>Tile Windows</string>
-   </property>
-  </action>
-  <action name="actionCascadeWindows">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/cascadeWindowIcon_24.png</normaloff>:/icons/cascadeWindowIcon_24.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Cascade Windows</string>
-   </property>
-   <property name="toolTip">
-    <string>Cascade Windows</string>
    </property>
   </action>
   <action name="actionSaveProject">

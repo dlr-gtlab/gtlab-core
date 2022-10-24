@@ -105,7 +105,7 @@ public:
       * @brief subWin
       * @return
       */
-    QMdiSubWindow* subWin();
+    QWidget* subWin();
 
     /**
      * @brief Virtual function to specify if mdi item allows multiple instances.
@@ -153,7 +153,7 @@ protected:
      * @brief setSubWin
      * @param subWin
      */
-    void setSubWin(QMdiSubWindow* subWin);
+    void setSubWin(QWidget *subWin);
 
     /**
      * @brief registerShortCut
@@ -197,7 +197,7 @@ private:
     QList<GtQueuedMdiEvent*> m_eventQueue;
 
     ///
-    QMdiSubWindow* m_subWin;
+    QWidget* m_subWin;
 
     /// Mdi item custom identification string
     QString m_cid;
