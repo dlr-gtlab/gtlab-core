@@ -9,40 +9,46 @@
 
 #include "gt_dummyobject.h"
 
-GtDummyObject::GtDummyObject(GtObject* parent) : GtObject(parent)
+#include "gt_objectmemento.h"
+
+struct GtDummyObject::Impl
 {
 
+    /// original class name
+    QString origClassName;
+
+    QVector<GtObjectMemento::PropertyData> properties;
+    QVector<GtObjectMemento::PropertyData> propertyContainers;
+};
+
+GtDummyObject::GtDummyObject(GtObject* parent) :
+    GtObject(parent),
+    pimpl(std::make_unique<Impl>())
+{
 }
+
+GtDummyObject::~GtDummyObject() = default;
 
 QString
 GtDummyObject::origClassName() const
 {
-    return m_origClassName;
+    return pimpl->origClassName;
 }
 
 void
-GtDummyObject::setOrigClassName(const QString& origClassName)
+GtDummyObject::importMemento(const GtObjectMemento &memento)
 {
-    m_origClassName = origClassName;
+    pimpl->origClassName = memento.className();
+    pimpl->properties = memento.properties;
+    pimpl->propertyContainers = memento.dynamicSizeProperties;
 }
 
 void
-GtDummyObject::addDummyProperty(const QString& id, const QString& type,
-                                bool optional, bool active, const QVariant& val)
+GtDummyObject::exportToMemento(GtObjectMemento &memento) const
 {
-    m_d_props << DummyProperty({ id, type, optional, active, val, SIMPLE });
+    memento.setClassName(pimpl->origClassName);
+    memento.properties = pimpl->properties;
+    memento.dynamicSizeProperties = pimpl->propertyContainers;
 }
 
-void
-GtDummyObject::addDummyPropertyList(const QString& id, const QString& type,
-                                    bool optional, bool active,
-                                    const QVariant& val)
-{
-    m_d_props << DummyProperty({ id, type, optional, active, val, LIST });
-}
 
-const QVector<GtDummyObject::DummyProperty>&
-GtDummyObject::dummyProperties() const
-{
-    return m_d_props;
-}

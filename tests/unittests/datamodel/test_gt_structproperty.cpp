@@ -688,3 +688,33 @@ TEST_F(TestGtStructProperty, createByFactory)
 
     GtPropertyFactory::instance()->unregisterProperty("EnvironmentVarsStruct");
 }
+
+/**
+ * @brief This tests checks the functionality of property
+ * container inside dummy objects
+ */
+TEST_F(TestGtStructProperty, propContainerDummyObj)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("PATH", "/usr/bin");
+    auto memento = obj.toMemento();
+
+    ASSERT_EQ(1, memento.dynamicSizeProperties.size());
+
+    auto objnew = memento.toObject(*gtObjectFactory);
+
+    ASSERT_TRUE(objnew != nullptr);
+    ASSERT_TRUE(objnew->isDummy());
+
+    auto mementoNew = objnew->toMemento();
+    EXPECT_EQ(1, mementoNew.dynamicSizeProperties.size());
+
+    auto envVarsMemento = mementoNew.dynamicSizeProperties.at(0);
+    ASSERT_EQ(1, envVarsMemento.childProperties.size());
+
+    auto entry = envVarsMemento.childProperties.at(0);
+    ASSERT_EQ(2, entry.childProperties.size());
+
+    EXPECT_EQ("PATH", entry.childProperties[0].data().toString().toStdString());
+    EXPECT_EQ("/usr/bin", entry.childProperties[1].data().toString().toStdString());
+}

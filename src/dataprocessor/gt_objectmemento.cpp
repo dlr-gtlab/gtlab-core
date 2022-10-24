@@ -340,34 +340,6 @@ GtObjectMemento::findPropertyByName(const QVector<PropertyData> &list,
 }
 
 bool
-readDummyProperty(const PD& p, GtDummyObject& obj)
-{
-
-    QString const fieldType = p.dataType();
-    QString const fieldName = p.name;
-
-    if (fieldType.isEmpty() || fieldName.isEmpty())
-    {
-        return false;
-    }
-
-    auto const & val = p.data();
-    auto const opt = p.isOptional;
-    auto const act = p.isActive;
-
-    if (!GtObjectIO::usePropertyList(val))
-    {
-        obj.addDummyProperty(fieldName, fieldType, opt, act, val);
-    }
-    else
-    {
-        obj.addDummyPropertyList(fieldName, fieldType, opt, act, val);
-    }
-
-    return true;
-}
-
-bool
 readProperty(const PD& p, GtObject& obj)
 {
 
@@ -406,18 +378,12 @@ readProperties(const GtObjectMemento& memento,
 {
     assert(obj.uuid() == memento.uuid());
 
-    bool isDummy = obj.isDummy();
-    auto * dummyObject = qobject_cast<GtDummyObject*>(&obj);
-
-    assert(isDummy || obj.metaObject()->className() == memento.className());
-    assert(!isDummy || dummyObject);
+    assert(!obj.isDummy());
 
 
     for (auto const & p :  memento.properties)
     {
-        bool success = !isDummy ?
-                           readProperty(p, obj) :
-                           readDummyProperty(p, *dummyObject);
+        bool success = readProperty(p, obj);
 
         if (!success)
         {
@@ -537,11 +503,8 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory) const
             << "Creating dummy object for unknown class '"
             << className() << "'.";
 
-        auto tmp = new GtDummyObject(nullptr);
-        tmp->setOrigClassName(className());
-        obj.reset(tmp);
+        obj.reset(new GtDummyObject(nullptr));
     }
-
 
     mergeTo(*obj, factory);
 
@@ -559,8 +522,18 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
 
     obj.setUuid(uuid());
     obj.setObjectName(ident());
-    ::readProperties(*this, obj);
-    ::readDynamicProperties(*this, obj);
+
+    auto dummyObject = qobject_cast<GtDummyObject*>(&obj);
+
+    if (!dummyObject)
+    {
+        ::readProperties(*this, obj);
+        ::readDynamicProperties(*this, obj);
+    }
+    else
+    {
+        dummyObject->importMemento(*this);
+    }
 
     const auto childs = obj.findDirectChildren<GtObject*>();
 

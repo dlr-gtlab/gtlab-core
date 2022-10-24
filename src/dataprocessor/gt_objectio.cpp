@@ -263,13 +263,15 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     const GtDummyObject* d_obj = qobject_cast<const GtDummyObject*>(o);
 
     // class name
-    if (!d_obj)
+    if (d_obj)
     {
-        memento.setClassName(o->metaObject()->className());
+        d_obj->exportToMemento(memento);
     }
     else
     {
-        memento.setClassName(d_obj->origClassName());
+        memento.setClassName(o->metaObject()->className());
+        // store property information
+        writeProperties(memento, o);
     }
 
     // uuid
@@ -284,9 +286,6 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
 
     // object name
     memento.setIdent(o->objectName());
-
-    // store property information
-    writeProperties(memento, o);
 
     // child objects
     QList<GtObject*> directChildren = o->findDirectChildren<GtObject*>();
@@ -490,39 +489,6 @@ GtObjectIO::writeProperties(GtObjectMemento& memento,
                             const GtObject* obj)
 {
     const QMetaObject* meta = obj->metaObject();
-
-    const GtDummyObject* d_obj = qobject_cast<const GtDummyObject*>(obj);
-
-    if (d_obj)
-    {
-        foreach (GtDummyObject::DummyProperty d_p,
-                 d_obj->dummyProperties())
-        {
-            // static property
-            GtObjectMemento::PropertyData mprop;
-            mprop.name = d_p.m_id;
-            mprop.setData(d_p.m_val);
-            mprop.isOptional = d_p.m_optional;
-            mprop.isActive = d_p.m_active;
-
-            memento.properties.push_back(mprop);
-        }
-
-//        foreach (GtDummyObject::DummyProperty d_p,
-//                 d_obj->dummyPropertyLists())
-//        {
-//            // static property
-//            GtObjectMemento::MementoData::PropertyData mprop;
-//            mprop.name = d_p.m_id;
-//            mprop.data = d_p.m_val;
-//            mprop.isOptional = d_p.m_optional;
-//            mprop.isActive = d_p.m_active;
-
-//            data.properties.push_back(mprop);
-//        }
-
-        return;
-    }
 
     // static properties
     QList<GtAbstractProperty*> props = obj->properties();

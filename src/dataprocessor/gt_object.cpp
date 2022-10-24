@@ -420,19 +420,6 @@ GtObject::acceptChangesRecursively()
 void
 GtObject::debugObjectTree(int indent)
 {
-    GtDummyObject* d_obj = qobject_cast<GtDummyObject*>(this);
-
-    if (d_obj)
-    {
-        // debug dummy properties
-        foreach (GtDummyObject::DummyProperty dp,
-                 d_obj->dummyProperties())
-        {
-            qDebug() << ": " << dp.m_id << " [" << dp.m_type << ", "
-                     << dp.m_optional << ", " << dp.m_active << ", "
-                     << dp.m_val << "]";
-        }
-    }
 
     QString str = QStringLiteral("|-> ");
 

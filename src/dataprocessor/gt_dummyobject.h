@@ -15,6 +15,10 @@
 #include <QVector>
 #include <QVariant>
 
+#include <memory>
+
+class GtObjectMemento;
+
 /**
  * @brief The GtDummyObject class
  */
@@ -23,22 +27,7 @@ class GtDummyObject : public GtObject
     Q_OBJECT
 
 public:
-    enum PROPERTY_TYPE
-    {
-        SIMPLE,
-        LIST
-    };
-
-    /// Dummy property container
-    struct DummyProperty
-    {
-        QString m_id;
-        QString m_type;
-        bool m_optional;
-        bool m_active;
-        QVariant m_val;
-        PROPERTY_TYPE m_p_type;
-    };
+    ~GtDummyObject() override;
 
     /**
      * @brief GtDummyObject
@@ -52,45 +41,13 @@ public:
      */
     QString origClassName() const;
 
-    /**
-     * @brief setOrigClassName
-     * @param origClassName
-     */
-    void setOrigClassName(const QString& origClassName);
 
-    /**
-     * @brief addDummyProperty
-     * @param id
-     * @param type
-     * @param val
-     */
-    void addDummyProperty(const QString& id, const QString& type,
-                          bool optional, bool active,
-                          const QVariant& val);
-
-    /**
-     * @brief addDummyProperty
-     * @param id
-     * @param type
-     * @param val
-     */
-    void addDummyPropertyList(const QString& id, const QString& type,
-                              bool optional, bool active,
-                              const QVariant& val);
-
-    /**
-     * @brief dummyProperties
-     * @return
-     */
-    const QVector<DummyProperty>& dummyProperties() const;
+    void importMemento(const GtObjectMemento& memento);
+    void exportToMemento(GtObjectMemento& memento) const;
 
 private:
-    /// original class name
-    QString m_origClassName;
-
-    /// List of dummy properties
-    QVector<DummyProperty> m_d_props;
-
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
 
 #endif // GTDUMMYOBJECT_H
