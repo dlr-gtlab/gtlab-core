@@ -394,14 +394,14 @@ GtDataModel::onProjectDataLoaded()
         return;
     }
 
+    initProjectStates(project);
+
     // collect project data
     GtObjectList data = helper->loadedObjects();
 
     helper->deleteLater();
 
     appendProjectData(project, data);
-
-    initProjectStates(project);
 
     gtApp->settings()->setLastProject(project->objectName());
 

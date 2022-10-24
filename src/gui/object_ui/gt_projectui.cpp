@@ -54,6 +54,7 @@
 #include "gt_dialog.h"
 #include "gt_generatebackupdialog.h"
 #include "gt_projectrestorebackupdialog.h"
+#include "gt_taskgroup.h"
 
 #include "gt_projectui.h"
 
@@ -126,8 +127,9 @@ GtProjectUI::GtProjectUI()
         //        GtProjectDiffPatch * differ = new GtProjectDiffPatch;
         //        GtdVCSDBInterface * vcInterface = new GtdVCSDBInterface;
         //        vc = new GtdVersionControlCore(vcInterface, differ);
-    }
 
+    }
+ 
     addSingleAction(tr("Open Project Settings..."),
                     &GtProjectUI::openProjectSettings)
             .setIcon(gt::gui::icon::config16())
@@ -990,7 +992,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
         return;
     }
 
-    GtProcessData* pd =  project->processData();
+    GtTaskGroup* pd =  project->processData()->taskGroup();
 
     if (!pd)
     {

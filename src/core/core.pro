@@ -85,6 +85,7 @@ HEADERS += \
     process_management/gt_processmoduleloader.h \
     process_management/gt_calculatorfactory.h \
     process_management/gt_taskfactory.h \
+    process_management/gt_taskgroup.h \
     process_management/gt_tasklink.h \
     process_management/gt_abstractrunnable.h \
     process_management/gt_processcomponent.h \
@@ -181,6 +182,7 @@ SOURCES += \
     process_management/gt_processmoduleloader.cpp \
     process_management/gt_calculatorfactory.cpp \
     process_management/gt_taskfactory.cpp \
+    process_management/gt_taskgroup.cpp \
     process_management/gt_tasklink.cpp \
     process_management/gt_abstractrunnable.cpp \
     process_management/gt_processcomponent.cpp \

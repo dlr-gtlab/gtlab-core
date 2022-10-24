@@ -13,7 +13,10 @@
 #include "gt_core_exports.h"
 #include "gt_objectgroup.h"
 
+#include <memory>
+
 class GtTask;
+class GtTaskGroup;
 
 /**
  * @brief The GtProcessData class
@@ -29,6 +32,11 @@ public:
     Q_INVOKABLE GtProcessData();
 
     /**
+     * @brief Destructor.
+     */
+    ~GtProcessData();
+
+    /**
      * @brief processList
      * @return
      */
@@ -40,6 +48,20 @@ public:
      * @return
      */
     GtTask* findProcess(const QString& val);
+
+    // Returns current task group
+    GtTaskGroup* taskGroup();
+
+    // Initializes process data for given project
+    void init(const QString& projectPath);
+
+    // Stores process data for given project
+    void save(const QString& projectPath);
+
+private:
+    /// Private implementation
+    class Impl;
+    std::unique_ptr<Impl> m_pimpl;
 
 };
 

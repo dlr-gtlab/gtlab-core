@@ -15,6 +15,7 @@
 #include "gt_objectfactory.h"
 #include "gt_processdata.h"
 #include "gt_icons.h"
+#include "gt_taskgroup.h"
 
 #include "gt_processimporter.h"
 
@@ -35,7 +36,7 @@ GtProcessImporter::targets() const
         retVal.append(tmpStr);
     }
 
-    retVal.append(GT_CLASSNAME(GtProcessData));
+    retVal.append(GT_CLASSNAME(GtTaskGroup));
 
     return retVal;
 }

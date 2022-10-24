@@ -39,7 +39,11 @@
 
 #include <cassert>
 
+#include "gt_taskgroup.h"
 
+#include "internal/gt_moduleupgrader.h"
+
+>>>>>>> f2fd579 (initial implementation of separate task storage)
 GtProject::GtProject(const QString& path) :
     m_path(path),
     m_pathProp(QStringLiteral("path"), tr("Path"), tr("Project path"), path)
@@ -431,6 +435,19 @@ GtProject::readProcessData()
     GtProcessData* data = new GtProcessData;
     data->setFactory(gtObjectFactory);
     data->setDefault(true);
+    data->init(path());
+
+    return data;
+
+
+
+
+
+
+
+
+
+
 
     // read process data here
 
@@ -672,7 +689,7 @@ GtProject::saveModuleData()
     // externalize or internalize objects accordingly
     if (!saveExternalizedObjectData())
     {
-        gtWarning() << tr("Failed to save externalized object data!");
+        gtError() << tr("Failed to save externalized object data!");
         // saving may continue
     }
 
@@ -848,22 +865,14 @@ GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
 }
 
 bool
-GtProject::saveProcessData(QDomElement& root, QDomDocument& doc)
+GtProject::saveProcessData(QDomElement& /*root*/, QDomDocument& /*doc*/)
 {
-    QDomElement pdElement = doc.createElement(QStringLiteral("PROCESSES"));
-
     GtProcessData* pd = processData();
 
     if (pd)
     {
-        foreach (GtTask* task, pd->findDirectChildren<GtTask*>())
-        {
-            GtObjectMemento memento = task->toMemento();
-            pdElement.appendChild(memento.documentElement());
-        }
+        pd->save(path());
     }
-
-    root.appendChild(pdElement);
 
     return true;
 }

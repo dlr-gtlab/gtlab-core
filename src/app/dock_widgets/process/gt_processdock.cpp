@@ -56,6 +56,7 @@
 #include "gt_propertyconnectionfunctions.h"
 #include "gt_icons.h"
 #include "gt_utilities.h"
+#include "gt_taskgroup.h"
 
 #include "gt_processdock.h"
 
@@ -74,7 +75,7 @@ inline bool useExtendedProcessExecutor()
 GtProcessDock::GtProcessDock() :
     m_model(nullptr),
     m_filterModel(nullptr),
-    m_processData(nullptr),
+    m_taskGroup(nullptr),
     m_currentProcess(nullptr),
     m_project(nullptr),
     m_actionMapper(new QSignalMapper(this))
@@ -83,6 +84,12 @@ GtProcessDock::GtProcessDock() :
 
     auto widget = new QWidget(this);
     setWidget(widget);
+
+    auto frame = new QFrame;
+    auto frameLayout = new QVBoxLayout;
+
+    frameLayout->setContentsMargins(0, 0, 0, 0);
+    frameLayout->setSpacing(0);
 
     m_runButton = new QPushButton(tr("Run"));
     m_runButton->setIcon(gt::gui::icon::runProcess16());
@@ -275,15 +282,15 @@ GtProcessDock::projectChangedEvent(GtProject* project)
     if (project)
     {
         m_processQueueButton->setEnabled(true);
-        m_processData = project->processData();
+        m_taskGroup = project->processData()->taskGroup();
 
-        if (m_processData)
+        if (m_taskGroup)
         {
             filterData(m_search->text());
         }
     }
 
-    updateButtons(m_processData);
+    updateButtons(m_taskGroup);
 
     if (!project)
     {
@@ -304,13 +311,13 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 void
 GtProcessDock::addEmptyTaskToRoot()
 {
-    if (!m_processData)
+    if (!m_taskGroup)
     {
         return;
     }
 
     QString taskId = gtDataModel->uniqueObjectName(tr("New Task"),
-                     m_processData);
+                     m_taskGroup);
 
     if (taskId.isEmpty())
     {
@@ -323,7 +330,7 @@ GtProcessDock::addEmptyTaskToRoot()
     task->setObjectName(taskId);
     task->setFactory(gtProcessFactory);
 
-    QModelIndex srcIndex = gtDataModel->appendChild(task, m_processData);
+    QModelIndex srcIndex = gtDataModel->appendChild(task, m_taskGroup);
 
     QModelIndex index = mapFromSource(srcIndex);
 
@@ -442,12 +449,12 @@ GtProcessDock::addCalculator()
 void
 GtProcessDock::addTask()
 {
-    if (!m_processData)
+    if (!m_taskGroup)
     {
         return;
     }
 
-    auto project = m_processData->findParent<GtProject*>();
+    auto project = m_taskGroup->findParent<GtProject*>();
 
     if (!project)
     {
@@ -468,7 +475,7 @@ GtProcessDock::addTask()
 
     if (!m_view->currentIndex().isValid())
     {
-        parentObj = m_processData;
+        parentObj = m_taskGroup;
     }
     else
     {
@@ -553,7 +560,7 @@ GtProcessDock::findRootTaskHelper(GtObject* obj)
     }
 
     // object a task
-    if (!qobject_cast<GtProcessData*>(obj->parent()))
+    if (!qobject_cast<GtTaskGroup*>(obj->parent()))
     {
         return findRootTaskHelper(obj->findParent<GtTask*>());
     }
@@ -589,9 +596,9 @@ GtProcessDock::filterData(const QString& val)
 
     m_view->setModel(nullptr);
 
-    if (m_processData)
+    if (m_taskGroup)
     {
-        QModelIndex srcIndex = gtDataModel->indexFromObject(m_processData);
+        QModelIndex srcIndex = gtDataModel->indexFromObject(m_taskGroup);
         QModelIndex index = mapFromSource(srcIndex);
 
         m_rootIndex = QPersistentModelIndex(index);
@@ -970,7 +977,7 @@ GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
 
         menu.addSeparator();
 
-        auto imenu = new GtImportMenu(m_processData, &menu);
+        auto imenu = new GtImportMenu(m_taskGroup, &menu);
 
         menu.addMenu(imenu);
 
@@ -999,7 +1006,7 @@ GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
 
         if (a == actpaste)
         {
-            pasteElement(m_processData);
+            pasteElement(m_taskGroup);
             //            pasteProcessComponent(QModelIndex());
             //            pasteProcessElement(index);
         }
@@ -1048,7 +1055,7 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     /// does not trigger the action
     actrunRemote->setShortcut(getShortCut("runProcess"));
 
-    if (qobject_cast<GtProcessData*>(obj->parent()))
+    if (qobject_cast<GtTaskGroup*>(obj->parent()))
     {
         actrunRemote->setVisible(true);
         actstop->setVisible(true);
@@ -1551,7 +1558,7 @@ GtProcessDock::copyElement(const QModelIndex& index)
 
     if (newTask && origTask)
     {
-        if (qobject_cast<GtProcessData*>(origTask->parent()))
+        if (qobject_cast<GtTaskGroup*>(origTask->parent()))
         {
             mapPropertyConnections(origTask, newTask);
         }
@@ -1667,7 +1674,7 @@ GtProcessDock::cloneElement(const QModelIndex& index)
 
     if (newTask && origTask)
     {
-        if (qobject_cast<GtProcessData*>(origTask->parent()))
+        if (qobject_cast<GtTaskGroup*>(origTask->parent()))
         {
             mapPropertyConnections(origTask, newTask);
         }
@@ -1751,7 +1758,7 @@ GtProcessDock::cutElement(const QModelIndex& index)
         return;
     }
 
-    if (!m_processData)
+    if (!m_taskGroup)
     {
         return;
     }
@@ -1762,7 +1769,7 @@ GtProcessDock::cutElement(const QModelIndex& index)
 
     if (qobject_cast<GtTask*>(pComp))
     {
-        if (!qobject_cast<GtProcessData*>(pComp->parent()))
+        if (!qobject_cast<GtTaskGroup*>(pComp->parent()))
         {
             GtTask* child = qobject_cast<GtTask*>(pComp);
 
@@ -1900,7 +1907,7 @@ GtProcessDock::pasteElement(GtObject* parent)
         return;
     }
 
-    if (!qobject_cast<GtProcessData*>(parent))
+    if (!qobject_cast<GtTaskGroup*>(parent))
     {
         auto pComp = qobject_cast<GtProcessComponent*>(parent);
 
@@ -1931,7 +1938,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
         return;
     }
 
-    if (!qobject_cast<GtProcessData*>(parent))
+    if (!qobject_cast<GtTaskGroup*>(parent))
     {
         auto pComp = qobject_cast<GtProcessComponent*>(parent);
 
@@ -2215,11 +2222,11 @@ GtProcessDock::mapFromSource(const QModelIndex& index)
     return  m_filterModel->mapFromSource(tmp1);
 }
 
-GtProcessData*
-GtProcessDock::processData()
-{
-    return m_processData;
-}
+//GtProcessData*
+//GtProcessDock::processData()
+//{
+//    return m_processData;
+//}
 
 void
 GtProcessDock::resetModel()
@@ -2404,7 +2411,7 @@ GtProcessDock::actionTriggered(QObject* obj)
         }
         else
         {
-            parentObj = m_processData;
+            parentObj = m_taskGroup;
         }
 
         if (!parentObj)

@@ -24,7 +24,7 @@ class GtProcessView;
 class GtProcessComponentModel;
 class GtTreeFilterModel;
 class GtSearchWidget;
-class GtProcessData;
+class GtTaskGroup;
 class GtTask;
 class GtCalculator;
 class GtObject;
@@ -63,12 +63,6 @@ public:
      * @return
      */
     QModelIndex mapFromSource(const QModelIndex& index);
-
-    /**
-     * @brief Returns pointer to process data object.
-     * @return Process data object
-     */
-    GtProcessData* processData();
 
 public slots:
     /**
@@ -168,8 +162,8 @@ private:
     /// Root index
     QPersistentModelIndex m_rootIndex;
 
-    /// Pointer to process data of current project
-    QPointer<GtProcessData> m_processData;
+    /// Pointer to selected task group of current project
+    QPointer<GtTaskGroup> m_taskGroup;
 
     /// Pointer to current process
     QPointer<GtTask> m_currentProcess;

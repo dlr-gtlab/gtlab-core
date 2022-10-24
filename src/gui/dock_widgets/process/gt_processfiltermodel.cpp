@@ -10,6 +10,8 @@
 #include "gt_task.h"
 #include "gt_calculator.h"
 #include "gt_processdata.h"
+#include "gt_dummyobject.h"
+#include "gt_taskgroup.h"
 
 #include "gt_processfiltermodel.h"
 
@@ -55,7 +57,7 @@ GtProcessFilterModel::filterAcceptsRow(int source_row,
         GtObject* obj = static_cast<GtObject*>(source_index.internalPointer());
 
         if (qobject_cast<GtTask*>(obj) || qobject_cast<GtCalculator*>(obj) ||
-                qobject_cast<GtProcessData*>(obj) ||
+                qobject_cast<GtTaskGroup*>(obj) ||
                 obj->isDummy())
         {
             return true;

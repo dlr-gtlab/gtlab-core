@@ -21,8 +21,6 @@
 
 GtTaskFactory::GtTaskFactory(QObject* parent) : QObject(parent)
 {
-    gtObjectFactory->registerClass(GT_METADATA(GtProcessData));
-
     // Default tasks
     GtTaskData simpleTask = GT_TASK_DATA(GtTask);
     simpleTask->id = QStringLiteral("Simple Task");
