@@ -294,7 +294,7 @@ protected:
     GtProcessComponent& setTempPath(QString);
 
     /// List of linked datamodel objects.
-    const QList<QPointer<GtObject>>& linkedObjects() const;
+    QList<GtObject const*> linkedObjects() const;
     QList<QPointer<GtObject>>& linkedObjects();
 
 private:
