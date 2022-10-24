@@ -82,7 +82,7 @@ GtMdiItem::initializeState(GtProject* project, const QString& id,
                                            forceInitialization);
 }
 
-QMdiSubWindow*
+QWidget*
 GtMdiItem::subWin()
 {
     return m_subWin;
@@ -107,7 +107,7 @@ GtMdiItem::customId(GtObject* /*obj*/)
 }
 
 void
-GtMdiItem::setSubWin(QMdiSubWindow* subWin)
+GtMdiItem::setSubWin(QWidget* subWin)
 {
     m_subWin = subWin;
 }
@@ -162,7 +162,7 @@ GtMdiItem::showEvent()
 void
 GtMdiItem::projectSavedEvent(GtProject* project)
 {
-    Q_UNUSED(project);
+    Q_UNUSED(project)
 }
 
 void

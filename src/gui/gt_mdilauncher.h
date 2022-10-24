@@ -20,7 +20,7 @@
 
 #define gtMdiLauncher (GtMdiLauncher::instance())
 
-class QMdiArea;
+class QTabWidget;
 class QMdiSubWindow;
 class GtMdiItem;
 class GtCollectionInterface;
@@ -47,7 +47,7 @@ public:
      * @brief setMdiArea
      * @param area
      */
-    void setMdiArea(QMdiArea* area);
+    void setMdiArea(QTabWidget* area);
 
     /**
      * @brief dockWidgetIds
@@ -93,7 +93,7 @@ public:
      * @brief print
      * @param subWindow
      */
-    void print(QMdiSubWindow* subWindow);
+    void print(QWidget *subWindow);
 
     /**
      * @brief registerDockWidget
@@ -153,7 +153,7 @@ private:
     explicit GtMdiLauncher(QObject* parent = nullptr);
 
     /// Mdi area widget
-    QPointer<QMdiArea> m_area;
+    QPointer<QTabWidget> m_area;
 
     /// Registered dock widget meta objects
     QHash<QString, QMetaObject> m_dockWidgets;
@@ -198,6 +198,7 @@ private slots:
      */
     void onSubWindowClose(QObject* obj);
 
+    void onCloseTabRequest(int i);
 };
 
 #endif // GTMDILAUNCHER_H
