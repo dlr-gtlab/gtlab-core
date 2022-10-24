@@ -35,9 +35,9 @@ struct DummyData
 
 struct GtObject::Impl
 {
-    explicit Impl(GtObject& q) :
+    explicit Impl() :
         factory(nullptr),
-        propertyMapper(new QSignalMapper(&q))
+        propertyMapper(std::make_unique<QSignalMapper>())
     {}
 
     bool isDummy() const
@@ -84,7 +84,7 @@ struct GtObject::Impl
     std::vector<std::reference_wrapper<GtPropertyStructContainer>> propertyContainer;
 
     /// mapper for property signals
-    QSignalMapper* propertyMapper;
+    std::unique_ptr<QSignalMapper> propertyMapper;
 
     /// A dummy object is not known by the factory but can store properties
     /// as mementos to avoid losing data for unknown objects
@@ -97,7 +97,7 @@ struct GtObject::Impl
 };
 
 GtObject::GtObject(GtObject* parent) :
-    pimpl(std::make_unique<Impl>(*this))
+    pimpl(std::make_unique<Impl>())
 {
     if (parent)
     {
@@ -110,7 +110,7 @@ GtObject::GtObject(GtObject* parent) :
     // set newly created flag
     setFlag(GtObject::NewlyCreated);
 
-    connect(pimpl->propertyMapper, SIGNAL(mapped(QObject*)),
+    connect(pimpl->propertyMapper.get(), SIGNAL(mapped(QObject*)),
             SLOT(propertyChanged(QObject*)));
     connect(this, SIGNAL(objectNameChanged(QString)), SLOT(changed()));
 }
@@ -758,7 +758,7 @@ GtObject::getObjectByPath(const QString& objectPath)
 void
 GtObject::connectProperty(GtAbstractProperty& property)
 {
-    connect(&property, SIGNAL(changed()), pimpl->propertyMapper, SLOT(map()),
+    connect(&property, SIGNAL(changed()), pimpl->propertyMapper.get(), SLOT(map()),
             Qt::UniqueConnection);
 
     pimpl->propertyMapper->setMapping(&property, &property);
