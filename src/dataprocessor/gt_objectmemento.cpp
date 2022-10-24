@@ -17,7 +17,6 @@
 #include "gt_objectio.h"
 #include "gt_abstractobjectfactory.h"
 #include "gt_abstractproperty.h"
-#include "gt_dummyobject.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 #include "gt_exceptions.h"
@@ -503,7 +502,8 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory) const
             << "Creating dummy object for unknown class '"
             << className() << "'.";
 
-        obj.reset(new GtDummyObject(nullptr));
+        obj.reset(new GtObject(nullptr));
+        obj->makeDummy();
     }
 
     mergeTo(*obj, factory);
@@ -523,16 +523,14 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
     obj.setUuid(uuid());
     obj.setObjectName(ident());
 
-    auto dummyObject = qobject_cast<GtDummyObject*>(&obj);
-
-    if (!dummyObject)
+    if (!obj.isDummy())
     {
         ::readProperties(*this, obj);
         ::readDynamicProperties(*this, obj);
     }
     else
     {
-        dummyObject->importMemento(*this);
+        obj.importMementoIntoDummy(*this);
     }
 
     const auto childs = obj.findDirectChildren<GtObject*>();

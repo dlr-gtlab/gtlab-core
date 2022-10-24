@@ -39,6 +39,7 @@ class GT_DATAMODEL_EXPORT GtObject : public QObject
     Q_OBJECT
 
     friend class GtObjectIO;
+    friend class GtObjectMemento;
 
 public:
     enum ObjectFlag
@@ -639,6 +640,13 @@ private:
      * @param parent parent object
      */
     void newChildUUIDs(GtObject* parent) const;
+
+    /**
+     * @brief Converts the object into a dummy object
+     */
+    void makeDummy();
+    void importMementoIntoDummy(const GtObjectMemento&);
+    void exportDummyIntoMemento(GtObjectMemento&) const;
 
 private slots:
     /**

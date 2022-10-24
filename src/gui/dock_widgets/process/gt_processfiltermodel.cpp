@@ -10,7 +10,6 @@
 #include "gt_task.h"
 #include "gt_calculator.h"
 #include "gt_processdata.h"
-#include "gt_dummyobject.h"
 
 #include "gt_processfiltermodel.h"
 

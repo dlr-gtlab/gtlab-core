@@ -21,7 +21,6 @@
 #include <typeinfo>
 
 #include "gt_object.h"
-#include "gt_dummyobject.h"
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
@@ -260,12 +259,11 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     // global object element
     GtObjectMemento memento;
 
-    const GtDummyObject* d_obj = qobject_cast<const GtDummyObject*>(o);
 
     // class name
-    if (d_obj)
+    if (o->isDummy())
     {
-        d_obj->exportToMemento(memento);
+        o->exportDummyIntoMemento(memento);
     }
     else
     {

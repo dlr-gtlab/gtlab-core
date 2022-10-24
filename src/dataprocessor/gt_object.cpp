@@ -15,7 +15,6 @@
 #include "gt_label.h"
 #include "gt_objectmementodiff.h"
 #include "gt_objectio.h"
-#include "gt_dummyobject.h"
 #include "gt_structproperty.h"
 #include "gt_propertystructcontainer.h"
 
@@ -27,6 +26,13 @@
 
 #include <algorithm>
 
+struct DummyData
+{
+    QVector<GtObjectMemento::PropertyData> properties;
+    QVector<GtObjectMemento::PropertyData> propertyContainers;
+    QString className;
+};
+
 struct GtObject::Impl
 {
     explicit Impl(GtObject& q) :
@@ -34,14 +40,39 @@ struct GtObject::Impl
         propertyMapper(new QSignalMapper(&q))
     {}
 
+    bool isDummy() const
+    {
+        return m_isDummy;
+    }
+
+    void makeDummy()
+    {
+        m_isDummy = true;
+        properties.clear();
+        propertyContainer.clear();
+    }
+
+    void importDummy(const GtObjectMemento& memento)
+    {
+        assert(isDummy());
+        dummyData.properties = memento.properties;
+        dummyData.propertyContainers = memento.dynamicSizeProperties;
+        dummyData.className = memento.className();
+    }
+
+    void exportDummy(GtObjectMemento& memento) const
+    {
+        assert(isDummy());
+        memento.setClassName(dummyData.className);
+        memento.properties = dummyData.properties;
+        memento.dynamicSizeProperties = dummyData.propertyContainers;
+    }
+
     /// Object specific uuid
     QString uuid;
 
     /// Object flags
     GtObject::ObjectFlags objectFlags;
-
-    ///
-    //    bool m_default;
 
     /// factory
     GtAbstractObjectFactory* factory;
@@ -50,10 +81,19 @@ struct GtObject::Impl
     QList<GtAbstractProperty*> properties;
 
     /// dynamic size properties
-    std::vector<std::reference_wrapper<GtPropertyStructContainer>> dynamic_properties;
+    std::vector<std::reference_wrapper<GtPropertyStructContainer>> propertyContainer;
 
     /// mapper for property signals
     QSignalMapper* propertyMapper;
+
+    /// A dummy object is not known by the factory but can store properties
+    /// as mementos to avoid losing data for unknown objects
+    bool m_isDummy{false};
+
+    /// only used, if object isDummy
+    /// TODO: use a variant here
+    DummyData dummyData;
+
 };
 
 GtObject::GtObject(GtObject* parent) :
@@ -86,7 +126,7 @@ GtObject::objectFlags() const
 bool
 GtObject::isDummy() const
 {
-    return (qobject_cast<const GtDummyObject*>(this) != nullptr);
+    return pimpl->isDummy();
 }
 
 bool
@@ -540,14 +580,14 @@ GtObject::findPropertyByName(const QString& name) const
 GtPropertyStructContainer const *
 GtObject::findDynamicSizeProperty(const QString &id) const
 {
-    auto iter = std::find_if(std::begin(pimpl->dynamic_properties),
-                             std::end(pimpl->dynamic_properties),
+    auto iter = std::find_if(std::begin(pimpl->propertyContainer),
+                             std::end(pimpl->propertyContainer),
                              [&id](const GtPropertyStructContainer& current)
     {
         return current.ident() == id;
     });
 
-    if (iter == pimpl->dynamic_properties.end())
+    if (iter == pimpl->propertyContainer.end())
     {
         gtError().noquote().nospace() << "Requested dynamic size property '"
                                       << id << "' does not exist.";
@@ -569,14 +609,14 @@ GtObject::findDynamicSizeProperty(const QString &id)
 std::vector<std::reference_wrapper<const GtPropertyStructContainer> >
 GtObject::dynamicProperties() const
 {
-    return {std::begin(pimpl->dynamic_properties), std::end(pimpl->dynamic_properties)};
+    return {std::begin(pimpl->propertyContainer), std::end(pimpl->propertyContainer)};
 
 }
 
 std::vector<std::reference_wrapper<GtPropertyStructContainer>>&
 GtObject::dynamicProperties()
 {
-    return pimpl->dynamic_properties;
+    return pimpl->propertyContainer;
 }
 
 void
@@ -759,6 +799,21 @@ GtObject::newChildUUIDs(GtObject* parent) const
     }
 }
 
+void GtObject::makeDummy()
+{
+    pimpl->makeDummy();
+}
+
+void GtObject::importMementoIntoDummy(const GtObjectMemento& memento)
+{
+    pimpl->importDummy(memento);
+}
+
+void GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
+{
+    pimpl->exportDummy(memento);
+}
+
 bool
 GtObject::registerProperty(GtAbstractProperty& property)
 {
@@ -782,12 +837,12 @@ GtObject::registerProperty(GtAbstractProperty& property)
 bool
 GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
 {
-    auto iter = std::find_if(std::begin(pimpl->dynamic_properties), std::end(pimpl->dynamic_properties), [&](const GtPropertyStructContainer& current)
+    auto iter = std::find_if(std::begin(pimpl->propertyContainer), std::end(pimpl->propertyContainer), [&](const GtPropertyStructContainer& current)
     {
         return &current == &c;
     });
 
-    if (iter != pimpl->dynamic_properties.end())
+    if (iter != pimpl->propertyContainer.end())
     {
         gtWarning() << tr("multiple property container registration!")
                     << QStringLiteral(" Object Name (") << objectName()
@@ -797,7 +852,7 @@ GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
         return false;
     }
 
-    pimpl->dynamic_properties.push_back(c);
+    pimpl->propertyContainer.push_back(c);
 
     return true;
 }
