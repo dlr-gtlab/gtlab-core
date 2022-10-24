@@ -131,6 +131,12 @@ public:
     }
 
     /**
+     * @brief Is called directly after loading the module. It can be used to
+     * interact with the loading process of the modules.
+     */
+    virtual void onLoad() {};
+
+    /**
      * @brief Initializes module. Called on application startup.
      */
     virtual void init() {};

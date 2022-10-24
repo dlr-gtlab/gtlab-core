@@ -134,3 +134,9 @@ TestModuleInterface::commandLineFunctions() const
 
     return {fun};
 }
+
+void
+TestModuleInterface::onLoad()
+{
+
+}
