@@ -6,7 +6,6 @@
  */
 
 #include "gt_structproperty.h"
-#include "gt_propertyfactory.h"
 
 GtPropertyStructDefinition::GtPropertyStructDefinition(QString typeName) :
     instanceTypeName(std::move(typeName))
@@ -17,28 +16,6 @@ QString
 GtPropertyStructDefinition::typeName() const
 {
     return instanceTypeName;
-}
-
-void
-GtPropertyStructDefinition::defineMember(const QString& id,
-                                         const QString& propertyClassName,
-                                         QVariant defaultVal)
-{
-    PropertyFactoryFunction f = [=](const QString& localId) {
-        auto p = GtPropertyFactory::instance()->newProperty(propertyClassName,
-                                                            localId, localId);
-        if (!p)
-        {
-            gtError().noquote().nospace() << "Cannot create property of type '"
-                      << propertyClassName << "'.";
-            return static_cast<GtAbstractProperty*>(nullptr);
-        }
-
-        p->setValueFromVariant(defaultVal);
-        return p;
-    };
-
-    members.push_back(MemberType{id, f});
 }
 
 void

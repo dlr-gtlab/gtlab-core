@@ -322,5 +322,18 @@ Q_DECLARE_METATYPE(GtUnit::Category)
 GT_DATAMODEL_EXPORT
 QVariant getConnectedValue(const GtPropertyConnection& connection);
 
+/**
+     * Function definition to create a property with the
+     * identifier 'id'
+     *
+     * This is mainly used to recreate types in property container.
+     *
+     * Note: we currently omit the "name" argument, as name is used
+     * to store the dynamic type of the struct
+     */
+using PropertyFactoryFunction =
+    std::function<GtAbstractProperty*(const QString& id)>;
+
+
 
 #endif // GTABSTRACTPROPERTY_H

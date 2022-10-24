@@ -63,4 +63,11 @@ public:
                               bool* success = 0) override;
 };
 
+
+/**
+ * @brief Creates a property factory for bools with a default value
+ */
+GT_DATAMODEL_EXPORT
+PropertyFactoryFunction makeBoolProperty(bool value);
+
 #endif // GTBOOLPROPERTY_H

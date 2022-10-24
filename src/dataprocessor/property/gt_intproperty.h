@@ -140,4 +140,10 @@ protected:
 
 };
 
+/**
+ * @brief Creates a property factory for ints with a default value
+ */
+GT_DATAMODEL_EXPORT
+PropertyFactoryFunction makeIntProperty(int value);
+
 #endif // GTINTPROPERTY_H

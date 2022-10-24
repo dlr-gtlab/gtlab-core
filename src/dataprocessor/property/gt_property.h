@@ -301,4 +301,26 @@ inline bool GtProperty<ParamType>::validateValue(const ParamType& /*value*/)
     return true;
 }
 
+
+template <typename PropertyType>
+inline PropertyFactoryFunction makePropertyFactory()
+{
+    return [=](const QString& id) {
+        return new PropertyType(id, id);
+    };
+}
+
+/**
+ * @brief Creates a property factory for Ts with a default value
+ */
+template <typename PropertyType, typename T>
+inline PropertyFactoryFunction makePropertyFactory(T value)
+{
+    return [=](const QString& id) {
+        auto p = new PropertyType(id, id);
+        p->setValueFromVariant(std::move(value), "");
+        return p;
+    };
+}
+
 #endif // GTLAB_PARAMETER_H

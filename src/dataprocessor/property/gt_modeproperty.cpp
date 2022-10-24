@@ -149,3 +149,12 @@ GtModeProperty::validateValue(const QString& value)
     return modes().contains(value);
 }
 
+PropertyFactoryFunction
+makeModeProperty()
+{
+    return [](const QString& id)
+    {
+        return new GtModeProperty(id, id, "");
+    };
+}
+

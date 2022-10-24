@@ -15,6 +15,7 @@
 #include "gt_propertystructcontainer.h"
 #include "gt_propertyfactory.h"
 #include "gt_doubleproperty.h"
+#include "gt_stringproperty.h"
 #include "gt_objectmemento.h"
 #include "gt_xmlutilities.h"
 #include "gt_objectmementodiff.h"
@@ -30,8 +31,8 @@ struct TestObject : public GtObject
     {
 
         GtPropertyStructDefinition envVarStruct("EnvironmentVarsStruct");
-        envVarStruct.defineMember("name", "GtStringProperty", "");
-        envVarStruct.defineMember("value", "GtStringProperty", "");
+        envVarStruct.defineMember("name", makeStringProperty());
+        envVarStruct.defineMember("value", makeStringProperty());
 
         environmentVars.registerAllowedType(envVarStruct);
 
@@ -62,19 +63,9 @@ TEST_F(TestGtStructProperty, buildPoint3d)
 {
     GtPropertyStructDefinition point3dClz("point_3d");
 
-    auto makeDoubleProperty = [](double value) {
-        return [=](const QString& id) {
-            auto p = new GtDoubleProperty(id, id);
-            p->setValueFromVariant(value, "");
-            return p;
-        };
-    };
-
     point3dClz.defineMember("x", makeDoubleProperty(1.0));
     point3dClz.defineMember("y", makeDoubleProperty(2.0));
-
-    // lets define z via the property factory
-    point3dClz.defineMember("z", "GtDoubleProperty", 3.0);
+    point3dClz.defineMember("z", makeDoubleProperty(3.0));
 
     auto p1 = point3dClz.newInstance("p1");
 

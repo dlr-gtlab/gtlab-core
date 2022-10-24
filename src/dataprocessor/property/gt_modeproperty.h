@@ -114,4 +114,10 @@ private:
 
 };
 
+/**
+ * @brief Creates a property factory for bools with a default value
+ */
+GT_DATAMODEL_EXPORT
+PropertyFactoryFunction makeModeProperty();
+
 #endif // GTMODEPROPERTY_H

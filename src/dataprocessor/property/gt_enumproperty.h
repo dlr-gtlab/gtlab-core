@@ -174,4 +174,18 @@ inline QMetaEnum GtEnumProperty<T>::getMetaEnum() const
     return QMetaEnum::fromType<T>();
 }
 
+/**
+ * @brief Creates a property factory for enums with a default value
+ */
+template <typename T>
+PropertyFactoryFunction makeEnumProperty(T value)
+{
+    return [&value](const QString& id)
+    {
+        auto p = new GtEnumProperty<T>(id, id, "");
+        p->setVal(std::move(value));
+        return p;
+    };
+}
+
 #endif // GT_ENUMPROPERTY_H

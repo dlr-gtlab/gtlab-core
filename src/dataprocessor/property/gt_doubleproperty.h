@@ -168,4 +168,11 @@ protected:
 
 };
 
+/**
+ * @brief Creates a property factory for doubles with a default value
+ */
+GT_DATAMODEL_EXPORT
+PropertyFactoryFunction makeDoubleProperty(double value);
+
+
 #endif // GTP_DOUBLEPARAM_H

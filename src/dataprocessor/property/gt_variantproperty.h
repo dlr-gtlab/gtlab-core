@@ -48,4 +48,11 @@ public:
 
 };
 
+/**
+ * @brief Creates a property factory for QVariants
+ */
+GT_DATAMODEL_EXPORT
+PropertyFactoryFunction
+makeVariantProperty(const GtUnit::Category &unitCategory = GtUnit::None);
+
 #endif // GTVARIANTPROPERTY_H

@@ -85,3 +85,9 @@ GtStringProperty::validator()
 }
 
 GtStringProperty::~GtStringProperty() = default;
+
+PropertyFactoryFunction
+makeStringProperty(QString value)
+{
+    return makePropertyFactory<GtStringProperty>(std::move(value));
+}
