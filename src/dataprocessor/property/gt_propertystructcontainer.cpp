@@ -25,7 +25,7 @@ struct GtPropertyStructContainer::Impl
     {
     }
 
-    QString id, name;
+    QString id, name, entryPrefix;
 
     using TypeIdStr = QString;
     std::map<TypeIdStr, GtPropertyStructDefinition> allowedTypes;
@@ -128,6 +128,19 @@ QString
 GtPropertyStructContainer::name() const
 {
     return pimpl->name;
+}
+
+QString
+GtPropertyStructContainer::entryPrefix() const
+{
+    return pimpl->entryPrefix;
+}
+
+GtPropertyStructContainer&
+GtPropertyStructContainer::setEntryPrefix(QString prefix)
+{
+    pimpl->entryPrefix = std::move(prefix);
+    return *this;
 }
 
 const GtPropertyStructInstance&

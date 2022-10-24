@@ -105,6 +105,32 @@ public:
     QString name() const;
 
     /**
+     * @brief Returns the entry prefix, which is used to give
+     * entries a name for display
+     *
+     * If e.g. the entries of the container should be displayed
+     *   stage[0]
+     *   stage[1]
+     *   stage[2],
+     * the prefix is "stage".
+     */
+    GT_DATAMODEL_EXPORT
+    QString entryPrefix() const;
+
+    /**
+     * @brief Sets the entry prefix, which is used to give
+     * entries a name for display
+     *
+     * If e.g. the entries of the container should be displayed
+     *   stage[0]
+     *   stage[1]
+     *   stage[2],
+     * the prefix is "stage".
+     */
+    GT_DATAMODEL_EXPORT
+    GtPropertyStructContainer& setEntryPrefix(QString prefix);
+
+    /**
      * @brief access specified element
      *
      * Returns a reference to the element at specified location pos.
