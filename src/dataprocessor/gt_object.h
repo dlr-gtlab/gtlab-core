@@ -15,6 +15,7 @@
 #include <QObject>
 
 #include <algorithm>
+#include <memory>
 
 class QSignalMapper;
 class GtObjectMemento;
@@ -57,6 +58,8 @@ public:
      * @param parent
      */
     explicit GtObject(GtObject* parent = nullptr);
+
+    ~GtObject() override;
 
     /**
      * @brief objectFlags
@@ -608,26 +611,8 @@ protected slots:
     void changed();
 
 private:
-    /// Object specific uuid
-    QString m_uuid;
-
-    /// Object flags
-    GtObject::ObjectFlags m_objectFlags;
-
-    ///
-    //    bool m_default;
-
-    /// factory
-    GtAbstractObjectFactory* m_factory;
-
-    /// object properties
-    QList<GtAbstractProperty*> m_properties;
-
-    /// dynamic size properties
-    std::vector<std::reference_wrapper<GtPropertyStructContainer>> m_dynamic_properties;
-
-    /// mapper for property signals
-    QSignalMapper* m_propertyMapper;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
     /**
      * @brief objectPath
