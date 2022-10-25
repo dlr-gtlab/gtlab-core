@@ -10,7 +10,7 @@
 #ifndef GTPROCESSCONNECTIONEDITOR_H
 #define GTPROCESSCONNECTIONEDITOR_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 #include <QPointer>
 
@@ -24,7 +24,7 @@ class GtObjectMemento;
 /**
  * @brief The GtProcessConnectionEditor class
  */
-class GtProcessConnectionEditor : public QDialog
+class GtProcessConnectionEditor : public GtDialog
 {
 public:
     /**

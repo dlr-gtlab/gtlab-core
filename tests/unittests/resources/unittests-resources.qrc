@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/unittests">
-        <file>keroseneprp.xml</file>
         <file>data_0D.dat</file>
         <file>data_1D.dat</file>
         <file>data_2D.dat</file>

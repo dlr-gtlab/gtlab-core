@@ -22,16 +22,11 @@
 
 GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
                                                  QWidget* parent) :
-    QDialog(parent),
+    GtDialog(parent),
     m_root(root)
 {
     setWindowTitle(tr("Choose Object"));
     setWindowIcon(GtGUI::Icon::property16());
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
-
 
     auto lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);

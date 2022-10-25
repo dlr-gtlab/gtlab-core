@@ -16,21 +16,15 @@
 #include <QKeyEvent>
 #include <QThread>
 
-#include "gt_logging.h"
-
 #include "gt_simpleloadingwidget.h"
 
 GtSimpleLoadingWidget::GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
                                              QWidget* parent) :
-    QDialog(parent),
+    GtDialog(parent),
     m_forceClose(false),
     m_helper(helper)
 {
     setWindowTitle(tr("loading..."));
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
 
     setAutoFillBackground(true);
 
@@ -54,10 +48,6 @@ GtSimpleLoadingWidget::GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
     setMaximumWidth(60);
     setMaximumHeight(30);
 #endif
-}
-
-GtSimpleLoadingWidget::~GtSimpleLoadingWidget()
-{
 }
 
 void
@@ -99,7 +89,8 @@ GtSimpleLoadingWidget::keyPressEvent(QKeyEvent* event)
     event->ignore();
 }
 
-void GtSimpleLoadingWidget::onFinished()
+void
+GtSimpleLoadingWidget::onFinished()
 {
     setAttribute(Qt::WA_DeleteOnClose);
     m_forceClose = true;

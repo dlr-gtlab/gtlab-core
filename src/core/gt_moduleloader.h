@@ -53,14 +53,14 @@ public:
      * @brief Returns identification strings of all loaded modules.
      * @return module identification strings
      */
-    QStringList moduleIds();
+    QStringList moduleIds() const;
 
     /**
      * @brief Returns identification strings of all loaded modules which
      * inherit the datamodel interface.
      * @return module identification strings
      */
-    QStringList moduleDatamodelInterfaceIds();
+    QStringList moduleDatamodelInterfaceIds() const;
 
     /**
      * @brief Returns version number of module for given id. Returns -1
@@ -68,7 +68,7 @@ public:
      * @param module identification string
      * @return module version number
      */
-    GtVersionNumber moduleVersion(const QString& id);
+    GtVersionNumber moduleVersion(const QString& id) const;
 
     /**
      * @brief Returns description of module for given id. Returns empty
@@ -76,7 +76,7 @@ public:
      * @param module identification string
      * @return module description
      */
-    QString moduleDescription(const QString& id);
+    QString moduleDescription(const QString& id) const;
 
     /**
      * @brief Returns classname of package for a given module id. Returns empty
@@ -84,20 +84,43 @@ public:
      * @param module identification string
      * @return package classname
      */
-    QString modulePackageId(const QString& id);
+    QString modulePackageId(const QString& id) const;
 
     /**
      * @brief Initializes all loaded modules.
      */
     void initModules();
 
+    /**
+     * @brief Returns authors name of module for given id. Returns empty
+     * string for non existing modules.
+     * @param module identification string
+     * @return module authors name
+     */
+    QString moduleAuthor(const QString& id) const;
+
+    /**
+     * @brief Returns authors contact of module for given id. Returns empty
+     * string for non existing modules.
+     * @param module identification string
+     * @return module description
+     */
+    QString moduleContact(const QString& id) const;
+
+    /**
+     * @brief Returns licence information of module for given id. Returns empty
+     * string for non existing modules.
+     * @param module identification string
+     * @return module licence information
+     */
+    QString moduleLicence(const QString& id) const;
 protected:
     /**
      * @brief check
      * @param plugin
      * @return
      */
-    virtual bool check(GtModuleInterface* plugin);
+    virtual bool check(GtModuleInterface* plugin) const;
 
     /**
      * @brief insert
@@ -152,13 +175,13 @@ private:
      * @return true if all dependencies are ok
      */
     bool checkDependency(const QVariantList& deps,
-                         const QString& moduleFileName);
+                         const QString& moduleFileName) const;
 
     /**
      * @brief debugDependencies
      * @param path
      */
-    void debugDependencies(const QString& path);
+    void debugDependencies(const QString& path) const;
 
     /**
      * @brief Returns application roaming path.

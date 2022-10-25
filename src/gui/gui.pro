@@ -78,6 +78,7 @@ INCLUDEPATH += .\
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    dialogs/gt_dialog.h \
     dialogs/project_upgrader/gt_projectupgradedialog.h \
     dialogs/project_upgrader/gt_projectupgradeoverviewpage.h \
     dialogs/project_upgrader/gt_projectupgradesettingspage.h \
@@ -92,7 +93,10 @@ HEADERS += \
     gt_palette.h \
     gt_shortcut.h \
     gt_shortcuts.h \
+    tools/gt_changelogparser.h \
+    tools/gt_changelogwidget.h \
     tools/gt_switchprojectmessagebox.h \
+    tools/gt_textedit.h \
     widgets/gt_shortcutedit.h \
     gt_processexecutor.h \
     gt_datamodel.h \
@@ -246,6 +250,7 @@ HEADERS += \
     importer/processImporter/gt_processimporter.h
 
 SOURCES += \
+    dialogs/gt_dialog.cpp \
     dialogs/project_upgrader/gt_projectupgradedialog.cpp \
     dialogs/project_upgrader/gt_projectupgradeoverviewpage.cpp \
     dialogs/project_upgrader/gt_projectupgradesettingspage.cpp \
@@ -258,7 +263,10 @@ SOURCES += \
     gt_palette.cpp \
     gt_shortcut.cpp \
     gt_shortcuts.cpp \
+    tools/gt_changelogparser.cpp \
+    tools/gt_changelogwidget.cpp \
     tools/gt_switchprojectmessagebox.cpp \
+    tools/gt_textedit.cpp \
     widgets/gt_shortcutedit.cpp \
     gt_guimoduleloader.cpp \
     gt_dockwidget.cpp \

@@ -33,7 +33,7 @@ protected:
      * @param plugin
      * @return
      */
-    bool check(GtModuleInterface* plugin) override;
+    bool check(GtModuleInterface* plugin) const override;
 
     /**
      * @brief insert

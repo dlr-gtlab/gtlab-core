@@ -9,14 +9,11 @@
 
 #include <QGridLayout>
 #include <QDir>
-#include <QFileDialog>
 #include <QDebug>
 #include <QLineEdit>
 
 #include "gt_projectwizardspec.h"
-#include "gt_datamodel.h"
 #include "gt_projectprovider.h"
-#include "gt_application.h"
 #include "gt_projectspecwidget.h"
 
 GtProjectWizardSpec::GtProjectWizardSpec(GtProjectProvider* provider,

@@ -10,7 +10,6 @@
 #include <QIcon>
 #include <QFont>
 #include <QVariant>
-#include <QDialog>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -54,6 +53,7 @@
 #include "gt_algorithms.h"
 #include "gt_colors.h"
 #include "gt_projectupgradedialog.h"
+#include "gt_dialog.h"
 
 #include "gt_projectui.h"
 
@@ -531,14 +531,10 @@ GtProjectUI::saveProjectAs(GtObject* obj)
     QString id = gtDataModel->uniqueObjectName(project->objectName(),
                  gtApp->session());
 
-    QDialog dialog;
+    GtDialog dialog;
 
     dialog.setWindowTitle(tr("Save Project As..."));
     dialog.setWindowIcon(GtGUI::Icon::saveProject16());
-
-    Qt::WindowFlags flags = dialog.windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    dialog.setWindowFlags(flags);
 
     auto layout = new QVBoxLayout;
 
@@ -752,7 +748,7 @@ GtProjectUI::deleteProject(GtObject* obj)
 
     if (confirmationDialog.exec())
     {
-        if (confirmationDialog.result() == QDialog::Accepted
+        if (confirmationDialog.result() == GtDialog::Accepted
                 && confirmationDialog.deleteFromHardDisk())
         {
             //gtDebug() << "Delete from HardDisk";
@@ -772,7 +768,7 @@ GtProjectUI::deleteProject(GtObject* obj)
                                   "from hard-disk!");
             }
         }
-        else if (confirmationDialog.result() == QDialog::Accepted)
+        else if (confirmationDialog.result() == GtDialog::Accepted)
         {
             //gtDebug() << "Do not delete from HardDisk";
             gtDataModel->deleteProject(project);
@@ -862,16 +858,11 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
         return;
     }
 
-    QDialog dialog;
+    GtDialog dialog;
 
     dialog.setWindowTitle(tr("Project Modules") +
                           QStringLiteral(" - ") + project->objectName());
     dialog.setWindowIcon(GtGUI::Icon::plugin16());
-
-    Qt::WindowFlags flags = dialog.windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    dialog.setWindowFlags(flags);
-
 
     auto layout = new QVBoxLayout;
 
@@ -1134,14 +1125,9 @@ GtProjectUI::exportMetaData(GtObject* obj)
         taskNames << task->objectName();
     }
 
-    QDialog dialog;
+    GtDialog dialog;
     dialog.setWindowTitle(tr("Export Meta Data"));
     dialog.setWindowIcon(GtGUI::Icon::export16());
-
-    Qt::WindowFlags flags = dialog.windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    dialog.setWindowFlags(flags);
-
 
     GtCheckableStringListModel model(taskNames);
     model.setSelectionMode(GtCheckableStringListModel::SingleSelection);
@@ -1479,7 +1465,7 @@ GtProjectUI::showFootprint(GtObject* obj) const
     const QString frameworkVersion =
             frameworkFootpring.frameworkVersion().toString();
 
-    QDialog dialog;
+    GtDialog dialog;
     dialog.setWindowIcon(GtGUI::Icon::components16());
     dialog.setWindowTitle(tr("Footprint Information"));
 

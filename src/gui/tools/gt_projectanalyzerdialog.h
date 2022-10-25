@@ -10,8 +10,7 @@
 #ifndef GTPROJECTANALYZERDIALOG_H
 #define GTPROJECTANALYZERDIALOG_H
 
-#include <QDialog>
-
+#include "gt_dialog.h"
 #include "gt_projectanalyzer.h"
 
 class QTabWidget;
@@ -20,7 +19,7 @@ class QTabWidget;
  * @brief The GtProjectAnalyzerDialog class visualizes information provided by
  * the GtProjectAnalyzer class.
  */
-class GtProjectAnalyzerDialog : public QDialog
+class GtProjectAnalyzerDialog : public GtDialog
 {
     Q_OBJECT
 

@@ -99,12 +99,12 @@ INCLUDEPATH += .\
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    dialogs/gt_moduledetailsdialog.h \
     dialogs/gt_refusedpluginsdialog.h \
     gt_mainwin.h \
     preferences/gt_preferencesdialog.h \
     preferences/pages/gt_preferencespage.h \
     preferences/pages/gt_preferencesapp.h \
-    preferences/pages/gt_preferencesplugins.h \
     preferences/pages/gt_preferenceslanguage.h \
     preferences/pages/gt_preferencessession.h \
     preferences/pages/gt_preferencesshortcuts.h \
@@ -120,7 +120,6 @@ HEADERS += \
     widgets/gt_perspectiveswitchwidget.h \
     preferences/pages/gt_preferencesaccess.h \
     dialogs/gt_aboutdialog.h \
-    dialogs/gt_changelogdialog.h \
     tools/gt_accessgroupmodel.h \
     dialogs/gt_accessdatadialog.h \
     widgets/gt_startuppage.h \
@@ -192,12 +191,12 @@ FORMS += ui/gt_mainwin.ui
 
 SOURCES += \
     app.cpp \
+    dialogs/gt_moduledetailsdialog.cpp \
     dialogs/gt_refusedpluginsdialog.cpp \
     gt_mainwin.cpp \
     preferences/gt_preferencesdialog.cpp \
     preferences/pages/gt_preferencespage.cpp \
     preferences/pages/gt_preferencesapp.cpp \
-    preferences/pages/gt_preferencesplugins.cpp \
     preferences/pages/gt_preferenceslanguage.cpp \
     preferences/pages/gt_preferencessession.cpp \
     preferences/pages/gt_preferencesshortcuts.cpp \
@@ -213,7 +212,6 @@ SOURCES += \
     widgets/gt_perspectiveswitchwidget.cpp \
     preferences/pages/gt_preferencesaccess.cpp \
     dialogs/gt_aboutdialog.cpp \
-    dialogs/gt_changelogdialog.cpp \
     tools/gt_accessgroupmodel.cpp \
     dialogs/gt_accessdatadialog.cpp \
     widgets/gt_startuppage.cpp \

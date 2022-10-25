@@ -24,6 +24,7 @@
 #include "gt_projectanalyzerdialog.h"
 
 GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
+    GtDialog(),
     m_tabWid(nullptr)
 {
     setWindowTitle(tr("Project Analyzer"));

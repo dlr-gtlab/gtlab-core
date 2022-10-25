@@ -10,7 +10,7 @@
 #ifndef GT_DOWNLOADDIALOG_H
 #define GT_DOWNLOADDIALOG_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 class QTextEdit;
 class QProgressBar;
@@ -19,7 +19,7 @@ class GtDownloader;
 /**
  * @brief The GtDownloadDialog class
  */
-class GtDownloadDialog : public QDialog
+class GtDownloadDialog : public GtDialog
 {
     Q_OBJECT
 

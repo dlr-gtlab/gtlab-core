@@ -39,6 +39,7 @@ struct VersionUpgradeRoutine
     ConverterFunction f;
 };
 
+
 /**
  * @brief Main interface that must be implemented by a module in order for it
  * to be recognized by the framework. All pure virtual functions must be
@@ -50,7 +51,20 @@ struct VersionUpgradeRoutine
  */
 class GT_CORE_EXPORT GtModuleInterface
 {
+
 public:
+
+    /// struct to keep metainformation of the module
+    struct metaInformation
+    {
+        QString autor;
+
+        QString authorContact;
+
+        QString licenseShort;
+    };
+
+
     /** Virtual destructor to keep compilers happy */
     virtual ~GtModuleInterface() {}
 
@@ -87,6 +101,19 @@ public:
      * @return description of the module.
      */
     virtual QString description() const = 0;
+
+    /**
+     * @brief By implementing this function, the module passes
+     * the name of the author to the framework.
+     * The authors name is for information to the
+     * framework user only and has no effect on the functionality.
+     * NOTE: A reference to the author can significantly help the user to
+     * know where a module is developed and who to contact.
+     * @return name of the author of the module.
+     */
+    virtual metaInformation metaInformation() const {
+        return {};
+    };
 
     /**
      * @brief In some cases, it is necessary to upgrade the data stored in the

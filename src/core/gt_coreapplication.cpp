@@ -512,7 +512,7 @@ GtCoreApplication::moduleDatamodelInterfaceIds()
 }
 
 GtVersionNumber
-GtCoreApplication::moduleVersion(const QString& id)
+GtCoreApplication::moduleVersion(const QString& id) const
 {
     if (!m_moduleLoader)
     {
@@ -523,7 +523,7 @@ GtCoreApplication::moduleVersion(const QString& id)
 }
 
 QString
-GtCoreApplication::moduleDescription(const QString& id)
+GtCoreApplication::moduleDescription(const QString& id) const
 {
     if (!m_moduleLoader)
     {
@@ -531,6 +531,39 @@ GtCoreApplication::moduleDescription(const QString& id)
     }
 
     return m_moduleLoader->moduleDescription(id);
+}
+
+QString
+GtCoreApplication::moduleAuthor(const QString& id) const
+{
+    if (!m_moduleLoader)
+    {
+        return QString();
+    }
+
+    return m_moduleLoader->moduleAuthor(id);
+}
+
+QString
+GtCoreApplication::moduleContact(const QString& id) const
+{
+    if (!m_moduleLoader)
+    {
+        return QString();
+    }
+
+    return m_moduleLoader->moduleContact(id);
+}
+
+QString
+GtCoreApplication::moduleLicence(const QString& id) const
+{
+    if (!m_moduleLoader)
+    {
+        return QString();
+    }
+
+    return m_moduleLoader->moduleLicence(id);
 }
 
 bool

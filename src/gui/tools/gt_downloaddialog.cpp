@@ -20,16 +20,12 @@
 
 #include "gt_downloaddialog.h"
 
-GtDownloadDialog::GtDownloadDialog(QWidget* parent) : QDialog(parent),
+GtDownloadDialog::GtDownloadDialog(QWidget* parent) :
+    GtDialog(parent),
     m_downloader(new GtDownloader(this))
 {
     setWindowTitle(tr("Downloader"));
     setWindowIcon(GtGUI::Icon::dropdown());
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
-
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);

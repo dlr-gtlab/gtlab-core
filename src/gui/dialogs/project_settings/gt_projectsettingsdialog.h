@@ -10,7 +10,7 @@
 #ifndef GTPROJECTSETTINGSDIALOG_H
 #define GTPROJECTSETTINGSDIALOG_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 #include <memory>
 
 class GtProject;
@@ -20,7 +20,7 @@ class GtProjectSettingsTab;
 /**
  * @brief The GtProjectSettingsDialog class
  */
-class GtProjectSettingsDialog : public QDialog
+class GtProjectSettingsDialog : public GtDialog
 {
     Q_OBJECT
 

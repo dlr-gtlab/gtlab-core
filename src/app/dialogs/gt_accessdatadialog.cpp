@@ -19,7 +19,6 @@
 #include <QThread>
 #include <QSpinBox>
 
-#include "gt_accessmanager.h"
 #include "gt_abstractaccessdataconnection.h"
 #include "gt_icons.h"
 
@@ -28,16 +27,12 @@
 GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
                                        const QMetaObject& connection,
                                        QWidget* parent) :
-    QDialog(parent), m_data(data), m_portLine(nullptr),
+    GtDialog(parent), m_data(data), m_portLine(nullptr),
     m_connectionMetaData(connection)
 {
     setWindowTitle(tr("Add Access Data"));
     setWindowIcon(GtGUI::Icon::login16());
     setMaximumSize(QSize(350, 300));
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
 
     QVBoxLayout* lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);

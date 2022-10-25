@@ -10,7 +10,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
-#include <QDialog>
 #include <QTreeView>
 #include <QDropEvent>
 #include <QDragEnterEvent>

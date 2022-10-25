@@ -26,14 +26,10 @@
 #include "gt_checkforupdatesdialog.h"
 
 GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
-    QDialog(parent)
+    GtDialog(parent)
 {
     setWindowTitle(tr("Check for updates"));
     setWindowIcon(GtGUI::Icon::update16());
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);

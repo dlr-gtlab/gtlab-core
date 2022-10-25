@@ -184,6 +184,10 @@ GtSettings::intialShortCutsList() const
     shortCuts.append({QStringLiteral("openPreferences"), catCore,
                       QKeySequence(Qt::ALT + Qt::Key_Enter), true});
 
+    /// Preferences
+    shortCuts.append({QStringLiteral("openModulesInfo"), catCore,
+                      QKeySequence(Qt::ALT + Qt::Key_M), true});
+
     /// save
     shortCuts.append({QStringLiteral("save"), catCore,
                       QKeySequence(Qt::CTRL + Qt::Key_S), true});
@@ -203,6 +207,10 @@ GtSettings::intialShortCutsList() const
     /// help
     shortCuts.append({QStringLiteral("help"), catCore,
                       QKeySequence(Qt::Key_F1), true});
+
+    /// undo
+    shortCuts.append({QStringLiteral("modulesOverview"), catCore,
+                      QKeySequence(Qt::ALT + Qt::Key_M), true});
 
     return shortCuts;
 }

@@ -270,7 +270,7 @@ public:
      * @param module identification string
      * @return module version number
      */
-    GtVersionNumber moduleVersion(const QString& id);
+    GtVersionNumber moduleVersion(const QString& id) const;
 
     /**
      * @brief Returns description of module for given id. Returns empty
@@ -278,8 +278,31 @@ public:
      * @param module identification string
      * @return module description
      */
-    QString moduleDescription(const QString& id);
+    QString moduleDescription(const QString& id) const;
 
+    /**
+     * @brief Returns name of modules author for given id. Returns empty
+     * string for non existing modules.
+     * @param module identification string
+     * @return module author name
+     */
+    QString moduleAuthor(const QString& id) const;
+
+    /**
+     * @brief Returns contact of modules author for given id. Returns empty
+     * string for non existing modules.
+     * @param module identification string
+     * @return module author contact
+     */
+    QString moduleContact(const QString& id) const;
+
+    /**
+     * @brief Returns licence information of module for given id. Returns empty
+     * string for non existing modules.
+     * @param module identification string
+     * @return module licence information
+     */
+    QString moduleLicence(const QString& id) const;
     /**
      * @brief Returns true if project has unsaved changes. Otherwise
      * false is returned.
@@ -380,6 +403,7 @@ public:
      * environment.
      */
     void saveSystemEnvironment() const;
+
 
 protected:
     /// Current session

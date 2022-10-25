@@ -22,10 +22,10 @@
 #include "gt_processfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_calculator.h"
-#include "gt_task.h"
 #include "gt_extendedtaskdata.h"
 #include "gt_taskfactory.h"
 #include "gt_icons.h"
+#include "gt_dialog.h"
 
 #include "gt_calculatoroverviewpage.h"
 #include "gt_calculatorsettingspage.h"
@@ -329,13 +329,9 @@ GtProcessWizard::executionSettings()
         return;
     }
 
-    QDialog dialog;
+    GtDialog dialog;
     dialog.setWindowTitle(tr("Execution Settings"));
     dialog.setWindowIcon(GtGUI::Icon::config16());
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    dialog.setWindowFlags(flags);
 
     GtPropertyTreeView view(m_scope);
     view.setFrameStyle(GtPropertyTreeView::NoFrame);

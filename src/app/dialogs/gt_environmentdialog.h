@@ -10,14 +10,14 @@
 #ifndef GT_ENVIRONMENTDIALOG_H
 #define GT_ENVIRONMENTDIALOG_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 class GtEnvironmentModel;
 
 /**
  * @brief The GtEnvironmentDialog class
  */
-class GtEnvironmentDialog : public QDialog
+class GtEnvironmentDialog : public GtDialog
 {
     Q_OBJECT
 

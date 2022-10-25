@@ -24,7 +24,7 @@ GtCoreModuleLoader::~GtCoreModuleLoader()
 }
 
 bool
-GtCoreModuleLoader::check(GtModuleInterface* plugin)
+GtCoreModuleLoader::check(GtModuleInterface* plugin) const
 {
     return GtProcessModuleLoader::check(plugin);
 }

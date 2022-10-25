@@ -11,7 +11,6 @@
 #include <QHeaderView>
 #include <QVBoxLayout>
 #include <QPushButton>
-#include <QDialog>
 #include <QLabel>
 
 #include "gt_environmentmodel.h"
@@ -21,7 +20,7 @@
 GtEnvironmentDialog::GtEnvironmentDialog(const QStringList& envVars,
                                          const QString& winTitle,
                                          const QString& infoText,
-                                         QWidget* parent) : QDialog(parent)
+                                         QWidget* parent) : GtDialog(parent)
 {
     setWindowTitle(winTitle);
 

@@ -15,7 +15,6 @@
 #include "gt_moduleinterface.h"
 #include "gt_calculatorexecinterface.h"
 #include "gt_calculatorexecutorlist.h"
-#include "gt_abstractcalculatorexecutor.h"
 #include "gt_calculatordata.h"
 #include "gt_taskdata.h"
 #include "gt_objectfactory.h"
@@ -30,7 +29,7 @@ GtProcessModuleLoader::GtProcessModuleLoader()
 }
 
 bool
-GtProcessModuleLoader::check(GtModuleInterface* plugin)
+GtProcessModuleLoader::check(GtModuleInterface* plugin) const
 {
     if (!GtModuleLoader::check(plugin))
     {

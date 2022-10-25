@@ -20,11 +20,12 @@
 #include "gt_icons.h"
 
 
-GtProjectSettingsDialog::GtProjectSettingsDialog(GtProject* project)
+GtProjectSettingsDialog::GtProjectSettingsDialog(GtProject* project) :
+    GtDialog()
 {
     setWindowTitle(tr("Project Settings"));
 
-    if (project == nullptr)
+    if (!project)
     {
         gtError() << tr("Invalid project! Unable do create Project Settings");
         return;
