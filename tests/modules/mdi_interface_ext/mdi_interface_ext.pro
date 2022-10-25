@@ -4,8 +4,10 @@
 #          / /_/ / / / / / /_/ / /_/ /
 #          \____/ /_/ /_/\__,_/_.___/
 
+GT_MODULE_ID = "Test Mdi Interface Ext"
+
 ######################################################################
-#### DO NOT CHANGE!
+#### DO NOT CHANGE BELOW !
 ######################################################################
 
 include($${PWD}/../../../settings.pri)
@@ -25,7 +27,11 @@ CONFIG += plugin
 CONFIG += silent
 CONFIG += c++14
 
-DEFINES += "GT_MODULE_ID=\"Test Mdi Interface Ext\""
+isEmpty(GT_MODULE_ID) {
+   error("GT_MODULE_ID undefined. Please define variable GT_MODULE_ID=\"My Module ID\" in project file.")
+}
+
+DEFINES += GT_MODULE_ID='"\\\"$${GT_MODULE_ID}\\\""'
 
 INCLUDEPATH += . \
     data \

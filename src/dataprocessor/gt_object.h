@@ -28,15 +28,6 @@ class GtObjectMementoDiff;
 #define GT_CLASSNAME(A) A::staticMetaObject.className()
 #define GT_METADATA(A) A::staticMetaObject
 
-#define GT_STR(A) #A
-#define GT_TO_STR(A) GT_STR(A)
-
-#ifndef GT_MODULE_ID
-#error GT_MODULE_ID must be defined globally when using GTlab Core Libraries. \
-       Please define the macro using -DGT_MODULE_ID =<module_id>
-#endif
-
-#define GT_MODULENAME() QStringLiteral(GT_TO_STR(GT_MODULE_ID))
 
 /**
  * @brief The GtObject class

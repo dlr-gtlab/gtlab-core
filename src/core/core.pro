@@ -23,7 +23,7 @@ CONFIG += silent
 CONFIG += c++14
 
 DEFINES += GT_CORE_DLL
-DEFINES += GT_MODULE_ID=Core
+DEFINES += GT_MODULE_ID='"\\\"Core\\\""'
 
 # qstring restrictions
 #DEFINES += QT_NO_CAST_FROM_ASCII

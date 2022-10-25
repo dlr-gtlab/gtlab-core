@@ -22,7 +22,7 @@ CONFIG += console
 CONFIG += silent
 CONFIG += c++14
 
-DEFINES += GT_MODULE_ID=Batch
+DEFINES += GT_MODULE_ID='"\\\"Batch\\\""'
 
 CONFIG(debug, debug|release){
     DESTDIR = $${BUILD_DEST}/debug-batch

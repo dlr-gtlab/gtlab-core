@@ -23,7 +23,7 @@ CONFIG += silent
 CONFIG += c++14
 
 DEFINES += GT_DATAMODEL_DLL
-DEFINES += GT_MODULE_ID=DataProcessor
+DEFINES += GT_MODULE_ID='"\\\"DataProcessor\\\""'
 
 # qstring restrictions
 #DEFINES += QT_NO_CAST_FROM_ASCII
