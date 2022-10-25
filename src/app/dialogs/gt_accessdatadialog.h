@@ -10,7 +10,7 @@
 #ifndef GT_ACCESSDATADIALOG_H
 #define GT_ACCESSDATADIALOG_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 class QLineEdit;
 class QCheckBox;
@@ -23,7 +23,7 @@ class GtAbstractAccessDataConnection;
 /**
  * @brief The GtAccessDataDialog class
  */
-class GtAccessDataDialog : public QDialog
+class GtAccessDataDialog : public GtDialog
 {
     Q_OBJECT
 

@@ -10,14 +10,14 @@
 #ifndef GTPERSPECTIVESWITCHWIDGET_H
 #define GTPERSPECTIVESWITCHWIDGET_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 class QListWidget;
 
 /**
  * @brief The GtPerspectiveSwitchWidget class
  */
-class GtPerspectiveSwitchWidget : public QDialog
+class GtPerspectiveSwitchWidget : public GtDialog
 {
     Q_OBJECT
 

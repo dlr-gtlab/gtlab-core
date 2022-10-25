@@ -10,7 +10,7 @@
 #ifndef GTPREFERENCESDIALOG_H
 #define GTPREFERENCESDIALOG_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 class QListWidgetItem;
 class QListWidget;
@@ -19,7 +19,7 @@ class QStackedWidget;
 /**
  * @brief The GtPreferencesDialog class
  */
-class GtPreferencesDialog : public QDialog
+class GtPreferencesDialog : public GtDialog
 {
     Q_OBJECT
 
@@ -27,7 +27,7 @@ public:
     /**
      * @brief GtPreferencesDialog
      */
-    explicit GtPreferencesDialog(int initItem = 0);
+    explicit GtPreferencesDialog(int initItem = 0, QWidget* parent = nullptr);
 
 public slots:
     /**

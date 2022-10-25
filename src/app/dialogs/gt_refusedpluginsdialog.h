@@ -10,14 +10,14 @@
 #ifndef GT_REFUSEDPLUGINSDIALOG_H
 #define GT_REFUSEDPLUGINSDIALOG_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 class GtCheckableStringListModel;
 
 /**
  * @brief The GtRefusedPluginsDialog class
  */
-class GtRefusedPluginsDialog : public QDialog
+class GtRefusedPluginsDialog : public GtDialog
 {
     Q_OBJECT
 

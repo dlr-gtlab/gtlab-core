@@ -10,14 +10,14 @@
 #ifndef GT_SIMPLELOADINGWIDGET_H
 #define GT_SIMPLELOADINGWIDGET_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 #include "gt_abstractloadinghelper.h"
 
 /**
  * @brief The GtSimpleLoadingWidget class
  */
-class GtSimpleLoadingWidget : public QDialog
+class GtSimpleLoadingWidget : public GtDialog
 {
     Q_OBJECT
 
@@ -27,12 +27,6 @@ public:
      */
     explicit GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
                                    QWidget* parent = nullptr);
-
-    /**
-     * @brief ~GtSimpleLoadingWidget
-     */
-    ~GtSimpleLoadingWidget() override;
-
 protected:
     /**
      * @brief showEvent

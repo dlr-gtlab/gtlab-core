@@ -167,13 +167,13 @@ GtModuleLoader::moduleEnvironmentVars()
 }
 
 QStringList
-GtModuleLoader::moduleIds()
+GtModuleLoader::moduleIds() const
 {
     return m_plugins.keys();
 }
 
 QStringList
-GtModuleLoader::moduleDatamodelInterfaceIds()
+GtModuleLoader::moduleDatamodelInterfaceIds() const
 {
     QStringList retval;
     for_each_key(m_plugins, [&](const QString& e)
@@ -191,7 +191,7 @@ GtModuleLoader::moduleDatamodelInterfaceIds()
 }
 
 GtVersionNumber
-GtModuleLoader::moduleVersion(const QString& id)
+GtModuleLoader::moduleVersion(const QString& id) const
 {
     if (m_plugins.contains(id))
     {
@@ -202,7 +202,7 @@ GtModuleLoader::moduleVersion(const QString& id)
 }
 
 QString
-GtModuleLoader::moduleDescription(const QString& id)
+GtModuleLoader::moduleDescription(const QString& id) const
 {
     if (m_plugins.contains(id))
     {
@@ -213,7 +213,39 @@ GtModuleLoader::moduleDescription(const QString& id)
 }
 
 QString
-GtModuleLoader::modulePackageId(const QString& id)
+GtModuleLoader::moduleAuthor(const QString& id) const
+{
+    if (m_plugins.contains(id))
+    {
+        return m_plugins.value(id)->metaInformation().autor;
+    }
+
+    return QString();
+}
+
+QString
+GtModuleLoader::moduleContact(const QString& id) const
+{
+    if (m_plugins.contains(id))
+    {
+        return m_plugins.value(id)->metaInformation().authorContact;
+    }
+
+    return QString();
+}
+
+QString
+GtModuleLoader::moduleLicence(const QString& id) const
+{
+    if (m_plugins.contains(id))
+    {
+        return m_plugins.value(id)->metaInformation().licenseShort;
+    }
+
+    return QString();
+}
+QString
+GtModuleLoader::modulePackageId(const QString& id) const
 {
     if (m_plugins.contains(id))
     {
@@ -248,7 +280,7 @@ GtModuleLoader::initModules()
 
 
 bool
-GtModuleLoader::check(GtModuleInterface* plugin)
+GtModuleLoader::check(GtModuleInterface* plugin) const
 {
     if (m_plugins.contains(plugin->ident()))
     {
@@ -431,7 +463,7 @@ GtModuleLoader::loadHelper(QStringList& entries, const QDir& modulesDir,
 
 bool
 GtModuleLoader::checkDependency(const QVariantList& deps,
-                                const QString& moduleFileName)
+                                const QString& moduleFileName) const
 {
     if (deps.isEmpty())
     {
@@ -485,7 +517,7 @@ GtModuleLoader::checkDependency(const QVariantList& deps,
 }
 
 void
-GtModuleLoader::debugDependencies(const QString& path)
+GtModuleLoader::debugDependencies(const QString& path) const
 {
     QPluginLoader loader(path);
 

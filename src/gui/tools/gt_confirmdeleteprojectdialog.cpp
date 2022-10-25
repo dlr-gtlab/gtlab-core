@@ -15,21 +15,16 @@
 #include <QGroupBox>
 
 #include "gt_icons.h"
-#include "gt_logging.h"
 
 #include "gt_confirmdeleteprojectdialog.h"
 
 GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
         QWidget* parent, const QString& projectName) :
-    QDialog(parent),
+    GtDialog(parent),
     m_checkBox(nullptr)
 {
     setWindowTitle(tr("Delete from Session"));
     setWindowIcon(GtGUI::Icon::deleteProject16());
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);

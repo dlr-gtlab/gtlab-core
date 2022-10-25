@@ -41,7 +41,7 @@ public:
      * @param obj Object for retrieving UI classes of the associated class.
      * @return List of all registered user interfaces objects.
      */
-    GtObjectUIList objectUI(GtObject* obj);
+    GtObjectUIList objectUI(GtObject* obj) const;
 
     /**
      * @brief Returns list of all registered user interfaces objects for given
@@ -49,13 +49,13 @@ public:
      * @param classname Classname for retrieving UI classes.
      * @return List of all registered user interfaces objects.
      */
-    GtObjectUIList objectUI(const QString& classname);
+    GtObjectUIList objectUI(const QString& classname) const;
 
     /**
      * @brief knownUIObjects - returns a list of all stored object ui classes
      * @return class name list
      */
-    QStringList knownUIObjects();
+    QStringList knownUIObjects() const;
 
 protected:
     /**
@@ -63,7 +63,7 @@ protected:
      * @param plugin
      * @return
      */
-    bool check(GtModuleInterface* plugin) override;
+    bool check(GtModuleInterface* plugin) const override;
 
     /**
      * @brief insert

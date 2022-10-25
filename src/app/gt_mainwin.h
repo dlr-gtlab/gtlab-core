@@ -183,11 +183,6 @@ private slots:
     void openStateViewer();
 
     /**
-     * @brief Just a test method
-     */
-    void openModelEditor();
-
-    /**
      * @brief Open Widget in the Mdi-Area for examples
      */
     void openExamplesWidget();
@@ -269,6 +264,11 @@ private slots:
      * @brief openAboutDialog
      */
     void openAboutDialog();
+
+    /**
+     * @brief openAboutDialog
+     */
+    void openAboutModulesDialog();
 
     /**
      * @brief openChangelogDialog

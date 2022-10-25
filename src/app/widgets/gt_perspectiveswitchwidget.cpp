@@ -14,18 +14,13 @@
 #include "gt_perspectiveswitchwidget.h"
 #include "gt_application.h"
 #include "gt_icons.h"
-#include "gt_logging.h"
 
 GtPerspectiveSwitchWidget::GtPerspectiveSwitchWidget(QWidget* parent) :
-    QDialog(parent)
+    GtDialog(parent)
 {
     QVBoxLayout* lay = new QVBoxLayout;
     m_list = new QListWidget;
     m_list->setFrameStyle(QListWidget::NoFrame);
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
 
     lay->addWidget(m_list);
     setLayout(lay);
@@ -41,7 +36,7 @@ GtPerspectiveSwitchWidget::keyPressEvent(QKeyEvent* event)
         nextPerspective();
     }
 
-    QDialog::keyPressEvent(event);
+    GtDialog::keyPressEvent(event);
 }
 
 void
@@ -54,7 +49,7 @@ GtPerspectiveSwitchWidget::keyReleaseEvent(QKeyEvent* event)
         accept();
     }
 
-    QDialog::keyReleaseEvent(event);
+    GtDialog::keyReleaseEvent(event);
 }
 
 void

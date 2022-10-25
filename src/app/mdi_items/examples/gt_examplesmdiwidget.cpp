@@ -33,7 +33,7 @@
 #include "gt_projectprovider.h"
 #include "gt_project.h"
 #include "gt_projectspecwidget.h"
-#include "gt_saveprojectmessagebox.h"
+#include "gt_dialog.h"
 #include "gt_logging.h"
 #include "gt_icons.h"
 
@@ -259,7 +259,7 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
 {
     QString dirPath = exampleName.split("#").first();
 
-    QDialog dialog;
+    GtDialog dialog;
 
     QString newDirPath;
 
@@ -268,10 +268,6 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
 
     dialog.setWindowTitle(tr("Save Example Project As..."));
     dialog.setWindowIcon(GtGUI::Icon::saveProject16());
-
-    Qt::WindowFlags flags = dialog.windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    dialog.setWindowFlags(flags);
 
     QVBoxLayout* layout = new QVBoxLayout;
     QLabel* infoLabel = new QLabel;

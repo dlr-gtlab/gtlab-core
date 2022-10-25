@@ -47,6 +47,7 @@ INCLUDEPATH += .\
     ../../src/core/provider \
     ../../src/core/settings \
     ../../src/core/process_management \
+    ../../src/core/network \
     ../../src/gui \
     ../../src/gui/tools \
     ../../src/gui/dialogs \
@@ -74,6 +75,8 @@ SOURCES += $$files(calculators/*.cpp)
 SOURCES += $$files(core/*.cpp)
 SOURCES += $$files(exporter/*.cpp)
 SOURCES += $$files(mdi/*.cpp)
+#SOURCES += $$files(network/*.cpp)
+SOURCES += $$files(gui/*.cpp)
 
 #SOURCES += $${CURRENT_DIR}/mdi/*.cpp
 

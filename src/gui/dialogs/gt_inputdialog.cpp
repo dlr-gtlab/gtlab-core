@@ -19,7 +19,8 @@
 
 #include "gt_inputdialog.h"
 
-GtInputDialog::GtInputDialog(InputMode mode, QWidget* parent) : QDialog(parent),
+GtInputDialog::GtInputDialog(InputMode mode, QWidget* parent) :
+    GtDialog(parent),
     m_currentMode(mode),
     m_textValidator(nullptr),
     m_doubleMax(1000.),
@@ -28,10 +29,6 @@ GtInputDialog::GtInputDialog(InputMode mode, QWidget* parent) : QDialog(parent),
     m_intMin(0),
     m_emptyStringAllowed(false)
 {
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
-
     QVBoxLayout* lay = new QVBoxLayout;
 
     m_label = new QLabel(tr("Label Text"));
@@ -183,7 +180,7 @@ GtInputDialog::showEvent(QShowEvent* event)
 
     validateTextInput();
 
-    QDialog::showEvent(event);
+    GtDialog::showEvent(event);
 }
 
 QStringList

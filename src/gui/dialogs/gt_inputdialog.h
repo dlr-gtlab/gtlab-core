@@ -12,7 +12,7 @@
 
 #include "gt_gui_exports.h"
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 class QLabel;
 class QLineEdit;
@@ -23,7 +23,7 @@ class QValidator;
 /**
  * @brief The GtInputDialog class
  */
-class GT_GUI_EXPORT GtInputDialog : public QDialog
+class GT_GUI_EXPORT GtInputDialog : public GtDialog
 {
     Q_OBJECT
 

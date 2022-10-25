@@ -14,7 +14,6 @@
 #include "gt_icons.h"
 #include "gt_processconnectionmodel.h"
 #include "gt_processconnectionview.h"
-#include "gt_processconnectionscene.h"
 #include "gt_processconnectiongraphicsview.h"
 #include "gt_task.h"
 #include "gt_objectmemento.h"
@@ -23,16 +22,12 @@
 
 GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
                                                      QWidget* parent) :
-    QDialog(parent),
+    GtDialog(parent),
     m_task(nullptr)
 {
     setWindowTitle(tr("Connections"));
 
     setWindowIcon(GtGUI::Icon::connection16());
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
 
     QVBoxLayout* lay = new QVBoxLayout;
 

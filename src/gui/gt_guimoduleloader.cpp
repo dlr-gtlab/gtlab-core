@@ -88,14 +88,14 @@ GtGuiModuleLoader::~GtGuiModuleLoader()
 }
 
 GtObjectUIList
-GtGuiModuleLoader::objectUI(GtObject* obj)
+GtGuiModuleLoader::objectUI(GtObject* obj) const
 {
     assert(obj);
     return objectUI(obj->metaObject()->className());
 }
 
 GtObjectUIList
-GtGuiModuleLoader::objectUI(const QString& classname)
+GtGuiModuleLoader::objectUI(const QString& classname) const
 {
     if (!m_uiObjs.contains(classname))
     {
@@ -106,7 +106,7 @@ GtGuiModuleLoader::objectUI(const QString& classname)
 }
 
 QStringList
-GtGuiModuleLoader::knownUIObjects()
+GtGuiModuleLoader::knownUIObjects() const
 {
     QStringList retval;
 
@@ -119,7 +119,7 @@ GtGuiModuleLoader::knownUIObjects()
 }
 
 bool
-GtGuiModuleLoader::check(GtModuleInterface* plugin)
+GtGuiModuleLoader::check(GtModuleInterface* plugin) const
 {
     bool retval = GtCoreModuleLoader::check(plugin);
 

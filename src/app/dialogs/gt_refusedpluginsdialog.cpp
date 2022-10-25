@@ -22,7 +22,7 @@
 #include "gt_refusedpluginsdialog.h"
 
 GtRefusedPluginsDialog::GtRefusedPluginsDialog(QWidget* parent) :
-    QDialog(parent)
+    GtDialog(parent)
 {
     setWindowTitle(tr("Disabled Plugins"));
     setWindowIcon(GtGUI::Icon::plugin16());

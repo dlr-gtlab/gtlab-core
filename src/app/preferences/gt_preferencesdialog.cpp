@@ -15,7 +15,6 @@
 #include "gt_preferencesdialog.h"
 #include "gt_preferencesapp.h"
 #include "gt_preferencessession.h"
-#include "gt_preferencesplugins.h"
 #include "gt_preferenceslanguage.h"
 #include "gt_preferencesperspective.h"
 #include "gt_preferencesaccess.h"
@@ -24,12 +23,9 @@
 #include "gt_icons.h"
 #include "gt_accessmanager.h"
 
-GtPreferencesDialog::GtPreferencesDialog(int initItem)
+GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
+    GtDialog(parent)
 {
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
-
     m_contentsWidget = new QListWidget;
     m_contentsWidget->setViewMode(QListView::IconMode);
     m_contentsWidget->setIconSize(QSize(32, 32));
@@ -46,7 +42,6 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem)
     m_pagesWidget->addWidget(new GtPreferencesSession);
     m_pagesWidget->addWidget(new GtPreferencesPerspective);
     m_pagesWidget->addWidget(new GtPreferencesShortCuts);
-    m_pagesWidget->addWidget(new GtPreferencesPlugins);
     m_pagesWidget->addWidget(new GtPreferencesLanguage);
     m_pagesWidget->addWidget(new GtPreferencesAccess);
     m_pagesWidget->addWidget(new GtPreferencesPathSettings);
@@ -149,13 +144,12 @@ GtPreferencesDialog::createIcons()
     shortCutButton->setWhatsThis(tr("Short Cuts"));
     shortCutButton->setSizeHint(QSize(100, 50));
 
-    QListWidgetItem* pluginsButton = new QListWidgetItem(m_contentsWidget);
-    pluginsButton->setIcon(GtGUI::Icon::pluginSettings());
-    pluginsButton->setText(tr("Plugins"));
-    pluginsButton->setTextAlignment(Qt::AlignHCenter);
-    pluginsButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    pluginsButton->setWhatsThis(tr("Plugins"));
-    pluginsButton->setSizeHint(QSize(100, 50));
+    //QListWidgetItem* pluginsButton = new QListWidgetItem(m_contentsWidget);
+    //pluginsButton->setIcon(GtGUI::Icon::pluginSettings());
+    //pluginsButton->setText(tr("Plugins"));
+    //pluginsButton->setTextAlignment(Qt::AlignHCenter);
+    //pluginsButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    //pluginsButton->setWhatsThis(tr("Plugins"));
 
     QListWidgetItem* languageButton = new QListWidgetItem(m_contentsWidget);
     languageButton->setIcon(GtGUI::Icon::language());

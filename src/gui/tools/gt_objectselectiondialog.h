@@ -12,7 +12,7 @@
 
 #include "gt_gui_exports.h"
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 #include <QPointer>
 
@@ -25,7 +25,7 @@ class GtTreeView;
 /**
  * @brief The GtObjectSelectionDialog class
  */
-class GT_GUI_EXPORT GtObjectSelectionDialog : public QDialog
+class GT_GUI_EXPORT GtObjectSelectionDialog : public GtDialog
 {
     Q_OBJECT
 
@@ -35,7 +35,7 @@ public:
      * @param root
      * @param parent
      */
-    explicit GtObjectSelectionDialog(GtObject *root, QWidget *parent = nullptr);
+    explicit GtObjectSelectionDialog(GtObject* root, QWidget* parent = nullptr);
 
     /**
      * @brief setFilterData

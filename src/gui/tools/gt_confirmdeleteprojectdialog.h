@@ -6,14 +6,13 @@
  *  Author: Jens Schmeink (AT-TW)
  *  Tel.: +49 2203 601 2191
  */
-
-
-#include <QDialog>
-
-class QCheckBox;
-
 #ifndef GTCONFIRMDELETEPROJECTDIALOG_H
 #define GTCONFIRMDELETEPROJECTDIALOG_H
+
+
+#include "gt_dialog.h"
+
+class QCheckBox;
 
 /**
  * @brief The GtConfirmDeleteProjectDialog class
@@ -21,7 +20,7 @@ class QCheckBox;
  *  Dialog for confirmation to delete Project from session
  *  and if choosen from harddisk aswell
  */
-class GtConfirmDeleteProjectDialog : public QDialog
+class GtConfirmDeleteProjectDialog : public GtDialog
 {
     Q_OBJECT
 
@@ -30,8 +29,8 @@ public:
      * @brief Constructor.
      * @param parent Parent widget
      */
-    explicit GtConfirmDeleteProjectDialog(QWidget *parent = nullptr,
-                                          const QString &projectName = "");
+    explicit GtConfirmDeleteProjectDialog(QWidget* parent = nullptr,
+                                          const QString& projectName = "");
 
     /**
      * @brief deleteFromHardDisk

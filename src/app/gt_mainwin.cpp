@@ -21,7 +21,6 @@
 #include "gt_filedialog.h"
 #include "gt_perspectiveswitchwidget.h"
 #include "gt_aboutdialog.h"
-#include "gt_changelogdialog.h"
 #include "gt_logging.h"
 #include "gt_projectui.h"
 #include "gt_collectioneditor.h"
@@ -36,13 +35,12 @@
 #include "gt_processqueuemodel.h"
 #include "gt_processqueuewidget.h"
 #include "gt_saveprojectmessagebox.h"
-#include "gt_switchprojectmessagebox.h"
 #include "gt_icons.h"
 #include "gt_palette.h"
 #include "gt_algorithms.h"
 
 #include <QSignalMapper>
-#include <QFileDialog>
+#include <QDir>
 #include <QKeyEvent>
 #include <QUndoView>
 #include <QMdiSubWindow>
@@ -54,6 +52,7 @@
 #include <QStyleFactory>
 #include <QSettings>
 #include "QsLogDest.h"
+#include <QShortcut>
 
 #include <algorithm>
 
@@ -151,12 +150,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(duplicateCurrentProject()));
     connect(ui->actionPreferences, SIGNAL(triggered(bool)),
             SLOT(showPreferences()));
-    connect(ui->actionPerformance_Map_Editor, SIGNAL(triggered(bool)),
-            SLOT(openMapEditor()));
-    connect(ui->actionPreDesignPlotTest, SIGNAL(triggered(bool)),
-            SLOT(openPreDesignPlot()));
-    connect(ui->actionPerformanceModelEditor, SIGNAL(triggered(bool)),
-            SLOT(openModelEditor()));
     connect(ui->actionEditSessions, SIGNAL(triggered(bool)),
             SLOT(showSessionPreferences()));
     connect(ui->actionEditPerspectives, SIGNAL(triggered(bool)),
@@ -214,6 +207,14 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(onWidgetStructureClicked()));
     connect(gtApp, SIGNAL(themeChanged(bool)),
             SLOT(setTheme(bool)));
+
+    /// Add shortcut for modules overview
+    QShortcut* modulesOverview = new QShortcut(
+                gtApp->getShortCutSequence("modulesOverview"), this);
+    modulesOverview->setContext(Qt::ApplicationShortcut);
+
+    connect(modulesOverview, SIGNAL(activated()),
+            SLOT(openAboutModulesDialog()));
 
     loadPerspectiveSettings();
 
@@ -361,9 +362,6 @@ GtMainWin::keyPressEvent(QKeyEvent* event)
     {
         GtPerspectiveSwitchWidget switchwidget(this);
         switchwidget.setWindowFlags(Qt::Popup);
-        //            switchwidget.resize(QSize(switchwidget.width(),
-        //                                      switchwidget.height()));
-        //            qDebug() << switchwidget.size();
         switchwidget.exec();
         return;
     }
@@ -562,7 +560,6 @@ GtMainWin::updateSessionList()
     }
     else
     {
-        qDebug() << "empty item...";
         QAction* current =
             ui->menuSession->addAction(tr("no session loaded"));
         current->setEnabled(false);
@@ -607,7 +604,6 @@ GtMainWin::updatePerspectiveList()
     }
     else
     {
-        qDebug() << "empty item...";
         QAction* current =
             ui->menuPerspective->addAction(tr("no perspective loaded"));
         current->setEnabled(false);
@@ -674,16 +670,6 @@ GtMainWin::openStateViewer()
     {
         qWarning() << tr("WARNING") << ": "
                    << tr("could not open state viewer!");
-    }
-}
-
-void
-GtMainWin::openModelEditor()
-{
-    if (!gtMdiLauncher->open("GtpModelEditor"))
-    {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not open performance model editor!");
     }
 }
 
@@ -919,7 +905,15 @@ GtMainWin::openHelpContents()
 void
 GtMainWin::openAboutDialog()
 {
-    GtAboutDialog dialog;
+    GtAboutDialog dialog(0);
+
+    dialog.exec();
+}
+
+void
+GtMainWin::openAboutModulesDialog()
+{
+    GtAboutDialog dialog(2);
 
     dialog.exec();
 }
@@ -927,7 +921,7 @@ GtMainWin::openAboutDialog()
 void
 GtMainWin::openChangelogDialog()
 {
-    GtChangelogDialog dialog;
+    GtAboutDialog dialog(1);
 
     dialog.exec();
 }

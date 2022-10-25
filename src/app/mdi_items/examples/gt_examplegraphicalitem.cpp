@@ -12,11 +12,10 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QFile>
-#include <QDialog>
 
 #include "gt_application.h"
 #include "gt_examplesentry.h"
-#include "gt_datamodel.h"
+#include "gt_dialog.h"
 #include "gt_logging.h"
 #include "gt_icons.h"
 
@@ -197,7 +196,7 @@ GtExampleGraphicalItem::showZoom()
 
     if (!m_pixmap.isNull())
     {
-        QDialog dialog;
+        GtDialog dialog;
         QVBoxLayout* layout = new QVBoxLayout;
         QLabel* label = new QLabel;
         QPushButton* openButton = new QPushButton(tr("Open example"));

@@ -10,7 +10,7 @@
 #ifndef GT_CHECKFORUPDATESDIALOG_H
 #define GT_CHECKFORUPDATESDIALOG_H
 
-#include <QDialog>
+#include "gt_dialog.h"
 
 class QLabel;
 class QPushButton;
@@ -19,7 +19,7 @@ class QTableWidget;
 /**
  * @brief The GtCheckForUpdatesDialog class
  */
-class GtCheckForUpdatesDialog : public QDialog
+class GtCheckForUpdatesDialog : public GtDialog
 {
     Q_OBJECT
 

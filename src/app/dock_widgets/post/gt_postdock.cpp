@@ -11,7 +11,6 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QDir>
-#include <QFile>
 #include <QDebug>
 #include <QDomDocument>
 #include <QMenu>
@@ -25,7 +24,6 @@
 #include "gt_project.h"
 #include "gt_mdilauncher.h"
 #include "gt_templateviewer.h"
-#include "gt_posttemplatefactory.h"
 #include "gt_deleteitemmessagebox.h"
 #include "gt_icons.h"
 

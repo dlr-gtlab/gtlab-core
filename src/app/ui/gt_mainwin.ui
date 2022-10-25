@@ -111,8 +111,6 @@
       <iconset resource="../../resources/icons/icons.qrc">
        <normaloff>:/icons/arrowrightIcon.png</normaloff>:/icons/arrowrightIcon.png</iconset>
      </property>
-     <addaction name="actionDesignerPerspective"/>
-     <addaction name="actionPerformancePerspective"/>
     </widget>
     <widget class="QMenu" name="menuDock_Widgets">
      <property name="title">
@@ -165,7 +163,6 @@
     <addaction name="actionState_Browser"/>
     <addaction name="actionMemento_Viewer"/>
     <addaction name="separator"/>
-    <addaction name="actionPerformance_Map_Editor"/>
     <addaction name="actionWidgetStructure"/>
    </widget>
    <addaction name="menuFile"/>
@@ -272,36 +269,6 @@
     <string>Command History</string>
    </property>
   </action>
-  <action name="actionDesignerPerspective">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/bladesIcon.png</normaloff>:/icons/bladesIcon.png</iconset>
-   </property>
-   <property name="text">
-    <string>PreDesign</string>
-   </property>
-   <property name="toolTip">
-    <string>Change to PreDesign Perspective</string>
-   </property>
-  </action>
-  <action name="actionPerformancePerspective">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/DPcalculator_16.png</normaloff>:/icons/DPcalculator_16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Performance</string>
-   </property>
-   <property name="toolTip">
-    <string>Change to Performance Perspective</string>
-   </property>
-  </action>
   <action name="actionHelpContents">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
@@ -363,31 +330,6 @@
    </property>
    <property name="shortcut">
     <string>Alt+Return</string>
-   </property>
-  </action>
-  <action name="actionDesigner_Perspective">
-   <property name="text">
-    <string>Designer Perspective</string>
-   </property>
-  </action>
-  <action name="actionPerformance_Perspective">
-   <property name="text">
-    <string>Performance Perspective</string>
-   </property>
-  </action>
-  <action name="actionShow_Plot">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/postIcon.png</normaloff>:/icons/postIcon.png</iconset>
-   </property>
-   <property name="text">
-    <string>Show Plot</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="actionCloseProject">
@@ -456,15 +398,6 @@
     <string>&amp;Changelog</string>
    </property>
   </action>
-  <action name="actionMap_Collection">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/collectionIcon_16.png</normaloff>:/icons/collectionIcon_16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Map Collection</string>
-   </property>
-  </action>
   <action name="actionLayer_Manager">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
@@ -481,15 +414,6 @@
    </property>
    <property name="text">
     <string>Process Queue</string>
-   </property>
-  </action>
-  <action name="actionFrom_S2M">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/gridIcon.png</normaloff>:/icons/gridIcon.png</iconset>
-   </property>
-   <property name="text">
-    <string>S2M...</string>
    </property>
   </action>
   <action name="actionSave_As">
@@ -509,42 +433,6 @@
     <string>&amp;Examples</string>
    </property>
   </action>
-  <action name="actionCalculatorCollection">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/calculatorIcon_16.png</normaloff>:/icons/calculatorIcon_16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Calculator Collection</string>
-   </property>
-  </action>
-  <action name="actionMaterialCollection">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/materialsIcon_16.png</normaloff>:/icons/materialsIcon_16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Material Collection</string>
-   </property>
-  </action>
-  <action name="actionRCERemoteConnection">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/connectionIcon_16.png</normaloff>:/icons/connectionIcon_16.png</iconset>
-   </property>
-   <property name="text">
-    <string>RCE Remote Connection</string>
-   </property>
-  </action>
-  <action name="actionCollection_Test">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/collectionIcon_16.png</normaloff>:/icons/collectionIcon_16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Collection Test</string>
-   </property>
-  </action>
   <action name="actionNetwork_Access_Manager">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
@@ -552,24 +440,6 @@
    </property>
    <property name="text">
     <string>Network Access Manager</string>
-   </property>
-  </action>
-  <action name="actionModel_View_Test">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/globalsIcon_16.png</normaloff>:/icons/globalsIcon_16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Model View Test</string>
-   </property>
-  </action>
-  <action name="actionPerformance_Map_Editor">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/mapIcon_16.png</normaloff>:/icons/mapIcon_16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Performance Map Editor</string>
    </property>
   </action>
   <action name="actionMemento_Viewer">
@@ -593,16 +463,6 @@
   <action name="actionEditSessions">
    <property name="text">
     <string>Edit Sessions</string>
-   </property>
-  </action>
-  <action name="actionPreDesignPlotTest">
-   <property name="text">
-    <string>PreDesign Plot Test</string>
-   </property>
-  </action>
-  <action name="actionPerformanceModelEditor">
-   <property name="text">
-    <string>Performance Model Editor</string>
    </property>
   </action>
   <action name="actionEditPerspectives">
