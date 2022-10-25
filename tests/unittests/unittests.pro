@@ -36,7 +36,7 @@ CONFIG += silent
 CONFIG += c++14
 CONFIG += console
 
-DEFINES += GT_MODULE_ID=Unittests
+DEFINES += GT_MODULE_ID='"\\\"Unittests\\\""'
 
 #CURRENT_DIR=$$project_src_dir/tests/unittests
 

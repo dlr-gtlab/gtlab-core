@@ -23,7 +23,7 @@ CONFIG += silent
 CONFIG += c++14
 
 DEFINES += GT_GUI_DLL
-DEFINES += GT_MODULE_ID=Gui
+DEFINES += GT_MODULE_ID='"\\\"Gui\\\""'
 
 QTPLUGIN += gif
 

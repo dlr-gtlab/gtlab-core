@@ -26,5 +26,11 @@
 */
 #define GT_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
+#ifndef GT_MODULE_ID
+#error GT_MODULE_ID must be defined globally when using GTlab Core Libraries. \
+Please define the macro using -DGT_MODULE_ID =<module_id>
+#endif
+
+#define GT_MODULENAME() GT_MODULE_ID
 
 #endif // GT_GLOBALS_H

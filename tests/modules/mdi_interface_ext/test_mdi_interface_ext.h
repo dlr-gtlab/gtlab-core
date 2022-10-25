@@ -23,14 +23,11 @@ class TestDatamodelInterfaceExt : public QObject,
         public GtMdiInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "de.dlr.gtlab.GtModuleInterface/0.1"
-                      FILE "test_mdi_interface_ext.json")
+    GT_MODULE("test_mdi_interface_ext.json")
 
-    Q_INTERFACES(GtModuleInterface)
     Q_INTERFACES(GtDatamodelInterface)
     Q_INTERFACES(GtMdiInterface)
 
-    GT_MODULE
 
 public:
 

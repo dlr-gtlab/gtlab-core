@@ -19,12 +19,7 @@ class TestModuleInterface : public QObject,
 		public GtModuleInterface
  {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "de.dlr.gtlab.GtModuleInterface/0.1"
-                      FILE "test_module_interface.json")
-
-    Q_INTERFACES(GtModuleInterface)
-
-    GT_MODULE
+    GT_MODULE("test_module_interface.json")
 
 public:
 

@@ -4,6 +4,8 @@
 #          / /_/ / / / / / /_/ / /_/ /
 #          \____/ /_/ /_/\__,_/_.___/
 
+GT_MODULE_ID = "Test Module Interface"
+
 ######################################################################
 #### DO NOT CHANGE!
 ######################################################################
@@ -25,7 +27,11 @@ CONFIG += plugin
 CONFIG += silent
 CONFIG += c++14
 
-DEFINES += "GT_MODULE_ID=\"Test Module Interface\""
+isEmpty(GT_MODULE_ID) {
+   error("GT_MODULE_ID undefined. Please define variable GT_MODULE_ID=\"My Module ID\" in project file.")
+}
+
+DEFINES += GT_MODULE_ID='"\\\"$${GT_MODULE_ID}\\\""'
 
 INCLUDEPATH += . \
 

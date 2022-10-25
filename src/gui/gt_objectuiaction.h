@@ -12,6 +12,7 @@
 
 #include "gt_gui_exports.h"
 #include "gt_object.h"
+#include "gt_globals.h"
 
 #include <functional>
 #include <QString>
