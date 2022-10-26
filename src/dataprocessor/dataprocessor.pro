@@ -90,6 +90,7 @@ HEADERS += \
     property/gt_intproperty.h \
     property/gt_polyvector.h \
     property/gt_property.h \
+    property/gt_propertyreference.h \
     property/gt_stringproperty.h \
     property/gt_unit.h \
     property/gt_unitconverter.h \
@@ -154,6 +155,7 @@ SOURCES += \
     property/gt_boolproperty.cpp \
     property/gt_doubleproperty.cpp \
     property/gt_intproperty.cpp \
+    property/gt_propertyreference.cpp \
     property/gt_stringproperty.cpp \
     property/gt_unit.cpp \
     property/gt_groupproperty.cpp \

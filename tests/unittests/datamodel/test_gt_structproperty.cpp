@@ -7,15 +7,13 @@
  */
 
 #include "gtest/gtest.h"
+#include "test_propertycontainerobject.h"
 
 #include <QVariant>
-
-#include "gt_structproperty.h"
 
 #include "gt_propertystructcontainer.h"
 #include "gt_propertyfactory.h"
 #include "gt_doubleproperty.h"
-#include "gt_stringproperty.h"
 #include "gt_objectmemento.h"
 #include "gt_xmlutilities.h"
 #include "gt_objectmementodiff.h"
@@ -23,35 +21,6 @@
 
 
 #include "gt_object.h"
-
-struct TestObject : public GtObject
-{
-    TestObject() :
-        GtObject()
-    {
-
-        GtPropertyStructDefinition envVarStruct("EnvironmentVarsStruct");
-        envVarStruct.defineMember("name", makeStringProperty());
-        envVarStruct.defineMember("value", makeStringProperty());
-
-        environmentVars.registerAllowedType(envVarStruct);
-
-        registerPropertyStructContainer(environmentVars);
-        setObjectName("testobject");
-    }
-
-    void addEnvironmentVar(QString name, QString value)
-    {
-        auto* vars = findDynamicSizeProperty("environmentVars");
-        auto& var = vars->newEntry("EnvironmentVarsStruct");
-
-        var.setMemberVal("name", name);
-        var.setMemberVal("value", value);
-    }
-
-    GtPropertyStructContainer environmentVars{"environmentVars"};
-};
-
 
 /// This is a test fixture
 class TestGtStructProperty : public ::testing::Test
