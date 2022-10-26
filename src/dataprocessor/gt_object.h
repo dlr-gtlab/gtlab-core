@@ -579,7 +579,7 @@ protected:
      */
     bool registerProperty(GtAbstractProperty& property);
 
-    bool registerPropertyStructContainer(GtPropertyStructContainer& );
+    bool registerPropertyStructContainer(GtPropertyStructContainer& c);
 
     /**
      * @brief registerProperty

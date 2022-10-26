@@ -140,10 +140,15 @@ protected:
 
 };
 
+namespace gt
+{
+
 /**
  * @brief Creates a property factory for ints with a default value
  */
 GT_DATAMODEL_EXPORT
-PropertyFactoryFunction makeIntProperty(int value);
+gt::PropertyFactoryFunction makeIntProperty(int value);
+
+} // namespace gt
 
 #endif // GTINTPROPERTY_H

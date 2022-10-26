@@ -115,8 +115,8 @@ GtDoubleListProperty::setValueFromString(const QString& val)
     return success;
 }
 
-PropertyFactoryFunction
-makeDoubleListProperty()
+gt::PropertyFactoryFunction
+gt::makeDoubleListProperty()
 {
     return [](const QString& id)
     {

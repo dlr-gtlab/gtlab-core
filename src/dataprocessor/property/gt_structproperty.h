@@ -23,7 +23,7 @@
  * An instance is typically created by calling to
  * GtPropertyStructDefinition::newInstance.
  */
-class GtPropertyStructInstance : public GtGroupProperty
+class GT_DATAMODEL_EXPORT GtPropertyStructInstance : public GtGroupProperty
 {
     Q_OBJECT
 
@@ -40,7 +40,6 @@ public:
      * @param value    The value to be set
      * @return         Returns true, if the value could be set, false otherwise.
      */
-    GT_DATAMODEL_EXPORT
     bool setMemberVal(const QString& memberId, const QVariant& value);
 
 
@@ -50,7 +49,7 @@ public:
      * @param okay[out] will be true, if the value could be queries successfully
      * @return The member value as a QVariant
      */
-    GT_DATAMODEL_EXPORT
+
     QVariant getMemberValToVariant(const QString&, bool* okay = nullptr) const;
 
     /**
@@ -67,9 +66,8 @@ public:
         if (!gt::can_convert<T>(value))
         {
             gtError().noquote().nospace()
-                << "Cannot convert member '" << memberId << "' with value '"
-                << value.toString() << "' to type '" << typeid(T).name()
-                << "'.";
+                << tr("Cannot convert member '%1' with value '%2' to type '%3'")
+                       .arg(memberId, value.toString(), typeid(T).name());
             localokay = false;
         }
 
@@ -79,7 +77,6 @@ public:
         }
 
         return value.value<T>();
-        ;
     }
 
     /**
@@ -122,7 +119,7 @@ public:
      * @param f  A function to create the member property
      */
     GT_DATAMODEL_EXPORT
-    void defineMember(const QString& id, PropertyFactoryFunction f);
+    void defineMember(const QString& id, gt::PropertyFactoryFunction f);
 
     /**
      * @brief Creates an instance (i.e. an actual object) given the current
@@ -143,7 +140,7 @@ private:
     struct MemberType
     {
         QString id;
-        PropertyFactoryFunction makeProperty;
+        gt::PropertyFactoryFunction makeProperty;
     };
 
     std::vector<MemberType> members;

@@ -114,10 +114,15 @@ private:
 
 };
 
+namespace gt
+{
+
 /**
  * @brief Creates a property factory for bools with a default value
  */
 GT_DATAMODEL_EXPORT
-PropertyFactoryFunction makeModeProperty();
+gt::PropertyFactoryFunction makeModeProperty();
+
+} // namespace gt
 
 #endif // GTMODEPROPERTY_H

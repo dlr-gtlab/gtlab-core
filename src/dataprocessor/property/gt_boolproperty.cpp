@@ -57,8 +57,8 @@ GtBoolProperty::setValueFromVariant(const QVariant& val,
 }
 
 
-PropertyFactoryFunction
-makeBoolProperty(bool value)
+gt::PropertyFactoryFunction
+gt::makeBoolProperty(bool value)
 {
     return makePropertyFactory<GtBoolProperty>(std::move(value));
 }

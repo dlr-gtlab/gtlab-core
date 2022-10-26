@@ -168,11 +168,15 @@ protected:
 
 };
 
+namespace gt
+{
+
 /**
  * @brief Creates a property factory for doubles with a default value
  */
 GT_DATAMODEL_EXPORT
-PropertyFactoryFunction makeDoubleProperty(double value);
+gt::PropertyFactoryFunction makeDoubleProperty(double value);
 
+} // namespace gt
 
 #endif // GTP_DOUBLEPARAM_H

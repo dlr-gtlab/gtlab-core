@@ -18,8 +18,8 @@ public:
     {
 
         GtPropertyStructDefinition envVarStruct("EnvironmentVarsStruct");
-        envVarStruct.defineMember("name", makeStringProperty());
-        envVarStruct.defineMember("value", makeStringProperty());
+        envVarStruct.defineMember("name", gt::makeStringProperty());
+        envVarStruct.defineMember("value", gt::makeStringProperty());
 
         environmentVars.registerAllowedType(envVarStruct);
 

@@ -22,6 +22,7 @@ class GtAbstractObjectFactory;
 class GtObjecIO;
 class QCryptographicHash;
 class VariantHasher;
+class GtPropertyStructInstance;
 
 /**
  * @brief The GtObjectMemento class
@@ -258,8 +259,13 @@ private:
 
 };
 
+namespace gt
+{
+
 GT_DATAMODEL_EXPORT
 void importStructEntryFromMemento(const GtObjectMemento::PropertyData& propStruct,
-                                  class GtPropertyStructInstance& structEntry);
+                                  GtPropertyStructInstance& structEntry);
+
+} // namespace gt
 
 #endif // GTOBJECTMEMENTO_H

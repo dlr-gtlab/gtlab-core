@@ -353,17 +353,7 @@ GtAbstractProperty::isConnected()
     return m_connection != nullptr;
 }
 
-GtAbstractProperty::GtAbstractProperty() :
-    m_connection(nullptr)
-{
-    m_readOnly = false;
-    m_optional = false;
-    m_active = true;
-    m_hidden = false;
-    m_storeMemento = true;
-    m_category = GtAbstractProperty::Main;
-    m_unitCategory = GtUnit::None;
-}
+GtAbstractProperty::GtAbstractProperty() = default;
 
 void
 GtAbstractProperty::setValFromConnection()
@@ -392,7 +382,7 @@ GtAbstractProperty::setOptional(bool val)
     }
 }
 
-QVariant getConnectedValue(const GtPropertyConnection &connection)
+QVariant gt::getConnectedValue(const GtPropertyConnection &connection)
 {
     return connection.valueFromSource();
 }

@@ -24,7 +24,7 @@ class GtPropertyStructDefinition;
  * @brief A container containing of a dynamic number of PropertyStructs
  * of specified types.
  */
-class GtPropertyStructContainer
+class GT_DATAMODEL_EXPORT GtPropertyStructContainer
 {
 public:
     using iterator =
@@ -32,13 +32,11 @@ public:
     using const_iterator =
         gt::PolyVector<GtPropertyStructInstance>::const_iterator;
 
-    GT_DATAMODEL_EXPORT
     GtPropertyStructContainer(const QString& ident, const QString& name);
 
-    GT_DATAMODEL_EXPORT
+
     explicit GtPropertyStructContainer(const QString& ident);
 
-    GT_DATAMODEL_EXPORT
     ~GtPropertyStructContainer();
 
     /**
@@ -46,7 +44,6 @@ public:
      * @param typeID
      * @param f
      */
-    GT_DATAMODEL_EXPORT
     void registerAllowedType(const GtPropertyStructDefinition& f);
 
     /**
@@ -61,8 +58,7 @@ public:
      *           will be set as the id
      * @return
      */
-    GT_DATAMODEL_EXPORT
-    GtPropertyStructInstance& newEntry(QString typeID, QString id="");
+    GtPropertyStructInstance& newEntry(QString typeID, QString id = {});
 
     /**
      * @brief Performs an in-place insertion of a new struct instance
@@ -77,16 +73,15 @@ public:
      * @param position Iterator to the position of the new entry
      * @return
      */
-    GT_DATAMODEL_EXPORT
     GtPropertyStructInstance& newEntry(QString typeID,
-                                       const_iterator position, QString id="");
+                                       const_iterator position, 
+                                       QString id = {});
 
     /**
      * @brief Removes an Entry from the container
      * @param position Iterator to the element to be removed
      * @return Iterator following the removed element.
      */
-    GT_DATAMODEL_EXPORT
     iterator removeEntry(iterator position);
 
     const_iterator findEntry(const QString& id) const;
@@ -95,13 +90,10 @@ public:
     /**
      * @brief Returns the number of entries in the vector
      */
-    GT_DATAMODEL_EXPORT
     size_t size() const;
 
-    GT_DATAMODEL_EXPORT
     QString ident() const;
 
-    GT_DATAMODEL_EXPORT
     QString name() const;
 
     /**
@@ -114,7 +106,6 @@ public:
      *   stage[2],
      * the prefix is "stage".
      */
-    GT_DATAMODEL_EXPORT
     QString entryPrefix() const;
 
     /**
@@ -127,7 +118,6 @@ public:
      *   stage[2],
      * the prefix is "stage".
      */
-    GT_DATAMODEL_EXPORT
     GtPropertyStructContainer& setEntryPrefix(QString prefix);
 
     /**
@@ -139,7 +129,6 @@ public:
      * @param idx position of the element to return
      * @return Reference to the requested element.
      */
-    GT_DATAMODEL_EXPORT
     GtPropertyStructInstance& operator[](size_t idx);
 
     /**
@@ -151,7 +140,6 @@ public:
      * @param idx position of the element to return
      * @return Reference to the requested element.
      */
-    GT_DATAMODEL_EXPORT
     const GtPropertyStructInstance& operator[](size_t idx) const;
 
     /**
@@ -164,7 +152,6 @@ public:
      * @param idx position of the element to return
      * @return Reference to the requested element.
      */
-    GT_DATAMODEL_EXPORT
     GtPropertyStructInstance& at(size_t idx);
 
     /**
@@ -177,34 +164,28 @@ public:
      * @param idx position of the element to return
      * @return Reference to the requested element.
      */
-    GT_DATAMODEL_EXPORT
     const GtPropertyStructInstance& at(size_t idx) const;
 
-    GT_DATAMODEL_EXPORT
     void clear();
 
     /**
      * @brief Begin Iterator
      */
-    GT_DATAMODEL_EXPORT
     iterator begin();
 
     /**
      * @brief Begin Iterator
      */
-    GT_DATAMODEL_EXPORT
     const_iterator begin() const;
 
     /**
      * @brief End Iterator
      */
-    GT_DATAMODEL_EXPORT
     iterator end();
 
     /**
      * @brief End Iterator
      */
-    GT_DATAMODEL_EXPORT
     const_iterator end() const;
 
 private:

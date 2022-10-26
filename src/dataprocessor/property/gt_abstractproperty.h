@@ -270,31 +270,31 @@ protected:
     QString m_customCategoryString;
 
     /// Unit Category of the parameter
-    GtUnit::Category m_unitCategory;
+    GtUnit::Category m_unitCategory{GtUnit::None};
 
     /// List of all sub properties
     QList<GtAbstractProperty*> m_subProperties;
 
     /// Read only indicator
-    bool m_readOnly;
+    bool m_readOnly{false};
 
     /// Optional indicator
-    bool m_optional;
+    bool m_optional{false};
 
     /// Active indicator
-    bool m_active;
+    bool m_active{true};
 
     /// Hide indicator
-    bool m_hidden;
+    bool m_hidden{false};
 
     /// Whether property is stored in memento information or not
-    bool m_storeMemento;
+    bool m_storeMemento{true};
 
     /// Property category
-    GtAbstractProperty::PropertyCategory m_category;
+    GtAbstractProperty::PropertyCategory m_category{GtAbstractProperty::Main};
 
     /// Pointer to property connection
-    QPointer<GtPropertyConnection> m_connection;
+    QPointer<GtPropertyConnection> m_connection{nullptr};
 
     /**
      * @brief setValFromConnection
@@ -319,6 +319,9 @@ signals:
 
 Q_DECLARE_METATYPE(GtUnit::Category)
 
+namespace gt
+{
+
 GT_DATAMODEL_EXPORT
 QVariant getConnectedValue(const GtPropertyConnection& connection);
 
@@ -334,6 +337,6 @@ QVariant getConnectedValue(const GtPropertyConnection& connection);
 using PropertyFactoryFunction =
     std::function<GtAbstractProperty*(const QString& id)>;
 
-
+} // namespace gt
 
 #endif // GTABSTRACTPROPERTY_H

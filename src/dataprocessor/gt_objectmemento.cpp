@@ -398,7 +398,7 @@ readProperties(const GtObjectMemento& memento,
     }
 }
 
-void importStructEntryFromMemento(const PD& propStruct,
+void gt::importStructEntryFromMemento(const PD& propStruct,
                                   GtPropertyStructInstance& structEntry)
 {
     assert(propStruct.type() == PD::STRUCT_T);
@@ -438,7 +438,7 @@ void createNewStructEntryFromMemento(const PD& propStruct, GtPropertyStructConta
         auto& structEntry = c.newEntry(propStruct.dataType(),
                                        propStruct.name);
 
-        importStructEntryFromMemento(propStruct, structEntry);
+        gt::importStructEntryFromMemento(propStruct, structEntry);
 
     }
     catch (GTlabException& e)

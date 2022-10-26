@@ -149,8 +149,8 @@ GtModeProperty::validateValue(const QString& value)
     return modes().contains(value);
 }
 
-PropertyFactoryFunction
-makeModeProperty()
+gt::PropertyFactoryFunction
+gt::makeModeProperty()
 {
     return [](const QString& id)
     {

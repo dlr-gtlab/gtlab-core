@@ -222,7 +222,7 @@ inline void GtProperty<ParamType>::setValFromConnection()
     }
 
     // get source value in form of QVariant
-    QVariant variant = getConnectedValue(*m_connection);
+    QVariant variant = gt::getConnectedValue(*m_connection);
 
     // check variant
     if (!variant.isValid())
@@ -302,8 +302,11 @@ inline bool GtProperty<ParamType>::validateValue(const ParamType& /*value*/)
 }
 
 
+namespace gt
+{
+
 template <typename PropertyType>
-inline PropertyFactoryFunction makePropertyFactory()
+inline gt::PropertyFactoryFunction makePropertyFactory()
 {
     return [=](const QString& id) {
         return new PropertyType(id, id);
@@ -314,7 +317,7 @@ inline PropertyFactoryFunction makePropertyFactory()
  * @brief Creates a property factory for Ts with a default value
  */
 template <typename PropertyType, typename T>
-inline PropertyFactoryFunction makePropertyFactory(T value)
+inline gt::PropertyFactoryFunction makePropertyFactory(const T& value)
 {
     return [=](const QString& id) {
         auto p = new PropertyType(id, id);
@@ -322,5 +325,7 @@ inline PropertyFactoryFunction makePropertyFactory(T value)
         return p;
     };
 }
+
+} // namespace gt
 
 #endif // GTLAB_PARAMETER_H

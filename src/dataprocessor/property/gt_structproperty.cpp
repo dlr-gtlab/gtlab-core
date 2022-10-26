@@ -20,7 +20,7 @@ GtPropertyStructDefinition::typeName() const
 
 void
 GtPropertyStructDefinition::defineMember(const QString& id,
-                                         PropertyFactoryFunction f)
+                                         gt::PropertyFactoryFunction f)
 {
     members.push_back(MemberType{id, std::move(f)});
 }

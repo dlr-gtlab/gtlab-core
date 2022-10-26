@@ -75,10 +75,16 @@ protected:
     std::unique_ptr<QValidator> m_validator;
 };
 
+namespace gt
+{
+
 /**
  * @brief Creates a property factory for strings with a default value
  */
 GT_DATAMODEL_EXPORT
-PropertyFactoryFunction makeStringProperty(QString strValue = "");
+gt::PropertyFactoryFunction makeStringProperty(QString strValue = "");
+
+
+} // namespace gt
 
 #endif // GTSTRINGPROPERTY_H

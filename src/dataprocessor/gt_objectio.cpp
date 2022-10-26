@@ -1303,7 +1303,7 @@ bool handlePropContEntryAdd(const QDomElement& diffTag,
         auto& entry = container.newEntry(typeId, pos, uuid);
 
         // import memento to struct
-        importStructEntryFromMemento(pd, entry);
+        gt::importStructEntryFromMemento(pd, entry);
     }
     catch(GTlabException& e)
     {

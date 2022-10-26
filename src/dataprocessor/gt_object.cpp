@@ -589,8 +589,6 @@ GtObject::findDynamicSizeProperty(const QString &id) const
 
     if (iter == pimpl->propertyContainer.end())
     {
-        gtError().noquote().nospace() << "Requested dynamic size property '"
-                                      << id << "' does not exist.";
         return nullptr;
     }
 
@@ -837,7 +835,9 @@ GtObject::registerProperty(GtAbstractProperty& property)
 bool
 GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
 {
-    auto iter = std::find_if(std::begin(pimpl->propertyContainer), std::end(pimpl->propertyContainer), [&](const GtPropertyStructContainer& current)
+    auto iter = std::find_if(std::begin(pimpl->propertyContainer),
+                             std::end(pimpl->propertyContainer),
+                             [&](const GtPropertyStructContainer& current)
     {
         return &current == &c;
     });

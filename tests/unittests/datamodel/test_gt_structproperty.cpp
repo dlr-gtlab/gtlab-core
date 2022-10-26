@@ -32,9 +32,9 @@ TEST_F(TestGtStructProperty, buildPoint3d)
 {
     GtPropertyStructDefinition point3dClz("point_3d");
 
-    point3dClz.defineMember("x", makeDoubleProperty(1.0));
-    point3dClz.defineMember("y", makeDoubleProperty(2.0));
-    point3dClz.defineMember("z", makeDoubleProperty(3.0));
+    point3dClz.defineMember("x", gt::makeDoubleProperty(1.0));
+    point3dClz.defineMember("y", gt::makeDoubleProperty(2.0));
+    point3dClz.defineMember("z", gt::makeDoubleProperty(3.0));
 
     auto p1 = point3dClz.newInstance("p1");
 
@@ -66,6 +66,8 @@ TEST_F(TestGtStructProperty, buildPoint3d)
     EXPECT_EQ(1.0, px->value<double>());
     EXPECT_EQ(2.0, py->value<double>());
     EXPECT_EQ(3.0, pz->value<double>());
+
+    std::cout << px->metaObject()->className() << std::endl;
 }
 
 TEST_F(TestGtStructProperty, findDynamicSizeProperty)
