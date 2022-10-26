@@ -13,6 +13,7 @@
 
 #include "gt_propertyconnection.h"
 #include "gt_abstractproperty.h"
+#include "gt_propertyreference.h"
 
 GtPropertyConnection::GtPropertyConnection() :
     m_sourcePropObj(nullptr),
@@ -126,8 +127,17 @@ GtPropertyConnection::makeConnection()
         return;
     }
 
+    // Get Source property
+    bool ok = false;
+    auto sourceRef = GtPropertyReference::fromString(m_sourceProp, ok);
+    if (!ok)
+    {
+        gtError() << tr("Cannot parse source property '%1'").arg(m_sourceProp);
+        return;
+    }
+
     // find source property
-    GtAbstractProperty* sourcePropety = sourceObj->findProperty(m_sourceProp);
+    GtAbstractProperty* sourcePropety = sourceRef.resolve(*sourceObj);
 
     // check property
     if (!sourcePropety)
@@ -137,8 +147,16 @@ GtPropertyConnection::makeConnection()
         return;
     }
 
+    // Get Target property
+    auto targetRef = GtPropertyReference::fromString(m_targetProp, ok);
+    if (!ok)
+    {
+        gtError() << tr("Cannot parse target property '%1'").arg(m_targetProp);
+        return;
+    }
+
     // find target property
-    GtAbstractProperty* targetPropety = targetObj->findProperty(m_targetProp);
+    GtAbstractProperty* targetPropety = targetRef.resolve(*targetObj);
 
     // check property
     if (!targetPropety)

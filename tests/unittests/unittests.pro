@@ -62,13 +62,13 @@ INCLUDEPATH += .\
     ./core
 
 #### HEADERS
-HEADERS += gt_testhelper.h \
-    datamodel/test_propertycontainerobject.h
+HEADERS += gt_testhelper.h
 HEADERS += $$files(datamodel/*.h)
 HEADERS += $$files(core/*.h)
 
 #### SOURCES
 SOURCES += \
+    datamodel/test_propertyconnection.cpp \
     main.cpp \
     gt_testhelper.cpp
 SOURCES += $$files(datamodel/*.cpp)

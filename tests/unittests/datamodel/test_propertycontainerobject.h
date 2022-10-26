@@ -10,6 +10,9 @@
 
 struct TestObject : public GtObject
 {
+    Q_OBJECT
+public:
+
     TestObject() :
         GtObject()
     {
