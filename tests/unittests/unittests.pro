@@ -68,7 +68,6 @@ HEADERS += $$files(core/*.h)
 
 #### SOURCES
 SOURCES += \
-    datamodel/test_propertyconnection.cpp \
     main.cpp \
     gt_testhelper.cpp
 SOURCES += $$files(datamodel/*.cpp)

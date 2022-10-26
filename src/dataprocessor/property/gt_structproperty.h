@@ -64,7 +64,7 @@ public:
 
         auto value = getMemberValToVariant(memberId, &localokay);
 
-        if (!can_convert<T>(value))
+        if (!gt::can_convert<T>(value))
         {
             gtError().noquote().nospace()
                 << "Cannot convert member '" << memberId << "' with value '"
