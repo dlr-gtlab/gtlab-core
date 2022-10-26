@@ -12,12 +12,19 @@
 
 #include "gt_datamodel_exports.h"
 
+#include <vector>
+#include <memory>
 #include <QString>
 
-class GtVersionNumberImpl;
-
 /**
- * @brief The GtVersionNumber class
+ * @brief The GtVersionNumber class is used for universal versioning of
+ * different software parts and modules of GTlab. It implements the semantic
+ * versioning in version 2.0.0 (https://semver.org/#spec-item-11) with the
+ * exception that minor and patch version are optional.
+ * Furthermore, a prioritization of the keyword "dp" (developer preview) takes
+ * place when evaluating the pre-release identifier.
+ * Credits for code snippets to:
+ * https://github.com/DLR-SC/tigl/blob/master/src/Version.h
  */
 class GtVersionNumber
 {
@@ -27,28 +34,34 @@ public:
      * @param major Major version number
      * @param minor Minor version number
      * @param patch Patch version number
-     * @param additional Addition version information (e.g. alpha, rc, etc.)
+     * @param additional Additional pre-release information (e.g. alpha, rc, etc.)
+     * @param additional Additional build information
      */
     GT_DATAMODEL_EXPORT GtVersionNumber(int major, int minor, int patch,
-                                   const QString& additional = QString());
+                                   const QString& pre_release = QString(),
+                                   const QString& build = QString());
 
     /**
      * @brief Constructor
      * @param major Major version number
      * @param minor Minor version number
-     * @param additional Addition version information (e.g. alpha, rc, etc.)
+     * @param additional Additional pre-release information (e.g. alpha, rc, etc.)
+     * @param additional Additional build information
      */
     GT_DATAMODEL_EXPORT GtVersionNumber(int major, int minor,
-                                   const QString& additional = QString());
+                                        const QString& pre_release = QString(),
+                                        const QString& build = QString());
 
     /**
      * @brief Constructor
      * @param major Major version number
-     * @param additional Addition version information (e.g. alpha, rc, etc.)
+     * @param additional Additional pre-release information (e.g. alpha, rc, etc.)
+     * @param additional Additional build information
      */
     GT_DATAMODEL_EXPORT explicit GtVersionNumber(
             int major,
-            const QString& additional = QString());
+            const QString& pre_release = QString(),
+            const QString& build = QString());
 
     /**
      * @brief Produces a null version.
@@ -86,6 +99,36 @@ public:
     GT_DATAMODEL_EXPORT QString toString() const;
 
     /**
+     * @brief Returns major version number
+     * @return major version number
+     */
+    GT_DATAMODEL_EXPORT int major() const;
+
+    /**
+     * @brief Returns minor version number
+     * @return minor version number
+     */
+    GT_DATAMODEL_EXPORT int minor() const;
+
+    /**
+     * @brief Returns patch level
+     * @return patch level
+     */
+    GT_DATAMODEL_EXPORT int patch() const;
+
+    /**
+     * @brief Returns pre-release identifier
+     * @return pre-release identifier
+     */
+    GT_DATAMODEL_EXPORT QString preRelease() const;
+
+    /**
+     * @brief Returns build version identifier
+     * @return build version identifier
+     */
+    GT_DATAMODEL_EXPORT QString build() const;
+
+    /**
      * @brief Returns true if there are zero numerical segments,
      * otherwise false is returned.
      * @return Whether version contains only zero numerical segments or not.
@@ -101,11 +144,12 @@ public:
      * @return Comparison result
      */
     GT_DATAMODEL_EXPORT static int compare(const GtVersionNumber& v1,
-                                      const GtVersionNumber& v2);
+                                           const GtVersionNumber& v2);
 
 private:
     /// Private implementation
-    GtVersionNumberImpl* m_pimpl;
+    class Impl;
+    std::unique_ptr<Impl> m_pimpl;
 
 };
 

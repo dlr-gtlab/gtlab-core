@@ -82,3 +82,10 @@ GtRegExp::forDoublesLists()
 {
     return QRegExp(("[eE0-9\\-\\.\\;]+"));
 }
+
+QRegExp
+GtRegExp::forSemVers()
+{
+    return QRegExp(R"(^(0|[1-9]\d*)(\.(0|[1-9]\d*)(\.(0|[1-9]\d*))?)?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))"
+                                         R"((?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$)");
+}

@@ -96,6 +96,12 @@ namespace GtRegExp
      * @return regexp for double lists
      */
     QRegExp GT_DATAMODEL_EXPORT forDoublesLists();
+
+    /**
+     * @brief for semantic versioning
+     * @return regexp for semantic versioning
+     */
+    QRegExp GT_DATAMODEL_EXPORT forSemVers();
 }
 
 #endif // GTREGEXP_H
