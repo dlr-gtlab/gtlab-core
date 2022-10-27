@@ -87,9 +87,8 @@ public:
 
                     // save file
                     // new ordered attribute stream writer algorithm
-                    if (!GtXmlUtilities::writeDomDocumentToFile(modData,
-                                                                document,
-                                                                true))
+                    if (!gt::xml::writeDomDocumentToFile(modData,
+                                                         document, true))
                     {
                         gtError() << "(module data upgrader) "
                                   << modData << QStringLiteral(": ")
@@ -112,9 +111,9 @@ public:
 
 };
 
-namespace gtlab
+namespace gt
 {
-namespace internal
+namespace detail
 {
 
 class GtModuleUpgrader::Impl
@@ -299,7 +298,7 @@ GtModuleUpgrader::GtModuleUpgrader() :
     m_pimpl{std::make_unique<GtModuleUpgrader::Impl>()}
 {
     // register core upgrade routines
-    foreach (const auto& r, gtlab::internal::coreUpgradeRoutines())
+    foreach (const auto& r, gt::detail::coreUpgradeRoutines())
     {
         registerModuleConverter(GtFootprint::frameworkIdentificationString(),
                                 r.target, r.f);
@@ -307,5 +306,5 @@ GtModuleUpgrader::GtModuleUpgrader() :
 
 }
 
-} // namespace internal
-} // namespace gtlab
+} // namespace detail
+} // namespace gt

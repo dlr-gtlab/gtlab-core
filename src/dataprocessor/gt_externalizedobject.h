@@ -20,8 +20,7 @@
 class GtExternalizedObject;
 class GtExternalizedObjectData;
 
-/// declaration of namespace 'Gt'
-namespace Gt
+namespace gt
 {
 
 /**
@@ -45,7 +44,7 @@ T_Data fetchExternalizedData(T_Base* obj)
     return T_Data{obj};
 }
 
-} // namespace Gt
+} // namespace gt
 
 
 /// Marco for declaring a data class as friend and adding a dedicated
@@ -54,7 +53,7 @@ T_Data fetchExternalizedData(T_Base* obj)
     friend class DataClass; \
     public: using Data = DataClass; \
     template <typename T = Data> T fetchData() { \
-        return Gt::fetchExternalizedData(this); \
+        return gt::fetchExternalizedData(this); \
     } private:
 
 /// Marco for adding a dedicated base method impl for accessing the base class.

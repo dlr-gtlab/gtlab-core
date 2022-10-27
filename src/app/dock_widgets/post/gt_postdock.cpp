@@ -91,7 +91,7 @@ GtPostDock::GtPostDock() : m_project(nullptr)
     {
         // export button
         m_exportButton = new QPushButton;
-        m_exportButton->setIcon(GtGUI::Icon::export16());
+        m_exportButton->setIcon(gt::gui::icon::export16());
         m_exportButton->setMaximumSize(QSize(20, 20));
         m_exportButton->setFlat(true);
         m_exportButton->setToolTip(tr("Export templates to file"));
@@ -102,7 +102,7 @@ GtPostDock::GtPostDock() : m_project(nullptr)
 
         // import button
         m_importButton = new QPushButton;
-        m_importButton->setIcon(GtGUI::Icon::import16());
+        m_importButton->setIcon(gt::gui::icon::import16());
         m_importButton->setMaximumSize(QSize(20, 20));
         m_importButton->setFlat(true);
         m_importButton->setToolTip(tr("Import templates from file"));
@@ -114,7 +114,7 @@ GtPostDock::GtPostDock() : m_project(nullptr)
 
     // add button
     m_addButton = new QPushButton;
-    m_addButton->setIcon(GtGUI::Icon::add16());
+    m_addButton->setIcon(gt::gui::icon::add16());
     m_addButton->setMaximumSize(QSize(20, 20));
     m_addButton->setFlat(true);
     m_addButton->setToolTip(tr("Add new template"));
@@ -319,13 +319,13 @@ GtPostDock::customContextMenu(QModelIndex const& index)
         QMenu menu(this);
 
         QAction* actrename = menu.addAction(tr("Rename"));
-        actrename->setIcon(GtGUI::Icon::input16());
+        actrename->setIcon(gt::gui::icon::input16());
 
 
         menu.addSeparator();
 
         QAction* actdelete = menu.addAction(tr("Delete"));
-        actdelete->setIcon(GtGUI::Icon::delete16());
+        actdelete->setIcon(gt::gui::icon::delete16());
 
         QAction* a = menu.exec(QCursor::pos());
 
@@ -345,7 +345,7 @@ GtPostDock::customContextMenu(QModelIndex const& index)
         QMenu menu(this);
 
         QAction* addtemplate = menu.addAction(tr("Add new template"));
-        addtemplate->setIcon(GtGUI::Icon::add16());
+        addtemplate->setIcon(gt::gui::icon::add16());
 
         QAction* a = menu.exec(QCursor::pos());
 

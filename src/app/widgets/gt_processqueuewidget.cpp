@@ -27,25 +27,25 @@ GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
 {
     setWindowTitle("GTlab - Process Queue");
 
-    setWindowIcon(GtGUI::Icon::process16());
+    setWindowIcon(gt::gui::icon::process16());
 
     QFrame* frame = new QFrame;
     QVBoxLayout* frameLayout = new QVBoxLayout;
 
     m_upButton = new QPushButton(tr("Move Up"));
-    m_upButton->setIcon(GtGUI::Icon::arrowUp());
+    m_upButton->setIcon(gt::gui::icon::arrowUp());
     m_upButton->setToolTip(tr("Move up task"));
-    QString styleSheet = GtStyleSheets::buttonStyleSheet();
+    QString styleSheet = gt::gui::stylesheet::buttonStyleSheet();
 
     m_upButton->setStyleSheet(styleSheet);
 
     m_removeButton = new QPushButton(tr("Remove"));
-    m_removeButton->setIcon(GtGUI::Icon::delete16());
+    m_removeButton->setIcon(gt::gui::icon::delete16());
     m_removeButton->setToolTip(tr("Remove from queue"));
     m_removeButton->setStyleSheet(styleSheet);
 
     m_downButton = new QPushButton(tr("Move Down"));
-    m_downButton->setIcon(GtGUI::Icon::arrowDown());
+    m_downButton->setIcon(gt::gui::icon::arrowDown());
     m_downButton->setToolTip(tr("Move down task"));
     m_downButton->setStyleSheet(styleSheet);
 
@@ -290,15 +290,15 @@ GtProcessQueueWidget::onContextMenuRequest(const QPoint& pos)
         QMenu menu(this);
 
         QAction* actMoveUp = menu.addAction("Move up");
-        actMoveUp->setIcon(GtGUI::Icon::arrowUp());
+        actMoveUp->setIcon(gt::gui::icon::arrowUp());
         menu.addSeparator();
 
         QAction* actMoveDown = menu.addAction("Move down");
-        actMoveDown->setIcon(GtGUI::Icon::arrowDown());
+        actMoveDown->setIcon(gt::gui::icon::arrowDown());
         menu.addSeparator();
 
         QAction* actRemove = menu.addAction("Remove");
-        actRemove->setIcon(GtGUI::Icon::delete16());
+        actRemove->setIcon(gt::gui::icon::delete16());
 
         if (selection.row() == 1)
         {

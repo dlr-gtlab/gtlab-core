@@ -28,7 +28,7 @@
 #include "gt_processcomponentmodel.h"
 #include "gt_icons.h"
 
-using namespace GtPropertyConnectionFunctions;
+using namespace gt::gui;
 
 GtProcessComponentModel::GtProcessComponentModel(QObject* parent) :
     GtStyledModel(parent)
@@ -109,7 +109,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                         return eData->icon;
                     }
 
-                    return GtGUI::Icon::calculator16();
+                    return gt::gui::icon::calculator16();
 
                 }
 
@@ -173,31 +173,31 @@ GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state)
     switch (state)
     {
         case GtProcessComponent::RUNNING:
-            return GtGUI::Icon::inProgress16();
+            return gt::gui::icon::inProgress16();
 
         case GtProcessComponent::QUEUED:
-            return GtGUI::Icon::sleep16();
+            return gt::gui::icon::sleep16();
 
         case GtProcessComponent::FAILED:
-            return GtGUI::Icon::error16();
+            return gt::gui::icon::error16();
 
         case GtProcessComponent::FINISHED:
-            return GtGUI::Icon::check16();
+            return gt::gui::icon::check16();
 
         case GtProcessComponent::CONNECTING:
-            return GtGUI::Icon::network16();
+            return gt::gui::icon::network16();
 
         case GtProcessComponent::SKIPPED:
-            return GtGUI::Icon::skip16();
+            return gt::gui::icon::skip16();
 
         case GtProcessComponent::TERMINATION_REQUESTED:
-            return GtGUI::Icon::stopRequest16();
+            return gt::gui::icon::stopRequest16();
 
         case GtProcessComponent::TERMINATED:
-            return GtGUI::Icon::stop16();
+            return gt::gui::icon::stop16();
 
         case GtProcessComponent::WARN_FINISHED:
-            return GtGUI::Icon::processFailed16();
+            return gt::gui::icon::processFailed16();
 
         default:
             break;
@@ -474,14 +474,14 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (droppedObject))
     {
-        internalCons = internalPropertyConnections(pComp);
-        lostCons = lostPropertyConnections(pComp);
+        internalCons = detail::internalPropertyConnections(pComp);
+        lostCons = detail::lostPropertyConnections(pComp);
     }
 
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (destinationObject))
     {
-        newHighestParent = highestParentTask(pComp);
+        newHighestParent = detail::highestParentTask(pComp);
     }
     else if (qobject_cast<GtProcessData*>(destinationObject))
     {
@@ -496,7 +496,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     if (GtProcessComponent* pComp = qobject_cast<GtProcessComponent*>
                                     (droppedObject))
     {
-        highestParent = highestParentTask(pComp);
+        highestParent = detail::highestParentTask(pComp);
     }
 
     if (!highestParent)
@@ -541,7 +541,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         toDelete.append(propCon);
     }
 
-    setOffLostConnectionWarnings(lostCons, highestParent);
+    detail::setOffLostConnectionWarnings(lostCons, highestParent);
 
     if (row >= 0)
     {
@@ -602,7 +602,7 @@ GtProcessComponentModel::flags(const QModelIndex& index) const
     // check index
     if (!index.isValid())
     {
-        return nullptr;
+        return {};
     }
 
     // collect default flags

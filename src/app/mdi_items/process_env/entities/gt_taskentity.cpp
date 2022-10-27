@@ -57,7 +57,7 @@ GtTaskEntity::paint(QPainter* painter,
     }
     else
     {
-        painter->setBrush(QBrush(GtGUI::Color::basicDark()));
+        painter->setBrush(QBrush(gt::gui::color::basicDark()));
     }
 
     QRectF rect(10., 10., m_w - 20., m_h - 20.);

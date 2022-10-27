@@ -16,7 +16,7 @@
 #include <QStyleFactory>
 
 QPalette
-GtGUI::currentTheme()
+gt::gui::currentTheme()
 {
     if (gtApp->inDarkMode())
     {
@@ -27,10 +27,10 @@ GtGUI::currentTheme()
 }
 
 QPalette
-GtGUI::darkTheme()
+gt::gui::darkTheme()
 {
     QPalette palette;
-    QColor darkColor = Color::basicDark();
+    QColor darkColor = color::basicDark();
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     QColor disabledColor = QColor(127, 127, 127);
 
@@ -59,7 +59,7 @@ GtGUI::darkTheme()
 }
 
 QPalette
-GtGUI::standardTheme()
+gt::gui::standardTheme()
 {
     QPalette palette;
 
@@ -92,19 +92,19 @@ GtGUI::standardTheme()
 }
 
 void
-GtGUI::applyThemeToWidget(QWidget* w)
+gt::gui::applyThemeToWidget(QWidget* w)
 {
     if (gtApp->inDarkMode())
     {
         w->setStyle(QStyleFactory::create("Fusion"));
-        w->setPalette(GtGUI::darkTheme());
+        w->setPalette(gt::gui::darkTheme());
         w->setStyleSheet("QToolTip { color: #ffffff; "
                       "background-color: #2a82da; "
                       "border: 1px solid white; }");
     }
     else
     {
-        w->setPalette(GtGUI::standardTheme());
+        w->setPalette(gt::gui::standardTheme());
         QString style = "Default";
 #ifdef Q_OS_WIN
         style = "windowsvista";

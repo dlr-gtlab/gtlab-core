@@ -36,7 +36,7 @@ GtTaskArrowLabelEntity::paint(QPainter* painter,
                               const QStyleOptionGraphicsItem* /*option*/,
                               QWidget* /*widget*/)
 {
-    GtGUI::Color::setPaintertoGray(painter);
+    gt::gui::color::setPaintertoGray(painter);
 
     QRectF br = boundingRect();
 

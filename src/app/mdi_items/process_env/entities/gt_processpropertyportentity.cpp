@@ -261,7 +261,7 @@ GtProcessPropertyPortEntity::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
     }
     else
     {
-        setBrush(QBrush(GtGUI::Color::basicDark()));
+        setBrush(QBrush(gt::gui::color::basicDark()));
     }
 
     QApplication::restoreOverrideCursor();

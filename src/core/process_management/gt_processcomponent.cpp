@@ -227,7 +227,6 @@ GtTask*
 GtProcessComponent::rootTask()
 {
     return rootTaskHelper<GtTask*>(this);
-
 }
 
 bool
@@ -331,7 +330,7 @@ GtProcessComponent::setRunnable(QPointer<GtAbstractRunnable> p)
     return *this;
 }
 
-QString
+const QString&
 GtProcessComponent::tempPath() const
 {
     return pimpl->tempPath;
@@ -344,18 +343,17 @@ GtProcessComponent::setTempPath(QString path)
     return *this;
 }
 
-QList<GtObject const * >
+QList<GtObject const*>
 GtProcessComponent::linkedObjects() const
 {
     return {pimpl->linkedObjects.begin(), pimpl->linkedObjects.end()};
 }
 
-QList<QPointer<GtObject> >&
+QList<QPointer<GtObject>>&
 GtProcessComponent::linkedObjects()
 {
     return pimpl->linkedObjects;
 }
-
 
 QDir
 GtProcessComponent::tempDir()

@@ -63,7 +63,7 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    //auto iterator = ith_iter(m_vars, size_t(row));
+    //auto iterator = gt::ith_iter(m_vars, size_t(row));
 
     //const QString valId = iterator.key();
 
@@ -99,7 +99,7 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
         {
             if (m_vars.value(valId).isNull())
             {
-                return GtGUI::Color::environmentModelBack();
+                return gt::gui::color::environmentModelBack();
             }
         }
         break;
@@ -128,7 +128,7 @@ GtEnvironmentModel::setData(const QModelIndex& index,
         return false;
     }
 
-    const QString valId = ith_iter(m_vars, size_t(row)).key();
+    const QString valId = gt::ith_iter(m_vars, size_t(row)).key();
 
     switch (role)
     {
@@ -189,7 +189,7 @@ GtEnvironmentModel::flags(const QModelIndex& index) const
 void
 GtEnvironmentModel::saveVariables()
 {
-    for_each_key(m_vars, [this](const QString& e)
+    gt::for_each_key(m_vars, [this](const QString& e)
     {
         if (!gtEnvironment->environmentVariableExists(e))
         {

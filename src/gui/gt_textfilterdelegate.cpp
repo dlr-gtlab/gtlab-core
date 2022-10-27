@@ -38,7 +38,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
     GtProject* proj = gtApp->currentProject();
 
     /// Standart regExp
-    QRegExp regExp = GtRegExp::onlyLettersAndNumbers();
+    QRegExp regExp = gt::re::onlyLettersAndNumbers();
 
     if (proj)
     {
@@ -60,7 +60,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
             }
             else if (m_validatorflag == allowSpaces)
             {
-                regExp = GtRegExp::onlyLettersAndNumbersAndSpace();
+                regExp = gt::re::onlyLettersAndNumbersAndSpace();
             }
         }
     }

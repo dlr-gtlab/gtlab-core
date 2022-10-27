@@ -219,13 +219,13 @@ GtObjectUI::hasValidationRegExp()
 QRegExp
 GtObjectUI::validatorRegExp()
 {
-    return GtRegExp::onlyLettersAndNumbersAndSpace();
+    return gt::re::onlyLettersAndNumbersAndSpace();
 }
 
 QIcon
 GtObjectUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::Icon::empty16();
+    return gt::gui::icon::empty16();
 }
 
 QVariant
@@ -261,7 +261,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return GtGUI::Icon::unknown();
+                    return gt::gui::icon::unknown();
                 }
 
                 return icon(obj);
@@ -271,11 +271,11 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->newlyCreated())
                 {
-                    return GtGUI::Color::newObjectForground();
+                    return gt::gui::color::newObjectForground();
                 }
                 else if (obj->hasChanges() || obj->hasChildChanged())
                 {
-                    return GtGUI::Color::changedObjectForground();
+                    return gt::gui::color::changedObjectForground();
                 }
 
                 break;
@@ -285,7 +285,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return GtGUI::Color::dummyObjectBackground();
+                    return gt::gui::color::dummyObjectBackground();
                 }
                 break;
             }
@@ -309,17 +309,17 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy() || obj->hasDummyChildren())
                 {
-                    return GtGUI::Icon::unknown();
+                    return gt::gui::icon::unknown();
                 }
 
                 if (obj->newlyCreated())
                 {
-                    return GtGUI::Icon::add16();
+                    return gt::gui::icon::add16();
                 }
 
                 if (obj->hasChanges())
                 {
-                    return GtGUI::Icon::exclamation16();
+                    return gt::gui::icon::exclamation16();
                 }
                 break;
             }
@@ -343,7 +343,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return GtGUI::Color::dummyObjectBackground();
+                    return gt::gui::color::dummyObjectBackground();
                 }
             }
 

@@ -19,7 +19,7 @@ GtProcessWizardPage::GtProcessWizardPage() :
     m_provider(nullptr),
     m_scope(nullptr)
 {
-    GtGUI::applyThemeToWidget(this);
+    gt::gui::applyThemeToWidget(this);
 }
 
 GtAbstractProcessProvider*

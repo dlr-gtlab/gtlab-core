@@ -133,7 +133,7 @@ TEST_F(TestGtStructProperty, write)
 
     doc.appendChild(docElem);
 
-    GtXmlUtilities::writeDomDocumentToFile("test.xml", doc);
+    gt::xml::writeDomDocumentToFile("test.xml", doc);
 
     QDomElement container = docElem.firstChildElement("property-container");
     ASSERT_FALSE(container.isNull());

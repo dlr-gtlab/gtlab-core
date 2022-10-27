@@ -171,36 +171,46 @@ private:
     QStringList m_args;
 };
 
-namespace GtCommandLineParsing
+namespace gt
 {
-    /**
-     * @brief indexOfOption
-     * @param args - application arguments
-     * @param o - option to check the index of
-     * @return the index of the current option in the argument list args
-     */
-    GT_CORE_EXPORT int indexOfOption(QStringList const& args,
-                                     const GtCommandLineOption& o);
+namespace commandline
+{
+namespace detail
+{
 
-    /**
-     * @brief valueOfOption
-     * @param args - application arguments
-     * @param o - option to check the value of
-     * @return the value of the current option in the argument list args
-     * The value is defined in the arguments by a "=" sign connected to the option
-     */
-    GT_CORE_EXPORT QVariant valueOfOption(
-            QStringList const& args,
-            const GtCommandLineOption& o);
+/**
+ * @brief indexOfOption
+ * @param args - application arguments
+ * @param o - option to check the index of
+ * @return the index of the current option in the argument list args
+ */
+GT_CORE_EXPORT int indexOfOption(QStringList const& args,
+                                 const GtCommandLineOption& o);
 
-    /**
-     * @brief hasOption
-     * @param args - application arguments
-     * @param o - option to check the index of
-     * @return check if a option is part of the argument list args
-     */
-    GT_CORE_EXPORT bool hasOption(QStringList const& args,
-                                  const GtCommandLineOption& o);
-}
+/**
+ * @brief valueOfOption
+ * @param args - application arguments
+ * @param o - option to check the value of
+ * @return the value of the current option in the argument list args
+ * The value is defined in the arguments by a "=" sign connected to the option
+ */
+GT_CORE_EXPORT QVariant valueOfOption(
+        QStringList const& args,
+        const GtCommandLineOption& o);
+
+/**
+ * @brief hasOption
+ * @param args - application arguments
+ * @param o - option to check the index of
+ * @return check if a option is part of the argument list args
+ */
+GT_CORE_EXPORT bool hasOption(QStringList const& args,
+                              const GtCommandLineOption& o);
+
+} // namespace detail
+
+} // namespace commandline
+
+} // namespace gt
 
 #endif // GTCOMMANDLINEPARSER_H

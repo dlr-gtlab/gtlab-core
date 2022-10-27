@@ -17,9 +17,9 @@
 #include <QVariantList>
 #include <QMap>
 
-namespace gtlab
+namespace gt
 {
-namespace internal
+namespace detail
 {
 
 class GT_CORE_EXPORT DynamicInterfaceHandler
@@ -55,22 +55,24 @@ private:
 
 };
 
-} // namespace internal
+} // namespace detail
 
 
 namespace interface
 {
-namespace internal
+namespace detail
 {
 
 /**
  * @brief Registers an InterfaceFunction to the handler
  */
-GT_CORE_EXPORT bool register_function(const QString& moduleId,
-                                      InterfaceFunction func);
+GT_CORE_EXPORT bool registerFunction(const QString& moduleId,
+                                     InterfaceFunction func);
 
-} // namespace internal
+} // namespace detail
+
 } // namespace interface
-} // namespace gtlab
+
+} // namespace gt
 
 #endif // DYNAMICINTERFACEHANDLER_H

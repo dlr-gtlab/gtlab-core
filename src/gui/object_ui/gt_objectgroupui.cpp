@@ -20,6 +20,6 @@ GtObjectGroupUI::GtObjectGroupUI()
 QIcon
 GtObjectGroupUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::Icon::folder16();
+    return gt::gui::icon::folder16();
 }
 

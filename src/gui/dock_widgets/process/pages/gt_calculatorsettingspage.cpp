@@ -54,7 +54,7 @@ GtCalculatorSettingsPage::GtCalculatorSettingsPage(GtProject* project,
     connect(searchWidget, SIGNAL(textChanged(QString)),
             m_view->filterModel(), SLOT(setFilterRegExp(QString)));
 
-    GtGUI::applyThemeToWidget(this);
+    gt::gui::applyThemeToWidget(this);
 }
 
 void

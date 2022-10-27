@@ -185,7 +185,7 @@ GtAbstractChartProvider::fitColorsL(int params)
         // add colors to match parameter sizes
         for (int i = colors; i < params; ++i)
         {
-            addColorUseL(GtGUI::Color::randomColor());
+            addColorUseL(gt::gui::color::randomColor());
         }
     }
 }
@@ -208,7 +208,7 @@ GtAbstractChartProvider::fitColorsR(int params)
         // add colors to match parameter sizes
         for (int i = colors; i < params; ++i)
         {
-            addColorUseR(GtGUI::Color::randomColor());
+            addColorUseR(gt::gui::color::randomColor());
         }
     }
 }

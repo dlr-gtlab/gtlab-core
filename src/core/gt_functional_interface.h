@@ -11,8 +11,9 @@
 #define FUNCTIONAL_INTERFACE_H
 
 #include "gt_dynamicinterface.h"
-#include "gt_variant_convert.h"
+#include "gt_variantconvert.h"
 #include "gt_mpl.h"
+#include "gt_typetraits.h"
 #include "gt_platform.h"
 
 #include <stdexcept>
@@ -21,10 +22,12 @@
 #error "C++14 or better is required"
 #else
 
-namespace gtlab {
-namespace interface {
-
-namespace detail {
+namespace gt
+{
+namespace interface
+{
+namespace detail
+{
 
 template <typename Func>
 struct InterfaceFunctionBuilder
@@ -36,31 +39,31 @@ struct InterfaceFunctionBuilder
     {
     }
 
-    QVariantList operator()(const QVariantList& variant_list) const
+    QVariantList operator()(const QVariantList& variantList) const
     {
         using f_traits = gt::mpl::function_traits<Func>;
+        using args_type = typename f_traits::args_type;
 
         // check matching number of arguments
-        if (variant_list.size() != f_traits::nargs)
+        if (variantList.size() != f_traits::nargs)
         {
             throw std::runtime_error(
                 "Function argument mismatch in function '" +
                 name.toStdString() +
-                "'. "
-                "Expected " +
-                std::to_string(f_traits::nargs) + " args, " + "got " +
-                std::to_string(variant_list.size()));
+                "'. Expected " +
+                std::to_string(f_traits::nargs) + " args, got " +
+                std::to_string(variantList.size()));
         }
 
-        auto wrapped_function_args = gt::from_variant<typename f_traits::args_type>(variant_list);
+        auto wrappedFargs = gt::fromVariant<args_type>(variantList);
 
         // execute function, the arguments could be passed by reference, hence
         // they cannot be moved
         const auto func_result = f_traits::invoke(
-            wrapped_function, wrapped_function_args);
+            wrapped_function, wrappedFargs);
 
         // convert result into variant list
-        return gt::to_variant_list(func_result);
+        return gt::toVariantList(func_result);
     }
 
     Func wrapped_function;
@@ -70,17 +73,17 @@ struct InterfaceFunctionBuilder
 } // namespace detail
 
 template <typename Func>
-QString get_function_signature()
+QString getFunctionSignature()
 {
     return QString("Signature:\n    %1\n").arg(typeid(Func).name());
 }
 
 template <typename Func>
-QString get_default_help(const QString& function_name)
+QString getDefaultHelp(const QString& function_name)
 {
     QString help = QString("Help on function '%1'\n\n").arg(function_name);
 
-    help += get_function_signature<Func>();
+    help += getFunctionSignature<Func>();
     return help;
 }
 
@@ -108,21 +111,21 @@ QString get_default_help(const QString& function_name)
  * @param f The function / functional object
  */
 template <
-  typename Func,
-  typename std::enable_if_t<!std::is_convertible<Func, InterfaceFunction::FunctionType>::value, int> = 0
+    typename Func,
+    trait::if_not_convertible<Func, InterfaceFunction::FunctionType> = true
 > // this is disabled for interface functions
-InterfaceFunction make_interface_function(
-    const QString& funcName, Func&& f, QString help = "")
+InterfaceFunction makeInterfaceFunction(
+        const QString& funcName, Func&& f, QString help = {})
 {
     if (help.isEmpty())
     {
-        help = get_default_help<Func>(funcName);
+        help = getDefaultHelp<Func>(funcName);
     }
 
     auto funcWrapper =  detail::InterfaceFunctionBuilder<Func>(
         funcName, std::forward<Func>(f));
 
-    return InterfaceFunction(funcName, std::move(funcWrapper), help);
+    return InterfaceFunction(funcName, std::move(funcWrapper), std::move(help));
 }
 
 /**
@@ -156,22 +159,23 @@ InterfaceFunction make_interface_function(
  * @return An InterfaceFunction object
  */
 template <
-  typename Func,
-  typename std::enable_if_t<std::is_convertible<Func, InterfaceFunction::FunctionType>::value, int> = 0
+    typename Func,
+    trait::if_convertible<Func, InterfaceFunction::FunctionType> = true
 > // this is only enabled for interface functions
-InterfaceFunction make_interface_function(
-    const QString& funcName, Func&& f, QString help = "")
+InterfaceFunction makeInterfaceFunction(
+        const QString& funcName, Func&& f, QString help = {})
 {
     if (help.isEmpty())
     {
-        help = get_default_help<Func>(funcName);
+        help = getDefaultHelp<Func>(funcName);
     }
 
-    return InterfaceFunction(funcName, std::forward<Func>(f), help);
+    return InterfaceFunction(funcName, std::forward<Func>(f), std::move(help));
 }
 
 } // namespace interface
-} // namespace gtlab
+
+} // namespace gt
 
 #endif // c++ 14 required
 

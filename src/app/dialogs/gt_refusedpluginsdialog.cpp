@@ -25,7 +25,7 @@ GtRefusedPluginsDialog::GtRefusedPluginsDialog(QWidget* parent) :
     GtDialog(parent)
 {
     setWindowTitle(tr("Disabled Plugins"));
-    setWindowIcon(GtGUI::Icon::plugin16());
+    setWindowIcon(gt::gui::icon::plugin16());
 
     m_model = new GtCheckableStringListModel(gtApp->crashedModules(), this);
 

@@ -14,24 +14,14 @@
 #include <string>
 
 #include "gt_mpl.h"
+#include "gt_typetraits.h"
 
 namespace gt
 {
 
-namespace trait
-{
-
-template <typename T>
-struct is_generic_pointer :
-        std::integral_constant<bool,
-               std::is_pointer<T>::value &&
-               !std::is_base_of<QObject, std::remove_pointer_t<T>>::value> {};
-
-} // namespace trait
-
 /// can convert
 template <typename TargetType>
-inline bool can_convert(const QVariant& v)
+inline bool canConvert(const QVariant& v)
 {
     static_assert (!trait::is_generic_pointer<TargetType>::value,
                    "Non QObject-Pointers cannot be converted to QVariant!");
@@ -42,25 +32,25 @@ inline bool can_convert(const QVariant& v)
  * restrict automatic conversions
  */
 template <>
-inline bool can_convert<QByteArray>(const QVariant& v)
+inline bool canConvert<QByteArray>(const QVariant& v)
 {
     return v.type() == QVariant::String && v.canConvert<QByteArray>();
 }
 
 template <>
-inline bool can_convert<QString>(const QVariant& v)
+inline bool canConvert<QString>(const QVariant& v)
 {
     return v.type() == QVariant::String && v.canConvert<QString>();
 }
 
 template <>
-inline bool can_convert<bool>(const QVariant& v)
+inline bool canConvert<bool>(const QVariant& v)
 {
     return v.type() == QVariant::Bool;
 }
 
 template <>
-inline bool can_convert<double>(const QVariant& v)
+inline bool canConvert<double>(const QVariant& v)
 {
     bool ok = true;
     v.toDouble(&ok);
@@ -68,7 +58,7 @@ inline bool can_convert<double>(const QVariant& v)
 }
 
 template <>
-inline bool can_convert<float>(const QVariant& v)
+inline bool canConvert<float>(const QVariant& v)
 {
     bool ok = true;
     v.toFloat(&ok);
@@ -76,7 +66,7 @@ inline bool can_convert<float>(const QVariant& v)
 }
 
 template <>
-inline bool can_convert<int>(const QVariant& v)
+inline bool canConvert<int>(const QVariant& v)
 {
     bool ok = true;
     v.toInt(&ok);
@@ -84,7 +74,7 @@ inline bool can_convert<int>(const QVariant& v)
 }
 
 template <>
-inline bool can_convert<unsigned int>(const QVariant& v)
+inline bool canConvert<unsigned int>(const QVariant& v)
 {
     bool ok = true;
     v.toUInt(&ok);
@@ -92,7 +82,7 @@ inline bool can_convert<unsigned int>(const QVariant& v)
 }
 
 template <>
-inline bool can_convert<long long>(const QVariant&  v)
+inline bool canConvert<long long>(const QVariant&  v)
 {
     bool ok = true;
     v.toLongLong(&ok);
@@ -100,7 +90,7 @@ inline bool can_convert<long long>(const QVariant&  v)
 }
 
 template <>
-inline bool can_convert<unsigned long long>(const QVariant&  v)
+inline bool canConvert<unsigned long long>(const QVariant&  v)
 {
     bool ok = true;
     v.toULongLong(&ok);
@@ -109,7 +99,7 @@ inline bool can_convert<unsigned long long>(const QVariant&  v)
 
 /// to variant
 template <typename T>
-inline QVariant to_variant(const T& t)
+inline QVariant toVariant(const T& t)
 {
     static_assert (!trait::is_generic_pointer<T>::value,
                    "Non QObject-Pointers cannot be converted to QVariant!");
@@ -120,42 +110,42 @@ inline QVariant to_variant(const T& t)
  * custom conversions
  */
 template <>
-inline bool can_convert<std::string>(const QVariant& v)
+inline bool canConvert<std::string>(const QVariant& v)
 {
-    return can_convert<QString>(v);
+    return canConvert<QString>(v);
 }
 
 template<>
-inline QVariant to_variant(const std::string& s)
+inline QVariant toVariant(const std::string& s)
 {
-    return to_variant(QString::fromStdString(s));
+    return toVariant(QString::fromStdString(s));
 }
 
 /// to variant list
 template <typename T>
-inline QVariantList to_variant_list(const T& t)
+inline QVariantList toVariantList(const T& t)
 {
-    return {to_variant(t)};
+    return {toVariant(t)};
 }
 
 template <typename ...Args>
-inline QVariantList to_variant_list(const std::tuple<Args...>& t)
+inline QVariantList toVariantList(const std::tuple<Args...>& t)
 {
     QVariantList list;
     mpl::static_foreach(t, [&list](const auto & v) {
-        list.append(to_variant(v));
+        list.append(toVariant(v));
     });
     return list;
 }
 
-inline QVariantList to_variant_list(mpl::detail::void_type)
+inline QVariantList toVariantList(mpl::detail::void_type)
 {
     return {};
 }
 
 /// from variant
 template <typename T>
-inline T from_variant(const QVariant& v)
+inline T fromVariant(const QVariant& v)
 {
     static_assert (!trait::is_generic_pointer<T>::value,
                    "Non QObject-Pointers cannot be converted to QVariant!");
@@ -163,7 +153,7 @@ inline T from_variant(const QVariant& v)
 }
 
 template <>
-inline std::string from_variant<std::string>(const QVariant& v)
+inline std::string fromVariant<std::string>(const QVariant& v)
 {
     return v.toString().toStdString();
 }
@@ -193,7 +183,7 @@ struct from_variant_impl_<std::tuple<Tuple...>>
                 using ArgType = std::tuple_element_t<j, type>;
 
                 const auto& variant_arg = variant_list.at(j);
-                if (!can_convert<ArgType>(variant_arg)) {
+                if (!canConvert<ArgType>(variant_arg)) {
                     throw std::runtime_error(
                         "Cannot convert function argument " +
                         std::to_string(j) + ". Expecting type '" +
@@ -202,7 +192,7 @@ struct from_variant_impl_<std::tuple<Tuple...>>
                         );
                 }
 
-                std::get<j>(tuple) = from_variant<ArgType>(variant_arg);
+                std::get<j>(tuple) = fromVariant<ArgType>(variant_arg);
             });
 
         return tuple;
@@ -215,7 +205,7 @@ struct from_variant_impl_<std::tuple<Tuple...>>
  * @brief Converts a QVariantList to a tuple
  */
 template <typename ReturnTupleType>
-inline typename detail::from_variant_impl_<ReturnTupleType>::type from_variant(const QVariantList& l)
+inline typename detail::from_variant_impl_<ReturnTupleType>::type fromVariant(const QVariantList& l)
 {
     return detail::from_variant_impl_<ReturnTupleType>::convert(l);
 }

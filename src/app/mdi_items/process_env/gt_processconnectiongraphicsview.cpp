@@ -105,7 +105,7 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         }
 
         // clear hidden ports
-        for_each_key(tmpMap, [&](GtProcessConnectionItem* e)
+        gt::for_each_key(tmpMap, [&](GtProcessConnectionItem* e)
         {
             delete m_inputPorts.take(e);
         });
@@ -156,7 +156,7 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         }
 
         // clear hidden ports
-        for_each_key(tmpMap, [&](GtProcessConnectionItem* e)
+        gt::for_each_key(tmpMap, [&](GtProcessConnectionItem* e)
         {
             delete m_outputPorts.take(std::move(e));
         });

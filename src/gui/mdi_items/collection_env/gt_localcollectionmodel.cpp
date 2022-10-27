@@ -76,11 +76,11 @@ GtLocalCollectionModel::data(const QModelIndex& index, int role) const
     case Qt::DecorationRole:
         if (col == 0)
         {
-            return GtGUI::Icon::property16();
+            return gt::gui::icon::property16();
         }
         else if (col == 1)
         {
-            return GtGUI::Icon::infoBlue16();
+            return gt::gui::icon::infoBlue16();
         }
         break;
     default:

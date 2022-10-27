@@ -400,7 +400,7 @@ GtSession::fromJsonObject(const QString& sessionPath)
     QJsonObject projects = json[QStringLiteral("projects")].toObject();
 
 //    qDebug() << "projects:";
-    for_each_key(projects, [&](const QString& e)
+    gt::for_each_key(projects, [&](const QString& e)
     {
 //        qDebug() << "   |-> " << e;
         GtProject* project = new GtProject(e);

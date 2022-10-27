@@ -105,7 +105,7 @@ GtProject::availableModuleUpgrades() const
     // collect footprints
     QMap<QString, GtVersionNumber> footprints = footprint.fullVersionInfo();
 
-    return gtlab::internal::GtModuleUpgrader::instance()
+    return gt::detail::GtModuleUpgrader::instance()
         .availableModuleUpgrades(footprints);
 }
 
@@ -121,7 +121,7 @@ GtProject::availableUpgrades(const QString& moduleId)
     {
         GtVersionNumber savedVer = verInfo.value(moduleId);
 
-        return gtlab::internal::GtModuleUpgrader::instance()
+        return gt::detail::GtModuleUpgrader::instance()
             .availableUpgrades(moduleId, savedVer);
     }
 
@@ -163,7 +163,7 @@ GtProject::upgradeProjectData()
     // collect all version information
     QMap<QString, GtVersionNumber> versInfo = footprint.fullVersionInfo();
 
-    gtlab::internal::GtModuleUpgrader::instance()
+    gt::detail::GtModuleUpgrader::instance()
         .upgrade(versInfo, entryList);
 
     // update project footprint for updated module
@@ -265,7 +265,7 @@ GtProject::checkForUpgrades() const
     // collect all version information
     QMap<QString, GtVersionNumber> versInfo = footprint.fullVersionInfo();
 
-    return gtlab::internal::GtModuleUpgrader::instance()
+    return gt::detail::GtModuleUpgrader::instance()
         .upgradesAvailable(versInfo);
 }
 
@@ -881,7 +881,7 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
     const QString tempFilePath = filePath + QStringLiteral("_new");
 
     // new ordered attribute stream writer algorithm
-    if (!GtXmlUtilities::writeDomDocumentToFile( tempFilePath, doc, true))
+    if (!gt::xml::writeDomDocumentToFile(tempFilePath, doc, true))
     {
         gtError() << objectName() << QStringLiteral(": ")
                   << tr("Failed to save project data!");
@@ -1043,9 +1043,7 @@ GtProject::updateModuleFootprint(const QStringList& modIds)
         mod = mod.nextSiblingElement(QStringLiteral("module"));
     }
 
-    if (!GtXmlUtilities::writeDomDocumentToFile(filename,
-                                                document,
-                                                true))
+    if (!gt::xml::writeDomDocumentToFile(filename, document, true))
     {
         gtError() << filename << QStringLiteral(": ")
                   << "Failed to save project data!";

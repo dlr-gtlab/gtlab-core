@@ -37,9 +37,9 @@ GtProjectSettingsDialog::GtProjectSettingsDialog(GtProject* project) :
     m_tabWidget->setMinimumHeight(300);
 
     auto* saveButton = new QPushButton{tr("Save")};
-    saveButton->setIcon(GtGUI::Icon::saveProject16());
+    saveButton->setIcon(gt::gui::icon::saveProject16());
     auto* closeButton = new QPushButton{tr("Cancel")};
-    closeButton->setIcon(GtGUI::Icon::close24());
+    closeButton->setIcon(gt::gui::icon::close24());
 
     connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(saveButton, SIGNAL(clicked()), this, SLOT(saveChanges()));

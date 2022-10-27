@@ -48,15 +48,18 @@ private:
     GtCommandLineFunctionHandler() = default;
 };
 
-namespace gtlab {
-namespace commandline{
+namespace gt
+{
+namespace commandline
+{
 
 /**
  * @brief Registers an InterfaceFunction to the handler
  */
-GT_CORE_EXPORT bool register_function(GtCommandLineFunction func);
+GT_CORE_EXPORT bool registerFunction(GtCommandLineFunction func);
 
 } // namespace commandline
-} // namespace gtlab
+
+} // namespace gt
 
 #endif // GTCOMMANDLINEFUNCTIONHANDLER_H

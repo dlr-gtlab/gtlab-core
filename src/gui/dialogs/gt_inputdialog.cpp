@@ -53,12 +53,12 @@ GtInputDialog::GtInputDialog(InputMode mode, QWidget* parent) :
     btnLay->addStretch(1);
 
     m_acceptBtn = new QPushButton(tr("Ok"));
-    m_acceptBtn->setIcon(GtGUI::Icon::check24());
+    m_acceptBtn->setIcon(gt::gui::icon::check24());
     m_acceptBtn->setDefault(true);
     btnLay->addWidget(m_acceptBtn);
 
     m_rejectBtn = new QPushButton(tr("Cancel"));
-    m_rejectBtn->setIcon(GtGUI::Icon::close24());
+    m_rejectBtn->setIcon(gt::gui::icon::close24());
 
     btnLay->addWidget(m_rejectBtn);
 

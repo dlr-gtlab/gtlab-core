@@ -16,92 +16,98 @@
 /**
  * namespace for RegualrExpressions, used in GTlab
  */
-namespace GtRegExp
+namespace gt
 {
-    /**
-     * @brief woUmlauts - accepts all but ä ö ü ß
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT woUmlauts();
+namespace re
+{
 
-    /**
-     * @brief umlauts - accept äöüßÄÖÜ
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT umlauts();
+/**
+ * @brief woUmlauts - accepts all but ä ö ü ß
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT woUmlauts();
 
-    /**
-     * @brief umlautsAnsSpecialChar
-     * - accepts äöüßÄÖÜ .:,;#?+~* /&%$§!"{}
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT umlautsAndSpecialChar();
+/**
+ * @brief umlauts - accept äöüßÄÖÜ
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT umlauts();
 
-    /**
-     * @brief onlyLetters - accepts all letter (a-z and A-Z) with a
-     * minimal length of 1
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT onlyLetters();
+/**
+ * @brief umlautsAnsSpecialChar
+ * - accepts äöüßÄÖÜ .:,;#?+~* /&%$§!"{}
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT umlautsAndSpecialChar();
 
-    /**
-     * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
-     * and numbers (0-9) and -  and _ with a minimal length of 1
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbers();
+/**
+ * @brief onlyLetters - accepts all letter (a-z and A-Z) with a
+ * minimal length of 1
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT onlyLetters();
 
-    /**
-     * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
-     * and numbers (0-9) and -  and _ with a minimal length of 1 and dot
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDot();
+/**
+ * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
+ * and numbers (0-9) and -  and _ with a minimal length of 1
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbers();
 
-    /**
-     * @brief onlyLettersAndNumbersAndSpace - accepts all letter (a-z and A-Z)
-     * and numbers (0-9) and -  and _ and space with a minimal length of 1
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndSpace();
+/**
+ * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
+ * and numbers (0-9) and -  and _ with a minimal length of 1 and dot
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDot();
 
-    /**
-     * @brief forUnits - accepts all letters and numbers and some
-     * special symbols typical used for units
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT forUnits();
+/**
+ * @brief onlyLettersAndNumbersAndSpace - accepts all letter (a-z and A-Z)
+ * and numbers (0-9) and -  and _ and space with a minimal length of 1
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndSpace();
 
-    /**
-     * @brief forExpressions
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT forExpressions();
+/**
+ * @brief forUnits - accepts all letters and numbers and some
+ * special symbols typical used for units
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT forUnits();
 
-    /**
-     * @brief forStations - accepts a combination
-     * of an S and one to three numbers
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT forStations();
+/**
+ * @brief forExpressions
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT forExpressions();
 
-    /**
-     * @brief forDoubles
-     * @return
-     */
-    QRegExp GT_DATAMODEL_EXPORT forDoubles();
+/**
+ * @brief forStations - accepts a combination
+ * of an S and one to three numbers
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT forStations();
 
-    /**
-     * @brief forDoublesLists
-     * @return regexp for double lists
-     */
-    QRegExp GT_DATAMODEL_EXPORT forDoublesLists();
+/**
+ * @brief forDoubles
+ * @return
+ */
+QRegExp GT_DATAMODEL_EXPORT forDoubles();
 
-    /**
-     * @brief for semantic versioning
-     * @return regexp for semantic versioning
-     */
-    QRegExp GT_DATAMODEL_EXPORT forSemVers();
-}
+/**
+ * @brief forDoublesLists
+ * @return regexp for double lists
+ */
+QRegExp GT_DATAMODEL_EXPORT forDoublesLists();
+
+/**
+ * @brief for semantic versioning
+ * @return regexp for semantic versioning
+ */
+QRegExp GT_DATAMODEL_EXPORT forSemVers();
+
+} // namespace re
+
+} // namespace gt
 
 #endif // GTREGEXP_H

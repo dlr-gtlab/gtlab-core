@@ -125,7 +125,7 @@ GtMdiLauncher::setFocus(const QString& mdiId)
         }
     }
 
-    for_each_key(m_openItems, [&](const QObject* e)
+    gt::for_each_key(m_openItems, [&](const QObject* e)
     {
         if (generateMdiItemId(m_openItems.value(e)) == mdiId)
         {
@@ -396,7 +396,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     }
     else
     {
-        m_area->addTab(wid, GtGUI::Icon::frame(), mdiItem->objectName());
+        m_area->addTab(wid, gt::gui::icon::frame(), mdiItem->objectName());
     }
 
     mdiItem->initialized();

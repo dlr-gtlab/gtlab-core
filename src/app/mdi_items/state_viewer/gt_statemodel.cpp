@@ -67,21 +67,21 @@ GtStateModel::data(const QModelIndex& index, int role) const
                     {
                         if (cont->objectName() == QLatin1String("-- Global --"))
                         {
-                            return GtGUI::Icon::global();
+                            return gt::gui::icon::global();
                         }
 
-                        return GtGUI::Icon::folder16();
+                        return gt::gui::icon::folder16();
                     }
 
-                    return GtGUI::Icon::components16();
+                    return gt::gui::icon::components16();
                 }
                 else if (qobject_cast<GtStateGroup*>(item))
                 {
-                    return GtGUI::Icon::folder16();
+                    return gt::gui::icon::folder16();
                 }
                 else if (qobject_cast<GtState*>(item))
                 {
-                    return GtGUI::Icon::emptyElement();
+                    return gt::gui::icon::emptyElement();
                 }
 
                 break;

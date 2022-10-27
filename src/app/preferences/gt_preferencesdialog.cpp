@@ -47,9 +47,9 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     m_pagesWidget->addWidget(new GtPreferencesPathSettings);
 
     QPushButton* saveButton = new QPushButton(tr("Save"));
-    saveButton->setIcon(GtGUI::Icon::saveProject16());
+    saveButton->setIcon(gt::gui::icon::saveProject16());
     QPushButton* closeButton = new QPushButton(tr("Cancel"));
-    closeButton->setIcon(GtGUI::Icon::delete16());
+    closeButton->setIcon(gt::gui::icon::delete16());
 
     createIcons();
     m_contentsWidget->setCurrentRow(initItem);
@@ -74,7 +74,7 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     setLayout(mainLayout);
 
     setWindowTitle(tr("Preferences"));
-    setWindowIcon(GtGUI::Icon::config16());
+    setWindowIcon(gt::gui::icon::config16());
     setFixedHeight(530);
     setFixedWidth(600);
 }
@@ -113,7 +113,7 @@ void
 GtPreferencesDialog::createIcons()
 {
     QListWidgetItem* configButton = new QListWidgetItem(m_contentsWidget);
-    configButton->setIcon(GtGUI::Icon::application());
+    configButton->setIcon(gt::gui::icon::application());
     configButton->setText(tr("Application"));
     configButton->setTextAlignment(Qt::AlignHCenter);
     configButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -121,7 +121,7 @@ GtPreferencesDialog::createIcons()
     configButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* sessionButton = new QListWidgetItem(m_contentsWidget);
-    sessionButton->setIcon(GtGUI::Icon::session());
+    sessionButton->setIcon(gt::gui::icon::session());
     sessionButton->setText(tr("Session"));
     sessionButton->setTextAlignment(Qt::AlignHCenter);
     sessionButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -129,7 +129,7 @@ GtPreferencesDialog::createIcons()
     sessionButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* perspectivesButton = new QListWidgetItem(m_contentsWidget);
-    perspectivesButton->setIcon(GtGUI::Icon::perspectives());
+    perspectivesButton->setIcon(gt::gui::icon::perspectives());
     perspectivesButton->setText(tr("Perspectives"));
     perspectivesButton->setTextAlignment(Qt::AlignHCenter);
     perspectivesButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -137,7 +137,7 @@ GtPreferencesDialog::createIcons()
     perspectivesButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* shortCutButton = new QListWidgetItem(m_contentsWidget);
-    shortCutButton->setIcon(GtGUI::Icon::input2());
+    shortCutButton->setIcon(gt::gui::icon::input2());
     shortCutButton->setText(tr("Short Cuts"));
     shortCutButton->setTextAlignment(Qt::AlignHCenter);
     shortCutButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -152,7 +152,7 @@ GtPreferencesDialog::createIcons()
     //pluginsButton->setWhatsThis(tr("Plugins"));
 
     QListWidgetItem* languageButton = new QListWidgetItem(m_contentsWidget);
-    languageButton->setIcon(GtGUI::Icon::language());
+    languageButton->setIcon(gt::gui::icon::language());
     languageButton->setText(tr("Language"));
     languageButton->setTextAlignment(Qt::AlignHCenter);
     languageButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -160,7 +160,7 @@ GtPreferencesDialog::createIcons()
     languageButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* accessButton = new QListWidgetItem(m_contentsWidget);
-    accessButton->setIcon(GtGUI::Icon::login());
+    accessButton->setIcon(gt::gui::icon::login());
     accessButton->setText(tr("Access"));
     accessButton->setTextAlignment(Qt::AlignHCenter);
 
@@ -177,7 +177,7 @@ GtPreferencesDialog::createIcons()
     accessButton->setSizeHint(QSize(100, 50));
 
     QListWidgetItem* pathButton = new QListWidgetItem(m_contentsWidget);
-    pathButton->setIcon(GtGUI::Icon::pathSettings());
+    pathButton->setIcon(gt::gui::icon::pathSettings());
     pathButton->setText(tr("Environment"));
     pathButton->setTextAlignment(Qt::AlignHCenter);
     pathButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);

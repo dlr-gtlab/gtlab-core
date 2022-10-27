@@ -33,7 +33,7 @@ GtProjectSpecWidget::GtProjectSpecWidget(QWidget* parent) : QWidget(parent),
     m_nameLine = new QLineEdit;
 
     QValidator* validator = new QRegExpValidator(
-                GtRegExp::onlyLettersAndNumbersAndSpace(), this);
+                gt::re::onlyLettersAndNumbersAndSpace(), this);
     m_nameLine->setValidator(validator);
 
     m_nameLine->setText(m_tmpName);
@@ -99,8 +99,8 @@ GtProjectSpecWidget::setProjectInformation(const QString& initName,
 bool
 GtProjectSpecWidget::updateStates()
 {
-    QPixmap check = GtGUI::Icon::checkSmall16().pixmap(QSize(20, 20));
-    QPixmap cross = GtGUI::Icon::cross16().pixmap(QSize(20, 20));
+    QPixmap check = gt::gui::icon::checkSmall16().pixmap(QSize(20, 20));
+    QPixmap cross = gt::gui::icon::cross16().pixmap(QSize(20, 20));
 
     bool retval = true;
 

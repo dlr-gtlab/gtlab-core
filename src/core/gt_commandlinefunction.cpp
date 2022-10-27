@@ -13,16 +13,11 @@
 #include <iostream>
 
 GtCommandLineFunction
-GtCommandLineInterface::make_commandLineFunction(const QString& id,
-        std::function<int (const QStringList &)> func,
-        QString brief)
+gt::commandline::makeCommandLineFunction(const QString& id,
+                                       GtCommandLineFunction::FunctionType func,
+                                       QString brief)
 {
-    if (brief.isEmpty())
-    {
-        brief = "Default brief test";
-    }
-
-    return GtCommandLineFunction(id, func, brief);
+    return GtCommandLineFunction(id, std::move(func), std::move(brief));
 }
 
 bool
@@ -94,7 +89,7 @@ GtCommandLineFunction::showDefaultHelp() const
 
 GtCommandLineFunction&
 GtCommandLineFunction::setOptions(
-        const QList<GtCommandLineOption> &newOptions)
+        const QList<GtCommandLineOption>& newOptions)
 {
     m_options = newOptions;
     return *this;
@@ -102,7 +97,7 @@ GtCommandLineFunction::setOptions(
 
 GtCommandLineFunction&
 GtCommandLineFunction::setArgs(
-        const QList<GtCommandLineFunctionArgument> &newArgs)
+        const QList<GtCommandLineFunctionArgument>& newArgs)
 {
     m_args = newArgs;
     return *this;

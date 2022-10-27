@@ -29,7 +29,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
     GtDialog(parent)
 {
     setWindowTitle(tr("Check for updates"));
-    setWindowIcon(GtGUI::Icon::update16());
+    setWindowIcon(gt::gui::icon::update16());
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -37,7 +37,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     QLabel* titleLabel = new QLabel;
 
-    titleLabel->setPixmap(GtGUI::Pixmap::updateLogo());
+    titleLabel->setPixmap(gt::gui::pixmap::updateLogo());
 
     layout->addWidget(titleLabel);
 
@@ -83,7 +83,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     m_checkButton = new QPushButton;
     m_checkButton->setText(tr("Check Again"));
-    m_checkButton->setIcon(GtGUI::Icon::loop16());
+    m_checkButton->setIcon(gt::gui::icon::loop16());
     connect(m_checkButton, SIGNAL(clicked(bool)), SLOT(checkForUpdate()));
 
     hLay->addWidget(m_checkButton);
@@ -94,7 +94,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     m_updateButton = new QPushButton;
     m_updateButton->setText(tr("Update"));
-    m_updateButton->setIcon(GtGUI::Icon::update16());
+    m_updateButton->setIcon(gt::gui::icon::update16());
     m_updateButton->setEnabled(false);
     connect(m_updateButton, SIGNAL(clicked(bool)), SLOT(accept()));
 
@@ -102,7 +102,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 
     QPushButton* cancelButton = new QPushButton;
     cancelButton->setText(tr("Cancel"));
-    cancelButton->setIcon(GtGUI::Icon::delete16());
+    cancelButton->setIcon(gt::gui::icon::delete16());
     connect(cancelButton, SIGNAL(clicked(bool)), SLOT(reject()));
 
     hLay->addWidget(cancelButton);

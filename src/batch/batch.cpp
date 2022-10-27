@@ -27,11 +27,11 @@
 #include "gt_consoleparser.h"
 #include "gt_versionnumber.h"
 
-using namespace std;
-
 void
 showSplashScreen()
 {
+    using namespace std;
+
     cout << endl;
     cout << "******************************************" << endl;
     cout << "    _____________________      ______  " << endl;
@@ -70,8 +70,8 @@ checkMetaInput(const QStringList& args)
         return -1;
     }
 
-    if (!BatchRemote::checkInput(fileName, GtCoreApplication::versionToString(),
-                                 false, false))
+    if (!gt::batch::checkInput(fileName, GtCoreApplication::versionToString(),
+                               false, false))
     {
         qWarning() << QStringLiteral("ERROR: ")
                    << QObject::tr("meta input invalid!");
@@ -130,8 +130,8 @@ runMetaInput(const QStringList& args)
 
     qDebug() << "executing process...";
 
-    if (!BatchRemote::run(inputFileName, outputFileName,
-                          GtCoreApplication::versionToString()))
+    if (!gt::batch::run(inputFileName, outputFileName,
+                        GtCoreApplication::versionToString()))
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("process execution failed!");
@@ -559,13 +559,12 @@ initPosArgument(QString const& id,
                 QList<GtCommandLineFunctionArgument> const& args = {},
                 bool defaultHelp = true)
 {
-    auto fun = GtCommandLineInterface::make_commandLineFunction(
-                id, func, brief);
+    auto fun = gt::commandline::makeCommandLineFunction(id, func, brief);
     fun.setOptions(options)
             .setArgs(args)
             .setUseDefaultHelp(defaultHelp);
 
-    gtlab::commandline::register_function(fun);
+    gt::commandline::registerFunction(fun);
 }
 
 void
@@ -633,7 +632,7 @@ initModuleTest(QStringList const& arguments, GtCoreApplication& app)
 
     // check if module is loaded
     qDebug() << "Use footprint as a first test";
-    std::cout << GtFootprint().exportToXML().toStdString() << endl;
+    std::cout << GtFootprint().exportToXML().toStdString() << std::endl;
 
     return -1;
 }

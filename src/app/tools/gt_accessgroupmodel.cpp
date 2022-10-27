@@ -121,11 +121,11 @@ GtAccessGroupModel::data(const QModelIndex& index, int role) const
         {
             if (col == 3)
             {
-                retVal = GtGUI::Icon::config16();
+                retVal = gt::gui::icon::config16();
             }
             else if (col == 4)
             {
-                retVal = GtGUI::Icon::delete16();
+                retVal = gt::gui::icon::delete16();
             }
 
             break;

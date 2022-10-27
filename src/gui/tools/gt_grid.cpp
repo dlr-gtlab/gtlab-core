@@ -27,9 +27,9 @@ GtGrid::GtGrid(GtGraphicsView& view) :
     m_showGridPoints(false),
     m_showAxis(false),
     m_hideGrid(false),
-    m_hgColor(GtGUI::Color::gridLineColor()),
-    m_vgColor(GtGUI::Color::gridLineColor()),
-    m_gpColor(GtGUI::Color::gridPointColor()),
+    m_hgColor(gt::gui::color::gridLineColor()),
+    m_vgColor(gt::gui::color::gridLineColor()),
+    m_gpColor(gt::gui::color::gridPointColor()),
     m_hRuler(nullptr),
     m_vRuler(nullptr)
 {

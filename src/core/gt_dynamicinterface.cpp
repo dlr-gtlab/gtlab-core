@@ -2,9 +2,10 @@
 #include "gt_dynamicinterface.h"
 #include "internal/gt_dynamicinterfacehandler.h"
 
-gtlab::InterfaceFunction gtlab::interface::get_function(const QString& moduleId,
-                               const QString &ident)
+gt::InterfaceFunction
+gt::interface::getFunction(const QString& moduleId,
+                            const QString& ident)
 {
-    return gtlab::internal::DynamicInterfaceHandler::instance()
+    return gt::detail::DynamicInterfaceHandler::instance()
         .getInterfaceFunc(moduleId, ident);
 }

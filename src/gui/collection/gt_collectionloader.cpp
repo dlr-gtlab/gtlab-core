@@ -293,7 +293,7 @@ GtCollectionLoader::readItemInformation(const QJsonObject& json)
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for_each_key(colStruct, [&](const QString& e)
+    gt::for_each_key(colStruct, [&](const QString& e)
     {
         if (json.contains(e))
         {
@@ -353,7 +353,7 @@ GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
     QMap<QString, QMetaType::Type> colStruct =
         m_collection->collectionStructure();
 
-    for_each_key(colStruct, [&](const QString& e)
+    gt::for_each_key(colStruct, [&](const QString& e)
     {
         if (json.contains(e))
         {

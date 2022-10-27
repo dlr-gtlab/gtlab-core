@@ -25,7 +25,7 @@ GtObjectUIAction::GtObjectUIAction(const QString& text,
                                    const QString& visibility,
                                    const QKeySequence& shortcut) :
     m_text(text),
-    m_icon(GtGUI::icon(icon)),
+    m_icon(gt::gui::getIcon(icon)),
     m_shortCut(shortcut)
 {
     setActionMethod(method);
@@ -86,7 +86,7 @@ GtObjectUIAction::setIcon(const QIcon& icon)
 GtObjectUIAction&
 GtObjectUIAction::setIcon(const QString& icon)
 {
-    return setIcon(GtGUI::icon(icon));
+    return setIcon(gt::gui::getIcon(icon));
 }
 
 GtObjectUIAction&

@@ -536,7 +536,7 @@ GtDataZoneData::setData(const QStringList& params,
 
     // create axis
     bool success = true;
-    for_each_key (axisTicks, [&](const QString& axisName) {
+    gt::for_each_key (axisTicks, [&](const QString& axisName) {
         success &= tab->addAxis(axisName, {}, "[-]", GtTableAxis::E_LINEAR,
                                 GtTableAxis::I_LINEAR, GtTableAxis::E_LINEAR,
                                 axisTicks.value(axisName));
@@ -617,7 +617,7 @@ GtDataZoneData::setData1D(const QStringList& params,
     // param1: val1, val2, val3
     // param2: val1, val2, val3
     // param3: val1, val2, val3
-    for_each_key (vals, [&](double key)
+    gt::for_each_key (vals, [&](double key)
     {
         ticks.append(key);
         for (int i = 0; i < size; ++i)

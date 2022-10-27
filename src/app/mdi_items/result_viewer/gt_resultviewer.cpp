@@ -38,7 +38,7 @@ GtResultViewer::GtResultViewer() :
     m_label = new QLabel;
     m_label->setAlignment(Qt::AlignCenter);
     m_label->setMinimumHeight(20);
-    m_label->setStyleSheet(GtStyleSheets::resultViewerTitleLabel());
+    m_label->setStyleSheet(gt::gui::stylesheet::resultViewerTitleLabel());
     lay->addWidget(m_label);
 
     QGridLayout* grid = new QGridLayout;
@@ -78,7 +78,7 @@ GtResultViewer::~GtResultViewer()
 QIcon
 GtResultViewer::icon() const
 {
-    return GtGUI::Icon::prp16();
+    return gt::gui::icon::prp16();
 }
 
 void

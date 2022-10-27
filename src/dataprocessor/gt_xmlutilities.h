@@ -17,7 +17,9 @@ class QDomElement;
 class QXmlStreamWriter;
 class QString;
 
-namespace GtXmlUtilities
+namespace gt
+{
+namespace xml
 {
 
 /**
@@ -46,6 +48,8 @@ bool GT_DATAMODEL_EXPORT writeDomDocumentToFile(const QString& filePath,
                                                 const QDomDocument& doc,
                                                 bool attrOrdered = true);
 
-}
+} // namespace xml
+
+} // namespace gt
 
 #endif // GTXMLUTILITIES_H

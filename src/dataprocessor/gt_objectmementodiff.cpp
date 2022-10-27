@@ -268,7 +268,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
             handleObjectAdded(rchildElem, rchildIndex, diffObj);
 
             completeMap.insert(rchild.uuid(), rchildIndex);
-            for_each_key(completeMap, [&](const QString& uuid)
+            gt::for_each_key(completeMap, [&](const QString& uuid)
             {
                 if (uuid != rchild.uuid())
                 {
@@ -303,7 +303,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         handleObjectRemoved(lchildElem, lchildIndex, diffObj);
 
         int completeMapIndex = completeMap.value(lchild.uuid());
-        for_each_key(completeMap, [&](const QString& uuid)
+        gt::for_each_key(completeMap, [&](const QString& uuid)
         {
             if (uuid != lchild.uuid())
             {
@@ -328,7 +328,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         }
     }
 
-    for_each_key(indexChangeMap, [&](const QString& uuid)
+    gt::for_each_key(indexChangeMap, [&](const QString& uuid)
     {
         if (indexChangeMap.value(uuid) == 0)
         {
@@ -351,7 +351,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         rchildMap.insert(rchild.uuid(), rchildIndex);
     }
 
-    for_each_key(rchildMap, [&](const QString& uuid)
+    gt::for_each_key(rchildMap, [&](const QString& uuid)
     {
         if (!lchildMap.contains(uuid))
         {

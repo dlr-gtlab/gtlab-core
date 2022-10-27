@@ -129,7 +129,7 @@ GtProcessConnectionItem::data(int column, int role)
                             return eData->icon;
                         }
 
-                        return GtGUI::Icon::calculator16();
+                        return gt::gui::icon::calculator16();
 
                     }
                     else
@@ -168,22 +168,22 @@ GtProcessConnectionItem::data(int column, int role)
 
                     if (qobject_cast<GtDoubleProperty*>(m_property))
                     {
-                        return GtGUI::Icon::double16();
+                        return gt::gui::icon::double16();
                     }
 
                     if (qobject_cast<GtIntProperty*>(m_property))
                     {
-                        return GtGUI::Icon::int16();
+                        return gt::gui::icon::int16();
                     }
 
                     if (qobject_cast<GtObjectLinkProperty*>(m_property))
                     {
-                        return GtGUI::Icon::o16();
+                        return gt::gui::icon::o16();
                     }
 
                     if (qobject_cast<GtStringProperty*>(m_property))
                     {
-                        return GtGUI::Icon::string16();
+                        return gt::gui::icon::string16();
                     }
                 }
 

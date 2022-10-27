@@ -105,23 +105,23 @@ GtProcessQueueModel::data(const QModelIndex &index, int role) const
 
             if (task->currentState() == GtTask::RUNNING)
             {
-                return GtGUI::Icon::inProgress16();
+                return gt::gui::icon::inProgress16();
             }
             else if (task->currentState() == GtTask::QUEUED)
             {
-                return GtGUI::Icon::sleep16();
+                return gt::gui::icon::sleep16();
             }
             else if (task->currentState() == GtTask::FINISHED)
             {
-                return GtGUI::Icon::check16();
+                return gt::gui::icon::check16();
             }
             else if (task->currentState() == GtTask::FAILED)
             {
-                return GtGUI::Icon::processFailed16();
+                return gt::gui::icon::processFailed16();
             }
             else if (task->currentState() == GtTask::CONNECTING)
             {
-                return GtGUI::Icon::network16();
+                return gt::gui::icon::network16();
             }
             break;
         }

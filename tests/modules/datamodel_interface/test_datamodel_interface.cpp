@@ -55,13 +55,13 @@ TestDatamodelInterface::standAlone()
     return true;
 }
 
-QList<gtlab::InterfaceFunction> TestDatamodelInterface::sharedFunctions() const
+QList<gt::InterfaceFunction> TestDatamodelInterface::sharedFunctions() const
 {
     auto lambda = [](double a, double b) {
         return a*b;
     };
 
-    auto sharedFunction =  gtlab::interface::make_interface_function(
+    auto sharedFunction =  gt::interface::makeInterfaceFunction(
         "my_lambda_mult", lambda, "This is a simple multiplication function");
 
     return {sharedFunction};

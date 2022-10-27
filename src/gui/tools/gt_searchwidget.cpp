@@ -28,7 +28,7 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
 
     // search log button
     m_searchButton = new QPushButton;
-    m_searchButton->setIcon(GtGUI::Icon::search16());
+    m_searchButton->setIcon(gt::gui::icon::search16());
     m_searchButton->setMaximumSize(QSize(20, 20));
     m_searchButton->setFlat(true);
     m_searchButton->setToolTip(tr("Search Output"));
@@ -37,7 +37,7 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
             SLOT(enableSearch()));
 
     m_clearButton = new QPushButton;
-    m_clearButton->setIcon(GtGUI::Icon::clear2_16());
+    m_clearButton->setIcon(gt::gui::icon::clear2_16());
     m_clearButton->setMaximumSize(QSize(20, 20));
     m_clearButton->setFlat(true);
     m_clearButton->setToolTip(tr("Clear Search"));
@@ -63,7 +63,7 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
     m_searchLine = new GtLineEdit;
     m_searchLine->setMaximumHeight(17);
 //    m_searchLine->setFrame(false);
-    m_searchLine->setStyleSheet(GtStyleSheets::standardLineEdit());
+    m_searchLine->setStyleSheet(gt::gui::stylesheet::standardLineEdit());
     m_searchLine->setVisible(false);
     filterLayout->addWidget(m_searchLine);
 

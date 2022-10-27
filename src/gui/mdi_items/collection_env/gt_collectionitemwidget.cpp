@@ -29,7 +29,7 @@ GtCollectionItemWidget::GtCollectionItemWidget(
     setAttribute(Qt::WA_DeleteOnClose);
 
     setWindowTitle(collectionItem.ident());
-    setWindowIcon(GtGUI::Icon::info16());
+    setWindowIcon(gt::gui::icon::info16());
 
     auto lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);
@@ -112,11 +112,11 @@ GtCollectionItemWidget::GtCollectionItemWidget(
 
     overviewWidget->setLayout(overviewLay);
 
-    tabWidget->addTab(overviewWidget, GtGUI::Icon::list16(), tr("Overview"));
+    tabWidget->addTab(overviewWidget, gt::gui::icon::list16(), tr("Overview"));
 
     auto docWidget = new QWidget;
 
-    tabWidget->addTab(docWidget, GtGUI::Icon::question16(),
+    tabWidget->addTab(docWidget, gt::gui::icon::question16(),
                       tr("Documentation"));
 
     tabWidget->setTabEnabled(1, false);
@@ -129,7 +129,7 @@ GtCollectionItemWidget::GtCollectionItemWidget(
 
     setLayout(lay);
 
-    GtGUI::applyThemeToWidget(this);
+    gt::gui::applyThemeToWidget(this);
 
     resize(600, 400);
 }
@@ -214,7 +214,7 @@ GtCollectionItemWidget::newFileLayout(const QString& filename)
     auto fileLay = new QHBoxLayout;
     auto iconLabel = new QLabel(this);
     iconLabel->setMaximumWidth(16);
-    iconLabel->setPixmap(GtGUI::Icon::file16().pixmap(QSize(16, 16)));
+    iconLabel->setPixmap(gt::gui::icon::file16().pixmap(QSize(16, 16)));
     auto fileLabel = new QLabel(filename, this);
     fileLay->addWidget(iconLabel);
     fileLay->addWidget(fileLabel);

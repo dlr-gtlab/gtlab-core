@@ -22,7 +22,7 @@ GtDataZoneUI::GtDataZoneUI()
 QIcon
 GtDataZoneUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::Icon::globals16();
+    return gt::gui::icon::globals16();
 }
 
 QStringList

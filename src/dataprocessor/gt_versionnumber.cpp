@@ -181,7 +181,7 @@ GtVersionNumber::GtVersionNumber(int major, const QString& pre_release,
 GtVersionNumber::GtVersionNumber(const QString& versStr) :
     GtVersionNumber()
 {
-    const auto expr = std::regex(GtRegExp::forSemVers().pattern().toStdString());
+    const auto expr = std::regex(gt::re::forSemVers().pattern().toStdString());
     auto results = std::match_results<std::string::const_iterator>();
 
 

@@ -14,9 +14,9 @@
 
 #include "gt_moduleinterface.h"
 
-namespace gtlab
+namespace gt
 {
-namespace internal
+namespace detail
 {
 
 /**
@@ -99,7 +99,7 @@ private:
 
 };
 
-} // namespace internal
-} // namespace gtlab
+} // namespace detail
+} // namespace gt
 
 #endif // GTMODULEUPGRADER_H

@@ -195,15 +195,15 @@ GtProjectUI::icon(GtObject* obj) const
 
     if (project->isOpen())
     {
-        return GtGUI::Icon::components16();
+        return gt::gui::icon::components16();
     }
 
     if (project->upgradesAvailable())
     {
-        return GtGUI::Icon::inconsistentProject16();
+        return gt::gui::icon::inconsistentProject16();
     }
 
-    return GtGUI::Icon::closedProject16();
+    return gt::gui::icon::closedProject16();
 
 }
 
@@ -266,7 +266,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
             {
                 if (!project->comment().isEmpty())
                 {
-                    return GtGUI::Icon::comment();
+                    return gt::gui::icon::comment();
                 }
             }
 
@@ -352,7 +352,7 @@ GtProjectUI::openProject(GtObject* obj)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Open Project"));
-        mb.setWindowIcon(GtGUI::Icon::openProject16());
+        mb.setWindowIcon(gt::gui::icon::openProject16());
         mb.setText(tr("Cannot open new project while a task is running."));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);
@@ -534,7 +534,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
     GtDialog dialog;
 
     dialog.setWindowTitle(tr("Save Project As..."));
-    dialog.setWindowIcon(GtGUI::Icon::saveProject16());
+    dialog.setWindowIcon(gt::gui::icon::saveProject16());
 
     auto layout = new QVBoxLayout;
 
@@ -551,12 +551,12 @@ GtProjectUI::saveProjectAs(GtObject* obj)
     auto btnLay = new QHBoxLayout;
 
     auto acceptBtn = new QPushButton(tr("Save"));
-    acceptBtn->setIcon(GtGUI::Icon::saveProject16());
+    acceptBtn->setIcon(gt::gui::icon::saveProject16());
 
     connect(acceptBtn, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
 
     auto cancleBtn = new QPushButton(tr("Cancel"));
-    cancleBtn->setIcon(GtGUI::Icon::delete16());
+    cancleBtn->setIcon(gt::gui::icon::delete16());
 
     connect(cancleBtn, SIGNAL(clicked(bool)), &dialog, SLOT(reject()));
     connect(pspecs, SIGNAL(validated(bool)), acceptBtn, SLOT(setEnabled(bool)));
@@ -862,7 +862,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 
     dialog.setWindowTitle(tr("Project Modules") +
                           QStringLiteral(" - ") + project->objectName());
-    dialog.setWindowIcon(GtGUI::Icon::plugin16());
+    dialog.setWindowIcon(gt::gui::icon::plugin16());
 
     auto layout = new QVBoxLayout;
 
@@ -884,7 +884,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 
 
     auto okButton = new QPushButton(tr("Ok"));
-    okButton->setIcon(GtGUI::Icon::check16());
+    okButton->setIcon(gt::gui::icon::check16());
 
     connect(okButton, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
     connect(model, SIGNAL(noItemSelected(bool)), okButton,
@@ -915,7 +915,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
             mb.setWindowTitle(tr("Save Project"));
-            mb.setWindowIcon(GtGUI::Icon::saveProject16());
+            mb.setWindowIcon(gt::gui::icon::saveProject16());
             mb.setText(tr("Found unsaved changes.\nDo you want to save ")
                        + tr("your changes?"));
             mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
@@ -1127,7 +1127,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
 
     GtDialog dialog;
     dialog.setWindowTitle(tr("Export Meta Data"));
-    dialog.setWindowIcon(GtGUI::Icon::export16());
+    dialog.setWindowIcon(gt::gui::icon::export16());
 
     GtCheckableStringListModel model(taskNames);
     model.setSelectionMode(GtCheckableStringListModel::SingleSelection);
@@ -1339,14 +1339,14 @@ GtProjectUI::renameProject(GtObject* obj)
 
 //    dialog.setInputMode(QInputDialog::IntInput);
     dialog.setWindowTitle(tr("Rename Project"));
-    dialog.setWindowIcon(GtGUI::Icon::input16());
+    dialog.setWindowIcon(gt::gui::icon::input16());
     dialog.setLabelText(tr("Note: The associated project path "
                            "on the hard disk is not changed."
                            "\n\nNew project name:"));
     dialog.setInitialTextValue(project->objectName());
 
     QValidator* validator = new QRegExpValidator(
-                                GtRegExp::onlyLettersAndNumbersAndSpace(),
+                                gt::re::onlyLettersAndNumbersAndSpace(),
                                 &dialog);
     dialog.setTextValidator(validator);
 
@@ -1370,7 +1370,7 @@ GtProjectUI::renameProject(GtObject* obj)
         ok = false;
     }
 
-    if (!GtRegExp::onlyLettersAndNumbersAndSpace().exactMatch(text))
+    if (!gt::re::onlyLettersAndNumbersAndSpace().exactMatch(text))
     {
         ok = false;
     }
@@ -1441,7 +1441,7 @@ GtProjectUI::showFootprint(GtObject* obj) const
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Footprint Not Found"));
-        mb.setWindowIcon(GtGUI::Icon::components16());
+        mb.setWindowIcon(gt::gui::icon::components16());
         mb.setText(tr("No footprint was found in the project file.\nIt seems "
                       "that the project was created with a GTlab version "
                       "< 1.6.\n\nSaving the project with a GTlab version >= "
@@ -1466,7 +1466,7 @@ GtProjectUI::showFootprint(GtObject* obj) const
             frameworkFootpring.frameworkVersion().toString();
 
     GtDialog dialog;
-    dialog.setWindowIcon(GtGUI::Icon::components16());
+    dialog.setWindowIcon(gt::gui::icon::components16());
     dialog.setWindowTitle(tr("Footprint Information"));
 
     auto mLay = new QVBoxLayout;
@@ -1485,8 +1485,8 @@ GtProjectUI::showFootprint(GtObject* obj) const
     auto versionItem = new QTreeWidgetItem(QStringList() << "Version" <<
                                            projectVersion << frameworkVersion);
 
-    QColor warnC = GtGUI::Color::footprintWarning();
-    QColor errorC = GtGUI::Color::footprintError();
+    QColor warnC = gt::gui::color::footprintWarning();
+    QColor errorC = gt::gui::color::footprintError();
     if (footprint.isNewerRelease())
     {
         versionItem->setBackgroundColor(1, errorC);
@@ -1507,7 +1507,7 @@ GtProjectUI::showFootprint(GtObject* obj) const
         auto unknownRoot =
                 new QTreeWidgetItem(QStringList() << "Unknown Modules");
 
-        for_each_key(unknownModules, [&](const QString& e)
+        gt::for_each_key(unknownModules, [&](const QString& e)
         {
             auto unknownModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1530,7 +1530,7 @@ GtProjectUI::showFootprint(GtObject* obj) const
         auto incompatibleRoot =
                 new QTreeWidgetItem(QStringList() << "Incompatible Modules");
 
-        for_each_key(incompatibleModules, [&](const QString& e)
+        gt::for_each_key(incompatibleModules, [&](const QString& e)
         {
             auto incompatibleModule =
                     new QTreeWidgetItem(QStringList() << e <<
@@ -1553,7 +1553,7 @@ GtProjectUI::showFootprint(GtObject* obj) const
         auto updatedRoot =
                 new QTreeWidgetItem(QStringList() << "Updated Modules");
 
-        for_each_key(updatedModules, [&](const QString& e)
+        gt::for_each_key(updatedModules, [&](const QString& e)
         {
             auto updatedModule =
                     new QTreeWidgetItem(QStringList() << e <<

@@ -81,7 +81,7 @@ GtGuiModuleLoader::GtGuiModuleLoader()
 
 GtGuiModuleLoader::~GtGuiModuleLoader()
 {
-    for_each_key(m_uiObjs, [this](const QString& key)
+    gt::for_each_key(m_uiObjs, [this](const QString& key)
     {
         qDeleteAll(m_uiObjs.value(key));
     });
@@ -110,7 +110,7 @@ GtGuiModuleLoader::knownUIObjects() const
 {
     QStringList retval;
 
-    for_each_key(m_uiObjs, [&retval](const QString& key)
+    gt::for_each_key(m_uiObjs, [&retval](const QString& key)
     {
         retval << key;
     });
@@ -272,7 +272,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 
         QMap<const char*, QMetaObject> uis = mdip->uiItems();
 
-        for_each_key(uis, [&](const char* key)
+        gt::for_each_key(uis, [&](const char* key)
         {
             QMetaObject metaobj = uis.value(key);
             registerObjectUI(key, metaobj);

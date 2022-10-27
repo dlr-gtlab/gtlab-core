@@ -257,15 +257,14 @@ QStringList
 GtModuleLoader::moduleDatamodelInterfaceIds() const
 {
     QStringList retval;
-    for_each_key(m_pimpl->m_plugins, [&](const QString& e)
-    {
-      GtDatamodelInterface* dmi =
-              dynamic_cast<GtDatamodelInterface*>(m_pimpl->m_plugins.value(e));
+    gt::for_each_key(m_pimpl->m_plugins, [&](const QString& e){
+        GtDatamodelInterface* dmi =
+               dynamic_cast<GtDatamodelInterface*>(m_pimpl->m_plugins.value(e));
 
-      if (dmi && dmi->standAlone())
-      {
-          retval << e;
-      }
+        if (dmi && dmi->standAlone())
+        {
+            retval << e;
+        }
     });
 
     return retval;
@@ -406,21 +405,21 @@ GtModuleLoader::insert(GtModuleInterface* plugin)
     // register converter funcs
     foreach (const auto& r, plugin->upgradeRoutines())
     {
-      gtlab::internal::GtModuleUpgrader::instance()
+      gt::detail::GtModuleUpgrader::instance()
             .registerModuleConverter(plugin->ident(), r.target, r.f);
     }
 
     // register all interface functions of the module
     foreach(const auto& sharedFunction, plugin->sharedFunctions())
     {
-        gtlab::interface::internal::register_function(plugin->ident(),
+        gt::interface::detail::registerFunction(plugin->ident(),
                                                       sharedFunction);
     }
 
     // register all commandline functions of the module
     foreach(const auto& commandLineFunction, plugin->commandLineFunctions())
     {
-        gtlab::commandline::register_function(commandLineFunction);
+        gt::commandline::registerFunction(commandLineFunction);
     }
 
     GtDatamodelInterface* dmp = dynamic_cast<GtDatamodelInterface*>(plugin);

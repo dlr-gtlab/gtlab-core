@@ -21,7 +21,7 @@ GtCalculatorUI::GtCalculatorUI()
 QIcon
 GtCalculatorUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::Icon::calculator16();
+    return gt::gui::icon::calculator16();
 }
 
 bool
@@ -33,5 +33,5 @@ GtCalculatorUI::hasValidationRegExp()
 QRegExp
 GtCalculatorUI::validatorRegExp()
 {
-    return GtRegExp::onlyLettersAndNumbersAndSpace();
+    return gt::re::onlyLettersAndNumbersAndSpace();
 }

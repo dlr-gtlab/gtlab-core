@@ -42,19 +42,19 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::DebugLevel:
-                    return GtGUI::Icon::bug();
+                    return gt::gui::icon::bug();
 
                 case QsLogging::InfoLevel:
-                    return GtGUI::Icon::infoBlue16();
+                    return gt::gui::icon::infoBlue16();
 
                 case QsLogging::WarnLevel:
-                    return GtGUI::Icon::processFailed16();
+                    return gt::gui::icon::processFailed16();
 
                 case QsLogging::ErrorLevel:
-                    return GtGUI::Icon::error16();
+                    return gt::gui::icon::error16();
 
                 case QsLogging::FatalLevel:
-                    return GtGUI::Icon::fatal16();
+                    return gt::gui::icon::fatal16();
             }
         }
 
@@ -67,13 +67,13 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::WarnLevel:
-                    return GtGUI::Color::warningText();
+                    return gt::gui::color::warningText();
 
                 case QsLogging::ErrorLevel:
-                    return GtGUI::Color::errorText();
+                    return gt::gui::color::errorText();
 
                 case QsLogging::FatalLevel:
-                    return GtGUI::Color::fatalText();
+                    return gt::gui::color::fatalText();
             }
         }
 
@@ -111,7 +111,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (level)
             {
                 case QsLogging::FatalLevel:
-                    return GtGUI::Color::fatalTextBackground();
+                    return gt::gui::color::fatalTextBackground();
             }
         }
     }

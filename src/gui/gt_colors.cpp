@@ -15,14 +15,14 @@
 #include "gt_application.h"
 
 QColor
-GtGUI::Color::basicDark()
+gt::gui::color::basicDark()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {45, 45, 45};        //QColor(45, 45, 45);
 }
 
 QColor
-GtGUI::Color::dummyObjectBackground()
+gt::gui::color::dummyObjectBackground()
 {
     if (gtApp->inDarkMode())
     {
@@ -36,7 +36,7 @@ GtGUI::Color::dummyObjectBackground()
 }
 
 QColor
-GtGUI::Color::newObjectForground()
+gt::gui::color::newObjectForground()
 {
     if (gtApp->inDarkMode())
     {
@@ -47,7 +47,7 @@ GtGUI::Color::newObjectForground()
 }
 
 QColor
-GtGUI::Color::changedObjectForground()
+gt::gui::color::changedObjectForground()
 {
     if (gtApp->inDarkMode())
     {
@@ -58,70 +58,70 @@ GtGUI::Color::changedObjectForground()
 }
 
 QColor
-GtGUI::Color::footprintWarning()
+gt::gui::color::footprintWarning()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {255, 255, 0, 100};  //QColor(255, 255, 0, 100);
 }
 
 QColor
-GtGUI::Color::footprintError()
+gt::gui::color::footprintError()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {255, 0, 0, 100};    //QColor(255, 0, 0, 100);
 }
 
 QColor
-GtGUI::Color::warningText()
+gt::gui::color::warningText()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {255, 100, 0};       //QColor(255, 100, 0);
 }
 
 QColor
-GtGUI::Color::errorText()
+gt::gui::color::errorText()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {139, 0, 0};         //QColor(139, 0, 0);
 }
 
 QColor
-GtGUI::Color::fatalText()
+gt::gui::color::fatalText()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {255, 255, 255};     //QColor(255, 255, 255);
 }
 
 QColor
-GtGUI::Color::fatalTextBackground()
+gt::gui::color::fatalTextBackground()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {120, 20, 20};       //QColor(120, 20, 20);
 }
 
 QColor
-GtGUI::Color::collectionAvailableItemBackground()
+gt::gui::color::collectionAvailableItemBackground()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {180, 229, 190};     //QColor(180, 229, 190);
 }
 
 QColor
-GtGUI::Color::collectionInstalledItemBackground()
+gt::gui::color::collectionInstalledItemBackground()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {240, 240, 240};     //QColor(240, 240, 240);
 }
 
 QColor
-GtGUI::Color::environmentModelBack()
+gt::gui::color::environmentModelBack()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return {214, 170, 170};     //QColor(214, 170, 170);
 }
 
 QColor
-GtGUI::Color::infoText()
+gt::gui::color::infoText()
 {
     if (gtApp->inDarkMode())
     {
@@ -133,7 +133,7 @@ GtGUI::Color::infoText()
 
 
 void
-GtGUI::Color::setPaintertoGray(QPainter* painter)
+gt::gui::color::setPaintertoGray(QPainter* painter)
 {
     if (painter)
     {
@@ -145,13 +145,13 @@ GtGUI::Color::setPaintertoGray(QPainter* painter)
         {
             // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
             painter->setPen(QPen(QColor(170, 170, 170), 1.5));
-            painter->setBrush(QBrush(GtGUI::Color::basicDark()));
+            painter->setBrush(QBrush(gt::gui::color::basicDark()));
         }
     }
 }
 
 QColor
-GtGUI::Color::randomColor()
+gt::gui::color::randomColor()
 {
     QRandomGenerator randg;
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
@@ -159,14 +159,14 @@ GtGUI::Color::randomColor()
 }
 
 QColor
-GtGUI::Color::gridLineColor()
+gt::gui::color::gridLineColor()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return QColor(200, 200, 255, 125);
 }
 
 QColor
-GtGUI::Color::gridPointColor()
+gt::gui::color::gridPointColor()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return QColor(100, 100, 155);
