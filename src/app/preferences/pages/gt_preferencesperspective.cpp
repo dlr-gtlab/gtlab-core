@@ -14,11 +14,12 @@
 
 #include "gt_perspectiveslistwidget.h"
 #include "gt_application.h"
+#include "gt_icons.h"
 
 GtPreferencesPerspective::GtPreferencesPerspective()
+    : GtPreferencesPage(tr("Perspectives"))
 {
-    setTitle(tr("Perspectives"));
-
+    setIcon(gt::gui::icon::perspectives());
     QVBoxLayout* lay = new QVBoxLayout;
 
     QHBoxLayout* hLayout = new QHBoxLayout;

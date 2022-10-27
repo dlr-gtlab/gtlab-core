@@ -19,11 +19,12 @@
 #include "gt_settings.h"
 #include "gt_sessionlistwidget.h"
 #include "gt_processexecutor.h"
+#include "gt_icons.h"
 
-GtPreferencesSession::GtPreferencesSession()
+GtPreferencesSession::GtPreferencesSession() :
+    GtPreferencesPage("Session")
 {
-    setTitle(tr("Session"));
-
+    setIcon(gt::gui::icon::session());
     QVBoxLayout* lay = new QVBoxLayout;
 
     QHBoxLayout* hLayout = new QHBoxLayout;

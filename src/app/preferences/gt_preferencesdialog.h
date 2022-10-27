@@ -15,6 +15,7 @@
 class QListWidgetItem;
 class QListWidget;
 class QStackedWidget;
+class GtPreferencesPage;
 
 /**
  * @brief The GtPreferencesDialog class
@@ -43,16 +44,13 @@ public slots:
     void saveChanges();
 
 private:
+    void addPage(GtPreferencesPage* page);
+
     ///
     QListWidget* m_contentsWidget;
 
     ///
     QStackedWidget* m_pagesWidget;
-
-    /**
-     * @brief createIcons
-     */
-    void createIcons();
 
 };
 

@@ -18,15 +18,16 @@
 #include "gt_application.h"
 #include "gt_settings.h"
 #include "gt_logmodel.h"
+#include "gt_icons.h"
 
 #include "gt_preferencesapp.h"
 
 GtPreferencesApp::GtPreferencesApp() :
+    GtPreferencesPage(tr("Application")),
     m_autoSaveModifications(nullptr),
     m_autoSaveInterval(nullptr)
 {
-    setTitle(tr("Application"));
-
+    setIcon(gt::gui::icon::application());
     QTabWidget* tabWidget = new QTabWidget;
 
     tabWidget->setContentsMargins(0, 0, 0, 0);

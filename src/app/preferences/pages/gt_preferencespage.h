@@ -11,6 +11,7 @@
 #define GTPREFERENCESPAGE_H
 
 #include <QWidget>
+#include <QIcon>
 
 class QLabel;
 class QVBoxLayout;
@@ -21,6 +22,7 @@ class GtSettings;
  */
 class GtPreferencesPage : public QWidget
 {
+    Q_OBJECT
 public:
     /**
      * @brief saveSettings
@@ -31,12 +33,16 @@ public:
      */
     virtual void loadSettings(const GtSettings&) = 0;
 
+    QString title() const;
+    QString titleShort() const;
+    QIcon icon() const;
+
 protected:
     /**
      * @brief GtPreferencesPage
      * @param parent
      */
-    explicit GtPreferencesPage(QWidget* parent = nullptr);
+    explicit GtPreferencesPage(const QString& title, QWidget* parent = nullptr);
 
 
     /**
@@ -44,6 +50,8 @@ protected:
      * @param id
      */
     void setTitle(const QString& id);
+    void setTitleShort(const QString& shortTitle);
+    void setIcon(const QIcon& icon);
 
     /**
      * @brief addStretch
@@ -54,6 +62,8 @@ protected:
 private:
     /// Label for preferences page title
     QLabel* m_title;
+    QString m_shortTitle;
+    QIcon m_icon;
 
     /// Main layout for preferences page
     QVBoxLayout* m_layout;

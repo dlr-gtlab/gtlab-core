@@ -39,20 +39,29 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
 
     m_pagesWidget = new QStackedWidget;
     m_pagesWidget->setMinimumWidth(400);
-    m_pagesWidget->addWidget(new GtPreferencesApp);
-    m_pagesWidget->addWidget(new GtPreferencesSession);
-    m_pagesWidget->addWidget(new GtPreferencesPerspective);
-    m_pagesWidget->addWidget(new GtPreferencesShortCuts);
-    m_pagesWidget->addWidget(new GtPreferencesLanguage);
-    m_pagesWidget->addWidget(new GtPreferencesAccess);
-    m_pagesWidget->addWidget(new GtPreferencesPathSettings);
+    addPage(new GtPreferencesApp);
+    addPage(new GtPreferencesSession);
+    addPage(new GtPreferencesPerspective);
+    addPage(new GtPreferencesShortCuts);
+    addPage(new GtPreferencesLanguage);
+    addPage(new GtPreferencesAccess);
+    addPage(new GtPreferencesPathSettings);
+
+    // Add pages from modules
+    for (const auto& builder : qAsConst(GtApplication::customPreferencePages()))
+    {
+        addPage(builder());
+    }
 
     QPushButton* saveButton = new QPushButton(tr("Save"));
     saveButton->setIcon(gt::gui::icon::saveProject16());
     QPushButton* closeButton = new QPushButton(tr("Cancel"));
     closeButton->setIcon(gt::gui::icon::delete16());
 
-    createIcons();
+    connect(m_contentsWidget,
+            SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+            SLOT(changePage(QListWidgetItem*,QListWidgetItem*)));
+
     m_contentsWidget->setCurrentRow(initItem);
 
     connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -80,6 +89,32 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     setFixedWidth(600);
 }
 
+void GtPreferencesDialog::addPage(GtPreferencesPage *page)
+{
+    if (!page)
+        return;
+
+    m_pagesWidget->addWidget(page);
+
+    // Add a button (icon + text) the the list on the left
+    QListWidgetItem* button = new QListWidgetItem(m_contentsWidget);
+    button->setIcon(page->icon());
+    button->setText(page->titleShort());
+    button->setTextAlignment(Qt::AlignHCenter);
+    button->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    button->setWhatsThis(page->title());
+    button->setSizeHint(QSize(100, 56));
+
+    if (page->isEnabled())
+    {
+        button->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    }
+    else
+    {
+        button->setFlags(button->flags() & ~Qt::ItemIsEnabled);
+    }
+}
+
 void
 GtPreferencesDialog::changePage(QListWidgetItem* current,
                                 QListWidgetItem* previous)
@@ -99,7 +134,7 @@ GtPreferencesDialog::saveChanges()
 
     for (int i = 0; i < pageList.size(); i++)
     {
-        GtPreferencesPage* page = dynamic_cast<GtPreferencesPage*>(pageList[i]);
+        GtPreferencesPage* page = qobject_cast<GtPreferencesPage*>(pageList[i]);
 
         if (page)
         {
@@ -109,84 +144,3 @@ GtPreferencesDialog::saveChanges()
 
     accept();
 }
-
-void
-GtPreferencesDialog::createIcons()
-{
-    QListWidgetItem* configButton = new QListWidgetItem(m_contentsWidget);
-    configButton->setIcon(gt::gui::icon::application());
-    configButton->setText(tr("Application"));
-    configButton->setTextAlignment(Qt::AlignHCenter);
-    configButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    configButton->setWhatsThis(tr("Application Settings"));
-    configButton->setSizeHint(QSize(100, 50));
-
-    QListWidgetItem* sessionButton = new QListWidgetItem(m_contentsWidget);
-    sessionButton->setIcon(gt::gui::icon::session());
-    sessionButton->setText(tr("Session"));
-    sessionButton->setTextAlignment(Qt::AlignHCenter);
-    sessionButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    sessionButton->setWhatsThis(tr("Session Configurations"));
-    sessionButton->setSizeHint(QSize(100, 50));
-
-    QListWidgetItem* perspectivesButton = new QListWidgetItem(m_contentsWidget);
-    perspectivesButton->setIcon(gt::gui::icon::perspectives());
-    perspectivesButton->setText(tr("Perspectives"));
-    perspectivesButton->setTextAlignment(Qt::AlignHCenter);
-    perspectivesButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    perspectivesButton->setWhatsThis(tr("Perspectives Configurations"));
-    perspectivesButton->setSizeHint(QSize(100, 50));
-
-    QListWidgetItem* shortCutButton = new QListWidgetItem(m_contentsWidget);
-    shortCutButton->setIcon(gt::gui::icon::input2());
-    shortCutButton->setText(tr("Short Cuts"));
-    shortCutButton->setTextAlignment(Qt::AlignHCenter);
-    shortCutButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    shortCutButton->setWhatsThis(tr("Short Cuts"));
-    shortCutButton->setSizeHint(QSize(100, 50));
-
-    //QListWidgetItem* pluginsButton = new QListWidgetItem(m_contentsWidget);
-    //pluginsButton->setIcon(GtGUI::Icon::pluginSettings());
-    //pluginsButton->setText(tr("Plugins"));
-    //pluginsButton->setTextAlignment(Qt::AlignHCenter);
-    //pluginsButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    //pluginsButton->setWhatsThis(tr("Plugins"));
-
-    QListWidgetItem* languageButton = new QListWidgetItem(m_contentsWidget);
-    languageButton->setIcon(gt::gui::icon::language());
-    languageButton->setText(tr("Language"));
-    languageButton->setTextAlignment(Qt::AlignHCenter);
-    languageButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    languageButton->setWhatsThis(tr("Language settings"));
-    languageButton->setSizeHint(QSize(100, 50));
-
-    QListWidgetItem* accessButton = new QListWidgetItem(m_contentsWidget);
-    accessButton->setIcon(gt::gui::icon::login());
-    accessButton->setText(tr("Access"));
-    accessButton->setTextAlignment(Qt::AlignHCenter);
-
-    if (!gtAccessManager->isEmpty())
-    {
-        accessButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    }
-    else
-    {
-        accessButton->setFlags(accessButton->flags() & ~Qt::ItemIsEnabled);
-    }
-
-    accessButton->setWhatsThis(tr("Access settings"));
-    accessButton->setSizeHint(QSize(100, 50));
-
-    QListWidgetItem* pathButton = new QListWidgetItem(m_contentsWidget);
-    pathButton->setIcon(gt::gui::icon::pathSettings());
-    pathButton->setText(tr("Environment"));
-    pathButton->setTextAlignment(Qt::AlignHCenter);
-    pathButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    pathButton->setWhatsThis(tr("Environment variables"));
-    pathButton->setSizeHint(QSize(100, 50));
-
-    connect(m_contentsWidget,
-            SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-            SLOT(changePage(QListWidgetItem*,QListWidgetItem*)));
-}
-
