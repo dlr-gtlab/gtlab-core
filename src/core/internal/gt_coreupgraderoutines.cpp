@@ -10,10 +10,10 @@
 #include "gt_coreupgraderoutines.h"
 
 bool
-gtlab::internal::GtDataModelConverter::to200::run(QDomElement& domElement,
-                                                  const QString& context)
+gt::detail::GtDataModelConverter::to_2_0_0::run(QDomElement& domElement,
+                                                const QString& context)
 {
-    gtInfo() << "DO SOMETHING UPGRADE!";
-
+    Q_UNUSED(domElement)
+    Q_UNUSED(context)
     return true;
 }

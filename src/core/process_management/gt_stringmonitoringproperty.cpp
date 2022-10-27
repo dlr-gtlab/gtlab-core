@@ -17,5 +17,5 @@ GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
 {
     setReadOnly(true);
 
-    m_validator = std::make_unique<QRegExpValidator>(GtRegExp::woUmlauts());
+    m_validator = std::make_unique<QRegExpValidator>(gt::re::woUmlauts());
 }

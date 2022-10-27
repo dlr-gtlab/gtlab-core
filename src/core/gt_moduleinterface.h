@@ -165,7 +165,7 @@ public:
      *
      * @return
      */
-    virtual QList<gtlab::InterfaceFunction> sharedFunctions() const {
+    virtual QList<gt::InterfaceFunction> sharedFunctions() const {
         return {};
     }
 

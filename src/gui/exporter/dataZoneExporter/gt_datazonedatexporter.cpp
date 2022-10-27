@@ -47,7 +47,7 @@ GtDataZoneDatExporter::targets() const
 QIcon
 GtDataZoneDatExporter::icon() const
 {
-    return GtGUI::Icon::export16();
+    return gt::gui::icon::export16();
 }
 
 bool

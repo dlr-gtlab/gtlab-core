@@ -104,7 +104,7 @@ GtCalculatorEntity::paint(QPainter* painter,
     {
         if (gtApp->inDarkMode())
         {
-            painter->setBrush(QBrush(GtGUI::Color::basicDark()));
+            painter->setBrush(QBrush(gt::gui::color::basicDark()));
         }
         else
         {

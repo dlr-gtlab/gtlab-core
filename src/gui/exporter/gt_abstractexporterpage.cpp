@@ -16,7 +16,7 @@
 GtAbstractExporterPage::GtAbstractExporterPage(GtObject* obj) :
     m_obj(obj)
 {
-    GtGUI::applyThemeToWidget(this);
+    gt::gui::applyThemeToWidget(this);
 }
 
 GtObject*

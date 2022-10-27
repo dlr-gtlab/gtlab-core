@@ -40,7 +40,7 @@ GtTaskEntityShadow::paint(QPainter* painter,
     }
     else
     {
-        painter->setBrush(QBrush(GtGUI::Color::basicDark()));
+        painter->setBrush(QBrush(gt::gui::color::basicDark()));
     }
 
     painter->setPen(Qt::NoPen);

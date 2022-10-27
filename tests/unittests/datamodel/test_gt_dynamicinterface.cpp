@@ -16,7 +16,7 @@
 
 #include <QString>
 
-using gtlab::interface::make_interface_function;
+using gt::interface::makeInterfaceFunction;
 
 class DynamicInterface : public testing::Test
 {};
@@ -34,8 +34,8 @@ QString my_insane_test_fun(const std::string& str1,
 
 TEST_F(DynamicInterface, wrapFunction)
 {
-    auto itf_fun = gtlab::interface::make_interface_function("my_test_sum",
-                                                             my_test_sum);
+    auto itf_fun = gt::interface::makeInterfaceFunction("my_test_sum",
+                                                          my_test_sum);
     auto result = itf_fun({1, 2});
 
     ASSERT_EQ(1, result.size());
@@ -55,8 +55,8 @@ TEST_F(DynamicInterface, wrapQString)
         return str;
     };
 
-    auto itf_fun = gtlab::interface::make_interface_function("mystringfunction",
-                                                             mystringfunction);
+    auto itf_fun = gt::interface::makeInterfaceFunction("mystringfunction",
+                                                          mystringfunction);
 
     auto result = itf_fun({"Hallo Welt"});
 
@@ -70,8 +70,8 @@ TEST_F(DynamicInterface, wrapStdString)
         return str;
     };
 
-    auto itf_fun = gtlab::interface::make_interface_function("mystringfunction2",
-                                                             mystringfunction);
+    auto itf_fun = gt::interface::makeInterfaceFunction("mystringfunction2",
+                                                          mystringfunction);
 
     auto result = itf_fun({"Hallo Welt"});
 
@@ -85,8 +85,8 @@ TEST_F(DynamicInterface, wrapLambda)
         return a*b;
     };
 
-    auto itf_fun = gtlab::interface::make_interface_function(
-        "my_lambda_mult", lambda);
+    auto itf_fun = gt::interface::makeInterfaceFunction("my_lambda_mult",
+                                                          lambda);
 
     auto result = itf_fun({3., 4.});
 
@@ -113,8 +113,7 @@ TEST_F(DynamicInterface, wrapFunctionObject)
     // sanity check
     ASSERT_EQ(15, f(5.));
 
-    auto itf_fun = gtlab::interface::make_interface_function(
-        "my_func_obj", f);
+    auto itf_fun = gt::interface::makeInterfaceFunction("my_func_obj", f);
 
     auto result = itf_fun({12.});
     EXPECT_EQ(1, result.size());
@@ -123,7 +122,7 @@ TEST_F(DynamicInterface, wrapFunctionObject)
 
 TEST_F(DynamicInterface, returnTuple)
 {
-    auto itf_fun = gtlab::interface::make_interface_function(
+    auto itf_fun = gt::interface::makeInterfaceFunction(
         "my_lambda_tuple",
         [](double a, double b) {
             return std::make_tuple(a+b, a-b);
@@ -139,8 +138,7 @@ TEST_F(DynamicInterface, returnTuple)
 
 TEST_F(DynamicInterface, returnVoid)
 {
-    auto itf_fun = gtlab::interface::make_interface_function(
-        "my_return_void_func",
+    auto itf_fun = gt::interface::makeInterfaceFunction("my_return_void_func",
         [](double) {
             // nothing
         }
@@ -152,18 +150,18 @@ TEST_F(DynamicInterface, returnVoid)
 
 TEST_F(DynamicInterface, getFunctionFailure)
 {
-    auto func = gtlab::interface::get_function("testmod",
-                                               "this_funcion_does_not_exist");
+    auto func = gt::interface::getFunction("testmod",
+                                            "this_funcion_does_not_exist");
     EXPECT_FALSE(func);
 }
 
 
 TEST_F(DynamicInterface, registerFunctionNoHelp)
 {
-    ASSERT_TRUE(gtlab::interface::internal::register_function("testmod",
-        make_interface_function("my_test_sum", my_test_sum)));
+    ASSERT_TRUE(gt::interface::detail::registerFunction("testmod",
+        makeInterfaceFunction("my_test_sum", my_test_sum)));
 
-    auto func = gtlab::interface::get_function("testmod", "my_test_sum");
+    auto func = gt::interface::getFunction("testmod", "my_test_sum");
     ASSERT_TRUE(func);
 
     EXPECT_FALSE(func.help().isEmpty());
@@ -173,10 +171,10 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
 {
     auto help = "this is the help of my_test_sum2";
 
-    ASSERT_TRUE(gtlab::interface::internal::register_function("testmod",
-        make_interface_function("my_test_sum2", my_test_sum, help)));
+    ASSERT_TRUE(gt::interface::detail::registerFunction("testmod",
+        makeInterfaceFunction("my_test_sum2", my_test_sum, help)));
 
-    auto func = gtlab::interface::get_function("testmod", "my_test_sum2");
+    auto func = gt::interface::getFunction("testmod", "my_test_sum2");
     ASSERT_TRUE(func);
 
     EXPECT_STREQ(help, func.help().toStdString().c_str());
@@ -184,19 +182,19 @@ TEST_F(DynamicInterface, registerFunctionWithHelp)
 
 TEST_F(DynamicInterface, checkName)
 {
-    ASSERT_TRUE(gtlab::interface::internal::register_function("testmod",
-        make_interface_function("my_test_sum3", my_test_sum)));
+    ASSERT_TRUE(gt::interface::detail::registerFunction("testmod",
+        makeInterfaceFunction("my_test_sum3", my_test_sum)));
 
-    auto func = gtlab::interface::get_function("testmod", "my_test_sum3");
+    auto func = gt::interface::getFunction("testmod", "my_test_sum3");
     EXPECT_STREQ("my_test_sum3", func.name().toStdString().c_str());
 }
 
 TEST_F(DynamicInterface, passByRef)
 {
-    ASSERT_TRUE(gtlab::interface::internal::register_function("testmod",
-        make_interface_function("insane_fun", my_insane_test_fun)));
+    ASSERT_TRUE(gt::interface::detail::registerFunction("testmod",
+        makeInterfaceFunction("insane_fun", my_insane_test_fun)));
 
-    auto func = gtlab::interface::get_function("testmod", "insane_fun");
+    auto func = gt::interface::getFunction("testmod", "insane_fun");
     auto result = func({"S1", "S2", 3, 4});
     ASSERT_EQ(1, result.size());
     EXPECT_STREQ("S1,S2,3,4", result.at(0).toString().toStdString().c_str());

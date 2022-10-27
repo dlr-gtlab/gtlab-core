@@ -77,12 +77,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return GtGUI::Icon::update16();
+                return gt::gui::icon::update16();
             }
 
             if (role == Qt::BackgroundRole)
             {
-                return GtGUI::Color::collectionAvailableItemBackground();
+                return gt::gui::color::collectionAvailableItemBackground();
 
             }
 
@@ -98,7 +98,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return GtGUI::Icon::stack();
+                return gt::gui::icon::stack();
             }
 
             break;
@@ -113,12 +113,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return GtGUI::Icon::collection16();
+                return gt::gui::icon::collection16();
             }
 
             if (role == Qt::BackgroundRole)
             {
-                return GtGUI::Color::collectionInstalledItemBackground();
+                return gt::gui::color::collectionInstalledItemBackground();
             }
 
             break;
@@ -156,12 +156,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return GtGUI::Icon::plugin16();
+                    return gt::gui::icon::plugin16();
                 }
 
                 if (col == 1)
                 {
-                    return GtGUI::Icon::infoBlue16();
+                    return gt::gui::icon::infoBlue16();
                 }
             }
             else if (role == Qt::CheckStateRole && col == 0)
@@ -209,12 +209,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return GtGUI::Icon::plugin16();
+                    return gt::gui::icon::plugin16();
                 }
 
                 if (col == 1)
                 {
-                    return GtGUI::Icon::infoBlue16();
+                    return gt::gui::icon::infoBlue16();
                 }
             }
             else if (role == Qt::CheckStateRole && col == 0)
@@ -268,12 +268,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return GtGUI::Icon::plugin16();
+                    return gt::gui::icon::plugin16();
                 }
 
                 if (col == 1)
                 {
-                    return GtGUI::Icon::infoBlue16();
+                    return gt::gui::icon::infoBlue16();
                 }
             }
             else if (role == Qt::ForegroundRole)

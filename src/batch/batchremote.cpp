@@ -25,8 +25,10 @@
 #include "gt_versionnumber.h"
 
 bool
-BatchRemote::checkInput(const QString& inputName, const QString& version,
-                        bool silent, bool checkVersion)
+gt::batch::checkInput(const QString& inputName,
+                      const QString& version,
+                      bool silent,
+                      bool checkVersion)
 {
     if (!silent)
     {
@@ -231,8 +233,9 @@ BatchRemote::checkInput(const QString& inputName, const QString& version,
 }
 
 bool
-BatchRemote::run(const QString& inputName, const QString& outputName,
-                 const QString& version)
+gt::batch::run(const QString& inputName,
+               const QString& outputName,
+               const QString& version)
 {
     qDebug() << "Test runs with Input:" << inputName << "and output:"
              << outputName;

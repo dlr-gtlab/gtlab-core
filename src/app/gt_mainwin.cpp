@@ -113,7 +113,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     // undo action
     QAction* undoAct = gtApp->undoStack()->createUndoAction(ui->undoBar,
                        tr("Undo"));
-    undoAct->setIcon(GtGUI::Icon::undo24());
+    undoAct->setIcon(gt::gui::icon::undo24());
     undoAct->setText(tr("Undo"));
     ui->undoBar->addAction(undoAct);
     undoAct->setShortcut(gtApp->getShortCutSequence("undo"));
@@ -121,7 +121,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     // redo action
     QAction* redoAct = gtApp->undoStack()->createRedoAction(ui->undoBar,
                        tr("Redo"));
-    redoAct->setIcon(GtGUI::Icon::redo24());
+    redoAct->setIcon(gt::gui::icon::redo24());
     redoAct->setText(tr("Redo"));
     ui->undoBar->addAction(redoAct);
     redoAct->setShortcut(gtApp->getShortCutSequence("redo"));
@@ -252,7 +252,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
             mb.setWindowTitle(tr("Confirm Exit"));
-            mb.setWindowIcon(GtGUI::Icon::delete16());
+            mb.setWindowIcon(gt::gui::icon::delete16());
             mb.setText(tr("Attention: \n"
                           "You try to exit GTlab while  a process is running \n"
                           "Are you sure quit?"));
@@ -312,7 +312,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
             mb.setPalette(qApp->palette());
             mb.setIcon(QMessageBox::Question);
             mb.setWindowTitle("Confirm Exit");
-            mb.setWindowIcon(GtGUI::Icon::delete16());
+            mb.setWindowIcon(gt::gui::icon::delete16());
             mb.setText(QString("Exit GTlab?"));
             mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
             mb.setDefaultButton(QMessageBox::Yes);
@@ -690,7 +690,7 @@ GtMainWin::openCommandHistory()
     {
         m_undoView = new QUndoView();
         m_undoView->setWindowTitle(QStringLiteral("GTlab - Command History"));
-        m_undoView->setWindowIcon(GtGUI::Icon::history16());
+        m_undoView->setWindowIcon(gt::gui::icon::history16());
         m_undoView->setStack(gtApp->undoStack());
         m_undoView->show();
         m_undoView->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -1067,7 +1067,7 @@ GtMainWin::runUpdate()
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
         mb.setWindowTitle("Confirm Exit");
-        mb.setWindowIcon(GtGUI::Icon::delete16());
+        mb.setWindowIcon(gt::gui::icon::delete16());
         mb.setText(QString("Exit GTlab?"));
         mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
         mb.setDefaultButton(QMessageBox::Yes);
@@ -1137,7 +1137,7 @@ GtMainWin::initAfterStartup()
     emit guiInitialized();
 
     // initialize dock widgets
-    for_each_key (m_dockWidgets, [this](GtDockWidget* e)
+    gt::for_each_key (m_dockWidgets, [this](GtDockWidget* e)
     {
         // add entries to menu
         QAction* dockAct =
@@ -1229,7 +1229,7 @@ GtMainWin::onDockActionClicked()
         return;
     }
 
-    for_each_key(m_dockWidgets, [this, action](GtDockWidget* e)
+    gt::for_each_key(m_dockWidgets, [this, action](GtDockWidget* e)
     {
         if (m_dockWidgets.value(e) == action)
         {
@@ -1272,7 +1272,7 @@ GtMainWin::setTheme(bool dark)
 #ifdef Q_OS_WIN
         style = "windowsvista";
 #endif
-        p = GtGUI::standardTheme();
+        p = gt::gui::standardTheme();
 
         qApp->setPalette(p);
         qApp->setStyle(QStyleFactory::create(style));
@@ -1289,7 +1289,7 @@ GtMainWin::setTheme(bool dark)
     }
     else
     {
-        p = GtGUI::darkTheme();
+        p = gt::gui::darkTheme();
 
         qApp->setPalette(p);
         qApp->setStyle(QStyleFactory::create("Fusion"));

@@ -273,7 +273,7 @@ GtFootprint::unknownModules() const
 
     GtFootprint envFootPrint;
 
-    for_each_key (m_pimpl->m_modules, [&](const QString& mid)
+    gt::for_each_key (m_pimpl->m_modules, [&](const QString& mid)
     {
         if (!envFootPrint.m_pimpl->m_modules.contains(mid))
         {
@@ -291,7 +291,7 @@ GtFootprint::incompatibleModules() const
 
     GtFootprint envFootPrint;
 
-    for_each_key (m_pimpl->m_modules, [&](const QString& mid)
+    gt::for_each_key (m_pimpl->m_modules, [&](const QString& mid)
     {
         if ((envFootPrint.m_pimpl->m_modules.contains(mid)) &&
                 (envFootPrint.m_pimpl->m_modules.value(mid) <
@@ -311,7 +311,7 @@ GtFootprint::updatedModules() const
 
     GtFootprint envFootPrint;
 
-    for_each_key (m_pimpl->m_modules, [&](const QString& mid)
+    gt::for_each_key (m_pimpl->m_modules, [&](const QString& mid)
     {
         if ((envFootPrint.m_pimpl->m_modules.contains(mid)) &&
                 (envFootPrint.m_pimpl->m_modules.value(mid) >

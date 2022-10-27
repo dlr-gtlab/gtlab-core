@@ -10,7 +10,7 @@
 #include "gt_groupproperty.h"
 
 #include "gt_polyvector.h"
-#include "gt_variant_convert.h"
+#include "gt_variantconvert.h"
 #include "gt_abstractproperty.h"
 
 /**
@@ -63,7 +63,7 @@ public:
 
         auto value = getMemberValToVariant(memberId, &localokay);
 
-        if (!gt::can_convert<T>(value))
+        if (!gt::canConvert<T>(value))
         {
             gtError().noquote().nospace()
                 << tr("Cannot convert member '%1' with value '%2' to type '%3'")

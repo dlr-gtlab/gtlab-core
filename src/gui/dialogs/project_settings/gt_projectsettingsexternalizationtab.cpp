@@ -38,7 +38,7 @@ GtProjectSettingsExternalizationTab::GtProjectSettingsExternalizationTab(
 
     QSize size{16, 16};
     auto* infoIcon = new QLabel();
-    infoIcon->setPixmap(GtGUI::Icon::infoBlue16().pixmap(size));
+    infoIcon->setPixmap(gt::gui::icon::infoBlue16().pixmap(size));
     infoIcon->setFixedSize(size);
 
     infoLayout->addWidget(infoIcon);
@@ -49,9 +49,9 @@ GtProjectSettingsExternalizationTab::GtProjectSettingsExternalizationTab(
                                        "objects. Disabling the externalization "
                                        "may result in data loss!")};
 
-    auto palette = GtGUI::currentTheme();
+    auto palette = gt::gui::currentTheme();
     palette.setColor(warningLabel->foregroundRole(),
-                     GtGUI::Color::warningText());
+                     gt::gui::color::warningText());
 
     infoLabel->setWordWrap(true);
     warningLabel->setWordWrap(true);

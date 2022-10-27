@@ -550,10 +550,11 @@ GtPropertyModel::mimeTypes() const
 void
 GtPropertyModel::addProperty(GtAbstractProperty* prop)
 {
+    using namespace std;
+
     QString catId = prop->categoryToString();
     GtPropertyCategoryItem* cat = nullptr;
 
-    using namespace std;
     auto catIter = std::find_if(begin(m_properties), end(m_properties),
                                 [&catId](const GtPropertyCategoryItem* c) {
                                     return c->categoryId() == catId;

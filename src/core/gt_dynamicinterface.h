@@ -17,7 +17,7 @@
 
 #include <functional>
 
-namespace gtlab
+namespace gt
 {
 
 /**
@@ -37,9 +37,9 @@ class GT_CORE_EXPORT InterfaceFunction
 public:
     using FunctionType = std::function<QVariantList(const QVariantList&)>;
 
-    InterfaceFunction(QString func_name, FunctionType func, QString help) :
+    InterfaceFunction(QString funcName, FunctionType func, QString help) :
         m_f(std::move(func)),
-        m_name(std::move(func_name)),
+        m_name(std::move(funcName)),
         m_help(std::move(help))
     {}
 
@@ -77,7 +77,7 @@ public:
     /**
      * @brief checks, whether the function is a nullptr
      */
-    bool is_null() const
+    bool isNull() const
     {
         return !m_f;
     }
@@ -86,17 +86,17 @@ public:
     // NOLINTNEXTLINE
     operator bool() const
     {
-        return !is_null();
+        return !isNull();
     }
 
     bool operator==(nullptr_t) const
     {
-        return is_null();
+        return isNull();
     }
 
     bool operator!=(nullptr_t) const
     {
-        return !is_null();
+        return !isNull();
     }
 
 private:
@@ -116,11 +116,11 @@ namespace interface
  * auto result = itf_mypow({3.0, 2}); // returns QVariantList({9.0})
  */
 GT_CORE_EXPORT InterfaceFunction
-get_function(const QString& moduleId, const QString& functionId);
+getFunction(const QString& moduleId, const QString& functionId);
 
 }  // namespace interface
 
-} // namespace gtlab
+} // namespace gt
 
 #endif // DYNAMICINTERFACE_H
 

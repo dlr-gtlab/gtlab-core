@@ -12,10 +12,11 @@
 #include "gt_gui_exports.h"
 #include <QPalette>
 
-/**
- * namespace for the basic paletts to use for GTlab Application
- */
-namespace GtGUI
+namespace gt
+{
+
+// namespace for the basic paletts to use for GTlab Application
+namespace gui
 {
     /**
      * @brief currentTheme
@@ -40,5 +41,9 @@ namespace GtGUI
      * @param w - widget to manipulate
      */
     GT_GUI_EXPORT void applyThemeToWidget(QWidget* w);
-}
+
+} // namespace gui
+
+} // namespace gt
+
 #endif // GTPALETTE_H

@@ -290,7 +290,7 @@ protected:
     GtProcessComponent&  setRunnable(QPointer<GtAbstractRunnable> p);
 
     /// Path to process/project specific temporary path.
-    QString tempPath() const;
+    const QString& tempPath() const;
     GtProcessComponent& setTempPath(QString);
 
     /// List of linked datamodel objects.

@@ -40,7 +40,7 @@ GtMementoViewer::~GtMementoViewer()
 QIcon
 GtMementoViewer::icon() const
 {
-    return GtGUI::Icon::clone16();
+    return gt::gui::icon::clone16();
 }
 
 bool

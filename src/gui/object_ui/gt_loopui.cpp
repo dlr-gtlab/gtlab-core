@@ -23,7 +23,7 @@ GtLoopUI::GtLoopUI()
 QIcon
 GtLoopUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::Icon::loop2_16();
+    return gt::gui::icon::loop2_16();
 }
 
 QVariant
@@ -74,5 +74,5 @@ GtLoopUI::hasValidationRegExp()
 QRegExp
 GtLoopUI::validatorRegExp()
 {
-    return GtRegExp::onlyLettersAndNumbersAndSpace();
+    return gt::re::onlyLettersAndNumbersAndSpace();
 }

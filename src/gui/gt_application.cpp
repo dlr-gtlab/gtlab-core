@@ -90,7 +90,7 @@ GtApplication::~GtApplication()
 QIcon
 GtApplication::icon(QString const& iconPath)
 {
-    return GtGUI::icon(iconPath);
+    return gt::gui::getIcon(iconPath);
 }
 
 void
@@ -463,7 +463,7 @@ GtApplication::switchSession(const QString& id)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Switch Session"));
-        mb.setWindowIcon(GtGUI::Icon::session16());
+        mb.setWindowIcon(gt::gui::icon::session16());
         mb.setText(tr("Cannot switch session while a task is running."));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);

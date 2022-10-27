@@ -25,7 +25,7 @@ GtDownloadDialog::GtDownloadDialog(QWidget* parent) :
     m_downloader(new GtDownloader(this))
 {
     setWindowTitle(tr("Downloader"));
-    setWindowIcon(GtGUI::Icon::dropdown());
+    setWindowIcon(gt::gui::icon::dropdown());
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -33,7 +33,7 @@ GtDownloadDialog::GtDownloadDialog(QWidget* parent) :
 
     QLabel* titleLabel = new QLabel;
 
-    titleLabel->setPixmap(GtGUI::Pixmap::downloaderLogo());
+    titleLabel->setPixmap(gt::gui::pixmap::downloaderLogo());
 
     layout->addWidget(titleLabel);
 
@@ -56,12 +56,12 @@ GtDownloadDialog::GtDownloadDialog(QWidget* parent) :
     hLay->addSpacerItem(new QSpacerItem(10, 20, QSizePolicy::Expanding,
                                         QSizePolicy::Minimum));
 
-    m_okButton = new QPushButton(GtGUI::Icon::check16(), tr("Ok"));
+    m_okButton = new QPushButton(gt::gui::icon::check16(), tr("Ok"));
     m_okButton->setVisible(false);
 
     hLay->addWidget(m_okButton);
 
-    m_cancelButton = new QPushButton(GtGUI::Icon::delete16(), tr("Cancel"));
+    m_cancelButton = new QPushButton(gt::gui::icon::delete16(), tr("Cancel"));
 
     hLay->addWidget(m_cancelButton);
 

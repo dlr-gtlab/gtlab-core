@@ -9,7 +9,7 @@
 #include "gt_icons.h"
 
 QIcon
-GtGUI::icon(QString const& iconPath)
+gt::gui::getIcon(QString const& iconPath)
 {
     QIcon icon;
     // check if icon is an absolute resource path
@@ -28,758 +28,758 @@ GtGUI::icon(QString const& iconPath)
 }
 
 QIcon
-GtGUI::Icon::add16()
+gt::gui::icon::add16()
 {
-    return GtGUI::icon(QStringLiteral("addIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("addIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::delete16()
+gt::gui::icon::delete16()
 {
-    return GtGUI::icon(QStringLiteral("closeIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("closeIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::error16()
+gt::gui::icon::error16()
 {
-    return GtGUI::icon(QStringLiteral("errorIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("errorIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::export16()
+gt::gui::icon::export16()
 {
-    return GtGUI::icon(QStringLiteral("exportIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("exportIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::import16()
+gt::gui::icon::import16()
 {
-    return GtGUI::icon(QStringLiteral("importIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("importIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::saveProject16()
+gt::gui::icon::saveProject16()
 {
-    return GtGUI::icon(QStringLiteral("saveProjectIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("saveProjectIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::info16()
+gt::gui::icon::info16()
 {
-    return GtGUI::icon(QStringLiteral("infoIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("infoIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::infoBlue16()
+gt::gui::icon::infoBlue16()
 {
-    return GtGUI::icon(QStringLiteral("infoBlueIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("infoBlueIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::runProcess16()
+gt::gui::icon::runProcess16()
 {
-    return GtGUI::icon(QStringLiteral("runProcessIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("runProcessIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::stop16()
+gt::gui::icon::stop16()
 {
-    return GtGUI::icon(QStringLiteral("stopIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("stopIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::addProcess16()
+gt::gui::icon::addProcess16()
 {
-    return GtGUI::icon(QStringLiteral("addProcessIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("addProcessIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::check16()
+gt::gui::icon::check16()
 {
-    return GtGUI::icon(QStringLiteral("checkIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("checkIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::clear16()
+gt::gui::icon::clear16()
 {
-    return GtGUI::icon(QStringLiteral("clearIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("clearIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::config16()
+gt::gui::icon::config16()
 {
-    return GtGUI::icon(QStringLiteral("configIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("configIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::input16()
+gt::gui::icon::input16()
 {
-    return GtGUI::icon(QStringLiteral("inputIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("inputIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::plugin16()
+gt::gui::icon::plugin16()
 {
-    return GtGUI::icon(QStringLiteral("pluginIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("pluginIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::plugin()
+gt::gui::icon::plugin()
 {
-    return GtGUI::icon(QStringLiteral("pluginIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("pluginIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::session16()
+gt::gui::icon::session16()
 {
-    return GtGUI::icon(QStringLiteral("sessionIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("sessionIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::session()
+gt::gui::icon::session()
 {
-    return GtGUI::icon(QStringLiteral("sessionIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("sessionIcon.png"));
 }
 
 
 QIcon
-GtGUI::Icon::login16()
+gt::gui::icon::login16()
 {
-    return GtGUI::icon(QStringLiteral("loginIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("loginIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::update16()
+gt::gui::icon::update16()
 {
-    return GtGUI::icon(QStringLiteral("updateIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("updateIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::results16()
+gt::gui::icon::results16()
 {
-    return GtGUI::icon(QStringLiteral("resultsIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("resultsIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::file16()
+gt::gui::icon::file16()
 {
-    return GtGUI::icon(QStringLiteral("fileIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("fileIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::folder16()
+gt::gui::icon::folder16()
 {
-    return GtGUI::icon(QStringLiteral("folder_16.png"));
+    return gt::gui::getIcon(QStringLiteral("folder_16.png"));
 }
 
 QIcon
-GtGUI::Icon::calculator16()
+gt::gui::icon::calculator16()
 {
-    return GtGUI::icon(QStringLiteral("calculatorIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("calculatorIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::copy16()
+gt::gui::icon::copy16()
 {
-    return GtGUI::icon(QStringLiteral("copyIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("copyIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::paste16()
+gt::gui::icon::paste16()
 {
-    return GtGUI::icon(QStringLiteral("pasteIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("pasteIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::cut16()
+gt::gui::icon::cut16()
 {
-    return GtGUI::icon(QStringLiteral("cutIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("cutIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::clone16()
+gt::gui::icon::clone16()
 {
-    return GtGUI::icon(QStringLiteral("cloneIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("cloneIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::connection16()
+gt::gui::icon::connection16()
 {
-    return GtGUI::icon(QStringLiteral("connectionIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("connectionIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::empty16()
+gt::gui::icon::empty16()
 {
-    return GtGUI::icon(QStringLiteral("emptyIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("emptyIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::deleteProject16()
+gt::gui::icon::deleteProject16()
 {
-    return GtGUI::icon(QStringLiteral("deleteProjectIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("deleteProjectIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::processFailed16()
+gt::gui::icon::processFailed16()
 {
-    return GtGUI::icon(QStringLiteral("processFailedIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("processFailedIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::property16()
+gt::gui::icon::property16()
 {
-    return GtGUI::icon(QStringLiteral("propertyIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("propertyIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::log16()
+gt::gui::icon::log16()
 {
-    return GtGUI::icon(QStringLiteral("logIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("logIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::open16()
+gt::gui::icon::open16()
 {
-    return GtGUI::icon(QStringLiteral("openIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("openIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::skip16()
+gt::gui::icon::skip16()
 {
-    return GtGUI::icon(QStringLiteral("skipIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("skipIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::process16()
+gt::gui::icon::process16()
 {
-    return GtGUI::icon(QStringLiteral("processIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("processIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::emptyElement()
+gt::gui::icon::emptyElement()
 {
-    return GtGUI::icon(QStringLiteral("emptyElementIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("emptyElementIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::arrowRight()
+gt::gui::icon::arrowRight()
 {
-    return GtGUI::icon(QStringLiteral("arrowrightIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("arrowrightIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::arrowRightBlue()
+gt::gui::icon::arrowRightBlue()
 {
-    return GtGUI::icon(QStringLiteral("arrowrightBlueIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("arrowrightBlueIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::global()
+gt::gui::icon::global()
 {
-    return GtGUI::icon(QStringLiteral("globalIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("globalIcon.png"));
 }
 
 QPixmap
-GtGUI::Pixmap::splash()
+gt::gui::pixmap::splash()
 {
     return QPixmap(":pixmaps/splash.png");
 }
 
 QPixmap
-GtGUI::Pixmap::accessLogo()
+gt::gui::pixmap::accessLogo()
 {
     return QPixmap(QStringLiteral(":/pixmaps/accessLogo.png"));
 }
 
 QPixmap
-GtGUI::Pixmap::updateLogo()
+gt::gui::pixmap::updateLogo()
 {
     return QPixmap(QStringLiteral(":/pixmaps/updateLogo.png"));
 }
 
 QPixmap
-GtGUI::Pixmap::changeLogLogo()
+gt::gui::pixmap::changeLogLogo()
 {
     return QPixmap(QStringLiteral(":/pixmaps/changelogLogo.png"));
 }
 
 QIcon
-GtGUI::Icon::loop16()
+gt::gui::icon::loop16()
 {
-    return GtGUI::icon(QStringLiteral("loopIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("loopIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::bug()
+gt::gui::icon::bug()
 {
-    return GtGUI::icon(QStringLiteral("bugIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("bugIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::fatal16()
+gt::gui::icon::fatal16()
 {
-    return GtGUI::icon(QStringLiteral("fatalIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("fatalIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::prp16()
+gt::gui::icon::prp16()
 {
-    return GtGUI::icon(QStringLiteral("prpIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("prpIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::examples16()
+gt::gui::icon::examples16()
 {
-    return GtGUI::icon(QStringLiteral("examplesIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("examplesIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::double16()
+gt::gui::icon::double16()
 {
-    return GtGUI::icon(QStringLiteral("doubleIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("doubleIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::int16()
+gt::gui::icon::int16()
 {
-    return GtGUI::icon(QStringLiteral("intIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("intIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::o16()
+gt::gui::icon::o16()
 {
-    return GtGUI::icon(QStringLiteral("oIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("oIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::string16()
+gt::gui::icon::string16()
 {
-    return GtGUI::icon(QStringLiteral("stringIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("stringIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::sleep16()
+gt::gui::icon::sleep16()
 {
-    return GtGUI::icon(QStringLiteral("sleepIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("sleepIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::inProgress16()
+gt::gui::icon::inProgress16()
 {
-    return GtGUI::icon(QStringLiteral("inProgressIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("inProgressIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::network16()
+gt::gui::icon::network16()
 {
-    return GtGUI::icon(QStringLiteral("networkIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("networkIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::undo24()
+gt::gui::icon::undo24()
 {
-    return GtGUI::icon(QStringLiteral("undoIcon_24.png"));
+    return gt::gui::getIcon(QStringLiteral("undoIcon_24.png"));
 }
 
 QIcon
-GtGUI::Icon::redo24()
+gt::gui::icon::redo24()
 {
-    return GtGUI::icon(QStringLiteral("redoIcon_24.png"));
+    return gt::gui::getIcon(QStringLiteral("redoIcon_24.png"));
 }
 
 QIcon
-GtGUI::Icon::history16()
+gt::gui::icon::history16()
 {
-    return GtGUI::icon(QStringLiteral("historyIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("historyIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::queue16()
+gt::gui::icon::queue16()
 {
-    return GtGUI::icon(QStringLiteral("queueIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("queueIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::stopRequest16()
+gt::gui::icon::stopRequest16()
 {
-    return GtGUI::icon(QStringLiteral("stopRequestIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("stopRequestIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::addElement16()
+gt::gui::icon::addElement16()
 {
-    return GtGUI::icon(QStringLiteral("addElementIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("addElementIcon_16.png"));
 }
 
 QString
-GtGUI::Pixmap::logoString()
+gt::gui::pixmap::logoString()
 {
     return {":/pixmaps/gt-logo.png"};
 }
 
 QPixmap
-GtGUI::Pixmap::jumpTo()
+gt::gui::pixmap::jumpTo()
 {
     return QPixmap(QStringLiteral(":/icons/jumpToIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::application()
+gt::gui::icon::application()
 {
-    return GtGUI::icon(QStringLiteral("applicationIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("applicationIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::perspectives()
+gt::gui::icon::perspectives()
 {
-    return GtGUI::icon(QStringLiteral("perspectivesIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("perspectivesIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::input2()
+gt::gui::icon::input2()
 {
-    return GtGUI::icon(QStringLiteral("input2Icon.png"));
+    return gt::gui::getIcon(QStringLiteral("input2Icon.png"));
 }
 
 QIcon
-GtGUI::Icon::pluginSettings()
+gt::gui::icon::pluginSettings()
 {
-    return GtGUI::icon(QStringLiteral("pluginSettingsIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("pluginSettingsIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::language()
+gt::gui::icon::language()
 {
-    return GtGUI::icon(QStringLiteral("languageIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("languageIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::login()
+gt::gui::icon::login()
 {
-    return GtGUI::icon(QStringLiteral("loginIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("loginIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::pathSettings()
+gt::gui::icon::pathSettings()
 {
-    return GtGUI::icon(QStringLiteral("pathSettingsIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("pathSettingsIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::restore16()
+gt::gui::icon::restore16()
 {
-    return GtGUI::icon(QStringLiteral("restoreIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("restoreIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::frame()
+gt::gui::icon::frame()
 {
-    return GtGUI::icon(QStringLiteral("frameIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("frameIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::unknown()
+gt::gui::icon::unknown()
 {
-    return GtGUI::icon(QStringLiteral("unknownIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("unknownIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::exclamation16()
+gt::gui::icon::exclamation16()
 {
-    return GtGUI::icon(QStringLiteral("exclamationIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("exclamationIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::search16()
+gt::gui::icon::search16()
 {
-    return GtGUI::icon(QStringLiteral("searchIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("searchIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::clear2_16()
+gt::gui::icon::clear2_16()
 {
-    return GtGUI::icon(QStringLiteral("clearIcon2_16.png"));
+    return gt::gui::getIcon(QStringLiteral("clearIcon2_16.png"));
 }
 
 QIcon
-GtGUI::Icon::check24()
+gt::gui::icon::check24()
 {
-    return GtGUI::icon(QStringLiteral("checkIcon_24.png"));
+    return gt::gui::getIcon(QStringLiteral("checkIcon_24.png"));
 }
 
 QIcon
-GtGUI::Icon::close24()
+gt::gui::icon::close24()
 {
-    return GtGUI::icon(QStringLiteral("closeIcon_24.png"));
+    return gt::gui::getIcon(QStringLiteral("closeIcon_24.png"));
 }
 
 QPixmap
-GtGUI::Pixmap::downloaderLogo()
+gt::gui::pixmap::downloaderLogo()
 {
     return {QStringLiteral(":/pixmaps/downloaderLogo.png")};
 }
 
 QIcon
-GtGUI::Icon::dropdown()
+gt::gui::icon::dropdown()
 {
-    return GtGUI::icon(QStringLiteral("dropDownIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("dropDownIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::data16()
+gt::gui::icon::data16()
 {
-    return GtGUI::icon(QStringLiteral("dataIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("dataIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::loop2_16()
+gt::gui::icon::loop2_16()
 {
-    return GtGUI::icon(QStringLiteral("loopIcon2_16.png"));
+    return gt::gui::getIcon(QStringLiteral("loopIcon2_16.png"));
 }
 
 QIcon
-GtGUI::Icon::arrowLeft()
+gt::gui::icon::arrowLeft()
 {
-    return GtGUI::icon(QStringLiteral("arrowleftIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("arrowleftIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::minimize()
+gt::gui::icon::minimize()
 {
-    return GtGUI::icon(QStringLiteral("minimizeIcons.png"));
+    return gt::gui::getIcon(QStringLiteral("minimizeIcons.png"));
 }
 
 QIcon
-GtGUI::Icon::components16()
+gt::gui::icon::components16()
 {
-    return GtGUI::icon(QStringLiteral("componentsIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("componentsIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::perspectives16()
+gt::gui::icon::perspectives16()
 {
-    return GtGUI::icon(QStringLiteral("perspectivesIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("perspectivesIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::addProject()
+gt::gui::icon::addProject()
 {
-    return GtGUI::icon(QStringLiteral("addProjectIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("addProjectIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::examples()
+gt::gui::icon::examples()
 {
-    return GtGUI::icon(QStringLiteral("examplesIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("examplesIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::help()
+gt::gui::icon::help()
 {
-    return GtGUI::icon(QStringLiteral("questionIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("questionIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::info()
+gt::gui::icon::info()
 {
-    return GtGUI::icon(QStringLiteral("infoIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("infoIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::arrowUp()
+gt::gui::icon::arrowUp()
 {
-    return GtGUI::icon(QStringLiteral("arrowupIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("arrowupIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::arrowDown()
+gt::gui::icon::arrowDown()
 {
-    return GtGUI::icon(QStringLiteral("arrowdownIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("arrowdownIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::arrowDownBlue()
+gt::gui::icon::arrowDownBlue()
 {
-    return GtGUI::icon(QStringLiteral("arrowdownBlueIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("arrowdownBlueIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::chain16()
+gt::gui::icon::chain16()
 {
-   return GtGUI::icon(QStringLiteral("chainIcon_16.png"));
+   return gt::gui::getIcon(QStringLiteral("chainIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::post()
+gt::gui::icon::post()
 {
-   return GtGUI::icon(QStringLiteral("postIcon.png"));
+   return gt::gui::getIcon(QStringLiteral("postIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::labels()
+gt::gui::icon::labels()
 {
-    return GtGUI::icon(QStringLiteral("labelsIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("labelsIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::closedProject16()
+gt::gui::icon::closedProject16()
 {
-    return GtGUI::icon(QStringLiteral("closedProjectIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("closedProjectIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::comment()
+gt::gui::icon::comment()
 {
-    return GtGUI::icon(QStringLiteral("commentIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("commentIcon.png"));
 }
 
 QPixmap
-GtGUI::Pixmap::logo()
+gt::gui::pixmap::logo()
 {
     return {":/pixmaps/gt-logo.png"};
 }
 
 QIcon
-GtGUI::Icon::stack()
+gt::gui::icon::stack()
 {
-    return GtGUI::icon(QStringLiteral("stackIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("stackIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::collection16()
+gt::gui::icon::collection16()
 {
-    return GtGUI::icon(QStringLiteral("collectionIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("collectionIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::globals16()
+gt::gui::icon::globals16()
 {
-    return GtGUI::icon(QStringLiteral("globalsIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("globalsIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::map16()
+gt::gui::icon::map16()
 {
-    return GtGUI::icon(QStringLiteral("mapIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("mapIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::carpetPlot()
+gt::gui::icon::carpetPlot()
 {
-    return GtGUI::icon(QStringLiteral("carpetPlotIcon2.png"));
+    return gt::gui::getIcon(QStringLiteral("carpetPlotIcon2.png"));
 }
 
 QIcon
-GtGUI::Icon::xyPlot16()
+gt::gui::icon::xyPlot16()
 {
-    return GtGUI::icon(QStringLiteral("schedules4Icon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("schedules4Icon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::tsDiagram16()
+gt::gui::icon::tsDiagram16()
 {
-    return GtGUI::icon(QStringLiteral("tsDiagramm_16.png"));
+    return gt::gui::getIcon(QStringLiteral("tsDiagramm_16.png"));
 }
 
 QIcon
-GtGUI::Icon::histogram16()
+gt::gui::icon::histogram16()
 {
-    return GtGUI::icon(QStringLiteral("histogramIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("histogramIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::printer()
+gt::gui::icon::printer()
 {
-    return GtGUI::icon(QStringLiteral("printerIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("printerIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::printPDF()
+gt::gui::icon::printPDF()
 {
-    return GtGUI::icon(QStringLiteral("printPDFIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("printPDFIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::openProject16()
+gt::gui::icon::openProject16()
 {
-    return GtGUI::icon(QStringLiteral("openProjectIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("openProjectIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::list16()
+gt::gui::icon::list16()
 {
-    return GtGUI::icon(QStringLiteral("listIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("listIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::question16()
+gt::gui::icon::question16()
 {
-    return GtGUI::icon(QStringLiteral("questionIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("questionIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::zoom16()
+gt::gui::icon::zoom16()
 {
-    return GtGUI::icon(QStringLiteral("zoomIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("zoomIcon_16.png"));
 }
 
 QPixmap
-GtGUI::Pixmap::question24()
+gt::gui::pixmap::question24()
 {
     return QPixmap(":/icons/questionIcon_24.png");
 }
 
 QIcon
-GtGUI::Icon::cross16()
+gt::gui::icon::cross16()
 {
-    return GtGUI::icon(QStringLiteral("crossIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("crossIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::checkSmall16()
+gt::gui::icon::checkSmall16()
 {
-    return GtGUI::icon(QStringLiteral("checkSmallIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("checkSmallIcon_16.png"));
 }
 
 QIcon
-GtGUI::Icon::arrowDownBlueAll()
+gt::gui::icon::arrowDownBlueAll()
 {
-    return GtGUI::icon(QStringLiteral("arrowDownBlueAll.png"));
+    return gt::gui::getIcon(QStringLiteral("arrowDownBlueAll.png"));
 }
 
 QIcon
-GtGUI::Icon::arrowUpBlueAll()
+gt::gui::icon::arrowUpBlueAll()
 {
-    return GtGUI::icon(QStringLiteral("arrowUpBlueAll.png"));
+    return gt::gui::getIcon(QStringLiteral("arrowUpBlueAll.png"));
 }
 
 QIcon
-GtGUI::Icon::infoBlue()
+gt::gui::icon::infoBlue()
 {
-    return GtGUI::icon(QStringLiteral("infoBlueIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("infoBlueIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::error()
+gt::gui::icon::error()
 {
-    return GtGUI::icon(QStringLiteral("errorIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("errorIcon.png"));
 }
 
 QIcon
-GtGUI::Icon::jumpTo()
+gt::gui::icon::jumpTo()
 {
-    return GtGUI::icon(QStringLiteral("jumpToIcon.png"));
+    return gt::gui::getIcon(QStringLiteral("jumpToIcon.png"));
 }
 
 QPixmap
-GtGUI::Pixmap::printHeadline()
+gt::gui::pixmap::printHeadline()
 {
     return {":/pixmaps/print-headline.png"};
 }
 
 QIcon
-GtGUI::Icon::inconsistentProject16()
+gt::gui::icon::inconsistentProject16()
 {
-    return GtGUI::icon(QStringLiteral("inconsistentProjectIcon_16.png"));
+    return gt::gui::getIcon(QStringLiteral("inconsistentProjectIcon_16.png"));
 }

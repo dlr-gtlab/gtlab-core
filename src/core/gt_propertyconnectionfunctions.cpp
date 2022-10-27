@@ -16,7 +16,7 @@
 #include "gt_processdata.h"
 
 GtPropertyConnection*
-GtPropertyConnectionFunctions::findConnectionCopy(
+gt::gui::detail::findConnectionCopy(
         const GtPropertyConnection* origCon,
         const QList<GtPropertyConnection*>& newCons)
 {
@@ -61,7 +61,7 @@ GtPropertyConnectionFunctions::findConnectionCopy(
 }
 
 bool
-GtPropertyConnectionFunctions::updateConnectionProperties(
+gt::gui::detail::updateConnectionProperties(
         GtPropertyConnection* origCon,
         GtPropertyConnection* copyCon,
         GtTask* orig, GtTask* copy)
@@ -103,7 +103,7 @@ GtPropertyConnectionFunctions::updateConnectionProperties(
 }
 
 bool
-GtPropertyConnectionFunctions::updateRelativeObjectLinks(
+gt::gui::detail::updateRelativeObjectLinks(
         GtObject* orig, GtObject* copy)
 {
     if (!orig || !copy)
@@ -148,7 +148,7 @@ GtPropertyConnectionFunctions::updateRelativeObjectLinks(
 }
 
 GtObject*
-GtPropertyConnectionFunctions::findEquivalentObject(GtObject* parent,
+gt::gui::detail::findEquivalentObject(GtObject* parent,
                                                     GtObject* origObj)
 {
     if (!parent || !origObj)
@@ -236,7 +236,7 @@ GtPropertyConnectionFunctions::findEquivalentObject(GtObject* parent,
 }
 
 GtTask*
-GtPropertyConnectionFunctions::highestParentTask(GtTask* childTask)
+gt::gui::detail::highestParentTask(GtTask* childTask)
 {
     if (!childTask)
     {
@@ -264,7 +264,7 @@ GtPropertyConnectionFunctions::highestParentTask(GtTask* childTask)
 }
 
 GtTask*
-GtPropertyConnectionFunctions::highestParentTask(const GtCalculator* childCalc)
+gt::gui::detail::highestParentTask(const GtCalculator* childCalc)
 {
     if (!childCalc)
     {
@@ -287,7 +287,7 @@ GtPropertyConnectionFunctions::highestParentTask(const GtCalculator* childCalc)
 }
 
 GtTask*
-GtPropertyConnectionFunctions::highestParentTask(
+gt::gui::detail::highestParentTask(
         GtProcessComponent* childComp)
 {
     if (!childComp)
@@ -309,7 +309,7 @@ GtPropertyConnectionFunctions::highestParentTask(
 }
 
 QList<GtPropertyConnection*>
-GtPropertyConnectionFunctions::internalPropertyConnections(GtTask *task)
+gt::gui::detail::internalPropertyConnections(GtTask *task)
 {
     QList<GtPropertyConnection*> retVal = {};
 
@@ -362,7 +362,7 @@ GtPropertyConnectionFunctions::internalPropertyConnections(GtTask *task)
 }
 
 QList<GtPropertyConnection*>
-GtPropertyConnectionFunctions::internalPropertyConnections(
+gt::gui::detail::internalPropertyConnections(
         GtProcessComponent* pComp)
 {
     QList<GtPropertyConnection*> retVal;
@@ -381,7 +381,7 @@ GtPropertyConnectionFunctions::internalPropertyConnections(
 }
 
 QList<GtPropertyConnection*>
-GtPropertyConnectionFunctions::lostPropertyConnections(GtTask* task)
+gt::gui::detail::lostPropertyConnections(GtTask* task)
 {
     QList<GtPropertyConnection*> retVal;
 
@@ -436,13 +436,13 @@ GtPropertyConnectionFunctions::lostPropertyConnections(GtTask* task)
 }
 
 QList<GtPropertyConnection*>
-GtPropertyConnectionFunctions::lostPropertyConnections(GtCalculator* calc)
+gt::gui::detail::lostPropertyConnections(GtCalculator* calc)
 {
     return relatedPropertyConnections(calc);
 }
 
 QList<GtPropertyConnection*>
-GtPropertyConnectionFunctions::lostPropertyConnections(
+gt::gui::detail::lostPropertyConnections(
         GtProcessComponent* pComp)
 {
     if (GtTask* task = qobject_cast<GtTask*>(pComp))
@@ -458,7 +458,7 @@ GtPropertyConnectionFunctions::lostPropertyConnections(
 }
 
 QList<GtPropertyConnection*>
-GtPropertyConnectionFunctions::relatedPropertyConnections(GtTask* task)
+gt::gui::detail::relatedPropertyConnections(GtTask* task)
 {
     QList<GtPropertyConnection*> retVal;
 
@@ -478,7 +478,7 @@ GtPropertyConnectionFunctions::relatedPropertyConnections(GtTask* task)
 }
 
 QList<GtPropertyConnection*>
-GtPropertyConnectionFunctions::relatedPropertyConnections(GtCalculator* calc)
+gt::gui::detail::relatedPropertyConnections(GtCalculator* calc)
 {
     QList<GtPropertyConnection*> retVal;
 
@@ -520,7 +520,7 @@ GtPropertyConnectionFunctions::relatedPropertyConnections(GtCalculator* calc)
 }
 
 QList<GtPropertyConnection*>
-GtPropertyConnectionFunctions::relatedPropertyConnections(
+gt::gui::detail::relatedPropertyConnections(
         GtProcessComponent* comp)
 {
     if (GtTask* task = qobject_cast<GtTask*>(comp))
@@ -536,7 +536,7 @@ GtPropertyConnectionFunctions::relatedPropertyConnections(
 }
 
 void
-GtPropertyConnectionFunctions::setOffLostConnectionWarnings(
+gt::gui::detail::setOffLostConnectionWarnings(
         QList<GtPropertyConnection*> const& lostCons, GtTask* highestParent)
 {
     foreach (GtPropertyConnection* propCon, lostCons)
@@ -582,7 +582,7 @@ GtPropertyConnectionFunctions::setOffLostConnectionWarnings(
 
 
 bool
-GtPropertyConnectionFunctions::mapRelativeObjectLink(
+gt::gui::detail::mapRelativeObjectLink(
         GtObject* orig, GtObject* copy,
         GtObject* copyClone, GtObject* obj,
         GtRelativeObjectLinkProperty* relLink)

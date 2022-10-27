@@ -136,7 +136,7 @@ GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
             }
         }
 
-        return GtGUI::Icon::process16();
+        return gt::gui::icon::process16();
     }
 
     return extendedData->icon;

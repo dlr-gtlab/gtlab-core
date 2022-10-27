@@ -79,7 +79,7 @@ GtExportHandler::exporterMetaData(const QString& classname)
         return QList<GtExporterMetaData>();
     }
 
-    for_each_key(m_expMeta, [&](const QString& e)
+    gt::for_each_key(m_expMeta, [&](const QString& e)
     {
         GtExporterMetaData metaData = m_expMeta.value(e);
 

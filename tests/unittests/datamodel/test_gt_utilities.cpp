@@ -20,20 +20,20 @@ class TestGtUtilities : public testing::Test
 TEST_F(TestGtUtilities, quoted)
 {
     QString qstr{"Hello World"};
-    EXPECT_EQ("(" + qstr + ")", Gt::brackets(qstr));
-    EXPECT_EQ("'" + qstr + "'", Gt::squoted(qstr));
-    EXPECT_EQ('"' + qstr + '"', Gt::quoted(qstr));
-    EXPECT_EQ("test_" + qstr + "_test", Gt::quoted(qstr, "test_", "_test"));
+    EXPECT_EQ("(" + qstr + ")", gt::brackets(qstr));
+    EXPECT_EQ("'" + qstr + "'", gt::squoted(qstr));
+    EXPECT_EQ('"' + qstr + '"', gt::quoted(qstr));
+    EXPECT_EQ("test_" + qstr + "_test", gt::quoted(qstr, "test_", "_test"));
 
     QByteArray qba{"My Fancy String"};
-    EXPECT_EQ("(" + qba + ")", Gt::brackets(qba));
-    EXPECT_EQ("'" + qba + "'", Gt::squoted(qba));
-    EXPECT_EQ('"' + qba + '"', Gt::quoted(qba));
-    EXPECT_EQ("test_" + qba + "_test", Gt::quoted(qba, "test_", "_test"));
+    EXPECT_EQ("(" + qba + ")", gt::brackets(qba));
+    EXPECT_EQ("'" + qba + "'", gt::squoted(qba));
+    EXPECT_EQ('"' + qba + '"', gt::quoted(qba));
+    EXPECT_EQ("test_" + qba + "_test", gt::quoted(qba, "test_", "_test"));
 
     std::string std{"<something_inspirational>"};
-    EXPECT_EQ("(" + std + ")", Gt::brackets(std));
-    EXPECT_EQ("'" + std + "'", Gt::squoted(std));
-    EXPECT_EQ('"' + std + '"', Gt::quoted(std));
-    EXPECT_EQ("test_" + std + "_test", Gt::quoted(std, "test_", "_test"));
+    EXPECT_EQ("(" + std + ")", gt::brackets(std));
+    EXPECT_EQ("'" + std + "'", gt::squoted(std));
+    EXPECT_EQ('"' + std + '"', gt::quoted(std));
+    EXPECT_EQ("test_" + std + "_test", gt::quoted(std, "test_", "_test"));
 }

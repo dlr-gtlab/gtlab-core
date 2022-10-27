@@ -159,7 +159,6 @@ GtCoreApplication::init()
     //    qDebug() << "initializing logger...";
     QsLogging::Logger& logger = QsLogging::Logger::instance();
 
-
     QsLogging::DestinationPtr debugDestination(
         QsLogging::DestinationFactory::MakeDebugOutputDestination());
     logger.addDestination(debugDestination);
@@ -772,7 +771,7 @@ GtCoreApplication::saveSystemEnvironment() const
 {
      QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
 
-     for_each_key(modEnv, [](const QString& e)
+     gt::for_each_key(modEnv, [](const QString& e)
      {
          gtDebug() << "sys env var (" << e << ") = " << gtEnvironment->value(e);
 

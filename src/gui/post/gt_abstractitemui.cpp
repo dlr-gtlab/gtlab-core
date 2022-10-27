@@ -43,7 +43,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     QPushButton* moveUpButton = new QPushButton();
     moveUpButton->setToolTip(tr("Move plot up by one."));
-    moveUpButton->setIcon(GtGUI::Icon::arrowUpBlueAll());
+    moveUpButton->setIcon(gt::gui::icon::arrowUpBlueAll());
     moveUpButton->setIconSize(QSize(16, 16));
     moveUpButton->setFlat(true);
     moveUpButton->setMaximumWidth(23);
@@ -53,7 +53,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     QPushButton* moveDownButton = new QPushButton();
     moveDownButton->setToolTip(tr("Move plot down by one."));
-    moveDownButton->setIcon(GtGUI::Icon::arrowDownBlueAll());
+    moveDownButton->setIcon(gt::gui::icon::arrowDownBlueAll());
     moveDownButton->setIconSize(QSize(16, 16));
     moveDownButton->setFlat(true);
     moveDownButton->setMaximumWidth(23);
@@ -63,7 +63,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     m_configButton = new QPushButton();
     m_configButton->setToolTip(tr("Configurate the plot."));
-    m_configButton->setIcon(GtGUI::Icon::config16());
+    m_configButton->setIcon(gt::gui::icon::config16());
     m_configButton->setFlat(true);
     m_configButton->setMaximumWidth(23);
 
@@ -72,7 +72,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     m_printButton = new QPushButton();
     m_printButton->setToolTip(tr("Print the plot."));
-    m_printButton->setIcon(GtGUI::Icon::printer());
+    m_printButton->setIcon(gt::gui::icon::printer());
     m_printButton->setFlat(true);
     m_printButton->setMaximumWidth(23);
 
@@ -81,7 +81,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     m_copyButton = new QPushButton();
     m_copyButton->setToolTip(tr("Copy the plot."));
-    m_copyButton->setIcon(GtGUI::Icon::copy16());
+    m_copyButton->setIcon(gt::gui::icon::copy16());
     m_copyButton->setFlat(true);
     m_copyButton->setMaximumWidth(23);
 
@@ -90,7 +90,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
     m_closeButton = new QPushButton();
     m_closeButton->setToolTip(tr("Delete the plot."));
-    m_closeButton->setIcon(GtGUI::Icon::delete16());
+    m_closeButton->setIcon(gt::gui::icon::delete16());
     m_closeButton->setFlat(true);
     m_closeButton->setMaximumWidth(23);
 
@@ -104,7 +104,7 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
     m_titleLineEdit->setAlignment(Qt::AlignCenter);
     m_titleLineEdit->setLayoutDirection(Qt::LeftToRight);
     m_titleLineEdit->setFrame(false);
-    m_titleLineEdit->setStyleSheet(GtStyleSheets::standardLineEdit());
+    m_titleLineEdit->setStyleSheet(gt::gui::stylesheet::standardLineEdit());
 
     QString plotName = m_widget->providerName(); //m_widget->objectName();
     m_titleLineEdit->setText(plotName);
@@ -215,7 +215,7 @@ GtAbstractItemUI::adjustToolBar()
         icon = "emptyElementIcon_16.png";
     }
 
-    QIcon plotIcon = GtGUI::icon(icon);
+    QIcon plotIcon = gt::gui::getIcon(icon);
     m_iconLabel->setPixmap(plotIcon.pixmap(20, 20));
 }
 
@@ -252,9 +252,9 @@ GtAbstractItemUI::exportPlot()
     QAction* actexport = menu.addAction(tr("Export to PDF..."));
     QAction* expPng = menu.addAction(tr("Export to PNG..."));
 
-    //actprint->setIcon(GtGUI::Icon::printer());
-    actexport->setIcon(GtGUI::Icon::printPDF());
-    expPng->setIcon(GtGUI::Icon::saveProject16());
+    //actprint->setIcon(gt::gui::icon::printer());
+    actexport->setIcon(gt::gui::icon::printPDF());
+    expPng->setIcon(gt::gui::icon::saveProject16());
 
     QAction* a = menu.exec(QCursor::pos());
 

@@ -31,14 +31,14 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     m_connectionMetaData(connection)
 {
     setWindowTitle(tr("Add Access Data"));
-    setWindowIcon(GtGUI::Icon::login16());
+    setWindowIcon(gt::gui::icon::login16());
     setMaximumSize(QSize(350, 300));
 
     QVBoxLayout* lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);
 
     QLabel* pixLabel = new QLabel;
-    pixLabel->setPixmap(GtGUI::Pixmap::accessLogo());
+    pixLabel->setPixmap(gt::gui::pixmap::accessLogo());
 
     lay->addWidget(pixLabel);
 
@@ -96,7 +96,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     btnLay->setContentsMargins(9, 9, 9, 9);
 
     m_testConnectionBtn = new QPushButton(tr("Test Connection"));
-    m_testConnectionBtn->setIcon(GtGUI::Icon::connection16());
+    m_testConnectionBtn->setIcon(gt::gui::icon::connection16());
 
     btnLay->addWidget(m_testConnectionBtn);
 
@@ -105,12 +105,12 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     btnLay->addSpacerItem(spacer);
 
     m_saveBtn = new QPushButton(tr("Save"));
-    m_saveBtn->setIcon(GtGUI::Icon::check16());
+    m_saveBtn->setIcon(gt::gui::icon::check16());
 
     btnLay->addWidget(m_saveBtn);
 
     m_cancelBtn = new QPushButton(tr("Cancel"));
-    m_cancelBtn->setIcon(GtGUI::Icon::delete16());
+    m_cancelBtn->setIcon(gt::gui::icon::delete16());
 
     btnLay->addWidget(m_cancelBtn);
 

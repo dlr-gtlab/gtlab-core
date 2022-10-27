@@ -76,7 +76,9 @@ HEADERS += \
     gt_datazone0d.h \
     gt_result.h \
     gt_tablevalues.h \
+    gt_typetraits.h \
     gt_utilities.h \
+    gt_variantconvert.h \
     gt_xmlutilities.h \
     property/gt_enumproperty.h \
     property/gt_objectlinkproperty.h \
@@ -119,8 +121,7 @@ HEADERS += \
     gt_regexp.h \
     gt_algorithms.h \
     gt_mpl.h \
-    gt_versionnumber.h \
-    gt_variant_convert.h
+    gt_versionnumber.h
 
 SOURCES += \
     gt_abstractexternalizationinterface.cpp \

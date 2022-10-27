@@ -137,7 +137,7 @@ public:
     /**
      * @brief checks, whether the function is a nullptr
      */
-    bool is_null() const
+    bool isNull() const
     {
         return !m_f;
     }
@@ -146,17 +146,17 @@ public:
     // NOLINTNEXTLINE
     operator bool() const
     {
-        return !is_null();
+        return !isNull();
     }
 
     bool operator==(nullptr_t) const
     {
-        return is_null();
+        return isNull();
     }
 
     bool operator!=(nullptr_t) const
     {
-        return !is_null();
+        return !isNull();
     }
 
     /**
@@ -205,8 +205,11 @@ private:
     bool m_defaultHelp;
 };
 
-namespace GtCommandLineInterface
+namespace gt
 {
+namespace commandline
+{
+
 /**
  * @brief make_commandLineFunction
  *
@@ -222,9 +225,12 @@ namespace GtCommandLineInterface
  * @param command line function object
  */
 GT_CORE_EXPORT GtCommandLineFunction
-make_commandLineFunction(const QString& id,
-                         std::function<int(const QStringList&)> func,
-                         QString brief);
-}
+makeCommandLineFunction(const QString& id,
+                        GtCommandLineFunction::FunctionType func,
+                        QString brief);
+
+} // namespace commandline
+
+} // namespace gt
 
 #endif // GTCOMMANDLINEFUNCTION_H

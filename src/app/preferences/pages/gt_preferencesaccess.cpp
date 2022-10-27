@@ -64,7 +64,7 @@ GtPreferencesAccess::GtPreferencesAccess()
 
         lay->addWidget(view);
 
-        QPushButton* btn = new QPushButton(GtGUI::Icon::add16(), tr("Add"));
+        QPushButton* btn = new QPushButton(gt::gui::icon::add16(), tr("Add"));
 
         connect(btn, SIGNAL(clicked(bool)), SLOT(addAccessData()));
         connect(view, SIGNAL(doubleClicked(QModelIndex)),

@@ -12,7 +12,7 @@
 #include <QCoreApplication>
 
 QString
-GtStyleSheets::buttonStyleSheet()
+gt::gui::stylesheet::buttonStyleSheet()
 {
     QString border = "border: 1px solid gray;"
                      "border-radius: 4px;";
@@ -54,7 +54,7 @@ GtStyleSheets::buttonStyleSheet()
 }
 
 QString
-GtStyleSheets::buttonStyleSheet2()
+gt::gui::stylesheet::buttonStyleSheet2()
 {
     QString text = "QPushButton { "
                    "border: 1px solid gray;"
@@ -76,7 +76,7 @@ GtStyleSheets::buttonStyleSheet2()
 }
 
 QString
-GtStyleSheets::performanceTaskElementDelBtn()
+gt::gui::stylesheet::performanceTaskElementDelBtn()
 {
     QString text = "QPushButton { "
                    "border: 0px solid gray;"
@@ -87,7 +87,7 @@ GtStyleSheets::performanceTaskElementDelBtn()
 }
 
 QString
-GtStyleSheets::standardLineEdit()
+gt::gui::stylesheet::standardLineEdit()
 {
     QString text = "QLineEdit {  border: 1px solid gray;"
                    "border-radius: 4px;}";
@@ -96,7 +96,7 @@ GtStyleSheets::standardLineEdit()
 }
 
 QString
-GtStyleSheets::warningLabel()
+gt::gui::stylesheet::warningLabel()
 {
     if (gtApp->inDarkMode())
     {
@@ -107,7 +107,7 @@ GtStyleSheets::warningLabel()
 }
 
 QString
-GtStyleSheets::standardLabel()
+gt::gui::stylesheet::standardLabel()
 {
     if (gtApp->inDarkMode())
     {
@@ -117,7 +117,7 @@ GtStyleSheets::standardLabel()
     return "QLabel { background-color : white; color : black; }";
 }
 QString
-GtStyleSheets::performanceTaskLineEdit0()
+gt::gui::stylesheet::performanceTaskLineEdit0()
 {
     QString text = "QLineEdit {  "
                    "border: 0px solid gray;"
@@ -127,49 +127,36 @@ GtStyleSheets::performanceTaskLineEdit0()
 }
 
 QString
-GtStyleSheets::processRunButton(runningButtonState const& state)
+gt::gui::stylesheet::processRunButton(RunButtonState const& state)
 {
-    QString stdBackgroundRGB;
+    QString backgroundColor;
 
-    if (state == runningButtonState::thisProcessRunning)
+    switch (state)
     {
-        stdBackgroundRGB = "rgb(255,230,230)";
-
-        if (gtApp->inDarkMode())
-        {
-            stdBackgroundRGB = "rgb(255,230,230)";
-        }
-    }
-    else if (state == runningButtonState::otherProcessRunning)
-    {
-        stdBackgroundRGB = "rgb(236,219,184)";
-
-        if (gtApp->inDarkMode())
-        {
-            stdBackgroundRGB = "rgb(236,219,184)";
-        }
-    }
-    else /// notRunning
-    {
-        stdBackgroundRGB = "rgb(230,255,230)";
-
-        if (gtApp->inDarkMode())
-        {
-            stdBackgroundRGB = "rgb(180,200,200)";
-        }
+    case RunButtonState::StopProcess:
+        backgroundColor = "rgb(255,230,230)";
+        break;
+    case RunButtonState::QueueProcess:
+        backgroundColor = "rgb(236,219,184)";
+        break;
+    case RunButtonState::NotSelected:
+    default:
+        backgroundColor = gtApp->inDarkMode() ? "rgb(180,200,200)" :
+                                                "rgb(230,255,230)";
+        break;
     }
 
     QString text = "QPushButton { border: 1px solid gray;"
                    "border-radius: 4px;"
-                   "background-color:"+ stdBackgroundRGB +";"
+                   "background-color:"+ backgroundColor +";"
                    "min-width: 70px;min-height:22px}";
 
     return text;
 }
 
 QString
-GtStyleSheets::selectionComboBox(const QString& minWidth,
-                                 const QString& maxWidth)
+gt::gui::stylesheet::selectionComboBox(const QString& minWidth,
+                                       const QString& maxWidth)
 {
     QString text = "QComboBox { border: 1px solid gray;"
                    "border-radius: 4px;"
@@ -191,7 +178,7 @@ GtStyleSheets::selectionComboBox(const QString& minWidth,
 }
 
 QString
-GtStyleSheets::resultViewerTitleLabel()
+gt::gui::stylesheet::resultViewerTitleLabel()
 {
     if (gtApp->inDarkMode())
     {
@@ -202,7 +189,7 @@ GtStyleSheets::resultViewerTitleLabel()
 }
 
 QString
-GtStyleSheets::coloredCarpetPlotBtn(const QColor& col)
+gt::gui::stylesheet::coloredCarpetPlotBtn(const QColor& col)
 {
     QString red = QString::number(col.toRgb().red());
     QString green = QString::number(col.toRgb().green());

@@ -13,7 +13,7 @@
 
 #include "gt_dynamicinterfacehandler.h"
 
-using namespace gtlab::internal;
+using namespace gt::detail;
 
 namespace
 {
@@ -32,9 +32,9 @@ DynamicInterfaceHandler::instance()
 
 bool
 DynamicInterfaceHandler::addInterface(const QString& moduleId,
-                                      gtlab::InterfaceFunction func_ptr)
+                                      gt::InterfaceFunction func)
 {
-    const auto& ident = func_ptr.name();
+    const auto& ident = func.name();
 
     auto key = makeKey(moduleId, ident);
 
@@ -43,12 +43,12 @@ DynamicInterfaceHandler::addInterface(const QString& moduleId,
         gtWarning() << "Overwriting shared module function '" << key << "'.";
     }
 
-    m_interfaces[key] = std::move(func_ptr);
+    m_interfaces[key] = std::move(func);
 
     return true;
 }
 
-gtlab::InterfaceFunction
+gt::InterfaceFunction
 DynamicInterfaceHandler::getInterfaceFunc(const QString& moduleId,
                                           const QString& functionId)
 {
@@ -68,9 +68,9 @@ DynamicInterfaceHandler::getRegisteredFunctionIDs() const
 }
 
 bool
-gtlab::interface::internal::register_function(const QString& moduleId,
-                                              InterfaceFunction func)
+gt::interface::detail::registerFunction(const QString& moduleId,
+                                        InterfaceFunction func)
 {
-    return gtlab::internal::DynamicInterfaceHandler::instance()
+    return gt::detail::DynamicInterfaceHandler::instance()
         .addInterface(moduleId, std::move(func));
 }

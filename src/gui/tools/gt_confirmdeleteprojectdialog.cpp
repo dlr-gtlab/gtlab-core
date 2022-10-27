@@ -24,7 +24,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     m_checkBox(nullptr)
 {
     setWindowTitle(tr("Delete from Session"));
-    setWindowIcon(GtGUI::Icon::deleteProject16());
+    setWindowIcon(gt::gui::icon::deleteProject16());
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -37,7 +37,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
 
     QLabel* infoIcon = new QLabel;
 
-    infoIcon->setPixmap(GtGUI::Pixmap::question24());
+    infoIcon->setPixmap(gt::gui::pixmap::question24());
 
     textLayout->addSpacerItem(new QSpacerItem(15, 10, QSizePolicy::Minimum,
                                               QSizePolicy::Minimum));
@@ -101,7 +101,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     QHBoxLayout* buttonsLayout = new QHBoxLayout;
 
     QPushButton* yesButton = new QPushButton(tr("Delete"));
-    yesButton->setIcon(GtGUI::Icon::deleteProject16());
+    yesButton->setIcon(gt::gui::icon::deleteProject16());
 
     buttonsLayout->addSpacerItem(new QSpacerItem(10, 10,
                                                  QSizePolicy::Expanding,
@@ -111,7 +111,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     buttonsLayout->addWidget(yesButton);
 
     QPushButton* noButton = new QPushButton(tr("Cancel"));
-    noButton->setIcon(GtGUI::Icon::delete16());
+    noButton->setIcon(gt::gui::icon::delete16());
     buttonsLayout->addWidget(noButton);
 
     buttonsLayout->setContentsMargins(9, 9, 9, 9);

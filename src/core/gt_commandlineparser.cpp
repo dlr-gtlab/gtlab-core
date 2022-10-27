@@ -30,7 +30,7 @@ GtCommandLineParser::option(const QString& id) const
 {
     if (m_opts.contains(id))
     {
-        return GtCommandLineParsing::hasOption(m_args, m_opts.value(id));
+        return gt::commandline::detail::hasOption(m_args, m_opts.value(id));
     }
 
     return false;
@@ -44,7 +44,7 @@ GtCommandLineParser::optionValue(const QString& id) const
          return QVariant();
     }
 
-    QVariant value =  GtCommandLineParsing::valueOfOption(
+    QVariant value =  gt::commandline::detail::valueOfOption(
                 m_args, m_opts.value(id));
 
     if (!value.isValid())
@@ -150,15 +150,15 @@ GtCommandLineParser::positionalArguments()
 }
 
 bool
-GtCommandLineParsing::hasOption(const QStringList& args,
-                                const GtCommandLineOption& o)
+gt::commandline::detail::hasOption(const QStringList& args,
+                                   const GtCommandLineOption& o)
 {
-    return (GtCommandLineParsing::indexOfOption(args, o) >= 0);
+    return (indexOfOption(args, o) >= 0);
 }
 
 int
-GtCommandLineParsing::indexOfOption(const QStringList& args,
-                                    const GtCommandLineOption& o)
+gt::commandline::detail::indexOfOption(const QStringList& args,
+                                       const GtCommandLineOption& o)
 {
     QStringList optionStrings = o.names;
 
@@ -189,8 +189,8 @@ GtCommandLineParsing::indexOfOption(const QStringList& args,
 }
 
 QVariant
-GtCommandLineParsing::valueOfOption(const QStringList& args,
-                                    const GtCommandLineOption& o)
+gt::commandline::detail::valueOfOption(const QStringList& args,
+                                       const GtCommandLineOption& o)
 {
     QStringList optionStrings = o.names;
 
@@ -231,7 +231,3 @@ GtCommandLineParsing::valueOfOption(const QStringList& args,
 
     return {};
 }
-
-
-
-

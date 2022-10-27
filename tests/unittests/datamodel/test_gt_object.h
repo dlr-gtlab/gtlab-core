@@ -70,7 +70,7 @@ public:
                                               this, QStringList());
         m_strProp = new GtStringProperty(
                     "strProp", "Test String",  QString(), "Test",
-                    new QRegExpValidator(GtRegExp::onlyLettersAndNumbers(),
+                    new QRegExpValidator(gt::re::onlyLettersAndNumbers(),
                                          this));
         m_varProp = new GtVariantProperty("Test Variant", QString());
         GtDoubleListProperty* doubleListProp =

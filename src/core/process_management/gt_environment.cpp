@@ -92,7 +92,7 @@ GtEnvironment::debugEnvironmentVariables()
     gtDebug() << "ENVIRONMENT VARIABLES:";
     gtDebug() << "-DEFINED--------------";
 
-    for_each_key (m_vars, [&](const QString& e)
+    gt::for_each_key (m_vars, [&](const QString& e)
     {
         gtDebug() << e << " = " << m_vars.value(e);
     });
@@ -204,7 +204,7 @@ GtEnvironment::saveEnvironment()
 
     settings.clear();
 
-    for_each_key (m_vars, [&](const QString& e)
+    gt::for_each_key (m_vars, [&](const QString& e)
     {
         settings.setValue(e, m_vars.value(e));
     });

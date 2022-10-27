@@ -11,7 +11,7 @@
 
 #include <utility>
 
-namespace Gt
+namespace gt
 {
 
 /**
@@ -40,7 +40,7 @@ template <typename T, typename U = typename std::decay_t<T>::value_type>
 inline auto
 squoted(T&& string)
 {
-    return Gt::quoted(std::forward<T>(string), U{'\''}, U{'\''});
+    return gt::quoted(std::forward<T>(string), U{'\''}, U{'\''});
 }
 
 /**
@@ -52,9 +52,9 @@ template <typename T, typename U = typename std::decay_t<T>::value_type>
 inline auto
 brackets(T&& string)
 {
-    return Gt::quoted(std::forward<T>(string), U{'('}, U{')'});
+    return gt::quoted(std::forward<T>(string), U{'('}, U{')'});
 }
 
-} // namespace Gt
+} // namespace gt
 
 #endif // GT_UTILITIES_H

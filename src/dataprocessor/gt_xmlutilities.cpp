@@ -15,8 +15,8 @@
 #include "gt_xmlutilities.h"
 
 bool
-GtXmlUtilities::writeDomElementOrderedAttribute(const QDomElement& element,
-                                                QXmlStreamWriter& writer)
+gt::xml::writeDomElementOrderedAttribute(const QDomElement& element,
+                                         QXmlStreamWriter& writer)
 {
     writer.writeStartElement(element.tagName());
 
@@ -52,7 +52,7 @@ GtXmlUtilities::writeDomElementOrderedAttribute(const QDomElement& element,
             }
             else if (c_node.nodeType() == QDomNode::ElementNode)
             {
-                if (!GtXmlUtilities::writeDomElementOrderedAttribute(
+                if (!gt::xml::writeDomElementOrderedAttribute(
                             c_node.toElement(), writer))
                 {
                     return false;
@@ -69,9 +69,9 @@ GtXmlUtilities::writeDomElementOrderedAttribute(const QDomElement& element,
 }
 
 bool
-GtXmlUtilities::writeDomDocumentToFile(const QString& filePath,
-                                       const QDomDocument& doc,
-                                       bool attrOrdered)
+gt::xml::writeDomDocumentToFile(const QString& filePath,
+                                const QDomDocument& doc,
+                                bool attrOrdered)
 {
     QFile file(filePath);
 
@@ -91,8 +91,7 @@ GtXmlUtilities::writeDomDocumentToFile(const QString& filePath,
 
         if (!rootElement.isNull())
         {
-            if (!GtXmlUtilities::writeDomElementOrderedAttribute(
-                        rootElement, str_w))
+            if (!gt::xml::writeDomElementOrderedAttribute(rootElement, str_w))
             {
                 return false;
             }

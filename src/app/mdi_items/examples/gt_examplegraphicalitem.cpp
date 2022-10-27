@@ -109,7 +109,7 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry data,
 
     m_zoomButton->setVisible(false);
 
-    m_zoomButton->setIcon(GtGUI::Icon::info16());
+    m_zoomButton->setIcon(gt::gui::icon::info16());
 
     picLayout->addWidget(m_zoomButton);
 
@@ -187,7 +187,7 @@ GtExampleGraphicalItem::showZoom()
 {
     if (m_pixmap.isNull())
     {
-        if (m_pixmap.load(GtGUI::Pixmap::logoString()))
+        if (m_pixmap.load(gt::gui::pixmap::logoString()))
         {
            gtDebug() << tr("No default pic found");
         }

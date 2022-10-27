@@ -70,11 +70,11 @@ mySquare(double x)
     return x*x;
 }
 
-QList<gtlab::InterfaceFunction>
+QList<gt::InterfaceFunction>
 TestModuleInterface::sharedFunctions() const
 {
-    auto fun = gtlab::interface::make_interface_function(
-                "mySquare", mySquare, "Returns the square of x");
+    auto fun = gt::interface::makeInterfaceFunction(
+                   "mySquare", mySquare, "Returns the square of x");
 
     return {fun};
 }
@@ -126,7 +126,7 @@ QList<GtCommandLineFunction>
 TestModuleInterface::commandLineFunctions() const
 {
     /// The constructor
-    auto fun = GtCommandLineInterface::make_commandLineFunction(
+    auto fun = gt::commandline::makeCommandLineFunction(
                 "test_function", test_module_batch_command::mainFun,
                 "combines arguments");
     /// demonstration to set options by a chain of setters

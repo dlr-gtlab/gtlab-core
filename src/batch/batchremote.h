@@ -12,10 +12,9 @@
 
 class QString;
 
-/**
- * @brief The BatchRemote namespace
- */
-namespace BatchRemote
+namespace gt
+{
+namespace batch
 {
 
     /**
@@ -38,6 +37,8 @@ namespace BatchRemote
     bool run(const QString& inputName, const QString& outputName,
              const QString& version);
 
-}
+} // namespace batch
+
+} // namespace gt
 
 #endif // BATCHREMOTE_H

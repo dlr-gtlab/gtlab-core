@@ -27,7 +27,7 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
 {
     setWindowTitle(tr("Connections"));
 
-    setWindowIcon(GtGUI::Icon::connection16());
+    setWindowIcon(gt::gui::icon::connection16());
 
     QVBoxLayout* lay = new QVBoxLayout;
 
@@ -65,9 +65,9 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
     lay->addLayout(mainLay);
 
     QPushButton* saveButton = new QPushButton(tr("Ok"));
-    saveButton->setIcon(GtGUI::Icon::check16());
+    saveButton->setIcon(gt::gui::icon::check16());
     QPushButton* closeButton = new QPushButton(tr("Cancel"));
-    closeButton->setIcon(GtGUI::Icon::delete16());
+    closeButton->setIcon(gt::gui::icon::delete16());
 
     connect(closeButton, SIGNAL(clicked()), SLOT(reject()));
     connect(saveButton, SIGNAL(clicked()), SLOT(accept()));

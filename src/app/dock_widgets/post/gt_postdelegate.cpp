@@ -37,7 +37,7 @@ GtPostDelegate::createEditor(QWidget* parent,
 
 
     QValidator* validator = new QRegExpValidator(
-                GtRegExp::onlyLettersAndNumbers(), parent);
+                gt::re::onlyLettersAndNumbers(), parent);
 
     lineEdit->setValidator(validator);
 
@@ -55,7 +55,7 @@ GtPostDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
     QLineEdit* lineEdit = static_cast<QLineEdit*>(editor);
 
     QValidator* validator = new QRegExpValidator(
-                GtRegExp::onlyLettersAndNumbers(), parent());
+                gt::re::onlyLettersAndNumbers(), parent());
 
     lineEdit->setValidator(validator);
 
@@ -82,7 +82,7 @@ GtPostDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
     QLineEdit* lineEdit = static_cast<QLineEdit*>(editor);
 
     QValidator* validator = new QRegExpValidator(
-                GtRegExp::onlyLettersAndNumbers(), parent());
+                gt::re::onlyLettersAndNumbers(), parent());
 
     lineEdit->setValidator(validator);
 

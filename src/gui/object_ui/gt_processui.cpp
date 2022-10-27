@@ -21,7 +21,7 @@ GtProcessUI::GtProcessUI()
 QIcon
 GtProcessUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::Icon::process16();
+    return gt::gui::icon::process16();
 }
 
 QStringList
@@ -40,5 +40,5 @@ GtProcessUI::hasValidationRegExp()
 QRegExp
 GtProcessUI::validatorRegExp()
 {
-    return GtRegExp::onlyLettersAndNumbersAndSpace();
+    return gt::re::onlyLettersAndNumbersAndSpace();
 }

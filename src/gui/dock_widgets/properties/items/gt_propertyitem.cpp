@@ -103,7 +103,7 @@ GtPropertyItem::data(int column, int role) const
             {
                 if (column == 0)
                 {
-                    return GtGUI::Icon::chain16();
+                    return gt::gui::icon::chain16();
                 }
             }
 
@@ -274,7 +274,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
         {
             QLineEdit* lineEdit = new QLineEdit(parent);
             lineEdit->setValidator(new QRegExpValidator(
-                                       GtRegExp::forDoubles(), lineEdit));
+                                       gt::re::forDoubles(), lineEdit));
             return lineEdit;
         }
 
@@ -305,7 +305,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
             }
             else
             {
-                validator = new QRegExpValidator(GtRegExp::forExpressions(),
+                validator = new QRegExpValidator(gt::re::forExpressions(),
                                                  lineEdit);
             }
 

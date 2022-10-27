@@ -29,7 +29,7 @@ GtModuleDetailsDialog::GtModuleDetailsDialog(QString const& moduleId,
     m_rowCounter(0)
 {
     setWindowTitle(m_moduleId);
-    setWindowIcon(GtGUI::Icon::plugin16());
+    setWindowIcon(gt::gui::icon::plugin16());
 
     auto l = new QVBoxLayout;
     auto tab = new QTabWidget;

@@ -35,7 +35,7 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     setAcceptDrops(true);
 
     QPushButton* restoreButton = new QPushButton(QLatin1String{});
-    restoreButton->setIcon(GtGUI::Icon::restore16());
+    restoreButton->setIcon(gt::gui::icon::restore16());
     restoreButton->setFlat(true);
     restoreButton->setMaximumWidth(15);
     restoreButton->setAutoDefault(false);
@@ -47,7 +47,7 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
     selectObjectButton->setToolTip(tr("Choose Object"));
 
     auto findObjectButton = new QPushButton(QLatin1String{});
-    findObjectButton->setIcon(GtGUI::Icon::jumpTo());
+    findObjectButton->setIcon(gt::gui::icon::jumpTo());
     findObjectButton->setMaximumWidth(15);
     findObjectButton->setAutoDefault(false);
     findObjectButton->setToolTip(tr("Find Object"));

@@ -13,6 +13,9 @@
 
 #include <algorithm>
 
+namespace gt
+{
+
 template <typename QMapIterator, typename Func>
 void for_each_key(QMapIterator begin, QMapIterator end, Func func)
 {
@@ -84,5 +87,7 @@ ith_iter(const ContainerType& container, size_t i)
 
     return iter;
 }
+
+} // namespace gt
 
 #endif // GT_ALGORITHMS_H

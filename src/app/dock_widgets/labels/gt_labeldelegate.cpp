@@ -37,7 +37,7 @@ GtLabelDelegate::createEditor(QWidget* parent,
     QLineEdit* lineEdit = new QLineEdit(parent);
 
     QValidator* validator = new QRegExpValidator(
-                GtRegExp::onlyLettersAndNumbers(), this->parent());
+                gt::re::onlyLettersAndNumbers(), this->parent());
 
     lineEdit->setValidator(validator);
 
@@ -57,7 +57,7 @@ GtLabelDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
     lineEdit->setText(val);
 
     QValidator* validator = new QRegExpValidator(
-                GtRegExp::onlyLettersAndNumbers(), this->parent());
+                gt::re::onlyLettersAndNumbers(), this->parent());
     lineEdit->setValidator(validator);
 }
 
@@ -92,7 +92,7 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
     QLineEdit* lineEdit = static_cast<QLineEdit*>(editor);
 
     QValidator* validator = new QRegExpValidator(
-                GtRegExp::onlyLettersAndNumbers(), this->parent());
+                gt::re::onlyLettersAndNumbers(), this->parent());
     lineEdit->setValidator(validator);
 
     QString newId = lineEdit->text();
@@ -127,7 +127,7 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
         mb.setWindowTitle(tr("Rename Label"));
-        mb.setWindowIcon(GtGUI::Icon::input16());
+        mb.setWindowIcon(gt::gui::icon::input16());
         mb.setText(msg);
         mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
         mb.setDefaultButton(QMessageBox::Yes);

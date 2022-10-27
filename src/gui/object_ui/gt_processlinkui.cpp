@@ -20,6 +20,6 @@ GtProcessLinkUI::GtProcessLinkUI()
 QIcon
 GtProcessLinkUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::Icon::process16();
+    return gt::gui::icon::process16();
 }
 

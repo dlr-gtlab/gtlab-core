@@ -18,7 +18,7 @@ GtDeleteItemMessageBox::GtDeleteItemMessageBox(const QString& title,
 {
     setIcon(QMessageBox::Question);
     setWindowTitle(title);
-    setWindowIcon(GtGUI::Icon::delete16());
+    setWindowIcon(gt::gui::icon::delete16());
     setText(tr("Delete") + " " + elementName + "?");
     setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     setDefaultButton(QMessageBox::Yes);

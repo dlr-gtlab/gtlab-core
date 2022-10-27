@@ -32,11 +32,11 @@ class TestGtCommandLineInterface : public ::testing::Test
 
 TEST_F(TestGtCommandLineInterface, registration)
 {
-    auto fun = GtCommandLineInterface::make_commandLineFunction(
+    auto fun = gt::commandline::makeCommandLineFunction(
                 "test function", CommandLineTesting::myAwesomeTest2,
                 "combines arguments");
 
-    gtlab::commandline::register_function(fun);
+    gt::commandline::registerFunction(fun);
 
     GtCommandLineFunction f2 =
             GtCommandLineFunctionHandler::instance().getInterfaceFunc(

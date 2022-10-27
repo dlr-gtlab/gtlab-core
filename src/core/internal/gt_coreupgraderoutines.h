@@ -3,33 +3,30 @@
 
 #include "gt_moduleinterface.h"
 
-namespace gtlab
+namespace gt
 {
-namespace internal
+namespace detail
 {
 
 namespace GtDataModelConverter
 {
-    namespace to200
-    {
-        bool run(QDomElement& root, const QString& targetPath);
-    }
+namespace to_2_0_0
+{
 
-}
+bool run(QDomElement& root, const QString& targetPath);
 
-inline QList<VersionUpgradeRoutine> coreUpgradeRoutines() {
+} // namespace to_2_0_0
 
-    return
-        {
-//            VersionUpgradeRoutine {GtVersionNumber(2, 0, 0),
-//                        &GtDataModelConverter::to200::run}
-        };
+} // GtDataModelConverter
 
+inline QList<VersionUpgradeRoutine> coreUpgradeRoutines()
+{
+    return { };
 };
 
 
+} // namespace detail
 
-} // namespace internal
-} // namespace gtlab
+} // namespace gt
 
 #endif // GT_COREUPGRADEROUTINES_H

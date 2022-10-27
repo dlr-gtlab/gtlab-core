@@ -55,28 +55,28 @@ GtStartupPage::GtStartupPage()
 
     m_newProjBtn = new QToolButton;
     m_newProjBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    m_newProjBtn->setIcon(GtGUI::Icon::addProject());
+    m_newProjBtn->setIcon(gt::gui::icon::addProject());
     m_newProjBtn->setIconSize(iconSize);
     m_newProjBtn->setText(tr("New Project"));
     btnGridLay->addWidget(m_newProjBtn, 0, 0);
 
     m_examplesBtn = new QToolButton;
     m_examplesBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    m_examplesBtn->setIcon(GtGUI::Icon::examples());
+    m_examplesBtn->setIcon(gt::gui::icon::examples());
     m_examplesBtn->setIconSize(iconSize);
     m_examplesBtn->setText(tr("Examples"));
     btnGridLay->addWidget(m_examplesBtn, 0, 1);
 
     m_helpBtn = new QToolButton;
     m_helpBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    m_helpBtn->setIcon(GtGUI::Icon::help());
+    m_helpBtn->setIcon(gt::gui::icon::help());
     m_helpBtn->setIconSize(iconSize);
     m_helpBtn->setText(tr("Help Contents"));
     btnGridLay->addWidget(m_helpBtn, 1, 0);
 
     m_infoBtn = new QToolButton(this);
     m_infoBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    m_infoBtn->setIcon(GtGUI::Icon::info());
+    m_infoBtn->setIcon(gt::gui::icon::info());
     m_infoBtn->setIconSize(iconSize);
     m_infoBtn->setText("Info");
 
@@ -116,7 +116,7 @@ GtStartupPage::GtStartupPage()
 
     initializeTheme();
 
-    label->setPixmap(GtGUI::Pixmap::logo());
+    label->setPixmap(gt::gui::pixmap::logo());
     label->setLayoutDirection(Qt::RightToLeft);
 
     setFrameShape(QFrame::StyledPanel);
@@ -131,7 +131,7 @@ GtStartupPage::~GtStartupPage()
 QIcon
 GtStartupPage::icon() const
 {
-    return GtGUI::Icon::infoBlue16();
+    return gt::gui::icon::infoBlue16();
 }
 
 void

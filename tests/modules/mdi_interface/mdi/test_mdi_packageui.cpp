@@ -18,14 +18,12 @@
 
 TestMdiPackageUI::TestMdiPackageUI()
 {
-    using namespace GtGUI;
-
     addSingleAction("Test Action", "testAction")
         .registerShortCut("testMdiShortCut", QKeySequence{"Alt+R"})
-        .setIcon(Icon::config16());
+        .setIcon(gt::gui::icon::config16());
 
     addActionGroup("Test Action Group", 3)
-        .setIcon(Icon::folder16())
+        .setIcon(gt::gui::icon::folder16())
         << makeSingleAction("Test Group Action 1", "testGroupAction")
         << makeSingleAction("Test Group Action 2",
                             [](GtObject* /*obj*/){
@@ -37,7 +35,7 @@ TestMdiPackageUI::TestMdiPackageUI()
 QIcon
 TestMdiPackageUI::icon(GtObject* /*obj*/) const
 {
-    return GtGUI::Icon::global();
+    return gt::gui::icon::global();
 }
 
 QStringList
@@ -73,11 +71,11 @@ TestMdiPackageUI::testGroupAction(GtObject* /*obj*/)
 void
 TestMdiPackageUI::testDynamicInterface(GtObject* /*obj*/)
 {
-    auto func = gtlab::interface::get_function("Test Datamodel Interface",
-                                               "my_lambda_mult");
+    auto func = gt::interface::getFunction("Test Datamodel Interface",
+                                            "my_lambda_mult");
 
     QVariant result = -1.0;
-    if (func.is_null())
+    if (func.isNull())
     {
         gtError() << "Cannot find Interface function";
         return;

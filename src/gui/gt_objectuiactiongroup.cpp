@@ -17,7 +17,7 @@ GtObjectUIActionGroup::GtObjectUIActionGroup(
         const QList<GtObjectUIAction>& actions,
         const QString& icon) :
    m_name(groupName),
-   m_icon(GtGUI::icon(icon))
+   m_icon(gt::gui::getIcon(icon))
 {
     for (GtObjectUIAction const& action : actions)
     {
@@ -59,7 +59,7 @@ GtObjectUIActionGroup::setIcon(const QIcon& icon)
 GtObjectUIActionGroup&
 GtObjectUIActionGroup::setIcon(const QString& icon)
 {
-    return setIcon(GtGUI::icon(icon));
+    return setIcon(gt::gui::getIcon(icon));
 }
 
 GtObjectUIActionGroup&

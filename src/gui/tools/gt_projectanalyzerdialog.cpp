@@ -28,7 +28,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
     m_tabWid(nullptr)
 {
     setWindowTitle(tr("Project Analyzer"));
-    setWindowIcon(GtGUI::Icon::components16());
+    setWindowIcon(gt::gui::icon::components16());
 
     QVBoxLayout* mLay = new QVBoxLayout;
 
@@ -43,7 +43,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             QHBoxLayout* ftrntInfoLay = new QHBoxLayout;
 
             QLabel* ftrntIcon = new QLabel;
-            ftrntIcon->setPixmap(GtGUI::Icon::infoBlue().pixmap(32, 32));
+            ftrntIcon->setPixmap(gt::gui::icon::infoBlue().pixmap(32, 32));
 
             QSpacerItem* spacer = new QSpacerItem(10, 20,
                                                   QSizePolicy::Expanding,
@@ -80,7 +80,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                 QHBoxLayout* ftrntInfoLay = new QHBoxLayout;
 
                 QLabel* ftrntIcon = new QLabel;
-                ftrntIcon->setPixmap(GtGUI::Icon::error().pixmap(32, 32));
+                ftrntIcon->setPixmap(gt::gui::icon::error().pixmap(32, 32));
 
                 QSpacerItem* spacer = new QSpacerItem(10, 20,
                                                       QSizePolicy::Minimum,
@@ -126,14 +126,14 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 
             QListWidget* umListWid = new QListWidget;
 
-            for_each_key(unknownModules, [&](const QString& str)
+            gt::for_each_key(unknownModules, [&](const QString& str)
             {
                 QListWidgetItem* lItem =
-                        new QListWidgetItem(GtGUI::Icon::plugin(), str);
+                        new QListWidgetItem(gt::gui::icon::plugin(), str);
                 umListWid->addItem(lItem);
             });
 
-            tabWid->addTab(umListWid, GtGUI::Icon::error16(),
+            tabWid->addTab(umListWid, gt::gui::icon::error16(),
                            tr("Unknown Modules"));
         }
 
@@ -149,7 +149,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             tWid->setColumnCount(3);
             tWid->setHeaderLabels(QStringList() << "" << "Project" <<
                                   "Framework");
-            for_each_key(incompatibleModules, [&](const QString& e)
+            gt::for_each_key(incompatibleModules, [&](const QString& e)
             {
                 QTreeWidgetItem* incompatibleModule =
                         new QTreeWidgetItem(QStringList() << e <<
@@ -160,14 +160,14 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                                                        QColor(255, 0, 0, 100));
                 incompatibleModule->setBackgroundColor(2,
                                                        QColor(255, 0, 0, 100));
-                incompatibleModule->setIcon(0, GtGUI::Icon::plugin());
+                incompatibleModule->setIcon(0, gt::gui::icon::plugin());
 
                 tWid->addTopLevelItem(incompatibleModule);
             });
 
             tWid->setColumnWidth(0, 200);
 
-            tabWid->addTab(tWid, GtGUI::Icon::error16(),
+            tabWid->addTab(tWid, gt::gui::icon::error16(),
                            tr("Incompatible Modules"));
         }
 
@@ -180,11 +180,11 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 
             foreach (const QString& str, analyzer->unknownClasses())
             {
-                auto lItem = new QListWidgetItem(GtGUI::Icon::empty16(), str);
+                auto lItem = new QListWidgetItem(gt::gui::icon::empty16(), str);
                 ucListWid->addItem(lItem);
             }
 
-            tabWid->addTab(ucListWid, GtGUI::Icon::error16(),
+            tabWid->addTab(ucListWid, gt::gui::icon::error16(),
                            tr("Unknown Classes"));
         }
     }

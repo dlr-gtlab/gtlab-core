@@ -91,7 +91,7 @@ main(int argc, char* argv[])
 
     QApplication a(argc, argv);
 
-    QSplashScreen splash(GtGUI::Pixmap::splash());
+    QSplashScreen splash(gt::gui::pixmap::splash());
     splash.show();
 
     GtApplication app(qApp);

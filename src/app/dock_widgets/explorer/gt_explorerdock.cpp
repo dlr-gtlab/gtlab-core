@@ -219,7 +219,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     QMenu menu(this);
 
     QAction* actionOpen = menu.addAction(tr("Open"));
-    actionOpen->setIcon(GtGUI::Icon::open16());
+    actionOpen->setIcon(gt::gui::icon::open16());
 
     actionOpen->setVisible(false);
 
@@ -326,7 +326,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 
     // rename object action
     QAction* actrename = menu.addAction("Rename");
-    actrename->setIcon(GtGUI::Icon::input16());
+    actrename->setIcon(gt::gui::icon::input16());
 
     if (obj->isRenamable())
     {
@@ -338,7 +338,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
         actrename->setVisible(false);
     }
 
-    QAction* actionDelete = menu.addAction(GtGUI::Icon::delete16(),
+    QAction* actionDelete = menu.addAction(gt::gui::icon::delete16(),
                                            tr("Delete"));
 
     // delete object action
@@ -352,7 +352,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     }
 
     //QAction* actionDetails =
-    //        menu.addAction(GtGUI::Icon::info16(),
+    //        menu.addAction(gt::gui::icon::info16(),
     //                       tr("Details"));
     //
     //actionDetails->setEnabled(false);
@@ -447,13 +447,13 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
 
     if (oneDeletable)
     {
-        actionDelete = menu.addAction(GtGUI::Icon::delete16(),
+        actionDelete = menu.addAction(gt::gui::icon::delete16(),
                                       tr("Delete"));
     }
 
     if (allProjects)
     {
-       actionRemoveProjects = menu.addAction(GtGUI::Icon::delete16(),
+       actionRemoveProjects = menu.addAction(gt::gui::icon::delete16(),
                                              tr("Delete from session"));
     }
 

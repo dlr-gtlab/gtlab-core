@@ -75,12 +75,12 @@ GtCollectionEditor::GtCollectionEditor() :
 
     m_collectionWidget = new QWidget;
 
-    m_tabWidget->addTab(m_collectionWidget, GtGUI::Icon::dropdown(),
+    m_tabWidget->addTab(m_collectionWidget, gt::gui::icon::dropdown(),
                         tr("Collection"));
 
     m_browserWidget = new QWidget;
 
-    m_tabWidget->addTab(m_browserWidget, GtGUI::Icon::zoom16(), tr("Browse"));
+    m_tabWidget->addTab(m_browserWidget, gt::gui::icon::zoom16(), tr("Browse"));
 
     frameLay->addWidget(m_tabWidget);
 
@@ -150,12 +150,12 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
     hLay->addSpacerItem(spacer);
 
     m_updateAllButton =
-            new QPushButton(GtGUI::Icon::update16(), tr("Update All"));
+            new QPushButton(gt::gui::icon::update16(), tr("Update All"));
     m_updateAllButton->setVisible(false);
     hLay->addWidget(m_updateAllButton);
 
     m_downloadButton =
-            new QPushButton(GtGUI::Icon::dropdown(),
+            new QPushButton(gt::gui::icon::dropdown(),
                             tr("Download Selected"));
 
     m_downloadButton->setEnabled(false);

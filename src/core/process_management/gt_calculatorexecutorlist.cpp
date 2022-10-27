@@ -120,23 +120,15 @@ GtCalculatorExecutorList::executorExists(const QString& id)
 GtAbstractCalculatorExecutor*
 GtCalculatorExecutorList::executor(const QString& id)
 {
-    m_mutex.lock();
+    QMutexLocker locker{&m_mutex};
 
-    GtAbstractCalculatorExecutor* retval = generateExecutor(id);
-
-    m_mutex.unlock();
-
-    return retval;
+    return generateExecutor(id);
 }
 
 QList<GtAbstractProperty*>
 GtCalculatorExecutorList::settings(const QString& id)
 {
-    m_mutex.lock();
+    QMutexLocker locker{&m_mutex};
 
-    QList<GtAbstractProperty*> retval = generateSettings(id);
-
-    m_mutex.unlock();
-
-    return retval;
+    return generateSettings(id);
 }

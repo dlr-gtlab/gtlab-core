@@ -59,7 +59,7 @@ public:
      * The function is deprecated.
      * Please use the icon function of GtGUI.
      */
-    [[deprecated("use GtGUI::Icon instead")]]
+    [[deprecated("use gt::gui::icon instead")]]
     static QIcon icon(QString const& iconPath);
 
     /**

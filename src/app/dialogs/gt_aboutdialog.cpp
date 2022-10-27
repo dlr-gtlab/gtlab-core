@@ -41,7 +41,7 @@
 GtAboutLogo::GtAboutLogo(QWidget* parent) :
     QWidget(parent),
     m_clicks(0),
-    m_pixmap(GtGUI::Pixmap::splash())
+    m_pixmap(gt::gui::pixmap::splash())
 {
 }
 
@@ -64,7 +64,7 @@ GtAboutLogo::mouseDoubleClickEvent(QMouseEvent* event)
 GtAboutDialog::GtAboutDialog(int startPage, QWidget* parent) : GtDialog(parent)
 {
     setWindowTitle(tr("About GTlab"));
-    setWindowIcon(GtGUI::Icon::info16());
+    setWindowIcon(gt::gui::icon::info16());
 
     auto* mainL = new QVBoxLayout;
 
@@ -154,7 +154,7 @@ GtAboutDialog::coreAbout() const
                                              QSizePolicy::Minimum));
 
     auto exportFootprintBtn = new QPushButton(tr("Export Framework Footprint"));
-    exportFootprintBtn->setIcon(GtGUI::Icon::export16());
+    exportFootprintBtn->setIcon(gt::gui::icon::export16());
     exportFootprintBtn->setFocusPolicy(Qt::NoFocus);
     btnLayout->addWidget(exportFootprintBtn);
 
@@ -191,7 +191,7 @@ GtAboutDialog::modulesWidget()
         info << id;
         info << gtApp->moduleVersion(id).toString();
         auto* item = new QTreeWidgetItem(info);
-        item->setIcon(0, GtGUI::Icon::plugin16());
+        item->setIcon(0, gt::gui::icon::plugin16());
         item->setToolTip(0, gtApp->moduleDescription(id));
         m_modulesTree->addTopLevelItem(item);
     }
@@ -199,7 +199,7 @@ GtAboutDialog::modulesWidget()
     auto* btnLayout = new QHBoxLayout;
 
     m_detailsButton = new QPushButton(tr("Details"));
-    m_detailsButton->setIcon(GtGUI::Icon::info16());
+    m_detailsButton->setIcon(gt::gui::icon::info16());
     m_detailsButton->setDisabled(true);
 
     connect(m_detailsButton, SIGNAL(clicked()),

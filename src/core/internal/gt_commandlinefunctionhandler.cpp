@@ -18,9 +18,9 @@ GtCommandLineFunctionHandler::instance()
 }
 
 bool
-GtCommandLineFunctionHandler::addInterface(GtCommandLineFunction func_ptr)
+GtCommandLineFunctionHandler::addInterface(GtCommandLineFunction func)
 {
-    const auto& ident = func_ptr.id();
+    const auto& ident = func.id();
 
     if (m_interfaces.contains(ident))
     {
@@ -29,7 +29,7 @@ GtCommandLineFunctionHandler::addInterface(GtCommandLineFunction func_ptr)
         return false;
     }
 
-    m_interfaces[ident] = std::move(func_ptr);
+    m_interfaces[ident] = std::move(func);
 
     return true;
 }
@@ -52,7 +52,7 @@ GtCommandLineFunctionHandler::getRegisteredFunctionIDs() const
 }
 
 bool
-gtlab::commandline::register_function(GtCommandLineFunction func)
+gt::commandline::registerFunction(GtCommandLineFunction func)
 {
     return GtCommandLineFunctionHandler::instance()
         .addInterface(std::move(func));
