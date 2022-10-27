@@ -135,6 +135,17 @@ TestModuleInterface::commandLineFunctions() const
     return {fun};
 }
 
+TestModuleInterface::MetaInformation
+TestModuleInterface::metaInformation() const
+{
+    MetaInformation m;
+    m.author = "Awesome author";
+    m.authorContact = "test@gtlab.de";
+    m.licenseShort = "TestModule without public access";
+
+    return m;
+}
+
 void
 TestModuleInterface::onLoad()
 {
