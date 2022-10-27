@@ -14,6 +14,7 @@
 
 class QLabel;
 class QVBoxLayout;
+class GtSettings;
 
 /**
  * @brief The GtPreferencesPage class
@@ -24,7 +25,11 @@ public:
     /**
      * @brief saveSettings
      */
-    virtual void saveSettings() = 0;
+    virtual void saveSettings(GtSettings&) const = 0;
+    /**
+     * @brief loadSettings
+     */
+    virtual void loadSettings(const GtSettings&) = 0;
 
 protected:
     /**
@@ -33,10 +38,6 @@ protected:
      */
     explicit GtPreferencesPage(QWidget* parent = nullptr);
 
-    /**
-     * @brief loadSettings
-     */
-    virtual void loadSettings() = 0;
 
     /**
      * @brief setTitle

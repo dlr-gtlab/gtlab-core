@@ -81,13 +81,13 @@ GtPreferencesAccess::GtPreferencesAccess()
 }
 
 void
-GtPreferencesAccess::saveSettings()
+GtPreferencesAccess::saveSettings(GtSettings&) const
 {
 
 }
 
 void
-GtPreferencesAccess::loadSettings()
+GtPreferencesAccess::loadSettings(const GtSettings&)
 {
 
 }

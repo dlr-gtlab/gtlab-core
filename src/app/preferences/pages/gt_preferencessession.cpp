@@ -85,13 +85,13 @@ GtPreferencesSession::GtPreferencesSession()
 }
 
 void
-GtPreferencesSession::saveSettings()
+GtPreferencesSession::saveSettings(GtSettings& settings) const
 {
-    gtApp->settings()->setOpenLastSession(m_openLastCheck->isChecked());
+    settings.setOpenLastSession(m_openLastCheck->isChecked());
 }
 
 void
-GtPreferencesSession::loadSettings()
+GtPreferencesSession::loadSettings(const GtSettings&)
 {
 
 }

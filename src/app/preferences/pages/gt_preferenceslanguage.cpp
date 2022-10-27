@@ -82,13 +82,13 @@ GtPreferencesLanguage::GtPreferencesLanguage()
 }
 
 void
-GtPreferencesLanguage::saveSettings()
+GtPreferencesLanguage::saveSettings(GtSettings&) const
 {
 
 }
 
 void
-GtPreferencesLanguage::loadSettings()
+GtPreferencesLanguage::loadSettings(const GtSettings&)
 {
 
 }

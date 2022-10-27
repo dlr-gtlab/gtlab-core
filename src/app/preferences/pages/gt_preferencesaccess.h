@@ -30,7 +30,13 @@ public:
     /**
      * @brief saveSettings
      */
-    void saveSettings() override;
+    void saveSettings(GtSettings&) const override;
+
+    /**
+     * @brief loadSettings
+     */
+    void loadSettings(const GtSettings&) override;
+
 
 private:
     /// list of access group models.
@@ -38,11 +44,6 @@ private:
 
     /// Tab widget.
     QTabWidget* m_tabWidget;
-
-    /**
-     * @brief loadSettings
-     */
-    void loadSettings() override;
 
 private slots:
     /**

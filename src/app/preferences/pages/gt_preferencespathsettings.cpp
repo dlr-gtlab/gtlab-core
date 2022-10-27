@@ -37,7 +37,7 @@ GtPreferencesPathSettings::GtPreferencesPathSettings()
 }
 
 void
-GtPreferencesPathSettings::saveSettings()
+GtPreferencesPathSettings::saveSettings(GtSettings& ) const
 {
     m_model->saveVariables();
 }
@@ -49,7 +49,7 @@ GtPreferencesPathSettings::loadSettingsImpl()
 }
 
 void
-GtPreferencesPathSettings::loadSettings()
+GtPreferencesPathSettings::loadSettings(const GtSettings&)
 {
     loadSettingsImpl();
 }

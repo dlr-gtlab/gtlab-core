@@ -19,9 +19,14 @@
  */
 class GT_CORE_EXPORT GtSettings : public GtAbstractSettings
 {
-    friend class GtCoreApplication;
-
 public:
+    /**
+     * @brief GtSettings
+     */
+    GtSettings();
+
+    ~GtSettings() override;
+
     /**
      * @brief lastSession
      * @return
@@ -203,57 +208,9 @@ public:
 
     void setThemeMode(const QString& theme);
 
-protected:
-    /**
-     * @brief GtSettings
-     */
-    GtSettings();
-
 private:
-    ///
-    GtSettingsItem* m_lastSession;
-
-    ///
-    GtSettingsItem* m_openSession;
-
-    ///
-    GtSettingsItem* m_language;
-
-    ///
-    GtSettingsItem* m_firstRun;
-
-    ///
-    GtSettingsItem* m_lastPath;
-
-    ///
-    GtSettingsItem* m_lastPerspective;
-
-    ///
-    GtSettingsItem* m_showStartupPage;
-
-    ///
-    GtSettingsItem* m_searchForUpdate;
-
-    ///
-    GtSettingsItem* m_lastProject;
-
-    ///
-    GtSettingsItem* m_openProject;
-
-    ///
-    GtSettingsItem* m_maxLogLength;
-
-    ///
-    GtSettingsItem* m_lastProcessElements;
-
-    /// Explorer dock widget expand states setting
-    GtSettingsItem* m_explorerExpandStates;
-
-    /// Settings for short cuts in GTlab
-    GtSettingsItem* m_shortcutsTable;
-
-    /// Settings for theme selection
-    GtSettingsItem* m_themeSelection;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
 
 #endif // GTSETTINGS_H

@@ -85,13 +85,13 @@ GtPreferencesPerspective::GtPreferencesPerspective()
 }
 
 void
-GtPreferencesPerspective::saveSettings()
+GtPreferencesPerspective::saveSettings(GtSettings&) const
 {
 
 }
 
 void
-GtPreferencesPerspective::loadSettings()
+GtPreferencesPerspective::loadSettings(const GtSettings&)
 {
 
 }

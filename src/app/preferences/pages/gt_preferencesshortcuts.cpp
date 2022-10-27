@@ -112,7 +112,7 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
 }
 
 void
-GtPreferencesShortCuts::saveSettings()
+GtPreferencesShortCuts::saveSettings(GtSettings& settings) const
 {
     GtShortCuts* cuts = gtApp->shortCuts();
 
@@ -154,11 +154,11 @@ GtPreferencesShortCuts::saveSettings()
         cuts->emitChange();
     }
 
-    gtApp->settings()->setShortcutsTable(settingsList);
+    settings.setShortcutsTable(settingsList);
 }
 
 void
-GtPreferencesShortCuts::loadSettings()
+GtPreferencesShortCuts::loadSettings(const GtSettings&)
 {
 
 }

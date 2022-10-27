@@ -22,6 +22,7 @@
 #include "gt_preferencesshortcuts.h"
 #include "gt_icons.h"
 #include "gt_accessmanager.h"
+#include "gt_application.h"
 
 GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     GtDialog(parent)
@@ -102,7 +103,7 @@ GtPreferencesDialog::saveChanges()
 
         if (page)
         {
-            page->saveSettings();
+            page->saveSettings(*gtApp->settings());
         }
     }
 

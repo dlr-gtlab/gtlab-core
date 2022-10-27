@@ -10,6 +10,8 @@
 #ifndef GTABSTRACTSETTINGS_H
 #define GTABSTRACTSETTINGS_H
 
+#include "gt_core_exports.h"
+
 #include <QVariant>
 
 #include "gt_object.h"
@@ -19,7 +21,7 @@ class GtSettingsItem;
 /**
  * @brief The GtAbstractSettings class
  */
-class GtAbstractSettings : public GtObject
+class GT_CORE_EXPORT GtAbstractSettings : public GtObject
 {
     Q_OBJECT
 
@@ -34,24 +36,41 @@ public:
      */
     ~GtAbstractSettings() override;
 
-protected:
     /**
-     * @brief GtAbstractSettings
-     */
-    explicit GtAbstractSettings(GtObject* parent = nullptr);
-
-    /**
-     * @brief registerSetting
-     * @param ident - identification string
+     * @brief Registers a setting at the framework
+     *
+     * @param ident - The identifier of the setting e.g. "mymodule/myvalue"
      * @param initVal - initial value as variant
      * @return the new registered settings item
      */
     GtSettingsItem* registerSetting(const QString& ident,
                                     const QVariant& initVal = QVariant());
 
+
+    /**
+     * @brief Sets the value of a setting
+     * @param ident The identifier of the setting e.g. "mymodule/myvalue"
+     * @param value The value to set
+     */
+    void setSetting(const QString& ident, const QVariant& value);
+
+    /**
+     * @brief Retrieves the value of the setting
+     * @param ident The identifier of the setting e.g. "mymodule/myvalue"
+     * @return
+     */
+    QVariant getSetting(const QString& ident) const;
+
+    /**
+     * @brief GtAbstractSettings
+     */
+    explicit GtAbstractSettings(GtObject* parent = nullptr);
+
+
+
 private:
     ///
-    QList<GtSettingsItem*> m_settings;
+    QMap<QString, GtSettingsItem*> m_settings;
 
 };
 

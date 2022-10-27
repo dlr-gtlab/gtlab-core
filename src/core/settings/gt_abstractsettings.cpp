@@ -12,6 +12,8 @@
 #include "gt_abstractsettings.h"
 #include "gt_settingsitem.h"
 
+#include "gt_logging.h"
+
 GtAbstractSettings::GtAbstractSettings(GtObject* parent) : GtObject(parent)
 {
 
@@ -45,7 +47,33 @@ GtAbstractSettings::registerSetting(const QString& ident,
                                     const QVariant& initVal)
 {
     GtSettingsItem* retval = new GtSettingsItem(ident, initVal);
-    m_settings.append(retval);
+    m_settings.insert(ident, retval);
     return retval;
+}
+
+void
+GtAbstractSettings::setSetting(const QString &ident, const QVariant &value)
+{
+    auto iter = m_settings.find(ident);
+    if (iter != m_settings.end())
+    {
+        iter.value()->setValue(value);
+    }
+}
+
+QVariant GtAbstractSettings::getSetting(const QString &ident) const
+{
+    auto iter = m_settings.find(ident);
+    if (iter != m_settings.end())
+    {
+        return iter.value()->getValue();
+    }
+    else
+    {
+        gtError().noquote()
+            << tr("Cannot query setting. Setting '%1' does not exist.")
+                   .arg(ident);
+        return {};
+    }
 }
 
