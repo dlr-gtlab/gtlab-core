@@ -523,7 +523,7 @@ GtObjectIO::writeProperties(GtObjectMemento& memento,
             continue;
         }
         QMetaProperty prop = obj->metaObject()->property(id);
-        if (QString(prop.name()) == QLatin1String("objectName"))
+        if (QString(prop.name()) == QStringLiteral("objectName"))
         {
             continue;
         }
