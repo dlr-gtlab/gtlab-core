@@ -142,7 +142,7 @@ GtDataModel::openProject(GtProject* project)
     // project ready to be opened. check for module updater
     if (project->upgradesAvailable())
     {
-        gtError() << "(" << project->objectName() << ") "
+        gtWarning() << "(" << project->objectName() << ") "
                      "project needs updates of data structure!"
                      " Run upgrade project data command first.";
         return false;

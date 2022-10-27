@@ -379,6 +379,11 @@ GtProjectUI::openProject(GtObject* obj)
         return;
     }
 
+    if (canUpgradeProjectData(obj))
+    {
+        upgradeProjectData(obj);
+    }
+
     switchToProject(*project);
     //    if (gtApp->devMode())
     //    {

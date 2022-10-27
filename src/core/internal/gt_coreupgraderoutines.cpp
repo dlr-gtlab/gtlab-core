@@ -10,8 +10,8 @@
 #include "gt_coreupgraderoutines.h"
 
 bool
-gt::detail::GtDataModelConverter::to_2_0_0::run(QDomElement& domElement,
-                                                const QString& context)
+gtlab::internal::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
+                                                        const QString& context)
 {
     Q_UNUSED(domElement)
     Q_UNUSED(context)

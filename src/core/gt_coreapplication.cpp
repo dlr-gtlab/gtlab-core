@@ -45,7 +45,8 @@ GtCoreApplication* GtCoreApplication::m_self = nullptr;
 int GtCoreApplication::m_major = GT_VERSION_MAJOR;
 int GtCoreApplication::m_minor = GT_VERSION_MINOR;
 int GtCoreApplication::m_patchLevel = GT_VERSION_PATCH;
-std::string GtCoreApplication::m_additional = GT_VERSION_ADDITIONAL;
+std::string GtCoreApplication::m_pre_release = GT_VERSION_PRE_RELEASE;
+std::string GtCoreApplication::m_build = GT_VERSION_BUILD;
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     QObject(parent),
@@ -611,7 +612,7 @@ GtCoreApplication::patchLevel()
 std::string
 GtCoreApplication::additionalVersionInfo()
 {
-    return m_additional;
+    return m_pre_release;
 }
 
 QString
@@ -626,7 +627,8 @@ GtCoreApplication::version()
     return GtVersionNumber(GtCoreApplication::majorRelease(),
                            GtCoreApplication::minorRelease(),
                            GtCoreApplication::patchLevel(),
-                           QString::fromStdString(m_additional));
+                           QString::fromStdString(m_pre_release),
+                           QString::fromStdString(m_build));
 }
 
 QDir

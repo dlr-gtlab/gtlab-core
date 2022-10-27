@@ -492,8 +492,11 @@ private:
     /// Application patch level
     static int m_patchLevel;
 
-    /// Application additional version information (alpha, beta, etc.)
-    static std::string m_additional;
+    /// Application additional pre release indicator (alpha, beta, etc.)
+    static std::string m_pre_release;
+
+    /// Application additional build indicator
+    static std::string m_build;
 
 signals:
     /**
