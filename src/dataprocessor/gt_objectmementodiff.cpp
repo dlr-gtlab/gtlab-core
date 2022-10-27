@@ -224,8 +224,8 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
 
 
         detectPropertyChanges(left.properties, right.properties, diffObj);
-        detectDynamicPropertyChanges(left.dynamicSizeProperties,
-                                     right.dynamicSizeProperties,
+        detectDynamicPropertyChanges(left.propertyContainers,
+                                     right.propertyContainers,
                                      diffObj);
     }
 

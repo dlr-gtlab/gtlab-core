@@ -74,9 +74,9 @@ TEST_F(TestGtStructProperty, findDynamicSizeProperty)
 {
     TestObject obj;
 
-    ASSERT_TRUE(obj.findDynamicSizeProperty("environmentVars") != nullptr);
+    ASSERT_TRUE(obj.findPropertyContainer("environmentVars") != nullptr);
 
-    ASSERT_TRUE(obj.findDynamicSizeProperty("_thisDoesNotExist_") == nullptr);
+    ASSERT_TRUE(obj.findPropertyContainer("_thisDoesNotExist_") == nullptr);
 }
 
 TEST_F(TestGtStructProperty, checkPropertySize)
@@ -85,7 +85,7 @@ TEST_F(TestGtStructProperty, checkPropertySize)
 
     EXPECT_EQ(0, obj.environmentVars.size());
 
-    auto* props = obj.findDynamicSizeProperty("environmentVars");
+    auto* props = obj.findPropertyContainer("environmentVars");
     ASSERT_TRUE(props != nullptr);
 
     EXPECT_EQ(0, props->size());
@@ -100,7 +100,7 @@ TEST_F(TestGtStructProperty, checkContent)
     TestObject obj;
     obj.addEnvironmentVar("PATH", "/usr/bin");
 
-    auto* props = obj.findDynamicSizeProperty("environmentVars");
+    auto* props = obj.findPropertyContainer("environmentVars");
 
     ASSERT_EQ(1, props->size());
 
@@ -222,7 +222,7 @@ TEST_F(TestGtStructProperty, readMissingDynprop)
 
     auto memento = obj.toMemento(false);
     // remove the dynamic property from the memento
-    memento.dynamicSizeProperties.clear();
+    memento.propertyContainers.clear();
 
     TestObject newObj;
     newObj.addEnvironmentVar("PATH", "/usr/bin");
@@ -262,9 +262,9 @@ TEST_F(TestGtStructProperty, readXmlToMemento)
     EXPECT_EQ(0, m.childObjects.size());
     EXPECT_EQ(0, m.properties.size());
 
-    ASSERT_EQ(1, m.dynamicSizeProperties.size());
+    ASSERT_EQ(1, m.propertyContainers.size());
 
-    const auto& cont = m.dynamicSizeProperties[0];
+    const auto& cont = m.propertyContainers[0];
     EXPECT_EQ("environmentVars", cont.name.toStdString());
 
     ASSERT_EQ(2, cont.childProperties.size());
@@ -583,7 +583,7 @@ TEST_F(TestGtStructProperty, applyDiffElementRemoved)
 
     auto beforeMemento = obj.toMemento();
     auto afterMemento = beforeMemento;
-    afterMemento.dynamicSizeProperties[0].childProperties.remove(1);
+    afterMemento.propertyContainers[0].childProperties.remove(1);
 
     GtObjectMementoDiff diff(beforeMemento, afterMemento);
     ASSERT_FALSE(diff.isNull());
@@ -661,7 +661,7 @@ TEST_F(TestGtStructProperty, propContainerDummyObj)
     obj.addEnvironmentVar("PATH", "/usr/bin");
     auto memento = obj.toMemento();
 
-    ASSERT_EQ(1, memento.dynamicSizeProperties.size());
+    ASSERT_EQ(1, memento.propertyContainers.size());
 
     auto objnew = memento.toObject(*gtObjectFactory);
 
@@ -669,9 +669,9 @@ TEST_F(TestGtStructProperty, propContainerDummyObj)
     ASSERT_TRUE(objnew->isDummy());
 
     auto mementoNew = objnew->toMemento();
-    EXPECT_EQ(1, mementoNew.dynamicSizeProperties.size());
+    EXPECT_EQ(1, mementoNew.propertyContainers.size());
 
-    auto envVarsMemento = mementoNew.dynamicSizeProperties.at(0);
+    auto envVarsMemento = mementoNew.propertyContainers.at(0);
     ASSERT_EQ(1, envVarsMemento.childProperties.size());
 
     auto entry = envVarsMemento.childProperties.at(0);

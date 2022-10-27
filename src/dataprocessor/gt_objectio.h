@@ -165,7 +165,7 @@ private:
 
 
     GtObjectMemento::PropertyData
-    toDynamicPropertyData(const GtPropertyStructContainer& vec) const;
+    toPropertyContainerData(const GtPropertyStructContainer& vec) const;
 
     /**
      * @brief writeProperties
@@ -178,7 +178,7 @@ private:
                          const GtObjectMemento& m);
 
 
-    QDomElement dynamicSizePropToDomElement(
+    QDomElement propertyContainerDataToDomElement(
         const GtObjectMemento::PropertyData& property,
         QDomDocument& doc);
 

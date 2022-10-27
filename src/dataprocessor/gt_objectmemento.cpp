@@ -207,7 +207,7 @@ GtObjectMemento::calculateHashes() const
         propertyHashHelper(p, hash, variantHasher);
     }
 
-    foreach(const PropertyData &p, dynamicSizeProperties)
+    foreach(const PropertyData &p, propertyContainers)
     {
         propertyHashHelper(p, hash, variantHasher);
     }
@@ -466,10 +466,10 @@ void readStructContainer(const PD& prop, GtPropertyStructContainer& c)
 void
 readDynamicProperties(const GtObjectMemento& memento, GtObject& obj)
 {
-    const auto& memdynProps = memento.dynamicSizeProperties;
+    const auto& memdynProps = memento.propertyContainers;
 
 
-    for (GtPropertyStructContainer & c : obj.dynamicProperties())
+    for (GtPropertyStructContainer & c : obj.propertyContainers())
     {
         auto iter = std::find_if(std::begin(memdynProps), std::end(memdynProps),
                     [&c](const GtObjectMemento::PropertyData& mementoProp) {

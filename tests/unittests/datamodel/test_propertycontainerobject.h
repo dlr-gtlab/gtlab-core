@@ -29,7 +29,7 @@ public:
 
     void addEnvironmentVar(QString name, QString value)
     {
-        auto* vars = findDynamicSizeProperty("environmentVars");
+        auto* vars = findPropertyContainer("environmentVars");
         auto& var = vars->newEntry("EnvironmentVarsStruct");
 
         var.setMemberVal("name", name);

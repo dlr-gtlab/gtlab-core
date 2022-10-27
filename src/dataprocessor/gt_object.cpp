@@ -56,7 +56,7 @@ struct GtObject::Impl
     {
         assert(isDummy());
         dummyData.properties = memento.properties;
-        dummyData.propertyContainers = memento.dynamicSizeProperties;
+        dummyData.propertyContainers = memento.propertyContainers;
         dummyData.className = memento.className();
     }
 
@@ -65,7 +65,7 @@ struct GtObject::Impl
         assert(isDummy());
         memento.setClassName(dummyData.className);
         memento.properties = dummyData.properties;
-        memento.dynamicSizeProperties = dummyData.propertyContainers;
+        memento.propertyContainers = dummyData.propertyContainers;
     }
 
     /// Object specific uuid
@@ -578,7 +578,7 @@ GtObject::findPropertyByName(const QString& name) const
 }
 
 GtPropertyStructContainer const *
-GtObject::findDynamicSizeProperty(const QString &id) const
+GtObject::findPropertyContainer(const QString &id) const
 {
     auto iter = std::find_if(std::begin(pimpl->propertyContainer),
                              std::end(pimpl->propertyContainer),
@@ -598,21 +598,21 @@ GtObject::findDynamicSizeProperty(const QString &id) const
 }
 
 GtPropertyStructContainer *
-GtObject::findDynamicSizeProperty(const QString &id)
+GtObject::findPropertyContainer(const QString &id)
 {
     return const_cast<GtPropertyStructContainer*>
-        (const_cast<const GtObject*>(this)->findDynamicSizeProperty(id));
+        (const_cast<const GtObject*>(this)->findPropertyContainer(id));
 }
 
 std::vector<std::reference_wrapper<const GtPropertyStructContainer> >
-GtObject::dynamicProperties() const
+GtObject::propertyContainers() const
 {
     return {std::begin(pimpl->propertyContainer), std::end(pimpl->propertyContainer)};
 
 }
 
 std::vector<std::reference_wrapper<GtPropertyStructContainer>>&
-GtObject::dynamicProperties()
+GtObject::propertyContainers()
 {
     return pimpl->propertyContainer;
 }

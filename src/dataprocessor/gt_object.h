@@ -356,14 +356,16 @@ public:
      * @param id The id
      * @return A pointer to the property or nullptr, if it cannot be found
      */
-    GtPropertyStructContainer const * findDynamicSizeProperty(const QString& id) const;
-    GtPropertyStructContainer* findDynamicSizeProperty(const QString& id);
+    GtPropertyStructContainer const *
+    findPropertyContainer(const QString& id) const;
+
+    GtPropertyStructContainer* findPropertyContainer(const QString& id);
 
     std::vector<std::reference_wrapper<const GtPropertyStructContainer>>
-    dynamicProperties() const;
+    propertyContainers() const;
 
     std::vector<std::reference_wrapper<GtPropertyStructContainer>>&
-    dynamicProperties();
+    propertyContainers();
 
     /**
      * @brief propertiesByType

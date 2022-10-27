@@ -121,7 +121,7 @@ GtPropertyReference::resolve(GtObject & obj) const
     }
     else
     {
-        auto container = obj.findDynamicSizeProperty(m_containerId);
+        auto container = obj.findPropertyContainer(m_containerId);
         if (!container) return errorMsg();
 
         auto entryIter = container->findEntry(m_entryId);

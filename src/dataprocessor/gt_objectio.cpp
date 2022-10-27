@@ -346,7 +346,7 @@ GtObjectIO::toMemento(const QDomElement& e)
 
     // store property information
     memento.properties = readProperties(e);
-    memento.dynamicSizeProperties = readPropertyContainers(e);
+    memento.propertyContainers = readPropertyContainers(e);
 
     // child objects
     QDomElement children = e.firstChildElement(S_OBJECTLIST_TAG);
@@ -499,10 +499,10 @@ GtObjectIO::writeProperties(GtObjectMemento& memento,
     }
 
     // dynamic properties
-    for (const GtPropertyStructContainer& c: obj->dynamicProperties())
+    for (const GtPropertyStructContainer& c: obj->propertyContainers())
     {
-        auto dynamicPropData = toDynamicPropertyData(c);
-        memento.dynamicSizeProperties.append(std::move(dynamicPropData));
+        auto propertyContainerData = toPropertyContainerData(c);
+        memento.propertyContainers.append(std::move(propertyContainerData));
     }
 
 
@@ -547,9 +547,9 @@ GtObjectIO::writeProperties(QDomDocument& doc,
     }
 
     foreach(const GtObjectMemento::PropertyData& property,
-             memento.dynamicSizeProperties)
+             memento.propertyContainers)
     {
-        root.appendChild(dynamicSizePropToDomElement(property, doc));
+        root.appendChild(propertyContainerDataToDomElement(property, doc));
     }
 }
 
@@ -727,7 +727,7 @@ readProperty(const QDomElement& element, bool& error)
 
 
 GtObjectMemento::PropertyData
-GtObjectIO::toDynamicPropertyData(const GtPropertyStructContainer& vec) const
+GtObjectIO::toPropertyContainerData(const GtPropertyStructContainer& vec) const
 {
     GtObjectMemento::PropertyData val;
 
@@ -846,7 +846,7 @@ GtObjectIO::toDomElement(
 }
 
 QDomElement
-GtObjectIO::dynamicSizePropToDomElement(
+GtObjectIO::propertyContainerDataToDomElement(
     const GtObjectMemento::PropertyData& property,
     QDomDocument& doc)
 {
@@ -1205,7 +1205,7 @@ handlePropContEntryChanged(GtObject& parentObject,
         return false;
     }
 
-    auto container = parentObject.findDynamicSizeProperty(containerName);
+    auto container = parentObject.findPropertyContainer(containerName);
     if (!container)
     {
         gtError() << "Invalid container name in memento diff. Cannot apply";
@@ -1359,7 +1359,7 @@ handlePropContEntryAddRemove(GtObject& parentObject,
         return false;
     }
 
-    auto container = parentObject.findDynamicSizeProperty(containerName);
+    auto container = parentObject.findPropertyContainer(containerName);
     if (!container)
     {
         gtError() << "Invalid container name in memento diff. Cannot apply";

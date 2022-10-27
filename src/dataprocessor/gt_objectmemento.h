@@ -243,7 +243,7 @@ public:
     void calculateHashes() const;
 
     QVector<PropertyData> properties;
-    QVector<PropertyData> dynamicSizeProperties;
+    QVector<PropertyData> propertyContainers;
     QVector<GtObjectMemento> childObjects;
 
 private:
