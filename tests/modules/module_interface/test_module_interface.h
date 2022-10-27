@@ -41,6 +41,8 @@ public:
 
     QList<GtCommandLineFunction> commandLineFunctions() const override;
 
+    MetaInformation metaInformation() const override;
+
     void onLoad() override;
 
 };
