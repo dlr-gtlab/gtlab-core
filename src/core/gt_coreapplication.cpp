@@ -36,6 +36,7 @@
 #include "gt_versionnumber.h"
 #include "gt_globals.h"
 #include "gt_algorithms.h"
+#include "gt_moduleinterface.h"
 
 #include "QsLogDest.h"
 
@@ -778,6 +779,14 @@ GtCoreApplication::saveSystemEnvironment() const
          const QByteArray sysEnvVar = gtEnvironment->value(e).toByteArray();
          qputenv(e.toUtf8().constData(), sysEnvVar);
      });
+}
+
+void
+GtCoreApplication::addSuppression(const GtModuleInterface& suppressor,
+    const QString& suppressedModuleId)
+{
+    assert(m_moduleLoader);
+    m_moduleLoader->addSuppression(suppressor.ident(), suppressedModuleId);
 }
 
 bool
