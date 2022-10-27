@@ -37,6 +37,7 @@ class GtCoreDatamodel;
 class GtAbstractLoadingHelper;
 class GtCommand;
 class GtVersionNumber;
+class GtModuleInterface;
 
 /**
  * @brief The GtApplication class
@@ -404,6 +405,24 @@ public:
      */
     void saveSystemEnvironment() const;
 
+    /**
+     * @brief The function allows to suppress the loading of a module from
+     *        another module (the suppressor).
+     *
+     * The typical use case is a conditional loading of module, e.g. only if
+     * certain requirements are met before another module can be loaded.
+     *
+     * The function needs to be called during the `GtModuleInterface::onLoad`
+     * method of the suppressor module. To be successful, the suppressor module
+     * needs to be loaded before the suppressed module (i.e. the suppressor
+     * module is a dependency of the suppressed module) and the suppressed
+     * module needs to allow suppression.
+     *
+     * @param suppressor Suppressor module.
+     * @param supressedModuleId Module id of the module to be suppressed.
+     */
+    void addSuppression(const GtModuleInterface& suppressor,
+        const QString& suppressedModuleId);
 
 protected:
     /// Current session

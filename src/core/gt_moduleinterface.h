@@ -68,7 +68,6 @@ struct VersionUpgradeRoutine
     ConverterFunction f;
 };
 
-
 /**
  * @brief Main interface that must be implemented by a module in order for it
  * to be recognized by the framework. All pure virtual functions must be
@@ -80,16 +79,13 @@ struct VersionUpgradeRoutine
  */
 class GT_CORE_EXPORT GtModuleInterface
 {
-
 public:
 
     /// struct to keep metainformation of the module
-    struct metaInformation
+    struct MetaInformation
     {
-        QString autor;
-
+        QString author;
         QString authorContact;
-
         QString licenseShort;
     };
 
@@ -140,7 +136,7 @@ public:
      * know where a module is developed and who to contact.
      * @return name of the author of the module.
      */
-    virtual metaInformation metaInformation() const {
+    virtual MetaInformation metaInformation() const {
         return {};
     };
 
@@ -152,7 +148,7 @@ public:
      */
     virtual QList<VersionUpgradeRoutine> upgradeRoutines() const {
         return {};
-    };
+    }
 
     /**
      * @brief Returns the functions that the module likes to share.
@@ -190,12 +186,12 @@ public:
      * @brief Is called directly after loading the module. It can be used to
      * interact with the loading process of the modules.
      */
-    virtual void onLoad() {};
+    virtual void onLoad() {}
 
     /**
      * @brief Initializes module. Called on application startup.
      */
-    virtual void init() {};
+    virtual void init() {}
 
 };
 

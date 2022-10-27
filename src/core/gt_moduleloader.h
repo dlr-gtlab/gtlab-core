@@ -15,6 +15,8 @@
 #include <QMap>
 #include <QVariantList>
 
+#include <memory>
+
 class QStringList;
 class QJsonObject;
 class QPluginLoader;
@@ -27,6 +29,7 @@ class GtVersionNumber;
  */
 class GT_CORE_EXPORT GtModuleLoader
 {
+
 public:
     /**
      * @brief GtModuleLoader
@@ -92,6 +95,24 @@ public:
     void initModules();
 
     /**
+     * @brief The function allows to suppress the loading of a module from
+     *        another module (the suppressor).
+     *
+     * The typical use case is a conditional loading of module, e.g. only if
+     * certain requirements are met before another module can be loaded.
+     *
+     * It adds the suppressorModuleId to the set of suppressors of the module
+     * with the id suppressedModuleId.
+     *
+     * @param suppressorModuleId Module id of the module that suppresses
+     * the module with the id suppressedModuleId.
+     * @param suppressedModuleId Module id of the module that is suppressed
+     * by the module with the id suppressorModuleId.
+     */
+    void addSuppression(const QString& suppressorModuleId,
+        const QString& suppressedModuleId);
+
+    /**
      * @brief Returns authors name of module for given id. Returns empty
      * string for non existing modules.
      * @param module identification string
@@ -129,66 +150,9 @@ protected:
     virtual void insert(GtModuleInterface* plugin);
 
 private:
-    /// Successfully loaded plugins
-    QMap<QString, GtModuleInterface*> m_plugins;
-
-    /// Modules initialized indicator.
-    bool m_modulesInitialized;
-
-    /**
-     * @brief Returns plugin meta data.
-     * @param loader Plugin loader.
-     * @return List of plugin meta data in form of an json object.
-     */
-    static QJsonObject pluginMetaData(const QPluginLoader& loader);
-
-    /**
-     * @brief Returns specific meta data knot.
-     * @param metaData Plugin meta data.
-     * @param id Identification string of specific meta data knot.
-     * @return Meta data knot.
-     */
-    static QVariantList metaArray(const QJsonObject& metaData,
-                                  const QString& id);
-
-    /**
-     * @brief loadHelper
-     * @param entries
-     * @param modulesDir
-     * @return
-     */
-    bool loadHelper(QStringList& entries, const QDir& modulesDir,
-                    const QStringList& excludeList);
-
-    /**
-     * @brief checkDependency
-     * The dependencies of the module are given by a list and are compared
-     * to the modules which are already loaded by the program
-     * If a needed dependecy is not loaded in as a plugin in the
-     * program the function will return false, else true.
-     * The function will also return false if the needed module is available
-     * but the version is older than defined in the dependency
-     *
-     * @param deps - Variantlist which contains a map of modules and
-     * their version which are needed for the current module to be valid
-     * @param moduleFileName - name of file of the module
-     * @return true if all dependencies are ok
-     */
-    bool checkDependency(const QVariantList& deps,
-                         const QString& moduleFileName) const;
-
-    /**
-     * @brief debugDependencies
-     * @param path
-     */
-    void debugDependencies(const QString& path) const;
-
-    /**
-     * @brief Returns application roaming path.
-     * @return Application roaming path.
-     */
-    static QString roamingPath();
-
+    /// Private implementation
+    class Impl;
+    std::unique_ptr<Impl> m_pimpl;
 };
 
 #endif // GTMODULELOADER_H
