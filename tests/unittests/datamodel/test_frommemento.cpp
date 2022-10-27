@@ -222,7 +222,7 @@ TEST_F(TestFromMemento, mergeDummyObject)
 
     ASSERT_TRUE(obj != nullptr);
     ASSERT_TRUE(obj->isDummy());
-    EXPECT_STREQ("GtDummyObject", obj->metaObject()->className());
+    EXPECT_STREQ("GtObject", obj->metaObject()->className());
     EXPECT_EQ("fart", obj->uuid().toStdString());
     EXPECT_EQ("inThisRoom", obj->objectName().toStdString());
 

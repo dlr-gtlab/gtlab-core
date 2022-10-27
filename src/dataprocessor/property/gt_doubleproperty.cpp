@@ -221,3 +221,8 @@ GtDoubleProperty::initialValue() const
     return m_initValue;
 }
 
+gt::PropertyFactoryFunction
+gt::makeDoubleProperty(double value)
+{
+    return makePropertyFactory<GtDoubleProperty>(std::move(value));
+}

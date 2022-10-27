@@ -21,7 +21,6 @@ class QDomDocument;
 class GtObject;
 class GtAbstractObjectFactory;
 class GtObjectMementoDiff;
-class GtDynamicPropertyContainer;
 class GtAbstractProperty;
 
 /**
@@ -35,6 +34,7 @@ public:
     static const QString S_UUID_TAG;
     static const QString S_CLASS_TAG;
     static const QString S_NAME_TAG;
+    static const QString S_ENTRY_NAME_TAG;
     static const QString S_TYPE_TAG;
     static const QString S_ID_TAG;
     static const QString S_VALUE_TAG;
@@ -42,17 +42,17 @@ public:
     static const QString S_ACTIVE_TAG;
     static const QString S_PROPERTY_TAG;
     static const QString S_PROPERTYLIST_TAG;
+    static const QString S_PROPERTYCONT_TAG;
     static const QString S_DIFF_INDEX_TAG;
     static const QString S_DIFF_INDEX_CHANGED_TAG;
-    static const QString S_DYNAMICPROPERTY_TAG;
-    static const QString S_DYNAMICPROPERTIES_TAG;
     static const QString S_ENTRY_TAG;
     static const QString S_DIFF_OBJ_REMOVE_TAG;
     static const QString S_DIFF_OBJ_ADD_TAG;
     static const QString S_DIFF_PROP_CHANGE_TAG;
     static const QString S_DIFF_PROPLIST_CHANGE_TAG;
-    static const QString S_DIFF_DYNPROP_ADD_TAG;
-    static const QString S_DIFF_DYNPROP_REM_TAG;
+    static const QString S_DIFF_PROPCONT_ENTRY_ADDED_TAG;
+    static const QString S_DIFF_PROPCONT_ENTRY_REMOVE_TAG;
+    static const QString S_DIFF_PROPCONT_ENTRY_CHANGE_TAG;
     static const QString S_DIFF_ATTR_CHANGE_TAG;
     static const QString S_DIFF_ATTR_REMOVE_TAG;
     static const QString S_DIFF_NEWVAL_TAG;
@@ -93,7 +93,6 @@ public:
     QDomElement toDomElement(const GtObjectMemento::PropertyData& m,
                              QDomDocument& doc);
 
-
     /** Creates Memento from given QDomElement.
         @param e QDomElement with memento data
         @return GtObjectMemento memento */
@@ -117,24 +116,17 @@ public:
     static bool revertDiff(GtObjectMementoDiff& diff, GtObject* obj);
 
     /**
-     * @brief writeDynamicPropertyHelper
-     * @param doc
-     * @param root
-     * @param property
+     *  Converts given QVariant to QString.
+     *  @param var QVariant
+     *  @return QString
      */
-    void writeDynamicPropertyHelper(QDomDocument& doc,
-                                    QDomElement& root,
-                                    const GtObjectMemento::PropertyData& property);
-
-    /** Converts given QVariant to QString.
-        @param var QVariant
-        @return QString */
     static inline QString variantToString(const QVariant& var)
     {
-        if (var.type() == QMetaType::QPointF)
+        if (var.type() == QVariant::PointF)
         {
             QPointF val = var.toPointF();
-            return QString::number(val.x()) + QStringLiteral("_") + QString::number(val.y());
+            return QString::number(val.x()) + QStringLiteral("_")
+                   + QString::number(val.y());
         }
         else
         {
@@ -152,20 +144,11 @@ public:
                                        QString& typeStr);
 
     /**
-     * @brief detect wether a QVariant data element would be stored as propertylist instead of property element.
+     * @brief detect wether a QVariant data element would
+     *        be stored as propertylist instead of property element.
      */
     static inline bool usePropertyList(const QVariant& var)
     {
-//        QSet<QVariant::Type> listTypes;
-//        if (listTypes.isEmpty())
-//        {
-//            listTypes.insert(QVariant::nameToType("QList<int>"));
-//            listTypes.insert(QVariant::nameToType("QList<bool>"));
-//            listTypes.insert(QVariant::nameToType("QList<QPointF>"));
-//            listTypes.insert(QVariant::nameToType("QVector<double>"));
-//            listTypes.insert(QVariant::nameToType("QStringList"));
-//        }
-
         return S_LISTTYPES.contains(var.typeName());
     }
 private:
@@ -180,6 +163,10 @@ private:
     void writeProperties(GtObjectMemento& m,
                          const GtObject* obj);
 
+
+    GtObjectMemento::PropertyData
+    toPropertyContainerData(const GtPropertyStructContainer& vec) const;
+
     /**
      * @brief writeProperties
      * @param root
@@ -190,72 +177,41 @@ private:
                          QDomElement& root,
                          const GtObjectMemento& m);
 
+
+    QDomElement propertyContainerDataToDomElement(
+        const GtObjectMemento::PropertyData& property,
+        QDomDocument& doc);
+
     /**
      * @brief readProperties
-     * @param m memento
      * @param element
      */
-    void readProperties(GtObjectMemento& m,
-                        const QDomElement& element);
+    QVector<GtObjectMemento::PropertyData>  readProperties(
+                        const QDomElement& element) const;
 
     /**
-     * @brief readDynamicProperties
-     * @param propData memento property data
+     * @brief readStructProperties
      * @param element
+     * @return
      */
-    void readDynamicProperties(
-            GtObjectMemento::PropertyData& propData,
-            const QDomElement& element);
-
-    /**
-     * @brief writeDynamicProperties
-     * @param doc
-     * @param root
-     * @param stored
-     * @param property
-     */
-    void writeDynamicProperties(
-            QDomDocument& doc, QDomElement& root,
-            const GtObjectMemento::PropertyData& property);
+    QVector<GtObjectMemento::PropertyData> readPropertyContainers(
+            const QDomElement& element) const;
 
     /**
      * @brief writePropertyHelper
      */
-    void writePropertyHelper(
-            QVector<GtObjectMemento::PropertyData>& pVec,
-            QSet<QString>& stored, GtAbstractProperty* property);
-
-    /**
-     * @brief writePropertyHelper
-     */
-    void writePropertyHelper(
-            QDomDocument& doc, QDomElement& root,
-            const GtObjectMemento::PropertyData& prop);
-
     void writePropertyHelper(QVector<GtObjectMemento::PropertyData>& pVec,
             QSet<QString>& stored, const GtAbstractProperty *property) const;
-
-    /**
-     * @brief readPropertyHelper
-     */
-    void readPropertyHelper(
-            GtObjectMemento::PropertyData& propData,
-            const QDomElement& element);
-
-    /**
-     * @brief readDynamicPropertyHelper
-     */
-    void readDynamicPropertyHelper(
-            GtObjectMemento::PropertyData& propData,
-            const QDomElement& element);
 
 
     /** Creates an QDomElement of a given property.
         @param name Name of property
         @param var QVariant of property
+        @param dataType Data type specifier
         @return doc Referened to QDomDocument to generate new QDomElements */
     QDomElement propertyToDomElement(const QString& name,
                                      const QVariant& var,
+                                     const QString &dataType,
                                      QDomDocument& doc);
 
     QDomElement enumerationToDomElement(const QString& name,
@@ -271,136 +227,7 @@ private:
                                          const QVariant& var,
                                          QDomDocument& doc);
 
-    /** Converts given property to QVariant.
-        @param value Property value
-        @param type Property type
-        @return QVariant */
-    static QVariant propertyToVariant(const QString& value, const QString&);
 
-    /** Converts given property list to QVariant.
-        @param value Property list value
-        @param type Property type
-        @return QVariant */
-    static QVariant propertyListToVariant(const QString& value,
-                                          const QString& type);
-
-    /**
-     * @brief Returns the element of the dynamic properties branch. If no
-     * brunch exists a new created is returned.
-     * @param doc
-     * @param root
-     * @return
-     */
-    QDomElement dynamicPropertyElement(QDomDocument& doc,
-                                       QDomElement& root,
-                                       const QString& id);
-
-    /**
-     * @brief handlePropertyNodeChange
-     * @param target
-     * @param change
-     * @param revert
-     * @return
-     */
-    static bool handlePropertyNodeChange(GtObject *target,
-                                         const QDomElement& change,
-                                         const bool list = false,
-                                         const bool revert = false);
-
-    /**
-     * @brief handlePropertyNodeChange
-     * @param target
-     * @param change
-     * @param revert
-     * @return
-     */
-    static bool handleAttributeNodeChange(GtObject *target,
-                                         const QDomElement& change,
-                                         const bool revert = false);
-
-    /**
-     * @brief handleDynamicPropertyAdd
-     * @param target
-     * @param toAdd
-     * @param index
-     * @return
-     */
-    static bool handleDynamicPropertyAdd(GtObject* target,
-                                         const QDomElement& objectToAdd,
-                                         const QString& index);
-
-    /**
-     * @brief handleDynamicPropertyRemove
-     * @param target
-     * @param toRemove
-     * @param index
-     * @return
-     */
-    static bool handleDynamicPropertyRemove(GtObject* target,
-                                            const QDomElement& objectToAdd,
-                                            const QString& index);
-
-    /**
-     * @brief handleObjectAdd
-     * @param target
-     * @param objectToAdd
-     * @return
-     */
-    static bool handleObjectAdd(GtObject* parent,
-                                const QDomElement& objectToAdd,
-                                const QString& index);
-
-    /**
-     * @brief handleObjectRemove
-     * @param parent
-     * @param objectToAdd
-     * @return
-     */
-    static bool handleObjectRemove(GtObject* parent,
-                                   const QDomElement& objectToRemove,
-                                   const QString&);
-
-    /**
-     * @brief handleIndexChanged
-     * @param parent
-     * @param object
-     * @param oldIndex
-     * @param newIndex
-     * @return
-     */
-    static bool handleIndexChange(GtObject* parent,
-                                  const QDomElement& object,
-                                  const int newIndex);
-
-    /**
-     * @brief structProperties
-     * @return
-     */
-    QList<GtDynamicPropertyContainer*> structProperties(GtObject* obj);
-
-    /**
-     * @brief structPropertyHelper
-     * @param prop
-     * @return
-     */
-    QList<GtDynamicPropertyContainer*> structPropertyHelper(
-        GtAbstractProperty* prop);
-
-    /** Converts all member of a QList/QVector (non pointer) to QVariantList.
-        @param t QList object
-        @return QVariantList of converted QList member */
-    template<class T>
-    static QVariantList convertToVariantList(const T& t)
-    {
-        QVariantList list;
-
-        foreach (auto m, t)
-        {
-            list.append(QVariant(m));
-        }
-
-        return list;
-    }
 
     /** writes all members of a QList/QVector to a string (with ';' delimiter)
      */

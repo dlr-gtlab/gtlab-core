@@ -18,6 +18,7 @@ public:
      * @return
      */
     ParamType& get();
+    ParamType const & get() const;
 
     ParamType& operator()(void){return m_value;}
 
@@ -134,6 +135,13 @@ inline ParamType& GtProperty<ParamType>::get()
 }
 
 template<class ParamType>
+inline ParamType const & GtProperty<ParamType>::get() const
+{
+    return m_value;
+}
+
+
+template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal() const
 {
     return m_value;
@@ -214,7 +222,7 @@ inline void GtProperty<ParamType>::setValFromConnection()
     }
 
     // get source value in form of QVariant
-    QVariant variant = m_connection->valueFromSource();
+    QVariant variant = gt::getConnectedValue(*m_connection);
 
     // check variant
     if (!variant.isValid())
@@ -292,5 +300,32 @@ inline bool GtProperty<ParamType>::validateValue(const ParamType& /*value*/)
 {
     return true;
 }
+
+
+namespace gt
+{
+
+template <typename PropertyType>
+inline gt::PropertyFactoryFunction makePropertyFactory()
+{
+    return [=](const QString& id) {
+        return new PropertyType(id, id);
+    };
+}
+
+/**
+ * @brief Creates a property factory for Ts with a default value
+ */
+template <typename PropertyType, typename T>
+inline gt::PropertyFactoryFunction makePropertyFactory(const T& value)
+{
+    return [=](const QString& id) {
+        auto p = new PropertyType(id, id);
+        p->setValueFromVariant(std::move(value), "");
+        return p;
+    };
+}
+
+} // namespace gt
 
 #endif // GTLAB_PARAMETER_H

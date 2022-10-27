@@ -53,7 +53,6 @@ DESTDIR = $${BUILD_DEST}
 HEADERS += \
     gt_abstractexternalizationinterface.h \
     gt_datamodel_exports.h \
-    gt_dummyobject.h \
     gt_externalizationmanager.h \
     gt_externalizedobject.h \
     gt_externalizedobjectfetcher.h \
@@ -89,7 +88,9 @@ HEADERS += \
     property/gt_boolproperty.h \
     property/gt_doubleproperty.h \
     property/gt_intproperty.h \
+    property/gt_polyvector.h \
     property/gt_property.h \
+    property/gt_propertyreference.h \
     property/gt_stringproperty.h \
     property/gt_unit.h \
     property/gt_unitconverter.h \
@@ -97,12 +98,13 @@ HEADERS += \
     property/gt_modetypeproperty.h \
     property/gt_modeproperty.h \
     property/gt_variantproperty.h \
+    property/gt_structproperty.h\
+    property/gt_propertystructcontainer.h \
     gt_label.h \
     gt_labeldata.h \
     property/gt_labelproperty.h \
     gt_objectmodel.h \
     property/gt_filechooserproperty.h \
-    property/gt_dynamicpropertycontainer.h \
     gt_propertyfactory.h \
     property/gt_propertyconnection.h \
     gt_propertyfactory.h \
@@ -122,7 +124,6 @@ HEADERS += \
 
 SOURCES += \
     gt_abstractexternalizationinterface.cpp \
-    gt_dummyobject.cpp \
     gt_externalizationmanager.cpp \
     gt_externalizedobject.cpp \
     gt_h5externalizationinterface.cpp \
@@ -154,18 +155,20 @@ SOURCES += \
     property/gt_boolproperty.cpp \
     property/gt_doubleproperty.cpp \
     property/gt_intproperty.cpp \
+    property/gt_propertyreference.cpp \
     property/gt_stringproperty.cpp \
     property/gt_unit.cpp \
     property/gt_groupproperty.cpp \
     property/gt_modetypeproperty.cpp \
     property/gt_modeproperty.cpp \
     property/gt_variantproperty.cpp \
+    property/gt_structproperty.cpp \
+    property/gt_propertystructcontainer.cpp \
     gt_label.cpp \
     gt_labeldata.cpp \
     property/gt_labelproperty.cpp \
     gt_objectmodel.cpp \
     property/gt_filechooserproperty.cpp \
-    property/gt_dynamicpropertycontainer.cpp \
     gt_propertyfactory.cpp \
     property/gt_propertyconnection.cpp \
     property/gt_openfilenameproperty.cpp \

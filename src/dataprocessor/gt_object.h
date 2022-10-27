@@ -15,6 +15,7 @@
 #include <QObject>
 
 #include <algorithm>
+#include <memory>
 
 class QSignalMapper;
 class GtObjectMemento;
@@ -24,6 +25,7 @@ class GtObjectIO;
 class GtResult;
 class GtDataZoneTable;
 class GtObjectMementoDiff;
+class GtPropertyStructContainer;
 
 #define GT_CLASSNAME(A) A::staticMetaObject.className()
 #define GT_METADATA(A) A::staticMetaObject
@@ -37,6 +39,7 @@ class GT_DATAMODEL_EXPORT GtObject : public QObject
     Q_OBJECT
 
     friend class GtObjectIO;
+    friend class GtObjectMemento;
 
 public:
     enum ObjectFlag
@@ -56,6 +59,8 @@ public:
      * @param parent
      */
     explicit GtObject(GtObject* parent = nullptr);
+
+    ~GtObject() override;
 
     /**
      * @brief objectFlags
@@ -346,6 +351,23 @@ public:
     GtAbstractProperty* findPropertyByName(const QString& name) const;
 
     /**
+     * @brief Returns a dynamic sie property given its "id"
+     *
+     * @param id The id
+     * @return A pointer to the property or nullptr, if it cannot be found
+     */
+    GtPropertyStructContainer const *
+    findPropertyContainer(const QString& id) const;
+
+    GtPropertyStructContainer* findPropertyContainer(const QString& id);
+
+    std::vector<std::reference_wrapper<const GtPropertyStructContainer>>
+    propertyContainers() const;
+
+    std::vector<std::reference_wrapper<GtPropertyStructContainer>>&
+    propertyContainers();
+
+    /**
      * @brief propertiesByType
      * @return all properties of type T
      */
@@ -559,6 +581,8 @@ protected:
      */
     bool registerProperty(GtAbstractProperty& property);
 
+    bool registerPropertyStructContainer(GtPropertyStructContainer& c);
+
     /**
      * @brief registerProperty
      * @param property
@@ -590,23 +614,8 @@ protected slots:
     void changed();
 
 private:
-    /// Object specific uuid
-    QString m_uuid;
-
-    /// Object flags
-    GtObject::ObjectFlags m_objectFlags;
-
-    ///
-    //    bool m_default;
-
-    /// factory
-    GtAbstractObjectFactory* m_factory;
-
-    /// object properties
-    QList<GtAbstractProperty*> m_properties;
-
-    /// mapper for property signals
-    QSignalMapper* m_propertyMapper;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
     /**
      * @brief objectPath
@@ -633,6 +642,13 @@ private:
      * @param parent parent object
      */
     void newChildUUIDs(GtObject* parent) const;
+
+    /**
+     * @brief Converts the object into a dummy object
+     */
+    void makeDummy();
+    void importMementoIntoDummy(const GtObjectMemento&);
+    void exportDummyIntoMemento(GtObjectMemento&) const;
 
 private slots:
     /**

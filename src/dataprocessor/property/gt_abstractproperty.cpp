@@ -12,6 +12,9 @@
 #include "gt_logging.h"
 
 #include "gt_abstractproperty.h"
+#include "gt_propertyconnection.h"
+
+GtAbstractProperty::~GtAbstractProperty() = default;
 
 QVariant
 GtAbstractProperty::valueToVariant() const
@@ -87,14 +90,14 @@ GtAbstractProperty::categoryToString()
 }
 
 const QList<GtAbstractProperty*>&
-GtAbstractProperty::properties()
+GtAbstractProperty::properties() const
 {
     return m_subProperties;
 }
 
 const
 QList<GtAbstractProperty*>&
-GtAbstractProperty::fullProperties()
+GtAbstractProperty::fullProperties() const
 {
     return m_subProperties;
 }
@@ -232,8 +235,8 @@ GtAbstractProperty::propertyCount() const
     });
 }
 
-GtAbstractProperty*
-GtAbstractProperty::findProperty(const QString& id)
+GtAbstractProperty const *
+GtAbstractProperty::findProperty(const QString& id) const
 {
     foreach (GtAbstractProperty* sub, fullProperties())
     {
@@ -242,7 +245,7 @@ GtAbstractProperty::findProperty(const QString& id)
             return sub;
         }
 
-        GtAbstractProperty* tmp = sub->findProperty(id);
+        GtAbstractProperty const * tmp = sub->findProperty(id);
         if (tmp)
         {
             return tmp;
@@ -250,6 +253,13 @@ GtAbstractProperty::findProperty(const QString& id)
     }
 
     return nullptr;
+}
+
+GtAbstractProperty*
+GtAbstractProperty::findProperty(const QString& id)
+{
+    return const_cast<GtAbstractProperty*>
+        (const_cast<const GtAbstractProperty*>(this)->findProperty(id));
 }
 
 GtAbstractProperty*
@@ -343,6 +353,8 @@ GtAbstractProperty::isConnected()
     return m_connection != nullptr;
 }
 
+GtAbstractProperty::GtAbstractProperty() = default;
+
 void
 GtAbstractProperty::setValFromConnection()
 {
@@ -368,4 +380,9 @@ GtAbstractProperty::setOptional(bool val)
     {
         m_active = true;
     }
+}
+
+QVariant gt::getConnectedValue(const GtPropertyConnection &connection)
+{
+    return connection.valueFromSource();
 }

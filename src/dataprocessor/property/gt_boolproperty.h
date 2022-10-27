@@ -63,4 +63,15 @@ public:
                               bool* success = 0) override;
 };
 
+namespace gt
+{
+
+/**
+ * @brief Creates a property factory for bools with a default value
+ */
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeBoolProperty(bool value);
+
+} // namespace gt
+
 #endif // GTBOOLPROPERTY_H

@@ -15,7 +15,8 @@
 #include "gt_label.h"
 #include "gt_objectmementodiff.h"
 #include "gt_objectio.h"
-#include "gt_dummyobject.h"
+#include "gt_structproperty.h"
+#include "gt_propertystructcontainer.h"
 
 #include "gt_object.h"
 
@@ -25,9 +26,78 @@
 
 #include <algorithm>
 
+struct DummyData
+{
+    QVector<GtObjectMemento::PropertyData> properties;
+    QVector<GtObjectMemento::PropertyData> propertyContainers;
+    QString className;
+};
+
+struct GtObject::Impl
+{
+    explicit Impl() :
+        factory(nullptr),
+        propertyMapper(std::make_unique<QSignalMapper>())
+    {}
+
+    bool isDummy() const
+    {
+        return m_isDummy;
+    }
+
+    void makeDummy()
+    {
+        m_isDummy = true;
+        properties.clear();
+        propertyContainer.clear();
+    }
+
+    void importDummy(const GtObjectMemento& memento)
+    {
+        assert(isDummy());
+        dummyData.properties = memento.properties;
+        dummyData.propertyContainers = memento.propertyContainers;
+        dummyData.className = memento.className();
+    }
+
+    void exportDummy(GtObjectMemento& memento) const
+    {
+        assert(isDummy());
+        memento.setClassName(dummyData.className);
+        memento.properties = dummyData.properties;
+        memento.propertyContainers = dummyData.propertyContainers;
+    }
+
+    /// Object specific uuid
+    QString uuid;
+
+    /// Object flags
+    GtObject::ObjectFlags objectFlags;
+
+    /// factory
+    GtAbstractObjectFactory* factory;
+
+    /// object properties
+    QList<GtAbstractProperty*> properties;
+
+    /// dynamic size properties
+    std::vector<std::reference_wrapper<GtPropertyStructContainer>> propertyContainer;
+
+    /// mapper for property signals
+    std::unique_ptr<QSignalMapper> propertyMapper;
+
+    /// A dummy object is not known by the factory but can store properties
+    /// as mementos to avoid losing data for unknown objects
+    bool m_isDummy{false};
+
+    /// only used, if object isDummy
+    /// TODO: use a variant here
+    DummyData dummyData;
+
+};
+
 GtObject::GtObject(GtObject* parent) :
-    m_factory(nullptr),
-    m_propertyMapper(new QSignalMapper(this))
+    pimpl(std::make_unique<Impl>())
 {
     if (parent)
     {
@@ -40,21 +110,23 @@ GtObject::GtObject(GtObject* parent) :
     // set newly created flag
     setFlag(GtObject::NewlyCreated);
 
-    connect(m_propertyMapper, SIGNAL(mapped(QObject*)),
+    connect(pimpl->propertyMapper.get(), SIGNAL(mapped(QObject*)),
             SLOT(propertyChanged(QObject*)));
     connect(this, SIGNAL(objectNameChanged(QString)), SLOT(changed()));
 }
 
+GtObject::~GtObject() = default;
+
 GtObject::ObjectFlags
 GtObject::objectFlags() const
 {
-    return m_objectFlags;
+    return pimpl->objectFlags;
 }
 
 bool
 GtObject::isDummy() const
 {
-    return (qobject_cast<const GtDummyObject*>(this) != nullptr);
+    return pimpl->isDummy();
 }
 
 bool
@@ -88,14 +160,14 @@ void
 GtObject::fromMemento(const GtObjectMemento& memento)
 {
     // check for factory
-    if (!m_factory)
+    if (!pimpl->factory)
     {
         qDebug() << "factory is null";
         return;
     }
 
     // merge data
-    memento.mergeTo(*this, *m_factory);
+    memento.mergeTo(*this, *pimpl->factory);
 }
 
 bool
@@ -114,7 +186,7 @@ GtObject*
 GtObject::copy() const
 {
     // check for factory
-    if (!m_factory)
+    if (!pimpl->factory)
     {
         gtError() << tr("No factory set!") << QStringLiteral("(")
                   << objectName() << QStringLiteral(")");
@@ -129,14 +201,14 @@ GtObject::copy() const
         return nullptr;
     }
 
-    return memento.restore(m_factory);
+    return memento.restore(pimpl->factory);
 }
 
 GtObject*
 GtObject::clone() const
 {
     // check for factory
-    if (!m_factory)
+    if (!pimpl->factory)
     {
         gtError() << tr("No factory set!") << QStringLiteral("(")
                   << objectName() << QStringLiteral(")");
@@ -151,7 +223,7 @@ GtObject::clone() const
         return nullptr;
     }
 
-    return memento.restore(m_factory);
+    return memento.restore(pimpl->factory);
 }
 
 bool
@@ -250,7 +322,7 @@ GtObject::disconnectFromParent()
 QString
 GtObject::uuid() const
 {
-    return m_uuid;
+    return pimpl->uuid;
 }
 
 void
@@ -261,13 +333,13 @@ GtObject::setUuid(const QString& val)
         return;
     }
 
-    m_uuid = val;
+    pimpl->uuid = val;
 }
 
 void
 GtObject::newUuid(bool renewChildUUIDs)
 {
-    m_uuid = QUuid::createUuid().toString();
+    pimpl->uuid = QUuid::createUuid().toString();
 
     if (renewChildUUIDs)
     {
@@ -333,7 +405,7 @@ GtObject::setFactory(GtAbstractObjectFactory* factory)
         return;
     }
 
-    m_factory = factory;
+    pimpl->factory = factory;
 }
 
 int
@@ -398,7 +470,7 @@ GtObject::newlyCreated() const
 void
 GtObject::acceptChanges()
 {
-    m_objectFlags = m_objectFlags
+    pimpl->objectFlags = pimpl->objectFlags
                     & ~GtObject::HasOwnChanges
                     & ~GtObject::HasChildChanges
                     & ~GtObject::NewlyCreated;
@@ -418,19 +490,6 @@ GtObject::acceptChangesRecursively()
 void
 GtObject::debugObjectTree(int indent)
 {
-    GtDummyObject* d_obj = qobject_cast<GtDummyObject*>(this);
-
-    if (d_obj)
-    {
-        // debug dummy properties
-        foreach (GtDummyObject::DummyProperty dp,
-                 d_obj->dummyProperties())
-        {
-            qDebug() << ": " << dp.m_id << " [" << dp.m_type << ", "
-                     << dp.m_optional << ", " << dp.m_active << ", "
-                     << dp.m_val << "]";
-        }
-    }
 
     QString str = QStringLiteral("|-> ");
 
@@ -439,11 +498,11 @@ GtObject::debugObjectTree(int indent)
         str.push_front(QStringLiteral("\t"));
     }
 
-    if (m_factory)
+    if (pimpl->factory)
     {
         gtDebug() << str << objectName() << QStringLiteral(" (") <<
                   metaObject()->className() <<
-                  QStringLiteral(") - ") << m_factory;
+                  QStringLiteral(") - ") << pimpl->factory;
     }
     else
     {
@@ -460,7 +519,7 @@ GtObject::debugObjectTree(int indent)
 const QList<GtAbstractProperty*>&
 GtObject::properties() const
 {
-    return m_properties;
+    return pimpl->properties;
 }
 
 QList<GtAbstractProperty*>
@@ -479,7 +538,7 @@ GtObject::fullPropertyList() const
 GtAbstractProperty*
 GtObject::findProperty(const QString& id) const
 {
-    foreach (GtAbstractProperty* property, m_properties)
+    foreach (GtAbstractProperty* property, pimpl->properties)
     {
         if (property->ident() == id)
         {
@@ -500,7 +559,7 @@ GtObject::findProperty(const QString& id) const
 GtAbstractProperty*
 GtObject::findPropertyByName(const QString& name) const
 {
-    foreach (GtAbstractProperty* property, m_properties)
+    foreach (GtAbstractProperty* property, pimpl->properties)
     {
         if (property->objectName() == name)
         {
@@ -516,6 +575,46 @@ GtObject::findPropertyByName(const QString& name) const
     }
 
     return nullptr;
+}
+
+GtPropertyStructContainer const *
+GtObject::findPropertyContainer(const QString &id) const
+{
+    auto iter = std::find_if(std::begin(pimpl->propertyContainer),
+                             std::end(pimpl->propertyContainer),
+                             [&id](const GtPropertyStructContainer& current)
+    {
+        return current.ident() == id;
+    });
+
+    if (iter == pimpl->propertyContainer.end())
+    {
+        return nullptr;
+    }
+
+    auto const & prop = iter->get();
+    return &prop;
+
+}
+
+GtPropertyStructContainer *
+GtObject::findPropertyContainer(const QString &id)
+{
+    return const_cast<GtPropertyStructContainer*>
+        (const_cast<const GtObject*>(this)->findPropertyContainer(id));
+}
+
+std::vector<std::reference_wrapper<const GtPropertyStructContainer> >
+GtObject::propertyContainers() const
+{
+    return {std::begin(pimpl->propertyContainer), std::end(pimpl->propertyContainer)};
+
+}
+
+std::vector<std::reference_wrapper<GtPropertyStructContainer>>&
+GtObject::propertyContainers()
+{
+    return pimpl->propertyContainer;
 }
 
 void
@@ -591,18 +690,18 @@ GtObject::setFlag(GtObject::ObjectFlag flag, bool enable)
 {
     if (enable)
     {
-        m_objectFlags = m_objectFlags | flag;
+        pimpl->objectFlags = pimpl->objectFlags | flag;
     }
     else
     {
-        m_objectFlags = m_objectFlags & ~flag;
+        pimpl->objectFlags = pimpl->objectFlags & ~flag;
     }
 }
 
 GtAbstractObjectFactory*
 GtObject::factory() const
 {
-    return m_factory;
+    return pimpl->factory;
 }
 
 void
@@ -657,10 +756,10 @@ GtObject::getObjectByPath(const QString& objectPath)
 void
 GtObject::connectProperty(GtAbstractProperty& property)
 {
-    connect(&property, SIGNAL(changed()), m_propertyMapper, SLOT(map()),
+    connect(&property, SIGNAL(changed()), pimpl->propertyMapper.get(), SLOT(map()),
             Qt::UniqueConnection);
 
-    m_propertyMapper->setMapping(&property, &property);
+    pimpl->propertyMapper->setMapping(&property, &property);
 
     foreach (GtAbstractProperty* child, property.fullProperties())
     {
@@ -698,10 +797,25 @@ GtObject::newChildUUIDs(GtObject* parent) const
     }
 }
 
+void GtObject::makeDummy()
+{
+    pimpl->makeDummy();
+}
+
+void GtObject::importMementoIntoDummy(const GtObjectMemento& memento)
+{
+    pimpl->importDummy(memento);
+}
+
+void GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
+{
+    pimpl->exportDummy(memento);
+}
+
 bool
 GtObject::registerProperty(GtAbstractProperty& property)
 {
-    if (m_properties.contains(&property))
+    if (pimpl->properties.contains(&property))
     {
         gtWarning() << tr("multiple property registration!")
                     << QStringLiteral(" Object Name (") << objectName()
@@ -713,7 +827,32 @@ GtObject::registerProperty(GtAbstractProperty& property)
 
     connectProperty(property);
 
-    m_properties.append(&property);
+    pimpl->properties.append(&property);
+
+    return true;
+}
+
+bool
+GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
+{
+    auto iter = std::find_if(std::begin(pimpl->propertyContainer),
+                             std::end(pimpl->propertyContainer),
+                             [&](const GtPropertyStructContainer& current)
+    {
+        return &current == &c;
+    });
+
+    if (iter != pimpl->propertyContainer.end())
+    {
+        gtWarning() << tr("multiple property container registration!")
+                    << QStringLiteral(" Object Name (") << objectName()
+                    << QStringLiteral(")")
+                    << QStringLiteral(" Property Name (") << c.ident()
+                    << QStringLiteral(")");
+        return false;
+    }
+
+    pimpl->propertyContainer.push_back(c);
 
     return true;
 }

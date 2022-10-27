@@ -71,8 +71,6 @@ TEST_F(TestGtDummyObject, toMemento)
 
     ASSERT_TRUE(newObj->isDummy());
 
-    newObj->debugObjectTree();
-
     GtObjectMemento dummyMemento = newObj->toMemento();
     dummyMemento.calculateHashes();
 

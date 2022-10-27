@@ -93,7 +93,7 @@ public:
      * @brief Returns value of source property inf orm of QVariant.
      * @return Value from source.
      */
-    QVariant valueFromSource();
+    QVariant valueFromSource() const;
 
     /**
      * @brief Returns true if connection is already connected.

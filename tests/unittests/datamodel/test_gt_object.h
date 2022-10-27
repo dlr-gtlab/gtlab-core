@@ -30,6 +30,7 @@
 #include "gt_existingdirectoryproperty.h"
 #include "gt_openfilenameproperty.h"
 #include "gt_regexp.h"
+#include "test_propertycontainerobject.h"
 
 class TestSpecialGtObject : public GtObjectGroup
 {
@@ -203,9 +204,11 @@ public:
         doubleVec = value;
     }
 
-    virtual bool childAccepted(GtObject* child) override
+    bool childAccepted(GtObject* child) override
     {
-        return qobject_cast<GtObjectGroup*>(child);
+        return qobject_cast<GtObjectGroup*>(child) != nullptr ||
+               qobject_cast<GtPropertyConnection*>(child) != nullptr ||
+               qobject_cast<TestObject*>(child) != nullptr;
     }
 
     GtBoolProperty* m_boolProp;

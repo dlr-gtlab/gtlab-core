@@ -62,4 +62,15 @@ public:
 
 };
 
+namespace gt
+{
+
+/**
+ * @brief Creates a property factory for double lists
+ */
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeDoubleListProperty();
+
+} // namespace gt
+
 #endif // GT_DOUBLELISTPROPERTY_H

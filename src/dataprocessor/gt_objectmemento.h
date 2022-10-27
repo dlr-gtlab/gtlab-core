@@ -22,6 +22,7 @@ class GtAbstractObjectFactory;
 class GtObjecIO;
 class QCryptographicHash;
 class VariantHasher;
+class GtPropertyStructInstance;
 
 /**
  * @brief The GtObjectMemento class
@@ -173,14 +174,13 @@ public:
         enum PropertyType
         {
             DATA_T,
-            DYNCONT_T,
+            STRUCT_T,
             ENUM_T // only used by meta properties
         };
 
         QString name;
         bool isOptional = false;
         bool isActive = true;
-        QString dynamicObjectName;
 
         const QVariant& data() const
         {
@@ -200,13 +200,7 @@ public:
             return _type;
         }
 
-        static PropertyData
-        makeDynamicContainer(const QString& dynamicObjectName);
-
-        static PropertyData
-        makeDynamicChild(const QVariant& value,
-                         const QString& dynamicObjectName,
-                         const QString& dynamicTypeName);
+        PropertyData& toStruct(const QString& structTypeName);
 
         PropertyData& fromQMetaProperty(const QMetaProperty& prop,
                                         const QVariant& val);
@@ -221,6 +215,16 @@ public:
         PropertyType _type  {DATA_T};
 
     };
+
+
+    /**
+     * @brief Searches a property by its name
+     * @param list The list to search for
+     * @param name The property name
+     * @return Pointer to the property or nullptr
+     */
+    static PropertyData const *
+    findPropertyByName(const QVector<PropertyData>& list, const QString& name);
 
 
     /**
@@ -239,7 +243,7 @@ public:
     void calculateHashes() const;
 
     QVector<PropertyData> properties;
-    QVector<PropertyData> dynamicSizeProperties;
+    QVector<PropertyData> propertyContainers;
     QVector<GtObjectMemento> childObjects;
 
 private:
@@ -254,5 +258,14 @@ private:
 
 
 };
+
+namespace gt
+{
+
+GT_DATAMODEL_EXPORT
+void importStructEntryFromMemento(const GtObjectMemento::PropertyData& propStruct,
+                                  GtPropertyStructInstance& structEntry);
+
+} // namespace gt
 
 #endif // GTOBJECTMEMENTO_H

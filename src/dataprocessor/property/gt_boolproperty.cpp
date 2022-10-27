@@ -55,3 +55,11 @@ GtBoolProperty::setValueFromVariant(const QVariant& val,
 
     return true;
 }
+
+
+gt::PropertyFactoryFunction
+gt::makeBoolProperty(bool value)
+{
+    return makePropertyFactory<GtBoolProperty>(std::move(value));
+}
+

@@ -33,6 +33,8 @@ public:
         Custom
     };
 
+    ~GtAbstractProperty();
+
     /**
      * @brief valueAsVariant
      * @return
@@ -126,13 +128,13 @@ public:
      * @brief properties
      * @return
      */
-    virtual const QList<GtAbstractProperty*>& properties();
+    virtual const QList<GtAbstractProperty*>& properties() const;
 
     /**
      * @brief fullProperties
      * @return
      */
-    const QList<GtAbstractProperty*>& fullProperties();
+    const QList<GtAbstractProperty*>& fullProperties() const;
 
     /**
      * @brief registerSubProperty
@@ -207,6 +209,7 @@ public:
      * @return
      */
     GtAbstractProperty* findProperty(const QString& id);
+    GtAbstractProperty const * findProperty(const QString& id) const;
 
     GtAbstractProperty* findPropertyByName(const QString& name);
 
@@ -255,17 +258,7 @@ protected:
     /**
      * @brief GtAbstractProperty
      */
-    GtAbstractProperty() :
-        m_connection(nullptr)
-    {
-        m_readOnly = false;
-        m_optional = false;
-        m_active = true;
-        m_hidden = false;
-        m_storeMemento = true;
-        m_category = GtAbstractProperty::Main;
-        m_unitCategory = GtUnit::None;
-    }
+    GtAbstractProperty();
 
     /// Identification string
     QString m_id;
@@ -277,31 +270,31 @@ protected:
     QString m_customCategoryString;
 
     /// Unit Category of the parameter
-    GtUnit::Category m_unitCategory;
+    GtUnit::Category m_unitCategory{GtUnit::None};
 
     /// List of all sub properties
     QList<GtAbstractProperty*> m_subProperties;
 
     /// Read only indicator
-    bool m_readOnly;
+    bool m_readOnly{false};
 
     /// Optional indicator
-    bool m_optional;
+    bool m_optional{false};
 
     /// Active indicator
-    bool m_active;
+    bool m_active{true};
 
     /// Hide indicator
-    bool m_hidden;
+    bool m_hidden{false};
 
     /// Whether property is stored in memento information or not
-    bool m_storeMemento;
+    bool m_storeMemento{true};
 
     /// Property category
-    GtAbstractProperty::PropertyCategory m_category;
+    GtAbstractProperty::PropertyCategory m_category{GtAbstractProperty::Main};
 
     /// Pointer to property connection
-    QPointer<GtPropertyConnection> m_connection;
+    QPointer<GtPropertyConnection> m_connection{nullptr};
 
     /**
      * @brief setValFromConnection
@@ -326,6 +319,24 @@ signals:
 
 Q_DECLARE_METATYPE(GtUnit::Category)
 
+namespace gt
+{
 
+GT_DATAMODEL_EXPORT
+QVariant getConnectedValue(const GtPropertyConnection& connection);
+
+/**
+     * Function definition to create a property with the
+     * identifier 'id'
+     *
+     * This is mainly used to recreate types in property container.
+     *
+     * Note: we currently omit the "name" argument, as name is used
+     * to store the dynamic type of the struct
+     */
+using PropertyFactoryFunction =
+    std::function<GtAbstractProperty*(const QString& id)>;
+
+} // namespace gt
 
 #endif // GTABSTRACTPROPERTY_H

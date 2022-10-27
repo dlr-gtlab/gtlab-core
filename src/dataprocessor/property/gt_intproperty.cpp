@@ -195,3 +195,9 @@ GtIntProperty::validateValue(const int& value)
 
     return true;
 }
+
+gt::PropertyFactoryFunction
+gt::makeIntProperty(int value)
+{
+    return makePropertyFactory<GtIntProperty>(std::move(value));
+}

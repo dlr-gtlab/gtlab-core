@@ -112,10 +112,20 @@ private:
     /**
      * @brief detectPropertyChanges
      */
-
     void detectPropertyChanges(const QVector<GtObjectMemento::PropertyData>& leftProperties,
                                const QVector<GtObjectMemento::PropertyData>& rightProperties,
-                               QDomElement& diffRoot, bool isDynamic);
+                               QDomElement& diffRoot);
+    void
+    detectDynamicPropertyChanges(
+        const GtObjectMemento::PropertyData& leftContainer,
+        const GtObjectMemento::PropertyData& rightContainer,
+        QDomElement& diffRoot);
+
+    void
+    detectDynamicPropertyChanges(
+        const QVector<GtObjectMemento::PropertyData>& leftContainers,
+        const QVector<GtObjectMemento::PropertyData>& rightContainers,
+        QDomElement& diffRoot);
 
     /**
      * @brief handlePropertyChange
@@ -153,6 +163,30 @@ private:
                             int oldIndex,
                             int newIndex,
                             QDomElement& diffRoot);
+
+    /**
+     * @brief handleContainerElementAdded
+     * @param idx The index, where the element was added
+     * @param entryData
+     * @param diffRoot
+     */
+    void handleContainerElementAdded(
+        QString containerName,
+        int idx,
+        const GtObjectMemento::PropertyData& entryData,
+        QDomElement& diffRoot);
+
+    void handleContainerElementRemoved(
+        QString containerName,
+        int idx,
+        const GtObjectMemento::PropertyData& entryData,
+        QDomElement& diffRoot);
+
+    void handleContainerElementChanged(const QString& containerName,
+        const QString& elementName,
+        const GtObjectMemento::PropertyData& before,
+        const GtObjectMemento::PropertyData& after,
+        QDomElement& diffRoot);
 
     /**
      * @brief copies all attributes from a reference QDomElement to a

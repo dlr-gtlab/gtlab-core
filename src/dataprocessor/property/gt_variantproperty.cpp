@@ -47,3 +47,11 @@ GtVariantProperty::setValueFromVariant(const QVariant& val,
     return retval;
 }
 
+
+gt::PropertyFactoryFunction
+gt::makeVariantProperty(const GtUnit::Category &unitCategory)
+{
+    return [=](const QString& id) {
+        return new GtVariantProperty(id, "", unitCategory);
+    };
+}
