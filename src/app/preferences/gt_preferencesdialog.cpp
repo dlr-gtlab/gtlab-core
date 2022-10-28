@@ -87,6 +87,8 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     setWindowIcon(gt::gui::icon::config16());
     setFixedHeight(530);
     setFixedWidth(600);
+
+    loadSettings();
 }
 
 void GtPreferencesDialog::addPage(GtPreferencesPage *page)
@@ -143,4 +145,20 @@ GtPreferencesDialog::saveChanges()
     }
 
     accept();
+}
+
+void
+GtPreferencesDialog::loadSettings()
+{
+    QObjectList pageList = m_pagesWidget->children();
+
+    for (int i = 0; i < pageList.size(); i++)
+    {
+        GtPreferencesPage* page = qobject_cast<GtPreferencesPage*>(pageList[i]);
+
+        if (page)
+        {
+            page->loadSettings(*gtApp->settings());
+        }
+    }
 }

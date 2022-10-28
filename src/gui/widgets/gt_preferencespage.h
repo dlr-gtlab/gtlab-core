@@ -10,6 +10,8 @@
 #ifndef GTPREFERENCESPAGE_H
 #define GTPREFERENCESPAGE_H
 
+#include "gt_gui_exports.h"
+
 #include <QWidget>
 #include <QIcon>
 
@@ -20,7 +22,7 @@ class GtSettings;
 /**
  * @brief The GtPreferencesPage class
  */
-class GtPreferencesPage : public QWidget
+class GT_GUI_EXPORT GtPreferencesPage : public QWidget
 {
     Q_OBJECT
 public:

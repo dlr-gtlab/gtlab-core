@@ -52,6 +52,7 @@ private:
     ///
     QStackedWidget* m_pagesWidget;
 
+    void loadSettings();
 };
 
 #endif // GTPREFERENCESDIALOG_H
