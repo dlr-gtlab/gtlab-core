@@ -5,6 +5,8 @@
 #include <QSpacerItem>
 #include "gt_settings.h"
 
+#include "gt_moduleinterface.h"
+
 TestPreferencePage::TestPreferencePage()
     : GtPreferencesPage("Module Interface")
 {
@@ -16,11 +18,13 @@ TestPreferencePage::TestPreferencePage()
 void
 TestPreferencePage::saveSettings(GtSettings & s) const
 {
-    s.setSetting("datamodel/testtext", m_label->text());
+    s.setSetting(moduleSettingPath(GT_MODULENAME(), "testtext"),
+                 m_label->text());
 }
 
 void
 TestPreferencePage::loadSettings(const GtSettings & s)
 {
-    m_label->setText(s.getSetting("datamodel/testtext").toString());
+    m_label->setText(
+        s.getSetting(moduleSettingPath(GT_MODULENAME(), "testtext")).toString());
 }

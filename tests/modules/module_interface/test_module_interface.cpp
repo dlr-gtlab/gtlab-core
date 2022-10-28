@@ -157,7 +157,8 @@ TestModuleInterface::onLoad()
 void
 TestModuleInterface::init()
 {
-    gtApp->settings()->registerSetting("datamodel/testtext", "A default value");
+    gtApp->settings()->registerSetting(
+        moduleSettingPath(GT_MODULENAME(), "testtext"), "A default value");
 
     auto pageFactory = []() -> GtPreferencesPage* {
         return new TestPreferencePage;
