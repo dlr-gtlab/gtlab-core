@@ -61,5 +61,5 @@ Feature: Test the Datamodel Interface
          When the project is closed
           And the project is deleted permanently
          Then the project does not exists
-          And the last output line reads '"Project has been deleted from hard-disk successfully"'
+          And the last output line reads 'Project has been deleted from hard-disk successfully'
 
