@@ -72,19 +72,19 @@ GtProject::setModuleIds(const QStringList& list)
 const QString
 GtProject::mainFilename()
 {
-    return QStringLiteral("project") + mainFileExtension();
+    return QStringLiteral("project.") + mainFileExtension();
 }
 
 const QString
 GtProject::mainFileExtension()
 {
-    return QStringLiteral(".gtlab");
+    return QStringLiteral("gtlab");
 }
 
 const QString
 GtProject::moduleExtension()
 {
-    return QStringLiteral(".gtmod");
+    return QStringLiteral("gtmod");
 }
 
 QString
@@ -596,7 +596,7 @@ GtProject::readModuleData()
         // check for old module file and rename it
         renameOldModuleFile(m_path, mid);
 
-        QString filename = m_path + QDir::separator() + mid.toLower() +
+        QString filename = m_path + QDir::separator() + mid.toLower() + "." +
                            moduleExtension();
 
         QFile file(filename);
@@ -730,7 +730,7 @@ GtProject::saveModuleData()
             continue;
         }
 
-        QString filename = m_path + QDir::separator() + mid.toLower() +
+        QString filename = m_path + QDir::separator() + mid.toLower() + "." +
                            moduleExtension();
 
         if (!saveProjectFiles(filename, document))
@@ -976,7 +976,7 @@ void
 GtProject::renameOldModuleFile(const QString& path, const QString& modId)
 {
     QString filename = path + QDir::separator() + modId.toLower() +
-                       mainFileExtension();
+                       + "." + mainFileExtension();
 
     QFile file(filename);
 
@@ -986,7 +986,8 @@ GtProject::renameOldModuleFile(const QString& path, const QString& modId)
         return;
     }
 
-    file.rename(path + QDir::separator() + modId.toLower() + moduleExtension());
+    file.rename(path + QDir::separator() + modId.toLower() + "." +
+                moduleExtension());
 }
 
 bool
@@ -1083,24 +1084,23 @@ GtProject::updateModuleFootprint(const QStringList& modIds)
             return;
         }
 
-         QDomElement cor_major =
-                 core_ver.firstChildElement(QStringLiteral("major"));
-         QDomElement cor_minor =
-                 core_ver.firstChildElement(QStringLiteral("minor"));
-         QDomElement cor_patch =
-                 core_ver.firstChildElement(QStringLiteral("patch"));
+        // remove all children
+        QDomElement pe = core_ver.firstChildElement();
+        while (!pe.isNull())
+        {
+            core_ver.removeChild(pe);
+            pe = core_ver.firstChildElement();
+        }
 
-         if (cor_major.isNull() || cor_minor.isNull() || cor_patch.isNull())
-         {
-             return;
-         }
+        // remove text node
+        QDomNodeList nodelist = core_ver.childNodes();
+        if (!nodelist.isEmpty())
+        {
+            nodelist.at(0).parentNode().removeChild(nodelist.at(0));
+        }
 
-         cor_major.firstChild().setNodeValue(
-                     QString::number(gtApp->majorRelease()));
-         cor_minor.firstChild().setNodeValue(
-                     QString::number(gtApp->minorRelease()));
-         cor_patch.firstChild().setNodeValue(
-                     QString::number(gtApp->patchLevel()));
+        QDomText t = document.createTextNode(gtApp->version().toString());
+        core_ver.appendChild(t);
     }
 
     QDomElement mods = footprint.firstChildElement(QStringLiteral("modules"));
@@ -1155,7 +1155,7 @@ GtProject::path() const
 QString
 GtProject::moduleDataPath(const QString &moduleId) const
 {
-    return path() + QDir::separator() + moduleId.toLower() +
+    return path() + QDir::separator() + moduleId.toLower() + "." +
             GtProject::moduleExtension();
 }
 

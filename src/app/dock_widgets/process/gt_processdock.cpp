@@ -278,11 +278,16 @@ GtProcessDock::projectChangedEvent(GtProject* project)
     m_model->setSourceModel(gtDataModel);
     m_filterModel->setSourceModel(m_model);
     m_project = project;
+    m_taskGroup = nullptr;
 
     if (project)
     {
         m_processQueueButton->setEnabled(true);
-        m_taskGroup = project->processData()->taskGroup();
+
+        if (project->processData())
+        {
+            m_taskGroup = project->processData()->taskGroup();
+        }
 
         if (m_taskGroup)
         {

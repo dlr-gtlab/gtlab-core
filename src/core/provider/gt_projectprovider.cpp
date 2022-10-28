@@ -780,7 +780,7 @@ GtProjectProvider::moduleFilename(const QString& id)
         return QString();
     }
 
-    return m_pPath + QDir::separator() + id.toLower() +
+    return m_pPath + QDir::separator() + id.toLower() + "." +
            GtProject::moduleExtension();
 }
 

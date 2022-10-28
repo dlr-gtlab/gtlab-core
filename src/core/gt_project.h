@@ -239,19 +239,6 @@ public:
     static bool updateProjectMetaData(const QDir& projectPath,
                                       const ProjectMetaData& data);
 
-protected:
-    /**
-     * @brief GtProject
-     * @param path
-     */
-    explicit GtProject(const QString& path);
-
-    /**
-     * @brief setModuleIds
-     * @param list
-     */
-    void setModuleIds(const QStringList& list);
-
     /**
      * @brief Returns filename of main GTlab project file
      * @return
@@ -269,6 +256,19 @@ protected:
      * @return
      */
     static const QString moduleExtension();
+
+protected:
+    /**
+     * @brief GtProject
+     * @param path
+     */
+    explicit GtProject(const QString& path);
+
+    /**
+     * @brief setModuleIds
+     * @param list
+     */
+    void setModuleIds(const QStringList& list);
 
 private:
     /// Path to project directory on hard drive

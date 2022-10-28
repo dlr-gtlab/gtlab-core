@@ -5,7 +5,11 @@
  *  Author: Stanislaus Reitenbach (AT-TWK)
  */
 
+#include <QFileInfo>
+#include <QDomElement>
+
 #include "gt_logging.h"
+#include "gt_project.h"
 
 #include "gt_coreupgraderoutines.h"
 
@@ -13,7 +17,47 @@ bool
 gtlab::internal::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
                                                         const QString& context)
 {
-    Q_UNUSED(domElement)
-    Q_UNUSED(context)
+    gtInfo() << "DO SOMETHING UPGRADE!";
+    gtInfo() << "context-> " << context;
+
+    // check whether context is a project file. if not than nothing to do here
+    QFileInfo info(context);
+    gtDebug() << "suffix: " << info.suffix();
+    if (info.suffix() != GtProject::mainFileExtension())
+    {
+        return true;
+    }
+
+    // context is project file. let us move the process information from project
+    // file to separate task files.
+    // why? because its fancy shit
+
+    if (domElement.isNull() || (domElement.tagName() != QLatin1String("GTLAB")))
+    {
+        gtError() << "Invalid GTlab project file!";
+        return false;
+    }
+
+    /* process informations */
+    QDomElement pdata =
+            domElement.firstChildElement(QStringLiteral("PROCESSES"));
+
+    // if no process information is available, we are already happy now
+    if (pdata.isNull())
+    {
+        // very happy
+        return true;
+    }
+
+    // not good not bad. but we need to convert the process information now
+    QDomElement pe = pdata.firstChildElement(QStringLiteral("object"));
+    while (!pe.isNull())
+    {
+        // we found a task. lets move him to a separate file
+        gtDebug() << "task found: " << pe.attribute("name");
+
+        pe = pe.nextSiblingElement(QStringLiteral("object"));
+    }
+
     return true;
 }
