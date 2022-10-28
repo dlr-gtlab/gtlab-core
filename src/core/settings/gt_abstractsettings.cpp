@@ -61,7 +61,8 @@ GtAbstractSettings::setSetting(const QString &ident, const QVariant &value)
     }
 }
 
-QVariant GtAbstractSettings::getSetting(const QString &ident) const
+QVariant
+GtAbstractSettings::getSetting(const QString &ident) const
 {
     auto iter = m_settings.find(ident);
     if (iter != m_settings.end())

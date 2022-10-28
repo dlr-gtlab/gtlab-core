@@ -737,7 +737,8 @@ GtApplication::customPreferencePages()
     return customPages();
 }
 
-void GtApplication::addCustomPreferencePage(PageFactory f)
+void
+GtApplication::addCustomPreferencePage(PageFactory f)
 {
     customPages().append(std::move(f));
 }

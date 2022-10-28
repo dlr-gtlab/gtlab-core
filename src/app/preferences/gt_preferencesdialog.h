@@ -52,6 +52,10 @@ private:
     ///
     QStackedWidget* m_pagesWidget;
 
+    /**
+     * @brief Loads the internally stored settings into
+     * the widgets of each preference page
+     */
     void loadSettings();
 };
 

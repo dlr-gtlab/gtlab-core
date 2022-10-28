@@ -94,7 +94,9 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
 void GtPreferencesDialog::addPage(GtPreferencesPage *page)
 {
     if (!page)
+    {
         return;
+    }
 
     m_pagesWidget->addWidget(page);
 
