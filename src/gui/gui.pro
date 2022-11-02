@@ -8,6 +8,8 @@
 #### DO NOT CHANGE!
 ######################################################################
 
+GT_MODULE_ID="Gui"
+
 include( $${PWD}/../../settings.pri )
 
 CONFIG(debug, debug|release){
@@ -23,7 +25,6 @@ CONFIG += silent
 CONFIG += c++14
 
 DEFINES += GT_GUI_DLL
-DEFINES += GT_MODULE_ID='"\\\"Gui\\\""'
 
 QTPLUGIN += gif
 

@@ -8,6 +8,8 @@
 #### DO NOT CHANGE!
 ######################################################################
 
+GT_MODULE_ID="Batch"
+
 include( ../../settings.pri )
 
 win32 {
@@ -21,8 +23,6 @@ TEMPLATE = app
 CONFIG += console
 CONFIG += silent
 CONFIG += c++14
-
-DEFINES += GT_MODULE_ID='"\\\"Batch\\\""'
 
 CONFIG(debug, debug|release){
     DESTDIR = $${BUILD_DEST}/debug-batch

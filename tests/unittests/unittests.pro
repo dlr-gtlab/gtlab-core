@@ -8,6 +8,8 @@
 #### DO NOT CHANGE!
 ######################################################################
 
+GT_MODULE_ID="Unittests"
+
 include( $${PWD}/../../settings.pri )
 
 TEMPLATE = app
@@ -35,8 +37,6 @@ CONFIG(debug, debug|release){
 CONFIG += silent
 CONFIG += c++14
 CONFIG += console
-
-DEFINES += GT_MODULE_ID='"\\\"Unittests\\\""'
 
 #CURRENT_DIR=$$project_src_dir/tests/unittests
 
