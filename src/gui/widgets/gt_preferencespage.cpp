@@ -13,11 +13,14 @@
 #include <QDebug>
 
 #include "gt_preferencespage.h"
+#include "gt_icons.h"
 
-GtPreferencesPage::GtPreferencesPage(QWidget* parent) : QWidget(parent)
+GtPreferencesPage::GtPreferencesPage(const QString& title, QWidget* parent) :
+    QWidget(parent)
 {
     m_layout = new QVBoxLayout;
-    m_title = new QLabel("Preferences Page");
+    m_title = new QLabel(title);
+    m_icon = gt::gui::icon::application();
 
     QFont font = m_title->font();
     font.setBold(true);
@@ -36,8 +39,38 @@ GtPreferencesPage::setTitle(const QString& id)
 }
 
 void
+GtPreferencesPage::setTitleShort(const QString &shortTitle)
+{
+    m_shortTitle = shortTitle;
+}
+
+void
+GtPreferencesPage::setIcon(const QIcon &icon)
+{
+    m_icon = icon;
+}
+
+void
 GtPreferencesPage::addStretch(int val)
 {
     m_layout->addStretch(val);
+}
+
+QString
+GtPreferencesPage::title() const
+{
+    return m_title->text();
+}
+
+QString
+GtPreferencesPage::titleShort() const
+{
+    return m_shortTitle.isEmpty() ? title() : m_shortTitle;
+}
+
+QIcon
+GtPreferencesPage::icon() const
+{
+    return m_icon;
 }
 

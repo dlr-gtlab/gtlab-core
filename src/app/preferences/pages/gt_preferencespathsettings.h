@@ -29,16 +29,17 @@ public:
     /**
      * @brief Saves environment settings.
      */
-    void saveSettings() override;
+    void saveSettings(GtSettings&) const override;
+
+    /**
+     * @brief Loades environment settings.
+     */
+    void loadSettings(const GtSettings&) override;
 
 private:
     /// Envirnoment model
     GtEnvironmentModel* m_model;
 
-    /**
-     * @brief Loades environment settings.
-     */
-    void loadSettings() override;
     void loadSettingsImpl();
 };
 

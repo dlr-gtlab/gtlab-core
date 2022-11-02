@@ -13,6 +13,7 @@
 #include "gt_regexp.h"
 #include "gt_settings.h"
 #include "gt_shortcutedit.h"
+#include "gt_icons.h"
 
 #include <QTableWidget>
 #include <QHeaderView>
@@ -21,9 +22,10 @@
 #include <QSpacerItem>
 
 GtPreferencesShortCuts::GtPreferencesShortCuts() :
+    GtPreferencesPage(tr("Short Cuts")),
     m_tab(nullptr)
 {
-    setTitle(tr("Short Cuts"));
+    setIcon(gt::gui::icon::input2());
 
     QVBoxLayout* mainLayout = qobject_cast<QVBoxLayout*>(layout());
 
@@ -112,7 +114,7 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
 }
 
 void
-GtPreferencesShortCuts::saveSettings()
+GtPreferencesShortCuts::saveSettings(GtSettings& settings) const
 {
     GtShortCuts* cuts = gtApp->shortCuts();
 
@@ -154,11 +156,11 @@ GtPreferencesShortCuts::saveSettings()
         cuts->emitChange();
     }
 
-    gtApp->settings()->setShortcutsTable(settingsList);
+    settings.setShortcutsTable(settingsList);
 }
 
 void
-GtPreferencesShortCuts::loadSettings()
+GtPreferencesShortCuts::loadSettings(const GtSettings&)
 {
 
 }

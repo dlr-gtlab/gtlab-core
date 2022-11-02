@@ -15,6 +15,9 @@
 #include "test_module_interface.h"
 
 #include "gt_functional_interface.h"
+#include "gt_application.h"
+#include "test_preferencepage.h"
+#include "gt_settings.h"
 
 #include <iostream>
 
@@ -149,5 +152,16 @@ TestModuleInterface::metaInformation() const
 void
 TestModuleInterface::onLoad()
 {
+}
 
+void
+TestModuleInterface::init()
+{
+    gtApp->settings()->registerSetting(
+        moduleSettingPath(GT_MODULENAME(), "testtext"), "A default value");
+
+    auto pageFactory = []() -> GtPreferencesPage* {
+        return new TestPreferencePage;
+    };
+    GtApplication::addCustomPreferencePage(pageFactory);
 }

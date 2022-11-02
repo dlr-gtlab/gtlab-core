@@ -724,6 +724,25 @@ GtApplication::moduleShortCuts() const
     return m_moduleShortCuts;
 }
 
+QList<GtApplication::PageFactory>&
+customPages()
+{
+    static QList<GtApplication::PageFactory> pages;
+    return pages;
+}
+
+const QList<GtApplication::PageFactory> &
+GtApplication::customPreferencePages()
+{
+    return customPages();
+}
+
+void
+GtApplication::addCustomPreferencePage(PageFactory f)
+{
+    customPages().append(std::move(f));
+}
+
 bool
 GtApplication::inDarkMode()
 {

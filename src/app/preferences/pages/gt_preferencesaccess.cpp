@@ -23,12 +23,12 @@
 
 #include "gt_preferencesaccess.h"
 
-GtPreferencesAccess::GtPreferencesAccess()
+GtPreferencesAccess::GtPreferencesAccess() :
+    GtPreferencesPage(tr("Access"))
 {
-    setTitle(tr("Access"));
-
 //    QVBoxLayout* lay = new QVBoxLayout;
 
+    setIcon(gt::gui::icon::login());
     m_tabWidget = new QTabWidget;
 
     layout()->addWidget(m_tabWidget);
@@ -78,16 +78,18 @@ GtPreferencesAccess::GtPreferencesAccess()
 
         m_tabWidget->addTab(tab, group->objectName());
     }
+
+    setEnabled(!gtAccessManager->isEmpty());
 }
 
 void
-GtPreferencesAccess::saveSettings()
+GtPreferencesAccess::saveSettings(GtSettings&) const
 {
 
 }
 
 void
-GtPreferencesAccess::loadSettings()
+GtPreferencesAccess::loadSettings(const GtSettings&)
 {
 
 }

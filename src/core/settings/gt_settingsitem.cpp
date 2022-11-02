@@ -8,6 +8,7 @@
  */
 
 #include "gt_settingsitem.h"
+#include <QSettings>
 
 GtSettingsItem::GtSettingsItem(const QString& ident, const QVariant& initVal) :
     m_ident(ident), m_initValue(initVal)
@@ -16,14 +17,25 @@ GtSettingsItem::GtSettingsItem(const QString& ident, const QVariant& initVal) :
 }
 
 const QString&
-GtSettingsItem::ident()
+GtSettingsItem::ident() const
 {
     return m_ident;
 }
 
 const QVariant&
-GtSettingsItem::initValue()
+GtSettingsItem::initValue() const
 {
     return m_initValue;
+}
+
+void
+GtSettingsItem::setValue(const QVariant &value)
+{
+    QSettings().setValue(ident(), value);
+}
+
+QVariant GtSettingsItem::getValue() const
+{
+    return QSettings().value(ident(), initValue());
 }
 

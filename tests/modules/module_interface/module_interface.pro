@@ -40,20 +40,22 @@ DEPENDPATH  += ../../../lib/core
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
-    test_module_interface.h
+    test_module_interface.h \
+    test_preferencepage.h
 
 
 SOURCES += \
-    test_module_interface.cpp 
+    test_module_interface.cpp  \
+    test_preferencepage.cpp
 
 CONFIG(debug, debug|release){
     # GTLAB CORE
     LIBS += -lGTlabLogging-d -lGTlabNumerics-d
-    LIBS += -lGTlabCore-d -lGTlabDataProcessor-d
+    LIBS += -lGTlabGui-d -lGTlabCore-d -lGTlabDataProcessor-d
 } else {
     # GTLAB CORE
     LIBS += -lGTlabLogging -lGTlabNumerics
-    LIBS += -lGTlabCore -lGTlabDataProcessor
+    LIBS += -lGTlabGui -lGTlabCore -lGTlabDataProcessor
 }
 
 # add search paths to shared libraries

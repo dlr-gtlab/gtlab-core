@@ -17,55 +17,105 @@
 #include <QString>
 
 
-GtSettings::GtSettings()
+struct GtSettings::Impl
 {
-    m_lastSession = registerSetting(
+
+    ///
+    GtSettingsItem* lastSession;
+
+    ///
+    GtSettingsItem* openSession;
+
+    ///
+    GtSettingsItem* language;
+
+    ///
+    GtSettingsItem* firstRun;
+
+    ///
+    GtSettingsItem* lastPath;
+
+    ///
+    GtSettingsItem* lastPerspective;
+
+    ///
+    GtSettingsItem* showStartupPage;
+
+    ///
+    GtSettingsItem* searchForUpdate;
+
+    ///
+    GtSettingsItem* lastProject;
+
+    ///
+    GtSettingsItem* openProject;
+
+    ///
+    GtSettingsItem* maxLogLength;
+
+    ///
+    GtSettingsItem* lastProcessElements;
+
+    /// Explorer dock widget expand states setting
+    GtSettingsItem* explorerExpandStates;
+
+    /// Settings for short cuts in GTlab
+    GtSettingsItem* shortcutsTable;
+
+    /// Settings for theme selection
+    GtSettingsItem* themeSelection;
+};
+
+GtSettings::GtSettings()
+    : pimpl(std::make_unique<Impl>())
+{
+    pimpl->lastSession = registerSetting(
                         QStringLiteral("application/general/lastsession"),
                         QStringLiteral("default"));
-    m_openSession = registerSetting(
+    pimpl->openSession = registerSetting(
                         QStringLiteral("application/general/opensession"),
                         false);
-    m_language = registerSetting(QStringLiteral("application/general/language"),
+    pimpl->language = registerSetting(QStringLiteral("application/general/language"),
                                  QStringLiteral(""));
-    m_firstRun = registerSetting(QStringLiteral("application/general/firstRun"),
+    pimpl->firstRun = registerSetting(QStringLiteral("application/general/firstRun"),
                                  true);
-    m_lastPath = registerSetting(QStringLiteral("application/general/lastPath"),
+    pimpl->lastPath = registerSetting(QStringLiteral("application/general/lastPath"),
                                  QStringLiteral(""));
 
-    m_lastPerspective =
+    pimpl->lastPerspective =
             registerSetting(
                 QStringLiteral("application/general/lastPerspective"),
                 QStringLiteral("default"));
-    m_showStartupPage = registerSetting(
+    pimpl->showStartupPage = registerSetting(
                             QStringLiteral("application/general/startuppage"),
                             true);
-    m_searchForUpdate =
+    pimpl->searchForUpdate =
             registerSetting(
                 QStringLiteral("application/general/searchforupdate"),
                 true);
-    m_lastProject = registerSetting(
+    pimpl->lastProject = registerSetting(
                         QStringLiteral("application/general/lastproject"),
                         QStringLiteral(""));
-    m_openProject = registerSetting(
+    pimpl->openProject = registerSetting(
                         QStringLiteral("application/general/openproject"),
                         false);
-    m_maxLogLength = registerSetting(
+    pimpl->maxLogLength = registerSetting(
                          QStringLiteral("application/general/maxloglength"),
                          (int) 2000);
-    m_lastProcessElements =
+    pimpl->lastProcessElements =
             registerSetting(
                 QStringLiteral("application/process/lastelements"),
                 QStringList());
-    m_explorerExpandStates =
+    pimpl->explorerExpandStates =
             registerSetting(
                 QStringLiteral("application/explorer/expandstates"),
                 QStringList());
 
-    m_shortcutsTable = registerSetting(
+    pimpl->shortcutsTable = registerSetting(
                 QStringLiteral("application/general/shortCuts"),
                 initialShortCuts());
 
-    m_themeSelection = registerSetting(
+    pimpl->themeSelection = registerSetting(
                         QStringLiteral("application/general/themeSelection"),
                         QStringLiteral("system"));
 }
@@ -73,7 +123,7 @@ GtSettings::GtSettings()
 QList<GtShortCutSettingsData>
 GtSettings::shortcutsList() const
 {
-    QVariant val = QSettings().value(m_shortcutsTable->ident());
+    QVariant val = QSettings().value(pimpl->shortcutsTable->ident());
 
     QMap<QString, QVariant> helpingMap = val.toMap();
 
@@ -113,7 +163,7 @@ GtSettings::setShortcutsTable(QList<GtShortCutSettingsData> const& list)
         helpingMap.insert(s.id, s.dataToVariant());
     }
 
-    QSettings().setValue(m_shortcutsTable->ident(), QVariant(helpingMap));
+    QSettings().setValue(pimpl->shortcutsTable->ident(), QVariant(helpingMap));
 }
 
 
@@ -219,14 +269,14 @@ GtSettings::intialShortCutsList() const
 QString
 GtSettings::themeMode()
 {
-    QVariant val = QSettings().value(m_themeSelection->ident());
+    QVariant val = QSettings().value(pimpl->themeSelection->ident());
     return val.toString();
 }
 
 bool
 GtSettings::darkMode()
 {
-    QVariant val = QSettings().value(m_themeSelection->ident());
+    QVariant val = QSettings().value(pimpl->themeSelection->ident());
     QString s = val.toString();
 
     if (s.toStdString() == ("dark"))
@@ -264,133 +314,136 @@ GtSettings::darkMode()
 void
 GtSettings::setThemeMode(const QString& theme)
 {
-    QSettings().setValue(m_themeSelection->ident(), theme);
+    pimpl->themeSelection->setValue(theme);
 }
+
+GtSettings::~GtSettings() = default;
 
 QString
 GtSettings::lastSession()
 {
-    return QSettings().value(m_lastSession->ident()).toString();
+    return pimpl->lastSession->getValue().toString();
 }
 
 void
 GtSettings::setLastSession(const QString& val)
 {
-    QSettings().setValue(m_lastSession->ident(), val);
+    pimpl->lastSession->setValue(val);
 }
 
 QString
 GtSettings::lastProject()
 {
-    return QSettings().value(m_lastProject->ident()).toString();
+    return pimpl->lastProject->getValue().toString();
 }
 
 void
 GtSettings::setLastProject(const QString& val)
 {
-    QSettings().setValue(m_lastProject->ident(), val);
+    pimpl->lastProject->setValue(val);
 }
 
 QString
 GtSettings::lastPerspective()
 {
-    return QSettings().value(m_lastPerspective->ident()).toString();
+    return pimpl->lastPerspective->getValue().toString();
 }
 
 void
 GtSettings::setLastPerspective(const QString& val)
 {
-    QSettings().setValue(m_lastPerspective->ident(), val);
+    pimpl->lastPerspective->setValue(val);
 }
 
 QString
 GtSettings::lastPath()
 {
-    return QSettings().value(m_lastPath->ident()).toString();
+    return pimpl->lastPath->getValue().toString();
 }
 
 void
 GtSettings::setLastPath(const QString& val)
 {
-    QSettings().setValue(m_lastPath->ident(), val);
+    pimpl->lastPath->setValue(val);
 }
 
 bool
 GtSettings::openLastSession()
 {
-    return QSettings().value(m_openSession->ident()).toBool();
+    return pimpl->openSession->getValue().toBool();
 }
 
 void
 GtSettings::setOpenLastSession(bool val)
 {
-    QSettings().setValue(m_openSession->ident(), val);
+    pimpl->openSession->setValue(val);
 }
 
 bool
 GtSettings::openLastProject()
 {
-    return QSettings().value(m_openProject->ident()).toBool();
+    return pimpl->openProject->getValue().toBool();
 }
 
 void
 GtSettings::setOpenLastProject(bool val)
 {
-    QSettings().setValue(m_openProject->ident(), val);
+    pimpl->openProject->setValue(val);
 }
 
 QString
 GtSettings::language()
 {
-    return QSettings().value(m_language->ident()).toString();
+    return pimpl->language->getValue().toString();
 }
+
 
 void
 GtSettings::setLanguage(const QString& val)
 {
-    QSettings().setValue(m_language->ident(), val);
+    pimpl->language->setValue(val);
 }
 
 bool
 GtSettings::firstApplicationRun()
 {
-    return !QSettings().value(m_firstRun->ident()).toBool();
+    return !pimpl->firstRun->getValue().toBool();
 }
 
 void
 GtSettings::setShowStartupPage(bool val)
 {
-    QSettings().setValue(m_showStartupPage->ident(), val);
+    pimpl->showStartupPage->setValue(val);
 }
 
 bool
 GtSettings::showStartupPage()
 {
-    return QSettings().value(m_showStartupPage->ident()).toBool();
+    return pimpl->showStartupPage->getValue().toBool();
 }
 
 void
 GtSettings::setSearchForUpdate(bool val)
 {
-    QSettings().setValue(m_searchForUpdate->ident(), val);
+    pimpl->searchForUpdate->setValue(val);
 }
 
 bool
 GtSettings::searchForUpdate()
 {
-    return QSettings().value(m_searchForUpdate->ident()).toBool();
+    return pimpl->searchForUpdate->getValue().toBool();
 }
 
 void
 GtSettings::setMaxLogLength(int val)
 {
-    QSettings().setValue(m_maxLogLength->ident(), val);
+    pimpl->maxLogLength->setValue(val);
 }
 
 int
 GtSettings::maxLogLength()
 {
-    return QSettings().value(m_maxLogLength->ident()).toInt();
+    return pimpl->maxLogLength->getValue().toInt();
 }
 
 void
@@ -401,24 +454,24 @@ GtSettings::setLastProcessElements(const QStringList& list)
         return;
     }
 
-    QSettings().setValue(m_lastProcessElements->ident(), list);
+    pimpl->lastProcessElements->setValue(list);
 }
 
 QStringList
 GtSettings::lastProcessElements()
 {
-    return QSettings().value(m_lastProcessElements->ident()).toStringList();
+    return pimpl->lastProcessElements->getValue().toStringList();
 }
 
 void
 GtSettings::setExplorerExpandStates(const QStringList& list)
 {
-    QSettings().setValue(m_explorerExpandStates->ident(), list);
+    pimpl->explorerExpandStates->setValue(list);
 }
 
 QStringList
 GtSettings::explorerExpandStates()
 {
-    return QSettings().value(m_explorerExpandStates->ident()).toStringList();
+    return pimpl->explorerExpandStates->getValue().toStringList();
 }
 

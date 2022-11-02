@@ -307,6 +307,23 @@ public:
      */
     QList<GtShortCutSettingsData> moduleShortCuts() const;
 
+
+    using PageFactory = std::function<class GtPreferencesPage*()>;
+
+    /**
+     * @brief Adds a preference page to the preferences dialog
+     *
+     * Note, this method accepts a factory to be able to create
+     * a page object on demand
+     */
+    static void addCustomPreferencePage(PageFactory);
+
+    /**
+     * @brief Returns the factories for all custom preference
+     * pages that have been added by modules
+     */
+    static const QList<PageFactory>& customPreferencePages();
+
 private:
     /// List of user specific perspective ids
     QStringList m_perspectiveIds;

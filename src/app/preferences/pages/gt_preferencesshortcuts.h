@@ -29,15 +29,16 @@ public:
     GtPreferencesShortCuts();
 
     /**
-     * @brief saveSettings
+     * @brief Saves environment settings.
      */
-    void saveSettings() override;
+    void saveSettings(GtSettings&) const override;
+
+    /**
+     * @brief Loades environment settings.
+     */
+    void loadSettings(const GtSettings&) override;
 
 private:
-    /**
-     * @brief loadSettings - empty
-     */
-    void loadSettings() override;
 
     /// table widget of the main layout
     QTableWidget* m_tab;

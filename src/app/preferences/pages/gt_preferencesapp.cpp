@@ -18,15 +18,16 @@
 #include "gt_application.h"
 #include "gt_settings.h"
 #include "gt_logmodel.h"
+#include "gt_icons.h"
 
 #include "gt_preferencesapp.h"
 
 GtPreferencesApp::GtPreferencesApp() :
+    GtPreferencesPage(tr("Application")),
     m_autoSaveModifications(nullptr),
     m_autoSaveInterval(nullptr)
 {
-    setTitle(tr("Application"));
-
+    setIcon(gt::gui::icon::application());
     QTabWidget* tabWidget = new QTabWidget;
 
     tabWidget->setContentsMargins(0, 0, 0, 0);
@@ -156,61 +157,60 @@ GtPreferencesApp::GtPreferencesApp() :
 }
 
 void
-GtPreferencesApp::saveSettings()
+GtPreferencesApp::saveSettings(GtSettings& settings) const
 {
     if (m_lastOpenedProject->isChecked())
     {
-        gtApp->settings()->setOpenLastProject(true);
+        settings.setOpenLastProject(true);
     }
     else
     {
-        gtApp->settings()->setOpenLastProject(false);
+        settings.setOpenLastProject(false);
     }
 
     if (m_openWelcomePage->isChecked())
     {
-        gtApp->settings()->setShowStartupPage(true);
+        settings.setShowStartupPage(true);
     }
     else
     {
-        gtApp->settings()->setShowStartupPage(false);
+        settings.setShowStartupPage(false);
     }
 
     if (m_updateAtStartup->isChecked())
     {
-        gtApp->settings()->setSearchForUpdate(true);
+        settings.setSearchForUpdate(true);
     }
     else
     {
-        gtApp->settings()->setSearchForUpdate(false);
+        settings.setSearchForUpdate(false);
     }
 
-    gtApp->settings()->setMaxLogLength(m_maxLogSpin->value());
+    settings.setMaxLogLength(m_maxLogSpin->value());
 
     int index = m_themeSelection->currentIndex();
 
     if (index == 1)
     {
-        gtApp->settings()->setThemeMode("bright");
+        settings.setThemeMode("bright");
         gtApp->setDarkMode(false);
     }
     else if (index == 2)
     {
-        gtApp->settings()->setThemeMode("dark");
+        settings.setThemeMode("dark");
         gtApp->setDarkMode(true);
     }
     else
     {
-        gtApp->settings()->setThemeMode("system");
+        settings.setThemeMode("system");
 
-        gtApp->setDarkMode(gtApp->settings()->darkMode());
+        gtApp->setDarkMode(settings.darkMode());
     }
 }
 
 void
-GtPreferencesApp::loadSettings()
+GtPreferencesApp::loadSettings(const GtSettings&)
 {
-
 }
 
 void

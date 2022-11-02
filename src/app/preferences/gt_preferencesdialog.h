@@ -15,6 +15,7 @@
 class QListWidgetItem;
 class QListWidget;
 class QStackedWidget;
+class GtPreferencesPage;
 
 /**
  * @brief The GtPreferencesDialog class
@@ -43,6 +44,8 @@ public slots:
     void saveChanges();
 
 private:
+    void addPage(GtPreferencesPage* page);
+
     ///
     QListWidget* m_contentsWidget;
 
@@ -50,10 +53,10 @@ private:
     QStackedWidget* m_pagesWidget;
 
     /**
-     * @brief createIcons
+     * @brief Loads the internally stored settings into
+     * the widgets of each preference page
      */
-    void createIcons();
-
+    void loadSettings();
 };
 
 #endif // GTPREFERENCESDIALOG_H

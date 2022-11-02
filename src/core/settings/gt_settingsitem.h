@@ -24,13 +24,26 @@ public:
      * @brief Returns identification string of settings item
      * @return identification string
      */
-    const QString& ident();
+    const QString& ident() const;
 
     /**
      * @brief Returns initial setting
      * @return initial setting
      */
-    const QVariant& initValue();
+    const QVariant& initValue() const;
+
+    /**
+     * @brief Sets the value of the setting
+     */
+    void setValue(const QVariant& value);
+
+    /**
+     * @brief Retrieves the value of the setting
+     *
+     * Note, of the settings value could not be read from the global settings
+     * Object, the init value will be returned.
+     */
+    QVariant getValue() const;
 
 protected:
     /**

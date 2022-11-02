@@ -45,6 +45,8 @@ public:
 
     void onLoad() override;
 
+    void init() override;
+
 };
 
 #endif // TEST_MODULE_INTERFACE_H

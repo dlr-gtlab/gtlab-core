@@ -16,11 +16,12 @@
 #include "gt_preferenceslanguage.h"
 #include "gt_application.h"
 #include "gt_settings.h"
+#include "gt_icons.h"
 
-GtPreferencesLanguage::GtPreferencesLanguage()
+GtPreferencesLanguage::GtPreferencesLanguage():
+    GtPreferencesPage(tr("Language"))
 {
-    setTitle(tr("Language"));
-
+    setIcon(gt::gui::icon::language());
     QListWidget* list = new QListWidget;
 
     QString language = gtApp->settings()->language();
@@ -82,13 +83,13 @@ GtPreferencesLanguage::GtPreferencesLanguage()
 }
 
 void
-GtPreferencesLanguage::saveSettings()
+GtPreferencesLanguage::saveSettings(GtSettings&) const
 {
 
 }
 
 void
-GtPreferencesLanguage::loadSettings()
+GtPreferencesLanguage::loadSettings(const GtSettings&)
 {
 
 }

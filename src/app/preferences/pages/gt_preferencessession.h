@@ -32,7 +32,12 @@ public:
     /**
      * @brief saveSettings
      */
-    void saveSettings() override;
+    void saveSettings(GtSettings&) const override;
+
+    /**
+     * @brief loadSettings
+     */
+    void loadSettings(const GtSettings&) override;
 
 private:
     ///
@@ -56,10 +61,6 @@ private:
     ///
     QPushButton* m_btnSwitch;
 
-    /**
-     * @brief loadSettings
-     */
-    void loadSettings() override;
 
 private slots:
     //    void selectDirectory();

@@ -103,7 +103,6 @@ HEADERS += \
     dialogs/gt_refusedpluginsdialog.h \
     gt_mainwin.h \
     preferences/gt_preferencesdialog.h \
-    preferences/pages/gt_preferencespage.h \
     preferences/pages/gt_preferencesapp.h \
     preferences/pages/gt_preferenceslanguage.h \
     preferences/pages/gt_preferencessession.h \
@@ -195,7 +194,6 @@ SOURCES += \
     dialogs/gt_refusedpluginsdialog.cpp \
     gt_mainwin.cpp \
     preferences/gt_preferencesdialog.cpp \
-    preferences/pages/gt_preferencespage.cpp \
     preferences/pages/gt_preferencesapp.cpp \
     preferences/pages/gt_preferenceslanguage.cpp \
     preferences/pages/gt_preferencessession.cpp \

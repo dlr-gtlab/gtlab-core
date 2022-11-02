@@ -99,6 +99,7 @@ HEADERS += \
     tools/gt_switchprojectmessagebox.h \
     tools/gt_textedit.h \
     widgets/gt_shortcutedit.h \
+    widgets/gt_preferencespage.h \
     gt_processexecutor.h \
     gt_datamodel.h \
     gt_guimoduleloader.h \
@@ -269,6 +270,7 @@ SOURCES += \
     tools/gt_switchprojectmessagebox.cpp \
     tools/gt_textedit.cpp \
     widgets/gt_shortcutedit.cpp \
+    widgets/gt_preferencespage.cpp \
     gt_guimoduleloader.cpp \
     gt_dockwidget.cpp \
     gt_perspective.cpp \

@@ -14,12 +14,15 @@
 #include "gt_environmentmodel.h"
 #include "gt_environment.h"
 #include "gt_logging.h"
+#include "gt_icons.h"
 
 #include "gt_preferencespathsettings.h"
 
-GtPreferencesPathSettings::GtPreferencesPathSettings()
+GtPreferencesPathSettings::GtPreferencesPathSettings() :
+    GtPreferencesPage(tr("Environment Variables"))
 {
-    setTitle(tr("Environment Variables"));
+    setTitleShort(tr("Environment"));
+    setIcon(gt::gui::icon::pathSettings());
 
     QTableView* view = new QTableView;
 
@@ -37,7 +40,7 @@ GtPreferencesPathSettings::GtPreferencesPathSettings()
 }
 
 void
-GtPreferencesPathSettings::saveSettings()
+GtPreferencesPathSettings::saveSettings(GtSettings& ) const
 {
     m_model->saveVariables();
 }
@@ -49,7 +52,7 @@ GtPreferencesPathSettings::loadSettingsImpl()
 }
 
 void
-GtPreferencesPathSettings::loadSettings()
+GtPreferencesPathSettings::loadSettings(const GtSettings&)
 {
     loadSettingsImpl();
 }

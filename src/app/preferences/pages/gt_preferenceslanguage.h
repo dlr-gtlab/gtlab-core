@@ -28,13 +28,12 @@ public:
     /**
      * @brief saveSettings
      */
-    void saveSettings() override;
+    void saveSettings(GtSettings&) const override;
 
-private:
     /**
      * @brief loadSettings
      */
-    void loadSettings() override;
+    void loadSettings(const GtSettings&) override;
 
 };
 
