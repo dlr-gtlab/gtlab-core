@@ -52,6 +52,8 @@ win32 {
     }
 }
 
+DEFINES += GT_MODULE_ID='"\\\"$${GT_MODULE_ID}\\\""'
+
 #### LIBRARIES
 # Logging
 INCLUDEPATH += $${GTLAB_LOGGING_PATH}/include/logging
