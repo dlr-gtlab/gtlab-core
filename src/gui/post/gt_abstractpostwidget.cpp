@@ -16,7 +16,8 @@
 #include "gt_abstractchartprovider.h"
 
 #include <QWidget>
-#include <QsLog.h>
+
+#include <gt_logging.h>
 
 GtAbstractPostWidget::GtAbstractPostWidget(QWidget* w) :
     QWidget(w),

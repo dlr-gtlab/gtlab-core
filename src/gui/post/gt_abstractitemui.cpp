@@ -14,6 +14,8 @@
 #include "gt_customactionmenu.h"
 #include "gt_stylesheets.h"
 
+#include <gt_logging.h>
+
 #include "QMenu"
 #include "QLineEdit"
 #include "QHBoxLayout"
@@ -21,8 +23,6 @@
 #include "QLabel"
 #include "QPushButton"
 #include <QPrinter>
-
-#include "QsLog.h"
 
 GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 {

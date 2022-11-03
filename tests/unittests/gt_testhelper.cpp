@@ -25,9 +25,9 @@ GtTestHelper::GtTestHelper()
     }
 
      // setup gt logging
-     QsLogging::Logger& logger = QsLogging::Logger::instance();
-     QsLogging::DestinationPtr debugDestination(
-         QsLogging::DestinationFactory::MakeDebugOutputDestination());
+     gt::log::Logger& logger = gt::log::Logger::instance();
+     gt::log::DestinationPtr debugDestination(
+         gt::log::DestinationFactory::MakeDebugOutputDestination());
      logger.addDestination(debugDestination);
 }
 

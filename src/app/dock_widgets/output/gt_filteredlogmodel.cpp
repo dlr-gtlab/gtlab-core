@@ -12,7 +12,7 @@
 #include "gt_filteredlogmodel.h"
 #include "gt_logmodel.h"
 
-#include "QsLogLevel.h"
+#include <gt_loglevel.h>
 
 void
 GtFilteredLogModel::toggleDebugLevel(bool val)
@@ -85,19 +85,19 @@ GtFilteredLogModel::filterAcceptsRow(int source_row,
 
     switch (level)
     {
-    case QsLogging::DebugLevel:
+    case gt::log::DebugLevel:
         doFilter = m_debugLevel;
         break;
-    case QsLogging::InfoLevel:
+    case gt::log::InfoLevel:
         doFilter = m_infoLevel;
         break;
-    case QsLogging::WarnLevel:
+    case gt::log::WarnLevel:
         doFilter = m_warningLevel;
         break;
-    case QsLogging::ErrorLevel:
+    case gt::log::ErrorLevel:
         doFilter = m_errorLevel;
         break;
-    case QsLogging::FatalLevel:
+    case gt::log::FatalLevel:
         doFilter = m_fatalLevel;
         break;
     }

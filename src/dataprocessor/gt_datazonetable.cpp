@@ -2,7 +2,7 @@
 #include "gt_abstractdatazone.h"
 #include "QStringList"
 #include "QVector"
-#include "QsLog.h"
+#include "gt_logging.h"
 #include "gt_datazone.h"
 #include "gt_datazonetablemainaxis.h"
 #include "gt_datazone0d.h"

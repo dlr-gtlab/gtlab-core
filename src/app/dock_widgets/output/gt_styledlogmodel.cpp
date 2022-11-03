@@ -15,7 +15,7 @@
 #include "gt_icons.h"
 #include "gt_colors.h"
 
-#include "QsLogLevel.h"
+#include <gt_loglevel.h>
 
 GtStyledLogModel::GtStyledLogModel(QObject* parent) :
     QIdentityProxyModel(parent)
@@ -41,19 +41,19 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
 
             switch (level)
             {
-                case QsLogging::DebugLevel:
+                case gt::log::DebugLevel:
                     return gt::gui::icon::bug();
 
-                case QsLogging::InfoLevel:
+                case gt::log::InfoLevel:
                     return gt::gui::icon::infoBlue16();
 
-                case QsLogging::WarnLevel:
+                case gt::log::WarnLevel:
                     return gt::gui::icon::processFailed16();
 
-                case QsLogging::ErrorLevel:
+                case gt::log::ErrorLevel:
                     return gt::gui::icon::error16();
 
-                case QsLogging::FatalLevel:
+                case gt::log::FatalLevel:
                     return gt::gui::icon::fatal16();
             }
         }
@@ -66,13 +66,13 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
 
             switch (level)
             {
-                case QsLogging::WarnLevel:
+                case gt::log::WarnLevel:
                     return gt::gui::color::warningText();
 
-                case QsLogging::ErrorLevel:
+                case gt::log::ErrorLevel:
                     return gt::gui::color::errorText();
 
-                case QsLogging::FatalLevel:
+                case gt::log::FatalLevel:
                     return gt::gui::color::fatalText();
             }
         }
@@ -85,7 +85,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
 
             switch (level)
             {
-                case QsLogging::DebugLevel:
+                case gt::log::DebugLevel:
                 {
                     QFont font =
                         QIdentityProxyModel::data(index, role).value<QFont>();
@@ -93,7 +93,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
                     return font;
                 }
 
-                case QsLogging::ErrorLevel:
+                case gt::log::ErrorLevel:
                 {
                     QFont font =
                         QIdentityProxyModel::data(index, role).value<QFont>();
@@ -110,7 +110,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
 
             switch (level)
             {
-                case QsLogging::FatalLevel:
+                case gt::log::FatalLevel:
                     return gt::gui::color::fatalTextBackground();
             }
         }
