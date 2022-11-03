@@ -39,6 +39,8 @@
 #include "gt_palette.h"
 #include "gt_algorithms.h"
 
+#include <gt_logdest.h>
+
 #include <QSignalMapper>
 #include <QDir>
 #include <QKeyEvent>
@@ -51,7 +53,6 @@
 #include <QDebug>
 #include <QStyleFactory>
 #include <QSettings>
-#include "QsLogDest.h"
 #include <QShortcut>
 
 #include <algorithm>
@@ -219,10 +220,10 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     loadPerspectiveSettings();
 
     // gui logger destination
-    QsLogging::Logger& logger = QsLogging::Logger::instance();
+    gt::log::Logger& logger = gt::log::Logger::instance();
 
-    QsLogging::DestinationPtr widgetDestination(
-                QsLogging::DestinationFactory::MakeFunctorDestination(
+    gt::log::DestinationPtr widgetDestination(
+                gt::log::DestinationFactory::MakeFunctorDestination(
                     this, SLOT(onLogMessage(QString,int))));
 
     logger.addDestination(widgetDestination);
@@ -1256,8 +1257,8 @@ GtMainWin::onLogMessage(const QString& msg, int level)
 {
     if (level > 3) // Pipe errors (level 4) to a message box
     {
-        QsLogging::Level l = QsLogging::Logger::levelFromInt(level);
-        QMessageBox::critical(this, QsLogging::Logger::levelToString(l),
+        gt::log::Level l = gt::log::Logger::levelFromInt(level);
+        QMessageBox::critical(this, gt::log::Logger::levelToString(l),
                               msg, QMessageBox::Ok);
     }
 }

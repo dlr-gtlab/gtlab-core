@@ -38,7 +38,7 @@
 #include "gt_algorithms.h"
 #include "gt_moduleinterface.h"
 
-#include "QsLogDest.h"
+#include <gt_logdest.h>
 
 GtCoreApplication* GtCoreApplication::m_self = nullptr;
 int GtCoreApplication::m_major = GT_VERSION_MAJOR;
@@ -157,17 +157,17 @@ GtCoreApplication::init()
 
     // logger
     //    qDebug() << "initializing logger...";
-    QsLogging::Logger& logger = QsLogging::Logger::instance();
+    gt::log::Logger& logger = gt::log::Logger::instance();
 
-    QsLogging::DestinationPtr debugDestination(
-        QsLogging::DestinationFactory::MakeDebugOutputDestination());
+    gt::log::DestinationPtr debugDestination(
+        gt::log::DestinationFactory::MakeDebugOutputDestination());
     logger.addDestination(debugDestination);
 
     gtLogModel;
 
     if (m_devMode)
     {
-        logger.setLoggingLevel(QsLogging::TraceLevel);
+        logger.setLoggingLevel(gt::log::TraceLevel);
         gtDebug() << "DEV MODE";
     }
 

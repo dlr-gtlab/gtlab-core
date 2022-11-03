@@ -1,7 +1,7 @@
 #include "gt_datazonetablelist.h"
 #include "gt_datazonetable.h"
 #include <QMap>
-#include <QsLog.h>
+#include <gt_logging.h>
 #include "gt_objectfactory.h"
 
 GtDataZoneTableList::GtDataZoneTableList() :

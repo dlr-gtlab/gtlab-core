@@ -8,7 +8,8 @@
 #include <QVector>
 
 #include "gt_unit.h"
-#include "gt_logging.h"
+
+#include <gt_logging.h>
 
 template<class T>
 class GtUnitConverter

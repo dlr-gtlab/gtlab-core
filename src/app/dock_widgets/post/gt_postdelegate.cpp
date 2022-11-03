@@ -17,7 +17,7 @@
 #include "gt_application.h"
 #include "gt_datamodel.h"
 #include "gt_regexp.h"
-#include <QsLog.h>
+#include <gt_logging.h>
 
 #include "gt_postdelegate.h"
 

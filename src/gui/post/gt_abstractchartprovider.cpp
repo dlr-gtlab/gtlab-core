@@ -7,8 +7,9 @@
 #include "gt_project.h"
 #include "gt_colors.h"
 
+#include <gt_logging.h>
+
 #include <QDebug>
-#include <QsLog.h>
 
 #include <QRandomGenerator>
 

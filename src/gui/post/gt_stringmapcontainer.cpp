@@ -1,5 +1,6 @@
 #include "gt_stringmapcontainer.h"
-#include <QsLog.h>
+
+#include <gt_logging.h>
 
 GtStringMapContainer::GtStringMapContainer()
 {
