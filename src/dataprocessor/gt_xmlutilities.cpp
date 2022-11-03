@@ -13,19 +13,19 @@
 #include <QFile>
 
 #include "gt_xmlutilities.h"
+#include "gt_objectio.h"
 
 
 namespace
 {
 
+template <typename Predicate>
 void
-findElementsWithAttribute(
-    const QDomElement& elem, const QString& attr,
-    const QString& attributeValue,
+findElements(
+    const QDomElement& elem, Predicate&& func,
     QList<QDomElement>& foundElements)
 {
-    if (elem.attributes().contains(attr) &&
-        elem.attribute(attr) == attributeValue)
+    if (func(elem))
     {
         foundElements.append(elem);
     }
@@ -33,7 +33,7 @@ findElementsWithAttribute(
     QDomElement child = elem.firstChildElement();
     while(!child.isNull())
     {
-        findElementsWithAttribute(child, attr, attributeValue, foundElements);
+        findElements(child, func, foundElements);
         child = child.nextSiblingElement();
     }
 }
@@ -45,7 +45,11 @@ gt::xml::findObjectElementsByClassName(
     const QDomElement& root, const QString& className)
 {
     QList<QDomElement> result;
-    findElementsWithAttribute(root, QStringLiteral("class"), className, result);
+    findElements(root, [&](const QDomElement& elem) {
+        return elem.tagName() == GtObjectIO::S_OBJECT_TAG &&
+               elem.attributes().contains(GtObjectIO::S_CLASS_TAG) &&
+               elem.attribute(GtObjectIO::S_CLASS_TAG) == className;
+    }, result);
     return result;
 }
 

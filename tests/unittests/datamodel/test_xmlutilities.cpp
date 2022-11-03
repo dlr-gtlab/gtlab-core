@@ -20,6 +20,7 @@ R"(
  <objectlist>
   <object class="GtProcessData" uuid="{49d14dfe-16be-43d4-af15-f872ad4f6631}" name="Process Data"/>
   <object class="GtLabel" uuid="{5550ff0f-2a8f-432c-a68e-f62df1c5a9cc}" name="ALabel"/>
+  <dummy class="GtLabel" name="Dummy"/>
   <object class="GtLabelData" uuid="{2694e08e-9208-4dc5-ba60-5eb1f106a917}" name="Label Data">
    <objectlist>
     <object class="GtLabel" uuid="{8fd7bd4d-5638-4873-948b-62abaf4e975f}" name="AnotherLabel"/>
