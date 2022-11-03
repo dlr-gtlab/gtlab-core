@@ -41,13 +41,13 @@ public:
     void runUpgradeRoutines(const GtVersionNumber& footprintVersion,
                            const QStringList& files) const
     {
-        gtDebug() << "(module data upgrader) running upgrade routines...";
+        gtDebugId("module data upgrader") << "running upgrade routines...";
 
         for (auto const& upgradeRoutine : sortedRoutines())
         {
             if (upgradeRoutine.target > footprintVersion)
             {
-                gtDebug() << "(module data upgrader) "
+                gtDebugId("module data upgrader")
                           << upgradeRoutine.target.toString()
                           << " - updating...";
 
@@ -57,9 +57,9 @@ public:
 
                     if (!file.exists())
                     {
-                        gtError() << "(module data upgrader) "
-                                  << "WARNING: file does not exists!";
-                        gtError() << "(module data upgrader) |-> " << modData;
+                        gtErrorId("module data upgrader")
+                                << "WARNING: file does not exists!";
+                        gtErrorId("module data upgrader") << " |-> " << modData;
 
                         continue;
                     }
@@ -72,7 +72,7 @@ public:
                     if (!document.setContent(&file, true, &errorStr,
                                              &errorLine, &errorColumn))
                     {
-                        gtError() << "(module data upgrader) "
+                        gtErrorId("module data upgrader")
                                   << "XML ERROR!" << " " << "line" << ": "
                                   << errorLine << " " << "column" << ": "
                                   << errorColumn << " -> " << errorStr;
@@ -90,7 +90,7 @@ public:
                     if (!gt::xml::writeDomDocumentToFile(modData,
                                                          document, true))
                     {
-                        gtError() << "(module data upgrader) "
+                        gtErrorId("module data upgrader")
                                   << modData << QStringLiteral(": ")
                                   << "Failed to save project data!";
                     }
@@ -100,7 +100,7 @@ public:
             {
                 // Skipping upgrade routine, since data does not need this
                 // upgrade
-                gtDebug() << "(module data upgrader) "
+                gtDebugId("module data upgrader")
                           << upgradeRoutine.target.toString()
                           << " - skipped ( <= " << footprintVersion.toString()
                           << " )";
@@ -161,12 +161,12 @@ GtModuleUpgrader::debugModuleConverter()
         const auto& moduleId = upgrader.first;
         auto& upgradeHelper = upgrader.second;
 
-        gtDebug() << "(module data upgrader) # "
+        gtDebugId("module data upgrader") << " # "
                   << QString::fromStdString(moduleId);
 
         for (auto const& upgradeRoutine : upgradeHelper.sortedRoutines())
         {
-            gtDebug() << "(module data upgrader) ## ver "
+            gtDebugId("module data upgrader") << " ## ver "
                       << upgradeRoutine.target.toString();
         }
     }
@@ -182,8 +182,8 @@ GtModuleUpgrader::upgrade(const QMap<QString, GtVersionNumber>& moduleFootprint,
 
         if (moduleFootprint.contains(QString::fromStdString(moduleId)))
         {
-            gtDebug() << "(module data upgrader) found module match - "
-                      <<QString::fromStdString(moduleId);
+            gtDebugId("module data upgrader") << " found module match - "
+                      << QString::fromStdString(moduleId);
 
             auto& upgradeHelper = upgrader.second;
 
@@ -198,7 +198,7 @@ bool
 GtModuleUpgrader::upgradesAvailable(
         const QMap<QString, GtVersionNumber>& moduleFootprint) const
 {
-    gtDebug() << "(module data upgrader) checking for upgrades...";
+    gtDebugId("module data upgrader") << "checking for upgrades...";
 
     bool retval = false;
 
@@ -206,7 +206,7 @@ GtModuleUpgrader::upgradesAvailable(
     {
         const auto& moduleId = upgrader.first;
 
-        gtDebug() << "(module data upgrader) module "
+        gtDebugId("module data upgrader") << "module "
                   << QString::fromStdString(moduleId);
 
         if (moduleFootprint.contains(QString::fromStdString(moduleId)))
@@ -215,14 +215,14 @@ GtModuleUpgrader::upgradesAvailable(
                     moduleFootprint.value(QString::fromStdString(moduleId));
             auto& upgradeHelper = upgrader.second;
 
-            gtDebug() << "(module data upgrader) saved version "
+            gtDebugId("module data upgrader") << " saved version "
                       << savedVer.toString();
 
             for (auto const& upgradeRoutine : upgradeHelper.m_upgradeRoutines)
             {
                 if (savedVer < upgradeRoutine.target)
                 {
-                    gtDebug() << "(module data upgrader) ## upgrade available "
+                    gtDebugId("module data upgrader") << "## upgrade available "
                               << upgradeRoutine.target.toString();
 
                     retval = true;

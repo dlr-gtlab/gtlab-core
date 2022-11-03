@@ -17,7 +17,8 @@ using namespace gt::detail;
 
 namespace
 {
-    QString makeKey(const QString& moduleId, const QString& functionId)
+    QString
+    makeKey(const QString& moduleId, const QString& functionId)
     {
         return moduleId + "::" + functionId;
     }
