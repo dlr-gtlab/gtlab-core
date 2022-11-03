@@ -55,7 +55,8 @@ GtExplorerModel::getPersistentIndexList()
     return persistentIndexList();
 }
 
-void GtExplorerModel::filterData(const QString& val)
+void
+GtExplorerModel::filterData(const QString& val)
 {
     setFilterRegExp(val);
     invalidate();

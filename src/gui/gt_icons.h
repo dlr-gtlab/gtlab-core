@@ -128,6 +128,12 @@ GT_GUI_EXPORT QIcon log16();
 
 GT_GUI_EXPORT QIcon open16();
 
+GT_GUI_EXPORT QIcon open2_16();
+
+GT_GUI_EXPORT QIcon open2_24();
+
+GT_GUI_EXPORT QIcon open2();
+
 GT_GUI_EXPORT QIcon emptyElement();
 
 GT_GUI_EXPORT QIcon arrowRight();

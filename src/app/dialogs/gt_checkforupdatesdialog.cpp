@@ -218,8 +218,8 @@ GtCheckForUpdatesDialog::noUpdateAvailable(int errorCode, const QString& str)
     m_updateButton->setEnabled(false);
     m_checkButton->setEnabled(true);
 
-    gtDebug() << "Error code = " << errorCode;
-    gtDebug() << "Error message = " << str;
+    gtDebugId("Check for updates") << "Error code = " << errorCode;
+    gtDebugId("Check for updates") << "Error message = " << str;
 
     QString fontString = "darkred";
     if (gtApp->inDarkMode())

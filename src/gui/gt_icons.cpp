@@ -245,6 +245,24 @@ gt::gui::icon::open16()
 }
 
 QIcon
+gt::gui::icon::open2_16()
+{
+    return gt::gui::getIcon(QStringLiteral("openIcon2_16.png"));
+}
+
+QIcon
+gt::gui::icon::open2_24()
+{
+    return gt::gui::getIcon(QStringLiteral("openIcon2_24.png"));
+}
+
+QIcon
+gt::gui::icon::open2()
+{
+    return gt::gui::getIcon(QStringLiteral("openIcon2.png"));
+}
+
+QIcon
 gt::gui::icon::skip16()
 {
     return gt::gui::getIcon(QStringLiteral("skipIcon_16.png"));

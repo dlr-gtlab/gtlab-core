@@ -116,6 +116,12 @@ private:
     QWidget* changeLogWidget() const;
 
     /**
+     * @brief dynamicInterfaceFunctionsWidget
+     * @return widget for the overview of dynamic interface functions
+     */
+    QWidget* dynamicInterfaceFunctionsWidget();
+
+    /**
      * @brief readChangeLog
      * @return the content of the changelog file in the application directory
      */

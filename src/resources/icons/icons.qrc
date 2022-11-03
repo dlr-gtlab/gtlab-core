@@ -466,5 +466,8 @@
         <file>input2Icon.png</file>
         <file>inconsistentProjectIcon_16.png</file>
         <file>upgradeProjectDataIcon.png</file>
+        <file>openIcon2.png</file>
+        <file>openIcon2_16.png</file>
+        <file>openIcon2_24.png</file>
     </qresource>
 </RCC>
