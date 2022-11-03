@@ -76,11 +76,13 @@ devtoolsUpdateLinux:
     - '& echo "Using Devtools: $DEVTOOLS"'
     - '& echo "Using QMake: $QMAKE_PATH"'
     - '& echo "Build-Config: $BUILDMODE"'
+    - '& $MAINTENANCETOOL up --confirm-command'
   script:
     - copy features\gitlab_pipeline_local_settings.pri local_settings.pri
     - '& $QMAKE_PATH $PROFILENAME -spec win32-msvc "CONFIG+=$BUILDMODE"'
     - '& $JOM_PATH'
   variables:
+    MAINTENANCETOOL: "C:\\devel\\GTlab-DevTools\\Setup GTlab-DevTools.exe"
     VCvarsall: "C:\\devel\\vcvars2019_64.ps1"
     QMAKE_PATH: C:\\Qt\\Qt5.15\\5.15.2\\msvc2019_64\\bin\\qmake.exe
     JOM_PATH: C:\\Qt\\Qt5.15\\Tools\\QtCreator\\bin\\jom\\jom.exe
