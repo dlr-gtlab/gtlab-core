@@ -14,6 +14,41 @@
 
 #include "gt_xmlutilities.h"
 
+
+namespace
+{
+
+void
+findElementsWithAttribute(
+    const QDomElement& elem, const QString& attr,
+    const QString& attributeValue,
+    QList<QDomElement>& foundElements)
+{
+    if (elem.attributes().contains(attr) &&
+        elem.attribute(attr) == attributeValue)
+    {
+        foundElements.append(elem);
+    }
+
+    QDomElement child = elem.firstChildElement();
+    while(!child.isNull())
+    {
+        findElementsWithAttribute(child, attr, attributeValue, foundElements);
+        child = child.nextSiblingElement();
+    }
+}
+
+} // namespace
+
+QList<QDomElement>
+gt::xml::findObjectElementsByClassName(
+    const QDomElement& root, const QString& className)
+{
+    QList<QDomElement> result;
+    findElementsWithAttribute(root, QStringLiteral("class"), className, result);
+    return result;
+}
+
 bool
 gt::xml::writeDomElementOrderedAttribute(const QDomElement& element,
                                          QXmlStreamWriter& writer)

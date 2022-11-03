@@ -12,6 +12,8 @@
 
 #include "gt_datamodel_exports.h"
 
+#include <QList>
+
 class QDomDocument;
 class QDomElement;
 class QXmlStreamWriter;
@@ -47,6 +49,15 @@ bool GT_DATAMODEL_EXPORT writeDomElementOrderedAttribute(
 bool GT_DATAMODEL_EXPORT writeDomDocumentToFile(const QString& filePath,
                                                 const QDomDocument& doc,
                                                 bool attrOrdered = true);
+
+/**
+ * @brief Finds all elements below root of a specific gtobject type
+ * @param root      The root element
+ * @param className The class name to search for
+ * @return List of found object elements, where attribute class==className
+ */
+QList<QDomElement> GT_DATAMODEL_EXPORT findObjectElementsByClassName(
+    const QDomElement& root, const QString& className);
 
 } // namespace xml
 
