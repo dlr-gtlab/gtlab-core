@@ -311,12 +311,12 @@ PD::fromQMetaProperty(const QMetaProperty &prop, const QVariant& val)
 }
 
 const GtObjectMemento*
-GtObjectMemento::findChild(const QString &ident) const
+GtObjectMemento::findChildByUuid(const QString &uuid) const
 {
     auto iter = std::find_if(childObjects.begin(), childObjects.end(),
-                 [&ident](const GtObjectMemento& child) {
-        return ident == child.ident();
-    });
+                             [&uuid](const GtObjectMemento& child) {
+                                 return uuid == child.uuid();
+                             });
 
     if (iter == childObjects.end())
     {
@@ -533,39 +533,40 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
         obj.importMementoIntoDummy(*this);
     }
 
-    const auto childs = obj.findDirectChildren<GtObject*>();
-
-    // loop over all existing childs in the current object
-    for (auto& child : childs)
-    {
-        assert(child);
-
-        // check, that memento data contain object
-        auto const * mementoChild = findChild(child->objectName());
-
-        // if there is not memento for the current obj, we need to remove it
-        if (!mementoChild)
-        {
-            if (!child->isDefault()) delete child;
-            continue;
-        }
-
-        if (!mementoChild->mergeTo(*child, factory) && !child->isDefault())
-        {
-             delete child;
-        }
-    }
-
     // loop over all childs in memento, that are not yet in the object
     for (auto const & mementoChild : childObjects)
     {
-        // skip if it has been already merged before
-        if (obj.getDirectChildByUuid(mementoChild.uuid())) continue;
+        // find object with same ident
+        const auto child = obj.findDirectChild<GtObject*>(mementoChild.ident());
 
-        auto newObject = mementoChild.toObject(factory);
-        assert(newObject != nullptr);
-        obj.appendChild(newObject.release());
+        // check, whether this object can be merged
+        if (child &&
+            child->metaObject()->className() == mementoChild.m_className &&
+            (child->uuid() == mementoChild.uuid() || child->isDefault()))
+        {
+            mementoChild.mergeTo(*child, factory);
+        }
+        else
+        {
+            // we need to create a new object
+            auto newObject = mementoChild.toObject(factory);
+            assert(newObject != nullptr);
+            obj.appendChild(newObject.release());
+        }
     }
+
+    // delete all objects that are not in memento included
+    auto childs = obj.findDirectChildren<GtObject*>();
+    for (auto& child : childs)
+    {
+        assert(child);
+        if (!findChildByUuid(child->uuid()) && !child->isDefault())
+        {
+            delete child;
+        }
+    }
+
+    obj.onObjectDataMerged();
 
     return true;
 }
