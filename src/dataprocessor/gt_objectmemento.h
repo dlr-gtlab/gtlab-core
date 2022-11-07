@@ -166,7 +166,7 @@ public:
      */
     bool canCastTo(const QString& classname, GtAbstractObjectFactory* factory);
 
-    const GtObjectMemento* findChild(const QString& ident) const;
+    const GtObjectMemento* findChildByUuid(const QString& uuid) const;
 
 
     struct PropertyData
