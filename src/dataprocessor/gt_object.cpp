@@ -35,11 +35,6 @@ struct DummyData
 
 struct GtObject::Impl
 {
-    explicit Impl() :
-        factory(nullptr),
-        propertyMapper(std::make_unique<QSignalMapper>())
-    {}
-
     bool isDummy() const
     {
         return m_isDummy;
@@ -83,9 +78,6 @@ struct GtObject::Impl
     /// dynamic size properties
     std::vector<std::reference_wrapper<GtPropertyStructContainer>> propertyContainer;
 
-    /// mapper for property signals
-    std::unique_ptr<QSignalMapper> propertyMapper;
-
     /// A dummy object is not known by the factory but can store properties
     /// as mementos to avoid losing data for unknown objects
     bool m_isDummy{false};
@@ -110,8 +102,6 @@ GtObject::GtObject(GtObject* parent) :
     // set newly created flag
     setFlag(GtObject::NewlyCreated);
 
-    connect(pimpl->propertyMapper.get(), SIGNAL(mapped(QObject*)),
-            SLOT(propertyChanged(QObject*)));
     connect(this, SIGNAL(objectNameChanged(QString)), SLOT(changed()));
 }
 
@@ -756,10 +746,10 @@ GtObject::getObjectByPath(const QString& objectPath)
 void
 GtObject::connectProperty(GtAbstractProperty& property)
 {
-    connect(&property, SIGNAL(changed()), pimpl->propertyMapper.get(), SLOT(map()),
-            Qt::UniqueConnection);
-
-    pimpl->propertyMapper->setMapping(&property, &property);
+    connect(&property, &GtAbstractProperty::changed, this,
+        [this, p = &property]() {
+            propertyChanged(p);
+        });
 
     foreach (GtAbstractProperty* child, property.fullProperties())
     {
