@@ -11,6 +11,8 @@
 #include "gt_datazone.h"
 #include "gt_datazone0d.h"
 
+#include "slotadaptor.h"
+
 /// This is a test fixture that does a init for each test
 class TestGtObject : public ::testing::Test
 {
@@ -302,4 +304,26 @@ TEST_F(TestGtObject, isDerivedFromClass)
     ASSERT_FALSE(isDerivedFromClass(dz, "QObject"));
     ///tidy up
     delete dz;
+}
+
+TEST(GtObjectBugs, issue325)
+{
+    TestSpecialGtObject obj;
+    obj.acceptChanges();
+
+    bool propertyChanged = false;
+
+    SlotAdaptor a;
+    a.on(&obj, SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
+           [&propertyChanged]() {
+        propertyChanged = true;
+    });
+
+    ASSERT_FALSE(obj.hasChanges());
+
+    EXPECT_FALSE(propertyChanged);
+    obj.setDouble(23456.);
+    EXPECT_TRUE(propertyChanged);
+    EXPECT_TRUE(obj.hasChanges());
+
 }
