@@ -435,9 +435,43 @@ codingstyle:
   except:
     - tags
 
+.cppCheckReportTemplateFuncNew:
+  tags:
+    - linux
+    - docker
+  image: rainman110/cppcheck:2.7
+  needs: []
+  before_script:
+    - git config --global credential.helper store
+    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.dlr.de" > ~/.git-credentials
+    - git submodule sync
+    - git submodule update --init
+  script:
+    - cppcheck --inline-suppr --xml --suppress=unusedFunction --suppress=unmatchedSuppression:{} --library=qt.cfg --enable=all src/ 2> cppcheck_out.xml
+    - cppcheck-codequality --input-file=cppcheck_out.xml --output-file=$QUALITY
+    - 'curl --location --header "PRIVATE-TOKEN: $GROUP_ACCESS_TOKEN" -o $QUALITY_MAIN $QUALITY_MAIN_URL'
+    - exit_code=0
+    - python3 $PYCPPCHECKREPORT -o $QUALITY_MAIN -n $QUALITY || exit_code=$?
+    - if [ "${exit_code}" -eq 4 ]; then exit 0; else exit "${exit_code}"; fi
+  variables:
+    GIT_STRATEGY: "clone"
+    QUALITY_MAIN: codequality_main.json
+    QUALITY: codequality.json
+    CPPCHECK_JOB: cppcheck
+    PYCPPCHECKREPORT: ./tests/pipeline-scripts/cppcheckReport/CppcheckReport.py
+    QUALITY_MAIN_URL: "https://gitlab.dlr.de/api/v4/projects/$CI_PROJECT_ID/jobs/artifacts/$COMPARE_TO/raw/$QUALITY?job=$CPPCHECK_JOB"
+  artifacts:
+    reports:
+      codequality: $QUALITY
+    paths:
+      - $QUALITY
+      - $QUALITY_MAIN
+    when: always
+
+
 cppcheck:
   stage: codequality
-  extends: .cppCheckReportTemplateFunc
+  extends: .cppCheckReportTemplateFuncNew
   variables:
     COMPARE_TO: master
    
