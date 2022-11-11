@@ -87,7 +87,7 @@ public:
 
     /** Returns an axis adressed by its index (0 for 1st dimension)
         @param axisIndex Dimension index starting with 0 for 1st dimension */
-    GtNumerics::darray getAxisTicks(int axisIndex) const;
+    QVector<double> getAxisTicks(int axisIndex) const;
 
     /** Writes axis values to output vector.
         @param name Name of axis
@@ -241,7 +241,7 @@ public:
      * @param valsId
      * @return
      */
-    GtNumerics::darray tabVals(const QString& valsId) const;
+    QVector<double> tabVals(const QString& valsId) const;
 
     /**
      * @brief valDescription
@@ -373,15 +373,15 @@ private:
         @param axisIndex Index of axis direction
         @param indices Indices of slice location
         @return 1d slice */
-    GtNumerics::darray getSlice(const QString& valsId, int axisIndex,
-                                const QVector<int>& indices) const;
+    QVector<double> getSlice(const QString& valsId, int axisIndex,
+                             const QVector<int>& indices) const;
 
     /** Creates a 1-dimensional valarray slice in direction of specified axis.
         @param axisName Name of axis direction
         @param indices Indices of slice location
         @return 1d slice */
-    GtNumerics::darray getSlice(const QString& axisName,
-                                const QVector<int>& indices) const;
+    QVector<double> getSlice(const QString& axisName,
+                             const QVector<int>& indices) const;
 
     /** returns a 1-dimensional slice in direction of specified axis.
         @param axisIndex Index of axis direction
@@ -436,8 +436,8 @@ private:
     double phiInterpolatedVal(const QString& valsId,
                               double xn,
                               double phi,
-                              const GtNumerics::darray& xx0,
-                              const GtNumerics::darray& xx1) const;
+                              const QVector<double>& xx0,
+                              const QVector<double>& xx1) const;
 
     /**
      * @brief getSuitedSlice: Necessary for stage maps in multistage compr
@@ -447,10 +447,10 @@ private:
      * @param indxfirst
      * @return
      */
-    GtNumerics::darray getSuitedSlice(double xnlow,
-                                      const GtNumerics::darray& xx0,
-                                      const GtNumerics::darray& vals,
-                                      int& indxfirst) const;
+    QVector<double> getSuitedSlice(double xnlow,
+                                   const QVector<double>& xx0,
+                                   const QVector<double>& vals,
+                                   int& indxfirst) const;
 
 protected:
 

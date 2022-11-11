@@ -142,11 +142,11 @@ bool GtContour::setData(GtTable *table, const QString &paramName, int iDim,
   // CREATE HELP TABLE
   m_table.clear();
 
-  GtNumerics::darray axis0 = table->getAxisTicks(0);
+  QVector<double> axis0 = table->getAxisTicks(0);
   double axis0Min = axis0.first();
   double axis0Max = axis0.last();
 
-  GtNumerics::darray axis1 = table->getAxisTicks(1);
+  QVector<double> axis1 = table->getAxisTicks(1);
   double axis1Min = axis1.first();
   double axis1Max = axis1.last();
 
@@ -170,9 +170,9 @@ bool GtContour::setData(GtTable *table, const QString &paramName, int iDim,
     phiValues << 0 + double(i) * (1 / (double(jDim) - 1));
   }
 
-  GtNumerics::darray newXvalues;
-  GtNumerics::darray newYvalues;
-  GtNumerics::darray newZvalues;
+  QVector<double> newXvalues;
+  QVector<double> newYvalues;
+  QVector<double> newZvalues;
 
   int counter = 0;
   for (int i = 0; i < iDim; i++) {
