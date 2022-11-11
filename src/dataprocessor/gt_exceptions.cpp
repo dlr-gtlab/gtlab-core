@@ -4,10 +4,11 @@
 
 
 GTlabException::GTlabException(
-        const QString& where, const QString& what)
+        const QString& where, const QString& what) :
+    m_where(where),
+    m_what(what)
 {
-    m_where = where;
-    m_what = what;
+
 }
 
 QString
