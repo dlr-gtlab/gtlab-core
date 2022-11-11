@@ -63,13 +63,16 @@ INCLUDEPATH += .\
 
 #### HEADERS
 HEADERS += gt_testhelper.h
+HEADERS += slotadaptor.h
 HEADERS += $$files(datamodel/*.h)
 HEADERS += $$files(core/*.h)
 
 #### SOURCES
 SOURCES += \
     main.cpp \
-    gt_testhelper.cpp
+    gt_testhelper.cpp \
+    slotadaptor.cpp
+
 SOURCES += $$files(datamodel/*.cpp)
 SOURCES += $$files(calculators/*.cpp)
 SOURCES += $$files(core/*.cpp)
