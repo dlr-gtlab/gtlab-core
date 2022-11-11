@@ -55,7 +55,7 @@ GtPropertyStructContainer::registerAllowedType(
 GtPropertyStructInstance&
 GtPropertyStructContainer::newEntry(QString typeID, QString id)
 {
-    return newEntry(typeID, end(), id);
+    return newEntry(std::move(typeID), end(), std::move(id));
 }
 
 GtPropertyStructInstance&

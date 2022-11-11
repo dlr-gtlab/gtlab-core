@@ -95,13 +95,5 @@ GtObjectFilterModel::flags(const QModelIndex& index) const
 bool
 GtObjectFilterModel::acceptsRow(const char* ident) const
 {
-    foreach (const QString& str, m_filterData)
-    {
-        if (strcmp(ident, str.toStdString().c_str()) == 0)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return m_filterData.contains(ident);
 }
