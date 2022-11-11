@@ -684,12 +684,6 @@ GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
     }
 
     // handle further attribute changes
-    if (leftProp.isOptional != rightProp.isOptional)
-    {
-        diffObjEmpty = false;
-        handleAttributeChange(GtObjectIO::S_OPTIONAL_TAG, QVariant(leftProp.isOptional).toString(), QVariant(rightProp.isOptional).toString(), diffObj);
-    }
-
     if (leftProp.isActive != rightProp.isActive)
     {
         diffObjEmpty = false;

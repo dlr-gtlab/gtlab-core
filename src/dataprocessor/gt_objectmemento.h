@@ -179,7 +179,6 @@ public:
         };
 
         QString name;
-        bool isOptional = false;
         bool isActive = true;
 
         const QVariant& data() const

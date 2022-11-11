@@ -233,7 +233,6 @@ GtObjectMemento::propertyHashHelper(const PD& property, QCryptographicHash& hash
 
     // hash property
     propHash.addData(property.name.toUtf8());
-    propHash.addData((const char*)&property.isOptional, sizeof(property.isOptional));
     propHash.addData((const char*)&property.isActive, sizeof(property.isActive));
     propHash.addData(property.dataType().toUtf8());
 
