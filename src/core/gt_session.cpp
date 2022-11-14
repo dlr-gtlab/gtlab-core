@@ -112,8 +112,18 @@ GtSession::createEmptySession(const QString& id)
 
     if (!dir.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("roaming path not found!");
+        auto dirCreated = QDir(gtApp->roamingPath()).mkdir("session");
+
+        if (!dirCreated)
+        {
+            gtError() << tr("Cannot create session directory");
+            return false;
+        }
+    }
+
+    if (!dir.exists())
+    {
+        gtError() << tr("Session directory not found");
         return false;
     }
 
@@ -335,7 +345,17 @@ QString
 GtSession::roamingPath()
 {
     return GtCoreApplication::roamingPath() + QDir::separator() +
-            QStringLiteral("session");
+           QStringLiteral("session");
+}
+
+bool 
+GtSession::hasDefaultSession()
+{
+    const QString path = gtApp->roamingPath() + QDir::separator() +
+                         QStringLiteral("session") + QDir::separator() +
+                         "default.json";
+
+    return QFileInfo::exists(path);
 }
 
 bool

@@ -144,11 +144,7 @@ GtCoreApplication::init()
     }
 
     // #####
-
-    if (settings()->firstApplicationRun())
-    {
-        initFirstRun();
-    }
+    initFirstRun();
 
     if (qApp->arguments().contains(QStringLiteral("-dev")))
     {
@@ -178,15 +174,19 @@ GtCoreApplication::init()
 bool
 GtCoreApplication::initFirstRun()
 {
-    qDebug() << "first application run!";
+    if (settings()->firstApplicationRun())
+    {
 
-    // restore application settings to initial values
-    settings()->restoreSettings();
+        qDebug() << "first application run!";
+
+        // restore application settings to initial values
+        settings()->restoreSettings();
+    }
 
     // create application directories
     QString path = GtSession::roamingPath();
 
-    if (!QDir().mkpath(path))
+    if (!QDir(path).exists() && !QDir().mkpath(path))
     {
         qWarning() << tr("WARNING") << ": "
                    << tr("could not create application directories!");
@@ -194,7 +194,7 @@ GtCoreApplication::initFirstRun()
     }
 
     // create default session
-    if (!GtSession::createDefault())
+    if (!GtSession::hasDefaultSession() && !GtSession::createDefault())
     {
         qWarning() << tr("WARNING") << ": "
                    << tr("could not create default session setting!");
