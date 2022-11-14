@@ -46,6 +46,7 @@ protected:
 
     virtual void TearDown()
     {
+        delete obj1;
     }
 
     GtDataZoneTable* obj1;
