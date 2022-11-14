@@ -52,146 +52,133 @@ class TestSpecialGtObject : public GtObjectGroup
 //    Q_PROPERTY(QList<bool> bList MEMBER boolList)
 
 public:
-    Q_INVOKABLE TestSpecialGtObject() {
-        m_boolProp = new GtBoolProperty("boolProp", "Test Bool", QString());
-        m_doubleProp = new GtDoubleProperty("doubleProp", "Test Double",
-                                            QString(), GtUnit::Category::Angle);
-        m_fileProp = new GtOpenFileNameProperty("fileProp", "Test File",
-                                                QString(), QStringList());
-        m_groupProp = new GtGroupProperty("Test Group", QString());
-        m_intProp = new GtIntProperty("intProp", "Test Int", QString(),
-                                      GtUnit::Category::Angle);
-        m_labelProp = new GtLabelProperty("labelProp", "Test Label",
-                                          QString(), this);
-        m_modeProp = new GtModeProperty("modeProp", "Test Mode", QString());
-        m_modeTypeProp = new GtModeTypeProperty("Test Type", QString());
-        m_linkProp = new GtObjectLinkProperty("linkProp", "Test Link",
-                                              QString(), QString(),
-                                              this, QStringList());
-        m_strProp = new GtStringProperty(
-                    "strProp", "Test String",  QString(), "Test",
-                    new QRegExpValidator(gt::re::onlyLettersAndNumbers(),
-                                         this));
-        m_varProp = new GtVariantProperty("Test Variant", QString());
-        GtDoubleListProperty* doubleListProp =
-                new GtDoubleListProperty("dblList", "Double List Property");
-        GtExistingDirectoryProperty* exDirProp =
-                new GtExistingDirectoryProperty("exDir", "Existing Directory",
-                                                "Existing Directory Property");
-        GtOpenFileNameProperty* fileChooser =
-                new GtOpenFileNameProperty("fileChooser", "File Chooser",
-                                           "File Chooser",
-                                           QStringList() << "dat");
-
-        m_intProp->setOptional(true);
+    Q_INVOKABLE TestSpecialGtObject() :
+        m_boolProp("boolProp", "Test Bool", QString()),
+        m_doubleProp("doubleProp", "Test Double",
+                                            QString(), GtUnit::Category::Angle),
+        m_fileProp("fileProp", "Test File", QString(), QStringList()),
+        m_groupProp("Test Group", QString()),
+        m_intProp("intProp", "Test Int", QString(), GtUnit::Category::Angle),
+        m_labelProp("labelProp", "Test Label", QString(), this),
+        m_modeProp("modeProp", "Test Mode", QString()),
+        m_modeTypeProp("Test Type", QString()),
+        m_linkProp("linkProp", "Test Link", QString(), QString(), this, {}),
+        m_strProp("strProp", "Test String",  QString(), "Test",
+                   new QRegExpValidator(gt::re::onlyLettersAndNumbers(), this)),
+        m_varProp("Test Variant", QString()),
+        m_doubleListProp("dblList", "Double List Property"),
+        m_exDirProp("exDir", "Existing Directory", "Existing Directory Property"),
+        m_fileChooser("fileChooser", "File Chooser", "File Chooser", {"dat"})
+    {
+        m_intProp.setOptional(true);
 
         boolList << true << false << true;
 
-        registerProperty(*m_boolProp);
-        registerProperty(*m_doubleProp);
-        registerProperty(*m_fileProp);
-        registerProperty(*m_groupProp);
-        m_groupProp->registerSubProperty(*m_intProp);
-        registerProperty(*m_intProp);
-        registerProperty(*m_labelProp);
-        registerProperty(*m_modeProp);
-        m_modeProp->registerSubProperty(*m_modeTypeProp);
-        registerProperty(*m_linkProp);
-        registerProperty(*m_strProp);
-        registerProperty(*m_varProp);
-        registerProperty(*doubleListProp);
-        registerProperty(*exDirProp);
-        registerProperty(*fileChooser);
+        registerProperty(m_boolProp);
+        registerProperty(m_doubleProp);
+        registerProperty(m_fileProp);
+        registerProperty(m_groupProp);
+        m_groupProp.registerSubProperty(m_intProp);
+        registerProperty(m_intProp);
+        registerProperty(m_labelProp);
+        registerProperty(m_modeProp);
+        m_modeProp.registerSubProperty(m_modeTypeProp);
+        registerProperty(m_linkProp);
+        registerProperty(m_strProp);
+        registerProperty(m_varProp);
+        registerProperty(m_doubleListProp);
+        registerProperty(m_exDirProp);
+        registerProperty(m_fileChooser);
     }
 
     bool getBool()
     {
-        return m_boolProp->get();
+        return m_boolProp.get();
     }
 
     void setBool(bool val)
     {
-        m_boolProp->setVal(val);
+        m_boolProp.setVal(val);
     }
 
     double getDouble()
     {
-        return m_doubleProp->get();
+        return m_doubleProp.get();
     }
 
     void setDouble(double val)
     {
-        m_doubleProp->setVal(val);
+        m_doubleProp.setVal(val);
     }
 
     QString getFile()
     {
-        return m_fileProp->get();
+        return m_fileProp.get();
     }
 
     void setFile(const QString& val)
     {
-        m_fileProp->setVal(val);
+        m_fileProp.setVal(val);
     }
 
     int getInt()
     {
-        return m_intProp->get();
+        return m_intProp.get();
     }
 
     void setInt(int val)
     {
-        m_intProp->setVal(val);
+        m_intProp.setVal(val);
     }
 
     QString getLabel()
     {
-        return m_labelProp->get();
+        return m_labelProp.get();
     }
 
     void setLabel(const QString& val)
     {
-        m_labelProp->setVal(val);
+        m_labelProp.setVal(val);
     }
 
     QString getMode()
     {
-        return m_modeProp->get();
+        return m_modeProp.get();
     }
 
     void setMode(const QString& val)
     {
-        m_modeProp->setVal(val);
+        m_modeProp.setVal(val);
     }
 
     QString getLink()
     {
-        return m_linkProp->get();
+        return m_linkProp.get();
     }
 
     void setLink(const QString& val)
     {
-        m_linkProp->setVal(val);
+        m_linkProp.setVal(val);
     }
 
     QString getString()
     {
-        return m_strProp->get();
+        return m_strProp.get();
     }
 
     void setString(const QString& str)
     {
-        m_strProp->setVal(str);
+        m_strProp.setVal(str);
     }
 
     QVariant getVariant()
     {
-        return m_varProp->get();
+        return m_varProp.get();
     }
 
     void setVariant(const QVariant& var)
     {
-        m_varProp->setVal(var);
+        m_varProp.setVal(var);
     }
 
     QVector<double> getDoubleVec() const
@@ -211,27 +198,33 @@ public:
                qobject_cast<TestObject*>(child) != nullptr;
     }
 
-    GtBoolProperty* m_boolProp;
+    GtBoolProperty m_boolProp;
 
-    GtDoubleProperty* m_doubleProp;
+    GtDoubleProperty m_doubleProp;
 
-    GtFileChooserProperty* m_fileProp;
+    GtOpenFileNameProperty m_fileProp;
 
-    GtGroupProperty* m_groupProp;
+    GtGroupProperty m_groupProp;
 
-    GtIntProperty* m_intProp;
+    GtIntProperty m_intProp;
 
-    GtLabelProperty* m_labelProp;
+    GtLabelProperty m_labelProp;
 
-    GtModeProperty* m_modeProp;
+    GtModeProperty m_modeProp;
 
-    GtModeTypeProperty* m_modeTypeProp;
+    GtModeTypeProperty m_modeTypeProp;
 
-    GtObjectLinkProperty* m_linkProp;
+    GtObjectLinkProperty m_linkProp;
 
-    GtStringProperty* m_strProp;
+    GtStringProperty m_strProp;
 
-    GtVariantProperty* m_varProp;
+    GtVariantProperty m_varProp;
+
+    GtDoubleListProperty m_doubleListProp;
+
+    GtExistingDirectoryProperty m_exDirProp;
+
+    GtOpenFileNameProperty m_fileChooser;
 
     QVector<double> doubleVec;
 

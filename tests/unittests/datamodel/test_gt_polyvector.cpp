@@ -18,6 +18,8 @@ struct TestPolyVector : public testing::Test
 struct Base // is copyable
 {
     Base() = default;
+    virtual ~Base() = default;
+
     virtual std::string clz() const
     {
         return "Base";

@@ -31,9 +31,9 @@ public:
 
 };
 
-GtObject* fromMementoNew(const GtObjectMemento& m)
+std::unique_ptr<GtObject> fromMementoNew(const GtObjectMemento& m)
 {
-    return m.toObject(*GtObjectFactory::instance()).release();
+    return m.toObject(*GtObjectFactory::instance());
 }
 
 TEST_F(TestFromMemento, abstractProperties)

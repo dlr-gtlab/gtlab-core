@@ -189,17 +189,12 @@ TEST_F(TestGtObject, clone)
 TEST_F(TestGtObject, appendChild)
 {
     GtObject* child = new GtObject;
-    TestSpecialGtObject* parent = new TestSpecialGtObject;
+    TestSpecialGtObject parent;
 
     ASSERT_FALSE(obj.appendChild(nullptr));
 
     ASSERT_TRUE(obj.appendChild(child));
-
-    ASSERT_TRUE(parent->appendChild(&obj));
-
-    ASSERT_FALSE(parent->appendChild(&obj));
-
-    ASSERT_FALSE(parent->appendChild(child));
+    ASSERT_FALSE(parent.appendChild(child));
 }
 
 TEST_F(TestGtObject, flags)

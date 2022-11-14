@@ -19,24 +19,25 @@ class TestDoubleListObject : public GtObject
 
 
 public:
-    Q_INVOKABLE TestDoubleListObject() {
-        doubleList = new GtDoubleListProperty("doubleList", "Double List");
+    Q_INVOKABLE TestDoubleListObject() :
+        doubleList("doubleList", "Double List")
+    {
 
-        registerProperty(*doubleList);
+        registerProperty(doubleList);
     }
 
     QVector<double> getDoubleList() const
     {
-        return doubleList->getVal();
+        return doubleList.getVal();
     }
 
     void setDoubleList(const QVector<double>& value)
     {
-        doubleList->setVal(value);
+        doubleList.setVal(value);
     }
 
 private:
-    GtDoubleListProperty* doubleList;
+    GtDoubleListProperty doubleList;
 
 };
 

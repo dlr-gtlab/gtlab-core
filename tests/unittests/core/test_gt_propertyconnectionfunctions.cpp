@@ -557,7 +557,7 @@ TEST_F(TestGtPropertyConnectionFunctions, updateConnectionProperties)
     con4->setSourceProp(calc3->prop3()->ident());
     con4->setTargetProp(calc4->prop2()->ident());
 
-    GtTask* taskCopy = qobject_cast<GtTask*>(task->copy());
+    std::unique_ptr<GtTask> taskCopy(qobject_cast<GtTask*>(task->copy()));
 
     ASSERT_TRUE(taskCopy != nullptr);
 
@@ -580,24 +580,24 @@ TEST_F(TestGtPropertyConnectionFunctions, updateConnectionProperties)
         ASSERT_TRUE(conCopy != nullptr);
 
         ASSERT_TRUE(gt::gui::detail::updateConnectionProperties(
-                        propCon, conCopy, task, taskCopy));
+                        propCon, conCopy, task, taskCopy.get()));
 
     }
 
     TestGtCalculator* calc1Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc1));
 
     TestGtCalculator* calc2Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc2));
 
     TestGtCalculator* calc3Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc3));
 
     TestGtCalculator* calc4Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc4));
 
     ASSERT_TRUE(calc1Copy != nullptr);
@@ -646,24 +646,24 @@ TEST_F(TestGtPropertyConnectionFunctions, updateRelativeObjectLinks)
     calc3->relLink()->setVal(calc1->uuid());
     calc4->relLink()->setVal(calc2->uuid());
 
-    GtTask* taskCopy = qobject_cast<GtTask*>(task->copy());
+    std::unique_ptr<GtTask> taskCopy (qobject_cast<GtTask*>(task->copy()));
 
     ASSERT_TRUE(taskCopy != nullptr);
 
     TestGtCalculator* calc1Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc1));
 
     TestGtCalculator* calc2Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc2));
 
     TestGtCalculator* calc3Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc3));
 
     TestGtCalculator* calc4Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc4));
 
     ASSERT_TRUE(calc1Copy != nullptr);
@@ -672,13 +672,13 @@ TEST_F(TestGtPropertyConnectionFunctions, updateRelativeObjectLinks)
     ASSERT_TRUE(calc4Copy != nullptr);
 
     ASSERT_FALSE(gt::gui::detail::updateRelativeObjectLinks(
-                     nullptr, taskCopy));
+                     nullptr, taskCopy.get()));
     ASSERT_FALSE(gt::gui::detail::updateRelativeObjectLinks(
                      task, nullptr));
     ASSERT_FALSE(gt::gui::detail::updateRelativeObjectLinks(
                      nullptr, nullptr));
     ASSERT_TRUE(gt::gui::detail::updateRelativeObjectLinks(
-                    task, taskCopy));
+                    task, taskCopy.get()));
 
     ASSERT_EQ(calc1Copy->relLink()->getVal(), calc3Copy->uuid());
     ASSERT_EQ(calc2Copy->relLink()->getVal(), calc4Copy->uuid());
@@ -686,19 +686,19 @@ TEST_F(TestGtPropertyConnectionFunctions, updateRelativeObjectLinks)
     ASSERT_EQ(calc4Copy->relLink()->getVal(), calc2Copy->uuid());
 
     calc1Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc1));
 
     calc2Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc2));
 
     calc3Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc3));
 
     calc4Copy = qobject_cast<TestGtCalculator*>(
-                gt::gui::detail::findEquivalentObject(taskCopy,
+                gt::gui::detail::findEquivalentObject(taskCopy.get(),
                                                                     calc4));
 
     ASSERT_TRUE(calc1Copy == nullptr);

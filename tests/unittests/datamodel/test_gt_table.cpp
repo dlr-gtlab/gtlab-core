@@ -606,11 +606,11 @@ TEST_F(TestGtTable, testInterpolators)
 
     GtObjectMemento mem = testTable->toMemento();
 
-    GtObject* memObj = mem.restore(gtObjectFactory);
+    std::unique_ptr<GtObject> memObj(mem.restore(gtObjectFactory));
 
     ASSERT_TRUE(memObj != nullptr);
 
-    GtTable* memTable = qobject_cast<GtTable*>(memObj);
+    GtTable* memTable = qobject_cast<GtTable*>(memObj.get());
 
     const QMetaObject* metaObject = memTable->metaObject();
     QStringList properties;
