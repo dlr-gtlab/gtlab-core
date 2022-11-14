@@ -158,11 +158,16 @@ GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData)
 GtObject*
 GtAbstractObjectFactory::newObject(const QMetaObject& metaObj, GtObject* parent) const
 {
-    GtObject* retval = nullptr;
+    QObject* o = metaObj.newInstance();
+    if (!o)
+    {
+        return nullptr;
+    }
 
-    retval = qobject_cast<GtObject*>(metaObj.newInstance());
+    GtObject* retval = qobject_cast<GtObject*>(o);
     if (!retval)
     {
+        delete o;
         return nullptr;
     }
 

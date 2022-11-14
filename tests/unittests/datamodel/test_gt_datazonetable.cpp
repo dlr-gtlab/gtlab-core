@@ -61,8 +61,8 @@ TEST_F(TestGtDataZoneTable, copy)
 
     ASSERT_TRUE(subDims == 0);
 
-    GtDataZoneTable* dztCopy =
-            qobject_cast<GtDataZoneTable*>(obj1->copy());
+    std::unique_ptr<GtDataZoneTable> dztCopy(
+                qobject_cast<GtDataZoneTable*>(obj1->copy()));
 
     ASSERT_FALSE(dztCopy == Q_NULLPTR);
 
