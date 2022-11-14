@@ -84,6 +84,8 @@ public:
      */
     static QString roamingPath();
 
+    static bool hasDefaultSession();
+
 protected:
     /**
      * @brief GtSession
