@@ -13,9 +13,9 @@
 #include "gt_datamodel_exports.h"
 
 #include <QList>
+#include <QDomElement>
 
 class QDomDocument;
-class QDomElement;
 class QXmlStreamWriter;
 class QString;
 
@@ -58,6 +58,61 @@ bool GT_DATAMODEL_EXPORT writeDomDocumentToFile(const QString& filePath,
  */
 QList<QDomElement> GT_DATAMODEL_EXPORT findObjectElementsByClassName(
     const QDomElement& root, const QString& className);
+
+/**
+ * @brief Returns all property elements under root
+ * @return
+ */
+QList<QDomElement> GT_DATAMODEL_EXPORT propertyElements(
+    const QDomElement& root);
+
+QDomElement GT_DATAMODEL_EXPORT findPropertyElement(const QDomElement& root,
+                                                    const QString& propId);
+
+/**
+ * @brief Creates a generic property xml element
+ * @param doc The dom document
+ * @param propertyId The id of the property e.g. "x"
+ * @param propertyType The type of the property e.g. "double"
+ * @param value        The value of the property e.g. "1.0"
+ * @return The created element
+ */
+QDomElement GT_DATAMODEL_EXPORT createPropertyElement(QDomDocument& doc,
+                                                   const QString& propertyId,
+                                                   const QString& propertyType,
+                                                   const QString& value);
+
+inline QDomElement createDoublePropertyElement(QDomDocument& doc,
+                                               const QString& propertyId,
+                                               double value)
+{
+    return createPropertyElement(doc, propertyId, "double",
+                              QString::number(value));
+}
+
+inline QDomElement createIntPropertyElement(QDomDocument& doc,
+                                            const QString& propertyId,
+                                            int value)
+{
+    return createPropertyElement(doc, propertyId, "int",
+                              QString::number(value));
+}
+
+inline QDomElement createBoolPropertyElement(QDomDocument& doc,
+                                             const QString& propertyId,
+                                             bool value)
+{
+    return createPropertyElement(doc, propertyId, "bool",
+                              QString::number(value));
+}
+
+inline QDomElement createStringPropertyElement(QDomDocument& doc,
+                                               const QString& propertyId,
+                                               QString value)
+{
+    return createPropertyElement(doc, propertyId, "QString",
+                              std::move(value));
+}
 
 } // namespace xml
 

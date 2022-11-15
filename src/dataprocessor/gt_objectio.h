@@ -128,6 +128,9 @@ public:
             return QString::number(val.x()) + QStringLiteral("_")
                    + QString::number(val.y());
         }
+        else if (var.isNull()) {
+            return "";
+        }
         else
         {
             return var.toString();

@@ -15,6 +15,8 @@
 #include "gt_xmlutilities.h"
 #include "gt_objectio.h"
 
+#include "gt_logging.h"
+
 
 namespace
 {
@@ -147,4 +149,55 @@ gt::xml::writeDomDocumentToFile(const QString& filePath,
     file.close();
 
     return true;
+}
+
+QDomElement
+gt::xml::createPropertyElement(QDomDocument &doc, const QString &propertyId,
+                            const QString &propertyType, const QString &value)
+{
+    auto prop = doc.createElement(GtObjectIO::S_PROPERTY_TAG);
+    prop.setAttribute("name", propertyId);
+    prop.setAttribute("type", propertyType);
+
+    if (!value.isEmpty())
+    {
+        prop.appendChild(doc.createTextNode(value));
+    }
+
+    return prop;
+}
+
+QList<QDomElement> gt::xml::propertyElements(const QDomElement& root)
+{
+    QList<QDomElement> result;
+    findElements(root, [&](const QDomElement& elem) {
+            return elem.tagName() == GtObjectIO::S_PROPERTY_TAG;
+        }, result);
+
+    return result;
+}
+
+QDomElement gt::xml::findPropertyElement(const QDomElement &root,
+                             const QString& id)
+{
+    QList<QDomElement> result;
+    findElements(root, [&](const QDomElement& elem) {
+            return elem.tagName() == GtObjectIO::S_PROPERTY_TAG &&
+                   elem.attribute(GtObjectIO::S_NAME_TAG) == id;
+        }, result);
+
+    if (result.isEmpty())
+    {
+        return QDomElement();
+    }
+
+    if (result.size() > 1)
+    {
+        gtWarning() << GtObject::tr("Found multiple properties with the same id '%1'").arg(id);
+        return result.at(0);
+    }
+
+    // result.size() == 0
+    return result.at(0);
+
 }

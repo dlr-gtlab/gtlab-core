@@ -28,6 +28,7 @@
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 #include "gt_exceptions.h"
+#include "gt_xmlutilities.h"
 
 #include "gt_objectio.h"
 
@@ -922,18 +923,8 @@ GtObjectIO::propertyToDomElement(const QString& name,
                                  const QString& dataType,
                                  QDomDocument& doc)
 {
-    QDomElement element = doc.createElement(S_PROPERTY_TAG);
-
-    element.setAttribute(S_NAME_TAG, name);
-    element.setAttribute(S_TYPE_TAG, dataType);
-
-    if (!var.isNull())
-    {
-        QDomText t = doc.createTextNode(variantToString(var));
-        element.appendChild(t);
-    }
-
-    return element;
+    return gt::xml::createPropertyElement(doc, name, dataType,
+                                          variantToString(var));
 }
 
 QDomElement
