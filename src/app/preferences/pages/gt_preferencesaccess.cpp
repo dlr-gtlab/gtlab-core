@@ -26,12 +26,12 @@
 GtPreferencesAccess::GtPreferencesAccess() :
     GtPreferencesPage(tr("Access"))
 {
-//    QVBoxLayout* lay = new QVBoxLayout;
-
     setIcon(gt::gui::icon::login());
     m_tabWidget = new QTabWidget;
 
-    layout()->addWidget(m_tabWidget);
+    auto* layout = new QVBoxLayout;
+    layout->addWidget(m_tabWidget);
+    setLayout(layout);
 
     // initialize pages
     foreach (GtAccessGroup* group, gtAccessManager->accessGroups())

@@ -11,6 +11,7 @@
 #include <QStackedWidget>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QLabel>
 
 #include "gt_preferencesdialog.h"
 #include "gt_preferencesapp.h"
@@ -98,7 +99,23 @@ void GtPreferencesDialog::addPage(GtPreferencesPage *page)
         return;
     }
 
-    m_pagesWidget->addWidget(page);
+    m_pages.append(page);
+
+    auto layout = new QVBoxLayout;
+    auto title = new QLabel(page->title());
+
+    QFont font = title->font();
+    font.setBold(true);
+    title->setFont(font);
+
+    layout->addWidget(title);
+    layout->addSpacing(20);
+    layout->addWidget(page);
+
+    auto container = new QWidget(this);
+    container->setLayout(layout);
+
+    m_pagesWidget->addWidget(container);
 
     // Add a button (icon + text) the the list on the left
     QListWidgetItem* button = new QListWidgetItem(m_contentsWidget);
@@ -134,12 +151,8 @@ GtPreferencesDialog::changePage(QListWidgetItem* current,
 void
 GtPreferencesDialog::saveChanges()
 {
-    QObjectList pageList = m_pagesWidget->children();
-
-    for (int i = 0; i < pageList.size(); i++)
+    for (auto page : qAsConst(m_pages))
     {
-        GtPreferencesPage* page = qobject_cast<GtPreferencesPage*>(pageList[i]);
-
         if (page)
         {
             page->saveSettings(*gtApp->settings());
@@ -152,12 +165,9 @@ GtPreferencesDialog::saveChanges()
 void
 GtPreferencesDialog::loadSettings()
 {
-    QObjectList pageList = m_pagesWidget->children();
 
-    for (int i = 0; i < pageList.size(); i++)
+    for (auto page : qAsConst(m_pages))
     {
-        GtPreferencesPage* page = qobject_cast<GtPreferencesPage*>(pageList[i]);
-
         if (page)
         {
             page->loadSettings(*gtApp->settings());

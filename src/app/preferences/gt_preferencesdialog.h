@@ -52,6 +52,9 @@ private:
     ///
     QStackedWidget* m_pagesWidget;
 
+    /// non owning vector of page references
+    QVector<GtPreferencesPage*> m_pages;
+
     /**
      * @brief Loads the internally stored settings into
      * the widgets of each preference page

@@ -32,7 +32,9 @@ GtPreferencesApp::GtPreferencesApp() :
 
     tabWidget->setContentsMargins(0, 0, 0, 0);
 
-    layout()->addWidget(tabWidget);
+    auto layout = new QVBoxLayout();
+    setLayout(layout);
+    layout->addWidget(tabWidget);
 
     QWidget* generalPage = new QWidget;
     tabWidget->addTab(generalPage, tr("General"));

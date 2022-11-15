@@ -12,7 +12,10 @@ TestPreferencePage::TestPreferencePage()
 {
     setTitleShort("Mod.Interface");
     m_label = new QLineEdit;
-    layout()->addWidget(m_label);
+    auto layout = new QVBoxLayout;
+    layout->addWidget(m_label);
+    layout->addStretch();
+    setLayout(layout);
 }
 
 void

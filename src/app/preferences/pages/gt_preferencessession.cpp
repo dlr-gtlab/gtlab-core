@@ -64,8 +64,6 @@ GtPreferencesSession::GtPreferencesSession() :
 
     lay->addWidget(m_openLastCheck);
 
-    QVBoxLayout* mainLayout = qobject_cast<QVBoxLayout*>(layout());
-
     connect(m_btnSwitch, SIGNAL(clicked(bool)), SLOT(switchSession()));
     connect(m_btnRename, SIGNAL(clicked(bool)), m_list,
             SLOT(renameItem()));
@@ -74,15 +72,9 @@ GtPreferencesSession::GtPreferencesSession() :
             SLOT(duplicateItem()));
     connect(m_btnDelete, SIGNAL(clicked(bool)), m_list, SLOT(deleteItem()));
 
-    if (mainLayout)
-    {
-        mainLayout->addLayout(lay);
-        m_list->init();
-    }
-    else
-    {
-        delete lay;
-    }
+    m_list->init();
+
+    setLayout(lay);
 }
 
 void

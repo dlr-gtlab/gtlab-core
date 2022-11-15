@@ -79,7 +79,9 @@ GtPreferencesLanguage::GtPreferencesLanguage():
         }
     }
 
-    layout()->addWidget(list);
+    auto layout = new QVBoxLayout;
+    layout->addWidget(list);
+    setLayout(layout);
 }
 
 void
