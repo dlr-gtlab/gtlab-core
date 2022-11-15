@@ -63,3 +63,21 @@ TEST_F(TestXmlUtilities, findObjectElementsByClassNameChangeValue)
     ASSERT_EQ(1, projectsNew.size());
     EXPECT_EQ("blubb", projects[0].attribute("name").toStdString());
 }
+
+TEST_F(TestXmlUtilities, addPropertyElement)
+{
+    auto root = doc.firstChildElement();
+    ASSERT_TRUE(root.tagName() == "object");
+
+    EXPECT_TRUE(gt::xml::findPropertyElement(root, "myprop").isNull());
+
+    auto prop = gt::xml::createDoublePropertyElement(doc, "myprop", 1.1);
+    ASSERT_FALSE(prop.isNull());
+    root.appendChild(prop);
+
+    EXPECT_FALSE(gt::xml::findPropertyElement(root, "myprop").isNull());
+
+    EXPECT_EQ("myprop", prop.attribute("name").toStdString());
+    EXPECT_EQ("double", prop.attribute("type").toStdString());
+    EXPECT_EQ("1.1", prop.text().toStdString());
+}
