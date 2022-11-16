@@ -30,6 +30,17 @@ GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
     m_value = uuid;
 }
 
+GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
+        const QString& name,
+        const QString& brief,
+        GtObject* obj,
+        const QStringList& allowedClasses,
+        bool linkFromSuperClassesEnabled) :
+    GtObjectLinkProperty(ident, name, brief, "", obj, allowedClasses,
+                         linkFromSuperClassesEnabled)
+{
+}
+
 QVariant
 GtObjectLinkProperty::valueToVariant(const QString& unit, bool* success) const
 {
@@ -89,7 +100,7 @@ GtObjectLinkProperty::linkedObjectUUID() const
 }
 
 const QStringList&
-GtObjectLinkProperty::allowedClasses()
+GtObjectLinkProperty::allowedClasses() const
 {
     return m_allowedClasses;
 }

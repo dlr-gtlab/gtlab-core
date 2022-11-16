@@ -34,15 +34,34 @@ public:
      * @param uuid Initial uuid.
      * @param obj Source object.
      * @param allowedClasses List of allowed classes.
-     * @param linkFromSuperClassesEnabled mode if objects of classes which inherit allowed
-     * classes should be allowed classes too
+     * @param linkFromSuperClassesEnabled mode if objects of classes
+     *  which inherit allowed classes should be allowed classes too
      */
     GtObjectLinkProperty(const QString& ident,
                          const QString& name,
                          const QString& brief,
                          const QString& uuid,
                          GtObject* obj,
-                         QStringList  allowedClasses,
+                         QStringList allowedClasses,
+                         bool linkFromSuperClassesEnabled = false);
+
+    /**
+     * @brief Constructor.
+     * @param ident Memento identification string.
+     * @param name Visible property identification string.
+     * @param brief Property description.
+     * @param obj Source object.
+     * @param allowedClasses List of allowed classes.
+     * @param linkFromSuperClassesEnabled mode if objects of classes
+     * which inherit allowed classes should be allowed classes too
+     *
+     * The initial value is an empty string
+     */
+    GtObjectLinkProperty(const QString& ident,
+                         const QString& name,
+                         const QString& brief,
+                         GtObject* obj,
+                         const QStringList& allowedClasses,
                          bool linkFromSuperClassesEnabled = false);
 
     /**
@@ -89,7 +108,7 @@ public:
      * @brief allowedClasses
      * @return
      */
-    const QStringList& allowedClasses();
+    const QStringList& allowedClasses() const;
 
     /**
      * @brief linkFromSuperClass
