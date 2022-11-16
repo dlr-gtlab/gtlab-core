@@ -10,6 +10,8 @@
 #ifndef GTPROJECTUI_H
 #define GTPROJECTUI_H
 
+#include <QDir>
+
 #include "gt_gui_exports.h"
 
 #include "gt_objectui.h"
@@ -267,6 +269,15 @@ private:
      * @param obj
      */
     static void setCurrentProject(GtObject* obj);
+
+    /**
+     * @brief validBackupDirectories
+     * @param project to check
+     * @return a list of the valid backup directories.
+     * The validity check is done by a check if a project file is
+     * inside the directory
+     */
+    static QList<QDir> validBackupDirectories(GtProject* project);
 
 protected:
     /**

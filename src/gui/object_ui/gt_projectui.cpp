@@ -477,14 +477,7 @@ GtProjectUI::canCloseProject(GtObject* obj)
         return false;
     }
 
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
-    {
-        return false;
-    }
-
-    return project->isOpen();
+    return projectIsOpen(obj);
 }
 
 void
@@ -508,14 +501,7 @@ GtProjectUI::saveProject(GtObject* obj)
 bool
 GtProjectUI::canSaveProject(GtObject* obj)
 {
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
-    {
-        return false;
-    }
-
-    return project->isOpen();
+    return projectIsOpen(obj);
 }
 
 void
@@ -627,14 +613,7 @@ GtProjectUI::canSaveProjectAs(GtObject* obj)
         return false;
     }
 
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
-    {
-        return false;
-    }
-
-    return project->isOpen();
+    return projectIsOpen(obj);
 }
 
 void
@@ -721,15 +700,7 @@ GtProjectUI::canDuplicateProject(GtObject* obj)
         return false;
     }
 
-
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
-    {
-        return false;
-    }
-
-    return project->isOpen();
+    return projectIsOpen(obj);
 }
 
 void
@@ -1650,8 +1621,6 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
             gtDataModel->newProject(newProject);
             gtApp->setCurrentProject(newProject);
         }
-
-
     }
 }
 
@@ -1701,14 +1670,7 @@ GtProjectUI::editComment(GtObject* obj)
 bool
 GtProjectUI::canEditComment(GtObject* obj)
 {
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
-    {
-        return false;
-    }
-
-    return project->isOpen();
+    return projectIsOpen(obj);
 }
 
 void
@@ -1759,6 +1721,60 @@ GtProjectUI::backupProject(GtObject* obj)
     project->createBackup();
 }
 
+QList<QDir>
+GtProjectUI::validBackupDirectories(GtProject* project)
+{
+    QDir backUpMainDir (project->backupDirPath());
+
+    if (!backUpMainDir.exists())
+    {
+        gtWarning() << tr("Backup folder does not exist.");
+        return {};
+    }
+
+    QFileInfoList contentList = backUpMainDir.entryInfoList(
+                QDir::Dirs | QDir::NoDotAndDotDot);
+
+    if (contentList.isEmpty())
+    {
+        gtWarning() << tr("Backup folder is empty.");
+        return {};
+    }
+
+    QList<QDir> validBackupDirs;
+
+    for (const QFileInfo& i : qAsConst(contentList))
+    {
+        /// simple check shuld never fail as filter for directories is active
+        if (!i.isDir())
+        {
+            continue;
+        }
+
+        QDir currentBackUp (i.absoluteFilePath());
+
+        if (!currentBackUp.exists())
+        {
+            gtDebug() << "Cannot find directory " << i.absoluteFilePath();
+            continue;
+        }
+
+        QFile projectFile (currentBackUp.absoluteFilePath(
+                               GtProject::mainFilename()));
+
+        if (!projectFile.exists())
+        {
+            gtDebug() << "Cannot find project file for "
+                      << i.absoluteFilePath();
+            continue;
+        }
+
+        validBackupDirs.append(currentBackUp);
+    }
+
+    return validBackupDirs;
+}
+
 bool
 GtProjectUI::canRestoreBackup(GtObject* obj)
 {
@@ -1769,21 +1785,7 @@ GtProjectUI::canRestoreBackup(GtObject* obj)
         return false;
     }
 
-    QDir backUpMainDir (project->backupDirPath());
-
-    if (!backUpMainDir.exists())
-    {
-        return false;
-    }
-
-    QFileInfoList contentList = backUpMainDir.entryInfoList(QDir::Dirs);
-
-    if (contentList.isEmpty())
-    {
-        return false;
-    }
-
-    return true;
+    return !validBackupDirectories(project).isEmpty();
 }
 
 void
@@ -1796,22 +1798,29 @@ GtProjectUI::restoreBackup(GtObject *obj)
         return;
     }
 
-    QDir backUpMainDir (project->backupDirPath());
+    QList<QDir> validDirs = validBackupDirectories(project);
 
-    if (!backUpMainDir.exists())
+    if (validDirs.isEmpty())
     {
-        gtWarning() << tr("Backup folder does not exist.");
         return;
     }
 
-    QFileInfoList contentList = backUpMainDir.entryInfoList(QDir::Dirs);
+    gtDebug() << "Open Editor to select from the list of:"
+              << validDirs;
 
-    if (contentList.isEmpty())
-    {
-        gtWarning() << tr("Backup folder is empty.");
-        return;
-    }
-
-    gtInfo() << "There are following folders in the backup directory:"
-             << contentList;
+    ///
+    /// This part has to be implemented after feedback of SRe how the
+    /// GUI
+    ///
+    /// GtRestoreProjectDialog dialog(project, validDirs);
+    /// if (dialog.exec())
+    /// {
+    ///     Inside the dialog:
+    ///         - read the timestamp from the directories name
+    ///         - offer the time stamps as list to select one of them
+    ///         - open one of them with the following options:
+    ///     options:
+    ///         - Overwrite project with backup
+    ///         - Open Backup as separate project
+    /// }
 }
