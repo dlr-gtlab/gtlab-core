@@ -46,12 +46,14 @@ GtSettingsItem::setValue(const QVariant &value)
     }
 }
 
-QVariant GtSettingsItem::getValue() const
+QVariant
+GtSettingsItem::getValue() const
 {
     return QSettings().value(ident(), initValue());
 }
 
-bool GtSettingsItem::requiresRestart() const
+bool
+GtSettingsItem::requiresRestart() const
 {
     return changesRequiresRestart && hasChanged;
 }

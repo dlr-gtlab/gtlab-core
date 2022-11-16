@@ -76,6 +76,12 @@ public:
      */
     explicit GtAbstractSettings(GtObject* parent = nullptr);
 
+    /**
+     * @brief Check, whether the app requires a restart
+     *
+     * If a change of a certain setting requires an app restart,
+     * this function will return true.
+     */
     bool requiresAppRestart() const;
 
 private:

@@ -19,7 +19,8 @@ GtAbstractSettings::GtAbstractSettings(GtObject* parent) : GtObject(parent)
 
 }
 
-bool GtAbstractSettings::requiresAppRestart() const
+bool
+GtAbstractSettings::requiresAppRestart() const
 {
     return std::any_of(std::begin(m_settings), std::end(m_settings),
                        [](const GtSettingsItem* s) -> bool {
