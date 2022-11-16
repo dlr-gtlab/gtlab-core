@@ -711,13 +711,7 @@ readProperty(const QDomElement& element, bool& error)
     QString fieldActive = element.attribute(GtObjectIO::S_ACTIVE_TAG);
     if (!fieldActive.isEmpty())
     {
-        propData.isOptional = true;
         propData.isActive = QVariant(fieldActive).toBool();
-    }
-    QString fieldOptional = element.attribute(GtObjectIO::S_OPTIONAL_TAG);
-    if (!fieldOptional.isEmpty())
-    {
-        propData.isOptional = QVariant(fieldOptional).toBool();
     }
 
     error = false;
@@ -764,7 +758,6 @@ GtObjectIO::writePropertyHelper(QVector<GtObjectMemento::PropertyData>& pVec,
         // static property
         GtObjectMemento::PropertyData mprop;
         mprop.name = property->ident();
-        mprop.isOptional = property->isOptional();
         mprop.isActive = property->isActive();
 
         if (!isStructProperty)
@@ -837,11 +830,16 @@ GtObjectIO::toDomElement(
         break;
     }
 
-    if (property.isOptional)
+    // only write active, if active == false, otherwise assume true
+    if (!property.isActive)
     {
-        QVariant actVar = QVariant::fromValue(property.isActive);
-        child.setAttribute(S_ACTIVE_TAG, actVar.toString());
+        child.setAttribute(S_ACTIVE_TAG, QVariant(false).toString());
     }
+    else if (child.hasAttribute(S_ACTIVE_TAG))
+    {
+        child.removeAttribute(S_ACTIVE_TAG);
+    }
+
 
     return child;
 }
