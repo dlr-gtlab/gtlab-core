@@ -45,14 +45,18 @@ public:
      */
     QVariant getValue() const;
 
+    bool requiresRestart() const;
+
 protected:
     /**
      * @brief GtSettingsItem
      * @param ident
      * @param initVal
+     * @param changeRequireRestart
      */
     explicit GtSettingsItem(const QString& ident,
-                            const QVariant& initVal = QVariant());
+                            const QVariant& initVal,
+                            bool changeRequireRestart=false);
 
 private:
     /// settings item identification string
@@ -60,6 +64,9 @@ private:
 
     /// initial value for settings item
     QVariant m_initValue;
+
+    /// true, if a change of the setting requires a restart
+    bool changesRequiresRestart{false}, hasChanged{false};
 
 };
 

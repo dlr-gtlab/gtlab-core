@@ -19,6 +19,14 @@ GtAbstractSettings::GtAbstractSettings(GtObject* parent) : GtObject(parent)
 
 }
 
+bool GtAbstractSettings::requiresAppRestart() const
+{
+    return std::any_of(std::begin(m_settings), std::end(m_settings),
+                       [](const GtSettingsItem* s) -> bool {
+        return s? s->requiresRestart() : false;
+    });
+}
+
 GtAbstractSettings::~GtAbstractSettings()
 {
     qDeleteAll(m_settings);
@@ -47,6 +55,15 @@ GtAbstractSettings::registerSetting(const QString& ident,
                                     const QVariant& initVal)
 {
     GtSettingsItem* retval = new GtSettingsItem(ident, initVal);
+    m_settings.insert(ident, retval);
+    return retval;
+}
+
+GtSettingsItem*
+GtAbstractSettings::registerSettingRestart(const QString &ident,
+                                           const QVariant &initVal)
+{
+    GtSettingsItem* retval = new GtSettingsItem(ident, initVal, true);
     m_settings.insert(ident, retval);
     return retval;
 }

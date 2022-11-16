@@ -12,6 +12,7 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 
 #include "gt_preferencesdialog.h"
 #include "gt_preferencesapp.h"
@@ -22,8 +23,9 @@
 #include "gt_preferencespathsettings.h"
 #include "gt_preferencesshortcuts.h"
 #include "gt_icons.h"
-#include "gt_accessmanager.h"
 #include "gt_application.h"
+#include "gt_settings.h"
+
 
 GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     GtDialog(parent)
@@ -157,6 +159,12 @@ GtPreferencesDialog::saveChanges()
         {
             page->saveSettings(*gtApp->settings());
         }
+    }
+
+    if (gtApp->settings()->requiresAppRestart())
+    {
+        QMessageBox::information(this, tr("Restart required"),
+            tr("The changes require a restart of GTlab to take effect"));
     }
 
     accept();

@@ -10,8 +10,12 @@
 #include "gt_settingsitem.h"
 #include <QSettings>
 
-GtSettingsItem::GtSettingsItem(const QString& ident, const QVariant& initVal) :
-    m_ident(ident), m_initValue(initVal)
+GtSettingsItem::GtSettingsItem(const QString& ident,
+                               const QVariant& initVal,
+                               bool needsRestart) :
+    m_ident(ident),
+    m_initValue(initVal),
+    changesRequiresRestart(needsRestart)
 {
 
 }
@@ -31,11 +35,24 @@ GtSettingsItem::initValue() const
 void
 GtSettingsItem::setValue(const QVariant &value)
 {
-    QSettings().setValue(ident(), value);
+    if (value != getValue())
+    {
+        QSettings().setValue(ident(), value);
+        hasChanged = true;
+    }
+    else
+    {
+        hasChanged = false;
+    }
 }
 
 QVariant GtSettingsItem::getValue() const
 {
     return QSettings().value(ident(), initValue());
+}
+
+bool GtSettingsItem::requiresRestart() const
+{
+    return changesRequiresRestart && hasChanged;
 }
 

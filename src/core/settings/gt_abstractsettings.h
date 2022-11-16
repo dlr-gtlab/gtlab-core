@@ -48,6 +48,16 @@ public:
 
 
     /**
+     * @brief Registers a setting at the framework that requires an app restart
+     *
+     * @param ident - The identifier of the setting e.g. "mymodule/myvalue"
+     * @param initVal - initial value as variant
+     * @return the new registered settings item
+     */
+    GtSettingsItem* registerSettingRestart(const QString& ident,
+                                           const QVariant& initVal = QVariant());
+
+    /**
      * @brief Sets the value of a setting
      * @param ident The identifier of the setting e.g. "mymodule/myvalue"
      * @param value The value to set
@@ -66,7 +76,7 @@ public:
      */
     explicit GtAbstractSettings(GtObject* parent = nullptr);
 
-
+    bool requiresAppRestart() const;
 
 private:
     ///
