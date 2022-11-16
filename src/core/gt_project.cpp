@@ -78,6 +78,12 @@ GtProject::moduleExtension()
 }
 
 QString
+GtProject::backupDirPath() const
+{
+    return {m_path + QDir::separator() + "backup"};
+}
+
+QString
 GtProject::comment() const
 {
     return m_comment;
@@ -189,8 +195,7 @@ GtProject::createBackup() const
     QString timeStamp = QDateTime::currentDateTime().toString(
                 "yyyyMMddhhmmss");
 
-    QDir bdir(m_path + QDir::separator() + "backup" + QDir::separator() +
-              timeStamp);
+    QDir bdir(backupDirPath() + QDir::separator() + timeStamp);
 
     if (bdir.exists())
     {

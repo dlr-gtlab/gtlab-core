@@ -236,6 +236,7 @@ protected:
      */
     static const QString moduleExtension();
 
+    QString backupDirPath() const;
 private:
     /// Path to project directory on hard drive
     QString m_path;

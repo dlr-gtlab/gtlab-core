@@ -36,7 +36,6 @@
 #include "gt_logging.h"
 #include "gt_projectspecwidget.h"
 #include "gt_label.h"
-#include "gt_abstractloadinghelper.h"
 #include "gt_processexecutor.h"
 #include "gt_confirmdeleteprojectdialog.h"
 #include "gt_saveprojectmessagebox.h"
@@ -48,8 +47,6 @@
 #include "gt_icons.h"
 #include "gt_projectsettingsdialog.h"
 #include "gt_objectmemento.h"
-#include "gt_objectmementodiff.h"
-#include "gt_objectfactory.h"
 #include "gt_algorithms.h"
 #include "gt_colors.h"
 #include "gt_projectupgradedialog.h"
@@ -60,54 +57,51 @@
 GtProjectUI::GtProjectUI()
 {
     addSingleAction(tr("Upgrade Project Data..."),
-                    QStringLiteral("upgradeProjectDataIcon.png"),
-                    QStringLiteral("upgradeProjectData"),
-                    QStringLiteral("canUpgradeProjectData"),
-                    QStringLiteral("canUpgradeProjectData"));
+                    &GtProjectUI::upgradeProjectData)
+            .setIcon(gt::gui::icon::upgradeProjectData())
+            .setVerificationMethod(&GtProjectUI::canUpgradeProjectData)
+            .setVisibilityMethod(&GtProjectUI::canUpgradeProjectData);
 
     addSingleAction(tr("Set as active Project"),
-                    QStringLiteral("emptyIcon_16.png"),
-                    QStringLiteral("setCurrentProject"),
-                    QStringLiteral("canSetCurrentProject"),
-                    QStringLiteral("canSetCurrentProject"));
+                    &GtProjectUI::setCurrentProject)
+            .setIcon(gt::gui::icon::empty16())
+            .setVerificationMethod(&GtProjectUI::canSetCurrentProject)
+            .setVisibilityMethod(&GtProjectUI::canSetCurrentProject);
 
     addSingleAction(tr("Open Project"),
-                    QStringLiteral("openProjectIcon_16.png"),
-                    QStringLiteral("openProject"),
-                    QStringLiteral("canOpenProject"),
-                    gtApp->getShortCutSequence("openProject"));
+                    &GtProjectUI::openProject)
+            .setIcon(gt::gui::icon::openProject16())
+            .setVerificationMethod(&GtProjectUI::canOpenProject)
+            .setShortCut(gtApp->getShortCutSequence("openProject"));
 
     addSingleAction(tr("Close Project"),
-                    QStringLiteral("closeProjectIcon_16.png"),
-                    QStringLiteral("closeProject"),
-                    QStringLiteral("canCloseProject"),
-                    gtApp->getShortCutSequence("closeProject"));
+                    &GtProjectUI::closeProject)
+            .setIcon(gt::gui::icon::closedProject16())
+            .setVerificationMethod(&GtProjectUI::canCloseProject)
+            .setShortCut(gtApp->getShortCutSequence("closeProject"));
 
     addSingleAction(tr("Save Project"),
-                    QStringLiteral("saveProjectIcon_16.png"),
-                    QStringLiteral("saveProject"),
-                    QStringLiteral("canSaveProject"),
-                    gtApp->getShortCutSequence("save"));
+                    &GtProjectUI::saveProject)
+            .setIcon(gt::gui::icon::saveProject16())
+            .setVerificationMethod(&GtProjectUI::canSaveProject)
+            .setShortCut(gtApp->getShortCutSequence("save"));
 
     addSingleAction(tr("Save Project As..."),
-                    QStringLiteral("saveProjectIcon_16.png"),
-                    QStringLiteral("saveProjectAs"),
-                    QStringLiteral("canSaveProjectAs"));
+                    &GtProjectUI::saveProjectAs)
+            .setIcon(gt::gui::icon::saveProject16())
+            .setVerificationMethod(&GtProjectUI::canSaveProjectAs);
 
     addSeparator();
 
     if (gtApp->devMode())
     {
         addSingleAction(tr("Duplicate Project..."),
-                        QStringLiteral("duplicateIcon_16.png"),
-                        QStringLiteral("duplicateProject"),
-                        QStringLiteral("canDuplicateProject"));
+                        &GtProjectUI::duplicateProject)
+                .setIcon(gt::gui::icon::duplicate())
+                .setVerificationMethod(&GtProjectUI::canDuplicateProject);
 
         addSeparator();
-    }
 
-    if (gtApp->devMode())
-    {
         //        addAction(tr("Test Commit"),
         //                  QStringLiteral("jumpToIcon.png"),
         //                  QStringLiteral("testCommit"),
@@ -123,10 +117,10 @@ GtProjectUI::GtProjectUI()
         //                  QStringLiteral("canTestCheckout"));
 
         addSingleAction(tr("Enable Version Control"),
-                        QStringLiteral("checkSmallIcon_16.png"),
-                        QStringLiteral("enableVersionControl"),
-                        QStringLiteral("canEnableVersionControl"),
-                        QStringLiteral("canEnableVersionControl"));
+                        &GtProjectUI::enableVersionControl)
+                .setIcon(gt::gui::icon::checkSmall16())
+                .setVerificationMethod(&GtProjectUI::canEnableVersionControl)
+                .setVisibilityMethod(&GtProjectUI::canEnableVersionControl);
 
         addSeparator();
 
@@ -138,49 +132,59 @@ GtProjectUI::GtProjectUI()
     }
 
     addSingleAction(tr("Open Project Settings..."),
-                    QStringLiteral("configIcon_16.png"),
-                    QStringLiteral("openProjectSettings"),
-                    QStringLiteral("canSaveProject"));
+                    &GtProjectUI::openProjectSettings)
+            .setIcon(gt::gui::icon::config16())
+            .setVerificationMethod(&GtProjectUI::projectIsOpen);
 
     addSingleAction(tr("Show Project Footprint"),
-                    QStringLiteral("infoBlueIcon_16.png"),
-                    QStringLiteral("showFootprint"),
-                    gtApp->getShortCutSequence("ShowFootprint"));
+                    &GtProjectUI::showFootprint)
+            .setIcon(gt::gui::icon::infoBlue16())
+            .setShortCut(gtApp->getShortCutSequence("ShowFootprint"));
 
     addSingleAction(tr("Edit Comment"),
-                    QStringLiteral("commentIcon.png"),
-                    QStringLiteral("editComment"),
-                    QStringLiteral("canEditComment"));
+                    &GtProjectUI::editComment)
+            .setIcon(gt::gui::icon::comment())
+            .setVerificationMethod(&GtProjectUI::canEditComment);
 
     addSeparator();
 
     addSingleAction(tr("Show in Explorer"),
-                    QStringLiteral("folder_16.png"),
-                    QStringLiteral("showInExplorer"));
+                    &GtProjectUI::showInExplorer)
+            .setIcon(gt::gui::icon::folder16());
+
 
     addSingleAction(tr("Rename Project"),
-                    QStringLiteral("inputIcon_16.png"),
-                    QStringLiteral("renameProject"),
-                    QStringLiteral("canRenameProject"),
-                    gtApp->getShortCutSequence("rename"));
+                    &GtProjectUI::renameProject)
+            .setIcon(gt::gui::icon::input16())
+            .setVerificationMethod(&GtProjectUI::canRenameProject)
+            .setShortCut(gtApp->getShortCutSequence("rename"));
 
     addSeparator();
 
     addSingleAction(tr("Choose Project Modules"),
-                    QStringLiteral("pluginIcon_16.png"),
-                    QStringLiteral("chooseProjectModule"),
-                    QStringLiteral("canChooseProjectModule"));
+                    &GtProjectUI::chooseProjectModule)
+            .setIcon(gt::gui::icon::plugin16())
+            .setVerificationMethod(&GtProjectUI::canChooseProjectModule);
 
     addSingleAction(tr("Export Meta Data"),
-                    QStringLiteral("exportIcon_16.png"),
-                    QStringLiteral("exportMetaData"),
-                    QStringLiteral("canExportMetaData"),
-                    QStringLiteral("canExportMetaData"));
+                    &GtProjectUI::exportMetaData)
+            .setIcon(gt::gui::icon::export16())
+            .setVerificationMethod(&GtProjectUI::canExportMetaData)
+            .setVisibilityMethod(&GtProjectUI::canExportMetaData);
 
     addSingleAction(tr("Delete from Session"),
-                    QStringLiteral("closeIcon_16.png"),
-                    QStringLiteral("deleteProject"),
-                    QStringLiteral("canDeleteProject"));
+                    &GtProjectUI::deleteProject)
+            .setIcon(gt::gui::icon::delete16())
+            .setVerificationMethod(&GtProjectUI::canDeleteProject);
+
+    addSingleAction(tr("Generate Backup"),
+                    &GtProjectUI::backupProject)
+            .setIcon(gt::gui::icon::saveProject16());
+
+    addSingleAction(tr("Restore Backup"),
+                    &GtProjectUI::restoreBackup)
+            .setIcon(gt::gui::icon::saveProject16())
+            .setVerificationMethod(&GtProjectUI::canRestoreBackup);
 }
 
 QIcon
@@ -204,7 +208,6 @@ GtProjectUI::icon(GtObject* obj) const
     }
 
     return gt::gui::icon::closedProject16();
-
 }
 
 void
@@ -292,7 +295,8 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
     return QVariant();
 }
 
-bool GtProjectUI::saveAndCloseCurrentProject()
+bool
+GtProjectUI::saveAndCloseCurrentProject()
 {
     if (gtApp->hasProjectChanges())
     {
@@ -319,7 +323,8 @@ bool GtProjectUI::saveAndCloseCurrentProject()
 }
 
 
-void GtProjectUI::switchToProject(GtProject& toProject)
+void
+GtProjectUI::switchToProject(GtProject& toProject)
 {
     if (&toProject == gtApp->currentProject())
     {
@@ -621,7 +626,6 @@ GtProjectUI::canSaveProjectAs(GtObject* obj)
     {
         return false;
     }
-
 
     auto project = qobject_cast<GtProject*>(obj);
 
@@ -1275,7 +1279,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
 
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            gtWarning() << objectName() << QStringLiteral(": ")
+            gtWarning() << project->objectName() << QStringLiteral(": ")
                         << tr("Failed to save project data!");
             return;
         }
@@ -1404,7 +1408,7 @@ GtProjectUI::renameProject(GtObject* obj)
 }
 
 bool
-GtProjectUI::canRenameProject(GtObject* obj) const
+GtProjectUI::canRenameProject(GtObject* obj)
 {
     auto project = qobject_cast<GtProject*>(obj);
 
@@ -1422,7 +1426,7 @@ GtProjectUI::canRenameProject(GtObject* obj) const
 }
 
 void
-GtProjectUI::showFootprint(GtObject* obj) const
+GtProjectUI::showFootprint(GtObject* obj)
 {
     auto project = qobject_cast<GtProject*>(obj);
 
@@ -1489,13 +1493,13 @@ GtProjectUI::showFootprint(GtObject* obj) const
     QColor errorC = gt::gui::color::footprintError();
     if (footprint.isNewerRelease())
     {
-        versionItem->setBackgroundColor(1, errorC);
-        versionItem->setBackgroundColor(2, errorC);
+        versionItem->setBackground(1, errorC);
+        versionItem->setBackground(2, errorC);
     }
     else if (footprint.isOlderRelease())
     {
-        versionItem->setBackgroundColor(1, warnC);
-        versionItem->setBackgroundColor(2, warnC);
+        versionItem->setBackground(1, warnC);
+        versionItem->setBackground(2, warnC);
     }
 
     tWid->addTopLevelItem(versionItem);
@@ -1513,8 +1517,8 @@ GtProjectUI::showFootprint(GtObject* obj) const
                     new QTreeWidgetItem(QStringList() << e <<
                                         unknownModules.value(e).toString());
 
-            unknownModule->setBackgroundColor(1, errorC);
-            unknownModule->setBackgroundColor(2, errorC);
+            unknownModule->setBackground(1, errorC);
+            unknownModule->setBackground(2, errorC);
 
             unknownRoot->addChild(unknownModule);
         });
@@ -1537,8 +1541,8 @@ GtProjectUI::showFootprint(GtObject* obj) const
                                    incompatibleModules.value(e).toString() <<
                                    gtApp->moduleVersion(e).toString());
 
-            incompatibleModule->setBackgroundColor(1, errorC);
-            incompatibleModule->setBackgroundColor(2, errorC);
+            incompatibleModule->setBackground(1, errorC);
+            incompatibleModule->setBackground(2, errorC);
 
             incompatibleRoot->addChild(incompatibleModule);
         });
@@ -1560,8 +1564,8 @@ GtProjectUI::showFootprint(GtObject* obj) const
                                         updatedModules.value(e).toString() <<
                                         gtApp->moduleVersion(e).toString());
 
-            updatedModule->setBackgroundColor(1, warnC);
-            updatedModule->setBackgroundColor(2, warnC);
+            updatedModule->setBackground(1, warnC);
+            updatedModule->setBackground(2, warnC);
 
             updatedRoot->addChild(updatedModule);
         });
@@ -1593,6 +1597,19 @@ GtProjectUI::showFootprint(GtObject* obj) const
     tWid->expandAll();
 
     dialog.exec();
+}
+
+bool
+GtProjectUI::projectIsOpen(GtObject *obj)
+{
+    auto project = qobject_cast<GtProject*>(obj);
+
+    if (!project)
+    {
+        return false;
+    }
+
+    return project->isOpen();
 }
 
 void
@@ -1727,4 +1744,74 @@ GtProjectUI::openProjectSettings(GtObject* obj)
     });
 
     dialog.exec();
+}
+
+void
+GtProjectUI::backupProject(GtObject* obj)
+{
+    auto project = qobject_cast<GtProject*>(obj);
+
+    if (!project)
+    {
+        return;
+    }
+
+    project->createBackup();
+}
+
+bool
+GtProjectUI::canRestoreBackup(GtObject* obj)
+{
+    auto project = qobject_cast<GtProject*>(obj);
+
+    if (!project)
+    {
+        return false;
+    }
+
+    QDir backUpMainDir (project->backupDirPath());
+
+    if (!backUpMainDir.exists())
+    {
+        return false;
+    }
+
+    QFileInfoList contentList = backUpMainDir.entryInfoList(QDir::Dirs);
+
+    if (contentList.isEmpty())
+    {
+        return false;
+    }
+
+    return true;
+}
+
+void
+GtProjectUI::restoreBackup(GtObject *obj)
+{
+    auto project = qobject_cast<GtProject*>(obj);
+
+    if (!project)
+    {
+        return;
+    }
+
+    QDir backUpMainDir (project->backupDirPath());
+
+    if (!backUpMainDir.exists())
+    {
+        gtWarning() << tr("Backup folder does not exist.");
+        return;
+    }
+
+    QFileInfoList contentList = backUpMainDir.entryInfoList(QDir::Dirs);
+
+    if (contentList.isEmpty())
+    {
+        gtWarning() << tr("Backup folder is empty.");
+        return;
+    }
+
+    gtInfo() << "There are following folders in the backup directory:"
+             << contentList;
 }

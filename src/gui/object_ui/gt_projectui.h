@@ -39,19 +39,6 @@ public:
      */
     void doubleClicked(GtObject* obj) override;
 
-protected:
-    /**
-     * @brief specificData
-     * @param obj
-     * @param role
-     * @param column
-     * @return
-     */
-    QVariant specificData(GtObject* obj,
-                          int role,
-                          int column) const override;
-
-public slots:
     /**
      * @brief Asks, whether to save current project changes
      * and performs the save
@@ -67,63 +54,17 @@ public slots:
     static void switchToProject(class GtProject& project);
 
     /**
-     * @brief Shows footprint of selected project.
-     * @param obj Selected project
-     */
-    void showFootprint(GtObject* obj) const;
-
-    /**
-     * @brief Triggers upgrad of project data provided by modules.
-     * @param obj Selected project.
-     */
-    void upgradeProjectData(GtObject* obj);
-
-    /**
-     * @brief Indicator function to specify whether upgrades of project data
-     * are available.
-     * @param obj Selected project.
-     * @return True if upgrades are available.
-     */
-    bool canUpgradeProjectData(GtObject* obj);
-
-    /**
-     * @brief openProject
+     * @brief renameProject
      * @param obj
      */
-    static void openProject(GtObject* obj);
+    static void renameProject(GtObject* obj);
 
     /**
-     * @brief canOpenProject
+     * @brief canRenameProject
      * @param obj
      * @return
      */
-    bool canOpenProject(GtObject* obj);
-
-    /**
-     * @brief closeProject
-     * @param obj
-     */
-    static void closeProject(GtObject* obj);
-
-    /**
-     * @brief canCloseProject
-     * @param obj
-     * @return
-     */
-    bool canCloseProject(GtObject* obj);
-
-    /**
-     * @brief saveProject
-     * @param obj
-     */
-    void saveProject(GtObject* obj);
-
-    /**
-     * @brief canSaveProject
-     * @param obj
-     * @return
-     */
-    bool canSaveProject(GtObject* obj);
+    static bool canRenameProject(GtObject* obj);
 
     /**
      * @brief saveProjectAs
@@ -132,24 +73,174 @@ public slots:
     static void saveProjectAs(GtObject* obj);
 
     /**
-     * @brief canSaveProjectAs
-     * @param obj
-     * @return
-     */
-    bool canSaveProjectAs(GtObject* obj);
-
-    /**
      * @brief duplicateProject
      * @param obj
      */
     static void duplicateProject(GtObject* obj);
 
     /**
-     * @brief canDuplicateProject
+     * @brief closeProject
+     * @param obj
+     */
+    static void closeProject(GtObject* obj);
+
+    /**
+     * @brief openProject
+     * @param obj
+     */
+    static void openProject(GtObject* obj);
+
+private:
+    /**
+     * @brief saveProject
+     * @param obj
+     */
+    static void saveProject(GtObject* obj);
+
+    /**
+     * @brief Opens comment editor if project ist opened.
+     * @param obj Selected project.
+     */
+    static void editComment(GtObject* obj);
+
+    /**
+     * @brief Returns true if project is opened so comment can be edited.
+     * Otherwise false is returned.
+     * @param obj Selected project
+     * @return Whether project comment can be edited or not.
+     */
+    static bool canEditComment(GtObject* obj);
+
+    /**
+     * @brief showInExplorer
+     * @param obj
+     */
+    static void showInExplorer(GtObject* obj);
+
+    /**
+     * @brief projectIsOpen
+     * @param obj
+     * @return true if the object is a GtProject and is open
+     */
+    static bool projectIsOpen(GtObject* obj);
+
+    /**
+     * @brief Shows footprint of selected project.
+     * @param obj Selected project
+     */
+    static void showFootprint(GtObject* obj);
+
+    /**
+     * @brief canCloseProject
      * @param obj
      * @return
      */
-    bool canDuplicateProject(GtObject* obj);
+    static bool canCloseProject(GtObject* obj);
+
+    /**
+     * @brief canSaveProject
+     * @param obj
+     * @return
+     */
+    static bool canSaveProject(GtObject* obj);
+
+    /**
+     * @brief openProjectSettings opens the project settings
+     * @param obj Selected project
+     */
+    static void openProjectSettings(GtObject* obj);
+
+    /**
+     * @brief backupProject
+     * @param obj
+     * Store the content of the project in a backup directory
+     * in a new folder named by the timestamp
+     */
+    static void backupProject(GtObject* obj);
+
+    /**
+     * @brief canRestoreBackup
+     * @param obj
+     * @return check the requirements if a restore
+     * of project data is possible as if there is a backup folder
+     * which is containg at least one project folder
+     */
+    static bool canRestoreBackup(GtObject* obj);
+
+    static void restoreBackup(GtObject* obj);
+
+    /**
+     * @brief canOpenProject
+     * @param obj
+     * @return
+     */
+    static bool canOpenProject(GtObject* obj);
+
+    /**
+     * @brief Indicator function to specify whether upgrades of project data
+     * are available.
+     * @param obj Selected project.
+     * @return True if upgrades are available.
+     */
+    static bool canUpgradeProjectData(GtObject* obj);
+
+    /**
+     * @brief exportMetaData
+     * @param obj
+     */
+    static void exportMetaData(GtObject* obj);
+
+    /**
+     * @brief canExportMetaData
+     * @param obj
+     * @return
+     */
+    static bool canExportMetaData(GtObject* obj);
+
+    /**
+     * @brief chooseProjectModule
+     * @param obj
+     */
+    static void chooseProjectModule(GtObject* obj);
+
+    /**
+     * @brief canChooseProjectModule
+     * @param obj
+     */
+    static bool canChooseProjectModule(GtObject* obj);
+
+    /**
+     * @brief enableVersionControl
+     * @param obj
+     */
+    static void enableVersionControl(GtObject* obj);
+
+    /**
+     * @brief canEnableVersionControl
+     * @param obj
+     * @return
+     */
+    static bool canEnableVersionControl(GtObject* obj);
+
+    /**
+     * @brief canSaveProjectAs
+     * @param obj
+     * @return
+     */
+    static bool canSaveProjectAs(GtObject* obj);
+
+    /**
+     * @brief Triggers upgrad of project data provided by modules.
+     * @param obj Selected project.
+     */
+    static void upgradeProjectData(GtObject* obj);
+
+    /**
+     * @brief canSetCurrentProject
+     * @param obj
+     * @return
+     */
+    static bool canSetCurrentProject(GtObject* obj);
 
     /**
      * @brief deleteProject
@@ -162,7 +253,14 @@ public slots:
      * @param obj
      * @return
      */
-    bool canDeleteProject(GtObject* obj);
+    static bool canDeleteProject(GtObject* obj);
+
+    /**
+     * @brief canDuplicateProject
+     * @param obj
+     * @return
+     */
+    static bool canDuplicateProject(GtObject* obj);
 
     /**
      * @brief setCurrentProject
@@ -170,25 +268,19 @@ public slots:
      */
     static void setCurrentProject(GtObject* obj);
 
+protected:
     /**
-     * @brief canSetCurrentProject
+     * @brief specificData
      * @param obj
+     * @param role
+     * @param column
      * @return
      */
-    bool canSetCurrentProject(GtObject* obj);
+    QVariant specificData(GtObject* obj,
+                          int role,
+                          int column) const override;
 
-    /**
-     * @brief chooseProjectModule
-     * @param obj
-     */
-    void chooseProjectModule(GtObject* obj);
-
-    /**
-     * @brief canChooseProjectModule
-     * @param obj
-     */
-    bool canChooseProjectModule(GtObject* obj);
-
+public slots:
     /**
      * @brief testCommit
      * @param obj
@@ -214,72 +306,6 @@ public slots:
      * @return
      */
     bool canTestCheckout(GtObject* obj);
-
-    /**
-     * @brief enableVersionControl
-     * @param obj
-     */
-    void enableVersionControl(GtObject* obj);
-
-    /**
-     * @brief canEnableVersionControl
-     * @param obj
-     * @return
-     */
-    bool canEnableVersionControl(GtObject* obj);
-
-    /**
-     * @brief exportMetaData
-     * @param obj
-     */
-    void exportMetaData(GtObject* obj);
-
-    /**
-     * @brief canExportMetaData
-     * @param obj
-     * @return
-     */
-    bool canExportMetaData(GtObject* obj);
-
-    /**
-     * @brief showInExplorer
-     * @param obj
-     */
-    void showInExplorer(GtObject* obj);
-
-    /**
-     * @brief renameProject
-     * @param obj
-     */
-    void renameProject(GtObject* obj);
-
-    /**
-     * @brief canRenameProject
-     * @param obj
-     * @return
-     */
-    bool canRenameProject(GtObject* obj) const;
-
-    /**
-     * @brief Opens comment editor if project ist opened.
-     * @param obj Selected project.
-     */
-    void editComment(GtObject* obj);
-
-    /**
-     * @brief Returns true if project is opened so comment can be edited.
-     * Otherwise false is returned.
-     * @param obj Selected project
-     * @return Whether project comment can be edited or not.
-     */
-    bool canEditComment(GtObject* obj);
-
-    /**
-     * @brief openProjectSettings opens the project settings
-     * @param obj Selected project
-     */
-    void openProjectSettings(GtObject* obj);
-
 };
 
 #endif // GTPROJECTUI_H
