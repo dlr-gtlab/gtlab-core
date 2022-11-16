@@ -16,26 +16,16 @@
 #include "gt_icons.h"
 
 GtPreferencesPage::GtPreferencesPage(const QString& title, QWidget* parent) :
-    QWidget(parent)
+    QWidget(parent),
+    m_title(title),
+    m_icon(gt::gui::icon::application())
 {
-    m_layout = new QVBoxLayout;
-    m_title = new QLabel(title);
-    m_icon = gt::gui::icon::application();
-
-    QFont font = m_title->font();
-    font.setBold(true);
-    m_title->setFont(font);
-
-    m_layout->addWidget(m_title);
-    m_layout->addSpacing(20);
-
-    setLayout(m_layout);
 }
 
 void
 GtPreferencesPage::setTitle(const QString& id)
 {
-    m_title->setText(id);
+    m_title = id;
 }
 
 void
@@ -50,16 +40,10 @@ GtPreferencesPage::setIcon(const QIcon &icon)
     m_icon = icon;
 }
 
-void
-GtPreferencesPage::addStretch(int val)
-{
-    m_layout->addStretch(val);
-}
-
 QString
 GtPreferencesPage::title() const
 {
-    return m_title->text();
+    return m_title;
 }
 
 QString

@@ -11,6 +11,8 @@
 #include <QStackedWidget>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QLabel>
+#include <QMessageBox>
 
 #include "gt_preferencesdialog.h"
 #include "gt_preferencesapp.h"
@@ -21,8 +23,9 @@
 #include "gt_preferencespathsettings.h"
 #include "gt_preferencesshortcuts.h"
 #include "gt_icons.h"
-#include "gt_accessmanager.h"
 #include "gt_application.h"
+#include "gt_settings.h"
+
 
 GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     GtDialog(parent)
@@ -98,7 +101,23 @@ void GtPreferencesDialog::addPage(GtPreferencesPage *page)
         return;
     }
 
-    m_pagesWidget->addWidget(page);
+    m_pages.append(page);
+
+    auto layout = new QVBoxLayout;
+    auto title = new QLabel(page->title());
+
+    QFont font = title->font();
+    font.setBold(true);
+    title->setFont(font);
+
+    layout->addWidget(title);
+    layout->addSpacing(20);
+    layout->addWidget(page);
+
+    auto container = new QWidget(this);
+    container->setLayout(layout);
+
+    m_pagesWidget->addWidget(container);
 
     // Add a button (icon + text) the the list on the left
     QListWidgetItem* button = new QListWidgetItem(m_contentsWidget);
@@ -134,16 +153,18 @@ GtPreferencesDialog::changePage(QListWidgetItem* current,
 void
 GtPreferencesDialog::saveChanges()
 {
-    QObjectList pageList = m_pagesWidget->children();
-
-    for (int i = 0; i < pageList.size(); i++)
+    for (auto page : qAsConst(m_pages))
     {
-        GtPreferencesPage* page = qobject_cast<GtPreferencesPage*>(pageList[i]);
-
         if (page)
         {
             page->saveSettings(*gtApp->settings());
         }
+    }
+
+    if (gtApp->settings()->requiresAppRestart())
+    {
+        QMessageBox::information(this, tr("Restart required"),
+            tr("The changes require a restart of GTlab to take effect"));
     }
 
     accept();
@@ -152,12 +173,9 @@ GtPreferencesDialog::saveChanges()
 void
 GtPreferencesDialog::loadSettings()
 {
-    QObjectList pageList = m_pagesWidget->children();
 
-    for (int i = 0; i < pageList.size(); i++)
+    for (auto page : qAsConst(m_pages))
     {
-        GtPreferencesPage* page = qobject_cast<GtPreferencesPage*>(pageList[i]);
-
         if (page)
         {
             page->loadSettings(*gtApp->settings());

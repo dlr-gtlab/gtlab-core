@@ -27,12 +27,6 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
 {
     setIcon(gt::gui::icon::input2());
 
-    QVBoxLayout* mainLayout = qobject_cast<QVBoxLayout*>(layout());
-
-    if (!mainLayout)
-    {
-        return;
-    }
 
     m_tab = new QTableWidget(1, 1, this);
 
@@ -60,8 +54,8 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
 
     auto hlay = new QHBoxLayout;
     hlay->addWidget(m_tab);
-    hlay->addLayout(blay);
-    mainLayout->addLayout(hlay);
+    hlay->addLayout(blay);    
+    setLayout(hlay);
 
     connect(restoreBtn, SIGNAL(clicked(bool)), this, SLOT(restoreDefaults()));
 

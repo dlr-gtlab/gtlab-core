@@ -72,17 +72,9 @@ GtPreferencesPerspective::GtPreferencesPerspective()
             SLOT(duplicateItem()));
     connect(m_btnDelete, SIGNAL(clicked(bool)), m_list, SLOT(deleteItem()));
 
-    QVBoxLayout* mainLayout = qobject_cast<QVBoxLayout*>(layout());
+    m_list->init();
 
-    if (mainLayout)
-    {
-        mainLayout->addLayout(lay);
-        m_list->init();
-    }
-    else
-    {
-        delete lay;
-    }
+    setLayout(lay);
 }
 
 void

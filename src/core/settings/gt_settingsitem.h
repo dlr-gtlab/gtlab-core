@@ -45,14 +45,25 @@ public:
      */
     QVariant getValue() const;
 
+    /**
+     * @brief Returns true, if the value has changed and thus
+     * requires an app restart
+     *
+     * Note: that only a few settings require an app restart
+     * if changed!
+     */
+    bool requiresRestart() const;
+
 protected:
     /**
      * @brief GtSettingsItem
      * @param ident
      * @param initVal
+     * @param changeRequireRestart
      */
     explicit GtSettingsItem(const QString& ident,
-                            const QVariant& initVal = QVariant());
+                            const QVariant& initVal,
+                            bool changeRequireRestart=false);
 
 private:
     /// settings item identification string
@@ -60,6 +71,9 @@ private:
 
     /// initial value for settings item
     QVariant m_initValue;
+
+    /// true, if a change of the setting requires a restart
+    bool changesRequiresRestart{false}, hasChanged{false};
 
 };
 

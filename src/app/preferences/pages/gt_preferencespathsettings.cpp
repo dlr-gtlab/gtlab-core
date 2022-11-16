@@ -13,9 +13,7 @@
 
 #include "gt_environmentmodel.h"
 #include "gt_environment.h"
-#include "gt_logging.h"
 #include "gt_icons.h"
-
 #include "gt_preferencespathsettings.h"
 
 GtPreferencesPathSettings::GtPreferencesPathSettings() :
@@ -34,7 +32,9 @@ GtPreferencesPathSettings::GtPreferencesPathSettings() :
     view->verticalHeader()->setVisible(false);
     view->verticalHeader()->setDefaultSectionSize(16);
 
-    layout()->addWidget(view);
+    auto layout = new QVBoxLayout;
+    layout->addWidget(view);
+    setLayout(layout);
 
     loadSettingsImpl();
 }

@@ -55,20 +55,11 @@ protected:
     void setTitleShort(const QString& shortTitle);
     void setIcon(const QIcon& icon);
 
-    /**
-     * @brief addStretch
-     * @param val
-     */
-    void addStretch(int val = 1);
 
 private:
     /// Label for preferences page title
-    QLabel* m_title;
-    QString m_shortTitle;
+    QString m_shortTitle, m_title;
     QIcon m_icon;
-
-    /// Main layout for preferences page
-    QVBoxLayout* m_layout;
 
 };
 
