@@ -31,6 +31,11 @@ GtProcessFilterModel::filterAcceptsRow(int source_row,
         return false;
     }
 
+    if (!source_parent.isValid())
+    {
+        return false;
+    }
+
     QModelIndex source_index = sourceModel()->index(source_row,
                                this->filterKeyColumn(),
                                source_parent);
