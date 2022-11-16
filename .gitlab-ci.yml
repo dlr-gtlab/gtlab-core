@@ -320,8 +320,12 @@ valgrind:
   stage: test
   before_script:
     - chmod +x ./tests/memcheck/runValgrind.sh
+    - chmod +x ./tests/memcheck/post.py
+    - python3 -m venv env
+    - source env/bin/activate
   script:
     - xvfb-run -a ./tests/memcheck/runValgrind.sh
+    - python3 ./tests/memcheck/post.py
   dependencies:
     - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
   tags:
@@ -329,6 +333,9 @@ valgrind:
   artifacts:
     paths:
       - valgrind-report.xml
+      - cpputest_valgrind.xml
+    reports:
+      junit: cpputest_valgrind.xml   
     expire_in: 1 week
   variables:
     DEVTOOLS: $DEVTOOLS_Linux_Unstable

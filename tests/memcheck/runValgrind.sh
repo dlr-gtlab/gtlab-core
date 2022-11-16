@@ -18,4 +18,4 @@ export LIBRARY_PATH=$DEVTOOLS/ThirdPartyLibraries/NLopt/lib:$LIBRARY_PATH
 export LIBRARY_PATH=$DEVTOOLS/ThirdPartyLibraries/hdf5/lib:$LIBRARY_PATH
 export LD_LIBRARY_PATH=$LIBRARY_PATH
 
-valgrind --leak-check=yes --xml=yes --xml-file=valgrind-report.xml --suppressions=./tests/memcheck/valgrind_memcheck.supp ./build/GTlabConsole -h
+valgrind --leak-check=yes --xml=yes --xml-file=valgrind-report.xml --suppressions=./tests/memcheck/valgrind_memcheck.supp ./build/$UNITTESTSNAME
