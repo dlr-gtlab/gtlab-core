@@ -51,6 +51,7 @@
 #include "gt_colors.h"
 #include "gt_projectupgradedialog.h"
 #include "gt_dialog.h"
+#include "gt_generatebackupdialog.h"
 
 #include "gt_projectui.h"
 
@@ -179,6 +180,8 @@ GtProjectUI::GtProjectUI()
 
     addSingleAction(tr("Generate Backup"),
                     &GtProjectUI::backupProject)
+            .setVerificationMethod(&GtProjectUI::projectIsOpen)
+            .setVisibilityMethod(&GtProjectUI::projectIsOpen)
             .setIcon(gt::gui::icon::saveProject16());
 
     addSingleAction(tr("Restore Backup"),
@@ -1718,7 +1721,21 @@ GtProjectUI::backupProject(GtObject* obj)
         return;
     }
 
-    project->createBackup();
+    GtGenerateBackUpDialog backUpDialog;
+    /// Dialog to inform about backup
+    /// Write reason and store in markdown file
+    if (backUpDialog.exec())
+    {
+        if (backUpDialog.result() == GtDialog::Accepted)
+        {
+            gtInfo() << tr("Generate backup");
+
+            gtDebug() << "The content for the description is "
+                      << backUpDialog.message();
+
+            project->createBackup();
+        }
+    }
 }
 
 QList<QDir>
