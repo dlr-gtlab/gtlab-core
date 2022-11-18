@@ -24,6 +24,7 @@
 #include <QUrl>
 #include <QTreeWidget>
 
+#include "gt_abstractloadinghelper.h"
 #include "gt_project.h"
 #include "gt_projectprovider.h"
 #include "gt_datamodel.h"
@@ -1511,8 +1512,13 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
         if (dialog.overwriteExistingDataAllowed())
         {
             gtDebug() << "backup and overwriting project data...";
-            project->createBackup();
-            project->upgradeProjectData();
+
+            // upgrade project data in separate thread
+            gtApp->loadingProcedure(gt::makeLoadingHelper([&project]() {
+                project->createBackup();
+                project->upgradeProjectData();
+            }).get());
+
             gtDataModel->openProject(project);
             gtApp->setCurrentProject(project);
         }
@@ -1530,10 +1536,15 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
 
             if (!newProject)
             {
-                gtError() << "Cannot ";
+                gtError() << "Could not save project to new directory";
+                return;
             }
 
-            newProject->upgradeProjectData();
+            // upgrade project data in separate thread
+            gtApp->loadingProcedure(gt::makeLoadingHelper([&newProject]() {
+                newProject->upgradeProjectData();
+            }).get());
+
             gtDataModel->newProject(newProject.get());
             gtApp->setCurrentProject(newProject.release());
         }

@@ -12,6 +12,7 @@
 #include "gt_core_exports.h"
 
 #include <QObject>
+#include <memory>
 
 /**
  * @brief The GtAbstractLoadingHelper class
@@ -49,5 +50,43 @@ signals:
     void finished();
 
 };
+
+namespace gt
+{
+
+namespace detail
+{
+
+    template <typename Func>
+    class GtFunctionalLoadingHelper : public GtAbstractLoadingHelper
+    {
+    public:
+        explicit GtFunctionalLoadingHelper(Func f) : f(std::move(f))
+        {}
+
+        void run() override
+        {
+            f();
+        }
+
+    private:
+        Func f;
+    };
+
+} // namespace detail
+
+ /**
+ * @brief Creates a loading helper from the user defined function f
+ * @param f
+ * @return
+ */
+template <typename Func>
+std::unique_ptr<detail::GtFunctionalLoadingHelper<Func>>
+makeLoadingHelper(Func&& f)
+{
+    return std::make_unique<detail::GtFunctionalLoadingHelper<Func>>(f);
+}
+
+} // namespace gt
 
 #endif // GT_ABSTRACTLOADINGHELPER_H
