@@ -203,7 +203,7 @@ public:
      * stored in the project directory in a separate folder (/backup). A current
      * timestamp is used for identification.
      */
-    void createBackup() const;
+    void createBackup(const QString& message = "") const;
 
 protected:
     /**
@@ -236,6 +236,10 @@ protected:
      */
     static const QString moduleExtension();
 
+    /**
+     * @brief backupDirPath
+     * @return path to the directory for the backups of the project
+     */
     QString backupDirPath() const;
 private:
     /// Path to project directory on hard drive

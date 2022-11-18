@@ -71,6 +71,11 @@ public:
     static contentType typeFromFile(QString const& file);
 
 public slots:
+    /**
+     * @brief updateText
+     * @param text to use
+     * Updates the current text to the one given by the function.
+     */
     void updateText(QString const& text);
 
 private:

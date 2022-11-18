@@ -36,14 +36,19 @@ public:
      */
     QString message() const;
 private:
+    /// resulting message from dialog
     QString m_message;
 
+    /// main text edit
     QTextEdit* m_textEdit;
 
 public slots:
+    /// reaction on a change in the main text edit: signal with the new text
+    /// is emited
     void onTextChanged();
 
 signals:
+    /// signal emited when the text of the main text edit is changed
     void textChanged(QString newText);
 };
 

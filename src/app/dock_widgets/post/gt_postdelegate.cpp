@@ -8,14 +8,9 @@
  */
 
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QDebug>
 
 #include "gt_postdock.h"
-#include "gt_project.h"
-#include "gt_label.h"
-#include "gt_application.h"
-#include "gt_datamodel.h"
 #include "gt_regexp.h"
 #include <gt_logging.h>
 

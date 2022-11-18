@@ -180,7 +180,7 @@ GtProject::upgradeProjectData()
 }
 
 void
-GtProject::createBackup() const
+GtProject::createBackup(QString const& message) const
 {
     if (!isValid())
     {
@@ -219,6 +219,23 @@ GtProject::createBackup() const
     // backup project file
     QFile file(pdir.absoluteFilePath(mainFilename()));
     file.copy(bdir.absoluteFilePath(mainFilename()));
+
+    if (!message.isEmpty())
+    {
+        QFile messageFile(bdir.absoluteFilePath("Message.md"));
+
+        if (!messageFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            gtWarning() << tr("Could not add message file to backup folder");
+            return;
+        }
+
+        QTextStream stream(&messageFile);
+        stream << message;
+
+        file.close();
+    }
+
 }
 
 bool

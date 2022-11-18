@@ -1721,19 +1721,48 @@ GtProjectUI::backupProject(GtObject* obj)
         return;
     }
 
-    GtGenerateBackUpDialog backUpDialog;
+    /// check if project has changes. These should be
+    if (gtApp->hasProjectChanges())
+    {
+        QString text = tr("Found unsaved project.\nDo you want to ") +
+                       tr("save all your changes before backup project?");
+
+        GtSaveProjectMessageBox mb(text);
+        int ret = mb.exec();
+
+        switch (ret)
+        {
+            case QMessageBox::Yes:
+            {
+                gtDataModel->saveProject(gtApp->currentProject());
+                break;
+            }
+
+            case QMessageBox::No:
+            {
+                break;
+            }
+
+            case QMessageBox::Cancel:
+            {
+                return;
+            }
+
+            default:
+                break;
+        }
+    }
+
     /// Dialog to inform about backup
-    /// Write reason and store in markdown file
+    /// Write reason and store in markdown string
+    GtGenerateBackUpDialog backUpDialog;
     if (backUpDialog.exec())
     {
         if (backUpDialog.result() == GtDialog::Accepted)
         {
             gtInfo() << tr("Generate backup");
 
-            gtDebug() << "The content for the description is "
-                      << backUpDialog.message();
-
-            project->createBackup();
+            project->createBackup(backUpDialog.message());
         }
     }
 }
@@ -1745,7 +1774,6 @@ GtProjectUI::validBackupDirectories(GtProject* project)
 
     if (!backUpMainDir.exists())
     {
-        gtWarning() << tr("Backup folder does not exist.");
         return {};
     }
 
@@ -1754,7 +1782,6 @@ GtProjectUI::validBackupDirectories(GtProject* project)
 
     if (contentList.isEmpty())
     {
-        gtWarning() << tr("Backup folder is empty.");
         return {};
     }
 
