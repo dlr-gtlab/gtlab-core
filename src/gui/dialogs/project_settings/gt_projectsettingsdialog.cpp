@@ -24,6 +24,7 @@ GtProjectSettingsDialog::GtProjectSettingsDialog(GtProject* project) :
     GtDialog()
 {
     setWindowTitle(tr("Project Settings"));
+    setWindowIcon(gt::gui::icon::config16());
 
     if (!project)
     {

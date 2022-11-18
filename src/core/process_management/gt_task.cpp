@@ -8,10 +8,13 @@
  */
 
 #include "gt_task.h"
+#include "gt_accessdata.h"
 #include "gt_calculator.h"
 #include "gt_abstractrunnable.h"
+#include "gt_coreapplication.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
+#include "gt_processrunnerglobals.h"
 
 #include <QDebug>
 #include <QThreadPool>
@@ -31,6 +34,13 @@ struct GtTask::Impl
 
     /// Interruption flag
     QAtomicInt interrupt;
+
+    /// Access Selection property for the process runner
+    GtAccessSelectionProperty processRunner{
+        "processRunner", tr("Process Runner"),
+        gt::process_runner::S_ACCESS_ID,
+        tr("Process Runner to run task with. Only relevant for the root task")
+    };
 };
 
 GtTask::GtTask() :
@@ -52,6 +62,11 @@ GtTask::GtTask() :
     m_currentIter.setVal(0);
 
     qRegisterMetaType<GtMonitoringDataSet>("GtMonitoringDataSet");
+
+    registerProperty(pimpl->processRunner, tr("Execution"));
+
+
+    pimpl->processRunner.hide(!gtApp || !gtApp->devMode());
 }
 
 GtTask::~GtTask() = default;
@@ -285,6 +300,12 @@ int
 GtTask::currentIterationStep() const
 {
     return m_currentIter.getVal();
+}
+
+GtAccessData
+GtTask::selectedProcessRunner() const
+{
+    return pimpl->processRunner.accessData();
 }
 
 void

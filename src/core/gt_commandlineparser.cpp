@@ -149,6 +149,43 @@ GtCommandLineParser::positionalArguments()
     return retVal;
 }
 
+void
+GtCommandLineParser::printHelp(QString const& commandName)
+{
+    std::cout << "Usage: GTlabConsole.exe " << std::endl;
+    std::cout << "Help for current command " << commandName.toStdString()
+              << std::endl;
+
+    std::cout << std::endl;
+
+    if (!m_opts.isEmpty())
+    {
+        std::cout << "Options:" << std::endl;
+
+        for (const GtCommandLineOption& o : m_opts)
+        {
+            QString optionString;
+
+            for (const QString& name : o.names)
+            {
+                if (name.size() > 1)
+                {
+                    optionString.append("--" + name + " ");
+                }
+                else
+                {
+                    optionString.append("-" + name + " ");
+                }
+            }
+
+            std::cout << "  " << optionString.toStdString() << "\t\t"
+                      << o.description.toStdString() << std::endl;
+        }
+
+        std::cout << std::endl;
+    }
+}
+
 bool
 gt::commandline::detail::hasOption(const QStringList& args,
                                    const GtCommandLineOption& o)

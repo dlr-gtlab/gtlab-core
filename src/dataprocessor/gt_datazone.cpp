@@ -304,14 +304,14 @@ GtDataZone::isDataValid() const
         size != tab->findDirectChildren<GtTableValues*>().size())
     {
         gtWarning() << tr("Invalid DataZone!")
-                    << tr("(Parameter size does not match units size)");
+                    << tr("(Parameter size does not match table size)");
         gtDebug() << tr("Size Params:") << m_params.size();
         gtDebug() << tr("Size Keys:  ") << tab->tabValsKeys().size();
         gtDebug() << tr("Size Values:")
                   << tab->findDirectChildren<GtTableValues*>().size();
         return false;
     }
-    return true;
+    return GtAbstractDataZone::isDataValid();
 }
 
 void

@@ -340,9 +340,6 @@ private:
     /// Mutex for undo redo commands
     QMutex m_commandMutex;
 
-    /// Process executor in gui mode
-    GtProcessExecutor* m_processExecutor;
-
     /// Pimpl
     GtApplicationPrivate* m_d;
 

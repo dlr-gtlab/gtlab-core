@@ -10,9 +10,9 @@
 #define GTPROCESSQUEUEMODEL_H
 
 #include <QAbstractItemModel>
+#include "gt_coreprocessexecutor.h"
 
 class GtTask;
-class GtProcessExecutor;
 
 /**
  * @brief The GtProcessQueueModel class
@@ -24,11 +24,10 @@ class GtProcessQueueModel  : public QAbstractItemModel
 public:
     /**
      * @brief GtProcessQueueModel
-     * @param proExec
-     * @param view
+     * @param exec
      * @param parent
      */
-    explicit GtProcessQueueModel(GtProcessExecutor* proExec,
+    explicit GtProcessQueueModel(GtCoreProcessExecutor* exec,
                                  QObject* parent = nullptr);
 
     /**
@@ -83,27 +82,30 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value,
                  int role = Qt::EditRole) override;
 
-    /**
-     * @brief setProcessExecutor
-     * @param procExec
-     */
-    void setProcessExecutor(GtProcessExecutor* procExec);
-
 private:
-    GtProcessExecutor* m_proExec;
+
+    /// current executor used
+    QPointer<GtCoreProcessExecutor> m_exec;
 
     QList<GtTask*> m_tasks;
 
     void updateTaskList();
 
 private slots:
+
+    /**
+     * @brief setProcessExecutor
+     * @param exec
+     */
+    void setProcessExecutor(GtCoreProcessExecutor* exec);
+
     void onQueueChanged();
 
     void onStateChanged();
 
 signals:
-    void queueChanged();
 
+    void queueChanged();
 };
 
 #endif // GTPROCESSQUEUEMODEL_H

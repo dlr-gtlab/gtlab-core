@@ -49,11 +49,11 @@ private:
     /// Open last opened project check box
     QCheckBox* m_lastOpenedProject;
 
-    /// Auto save project check box
-    QCheckBox* m_autoSaveModifications;
+    /// Checbox for extended process executor
+    QCheckBox* m_useExtendedProcessExecutor;
 
-    /// Auto save project interval spin box
-    QSpinBox* m_autoSaveInterval;
+    /// Checkbox to autostart process runner
+    QCheckBox* m_autostartProcessExecutor;
 
     /// Max. logging length spin box
     QSpinBox* m_maxLogSpin;

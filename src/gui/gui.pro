@@ -18,7 +18,7 @@ CONFIG(debug, debug|release){
     TARGET = GTlabGui
 }
 
-QT += core widgets network xml printsupport qml
+QT += core widgets network xml printsupport qml concurrent
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
@@ -67,12 +67,15 @@ INCLUDEPATH += .\
     exporter/dataZoneExporter \
     collection \
     widgets \
+    process_runner \
     ../dataprocessor \
     ../dataprocessor/property \
     ../core \
     ../core/settings \
     ../core/network \
     ../core/process_management \
+    ../core/process_management/process_runner \
+    ../core/process_management/process_runner/commands \
     ../core/provider \
     ../core/states
 
@@ -200,6 +203,8 @@ HEADERS += \
     post/gt_abstractwizard.h \
     post/gt_stringcontainer.h \
     post/gt_posttemplatepath.h \
+    process_runner/gt_processrunner.h \
+    process_runner/gt_processrunnertransceiver.h \
     gt_customprocesswizard.h \
     gt_extendedcalculatordata.h \
     importer/gt_importerinterface.h \
@@ -368,6 +373,8 @@ SOURCES += \
     post/gt_stringcontainer.cpp \
     post/gt_posttemplatepath.cpp \
     post/gt_abstractwizard.cpp \
+    process_runner/gt_processrunner.cpp \
+    process_runner/gt_processrunnertransceiver.cpp \
     gt_extendedcalculatordata.cpp \
     gt_customprocesswizard.cpp \
     gt_processexecutor.cpp \

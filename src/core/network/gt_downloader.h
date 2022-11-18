@@ -48,7 +48,7 @@ public:
      * @brief queueSize
      * @return
      */
-    int queueSize();
+    int queueSize() const;
 
 public slots:
     /**

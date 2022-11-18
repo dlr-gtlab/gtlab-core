@@ -685,18 +685,12 @@ GtProject::saveExternalizedObjectData()
     {
         gtDebug() << "internalizing object data...";
 
-        // externalization must be enabled
-        auto value = gtExternalizationManager->isExternalizationEnabled();
-        gtExternalizationManager->enableExternalization(true);
-
         int counter = 0;
         for (auto* obj : qAsConst(objects))
         {
             success &= obj->internalize();
             counter += obj->isFetched();
         }
-
-        gtExternalizationManager->enableExternalization(value);
 
         gtInfo() << tr("successfully internalized") << counter
                  << tr("out of") << objects.count() << tr("objects!");

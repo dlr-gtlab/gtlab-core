@@ -23,13 +23,13 @@ GtAccessSelectionProperty::GtAccessSelectionProperty(const QString& ident,
 }
 
 const QString&
-GtAccessSelectionProperty::accessId()
+GtAccessSelectionProperty::accessId() const
 {
     return m_accessId;
 }
 
 GtAccessData
-GtAccessSelectionProperty::accessData()
+GtAccessSelectionProperty::accessData() const
 {
     GtAccessGroup* group = gtAccessManager->accessGroup(m_accessId);
 

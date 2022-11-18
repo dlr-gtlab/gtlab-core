@@ -60,7 +60,13 @@ public:
      * loaded.
      * @param projectDir new project dir
      */
-    void updateProjectDir(const QString& projectDir);
+    void setProjectDir(QString projectDir);
+
+    /**
+     * @brief clears the project dir. Should be called once a project was
+     * closed.
+     */
+    void clearProjectDir();
 
     /**
      * @brief initializes all externalized objects. Must be called after the
@@ -68,12 +74,6 @@ public:
      * @param root Root object
      */
     void initExternalizedObjects(const GtObject& root);
-
-    /**
-     * @brief clears the project dir. Should be called once a project was
-     * closed.
-     */
-    void clearProjectDir();
 
     /**
      * @brief registers an externalization interface. Will receive info
@@ -96,6 +96,8 @@ public slots:
      * should be enabled
      */
     void enableExternalization(const QVariant& boolValue);
+
+    void onProjectLoaded(QString projectDir);
 
 private:
 

@@ -7,8 +7,9 @@
 
 #include "gt_gui_exports.h"
 
-#include "gt_objectmemento.h"
-
+class GtObject;
+class GtObjectMemento;
+class GtObjectMementoDiff;
 /**
  * @brief The GtFinishedProcessLoadingHelper class
  * Class to handle the memento diff process at the end of a process whcih
@@ -37,11 +38,7 @@ public:
                                    QPointer<GtObject> source,
                                    const QString& taskName);
 
-    /**
-     * @brief ~GtFinishedProcessLoadingHelper
-     * destructor is empty
-     */
-    ~GtFinishedProcessLoadingHelper() override;
+    ~GtFinishedProcessLoadingHelper();
 
     /**
      * @brief run
@@ -63,13 +60,13 @@ private:
     QList<GtObjectMemento>* m_data;
 
     /// pointer to summed diff object (result)
-    GtObjectMementoDiff* m_sumDiff;
+    std::unique_ptr<GtObjectMementoDiff> m_sumDiff;
 
     /// source object to buil diff
     QPointer<GtObject> m_source;
 
     /// Name of the task: used to give the used command a suitable name
-    QString m_taskName;
+    [[deprecated("unused")]] QString m_taskName;
 };
 
 #endif // GTFINISHEDPROCESSLOADINGHELPER_H

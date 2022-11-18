@@ -23,9 +23,7 @@
 #include "gt_preferencesapp.h"
 
 GtPreferencesApp::GtPreferencesApp() :
-    GtPreferencesPage(tr("Application")),
-    m_autoSaveModifications(nullptr),
-    m_autoSaveInterval(nullptr)
+    GtPreferencesPage(tr("Application"))
 {
     setIcon(gt::gui::icon::application());
     QTabWidget* tabWidget = new QTabWidget;
@@ -39,8 +37,8 @@ GtPreferencesApp::GtPreferencesApp() :
     QWidget* generalPage = new QWidget;
     tabWidget->addTab(generalPage, tr("General"));
 
-    m_lastOpenedProject =
-            new QCheckBox(tr("Open last opened project on startup"));
+    m_lastOpenedProject = new QCheckBox(tr("Open last opened "
+                                           "project on startup"));
     m_openWelcomePage = new QCheckBox(tr("Show welcome page"));
     m_updateAtStartup = new QCheckBox(tr("Search for Updates on startup"));
 
@@ -93,6 +91,23 @@ GtPreferencesApp::GtPreferencesApp() :
 
     generalLayout->addStretch(1);
 
+    QWidget* processRunnerPage = new QWidget;
+    auto idx = tabWidget->addTab(processRunnerPage, tr("Process Runner"));
+
+    m_useExtendedProcessExecutor =
+            new QCheckBox(tr("Enable the experimental Process Runner"));
+    m_autostartProcessExecutor =
+            new QCheckBox(tr("Autostart Process Runner on task execution"));
+
+    QVBoxLayout* processRunnerLayout = new QVBoxLayout(processRunnerPage);
+
+    processRunnerLayout->addWidget(m_useExtendedProcessExecutor);
+    processRunnerLayout->addWidget(m_autostartProcessExecutor);
+
+    processRunnerLayout->addStretch(1);
+
+    tabWidget->setTabVisible(idx, gtApp->devMode());
+
 //    QWidget* notificationPage = new QWidget;
 //    tabWidget->addTab(notificationPage, tr("Notifications"));
 //    tabWidget->setTabEnabled(1, false);
@@ -133,13 +148,21 @@ GtPreferencesApp::GtPreferencesApp() :
 
 //    notificationLayout->addStretch(1);
 
-    m_lastOpenedProject->setChecked(gtApp->settings()->openLastProject());
-    m_openWelcomePage->setChecked(gtApp->settings()->showStartupPage());
-    m_updateAtStartup->setChecked(gtApp->settings()->searchForUpdate());
+    auto* settings = gtApp->settings();
+    assert(settings);
 
-    m_maxLogSpin->setValue(gtApp->settings()->maxLogLength());
+    m_lastOpenedProject->setChecked(settings->openLastProject());
+    m_openWelcomePage->setChecked(settings->showStartupPage());
+    m_updateAtStartup->setChecked(settings->searchForUpdate());
 
-    QString themeMode = gtApp->settings()->themeMode();
+    m_useExtendedProcessExecutor->setChecked(
+                settings->useExtendedProcessExecutor());
+    m_autostartProcessExecutor->setChecked(
+                settings->autostartProcessRunner());
+
+    m_maxLogSpin->setValue(settings->maxLogLength());
+
+    QString themeMode = settings->themeMode();
     if (themeMode == "bright")
     {
         m_themeSelection->setCurrentIndex(1);
@@ -161,34 +184,15 @@ GtPreferencesApp::GtPreferencesApp() :
 void
 GtPreferencesApp::saveSettings(GtSettings& settings) const
 {
-    if (m_lastOpenedProject->isChecked())
-    {
-        settings.setOpenLastProject(true);
-    }
-    else
-    {
-        settings.setOpenLastProject(false);
-    }
-
-    if (m_openWelcomePage->isChecked())
-    {
-        settings.setShowStartupPage(true);
-    }
-    else
-    {
-        settings.setShowStartupPage(false);
-    }
-
-    if (m_updateAtStartup->isChecked())
-    {
-        settings.setSearchForUpdate(true);
-    }
-    else
-    {
-        settings.setSearchForUpdate(false);
-    }
-
+    settings.setOpenLastProject(m_lastOpenedProject);
+    settings.setShowStartupPage(m_openWelcomePage->isChecked());
+    settings.setSearchForUpdate(m_updateAtStartup->isChecked());
     settings.setMaxLogLength(m_maxLogSpin->value());
+
+    settings.setUseExtendedProcessExecutor(
+                m_useExtendedProcessExecutor->isChecked());
+    settings.setAutostartProcessRunner(
+                m_autostartProcessExecutor->isChecked());
 
     int index = m_themeSelection->currentIndex();
 

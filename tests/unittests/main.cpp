@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     QScopedPointer<GtTestHelper> helper {GtTestHelper::instance()};
 
     // set custom path for externalization
-    gtExternalizationManager->updateProjectDir(
+    gtExternalizationManager->onProjectLoaded(
                 helper->newTempDir().absolutePath());
 
     ::testing::InitGoogleTest(&argc, argv);

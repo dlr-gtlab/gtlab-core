@@ -17,7 +17,6 @@
 #include "gt_customactionmenu.h"
 #include "gt_mdilauncher.h"
 #include "gt_application.h"
-#include "gt_coreprocessexecutor.h"
 #include "gt_importhandler.h"
 #include "gt_importmenu.h"
 #include "gt_exporthandler.h"

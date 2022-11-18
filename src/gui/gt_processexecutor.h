@@ -10,12 +10,8 @@
 #ifndef GTPROCESSEXECUTOR_H
 #define GTPROCESSEXECUTOR_H
 
+#include "gt_gui_exports.h"
 #include "gt_coreprocessexecutor.h"
-
-#if defined(gtProcessExecutor)
-#undef gtProcessExecutor
-#endif
-#define gtProcessExecutor (static_cast<GtProcessExecutor *>(GtCoreProcessExecutor::instance()))
 
 /**
  * @brief The GtProcessExecutor class
@@ -25,9 +21,14 @@ class GtProcessExecutor : public GtCoreProcessExecutor
     Q_OBJECT
 
 public:
+
+    /// Id of this executor
+    GT_GUI_EXPORT static const std::string S_ID;
+
     explicit GtProcessExecutor(QObject* parent = nullptr);
 
 protected:
+
     /**
      * @brief handleTaskFinishedHelper
      * Uses a loading helper to analyze and apply diff
@@ -39,10 +40,18 @@ protected:
                                   GtTask* task) override;
 
     /**
-     * @brief execute
+     * @brief Executes the current task. Non-blocking.
      */
     void execute() override;
+
+    /**
+     * @brief Terminates current running task.
+     * @return Success
+     */
+    bool terminateCurrentTask() override;
+
 private slots:
+
     /**
      * @brief onHelperFinished - reaction on finished signal of loading helper
      *
@@ -51,9 +60,9 @@ private slots:
     void onHelperFinished();
 
 private:
+
     /// Task
     GtTask* m_task;
-
 };
 
 #endif // GTPROCESSEXECUTOR_H

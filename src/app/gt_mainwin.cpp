@@ -701,13 +701,17 @@ GtMainWin::openCommandHistory()
 void
 GtMainWin::openProcessQueue()
 {
-    if (!m_processQueue.data())
+    if (!m_processQueue)
     {
         m_processQueue = new GtProcessQueueWidget(
-            new GtProcessQueueModel(gtProcessExecutor));
+                             new GtProcessQueueModel{gtProcessExecutor});
 
         m_processQueue->show();
         m_processQueue->setAttribute(Qt::WA_DeleteOnClose, true);
+    }
+    else
+    {
+        m_processQueue->raise();
     }
 }
 

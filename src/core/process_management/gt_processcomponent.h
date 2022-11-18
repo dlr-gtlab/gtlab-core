@@ -29,6 +29,7 @@ class GT_CORE_EXPORT GtProcessComponent : public GtObject
     Q_OBJECT
 
 public:
+
     enum STATE
     {
         NONE = 0,
@@ -42,6 +43,7 @@ public:
         TERMINATION_REQUESTED, // 8
         TERMINATED // 9
     };
+    Q_ENUM(STATE)
 
     ~GtProcessComponent() override;
 
@@ -122,10 +124,16 @@ public:
     GtTask* rootTask();
 
     /**
-     * @brief isReady
-     * @return
+     * @brief Returns whether the root taks is ready
+     * @return is root task ready
      */
     bool isReady() const;
+
+    /**
+     * @brief Returns whether this component (only) is ready.
+     * @return Is this component ready
+     */
+    bool isComponentReady() const;
 
     /**
      * @brief Returns state of warning flag.
@@ -319,6 +327,6 @@ signals:
 
 };
 
-Q_DECLARE_METATYPE(GtProcessComponent::STATE);
+Q_DECLARE_METATYPE(GtProcessComponent::STATE)
 
 #endif // GTPROCESSCOMPONENT_H

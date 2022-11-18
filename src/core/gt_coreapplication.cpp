@@ -21,6 +21,7 @@
 #include <QDebug>
 
 #include "gt_coreapplication.h"
+#include "gt_externalizationmanager.h"
 #include "gt_objectfactory.h"
 #include "gt_processfactory.h"
 #include "gt_session.h"
@@ -146,7 +147,8 @@ GtCoreApplication::init()
     // #####
     initFirstRun();
 
-    if (qApp->arguments().contains(QStringLiteral("-dev")))
+    if (qApp->arguments().contains(QStringLiteral("--dev")) ||
+        qApp->arguments().contains(QStringLiteral("-dev")))
     {
         m_devMode = true;
     }
@@ -169,6 +171,16 @@ GtCoreApplication::init()
 
     gtEnvironment->setRoamingDir(roamingPath());
     gtEnvironment->loadEnvironment();
+
+    // forward project changed signals
+    connect(this, &GtCoreApplication::currentProjectChanged,
+            gtExternalizationManager, [](GtProject* project){
+        if (!project)
+        {
+            return gtExternalizationManager->clearProjectDir();
+        }
+        gtExternalizationManager->onProjectLoaded(project->path());
+    });
 }
 
 bool

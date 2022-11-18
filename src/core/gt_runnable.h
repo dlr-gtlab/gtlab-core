@@ -22,32 +22,15 @@ class GtRunnable : public GtAbstractRunnable
 
 public:
     /**
-     * @brief GtRunnable
+     * @brief Constrcutor. Sets a custom project path for the execution process
+     * @param projectPath Project path
      */
-    GtRunnable();
-
-    /**
-     * @brief ~GtRunnable
-     */
-    ~GtRunnable() override;
+    explicit GtRunnable(QString projectPath = {});
 
     /**
      * @brief run
      */
     void run() override;
-
-    /**
-     * @brief appendCalculator
-     * @param calc
-     * @return
-     */
-    bool appendCalculator(GtProcessComponent* calc);
-
-    /**
-     * @brief Sets the execution path for the execution process.
-     * @param path
-     */
-    void setExecutionPath(const QString& path);
 
     /**
      * @brief Requests the termination of current running task.
@@ -74,11 +57,9 @@ public:
     bool clearTempDir(const QString& path) override;
 
 private:
-    /// Execution path
-    QString m_executionPath;
 
-    /// Uuid of created temporary path
-    QString m_tempDirId;
+    /// custom project path (by default empty)
+    QString m_projectPath;
 
     /**
      * @brief transferObjects

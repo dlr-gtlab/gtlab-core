@@ -91,7 +91,7 @@ public:
     * @brief Returns true if host name is empty. Otherwise false is returned.
     * @return Whether host name is empty or not.
     */
-   bool isEmpty();
+   bool isEmpty() const;
 
 private:
    /// Host name

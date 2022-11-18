@@ -32,7 +32,6 @@ GtH5ExternalizationInterface*
 GtH5ExternalizationInterface::instance()
 {
     static GtH5ExternalizationInterface self{};
-
     return &self;
 }
 
@@ -60,7 +59,7 @@ GtH5ExternalizationInterface::onProjectLoaded(const QString& /*projectDir*/)
     catch (GenH5::FileException const& /*e*/)
     {
         gtError() << "HDF5 File may be corrupt! "
-                     "Repair/Delete or swap with the file using the backup! "
+                     "Repair/Delete or swap the file using the backup! "
                      "Filepath:" << filePath;
         return;
     }

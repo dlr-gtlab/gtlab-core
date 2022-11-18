@@ -30,7 +30,7 @@ CONFIG += c++14
 #CONFIG += GT_MODELTEST
 
 GT_MODELTEST {
-QT += testlib
+    QT += testlib
 }
 
 CONFIG(debug, debug|release){
@@ -76,6 +76,8 @@ INCLUDEPATH += .\
     ../dataprocessor/property \
     ../core \
     ../core/process_management \
+    ../core/process_management/process_runner \
+    ../core/process_management/process_runner/commands \
     ../core/settings \
     ../core/network \
     ../core/provider \
@@ -94,6 +96,7 @@ INCLUDEPATH += .\
     ../gui/dock_widgets/process \
     ../gui/dock_widgets/properties \
     ../gui/dock_widgets/post \
+    ../gui/process_runner \
     ../gui/widgets
 
 DESTDIR = $${BUILD_DEST}

@@ -138,7 +138,7 @@ GtProjectUI::GtProjectUI()
     }
 
     addSingleAction(tr("Open Project Settings..."),
-                    QStringLiteral("processIcon_16.png"),
+                    QStringLiteral("configIcon_16.png"),
                     QStringLiteral("openProjectSettings"),
                     QStringLiteral("canSaveProject"));
 

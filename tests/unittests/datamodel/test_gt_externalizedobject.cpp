@@ -216,14 +216,19 @@ TEST_F(TestGtExternalizedObject, disableExternalization)
     // disableing externalization once more
     gtExternalizationManager->enableExternalization(false);
 
-    { // fetching data has no effect now
+    { // fetching data still works now
         auto data = obj->fetchData();
 
         // not fetched but ref count is 1
         EXPECT_EQ(obj->refCount(), 1);
-        EXPECT_TRUE(isDataExternalized());
-        EXPECT_FALSE(obj->isFetched());
+        EXPECT_FALSE(isDataExternalized());
+        EXPECT_TRUE(obj->isFetched());
     }
+
+    // but data is not externalized
+    EXPECT_EQ(obj->refCount(), 0);
+    EXPECT_FALSE(isDataExternalized());
+    EXPECT_TRUE(obj->isFetched());
 }
 
 /// An externalized object should keep track of the version/state of the

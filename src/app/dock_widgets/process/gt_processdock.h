@@ -31,6 +31,7 @@ class GtObject;
 class GtProcessComponent;
 class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
+class GtCoreProcessExecutor;
 
 /**
  * @brief The GtProcessDock class
@@ -148,6 +149,9 @@ private:
 
     /// Button to add a new element to process control environment
     QPushButton* m_addElementButton;
+
+    /// Button to open the process queue
+    QPushButton* m_processQueueButton;
 
     /// Tree view
     GtProcessView* m_view;
@@ -371,11 +375,6 @@ private slots:
     void openConnectionEditor(const QModelIndex& index);
 
     /**
-     * @brief onProcessQueueChange
-     */
-    void onProcessQueueChange();
-
-    /**
      * @brief onRowsAboutToBeMoved
      */
     void onRowsAboutToBeMoved();
@@ -396,6 +395,12 @@ private slots:
      * @param obj Triggered aciton
      */
     void actionTriggered(QObject* obj);
+
+    /**
+     * @brief Handles executor change
+     * @param exec New Executor
+     */
+    void onExecutoChanged(GtCoreProcessExecutor* exec);
 
 signals:
     /**

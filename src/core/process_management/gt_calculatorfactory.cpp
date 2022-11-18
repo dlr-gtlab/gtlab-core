@@ -16,8 +16,7 @@
 
 GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
 {
-    m_knownClasses.insert(GtTaskLink::staticMetaObject.className(),
-                          GtTaskLink::staticMetaObject);
+    registerClass(GT_METADATA(GtTaskLink));
 }
 
 GtCalculatorFactory*

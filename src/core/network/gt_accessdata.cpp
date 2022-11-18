@@ -11,6 +11,7 @@
 #include <QDebug>
 
 #include "gt_accessdata.h"
+#include "gt_utilities.h"
 
 GtAccessData::GtAccessData(const QString& host, int port,
                            const QString& user, const QString& pw) :
@@ -19,35 +20,27 @@ GtAccessData::GtAccessData(const QString& host, int port,
     m_user(user),
     m_pw(pw)
 {
-    if (port < -1 || port > 65535)
+    if (!gt::checkNumericalLimits<quint16>(port))
     {
         m_port = -1;
     }
 }
 
 GtAccessData::GtAccessData(const QString& host, int port) :
-    m_host(host),
-    m_port(port)
+    GtAccessData(host, port, {}, {})
 {
-    if (port < -1 || port > 65535)
-    {
-        m_port = -1;
-    }
+
 }
 
 GtAccessData::GtAccessData(const QString& host, const QString& user,
                            const QString& pw) :
-    m_host(host),
-    m_port(-1),
-    m_user(user),
-    m_pw(pw)
+    GtAccessData(host, -1, user, pw)
 {
 
 }
 
 GtAccessData::GtAccessData(const QString& host) :
-    m_host(host),
-    m_port(-1)
+    GtAccessData(host, -1, {}, {})
 {
 
 }
@@ -100,7 +93,7 @@ GtAccessData::data() const
 }
 
 bool
-GtAccessData::isEmpty()
+GtAccessData::isEmpty() const
 {
     return m_host.isEmpty();
 }

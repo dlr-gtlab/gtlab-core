@@ -21,6 +21,7 @@
 #include "gt_objectmemento.h"
 #include "gt_intmonitoringproperty.h"
 #include "gt_monitoringdatatable.h"
+#include "gt_accessselectionproperty.h"
 
 class GtCalculator;
 
@@ -119,6 +120,12 @@ public:
      * @return Current iteration step.
      */
     int currentIterationStep() const;
+
+    /**
+     * @brief Returns the access data of the selected process runner
+     * @return Selected process runner access data
+     */
+    GtAccessData selectedProcessRunner() const;
 
     /**
      * @brief Called after successfully restoring from memento
@@ -240,8 +247,7 @@ signals:
      * @param Iteration number for monitoring data.
      * @param Monitoring data map.
      */
-    void monitoringDataTransfer(int iteration,
-                                GtMonitoringDataSet map);
+    void monitoringDataTransfer(int iteration, GtMonitoringDataSet map);
 
     /**
      * @brief Emitted when monitoring data is available.
