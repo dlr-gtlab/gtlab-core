@@ -56,9 +56,23 @@ GtProjectUpgradeSettingsPage::GtProjectUpgradeSettingsPage(GtProject* project,
     QObject::connect(saveNew, SIGNAL(toggled(bool)), m_specWid,
                      SLOT(setVisible(bool)));
 
+    registerField(QStringLiteral("spec.projectname*"),
+                  m_specWid->nameLine());
+
+    registerField(QStringLiteral("spec.projectpath*"),
+                  m_specWid->pathLine());
+
+    connect(m_specWid, SIGNAL(statesUpdated()), SIGNAL(completeChanged()));
+
     layout->addStretch(1);
 
     setLayout(layout);
+}
+
+bool
+GtProjectUpgradeSettingsPage::isComplete() const
+{
+    return m_specWid->isValid();
 }
 
 bool
