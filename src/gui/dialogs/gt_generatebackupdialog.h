@@ -2,7 +2,7 @@
  * Source File: gt_generatebackupdialog.h
  * copyright 2009-2022 by DLR
  *
- *  Created on: 31.03.2022
+ *  Created on: 17.11.2022
  *  Author: Jens Schmeinkr (AT-TWK)
  *  Tel.: +49 2203 601 2191
  */
@@ -11,7 +11,6 @@
 
 #include "gt_dialog.h"
 
-class GtProject;
 class QTextEdit;
 
 /**
@@ -28,7 +27,7 @@ public:
      * Constructor to define the layout
      * @param parent
      */
-    GtGenerateBackUpDialog(QWidget* parent = nullptr);
+    explicit GtGenerateBackUpDialog(QWidget* parent = nullptr);
 
     /**
      * @brief message

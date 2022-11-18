@@ -222,7 +222,7 @@ GtProject::createBackup(QString const& message) const
 
     if (!message.isEmpty())
     {
-        QFile messageFile(bdir.absoluteFilePath("Message.md"));
+        QFile messageFile(bdir.absoluteFilePath("GTlabBackUpMessage.md"));
 
         if (!messageFile.open(QIODevice::WriteOnly | QIODevice::Text))
         {

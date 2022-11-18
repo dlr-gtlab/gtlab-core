@@ -52,6 +52,7 @@
 #include "gt_projectupgradedialog.h"
 #include "gt_dialog.h"
 #include "gt_generatebackupdialog.h"
+#include "gt_projectrestorebackupdialog.h"
 
 #include "gt_projectui.h"
 
@@ -182,11 +183,11 @@ GtProjectUI::GtProjectUI()
                     &GtProjectUI::backupProject)
             .setVerificationMethod(&GtProjectUI::projectIsOpen)
             .setVisibilityMethod(&GtProjectUI::projectIsOpen)
-            .setIcon(gt::gui::icon::saveProject16());
+            .setIcon(gt::gui::icon::data16());
 
     addSingleAction(tr("Restore Backup"),
                     &GtProjectUI::restoreBackup)
-            .setIcon(gt::gui::icon::saveProject16())
+            .setIcon(QStringLiteral("database-arrow-up-icon_own_16.png"))
             .setVerificationMethod(&GtProjectUI::canRestoreBackup);
 }
 
@@ -1799,7 +1800,6 @@ GtProjectUI::validBackupDirectories(GtProject* project)
 
         if (!currentBackUp.exists())
         {
-            gtDebug() << "Cannot find directory " << i.absoluteFilePath();
             continue;
         }
 
@@ -1808,8 +1808,6 @@ GtProjectUI::validBackupDirectories(GtProject* project)
 
         if (!projectFile.exists())
         {
-            gtDebug() << "Cannot find project file for "
-                      << i.absoluteFilePath();
             continue;
         }
 
@@ -1849,22 +1847,68 @@ GtProjectUI::restoreBackup(GtObject *obj)
         return;
     }
 
-    gtDebug() << "Open Editor to select from the list of:"
-              << validDirs;
+    /// Dialog to select backup to restore from
+    GtProjectRestoreBackupDialog restoreDialog(validDirs);
+    if (restoreDialog.exec())
+    {
+        if (restoreDialog.result() == GtDialog::Accepted)
+        {
+            QString selectedFolder = restoreDialog.selectedFolderName();
+            gtInfo() << tr("Restore backup");
+            gtInfo() << tr("Use content of folder") << selectedFolder;
 
-    ///
-    /// This part has to be implemented after feedback of SRe how the
-    /// GUI
-    ///
-    /// GtRestoreProjectDialog dialog(project, validDirs);
-    /// if (dialog.exec())
-    /// {
-    ///     Inside the dialog:
-    ///         - read the timestamp from the directories name
-    ///         - offer the time stamps as list to select one of them
-    ///         - open one of them with the following options:
-    ///     options:
-    ///         - Overwrite project with backup
-    ///         - Open Backup as separate project
-    /// }
+            QMessageBox mb;
+            mb.setIcon(QMessageBox::Question);
+            mb.setWindowTitle(tr("Confirm Restore"));
+            mb.setWindowIcon(gt::gui::icon::saveProject16());
+
+            QString text;
+
+            if (project->isOpen())
+            {
+                text = tr("Are you sure to restore the project? \n "
+                          "Your current project will be overwritten which "
+                          "cannot be undone. \n"
+                          "The project will be closed automatically to "
+                          "start restore.");
+            }
+            else
+            {
+                text = tr("Are you sure to restore the project? \n "
+                          "Your current project will be overwritten which "
+                          "cannot be undone.");
+            }
+
+            mb.setText(text);
+            mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+
+            mb.setDefaultButton(QMessageBox::Cancel);
+            int ret = mb.exec();
+
+            switch (ret)
+            {
+                case QMessageBox::Yes:
+                {
+                    if (project->isOpen())
+                    {
+                        gtDataModel->closeProject(gtApp->currentProject());
+                    }
+
+                    gtDebug() << "Restore project" << selectedFolder;
+                    /// TODO: DO THE RESTORE HERE!
+
+                    /// Reopen the project if it had been open before?
+                    //if (initialOpenProject)
+                    //{
+                    //    /// open the project
+                    //}
+
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+    }
 }

@@ -2,7 +2,7 @@
  * Source File: gt_generatebackupdialog.h
  * copyright 2009-2022 by DLR
  *
- *  Created on: 31.03.2022
+ *  Created on: 17.11.2022
  *  Author: Jens Schmeinkr (AT-TWK)
  *  Tel.: +49 2203 601 2191
  */
@@ -21,7 +21,7 @@ GtGenerateBackUpDialog::GtGenerateBackUpDialog(QWidget* parent) :
     GtDialog(parent)
 {
     setWindowTitle(tr("Generate Backup"));
-    setWindowIcon(gt::gui::icon::plugin16());
+    setWindowIcon(gt::gui::icon::data16());
 
     auto* layout = new QVBoxLayout;
     setLayout(layout);
@@ -38,7 +38,7 @@ GtGenerateBackUpDialog::GtGenerateBackUpDialog(QWidget* parent) :
     tab->addTab(m_textEdit, tr("Edit"));
 
     auto* preview = new GtTextEdit("", GtTextEdit::MD, this);
-    preview->setEnabled(false);
+    preview->setReadOnly(true);
     tab->addTab(preview, tr("Preview"));
 
 
