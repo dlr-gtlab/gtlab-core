@@ -18,11 +18,10 @@ GtAbstractRunnable::GtAbstractRunnable() : m_successfulRun(false)
 GtAbstractRunnable::~GtAbstractRunnable()
 {
     qDeleteAll(m_linkedObjects);
-    m_linkedObjects.clear();
 }
 
-QList<GtObject*>
-GtAbstractRunnable::linkedObjects()
+const QList<GtObject*>&
+GtAbstractRunnable::linkedObjects() const
 {
     return m_linkedObjects;
 }
@@ -40,8 +39,8 @@ GtAbstractRunnable::appendSourceData(const GtObjectMemento& memento)
     //    }
 }
 
-QList<GtObjectMemento>&
-GtAbstractRunnable::outputData()
+const QList<GtObjectMemento>&
+GtAbstractRunnable::outputData() const
 {
     return m_outputData;
 }
@@ -66,8 +65,8 @@ GtAbstractRunnable::appendProcessComponent(GtProcessComponent* comp)
     return true;
 }
 
-QList<GtProcessComponent*>
-GtAbstractRunnable::queue()
+const QList<GtProcessComponent*>&
+GtAbstractRunnable::queue() const
 {
     return m_queue;
 }

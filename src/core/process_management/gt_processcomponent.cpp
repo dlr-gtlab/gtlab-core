@@ -239,19 +239,22 @@ GtProcessComponent::isReady() const
         return false;
     }
 
-    switch (root->currentState())
+    return root->isComponentReady();
+}
+
+bool
+GtProcessComponent::isComponentReady() const
+{
+    switch (currentState())
     {
         case GtProcessComponent::RUNNING:
         case GtProcessComponent::QUEUED:
         case GtProcessComponent::CONNECTING:
         case GtProcessComponent::TERMINATION_REQUESTED:
             return false;
-
         default:
-            break;
+            return true;
     }
-
-    return true;
 }
 
 bool

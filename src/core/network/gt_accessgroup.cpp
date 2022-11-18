@@ -50,9 +50,10 @@ GtAccessGroup::numberOfAccessData() const
 }
 
 bool
-GtAccessGroup::hostExists(const QString& host)
+GtAccessGroup::hostExists(const QString& host) const
 {
-    return std::any_of(std::begin(m_data), std::end(m_data), [&host](const GtAccessData& data) {
+    return std::any_of(std::begin(m_data), std::end(m_data),
+                       [&host](const GtAccessData& data) {
         return data.host() == host;
     });
 }
@@ -84,7 +85,7 @@ GtAccessGroup::setAccessData(const GtAccessData& data, int index)
 }
 
 const QMetaObject&
-GtAccessGroup::connectionMetaData()
+GtAccessGroup::connectionMetaData() const
 {
     return m_connectionMetaData;
 }

@@ -68,7 +68,7 @@ public:
      * @param Host name.
      * @return Whether host exists or not.
      */
-    bool hostExists(const QString& host);
+    bool hostExists(const QString& host) const;
 
     /**
      * @brief Removes access data corresponding to given index.
@@ -91,7 +91,7 @@ public:
      * @brief Returns meta object of access data connection.
      * @return Meta object of access data connection.
      */
-    const QMetaObject& connectionMetaData();
+    const QMetaObject& connectionMetaData() const;
 
 private:
     /// Connection meta data

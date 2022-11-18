@@ -52,6 +52,9 @@ win32 {
     }
 }
 
+# logging id for execution related stuff
+DEFINES += GT_EXEC_ID='"\\\"Exec\\\""'
+# current logging id
 DEFINES += GT_MODULE_ID='"\\\"$${GT_MODULE_ID}\\\""'
 
 #### LIBRARIES

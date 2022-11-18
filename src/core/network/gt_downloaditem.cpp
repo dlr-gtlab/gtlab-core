@@ -15,19 +15,19 @@ GtDownloadItem::GtDownloadItem(QObject* parent) : QObject(parent)
 
 }
 
-QUrl
+const QUrl&
 GtDownloadItem::url() const
 {
     return m_url;
 }
 
-QString
+const QString&
 GtDownloadItem::path() const
 {
     return m_path;
 }
 
-QString
+const QString&
 GtDownloadItem::targetFileName() const
 {
     return m_targetFileName;

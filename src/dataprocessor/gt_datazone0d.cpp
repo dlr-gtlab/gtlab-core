@@ -76,7 +76,7 @@ GtDataZone0D::doExternalizeData(QVariant& metaData)
             m_params, m_units, m_values
         };
         // set compound type names
-        data.setTypeNames({"params", "values", "units"});
+        data.setTypeNames({"params", "units", "values"});
 
         GtH5ExternalizeHelper h5Worker{*this};
 

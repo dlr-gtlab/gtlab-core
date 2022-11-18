@@ -35,7 +35,7 @@ public:
 
     /**
      * @brief Registers calculator data to factory.
-     * @param taskData New calculstor data.
+     * @param calcData New calculstor data.
      * @return Returns true if calculstor data was successfully added.
      */
     virtual bool registerCalculatorData(GtCalculatorData calcData);

@@ -91,7 +91,7 @@ GtTaskRunner::setUp(GtAbstractRunnable* runnable, GtObject* source)
     {
         m_task->setState(GtProcessComponent::FAILED);
         // could not cast task
-        //        gtFatal() << tr("Task copy corrupted!");
+        gtFatal() << tr("Task copy corrupted!");
         return false;
     }
 
@@ -135,7 +135,7 @@ GtTaskRunner::run()
 }
 
 const QList<GtObjectMemento>&
-GtTaskRunner::dataToMerge()
+GtTaskRunner::dataToMerge() const
 {
     return m_dataToMerge;
 }

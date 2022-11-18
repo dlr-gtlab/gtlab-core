@@ -54,6 +54,7 @@ DESTDIR = $${BUILD_DEST}
 HEADERS += \
     gt_abstractexternalizationinterface.h \
     gt_datamodel_exports.h \
+    gt_eventloop.h \
     gt_externalizationmanager.h \
     gt_externalizedobject.h \
     gt_externalizedobjectfetcher.h \
@@ -126,6 +127,7 @@ HEADERS += \
 
 SOURCES += \
     gt_abstractexternalizationinterface.cpp \
+    gt_eventloop.cpp \
     gt_externalizationmanager.cpp \
     gt_externalizedobject.cpp \
     gt_h5externalizationinterface.cpp \

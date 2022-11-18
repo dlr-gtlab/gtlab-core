@@ -40,13 +40,13 @@ public:
      * @brief Returns access identification string.
      * @return Access identification string.
      */
-    const QString& accessId();
+    const QString& accessId() const;
 
     /**
      * @brief Returns access data object.
      * @return Access data object.
      */
-    GtAccessData accessData();
+    GtAccessData accessData() const;
 
 private:
     /// Access identification string.

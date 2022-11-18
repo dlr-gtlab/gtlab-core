@@ -35,7 +35,7 @@ GtExternalizationManager::isExternalizationEnabled() const
 const QString&
 GtExternalizationManager::projectDir() const
 {
-    Q_ASSERT(!m_projectDir.isEmpty());
+    assert(!m_projectDir.isEmpty());
     return m_projectDir;
 }
 
@@ -52,24 +52,14 @@ GtExternalizationManager::enableExternalization(const QVariant& boolValue)
 }
 
 void
-GtExternalizationManager::registerExernalizationInterface(
-        ExternalizationInterface interface)
+GtExternalizationManager::onProjectLoaded(QString projectDir)
 {
-    if (!interface || m_externalizationInterfaces.contains(interface))
+    setProjectDir(std::move(projectDir));
+
+    if (m_projectDir.isEmpty())
     {
         return;
     }
-
-    qDebug() << "registering externalization interface!";
-    m_externalizationInterfaces.append(interface);
-}
-
-void
-GtExternalizationManager::updateProjectDir(const QString& projectDir)
-{
-    m_projectDir = projectDir;
-
-    Q_ASSERT(!m_projectDir.isEmpty());
 
     foreach (const auto& interface, m_externalizationInterfaces)
     {
@@ -83,6 +73,23 @@ GtExternalizationManager::updateProjectDir(const QString& projectDir)
         interface->onProjectLoaded(m_projectDir);
     }
 }
+void
+GtExternalizationManager::registerExernalizationInterface(
+        ExternalizationInterface interface)
+{
+    if (!interface || m_externalizationInterfaces.contains(interface))
+    {
+        return;
+    }
+
+    m_externalizationInterfaces.append(interface);
+}
+
+void
+GtExternalizationManager::setProjectDir(QString projectDir)
+{
+    m_projectDir = std::move(projectDir);
+}
 
 void
 GtExternalizationManager::initExternalizedObjects(const GtObject& root)
@@ -90,7 +97,7 @@ GtExternalizationManager::initExternalizedObjects(const GtObject& root)
     /// all externalized objects should fetch its initial version
     for (auto* o : root.findChildren<GtExternalizedObject*>())
     {
-        Q_ASSERT(o);
+        assert(o);
         o->setFetchInitialVersion(true);
     }
 }

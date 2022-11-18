@@ -14,7 +14,7 @@ include( $${PWD}/../../settings.pri )
 
 TEMPLATE = app
 
-QT += xml core sql widgets
+QT += xml core sql widgets network
 
 TARGET = GTlabUnitTest
 
@@ -44,6 +44,7 @@ INCLUDEPATH += .\
     ../../src/dataprocessor \
     ../../src/dataprocessor/property \
     ../../src/core \
+    ../../src/core/network \
     ../../src/core/provider \
     ../../src/core/settings \
     ../../src/core/process_management \
@@ -55,7 +56,8 @@ INCLUDEPATH += .\
     ../../src/gui/dock_widgets/process \
     ../../src/gui/dock_widgets/process \
     ../../src/gui/exporter \
-    ../../src/gui/exporter/dataZoneExporter
+    ../../src/gui/exporter/dataZoneExporter \
+    ../../src/gui/process_runner
 
 INCLUDEPATH += .\
     ./datamodel \

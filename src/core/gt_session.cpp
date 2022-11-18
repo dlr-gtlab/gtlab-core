@@ -18,7 +18,6 @@
 #include "gt_coredatamodel.h"
 #include "gt_logging.h"
 #include "gt_algorithms.h"
-#include "gt_externalizationmanager.h"
 
 GtSession::GtSession(const QString& id, QString sessionPath) :
     m_currentProject(nullptr)
@@ -246,8 +245,6 @@ GtSession::setCurrentProject(GtProject* project)
     if (!project)
     {
         m_currentProject = nullptr;
-        // clear project dir for externalization
-        gtExternalizationManager->clearProjectDir();
         return true;
     }
 
@@ -260,9 +257,6 @@ GtSession::setCurrentProject(GtProject* project)
     }
 
     m_currentProject = project;
-
-    // update new project dir for externalization
-    gtExternalizationManager->updateProjectDir(project->path());
 
     return true;
 }

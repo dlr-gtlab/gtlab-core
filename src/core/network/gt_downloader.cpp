@@ -52,7 +52,7 @@ GtDownloader::addFileDownload(const QUrl& url, const QString& downloadPath,
 }
 
 int
-GtDownloader::queueSize()
+GtDownloader::queueSize() const
 {
     return m_queue.size();
 }

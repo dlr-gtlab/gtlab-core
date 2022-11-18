@@ -11,17 +11,14 @@ GtFinishedProcessLoadingHelper::GtFinishedProcessLoadingHelper(
         QPointer<GtObject> source,
         const QString& taskName) :
     m_data(data),
-    m_sumDiff(new GtObjectMementoDiff),
+    m_sumDiff(std::make_unique<GtObjectMementoDiff>()),
     m_source(source),
     m_taskName(taskName)
 {
 
 }
 
-GtFinishedProcessLoadingHelper::~GtFinishedProcessLoadingHelper()
-{
-    delete m_sumDiff;
-}
+GtFinishedProcessLoadingHelper::~GtFinishedProcessLoadingHelper() = default;
 
 void
 GtFinishedProcessLoadingHelper::run()
@@ -30,14 +27,12 @@ GtFinishedProcessLoadingHelper::run()
     {
         GtObjectMemento memento = m_data->at(i);
 
-        GtObject* target = m_source->getObjectByUuid(memento.uuid());
-
-        if (target)
+        if (GtObject* target = m_source->getObjectByUuid(memento.uuid()))
         {
             GtObjectMemento old = target->toMemento(true);
             GtObjectMementoDiff diff(old, memento);
 
-            m_sumDiff->operator <<(diff);
+            *m_sumDiff << diff;
         }
     }
 }
@@ -45,5 +40,5 @@ GtFinishedProcessLoadingHelper::run()
 GtObjectMementoDiff*
 GtFinishedProcessLoadingHelper::sumDiff() const
 {
-    return m_sumDiff;
+    return m_sumDiff.get();
 }

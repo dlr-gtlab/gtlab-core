@@ -18,13 +18,10 @@
 #include "gt_project.h"
 #include "gt_logging.h"
 
-GtRunnable::GtRunnable()
+GtRunnable::GtRunnable(QString projectPath) :
+    m_projectPath{std::move(projectPath)}
 {
-
-}
-
-GtRunnable::~GtRunnable()
-{
+    setObjectName("GtRunnable");
 }
 
 void
@@ -44,16 +41,16 @@ GtRunnable::run()
     qDebug() << "";
     qDebug() << "--- calculator execution ---";
 
-    foreach (GtProcessComponent* calc, m_queue)
+    for (GtProcessComponent* pc : qAsConst(m_queue))
     {
-        if (!calc->exec())
+        if (!pc->exec())
         { // cppcheck-suppress useStlAlgorithm
             gtError() << "Calculator execution failed!";
             success = false;
 
-            QList<GtTask*> tasks = calc->findChildren<GtTask*>();
+            QList<GtTask*> tasks = pc->findChildren<GtTask*>();
 
-            foreach (GtTask* task, tasks)
+            for (GtTask* task : qAsConst(tasks))
             {
                 if (task->currentState() ==
                         GtProcessComponent::TERMINATION_REQUESTED)
@@ -62,9 +59,9 @@ GtRunnable::run()
                 }
 
                 if (task->currentState() == GtProcessComponent::TERMINATED &&
-                        calc->currentState() != GtProcessComponent::TERMINATED)
+                        pc->currentState() != GtProcessComponent::TERMINATED)
                 {
-                    calc->setState(GtProcessComponent::TERMINATED);
+                    pc->setState(GtProcessComponent::TERMINATED);
                 }
             }
 
@@ -88,32 +85,6 @@ GtRunnable::run()
     m_successfulRun = success;
 
     emit runnableFinished();
-}
-
-bool
-GtRunnable::appendCalculator(GtProcessComponent* calc)
-{
-    if (!calc)
-    {
-        return false;
-    }
-
-    if (m_queue.contains(calc))
-    {
-        qDebug() << "CalculatorRun already contained in runnable queue";
-        return false;
-    }
-
-    calc->setParent(this);
-    m_queue.append(calc);
-
-    return true;
-}
-
-void
-GtRunnable::setExecutionPath(const QString& path)
-{
-    m_executionPath = path;
 }
 
 void
@@ -142,37 +113,17 @@ GtRunnable::requestInterruption()
 QDir
 GtRunnable::tempDir()
 {
-    if (m_executionPath.isEmpty())
-    {
-        return GtCoreApplication::applicationTempDir();
-    }
-
-    QDir dir(m_executionPath + QDir::separator() + QStringLiteral("temp"));
-
-    if (!dir.exists())
-    {
-        dir = QDir(m_executionPath);
-
-        if (!dir.mkpath(dir.absolutePath() + QDir::separator()
-                        + QStringLiteral("temp")))
-        {
-            gtWarning() << tr("Could not create temporary directory!");
-            return QDir();
-        }
-
-        if (!dir.cd(QStringLiteral("temp")))
-        {
-            gtWarning() << tr("Could not create temporary directory!");
-            return QDir();
-        }
-    }
-
-    return GtCoreApplication::createTempDir(dir.absolutePath());
+    return GtCoreApplication::applicationTempDir();
 }
 
 QString
 GtRunnable::projectPath()
 {
+    if (!m_projectPath.isEmpty())
+    {
+        return m_projectPath;
+    }
+
     if (!gtApp->currentProject())
     {
         return QString();

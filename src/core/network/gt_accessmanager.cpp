@@ -12,6 +12,8 @@
 #include "gt_logging.h"
 
 #include "gt_accessmanager.h"
+#include "gt_processrunnerglobals.h"
+#include "gt_processrunneraccessdataconnection.h"
 
 #include <QNetworkInterface>
 #include <QCoreApplication>
@@ -25,6 +27,9 @@
 GtAccessManager::GtAccessManager(QObject* parent) :
     QObject(parent), m_qnam(nullptr)
 {
+    // default access groups
+    addAccessGroup(gt::process_runner::S_ACCESS_ID,
+                   GT_METADATA(GtProcessRunnerAccessDataConnection));
 }
 
 bool
@@ -118,7 +123,7 @@ GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
 }
 
 QString
-GtAccessManager::roamingPath()
+GtAccessManager::roamingPath() const
 {
 #ifdef _WIN32
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -161,27 +166,28 @@ GtAccessManager::addAccessGroup(const QString& id,
 }
 
 int
-GtAccessManager::numberOfDataGroups()
+GtAccessManager::numberOfDataGroups() const
 {
     return m_data.size();
 }
 
 bool
-GtAccessManager::isEmpty()
+GtAccessManager::isEmpty() const
 {
     return m_data.isEmpty();
 }
 
 bool
-GtAccessManager::groupExists(const QString& id)
+GtAccessManager::groupExists(const QString& id) const
 {
-    return std::any_of(std::begin(m_data), std::end(m_data), [&id](const GtAccessGroup* group) {
+    return std::any_of(std::begin(m_data), std::end(m_data),
+                       [&id](const GtAccessGroup* group) {
         return group->objectName() == id;
     });
 }
 
 QStringList
-GtAccessManager::accessGroupIds()
+GtAccessManager::accessGroupIds() const
 {
     QStringList retval;
 
@@ -194,13 +200,13 @@ GtAccessManager::accessGroupIds()
 }
 
 const QList<GtAccessGroup*>&
-GtAccessManager::accessGroups()
+GtAccessManager::accessGroups() const
 {
     return m_data;
 }
 
 bool
-GtAccessManager::saveAccessData()
+GtAccessManager::saveAccessData() const
 {
     QString path = roamingPath() + QDir::separator() +
                    QStringLiteral("access");
@@ -274,7 +280,7 @@ GtAccessManager::saveAccessData()
 }
 
 QString
-GtAccessManager::macAddress()
+GtAccessManager::macAddress() const
 {
     foreach (QNetworkInterface netInterface, QNetworkInterface::allInterfaces())
     {

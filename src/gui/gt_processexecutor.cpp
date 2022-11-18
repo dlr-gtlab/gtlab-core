@@ -8,38 +8,41 @@
  */
 
 #include <QDebug>
+#include <QMessageBox>
 
 #include "gt_application.h"
+#include "gt_settings.h"
 #include "gt_task.h"
 #include "gt_command.h"
 #include "gt_objectmementodiff.h"
 #include "gt_taskrunner.h"
 #include "gt_finishedprocessloadinghelper.h"
+#include "gt_icons.h"
 
 #include "gt_processexecutor.h"
 
+const std::string GtProcessExecutor::S_ID = "ProcessExecutor";
+
 GtProcessExecutor::GtProcessExecutor(QObject* parent) :
-    GtCoreProcessExecutor(parent),
+    GtCoreProcessExecutor(S_ID, parent),
     m_task(nullptr)
 {
+    setObjectName("ProcessEecutor");
+
+    qDebug() << "#### process executor initialized!";
 }
 
 void
 GtProcessExecutor::handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
                                             GtTask* task)
 {
-    qDebug() << "handleTaskFinishedHelper gui mode!";
+    gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "(gui mode)";
 
     // source may be NULL if there are no object links defined in the
     // calculators included in the task
     if (m_source)
     {
         m_task = task;
-        // create timer
-        //QElapsedTimer timer;
-
-        // start timer
-        //timer.start();
 
         GtFinishedProcessLoadingHelper* helper =
                 new GtFinishedProcessLoadingHelper(&changedData, m_source,
@@ -54,22 +57,50 @@ GtProcessExecutor::handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
 void
 GtProcessExecutor::execute()
 {
-    qDebug() << "GtProcessExecutor::execute()";
+    gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
 
-    GtTaskRunner* runner = executeHelper();
-
-    if (!runner)
+    if (auto* runner = setupTaskRunner())
     {
-        return;
+        runner->run();
     }
+}
 
-    // run
-    runner->run();
+bool
+GtProcessExecutor::terminateCurrentTask()
+{
+    assert(m_current);
+
+    QMessageBox mb;
+    mb.setIcon(QMessageBox::Question);
+    mb.setWindowTitle(tr("Stop Running Task"));
+    mb.setWindowIcon(gt::gui::icon::stop16());
+    mb.setText(tr("Stop the execution of") + " " +
+               m_current->objectName() + "?\n\n" +
+               tr("Note: The process cannot be aborted while a "
+                  "calculator is running. \n"
+                  "The process will be marked for termination "
+                  "and will be stopped after completion of the "
+                  "calculator."));
+    mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+    mb.setDefaultButton(QMessageBox::Cancel);
+    int ret = mb.exec();
+
+    switch (ret)
+    {
+        case QMessageBox::Yes:
+        {
+            return GtCoreProcessExecutor::terminateCurrentTask();
+        }
+        default:
+            return false;
+    }
 }
 
 void
 GtProcessExecutor::onHelperFinished()
 {
+    assert(m_task);
+
     GtFinishedProcessLoadingHelper* helper =
             qobject_cast<GtFinishedProcessLoadingHelper*>(sender());
 
@@ -81,13 +112,10 @@ GtProcessExecutor::onHelperFinished()
     if (helper->sumDiff()->isNull())
     {
         helper->deleteLater();
-
         return;
     }
 
-    const QString commandMsg = m_task->objectName() +
-                               QStringLiteral(" ") +
-                               tr("run");
+    const QString commandMsg = tr("Run '%1'").arg(m_task->objectName());
 
     if (m_source)
     {
@@ -96,30 +124,19 @@ GtProcessExecutor::onHelperFinished()
 
         if (!m_source->applyDiff(*helper->sumDiff()))
         {
-            gtError() << tr("Data changes from the task")
-                      << m_task->objectName()
-                      << tr("could not feed back to datamodel");
-
+            gtErrorId(GT_EXEC_ID)
+                    << tr("Data changes from the task '%1' could not be "
+                           "merged back into datamodel!")
+                       .arg(m_task->objectName());
             m_task->setState(GtProcessComponent::FAILED);
-            qDebug() << "Diff not succesfully applied!";
-        }
-        else
-        {
-//            const QString commandMsg = task->objectName() +
-//                                       QStringLiteral(" ") +
-//                                       tr("run");
-
-//            GtMementoChangeCommand* command =
-//                    new GtMementoChangeCommand(sumDiff, commandMsg, m_source);
-//            gtApp->undoStack()->push(command);
         }
 
         gtApp->endCommand(command);
-
     }
     else
     {
-        gtError() << tr("Unable to find Root object to apply task results");
+        gtErrorId(GT_EXEC_ID)
+                << tr("Unable to find Root object to apply task results!");
     }
 
     helper->deleteLater();

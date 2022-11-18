@@ -18,7 +18,7 @@ win32 {
 
 TARGET = GTlabConsole
 
-QT += core xml gui widgets
+QT += core xml gui widgets network
 TEMPLATE = app
 CONFIG += console
 CONFIG += silent
@@ -43,6 +43,9 @@ INCLUDEPATH += .\
     ../core \
     ../core/provider \
     ../core/process_management \
+    ../core/process_management/process_runner \
+    ../core/process_management/process_runner/commands \
+    ../core/network \
     ../mdi \
     ../datamodel/property
 
@@ -50,12 +53,16 @@ DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
     batchremote.h \
-    gt_consoleparser.h
+    gt_consoleparser.h \
+    gt_remoteprocessrunner.h \
+    gt_remoteprocessrunnerstates.h
 
 SOURCES += \
     batch.cpp \
     batchremote.cpp \
-    gt_consoleparser.cpp
+    gt_consoleparser.cpp \
+    gt_remoteprocessrunner.cpp \
+    gt_remoteprocessrunnerstates.cpp
 
 LIBS += -L$${BUILD_DEST}
 

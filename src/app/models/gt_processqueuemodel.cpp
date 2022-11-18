@@ -16,25 +16,16 @@
 #include "gt_icons.h"
 
 
-GtProcessQueueModel::GtProcessQueueModel(GtProcessExecutor* proExec,
+GtProcessQueueModel::GtProcessQueueModel(GtCoreProcessExecutor* exec,
                                          QObject* parent) :
-    QAbstractItemModel(parent),
-    m_proExec(proExec)
+    QAbstractItemModel(parent)
 {
-    updateTaskList();
+    setProcessExecutor(exec);
 
-    if (m_proExec)
-    {
-        connect(m_proExec, &GtProcessExecutor::queueChanged,
-                this, &GtProcessQueueModel::onQueueChanged);
-
-        if (!m_proExec->queue().isEmpty())
-        {
-            connect(qAsConst(m_proExec)->queue().first(),
-                    SIGNAL(stateChanged(GtProcessComponent::STATE)),
-                    this, SLOT(onStateChanged()));
-        }
-    }
+    connect(&gtProcessExecutor,
+            &GtProcessExecutorManager::executorChanged,
+            this, &GtProcessQueueModel::setProcessExecutor,
+            Qt::UniqueConnection);
 }
 
 
@@ -50,7 +41,7 @@ GtProcessQueueModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent)
 
-    if (!m_proExec)
+    if (!m_exec)
     {
         return 0;
     }
@@ -139,24 +130,26 @@ GtProcessQueueModel::index(int row, int column,
 {
     Q_UNUSED(parent)
 
-    if (!m_proExec)
+    auto exec = m_exec;
+
+    if (!exec)
     {
-        gtDebug() << "No process executor defined";
+        gtDebug().medium() << "No process executor defined";
         return {};
     }
-    else if (m_proExec->queue().empty())
+    else if (exec->queue().empty())
     {
-        gtDebug() << "No tasks in queue";
+        gtDebug().medium() << "No tasks in queue";
         return {};
     }
     else if (column != 0)
     {
-        gtDebug() << "Invalid column index";
+        gtDebug().medium() << "Invalid column index";
         return {};
     }
-    else if (row >= m_proExec->queue().size())
+    else if (row >= exec->queue().size())
     {
-        gtDebug() << "Invalid row index";
+        gtDebug().medium() << "Invalid row index";
         return {};
     }
 
@@ -181,23 +174,15 @@ GtProcessQueueModel::setData(const QModelIndex &index,
 }
 
 void
-GtProcessQueueModel::setProcessExecutor(GtProcessExecutor* procExec)
-{
-    beginResetModel();
-    m_proExec = procExec;
-    endResetModel();
-}
-
-void
 GtProcessQueueModel::updateTaskList()
 {
-    if (m_proExec)
+    if (m_exec)
     {
         m_tasks.clear();
 
-        if (!m_proExec->queue().isEmpty())
+        if (!m_exec->queue().isEmpty())
         {
-            foreach (GtTask* task, m_proExec->queue())
+            foreach (GtTask* task, m_exec->queue())
             {
                 if (task)
                 {
@@ -210,6 +195,24 @@ GtProcessQueueModel::updateTaskList()
                     this, SLOT(onStateChanged()));
         }
     }
+}
+
+void
+GtProcessQueueModel::setProcessExecutor(GtCoreProcessExecutor* exec)
+{
+    beginResetModel();
+    if (m_exec)
+    {
+        disconnect(m_exec.data());
+    }
+    m_exec = exec;
+    if (exec)
+    {
+        connect(exec, &GtCoreProcessExecutor::queueChanged,
+                this, &GtProcessQueueModel::onQueueChanged);
+    }
+    updateTaskList();
+    endResetModel();
 }
 
 void

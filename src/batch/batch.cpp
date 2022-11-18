@@ -15,17 +15,21 @@
 #include <QDir>
 #include <QDebug>
 
+#include "internal/gt_commandlinefunctionhandler.h"
+#include "batchremote.h"
+
 #include "gt_coreapplication.h"
 #include "gt_coredatamodel.h"
 #include "gt_coreprocessexecutor.h"
 #include "gt_project.h"
 #include "gt_projectprovider.h"
-#include "internal/gt_commandlinefunctionhandler.h"
 #include "gt_task.h"
 #include "gt_footprint.h"
-#include "batchremote.h"
+#include "gt_utilities.h"
 #include "gt_consoleparser.h"
 #include "gt_versionnumber.h"
+#include "gt_hostinfo.h"
+#include "gt_remoteprocessrunner.h"
 
 void
 showSplashScreen()
@@ -226,7 +230,6 @@ runProcess(const QString& projectId, const QString& processId,
     return 0;
 }
 
-
 int
 runProcessByFile(const QString& projectFile, const QString& processId,
                  bool save = false)
@@ -269,7 +272,7 @@ runProcessByFile(const QString& projectFile, const QString& processId,
     {
         gtError() << "Cannot load project";
         return -1;
-    }   
+    }
 
     gtApp->session()->appendChild(project);
 
@@ -298,7 +301,7 @@ runProcessByFile(const QString& projectFile, const QString& processId,
     }
 
     // execute process
-    GtCoreProcessExecutor executor(nullptr, false);
+    GtCoreProcessExecutor executor{gt::DryExecution};
     executor.runTask(process);
 
     if (process->currentState() != GtProcessComponent::FINISHED)
@@ -322,6 +325,96 @@ runProcessByFile(const QString& projectFile, const QString& processId,
     }
 
     return 0;
+}
+
+int
+processRunner(QStringList const& args)
+{
+    auto port    = gt::process_runner::S_DEFAULT_PORT;
+    auto address = gt::process_runner::S_DEFAULT_HOST;
+    int timeout  = 25;
+
+    GtCommandLineParser p;
+    p.addHelpOption();
+    p.addOption("port", {"port", "p"},
+                "Defines the port to listen to "
+                "(default value is " + QString::number(port) + ")");
+    p.addOption("client", {"client", "c"},
+                "Defines the client address/hostname to accept requests from "
+                "(by default this is " + address + "). Use 0.0.0.0 to accept "
+                "requests from any client.");
+    p.addOption("timeout", {"timeout", "t"},
+                "Timeout in seconds to wait for the initial connection "
+                "(default value is "  + QString::number(timeout) + "s).");
+
+    // args are optional
+    p.parse(args);
+
+    if (p.helpOption())
+    {
+        p.printHelp("process_runner");
+        return 0;
+    }
+
+    // update port
+    if (p.option("port"))
+    {
+        bool ok = true;
+        port = p.optionValue("port").toInt(&ok);
+
+        if (!ok || !gt::checkNumericalLimits<quint16>(port))
+        {
+            std::cout << "Invalid port specified! "
+                         "Set port using --port=<port>"
+                      << std::endl;
+            return -1;
+        }
+    }
+
+    // update client address
+    if (p.option("client"))
+    {
+        address = p.optionValue("client").toString();
+
+        if (address.isEmpty())
+        {
+            std::cout << "Invalid client address specified! "
+                         "Set address using --client=<address>"
+                      << std::endl;
+            return -1;
+        }
+    }
+
+    // update timeout
+    if (p.option("timeout"))
+    {
+        bool ok = true;
+        timeout = p.optionValue("timeout").toInt(&ok);
+
+        if (!ok)
+        {
+            std::cout << "Invalid timeout specified! "
+                         "Set timeout using --timeout=<timeout_sec>"
+                      << std::endl;
+            return -1;
+        }
+    }
+
+    // resolve client address name into an ip-address
+    std::cout << "Resolving client address '" << address.toStdString()
+              << "'..." << std::endl;
+
+    QHostAddress client = GtHostInfo::lookupHost(address);
+
+    if (client.isNull())
+    {
+        std::cout << "Failed to resolve client address!" << std::endl;
+        return 404;
+    }
+
+    GtRemoteProcessRunner runner;
+
+    return runner.exec(client, port, timeout * 1000);
 }
 
 void
@@ -582,7 +675,7 @@ initSystemOptions()
     QList<GtCommandLineOption> runOptions;
     runOptions.append(GtCommandLineOption{
                           {"save", "s"},
-                          "Saves datamodel after successfull process run"});
+                           "Saves datamodel after successfull process run"});
     runOptions.append(GtCommandLineOption{
                           {"name", "n"}, "Define project by name"});
     runOptions.append(GtCommandLineOption{
@@ -596,9 +689,12 @@ initSystemOptions()
                     QList<GtCommandLineFunctionArgument>(),
                     false);
 
-
     initPosArgument("list", listFun,
                     "\tShow list of session, projects or tasks.");
+
+    initPosArgument("process_runner", processRunner, "Starts a TCP server, "
+                    "which handles and executes task requests.",
+                    {}, {}, false);
 }
 
 int

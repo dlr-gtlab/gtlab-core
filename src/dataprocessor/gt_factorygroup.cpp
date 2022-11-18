@@ -25,7 +25,7 @@ GtFactoryGroup::newObject(const QString& className, GtObject* parent)
             retval = factory->newObject(className, parent);
             if (retval == 0)
             {
-                gtError() << QObject::tr("GtdFactoryGroup : Error creating ")
+                gtError() << QObject::tr("GtFactoryGroup : Error creating ")
                           << className;
                 return NULL;
             }

@@ -49,6 +49,8 @@ INCLUDEPATH += .\
     settings \
     provider \
     process_management \
+    process_management/process_runner/ \
+    process_management/process_runner/commands \
     network \
     states \
     ../dataprocessor \
@@ -65,12 +67,14 @@ HEADERS += \
     network/gt_accessdata.h \
     network/gt_accessmanager.h \
     network/gt_accessgroup.h \
+    network/gt_hostinfo.h \
     network/gt_networkinterface.h \
     network/gt_accessdataconnection.h \
     network/gt_abstractaccessdataconnection.h \
     network/gt_accessselectionproperty.h \
     network/gt_downloaditem.h \
     network/gt_downloader.h \
+    network/gt_tcpsocket.h \
     process_management/gt_processfactory.h \
     process_management/gt_task.h \
     process_management/gt_calculator.h \
@@ -104,6 +108,14 @@ HEADERS += \
     process_management/gt_parameterloop.h \
     process_management/gt_calculatorhelperfactory.h \
     process_management/gt_stringmonitoringproperty.h \
+    process_management/process_runner/commands/gt_processrunnercommand.h \
+    process_management/process_runner/commands/gt_processrunnernotification.h \
+    process_management/process_runner/commands/gt_processrunnerresponse.h \
+    process_management/process_runner/gt_processrunneraccessdataconnection.h \
+    process_management/process_runner/gt_processrunnercommandfactory.h \
+    process_management/process_runner/gt_processrunnerconnectionstrategy.h \
+    process_management/process_runner/gt_processrunnerglobals.h \
+    process_management/process_runner/gt_processrunnertcpconnection.h \
     settings/gt_shortcutsettingsdata.h \
     states/gt_state.h \
     states/gt_stategroup.h \
@@ -156,6 +168,8 @@ SOURCES += \
     network/gt_accessselectionproperty.cpp \
     network/gt_downloaditem.cpp \
     network/gt_downloader.cpp \
+    network/gt_hostinfo.cpp \
+    network/gt_tcpsocket.cpp \
     process_management/gt_processfactory.cpp \
     process_management/gt_task.cpp \
     process_management/gt_calculator.cpp \
@@ -187,6 +201,14 @@ SOURCES += \
     process_management/gt_parameterloop.cpp \
     process_management/gt_calculatorhelperfactory.cpp \
     process_management/gt_stringmonitoringproperty.cpp \
+    process_management/process_runner/commands/gt_processrunnercommand.cpp \
+    process_management/process_runner/commands/gt_processrunnernotification.cpp \
+    process_management/process_runner/commands/gt_processrunnerresponse.cpp \
+    process_management/process_runner/gt_processrunneraccessdataconnection.cpp \
+    process_management/process_runner/gt_processrunnercommandfactory.cpp \
+    process_management/process_runner/gt_processrunnerconnectionstrategy.cpp \
+    process_management/process_runner/gt_processrunnerglobals.cpp \
+    process_management/process_runner/gt_processrunnertcpconnection.cpp \
     settings/gt_shortcutsettingsdata.cpp \
     states/gt_state.cpp \
     states/gt_stategroup.cpp \

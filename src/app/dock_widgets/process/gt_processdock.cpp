@@ -18,6 +18,7 @@
 #include <QSignalMapper>
 #include <QDebug>
 
+#include "gt_mainwin.h"
 #include "gt_processview.h"
 #include "gt_datamodel.h"
 #include "gt_application.h"
@@ -32,7 +33,8 @@
 #include "gt_processwizard.h"
 #include "gt_calculatorprovider.h"
 #include "gt_processfiltermodel.h"
-#include "gt_coreprocessexecutor.h"
+#include "gt_processexecutor.h"
+#include "gt_processrunner.h"
 #include "gt_processconnectioneditor.h"
 #include "gt_objectmementodiff.h"
 #include "gt_taskprovider.h"
@@ -53,10 +55,21 @@
 #include "gt_exportmenu.h"
 #include "gt_propertyconnectionfunctions.h"
 #include "gt_icons.h"
+#include "gt_utilities.h"
 
 #include "gt_processdock.h"
 
 using namespace gt::gui;
+
+namespace
+{
+
+inline bool useExtendedProcessExecutor()
+{
+    return gtApp->devMode() && gtApp->settings()->useExtendedProcessExecutor();
+}
+
+} // namespace
 
 GtProcessDock::GtProcessDock() :
     m_model(nullptr),
@@ -70,11 +83,6 @@ GtProcessDock::GtProcessDock() :
 
     auto widget = new QWidget(this);
     setWidget(widget);
-
-    auto frame = new QFrame;
-    auto frameLayout = new QVBoxLayout;
-
-    frameLayout->setContentsMargins(0, 0, 0, 0);
 
     m_runButton = new QPushButton(tr("Run"));
     m_runButton->setIcon(gt::gui::icon::runProcess16());
@@ -91,7 +99,35 @@ GtProcessDock::GtProcessDock() :
     m_addElementButton->setEnabled(false);
     m_addElementButton->setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
 
+    auto btnLayout = new QHBoxLayout;
+    btnLayout->setContentsMargins(0, 0, 0, 0);
+    btnLayout->setSpacing(1);
+    btnLayout->addWidget(m_runButton);
+    btnLayout->addWidget(m_addElementButton);
+
+    m_processQueueButton = new QPushButton();
+    m_processQueueButton->setIcon(gt::gui::icon::queue16());
+    m_processQueueButton->setMaximumSize(QSize(20, 20));
+    m_processQueueButton->setFlat(true);
+    m_processQueueButton->setToolTip(tr("View Process Queue"));
+    m_processQueueButton->setEnabled(false);
+
+    m_search = new GtSearchWidget;
+
+    QHBoxLayout* filterLayout = new QHBoxLayout;
+    filterLayout->setContentsMargins(0, 0, 0, 0);
+    filterLayout->setSpacing(0);
+    filterLayout->addWidget(m_search);
+    filterLayout->addStretch(1);
+    filterLayout->addWidget(m_processQueueButton);
+
+    auto frame = new QFrame;
+    auto frameLayout = new QVBoxLayout;
+    frameLayout->setContentsMargins(0, 0, 0, 0);
+
     m_view = new GtProcessView(this);
+    frameLayout->addWidget(m_view);
+    frameLayout->addLayout(filterLayout);
 
     frame->setLayout(frameLayout);
     frame->setAutoFillBackground(true);
@@ -99,39 +135,24 @@ GtProcessDock::GtProcessDock() :
     frame->setFrameStyle(m_view->frameStyle());
     frame->setFrameShadow(m_view->frameShadow());
 
-    m_view->setFrameStyle(QTreeView::NoFrame);
 
     auto delegate = new GtTextFilterDelegate(this,
                                              GtTextFilterDelegate::allowSpaces);
 
+    m_view->setFrameStyle(QTreeView::NoFrame);
     m_view->setItemDelegate(delegate);
     m_view->setEditTriggers(QTreeView::SelectedClicked);
 
-    //    connect(m_dataView, SIGNAL(throwProperties(GtdObject*)),
-    //            communicator, SIGNAL(throwProperties(GtdObject*)));
-
-    auto btnLayout = new QHBoxLayout;
-    btnLayout->setContentsMargins(0, 0, 0, 0);
-    btnLayout->setSpacing(1);
-    btnLayout->addWidget(m_runButton);
-    btnLayout->addWidget(m_addElementButton);
 
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(2);
     layout->addLayout(btnLayout);
-    //    layout->addWidget(m_view);
-    frameLayout->addWidget(m_view);
-
-    m_search = new GtSearchWidget;
-    frameLayout->addWidget(m_search);
 
     layout->addWidget(frame);
 
     widget->setLayout(layout);
 
-    //    connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
-    //            SLOT(currentProjectChanged(GtProject*)));
     connect(m_search, SIGNAL(textEdited(QString)),
             SLOT(filterData(QString)));
     connect(m_search, SIGNAL(textChanged(QString)),
@@ -160,11 +181,24 @@ GtProcessDock::GtProcessDock() :
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
-    connect(gtProcessExecutor, SIGNAL(queueChanged()),
-            SLOT(onProcessQueueChange()));
-    //    connect(m_view, SIGNAL(currentObjectChanged(GtObject*)),
-    //            SLOT(updateButtons(GtObject*)));
-    //    m_search->setVisible(false);
+
+    // open process queue via main window
+    connect(m_processQueueButton, &QPushButton::clicked, this, [&](bool){
+        // main window may not yet exist
+        if (auto mainwin = qobject_cast<GtMainWin*>(parentWidget()))
+        {
+            mainwin->openProcessQueue();
+        }
+    });
+
+    // connect each executor as it becomes available
+    connect(&gtProcessExecutor,
+            &GtProcessExecutorManager::executorChanged,
+            this, &GtProcessDock::onExecutoChanged, Qt::UniqueConnection);
+
+    connect(&GtProcessRunner::instance(),
+            &GtProcessRunner::connectionStateChanged,
+            this, [this](){ updateRunButton(); });
 
     connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
             SLOT(resetModel()));
@@ -176,6 +210,9 @@ GtProcessDock::GtProcessDock() :
     registerShortCut("runProcess", QKeySequence(Qt::CTRL + Qt::Key_R));
     registerShortCut("unskipProcess", QKeySequence(Qt::CTRL + Qt::Key_T));
     registerShortCut("skipProcess", QKeySequence(Qt::CTRL + Qt::Key_G));
+
+    // udpate executor
+    onExecutoChanged(gtProcessExecutor);
 }
 
 Qt::DockWidgetArea
@@ -237,6 +274,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 
     if (project)
     {
+        m_processQueueButton->setEnabled(true);
         m_processData = project->processData();
 
         if (m_processData)
@@ -249,6 +287,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 
     if (!project)
     {
+        m_processQueueButton->setEnabled(false);
         m_addElementButton->setEnabled(false);
     }
 
@@ -629,7 +668,16 @@ GtProcessDock::updateRunButton()
         {
             m_runButton->setEnabled(true);
             m_runButton->setToolTip(tr("Run Selected Process"));
-            m_runButton->setText(tr("Run") + " (" + str + ")");
+
+            QString additional = gt::squoted(str);
+
+            if (useExtendedProcessExecutor() &&
+                gtProcessExecutor == &GtProcessRunner::instance())
+            {
+                additional += QStringLiteral(" (detached)");
+            }
+
+            m_runButton->setText(tr("Run") + ' ' + additional);
         }
     }
     // a task is running
@@ -645,21 +693,19 @@ GtProcessDock::updateRunButton()
         if (gtProcessExecutor->taskQueued(m_currentProcess))
         {
             m_runButton->setEnabled(false);
-            m_runButton->setText(str + tr(" already queued"));
+            m_runButton->setText(tr("'%1' already queued").arg(str));
             m_runButton->setToolTip(tr("Process already queued"));
         }
         else
         {
             m_runButton->setEnabled(true);
-            m_runButton->setText(tr("Add (") + str + tr(") to queue"));
+            m_runButton->setText(tr("Add '%1' to queue").arg(str));
             m_runButton->setToolTip(tr("Add Selected Process to Queue"));
         }
     }
     // selected task is running
     else
     {
-        m_runButton->setIcon(gt::gui::icon::runProcess16());
-
         m_runButton->setStyleSheet(
                     gt::gui::stylesheet::processRunButton(
                         gt::gui::stylesheet::RunButtonState::StopProcess));
@@ -677,8 +723,34 @@ GtProcessDock::updateRunButton()
         {
             m_runButton->setIcon(gt::gui::icon::stop16());
             m_runButton->setEnabled(true);
+
+            QString text;
+            QString info = gt::brackets(str);
+
+            switch (GtProcessRunner::instance().connectionState())
+            {
+            case GtProcessRunnerTransceiver::StartingRunner:
+                text = tr("Starting Runner...");
+                break;
+            case GtProcessRunnerTransceiver::Connecting:
+                text = tr("Connecting...");
+                break;
+            case GtProcessRunnerTransceiver::Transmitting:
+                text = tr("Transmitting...");
+                break;
+            case GtProcessRunnerTransceiver::Recieving:
+                text = tr("Recieving...");
+                break;
+            case GtProcessRunnerTransceiver::ConnectionLost:
+                text = tr("Connection lost");
+                break;
+            default:
+                text = tr("Stop");
+                break;
+            }
+
             m_runButton->setToolTip(tr("Stop Selected Process"));
-            m_runButton->setText(tr("Stop") + " (" + str + ")");
+            m_runButton->setText(text + ' ' + info);
         }
     }
 
@@ -754,16 +826,11 @@ GtProcessDock::runProcess()
 
     if (srcIndex.isValid())
     {
-        GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
-
-        if (obj)
+        if (GtObject* obj = gtDataModel->objectFromIndex(srcIndex))
         {
-            GtTask* task = findRootTaskHelper(obj);
-
-            if (task)
+            if (GtTask* task = findRootTaskHelper(obj))
             {
-                if (task->currentState() ==
-                        GtProcessComponent::RUNNING)
+                if (!task->isReady())
                 {
                     terminateProcess();
                 }
@@ -784,37 +851,7 @@ GtProcessDock::terminateProcess()
         return;
     }
 
-    QMessageBox mb;
-    mb.setIcon(QMessageBox::Question);
-    mb.setWindowTitle(tr("Stop Running Task"));
-    mb.setWindowIcon(gt::gui::icon::stop16());
-    mb.setText(tr("Stop the execution of") + " " +
-               m_currentProcess->objectName() + "?\n\n" +
-               tr("Note: The process cannot be aborted while a "
-                  "calculator is running. \n"
-                  "The process will be marked for termination "
-                  "and will be stopped after completion of the "
-                  "calculator."));
-    mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-    mb.setDefaultButton(QMessageBox::Cancel);
-    int ret = mb.exec();
-
-    switch (ret)
-    {
-        case QMessageBox::Yes:
-        {
-            gtProcessExecutor->terminateTask(m_currentProcess);
-            break;
-        }
-
-        case QMessageBox::Cancel:
-        {
-            break;
-        }
-
-        default:
-            break;
-    }
+    gtProcessExecutor->terminateTask(m_currentProcess);
 }
 
 void
@@ -1000,23 +1037,26 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 
     QMenu menu(this);
 
-    QAction* actrun = menu.addAction(tr("Run Task"));
-    actrun->setIcon(gt::gui::icon::runProcess16());
+    QAction* actrunRemote = menu.addAction(tr("Run Task - detached execution"));
+    actrunRemote->setIcon(gt::gui::icon::runProcess16());
+    QAction* actrunLocal = menu.addAction(tr("Run Task"));
+    actrunLocal->setIcon(gt::gui::icon::runProcess16());
     QAction* actstop = menu.addAction(tr("Stop Task"));
     actstop->setIcon(gt::gui::icon::stop16());
 
     /// This line is only for the entry in the context menu and
     /// does not trigger the action
-    actrun->setShortcut(getShortCut("runProcess"));
+    actrunRemote->setShortcut(getShortCut("runProcess"));
 
     if (qobject_cast<GtProcessData*>(obj->parent()))
     {
-        actrun->setVisible(true);
+        actrunRemote->setVisible(true);
         actstop->setVisible(true);
     }
     else
     {
-        actrun->setVisible(false);
+        actrunRemote->setVisible(false);
+        actrunLocal->setVisible(false);
         actstop->setVisible(false);
     }
 
@@ -1139,7 +1179,8 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
 
     if (!componentIsReady(obj) || hasInvalidParents)
     {
-        actrun->setEnabled(false);
+        actrunRemote->setEnabled(false);
+        actrunLocal->setEnabled(false);
         actconnect->setEnabled(false);
         actrename->setEnabled(false);
         actclone->setEnabled(false);
@@ -1152,6 +1193,11 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     else
     {
         actstop->setVisible(false);
+    }
+
+    if (!useExtendedProcessExecutor())
+    {
+        actrunRemote->setVisible(false);
     }
 
     QAction* a = menu.exec(QCursor::pos());
@@ -1193,9 +1239,19 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     {
         pasteElement(obj);
     }
-    else if (a == actrun)
+    else if (a == actrunRemote)
     {
-        runProcess();
+        if (gtProcessExecutor.setCurrentExecutor(GtProcessRunner::S_ID))
+        {
+            runProcess();
+        }
+    }
+    else if (a == actrunLocal)
+    {
+        if (gtProcessExecutor.setCurrentExecutor(GtProcessExecutor::S_ID))
+        {
+            runProcess();
+        }
     }
     else if (a == actstop)
     {
@@ -2249,12 +2305,6 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
 }
 
 void
-GtProcessDock::onProcessQueueChange()
-{
-    updateRunButton();
-}
-
-void
 GtProcessDock::onRowsAboutToBeMoved()
 {
     m_command = gtApp->startCommand(gtApp->currentProject(),
@@ -2470,6 +2520,16 @@ GtProcessDock::actionTriggered(QObject* obj)
         m_view->selectionModel()->select(itemSel,
                                          QItemSelectionModel::ClearAndSelect);
         m_view->setCurrentIndex(index);
+    }
+}
+
+void
+GtProcessDock::onExecutoChanged(GtCoreProcessExecutor* exec)
+{
+    if (exec)
+    {
+        connect(exec, &GtCoreProcessExecutor::queueChanged,
+                this, [this](){ updateRunButton(); });
     }
 }
 

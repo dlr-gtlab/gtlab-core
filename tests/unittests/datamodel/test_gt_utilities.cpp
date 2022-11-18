@@ -7,6 +7,7 @@
  */
 
 #include <QDebug>
+#include <QMutex>
 
 #include "gtest/gtest.h"
 
@@ -36,4 +37,80 @@ TEST_F(TestGtUtilities, quoted)
     EXPECT_EQ("'" + std + "'", gt::squoted(std));
     EXPECT_EQ('"' + std + '"', gt::quoted(std));
     EXPECT_EQ("test_" + std + "_test", gt::quoted(std, "test_", "_test"));
+}
+
+TEST_F(TestGtUtilities, checkumericalLimits)
+{
+    EXPECT_TRUE(gt::checkNumericalLimits<int>(-1));
+    EXPECT_TRUE(gt::checkNumericalLimits<double>(42.0));
+
+    // an unsigned int can go below 0
+    EXPECT_FALSE(gt::checkNumericalLimits<unsigned int>(-1));
+
+    // larger number than an int16
+    EXPECT_FALSE(gt::checkNumericalLimits<int16_t>(
+                     std::numeric_limits<int16_t>::max() + int32_t{1}));
+
+    // lower number than an int32
+    EXPECT_FALSE(gt::checkNumericalLimits<int32_t>(
+                     std::numeric_limits<int32_t>::min() - int64_t{1}));
+}
+
+TEST_F(TestGtUtilities, finally_member)
+{
+    QMutex m;
+
+    m.lock();
+
+    {
+        // alredy locked
+        EXPECT_FALSE(m.tryLock());
+
+        auto finally = gt::finally(&m, &QMutex::unlock);
+        ASSERT_FALSE(finally.isNull());
+        finally.clear();
+        EXPECT_TRUE(finally.isNull());
+    }
+
+    // still locked
+    EXPECT_FALSE(m.tryLock());
+
+    {
+        auto finally = gt::finally(&m, &QMutex::unlock);
+        ASSERT_FALSE(finally.isNull());
+
+        // still locked
+        EXPECT_FALSE(m.tryLock());
+    }
+
+    // no longer locked
+    EXPECT_TRUE(m.tryLock());
+    m.unlock();
+}
+
+TEST_F(TestGtUtilities, finally_lambda)
+{
+    int i = 1;
+
+    auto lambda = [&](){ i--; };
+
+    {
+        EXPECT_EQ(i, 1);
+
+        auto finally = gt::finally(lambda);
+        ASSERT_FALSE(finally.isNull());
+        finally.clear();
+        EXPECT_TRUE(finally.isNull());
+    }
+
+    EXPECT_EQ(i, 1);
+
+    {
+        auto finally = gt::finally(lambda);
+        ASSERT_FALSE(finally.isNull());
+
+        EXPECT_EQ(i, 1);
+    }
+
+    EXPECT_EQ(i, 0);
 }

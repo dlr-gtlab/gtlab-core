@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added property containers to GtObjects. These allow to add an arbritary number of properties to a GTObject. - #298
 - Added dynamic interface to share arbitrary functions with other modules. These functions need to be defined in the method GtModuleInterface::sharedFunctions - #207, #47
 - Multiple labels can be selected and deleted at once - #111
+- Introduced an experimental process runner, that executes tasks in a separate system process. Can be used for remote execution. Must be enabled in the preferences when in dev-mode - #256
 - Integrated the hdf5 data format and added support to ex-/internalize datasets at runtime including the option to enable this feature on a project basis - #127
 - Monitoring property for strings - #140
 - Dark mode for GTlab - #163

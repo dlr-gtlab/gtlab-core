@@ -148,7 +148,7 @@ public:
      * explicitly.
      * @return success
      */
-    bool internalize();
+    Q_INVOKABLE bool internalize();
 
 protected:
 

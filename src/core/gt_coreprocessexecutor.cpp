@@ -29,90 +29,153 @@
 
 #include "gt_coreprocessexecutor.h"
 
-GtCoreProcessExecutor* GtCoreProcessExecutor::m_self = 0;
+const std::string GtCoreProcessExecutor::S_ID = "CoreProcessExecutor";
 
-GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, bool save) :
+struct GtCoreProcessExecutor::Impl
+{
+    explicit Impl(Flags flags) :
+        save{!flags.testFlag(gt::DryExecution)},
+        detached{flags.testFlag(gt::NonBlockingExecution)}
+    {}
+
+    /// instance
+    static GtCoreProcessExecutor* self;
+
+    /// save results is used as standard
+    /// set to false for batch processes with saving results false to
+    /// spend less time
+    bool save{true};
+
+    /// inidcates whether executing a processes should block until finished
+    /// (false = default behaviour for core)
+    bool detached{false};
+
+    /// custom project path for task execution
+    QString customProjectPath;
+
+    /// Pointer to current runnable
+    QPointer<GtRunnable> currentRunnable;
+};
+
+GtCoreProcessExecutor* GtCoreProcessExecutor::Impl::self{};
+
+GtCoreProcessExecutor::GtCoreProcessExecutor(std::string id,
+                                             QObject* parent,
+                                             Flags flags) :
     QObject(parent),
     m_current(nullptr),
     m_source(nullptr),
-    m_save(save)
+    pimpl{std::make_unique<Impl>(flags)}
 {
-    // initialize
-    init();
+    setObjectName("CoreProcessExecutor");
 
-    qDebug() << "#### core process executor initialized!";
+    // initialize
+    if (!pimpl->self)
+    {
+        pimpl->self = this;
+    }
+
+    qDebug() << "#### core process executor initialized! ID:" << id.c_str();
+
+    GtProcessExecutorManager::instance().registerExecutor(std::move(id), *this);
 }
+
+GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent,
+                                             Flags flags) :
+    GtCoreProcessExecutor{S_ID, parent, flags}
+{ }
+
+GtCoreProcessExecutor::GtCoreProcessExecutor(Flags flags) :
+    GtCoreProcessExecutor{S_ID, nullptr, flags}
+{ }
+
+GtCoreProcessExecutor::~GtCoreProcessExecutor() = default;
 
 GtCoreProcessExecutor*
 GtCoreProcessExecutor::instance()
 {
     // return singleton instance
-    return m_self;
+    return Impl::self;
 }
 
 bool
 GtCoreProcessExecutor::runTask(GtTask* task)
 {
-    qDebug() << "GtCoreProcessExecutor::runTask";
+    gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
 
-    // check task
-    if (!task)
+    if (!queueTask(task))
     {
-        qDebug() << "process == NULL";
         return false;
     }
 
-    if (task->hasDummyChildren())
+    if (taskCurrentlyRunning())
     {
-        gtError() << "Tasks with objects of unknown type cannot be executed!";
+        return true;
+    }
+
+    return executeNextTask();
+}
+
+bool
+GtCoreProcessExecutor::executeNextTask()
+{
+    // check whether a task is already running
+    if (taskCurrentlyRunning())
+    {
+        gtErrorId(GT_EXEC_ID) << tr("A Task is already running!");
         return false;
     }
 
-    // check whether queue already contains same task
-    if (taskQueued(task))
+    // check whether queue is empty
+    if (m_queue.isEmpty())
     {
-        gtError() << tr("process already in queue");
+        emit allTasksCompleted();
         return false;
     }
 
-    qDebug() << "Appending Task to Queue:" << task->objectName();
-    m_queue.append(task);
+    // checkout next task in queue
+    m_current = m_queue.first();
 
-    // set state to QUEUED
-    task->setStateRecursively(GtProcessComponent::QUEUED);
+    // double check task
+    if (!m_current || m_current->hasDummyChildren())
+    {
+        gtErrorId(GT_EXEC_ID) << tr("Cannot execute an invalid Task!");
+        clearCurrentTask();
+        return false;
+    }
 
-    // revert all monitoring properties
-    task->resetMonitoringProperties();
+    // setup source
+    if (!m_source)
+    {
+        // find project and put it into source
+        m_source = m_current->findParent<GtProject*>();
 
-    // run execution procedure
-    execute();
+        // check whether source is still a null pointer
+        if (!m_source)
+        {
+            gtErrorId(GT_EXEC_ID) << tr("Source corrupted!");
+            clearCurrentTask();
+            return false;
+        }
+    }
 
-    // emit queue chande
     emit queueChanged();
 
-    // return success
+    execute();
+
     return true;
 }
 
 bool
 GtCoreProcessExecutor::terminateTask(GtTask* task)
 {
-    if (!task)
+    if (!m_current || m_current != task)
     {
+        gtWarningId(GT_EXEC_ID) << tr("Invalid task to terminate!");
         return false;
     }
 
-    if (currentRunningTask() != task)
-    {
-        return false;
-    }
-
-    if (m_currentRunnable)
-    {
-        m_currentRunnable->requestInterruption();
-    }
-
-    return true;
+    return terminateCurrentTask();
 }
 
 bool
@@ -120,18 +183,107 @@ GtCoreProcessExecutor::terminateAllTasks()
 {
     m_queue.clear();
 
-    if (m_current)
+    return !taskCurrentlyRunning() || terminateTask(m_current);
+}
+
+GtTask*
+GtCoreProcessExecutor::currentRunningTask()
+{
+    return m_current;
+}
+
+bool
+GtCoreProcessExecutor::taskCurrentlyRunning()
+{
+    return currentRunningTask();
+}
+
+bool
+GtCoreProcessExecutor::taskQueued(GtTask* task) const
+{
+    return m_queue.contains(task);
+}
+
+const QList<QPointer<GtTask>>&
+GtCoreProcessExecutor::queue() const
+{
+    return m_queue;
+}
+
+bool
+GtCoreProcessExecutor::queueTask(GtTask* task)
+{
+    if (!task)
     {
-        terminateTask(m_current);
+        gtErrorId(GT_EXEC_ID)
+                << tr("Null Task!");
+        return false;
     }
+
+    if (task->hasDummyChildren())
+    {
+        gtErrorId(GT_EXEC_ID)
+                << tr("Tasks with objects of unknown type cannot be queued!");
+        return false;
+    }
+
+    if (taskQueued(task))
+    {
+        gtErrorId(GT_EXEC_ID)
+                << tr("Task has already been queued!");
+        return false;
+    }
+
+    gtDebugId(GT_EXEC_ID)
+            << tr("Appending Task '%1' to queue").arg(task->objectName());
+
+    // setup task for queue
+    task->setStateRecursively(GtProcessComponent::QUEUED);
+    task->resetMonitoringProperties();
+
+    m_queue.append(task);
+    emit queueChanged();
 
     return true;
 }
 
-bool
-GtCoreProcessExecutor::taskQueued(GtTask* task)
+void
+GtCoreProcessExecutor::removeFromQueue(GtTask *task)
 {
-    return (m_queue.contains(task));
+    if (taskQueued(task))
+    {
+        m_queue.removeAll(task);
+
+        if (task) task->setStateRecursively(GtTask::NONE);
+
+        emit queueChanged();
+    }
+}
+
+void
+GtCoreProcessExecutor::moveTaskUp(GtTask *task)
+{
+    int idx = m_queue.indexOf(task);
+
+    if (idx > 0)
+    {
+        m_queue[idx].swap(m_queue[idx - 1]);
+
+        emit queueChanged();
+    }
+}
+
+void
+GtCoreProcessExecutor::moveTaskDown(GtTask *task)
+{
+    int idx = m_queue.indexOf(task);
+
+    if (idx >= 0 && idx < m_queue.size() - 1)
+    {
+        m_queue[idx].swap(m_queue[idx + 1]);
+
+        emit queueChanged();
+    }
 }
 
 bool
@@ -147,139 +299,61 @@ GtCoreProcessExecutor::setSource(GtObject* source)
     return true;
 }
 
-GtTask*
-GtCoreProcessExecutor::currentRunningTask()
+bool
+GtCoreProcessExecutor::setCustomProjectPath(QString projectPath)
 {
-    return m_current;
+    if (!m_queue.isEmpty())
+    {
+        return false;
+    }
+
+    pimpl->customProjectPath = std::move(projectPath);
+    return true;
 }
 
 bool
-GtCoreProcessExecutor::taskCurrentlyRunning()
+GtCoreProcessExecutor::terminateCurrentTask()
 {
-    return (currentRunningTask() != nullptr);
-}
-
-QList<QPointer<GtTask> >
-GtCoreProcessExecutor::queue()
-{
-    return m_queue;
-}
-
-void
-GtCoreProcessExecutor::removeFromQueue(GtTask *task)
-{
-    if (!task)
+    if (!pimpl->currentRunnable)
     {
-        return;
+        return false;
     }
 
-    if (m_queue.contains(task))
-    {
-        m_queue.removeAll(task);
-    }
-
-    task->setState(GtTask::NONE);
-
-    foreach(GtProcessComponent* comp, task->findChildren<GtProcessComponent*>())
-    {
-        comp->setState(GtProcessComponent::NONE);
-    }
-
-    emit queueChanged();
-}
-
-void
-GtCoreProcessExecutor::moveTaskUp(GtTask *task)
-{
-    if (!task)
-    {
-        return;
-    }
-
-    if (!m_queue.contains(task))
-    {
-        return;
-    }
-
-    if (task == m_queue.first())
-    {
-        return;
-    }
-
-    int currentIndex = m_queue.indexOf(task);
-
-    m_queue.move(currentIndex, currentIndex - 1);
-
-    emit queueChanged();
-}
-
-void
-GtCoreProcessExecutor::moveTaskDown(GtTask *task)
-{
-    if (!task)
-    {
-        return;
-    }
-
-    if (!m_queue.contains(task))
-    {
-        return;
-    }
-
-    if (task == m_queue.last())
-    {
-        return;
-    }
-
-    int currentIndex = m_queue.indexOf(task);
-
-    m_queue.move(currentIndex, currentIndex + 1);
-
-    emit queueChanged();
-}
-
-void
-GtCoreProcessExecutor::init()
-{
-    if (m_self)
-    {
-        return;
-    }
-
-    m_self = this;
+    pimpl->currentRunnable->requestInterruption();
+    return true;
 }
 
 void
 GtCoreProcessExecutor::execute()
 {
-    qDebug() << "GtCoreProcessExecutor::execute()";
+    gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
 
-    GtTaskRunner* runner = executeHelper();
-
-    if (!runner)
+    if (auto* runner = setupTaskRunner())
     {
-        return;
+        QEventLoop eventLoop;
+
+        connect(runner, &QObject::destroyed, &eventLoop, &QEventLoop::quit);
+
+        // run
+        runner->run();
+
+        // wait for event loop to finish
+        if (!pimpl->detached)
+        {
+            eventLoop.exec();
+        }
     }
-
-    QEventLoop eventLoop;
-
-    connect(runner, &GtTaskRunner::destroyed,
-            &eventLoop, &QEventLoop::quit);
-
-    // run
-    runner->run();
-
-    eventLoop.exec();
 }
 
 void
 GtCoreProcessExecutor::handleTaskFinishedHelper(
-        QList<GtObjectMemento>& changedData,
-        GtTask* task)
+        QList<GtObjectMemento>& changedData, GtTask* task)
 {
-    qDebug() << "handleTaskFinishedHelper batch mode!";
-    qDebug() << "changed data = " << changedData.size();
-    qDebug() << "source = " << m_source;
+    assert(task);
+
+    gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "(batch mode)";
+    gtDebugId(GT_EXEC_ID).medium() << "changed data = " << changedData.size();
+    gtDebugId(GT_EXEC_ID).medium() << "source = " << m_source;
 
     bool ok = true;
 
@@ -293,16 +367,19 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
 
         GtObjectMementoDiff sumDiff;
 
-        qDebug() << "generating sum diff...";
+        gtDebugId(GT_EXEC_ID).medium() << "generating sum diff...";
 
-        foreach (GtObjectMemento memento, changedData)
+        for (GtObjectMemento const& memento : qAsConst(changedData))
         {
-            qDebug() << "analysing changed data...";
+            gtDebugId(GT_EXEC_ID).medium() << "analysing changed data...";
+
             GtObject* target = m_source->getObjectByUuid(memento.uuid());
 
             if (target)
             {
-                qDebug() << "target found = " << target->objectName();
+                gtDebugId(GT_EXEC_ID).medium()
+                        << "target found = " << target->objectName();
+
                 GtObjectMemento old = target->toMemento(true);
                 GtObjectMementoDiff diff(old, memento);
 
@@ -326,116 +403,97 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
             }
             else
             {
-                gtError() << tr("Data changes from the task")
-                          << task->objectName()
-                          << tr("could not feed back to datamodel");
-                gtDebug() << tr("Target for memento diff not found");
-                qDebug() << "ERROR: target not found!";
+                gtWarningId(GT_EXEC_ID) << tr("Target for memento diff not found");
                 ok = false;
             }
         }
 
-//        qDebug() << "saving sum diff...";
-
-//        QString filename = QStringLiteral("sumDiff.xml");
-
-//        QFile file(tempDir.absoluteFilePath(filename));
-
-//        if (file.open(QFile::WriteOnly))
-//        {
-//            QTextStream TextStream(&file);
-//            TextStream << sumDiff.toByteArray();
-//            file.close();
-//        }
-
         if (!m_source->applyDiff(sumDiff))
         {
-            gtError() << tr("Data changes from the task")
-                      << task->objectName()
-                      << tr("could not feed back to datamodel");
-            qDebug() << "Diff not succesfully applied!";
-
+            gtWarningId(GT_EXEC_ID) << tr("Failed to apply memento diff!");
             ok = false;
         }
     }
 
-    if (ok == false)
+    if (!ok)
     {
-
-        gtDebug() << tr("Process failure because of MementoDiff error");
+        gtErrorId(GT_EXEC_ID)
+                << tr("Data changes from the task '%1' could not be merged "
+                      "back into datamodel!").arg(task->objectName());
         task->setState(GtProcessComponent::FAILED);
-
     }
 
-    qDebug() << "handleTaskFinishedHelper end!";
+    gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "end";
 }
 
-GtTaskRunner*
-GtCoreProcessExecutor::executeHelper()
+void
+GtCoreProcessExecutor::clearCurrentTask()
 {
-    // check whether a task is already running
+    gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
+
     if (m_current)
     {
-        qDebug() << tr("a task is already running");
-        return nullptr;
-    }
+        using STATE =  GtProcessComponent::STATE;
 
-    // check whether queue is empty
-    if (m_queue.isEmpty())
-    {
-        qDebug() << tr("--> Queue is Empty...No more tasks to execute!");
-        emit allTasksCompleted();
-        return nullptr;
-    }
+        // either mark all as terminated or failed
+        STATE state =
+                (m_current->currentState() == STATE::TERMINATED ||
+                 m_current->currentState() == STATE::TERMINATION_REQUESTED) ?
+                    STATE::TERMINATED : STATE::FAILED;
 
-    // checkout next task in queue
-    m_current = m_queue.first();
+        auto pcs = m_current->findChildren<GtProcessComponent*>() << m_current;
 
-    // setup source
-    if (!m_source)
-    {
-        // find project and put it into source
-        m_source = m_current->findParent<GtProject*>();
-
-        // check whether source is still a null pointer
-        if (!m_source)
+        for (auto* pc : qAsConst(pcs))
         {
-            gtError() << tr("Source corrupted!");
-            return nullptr;
+            if (!pc->isComponentReady())
+            {
+                pc->setState(state);
+            }
         }
     }
 
-    gtInfo() << "----> Running Task:" << m_current->objectName() << " <----";
-    gtDebug() << "  |-> " << m_source->objectName();
+    // remove from queue
+    m_queue.removeAll(m_current);
+    m_current = nullptr;
+    emit queueChanged();
+}
+
+GtTaskRunner*
+GtCoreProcessExecutor::setupTaskRunner()
+{
+    assert(m_current);
+    assert(m_source);
+
+    gtInfoId(GT_EXEC_ID) << "----> Running Task:" << m_current->objectName() << " <----";
+    gtDebugId(GT_EXEC_ID) << "  |-> " << m_source->objectName();
 
     // create new task runner
-    GtTaskRunner* runner = new GtTaskRunner(m_current);
+    auto* runner = new GtTaskRunner{m_current};
 
     // create new runnable
-    m_currentRunnable = new GtRunnable;
+    pimpl->currentRunnable = new GtRunnable{pimpl->customProjectPath};
 
     // setup task runner
-    if (!runner->setUp(m_currentRunnable, m_source))
+    if (!runner->setUp(pimpl->currentRunnable, m_source))
     {
-        delete m_currentRunnable;
-        m_queue.removeAll(m_current);
-        m_current = nullptr;
-        execute();
-        emit queueChanged();
+        delete pimpl->currentRunnable;
+        delete runner;
+        clearCurrentTask();
+        executeNextTask();
         return nullptr;
     }
 
     // connect task runner signals
     connect(runner, &GtTaskRunner::finished,
-            this, &GtCoreProcessExecutor::handleTaskFinished);
+            this, &GtCoreProcessExecutor::onTaskRunnerFinished);
 
     return runner;
 }
 
 void
-GtCoreProcessExecutor::handleTaskFinished()
+GtCoreProcessExecutor::onTaskRunnerFinished()
 {
-    qDebug() << "GtCoreProcessExecutor::handleTaskFinished()";
+    qDebug() << __FUNCTION__;
 
     // create timer
     QElapsedTimer timer;
@@ -444,7 +502,7 @@ GtCoreProcessExecutor::handleTaskFinished()
     timer.start();
 
     // cast sender object to task runner
-    GtTaskRunner* taskRunner = qobject_cast<GtTaskRunner*>(sender());
+    auto* taskRunner = qobject_cast<GtTaskRunner*>(sender());
 
     // check task runne rpointer
     if (!taskRunner)
@@ -457,20 +515,17 @@ GtCoreProcessExecutor::handleTaskFinished()
     if (!m_current)
     {
         gtFatal() << tr("Current task corrupted!");
+        taskRunner->deleteLater();
         return;
     }
 
     GtTask* finishedTask = m_current;
 
-    // remove current from queue
-    m_queue.removeAll(m_current);
+    clearCurrentTask();
 
     QList<GtObjectMemento> changedData = taskRunner->dataToMerge();
 
-    // free current task pointer
-    m_current = nullptr;
-
-    if (m_save)
+    if (pimpl->save)
     {
         qDebug() << "|-> Finished Task:"
                  << finishedTask->objectName()
@@ -485,18 +540,163 @@ GtCoreProcessExecutor::handleTaskFinished()
         }
     }
 
-    qDebug() << "----> Task finished <----";
-    qDebug() << "   |-> " << timer.elapsed();
-    qDebug() << "";
+    gtInfoId(GT_EXEC_ID).medium() << "----> Task finished <----";
+    gtDebugId(GT_EXEC_ID).medium() << "   |-> " << timer.elapsed();
 
     // reset source
-    m_source = nullptr;
-
-    emit queueChanged();
-
-    execute();
+    m_source.clear();
 
     // delete task runner
     taskRunner->deleteLater();
+
+    executeNextTask();
 }
 
+struct ExecutorEntry
+{
+    /// pointer to executor
+    QPointer<GtCoreProcessExecutor> ptr;
+    /// id of executor
+    std::string id;
+};
+
+std::vector<ExecutorEntry> s_executors{};
+
+ExecutorEntry s_selection{};
+
+namespace
+{
+
+// helper method to find the executor
+auto findExecutor(std::string const& id)
+{
+    return std::find_if(s_executors.begin(), s_executors.end(),
+                        [&](ExecutorEntry const& e){
+        return e.id == id;
+    });
+}
+
+bool
+isExecutorReady(ExecutorEntry const& e)
+{
+    return e.ptr && !e.ptr->taskCurrentlyRunning() && e.ptr->queue().isEmpty();
+}
+
+}
+
+GtProcessExecutorManager::GtProcessExecutorManager()
+{
+    setObjectName("ProcessExecutorSwitcher");
+}
+
+GtProcessExecutorManager&
+GtProcessExecutorManager::instance()
+{
+    static GtProcessExecutorManager self;
+    return self;
+}
+
+GtCoreProcessExecutor*
+GtProcessExecutorManager::currentExecutor()
+{
+    return s_selection.ptr;
+}
+
+GtCoreProcessExecutor const*
+GtProcessExecutorManager::currentExecutor() const
+{
+    return s_selection.ptr;
+}
+
+bool
+GtProcessExecutorManager::setCurrentExecutor(std::string const& id)
+{
+    auto iter = findExecutor(id);
+    if (iter == s_executors.end())
+    {
+        gtFatalId(GT_EXEC_ID)
+                << tr("Failed to set current Executor! %1 was not found")
+                   .arg(id.c_str());
+        return false;
+    }
+
+    // nothing to do here
+    if (s_selection.id == id)
+    {
+        return true;
+    }
+
+    // check if switiching is possible
+    if (s_selection.ptr && !isExecutorReady(s_selection))
+    {
+        gtErrorId(GT_EXEC_ID)
+                << tr("Cannot switch the current Executor while a task is "
+                      "still running!");
+        return false;
+    }
+
+    gtDebugId(GT_EXEC_ID) << tr("Now using Executor %1").arg(id.c_str());
+
+    // switch executor
+    s_selection = *iter;
+    emit executorChanged(s_selection.ptr);
+    return true;
+}
+
+bool
+GtProcessExecutorManager::registerExecutor(std::string id, GtCoreProcessExecutor& exec)
+{
+    if (id.empty())
+    {
+        gtErrorId(GT_EXEC_ID)
+                << tr("Failed to register Executor with an invalid ID!");
+        return false;
+    }
+    if (hasExecutor(id))
+    {
+        gtErrorId(GT_EXEC_ID)
+                << tr("Failed to register the Executor! %1 has "
+                      "already been registered!").arg(id.c_str());
+        return false;
+    }
+
+    qDebug().noquote() << tr("Added executor '%1'").arg(id.c_str());
+
+    s_executors.push_back(ExecutorEntry{&exec, std::move(id)});
+
+    // update selection if no executor has been selected
+    return s_selection.ptr || setCurrentExecutor(s_executors.back().id);
+}
+
+bool
+GtProcessExecutorManager::removeExecutor(std::string const& id)
+{
+    auto iter = findExecutor(id);
+    if (iter == s_executors.end())
+    {
+        return false;
+    }
+
+    if (!isExecutorReady(*iter))
+    {
+        gtErrorId(GT_EXEC_ID)
+                << tr("Cannot remove the executor while its not ready!");
+        return false;
+    }
+    if (iter->id == s_selection.id)
+    {
+        gtErrorId(GT_EXEC_ID)
+                << tr("Cannot remove the active executor!");
+        return false;
+    }
+
+    s_executors.erase(iter);
+
+    return true;
+}
+
+bool
+GtProcessExecutorManager::hasExecutor(std::string const& id)
+{
+    return findExecutor(id) != s_executors.end();
+}

@@ -25,13 +25,13 @@ class GtFootprintImpl
 {
 public:
     /// Core framework major version
-    int m_core_ver_major;
+    int m_core_ver_major{0};
 
     /// Core framework minor version
-    int m_core_ver_minor;
+    int m_core_ver_minor{0};
 
     /// Core framework patch level
-    int m_core_ver_patch;
+    int m_core_ver_patch{0};
 
     /// Module ids and versions
     QMap<QString, GtVersionNumber> m_modules;

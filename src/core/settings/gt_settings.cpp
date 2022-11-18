@@ -64,6 +64,12 @@ struct GtSettings::Impl
 
     /// Settings for theme selection
     GtSettingsItem* themeSelection;
+
+    /// whether to use the extended process executor
+    GtSettingsItem* m_useExtendedProcessExecutor;
+
+    /// Whether to autostart the process runner
+    GtSettingsItem* m_autostartProcessRunner;
 };
 
 GtSettings::GtSettings()
@@ -118,14 +124,19 @@ GtSettings::GtSettings()
     pimpl->themeSelection = registerSetting(
                         QStringLiteral("application/general/themeSelection"),
                         QStringLiteral("system"));
+
+    pimpl->m_useExtendedProcessExecutor = registerSetting(
+                QStringLiteral("application/process_runner/enabled"), false);
+
+    pimpl->m_autostartProcessRunner = registerSetting(
+                QStringLiteral("application/process_runner/autostart"), false);
 }
 
 QList<GtShortCutSettingsData>
 GtSettings::shortcutsList() const
 {
-    QVariant val = QSettings().value(pimpl->shortcutsTable->ident());
-
-    QMap<QString, QVariant> helpingMap = val.toMap();
+    QMap<QString, QVariant> helpingMap =
+            pimpl->shortcutsTable->getValue().toMap();
 
     QList<GtShortCutSettingsData> retVal;
 
@@ -163,7 +174,7 @@ GtSettings::setShortcutsTable(QList<GtShortCutSettingsData> const& list)
         helpingMap.insert(s.id, s.dataToVariant());
     }
 
-    QSettings().setValue(pimpl->shortcutsTable->ident(), QVariant(helpingMap));
+    pimpl->shortcutsTable->setValue(QVariant::fromValue(helpingMap));
 }
 
 
@@ -269,15 +280,13 @@ GtSettings::intialShortCutsList() const
 QString
 GtSettings::themeMode()
 {
-    QVariant val = QSettings().value(pimpl->themeSelection->ident());
-    return val.toString();
+    return pimpl->themeSelection->getValue().toString();
 }
 
 bool
 GtSettings::darkMode()
 {
-    QVariant val = QSettings().value(pimpl->themeSelection->ident());
-    QString s = val.toString();
+    QString s = themeMode();
 
     if (s.toStdString() == ("dark"))
     {
@@ -326,9 +335,9 @@ GtSettings::lastSession()
 }
 
 void
-GtSettings::setLastSession(const QString& val)
+GtSettings::setLastSession(const QString& session)
 {
-    pimpl->lastSession->setValue(val);
+    pimpl->lastSession->setValue(session);
 }
 
 QString
@@ -338,9 +347,9 @@ GtSettings::lastProject()
 }
 
 void
-GtSettings::setLastProject(const QString& val)
+GtSettings::setLastProject(const QString& project)
 {
-    pimpl->lastProject->setValue(val);
+    pimpl->lastProject->setValue(project);
 }
 
 QString
@@ -350,9 +359,9 @@ GtSettings::lastPerspective()
 }
 
 void
-GtSettings::setLastPerspective(const QString& val)
+GtSettings::setLastPerspective(const QString& perspective)
 {
-    pimpl->lastPerspective->setValue(val);
+    pimpl->lastPerspective->setValue(perspective);
 }
 
 QString
@@ -362,9 +371,9 @@ GtSettings::lastPath()
 }
 
 void
-GtSettings::setLastPath(const QString& val)
+GtSettings::setLastPath(const QString& path)
 {
-    pimpl->lastPath->setValue(val);
+    pimpl->lastPath->setValue(path);
 }
 
 bool
@@ -374,9 +383,9 @@ GtSettings::openLastSession()
 }
 
 void
-GtSettings::setOpenLastSession(bool val)
+GtSettings::setOpenLastSession(bool value)
 {
-    pimpl->openSession->setValue(val);
+    pimpl->openSession->setValue(value);
 }
 
 bool
@@ -386,9 +395,9 @@ GtSettings::openLastProject()
 }
 
 void
-GtSettings::setOpenLastProject(bool val)
+GtSettings::setOpenLastProject(bool value)
 {
-    pimpl->openProject->setValue(val);
+    pimpl->openProject->setValue(value);
 }
 
 QString
@@ -399,9 +408,9 @@ GtSettings::language()
 
 
 void
-GtSettings::setLanguage(const QString& val)
+GtSettings::setLanguage(const QString& language)
 {
-    pimpl->language->setValue(val);
+    pimpl->language->setValue(language);
 }
 
 bool
@@ -411,9 +420,9 @@ GtSettings::firstApplicationRun()
 }
 
 void
-GtSettings::setShowStartupPage(bool val)
+GtSettings::setShowStartupPage(bool value)
 {
-    pimpl->showStartupPage->setValue(val);
+    pimpl->showStartupPage->setValue(value);
 }
 
 bool
@@ -423,9 +432,9 @@ GtSettings::showStartupPage()
 }
 
 void
-GtSettings::setSearchForUpdate(bool val)
+GtSettings::setSearchForUpdate(bool value)
 {
-    pimpl->searchForUpdate->setValue(val);
+    pimpl->searchForUpdate->setValue(value);
 }
 
 bool
@@ -435,9 +444,9 @@ GtSettings::searchForUpdate()
 }
 
 void
-GtSettings::setMaxLogLength(int val)
+GtSettings::setMaxLogLength(int value)
 {
-    pimpl->maxLogLength->setValue(val);
+    pimpl->maxLogLength->setValue(value);
 }
 
 int
@@ -475,3 +484,26 @@ GtSettings::explorerExpandStates()
     return pimpl->explorerExpandStates->getValue().toStringList();
 }
 
+bool
+GtSettings::useExtendedProcessExecutor() const
+{
+    return pimpl->m_useExtendedProcessExecutor->getValue().toBool();
+}
+
+void
+GtSettings::setUseExtendedProcessExecutor(bool value)
+{
+    return pimpl->m_useExtendedProcessExecutor->setValue(value);
+}
+
+bool
+GtSettings::autostartProcessRunner() const
+{
+    return pimpl->m_autostartProcessRunner->getValue().toBool();
+}
+
+void
+GtSettings::setAutostartProcessRunner(bool value)
+{
+    return pimpl->m_autostartProcessRunner->setValue(value);
+}

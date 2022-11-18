@@ -25,9 +25,9 @@
 GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
     QWidget(), m_model(model)
 {
-    setWindowTitle("GTlab - Process Queue");
+    setWindowTitle("Process Queue");
 
-    setWindowIcon(gt::gui::icon::process16());
+    setWindowIcon(gt::gui::icon::queue16());
 
     QFrame* frame = new QFrame;
     QVBoxLayout* frameLayout = new QVBoxLayout;

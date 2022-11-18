@@ -11,46 +11,30 @@
 #include "gt_application.h"
 #include <QCoreApplication>
 
+QString basicButtonStyleSheet(const QString& size = "min-width: 70px;"
+                                                    "min-height:22px;",
+                              const QString& border = "border: 1px solid gray;"
+                                                      "border-radius: 4px;")
+{
+    return "QAbstractButton { "
+            + border
+            + size + " }";
+
+}
+QString basicHoverButtonStyleSheet()
+{
+    return "QAbstractButton:hover{background-color:"
+           "rgb(180,200,200)}"
+           "QAbstractButton:disabled {background-color:"
+           "rgb(180,180,180)}"
+           "QAbstractButton:pressed{background-color:"
+           "rgb(180,213,213)}";
+}
+
 QString
 gt::gui::stylesheet::buttonStyleSheet()
 {
-    QString border = "border: 1px solid gray;"
-                     "border-radius: 4px;";
-
-    QString size = "min-width: 70px;"
-                   "min-height:22px;";
-
-    if (!gtApp->inDarkMode())
-    {
-        return "QAbstractButton { "
-                + border //+
-               //"background-color:white;"
-                + size + "}"
-               "QAbstractButton:hover{background-color:"
-                         "rgb(180,200,200)}"
-                         "QAbstractButton:disabled {background-color:"
-                         "rgb(180,180,180)}"
-                         "QAbstractButton:pressed{background-color:"
-                         "rgb(180,213,213)}";
-               //"rgb(220,235,250)}"
-               //"QAbstractButton:disabled {background-color:"
-               //"rgb(240,240,240)}"
-               //"QAbstractButton:pressed{background-color:"
-               //"rgb(180,213,246)}";
-
-    }
-
-    return "QAbstractButton { "
-            + border
-            + size + "}"
-                     "QAbstractButton:hover{background-color:"
-                     "rgb(180,200,200)}"
-                     "QAbstractButton:disabled {background-color:"
-                     "rgb(180,180,180)}"
-                     "QAbstractButton:pressed{background-color:"
-                     "rgb(180,213,213)}";
-
-
+    return basicButtonStyleSheet() + basicHoverButtonStyleSheet();
 }
 
 QString
@@ -65,11 +49,7 @@ gt::gui::stylesheet::buttonStyleSheet2()
 
     if (gtApp->inDarkMode())
     {
-        text = "QPushButton { "
-               "border: 1px solid gray;"
-               "border-radius: 4px;"
-               "min-width: 70px;"
-               "min-height:20px}";
+        text = basicButtonStyleSheet();
     }
 
     return text;

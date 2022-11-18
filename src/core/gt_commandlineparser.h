@@ -164,6 +164,11 @@ public:
      */
     QStringList positionalArguments();
 
+    /**
+     * @brief printHelp
+     * prints a basic help based on the given options and arguments
+     */
+    void printHelp(const QString& commandName);
 protected:
     QMap<QString, GtCommandLineOption> m_opts;
 

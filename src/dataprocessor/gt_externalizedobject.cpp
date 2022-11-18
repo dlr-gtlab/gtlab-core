@@ -117,10 +117,8 @@ GtExternalizedObject::fetch()
 bool
 GtExternalizedObject::fetchHelper()
 {
-    if (!gtExternalizationManager->isExternalizationEnabled())
-    {
-        return true;
-    }
+    // not checking if externalization is enabled here
+    // -> fetching should must always be possible
 
     if (isFetched())
     {
@@ -146,7 +144,7 @@ GtExternalizedObject::fetchHelper()
 
 bool
 GtExternalizedObject::release()
-{    
+{
     m_refCount -= 1;
 
     if (!gtExternalizationManager->isExternalizationEnabled())

@@ -47,7 +47,8 @@ GtApplication::GtApplication(QCoreApplication* parent,
     m_selectedObject(nullptr)
 {
     // init process executor in gui mode
-    m_processExecutor = new GtProcessExecutor(this);
+    auto guiExecutor = new GtProcessExecutor(this);
+    Q_UNUSED(guiExecutor);
 
     if (m_dataModel)
     {

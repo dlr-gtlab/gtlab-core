@@ -45,7 +45,7 @@ public:
      * @brief linkedObjects
      * @return
      */
-    QList<GtObject*> linkedObjects();
+    const QList<GtObject*>& linkedObjects() const;
 
     /**
      * @brief appendSourceData
@@ -57,12 +57,12 @@ public:
      * @brief sourceData
      * @return
      */
-    QList<GtObjectMemento>& outputData();
+    const QList<GtObjectMemento>& outputData() const;
 
     /**
      * @brief Appends additional process component to runnable queue.
      * NOTE: Runnable takes ownership of process component.
-     * @param Process component pointer.
+     * @param comp Process component pointer.
      * @return Returns true if process component was successfully appended,
      * otherwise return false;
      */
@@ -72,7 +72,7 @@ public:
      * @brief Returns current queue.
      * @return List of process components waiting in runnable queue.
      */
-    QList<GtProcessComponent*> queue();
+    const QList<GtProcessComponent*>& queue() const;
 
     /**
      * @brief Returns process specific temporary directory.
@@ -114,16 +114,14 @@ public:
             return nullptr;
         }
 
-        foreach (GtObject* obj, m_linkedObjects)
+        for (GtObject* obj : qAsConst(m_linkedObjects))
         {
             if (!obj)
             {
                 continue;
             }
 
-            GtObject* retval = obj->getObjectByUuid(uuid);
-
-            if (retval)
+            if (GtObject* retval = obj->getObjectByUuid(uuid))
             {
                 return qobject_cast<T>(retval);
             }
@@ -147,11 +145,9 @@ public:
             return nullptr;
         }
 
-        foreach (GtObject* obj, m_linkedObjects)
+        for (GtObject* obj : qAsConst(m_linkedObjects))
         {
-            GtObject* retval = path.getObject(obj);
-
-            if (retval)
+            if (GtObject* retval = path.getObject(obj))
             {
                 return qobject_cast<T>(retval);
             }
@@ -181,7 +177,6 @@ signals:
      * @brief runnableFinished
      */
     void runnableFinished();
-
 };
 
 #endif // GTABSTRACTRUNNABLE_H

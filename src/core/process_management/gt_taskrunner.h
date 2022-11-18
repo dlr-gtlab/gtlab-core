@@ -59,7 +59,7 @@ public:
      * @brief Returns list of data to merge.
      * @return List of data to merge.
      */
-    const QList<GtObjectMemento>& dataToMerge();
+    const QList<GtObjectMemento>& dataToMerge() const;
 
 private:
     /// pointer to task

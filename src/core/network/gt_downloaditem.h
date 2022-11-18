@@ -28,19 +28,19 @@ public:
      * @brief url
      * @return
      */
-    QUrl url() const;
+    const QUrl& url() const;
 
     /**
      * @brief path
      * @return
      */
-    QString path() const;
+    const QString& path() const;
 
     /**
      * @brief targetFileName
      * @return
      */
-    QString targetFileName() const;
+    const QString& targetFileName() const;
 
 private:
     /// Url.

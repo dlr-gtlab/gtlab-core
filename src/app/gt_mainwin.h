@@ -47,6 +47,12 @@ public:
      */
     ~GtMainWin() override;
 
+public slots:
+    /**
+     * @brief opens the process queue widget
+     */
+    void openProcessQueue();
+
 protected:
     /** Called after window is opened
         @param show event */
@@ -191,11 +197,6 @@ private slots:
      * @brief opens the command history widget
      */
     void openCommandHistory();
-
-    /**
-     * @brief opens the process queue widget
-     */
-    void openProcessQueue();
 
     /**
      * @brief onSessionAction

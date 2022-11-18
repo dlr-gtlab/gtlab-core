@@ -37,7 +37,7 @@ public:
      * @brief setLastSession
      * @param val
      */
-    void setLastSession(const QString& val);
+    void setLastSession(const QString& session);
 
     /**
      * @brief lastPerspective
@@ -49,7 +49,7 @@ public:
      * @brief setLastPerspective
      * @param val
      */
-    void setLastPerspective(const QString& val);
+    void setLastPerspective(const QString& perspective);
 
     /**
      * @brief lastPath
@@ -61,7 +61,7 @@ public:
      * @brief setLastPath
      * @param val
      */
-    void setLastPath(const QString& val);
+    void setLastPath(const QString& path);
 
     /**
      * @brief openLastSession
@@ -73,7 +73,7 @@ public:
      * @brief setOpenLastSession
      * @param val
      */
-    void setOpenLastSession(bool val);
+    void setOpenLastSession(bool value);
 
     /**
      * @brief language
@@ -85,7 +85,7 @@ public:
      * @brief setLanguage
      * @param val
      */
-    void setLanguage(const QString& val);
+    void setLanguage(const QString& language);
 
     /**
      * @brief firstApplicationRun
@@ -97,7 +97,7 @@ public:
      * @brief setShowStartupPage
      * @param val
      */
-    void setShowStartupPage(bool val);
+    void setShowStartupPage(bool value);
 
     /**
      * @brief showStartupPage
@@ -109,7 +109,7 @@ public:
      * @brief setSearchForUpdate
      * @param val
      */
-    void setSearchForUpdate(bool val);
+    void setSearchForUpdate(bool value);
 
     /**
      * @brief searchForUpdate
@@ -127,7 +127,7 @@ public:
      * @brief setLastProject
      * @param val
      */
-    void setLastProject(const QString& val);
+    void setLastProject(const QString& project);
 
     /**
      * @brief openLastProject
@@ -139,13 +139,13 @@ public:
      * @brief setOpenLastProject
      * @param val
      */
-    void setOpenLastProject(bool val);
+    void setOpenLastProject(bool value);
 
     /**
      * @brief setMaxLogLength
      * @param val
      */
-    void setMaxLogLength(int val);
+    void setMaxLogLength(int value);
 
     /**
      * @brief maxLogLength
@@ -207,6 +207,30 @@ public:
     bool darkMode();
 
     void setThemeMode(const QString& theme);
+
+    /**
+     * @brief Returns whether the extended process executor is enabled
+     * @return Is extended process executor enabled
+     */
+    bool useExtendedProcessExecutor() const;
+
+    /**
+     * @brief Setter for the extended process executor
+     * @param value Value
+     */
+    void setUseExtendedProcessExecutor(bool value);
+
+    /**
+     * @brief Whether to autostart the process runner
+     * @return Autostart
+     */
+    bool autostartProcessRunner() const;
+
+    /**
+     * @brief Setter for the autostart property
+     * @param value Value
+     */
+    void setAutostartProcessRunner(bool value);
 
 private:
     struct Impl;
