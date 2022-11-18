@@ -97,12 +97,6 @@ GtProjectUI::GtProjectUI()
 
     if (gtApp->devMode())
     {
-        addSingleAction(tr("Duplicate Project..."),
-                        &GtProjectUI::duplicateProject)
-                .setIcon(gt::gui::icon::duplicate())
-                .setVerificationMethod(&GtProjectUI::canDuplicateProject);
-
-        addSeparator();
 
         //        addAction(tr("Test Commit"),
         //                  QStringLiteral("jumpToIcon.png"),
@@ -611,93 +605,6 @@ GtProjectUI::saveProjectAs(GtObject* obj)
 
 bool
 GtProjectUI::canSaveProjectAs(GtObject* obj)
-{
-    if (gtProcessExecutor->taskCurrentlyRunning())
-    {
-        return false;
-    }
-
-    return projectIsOpen(obj);
-}
-
-void
-GtProjectUI::duplicateProject(GtObject* obj)
-{
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
-    {
-        return;
-    }
-
-    if (!project->isOpen())
-    {
-        return;
-    }
-
-    bool ok = true;
-
-    QString id = gtDataModel->uniqueObjectName(project->objectName(),
-                 gtApp->session());
-
-    QString text = QInputDialog::getText(nullptr,
-                                         tr("New Project Name"),
-                                         tr("Project name:"),
-                                         QLineEdit::Normal,
-                                         id, &ok);
-
-    if (ok && !text.isEmpty())
-    {
-        QDir pathOrig(project->path());
-
-        qDebug() << "pathOrig = " << pathOrig.absolutePath();
-
-        if (!pathOrig.cdUp())
-        {
-            gtError() << tr("Could not create new project directory!");
-            return;
-        }
-
-        QDir pathNew(pathOrig.absoluteFilePath(text));
-
-        qDebug() << "pathNew = " << pathNew.absolutePath();
-
-        if (pathNew.exists())
-        {
-            gtError() << tr("Could not create new project directory!") <<
-                      QStringLiteral(" ") <<
-                      tr("Path already exists!");
-            return;
-        }
-
-        if (!pathOrig.mkpath(pathNew.absolutePath()))
-        {
-            gtError() << tr("Could not create new project directory!");
-            return;
-        }
-
-        GtProjectProvider provider(project);
-
-        GtProject* newProject =
-            provider.duplicateProject(text, pathNew.absolutePath());
-
-        if (!newProject)
-        {
-            gtError() << tr("Could not duplicate project!");
-            return;
-        }
-
-        gtDataModel->newProject(newProject);
-        gtDataModel->saveProject(newProject);
-        gtDataModel->closeProject(newProject);
-        gtDataModel->closeProject(project);
-        gtDataModel->openProject(newProject);
-        gtApp->setCurrentProject(newProject);
-    }
-}
-
-bool
-GtProjectUI::canDuplicateProject(GtObject* obj)
 {
     if (gtProcessExecutor->taskCurrentlyRunning())
     {
@@ -1615,15 +1522,20 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
             gtDebug() << "  |-> " << dialog.newProjectName();
             gtDebug() << "  |-> " << dialog.newProjectPath();
 
-            GtProjectProvider provider(project);
+            auto newProject = GtProjectProvider::duplicateExistingProject(
+                QDir(project->path()),
+                QDir(dialog.newProjectPath()),
+                dialog.newProjectName()
+            );
 
-            GtProject* newProject =
-                provider.duplicateProject(dialog.newProjectName(),
-                                          dialog.newProjectPath());
+            if (!newProject)
+            {
+                gtError() << "Cannot ";
+            }
 
             newProject->upgradeProjectData();
-            gtDataModel->newProject(newProject);
-            gtApp->setCurrentProject(newProject);
+            gtDataModel->newProject(newProject.get());
+            gtApp->setCurrentProject(newProject.release());
         }
     }
 }

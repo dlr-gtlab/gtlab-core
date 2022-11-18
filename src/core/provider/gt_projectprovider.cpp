@@ -225,7 +225,8 @@ GtProjectProvider::duplicateExistingProject(const QDir &projectPath,
                                             const QString &newProjectName)
 {
     // exluding backups
-    gt::copyProjectData(projectPath, newProjectPath, gt::ForceOverwrite);
+    gt::project::copyProjectData(projectPath, newProjectPath,
+                                 gt::project::ForceOverwrite);
 
     // update project meta data. and of backups?
     GtProject::ProjectMetaData md;

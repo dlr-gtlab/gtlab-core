@@ -232,8 +232,7 @@ GtProject::updateProjectMetaData(const QDir& projectPath,
     // we have read from it before so it still should be there
     assert(pfile.exists());
 
-    return gt::xml::writeDomDocumentToFile(filename,
-                                           projectDoc, true);
+    return gt::xml::writeDomDocumentToFile(filename, projectDoc, true);
 }
 
 void

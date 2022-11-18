@@ -232,11 +232,6 @@ private slots:
     void saveCurrentProjectAs();
 
     /**
-     * @brief Duplicates current project.
-     */
-    void duplicateCurrentProject();
-
-    /**
      * @brief saveAllProjects
      */
     void saveAllProjects();

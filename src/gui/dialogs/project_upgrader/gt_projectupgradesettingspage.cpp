@@ -40,7 +40,6 @@ GtProjectUpgradeSettingsPage::GtProjectUpgradeSettingsPage(GtProject* project,
 
     // temporarily disabled. Necessity of a
     // new functionality for copying aproject.
-    saveNew->setEnabled(false);
 
     layout->addWidget(m_overwrite);
     layout->addWidget(saveNew);
