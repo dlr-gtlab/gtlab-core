@@ -61,6 +61,7 @@ DESTDIR = $${BUILD_DEST}
 HEADERS += \
     gt_commandlinefunction.h \
     gt_commandlineparser.h \
+    gt_filesystem.h \
     gt_propertyconnectionfunctions.h \
     internal/gt_commandlinefunctionhandler.h \
     internal/gt_coreupgraderoutines.h \
@@ -157,6 +158,7 @@ HEADERS += \
 SOURCES += \
     gt_commandlinefunction.cpp \
     gt_commandlineparser.cpp \
+    gt_filesystem.cpp \
     gt_propertyconnectionfunctions.cpp \
     internal/gt_commandlinefunctionhandler.cpp \
     internal/gt_coreupgraderoutines.cpp \
