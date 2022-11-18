@@ -219,6 +219,27 @@ GtProjectProvider::duplicateProject(const QString& newId,
     return retval;
 }
 
+std::unique_ptr<GtProject>
+GtProjectProvider::duplicateExistingProject(const QDir &projectPath,
+                                            const QDir &newProjectPath,
+                                            const QString &newProjectName)
+{
+    // exluding backups
+    gt::copyProjectData(projectPath, newProjectPath, gt::ForceOverwrite);
+
+    // update project meta data. and of backups?
+    GtProject::ProjectMetaData md;
+    md.projectName = newProjectName;
+
+    GtProject::updateProjectMetaData(newProjectPath, md);
+
+    auto newProjectFile = newProjectPath.path() + QDir::separator() +
+                          GtProject::mainFilename();
+
+    GtProjectProvider provider(newProjectFile);
+    return std::unique_ptr<GtProject>(provider.project());
+}
+
 bool
 GtProjectProvider::apply()
 {

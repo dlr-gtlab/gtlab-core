@@ -22,6 +22,8 @@ class GtObjectLinkProperty;
 class GtObject;
 class GtPropertyConnection;
 
+class QDir;
+
 /**
  * @brief The GtProjectProvider class
  */
@@ -38,10 +40,10 @@ public:
 
     /**
      * @brief GtProjectProvider
-     * @param project
+     * @param projectFileName, e.g. "MyProjectDir/project.gtlab"
      * @param parent
      */
-    explicit GtProjectProvider(const QString& filename,
+    explicit GtProjectProvider(const QString& projectFilePath,
                                QObject* parent = nullptr);
 
     /**
@@ -65,12 +67,30 @@ public:
     GtProject* project();
 
     /**
-     * @brief duplicateProject
+     * @brief Duplicates the currently opened project and saves it
+     *        to a new location (used for save as)
+     *
+     * Note: instead of duplicate, we should change this into saveAs
+     *
      * @param newId
      * @param newPath
      * @return
      */
     GtProject* duplicateProject(const QString& newId, const QString& newPath);
+
+    /**
+     * @brief Duplicates a closed project into a new path with a new project name
+     *
+     *
+     * @param projectPath
+     * @param newProjectPath
+     * @param newProjectName
+     * @return
+     */
+    static std::unique_ptr<GtProject> duplicateExistingProject(
+        const QDir& projectPath,
+        const QDir& newProjectPath,
+        const QString& newProjectName);
 
     /**
      * @brief apply
