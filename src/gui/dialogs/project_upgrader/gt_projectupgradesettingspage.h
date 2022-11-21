@@ -35,10 +35,12 @@ public:
     /**
      * @brief The validation routine stores the user input in the upgrade
      * dialog settings.
-     * NOTE: In the current implementation false can never be returned.
+     *
      * @return True if all user input is correct stored.
      */
     bool validatePage() override;
+
+    bool isComplete() const override;
 
 private:
     /// RadioButton widget to allow the user to specify whether the project

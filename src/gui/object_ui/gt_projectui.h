@@ -75,12 +75,6 @@ public:
     static void saveProjectAs(GtObject* obj);
 
     /**
-     * @brief duplicateProject
-     * @param obj
-     */
-    static void duplicateProject(GtObject* obj);
-
-    /**
      * @brief closeProject
      * @param obj
      */
@@ -256,13 +250,6 @@ private:
      * @return
      */
     static bool canDeleteProject(GtObject* obj);
-
-    /**
-     * @brief canDuplicateProject
-     * @param obj
-     * @return
-     */
-    static bool canDuplicateProject(GtObject* obj);
 
     /**
      * @brief setCurrentProject

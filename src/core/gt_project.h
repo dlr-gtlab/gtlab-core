@@ -17,6 +17,7 @@
 #include "gt_object.h"
 #include "gt_session.h"
 #include "gt_stringproperty.h"
+#include "gt_filesystem.h"
 
 class QDomDocument;
 class QXmlStreamWriter;
@@ -205,6 +206,39 @@ public:
      */
     void createBackup(const QString& message = "") const;
 
+    enum class RestoreStatus
+    {
+        Success = 0,
+        ErrorNoBackupFound,
+        ErrorCopyFailed
+    };
+
+    /**
+     * @brief Restores the files of the project by the given backup
+     *
+     * The project must be closed before calling the function!
+     *
+     * The following errors can occur
+     *  -
+     *
+     * @return true if successfull
+     */
+    RestoreStatus restoreBackupFiles(const QString& timestamp);
+
+    struct ProjectMetaData
+    {
+        QString projectName;
+    };
+
+    /**
+     * @brief Updates the project's metadata such as the project name
+     * @param projectPath The path to the project
+     * @param data
+     * @return
+     */
+    static bool updateProjectMetaData(const QDir& projectPath,
+                                      const ProjectMetaData& data);
+
 protected:
     /**
      * @brief GtProject
@@ -342,7 +376,7 @@ private:
      * @brief readProjectData
      * @return
      */
-    QDomElement readProjectData();
+    static QDomDocument readProjectData(const QDir& projectPath);
 
     /**
      * @brief findLabelUsagesHelper
@@ -392,6 +426,17 @@ GT_CORE_EXPORT QString backUpMessageFileName();
  * @return
  */
 GT_CORE_EXPORT QString backupDirPath(const GtProject& proj);
+
+enum CopyProjectFlags
+{
+    ForceOverwrite = 1, /// Forces overwriting existing project files
+    IncludeBackups = 2  /// Include Backups while copying
+};
+
+GT_CORE_EXPORT
+filesystem::CopyStatus copyProjectData(const QDir& srcPath,
+                const QDir& targetPath,
+                int copyProjectFlags);
 
 } // namespace project
 

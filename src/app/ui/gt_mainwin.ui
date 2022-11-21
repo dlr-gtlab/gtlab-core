@@ -92,7 +92,6 @@
     <addaction name="separator"/>
     <addaction name="actionSave_Project"/>
     <addaction name="actionSave_As"/>
-    <addaction name="actionDuplicate_Project"/>
     <addaction name="separator"/>
     <addaction name="menuSession"/>
     <addaction name="actionEditSessions"/>
@@ -481,18 +480,6 @@
    </property>
    <property name="text">
     <string>State Browser</string>
-   </property>
-  </action>
-  <action name="actionDuplicate_Project">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/duplicateIcon_16.png</normaloff>:/icons/duplicateIcon_16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Duplicate Project...</string>
    </property>
   </action>
   <action name="actiontest">

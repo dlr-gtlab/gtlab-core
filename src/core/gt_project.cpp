@@ -30,8 +30,14 @@
 #include "gt_externalizedobject.h"
 #include "gt_externalizationmanager.h"
 #include "gt_projectanalyzer.h"
+#include "gt_xmlutilities.h"
 
 #include "internal/gt_moduleupgrader.h"
+
+#include "gt_filesystem.h"
+#include "gt_objectio.h"
+
+#include <cassert>
 
 
 GtProject::GtProject(const QString& path) :
@@ -173,6 +179,62 @@ GtProject::upgradeProjectData()
     m_upgradesAvailable = checkForUpgrades();
 }
 
+
+gt::filesystem::CopyStatus
+gt::project::copyProjectData(const QDir& projectDir,
+                             const QDir& targetDir,
+                             int copyProjectFlags)
+{
+
+
+    int copyDirFlags = gt::filesystem::Recursive;
+    if (copyProjectFlags & ForceOverwrite)
+    {
+        copyDirFlags |= gt::filesystem::OverwriteFiles;
+    }
+
+    if (copyProjectFlags & IncludeBackups)
+    {
+        return filesystem::copyDir(projectDir, targetDir, copyDirFlags);
+    }
+    else
+    {
+        // Regex to exlcude all files that match "backup/*"
+        QRegularExpression regex(R"(^(?!backup\/.*$).*)");
+        return  filesystem::copyDir(projectDir, targetDir, copyDirFlags, regex);
+    }
+}
+
+
+
+bool
+GtProject::updateProjectMetaData(const QDir& projectPath,
+                          const GtProject::ProjectMetaData& data)
+{
+    auto projectDoc = GtProject::readProjectData(projectPath);
+
+    if (projectDoc.isNull())
+    {
+        return false;
+    }
+
+    auto projectRoot = projectDoc.documentElement();
+
+    // we assume to have a valid gtlab project
+
+    // update project name
+    projectRoot.setAttribute("projectname", data.projectName);
+
+    // store the project
+    QString filename = projectPath.path() + QDir::separator() + mainFilename();
+    QFile pfile(filename);
+
+    // we have read from it before so it still should be there
+    assert(pfile.exists());
+
+    return gt::xml::writeDomDocumentToFile(filename, projectDoc, true);
+}
+
 void
 GtProject::createBackup(QString const& message) const
 {
@@ -182,9 +244,8 @@ GtProject::createBackup(QString const& message) const
     }
 
     QDir pdir(m_path);
-    pdir.setNameFilters(QStringList() << QStringLiteral("*.gtmod"));
 
-    QStringList entryList = pdir.entryList(QDir::Files);
+    assert(pdir.exists());
 
     QString timeStamp = QDateTime::currentDateTime().toString(
                 "yyyyMMddhhmmss");
@@ -203,11 +264,12 @@ GtProject::createBackup(QString const& message) const
         return;
     }
 
-    // backup module files
-    foreach (const QString& entry, entryList)
+    // backup all project files,
+    // do not force overwrite and don't include backup directories
+    if (gt::project::copyProjectData(pdir, bdir, 0) !=
+        gt::filesystem::CopyStatus::Success)
     {
-        QFile file(pdir.absoluteFilePath(entry));
-        file.copy(bdir.absoluteFilePath(entry));
+        gtError() << "Error while copying project files";
     }
 
     // backup project file
@@ -231,12 +293,42 @@ GtProject::createBackup(QString const& message) const
         messageFile.close();
     }
 
+    return;
+}
+
+GtProject::RestoreStatus
+GtProject::restoreBackupFiles(const QString& timeStamp)
+{
+    using S = GtProject::RestoreStatus;
+
+    assert(!isOpen());
+
+    QDir projectDir(path());
+    assert(projectDir.exists());
+
+    QDir backupDir(path() + QDir::separator() + "backup" + QDir::separator() +
+                   timeStamp);
+
+    if (!backupDir.exists())
+    {
+        gtError().nospace().noquote()
+            << "Backup folder '" << timeStamp << "' not found";
+        return S::ErrorNoBackupFound;
+    }
+
+    if (gt::project::copyProjectData(backupDir, projectDir, gt::project::ForceOverwrite) !=
+        gt::filesystem::CopyStatus::Success)
+    {
+        return S::ErrorCopyFailed;
+    }
+
+    return S::Success;
 }
 
 bool
 GtProject::loadMetaData()
 {
-    QDomElement root = readProjectData();
+    QDomElement root = readProjectData(path()).documentElement();
 
     if (root.isNull())
     {
@@ -339,7 +431,7 @@ GtProject::readProcessData()
 
     // read process data here
 
-    QDomElement root = readProjectData();
+    QDomElement root = readProjectData(path()).documentElement();
 
     if (!root.isNull())
     {
@@ -394,7 +486,7 @@ GtProject::readLabelData(const GtObjectList& moduleData)
     data->setFactory(gtObjectFactory);
 
     // read saved label data here
-    QDomElement root = readProjectData();
+    QDomElement root = readProjectData(path()).documentElement();
 
     if (!root.isNull())
     {
@@ -796,10 +888,10 @@ GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
     return true;
 }
 
-QDomElement
-GtProject::readProjectData()
+QDomDocument
+GtProject::readProjectData(const QDir& projectPath)
 {
-    QString filename = m_path + QDir::separator() + mainFilename();
+    QString filename = projectPath.path() + QDir::separator() + mainFilename();
 
     QFile file(filename);
 
@@ -807,7 +899,7 @@ GtProject::readProjectData()
     {
         qWarning() << "WARNING: file does not exists!";
         qWarning() << " |-> " << filename;
-        return QDomElement();
+        return QDomDocument();
     }
 
     QDomDocument document;
@@ -821,7 +913,7 @@ GtProject::readProjectData()
         gtDebug() << tr("XML ERROR!") << " " << tr("line") << ": "
                   << errorLine << " " << tr("column") << ": "
                   << errorColumn << " -> " << errorStr;
-        return QDomElement();
+        return QDomDocument();
     }
 
 //    if(!GtdUtilities::fileContentToDomDocument(file, document))
@@ -835,10 +927,12 @@ GtProject::readProjectData()
     if (root.isNull() || (root.tagName() != QLatin1String("GTLAB")))
     {
         gtDebug() << "ERROR: Invalid GTlab project file!";
-        return QDomElement();
+        return QDomDocument();
     }
 
-    return root;
+
+
+    return document;
 }
 
 QList<GtLabel*>
@@ -951,39 +1045,15 @@ GtProject::updateModuleFootprint(const QStringList& modIds)
 {
     gtDebug() << "GtProject::updateModuleFootprint...";
 
-    QString filename = m_path + QDir::separator() + mainFilename();
-
-    QFile file(filename);
-
-    if (!file.exists())
+    auto document = readProjectData(m_path);
+    if (document.isNull())
     {
-        qWarning() << "WARNING: file does not exists!";
-        qWarning() << " |-> " << filename;
         return;
     }
 
-    QDomDocument document;
-
-    QString errorStr;
-    int errorLine;
-    int errorColumn;
-
-    if (!document.setContent(&file, true, &errorStr, &errorLine, &errorColumn))
-    {
-        gtDebug() << tr("XML ERROR!") << " " << tr("line") << ": "
-                  << errorLine << " " << tr("column") << ": "
-                  << errorColumn << " -> " << errorStr;
-        return;
-    }
+    QString filename = path() + QDir::separator() + mainFilename();
 
     QDomElement pdata = document.documentElement();
-
-    if (pdata.isNull() || (pdata.tagName() != QLatin1String("GTLAB")))
-    {
-        gtDebug() << "ERROR: Invalid GTlab project file!";
-        return;
-    }
-
     QDomElement footprint = pdata.firstChildElement(
                 QStringLiteral("env-footprint"));
 
@@ -1290,7 +1360,7 @@ GtProject::renameProject(const QString& str)
     }
 
     // rename project within project file
-    QDomElement projectData = readProjectData();
+    QDomElement projectData = readProjectData(path()).documentElement();
 
     if (projectData.isNull())
     {

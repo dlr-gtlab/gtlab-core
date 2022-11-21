@@ -90,8 +90,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
 //        ui->actionBug_Report->setVisible(false);
 
-        ui->actionDuplicate_Project->setVisible(false);
-
 //        ui->actionHelpContents->setEnabled(false);
 
         //ui->actionExamples->setVisible(false);
@@ -147,8 +145,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(saveAllProjects()));
     connect(ui->actionSave_As, SIGNAL(triggered(bool)),
             SLOT(saveCurrentProjectAs()));
-    connect(ui->actionDuplicate_Project, SIGNAL(triggered(bool)),
-            SLOT(duplicateCurrentProject()));
     connect(ui->actionPreferences, SIGNAL(triggered(bool)),
             SLOT(showPreferences()));
     connect(ui->actionEditSessions, SIGNAL(triggered(bool)),
@@ -766,12 +762,6 @@ GtMainWin::saveCurrentProjectAs()
 }
 
 void
-GtMainWin::duplicateCurrentProject()
-{
-    GtProjectUI::duplicateProject(gtApp->currentProject());
-}
-
-void
 GtMainWin::saveAllProjects()
 {
     foreach (GtProject* project, gtDataModel->projects())
@@ -787,14 +777,12 @@ GtMainWin::onCurrentProjectChanged(GtProject* project)
     {
         ui->actionSave_Project->setEnabled(false);
         ui->actionSave_As->setEnabled(false);
-        ui->actionDuplicate_Project->setEnabled(false);
         ui->actionCloseProject->setEnabled(false);
     }
     else
     {
         ui->actionSave_Project->setEnabled(true);
         ui->actionSave_As->setEnabled(true);
-        ui->actionDuplicate_Project->setEnabled(true);
         ui->actionCloseProject->setEnabled(true);
     }
 }
