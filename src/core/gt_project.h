@@ -430,7 +430,8 @@ GT_CORE_EXPORT QString backupDirPath(const GtProject& proj);
 enum CopyProjectFlags
 {
     ForceOverwrite = 1, /// Forces overwriting existing project files
-    IncludeBackups = 2  /// Include Backups while copying
+    IncludeBackups = 2, /// Include Backups while copying
+    IgnoreBackupMd = 4  /// Do not copy backup message file
 };
 
 GT_CORE_EXPORT

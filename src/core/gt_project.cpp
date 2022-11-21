@@ -193,16 +193,18 @@ gt::project::copyProjectData(const QDir& projectDir,
         copyDirFlags |= gt::filesystem::OverwriteFiles;
     }
 
-    if (copyProjectFlags & IncludeBackups)
+    QString reString;
+    if (copyProjectFlags & IgnoreBackupMd)
     {
-        return filesystem::copyDir(projectDir, targetDir, copyDirFlags);
+        reString += R"(^(?!GTlabBackUpMessage.md$).*)";
     }
-    else
+    if (!(copyProjectFlags & IncludeBackups))
     {
-        // Regex to exlcude all files that match "backup/*"
-        QRegularExpression regex(R"(^(?!backup\/.*$).*)");
-        return  filesystem::copyDir(projectDir, targetDir, copyDirFlags, regex);
+        reString += R"(^(?!backup\/.*$).*)";
     }
+
+    QRegularExpression regex(reString);
+    return filesystem::copyDir(projectDir, targetDir, copyDirFlags, regex);
 }
 
 
@@ -316,7 +318,8 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         return S::ErrorNoBackupFound;
     }
 
-    if (gt::project::copyProjectData(backupDir, projectDir, gt::project::ForceOverwrite) !=
+    if (gt::project::copyProjectData(backupDir, projectDir,
+            gt::project::ForceOverwrite | gt::project::IgnoreBackupMd) !=
         gt::filesystem::CopyStatus::Success)
     {
         return S::ErrorCopyFailed;

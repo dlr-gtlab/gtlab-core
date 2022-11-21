@@ -1775,66 +1775,66 @@ GtProjectUI::restoreBackup(GtObject *obj)
 
     /// Dialog to select backup to restore from
     GtProjectRestoreBackupDialog restoreDialog(validDirs);
-    if (restoreDialog.exec())
+    if (restoreDialog.exec() && restoreDialog.result() == GtDialog::Accepted)
     {
-        if (restoreDialog.result() == GtDialog::Accepted)
+        const QString selectedFolder = restoreDialog.selectedFolderName();
+        gtInfo() << tr("Restore backup from folder '%1'")
+                        .arg(selectedFolder);
+
+        QMessageBox mb;
+        mb.setIcon(QMessageBox::Question);
+        mb.setWindowTitle(tr("Confirm Restore"));
+        mb.setWindowIcon(gt::gui::icon::saveProject16());
+
+        const bool initialOpenProject = project->isOpen();
+
+        if (initialOpenProject)
         {
-            QString selectedFolder = restoreDialog.selectedFolderName();
-            gtInfo() << tr("Restore backup");
-            gtInfo() << tr("Use content of folder") << selectedFolder;
+            mb.setText(tr("Are you sure to restore the project? \n "
+                      "Your current project will be overwritten which "
+                      "cannot be undone. \n"
+                      "The project will be closed automatically to "
+                          "start restore."));
+        }
+        else
+        {
+            mb.setText(tr("Are you sure to restore the project? \n "
+                      "Your current project will be overwritten which "
+                          "cannot be undone."));
+        }
 
-            QMessageBox mb;
-            mb.setIcon(QMessageBox::Question);
-            mb.setWindowTitle(tr("Confirm Restore"));
-            mb.setWindowIcon(gt::gui::icon::saveProject16());
 
-            QString text;
+        mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+        mb.setDefaultButton(QMessageBox::Cancel);
 
-            if (project->isOpen())
-            {
-                text = tr("Are you sure to restore the project? \n "
-                          "Your current project will be overwritten which "
-                          "cannot be undone. \n"
-                          "The project will be closed automatically to "
-                          "start restore.");
-            }
-            else
-            {
-                text = tr("Are you sure to restore the project? \n "
-                          "Your current project will be overwritten which "
-                          "cannot be undone.");
-            }
+        if (mb.exec() != QMessageBox::Yes)
+        {
+            return;
+        }
 
-            mb.setText(text);
-            mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+        if (initialOpenProject)
+        {
+            gtDataModel->closeProject(gtApp->currentProject());
+        }
 
-            mb.setDefaultButton(QMessageBox::Cancel);
-            int ret = mb.exec();
+        bool success = project->restoreBackupFiles(selectedFolder) ==
+                       GtProject::RestoreStatus::Success;
 
-            switch (ret)
-            {
-                case QMessageBox::Yes:
-                {
-                    if (project->isOpen())
-                    {
-                        gtDataModel->closeProject(gtApp->currentProject());
-                    }
+        if (success && initialOpenProject)
+        {
+            success = gtDataModel->openProject(project);
+        }
 
-                    gtDebug() << "Restore project" << selectedFolder;
-                    /// TODO: DO THE RESTORE HERE!
-
-                    /// Reopen the project if it had been open before?
-                    //if (initialOpenProject)
-                    //{
-                    //    /// open the project
-                    //}
-
-                    break;
-                }
-
-                default:
-                    break;
-            }
+        // notify the user on the success
+        if (success)
+        {
+            QMessageBox::information(nullptr, tr("Backup restored"),
+                tr("The project has been successfully restored from backup."));
+        }
+        else
+        {
+            QMessageBox::critical(nullptr, tr("Backup restore failed"),
+                tr("The project backup could not be restored."));
         }
     }
 }
