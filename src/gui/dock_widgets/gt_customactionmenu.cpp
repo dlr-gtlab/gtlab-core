@@ -12,9 +12,6 @@
 
 #include "gt_customactionmenu.h"
 #include "gt_object.h"
-#include "gt_objectui.h"
-#include "gt_icons.h"
-#include "gt_logging.h"
 
 /// helper method to get parent QWidget (skips QMenus)
 inline QWidget*

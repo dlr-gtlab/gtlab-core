@@ -268,6 +268,10 @@ GT_GUI_EXPORT QIcon cross16();
 
 GT_GUI_EXPORT QIcon jumpTo();
 
+GT_GUI_EXPORT QIcon upgradeProjectData();
+
+GT_GUI_EXPORT QIcon duplicate();
+
 } // namespace icon
 
 namespace pixmap

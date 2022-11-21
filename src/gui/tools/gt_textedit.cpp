@@ -89,3 +89,20 @@ GtTextEdit::typeFromFile(const QString& file)
 
     return retVal;
 }
+
+void
+GtTextEdit::updateText(const QString& text)
+{
+    if (m_type == MD)
+    {
+        setMarkdown(text);
+    }
+    else if (m_type == HTML)
+    {
+        setHtml(text);
+    }
+    else
+    {
+        setText(text);
+    }
+}

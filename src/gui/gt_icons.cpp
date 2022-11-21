@@ -801,3 +801,15 @@ gt::gui::icon::inconsistentProject16()
 {
     return gt::gui::getIcon(QStringLiteral("inconsistentProjectIcon_16.png"));
 }
+
+QIcon
+gt::gui::icon::upgradeProjectData()
+{
+    return gt::gui::getIcon(QStringLiteral("upgradeProjectDataIcon.png"));
+}
+
+QIcon
+gt::gui::icon::duplicate()
+{
+    return gt::gui::getIcon(QStringLiteral("duplicateIcon_16.png"));
+}

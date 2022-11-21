@@ -203,7 +203,7 @@ public:
      * stored in the project directory in a separate folder (/backup). A current
      * timestamp is used for identification.
      */
-    void createBackup() const;
+    void createBackup(const QString& message = "") const;
 
 protected:
     /**
@@ -375,5 +375,27 @@ private:
     void updateModuleFootprint(const QStringList &modIds);
 
 };
+
+namespace gt {
+
+namespace project {
+
+/**
+ * @brief backUpMessageFileName
+ * @return name of the file to store the backup message to
+ */
+GT_CORE_EXPORT QString backUpMessageFileName();
+
+/**
+ * @brief backupDirPath
+ * @param proj
+ * @return
+ */
+GT_CORE_EXPORT QString backupDirPath(const GtProject& proj);
+
+} // namespace project
+
+} // namespace gt
+
 
 #endif // GTPROJECT_H

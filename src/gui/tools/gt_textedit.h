@@ -26,6 +26,7 @@
  */
 class GT_GUI_EXPORT GtTextEdit : public QTextEdit
 {
+    Q_OBJECT
 public:
 
     enum contentType{
@@ -68,6 +69,14 @@ public:
      * @return content type based on file ending
      */
     static contentType typeFromFile(QString const& file);
+
+public slots:
+    /**
+     * @brief updateText
+     * @param text to use
+     * Updates the current text to the one given by the function.
+     */
+    void updateText(QString const& text);
 
 private:
     QString m_text;

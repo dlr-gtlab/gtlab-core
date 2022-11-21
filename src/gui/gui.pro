@@ -83,6 +83,8 @@ DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
     dialogs/gt_dialog.h \
+    dialogs/gt_generatebackupdialog.h \
+    dialogs/gt_projectrestorebackupdialog.h \
     dialogs/project_upgrader/gt_projectupgradedialog.h \
     dialogs/project_upgrader/gt_projectupgradeoverviewpage.h \
     dialogs/project_upgrader/gt_projectupgradesettingspage.h \
@@ -259,6 +261,8 @@ HEADERS += \
 
 SOURCES += \
     dialogs/gt_dialog.cpp \
+    dialogs/gt_generatebackupdialog.cpp \
+    dialogs/gt_projectrestorebackupdialog.cpp \
     dialogs/project_upgrader/gt_projectupgradedialog.cpp \
     dialogs/project_upgrader/gt_projectupgradeoverviewpage.cpp \
     dialogs/project_upgrader/gt_projectupgradesettingspage.cpp \

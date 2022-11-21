@@ -134,7 +134,7 @@ GtObjectUIAction::setVerificationMethod(const QString& methodName)
 GtObjectUIAction&
 GtObjectUIAction::setVisibilityMethod(InvokableVisibilityMethod method)
 {
-    m_verification = std::move(method);
+    m_visibility = std::move(method);
     return *this;
 }
 
