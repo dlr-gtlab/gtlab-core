@@ -1680,14 +1680,12 @@ GtProjectUI::backupProject(GtObject* obj)
     /// Dialog to inform about backup
     /// Write reason and store in markdown string
     GtGenerateBackUpDialog backUpDialog;
-    if (backUpDialog.exec())
+    if (backUpDialog.exec() && backUpDialog.result() == GtDialog::Accepted)
     {
-        if (backUpDialog.result() == GtDialog::Accepted)
-        {
-            gtInfo() << tr("Generate backup");
-
+        gtInfo() << tr("Generate backup");
+        gtApp->loadingProcedure(gt::makeLoadingHelper([&]() {
             project->createBackup(backUpDialog.message());
-        }
+        }).get());
     }
 }
 
