@@ -78,6 +78,12 @@ gt::filesystem::copyDir(const QDir& originDirectory, const QDir& destinationDire
 
         QFileInfo targetFileInfo(targetFileName);
 
+        // qfile does not overwrite files
+        if (targetFileInfo.exists() && flags & OverwriteFiles)
+        {
+            QFile(targetFileName).remove();
+        }
+
         if (!targetFileInfo.exists() || flags & OverwriteFiles)
         {
             auto subDir = targetFileInfo.dir();
