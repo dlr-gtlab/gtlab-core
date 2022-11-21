@@ -84,7 +84,8 @@ template <typename Func>
 std::unique_ptr<detail::GtFunctionalLoadingHelper<Func>>
 makeLoadingHelper(Func&& f)
 {
-    return std::make_unique<detail::GtFunctionalLoadingHelper<Func>>(f);
+    using FuncLoadingHelper = detail::GtFunctionalLoadingHelper<Func>;
+    return std::make_unique<FuncLoadingHelper>(std::forward<Func>(f));
 }
 
 } // namespace gt
