@@ -220,9 +220,9 @@ GtProjectProvider::duplicateProject(const QString& newId,
 }
 
 std::unique_ptr<GtProject>
-GtProjectProvider::duplicateExistingProject(const QDir &projectPath,
-                                            const QDir &newProjectPath,
-                                            const QString &newProjectName)
+GtProjectProvider::duplicateExistingProject(const QDir& projectPath,
+                                            const QDir& newProjectPath,
+                                            const QString& newProjectName)
 {
     // exluding backups
     auto status = gt::project::copyProjectData(projectPath, newProjectPath,
