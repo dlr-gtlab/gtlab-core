@@ -78,12 +78,6 @@ GtProject::moduleExtension()
 }
 
 QString
-GtProject::backupDirPath() const
-{
-    return {m_path + QDir::separator() + "backup"};
-}
-
-QString
 GtProject::comment() const
 {
     return m_comment;
@@ -195,7 +189,7 @@ GtProject::createBackup(QString const& message) const
     QString timeStamp = QDateTime::currentDateTime().toString(
                 "yyyyMMddhhmmss");
 
-    QDir bdir(backupDirPath() + QDir::separator() + timeStamp);
+    QDir bdir(gt::project::backupDirPath(*this) + QDir::separator() + timeStamp);
 
     if (bdir.exists())
     {
@@ -222,7 +216,8 @@ GtProject::createBackup(QString const& message) const
 
     if (!message.isEmpty())
     {
-        QFile messageFile(bdir.absoluteFilePath("GTlabBackUpMessage.md"));
+        QFile messageFile(bdir.absoluteFilePath(
+                              gt::project::backUpMessageFileName()));
 
         if (!messageFile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
@@ -233,7 +228,7 @@ GtProject::createBackup(QString const& message) const
         QTextStream stream(&messageFile);
         stream << message;
 
-        file.close();
+        messageFile.close();
     }
 
 }
@@ -1388,4 +1383,16 @@ GtProject::readFootprint() const
     ftprnt.save(stream, 4);
 
     return retval;
+}
+
+QString
+gt::project::backUpMessageFileName()
+{
+    return QStringLiteral("GTlabBackUpMessage.md");
+}
+
+QString
+gt::project::backupDirPath(const GtProject& proj)
+{
+    return {proj.path() + QDir::separator() + "backup"};
 }

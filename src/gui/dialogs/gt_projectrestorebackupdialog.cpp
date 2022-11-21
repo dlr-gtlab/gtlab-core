@@ -10,6 +10,7 @@
 #include "gt_icons.h"
 #include "gt_logging.h"
 #include "gt_textedit.h"
+#include "gt_project.h"
 
 #include <QListWidget>
 #include <QVBoxLayout>
@@ -37,6 +38,7 @@ GtProjectRestoreBackupDialog::GtProjectRestoreBackupDialog(
 
     for (auto const& d :validBackupDirs)
     {
+        /// add "-" as seperators to increase the timestamps readability
         QString name = d.dirName();
         name.insert(12, "-");
         name.insert(10, "-");
@@ -102,7 +104,9 @@ GtProjectRestoreBackupDialog::onElementSelection(QString newText)
     m_okBtn->setEnabled(true);
     m_selectedFolderName = folderName;
 
-    QFile messageFile (selection.absoluteFilePath("GTlabBackUpMessage.md"));
+
+    QFile messageFile (selection.absoluteFilePath(
+                           gt::project::backUpMessageFileName()));
 
     if (!messageFile.exists())
     {

@@ -1771,7 +1771,12 @@ GtProjectUI::backupProject(GtObject* obj)
 QList<QDir>
 GtProjectUI::validBackupDirectories(GtProject* project)
 {
-    QDir backUpMainDir (project->backupDirPath());
+    if (!project)
+    {
+        return{};
+    }
+
+    QDir backUpMainDir (gt::project::backupDirPath(*project));
 
     if (!backUpMainDir.exists())
     {

@@ -236,11 +236,6 @@ protected:
      */
     static const QString moduleExtension();
 
-    /**
-     * @brief backupDirPath
-     * @return path to the directory for the backups of the project
-     */
-    QString backupDirPath() const;
 private:
     /// Path to project directory on hard drive
     QString m_path;
@@ -380,5 +375,27 @@ private:
     void updateModuleFootprint(const QStringList &modIds);
 
 };
+
+namespace gt {
+
+namespace project {
+
+/**
+ * @brief backUpMessageFileName
+ * @return name of the file to store the backup message to
+ */
+GT_CORE_EXPORT QString backUpMessageFileName();
+
+/**
+ * @brief backupDirPath
+ * @param proj
+ * @return
+ */
+GT_CORE_EXPORT QString backupDirPath(const GtProject& proj);
+
+} // namespace project
+
+} // namespace gt
+
 
 #endif // GTPROJECT_H
