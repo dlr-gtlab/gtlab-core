@@ -30,6 +30,8 @@ public:
      */
     explicit GtPreferencesDialog(int initItem = 0, QWidget* parent = nullptr);
 
+    void setStartingPage(const QString& title);
+
 public slots:
     /**
      * @brief changePage

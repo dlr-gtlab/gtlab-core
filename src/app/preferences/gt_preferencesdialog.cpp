@@ -94,6 +94,17 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     loadSettings();
 }
 
+void
+GtPreferencesDialog::setStartingPage(const QString& title)
+{
+    if (!m_contentsWidget)
+    {
+        return;
+    }
+
+    m_contentsWidget->setCurrentRow(pageIndex(title));
+}
+
 void GtPreferencesDialog::addPage(GtPreferencesPage *page)
 {
     if (!page)
