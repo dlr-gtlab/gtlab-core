@@ -2,6 +2,12 @@
 
 #include "gt_exceptions.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+namespace Qt
+{
+    static auto endl = ::endl;
+}
+#endif
 
 GTlabException::GTlabException(const QString& where, const QString& what) :
     m_where(where.toStdString()),

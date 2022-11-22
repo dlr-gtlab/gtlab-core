@@ -62,6 +62,8 @@ private:
     /// String designating the the routine or code section the exception was
     /// raised in
     std::string m_where;
+
+    /// Description of the circumstances that lead to the exception
     std::string m_what;
 
 };
