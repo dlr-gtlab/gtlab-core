@@ -185,6 +185,8 @@ private:
     /// mapper for action signals
     QSignalMapper* m_actionMapper;
 
+    void updateCurrentTaskGroup();
+
     /**
      * @brief setCurrentProcess
      * @param process
@@ -403,6 +405,8 @@ private slots:
      * @param exec New Executor
      */
     void onExecutoChanged(GtCoreProcessExecutor* exec);
+
+    void currentTaskGroupIndexChanged(int index);
 
 signals:
     /**

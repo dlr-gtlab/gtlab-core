@@ -136,6 +136,20 @@ GtProcessData::init(const QString& projectPath)
     m_pimpl-> _initialized = true;
 }
 
+bool
+GtProcessData::switchCurrentTaskGroup(const QString& taskGroupId,
+                                      GtTaskGroup::SCOPE scope,
+                                      const QString& projectPath)
+{
+    if (!m_pimpl-> _initialized)
+    {
+        gtError() << "process data not initialized! Please use init() first";
+        return false;
+    }
+
+    return m_pimpl->initTaskGroup(taskGroupId, projectPath, scope);
+}
+
 void
 GtProcessData::save(const QString& projectPath)
 {
@@ -268,7 +282,14 @@ GtProcessData::Impl::initTaskGroup(const QString& groupId,
         return false;
     }
 
-    group->init(projectPath, scope);
+    if (!group->isInitialized())
+    {
+        // if group not already initialized. do it now!!! last chance my friend
+        group->init(projectPath, scope);
+    }
+
+    _currentScope = scope;
+    _currentGroupId = groupId;
 
     return true;
 }

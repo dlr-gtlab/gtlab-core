@@ -28,6 +28,30 @@ void GtTaskGroupModel::init(const QStringList& userGroups,
     endResetModel();
 }
 
+GtTaskGroup::SCOPE
+GtTaskGroupModel::rowScope(int row) const
+{
+    if (row < 0 || row >= rowCount())
+    {
+        return GtTaskGroup::UNDEFINED;
+    }
+
+    if (row == 0)
+    {
+        return GtTaskGroup::UNDEFINED;
+    }
+    else if (row == m_userGroups.size() + 1)
+    {
+        return GtTaskGroup::UNDEFINED;
+    }
+    else if (row < m_userGroups.size() + 1)
+    {
+        return GtTaskGroup::USER;
+    }
+
+    return GtTaskGroup::CUSTOM;
+}
+
 int
 GtTaskGroupModel::rowCount(const QModelIndex& /*parent*/) const
 {

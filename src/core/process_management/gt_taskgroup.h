@@ -30,7 +30,8 @@ public:
     enum SCOPE
     {
         USER,
-        CUSTOM
+        CUSTOM,
+        UNDEFINED
     };
 
     /**
@@ -51,6 +52,10 @@ public:
     // Saves task group based on project path and scope
     bool save(const QString& projectPath,
               const GtTaskGroup::SCOPE scope) const;
+
+    // Returns true if task group already initialized.
+    // otherwise false will be returned.
+    bool isInitialized();
 
     // Returns scope identification string based on given enum value
     static QString scopeId(const GtTaskGroup::SCOPE scope);

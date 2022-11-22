@@ -121,6 +121,8 @@ GtTaskGroup::init(const QString& projectPath,
         }
     }
 
+    acceptChangesRecursively();
+
     m_pimpl-> _initialized = true;
     return true;
 }
@@ -153,6 +155,12 @@ GtTaskGroup::save(const QString& projectPath,
 
     // final step: update index file
     return m_pimpl->updateIndexFile(projectPath, scope);
+}
+
+bool
+GtTaskGroup::isInitialized()
+{
+    return m_pimpl-> _initialized;
 }
 
 QString

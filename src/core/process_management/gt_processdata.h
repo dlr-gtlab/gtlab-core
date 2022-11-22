@@ -12,11 +12,11 @@
 
 #include "gt_core_exports.h"
 #include "gt_objectgroup.h"
+#include "gt_taskgroup.h"
 
 #include <memory>
 
 class GtTask;
-class GtTaskGroup;
 
 /**
  * @brief The GtProcessData class
@@ -54,6 +54,10 @@ public:
 
     // Initializes process data for given project
     void init(const QString& projectPath);
+
+    bool switchCurrentTaskGroup(const QString& taskGroupId,
+                                GtTaskGroup::SCOPE scope,
+                                const QString& projectPath);
 
     // Stores process data for given project
     void save(const QString& projectPath);

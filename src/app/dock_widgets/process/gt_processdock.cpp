@@ -189,6 +189,8 @@ GtProcessDock::GtProcessDock() :
             SLOT(skipComponent(QModelIndex,bool)));
     connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
+    connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
+            SLOT(currentTaskGroupIndexChanged(int)));
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
@@ -273,21 +275,21 @@ GtProcessDock::setCurrentProcess(GtTask* process)
 void
 GtProcessDock::projectChangedEvent(GtProject* project)
 {
-    setCurrentProcess();
-
-    delete m_model;
-
-    m_model = new GtProcessComponentModel(this);
-    m_filterModel = new GtProcessFilterModel(m_model);
-    m_model->setSourceModel(gtDataModel);
-    m_filterModel->setSourceModel(m_model);
-    m_project = project;
-    m_taskGroup = nullptr;
-    m_taskGroupSelection->clear();
-
     if (project)
     {
-        m_processQueueButton->setEnabled(true);
+        m_processQueueButton->setEnabled(true); 
+    }
+    else
+    {
+        m_processQueueButton->setEnabled(false);
+        m_addElementButton->setEnabled(false);
+    }
+
+    if (project != m_project)
+    {
+        m_project = project;
+        m_taskGroup = nullptr;
+        m_taskGroupSelection->clear();
 
         if (project->processData())
         {
@@ -301,27 +303,39 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 
         if (m_taskGroup)
         {
-            filterData(m_search->text());
             m_taskGroupSelection->setCurrentText(m_taskGroup->objectName());
         }
     }
 
-    updateButtons(m_taskGroup);
+    // update curren task group
+    updateCurrentTaskGroup();
+}
 
-    if (!project)
-    {
-        m_processQueueButton->setEnabled(false);
-        m_addElementButton->setEnabled(false);
-    }
+void GtProcessDock::updateCurrentTaskGroup()
+{
+    setCurrentProcess();
 
-    m_view->expandAll();
-    m_view->resizeColumns();
+    delete m_model;
+    m_model = new GtProcessComponentModel(this);
+    m_filterModel = new GtProcessFilterModel(m_model);
+    m_model->setSourceModel(gtDataModel);
+    m_filterModel->setSourceModel(m_model);
 
     connect(m_model,
             SIGNAL(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
             SLOT(onRowsAboutToBeMoved()));
     connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
             SLOT(onRowsMoved()));
+
+    updateButtons(m_taskGroup);
+
+    if (m_taskGroup)
+    {
+        filterData(m_search->text());
+    }
+
+    m_view->expandAll();
+    m_view->resizeColumns();
 }
 
 void
@@ -2554,6 +2568,47 @@ GtProcessDock::onExecutoChanged(GtCoreProcessExecutor* exec)
         connect(exec, &GtCoreProcessExecutor::queueChanged,
                 this, [this](){ updateRunButton(); });
     }
+}
+
+void
+GtProcessDock::currentTaskGroupIndexChanged(int index)
+{
+    if (!m_project || !m_project->processData())
+    {
+        return;
+    }
+
+    const GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(index);
+
+    if (scope == GtTaskGroup::UNDEFINED)
+    {
+        return;
+    }
+
+    GtTaskGroup* currentGroup = m_project->processData()->taskGroup();
+
+    // check if selection matches current task
+    if (!currentGroup)
+    {
+        return;
+    }
+
+    const QString groupId = m_taskGroupSelection->itemText(index);
+
+    if (currentGroup->objectName() == groupId)
+    {
+        // nothing to do here
+        return;
+    }
+
+    m_project->processData()->switchCurrentTaskGroup(
+                m_taskGroupSelection->itemText(index),
+                scope,
+                m_project->path());
+
+    m_taskGroup = m_project->processData()->taskGroup();
+    updateCurrentTaskGroup();
+
 }
 
 bool
