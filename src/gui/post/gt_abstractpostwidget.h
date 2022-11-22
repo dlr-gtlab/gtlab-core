@@ -12,7 +12,6 @@ class GtPostTemplateItem;
 class QPrinter;
 class QPainter;
 class QRect;
-//class GtDataZoneTableList;
 class GtAbstractChartProvider;
 
 
@@ -29,7 +28,7 @@ public:
     /**
      * @brief GtAbstractPostWidget
      */
-    explicit GtAbstractPostWidget(QWidget *w = nullptr);
+    explicit GtAbstractPostWidget(QWidget* w = nullptr);
 
     /**
      * @brief configActions
@@ -104,7 +103,7 @@ public:
     /**
      * @brief changePlotName
      */
-    virtual void changePlotName(QString) {}
+    virtual void changePlotName(const QString&) {}
 
     /**
      * @brief plotToPdf
@@ -120,7 +119,7 @@ public:
      * @brief pdfEmbedded
      */
     virtual void printEmbedded(QPrinter* /*printer*/,
-                             QPainter* /*painter*/, QRectF /*rect*/) {}
+                               QPainter* /*painter*/, QRectF /*rect*/) {}
 
     /**
      * @brief updatePlot
@@ -145,9 +144,9 @@ public:
 
 protected:
 
-    void createDztList(const QStringList& dztUUIDs);
+    //void createDztList(const QStringList& dztUUIDs);
 
-    void deleteDztList();
+    //void deleteDztList();
 
     //GtDataZoneTableList* m_dztList;
 
@@ -173,12 +172,12 @@ private slots:
     /**
      * @brief hideMarkers
      */
-    virtual void hideMarkers(GtObject*);
+    virtual void hideMarkers(GtObject*) {};
 
     /**
      * @brief showMarkers
      */
-    virtual void showMarkers(GtObject*);
+    virtual void showMarkers(GtObject*) {};
 
     /**
      * @brief canShowMarkers

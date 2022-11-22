@@ -10,9 +10,6 @@
 #include "gt_abstractpostwidget.h"
 #include "gt_posttemplateitem.h"
 #include "QDebug"
-#include "gt_datamodel.h"
-#include "gt_project.h"
-//#include "gt_datazonetablelist.h"
 #include "gt_abstractchartprovider.h"
 
 #include <QWidget>
@@ -145,72 +142,72 @@ GtAbstractPostWidget::providerName()
     return QString("");
 }
 
-void
-GtAbstractPostWidget::createDztList(const QStringList& dztUUIDs)
-{
-    deleteDztList();
-
-    //m_dztList = new GtDataZoneTableList();
-
-    if (dztUUIDs.isEmpty())
-    {
-        return;
-    }
-
-    bool first = true;
-
-    foreach (QString uuid, dztUUIDs)
-    {
-        GtObject* o = gtDataModel->objectByUuid(uuid);
-
-        if (!o)
-        {
-            gtDebug() << "Cannot find data for uuid" << uuid;
-            continue;
-        }
-
-        GtObject* parent = o->findParent<GtObject*>();
-
-        if (!parent)
-        {
-            gtWarning() << tr("Parent of object'") << o->objectName()
-                        << tr(" could not be found");
-        }
-
-        if (first)
-        {
-            // disconnect possible signal slot connection
-            disconnect(parent, SIGNAL(dataChanged(GtObject*)),
-                    this, SIGNAL(refreshRequest()));
-
-            connect(parent, SIGNAL(dataChanged(GtObject*)),
-                    this, SIGNAL(refreshRequest()));
-        }
-
-        //GtDataZoneTable* dzt = o->createDzt();
-
-        //if (!dzt)
-        //{
-        //    gtWarning() << tr("DataZoneTable cannot be collected. "
-        //                    "Path to object: '") << uuid;
-        //    continue;
-        //}
-
-        //m_dztList->addDzt(dzt, uuid);
-
-        first = false;
-    }
-}
-
-void
-GtAbstractPostWidget::deleteDztList()
-{
-    //if (m_dztList)
-    //{
-    //    delete m_dztList;
-    //    m_dztList = nullptr;
-    //}
-}
+//void
+//GtAbstractPostWidget::createDztList(const QStringList& dztUUIDs)
+//{
+//    deleteDztList();
+//
+//    //m_dztList = new GtDataZoneTableList();
+//
+//    if (dztUUIDs.isEmpty())
+//    {
+//        return;
+//    }
+//
+//    bool first = true;
+//
+//    foreach (QString uuid, dztUUIDs)
+//    {
+//        GtObject* o = gtDataModel->objectByUuid(uuid);
+//
+//        if (!o)
+//        {
+//            gtDebug() << "Cannot find data for uuid" << uuid;
+//            continue;
+//        }
+//
+//        GtObject* parent = o->findParent<GtObject*>();
+//
+//        if (!parent)
+//        {
+//            gtWarning() << tr("Parent of object'") << o->objectName()
+//                        << tr(" could not be found");
+//        }
+//
+//        if (first)
+//        {
+//            // disconnect possible signal slot connection
+//            disconnect(parent, SIGNAL(dataChanged(GtObject*)),
+//                    this, SIGNAL(refreshRequest()));
+//
+//            connect(parent, SIGNAL(dataChanged(GtObject*)),
+//                    this, SIGNAL(refreshRequest()));
+//        }
+//
+//        //GtDataZoneTable* dzt = o->createDzt();
+//
+//        //if (!dzt)
+//        //{
+//        //    gtWarning() << tr("DataZoneTable cannot be collected. "
+//        //                    "Path to object: '") << uuid;
+//        //    continue;
+//        //}
+//
+//        //m_dztList->addDzt(dzt, uuid);
+//
+//        first = false;
+//    }
+//}
+//
+//void
+//GtAbstractPostWidget::deleteDztList()
+//{
+//    //if (m_dztList)
+//    //{
+//    //    delete m_dztList;
+//    //    m_dztList = nullptr;
+//    //}
+//}
 
 void
 GtAbstractPostWidget::updatePlots()
@@ -251,16 +248,4 @@ GtAbstractPostWidget::chartProvider()
     }
 
     return acp;
-}
-
-void
-GtAbstractPostWidget::hideMarkers(GtObject*)
-{
-
-}
-
-void
-GtAbstractPostWidget::showMarkers(GtObject*)
-{
-
 }

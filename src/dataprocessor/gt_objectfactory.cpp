@@ -43,24 +43,6 @@ GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
     m_knownClasses.insert(GT_CLASSNAME(GtTableValues),
                           GT_METADATA(GtTableValues));
 
-    //m_knownClasses.insert(GT_CLASSNAME(GtResult),
-    //                      GT_METADATA(GtResult));
-
-    //m_knownClasses.insert(GT_CLASSNAME(GtDataZoneTableList),
-    //                      GT_METADATA(GtDataZoneTableList));
-
-    //m_knownClasses.insert(GT_CLASSNAME(GtDataZoneTable),
-    //                      GT_METADATA(GtDataZoneTable));
-
-    //m_knownClasses.insert(GT_CLASSNAME(GtAbstractDataZone),
-    //                      GT_METADATA(GtAbstractDataZone));
-
-    //m_knownClasses.insert(GT_CLASSNAME(GtDataZone0D),
-    //                      GT_METADATA(GtDataZone0D));
-
-    //m_knownClasses.insert(GT_CLASSNAME(GtDataZone),
-    //                      GT_METADATA(GtDataZone));
-
     m_knownClasses.insert(GT_CLASSNAME(GtLabel),
                           GT_METADATA(GtLabel));
 
