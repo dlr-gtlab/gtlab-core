@@ -10,6 +10,7 @@
 #ifndef TEST_EXTERNALOBECT_H
 #define TEST_EXTERNALOBECT_H
 
+#include "gt_abstractproperty.h"
 #include "gt_externalizedobject.h"
 
 #include <QVariant>
@@ -52,7 +53,11 @@ public:
     /// forwarding internal methods and member for easier testing
     bool fetchInitialVersion() const
     {
-        return GtExternalizedObject::fetchInitialVersion();
+        auto prop = findProperty("fetchInitialVersion");
+        assert(prop);
+        if (!prop) return false;
+
+        return prop->value<bool>();
     }
 
     void setFetchInitialVersion(bool value)
