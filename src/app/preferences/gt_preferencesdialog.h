@@ -46,6 +46,14 @@ public slots:
 private:
     void addPage(GtPreferencesPage* page);
 
+    /**
+     * @brief Returns the index of the page with the given title.
+     * @param title Title of the page whose number is searched for.
+     * @return The index of the page with the given title. If no page was found
+     * it returns -1.
+     */
+    int pageIndex(const QString& title);
+
     ///
     QListWidget* m_contentsWidget;
 
