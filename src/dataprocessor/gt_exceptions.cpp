@@ -39,19 +39,19 @@ GTlabException::pushWhere(QString const& function, QString const& name)
 }
 
 void
-GTlabException::setWhere(QString const& where)
+GTlabException::setWhere(QString const& where) noexcept
 {
     m_where = where.toStdString();
 }
 
 QString
-GTlabException::where() const
+GTlabException::where() const noexcept
 {
     return m_where.c_str();
 }
 
 const char *
-GTlabException::what() const
+GTlabException::what() const noexcept
 {
     return m_what.c_str();
 }

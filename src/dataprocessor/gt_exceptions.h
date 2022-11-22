@@ -30,12 +30,12 @@ public:
     /** @brief Returns the where string.
      *  @return Where string
      */
-    GT_DATAMODEL_EXPORT QString where() const;
+    GT_DATAMODEL_EXPORT QString where() const noexcept;
 
     /**
      * @brief Returns the error string
      */
-    GT_DATAMODEL_EXPORT const char* what() const override;
+    GT_DATAMODEL_EXPORT const char* what() const noexcept override;
 
     /**
      * @brief Returns an error string set during construction of the exception
@@ -56,7 +56,7 @@ public:
      * @brief Sets the where string.
      * @param where Where string
      */
-    GT_DATAMODEL_EXPORT void setWhere(const QString& where);
+    GT_DATAMODEL_EXPORT void setWhere(const QString& where) noexcept;
 
 private:
     /// String designating the the routine or code section the exception was
