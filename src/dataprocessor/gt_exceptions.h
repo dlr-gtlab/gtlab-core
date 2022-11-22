@@ -32,10 +32,10 @@ public:
      */
     GT_DATAMODEL_EXPORT QString where() const;
 
-    /** @brief Returns the where string.
-     *  @return Where string
+    /**
+     * @brief Returns the error string
      */
-    GT_DATAMODEL_EXPORT QString what();
+    GT_DATAMODEL_EXPORT const char* what() const override;
 
     /**
      * @brief Returns an error string set during construction of the exception
@@ -50,7 +50,7 @@ public:
      * @param name Name of object in which exception occured.
      */
     GT_DATAMODEL_EXPORT void pushWhere(
-            QString const& function, QString const& name = QStringLiteral(""));
+            QString const& function, QString const& name = "");
 
     /**
      * @brief Sets the where string.
@@ -61,10 +61,9 @@ public:
 private:
     /// String designating the the routine or code section the exception was
     /// raised in
-    QString m_where;
+    std::string m_where;
+    std::string m_what;
 
-    /// Description of the circumstances that lead to the exception
-    QString m_what;
 };
 
 #endif // GT_EXCEPTIONS_H
