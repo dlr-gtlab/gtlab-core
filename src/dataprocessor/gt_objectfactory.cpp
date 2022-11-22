@@ -15,33 +15,15 @@
 #include "gt_objectfactory.h"
 #include "gt_object.h"
 #include "gt_objectgroup.h"
-#include "gt_table.h"
-#include "gt_tableaxis.h"
-#include "gt_tablevalues.h"
-//#include "gt_datazone0d.h"
-//#include "gt_datazone.h"
 #include "gt_label.h"
 #include "gt_labeldata.h"
-//#include "gt_datazonetable.h"
-//#include "gt_datazonetablelist.h"
-//#include "gt_abstractdatazone.h"
 #include "gt_propertyconnection.h"
-#include "gt_tablegroup.h"
-//#include "gt_datazonetablemainaxis.h"
+
 
 GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
 {
     m_knownClasses.insert(GT_CLASSNAME(GtObjectGroup),
                           GT_METADATA(GtObjectGroup));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtTable),
-                          GT_METADATA(GtTable));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtTableAxis),
-                          GT_METADATA(GtTableAxis));
-
-    m_knownClasses.insert(GT_CLASSNAME(GtTableValues),
-                          GT_METADATA(GtTableValues));
 
     m_knownClasses.insert(GT_CLASSNAME(GtLabel),
                           GT_METADATA(GtLabel));
@@ -51,9 +33,6 @@ GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
 
     m_knownClasses.insert(GT_CLASSNAME(GtPropertyConnection),
                           GT_METADATA(GtPropertyConnection));             
-
-    m_knownClasses.insert(GT_CLASSNAME(GtTableGroup),
-                          GT_METADATA(GtTableGroup));
 }
 
 GtObjectFactory*

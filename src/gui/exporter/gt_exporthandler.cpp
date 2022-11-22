@@ -15,15 +15,11 @@
 #include "gt_algorithms.h"
 
 #include "gt_processexporter.h"
-//#include "gt_datazonecsvexporter.h"
-//#include "gt_datazonedatexporter.h"
 
 GtExportHandler::GtExportHandler(QObject* parent) : QObject(parent)
 {
     /// Static exporter class registration
     GtExportHandler::registerClass(GT_METADATA(GtProcessExporter));
-    //GtExportHandler::registerClass(GT_METADATA(GtDataZoneCsvExporter));
-    //GtExportHandler::registerClass(GT_METADATA(GtDataZoneDatExporter));
 }
 
 GtExportHandler*

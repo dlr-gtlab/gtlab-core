@@ -1,6 +1,4 @@
 #include "gt_abstractchartprovider.h"
-//#include "gt_datazonetablelist.h"
-//#include "gt_datazonetable.h"
 #include "gt_stringcontainer.h"
 #include "gt_objectgroup.h"
 #include "gt_datamodel.h"

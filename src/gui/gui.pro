@@ -64,7 +64,6 @@ INCLUDEPATH += .\
     importer/processImporter \
     exporter \
     exporter/processExporter \
-    #exporter/dataZoneExporter \
     collection \
     widgets \
     process_runner \
@@ -131,7 +130,6 @@ HEADERS += \
     tools/gt_tableview.h \
     tools/graphic_items/gt_graphicsanimatedpathitem.h \
     tools/graphic_effects/gt_graphicsfadeouteffect.h \
-    tools/gt_contour.h \
     tools/gt_filedialog.h \
     tools/gt_objectselectiondialog.h \
     tools/gt_jshighlighter.h \
@@ -140,7 +138,6 @@ HEADERS += \
     tools/gt_confirmdeleteprojectdialog.h \
     tools/gt_saveprojectmessagebox.h \
     tools/gt_deleteitemmessagebox.h \
-    tools/gt_contourrunnable.h \
     tools/gt_downloaddialog.h \
     tools/gt_environmentmodel.h \
     gt_objectui.h \
@@ -196,7 +193,6 @@ HEADERS += \
     post/gt_abstractitemui.h \
     post/gt_abstractpostwidget.h \
     post/gt_postaction.h \
-    #post/gt_abstractdataconfigwizard.h \
     post/gt_abstractchartprovider.h \
     post/gt_templateviewerlistwidget.h \
     post/gt_stringmapcontainer.h \
@@ -300,14 +296,12 @@ SOURCES += \
     tools/gt_tableview.cpp \
     tools/graphic_items/gt_graphicsanimatedpathitem.cpp \
     tools/graphic_effects/gt_graphicsfadeouteffect.cpp \
-    tools/gt_contour.cpp \
     tools/gt_objectselectiondialog.cpp \
     tools/gt_jshighlighter.cpp \
     tools/gt_pyhighlighter.cpp \
     tools/gt_projectspecwidget.cpp \
     tools/gt_filedialog.cpp \
     tools/gt_confirmdeleteprojectdialog.cpp \
-    tools/gt_contourrunnable.cpp \
     tools/gt_saveprojectmessagebox.cpp \
     tools/gt_deleteitemmessagebox.cpp \
     tools/gt_downloaddialog.cpp \
@@ -364,7 +358,6 @@ SOURCES += \
     post/gt_abstractitemui.cpp \
     post/gt_abstractpostwidget.cpp \
     post/gt_postaction.cpp \
-    #post/gt_abstractdataconfigwizard.cpp \
     post/gt_abstractchartprovider.cpp \
     post/gt_templateviewerlistwidget.cpp \
     post/gt_stringmapcontainer.cpp \

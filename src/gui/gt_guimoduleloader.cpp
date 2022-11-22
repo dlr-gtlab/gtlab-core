@@ -35,16 +35,11 @@
 #include "gt_objectgroupui.h"
 #include "gt_calculator.h"
 #include "gt_calculatorui.h"
-//#include "gt_result.h"
-//#include "gt_resultui.h"
 #include "gt_label.h"
 #include "gt_tasklink.h"
 #include "gt_processlinkui.h"
-//#include "gt_datazone0d.h"
-//#include "gt_datazone.h"
 #include "gt_label.h"
 #include "gt_labelui.h"
-//#include "gt_datazoneui.h"
 #include "gt_loop.h"
 #include "gt_residualloop.h"
 #include "gt_parameterloop.h"
@@ -63,12 +58,6 @@ GtGuiModuleLoader::GtGuiModuleLoader()
                      GT_METADATA(GtObjectGroupUI));
     registerObjectUI(GT_CLASSNAME(GtCalculator),
                      GT_METADATA(GtCalculatorUI));
-    //registerObjectUI(GT_CLASSNAME(GtResult),
-    //                 GT_METADATA(GtResultUI));
-    //registerObjectUI(GT_CLASSNAME(GtDataZone0D),
-    //                 GT_METADATA(GtDataZoneUI));
-    //registerObjectUI(GT_CLASSNAME(GtDataZone),
-    //                 GT_METADATA(GtDataZoneUI));
     registerObjectUI(GT_CLASSNAME(GtLabel),
                      GT_METADATA(GtLabelUI));
     registerObjectUI(GT_CLASSNAME(GtLoop),

@@ -143,14 +143,8 @@ public:
     virtual QString providerName();
 
 protected:
-
-    //void createDztList(const QStringList& dztUUIDs);
-
-    //void deleteDztList();
-
-    //GtDataZoneTableList* m_dztList;
-
     GtAbstractChartProvider* chartProvider();
+
 private:
 
     GtPostTemplateItem* m_data;
