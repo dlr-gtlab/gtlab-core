@@ -10,6 +10,7 @@
 
 #include "gt_logging.h"
 #include "gt_project.h"
+#include "gt_taskgroup.h"
 
 #include "gt_coreupgraderoutines.h"
 
@@ -17,9 +18,6 @@ bool
 gtlab::internal::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
                                                         const QString& context)
 {
-    gtInfo() << "DO SOMETHING UPGRADE!";
-    gtInfo() << "context-> " << context;
-
     // check whether context is a project file. if not than nothing to do here
     QFileInfo info(context);
     gtDebug() << "suffix: " << info.suffix();
@@ -50,14 +48,32 @@ gtlab::internal::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
     }
 
     // not good not bad. but we need to convert the process information now
+    // lets save all existing task in the new generated user group
     QDomElement pe = pdata.firstChildElement(QStringLiteral("object"));
     while (!pe.isNull())
     {
-        // we found a task. lets move him to a separate file
-        gtDebug() << "task found: " << pe.attribute("name");
+        // we found a task. lets move him to his final destination in
+        // a separate file. rip task
+
+        if (!GtTaskGroup::saveTaskElementToFile(
+                    info.absolutePath(),
+                    GtTaskGroup::USER,
+                    GtTaskGroup::defaultUserGroupId(),
+                    pe))
+        {
+            gtError() << "could not export task! (" << pe.attribute("name")
+                      << ")";
+            return false;
+        }
 
         pe = pe.nextSiblingElement(QStringLiteral("object"));
     }
 
+    // it looks like everything has gone according the masterplan up to this
+    // point. now only the process data xml tree has to be removed :)
+
+    domElement.removeChild(pdata);
+
+    // phew... the last step was hard
     return true;
 }

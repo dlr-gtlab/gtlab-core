@@ -156,6 +156,32 @@ GtProcessData::save(const QString& projectPath)
     }
 }
 
+QStringList
+GtProcessData::userGroupIds() const
+{
+    QStringList retval;
+
+    foreach (auto* group, m_pimpl->userGroups())
+    {
+        retval << group->objectName();
+    }
+
+    return retval;
+}
+
+QStringList
+GtProcessData::customGroupIds() const
+{
+    QStringList retval;
+
+    foreach (auto* group, m_pimpl->customGroups())
+    {
+        retval << group->objectName();
+    }
+
+    return retval;
+}
+
 void
 GtProcessData::Impl::readTaskGroups(const QString& projectPath,
                                     GtTaskGroup::SCOPE scope)
@@ -251,12 +277,7 @@ void
 GtProcessData::Impl::initDefaultUserGroup(const QString& projectPath)
 {
     // init default user
-    QString sysUsername = qEnvironmentVariable("USER");
-
-    if (sysUsername.isEmpty())
-    {
-        sysUsername = qEnvironmentVariable("USERNAME");
-    }
+    QString sysUsername = GtTaskGroup::defaultUserGroupId();
 
     auto userGroups = _pub.get().findDirectChild<GtObjectGroup*>(
                 GtTaskGroup::scopeId(GtTaskGroup::USER));

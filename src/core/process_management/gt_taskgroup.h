@@ -19,6 +19,7 @@
 #include <memory>
 
 class QDir;
+class QDomElement;
 class GtTask;
 
 class GT_CORE_EXPORT GtTaskGroup : public GtObjectGroup
@@ -53,6 +54,17 @@ public:
 
     // Returns scope identification string based on given enum value
     static QString scopeId(const GtTaskGroup::SCOPE scope);
+
+    static QString defaultUserGroupId();
+
+    static QString groupPath(const QString& projectPath,
+                             const GtTaskGroup::SCOPE scope,
+                             const QString& groupId);
+
+    static bool saveTaskElementToFile(const QString&  projectPath,
+                                      const GtTaskGroup::SCOPE scope,
+                                      const QString& groupId,
+                                      const QDomElement& taskElement);
 
 private:
     /// Private implementation

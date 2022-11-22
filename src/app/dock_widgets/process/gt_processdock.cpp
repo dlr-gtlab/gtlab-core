@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QFrame>
+#include <QComboBox>
 #include <QMenu>
 #include <QMimeData>
 #include <QApplication>
@@ -150,10 +151,13 @@ GtProcessDock::GtProcessDock() :
     m_view->setItemDelegate(delegate);
     m_view->setEditTriggers(QTreeView::SelectedClicked);
 
+    // task group overview and selection
+    m_taskGroupSelection = new QComboBox;
 
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(2);
+    layout->addWidget(m_taskGroupSelection);
     layout->addLayout(btnLayout);
 
     layout->addWidget(frame);
@@ -279,6 +283,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
     m_filterModel->setSourceModel(m_model);
     m_project = project;
     m_taskGroup = nullptr;
+    m_taskGroupSelection->clear();
 
     if (project)
     {
@@ -287,11 +292,22 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         if (project->processData())
         {
             m_taskGroup = project->processData()->taskGroup();
+
+            // add entries for all existing groups
+            m_taskGroupSelection->addItem("user:");
+            m_taskGroupSelection->addItems(
+                        project->processData()->userGroupIds());
+            m_taskGroupSelection->addItem("custom:");
+            m_taskGroupSelection->addItems(
+                        project->processData()->customGroupIds());
+
+
         }
 
         if (m_taskGroup)
         {
             filterData(m_search->text());
+            m_taskGroupSelection->setCurrentText(m_taskGroup->objectName());
         }
     }
 

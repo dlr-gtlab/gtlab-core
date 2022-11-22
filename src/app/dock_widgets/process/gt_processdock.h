@@ -19,6 +19,7 @@
 
 class QPushButton;
 class QMenu;
+class QComboBox;
 class QSignalMapper;
 class GtProcessView;
 class GtProcessComponentModel;
@@ -138,6 +139,9 @@ protected:
     void projectChangedEvent(GtProject* project) override;
 
 private:
+    /// Combobox for task group selection
+    QComboBox* m_taskGroupSelection;
+
     /// Button to run selected process
     QPushButton* m_runButton;
 

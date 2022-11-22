@@ -30,12 +30,6 @@ public:
 
     Impl (GtTaskGroup& pub) : _pub(pub) { }
 
-    bool initFileStructure(const QString& projectPath,
-                           const GtTaskGroup::SCOPE scope) const;
-
-    bool createSubFolder(QDir& dir,
-                         const QString& subFolderId) const;
-
     bool updateIndexFile(const QString& projectPath,
                          const GtTaskGroup::SCOPE scope) const;
 
@@ -46,9 +40,21 @@ public:
 
     bool saveTaskToFile(GtTask* task, const QString& groupPath) const;
 
-    QString indexFileName() const;
+    static bool createSubFolder(QDir& dir,
+                         const QString& subFolderId);
 
-    QString taskFileExtension() const;
+    static bool initFileStructure(const QString& projectPath,
+                                  const GtTaskGroup::SCOPE scope,
+                                  const QString& groupId);
+
+    static bool appendTaskToIndex(const QString& projectPath,
+                                  const GtTaskGroup::SCOPE scope,
+                                  const QString& groupId,
+                                  const QString& taskUuid);
+
+    static QString indexFileName();
+
+    static QString taskFileExtension();
 
 };
 
@@ -131,7 +137,7 @@ GtTaskGroup::save(const QString& projectPath,
     }
 
     // init full file structure for given task group
-    if (!m_pimpl->initFileStructure(projectPath, scope))
+    if (!m_pimpl->initFileStructure(projectPath, scope, objectName()))
     {
         return false;
     }
@@ -170,9 +176,108 @@ GtTaskGroup::scopeId(const SCOPE scope)
     return retval;
 }
 
+QString
+GtTaskGroup::defaultUserGroupId()
+{
+    QString retval = qEnvironmentVariable("USER");
+
+    if (retval.isEmpty())
+    {
+        retval = qEnvironmentVariable("USERNAME");
+    }
+
+    return retval;
+}
+
+QString
+GtTaskGroup::groupPath(const QString& projectPath,
+                       const SCOPE scope,
+                       const QString& groupId)
+{
+    QString retval = projectPath + QDir::separator() + "tasks";
+
+    QString scopeId = GtTaskGroup::scopeId(scope);
+
+    if (scopeId.isEmpty())
+    {
+        gtError() << "invalid task group scope";
+        return {};
+    }
+
+    retval += QDir::separator() + scopeId + QDir::separator() + groupId;
+
+    return retval;
+}
+
+bool
+GtTaskGroup::saveTaskElementToFile(const QString& projectPath,
+                                   const SCOPE scope,
+                                   const QString& groupId,
+                                   const QDomElement& taskElement)
+{
+    QString taskUuid = taskElement.attribute("uuid");
+
+    if (taskUuid.isEmpty())
+    {
+        gtError() << "task uuid not found. corrupted task element!";
+        return false;
+    }
+
+    if (!GtTaskGroup::Impl::initFileStructure(projectPath, scope, groupId))
+    {
+        return false;
+    }
+
+    const QString fileName = groupPath(projectPath, scope, groupId) + QDir::separator()
+            + taskUuid + GtTaskGroup::Impl::taskFileExtension();
+
+    gtDebug() << "writing task file (" << fileName << ")...";
+
+    QFile taskFile(fileName);
+
+    if (taskFile.exists())
+    {
+        gtError() << "file already exists!" << taskFile.fileName();
+        return false;
+    }
+
+    if (!taskFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        gtError() << "Could not open file!" << taskFile.fileName();
+        return false;
+    }
+
+    QTextStream out(&taskFile);
+
+    QDomDocument doc;
+
+    // element is the QDomElement object
+    QString str;
+    QTextStream stream(&str, QIODevice::WriteOnly);
+    taskElement.save(stream, 2); // stored the content of QDomElement to stream
+
+    doc.setContent(str.toUtf8());
+
+    gtDebug() << "writing doc...";
+    out << doc.toString();
+
+    taskFile.close();
+
+    // append task to index
+    if (!GtTaskGroup::Impl::appendTaskToIndex(projectPath, scope, groupId,
+                                              taskUuid))
+    {
+        gtError() << "Could not append task to index file!";
+        return false;
+    }
+
+    return true;
+}
+
 bool
 GtTaskGroup::Impl::initFileStructure(const QString& projectPath,
-                               const GtTaskGroup::SCOPE scope) const
+                                     const GtTaskGroup::SCOPE scope,
+                                     const QString& groupId)
 {
     QDir dir(projectPath);
 
@@ -189,14 +294,71 @@ GtTaskGroup::Impl::initFileStructure(const QString& projectPath,
         return false;
 
     // check group id folder. if not available, create new.
-    if (!createSubFolder(dir, _pub.get().objectName()))
+    if (!createSubFolder(dir, groupId))
         return false;
 
     return true;
 }
 
 bool
-GtTaskGroup::Impl::createSubFolder(QDir& dir, const QString& subFolderId) const
+GtTaskGroup::Impl::appendTaskToIndex(const QString& projectPath,
+                                     const SCOPE scope,
+                                     const QString& groupId,
+                                     const QString& taskUuid)
+{
+    QDir dir(GtTaskGroup::groupPath(projectPath, scope, groupId));
+    const QString _idxFileName = GtTaskGroup::Impl::indexFileName();
+
+    // check for existance
+    QFile idxFile(dir.absoluteFilePath(_idxFileName));
+
+    QJsonObject jroot;
+    QJsonArray jarray;
+
+    if (idxFile.exists())
+    {
+        // open index file
+        if (!idxFile.open(QIODevice::ReadWrite))
+        {
+            gtError() << "could not open index file!";
+            return false;
+        }
+
+        QByteArray data = idxFile.readAll();
+        QJsonDocument doc(QJsonDocument::fromJson(data));
+
+        idxFile.resize(0);
+        jroot = doc.object();
+        jarray = jroot["active"].toArray();
+    }
+    else
+    {
+        // open index file
+        if (!idxFile.open(QIODevice::WriteOnly))
+        {
+            gtError() << "could not create index file!";
+            return false;
+        }
+    }
+
+    if (!jarray.contains(taskUuid))
+    {
+        jarray.push_back(taskUuid);
+    }
+
+    jroot.insert(QStringLiteral("active"), jarray);
+
+    QJsonDocument saveDoc(jroot);
+    idxFile.write(saveDoc.toJson());
+
+    idxFile.close();
+
+    // we are happy
+    return true;
+}
+
+bool
+GtTaskGroup::Impl::createSubFolder(QDir& dir, const QString& subFolderId)
 {
     if (subFolderId.isEmpty())
     {
@@ -263,20 +425,7 @@ QString
 GtTaskGroup::Impl::path(const QString& projectPath,
                       const GtTaskGroup::SCOPE scope) const
 {
-    QString retval = projectPath + QDir::separator() + "tasks";
-
-    QString scopeId = GtTaskGroup::scopeId(scope);
-
-    if (scopeId.isEmpty())
-    {
-        gtError() << "invalid task group scope";
-        return {};
-    }
-
-    retval += QDir::separator() + scopeId + QDir::separator() +
-            _pub.get().objectName();
-
-    return retval;
+    return _pub.get().groupPath(projectPath, scope, _pub.get().objectName());
 }
 
 GtTask*
@@ -355,13 +504,13 @@ GtTaskGroup::Impl::saveTaskToFile(GtTask* task, const QString& groupPath) const
 }
 
 QString
-GtTaskGroup::Impl::indexFileName() const
+GtTaskGroup::Impl::indexFileName()
 {
     return {"index.json"};
 }
 
 QString
-GtTaskGroup::Impl::taskFileExtension() const
+GtTaskGroup::Impl::taskFileExtension()
 {
     return {".gttask"};
 }

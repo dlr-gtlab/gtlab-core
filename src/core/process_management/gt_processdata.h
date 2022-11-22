@@ -58,6 +58,10 @@ public:
     // Stores process data for given project
     void save(const QString& projectPath);
 
+    QStringList userGroupIds() const;
+
+    QStringList customGroupIds() const;
+
 private:
     /// Private implementation
     class Impl;
