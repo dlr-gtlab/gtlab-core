@@ -26,6 +26,7 @@ class GtProcessComponentModel;
 class GtTreeFilterModel;
 class GtSearchWidget;
 class GtTaskGroup;
+class GtTaskGroupModel;
 class GtTask;
 class GtCalculator;
 class GtObject;
@@ -156,6 +157,9 @@ private:
 
     /// model
     GtProcessComponentModel* m_model;
+
+    /// model
+    GtTaskGroupModel* m_taskGroupModel;
 
     /// model
     QPointer<GtTreeFilterModel> m_filterModel;

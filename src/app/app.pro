@@ -104,6 +104,7 @@ DESTDIR = $${BUILD_DEST}
 HEADERS += \
     dialogs/gt_moduledetailsdialog.h \
     dialogs/gt_refusedpluginsdialog.h \
+    dock_widgets/process/gt_taskgroupmodel.h \
     gt_mainwin.h \
     preferences/gt_preferencesdialog.h \
     preferences/pages/gt_preferencesapp.h \
@@ -195,6 +196,7 @@ SOURCES += \
     app.cpp \
     dialogs/gt_moduledetailsdialog.cpp \
     dialogs/gt_refusedpluginsdialog.cpp \
+    dock_widgets/process/gt_taskgroupmodel.cpp \
     gt_mainwin.cpp \
     preferences/gt_preferencesdialog.cpp \
     preferences/pages/gt_preferencesapp.cpp \

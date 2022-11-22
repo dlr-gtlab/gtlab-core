@@ -58,6 +58,7 @@
 #include "gt_icons.h"
 #include "gt_utilities.h"
 #include "gt_taskgroup.h"
+#include "gt_taskgroupmodel.h"
 
 #include "gt_processdock.h"
 
@@ -149,6 +150,9 @@ GtProcessDock::GtProcessDock() :
 
     // task group overview and selection
     m_taskGroupSelection = new QComboBox;
+
+    m_taskGroupModel = new GtTaskGroupModel;
+    m_taskGroupSelection->setModel(m_taskGroupModel);
 
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -290,13 +294,8 @@ GtProcessDock::projectChangedEvent(GtProject* project)
             m_taskGroup = project->processData()->taskGroup();
 
             // add entries for all existing groups
-            m_taskGroupSelection->addItem("user:");
-            m_taskGroupSelection->addItems(
-                        project->processData()->userGroupIds());
-            m_taskGroupSelection->addItem("custom:");
-            m_taskGroupSelection->addItems(
-                        project->processData()->customGroupIds());
-
+            m_taskGroupModel->init(project->processData()->userGroupIds(),
+                                   project->processData()->customGroupIds());
 
         }
 
