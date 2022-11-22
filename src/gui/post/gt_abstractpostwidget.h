@@ -12,7 +12,7 @@ class GtPostTemplateItem;
 class QPrinter;
 class QPainter;
 class QRect;
-class GtDataZoneTableList;
+//class GtDataZoneTableList;
 class GtAbstractChartProvider;
 
 
@@ -149,7 +149,7 @@ protected:
 
     void deleteDztList();
 
-    GtDataZoneTableList* m_dztList;   
+    //GtDataZoneTableList* m_dztList;
 
     GtAbstractChartProvider* chartProvider();
 private:

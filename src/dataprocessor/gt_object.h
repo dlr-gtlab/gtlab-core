@@ -274,7 +274,7 @@ public:
      * @brief results
      * @return pointer to child results object
      */
-    GtResult* results() const;
+    //GtResult* results() const;
 
     /**
      * @brief Returns all label identification strings stored in results of
@@ -283,15 +283,15 @@ public:
      */
     QStringList labelIds() const;
 
-    /**
-    * @brief collectDzt
-    * @return
-    */
-    virtual GtDataZoneTable* createDzt(bool* ok = nullptr)
-    {
-        Q_UNUSED(ok)
-        return nullptr;
-    }
+//    /**
+//    * @brief collectDzt
+//    * @return
+//    */
+//    virtual GtDataZoneTable* createDzt(bool* ok = nullptr)
+//    {
+//        Q_UNUSED(ok)
+//        return nullptr;
+//    }
 
     /**
      * @brief hasChanges

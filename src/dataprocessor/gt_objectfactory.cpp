@@ -18,14 +18,13 @@
 #include "gt_table.h"
 #include "gt_tableaxis.h"
 #include "gt_tablevalues.h"
-#include "gt_result.h"
-#include "gt_datazone0d.h"
-#include "gt_datazone.h"
+//#include "gt_datazone0d.h"
+//#include "gt_datazone.h"
 #include "gt_label.h"
 #include "gt_labeldata.h"
-#include "gt_datazonetable.h"
-#include "gt_datazonetablelist.h"
-#include "gt_abstractdatazone.h"
+//#include "gt_datazonetable.h"
+//#include "gt_datazonetablelist.h"
+//#include "gt_abstractdatazone.h"
 #include "gt_propertyconnection.h"
 #include "gt_tablegroup.h"
 //#include "gt_datazonetablemainaxis.h"
@@ -44,23 +43,23 @@ GtObjectFactory::GtObjectFactory(QObject* parent) : QObject(parent)
     m_knownClasses.insert(GT_CLASSNAME(GtTableValues),
                           GT_METADATA(GtTableValues));
 
-    m_knownClasses.insert(GT_CLASSNAME(GtResult),
-                          GT_METADATA(GtResult));
+    //m_knownClasses.insert(GT_CLASSNAME(GtResult),
+    //                      GT_METADATA(GtResult));
 
-    m_knownClasses.insert(GT_CLASSNAME(GtDataZoneTableList),
-                          GT_METADATA(GtDataZoneTableList));
+    //m_knownClasses.insert(GT_CLASSNAME(GtDataZoneTableList),
+    //                      GT_METADATA(GtDataZoneTableList));
 
-    m_knownClasses.insert(GT_CLASSNAME(GtDataZoneTable),
-                          GT_METADATA(GtDataZoneTable));
+    //m_knownClasses.insert(GT_CLASSNAME(GtDataZoneTable),
+    //                      GT_METADATA(GtDataZoneTable));
 
-    m_knownClasses.insert(GT_CLASSNAME(GtAbstractDataZone),
-                          GT_METADATA(GtAbstractDataZone));
+    //m_knownClasses.insert(GT_CLASSNAME(GtAbstractDataZone),
+    //                      GT_METADATA(GtAbstractDataZone));
 
-    m_knownClasses.insert(GT_CLASSNAME(GtDataZone0D),
-                          GT_METADATA(GtDataZone0D));
+    //m_knownClasses.insert(GT_CLASSNAME(GtDataZone0D),
+    //                      GT_METADATA(GtDataZone0D));
 
-    m_knownClasses.insert(GT_CLASSNAME(GtDataZone),
-                          GT_METADATA(GtDataZone));
+    //m_knownClasses.insert(GT_CLASSNAME(GtDataZone),
+    //                      GT_METADATA(GtDataZone));
 
     m_knownClasses.insert(GT_CLASSNAME(GtLabel),
                           GT_METADATA(GtLabel));

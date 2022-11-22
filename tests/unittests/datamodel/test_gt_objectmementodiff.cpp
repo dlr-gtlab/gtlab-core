@@ -14,7 +14,7 @@
 #include "gt_object.h"
 #include "test_gt_object.h"
 #include "gt_objectfactory.h"
-#include "gt_datazone0d.h"
+//#include "gt_datazone0d.h"
 
 
 /// This is a test fixture that does a init for each test

@@ -12,7 +12,7 @@
 #include "QDebug"
 #include "gt_datamodel.h"
 #include "gt_project.h"
-#include "gt_datazonetablelist.h"
+//#include "gt_datazonetablelist.h"
 #include "gt_abstractchartprovider.h"
 
 #include <QWidget>
@@ -21,7 +21,7 @@
 
 GtAbstractPostWidget::GtAbstractPostWidget(QWidget* w) :
     QWidget(w),
-    m_dztList(nullptr),
+    //m_dztList(nullptr),
     m_data(nullptr),
     m_printable(true),
     m_iconString(QString())
@@ -150,7 +150,7 @@ GtAbstractPostWidget::createDztList(const QStringList& dztUUIDs)
 {
     deleteDztList();
 
-    m_dztList = new GtDataZoneTableList();
+    //m_dztList = new GtDataZoneTableList();
 
     if (dztUUIDs.isEmpty())
     {
@@ -187,16 +187,16 @@ GtAbstractPostWidget::createDztList(const QStringList& dztUUIDs)
                     this, SIGNAL(refreshRequest()));
         }
 
-        GtDataZoneTable* dzt = o->createDzt();
+        //GtDataZoneTable* dzt = o->createDzt();
 
-        if (!dzt)
-        {
-            gtWarning() << tr("DataZoneTable cannot be collected. "
-                            "Path to object: '") << uuid;
-            continue;
-        }
+        //if (!dzt)
+        //{
+        //    gtWarning() << tr("DataZoneTable cannot be collected. "
+        //                    "Path to object: '") << uuid;
+        //    continue;
+        //}
 
-        m_dztList->addDzt(dzt, uuid);
+        //m_dztList->addDzt(dzt, uuid);
 
         first = false;
     }
@@ -205,11 +205,11 @@ GtAbstractPostWidget::createDztList(const QStringList& dztUUIDs)
 void
 GtAbstractPostWidget::deleteDztList()
 {
-    if (m_dztList)
-    {
-        delete m_dztList;
-        m_dztList = nullptr;
-    }
+    //if (m_dztList)
+    //{
+    //    delete m_dztList;
+    //    m_dztList = nullptr;
+    //}
 }
 
 void

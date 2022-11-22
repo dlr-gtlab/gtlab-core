@@ -64,7 +64,7 @@ INCLUDEPATH += .\
     importer/processImporter \
     exporter \
     exporter/processExporter \
-    exporter/dataZoneExporter \
+    #exporter/dataZoneExporter \
     collection \
     widgets \
     process_runner \
@@ -149,11 +149,11 @@ HEADERS += \
     object_ui/gt_packageui.h \
     object_ui/gt_objectgroupui.h \
     object_ui/gt_calculatorui.h \
-    object_ui/gt_resultui.h \
+    #object_ui/gt_resultui.h \
     object_ui/gt_processlinkui.h \
     object_ui/gt_labelui.h \
     object_ui/gt_loopui.h \
-    object_ui/gt_datazoneui.h \
+    #object_ui/gt_datazoneui.h \
     dock_widgets/process/gt_processwizard.h \
     dock_widgets/process/gt_processfiltermodel.h \
     dock_widgets/process/gt_processcomponentmodel.h \
@@ -223,8 +223,8 @@ HEADERS += \
     exporter/gt_exportermetadata.h \
     exporter/gt_exporthandler.h \
     exporter/gt_exportmenu.h \
-    exporter/dataZoneExporter/gt_datazonecsvexporter.h \
-    exporter/dataZoneExporter/gt_datazonedatexporter.h \
+    #exporter/dataZoneExporter/gt_datazonecsvexporter.h \
+    #exporter/dataZoneExporter/gt_datazonedatexporter.h \
     exporter/processExporter/gt_processexporter.h \
     gt_propertyinterface.h \
     mdi_items/collection_env/gt_collectioneditor.h \
@@ -322,11 +322,11 @@ SOURCES += \
     object_ui/gt_packageui.cpp \
     object_ui/gt_objectgroupui.cpp \
     object_ui/gt_calculatorui.cpp \
-    object_ui/gt_resultui.cpp \
+    #object_ui/gt_resultui.cpp \
     object_ui/gt_processlinkui.cpp \
     object_ui/gt_labelui.cpp \
     object_ui/gt_loopui.cpp \
-    object_ui/gt_datazoneui.cpp \
+    #object_ui/gt_datazoneui.cpp \
     dock_widgets/process/gt_processwizard.cpp \
     dock_widgets/process/gt_processfiltermodel.cpp \
     dock_widgets/process/pages/gt_calculatoroverviewpage.cpp \
@@ -395,8 +395,8 @@ SOURCES += \
     exporter/gt_exportermetadata.cpp \
     exporter/gt_exporthandler.cpp \
     exporter/gt_exportmenu.cpp \
-    exporter/dataZoneExporter/gt_datazonecsvexporter.cpp \
-    exporter/dataZoneExporter/gt_datazonedatexporter.cpp \
+    #exporter/dataZoneExporter/gt_datazonecsvexporter.cpp \
+    #exporter/dataZoneExporter/gt_datazonedatexporter.cpp \
     exporter/processExporter/gt_processexporter.cpp \
     mdi_items/collection_env/gt_collectioneditor.cpp \
     mdi_items/collection_env/gt_abstractcollectionsettings.cpp \

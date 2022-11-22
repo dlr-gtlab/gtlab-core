@@ -10,7 +10,7 @@
 #include "gt_objectmemento.h"
 #include "gt_abstractobjectfactory.h"
 #include "gt_abstractproperty.h"
-#include "gt_result.h"
+//#include "gt_result.h"
 #include "gt_logging.h"
 #include "gt_label.h"
 #include "gt_objectmementodiff.h"
@@ -417,11 +417,11 @@ GtObject::parentObject() const
     return qobject_cast<GtObject*>(parent());
 }
 
-GtResult*
-GtObject::results() const
-{
-    return findDirectChild<GtResult*>();
-}
+//GtResult*
+//GtObject::results() const
+//{
+//    return findDirectChild<GtResult*>();
+//}
 
 QStringList
 GtObject::labelIds() const

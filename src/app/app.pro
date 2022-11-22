@@ -142,9 +142,9 @@ HEADERS += \
     mdi_items/examples/gt_examplesentry.h \
     mdi_items/examples/gt_examplegraphicalitem.h \
     mdi_items/examples/gt_examplestabwidget.h \
-    mdi_items/result_viewer/gt_resultviewer.h \
-    mdi_items/result_viewer/gt_resulttableview.h \
-    mdi_items/result_viewer/gt_datazonemodel.h \
+#    mdi_items/result_viewer/gt_resultviewer.h \
+#    mdi_items/result_viewer/gt_resulttableview.h \
+#    mdi_items/result_viewer/gt_datazonemodel.h \
     mdi_items/label_usages/gt_labelusageviewer.h \
     mdi_items/label_usages/gt_labelcontainer.h \
     mdi_items/label_usages/gt_labelusagemodel.h \
@@ -234,9 +234,9 @@ SOURCES += \
     mdi_items/examples/gt_examplesentry.cpp \
     mdi_items/examples/gt_examplegraphicalitem.cpp \
     mdi_items/examples/gt_examplestabwidget.cpp \
-    mdi_items/result_viewer/gt_resultviewer.cpp \
-    mdi_items/result_viewer/gt_resulttableview.cpp \
-    mdi_items/result_viewer/gt_datazonemodel.cpp \
+#    mdi_items/result_viewer/gt_resultviewer.cpp \
+#    mdi_items/result_viewer/gt_resulttableview.cpp \
+#    mdi_items/result_viewer/gt_datazonemodel.cpp \
     mdi_items/label_usages/gt_labelusageviewer.cpp \
     mdi_items/label_usages/gt_labelcontainer.cpp \
     mdi_items/label_usages/gt_labelusagemodel.cpp \

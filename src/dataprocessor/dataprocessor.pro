@@ -74,10 +74,10 @@ HEADERS += \
     gt_tableparser.h \
     gt_tableaxis.h \
     gt_factorygroup.h \
-    gt_abstractdatazone.h \
-    gt_datazone.h \
-    gt_datazone0d.h \
-    gt_result.h \
+    #gt_abstractdatazone.h \
+    #gt_datazone.h \
+    #gt_datazone0d.h \
+    #gt_result.h \
     gt_tablevalues.h \
     gt_typetraits.h \
     gt_utilities.h \
@@ -86,10 +86,10 @@ HEADERS += \
     gt_xmlutilities.h \
     property/gt_enumproperty.h \
     property/gt_objectlinkproperty.h \
-    gt_datazonetable.h \
+    #gt_datazonetable.h \
     gt_objectmementodiff.h \
-    gt_datazonetablemainaxis.h \
-    gt_datazonetablelist.h \
+    #gt_datazonetablemainaxis.h \
+    #gt_datazonetablelist.h \
     property/gt_abstractproperty.h \
     property/gt_boolproperty.h \
     property/gt_doubleproperty.h \
@@ -147,17 +147,17 @@ SOURCES += \
     gt_tableparser.cpp \
     gt_tableaxis.cpp \
     gt_factorygroup.cpp \
-    gt_abstractdatazone.cpp \
-    gt_datazone.cpp \
-    gt_datazone0d.cpp \
-    gt_result.cpp \
+    #gt_abstractdatazone.cpp \
+    #gt_datazone.cpp \
+    #gt_datazone0d.cpp \
+    #gt_result.cpp \
     gt_tablevalues.cpp \
     gt_xmlutilities.cpp \
     property/gt_objectlinkproperty.cpp \
-    gt_datazonetable.cpp \
+    #gt_datazonetable.cpp \
     gt_objectmementodiff.cpp \
-    gt_datazonetablemainaxis.cpp \
-    gt_datazonetablelist.cpp \
+    #gt_datazonetablemainaxis.cpp \
+    #gt_datazonetablelist.cpp \
     property/gt_abstractproperty.cpp \
     property/gt_boolproperty.cpp \
     property/gt_doubleproperty.cpp \

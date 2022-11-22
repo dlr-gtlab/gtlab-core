@@ -37,7 +37,7 @@
 #include "gt_labelusageviewer.h"
 #include "gt_sessionviewer.h"
 #include "gt_stateviewer.h"
-#include "gt_resultviewer.h"
+//#include "gt_resultviewer.h"
 #include "gt_collectioneditor.h"
 #include "gt_examplesmdiwidget.h"
 
@@ -63,7 +63,7 @@ registerWidgets()
     gtMdiLauncher->registerClass(GT_METADATA(GtLabelUsageViewer));
     gtMdiLauncher->registerClass(GT_METADATA(GtSessionViewer));
     gtMdiLauncher->registerClass(GT_METADATA(GtStateViewer));
-    gtMdiLauncher->registerClass(GT_METADATA(GtResultViewer));
+    //gtMdiLauncher->registerClass(GT_METADATA(GtResultViewer));
     gtMdiLauncher->registerClass(GT_METADATA(GtCollectionEditor));
     gtMdiLauncher->registerClass(GT_METADATA(GtExamplesMdiWidget));
 
