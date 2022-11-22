@@ -129,10 +129,6 @@ GtProcessDock::GtProcessDock() :
     filterLayout->addStretch(1);
     filterLayout->addWidget(m_processQueueButton);
 
-    auto frame = new QFrame;
-    auto frameLayout = new QVBoxLayout;
-    frameLayout->setContentsMargins(0, 0, 0, 0);
-
     m_view = new GtProcessView(this);
     frameLayout->addWidget(m_view);
     frameLayout->addLayout(filterLayout);

@@ -43,7 +43,6 @@
 
 #include "internal/gt_moduleupgrader.h"
 
->>>>>>> f2fd579 (initial implementation of separate task storage)
 GtProject::GtProject(const QString& path) :
     m_path(path),
     m_pathProp(QStringLiteral("path"), tr("Path"), tr("Project path"), path)

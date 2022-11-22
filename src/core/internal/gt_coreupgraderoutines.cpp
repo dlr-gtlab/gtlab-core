@@ -15,8 +15,8 @@
 #include "gt_coreupgraderoutines.h"
 
 bool
-gtlab::internal::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
-                                                        const QString& context)
+gt::detail::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
+                                                   const QString& context)
 {
     // check whether context is a project file. if not than nothing to do here
     QFileInfo info(context);

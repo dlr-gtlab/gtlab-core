@@ -56,26 +56,6 @@ public:
     static void switchToProject(class GtProject& project);
 
     /**
-     * @brief Shows footprint of selected project.
-     * @param obj Selected project
-     */
-    void showFootprint(GtObject* obj) const;
-
-    /**
-     * @brief Triggers upgrad of project data provided by modules.
-     * @param obj Selected project.
-     */
-    static void upgradeProjectData(GtObject* obj);
-
-    /**
-     * @brief Indicator function to specify whether upgrades of project data
-     * are available.
-     * @param obj Selected project.
-     * @return True if upgrades are available.
-     */
-    static bool canUpgradeProjectData(GtObject* obj);
-
-    /**
      * @brief renameProject
      * @param obj
      */
