@@ -2,6 +2,7 @@
 #define GTPOSTTEMPLATEFACTORY_H
 
 #include "gt_abstractobjectfactory.h"
+#include "qobject.h"
 
 #define gtPostTemplateFactory (GtPostTemplateFactory::instance())
 

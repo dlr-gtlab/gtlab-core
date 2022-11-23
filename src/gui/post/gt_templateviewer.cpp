@@ -552,11 +552,11 @@ GtTemplateViewer::moveWidget(GtTemplateViewer::MoveDirection d)
 void
 GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
 {
-    if (str == "GtBarProvider")
+    if (str == "GtppBarProvider")
     {
         actPlot->setIcon(gt::gui::icon::histogram16());
     }
-    else if (str == "GtXyProvider")
+    else if (str == "GtppXyProvider")
     {
         actPlot->setIcon(gt::gui::icon::xyPlot16());
     }
@@ -564,11 +564,11 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
     {
         actPlot->setIcon(gt::gui::icon::xyPlot16());
     }
-    else if (str == "GtppMapProvider")
+    else if (str == "GtpMapProvider")
     {
         actPlot->setIcon(gt::gui::icon::map16());
     }
-    else if (str == "GtCarpetProvider")
+    else if (str == "GtppCarpetProvider")
     {
         actPlot->setIcon(gt::gui::icon::carpetPlot());
     }
@@ -576,7 +576,7 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
     {
         actPlot->setIcon(gt::gui::icon::carpetPlot());
     }
-    else if (str == "GtTSDiagramProvider")
+    else if (str == "GtpTSDiagramProvider")
     {
         actPlot->setIcon(gt::gui::icon::tsDiagram16());
     }
@@ -589,11 +589,11 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
 QString
 GtTemplateViewer::shortPlotName(const QString& providerName) const
 {
-    if (providerName == "GtBarProvider")
+    if (providerName == "GtppBarProvider")
     {
         return "Bar-Chart";
     }
-    else if (providerName == "GtXyProvider")
+    else if (providerName == "GtppXyProvider")
     {
         return "XY-Plot";
     }
@@ -601,15 +601,15 @@ GtTemplateViewer::shortPlotName(const QString& providerName) const
     {
         return "XY-Performance-Plot";
     }
-    else if (providerName == "GtppMapProvider")
+    else if (providerName == "GtpMapProvider")
     {
         return "Component-Map";
     }
-    else if (providerName == "GtCarpetProvider")
+    else if (providerName == "GtppCarpetProvider")
     {
         return "Carpet-Plot";
     }
-    else if (providerName == "GtTSDiagramProvider")
+    else if (providerName == "GtpTSDiagramProvider")
     {
         return "TS-Diagram";
     }
