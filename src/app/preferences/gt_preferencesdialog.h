@@ -30,6 +30,11 @@ public:
      */
     explicit GtPreferencesDialog(int initItem = 0, QWidget* parent = nullptr);
 
+    /**
+     * @brief Allows to specify the page that is displayed first when opening
+     * the preferences dialog.
+     * @param title Title of the page to be displayed first.
+     */
     void setStartingPage(const QString& title);
 
 public slots:
