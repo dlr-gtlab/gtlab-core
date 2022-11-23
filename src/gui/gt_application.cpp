@@ -707,6 +707,12 @@ GtApplication::moduleShortCuts() const
     return m_moduleShortCuts;
 }
 
+void
+GtApplication::showPreferences(const QString& title)
+{
+    emit preferencesDialogRequested(title);
+}
+
 QList<GtApplication::PageFactory>&
 customPages()
 {

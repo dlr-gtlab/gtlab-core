@@ -307,6 +307,13 @@ public:
      */
     QList<GtShortCutSettingsData> moduleShortCuts() const;
 
+    /**
+     * @brief Requests the opening of the preferences dialog
+     * on the page with the given title.
+     * @param title Title of the page to be displayed first.
+     */
+    void showPreferences(const QString& title);
+
 
     using PageFactory = std::function<class GtPreferencesPage*()>;
 
