@@ -87,10 +87,9 @@ GtExternalizedObject::GtExternalizedObject() :
     registerProperty(pimpl->pCachedHash, cat, true);
     registerProperty(pimpl->pMetaData, cat, true);
 
-//    pimpl->pFetched.hide(true);
-//    pimpl->pFetchInitialVersion.hide(true);
-//    pimpl->pCachedHash.hide(true);
-//    pimpl->pMetaData.hide(true);
+    pimpl->pFetchInitialVersion.hide(true);
+    pimpl->pCachedHash.hide(true);
+    pimpl->pMetaData.hide(true);
 
     pimpl->pFetched.setReadOnly(true);
     pimpl->pFetchInitialVersion.setReadOnly(true);
@@ -275,7 +274,8 @@ GtExternalizedObject::externalize()
 
     if (!canExternalize())
     {
-        gtWarning() << tr("Cannot externalize invalid object:") << objectName();
+        gtDebug().medium() << tr("Skipping externalization of invalid object:")
+                          << objectName();
         return false;
     }
 
@@ -283,7 +283,6 @@ GtExternalizedObject::externalize()
     QString hash{calcExtHash()};
 
     // check if not marked for externalization or has changes
-    // (( false || false || false ))
     if (!(pimpl->states & ExternalizeOnSave || pimpl->states & KeepInternalized ||
           hasModifiedData(hash)))
     {
