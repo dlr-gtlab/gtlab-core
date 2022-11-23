@@ -153,8 +153,8 @@ int
 GtPreferencesDialog::pageIndex(const QString& title)
 {
     auto it = std::find_if(m_pages.begin(), m_pages.end(),
-                             [&title](GtPreferencesPage* compareTo) {
-        return title == compareTo->title();
+                             [&title](GtPreferencesPage* page) {
+        return title == page->title();
     });
 
     return it != m_pages.end() ? std::distance(m_pages.begin(), it) : -1;
