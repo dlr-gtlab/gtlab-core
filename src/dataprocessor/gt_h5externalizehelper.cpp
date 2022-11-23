@@ -158,7 +158,7 @@ GtH5ExternalizeHelper::openDataSet(QVariant& refVariant,
 
     // try retrieving by h5 reference
     auto dset = dereferenceDataSet(file, refVariant);
-    if (dset.isValid())
+    if (!dset.isValid())
     {
         // try retrieving by path
         QStringList path{m_objClassName, m_objUuid};

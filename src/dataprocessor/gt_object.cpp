@@ -803,7 +803,7 @@ void GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
 }
 
 bool
-GtObject::registerProperty(GtAbstractProperty& property)
+GtObject::registerProperty(GtAbstractProperty& property, bool silent)
 {
     if (pimpl->properties.contains(&property))
     {
@@ -815,7 +815,10 @@ GtObject::registerProperty(GtAbstractProperty& property)
         return false;
     }
 
-    connectProperty(property);
+    if (!silent)
+    {
+        connectProperty(property);
+    }
 
     pimpl->properties.append(&property);
 
@@ -848,11 +851,13 @@ GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
 }
 
 bool
-GtObject::registerProperty(GtAbstractProperty& property, const QString& cat)
+GtObject::registerProperty(GtAbstractProperty& property,
+                           const QString& cat,
+                           bool silent)
 {
     property.setCategory(cat);
 
-    return registerProperty(property);
+    return registerProperty(property, silent);
 }
 
 void

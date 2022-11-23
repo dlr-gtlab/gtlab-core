@@ -55,7 +55,8 @@ TEST_F(TestGtExternalizedObject, initialization)
     EXPECT_TRUE(obj->isFetched());
 
     EXPECT_TRUE(obj->fetchInitialVersion());
-    EXPECT_TRUE(obj->property("metaData").isValid());
+    auto prop = obj->findProperty("metaData");
+    ASSERT_TRUE(prop && prop->isValid());
     EXPECT_TRUE(obj->hasModifiedData());
 }
 
@@ -71,7 +72,6 @@ TEST_F(TestGtExternalizedObject, refCount)
         ASSERT_TRUE(data.isValid());
 
         EXPECT_EQ(obj->refCount(), 1);
-
 
         { // fetch a second time
             GtExternalizedObject* extObj = obj.get();

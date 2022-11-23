@@ -14,7 +14,9 @@ GtVariantProperty::GtVariantProperty(const QString& name,
                                      const GtUnit::Category& unitCategory,
                                      const QVariant& value) :
     GtVariantProperty({}, name, brief, unitCategory, value)
-{ }
+{
+    m_storeMemento = false;
+}
 
 GtVariantProperty::GtVariantProperty(const QString& id,
                                      const QString& name,
@@ -29,7 +31,6 @@ GtVariantProperty::GtVariantProperty(const QString& id,
     m_unitCategory = unitCategory;
     m_value = value;
     m_initValue = value;
-    m_storeMemento = false;
 }
 
 QVariant

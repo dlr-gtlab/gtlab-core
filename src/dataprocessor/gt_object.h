@@ -580,7 +580,8 @@ protected:
      * @brief registerProperty
      * @param property
      */
-    bool registerProperty(GtAbstractProperty& property);
+    bool registerProperty(GtAbstractProperty& property,
+                          bool silent = false);
 
     bool registerPropertyStructContainer(GtPropertyStructContainer& c);
 
@@ -589,7 +590,8 @@ protected:
      * @param property
      * @param cat
      */
-    bool registerProperty(GtAbstractProperty& property, const QString& cat);
+    bool registerProperty(GtAbstractProperty& property, const QString& cat,
+                          bool silent = false);
 
     /**
      * @brief Called after successfully restoring or merging data from memento

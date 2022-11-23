@@ -14,9 +14,8 @@
 #include "gt_object.h"
 
 #include <QPointer>
-#include <QVariant>
 
-
+class QVariant;
 class GtExternalizedObject;
 class GtExternalizedObjectData;
 
@@ -57,7 +56,7 @@ T_Data fetchExternalizedData(T_Base* obj)
     } private:
 
 /// Marco for adding a dedicated base method impl for accessing the base class.
-/// Muste be placd inside a private block of the class.
+/// Muste be placed inside a private block of the class.
 #define GT_DECL_BASECLASS(BaseClass) \
     private: using Base = BaseClass; \
     template <typename T = Base> T* base() const { \
