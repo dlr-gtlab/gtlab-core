@@ -431,6 +431,14 @@ signals:
      * @param uuid - uuid to the object to select in the dock widget
      */
     void selectionByUuidRequested(QString uuid);
+
+    /**
+     * @brief preferencesDialogRequested
+     * Emit signal to open the preferences dialog
+     *  on the page with the given title
+     * @param title - Title of the preferences page to be displayed.
+     */
+    void preferencesDialogRequested(QString title);
 };
 
 #endif // GTAPPLICATION_H
