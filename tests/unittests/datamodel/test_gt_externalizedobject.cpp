@@ -26,17 +26,13 @@ protected:
 
     virtual void SetUp()
     {
+        gtDebug() << gt::log::Logger::instance().hasDestinationOfType("console");
         gtExternalizationManager->enableExternalization(true);
 
-        obj = new TestExternalizedObject();
+        obj = std::make_unique<TestExternalizedObject>();
         obj->setObjectName("TestObject");
 
         m_data = gtTestHelper->linearDataVector<double>(m_length, 0.0, 2.0);
-    }
-
-    virtual void TearDown()
-    {
-        delete obj;
     }
 
     bool isDataExternalized()
@@ -44,7 +40,7 @@ protected:
         return obj->internalData().isEmpty();
     }
 
-    TestExternalizedObject* obj{};
+    std::unique_ptr<TestExternalizedObject> obj{};
 
     int m_length{10};
     QVector<double> m_data;
@@ -69,7 +65,6 @@ TEST_F(TestGtExternalizedObject, refCount)
     EXPECT_EQ(obj->refCount(), 0);
     EXPECT_TRUE(obj->isFetched());
 
-
     { // fetch and set data
         auto data = obj->fetchData(); // accessing data no. 1
         data.setValues(m_data);
@@ -79,7 +74,7 @@ TEST_F(TestGtExternalizedObject, refCount)
 
 
         { // fetch a second time
-            GtExternalizedObject* extObj = obj;
+            GtExternalizedObject* extObj = obj.get();
 
             auto data2 = extObj->fetchData(); // accessing data no. 2
 

@@ -11,40 +11,33 @@
 
 #include "gt_boolproperty.h"
 #include "gt_stringproperty.h"
+#include "gt_utilities.h"
 #include "gt_variantproperty.h"
 #include "gt_externalizationmanager.h"
 
 #include "gt_logging.h"
-
-namespace
-{
 
 /**
  * @brief The ExternalizeState enum
  */
 enum ExternalizeState
 {
-    /// indicates whether the data is fetched (independent of ref count)
-//    Fetched = 1,
     /// indicates whether the data should be externalized on next save
     ExternalizeOnSave = 2,
-    /// inidatces that data should be fetched from original location
-//    FetchInitialVersion = 4,
     /// inidatces that data should not be externalized indirectly
     /// (ref count reaches 0)
     KeepInternalized = 8
 };
 Q_DECLARE_FLAGS(ExternalizeStates, ExternalizeState)
 
-
-}
-
 struct GtExternalizedObject::Impl
 {
+    /// indicates whether the data is fetched (independent of ref count)
     GtBoolProperty pFetched{
-        "isFetched", tr("Is Fetched"), tr("Is Object Fetched"), false
+        "isFetched", tr("Is Fetched"), tr("Is Object Fetched"), true
     };
 
+    /// inidatces that data should be fetched from original location
     GtBoolProperty pFetchInitialVersion{
         "fetchInitialVersion", tr("Fetch initial version"),
         tr("Fetch initial version"), true
@@ -57,7 +50,8 @@ struct GtExternalizedObject::Impl
 
     /// meta data for the externalization process (eg. hdf5 reference)
     GtVariantProperty pMetaData{
-        "metaData", tr("Meta Data"), GtUnit::NonDimensional, 0
+        "metaData", tr("Meta Data"), tr("Meta Data"),
+        GtUnit::None, QVariant::fromValue(0)
     };
 
     /// keeps track of number of accesses
@@ -93,16 +87,16 @@ GtExternalizedObject::GtExternalizedObject() :
     registerProperty(pimpl->pCachedHash, cat);
     registerProperty(pimpl->pMetaData, cat);
 
-    pimpl->pFetched.hide(true);
-    pimpl->pFetchInitialVersion.hide(true);
-    pimpl->pCachedHash.hide(true);
-    pimpl->pMetaData.hide(true);
+//    pimpl->pFetched.hide(true);
+//    pimpl->pFetchInitialVersion.hide(true);
+//    pimpl->pCachedHash.hide(true);
+//    pimpl->pMetaData.hide(true);
 
     pimpl->pFetched.setReadOnly(true);
     pimpl->pFetchInitialVersion.setReadOnly(true);
     pimpl->pCachedHash.setReadOnly(true);
     pimpl->pFetched.setReadOnly(true);
-    pimpl->pMetaData.hide(true);
+    pimpl->pMetaData.setReadOnly(true);
 }
 
 GtExternalizedObject::~GtExternalizedObject() = default;
@@ -128,13 +122,14 @@ GtExternalizedObject::setFetchInitialVersion(bool value) const
 bool
 GtExternalizedObject::hasModifiedData()
 {
-    return pimpl->pCachedHash().isEmpty() || pimpl->pCachedHash != calcExtHash();
+    return hasModifiedData(calcExtHash());
 }
 
 bool
 GtExternalizedObject::hasModifiedData(const QString& otherHash) const
 {
-    return pimpl->pCachedHash.get().isEmpty() || pimpl->pCachedHash != otherHash;
+    return pimpl->pCachedHash.get().isEmpty() ||
+           pimpl->pCachedHash != otherHash;
 }
 
 QString
@@ -143,7 +138,14 @@ GtExternalizedObject::calcExtHash()
     // cache properties
     QString hash{pimpl->pCachedHash};
     QVariant metaData{pimpl->pMetaData};
-    auto states = pimpl->states;
+    ExternalizeStates states = pimpl->states;
+
+    // set original values
+    auto finally = gt::finally([&](){
+        pimpl->pCachedHash = hash;
+        pimpl->pMetaData.setVal(metaData);
+        pimpl->states = states;
+    });
 
     // clear properties for hash calculation
     pimpl->pCachedHash.revert();
@@ -151,14 +153,7 @@ GtExternalizedObject::calcExtHash()
     pimpl->states = {};
 
     // calc object hash
-    QString newHash(calcHash());
-
-    // set original values
-    pimpl->pCachedHash = hash;
-    pimpl->pMetaData.setVal(metaData);
-    pimpl->states = states;
-
-    return newHash;
+    return calcHash();
 }
 
 void
@@ -202,20 +197,28 @@ GtExternalizedObject::fetchHelper()
 
     if (isFetched())
     {
+        qDebug() << "ALREADY FETCHED";
         return true;
     }
+
+    gtDebug().medium() << "Fetching object...";
+    qDebug() << "Fetching object...";
 
     // fetch
     if (!doFetchData(pimpl->pMetaData.get(), pimpl->pFetchInitialVersion))
     {
         gtError() << tr("Fetching object failed!")
-                  << "(object path: '" + objectPath() + "')";
+                  << tr("(Path: '%1')").arg(objectPath());
+        qCritical() << tr("Fetching object failed!")
+                  << tr("(Path: '%1')").arg(objectPath());
         // reset fetched flag
         pimpl->pFetched = false;
         // clear any internalized data
         doClearExternalizedData();
         return false;
     }
+
+    qDebug() << "FETCHD";
 
     // set fetched flag
     pimpl->pFetched = true;
@@ -229,6 +232,7 @@ GtExternalizedObject::release()
 
     if (!gtExternalizationManager->isExternalizationEnabled())
     {
+        qDebug() << "NOT ENABLED";
         return true;
     }
 
@@ -236,27 +240,35 @@ GtExternalizedObject::release()
     {
         // resource is not fetched
         gtError() << tr("Externalizing object failed!")
-                  << tr("(Object is not fetched,")
-                  << "ref count:" <<pimpl->refCount
-                  << "object path: '" +  this->objectPath() + "')";
+                  << tr("(Path: '%1')").arg(objectPath());
+        gtDebug().medium() << "ref count:" << pimpl->refCount;
+        qCritical() << tr("Externalizing object failed!")
+                    << tr("(Path: '%1')").arg(objectPath());
         return false;
     }
 
     // dont externalize if data is still in use
     if (pimpl->refCount > 0 || pimpl->states & KeepInternalized)
     {
+        qDebug() << "STILL IN USE";
         return true;
     }
 
     assert(pimpl->refCount == 0);
 
+    qDebug() << "OLD HASH" << pimpl->pCachedHash;
+    qDebug() << "NEW HASH" << calcExtHash();
+
     // scedule for externalization
     if (hasModifiedData() /*|| m_states & ExternalizeOnSave*/)
     {
+        qDebug() << "SCEDULE EXTERNALIZATION";
         setFetchInitialVersion(false);
         pimpl->setExternalizeState(ExternalizeOnSave, true);
         return true;
     }
+
+    qDebug() << "Clearing object";
 
     // clear fetched state and free internal data
     pimpl->setExternalizeState(ExternalizeOnSave, false);
@@ -269,14 +281,18 @@ GtExternalizedObject::release()
 bool
 GtExternalizedObject::externalize()
 {
+    gtDebug() << __FUNCTION__;
+
     if (!gtExternalizationManager->isExternalizationEnabled() || !isFetched())
     {
+        qDebug() << "NOT ENABLED";
         return true;
     }
 
     if (!canExternalize())
     {
         gtWarning() << tr("Cannot externalize invalid object:") << objectName();
+        qCritical() << tr("Cannot externalize invalid object:") << objectName();
         return false;
     }
 
@@ -284,17 +300,24 @@ GtExternalizedObject::externalize()
     QString hash{calcExtHash()};
 
     // check if not marked for externalization or has changes
-    if (!(pimpl->states & ExternalizeOnSave ||pimpl->states & KeepInternalized ||
+    // (( false || false || false ))
+    if (!(pimpl->states & ExternalizeOnSave || pimpl->states & KeepInternalized ||
           hasModifiedData(hash)))
     {
+        qDebug() << "NOT Externalizing object...";
         return true;
     }
+
+    gtDebug() << "Externalizing object...";
+    qDebug() << "Externalizing object...";
 
     // externalize
     if (!doExternalizeData(pimpl->pMetaData.get()))
     {
         gtError() << tr("Externalizing object failed!")
-                  << "(object path: '" + objectPath() + "')";
+                  << tr("(Path: '%1')").arg(objectPath());
+        qCritical() << tr("Externalizing object failed!")
+                  << tr("(Path: '%1')").arg(objectPath());
         return false;
     }
 
@@ -305,9 +328,13 @@ GtExternalizedObject::externalize()
     pimpl->setExternalizeState(ExternalizeOnSave, false);
     pimpl->setExternalizeState(KeepInternalized, false);
 
+    qDebug() << "EXTERNALIZED";
+
     // clear data
     if (pimpl->refCount == 0)
     {
+
+        qDebug() << "Clearing object";
         pimpl->pFetched = false;
         doClearExternalizedData();
     }
