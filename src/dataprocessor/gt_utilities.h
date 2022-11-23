@@ -101,7 +101,7 @@ public:
         Finally tmp{std::move(other)};
         swap(m_func, tmp.m_func);
         swap(m_invoked, tmp.m_invoked);
-        return this;
+        return *this;
     };
 
     ~Finally() { invoke(); }
