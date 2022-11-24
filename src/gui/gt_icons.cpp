@@ -599,6 +599,24 @@ gt::gui::icon::labels()
 }
 
 QIcon
+gt::gui::icon::closeProject()
+{
+    return gt::gui::getIcon(QStringLiteral("closeProjectIcon.png"));
+}
+
+QIcon
+gt::gui::icon::closeProject16()
+{
+    return gt::gui::getIcon(QStringLiteral("closeProjectIcon_16.png"));
+}
+
+QIcon
+gt::gui::icon::closeProject24()
+{
+    return gt::gui::getIcon(QStringLiteral("closeProjectIcon_24.png"));
+}
+
+QIcon
 gt::gui::icon::closedProject16()
 {
     return gt::gui::getIcon(QStringLiteral("closedProjectIcon_16.png"));
