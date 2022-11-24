@@ -26,23 +26,23 @@ int myAwesomeTest(const QStringList& args)
 }
 
 /// This is a test fixture that does a init for each test
-class TestGtCommandLineFunction : public ::testing::Test
+class TestCommandLineFunction : public ::testing::Test
 {
 
 protected:
-    GtCommandLineFunction m_func{"name",
-                                 CommandLineTesting::myAwesomeTest,
-                                         "description"};
+    gt::CommandLineFunction m_func{
+        "name", CommandLineTesting::myAwesomeTest, "description"
+    };
 };
 
-TEST_F(TestGtCommandLineFunction, getter)
+TEST_F(TestCommandLineFunction, getter)
 {
     ASSERT_EQ(m_func.brief(), "description");
     ASSERT_EQ(m_func.id(), "name");
 }
 
 
-TEST_F(TestGtCommandLineFunction, executionTest)
+TEST_F(TestCommandLineFunction, executionTest)
 {
     QStringList argsSuccess = {"one", "two"};
     QStringList argsFailure = {"zero"};

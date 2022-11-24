@@ -25,7 +25,7 @@ public:
      * @brief addPositionalArgument
      * @param f - gt commandline function
      */
-    void addPositionalArgument(const GtCommandLineFunction& f);
+    void addPositionalArgument(const gt::CommandLineFunction& f);
 
     /**
      * @brief showHelp - show the help of the GTlab batch application
@@ -33,7 +33,7 @@ public:
     void showHelp() const;
 
 private:
-     QList<GtCommandLineFunction> m_funcs;
+     QList<gt::CommandLineFunction> m_funcs;
 };
 
 #endif // GTCONSOLEPARSER_H

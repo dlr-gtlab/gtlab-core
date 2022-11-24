@@ -54,10 +54,10 @@ TestModuleInterface::description() const
     return "Test Module Interface Description";
 }
 
-QList<VersionUpgradeRoutine>
+QList<gt::VersionUpgradeRoutine>
 TestModuleInterface::upgradeRoutines() const
 {
-    QList<VersionUpgradeRoutine> retval;
+    QList<gt::VersionUpgradeRoutine> retval;
 
     retval.append({{0, 0, 2}, testConvert});
     retval.append({{0, 0, 1}, testConvert});
@@ -125,7 +125,7 @@ mainFun(QStringList const& args)
 }
 
 }
-QList<GtCommandLineFunction>
+QList<gt::CommandLineFunction>
 TestModuleInterface::commandLineFunctions() const
 {
     /// The constructor

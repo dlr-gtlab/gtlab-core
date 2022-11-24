@@ -21,17 +21,17 @@
 class GtModuleUpgradeHelper
 {
 public:
-    std::vector<VersionUpgradeRoutine> m_upgradeRoutines;
+    std::vector<gt::VersionUpgradeRoutine> m_upgradeRoutines;
 
     // returns sorted list of all routines. routines are sorted by
     // version number
-    std::vector<VersionUpgradeRoutine> sortedRoutines() const
+    std::vector<gt::VersionUpgradeRoutine> sortedRoutines() const
     {
-        std::vector<VersionUpgradeRoutine> routines = m_upgradeRoutines;
+        std::vector<gt::VersionUpgradeRoutine> routines = m_upgradeRoutines;
 
         std::sort(routines.begin(),
-                  routines.end(), [] (const VersionUpgradeRoutine& x,
-                  const VersionUpgradeRoutine& y) { return x.target <
+                  routines.end(), [] (const gt::VersionUpgradeRoutine& x,
+                  const gt::VersionUpgradeRoutine& y) { return x.target <
                     y.target; });
 
         return routines;
@@ -132,8 +132,8 @@ GtModuleUpgrader::instance()
 
 void
 GtModuleUpgrader::registerModuleConverter(const QString &modId,
-                                         GtVersionNumber target,
-                                         ConverterFunction func)
+                                          GtVersionNumber target,
+                                          ConverterFunction func)
 {
     auto moduleUpgrader = m_pimpl->m_upgrader.find(modId.toStdString());
 
@@ -260,7 +260,7 @@ GtModuleUpgrader::availableModuleUpgrades(const QMap<QString,
 
 QList<GtVersionNumber>
 GtModuleUpgrader::availableUpgrades(const QString& moduleIdent,
-                                   const GtVersionNumber &savedVer) const
+                                    const GtVersionNumber &savedVer) const
 {
     QList<GtVersionNumber> retval;
 

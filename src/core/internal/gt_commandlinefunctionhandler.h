@@ -16,11 +16,14 @@
 
 #include <QMap>
 
-class GT_CORE_EXPORT GtCommandLineFunctionHandler
+namespace gt
+{
+
+class GT_CORE_EXPORT CommandLineFunctionHandler
 {
 
 public:
-    static GtCommandLineFunctionHandler& instance();
+    static CommandLineFunctionHandler& instance();
 
     /**
      * @brief Adds a function to the handler
@@ -28,14 +31,14 @@ public:
      * Returns false, if a function with the same ID already exists
      * and will not add this function
      */
-    bool addFunction(GtCommandLineFunction func);
+    bool addFunction(gt::CommandLineFunction func);
 
     /**
      * @brief Gets a function from the handler
      *
      * Returns nullptr, if functions does not exist
      */
-    GtCommandLineFunction getFunction(const QString& functionId) const;
+    gt::CommandLineFunction getFunction(const QString& functionId) const;
 
     /**
      * @brief Returns the IDs of the registered functions
@@ -43,20 +46,18 @@ public:
     QStringList getRegisteredFunctionIDs() const;
 
 private:
-    QMap<QString, GtCommandLineFunction> m_interfaces;
+    QMap<QString, gt::CommandLineFunction> m_interfaces;
 
-    GtCommandLineFunctionHandler() = default;
+    CommandLineFunctionHandler() = default;
 };
 
-namespace gt
-{
 namespace commandline
 {
 
 /**
  * @brief Registers an InterfaceFunction to the handler
  */
-GT_CORE_EXPORT bool registerFunction(GtCommandLineFunction func);
+GT_CORE_EXPORT bool registerFunction(gt::CommandLineFunction func);
 
 } // namespace commandline
 

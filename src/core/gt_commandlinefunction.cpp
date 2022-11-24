@@ -12,32 +12,32 @@
 #include <QDebug>
 #include <iostream>
 
-GtCommandLineFunction
+gt::CommandLineFunction
 gt::commandline::makeCommandLineFunction(const QString& id,
-                                       GtCommandLineFunction::FunctionType func,
+                                       gt::CommandLineFunction::FunctionType func,
                                        QString brief)
 {
-    return GtCommandLineFunction(id, std::move(func), std::move(brief));
+    return gt::CommandLineFunction(id, std::move(func), std::move(brief));
 }
 
 bool
-GtCommandLineFunction::useDefaultHelp() const
+gt::CommandLineFunction::useDefaultHelp() const
 {
     return m_defaultHelp;
 }
 
-GtCommandLineFunction&
-GtCommandLineFunction::setUseDefaultHelp(bool val)
+gt::CommandLineFunction&
+gt::CommandLineFunction::setUseDefaultHelp(bool val)
 {
     m_defaultHelp = val;
     return *this;
 }
 
 void
-GtCommandLineFunction::showDefaultHelp() const
+gt::CommandLineFunction::showDefaultHelp() const
 {
     std::cout << "Usage: GTlabConsole.exe " << id().toStdString();
-    for (const GtCommandLineFunctionArgument& arg : arguments())
+    for (const gt::CommandLineFunctionArgument& arg : arguments())
     {
         std::cout << " " << arg.name.toStdString();
     }
@@ -52,7 +52,7 @@ GtCommandLineFunction::showDefaultHelp() const
     {
         std::cout << "Options:" << std::endl;
 
-        for (const GtCommandLineOption& o : options())
+        for (const gt::CommandLineOption& o : options())
         {
             QString optionString;
 
@@ -78,7 +78,7 @@ GtCommandLineFunction::showDefaultHelp() const
     {
         std::cout << "Arguments:" << std::endl;
 
-        for (const GtCommandLineFunctionArgument& arg : arguments())
+        for (const gt::CommandLineFunctionArgument& arg : arguments())
         {
 
             std::cout << "  " << arg.name.toStdString() << "\t\t"
@@ -87,17 +87,17 @@ GtCommandLineFunction::showDefaultHelp() const
     }
 }
 
-GtCommandLineFunction&
-GtCommandLineFunction::setOptions(
-        const QList<GtCommandLineOption>& newOptions)
+gt::CommandLineFunction&
+gt::CommandLineFunction::setOptions(
+        const QList<gt::CommandLineOption>& newOptions)
 {
     m_options = newOptions;
     return *this;
 }
 
-GtCommandLineFunction&
-GtCommandLineFunction::setArgs(
-        const QList<GtCommandLineFunctionArgument>& newArgs)
+gt::CommandLineFunction&
+gt::CommandLineFunction::setArgs(
+        const QList<gt::CommandLineFunctionArgument>& newArgs)
 {
     m_args = newArgs;
     return *this;

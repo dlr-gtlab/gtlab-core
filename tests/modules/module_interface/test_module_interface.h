@@ -35,11 +35,11 @@ public:
      */
     QString description() const override;
 
-    QList<VersionUpgradeRoutine> upgradeRoutines() const override;
+    QList<gt::VersionUpgradeRoutine> upgradeRoutines() const override;
 
     QList<gt::SharedFunction> sharedFunctions() const override;
 
-    QList<GtCommandLineFunction> commandLineFunctions() const override;
+    QList<gt::CommandLineFunction> commandLineFunctions() const override;
 
     MetaInformation metaInformation() const override;
 

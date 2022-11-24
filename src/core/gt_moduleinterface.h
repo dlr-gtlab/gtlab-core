@@ -55,6 +55,9 @@
 
 class QDomElement;
 
+namespace gt
+{
+
 /// Function definition for project data upgrades provided by a module
 using ConverterFunction = bool (*)(QDomElement& rootElement,
                                    QString const& filePath);
@@ -68,6 +71,8 @@ struct VersionUpgradeRoutine
     /// specific upgrade function
     ConverterFunction f;
 };
+
+} // namespace gt
 
 /**
  * @brief Main interface that must be implemented by a module in order for it
@@ -147,7 +152,7 @@ public:
      * add your own update routines to the framework.
      * @return List of all upgrade routines of the module.
      */
-    virtual QList<VersionUpgradeRoutine> upgradeRoutines() const {
+    virtual QList<gt::VersionUpgradeRoutine> upgradeRoutines() const {
         return {};
     }
 
@@ -178,7 +183,7 @@ public:
      * the console application
      *
      */
-    virtual QList<GtCommandLineFunction> commandLineFunctions() const
+    virtual QList<gt::CommandLineFunction> commandLineFunctions() const
     {
         return {};
     }

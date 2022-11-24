@@ -10,15 +10,15 @@
 #include "gt_commandlinefunctionhandler.h"
 #include "gt_logging.h"
 
-GtCommandLineFunctionHandler&
-GtCommandLineFunctionHandler::instance()
+gt::CommandLineFunctionHandler&
+gt::CommandLineFunctionHandler::instance()
 {
-    static GtCommandLineFunctionHandler handler;
+    static gt::CommandLineFunctionHandler handler;
     return handler;
 }
 
 bool
-GtCommandLineFunctionHandler::addFunction(GtCommandLineFunction func)
+gt::CommandLineFunctionHandler::addFunction(gt::CommandLineFunction func)
 {
     const auto& ident = func.id();
 
@@ -34,8 +34,8 @@ GtCommandLineFunctionHandler::addFunction(GtCommandLineFunction func)
     return true;
 }
 
-GtCommandLineFunction
-GtCommandLineFunctionHandler::getFunction(const QString& functionId) const
+gt::CommandLineFunction
+gt::CommandLineFunctionHandler::getFunction(const QString& functionId) const
 {
     if (!m_interfaces.contains(functionId))
     {
@@ -46,14 +46,14 @@ GtCommandLineFunctionHandler::getFunction(const QString& functionId) const
 }
 
 QStringList
-GtCommandLineFunctionHandler::getRegisteredFunctionIDs() const
+gt::CommandLineFunctionHandler::getRegisteredFunctionIDs() const
 {
     return m_interfaces.keys();
 }
 
 bool
-gt::commandline::registerFunction(GtCommandLineFunction func)
+gt::commandline::registerFunction(gt::CommandLineFunction func)
 {
-    return GtCommandLineFunctionHandler::instance()
+    return gt::CommandLineFunctionHandler::instance()
         .addFunction(std::move(func));
 }
