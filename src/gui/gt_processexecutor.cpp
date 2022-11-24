@@ -28,8 +28,6 @@ GtProcessExecutor::GtProcessExecutor(QObject* parent) :
     m_task(nullptr)
 {
     setObjectName("ProcessEecutor");
-
-    qDebug() << "#### process executor initialized!";
 }
 
 void

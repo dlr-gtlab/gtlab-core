@@ -220,7 +220,7 @@ runProcess(const QString& projectId, const QString& processId,
         if (!gtDataModel->saveProject(project))
         {
             qWarning() << QStringLiteral("ERROR: ") <<
-                       QObject::tr("project could not besaved!") <<
+                       QObject::tr("project could not be saved!") <<
                        QStringLiteral(" (") << projectId <<
                        QStringLiteral(")");
             return -1;
@@ -317,7 +317,7 @@ runProcessByFile(const QString& projectFile, const QString& processId,
         if (!gtDataModel->saveProject(project))
         {
             qWarning() << QStringLiteral("ERROR: ")
-                       << QObject::tr("project could not besaved!")
+                       << QObject::tr("project could not be saved!")
                        << QStringLiteral(" (") << projectFile
                        << QStringLiteral(")");
             return -1;

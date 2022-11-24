@@ -19,6 +19,7 @@ namespace Ui
 class GtMainWin;
 }
 
+struct GtLogDetails;
 class QSignalMapper;
 class GtProject;
 class GtCornerWidget;
@@ -352,7 +353,8 @@ private slots:
      * @brief Displays an error dialog including a message.
      * @param msg Error message to be displayed.
      */
-    void onLogMessage(const QString& msg, int level);
+    void onLogMessage(const QString& msg, int level,
+                      const GtLogDetails& details);
 
 signals:
     /**

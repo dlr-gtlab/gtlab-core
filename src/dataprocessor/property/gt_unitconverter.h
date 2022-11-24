@@ -9,7 +9,8 @@
 
 #include "gt_unit.h"
 
-#include <gt_logging.h>
+#include "gt_logging.h"
+#include "gt_logging/qt_bindings.h"
 
 template<class T>
 class GtUnitConverter

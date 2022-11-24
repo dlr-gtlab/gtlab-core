@@ -31,6 +31,10 @@ template <typename T, typename U>
 using if_not_convertible =
         std::enable_if_t<!std::is_convertible<T, U>::value, bool>;
 
+template <typename T>
+using if_base_of_qobject =
+        std::enable_if_t<std::is_base_of<QObject, T>::value, bool>;
+
 } // namespace trait
 
 } // namespace gt

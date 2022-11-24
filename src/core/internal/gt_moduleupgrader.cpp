@@ -198,16 +198,11 @@ bool
 GtModuleUpgrader::upgradesAvailable(
         const QMap<QString, GtVersionNumber>& moduleFootprint) const
 {
-    gtDebugId("module data upgrader") << "checking for upgrades...";
-
     bool retval = false;
 
     for (auto const& upgrader : m_pimpl->m_upgrader)
     {
         const auto& moduleId = upgrader.first;
-
-        gtDebugId("module data upgrader") << "module "
-                  << QString::fromStdString(moduleId);
 
         if (moduleFootprint.contains(QString::fromStdString(moduleId)))
         {
@@ -215,20 +210,18 @@ GtModuleUpgrader::upgradesAvailable(
                     moduleFootprint.value(QString::fromStdString(moduleId));
             auto& upgradeHelper = upgrader.second;
 
-            gtDebugId("module data upgrader") << " saved version "
-                      << savedVer.toString();
-
             for (auto const& upgradeRoutine : upgradeHelper.m_upgradeRoutines)
             {
                 if (savedVer < upgradeRoutine.target)
                 {
-                    gtDebugId("module data upgrader") << "## upgrade available "
-                              << upgradeRoutine.target.toString();
-
+                    gtDebugId("module data upgrader") << QObject::tr(
+                        "Upgrade available for '%1 (%2)' to version %3")
+                            .arg(moduleId.c_str(),
+                                 savedVer.toString(),
+                                 upgradeRoutine.target.toString());
                     retval = true;
                 }
             }
-
         }
     }
 

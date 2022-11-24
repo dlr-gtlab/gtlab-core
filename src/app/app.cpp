@@ -140,8 +140,7 @@ main(int argc, char* argv[])
 
         return -1;
     }
-#else
-    qDebug() << "licence check disabled!";
+    gtDebug() << tr("License verified!");
 #endif
 
     // application initialization
@@ -207,11 +206,10 @@ main(int argc, char* argv[])
     gtLogModel->setMaxLogLength(mll);
 
 #ifdef GT_MODELTEST
+    qDebug() << "Model test enabled!";
     new QAbstractItemModelTester(gtDataModel,
                                  QAbstractItemModelTester::FailureReportingMode::Fatal,
                                  qApp);
-#else
-    qDebug() << "model test disabled!";
 #endif
 
     GtMainWin w;

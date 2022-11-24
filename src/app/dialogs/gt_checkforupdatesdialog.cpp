@@ -123,7 +123,7 @@ GtCheckForUpdatesDialog::GtCheckForUpdatesDialog(QWidget* parent) :
 void
 GtCheckForUpdatesDialog::checkForUpdate()
 {
-    gtInfo() << "checking for updates...";
+    gtInfo() << tr("Checking for updates...");
 
     m_tableWid->hide();
 
@@ -218,15 +218,14 @@ GtCheckForUpdatesDialog::noUpdateAvailable(int errorCode, const QString& str)
     m_updateButton->setEnabled(false);
     m_checkButton->setEnabled(true);
 
-    gtDebugId("Check for updates") << "Error code = " << errorCode;
-    gtDebugId("Check for updates") << "Error message = " << str;
+    gtDebug().nospace()
+            << "Update check: " << str << " (Error code: " << errorCode << ')';
 
     QString fontString = "darkred";
     if (gtApp->inDarkMode())
     {
         fontString = "red";
     }
-
 
     switch (errorCode)
     {

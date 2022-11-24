@@ -64,8 +64,6 @@ GtProcessRunner::GtProcessRunner() :
     // intercept abort signal
     connect(pimpl->transceiver.get(), &GtProcessRunnerTransceiver::aborted,
             this, &GtProcessRunner::onTransceiverAborted);
-
-    qDebug() << "#### process runner initialized!";
 }
 
 GtProcessRunner::~GtProcessRunner() = default;

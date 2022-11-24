@@ -13,6 +13,7 @@
 #ifdef GT_H5
 #include "gt_datamodel_exports.h"
 #include "gt_logging.h"
+#include "gt_logging/qt_bindings.h"
 
 #include "genh5_version.h"
 #include "genh5_data.h"
