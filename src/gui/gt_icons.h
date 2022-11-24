@@ -48,6 +48,10 @@ GT_GUI_EXPORT QIcon deleteProject16();
 
 GT_GUI_EXPORT QIcon addProject();
 
+GT_GUI_EXPORT QIcon closeProject();
+GT_GUI_EXPORT QIcon closeProject16();
+GT_GUI_EXPORT QIcon closeProject24();
+
 GT_GUI_EXPORT QIcon closedProject16();
 
 GT_GUI_EXPORT QIcon inconsistentProject16();

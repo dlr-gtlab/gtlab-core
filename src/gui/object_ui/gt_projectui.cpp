@@ -78,7 +78,7 @@ GtProjectUI::GtProjectUI()
 
     addSingleAction(tr("Close Project"),
                     &GtProjectUI::closeProject)
-            .setIcon(gt::gui::icon::closedProject16())
+            .setIcon(gt::gui::icon::closeProject())
             .setVerificationMethod(&GtProjectUI::canCloseProject)
             .setShortCut(gtApp->getShortCutSequence("closeProject"));
 
