@@ -63,10 +63,13 @@ HEADERS += \
     gt_commandlineparser.h \
     gt_filesystem.h \
     gt_logmodel.h \
+    gt_functionalinterface.h \
     gt_propertyconnectionfunctions.h \
+    gt_sharedfunction.h \
     internal/gt_commandlinefunctionhandler.h \
     internal/gt_coreupgraderoutines.h \
     internal/gt_platformspecifics.h \
+    internal/gt_sharedfunctionhandler.h \
     network/gt_accessdata.h \
     network/gt_accessmanager.h \
     network/gt_accessgroup.h \
@@ -153,10 +156,7 @@ HEADERS += \
     gt_moduleloader.h \
     gt_datamodelinterface.h \
     gt_command.h \
-    gt_dynamicinterface.h \
-    internal/gt_dynamicinterfacehandler.h \
-    internal/gt_moduleupgrader.h \
-    gt_functional_interface.h
+    internal/gt_moduleupgrader.h
 
 SOURCES += \
     gt_commandlinefunction.cpp \
@@ -164,9 +164,11 @@ SOURCES += \
     gt_filesystem.cpp \
     gt_logmodel.cpp \
     gt_propertyconnectionfunctions.cpp \
+    gt_sharedfunction.cpp \
     internal/gt_commandlinefunctionhandler.cpp \
     internal/gt_coreupgraderoutines.cpp \
     internal/gt_platformspecifics.cpp \
+    internal/gt_sharedfunctionhandler.cpp \
     network/gt_accessdata.cpp \
     network/gt_accessmanager.cpp \
     network/gt_accessgroup.cpp \
@@ -246,9 +248,7 @@ SOURCES += \
     gt_abstractloadinghelper.cpp \
     gt_moduleloader.cpp \
     gt_command.cpp \
-    gt_dynamicinterface.cpp \
-    internal/gt_moduleupgrader.cpp \
-    internal/gt_dynamicinterfacehandler.cpp
+    internal/gt_moduleupgrader.cpp
 
 RESOURCES += ../resources/templates/templates.qrc
 

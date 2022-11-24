@@ -37,7 +37,7 @@ public:
 
     QList<VersionUpgradeRoutine> upgradeRoutines() const override;
 
-    QList<gt::InterfaceFunction> sharedFunctions() const override;
+    QList<gt::SharedFunction> sharedFunctions() const override;
 
     QList<GtCommandLineFunction> commandLineFunctions() const override;
 

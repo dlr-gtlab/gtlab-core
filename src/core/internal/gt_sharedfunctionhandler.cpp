@@ -1,5 +1,5 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: dynamicinterfacehandler.cpp
+ * Source File: gt_sharedfunctionhandler.cpp
  * copyright 2009-2022 by DLR
  *
  *  Created on: 09.03.2022
@@ -11,7 +11,7 @@
 
 #include <QCoreApplication>
 
-#include "gt_dynamicinterfacehandler.h"
+#include "gt_sharedfunctionhandler.h"
 
 using namespace gt::detail;
 
@@ -24,16 +24,16 @@ namespace
     }
 }
 
-DynamicInterfaceHandler&
-DynamicInterfaceHandler::instance()
+SharedFunctionHandler&
+SharedFunctionHandler::instance()
 {
-    static DynamicInterfaceHandler handler;
+    static SharedFunctionHandler handler;
     return handler;
 }
 
 bool
-DynamicInterfaceHandler::addInterface(const QString& moduleId,
-                                      gt::InterfaceFunction func)
+SharedFunctionHandler::addSharedFunction(const QString& moduleId,
+                                         gt::SharedFunction func)
 {
     const auto& ident = func.name();
 
@@ -49,9 +49,9 @@ DynamicInterfaceHandler::addInterface(const QString& moduleId,
     return true;
 }
 
-gt::InterfaceFunction
-DynamicInterfaceHandler::getInterfaceFunc(const QString& moduleId,
-                                          const QString& functionId)
+gt::SharedFunction
+SharedFunctionHandler::getSharedFunction(const QString& moduleId,
+                                         const QString& functionId)
 {
     auto key = makeKey(moduleId, functionId);
     if (!m_interfaces.contains(key))
@@ -63,15 +63,15 @@ DynamicInterfaceHandler::getInterfaceFunc(const QString& moduleId,
 }
 
 QStringList
-DynamicInterfaceHandler::getRegisteredFunctionIDs() const
+SharedFunctionHandler::getRegisteredFunctionIDs() const
 {
     return m_interfaces.keys();
 }
 
 bool
 gt::interface::detail::registerFunction(const QString& moduleId,
-                                        InterfaceFunction func)
+                                        SharedFunction func)
 {
-    return gt::detail::DynamicInterfaceHandler::instance()
-        .addInterface(moduleId, std::move(func));
+    return gt::detail::SharedFunctionHandler::instance()
+        .addSharedFunction(moduleId, std::move(func));
 }

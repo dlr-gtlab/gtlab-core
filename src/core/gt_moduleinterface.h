@@ -15,7 +15,7 @@
 #include <QtPlugin>
 
 #include "gt_versionnumber.h"
-#include "gt_dynamicinterface.h"
+#include "gt_functionalinterface.h"
 #include "gt_commandlinefunction.h"
 #include "gt_globals.h"
 
@@ -56,7 +56,8 @@
 class QDomElement;
 
 /// Function definition for project data upgrades provided by a module
-typedef bool (*ConverterFunction)(QDomElement&, const QString&);
+using ConverterFunction = bool (*)(QDomElement& rootElement,
+                                   QString const& filePath);
 
 /// Project data upgrade routine provided by a module
 struct VersionUpgradeRoutine
@@ -165,7 +166,7 @@ public:
      *
      * @return
      */
-    virtual QList<gt::InterfaceFunction> sharedFunctions() const {
+    virtual QList<gt::SharedFunction> sharedFunctions() const {
         return {};
     }
 
@@ -201,7 +202,7 @@ public:
  * @return
  */
 inline QString moduleSettingPath(const QString& modID,
-                  const QString& settingID)
+                                 const QString& settingID)
 {
     return QString("modules/%1/%2").arg(modID, settingID);
 }

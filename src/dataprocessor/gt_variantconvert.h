@@ -1,5 +1,5 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: test_gt_dynamicinterface.cpp
+ * Source File: gt_variantconvert.h
  * copyright 2022 by DLR
  *
  *  Created on: 01.04.2022

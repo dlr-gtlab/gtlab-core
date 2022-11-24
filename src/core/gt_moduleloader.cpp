@@ -15,7 +15,7 @@
 #include "gt_algorithms.h"
 #include "gt_versionnumber.h"
 #include "internal/gt_moduleupgrader.h"
-#include "internal/gt_dynamicinterfacehandler.h"
+#include "internal/gt_sharedfunctionhandler.h"
 #include "internal/gt_commandlinefunctionhandler.h"
 
 #include <QDebug>

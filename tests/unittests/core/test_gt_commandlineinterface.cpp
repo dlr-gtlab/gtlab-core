@@ -39,11 +39,11 @@ TEST_F(TestGtCommandLineInterface, registration)
     gt::commandline::registerFunction(fun);
 
     GtCommandLineFunction f2 =
-            GtCommandLineFunctionHandler::instance().getInterfaceFunc(
+            GtCommandLineFunctionHandler::instance().getFunction(
                 "test function");
 
     GtCommandLineFunction f3 =
-            GtCommandLineFunctionHandler::instance().getInterfaceFunc(
+            GtCommandLineFunctionHandler::instance().getFunction(
                 "wrongName");
 
     ASSERT_NE(f2, nullptr);

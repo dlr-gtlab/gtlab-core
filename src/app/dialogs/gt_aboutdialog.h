@@ -116,10 +116,10 @@ private:
     QWidget* changeLogWidget() const;
 
     /**
-     * @brief dynamicInterfaceFunctionsWidget
-     * @return widget for the overview of dynamic interface functions
+     * @brief sharedFunctionsWidget
+     * @return widget for the overview of shared functions
      */
-    QWidget* dynamicInterfaceFunctionsWidget();
+    QWidget* sharedFunctionsWidget();
 
     /**
      * @brief readChangeLog

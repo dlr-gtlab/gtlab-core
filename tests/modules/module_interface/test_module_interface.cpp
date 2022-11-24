@@ -14,7 +14,7 @@
 
 #include "test_module_interface.h"
 
-#include "gt_functional_interface.h"
+#include "gt_functionalinterface.h"
 #include "gt_application.h"
 #include "test_preferencepage.h"
 #include "gt_settings.h"
@@ -73,10 +73,10 @@ mySquare(double x)
     return x*x;
 }
 
-QList<gt::InterfaceFunction>
+QList<gt::SharedFunction>
 TestModuleInterface::sharedFunctions() const
 {
-    auto fun = gt::interface::makeInterfaceFunction(
+    auto fun = gt::interface::makeSharedFunction(
                    "mySquare", mySquare, "Returns the square of x");
 
     return {fun};

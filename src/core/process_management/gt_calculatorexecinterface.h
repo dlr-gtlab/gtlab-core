@@ -49,7 +49,9 @@ public:
      * @brief Returns list of executor settings.
      * @return Executor settings.
      */
-    virtual QList<GtAbstractProperty*> executorSettings() = 0;
+    virtual QList<GtAbstractProperty*> executorSettings() {
+        return {};
+    };
 
 };
 

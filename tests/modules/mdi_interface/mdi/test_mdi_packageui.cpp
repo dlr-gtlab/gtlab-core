@@ -13,8 +13,7 @@
 
 #include "test_mdi_packageui.h"
 #include "test_mdi_viewer.h"
-
-#include "gt_dynamicinterface.h"
+#include "gt_sharedfunction.h"
 
 TestMdiPackageUI::TestMdiPackageUI()
 {
@@ -29,7 +28,7 @@ TestMdiPackageUI::TestMdiPackageUI()
                             [](GtObject* /*obj*/){
               gtInfo() << "TEST MDI INTERFACE - TEST GROUP ACTION 2";
            })
-        << makeSingleAction("Interface Function Test", "testDynamicInterface");
+        << makeSingleAction("Shared Function Test", "testSharedFunction");
 }
 
 QIcon
@@ -69,10 +68,10 @@ TestMdiPackageUI::testGroupAction(GtObject* /*obj*/)
 }
 
 void
-TestMdiPackageUI::testDynamicInterface(GtObject* /*obj*/)
+TestMdiPackageUI::testSharedFunction(GtObject* /*obj*/)
 {
-    auto func = gt::interface::getFunction("Test Datamodel Interface",
-                                            "my_lambda_mult");
+    auto func = gt::interface::getSharedFunction("Test Datamodel Interface",
+                                                 "my_lambda_mult");
 
     QVariant result = -1.0;
     if (func.isNull())

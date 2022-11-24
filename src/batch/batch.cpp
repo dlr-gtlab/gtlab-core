@@ -849,7 +849,7 @@ int main(int argc, char* argv[])
     for (QString const& s: qAsConst(commands))
     {
         GtCommandLineFunction f =
-                GtCommandLineFunctionHandler::instance().getInterfaceFunc(s);
+                GtCommandLineFunctionHandler::instance().getFunction(s);
         parser.addPositionalArgument(f);
     }
 
@@ -871,7 +871,7 @@ int main(int argc, char* argv[])
     if (commands.contains(mainArg))
     {
         GtCommandLineFunction f =
-                GtCommandLineFunctionHandler::instance().getInterfaceFunc(
+                GtCommandLineFunctionHandler::instance().getFunction(
                     mainArg);
 
         /// check if the default help flag is part of the arguments

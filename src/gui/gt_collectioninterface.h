@@ -48,7 +48,9 @@ public:
      * @brief Returns structure of collection items.
      * @return Sturcture of collection items.
      */
-    virtual QMap<QString, QMetaType::Type> collectionStructure() const = 0;
+    virtual QMap<QString, QMetaType::Type> collectionStructure() const {
+        return {};
+    };
 
 };
 

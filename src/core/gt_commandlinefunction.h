@@ -29,7 +29,7 @@ public:
      *
      * They can also be set by chains like in this example:
      *
-     *      auto fun = GtCommandLineInterface::make_commandLineFunction(
+     *      auto fun = GtCommandLineInterface::makeCommandLineFunction(
      *           "test_function", test_command::mainFun,
      *           "brief description");
      *
@@ -111,7 +111,7 @@ public:
     }
 
     /**
-     * @brief Returns the docstring of the interface function
+     * @brief Returns the docstring of the commandline function
      */
     const QString& brief() const
     {
@@ -119,7 +119,7 @@ public:
     }
 
     /**
-     * @brief Returns the options of the interface function
+     * @brief Returns the options of the commandline function
      */
     const QList<GtCommandLineOption>& options() const
     {
@@ -127,7 +127,7 @@ public:
     }
 
     /**
-     * @brief Returns the arguments of the interface function
+     * @brief Returns the arguments of the commandline function
      */
     const QList<GtCommandLineFunctionArgument>& arguments() const
     {
