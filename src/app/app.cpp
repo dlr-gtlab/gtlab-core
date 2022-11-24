@@ -195,16 +195,6 @@ main(int argc, char* argv[])
 
 //    gtApp->setToSystemLanguage();
 
-    int mll = gtApp->settings()->maxLogLength();
-
-    if (mll < 10)
-    {
-        mll = 2000;
-        gtApp->settings()->setMaxLogLength(mll);
-    }
-
-    gtLogModel->setMaxLogLength(mll);
-
 #ifdef GT_MODELTEST
     qDebug() << "Model test enabled!";
     new QAbstractItemModelTester(gtDataModel,

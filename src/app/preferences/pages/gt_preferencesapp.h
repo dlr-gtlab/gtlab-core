@@ -58,6 +58,9 @@ private:
     /// Max. logging length spin box
     QSpinBox* m_maxLogSpin;
 
+    /// Select the logging verbosity
+    QComboBox* m_verbositySelection;
+
     /// Select the theme to use (by system, dark, bright)
     QComboBox* m_themeSelection;
 

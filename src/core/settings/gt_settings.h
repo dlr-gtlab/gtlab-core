@@ -154,6 +154,18 @@ public:
     int maxLogLength();
 
     /**
+     * @brief Setter for the logging verbosity (see gt::log::Verbosity)
+     * @param value
+     */
+    void setLoggingVerbosity(int value);
+
+    /**
+     * @brief Getter for the logging verbosity (see gt::log::Verbosity)
+     * @return Verbosity
+     */
+    int loggingVerbosity() const;
+
+    /**
      * @brief Sets last used process elements.
      * @param list List of last used process element class names.
      */

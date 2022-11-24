@@ -134,15 +134,19 @@ GtCoreApplication::init()
     auto logDest = gt::log::makeDebugOutputDestination();
     logger.addDestination("console", std::move(logDest));
 
+    // verbosity
+    logger.setVerbosity(m_settings->loggingVerbosity());
+
+    // dev mode
     if (qApp->arguments().contains(QStringLiteral("--dev")) ||
         qApp->arguments().contains(QStringLiteral("-dev")))
     {
-        logger.setLoggingLevel(gt::log::TraceLevel);
         m_devMode = true;
+        logger.setLoggingLevel(gt::log::TraceLevel);
         gtDebug() << "DEV MODE";
     }
 
-    // init instance
+    // init logmodel
     GtLogModel& logmodel = GtLogModel::instance();
     Q_UNUSED(logmodel);
 
@@ -157,7 +161,6 @@ GtCoreApplication::init()
     if (path.exists())
     {
         bool s = path.rename(wPath, sPath);
-
         qDebug() << "workspace renamed = " << s;
     }
 

@@ -13,6 +13,8 @@
 
 #include <ctime>
 
+#include "gt_coreapplication.h"
+#include "gt_settings.h"
 #include "gt_object.h"
 #include "gt_logmodel.h"
 #include "gt_logging.h"
@@ -69,6 +71,15 @@ GtLogModel::GtLogModel() :
     logger.addDestination(GT_CLASSNAME(GtLogModel), std::move(dest));
 
     connect(&m_timer, SIGNAL(timeout()), SLOT(insertQueue()));
+
+    // set logging length
+    if (gtApp)
+    {
+        if (auto* settings = gtApp->settings())
+        {
+            setMaxLogLength(settings->maxLogLength());
+        }
+    }
 }
 
 QMimeData*
@@ -209,8 +220,9 @@ GtLogModel::insertMessage(QString const& msg, int level, Details const& details)
 {
     if (m_entries.size() + 1 >= m_maxEntries)
     {
-        beginRemoveRows(QModelIndex(), 0, 0);
-        m_entries.removeFirst();
+        int offset = m_entries.size() + 2 - m_maxEntries;
+        beginRemoveRows(QModelIndex(), 0, offset);
+        m_entries.remove(0, offset);
         endRemoveRows();
     }
 

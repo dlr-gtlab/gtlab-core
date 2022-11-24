@@ -54,6 +54,9 @@ struct GtSettings::Impl
     GtSettingsItem* maxLogLength;
 
     ///
+    GtSettingsItem* loggingVerbosity;
+
+    ///
     GtSettingsItem* lastProcessElements;
 
     /// Explorer dock widget expand states setting
@@ -108,6 +111,9 @@ GtSettings::GtSettings()
     pimpl->maxLogLength = registerSetting(
                          QStringLiteral("application/general/maxloglength"),
                          (int) 2000);
+    pimpl->loggingVerbosity = registerSetting(
+                         QStringLiteral("application/general/loggingVerbosity"),
+                         (int) 0);
     pimpl->lastProcessElements =
             registerSetting(
                 QStringLiteral("application/process/lastelements"),
@@ -453,6 +459,18 @@ int
 GtSettings::maxLogLength()
 {
     return pimpl->maxLogLength->getValue().toInt();
+}
+
+void
+GtSettings::setLoggingVerbosity(int value)
+{
+    pimpl->loggingVerbosity->setValue(value);
+}
+
+int
+GtSettings::loggingVerbosity() const
+{
+    return pimpl->loggingVerbosity->getValue().toInt();
 }
 
 void
