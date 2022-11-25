@@ -119,19 +119,19 @@ GtDataModel::columnCount(const QModelIndex& /*parent*/) const
 bool
 GtDataModel::openProject(GtProject* project)
 {
-    qDebug() << "GtDataModel::openProject";
     // check project pointer
     if (!project)
     {
         return false;
     }
 
+    gtDebug() << tr("Loading project '%1'...").arg(project->objectName());
+
     // check if project is already open
     if (project->isOpen())
     {
         return false;
     }
-
 
     // check whether a project is already open
     if (gtDataModel->currentProject())
@@ -405,6 +405,8 @@ GtDataModel::onProjectDataLoaded()
 
     gtApp->settings()->setLastProject(project->objectName());
 
+    gtInfo() << project->objectName() << tr("loaded!");
+
     // analyse project information
     GtProjectAnalyzer analyzer(project);
 
@@ -441,7 +443,7 @@ GtDataModel::onProjectDataSaved()
 
     // emit project saved event
     if (success)
-    {        
+    {
         gtInfo() << project->objectName() << tr("saved!");
 
         emit projectSaved(project);

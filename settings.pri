@@ -63,6 +63,9 @@ INCLUDEPATH += $${GTLAB_LOGGING_PATH}/include/logging
 LIBS        += -L$${GTLAB_LOGGING_PATH}/lib/logging
 DEPENDPATH  += $${GTLAB_LOGGING_PATH}/lib/logging
 
+DEFINES += GT_LOG_USE_QT_BINDINGS
+DEFINES += GT_LOG_USE_EXTENDED_STL_BINDINGS
+
 # Numerics
 INCLUDEPATH += $${GTLAB_NUMERICS_PATH}/include/numerics
 LIBS        += -L$${GTLAB_NUMERICS_PATH}/lib/numerics

@@ -123,11 +123,6 @@ GtStartupPage::GtStartupPage()
     setFrameShadow(QFrame::Sunken);
 }
 
-GtStartupPage::~GtStartupPage()
-{
-    gtDebug() << "startup page deleted!";
-}
-
 QIcon
 GtStartupPage::icon() const
 {

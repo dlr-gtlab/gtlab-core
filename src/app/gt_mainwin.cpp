@@ -22,6 +22,7 @@
 #include "gt_perspectiveswitchwidget.h"
 #include "gt_aboutdialog.h"
 #include "gt_logging.h"
+#include "gt_logmodel.h"
 #include "gt_projectui.h"
 #include "gt_collectioneditor.h"
 #include "gt_startuppage.h"
@@ -218,11 +219,9 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     // gui logger destination
     gt::log::Logger& logger = gt::log::Logger::instance();
 
-    gt::log::DestinationPtr widgetDestination(
-                gt::log::DestinationFactory::MakeFunctorDestination(
-                    this, SLOT(onLogMessage(QString,int))));
+    auto dest = gt::log::makeSignalSlotDestination(this, &GtMainWin::onLogMessage);
 
-    logger.addDestination(widgetDestination);
+    logger.addDestination(GT_CLASSNAME(GtMainWin), std::move(dest));
 }
 
 GtMainWin::~GtMainWin()
@@ -1001,8 +1000,8 @@ GtMainWin::noUpdateAvailable(int errorCode, const QString& str)
 {
     m_cornerWidget->showUpdateWidget(false);
 
-    gtDebug() << "Error code = " << errorCode;
-    gtDebug() << "Error message = " << str;
+    gtDebug().nospace()
+            << "Update check: " << str << " (Error code: " << errorCode << ')';
 }
 
 void
@@ -1245,13 +1244,17 @@ GtMainWin::onWidgetStructureClicked()
 }
 
 void
-GtMainWin::onLogMessage(const QString& msg, int level)
+GtMainWin::onLogMessage(const QString& msg, int level,
+                        const GtLogDetails& details)
 {
-    if (level > 3) // Pipe errors (level 4) to a message box
+    // Pipe errors to a message box
+    if (level >= gt::log::levelToInt(gt::log::ErrorLevel))
     {
-        gt::log::Level l = gt::log::Logger::levelFromInt(level);
-        QMessageBox::critical(this, gt::log::Logger::levelToString(l),
-                              msg, QMessageBox::Ok);
+        gt::log::Level l = gt::log::levelFromInt(level);
+
+        QMessageBox::critical(this, gt::log::levelToString(l).c_str(),
+                              QStringLiteral("%1: %2").arg(details.id, msg),
+                              QMessageBox::Ok);
     }
 }
 

@@ -27,11 +27,6 @@ public:
     GtStartupPage();
 
     /**
-     * @brief ~GtStartupPage
-     */
-    ~GtStartupPage() override;
-
-    /**
      * @brief Virtual function to specify item specific icon.
      * @return Object specific icon.
      */
@@ -96,8 +91,6 @@ private:
      * @brief initialize widget content
      */
     void initializeTheme();
-
-
 };
 
 #endif // GT_STARTUPPAGE_H

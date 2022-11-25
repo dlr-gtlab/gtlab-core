@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QDebug>
 
+#include "gt_logging.h"
 #include "gt_perspective.h"
 #include "gt_application.h"
 
@@ -26,8 +27,7 @@ GtPerspective::createDefault()
 
     if (!QDir().mkpath(path))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create application directories!");
+        gtFatal() << tr("Could not create application directories!");
         return false;
     }
 
@@ -44,8 +44,7 @@ GtPerspective::createEmptyPerspective(const QString& id)
 
     if (!dir.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("roaming path not found!");
+        gtFatal() << tr("Roaming path not found!");
         return false;
     }
 
@@ -73,8 +72,7 @@ GtPerspective::duplicatePerspective(const QString& source,
 
     if (!dir.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("roaming path not found!");
+        gtFatal() << tr("Roaming path not found!");
         return false;
     }
 
@@ -82,8 +80,7 @@ GtPerspective::duplicatePerspective(const QString& source,
 
     if (!file1.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("Perspective geometry file not found!");
+        gtError() << tr("Perspective geometry file not found!");
         return false;
     }
 
@@ -91,8 +88,7 @@ GtPerspective::duplicatePerspective(const QString& source,
 
     if (!file1.copy(dir.absoluteFilePath(targetFilename1)))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("Could not copy perspective geometry file not found!");
+        gtError() << tr("Could not copy perspective geometry file not found!");
         return false;
     }
 
@@ -100,8 +96,7 @@ GtPerspective::duplicatePerspective(const QString& source,
 
     if (!file2.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("Perspective state file not found!");
+        gtError() << tr("Perspective state file not found!");
         return false;
     }
 
@@ -109,8 +104,7 @@ GtPerspective::duplicatePerspective(const QString& source,
 
     if (!file2.copy(dir.absoluteFilePath(targetFilename2)))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("Could not copy perspective state file not found!");
+        gtError() << tr("Could not copy perspective state file not found!");
         return false;
     }
 
@@ -127,8 +121,7 @@ GtPerspective::saveGeometry(const QByteArray& data)
 
     if (!dir.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("roaming path not found!");
+        gtError() << tr("roaming path not found!");
         return;
     }
 
@@ -138,8 +131,7 @@ GtPerspective::saveGeometry(const QByteArray& data)
 
     if (!file.open(QIODevice::WriteOnly))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create perspective file!");
+        gtError() << tr("could not create perspective file!");
         return;
     }
 
@@ -158,8 +150,7 @@ GtPerspective::saveState(const QByteArray& data)
 
     if (!dir.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("roaming path not found!");
+        gtError() << tr("roaming path not found!");
         return;
     }
 
@@ -169,8 +160,7 @@ GtPerspective::saveState(const QByteArray& data)
 
     if (!file.open(QIODevice::WriteOnly))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create perspective file!");
+        gtError() << tr("could not create perspective file!");
         return;
     }
 
@@ -189,8 +179,7 @@ GtPerspective::loadGeometry()
 
     if (!dir.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("roaming path not found!");
+        gtFatal() << tr("roaming path not found!");
         return QByteArray();
     }
 
@@ -200,8 +189,7 @@ GtPerspective::loadGeometry()
 
     if (!file.open(QIODevice::ReadOnly))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create perspective file!");
+        gtError() << tr("Could not create perspective file!");
         return QByteArray();
     }
 
@@ -222,8 +210,7 @@ GtPerspective::loadState()
 
     if (!dir.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("roaming path not found!");
+        gtFatal() << tr("Roaming path not found!");
         return QByteArray();
     }
 
@@ -233,8 +220,7 @@ GtPerspective::loadState()
 
     if (!file.open(QIODevice::ReadOnly))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create perspective file!");
+        gtError() << tr("Could not create perspective file!");
         return QByteArray();
     }
 
@@ -253,15 +239,12 @@ GtPerspective::emptyFile(const QDir& dir, const QString& filename)
     if (file.exists())
     {
         // file found -> nothing to do here
-//        qWarning() << tr("WARNING") << ": "
-//                   << tr("default perspective file already exists!");
-        return false;
+        return true;
     }
 
     if (!file.open(QIODevice::WriteOnly))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create perspective file!");
+        gtError() << tr("Could not create perspective file!");
         return false;
     }
 

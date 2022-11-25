@@ -26,9 +26,8 @@ GtTestHelper::GtTestHelper()
 
      // setup gt logging
      gt::log::Logger& logger = gt::log::Logger::instance();
-     gt::log::DestinationPtr debugDestination(
-         gt::log::DestinationFactory::MakeDebugOutputDestination());
-     logger.addDestination(debugDestination);
+     auto dest = gt::log::makeDebugOutputDestination();
+     logger.addDestination("console", std::move(dest));
 }
 
 GtTestHelper*

@@ -169,7 +169,7 @@ GtCoreDatamodel::currentProject()
     }
 
     // no session -> no project
-    return NULL;
+    return nullptr;
 }
 
 GtProject*
@@ -183,7 +183,7 @@ GtCoreDatamodel::findProject(const QString& id)
     }
 
     // no session -> no project
-    return NULL;
+    return nullptr;
 }
 
 QList<GtProject*>
@@ -223,13 +223,14 @@ GtCoreDatamodel::openProject(const QString& id)
 bool
 GtCoreDatamodel::openProject(GtProject* project)
 {
-    qDebug() << "GtCoreDatamodel::openProject";
-
     // check project pointer
     if (!project)
     {
+        gtFatal() << tr("Null Project!");
         return false;
     }
+
+    gtDebug() << tr("Loading project '%1'...").arg(project->objectName());
 
     // check if project is already open
     if (project->isOpen())
@@ -246,9 +247,10 @@ GtCoreDatamodel::openProject(GtProject* project)
     // project ready to be opened. check for module updater
     if (project->upgradesAvailable())
     {
-        gtError() << "(" << project->objectName() << ") "
-                     "project needs updates of data structure!"
-                     " Run upgrade project data command first.";
+        gtError()
+                << tr("Project '%1' requires updates to the data structure.")
+                   .arg(project->objectName())
+                << tr("Run the project data upgrade command first!");
         return false;
     }
 
@@ -284,6 +286,8 @@ GtCoreDatamodel::openProject(GtProject* project)
 
     //    // update current project in application
     //    gtApp->setCurrentProject(project);
+
+    gtInfo() << project->objectName() << tr("loaded!");
 
     return true;
 }

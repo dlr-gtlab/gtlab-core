@@ -17,6 +17,7 @@
 
 #include "gt_object.h"
 #include "gt_logging.h"
+#include "gt_logging/qt_bindings.h"
 
 class GtAbstractObjectFactory;
 class GtObjecIO;

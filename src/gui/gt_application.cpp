@@ -80,9 +80,10 @@ GtApplication::~GtApplication()
     QApplication::clipboard()->clear();
 
     // remove temp directory
-    gtDebug() << "deleting temp dir...";
-    QString tmpPath = QCoreApplication::applicationDirPath() + QDir::separator()
-                      + QStringLiteral("temp");
+    QString tmpPath = QCoreApplication::applicationDirPath() +
+                      QDir::separator() + QStringLiteral("temp");
+
+    gtDebug().medium().quote() << "Deleting temp dir:" << tmpPath;
 
     QDir dir(tmpPath);
     dir.removeRecursively();
@@ -139,8 +140,7 @@ GtApplication::initPerspective(const QString& id)
     {
         if (!GtPerspective::createDefault())
         {
-            qWarning() << tr("WARNING") << ": "
-                       << tr("could not create default perspective setting!");
+            gtWarning() << tr("Could not create default perspective setting!");
         }
     }
 
@@ -159,8 +159,7 @@ GtApplication::initPerspective(const QString& id)
     }
     else
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("perspective already initialized!");
+        gtWarning() << tr("Perspectives have already been initialized!");
     }
 }
 
@@ -173,8 +172,7 @@ GtApplication::switchPerspective(const QString& id)
     {
         if (!m_perspectiveIds.contains(id))
         {
-            qWarning() << tr("WARNING") << ": " <<
-                       tr("perspective id not found!");
+            gtWarning() << tr("Perspective '%1' not found!").arg(id);
         }
         else
         {
@@ -187,7 +185,7 @@ GtApplication::switchPerspective(const QString& id)
     // save last used perspective and open new perspective
     m_perspective.reset(new GtPerspective(tmpId));
 
-    qDebug() << tr("loaded perspective: ") << m_perspective->objectName();
+    gtDebug() << tr("Loaded perspective:") << m_perspective->objectName();
     settings()->setLastPerspective(tmpId);
     emit perspectiveChanged(tmpId);
 }
@@ -197,22 +195,19 @@ GtApplication::deletePerspective(const QString& id)
 {
     if (!m_perspectiveIds.contains(id))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Perspective id not found!");
+        gtWarning() << tr("Perspective '%1' not found!").arg(id);
         return false;
     }
 
     if (perspectiveId() == id)
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Current perspective cannot be deleted!");
+        gtWarning() << tr("Current perspective cannot be deleted!");
         return false;
     }
 
     if (id == QLatin1String("default"))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Default perspective cannot be deleted!");
+        gtWarning() << tr("Default perspective cannot be deleted!");
         return false;
     }
 
@@ -220,8 +215,7 @@ GtApplication::deletePerspective(const QString& id)
 
     if (!path.exists() || !path.cd(QStringLiteral("perspective")))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Perspective directory not found!");
+        gtWarning() << tr("Perspective directory not found!");
         return false;
     }
 
@@ -232,8 +226,7 @@ GtApplication::deletePerspective(const QString& id)
 
     if (!file1.remove())
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Could not delete perspective geometry file!");
+        gtWarning() << tr("Could not delete perspective geometry file!");
         return false;
     }
 
@@ -241,8 +234,7 @@ GtApplication::deletePerspective(const QString& id)
 
     if (!file2.remove())
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Could not delete perspective state file!");
+        gtWarning() << tr("Could not delete perspective state file!");
         return false;
     }
 
@@ -258,29 +250,25 @@ GtApplication::renamePerspective(const QString& oldId, const QString& newId)
 {
     if (!perspectiveIds().contains(oldId))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Perspective id not found!");
+        gtWarning() << tr("Perspective id not found!");
         return false;
     }
 
     if (perspectiveIds().contains(newId))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Perspective id already exists!");
+        gtWarning() << tr("Perspective id already exists!");
         return false;
     }
 
     if (perspectiveId() == oldId)
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Current perspective cannot be renamed!");
+        gtWarning() << tr("Current perspective cannot be renamed!");
         return false;
     }
 
     if (oldId == QLatin1String("default"))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Default perspective cannot be renamed!");
+        gtWarning() << tr("Default perspective cannot be renamed!");
         return false;
     }
 
@@ -288,8 +276,7 @@ GtApplication::renamePerspective(const QString& oldId, const QString& newId)
 
     if (!path.exists() || !path.cd(QStringLiteral("perspective")))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Perspective directory not found!");
+        gtWarning() << tr("Perspective directory not found!");
         return false;
     }
 
@@ -302,15 +289,13 @@ GtApplication::renamePerspective(const QString& oldId, const QString& newId)
     if (!QFile::rename(path.absoluteFilePath(filenameOld1),
         path.absoluteFilePath(filenameNew1)))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Could not rename perspective geometry file!");
+        gtWarning() << tr("Could not rename perspective geometry file!");
     }
 
     if (!QFile::rename(path.absoluteFilePath(filenameOld2),
         path.absoluteFilePath(filenameNew2)))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Could not rename perspective state file!");
+        gtWarning() << tr("Could not rename perspective state file!");
     }
 
     // refresh perspective ids
@@ -326,15 +311,13 @@ GtApplication::newPerspective(const QString& id)
 {
     if (m_perspectiveIds.contains(id))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Perspective id already exists!");
+        gtWarning() << tr("Perspective id already exists!");
         return false;
     }
 
     if (!GtPerspective::createEmptyPerspective(id))
     {
-        gtWarning() << tr("WARNING") << QStringLiteral(": ") <<
-                    tr("Could not create perspective!");
+        gtWarning() << tr("Could not create perspective!");
         return false;
     }
 
@@ -351,8 +334,7 @@ GtApplication::duplicatePerspective(const QString& source,
 {
     if (!m_perspectiveIds.contains(source))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Perspective id not found!");
+        gtWarning() << tr("Perspective '%1' not found!").arg(source);
         return false;
     }
 
@@ -392,7 +374,7 @@ GtApplication::initShortCuts()
     QList<GtShortCutSettingsData> listBasic = settings()->intialShortCutsList();
 
     /// if short cut in default list, but not in settings add it to settings
-    for (GtShortCutSettingsData const& k : listBasic)
+    for (GtShortCutSettingsData const& k : qAsConst(listBasic))
     {
         bool contains = std::any_of(std::begin(tab),
                                     std::end(tab),
@@ -761,7 +743,7 @@ GtApplication::setDarkMode(bool dark, bool initial)
     {
         if (!initial)
         {
-            gtInfo() << tr("Theme was changed.")
+            gtInfo() << tr("Theme has changed.")
                      << tr("For an optimal view of all displays, "
                            "it is recommended to restart the application.");
         }
@@ -799,23 +781,20 @@ bool
 GtApplication::initFirstRun()
 {
     GtCoreApplication::initFirstRun();
-    qDebug() << "gui first run!";
 
     // create application directories
     QString path = roamingPath() + QDir::separator() + "perspective";
 
     if (!QDir().mkpath(path))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create application directories!");
+        gtWarning() << tr("Could not create application directories!");
         return false;
     }
 
     // create default perspective
     if (!GtPerspective::createDefault())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create default perspective setting!");
+        gtWarning() << tr("Could not create default perspective setting!");
         return false;
     }
 

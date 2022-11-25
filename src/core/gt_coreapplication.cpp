@@ -129,6 +129,27 @@ GtCoreApplication::init()
 
     m_self = this;
 
+    // logger
+    gt::log::Logger& logger = gt::log::Logger::instance();
+    auto logDest = gt::log::makeDebugOutputDestination();
+    logger.addDestination("console", std::move(logDest));
+
+    // verbosity
+    logger.setVerbosity(m_settings->loggingVerbosity());
+
+    // dev mode
+    if (qApp->arguments().contains(QStringLiteral("--dev")) ||
+        qApp->arguments().contains(QStringLiteral("-dev")))
+    {
+        m_devMode = true;
+        logger.setLoggingLevel(gt::log::TraceLevel);
+        gtDebug() << "DEV MODE";
+    }
+
+    // init logmodel
+    GtLogModel& logmodel = GtLogModel::instance();
+    Q_UNUSED(logmodel);
+
     // TODO: delete after alpha Version
     QString wPath = roamingPath() + QDir::separator() +
                     QStringLiteral("workspace");
@@ -140,34 +161,11 @@ GtCoreApplication::init()
     if (path.exists())
     {
         bool s = path.rename(wPath, sPath);
-
         qDebug() << "workspace renamed = " << s;
     }
 
     // #####
     initFirstRun();
-
-    if (qApp->arguments().contains(QStringLiteral("--dev")) ||
-        qApp->arguments().contains(QStringLiteral("-dev")))
-    {
-        m_devMode = true;
-    }
-
-    // logger
-    //    qDebug() << "initializing logger...";
-    gt::log::Logger& logger = gt::log::Logger::instance();
-
-    gt::log::DestinationPtr debugDestination(
-        gt::log::DestinationFactory::MakeDebugOutputDestination());
-    logger.addDestination(debugDestination);
-
-    gtLogModel;
-
-    if (m_devMode)
-    {
-        logger.setLoggingLevel(gt::log::TraceLevel);
-        gtDebug() << "DEV MODE";
-    }
 
     gtEnvironment->setRoamingDir(roamingPath());
     gtEnvironment->loadEnvironment();
@@ -200,16 +198,14 @@ GtCoreApplication::initFirstRun()
 
     if (!QDir(path).exists() && !QDir().mkpath(path))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create application directories!");
+        gtWarning() << tr("Could not create application directories!");
         return false;
     }
 
     // create default session
     if (!GtSession::hasDefaultSession() && !GtSession::createDefault())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create default session setting!");
+        gtWarning() << tr("Could not create default session setting!");
         return false;
     }
 
@@ -785,7 +781,8 @@ GtCoreApplication::saveSystemEnvironment() const
 
      gt::for_each_key(modEnv, [](const QString& e)
      {
-         gtDebug() << "sys env var (" << e << ") = " << gtEnvironment->value(e);
+         gtDebug().nospace() << "Sys env var (" << e << ") = "
+                             << gtEnvironment->value(e).toString();
 
          const QByteArray sysEnvVar = gtEnvironment->value(e).toByteArray();
          qputenv(e.toUtf8().constData(), sysEnvVar);

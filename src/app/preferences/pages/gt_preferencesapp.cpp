@@ -18,9 +18,17 @@
 #include "gt_application.h"
 #include "gt_settings.h"
 #include "gt_logmodel.h"
+#include "gt_logging.h"
 #include "gt_icons.h"
 
 #include "gt_preferencesapp.h"
+
+// Maps verbosity levels to strings
+const static QMap<int, QString> s_verbosityLevels{
+    {gt::log::Silent    , QStringLiteral("Silent")},
+    {gt::log::Medium    , QStringLiteral("Medium")},
+    {gt::log::Everything, QStringLiteral("High")  },
+};
 
 GtPreferencesApp::GtPreferencesApp() :
     GtPreferencesPage(tr("Application"))
@@ -79,7 +87,17 @@ GtPreferencesApp::GtPreferencesApp() :
     m_maxLogSpin->setMinimum(10);
     m_maxLogSpin->setMaximum(100000);
 
+    // order verbosity levels depending on their value
+    auto verbosityLevels = s_verbosityLevels.values();
+    std::sort(verbosityLevels.begin(), verbosityLevels.end(),
+              [&](auto a, auto b){
+        return s_verbosityLevels.key(a) < s_verbosityLevels.key(b);
+    });
+    m_verbositySelection = new QComboBox;
+    m_verbositySelection->addItems(verbosityLevels);
+
     formLay->addRow(tr("Max. logging length:"), m_maxLogSpin);
+    formLay->addRow(tr("Logging verbosity:"), m_verbositySelection);
 
     m_themeSelection = new QComboBox(this);
     m_themeSelection->addItem(tr("System selection"));
@@ -155,12 +173,25 @@ GtPreferencesApp::GtPreferencesApp() :
     m_openWelcomePage->setChecked(settings->showStartupPage());
     m_updateAtStartup->setChecked(settings->searchForUpdate());
 
+    // process runner
     m_useExtendedProcessExecutor->setChecked(
                 settings->useExtendedProcessExecutor());
     m_autostartProcessExecutor->setChecked(
                 settings->autostartProcessRunner());
 
+    // log length
     m_maxLogSpin->setValue(settings->maxLogLength());
+
+    // verbosity: by default use silent
+    auto verbosity = gt::log::Silent;
+    // check for entry in list
+    int  verbosityLevel = settings->loggingVerbosity();
+    if (s_verbosityLevels.contains(verbosityLevel))
+    {
+        verbosity = static_cast<gt::log::Verbosity>(verbosityLevel);
+    }
+    // set current text
+    m_verbositySelection->setCurrentText(s_verbosityLevels.value(verbosity));
 
     QString themeMode = settings->themeMode();
     if (themeMode == "bright")
@@ -185,9 +216,18 @@ void
 GtPreferencesApp::saveSettings(GtSettings& settings) const
 {
     settings.setOpenLastProject(m_lastOpenedProject);
-    settings.setShowStartupPage(m_openWelcomePage->isChecked());
+    settings.setShowStartupPage(m_openWelcomePage->isChecked());    
     settings.setSearchForUpdate(m_updateAtStartup->isChecked());
+
+    // log length
     settings.setMaxLogLength(m_maxLogSpin->value());
+    GtLogModel::instance().setMaxLogLength(m_maxLogSpin->value());
+
+    // verbosity
+    auto verbosity = s_verbosityLevels.key(m_verbositySelection->currentText(),
+                                           gt::log::Silent);
+    settings.setLoggingVerbosity(verbosity);
+    gt::log::Logger::instance().setVerbosity(verbosity);
 
     settings.setUseExtendedProcessExecutor(
                 m_useExtendedProcessExecutor->isChecked());
@@ -209,7 +249,6 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
     else
     {
         settings.setThemeMode("system");
-
         gtApp->setDarkMode(settings.darkMode());
     }
 }

@@ -413,8 +413,8 @@ GtProject::readModuleMetaData(const QDomElement& root)
         {
             if (!gtApp->moduleIds().contains(mid))
             {
-                gtWarning() << objectName() << ": " << tr("Unknown module id!")
-                            << " (" << mid << ")";
+                gtWarning().nospace() << objectName() << ": "
+                                      << tr("Unknown module: ") << mid;
             }
             m_moduleIds << mid;
         }
@@ -734,9 +734,7 @@ GtProject::saveProjectOverallData()
         return false;
     }
 
-    gtDebug().noquote() << tr("saving project")
-                        << QStringLiteral("\"") + objectName() +
-                           QStringLiteral("\" ...");
+    gtDebug().noquote() << tr("Saving project '%1'...").arg(objectName());
 
     QDomDocument document;
     QDomProcessingInstruction header = document.createProcessingInstruction(

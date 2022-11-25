@@ -26,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restructuring of batch application including the new interface for modules to add batch functions - #265
 
 ### Added
-- Added property containers to GtObjects. These allow to add an arbritary number of properties to a GTObject. - #298
+- Option for logging verbosity. - #346
+- Added property containers to GtObjects. These allow to add an arbitrary number of properties to a GtObject. - #298
 - Added dynamic interface to share arbitrary functions with other modules. These functions need to be defined in the method GtModuleInterface::sharedFunctions - #207, #47
 - Multiple labels can be selected and deleted at once - #111
 - Introduced an experimental process runner, that executes tasks in a separate system process. Can be used for remote execution. Must be enabled in the preferences when in dev-mode - #256

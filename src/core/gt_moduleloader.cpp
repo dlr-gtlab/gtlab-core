@@ -181,11 +181,11 @@ GtModuleLoader::load()
 
         if (!m_pimpl->loadHelper(*this, entryList, modulesDir, excludeList))
         {
-            gtWarning() << QObject::tr("Could not resolve plugin dependencies");
+            gtWarning() << QObject::tr("Could not resolve following "
+                                       "plugin dependencies:");
 
-            foreach (const QString& entry, entryList)
+            for (QString const& entry : qAsConst(entryList))
             {
-                gtWarning() << entry;
                 m_pimpl->debugDependencies(modulesDir.absoluteFilePath(entry));
             }
         }
@@ -619,16 +619,16 @@ GtModuleLoader::Impl::debugDependencies(const QString& path)
     QPluginLoader loader(path);
 
     QJsonObject metaData = pluginMetaData(loader);
-    QVariantList deps = metaArray(metaData,
-                                  QStringLiteral("dependencies"));
+    QVariantList deps = metaArray(metaData, QStringLiteral("dependencies"));
 
-    gtWarning() << "#### " << path;
+    gtWarning() << "####" << path;
 
     foreach (const QVariant& var, deps)
     {
         QVariantMap mitem = var.toMap();
-        gtWarning() << "   |-> " << mitem.value(QStringLiteral("name"));
-        gtWarning() << "   |-> " << mitem.value(QStringLiteral("version"));
+        gtWarning() << QObject::tr("####   - %1 (%2)")
+                       .arg(mitem.value(QStringLiteral("name")).toString(),
+                            mitem.value(QStringLiteral("version")).toString());
     }
 }
 

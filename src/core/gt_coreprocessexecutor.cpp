@@ -73,9 +73,8 @@ GtCoreProcessExecutor::GtCoreProcessExecutor(std::string id,
     if (!pimpl->self)
     {
         pimpl->self = this;
+        qDebug() << "#### Core process executor initialized!";
     }
-
-    qDebug() << "#### core process executor initialized! ID:" << id.c_str();
 
     GtProcessExecutorManager::instance().registerExecutor(std::move(id), *this);
 }
@@ -660,7 +659,7 @@ GtProcessExecutorManager::registerExecutor(std::string id, GtCoreProcessExecutor
         return false;
     }
 
-    qDebug().noquote() << tr("Added executor '%1'").arg(id.c_str());
+    qDebug().noquote() << tr("#### Registered executor '%1'").arg(id.c_str());
 
     s_executors.push_back(ExecutorEntry{&exec, std::move(id)});
 

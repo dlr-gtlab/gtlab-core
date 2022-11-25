@@ -49,7 +49,7 @@ GtUpdateChecker::checkForUpdate()
 int
 GtUpdateChecker::updateHelper()
 {
-    gtDebug() << "update check...";
+    gtDebug().medium() << "Update check...";
     QDir path(qApp->applicationDirPath());
 
     if (!path.cdUp())
