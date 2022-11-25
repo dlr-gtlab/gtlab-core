@@ -1,12 +1,12 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: gt_dynamicfunctionswidget.cpp
+ * Source File: gt_sharedfunctionswidget.cpp
  * copyright 2009-2022 by DLR
  *
  *  Created on: 25.10.2022
  *  Author: Jens Schmeink (AT-TWK)
  *  Tel.: +49 2203 601 2191
  */
-#include "gt_dynamicfunctionswidget.h"
+#include "gt_sharedfunctionswidget.h"
 
 #include <QVBoxLayout>
 #include <QTreeWidget>
@@ -16,13 +16,13 @@
 #include "gt_icons.h"
 #include "gt_logging.h"
 
-#include "internal/gt_dynamicinterfacehandler.h"
+#include "internal/gt_sharedfunctionhandler.h"
 
 using namespace gt;
 
 
 
-GtDynamicFunctionsWidget::GtDynamicFunctionsWidget(QWidget* parent) :
+GtSharedFunctionsWidget::GtSharedFunctionsWidget(QWidget* parent) :
     QWidget(parent)
 {
     auto* layout = new QVBoxLayout;
@@ -39,7 +39,7 @@ GtDynamicFunctionsWidget::GtDynamicFunctionsWidget(QWidget* parent) :
 
 
     QStringList functionIDs =
-            detail::DynamicInterfaceHandler::instance().getRegisteredFunctionIDs();
+            detail::SharedFunctionHandler::instance().getRegisteredFunctionIDs();
 
     for (const QString& id : qAsConst(functionIDs))
     {
@@ -65,7 +65,7 @@ GtDynamicFunctionsWidget::GtDynamicFunctionsWidget(QWidget* parent) :
             cats.append(catItem);
         }
 
-        auto func = interface::getFunction(moduleId, functionId);
+        auto func = interface::getSharedFunction(moduleId, functionId);
 
         if (!func)
         {
@@ -99,7 +99,7 @@ GtDynamicFunctionsWidget::GtDynamicFunctionsWidget(QWidget* parent) :
 
 /// see explorerdock
 void
-GtDynamicFunctionsWidget::filterData(const QString& val)
+GtSharedFunctionsWidget::filterData(const QString& val)
 {
     if (!m_content)
     {
@@ -143,7 +143,7 @@ GtDynamicFunctionsWidget::filterData(const QString& val)
 }
 
 std::pair<QString, QString>
-GtDynamicFunctionsWidget::divideKey(QString const& functionId)
+GtSharedFunctionsWidget::divideKey(QString const& functionId)
 {
     QStringList list = functionId.split("::");
 

@@ -35,7 +35,7 @@
 #include "gt_mdilauncher.h"
 #include "gt_objectfactory.h"
 #include "gt_changelogwidget.h"
-#include "gt_dynamicfunctionswidget.h"
+#include "gt_sharedfunctionswidget.h"
 
 #include "gt_aboutdialog.h"
 
@@ -77,7 +77,7 @@ GtAboutDialog::GtAboutDialog(int startPage, QWidget* parent) : GtDialog(parent)
 
     if (gtApp->devMode())
     {
-        tabs->addTab(dynamicInterfaceFunctionsWidget(),
+        tabs->addTab(sharedFunctionsWidget(),
                      tr("Shared functions"));
         addDevelopmentTabs(tabs);
     }
@@ -243,9 +243,9 @@ GtAboutDialog::changeLogWidget() const
 }
 
 QWidget*
-GtAboutDialog::dynamicInterfaceFunctionsWidget()
+GtAboutDialog::sharedFunctionsWidget()
 {
-    auto* dw = new GtDynamicFunctionsWidget();
+    auto* dw = new GtSharedFunctionsWidget();
 
     return dw;
 }

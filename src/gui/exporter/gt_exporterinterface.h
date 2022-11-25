@@ -29,7 +29,9 @@ public:
      * @brief Returns static meta objects of exporter classes.
      * @return List including meta objects of exporter classes.
      */
-    virtual QList<QMetaObject> exporter() const = 0;
+    virtual QList<QMetaObject> exporter() const  {
+        return {};
+    }
 
 };
 

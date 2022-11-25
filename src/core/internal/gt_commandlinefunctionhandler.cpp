@@ -18,7 +18,7 @@ GtCommandLineFunctionHandler::instance()
 }
 
 bool
-GtCommandLineFunctionHandler::addInterface(GtCommandLineFunction func)
+GtCommandLineFunctionHandler::addFunction(GtCommandLineFunction func)
 {
     const auto& ident = func.id();
 
@@ -35,7 +35,7 @@ GtCommandLineFunctionHandler::addInterface(GtCommandLineFunction func)
 }
 
 GtCommandLineFunction
-GtCommandLineFunctionHandler::getInterfaceFunc(const QString& functionId) const
+GtCommandLineFunctionHandler::getFunction(const QString& functionId) const
 {
     if (!m_interfaces.contains(functionId))
     {
@@ -55,5 +55,5 @@ bool
 gt::commandline::registerFunction(GtCommandLineFunction func)
 {
     return GtCommandLineFunctionHandler::instance()
-        .addInterface(std::move(func));
+        .addFunction(std::move(func));
 }

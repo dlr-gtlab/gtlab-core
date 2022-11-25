@@ -28,14 +28,14 @@ public:
      * Returns false, if a function with the same ID already exists
      * and will not add this function
      */
-    bool addInterface(GtCommandLineFunction func);
+    bool addFunction(GtCommandLineFunction func);
 
     /**
      * @brief Gets a function from the handler
      *
      * Returns nullptr, if functions does not exist
      */
-    GtCommandLineFunction getInterfaceFunc(const QString& functionId) const;
+    GtCommandLineFunction getFunction(const QString& functionId) const;
 
     /**
      * @brief Returns the IDs of the registered functions
@@ -50,6 +50,7 @@ private:
 
 namespace gt
 {
+
 namespace commandline
 {
 

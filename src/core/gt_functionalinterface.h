@@ -1,5 +1,5 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: test_gt_dynamicinterface.cpp
+ * Source File: gt_functionalinterface.h
  * copyright 2022 by DLR
  *
  *  Created on: 01.04.2022
@@ -7,20 +7,16 @@
  *  Tel.: +49 2203 601 2264
  */
 
-#ifndef FUNCTIONAL_INTERFACE_H
-#define FUNCTIONAL_INTERFACE_H
+#ifndef GTFUNCTIONALINTERFACE_H
+#define GTFUNCTIONALINTERFACE_H
 
-#include "gt_dynamicinterface.h"
+#include "gt_sharedfunction.h"
 #include "gt_variantconvert.h"
 #include "gt_mpl.h"
 #include "gt_typetraits.h"
 #include "gt_platform.h"
 
 #include <stdexcept>
-
-#if CPP_STANDARD_VERSION < 201400
-#error "C++14 or better is required"
-#else
 
 namespace gt
 {
@@ -30,40 +26,39 @@ namespace detail
 {
 
 template <typename Func>
-struct InterfaceFunctionBuilder
+struct SharedFunctionBuilder
 {
-    explicit InterfaceFunctionBuilder(QString func_name,
+    explicit SharedFunctionBuilder(QString func_name,
                                       const Func& f) :
         wrapped_function(f),
         name(std::move(func_name))
     {
     }
 
-    QVariantList operator()(const QVariantList& variantList) const
+    QVariantList operator()(const QVariantList& args) const noexcept(false)
     {
         using f_traits = gt::mpl::function_traits<Func>;
         using args_type = typename f_traits::args_type;
 
         // check matching number of arguments
-        if (variantList.size() != f_traits::nargs)
+        if (args.size() != f_traits::nargs)
         {
             throw std::runtime_error(
                 "Function argument mismatch in function '" +
                 name.toStdString() +
                 "'. Expected " +
                 std::to_string(f_traits::nargs) + " args, got " +
-                std::to_string(variantList.size()));
+                std::to_string(args.size()));
         }
 
-        auto wrappedFargs = gt::fromVariant<args_type>(variantList);
+        auto wrappedFargs = gt::fromVariant<args_type>(args);
 
         // execute function, the arguments could be passed by reference, hence
         // they cannot be moved
-        const auto func_result = f_traits::invoke(
-            wrapped_function, wrappedFargs);
+        const auto result = f_traits::invoke(wrapped_function, wrappedFargs);
 
         // convert result into variant list
-        return gt::toVariantList(func_result);
+        return gt::toVariantList(result);
     }
 
     Func wrapped_function;
@@ -88,7 +83,7 @@ QString getDefaultHelp(const QString& function_name)
 }
 
 /**
- * @brief Builds a gtlab module interface function from a regular function
+ * @brief Builds a gtlab module shared function from a regular function
  *
  * This function adds argument type checks and also checks for
  * the correct number of arguments.
@@ -102,19 +97,20 @@ QString getDefaultHelp(const QString& function_name)
  *      return a + b + c;
  *   }
  *
- *   auto itf_trisum = make_interface_function("trisum", trisum);
+ *   auto itf_trisum = makeSharedFunction("trisum", trisum);
  *
  *   // call trisum
  *   auto result = itf_trisum({1, 2, 3}); // returns QVariantList({6})
  *
  * @param funcName The name of the function to be wrapped
  * @param f The function / functional object
+ * @return Shared function
  */
 template <
     typename Func,
-    trait::if_not_convertible<Func, InterfaceFunction::FunctionType> = true
-> // this is disabled for interface functions
-InterfaceFunction makeInterfaceFunction(
+    trait::if_not_convertible<Func, SharedFunction::FunctionType> = true
+> // this is disabled for shared functions
+SharedFunction makeSharedFunction(
         const QString& funcName, Func&& f, QString help = {})
 {
     if (help.isEmpty())
@@ -122,14 +118,14 @@ InterfaceFunction makeInterfaceFunction(
         help = getDefaultHelp<Func>(funcName);
     }
 
-    auto funcWrapper =  detail::InterfaceFunctionBuilder<Func>(
+    auto funcWrapper =  detail::SharedFunctionBuilder<Func>(
         funcName, std::forward<Func>(f));
 
-    return InterfaceFunction(funcName, std::move(funcWrapper), std::move(help));
+    return SharedFunction(funcName, std::move(funcWrapper), std::move(help));
 }
 
 /**
- * @brief Builds a gtlab module interface function from
+ * @brief Builds a gtlab module shared function from
  * a QVariantList based function
  *
  * Usage:
@@ -152,17 +148,17 @@ InterfaceFunction makeInterfaceFunction(
  *
  *   ...
  *
- *   auto fun = interface::make_interface_function("mypow", itf_mypow, help);
+ *   auto fun = interface::makeSharedFunction("mypow", itf_mypow, help);
  *
  * @param funcName The name of the function to be wrapped
  * @param f The function using the signature QVariantList(const QVariantList&)
- * @return An InterfaceFunction object
+ * @return Shared function
  */
 template <
     typename Func,
-    trait::if_convertible<Func, InterfaceFunction::FunctionType> = true
-> // this is only enabled for interface functions
-InterfaceFunction makeInterfaceFunction(
+    trait::if_convertible<Func, SharedFunction::FunctionType> = true
+> // this is only enabled for shared functions
+SharedFunction makeSharedFunction(
         const QString& funcName, Func&& f, QString help = {})
 {
     if (help.isEmpty())
@@ -170,13 +166,11 @@ InterfaceFunction makeInterfaceFunction(
         help = getDefaultHelp<Func>(funcName);
     }
 
-    return InterfaceFunction(funcName, std::forward<Func>(f), std::move(help));
+    return SharedFunction(funcName, std::forward<Func>(f), std::move(help));
 }
 
 } // namespace interface
 
 } // namespace gt
 
-#endif // c++ 14 required
-
-#endif // FUNCTIONAL_INTERFACE_H
+#endif // GTFUNCTIONALINTERFACE_H

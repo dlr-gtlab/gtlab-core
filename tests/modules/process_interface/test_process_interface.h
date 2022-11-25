@@ -43,12 +43,6 @@ public:
      * @return list including meta objects
      */
     QList<GtCalculatorData> calculators() override;
-
-    /**
-     * @brief Returns static meta objects of task classes.
-     * @return list including meta objects
-     */
-    QList<GtTaskData> tasks() override;
 };
 
 #endif // TEST_MODULE_INTERFACE_H

@@ -32,18 +32,18 @@ class TestGtCommandLineInterface : public ::testing::Test
 
 TEST_F(TestGtCommandLineInterface, registration)
 {
-    auto fun = gt::commandline::makeCommandLineFunction(
+    auto fun = gt::makeCommandLineFunction(
                 "test function", CommandLineTesting::myAwesomeTest2,
                 "combines arguments");
 
     gt::commandline::registerFunction(fun);
 
     GtCommandLineFunction f2 =
-            GtCommandLineFunctionHandler::instance().getInterfaceFunc(
+            GtCommandLineFunctionHandler::instance().getFunction(
                 "test function");
 
     GtCommandLineFunction f3 =
-            GtCommandLineFunctionHandler::instance().getInterfaceFunc(
+            GtCommandLineFunctionHandler::instance().getFunction(
                 "wrongName");
 
     ASSERT_NE(f2, nullptr);

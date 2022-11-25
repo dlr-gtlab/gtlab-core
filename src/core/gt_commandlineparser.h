@@ -15,7 +15,7 @@
 #include <QVariant>
 
 /**
- * @brief The GtCommandLineFunctionOption struct
+ * @brief The GtCommandLineOption struct
  * Struct to collect information for options to register connected to a
  * Option which can be used for a command line function
  *
@@ -23,7 +23,7 @@
  */
 struct GtCommandLineOption
 {
-    GtCommandLineOption(){};
+    GtCommandLineOption() = default;
 
     GtCommandLineOption(QStringList const& names,
                         QString const& brief,
@@ -34,6 +34,7 @@ struct GtCommandLineOption
     {
 
     }
+
     QStringList names;
 
     QString description;
@@ -42,13 +43,13 @@ struct GtCommandLineOption
 };
 
 /**
- * @brief The GtCommandLineFunctionArgument class
+ * @brief The GtCommandLineArgument struct
  * Struct to collect information for arguments to register connected to a
  * Option which can be used for a command line function
  *
  * This struct is only used for the default help function
  */
-struct GtCommandLineFunctionArgument
+struct GtCommandLineArgument
 {
     QString name;
 
@@ -101,8 +102,7 @@ public:
      * @brief addOption - add a command line option to the parser
      * @param o - command line option
      */
-    void addOption(const QString& id,
-                   const GtCommandLineOption& o);
+    void addOption(const QString& id, const GtCommandLineOption& o);
 
     /**
      * @brief addOption
@@ -199,9 +199,8 @@ GT_CORE_EXPORT int indexOfOption(QStringList const& args,
  * @return the value of the current option in the argument list args
  * The value is defined in the arguments by a "=" sign connected to the option
  */
-GT_CORE_EXPORT QVariant valueOfOption(
-        QStringList const& args,
-        const GtCommandLineOption& o);
+GT_CORE_EXPORT QVariant valueOfOption(QStringList const& args,
+                                      const GtCommandLineOption& o);
 
 /**
  * @brief hasOption

@@ -650,10 +650,10 @@ initPosArgument(QString const& id,
                 std::function<int(const QStringList&)> func,
                 QString const& brief,
                 QList<GtCommandLineOption> const& options = {},
-                QList<GtCommandLineFunctionArgument> const& args = {},
+                QList<GtCommandLineArgument> const& args = {},
                 bool defaultHelp = true)
 {
-    auto fun = gt::commandline::makeCommandLineFunction(id, func, brief);
+    auto fun = gt::makeCommandLineFunction(id, func, brief);
     fun.setOptions(options)
             .setArgs(args)
             .setUseDefaultHelp(defaultHelp);
@@ -687,7 +687,7 @@ initSystemOptions()
                     "default used option to execute this command."
                     "\n\t\t\tUse --help for more details.",
                     runOptions,
-                    QList<GtCommandLineFunctionArgument>(),
+                    QList<GtCommandLineArgument>(),
                     false);
 
     initPosArgument("list", listFun,
@@ -849,7 +849,7 @@ int main(int argc, char* argv[])
     for (QString const& s: qAsConst(commands))
     {
         GtCommandLineFunction f =
-                GtCommandLineFunctionHandler::instance().getInterfaceFunc(s);
+                GtCommandLineFunctionHandler::instance().getFunction(s);
         parser.addPositionalArgument(f);
     }
 
@@ -871,8 +871,7 @@ int main(int argc, char* argv[])
     if (commands.contains(mainArg))
     {
         GtCommandLineFunction f =
-                GtCommandLineFunctionHandler::instance().getInterfaceFunc(
-                    mainArg);
+                GtCommandLineFunctionHandler::instance().getFunction(mainArg);
 
         /// check if the default help flag is part of the arguments
         if (parser.helpOption())

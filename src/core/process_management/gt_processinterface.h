@@ -32,13 +32,17 @@ public:
      * @brief Returns static meta objects of calculator classes.
      * @return list including meta objects
      */
-    virtual QList<GtCalculatorData> calculators() = 0;
+    virtual QList<GtCalculatorData> calculators() {
+        return {};
+    }
 
     /**
      * @brief Returns static meta objects of task classes.
      * @return list including meta objects
      */
-    virtual QList<GtTaskData> tasks() = 0;
+    virtual QList<GtTaskData> tasks() {
+        return {};
+    }
 
 };
 

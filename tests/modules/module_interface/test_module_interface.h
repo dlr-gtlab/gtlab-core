@@ -35,18 +35,15 @@ public:
      */
     QString description() const override;
 
-    QList<VersionUpgradeRoutine> upgradeRoutines() const override;
+    QList<gt::VersionUpgradeRoutine> upgradeRoutines() const override;
 
-    QList<gt::InterfaceFunction> sharedFunctions() const override;
+    QList<gt::SharedFunction> sharedFunctions() const override;
 
     QList<GtCommandLineFunction> commandLineFunctions() const override;
 
     MetaInformation metaInformation() const override;
 
-    void onLoad() override;
-
     void init() override;
-
 };
 
 #endif // TEST_MODULE_INTERFACE_H

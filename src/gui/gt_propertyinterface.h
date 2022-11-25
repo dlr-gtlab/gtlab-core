@@ -32,7 +32,9 @@ public:
      * @brief Returns static meta objects of property item classes.
      * @return list of meta objects of property item classes.
      */
-    virtual QMap<const char*, QMetaObject> propertyItems() = 0;
+    virtual QMap<const char*, QMetaObject> propertyItems() {
+        return {};
+    };
 
 };
 

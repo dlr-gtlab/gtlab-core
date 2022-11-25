@@ -33,7 +33,9 @@ public:
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
      */
-    virtual QList<QMetaObject> data() = 0;
+    virtual QList<QMetaObject> data() {
+        return {};
+    }
 
     /**
      * @brief Returns true if module is a stand alone module with own

@@ -18,18 +18,19 @@
 
 #include "gt_commandlineparser.h"
 
+
 class GT_CORE_EXPORT GtCommandLineFunction
 {
 public:
     using FunctionType = std::function<int(const QStringList&)>;
 
     /**
-     * @brief Constructor for the GtCommandLineFunction
+     * @brief Constructor for the GtCommandLineFunction class
      * The first three arguments are always needed the others are optional.
      *
      * They can also be set by chains like in this example:
      *
-     *      auto fun = GtCommandLineInterface::make_commandLineFunction(
+     *      auto fun = gt::makeCommandLineFunction(
      *           "test_function", test_command::mainFun,
      *           "brief description");
      *
@@ -80,10 +81,12 @@ public:
      *      }
      *
      */
-    GtCommandLineFunction(QString commandId, FunctionType func, QString brief,
-                          QList<GtCommandLineOption> options = {},
-                          QList<GtCommandLineFunctionArgument> args = {},
-                          bool useDefaultHelp = true) :
+    GtCommandLineFunction(QString commandId,
+                        FunctionType func,
+                        QString brief,
+                        QList<GtCommandLineOption> options = {},
+                        QList<GtCommandLineArgument> args = {},
+                        bool useDefaultHelp = true) :
         m_f(std::move(func)),
         m_id(std::move(commandId)),
         m_commandBrief(std::move(brief)),
@@ -111,7 +114,7 @@ public:
     }
 
     /**
-     * @brief Returns the docstring of the interface function
+     * @brief Returns the docstring of the commandline function
      */
     const QString& brief() const
     {
@@ -119,7 +122,7 @@ public:
     }
 
     /**
-     * @brief Returns the options of the interface function
+     * @brief Returns the options of the commandline function
      */
     const QList<GtCommandLineOption>& options() const
     {
@@ -127,9 +130,9 @@ public:
     }
 
     /**
-     * @brief Returns the arguments of the interface function
+     * @brief Returns the arguments of the commandline function
      */
-    const QList<GtCommandLineFunctionArgument>& arguments() const
+    const QList<GtCommandLineArgument>& arguments() const
     {
         return m_args;
     }
@@ -186,34 +189,30 @@ public:
      * @brief setOptions
      * @param newOptions - list of command line options for the help system
      */
-    GtCommandLineFunction& setOptions(
-            const QList<GtCommandLineOption>& newOptions);
+    GtCommandLineFunction& setOptions(const QList<GtCommandLineOption>& newOptions);
 
     /**
      * @brief setArgs
      * @param newArgs - list of command line arguments for the help system
      */
-    GtCommandLineFunction& setArgs(
-            const QList<GtCommandLineFunctionArgument>& newArgs);
+    GtCommandLineFunction& setArgs(const QList<GtCommandLineArgument>& newArgs);
 
 private:
     FunctionType m_f;
     QString m_id;
     QString m_commandBrief;
     QList<GtCommandLineOption> m_options;
-    QList<GtCommandLineFunctionArgument> m_args;
+    QList<GtCommandLineArgument> m_args;
     bool m_defaultHelp;
 };
 
 namespace gt
 {
-namespace commandline
-{
 
 /**
- * @brief make_commandLineFunction
+ * @brief makeCommandLineFunction
  *
- * For details see the description of the GtCommandLineFunctionClass
+ * For details see the description of the GtCommandLineFunction class
  *
  * Returns a command line object with the parameters as given by the fucntion
  * arguments:
@@ -228,8 +227,6 @@ GT_CORE_EXPORT GtCommandLineFunction
 makeCommandLineFunction(const QString& id,
                         GtCommandLineFunction::FunctionType func,
                         QString brief);
-
-} // namespace commandline
 
 } // namespace gt
 

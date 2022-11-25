@@ -70,13 +70,3 @@ TestProcessInterface::calculators()
 
     return metaData;
 }
-
-QList<GtTaskData>
-TestProcessInterface::tasks()
-{
-    QList<GtTaskData> metaData;
-
-    return metaData;
-}
-
-

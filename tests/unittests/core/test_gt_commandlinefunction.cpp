@@ -30,9 +30,9 @@ class TestGtCommandLineFunction : public ::testing::Test
 {
 
 protected:
-    GtCommandLineFunction m_func{"name",
-                                 CommandLineTesting::myAwesomeTest,
-                                         "description"};
+    GtCommandLineFunction m_func{
+        "name", CommandLineTesting::myAwesomeTest, "description"
+    };
 };
 
 TEST_F(TestGtCommandLineFunction, getter)
@@ -40,7 +40,6 @@ TEST_F(TestGtCommandLineFunction, getter)
     ASSERT_EQ(m_func.brief(), "description");
     ASSERT_EQ(m_func.id(), "name");
 }
-
 
 TEST_F(TestGtCommandLineFunction, executionTest)
 {

@@ -1,5 +1,5 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: dynamicinterface.h
+ * Source File: gt_sahredfunction.h
  * copyright 2009-2022 by DLR
  *
  *  Created on: 08.06.2022
@@ -7,8 +7,8 @@
  *  Tel.: +49 2203 601 2264
  */
 
-#ifndef DYNAMICINTERFACE_H
-#define DYNAMICINTERFACE_H
+#ifndef GT_SHAREDFUNCTION_H
+#define GT_SHAREDFUNCTION_H
 
 #include "gt_core_exports.h"
 
@@ -29,26 +29,26 @@ namespace gt
  *
  * a help() and name() method.
  *
- * To convert arbitrary functions into InterfaceFunction,
- * use `auto func = gtlab::interface::make_interface_function(the_function)`
+ * To convert arbitrary functions into SharedFunction,
+ * use `auto func = gtlab::interface::makeSharedFunction(the_function)`
  */
-class GT_CORE_EXPORT InterfaceFunction
+class GT_CORE_EXPORT SharedFunction
 {
 public:
     using FunctionType = std::function<QVariantList(const QVariantList&)>;
 
-    InterfaceFunction(QString funcName, FunctionType func, QString help) :
+    SharedFunction(QString funcName, FunctionType func, QString help) :
         m_f(std::move(func)),
         m_name(std::move(funcName)),
         m_help(std::move(help))
     {}
 
-    InterfaceFunction() = default;
+    SharedFunction() = default;
 
     // We want to have implicit conversion from nullptr as it should behave
     // as a function pointer
     // cppcheck-suppress noExplicitConstructor // NOLINTNEXTLINE
-    InterfaceFunction(nullptr_t) {}
+    SharedFunction(nullptr_t) {}
 
     /**
      * @brief Calls the function
@@ -107,20 +107,20 @@ private:
 namespace interface
 {
 /**
- * @brief Retrieves an interface function from Interface Handler
+ * @brief Retrieves a shared function
  *
  * Usage:
  *
- * auto itf_mypow = interface::get:function("mymodule", "mypow");
+ * auto itf_mypow = interface::getSharedFunction("mymodule", "mypow");
  *
  * auto result = itf_mypow({3.0, 2}); // returns QVariantList({9.0})
  */
-GT_CORE_EXPORT InterfaceFunction
-getFunction(const QString& moduleId, const QString& functionId);
+GT_CORE_EXPORT SharedFunction
+getSharedFunction(const QString& moduleId, const QString& functionId);
 
 }  // namespace interface
 
 } // namespace gt
 
-#endif // DYNAMICINTERFACE_H
+#endif // GT_SHAREDFUNCTION_H
 

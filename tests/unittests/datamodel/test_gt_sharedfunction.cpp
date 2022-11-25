@@ -1,5 +1,5 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: test_gt_dynamicinterface.cpp
+ * Source File: test_gt_sharedfunction.cpp
  * copyright 2022 by DLR
  *
  *  Created on: 01.04.2022
@@ -9,16 +9,15 @@
 
 #include "gtest/gtest.h"
 
-#include "gt_functional_interface.h"
-#include "gt_dynamicinterface.h"
+#include "gt_functionalinterface.h"
 
-#include "internal/gt_dynamicinterfacehandler.h"
+#include "internal/gt_sharedfunctionhandler.h"
 
 #include <QString>
 
-using gt::interface::makeInterfaceFunction;
+using gt::interface::makeSharedFunction;
 
-class DynamicInterface : public testing::Test
+class SharedFunction : public testing::Test
 {};
 
 int my_test_sum (int a, int b)
@@ -32,10 +31,10 @@ QString my_insane_test_fun(const std::string& str1,
     return QString("%0,%1,%2,%3").arg(str1.c_str()).arg(str2).arg(v1).arg(v2);
 }
 
-TEST_F(DynamicInterface, wrapFunction)
+TEST_F(SharedFunction, wrapFunction)
 {
-    auto itf_fun = gt::interface::makeInterfaceFunction("my_test_sum",
-                                                          my_test_sum);
+    auto itf_fun = gt::interface::makeSharedFunction("my_test_sum",
+                                                     my_test_sum);
     auto result = itf_fun({1, 2});
 
     ASSERT_EQ(1, result.size());
@@ -49,14 +48,14 @@ TEST_F(DynamicInterface, wrapFunction)
     EXPECT_STREQ("my_test_sum", itf_fun.name().toStdString().c_str());
 }
 
-TEST_F(DynamicInterface, wrapQString)
+TEST_F(SharedFunction, wrapQString)
 {
     auto mystringfunction = [](QString str) {
         return str;
     };
 
-    auto itf_fun = gt::interface::makeInterfaceFunction("mystringfunction",
-                                                          mystringfunction);
+    auto itf_fun = gt::interface::makeSharedFunction("mystringfunction",
+                                                     mystringfunction);
 
     auto result = itf_fun({"Hallo Welt"});
 
@@ -64,14 +63,14 @@ TEST_F(DynamicInterface, wrapQString)
     EXPECT_STREQ("Hallo Welt", result[0].toString().toStdString().c_str());
 }
 
-TEST_F(DynamicInterface, wrapStdString)
+TEST_F(SharedFunction, wrapStdString)
 {
     auto mystringfunction = [](std::string str) {
         return str;
     };
 
-    auto itf_fun = gt::interface::makeInterfaceFunction("mystringfunction2",
-                                                          mystringfunction);
+    auto itf_fun = gt::interface::makeSharedFunction("mystringfunction2",
+                                                     mystringfunction);
 
     auto result = itf_fun({"Hallo Welt"});
 
@@ -79,14 +78,14 @@ TEST_F(DynamicInterface, wrapStdString)
     EXPECT_STREQ("Hallo Welt", result[0].toString().toStdString().c_str());
 }
 
-TEST_F(DynamicInterface, wrapLambda)
+TEST_F(SharedFunction, wrapLambda)
 {
     auto lambda = [](double a, double b) {
         return a*b;
     };
 
-    auto itf_fun = gt::interface::makeInterfaceFunction("my_lambda_mult",
-                                                          lambda);
+    auto itf_fun = gt::interface::makeSharedFunction("my_lambda_mult",
+                                                     lambda);
 
     auto result = itf_fun({3., 4.});
 
@@ -94,7 +93,7 @@ TEST_F(DynamicInterface, wrapLambda)
     EXPECT_EQ(12., result[0].toDouble());
 }
 
-TEST_F(DynamicInterface, wrapFunctionObject)
+TEST_F(SharedFunction, wrapFunctionObject)
 {
     struct MyFunctionObj
     {
@@ -113,16 +112,16 @@ TEST_F(DynamicInterface, wrapFunctionObject)
     // sanity check
     ASSERT_EQ(15, f(5.));
 
-    auto itf_fun = gt::interface::makeInterfaceFunction("my_func_obj", f);
+    auto itf_fun = gt::interface::makeSharedFunction("my_func_obj", f);
 
     auto result = itf_fun({12.});
     EXPECT_EQ(1, result.size());
     EXPECT_EQ(22., result[0].toDouble());
 }
 
-TEST_F(DynamicInterface, returnTuple)
+TEST_F(SharedFunction, returnTuple)
 {
-    auto itf_fun = gt::interface::makeInterfaceFunction(
+    auto itf_fun = gt::interface::makeSharedFunction(
         "my_lambda_tuple",
         [](double a, double b) {
             return std::make_tuple(a+b, a-b);
@@ -136,9 +135,9 @@ TEST_F(DynamicInterface, returnTuple)
 }
 
 
-TEST_F(DynamicInterface, returnVoid)
+TEST_F(SharedFunction, returnVoid)
 {
-    auto itf_fun = gt::interface::makeInterfaceFunction("my_return_void_func",
+    auto itf_fun = gt::interface::makeSharedFunction("my_return_void_func",
         [](double) {
             // nothing
         }
@@ -148,53 +147,53 @@ TEST_F(DynamicInterface, returnVoid)
     ASSERT_EQ(0, result.size());
 }
 
-TEST_F(DynamicInterface, getFunctionFailure)
+TEST_F(SharedFunction, getFunctionFailure)
 {
-    auto func = gt::interface::getFunction("testmod",
-                                            "this_funcion_does_not_exist");
+    auto func = gt::interface::getSharedFunction("testmod",
+                                                 "this_funcion_does_not_exist");
     EXPECT_FALSE(func);
 }
 
 
-TEST_F(DynamicInterface, registerFunctionNoHelp)
+TEST_F(SharedFunction, registerFunctionNoHelp)
 {
     ASSERT_TRUE(gt::interface::detail::registerFunction("testmod",
-        makeInterfaceFunction("my_test_sum", my_test_sum)));
+        makeSharedFunction("my_test_sum", my_test_sum)));
 
-    auto func = gt::interface::getFunction("testmod", "my_test_sum");
+    auto func = gt::interface::getSharedFunction("testmod", "my_test_sum");
     ASSERT_TRUE(func);
 
     EXPECT_FALSE(func.help().isEmpty());
 }
 
-TEST_F(DynamicInterface, registerFunctionWithHelp)
+TEST_F(SharedFunction, registerFunctionWithHelp)
 {
     auto help = "this is the help of my_test_sum2";
 
     ASSERT_TRUE(gt::interface::detail::registerFunction("testmod",
-        makeInterfaceFunction("my_test_sum2", my_test_sum, help)));
+        makeSharedFunction("my_test_sum2", my_test_sum, help)));
 
-    auto func = gt::interface::getFunction("testmod", "my_test_sum2");
+    auto func = gt::interface::getSharedFunction("testmod", "my_test_sum2");
     ASSERT_TRUE(func);
 
     EXPECT_STREQ(help, func.help().toStdString().c_str());
 }
 
-TEST_F(DynamicInterface, checkName)
+TEST_F(SharedFunction, checkName)
 {
     ASSERT_TRUE(gt::interface::detail::registerFunction("testmod",
-        makeInterfaceFunction("my_test_sum3", my_test_sum)));
+        makeSharedFunction("my_test_sum3", my_test_sum)));
 
-    auto func = gt::interface::getFunction("testmod", "my_test_sum3");
+    auto func = gt::interface::getSharedFunction("testmod", "my_test_sum3");
     EXPECT_STREQ("my_test_sum3", func.name().toStdString().c_str());
 }
 
-TEST_F(DynamicInterface, passByRef)
+TEST_F(SharedFunction, passByRef)
 {
     ASSERT_TRUE(gt::interface::detail::registerFunction("testmod",
-        makeInterfaceFunction("insane_fun", my_insane_test_fun)));
+        makeSharedFunction("insane_fun", my_insane_test_fun)));
 
-    auto func = gt::interface::getFunction("testmod", "insane_fun");
+    auto func = gt::interface::getSharedFunction("testmod", "insane_fun");
     auto result = func({"S1", "S2", 3, 4});
     ASSERT_EQ(1, result.size());
     EXPECT_STREQ("S1,S2,3,4", result.at(0).toString().toStdString().c_str());

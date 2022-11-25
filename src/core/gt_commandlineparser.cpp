@@ -162,7 +162,7 @@ GtCommandLineParser::printHelp(QString const& commandName)
     {
         std::cout << "Options:" << std::endl;
 
-        for (const GtCommandLineOption& o : m_opts)
+        for (const GtCommandLineOption& o : qAsConst(m_opts))
         {
             QString optionString;
 

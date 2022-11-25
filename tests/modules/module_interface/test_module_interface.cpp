@@ -14,7 +14,7 @@
 
 #include "test_module_interface.h"
 
-#include "gt_functional_interface.h"
+#include "gt_functionalinterface.h"
 #include "gt_application.h"
 #include "test_preferencepage.h"
 #include "gt_settings.h"
@@ -54,10 +54,10 @@ TestModuleInterface::description() const
     return "Test Module Interface Description";
 }
 
-QList<VersionUpgradeRoutine>
+QList<gt::VersionUpgradeRoutine>
 TestModuleInterface::upgradeRoutines() const
 {
-    QList<VersionUpgradeRoutine> retval;
+    QList<gt::VersionUpgradeRoutine> retval;
 
     retval.append({{0, 0, 2}, testConvert});
     retval.append({{0, 0, 1}, testConvert});
@@ -73,10 +73,10 @@ mySquare(double x)
     return x*x;
 }
 
-QList<gt::InterfaceFunction>
+QList<gt::SharedFunction>
 TestModuleInterface::sharedFunctions() const
 {
-    auto fun = gt::interface::makeInterfaceFunction(
+    auto fun = gt::interface::makeSharedFunction(
                    "mySquare", mySquare, "Returns the square of x");
 
     return {fun};
@@ -125,11 +125,12 @@ mainFun(QStringList const& args)
 }
 
 }
+
 QList<GtCommandLineFunction>
 TestModuleInterface::commandLineFunctions() const
 {
     /// The constructor
-    auto fun = gt::commandline::makeCommandLineFunction(
+    auto fun = gt::makeCommandLineFunction(
                 "test_function", test_module_batch_command::mainFun,
                 "combines arguments");
     /// demonstration to set options by a chain of setters
@@ -147,11 +148,6 @@ TestModuleInterface::metaInformation() const
     m.licenseShort = "TestModule without public access";
 
     return m;
-}
-
-void
-TestModuleInterface::onLoad()
-{
 }
 
 void

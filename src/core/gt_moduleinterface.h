@@ -15,7 +15,7 @@
 #include <QtPlugin>
 
 #include "gt_versionnumber.h"
-#include "gt_dynamicinterface.h"
+#include "gt_functionalinterface.h"
 #include "gt_commandlinefunction.h"
 #include "gt_globals.h"
 
@@ -55,8 +55,12 @@
 
 class QDomElement;
 
+namespace gt
+{
+
 /// Function definition for project data upgrades provided by a module
-typedef bool (*ConverterFunction)(QDomElement&, const QString&);
+using ConverterFunction = bool (*)(QDomElement& rootElement,
+                                   QString const& filePath);
 
 /// Project data upgrade routine provided by a module
 struct VersionUpgradeRoutine
@@ -67,6 +71,8 @@ struct VersionUpgradeRoutine
     /// specific upgrade function
     ConverterFunction f;
 };
+
+} // namespace gt
 
 /**
  * @brief Main interface that must be implemented by a module in order for it
@@ -146,7 +152,7 @@ public:
      * add your own update routines to the framework.
      * @return List of all upgrade routines of the module.
      */
-    virtual QList<VersionUpgradeRoutine> upgradeRoutines() const {
+    virtual QList<gt::VersionUpgradeRoutine> upgradeRoutines() const {
         return {};
     }
 
@@ -165,7 +171,7 @@ public:
      *
      * @return
      */
-    virtual QList<gt::InterfaceFunction> sharedFunctions() const {
+    virtual QList<gt::SharedFunction> sharedFunctions() const {
         return {};
     }
 
@@ -177,8 +183,7 @@ public:
      * the console application
      *
      */
-    virtual QList<GtCommandLineFunction> commandLineFunctions() const
-    {
+    virtual QList<GtCommandLineFunction> commandLineFunctions() const {
         return {};
     }
 
@@ -201,7 +206,7 @@ public:
  * @return
  */
 inline QString moduleSettingPath(const QString& modID,
-                  const QString& settingID)
+                                 const QString& settingID)
 {
     return QString("modules/%1/%2").arg(modID, settingID);
 }

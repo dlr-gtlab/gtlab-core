@@ -63,7 +63,7 @@ public slots:
      * @brief Second test for specific context menu group action.
      * @param obj
      */
-    void testDynamicInterface(GtObject* obj);
+    void testSharedFunction(GtObject* obj);
 };
 
 #endif // TESTDMIPACKAGEUI_H

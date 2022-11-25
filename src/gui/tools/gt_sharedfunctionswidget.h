@@ -1,5 +1,5 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: gt_dynamicfunctionswidget.h
+ * Source File: gt_sharedfunctionswidget.h
  * copyright 2009-2022 by DLR
  *
  *  Created on: 25.10.2022
@@ -17,16 +17,16 @@ class QTreeWidget;
 class GtSearchWidget;
 
 /**
- * @brief The GtDynamicFunctionsWidget class
- * Widget for the overview of dynamic functions
- * from the dynamic function interface
+ * @brief The GtSharedFunctionsWidget class
+ * Widget for the overview of the shared functions
+ * from the shared function interface
  *
  * The functions are displayed as a treeview sorted by the modules they
  * are coming from.
  *
  * Additionally a search widget is added to serach functions by thier name.
  */
-class GT_GUI_EXPORT GtDynamicFunctionsWidget : public QWidget
+class GT_GUI_EXPORT GtSharedFunctionsWidget : public QWidget
 {
     Q_OBJECT
 
@@ -37,7 +37,7 @@ public:
      * from the interface
      * @param parent widget
      */
-    Q_INVOKABLE explicit GtDynamicFunctionsWidget(QWidget* parent = nullptr);
+    Q_INVOKABLE explicit GtSharedFunctionsWidget(QWidget* parent = nullptr);
 
 private:
     /// Search widget

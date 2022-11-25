@@ -29,31 +29,41 @@ public:
      * @brief Returns static meta objects of mdi item classes.
      * @return list including meta objects
      */
-    virtual QList<QMetaObject> mdiItems() = 0;
+    virtual QList<QMetaObject> mdiItems() {
+        return {};
+    };
 
     /**
      * @brief Returns static meta objects of dockwidget classes.
      * @return list including meta objects
      */
-    virtual QList<QMetaObject> dockWidgets() = 0;
+    virtual QList<QMetaObject> dockWidgets() {
+        return {};
+    };
 
     /**
      * @brief uiItems
      * @return
      */
-    virtual QMap<const char*, QMetaObject> uiItems() = 0;
+    virtual QMap<const char*, QMetaObject> uiItems() {
+        return {};
+    };
 
     /**
      * @brief postItems
      * @return
      */
-    virtual QList<QMetaObject> postItems() = 0;
+    virtual QList<QMetaObject> postItems() {
+        return {};
+    };
 
     /**
      * @brief postPlots
      * @return
      */
-    virtual QList<QMetaObject> postPlots() = 0;
+    virtual QList<QMetaObject> postPlots() {
+        return {};
+    };
 
 };
 
