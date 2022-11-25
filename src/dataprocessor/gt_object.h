@@ -630,7 +630,7 @@ private:
      * @brief connectProperty
      * @param property
      */
-    void connectProperty(GtAbstractProperty& property);
+    void connectProperty(GtAbstractProperty& property, bool silent = false);
 
     /**
      * @brief fullPropertyListHelper
@@ -654,11 +654,6 @@ private:
     void exportDummyIntoMemento(GtObjectMemento&) const;
 
 private slots:
-    /**
-     * @brief emit a signal if a property is changed
-     * @param object
-     */
-    void propertyChanged(QObject* obj);
 
     /**
      * @brief onChildDataChanged

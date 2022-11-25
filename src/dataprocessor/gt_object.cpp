@@ -695,17 +695,6 @@ GtObject::factory() const
 }
 
 void
-GtObject::propertyChanged(QObject* obj)
-{
-    setFlag(GtObject::HasOwnChanges, true);
-
-    if (GtAbstractProperty* prop = qobject_cast<GtAbstractProperty*>(obj))
-    {
-        emit dataChanged(this, prop);
-    }
-}
-
-void
 GtObject::onChildDataChanged()
 {
     setFlag(GtObject::HasChildChanges);
@@ -744,16 +733,29 @@ GtObject::getObjectByPath(const QString& objectPath)
 //}
 
 void
-GtObject::connectProperty(GtAbstractProperty& property)
+GtObject::connectProperty(GtAbstractProperty& property, bool silent)
 {
-    connect(&property, &GtAbstractProperty::changed, this,
-        [this, p = &property]() {
-            propertyChanged(p);
-        });
-
-    foreach (GtAbstractProperty* child, property.fullProperties())
+    if (!silent)
     {
-        connectProperty(*child);
+        // by default highlight object as changed
+        connect(&property, &GtAbstractProperty::changed, this,
+                [this, p = &property]() {
+            setFlag(GtObject::HasOwnChanges, true);
+            emit dataChanged(this, p);
+        });
+    }
+    else
+    {
+        // dont highlight object as changed
+        connect(&property, &GtAbstractProperty::changed, this,
+                [this, p = &property]() {
+            emit dataChanged(this, p);
+        });
+    }
+
+    for (GtAbstractProperty* child : qAsConst(property.fullProperties()))
+    {
+        connectProperty(*child, silent);
     }
 }
 
@@ -772,7 +774,7 @@ GtObject::fullPropertyListHelper(GtAbstractProperty* p,
         list << p;
     }
 
-    foreach (GtAbstractProperty* childProp, p->fullProperties())
+    for (GtAbstractProperty* childProp : qAsConst(p->fullProperties()))
     {
         fullPropertyListHelper(childProp, list);
     }
@@ -781,23 +783,26 @@ GtObject::fullPropertyListHelper(GtAbstractProperty* p,
 void
 GtObject::newChildUUIDs(GtObject* parent) const
 {
-    foreach(GtObject* child, parent->findChildren<GtObject*>())
+    foreach (GtObject* child, parent->findChildren<GtObject*>())
     {
         child->newUuid();
     }
 }
 
-void GtObject::makeDummy()
+void
+GtObject::makeDummy()
 {
     pimpl->makeDummy();
 }
 
-void GtObject::importMementoIntoDummy(const GtObjectMemento& memento)
+void
+GtObject::importMementoIntoDummy(const GtObjectMemento& memento)
 {
     pimpl->importDummy(memento);
 }
 
-void GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
+void
+GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
 {
     pimpl->exportDummy(memento);
 }
@@ -815,10 +820,7 @@ GtObject::registerProperty(GtAbstractProperty& property, bool silent)
         return false;
     }
 
-    if (!silent)
-    {
-        connectProperty(property);
-    }
+    connectProperty(property, silent);
 
     pimpl->properties.append(&property);
 
