@@ -72,13 +72,13 @@ GtTaskGroup::read(const QString& projectPath,
 {
     if (m_pimpl-> _initialized)
     {
-        gtError() << "task group already initialized!";
+        gtError() << tr("Task group already initialized!");
         return false;
     }
 
     QDir dir(m_pimpl->path(projectPath, scope));
 
-    gtInfo() << "task group path = " << dir.absolutePath();
+    gtDebug().medium() << tr("Task group path") <<  '=' << dir.absolutePath();
 
     // read json file
     QFile idxFile(dir.absoluteFilePath(S_INDEX_FILE_NAME));
@@ -93,7 +93,7 @@ GtTaskGroup::read(const QString& projectPath,
     // index file found. create tasks from mementos
     if (!idxFile.open(QIODevice::ReadOnly))
     {
-        gtError() << "could not open index file!";
+        gtError() << tr("Failed to open index file!");
         return false;
     }
 
@@ -200,7 +200,7 @@ GtTaskGroup::groupPath(const QString& projectPath,
 
     if (scopeId.isEmpty())
     {
-        gtError() << "invalid task group scope";
+        gtError() << tr("Invalid task group scope");
         return {};
     }
 
@@ -219,7 +219,7 @@ GtTaskGroup::saveTaskElementToFile(const QString& projectPath,
 
     if (taskUuid.isEmpty())
     {
-        gtError() << "task uuid not found. corrupted task element!";
+        gtError() << tr("Task uuid not found! (Task element corrupted)";
         return false;
     }
 
@@ -231,19 +231,19 @@ GtTaskGroup::saveTaskElementToFile(const QString& projectPath,
     const QString fileName = groupPath(projectPath, scope, groupId) + QDir::separator()
             + taskUuid + S_TASK_FILE_EXT;
 
-    gtDebug() << "writing task file (" << fileName << ")...";
+    gtDebug().medium().nospace() << "writing task file (" << fileName << ")...";
 
     QFile taskFile(fileName);
 
     if (taskFile.exists())
     {
-        gtError() << "file already exists!" << taskFile.fileName();
+        gtError() << tr("File already exists:") << taskFile.fileName();
         return false;
     }
 
     if (!taskFile.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        gtError() << "Could not open file!" << taskFile.fileName();
+        gtError() << tr("Could not open file:") << taskFile.fileName();
         return false;
     }
 
@@ -258,7 +258,7 @@ GtTaskGroup::saveTaskElementToFile(const QString& projectPath,
 
     doc.setContent(str.toUtf8());
 
-    gtDebug() << "writing doc...";
+    gtDebug().medium() << "writing doc...";
     out << doc.toString();
 
     taskFile.close();
@@ -267,7 +267,7 @@ GtTaskGroup::saveTaskElementToFile(const QString& projectPath,
     if (!GtTaskGroup::Impl::appendTaskToIndex(projectPath, scope, groupId,
                                               taskUuid))
     {
-        gtError() << "Could not append task to index file!";
+        gtError() << tr("Could not append task to index file!");
         return false;
     }
 
@@ -319,7 +319,7 @@ GtTaskGroup::Impl::appendTaskToIndex(const QString& projectPath,
         // open index file
         if (!idxFile.open(QIODevice::ReadWrite))
         {
-            gtError() << "could not open index file!";
+            gtError() << Qobject::tr("Could not open index file!");
             return false;
         }
 
@@ -335,7 +335,7 @@ GtTaskGroup::Impl::appendTaskToIndex(const QString& projectPath,
         // open index file
         if (!idxFile.open(QIODevice::WriteOnly))
         {
-            gtError() << "could not create index file!";
+            gtError() << QObject::tr("Could not create index file!");
             return false;
         }
     }
@@ -361,7 +361,7 @@ GtTaskGroup::Impl::createSubFolder(QDir& dir, const QString& subFolderId)
 {
     if (subFolderId.isEmpty())
     {
-        gtError() << "folder id is empty!";
+        gtError() << QObject::tr("Folder id is empty!");
         return false;
     }
 
@@ -369,7 +369,7 @@ GtTaskGroup::Impl::createSubFolder(QDir& dir, const QString& subFolderId)
     {
         if (!dir.mkdir(subFolderId))
         {
-            gtError() << "could not create folder! (" << subFolderId << ")";
+            gtError() << QObject::tr("Could not create folder! (%1)").arg(subFolderId);
             return false;
         }
 
@@ -386,7 +386,7 @@ GtTaskGroup::Impl::updateIndexFile(const QString &projectPath,
 {
     QDir dir(path(projectPath, scope));
 
-    gtDebug() << "task group index file: " <<
+    gtDebug().medium() << "task group index file: " <<
                  dir.absoluteFilePath(S_INDEX_FILE_NAME);
 
     // check for existance
@@ -395,7 +395,7 @@ GtTaskGroup::Impl::updateIndexFile(const QString &projectPath,
     // open index file
     if (!idxFile.open(QIODevice::WriteOnly))
     {
-        gtError() << "could not create index file!";
+        gtError() << QObject::tr("Could not create index file!");
         return false;
     }
 
@@ -435,7 +435,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
     if (!taskFile.exists())
     {
         // task file not found
-        gtError() << "task file not found (" << filePath << ")";
+        gtError() << QObject::tr("Task file not found (%1)").arg(filePath);
         return nullptr;
     }
 
@@ -448,7 +448,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 
     if (!document.setContent(&taskFile, true, &errorStr, &errorLine, &errorColumn))
     {
-        gtError() << "could not open task file (" << filePath << ")";
+        gtError() << QObject::tr("Could not open task file (%1)").arg(filePath);
         return nullptr;
     }
 
@@ -457,7 +457,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
     GtObjectMemento memento(root);
     if (memento.isNull())
     {
-        gtError() << "could not parse task file (" << filePath << ")";
+        gtError() << QObject::tr("Could not parse task file (%1)").arg(filePath);
         return nullptr;
     }
 
@@ -468,7 +468,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
         retval = qobject_cast<GtTask*>(obj);
         if (!retval)
         {
-            gtError() << "invalid task file (" << filePath << ")";
+            gtError() << QObject::tr("Invalid task file (%1)").arg(filePath);
             delete obj;
         }
     }
@@ -485,7 +485,7 @@ GtTaskGroup::Impl::saveTaskToFile(const GtTask* task, const QString& groupPath) 
 
     if (!taskFile.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        gtError() << "Could not open file!" << taskFile.fileName();
+        gtError() << QObject::tr("Could not open file (%1)").arg(taskFile.fileName());
         return false;
     }
 

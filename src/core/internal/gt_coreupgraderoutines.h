@@ -15,7 +15,7 @@ namespace GtDataModelConverter
     namespace to_2_0_0_alpha1
     {
         bool run(QDomElement& root, const QString& targetPath);
-    } // namespace to200alpha1
+    } // namespace to_2_0_0_alpha1
 
 } // namespace GtDataModelConverter
 

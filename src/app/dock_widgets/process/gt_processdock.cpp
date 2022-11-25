@@ -2252,12 +2252,6 @@ GtProcessDock::mapFromSource(const QModelIndex& index)
     return  m_filterModel->mapFromSource(tmp1);
 }
 
-//GtProcessData*
-//GtProcessDock::processData()
-//{
-//    return m_processData;
-//}
-
 void
 GtProcessDock::resetModel()
 {

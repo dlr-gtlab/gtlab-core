@@ -34,7 +34,7 @@ gt::detail::GtDataModelConverter::to_2_0_0_alpha1::run(QDomElement& domElement,
     if (domElement.isNull() ||
             (domElement.tagName() != QLatin1String(gt::xml::S_GTLAB_TAG)))
     {
-        gtError() << "Invalid GTlab project file!";
+        gtError() << QObject::tr("Invalid GTlab project file!");
         return false;
     }
 
@@ -63,8 +63,8 @@ gt::detail::GtDataModelConverter::to_2_0_0_alpha1::run(QDomElement& domElement,
                     GtTaskGroup::defaultUserGroupId(),
                     pe))
         {
-            gtError().nospace() << "could not export task! (" <<
-                                   pe.attribute(gt::xml::S_NAME_TAG) << ")";
+            gtError() << QObject::tr("Could not export task! (%1)")
+                             .arg(pe.attribute(gt::xml::S_NAME_TAG));
             return false;
         }
 
