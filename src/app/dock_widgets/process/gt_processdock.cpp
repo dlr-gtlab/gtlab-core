@@ -278,6 +278,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
     if (project)
     {
         m_processQueueButton->setEnabled(true); 
+        m_addElementButton->setEnabled(true);
     }
     else
     {
