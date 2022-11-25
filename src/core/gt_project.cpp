@@ -630,7 +630,7 @@ GtProject::saveModuleData()
     // externalize or internalize objects accordingly
     if (!saveExternalizedObjectData())
     {
-        gtError() << tr("Failed to save externalized object data!");
+        gtWarning() << tr("Failed to save all externalized object data!");
         // saving may continue
     }
 

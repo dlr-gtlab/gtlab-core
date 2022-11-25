@@ -82,10 +82,10 @@ GtExternalizedObject::GtExternalizedObject() :
     pimpl(std::make_unique<Impl>())
 {
     static const QString cat = tr("Externalization");
-    registerProperty(pimpl->pFetched, cat, true);
-    registerProperty(pimpl->pFetchInitialVersion, cat, true);
-    registerProperty(pimpl->pCachedHash, cat, true);
-    registerProperty(pimpl->pMetaData, cat, true);
+    registerSilentProperty(pimpl->pFetched, cat);
+    registerSilentProperty(pimpl->pFetchInitialVersion, cat);
+    registerSilentProperty(pimpl->pCachedHash, cat);
+    registerSilentProperty(pimpl->pMetaData, cat);
 
     pimpl->pFetchInitialVersion.hide(true);
     pimpl->pCachedHash.hide(true);

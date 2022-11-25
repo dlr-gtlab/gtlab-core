@@ -580,8 +580,7 @@ protected:
      * @brief registerProperty
      * @param property
      */
-    bool registerProperty(GtAbstractProperty& property,
-                          bool silent = false);
+    bool registerProperty(GtAbstractProperty& property);
 
     bool registerPropertyStructContainer(GtPropertyStructContainer& c);
 
@@ -590,8 +589,23 @@ protected:
      * @param property
      * @param cat
      */
-    bool registerProperty(GtAbstractProperty& property, const QString& cat,
-                          bool silent = false);
+    bool registerProperty(GtAbstractProperty& property, const QString& cat);
+    /**
+     * @brief registerProperty
+     * @param property
+     * @param cat
+     * @param silent
+     */
+    bool registerSilentProperty(GtAbstractProperty& property);
+
+    /**
+     * @brief registerProperty
+     * @param property
+     * @param cat
+     * @param silent
+     */
+    bool registerSilentProperty(GtAbstractProperty& property,
+                                const QString& cat);
 
     /**
      * @brief Called after successfully restoring or merging data from memento
@@ -627,10 +641,11 @@ private:
     QString objectPath(QString& str) const;
 
     /**
-     * @brief connectProperty
-     * @param property
+     * @brief Connects the property changed singal to the data changed signal
+     * of this object
+     * @param property Property to connect
      */
-    void connectProperty(GtAbstractProperty& property, bool silent = false);
+    void connectProperty(GtAbstractProperty& property);
 
     /**
      * @brief fullPropertyListHelper

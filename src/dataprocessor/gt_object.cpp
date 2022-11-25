@@ -726,36 +726,18 @@ GtObject::getObjectByPath(const QString& objectPath)
     return getObjectByPath(list);
 }
 
-//void
-//GtObject::changed()
-//{
-//    emit dataChanged(this);
-//}
-
 void
-GtObject::connectProperty(GtAbstractProperty& property, bool silent)
+GtObject::connectProperty(GtAbstractProperty& property)
 {
-    if (!silent)
-    {
-        // by default highlight object as changed
-        connect(&property, &GtAbstractProperty::changed, this,
-                [this, p = &property]() {
-            setFlag(GtObject::HasOwnChanges, true);
-            emit dataChanged(this, p);
-        });
-    }
-    else
-    {
-        // dont highlight object as changed
-        connect(&property, &GtAbstractProperty::changed, this,
-                [this, p = &property]() {
-            emit dataChanged(this, p);
-        });
-    }
+    connect(&property, &GtAbstractProperty::changed, this,
+            [this, p = &property]() {
+        setFlag(GtObject::HasOwnChanges, true);
+        emit dataChanged(this, p);
+    });
 
     for (GtAbstractProperty* child : qAsConst(property.fullProperties()))
     {
-        connectProperty(*child, silent);
+        connectProperty(*child);
     }
 }
 
@@ -808,7 +790,7 @@ GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
 }
 
 bool
-GtObject::registerProperty(GtAbstractProperty& property, bool silent)
+GtObject::registerProperty(GtAbstractProperty& property)
 {
     if (pimpl->properties.contains(&property))
     {
@@ -820,7 +802,7 @@ GtObject::registerProperty(GtAbstractProperty& property, bool silent)
         return false;
     }
 
-    connectProperty(property, silent);
+    connectProperty(property);
 
     pimpl->properties.append(&property);
 
@@ -854,12 +836,35 @@ GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
 
 bool
 GtObject::registerProperty(GtAbstractProperty& property,
-                           const QString& cat,
-                           bool silent)
+                           const QString& cat)
 {
     property.setCategory(cat);
+    return registerProperty(property);
+}
 
-    return registerProperty(property, silent);
+bool
+GtObject::registerSilentProperty(GtAbstractProperty& property)
+{
+    if (pimpl->properties.contains(&property))
+    {
+        gtWarning() << tr("multiple property registration!")
+                    << QStringLiteral(" Object Name (") << objectName()
+                    << QStringLiteral(")")
+                    << QStringLiteral(" Property Name (") << property.ident()
+                    << QStringLiteral(")");
+        return false;
+    }
+
+    pimpl->properties.append(&property);
+    return true;
+}
+
+bool
+GtObject::registerSilentProperty(GtAbstractProperty& property,
+                                 const QString& cat)
+{
+    property.setCategory(cat);
+    return registerSilentProperty(property);
 }
 
 void
