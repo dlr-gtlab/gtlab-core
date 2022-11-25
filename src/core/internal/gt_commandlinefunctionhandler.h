@@ -16,14 +16,11 @@
 
 #include <QMap>
 
-namespace gt
-{
-
-class GT_CORE_EXPORT CommandLineFunctionHandler
+class GT_CORE_EXPORT GtCommandLineFunctionHandler
 {
 
 public:
-    static CommandLineFunctionHandler& instance();
+    static GtCommandLineFunctionHandler& instance();
 
     /**
      * @brief Adds a function to the handler
@@ -48,8 +45,11 @@ public:
 private:
     QMap<QString, gt::CommandLineFunction> m_interfaces;
 
-    CommandLineFunctionHandler() = default;
+    GtCommandLineFunctionHandler() = default;
 };
+
+namespace gt
+{
 
 namespace commandline
 {

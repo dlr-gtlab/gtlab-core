@@ -653,7 +653,7 @@ initPosArgument(QString const& id,
                 QList<gt::commandline::Argument> const& args = {},
                 bool defaultHelp = true)
 {
-    auto fun = gt::commandline::makeCommandLineFunction(id, func, brief);
+    auto fun = gt::makeCommandLineFunction(id, func, brief);
     fun.setOptions(options)
             .setArgs(args)
             .setUseDefaultHelp(defaultHelp);
@@ -844,12 +844,12 @@ int main(int argc, char* argv[])
     app.initModules();
 
     QStringList commands =
-            gt::CommandLineFunctionHandler::instance().getRegisteredFunctionIDs();
+            GtCommandLineFunctionHandler::instance().getRegisteredFunctionIDs();
 
     for (QString const& s: qAsConst(commands))
     {
         gt::CommandLineFunction f =
-                gt::CommandLineFunctionHandler::instance().getFunction(s);
+                GtCommandLineFunctionHandler::instance().getFunction(s);
         parser.addPositionalArgument(f);
     }
 
@@ -871,7 +871,7 @@ int main(int argc, char* argv[])
     if (commands.contains(mainArg))
     {
         gt::CommandLineFunction f =
-                gt::CommandLineFunctionHandler::instance().getFunction(mainArg);
+                GtCommandLineFunctionHandler::instance().getFunction(mainArg);
 
         /// check if the default help flag is part of the arguments
         if (parser.helpOption())

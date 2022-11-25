@@ -208,9 +208,6 @@ private:
     bool m_defaultHelp;
 };
 
-namespace commandline
-{
-
 /**
  * @brief makeCommandLineFunction
  *
@@ -229,8 +226,6 @@ GT_CORE_EXPORT CommandLineFunction
 makeCommandLineFunction(const QString& id,
                         CommandLineFunction::FunctionType func,
                         QString brief);
-
-} // namespace commandline
 
 } // namespace gt
 

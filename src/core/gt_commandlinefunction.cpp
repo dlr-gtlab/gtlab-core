@@ -13,9 +13,9 @@
 #include <iostream>
 
 gt::CommandLineFunction
-gt::commandline::makeCommandLineFunction(const QString& id,
-                                         CommandLineFunction::FunctionType func,
-                                         QString brief)
+gt::makeCommandLineFunction(const QString& id,
+                            CommandLineFunction::FunctionType func,
+                            QString brief)
 {
     return gt::CommandLineFunction(id, std::move(func), std::move(brief));
 }

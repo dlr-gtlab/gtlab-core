@@ -129,7 +129,7 @@ QList<gt::CommandLineFunction>
 TestModuleInterface::commandLineFunctions() const
 {
     /// The constructor
-    auto fun = gt::commandline::makeCommandLineFunction(
+    auto fun = gt::makeCommandLineFunction(
                 "test_function", test_module_batch_command::mainFun,
                 "combines arguments");
     /// demonstration to set options by a chain of setters
