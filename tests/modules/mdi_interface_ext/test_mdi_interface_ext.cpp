@@ -32,14 +32,6 @@ TestDatamodelInterfaceExt::description() const
 ///gtdatamodelinterface
 ///generated
 
-QList<QMetaObject>
-TestDatamodelInterfaceExt::data()
-{
-    QList<QMetaObject> metaData{};
-
-    return metaData;
-}
-
 QMetaObject
 TestDatamodelInterfaceExt::package()
 {
@@ -62,36 +54,12 @@ TestDatamodelInterfaceExt::mdiItems()
     return retval;
 }
 
-QList<QMetaObject>
-TestDatamodelInterfaceExt::dockWidgets()
-{
-    QList<QMetaObject> retval{};
-
-    return retval;
-}
-
 QMap<const char*, QMetaObject>
 TestDatamodelInterfaceExt::uiItems()
 {
     QMap<const char*, QMetaObject> retval;
 
     retval.insert(GT_CLASSNAME(TestMdiPackage), GT_METADATA(TestMdiExtPackageUI));
-
-    return retval;
-}
-
-QList<QMetaObject>
-TestDatamodelInterfaceExt::postItems()
-{
-    QList<QMetaObject> retval{};
-
-    return retval;
-}
-
-QList<QMetaObject>
-TestDatamodelInterfaceExt::postPlots()
-{
-    QList<QMetaObject> retval{};
 
     return retval;
 }

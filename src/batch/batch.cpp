@@ -649,8 +649,8 @@ void
 initPosArgument(QString const& id,
                 std::function<int(const QStringList&)> func,
                 QString const& brief,
-                QList<gt::commandline::Option> const& options = {},
-                QList<gt::commandline::Argument> const& args = {},
+                QList<GtCommandLineOption> const& options = {},
+                QList<GtCommandLineArgument> const& args = {},
                 bool defaultHelp = true)
 {
     auto fun = gt::makeCommandLineFunction(id, func, brief);
@@ -673,13 +673,13 @@ initSystemOptions()
                     "Executes given meta process data. "
                     "Results are stored in given output file."
                     "\n\t\t\tUsage; run_meta <input.xml> <output.xml>");
-    QList<gt::commandline::Option> runOptions;
-    runOptions.append(gt::commandline::Option{
+    QList<GtCommandLineOption> runOptions;
+    runOptions.append(GtCommandLineOption{
                           {"save", "s"},
                            "Saves datamodel after successfull process run"});
-    runOptions.append(gt::commandline::Option{
+    runOptions.append(GtCommandLineOption{
                           {"name", "n"}, "Define project by name"});
-    runOptions.append(gt::commandline::Option{
+    runOptions.append(GtCommandLineOption{
                           {"file", "f"}, "Define project by file"});
     initPosArgument("run", run,
                     "\tExecutes a process. \n\t\t\t"
@@ -687,7 +687,7 @@ initSystemOptions()
                     "default used option to execute this command."
                     "\n\t\t\tUse --help for more details.",
                     runOptions,
-                    QList<gt::commandline::Argument>(),
+                    QList<GtCommandLineArgument>(),
                     false);
 
     initPosArgument("list", listFun,
@@ -848,7 +848,7 @@ int main(int argc, char* argv[])
 
     for (QString const& s: qAsConst(commands))
     {
-        gt::CommandLineFunction f =
+        GtCommandLineFunction f =
                 GtCommandLineFunctionHandler::instance().getFunction(s);
         parser.addPositionalArgument(f);
     }
@@ -870,7 +870,7 @@ int main(int argc, char* argv[])
 
     if (commands.contains(mainArg))
     {
-        gt::CommandLineFunction f =
+        GtCommandLineFunction f =
                 GtCommandLineFunctionHandler::instance().getFunction(mainArg);
 
         /// check if the default help flag is part of the arguments

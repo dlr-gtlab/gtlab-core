@@ -81,20 +81,3 @@ TestMdiInterface::uiItems()
 
     return retval;
 }
-
-QList<QMetaObject>
-TestMdiInterface::postItems()
-{
-    QList<QMetaObject> retval{};
-
-    return retval;
-}
-
-QList<QMetaObject>
-TestMdiInterface::postPlots()
-{
-    QList<QMetaObject> retval{};
-
-    return retval;
-}
-

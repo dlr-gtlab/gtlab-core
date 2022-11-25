@@ -125,7 +125,8 @@ mainFun(QStringList const& args)
 }
 
 }
-QList<gt::CommandLineFunction>
+
+QList<GtCommandLineFunction>
 TestModuleInterface::commandLineFunctions() const
 {
     /// The constructor
@@ -147,11 +148,6 @@ TestModuleInterface::metaInformation() const
     m.licenseShort = "TestModule without public access";
 
     return m;
-}
-
-void
-TestModuleInterface::onLoad()
-{
 }
 
 void

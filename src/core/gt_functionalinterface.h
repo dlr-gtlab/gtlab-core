@@ -7,8 +7,8 @@
  *  Tel.: +49 2203 601 2264
  */
 
-#ifndef GT_FUNCTIONALINTERFACE_H
-#define GT_FUNCTIONALINTERFACE_H
+#ifndef GTFUNCTIONALINTERFACE_H
+#define GTFUNCTIONALINTERFACE_H
 
 #include "gt_sharedfunction.h"
 #include "gt_variantconvert.h"
@@ -179,4 +179,4 @@ SharedFunction makeSharedFunction(
 
 #endif // c++ 14 required
 
-#endif // GT_FUNCTIONALINTERFACE_H
+#endif // GTFUNCTIONALINTERFACE_H

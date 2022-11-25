@@ -39,14 +39,11 @@ public:
 
     QList<gt::SharedFunction> sharedFunctions() const override;
 
-    QList<gt::CommandLineFunction> commandLineFunctions() const override;
+    QList<GtCommandLineFunction> commandLineFunctions() const override;
 
     MetaInformation metaInformation() const override;
 
-    void onLoad() override;
-
     void init() override;
-
 };
 
 #endif // TEST_MODULE_INTERFACE_H

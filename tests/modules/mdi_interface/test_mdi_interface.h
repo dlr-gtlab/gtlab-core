@@ -84,18 +84,6 @@ public:
      */
     QMap<const char*, QMetaObject> uiItems() override;
 
-    /**
-     * @brief Returns static meta objects of post item classes.
-     * @return list including meta objects
-     */
-    QList<QMetaObject> postItems() override;
-
-    /**
-     * @brief Returns static meta objects of post plot classes.
-     * @return list including meta objects
-     */
-    QList<QMetaObject> postPlots() override;
-
 };
 
 #endif // TEST_DATAMODEL_INTERFACE_H

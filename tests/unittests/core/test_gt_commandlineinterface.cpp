@@ -38,11 +38,11 @@ TEST_F(TestGtCommandLineInterface, registration)
 
     gt::commandline::registerFunction(fun);
 
-    gt::CommandLineFunction f2 =
+    GtCommandLineFunction f2 =
             GtCommandLineFunctionHandler::instance().getFunction(
                 "test function");
 
-    gt::CommandLineFunction f3 =
+    GtCommandLineFunction f3 =
             GtCommandLineFunctionHandler::instance().getFunction(
                 "wrongName");
 

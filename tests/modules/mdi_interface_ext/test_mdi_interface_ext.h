@@ -47,12 +47,6 @@ public:
      * @brief Returns static meta objects of datamodel classes.
      * @return list including meta objects
      */
-    QList<QMetaObject> data() override;
-
-    /**
-     * @brief Returns static meta objects of datamodel classes.
-     * @return list including meta objects
-     */
     QMetaObject package() override;
 
     /**
@@ -71,29 +65,11 @@ public:
     QList<QMetaObject> mdiItems() override;
 
     /**
-     * @brief Returns static meta objects of dockwidget classes.
-     * @return list including meta objects
-     */
-    QList<QMetaObject> dockWidgets() override;
-
-    /**
      * @brief Returns static meta objects of object user interface classes
      * combined with the name of the target class.
      * @return
      */
     QMap<const char*, QMetaObject> uiItems() override;
-
-    /**
-     * @brief Returns static meta objects of post item classes.
-     * @return list including meta objects
-     */
-    QList<QMetaObject> postItems() override;
-
-    /**
-     * @brief Returns static meta objects of post plot classes.
-     * @return list including meta objects
-     */
-    QList<QMetaObject> postPlots() override;
 
 };
 

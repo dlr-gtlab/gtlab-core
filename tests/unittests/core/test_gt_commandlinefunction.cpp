@@ -30,7 +30,7 @@ class TestGtCommandLineFunction : public ::testing::Test
 {
 
 protected:
-    gt::CommandLineFunction m_func{
+    GtCommandLineFunction m_func{
         "name", CommandLineTesting::myAwesomeTest, "description"
     };
 };

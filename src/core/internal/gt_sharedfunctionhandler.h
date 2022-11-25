@@ -7,8 +7,8 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#ifndef GT_SHAREDFUNCTIONHANDLER_H
-#define GT_SHAREDFUNCTIONHANDLER_H
+#ifndef GTSHAREDFUNCTIONHANDLER_H
+#define GTSHAREDFUNCTIONHANDLER_H
 
 #include "gt_core_exports.h"
 
@@ -75,4 +75,4 @@ GT_CORE_EXPORT bool registerFunction(const QString& moduleId,
 
 } // namespace gt
 
-#endif // GT_SHAREDFUNCTIONHANDLER_H
+#endif // GTSHAREDFUNCTIONHANDLER_H

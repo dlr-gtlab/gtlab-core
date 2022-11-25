@@ -63,7 +63,7 @@ GtCommandLineParser::argument(QString const& arg) const
 
 void
 GtCommandLineParser::addOption(QString const& id,
-                               gt::commandline::Option const& o)
+                               GtCommandLineOption const& o)
 {
     m_opts.insert(id, o);
 }
@@ -74,7 +74,7 @@ GtCommandLineParser::addOption(const QString& id,
                                const QString& brief,
                                const QVariant& defaultValue)
 {
-    m_opts.insert(id, gt::commandline::Option(names, brief, defaultValue));
+    m_opts.insert(id, GtCommandLineOption(names, brief, defaultValue));
 }
 
 
@@ -162,7 +162,7 @@ GtCommandLineParser::printHelp(QString const& commandName)
     {
         std::cout << "Options:" << std::endl;
 
-        for (const gt::commandline::Option& o : qAsConst(m_opts))
+        for (const GtCommandLineOption& o : qAsConst(m_opts))
         {
             QString optionString;
 
@@ -188,14 +188,14 @@ GtCommandLineParser::printHelp(QString const& commandName)
 
 bool
 gt::commandline::detail::hasOption(const QStringList& args,
-                                   const gt::commandline::Option& o)
+                                   const GtCommandLineOption& o)
 {
     return (indexOfOption(args, o) >= 0);
 }
 
 int
 gt::commandline::detail::indexOfOption(const QStringList& args,
-                                       const gt::commandline::Option& o)
+                                       const GtCommandLineOption& o)
 {
     QStringList optionStrings = o.names;
 
@@ -227,7 +227,7 @@ gt::commandline::detail::indexOfOption(const QStringList& args,
 
 QVariant
 gt::commandline::detail::valueOfOption(const QStringList& args,
-                                       const gt::commandline::Option& o)
+                                       const GtCommandLineOption& o)
 {
     QStringList optionStrings = o.names;
 

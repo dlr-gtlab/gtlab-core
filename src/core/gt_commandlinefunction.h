@@ -18,21 +18,19 @@
 
 #include "gt_commandlineparser.h"
 
-namespace gt
-{
 
-class GT_CORE_EXPORT CommandLineFunction
+class GT_CORE_EXPORT GtCommandLineFunction
 {
 public:
     using FunctionType = std::function<int(const QStringList&)>;
 
     /**
-     * @brief Constructor for the Function class
+     * @brief Constructor for the GtCommandLineFunction class
      * The first three arguments are always needed the others are optional.
      *
      * They can also be set by chains like in this example:
      *
-     *      auto fun = gt::commandline::makeCommandLineFunction(
+     *      auto fun = gt::makeCommandLineFunction(
      *           "test_function", test_command::mainFun,
      *           "brief description");
      *
@@ -83,11 +81,11 @@ public:
      *      }
      *
      */
-    CommandLineFunction(QString commandId,
+    GtCommandLineFunction(QString commandId,
                         FunctionType func,
                         QString brief,
-                        QList<commandline::Option> options = {},
-                        QList<commandline::Argument> args = {},
+                        QList<GtCommandLineOption> options = {},
+                        QList<GtCommandLineArgument> args = {},
                         bool useDefaultHelp = true) :
         m_f(std::move(func)),
         m_id(std::move(commandId)),
@@ -97,7 +95,7 @@ public:
         m_defaultHelp(useDefaultHelp)
     {}
 
-    CommandLineFunction() = default;
+    GtCommandLineFunction() = default;
 
     /**
      * @brief Calls the function
@@ -126,7 +124,7 @@ public:
     /**
      * @brief Returns the options of the commandline function
      */
-    const QList<commandline::Option>& options() const
+    const QList<GtCommandLineOption>& options() const
     {
         return m_options;
     }
@@ -134,7 +132,7 @@ public:
     /**
      * @brief Returns the arguments of the commandline function
      */
-    const QList<commandline::Argument>& arguments() const
+    const QList<GtCommandLineArgument>& arguments() const
     {
         return m_args;
     }
@@ -177,12 +175,12 @@ public:
      * Setter for the useDefaultHelp option
      * @param val
      */
-    CommandLineFunction& setUseDefaultHelp(bool val);
+    GtCommandLineFunction& setUseDefaultHelp(bool val);
 
     /**
      * @brief showDefaultHelp
      * Show the default help based on the description and
-     * the list of gt::CommandLineFunctionOption and gt::CommandLineFunctionArgument
+     * the list of GtCommandLineFunctionOption and GtCommandLineFunctionArgument
      * of the command line function
      */
     void showDefaultHelp() const;
@@ -191,27 +189,30 @@ public:
      * @brief setOptions
      * @param newOptions - list of command line options for the help system
      */
-    CommandLineFunction& setOptions(const QList<commandline::Option>& newOptions);
+    GtCommandLineFunction& setOptions(const QList<GtCommandLineOption>& newOptions);
 
     /**
      * @brief setArgs
      * @param newArgs - list of command line arguments for the help system
      */
-    CommandLineFunction& setArgs(const QList<commandline::Argument>& newArgs);
+    GtCommandLineFunction& setArgs(const QList<GtCommandLineArgument>& newArgs);
 
 private:
     FunctionType m_f;
     QString m_id;
     QString m_commandBrief;
-    QList<commandline::Option> m_options;
-    QList<commandline::Argument> m_args;
+    QList<GtCommandLineOption> m_options;
+    QList<GtCommandLineArgument> m_args;
     bool m_defaultHelp;
 };
+
+namespace gt
+{
 
 /**
  * @brief makeCommandLineFunction
  *
- * For details see the description of the gt::CommandLineFunction class
+ * For details see the description of the GtCommandLineFunction class
  *
  * Returns a command line object with the parameters as given by the fucntion
  * arguments:
@@ -222,9 +223,9 @@ private:
  * @param brief description of the function
  * @param command line function object
  */
-GT_CORE_EXPORT CommandLineFunction
+GT_CORE_EXPORT GtCommandLineFunction
 makeCommandLineFunction(const QString& id,
-                        CommandLineFunction::FunctionType func,
+                        GtCommandLineFunction::FunctionType func,
                         QString brief);
 
 } // namespace gt

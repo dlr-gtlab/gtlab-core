@@ -12,7 +12,7 @@
 #include <iostream>
 
 void
-GtConsoleParser::addPositionalArgument(gt::CommandLineFunction const& f)
+GtConsoleParser::addPositionalArgument(GtCommandLineFunction const& f)
 {
     m_funcs.append(f);
 }
@@ -33,7 +33,7 @@ GtConsoleParser::showHelp() const
     {
         std::cout << "Options:" << std::endl;
 
-        for (const gt::commandline::Option& o : qAsConst(m_opts))
+        for (const GtCommandLineOption& o : qAsConst(m_opts))
         {
             QString nameString;
 
@@ -65,7 +65,7 @@ GtConsoleParser::showHelp() const
         std::cout << "GTlab and the included modules offer several commands:"
                   << std::endl;
 
-        for (const gt::CommandLineFunction& f : qAsConst(m_funcs))
+        for (const GtCommandLineFunction& f : qAsConst(m_funcs))
         {
 
             std::cout << "  " << f.id().toStdString() << "\t\t"

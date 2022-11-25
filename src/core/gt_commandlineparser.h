@@ -14,26 +14,20 @@
 #include <QStringList>
 #include <QVariant>
 
-namespace gt
-{
-
-namespace commandline
-{
-
 /**
- * @brief The Option struct
+ * @brief The GtCommandLineOption struct
  * Struct to collect information for options to register connected to a
  * Option which can be used for a command line function
  *
  * This struct is only used for the default help function
  */
-struct Option
+struct GtCommandLineOption
 {
-    Option(){};
+    GtCommandLineOption() = default;
 
-    Option(QStringList const& names,
-           QString const& brief,
-           QVariant defaultValue = true) :
+    GtCommandLineOption(QStringList const& names,
+                        QString const& brief,
+                        QVariant defaultValue = true) :
         names(names),
         description(brief),
         defaultValue(defaultValue)
@@ -49,22 +43,18 @@ struct Option
 };
 
 /**
- * @brief The Argument struct
+ * @brief The GtCommandLineArgument struct
  * Struct to collect information for arguments to register connected to a
  * Option which can be used for a command line function
  *
  * This struct is only used for the default help function
  */
-struct Argument
+struct GtCommandLineArgument
 {
     QString name;
 
     QString description;
 };
-
-} // namepsace commandline
-
-} // namespace gt
 
 /**
  * @brief The GtCommandLineParser class
@@ -112,7 +102,7 @@ public:
      * @brief addOption - add a command line option to the parser
      * @param o - command line option
      */
-    void addOption(const QString& id, const gt::commandline::Option& o);
+    void addOption(const QString& id, const GtCommandLineOption& o);
 
     /**
      * @brief addOption
@@ -180,7 +170,7 @@ public:
      */
     void printHelp(const QString& commandName);
 protected:
-    QMap<QString, gt::commandline::Option> m_opts;
+    QMap<QString, GtCommandLineOption> m_opts;
 
 private:
     QStringList m_args;
@@ -200,7 +190,7 @@ namespace detail
  * @return the index of the current option in the argument list args
  */
 GT_CORE_EXPORT int indexOfOption(QStringList const& args,
-                                 const gt::commandline::Option& o);
+                                 const GtCommandLineOption& o);
 
 /**
  * @brief valueOfOption
@@ -210,7 +200,7 @@ GT_CORE_EXPORT int indexOfOption(QStringList const& args,
  * The value is defined in the arguments by a "=" sign connected to the option
  */
 GT_CORE_EXPORT QVariant valueOfOption(QStringList const& args,
-                                      const gt::commandline::Option& o);
+                                      const GtCommandLineOption& o);
 
 /**
  * @brief hasOption
@@ -219,7 +209,7 @@ GT_CORE_EXPORT QVariant valueOfOption(QStringList const& args,
  * @return check if a option is part of the argument list args
  */
 GT_CORE_EXPORT bool hasOption(QStringList const& args,
-                              const gt::commandline::Option& o);
+                              const GtCommandLineOption& o);
 
 } // namespace detail
 
