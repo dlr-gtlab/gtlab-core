@@ -13,7 +13,7 @@
 #define GT_VERSION_MAJOR 2
 #define GT_VERSION_MINOR 0
 #define GT_VERSION_PATCH 0
-#define GT_VERSION_ADDITIONAL "alpha.1"
+#define GT_VERSION_PRE_RELEASE "alpha.1"
 #define GT_VERSION_BUILD "1"
 #define GT_MAINTENANCETOOL "MaintenanceTool"
 

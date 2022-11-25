@@ -137,7 +137,7 @@ GtAboutDialog::coreAbout() const
 
     hLayout->addWidget(copyLabel);
 
-    QString vers = gtApp->versionToString() +
+    QString vers = gtApp->version().toString() +
                    QStringLiteral("\nHelium");
 
     auto* versLabel = new QLabel(vers);

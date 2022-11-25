@@ -10,6 +10,7 @@
 #include "gt_tasklink.h"
 #include "gt_processdata.h"
 #include "gt_task.h"
+#include "gt_taskgroup.h"
 
 GtTaskLink::GtTaskLink()
 {
@@ -19,14 +20,14 @@ GtTaskLink::GtTaskLink()
 GtTask*
 GtTaskLink::target()
 {
-    GtProcessData* pdata = findParent<GtProcessData*>();
+    GtTaskGroup* group = findParent<GtTaskGroup*>();
 
-    if (!pdata)
+    if (!group)
     {
         return nullptr;
     }
 
-    return pdata->findDirectChild<GtTask*>(objectName());
+    return group->findDirectChild<GtTask*>(objectName());
 }
 
 bool

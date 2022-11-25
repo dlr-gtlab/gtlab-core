@@ -19,12 +19,14 @@
 
 class QPushButton;
 class QMenu;
+class QComboBox;
 class QSignalMapper;
 class GtProcessView;
 class GtProcessComponentModel;
 class GtTreeFilterModel;
 class GtSearchWidget;
-class GtProcessData;
+class GtTaskGroup;
+class GtTaskGroupModel;
 class GtTask;
 class GtCalculator;
 class GtObject;
@@ -63,12 +65,6 @@ public:
      * @return
      */
     QModelIndex mapFromSource(const QModelIndex& index);
-
-    /**
-     * @brief Returns pointer to process data object.
-     * @return Process data object
-     */
-    GtProcessData* processData();
 
 public slots:
     /**
@@ -144,6 +140,9 @@ protected:
     void projectChangedEvent(GtProject* project) override;
 
 private:
+    /// Combobox for task group selection
+    QComboBox* m_taskGroupSelection;
+
     /// Button to run selected process
     QPushButton* m_runButton;
 
@@ -160,6 +159,9 @@ private:
     GtProcessComponentModel* m_model;
 
     /// model
+    GtTaskGroupModel* m_taskGroupModel;
+
+    /// model
     QPointer<GtTreeFilterModel> m_filterModel;
 
     /// Search widget
@@ -168,8 +170,8 @@ private:
     /// Root index
     QPersistentModelIndex m_rootIndex;
 
-    /// Pointer to process data of current project
-    QPointer<GtProcessData> m_processData;
+    /// Pointer to selected task group of current project
+    QPointer<GtTaskGroup> m_taskGroup;
 
     /// Pointer to current process
     QPointer<GtTask> m_currentProcess;
@@ -182,6 +184,8 @@ private:
 
     /// mapper for action signals
     QSignalMapper* m_actionMapper;
+
+    void updateCurrentTaskGroup();
 
     /**
      * @brief setCurrentProcess
@@ -401,6 +405,8 @@ private slots:
      * @param exec New Executor
      */
     void onExecutoChanged(GtCoreProcessExecutor* exec);
+
+    void currentTaskGroupIndexChanged(int index);
 
 signals:
     /**

@@ -10,18 +10,24 @@ namespace detail
 
 namespace GtDataModelConverter
 {
-namespace to_2_0_0
-{
+    // Upgrade logic to convert old process tree from project file to new
+    // file based task handling.
+    namespace to_2_0_0_alpha1
+    {
+        bool run(QDomElement& root, const QString& targetPath);
+    } // namespace to_2_0_0_alpha1
 
-bool run(QDomElement& root, const QString& targetPath);
-
-} // namespace to_2_0_0
-
-} // GtDataModelConverter
+} // namespace GtDataModelConverter
 
 inline QList<VersionUpgradeRoutine> coreUpgradeRoutines()
 {
-    return { };
+	
+    return
+    {
+        VersionUpgradeRoutine {GtVersionNumber(2, 0, 0, "alpha.1"),
+                    &GtDataModelConverter::to_2_0_0_alpha1::run}
+    };
+
 };
 
 

@@ -54,6 +54,8 @@
 #include "gt_dialog.h"
 #include "gt_generatebackupdialog.h"
 #include "gt_projectrestorebackupdialog.h"
+#include "gt_taskgroup.h"
+#include "gt_xmlexpr.h"
 
 #include "gt_projectui.h"
 
@@ -126,8 +128,9 @@ GtProjectUI::GtProjectUI()
         //        GtProjectDiffPatch * differ = new GtProjectDiffPatch;
         //        GtdVCSDBInterface * vcInterface = new GtdVCSDBInterface;
         //        vc = new GtdVersionControlCore(vcInterface, differ);
-    }
 
+    }
+ 
     addSingleAction(tr("Open Project Settings..."),
                     &GtProjectUI::openProjectSettings)
             .setIcon(gt::gui::icon::config16())
@@ -375,6 +378,11 @@ GtProjectUI::openProject(GtObject* obj)
     {
         setCurrentProject(project);
         return;
+    }
+
+    if (canUpgradeProjectData(obj))
+    {
+        upgradeProjectData(obj);
     }
 
     switchToProject(*project);
@@ -990,7 +998,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
         return;
     }
 
-    GtProcessData* pd =  project->processData();
+    GtTaskGroup* pd =  project->processData()->taskGroup();
 
     if (!pd)
     {
@@ -1071,15 +1079,10 @@ GtProjectUI::exportMetaData(GtObject* obj)
         document.appendChild(header);
 
         QDomElement rootElement =
-            document.createElement(QStringLiteral("GTLAB"));
+            document.createElement(gt::xml::S_GTLAB_TAG);
 
-        QString verStr = QString::number(gtApp->majorRelease()) +
-                         QStringLiteral(".") +
-                         QString::number(gtApp->minorRelease()) +
-                         QStringLiteral(".") +
-                         QString::number(gtApp->patchLevel());
-
-        rootElement.setAttribute(QStringLiteral("version"), verStr);
+        rootElement.setAttribute(QStringLiteral("version"),
+                                 gtApp->version().toString());
 
         // write module meta data
         QDomElement modsElement =

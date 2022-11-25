@@ -39,6 +39,9 @@
 
 #include <cassert>
 
+#include "gt_taskgroup.h"
+
+#include "internal/gt_moduleupgrader.h"
 
 GtProject::GtProject(const QString& path) :
     m_path(path),
@@ -68,19 +71,19 @@ GtProject::setModuleIds(const QStringList& list)
 const QString
 GtProject::mainFilename()
 {
-    return QStringLiteral("project") + mainFileExtension();
+    return QStringLiteral("project.") + mainFileExtension();
 }
 
 const QString
 GtProject::mainFileExtension()
 {
-    return QStringLiteral(".gtlab");
+    return QStringLiteral("gtlab");
 }
 
 const QString
 GtProject::moduleExtension()
 {
-    return QStringLiteral(".gtmod");
+    return QStringLiteral("gtmod");
 }
 
 QString
@@ -431,52 +434,7 @@ GtProject::readProcessData()
     GtProcessData* data = new GtProcessData;
     data->setFactory(gtObjectFactory);
     data->setDefault(true);
-
-    // read process data here
-
-    QDomElement root = readProjectData(path()).documentElement();
-
-    if (!root.isNull())
-    {
-        /* process informations */
-        QDomElement pdata = root.firstChildElement(QStringLiteral("PROCESSES"));
-
-        if (!pdata.isNull())
-        {
-            QDomElement pe = pdata.firstChildElement(QStringLiteral("object"));
-            while (!pe.isNull())
-            {
-//                QString fieldClass = pe.attribute(QStringLiteral("class"));
-
-//                if (fieldClass ==
-//                        QLatin1String(GtTask::staticMetaObject.className()))
-//                {
-                    GtObjectMemento memento(pe);
-                    if (!memento.isNull())
-                    {
-                        GtObject* obj = memento.restore(gtProcessFactory);
-                        if (obj)
-                        {
-                            GtTask* p = qobject_cast<GtTask*>(obj);
-                            if (p)
-                            {
-                                data->appendChild(p);
-                            }
-                            else
-                            {
-                                gtWarning() << tr("could not recreate object")
-                                            << " (" << tr("casting failed")
-                                            << ")";
-                                delete obj;
-                            }
-                        }
-                    }
-//                }
-
-                pe = pe.nextSiblingElement(QStringLiteral("object"));
-            }
-        }
-    }
+    data->read(path());
 
     return data;
 }
@@ -579,7 +537,7 @@ GtProject::readModuleData()
         // check for old module file and rename it
         renameOldModuleFile(m_path, mid);
 
-        QString filename = m_path + QDir::separator() + mid.toLower() +
+        QString filename = m_path + QDir::separator() + mid.toLower() + "." +
                            moduleExtension();
 
         QFile file(filename);
@@ -672,7 +630,7 @@ GtProject::saveModuleData()
     // externalize or internalize objects accordingly
     if (!saveExternalizedObjectData())
     {
-        gtWarning() << tr("Failed to save externalized object data!");
+        gtError() << tr("Failed to save externalized object data!");
         // saving may continue
     }
 
@@ -713,7 +671,7 @@ GtProject::saveModuleData()
             continue;
         }
 
-        QString filename = m_path + QDir::separator() + mid.toLower() +
+        QString filename = m_path + QDir::separator() + mid.toLower() + "." +
                            moduleExtension();
 
         if (!saveProjectFiles(filename, document))
@@ -747,7 +705,7 @@ GtProject::saveProjectOverallData()
 
     rootElement.setAttribute(QStringLiteral("projectname"), objectName());
     rootElement.setAttribute(QStringLiteral("version"),
-                             gtApp->versionToString());
+                             gtApp->version().toString());
 
     // footprint
     QDomDocument footPrintDoc;
@@ -848,22 +806,14 @@ GtProject::saveModuleMetaData(QDomElement& root, QDomDocument& doc)
 }
 
 bool
-GtProject::saveProcessData(QDomElement& root, QDomDocument& doc)
+GtProject::saveProcessData(QDomElement& /*root*/, QDomDocument& /*doc*/)
 {
-    QDomElement pdElement = doc.createElement(QStringLiteral("PROCESSES"));
-
     GtProcessData* pd = processData();
 
     if (pd)
     {
-        foreach (GtTask* task, pd->findDirectChildren<GtTask*>())
-        {
-            GtObjectMemento memento = task->toMemento();
-            pdElement.appendChild(memento.documentElement());
-        }
+        pd->save(path());
     }
-
-    root.appendChild(pdElement);
 
     return true;
 }
@@ -967,7 +917,7 @@ void
 GtProject::renameOldModuleFile(const QString& path, const QString& modId)
 {
     QString filename = path + QDir::separator() + modId.toLower() +
-                       mainFileExtension();
+                       + "." + mainFileExtension();
 
     QFile file(filename);
 
@@ -977,7 +927,8 @@ GtProject::renameOldModuleFile(const QString& path, const QString& modId)
         return;
     }
 
-    file.rename(path + QDir::separator() + modId.toLower() + moduleExtension());
+    file.rename(path + QDir::separator() + modId.toLower() + "." +
+                moduleExtension());
 }
 
 bool
@@ -1074,24 +1025,11 @@ GtProject::updateModuleFootprint(const QStringList& modIds)
             return;
         }
 
-         QDomElement cor_major =
-                 core_ver.firstChildElement(QStringLiteral("major"));
-         QDomElement cor_minor =
-                 core_ver.firstChildElement(QStringLiteral("minor"));
-         QDomElement cor_patch =
-                 core_ver.firstChildElement(QStringLiteral("patch"));
+        QDomElement core_ver_new = document.createElement("core-ver");
+        footprint.replaceChild(core_ver_new, core_ver);
 
-         if (cor_major.isNull() || cor_minor.isNull() || cor_patch.isNull())
-         {
-             return;
-         }
-
-         cor_major.firstChild().setNodeValue(
-                     QString::number(gtApp->majorRelease()));
-         cor_minor.firstChild().setNodeValue(
-                     QString::number(gtApp->minorRelease()));
-         cor_patch.firstChild().setNodeValue(
-                     QString::number(gtApp->patchLevel()));
+        QDomText t = document.createTextNode(gtApp->version().toString());
+        core_ver_new.appendChild(t);
     }
 
     QDomElement mods = footprint.firstChildElement(QStringLiteral("modules"));
@@ -1146,7 +1084,7 @@ GtProject::path() const
 QString
 GtProject::moduleDataPath(const QString &moduleId) const
 {
-    return path() + QDir::separator() + moduleId.toLower() +
+    return path() + QDir::separator() + moduleId.toLower() + "." +
             GtProject::moduleExtension();
 }
 

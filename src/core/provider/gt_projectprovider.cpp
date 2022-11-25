@@ -15,6 +15,7 @@
 #include "gt_propertyconnection.h"
 #include "gt_footprint.h"
 #include "gt_algorithms.h"
+#include "gt_xmlexpr.h"
 
 #include <QFile>
 #include <QDir>
@@ -556,7 +557,8 @@ GtProjectProvider::modifyMainProjectFile()
 
     QDomElement root = document.documentElement();
 
-    if (root.isNull() || (root.tagName() != QLatin1String("GTLAB")))
+    if (root.isNull() ||
+            (root.tagName() != QLatin1String(gt::xml::S_GTLAB_TAG)))
     {
         gtError() << "ERROR: Invalid GTlab project file!";
         return false;
@@ -780,7 +782,7 @@ GtProjectProvider::moduleFilename(const QString& id)
         return QString();
     }
 
-    return m_pPath + QDir::separator() + id.toLower() +
+    return m_pPath + QDir::separator() + id.toLower() + "." +
            GtProject::moduleExtension();
 }
 

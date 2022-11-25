@@ -588,4 +588,6 @@ TEST_F(TestGtVersionNumber, CompareExtended)
     EXPECT_TRUE(GtVersionNumber("1.2.3+1") == GtVersionNumber("1.2.3+2"));
     EXPECT_TRUE(GtVersionNumber("1.2.3-alpha+1") == GtVersionNumber("1.2.3-alpha+2"));
     EXPECT_TRUE(GtVersionNumber("1.2.3-alpha+2") < GtVersionNumber("1.2.3-beta+1"));
+
+    EXPECT_TRUE(GtVersionNumber("2.0.0-0") < GtVersionNumber("2.0.0-alpha"));
 }

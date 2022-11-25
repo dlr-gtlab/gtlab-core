@@ -11,6 +11,7 @@
 
 #include "gt_propertyconnection.h"
 #include "gt_task.h"
+#include "gt_taskgroup.h"
 #include "gt_calculator.h"
 #include "gt_relativeobjectlinkproperty.h"
 #include "gt_processdata.h"
@@ -248,7 +249,7 @@ gt::gui::detail::highestParentTask(GtTask* childTask)
         return childTask;
     }
 
-    if (qobject_cast<GtProcessData*>(childTask->parent()))
+    if (qobject_cast<GtTaskGroup*>(childTask->parent()))
     {
         return childTask;
     }

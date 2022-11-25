@@ -141,7 +141,14 @@ GtCoreDatamodel::initProjectStates(GtProject* project)
                                     QStringLiteral("ExternalizationSettings"),
                                     QStringLiteral("Enable Externalization"),
                                     project->objectPath(),
-                                    true, project);
+                                    false, project);
+
+    // initialize last task group state
+    gtStateHandler->initializeState(project,
+                                    QStringLiteral("Project Settings"),
+                                    QStringLiteral("Last Task Group"),
+                                    project->objectPath() + ";lastTaskGroup",
+                                    QString(), project);
 
     // set init values
     gtExternalizationManager->enableExternalization(enableState->getValue());
@@ -254,12 +261,14 @@ GtCoreDatamodel::openProject(GtProject* project)
         return false;
     }
 
+    initProjectStates(project);
+
     // collect project data
     GtObjectList data = m_session->loadProjectData(project);
 
     appendProjectData(project, data);
 
-    initProjectStates(project);
+
 
     // check project data
     //    if (data.isEmpty())

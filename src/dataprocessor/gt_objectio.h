@@ -29,34 +29,6 @@ class GtAbstractProperty;
 class GtObjectIO
 {
 public:
-    static const QString S_OBJECT_TAG;
-    static const QString S_OBJECTLIST_TAG;
-    static const QString S_UUID_TAG;
-    static const QString S_CLASS_TAG;
-    static const QString S_NAME_TAG;
-    static const QString S_ENTRY_NAME_TAG;
-    static const QString S_TYPE_TAG;
-    static const QString S_ID_TAG;
-    static const QString S_VALUE_TAG;
-    static const QString S_OPTIONAL_TAG;
-    static const QString S_ACTIVE_TAG;
-    static const QString S_PROPERTY_TAG;
-    static const QString S_PROPERTYLIST_TAG;
-    static const QString S_PROPERTYCONT_TAG;
-    static const QString S_DIFF_INDEX_TAG;
-    static const QString S_DIFF_INDEX_CHANGED_TAG;
-    static const QString S_ENTRY_TAG;
-    static const QString S_DIFF_OBJ_REMOVE_TAG;
-    static const QString S_DIFF_OBJ_ADD_TAG;
-    static const QString S_DIFF_PROP_CHANGE_TAG;
-    static const QString S_DIFF_PROPLIST_CHANGE_TAG;
-    static const QString S_DIFF_PROPCONT_ENTRY_ADDED_TAG;
-    static const QString S_DIFF_PROPCONT_ENTRY_REMOVE_TAG;
-    static const QString S_DIFF_PROPCONT_ENTRY_CHANGE_TAG;
-    static const QString S_DIFF_ATTR_CHANGE_TAG;
-    static const QString S_DIFF_ATTR_REMOVE_TAG;
-    static const QString S_DIFF_NEWVAL_TAG;
-    static const QString S_DIFF_OLDVAL_TAG;
     static const QSet<QString> S_LISTTYPES;
 
     /**
@@ -154,6 +126,7 @@ public:
     {
         return S_LISTTYPES.contains(var.typeName());
     }
+
 private:
     /// Pointer to current object factory
     GtAbstractObjectFactory* m_factory;

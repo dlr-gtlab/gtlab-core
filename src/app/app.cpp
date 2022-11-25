@@ -29,6 +29,7 @@
 #include "gt_refusedpluginsdialog.h"
 #include "gt_mdilauncher.h"
 #include "gt_icons.h"
+#include "gt_versionnumber.h"
 
 #include "gt_mementoviewer.h"
 #include "gt_processeditor.h"
@@ -83,7 +84,7 @@ main(int argc, char* argv[])
     QApplication::setOrganizationName("DLR");
     QApplication::setApplicationName("GTlab");
 
-    QApplication::setApplicationVersion(GtApplication::versionToString());
+    QApplication::setApplicationVersion(GtApplication::version().toString());
 
 #if QT_VERSION >= 0x050900
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

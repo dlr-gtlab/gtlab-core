@@ -12,6 +12,9 @@
 
 #include "gt_core_exports.h"
 #include "gt_objectgroup.h"
+#include "gt_taskgroup.h"
+
+#include <memory>
 
 class GtTask;
 
@@ -28,6 +31,8 @@ public:
      */
     Q_INVOKABLE GtProcessData();
 
+    ~GtProcessData() override;
+
     /**
      * @brief processList
      * @return
@@ -40,6 +45,60 @@ public:
      * @return
      */
     GtTask* findProcess(const QString& val);
+
+    /**
+     * @brief Returns current task group
+     * @return
+     */
+    GtTaskGroup* taskGroup();
+
+    /**
+     * @brief Returns current task group as const
+     * @return
+     */
+    GtTaskGroup const* taskGroup() const;
+
+    /**
+     * @brief Initializes process data for given project
+     * @param projectPath
+     * @return false if process data is already initialized
+     */
+    bool read(const QString& projectPath);
+
+    /**
+     * @brief Switches current task group
+     * @param taskGroupId
+     * @param scope
+     * @param projectPath
+     * @return
+     */
+    bool switchCurrentTaskGroup(const QString& taskGroupId,
+                                GtTaskGroup::SCOPE scope,
+                                const QString& projectPath);
+
+    /**
+     * @brief Stores process data for given project
+     * @param projectPath
+     * @return false if process data is already initialized or saving is failed.
+     */
+    bool save(const QString& projectPath) const;
+
+    /**
+     * @brief Returns list of task group identification strings in user scope.
+     * @return
+     */
+    QStringList userGroupIds() const;
+
+    /**
+     * @brief Returns list of task group identification strings in custom scope.
+     * @return
+     */
+    QStringList customGroupIds() const;
+
+private:
+    /// Private implementation
+    class Impl;
+    std::unique_ptr<Impl> m_pimpl;
 
 };
 

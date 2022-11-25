@@ -239,19 +239,6 @@ public:
     static bool updateProjectMetaData(const QDir& projectPath,
                                       const ProjectMetaData& data);
 
-protected:
-    /**
-     * @brief GtProject
-     * @param path
-     */
-    explicit GtProject(const QString& path);
-
-    /**
-     * @brief setModuleIds
-     * @param list
-     */
-    void setModuleIds(const QStringList& list);
-
     /**
      * @brief Returns filename of main GTlab project file
      * @return
@@ -259,16 +246,29 @@ protected:
     static const QString mainFilename();
 
     /**
-     * @brief Returns filename of main GTlab project file
+     * @brief Returns the file extension of main GTlab project file without a period
      * @return
      */
     static const QString mainFileExtension();
 
     /**
-     * @brief moduleExtension
+     * @brief Returns default extension of module files.
      * @return
      */
     static const QString moduleExtension();
+
+protected:
+    /**
+     * @brief Constructor
+     * @param path
+     */
+    explicit GtProject(const QString& path);
+
+    /**
+     * @brief Sets module identification strings loaded by application.
+     * @param list module identification strings
+     */
+    void setModuleIds(const QStringList& list);
 
 private:
     /// Path to project directory on hard drive

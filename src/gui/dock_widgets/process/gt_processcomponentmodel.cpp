@@ -27,6 +27,7 @@
 #include "gt_propertyconnection.h"
 #include "gt_processcomponentmodel.h"
 #include "gt_icons.h"
+#include "gt_taskgroup.h"
 
 using namespace gt::gui;
 
@@ -373,7 +374,7 @@ GtProcessComponentModel::canDropMimeData(const QMimeData* data,
     else if (const GtTask* task = qobject_cast<GtTask*>(obj))
     {
         // handle task drop
-        if (qobject_cast<GtProcessData*>(parentObj))
+        if (qobject_cast<GtTaskGroup*>(parentObj))
         {
             return true;
         }
@@ -416,17 +417,17 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     GtObject* destinationObject = static_cast<GtObject*>
                                   (destinationIndex.internalPointer());
 
-    // get process data
-    GtProcessData* processData =
-            destinationObject->findParent<GtProcessData*>();
+    // get task croup
+    GtTaskGroup* taskGroup =
+            destinationObject->findParent<GtTaskGroup*>();
 
-    if (!processData)
+    if (!taskGroup)
     {
-        processData = qobject_cast<GtProcessData*>(destinationObject);
+        taskGroup = qobject_cast<GtTaskGroup*>(destinationObject);
     }
 
     // check process data
-    if (!processData)
+    if (!taskGroup)
     {
         return false;
     }
@@ -449,7 +450,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     QString mimeDataUUID = memento.uuid();
 
     // find object
-    GtObject* droppedObject = processData->getObjectByUuid(mimeDataUUID);
+    GtObject* droppedObject = taskGroup->getObjectByUuid(mimeDataUUID);
 
     // check object
     if (!droppedObject)
@@ -483,7 +484,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
     {
         newHighestParent = detail::highestParentTask(pComp);
     }
-    else if (qobject_cast<GtProcessData*>(destinationObject))
+    else if (qobject_cast<GtTaskGroup*>(destinationObject))
     {
         newHighestParent = qobject_cast<GtTask*>(droppedObject);
     }

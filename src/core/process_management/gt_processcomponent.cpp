@@ -11,6 +11,7 @@
 #include <QDir>
 
 #include "gt_task.h"
+#include "gt_taskgroup.h"
 #include "gt_processdata.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
@@ -198,8 +199,8 @@ GtProcessComponent::resetMonitoringProperties()
 template <typename T, typename U>
 T rootTaskHelper(U object)
 {
-    // check whether parent is from process data type
-    if (qobject_cast<const GtProcessData*>(object->parent()))
+    // check whether parent is from task group data type
+    if (qobject_cast<const GtTaskGroup*>(object->parent()))
     {
         return qobject_cast<T>(object);
     }

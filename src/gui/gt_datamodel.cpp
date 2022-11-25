@@ -142,7 +142,7 @@ GtDataModel::openProject(GtProject* project)
     // project ready to be opened. check for module updater
     if (project->upgradesAvailable())
     {
-        gtError() << "(" << project->objectName() << ") "
+        gtWarning() << "(" << project->objectName() << ") "
                      "project needs updates of data structure!"
                      " Run upgrade project data command first.";
         return false;
@@ -394,14 +394,14 @@ GtDataModel::onProjectDataLoaded()
         return;
     }
 
+    initProjectStates(project);
+
     // collect project data
     GtObjectList data = helper->loadedObjects();
 
     helper->deleteLater();
 
     appendProjectData(project, data);
-
-    initProjectStates(project);
 
     gtApp->settings()->setLastProject(project->objectName());
 
