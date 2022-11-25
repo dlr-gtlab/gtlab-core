@@ -312,7 +312,7 @@ public:
      * on the page with the given title.
      * @param title Title of the page to be displayed first.
      */
-    void showPreferences(const QString& title);
+    void showPreferences(const QString& title = "");
 
 
     using PageFactory = std::function<class GtPreferencesPage*()>;

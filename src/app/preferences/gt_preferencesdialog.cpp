@@ -97,7 +97,7 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
 void
 GtPreferencesDialog::setStartingPage(const QString& title)
 {
-    if (!m_contentsWidget)
+    if (!m_contentsWidget || title.isEmpty())
     {
         return;
     }
