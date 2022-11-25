@@ -259,14 +259,14 @@ public:
 
 protected:
     /**
-     * @brief GtProject
+     * @brief Constructor
      * @param path
      */
     explicit GtProject(const QString& path);
 
     /**
-     * @brief setModuleIds
-     * @param list
+     * @brief Sets module identification strings loaded by application.
+     * @param list module identification strings
      */
     void setModuleIds(const QStringList& list);
 

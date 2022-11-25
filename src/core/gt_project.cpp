@@ -437,64 +437,6 @@ GtProject::readProcessData()
     data->init(path());
 
     return data;
-
-
-
-
-
-
-
-
-
-
-
-    // read process data here
-
-    QDomElement root = readProjectData(path()).documentElement();
-
-    if (!root.isNull())
-    {
-        /* process informations */
-        QDomElement pdata = root.firstChildElement(QStringLiteral("PROCESSES"));
-
-        if (!pdata.isNull())
-        {
-            QDomElement pe = pdata.firstChildElement(QStringLiteral("object"));
-            while (!pe.isNull())
-            {
-//                QString fieldClass = pe.attribute(QStringLiteral("class"));
-
-//                if (fieldClass ==
-//                        QLatin1String(GtTask::staticMetaObject.className()))
-//                {
-                    GtObjectMemento memento(pe);
-                    if (!memento.isNull())
-                    {
-                        GtObject* obj = memento.restore(gtProcessFactory);
-                        if (obj)
-                        {
-                            GtTask* p = qobject_cast<GtTask*>(obj);
-                            if (p)
-                            {
-                                data->appendChild(p);
-                            }
-                            else
-                            {
-                                gtWarning() << tr("could not recreate object")
-                                            << " (" << tr("casting failed")
-                                            << ")";
-                                delete obj;
-                            }
-                        }
-                    }
-//                }
-
-                pe = pe.nextSiblingElement(QStringLiteral("object"));
-            }
-        }
-    }
-
-    return data;
 }
 
 GtObject*

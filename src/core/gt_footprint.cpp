@@ -37,6 +37,10 @@ public:
      */
     bool readData(const QString& data);
 
+    GtVersionNumber readOldVersionNumber(
+            const QDomElement& coreVersionElement,
+            const QDomElement& coreMajorVersionElement);
+
 };
 
 GtFootprint::GtFootprint() :
@@ -264,9 +268,6 @@ bool
 GtFootprintImpl::readData(const QString& data)
 {
     // temporary variables
-    int tmp_core_ver_major = 0;
-    int tmp_core_ver_minor = 0;
-    int tmp_core_ver_patch = 0;
     bool old_vers_indicator = false;
     QMap<QString, GtVersionNumber> temp_modules;
 
@@ -366,55 +367,13 @@ GtFootprintImpl::readData(const QString& data)
 
     if (old_vers_indicator)
     {
-        QDomElement elm_core_ver_minor =
-                elm_core_ver.firstChildElement(QStringLiteral("minor"));
-
-        if (elm_core_ver_minor.isNull())
-        {
-            gtError() << "footprint data corrupted!";
-            return false;
-        }
-
-        QDomElement elm_core_ver_patch =
-                elm_core_ver.firstChildElement(QStringLiteral("patch"));
-
-        if (elm_core_ver_patch.isNull())
-        {
-            gtError() << "footprint data corrupted!";
-            return false;
-        }
-
-        bool conv_success = false;
-
-        tmp_core_ver_major = elm_core_ver_major.text().toInt(&conv_success);
-
-        if (!conv_success)
-        {
-            gtError() << "footprint data corrupted!";
-            return false;
-        }
-
-        tmp_core_ver_minor = elm_core_ver_minor.text().toInt(&conv_success);
-
-        if (!conv_success)
-        {
-            gtError() << "footprint data corrupted!";
-            return false;
-        }
-
-        tmp_core_ver_patch = elm_core_ver_patch.text().toInt(&conv_success);
-
-        if (!conv_success)
-        {
-            gtError() << "footprint data corrupted!";
-            return false;
-        }
-
         // old versioning found. pre-release will be set to zero!
-        m_version = GtVersionNumber(tmp_core_ver_major,
-                                    tmp_core_ver_minor,
-                                    tmp_core_ver_patch,
-                                    "0");
+        m_version = readOldVersionNumber(elm_core_ver, elm_core_ver_major);
+
+        if (m_version.isNull())
+        {
+            return false;
+        }
     }
     else
     {
@@ -424,4 +383,60 @@ GtFootprintImpl::readData(const QString& data)
     m_modules = temp_modules;
 
     return true;
+}
+
+GtVersionNumber
+GtFootprintImpl::readOldVersionNumber(
+        const QDomElement& coreVersionElement,
+        const QDomElement& coreMajorVersionElement)
+{
+    int tmp_core_ver_major = 0;
+    int tmp_core_ver_minor = 0;
+    int tmp_core_ver_patch = 0;
+
+    QDomElement elm_core_ver_minor =
+            coreVersionElement.firstChildElement(QStringLiteral("minor"));
+
+    if (elm_core_ver_minor.isNull())
+    {
+        gtError() << "footprint data corrupted!";
+        return {};
+    }
+
+    QDomElement elm_core_ver_patch =
+            coreVersionElement.firstChildElement(QStringLiteral("patch"));
+
+    if (elm_core_ver_patch.isNull())
+    {
+        gtError() << "footprint data corrupted!";
+        return {};
+    }
+
+    bool conv_success = false;
+
+    tmp_core_ver_major = coreMajorVersionElement.text().toInt(&conv_success);
+
+    if (!conv_success)
+    {
+        gtError() << "footprint data corrupted!";
+        return {};
+    }
+
+    tmp_core_ver_minor = elm_core_ver_minor.text().toInt(&conv_success);
+
+    if (!conv_success)
+    {
+        gtError() << "footprint data corrupted!";
+        return {};
+    }
+
+    tmp_core_ver_patch = elm_core_ver_patch.text().toInt(&conv_success);
+
+    if (!conv_success)
+    {
+        gtError() << "footprint data corrupted!";
+        return {};
+    }
+
+    return {tmp_core_ver_major, tmp_core_ver_minor, tmp_core_ver_patch, "0"};
 }
