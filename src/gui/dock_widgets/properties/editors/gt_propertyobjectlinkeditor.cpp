@@ -224,7 +224,7 @@ GtPropertyObjectLinkEditor::allowedSuperClassObjects(GtObject* obj)
 
     return std::any_of(std::begin(allowedClasses),
                        std::end(allowedClasses), [obj](const QString& s) {
-        return (isDerivedFromClass(obj, s));
+        return (gt::isDerivedFromClass(obj, s));
     });
 }
 

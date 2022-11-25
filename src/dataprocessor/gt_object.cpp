@@ -720,13 +720,13 @@ GtObject::getObjectByUuid(const QString& objectUUID)
     }
 
 
-    return findObject(objectUUID, findChildren<GtObject*>());
+    return gt::findObject(objectUUID, findChildren<GtObject*>());
 }
 
 GtObject*
 GtObject::getDirectChildByUuid(const QString& objectUUID) const
 {
-    return findObject(objectUUID, findDirectChildren<GtObject*>());
+    return gt::findObject(objectUUID, findDirectChildren<GtObject*>());
 }
 
 GtObject*
@@ -875,7 +875,7 @@ GtObject::childAccepted(GtObject* /*child*/)
 }
 
 bool
-isDerivedFromClass(GtObject* obj, const QString& superClassName)
+gt::isDerivedFromClass(GtObject* obj, const QString& superClassName)
 {
     if (!obj)
     {

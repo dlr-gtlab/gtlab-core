@@ -283,18 +283,18 @@ TEST_F(TestGtObject, isDerivedFromClass)
 {
     GtDataZone* dz = nullptr;
     /// Test with nullptr
-    ASSERT_FALSE(isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
+    ASSERT_FALSE(gt::isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
     dz = new GtDataZone;
     /// test with empty classname
-    ASSERT_FALSE(isDerivedFromClass(dz, ""));
+    ASSERT_FALSE(gt::isDerivedFromClass(dz, ""));
     /// check valid result
-    ASSERT_TRUE(isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
+    ASSERT_TRUE(gt::isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
     /// check for wrong superclass
-    ASSERT_FALSE(isDerivedFromClass(dz, "GtCalculator"));
+    ASSERT_FALSE(gt::isDerivedFromClass(dz, "GtCalculator"));
     /// check if object is derived from GtObject
-    ASSERT_TRUE(isDerivedFromClass(dz, "GtObject"));
+    ASSERT_TRUE(gt::isDerivedFromClass(dz, "GtObject"));
     /// check if function stops before QObject
-    ASSERT_FALSE(isDerivedFromClass(dz, "QObject"));
+    ASSERT_FALSE(gt::isDerivedFromClass(dz, "QObject"));
     ///tidy up
     delete dz;
 }

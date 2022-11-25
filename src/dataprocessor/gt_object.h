@@ -688,6 +688,9 @@ typedef QList<GtObject*> GtObjectList;
 Q_DECLARE_METATYPE(GtObject*)
 Q_DECLARE_OPERATORS_FOR_FLAGS(GtObject::ObjectFlags)
 
+namespace gt
+{
+
 template <typename ListOfObjectPtrs>
 inline GtObject*
 findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
@@ -713,5 +716,21 @@ findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
  */
 GT_DATAMODEL_EXPORT bool isDerivedFromClass(GtObject* obj,
                                             QString const& superClassName);
+
+} // namespace gt
+
+template <typename ListOfObjectPtrs>
+[[deprecated("Use gt::findObject() instead.")]]
+inline GtObject*
+findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
+{
+    return gt::findObject(objectUUID, list);
+}
+
+[[deprecated("Use gt::isDerivedFromClass() instead.")]]
+inline bool isDerivedFromClass(GtObject* obj, QString const& superClassName)
+{
+    return gt::isDerivedFromClass(obj, superClassName);
+}
 
 #endif // GTOBJECT_H
