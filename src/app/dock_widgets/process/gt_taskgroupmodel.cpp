@@ -97,6 +97,7 @@ GtTaskGroupModel::flags(const QModelIndex& index) const
 QString
 GtTaskGroupModel::rowText(int row) const
 {
+    // row out of bounds
     if (row < 0 || row >= rowCount())
     {
         return {};
@@ -104,17 +105,21 @@ GtTaskGroupModel::rowText(int row) const
 
     if (row == 0)
     {
+        // row is user scope title
         return "user:";
     }
     else if (row == m_userGroups.size() + 1)
     {
+        // row is custom scope title
         return "custom:";
     }
     else if (row < m_userGroups.size() + 1)
     {
+        // row is user scope entry
         return m_userGroups[row - 1];
     }
 
+    // row is custom scope entry
     return m_customGroups[row - 2 - m_userGroups.size()];
 }
 

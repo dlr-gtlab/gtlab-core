@@ -278,7 +278,7 @@ GtFootprintImpl::readData(const QString& data)
     QDomDocument document;
     if (!document.setContent(data, true, &errorStr, &errorLine, &errorColumn))
     {
-        gtError() << "footprint data error!";
+        gtError() << QObject::tr("footprint data error!");
         gtError() << "  |-> " << errorLine << ";" << errorColumn << " - " <<
                      errorStr;
 
@@ -290,7 +290,7 @@ GtFootprintImpl::readData(const QString& data)
     if (elm_root.isNull() || (elm_root.tagName() !=
                               QLatin1String("env-footprint")))
     {
-        gtError() << "footprint data corrupted!";
+        gtError() << QObject::tr("footprint data corrupted!");
         return false;
     }
 
@@ -300,7 +300,7 @@ GtFootprintImpl::readData(const QString& data)
 
     if (elm_core_ver.isNull())
     {
-        gtError() << "footprint data corrupted!";
+        gtError() << QObject::tr("footprint data corrupted!");
         return false;
     }
 
@@ -318,7 +318,7 @@ GtFootprintImpl::readData(const QString& data)
 
     if (elm_modules.isNull())
     {
-        gtError() << "footprint data corrupted!";
+        gtError() << QObject::tr("footprint data corrupted!");
         return false;
     }
 
@@ -336,7 +336,7 @@ GtFootprintImpl::readData(const QString& data)
 
         if (elm_module_it_id.isNull())
         {
-            gtError() << "footprint data corrupted!";
+            gtError() << QObject::tr("footprint data corrupted!");
             return false;
         }
 
@@ -345,7 +345,7 @@ GtFootprintImpl::readData(const QString& data)
 
         if (elm_module_it_ver.isNull())
         {
-            gtError() << "footprint data corrupted!";
+            gtError() << QObject::tr("footprint data corrupted!");
             return false;
         }
 
@@ -355,7 +355,7 @@ GtFootprintImpl::readData(const QString& data)
 
         if (temp_modules.contains(tmp_mod_id))
         {
-            gtError() << "footprint data corrupted!";
+            gtError() << QObject::tr("footprint data corrupted!");
             return false;
         }
 
@@ -399,7 +399,7 @@ GtFootprintImpl::readOldVersionNumber(
 
     if (elm_core_ver_minor.isNull())
     {
-        gtError() << "footprint data corrupted!";
+        gtError() << QObject::tr("footprint data corrupted!");
         return {};
     }
 
@@ -408,7 +408,7 @@ GtFootprintImpl::readOldVersionNumber(
 
     if (elm_core_ver_patch.isNull())
     {
-        gtError() << "footprint data corrupted!";
+        gtError() << QObject::tr("footprint data corrupted!");
         return {};
     }
 
@@ -418,7 +418,7 @@ GtFootprintImpl::readOldVersionNumber(
 
     if (!conv_success)
     {
-        gtError() << "footprint data corrupted!";
+        gtError() << QObject::tr("footprint data corrupted!");
         return {};
     }
 
@@ -426,7 +426,7 @@ GtFootprintImpl::readOldVersionNumber(
 
     if (!conv_success)
     {
-        gtError() << "footprint data corrupted!";
+        gtError() << QObject::tr("footprint data corrupted!");
         return {};
     }
 
@@ -434,7 +434,7 @@ GtFootprintImpl::readOldVersionNumber(
 
     if (!conv_success)
     {
-        gtError() << "footprint data corrupted!";
+        gtError() << QObject::tr("footprint data corrupted!");
         return {};
     }
 

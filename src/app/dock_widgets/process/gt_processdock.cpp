@@ -291,7 +291,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         m_taskGroup = nullptr;
         m_taskGroupSelection->clear();
 
-        if (project->processData())
+        if (project && project->processData())
         {
             m_taskGroup = project->processData()->taskGroup();
 

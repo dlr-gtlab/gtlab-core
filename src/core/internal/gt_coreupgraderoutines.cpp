@@ -16,8 +16,8 @@
 #include "gt_coreupgraderoutines.h"
 
 bool
-gt::detail::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
-                                                   const QString& context)
+gt::detail::GtDataModelConverter::to_2_0_0_alpha1::run(QDomElement& domElement,
+                                                       const QString& context)
 {
     // check whether context is a project file. if not than nothing to do here
     QFileInfo info(context);
@@ -31,7 +31,8 @@ gt::detail::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
     // file to separate task files.
     // why? because its fancy shit
 
-    if (domElement.isNull() || (domElement.tagName() != QLatin1String("GTLAB")))
+    if (domElement.isNull() ||
+            (domElement.tagName() != QLatin1String(gt::xml::S_GTLAB_TAG)))
     {
         gtError() << "Invalid GTlab project file!";
         return false;
@@ -62,8 +63,8 @@ gt::detail::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
                     GtTaskGroup::defaultUserGroupId(),
                     pe))
         {
-            gtError() << "could not export task! (" <<
-                pe.attribute(gt::xml::S_NAME_TAG) << ")";
+            gtError().nospace() << "could not export task! (" <<
+                                   pe.attribute(gt::xml::S_NAME_TAG) << ")";
             return false;
         }
 

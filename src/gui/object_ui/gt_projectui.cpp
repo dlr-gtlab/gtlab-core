@@ -55,6 +55,7 @@
 #include "gt_generatebackupdialog.h"
 #include "gt_projectrestorebackupdialog.h"
 #include "gt_taskgroup.h"
+#include "gt_xmlexpr.h"
 
 #include "gt_projectui.h"
 
@@ -1078,7 +1079,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
         document.appendChild(header);
 
         QDomElement rootElement =
-            document.createElement(QStringLiteral("GTLAB"));
+            document.createElement(gt::xml::S_GTLAB_TAG);
 
         rootElement.setAttribute(QStringLiteral("version"),
                                  gtApp->version().toString());

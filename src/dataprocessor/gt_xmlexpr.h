@@ -6,6 +6,7 @@ namespace gt
 namespace xml
 {
 
+constexpr const char * S_GTLAB_TAG = "GTLAB";
 constexpr const char * S_OBJECT_TAG = "object";
 constexpr const char * S_OBJECTLIST_TAG = "objectlist";
 constexpr const char * S_UUID_TAG = "uuid";

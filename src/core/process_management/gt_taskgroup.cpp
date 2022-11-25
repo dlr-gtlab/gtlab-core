@@ -21,6 +21,9 @@
 #include "gt_processfactory.h"
 #include "gt_task.h"
 
+static const char* S_INDEX_FILE_NAME = "index.json";
+static const char* S_TASK_FILE_EXT = ".gttask";
+
 class GtTaskGroup::Impl
 {
 public:
@@ -36,7 +39,7 @@ public:
     QString path(const QString& projectPath,
                  const GtTaskGroup::SCOPE scope) const;
 
-    GtTask* createTaskFromFile(const QString& filePath) const;
+    std::unique_ptr<GtTask> createTaskFromFile(const QString& filePath) const;
 
     bool saveTaskToFile(GtTask* task, const QString& groupPath) const;
 
@@ -52,10 +55,6 @@ public:
                                   const QString& groupId,
                                   const QString& taskUuid);
 
-    static QString indexFileName();
-
-    static QString taskFileExtension();
-
 };
 
 GtTaskGroup::GtTaskGroup(const QString& id) :
@@ -67,7 +66,7 @@ GtTaskGroup::GtTaskGroup(const QString& id) :
 GtTaskGroup::~GtTaskGroup() = default;
 
 bool
-GtTaskGroup::init(const QString& projectPath,
+GtTaskGroup::read(const QString& projectPath,
                   const SCOPE scope)
 {
     if (m_pimpl-> _initialized)
@@ -81,7 +80,7 @@ GtTaskGroup::init(const QString& projectPath,
     gtInfo() << "task group path = " << dir.absolutePath();
 
     // read json file
-    QFile idxFile(dir.absoluteFilePath(m_pimpl->indexFileName()));
+    QFile idxFile(dir.absoluteFilePath(S_INDEX_FILE_NAME));
 
     if (!idxFile.exists())
     {
@@ -110,14 +109,13 @@ GtTaskGroup::init(const QString& projectPath,
     QJsonArray activeTasks = json[QStringLiteral("active")].toArray();
 
     for (auto&& e : activeTasks) {
-        GtTask* newTask = m_pimpl->createTaskFromFile(
-                    dir.absoluteFilePath(e.toString() +
-                                         m_pimpl->taskFileExtension()));
+        auto newTask = m_pimpl->createTaskFromFile(
+                    dir.absoluteFilePath(e.toString() + S_TASK_FILE_EXT));
 
         if (newTask)
         {
             gtDebug() << "new task created (" << newTask->uuid() << ")";
-            appendChild(newTask);
+            appendChild(newTask.release());
         }
     }
 
@@ -158,7 +156,7 @@ GtTaskGroup::save(const QString& projectPath,
 }
 
 bool
-GtTaskGroup::isInitialized()
+GtTaskGroup::isInitialized() const
 {
     return m_pimpl-> _initialized;
 }
@@ -237,7 +235,7 @@ GtTaskGroup::saveTaskElementToFile(const QString& projectPath,
     }
 
     const QString fileName = groupPath(projectPath, scope, groupId) + QDir::separator()
-            + taskUuid + GtTaskGroup::Impl::taskFileExtension();
+            + taskUuid + S_TASK_FILE_EXT;
 
     gtDebug() << "writing task file (" << fileName << ")...";
 
@@ -315,10 +313,9 @@ GtTaskGroup::Impl::appendTaskToIndex(const QString& projectPath,
                                      const QString& taskUuid)
 {
     QDir dir(GtTaskGroup::groupPath(projectPath, scope, groupId));
-    const QString _idxFileName = GtTaskGroup::Impl::indexFileName();
 
     // check for existance
-    QFile idxFile(dir.absoluteFilePath(_idxFileName));
+    QFile idxFile(dir.absoluteFilePath(S_INDEX_FILE_NAME));
 
     QJsonObject jroot;
     QJsonArray jarray;
@@ -394,13 +391,12 @@ GtTaskGroup::Impl::updateIndexFile(const QString &projectPath,
                              const GtTaskGroup::SCOPE scope) const
 {
     QDir dir(path(projectPath, scope));
-    const QString _idxFileName = indexFileName();
 
     gtDebug() << "task group index file: " <<
-                 dir.absoluteFilePath(_idxFileName);
+                 dir.absoluteFilePath(S_INDEX_FILE_NAME);
 
     // check for existance
-    QFile idxFile(dir.absoluteFilePath(_idxFileName));
+    QFile idxFile(dir.absoluteFilePath(S_INDEX_FILE_NAME));
 
     // open index file
     if (!idxFile.open(QIODevice::WriteOnly))
@@ -436,7 +432,7 @@ GtTaskGroup::Impl::path(const QString& projectPath,
     return _pub.get().groupPath(projectPath, scope, _pub.get().objectName());
 }
 
-GtTask*
+std::unique_ptr<GtTask>
 GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 {
     QFile taskFile(filePath);
@@ -446,7 +442,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
     {
         // task file not found
         gtError() << "task file not found (" << filePath << ")";
-        return retval;
+        return nullptr;
     }
 
     // index file found. create tasks from mementos
@@ -459,7 +455,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
     if (!document.setContent(&taskFile, true, &errorStr, &errorLine, &errorColumn))
     {
         gtError() << "could not open task file (" << filePath << ")";
-        return retval;
+        return nullptr;
     }
 
     QDomElement root = document.documentElement();
@@ -468,7 +464,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
     if (memento.isNull())
     {
         gtError() << "could not parse task file (" << filePath << ")";
-        return retval;
+        return nullptr;
     }
 
     auto obj = memento.restore(gtProcessFactory);
@@ -483,14 +479,14 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
         }
     }
 
-    return retval;
+    return std::unique_ptr<GtTask>(retval);
 }
 
 bool
 GtTaskGroup::Impl::saveTaskToFile(GtTask* task, const QString& groupPath) const
 {
     QFile taskFile(groupPath + QDir::separator() + task->uuid() +
-                   taskFileExtension());
+                   S_TASK_FILE_EXT);
 
 
     if (!taskFile.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -509,16 +505,4 @@ GtTaskGroup::Impl::saveTaskToFile(GtTask* task, const QString& groupPath) const
     taskFile.close();
 
     return true;
-}
-
-QString
-GtTaskGroup::Impl::indexFileName()
-{
-    return {"index.json"};
-}
-
-QString
-GtTaskGroup::Impl::taskFileExtension()
-{
-    return {".gttask"};
 }

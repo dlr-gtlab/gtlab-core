@@ -252,7 +252,7 @@ public:
     static const QString mainFileExtension();
 
     /**
-     * @brief moduleExtension
+     * @brief Returns default extension of module files.
      * @return
      */
     static const QString moduleExtension();

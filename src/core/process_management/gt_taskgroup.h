@@ -45,27 +45,64 @@ public:
      */
     ~GtTaskGroup();
 
-    // Initializes task group based on project path and scope
-    bool init(const QString& projectPath,
+    /**
+     * @brief Initializes task group based on project path and scope.
+     * @param projectPath
+     * @param scope
+     * @return
+     */
+    bool read(const QString& projectPath,
               const GtTaskGroup::SCOPE scope);
 
-    // Saves task group based on project path and scope
+    /**
+     * @brief Saves task group based on project path and scope.
+     * @param projectPath
+     * @param scope
+     * @return
+     */
     bool save(const QString& projectPath,
               const GtTaskGroup::SCOPE scope) const;
 
-    // Returns true if task group already initialized.
-    // otherwise false will be returned.
-    bool isInitialized();
+    /**
+     * @brief Returns true if task group already initialized.
+     * otherwise false will be returned.
+     * @return
+     */
+    bool isInitialized() const;
 
-    // Returns scope identification string based on given enum value
+    /**
+     * @brief Returns scope identification string based on given enum value.
+     * @param scope
+     * @return
+     */
     static QString scopeId(const GtTaskGroup::SCOPE scope);
 
+    /**
+     * @brief Returns default identification strig of user group based on
+     * system user.
+     * @return
+     */
     static QString defaultUserGroupId();
 
+    /**
+     * @brief Returns path to task group path on filesystem.
+     * @param projectPath
+     * @param scope
+     * @param groupId
+     * @return
+     */
     static QString groupPath(const QString& projectPath,
                              const GtTaskGroup::SCOPE scope,
                              const QString& groupId);
 
+    /**
+     * @brief Stores given task xml element to corresponding path on filesystem.
+     * @param projectPath
+     * @param scope
+     * @param groupId
+     * @param taskElement
+     * @return
+     */
     static bool saveTaskElementToFile(const QString&  projectPath,
                                       const GtTaskGroup::SCOPE scope,
                                       const QString& groupId,
