@@ -18,10 +18,6 @@
 
 #include <stdexcept>
 
-#if CPP_STANDARD_VERSION < 201400
-#error "C++14 or better is required"
-#else
-
 namespace gt
 {
 namespace interface
@@ -176,7 +172,5 @@ SharedFunction makeSharedFunction(
 } // namespace interface
 
 } // namespace gt
-
-#endif // c++ 14 required
 
 #endif // GTFUNCTIONALINTERFACE_H
