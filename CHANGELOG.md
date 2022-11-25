@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New Splashscreen
 - Restructuring of batch application including the new interface for modules to add batch functions - #265
 - Moved GtObject functions `findObject` and `isDerivedFromClass` into the namespace `gt`
+- Task are not longer stored in the project file. A new system has been implemented so that each task is saved in an individual file - #261
 
 ### Added
 - Option for logging verbosity. - #346
