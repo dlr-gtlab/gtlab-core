@@ -20,6 +20,7 @@
 #include "gt_taskgroup.h"
 #include "gt_processfactory.h"
 #include "gt_task.h"
+#include "internal/gt_platformspecifics.h"
 
 static const char* S_INDEX_FILE_NAME = "index.json";
 static const char* S_TASK_FILE_EXT = ".gttask";
@@ -185,14 +186,7 @@ GtTaskGroup::scopeId(const SCOPE scope)
 QString
 GtTaskGroup::defaultUserGroupId()
 {
-    QString retval = qEnvironmentVariable("USER");
-
-    if (retval.isEmpty())
-    {
-        retval = qEnvironmentVariable("USERNAME");
-    }
-
-    return retval;
+    return QString::fromStdString(gt::detail::systemUsername());
 }
 
 QString

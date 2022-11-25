@@ -66,6 +66,7 @@ HEADERS += \
     gt_propertyconnectionfunctions.h \
     internal/gt_commandlinefunctionhandler.h \
     internal/gt_coreupgraderoutines.h \
+    internal/gt_platformspecifics.h \
     network/gt_accessdata.h \
     network/gt_accessmanager.h \
     network/gt_accessgroup.h \
@@ -165,6 +166,7 @@ SOURCES += \
     gt_propertyconnectionfunctions.cpp \
     internal/gt_commandlinefunctionhandler.cpp \
     internal/gt_coreupgraderoutines.cpp \
+    internal/gt_platformspecifics.cpp \
     network/gt_accessdata.cpp \
     network/gt_accessmanager.cpp \
     network/gt_accessgroup.cpp \

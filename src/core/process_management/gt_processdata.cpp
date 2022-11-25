@@ -103,6 +103,12 @@ GtProcessData::taskGroup()
     return m_pimpl->currentTaskGroup();
 }
 
+const GtTaskGroup*
+GtProcessData::taskGroup() const
+{
+    return m_pimpl->currentTaskGroup();
+}
+
 bool
 GtProcessData::read(const QString& projectPath)
 {

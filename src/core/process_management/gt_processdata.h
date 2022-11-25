@@ -53,6 +53,12 @@ public:
     GtTaskGroup* taskGroup();
 
     /**
+     * @brief Returns current task group as const
+     * @return
+     */
+    GtTaskGroup const* taskGroup() const;
+
+    /**
      * @brief Initializes process data for given project
      * @param projectPath
      * @return false if process data is already initialized
