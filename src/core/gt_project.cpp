@@ -1083,23 +1083,11 @@ GtProject::updateModuleFootprint(const QStringList& modIds)
             return;
         }
 
-        // remove all children
-        QDomElement pe = core_ver.firstChildElement();
-        while (!pe.isNull())
-        {
-            core_ver.removeChild(pe);
-            pe = core_ver.firstChildElement();
-        }
-
-        // remove text node
-        QDomNodeList nodelist = core_ver.childNodes();
-        if (!nodelist.isEmpty())
-        {
-            nodelist.at(0).parentNode().removeChild(nodelist.at(0));
-        }
+        QDomElement core_ver_new = document.createElement("core-ver");
+        footprint.replaceChild(core_ver_new, core_ver);
 
         QDomText t = document.createTextNode(gtApp->version().toString());
-        core_ver.appendChild(t);
+        core_ver_new.appendChild(t);
     }
 
     QDomElement mods = footprint.firstChildElement(QStringLiteral("modules"));
