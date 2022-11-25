@@ -26,7 +26,6 @@ protected:
 
     virtual void SetUp()
     {
-        gtDebug() << gt::log::Logger::instance().hasDestinationOfType("console");
         gtExternalizationManager->enableExternalization(true);
 
         obj = std::make_unique<TestExternalizedObject>();

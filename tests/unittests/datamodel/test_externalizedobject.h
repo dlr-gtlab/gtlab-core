@@ -55,8 +55,6 @@ public:
     {
         auto prop = findProperty("fetchInitialVersion");
         assert(prop);
-        if (!prop) return false;
-
         return prop->value<bool>();
     }
 

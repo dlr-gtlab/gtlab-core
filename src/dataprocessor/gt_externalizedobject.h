@@ -123,7 +123,8 @@ public:
 
     /**
      * @brief Externalize. Will externalize the object only if its fetched and
-     * the object has changed
+     * the object has changed. Call this function with care, as the previous
+     * version may be overwritten.
      * @return success
      */
     bool externalize();
@@ -164,19 +165,19 @@ protected:
 
     /**
      * @brief Method for fetching the externalized data
-     * @param metaData data that may need to be saved in between sessions to
-     * help fetch the dataset.
-     * @param fetchInitialVersion whether to fetch the intial version of the
-     * data
+     * @param metaData Data that may need to be saved in between sessions to
+     * help fetch/externalize the dataset.
+     * @param fetchInitialVersion Whether to fetch the intial version of the
+     * data (i.e. the original data that has not changed)
      * @return success
      */
     virtual bool doFetchData(QVariant& metaData, bool fetchInitialVersion) = 0;
 
     /**
      * @brief Method to implement for externalizing the data. Will only be
-     * called if isValid returns true.
-     * @param metaData data that may need to be saved in between sessions to
-     * help fetch the dataset.
+     * called if canExternalize returns true.
+     * @param metaData Data that may need to be saved in between sessions to
+     * help fetch/externalize the dataset.
      * @return success
      */
     virtual bool doExternalizeData(QVariant& metaData) = 0;
@@ -217,8 +218,8 @@ private:
     bool fetchHelper();
 
     /**
-     * @brief fetchInitialVersion
-     * @return whether to fetch the initial version
+     * @brief Setter for the fetchInitialVersion property
+     * @param value Whether the initial version should be fetched
      */
     void setFetchInitialVersion(bool value) const;
 
