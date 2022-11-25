@@ -49,21 +49,47 @@ public:
      */
     GtTask* findProcess(const QString& val);
 
-    // Returns current task group
+    /**
+     * @brief Returns current task group
+     * @return
+     */
     GtTaskGroup* taskGroup();
 
-    // Initializes process data for given project
-    void init(const QString& projectPath);
+    /**
+     * @brief Initializes process data for given project
+     * @param projectPath
+     * @return false if process data is already initialized
+     */
+    bool read(const QString& projectPath);
 
+    /**
+     * @brief Switches current task group
+     * @param taskGroupId
+     * @param scope
+     * @param projectPath
+     * @return
+     */
     bool switchCurrentTaskGroup(const QString& taskGroupId,
                                 GtTaskGroup::SCOPE scope,
                                 const QString& projectPath);
 
-    // Stores process data for given project
-    void save(const QString& projectPath);
+    /**
+     * @brief Stores process data for given project
+     * @param projectPath
+     * @return false if process data is already initialized or saving is failed.
+     */
+    bool save(const QString& projectPath) const;
 
+    /**
+     * @brief Returns list of task group identification strings in user scope.
+     * @return
+     */
     QStringList userGroupIds() const;
 
+    /**
+     * @brief Returns list of task group identification strings in custom scope.
+     * @return
+     */
     QStringList customGroupIds() const;
 
 private:

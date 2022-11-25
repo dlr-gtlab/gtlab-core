@@ -104,13 +104,13 @@ GtProcessData::taskGroup()
     return m_pimpl->currentTaskGroup();
 }
 
-void
-GtProcessData::init(const QString& projectPath)
+bool
+GtProcessData::read(const QString& projectPath)
 {
     if (m_pimpl-> _initialized)
     {
         gtError() << "task group already initialized!";
-        return;
+        return false;
     }
 
     // search all diectories
@@ -134,6 +134,8 @@ GtProcessData::init(const QString& projectPath)
 
     // initialization finished. Yippee-ki-yay, mot*********
     m_pimpl-> _initialized = true;
+
+    return true;
 }
 
 bool
@@ -150,24 +152,32 @@ GtProcessData::switchCurrentTaskGroup(const QString& taskGroupId,
     return m_pimpl->initTaskGroup(taskGroupId, projectPath, scope);
 }
 
-void
-GtProcessData::save(const QString& projectPath)
+bool
+GtProcessData::save(const QString& projectPath) const
 {
     if (!m_pimpl-> _initialized)
     {
         gtError() << "cannot save task group. not initialized!";
-        return;
+        return false;
     }
 
     foreach (auto* group, m_pimpl->userGroups())
     {
-        group->save(projectPath, GtTaskGroup::USER);
+        if (!group->save(projectPath, GtTaskGroup::USER))
+        {
+            return false;
+        }
     }
 
     foreach (auto* group, m_pimpl->customGroups())
     {
-        group->save(projectPath, GtTaskGroup::CUSTOM);
+        if (!group->save(projectPath, GtTaskGroup::CUSTOM))
+        {
+            return false;
+        }
     }
+
+    return true;
 }
 
 QStringList

@@ -434,7 +434,7 @@ GtProject::readProcessData()
     GtProcessData* data = new GtProcessData;
     data->setFactory(gtObjectFactory);
     data->setDefault(true);
-    data->init(path());
+    data->read(path());
 
     return data;
 }
