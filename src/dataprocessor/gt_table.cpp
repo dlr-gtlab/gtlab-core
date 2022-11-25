@@ -208,9 +208,9 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
     {
         // for a non-zero axis index we need to perform an dimension recursion
 
-        GtNumerics::darray yy(n, 0.0);
+        QVector<double> yy(n, 0.0);
 
-        const GtNumerics::darray& xx = getAxisTicks(axisIndex);
+        const QVector<double>& xx = getAxisTicks(axisIndex);
 
         if (!currentAxis)
         {
@@ -269,8 +269,8 @@ GtTable::approxDimension(const QString& valsId, const int axisIndex,
         // with a zero axis index we are able to compute the function value
         // directly
 
-        const GtNumerics::darray& yy = getValSlice(valsId, 0, indices);
-        const GtNumerics::darray& xx = getAxisTicks(0);
+        const QVector<double>& yy = getValSlice(valsId, 0, indices);
+        const QVector<double>& xx = getAxisTicks(0);
 
         if (!axList.at(0))
         {
@@ -346,7 +346,7 @@ GtTable::calcStride(const int axisIndex) const
 }
 
 
-GtNumerics::darray
+QVector<double>
 GtTable::getAxisTicks(int axisIndex) const
 {
     QList<GtTableAxis*> axList = getAxesList();
@@ -379,7 +379,7 @@ GtTable::getAxisTicks(const QString& name, QVector<double>& dvecOut) const
 
     int index = axisIndex(name);
     int n = getAxisSize(index);
-    GtNumerics::darray xx = getAxisTicks(index);
+    QVector<double> xx = getAxisTicks(index);
 
     dvecOut.clear();
     dvecOut.reserve(n);
@@ -421,7 +421,7 @@ GtTable::getDescription() const
 }
 
 
-GtNumerics::darray
+QVector<double>
 GtTable::getSlice(const QString& valsId, int axisIndex,
                   const QVector<int>& indices) const
 {
@@ -446,7 +446,7 @@ GtTable::getSlice(const QString& valsId, int axisIndex,
 }
 
 
-GtNumerics::darray
+QVector<double>
 GtTable::getSlice(const QString& axisName, const QVector<int>& indices) const
 {
     QList<QString> keys = m_tabVals.keys();
@@ -555,8 +555,8 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
                              "Interpolator is nullptr.");
     }
 
-    const GtNumerics::darray& xx0 = getAxisTicks(0);
-    const GtNumerics::darray& xx1 = getAxisTicks(1);
+    const QVector<double>& xx0 = getAxisTicks(0);
+    const QVector<double>& xx1 = getAxisTicks(1);
 
     int n0 = xx0.size();
     int n1 = xx1.size();
@@ -574,12 +574,12 @@ GtTable::getValue2D(const QString& valsId, double x0, double x1) const
 
     const int axb0  = axList[0]->size();
 
-    GtNumerics::darray yy1(n1);
+    QVector<double> yy1(n1);
 
     for (int j = sub1; j < end1; ++j)
     {
         int start = j * axb0;
-        GtNumerics::darray yy0 = slice(valsId, start, axb0, 1);
+        QVector<double> yy0 = slice(valsId, start, axb0, 1);
 
         if (x0 < xx0[0])
         {
@@ -685,9 +685,9 @@ GtTable::getValue2Dgridless(const QString& valsId, double x0, double x1) const
     double xn = x1;
 
     // axis ticks for first axis
-    const GtNumerics::darray& xx0 = getAxisTicks(0);
+    const QVector<double>& xx0 = getAxisTicks(0);
     // axis ticks for second axis
-    const GtNumerics::darray& xx1 = getAxisTicks(1);
+    const QVector<double>& xx1 = getAxisTicks(1);
 
     // get xn values (low and up) close to xn
     double xnlow = 0.0;
@@ -724,14 +724,14 @@ double
 GtTable::phiInterpolatedVal(const QString& valsId,
                             double xn,
                             double phi,
-                            const darray& xx0,
-                            const darray& xx1) const
+                            const QVector<double>& xx0,
+                            const QVector<double>& xx1) const
 {
     // index in xx0 where xn was found for the first time
     int indxfirst = 0;
 
     // get all phi ticks for given xn from valarray xx0
-    const GtNumerics::darray& xx1slice = getSuitedSlice(xn, xx0, xx1, indxfirst);
+    const QVector<double>& xx1slice = getSuitedSlice(xn, xx0, xx1, indxfirst);
 
     double philow = 0.0;
     double phiup = 0.0;
@@ -796,10 +796,10 @@ GtTable::phiInterpolatedVal(const QString& valsId,
     return valXnlowMean;
 }
 
-GtNumerics::darray
+QVector<double>
 GtTable::getSuitedSlice(double xnlow,
-                        const GtNumerics::darray& xx0,
-                        const GtNumerics::darray& vals,
+                        const QVector<double>& xx0,
+                        const QVector<double>& vals,
                         int& indxfirst) const
 {
     double xnArr[] = {xnlow};
@@ -832,7 +832,7 @@ GtTable::getSuitedSlice(double xnlow,
     int size = indxend - indxfirst + 1;
     int stride = 1;
 
-    GtNumerics::darray out(size);
+    QVector<double> out(size);
 
     for (int i = 0; i < size; ++i)
     {
@@ -937,9 +937,9 @@ GtTable::getValue3D(const QString& valsId, double x0, double x1,
                              "Interpolator is nullptr.");
     }
 
-    const GtNumerics::darray& xx0 = getAxisTicks(0);
-    const GtNumerics::darray& xx1 = getAxisTicks(1);
-    const GtNumerics::darray& xx2 = getAxisTicks(2);
+    const QVector<double>& xx0 = getAxisTicks(0);
+    const QVector<double>& xx1 = getAxisTicks(1);
+    const QVector<double>& xx2 = getAxisTicks(2);
 
     int n0 = xx0.size();
     int n1 = xx1.size();
@@ -963,15 +963,15 @@ GtTable::getValue3D(const QString& valsId, double x0, double x1,
     const int axb0  = axList[0]->size();
     const int axb01 = axList[0]->size() * axList[1]->size();
 
-    GtNumerics::darray yy1(n1);
-    GtNumerics::darray yy2(n2);
+    QVector<double> yy1(n1);
+    QVector<double> yy2(n2);
 
     for (int k = sub2; k < end2; ++k)
     {
         for (int j = sub1; j < end1; ++j)
         {
             int start = j * axb0 + k * axb01;
-            GtNumerics::darray yy0 = slice(valsId, start, axb0, 1);
+            QVector<double> yy0 = slice(valsId, start, axb0, 1);
 
             if (x0 < xx0[0])
             {
@@ -1061,10 +1061,10 @@ GtTable::getValue4D(const QString& valsId, double x0, double x1, double x2,
 
     QVector<int> indices(nDims());
 
-    const GtNumerics::darray& xx0 = getAxisTicks(0);
-    const GtNumerics::darray& xx1 = getAxisTicks(1);
-    const GtNumerics::darray& xx2 = getAxisTicks(2);
-    const GtNumerics::darray& xx3 = getAxisTicks(3);
+    const QVector<double>& xx0 = getAxisTicks(0);
+    const QVector<double>& xx1 = getAxisTicks(1);
+    const QVector<double>& xx2 = getAxisTicks(2);
+    const QVector<double>& xx3 = getAxisTicks(3);
 
     int n0 = xx0.size();
     int n1 = xx1.size();
@@ -1090,9 +1090,9 @@ GtTable::getValue4D(const QString& valsId, double x0, double x1, double x2,
     int end2 = sub2 + sliceSize2;
     int end3 = sub3 + sliceSize3;
 
-    GtNumerics::darray yy1(n1, 0.0);
-    GtNumerics::darray yy2(n2, 0.0);
-    GtNumerics::darray yy3(n3, 0.0);
+    QVector<double> yy1(n1, 0.0);
+    QVector<double> yy2(n2, 0.0);
+    QVector<double> yy3(n3, 0.0);
 
     for (int l = sub3; l < end3; ++l)
     {
@@ -1106,7 +1106,7 @@ GtTable::getValue4D(const QString& valsId, double x0, double x1, double x2,
             {
                 indices[1] = j;
 
-                const GtNumerics::darray& yy0 = getValSlice(valsId, 0, indices);
+                const QVector<double>& yy0 = getValSlice(valsId, 0, indices);
 
                 if (x0 < xx0[0])
                 {
@@ -1271,7 +1271,7 @@ GtTable:: dimensions() const
 }
 
 
-GtNumerics::darray
+QVector<double>
 GtTable::tabVals(const QString& valsId) const
 {
     if (!m_tabVals.contains(valsId))
