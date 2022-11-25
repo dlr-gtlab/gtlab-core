@@ -193,6 +193,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             Qt::DirectConnection);
     connect(gtApp, SIGNAL(objectSelected(GtObject*)),
             SLOT(onObjectSelected(GtObject*)));
+    connect(gtApp, SIGNAL(preferencesDialogRequested(QString)),
+            SLOT(showPreferences(QString)));
     connect(ui->actionCheck_for_update, SIGNAL(triggered()),
             SLOT(openCheckForUpdatesDialog()));
     connect(ui->actionInstall_Update, SIGNAL(triggered(bool)),
@@ -522,6 +524,15 @@ void
 GtMainWin::showPreferences()
 {
     GtPreferencesDialog dialog;
+
+    dialog.exec();
+}
+
+void
+GtMainWin::showPreferences(const QString& title)
+{
+    GtPreferencesDialog dialog;
+    dialog.setStartingPage(title);
 
     dialog.exec();
 }

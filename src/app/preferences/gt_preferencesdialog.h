@@ -30,6 +30,13 @@ public:
      */
     explicit GtPreferencesDialog(int initItem = 0, QWidget* parent = nullptr);
 
+    /**
+     * @brief Allows to specify the page that is displayed first when opening
+     * the preferences dialog.
+     * @param title Title of the page to be displayed first.
+     */
+    void setStartingPage(const QString& title);
+
 public slots:
     /**
      * @brief changePage
@@ -45,6 +52,14 @@ public slots:
 
 private:
     void addPage(GtPreferencesPage* page);
+
+    /**
+     * @brief Returns the index of the page with the given title.
+     * @param title Title of the page whose number is searched for.
+     * @return The index of the page with the given title. If no page was found
+     * it returns -1.
+     */
+    int pageIndex(const QString& title);
 
     ///
     QListWidget* m_contentsWidget;

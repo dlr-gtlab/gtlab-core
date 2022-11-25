@@ -94,6 +94,17 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     loadSettings();
 }
 
+void
+GtPreferencesDialog::setStartingPage(const QString& title)
+{
+    if (!m_contentsWidget || title.isEmpty())
+    {
+        return;
+    }
+
+    m_contentsWidget->setCurrentRow(pageIndex(title));
+}
+
 void GtPreferencesDialog::addPage(GtPreferencesPage *page)
 {
     if (!page)
@@ -136,6 +147,17 @@ void GtPreferencesDialog::addPage(GtPreferencesPage *page)
     {
         button->setFlags(button->flags() & ~Qt::ItemIsEnabled);
     }
+}
+
+int
+GtPreferencesDialog::pageIndex(const QString& title)
+{
+    auto it = std::find_if(m_pages.begin(), m_pages.end(),
+                             [&title](GtPreferencesPage* page) {
+        return title == page->title();
+    });
+
+    return it != m_pages.end() ? std::distance(m_pages.begin(), it) : -1;
 }
 
 void

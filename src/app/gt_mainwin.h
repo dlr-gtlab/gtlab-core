@@ -145,6 +145,12 @@ private slots:
     void showPreferences();
 
     /**
+     * @brief Opens the preferences dialog on the page with the given title.
+     * @param title Title of the page to be displayed first.
+     */
+    void showPreferences(const QString& title);
+
+    /**
      * @brief showSessionPreferences
      */
     void showSessionPreferences();
