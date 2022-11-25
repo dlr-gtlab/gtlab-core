@@ -174,7 +174,7 @@ equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 12) {
         LIBS += -lgtest
 }
 
-RESOURCES += resources/unittests-resources.qrc
+
 
 ####################################################
 
