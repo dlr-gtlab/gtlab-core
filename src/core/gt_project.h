@@ -246,7 +246,7 @@ public:
     static const QString mainFilename();
 
     /**
-     * @brief Returns filename of main GTlab project file
+     * @brief Returns the file extension of main GTlab project file without a period
      * @return
      */
     static const QString mainFileExtension();

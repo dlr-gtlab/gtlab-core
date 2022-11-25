@@ -114,7 +114,7 @@ GtTaskGroup::read(const QString& projectPath,
 
         if (newTask)
         {
-            gtDebug() << "new task created (" << newTask->uuid() << ")";
+            gtDebug().nospace() << "new task created (" << newTask->uuid() << ")";
             appendChild(newTask.release());
         }
     }
@@ -131,7 +131,7 @@ GtTaskGroup::save(const QString& projectPath,
 {
     if (!m_pimpl-> _initialized)
     {
-        gtDebug() << "save procedure not needed. group not initialized! (" <<
+        gtDebug().nospace() << "save procedure not needed. group not initialized! (" <<
                      objectName() << ")";
         return false;
     }
@@ -175,7 +175,7 @@ GtTaskGroup::scopeId(const SCOPE scope)
         retval = "_custom";
         break;
     default:
-        gtError() << "invalid task group scope";
+        gtError() << tr("Invalid task group scope");
         return {};
     }
 
@@ -289,7 +289,7 @@ GtTaskGroup::Impl::initFileStructure(const QString& projectPath,
 
     if (!dir.exists())
     {
-        gtError() << "project path not found! (" << projectPath << ")";
+        gtError().nospace() << tr("Project path not found! (%1)").arg(projectPath);
         return false;
     }
 
