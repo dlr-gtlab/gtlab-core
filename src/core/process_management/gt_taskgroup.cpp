@@ -110,6 +110,7 @@ GtTaskGroup::read(const QString& projectPath,
     QJsonArray activeTasks = json[QStringLiteral("active")].toArray();
 
     for (const auto& e : qAsConst(activeTasks))
+    {
         auto newTask = m_pimpl->createTaskFromFile(
                     dir.absoluteFilePath(e.toString() + S_TASK_FILE_EXT));
 
@@ -219,7 +220,7 @@ GtTaskGroup::saveTaskElementToFile(const QString& projectPath,
 
     if (taskUuid.isEmpty())
     {
-        gtError() << tr("Task uuid not found! (Task element corrupted)";
+        gtError() << tr("Task uuid not found! (Task element corrupted)");
         return false;
     }
 
@@ -319,7 +320,7 @@ GtTaskGroup::Impl::appendTaskToIndex(const QString& projectPath,
         // open index file
         if (!idxFile.open(QIODevice::ReadWrite))
         {
-            gtError() << Qobject::tr("Could not open index file!");
+            gtError() << QObject::tr("Could not open index file!");
             return false;
         }
 
