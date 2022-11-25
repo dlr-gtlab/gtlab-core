@@ -33,7 +33,7 @@ GtConsoleParser::showHelp() const
     {
         std::cout << "Options:" << std::endl;
 
-        for (const gt::CommandLineOption& o : qAsConst(m_opts))
+        for (const gt::commandline::Option& o : qAsConst(m_opts))
         {
             QString nameString;
 

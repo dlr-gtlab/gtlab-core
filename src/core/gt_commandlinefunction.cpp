@@ -14,8 +14,8 @@
 
 gt::CommandLineFunction
 gt::commandline::makeCommandLineFunction(const QString& id,
-                                       gt::CommandLineFunction::FunctionType func,
-                                       QString brief)
+                                         CommandLineFunction::FunctionType func,
+                                         QString brief)
 {
     return gt::CommandLineFunction(id, std::move(func), std::move(brief));
 }
@@ -37,7 +37,7 @@ void
 gt::CommandLineFunction::showDefaultHelp() const
 {
     std::cout << "Usage: GTlabConsole.exe " << id().toStdString();
-    for (const gt::CommandLineFunctionArgument& arg : arguments())
+    for (const gt::commandline::Argument& arg : arguments())
     {
         std::cout << " " << arg.name.toStdString();
     }
@@ -52,7 +52,7 @@ gt::CommandLineFunction::showDefaultHelp() const
     {
         std::cout << "Options:" << std::endl;
 
-        for (const gt::CommandLineOption& o : options())
+        for (const gt::commandline::Option& o : options())
         {
             QString optionString;
 
@@ -78,7 +78,7 @@ gt::CommandLineFunction::showDefaultHelp() const
     {
         std::cout << "Arguments:" << std::endl;
 
-        for (const gt::CommandLineFunctionArgument& arg : arguments())
+        for (const gt::commandline::Argument& arg : arguments())
         {
 
             std::cout << "  " << arg.name.toStdString() << "\t\t"
@@ -88,16 +88,14 @@ gt::CommandLineFunction::showDefaultHelp() const
 }
 
 gt::CommandLineFunction&
-gt::CommandLineFunction::setOptions(
-        const QList<gt::CommandLineOption>& newOptions)
+gt::CommandLineFunction::setOptions(const QList<commandline::Option>& newOptions)
 {
     m_options = newOptions;
     return *this;
 }
 
 gt::CommandLineFunction&
-gt::CommandLineFunction::setArgs(
-        const QList<gt::CommandLineFunctionArgument>& newArgs)
+gt::CommandLineFunction::setArgs(const QList<commandline::Argument>& newArgs)
 {
     m_args = newArgs;
     return *this;

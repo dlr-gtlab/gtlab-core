@@ -183,8 +183,7 @@ public:
      * the console application
      *
      */
-    virtual QList<gt::CommandLineFunction> commandLineFunctions() const
-    {
+    virtual QList<gt::CommandLineFunction> commandLineFunctions() const {
         return {};
     }
 

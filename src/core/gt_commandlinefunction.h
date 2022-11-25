@@ -27,12 +27,12 @@ public:
     using FunctionType = std::function<int(const QStringList&)>;
 
     /**
-     * @brief Constructor for the gt::CommandLineFunction
+     * @brief Constructor for the Function class
      * The first three arguments are always needed the others are optional.
      *
      * They can also be set by chains like in this example:
      *
-     *      auto fun = GtCommandLineInterface::makeCommandLineFunction(
+     *      auto fun = gt::commandline::makeCommandLineFunction(
      *           "test_function", test_command::mainFun,
      *           "brief description");
      *
@@ -83,10 +83,12 @@ public:
      *      }
      *
      */
-    CommandLineFunction(QString commandId, FunctionType func, QString brief,
-                          QList<gt::CommandLineOption> options = {},
-                          QList<gt::CommandLineFunctionArgument> args = {},
-                          bool useDefaultHelp = true) :
+    CommandLineFunction(QString commandId,
+                        FunctionType func,
+                        QString brief,
+                        QList<commandline::Option> options = {},
+                        QList<commandline::Argument> args = {},
+                        bool useDefaultHelp = true) :
         m_f(std::move(func)),
         m_id(std::move(commandId)),
         m_commandBrief(std::move(brief)),
@@ -124,7 +126,7 @@ public:
     /**
      * @brief Returns the options of the commandline function
      */
-    const QList<gt::CommandLineOption>& options() const
+    const QList<commandline::Option>& options() const
     {
         return m_options;
     }
@@ -132,7 +134,7 @@ public:
     /**
      * @brief Returns the arguments of the commandline function
      */
-    const QList<gt::CommandLineFunctionArgument>& arguments() const
+    const QList<commandline::Argument>& arguments() const
     {
         return m_args;
     }
@@ -189,22 +191,20 @@ public:
      * @brief setOptions
      * @param newOptions - list of command line options for the help system
      */
-    CommandLineFunction& setOptions(
-            const QList<gt::CommandLineOption>& newOptions);
+    CommandLineFunction& setOptions(const QList<commandline::Option>& newOptions);
 
     /**
      * @brief setArgs
      * @param newArgs - list of command line arguments for the help system
      */
-    CommandLineFunction& setArgs(
-            const QList<gt::CommandLineFunctionArgument>& newArgs);
+    CommandLineFunction& setArgs(const QList<commandline::Argument>& newArgs);
 
 private:
     FunctionType m_f;
     QString m_id;
     QString m_commandBrief;
-    QList<gt::CommandLineOption> m_options;
-    QList<gt::CommandLineFunctionArgument> m_args;
+    QList<commandline::Option> m_options;
+    QList<commandline::Argument> m_args;
     bool m_defaultHelp;
 };
 
@@ -212,9 +212,9 @@ namespace commandline
 {
 
 /**
- * @brief make_commandLineFunction
+ * @brief makeCommandLineFunction
  *
- * For details see the description of the gt::CommandLineFunctionClass
+ * For details see the description of the gt::CommandLineFunction class
  *
  * Returns a command line object with the parameters as given by the fucntion
  * arguments:

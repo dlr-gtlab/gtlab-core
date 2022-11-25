@@ -39,31 +39,30 @@ struct SharedFunctionBuilder
     {
     }
 
-    QVariantList operator()(const QVariantList& variantList) const
+    QVariantList operator()(const QVariantList& args) const noexcept(false)
     {
         using f_traits = gt::mpl::function_traits<Func>;
         using args_type = typename f_traits::args_type;
 
         // check matching number of arguments
-        if (variantList.size() != f_traits::nargs)
+        if (args.size() != f_traits::nargs)
         {
             throw std::runtime_error(
                 "Function argument mismatch in function '" +
                 name.toStdString() +
                 "'. Expected " +
                 std::to_string(f_traits::nargs) + " args, got " +
-                std::to_string(variantList.size()));
+                std::to_string(args.size()));
         }
 
-        auto wrappedFargs = gt::fromVariant<args_type>(variantList);
+        auto wrappedFargs = gt::fromVariant<args_type>(args);
 
         // execute function, the arguments could be passed by reference, hence
         // they cannot be moved
-        const auto func_result = f_traits::invoke(
-            wrapped_function, wrappedFargs);
+        const auto result = f_traits::invoke(wrapped_function, wrappedFargs);
 
         // convert result into variant list
-        return gt::toVariantList(func_result);
+        return gt::toVariantList(result);
     }
 
     Func wrapped_function;
