@@ -705,7 +705,7 @@ GtProject::saveProjectOverallData()
 
     rootElement.setAttribute(QStringLiteral("projectname"), objectName());
     rootElement.setAttribute(QStringLiteral("version"),
-                             gtApp->versionToString());
+                             gtApp->version().toString());
 
     // footprint
     QDomDocument footPrintDoc;

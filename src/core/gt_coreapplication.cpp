@@ -42,11 +42,11 @@
 #include <gt_logdest.h>
 
 GtCoreApplication* GtCoreApplication::m_self = nullptr;
-int GtCoreApplication::m_major = GT_VERSION_MAJOR;
-int GtCoreApplication::m_minor = GT_VERSION_MINOR;
-int GtCoreApplication::m_patchLevel = GT_VERSION_PATCH;
-std::string GtCoreApplication::m_pre_release = GT_VERSION_PRE_RELEASE;
-std::string GtCoreApplication::m_build = GT_VERSION_BUILD;
+GtVersionNumber GtCoreApplication::m_version = {GT_VERSION_MAJOR,
+                                                GT_VERSION_MINOR,
+                                                GT_VERSION_PATCH,
+                                                GT_VERSION_PRE_RELEASE,
+                                                GT_VERSION_BUILD};
 
 GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     QObject(parent),
@@ -591,44 +591,10 @@ GtCoreApplication::hasProjectChanges()
     return false;
 }
 
-int
-GtCoreApplication::majorRelease()
-{
-    return m_major;
-}
-
-int
-GtCoreApplication::minorRelease()
-{
-    return m_minor;
-}
-
-int
-GtCoreApplication::patchLevel()
-{
-    return m_patchLevel;
-}
-
-std::string
-GtCoreApplication::additionalVersionInfo()
-{
-    return m_pre_release;
-}
-
-QString
-GtCoreApplication::versionToString()
-{
-    return GtCoreApplication::version().toString();
-}
-
 GtVersionNumber
 GtCoreApplication::version()
 {
-    return GtVersionNumber(GtCoreApplication::majorRelease(),
-                           GtCoreApplication::minorRelease(),
-                           GtCoreApplication::patchLevel(),
-                           QString::fromStdString(m_pre_release),
-                           QString::fromStdString(m_build));
+    return m_version;
 }
 
 QDir

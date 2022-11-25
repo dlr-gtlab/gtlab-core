@@ -312,37 +312,6 @@ public:
     bool hasProjectChanges();
 
     /**
-     * @brief Returns the major release number of the application.
-     * @return major release number
-     */
-    static int majorRelease();
-
-    /**
-     * @brief Returns the minor release number of the application.
-     * @return minor release number
-     */
-    static int minorRelease();
-
-    /**
-     * @brief Returns the patch level of the application.
-     * @return patch level
-     */
-    static int patchLevel();
-
-    /**
-     * @brief Returns additional version information of the application (e.g.
-     * alpha, beta, rc, etc.)
-     * @return additional version information
-     */
-    static std::string additionalVersionInfo();
-
-    /**
-     * @brief Returns version string including major, minor and patch version.
-     * @return Version string.
-     */
-    static QString versionToString();
-
-    /**
      * @brief Returns version information including major, minor and patch
      * version.
      * @return Version information.
@@ -483,20 +452,8 @@ private:
     ///
     static GtCoreApplication* m_self;
 
-    /// Major application version
-    static int m_major;
-
-    /// Minor application version
-    static int m_minor;
-
-    /// Application patch level
-    static int m_patchLevel;
-
-    /// Application additional pre release indicator (alpha, beta, etc.)
-    static std::string m_pre_release;
-
-    /// Application additional build indicator
-    static std::string m_build;
+    /// application version
+    static GtVersionNumber m_version;
 
 signals:
     /**

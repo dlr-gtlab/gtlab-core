@@ -1080,13 +1080,8 @@ GtProjectUI::exportMetaData(GtObject* obj)
         QDomElement rootElement =
             document.createElement(QStringLiteral("GTLAB"));
 
-        QString verStr = QString::number(gtApp->majorRelease()) +
-                         QStringLiteral(".") +
-                         QString::number(gtApp->minorRelease()) +
-                         QStringLiteral(".") +
-                         QString::number(gtApp->patchLevel());
-
-        rootElement.setAttribute(QStringLiteral("version"), verStr);
+        rootElement.setAttribute(QStringLiteral("version"),
+                                 gtApp->version().toString());
 
         // write module meta data
         QDomElement modsElement =

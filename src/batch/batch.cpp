@@ -44,7 +44,7 @@ showSplashScreen()
     cout << "    / /_/ / _  /   _  / / /_/ /_  /_/ /" << endl;
     cout << "    \\____/  /_/    /_/  \\__,_/ /_.___/ " << endl;
     cout << "                                 "
-         << GtCoreApplication::versionToString().toStdString() << endl;
+         << GtCoreApplication::version().toString().toStdString() << endl;
     cout << "******************************************" << endl;
     cout << endl;
 }
@@ -74,7 +74,8 @@ checkMetaInput(const QStringList& args)
         return -1;
     }
 
-    if (!gt::batch::checkInput(fileName, GtCoreApplication::versionToString(),
+    if (!gt::batch::checkInput(fileName,
+                               GtCoreApplication::version().toString(),
                                false, false))
     {
         qWarning() << QStringLiteral("ERROR: ")
@@ -135,7 +136,7 @@ runMetaInput(const QStringList& args)
     qDebug() << "executing process...";
 
     if (!gt::batch::run(inputFileName, outputFileName,
-                        GtCoreApplication::versionToString()))
+                        GtCoreApplication::version().toString()))
     {
         qWarning() << QStringLiteral("ERROR: ") <<
                    QObject::tr("process execution failed!");
@@ -741,7 +742,7 @@ int main(int argc, char* argv[])
     QCoreApplication::setApplicationName("GTlab");
 
     QCoreApplication::setApplicationVersion(
-                GtCoreApplication::versionToString());
+                GtCoreApplication::version().toString());
 
     QApplication a(argc, argv);
 
