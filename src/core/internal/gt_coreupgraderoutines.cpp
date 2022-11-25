@@ -49,7 +49,7 @@ gt::detail::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
 
     // not good not bad. but we need to convert the process information now
     // lets save all existing task in the new generated user group
-    QDomElement pe = pdata.firstChildElement(QStringLiteral("object"));
+    QDomElement pe = pdata.firstChildElement(GtObjectIO::S_OBJECT_TAG);
     while (!pe.isNull())
     {
         // we found a task. lets move him to his final destination in
@@ -61,12 +61,12 @@ gt::detail::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
                     GtTaskGroup::defaultUserGroupId(),
                     pe))
         {
-            gtError() << "could not export task! (" << pe.attribute("name")
-                      << ")";
+            gtError() << "could not export task! (" <<
+                pe.attribute(GtObjectIO::S_NAME_TAG) << ")";
             return false;
         }
 
-        pe = pe.nextSiblingElement(QStringLiteral("object"));
+        pe = pe.nextSiblingElement(GtObjectIO::S_OBJECT_TAG);
     }
 
     // it looks like everything has gone according the masterplan up to this
