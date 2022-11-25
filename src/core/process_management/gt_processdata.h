@@ -31,10 +31,7 @@ public:
      */
     Q_INVOKABLE GtProcessData();
 
-    /**
-     * @brief Destructor.
-     */
-    ~GtProcessData();
+    ~GtProcessData() override;
 
     /**
      * @brief processList

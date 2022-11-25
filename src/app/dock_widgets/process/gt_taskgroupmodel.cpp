@@ -106,12 +106,12 @@ GtTaskGroupModel::rowText(int row) const
     if (row == 0)
     {
         // row is user scope title
-        return "user:";
+        return tr("User:");
     }
     else if (row == m_userGroups.size() + 1)
     {
         // row is custom scope title
-        return "custom:";
+        return tr("Custom:");
     }
     else if (row < m_userGroups.size() + 1)
     {

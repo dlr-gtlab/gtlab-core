@@ -38,12 +38,9 @@ public:
      * @brief Constructor
      * @param id Identification string of task group
      */
-    GtTaskGroup(const QString& id);
+    explicit GtTaskGroup(const QString& id);
 
-    /**
-     * @brief Destructor.
-     */
-    ~GtTaskGroup();
+    ~GtTaskGroup() override;
 
     /**
      * @brief Initializes task group based on project path and scope.

@@ -13,7 +13,6 @@
 #include "gt_task.h"
 #include "gt_objectgroup.h"
 #include "gt_taskgroup.h"
-#include "gt_project.h"
 
 #include "gt_processdata.h"
 
@@ -28,7 +27,7 @@ public:
 
     QString _currentGroupId;
 
-    Impl (GtProcessData& pub) : _pub(pub) { }
+    explicit Impl (GtProcessData& pub) : _pub(pub) { }
 
     bool readTaskGroups(const QString& projectPath, GtTaskGroup::SCOPE scope);
 

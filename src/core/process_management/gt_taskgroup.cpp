@@ -31,7 +31,7 @@ public:
 
     int _initialized = false;
 
-    Impl (GtTaskGroup& pub) : _pub(pub) { }
+    explicit Impl (GtTaskGroup& pub) : _pub(pub) { }
 
     bool updateIndexFile(const QString& projectPath,
                          const GtTaskGroup::SCOPE scope) const;
@@ -41,7 +41,7 @@ public:
 
     std::unique_ptr<GtTask> createTaskFromFile(const QString& filePath) const;
 
-    bool saveTaskToFile(GtTask* task, const QString& groupPath) const;
+    bool saveTaskToFile(const GtTask* task, const QString& groupPath) const;
 
     static bool createSubFolder(QDir& dir,
                          const QString& subFolderId);
@@ -108,7 +108,7 @@ GtTaskGroup::read(const QString& projectPath,
     // active tasks
     QJsonArray activeTasks = json[QStringLiteral("active")].toArray();
 
-    for (auto&& e : activeTasks) {
+    for (const auto& e : qAsConst(activeTasks))
         auto newTask = m_pimpl->createTaskFromFile(
                     dir.absoluteFilePath(e.toString() + S_TASK_FILE_EXT));
 
@@ -143,7 +143,7 @@ GtTaskGroup::save(const QString& projectPath,
     }
 
     // externalize tasks
-    foreach (GtTask* task, findDirectChildren<GtTask*>())
+    foreach (const GtTask* task, findDirectChildren<GtTask*>())
     {
         if (!m_pimpl->saveTaskToFile(task, m_pimpl->path(projectPath, scope)))
         {
@@ -483,7 +483,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 }
 
 bool
-GtTaskGroup::Impl::saveTaskToFile(GtTask* task, const QString& groupPath) const
+GtTaskGroup::Impl::saveTaskToFile(const GtTask* task, const QString& groupPath) const
 {
     QFile taskFile(groupPath + QDir::separator() + task->uuid() +
                    S_TASK_FILE_EXT);
