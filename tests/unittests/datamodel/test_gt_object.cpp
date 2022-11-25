@@ -6,10 +6,8 @@
 
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
-#include "gt_objectmementodiff.h"
 
 #include "gt_datazone.h"
-#include "gt_datazone0d.h"
 
 #include "slotadaptor.h"
 
@@ -225,13 +223,13 @@ TEST_F(TestGtObject, acceptChanges)
 
 TEST_F(TestGtObject, insertChild)
 {
-    GtObject* parentObject = new GtObject;
+    QPointer<GtObject> parentObject = new GtObject;
 
-    GtObject* child1 = new GtObject;
-    GtObject* child2 = new GtObject;
-    GtObject* child3 = new GtObject;
-    GtObject* child4 = new GtObject;
-    GtObject* child5 = new GtObject;
+    QPointer<GtObject> child1 = new GtObject;
+    QPointer<GtObject> child2 = new GtObject;
+    QPointer<GtObject> child3 = new GtObject;
+    QPointer<GtObject> child4 = new GtObject;
+    QPointer<GtObject> child5 = new GtObject;
 
     parentObject->appendChild(child1);
     parentObject->appendChild(child2);
@@ -241,9 +239,9 @@ TEST_F(TestGtObject, insertChild)
 
     parentObject->acceptChangesRecursively();
 
-    GtObject* objectToInsert = new GtObject;
+    QPointer<GtObject> objectToInsert = new GtObject;
 
-    parentObject->insertChild(2, objectToInsert);
+    parentObject->insertChild(2, objectToInsert.data());
     QList<GtObject*> children = parentObject->findDirectChildren<GtObject*>();
 
     ASSERT_EQ(children.size(), 6);
@@ -285,18 +283,18 @@ TEST_F(TestGtObject, isDerivedFromClass)
 {
     GtDataZone* dz = nullptr;
     /// Test with nullptr
-    ASSERT_FALSE(isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
+    ASSERT_FALSE(gt::isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
     dz = new GtDataZone;
     /// test with empty classname
-    ASSERT_FALSE(isDerivedFromClass(dz, ""));
+    ASSERT_FALSE(gt::isDerivedFromClass(dz, ""));
     /// check valid result
-    ASSERT_TRUE(isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
+    ASSERT_TRUE(gt::isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
     /// check for wrong superclass
-    ASSERT_FALSE(isDerivedFromClass(dz, "GtCalculator"));
+    ASSERT_FALSE(gt::isDerivedFromClass(dz, "GtCalculator"));
     /// check if object is derived from GtObject
-    ASSERT_TRUE(isDerivedFromClass(dz, "GtObject"));
+    ASSERT_TRUE(gt::isDerivedFromClass(dz, "GtObject"));
     /// check if function stops before QObject
-    ASSERT_FALSE(isDerivedFromClass(dz, "QObject"));
+    ASSERT_FALSE(gt::isDerivedFromClass(dz, "QObject"));
     ///tidy up
     delete dz;
 }

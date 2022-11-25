@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed "File->Import Project" menu. Instead, project are imported now via "File->Open Project". - #202
 - New Splashscreen
 - Restructuring of batch application including the new interface for modules to add batch functions - #265
+- Moved GtObject functions `findObject` and `isDerivedFromClass` into the namespace `gt`
 
 ### Added
 - Option for logging verbosity. - #346

@@ -33,6 +33,10 @@ class GtPropertyStructContainer;
 
 /**
  * @brief The GtObject class
+ * The GtObject is the base datamodel class for all datamodel objects in GTlab.
+ *
+ * For correct functionality of the datamodel structure all objects should
+ * be inherit from GtObject.
  */
 class GT_DATAMODEL_EXPORT GtObject : public QObject
 {
@@ -42,21 +46,35 @@ class GT_DATAMODEL_EXPORT GtObject : public QObject
     friend class GtObjectMemento;
 
 public:
+    /// Flags to describe objects state and otions
     enum ObjectFlag
     {
+        /// the object has changes
         HasOwnChanges = 1,
+        /// at least one child of the object has changes
         HasChildChanges = 2,
+        /// the object is newly created
         NewlyCreated = 4,
+        /// the object can be deleted in the GUI via the context menu
         UserDeletable = 8,
+        /// the object can be renamed in the GUI via the context menu
         UserRenamable = 16,
+        /// the component is a default component.
+        /// This means it is checked while recreation if the object can be
+        /// restored or otherwise is initialized again.
         DefaultComponent = 32,
+        /// the object is not shown in the explorer widget in the GUI
         UserHidden = 64
     };
     Q_DECLARE_FLAGS(ObjectFlags, ObjectFlag)
 
     /**
      * @brief GtObject
-     * @param parent
+     * Constructor sets basic flag for newly creation, sets a new uuid
+     * for the object and sets the parent.
+     * @param parent is the object in the hierarchy of the datamodel which is
+     * the level over the object and its owner. If the parent is deleted the
+     * object is deleted aswell.
      */
     explicit GtObject(GtObject* parent = nullptr);
 
@@ -64,12 +82,21 @@ public:
 
     /**
      * @brief objectFlags
-     * @return
+     * @return the flags which are set for the object. These can be used to
+     * describe its state (e.g. HasOwnChanges)
+     * or its options in the user interface (e.g. UserRenamable)
      */
     GtObject::ObjectFlags objectFlags() const;
 
     /**
      * @brief Returns true if object is a dummy. Otherwise false is returned.
+     * A dummy object is an object which cannot be recreated while starting GTlab
+     * A typical situation would be if the object was created as a specific
+     * datamodel class of a module which is not active in the current running
+     * GTlab application.
+     * To be safe not to loose information the given information are stored
+     * in a dummy object.
+     *
      * @return True if object is a dummy.
      */
     bool isDummy() const;
@@ -77,6 +104,7 @@ public:
     /**
      * @brief Returns true if object has children of type dummy.
      * Otherwise false is returned.
+     * For more information about dummy objects see the description of "isDummy"
      * @return True if object has children of type dummy.
      */
     bool hasDummyChildren() const;
@@ -84,6 +112,7 @@ public:
     /**
      * @brief Returns true if any parent object is of type dummy.
      * Otherwise false is returned.
+     * For more information about dummy objects see the description of "isDummy"
      * @return True if any parent object is of type dummy.
      */
     bool hasDummyParents() const;
@@ -117,69 +146,33 @@ public:
 
     /**
      * @brief copy
-     * @return
+     * A second object is creaated which is nearly identical to the object.
+     * Only the uuid is a new one.
+     * @return a copy of the object.
      */
     GtObject* copy() const;
 
-    //    template <class T = GtObject*>
-    //    T copy()
-    //    {
-    //        // check for factory
-    //        if (!m_factory)
-    //        {
-    //            return NULL;
-    //        }
-
-    //        // generate memento
-    //        GtObjectMemento memento = toMemento(false);
-
-    //        if (memento.isNull())
-    //        {
-    //            return nullptr;
-    //        }
-
-    //        return memento.restore<T>(m_factory);
-    //    }
-
     /**
      * @brief clone
-     * @return
+     * A second object is creaated which is identical to the object.
+     * Even the uuid is the same.
+     * @return a clone of the object.
      */
     GtObject* clone() const;
 
-    //    template <class T = GtObject*>
-    //    T clone()
-    //    {
-    //        // check for factory
-    //        if (!m_factory)
-    //        {
-    //            return NULL;
-    //        }
-
-    //        // generate memento
-    //        GtObjectMemento memento = toMemento(true);
-
-    //        if (memento.isNull())
-    //        {
-    //            return NULL;
-    //        }
-
-    //        return memento.restore<T>(m_factory);
-    //    }
-
-
     /**
-     * @brief appendChild - appends the object as child. old relationship is
-     * destroyed
+     * @brief appendChild - appends the object as child. Relationship to the
+     * old parent of the child object is destroyed
      * @param c child object
      * @return whether object has been appended or not
      */
     bool appendChild(GtObject* c);
 
     /**
-     * @brief appendChildren
-     * @param list
-     * @return
+     * @brief appendChildren - appends multiple objects as children.
+     * Relationship to the old parents of the children objects are destroyed
+     * @param list of the GtObjects.
+     * @return true in case of success.
      */
     bool appendChildren(const QList<GtObject*>& list);
 
@@ -189,16 +182,25 @@ public:
      */
     void disconnectFromParent();
 
-    /** Returns uuid of component.
-        @return UUID */
+    /**
+     * @brief Returns uuid of object.
+     * Uuid means universal unique identifier.
+     * Each object has a uuid to identfy it even if the names of objects
+     * are identical.
+     * @return UUID
+     */
     QString uuid() const;
 
-    /** Sets new uuid for component.
-        @param val New UUID */
+    /**
+     * @brief Sets new uuid for object.
+     * @param val - new uuid to use
+     */
     void setUuid(const QString& val);
 
     /**
-     * @brief Generates new component uuid.
+     * @brief Generates new object uuid uses this for the object
+     * @param renewChildUUIDs - if this option is set (default is false)
+     * the uuids of all child elemts are renewed, too.
      */
     void newUuid(bool renewChildUUIDs = false);
 
@@ -209,14 +211,16 @@ public:
     QString calcHash() const;
 
     /**
-     * @brief isDefault
-     * @return
+     * @brief Returns true if is default flag is active. Otherwise false is
+     * returned.
+     * @return Is default flag state.
      */
     bool isDefault() const;
 
     /**
      * @brief setDefault
-     * @param val
+     * Sets the isDefault flag
+     * @param val New is default flag state.
      */
     void setDefault(bool val);
 
@@ -234,8 +238,9 @@ public:
     void setUserHidden(bool val);
 
     /**
-     * @brief isRenamable
-     * @return
+     * @brief Returns true if is renamable flag is active. Otherwise false is
+     * returned.
+     * @return Is renamable flag state.
      */
     bool isRenamable() const;
 
@@ -254,13 +259,13 @@ public:
 
     /**
      * @brief Returns the position index from the parent child list
-     * @return position index
+     * @return position index. Returns -1 if the obejct does not have a parent
      */
     int childNumber();
 
     /**
      * @brief Returns the parent automatically casted to GtObject. Returns
-     * NULL if no parent exists or parent is not a GtObject.
+     * Nullptr if no parent exists or parent is not a GtObject.
      * @return parent object
      */
     GtObject* parentObject() const;
@@ -378,8 +383,6 @@ public:
 
         foreach (GtAbstractProperty* absProp, properties())
         {
-            //qDebug() << absProp;
-
             if (T prop = qobject_cast<T>(absProp))
             {
                 retVal.append(prop);
@@ -428,7 +431,7 @@ public:
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     /**
@@ -524,8 +527,12 @@ public:
 
     /**
      * @brief getObjectByUuid
+     * Searches for an object with the uuid.
+     * The functions checks the object itself and all children if one of them
+     * has an identical uuid to the given argument.
      * @param uuid
-     * @return
+     * @return the pointer to the found object with the given uuid,
+     * if no object was found return nullptr.
      */
     GtObject* getObjectByUuid(const QString& objectUUID);
 
@@ -568,13 +575,7 @@ public:
      */
     GtAbstractObjectFactory* factory() const;
 
-    //public slots:
-    //    void changed();
-
 protected:
-    ///
-    //    bool m_renamable;
-
     /**
      * @brief registerProperty
      * @param property
@@ -687,6 +688,9 @@ typedef QList<GtObject*> GtObjectList;
 Q_DECLARE_METATYPE(GtObject*)
 Q_DECLARE_OPERATORS_FOR_FLAGS(GtObject::ObjectFlags)
 
+namespace gt
+{
+
 template <typename ListOfObjectPtrs>
 inline GtObject*
 findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
@@ -712,5 +716,21 @@ findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
  */
 GT_DATAMODEL_EXPORT bool isDerivedFromClass(GtObject* obj,
                                             QString const& superClassName);
+
+} // namespace gt
+
+template <typename ListOfObjectPtrs>
+[[deprecated("Use gt::findObject() instead.")]]
+inline GtObject*
+findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
+{
+    return gt::findObject(objectUUID, list);
+}
+
+[[deprecated("Use gt::isDerivedFromClass() instead.")]]
+inline bool isDerivedFromClass(GtObject* obj, QString const& superClassName)
+{
+    return gt::isDerivedFromClass(obj, superClassName);
+}
 
 #endif // GTOBJECT_H
