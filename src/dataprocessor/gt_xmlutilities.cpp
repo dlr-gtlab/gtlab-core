@@ -13,6 +13,7 @@
 #include <QFile>
 
 #include "gt_xmlutilities.h"
+#include "gt_xmlexpr.h"
 #include "gt_objectio.h"
 
 #include "gt_logging.h"
@@ -48,9 +49,9 @@ gt::xml::findObjectElementsByClassName(
 {
     QList<QDomElement> result;
     findElements(root, [&](const QDomElement& elem) {
-        return elem.tagName() == GtObjectIO::S_OBJECT_TAG &&
-               elem.attributes().contains(GtObjectIO::S_CLASS_TAG) &&
-               elem.attribute(GtObjectIO::S_CLASS_TAG) == className;
+        return elem.tagName() == gt::xml::S_OBJECT_TAG &&
+               elem.attributes().contains(gt::xml::S_CLASS_TAG) &&
+               elem.attribute(gt::xml::S_CLASS_TAG) == className;
     }, result);
     return result;
 }
@@ -155,7 +156,7 @@ QDomElement
 gt::xml::createPropertyElement(QDomDocument &doc, const QString &propertyId,
                             const QString &propertyType, const QString &value)
 {
-    auto prop = doc.createElement(GtObjectIO::S_PROPERTY_TAG);
+    auto prop = doc.createElement(gt::xml::S_PROPERTY_TAG);
     prop.setAttribute("name", propertyId);
     prop.setAttribute("type", propertyType);
 
@@ -171,7 +172,7 @@ QList<QDomElement> gt::xml::propertyElements(const QDomElement& root)
 {
     QList<QDomElement> result;
     findElements(root, [&](const QDomElement& elem) {
-            return elem.tagName() == GtObjectIO::S_PROPERTY_TAG;
+            return elem.tagName() == gt::xml::S_PROPERTY_TAG;
         }, result);
 
     return result;
@@ -182,8 +183,8 @@ QDomElement gt::xml::findPropertyElement(const QDomElement &root,
 {
     QList<QDomElement> result;
     findElements(root, [&](const QDomElement& elem) {
-            return elem.tagName() == GtObjectIO::S_PROPERTY_TAG &&
-                   elem.attribute(GtObjectIO::S_NAME_TAG) == id;
+            return elem.tagName() == gt::xml::S_PROPERTY_TAG &&
+                   elem.attribute(gt::xml::S_NAME_TAG) == id;
         }, result);
 
     if (result.isEmpty())
@@ -193,7 +194,7 @@ QDomElement gt::xml::findPropertyElement(const QDomElement &root,
 
     if (result.size() > 1)
     {
-        gtWarning() << GtObject::tr("Found multiple properties with the same id '%1'").arg(id);
+        gtWarning() <<GtObject::tr("Found multiple properties with the same id '%1'").arg(id);
         return result.at(0);
     }
 

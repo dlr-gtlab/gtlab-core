@@ -82,6 +82,7 @@ HEADERS += \
     gt_typetraits.h \
     gt_utilities.h \
     gt_variantconvert.h \
+    gt_xmlexpr.h \
     gt_xmlutilities.h \
     property/gt_enumproperty.h \
     property/gt_objectlinkproperty.h \

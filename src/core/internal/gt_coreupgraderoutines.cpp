@@ -11,6 +11,7 @@
 #include "gt_logging.h"
 #include "gt_project.h"
 #include "gt_taskgroup.h"
+#include "gt_xmlexpr.h"
 
 #include "gt_coreupgraderoutines.h"
 
@@ -20,7 +21,7 @@ gt::detail::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
 {
     // check whether context is a project file. if not than nothing to do here
     QFileInfo info(context);
-    gtDebug() << "suffix: " << info.suffix();
+
     if (info.suffix() != GtProject::mainFileExtension())
     {
         return true;
@@ -49,7 +50,7 @@ gt::detail::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
 
     // not good not bad. but we need to convert the process information now
     // lets save all existing task in the new generated user group
-    QDomElement pe = pdata.firstChildElement(GtObjectIO::S_OBJECT_TAG);
+    QDomElement pe = pdata.firstChildElement(gt::xml::S_OBJECT_TAG);
     while (!pe.isNull())
     {
         // we found a task. lets move him to his final destination in
@@ -62,11 +63,11 @@ gt::detail::GtDataModelConverter::to200alpha1::run(QDomElement& domElement,
                     pe))
         {
             gtError() << "could not export task! (" <<
-                pe.attribute(GtObjectIO::S_NAME_TAG) << ")";
+                pe.attribute(gt::xml::S_NAME_TAG) << ")";
             return false;
         }
 
-        pe = pe.nextSiblingElement(GtObjectIO::S_OBJECT_TAG);
+        pe = pe.nextSiblingElement(gt::xml::S_OBJECT_TAG);
     }
 
     // it looks like everything has gone according the masterplan up to this

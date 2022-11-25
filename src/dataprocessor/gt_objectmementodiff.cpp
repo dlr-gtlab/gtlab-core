@@ -11,6 +11,7 @@
 #include "gt_objectmemento.h"
 #include "gt_objectio.h"
 #include "gt_algorithms.h"
+#include "gt_xmlexpr.h"
 
 #include <QCryptographicHash>
 #include <QHash>
@@ -49,7 +50,7 @@ GtObjectMementoDiff::hasObjectTreeChanges() const
         return false;
     }
 
-    QDomElement parent = firstChildElement(GtObjectIO::S_OBJECT_TAG);
+    QDomElement parent = firstChildElement(gt::xml::S_OBJECT_TAG);
 
     while (!parent.isNull())
     {
@@ -57,8 +58,8 @@ GtObjectMementoDiff::hasObjectTreeChanges() const
 
         while (!diff.isNull())
         {
-            if (diff.nodeName() == GtObjectIO::S_DIFF_OBJ_REMOVE_TAG ||
-                    diff.nodeName() == GtObjectIO::S_DIFF_OBJ_ADD_TAG)
+            if (diff.nodeName() == gt::xml::S_DIFF_OBJ_REMOVE_TAG ||
+                    diff.nodeName() == gt::xml::S_DIFF_OBJ_ADD_TAG)
             {
                 return true;
             }
@@ -66,7 +67,7 @@ GtObjectMementoDiff::hasObjectTreeChanges() const
             diff = diff.nextSiblingElement();
         }
 
-        parent = parent.nextSiblingElement(GtObjectIO::S_OBJECT_TAG);
+        parent = parent.nextSiblingElement(gt::xml::S_OBJECT_TAG);
     }
 
     return false;
@@ -77,12 +78,12 @@ GtObjectMementoDiff::objectAddBranch(GtObject* child, GtObject* parent)
 {
     GtObjectMementoDiff retval;
 
-    QDomElement root = retval.createElement(GtObjectIO::S_OBJECT_TAG);
+    QDomElement root = retval.createElement(gt::xml::S_OBJECT_TAG);
 
     copyAttributes(parent->toMemento().documentElement(), root);
 
     QDomElement  obj =
-        retval.createElement(GtObjectIO::S_DIFF_OBJ_ADD_TAG);
+        retval.createElement(gt::xml::S_DIFF_OBJ_ADD_TAG);
 
     obj.appendChild(child->toMemento().documentElement());
 
@@ -98,12 +99,12 @@ GtObjectMementoDiff::objectRemoveBranch(GtObject* child, GtObject* parent)
 {
     GtObjectMementoDiff retval;
 
-    QDomElement root = retval.createElement(GtObjectIO::S_OBJECT_TAG);
+    QDomElement root = retval.createElement(gt::xml::S_OBJECT_TAG);
 
     copyAttributes(parent->toMemento().documentElement(), root);
 
     QDomElement  obj =
-        retval.createElement(GtObjectIO::S_DIFF_OBJ_REMOVE_TAG);
+        retval.createElement(gt::xml::S_DIFF_OBJ_REMOVE_TAG);
 
     obj.appendChild(child->toMemento().documentElement());
 
@@ -122,7 +123,7 @@ GtObjectMementoDiff::appendDiff(const GtObjectMementoDiff& diff)
         return false;
     }
 
-    QDomElement parent = diff.firstChildElement(GtObjectIO::S_OBJECT_TAG);
+    QDomElement parent = diff.firstChildElement(gt::xml::S_OBJECT_TAG);
 
     while (!parent.isNull())
     {
@@ -134,7 +135,7 @@ GtObjectMementoDiff::appendDiff(const GtObjectMementoDiff& diff)
 
         appendChild(parent.cloneNode());
 
-        parent = parent.nextSiblingElement(GtObjectIO::S_OBJECT_TAG);
+        parent = parent.nextSiblingElement(gt::xml::S_OBJECT_TAG);
     }
 
     return true;
@@ -150,13 +151,13 @@ GtObjectMementoDiff::numberOfDiffSteps()
 
     int retval = 0;
 
-    QDomElement parent = firstChildElement(GtObjectIO::S_OBJECT_TAG);
+    QDomElement parent = firstChildElement(gt::xml::S_OBJECT_TAG);
 
     while (!parent.isNull())
     {
         retval++;
 
-        parent = parent.nextSiblingElement(GtObjectIO::S_OBJECT_TAG);
+        parent = parent.nextSiblingElement(gt::xml::S_OBJECT_TAG);
     }
 
     return retval;
@@ -193,10 +194,10 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
     }
 
     // create diff element to store changes
-    QDomElement diffObj = this->createElement(GtObjectIO::S_OBJECT_TAG);
-    diffObj.setAttribute(GtObjectIO::S_NAME_TAG, left.ident());
-    diffObj.setAttribute(GtObjectIO::S_UUID_TAG, left.uuid());
-    diffObj.setAttribute(GtObjectIO::S_CLASS_TAG, left.className());
+    QDomElement diffObj = this->createElement(gt::xml::S_OBJECT_TAG);
+    diffObj.setAttribute(gt::xml::S_NAME_TAG, left.ident());
+    diffObj.setAttribute(gt::xml::S_UUID_TAG, left.uuid());
+    diffObj.setAttribute(gt::xml::S_CLASS_TAG, left.className());
     // modified child elements are stored in their own element
     // this way we may not want to actually add the diffObj element (if empty)!
     bool diffObjectEmpty = true;
@@ -208,7 +209,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
 
         if (left.className() != right.className())
         {
-            handleAttributeChange(GtObjectIO::S_CLASS_TAG,
+            handleAttributeChange(gt::xml::S_CLASS_TAG,
                                   left.className(),
                                   right.className(),
                                   diffObj);
@@ -216,7 +217,7 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
 
         if (left.ident() != right.ident())
         {
-            handleAttributeChange(GtObjectIO::S_NAME_TAG,
+            handleAttributeChange(gt::xml::S_NAME_TAG,
                                   left.ident(),
                                   right.ident(),
                                   diffObj);
@@ -400,12 +401,12 @@ GtObjectMementoDiff::handleAttributeChange(const QString& name,
                                            const QString& rightVal,
                                            QDomElement& diffRoot)
 {
-    QDomElement attrDiff = this->createElement(GtObjectIO::S_DIFF_ATTR_CHANGE_TAG);
+    QDomElement attrDiff = this->createElement(gt::xml::S_DIFF_ATTR_CHANGE_TAG);
 
-    attrDiff.setAttribute(GtObjectIO::S_ID_TAG, name);
+    attrDiff.setAttribute(gt::xml::S_ID_TAG, name);
 
-    QDomElement oldAttr = this->createElement(GtObjectIO::S_DIFF_OLDVAL_TAG);
-    QDomElement newAttr = this->createElement(GtObjectIO::S_DIFF_NEWVAL_TAG);
+    QDomElement oldAttr = this->createElement(gt::xml::S_DIFF_OLDVAL_TAG);
+    QDomElement newAttr = this->createElement(gt::xml::S_DIFF_NEWVAL_TAG);
 
     oldAttr.appendChild(this->createTextNode(leftVal));
     newAttr.appendChild(this->createTextNode(rightVal));
@@ -582,10 +583,10 @@ GtObjectMementoDiff::handleContainerElementAdded(
     QDomElement& diffRoot)
 {
     auto newEntryElem = createElement(
-        GtObjectIO::S_DIFF_PROPCONT_ENTRY_ADDED_TAG);
+        gt::xml::S_DIFF_PROPCONT_ENTRY_ADDED_TAG);
 
-    newEntryElem.setAttribute(GtObjectIO::S_NAME_TAG, containerName);
-    newEntryElem.setAttribute(GtObjectIO::S_DIFF_INDEX_TAG, idx);
+    newEntryElem.setAttribute(gt::xml::S_NAME_TAG, containerName);
+    newEntryElem.setAttribute(gt::xml::S_DIFF_INDEX_TAG, idx);
 
     QDomElement propertyElem = GtObjectIO().toDomElement(data, *this);
     newEntryElem.appendChild(propertyElem);
@@ -601,10 +602,10 @@ GtObjectMementoDiff::handleContainerElementRemoved(
     QDomElement& diffRoot)
 {
     auto removedElem = createElement(
-        GtObjectIO::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG);
+        gt::xml::S_DIFF_PROPCONT_ENTRY_REMOVE_TAG);
 
-    removedElem.setAttribute(GtObjectIO::S_NAME_TAG, containerName);
-    removedElem.setAttribute(GtObjectIO::S_DIFF_INDEX_TAG, idx);
+    removedElem.setAttribute(gt::xml::S_NAME_TAG, containerName);
+    removedElem.setAttribute(gt::xml::S_DIFF_INDEX_TAG, idx);
 
     QDomElement propertyElem = GtObjectIO().toDomElement(data, *this);
     removedElem.appendChild(propertyElem);
@@ -620,10 +621,10 @@ GtObjectMementoDiff::handleContainerElementChanged(const QString& containerName,
                                                    QDomElement& diffRoot)
 {
     auto changedElem = createElement(
-        GtObjectIO::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG);
+        gt::xml::S_DIFF_PROPCONT_ENTRY_CHANGE_TAG);
 
-    changedElem.setAttribute(GtObjectIO::S_NAME_TAG, containerName);
-    changedElem.setAttribute(GtObjectIO::S_ENTRY_NAME_TAG, elementName);
+    changedElem.setAttribute(gt::xml::S_NAME_TAG, containerName);
+    changedElem.setAttribute(gt::xml::S_ENTRY_NAME_TAG, elementName);
 
     detectPropertyChanges(before.childProperties, after.childProperties,
                           changedElem);
@@ -642,19 +643,19 @@ GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
 
     if (GtObjectIO::usePropertyList(leftProp.data()))
     {
-        diffObj = this->createElement(GtObjectIO::S_DIFF_PROPLIST_CHANGE_TAG);
-        diffObj.setAttribute(GtObjectIO::S_NAME_TAG, leftProp.name);
+        diffObj = this->createElement(gt::xml::S_DIFF_PROPLIST_CHANGE_TAG);
+        diffObj.setAttribute(gt::xml::S_NAME_TAG, leftProp.name);
 
         diffObjEmpty = false;
-        QDomElement oldVal = this->createElement(GtObjectIO::S_DIFF_OLDVAL_TAG);
-        QDomElement newVal = this->createElement(GtObjectIO::S_DIFF_NEWVAL_TAG);
+        QDomElement oldVal = this->createElement(gt::xml::S_DIFF_OLDVAL_TAG);
+        QDomElement newVal = this->createElement(gt::xml::S_DIFF_NEWVAL_TAG);
 
         QString leftVal, leftType;
         QString rightVal, rightType;
         GtObjectIO::propertyListStringType(leftProp.data(), leftVal, leftType);
         GtObjectIO::propertyListStringType(rightProp.data(), rightVal, rightType);
 
-        diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftType);
+        diffObj.setAttribute(gt::xml::S_TYPE_TAG, leftType);
 
         oldVal.appendChild(this->createTextNode(leftVal));
         newVal.appendChild(this->createTextNode(rightVal));
@@ -664,19 +665,25 @@ GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
     }
     else
     {
-        diffObj = this->createElement(GtObjectIO::S_DIFF_PROP_CHANGE_TAG);
-        diffObj.setAttribute(GtObjectIO::S_NAME_TAG, leftProp.name);
-        diffObj.setAttribute(GtObjectIO::S_TYPE_TAG, leftProp.dataType());
+        diffObj = this->createElement(gt::xml::S_DIFF_PROP_CHANGE_TAG);
+        diffObj.setAttribute(gt::xml::S_NAME_TAG, leftProp.name);
+        diffObj.setAttribute(gt::xml::S_TYPE_TAG, leftProp.dataType());
 
         // handle value changes
         if (leftProp.data() != rightProp.data())
         {
             diffObjEmpty = false;
-            QDomElement oldVal = this->createElement(GtObjectIO::S_DIFF_OLDVAL_TAG);
-            QDomElement newVal = this->createElement(GtObjectIO::S_DIFF_NEWVAL_TAG);
+            QDomElement oldVal =
+                    this->createElement(gt::xml::S_DIFF_OLDVAL_TAG);
+            QDomElement newVal =
+                    this->createElement(gt::xml::S_DIFF_NEWVAL_TAG);
 
-            oldVal.appendChild(this->createTextNode(GtObjectIO::variantToString(leftProp.data())));
-            newVal.appendChild(this->createTextNode(GtObjectIO::variantToString(rightProp.data())));
+            oldVal.appendChild(
+                        this->createTextNode(
+                            GtObjectIO::variantToString(leftProp.data())));
+            newVal.appendChild(
+                        this->createTextNode(
+                            GtObjectIO::variantToString(rightProp.data())));
 
             diffObj.appendChild(oldVal);
             diffObj.appendChild(newVal);
@@ -687,7 +694,9 @@ GtObjectMementoDiff::handlePropertyChange(const PD& leftProp,
     if (leftProp.isActive != rightProp.isActive)
     {
         diffObjEmpty = false;
-        handleAttributeChange(GtObjectIO::S_ACTIVE_TAG, QVariant(leftProp.isActive).toString(), QVariant(rightProp.isActive).toString(), diffObj);
+        handleAttributeChange(gt::xml::S_ACTIVE_TAG,
+                              QVariant(leftProp.isActive).toString(),
+                              QVariant(rightProp.isActive).toString(), diffObj);
     }
 
     // TODO: handle child properties change
@@ -704,9 +713,9 @@ GtObjectMementoDiff::handleObjectAdded(const QDomElement& addedObj,
                                        QDomElement& diffRoot)
 {
     QDomElement objAdd =
-        this->createElement(GtObjectIO::S_DIFF_OBJ_ADD_TAG);
+        this->createElement(gt::xml::S_DIFF_OBJ_ADD_TAG);
 
-    objAdd.setAttribute(GtObjectIO::S_DIFF_INDEX_TAG,
+    objAdd.setAttribute(gt::xml::S_DIFF_INDEX_TAG,
                         QString::number(index));
 
     objAdd.appendChild(addedObj);
@@ -720,9 +729,9 @@ GtObjectMementoDiff::handleObjectRemoved(const QDomElement& removedObject,
                                          QDomElement& diffRoot)
 {
     QDomElement objRem =
-        this->createElement(GtObjectIO::S_DIFF_OBJ_REMOVE_TAG);
+        this->createElement(gt::xml::S_DIFF_OBJ_REMOVE_TAG);
 
-    objRem.setAttribute(GtObjectIO::S_DIFF_INDEX_TAG,
+    objRem.setAttribute(gt::xml::S_DIFF_INDEX_TAG,
                         QString::number(index));
 
     objRem.appendChild(removedObject);
@@ -736,15 +745,15 @@ GtObjectMementoDiff::handleIndexChanged(const QDomElement& changedObject,
                                         QDomElement& diffRoot)
 {
     QDomElement indChanged =
-        this->createElement(GtObjectIO::S_DIFF_INDEX_CHANGED_TAG);
+        this->createElement(gt::xml::S_DIFF_INDEX_CHANGED_TAG);
 
-    indChanged.setAttribute(GtObjectIO::S_DIFF_NEWVAL_TAG, newIndex);
-    indChanged.setAttribute(GtObjectIO::S_DIFF_OLDVAL_TAG, oldIndex);
+    indChanged.setAttribute(gt::xml::S_DIFF_NEWVAL_TAG, newIndex);
+    indChanged.setAttribute(gt::xml::S_DIFF_OLDVAL_TAG, oldIndex);
 
-    QDomElement obj = this->createElement(GtObjectIO::S_OBJECT_TAG);
-    obj.setAttribute(GtObjectIO::S_NAME_TAG, changedObject.attribute("name"));
-    obj.setAttribute(GtObjectIO::S_UUID_TAG, changedObject.attribute("uuid"));
-    obj.setAttribute(GtObjectIO::S_CLASS_TAG, changedObject.attribute("class"));
+    QDomElement obj = this->createElement(gt::xml::S_OBJECT_TAG);
+    obj.setAttribute(gt::xml::S_NAME_TAG, changedObject.attribute("name"));
+    obj.setAttribute(gt::xml::S_UUID_TAG, changedObject.attribute("uuid"));
+    obj.setAttribute(gt::xml::S_CLASS_TAG, changedObject.attribute("class"));
 
     indChanged.appendChild(obj);
 
