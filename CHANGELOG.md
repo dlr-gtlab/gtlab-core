@@ -26,16 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tasks are not longer stored in the project file. A new system has been implemented so that each task is saved in an individual file - #261
 
 ### Added
-- Highlight: Added property containers to GtObjects. These allow to add an arbitrary number of properties to a GtObject. - #298
-- Highlight: Shared functions, an interface share arbitrary functions with other modules without a compile time dependency.
+- __Highlight__: Added property containers to GtObjects. These allow to add an arbitrary number of properties to a GtObject. - #298
+- __Highlight__: Shared functions, an interface share arbitrary functions with other modules without a compile time dependency.
   These functions need to be defined in the method GtModuleInterface::sharedFunctions - #207, #47
-- Highlight: Introduced an experimental process runner, that executes tasks in a separate system process to avoid crashes of GTlab, when a task or calculator crashes.
+- __Highlight__: Introduced an experimental process runner, that executes tasks in a separate system process to avoid crashes of GTlab, when a task or calculator crashes.
   It an also be used for remote execution of tasks. Must be enabled in the preferences when in dev-mode - #256
-- Highlight: Added support to ex-/internalize datasets at runtime into the HDF5 format. This can be used to reduce the memory consumption
+- __Highlight__: Added support to ex-/internalize datasets at runtime into the HDF5 format. This can be used to reduce the memory consumption
   of large data objects. This behaviour can be enabled on a project basis in the project settings - #127
-- Highlight: Modules can now define data model changes and register data model upgrade functions.
+- __Highlight__: Modules can now define data model changes and register data model upgrade functions.
   The upgrade of the data model will be executed by GTlab for each module - #219
-- Highlight: New look, including a dark mode - #163
+- __Highlight__: New look, including a dark mode - #163
 - Backup and restore project of projects via the GTlab GUI - #294
 - Project Settings dialog for setting project specific settings (opened using the contextmenu of a project) - #173
 - Option to set the logging verbosity. - #346
