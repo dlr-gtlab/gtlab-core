@@ -11,7 +11,6 @@
 
 #include "gt_posttemplatefactory.h"
 
-#include "gt_posttemplate.h"
 #include "gt_stringcontainer.h"
 
 GtPostTemplateFactory::GtPostTemplateFactory(QObject* parent) : QObject(parent)

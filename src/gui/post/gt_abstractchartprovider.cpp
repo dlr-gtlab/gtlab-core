@@ -1,10 +1,7 @@
 #include "gt_abstractchartprovider.h"
-#include "gt_datazonetablelist.h"
-#include "gt_datazonetable.h"
 #include "gt_stringcontainer.h"
 #include "gt_objectgroup.h"
 #include "gt_datamodel.h"
-#include "gt_project.h"
 #include "gt_colors.h"
 
 #include <gt_logging.h>
@@ -69,7 +66,7 @@ GtAbstractChartProvider::addUUID(const QString& uuid)
         {
             if (container->entry() == uuid)
             {
-                gtWarning() << tr("Datazone uuid does already exist") << ". '"
+                gtWarning() << tr("Object uuid does already exist") << ". '"
                             << uuid << "'";
 
                 return;
@@ -261,150 +258,6 @@ void
 GtAbstractChartProvider::setSingleColorsUseL(int index, const QColor& col)
 {
     m_colorsL.replace(index, col.name());
-}
-
-int
-GtAbstractChartProvider::bottomIterator(GtDataZoneTableList* dztList,
-                                        const QString& bottomAxis,
-                                        QVector<double>& axisTicks) const
-{
-    // get how many data sets there are at bottom
-
-    int bottomIterator = 1;
-
-    if (bottomAxis == "mainX")
-    {
-        // bottom axis is main x axis, use main x ticks number
-        bottomIterator = dztList->numXticks();
-    }
-    else if (bottomAxis == "mainY")
-    {
-        // bottom axis is main y axis, use main y ticks number
-        bottomIterator = dztList->numYticks();
-    }
-    else if (bottomAxis == "mainZ")
-    {
-        // bottom axis is main z axis, use main z ticks number
-        bottomIterator = dztList->numZticks();
-    }
-    else
-    {
-        // bottom axis is one of the sub axes
-        if (!dztList->dzt()->allAxisTicksMap().contains(bottomAxis))
-        {
-            // bottom axis is neither main nor sub axis
-            gtError() << tr("Bottom axis is neither a main axis, "
-                            "nor a sub axis, abort!");
-            return bottomIterator;
-        }
-
-        // bottom axis is sub axis, use its axis ticks
-        axisTicks = dztList->dzt()->allAxisTicksMap().value(bottomAxis);
-        bottomIterator = axisTicks.size();
-    }
-
-    return bottomIterator;
-}
-
-int
-GtAbstractChartProvider::bottomIterator(
-        GtDataZoneTableList *dztList, const QString& bottomAxis) const
-{
-    QVector<double> axisTicks;
-
-    return bottomIterator(dztList, bottomAxis, axisTicks);
-}
-
-int
-GtAbstractChartProvider::additionalIterator(GtDataZoneTableList* dztList,
-                                            const QString& additionalAxis,
-                                            const QStringList& scharParameters,
-                                            QVector<double>& axisTicks) const
-{
-    // get how many data sets there are additional (that means schar)
-
-    int additionalIterator = 1;
-
-    if (additionalAxis == "mainX")
-    {
-        // additional axis is main x axis, use main x ticks number
-        additionalIterator = dztList->numXticks();
-    }
-    else if (additionalAxis == "mainY")
-    {
-        // additional axis is main y axis, use main y ticks number
-        additionalIterator = dztList->numYticks();
-    }
-    else if (additionalAxis == "mainZ")
-    {
-        // additional axis is main z axis, use main z ticks number
-        additionalIterator = dztList->numZticks();
-    }
-    else if (additionalAxis == "OtherParams")
-    {
-        if (scharParameters.empty())
-        {
-            // 'OtherParams' is selected but its size is zero -> error
-            gtError() << "Additional params should be more than 0";
-        }
-
-        additionalIterator = scharParameters.size();
-    }
-    else
-    {
-        // additional parameter is one of the sub axes or NONE
-
-        if (!dztList->dzt()->allAxisTicksMap().contains(additionalAxis))
-        {
-            // additional parameter is None!
-            return additionalIterator;
-        }
-
-        // additional parameter is one of the sub axes, collect
-        // ticks of 'additional' axis
-        axisTicks = dztList->dzt()->allAxisTicksMap().value(additionalAxis);
-        additionalIterator = axisTicks.size();
-    }
-
-    return additionalIterator;
-}
-
-int
-GtAbstractChartProvider::additionalIterator(
-        GtDataZoneTableList* dztList, const QString& additionalAxis,
-        const QStringList& scharParameters) const
-{
-
-    QVector<double> axisTicks;
-
-    return additionalIterator(dztList, additionalAxis,
-                              scharParameters, axisTicks);
-}
-
-void
-GtAbstractChartProvider::fixMainValues(GtDataZoneTableList* dztList,
-                                       const QMap<QString, QString>& fixedMain,
-                                       int& fixXmain, int& fixYmain,
-                                       int& fixZmain)
-{
-    // get the fix X, Y, Z axis of the main datazonetable
-    if (fixedMain.contains("mainX"))
-    {
-        // x axis is fixed, get corresponding x axis index of value in fixedMain
-        fixXmain = dztList->xAxisIndexFromString(fixedMain.value("mainX"));
-    }
-
-    if (fixedMain.contains("mainY"))
-    {
-        // y axis is fixed, get corresponding y axis index of value in fixedMain
-        fixYmain = dztList->yAxisIndexFromString(fixedMain.value("mainY"));
-    }
-
-    if (fixedMain.contains("mainZ"))
-    {
-        // z axis is fixed, get corresponding z axis index of value in fixedMain
-        fixZmain = dztList->zAxisIndexFromString(fixedMain.value("mainZ"));
-    }
 }
 
 void

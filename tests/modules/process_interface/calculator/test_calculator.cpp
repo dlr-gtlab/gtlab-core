@@ -1,5 +1,4 @@
 #include "test_calculator.h"
-#include "gt_datazone.h"
 
 #include "test_dmi_package.h"
 
@@ -8,7 +7,7 @@ TestCalculator::TestCalculator() :
     m_result("result", tr("Result")),
     m_objectLink(QStringLiteral("link"), tr("Link"),
                   tr("Target Component"), QString(), this,
-                  QStringList() << GT_CLASSNAME(GtDataZone) ),
+                  QStringList() << GT_CLASSNAME(GtObject), true),
     m_objectPath("prePkg", "TestDmi Package Path",
                  "TestDmi Package Path", "Test DMI Package",
                  this, QStringList() << GT_CLASSNAME(TestDmiPackage))
@@ -44,33 +43,8 @@ TestCalculator::run()
         return false;
     }
 
-    // test object link prop
-    auto dz = data<GtDataZone*>(m_objectLink);
-
-    if (!dz)
-    {
-        gtError() << "Datazone not found via object-link property.";
-        return false;
-    }
 
     gtInfo() << "The objects were found successfully by path and link property";
-
-    // test fetch data
-    auto data = dz->fetchData();
-
-    if (!data.isValid())
-    {
-        gtWarning() << "Datazone data is invalid!";
-        gtDebug() << "PARAM" << data.params();
-        gtDebug() << "UNITS" << data.units();
-        if (!data.params().empty())
-        {
-            gtDebug() << "VALS" << data.value1DVector(data.params()[0]);
-        }
-        return false;
-    }
-
-    gtInfo() << "Datazone data is valid!";
 
     // update monitoring property
     gtDebug() << "Value" << m_value;

@@ -56,7 +56,6 @@ INCLUDEPATH += .\
     ../../src/gui/dock_widgets/process \
     ../../src/gui/dock_widgets/process \
     ../../src/gui/exporter \
-    ../../src/gui/exporter/dataZoneExporter \
     ../../src/gui/process_runner
 
 INCLUDEPATH += .\
@@ -174,7 +173,7 @@ equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 12) {
         LIBS += -lgtest
 }
 
-RESOURCES += resources/unittests-resources.qrc
+
 
 ####################################################
 

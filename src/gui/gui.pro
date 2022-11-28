@@ -64,7 +64,6 @@ INCLUDEPATH += .\
     importer/processImporter \
     exporter \
     exporter/processExporter \
-    exporter/dataZoneExporter \
     collection \
     widgets \
     process_runner \
@@ -131,7 +130,6 @@ HEADERS += \
     tools/gt_tableview.h \
     tools/graphic_items/gt_graphicsanimatedpathitem.h \
     tools/graphic_effects/gt_graphicsfadeouteffect.h \
-    tools/gt_contour.h \
     tools/gt_filedialog.h \
     tools/gt_objectselectiondialog.h \
     tools/gt_jshighlighter.h \
@@ -140,7 +138,6 @@ HEADERS += \
     tools/gt_confirmdeleteprojectdialog.h \
     tools/gt_saveprojectmessagebox.h \
     tools/gt_deleteitemmessagebox.h \
-    tools/gt_contourrunnable.h \
     tools/gt_downloaddialog.h \
     tools/gt_environmentmodel.h \
     gt_objectui.h \
@@ -149,11 +146,9 @@ HEADERS += \
     object_ui/gt_packageui.h \
     object_ui/gt_objectgroupui.h \
     object_ui/gt_calculatorui.h \
-    object_ui/gt_resultui.h \
     object_ui/gt_processlinkui.h \
     object_ui/gt_labelui.h \
     object_ui/gt_loopui.h \
-    object_ui/gt_datazoneui.h \
     dock_widgets/process/gt_processwizard.h \
     dock_widgets/process/gt_processfiltermodel.h \
     dock_widgets/process/gt_processcomponentmodel.h \
@@ -198,7 +193,6 @@ HEADERS += \
     post/gt_abstractitemui.h \
     post/gt_abstractpostwidget.h \
     post/gt_postaction.h \
-    post/gt_abstractdataconfigwizard.h \
     post/gt_abstractchartprovider.h \
     post/gt_templateviewerlistwidget.h \
     post/gt_stringmapcontainer.h \
@@ -223,8 +217,6 @@ HEADERS += \
     exporter/gt_exportermetadata.h \
     exporter/gt_exporthandler.h \
     exporter/gt_exportmenu.h \
-    exporter/dataZoneExporter/gt_datazonecsvexporter.h \
-    exporter/dataZoneExporter/gt_datazonedatexporter.h \
     exporter/processExporter/gt_processexporter.h \
     gt_propertyinterface.h \
     mdi_items/collection_env/gt_collectioneditor.h \
@@ -304,14 +296,12 @@ SOURCES += \
     tools/gt_tableview.cpp \
     tools/graphic_items/gt_graphicsanimatedpathitem.cpp \
     tools/graphic_effects/gt_graphicsfadeouteffect.cpp \
-    tools/gt_contour.cpp \
     tools/gt_objectselectiondialog.cpp \
     tools/gt_jshighlighter.cpp \
     tools/gt_pyhighlighter.cpp \
     tools/gt_projectspecwidget.cpp \
     tools/gt_filedialog.cpp \
     tools/gt_confirmdeleteprojectdialog.cpp \
-    tools/gt_contourrunnable.cpp \
     tools/gt_saveprojectmessagebox.cpp \
     tools/gt_deleteitemmessagebox.cpp \
     tools/gt_downloaddialog.cpp \
@@ -322,11 +312,9 @@ SOURCES += \
     object_ui/gt_packageui.cpp \
     object_ui/gt_objectgroupui.cpp \
     object_ui/gt_calculatorui.cpp \
-    object_ui/gt_resultui.cpp \
     object_ui/gt_processlinkui.cpp \
     object_ui/gt_labelui.cpp \
     object_ui/gt_loopui.cpp \
-    object_ui/gt_datazoneui.cpp \
     dock_widgets/process/gt_processwizard.cpp \
     dock_widgets/process/gt_processfiltermodel.cpp \
     dock_widgets/process/pages/gt_calculatoroverviewpage.cpp \
@@ -370,7 +358,6 @@ SOURCES += \
     post/gt_abstractitemui.cpp \
     post/gt_abstractpostwidget.cpp \
     post/gt_postaction.cpp \
-    post/gt_abstractdataconfigwizard.cpp \
     post/gt_abstractchartprovider.cpp \
     post/gt_templateviewerlistwidget.cpp \
     post/gt_stringmapcontainer.cpp \
@@ -395,8 +382,6 @@ SOURCES += \
     exporter/gt_exportermetadata.cpp \
     exporter/gt_exporthandler.cpp \
     exporter/gt_exportmenu.cpp \
-    exporter/dataZoneExporter/gt_datazonecsvexporter.cpp \
-    exporter/dataZoneExporter/gt_datazonedatexporter.cpp \
     exporter/processExporter/gt_processexporter.cpp \
     mdi_items/collection_env/gt_collectioneditor.cpp \
     mdi_items/collection_env/gt_abstractcollectionsettings.cpp \

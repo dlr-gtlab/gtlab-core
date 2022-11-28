@@ -23,7 +23,6 @@ class GtAbstractObjectFactory;
 class GtAbstractProperty;
 class GtObjectIO;
 class GtResult;
-class GtDataZoneTable;
 class GtObjectMementoDiff;
 class GtPropertyStructContainer;
 
@@ -271,27 +270,11 @@ public:
     GtObject* parentObject() const;
 
     /**
-     * @brief results
-     * @return pointer to child results object
-     */
-    GtResult* results() const;
-
-    /**
      * @brief Returns all label identification strings stored in results of
      * object and all child objects.
      * @return List of label identification strings.
      */
     QStringList labelIds() const;
-
-    /**
-    * @brief collectDzt
-    * @return
-    */
-    virtual GtDataZoneTable* createDzt(bool* ok = nullptr)
-    {
-        Q_UNUSED(ok)
-        return nullptr;
-    }
 
     /**
      * @brief hasChanges

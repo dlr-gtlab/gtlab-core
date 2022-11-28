@@ -7,7 +7,7 @@
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 
-#include "gt_datazone.h"
+#include "gt_labeldata.h"
 
 #include "slotadaptor.h"
 
@@ -281,22 +281,21 @@ TEST_F(TestGtObject, insertChild)
 
 TEST_F(TestGtObject, isDerivedFromClass)
 {
-    GtDataZone* dz = nullptr;
+
     /// Test with nullptr
-    ASSERT_FALSE(gt::isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
-    dz = new GtDataZone;
+    ASSERT_FALSE(gt::isDerivedFromClass(nullptr, GT_CLASSNAME(GtObjectGroup)));
+
+    GtLabelData p;
     /// test with empty classname
-    ASSERT_FALSE(gt::isDerivedFromClass(dz, ""));
+    ASSERT_FALSE(gt::isDerivedFromClass(&p, ""));
     /// check valid result
-    ASSERT_TRUE(gt::isDerivedFromClass(dz, GT_CLASSNAME(GtAbstractDataZone)));
+    ASSERT_TRUE(gt::isDerivedFromClass(&p, GT_CLASSNAME(GtObjectGroup)));
     /// check for wrong superclass
-    ASSERT_FALSE(gt::isDerivedFromClass(dz, "GtCalculator"));
+    ASSERT_FALSE(gt::isDerivedFromClass(&p, "GtCalculator"));
     /// check if object is derived from GtObject
-    ASSERT_TRUE(gt::isDerivedFromClass(dz, "GtObject"));
+    ASSERT_TRUE(gt::isDerivedFromClass(&p, "GtObject"));
     /// check if function stops before QObject
-    ASSERT_FALSE(gt::isDerivedFromClass(dz, "QObject"));
-    ///tidy up
-    delete dz;
+    ASSERT_FALSE(gt::isDerivedFromClass(&p, "QObject"));
 }
 
 TEST(GtObjectBugs, issue325)

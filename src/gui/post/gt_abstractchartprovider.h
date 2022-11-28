@@ -5,7 +5,6 @@
 
 #include "gt_posttemplateitem.h"
 
-class GtDataZoneTableList;
 class GtObjectGroup;
 
 typedef QList<QColor> colorList;
@@ -66,28 +65,6 @@ public:
     void setSingleColorsUseR(int index, const QColor& col);
 
     void setSingleColorsUseL(int index, const QColor& col);
-
-    int bottomIterator(GtDataZoneTableList* dztList,
-                       const QString& bottomAxis,
-                       QVector<double>& axisTicks) const;
-
-    // no usage of 'axisTicks'
-    int bottomIterator(GtDataZoneTableList* dztList,
-                       const QString& bottomAxis) const;
-
-    int additionalIterator(GtDataZoneTableList* dztList,
-                           const QString& additionalAxis,
-                           const QStringList& scharParameters,
-                           QVector<double>& axisTicks) const;
-
-    // no usage of 'axisTicks'
-    int additionalIterator(GtDataZoneTableList* dztList,
-                           const QString& additionalAxis,
-                           const QStringList& scharParameters) const;
-
-    void fixMainValues(GtDataZoneTableList* dztList,
-                       const QMap<QString, QString>& fixedMain,
-                       int& fixXmain, int& fixYmain, int& fixZmain);
 
     void fixMainValues(const QMap<QString, QString> &fixedMain,
                        QString& fixXmain, QString& fixYmain, QString& fixZmain);

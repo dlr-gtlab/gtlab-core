@@ -69,16 +69,7 @@ HEADERS += \
     gt_objectgroup.h \
     gt_package.h \
     gt_platform.h \
-    gt_table.h \
-    gt_tablescalers.h \
-    gt_tableparser.h \
-    gt_tableaxis.h \
     gt_factorygroup.h \
-    gt_abstractdatazone.h \
-    gt_datazone.h \
-    gt_datazone0d.h \
-    gt_result.h \
-    gt_tablevalues.h \
     gt_typetraits.h \
     gt_utilities.h \
     gt_variantconvert.h \
@@ -86,10 +77,7 @@ HEADERS += \
     gt_xmlutilities.h \
     property/gt_enumproperty.h \
     property/gt_objectlinkproperty.h \
-    gt_datazonetable.h \
     gt_objectmementodiff.h \
-    gt_datazonetablemainaxis.h \
-    gt_datazonetablelist.h \
     property/gt_abstractproperty.h \
     property/gt_boolproperty.h \
     property/gt_doubleproperty.h \
@@ -121,7 +109,6 @@ HEADERS += \
     gt_objectpath.h \
     property/gt_relativeobjectlinkproperty.h \
     property/gt_doublelistproperty.h \
-    gt_tablegroup.h \
     gt_regexp.h \
     gt_algorithms.h \
     gt_mpl.h \
@@ -143,21 +130,10 @@ SOURCES += \
     gt_objectio.cpp \
     gt_objectgroup.cpp \
     gt_package.cpp \
-    gt_table.cpp \
-    gt_tableparser.cpp \
-    gt_tableaxis.cpp \
     gt_factorygroup.cpp \
-    gt_abstractdatazone.cpp \
-    gt_datazone.cpp \
-    gt_datazone0d.cpp \
-    gt_result.cpp \
-    gt_tablevalues.cpp \
     gt_xmlutilities.cpp \
     property/gt_objectlinkproperty.cpp \
-    gt_datazonetable.cpp \
     gt_objectmementodiff.cpp \
-    gt_datazonetablemainaxis.cpp \
-    gt_datazonetablelist.cpp \
     property/gt_abstractproperty.cpp \
     property/gt_boolproperty.cpp \
     property/gt_doubleproperty.cpp \
@@ -185,7 +161,6 @@ SOURCES += \
     gt_objectpath.cpp \
     property/gt_relativeobjectlinkproperty.cpp \
     property/gt_doublelistproperty.cpp \
-    gt_tablegroup.cpp \
     gt_versionnumber.cpp \
     gt_regexp.cpp
 
