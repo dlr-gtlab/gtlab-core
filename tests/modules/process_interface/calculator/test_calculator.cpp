@@ -43,33 +43,8 @@ TestCalculator::run()
         return false;
     }
 
-    // test object link prop
-    //auto dz = data<GtDataZone*>(m_objectLink);
-
-    //if (!dz)
-    //{
-    //    gtError() << "Datazone not found via object-link property.";
-    //    return false;
-    //}
 
     gtInfo() << "The objects were found successfully by path and link property";
-
-    // test fetch data
-    //auto data = dz->fetchData();
-
-    //if (!data.isValid())
-    //{
-    //    gtWarning() << "Datazone data is invalid!";
-    //    gtDebug() << "PARAM" << data.params();
-    //    gtDebug() << "UNITS" << data.units();
-    //    if (!data.params().empty())
-    //    {
-    //        gtDebug() << "VALS" << data.value1DVector(data.params()[0]);
-    //    }
-    //    return false;
-    //}
-
-    gtInfo() << "Datazone data is valid!";
 
     // update monitoring property
     gtDebug() << "Value" << m_value;

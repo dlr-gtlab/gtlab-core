@@ -23,7 +23,6 @@ class GtAbstractObjectFactory;
 class GtAbstractProperty;
 class GtObjectIO;
 class GtResult;
-class GtDataZoneTable;
 class GtObjectMementoDiff;
 class GtPropertyStructContainer;
 

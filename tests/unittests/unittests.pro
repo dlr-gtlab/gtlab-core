@@ -56,7 +56,6 @@ INCLUDEPATH += .\
     ../../src/gui/dock_widgets/process \
     ../../src/gui/dock_widgets/process \
     ../../src/gui/exporter \
-    ../../src/gui/exporter/dataZoneExporter \
     ../../src/gui/process_runner
 
 INCLUDEPATH += .\

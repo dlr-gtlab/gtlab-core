@@ -14,7 +14,6 @@
 #include "gt_object.h"
 #include "test_gt_object.h"
 #include "gt_objectfactory.h"
-//#include "gt_datazone0d.h"
 
 
 /// This is a test fixture that does a init for each test
@@ -1186,40 +1185,6 @@ TEST_F(TestGtObjectMementoDiff, doublePropertyListChange)
     GtObjectMementoDiff diff2(mem2, mem3);
 
     ASSERT_FALSE(diff2.isNull());
-}
-
-TEST_F(TestGtObjectMementoDiff, dataZone0DChange)
-{
-    /*
-    GtDataZone0D dataZone;
-
-    dataZone.setParams(QStringList() << "a" << "b" << "b");
-    dataZone.setUnits(QStringList() << "[a]" << "[b]" << "[c]");
-    dataZone.setValues(QVector<double>() << 0.577965226358801 <<
-                       11.8776138797173 << 0.930368302276224);
-
-    ASSERT_EQ(dataZone.values().size(), 3);
-
-    GtObjectMemento mem1 = dataZone.toMemento();
-
-    dataZone.setValues(QVector<double>() << 0.577777873968311 <<
-                       11.8898074392412 << 0.930454284524836);
-
-    ASSERT_EQ(dataZone.values().size(), 3);
-
-    GtObjectMemento mem2 = dataZone.toMemento();
-
-    GtObjectMementoDiff diff(mem1, mem2);
-
-    ASSERT_FALSE(diff.isNull());
-
-    ASSERT_TRUE(dataZone.revertDiff(diff));
-
-    auto dataZoneValues = dataZone.values();
-    ASSERT_DOUBLE_EQ(dataZoneValues[0], 0.577965226358801);
-    ASSERT_DOUBLE_EQ(dataZoneValues[1], 11.8776138797173);
-    ASSERT_DOUBLE_EQ(dataZoneValues[2], 0.930368302276224);
-    */
 }
 
 TEST_F(TestGtObjectMementoDiff, objectNameChange)
