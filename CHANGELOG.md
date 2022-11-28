@@ -18,34 +18,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Saving a project was moved to a separate thread - #127
-- Changed the class structure for Datazones to make use of the externalization feature - #127
 - Tasks can be skipped - #82, #176
-- Exteded library refactoring - #161
 - Removed "File->Import Project" menu. Instead, project are imported now via "File->Open Project". - #202
 - New Splashscreen
 - Restructuring of batch application including the new interface for modules to add batch functions - #265
 - Moved GtObject functions `findObject` and `isDerivedFromClass` into the namespace `gt`
-- Task are not longer stored in the project file. A new system has been implemented so that each task is saved in an individual file - #261
+- Tasks are not longer stored in the project file. A new system has been implemented so that each task is saved in an individual file - #261
 
 ### Added
-- Option for logging verbosity. - #346
-- Added property containers to GtObjects. These allow to add an arbitrary number of properties to a GtObject. - #298
-- Added dynamic interface to share arbitrary functions with other modules. These functions need to be defined in the method GtModuleInterface::sharedFunctions - #207, #47
-- Multiple labels can be selected and deleted at once - #111
-- Introduced an experimental process runner, that executes tasks in a separate system process. Can be used for remote execution. Must be enabled in the preferences when in dev-mode - #256
-- Integrated the hdf5 data format and added support to ex-/internalize datasets at runtime including the option to enable this feature on a project basis - #127
-- Monitoring property for strings - #140
-- Dark mode for GTlab - #163
-- The logging output will now provide additional information from which module the log originated - #268
+- Highlight: Added property containers to GtObjects. These allow to add an arbitrary number of properties to a GtObject. - #298
+- Highlight: Shared functions, an interface share arbitrary functions with other modules without a compile time dependency.
+  These functions need to be defined in the method GtModuleInterface::sharedFunctions - #207, #47
+- Highlight: Introduced an experimental process runner, that executes tasks in a separate system process to avoid crashes of GTlab, when a task or calculator crashes.
+  It an also be used for remote execution of tasks. Must be enabled in the preferences when in dev-mode - #256
+- Highlight: Added support to ex-/internalize datasets at runtime into the HDF5 format. This can be used to reduce the memory consumption
+  of large data objects. This behaviour can be enabled on a project basis in the project settings - #127
+- Highlight: Modules can now define data model changes and register data model upgrade functions.
+  The upgrade of the data model will be executed by GTlab for each module - #219
+- Highlight: New look, including a dark mode - #163
+- Backup and restore project of projects via the GTlab GUI - #294
 - Project Settings dialog for setting project specific settings (opened using the contextmenu of a project) - #173
+- Option to set the logging verbosity. - #346
+- Multiple labels can be selected and deleted at once - #111
+- Monitoring property for strings - #140
+- The logging output will now provide additional information from which module the log originated - #268
 - Shortcut settings for GTlab including the introduction of several new shortcuts and the option to maintain them in the preferences - #112, #171, #172
 - Versionnumber based on GtVersionNumber for tasks - #129
-- Add some DataZone functions to Python interface - #177
-- Project data upgrade functionality to handle datamodel updates - #219
 - ObjectLink properties got an button to jump to linked object in explorer dock widget #128
 - ObjectLink properties can be set by a drag and drop of objects from the explorer dock widget - #128
 - New function for the batch application to list current sessions, projects and tasks - #292
-- Backup and restore project functions are added to the GUI - #294
 
 ### Removed
 - Nozzle map was removed to be added in the map collection - #114 
