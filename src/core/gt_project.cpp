@@ -751,7 +751,7 @@ GtProject::saveExternalizedObjectData()
     // force internalization of all objects
     if (m_internalizeOnSave)
     {
-        gtDebug() << "internalizing object data...";
+        gtDebug() << "Internalizing object data...";
 
         int counter = 0;
         for (auto* obj : qAsConst(objects))
@@ -760,7 +760,7 @@ GtProject::saveExternalizedObjectData()
             counter += obj->isFetched();
         }
 
-        gtInfo() << tr("successfully internalized") << counter
+        gtInfo() << tr("Successfully internalized") << counter
                  << tr("out of") << objects.count() << tr("objects!");
 
         return success;
@@ -771,7 +771,7 @@ GtProject::saveExternalizedObjectData()
         return true;
     }
 
-    gtDebug() << "saving externalized object data...";
+    gtDebug() << "Saving externalized object data...";
 
     for (auto* obj : qAsConst(objects))
     {
