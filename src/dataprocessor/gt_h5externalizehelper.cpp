@@ -88,15 +88,15 @@ checkVersionAttribute(const GenH5::DataSet& dset)
 
     if (version.toInt() < current)
     {
-        gtWarning() << "HDF5 Dataset was created using an older version of "
-                       "GenH5!"
-                    << printVersion(version, current, dset.path());
+        gtWarning().medium()
+                << "HDF5 Dataset was created using an older version of GenH5!"
+                << printVersion(version, current, dset.path());
     }
     else if (version.toInt() > current)
     {
-        gtWarning() << "HDF5 Dataset was created using a newer version of "
-                       "GenH5!"
-                    << printVersion(version, current, dset.path());
+        gtWarning()
+                << "HDF5 Dataset was created using a newer version of GenH5!"
+                << printVersion(version, current, dset.path());
     }
 }
 
