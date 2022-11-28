@@ -66,7 +66,7 @@ GtAbstractChartProvider::addUUID(const QString& uuid)
         {
             if (container->entry() == uuid)
             {
-                gtWarning() << tr("Datazone uuid does already exist") << ". '"
+                gtWarning() << tr("Object uuid does already exist") << ". '"
                             << uuid << "'";
 
                 return;
