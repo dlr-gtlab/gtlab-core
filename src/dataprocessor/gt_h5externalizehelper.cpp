@@ -88,15 +88,15 @@ checkVersionAttribute(const GenH5::DataSet& dset)
 
     if (version.toInt() < current)
     {
-        gtWarning() << "HDF5 Dataset was created using an older version of "
-                       "GenH5!"
-                    << printVersion(version, current, dset.path());
+        gtWarning().medium()
+                << "HDF5 Dataset was created using an older version of GenH5!"
+                << printVersion(version, current, dset.path());
     }
     else if (version.toInt() > current)
     {
-        gtWarning() << "HDF5 Dataset was created using a newer version of "
-                       "GenH5!"
-                    << printVersion(version, current, dset.path());
+        gtWarning()
+                << "HDF5 Dataset was created using a newer version of GenH5!"
+                << printVersion(version, current, dset.path());
     }
 }
 
@@ -158,7 +158,7 @@ GtH5ExternalizeHelper::openDataSet(QVariant& refVariant,
 
     // try retrieving by h5 reference
     auto dset = dereferenceDataSet(file, refVariant);
-    if (dset.isValid())
+    if (!dset.isValid())
     {
         // try retrieving by path
         QStringList path{m_objClassName, m_objUuid};

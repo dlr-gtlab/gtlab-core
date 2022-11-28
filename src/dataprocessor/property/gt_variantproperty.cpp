@@ -12,15 +12,25 @@
 GtVariantProperty::GtVariantProperty(const QString& name,
                                      const QString& brief,
                                      const GtUnit::Category& unitCategory,
+                                     const QVariant& value) :
+    GtVariantProperty({}, name, brief, unitCategory, value)
+{
+    m_storeMemento = false;
+}
+
+GtVariantProperty::GtVariantProperty(const QString& id,
+                                     const QString& name,
+                                     const QString& brief,
+                                     const GtUnit::Category& unitCategory,
                                      const QVariant& value)
 {
     setObjectName(name);
 
+    m_id = id;
     m_brief = brief;
     m_unitCategory = unitCategory;
     m_value = value;
     m_initValue = value;
-    m_storeMemento = false;
 }
 
 QVariant
@@ -52,6 +62,6 @@ gt::PropertyFactoryFunction
 gt::makeVariantProperty(const GtUnit::Category &unitCategory)
 {
     return [=](const QString& id) {
-        return new GtVariantProperty(id, "", unitCategory);
+        return new GtVariantProperty(id, "", "", unitCategory);
     };
 }

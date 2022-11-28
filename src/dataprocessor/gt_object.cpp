@@ -695,17 +695,6 @@ GtObject::factory() const
 }
 
 void
-GtObject::propertyChanged(QObject* obj)
-{
-    setFlag(GtObject::HasOwnChanges, true);
-
-    if (GtAbstractProperty* prop = qobject_cast<GtAbstractProperty*>(obj))
-    {
-        emit dataChanged(this, prop);
-    }
-}
-
-void
 GtObject::onChildDataChanged()
 {
     setFlag(GtObject::HasChildChanges);
@@ -737,21 +726,16 @@ GtObject::getObjectByPath(const QString& objectPath)
     return getObjectByPath(list);
 }
 
-//void
-//GtObject::changed()
-//{
-//    emit dataChanged(this);
-//}
-
 void
 GtObject::connectProperty(GtAbstractProperty& property)
 {
     connect(&property, &GtAbstractProperty::changed, this,
-        [this, p = &property]() {
-            propertyChanged(p);
-        });
+            [this, p = &property]() {
+        setFlag(GtObject::HasOwnChanges, true);
+        emit dataChanged(this, p);
+    });
 
-    foreach (GtAbstractProperty* child, property.fullProperties())
+    for (GtAbstractProperty* child : qAsConst(property.fullProperties()))
     {
         connectProperty(*child);
     }
@@ -772,7 +756,7 @@ GtObject::fullPropertyListHelper(GtAbstractProperty* p,
         list << p;
     }
 
-    foreach (GtAbstractProperty* childProp, p->fullProperties())
+    for (GtAbstractProperty* childProp : qAsConst(p->fullProperties()))
     {
         fullPropertyListHelper(childProp, list);
     }
@@ -781,23 +765,26 @@ GtObject::fullPropertyListHelper(GtAbstractProperty* p,
 void
 GtObject::newChildUUIDs(GtObject* parent) const
 {
-    foreach(GtObject* child, parent->findChildren<GtObject*>())
+    foreach (GtObject* child, parent->findChildren<GtObject*>())
     {
         child->newUuid();
     }
 }
 
-void GtObject::makeDummy()
+void
+GtObject::makeDummy()
 {
     pimpl->makeDummy();
 }
 
-void GtObject::importMementoIntoDummy(const GtObjectMemento& memento)
+void
+GtObject::importMementoIntoDummy(const GtObjectMemento& memento)
 {
     pimpl->importDummy(memento);
 }
 
-void GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
+void
+GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
 {
     pimpl->exportDummy(memento);
 }
@@ -848,11 +835,36 @@ GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
 }
 
 bool
-GtObject::registerProperty(GtAbstractProperty& property, const QString& cat)
+GtObject::registerProperty(GtAbstractProperty& property,
+                           const QString& cat)
 {
     property.setCategory(cat);
-
     return registerProperty(property);
+}
+
+bool
+GtObject::registerSilentProperty(GtAbstractProperty& property)
+{
+    if (pimpl->properties.contains(&property))
+    {
+        gtWarning() << tr("multiple property registration!")
+                    << QStringLiteral(" Object Name (") << objectName()
+                    << QStringLiteral(")")
+                    << QStringLiteral(" Property Name (") << property.ident()
+                    << QStringLiteral(")");
+        return false;
+    }
+
+    pimpl->properties.append(&property);
+    return true;
+}
+
+bool
+GtObject::registerSilentProperty(GtAbstractProperty& property,
+                                 const QString& cat)
+{
+    property.setCategory(cat);
+    return registerSilentProperty(property);
 }
 
 void

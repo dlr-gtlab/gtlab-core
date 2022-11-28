@@ -14,9 +14,8 @@
 #include "gt_object.h"
 
 #include <QPointer>
-#include <QVariant>
 
-
+class QVariant;
 class GtExternalizedObject;
 class GtExternalizedObjectData;
 
@@ -57,7 +56,7 @@ T_Data fetchExternalizedData(T_Base* obj)
     } private:
 
 /// Marco for adding a dedicated base method impl for accessing the base class.
-/// Muste be placd inside a private block of the class.
+/// Muste be placed inside a private block of the class.
 #define GT_DECL_BASECLASS(BaseClass) \
     private: using Base = BaseClass; \
     template <typename T = Base> T* base() const { \
@@ -106,21 +105,14 @@ class GT_DATAMODEL_EXPORT GtExternalizedObject : public GtObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool isFetched READ isFetched WRITE setFetched)
-
-    Q_PROPERTY(bool fetchInitialVersion
-               READ fetchInitialVersion WRITE setFetchInitialVersion)
-
-    Q_PROPERTY(QString cachedHash MEMBER m_cachedHash)
-
-    Q_PROPERTY(QVariant metaData MEMBER m_metaData)
-
     GT_DECL_DATACLASS(GtExternalizedObjectData)
 
     friend class GtExternalizationManager;
     friend class TestExternalizedObject;
 
 public:
+
+    ~GtExternalizedObject();
 
     /**
      * @brief Returns the current number of accesses. To check if the object is
@@ -130,14 +122,9 @@ public:
     int refCount() const;
 
     /**
-     * @brief isFetched
-     * @return whether the object is fetched.
-     */
-    bool isFetched() const;
-
-    /**
      * @brief Externalize. Will externalize the object only if its fetched and
-     * the object has changed
+     * the object has changed. Call this function with care, as the previous
+     * version may be overwritten.
      * @return success
      */
     bool externalize();
@@ -149,6 +136,12 @@ public:
      * @return success
      */
     Q_INVOKABLE bool internalize();
+
+    /**
+     * @brief isFetched
+     * @return whether the object is fetched.
+     */
+    Q_INVOKABLE bool isFetched() const;
 
 protected:
 
@@ -172,19 +165,19 @@ protected:
 
     /**
      * @brief Method for fetching the externalized data
-     * @param metaData data that may need to be saved in between sessions to
-     * help fetch the dataset.
-     * @param fetchInitialVersion whether to fetch the intial version of the
-     * data
+     * @param metaData Data that may need to be saved in between sessions to
+     * help fetch/externalize the dataset.
+     * @param fetchInitialVersion Whether to fetch the intial version of the
+     * data (i.e. the original data that has not changed)
      * @return success
      */
     virtual bool doFetchData(QVariant& metaData, bool fetchInitialVersion) = 0;
 
     /**
      * @brief Method to implement for externalizing the data. Will only be
-     * called if isValid returns true.
-     * @param metaData data that may need to be saved in between sessions to
-     * help fetch the dataset.
+     * called if canExternalize returns true.
+     * @param metaData Data that may need to be saved in between sessions to
+     * help fetch/externalize the dataset.
      * @return success
      */
     virtual bool doExternalizeData(QVariant& metaData) = 0;
@@ -202,32 +195,8 @@ protected:
 
 private:
 
-    /**
-     * @brief The ExternalizeState enum
-     */
-    enum ExternalizeState
-    {
-        /// indicates whether the data is fetched (independent of ref count)
-        Fetched = 1,
-        /// indicates whether the data should be externalized on next save
-        ExternalizeOnSave = 2,
-        /// inidatces that data should be fetched from original location
-        FetchInitialVersion = 4,
-        /// inidatces that data should not be externalized indirectly
-        /// (ref count reaches 0)
-        KeepInternalized = 8
-    };
-    Q_DECLARE_FLAGS(ExternalizeStates, ExternalizeState)
-
-    /// hash of this object, calculated on last externalization
-    QString m_cachedHash{};
-    /// meta data for the externalization process (eg. hdf5 reference)
-    QVariant m_metaData{0};
-    /// keeps track of number of accesses
-    int m_refCount{0};
-    /// object states
-    ExternalizeStates m_states{Fetched | ExternalizeOnSave |
-                               FetchInitialVersion};
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
     /**
      * @brief Increments ref count and fetches the data if not fetched yet.
@@ -249,10 +218,10 @@ private:
     bool fetchHelper();
 
     /**
-     * @brief fetchInitialVersion
-     * @return whether to fetch the initial version
+     * @brief Setter for the fetchInitialVersion property
+     * @param value Whether the initial version should be fetched
      */
-    bool fetchInitialVersion() const;
+    void setFetchInitialVersion(bool value) const;
 
     /**
      * @brief hasModifiedData
@@ -274,26 +243,6 @@ private:
      * @return new hash
      */
     QString calcExtHash();
-
-    /**
-     * @brief Setter for isFetched property. Will set all object states
-     * accordingly.
-     * @param value whether object is fetched
-     */
-    void setFetched(bool value);
-
-    /**
-     * @brief Setter for setFetchInitialVersion property
-     * @param value whether the initial version should be fetched
-     */
-    void setFetchInitialVersion(bool value);
-
-    /**
-     * @brief Sets the desired state
-     * @param state state to set
-     * @param enable whether state should be set or cleared
-     */
-    void setExternalizeState(ExternalizeState state, bool enable);
 };
 
 #endif // GTEXTERNALIZEDOBJECT_H

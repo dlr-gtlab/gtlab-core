@@ -25,7 +25,14 @@ public:
     /**
      * @brief GtVariantProperty
      */
+    [[deprecated("Provide a property id in the constructor")]]
     GtVariantProperty(const QString& name,
+                      const QString& brief,
+                      const GtUnit::Category &unitCategory = GtUnit::None,
+                      const QVariant& value = QVariant());
+
+    GtVariantProperty(const QString& id,
+                      const QString& name,
                       const QString& brief,
                       const GtUnit::Category &unitCategory = GtUnit::None,
                       const QVariant& value = QVariant());
