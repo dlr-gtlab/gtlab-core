@@ -50,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Nozzle map was removed to be added in the map collection - #114 
 - Removed DoubleMap container to be added to the post module - #116
+- Removed multiple classes such as `GtDataZone` and `GtTable` from the Core framework.
+  They are now part of the BasicTools module. - #342
 
 
 ## [1.7.2] - 2021-05-25
