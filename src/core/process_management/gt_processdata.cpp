@@ -114,18 +114,20 @@ GtProcessData::read(const QString& projectPath)
 {
     if (m_pimpl-> _initialized)
     {
-        gtError() << tr("Task group was already initialized!");
+        gtError() << tr("Process data was already initialized!");
         return false;
     }
 
     // search all diectories
     if (!m_pimpl->readTaskGroups(projectPath, GtTaskGroup::USER))
     {
+        gtError() << tr("Unable to read user task groups!");
         return false;
     }
 
     if (!m_pimpl->readTaskGroups(projectPath, GtTaskGroup::CUSTOM))
     {
+        gtError() << tr("Unable to read custom task groups!");
         return false;
     }
 
@@ -242,7 +244,7 @@ GtProcessData::Impl::readTaskGroups(const QString& projectPath,
     if (!dir.exists())
     {
         // no relevant directories found. not good not bad.
-        return false;
+        return true;
     }
 
     // scope folder found. read entries and generate uninitialized task groups
