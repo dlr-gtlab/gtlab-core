@@ -24,6 +24,7 @@ stages:
   - update
   - build
   - test
+  - package
   - guiTestStable
   - guiTestUnstable
   - regressionTest
@@ -76,7 +77,7 @@ devtoolsUpdateLinux:
     - '& echo "Using Devtools: $DEVTOOLS"'
     - '& echo "Using QMake: $QMAKE_PATH"'
     - '& echo "Build-Config: $BUILDMODE"'
-    - '& $MAINTENANCETOOL up --confirm-command'
+    - '& $MAINTENANCETOOL up --confirm-command; $null'
   script:
     - copy features\gitlab_pipeline_local_settings.pri local_settings.pri
     - '& $QMAKE_PATH $PROFILENAME -spec win32-msvc "CONFIG+=$BUILDMODE"'
@@ -113,9 +114,7 @@ windowsBuildDebug:
   variables:
     BUILDMODE: debug
     BUILDUNITTESTS: "true"
-  parallel:
-    matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Win_Unstable] 
+    DEVTOOLS: $DEVTOOLS_Win_Unstable
     
 windowsBuildRelease:
   stage: build
@@ -136,9 +135,7 @@ windowsBuildRelease:
   variables:
     BUILDMODE: release
     BUILDUNITTESTS: "false"
-  parallel:
-    matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Win_Unstable] 
+    DEVTOOLS: $DEVTOOLS_Win_Unstable
 
 # Linux build
 linuxBuildDebug:
@@ -163,9 +160,7 @@ linuxBuildDebug:
     BUILDMODE: debug
     BUILDUNITTESTS: "true"
     QMAKE_EXECUTABLE: $QT_DIR_LINUX2/bin/qmake
-  parallel:
-    matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Linux_Unstable] 
+    DEVTOOLS: $DEVTOOLS_Linux_Unstable 
 
 linuxBuildRelease:
   stage: build 
@@ -186,9 +181,7 @@ linuxBuildRelease:
     BUILDMODE: release
     BUILDUNITTESTS: "false"
     QMAKE_EXECUTABLE: $QT_DIR_LINUX2/bin/qmake
-  parallel:
-    matrix: 
-      - DEVTOOLS: [$DEVTOOLS_Linux_Unstable]    
+    DEVTOOLS: $DEVTOOLS_Linux_Unstable
 
 # Template for the two GUI-Testing jobs
 .guiTestTemplate:
@@ -228,11 +221,11 @@ linuxBuildRelease:
     - if: $CI_COMMIT_TAG == null
     - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ # stable tag
   needs: 
-      - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
+      - linuxBuildDebug
       - job: "testLinux512"
         artifacts: false
   dependencies:
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
+    - linuxBuildDebug
   variables:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Stable 
 
@@ -247,11 +240,11 @@ guiTestsUnstable:
       when: never
     - if: $CI_COMMIT_TAG == null
   needs:
-      - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+      - linuxBuildDebug
       - job: "testLinux512Unstable"
         artifacts: false
   dependencies:
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+    - linuxBuildDebug
   variables:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable      
 
@@ -265,11 +258,11 @@ guiTestsUnstableTag:
       when: never
     - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
   needs:
-      - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+      - linuxBuildDebug
       - job: "testLinux512Unstable"
         artifacts: false
   dependencies:
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+    - linuxBuildDebug
   variables:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable
 
@@ -278,8 +271,8 @@ guiTestsUnstableTag:
   extends: 
     - .winTestTemplate
     - .debugBuildRules
-  needs: ["windowsBuildDebug: [$DEVTOOLS_Win_Stable]"]
-  dependencies: ["windowsBuildDebug: [$DEVTOOLS_Win_Stable]"]
+  needs: ["windowsBuildDebug"]
+  dependencies: ["windowsBuildDebug"]
   variables:
     DEVTOOLS: $DEVTOOLS_Win_Stable
 
@@ -287,8 +280,8 @@ testWin512Unstable:
   extends: 
     - .winTestTemplate
     - .debugBuildRules
-  needs: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
-  dependencies: ["windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"]
+  needs: ["windowsBuildDebug"]
+  dependencies: ["windowsBuildDebug"]
   variables:
     DEVTOOLS: $DEVTOOLS_Win_Unstable
     TESTRUNNER: .\tests\pipeline-scripts\unittests\runUnittestsQt515.bat
@@ -297,9 +290,9 @@ testWin512Unstable:
   extends: 
     - .linuxTestTemplate
     - .debugBuildRules
-  needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"]
+  needs: ["linuxBuildDebug"]
   dependencies:
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
+    - linuxBuildDebug
   variables:
     DEVTOOLS: $DEVTOOLS_Linux_Stable    
 
@@ -307,16 +300,16 @@ testLinux512Unstable:
   extends: 
     - .linuxTestTemplate
     - .debugBuildRules
-  needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"]
-  dependencies:
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+  needs: ["linuxBuildDebug"]
+  dependencies: ["linuxBuildDebug"]
   variables:
     DEVTOOLS: $DEVTOOLS_Linux_Unstable   
 
 valgrind:
   extends: 
     - .debugBuildRules
-  needs: ["linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"]
+  needs: ["linuxBuildDebug"]
+  dependencies: ["linuxBuildDebug"]
   stage: test
   before_script:
     - chmod +x ./tests/memcheck/runValgrind.sh
@@ -326,8 +319,6 @@ valgrind:
   script:
     - xvfb-run -a ./tests/memcheck/runValgrind.sh
     - python3 ./tests/memcheck/post.py
-  dependencies:
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
   tags:
     - Linux
   artifacts:
@@ -361,76 +352,84 @@ valgrind:
     - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/
   variables:
     RELEASESTATUS: stable
-    
-# copy files to servers
-.copyForDeploymentWinDebug:
-  stage: copy
-  extends: .stableTagTemplate
-  dependencies:
-    - "windowsBuildDebug: [$DEVTOOLS_Win_Stable]"
-  variables:
-    PLATFORMNAME:  windows
-    DESTDIR: binDebug
 
-.copyForDeploymentWinRelease:
+.package:
+  stage: package
+  tags:
+    - Linux
+  script:
+    - mkdir pkg
+    - mkdir pkg/$BINDIR
+    - mv build/* pkg/$BINDIR
+    # copy all runtime libs into bindir
+    - mv lib/$TARGETDIRNAME/*.dll pkg/$BINDIR 2> /dev/null || `:`
+    - cp lib/$TARGETDIRNAME/*.so pkg/$BINDIR 2> /dev/null || `:`
+    # move include and libdir into package
+    - mv lib/ include/ pkg/ 2> /dev/null || `:`
+    # make sure all link libraries are in lib/core
+    - mv pkg/$BINDIR/*.lib pkg/lib/$TARGETDIRNAME/ 2> /dev/null || `:`
+    - cp pkg/$BINDIR/*.so pkg/lib/$TARGETDIRNAME/ 2> /dev/null || `:`
+    - rm pkg/$BINDIR/$UNITTESTSNAME* 2> /dev/null || `:`
+    # show package contents
+    - find pkg/
+  artifacts:
+    paths:
+    - pkg
+  variables:
+    BINDIR: bin
+
+packageWinDebug:
+  extends:
+    - .package
+    - .debugBuildRules 
+  needs: ["windowsBuildDebug"]
+  dependencies: ["windowsBuildDebug"]
+  
+  variables:
+    BINDIR: binDebug
+
+packageWinRelease:
+  extends:
+    - .package
+    - .releaseBuildRules 
+  needs: ["windowsBuildRelease"]
+  dependencies: ["windowsBuildRelease"]
+
+
+packageLinuxDebug:
+  extends:
+    - .package
+    - .debugBuildRules 
+  needs: ["linuxBuildDebug"]
+  dependencies: ["linuxBuildDebug"]
+  variables:
+    BINDIR: binDebug
+
+
+packageLinuxRelease:
+  extends:
+    - .package
+    - .releaseBuildRules 
+  needs: ["linuxBuildRelease"]
+  dependencies: ["linuxBuildRelease"]
+
+copyForDeploymentWinUnstable:
   stage: copy
-  extends: .stableTagTemplate
-  dependencies:
-    - "windowsBuildRelease: [$DEVTOOLS_Win_Stable]"
+  extends: .unstableTagTemplate
+  needs:
+    - "packageWinDebug"
+    - "packageWinRelease"
   variables:
     PLATFORMNAME:  windows
     DESTDIR: bin
 
-copyForDeploymentWinDebugUnstable:
+
+copyForDeploymentLinuxUnstable:
   stage: copy
   extends: .unstableTagTemplate
-  dependencies:
-    - "windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"
-  variables:
-    PLATFORMNAME:  windows
-    DESTDIR: binDebug
-
-copyForDeploymentWinReleaseUnstable:
-  stage: copy
-  extends: .unstableTagTemplate
-  dependencies:
-    - "windowsBuildRelease: [$DEVTOOLS_Win_Unstable]"
-  variables:
-    PLATFORMNAME:  windows
-    DESTDIR: bin
-
-.copyForDeploymentLinuxDebug:
-  stage: copy
-  extends: .stableTagTemplate
-  dependencies:
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Stable]"
-  variables:
-    PLATFORMNAME:  linux
-    DESTDIR: binDebug
-
-.copyForDeploymentLinuxRelease:
-  stage: copy
-  extends: .stableTagTemplate
-  dependencies:
-    - "linuxBuildRelease: [$DEVTOOLS_Linux_Stable]"
-  variables:
-    PLATFORMNAME:  linux
-    DESTDIR: bin
-
-copyForDeploymentLinuxDebugUnstable:
-  stage: copy
-  extends: .unstableTagTemplate
-  dependencies:
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
-  variables:
-    PLATFORMNAME:  linux
-    DESTDIR: binDebug
-
-copyForDeploymentLinuxReleaseUnstable:
-  stage: copy
-  extends: .unstableTagTemplate
-  dependencies:
-    - "linuxBuildRelease: [$DEVTOOLS_Linux_Unstable]"
+  needs:
+    - "linuxBuildRelease"
+    - "linuxBuildDebug"
   variables:
     PLATFORMNAME:  linux
     DESTDIR: bin
@@ -461,7 +460,5 @@ badges:
   extends: .badgeTemplate 
   except:
     - tags
-  dependencies:
-    - "windowsBuildDebug: [$DEVTOOLS_Win_Unstable]"
-    - "linuxBuildDebug: [$DEVTOOLS_Linux_Unstable]"
+  dependencies: ["windowsBuildDebug", "linuxBuildDebug"]
     
