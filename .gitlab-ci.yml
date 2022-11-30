@@ -76,7 +76,7 @@ devtoolsUpdateLinux:
     - '& echo "Using Devtools: $DEVTOOLS"'
     - '& echo "Using QMake: $QMAKE_PATH"'
     - '& echo "Build-Config: $BUILDMODE"'
-    - '& $MAINTENANCETOOL up --confirm-command'
+    - '& $MAINTENANCETOOL up --confirm-command; $null'
   script:
     - copy features\gitlab_pipeline_local_settings.pri local_settings.pri
     - '& $QMAKE_PATH $PROFILENAME -spec win32-msvc "CONFIG+=$BUILDMODE"'
