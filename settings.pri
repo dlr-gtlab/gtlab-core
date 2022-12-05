@@ -66,21 +66,6 @@ DEPENDPATH  += $${GTLAB_LOGGING_PATH}/lib/logging
 DEFINES += GT_LOG_USE_QT_BINDINGS
 DEFINES += GT_LOG_USE_EXTENDED_STL_BINDINGS
 
-# Numerics
-INCLUDEPATH += $${GTLAB_NUMERICS_PATH}/include/numerics
-LIBS        += -L$${GTLAB_NUMERICS_PATH}/lib/numerics
-DEPENDPATH  += $${GTLAB_NUMERICS_PATH}/lib/numerics
-
-# minpack
-INCLUDEPATH += $${MINPACK_PATH}/include
-LIBS        += -L$${MINPACK_PATH}/lib
-DEPENDPATH  += $${MINPACK_PATH}/lib
-
-## NLOPT
-INCLUDEPATH += $${NLOPT_PATH}/include
-LIBS        += -L$${NLOPT_PATH}/lib
-DEPENDPATH  += $${NLOPT_PATH}/lib
-
 ## HDF5
 INCLUDEPATH += $${HDF5_PATH}/include
 CONFIG(debug, debug|release) {

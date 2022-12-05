@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed DoubleMap container to be added to the post module - #116
 - Removed multiple classes such as `GtDataZone` and `GtTable` from the Core framework.
   They are now part of the BasicTools module. - #342
+- Removed dependency to GtNumerics - #353
 
 
 ## [1.7.2] - 2021-05-25

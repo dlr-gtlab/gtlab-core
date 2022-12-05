@@ -171,9 +171,9 @@ unix {
 LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release) {
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d
+    LIBS += -lGTlabLogging-d
 } else {
-    LIBS += -lGTlabNumerics -lGTlabLogging
+    LIBS += -lGTlabLogging
 }
 
 contains(USE_HDF5, true) {

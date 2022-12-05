@@ -255,9 +255,9 @@ RESOURCES += ../resources/templates/templates.qrc
 LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release){
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d -lGTlabDataProcessor-d
+    LIBS += -lGTlabLogging-d -lGTlabDataProcessor-d
 } else {
-    LIBS += -lGTlabNumerics -lGTlabLogging -lGTlabDataProcessor
+    LIBS += -lGTlabLogging -lGTlabDataProcessor
 }
 
 unix {
