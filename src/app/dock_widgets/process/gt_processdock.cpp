@@ -189,8 +189,6 @@ GtProcessDock::GtProcessDock() :
             SLOT(skipComponent(QModelIndex,bool)));
     connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
-    connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
-            SLOT(currentTaskGroupIndexChanged(int)));
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
@@ -296,9 +294,17 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         {
             m_taskGroup = project->processData()->taskGroup();
 
+            // add entries for all existing groups. avoid index change signals
+            // to avoid wrong behavior
+            disconnect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
+                    this, SLOT(currentTaskGroupIndexChanged(int)));
+
             // add entries for all existing groups
             m_taskGroupModel->init(project->processData()->userGroupIds(),
                                    project->processData()->customGroupIds());
+
+            connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
+            SLOT(currentTaskGroupIndexChanged(int)));
 
         }
 
