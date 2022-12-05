@@ -118,7 +118,7 @@ LIBS += -L$${BUILD_DEST_TEMP}
 
 CONFIG(debug, debug|release){
     # Utilities
-    LIBS += -lGTlabLogging-d -lGTlabNumerics-d
+    LIBS += -lGTlabLogging-d
     # Core
     LIBS += -lGTlabDataProcessor-d -lGTlabCore-d
     # GUI
@@ -128,7 +128,6 @@ CONFIG(debug, debug|release){
     win32 {
     }
     unix {
-        LIBS += -lcminpack
         contains(USE_HDF5, true) {
             LIBS += -lhdf5 -lhdf5_cpp
             LIBS += -lGenH5-d
@@ -136,7 +135,7 @@ CONFIG(debug, debug|release){
     }
 } else {
     # Utilities
-    LIBS += -lGTlabLogging -lGTlabNumerics
+    LIBS += -lGTlabLogging
     # Core
     LIBS += -lGTlabDataProcessor -lGTlabCore
     # GUI
@@ -144,7 +143,6 @@ CONFIG(debug, debug|release){
 
     # THIRD PARTY
     unix {
-        LIBS += -lcminpack
         contains(USE_HDF5, true) {
             LIBS += -lhdf5 -lhdf5_cpp
             LIBS += -lGenH5

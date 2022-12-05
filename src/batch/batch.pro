@@ -68,14 +68,13 @@ LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release){
     # UTILITIES
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d
+    LIBS += -lGTlabLogging-d
     # CORE
     LIBS += -lGTlabDataProcessor-d -lGTlabCore-d
     # THIRD PARTY
     win32 {
     }
     unix {
-        LIBS += -lcminpack
         contains(USE_HDF5, true) {
             LIBS += -lhdf5 -lhdf5_cpp
             LIBS += -lGenH5-d
@@ -83,12 +82,11 @@ CONFIG(debug, debug|release){
     }
 } else {
     # UTILITIES
-    LIBS += -lGTlabNumerics -lGTlabLogging
+    LIBS += -lGTlabLogging
     # CORE
     LIBS += -lGTlabDataProcessor -lGTlabCore
     # THIRD PARTY
     unix {
-        LIBS += -lcminpack
         contains(USE_HDF5, true) {
             LIBS += -lhdf5 -lhdf5_cpp
             LIBS += -lGenH5

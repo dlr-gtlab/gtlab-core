@@ -29,13 +29,8 @@ BUILD_DEPLOY =                  true
 
 # First Party
 GTLAB_LOGGING_PATH =    $${DEV_TOOLS}
-GTLAB_NUMERICS_PATH =   $${DEV_TOOLS}
 GENH5_PATH =            $${DEV_TOOLS} # HDF5 Wrapper
 
 # THIRD PARTY
 GOOGLE_TEST_PATH =      $${DEV_TOOLS}/ThirdPartyLibraries/GoogleTest
-MINPACK_PATH =          $${DEV_TOOLS}/ThirdPartyLibraries/minpack
-SPLINE_LIB_PATH =       $${DEV_TOOLS}/ThirdPartyLibraries/SplineLib
-QWT_PATH =              $${DEV_TOOLS}/ThirdPartyLibraries/Qwt
-NLOPT_PATH =            $${DEV_TOOLS}/ThirdPartyLibraries/NLopt
 HDF5_PATH =             $${DEV_TOOLS}/ThirdPartyLibraries/hdf5

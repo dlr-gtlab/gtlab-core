@@ -56,11 +56,11 @@ SOURCES += \
 
 CONFIG(debug, debug|release){
     # GTLAB CORE
-    LIBS += -lGTlabLogging-d -lGTlabNumerics-d
+    LIBS += -lGTlabLogging-d
     LIBS += -lGTlabCore-d -lGTlabDataProcessor-d
 } else {
     # GTLAB CORE
-    LIBS += -lGTlabLogging -lGTlabNumerics
+    LIBS += -lGTlabLogging
     LIBS += -lGTlabCore -lGTlabDataProcessor
 }
 

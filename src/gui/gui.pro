@@ -426,13 +426,13 @@ LIBS += -L$${BUILD_DEST}
 
 CONFIG(debug, debug|release){
     # GTlab Utilities
-    LIBS += -lGTlabNumerics-d -lGTlabLogging-d
+    LIBS += -lGTlabLogging-d
     #GTlab Core
     LIBS += -lGTlabDataProcessor-d
     LIBS += -lGTlabCore-d
 } else {
     # GTlab Utilities
-    LIBS += -lGTlabNumerics -lGTlabLogging
+    LIBS += -lGTlabLogging
     # GTLab Core
     LIBS += -lGTlabDataProcessor
     LIBS += -lGTlabCore
