@@ -215,8 +215,8 @@ GtPreferencesApp::GtPreferencesApp() :
 void
 GtPreferencesApp::saveSettings(GtSettings& settings) const
 {
-    settings.setOpenLastProject(m_lastOpenedProject);
-    settings.setShowStartupPage(m_openWelcomePage->isChecked());    
+    settings.setOpenLastProject(m_lastOpenedProject->isChecked());
+    settings.setShowStartupPage(m_openWelcomePage->isChecked());
     settings.setSearchForUpdate(m_updateAtStartup->isChecked());
 
     // log length
