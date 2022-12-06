@@ -247,6 +247,15 @@ public:
     QVector<GtObjectMemento> childObjects;
 
 private:
+    /**
+     * @brief Creates a new object and adds it to the given parent
+     *
+     * @param factory An object factory to create object instances
+     * @param parent Pointer to the parent object
+     * @return A pointer to an object or nullptr, if it could not be created.
+     */
+    GtObject* toObject(GtAbstractObjectFactory& factory, GtObject* parent) const;
+
     QString m_className, m_uuid, m_ident;
 
     /**
