@@ -38,20 +38,16 @@ stages:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
     - if: $CI_COMMIT_TAG == null
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ && $DEVTOOLS == "$DEVTOOLS_Win_Stable" # win stable tag
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/  && $DEVTOOLS == "$DEVTOOLS_Win_Unstable" # win unstable tag
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ && $DEVTOOLS == "$DEVTOOLS_Linux_Stable" # linux stable tag
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/  && $DEVTOOLS == "$DEVTOOLS_Linux_Unstable" # linux unstable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ # stable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
 
 .releaseBuildRules:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
     - if: $CI_COMMIT_BRANCH == "master" # -master
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ && $DEVTOOLS == "$DEVTOOLS_Win_Stable" # stable tag
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ && $DEVTOOLS == "$DEVTOOLS_Win_Unstable" # unstable tag
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ && $DEVTOOLS == "$DEVTOOLS_Linux_Stable" # linux stable tag
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/  && $DEVTOOLS == "$DEVTOOLS_Linux_Unstable" # linux unstable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ # stable tag
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
 
 # DevTools Update
 devtoolsUpdateWindows:
@@ -416,9 +412,8 @@ packageLinuxRelease:
 copyForDeploymentWinUnstable:
   stage: copy
   extends: .unstableTagTemplate
-  needs:
-    - "packageWinDebug"
-    - "packageWinRelease"
+  needs: ["packageWinDebug", "packageWinRelease"]
+  dependencies: ["packageWinDebug", "packageWinRelease"]
   variables:
     PLATFORMNAME:  windows
     DESTDIR: bin
@@ -427,9 +422,8 @@ copyForDeploymentWinUnstable:
 copyForDeploymentLinuxUnstable:
   stage: copy
   extends: .unstableTagTemplate
-  needs:
-    - "linuxBuildRelease"
-    - "linuxBuildDebug"
+  needs: ["packageLinuxRelease", "packageLinuxDebug"]
+  dependencies: ["packageLinuxRelease", "packageLinuxDebug"]
   variables:
     PLATFORMNAME:  linux
     DESTDIR: bin
