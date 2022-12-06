@@ -491,8 +491,14 @@ readDynamicProperties(const GtObjectMemento& memento, GtObject& obj)
 std::unique_ptr<GtObject>
 GtObjectMemento::toObject(GtAbstractObjectFactory& factory) const
 {
+    return std::unique_ptr<GtObject>(toObject(factory, nullptr));
+}
 
-    std::unique_ptr<GtObject> obj(factory.newObject(className(), nullptr));
+GtObject*
+GtObjectMemento::toObject(GtAbstractObjectFactory& factory, GtObject* parent) const
+{
+
+    std::unique_ptr<GtObject> obj(factory.newObject(className(), parent));
 
     if (!obj)
     {
@@ -501,13 +507,13 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory) const
             << "Creating dummy object for unknown class '"
             << className() << "'.";
 
-        obj.reset(new GtObject(nullptr));
+        obj.reset(new GtObject(parent));
         obj->makeDummy();
     }
 
     mergeTo(*obj, factory);
 
-    return obj;
+    return obj.release();
 }
 
 bool
@@ -548,9 +554,8 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
         else
         {
             // we need to create a new object
-            auto newObject = mementoChild.toObject(factory);
-            assert(newObject != nullptr);
-            obj.appendChild(newObject.release());
+            auto newobj = mementoChild.toObject(factory, &obj);
+            assert(newobj);
         }
     }
 
