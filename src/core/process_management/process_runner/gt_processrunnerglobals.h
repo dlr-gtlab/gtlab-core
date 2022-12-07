@@ -24,7 +24,11 @@ namespace process_runner
 {
 // the namespace must be added to MOS to register the enums.
 // the namespace must also be exported
-Q_NAMESPACE_EXPORT(GT_CORE_EXPORT)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+Q_NAMESPACE_EXPORT(GT_CORE_EXPORT);
+#else
+GT_CORE_EXPORT Q_NAMESPACE;
+#endif
 
 GT_CORE_EXPORT extern const quint16 S_DEFAULT_PORT;
 GT_CORE_EXPORT extern const QString S_DEFAULT_HOST;

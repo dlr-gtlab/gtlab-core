@@ -11,6 +11,7 @@
 
 #include <QPointer>
 #include <QObject>
+#include <memory>
 
 #include "gt_core_exports.h"
 

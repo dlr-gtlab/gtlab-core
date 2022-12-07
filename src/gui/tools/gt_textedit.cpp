@@ -11,21 +11,10 @@
 GtTextEdit::GtTextEdit(QString text, contentType type, QWidget* parent) :
     QTextEdit(parent),
     m_text(text),
-    m_long(QString{}),
+    m_long(),
     m_type(type)
 {
-    if (m_type == MD)
-    {
-        setMarkdown(text);
-    }
-    else if (m_type == HTML)
-    {
-        setHtml(text);
-    }
-    else
-    {
-        setText(text);
-    }
+    updateText(text);
 }
 
 GtTextEdit&
@@ -49,19 +38,7 @@ GtTextEdit::mouseDoubleClickEvent(QMouseEvent* event)
         return;
     }
 
-    if (m_type == MD)
-    {
-        setMarkdown(m_long);
-    }
-    else if (m_type == HTML)
-    {
-        setHtml(m_long);
-    }
-    else
-    {
-        setText(m_long);
-    }
-
+    updateText(m_long);
     setToolTip("");
 }
 
@@ -95,7 +72,9 @@ GtTextEdit::updateText(const QString& text)
 {
     if (m_type == MD)
     {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         setMarkdown(text);
+#endif
     }
     else if (m_type == HTML)
     {

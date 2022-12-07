@@ -15,6 +15,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
+#include <memory>
 
 class GtProject;
 class GtAbstractProperty;

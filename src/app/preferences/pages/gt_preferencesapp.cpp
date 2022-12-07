@@ -124,7 +124,11 @@ GtPreferencesApp::GtPreferencesApp() :
 
     processRunnerLayout->addStretch(1);
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     tabWidget->setTabVisible(idx, gtApp->devMode());
+#else
+    tabWidget->setTabEnabled(idx, gtApp->devMode());
+#endif
 
 //    QWidget* notificationPage = new QWidget;
 //    tabWidget->addTab(notificationPage, tr("Notifications"));

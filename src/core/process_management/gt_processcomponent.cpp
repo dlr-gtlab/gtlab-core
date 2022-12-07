@@ -350,7 +350,18 @@ GtProcessComponent::setTempPath(QString path)
 QList<GtObject const*>
 GtProcessComponent::linkedObjects() const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     return {pimpl->linkedObjects.begin(), pimpl->linkedObjects.end()};
+#else
+    QList<GtObject const*> ptrs;
+    ptrs.reserve(pimpl->linkedObjects.size());
+    std::transform(std::begin(pimpl->linkedObjects),
+                   std::end(pimpl->linkedObjects),
+                   std::back_inserter(ptrs), [](auto const& ptr){
+        return ptr;
+    });
+    return ptrs;
+#endif
 }
 
 QList<QPointer<GtObject>>&

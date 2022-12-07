@@ -131,7 +131,11 @@ GtProcessRunnerTransceiver::~GtProcessRunnerTransceiver()
 {
     gtDebugId(GT_EXEC_ID).medium() << tr("Closing down Process Runner...");
     // join thread - should happen instantaneously
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     m_thread.wait(std::chrono::seconds{1});
+#else
+    m_thread.wait(1);
+#endif
 }
 
 GtProcessRunnerTransceiver::ConnectionState

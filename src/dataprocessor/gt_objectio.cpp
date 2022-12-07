@@ -954,7 +954,7 @@ propertyListToVariant(const QString& value, const QString& type)
     if (type == QStringLiteral("double"))
     {
         QVector<QStringRef> strList =
-                QStringRef(&value).split(';', Qt::SkipEmptyParts);
+                QStringRef(&value).split(';', QString::SkipEmptyParts);
         QVector<double> list;
         list.reserve(strList.size());
 
@@ -968,7 +968,7 @@ propertyListToVariant(const QString& value, const QString& type)
     else if (type == QStringLiteral("bool"))
     {
         QVector<QStringRef> strList =
-                QStringRef(&value).split(';', Qt::SkipEmptyParts);
+                QStringRef(&value).split(';', QString::SkipEmptyParts);
         QList<bool> list;
         list.reserve(strList.size());
 
