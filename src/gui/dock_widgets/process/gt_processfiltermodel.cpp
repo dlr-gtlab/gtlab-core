@@ -9,7 +9,6 @@
 
 #include "gt_task.h"
 #include "gt_calculator.h"
-#include "gt_processdata.h"
 #include "gt_taskgroup.h"
 
 #include "gt_processfiltermodel.h"
@@ -28,11 +27,6 @@ GtProcessFilterModel::filterAcceptsRow(int source_row,
                   source_parent);
 
     if (!retval)
-    {
-        return false;
-    }
-
-    if (!source_parent.isValid())
     {
         return false;
     }
