@@ -49,7 +49,7 @@ GtCollectionHelper::exec()
         readAccessData(accessData);
     }
 
-    gtDebug() << "all data loaded!";
+    gtDebug().medium() << tr("all data loaded!");
 
     emit finished();
 }
@@ -132,7 +132,7 @@ GtCollectionHelper::processItemData(const QUrl& url,
         return;
     }
 
-    gtDebug() << "item data loaded!";
+    gtDebug().medium() << "item data loaded!";
 
     m_mutex.lock();
 
@@ -195,7 +195,7 @@ GtCollectionHelper::onItemDataLoaded()
 
         url.setUrl(urlStr);
 
-        gtDebug() << "onItemDataLoaded() " << url.toDisplayString();
+        gtDebug().medium() << "onItemDataLoaded() " << url.toDisplayString();
 
         processItemData(url, reply->readAll());
     }
@@ -216,7 +216,8 @@ GtCollectionHelper::loadNextItem()
 
     QUrl url = m_itemQueue.takeFirst();
 
-    gtDebug() << "loading collection item " << url.toDisplayString() << "...";
+    gtDebug() << tr("loading collection item ")
+              << url.toDisplayString() << "...";
 
     QString urlStr = url.toDisplayString();
 

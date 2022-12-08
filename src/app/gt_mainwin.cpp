@@ -1017,7 +1017,7 @@ GtMainWin::noUpdateAvailable(int errorCode, const QString& str)
 {
     m_cornerWidget->showUpdateWidget(false);
 
-    gtDebug().nospace()
+    gtDebug().medium().nospace()
             << "Update check: " << str << " (Error code: " << errorCode << ')';
 }
 

@@ -410,10 +410,11 @@ GtCollectionEditor::onCollectionReply()
     QList<GtCollectionNetworkItem> updateAvailableItems =
             reply->updateAvailableItems();
 
-    gtDebug() << "reply successfull!";
-    gtDebug() << "  |-> installed = " << installedItems.size();
-    gtDebug() << "  |-> available = " << availableItems.size();
-    gtDebug() << "  |-> updateAvailableItems = " << updateAvailableItems.size();
+    gtDebug().medium() << tr("reply successfull!");
+    gtDebug().medium() << tr("  |-> installed = ") << installedItems.size();
+    gtDebug().medium() << tr("  |-> available = ") << availableItems.size();
+    gtDebug().medium() << tr("  |-> updateAvailableItems = ")
+                       << updateAvailableItems.size();
 
     setBrowserCollection(installedItems, availableItems,
                          updateAvailableItems);

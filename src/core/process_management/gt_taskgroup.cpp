@@ -116,7 +116,8 @@ GtTaskGroup::read(const QString& projectPath,
 
         if (newTask)
         {
-            gtDebug().nospace() << "new task created (" << newTask->uuid() << ")";
+            gtDebug().medium().nospace() << "new task created ("
+                                         << newTask->uuid() << ")";
             appendChild(newTask.release());
         }
     }

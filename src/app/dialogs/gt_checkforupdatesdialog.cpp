@@ -218,7 +218,7 @@ GtCheckForUpdatesDialog::noUpdateAvailable(int errorCode, const QString& str)
     m_updateButton->setEnabled(false);
     m_checkButton->setEnabled(true);
 
-    gtDebug().nospace()
+    gtDebug().medium().nospace()
             << "Update check: " << str << " (Error code: " << errorCode << ')';
 
     QString fontString = "darkred";

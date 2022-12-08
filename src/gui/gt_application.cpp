@@ -185,7 +185,8 @@ GtApplication::switchPerspective(const QString& id)
     // save last used perspective and open new perspective
     m_perspective.reset(new GtPerspective(tmpId));
 
-    gtDebug() << tr("Loaded perspective:") << m_perspective->objectName();
+    gtDebug().medium() << tr("Loaded perspective:")
+                       << m_perspective->objectName();
     settings()->setLastPerspective(tmpId);
     emit perspectiveChanged(tmpId);
 }
@@ -498,14 +499,15 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
 
     if (commandId.isEmpty())
     {
-        qDebug() << tr("cannot start comamnd with empty id!");
+        qDebug() << tr("cannot start command with empty id!");
         return GtCommand();
     }
 
     if (!m_d->m_commandId.isEmpty())
     {
-        gtDebug() << tr("already recording command") << QStringLiteral("...");
-        gtDebug() << QStringLiteral("    |-> ") << m_d->m_commandId;
+        gtDebug().medium() << tr("already recording command")
+                           << QStringLiteral("...");
+        gtDebug().medium() << QStringLiteral("    |-> ") << m_d->m_commandId;
         return GtCommand();
     }
 
