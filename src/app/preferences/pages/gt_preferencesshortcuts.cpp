@@ -14,6 +14,7 @@
 #include "gt_settings.h"
 #include "gt_shortcutedit.h"
 #include "gt_icons.h"
+#include "gt_logging.h"
 
 #include <QTableWidget>
 #include <QHeaderView>
@@ -26,7 +27,6 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
     m_tab(nullptr)
 {
     setIcon(gt::gui::icon::input2());
-
 
     m_tab = new QTableWidget(1, 1, this);
 
@@ -54,7 +54,7 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
 
     auto hlay = new QHBoxLayout;
     hlay->addWidget(m_tab);
-    hlay->addLayout(blay);    
+    hlay->addLayout(blay);
     setLayout(hlay);
 
     connect(restoreBtn, SIGNAL(clicked(bool)), this, SLOT(restoreDefaults()));
@@ -84,20 +84,15 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
         auto catItem = new QTableWidgetItem(cat);
         catItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-        if (editable)
-        {
-            auto edit = new GtShortCutEdit(key, id);
-            edit->setFrame(false);
-            m_tab->setCellWidget(i, 1, edit);
-        }
-        else
-        {
-            auto shortCutItem = new QTableWidgetItem(key);
-            shortCutItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-            shortCutItem->setToolTip("Not editable");
-            m_tab->setItem(i, 1, shortCutItem);
-        }
+        auto edit = new GtShortCutEdit(key, id);
+        edit->setFrame(false);
+        m_tab->setCellWidget(i, 1, edit);
 
+        if (!editable)
+        {
+            edit->setEnabled(false);
+            edit->setToolTip(tr("Not editable"));
+        }
 
         m_tab->setItem(i, 0, idItem);
         m_tab->setItem(i, 2, catItem);
@@ -110,9 +105,9 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
 void
 GtPreferencesShortCuts::saveSettings(GtSettings& settings) const
 {
-    GtShortCuts* cuts = gtApp->shortCuts();
+    GtShortCuts* shortcuts = gtApp->shortCuts();
 
-    if (!cuts || !m_tab)
+    if (!shortcuts || !m_tab)
     {
         return;
     }
@@ -124,8 +119,7 @@ GtPreferencesShortCuts::saveSettings(GtSettings& settings) const
     {
         QString id = m_tab->item(i, 0)->text();
         QWidget* w = m_tab->cellWidget(i, 1);
-        GtShortCutEdit* e = qobject_cast<GtShortCutEdit*>(w);
-
+        auto* e = qobject_cast<GtShortCutEdit*>(w);
         if (!e)
         {
             continue;
@@ -134,20 +128,21 @@ GtPreferencesShortCuts::saveSettings(GtSettings& settings) const
         QKeySequence key = e->keySequence();
         QString cat = m_tab->item(i, 2)->text();
 
-        GtShortCut* current = cuts->findShortCut(id, cat);
+        GtShortCut* current = shortcuts->findShortCut(id, cat);
+        assert(current);
 
         if (current->key() != key)
         {
             anyChange = true;
         }
 
-        current->setKey(QKeySequence(key));
+        current->setKey(key);
         settingsList.append({id, cat, key, current->isReadOnly()});
     }
 
     if (anyChange)
     {
-        cuts->emitChange();
+        shortcuts->emitChange();
     }
 
     settings.setShortcutsTable(settingsList);
@@ -162,46 +157,75 @@ GtPreferencesShortCuts::loadSettings(const GtSettings&)
 void
 GtPreferencesShortCuts::restoreDefaults()
 {
-    auto settingsTable = gtApp->settings()->intialShortCutsList();
+    assert(m_tab);
+
+    QList<GtShortCutSettingsData> initialShortcuts =
+            gtApp->settings()->intialShortCutsList();
 
     /// add the default vales from the modules
-    settingsTable.append(gtApp->moduleShortCuts());
+    initialShortcuts.append(gtApp->moduleShortCuts());
 
-    if (settingsTable.isEmpty() || !m_tab)
+    if (initialShortcuts.isEmpty())
     {
         return;
     }
 
+    // helper list for identifying duplicates
+    QVector<QString> handledShortCuts;
+    handledShortCuts.reserve(m_tab->rowCount());
+
+    // iterate of all widgets
     for (int i = 0; i < m_tab->rowCount(); ++i)
     {
+        // get short cut data
         QString id = m_tab->item(i, 0)->text();
         QString cat = m_tab->item(i, 2)->text();
         QWidget* w = m_tab->cellWidget(i, 1);
-        GtShortCutEdit* e = qobject_cast<GtShortCutEdit*>(w);
-
-        // list with two elements (keysequence and category)
-        QKeySequence key;
-
-
-        for (GtShortCutSettingsData const& entry : settingsTable)
-        {
-            if (entry.id == id && entry.category == cat)
-            { // cppcheck-suppress useStlAlgorithm
-                key = entry.shortCut;
-                break;
-            }
-        }
-
+        auto* e = qobject_cast<GtShortCutEdit*>(w);
         if (!e)
         {
             continue;
         }
 
-        e->setKeySequence(key);
+        // create a "unique" id for the shortcut
+        QString uid = id + cat;
+
+        // check for duplicate
+        if (handledShortCuts.contains(uid))
+        {
+            gtWarning().medium() << tr("Removed duplicate shortcut") << id;
+            m_tab->removeRow(i--);
+            continue;
+        }
+
+        // pointer to keysequence to check if key was found
+        QKeySequence const* key{};
+
+        // find default shortcut value
+        for (GtShortCutSettingsData const& entry : qAsConst(initialShortcuts))
+        {
+            if (entry.id == id && entry.category == cat)
+            { // cppcheck-suppress useStlAlgorithm
+                key = &entry.shortCut;
+                break;
+            }
+        }
+
+        // key not found -> shortcut is a remnant
+        if (!key)
+        {
+            gtWarning().medium() << tr("Removed unknown shortcut") << id;
+            m_tab->removeRow(i--);
+            continue;
+        }
+
+        // apply shortcut
+        e->setKeySequence(*key);
+        handledShortCuts.append(uid);
     }
 
-    if (GtShortCuts* cuts = gtApp->shortCuts())
+    if (GtShortCuts* shortcuts = gtApp->shortCuts())
     {
-        cuts->emitChange();
+        shortcuts->emitChange();
     }
 }

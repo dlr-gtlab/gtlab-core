@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- Fixed bug which lead to crash sometimes caused by key press event of process dock widget- #364
+- Unknown or duplicate shortcuts in the shortcut preference page will be removed once "Restore" was clicked - #290 
+- Fixed bug which lead to crash sometimes caused by key press event of process dock widget - #364
+
+### Added
+- Shortcut for closing current MDI-Tab (`Crtl+W` by default) - #357
 
 ## [2.0.0-pr-alpha4] - 2021-12-06
 ### Fixed 

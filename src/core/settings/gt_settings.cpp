@@ -247,6 +247,10 @@ GtSettings::intialShortCutsList() const
     shortCuts.append({QStringLiteral("switchPerspective"), catCore,
                       QKeySequence(Qt::ALT + Qt::Key_P), true});
 
+    /// switchPerspective
+    shortCuts.append({QStringLiteral("closeTab"), catCore,
+                      QKeySequence(Qt::CTRL + Qt::Key_W), false});
+
     /// Preferences
     shortCuts.append({QStringLiteral("openPreferences"), catCore,
                       QKeySequence(Qt::ALT + Qt::Key_Enter), true});

@@ -364,6 +364,12 @@ GtMainWin::keyPressEvent(QKeyEvent* event)
         return;
     }
 
+    if (gtApp->compareKeyEvent(event, "closeTab"))
+    {
+        emit ui->mdiArea->tabCloseRequested(ui->mdiArea->currentIndex());
+        return;
+    }
+
     QMainWindow::keyPressEvent(event);
 }
 
