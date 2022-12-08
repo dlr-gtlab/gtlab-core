@@ -44,7 +44,7 @@ GtCollectionReply::replyReady()
 void
 GtCollectionReply::onHelperFinished()
 {
-    gtDebug() << "helper finished!";
+    gtDebug().medium() << tr("helper finished!");
     GtCollectionHelper* helper = qobject_cast<GtCollectionHelper*>(sender());
 
     if (!helper)
@@ -54,8 +54,8 @@ GtCollectionReply::onHelperFinished()
         return;
     }
 
-    gtDebug() << "  |-> " << helper->collectionItems().size() <<
-                 "items loaded!";
+    gtDebug() << "  |-> " << helper->collectionItems().size()
+              << tr("items loaded!");
 
     helper->deleteLater();
 

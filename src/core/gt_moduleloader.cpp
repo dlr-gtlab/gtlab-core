@@ -509,7 +509,8 @@ GtModuleLoader::Impl::loadHelper(GtModuleLoader& moduleLoader,
             // check plugin object
             if (instance)
             {
-                gtDebug() << QObject::tr("loading ") << fileName << "...";
+                gtDebug().medium() << QObject::tr("loading ")
+                                   << fileName << "...";
 
                 GtModuleInterface* plugin =
                         qobject_cast<GtModuleInterface*>(instance);
@@ -600,7 +601,7 @@ GtModuleLoader::Impl::checkDependency(const QVariantList& deps,
         }
         else if (depVersion > version)
         {
-            gtInfo().noquote()
+            gtInfo().medium().noquote()
                     << QObject::tr("Dependency -") << name
                     << QObject::tr("- has a newer version than the module")
                     << moduleFileName

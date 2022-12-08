@@ -471,7 +471,7 @@ GtCollectionLoader::sortItems(const QList<GtCollectionNetworkItem>& items,
 void
 GtCollectionLoader::onHelperFinished()
 {
-    gtDebug() << "helper finished!";
+    gtDebug().medium() << tr("helper finished!");
     GtCollectionHelper* helper = qobject_cast<GtCollectionHelper*>(sender());
 
     if (!helper)
@@ -518,7 +518,7 @@ GtCollectionLoader::onHelperFinished()
 
     sortItems(items, installedItems, availableItems, updateAvailableItems);
 
-    gtDebug() << "  |-> " << items.size() << "items loaded!";
+    gtDebug() << "  |-> " << items.size() << tr("items loaded!");
 
     helper->reply()->m_installedItems = installedItems;
     helper->reply()->m_availableItems = availableItems;
