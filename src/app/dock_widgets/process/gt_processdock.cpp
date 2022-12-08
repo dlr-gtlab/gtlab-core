@@ -2831,6 +2831,21 @@ GtProcessDock::deleteProcessComponent(GtObject* obj)
 void
 GtProcessDock::keyPressEvent(QKeyEvent* event)
 {
+    if (!m_view)
+    {
+        return;
+    }
+
+    if (!m_view->selectionModel())
+    {
+        return;
+    }
+
+    if (m_view->selectionModel()->selectedIndexes().isEmpty())
+    {
+        return;
+    }
+
     QModelIndex index = m_view->selectionModel()->selectedIndexes().first();
 
     QModelIndex srcIndex = mapToSource(index);
