@@ -10,13 +10,14 @@
 #ifndef GT_STARTUPPAGE_H
 #define GT_STARTUPPAGE_H
 
-#include <QFrame>
-#include <QToolButton>
+#include <QWidget>
 
+class QFrame;
+class QToolButton;
 /**
  * @brief The GtStartupPage class
  */
-class GtStartupPage : public QFrame
+class GtStartupPage : public QWidget
 {
     Q_OBJECT
 

@@ -31,6 +31,12 @@ GtStartupPage::GtStartupPage()
     lay->setSpacing(0);
 
     m_frame = new QFrame(this);
+    m_frame->setFrameShape(QFrame::StyledPanel);
+    m_frame->setFrameShadow(QFrame::Sunken);
+
+    // must be set explicitly otherwise this widget may sometimes not rerecieve
+    // the focus and shortcuts etc. wont be handled by main window
+    setFocusPolicy(Qt::StrongFocus);
 
     QVBoxLayout* frameLay = new QVBoxLayout;
 
@@ -118,9 +124,6 @@ GtStartupPage::GtStartupPage()
 
     label->setPixmap(gt::gui::pixmap::logo());
     label->setLayoutDirection(Qt::RightToLeft);
-
-    setFrameShape(QFrame::StyledPanel);
-    setFrameShadow(QFrame::Sunken);
 }
 
 QIcon

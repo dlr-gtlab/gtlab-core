@@ -158,6 +158,12 @@ GtMdiLauncher::onCloseTabRequest(int i)
     {
         m_area->removeTab(i);
         delete w;
+
+        // focus the new current widget to recieve input etc.
+        if (QWidget* next = m_area->currentWidget())
+        {
+            next->setFocus();
+        }
     }
 }
 
