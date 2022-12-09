@@ -22,9 +22,9 @@
 #include <QPushButton>
 #include <QSpacerItem>
 
+
 GtPreferencesShortCuts::GtPreferencesShortCuts() :
-    GtPreferencesPage(tr("Short Cuts")),
-    m_tab(nullptr)
+    GtPreferencesPage(tr("Short Cuts"))
 {
     setIcon(gt::gui::icon::input2());
 
@@ -142,7 +142,7 @@ GtPreferencesShortCuts::saveSettings(GtSettings& settings) const
 
     if (anyChange)
     {
-        shortcuts->emitChange();
+        emit shortcuts->changed();
     }
 
     settings.setShortcutsTable(settingsList);
@@ -226,6 +226,6 @@ GtPreferencesShortCuts::restoreDefaults()
 
     if (GtShortCuts* shortcuts = gtApp->shortCuts())
     {
-        shortcuts->emitChange();
+        emit shortcuts->changed();
     }
 }

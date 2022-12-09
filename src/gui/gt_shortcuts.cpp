@@ -20,21 +20,31 @@ GtShortCuts::GtShortCuts(QObject* parent)
 
 void
 GtShortCuts::initialize(const QMap<QString, QStringList>& tab)
-{    
-    for (const QString& key : tab.keys())
+{
+    auto end = tab.constKeyValueEnd();
+    for (auto item = tab.constKeyValueBegin(); item != end; ++item)
     {
-        QKeySequence k = {tab.value(key).first()};
+        // list of 2 or 3 elements
+        // { shortcut, category, readonly }
+        QStringList const& data = item->second;
+        assert(data.size() > 1);
 
+        // shortcut
+        QKeySequence const& k = data.at(0);
+        // category
+        QString const& cat = data.at(1);
+
+        // read only flag
         bool readOnly = false;
-        if (tab.value(key).size() > 2)
+        if (data.size() > 2)
         {
-            if (tab.value(key).at(2) == "true")
+            if (data.at(2) == "true")
             {
                 readOnly = true;
             }
         }
 
-        auto c = new GtShortCut(key, k, tab.value(key).at(1), readOnly);
+        auto c = new GtShortCut(item->first, k, cat, readOnly);
         c->setParent(this);
     }
 }
@@ -42,11 +52,18 @@ GtShortCuts::initialize(const QMap<QString, QStringList>& tab)
 void
 GtShortCuts::initialize(const QList<GtShortCutSettingsData>& list)
 {
-    for (const GtShortCutSettingsData& s : list)
+    for (const auto& data : list)
     {
-        QKeySequence k = s.shortCut;
+        initialize(data);
+    }
+}
 
-        auto c = new GtShortCut(s.id, k, s.category, s.isReadOnly);
+void
+GtShortCuts::initialize(const GtShortCutSettingsData& data)
+{
+    if (!findShortCut(data.id, data.category))
+    {
+        auto c = new GtShortCut(data);
         c->setParent(this);
     }
 }
@@ -70,17 +87,16 @@ GtShortCuts::findShortCut(const QString& id, const QString& category) const
     const QList<GtShortCut*> list = shortCuts();
 
     auto iter = std::find_if(std::begin(list), std::end(list),
-        [&id, &category](const GtShortCut* c) {
-            return c->id() == id &&  c->category() == category;
-        });
-    if (iter != std::end(list))
-    {
-        return *iter;
-    }
-    else
+                             [&id, &category](const GtShortCut* c) {
+        return c->id() == id &&  c->category() == category;
+    });
+
+    if (iter == std::end(list))
     {
         return nullptr;
     }
+
+    return *iter;
 }
 
 void
@@ -96,24 +112,32 @@ GtShortCuts::getKey(const QString& id, const QString& category) const
 
     if (list.isEmpty())
     {
-        gtWarning() << "No shortCut registered";
-
-        return QKeySequence{};
+        gtWarning() << tr("No shortcuts registered!");
+        return {};
     }
 
+    using Iterator = typename QList<GtShortCut*>::const_iterator;
+    Iterator iter{};
 
-    auto iter = std::find_if(std::begin(list), std::end(list),
-                             [&id, &category](const GtShortCut* c)
+    if (category.isEmpty())
     {
-        if (category.isEmpty())
-        {
+        iter = std::find_if(std::begin(list), std::end(list),
+                            [&](const GtShortCut* c){
             return c->id() == id;
-        }
-        else
-        {
+        });
+    }
+    else
+    {
+        iter = std::find_if(std::begin(list), std::end(list),
+                            [&](const GtShortCut* c){
             return c->id() == id && c->category() == category;
-        }
-    });
+        });
+    }
 
-    return iter != std::end(list) ? (*iter)->key() : QKeySequence{};
+    if (iter == std::end(list))
+    {
+        return {};
+    }
+
+    return (*iter)->key();
 }

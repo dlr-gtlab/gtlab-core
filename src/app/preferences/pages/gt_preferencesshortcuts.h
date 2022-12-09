@@ -41,7 +41,7 @@ public:
 private:
 
     /// table widget of the main layout
-    QTableWidget* m_tab;
+    QTableWidget* m_tab{};
 
 private slots:
 

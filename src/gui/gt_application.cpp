@@ -609,17 +609,16 @@ GtApplication::getShortCutSequence(const QString& id,
 
     if (!s)
     {
-        gtDebug() << tr("Try to find short cut for ") << id
-                  << tr("in System failed for empty list of shotcuts");
-        return QKeySequence();
+        gtWarning() << tr("No shortcut registered for") << id
+                    << tr("(empty list of shotcuts)");
+        return {};
     }
 
     QKeySequence retVal = s->getKey(id, category);
 
     if (retVal.isEmpty())
     {
-        gtDebug() << tr("Try to find short cut for ") << id
-                  << tr("in System failed");
+        gtWarning() << tr("No shortcut registered for") << id;
     }
 
     return retVal;
@@ -677,29 +676,42 @@ GtApplication::shortCuts() const
     return findChild<GtShortCuts*>();
 }
 
-
 void
 GtApplication::extendShortCuts(const QList<GtShortCutSettingsData>& list)
 {
-    GtShortCuts* sList = shortCuts();
-
-    if (!sList)
+    for (auto const& shortcut : list)
     {
-        gtWarning() << "Cannot load additional shortcuts";
-        return;
+        extendShortCuts(shortcut);
     }
-
-    m_moduleShortCuts.append(list);
-
-    sList->initialize(list);
 }
 
 void
 GtApplication::extendShortCuts(const GtShortCutSettingsData& shortcut)
 {
-    QList<GtShortCutSettingsData> list {shortcut};
+    GtShortCuts* sList = shortCuts();
+    if (!sList)
+    {
+        gtWarning() << tr("Failed to register additional shortcut '%1'!")
+                       .arg(shortcut.id);
+        return;
+    }
 
-    extendShortCuts(list);
+    bool isRegistered = std::any_of(std::cbegin(m_moduleShortCuts),
+                                    std::cend(m_moduleShortCuts),
+                                    [&](GtShortCutSettingsData const& data){
+        return data.id == shortcut.id && data.category == shortcut.category;
+    });
+
+    if (isRegistered)
+    {
+        gtWarning() << tr("Skipping duplicate shortcut '%1'!")
+                       .arg(shortcut.id);
+        return;
+    }
+
+    m_moduleShortCuts.append(shortcut);
+
+    sList->initialize(shortcut);
 }
 
 

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Unknown or duplicate shortcuts in the shortcut preference page will be removed once "Restore" was clicked - #290 
+- Fixed some shortcuts being registered multiple times - #361
 - Fixed bug which lead to crash sometimes caused by key press event of process dock widget - #364
 
 ### Added

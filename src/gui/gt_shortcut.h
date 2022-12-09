@@ -23,6 +23,7 @@ class GT_GUI_EXPORT GtShortCut : public QObject
 {
     Q_OBJECT
 public:
+
     /**
      * @brief GtShortCut
      * @param id - identification string
@@ -33,6 +34,12 @@ public:
      */
     GtShortCut(const QString& id, const QKeySequence& key,
                const QString& cat, const bool isReadOnly = false);
+
+    /**
+     * @brief GtShortCut
+     * @param data Shortcut data
+     */
+    explicit GtShortCut(GtShortCutSettingsData data);
 
     /**
      * @brief id
@@ -71,8 +78,9 @@ public:
     bool isReadOnly() const;
 
 private:
-    GtShortCutSettingsData m_data;
 
+    /// shortcut data
+    GtShortCutSettingsData m_data;
 };
 
 #endif // GTSHORTCUT_H

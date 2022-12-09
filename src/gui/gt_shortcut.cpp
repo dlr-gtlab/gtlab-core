@@ -19,6 +19,10 @@ GtShortCut::GtShortCut(const QString& id,
     m_data.isReadOnly = isReadOnly;
 }
 
+GtShortCut::GtShortCut(GtShortCutSettingsData data) :
+    m_data(std::move(data))
+{ }
+
 QString
 GtShortCut::id() const
 {
