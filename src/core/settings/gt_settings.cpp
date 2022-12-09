@@ -209,11 +209,11 @@ GtSettings::intialShortCutsList() const
                       QKeySequence(Qt::Key_F2), true});
 
     /// openContectMenu
-    shortCuts.append({QStringLiteral("OpenContextMenu"), catCore,
+    shortCuts.append({QStringLiteral("openContextMenu"), catCore,
                       QKeySequence(Qt::Key_F4)});
 
     /// ShowFootprint
-    shortCuts.append({QStringLiteral("ShowFootprint"), catCore,
+    shortCuts.append({QStringLiteral("showFootprint"), catCore,
                       QKeySequence(Qt::CTRL + Qt::Key_I)});
     /// redo
     shortCuts.append({QStringLiteral("redo"), catCore,

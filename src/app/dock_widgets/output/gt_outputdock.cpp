@@ -392,7 +392,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
         {
             gtLogModel->clearLog();
         }
-        if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
+        if (gtApp->compareKeyEvent(event, "openContextMenu"))
         {
             openContextMenu();
         }

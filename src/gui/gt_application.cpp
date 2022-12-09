@@ -643,7 +643,6 @@ GtApplication::compareKeyEvent(QKeyEvent* keyEvent,
         return false;
     }
 
-
     QKeySequence k = s->getKey(id, category);
 
     return compareKeyEvent(keyEvent, k);
@@ -654,15 +653,10 @@ bool
 GtApplication::compareKeyEvent(QKeyEvent* keyEvent,
                                const QKeySequence& k) const
 {
-    // shortcut may be empty/not set
-    if (k.isEmpty())
-    {
-        return false;
-    }
-
+    /// shortcut may be empty/not set OR
     /// a key sequence may contain multiple alternatives to use as short-cut
     /// but for a correct comparison only one can be compared
-    if (k.count() == 0)
+    if (k.isEmpty() || k.count() == 0)
     {
         return false;
     }

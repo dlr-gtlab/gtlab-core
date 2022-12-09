@@ -416,7 +416,7 @@ GtLabelsDock::keyPressEvent(QKeyEvent* event)
             indexes = m_listView->selectionModel()->selectedIndexes();
         }
 
-        if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
+        if (gtApp->compareKeyEvent(event, "openContextMenu"))
         {
             if (!indexes.isEmpty())
             {

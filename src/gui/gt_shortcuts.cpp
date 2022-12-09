@@ -68,7 +68,6 @@ GtShortCuts::initialize(const GtShortCutSettingsData& data)
     }
 }
 
-
 bool
 GtShortCuts::isEmpty() const
 {
@@ -87,8 +86,8 @@ GtShortCuts::findShortCut(const QString& id, const QString& category) const
     const QList<GtShortCut*> list = shortCuts();
 
     auto iter = std::find_if(std::begin(list), std::end(list),
-                             [&id, &category](const GtShortCut* c) {
-        return c->id() == id &&  c->category() == category;
+                             [&](const GtShortCut* c){
+        return c->compare(id, category);
     });
 
     if (iter == std::end(list))
@@ -123,14 +122,14 @@ GtShortCuts::getKey(const QString& id, const QString& category) const
     {
         iter = std::find_if(std::begin(list), std::end(list),
                             [&](const GtShortCut* c){
-            return c->id() == id;
+            return c->compare(id);
         });
     }
     else
     {
         iter = std::find_if(std::begin(list), std::end(list),
                             [&](const GtShortCut* c){
-            return c->id() == id && c->category() == category;
+            return c->compare(id, category);
         });
     }
 

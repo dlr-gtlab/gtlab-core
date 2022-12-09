@@ -59,3 +59,15 @@ GtShortCut::isReadOnly() const
     return m_data.isReadOnly;
 }
 
+bool
+GtShortCut::compare(const QString& id) const
+{
+    return m_data.id.compare(id, Qt::CaseInsensitive) == 0;
+}
+
+bool
+GtShortCut::compare(const QString& id, const QString& cat) const
+{
+    return m_data.id.compare(id, Qt::CaseInsensitive) == 0 &&
+           m_data.category.compare(cat, Qt::CaseInsensitive) == 0;
+}

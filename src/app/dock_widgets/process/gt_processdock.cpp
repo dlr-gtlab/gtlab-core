@@ -2855,7 +2855,7 @@ GtProcessDock::keyPressEvent(QKeyEvent* event)
         return;
     }
 
-    if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
+    if (gtApp->compareKeyEvent(event, "openContextMenu"))
     {
         customContextMenu(srcIndex);
     }
