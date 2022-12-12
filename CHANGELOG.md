@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unknown or duplicate shortcuts in the shortcut preference page will be removed once "Restore" was clicked - #290 
 - Fixed bug which lead to crash sometimes caused by key press event of process dock widget - #364
 
+### Changed
+- Error message box will now accumulate all error messages in a single widget instead of spawning multiple windows - #348
+
 ### Added
 - Shortcut for closing current MDI-Tab (`Crtl+W` by default) - #357
 

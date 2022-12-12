@@ -23,6 +23,7 @@
 #include "gt_aboutdialog.h"
 #include "gt_logging.h"
 #include "gt_logmodel.h"
+#include "gt_logerrormessagebox.h"
 #include "gt_projectui.h"
 #include "gt_collectioneditor.h"
 #include "gt_startuppage.h"
@@ -1264,15 +1265,8 @@ void
 GtMainWin::onLogMessage(const QString& msg, int level,
                         const GtLogDetails& details)
 {
-    // Pipe errors to a message box
-    if (level >= gt::log::levelToInt(gt::log::ErrorLevel))
-    {
-        gt::log::Level l = gt::log::levelFromInt(level);
-
-        QMessageBox::critical(this, gt::log::levelToString(l).c_str(),
-                              QStringLiteral("%1: %2").arg(details.id, msg),
-                              QMessageBox::Ok);
-    }
+    GtLogErrorMessageBox::display(gt::log::levelFromInt(level),
+                                  msg, details, this);
 }
 
 void
