@@ -23,6 +23,7 @@ class GT_GUI_EXPORT GtShortCut : public QObject
 {
     Q_OBJECT
 public:
+
     /**
      * @brief GtShortCut
      * @param id - identification string
@@ -35,31 +36,37 @@ public:
                const QString& cat, const bool isReadOnly = false);
 
     /**
-     * @brief id
+     * @brief GtShortCut
+     * @param data Shortcut data
+     */
+    explicit GtShortCut(GtShortCutSettingsData data);
+
+    /**
+     * @brief Getter for id
      * @return shortcut id
      */
     QString id() const;
 
     /**
-     * @brief setId
+     * @brief Setter for id
      * @param id - identification string
      */
     void setId(const QString &id);
 
     /**
-     * @brief keys
+     * @brief Getter for keysequence
      * @return sequence to use for the shortcut
      */
     QKeySequence key() const;
 
     /**
-     * @brief setKeys
+     * @brief Setter for keysequence
      * @param key - keysequence
      */
     void setKey(const QKeySequence &key);
 
     /**
-     * @brief categoryString
+     * @brief Getter for category
      * @return category as a string
      */
     QString category() const;
@@ -70,9 +77,26 @@ public:
      */
     bool isReadOnly() const;
 
-private:
-    GtShortCutSettingsData m_data;
+    /**
+     * @brief Compares the id to the shortcuts id (case insensitive)
+     * @param id Id to compare
+     * @return equal
+     */
+    bool compare(const QString& id) const;
 
+    /**
+     * @brief Compares the id and category to the shortcuts data
+     * (case insensitive)
+     * @param id Id to compare
+     * @param cat Category to compare
+     * @return equal
+     */
+    bool compare(const QString& id, const QString& cat) const;
+
+private:
+
+    /// shortcut data
+    GtShortCutSettingsData m_data;
 };
 
 #endif // GTSHORTCUT_H

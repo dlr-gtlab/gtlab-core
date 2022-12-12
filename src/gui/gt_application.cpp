@@ -609,17 +609,16 @@ GtApplication::getShortCutSequence(const QString& id,
 
     if (!s)
     {
-        gtDebug() << tr("Try to find short cut for ") << id
-                  << tr("in System failed for empty list of shotcuts");
-        return QKeySequence();
+        gtWarning() << tr("No shortcut registered for") << id
+                    << tr("(empty list of shotcuts)");
+        return {};
     }
 
     QKeySequence retVal = s->getKey(id, category);
 
     if (retVal.isEmpty())
     {
-        gtDebug() << tr("Try to find short cut for ") << id
-                  << tr("in System failed");
+        gtWarning() << tr("No shortcut registered for") << id;
     }
 
     return retVal;
@@ -644,7 +643,6 @@ GtApplication::compareKeyEvent(QKeyEvent* keyEvent,
         return false;
     }
 
-
     QKeySequence k = s->getKey(id, category);
 
     return compareKeyEvent(keyEvent, k);
@@ -655,15 +653,10 @@ bool
 GtApplication::compareKeyEvent(QKeyEvent* keyEvent,
                                const QKeySequence& k) const
 {
-    // shortcut may be empty/not set
-    if (k.isEmpty())
-    {
-        return false;
-    }
-
+    /// shortcut may be empty/not set OR
     /// a key sequence may contain multiple alternatives to use as short-cut
     /// but for a correct comparison only one can be compared
-    if (k.count() == 0)
+    if (k.isEmpty() || k.count() == 0)
     {
         return false;
     }
@@ -677,29 +670,42 @@ GtApplication::shortCuts() const
     return findChild<GtShortCuts*>();
 }
 
-
 void
 GtApplication::extendShortCuts(const QList<GtShortCutSettingsData>& list)
 {
-    GtShortCuts* sList = shortCuts();
-
-    if (!sList)
+    for (auto const& shortcut : list)
     {
-        gtWarning() << "Cannot load additional shortcuts";
-        return;
+        extendShortCuts(shortcut);
     }
-
-    m_moduleShortCuts.append(list);
-
-    sList->initialize(list);
 }
 
 void
 GtApplication::extendShortCuts(const GtShortCutSettingsData& shortcut)
 {
-    QList<GtShortCutSettingsData> list {shortcut};
+    GtShortCuts* sList = shortCuts();
+    if (!sList)
+    {
+        gtWarning() << tr("Failed to register additional shortcut '%1'!")
+                       .arg(shortcut.id);
+        return;
+    }
 
-    extendShortCuts(list);
+    bool isRegistered = std::any_of(std::cbegin(m_moduleShortCuts),
+                                    std::cend(m_moduleShortCuts),
+                                    [&](GtShortCutSettingsData const& data){
+        return data.id == shortcut.id && data.category == shortcut.category;
+    });
+
+    if (isRegistered)
+    {
+        gtWarning() << tr("Skipping duplicate shortcut '%1'!")
+                       .arg(shortcut.id);
+        return;
+    }
+
+    m_moduleShortCuts.append(shortcut);
+
+    sList->initialize(shortcut);
 }
 
 

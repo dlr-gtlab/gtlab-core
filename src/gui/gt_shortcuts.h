@@ -46,14 +46,20 @@ public:
      * with a string list containing the QKeySequence and the category as the
      * two elements of the list.
      */
+    [[deprecated("use QList<GtShortCutSettingsData> instead")]]
     void initialize(const QMap<QString, QStringList>& tab);
 
     /**
-     * @brief initialize - initialize short cuts based on the information
-     * from the map
+     * @brief initialize - initializes the short cuts using the shortcut data
      * @param list
      */
     void initialize(const QList<GtShortCutSettingsData>& list);
+
+    /**
+     * @brief initialize - initializes the short cut using the shortcut data
+     * @param data
+     */
+    void initialize(const GtShortCutSettingsData& data);
 
     /**
      * @brief isEmpty
@@ -75,6 +81,7 @@ public:
      */
     GtShortCut* findShortCut(const QString& id, const QString& category) const;
 
+    [[deprecated("use emit x->changed() instead")]]
     void emitChange();
 
 signals:

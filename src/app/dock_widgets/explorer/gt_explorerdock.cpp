@@ -727,7 +727,7 @@ GtExplorerDock::keyPressEvent(QKeyEvent* event)
     {
         if (m_view->selectionModel())
         {
-            if (gtApp->compareKeyEvent(event, "OpenContextMenu"))
+            if (gtApp->compareKeyEvent(event, "openContextMenu"))
             {
                 QModelIndex first = firstSelectedIndex();
 
