@@ -67,6 +67,7 @@ HEADERS += gt_testhelper.h
 HEADERS += slotadaptor.h
 HEADERS += $$files(datamodel/*.h)
 HEADERS += $$files(core/*.h)
+HEADERS += $$files(gui/*.h)
 
 #### SOURCES
 SOURCES += \
