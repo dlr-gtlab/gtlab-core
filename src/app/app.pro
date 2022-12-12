@@ -102,6 +102,7 @@ INCLUDEPATH += .\
 DESTDIR = $${BUILD_DEST}
 
 HEADERS += \
+    dialogs/gt_logerrormessagebox.h \
     dialogs/gt_moduledetailsdialog.h \
     dialogs/gt_refusedpluginsdialog.h \
     dock_widgets/process/gt_taskgroupmodel.h \
@@ -191,6 +192,7 @@ FORMS += ui/gt_mainwin.ui
 
 SOURCES += \
     app.cpp \
+    dialogs/gt_logerrormessagebox.cpp \
     dialogs/gt_moduledetailsdialog.cpp \
     dialogs/gt_refusedpluginsdialog.cpp \
     dock_widgets/process/gt_taskgroupmodel.cpp \
