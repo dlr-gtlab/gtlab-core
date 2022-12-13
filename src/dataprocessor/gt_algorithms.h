@@ -15,6 +15,8 @@
 #include <map>
 #include <queue>
 
+#include <cassert>
+
 namespace gt
 {
 
@@ -92,7 +94,11 @@ ith_iter(const ContainerType& container, size_t i)
 
 /**
  * @brief Performs a topological sort of the given adjacency matrix
- *        and returns the keys of the map in the correct sorted order
+ *        and returns the keys of the map in the correct sorted order.
+ *
+ *        This is Kahns algorithm!
+ *        (https://en.wikipedia.org/wiki/Topological_sorting)
+ *
  * @param adjList An adjacency list to sort
  * @return
  */
