@@ -281,7 +281,6 @@ TEST_F(TestGtObject, insertChild)
 
 TEST_F(TestGtObject, isDerivedFromClass)
 {
-
     /// Test with nullptr
     ASSERT_FALSE(gt::isDerivedFromClass(nullptr, GT_CLASSNAME(GtObjectGroup)));
 
@@ -296,6 +295,58 @@ TEST_F(TestGtObject, isDerivedFromClass)
     ASSERT_TRUE(gt::isDerivedFromClass(&p, "GtObject"));
     /// check if function stops before QObject
     ASSERT_FALSE(gt::isDerivedFromClass(&p, "QObject"));
+}
+
+TEST_F(TestGtObject, findParent)
+{
+    TestObject obj;
+    obj.setObjectName("Bla");
+    EXPECT_EQ(obj.findParent(), nullptr);
+
+    auto* child = new GtObject;
+    obj.appendChild(child);
+
+    EXPECT_EQ(obj.findParent(), nullptr);
+    EXPECT_EQ(child->findParent<TestObject*>(), &obj);
+    EXPECT_EQ(child->findParent<GtObjectGroup*>(), nullptr);
+    EXPECT_EQ(child->findParent<QObject*>("Bla"), &obj);
+}
+
+TEST_F(TestGtObject, findRoot)
+{
+    TestObject obj;
+    EXPECT_EQ(obj.findParent(), nullptr);
+
+    auto* child = new GtObject;
+    obj.appendChild(child);
+
+    auto* childchild = new GtObject;
+    child->appendChild(childchild);
+
+    EXPECT_EQ(obj.findRoot(), nullptr);
+    EXPECT_EQ(obj.findRoot(&obj), &obj);
+    EXPECT_EQ(childchild->findRoot<TestObject*>(), &obj);
+    EXPECT_EQ(childchild->findRoot<GtObjectGroup*>(), nullptr);
+    EXPECT_EQ(childchild->findRoot<QObject*>(), &obj);
+}
+
+TEST(GtObjectBugs, issue276)
+{
+    TestSpecialGtObject testobj;
+    QPointer<GtObject> child1 = new TestSpecialGtObject;
+    QPointer<GtObject> child2 = new TestSpecialGtObject;
+    EXPECT_TRUE(testobj.appendChild(child1));
+    EXPECT_TRUE(testobj.appendChild(child2));
+
+    // uncommenting this line returns the correct no. of children but deletes
+    // all children in the process
+    // -> now deactivatd using SFINAE
+//    EXPECT_EQ(2, testobj.childCount<GtObject>());
+
+    EXPECT_EQ(2, testobj.childCount<GtObject*>());
+
+    EXPECT_TRUE(child1 != nullptr);
+    EXPECT_TRUE(child2 != nullptr);
 }
 
 TEST(GtObjectBugs, issue325)
@@ -317,5 +368,4 @@ TEST(GtObjectBugs, issue325)
     obj.setDouble(23456.);
     EXPECT_TRUE(propertyChanged);
     EXPECT_TRUE(obj.hasChanges());
-
 }

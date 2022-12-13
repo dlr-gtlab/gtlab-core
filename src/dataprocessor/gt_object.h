@@ -11,24 +11,46 @@
 #define GTOBJECT_H
 
 #include "gt_datamodel_exports.h"
+#include "gt_typetraits.h"
 
 #include <QObject>
 
 #include <algorithm>
 #include <memory>
 
-class QSignalMapper;
 class GtObjectMemento;
 class GtAbstractObjectFactory;
 class GtAbstractProperty;
 class GtObjectIO;
-class GtResult;
 class GtObjectMementoDiff;
 class GtPropertyStructContainer;
 
 #define GT_CLASSNAME(A) A::staticMetaObject.className()
 #define GT_METADATA(A) A::staticMetaObject
 
+class GtObject;
+namespace gt
+{
+
+/**
+ * @brief Searchs for the parent of type T with the name specified
+ * @param object Object to search parent in
+ * @param name Name of the parent
+ * @return Parent object pointer
+ */
+template <typename T = GtObject*, trait::if_ptr_derived_of_qobject<T> = true>
+T findParent(const QObject& object, const QString& name = QString());
+
+/**
+ * @brief Searchs for the root parent of type T
+ * @param object Object to search root in
+ * @param last Last root
+ * @return Root object pointer
+ */
+template <typename T = GtObject*, trait::if_ptr_derived_of_qobject<T> = true>
+T findRoot(const QObject& object, T last = nullptr);
+
+}
 
 /**
  * @brief The GtObject class
@@ -359,12 +381,13 @@ public:
      * @brief propertiesByType
      * @return all properties of type T
      */
-    template <class T>
+    template <class T = GtAbstractProperty*,
+              gt::trait::if_ptr_base_of<GtAbstractProperty, T> = true>
     QList<T> propertiesByType() const
     {
         QList<T> retVal;
 
-        foreach (GtAbstractProperty* absProp, properties())
+        for (GtAbstractProperty* absProp : properties())
         {
             if (T prop = qobject_cast<T>(absProp))
             {
@@ -381,12 +404,11 @@ public:
      * the given name.
      * @return number of direct children of the given template class
      */
-    template <class T>
-    int childCount(const QString& name = QString()) const
+    template <class T = GtObject*,
+              gt::trait::if_ptr_derived_of_qobject<T> = true>
+    int childCount(const QString& name = {}) const
     {
-        QList<T> list = findDirectChildren<T>(name);
-
-        return list.size();
+        return findDirectChildren<T>(name).size();
     }
 
     /**
@@ -394,27 +416,11 @@ public:
      * @param name - optional string to define object by name
      * @return first parent obejct of the given template class
      */
-    template <class T>
-    T findParent(const QString& name = QString()) const
+    template <class T = GtObject*,
+              gt::trait::if_ptr_derived_of_qobject<T> = true>
+    T findParent(const QString& name = {}) const
     {
-        if (parent())
-        {
-            T temp = qobject_cast<T>(parent());
-
-            if (temp && (name.isNull() || name == temp->objectName()))
-            {
-                return temp;
-            }
-
-            GtObject* o = qobject_cast<GtObject*>(parent());
-
-            if (o)
-            {
-                return o->findParent<T>(name);
-            }
-        }
-
-        return nullptr;
+        return gt::findParent<T>(*this, name);
     }
 
     /**
@@ -422,24 +428,11 @@ public:
      * @param last
      * @return
      */
-    template <class T>
+    template <class T = GtObject*,
+              gt::trait::if_ptr_derived_of_qobject<T> =true>
     T findRoot(T last = nullptr)
     {
-        GtObject* pObj = parentObject();
-
-        if (pObj)
-        {
-            last = qobject_cast<T>(pObj);
-
-            T temp = pObj->findRoot<T>(last);
-
-            if (temp)
-            {
-                return temp;
-            }
-        }
-
-        return last;
+        return gt::findRoot<T>(*this, last);
     }
 
     /**
@@ -447,8 +440,9 @@ public:
      * @param name
      * @return
      */
-    template <class T>
-    QList<T> findDirectChildren(const QString& name = QString()) const
+    template <class T = GtObject*,
+              gt::trait::if_ptr_derived_of_qobject<T> = true>
+    QList<T> findDirectChildren(const QString& name = {}) const
     {
         return findChildren<T>(name, Qt::FindDirectChildrenOnly);
     }
@@ -458,8 +452,9 @@ public:
      * @param name - optional string to search child with given name
      * @return return pointer to first child of the template class
      */
-    template <class T>
-    T findDirectChild(const QString& name = QString()) const
+    template <class T = GtObject*,
+              gt::trait::if_ptr_derived_of_qobject<T> = true>
+    T findDirectChild(const QString& name = {}) const
     {
         return findChild<T>(name, Qt::FindDirectChildrenOnly);
     }
@@ -470,7 +465,8 @@ public:
      * @param obj - object to insert as child
      * @return bool value to show success
      */
-    template <class T>
+    template <class T = GtObject*,
+              gt::trait::if_ptr_derived_of_qobject<T> =true>
     bool insertChild(int pos, T obj)
     {
         if (pos < 0)
@@ -686,12 +682,53 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(GtObject::ObjectFlags)
 namespace gt
 {
 
-template <typename ListOfObjectPtrs>
+template <typename T, trait::if_ptr_derived_of_qobject<T>>
+inline T
+findParent(const QObject& object, const QString& name)
+{
+    if (QObject* parent = object.parent())
+    {
+        auto* t = qobject_cast<T>(parent);
+        if (t && (name.isNull() || name == t->objectName()))
+        {
+            return t;
+        }
+        return findParent<T>(*parent, name);
+    }
+    return nullptr;
+}
+
+template <typename T, trait::if_ptr_derived_of_qobject<T>>
+inline T
+findRoot(const QObject& object, T last)
+{
+    if (QObject* parent = object.parent())
+    {
+        last = qobject_cast<T>(parent);
+
+        if (T temp = findRoot<T>(*parent, last))
+        {
+            return temp;
+        }
+    }
+
+    return last;
+}
+
+/**
+ * @brief Attempts to find the object with the uuid in the list specified
+ * @param objectUUID Uuid to search for
+ * @param list List of objects
+ * @return Pointer to object with the desired uuid
+ */
+template <typename List,
+          typename T = typename List::value_type,
+          trait::if_ptr_base_of<GtObject, T> = true>
 inline GtObject*
-findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
+findObject(const QString& objectUUID, const List& list)
 {
     auto iter = std::find_if(std::begin(list), std::end(list),
-                             [&objectUUID](const GtObject * obj) {
+                             [&objectUUID](const GtObject* obj) {
         return obj->uuid() == objectUUID;
     });
 
@@ -709,8 +746,8 @@ findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
  *
  * returns false aswell if obj is a nullptr or the superclassname is empty
  */
-GT_DATAMODEL_EXPORT bool isDerivedFromClass(GtObject* obj,
-                                            QString const& superClassName);
+GT_DATAMODEL_EXPORT
+bool isDerivedFromClass(GtObject* obj, QString const& superClassName);
 
 } // namespace gt
 

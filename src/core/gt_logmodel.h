@@ -50,7 +50,7 @@ public:
      * @param object QObject
      * @param memberf member function to connect to
      */
-    template <typename T, typename F, gt::trait::if_base_of_qobject<T> = true>
+    template <typename T, typename F, gt::trait::if_derived_of_qobject<T> = true>
     GtLogSignalSlotDestination(T* object, F memberf) :
         GtLogSignalSlotDestination()
     {
@@ -63,7 +63,7 @@ public:
      * @param object QObject
      * @param memberf member function name to connect to
      */
-    template <typename T, gt::trait::if_base_of_qobject<T> = true>
+    template <typename T, gt::trait::if_derived_of_qobject<T> = true>
     GtLogSignalSlotDestination(T* object, const char* memberf) :
         GtLogSignalSlotDestination()
     {
@@ -86,7 +86,7 @@ namespace gt
 namespace log
 {
 
-template <typename T, typename F, gt::trait::if_base_of_qobject<T> = true>
+template <typename T, typename F, gt::trait::if_derived_of_qobject<T> = true>
 inline std::unique_ptr<GtLogSignalSlotDestination>
 makeSignalSlotDestination(T* receiver, F member)
 {
