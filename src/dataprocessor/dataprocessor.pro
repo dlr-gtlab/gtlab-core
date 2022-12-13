@@ -70,6 +70,7 @@ HEADERS += \
     gt_package.h \
     gt_platform.h \
     gt_factorygroup.h \
+    gt_qtutilities.h \
     gt_typetraits.h \
     gt_utilities.h \
     gt_variantconvert.h \
