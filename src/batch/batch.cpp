@@ -704,22 +704,21 @@ initModuleTest(QStringList const& arguments, GtCoreApplication& app)
     GtCommandLineParser p;
     p.parse(arguments);
 
-    qDebug() << "Start testing to load module file";
-
-    if (p.positionalArguments().isEmpty())
+    if (p.positionalArguments().size() != 2)
     {
-        qWarning() << QStringLiteral("ERROR: ")
-                   << QObject::tr("invalid arguments");
+        qCritical().noquote() << QObject::tr("Error: missing module file\n");
+        qInfo().noquote()     << QObject::tr("Usage: load_module <module_file_path>");
         return -1;
     }
 
     // extract path to the module to load
-    QString moduleToLoad = p.positionalArguments().constFirst();
+    QString moduleToLoad = p.positionalArguments().at(1);
 
-    qDebug() << "Check module:" << moduleToLoad;
+    qDebug().noquote().nospace()
+        << "\n" << QObject::tr("Try loading module '%1'\n").arg(moduleToLoad);
 
     // load GTlab modules
-    app.loadModules();
+    bool success = app.loadSingleModule(moduleToLoad);
 
     // calculator initialization
     app.initCalculators();
@@ -727,11 +726,12 @@ initModuleTest(QStringList const& arguments, GtCoreApplication& app)
     // initialize modules
     app.initModules();
 
-    // check if module is loaded
-    qDebug() << "Use footprint as a first test";
-    std::cout << GtFootprint().exportToXML().toStdString() << std::endl;
+    const auto status = success ? QObject::tr("SUCCESS") : QObject::tr("ERROR");
 
-    return -1;
+    qDebug().noquote() << QObject::tr("\n%1 loading module '%2'")
+                              .arg(status, moduleToLoad);
+
+    return success ? 0 : -1;
 }
 
 
@@ -772,6 +772,8 @@ int main(int argc, char* argv[])
                      {"version", "v"},
                      "\tDisplays the version number of GTlab");
 
+    parser.addOption("verbose", {"verbose"}, "Enable verbose output");
+
     if (!parser.parse(args))
     {
         std::cout << "Parsing arguments failed" << std::endl;
@@ -799,6 +801,14 @@ int main(int argc, char* argv[])
     }
 
     app.init();
+
+    using Verbosity = gt::log::Verbosity;
+    auto verboseLevel = parser.option("verbose") ?
+                            Verbosity::Everything :
+                            Verbosity::Silent;
+
+    gt::log::Logger::instance().setVerbosity(verboseLevel);
+
 
     // save to system environment (temporary)
     app.saveSystemEnvironment();

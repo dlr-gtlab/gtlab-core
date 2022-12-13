@@ -55,7 +55,7 @@ namespace
     {
     public:
 
-        ModuleMetaData(const QString& loc)
+        explicit ModuleMetaData(const QString& loc)
            : m_libraryLocation(loc)
         {}
 
@@ -149,10 +149,9 @@ public:
     bool dependenciesOkay(const ModuleMetaData& meta);
 
     /**
-     * @brief debugDependencies
-     * @param path
+     * @brief printDependencies
      */
-    void debugDependencies(const QString& path);
+    void printDependencies(const ModuleMetaData& meta);
 
     /**
      * @brief Checks whether the module with the given moduleId is suppressed
@@ -190,7 +189,7 @@ public:
      *
      * @returns All resolved modules in the correct order, that need to be loaded
      */
-QStringList getAllModulesToLoad(const QStringList& modulesIdsToLoad,
+QStringList getSortedModulesToLoad(const QStringList& modulesIdsToLoad,
                                 const ModuleMetaMap& map);
 
 /**
@@ -429,7 +428,7 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
 
         for (const auto& entry : moduleMetaMap)
         {
-            m_pimpl->debugDependencies(entry.second.location());
+            m_pimpl->printDependencies(entry.second);
         }
 
         return false;
@@ -451,7 +450,7 @@ GtModuleLoader::load()
 
         for (const auto&entry : moduleMetaMap)
         {
-            m_pimpl->debugDependencies(entry.second.location());
+            m_pimpl->printDependencies(entry.second);
         }
     }
 }
@@ -736,8 +735,8 @@ createAdjacencyMatrix(const QStringList& modulesToLoad,
  * @returns All resolved modules in the correct order, that need to be loaded
  */
 QStringList
-getAllModulesToLoad(const QStringList& modulesIdsToLoad,
-                    const ModuleMetaMap& metaMap)
+getSortedModulesToLoad(const QStringList& modulesIdsToLoad,
+                       const ModuleMetaMap& metaMap)
 {
     // create adjacency matrix
     const auto moduleMatrix = createAdjacencyMatrix(modulesIdsToLoad, metaMap);
@@ -773,7 +772,7 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
     QStringList crashed_mods = getCrashedModules();
 
 
-    auto sortedModuleIds = getAllModulesToLoad(moduleIds, metaMap);
+    auto sortedModuleIds = getSortedModulesToLoad(moduleIds, metaMap);
 
     bool allLoaded = true;
 
@@ -891,21 +890,15 @@ GtModuleLoader::Impl::dependenciesOkay(const ModuleMetaData& meta)
 }
 
 void
-GtModuleLoader::Impl::debugDependencies(const QString& path)
+GtModuleLoader::Impl::printDependencies(const ModuleMetaData& meta)
 {
-    QPluginLoader loader(path);
 
-    QJsonObject metaData = pluginMetaData(loader);
-    QVariantList deps = metaArray(metaData, QStringLiteral("dependencies"));
+    gtWarning() << QString("####%1 (%2)").arg(meta.moduleId(), meta.location());
 
-    gtWarning() << "####" << path;
-
-    foreach (const QVariant& var, deps)
+    foreach (const auto& dep, meta.directDependencies())
     {
-        QVariantMap mitem = var.toMap();
         gtWarning() << QObject::tr("####   - %1 (%2)")
-                       .arg(mitem.value(QStringLiteral("name")).toString(),
-                            mitem.value(QStringLiteral("version")).toString());
+            .arg(dep.first, dep.second.toString());
     }
 }
 
