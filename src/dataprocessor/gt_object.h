@@ -39,7 +39,7 @@ namespace gt
  * @return Parent object pointer
  */
 template <typename T = GtObject*, trait::if_ptr_derived_of_qobject<T> = true>
-T findParent(const QObject& object, const QString& name = QString());
+T findParent(const QObject& object, const QString& name = {});
 
 /**
  * @brief Searchs for the root parent of type T
@@ -689,7 +689,7 @@ findParent(const QObject& object, const QString& name)
     if (QObject* parent = object.parent())
     {
         auto* t = qobject_cast<T>(parent);
-        if (t && (name.isNull() || name == t->objectName()))
+        if (t && (name.isEmpty() || name == t->objectName()))
         {
             return t;
         }
