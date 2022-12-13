@@ -22,4 +22,4 @@ Feature: Test specific features for projects
          When the project is closed
          Then no process elements are listed
           And the 'Run' button is greyed out
-          And the 'Add*' button is greyed out
+          # And the 'Add*' button is greyed out
