@@ -123,16 +123,17 @@ public:
     bool m_modulesInitialized;
 
     /**
-     * @brief loadHelper
-     * @param entries
-     * @param modulesDir
+     * @brief performLoading
+     *
+     *        Implementeds the actual loading logic
+     *
+     * @param modulesToLoad Modules that need to be loaded
+     * @param metaMap Map to the module meta data
      * @return
      */
-    bool loadHelper(GtModuleLoader& moduleLoader,
-                    const QStringList& excludeList);
-
-    bool loadModule(const ModuleMetaData& );
-
+    bool performLoading(GtModuleLoader& moduleLoader,
+                        const QStringList& modulesToLoad,
+                        const ModuleMetaMap &metaMap);
     /**
      * @brief checkDependency
      * The dependencies of the module are given by a list and are compared
@@ -164,6 +165,24 @@ public:
     bool isSuppressed(const ModuleMetaData& m) const;
 
     /**
+     * @brief Returns the list of all modules that can be loaded
+     * @return
+     */
+    QStringList getAllLoadableModuleIds() const
+    {
+        QStringList moduleIds;
+        std::transform(m_metaData.begin(), m_metaData.end(),
+           std::back_inserter(moduleIds),
+           [](const std::pair<QString, ModuleMetaData>& metaEntry)
+           {
+               return metaEntry.second.moduleId();
+           });
+        return moduleIds;
+
+    }
+};
+
+/**
      * @brief Solves, which modules need to be loaded and returns the correct
      *        order of loading
      *
@@ -171,11 +190,8 @@ public:
      *
      * @returns All resolved modules in the correct order, that need to be loaded
      */
-     QStringList getAllModulesToLoad(const QStringList& modulesIdsToLoad);
-
-
-
-};
+QStringList getAllModulesToLoad(const QStringList& modulesIdsToLoad,
+                                const ModuleMetaMap& map);
 
 /**
      * @brief Returns application roaming path.
@@ -369,31 +385,75 @@ ModuleMetaMap loadModuleMeta()
 
 } // namespace
 
-void
-GtModuleLoader::load()
+bool
+GtModuleLoader::loadSingleModule(const QString& moduleLocation)
 {
+    if (!QFile(moduleLocation).exists())
+    {
+        gtError() << QObject::tr("Cannot load module. "
+                                 "Module File '%1' does not exists.")
+                         .arg(moduleLocation);
+        return false;
+    }
 
+    const auto moduleMeta = loadModuleMeta(moduleLocation);
+    if (moduleMeta.moduleId().isEmpty())
+    {
+        gtError() << QObject::tr("Cannot load module. "
+                                 "File '%1' is not a module.")
+                         .arg(moduleLocation);
+        return false;
+    }
 
-    auto entries = getModuleEntries();
-    auto& moduleFiles = entries.moduleFiles;
+    const QStringList modulesToLoad(moduleMeta.moduleId());
 
-    if (moduleFiles.empty()) return;
+    // the meta data from the module directory
+    auto moduleMetaMap = m_pimpl->m_metaData;
 
-    auto modulesDir = getModuleDirectory();
+    // replace possibly existing module by the current module
+    const auto it = moduleMetaMap.find(moduleMeta.moduleId());
+    if (it != moduleMetaMap.end())
+    {
+        // module already exist in metadata, replace
+        it->second = moduleMeta;
+    }
+    else
+    {
+        moduleMetaMap.insert(std::make_pair(moduleMeta.moduleId(), moduleMeta));
+    }
 
-    if (!m_pimpl->loadHelper(*this, entries.modulesToExclude))
+    if (!m_pimpl->performLoading(*this, modulesToLoad, moduleMetaMap))
     {
         gtWarning() << QObject::tr("Could not resolve following "
                                    "plugin dependencies:");
 
-        for (QString const& entry : qAsConst(moduleFiles))
+        for (const auto& entry : moduleMetaMap)
         {
-            m_pimpl->debugDependencies(modulesDir.absoluteFilePath(entry));
+            m_pimpl->debugDependencies(entry.second.location());
         }
+
+        return false;
     }
 
+    return true;
+}
 
+void
+GtModuleLoader::load()
+{
+    auto allModulesIds = m_pimpl->getAllLoadableModuleIds();
+    auto moduleMetaMap = m_pimpl->m_metaData;
 
+    if (!m_pimpl->performLoading(*this, allModulesIds, moduleMetaMap))
+    {
+        gtWarning() << QObject::tr("Could not resolve following "
+                                   "plugin dependencies:");
+
+        for (const auto&entry : moduleMetaMap)
+        {
+            m_pimpl->debugDependencies(entry.second.location());
+        }
+    }
 }
 
 QMap<QString, QString>
@@ -676,10 +736,11 @@ createAdjacencyMatrix(const QStringList& modulesToLoad,
  * @returns All resolved modules in the correct order, that need to be loaded
  */
 QStringList
-GtModuleLoader::Impl::getAllModulesToLoad(const QStringList& modulesIdsToLoad)
+getAllModulesToLoad(const QStringList& modulesIdsToLoad,
+                    const ModuleMetaMap& metaMap)
 {
     // create adjacency matrix
-    const auto moduleMatrix = createAdjacencyMatrix(modulesIdsToLoad, m_metaData);
+    const auto moduleMatrix = createAdjacencyMatrix(modulesIdsToLoad, metaMap);
 
     // sort modules in the correct order of dependencies
     auto sortedModuleIds = gt::topo_sort<QString, QStringList>(moduleMatrix);
@@ -689,7 +750,7 @@ GtModuleLoader::Impl::getAllModulesToLoad(const QStringList& modulesIdsToLoad)
     auto sortedModuleIdFiltered = QStringList{};
     std::copy_if(sortedModuleIds.begin(), sortedModuleIds.end(),
                  std::back_inserter(sortedModuleIdFiltered),
-                 [&metaData = m_metaData](const QString& moduleId){
+                 [&metaData = metaMap](const QString& moduleId){
         return metaData.find(moduleId) != metaData.end();
     });
 
@@ -697,8 +758,9 @@ GtModuleLoader::Impl::getAllModulesToLoad(const QStringList& modulesIdsToLoad)
 }
 
 bool
-GtModuleLoader::Impl::loadHelper(GtModuleLoader& moduleLoader,
-                                 const QStringList& excludeList)
+GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
+                                 const QStringList& moduleIds,
+                                 const ModuleMetaMap& metaMap)
 {
 
 
@@ -711,18 +773,7 @@ GtModuleLoader::Impl::loadHelper(GtModuleLoader& moduleLoader,
     QStringList crashed_mods = getCrashedModules();
 
 
-    std::map<QString, ModuleMetaData> modMetaMap = m_metaData;
-
-
-    QStringList moduleIds;
-    std::transform(modMetaMap.begin(), modMetaMap.end(),
-                   std::back_inserter(moduleIds),
-                   [](const std::pair<QString, ModuleMetaData>& metaEntry)
-    {
-        return metaEntry.second.moduleId();
-    });
-
-    auto sortedModuleIds = getAllModulesToLoad(moduleIds);
+    auto sortedModuleIds = getAllModulesToLoad(moduleIds, metaMap);
 
     bool allLoaded = true;
 
@@ -732,8 +783,8 @@ GtModuleLoader::Impl::loadHelper(GtModuleLoader& moduleLoader,
 
         bool thisLoaded = false;
 
-        auto moduleIt = modMetaMap.find(currentModuleId);
-        assert(moduleIt != modMetaMap.end());
+        auto moduleIt = metaMap.find(currentModuleId);
+        assert(moduleIt != metaMap.end());
 
         const ModuleMetaData& moduleMeta = moduleIt->second;
 

@@ -42,9 +42,21 @@ public:
     virtual ~GtModuleLoader();
 
     /**
-     * @brief load
+     * @brief loads all modules
      */
     void load();
+
+    /**
+     * @brief Try to load a single module.
+     *
+     * The module might be located outside of the modules directory.
+     * The given module overrides any module in the module directory
+     * with the same moduleId.
+     *
+     * @param moduleLocation The filename of the module
+     * @return True, if loading was successful
+     */
+    bool loadSingleModule(const QString& moduleLocation);
 
     /**
      * @brief Returns list of all module environment variables.
