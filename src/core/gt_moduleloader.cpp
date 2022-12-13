@@ -31,6 +31,7 @@
 #include <QDomElement>
 
 #include "gt_algorithms.h"
+#include "gt_utilities.h"
 #include "gt_qtutilities.h"
 
 namespace
@@ -291,27 +292,6 @@ QStringList getModulesToExclude()
 class CrashedModulesLog
 {
 public:
-
-    /// RAII style class to take care of crashed modules
-    class Store
-    {
-    public:
-        Store(CrashedModulesLog& log, const QString& moduleLocation)
-            : log(log)
-
-        {
-            log.push(moduleLocation);
-        }
-
-        ~Store()
-        {
-            log.get().pop();
-        }
-
-    private:
-        std::reference_wrapper<CrashedModulesLog> log;
-    };
-
     CrashedModulesLog() :
         settings(iniFile(), QSettings::IniFormat)
     {
@@ -349,10 +329,13 @@ public:
      * Temporarily store the current module. If the app crashes,
      * this will be persitently stored as crashed
      */
-    Store makeSnapshot(const QString& currentModuleLocation)
-
+    auto makeSnapshot(const QString& currentModuleLocation)
     {
-        return Store(*this, currentModuleLocation);
+        push(currentModuleLocation);
+
+        return gt::finally([this](){
+            pop();
+        });
     }
 
 private:
