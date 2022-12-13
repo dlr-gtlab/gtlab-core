@@ -296,6 +296,39 @@ QStringList getCrashedModules()
 namespace
 {
 
+/// RAII style class to take care of crashed modules
+class CrashedModsStore
+{
+public:
+    CrashedModsStore(QStringList& crashedMods, QSettings& settings,
+                     QString currentModuleLocation)
+        : m_crashedMods(crashedMods), m_settings(settings)
+
+    {
+        m_crashedMods.get() << currentModuleLocation;
+        sync();
+    }
+
+    void sync()
+    {
+        m_settings.get().setValue(QStringLiteral("loading_crashed"),
+                                  m_crashedMods.get());
+        m_settings.get().sync();
+    }
+
+    ~CrashedModsStore()
+    {
+        // no application crash... clear loading fail log
+        m_crashedMods.get().removeLast();
+        sync();
+    }
+
+
+private:
+    std::reference_wrapper<QStringList> m_crashedMods;
+    std::reference_wrapper<QSettings> m_settings;
+};
+
 /**
  * @brief Filters a module meta map according the the function keepModule
  * @param modules Input map of modules
@@ -780,55 +813,49 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
     foreach (const auto& currentModuleId, sortedModuleIds)
     {
 
-        bool thisLoaded = false;
-
         auto moduleIt = metaMap.find(currentModuleId);
         assert(moduleIt != metaMap.end());
 
         const ModuleMetaData& moduleMeta = moduleIt->second;
 
-        // check outstanding dependencies
-        if (!isSuppressed(moduleMeta) && dependenciesOkay(moduleMeta))
+        if (isSuppressed(moduleMeta) || !dependenciesOkay(moduleMeta))
         {
-            // store temporary module information in loading fail log
-            crashed_mods << moduleMeta.location();
-            settings.setValue(QStringLiteral("loading_crashed"), crashed_mods);
-            settings.sync();
-
-            // load plugin from entry
-            QPluginLoader loader(moduleMeta.location());
-            std::unique_ptr<QObject> instance(loader.instance());
-
-            // check plugin object
-            if (instance)
-            {
-                gtDebug().medium() << QObject::tr("loading ")
-                                   << moduleMeta.location() << "...";
-
-                auto plugin =
-                    gt::unique_qobject_cast<GtModuleInterface>(std::move(instance));
-
-                if (plugin && moduleLoader.check(plugin.get()))
-                {
-                    moduleLoader.insert(plugin.get());
-                    plugin.release()->onLoad();
-                    thisLoaded = true;
-                }
-            }
-            else
-            {
-                // could not recreate plugin
-                gtError() << loader.errorString();
-            }
-
-            // no application crash... clear loading fail log
-            crashed_mods.removeLast();
-            settings.setValue(QStringLiteral("loading_crashed"), crashed_mods);
-            settings.sync();
-
+            allLoaded = false;
+            continue;
         }
 
-        allLoaded &= thisLoaded;
+        // store temporary module information in loading fail log
+        auto _ = CrashedModsStore(crashed_mods, settings, moduleMeta.location());
+
+        // load plugin from entry
+        QPluginLoader loader(moduleMeta.location());
+        std::unique_ptr<QObject> instance(loader.instance());
+
+        // check plugin object
+        if (!instance)
+        {
+            // could not recreate plugin
+            gtError() << loader.errorString();
+            allLoaded = false;
+            continue;
+        }
+
+
+        gtDebug().medium() << QObject::tr("loading ")
+                           << moduleMeta.location() << "...";
+
+        auto plugin =
+            gt::unique_qobject_cast<GtModuleInterface>(std::move(instance));
+
+        if (plugin && moduleLoader.check(plugin.get()))
+        {
+            moduleLoader.insert(plugin.get());
+            plugin.release()->onLoad();
+        }
+        else
+        {
+            allLoaded = false;
+        }
     }
 
 
