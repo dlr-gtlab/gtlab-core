@@ -80,6 +80,10 @@ GtLogErrorMessageBox::GtLogErrorMessageBox(QWidget* parent) :
     m_model = new GtLogErrorMessageBoxModel;
     m_view->setModel(m_model);
 
+    QPalette p;
+    p.setColor(QPalette::Base, p.color(QPalette::Window));
+    m_view->setPalette(p);
+
     // make table items not selectable
     m_view->setFocusPolicy(Qt::NoFocus);
     m_view->setSelectionMode(GtListView::NoSelection);
