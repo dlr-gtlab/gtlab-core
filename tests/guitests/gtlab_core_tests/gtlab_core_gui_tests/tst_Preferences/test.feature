@@ -18,7 +18,8 @@ Feature: Testing specific features of the Preferences window
 #         Then the correct Preferences page is visible
          When the 'Language' tab in the Preferences is pressed
          Then the correct Preferences page is visible
-          And the Preferences page 'Access' is greyed out
+         When the 'Access' tab in the Preferences is pressed
+         Then the correct Preferences page is visible
          When the 'Environment' tab in the Preferences is pressed
          Then the correct Preferences page is visible
 

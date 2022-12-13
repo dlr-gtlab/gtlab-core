@@ -191,7 +191,7 @@ linuxBuildRelease:
   script:
     # xvfb to run a virtual display
     - xvfb-run -a ./tests/guitests/run_guitests.sh
-  retry: 2
+  retry: 1
   artifacts:
     paths:
       - ./gui_tests_web
