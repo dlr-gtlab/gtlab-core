@@ -487,6 +487,16 @@ GtCoreApplication::loadModules()
     }
 }
 
+bool
+GtCoreApplication::loadSingleModule(const QString& moduleFilePath)
+{
+    if (!m_moduleLoader)
+    {
+        m_moduleLoader = std::make_unique<GtCoreModuleLoader>();
+    }
+    return m_moduleLoader->loadSingleModule(moduleFilePath);
+}
+
 QStringList
 GtCoreApplication::moduleIds()
 {
@@ -749,7 +759,7 @@ GtCoreApplication::saveSystemEnvironment() const
 
      gt::for_each_key(modEnv, [](const QString& e)
      {
-         gtDebug().nospace() << "Sys env var (" << e << ") = "
+         gtDebug().medium().nospace() << "Sys env var (" << e << ") = "
                              << gtEnvironment->value(e).toString();
 
          const QByteArray sysEnvVar = gtEnvironment->value(e).toByteArray();

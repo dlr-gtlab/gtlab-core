@@ -245,6 +245,18 @@ public:
     virtual void loadModules();
 
     /**
+     * @brief Loads a single module and all its dependencies
+     *
+     * The module might be located outside of the modules directory.
+     * The given module overrides any module in the module directory
+     * with the same moduleId.
+     *
+     * @param moduleFilePath The filename/path of the module.
+     * @return True, if loading was successful
+     */
+    bool loadSingleModule(const QString& moduleFilePath);
+
+    /**
      * @brief Returns identification strings of all loaded modules.
      * @return module identification strings
      */
