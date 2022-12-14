@@ -38,7 +38,8 @@ namespace gt
  * @param name Name of the parent
  * @return Parent object pointer
  */
-template <typename T = GtObject*, trait::if_ptr_derived_of_qobject<T> = true>
+template <typename T = GtObject*,
+          trait::enable_if_ptr_derived_of_qobject<T> = true>
 T findParent(const QObject& object, const QString& name = {});
 
 /**
@@ -47,7 +48,8 @@ T findParent(const QObject& object, const QString& name = {});
  * @param last Last root
  * @return Root object pointer
  */
-template <typename T = GtObject*, trait::if_ptr_derived_of_qobject<T> = true>
+template <typename T = GtObject*,
+          trait::enable_if_ptr_derived_of_qobject<T> = true>
 T findRoot(const QObject& object, T last = nullptr);
 
 }
@@ -382,7 +384,7 @@ public:
      * @return all properties of type T
      */
     template <class T = GtAbstractProperty*,
-              gt::trait::if_ptr_base_of<GtAbstractProperty, T> = true>
+              gt::trait::enable_if_ptr_base_of<GtAbstractProperty, T> = true>
     QList<T> propertiesByType() const
     {
         QList<T> retVal;
@@ -405,7 +407,7 @@ public:
      * @return number of direct children of the given template class
      */
     template <class T = GtObject*,
-              gt::trait::if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     int childCount(const QString& name = {}) const
     {
         return findDirectChildren<T>(name).size();
@@ -417,7 +419,7 @@ public:
      * @return first parent obejct of the given template class
      */
     template <class T = GtObject*,
-              gt::trait::if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T findParent(const QString& name = {}) const
     {
         return gt::findParent<T>(*this, name);
@@ -429,7 +431,7 @@ public:
      * @return
      */
     template <class T = GtObject*,
-              gt::trait::if_ptr_derived_of_qobject<T> =true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T findRoot(T last = nullptr)
     {
         return gt::findRoot<T>(*this, last);
@@ -441,7 +443,7 @@ public:
      * @return
      */
     template <class T = GtObject*,
-              gt::trait::if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     QList<T> findDirectChildren(const QString& name = {}) const
     {
         return findChildren<T>(name, Qt::FindDirectChildrenOnly);
@@ -453,7 +455,7 @@ public:
      * @return return pointer to first child of the template class
      */
     template <class T = GtObject*,
-              gt::trait::if_ptr_derived_of_qobject<T> = true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
     T findDirectChild(const QString& name = {}) const
     {
         return findChild<T>(name, Qt::FindDirectChildrenOnly);
@@ -466,7 +468,7 @@ public:
      * @return bool value to show success
      */
     template <class T = GtObject*,
-              gt::trait::if_ptr_derived_of_qobject<T> =true>
+              gt::trait::enable_if_ptr_derived_of_qobject<T> =true>
     bool insertChild(int pos, T obj)
     {
         if (pos < 0)
@@ -682,7 +684,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(GtObject::ObjectFlags)
 namespace gt
 {
 
-template <typename T, trait::if_ptr_derived_of_qobject<T>>
+template <typename T, trait::enable_if_ptr_derived_of_qobject<T>>
 inline T
 findParent(const QObject& object, const QString& name)
 {
@@ -698,7 +700,7 @@ findParent(const QObject& object, const QString& name)
     return nullptr;
 }
 
-template <typename T, trait::if_ptr_derived_of_qobject<T>>
+template <typename T, trait::enable_if_ptr_derived_of_qobject<T>>
 inline T
 findRoot(const QObject& object, T last)
 {
@@ -723,7 +725,7 @@ findRoot(const QObject& object, T last)
  */
 template <typename List,
           typename T = typename List::value_type,
-          trait::if_ptr_base_of<GtObject, T> = true>
+          trait::enable_if_ptr_base_of<GtObject, T> = true>
 inline GtObject*
 findObject(const QString& objectUUID, const List& list)
 {
