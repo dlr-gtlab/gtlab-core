@@ -245,38 +245,41 @@ QStringList getModulesToExclude()
         return {};
     }
 
-    QStringList excludeList;
-
     gtDebug().medium() << "Module exclude file found!";
 
-    if (excludeFile.open(QIODevice::ReadOnly))
+    if (!excludeFile.open(QIODevice::ReadOnly))
     {
-        QByteArray dat = excludeFile.readAll();
-        QJsonDocument doc(QJsonDocument::fromJson(dat));
-
-        QJsonObject json = doc.object();
-
-        excludeFile.close();
-
-        QVariantList exModList =
-            json.value(QStringLiteral("modules")
-                       ).toArray().toVariantList();
-
-        for (const QVariant& exMod : qAsConst(exModList))
-        {
-            QVariantMap modItem = exMod.toMap();
-            const QString name =
-                modItem.value(QStringLiteral("id")).toString();
-
-            excludeList << name;
-
-            gtWarning().medium()
-                    << QObject::tr("Excluding module '%1'!").arg(name);
-        }
+        gtWarning() << QObject::tr("Failed to open the module exclude file!");
+        return {};
     }
-    else
+
+    QJsonDocument doc(QJsonDocument::fromJson(excludeFile.readAll()));
+
+    excludeFile.close();
+
+    if (doc.isNull())
     {
         gtWarning() << QObject::tr("Failed to parse the module exclude file!");
+        return {};
+    }
+
+    QJsonObject json = doc.object();
+
+    QVariantList exModList =
+            json.value(QStringLiteral("modules")).toArray().toVariantList();
+
+    QStringList excludeList;
+
+    for (const QVariant& exMod : qAsConst(exModList))
+    {
+        QVariantMap modItem = exMod.toMap();
+        const QString name =
+            modItem.value(QStringLiteral("id")).toString();
+
+        excludeList << name;
+
+        gtWarning().medium()
+                << QObject::tr("Excluding module '%1'!").arg(name);
     }
 
     return excludeList;
