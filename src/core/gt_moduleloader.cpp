@@ -167,7 +167,8 @@ public:
      * @brief printDependencies
      */
     static void printDependencies(const ModuleMetaData& meta);
-    static void printDependencies(const std::map<QString, ModuleMetaData>& map);
+    static void printDependencies(const QStringList& modules,
+                                  const std::map<QString, ModuleMetaData>& map);
 
     /**
      * @brief Checks whether the module with the given moduleId is suppressed
@@ -503,7 +504,8 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
     if (!m_pimpl->performLoading(*this, modulesToLoad,
                                  moduleMetaMap, failedModules))
     {
-        Impl::printDependencies(moduleMetaMap);
+        gtError().verbose() << QObject::tr("Some modules failed to load\n");
+        Impl::printDependencies(failedModules, moduleMetaMap);
         return false;
     }
 
@@ -520,7 +522,8 @@ GtModuleLoader::load()
     if (!m_pimpl->performLoading(*this, allModulesIds,
                                  moduleMetaMap, failedModules))
     {
-        Impl::printDependencies(moduleMetaMap);
+        gtError().verbose() << QObject::tr("Some modules failed to load\n");
+        Impl::printDependencies(failedModules, moduleMetaMap);
     }
 }
 
@@ -925,7 +928,8 @@ GtModuleLoader::Impl::dependenciesOkay(const ModuleMetaData& meta)
 
 void
 GtModuleLoader::Impl::printDependencies(
-        const std::map<QString, ModuleMetaData>& map)
+    const QStringList& modules,
+    const std::map<QString, ModuleMetaData>& map)
 {
     if (gt::log::Logger::instance().verbosity() < gt::log::Everything)
     {
@@ -934,9 +938,12 @@ GtModuleLoader::Impl::printDependencies(
 
     gtWarning() << QObject::tr("Module dependencies:");
 
-    for (const auto& entry : map)
+    for (const auto& module : modules)
     {
-        Impl::printDependencies(entry.second);
+        auto iter = map.find(module);
+        assert(iter != map.end());
+
+        Impl::printDependencies(iter->second);
     }
 }
 
