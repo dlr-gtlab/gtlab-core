@@ -22,8 +22,6 @@
 #include "gt_perspectiveswitchwidget.h"
 #include "gt_aboutdialog.h"
 #include "gt_logging.h"
-#include "gt_logmodel.h"
-#include "gt_logerrormessagebox.h"
 #include "gt_projectui.h"
 #include "gt_collectioneditor.h"
 #include "gt_startuppage.h"
