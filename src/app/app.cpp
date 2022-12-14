@@ -39,6 +39,7 @@
 #include "gt_stateviewer.h"
 #include "gt_collectioneditor.h"
 #include "gt_examplesmdiwidget.h"
+#include "gt_logerrormessagebox.h"
 
 // dock widgets
 #include "gt_outputdock.h"
@@ -98,11 +99,19 @@ main(int argc, char* argv[])
     splash.showMessage(QObject::tr("initializing..."));
     app.init();
 
+    // error message box logging destination
+    auto* errorHandler = new GtlogErrorMessageBoxHandler;
+    errorHandler->setParent(&app);
+
+    auto& logger = gt::log::Logger::instance();
+    auto dest = gt::log::makeSignalSlotDestination(
+                    errorHandler, &GtlogErrorMessageBoxHandler::onLogMessage);
+    logger.addDestination("error_message_box", std::move(dest));
+
     // TODO: we need shared and environment variables
     // load module environments vars and fill in GTlab environment
     QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
     QStringList modInitEnvSetup;
-
 
     for(auto iter = modEnv.constBegin(); iter != modEnv.constEnd(); ++iter)
     {

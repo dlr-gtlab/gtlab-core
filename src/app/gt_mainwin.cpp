@@ -22,8 +22,6 @@
 #include "gt_perspectiveswitchwidget.h"
 #include "gt_aboutdialog.h"
 #include "gt_logging.h"
-#include "gt_logmodel.h"
-#include "gt_logerrormessagebox.h"
 #include "gt_projectui.h"
 #include "gt_collectioneditor.h"
 #include "gt_startuppage.h"
@@ -218,13 +216,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(openAboutModulesDialog()));
 
     loadPerspectiveSettings();
-
-    // gui logger destination
-    gt::log::Logger& logger = gt::log::Logger::instance();
-
-    auto dest = gt::log::makeSignalSlotDestination(this, &GtMainWin::onLogMessage);
-
-    logger.addDestination(GT_CLASSNAME(GtMainWin), std::move(dest));
 }
 
 GtMainWin::~GtMainWin()
@@ -1259,14 +1250,6 @@ GtMainWin::onWidgetStructureClicked()
     {
         widgetStructureHelper(wid, 1);
     }
-}
-
-void
-GtMainWin::onLogMessage(const QString& msg, int level,
-                        const GtLogDetails& details)
-{
-    GtLogErrorMessageBox::display(gt::log::levelFromInt(level),
-                                  msg, details, this);
 }
 
 void

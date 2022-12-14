@@ -73,7 +73,9 @@ public:
                 object, memberf, Qt::QueuedConnection);
     }
 
-    void write(std::string const& message, gt::log::Level level, gt::log::Details const& details) override;
+    void write(std::string const& message,
+               gt::log::Level level,
+               gt::log::Details const& details) override;
 
 signals:
 
