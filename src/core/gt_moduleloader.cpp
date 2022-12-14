@@ -306,10 +306,6 @@ QStringList getModulesToExclude()
             modItem.value(QStringLiteral("id")).toString();
 
         excludeList << name;
-
-        logWarnOnce(
-            QObject::tr("Excluding module '%1'!").arg(name)
-        );
     }
 
     return excludeList;
@@ -436,8 +432,8 @@ ModuleMetaMap loadModuleMeta()
         if (crashed_mods.contains(m.location()))
         {
             logWarnOnce(
-               QObject::tr("Loading '%1' skipped (last run crash)")
-               .arg(m.moduleId())
+                QObject::tr("Module '%1' caused a crash in a previous run. "
+                            "Skipping module!").arg(m.moduleId())
             );
             return false;
         }
@@ -450,8 +446,8 @@ ModuleMetaMap loadModuleMeta()
         if (excludeList.contains(m.moduleId()))
         {
             logWarnOnce(
-               QObject::tr("Loading '%1' excluded by exclude list")
-               .arg(m.moduleId())
+                QObject::tr("Module '%1' found in exclude list. "
+                            "Skipping module!").arg(m.moduleId())
             );
             return false;
         }
