@@ -36,68 +36,70 @@
 
 namespace
 {
-    class ModuleMetaData
+
+class ModuleMetaData
+{
+public:
+
+    explicit ModuleMetaData(const QString& loc)
+       : m_libraryLocation(loc)
+    {}
+
+    /**
+     * Loads the meta data from the module json file
+     */
+    void readFromJson(const QJsonObject& json);
+
+    const QString& location() const noexcept
     {
-    public:
+        return m_libraryLocation;
+    }
 
-        explicit ModuleMetaData(const QString& loc)
-           : m_libraryLocation(loc)
-        {}
+    const QString& moduleId() const noexcept
+    {
+        return m_id;
+    }
 
-        /**
-         * Loads the meta data from the module json file
-         */
-        void readFromJson(const QJsonObject& json);
+    /**
+     * @return A list of modules (modulename, version) of which
+     * this module depends.
+     */
+    const std::vector<std::pair<QString, GtVersionNumber>>&
+    directDependencies() const noexcept
+    {
+        return m_deps;
+    }
 
-        const QString& location() const noexcept
-        {
-            return m_libraryLocation;
-        }
+    /// Returns a list of modules that allow to suppress this module
+    const QStringList& suppressorModules() const noexcept
+    {
+        return m_suppression;
+    }
 
-        const QString& moduleId() const noexcept
-        {
-            return m_id;
-        }
+    const QMap<QString, QString>& environmentVars() const noexcept
+    {
+        return m_envVars;
+    }
 
-        /**
-         * @return A list of modules (modulename, version) of which
-         * this module depends.
-         */
-        const std::vector<std::pair<QString, GtVersionNumber>>&
-        directDependencies() const noexcept
-        {
-            return m_deps;
-        }
+private:
+    QVariantList
+    metaArray(const QJsonObject& metaData, const QString& id)
+    {
+        return metaData.value(id).toArray().toVariantList();
+    }
 
-        /// Returns a list of modules that allow to suppress this module
-        const QStringList& suppressorModules() const noexcept
-        {
-            return m_suppression;
-        }
-
-        const QMap<QString, QString>& environmentVars() const noexcept
-        {
-            return m_envVars;
-        }
-
-    private:
-        QVariantList
-        metaArray(const QJsonObject& metaData, const QString& id)
-        {
-            return metaData.value(id).toArray().toVariantList();
-        }
-
-        QString m_id;
-        QString m_libraryLocation;
-        std::vector<std::pair<QString, GtVersionNumber>> m_deps;
-        QMap<QString, QString> m_envVars;
-        QStringList m_suppression;
-    };
+    QString m_id;
+    QString m_libraryLocation;
+    std::vector<std::pair<QString, GtVersionNumber>> m_deps;
+    QMap<QString, QString> m_envVars;
+    QStringList m_suppression;
+};
 
 
-    using ModuleMetaMap = std::map<QString, ModuleMetaData>;
-    ModuleMetaMap loadModuleMeta();
-}
+using ModuleMetaMap = std::map<QString, ModuleMetaData>;
+ModuleMetaMap loadModuleMeta();
+
+} // namespace
 
 class GtModuleLoader::Impl
 {
@@ -108,10 +110,10 @@ public:
     /// Mapping of suppressed plugins to their suppressors
     QMap<QString, QSet<QString>> m_suppressedPlugins;
 
-    const std::map<QString, ModuleMetaData> m_metaData {loadModuleMeta()};
+    const std::map<QString, ModuleMetaData> m_metaData{loadModuleMeta()};
 
     /// Modules initialized indicator.
-    bool m_modulesInitialized;
+    bool m_modulesInitialized{false};
 
     /**
      * @brief performLoading
@@ -172,33 +174,27 @@ public:
     }
 };
 
-/**
- * @brief Solves, which modules need to be loaded and returns the correct
- *        order of loading
- *
- * @param modulesIdsToLoad The ids of all modules that should be loaded
- *
- * @returns All resolved modules in the correct order, that need to be loaded
- */
-QStringList getSortedModulesToLoad(const QStringList& modulesIdsToLoad,
-                                   const ModuleMetaMap& map);
-
-/**
-     * @brief Returns application roaming path.
-     * @return Application roaming path.
-     */
-QString roamingPath();
-
 GtModuleLoader::GtModuleLoader() :
     m_pimpl{std::make_unique<GtModuleLoader::Impl>()}
-{
-    m_pimpl->m_modulesInitialized = false;
-}
+{ }
 
 GtModuleLoader::~GtModuleLoader() = default;
 
 namespace
 {
+
+/**
+ * @brief Returns application roaming path.
+ * @return Application roaming path.
+ */
+QString roamingPath()
+{
+#ifdef _WIN32
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+#endif
+    return QStandardPaths::writableLocation(
+               QStandardPaths::GenericConfigLocation);
+}
 
 QDir getModuleDirectory()
 {
@@ -244,7 +240,6 @@ QStringList getModulesToExclude()
     QFile excludeFile(qApp->applicationDirPath() + QDir::separator() +
                       QStringLiteral("_exclude.json"));
 
-
     if (!excludeFile.exists())
     {
         return {};
@@ -252,7 +247,7 @@ QStringList getModulesToExclude()
 
     QStringList excludeList;
 
-    gtDebug() << "module exclude file found!";
+    gtDebug().medium() << "Module exclude file found!";
 
     if (excludeFile.open(QIODevice::ReadOnly))
     {
@@ -275,7 +270,8 @@ QStringList getModulesToExclude()
 
             excludeList << name;
 
-            gtWarning() << "excluding " << name << " module!";
+            gtWarning().medium()
+                    << QObject::tr("Excluding module '%1'!").arg(name);
         }
     }
     else
@@ -350,8 +346,6 @@ private:
 
 };
 
-
-
 /**
  * @brief Filters a module meta map according the the function keepModule
  * @param modules Input map of modules
@@ -409,7 +403,7 @@ ModuleMetaMap loadModuleMeta()
         if (crashed_mods.contains(m.location()))
         {
             gtWarning() << QObject::tr("'%1' loading skipped (last run crash)")
-                               .arg(m.moduleId());
+                           .arg(m.moduleId());
             return false;
         }
         return true;
@@ -420,8 +414,8 @@ ModuleMetaMap loadModuleMeta()
     metaData = filterModules(metaData,[&excludeList](const ModuleMetaData& m) {
         if (excludeList.contains(m.moduleId()))
         {
-            gtWarning() << QObject::tr("'%1' loading excluded by excludeList")
-                               .arg(m.moduleId());
+            gtWarning() << QObject::tr("'%1' loading excluded by exclude list")
+                           .arg(m.moduleId());
             return false;
         }
         return true;
@@ -616,7 +610,7 @@ GtModuleLoader::initModules()
 {
     if (m_pimpl->m_modulesInitialized)
     {
-        gtWarning() << "Modules already initialized!";
+        gtWarning() << QObject::tr("Modules already initialized!");
         return;
     }
 
@@ -826,8 +820,8 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
             continue;
         }
 
-        gtDebug().medium() << QObject::tr("loading ")
-                           << moduleMeta.location() << "...";
+        gtDebug().medium().nospace()
+                << QObject::tr("loading ") << moduleMeta.location() << "...";
 
         // check that plugin is a GTlab module
         auto module =
@@ -857,17 +851,15 @@ GtModuleLoader::Impl::dependenciesOkay(const ModuleMetaData& meta)
 
     for (const auto& dep : meta.directDependencies())
     {
-
         const QString name = dep.first;
         const GtVersionNumber version = dep.second;
-
-        //        gtDebug() << "dep = " << name;
 
         // check dependency
         if (!m_plugins.contains(name))
         {
-            gtError().noquote() << QObject::tr("Cannot load module '%1' "
-                "due to missing dependency '%2'").arg(meta.moduleId(), name);
+            gtError() << QObject::tr("Cannot load module '%1' due to missing "
+                                     "dependency '%2'")
+                         .arg(meta.moduleId(), name);
             return false;
         }
 
@@ -876,25 +868,22 @@ GtModuleLoader::Impl::dependenciesOkay(const ModuleMetaData& meta)
 
         if (depVersion < version)
         {
-            gtError().noquote().nospace() << QObject::tr("Loading")
+            gtError().nospace() << QObject::tr("Loading")
                     << meta.moduleId() + QStringLiteral(":");
-
-            gtError().noquote().nospace()
-                    << QObject::tr("Dependency -")
-                    << name << QObject::tr("- is outdated! (needed: >=")
-                    << version.toString() + QObject::tr("; current:")
-                    << depVersion.toString() + QStringLiteral(")");
+            gtError()
+                    << QObject::tr("Dependency '%1' is outdated!").arg(name)
+                    << QObject::tr("(needed: >= %1, current: %2)")
+                       .arg(version.toString(), depVersion.toString());
             return false;
         }
         else if (depVersion > version)
         {
-            gtInfo().medium().noquote().nospace()
-                    << QObject::tr("Dependency -") << name
-                    << QObject::tr("- has a newer version than the module")
-                    << meta.moduleId()
-                    << QObject::tr("requires. (needed: >=")
-                    << version.toString() + QObject::tr("; current:")
-                    << depVersion.toString() + QStringLiteral(")");
+            gtInfo().medium()
+                    << QObject::tr("Dependency '%1' has a newer version than "
+                                   "the module '%2' requires")
+                       .arg(name, meta.moduleId())
+                    << QObject::tr("(needed: >= %1, current: %2)")
+                       .arg(version.toString(), depVersion.toString());
         }
     }
 
@@ -904,8 +893,8 @@ GtModuleLoader::Impl::dependenciesOkay(const ModuleMetaData& meta)
 void
 GtModuleLoader::Impl::printDependencies(const ModuleMetaData& meta)
 {
-
-    gtWarning() << QString("####%1 (%2)").arg(meta.moduleId(), meta.location());
+    gtWarning() << QString("#### %1 (%2)")
+                   .arg(meta.moduleId(), meta.location());
 
     for (const auto& dep : meta.directDependencies())
     {
@@ -933,24 +922,12 @@ GtModuleLoader::Impl::isSuppressed(const ModuleMetaData& meta) const
 
     if (res != allowedSupprs.end())
     {
-        gtWarning().noquote() << QObject::tr("'%1' is suppressed by -")
-                                     .arg(moduleId)
-                << (*res) << QObject::tr("-");
-
+        gtWarning() << QObject::tr("'%1' is suppressed by '%2'")
+                       .arg(moduleId, *res);
         return true;
     }
 
     return false;
-}
-
-QString
-roamingPath()
-{
-#ifdef _WIN32
-    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-#endif
-    return QStandardPaths::writableLocation(
-               QStandardPaths::GenericConfigLocation);
 }
 
 /**
