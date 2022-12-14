@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Error message box will now accumulate all error messages in a single widget instead of spawning multiple windows - #348
+- Error message box will also be triggered by early error messages - #371
 - Changed module loading process. The module loading is rewritten to determine the loading order of modules.
   Please file a bug, if you experience problems - #260
 

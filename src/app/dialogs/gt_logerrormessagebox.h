@@ -21,6 +21,20 @@ class GtListView;
 class GtLogErrorMessageBoxModel;
 
 /**
+ * @brief Simple helper object that can be connected to the Signal Slot Logging
+ * Destination Functor to log error messages non blockingly.
+ */
+class GtlogErrorMessageBoxHandler : public QObject
+{
+    Q_OBJECT
+
+public slots:
+
+    void onLogMessage(QString const& msg, int lvl, GtLogDetails const& details);
+};
+
+
+/**
  * @brief The GtLogErrorMessageBox class
  * A simple dialog that displays accumulating messages into a single message
  * box like widget
@@ -38,8 +52,8 @@ public:
      * @param details Message details
      * @param parent Parent object
      */
-    static void display(gt::log::Level level,
-                        QString const& message,
+    static void display(QString const& message,
+                        gt::log::Level level,
                         GtLogDetails const& details,
                         QWidget* parent = {});
 

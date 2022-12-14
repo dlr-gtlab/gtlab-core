@@ -20,6 +20,18 @@
 #include "gt_logging.h"
 #include "gt_logdest.h"
 
+GtLogDetails
+GtLogDetails::fromGtLog(gt::log::Details const& details)
+{
+    struct tm time = details.time;
+    std::time_t t = std::mktime(&time);
+
+    return {
+        QString::fromStdString(details.id),
+        QDateTime::fromSecsSinceEpoch(t)
+    };
+}
+
 void
 GtLogSignalSlotDestination::write(std::string const& message,
                                   gt::log::Level level,

@@ -25,10 +25,18 @@
 #endif
 
 void
-GtLogErrorMessageBox::display(gt::log::Level level,
-                         QString const& message,
-                         GtLogDetails const& details,
-                         QWidget* parent)
+GtlogErrorMessageBoxHandler::onLogMessage(const QString& msg,
+                                          int lvl,
+                                          const GtLogDetails& details)
+{
+    GtLogErrorMessageBox::display(msg, gt::log::levelFromInt(lvl), details);
+}
+
+void
+GtLogErrorMessageBox::display(QString const& message,
+                              gt::log::Level level,
+                              GtLogDetails const& details,
+                              QWidget* parent)
 {
     // pipe errors only
     if (level < gt::log::levelToInt(gt::log::ErrorLevel))
@@ -182,7 +190,7 @@ GtLogErrorMessageBox::autoResize()
     // first we substract the actual width of the view and add the preferred contents width
     width = width - m_view->width() + m_view->sizeHintForColumn(0);
     // append margins (+ some for good measure)
-    width += margins.left() + margins.right() + 5;
+    width += margins.left() + 2 * margins.right();
 
     // height
     int height = minimumSizeHint().height();

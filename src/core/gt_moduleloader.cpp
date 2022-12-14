@@ -504,7 +504,7 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
     if (!m_pimpl->performLoading(*this, modulesToLoad,
                                  moduleMetaMap, failedModules))
     {
-        gtError().verbose() << QObject::tr("Some modules failed to load\n");
+        gtError().verbose() << QObject::tr("Some modules failed to load!");
         Impl::printDependencies(failedModules, moduleMetaMap);
         return false;
     }
@@ -522,7 +522,7 @@ GtModuleLoader::load()
     if (!m_pimpl->performLoading(*this, allModulesIds,
                                  moduleMetaMap, failedModules))
     {
-        gtError().verbose() << QObject::tr("Some modules failed to load\n");
+        gtError().verbose() << QObject::tr("Some modules failed to load!");
         Impl::printDependencies(failedModules, moduleMetaMap);
     }
 }
