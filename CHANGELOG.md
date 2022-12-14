@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0-pr-alpha5] - 2021-12-14
 ### Fixed
 - Unknown or duplicate shortcuts in the shortcut preference page will be removed once "Restore" was clicked - #290 
 - Fixed some shortcuts being registered multiple times - #361
@@ -12,9 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Error message box will now accumulate all error messages in a single widget instead of spawning multiple windows - #348
+- Changed module loading process. The module loading is rewritten to determine the loading order of modules.
+  Please file a bug, if you experience problems - #260
 
 ### Added
 - Shortcut for closing current MDI-Tab (`Crtl+W` by default) - #357
+- Added batch application command `load_module <my_module_file>` which can be used for module testing - #260
 
 ## [2.0.0-pr-alpha4] - 2021-12-06
 ### Fixed 
