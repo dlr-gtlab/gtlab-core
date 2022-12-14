@@ -108,7 +108,7 @@ QString getDefaultHelp(const QString& function_name)
  */
 template <
     typename Func,
-    trait::if_not_convertible<Func, SharedFunction::FunctionType> = true
+    trait::enable_if_not_convertible<Func, SharedFunction::FunctionType> = true
 > // this is disabled for shared functions
 SharedFunction makeSharedFunction(
         const QString& funcName, Func&& f, QString help = {})
@@ -156,7 +156,7 @@ SharedFunction makeSharedFunction(
  */
 template <
     typename Func,
-    trait::if_convertible<Func, SharedFunction::FunctionType> = true
+    trait::enable_if_convertible<Func, SharedFunction::FunctionType> = true
 > // this is only enabled for shared functions
 SharedFunction makeSharedFunction(
         const QString& funcName, Func&& f, QString help = {})
