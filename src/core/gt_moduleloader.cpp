@@ -37,6 +37,26 @@
 namespace
 {
 
+/// logs a warning once
+const auto logWarnOnce = [](QString const& msg) {
+    static QVector<QString> logged;
+    if (!logged.contains(msg))
+    {
+        logged.append(msg);
+        gtWarning() << msg;
+    }
+};
+
+/// logs a debug message once
+const auto logDebugOnce = [](QString const& msg) {
+    static QVector<QString> logged;
+    if (!logged.contains(msg))
+    {
+        logged.append(msg);
+        gtDebug() << msg;
+    }
+};
+
 class ModuleMetaData
 {
 public:
@@ -144,7 +164,8 @@ public:
     /**
      * @brief printDependencies
      */
-    void printDependencies(const ModuleMetaData& meta);
+    static void printDependencies(const ModuleMetaData& meta);
+    static void printDependencies(const std::map<QString, ModuleMetaData>& map);
 
     /**
      * @brief Checks whether the module with the given moduleId is suppressed
@@ -236,6 +257,7 @@ QStringList getModuleFilenames()
 
 QStringList getModulesToExclude()
 {
+
     // initialize module blacklist
     QFile excludeFile(qApp->applicationDirPath() + QDir::separator() +
                       QStringLiteral("_exclude.json"));
@@ -245,11 +267,13 @@ QStringList getModulesToExclude()
         return {};
     }
 
-    gtDebug().medium() << "Module exclude file found!";
+    logDebugOnce("Module exclude file found!");
 
     if (!excludeFile.open(QIODevice::ReadOnly))
     {
-        gtWarning() << QObject::tr("Failed to open the module exclude file!");
+        logWarnOnce(
+            QObject::tr("Failed to open the module exclude file!")
+        );
         return {};
     }
 
@@ -259,7 +283,9 @@ QStringList getModulesToExclude()
 
     if (doc.isNull())
     {
-        gtWarning() << QObject::tr("Failed to parse the module exclude file!");
+        logWarnOnce(
+            QObject::tr("Failed to parse the module exclude file!")
+        );
         return {};
     }
 
@@ -278,8 +304,9 @@ QStringList getModulesToExclude()
 
         excludeList << name;
 
-        gtWarning().medium()
-                << QObject::tr("Excluding module '%1'!").arg(name);
+        logWarnOnce(
+            QObject::tr("Excluding module '%1'!").arg(name)
+        );
     }
 
     return excludeList;
@@ -402,11 +429,13 @@ ModuleMetaMap loadModuleMeta()
     const auto crashed_mods = CrashedModulesLog().crashedModules();
 
     // Remove all modules, that have been crashed earlies
-    metaData = filterModules(metaData, [&crashed_mods](const ModuleMetaData& m) {
+    metaData = filterModules(metaData, [&](const ModuleMetaData& m){
         if (crashed_mods.contains(m.location()))
         {
-            gtWarning() << QObject::tr("'%1' loading skipped (last run crash)")
-                           .arg(m.moduleId());
+            logWarnOnce(
+               QObject::tr("Loading '%1' skipped (last run crash)")
+               .arg(m.moduleId())
+            );
             return false;
         }
         return true;
@@ -414,11 +443,13 @@ ModuleMetaMap loadModuleMeta()
 
     // Remove all modules, that should be exluded
     const auto excludeList = getModulesToExclude();
-    metaData = filterModules(metaData,[&excludeList](const ModuleMetaData& m) {
+    metaData = filterModules(metaData, [&](const ModuleMetaData& m){
         if (excludeList.contains(m.moduleId()))
         {
-            gtWarning() << QObject::tr("'%1' loading excluded by exclude list")
-                           .arg(m.moduleId());
+            logWarnOnce(
+               QObject::tr("Loading '%1' excluded by exclude list")
+               .arg(m.moduleId())
+            );
             return false;
         }
         return true;
@@ -468,14 +499,7 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
 
     if (!m_pimpl->performLoading(*this, modulesToLoad, moduleMetaMap))
     {
-        gtWarning() << QObject::tr("Could not resolve following "
-                                   "plugin dependencies:");
-
-        for (const auto& entry : moduleMetaMap)
-        {
-            m_pimpl->printDependencies(entry.second);
-        }
-
+        Impl::printDependencies(moduleMetaMap);
         return false;
     }
 
@@ -490,13 +514,7 @@ GtModuleLoader::load()
 
     if (!m_pimpl->performLoading(*this, allModulesIds, moduleMetaMap))
     {
-        gtWarning() << QObject::tr("Could not resolve following "
-                                   "plugin dependencies:");
-
-        for (const auto&entry : qAsConst(moduleMetaMap))
-        {
-            m_pimpl->printDependencies(entry.second);
-        }
+        Impl::printDependencies(moduleMetaMap);
     }
 }
 
@@ -894,14 +912,31 @@ GtModuleLoader::Impl::dependenciesOkay(const ModuleMetaData& meta)
 }
 
 void
+GtModuleLoader::Impl::printDependencies(
+        const std::map<QString, ModuleMetaData>& map)
+{
+    if (gt::log::Logger::instance().verbosity() < gt::log::Everything)
+    {
+        return;
+    }
+
+    gtWarning() << QObject::tr("Module dependencies:");
+
+    for (const auto& entry : map)
+    {
+        Impl::printDependencies(entry.second);
+    }
+}
+
+void
 GtModuleLoader::Impl::printDependencies(const ModuleMetaData& meta)
 {
-    gtWarning() << QString("#### %1 (%2)")
+    gtWarning() << QString("### %1 (%2)")
                    .arg(meta.moduleId(), meta.location());
 
     for (const auto& dep : meta.directDependencies())
     {
-        gtWarning() << QObject::tr("####   - %1 (%2)")
+        gtWarning() << QObject::tr("###   - %1 (%2)")
             .arg(dep.first, dep.second.toString());
     }
 }
