@@ -142,11 +142,13 @@ public:
      *
      * @param modulesToLoad Modules that need to be loaded
      * @param metaMap Map to the module meta data
+     * @param failedModules List of modules failed to load
      * @return
      */
     bool performLoading(GtModuleLoader& moduleLoader,
                         const QStringList& modulesToLoad,
-                        const ModuleMetaMap &metaMap);
+                        const ModuleMetaMap &metaMap,
+                        QStringList& failedModules);
     /**
      * @brief checkDependency
      * The dependencies of the module are given by a list and are compared
@@ -497,7 +499,9 @@ GtModuleLoader::loadSingleModule(const QString& moduleLocation)
         moduleMetaMap.insert(std::make_pair(moduleMeta.moduleId(), moduleMeta));
     }
 
-    if (!m_pimpl->performLoading(*this, modulesToLoad, moduleMetaMap))
+    QStringList failedModules;
+    if (!m_pimpl->performLoading(*this, modulesToLoad,
+                                 moduleMetaMap, failedModules))
     {
         Impl::printDependencies(moduleMetaMap);
         return false;
@@ -512,7 +516,9 @@ GtModuleLoader::load()
     auto allModulesIds = m_pimpl->getAllLoadableModuleIds();
     auto moduleMetaMap = m_pimpl->m_metaData;
 
-    if (!m_pimpl->performLoading(*this, allModulesIds, moduleMetaMap))
+    QStringList failedModules;
+    if (!m_pimpl->performLoading(*this, allModulesIds,
+                                 moduleMetaMap, failedModules))
     {
         Impl::printDependencies(moduleMetaMap);
     }
@@ -724,14 +730,15 @@ createAdjacencyMatrixImpl(const QStringList& modulesToLoad,
 {
     for (const auto& moduleId : modulesToLoad)
     {
-        if (matrix.find(moduleId) != matrix.end())
+        // If the module is already in the matrix,
+        // it will not overwrite the current module
+        auto insertResult = matrix.insert(std::make_pair(moduleId, QStringList{}));
+
+        if (!insertResult.second)
         {
             // continue, module is already in matrix, stop recursion
             continue;
         }
-
-        // The module is not yet in the matrix, initialize with an empty list
-        matrix[moduleId] = QStringList{};
 
         auto moduleIt = allModules.find(moduleId);
         if (moduleIt == allModules.end())
@@ -741,13 +748,14 @@ createAdjacencyMatrixImpl(const QStringList& modulesToLoad,
         }
 
         // Add dependencies to matrix
+        auto& moduleDeps = insertResult.first->second;
         for (const auto& dep : moduleIt->second.directDependencies())
         {
-            matrix[moduleId].push_back(dep.first);
+            moduleDeps.push_back(dep.first);
         }
 
         // recurse into dependencies
-        createAdjacencyMatrixImpl(matrix[moduleId], allModules, matrix);
+        createAdjacencyMatrixImpl(moduleDeps, allModules, matrix);
     }
 }
 
@@ -802,14 +810,15 @@ getSortedModulesToLoad(const QStringList& modulesIdsToLoad,
 bool
 GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
                                  const QStringList& moduleIds,
-                                 const ModuleMetaMap& metaMap)
+                                 const ModuleMetaMap& metaMap,
+                                 QStringList& failedModules)
 {
     // initialize loading fail log
     CrashedModulesLog crashLog;
 
     auto sortedModuleIds = getSortedModulesToLoad(moduleIds, metaMap);
 
-    bool allLoaded = true;
+    QStringList successfullyLoaded{};
 
     // loading procedure
     for (const auto& currentModuleId : qAsConst(sortedModuleIds))
@@ -821,7 +830,6 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
 
         if (isSuppressed(moduleMeta) || !dependenciesOkay(moduleMeta))
         {
-            allLoaded = false;
             continue;
         }
 
@@ -837,7 +845,6 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
         {
             // could not recreate plugin
             gtError() << loader.errorString();
-            allLoaded = false;
             continue;
         }
 
@@ -852,14 +859,19 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
         {
             moduleLoader.insert(module.get());
             module.release()->onLoad();
-        }
-        else
-        {
-            allLoaded = false;
+            successfullyLoaded.push_back(currentModuleId);
         }
     }
 
-    return allLoaded;
+    failedModules = std::move(sortedModuleIds);
+
+    // remove successfully loaded from sortedModuleIds
+    for (const auto& modId : qAsConst(successfullyLoaded))
+    {
+        failedModules.removeAll(modId);
+    }
+
+    return failedModules.empty();
 }
 
 bool
