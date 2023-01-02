@@ -45,7 +45,7 @@ public slots:
     /**
      * @brief onThemeChange - handle the change between the GUI theme options
      */
-    void onThemeChange();
+    void onThemeChanged() override;
 
 private slots:
     /**
@@ -54,47 +54,10 @@ private slots:
      */
     void showIndicatorToggled(bool val);
 
-//signals:
-//    /**
-//     * @brief newProject
-//     */
-//    void newProject();
-
-//    /**
-//     * @brief importProject
-//     */
-//    void importProject();
-
-//    /**
-//     * @brief helpContents
-//     */
-//    void helpContents();
-
-//    /**
-//     * @brief showInfo
-//     */
-//    void showInfo();
-
-//    /**
-//     * @brief openExamplesWidget
-//     */
-//    void openExamplesWidget();
 
 private:
     /// main frame
     QFrame* m_frame;
-
-//    /// Button to start new project
-//    QToolButton* m_newProjBtn;
-
-//    /// Button to open example
-//    QToolButton* m_examplesBtn;
-
-//    /// button to open help menu
-//    QToolButton* m_helpBtn;
-
-//    /// button to open info menu
-//    QToolButton* m_infoBtn;
 
     /// Placeholder for gtlab logo
     QLabel* m_logoLabel;
@@ -103,6 +66,7 @@ private:
      * @brief initialize widget content
      */
     void initializeTheme();
+
 };
 
 #endif // GT_STARTUPPAGE_H
