@@ -1477,6 +1477,12 @@ gt::gui::icon::duplicate()
 QPixmap
 gt::gui::pixmap::logo()
 {
+
+    if (gtApp->inDarkMode())
+    {
+        return {":/pixmaps/gt-logo-dark.png"};
+    }
+
     return {":/pixmaps/gt-logo.png"};
 }
 
@@ -1598,17 +1604,6 @@ QIcon
 gt::gui::icon::letter::i()
 {
     return gt::gui::getIcon(QStringLiteral("letters/iLetterIcon.png"));
-}
-
-QPixmap
-GtGUI::Pixmap::logo()
-{
-    if (gtApp->inDarkMode())
-    {
-        return {":/pixmaps/gt-logo-dark.png"};
-    }
-
-    return {":/pixmaps/gt-logo.png"};
 }
 
 QIcon

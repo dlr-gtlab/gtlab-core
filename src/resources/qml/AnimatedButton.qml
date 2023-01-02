@@ -185,13 +185,11 @@ Button {
         {
             if(hovered)
             {
-                //console.log("hovered=true");
                 hoverenter_animation.restart()
                 //active_animation.running = true
             }
             else
             {
-                //console.log("hovered=false");
                 hoverleave_animation.restart()
                 //inactive_animation.running = true
             }

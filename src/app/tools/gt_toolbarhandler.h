@@ -27,6 +27,8 @@ public slots:
 
     void onObjectSelected(GtObject* obj);
 
+    bool projectHasInfo();
+
 private:
     QPointer<GtObject> m_selectedObj;
 

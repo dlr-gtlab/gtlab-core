@@ -10,7 +10,7 @@
 #ifndef GT_STARTUPPAGE_H
 #define GT_STARTUPPAGE_H
 
-#include <QWidget>
+#include "gt_mdiitem.h"
 
 class QFrame;
 class QToolButton;
@@ -19,7 +19,7 @@ class QLabel;
 /**
  * @brief The GtStartupPage class
  */
-class GtStartupPage : public QWidget
+class GtStartupPage : public GtMdiItem
 {
     Q_OBJECT
 
@@ -27,13 +27,19 @@ public:
     /**
      * @brief GtStartupPage
      */
-    GtStartupPage();
+    Q_INVOKABLE GtStartupPage();
 
     /**
      * @brief Virtual function to specify item specific icon.
      * @return Object specific icon.
      */
-    virtual QIcon icon() const;
+    QIcon icon() const override;
+
+    /**
+     * @brief allowsMultipleInstances
+     * @return true because the memento viewer can be opened multiple times
+     */
+    bool allowsMultipleInstances() const override;
 
 public slots:
     /**
@@ -48,47 +54,47 @@ private slots:
      */
     void showIndicatorToggled(bool val);
 
-signals:
-    /**
-     * @brief newProject
-     */
-    void newProject();
+//signals:
+//    /**
+//     * @brief newProject
+//     */
+//    void newProject();
 
-    /**
-     * @brief importProject
-     */
-    void importProject();
+//    /**
+//     * @brief importProject
+//     */
+//    void importProject();
 
-    /**
-     * @brief helpContents
-     */
-    void helpContents();
+//    /**
+//     * @brief helpContents
+//     */
+//    void helpContents();
 
-    /**
-     * @brief showInfo
-     */
-    void showInfo();
+//    /**
+//     * @brief showInfo
+//     */
+//    void showInfo();
 
-    /**
-     * @brief openExamplesWidget
-     */
-    void openExamplesWidget();
+//    /**
+//     * @brief openExamplesWidget
+//     */
+//    void openExamplesWidget();
 
 private:
     /// main frame
     QFrame* m_frame;
 
-    /// Button to start new project
-    QToolButton* m_newProjBtn;
+//    /// Button to start new project
+//    QToolButton* m_newProjBtn;
 
-    /// Button to open example
-    QToolButton* m_examplesBtn;
+//    /// Button to open example
+//    QToolButton* m_examplesBtn;
 
-    /// button to open help menu
-    QToolButton* m_helpBtn;
+//    /// button to open help menu
+//    QToolButton* m_helpBtn;
 
-    /// button to open info menu
-    QToolButton* m_infoBtn;
+//    /// button to open info menu
+//    QToolButton* m_infoBtn;
 
     /// Placeholder for gtlab logo
     QLabel* m_logoLabel;

@@ -24,14 +24,12 @@
 #include "gt_logging.h"
 #include "gt_projectui.h"
 #include "gt_collectioneditor.h"
-#include "gt_startuppage.h"
 #include "gt_settings.h"
 #include "gt_checkforupdatesdialog.h"
 #include "gt_cornerwidget.h"
 #include "gt_updatechecker.h"
 #include "gt_simpleloadingwidget.h"
 #include "gt_abstractloadinghelper.h"
-#include "gt_processexecutor.h"
 #include "gt_processqueuemodel.h"
 #include "gt_processqueuewidget.h"
 #include "gt_saveprojectmessagebox.h"
@@ -239,15 +237,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(onEditorWindowActive(QMdiSubWindow*)));
 
     loadPerspectiveSettings();
-
-    // gui logger destination
-    QsLogging::Logger& logger = QsLogging::Logger::instance();
-
-    QsLogging::DestinationPtr widgetDestination(
-                QsLogging::DestinationFactory::MakeFunctorDestination(
-                    this, SLOT(onLogMessage(QString,int))));
-
-    logger.addDestination(widgetDestination);
 
     ui->qmlToolBar->setStyleSheet("QToolBar {border-bottom: 0px solid black; border-top: 0px solid black;}");
 
@@ -1186,17 +1175,7 @@ GtMainWin::initAfterStartup()
     // open startup page
     if (gtApp->settings()->showStartupPage())
     {
-        GtStartupPage* page = new GtStartupPage;
-
-        connect(page, SIGNAL(newProject()), SLOT(showProjectWizard()));
-        connect(page, SIGNAL(openExamplesWidget()), SLOT(openExamplesWidget()));
-        connect(page, SIGNAL(helpContents()), SLOT(openHelpContents()));
-        connect(page, SIGNAL(showInfo()), SLOT(openAboutDialog()));
-        connect(gtApp, SIGNAL(themeChanged(bool)), page, SLOT(onThemeChange()));
-
-        ui->mdiArea->addTab(page, page->icon(), tr("Welcome"));
-        ui->mdiArea->setCurrentWidget(page);
-        page->show();
+        gtMdiLauncher->open("GtStartupPage");
     }
 
     // search for updates
@@ -1325,12 +1304,12 @@ GtMainWin::onWidgetStructureClicked()
 void
 GtMainWin::onLogMessage(const QString& msg, int level)
 {
-    if (level > 3) // Pipe errors (level 4) to a message box
-    {
-        QsLogging::Level l = QsLogging::Logger::levelFromInt(level);
-        QMessageBox::critical(this, QsLogging::Logger::levelToString(l),
-                              msg, QMessageBox::Ok);
-    }
+//    if (level > 3) // Pipe errors (level 4) to a message box
+//    {
+//        QsLogging::Level l = QsLogging::Logger::levelFromInt(level);
+//        QMessageBox::critical(this, QsLogging::Logger::levelToString(l),
+//                              msg, QMessageBox::Ok);
+//    }
 }
 
 void

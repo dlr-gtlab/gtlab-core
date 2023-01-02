@@ -74,6 +74,10 @@ GtToolbarHandler::buttonClicked(const QString &btnId)
 
         }
     }
+    else if (btnId == "btnHome")
+    {
+        gtMdiLauncher->open("GtStartupPage");
+    }
 }
 
 void
@@ -84,4 +88,21 @@ GtToolbarHandler::onObjectSelected(GtObject* obj)
 //        gtInfo() << "GtToolbarHandler::onObjectSelected";
         m_selectedObj = obj;
     }
+}
+
+bool
+GtToolbarHandler::projectHasInfo()
+{
+    // check project readme and show content
+    GtProject* currentProject = gtApp->currentProject();
+
+    if (!currentProject)
+    {
+        return false;
+    }
+
+    QDir projectDir(currentProject->path());
+    QFile readmeFile(projectDir.absoluteFilePath("README.md"));
+
+    return readmeFile.exists();
 }

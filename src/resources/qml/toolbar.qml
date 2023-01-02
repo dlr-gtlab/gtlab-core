@@ -292,22 +292,31 @@ Rectangle {
 
             function onProjectOpened(open)
             {
-                console.log(open);
+                console.log("project opened " + open);
                 if(open)
                 {
-//                    project_context.visible = true;
-                    btn_save_project.active_animation.start();
-                    btn_info.active_animation.start();
-                    project_context_active_anim.start();
+                    // complete all to-inactive state animations
+                    btn_save_project.inactive_animation.complete();
+                    btn_info.inactive_animation.complete();
+                    project_context_inactive_anim.complete();
+                    btn_undo.inactive_animation.complete()
+                    btn_redo.inactive_animation.complete()
+
+                    btn_save_project.active_animation.restart();
+                    if (handler.projectHasInfo())
+                    {
+                        btn_info.active_animation.restart();
+                    }
+
+                    project_context_active_anim.restart();
                 }
                 else
                 {
                     btn_save_project.inactive_animation.restart();
                     btn_info.inactive_animation.restart();
                     project_context_inactive_anim.restart();
-                    btn_undo.inactive_animation.start()
-                    btn_redo.inactive_animation.start()
-//                    project_context.visible = false;
+                    btn_undo.inactive_animation.restart()
+                    btn_redo.inactive_animation.restart()
                 }
             }
 
