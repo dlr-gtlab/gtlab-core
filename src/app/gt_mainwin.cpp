@@ -113,19 +113,17 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui->mdiArea->tabBar()->setExpanding(true);
 
     // undo action
-    QAction* undoAct = gtApp->undoStack()->createUndoAction(ui->undoBar,
+    QAction* undoAct = gtApp->undoStack()->createUndoAction(this,
                        tr("Undo"));
     undoAct->setIcon(gt::gui::icon::undo24());
     undoAct->setText(tr("Undo"));
-    ui->undoBar->addAction(undoAct);
     undoAct->setShortcut(gtApp->getShortCutSequence("undo"));
 
     // redo action
-    QAction* redoAct = gtApp->undoStack()->createRedoAction(ui->undoBar,
+    QAction* redoAct = gtApp->undoStack()->createRedoAction(this,
                        tr("Redo"));
     redoAct->setIcon(gt::gui::icon::redo24());
     redoAct->setText(tr("Redo"));
-    ui->undoBar->addAction(redoAct);
     redoAct->setShortcut(gtApp->getShortCutSequence("redo"));
 
     // edit menu initialization
