@@ -75,7 +75,7 @@ Rectangle {
             onHoveredChanged:
             {
 
-                console.log("onHoveredChanged!")
+//                console.log("onHoveredChanged!")
                 if(hovered)
                 {
                     btn_close_inactive_anim.complete()
