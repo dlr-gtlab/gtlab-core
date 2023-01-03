@@ -18,7 +18,7 @@ CONFIG(debug, debug|release){
     TARGET = GTlabGui
 }
 
-QT += core widgets network xml printsupport qml concurrent
+QT += core widgets network xml printsupport qml concurrent quickwidgets
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent

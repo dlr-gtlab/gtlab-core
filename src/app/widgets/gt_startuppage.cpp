@@ -28,7 +28,7 @@ GtStartupPage::GtStartupPage()
 
     QVBoxLayout* lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);
-    lay->setSpacing(0);
+    lay->setSpacing(5);
 
     m_frame = new QFrame(widget());
     m_frame->setFrameShape(QFrame::StyledPanel);

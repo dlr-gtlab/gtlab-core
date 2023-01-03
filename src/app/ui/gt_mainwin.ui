@@ -42,6 +42,9 @@
     </property>
     <item>
      <widget class="QTabWidget" name="mdiArea">
+      <property name="styleSheet">
+       <string notr="true">border:0</string>
+      </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
@@ -175,7 +178,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="qmlToolBar">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>Tool Bar</string>
    </property>
    <property name="movable">
     <bool>false</bool>

@@ -8,6 +8,8 @@
  */
 
 #include <QIcon>
+#include <QQuickWidget>
+#include <QQmlContext>
 
 #include "gt_dockwidget.h"
 #include "gt_application.h"
@@ -16,6 +18,13 @@
 GtDockWidget::GtDockWidget()
 {
     setObjectName(tr("Dock Widget"));
+
+    QQuickWidget* qml_titlebar = new QQuickWidget(this);
+    qml_titlebar->resize(QSize(50, 25));
+    qml_titlebar->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    qml_titlebar->rootContext()->setContextProperty("dockwidget", this);
+    qml_titlebar->setSource(QUrl("qrc:/qml/dockbar.qml"));
+    setTitleBarWidget(qml_titlebar);
 
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
             SLOT(onProjectChanged(GtProject*)));
