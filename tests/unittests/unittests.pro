@@ -116,6 +116,8 @@ equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 12) {
 
 LIBS += -L$${BUILD_DEST_TEMP}
 
+# Use of pre compiled logging header to reduce compile time
+PRECOMPILED_HEADER = $${GTLAB_LOGGING_PATH}/include/logging/gt_logging.h
 
 CONFIG(debug, debug|release){
     # Utilities

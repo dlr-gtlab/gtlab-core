@@ -171,6 +171,9 @@ unix {
 
 LIBS += -L$${BUILD_DEST}
 
+# Use of pre compiled logging header to reduce compile time
+PRECOMPILED_HEADER = $${GTLAB_LOGGING_PATH}/include/logging/gt_logging.h
+
 CONFIG(debug, debug|release) {
     LIBS += -lGTlabLogging-d
 } else {
