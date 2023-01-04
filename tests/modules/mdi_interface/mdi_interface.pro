@@ -43,6 +43,9 @@ DEPENDPATH  += ../../../lib/core
 
 DESTDIR = $${BUILD_DEST}
 
+# Use of pre compiled logging header to reduce compile time
+PRECOMPILED_HEADER = $${GTLAB_LOGGING_PATH}/include/logging/gt_logging.h
+
 HEADERS += \
     data/test_mdi_data.h \
     data/test_mdi_package.h \

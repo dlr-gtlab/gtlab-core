@@ -45,6 +45,9 @@ DEPENDPATH  += $${BUILD_DEST}
 
 DESTDIR = $${BUILD_DEST}
 
+# Use of pre compiled logging header to reduce compile time
+PRECOMPILED_HEADER = $${GTLAB_LOGGING_PATH}/include/logging/gt_logging.h
+
 HEADERS += \
     calculator/test_calculator.h \
     calculator/test_crashonexecutecalculator.h \

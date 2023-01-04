@@ -42,6 +42,9 @@ DEPENDPATH  += ../../../lib/core
 
 DESTDIR = $${BUILD_DEST}
 
+# Use of pre compiled logging header to reduce compile time
+PRECOMPILED_HEADER = $${GTLAB_LOGGING_PATH}/include/logging/gt_logging.h
+
 HEADERS += \
     test_datamodel_interface_exports.h  \
     test_datamodel_interface.h  \
