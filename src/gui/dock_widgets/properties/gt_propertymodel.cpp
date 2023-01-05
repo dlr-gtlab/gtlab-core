@@ -14,6 +14,8 @@
 #include "gt_propertycategoryitem.h"
 #include "gt_modeproperty.h"
 #include "gt_propertymodeitem.h"
+#include "gt_propertystructcontainer.h"
+#include "gt_structproperty.h"
 
 GtPropertyModel::GtPropertyModel(GtObject* scope,
                                  QObject* parent) :
@@ -330,6 +332,80 @@ GtPropertyModel::setObject(GtObject* obj)
     }
 
     endResetModel();
+}
+
+void
+GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
+{
+    if (m_obj)
+    {
+        disconnect(m_obj.data(), SIGNAL(destroyed(QObject*)), this,
+                   SLOT(resetObject()));
+    }
+
+    beginResetModel();
+
+    qDeleteAll(m_properties);
+    m_properties.clear();
+
+    m_obj = obj;
+
+    if (m_obj)
+    {
+        connect(m_obj.data(), SIGNAL(destroyed(QObject*)), SLOT(resetObject()));
+
+        for (int i = 0; i < container.size(); ++i)
+        {
+            GtPropertyCategoryItem* cat =
+                    new GtPropertyCategoryItem(m_scope,
+                                               container.entryPrefix() + " [" +
+                                               QString::number(i) + "]",
+                                               this);
+            m_properties << cat;
+
+            foreach (GtAbstractProperty* pChild,
+                     container.at(i).properties())
+            {
+                cat->addPropertyItem(pChild);
+            }
+        }
+
+    }
+
+    endResetModel();
+}
+
+QModelIndex
+GtPropertyModel::addNewStructContainerEntry(
+        GtPropertyStructContainer& container,
+        const QString& entryType)
+{
+    if (!container.allowedTypes().contains(entryType))
+    {
+        // invalid entry type
+        return {};
+    }
+
+    beginInsertRows(QModelIndex(), m_properties.size(), m_properties.size());
+
+    auto& newEntry = container.newEntry(entryType);
+
+    GtPropertyCategoryItem* cat =
+            new GtPropertyCategoryItem(m_scope,
+                                       container.entryPrefix() + " [" +
+                                       QString::number(m_properties.size()) +
+                                       "]",
+                                       this);
+    m_properties << cat;
+
+    foreach (GtAbstractProperty* pChild, newEntry.properties())
+    {
+        cat->addPropertyItem(pChild);
+    }
+
+    endInsertRows();
+
+    return indexFromProperty(cat);
 }
 
 GtObject*

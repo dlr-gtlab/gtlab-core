@@ -10,6 +10,8 @@
 #ifndef GTPROPERTYMODEL_H
 #define GTPROPERTYMODEL_H
 
+#include "gt_gui_exports.h"
+
 #include <QAbstractItemModel>
 #include <QPointer>
 
@@ -17,11 +19,12 @@ class GtObject;
 class GtPropertyCategoryItem;
 class GtAbstractPropertyItem;
 class GtAbstractProperty;
+class GtPropertyStructContainer;
 
 /**
  * @brief The GtPropertyModel class
  */
-class GtPropertyModel : public QAbstractItemModel
+class GT_GUI_EXPORT GtPropertyModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -124,6 +127,23 @@ public:
      * @param obj
      */
     void setObject(GtObject* obj);
+
+    /**
+     * @brief Sets new object to display the property structure for. Here only
+     * for one property struct container.
+     * @param obj object to which the container belongs
+     * @param container
+     */
+    void setObject(GtObject* obj, GtPropertyStructContainer& container);
+
+    /**
+     * @brief Adds a new container entry based on given entry type.
+     * @param container Target container
+     * @param entryType Entry type identification string
+     * @return Model index of new created entry
+     */
+    QModelIndex addNewStructContainerEntry(GtPropertyStructContainer& container,
+                                    const QString& entryType);
 
     /**
      * @brief object

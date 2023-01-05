@@ -78,6 +78,12 @@ GtPropertyTreeView::filterModel()
     return m_filterModel;
 }
 
+GtPropertyModel*
+GtPropertyTreeView::propertyModel()
+{
+    return m_model;
+}
+
 QModelIndex
 GtPropertyTreeView::mapToSource(const QModelIndex& index)
 {
@@ -123,6 +129,26 @@ GtPropertyTreeView::setObject(GtObject* obj, bool processEvents)
             QCoreApplication::processEvents();
         }
         
+        expandAll();
+        resizeColumns();
+    }
+}
+
+void
+GtPropertyTreeView::setObject(GtObject* obj,
+                              GtPropertyStructContainer& container,
+                              bool processEvents)
+{
+    if (m_model->object() != obj)
+    {
+        m_model->setObject(obj, container);
+
+        if (processEvents)
+        {
+            /// Fix to handle signals from resetting the model
+            QCoreApplication::processEvents();
+        }
+
         expandAll();
         resizeColumns();
     }

@@ -52,6 +52,19 @@ GtPropertyStructContainer::registerAllowedType(
     pimpl->allowedTypes.insert(std::make_pair(f.typeName(), f));
 }
 
+QStringList
+GtPropertyStructContainer::allowedTypes() const
+{
+    QStringList retval;
+
+    for(auto const& imap: pimpl->allowedTypes)
+    {
+        retval.push_back(imap.first);
+    }
+
+    return retval;
+}
+
 GtPropertyStructInstance&
 GtPropertyStructContainer::newEntry(QString typeID, QString id)
 {

@@ -47,6 +47,12 @@ public:
     void registerAllowedType(const GtPropertyStructDefinition& f);
 
     /**
+     * @brief Returns list of all allowed types.
+     * @return List of allowed type identification strings
+     */
+    QStringList allowedTypes() const;
+
+    /**
      * @brief Performs an in-place creation of a new struct instance
      * given the type.
      *

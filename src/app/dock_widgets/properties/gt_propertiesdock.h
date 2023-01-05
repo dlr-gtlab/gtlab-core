@@ -14,6 +14,7 @@
 
 #include "gt_dockwidget.h"
 
+class QTabWidget;
 class QLabel;
 
 class GtProcessComponentSettingsButton;
@@ -41,6 +42,9 @@ public:
     Qt::DockWidgetArea getDockWidgetArea() override;
 
 private:
+    /// Property tab widget
+    QTabWidget* m_tab;
+
     /// Search widget
     GtSearchWidget* m_search;
 
