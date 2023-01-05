@@ -26,6 +26,9 @@ private:
 
     GtPropertyTreeView* m_containerTree;
 
+    void addNewEntry(GtPropertyStructContainer& container,
+                     const QString& entryType);
+
 private slots:
     void addNewEntry();
 

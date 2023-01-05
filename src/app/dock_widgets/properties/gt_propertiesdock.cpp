@@ -114,10 +114,10 @@ void
 GtPropertiesDock::objectSelected(GtObject* obj)
 {
     // clear tab
-    for (int i = 1; i < m_tab->count(); ++i)
+    while (m_tab->count() > 1)
     {
-        QWidget* tmpWid = m_tab->widget(i);
-        m_tab->removeTab(i);
+        QWidget* tmpWid = m_tab->widget(m_tab->count() - 1);
+        m_tab->removeTab(m_tab->count() - 1);
         delete tmpWid;
     }
 

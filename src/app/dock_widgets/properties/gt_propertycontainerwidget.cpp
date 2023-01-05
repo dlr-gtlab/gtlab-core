@@ -1,5 +1,6 @@
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QMenu>
 
 #include "gt_object.h"
 #include "gt_propertytreeview.h"
@@ -75,21 +76,43 @@ GtPropertyContainerWidget::addNewEntry()
     // only single type allows. add default entry
     if (m_allowedTypes.size() == 1)
     {
-        GtPropertyModel* model = m_containerTree->propertyModel();
-
-        if (model)
-        {
-            gtDebug() << "model found! adding new entry...";
-            QModelIndex idx = model->addNewStructContainerEntry(
-                        *container, m_allowedTypes.first());
-
-            if (idx.isValid())
-            {
-                QModelIndex fidx = m_containerTree->mapFromSource(idx);
-                m_containerTree->expandRecursively(fidx);
-            }
-        }
+        addNewEntry(*container, m_allowedTypes.first());
     }
 
-    // TODO: procedure to choose between multiple allowed types
+    QMenu menu(this);
+
+    QList<QAction*> actions;
+
+    foreach (const QString& allowedType, m_allowedTypes)
+    {
+        actions << menu.addAction(allowedType);
+    }
+
+    QAction* a = menu.exec(QCursor::pos());
+
+    const int a_idx = actions.indexOf(a);
+
+    if (a_idx >= 0)
+    {
+        addNewEntry(*container, m_allowedTypes.at(a_idx));
+    }
+}
+
+void
+GtPropertyContainerWidget::addNewEntry(GtPropertyStructContainer& container,
+                                       const QString& entryType)
+{
+    GtPropertyModel* model = m_containerTree->propertyModel();
+
+    if (model)
+    {
+        QModelIndex idx = model->addNewStructContainerEntry(
+                    container, entryType);
+
+        if (idx.isValid())
+        {
+            QModelIndex fidx = m_containerTree->mapFromSource(idx);
+            m_containerTree->expandRecursively(fidx);
+        }
+    }
 }
