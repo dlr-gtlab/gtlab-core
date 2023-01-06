@@ -144,6 +144,12 @@ private slots:
      */
     void setRootsSpanned();
 
+    /**
+     * @brief Processes delete request for given index.
+     * @param idx
+     */
+    void onDeleteRequested(const QModelIndex& idx);
+
 };
 
 #endif // GTPROPERTYTREEVIEW_H

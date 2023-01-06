@@ -79,6 +79,13 @@ GtPropertyModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
+    if (item->data(index.column(), GtPropertyModel::ContainerRole).toBool() &&
+            role == Qt::DisplayRole)
+    {
+        return item->data(index.column(), role).toString() + + " [" +
+                QString::number(index.row()) + "]";
+    }
+
     return item->data(index.column(), role);
 }
 
@@ -349,6 +356,7 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
     m_properties.clear();
 
     m_obj = obj;
+    m_containerId = container.ident();
 
     if (m_obj)
     {
@@ -358,9 +366,9 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
         {
             GtPropertyCategoryItem* cat =
                     new GtPropertyCategoryItem(m_scope,
-                                               container.entryPrefix() + " [" +
-                                               QString::number(i) + "]",
+                                               container.entryPrefix(),
                                                this);
+            cat->setIsContainer(true);
             m_properties << cat;
 
             foreach (GtAbstractProperty* pChild,
@@ -369,7 +377,6 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
                 cat->addPropertyItem(pChild);
             }
         }
-
     }
 
     endResetModel();
@@ -392,10 +399,9 @@ GtPropertyModel::addNewStructContainerEntry(
 
     GtPropertyCategoryItem* cat =
             new GtPropertyCategoryItem(m_scope,
-                                       container.entryPrefix() + " [" +
-                                       QString::number(m_properties.size()) +
-                                       "]",
+                                       container.entryPrefix(),
                                        this);
+    cat->setIsContainer(true);
     m_properties << cat;
 
     foreach (GtAbstractProperty* pChild, newEntry.properties())
@@ -406,6 +412,57 @@ GtPropertyModel::addNewStructContainerEntry(
     endInsertRows();
 
     return indexFromProperty(cat);
+}
+
+void
+GtPropertyModel::removeStructContainerEntry(const QModelIndex& index)
+{
+    if (!index.isValid() || index.model() != this)
+    {
+        gtWarning() << tr("invalid index");
+        return;
+    }
+
+    if (!m_obj)
+    {
+        gtWarning() << tr("invalid object!");
+        return;
+    }
+
+    auto* container = m_obj->findPropertyContainer(m_containerId);
+
+    if (!container)
+    {
+        gtWarning() << tr("container not found!");
+        return;
+    }
+
+    if (index.row() >= container->size())
+    {
+        gtWarning() << tr("index out of bounds!");
+        return;
+    }
+
+    auto& entry = container->at(index.row());
+
+
+    auto iter = container->findEntry(entry.ident());
+
+    if (iter == container->end())
+    {
+        // uuid not in container
+        return;
+    }
+
+    beginRemoveRows(QModelIndex(), std::distance(container->begin(), iter),
+                    std::distance(container->begin(), iter));
+
+    container->removeEntry(iter);
+    GtPropertyCategoryItem* ditem = m_properties.at(index.row());
+    m_properties.removeAt(index.row());
+    delete ditem;
+
+    endRemoveRows();
 }
 
 GtObject*

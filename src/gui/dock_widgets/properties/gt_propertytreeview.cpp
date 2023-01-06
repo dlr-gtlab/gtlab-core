@@ -64,6 +64,8 @@ GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
     connect(m_filterModel, SIGNAL(modelReset()), SLOT(setRootsSpanned()));
     connect(m_filterModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             SLOT(setRootsSpanned()));
+    connect(idDelegate, SIGNAL(deleteRequested(QModelIndex)),
+            SLOT(onDeleteRequested(QModelIndex)));
 }
 
 void
@@ -302,5 +304,18 @@ GtPropertyTreeView::setRootsSpanned()
     {
         setFirstColumnSpanned(i, QModelIndex(), true);
     }
+}
+
+void
+GtPropertyTreeView::onDeleteRequested(const QModelIndex& idx)
+{
+    QModelIndex sidx = mapToSource(idx);
+
+    if (!sidx.isValid() || sidx.parent().isValid())
+    {
+        return;
+    }
+
+    m_model->removeStructContainerEntry(sidx);
 }
 

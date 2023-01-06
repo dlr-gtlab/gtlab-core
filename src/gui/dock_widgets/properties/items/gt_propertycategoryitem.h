@@ -41,6 +41,18 @@ public:
     void addPropertyItem(GtAbstractProperty* property);
 
     /**
+     * @brief If set to true, category item will treated like a container entry
+     * @param isContainer
+     */
+    void setIsContainer(bool isContainer);
+
+    /**
+     * @brief If true, category item is a container entry.
+     * @return
+     */
+    bool isContainer() const;
+
+    /**
      * @brief categoryId
      * @return
      */
@@ -66,12 +78,24 @@ public:
                  GtObject* obj,
                  int role = Qt::EditRole) override;
 
+    /**
+     * @brief paint
+     * @param painter
+     * @param option
+     * @return
+     */
+    void paint(QPainter* painter,
+               const QStyleOptionViewItem& option) const override;
+
 private:
     /// Category identification string
     QString m_id;
 
     /// Expand-Collapse icon
     QIcon m_icon;
+
+    /// Container indicator
+    bool m_isContainer{false};
 
 };
 

@@ -36,7 +36,8 @@ public:
         ReadOnlyRole,
         OptionalRole,
         ActiveRole,
-        MonitoringRole
+        MonitoringRole,
+        ContainerRole
     };
 
     /**
@@ -146,6 +147,12 @@ public:
                                     const QString& entryType);
 
     /**
+     * @brief Removes container entry for given index.
+     * @param index
+     */
+    void removeStructContainerEntry(const QModelIndex& index);
+
+    /**
      * @brief object
      * @return
      */
@@ -243,6 +250,10 @@ private:
 
     /// Category filter
     QStringList m_catFilter;
+
+    /// Container identification string. Only set if property strcut container
+    /// is desplayed.
+    QString m_containerId;
 
     /**
      * @brief addProperty

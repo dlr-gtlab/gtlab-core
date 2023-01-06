@@ -9,19 +9,12 @@
 
 #include <QVariant>
 #include <QFont>
+#include <QPainter>
+#include <QStyleOptionButton>
+#include <QApplication>
 
 #include "gt_propertycategoryitem.h"
-#include "gt_propertyitem.h"
-#include "gt_application.h"
 #include "gt_propertymodel.h"
-#include "gt_modeproperty.h"
-#include "gt_propertymodeitem.h"
-#include "gt_propertyobjectlinkitem.h"
-#include "gt_objectlinkproperty.h"
-#include "gt_propertylabelitem.h"
-#include "gt_labelproperty.h"
-#include "gt_filechooserproperty.h"
-#include "gt_propertyfilechooseritem.h"
 #include "gt_propertyitemfactory.h"
 #include "gt_icons.h"
 
@@ -44,6 +37,18 @@ GtPropertyCategoryItem::addPropertyItem(GtAbstractProperty* property)
     {
         gtPropertyItemFactory->newItem(property, m_scope, m_model, this);
     }
+}
+
+void
+GtPropertyCategoryItem::setIsContainer(bool isContainer)
+{
+    m_isContainer = isContainer;
+}
+
+bool
+GtPropertyCategoryItem::isContainer() const
+{
+    return m_isContainer;
 }
 
 const QString&
@@ -82,6 +87,11 @@ GtPropertyCategoryItem::data(int column, int role) const
             return true;
         }
 
+        case GtPropertyModel::ContainerRole:
+        {
+            return m_isContainer;
+        }
+
         case GtPropertyModel::MonitoringRole:
         {
             if (m_id == QStringLiteral("Monitoring"))
@@ -111,4 +121,31 @@ GtPropertyCategoryItem::setData(int column, const QVariant& value,
     m_icon = value.value<QIcon>();
 
     return true;
+}
+
+void
+GtPropertyCategoryItem::paint(QPainter* painter,
+                              const QStyleOptionViewItem& option) const
+{
+    painter->save();
+    QStyleOptionComboBox box;
+    box.rect = option.rect;
+
+    box.state = QStyle::State_Active | QStyle::State_Enabled;
+
+    QRect r = QApplication::style()->subControlRect(QStyle::CC_ComboBox,
+              &box,
+              QStyle::SC_ComboBoxArrow);
+
+    QStyleOptionViewItem opt = option;
+
+    double dx = (r.width() - 10) / 2;
+    double dy = (r.height() - 10) / 2;
+
+    opt.rect = QRect(r.x() + dx, r.y() + dy, 10, 10);
+
+    QApplication::style()->drawPrimitive(QStyle::PE_IndicatorArrowDown,
+                                         &opt, painter);
+
+    painter->restore();
 }
