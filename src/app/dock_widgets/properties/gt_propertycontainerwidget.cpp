@@ -77,6 +77,7 @@ GtPropertyContainerWidget::addNewEntry()
     if (m_allowedTypes.size() == 1)
     {
         addNewEntry(*container, m_allowedTypes.first());
+        return;
     }
 
     QMenu menu(this);
