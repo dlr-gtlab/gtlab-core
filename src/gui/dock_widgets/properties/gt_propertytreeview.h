@@ -139,6 +139,11 @@ private slots:
      */
     void onExpanded(const QModelIndex& index);
 
+    /**
+     * @brief Sets the first colum spanned for all roots.
+     */
+    void setRootsSpanned();
+
 };
 
 #endif // GTPROPERTYTREEVIEW_H

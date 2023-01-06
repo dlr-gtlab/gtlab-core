@@ -60,6 +60,10 @@ GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
     m_filterModel->setSourceModel(m_model);
 
     setModel(m_filterModel);
+
+    connect(m_filterModel, SIGNAL(modelReset()), SLOT(setRootsSpanned()));
+    connect(m_filterModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            SLOT(setRootsSpanned()));
 }
 
 void
@@ -188,8 +192,6 @@ GtPropertyTreeView::drawRow(QPainter* painter,
 {
     QStyleOptionViewItemV3 opt = option;
 
-    //bool isCategory = index.data(GtPropertyModel::CategoryRole).toBool();
-
     GtTreeView::drawRow(painter, opt, index);
 
     QColor color = static_cast<QRgb>(QApplication::style()->styleHint(
@@ -290,6 +292,15 @@ GtPropertyTreeView::onExpanded(const QModelIndex& index)
             model()->setData(index, gt::gui::icon::arrowDown(),
                              Qt::DecorationRole);
         }
+    }
+}
+
+void
+GtPropertyTreeView::setRootsSpanned()
+{
+    for (int i = 0; i < m_filterModel->rowCount(); ++i)
+    {
+        setFirstColumnSpanned(i, QModelIndex(), true);
     }
 }
 
