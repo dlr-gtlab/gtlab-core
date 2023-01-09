@@ -20,6 +20,7 @@
 #include "gt_taskgroup.h"
 #include "gt_processfactory.h"
 #include "gt_task.h"
+#include "gt_objectfactory.h"
 #include "internal/gt_platformspecifics.h"
 
 static const char* S_INDEX_FILE_NAME = "index.json";
@@ -62,6 +63,8 @@ GtTaskGroup::GtTaskGroup(const QString& id) :
     m_pimpl{std::make_unique<Impl>(*this)}
 {
     setObjectName(id);
+
+    setFactory(gtObjectFactory);
 }
 
 GtTaskGroup::~GtTaskGroup() = default;
