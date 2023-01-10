@@ -149,14 +149,14 @@ Button {
                 //anchors.verticalCenter: parent.verticalCenter
                 sourceSize: Qt.size(14, 14)
                 smooth: true
-                antialiasing: true
-
-                ColorOverlay {
-                    anchors.fill: myContentIcon
-                    source: myContentIcon
-                    color: hovered ? (custom_Enabled ? custom_secondaryColor : (dockBar.dark_mode ? custom_secondaryColorInactiveDark : custom_secondaryColorInactive)) : dockBar.dark_mode ? (custom_Enabled ? custom_iconColorDark : custom_secondaryColorInactiveDark) : (custom_Enabled ? custom_iconColor : custom_secondaryColorInactive)
-                }
+                antialiasing: true   
             }
+
+            ColorOverlay {
+                source: myContentIcon
+                color: hovered ? (custom_Enabled ? custom_secondaryColor : (dockBar.dark_mode ? custom_secondaryColorInactiveDark : custom_secondaryColorInactive)) : dockBar.dark_mode ? (custom_Enabled ? custom_iconColorDark : custom_secondaryColorInactiveDark) : (custom_Enabled ? custom_iconColor : custom_secondaryColorInactive)
+            }
+
             Text {
                 id: myIconText
                 text: control.text

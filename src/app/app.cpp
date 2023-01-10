@@ -81,6 +81,8 @@ registerWidgets()
 int
 main(int argc, char* argv[])
 {
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
     QApplication::setOrganizationDomain("www.dlr.de");
     QApplication::setOrganizationName("DLR");
     QApplication::setApplicationName("GTlab");

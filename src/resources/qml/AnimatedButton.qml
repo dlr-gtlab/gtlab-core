@@ -158,13 +158,13 @@ Button {
                 sourceSize: Qt.size(20, 20)
                 smooth: true
                 antialiasing: true
-
-                ColorOverlay {
-                    anchors.fill: myContentIcon
-                    source: myContentIcon
-                    color: hovered ? (custom_Enabled ? custom_secondaryColor : (toolBar.dark_mode ? custom_secondaryColorInactiveDark : custom_secondaryColorInactive)) : toolBar.dark_mode ? (custom_Enabled ? custom_iconColorDark : custom_secondaryColorInactiveDark) : (custom_Enabled ? custom_iconColor : custom_secondaryColorInactive)
-                }
             }
+
+            ColorOverlay {
+                source: myContentIcon
+                color: hovered ? (custom_Enabled ? custom_secondaryColor : (toolBar.dark_mode ? custom_secondaryColorInactiveDark : custom_secondaryColorInactive)) : toolBar.dark_mode ? (custom_Enabled ? custom_iconColorDark : custom_secondaryColorInactiveDark) : (custom_Enabled ? custom_iconColor : custom_secondaryColorInactive)
+            }
+
             Text {
                 id: myIconText
                 text: control.text
