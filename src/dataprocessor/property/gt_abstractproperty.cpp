@@ -172,6 +172,12 @@ GtAbstractProperty::insertSubProperty(GtAbstractProperty& property, int index)
     {
         m_subProperties.insert(index, &property);
     }
+
+    // if any of the sub props has changed, emit a signal
+    connect(&property, &GtAbstractProperty::changed, this,
+            [this, p = &property]() {
+        emit subPropChanged(p);
+    });
 }
 
 bool
