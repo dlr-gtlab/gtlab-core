@@ -76,6 +76,7 @@ HEADERS += \
     gt_variantconvert.h \
     gt_xmlexpr.h \
     gt_xmlutilities.h \
+    internal/varianthasher.h \
     property/gt_enumproperty.h \
     property/gt_objectlinkproperty.h \
     gt_objectmementodiff.h \
@@ -133,6 +134,7 @@ SOURCES += \
     gt_package.cpp \
     gt_factorygroup.cpp \
     gt_xmlutilities.cpp \
+    internal/varianthasher.cpp \
     property/gt_objectlinkproperty.cpp \
     gt_objectmementodiff.cpp \
     property/gt_abstractproperty.cpp \

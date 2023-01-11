@@ -20,6 +20,7 @@
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 #include "gt_exceptions.h"
+#include "internal/varianthasher.h"
 
 using PD = GtObjectMemento::PropertyData;
 
@@ -140,94 +141,9 @@ GtObjectMemento::canCastTo(const QString& classname,
     return classHierarchy.contains(classname);
 }
 
-
-class VariantHasher
-{
-public:
-    VariantHasher() :
-      buff(&bb), ds(&buff)
-    {
-        bb.reserve(64);
-        buff.open(QIODevice::WriteOnly);
-    }
-    void addToHash(QCryptographicHash& hash, const QVariant& variant)
-    {
-        static QVariant::Type type_QString = QVariant::nameToType("QString");
-        static QVariant::Type type_QStringList = QVariant::nameToType(
-                    "QStringList");
-        if ( variant.type() == type_QString )
-        {
-            // special case QString: we don't distinguish between empty and null strings!
-            // (which the code below does...)
-            hash.addData(variant.toString().toUtf8());
-        }
-        else if ( variant.type() == type_QStringList )
-        {
-            // special case QString: we don't distinguish between empty and null strings!
-            // (which the code below does...)
-            QStringList strList = variant.toStringList();
-            foreach (const QString& s , strList)
-            {
-                hash.addData(s.toUtf8());
-            }
-        }
-        else
-        {
-            buff.seek(0);
-            ds << variant;
-            hash.addData(bb);
-        }
-    }
-private:
-    QByteArray bb;
-    QBuffer buff;
-    QDataStream ds;
-};
-
-
 void
-GtObjectMemento::calculateHashes() const
-{
-    if (!m_fullHash.isNull())
-    {
-        return;
-    }
-
-    // initialize hash function
-    QCryptographicHash hash(QCryptographicHash::Sha256);
-
-    // hash members
-    hash.addData(className().toUtf8());
-    hash.addData(uuid().toUtf8());
-    hash.addData(ident().toUtf8());
-    // hash properties
-    VariantHasher variantHasher;
-    foreach(const auto &p, properties)
-    {
-        propertyHashHelper(p, hash, variantHasher);
-    }
-
-    foreach(const PropertyData &p, propertyContainers)
-    {
-        propertyHashHelper(p, hash, variantHasher);
-    }
-
-    // store property hash
-    m_propertyHash = hash.result();
-    hash.reset();
-
-    // hash over property hash and child elements
-    hash.addData(m_propertyHash);
-    for (int i = 0; i < childObjects.size(); i++)
-    {
-        childObjects[i].calculateHashes();
-        hash.addData(childObjects[i].m_fullHash);
-    }
-    m_fullHash = hash.result();
-}
-
-void
-GtObjectMemento::propertyHashHelper(const PD& property, QCryptographicHash& hash, VariantHasher& variantHasher) const
+propertyHashHelper(const PD& property, QCryptographicHash& hash,
+                                    gt::detail::VariantHasher& variantHasher)
 {
     QCryptographicHash propHash(QCryptographicHash::Sha256);
 
@@ -250,6 +166,47 @@ GtObjectMemento::propertyHashHelper(const PD& property, QCryptographicHash& hash
 
     // hash of all properties
     hash.addData(property.hash);
+}
+
+void
+GtObjectMemento::calculateHashes() const
+{
+    if (!m_fullHash.isNull())
+    {
+        return;
+    }
+
+    // initialize hash function
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+
+    // hash members
+    hash.addData(className().toUtf8());
+    hash.addData(uuid().toUtf8());
+    hash.addData(ident().toUtf8());
+    // hash properties
+    gt::detail::VariantHasher variantHasher;
+    foreach(const auto &p, properties)
+    {
+        propertyHashHelper(p, hash, variantHasher);
+    }
+
+    foreach(const PropertyData &p, propertyContainers)
+    {
+        propertyHashHelper(p, hash, variantHasher);
+    }
+
+    // store property hash
+    m_propertyHash = hash.result();
+    hash.reset();
+
+    // hash over property hash and child elements
+    hash.addData(m_propertyHash);
+    for (int i = 0; i < childObjects.size(); i++)
+    {
+        childObjects[i].calculateHashes();
+        hash.addData(childObjects[i].m_fullHash);
+    }
+    m_fullHash = hash.result();
 }
 
 bool
