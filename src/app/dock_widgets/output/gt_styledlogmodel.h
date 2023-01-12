@@ -15,7 +15,9 @@
 class GtOutputDock;
 
 /**
- * @brief The GtStyledLogModel class
+ * @brief The GtStyledLogModel class.
+ * Styles the basic log model to return icons as levels instead, provide
+ * tooltips as well as colored text and background.
  */
 class GtStyledLogModel : public QIdentityProxyModel
 {
@@ -32,6 +34,17 @@ public:
      */
     QVariant data(const QModelIndex& index,
                   int role = Qt::DisplayRole) const override;
+
+    /**
+     * @brief headerData
+     * @param section
+     * @param orientation
+     * @param role
+     * @return
+     */
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
 protected:
     /**

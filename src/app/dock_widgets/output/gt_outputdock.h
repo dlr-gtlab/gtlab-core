@@ -14,13 +14,9 @@
 
 #include "gt_dockwidget.h"
 
-class GtListView;
-class GtTreeView;
+class GtTableView;
 class GtFilteredLogModel;
-class GtTaskHistoryModel;
-
 class QPushButton;
-//class GtPythonScriptingConsole;
 
 /**
  * @brief The GtOutputDock class
@@ -47,18 +43,34 @@ protected:
     void projectChangedEvent(GtProject* project) override;
 
 private:
-    GtListView* m_listView;
+    /// Log view
+    GtTableView* m_logView{};
 
-    GtFilteredLogModel* m_model;
+    /// Filter model
+    GtFilteredLogModel* m_model{};
 
-    /// Task historty view
-    GtTreeView* m_taskPageView;
+    /// Toggle trace button (hide/show)
+    QPushButton* m_traceButton{};
 
-    /// Task history model
-    GtTaskHistoryModel* m_historyModel;
+    /// Toggle debug button (hide/show)
+    QPushButton* m_debugButton{};
 
-//    /// Python Console
-//    GtPythonScriptingConsole* m_pythonConsole;
+    /// Toggle info button (hide/show)
+    QPushButton* m_infoButton{};
+
+    /// Toggle warning button (hide/show)
+    QPushButton* m_warningButton{};
+
+    /// Toggle error button (hide/show)
+    QPushButton* m_errorButton{};
+
+    /// Flag inidicating whether to resize the columns automatically.
+    /// (affects only id column, time and level columns are resized once,
+    ///  message column is always stretched)
+    bool m_autoResizeIdColumn{true};
+
+    /// Flag inidicating that the id column was resized programmatically
+    bool m_resizedColumns{false};
 
     /**
      * @brief copyToClipboard
@@ -79,27 +91,17 @@ private:
      */
     void keyPressEvent(QKeyEvent* event) override;
 
-    /// debug button (hide/show)
-    QPushButton* m_debugButton;
-
-    /// info button (hide/show)
-    QPushButton* m_infoButton;
-
-    /// warning button (hide/show)
-    QPushButton* m_warningButton;
-
-    /// error button (hide/show)
-    QPushButton* m_errorButton;
 private slots:
     /**
      * @brief Just a test output method.
+     * @param Test cae
      */
-    void testOutput();
+    void testOutput(int testCase = 1);
 
     /**
      * @brief scrollToBottom - scroll to bottom of the view
      */
-    void scrollToBottom();
+    void onRowsInserted();
 
     /**
      * @brief exportLog
@@ -110,6 +112,11 @@ private slots:
      * @brief openContextMenu
      */
     void openContextMenu();
+
+    /**
+     * @brief openContextMenu
+     */
+    void openTestCaseContextMenu();
 
     /**
      * @brief onCopyRequest

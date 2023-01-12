@@ -137,6 +137,7 @@ GtCoreApplication::init()
 
     // verbosity
     logger.setVerbosity(m_settings->loggingVerbosity());
+    logger.setLoggingLevel(gt::log::InfoLevel);
 
     // dev mode
     if (qApp->arguments().contains(QStringLiteral("--dev")) ||

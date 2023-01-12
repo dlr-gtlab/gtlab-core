@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- The Output Dock now displays all log message in a table format - #347
 - The log error message box will spawn delayed if one was closed recently - #373
 
 ### Fixed

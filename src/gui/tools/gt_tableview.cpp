@@ -13,9 +13,7 @@
 #include "gt_application.h"
 
 GtTableView::GtTableView(QWidget* parent) : QTableView(parent)
-{
-}
-
+{ }
 
 void
 GtTableView::keyPressEvent(QKeyEvent* event)
@@ -29,6 +27,12 @@ GtTableView::keyPressEvent(QKeyEvent* event)
     if (gtApp->compareKeyEvent(event, "copy"))
     {
         emit copyRequest();
+        return;
+    }
+
+    if (gtApp->compareKeyEvent(event, "delete"))
+    {
+        emit deleteRequest();
         return;
     }
 

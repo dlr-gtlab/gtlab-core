@@ -106,7 +106,7 @@ makeSignalSlotDestination(T* receiver, F member)
 /**
  * @brief The GtLogModel class
  */
-class GT_CORE_EXPORT GtLogModel : public QAbstractListModel
+class GT_CORE_EXPORT GtLogModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -114,25 +114,77 @@ public:
 
     using Details = GtLogDetails;
 
-    enum Roles
+    /// custom roles to access the data directly
+    enum LogRole
     {
-        LogLevelRole = Qt::UserRole
+        InvalidRole = Qt::UserRole, // invalid role
+        LevelRole,                  // role to access level as int
+        TimeRole,                   // role to access time as string
+        IdRole,                     // role to access logging id
+        MessageRole                 // role to access message
     };
 
     /**
      * @brief instance
-     * @return
+     * @return self
      */
     static GtLogModel& instance();
 
-    static QString format(QString const& msg, int level, GtLogDetails const& details);
+    /**
+     * @brief Formats the message
+     * @param msg Message to format
+     * @param details Message logging details
+     * @return Formatted string
+     */
+    static QString format(QString const& msg, GtLogDetails const& details);
+
+    static constexpr LogRole columnToRole(int col) noexcept
+    {
+        switch (col)
+        {
+        case 0:
+            return LevelRole;
+        case 1:
+            return TimeRole;
+        case 2:
+            return IdRole;
+        case 3:
+            return MessageRole;
+        default:
+            return InvalidRole;
+        }
+    }
+
+    static constexpr int columnFromRole(LogRole role) noexcept
+    {
+        switch (role)
+        {
+        case LevelRole:
+            return 0;
+        case TimeRole:
+            return 1;
+        case IdRole:
+            return 2;
+        case MessageRole:
+            return 3;
+        default:
+            return -1;
+        }
+    }
 
     /**
-     * @brief rowCount
-     * @param parent
-     * @return
+     * @brief Returns the row count of this model
+     * @param parent Parent index
+     * @return row count
      */
-    int rowCount(QModelIndex const& parent ={}) const override;
+    int rowCount(QModelIndex const& parent = {}) const override;
+
+    /**
+     * @brief Returns the column count of this model
+     * @param parent Parent index
+     * @return column count
+     */
+    int columnCount(QModelIndex const& parent = {}) const override;
 
     /**
      * @brief data
@@ -144,16 +196,28 @@ public:
                   int role = Qt::DisplayRole) const override;
 
     /**
-     * @brief exportLogToFile
-     * @param filename
+     * @brief headerData
+     * @param section
+     * @param orientation
+     * @param role
      * @return
+     */
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+
+    /**
+     * @brief Exports the output log to the file specified
+     * @param filename File to export to
+     * @return success
      */
     bool exportLogToFile(QString const& filename);
 
     /**
-     * @brief mimeData
-     * @param indexes
-     * @return
+     * @brief Converts the indexes data into mime data (text/plain).
+     * List should be sorty by row and column.
+     * @param indexes Indexes to convert
+     * @return Mime data
      */
     QMimeData* mimeData(QModelIndexList const& indexes) const override;
 
@@ -164,28 +228,55 @@ public:
     void setMaxLogLength(int val);
 
     /**
-     * @brief removeElement - removes elemts from logmodel
-     * @param index -  index corresponds to the parent from
-     * which the new rows are removed (see QAbstractItemModel::beginRemoveRows)
-     * @param first - index of first element to be removed
-     * @param last - index of last elment to be removed
+     * @brief Removes the elemets from the logmodel
+     * @param index Index corresponds to the parent from which the rows are
+     * removed (see QAbstractItemModel::beginRemoveRows)
+     * @param first Index of first element to be removed
+     * @param last Index of last elment to be removed
      */
     void removeElement(QModelIndex index, int first, int last);
 
     /**
-     * @brief removeElement - removes elemts from logmodel
-     * @param indexList -  index corresponds to the parent from
-     * which the new rows are removed (see QAbstractItemModel::beginRemoveRows)
-     * @param first - index of first element to be removed
-     * @param last - index of last elment to be removed
+     * @brief Removes the elements from the logmodel
+     * @param indexList Indicies corresponds to the parent from which the rows
+     * are removed (see QAbstractItemModel::beginRemoveRows)
+     * @param first Index of first element to be removed
+     * @param last Index of last elment to be removed
      */
     void removeElementList(QModelIndexList indexList, int first, int last);
+
+    /**
+     * @brief Returns the index of the item in the model specified by the given
+     * row, column and parent index. The parent index is not used as this
+     * model does not support hierarchical views.
+     * @param row Row
+     * @param column Column
+     * @param parent Parent index
+     * @return Index
+     */
+    QModelIndex index(int row, int column, QModelIndex const& parent = {}) const override;
+
+    /**
+     * @brief Returns the parent of the model item with the given index. This
+     * model does not support hierarchical views and will allways return an
+     * invalid parent.
+     * @param Index index
+     * @return Index
+     */
+    QModelIndex parent(QModelIndex const& index) const override;
 
 public slots:
 
     void onMessage(QString const& msg ,int level, GtLogDetails const& details);
 
+    /**
+     * @brief Clears the log
+     */
     void clearLog();
+
+signals:
+
+    void logCleared();
 
 protected:
 
@@ -196,6 +287,7 @@ protected:
 
 private:
 
+    /// Entry struct
     struct Entry
     {
         QString msg;
@@ -215,13 +307,24 @@ private:
 
     int m_maxEntries;
 
-    static QString format(Entry const& entry)
-    {
-        return format(entry.msg, entry.level, entry.details);
-    }
+    /**
+     * @brief Formats the message described by entry
+     * @param entry Entry to format
+     * @return Formatted String
+     */
+    static QString format(Entry const& entry);
 
+    /**
+     * @brief Inserts the message into the model
+     * @param msg Message
+     * @param level Level
+     * @param details Logging details
+     */
     void insertMessage(const QString& msg ,int level, Details const& details);
 
+    /**
+     * @brief Helper method for clearing the output log
+     */
     void execClear();
 
 private slots:

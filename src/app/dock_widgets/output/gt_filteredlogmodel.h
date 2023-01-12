@@ -14,7 +14,8 @@
 
 class GtOutputDock;
 /**
- * @brief The GtFilteredLogModel class
+ * @brief The GtFilteredLogModel class.
+ * Filter proxy model for filtering out certain log levels
  */
 class GtFilteredLogModel : public QSortFilterProxyModel
 {
@@ -22,36 +23,52 @@ class GtFilteredLogModel : public QSortFilterProxyModel
 
     Q_OBJECT
 
+    enum FilterLevel
+    {
+        FilterTrace   = 1 << 0,
+        FilterDebug   = 1 << 1,
+        FilterInfo    = 1 << 2,
+        FilterWarning = 1 << 3,
+        FilterError   = 1 << 4,
+        FilterFatal   = 1 << 5,
+    };
+
 public slots:
     /**
      * @brief toggleDebugLevel
      * @param val
      */
-    void toggleDebugLevel(bool val);
+    void filterTraceLevel(bool val);
+
+    /**
+     * @brief toggleDebugLevel
+     * @param val
+     */
+    void filterDebugLevel(bool val);
 
     /**
      * @brief toggleInfoLevel
      * @param val
      */
-    void toggleInfoLevel(bool val);
+    void filterInfoLevel(bool val);
 
     /**
      * @brief toggleWarningLevel
      * @param val
      */
-    void toggleWarningLevel(bool val);
+    void filterWarningLevel(bool val);
 
     /**
      * @brief toggleErrorLevel
      * @param val
      */
-    void toggleErrorLevel(bool val);
+    void filterErrorLevel(bool val);
 
     /**
      * @brief toggleFatalLevel
      * @param val
      */
-    void toggleFatalLevel(bool val);
+    void filterFatalLevel(bool val);
 
     /**
      * @brief filterData
@@ -60,20 +77,11 @@ public slots:
     void filterData(const QString& val);
 
 protected:
-    /// Show debug level message indicator
-    bool m_debugLevel;
 
-    /// Show info level message indicator
-    bool m_infoLevel;
+    /// Filter
+    int m_filter{-1};
 
-    /// Show warning level message indicator
-    bool m_warningLevel;
-
-    /// Show error level message indicator
-    bool m_errorLevel;
-
-    /// Show fatal level message indicator
-    bool m_fatalLevel;
+    void setFilter(FilterLevel level, bool enabled);
 
     /**
      * @brief GtFilteredLogModel
@@ -87,8 +95,8 @@ protected:
      * @param source_parent
      * @return
      */
-    bool filterAcceptsRow(int source_row,
-                          const QModelIndex& source_parent) const override;
+    bool filterAcceptsRow(int srcRow,
+                          const QModelIndex& srcParent) const override;
 
 };
 

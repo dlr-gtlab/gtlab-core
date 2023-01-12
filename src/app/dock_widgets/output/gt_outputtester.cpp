@@ -10,18 +10,20 @@
 #include "gt_outputtester.h"
 #include "gt_logging.h"
 
-GtOutputTester::GtOutputTester()
-{
+#include <QRandomGenerator>
 
-}
+GtOutputTester::GtOutputTester()
+{ }
 
 void
 GtOutputTester::run()
 {
     for (int i = 0; i < 1000; i++)
     {
-//        usleep(5);
-        gtDebug() << "test " << i;
+        usleep(5);
+        gtDebug() << "TEST:" << i
+                  << QStringLiteral("test ")
+                     .repeated(QRandomGenerator::global()->bounded(100));
     }
 }
 

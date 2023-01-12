@@ -28,9 +28,23 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
 
 signals:
-    void searchRequest();
+    /**
+     * @brief searchRequest - signal as request to search in the view
+     *  signal is sent when pressing the search shortcut
+     */
+    void searchRequest();    
 
+    /**
+     * @brief copyRequest - signal as request to copy lines in the view
+     *  signal is sent when pressing the copy shortcut
+     */
     void copyRequest();
+
+    /**
+     * @brief deleteRequest - signal as request to remove lines in the view
+     *  signal is sent when pressing the delete shortcut
+     */
+    void deleteRequest();
 
 };
 
