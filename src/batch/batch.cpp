@@ -8,6 +8,7 @@
  */
 
 #include <iostream>
+#include <iomanip>
 
 #include <QApplication>
 #include <QDomDocument>
@@ -30,6 +31,7 @@
 #include "gt_versionnumber.h"
 #include "gt_hostinfo.h"
 #include "gt_remoteprocessrunner.h"
+#include "settings/gt_settings.h"
 
 void
 showSplashScreen()
@@ -507,6 +509,59 @@ run(QStringList const& args)
 }
 
 int
+set_variable(const QStringList& args)
+{
+    if (args.size() != 2)
+    {
+        std::cerr << "Error: Invalid arguments\n\n";
+        std::cout << "Usage: set_variable id value" << std::endl;
+        return 255;
+    }
+
+    auto name = args[0];
+    auto value = args[1];
+
+    assert(gtApp && gtApp->settings());
+
+    auto settings = gtApp->settings();
+
+    // check, that the setting exists
+    if (!settings->hasSetting(name))
+    {
+        gtError().nospace() << "Setting '" << name << "' does not exist";
+        return 255;
+    }
+
+    std::cout << "\nSetting " << name.toStdString() << "="
+              << value.toStdString() << std::endl;
+    gtApp->settings()->setSetting(name, value);
+
+    return 0;
+}
+
+int
+list_variables(const QStringList&)
+{
+    assert(gtApp && gtApp->settings());
+
+    auto settings = gtApp->settings();
+    auto ids = settings->getAllSettingIds();
+
+    std::cout << "\n\nThe following GTlab variables have been set:\n\n";
+
+    for (auto&& id : ids)
+    {
+        std::cout << "  \"" << std::left << std::setw(50) << std::setfill(' ')
+                  << id.toStdString() + "\""
+                  << "\""
+                  << settings->getSetting(id).toString().toStdString() << "\"";
+        std::cout << std::endl;
+    }
+
+    return 0;
+}
+
+int
 showFootprint(const QStringList& args)
 {
     Q_UNUSED(args)
@@ -696,6 +751,15 @@ initSystemOptions()
     initPosArgument("process_runner", processRunner, "Starts a TCP server, "
                     "which handles and executes task requests.",
                     {}, {}, false);
+
+    initPosArgument("set_variable", set_variable,
+                    "\tSets a global variable defined in settings",
+                    {},
+                    QList<GtCommandLineArgument>(),
+                    true);
+
+    initPosArgument("list_variables", list_variables,
+                    "\tLists the contents of all variables");
 }
 
 int
