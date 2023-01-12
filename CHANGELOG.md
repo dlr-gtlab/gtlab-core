@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug where the "Add Process" button was not disabled after closing a project - #369
 - Fixed bug that prevents the process importer from working - #381 
 
+### Added
+- Added batch application commands `list_variables` and `set_variable <id> <value>` - #391
+
 ## [2.0.0-pr-alpha5] - 2021-12-14
 ### Fixed
 - Unknown or duplicate shortcuts in the shortcut preference page will be removed once "Restore" was clicked - #290 
