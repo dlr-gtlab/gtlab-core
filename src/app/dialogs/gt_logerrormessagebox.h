@@ -46,7 +46,8 @@ public:
     /**
      * @brief Displays the message. If a message box already exists the message
      * will be appended. Logs only messages with the Error Level or higher.
-     * Must not be called from different threads.
+     * Must not be called from different threads but should be invoked using a
+     * slot function.
      * @param level Level of the message
      * @param message Message to display
      * @param details Message details

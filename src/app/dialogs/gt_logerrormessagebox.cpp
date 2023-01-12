@@ -7,6 +7,7 @@
  */
 
 #include "gt_logerrormessagebox.h"
+#include "gt_eventloop.h"
 #include "gt_logmodel.h"
 #include "gt_icons.h"
 #include "gt_colors.h"
@@ -32,12 +33,28 @@ GtlogErrorMessageBoxHandler::onLogMessage(const QString& msg,
     GtLogErrorMessageBox::display(msg, gt::log::levelFromInt(lvl), details);
 }
 
+/// simple struct for setting up the timer correctly
+struct SingleShotTimer
+{
+    QTimer timer;
+
+    SingleShotTimer()
+    {
+        timer.setSingleShot(true);
+        timer.setInterval(std::chrono::seconds{4});
+    };
+};
+
 void
 GtLogErrorMessageBox::display(QString const& message,
                               gt::log::Level level,
                               GtLogDetails const& details,
                               QWidget* parent)
 {
+    // NOTE: there wont be any race onditions here because this function may be
+    // called multiple times but since we are in the main event loop, one
+    // function call is handled one at a time
+
     // pipe errors only
     if (level < gt::log::levelToInt(gt::log::ErrorLevel))
     {
@@ -53,24 +70,42 @@ GtLogErrorMessageBox::display(QString const& message,
     // we want a static instance of the error message box
     static QPointer<GtLogErrorMessageBox> ptr;
 
-    if (!ptr)
-    {
-        // ptr does not exist -> create message box and execute
-        GtLogErrorMessageBox box(parent);
-        box.appendMessage(level, message, details);
-        ptr = &box;
-        // this will block the current function call but keep the event loop
-        // running -> new messages may be appended
-        box.exec();
-        // not strictly neccessary as QPointer does the cleanup
-        // but hides dangling pointer warning
-        ptr.clear();
-    }
-    else
+    if (ptr)
     {
         // message box still exists, append message
-        ptr->appendMessage(level, message, details);
+        return ptr->appendMessage(level, message, details);
     }
+
+    // no log error messages exist
+    // -> create message box
+    GtLogErrorMessageBox box(parent);
+    // append the current message
+    box.appendMessage(level, message, details);
+    // set the pointer
+    ptr = &box;
+
+    // delay until next error message box should appear
+    static SingleShotTimer delay;
+    static constexpr std::chrono::seconds timeout{2};
+
+    // wait until timer has finished
+    if (delay.timer.isActive())
+    {
+        GtEventLoop loop{timeout};
+        loop.connectSuccess(&delay.timer, &QTimer::timeout);
+        loop.exec();
+    }
+
+    // this will block the current function call but keep the event loop running
+    // -> new messages will now append since 'ptr' is no longer null
+    box.exec();
+
+    // start timer
+    delay.timer.start(timeout);
+
+    // not strictly neccessary as QPointer does the cleanup
+    // but hides dangling pointer warning
+    ptr.clear();
 }
 
 GtLogErrorMessageBox::GtLogErrorMessageBox(QWidget* parent) :

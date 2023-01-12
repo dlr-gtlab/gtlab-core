@@ -35,6 +35,9 @@ public:
      * @param mstimeout Timeout in ms. Use -1 for no timeout
      */
     explicit GtEventLoop(int mstimeout);
+    explicit GtEventLoop(std::chrono::milliseconds timeout)
+        : GtEventLoop(timeout.count())
+    {}
 
     /**
      * @brief Setter for timeout, after which exec will return Failed
@@ -42,6 +45,10 @@ public:
      * @return reference
      */
     GtEventLoop& setTimeout(int mstimeout);
+    GtEventLoop& setTimeout(std::chrono::milliseconds timeout)
+    {
+        return setTimeout(timeout.count());
+    }
 
     /**
      * @brief Clears all internal connections. Should be called before
