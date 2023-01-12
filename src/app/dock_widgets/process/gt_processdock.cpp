@@ -273,16 +273,10 @@ GtProcessDock::setCurrentProcess(GtTask* process)
 void
 GtProcessDock::projectChangedEvent(GtProject* project)
 {
-    if (project)
-    {
-        m_processQueueButton->setEnabled(true); 
-        m_addElementButton->setEnabled(true);
-    }
-    else
-    {
-        m_processQueueButton->setEnabled(false);
-        m_addElementButton->setEnabled(false);
-    }
+    bool isProjectValid = project;
+
+    m_processQueueButton->setEnabled(isProjectValid);
+    m_addElementButton->setEnabled(isProjectValid);
 
     if (project != m_project)
     {
@@ -290,21 +284,21 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         m_taskGroup = nullptr;
         m_taskGroupSelection->clear();
 
-        if (project && project->processData())
+        if (isProjectValid && project->processData())
         {
             m_taskGroup = project->processData()->taskGroup();
 
             // add entries for all existing groups. avoid index change signals
             // to avoid wrong behavior
             disconnect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
-                    this, SLOT(currentTaskGroupIndexChanged(int)));
+                       this, SLOT(currentTaskGroupIndexChanged(int)));
 
             // add entries for all existing groups
             m_taskGroupModel->init(project->processData()->userGroupIds(),
                                    project->processData()->customGroupIds());
 
             connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
-            SLOT(currentTaskGroupIndexChanged(int)));
+                    SLOT(currentTaskGroupIndexChanged(int)));
 
         }
 
@@ -314,7 +308,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         }
     }
 
-    // update curren task group
+    // update current task group
     updateCurrentTaskGroup();
 }
 
@@ -658,12 +652,12 @@ GtProcessDock::filterData(const QString& val)
 void
 GtProcessDock::updateButtons(GtObject* obj)
 {
-    m_addElementButton->setEnabled(true);
+    m_addElementButton->setEnabled(m_taskGroup);
 
     setCurrentProcess(findRootTaskHelper(obj));
 
-    if (obj && (qobject_cast<GtCalculator*>(obj) || obj->isDummy() ||
-                obj->hasDummyParents()))
+    if (obj && (qobject_cast<GtCalculator*>(obj) ||
+                obj->isDummy() || obj->hasDummyParents()))
     {
         m_addElementButton->setEnabled(false);
     }
