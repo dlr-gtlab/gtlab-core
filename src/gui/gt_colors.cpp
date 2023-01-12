@@ -18,7 +18,7 @@ QColor
 gt::gui::color::basicDark()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {45, 45, 45};        //QColor(45, 45, 45);
+    return QColor{45, 45, 45};
 }
 
 QColor
@@ -27,11 +27,11 @@ gt::gui::color::dummyObjectBackground()
     if (gtApp->inDarkMode())
     {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-        return {255, 130, 25};  //QColor(255, 130, 25);
+        return QColor{255, 130, 25};
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 140, 140}; //QColor(255, 140, 140);
+    return QColor{255, 140, 140};
 
 }
 
@@ -61,63 +61,63 @@ QColor
 gt::gui::color::footprintWarning()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 255, 0, 100};  //QColor(255, 255, 0, 100);
+    return QColor{255, 255, 0, 100};
 }
 
 QColor
 gt::gui::color::footprintError()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 0, 0, 100};    //QColor(255, 0, 0, 100);
+    return QColor{255, 0, 0, 100};
 }
 
 QColor
 gt::gui::color::warningText()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 100, 0};       //QColor(255, 100, 0);
+    return QColor{255, 100, 0};
 }
 
 QColor
 gt::gui::color::errorText()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {139, 0, 0};         //QColor(139, 0, 0);
+    return QColor{190, 0, 0};
 }
 
 QColor
 gt::gui::color::fatalText()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {255, 255, 255};     //QColor(255, 255, 255);
+    return QColor{255, 255, 255};
 }
 
 QColor
 gt::gui::color::fatalTextBackground()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {120, 20, 20};       //QColor(120, 20, 20);
+    return QColor{120, 20, 20};
 }
 
 QColor
 gt::gui::color::collectionAvailableItemBackground()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {180, 229, 190};     //QColor(180, 229, 190);
+    return QColor{180, 229, 190};
 }
 
 QColor
 gt::gui::color::collectionInstalledItemBackground()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {240, 240, 240};     //QColor(240, 240, 240);
+    return QColor{240, 240, 240};
 }
 
 QColor
 gt::gui::color::environmentModelBack()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {214, 170, 170};     //QColor(214, 170, 170);
+    return QColor{214, 170, 170};
 }
 
 QColor

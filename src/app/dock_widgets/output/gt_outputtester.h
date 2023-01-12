@@ -20,8 +20,8 @@ public:
     GtOutputTester();
 
 protected:
-    void run() override;
 
+    void run() override;
 };
 
 #endif // GTOUTPUTTESTER_H

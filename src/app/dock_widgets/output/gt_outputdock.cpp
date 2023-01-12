@@ -12,24 +12,17 @@
 #include "gt_logmodel.h"
 #include "gt_styledlogmodel.h"
 #include "gt_filteredlogmodel.h"
-#include "gt_listview.h"
-#include "gt_treeview.h"
-#include "gt_lineedit.h"
+#include "gt_tableview.h"
 #include "gt_application.h"
 #include "gt_logging.h"
 #include "gt_outputtester.h"
 #include "gt_searchwidget.h"
-#include "gt_taskhistorymodel.h"
 #include "gt_project.h"
 #include "gt_datamodel.h"
 #include "gt_task.h"
 #include "gt_icons.h"
 
-#ifdef GT_QML_WIDGETS
-#include <QQuickWidget>
-#include <QQmlContext>
-#endif
-
+#include <QHeaderView>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QTabWidget>
@@ -40,19 +33,10 @@
 #include <QMenu>
 #include <QApplication>
 #include <QClipboard>
-#include <QFontDatabase>
-#include <QLabel>
 
 #include <algorithm>
 
-GtOutputDock::GtOutputDock() :
-    m_listView(nullptr),
-    m_taskPageView(nullptr),
-    m_historyModel(nullptr),
-    m_debugButton(nullptr),
-    m_infoButton(nullptr),
-    m_warningButton(nullptr),
-    m_errorButton(nullptr)
+GtOutputDock::GtOutputDock()
 {
     setObjectName(tr("Output"));
 
@@ -88,132 +72,165 @@ GtOutputDock::GtOutputDock() :
 
     filterLayout->addWidget(searchWidget);
 
-#ifdef GT_QML_WIDGETS
-    // qml component
-    QQuickWidget* qmlListView = new QQuickWidget;
-    qmlListView->resize(QSize(defaultPage->width(), 100));
-    qmlListView->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    qmlListView->rootContext()->setContextProperty("_cppModel",
-                                                   m_model);
-    qmlListView->setSource(QUrl("qrc:/qml/outputdock.qml"));
-    defaultLayout->addWidget(qmlListView);
-#else
-    m_listView = new GtListView;
-    m_listView->setFrameStyle(QFrame::NoFrame);
-//    m_listView->setWrapping(true);
-    m_listView->setWordWrap(true);
-    m_listView->setContextMenuPolicy(Qt::CustomContextMenu);
-    m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    m_listView->setUniformItemSizes(true);
-//    m_listView->setDragEnabled(true);
-//    m_listView->setDragDropMode(QListView::DragOnly);
-//    listView->setLayoutMode(QListView::Batched);
-//    listView->setResizeMode(QListView::Adjust);
-    m_listView->setModel(m_model);
+    m_logView = new GtTableView;
+    m_logView->setFrameStyle(QFrame::NoFrame);
+    m_logView->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_logView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_logView->setSizeAdjustPolicy(GtTableView::AdjustToContents);
+    m_logView->setModel(m_model);
 
-    connect(gtLogModel,
-            SIGNAL(rowsInserted(QModelIndex,int,int)),
-            SLOT(scrollToBottom()));
-    connect(m_listView, SIGNAL(customContextMenuRequested(QPoint)),
-            SLOT(openContextMenu()));
-    connect(m_listView, SIGNAL(searchRequest()), searchWidget,
-            SLOT(enableSearch()));
-    connect(m_listView, SIGNAL(copyRequest()), SLOT(onCopyRequest()));
+    // resize the level and time columns as they wont change
+    m_logView->resizeColumnToContents(
+                GtLogModel::columnFromRole(GtLogModel::LevelRole));
+    m_logView->resizeColumnToContents(
+                GtLogModel::columnFromRole(GtLogModel::TimeRole));
 
-    connect(m_listView, SIGNAL(deleteRequest()), SLOT(onDeleteRequest()));
+    // stretch the last section
+    m_logView->horizontalHeader()->setStretchLastSection(true);
 
-    defaultLayout->addWidget(m_listView);
-#endif
+    // timer to reduce the number of times the view auto resizes itself
+    auto* rowResizeTimer = new QTimer{this};
+    rowResizeTimer->setInterval(std::chrono::milliseconds{300});
+    rowResizeTimer->setSingleShot(true);
 
+    // update row spacing automatically
+    connect(rowResizeTimer, &QTimer::timeout, this, [&](){
+        m_logView->resizeRowsToContents();
+    });
 
-    connect(searchWidget, SIGNAL(textEdited(QString)),
-            m_model, SLOT(filterData(QString)));
-    connect(searchWidget, SIGNAL(textChanged(QString)),
-            m_model, SLOT(filterData(QString)));
+    // resize rows once the section was resized
+    connect(m_logView->horizontalHeader(), &QHeaderView::sectionResized,
+            this, [&,rowResizeTimer](int idx, int /*oldSize*/, int /*newSize*/){
+        // if we have not resized the id column ourselfes we do not
+        // want to auto resize the column anymore
+        if (!rowResizeTimer->isActive() &&
+            idx == GtLogModel::columnFromRole(GtLogModel::IdRole))
+        {
+            if (!m_resizedColumns)
+            {
+                m_autoResizeIdColumn = false;
+            }
+            // clear resize flag
+            m_resizedColumns = false;
+        }
+        // (re-) start timer, which triggers the resize
+        rowResizeTimer->start();
+    });
+
+    // reset auto resize flag
+    connect(gtLogModel, &GtLogModel::logCleared, this, [&](){
+        m_autoResizeIdColumn = true;
+    });
+
+    // other connections
+    connect(gtLogModel, &GtLogModel::rowsInserted,
+            this, &GtOutputDock::onRowsInserted);
+    connect(m_model, &GtFilteredLogModel::modelReset,
+            this, &GtOutputDock::onRowsInserted);
+    connect(m_logView, &QWidget::customContextMenuRequested,
+            this, &GtOutputDock::openContextMenu);
+    connect(m_logView, &GtTableView::copyRequest,
+            this, &GtOutputDock::onCopyRequest);
+    connect(m_logView, &GtTableView::deleteRequest,
+            this, &GtOutputDock::onDeleteRequest);
+    connect(m_logView, &GtTableView::searchRequest,
+            searchWidget, &GtSearchWidget::enableSearch);
+
+    defaultLayout->addWidget(m_logView);
+
+    connect(searchWidget, &GtSearchWidget::textChanged,
+            m_model, &GtFilteredLogModel::filterData);
 
     filterLayout->addStretch(1);
 
+    /// helper method for setting up an output action button
+    const auto setupActionButton =
+            [&](QIcon const& icon, QString const& tooltip,
+                auto reciever, auto signal){
+        auto* button = new QPushButton;
+        button->setIcon(icon);
+        button->setMaximumSize(QSize(20, 20));
+        button->setFlat(true);
+        button->setToolTip(tooltip);
+        filterLayout->addWidget(button);
+        QObject::connect(button, &QPushButton::clicked, reciever, signal);
+        return button;
+    };
+
     // clear log button
-    QPushButton* clearButton = new QPushButton;
-    clearButton->setIcon(gt::gui::icon::clear16());
-    clearButton->setMaximumSize(QSize(20, 20));
-    clearButton->setFlat(true);
-    clearButton->setToolTip(tr("Clear Output"));
-    filterLayout->addWidget(clearButton);
-    connect(clearButton, SIGNAL(clicked(bool)),
-            gtLogModel, SLOT(clearLog()));
+    setupActionButton(gt::gui::icon::clear16(),
+                      tr("Clear Output"),
+                      gtLogModel, &GtLogModel::clearLog);
 
     // export log button
-    QPushButton* exportButton = new QPushButton;
-    exportButton->setIcon(gt::gui::icon::export16());
-    exportButton->setMaximumSize(QSize(20, 20));
-    exportButton->setFlat(true);
-    exportButton->setToolTip(tr("Export Output to file"));
-    filterLayout->addWidget(exportButton);
-    connect(exportButton, SIGNAL(clicked(bool)),
-           SLOT(exportLog()));
+    setupActionButton(gt::gui::icon::export16(),
+                      tr("Export Output to file"),
+                      this, &GtOutputDock::exportLog);
 
     if (gtApp->devMode())
     {
-        // test message button
-        QPushButton* testButton = new QPushButton;
-        testButton->setIcon(gt::gui::icon::file16());
-        testButton->setMaximumSize(QSize(20, 20));
-        testButton->setFlat(true);
-        testButton->setToolTip(tr("Test Output"));
-        filterLayout->addWidget(testButton);
-        connect(testButton, SIGNAL(clicked(bool)), SLOT(testOutput()));
+        // test button
+        auto* testButton = setupActionButton(gt::gui::icon::file16(),
+                                             tr("Test Output"),
+                                             this, &GtOutputDock::testOutput);
 
-        // debug message button
-        m_debugButton = new QPushButton;
-        m_debugButton->setIcon(gt::gui::icon::bug());
-        m_debugButton->setMaximumSize(QSize(20, 20));
-        m_debugButton->setFlat(true);
-        m_debugButton->setCheckable(true);
-        m_debugButton->setChecked(true);
-        m_debugButton->setToolTip(tr("Show/Hide Debug Output"));
-        filterLayout->addWidget(m_debugButton);
-        connect(m_debugButton, SIGNAL(toggled(bool)),
-                m_model, SLOT(toggleDebugLevel(bool)));
+        testButton->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(testButton, &QWidget::customContextMenuRequested,
+                this, &GtOutputDock::openTestCaseContextMenu);
     }
 
+    /// helper method for setting up an output toggle button
+    const auto setupToggleButton =
+            [&](QIcon const& icon, QString const& tooltip, auto signal){
+        auto* button = new QPushButton;
+        button->setIcon(icon);
+        button->setMaximumSize(QSize(20, 20));
+        button->setFlat(true);
+        button->setCheckable(true);
+        button->setChecked(true);
+        button->setToolTip(tooltip);
+        filterLayout->addWidget(button);
+        connect(button, &QPushButton::toggled, m_model, signal);
+        return button;
+    };
+
+    auto loggingLevel = gt::log::Logger::instance().loggingLevel();
+
+    // trace message button
+    m_traceButton = setupToggleButton(gt::gui::icon::jumpTo(),
+                                      tr("Show/Hide Trace Output"),
+                                      &GtFilteredLogModel::filterTraceLevel);
+
+    // debug message button
+    m_debugButton = setupToggleButton(gt::gui::icon::bug(),
+                                      tr("Show/Hide Debug Output"),
+                                      &GtFilteredLogModel::filterDebugLevel);
+
     // info message button
-    m_infoButton = new QPushButton;
-    m_infoButton->setIcon(gt::gui::icon::infoBlue16());
-    m_infoButton->setMaximumSize(QSize(20, 20));
-    m_infoButton->setFlat(true);
-    m_infoButton->setCheckable(true);
-    m_infoButton->setChecked(true);
-    m_infoButton->setToolTip(tr("Show/Hide Info Output"));
-    filterLayout->addWidget(m_infoButton);
-    connect(m_infoButton, SIGNAL(toggled(bool)),
-            m_model, SLOT(toggleInfoLevel(bool)));
+    m_infoButton = setupToggleButton(gt::gui::icon::infoBlue16(),
+                                     tr("Show/Hide Info Output"),
+                                     &GtFilteredLogModel::filterInfoLevel);
 
     // warning message button
-    m_warningButton = new QPushButton;
-    m_warningButton->setIcon(gt::gui::icon::processFailed16());
-    m_warningButton->setMaximumSize(QSize(20, 20));
-    m_warningButton->setFlat(true);
-    m_warningButton->setCheckable(true);
-    m_warningButton->setChecked(true);
-    m_warningButton->setToolTip(tr("Show/Hide Warning Output"));
-    filterLayout->addWidget(m_warningButton);
-    connect(m_warningButton, SIGNAL(toggled(bool)),
-            m_model, SLOT(toggleWarningLevel(bool)));
+    m_warningButton = setupToggleButton(gt::gui::icon::processFailed16(),
+                                        tr("Show/Hide Warning Output"),
+                                        &GtFilteredLogModel::filterWarningLevel);
 
     // error message button
-    m_errorButton = new QPushButton;
-    m_errorButton->setIcon(gt::gui::icon::error16());
-    m_errorButton->setMaximumSize(QSize(20, 20));
-    m_errorButton->setFlat(true);
-    m_errorButton->setCheckable(true);
-    m_errorButton->setChecked(true);
-    m_errorButton->setToolTip(tr("Show/Hide Error Output"));
-    filterLayout->addWidget(m_errorButton);
-    connect(m_errorButton, SIGNAL(toggled(bool)),
-            m_model, SLOT(toggleErrorLevel(bool)));
+    m_errorButton = setupToggleButton(gt::gui::icon::error16(),
+                                      tr("Show/Hide Error Output"),
+                                      &GtFilteredLogModel::filterErrorLevel);
 
     defaultLayout->addLayout(filterLayout);
+
+    if (loggingLevel > gt::log::TraceLevel)
+    {
+        m_traceButton->hide();
+    }
+    if (loggingLevel > gt::log::DebugLevel)
+    {
+        m_debugButton->hide();
+    }
 
     // task history overview page
 
@@ -251,6 +268,7 @@ GtOutputDock::GtOutputDock() :
 
     widget->setLayout(layout);
 
+    registerShortCut("toggleTraceOutput", QKeySequence(Qt::CTRL + Qt::Key_T));
     registerShortCut("toggleDebugOutput", QKeySequence(Qt::CTRL + Qt::Key_D));
     registerShortCut("toggleInfoOutput", QKeySequence(Qt::CTRL + Qt::Key_I));
     registerShortCut("toggleWarningOutput", QKeySequence(Qt::CTRL + Qt::Key_W));
@@ -284,12 +302,12 @@ GtOutputDock::projectChangedEvent(GtProject* /*project*/)
 void
 GtOutputDock::copyToClipboard(const QModelIndexList& indexes)
 {
-    QMimeData* mimeData = gtLogModel->mimeData(indexes);
+    auto* mimeData = gtLogModel->mimeData(indexes);
     QApplication::clipboard()->setMimeData(mimeData);
 }
 
 void
-GtOutputDock::removeItems(const QModelIndexList &indexes)
+GtOutputDock::removeItems(const QModelIndexList& indexes)
 {
     int first = indexes.first().row();
     int last = indexes.last().row();
@@ -304,14 +322,11 @@ GtOutputDock::removeItems(const QModelIndexList &indexes)
     QModelIndex beforeFirst = m_model->index(indexBeforeFirst,
                                              indexes.first().column());
 
-
     gtLogModel->removeElementList(indexes, first, last);
 
-    QScrollBar* bar = m_listView->verticalScrollBar();
-    if (bar)
+    if (QScrollBar* bar = m_logView->verticalScrollBar())
     {
-        m_listView->scrollTo(beforeFirst,
-                             QListView::ScrollHint::PositionAtCenter);
+        m_logView->scrollTo(beforeFirst, QAbstractItemView::PositionAtCenter);
         bar->update();
     }
 }
@@ -319,138 +334,79 @@ GtOutputDock::removeItems(const QModelIndexList &indexes)
 void
 GtOutputDock::keyPressEvent(QKeyEvent* event)
 {
+    if (!m_model)
+    {
+        return;
+    }
+
     const QMetaObject* m = metaObject();
     QString cat = m->className();
 
-    if (m_model)
+    if (gtApp->compareKeyEvent(event, "toggleTraceOutput", cat))
     {
-        if (gtApp->compareKeyEvent(event, "toggleDebugOutput", cat))
-        {
-            if (m_debugButton)
-            {
-                if (m_debugButton->isChecked())
-                {
-                    m_debugButton->setChecked(false);
-                    m_model->toggleDebugLevel(false);
-                }
-                else
-                {
-                    m_debugButton->setChecked(true);
-                    m_model->toggleDebugLevel(true);
-                }
-            }
-        }
-        if (gtApp->compareKeyEvent(event, "toggleInfoOutput", cat))
-        {
-            if (m_infoButton)
-            {
-                if (m_infoButton->isChecked())
-                {
-                    m_infoButton->setChecked(false);
-                    m_model->toggleInfoLevel(false);
-                }
-                else
-                {
-                    m_infoButton->setChecked(true);
-                    m_model->toggleInfoLevel(true);
-                }
-            }
-        }
-        if (gtApp->compareKeyEvent(event, "toggleWarningOutput", cat))
-        {
-            if (m_warningButton)
-            {
-                if (m_warningButton->isChecked())
-                {
-                    m_warningButton->setChecked(false);
-                    m_model->toggleWarningLevel(false);
-                }
-                else
-                {
-                    m_warningButton->setChecked(true);
-                    m_model->toggleWarningLevel(true);
-                }
-            }
-        }
-        if (gtApp->compareKeyEvent(event, "toggleErrorOutput", cat))
-        {
-            if (m_errorButton)
-            {
-                if (m_errorButton->isChecked())
-                {
-                    m_errorButton->setChecked(false);
-                    m_model->toggleErrorLevel(false);
-                }
-                else
-                {
-                    m_errorButton->setChecked(true);
-                    m_model->toggleErrorLevel(true);
-                }
-            }
-        }
-        if (gtApp->compareKeyEvent(event, "clearOutput", cat))
-        {
-            gtLogModel->clearLog();
-        }
-        if (gtApp->compareKeyEvent(event, "openContextMenu"))
-        {
-            openContextMenu();
-        }
+        bool isChecked = m_traceButton->isChecked();
+        m_traceButton->setChecked(!isChecked);
+        m_model->filterDebugLevel(!isChecked);
+        return;
+    }
+    if (gtApp->compareKeyEvent(event, "toggleDebugOutput", cat))
+    {
+        bool isChecked = m_debugButton->isChecked();
+        m_debugButton->setChecked(!isChecked);
+        m_model->filterDebugLevel(!isChecked);
+        return;
+    }
+    if (gtApp->compareKeyEvent(event, "toggleInfoOutput", cat))
+    {
+        bool isChecked = m_infoButton->isChecked();
+        m_infoButton->setChecked(!isChecked);
+        m_model->filterDebugLevel(!isChecked);
+        return;
+    }
+    if (gtApp->compareKeyEvent(event, "toggleWarningOutput", cat))
+    {
+        bool isChecked = m_warningButton->isChecked();
+        m_warningButton->setChecked(!isChecked);
+        m_model->filterWarningLevel(!isChecked);
+        return;
+    }
+    if (gtApp->compareKeyEvent(event, "toggleErrorOutput", cat))
+    {
+        bool isChecked = m_errorButton->isChecked();
+        m_errorButton->setChecked(!isChecked);
+        m_model->filterErrorLevel(!isChecked);
+        return;
+    }
+    if (gtApp->compareKeyEvent(event, "clearOutput", cat))
+    {
+        return gtLogModel->clearLog();
+    }
+    if (gtApp->compareKeyEvent(event, "openContextMenu"))
+    {
+        return openContextMenu();
     }
 }
 
 void
-GtOutputDock::testOutput()
+GtOutputDock::onRowsInserted()
 {
-    const int testCase = 3;
+    // check if we should autoresize the id column
+    if (m_autoResizeIdColumn)
+    {
+        // indicate that we have resized the column ourselfes
+        m_resizedColumns = true;
+        m_logView->resizeColumnToContents(
+                    GtLogModel::columnFromRole(GtLogModel::IdRole));
+    }
+    // resize rows
+    m_logView->resizeRowsToContents();
 
-    switch (testCase)
-    {
-    case 1:
-    {
-        gtDebug() << "test";
-        break;
-    }
-    case 2:
-    {
-        gtDebug() << "test! fshaopfd khlsad klhsdl okhla klhs ldkh slikahdl"
-                  << " jhbsdh sahkd  ihdskadk ll salhdkl sklhd k skhdk "
-                  << "test! fshaopfd khlsad klhsdl okhla klhs ldkh slikahdl"
-                  << " jhbsdh sahkd  ihdskadk ll salhdkl sklhd k skhdk ";
-        break;
-    }
-    case 3:
-    {
-        gtTrace() << "trace!";
-        gtDebug() << "debug!";
-        gtInfo() << "info!";
-        gtWarning() << "warning!";
-        gtError() << "error!";
-        gtFatal() << "fatal!";
-        break;
-    }
-    case 4:
-    {
-        GtOutputTester* tester = new GtOutputTester;
-        connect(tester, SIGNAL(finished()), tester, SLOT(deleteLater()));
-        tester->start();
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-void
-GtOutputDock::scrollToBottom()
-{
-    QScrollBar* bar = m_listView->verticalScrollBar();
-
-    if (bar)
+    // only scroll to bottom if scroll bar is at its maximum
+    if (QScrollBar* bar = m_logView->verticalScrollBar())
     {
         if (bar->value() == bar->maximum())
         {
-            m_listView->scrollToBottom();
+            m_logView->scrollToBottom();
         }
     }
 }
@@ -472,7 +428,7 @@ void
 GtOutputDock::openContextMenu()
 {
     const QModelIndexList rawIndexes =
-            m_listView->selectionModel()->selectedIndexes();
+            m_logView->selectionModel()->selectedIndexes();
 
     if (rawIndexes.isEmpty())
     {
@@ -481,7 +437,7 @@ GtOutputDock::openContextMenu()
 
     QModelIndexList indexes;
 
-    foreach (const QModelIndex& index, rawIndexes)
+    for (const QModelIndex& index : rawIndexes)
     {
         indexes << m_model->mapToSource(index);
     }
@@ -499,13 +455,39 @@ GtOutputDock::openContextMenu()
 
     if (a == actionCopy)
     {
-        copyToClipboard(indexes);
+        return copyToClipboard(indexes);
     }
-    else if (a == actionRemove)
+    if (a == actionRemove)
     {
-        removeItems(indexes);
-        //gtDebug() << "Want to delete this";
-        //actionRemove(indexes);
+        return removeItems(indexes);
+    }
+}
+
+void
+GtOutputDock::openTestCaseContextMenu()
+{
+    QMenu menu(this);
+    QVector<QAction*> actions;
+
+    auto const createTestCase = [&](const char* test){
+        actions << menu.addAction(tr(test));
+    };
+
+    createTestCase("Test log Levels");
+    createTestCase("Test custom Ids");
+    createTestCase("Test Lorem Ipsum");
+    createTestCase("Test message spam");
+
+    QAction* a = menu.exec(QCursor::pos());
+
+    int testCase = 1;
+    for (auto* action : qAsConst(actions))
+    {
+        if (a == action)
+        {
+            return testOutput(testCase);
+        }
+        ++testCase;
     }
 }
 
@@ -513,7 +495,7 @@ void
 GtOutputDock::onCopyRequest()
 {
     const QModelIndexList rawIndexes =
-            m_listView->selectionModel()->selectedIndexes();
+            m_logView->selectionModel()->selectedIndexes();
 
     if (rawIndexes.isEmpty())
     {
@@ -522,7 +504,7 @@ GtOutputDock::onCopyRequest()
 
     QModelIndexList indexes;
 
-    foreach (const QModelIndex& index, rawIndexes)
+    for (const QModelIndex& index : rawIndexes)
     {
         indexes << m_model->mapToSource(index);
     }
@@ -536,7 +518,7 @@ void
 GtOutputDock::onDeleteRequest()
 {
     const QModelIndexList rawIndexes =
-            m_listView->selectionModel()->selectedIndexes();
+            m_logView->selectionModel()->selectedIndexes();
 
     if (rawIndexes.isEmpty())
     {
@@ -545,8 +527,7 @@ GtOutputDock::onDeleteRequest()
 
     QModelIndexList indexes;
 
-
-    foreach (const QModelIndex& index, rawIndexes)
+    for (const QModelIndex& index : rawIndexes)
     {
         indexes << m_model->mapToSource(index);
     }
@@ -555,3 +536,51 @@ GtOutputDock::onDeleteRequest()
 
     removeItems(indexes);
 }
+
+void
+GtOutputDock::testOutput(int testCase)
+{
+    switch (testCase)
+    {
+    default:
+    case 1:
+    {
+        gtTrace()   << "Trace!";
+        gtDebug()   << "Debug!";
+        gtInfo()    << "Info!";
+        gtWarning() << "Warning!";
+        gtError()   << "Error!";
+        gtFatal()   << "Fatal!";
+        break;
+    }
+    case 2:
+    {
+        gtTraceId("Trace Id")     << "My Trace Log!";
+        gtDebugId("Debug Id")     << "My Debug Log!";
+        gtInfoId("Info Id")       << "My Info Log!";
+        gtWarningId("Warning Id") << "My Warning Log!";
+        gtErrorId("Error Id")     << "My Error Log!";
+        gtFatalId("Fatal Id")     << "My Fatal Log!";
+        break;
+    }
+    case 3:
+    {
+        gtInfo() << "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
+                    "sed diam nonumy eirmod tempor invidunt ut labore et "
+                    "dolore magna aliquyam erat, sed diam voluptua.\n"
+                    "At vero eos et accusam et justo duo dolores et ea rebum.\n"
+                    "Stet clita kasd gubergren, no sea takimata sanctus est "
+                    "Lorem ipsum dolor sit amet.";
+        break;
+    }
+    case 4:
+    {
+        GtOutputTester* tester = new GtOutputTester;
+        connect(tester, &GtOutputTester::finished,
+                tester, &GtOutputTester::deleteLater);
+        tester->start();
+        break;
+    }
+    }
+}
+

@@ -19,103 +19,113 @@
 
 GtStyledLogModel::GtStyledLogModel(QObject* parent) :
     QIdentityProxyModel(parent)
-{
-
-}
+{ }
 
 QVariant
 GtStyledLogModel::data(const QModelIndex& index, int role) const
 {
-    if (index.row() < 0 || index.row() >= gtLogModel->rowCount())
-    {
-        return QVariant();
-    }
+    /// helper method to access logging level of index
+    const auto loggingLevel = [](const QModelIndex& index){
+        int level = gtLogModel->data(index, GtLogModel::LevelRole).toInt();
+        return gt::log::levelFromInt(level);
+    };
+
+    int col = index.column();
 
     switch (role)
     {
-        case Qt::DecorationRole:
+    case Qt::DecorationRole:
+        // convert level to icon
+        if (col == 0)
         {
-            const int level =
-                gtLogModel->data(index,
-                                 GtLogModel::LogLevelRole).toInt();
-
-            switch (level)
+            switch (loggingLevel(index))
             {
-                case gt::log::DebugLevel:
-                    return gt::gui::icon::bug();
-
-                case gt::log::InfoLevel:
-                    return gt::gui::icon::infoBlue16();
-
-                case gt::log::WarnLevel:
-                    return gt::gui::icon::processFailed16();
-
-                case gt::log::ErrorLevel:
-                    return gt::gui::icon::error16();
-
-                case gt::log::FatalLevel:
-                    return gt::gui::icon::fatal16();
+            case gt::log::TraceLevel:
+                return gt::gui::icon::jumpTo();
+            case gt::log::DebugLevel:
+                return gt::gui::icon::bug();
+            case gt::log::InfoLevel:
+                return gt::gui::icon::infoBlue16();
+            case gt::log::WarnLevel:
+                return gt::gui::icon::processFailed16();
+            case gt::log::ErrorLevel:
+                return gt::gui::icon::error16();
+            case gt::log::FatalLevel:
+                return gt::gui::icon::fatal16();
+            default:
+                break;
             }
         }
-
-        case Qt::TextColorRole:
+        break;
+    case Qt::DisplayRole:
+        // we only want to display the icon not the text
+        if (col == 0)
         {
-            const int level =
-                gtLogModel->data(index,
-                                 GtLogModel::LogLevelRole).toInt();
-
-            switch (level)
-            {
-                case gt::log::WarnLevel:
-                    return gt::gui::color::warningText();
-
-                case gt::log::ErrorLevel:
-                    return gt::gui::color::errorText();
-
-                case gt::log::FatalLevel:
-                    return gt::gui::color::fatalText();
-            }
+            return {};
         }
-
-        case Qt::FontRole:
+        break;
+    case Qt::ToolTipRole:
+        // tooltip for level
+        if (col == 0)
         {
-            const int level =
-                gtLogModel->data(index,
-                                 GtLogModel::LogLevelRole).toInt();
-
-            switch (level)
-            {
-                case gt::log::DebugLevel:
-                {
-                    QFont font =
-                        QIdentityProxyModel::data(index, role).value<QFont>();
-                    font.setItalic(true);
-                    return font;
-                }
-
-                case gt::log::ErrorLevel:
-                {
-                    QFont font =
-                        QIdentityProxyModel::data(index, role).value<QFont>();
-                    font.setBold(true);
-                    return font;
-                }
-            }
+            auto level = gt::log::levelToString(loggingLevel(index));
+            return QString::fromStdString(level);
         }
-
-        case Qt::BackgroundColorRole:
+        break;
+    case Qt::TextAlignmentRole:
+        return Qt::AlignTop;
+    case Qt::TextColorRole:
+        switch (loggingLevel(index))
         {
-            const int level =
-                gtLogModel->data(index, GtLogModel::LogLevelRole).toInt();
-
-            switch (level)
-            {
-                case gt::log::FatalLevel:
-                    return gt::gui::color::fatalTextBackground();
-            }
+        case gt::log::WarnLevel:
+            return gt::gui::color::warningText();
+        case gt::log::ErrorLevel:
+            return gt::gui::color::errorText();
+        case gt::log::FatalLevel:
+            return gt::gui::color::fatalText();
+        default:
+            break;
         }
+        break;
+    case Qt::BackgroundColorRole:
+        switch (loggingLevel(index))
+        {
+        case gt::log::FatalLevel:
+            return gt::gui::color::fatalTextBackground();
+        default:
+            break;
+        }
+        break;
+    case Qt::FontRole:
+        switch (loggingLevel(index))
+        {
+        case gt::log::TraceLevel:
+        case gt::log::DebugLevel:
+        {
+            QFont font = QIdentityProxyModel::data(index, role).value<QFont>();
+            font.setItalic(true);
+            return font;
+        }
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
     }
 
     return QIdentityProxyModel::data(index, role);
+}
+
+QVariant
+GtStyledLogModel::headerData(int section,
+                             Qt::Orientation orientation,
+                             int role) const
+{
+    if (role == Qt::TextAlignmentRole)
+    {
+        return Qt::AlignLeft;
+    }
+    return QIdentityProxyModel::headerData(section, orientation, role);
 }
 

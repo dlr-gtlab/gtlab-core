@@ -34,20 +34,20 @@ protected:
 
 signals:
     /**
-     * @brief searchRequest - signal as request to search in listview
-     *  signal is sent when pressing the Key "Control + F"
+     * @brief searchRequest - signal as request to search in the view
+     *  signal is sent when pressing the search shortcut
      */
     void searchRequest();
 
     /**
-     * @brief copyRequest - signal as request to copy lines in listview
-     *  signal is sent when pressing the Key "Control + C"
+     * @brief copyRequest - signal as request to copy lines in the view
+     *  signal is sent when pressing the copy shortcut
      */
     void copyRequest();
 
     /**
-     * @brief deleteRequest - signal as request to remove lines in listview
-     *  signal is sent when pressing the Key "Delete"
+     * @brief deleteRequest - signal as request to remove lines in the view
+     *  signal is sent when pressing the delete shortcut
      */
     void deleteRequest();
 
