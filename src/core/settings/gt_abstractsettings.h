@@ -71,6 +71,10 @@ public:
      */
     QVariant getSetting(const QString& ident) const;
 
+    bool hasSetting(const QString& ident) const;
+
+    QStringList getAllSettingIds() const;
+
     /**
      * @brief GtAbstractSettings
      */

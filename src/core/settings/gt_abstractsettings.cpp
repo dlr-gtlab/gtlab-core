@@ -11,6 +11,7 @@
 
 #include "gt_abstractsettings.h"
 #include "gt_settingsitem.h"
+#include "gt_algorithms.h"
 
 #include "gt_logging.h"
 
@@ -94,5 +95,24 @@ GtAbstractSettings::getSetting(const QString &ident) const
                    .arg(ident);
         return {};
     }
+}
+
+bool
+GtAbstractSettings::hasSetting(const QString &ident) const
+{
+    auto iter = m_settings.find(ident);
+    return iter != m_settings.end();
+}
+
+QStringList
+GtAbstractSettings::getAllSettingIds() const
+{
+    QStringList l;
+
+    gt::for_each_key(m_settings, [&l](auto&& id) {
+        l.push_back(id);
+    });
+
+    return l;
 }
 
