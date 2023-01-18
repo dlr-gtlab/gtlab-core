@@ -42,7 +42,6 @@ public:
                    VGVGradients,
                    VGVGradientsPow2,
                    kinematicViscosity,
-                   DataSize,
                    Default,
                    None
                   };
