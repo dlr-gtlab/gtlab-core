@@ -64,6 +64,8 @@ GtUnit::siUnit(Category c)
         return QString("W/(m^2*K)");
     case Category::kinematicViscosity:
         return QStringLiteral("m^2/s");
+    case Category::DataSize:
+        return QStringLiteral("KB");
     case Category::NonDimensionalPercentage:
         return QStringLiteral("-");
     case Category::NonDimensional:
@@ -136,6 +138,8 @@ GtUnit::categoryToString(Category c)
         return QObject::tr("PowerTempArea");
     case Category::kinematicViscosity:
         return QObject::tr("Kinematic Viscosity");
+    case Category::DataSize:
+        return QObject::tr("Data size");
     case Category::NonDimensionalPercentage:
         return QObject::tr("NonDimensionalPercentage");
     case Category::NonDimensional:
