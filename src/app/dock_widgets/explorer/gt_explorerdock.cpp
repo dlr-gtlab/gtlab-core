@@ -784,6 +784,30 @@ GtExplorerDock::keyPressEvent(QKeyEvent* event)
                     m_view->edit(first);
                 }
             }
+            if (gtApp->compareKeyEvent(event, QKeySequence(Qt::Key_Return)))
+            {
+                QModelIndex first = firstSelectedIndex();
+
+                QModelIndex index = mapToSource(first);
+
+                if (!index.isValid())
+                {
+                    return;
+                }
+
+                if (GtObject* obj = gtDataModel->objectFromIndex(index))
+                {
+                    if (GtObjectUI* oui = gtApp->defaultObjectUI(obj))
+                    {
+                        QStringList mdiOptions = oui->openWith(obj);
+
+                        if (!mdiOptions.isEmpty())
+                        {
+                            gtMdiLauncher->open(mdiOptions.constFirst(), obj);
+                        }
+                    }
+                }
+            }
 
             /// General approach to read Shortcut from ui
             QModelIndex first = firstSelectedIndex();
