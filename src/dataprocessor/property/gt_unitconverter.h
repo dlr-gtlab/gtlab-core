@@ -629,6 +629,17 @@ void GtUnitConverter<T>::initialize()
 
     m_factorMap.insert(GtUnit::kinematicViscosity, kinematicViscosityFac);
 
+    /** Data size **/
+
+    QMap<QString, double> dataSizeFac;
+
+    dataSizeFac["KB"] = 1.0;
+    dataSizeFac["MB"] = 1.E-3;
+    dataSizeFac["Bytes"] = 1.E3;
+    dataSizeFac["GB"] = 1.0E-6;
+
+    m_factorMap.insert(GtUnit::DataSize, dataSizeFac);
+
 
     /** Non Dimensional Percentage **/
 
