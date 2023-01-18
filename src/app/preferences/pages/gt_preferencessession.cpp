@@ -71,6 +71,9 @@ GtPreferencesSession::GtPreferencesSession() :
     connect(m_btnDuplicate, SIGNAL(clicked(bool)), m_list,
             SLOT(duplicateItem()));
     connect(m_btnDelete, SIGNAL(clicked(bool)), m_list, SLOT(deleteItem()));
+    connect(m_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+            SLOT(switchSession()));
+
 
     m_list->init();
 
