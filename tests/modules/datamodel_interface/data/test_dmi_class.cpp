@@ -8,12 +8,23 @@
  */
 
 #include "test_dmi_class.h"
+#include "gt_structproperty.h"
+#include "gt_stringproperty.h"
 
 TestDmClass::TestDmClass() :
     m_value("value", "Value", "Value to use in Example",
-            GtUnit::EnergyDensity, 1.0)
+            GtUnit::EnergyDensity, 1.0),
+    m_container("notes", "notes")
 {
     setObjectName("DMI Object");
 
     registerProperty(m_value);
+
+    GtPropertyStructDefinition stringEntryDef("StringStruct");
+    stringEntryDef.defineMember("value", gt::makeStringProperty(""));
+
+    m_container.registerAllowedType(stringEntryDef);
+
+    registerPropertyStructContainer(m_container);
+
 }

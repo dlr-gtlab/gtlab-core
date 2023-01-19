@@ -214,6 +214,20 @@ TEST_F(TestGtStructProperty, readFromMemento)
     const auto& entry1 = newObj.environmentVars[1];
     EXPECT_EQ(QString("LD_DEBUG"), entry1.getMemberVal<QString>("name"));
     EXPECT_EQ(QString("1"), entry1.getMemberVal<QString>("value"));
+
+    std::cout << "Change an entry. Expting a signal triggered..." << std::endl;
+    bool entryChanged = false;
+    GtObject::connect(&newObj.environmentVars,
+                      &GtPropertyStructContainer::entryChanged,
+                      &newObj.environmentVars,
+                      [&entryChanged](int /* idx */, GtAbstractProperty* p){
+                          ASSERT_TRUE(p != nullptr);
+
+                          entryChanged = true;
+                          gtInfo() << "Signal entry changed. New value: " << p->valueToVariant();
+                      });
+    newObj.environmentVars[0].setMemberVal("name", "welt");
+    EXPECT_EQ(true, entryChanged);
 }
 
 TEST_F(TestGtStructProperty, readMissingDynprop)

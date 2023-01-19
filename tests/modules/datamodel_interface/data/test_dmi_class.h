@@ -12,6 +12,7 @@
 
 #include "gt_object.h"
 #include "gt_doubleproperty.h"
+#include "gt_propertystructcontainer.h"
 
 /**
  * @brief The TestDmiClass class
@@ -28,6 +29,7 @@ public:
 
 private:
     GtDoubleProperty m_value;
+    GtPropertyStructContainer m_container;
 };
 
 #endif // TESTDMICLASS_H
