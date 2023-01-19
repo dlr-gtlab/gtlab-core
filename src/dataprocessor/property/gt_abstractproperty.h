@@ -72,8 +72,9 @@ public:
      * @param success
      * @return
      */
-    virtual bool setValueFromVariant(const QVariant& val, const QString& unit,
-                                     bool* success = 0) = 0;
+    GT_NO_DISCARD
+    virtual bool setValueFromVariant(const QVariant& val,
+                                     const QString& unit) = 0;
 
     /**
      * @brief Retrieves the brief description of the parameter

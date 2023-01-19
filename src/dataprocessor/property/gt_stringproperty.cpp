@@ -62,19 +62,12 @@ GtStringProperty::valueToVariant(const QString& /*unit*/,
 
 bool
 GtStringProperty::setValueFromVariant(const QVariant& val,
-                                      const QString& /*unit*/,
-                                      bool* success)
+                                      const QString& /*unit*/)
 {
-    bool retval = true;
+    bool ok = true;
+    setVal(val.toString(), &ok);
 
-    setVal(val.toString(), success);
-
-    if (success)
-    {
-        retval = *success;
-    }
-
-    return retval;
+    return ok;
 }
 
 

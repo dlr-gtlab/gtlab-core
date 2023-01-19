@@ -75,11 +75,8 @@ TEST_F(TestGtStringProperty, setFromVariant)
 {
     QVariant var("bla");
 
-    bool success = false;
-
-    m_prop->setValueFromVariant(var, QString(), &success);
-    ASSERT_STREQ(m_prop->get().toStdString().c_str(), "bla");
-    ASSERT_TRUE(success);
+    ASSERT_TRUE(m_prop->setValueFromVariant(var, QString()));
+    EXPECT_STREQ(m_prop->get().toStdString().c_str(), "bla");
 }
 
 TEST_F(TestGtStringProperty, getFromVariant)

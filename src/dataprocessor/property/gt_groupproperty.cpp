@@ -32,8 +32,7 @@ GtGroupProperty::valueToVariant(const QString& unit, bool* success) const
 
 bool
 GtGroupProperty::setValueFromVariant(const QVariant& /*val*/,
-                                     const QString& /*unit*/,
-                                     bool* /*success*/)
+                                     const QString& /*unit*/)
 {
 //    bool retval = true;
 

@@ -136,24 +136,16 @@ GtIntProperty::valueToVariant(const QString& unit,
 
 bool
 GtIntProperty::setValueFromVariant(const QVariant& val,
-                                   const QString& unit,
-                                   bool* success)
+                                   const QString& unit)
 {
-    bool retval = false;
+    bool ok = false;
+    const int intVal = val.toInt(&ok);
 
-    const int intVal = val.toInt(&retval);
+    if (!ok) return false;
 
-    if (retval)
-    {
-        setVal(intVal, unit, success);
+    setVal(intVal, unit, &ok);
 
-        if (success)
-        {
-            retval = *success;
-        }
-    }
-
-    return retval;
+    return ok;
 }
 
 int

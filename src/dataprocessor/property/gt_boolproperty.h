@@ -58,9 +58,9 @@ public:
      * @param val
      * @return
      */
+     GT_NO_DISCARD
      bool setValueFromVariant(const QVariant& val,
-                              const QString& unit,
-                              bool* success = 0) override;
+                              const QString& unit) override;
 };
 
 namespace gt

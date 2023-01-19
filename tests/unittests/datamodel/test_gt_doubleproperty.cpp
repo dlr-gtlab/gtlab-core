@@ -142,14 +142,14 @@ TEST_F(TestGtDoubleProperty, setFromVariant)
 
     bool success = false;
 
-    m_prop->setValueFromVariant(var, m_prop->siUnit(), &success);
+    success = m_prop->setValueFromVariant(var, m_prop->siUnit());
     ASSERT_DOUBLE_EQ(m_prop->get(), 11.2);
     ASSERT_TRUE(success);
 
     success = false;
     var = 14.2;
 
-    m_prop->setValueFromVariant(var, "mm2", &success);
+    success = m_prop->setValueFromVariant(var, "mm2");
     ASSERT_DOUBLE_EQ(m_prop->get(), 11.2);
     ASSERT_FALSE(success);
 
