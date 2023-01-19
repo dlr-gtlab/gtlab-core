@@ -36,6 +36,8 @@
 #include "gt_objectfactory.h"
 #include "gt_changelogwidget.h"
 #include "gt_sharedfunctionswidget.h"
+#include "gt_taskdata.h"
+#include "gt_taskfactory.h"
 
 #include "gt_aboutdialog.h"
 
@@ -309,8 +311,14 @@ GtAboutDialog::addDevelopmentTabs(QTabWidget *tabs)
     auto* taskLayout = new QVBoxLayout;
     auto* taskClassList = new QListWidget;
     taskClassList->setFrameStyle(QListWidget::NoFrame);
-    taskClassList->insertItems(
-                0, gtProcessFactory->taskFactory()->knownClasses());
+    QStringList itemNames;
+    foreach (GtTaskData taskData,
+             gtTaskFactory->taskDataList())
+    {
+        itemNames.append(taskData->metaData().className());
+    }
+
+    taskClassList->insertItems(0, itemNames);
     taskClassList->sortItems();
     taskLayout->addWidget(taskClassList);
     tasksPage->setLayout(taskLayout);
