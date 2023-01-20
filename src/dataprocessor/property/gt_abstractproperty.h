@@ -11,6 +11,7 @@
 #define GTABSTRACTPROPERTY_H
 
 #include "gt_datamodel_exports.h"
+#include "gt_platform.h"
 #include "gt_unit.h"
 
 #include <QObject>
