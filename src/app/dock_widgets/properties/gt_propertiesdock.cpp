@@ -11,6 +11,7 @@
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QResizeEvent>
 
 #include "gt_propertiesdock.h"
 #include "gt_propertytreeview.h"
@@ -19,8 +20,6 @@
 #include "gt_application.h"
 #include "gt_processcomponentsettingsbutton.h"
 #include "gt_project.h"
-#include "gt_command.h"
-#include "gt_logging.h"
 
 GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
 {
@@ -40,6 +39,7 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
     m_label->setVisible(false);
     m_label->setAlignment(Qt::AlignCenter);
     m_label->setMinimumHeight(20);
+    m_label->setMinimumWidth(20);
     //m_label->setStyleSheet("QLabel { background-color : #f2f3f5; "
     //                       "color : black; }");
     hLay->addWidget(m_label);
@@ -95,6 +95,12 @@ GtPropertiesDock::getDockWidgetArea()
 }
 
 void
+GtPropertiesDock::resizeEvent(QResizeEvent* /*event*/)
+{
+    refreshTitle();
+}
+
+void
 GtPropertiesDock::objectSelected(GtObject* obj)
 {
     m_treeView->setObject(obj);
@@ -146,13 +152,45 @@ GtPropertiesDock::refreshTitle()
 
     m_label->setVisible(true);
 
-    if (gtApp->devMode())
+    auto getText = [](QString const& name, QString const& classname,
+                      bool devMode)
     {
-        m_label->setText("<b>" + m_obj->objectName() + "</b> - " +
-                         m_obj->metaObject()->className());
-    }
-    else
+        if (devMode)
+        {
+            return QString("<b>" + name + "</b>") + " - " + classname;
+        }
+        else
+        {
+            return QString("<b>" + name + "</b>");
+        }
+    };
+
+    QString display = getText(m_obj->objectName(),
+                              m_obj->metaObject()->className(),
+                              gtApp->devMode());
+
+    int removeCounter = 4;
+    QFont labelFont = m_label->font();
+    /// this line does not change the displayed font.
+    /// It is needed for the font metrics to calculate the size based on a
+    /// bold font.
+    labelFont.setBold(true);
+    QFontMetrics fm(labelFont);
+    QString choppedName = m_obj->objectName();
+
+    /// check if text is too long for current label
+    /// but with a minimum number of 12 letters for the name
+    /// which means 9 exculding the truncation points (...)
+    while (fm.horizontalAdvance(display) > width() && choppedName.size() > 12)
     {
-        m_label->setText("<b>" + m_obj->objectName() + "</b>");
+        choppedName = m_obj->objectName();
+        choppedName.chop(removeCounter);
+        removeCounter += 1;
+        choppedName += "...";
+
+        display = getText(choppedName, m_obj->metaObject()->className(),
+                          gtApp->devMode());
     }
+
+    m_label->setText(display);
 }

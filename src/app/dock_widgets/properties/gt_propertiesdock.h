@@ -57,6 +57,12 @@ private:
     /// Pointer to current object
     QPointer<GtObject> m_obj;
 
+    /**
+     * @brief resizeEvent - override of the event of QWidget:
+     * Is used here to resize (truncate) the text displayed in the label
+     */
+    void resizeEvent(QResizeEvent*) override;
+
 private slots:
     /**
      * @brief objectSelected
