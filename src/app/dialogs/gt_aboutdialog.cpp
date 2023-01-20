@@ -312,8 +312,7 @@ GtAboutDialog::addDevelopmentTabs(QTabWidget *tabs)
     auto* taskClassList = new QListWidget;
     taskClassList->setFrameStyle(QListWidget::NoFrame);
     QStringList itemNames;
-    foreach (GtTaskData taskData,
-             gtTaskFactory->taskDataList())
+    for (const GtTaskData& taskData : gtTaskFactory->taskDataList())
     {
         itemNames.append(taskData->metaData().className());
     }
