@@ -16,4 +16,14 @@
 #define CPP_STANDARD_VERSION __cplusplus
 #endif
 
+#ifdef __has_cpp_attribute
+#if __has_cpp_attribute(nodiscard)
+#define GT_NO_DISCARD [[nodiscard]]
+#else
+#define GT_NO_DISCARD
+#endif
+#else
+#define GT_NO_DISCARD
+#endif
+
 #endif // GT_PLATFORM_H

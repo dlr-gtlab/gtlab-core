@@ -321,7 +321,8 @@ inline gt::PropertyFactoryFunction makePropertyFactory(const T& value)
 {
     return [=](const QString& id) {
         auto p = new PropertyType(id, id);
-        p->setValueFromVariant(std::move(value), "");
+        auto _ = p->setValueFromVariant(std::move(value), "");
+        Q_UNUSED(_);
         return p;
     };
 }

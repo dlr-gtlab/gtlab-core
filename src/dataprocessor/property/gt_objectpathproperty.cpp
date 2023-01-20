@@ -35,19 +35,11 @@ GtObjectPathProperty::valueToVariant(const QString& unit, bool* success) const
 
 bool
 GtObjectPathProperty::setValueFromVariant(const QVariant& val,
-        const QString& /*unit*/,
-        bool* success)
+        const QString& /*unit*/)
 {
-    bool retval = false;
-
-    setVal(val.toString(), success);
-
-    if (success)
-    {
-        retval = *success;
-    }
-
-    return retval;
+    bool ok = false;
+    setVal(val.toString(), &ok);
+    return ok;
 }
 
 GtObject*

@@ -32,42 +32,29 @@ GtDoubleListProperty::valueToVariant(
 
 bool
 GtDoubleListProperty::setValueFromVariant(const QVariant& val,
-        const QString& /*unit*/,
-        bool* success)
+        const QString& /*unit*/)
 {
-    bool retval = false;
+    if (!val.canConvert<QVariantList>()) return false;
 
-    if (val.canConvert<QVariantList>())
+
+    QSequentialIterable iterable = val.value<QSequentialIterable>();
+    QVector<double> vec;
+
+    foreach (const QVariant& v, iterable)
     {
-        QSequentialIterable iterable = val.value<QSequentialIterable>();
-        QVector<double> vec;
+        bool ok = false;
+        vec << v.toDouble(&ok);
 
-        foreach (const QVariant& v, iterable)
+        if (!ok)
         {
-            vec << v.toDouble(&retval);
-
-            if (!retval)
-            {
-                gtError() << tr("Could not convert double list property!");
-
-                if (success)
-                {
-                    *success = retval;
-                }
-
-                return retval;
-            }
-        }
-
-        setVal(vec, success);
-
-        if (success)
-        {
-            retval = *success;
+            gtError() << tr("Could not convert double list property!");
+            return false;
         }
     }
 
-    return retval;
+    bool ok = false;;
+    setVal(vec, &ok);
+    return ok;
 }
 
 QString

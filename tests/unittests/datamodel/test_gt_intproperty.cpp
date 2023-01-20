@@ -139,11 +139,8 @@ TEST_F(TestGtIntProperty, setFromVariant)
 {
     QVariant var(11);
 
-    bool success = false;
-
-    m_prop->setValueFromVariant(var, QString(), &success);
-    ASSERT_EQ(m_prop->get(), 11);
-    ASSERT_TRUE(success);
+    ASSERT_TRUE(m_prop->setValueFromVariant(var, QString()));
+    EXPECT_EQ(m_prop->get(), 11);
 }
 
 TEST_F(TestGtIntProperty, getFromVariant)

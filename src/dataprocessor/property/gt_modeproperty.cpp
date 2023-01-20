@@ -31,8 +31,7 @@ GtModeProperty::valueToVariant(const QString& unit, bool* success) const
 
 bool
 GtModeProperty::setValueFromVariant(const QVariant& val,
-                                    const QString& /*unit*/,
-                                    bool* /*success*/)
+                                    const QString& /*unit*/)
 {
     QString tmpVal = val.toString();
 

@@ -72,11 +72,8 @@ TEST_F(TestGtBoolProperty, setFromVariant)
 {
     QVariant var(true);
 
-    bool success = false;
-
-    m_prop->setValueFromVariant(var, QString(), &success);
-    ASSERT_TRUE(m_prop->get());
-    ASSERT_TRUE(success);
+    ASSERT_TRUE(m_prop->setValueFromVariant(var, QString()));
+    EXPECT_TRUE(m_prop->get());
 }
 
 TEST_F(TestGtBoolProperty, getFromVariant)

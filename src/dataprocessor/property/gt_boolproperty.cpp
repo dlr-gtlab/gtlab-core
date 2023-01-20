@@ -43,15 +43,9 @@ GtBoolProperty::valueToVariant(const QString& unit,
 
 bool
 GtBoolProperty::setValueFromVariant(const QVariant& val,
-                                    const QString& /*unit*/,
-                                    bool* success)
+                                    const QString& /*unit*/)
 {
     setVal(val.toBool());
-
-    if (success)
-    {
-        *success = true;
-    }
 
     return true;
 }

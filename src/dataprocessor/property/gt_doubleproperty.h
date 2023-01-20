@@ -102,9 +102,9 @@ public:
      * @param val
      * @return
      */
+    GT_NO_DISCARD
     bool setValueFromVariant(const QVariant& val,
-                             const QString& unit,
-                             bool* success = 0) override;
+                             const QString& unit) override;
 
     /**
      * @brief Returns value of low side boundary. 0.0 if no lower boundary is

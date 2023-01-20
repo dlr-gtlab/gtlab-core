@@ -82,9 +82,9 @@ public:
      * @param success Whether the value could be set or not
      * @return
      */
+    GT_NO_DISCARD
     bool setValueFromVariant(const QVariant& val,
-                             const QString& unit,
-                             bool* success = nullptr) override;
+                             const QString& unit) override;
 
     /**
      * @brief linkedObject

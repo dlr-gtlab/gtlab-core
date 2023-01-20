@@ -60,8 +60,8 @@ public:
      * @param val
      * @return
      */
-    bool setValueFromVariant(const QVariant& val, const QString& unit,
-                             bool* success = nullptr) override;
+    GT_NO_DISCARD
+    bool setValueFromVariant(const QVariant& val, const QString& unit) override;
 
     /**
      * @brief validator

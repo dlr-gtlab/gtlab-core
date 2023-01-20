@@ -135,24 +135,16 @@ GtDoubleProperty::valueToVariant(const QString& unit,
 
 bool
 GtDoubleProperty::setValueFromVariant(const QVariant& val,
-                                      const QString& unit,
-                                      bool* success)
+                                      const QString& unit)
 {
-    bool retval = false;
+    bool ok = false;
+    const double doubleVal = val.toDouble(&ok);
 
-    const double doubleVal = val.toDouble(&retval);
+    if (!ok) return false;
 
-    if (retval)
-    {
-        setVal(doubleVal, unit, success);
+    setVal(doubleVal, unit, &ok);
 
-        if (success)
-        {
-            retval = *success;
-        }
-    }
-
-    return retval;
+    return ok;
 }
 
 double

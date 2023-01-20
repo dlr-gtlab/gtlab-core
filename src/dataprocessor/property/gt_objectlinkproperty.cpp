@@ -49,19 +49,12 @@ GtObjectLinkProperty::valueToVariant(const QString& unit, bool* success) const
 
 bool
 GtObjectLinkProperty::setValueFromVariant(const QVariant& val,
-        const QString& /*unit*/,
-        bool* success)
+        const QString& /*unit*/)
 {
-    bool retval = false;
+    bool ok = false;
+    setVal(val.toString(), &ok);
 
-    setVal(val.toString(), success);
-
-    if (success)
-    {
-        retval = *success;
-    }
-
-    return retval;
+    return ok;
 }
 
 GtObject*
