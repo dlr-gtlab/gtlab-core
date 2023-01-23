@@ -24,6 +24,9 @@ class GT_CORE_EXPORT GtDoubleMonitoringProperty :
     Q_OBJECT
 
 public:
+
+    using GtProperty<double>::operator=;
+
     /**
      * @brief GtDoubleMonitoringProperty
      * @param ident
@@ -31,6 +34,16 @@ public:
      */
     Q_INVOKABLE GtDoubleMonitoringProperty(const QString& ident,
                                            const QString& name);
+
+    /**
+     * @brief GtDoubleMonitoringProperty
+     * @param ident for the datamodel
+     * @param name shown in the GUI
+     * @param brief description text
+     */
+    Q_INVOKABLE GtDoubleMonitoringProperty(const QString& ident,
+                                           const QString& name,
+                                           const QString& brief);
 
 };
 

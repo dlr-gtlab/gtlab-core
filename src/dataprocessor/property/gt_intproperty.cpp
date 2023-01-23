@@ -9,12 +9,13 @@
 
 #include "gt_intproperty.h"
 
-GtIntProperty::GtIntProperty(const QString& ident, const QString& name)
+GtIntProperty::GtIntProperty(const QString& ident, const QString& name,
+                             const QString& brief)
 {
     setObjectName(name);
 
     m_id = ident;
-    m_brief = QString();
+    m_brief = brief;
     m_unitCategory = GtUnit::Category::None;
     m_value = 0;
     m_initValue = 0;
@@ -22,6 +23,12 @@ GtIntProperty::GtIntProperty(const QString& ident, const QString& name)
     m_boundsCheckFlagLow = false;
     m_boundHi = 0;
     m_boundLo = 0;
+}
+
+GtIntProperty::GtIntProperty(const QString& ident, const QString& name) :
+    GtIntProperty(ident, name, QString())
+{
+
 }
 
 GtIntProperty::GtIntProperty(const QString& ident,

@@ -24,6 +24,8 @@ class GT_CORE_EXPORT GtIntMonitoringProperty :
     Q_OBJECT
 
 public:
+    using GtProperty<int>::operator=;
+
     /**
      * @brief GtIntMonitoringProperty
      * @param ident
@@ -31,6 +33,17 @@ public:
      */
     Q_INVOKABLE GtIntMonitoringProperty(const QString& ident,
                                         const QString& name);
+
+    /**
+     * @brief GtIntMonitoringProperty
+     * @param ident for the datamodel
+     * @param name shown in the GUI
+     * @param brief description text
+     */
+    Q_INVOKABLE GtIntMonitoringProperty(const QString& ident,
+                                        const QString& name,
+                                        const QString& brief);
+
 
 };
 

@@ -12,10 +12,18 @@
 #include "gt_stringmonitoringproperty.h"
 
 GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
-                                                       const QString& name) :
-    GtStringProperty(ident, name)
+                                                       const QString& name,
+                                                       const QString& brief) :
+    GtStringProperty(ident, name, brief)
 {
     setReadOnly(true);
 
     m_validator = std::make_unique<QRegExpValidator>(gt::re::woUmlauts());
+}
+
+GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
+                                                       const QString& name) :
+    GtStringMonitoringProperty(ident, name, QString())
+{
+
 }

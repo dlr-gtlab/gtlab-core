@@ -42,6 +42,15 @@ public:
      * @param ident
      * @param name
      * @param brief
+     */
+    Q_INVOKABLE GtIntProperty(const QString& ident, const QString& name,
+                              const QString& brief);
+
+    /**
+     * @brief GtIntProperty
+     * @param ident
+     * @param name
+     * @param brief
      * @param unitCategory
      * @param value
      */

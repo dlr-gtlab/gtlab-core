@@ -10,8 +10,16 @@
 #include "gt_intmonitoringproperty.h"
 
 GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
-                                                 const QString& name) :
-    GtIntProperty(ident, name)
+                                                 const QString& name,
+                                                 const QString& brief) :
+    GtIntProperty(ident, name, brief)
 {
     setReadOnly(true);
+}
+
+GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
+                                                 const QString& name) :
+    GtIntMonitoringProperty(ident, name, QString())
+{
+
 }
