@@ -39,7 +39,14 @@ public:
      */
     Q_INVOKABLE GtDoubleProperty(const QString& ident,
                                  const QString& name);
-
+    /**
+     * @brief GtDoubleProperty
+     * @param ident
+     * @param name
+     * @param brief
+     */
+    Q_INVOKABLE GtDoubleProperty(const QString& ident, const QString& name,
+                                 const QString& brief);
     /**
      * @brief GtDoubleProperty
      * @param ident

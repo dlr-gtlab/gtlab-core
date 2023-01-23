@@ -9,12 +9,14 @@
 
 #include "gt_doubleproperty.h"
 
-GtDoubleProperty::GtDoubleProperty(const QString& ident, const QString& name)
+GtDoubleProperty::GtDoubleProperty(const QString& ident,
+                                   const QString& name,
+                                   const QString& brief)
 {
     setObjectName(name);
 
     m_id = ident;
-    m_brief = QString();
+    m_brief = brief;
     m_unitCategory = GtUnit::Category::None;
     m_value = 0.0;
     m_initValue = 0.0;
@@ -22,6 +24,13 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident, const QString& name)
     m_boundsCheckFlagLow = false;
     m_boundHi = 0.0;
     m_boundLo = 0.0;
+}
+
+GtDoubleProperty::GtDoubleProperty(const QString& ident,
+                                   const QString& name) :
+    GtDoubleProperty(ident, name, QString())
+{
+
 }
 
 GtDoubleProperty::GtDoubleProperty(const QString& ident,

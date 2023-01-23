@@ -23,11 +23,24 @@ class GT_CORE_EXPORT GtStringMonitoringProperty :
 {
     Q_OBJECT
 public:
+    using GtProperty<QString>::operator=;
+
     /**
      * @brief GtStringMonitoringProperty
+     * @param ident for the datamodel
+     * @param name shown in the GUI
      */
     Q_INVOKABLE GtStringMonitoringProperty(const QString& ident,
                                            const QString& name);
+    /**
+     * @brief GtStringMonitoringProperty
+     * @param ident for the datamodel
+     * @param name shown in the GUI
+     * @param brief description text
+     */
+    Q_INVOKABLE GtStringMonitoringProperty(const QString& ident,
+                                           const QString& name,
+                                           const QString& brief);
 };
 
 #endif // GTSTRINGMONITORINGPROPETY_H

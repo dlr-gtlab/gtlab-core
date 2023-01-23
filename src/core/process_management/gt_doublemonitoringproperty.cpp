@@ -10,8 +10,17 @@
 #include "gt_doublemonitoringproperty.h"
 
 GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
-                                                       const QString& name) :
-    GtDoubleProperty(ident, name)
+                                                       const QString& name,
+                                                       const QString& brief) :
+    GtDoubleProperty(ident, name, brief)
 {
     setReadOnly(true);
 }
+
+GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
+                                                       const QString& name) :
+    GtDoubleMonitoringProperty(ident, name, QString())
+{
+
+}
+
