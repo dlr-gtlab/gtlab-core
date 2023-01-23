@@ -442,6 +442,11 @@ protected:
     virtual bool initFirstRun();
 
     /**
+     * @brief inits the logging system
+     */
+    void initLogging();
+
+    /**
      * @brief loadLastSession
      * @return
      */
@@ -482,7 +487,6 @@ signals:
      * @brief currentProjectChanged
      */
     void currentProjectChanged(GtProject*);
-
 };
 
 #endif // GTCOREAPPLICATION_H

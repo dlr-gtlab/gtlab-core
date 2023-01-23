@@ -23,11 +23,16 @@
 
 #include "gt_preferencesapp.h"
 
-// Maps verbosity levels to strings
-const static QMap<int, QString> s_verbosityLevels{
-    {gt::log::Silent    , QStringLiteral("Silent")},
-    {gt::log::Medium    , QStringLiteral("Medium")},
-    {gt::log::Everything, QStringLiteral("High")  },
+struct LoggingVerbosity
+{
+    gt::log::Verbosity verbosity;
+    QString name;
+};
+
+std::array<LoggingVerbosity, 3> const s_verbosityLevels{
+    LoggingVerbosity{gt::log::Silent    , QStringLiteral("Silent")},
+    LoggingVerbosity{gt::log::Medium    , QStringLiteral("Medium")},
+    LoggingVerbosity{gt::log::Everything, QStringLiteral("High")  }
 };
 
 GtPreferencesApp::GtPreferencesApp() :
@@ -88,10 +93,10 @@ GtPreferencesApp::GtPreferencesApp() :
     m_maxLogSpin->setMaximum(100000);
 
     // order verbosity levels depending on their value
-    auto verbosityLevels = s_verbosityLevels.values();
-    std::sort(verbosityLevels.begin(), verbosityLevels.end(),
-              [&](auto a, auto b){
-        return s_verbosityLevels.key(a) < s_verbosityLevels.key(b);
+    QStringList verbosityLevels;
+    std::transform(std::begin(s_verbosityLevels), std::end(s_verbosityLevels),
+                   std::back_inserter(verbosityLevels), [](auto const& entry){
+        return entry.name;
     });
     m_verbositySelection = new QComboBox;
     m_verbositySelection->addItems(verbosityLevels);
@@ -182,17 +187,22 @@ GtPreferencesApp::GtPreferencesApp() :
     // log length
     m_maxLogSpin->setValue(settings->maxLogLength());
 
-    // verbosity: by default use silent
-    auto verbosity = gt::log::Silent;
-    // check for entry in list
-    int  verbosityLevel = settings->loggingVerbosity();
-    if (s_verbosityLevels.contains(verbosityLevel))
-    {
-        verbosity = static_cast<gt::log::Verbosity>(verbosityLevel);
-    }
-    // set current text
-    m_verbositySelection->setCurrentText(s_verbosityLevels.value(verbosity));
+    // not using verbosity setting here to get actual logging verbosity
+    int  verbosityLevel = gt::log::Logger::instance().verbosity();
 
+    // set verbosity text
+    auto iter = std::find_if(std::begin(s_verbosityLevels),
+                             std::end(s_verbosityLevels),
+                 [&](auto const& entry){
+        return verbosityLevel <= entry.verbosity;
+    });
+
+    if (iter != std::end(s_verbosityLevels))
+    {
+        m_verbositySelection->setCurrentText(iter->name);
+    }
+
+    // theme selection
     QString themeMode = settings->themeMode();
     if (themeMode == "bright")
     {
@@ -224,16 +234,30 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
     GtLogModel::instance().setMaxLogLength(m_maxLogSpin->value());
 
     // verbosity
-    auto verbosity = s_verbosityLevels.key(m_verbositySelection->currentText(),
-                                           gt::log::Silent);
+    auto verbosityText = m_verbositySelection->currentText();
+    auto verbosity = gt::log::Silent;
+
+    auto iter = std::find_if(std::begin(s_verbosityLevels),
+                             std::end(s_verbosityLevels),
+                 [&](auto const& entry){
+        return verbosityText == entry.name;
+    });
+
+    if (iter != std::end(s_verbosityLevels))
+    {
+        verbosity = iter->verbosity;
+    }
+
     settings.setLoggingVerbosity(verbosity);
     gt::log::Logger::instance().setVerbosity(verbosity);
 
+    // process executor
     settings.setUseExtendedProcessExecutor(
                 m_useExtendedProcessExecutor->isChecked());
     settings.setAutostartProcessRunner(
                 m_autostartProcessExecutor->isChecked());
 
+    // theme selection
     int index = m_themeSelection->currentIndex();
 
     if (index == 1)

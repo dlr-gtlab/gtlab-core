@@ -42,6 +42,15 @@
 
 #include <gt_logdest.h>
 
+/// inits the debug output destination once at startup
+static const auto init_logging_destination_once = [](){
+    gt::log::Logger& logger = gt::log::Logger::instance();
+
+    auto logDest = gt::log::makeDebugOutputDestination();
+    logger.addDestination("console", std::move(logDest));
+    return 0;
+}();
+
 GtCoreApplication* GtCoreApplication::m_self = nullptr;
 GtVersionNumber GtCoreApplication::m_version = {GT_VERSION_MAJOR,
                                                 GT_VERSION_MINOR,
@@ -130,27 +139,7 @@ GtCoreApplication::init()
 
     m_self = this;
 
-    // logger
-    gt::log::Logger& logger = gt::log::Logger::instance();
-    auto logDest = gt::log::makeDebugOutputDestination();
-    logger.addDestination("console", std::move(logDest));
-
-    // verbosity
-    logger.setVerbosity(m_settings->loggingVerbosity());
-    logger.setLoggingLevel(gt::log::InfoLevel);
-
-    // dev mode
-    if (qApp->arguments().contains(QStringLiteral("--dev")) ||
-        qApp->arguments().contains(QStringLiteral("-dev")))
-    {
-        m_devMode = true;
-        logger.setLoggingLevel(gt::log::TraceLevel);
-        gtDebug() << "DEV MODE";
-    }
-
-    // init logmodel
-    GtLogModel& logmodel = GtLogModel::instance();
-    Q_UNUSED(logmodel);
+    initLogging();
 
     // TODO: delete after alpha Version
     QString wPath = roamingPath() + QDir::separator() +
@@ -295,6 +284,71 @@ GtCoreApplication::initSession(const QString& id)
     {
         qWarning() << tr("WARNING") << ": " <<
                    tr("session already initialized!");
+    }
+}
+
+void
+GtCoreApplication::initLogging()
+{
+    gt::log::Logger& logger = gt::log::Logger::instance();
+
+    QStringList args = qApp->arguments();
+
+    const static auto enableDevMode = [&](){
+        logger.setLoggingLevel(gt::log::TraceLevel);
+        setDevMode(true);
+        gtDebug() << "DEV MODE";
+    };
+
+    // init logmodel
+    GtLogModel& logmodel = GtLogModel::instance();
+    Q_UNUSED(logmodel);
+
+    // verbosity
+    if (args.contains(QStringLiteral("--medium")))
+    {
+        logger.setVerbosity(gt::log::Medium);
+    }
+    else if (args.contains(QStringLiteral("--verbose")))
+    {
+        logger.setVerbosity(gt::log::Everything);
+    }
+    else if (args.contains(QStringLiteral("--silent")))
+    {
+        logger.setVerbosity(gt::log::Silent);
+    }
+    else
+    {
+        logger.setVerbosity(m_settings->loggingVerbosity());
+    }
+
+    // logging level
+    if (args.contains(QStringLiteral("--trace")))
+    {
+        logger.setLoggingLevel(gt::log::TraceLevel);
+    }
+    else if (args.contains(QStringLiteral("--debug")))
+    {
+        logger.setLoggingLevel(gt::log::DebugLevel);
+    }
+    else
+    {
+        logger.setLoggingLevel(gt::log::InfoLevel);
+    }
+
+    // TODO: Remove this if block in GTlab 2.1 (see !294)
+    if (args.contains(QStringLiteral("-dev")))
+    {
+        static_assert(GT_VERSION < GT_VERSION_CHECK(2, 1, 0),
+                      "DEPRECATED: Remove me! (see MR !294)");
+        enableDevMode();
+        gtWarning() << tr("DEPRECATED: Enable dev-mode using '--dev' "
+                          "option instead");
+    }
+    // dev mode
+    else if (args.contains(QStringLiteral("--dev")))
+    {
+        enableDevMode();
     }
 }
 
