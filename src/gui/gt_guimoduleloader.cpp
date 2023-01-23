@@ -45,6 +45,8 @@
 #include "gt_parameterloop.h"
 #include "gt_loopui.h"
 #include "gt_algorithms.h"
+#include "gt_utilities.h"
+#include "gt_qtutilities.h"
 
 GtGuiModuleLoader::GtGuiModuleLoader()
 {
@@ -110,136 +112,151 @@ GtGuiModuleLoader::knownUIObjects() const
 bool
 GtGuiModuleLoader::check(GtModuleInterface* plugin) const
 {
-    bool retval = GtCoreModuleLoader::check(plugin);
+    const auto errorString = [=](){
+        return QObject::tr("Loading module '%1' failed:").arg(plugin->ident());
+    };
+
+    if (!GtCoreModuleLoader::check(plugin))
+    {
+        return false;
+    }
 
     if (gtApp->batchMode())
     {
-        return retval;
+        return true;
     }
 
-    if (retval)
+    GtMdiInterface* mdip = dynamic_cast<GtMdiInterface*>(plugin);
+
+    // contains dynamic linked mdi classes
+    if (mdip)
     {
-        GtMdiInterface* mdip = dynamic_cast<GtMdiInterface*>(plugin);
-
-        // contains dynamic linked mdi classes
-        if (mdip)
+        if (gtMdiLauncher->containsDuplicates(mdip->mdiItems()))
         {
-            if (gtMdiLauncher->containsDuplicates(mdip->mdiItems()))
-            {
-                return false;
-            }
-
-            if (!gtMdiLauncher->allInvokable(mdip->mdiItems()))
-            {
-                return false;
-            }
-
-            if (gtMdiLauncher->dockWidgetsExist(mdip->dockWidgets()))
-            {
-                return false;
-            }
-
-            // TODO: widget invokable check
-//            if (!gtMdiLauncher->allInvokable(mdip->dockWidgets()))
-//            {
-//                return false;
-//            }
-
-            // TODO: ui items duplicate and invokable check
-
-            if (gtPostTemplateFactory->containsDuplicates(mdip->postItems()))
-            {
-                return false;
-            }
-
-            if (!gtPostTemplateFactory->allInvokable(mdip->postItems()))
-            {
-                return false;
-            }
-
+            gtWarning() << errorString()
+                        << QObject::tr("A mdi item is already defined!");
+            return false;
         }
 
-        // importer interface
-        GtImporterInterface* impp = dynamic_cast<GtImporterInterface*>(plugin);
-
-        if (impp)
+        if (!gtMdiLauncher->allInvokable(mdip->mdiItems()))
         {
-            if (gtImportHandler->containsDuplicates(impp->importer()))
-            {
-                return false;
-            }
-
-            if (!gtImportHandler->allInvokable(impp->importer()))
-            {
-                return false;
-            }
+            gtWarning() << errorString()
+                        << QObject::tr("Not all mdi items are invokable!");
+            return false;
         }
 
-        // exporter interface
-        GtExporterInterface* expp = dynamic_cast<GtExporterInterface*>(plugin);
-
-        if (expp)
+        if (gtMdiLauncher->dockWidgetsExist(mdip->dockWidgets()))
         {
-            if (gtExportHandler->containsDuplicates(expp->exporter()))
-            {
-                return false;
-            }
-
-            if (!gtExportHandler->allInvokable(expp->exporter()))
-            {
-                return false;
-            }
+            gtWarning() << errorString()
+                        << QObject::tr("A dock widget is already defined!");
+            return false;
         }
 
-        // property interface
-        GtPropertyInterface* prop = dynamic_cast<GtPropertyInterface*>(plugin);
+        // TODO: widget invokable check
+        //            if (!gtMdiLauncher->allInvokable(mdip->dockWidgets()))
+        //            {
+        //                return false;
+        //            }
 
-        if (prop)
+        // TODO: ui items duplicate and invokable check
+
+        if (gtPostTemplateFactory->containsDuplicates(mdip->postItems()))
         {
-            if (gtPropertyItemFactory->propertyItemsExists(
-                        prop->propertyItems()))
-            {
-                return false;
-            }
-
-            if (!gtPropertyItemFactory->propertyItemsInvokable(
-                        prop->propertyItems()))
-            {
-                return false;
-            }
+            gtWarning() << errorString()
+                        << QObject::tr("A post item is already defined!");
+            return false;
         }
 
-        // collection interface
-        GtCollectionInterface* coll =
-                dynamic_cast<GtCollectionInterface*>(plugin);
-
-        if (coll)
+        if (!gtPostTemplateFactory->allInvokable(mdip->postItems()))
         {
-            QMetaObject meta = coll->collectionSettings();
+            gtWarning() << errorString()
+                        << QObject::tr("Not all post items are invokable!");
+            return false;
+        }
 
-            QObject* obj = meta.newInstance();
+    }
 
-            if (!obj)
-            {
-                gtWarning() << plugin->ident() << QStringLiteral(": ") <<
-                           QObject::tr("Could not invoke collection settings!");
-                return false;
-            }
+    // importer interface
+    GtImporterInterface* impp = dynamic_cast<GtImporterInterface*>(plugin);
 
-            if (qobject_cast<GtCollectionSettings*>(obj))
-            {
-                delete obj;
-                return true;
-            }
+    if (impp)
+    {
+        if (gtImportHandler->containsDuplicates(impp->importer()))
+        {
+            gtWarning() << errorString()
+                        << QObject::tr("An importer is already defined!");
+            return false;
+        }
 
-            delete obj;
-            gtWarning() << plugin->ident() << QStringLiteral(": ") <<
-                         QObject::tr("Could not recreate collection settings!");
+        if (!gtImportHandler->allInvokable(impp->importer()))
+        {
+            gtWarning() << errorString()
+                        << QObject::tr("Not all importers are invokable!");
             return false;
         }
     }
 
-    return retval;
+    // exporter interface
+    GtExporterInterface* expp = dynamic_cast<GtExporterInterface*>(plugin);
+
+    if (expp)
+    {
+        if (gtExportHandler->containsDuplicates(expp->exporter()))
+        {
+            gtWarning() << errorString()
+                        << QObject::tr("An exporter is already defined!");
+            return false;
+        }
+
+        if (!gtExportHandler->allInvokable(expp->exporter()))
+        {
+            gtWarning() << errorString()
+                        << QObject::tr("Not all exporters are invokable!");
+            return false;
+        }
+    }
+
+    // property interface
+    GtPropertyInterface* prop = dynamic_cast<GtPropertyInterface*>(plugin);
+
+    if (prop)
+    {
+        if (gtPropertyItemFactory->propertyItemsExists(
+                prop->propertyItems()))
+        {
+            gtWarning() << errorString()
+                        << QObject::tr("A property item is already defined!");
+            return false;
+        }
+
+        if (!gtPropertyItemFactory->propertyItemsInvokable(
+                prop->propertyItems()))
+        {
+            gtWarning() << errorString()
+                        << QObject::tr("Not all propety items are invokable!");
+            return false;
+        }
+    }
+
+    // collection interface
+    GtCollectionInterface* coll =
+            dynamic_cast<GtCollectionInterface*>(plugin);
+
+    if (coll)
+    {
+        QMetaObject meta = coll->collectionSettings();
+
+        std::unique_ptr<QObject> obj(meta.newInstance());
+
+        if (!gt::unique_qobject_cast<GtCollectionSettings>(std::move(obj)))
+        {
+            gtWarning() << errorString()
+                        << QObject::tr("Invalid collection settings!");
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void
@@ -311,7 +328,9 @@ GtGuiModuleLoader::registerObjectUI(const char* classId,
 
     if (!uio)
     {
-        gtError() << "ui object not invokable! (" << classId << ")";
+        gtError().nospace()
+                << QObject::tr("Object UI not invokable!")
+                << " (" << classId << ')';
         return;
     }
 
