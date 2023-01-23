@@ -659,8 +659,14 @@ GtModuleLoader::addSuppression(const QString& suppressorModuleId,
 bool
 GtModuleLoader::check(GtModuleInterface* plugin) const
 {
+    const auto errorString = [=](){
+        return QObject::tr("Loading module '%1' failed:").arg(plugin->ident());
+    };
+
     if (m_pimpl->m_plugins.contains(plugin->ident()))
     {
+        gtWarning() << errorString()
+                    << QObject::tr("Module was already loaded!");
         return false;
     }
 
@@ -671,15 +677,21 @@ GtModuleLoader::check(GtModuleInterface* plugin) const
     {
         if (!gtObjectFactory->invokable(dmp->package()))
         {
+            gtWarning() << errorString()
+                        << QObject::tr("Package is not invokable!");
             return false;
         }
         if (gtObjectFactory->containsDuplicates(dmp->data()))
         {
+            gtWarning() << errorString()
+                        << QObject::tr("A data class is already defined!");
             return false;
         }
 
         if (!gtObjectFactory->allInvokable(dmp->data()))
         {
+            gtWarning() << errorString()
+                        << QObject::tr("Not all data classes are invokable!");
             return false;
         }
     }
@@ -703,7 +715,7 @@ GtModuleLoader::insert(GtModuleInterface* plugin)
     foreach(const auto& sharedFunction, plugin->sharedFunctions())
     {
         gt::interface::detail::registerFunction(plugin->ident(),
-                                                      sharedFunction);
+                                                sharedFunction);
     }
 
     // register all commandline functions of the module

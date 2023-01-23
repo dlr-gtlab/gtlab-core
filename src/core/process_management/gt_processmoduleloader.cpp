@@ -23,6 +23,8 @@
 #include "gt_abstractaccessdataconnection.h"
 #include "gt_environment.h"
 #include "gt_logging.h"
+#include "gt_utilities.h"
+#include "gt_qtutilities.h"
 
 GtProcessModuleLoader::GtProcessModuleLoader()
 {
@@ -31,6 +33,10 @@ GtProcessModuleLoader::GtProcessModuleLoader()
 bool
 GtProcessModuleLoader::check(GtModuleInterface* plugin) const
 {
+    const auto errorString = [=](){
+        return QObject::tr("Loading module '%1' failed:").arg(plugin->ident());
+    };
+
     if (!GtModuleLoader::check(plugin))
     {
         return false;
@@ -40,24 +46,30 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
 
     if (proi)
     {
-        QList<GtCalculatorData> calcDataList = proi->calculators();
-        QList<GtTaskData> taskDataList = proi->tasks();
+        QList<GtCalculatorData> const calcDataList = proi->calculators();
+        QList<GtTaskData> const taskDataList = proi->tasks();
         QList<QMetaObject> metaList;
 
-        foreach (GtCalculatorData calcData, calcDataList)
+        for (GtCalculatorData const& calcData : calcDataList)
         {
             if (!calcData->isValid())
             {
+                gtWarning() << errorString()
+                            << QObject::tr("Invalid calculator data:")
+                            << gt::squoted(calcData->id);
                 return false;
             }
 
             metaList << calcData->metaData();
         }
 
-        foreach (GtTaskData taskData, taskDataList)
+        for (GtTaskData const& taskData : taskDataList)
         {
             if (!taskData->isValid())
             {
+                gtWarning() << errorString()
+                            << QObject::tr("Invalid task data:")
+                            << gt::squoted(taskData->id);
                 return false;
             }
 
@@ -66,11 +78,8 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
 
         if (gtProcessFactory->containsDuplicates(metaList))
         {
-            return false;
-        }
-
-        if (gtObjectFactory->containsDuplicates(metaList))
-        {
+            gtWarning() << errorString()
+                        << QObject::tr("A process element is already defined!");
             return false;
         }
     }
@@ -90,26 +99,22 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
     {
         if (gtAccessManager->groupExists(neti->accessId()))
         {
+            gtWarning() << errorString()
+                        << QObject::tr("The network access Id '%1' is already "
+                                       "defined!").arg(neti->accessId());
             return false;
         }
 
         QMetaObject meta = neti->accessConnection();
 
-        QObject* obj = meta.newInstance();
+        std::unique_ptr<QObject> obj(meta.newInstance());
 
-        if (!obj)
+        if (!gt::unique_qobject_cast<GtAbstractAccessDataConnection>(std::move(obj)))
         {
+            gtWarning() << errorString()
+                        << QObject::tr("Invalid network access connection data class!");
             return false;
         }
-
-        if (qobject_cast<GtAbstractAccessDataConnection*>(obj))
-        {
-            delete obj;
-            return true;
-        }
-
-        delete obj;
-        return false;
     }
 
     return true;
@@ -124,10 +129,10 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
 
     if (proi)
     {
-        QList<GtCalculatorData> calcDataList = proi->calculators();
-        QList<GtTaskData> taskDataList = proi->tasks();
+        QList<GtCalculatorData> const calcDataList = proi->calculators();
+        QList<GtTaskData> const taskDataList = proi->tasks();
 
-        foreach (GtCalculatorData calcData, calcDataList)
+        for (GtCalculatorData const& calcData : calcDataList)
         {
             gtCalculatorFactory->registerCalculatorData(calcData);
             gtObjectFactory->registerClass(calcData->metaData());
@@ -135,7 +140,7 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
                         calcData->environmentVariables());
         }
 
-        foreach (GtTaskData taskData, taskDataList)
+        for (GtTaskData const& taskData : taskDataList)
         {
             gtTaskFactory->registerTaskData(taskData);
             gtObjectFactory->registerClass(taskData->metaData());
@@ -152,7 +157,8 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
 
         if (gtCalcExecList->executorExists(execId))
         {
-            gtError() << QObject::tr("Calculator executor already exsits!");
+            gtError() << QObject::tr("Calculator executor '%1' already exsits!")
+                         .arg(execId);
             return;
         }
 
