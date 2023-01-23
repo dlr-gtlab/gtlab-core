@@ -836,7 +836,11 @@ int main(int argc, char* argv[])
                      {"version", "v"},
                      "\tDisplays the version number of GTlab");
 
-    parser.addOption("verbose", {"verbose"}, "Enable verbose output");
+    // logging options (will be handled by app-init)
+    parser.addOption("medium", {"medium"}, "Enable medium verbose output");
+    parser.addOption("verbose", {"verbose"}, "\tEnable very verbose output");
+    parser.addOption("trace", {"trace"}, "Enable trace output and higher");
+    parser.addOption("debug", {"debug"}, "Enable debug output and higher");
 
     if (!parser.parse(args))
     {
@@ -850,13 +854,7 @@ int main(int argc, char* argv[])
     // application initialization
     GtCoreApplication app(qApp, GtCoreApplication::AppMode::Batch);
 
-    // Load module option
-    if (parser.option("dev"))
-    {
-        app.setDevMode(true);
-    }
-
-    // Load module option
+    // version option
     if (parser.option("version"))
     {
         std::cout << "GTlab version:" << std::endl;
@@ -865,14 +863,6 @@ int main(int argc, char* argv[])
     }
 
     app.init();
-
-    using Verbosity = gt::log::Verbosity;
-    auto verboseLevel = parser.option("verbose") ?
-                            Verbosity::Everything :
-                            Verbosity::Silent;
-
-    gt::log::Logger::instance().setVerbosity(verboseLevel);
-
 
     // save to system environment (temporary)
     app.saveSystemEnvironment();

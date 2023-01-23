@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added batch application commands `list_variables` and `set_variable <id> <value>` - #391
+- App Arguments for setting a custom logging level (`--trace` for Trace Level and `--debug` for Debug and higher) - #389
+- App Arguments for setting the verbosity level (`--silent` for no verbosity, `--medium` for medium verbosity and `--verbose` for very verbose output) - #376
+
+### Removed
+- Removed option to enable dev mode in the GUI application using `-dev`. Use `--dev` instead.
 
 ## [2.0.0-pr-alpha5] - 2021-12-14
 ### Fixed
