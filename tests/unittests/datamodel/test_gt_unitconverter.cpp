@@ -3937,3 +3937,53 @@ TEST_F(TestGtUnitConverter, convertNonDimensional)
 
 
 
+/// Energy
+TEST_F(TestGtUnitConverter, convertDataSize)
+{
+    GtUnit::Category cat = GtUnit::DataSize;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(), "KB");
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "Data size");
+}
+
+TEST_F(TestGtUnitConverter, convertDataSizeTo)
+{
+
+    GtUnit::Category cat = GtUnit::DataSize;
+
+    // input
+    double val = 1.3;
+    bool check = false;
+
+    // convert
+    double valFtlbf = m_conv->To(cat, "MB", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valFtlbf, 0.0013);
+}
+
+TEST_F(TestGtUnitConverter, convertDataSizeFrom)
+{
+    GtUnit::Category cat = GtUnit::DataSize;
+
+    // input
+    double val = 14.;
+    bool check = false;
+
+    // ### foot * pound(-force)
+
+    // convert
+    double valFtlbf = m_conv->from(cat, "MB", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valFtlbf, 14000);
+}
+

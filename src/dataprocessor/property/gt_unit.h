@@ -12,7 +12,9 @@ public:
     enum System {SI, Imperial, US};
 
     /// Unit category
-    enum Category {Length,
+    enum Category {Default = 0,
+                   /// physical units
+                   Length,
                    Area,
                    Volume,
                    VolumeFlow,
@@ -36,14 +38,16 @@ public:
                    PowerDensity,
                    PowerTempArea,
                    Custom,
-                   NonDimensionalPercentage,
-                   NonDimensional,
                    MassMomentInertia,
                    VGVGradients,
                    VGVGradientsPow2,
                    kinematicViscosity,
-                   Default,
-                   None
+                   /// non physical units
+                   NonDimensionalPercentage = 64,
+                   NonDimensional,
+                   DataSize,
+                   /// no unit
+                   None = 128
                   };
 
     GtUnit() = delete;
