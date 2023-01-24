@@ -10,6 +10,7 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 #include <QMenu>
+#include <QHeaderView>
 
 #include "gt_localcollectionmodel.h"
 #include "gt_collectionitem.h"
@@ -34,6 +35,10 @@ GtLocalCollectionWidget::GtLocalCollectionWidget(QWidget* parent) :
     m_view->setColumnWidth(1, 25);
     m_view->setRootIsDecorated(false);
     m_view->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_view->setSortingEnabled(true);
+
+    connect(m_view->header(), &QHeaderView::sortIndicatorChanged,
+            m_model, &GtLocalCollectionModel::sortByColumn);
 
     lay->addWidget(m_view);
 
@@ -122,8 +127,6 @@ GtLocalCollectionWidget::onItemClicked(const QModelIndex& index)
     {
         return;
     }
-
-    gtDebug() << "item clicked!";
 
     GtCollectionItemWidget* widget = new GtCollectionItemWidget(item);
 

@@ -86,6 +86,20 @@ public:
      */
     void setShowInfoColumns(bool val);
 
+    /**
+     * @brief propIds
+     * @return all properties of the collection items used in the model.
+     */
+    const QStringList& propIds() const;
+
+public slots:
+    /**
+     * @brief sortByColumn
+     * @param column
+     * @param order
+     */
+    void sortByColumn(int column, Qt::SortOrder order);
+
 private:
     /// Collection item list
     QList<GtCollectionItem> m_items;
@@ -93,6 +107,19 @@ private:
     /// Shows info columns
     bool m_showInfoColumns;
 
+    /// list of the identifiers of all propteris of the collection items.
+    /// E.g. the map type in case of the map collection
+    QStringList m_propIds;
+
+    /**
+     * @brief sort
+     * Overwrite the basic model function how to sort
+     * @param column - column the sort is based on
+     * @param order - order (up/down) to use for the sort
+     */
+    void sort(int column, Qt::SortOrder order) override;
 };
+
+
 
 #endif // GT_LOCALCOLLECTIONMODEL_H
