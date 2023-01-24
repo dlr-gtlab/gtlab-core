@@ -13,9 +13,6 @@
 
 #include "gt_collectionbrowsermodel.h"
 #include "gt_collectionitemwidget.h"
-#include "gt_application.h"
-#include "gt_logging.h"
-
 #include "gt_browserwidget.h"
 
 GtBrowserWidget::GtBrowserWidget(QWidget* parent) :
@@ -100,8 +97,6 @@ GtBrowserWidget::onItemClicked(const QModelIndex& index)
     {
         return;
     }
-
-    gtDebug() << "item clicked!";
 
     GtCollectionItemWidget* widget = new GtCollectionItemWidget(item);
 

@@ -12,7 +12,6 @@
 
 #include "gt_icons.h"
 #include "gt_collectionitem.h"
-#include "gt_logging.h"
 
 #include "gt_localcollectionmodel.h"
 
@@ -33,7 +32,7 @@ GtLocalCollectionModel::columnCount(const QModelIndex& /*parent*/) const
 {
     if (m_showInfoColumns)
     {
-        return 3;
+        return 3 + m_propIds.size();
     }
     else
     {
@@ -69,6 +68,10 @@ GtLocalCollectionModel::data(const QModelIndex& index, int role) const
         {
             return QString::number(item.version());
         }
+        else if (col > 2 && !m_propIds.isEmpty() && col - 3 < m_propIds.size())
+        {
+            return item.property(m_propIds.at(col - 3));
+        }
         break;
     case Qt::ToolTipRole:
             return item.description();
@@ -99,6 +102,9 @@ GtLocalCollectionModel::headerData(int section, Qt::Orientation orientation,
         return QAbstractListModel::headerData(section, orientation, role);
     }
 
+    QStringList ids = propIds();
+
+
     switch (role) {
     case Qt::DisplayRole:
         if (section == 0)
@@ -113,6 +119,11 @@ GtLocalCollectionModel::headerData(int section, Qt::Orientation orientation,
         {
             return tr("Version");
         }
+        else if (section > 2 && !ids.isEmpty() && section - 3 < ids.size())
+        {
+            return ids.at(section - 3);
+        }
+
         break;
     default:
         break;
@@ -127,6 +138,16 @@ GtLocalCollectionModel::setItems(const QList<GtCollectionItem>& items)
     beginResetModel();
     m_items = items;
     endResetModel();
+
+    m_propIds.clear();
+    if (!m_items.isEmpty())
+    {
+        GtCollectionItem const& item = m_items[0];
+        if (item.isValid())
+        {
+            m_propIds = item.propertyIds();
+        }
+    }
 }
 
 GtCollectionItem
@@ -152,7 +173,8 @@ GtLocalCollectionModel::itemFromIndex(const QModelIndex& index)
     return m_items[row];
 }
 
-bool GtLocalCollectionModel::uninstallItem(const QModelIndex& index)
+bool
+GtLocalCollectionModel::uninstallItem(const QModelIndex& index)
 {
     if (!index.isValid())
     {
@@ -198,4 +220,65 @@ GtLocalCollectionModel::setShowInfoColumns(bool val)
     beginResetModel();
     m_showInfoColumns = val;
     endResetModel();
+}
+
+void
+GtLocalCollectionModel::sortByColumn(int column, Qt::SortOrder order)
+{
+    sort(column, order);
+    emit dataChanged(QModelIndex(), QModelIndex());
+}
+
+QStringList const&
+GtLocalCollectionModel::propIds() const
+{
+    return m_propIds;
+}
+
+void
+GtLocalCollectionModel::sort(int column, Qt::SortOrder order)
+{
+    if (m_propIds.empty())
+    {
+        return;
+    }
+
+    using T = GtCollectionItem;
+    std::function<bool(T const&, T const&)> function;
+
+    bool ascending = order == Qt::AscendingOrder;
+
+    switch (column)
+    {
+    case 0:
+        function = [=](const T& x, const T& y){
+            return ascending == (x.ident() < y.ident());
+        };
+        break;
+    case 1:
+        // dont sort this
+        break;
+    case 2:
+        function = [=](const T& x, const T& y){
+            return ascending == (x.version() < y.version());
+        };
+        break;
+    default:
+        if (column > 2 && column - 3 < m_propIds.size())
+        {
+            QString const& prop = m_propIds.at(column - 3);
+            function = [ascending, &prop](const T& x, const T& y){
+                return ascending == (x.property(prop) < y.property(prop));
+            };
+        }
+        break;
+    }
+
+    if (function)
+    {
+        beginResetModel();
+        std::sort(std::begin(m_items), std::end(m_items), function);
+        endResetModel();
+    }
+
 }
