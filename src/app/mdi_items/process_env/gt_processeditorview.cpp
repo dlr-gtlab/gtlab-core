@@ -7,8 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-
 #include "gt_processeditorview.h"
 
 GtProcessEditorView::GtProcessEditorView(GtGraphicsScene* s, QWidget* parent) :

@@ -3,7 +3,6 @@
 
 #include <QString>
 #include <QDomDocument>
-#include <QDebug>
 
 
 

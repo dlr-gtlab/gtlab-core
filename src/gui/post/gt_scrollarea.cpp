@@ -8,7 +8,6 @@
  */
 #include "gt_scrollarea.h"
 #include "QKeyEvent"
-#include <QDebug>
 
 GtScrollArea::GtScrollArea()
 {

@@ -11,42 +11,9 @@
 #include <QtGui>
 #include "gt_graphicsview.h"
 #include "gt_grid.h"
-//#include "QsLog.h"
-//#include "gtd_graphicspointentity.h"
 
 GtGraphicsScene::GtGraphicsScene(QObject *parent) :
     QGraphicsScene(parent)
 {
 }
 
-//void
-//GtdGraphicsScene::setPointSelectionMode(bool val)
-//{
-//    QList<GtdGraphicsPointEntity*> points;
-
-//    foreach (QGraphicsItem* i, items())
-//    {
-//        GtdGraphicsPointEntity* point =
-//                dynamic_cast<GtdGraphicsPointEntity*>(i);
-
-//        if(point)
-//            points.append(point);
-//    }
-
-//    qDebug() << "found " << points.size() << " points!";
-
-//    if(val)
-//    {
-//        foreach (GtdGraphicsPointEntity* p, points)
-//        {
-//            p->setVisible(true);
-//        }
-//    }
-//    else
-//    {
-//        foreach (GtdGraphicsPointEntity* p, points)
-//        {
-//            p->setVisible(false);
-//        }
-//    }
-//}

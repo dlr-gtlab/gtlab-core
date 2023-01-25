@@ -6,8 +6,6 @@
  *  E-Mail: marius.broecker@dlr.de
  */
 
-#include <QDebug>
-
 #include "gtest/gtest.h"
 
 #include "gt_hostinfo.h"

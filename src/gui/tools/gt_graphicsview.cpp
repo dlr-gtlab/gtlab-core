@@ -126,12 +126,6 @@ GtGraphicsView::scrollContentsBy(int dx, int dy)
         }
     }
 
-    //    m_hRuler->update();
-    //    m_vRuler->update();
-
-    //    scene()->update();
-
-    //    qDebug() << "scroll contents by...";
     QGraphicsView::scrollContentsBy(dx, dy);
 
 }
@@ -263,21 +257,7 @@ GtGraphicsView::zoomAnimation(int delta)
 int
 GtGraphicsView::getGridFactor()
 {
-
-    //    int gf = (log(m_zoom) / log(2));
-    //    if(m_zoom >= 1)
-    //        gf = (log(1 / (m_zoom)) / log(2));
-
-
-
-    //    qDebug() << "m_zoom = " << m_zoom;
-    //    qDebug() << "gf = " << gf;
-
-    //    return gf;
-
     return int(log(1.0 / (m_zoom)) / log(2.0));
-
-    //    return gf + 1;
 }
 
 void
@@ -287,14 +267,12 @@ GtGraphicsView::repaintRuler()
     {
         if (m_hRuler)
         {
-            //            qDebug() << "#### repainting horizontal ruler...";
             m_grid->paintRuler(m_hRuler);
             m_hRuler->repaint();
         }
 
         if(m_vRuler != nullptr)
         {
-            //            qDebug() << "#### repainting vertical ruler...";
             m_grid->paintRuler(m_vRuler);
             m_vRuler->repaint();
         }

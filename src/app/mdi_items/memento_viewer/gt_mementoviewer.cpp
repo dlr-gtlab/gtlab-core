@@ -14,7 +14,6 @@
 #include "gt_icons.h"
 #include "gt_mementoeditor.h"
 #include "gt_xmlhighlighter.h"
-#include "gt_logging.h"
 
 GtMementoViewer::GtMementoViewer()
 {

@@ -7,10 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-#include <QDir>
-#include <QPluginLoader>
-#include <QDirIterator>
 #include <QCoreApplication>
 #include "gt_objectfactory.h"
 #include "gt_object.h"

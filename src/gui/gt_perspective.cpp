@@ -8,7 +8,6 @@
  */
 
 #include <QDir>
-#include <QDebug>
 
 #include "gt_logging.h"
 #include "gt_perspective.h"

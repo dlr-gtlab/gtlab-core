@@ -23,7 +23,6 @@
 #include <QPainter>
 #include <QGraphicsTextItem>
 #include <QGraphicsSceneDragDropEvent>
-#include <QDebug>
 
 #include <algorithm>
 
@@ -266,7 +265,6 @@ GtTaskEntity::allChildItems(QGraphicsItem* item)
 void
 GtTaskEntity::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 {
-    qDebug() << "GtTaskEntity::dragEnterEvent";
     event->setAccepted(false);
 }
 

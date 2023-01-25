@@ -8,7 +8,6 @@
  */
 
 #include <QVBoxLayout>
-#include <QDebug>
 
 #include "gt_icons.h"
 #include "gt_treeview.h"
@@ -69,11 +68,6 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
             SLOT(enableSearch()));
 
     setFilterData(QStringList());
-
-    if (root)
-    {
-        qDebug() << "#### " << "root object" << root->objectName();
-    }
 }
 
 void

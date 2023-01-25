@@ -7,7 +7,6 @@
  *		  Tel.: +49 2203 601 2859
  */
 
-#include <QDebug>
 #include <QDir>
 
 #include "gt_utilities.h"

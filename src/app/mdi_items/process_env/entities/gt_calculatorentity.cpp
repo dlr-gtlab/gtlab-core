@@ -489,7 +489,6 @@ GtCalculatorEntity::runLeaveAnimation()
 void
 GtCalculatorEntity::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-//    qDebug() << "GtCalculatorEntity::hoverEnterEvent";
     runEnterAnimation();
     QGraphicsObject::hoverEnterEvent(event);
 }
@@ -497,7 +496,6 @@ GtCalculatorEntity::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 void
 GtCalculatorEntity::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
-//    qDebug() << "GtCalculatorEntity::hoverLeaveEvent";
     runLeaveAnimation();
     QGraphicsObject::hoverLeaveEvent(event);
 }

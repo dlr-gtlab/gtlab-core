@@ -11,7 +11,6 @@
 #include <QListWidget>
 #include <QApplication>
 #include <QDir>
-#include <QDebug>
 
 #include "gt_preferenceslanguage.h"
 #include "gt_application.h"

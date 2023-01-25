@@ -19,7 +19,6 @@
 #include "internal/gt_sharedfunctionhandler.h"
 #include "internal/gt_commandlinefunctionhandler.h"
 
-#include <QDebug>
 #include <QDir>
 #include <QPluginLoader>
 #include <QDirIterator>

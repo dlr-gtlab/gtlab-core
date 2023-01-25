@@ -9,7 +9,6 @@
 
 #include "gt_abstractpostwidget.h"
 #include "gt_posttemplateitem.h"
-#include "QDebug"
 #include "gt_abstractchartprovider.h"
 
 #include <QWidget>

@@ -7,8 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-
 #include "gt_lineedit.h"
 
 GtLineEdit::GtLineEdit(QWidget* parent) : QLineEdit(parent)

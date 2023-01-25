@@ -1,7 +1,6 @@
 #ifndef GTP_GtUnitCONVERTER_H
 #define GTP_GtUnitCONVERTER_H
 
-#include <QDebug>
 #include <QMap>
 #include <qmath.h>
 #include <QString>
@@ -169,43 +168,6 @@ T GtUnitConverter<T>::To(GtUnit::Category category,
         return value;
     }
 }
-
-
-//template<class T>
-//T GtUnitConverter<T>::convert(GtUnit::Category category,
-//                               const QString &from, const QString &to,
-//                               T value, bool *success)
-//{
-//    QMap<QString, T> factors = m_factorMap[category];
-
-//    if (!factors.contains(from))
-//    {
-//        qDebug() << "WARNING: No such GtUnit '" << from
-//                 << "'. No conversion done!";
-
-//        if (success != 0)
-//            *success = false;
-
-//        return 1.0;
-//    }
-//    else if (!factors.contains(to))
-//    {
-//        qDebug() << "WARNING: No such GtUnit '" << to << "'. No conversion done!";
-
-//        if (success != 0)
-//            *success = false;
-
-//        return 1.0;
-//    }
-//    else
-//    {
-//        if (success != 0)
-//            *success = true;
-
-//        return value * factors[to] / factors[from];
-//    }
-//}
-
 
 template<class T>
 void GtUnitConverter<T>::initialize()

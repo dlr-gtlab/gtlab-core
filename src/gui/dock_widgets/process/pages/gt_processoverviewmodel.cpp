@@ -10,7 +10,6 @@
 #include <QColor>
 #include <QIcon>
 #include <QDebug>
-
 #include "gt_application.h"
 #include "gt_processcategoryitem.h"
 #include "gt_icons.h"

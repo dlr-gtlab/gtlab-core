@@ -7,8 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-
 #include "gt_object.h"
 
 #include "gt_objectfiltermodel.h"

@@ -567,9 +567,6 @@ GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
         return;
     }
 
-    //qDebug() << "#### " << objectName() << " - monitoring data available!";
-    //qDebug() << "####   |-> " << set.size();
-
     emit monitoringDataAvailable();
 }
 

@@ -8,7 +8,6 @@
  */
 
 #include <QVBoxLayout>
-#include <QDebug>
 
 #include "gt_processwizard.h"
 #include "gt_propertytreeview.h"

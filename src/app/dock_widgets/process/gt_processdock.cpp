@@ -17,7 +17,6 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QSignalMapper>
-#include <QDebug>
 
 #include "gt_mainwin.h"
 #include "gt_processview.h"

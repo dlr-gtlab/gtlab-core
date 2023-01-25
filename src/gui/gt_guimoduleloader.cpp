@@ -8,7 +8,6 @@
  */
 
 #include <QString>
-#include <QDebug>
 
 #include "gt_guimoduleloader.h"
 #include "gt_moduleinterface.h"
