@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - The Output Dock now displays all log message in a table format - #347
 - The log error message box will spawn delayed if one was closed recently - #373
+- Modules that caused a crash on the last application run will no longer block the module for all other instances - #397
+- To reenable a crashed module one must check the corresponding entry in the disbaled plugins dialog instead of unchecking it - #399
 
 ### Fixed
 - Fixed a bug where the "Add Process" button was not disabled after closing a project - #369
@@ -15,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added batch application commands `list_variables` and `set_variable <id> <value>` - #391
+- Added batch command `enable_modules [--all] "Module_A" "Module_B"` to reenable disabled modules - #141
+- Added batch command option `list [-m]` to list all modules
 - App Arguments for setting a custom logging level (`--trace` for Trace Level and `--debug` for Debug and higher) - #389
 - App Arguments for setting the verbosity level (`--silent` for no verbosity, `--medium` for medium verbosity and `--verbose` for very verbose output) - #376
 

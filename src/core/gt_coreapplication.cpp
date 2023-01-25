@@ -96,11 +96,18 @@ GtCoreApplication::roamingPath()
 QStringList
 GtCoreApplication::crashedModules()
 {
-    QString iniFileName = gtApp->roamingPath() + QDir::separator() +
-                          QStringLiteral("last_run.ini");
-    QSettings settings(iniFileName, QSettings::IniFormat);
+    QSettings settings(localApplicationIniFilePath(), QSettings::IniFormat);
 
     return settings.value(QStringLiteral("loading_crashed")).toStringList();
+}
+
+const QString&
+GtCoreApplication::localApplicationIniFilePath()
+{
+    static QString const filePath = QCoreApplication::applicationDirPath() +
+                                    QDir::separator() +
+                                    QStringLiteral("GTlab.ini");
+    return filePath;
 }
 
 bool

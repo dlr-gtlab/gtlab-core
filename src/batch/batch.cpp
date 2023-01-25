@@ -15,6 +15,7 @@
 #include <QObject>
 #include <QDir>
 #include <QDebug>
+#include <QSettings>
 
 #include "internal/gt_commandlinefunctionhandler.h"
 #include "batchremote.h"
@@ -32,6 +33,8 @@
 #include "gt_hostinfo.h"
 #include "gt_remoteprocessrunner.h"
 #include "settings/gt_settings.h"
+
+int list(const QStringList&);
 
 void
 showSplashScreen()
@@ -562,6 +565,115 @@ list_variables(const QStringList&)
 }
 
 int
+enableModules(const QStringList& args)
+{
+    GtCommandLineParser p;
+    p.addHelpOption();
+    p.addOption("all", {"all", "a"},
+                "Reenables/clears all disabled modules");
+
+    QStringList disabledModules = GtCoreApplication::crashedModules();
+
+    p.parse(args);
+
+    std::cout << std::endl;
+
+    if (p.helpOption())
+    {
+        std::cout << std::endl;
+        std::cout << "This is the help for the 'enable_modules' function:"
+                  << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "To reenable a module pass the module library name as a "
+                     "positional argument."
+                  << std::endl;
+        std::cout << "Alternatively use option --all to reenable all modules."
+                  << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "\tUsage: enable_modules [--all] <module_a> <module_b> ..."
+                  << std::endl;
+        std::cout << std::endl;
+        return 0;
+    }
+
+    QSettings settings(GtCoreApplication::localApplicationIniFilePath(),
+                       QSettings::IniFormat);
+
+    // enable all
+    if (p.option("all"))
+    {
+        settings.setValue(QStringLiteral("loading_crashed"), QStringList{});
+        settings.sync();
+        std::cout << "Successfully cleared list of disabled modules!"
+                  << std::endl;
+        std::cout << std::endl;
+        return 0;
+    }
+
+    // reenable specific modules
+    if (!disabledModules.empty())
+    {
+        auto const posArgs = p.positionalArguments();
+
+        if (posArgs.empty())
+        {
+            std::cout << "Invalid module libraries specified! "
+                         "Reenable modules using 'enable_modules'"
+                         " \"Module_A\" \"Module_B\" ...\""
+                      << std::endl;
+            return -1;
+        }
+
+        std::cout << "Reenabling modules..." << std::endl;
+        std::cout << std::endl;
+
+        for (QString module : posArgs)
+        {
+            module = module.trimmed();
+            QString m = QChar{'/'} + module + QChar{'.'};
+            // Match module name with module path. Example:
+            // GTlabBasicTools
+            // /path/to/GTlab/modules/GTlabBasicTools.dll'
+            //                       ^               ^
+            //                     prefix          suffix
+            auto iter = std::find_if(std::begin(disabledModules),
+                                     std::end(disabledModules),
+                                     [&](QString const& path){
+                return path.contains(m);
+            });
+
+            if (iter == std::end(disabledModules))
+            {
+                std::cout << "\tThe module '" << module.toStdString()
+                          << "' is currently not disabled!" << std::endl;
+                continue;
+            }
+
+            std::cout << "\tSucessfully reenabled the Module "
+                      << gt::squoted(module.toStdString()) << std::endl;
+            disabledModules.erase(iter);
+        }
+
+        settings.setValue(QStringLiteral("loading_crashed"), disabledModules);
+        settings.sync();
+    }
+
+    // list disabled modules
+    if (disabledModules.empty())
+    {
+        std::cout << std::endl;
+        std::cout << "No more modules are currently disabled!" << std::endl;
+        std::cout << std::endl;
+        return 0;
+    }
+
+    // delegate to list command to list all active and still disabled modules
+    return list(QStringList{"--modules"});
+}
+
+int
 showFootprint(const QStringList& args)
 {
     Q_UNUSED(args)
@@ -571,39 +683,49 @@ showFootprint(const QStringList& args)
 }
 
 int
-listFun(const QStringList& args)
+list(const QStringList& args)
 {
-    std::cout << "List elements of GTlab application" << std::endl;
-
     GtCommandLineParser p;
     p.addHelpOption();
-    p.addOption("project", {"project", "p"}, "show projects");
-    p.addOption("session", {"session", "s"}, "show sessions");
-    p.addOption("tasks", {"taks", "t"}, "show tasks");
+    p.addOption("project", {"project", "p"},
+                "Lists all projects in the active projects");
+    p.addOption("session", {"session", "s"}, "Lists all avaiable sessions");
+    p.addOption("tasks", {"taks", "t"}, "Lists all tasks of a project");
+    p.addOption("modules", {"modules", "m"},
+                "Lists active and disabled modules");
 
     if (!p.parse(args))
     {
-        std::cout << "List method without arguments is invalid" << std::endl;
+        std::cout << std::endl;
+        std::cout << "Invalid arguments. Use --help for more deails." << std::endl;
+        std::cout << std::endl;
         return -1;
     }
 
     if (p.helpOption())
     {
         std::cout << std::endl;
-        std::cout << "This is the help for the GTlab list function" << std::endl;
+        std::cout << "This is the help for the 'list' function:" << std::endl;
         std::cout << std::endl;
 
-        std::cout << "You can list the sessions, projects in the "
-                     "current session or tasks in the project" << std::endl;
-
+        std::cout << "You can list the all loaded and disabled modules, the "
+                     "available sessions, the projects in the current session "
+                     "or the tasks in the project specified." << std::endl;
         std::cout << std::endl;
-        std::cout << "\tUse the options" << std::endl;
-        std::cout << "\tGTlabConsole.exe list [-s] [-p] [-t]=<ProjectID>"
+
+        std::cout << "The following options are available:" << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "\t-m\tlists all active and disabled modules" << std::endl
+                  << "\t-s\tList all available sessions" << std::endl
+                  << "\t-p\tDisplays all projects in the current session" << std::endl
+                  << "\t-t\tLists all taks of the project provided." << std::endl;
+
+        std::cout << "\t\tRequires a project Id"
                   << std::endl;
-
         std::cout << std::endl;
 
-        std::cout << "\tFor the tasks the project has to be specified"
+        std::cout << "\tUsage: list [-m] [-s] [-p] [-t]=<ProjectID>"
                   << std::endl;
 
         std::cout << std::endl;
@@ -611,90 +733,146 @@ listFun(const QStringList& args)
     }
 
     bool anySelection = false;
+    if (p.option("modules"))
+    {
+        anySelection = true;
+        std::cout << std::endl;
+
+        // list enabled modules
+        QStringList const modules = gtApp->moduleIds();
+
+        std::cout << "Active modules:" << std::endl;
+        std::cout << std::endl;
+
+        for (QString const& s : modules)
+        {
+            std::cout << "\t" << std::left << std::setw(30) << std::setfill(' ')
+                      << s.toStdString()
+                      << gtApp->moduleVersion(s).toString().toStdString()
+                      << std::endl;
+        }
+
+        // list disabled modules
+        QStringList const disabledModules = GtCoreApplication::crashedModules();
+
+        if (!disabledModules.empty())
+        {
+            std::cout << std::endl;
+            std::cout << "The following modules are currently disabled due to "
+                         "a previous application crash:" << std::endl;
+            std::cout << "(Use 'enable_modules --all' to clear all disabled "
+                         "modules)" << std::endl;
+            std::cout << std::endl;
+
+            for (auto&& id : disabledModules)
+            {
+                std::cout << "\t\"" << id.toStdString() + "\"";
+                std::cout << std::endl;
+            }
+        }
+    }
+
     if (p.option("session"))
     {
-        QStringList sessions = gtApp->sessionIds();
+        anySelection = true;
+        std::cout << std::endl;
 
-        std::cout << "Sessions in GTlab:" << std::endl;
+        QStringList const sessions = gtApp->sessionIds();
+        QString currentSession;
+
+        if (GtSession* s = gtApp->session())
+        {
+            currentSession = s->objectName();
+        }
+
+        std::cout << "Available sessions:" << std::endl;
+        std::cout << std::endl;
+
         for (QString const& s : sessions)
         {
-            std::cout << "\t" << s.toStdString() << "\n";
+            std::cout << "\t" << s.toStdString();
+            // highlight current session
+            if (currentSession == s)
+            {
+                std::cout << " *";
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
-        anySelection = true;
     }
 
     if (p.option("project"))
     {
-        GtSession* s = gtApp->session();
+        anySelection = true;
+        std::cout << std::endl;
 
+        GtSession* s = gtApp->session();
         if (!s)
         {
-            std::cout << "Cannot find current session" << std::endl;
+            std::cout << "Cannot find the current session!" << std::endl;
             return -1;
         }
 
-        QStringList projects = s->projectIds();
+        QStringList const projects = s->projectIds();
 
-        std::cout << "Projects in GTlab session "
-                  << s->objectName().toStdString()
-                  << std::endl;
-        for (QString const& pro : qAsConst(projects))
-        {
-            std::cout << "\t" << pro.toStdString() << "\n";
-        }
+        std::cout << "Projects in the current session "
+                  << gt::squoted(s->objectName().toStdString()) << std::endl;
         std::cout << std::endl;
-        anySelection = true;
+
+        for (QString const& pro : projects)
+        {
+            std::cout << "\t" << pro.toStdString() << std::endl;
+        }
     }
 
     if (p.option("tasks"))
     {
-        QString projectId = p.optionValue("tasks").toString();
+        anySelection = true;
+        std::cout << std::endl;
 
+        QString projectId = p.optionValue("tasks").toString();
         if (projectId.isEmpty())
         {
-            std::cout << "Specify project id for taks list like "
-                      << " list -t=<PROJECT_ID>" << std::endl;
-
+            std::cout << "Invalid project specified! Set the project id using "
+                      << "list -t=<PROJECT_ID>" << std::endl;
             return -1;
         }
 
         GtProject* project = gtApp->findProject(projectId);
-
         if (!project)
         {
-            std::cout << "The given project is not a valid project of the "
-                         "current session";
+            std::cout << "The given project is not in the current session!"
+                      << std::endl;
             return -1;
         }
 
         if (!gtDataModel->GtCoreDatamodel::openProject(project))
         {
-            std::cout << "Could not open the given project" << std::endl;
-
+            std::cout << "Could not open the given project!" << std::endl;
             return -1;
         }
 
-        QStringList taskNames = project->taksIds();
+        QStringList const taskNames = project->taksIds();
 
-        std::cout << "Taks in GTlab project "
-                  << project->objectName().toStdString()
-                  << std::endl;
-        for (QString const& t : qAsConst(taskNames))
+        std::cout << std::endl;
+        std::cout << "Taks in the project "
+                  << gt::squoted(project->objectName().toStdString()) << std::endl;
+        std::cout << std::endl;
+
+        for (QString const& t : taskNames)
         {
-            std::cout << "\t" << t.toStdString() << "\n";
+            std::cout << "\t" << t.toStdString() << std::endl;
         }
-        anySelection = true;
     }
+
+    std::cout << std::endl;
 
     if (!anySelection)
     {
-        std::cout << "List elements needs at least one option to run"
-                  << std::endl;
-        std::cout << "open help for more details"
-                  << std::endl;
+        std::cout << "The command 'list' requires at least one option to run" << std::endl;
+        std::cout << "Use --help for more details." << std::endl;
+        std::cout << std::endl;
+        return -1;
     }
-
 
     return 0;
 }
@@ -745,21 +923,26 @@ initSystemOptions()
                     QList<GtCommandLineArgument>(),
                     false);
 
-    initPosArgument("list", listFun,
-                    "\tShow list of session, projects or tasks.");
+    initPosArgument("list", list,
+                    "\tShow list of modules, session, projects and tasks.",
+                    {}, {}, false);
 
     initPosArgument("process_runner", processRunner, "Starts a TCP server, "
                     "which handles and executes task requests.",
                     {}, {}, false);
 
     initPosArgument("set_variable", set_variable,
-                    "\tSets a global variable defined in settings",
+                    "\tSets a global variable defined in settings.",
                     {},
                     QList<GtCommandLineArgument>(),
                     true);
-
     initPosArgument("list_variables", list_variables,
-                    "\tLists the contents of all variables");
+                    "\tLists the contents of all variables.");
+
+    initPosArgument("enable_modules", enableModules,
+                    "\tEnables the modules specified. A module is disabled if "
+                    "it caused a crash on a previous application run.",
+                    {}, {}, false);
 }
 
 int

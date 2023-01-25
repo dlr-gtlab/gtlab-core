@@ -136,6 +136,12 @@ public:
     static QStringList crashedModules();
 
     /**
+     * @brief Returns the file path to the local application ini file
+     * @return file path to local ini file
+     */
+    static QString const& localApplicationIniFilePath();
+
+    /**
      * @brief setLanguage
      * @param id
      */

@@ -24,43 +24,64 @@
 GtRefusedPluginsDialog::GtRefusedPluginsDialog(QWidget* parent) :
     GtDialog(parent)
 {
+    assert(gtApp);
+
     setWindowTitle(tr("Disabled Plugins"));
     setWindowIcon(gt::gui::icon::plugin16());
 
-    m_model = new GtCheckableStringListModel(gtApp->crashedModules(), this);
+    m_model = new GtCheckableStringListModel(this);
+    m_model->setStringList(gtApp->crashedModules(), Qt::Unchecked);
 
-    QListView* crashView = new QListView;
-    crashView->setModel(m_model);
+    auto* pluginsView = new QListView;
+    pluginsView->setModel(m_model);
+    pluginsView->setSizeAdjustPolicy(QListView::AdjustToContents);
 
-    QVBoxLayout* crashLay = new QVBoxLayout;
-    QLabel* crashLbl = new QLabel(tr("The following plugins caused a "
-                                     "application crash and are "
-                                     "skipped in the loading "
-                                     "procedure.\nDeactivate the "
-                                     "corresponding entry to continue "
-                                     "the loading process and include "
-                                     "the plugin."));
+    auto* infoLabel = new QLabel(
+        tr("The following plugins caused a crash in a previous application "
+           "run and will be skipped in the loading procedure. "
+           "To reenable a plugin in the next loading procedure reactivte the "
+           "corresponding entry.")
+    );
+    infoLabel->setWordWrap(true);
 
-    QPushButton* crashBtn = new QPushButton(tr("Ok"));
+    auto* applyBtn = new QPushButton(tr("Apply"));
 
-    crashLay->addWidget(crashLbl);
-    crashLay->addWidget(crashView);
-    crashLay->addWidget(crashBtn);
+    auto* buttonsLayout = new QHBoxLayout();
+    buttonsLayout->addStretch(1);
+    buttonsLayout->addWidget(applyBtn);
 
-    setLayout(crashLay);
+    auto* baseLay = new QVBoxLayout;
+    baseLay->addWidget(infoLabel);
+    baseLay->addWidget(pluginsView);
+    baseLay->addLayout(buttonsLayout);
 
-    QObject::connect(crashBtn, SIGNAL(clicked(bool)),
-                     this, SLOT(accept()));
+    setLayout(baseLay);
+
+    QObject::connect(applyBtn, SIGNAL(clicked(bool)), this, SLOT(accept()));
+
+    /* because I cannot get this **shitty** view to autoresize properly... */
+    auto margins = baseLay->contentsMargins();
+    // first we substract the actual width of the view and
+    // add the preferred contents width
+    int width = this->width() - pluginsView->width() +
+                pluginsView->sizeHintForColumn(0);
+    // append margins (+ some for good measure)
+    width += margins.left() + 2 * margins.right();
+
+    resize(width, sizeHint().height());
 }
 
 void
 GtRefusedPluginsDialog::sync() const
 {
-    QString iniFileName = gtApp->roamingPath() + QDir::separator() +
-                          QStringLiteral("last_run.ini");
-    QSettings settings(iniFileName, QSettings::IniFormat);
+    QStringList disabledPlugins = gtApp->crashedModules();
+    for (auto const& plugin : m_model->selectedStringList())
+    {
+        disabledPlugins.removeOne(plugin);
+    }
 
-    settings.setValue(QStringLiteral("loading_crashed"),
-                      m_model->selectedStringList());
+    QSettings settings(gtApp->localApplicationIniFilePath(),
+                       QSettings::IniFormat);
+    settings.setValue(QStringLiteral("loading_crashed"), disabledPlugins);
     settings.sync();
 }
