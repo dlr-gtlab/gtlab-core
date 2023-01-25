@@ -114,3 +114,25 @@ TEST_F(TestGtUtilities, finally_lambda)
 
     EXPECT_EQ(i, 0);
 }
+
+TEST_F(TestGtUtilities, clamp)
+{
+    EXPECT_EQ(gt::clamp(1, -9, 7), 1);
+
+    EXPECT_EQ(gt::clamp(-9, 1, 7), 1);
+
+    EXPECT_EQ(gt::clamp(7, -9, 1), 1);
+
+    EXPECT_DOUBLE_EQ(gt::clamp(-1234.12341, 2341.4, 42411.57), 2341.4);
+
+    EXPECT_DOUBLE_EQ(gt::clamp(250034.12341, 2341.4, 42411.57), 42411.57);
+
+    EXPECT_DOUBLE_EQ(gt::clamp(5234.12341, 2341.4, 42411.57), 5234.12341);
+
+    // clamp double to int
+    EXPECT_EQ(gt::clamp<int>(523.1234, 2341, 42411), 2341);
+
+    // clamp double to int
+    EXPECT_DOUBLE_EQ(gt::clamp<double>(523, 12.134, 321.12345), 321.12345);
+
+}

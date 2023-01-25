@@ -216,6 +216,8 @@ GtTaskRunner::setupElements(GtProcessComponent* orig,
     // connect signals
     connect(cloned, &GtProcessComponent::stateChanged,
             orig, &GtProcessComponent::handleStateChanged);
+    connect(cloned, &GtProcessComponent::progressStateChanged,
+            orig, &GtProcessComponent::setProgress);
     connect(cloned, &GtProcessComponent::transferMonitoringProperties,
             this, &GtTaskRunner::transferMonitoringProperties);
 

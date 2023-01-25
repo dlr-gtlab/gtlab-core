@@ -10,6 +10,7 @@
 #include "test_processstatescalculator.h"
 #include "test_crashonexecutecalculator.h"
 #include "test_sleepcalculator.h"
+#include "test_progresscalculator.h"
 
 #include "test_process_interface.h"
 
@@ -67,6 +68,15 @@ TestProcessInterface::calculators()
     crash->description = QStringLiteral("Crashes GTlab on execution :(");
     crash->status = GtCalculatorDataImpl::PROTOTYPE;
     metaData << crash;
+
+    GtCalculatorData progressTest = GT_CALC_DATA(TestProgressCalculator);
+    progressTest->id = QStringLiteral("Progress Test");
+    progressTest->version = GtVersionNumber(0, 1);
+    progressTest->author = QStringLiteral("Jens Schmeink");
+    progressTest->category = QStringLiteral("Testing");
+    progressTest->description = QStringLiteral("Test progress animation");
+    progressTest->status = GtCalculatorDataImpl::RELEASE;
+    metaData << progressTest;
 
     return metaData;
 }

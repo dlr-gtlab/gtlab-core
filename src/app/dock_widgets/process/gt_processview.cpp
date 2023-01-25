@@ -11,8 +11,7 @@
 #include <QKeyEvent>
 
 #include "gt_application.h"
-#include "gt_logging.h"
-
+#include "gt_icons.h"
 #include "gt_processview.h"
 
 GtProcessView::GtProcessView(QWidget* parent) : GtTreeView(parent)
@@ -155,5 +154,7 @@ GtProcessView::resizeColumns()
         delta = verticalScrollBar()->width();
     }
 
-    setColumnWidth(0, width() - 33 - delta);
+    int stateIconSpace = 2 * gt::gui::icon::standardSizeSmall().width();
+
+    setColumnWidth(0, width() - stateIconSpace - delta);
 }

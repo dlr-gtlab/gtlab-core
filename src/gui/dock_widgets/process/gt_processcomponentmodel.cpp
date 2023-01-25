@@ -11,7 +11,6 @@
 #include <QMimeData>
 #include <QFont>
 
-#include "gt_project.h"
 #include "gt_application.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_extendedcalculatordata.h"
@@ -22,7 +21,6 @@
 #include "gt_processfactory.h"
 #include "gt_task.h"
 #include "gt_taskfactory.h"
-#include "gt_processdata.h"
 #include "gt_propertyconnectionfunctions.h"
 #include "gt_propertyconnection.h"
 #include "gt_processcomponentmodel.h"
@@ -82,8 +80,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
 
         case Qt::DecorationRole:
         {
-            GtObject* item = static_cast<GtObject*>(
-                                 index.internalPointer());
+            GtObject* item = static_cast<GtObject*>(index.internalPointer());
 
             GtProcessComponent* pc =
                 qobject_cast<GtProcessComponent*>(item);
@@ -132,7 +129,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
             }
             else if (col == 1)
             {
-                return stateToIcon(pc->currentState());
+                return stateToIcon(pc->currentState(), pc->currentProgress());
             }
         }
         break;
@@ -169,12 +166,13 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
 }
 
 QIcon
-GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state)
+GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state,
+                                     int progress)
 {
     switch (state)
     {
         case GtProcessComponent::RUNNING:
-            return gt::gui::icon::inProgress16();
+            return gt::gui::icon::processRunningIcon(progress);
 
         case GtProcessComponent::QUEUED:
             return gt::gui::icon::sleep16();
@@ -205,6 +203,12 @@ GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state)
     }
 
     return QIcon();
+}
+
+QIcon
+GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state)
+{
+    return stateToIcon(state, 0.0);
 }
 
 bool

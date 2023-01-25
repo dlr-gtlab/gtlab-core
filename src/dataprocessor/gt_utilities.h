@@ -181,6 +181,22 @@ auto finally(T* t, R(T::*func)())
     );
 }
 
+/**
+ * @brief clamp - ensure a value to be between to boarder values
+ * @param value to clamp
+ * @param low boarder value
+ * @param high border value
+ * @return value if it is between low and high, if less than low return low,
+ * if higher than high return high
+ *
+ * C++17 will introduce a std::clamp() function.
+ */
+template<typename T>
+T const& clamp(T const& value, T const& low, T const& high)
+{
+    return std::max(low, std::min(high, value));
+}
+
 } // namespace gt
 
 #endif // GT_UTILITIES_H

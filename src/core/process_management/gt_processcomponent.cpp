@@ -10,9 +10,10 @@
 #include <QDebug>
 #include <QDir>
 
+#include "gt_utilities.h"
 #include "gt_task.h"
 #include "gt_taskgroup.h"
-#include "gt_processdata.h"
+#include "gt_coreapplication.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
 #include "gt_environment.h"
@@ -25,8 +26,9 @@ struct GtProcessComponent::Impl
 {
     Impl() :
         state(GtProcessComponent::NONE),
+        progress(0),
         skipped(QStringLiteral("skip"), tr("Skip"),
-                  tr("Skip Process Element"), false),
+                tr("Skip Process Element"), false),
         warning(false)
     {}
 
@@ -42,6 +44,9 @@ struct GtProcessComponent::Impl
 // private members
     /// Current process component state
     GtProcessComponent::STATE state;
+
+    /// Current process component state
+    int progress;
 
     /// Monitoring properties
     QList<GtAbstractProperty*> monitorProperties;
@@ -106,7 +111,18 @@ GtProcessComponent::handleStateChanged(GtProcessComponent::STATE state)
 void
 GtProcessComponent::setState(GtProcessComponent::STATE state)
 {
-    // check whether new state is already the corrent state
+    switch (state)
+    {
+    case GtProcessComponent::NONE:
+    case GtProcessComponent::QUEUED:
+    case GtProcessComponent::CONNECTING:
+    case GtProcessComponent::SKIPPED:
+        setProgress(0);
+    default:
+        break;
+    }
+
+    // check whether new state is already the current state
     if (state == pimpl->state)
     {
         return;
@@ -134,6 +150,34 @@ GtProcessComponent::setStateRecursively(GtProcessComponent::STATE state)
     {
         child->setStateRecursively(state);
     }
+}
+
+void
+GtProcessComponent::setProgress(int progress)
+{
+    int p = gt::clamp(progress, 0, 100);
+
+    // only update progress if it has changed
+    if (p == pimpl->progress)
+    {
+        return;
+    }
+
+    if (gtApp->batchMode())
+    {
+        gtInfo() << tr("Progress of ") << objectName() << ": "
+                 << QString(progress) << " %";
+    }
+
+    // set new state
+    pimpl->progress = p;
+
+    // emit global object changed signal is needed to update the
+    // visualization in the process dock widget
+    changed();
+
+    // emit state changed signal
+    emit progressStateChanged(pimpl->progress);
 }
 
 const QList<GtAbstractProperty*>&
@@ -270,6 +314,12 @@ GtProcessComponent::STATE
 GtProcessComponent::currentState() const
 {
     return pimpl->state;
+}
+
+int
+GtProcessComponent::currentProgress() const
+{
+    return pimpl->progress;
 }
 
 bool
