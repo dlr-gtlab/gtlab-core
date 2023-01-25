@@ -58,14 +58,9 @@ GtH5ExternalizationInterface::onProjectLoaded(const QString& /*projectDir*/)
     }
     catch (GenH5::FileException const& /*e*/)
     {
-        gtError() << "HDF5 File may be corrupt! "
-                     "Repair/Delete or swap the file using the backup! "
-                     "Filepath:" << filePath;
-        return;
-    }
-    catch (H5::Exception const& /*e*/)
-    {
-        gtError() << "HDF5 exception!";
+        gtError() << tr("HDF5 project file may be corrupt! "
+                        "Repair/Delete or use the backup! "
+                        "Filepath:") << filePath;
         return;
     }
 

@@ -138,13 +138,13 @@ GtH5ExternalizeHelper::overwriteDataSet(const GenH5::DataType& dataType,
     {
         // try retrieving by path
         auto group =  file.root().createGroup(m_objClassName.toUtf8());
-        dset = group.createDataset(m_objUuid.toUtf8(), dataType, dataSpace);
+        dset = group.createDataSet(m_objUuid.toUtf8(), dataType, dataSpace);
 
         // update ref
         referenceDataSet(dset, refVariant);
     }
     // update version attribute
-    dset.createVersionAttribute();
+    dset.writeVersionAttribute();
     return dset;
 }
 
@@ -162,7 +162,7 @@ GtH5ExternalizeHelper::openDataSet(QVariant& refVariant,
     {
         // try retrieving by path
         QStringList path{m_objClassName, m_objUuid};
-        dset = file.root().openDataset(path.join('/').toUtf8());
+        dset = file.root().openDataSet(path.join('/').toUtf8());
 
         // update ref
         referenceDataSet(dset, refVariant);
