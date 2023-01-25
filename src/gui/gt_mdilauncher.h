@@ -145,6 +145,15 @@ public slots:
      */
     GtMdiItem* open(const QString& id, const QString& customId);
 
+    /**
+     * @brief changeTabTitle
+     * This slot changes the title of the current selected mdi item
+     * or if it is called by a connection it renames the mdi item
+     * which was the sender of the signal
+     * @param newTitle -  new title
+     */
+    void changeTabTitle(QString const& newTitle);
+
 private:
     /**
      * @brief GtMdiLauncher
