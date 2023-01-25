@@ -45,6 +45,14 @@ public:
      */
     static QIcon stateToIcon(GtProcessComponent::STATE state);
 
+    /**
+     * @brief Returns process component state specific icon.
+     * @param state Process component state.
+     * @param progress Progress of the current running processelement
+     * @return Proccess componentn state specific icon.
+     */
+    static QIcon stateToIcon(GtProcessComponent::STATE state, int progress);
+
 protected:
     /**
      * @brief moveRows

@@ -27,6 +27,12 @@ namespace icon
 {
 
 /**
+ * @brief standardSizeSmall
+ * @return the standardsize of a small icon
+ */
+GT_GUI_EXPORT QSize standardSizeSmall();
+
+/**
      * @brief add16
      * @return add icon i the size of 16x16
      */
@@ -473,6 +479,8 @@ GT_GUI_EXPORT QIcon paramStudy();
 GT_GUI_EXPORT QIcon paramStudy16();
 
 GT_GUI_EXPORT QIcon paramStudy24();
+
+GT_GUI_EXPORT QIcon processRunningIcon(int progress);
 
 /// namespace for letter icons (standard is blue)
 namespace letter {

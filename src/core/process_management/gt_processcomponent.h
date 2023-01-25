@@ -60,6 +60,13 @@ public:
     GtProcessComponent::STATE currentState() const;
 
     /**
+     * @brief Returns current progress of the process component as an int.
+     * It is meant to be the percentage value of progress of the process.
+     * @return Current progress of process component.
+     */
+    int currentProgress() const;
+
+    /**
      * @brief Returns true if the process component is set to skip mode.
      * @return Skip indicator.
      */
@@ -247,6 +254,15 @@ public slots:
      */
     void handleStateChanged(GtProcessComponent::STATE state);
 
+    /**
+     * @brief Sets current state of process component.
+     * The value has to be between 0 and 100.
+     * It is always set to 0 if the process is not running and
+     * to 100 if the process is finished
+     * @param New state.
+     */
+    void setProgress(int progress);
+
 protected:
     /**
      * @brief Constructor
@@ -319,6 +335,11 @@ signals:
      * @brief Emitted on state change.
      */
     void stateChanged(GtProcessComponent::STATE);
+
+    /**
+     * @brief Emitted on state change.
+     */
+    void progressStateChanged(int);
 
     /**
      * @brief Emitted to transfer monitoring properties.

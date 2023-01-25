@@ -8,6 +8,11 @@
  */
 #include "gt_icons.h"
 
+#include <QPainter>
+#include <QApplication>
+#include <QDesktopWidget>
+
+
 QIcon
 gt::gui::getIcon(QString const& iconPath)
 {
@@ -25,6 +30,12 @@ gt::gui::getIcon(QString const& iconPath)
     }
 
     return icon;
+}
+
+QSize
+gt::gui::icon::standardSizeSmall()
+{
+    return QSize(16, 16) * qApp->desktop()->devicePixelRatio();
 }
 
 QIcon
@@ -1352,6 +1363,54 @@ QIcon
 gt::gui::icon::paramStudy24()
 {
     return gt::gui::getIcon(QStringLiteral("paramStudyIcon_24.png"));
+}
+
+QIcon
+gt::gui::icon::processRunningIcon(int progress)
+{
+    if (progress == 0)
+    {
+        return gt::gui::icon::inProgress16();
+    }
+
+    QRgb progressDone = qRgb(0, 255, 0);
+    QRgb progressToDo = qRgb(255, 255, 255);
+
+    int w = 100;
+    int h = 100;
+    QImage image(w, h, QImage::Format_Indexed8);
+
+    image.setColorCount(2);
+    image.setColor(0, progressDone);
+    image.setColor(1, progressToDo);
+    image.fill(1);
+
+    double currentFillWidth = 1.0 * w * progress / 100.0;
+
+    for (int i = 0; i < currentFillWidth; ++i)
+    {
+        for (int j = 0; j < h; ++j)
+        {
+            image.setPixel(i, j, 0);
+        }
+    }
+
+    /// Note: as the current overlay does not improve the design it is
+    /// removed but the code should remain to enable the usage of another
+    /// overly easily
+    QIcon retValIcon;
+    QPixmap comboPixmap(100, 100);
+    //QPixmap overlayImage(gt::gui::icon::inProgress16().pixmap(16, 16));
+    QPixmap backGroundImage;
+    backGroundImage.convertFromImage(image, Qt::ColorOnly);
+
+    QPainter painter(&comboPixmap);
+    painter.drawPixmap(0, 0, backGroundImage);
+    //painter.drawPixmap(0, 0, overlayImage);
+
+    retValIcon.addPixmap(comboPixmap);
+
+    return retValIcon;
 }
 
 QString
