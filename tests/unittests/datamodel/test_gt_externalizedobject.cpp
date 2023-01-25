@@ -9,7 +9,6 @@
 
 #include "gtest/gtest.h"
 
-#include <QDebug>
 #include <QtMath>
 
 #include "test_externalizedobject.h"

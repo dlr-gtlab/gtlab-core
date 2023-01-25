@@ -8,7 +8,6 @@
  */
 
 #include <QLineEdit>
-#include <QDebug>
 
 #include "gt_postdock.h"
 #include "gt_regexp.h"
@@ -85,9 +84,6 @@ GtPostDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
     QString newId = lineEdit->text();
     QString oldId = index.data(Qt::DisplayRole).toString();
 
-    qDebug() << "newId = " << newId;
-    qDebug() << "oldId = " << oldId;
-
     if (newId == oldId)
     {
         return;
@@ -99,8 +95,6 @@ GtPostDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
                   << newId;
         return;
     }
-
-    qDebug() << "setModelData oldId: " << oldId << " new " << newId;
 
     if (m_dock->renameFile(oldId, newId))
     {

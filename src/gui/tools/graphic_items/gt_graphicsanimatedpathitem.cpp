@@ -9,8 +9,6 @@
 
 #include <QPainter>
 #include <QPropertyAnimation>
-#include <QDebug>
-
 #include "gt_graphicsanimatedpathitem.h"
 #include "gt_graphicsscene.h"
 

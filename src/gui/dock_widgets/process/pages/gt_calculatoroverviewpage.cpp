@@ -117,8 +117,6 @@ GtCalculatorOverviewPage::validatePage()
     // cleanup
     QList<int> pageIds = m_wizard->pageIds();
 
-//    qDebug() << "page ids = " << m_wizard->pageIds();
-
     foreach (int id, pageIds)
     {
         if (id != 0)

@@ -12,7 +12,6 @@
 #include <QPen>
 #include <QParallelAnimationGroup>
 #include <QPropertyAnimation>
-#include <QDebug>
 
 #include "qmath.h"
 
@@ -352,8 +351,6 @@ GtProcessConnectionScene::createNewConnection(
     {
         return;
     }
-
-    qDebug() << "creating connection!!!!";
 
     GtProcessPropertyPortEntity* source = nullptr;
     GtProcessPropertyPortEntity* target = nullptr;

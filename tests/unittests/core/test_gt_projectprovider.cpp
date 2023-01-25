@@ -11,7 +11,6 @@
 
 #include <QDir>
 #include <QCoreApplication>
-#include <QDebug>
 
 #include "gt_projectprovider.h"
 

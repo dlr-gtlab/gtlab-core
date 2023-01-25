@@ -10,7 +10,6 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QListView>
-#include <QDebug>
 
 #include "gt_projectwizardmodules.h"
 #include "gt_projectprovider.h"

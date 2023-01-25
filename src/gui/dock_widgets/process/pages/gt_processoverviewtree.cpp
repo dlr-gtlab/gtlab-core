@@ -10,7 +10,6 @@
 #include <QScrollBar>
 #include <QPainter>
 #include <QApplication>
-#include <QDebug>
 
 #include "gt_treefiltermodel.h"
 #include "gt_processoverviewmodel.h"

@@ -9,7 +9,6 @@
 //#include <QCommandLineParser>
 #include "gt_commandlinefunction.h"
 
-#include <QDebug>
 #include <iostream>
 
 GtCommandLineFunction

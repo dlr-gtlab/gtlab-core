@@ -46,8 +46,6 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
 
     const int rowSize = view->sizeHintForRow(0);
 
-    //        qDebug() << "   |-> row size = " << rowSize;
-
     QModelIndex lastVisibleIndex = view->lastVisibleIndex();
     const int lastVisibleIndexY = view->visualRect(lastVisibleIndex).y();
     int lastVisibleY = view->viewport()->height();
@@ -57,13 +55,9 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
         lastVisibleY = lastVisibleIndexY;
     }
 
-    //        qDebug() << "   |-> last visible = " << lastVisibleIndex.data();
-//                qDebug() << "   |-> last position = " << lastVisibleY;
-
     // check whether view is equal to input view
     if (m_inputView == view)
     {
-        //        qDebug() << "#### updating input ports...";
         GtProcessPortMap tmpMap = m_inputPorts;
         GtProcessConnectionModel* model = m_inputView->connectionModel();
 
@@ -240,7 +234,6 @@ GtProcessPropertyPortEntity*
 GtProcessConnectionGraphicsView::findOutputPortEntity(const QString& uuid,
                                                       const QString& propId)
 {
-//    qDebug() << "#### findOutputPortEntity";
     return findPortEntityHelper(m_outputPorts, uuid, propId);
 }
 
@@ -257,18 +250,12 @@ GtProcessConnectionGraphicsView::findPortEntityHelper(GtProcessPortMap& map,
                                                       const QString& uuid,
                                                       const QString& propId)
 {
-//    qDebug() << "   |-> " << uuid << "/" << propId;
-
     for (auto iter = map.begin(); iter != map.end(); ++iter)
     {
         auto* e = iter.key();
-//        qDebug() << "   |-> " << e->parentComponentUuid() << "/" <<
-//                    e->propertyId();
 
         if (e && e->parentComponentUuid() == uuid && e->propertyId() == propId)
         {
-//            qDebug() << "   |-> found!";
-
             return map.value(e);
         }
     }

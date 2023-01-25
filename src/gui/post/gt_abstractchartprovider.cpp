@@ -6,8 +6,6 @@
 
 #include <gt_logging.h>
 
-#include <QDebug>
-
 #include <QRandomGenerator>
 
 GtAbstractChartProvider::GtAbstractChartProvider() :

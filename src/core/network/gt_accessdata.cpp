@@ -8,7 +8,6 @@
  */
 
 #include <QUrl>
-#include <QDebug>
 
 #include "gt_accessdata.h"
 #include "gt_utilities.h"

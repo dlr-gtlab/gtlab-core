@@ -11,7 +11,6 @@
 #include "gt_variantconvert.h"
 #include "gt_object.h"
 
-#include <QDebug>
 
 TEST(GtVariantConvert, can_convert_string)
 {

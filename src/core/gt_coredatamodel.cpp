@@ -1002,34 +1002,6 @@ GtCoreDatamodel::deleteFromModel(GtObject* obj)
     // use multi delete function
     return deleteFromModel(QList<GtObject*>() << obj);
 
-    //    qDebug() << "#### deleting object " << obj->objectName() << "...";
-
-    //    // get object model index
-    //    QModelIndex objIndex = indexFromObject(obj);
-
-    //    // check model index
-    //    if (!objIndex.isValid())
-    //    {
-    //        return false;
-    //    }
-
-    //    // get parent index
-    //    QModelIndex parentIndex = objIndex.parent();
-
-    //    // check parent index
-    //    if (!parentIndex.isValid())
-    //    {
-    //        return false;
-    //    }
-
-    //    beginRemoveRows(parentIndex, obj->childNumber(), obj->childNumber());
-
-    //    // delete object
-    //    delete obj;
-
-    //    endRemoveRows();
-
-    //    return true;
 }
 
 bool

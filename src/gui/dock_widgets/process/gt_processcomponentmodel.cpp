@@ -303,7 +303,6 @@ GtProcessComponentModel::moveRows(const QModelIndex& sourceParent,
         // handle source == destination
         if (srcParentObj == dstParentObj)
         {
-            //            qDebug() << "srcParentObj == dstParentObj";
             if (sourceRow == destinationChild ||
                     sourceRow == (destinationChild - 1))
             {
@@ -324,7 +323,6 @@ GtProcessComponentModel::moveRows(const QModelIndex& sourceParent,
         }
         else
         {
-            //            qDebug() << "srcParentObj != dstParentObj";
             foreach (GtObject* child, objsToMove)
             {
                 child->disconnectFromParent();
@@ -602,8 +600,6 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
 Qt::ItemFlags
 GtProcessComponentModel::flags(const QModelIndex& index) const
 {
-    //    qDebug() << "GtProcessComponentModel::flags";
-
     // check index
     if (!index.isValid())
     {
@@ -628,8 +624,6 @@ GtProcessComponentModel::flags(const QModelIndex& index) const
 
     // add drag enabled flag
     defaultFlags = defaultFlags | Qt::ItemIsDragEnabled;
-
-    //    qDebug() << "   |-> " << defaultFlags;
 
     // return flags
     return defaultFlags;

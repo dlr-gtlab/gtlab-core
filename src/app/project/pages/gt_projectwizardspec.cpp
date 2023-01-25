@@ -7,9 +7,7 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QGridLayout>
-#include <QDir>
-#include <QDebug>
+#include <QVBoxLayout>
 #include <QLineEdit>
 
 #include "gt_projectwizardspec.h"

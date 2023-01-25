@@ -10,8 +10,6 @@
 #include <QFrame>
 #include <QVBoxLayout>
 #include <QPushButton>
-#include <QDir>
-#include <QDebug>
 #include <QDomDocument>
 #include <QMenu>
 #include <QSortFilterProxyModel>

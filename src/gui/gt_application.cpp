@@ -98,14 +98,12 @@ GtApplication::icon(QString const& iconPath)
 void
 GtApplication::initMdiLauncher()
 {
-    //    qDebug() << "GtApplication::initMdiLauncher";
     gtMdiLauncher;
 }
 
 void
 GtApplication::loadModules()
 {
-    //    qDebug() << "GtApplication::loadModules";
     if (!m_moduleLoader)
     {
         m_guiModuleLoader = new GtGuiModuleLoader;

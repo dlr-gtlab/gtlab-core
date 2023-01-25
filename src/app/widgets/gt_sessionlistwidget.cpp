@@ -228,16 +228,11 @@ GtSessionListWidget::onLstItemsCommitData(QWidget* pLineEdit)
 {
     QString strNewText = reinterpret_cast<QLineEdit*>(pLineEdit)->text();
 
-//    qDebug() << "strNewText = " << strNewText;
-
     if (gtApp->sessionIds().contains(strNewText))
     {
         // TODO: user warning
         qDebug() << "duplicate!";
         item(currentRow())->setText(m_lastId);
-//        qDebug() << "show tool tip";
-//        QToolTip::showText(mapToGlobal(QPoint(0, 0)),
-//                           tr("Session id already in use!"));
     }
     else
     {
@@ -256,7 +251,6 @@ GtSessionListWidget::onLstItemsCommitData(QWidget* pLineEdit)
 void
 GtSessionListWidget::lastIdChanged(const QString& val)
 {
-//    qDebug() << "GtSessionListWidget::lastIdChanged = " << val;
     m_lastId = val;
 }
 

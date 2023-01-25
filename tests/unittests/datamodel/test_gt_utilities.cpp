@@ -6,9 +6,9 @@
  *  E-Mail: marius.broecker@dlr.de
  */
 
-#include <QDebug>
 #include <QMutex>
-
+#include <QByteArray>
+#include <QString>
 #include "gtest/gtest.h"
 
 #include "gt_utilities.h"

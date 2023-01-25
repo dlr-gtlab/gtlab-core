@@ -9,8 +9,6 @@
 
 #include "gtest/gtest.h"
 
-#include <QDebug>
-
 #include "test_externalizedobject.h"
 #include "gt_externalizedobjectfetcher.h"
 #include "gt_testhelper.h"

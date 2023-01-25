@@ -8,7 +8,6 @@
  */
 
 #include <QVariant>
-#include <QDebug>
 
 #include "gt_task.h"
 

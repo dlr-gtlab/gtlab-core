@@ -11,7 +11,6 @@
 #include <QMdiArea>
 #include <QTabWidget>
 #include <QMdiSubWindow>
-#include <QDebug>
 
 #include "gt_mdilauncher.h"
 #include "gt_mdiitem.h"

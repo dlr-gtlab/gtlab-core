@@ -12,7 +12,6 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QSettings>
-#include <QDebug>
 
 #include "gt_mdiitem.h"
 #include "gt_application.h"

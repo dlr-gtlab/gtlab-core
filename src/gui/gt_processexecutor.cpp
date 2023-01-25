@@ -7,7 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
 #include <QMessageBox>
 
 #include "gt_application.h"

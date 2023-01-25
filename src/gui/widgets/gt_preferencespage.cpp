@@ -10,7 +10,6 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QFont>
-#include <QDebug>
 
 #include "gt_preferencespage.h"
 #include "gt_icons.h"

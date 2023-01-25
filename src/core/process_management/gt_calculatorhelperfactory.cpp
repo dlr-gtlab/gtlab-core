@@ -8,7 +8,6 @@
  */
 
 #include <QCoreApplication>
-#include <QDebug>
 
 #include "gt_calculatorhelperfactory.h"
 
