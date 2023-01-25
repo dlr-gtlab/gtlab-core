@@ -98,7 +98,7 @@ GtBrowserWidget::onItemClicked(const QModelIndex& index)
         return;
     }
 
-    GtCollectionItemWidget* widget = new GtCollectionItemWidget(item);
+    auto* widget = new GtCollectionItemWidget(item, this);
 
     widget->show();
 }

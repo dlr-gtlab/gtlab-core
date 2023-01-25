@@ -11,14 +11,14 @@
 #define GT_COLLECTIONITEMWIDGET_H
 
 #include <QWidget>
-
+#include <QDialog>
 class QFrame;
 class GtCollectionItem;
 
 /**
  * @brief The GtCollectionItemWidget class
  */
-class GtCollectionItemWidget : public QWidget
+class GtCollectionItemWidget : public QDialog
 {
     Q_OBJECT
 
@@ -29,12 +29,7 @@ public:
      * @param parent
      */
     explicit GtCollectionItemWidget(const GtCollectionItem &collectionItem,
-                                    QWidget *parent = nullptr);
-
-    /**
-     * @brief ~GtCollectionItemWidget
-     */
-    ~GtCollectionItemWidget() override;
+                                    QWidget* parent = nullptr);
 
 private:
     /// Filter string.
