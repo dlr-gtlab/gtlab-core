@@ -410,8 +410,9 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
            SLOT(deleteLater()));
     connect(wid, SIGNAL(destroyed(QObject*)),
             SLOT(onSubWindowClose(QObject*)));
-    connect(mdiItem, SIGNAL(objectNameChanged(QString)),
-            wid, SLOT(setWindowTitle(QString)));
+    connect(mdiItem, &GtMdiItem::objectNameChanged,
+            this, &GtMdiLauncher::changeTabTitle);
+
     connect(mdiItem, SIGNAL(destroyed(QObject*)), wid,
             SLOT(deleteLater()));
     connect(gtApp, SIGNAL(themeChanged(bool)), mdiItem,
@@ -437,4 +438,31 @@ GtMdiItem*
 GtMdiLauncher::open(const QString& id, const QString& customId)
 {
     return open(id, nullptr, customId);
+}
+
+void
+GtMdiLauncher::changeTabTitle(const QString& newTitle)
+{
+    assert(m_area);
+    int index = -1;
+
+    /// if this function was called by a connection
+    if (sender())
+    {
+        if (GtMdiItem* item = qobject_cast<GtMdiItem*>(sender()))
+        {
+            index = m_area->indexOf(item->widget());
+        }
+    }
+    /// else use the current mdi item
+    else
+    {
+        index = m_area->currentIndex();
+    }
+
+    /// if index can be found:
+    if (index > -1)
+    {
+        m_area->setTabText(index, newTitle);
+    }
 }
