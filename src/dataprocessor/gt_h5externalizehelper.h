@@ -42,8 +42,8 @@ public:
      * @param refVariant varaint containing the reference to a HDF5 dataset
      * @return success (will throw if operation fails)
      */
-    template<typename T>
-    bool write(const GenH5::AbstractData<T>& data,
+    template<typename Data>
+    bool write(const Data& data,
                QVariant& refVariant) const noexcept(false);
 
     /**
@@ -53,8 +53,8 @@ public:
      * @param refVariant varaint containing the reference to a HDF5 dataset
      * @return success (will throw if operation fails)
      */
-    template<typename T>
-    bool read(GenH5::AbstractData<T>& data,
+    template<typename Data>
+    bool read(Data& data,
               QVariant& refVariant,
               bool fetchInitialVersion) const noexcept(false);
 
@@ -96,9 +96,9 @@ private:
     QString m_objUuid;
 };
 
-template<typename T>
+template<typename Data>
 inline bool
-GtH5ExternalizeHelper::write(const GenH5::AbstractData<T>& data,
+GtH5ExternalizeHelper::write(const Data& data,
                              QVariant& refVariant) const noexcept(false)
 {
     if (data.isEmpty())
@@ -122,9 +122,9 @@ GtH5ExternalizeHelper::write(const GenH5::AbstractData<T>& data,
     return true;
 }
 
-template<typename T>
+template<typename Data>
 inline bool
-GtH5ExternalizeHelper::read(GenH5::AbstractData<T>& data,
+GtH5ExternalizeHelper::read(Data& data,
                             QVariant& refVariant,
                             bool fetchInitialVersion) const noexcept(false)
 {
