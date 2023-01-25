@@ -24,7 +24,7 @@
 GtCollectionItemWidget::GtCollectionItemWidget(
         const GtCollectionItem& collectionItem,
         QWidget* parent) :
-    QWidget(parent)
+    QDialog(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
@@ -132,11 +132,6 @@ GtCollectionItemWidget::GtCollectionItemWidget(
     gt::gui::applyThemeToWidget(this);
 
     resize(600, 400);
-}
-
-GtCollectionItemWidget::~GtCollectionItemWidget()
-{
-    gtDebug() << "collection item widget deleted!";
 }
 
 QString
