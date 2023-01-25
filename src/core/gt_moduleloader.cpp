@@ -14,6 +14,7 @@
 #include "gt_logging.h"
 #include "gt_algorithms.h"
 #include "gt_versionnumber.h"
+#include "gt_coreapplication.h"
 #include "internal/gt_moduleupgrader.h"
 #include "internal/gt_sharedfunctionhandler.h"
 #include "internal/gt_commandlinefunctionhandler.h"
@@ -207,19 +208,6 @@ GtModuleLoader::~GtModuleLoader() = default;
 namespace
 {
 
-/**
- * @brief Returns application roaming path.
- * @return Application roaming path.
- */
-QString roamingPath()
-{
-#ifdef _WIN32
-    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-#endif
-    return QStandardPaths::writableLocation(
-               QStandardPaths::GenericConfigLocation);
-}
-
 QDir getModuleDirectory()
 {
 #ifndef Q_OS_ANDROID
@@ -318,7 +306,8 @@ class CrashedModulesLog
 {
 public:
     CrashedModulesLog() :
-        settings(iniFile(), QSettings::IniFormat)
+        settings(GtCoreApplication::localApplicationIniFilePath(),
+                 QSettings::IniFormat)
     {
         crashed_mods = settings.value(QStringLiteral("loading_crashed"))
                            .toStringList();
@@ -342,12 +331,6 @@ public:
     {
         crashed_mods.removeLast();
         sync();
-    }
-
-    static QString iniFile()
-    {
-        return roamingPath() + QDir::separator() +
-               QStringLiteral("last_run.ini");
     }
 
     /**
