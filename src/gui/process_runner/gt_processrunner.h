@@ -39,15 +39,14 @@ public:
     static const std::string S_ID;
 
     /**
-     * @brief Destructor
+     * @brief Constructor
      */
-    ~GtProcessRunner();
+    GtProcessRunner();
 
     /**
-     * @brief Instance
-     * @return Instance
+     * @brief Destructor
      */
-    static GtProcessRunner& instance();
+    ~GtProcessRunner() override;
 
     /**
      * @brief Returns the connection state of the transceiver
@@ -82,11 +81,6 @@ private:
     /// private impl
     struct Impl;
     std::unique_ptr<Impl> pimpl;
-
-    /**
-     * @brief Constructor
-     */
-    GtProcessRunner();
 
     /**
      * @brief Triggers the task collection

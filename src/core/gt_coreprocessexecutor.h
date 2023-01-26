@@ -11,11 +11,13 @@
 #define GTCOREPROCESSEXECUTOR_H
 
 #include "gt_core_exports.h"
+#include "gt_object.h"
 
 #include <QObject>
 #include <QPointer>
 
-#include "gt_object.h"
+#include "gt_processexecutormanager.h"
+#define gtProcessExecutor (gt::deprecated::processExecutor())
 
 class GtTask;
 class GtRunnable;
@@ -23,8 +25,6 @@ class GtCalculator;
 class GtTaskRunner;
 
 class GtObjectLinkProperty;
-
-#define gtProcessExecutor (GtProcessExecutorManager::instance())
 
 namespace gt
 {
@@ -37,7 +37,7 @@ enum CoreProcessExecutorFlag
 {
     /// Do not save process results on successful execution
     DryExecution = 1,
-    /// Whether as task runTask method should be blocking or not
+    /// Whether a task run should be blocking or not
     NonBlockingExecution = 2
 };
 
@@ -60,33 +60,12 @@ public:
      * @param parent Parent object
      * @param flags Flags for the core process executor.
      */
-    explicit GtCoreProcessExecutor(std::string id = S_ID,
-                                   QObject* parent = {},
+    explicit GtCoreProcessExecutor(QObject* parent = {},
                                    Flags flags = {});
 
-    /**
-     * @brief Constructor
-     * @param parent Parent object
-     * @param flags Flags for the core process executor.
-     */
-    explicit GtCoreProcessExecutor(QObject* parent, Flags flags = {});
-
-    /**
-     * @brief Constructor
-     * @param flags Flags for the core process executor.
-     */
-    explicit GtCoreProcessExecutor(Flags flags);
-
-    /**
-     * @brief Destructor
-     */
     ~GtCoreProcessExecutor();
 
-    /**
-     * @brief Instance
-     * @return instace
-     */
-    static GtCoreProcessExecutor* instance();
+    void setCoreExecutorFlags(Flags flags);
 
     /**
      * @brief Runs a process if the queue is free
@@ -243,90 +222,6 @@ private slots:
      * @brief Executed once the task runner has finished
      */
     void onTaskRunnerFinished();
-};
-
-/**
- * @brief Helper class for adding and selecting a Process Executor
- */
-class GT_CORE_EXPORT GtProcessExecutorManager : public QObject
-{
-    Q_OBJECT
-
-    /// private ctor
-    GtProcessExecutorManager();
-
-public:
-
-    /**
-     * @brief instance
-     */
-    static GtProcessExecutorManager& instance();
-
-    /**
-     * @brief Getter for the current selected process executor
-     * @return executor
-     */
-    GtCoreProcessExecutor* currentExecutor();
-    GtCoreProcessExecutor const* currentExecutor() const;
-
-    /**
-     * @brief operator GtCoreProcessExecutor*
-     */
-    operator GtCoreProcessExecutor*() { return currentExecutor(); }
-    operator GtCoreProcessExecutor const*() const { return currentExecutor(); }
-
-    /**
-     * @brief operator ->
-     * @return executor
-     */
-    GtCoreProcessExecutor* operator->() { return currentExecutor(); }
-    GtCoreProcessExecutor const* operator->() const { return currentExecutor();}
-
-    /**
-     * @brief operator bool
-     */
-    explicit operator bool() const { return currentExecutor(); }
-
-    /**
-     * @brief Sets the current executor using its id. The Executor must be
-     * present previously. If the current executor is not ready (e.g a task
-     * is running) the function returns false and the executor is not switched
-     * @param id Id of the executor to set as active
-     * @return success
-     */
-    bool setCurrentExecutor(std::string const& id);
-
-    /**
-     * @brief Registers the executor specified. If no executor is
-     * currently active, the selected executor will be updated as well.
-     * An Executor can only be set once
-     * @param id Id of the executor. Must be unique.
-     * @param exec Executor to add
-     * @return success
-     */
-    bool registerExecutor(std::string id, GtCoreProcessExecutor& exec);
-
-    /**
-     * @brief Removes the executor by its id. Executor must not be active.
-     * @param id Id of the executor to remove
-     * @return success
-     */
-    bool removeExecutor(std::string const& id);
-
-    /**
-     * @brief Returns whether the executor is already present
-     * @param id Id of the executor
-     * @return Is executor registered
-     */
-    bool hasExecutor(std::string const& id);
-
-signals:
-
-    /**
-     * @brief Emitted once the process executor has changed.
-     * @param New executor
-     */
-    void executorChanged(GtCoreProcessExecutor*);
 };
 
 #endif // GTCOREPROCESSEXECUTOR_H

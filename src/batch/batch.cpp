@@ -210,8 +210,7 @@ runProcess(const QString& projectId, const QString& processId,
     }
 
     // execute process
-    GtCoreProcessExecutor executor;
-    executor.runTask(process);
+    gt::currentProcessExecutor().runTask(process);
 
     if (process->currentState() != GtProcessComponent::FINISHED)
     {
@@ -296,7 +295,6 @@ runProcessByFile(const QString& projectFile, const QString& processId,
 
     // run process
     GtTask* process = project->findProcess(processId);
-
     if (!process)
     {
         qWarning() << QStringLiteral("ERROR: ")
@@ -307,7 +305,8 @@ runProcessByFile(const QString& projectFile, const QString& processId,
     }
 
     // execute process
-    GtCoreProcessExecutor executor{gt::DryExecution};
+    auto& executor = gt::currentProcessExecutor();
+    executor.setCoreExecutorFlags(gt::DryExecution);
     executor.runTask(process);
 
     if (process->currentState() != GtProcessComponent::FINISHED)

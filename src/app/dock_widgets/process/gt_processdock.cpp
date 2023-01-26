@@ -202,12 +202,13 @@ GtProcessDock::GtProcessDock() :
     });
 
     // connect each executor as it becomes available
-    connect(&gtProcessExecutor,
+    connect(&gt::processExecutorManager(),
             &GtProcessExecutorManager::executorChanged,
-            this, &GtProcessDock::onExecutoChanged, Qt::UniqueConnection);
+            this, &GtProcessDock::onExecutorChanged, Qt::UniqueConnection);
 
-    connect(&GtProcessRunner::instance(),
-            &GtProcessRunner::connectionStateChanged,
+    auto* processRunner = gt::findExecutorByType<GtProcessRunner>();
+    assert(processRunner);
+    connect(processRunner, &GtProcessRunner::connectionStateChanged,
             this, [this](){ updateRunButton(); });
 
     connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
@@ -222,7 +223,7 @@ GtProcessDock::GtProcessDock() :
     registerShortCut("skipProcess", QKeySequence(Qt::CTRL + Qt::Key_G));
 
     // udpate executor
-    onExecutoChanged(gtProcessExecutor);
+    onExecutorChanged(&gt::currentProcessExecutor());
 }
 
 Qt::DockWidgetArea
@@ -684,7 +685,7 @@ GtProcessDock::updateRunButton()
 
     const QString& str = m_currentProcess->objectName();
 
-    GtTask* current = gtProcessExecutor->currentRunningTask();
+    GtTask* current = gt::currentProcessExecutor().currentRunningTask();
 
     // no task is running
     if (!current)
@@ -709,7 +710,7 @@ GtProcessDock::updateRunButton()
             QString additional = gt::squoted(str);
 
             if (useExtendedProcessExecutor() &&
-                gtProcessExecutor == &GtProcessRunner::instance())
+                &gt::currentProcessExecutor() == gt::findExecutorByType<GtProcessRunner>())
             {
                 additional += QStringLiteral(" (detached)");
             }
@@ -727,7 +728,7 @@ GtProcessDock::updateRunButton()
                     gt::gui::stylesheet::processRunButton(
                         gt::gui::stylesheet::RunButtonState::QueueProcess));
 
-        if (gtProcessExecutor->taskQueued(m_currentProcess))
+        if (gt::currentProcessExecutor().taskQueued(m_currentProcess))
         {
             m_runButton->setEnabled(false);
             m_runButton->setText(tr("'%1' already queued").arg(str));
@@ -764,7 +765,10 @@ GtProcessDock::updateRunButton()
             QString text;
             QString info = gt::brackets(str);
 
-            switch (GtProcessRunner::instance().connectionState())
+            auto* processRunner = gt::findExecutorByType<GtProcessRunner>();
+            assert(processRunner);
+
+            switch (processRunner->connectionState())
             {
             case GtProcessRunnerTransceiver::StartingRunner:
                 text = tr("Starting Runner...");
@@ -873,7 +877,7 @@ GtProcessDock::runProcess()
                 }
                 else
                 {
-                    gtProcessExecutor->runTask(task);
+                    gt::currentProcessExecutor().runTask(task);
                 }
             }
         }
@@ -888,7 +892,7 @@ GtProcessDock::terminateProcess()
         return;
     }
 
-    gtProcessExecutor->terminateTask(m_currentProcess);
+    gt::currentProcessExecutor().terminateTask(m_currentProcess);
 }
 
 void
@@ -1278,14 +1282,16 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     }
     else if (a == actrunRemote)
     {
-        if (gtProcessExecutor.setCurrentExecutor(GtProcessRunner::S_ID))
+        if (gt::processExecutorManager().setCurrentExecutor(
+                GtProcessRunner::S_ID))
         {
             runProcess();
         }
     }
     else if (a == actrunLocal)
     {
-        if (gtProcessExecutor.setCurrentExecutor(GtProcessExecutor::S_ID))
+        if (gt::processExecutorManager().setCurrentExecutor(
+                GtProcessExecutor::S_ID))
         {
             runProcess();
         }
@@ -2555,7 +2561,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 }
 
 void
-GtProcessDock::onExecutoChanged(GtCoreProcessExecutor* exec)
+GtProcessDock::onExecutorChanged(GtCoreProcessExecutor* exec)
 {
     if (exec)
     {

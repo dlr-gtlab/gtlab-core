@@ -23,7 +23,7 @@
 const std::string GtProcessExecutor::S_ID = "ProcessExecutor";
 
 GtProcessExecutor::GtProcessExecutor(QObject* parent) :
-    GtCoreProcessExecutor(S_ID, parent),
+    GtCoreProcessExecutor(parent),
     m_task(nullptr)
 {
     setObjectName("ProcessEecutor");

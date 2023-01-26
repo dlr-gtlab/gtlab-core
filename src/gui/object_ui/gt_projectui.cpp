@@ -354,7 +354,7 @@ GtProjectUI::switchToProject(GtProject& toProject)
 void
 GtProjectUI::openProject(GtObject* obj)
 {
-    if (gtProcessExecutor->taskCurrentlyRunning())
+    if (gt::currentProcessExecutor().taskCurrentlyRunning())
     {
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
@@ -386,27 +386,12 @@ GtProjectUI::openProject(GtObject* obj)
     }
 
     switchToProject(*project);
-    //    if (gtApp->devMode())
-    //    {
-    //    // open version control data
-    //    if (!vc->dbInterface()->open(project->path(), project->uuid()))
-    //    {
-    //        qDebug() << "Cannot open project database";
-    //        return;
-    //    }
-
-    //    if (!vc->dbInterface()->isInitialized())
-    //    {
-    //        vc->dbInterface()->createInitialLayout();
-    //        vc->dbInterface()->addBranch("trunk", -1);
-    //    }
-    //    }
 }
 
 bool
 GtProjectUI::canOpenProject(GtObject* obj)
 {
-    if (gtProcessExecutor->taskCurrentlyRunning())
+    if (gt::currentProcessExecutor().taskCurrentlyRunning())
     {
         return false;
     }
@@ -479,7 +464,7 @@ GtProjectUI::closeProject(GtObject* obj)
 bool
 GtProjectUI::canCloseProject(GtObject* obj)
 {
-    if (gtProcessExecutor->taskCurrentlyRunning())
+    if (gt::currentProcessExecutor().taskCurrentlyRunning())
     {
         return false;
     }
@@ -615,7 +600,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
 bool
 GtProjectUI::canSaveProjectAs(GtObject* obj)
 {
-    if (gtProcessExecutor->taskCurrentlyRunning())
+    if (gt::currentProcessExecutor().taskCurrentlyRunning())
     {
         return false;
     }
@@ -861,7 +846,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 bool
 GtProjectUI::canChooseProjectModule(GtObject* obj)
 {
-    if (gtProcessExecutor->taskCurrentlyRunning())
+    if (gt::currentProcessExecutor().taskCurrentlyRunning())
     {
         return false;
     }

@@ -35,7 +35,7 @@ class GtRemoteProcessRunner : public QObject
 public:
 
     enum ExitCode
-    {        
+    {
         Success = 0,            // successfull
         PortUnavailableError,   // port is already in use
         UninitializedError,     // process runner was not initialized in time
