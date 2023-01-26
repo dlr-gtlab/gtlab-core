@@ -68,6 +68,7 @@ Rectangle {
                         id: btnHome
                         objectName: "btnHome"
                         text: "Home"
+                        onClicked: handler.buttonClicked(this.objectName)
                     }
                     AnimatedButton {
                         id: btnNewProject
@@ -81,6 +82,7 @@ Rectangle {
 //                        custom_iconColorDark: custom_secondaryColor
 //                        custom_backgroundColor: "#f5deb3"
                         text: "New Project"
+                        onClicked: handler.buttonClicked(this.objectName)
                     }
                     AnimatedButton {
                         id: btnOpenProject
@@ -89,6 +91,7 @@ Rectangle {
                         icon.width: 16
                         icon.height: 16
                         text: "Open Project"
+                        onClicked: handler.buttonClicked(this.objectName)
                     }
                 }
             }
@@ -147,6 +150,7 @@ Rectangle {
                         icon.height: 10
                         text: "Save Project"
                         visible: false
+                        onClicked: handler.buttonClicked(this.objectName)
                     }
 
                     AnimatedButton {
@@ -157,6 +161,7 @@ Rectangle {
                         icon.height: 10
                         text: "Undo"
                         visible: false
+                        onClicked: handler.buttonClicked(this.objectName)
                     }
 
                     AnimatedButton {
@@ -167,6 +172,7 @@ Rectangle {
                         icon.height: 10
                         text: "Redo"
                         visible: false
+                        onClicked: handler.buttonClicked(this.objectName)
                     }
 
                     AnimatedButton {
@@ -177,6 +183,7 @@ Rectangle {
                         icon.height: 6
                         text: "Project Info"
                         visible: false
+                        onClicked: handler.buttonClicked(this.objectName)
                     }
                 }
             }
@@ -236,6 +243,7 @@ Rectangle {
                         icon.height: 10
                         text: "Print"
                         visible: false
+                        onClicked: handler.buttonClicked(this.objectName)
                     }
                 }
             }

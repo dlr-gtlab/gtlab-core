@@ -28,6 +28,10 @@ Button {
     hoverEnabled: true
     flat: true
 
+    signal clicked()
+    signal pressed()
+    signal released()
+
     property color custom_hoverColor: "#ddeeff"
     property color custom_backgroundColor: "transparent"
     property color custom_secondaryColor: "#4582be"
@@ -199,26 +203,9 @@ Button {
 
     MouseArea {
             anchors.fill: parent
-            onClicked:
-            {
-                //console.log("onclicked!")
-                if (custom_Enabled)
-                {
-                    handler.buttonClicked(control.objectName)
-                }
-            }
-
-            onPressed:
-            {
-                //console.log("onpressed!")
-                //pressed_animation.start()
-            }
-
-            onReleased:
-            {
-                //console.log("onreleased!")
-                //released_animation.start()
-            }
+            onClicked: control.clicked()
+            onPressed: control.pressed()
+            onReleased: control.released()
     }
 
 }
