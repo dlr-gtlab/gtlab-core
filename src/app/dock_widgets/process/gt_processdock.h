@@ -404,7 +404,7 @@ private slots:
      * @brief Handles executor change
      * @param exec New Executor
      */
-    void onExecutoChanged(GtCoreProcessExecutor* exec);
+    void onExecutorChanged(GtCoreProcessExecutor* exec);
 
     void currentTaskGroupIndexChanged(int index);
 

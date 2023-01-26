@@ -27,6 +27,7 @@
 #include "gt_session.h"
 #include "gt_settings.h"
 #include "gt_coremoduleloader.h"
+#include "gt_coreprocessexecutor.h"
 #include "gt_logging.h"
 #include "gt_logmodel.h"
 #include "gt_coredatamodel.h"
@@ -70,7 +71,9 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
 #if defined(Q_OS_UNIX)
     setlocale(LC_ALL, "C");
 #endif
-    ///
+
+    gt::processExecutorManager().clearAllExecutors();
+    gt::registerExecutorType<GtCoreProcessExecutor>();
 
     // register data classes of core lib here
     gtObjectFactory->registerClass(GT_METADATA(GtTaskGroup));

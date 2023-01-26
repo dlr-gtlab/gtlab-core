@@ -22,7 +22,7 @@ GtProcessQueueModel::GtProcessQueueModel(GtCoreProcessExecutor* exec,
 {
     setProcessExecutor(exec);
 
-    connect(&gtProcessExecutor,
+    connect(&gt::processExecutorManager(),
             &GtProcessExecutorManager::executorChanged,
             this, &GtProcessQueueModel::setProcessExecutor,
             Qt::UniqueConnection);

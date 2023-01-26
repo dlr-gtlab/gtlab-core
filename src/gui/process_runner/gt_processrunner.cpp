@@ -35,15 +35,8 @@ struct GtProcessRunner::Impl
     };
 };
 
-GtProcessRunner& GtProcessRunner::instance()
-{
-    static GtProcessRunner self;
-    return self;
-}
-
 GtProcessRunner::GtProcessRunner() :
-    GtCoreProcessExecutor{S_ID},
-    pimpl{std::make_unique<Impl>()}
+    pimpl(std::make_unique<Impl>())
 {
     setObjectName("ProcessRunner");
 

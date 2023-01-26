@@ -150,7 +150,7 @@ GtPreferencesSession::onItemSelectionChange()
     }
     else
     {
-        if (gtProcessExecutor->taskCurrentlyRunning())
+        if (gt::currentProcessExecutor().taskCurrentlyRunning())
         {
             m_btnSwitch->setEnabled(false);
         }

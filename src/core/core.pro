@@ -64,6 +64,7 @@ HEADERS += \
     gt_filesystem.h \
     gt_logmodel.h \
     gt_functionalinterface.h \
+    gt_processexecutormanager.h \
     gt_propertyconnectionfunctions.h \
     gt_sharedfunction.h \
     internal/gt_commandlinefunctionhandler.h \
@@ -163,6 +164,7 @@ SOURCES += \
     gt_commandlineparser.cpp \
     gt_filesystem.cpp \
     gt_logmodel.cpp \
+    gt_processexecutormanager.cpp \
     gt_propertyconnectionfunctions.cpp \
     gt_sharedfunction.cpp \
     internal/gt_commandlinefunctionhandler.cpp \

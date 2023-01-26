@@ -237,7 +237,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
     if (!m_forceQuit)
     {
         /// A process is running
-        if (gtProcessExecutor->currentRunningTask())
+        if (gt::currentProcessExecutor().currentRunningTask())
         {
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
@@ -330,7 +330,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
 
     savePerspectiveSettings();
 
-    gtProcessExecutor->terminateAllTasks();
+    gt::currentProcessExecutor().terminateAllTasks();
 
     if (m_processQueue)
     {
@@ -708,7 +708,8 @@ GtMainWin::openProcessQueue()
     if (!m_processQueue)
     {
         m_processQueue = new GtProcessQueueWidget(
-                             new GtProcessQueueModel{gtProcessExecutor});
+                             new GtProcessQueueModel{
+                                 &gt::currentProcessExecutor()});
 
         m_processQueue->show();
         m_processQueue->setAttribute(Qt::WA_DeleteOnClose, true);

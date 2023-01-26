@@ -25,7 +25,9 @@
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
 #include "gt_mementochangecommand.h"
+#include "gt_processrunner.h"
 #include "gt_processexecutor.h"
+
 #include "gt_datamodel.h"
 #include "gt_command.h"
 #include "gt_applicationprivate.h"
@@ -46,9 +48,9 @@ GtApplication::GtApplication(QCoreApplication* parent,
     m_d(new GtApplicationPrivate(this)),
     m_selectedObject(nullptr)
 {
-    // init process executor in gui mode
-    auto guiExecutor = new GtProcessExecutor(this);
-    Q_UNUSED(guiExecutor);
+    gt::processExecutorManager().clearAllExecutors();
+    gt::registerExecutorType<GtProcessExecutor>();
+    gt::registerExecutorType<GtProcessRunner>();
 
     if (m_dataModel)
     {
@@ -440,7 +442,7 @@ GtApplication::knownUIObjects()
 void
 GtApplication::switchSession(const QString& id)
 {
-    if (gtProcessExecutor->taskCurrentlyRunning())
+    if (gt::currentProcessExecutor().taskCurrentlyRunning())
     {
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);

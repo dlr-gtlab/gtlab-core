@@ -385,8 +385,7 @@ GtRemoteProcessRunner::exec(const QHostAddress& client,
     }
 
     // initialize executor
-    GtCoreProcessExecutor executor{gt::NonBlockingExecution};
-    Q_UNUSED(executor);
+    gt::currentProcessExecutor().setCoreExecutorFlags(gt::NonBlockingExecution);
 
     // initialize server
     QTcpServer server;

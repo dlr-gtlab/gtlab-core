@@ -206,9 +206,10 @@ GtInitializedProcessRunnerState::handleCommand(Command& command)
     gtDebugId(GT_EXEC_ID) << "Run Task Command!";
 
     // sanity check
-    assert(gtProcessExecutor);
     assert(!m_metaData->task);
     assert(!m_metaData->source);
+
+    auto& executor = gt::currentProcessExecutor();
 
     // shortcut for meta dasta
     auto* m = m_metaData;
@@ -239,7 +240,7 @@ GtInitializedProcessRunnerState::handleCommand(Command& command)
 
     gtExternalizationManager->setProjectDir(projectPath);
 
-    if (!gtProcessExecutor->setCustomProjectPath(projectPath))
+    if (!executor.setCustomProjectPath(projectPath))
     {
         return makeResponse(command, gt::process_runner::RunTaskError,
                             tr("Failed to set project path!"));
@@ -260,7 +261,7 @@ GtInitializedProcessRunnerState::handleCommand(Command& command)
 
     // connect task finished signal
     auto success =
-        connect(gtProcessExecutor, &GtCoreProcessExecutor::allTasksCompleted,
+        connect(&executor, &GtCoreProcessExecutor::allTasksCompleted,
                 m_runner, &GtRemoteProcessRunner::onTaskFinished,
                 Qt::QueuedConnection);
     assert(success);
@@ -276,13 +277,13 @@ GtInitializedProcessRunnerState::handleCommand(Command& command)
         return package->toMemento();
     });
 
-    if (!gtProcessExecutor->setSource(m->source))
+    if (!executor.setSource(m->source))
     {
         return makeResponse(command, gt::process_runner::RunTaskError,
                             tr("Failed to set source!"));
     }
 
-    if (!gtProcessExecutor->runTask(m->task))
+    if (!executor.runTask(m->task))
     {
         return makeResponse(command, gt::process_runner::RunTaskError,
                            tr("Triggering task execution failed!"));

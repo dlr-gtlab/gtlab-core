@@ -117,11 +117,11 @@ GtProcessQueueWidget::onMoveUp()
         return;
     }
 
-    GtTask* task = gtProcessExecutor->queue().at(selection.row());
+    GtTask* task = gt::currentProcessExecutor().queue().at(selection.row());
 
     if (task)
     {
-        gtProcessExecutor->moveTaskUp(task);
+        gt::currentProcessExecutor().moveTaskUp(task);
     }
 
     m_view->clearSelection();
@@ -146,11 +146,11 @@ GtProcessQueueWidget::onMoveDown()
         return;
     }
 
-    GtTask* task = gtProcessExecutor->queue().at(selection.row());
+    GtTask* task = gt::currentProcessExecutor().queue().at(selection.row());
 
     if (task)
     {
-        gtProcessExecutor->moveTaskDown(task);
+        gt::currentProcessExecutor().moveTaskDown(task);
     }
 
     m_view->clearSelection();
@@ -175,11 +175,11 @@ GtProcessQueueWidget::onRemove()
         return;
     }
 
-    GtTask* task = gtProcessExecutor->queue().at(selection.row());
+    GtTask* task = gt::currentProcessExecutor().queue().at(selection.row());
 
     if (task)
     {
-        gtProcessExecutor->removeFromQueue(task);
+        gt::currentProcessExecutor().removeFromQueue(task);
     }
 }
 
@@ -196,7 +196,7 @@ GtProcessQueueWidget::onSelectionChanged()
         m_removeButton->setDisabled(true);
     }
 
-    GtTask* task = gtProcessExecutor->queue().at(selection.row());
+    GtTask* task = gt::currentProcessExecutor().queue().at(selection.row());
 
     if (!task)
     {
@@ -220,7 +220,7 @@ GtProcessQueueWidget::onSelectionChanged()
             m_upButton->setDisabled(true);
         }
 
-        if (selection.row() < gtProcessExecutor->queue().size() -1)
+        if (selection.row() < gt::currentProcessExecutor().queue().size() -1)
         {
             m_downButton->setDisabled(false);
         }
@@ -283,7 +283,7 @@ GtProcessQueueWidget::onContextMenuRequest(const QPoint& pos)
         return;
     }
 
-    GtTask* task = gtProcessExecutor->queue().at(selection.row());
+    GtTask* task = gt::currentProcessExecutor().queue().at(selection.row());
 
     if (task)
     {
@@ -304,7 +304,7 @@ GtProcessQueueWidget::onContextMenuRequest(const QPoint& pos)
         {
             actMoveUp->setEnabled(false);
         }
-        else if (selection.row() == gtProcessExecutor->queue().size()-1)
+        else if (selection.row() == gt::currentProcessExecutor().queue().size()-1)
         {
             actMoveDown->setEnabled(false);
         }

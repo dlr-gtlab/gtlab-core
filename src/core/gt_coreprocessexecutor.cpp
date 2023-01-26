@@ -7,9 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-#include <QString>
-#include <QCoreApplication>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QEventLoop>
@@ -18,9 +15,6 @@
 #include "gt_runnable.h"
 #include "gt_project.h"
 #include "gt_object.h"
-#include "gt_calculator.h"
-#include "gt_objectlinkproperty.h"
-#include "gt_coredatamodel.h"
 #include "gt_objectmemento.h"
 #include "gt_task.h"
 #include "gt_objectmementodiff.h"
@@ -33,14 +27,6 @@ const std::string GtCoreProcessExecutor::S_ID = "CoreProcessExecutor";
 
 struct GtCoreProcessExecutor::Impl
 {
-    explicit Impl(Flags flags) :
-        save{!flags.testFlag(gt::DryExecution)},
-        detached{flags.testFlag(gt::NonBlockingExecution)}
-    {}
-
-    /// instance
-    static GtCoreProcessExecutor* self;
-
     /// save results is used as standard
     /// set to false for batch processes with saving results false to
     /// spend less time
@@ -57,44 +43,24 @@ struct GtCoreProcessExecutor::Impl
     QPointer<GtRunnable> currentRunnable;
 };
 
-GtCoreProcessExecutor* GtCoreProcessExecutor::Impl::self{};
-
-GtCoreProcessExecutor::GtCoreProcessExecutor(std::string id,
-                                             QObject* parent,
-                                             Flags flags) :
+GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, Flags flags) :
     QObject(parent),
     m_current(nullptr),
     m_source(nullptr),
-    pimpl{std::make_unique<Impl>(flags)}
+    pimpl(std::make_unique<Impl>())
 {
     setObjectName("CoreProcessExecutor");
 
-    // initialize
-    if (!pimpl->self)
-    {
-        pimpl->self = this;
-        qDebug() << "#### Core process executor initialized!";
-    }
-
-    GtProcessExecutorManager::instance().registerExecutor(std::move(id), *this);
+    setCoreExecutorFlags(flags);
 }
-
-GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent,
-                                             Flags flags) :
-    GtCoreProcessExecutor{S_ID, parent, flags}
-{ }
-
-GtCoreProcessExecutor::GtCoreProcessExecutor(Flags flags) :
-    GtCoreProcessExecutor{S_ID, nullptr, flags}
-{ }
 
 GtCoreProcessExecutor::~GtCoreProcessExecutor() = default;
 
-GtCoreProcessExecutor*
-GtCoreProcessExecutor::instance()
+void
+GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
 {
-    // return singleton instance
-    return Impl::self;
+    pimpl->save     = !flags.testFlag(gt::DryExecution);
+    pimpl->detached =  flags.testFlag(gt::NonBlockingExecution);
 }
 
 bool
@@ -549,153 +515,4 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
     taskRunner->deleteLater();
 
     executeNextTask();
-}
-
-struct ExecutorEntry
-{
-    /// pointer to executor
-    QPointer<GtCoreProcessExecutor> ptr;
-    /// id of executor
-    std::string id;
-};
-
-std::vector<ExecutorEntry> s_executors{};
-
-ExecutorEntry s_selection{};
-
-namespace
-{
-
-// helper method to find the executor
-auto findExecutor(std::string const& id)
-{
-    return std::find_if(s_executors.begin(), s_executors.end(),
-                        [&](ExecutorEntry const& e){
-        return e.id == id;
-    });
-}
-
-bool
-isExecutorReady(ExecutorEntry const& e)
-{
-    return e.ptr && !e.ptr->taskCurrentlyRunning() && e.ptr->queue().isEmpty();
-}
-
-}
-
-GtProcessExecutorManager::GtProcessExecutorManager()
-{
-    setObjectName("ProcessExecutorSwitcher");
-}
-
-GtProcessExecutorManager&
-GtProcessExecutorManager::instance()
-{
-    static GtProcessExecutorManager self;
-    return self;
-}
-
-GtCoreProcessExecutor*
-GtProcessExecutorManager::currentExecutor()
-{
-    return s_selection.ptr;
-}
-
-GtCoreProcessExecutor const*
-GtProcessExecutorManager::currentExecutor() const
-{
-    return s_selection.ptr;
-}
-
-bool
-GtProcessExecutorManager::setCurrentExecutor(std::string const& id)
-{
-    auto iter = findExecutor(id);
-    if (iter == s_executors.end())
-    {
-        gtFatalId(GT_EXEC_ID)
-                << tr("Failed to set current Executor! %1 was not found")
-                   .arg(id.c_str());
-        return false;
-    }
-
-    // nothing to do here
-    if (s_selection.id == id)
-    {
-        return true;
-    }
-
-    // check if switiching is possible
-    if (s_selection.ptr && !isExecutorReady(s_selection))
-    {
-        gtErrorId(GT_EXEC_ID)
-                << tr("Cannot switch the current Executor while a task is "
-                      "still running!");
-        return false;
-    }
-
-    gtDebugId(GT_EXEC_ID) << tr("Now using Executor %1").arg(id.c_str());
-
-    // switch executor
-    s_selection = *iter;
-    emit executorChanged(s_selection.ptr);
-    return true;
-}
-
-bool
-GtProcessExecutorManager::registerExecutor(std::string id, GtCoreProcessExecutor& exec)
-{
-    if (id.empty())
-    {
-        gtErrorId(GT_EXEC_ID)
-                << tr("Failed to register Executor with an invalid ID!");
-        return false;
-    }
-    if (hasExecutor(id))
-    {
-        gtErrorId(GT_EXEC_ID)
-                << tr("Failed to register the Executor! %1 has "
-                      "already been registered!").arg(id.c_str());
-        return false;
-    }
-
-    qDebug().noquote() << tr("#### Registered executor '%1'").arg(id.c_str());
-
-    s_executors.push_back(ExecutorEntry{&exec, std::move(id)});
-
-    // update selection if no executor has been selected
-    return s_selection.ptr || setCurrentExecutor(s_executors.back().id);
-}
-
-bool
-GtProcessExecutorManager::removeExecutor(std::string const& id)
-{
-    auto iter = findExecutor(id);
-    if (iter == s_executors.end())
-    {
-        return false;
-    }
-
-    if (!isExecutorReady(*iter))
-    {
-        gtErrorId(GT_EXEC_ID)
-                << tr("Cannot remove the executor while its not ready!");
-        return false;
-    }
-    if (iter->id == s_selection.id)
-    {
-        gtErrorId(GT_EXEC_ID)
-                << tr("Cannot remove the active executor!");
-        return false;
-    }
-
-    s_executors.erase(iter);
-
-    return true;
-}
-
-bool
-GtProcessExecutorManager::hasExecutor(std::string const& id)
-{
-    return findExecutor(id) != s_executors.end();
 }
