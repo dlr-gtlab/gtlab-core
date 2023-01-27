@@ -82,8 +82,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
         {
             GtObject* item = static_cast<GtObject*>(index.internalPointer());
 
-            GtProcessComponent* pc =
-                qobject_cast<GtProcessComponent*>(item);
+            GtProcessComponent* pc = qobject_cast<GtProcessComponent*>(item);
 
             if (!pc)
             {
@@ -158,6 +157,20 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
         }
         break;
 
+        case Qt::ToolTipRole:
+        {
+            GtObject* item = static_cast<GtObject*>(index.internalPointer());
+
+            auto* pc = qobject_cast<GtProcessComponent*>(item);
+
+            if (pc && col == 1)
+            {
+                return stateToString(pc->currentState(), pc->currentProgress());
+            }
+
+        }
+        break;
+
         default:
             break;
     }
@@ -209,6 +222,53 @@ QIcon
 GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state)
 {
     return stateToIcon(state, 0.0);
+}
+
+QString
+GtProcessComponentModel::stateToString(GtProcessComponent::STATE state,
+                                       int progress)
+{
+    switch (state)
+    {
+        case GtProcessComponent::RUNNING:
+            if (progress <= 0)
+            {
+                return tr("Running");
+            }
+            else
+            {
+                return tr("Progress: ") + QString::number(progress) + "%";
+            }
+
+        case GtProcessComponent::QUEUED:
+            return tr("Queued");
+
+        case GtProcessComponent::FAILED:
+            return tr("Failed");
+
+        case GtProcessComponent::FINISHED:
+            return tr("Finished");
+
+        case GtProcessComponent::CONNECTING:
+            return tr("Connecting");
+
+        case GtProcessComponent::SKIPPED:
+            return tr("Skipped");
+
+        case GtProcessComponent::TERMINATION_REQUESTED:
+            return tr("Termination requested");
+
+        case GtProcessComponent::TERMINATED:
+            return tr("Terminated");
+
+        case GtProcessComponent::WARN_FINISHED:
+            return tr("Finished with warning");
+
+        default:
+            break;
+    }
+
+    return {};
 }
 
 bool

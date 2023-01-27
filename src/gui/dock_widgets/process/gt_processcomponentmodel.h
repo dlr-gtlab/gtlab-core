@@ -53,6 +53,14 @@ public:
      */
     static QIcon stateToIcon(GtProcessComponent::STATE state, int progress);
 
+    /**
+     * @brief Returns process component state specific string.
+     * @param state Process component state.
+     * @param progress Progress of the current running processelement
+     * @return Proccess componentn state specific string.
+     */
+    static QString stateToString(GtProcessComponent::STATE state, int progress);
+
 protected:
     /**
      * @brief moveRows
