@@ -35,8 +35,8 @@ public:
      * @brief valueToVariant
      * @return
      */
-    QVariant valueToVariant(const QString&,
-                            bool* = nullptr) const override;
+    QVariant valueToVariant(const QString& unit,
+                            bool* success = nullptr) const override;
 
     /**
      * @brief setValueFromVariant

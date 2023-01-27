@@ -52,12 +52,7 @@ QVariant
 GtStringProperty::valueToVariant(const QString& /*unit*/,
                                  bool* success) const
 {
-    if (success)
-    {
-        *success = true;
-    }
-
-    return getVal();
+    return gt::valueSuccess(getVal(), success);
 }
 
 bool

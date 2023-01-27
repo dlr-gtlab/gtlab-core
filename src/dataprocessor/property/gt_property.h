@@ -6,6 +6,7 @@
 
 #include "gt_abstractproperty.h"
 #include "gt_unit.h"
+#include "gt_utilities.h"
 #include "gt_unitconverter.h"
 
 template<class ParamType>
@@ -55,7 +56,8 @@ public:
      * @param unit
      * @param success
      */
-    void setVal(const ParamType& value, const QString& unit,
+    void setVal(const ParamType& value,
+                const QString& unit,
                 bool* success = nullptr);
 
     /**
@@ -93,8 +95,9 @@ protected:
      * @param success
      * @return
      */
-    virtual ParamType convertFrom(const ParamType &value,
-                                  const QString& unit, bool* success = nullptr);
+    virtual ParamType convertFrom(const ParamType& value,
+                                  const QString& unit,
+                                  bool* success = nullptr);
 
     /**
      * @brief convertTo
@@ -148,28 +151,19 @@ inline ParamType GtProperty<ParamType>::getVal() const
 }
 
 template<class ParamType>
-inline ParamType GtProperty<ParamType>::getVal(const QString &unit,
-                                         bool *success) const
+inline ParamType GtProperty<ParamType>::getVal(const QString& unit,
+                                               bool* success) const
 {
     if (unit.isEmpty())
     {
-        if (success)
-        {
-            *success = true;
-        }
-
-        return getVal();
+        return gt::valueSuccess(getVal(), success);
     }
 
-    bool tmpSuccess = false;
-    ParamType val = convertTo(unit, &tmpSuccess);
+    bool _success = false;
 
-    if (success)
-    {
-        *success = tmpSuccess;
-    }
+    ParamType val = convertTo(unit, &_success);
 
-    return val;
+    return gt::valueSetSuccess(val, _success, success);
 }
 
 template<class ParamType>
@@ -178,8 +172,9 @@ inline void GtProperty<ParamType>::setVal(const ParamType& value,
 {
     if (m_connection)
     {
-        gtWarning() << tr("Could not set connected property!") << " ("
-                    << objectName() << ")";
+        gtWarning().medium().nospace()
+                << tr("Could not set connected property!") << " ("
+                << objectName() << ")";
         return;
     }
 
@@ -187,7 +182,7 @@ inline void GtProperty<ParamType>::setVal(const ParamType& value,
 }
 
 template<class ParamType>
-inline void GtProperty<ParamType>::forceSetVal(const ParamType &value,
+inline void GtProperty<ParamType>::forceSetVal(const ParamType& value,
                                                bool* success)
 {
     if (success)
@@ -244,8 +239,9 @@ inline void GtProperty<ParamType>::setValFromConnection()
 }
 
 template<class ParamType>
-inline void GtProperty<ParamType>::setVal(const ParamType &value,
-                                   const QString &unit, bool* success)
+inline void GtProperty<ParamType>::setVal(const ParamType& value,
+                                          const QString& unit,
+                                          bool* success)
 {
     if (success)
     {
@@ -274,25 +270,19 @@ inline void GtProperty<ParamType>::setVal(const ParamType &value,
 
 template<class ParamType>
 inline ParamType GtProperty<ParamType>::convertFrom(const ParamType& value,
-                                    const QString& /*unit*/,
-                                    bool* success)
+                                                    const QString& /*unit*/,
+                                                    bool* success)
 {
-    *success = false;
-
     // TODO: conversion warning
-
-    return value;
+    return gt::valueError(value, success);
 }
 
 template<class ParamType>
 inline ParamType GtProperty<ParamType>::convertTo(const QString& /*unit*/,
-                                            bool* success) const
+                                                  bool* success) const
 {
-    *success = false;
-
     // TODO: conversion warning
-
-    return m_value;
+    return gt::valueError(m_value, success);
 }
 
 template<class ParamType>
@@ -300,7 +290,6 @@ inline bool GtProperty<ParamType>::validateValue(const ParamType& /*value*/)
 {
     return true;
 }
-
 
 namespace gt
 {

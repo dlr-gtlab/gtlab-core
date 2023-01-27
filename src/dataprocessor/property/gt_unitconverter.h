@@ -7,6 +7,7 @@
 #include <QVector>
 
 #include "gt_unit.h"
+#include "gt_utilities.h"
 
 #include "gt_logging.h"
 #include "gt_logging/qt_bindings.h"
@@ -28,9 +29,6 @@ public:
      * @return
      */
     QStringList units(GtUnit::Category) const;
-
-//    T convert(GtUnit::Category category, const QString &from,
-//              const QString &to, T value, bool *success = 0);
 
 private:
     /** Constructor */
@@ -64,8 +62,8 @@ template<class T>
 QStringList
 GtUnitConverter<T>::units(GtUnit::Category category) const
 {
-    QMap<QString, double> factors = m_factorMap[category];
-    QMap<QString, double> summands = m_summandMap[category];
+    QMap<QString, double> const factors = m_factorMap[category];
+    QMap<QString, double> const summands = m_summandMap[category];
 
     QStringList retval;
 
@@ -78,95 +76,69 @@ GtUnitConverter<T>::units(GtUnit::Category category) const
 }
 
 template<class T>
-T GtUnitConverter<T>::from(GtUnit::Category category, const QString &GtUnit,
-                           T value, bool *success)
+T GtUnitConverter<T>::from(GtUnit::Category category, const QString& GtUnit,
+                           T value, bool* success)
 {
-    QMap<QString, double> factors = m_factorMap[category];
-    QMap<QString, double> summands = m_summandMap[category];
+    QMap<QString, double> const factors = m_factorMap[category];
+    QMap<QString, double> const summands = m_summandMap[category];
 
-    if (factors.contains(GtUnit) || summands.contains(GtUnit))
+    bool const hasFac = factors.contains(GtUnit);
+    bool const hasSum = summands.contains(GtUnit);
+
+    if (!hasFac && !hasSum)
     {
-        if (summands.contains(GtUnit))
-        {
-            if (success)
-            {
-                *success = true;
-            }
-
-            value = value - summands[GtUnit];
-        }
-        if (factors.contains(GtUnit))
-        {
-            if (success)
-            {
-                *success = true;
-            }
-
-            value = value / factors[GtUnit];
-        }
-
-        return value;
+        gtWarning().nospace()
+                << QObject::tr("No such unit") << " (" << GtUnit << ") "
+                << QObject::tr("in category") << " ("
+                << GtUnit::categoryToString(category)
+                << ") - "
+                << QObject::tr("No conversion done!");
+        return gt::valueError(value, success);
     }
-    else
+
+    if (hasSum)
     {
-        gtWarning() << QObject::tr("No such unit") << " (" << GtUnit << ") "
-                    << QObject::tr("in category") << " ("
-                    << GtUnit::categoryToString(category)
-                    << ") - "
-                    << QObject::tr("No conversion done!");
-
-        if (success)
-        {
-            *success = false;
-        }
-        return value;
+        value = value - summands[GtUnit];
     }
+    if (hasFac)
+    {
+        assert(factors[GtUnit] != 0);
+        value = value / factors[GtUnit];
+    }
+    return gt::valueSuccess(value, success);
 }
 
 template<class T>
 T GtUnitConverter<T>::To(GtUnit::Category category,
                          const QString &GtUnit, T value, bool *success)
 {
-    QMap<QString, double> factors = m_factorMap[category];
-    QMap<QString, double> summands = m_summandMap[category];
+    QMap<QString, double> const factors = m_factorMap[category];
+    QMap<QString, double> const summands = m_summandMap[category];
 
-    if (factors.contains(GtUnit) || summands.contains(GtUnit))
+    bool const hasFac = factors.contains(GtUnit);
+    bool const hasSum = summands.contains(GtUnit);
+
+    if (!hasFac && !hasSum)
     {
-        if (factors.contains(GtUnit))
-        {
-            if (success)
-            {
-                *success = true;
-            }
-
-            value = value * factors[GtUnit];
-        }
-        if (summands.contains(GtUnit))
-        {
-            if (success)
-            {
-                *success = true;
-            }
-
-            value = value + summands[GtUnit];
-        }
-
-        return value;
+        gtWarning().nospace()
+                << QObject::tr("No such unit") << " (" << GtUnit << ") "
+                << QObject::tr("in category") << " ("
+                << GtUnit::categoryToString(category)
+                << ") - "
+                << QObject::tr("No conversion done!");
+        return gt::valueError(value, success);
     }
-    else
+
+    if (hasFac)
     {
-        gtWarning() << QObject::tr("No such unit") << " (" << GtUnit << ") "
-                    << QObject::tr("in category") << " ("
-                    << GtUnit::categoryToString(category)
-                    << ") - "
-                    << QObject::tr("No conversion done!");
-
-        if (success)
-        {
-            *success = false;
-        }
-        return value;
+        value = value * factors[GtUnit];
     }
+    if (hasSum)
+    {
+        value = value + summands[GtUnit];
+    }
+
+    return gt::valueSuccess(value, success);
 }
 
 template<class T>

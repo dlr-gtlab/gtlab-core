@@ -22,25 +22,24 @@ GtDoubleListProperty::GtDoubleListProperty(const QString& ident,
 }
 
 QVariant
-GtDoubleListProperty::valueToVariant(
-        const QString& /*unit*/, bool* /*success*/) const
+GtDoubleListProperty::valueToVariant(const QString& /*unit*/,
+                                     bool* success) const
 {
     QVariant variant = QVariant::fromValue(m_value);
 
-    return variant;
+    return gt::valueSuccess(variant, success);
 }
 
 bool
 GtDoubleListProperty::setValueFromVariant(const QVariant& val,
-        const QString& /*unit*/)
+                                          const QString& /*unit*/)
 {
     if (!val.canConvert<QVariantList>()) return false;
 
-
-    QSequentialIterable iterable = val.value<QSequentialIterable>();
+    QSequentialIterable const iterable = val.value<QSequentialIterable>();
     QVector<double> vec;
 
-    foreach (const QVariant& v, iterable)
+    for (const QVariant& v : iterable)
     {
         bool ok = false;
         vec << v.toDouble(&ok);
@@ -78,15 +77,13 @@ GtDoubleListProperty::valuesToString() const
 bool
 GtDoubleListProperty::setValueFromString(const QString& val)
 {
-    QStringList strList = val.split(QStringLiteral(";"));
+    QStringList const strList = val.split(QStringLiteral(";"));
 
     QVector<double> tmp;
     bool success = false;
 
-    foreach (const QString& str, strList)
+    for (const QString& str : strList)
     {
-
-
         double tmpDouble = str.toDouble(&success);
 
         if (!success)
