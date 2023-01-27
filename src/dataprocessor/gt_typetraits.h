@@ -54,6 +54,10 @@ using enable_if_derived_of_qobject = enable_if_base_of<QObject, T>;
 template < typename T>
 using enable_if_ptr_derived_of_qobject = enable_if_ptr_base_of<QObject, T>;
 
+// access value_type of Container
+template <typename Container>
+using value_t = typename std::decay_t<Container>::value_type;
+
 } // namespace trait
 
 } // namespace gt

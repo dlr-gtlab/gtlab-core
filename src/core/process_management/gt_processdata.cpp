@@ -69,22 +69,40 @@ GtProcessData::GtProcessData() :
 
 GtProcessData::~GtProcessData() = default;
 
-QList<GtTask*>
-GtProcessData::processList()
+QList<GtTask const*>
+GtProcessData::currentProcessList() const
 {
-    GtTaskGroup* currentGroup = m_pimpl->currentTaskGroup();
-
+    GtTaskGroup const* currentGroup = m_pimpl->currentTaskGroup();
     if (!currentGroup)
     {
         gtError() << tr("Current task group not found!");
         return {};
     }
 
-    return currentGroup->findDirectChildren<GtTask*>();
+    return currentGroup->findDirectChildren<GtTask const*>();
+}
+
+QList<GtTask const*>
+GtProcessData::processList(const QString& groupId) const
+{
+    QList<GtTaskGroup*> const groups = m_pimpl->userGroups() +
+                                       m_pimpl->customGroups();
+
+    auto iter = std::find_if(std::begin(groups), std::end(groups),
+                             [&](GtTaskGroup const* taskGroup){
+        return taskGroup->objectName() == groupId;
+    });
+
+    if (iter == std::end(groups))
+    {
+        return {};
+    }
+
+    return (*iter)->findDirectChildren<GtTask const*>();
 }
 
 GtTask*
-GtProcessData::findProcess(const QString& val)
+GtProcessData::findProcess(const QString& name)
 {
     GtTaskGroup* currentGroup = m_pimpl->currentTaskGroup();
 
@@ -94,7 +112,13 @@ GtProcessData::findProcess(const QString& val)
         return nullptr;
     }
 
-    return currentGroup->findDirectChild<GtTask*>(val);
+    return currentGroup->findDirectChild<GtTask*>(name);
+}
+
+const GtTask*
+GtProcessData::findProcess(const QString& name) const
+{
+    return const_cast<GtProcessData*>(this)->findProcess(name);
 }
 
 GtTaskGroup*

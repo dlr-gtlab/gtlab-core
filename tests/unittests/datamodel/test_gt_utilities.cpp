@@ -9,9 +9,12 @@
 #include <QMutex>
 #include <QByteArray>
 #include <QString>
+#include <QObject>
+
 #include "gtest/gtest.h"
 
 #include "gt_utilities.h"
+#include "gt_qtutilities.h"
 
 class TestGtUtilities : public testing::Test
 {
@@ -54,6 +57,20 @@ TEST_F(TestGtUtilities, checkumericalLimits)
     // lower number than an int32
     EXPECT_FALSE(gt::checkNumericalLimits<int32_t>(
                      std::numeric_limits<int32_t>::min() - int64_t{1}));
+}
+
+TEST_F(TestGtUtilities, objectNames)
+{
+    QObject o1, o2, o3;
+    o1.setObjectName("Bla");
+    o2.setObjectName("Blu");
+    o3.setObjectName("Blup");
+    QList<QObject*> ptrs = {&o1, &o2, &o3};
+
+    QStringList expected = {o1.objectName(), o2.objectName(), o3.objectName()};
+    QStringList names = gt::objectNames(ptrs);
+
+    EXPECT_EQ(names, expected);
 }
 
 TEST_F(TestGtUtilities, finally_member)

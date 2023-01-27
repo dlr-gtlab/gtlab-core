@@ -31,17 +31,15 @@
 #include "gt_externalizationmanager.h"
 #include "gt_projectanalyzer.h"
 #include "gt_xmlutilities.h"
-
-#include "internal/gt_moduleupgrader.h"
-
+#include "gt_qtutilities.h"
 #include "gt_filesystem.h"
 #include "gt_objectio.h"
-
-#include <cassert>
-
 #include "gt_taskgroup.h"
 
 #include "internal/gt_moduleupgrader.h"
+#include "internal/gt_moduleupgrader.h"
+
+#include <cassert>
 
 GtProject::GtProject(const QString& path) :
     m_path(path),
@@ -119,7 +117,7 @@ GtProject::availableModuleUpgrades() const
 }
 
 QList<GtVersionNumber>
-GtProject::availableUpgrades(const QString& moduleId)
+GtProject::availableUpgrades(const QString& moduleId) const
 {
     GtProjectAnalyzer analyzer(this);
     GtFootprint footprint = analyzer.footPrint();
@@ -1114,47 +1112,73 @@ GtProject::processData()
     return findDirectChild<GtProcessData*>(QStringLiteral("Process Data"));
 }
 
+GtProcessData const*
+GtProject::processData() const
+{
+    return const_cast<GtProject*>(this)->processData();
+}
+
 GtLabelData*
 GtProject::labelData()
 {
     return findDirectChild<GtLabelData*>(QStringLiteral("Label Data"));
 }
 
-GtTask*
-GtProject::findProcess(const QString& val)
+const GtLabelData*
+GtProject::labelData() const
 {
-    GtTask* retval = nullptr;
+    return const_cast<GtProject*>(this)->labelData();
+}
 
-    GtProcessData* pdata = processData();
-
-    if (pdata)
+GtTask*
+GtProject::findProcess(const QString& name)
+{
+    if (auto* pdata = processData())
     {
-        return pdata->findProcess(val);
+        return pdata->findProcess(name);
     }
 
-    return retval;
+    return nullptr;
+}
+
+const GtTask*
+GtProject::findProcess(const QString& name) const
+{
+    return const_cast<GtProject*>(this)->findProcess(name);
 }
 
 QStringList
-GtProject::taksIds()
+GtProject::taskIds() const
 {
-    QList<GtTask*> tasks;
-
-    if (GtProcessData* pdata = processData())
+    auto const* pdata = processData();
+    if (!pdata)
     {
-        tasks = pdata->findDirectChildren<GtTask*>();
+        return {};
     }
 
-    QStringList retVal;
-    for (auto t : qAsConst(tasks))
+    return gt::objectNames(pdata->currentProcessList());
+}
+
+QMap<QString, QStringList>
+GtProject::fullTaskIds() const
+{
+    auto const* pdata = processData();
+    if (!pdata)
     {
-        if (t)
-        {
-            retVal.append(t->objectName());
-        }
+        return {};
     }
 
-    return retVal;
+    QMap<QString, QStringList> retval;
+
+    QStringList const groupIds = pdata->userGroupIds() +
+                                 pdata->customGroupIds();
+
+    for (QString const& group : groupIds)
+    {
+        retval.insert(group, gt::objectNames(pdata->processList(group)));
+    }
+
+    return retval;
 }
 
 GtPackage*
@@ -1173,20 +1197,20 @@ GtProject::findPackage(const QString& mid)
 }
 
 const QStringList&
-GtProject::moduleIds()
+GtProject::moduleIds() const
 {
     return m_moduleIds;
 }
 
 int
-GtProject::numberOfLabelUsages(GtLabel* label)
+GtProject::numberOfLabelUsages(GtLabel* label) const
 {
     if (!label)
     {
         return -1;
     }
 
-    return findLabelUsages(label).size();
+    return const_cast<GtProject*>(this)->findLabelUsages(label).size();
 }
 
 QList<GtLabel*>

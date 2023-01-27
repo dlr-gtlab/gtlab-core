@@ -85,25 +85,34 @@ public:
      * @return
      */
     GtProcessData* processData();
+    GtProcessData const* processData() const;
 
     /**
      * @brief Returns project specific label data.
      * @return Label data.
      */
     GtLabelData* labelData();
+    GtLabelData const* labelData() const;
 
     /**
      * @brief findProcess
      * @param val
      * @return
      */
-    GtTask* findProcess(const QString& val);
+    GtTask* findProcess(const QString& name);
+    GtTask const* findProcess(const QString& name) const;
 
     /**
-     * @brief taksIds
-     * @return string list of the names of the tasks that are children of that project
+     * @brief Returns the names of all root tasks in the current task
+     * @return String list of root task names
      */
-    QStringList taksIds();
+    QStringList taskIds() const;
+
+    /**
+     * @brief Returns the names of all root tasks in the current task
+     * @return String list of root task names
+     */
+    QMap<QString, QStringList> fullTaskIds() const;
 
     /**
      * @brief Returns the package specified by the module id
@@ -116,7 +125,7 @@ public:
      * @brief moduleIds
      * @return
      */
-    const QStringList& moduleIds();
+    const QStringList& moduleIds() const;
 
     /**
      * @brief Returns number of label usages. Returns -1 if given label is
@@ -124,7 +133,7 @@ public:
      * @param Label.
      * @return Number of label usages.
      */
-    int numberOfLabelUsages(GtLabel* label);
+    int numberOfLabelUsages(GtLabel* label) const;
 
     /**
      * @brief Returns all label usages.
@@ -192,7 +201,7 @@ public:
      * are to be checked.
      * @return List of version numbers of upgrad routines.
      */
-    QList<GtVersionNumber> availableUpgrades(const QString& moduleId);
+    QList<GtVersionNumber> availableUpgrades(const QString& moduleId) const;
 
     /**
      * @brief Triggers upgrade routine of project data.
@@ -204,7 +213,7 @@ public:
      * stored in the project directory in a separate folder (/backup). A current
      * timestamp is used for identification.
      */
-    void createBackup(const QString& message = "") const;
+    void createBackup(const QString& message = {}) const;
 
     enum class RestoreStatus
     {
@@ -384,7 +393,7 @@ private:
      * @param label
      * @return
      */
-    QList<GtLabel*> findLabelUsagesHelper(GtObject* obj, GtLabel* label);
+    static QList<GtLabel*> findLabelUsagesHelper(GtObject* obj, GtLabel* label);
 
     /**
      * @brief renameOldModuleFile
