@@ -25,11 +25,11 @@ GtLabelData::GtLabelData()
 QStringList
 GtLabelData::labelIds() const
 {
-    QList<GtLabel*> list = findDirectChildren<GtLabel*>();
+    auto const list = findDirectChildren<GtLabel*>();
 
     QStringList retval;
 
-    foreach (GtLabel* label, list)
+    for (GtLabel const* label : list)
     {
         retval << label->objectName();
     }
@@ -40,7 +40,7 @@ GtLabelData::labelIds() const
 bool
 GtLabelData::isEmpty() const
 {
-    QList<GtLabel*> list = findDirectChildren<GtLabel*>();
+    auto const list = findDirectChildren<GtLabel*>();
 
     return list.isEmpty();
 }
@@ -103,9 +103,9 @@ GtLabelData::addDefaultLabel()
 bool
 GtLabelData::labelExists(const QString& id) const
 {
-    auto list = findDirectChildren<GtLabel*>();
-
-    return std::any_of(std::begin(list), std::end(list), [&id](const GtLabel* label) {
+    auto const list = findDirectChildren<GtLabel*>();
+    return std::any_of(std::begin(list), std::end(list),
+                       [&id](const GtLabel* label) {
         return label->objectName() == id;
     });
 }

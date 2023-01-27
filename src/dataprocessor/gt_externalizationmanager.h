@@ -73,7 +73,7 @@ public:
      * initial project structure was created
      * @param root Root object
      */
-    void initExternalizedObjects(const GtObject& root);
+    void initExternalizedObjects(GtObject& root);
 
     /**
      * @brief registers an externalization interface. Will receive info

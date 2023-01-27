@@ -39,7 +39,7 @@ public:
     bool success() const;
 
     template <typename T = GtObject*>
-    T payload(QString const& objectName) const
+    T payload(QString const& objectName)
     {
         return findDirectChild<T>(objectName);
     }

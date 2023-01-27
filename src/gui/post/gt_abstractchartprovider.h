@@ -80,7 +80,8 @@ public:
 
     void setShowwidgets(bool showwidgets);
 
-    GtObjectGroup* UUIDsContainer() const;
+    GtObjectGroup* UUIDsContainer();
+    GtObjectGroup const* UUIDsContainer() const;
 
     /**
      * @brief objectNamesFromContainer: returns object names of all

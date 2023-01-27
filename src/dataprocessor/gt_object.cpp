@@ -18,6 +18,7 @@
 #include "gt_propertystructcontainer.h"
 
 #include "gt_object.h"
+#include "gt_qtutilities.h"
 
 #include <QUuid>
 #include <QSignalMapper>
@@ -121,7 +122,7 @@ GtObject::isDummy() const
 bool
 GtObject::hasDummyChildren() const
 {
-    auto c = findChildren<GtObject*>();
+    auto const c = findChildren();
     return std::any_of(std::begin(c), std::end(c), [](const GtObject* obj) {
         return obj->isDummy();
     });
@@ -398,22 +399,40 @@ GtObject::setFactory(GtAbstractObjectFactory* factory)
 }
 
 int
-GtObject::childNumber()
+GtObject::childNumber() const
 {
-    GtObject* p = parentObject();
+    GtObject const* p = parentObject();
 
     if (p)
     {
-        return p->findDirectChildren<GtObject*>().indexOf(this);
+        return p->findDirectChildren().indexOf(this);
     }
 
     return -1;
 }
 
+QObject*
+GtObject::parent()
+{
+    return QObject::parent();
+}
+
+QObject const*
+GtObject::parent() const
+{
+    return QObject::parent();
+}
+
 GtObject*
-GtObject::parentObject() const
+GtObject::parentObject()
 {
     return qobject_cast<GtObject*>(parent());
+}
+
+GtObject const*
+GtObject::parentObject() const
+{
+    return const_cast<GtObject*>(this)->parentObject();
 }
 
 QStringList
@@ -421,7 +440,7 @@ GtObject::labelIds() const
 {
     QStringList retval;
 
-    foreach (GtLabel* label, findChildren<GtLabel*>())
+    for (GtLabel const* label : findChildren<GtLabel*>())
     {
         if (!retval.contains(label->objectName()))
         {
@@ -464,7 +483,7 @@ GtObject::acceptChangesRecursively()
 {
     acceptChanges();
 
-    foreach (GtObject* child, findDirectChildren<GtObject*>())
+    foreach (GtObject* child, findDirectChildren())
     {
         child->acceptChangesRecursively();
     }
@@ -493,24 +512,30 @@ GtObject::debugObjectTree(int indent)
                   metaObject()->className() << QStringLiteral(")");
     }
 
-    foreach (GtObject* o, findDirectChildren<GtObject*>())
+    foreach (GtObject* o, findDirectChildren())
     {
         o->debugObjectTree(indent + 1);
     }
 }
 
 const QList<GtAbstractProperty*>&
-GtObject::properties() const
+GtObject::properties()
 {
     return pimpl->properties;
 }
 
+QList<GtAbstractProperty const*> const&
+GtObject::properties() const
+{
+    return gt::container_const_cast(pimpl->properties);
+}
+
 QList<GtAbstractProperty*>
-GtObject::fullPropertyList() const
+GtObject::fullPropertyList()
 {
     QList<GtAbstractProperty*> retval;
 
-    foreach (GtAbstractProperty* prop, properties())
+    for (GtAbstractProperty* prop : properties())
     {
         fullPropertyListHelper(prop, retval);
     }
@@ -518,19 +543,25 @@ GtObject::fullPropertyList() const
     return retval;
 }
 
-GtAbstractProperty*
-GtObject::findProperty(const QString& id) const
+QList<GtAbstractProperty const*>
+GtObject::fullPropertyList() const
 {
-    foreach (GtAbstractProperty* property, pimpl->properties)
+    return gt::container_const_cast(
+        const_cast<GtObject*>(this)->fullPropertyList()
+    );
+}
+
+GtAbstractProperty*
+GtObject::findProperty(const QString& id)
+{
+    for (GtAbstractProperty* property : qAsConst(pimpl->properties))
     {
         if (property->ident() == id)
         {
             return property;
         }
 
-        GtAbstractProperty* tmp = property->findProperty(id);
-
-        if (tmp)
+        if (GtAbstractProperty* tmp = property->findProperty(id))
         {
             return tmp;
         }
@@ -539,25 +570,35 @@ GtObject::findProperty(const QString& id) const
     return nullptr;
 }
 
-GtAbstractProperty*
-GtObject::findPropertyByName(const QString& name) const
+GtAbstractProperty const*
+GtObject::findProperty(const QString& id) const
 {
-    foreach (GtAbstractProperty* property, pimpl->properties)
+    return const_cast<GtObject*>(this)->findProperty(id);
+}
+
+GtAbstractProperty*
+GtObject::findPropertyByName(const QString& name)
+{
+    for (GtAbstractProperty* property : qAsConst(pimpl->properties))
     {
         if (property->objectName() == name)
         {
             return property;
         }
 
-        GtAbstractProperty* tmp = property->findPropertyByName(name);
-
-        if (tmp)
+        if (GtAbstractProperty* tmp = property->findPropertyByName(name))
         {
             return tmp;
         }
     }
 
     return nullptr;
+}
+
+GtAbstractProperty const*
+GtObject::findPropertyByName(const QString& name) const
+{
+    return const_cast<GtObject*>(this)->findPropertyByName(name);
 }
 
 GtPropertyStructContainer const *
@@ -580,24 +621,23 @@ GtObject::findPropertyContainer(const QString &id) const
 
 }
 
-GtPropertyStructContainer *
+GtPropertyStructContainer*
 GtObject::findPropertyContainer(const QString &id)
 {
     return const_cast<GtPropertyStructContainer*>
         (const_cast<const GtObject*>(this)->findPropertyContainer(id));
 }
 
-std::vector<std::reference_wrapper<const GtPropertyStructContainer> >
-GtObject::propertyContainers() const
-{
-    return {std::begin(pimpl->propertyContainer), std::end(pimpl->propertyContainer)};
-
-}
-
 std::vector<std::reference_wrapper<GtPropertyStructContainer>>&
 GtObject::propertyContainers()
 {
     return pimpl->propertyContainer;
+}
+
+std::vector<std::reference_wrapper<const GtPropertyStructContainer> >
+GtObject::propertyContainers() const
+{
+    return gt::container_const_cast(pimpl->propertyContainer);
 }
 
 void
@@ -639,7 +679,7 @@ GtObject::getObjectByPath(QStringList& objectPath)
         {
             objectPath.takeFirst();
 
-            GtObject* child = findDirectChild<GtObject*>(objectPath.first());
+            GtObject* child = findDirectChild(objectPath.first());
 
             if (!child)
             {
@@ -658,6 +698,12 @@ GtObject::getObjectByPath(QStringList& objectPath)
     }
 
     return nullptr;
+}
+
+const GtObject*
+GtObject::getObjectByPath(QStringList& objectPath) const
+{
+    return const_cast<GtObject*>(this)->getObjectByPath(objectPath);
 }
 
 QString
@@ -701,22 +747,38 @@ GtObject::getObjectByUuid(const QString& objectUUID)
         return this;
     }
 
+    return gt::findObject(objectUUID, findChildren());
+}
 
-    return gt::findObject(objectUUID, findChildren<GtObject*>());
+const GtObject*
+GtObject::getObjectByUuid(const QString& objectUUID) const
+{
+    return const_cast<GtObject*>(this)->getObjectByUuid(objectUUID);
 }
 
 GtObject*
+GtObject::getDirectChildByUuid(const QString& objectUUID)
+{
+    return gt::findObject(objectUUID, findDirectChildren());
+}
+
+const GtObject*
 GtObject::getDirectChildByUuid(const QString& objectUUID) const
 {
-    return gt::findObject(objectUUID, findDirectChildren<GtObject*>());
+    return const_cast<GtObject*>(this)->getDirectChildByUuid(objectUUID);
 }
 
 GtObject*
 GtObject::getObjectByPath(const QString& objectPath)
 {
     QStringList list = objectPath.split(QStringLiteral(";"));
-
     return getObjectByPath(list);
+}
+
+const GtObject*
+GtObject::getObjectByPath(const QString& objectPath) const
+{
+    return const_cast<GtObject*>(this)->getObjectByPath(objectPath);
 }
 
 void
@@ -758,7 +820,7 @@ GtObject::fullPropertyListHelper(GtAbstractProperty* p,
 void
 GtObject::newChildUUIDs(GtObject* parent) const
 {
-    foreach (GtObject* child, parent->findChildren<GtObject*>())
+    foreach (GtObject* child, parent->findChildren())
     {
         child->newUuid();
     }

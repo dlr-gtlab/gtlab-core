@@ -137,7 +137,7 @@ GtTaskGroup::save(const QString& projectPath,
 {
     if (!m_pimpl-> _initialized)
     {
-        gtDebug().nospace() << "save procedure not needed. group not initialized! (" <<
+        gtDebug().nospace() << "Save procedure not needed. Group not initialized! (" <<
                      objectName() << ")";
         return false;
     }
@@ -149,7 +149,7 @@ GtTaskGroup::save(const QString& projectPath,
     }
 
     // externalize tasks
-    foreach (const GtTask* task, findDirectChildren<GtTask*>())
+    for (const GtTask* task : findDirectChildren<GtTask*>())
     {
         if (!m_pimpl->saveTaskToFile(task, m_pimpl->path(projectPath, scope)))
         {

@@ -15,6 +15,40 @@
 namespace gt
 {
 
+
+/**
+ * @brief Similiar to const_cast but exclusively for casting a container of
+ * pointers to a container of const pointers.
+ * Cannot be used the other way around.
+ *
+ * Usage:
+ *
+ * std::vector<int*> ptrs = ...;
+ *
+ * std::vector<int const*> const_ptrs = gt::container_const_cast(ptrs);
+ *
+ * @param contianer Container to cast
+ * @return Const container
+ */
+template<template<class...> class Vec, typename... T>
+auto& container_const_cast(Vec<T...>& contianer)
+{
+    void* ptr = static_cast<void*>(&contianer); // :)
+    return *static_cast<Vec<gt::trait::to_const_t<T>...>*>(ptr);
+}
+
+/**
+ * @brief Overlaod for r-values
+ * @param container Container to cast
+ * @return Const container
+ */
+template<template<class...> class Vec, typename... T>
+auto container_const_cast(Vec<T...>&& contianer)
+{
+    void* ptr = static_cast<void*>(&contianer); // :)
+    return *static_cast<Vec<gt::trait::to_const_t<T>...>*>(ptr);
+}
+
 /**
  * @brief Performs a qobject_cast for unique pointers
  *
@@ -25,7 +59,7 @@ namespace gt
  *
  * std::unique_ptr<Base> base = ...;
  *
- * auto derived_ptr = unique_qobject_cast<Derived>(std::move(base));
+ * std::unique_ptr<Derived> derived = gt::unique_qobject_cast<Derived>(std::move(base));
  *
  * @param src
  * @return

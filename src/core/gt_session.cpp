@@ -194,9 +194,15 @@ GtSession::findProject(const QString& id)
 }
 
 QList<GtProject*>
-GtSession::projects() const
+GtSession::projects()
 {
     return findDirectChildren<GtProject*>();
+}
+
+QList<GtProject const*>
+GtSession::projects() const
+{
+    return findDirectChildren<GtProject const*>();
 }
 
 QStringList
@@ -204,7 +210,7 @@ GtSession::projectIds() const
 {
     QStringList retval;
 
-    foreach (GtProject* project, projects())
+    for (GtProject const* project : projects())
     {
         retval << project->objectName();
     }
@@ -217,12 +223,6 @@ GtSession::isValid()
 {
     return m_valid;
 }
-
-//GtDataModel*
-//GtSession::model()
-//{
-//    return m_model;
-//}
 
 bool
 GtSession::setCurrentProject(const QString& id)
