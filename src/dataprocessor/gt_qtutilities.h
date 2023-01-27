@@ -6,6 +6,8 @@
  *  Tel.: +49 2203 601 2264
  */
 
+#include "gt_typetraits.h"
+
 #include <QObject>
 
 #include <memory>
@@ -43,6 +45,25 @@ unique_qobject_cast(std::unique_ptr<Base>&& basePtr) noexcept
     }
 
     return nullptr;
+}
+
+/**
+ * @brief Transforms the container into a stringlist of its object names
+ * @param t Container to transform
+ * @return object names in container
+ */
+template <typename Container,
+          typename T = gt::trait::value_t<Container>,
+          gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
+QStringList objectNames(Container const& t)
+{
+    QStringList names;
+    std::transform(std::begin(t), std::end(t),
+                   std::back_inserter(names), [](auto const* t){
+        assert(t);
+        return t->objectName();
+    });
+    return names;
 }
 
 } // namespace gt

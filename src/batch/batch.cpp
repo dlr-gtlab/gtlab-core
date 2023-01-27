@@ -814,7 +814,7 @@ list(const QStringList& args)
         QStringList const projects = s->projectIds();
 
         std::cout << "Projects in the current session "
-                  << gt::squoted(s->objectName().toStdString()) << std::endl;
+                  << gt::squoted(s->objectName().toStdString()) << ':' << std::endl;
         std::cout << std::endl;
 
         for (QString const& pro : projects)
@@ -850,16 +850,22 @@ list(const QStringList& args)
             return -1;
         }
 
-        QStringList const taskNames = project->taksIds();
+        QMap<QString, QStringList> const taskNamesMap = project->fullTaskIds();
 
         std::cout << std::endl;
         std::cout << "Taks in the project "
-                  << gt::squoted(project->objectName().toStdString()) << std::endl;
-        std::cout << std::endl;
+                  << gt::squoted(project->objectName().toStdString()) << ':' << std::endl;
 
-        for (QString const& t : taskNames)
+        for (QString const& group : taskNamesMap.keys())
         {
-            std::cout << "\t" << t.toStdString() << std::endl;
+            std::cout << std::endl;
+            std::cout << "\t" << group.toStdString() << ':' << std::endl;
+            std::cout << std::endl;
+
+            for (QString const& t : taskNamesMap.value(group))
+            {
+                std::cout << "\t  " << t.toStdString() << std::endl;
+            }
         }
     }
 

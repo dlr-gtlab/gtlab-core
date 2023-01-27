@@ -34,24 +34,37 @@ public:
     ~GtProcessData() override;
 
     /**
-     * @brief processList
-     * @return
+     * @brief Returns a list of all root tasks of the current task group
+     * @return Task list
      */
-    QList<GtTask*> processList();
+    QList<GtTask const*> currentProcessList() const;
 
     /**
-     * @brief findProcess
-     * @param val
-     * @return
+     * @brief Returns a list of all root tasks of the task group sepcified
+     * @param groupId
+     * @return Task list
      */
-    GtTask* findProcess(const QString& val);
+    QList<GtTask const*> processList(const QString& groupId) const;
+
+    /**
+     * @brief Attempts to find the process by name in the current task group
+     * @param name Process name
+     * @return process
+     */
+    GtTask* findProcess(const QString& name);
+    /**
+     * @brief Attempts to find the process by name in the current task group
+     * as const
+     * @param name Process name
+     * @return process
+     */
+    GtTask const* findProcess(const QString& name) const;
 
     /**
      * @brief Returns current task group
      * @return
      */
     GtTaskGroup* taskGroup();
-
     /**
      * @brief Returns current task group as const
      * @return
