@@ -13,6 +13,7 @@
 
 #include "gtest/gtest.h"
 
+#include "gt_object.h"
 #include "gt_utilities.h"
 #include "gt_qtutilities.h"
 
@@ -108,6 +109,31 @@ TEST_F(TestGtUtilities, objectNames)
     QStringList names = gt::objectNames(ptrs);
 
     EXPECT_EQ(names, expected);
+}
+
+TEST_F(TestGtUtilities, container_const_cast)
+{
+    QVector<GtObject*> qvector = {(GtObject*)0x02};
+    QVector<GtObject const*>& const_qvector = gt::container_const_cast(qvector);
+    EXPECT_EQ(qvector[0], const_qvector[0]);
+
+    // & does not work here :)
+    // QList<int const*>& qlist_tmp  = gt::container_const_cast(QList<int*>{});
+    QList<int const*> qlist_tmp  = gt::container_const_cast(QList<int*>{nullptr});
+    EXPECT_EQ(qlist_tmp[0], nullptr);
+
+    std::vector<int*, std::allocator<int*>> stdvector = {(int*)0x42};
+    std::vector<int const*,
+                std::allocator<int const*>
+                >& const_stdvector = gt::container_const_cast(stdvector);
+    EXPECT_EQ(stdvector[0], const_stdvector[0]);
+
+    int myint = 42;
+    std::vector<std::reference_wrapper<int>> stdrefwrapper = { myint };
+    std::vector<std::reference_wrapper<int const>,
+                std::allocator<std::reference_wrapper<int const>>
+                >& const_stdrefwrapper = gt::container_const_cast(stdrefwrapper);
+    EXPECT_EQ(stdrefwrapper[0], const_stdrefwrapper[0]);
 }
 
 TEST_F(TestGtUtilities, finally_member)

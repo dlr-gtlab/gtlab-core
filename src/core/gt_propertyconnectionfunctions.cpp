@@ -149,8 +149,7 @@ gt::gui::detail::updateRelativeObjectLinks(
 }
 
 GtObject*
-gt::gui::detail::findEquivalentObject(GtObject* parent,
-                                                    GtObject* origObj)
+gt::gui::detail::findEquivalentObject(GtObject* parent, GtObject* origObj)
 {
     if (!parent || !origObj)
     {
@@ -265,7 +264,7 @@ gt::gui::detail::highestParentTask(GtTask* childTask)
 }
 
 GtTask*
-gt::gui::detail::highestParentTask(const GtCalculator* childCalc)
+gt::gui::detail::highestParentTask(GtCalculator* childCalc)
 {
     if (!childCalc)
     {
@@ -287,9 +286,14 @@ gt::gui::detail::highestParentTask(const GtCalculator* childCalc)
     return nullptr;
 }
 
+GtTask const*
+gt::gui::detail::highestParentTask(const GtCalculator* childCalc)
+{
+    return highestParentTask(const_cast<GtCalculator*>(childCalc));
+}
+
 GtTask*
-gt::gui::detail::highestParentTask(
-        GtProcessComponent* childComp)
+gt::gui::detail::highestParentTask(GtProcessComponent* childComp)
 {
     if (!childComp)
     {

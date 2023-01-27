@@ -511,8 +511,9 @@ GtTask::collectPropertyConnectionHelper(QList<GtPropertyConnection*>& list,
 bool
 GtTask::childHasWarnings() const
 {
-    const auto childs = findDirectChildren<GtProcessComponent*>();
-    return std::any_of(std::begin(childs), std::end(childs), [](const GtProcessComponent* child) {
+    auto const childs = findDirectChildren<GtProcessComponent*>();
+    return std::any_of(std::begin(childs), std::end(childs),
+                       [](const GtProcessComponent* child) {
         return child->currentState() == WARN_FINISHED;
     });
 }

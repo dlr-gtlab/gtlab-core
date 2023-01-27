@@ -51,7 +51,8 @@ public:
      * @brief projects
      * @return
      */
-    QList<GtProject*> projects() const;
+    QList<GtProject*> projects();
+    QList<GtProject const*> projects() const;
 
     /**
      * @brief projectIds

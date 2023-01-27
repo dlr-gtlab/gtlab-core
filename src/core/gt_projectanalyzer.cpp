@@ -82,7 +82,7 @@ GtProjectAnalyzerImpl::readData(const GtProject* project)
     m_footPrint = project->readFootprint();
 
     // check for unknown classes
-    foreach (GtObject* c, project->findChildren<GtObject*>())
+    for (GtObject const* c : project->findChildren())
     {
         if (c->isDummy())
         {

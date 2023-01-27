@@ -188,7 +188,7 @@ inline QString GtObjectIO::listToString<QList<QPointF> >(
     QString str;
     str.reserve(2 * t.size() * (DBL_DIG + 2));
 
-    foreach (QPointF m, t)
+    for (QPointF const& m : t)
     {
         str.append(QString::number(m.x(), 'g', DBL_DIG)).append("_").append(
                     QString::number(m.y(), 'g', DBL_DIG)).append(';');
@@ -249,10 +249,10 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     memento.setIdent(o->objectName());
 
     // child objects
-    QList<GtObject*> directChildren = o->findDirectChildren<GtObject*>();
+    auto const directChildren = o->findDirectChildren();
     memento.childObjects.reserve(directChildren.size());
 
-    foreach (const GtObject* child, directChildren)
+    for (const GtObject* child : directChildren)
     {
         // recursion through GtObjectMemento constructor
         memento.childObjects.push_back(GtObjectMemento(child, clone));
@@ -453,11 +453,11 @@ GtObjectIO::writeProperties(GtObjectMemento& memento,
     const QMetaObject* meta = obj->metaObject();
 
     // static properties
-    QList<GtAbstractProperty*> props = obj->properties();
+    QList<GtAbstractProperty const*> const props = obj->properties();
     QSet<QString> storedProps;
 
     // GTlab properties
-    foreach (GtAbstractProperty* property, props)
+    for (GtAbstractProperty const* property : props)
     {
         writePropertyHelper(memento.properties, storedProps, property);
     }
@@ -1145,8 +1145,6 @@ applyDiffProperty(GtAbstractProperty* prop, const QDomElement& propDiffElem,
 }
 
 bool
-// This must be non-const, this is a false positive
-// cppcheck-suppress constParameter
 handlePropContEntryChanged(GtObject& parentObject,
                            const QDomElement& propContElemC, DiffMode mode)
 {
@@ -1419,7 +1417,7 @@ handleObjectAdd(GtObject& parent,
         return false;
     }
 
-    int numberOfChildren = parent.findDirectChildren<GtObject*>().size();
+    int numberOfChildren = parent.findDirectChildren().size();
 
     if (ind >= numberOfChildren)
     {
@@ -1530,7 +1528,7 @@ handleIndexChange(GtObject& parent,
 
     toMove->setParent(nullptr);
 
-    if (newIndex > parent.findDirectChildren<GtObject*>().size())
+    if (newIndex > parent.findDirectChildren().size())
     {
         parent.appendChild(toMove);
     }

@@ -88,13 +88,13 @@ GtLogModel::format(const Entry& entry)
 }
 
 int
-GtLogModel::rowCount(const QModelIndex& parent) const
+GtLogModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return m_entries.count();
 }
 
 int
-GtLogModel::columnCount(const QModelIndex& parent) const
+GtLogModel::columnCount(const QModelIndex& /*parent*/) const
 {
     // level, time, id, message
     return 4;
@@ -344,13 +344,13 @@ GtLogModel::removeElementList(QModelIndexList indexList, int first, int last)
 }
 
 QModelIndex
-GtLogModel::index(int row, int column, const QModelIndex& parent) const
+GtLogModel::index(int row, int column, const QModelIndex& /*parent*/) const
 {
     return createIndex(row, column);
 }
 
 QModelIndex
-GtLogModel::parent(const QModelIndex& index) const
+GtLogModel::parent(const QModelIndex& /*index*/) const
 {
     return {};
 }

@@ -24,10 +24,9 @@ GtAbstractChartProvider::uuids() const
 {
     QStringList retval;
 
-    GtObjectGroup* o = UUIDsContainer();
+    GtObjectGroup const* o = UUIDsContainer();
 
-    foreach (GtStringContainer* container,
-             o->findDirectChildren<GtStringContainer*>())
+    for (auto const* container : o->findDirectChildren<GtStringContainer*>())
     {
         if (container)
         {
@@ -41,14 +40,13 @@ GtAbstractChartProvider::uuids() const
 void
 GtAbstractChartProvider::setUUIDs(const QStringList& uuids)
 {
-    foreach (GtStringContainer* container,
-             UUIDsContainer()->findDirectChildren<GtStringContainer*>())
+    for (auto&& container : UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
         delete container;
         container = nullptr;
     }
 
-    foreach (QString str, uuids)
+    for (QString const& str : uuids)
     {
         UUIDsContainer()->appendChild(new GtStringContainer(str));
     }
@@ -57,8 +55,7 @@ GtAbstractChartProvider::setUUIDs(const QStringList& uuids)
 void
 GtAbstractChartProvider::addUUID(const QString& uuid)
 {
-    foreach (GtStringContainer* container,
-             UUIDsContainer()->findDirectChildren<GtStringContainer*>())
+    for (auto&& container : UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
         if (container)
         {
@@ -80,8 +77,7 @@ GtAbstractChartProvider::objectNamesFromContainer() const
 {
     QStringList retval;
 
-    foreach (GtStringContainer* container,
-             UUIDsContainer()->findDirectChildren<GtStringContainer*>())
+    for (auto&& container : UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
         if (!container)
         {
@@ -106,8 +102,7 @@ GtAbstractChartProvider::objectNamesFromContainer() const
 void
 GtAbstractChartProvider::clearUUIDsContainer()
 {
-    foreach (GtStringContainer* container,
-             UUIDsContainer()->findDirectChildren<GtStringContainer*>())
+    for (auto&& container : UUIDsContainer()->findDirectChildren<GtStringContainer*>())
     {
         if (!container)
         {
@@ -227,13 +222,6 @@ GtAbstractChartProvider::addColorUseL(QColor const& col)
     m_colorsL.append(col.name());
 }
 
-//void
-//GtAbstractChartProvider::clearColorsUse()
-//{
-//    clearColorsUseL();
-//    clearColorsUseR();
-//}
-
 void
 GtAbstractChartProvider::clearColorsUseL()
 {
@@ -296,9 +284,9 @@ GtAbstractChartProvider::setShowwidgets(bool showwidgets)
 }
 
 GtObjectGroup*
-GtAbstractChartProvider::UUIDsContainer() const
+GtAbstractChartProvider::UUIDsContainer()
 {
-    GtObjectGroup* g = findDirectChild<GtObjectGroup*>("UUID");
+    auto* g = findDirectChild<GtObjectGroup*>("UUID");
 
     if (!g)
     {
@@ -307,6 +295,12 @@ GtAbstractChartProvider::UUIDsContainer() const
     }
 
     return g;
+}
+
+GtObjectGroup const*
+GtAbstractChartProvider::UUIDsContainer() const
+{
+    return const_cast<GtAbstractChartProvider*>(this)->UUIDsContainer();
 }
 
 bool
@@ -323,11 +317,11 @@ GtAbstractChartProvider::setShowmarkers(bool mod)
 
 QStringList
 GtAbstractChartProvider::prefixToStringList(const QStringList& list,
-                                            const QString &prefix) const
+                                            const QString& prefix) const
 {
     QStringList stringsMod;
 
-    foreach (QString s, list)
+    for (QString const& s : list)
     {
         stringsMod.append(prefix + s);
     }

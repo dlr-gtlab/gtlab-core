@@ -86,7 +86,8 @@ GT_CORE_EXPORT GtTask* highestParentTask(GtTask *childTask);
  * @param childCalc
  * @return
  */
-GT_CORE_EXPORT GtTask* highestParentTask(const GtCalculator* childCalc);
+GT_CORE_EXPORT GtTask* highestParentTask(GtCalculator* childCalc);
+GT_CORE_EXPORT GtTask const* highestParentTask(const GtCalculator* childCalc);
 
 /**
  * @brief returns the highest parent object of type GtTask of the

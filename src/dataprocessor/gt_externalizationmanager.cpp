@@ -92,7 +92,7 @@ GtExternalizationManager::setProjectDir(QString projectDir)
 }
 
 void
-GtExternalizationManager::initExternalizedObjects(const GtObject& root)
+GtExternalizationManager::initExternalizedObjects(GtObject& root)
 {
     /// all externalized objects should fetch its initial version
     for (auto* o : root.findChildren<GtExternalizedObject*>())
