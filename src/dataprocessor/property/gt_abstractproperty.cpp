@@ -336,7 +336,7 @@ GtAbstractProperty::propertyConnect(GtPropertyConnection* connection)
 
     // connect signals
     connect(connection, SIGNAL(triggerValueTransfer()),
-            SLOT(onTriggerValueTransfer()), Qt::DirectConnection);
+            SLOT(onTriggerValueTransfer()));
 }
 
 void

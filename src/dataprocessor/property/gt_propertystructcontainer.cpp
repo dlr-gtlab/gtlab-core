@@ -98,9 +98,10 @@ GtPropertyStructContainer::newEntry(QString typeID, const_iterator position,
 
     // emit a signal if an property of this entry has been changed
     connect(&*newEntryIter, &GtPropertyStructInstance::subPropChanged, this,
-            [this, iid = std::move(id)](GtAbstractProperty* p) {
+            [iid = std::move(id), this](GtAbstractProperty* p) {
         // find the current index of the property using its id
         auto iter = findEntry(iid);
+
 
         if (iter != end())
         {

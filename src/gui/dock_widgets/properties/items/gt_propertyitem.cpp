@@ -25,6 +25,8 @@
 #include "gt_session.h"
 #include "gt_regexp.h"
 #include "gt_icons.h"
+#include "gt_command.h"
+#include "gt_project.h"
 
 GtPropertyItem::GtPropertyItem() :
     m_currentUnit(QString())
@@ -202,8 +204,19 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
                     {
                         if (value != m_property->valueToVariant(m_currentUnit))
                         {
-                            gtApp->propertyCommand(obj, m_property, value,
-                                                    m_currentUnit, root);
+                            const QString cmdStr = obj->objectName() +
+                                    QStringLiteral(" - ") +
+                                    m_property->objectName() +
+                                    QStringLiteral(" ") +
+                                    QObject::tr("changed");
+
+                            GtCommand cmd = gtApp->startCommand(
+                                        gtApp->currentProject(), cmdStr);
+
+                            m_property->setValueFromVariant(value,
+                                                            m_currentUnit);
+
+                            gtApp->endCommand(cmd);
                         }
                     }
                     else
@@ -243,8 +256,19 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
 
                     if (root)
                     {
-                        gtApp->propertyCommand(obj, m_property, value,
-                                               m_currentUnit, root);
+                        const QString cmdStr = obj->objectName() +
+                                QStringLiteral(" - ") +
+                                m_property->objectName() +
+                                QStringLiteral(" ") +
+                                QObject::tr("changed");
+
+                        GtCommand cmd = gtApp->startCommand(
+                                    gtApp->currentProject(), cmdStr);
+
+                        m_property->setValueFromVariant(value,
+                                                        m_currentUnit);
+
+                        gtApp->endCommand(cmd);
                     }
                     else
                     {

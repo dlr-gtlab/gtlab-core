@@ -22,7 +22,7 @@
 #include "gt_propertyvaluedelegate.h"
 #include "gt_propertyunitdelegate.h"
 #include "gt_icons.h"
-#include "gt_logging.h"
+#include "gt_propertystructcontainer.h"
 
 GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
                                        QWidget* parent) :
@@ -155,7 +155,11 @@ GtPropertyTreeView::setObject(GtObject* obj,
             QCoreApplication::processEvents();
         }
 
-        expandAll();
+        if (container.size() < 5)
+        {
+            expandAll();
+        }
+
         resizeColumns();
     }
 }

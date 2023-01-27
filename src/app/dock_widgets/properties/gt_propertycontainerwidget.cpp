@@ -11,6 +11,7 @@
 #include "gt_icons.h"
 #include "gt_stylesheets.h"
 #include "gt_propertymodel.h"
+#include "gt_command.h"
 
 #include "gt_propertycontainerwidget.h"
 
@@ -48,6 +49,14 @@ GtPropertyContainerWidget::GtPropertyContainerWidget(
     m_containerId = container.ident();
 
     connect(addBtn, SIGNAL(clicked(bool)), SLOT(addNewEntry()));
+
+    GtPropertyModel* model = m_containerTree->propertyModel();
+
+    if (model)
+    {
+        connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(onRowsInserted(QModelIndex,int,int)));
+    }
 }
 
 void
@@ -100,20 +109,35 @@ GtPropertyContainerWidget::addNewEntry()
 }
 
 void
+GtPropertyContainerWidget::onRowsInserted(const QModelIndex& parent, int first,
+                                          int last)
+{
+    if (!parent.isValid() && first == last)
+    {
+        QModelIndex fidx = m_containerTree->mapFromSource(
+                    m_containerTree->propertyModel()->index(first, 0));
+
+
+        m_containerTree->expandRecursively(fidx);
+    }
+}
+
+void
 GtPropertyContainerWidget::addNewEntry(GtPropertyStructContainer& container,
                                        const QString& entryType)
 {
-    GtPropertyModel* model = m_containerTree->propertyModel();
+    const QString cmdStr = m_obj->objectName() +
+            QStringLiteral(" - ") +
+            container.name() +
+            QStringLiteral(" ") +
+            QObject::tr("Entry added");
 
-    if (model)
-    {
-        QModelIndex idx = model->addNewStructContainerEntry(
-                    container, entryType);
+    GtCommand cmd = gtApp->startCommand(
+                gtApp->currentProject(), cmdStr);
 
-        if (idx.isValid())
-        {
-            QModelIndex fidx = m_containerTree->mapFromSource(idx);
-            m_containerTree->expandRecursively(fidx);
-        }
-    }
+    container.newEntry(entryType);
+
+    gtApp->endCommand(cmd);
+
+    return;
 }

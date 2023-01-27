@@ -273,6 +273,17 @@ private slots:
      */
     void resetObject();
 
+    /**
+     * @brief Called after container entry was removed to update model.
+     * @param idx Index of removed container entry.
+     */
+    void onContainerEntryRemoved(int idx);
+
+    /**
+     * @brief Called after container entry was added to update model.
+     * @param idx Index of added container entry.
+     */
+    void onContainerEntryAdded(int idx);
 };
 
 #endif // GTPROPERTYMODEL_H

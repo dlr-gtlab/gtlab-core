@@ -56,6 +56,15 @@ template <typename T = GtObject*,
           trait::enable_if_base_of<QObject, std::decay_t<Object>> = true>
 T findRoot(Object& object, T last = nullptr);
 
+/**
+ * @brief Function to correctly move an object of class GtObject into a thread.
+ * Unlike normal QObjects, the Property and PropertyContainer structures are
+ * also moved into the thread.
+ * @param object Object which schould be moved to given thread.
+ * @param thread
+ */
+void GT_DATAMODEL_EXPORT moveToThread(GtObject& object, QThread* thread);
+
 }
 
 /**

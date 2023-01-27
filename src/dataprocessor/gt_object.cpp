@@ -23,6 +23,7 @@
 #include <QUuid>
 #include <QSignalMapper>
 #include <QDebug>
+#include <QThread>
 
 #include <algorithm>
 
@@ -255,21 +256,15 @@ GtObject::appendChild(GtObject* c)
 
     c->setParent(this);
 
-    connect(c, SIGNAL(dataChanged(GtObject*)), SIGNAL(dataChanged(GtObject*)),
-            Qt::DirectConnection);
+    connect(c, SIGNAL(dataChanged(GtObject*)), SIGNAL(dataChanged(GtObject*)));
     connect(c, SIGNAL(childAppended(GtObject*,GtObject*)),
-            SIGNAL(childAppended(GtObject*, GtObject*)),
-            Qt::DirectConnection);
+            SIGNAL(childAppended(GtObject*,GtObject*)));
     connect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
-            SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
-            Qt::DirectConnection);
+            SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)));
     connect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
-            SLOT(onChildDataChanged()),
-            Qt::DirectConnection);
-    connect(c, SIGNAL(dataChanged(GtObject*)), SLOT(onChildDataChanged()),
-            Qt::DirectConnection);
-    connect(c, SIGNAL(destroyed(QObject*)), SLOT(changed()),
-            Qt::DirectConnection);
+            SLOT(onChildDataChanged()));
+    connect(c, SIGNAL(dataChanged(GtObject*)), SLOT(onChildDataChanged()));
+    connect(c, SIGNAL(destroyed(QObject*)), SLOT(changed()));
 
     changed();
 
@@ -886,6 +881,13 @@ GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
 
     pimpl->propertyContainer.push_back(c);
 
+    connect(&c, &GtPropertyStructContainer::entryChanged, this,
+            [this, &c](int idx, GtAbstractProperty* property) {
+        setFlag(GtObject::HasOwnChanges, true);
+        emit dataChanged(this, property);
+
+    });
+
     return true;
 }
 
@@ -975,4 +977,44 @@ gt::isDerivedFromClass(GtObject* obj, const QString& superClassName)
     }
 
     return false;
+}
+
+void
+gt::moveToThread(GtObject& object, QThread* thread)
+{
+    // collect all child objects and add root object to list
+    QList<GtObject*> objs = object.findChildren<GtObject*>();
+    objs.push_front(&object);
+
+    foreach (GtObject* obj, objs)
+    {
+        // move all properties of current object to new thread
+        foreach (GtAbstractProperty* childProp, obj->fullPropertyList())
+        {
+            childProp->QObject::moveToThread(thread);
+        }
+
+        // iterate over struct container and move to new thread
+        for (GtPropertyStructContainer& c: obj->propertyContainers())
+        {
+            // iterate over struct entries and move to new thread
+            for (size_t i = 0; i < c.size(); ++i)
+            {
+                auto& s = c.at(i);
+
+                // iterate over props of struct entry and move to new thread
+                for (GtAbstractProperty* childProp :
+                     qAsConst(s.fullProperties()))
+                {
+                    childProp->QObject::moveToThread(thread);
+                }
+
+                s.QObject::moveToThread(thread);
+            }
+
+            c.QObject::moveToThread(thread);
+        }
+    }
+
+    object.QObject::moveToThread(thread);
 }

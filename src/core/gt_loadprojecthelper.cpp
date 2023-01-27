@@ -11,7 +11,6 @@
 #include <QThread>
 
 #include "gt_project.h"
-#include "gt_logging.h"
 
 #include "gt_loadprojecthelper.h"
 
@@ -38,9 +37,9 @@ GtLoadProjectHelper::run()
     // label data
     m_objects.append(m_project->readLabelData(moduleData));
 
-    foreach (QObject* obj, m_objects)
+    foreach (GtObject* obj, m_objects)
     {
-        obj->moveToThread(m_project->thread());
+        gt::moveToThread(*obj, m_project->thread());
     }
 }
 
