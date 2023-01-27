@@ -63,8 +63,8 @@ GtPropertyStructInstance::setMemberVal(const QString& memberId,
     auto* prop = findProperty(memberId);
     if (!prop)
     {
-        gtError().noquote().nospace() << "Cannot set member value. Member '"
-                                      << memberId << "' does not exist";
+        gtError() << tr("Cannot set member value. Member '%1' does not exist")
+                     .arg(memberId);
         return false;
     }
 
@@ -78,17 +78,10 @@ GtPropertyStructInstance::getMemberValToVariant(const QString& memberId,
     auto* prop = findProperty(memberId);
     if (!prop)
     {
-        gtError().noquote().nospace() << "Cannot get member value. Member '"
-                                      << memberId << "' does not exist";
-
-
-        if (okay != nullptr)
-            *okay = false;
-        return QVariant{};
+        gtError() << tr("Cannot get member value. Member '%1' does not exist")
+                     .arg(memberId);
+        return gt::valueError(QVariant{}, okay);
     }
 
-    if (okay != nullptr)
-        *okay = true;
-
-    return prop->valueToVariant();
+    return gt::valueSuccess(prop->valueToVariant(), okay);
 }

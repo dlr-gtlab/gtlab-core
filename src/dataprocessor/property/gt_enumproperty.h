@@ -93,36 +93,25 @@ public:
 private:
 
     /**
-     * @brief Constant getter function with unit conversion.
-     * This method is hidden for GtEnumProperty.
-     * @param unit of the result.
-     * @param success holds the success status after the method call completed.
-     * @return The string of the currently selected mode as QString.
+     * @brief This method is hidden for GtEnumProperty
      */
-    QString getVal(const QString& unit,
-                   bool* success = 0) const;
+    QString getVal(const QString& unit, bool* success = nullptr) const = delete;
 
     /**
-     * @brief Returns a reference to the parameter value.
-     * This method is hidden for GtEnumProperty.
-     * @return
+     * @brief This method is hidden for GtEnumProperty
      */
-    QString& get();
+    QString& get() = delete;
 
     /**
-     * @brief Setter function for the input value.
-     * This method is hidden for GtEnumProperty.
-     * @param value which should be set.
-     * @param success holds the success status after the method call completed.
+     * @brief This method is hidden for GtEnumProperty
      */
-    void setVal(const QString& value,
-                bool* success = 0);
+    void setVal(const QString& value, bool* success = nullptr) = delete;
 };
 
 template<typename T>
-inline GtEnumProperty<T>::GtEnumProperty(const QString &ident,
-                                         const QString &name,
-                                         const QString &brief) :
+inline GtEnumProperty<T>::GtEnumProperty(const QString& ident,
+                                         const QString& name,
+                                         const QString& brief) :
     GtModeProperty(ident, name, brief)
 {
     const QMetaEnum metaEnum = QMetaEnum::fromType<T>();
@@ -162,8 +151,7 @@ inline T GtEnumProperty<T>::getVal() const
 }
 
 template<typename T>
-inline void GtEnumProperty<T>::setVal(const T value,
-                                      bool *success)
+inline void GtEnumProperty<T>::setVal(const T value, bool* success)
 {
     GtModeProperty::setVal(getMetaEnum().valueToKey(value), success);
 }

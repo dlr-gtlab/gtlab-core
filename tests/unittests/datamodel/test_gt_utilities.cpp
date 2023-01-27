@@ -42,7 +42,44 @@ TEST_F(TestGtUtilities, quoted)
     EXPECT_EQ("test_" + std + "_test", gt::quoted(std, "test_", "_test"));
 }
 
-TEST_F(TestGtUtilities, checkumericalLimits)
+TEST_F(TestGtUtilities, valueSuccess)
+{
+    bool _ok = false;
+    bool* ok = &_ok;
+
+    EXPECT_EQ(gt::valueError(12, nullptr), 12);
+    EXPECT_FALSE(_ok);
+    EXPECT_EQ(gt::valueSuccess(42, ok), 42);
+    EXPECT_TRUE(_ok);
+}
+
+TEST_F(TestGtUtilities, valueError)
+{
+    bool _ok = true;
+    bool* ok = &_ok;
+
+    EXPECT_EQ(gt::valueError(12, nullptr), 12);
+    EXPECT_TRUE(_ok);
+
+    EXPECT_EQ(gt::valueError(42, ok), 42);
+    EXPECT_FALSE(_ok);
+}
+
+TEST_F(TestGtUtilities, valueSetSuccess)
+{
+    int _ok = 0;
+    int* ok = &_ok;
+
+    EXPECT_EQ(gt::valueSetSuccess(42, 12, ok), 42);
+    EXPECT_EQ(_ok, 12);
+
+    // check return type signature
+    QString _str = "Hello World";
+    QString& str = gt::valueSetSuccess(_str, 0, ok);
+    EXPECT_EQ(_str, str);
+}
+
+TEST_F(TestGtUtilities, checkNumericalLimits)
 {
     EXPECT_TRUE(gt::checkNumericalLimits<int>(-1));
     EXPECT_TRUE(gt::checkNumericalLimits<double>(42.0));

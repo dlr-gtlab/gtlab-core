@@ -57,6 +57,50 @@ brackets(T&& string)
 }
 
 /**
+ * @brief Helper method for returning a value and setting the 'ok' param in one
+ * call
+ * @param t Type to return
+ * @param success Value to set 'ok' to
+ * @param ok Ok ptr
+ * @return t
+ */
+template<typename T, typename TSuccess>
+decltype(auto) valueSetSuccess(T&& t, TSuccess success, TSuccess* ok)
+{
+    if (ok)
+    {
+        *ok = std::move(success);
+    }
+    return std::forward<T>(t);
+}
+
+/**
+ * @brief Helper method for returning a value and setting the 'ok' param to
+ * true if its not null.
+ * @param t Type to return
+ * @param ok Ok ptr to set to true
+ * @return t
+ */
+template<typename T>
+decltype(auto) valueSuccess(T&& t, bool* ok)
+{
+    return valueSetSuccess(std::forward<T>(t), true, ok);
+}
+
+/**
+ * @brief Helper method for returning a value and setting the 'ok' param to
+ * false if its not null.
+ * @param t Type to return
+ * @param ok Ok ptr to set to false
+ * @return t
+ */
+template<typename T>
+decltype(auto) valueError(T&& t, bool* ok)
+{
+    return valueSetSuccess(std::forward<T>(t), false, ok);
+}
+
+/**
  * @brief Checks against T's numerical limits
  * @tparam T Target type
  * @param u Value to check
