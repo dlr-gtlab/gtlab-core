@@ -20,7 +20,7 @@ using gt::interface::makeSharedFunction;
 class SharedFunction : public testing::Test
 {};
 
-int my_test_sum (int a, int b)
+int my_test_sum(int a, int b)
 {
     return a + b;
 }
