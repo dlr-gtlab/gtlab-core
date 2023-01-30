@@ -75,6 +75,11 @@ GtSharedFunctionsWidget::GtSharedFunctionsWidget(QWidget* parent) :
         auto item = new QTreeWidgetItem(QStringList {QString(),
                                                      functionId,
                                                      func.help()});
+        for (int col = 0; col < item->columnCount(); ++col)
+        {
+            item->setTextAlignment(col, Qt::AlignTop | Qt::AlignLeft);
+        }
+
         item->setToolTip(0, func.help());
         cats.first()->addChild(item);
         m_content->expandItem(cats.first());

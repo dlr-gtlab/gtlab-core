@@ -29,7 +29,6 @@ template<size_t ...> struct index_sequence  { };
 template<size_t N, size_t ...S> struct make_index_sequence : make_index_sequence <N - 1, N - 1, S...> { };
 template<size_t ...S> struct make_index_sequence <0, S...> { typedef index_sequence<S...> type; };
 
-
 namespace detail
 {
 
@@ -51,7 +50,6 @@ template <typename R, typename... A> struct lambda_signature_impl<R (&)(A...)> {
 template <typename R, typename... A> struct lambda_signature_impl<R (*)(A...)> { typedef R type(A...); };
 template <typename T> using lambda_signature = typename lambda_signature_impl<T>::type;
 template <typename F> using make_function_type = std::function<lambda_signature<F>>;
-
 
 struct void_type { };
 
@@ -82,10 +80,44 @@ constexpr void static_for_impl(GenericLambda&& f, std::index_sequence<Is...>)
 
 } // namespace detail
 
+/// Converts type signature (i.e. "const&", "*", tec.) to a c-string
+template <typename T>
+struct type_signature
+{
+    // by default return nothing
+    static constexpr char const* get() { return ""; }
+};
+
+/// Custom type signatures
+template <typename T> struct type_signature<T const> { static constexpr char const* get() { return " const"; } };
+template <typename T> struct type_signature<T*> { static constexpr char const* get() { return "*"; } };
+template <typename T> struct type_signature<T const*> { static constexpr char const* get() { return " const*"; } };
+template <typename T> struct type_signature<T&> { static constexpr char const* get() { return "&"; } };
+template <typename T> struct type_signature<T const&> { static constexpr char const* get() { return " const&"; } };
+
+/// Wrapper for "typeid" to access and modify name of a type in form of a c-string
+template <typename T>
+struct type_name
+{
+    // by default access typeid
+    static constexpr char const* get() { return typeid(T).name(); }
+};
+
+/// Custom "core" type names
+template <> struct type_name<std::string> { static constexpr char const* get() { return "std::string"; } };
+template <> struct type_name<void> { static constexpr char const* get() { return "void"; } };
+template <> struct type_name<detail::void_type> { static constexpr char const* get() { return "void"; } };
+
+/// Strip type signature to access "core" type
+template <typename T> struct type_name<T const> { static constexpr char const* get() { return type_name<T>::get(); } };
+template <typename T> struct type_name<T&> { static constexpr char const* get() { return type_name<T>::get(); } };
+template <typename T> struct type_name<T const&> { static constexpr char const* get() { return type_name<T>::get(); } };
+template <typename T> struct type_name<T*> { static constexpr char const* get() { return type_name<T>::get(); } };
+template <typename T> struct type_name<T const*> { static constexpr char const* get() { return type_name<T>::get(); } };
+
 /// For lambda functions delegate to their 'operator()'
-template <typename T> struct function_traits : public function_traits<typename detail::make_function_type<T>> { };
-
-
+template <typename T> struct function_traits :
+        public function_traits<typename detail::make_function_type<T>> { };
 
 /// Type traits for std::functions
 template <typename ReturnType, typename... Args>
@@ -104,19 +136,42 @@ struct function_traits<std::function<ReturnType(Args...)>> {
         typedef typename std::tuple_element<i, args_type>::type type;
     };
 
+    /// name of return type (without signature)
+    static constexpr char const* rtypeId() {
+        return type_name<return_type>::get();
+    }
+
+    /// signature of return type (without name)
+    static constexpr char const* rtypeSignature() {
+        return type_signature<return_type>::get();
+    }
+
+    /// names of argument types (without signatures)
+    static constexpr std::array<char const*, nargs> argIds() {
+        return { type_name<Args>::get()... };
+    }
+
+    /// signatures of argument types (without names)
+    static constexpr std::array<char const*, nargs> argSignatures() {
+        return { type_signature<Args>::get()... };
+    }
+
+    /// invoke the function f with the arguemnts as a tuple
     template <typename Tuple>
-    static return_type invoke(const f_type &f, Tuple &&args) {
+    static return_type invoke(const f_type& f, Tuple&& args) {
         return dispatch_type()(f, std::forward<Tuple>(args),
             typename make_index_sequence<nargs>::type());
     }
 };
 
+/// static for. Invokes lambda method N times
 template<unsigned N, typename GenericLambda>
 constexpr void static_for(GenericLambda&& f)
 {
     detail::static_for_impl(std::forward<GenericLambda>(f), std::make_index_sequence<N>());
 }
 
+/// static foreach. Invokes lambda for each element in tuple
 template<typename... _Elements, typename GenericLambda>
 constexpr void static_foreach(const std::tuple<_Elements...>& aTuple, GenericLambda&& f)
 {

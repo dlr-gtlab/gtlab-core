@@ -67,19 +67,51 @@ struct SharedFunctionBuilder
 
 } // namespace detail
 
+/**
+ * @brief Attempts to create a readable function signature for the Function type
+ * @return Function signature
+ */
 template <typename Func>
 QString getFunctionSignature()
 {
-    return QString("Signature:\n    %1\n").arg(typeid(Func).name());
+    using f_traits = gt::mpl::function_traits<Func>;
+
+    QString signature = QString{f_traits::rtypeId()} +
+                        QString{f_traits::rtypeSignature()} +
+                        QStringLiteral(" (");
+
+    auto args    = f_traits::argIds();
+    auto argSigs = f_traits::argSignatures();
+
+    static_assert(args.size() == argSigs.size(), "invalid layout!");
+
+    if (!args.empty())
+    {
+        for (int i = 0; i < args.size(); ++i)
+        {
+            signature += QString{args[i]} + QString{argSigs[i]};
+            signature += QStringLiteral(", ");
+        }
+        signature.remove(signature.size() - 2, 2);
+    }
+    signature += QStringLiteral(")");
+
+    // some type ids contain unwanted compiler symbols
+    signature.remove(QStringLiteral("class "))
+             .remove(QStringLiteral("struct "));
+
+    return signature;
 }
 
+/**
+ * @brief Generates a default help for the function consiting of its signature.
+ * This may not be perfect, therefore one should provide a proper help.
+ * @return Default help
+ */
 template <typename Func>
-QString getDefaultHelp(const QString& function_name)
+QString getDefaultHelp()
 {
-    QString help = QString("Help on function '%1'\n\n").arg(function_name);
-
-    help += getFunctionSignature<Func>();
-    return help;
+    return QStringLiteral("Signature: ") + getFunctionSignature<Func>();
 }
 
 /**
@@ -110,12 +142,12 @@ template <
     typename Func,
     trait::enable_if_not_convertible<Func, SharedFunction::FunctionType> = true
 > // this is disabled for shared functions
-SharedFunction makeSharedFunction(
-        const QString& funcName, Func&& f, QString help = {})
+inline SharedFunction
+makeSharedFunction(QString const& funcName, Func&& f, QString help = {})
 {
     if (help.isEmpty())
     {
-        help = getDefaultHelp<Func>(funcName);
+        help = getDefaultHelp<Func>();
     }
 
     auto funcWrapper =  detail::SharedFunctionBuilder<Func>(
@@ -158,12 +190,12 @@ template <
     typename Func,
     trait::enable_if_convertible<Func, SharedFunction::FunctionType> = true
 > // this is only enabled for shared functions
-SharedFunction makeSharedFunction(
-        const QString& funcName, Func&& f, QString help = {})
+inline SharedFunction
+makeSharedFunction(QString const& funcName, Func&& f, QString help = {})
 {
     if (help.isEmpty())
     {
-        help = getDefaultHelp<Func>(funcName);
+        help = getDefaultHelp<Func>();
     }
 
     return SharedFunction(funcName, std::forward<Func>(f), std::move(help));
