@@ -19,6 +19,7 @@
 #include "gt_application.h"
 #include "gt_command.h"
 #include "gt_project.h"
+#include "gt_utilities.h"
 
 GtPropertyModel::GtPropertyModel(GtObject* scope,
                                  QObject* parent) :
@@ -370,6 +371,9 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
     }
 
     beginResetModel();
+    auto _ = gt::finally([this](){
+        endResetModel();
+    });
 
     qDeleteAll(m_properties);
     m_properties.clear();
@@ -377,32 +381,29 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
     m_obj = obj;
     m_containerId = container.ident();
 
-    if (m_obj)
+    if (!m_obj)
     {
-        connect(m_obj.data(), SIGNAL(destroyed(QObject*)), SLOT(resetObject()));
-        connect(&container, SIGNAL(entryRemoved(int)), this,
-                   SLOT(onContainerEntryRemoved(int)));
-        connect(&container, SIGNAL(entryAdded(int)), this,
-                   SLOT(onContainerEntryAdded(int)));
-
-        for (int i = 0; i < container.size(); ++i)
-        {
-            GtPropertyCategoryItem* cat =
-                    new GtPropertyCategoryItem(m_scope,
-                                               container.entryPrefix(),
-                                               this);
-            cat->setIsContainer(true);
-            m_properties << cat;
-
-            foreach (GtAbstractProperty* pChild,
-                     container.at(i).properties())
-            {
-                cat->addPropertyItem(pChild);
-            }
-        }
+        return;
     }
 
-    endResetModel();
+    connect(m_obj.data(), SIGNAL(destroyed(QObject*)), SLOT(resetObject()));
+    connect(&container, SIGNAL(entryRemoved(int)), this,
+               SLOT(onContainerEntryRemoved(int)));
+    connect(&container, SIGNAL(entryAdded(int)), this,
+               SLOT(onContainerEntryAdded(int)));
+
+    for (const auto& entry : container)
+    {
+        auto* cat = new GtPropertyCategoryItem(m_scope, container.entryPrefix(),
+                                               this);
+        cat->setIsContainer(true);
+        m_properties << cat;
+
+        for (auto* pChild : entry.properties())
+        {
+            cat->addPropertyItem(pChild);
+        }
+    }
 }
 
 QModelIndex
