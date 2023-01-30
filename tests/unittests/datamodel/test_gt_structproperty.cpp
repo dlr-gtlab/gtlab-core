@@ -18,6 +18,7 @@
 #include "gt_xmlutilities.h"
 #include "gt_objectmementodiff.h"
 #include "gt_objectfactory.h"
+#include <QtConcurrent/QtConcurrent>
 
 
 #include "gt_object.h"
@@ -693,4 +694,41 @@ TEST_F(TestGtStructProperty, propContainerDummyObj)
 
     EXPECT_EQ("PATH", entry.childProperties[0].data().toString().toStdString());
     EXPECT_EQ("/usr/bin", entry.childProperties[1].data().toString().toStdString());
+}
+
+/*
+ * This test checks, that a signal change from a property struct entry
+ * is really propagated to the parent object
+ *
+ * This was initially not the case, as the thread switching was not properly
+ * propagated to all childs
+ */
+TEST_F(TestGtStructProperty, moveToThreadBug)
+{
+    auto mainThread = QThread::currentThread();
+
+    std::unique_ptr<TestObject> obj;
+    QtConcurrent::run([&obj, &mainThread](){
+        obj.reset(new TestObject);
+        obj->addEnvironmentVar("hallo", "welt");
+        gt::moveToThread(*obj, mainThread);
+    }).waitForFinished();
+
+    using dataChangedT = void (TestObject::*)(GtObject*, GtAbstractProperty*);
+    bool changed = false;
+    QObject::connect(
+        obj.get(),
+        static_cast<dataChangedT>(&TestObject::dataChanged),
+        obj.get(),
+        [&changed](GtObject*, GtAbstractProperty*)
+    {
+        changed = true;
+    });
+
+    ASSERT_TRUE(obj != nullptr);
+    ASSERT_EQ(obj->environmentVars.size(), 1);
+    EXPECT_FALSE(changed);
+
+    obj->environmentVars.at(0).setMemberVal("value", "world");
+    EXPECT_TRUE(changed);
 }
