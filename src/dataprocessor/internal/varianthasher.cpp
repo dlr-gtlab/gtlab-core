@@ -38,7 +38,7 @@ namespace gt
             {
                 buff.seek(0);
                 ds << variant;
-                hash.addData(bb);
+                hash.addData(bb.constData(), buff.pos());
             }
         }
 
