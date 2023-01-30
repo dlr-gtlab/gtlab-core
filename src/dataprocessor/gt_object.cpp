@@ -882,10 +882,9 @@ GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
     pimpl->propertyContainer.push_back(c);
 
     connect(&c, &GtPropertyStructContainer::entryChanged, this,
-            [this, &c](int idx, GtAbstractProperty* property) {
+            [this](int, GtAbstractProperty* property) {
         setFlag(GtObject::HasOwnChanges, true);
         emit dataChanged(this, property);
-
     });
 
     return true;
@@ -979,42 +978,62 @@ gt::isDerivedFromClass(GtObject* obj, const QString& superClassName)
     return false;
 }
 
-void
-gt::moveToThread(GtObject& object, QThread* thread)
+
+namespace gt
 {
-    // collect all child objects and add root object to list
-    QList<GtObject*> objs = object.findChildren<GtObject*>();
-    objs.push_front(&object);
-
-    foreach (GtObject* obj, objs)
+    void moveToThread(GtAbstractProperty* prop, QThread* thread)
     {
-        // move all properties of current object to new thread
-        foreach (GtAbstractProperty* childProp, obj->fullPropertyList())
-        {
-            childProp->QObject::moveToThread(thread);
-        }
+        if (!prop || !thread) return;
 
-        // iterate over struct container and move to new thread
-        for (GtPropertyStructContainer& c: obj->propertyContainers())
-        {
-            // iterate over struct entries and move to new thread
-            for (size_t i = 0; i < c.size(); ++i)
-            {
-                auto& s = c.at(i);
-
-                // iterate over props of struct entry and move to new thread
-                for (GtAbstractProperty* childProp :
-                     qAsConst(s.fullProperties()))
-                {
-                    childProp->QObject::moveToThread(thread);
-                }
-
-                s.QObject::moveToThread(thread);
-            }
-
-            c.QObject::moveToThread(thread);
-        }
+        prop->QObject::moveToThread(thread);
     }
 
-    object.QObject::moveToThread(thread);
+
+    void moveToThread(GtPropertyStructContainer& container, QThread* thread)
+    {
+        if (!thread) return;
+
+        // iterate over struct entries and move to new thread
+        for (auto& containerEntry : container)
+        {
+            // iterate over props of struct entry and move to new thread
+            for (auto* entryProp : containerEntry.fullProperties())
+            {
+                moveToThread(entryProp, thread);
+            }
+
+            moveToThread(&containerEntry, thread);
+        }
+
+        container.QObject::moveToThread(thread);
+    }
+
+    void
+    moveToThread(GtObject& object, QThread* thread)
+    {
+        if (!thread) return;
+
+        // collect all child objects and add root object to list
+        auto objs = object.findChildren<GtObject*>();
+        objs.push_front(&object);
+
+        for (auto* obj : qAsConst(objs))
+        {
+            const auto allChildProps = obj->fullPropertyList();
+            // move all properties of current object to new thread
+            for (auto* childProp : allChildProps)
+            {
+                moveToThread(childProp, thread);
+            }
+
+            // iterate over struct container and move to new thread
+            for (auto& container: obj->propertyContainers())
+            {
+                moveToThread(container, thread);
+            }
+        }
+
+        object.QObject::moveToThread(thread);
 }
+
+} // namespace gt
