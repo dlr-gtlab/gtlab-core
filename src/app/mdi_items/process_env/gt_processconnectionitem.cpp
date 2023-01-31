@@ -20,11 +20,14 @@
 #include "gt_stringmonitoringproperty.h"
 #include "gt_intmonitoringproperty.h"
 #include "gt_icons.h"
+#include "gt_propertystructcontainer.h"
+#include "gt_structproperty.h"
 
 #include "gt_objectui.h"
 #include "gt_processconnectionmodel.h"
 #include "gt_stringproperty.h"
 #include "gt_objectlinkproperty.h"
+#include "gt_propertyreference.h"
 
 #include "gt_processconnectionitem.h"
 
@@ -39,13 +42,11 @@ QStringList GtProcessConnectionItem::m_acceptedPropertyTypes =
 
 GtProcessConnectionItem::GtProcessConnectionItem(GtProcessComponent* comp) :
     m_component(comp),
-    m_property(nullptr),
     m_type(GtProcessConnectionItem::PROCESS_COMPONENT)
 {
 }
 
 GtProcessConnectionItem::GtProcessConnectionItem(GtAbstractProperty* prop) :
-    m_component(nullptr),
     m_property(prop)
 {
     if (dynamic_cast<GtMonitoringProperty*>(prop))
@@ -56,6 +57,34 @@ GtProcessConnectionItem::GtProcessConnectionItem(GtAbstractProperty* prop) :
     {
         m_type = GtProcessConnectionItem::DEFAULT_PROPERTY;
     }
+}
+
+GtProcessConnectionItem::GtProcessConnectionItem(GtPropertyStructContainer& conp) :
+    m_container(&conp),
+    m_type(GtProcessConnectionItem::PROPERTY_CONTAINER)
+{
+}
+
+GtProcessConnectionItem::GtProcessConnectionItem(GtPropertyStructContainer &con,
+                                                 GtPropertyStructInstance& entry) :
+    m_container(&con),
+    m_containerEntry(&entry),
+    m_type(GtProcessConnectionItem::CONTAINER_ENTRY)
+{
+}
+
+
+
+GtProcessConnectionItem::GtProcessConnectionItem(GtProcessComponent& comp,
+                                                 GtPropertyStructContainer& con,
+                                                 GtPropertyStructInstance& entry,
+                                                 GtAbstractProperty& prop) :
+    m_component(&comp),
+    m_property(&prop),
+    m_container(&con),
+    m_containerEntry(&entry),
+    m_type(GtProcessConnectionItem::DEFAULT_PROPERTY)
+{
 }
 
 bool
@@ -89,6 +118,30 @@ GtProcessConnectionItem::data(int column, int role)
                     }
 
                     return m_component->objectName();
+                }
+
+                if (m_type == GtProcessConnectionItem::PROPERTY_CONTAINER)
+                {
+                    if (!m_container)
+                    {
+                        return QVariant();
+                    }
+
+                    return m_container->name();
+                }
+
+                if (m_type == GtProcessConnectionItem::CONTAINER_ENTRY)
+                {
+                    if (!m_containerEntry || !m_container)
+                    {
+                        return QVariant();
+                    }
+
+                    auto iter = m_container->findEntry(m_containerEntry->ident());
+
+                    assert(iter != m_container->end());
+
+                    return QStringLiteral("[%1]").arg(std::distance(m_container->begin(), iter));
                 }
 
                 if (!m_property)
@@ -163,6 +216,15 @@ GtProcessConnectionItem::data(int column, int role)
                 {
                     if (!m_property)
                     {
+                        if (itemType() == PROPERTY_CONTAINER)
+                        {
+                            return gt::gui::icon::list16();
+                        }
+                        else if (itemType() == CONTAINER_ENTRY)
+                        {
+                            return gt::gui::icon::arrowDown();
+                        }
+
                         return QVariant();
                     }
 
@@ -234,6 +296,11 @@ GtProcessConnectionItem::componentUuid()
 QString
 GtProcessConnectionItem::parentComponentUuid()
 {
+    if (m_component)
+    {
+        return m_component->uuid();
+    }
+
     // get parent component item
     GtProcessConnectionItem* parentComp =
             qobject_cast<GtProcessConnectionItem*>(parent());
@@ -253,10 +320,21 @@ GtProcessConnectionItem::propertyId()
     if (m_type == GtProcessConnectionItem::MONITORING_PROPERTY ||
             m_type == GtProcessConnectionItem::DEFAULT_PROPERTY)
     {
+        if (m_containerEntry)
+        {
+            assert(m_property);
+            assert(m_container);
+            return GtPropertyReference(m_container->ident(),
+                                       m_containerEntry->ident(),
+                                       m_property->ident()).toString();
+        }
+
         if (m_property)
         {
-            return m_property->ident();
+            return GtPropertyReference(m_property->ident()).toString();
         }
+
+
     }
 
     return QString();

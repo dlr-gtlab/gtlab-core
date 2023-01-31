@@ -10,6 +10,8 @@
 #include <QVariant>
 
 #include "gt_task.h"
+#include "gt_propertystructcontainer.h"
+#include "gt_structproperty.h"
 
 #include "gt_processconnectionmodel.h"
 
@@ -366,6 +368,40 @@ GtProcessConnectionModel::createDataTree(GtProcessComponent* component,
 
             // append to parent item
             item->appendChild(childItem);
+        }
+    }
+
+    // parse container
+    for (GtPropertyStructContainer& container: component->propertyContainers())
+    {
+        // create new monitoring item for each child
+        GtProcessConnectionItem* childItem = new GtProcessConnectionItem(container);
+
+        // append to parent item
+        item->appendChild(childItem);
+
+        for (auto& entry: container)
+        {
+            GtProcessConnectionItem* childChildItem = new GtProcessConnectionItem(container, entry);
+
+            // append to parent item
+            childItem->appendChild(childChildItem);
+
+            // generate connection items
+            foreach (GtAbstractProperty* prop, entry.fullProperties())
+            {
+                // check whether property type is accepted
+                if (GtProcessConnectionItem::propertyTypeAccepted(prop))
+                {
+                    // create new connection item for each property
+                    GtProcessConnectionItem* propItem =
+                            new GtProcessConnectionItem(*component, container,
+                                                        entry, *prop);
+
+                    // append to parent item
+                    childChildItem->appendChild(propItem);
+                }
+            }
         }
     }
 
