@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed 
 - Fixed bug in dynamic type registration in meta object system - #248
+- Fixed a bug that properties with subproperties are not updated/signaled,
+  when the subprobs have changed. (Backport of GTLab 2.0.0-alpha7)
 
 ## [1.7.2] - 2021-05-25
 ### Changed

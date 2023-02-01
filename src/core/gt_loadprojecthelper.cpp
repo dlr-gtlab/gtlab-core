@@ -43,9 +43,10 @@ GtLoadProjectHelper::run()
     // label data
     m_objects.append(m_project->readLabelData(moduleData));
 
-    foreach (QObject* obj, m_objects)
+    foreach (GtObject* obj, m_objects)
     {
-        obj->moveToThread(m_project->thread());
+        if (!obj) continue;
+        gt::moveToThread(*obj, m_project->thread());
     }
 }
 

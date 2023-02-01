@@ -228,7 +228,7 @@ GtAccessDataDialog::testConnection()
     con->setAccessData(accessData);
 
     QThread* thread = new QThread;
-    con->moveToThread(thread);
+    gt::moveToThread(*con, thread);
 
     connect(thread, SIGNAL(started()), con, SLOT(run()));
     connect(con, SIGNAL(connectionSuccessful()), thread, SLOT(quit()));

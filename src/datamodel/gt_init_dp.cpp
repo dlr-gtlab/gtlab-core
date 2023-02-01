@@ -15,6 +15,8 @@
 #include <QtGlobal>
 #include <QDataStream>
 
+#include <iostream>
+
 template <typename List>
 struct StreamingFunctionBuilder
 {
@@ -27,7 +29,8 @@ struct StreamingFunctionBuilder
         quint64 size = 0;
         s >> size;
 
-        for (size_t i = 0; i < size; ++i) {
+        for (size_t i = 0; i < size; ++i)
+        {
             s >> vector;
         }
         return s;
@@ -37,7 +40,8 @@ struct StreamingFunctionBuilder
     {
         s << vector.size();
 
-        for(const auto& v : vector) {
+        for(const auto& v : vector)
+        {
             s << v;
         }
         return s;

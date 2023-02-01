@@ -763,3 +763,38 @@ GtObject::childAccepted(GtObject* /*child*/)
     // accept anything
     return true;
 }
+
+namespace gt
+{
+void moveToThread(GtAbstractProperty* prop, QThread* thread)
+{
+    if (!prop || !thread) return;
+
+    prop->QObject::moveToThread(thread);
+}
+
+
+void
+moveToThread(GtObject& object, QThread* thread)
+{
+    if (!thread) return;
+
+    // collect all child objects and add root object to list
+    auto objs = object.findChildren<GtObject*>();
+    objs.push_front(&object);
+
+    for (auto* obj : qAsConst(objs))
+    {
+        const auto allChildProps = obj->fullPropertyList();
+        // move all properties of current object to new thread
+        for (auto* childProp : allChildProps)
+        {
+            moveToThread(childProp, thread);
+        }
+
+    }
+
+    object.QObject::moveToThread(thread);
+}
+
+} // namespace gt

@@ -94,7 +94,7 @@ GtCalculatorHelperFactory::newCalculatorHelper(const QString& helperClassName,
 
             if (retval->thread() != parent->thread())
             {
-                retval->moveToThread(parent->thread());
+                gt::moveToThread(*retval, parent->thread());
             }
 
             parent->appendChild(retval);
