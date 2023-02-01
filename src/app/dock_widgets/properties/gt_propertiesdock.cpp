@@ -12,6 +12,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QResizeEvent>
+#include <QTabWidget>
 
 #include "gt_propertiesdock.h"
 #include "gt_propertytreeview.h"
@@ -20,6 +21,10 @@
 #include "gt_application.h"
 #include "gt_processcomponentsettingsbutton.h"
 #include "gt_project.h"
+
+#include "gt_logging.h"
+#include "gt_propertystructcontainer.h"
+#include "gt_propertycontainerwidget.h"
 
 GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
 {
@@ -49,6 +54,8 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
     m_processComponentSettingBtn = new GtProcessComponentSettingsButton;
     m_processComponentSettingBtn->setVisible(false);
 
+    m_tab = new QTabWidget;
+
     m_treeView = new GtPropertyTreeView(gtApp->session());
 
     m_treeView->setColumnWidth(0, 100);
@@ -57,7 +64,10 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
 
     layout->addWidget(m_processComponentSettingBtn);
 
-    layout->addWidget(m_treeView);
+    m_tab->addTab(m_treeView, "Main");
+    m_tab->tabBar()->hide();
+
+    layout->addWidget(m_tab);
 
     QHBoxLayout* toolbarLayout = new QHBoxLayout;
     toolbarLayout->setContentsMargins(0, 0, 0, 0);
@@ -100,6 +110,14 @@ GtPropertiesDock::resizeEvent(QResizeEvent* /*event*/)
 void
 GtPropertiesDock::objectSelected(GtObject* obj)
 {
+    // clear tab
+    while (m_tab->count() > 1)
+    {
+        QWidget* tmpWid = m_tab->widget(m_tab->count() - 1);
+        m_tab->removeTab(m_tab->count() - 1);
+        delete tmpWid;
+    }
+
     m_treeView->setObject(obj);
     m_processComponentSettingBtn->setVisible(false);
 
@@ -107,6 +125,16 @@ GtPropertiesDock::objectSelected(GtObject* obj)
     {
         m_treeView->setScope(obj->findParent<GtProject*>());
 
+        m_tab->tabBar()->setHidden(obj->propertyContainers().empty());
+
+        // check for property container
+        for (GtPropertyStructContainer& c : obj->propertyContainers())
+        {
+            GtPropertyContainerWidget* wid = new GtPropertyContainerWidget(
+                        obj, c, m_tab);
+
+            m_tab->addTab(wid, c.name());
+        }
     }
 
     if (m_obj)

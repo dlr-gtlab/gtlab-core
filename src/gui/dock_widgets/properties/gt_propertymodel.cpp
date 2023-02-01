@@ -14,6 +14,12 @@
 #include "gt_propertycategoryitem.h"
 #include "gt_modeproperty.h"
 #include "gt_propertymodeitem.h"
+#include "gt_propertystructcontainer.h"
+#include "gt_structproperty.h"
+#include "gt_application.h"
+#include "gt_command.h"
+#include "gt_project.h"
+#include "gt_utilities.h"
 
 GtPropertyModel::GtPropertyModel(GtObject* scope,
                                  QObject* parent) :
@@ -75,6 +81,13 @@ GtPropertyModel::data(const QModelIndex& index, int role) const
     if (!item)
     {
         return QVariant();
+    }
+
+    if (item->data(index.column(), GtPropertyModel::ContainerRole).toBool() &&
+            role == Qt::DisplayRole)
+    {
+        return item->data(index.column(), role).toString() + + " [" +
+                QString::number(index.row()) + "]";
     }
 
     return item->data(index.column(), role);
@@ -313,6 +326,7 @@ GtPropertyModel::setObject(GtObject* obj)
 
     qDeleteAll(m_properties);
     m_properties.clear();
+    m_containerId.clear();
 
     m_obj = obj;
 
@@ -330,6 +344,157 @@ GtPropertyModel::setObject(GtObject* obj)
     }
 
     endResetModel();
+}
+
+void
+GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
+{
+    if (m_obj)
+    {
+        disconnect(m_obj.data(), SIGNAL(destroyed(QObject*)), this,
+                   SLOT(resetObject()));
+
+        // disconnect container slots if last
+        // scope was container entry of object
+        if (!m_containerId.isEmpty())
+        {
+            auto* lastContainer = m_obj->findPropertyContainer(m_containerId);
+
+            assert(lastContainer);
+
+            disconnect(lastContainer, SIGNAL(entryRemoved(int)), this,
+                       SLOT(onContainerEntryRemoved(int)));
+            disconnect(lastContainer, SIGNAL(entryAdded(int)), this,
+                       SLOT(onContainerEntryAdded(int)));
+        }
+
+    }
+
+    beginResetModel();
+    auto _ = gt::finally([this](){
+        endResetModel();
+    });
+
+    qDeleteAll(m_properties);
+    m_properties.clear();
+
+    m_obj = obj;
+    m_containerId = container.ident();
+
+    if (!m_obj)
+    {
+        return;
+    }
+
+    connect(m_obj.data(), SIGNAL(destroyed(QObject*)), SLOT(resetObject()));
+    connect(&container, SIGNAL(entryRemoved(int)), this,
+               SLOT(onContainerEntryRemoved(int)));
+    connect(&container, SIGNAL(entryAdded(int)), this,
+               SLOT(onContainerEntryAdded(int)));
+
+    for (const auto& entry : container)
+    {
+        auto* cat = new GtPropertyCategoryItem(m_scope, container.entryPrefix(),
+                                               this);
+        cat->setIsContainer(true);
+        m_properties << cat;
+
+        for (auto* pChild : entry.properties())
+        {
+            cat->addPropertyItem(pChild);
+        }
+    }
+}
+
+QModelIndex
+GtPropertyModel::addNewStructContainerEntry(
+        GtPropertyStructContainer& container,
+        const QString& entryType)
+{
+    if (!container.allowedTypes().contains(entryType))
+    {
+        // invalid entry type
+        return {};
+    }
+
+    beginInsertRows(QModelIndex(), m_properties.size(), m_properties.size());
+
+    GtCommand cmd = gtApp->startCommand(
+                gtApp->currentProject(),
+                gt::propertyItemCommandString(m_obj->objectName(),
+                                              container.name(),
+                                              QObject::tr("Entry added")));
+
+    auto& newEntry = container.newEntry(entryType);
+
+    gtApp->endCommand(cmd);
+
+    GtPropertyCategoryItem* cat =
+            new GtPropertyCategoryItem(m_scope,
+                                       container.entryPrefix(),
+                                       this);
+    cat->setIsContainer(true);
+    m_properties << cat;
+
+    foreach (GtAbstractProperty* pChild, newEntry.properties())
+    {
+        cat->addPropertyItem(pChild);
+    }
+
+    endInsertRows();
+
+    return indexFromProperty(cat);
+}
+
+void
+GtPropertyModel::removeStructContainerEntry(const QModelIndex& index)
+{
+    if (!index.isValid() || index.model() != this)
+    {
+        gtWarning() << tr("invalid index");
+        return;
+    }
+
+    if (!m_obj)
+    {
+        gtWarning() << tr("invalid object!");
+        return;
+    }
+
+    auto* container = m_obj->findPropertyContainer(m_containerId);
+
+    if (!container)
+    {
+        gtWarning() << tr("container not found!");
+        return;
+    }
+
+    if (index.row() >= container->size())
+    {
+        gtWarning() << tr("index out of bounds!");
+        return;
+    }
+
+    auto& entry = container->at(index.row());
+
+
+    auto iter = container->findEntry(entry.ident());
+
+    if (iter == container->end())
+    {
+        // uuid not in container
+        return;
+    }
+
+    GtCommand cmd = gtApp->startCommand(
+                gtApp->currentProject(),
+                gt::propertyItemCommandString(m_obj->objectName(),
+                                              container->name(),
+                                              QObject::tr("Entry deleted")));
+
+    container->removeEntry(iter);
+
+    gtApp->endCommand(cmd);
 }
 
 GtObject*
@@ -591,4 +756,50 @@ void
 GtPropertyModel::resetObject()
 {
     setObject(nullptr);
+}
+
+void
+GtPropertyModel::onContainerEntryRemoved(int idx)
+{
+    beginRemoveRows(QModelIndex(), idx, idx);
+
+
+    GtPropertyCategoryItem* ditem = m_properties.at(idx);
+    m_properties.removeAt(idx);
+    delete ditem;
+
+    endRemoveRows();
+}
+
+void
+GtPropertyModel::onContainerEntryAdded(int idx)
+{
+    assert(m_obj);
+
+    auto* container = m_obj->findPropertyContainer(m_containerId);
+
+    if (!container)
+    {
+        gtWarning() << tr("container not found!");
+        return;
+    }
+
+    auto& entry = container->at(idx);
+
+    beginInsertRows(QModelIndex(), idx, idx);
+
+
+    GtPropertyCategoryItem* cat =
+            new GtPropertyCategoryItem(m_scope,
+                                       container->entryPrefix(),
+                                       this);
+    cat->setIsContainer(true);
+    m_properties.insert(idx, cat);
+
+    foreach (GtAbstractProperty* pChild, entry.properties())
+    {
+        cat->addPropertyItem(pChild);
+    }
+
+    endInsertRows();
 }

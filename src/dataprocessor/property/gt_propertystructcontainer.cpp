@@ -52,6 +52,19 @@ GtPropertyStructContainer::registerAllowedType(
     pimpl->allowedTypes.insert(std::make_pair(f.typeName(), f));
 }
 
+QStringList
+GtPropertyStructContainer::allowedTypes() const
+{
+    QStringList retval;
+
+    for(auto const& imap: pimpl->allowedTypes)
+    {
+        retval.push_back(imap.first);
+    }
+
+    return retval;
+}
+
 GtPropertyStructInstance&
 GtPropertyStructContainer::newEntry(QString typeID, QString id)
 {
@@ -77,16 +90,36 @@ GtPropertyStructContainer::newEntry(QString typeID, const_iterator position,
         id = QUuid::createUuid().toString();QUuid::createUuid().toString();
     }
 
-    pimpl->entries.insert(position,
-                          structureDefinition.newInstance(std::move(id)));
+    auto newEntryIter = pimpl->entries.insert(position,
+                          structureDefinition.newInstance(id));
 
-    return pimpl->entries[pimpl->entries.size() - 1];
+    emit entryAdded(std::distance(begin(), newEntryIter));
+
+
+    // emit a signal if an property of this entry has been changed
+    connect(&*newEntryIter, &GtPropertyStructInstance::subPropChanged, this,
+            [iid = std::move(id), this](GtAbstractProperty* p) {
+        // find the current index of the property using its id
+        auto iter = findEntry(iid);
+
+
+        if (iter != end())
+        {
+            emit entryChanged(std::distance(begin(), iter), p);
+        }
+    });
+
+    return *newEntryIter;
 }
 
 GtPropertyStructContainer::iterator
 GtPropertyStructContainer::removeEntry(iterator position)
 {
-    return pimpl->entries.erase(position);
+    auto removed = pimpl->entries.erase(position);
+
+    emit entryRemoved(std::distance(begin(), removed));
+
+    return removed;
 }
 
 GtPropertyStructContainer::const_iterator

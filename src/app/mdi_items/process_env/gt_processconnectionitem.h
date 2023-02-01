@@ -18,6 +18,7 @@
 class GtProcessComponent;
 class GtAbstractProperty;
 class GtProcessConnectionModel;
+class GtPropertyStructInstance;
 
 /**
  * @brief The GtProcessConnectionItem class
@@ -32,7 +33,9 @@ public:
     enum ItemType {
         PROCESS_COMPONENT = 0,
         MONITORING_PROPERTY,
-        DEFAULT_PROPERTY
+        DEFAULT_PROPERTY,
+        PROPERTY_CONTAINER,
+        CONTAINER_ENTRY
     };
 
     /**
@@ -101,6 +104,11 @@ private:
     /// Pointer to property
     QPointer<GtAbstractProperty> m_property;
 
+    /// Pointer to property
+    QPointer<GtPropertyStructContainer> m_container;
+
+    QPointer<GtPropertyStructInstance> m_containerEntry;
+
     /// Type of process monitoring item
     GtProcessConnectionItem::ItemType m_type;
 
@@ -118,6 +126,28 @@ private:
      * @param Process component property.
      */
     explicit GtProcessConnectionItem(GtAbstractProperty* prop);
+
+    /**
+     * @brief Constructor.
+     * @param Process component property.
+     */
+    explicit GtProcessConnectionItem(GtPropertyStructContainer& con);
+
+    /**
+     * @brief Constructor.
+     * @param Process component property.
+     */
+    explicit GtProcessConnectionItem(GtPropertyStructContainer& con,
+                                     GtPropertyStructInstance& entry);
+
+    /**
+     * @brief Constructor.
+     * @param Process component property.
+     */
+    explicit GtProcessConnectionItem(GtProcessComponent& comp,
+                                     GtPropertyStructContainer& con,
+                                     GtPropertyStructInstance& entry,
+                                     GtAbstractProperty& prop);
 
     /**
      * @brief Returns true if property type is accepted, otherwise returns

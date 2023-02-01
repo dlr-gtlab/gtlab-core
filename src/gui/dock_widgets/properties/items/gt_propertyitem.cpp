@@ -25,6 +25,8 @@
 #include "gt_session.h"
 #include "gt_regexp.h"
 #include "gt_icons.h"
+#include "gt_command.h"
+#include "gt_project.h"
 
 GtPropertyItem::GtPropertyItem() :
     m_currentUnit(QString())
@@ -196,20 +198,9 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
                 if (!m_property->isReadOnly())
                 {
                     // TODO: check whether property can be changed
-                    GtSession* root =  obj->findRoot<GtSession*>();
 
-                    if (root)
-                    {
-                        if (value != m_property->valueToVariant(m_currentUnit))
-                        {
-                            gtApp->propertyCommand(obj, m_property, value,
-                                                    m_currentUnit, root);
-                        }
-                    }
-                    else
-                    {
-                        m_property->setValueFromVariant(value, m_currentUnit);
-                    }
+                    gt::propertyItemChange(*obj, *m_property, value,
+                                           m_currentUnit);
 
                     return true;
                 }
@@ -239,17 +230,8 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
 
                 if (var.type() == QVariant::Bool)
                 {
-                    GtSession* root =  obj->findRoot<GtSession*>();
-
-                    if (root)
-                    {
-                        gtApp->propertyCommand(obj, m_property, value,
-                                               m_currentUnit, root);
-                    }
-                    else
-                    {
-                        m_property->setValueFromVariant(value, m_currentUnit);
-                    }
+                    gt::propertyItemChange(*obj, *m_property, value,
+                                           m_currentUnit);
 
                     return true;
                 }
@@ -369,4 +351,44 @@ void
 GtPropertyItem::onPropertyChange()
 {
     m_model->updatePropertyData(this);
+}
+
+QString
+gt::propertyItemCommandString(const QString& objName,
+                              const QString& propertyName,
+                              const QString& commandStr)
+{
+    return  {objName + QStringLiteral(" - ") + propertyName +
+            QStringLiteral(" ") + commandStr};
+}
+
+bool
+gt::propertyItemChange(GtObject& obj,
+                       GtAbstractProperty& property,
+                       const QVariant& value,
+                       const QString& unit)
+{
+    GtSession* root =  obj.findRoot<GtSession*>();
+
+    if (!root)
+    {
+        return property.setValueFromVariant(value, unit);
+    }
+
+    if (value == property.valueToVariant(unit))
+    {
+        return false;
+    }
+
+    GtCommand cmd = gtApp->startCommand(
+                gtApp->currentProject(),
+                gt::propertyItemCommandString(
+                    obj.objectName(), property.objectName(),
+                    QObject::tr("changed")));
+
+    bool retval = property.setValueFromVariant(value, unit);
+
+    gtApp->endCommand(cmd);
+
+    return retval;
 }

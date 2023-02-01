@@ -317,6 +317,11 @@ signals:
      */
     void changed();
 
+    /**
+     * @brief This is triggered if any of the sub properties is changed
+     */
+    void subPropChanged(GtAbstractProperty* p);
+
 };
 
 Q_DECLARE_METATYPE(GtUnit::Category)

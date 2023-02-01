@@ -22,7 +22,7 @@
 #include "gt_propertyvaluedelegate.h"
 #include "gt_propertyunitdelegate.h"
 #include "gt_icons.h"
-#include "gt_logging.h"
+#include "gt_propertystructcontainer.h"
 
 GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
                                        QWidget* parent) :
@@ -60,6 +60,12 @@ GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
     m_filterModel->setSourceModel(m_model);
 
     setModel(m_filterModel);
+
+    connect(m_filterModel, SIGNAL(modelReset()), SLOT(setRootsSpanned()));
+    connect(m_filterModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            SLOT(setRootsSpanned()));
+    connect(idDelegate, SIGNAL(deleteRequested(QModelIndex)),
+            SLOT(onDeleteRequested(QModelIndex)));
 }
 
 void
@@ -76,6 +82,12 @@ GtTreeFilterModel*
 GtPropertyTreeView::filterModel()
 {
     return m_filterModel;
+}
+
+GtPropertyModel*
+GtPropertyTreeView::propertyModel()
+{
+    return m_model;
 }
 
 QModelIndex
@@ -129,6 +141,32 @@ GtPropertyTreeView::setObject(GtObject* obj, bool processEvents)
 }
 
 void
+GtPropertyTreeView::setObject(GtObject* obj,
+                              GtPropertyStructContainer& container,
+                              bool processEvents)
+{
+    if (m_model->object() == obj)
+    {
+        return;
+    }
+
+    m_model->setObject(obj, container);
+
+    if (processEvents)
+    {
+        /// Fix to handle signals from resetting the model
+        QCoreApplication::processEvents();
+    }
+
+    if (container.size() < 5)
+    {
+        expandAll();
+    }
+
+    resizeColumns();
+}
+
+void
 GtPropertyTreeView::setScope(GtObject* project)
 {
     if (!m_model)
@@ -161,8 +199,6 @@ GtPropertyTreeView::drawRow(QPainter* painter,
                             const QModelIndex& index) const
 {
     QStyleOptionViewItemV3 opt = option;
-
-    //bool isCategory = index.data(GtPropertyModel::CategoryRole).toBool();
 
     GtTreeView::drawRow(painter, opt, index);
 
@@ -265,5 +301,27 @@ GtPropertyTreeView::onExpanded(const QModelIndex& index)
                              Qt::DecorationRole);
         }
     }
+}
+
+void
+GtPropertyTreeView::setRootsSpanned()
+{
+    for (int i = 0; i < m_filterModel->rowCount(); ++i)
+    {
+        setFirstColumnSpanned(i, QModelIndex(), true);
+    }
+}
+
+void
+GtPropertyTreeView::onDeleteRequested(const QModelIndex& idx)
+{
+    QModelIndex sidx = mapToSource(idx);
+
+    if (!sidx.isValid() || sidx.parent().isValid())
+    {
+        return;
+    }
+
+    m_model->removeStructContainerEntry(sidx);
 }
 

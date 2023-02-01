@@ -19,6 +19,7 @@ class GtTreeFilterModel;
 class GtObject;
 class GtProject;
 class GtPropertyValueDelegate;
+class GtPropertyStructContainer;
 
 /**
  * @brief The GtPropertyTreeView class
@@ -45,6 +46,8 @@ public:
      */
     GtTreeFilterModel* filterModel();
 
+    GtPropertyModel* propertyModel();
+
     /**
      * @brief mapToSource
      * @param index
@@ -64,6 +67,13 @@ public:
      * @param obj
      */
     void setObject(GtObject* obj, bool processEvents = true);
+
+    /**
+     * @brief setObject
+     * @param obj
+     */
+    void setObject(GtObject* obj, GtPropertyStructContainer& container,
+                   bool processEvents = true);
 
     /**
      * @brief setScope
@@ -128,6 +138,17 @@ private slots:
      * @param index
      */
     void onExpanded(const QModelIndex& index);
+
+    /**
+     * @brief Sets the first colum spanned for all roots.
+     */
+    void setRootsSpanned();
+
+    /**
+     * @brief Processes delete request for given index.
+     * @param idx
+     */
+    void onDeleteRequested(const QModelIndex& idx);
 
 };
 

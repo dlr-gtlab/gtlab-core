@@ -20,7 +20,7 @@ GtProcessConnectionView::GtProcessConnectionView(QWidget* parent) :
     GtTreeView(parent),
     m_graphicsView(nullptr)
 {
-
+    setIconSize({16, 16});
 }
 
 void

@@ -12,8 +12,10 @@
 #include "gt_datamodel_exports.h"
 
 #include "gt_polyvector.h"
+#include "gt_abstractproperty.h"
 
 #include <QString>
+#include <QObject>
 
 #include <memory>
 
@@ -24,8 +26,9 @@ class GtPropertyStructDefinition;
  * @brief A container containing of a dynamic number of PropertyStructs
  * of specified types.
  */
-class GT_DATAMODEL_EXPORT GtPropertyStructContainer
+class GT_DATAMODEL_EXPORT GtPropertyStructContainer : public QObject
 {
+    Q_OBJECT
 public:
     using iterator =
         gt::PolyVector<GtPropertyStructInstance>::iterator;
@@ -37,7 +40,7 @@ public:
 
     explicit GtPropertyStructContainer(const QString& ident);
 
-    ~GtPropertyStructContainer();
+    ~GtPropertyStructContainer() override;
 
     /**
      * @brief registerAllowedType
@@ -45,6 +48,12 @@ public:
      * @param f
      */
     void registerAllowedType(const GtPropertyStructDefinition& f);
+
+    /**
+     * @brief Returns list of all allowed types.
+     * @return List of allowed type identification strings
+     */
+    QStringList allowedTypes() const;
 
     /**
      * @brief Performs an in-place creation of a new struct instance
@@ -187,6 +196,28 @@ public:
      * @brief End Iterator
      */
     const_iterator end() const;
+
+signals:
+    /**
+     *  An entry was removed at the given index
+     *
+     *  The previous element container[idx] does not exist anymore.
+     */
+    void entryRemoved(int idx);
+
+    /**
+     * @brief An antry was added at the given index.
+     *
+     * The new element is container[idx]
+     */
+    void entryAdded(int idx);
+
+    /**
+     * @brief A property at the given index was changed
+     * @param idx The index of the changed entry
+     * @param property A pointer to the changed property
+     */
+    void entryChanged(int idx, GtAbstractProperty* property);
 
 private:
     struct Impl;

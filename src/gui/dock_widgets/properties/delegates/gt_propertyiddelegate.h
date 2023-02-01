@@ -12,6 +12,8 @@
 
 #include <QStyledItemDelegate>
 
+class GtPropertyTreeView;
+
 /**
  * @brief The GtPropertyIdDelegate class
  */
@@ -24,7 +26,7 @@ public:
      * @brief Constructor.
      * @param parent Parent object.
      */
-    explicit GtPropertyIdDelegate(QObject* parent = nullptr);
+    explicit GtPropertyIdDelegate(GtPropertyTreeView* parent = nullptr);
 
     /**
      * @brief paint
@@ -35,6 +37,38 @@ public:
     void paint(QPainter* painter,
                const QStyleOptionViewItem& option,
                const QModelIndex& index) const override;
+
+    /**
+     * @brief editorEvent
+     * @param event
+     * @param model
+     * @param option
+     * @param index
+     * @return
+     */
+    bool editorEvent(QEvent* event,
+                     QAbstractItemModel* model,
+                     const QStyleOptionViewItem& option,
+                     const QModelIndex& index) override;
+
+private:
+    /// Property tree view.
+    GtPropertyTreeView* m_view;
+
+    /**
+     * @brief Returns style option for drawing close button of container entry.
+     * @param option
+     * @return
+     */
+    QStyleOptionViewItem containerStyleOption(
+            const QStyleOptionViewItem& option) const;
+
+signals:
+    /**
+     * @brief Emited if an container entry schould be deleted.
+     * @param index Index of container entry
+     */
+    void deleteRequested(const QModelIndex& index);
 
 };
 

@@ -10,6 +10,7 @@
 #include "gt_labeldata.h"
 
 #include "slotadaptor.h"
+#include <QtConcurrent/QtConcurrent>
 
 /// This is a test fixture that does a init for each test
 class TestGtObject : public ::testing::Test
@@ -424,4 +425,37 @@ TEST(GtObjectBugs, issue325)
     obj.setDouble(23456.);
     EXPECT_TRUE(propertyChanged);
     EXPECT_TRUE(obj.hasChanges());
+}
+
+/*
+ * This test checks, that a signal change from a sub
+ * property is propagated correctly
+ *
+ * This was initially not the case, as the thread switching was not properly
+ * propagated to all childs
+ */
+TEST(GtObjectBugs, subPropsSignalsFromThread)
+{
+    std::unique_ptr<TestSpecialGtObject> obj;
+    QtConcurrent::run([&obj, mainThread = QThread::currentThread()](){
+        obj.reset(new TestSpecialGtObject);
+
+        // note, we may not use QObject->moveToThread here!!!
+        gt::moveToThread(*obj, mainThread);
+    }).waitForFinished();
+
+    bool changed = false;
+    QObject::connect(
+        &(obj->m_modeProp),
+        &GtAbstractProperty::subPropChanged,
+        [&changed](GtAbstractProperty*)
+    {
+        changed = true;
+    });
+
+    ASSERT_TRUE(obj != nullptr);
+    EXPECT_FALSE(changed);
+
+    obj->m_modeTypeProp.setVal("a new value");
+    EXPECT_TRUE(changed);
 }
