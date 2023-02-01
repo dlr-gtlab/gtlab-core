@@ -99,15 +99,15 @@ public:
 
 private:
     /// Pointer to process component
-    QPointer<GtProcessComponent> m_component {nullptr};
+    QPointer<GtProcessComponent> m_component;
 
     /// Pointer to property
-    QPointer<GtAbstractProperty> m_property {nullptr};
+    QPointer<GtAbstractProperty> m_property;
 
     /// Pointer to property
-    QPointer<GtPropertyStructContainer> m_container {nullptr};
+    QPointer<GtPropertyStructContainer> m_container;
 
-    QPointer<GtPropertyStructInstance> m_containerEntry {nullptr};
+    QPointer<GtPropertyStructInstance> m_containerEntry;
 
     /// Type of process monitoring item
     GtProcessConnectionItem::ItemType m_type;
