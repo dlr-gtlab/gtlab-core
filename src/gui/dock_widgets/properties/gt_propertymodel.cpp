@@ -419,15 +419,11 @@ GtPropertyModel::addNewStructContainerEntry(
 
     beginInsertRows(QModelIndex(), m_properties.size(), m_properties.size());
 
-    const QString cmdStr = m_obj->objectName() +
-            QStringLiteral(" - ") +
-            container.name() +
-            QStringLiteral(" ") +
-            QObject::tr("Entry added");
-
     GtCommand cmd = gtApp->startCommand(
-                gtApp->currentProject(), cmdStr);
-
+                gtApp->currentProject(),
+                gt::propertyItemCommandString(m_obj->objectName(),
+                                              container.name(),
+                                              QObject::tr("Entry added")));
 
     auto& newEntry = container.newEntry(entryType);
 
@@ -490,14 +486,11 @@ GtPropertyModel::removeStructContainerEntry(const QModelIndex& index)
         return;
     }
 
-    const QString cmdStr = m_obj->objectName() +
-            QStringLiteral(" - ") +
-            container->name() +
-            QStringLiteral(" ") +
-            QObject::tr("Entry deleted");
-
     GtCommand cmd = gtApp->startCommand(
-                gtApp->currentProject(), cmdStr);
+                gtApp->currentProject(),
+                gt::propertyItemCommandString(m_obj->objectName(),
+                                              container->name(),
+                                              QObject::tr("Entry deleted")));
 
     container->removeEntry(iter);
 

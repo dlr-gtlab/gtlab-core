@@ -18,6 +18,18 @@
 
 class GtAbstractProperty;
 
+namespace gt
+{
+    QString propertyItemCommandString(const QString& objName,
+                                      const QString& propertyName,
+                                      const QString& commandStr);
+
+    bool propertyItemChange(GtObject& obj,
+                            GtAbstractProperty& property,
+                            const QVariant& value,
+                            const QString& unit);
+}
+
 /**
  * @brief The GtPropertyItem class
  */
