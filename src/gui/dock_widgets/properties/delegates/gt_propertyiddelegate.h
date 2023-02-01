@@ -55,6 +55,14 @@ private:
     /// Property tree view.
     GtPropertyTreeView* m_view;
 
+    /**
+     * @brief Returns style option for drawing close button of container entry.
+     * @param option
+     * @return
+     */
+    QStyleOptionViewItem containerStyleOption(
+            const QStyleOptionViewItem& option) const;
+
 signals:
     /**
      * @brief Emited if an container entry schould be deleted.

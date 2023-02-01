@@ -41,21 +41,8 @@ GtPropertyIdDelegate::paint(QPainter* painter,
         if (isContainer)
         {
             painter->save();
-            QStyleOptionComboBox box;
-            box.rect = option.rect;
 
-            //        box.state = QStyle::State_Active | QStyle::State_Enabled;
-
-            QRect r = QApplication::style()->subControlRect(QStyle::CC_ComboBox,
-                                                            &box,
-                                                            QStyle::SC_ComboBoxArrow);
-
-            QStyleOptionViewItem opt = option;
-
-            double dx = (r.width() - 10) / 2;
-            double dy = (r.height() - 10) / 2;
-
-            opt.rect = QRect(r.x() + dx, r.y() + dy, 10, 10);
+            QStyleOptionViewItem opt = containerStyleOption(option);
 
             QApplication::style()->drawPrimitive(QStyle::PE_IndicatorTabClose,
                                                  &opt, painter);
@@ -102,18 +89,7 @@ GtPropertyIdDelegate::editorEvent(QEvent* event,
             const QMouseEvent* const me = static_cast<const QMouseEvent*>(event);
             const QPoint p = me->pos();
 
-            QStyleOptionComboBox box;
-            box.rect = option.rect;
-            QRect r = QApplication::style()->subControlRect(QStyle::CC_ComboBox,
-                                                            &box,
-                                                            QStyle::SC_ComboBoxArrow);
-
-            QStyleOptionViewItem opt = option;
-
-            double dx = (r.width() - 10) / 2;
-            double dy = (r.height() - 10) / 2;
-
-            opt.rect = QRect(r.x() + dx, r.y() + dy, 10, 10);
+            QStyleOptionViewItem opt = containerStyleOption(option);
 
             if (opt.rect.contains(p))
             {
@@ -143,4 +119,25 @@ GtPropertyIdDelegate::editorEvent(QEvent* event,
     }
 
     return QStyledItemDelegate::editorEvent(event, model, option, index);
+}
+
+QStyleOptionViewItem
+GtPropertyIdDelegate::containerStyleOption(
+        const QStyleOptionViewItem &option) const
+{
+    QStyleOptionComboBox box;
+    box.rect = option.rect;
+
+    QRect r = QApplication::style()->subControlRect(QStyle::CC_ComboBox,
+                                                    &box,
+                                                    QStyle::SC_ComboBoxArrow);
+
+    QStyleOptionViewItem opt = option;
+
+    double dx = (r.width() - 10) / 2;
+    double dy = (r.height() - 10) / 2;
+
+    opt.rect = QRect(r.x() + dx, r.y() + dy, 10, 10);
+
+    return opt;
 }
