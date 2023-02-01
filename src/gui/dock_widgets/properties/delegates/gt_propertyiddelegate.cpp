@@ -80,41 +80,45 @@ GtPropertyIdDelegate::editorEvent(QEvent* event,
                                   const QStyleOptionViewItem& option,
                                   const QModelIndex& index)
 {
-    if (event->type() == QEvent::MouseButtonPress && index.isValid())
+    if (event->type() != QEvent::MouseButtonPress && !index.isValid())
     {
-        bool isContainer = index.data(GtPropertyModel::ContainerRole).toBool();
+        return QStyledItemDelegate::editorEvent(event, model, option, index);
+    }
 
-        if (isContainer)
+    bool isContainer = index.data(GtPropertyModel::ContainerRole).toBool();
+
+    if (!isContainer)
+    {
+        return QStyledItemDelegate::editorEvent(event, model, option, index);
+    }
+
+    const QMouseEvent* const me = static_cast<const QMouseEvent*>(event);
+    const QPoint p = me->pos();
+
+    QStyleOptionViewItem opt = containerStyleOption(option);
+
+    if (opt.rect.contains(p))
+    {
+        QMessageBox mb;
+        mb.setIcon(QMessageBox::Question);
+        mb.setWindowTitle(tr("Delete entry?"));
+        mb.setWindowIcon(gt::gui::icon::delete16());
+        mb.setText(tr("Delete ") + index.data().toString() + "?");
+        mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+        mb.setDefaultButton(QMessageBox::Cancel);
+        int ret = mb.exec();
+
+        switch (ret)
         {
-            const QMouseEvent* const me = static_cast<const QMouseEvent*>(event);
-            const QPoint p = me->pos();
+        case QMessageBox::Yes:
+        {
+            emit deleteRequested(index);
 
-            QStyleOptionViewItem opt = containerStyleOption(option);
+            break;
+        }
 
-            if (opt.rect.contains(p))
-            {
-                QMessageBox mb;
-                mb.setIcon(QMessageBox::Question);
-                mb.setWindowTitle(tr("Delete entry?"));
-                mb.setWindowIcon(gt::gui::icon::delete16());
-                mb.setText(tr("Delete ") + index.data().toString() + "?");
-                mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-                mb.setDefaultButton(QMessageBox::Cancel);
-                int ret = mb.exec();
-
-                switch (ret)
-                {
-                case QMessageBox::Yes:
-                {
-                    emit deleteRequested(index);
-
-                    break;
-                }
-
-                default:
-                    break;
-                }
-            }
+        default:
+            break;
         }
     }
 
