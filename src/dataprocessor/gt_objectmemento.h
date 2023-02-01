@@ -263,9 +263,6 @@ private:
      */
     mutable QByteArray m_propertyHash, m_fullHash;
 
-    void propertyHashHelper(const PropertyData& property, QCryptographicHash& hash, VariantHasher& variantHasher) const;
-
-
 };
 
 namespace gt
