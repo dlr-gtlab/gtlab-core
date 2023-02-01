@@ -21,9 +21,9 @@ class GtPropertyContainerWidget : public QWidget
 public:
     /**
      * @brief Constructor.
-     * @param obj
-     * @param container
-     * @param parent
+     * @param obj object that owns the container.
+     * @param container Container to be visualized by the widget.
+     * @param parent parent widget
      */
     GtPropertyContainerWidget(GtObject* obj,
                               GtPropertyStructContainer& container,

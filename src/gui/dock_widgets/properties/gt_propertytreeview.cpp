@@ -145,23 +145,25 @@ GtPropertyTreeView::setObject(GtObject* obj,
                               GtPropertyStructContainer& container,
                               bool processEvents)
 {
-    if (m_model->object() != obj)
+    if (m_model->object() == obj)
     {
-        m_model->setObject(obj, container);
-
-        if (processEvents)
-        {
-            /// Fix to handle signals from resetting the model
-            QCoreApplication::processEvents();
-        }
-
-        if (container.size() < 5)
-        {
-            expandAll();
-        }
-
-        resizeColumns();
+        return;
     }
+
+    m_model->setObject(obj, container);
+
+    if (processEvents)
+    {
+        /// Fix to handle signals from resetting the model
+        QCoreApplication::processEvents();
+    }
+
+    if (container.size() < 5)
+    {
+        expandAll();
+    }
+
+    resizeColumns();
 }
 
 void
