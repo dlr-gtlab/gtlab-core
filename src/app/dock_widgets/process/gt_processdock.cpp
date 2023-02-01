@@ -135,9 +135,6 @@ GtProcessDock::GtProcessDock() :
 
     frame->setLayout(frameLayout);
     frame->setAutoFillBackground(true);
-    frame->setFrameShape(m_view->frameShape());
-    frame->setFrameStyle(m_view->frameStyle());
-    frame->setFrameShadow(m_view->frameShadow());
 
 
     auto delegate = new GtTextFilterDelegate(this,

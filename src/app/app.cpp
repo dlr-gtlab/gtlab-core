@@ -38,6 +38,7 @@
 #include "gt_sessionviewer.h"
 #include "gt_stateviewer.h"
 #include "gt_collectioneditor.h"
+#include "gt_startuppage.h"
 #include "gt_examplesmdiwidget.h"
 #include "gt_logerrormessagebox.h"
 
@@ -65,6 +66,7 @@ registerWidgets()
     gtMdiLauncher->registerClass(GT_METADATA(GtStateViewer));
     gtMdiLauncher->registerClass(GT_METADATA(GtCollectionEditor));
     gtMdiLauncher->registerClass(GT_METADATA(GtExamplesMdiWidget));
+    gtMdiLauncher->registerClass(GT_METADATA(GtStartupPage));
 
     gtMdiLauncher->registerDockWidget(GT_METADATA(GtOutputDock));
     gtMdiLauncher->registerDockWidget(GT_METADATA(GtExplorerDock));
@@ -79,6 +81,8 @@ registerWidgets()
 int
 main(int argc, char* argv[])
 {
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
     QApplication::setOrganizationDomain("www.dlr.de");
     QApplication::setOrganizationName("DLR");
     QApplication::setApplicationName("GTlab");

@@ -18,7 +18,7 @@ win32 {
 
 TARGET = GTlab
 
-QT += widgets xml network
+QT += widgets xml network quickwidgets
 TEMPLATE = app
 CONFIG += silent
 CONFIG += c++14
@@ -104,6 +104,7 @@ DESTDIR = $${BUILD_DEST}
 HEADERS += \
     dialogs/gt_logerrormessagebox.h \
     dialogs/gt_moduledetailsdialog.h \
+    dialogs/gt_markdowneditor.h \
     dialogs/gt_refusedpluginsdialog.h \
     dock_widgets/process/gt_taskgroupmodel.h \
     gt_mainwin.h \
@@ -112,6 +113,7 @@ HEADERS += \
     preferences/pages/gt_preferenceslanguage.h \
     preferences/pages/gt_preferencessession.h \
     preferences/pages/gt_preferencesshortcuts.h \
+    tools/gt_toolbarhandler.h \
     widgets/gt_sessionlistwidget.h \
     preferences/pages/gt_preferencesperspective.h \
     widgets/gt_perspectiveslistwidget.h \
@@ -194,6 +196,7 @@ SOURCES += \
     app.cpp \
     dialogs/gt_logerrormessagebox.cpp \
     dialogs/gt_moduledetailsdialog.cpp \
+    dialogs/gt_markdowneditor.cpp \
     dialogs/gt_refusedpluginsdialog.cpp \
     dock_widgets/process/gt_taskgroupmodel.cpp \
     gt_mainwin.cpp \
@@ -202,6 +205,7 @@ SOURCES += \
     preferences/pages/gt_preferenceslanguage.cpp \
     preferences/pages/gt_preferencessession.cpp \
     preferences/pages/gt_preferencesshortcuts.cpp \
+    tools/gt_toolbarhandler.cpp \
     widgets/gt_sessionlistwidget.cpp \
     preferences/pages/gt_preferencesperspective.cpp \
     widgets/gt_perspectiveslistwidget.cpp \

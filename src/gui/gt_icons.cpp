@@ -7,6 +7,7 @@
  *  Tel.: +49 2203 601 2191
  */
 #include "gt_icons.h"
+#include "gt_application.h"
 
 #include <QPainter>
 #include <QApplication>
@@ -1476,6 +1477,12 @@ gt::gui::icon::duplicate()
 QPixmap
 gt::gui::pixmap::logo()
 {
+
+    if (gtApp->inDarkMode())
+    {
+        return {":/pixmaps/gt-logo-dark.png"};
+    }
+
     return {":/pixmaps/gt-logo.png"};
 }
 

@@ -93,6 +93,12 @@ GtMdiItem::allowsMultipleInstances() const
     return false;
 }
 
+bool
+GtMdiItem::isPrintable() const
+{
+    return false;
+}
+
 void
 GtMdiItem::initialized()
 {

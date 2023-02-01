@@ -41,7 +41,7 @@ GtExplorerView::GtExplorerView(QWidget* parent) :
 void
 GtExplorerView::resizeEvent(QResizeEvent* event)
 {
-    setColumnWidth(1, 20);
+    setColumnWidth(1, 15);
 
     int delta = 0;
 
@@ -50,7 +50,7 @@ GtExplorerView::resizeEvent(QResizeEvent* event)
         delta = verticalScrollBar()->width();
     }
 
-    setColumnWidth(0, width() - 33 - delta);
+    setColumnWidth(0, width() - 50 - delta);
     QTreeView::resizeEvent(event);
 }
 

@@ -1,5 +1,20 @@
 <RCC>
     <qresource prefix="/qml">
         <file>outputdock.qml</file>
+        <file>AnimatedButton.qml</file>
+        <file>AnimatedButtonGitLab.qml</file>
+        <file>markdown_editor.qml</file>
+        <file>toolbar.qml</file>
+        <file>dockbar.qml</file>
+        <file>DockBarButton.qml</file>
+        <file>qml_icons/home-icon.svg</file>
+        <file>qml_icons/print-icon.svg</file>
+        <file>qml_icons/save-icon.svg</file>
+        <file>qml_icons/open-icon.svg</file>
+        <file>qml_icons/newproject-icon.svg</file>
+        <file>qml_icons/undo-icon.svg</file>
+        <file>qml_icons/redo-icon.svg</file>
+        <file>qml_icons/info-icon.svg</file>
+        <file>qml_icons/close-icon.svg</file>
     </qresource>
 </RCC>

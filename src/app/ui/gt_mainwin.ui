@@ -42,6 +42,9 @@
     </property>
     <item>
      <widget class="QTabWidget" name="mdiArea">
+      <property name="styleSheet">
+       <string notr="true">border:0</string>
+      </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
@@ -67,7 +70,7 @@
      <x>0</x>
      <y>0</y>
      <width>1009</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
@@ -173,9 +176,9 @@
    <addaction name="menuUpdate_available"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="projectToolBar">
+  <widget class="QToolBar" name="qmlToolBar">
    <property name="windowTitle">
-    <string>Project ToolBar</string>
+    <string>Tool Bar</string>
    </property>
    <property name="movable">
     <bool>false</bool>
@@ -186,30 +189,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionNewProject"/>
-   <addaction name="actionOpen_Project"/>
-   <addaction name="actionSave_Project"/>
-  </widget>
-  <widget class="QToolBar" name="undoBar">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="windowTitle">
-    <string>Undo Toolbar</string>
-   </property>
-   <property name="movable">
-    <bool>false</bool>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionPrint"/>
   </widget>
   <action name="actionExit">
    <property name="icon">

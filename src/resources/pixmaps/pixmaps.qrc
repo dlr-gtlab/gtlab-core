@@ -12,6 +12,7 @@
         <file>progressbar.gif</file>
         <file>loading.gif</file>
         <file>gt-logo.png</file>
+        <file>gt-logo-dark.png</file>
         <file>loading2.gif</file>
         <file>startup-background_dark.png</file>
     </qresource>
