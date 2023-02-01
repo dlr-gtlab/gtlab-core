@@ -10,7 +10,9 @@
 # Environment variables to use in the pipeline globally
 variables:
   PIPELINEVERSION: "2.0.0-unstable"
-  GIT_SUBMODULE_STRATEGY: none
+  GIT_SUBMODULE_STRATEGY: "recursive"
+  GIT_STRATEGY: "clone"
+  
   # overriding the global config for now in this branch
   QT_DIR_LINUX:  "/opt/Qt/5.15.2/gcc_64/"
   QT_DIR_LINUX2: "/opt/Qt/5.15.2/gcc_64/"
