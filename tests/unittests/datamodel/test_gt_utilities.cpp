@@ -129,10 +129,10 @@ TEST_F(TestGtUtilities, container_const_cast)
     EXPECT_EQ(stdvector[0], const_stdvector[0]);
 
     int myint = 42;
-    std::vector<std::reference_wrapper<int>> stdrefwrapper = { myint };
+    std::vector<std::reference_wrapper<int>> const stdrefwrapper = { myint };
     std::vector<std::reference_wrapper<int const>,
                 std::allocator<std::reference_wrapper<int const>>
-                >& const_stdrefwrapper = gt::container_const_cast(stdrefwrapper);
+                > const& const_stdrefwrapper = gt::container_const_cast(stdrefwrapper);
     EXPECT_EQ(stdrefwrapper[0], const_stdrefwrapper[0]);
 }
 

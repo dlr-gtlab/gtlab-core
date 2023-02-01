@@ -38,6 +38,18 @@ auto& container_const_cast(Vec<T...>& contianer)
 }
 
 /**
+ * @brief Overlaod for const l-values
+ * @param container Container to cast
+ * @return Const container
+ */
+template<template<class...> class Vec, typename... T>
+auto const& container_const_cast(Vec<T...> const& contianer)
+{
+    void const* ptr = static_cast<void const*>(&contianer); // :)
+    return *static_cast<Vec<gt::trait::to_const_t<T>...> const*>(ptr);
+}
+
+/**
  * @brief Overlaod for r-values
  * @param container Container to cast
  * @return Const container
