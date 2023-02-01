@@ -184,7 +184,9 @@ testWin512:
       - CoverageReport* 
     reports:
       junit: unittests.xml
-      cobertura: ${UNITTESTSNAME}Coverage.xml  
+      coverage_report:
+        coverage_format: cobertura
+        path: ${UNITTESTSNAME}Coverage.xml  
     expire_in: 1 week
   variables:
     DEVTOOLS: "$DEVTOOLS_Win"
