@@ -99,7 +99,7 @@ public:
      * @brief Returns true in mdi item for given subwindow is printable.
      * @param subWindow
      */
-    bool isPrintable(QMdiSubWindow* subWindow) const;
+    bool isPrintable(QWidget* subWindow) const;
 
     /**
      * @brief registerDockWidget

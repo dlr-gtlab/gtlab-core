@@ -231,8 +231,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     loadPerspectiveSettings();
 	
-    connect(ui->mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
-            SLOT(onEditorWindowActive(QMdiSubWindow*)));
+    connect(ui->mdiArea, SIGNAL(currentChanged(int)),
+            SLOT(onEditorWindowActive(int)));
 
     loadPerspectiveSettings();
 
@@ -1311,10 +1311,13 @@ GtMainWin::onLogMessage(const QString& msg, int level)
 }
 
 void
-GtMainWin::onEditorWindowActive(QMdiSubWindow* window)
+GtMainWin::onEditorWindowActive(int editorIndex)
 {
+    gtInfo() << "onEditorWindowActive " << editorIndex;
 
-    emit currentMdiItemPrintable(gtMdiLauncher->isPrintable(window));
+
+    emit currentMdiItemPrintable(
+                gtMdiLauncher->isPrintable(ui->mdiArea->widget(editorIndex)));
 }
 
 void
