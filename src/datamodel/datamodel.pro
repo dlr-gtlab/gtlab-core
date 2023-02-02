@@ -116,6 +116,7 @@ HEADERS += \
 
 SOURCES += \
     gt_dummyobject.cpp \
+    gt_init_dp.cpp \
     gt_object.cpp \
     gt_objectfactory.cpp \
     gt_abstractobjectfactory.cpp \

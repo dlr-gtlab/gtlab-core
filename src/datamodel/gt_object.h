@@ -657,4 +657,18 @@ typedef QList<GtObject*> GtObjectList;
 Q_DECLARE_METATYPE(GtObject*)
 Q_DECLARE_OPERATORS_FOR_FLAGS(GtObject::ObjectFlags)
 
+namespace gt
+{
+
+/**
+ * @brief Function to correctly move an object of class GtObject into a thread.
+ * Unlike normal QObjects, the Property and PropertyContainer structures are
+ * also moved into the thread.
+ * @param object Object which schould be moved to given thread.
+ * @param thread
+ */
+void GT_DATAMODEL_EXPORT moveToThread(GtObject& object, QThread* thread);
+
+} // namespace gt
+
 #endif // GTOBJECT_H
