@@ -106,6 +106,7 @@ HEADERS += \
     dialogs/gt_moduledetailsdialog.h \
     dialogs/gt_markdowneditor.h \
     dialogs/gt_refusedpluginsdialog.h \
+    dock_widgets/process/gt_taskgroupeditorwidget.h \
     dock_widgets/process/gt_taskgroupmodel.h \
     dock_widgets/properties/gt_propertycontainerwidget.h \
     gt_mainwin.h \
@@ -200,6 +201,7 @@ SOURCES += \
     dialogs/gt_moduledetailsdialog.cpp \
     dialogs/gt_markdowneditor.cpp \
     dialogs/gt_refusedpluginsdialog.cpp \
+    dock_widgets/process/gt_taskgroupeditorwidget.cpp \
     dock_widgets/process/gt_taskgroupmodel.cpp \
     dock_widgets/properties/gt_propertycontainerwidget.cpp \
     gt_mainwin.cpp \
