@@ -289,7 +289,6 @@ Rectangle {
 
             function onThemeChanged(dark)
             {
-                console.log("QML: Theme changed!");
                 dark_mode = dark;
             }
 
