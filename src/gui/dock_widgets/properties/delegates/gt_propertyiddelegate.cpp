@@ -53,25 +53,7 @@ GtPropertyIdDelegate::paint(QPainter* painter,
         return;
     }
 
-    painter->save();
-
-    QStyleOptionViewItemV3 opt = option;
-
-    QStyledItemDelegate::paint(painter, opt, index);
-
-    QColor color =
-        static_cast<QRgb>(
-            QApplication::style()->styleHint(
-                QStyle::SH_Table_GridLineColor, &option));
-
-    painter->setPen(QPen(color));
-
-    int right = (option.direction == Qt::LeftToRight) ?
-                option.rect.right() : option.rect.left();
-
-    painter->drawLine(right, option.rect.y(), right, option.rect.bottom());
-
-    painter->restore();
+    QStyledItemDelegate::paint(painter, option, index);
 }
 
 bool

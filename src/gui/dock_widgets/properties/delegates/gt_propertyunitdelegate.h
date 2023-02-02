@@ -70,16 +70,6 @@ public:
                               const QStyleOptionViewItem& option,
                               const QModelIndex&) const override;
 
-    /**
-     * @brief paint
-     * @param painter
-     * @param option
-     * @param index
-     */
-    void paint(QPainter* painter,
-               const QStyleOptionViewItem& option,
-               const QModelIndex& index) const override;
-
 private:
     /// Combobox
     mutable QPointer<QComboBox> m_comboBox{nullptr};

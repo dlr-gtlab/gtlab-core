@@ -74,7 +74,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     ui->setupUi(this);
 
-
     // hide some stuff
     ui->menuUpdate_available->menuAction()->setVisible(false);
 
@@ -1313,9 +1312,6 @@ GtMainWin::onLogMessage(const QString& msg, int level)
 void
 GtMainWin::onEditorWindowActive(int editorIndex)
 {
-    gtInfo() << "onEditorWindowActive " << editorIndex;
-
-
     emit currentMdiItemPrintable(
                 gtMdiLauncher->isPrintable(ui->mdiArea->widget(editorIndex)));
 }

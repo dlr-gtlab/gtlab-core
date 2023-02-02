@@ -194,24 +194,6 @@ GtPropertyTreeView::setCategoryFilter(const QStringList& filter)
 }
 
 void
-GtPropertyTreeView::drawRow(QPainter* painter,
-                            const QStyleOptionViewItem& option,
-                            const QModelIndex& index) const
-{
-    QStyleOptionViewItemV3 opt = option;
-
-    GtTreeView::drawRow(painter, opt, index);
-
-    QColor color = static_cast<QRgb>(QApplication::style()->styleHint(
-                                         QStyle::SH_Table_GridLineColor, &opt));
-    painter->save();
-    painter->setPen(QPen(color));
-    painter->drawLine(opt.rect.x(), opt.rect.bottom(),
-                      opt.rect.right(), opt.rect.bottom());
-    painter->restore();
-}
-
-void
 GtPropertyTreeView::resizeEvent(QResizeEvent* event)
 {
     GtTreeView::resizeEvent(event);
