@@ -22,6 +22,9 @@
 #include "gt_icons.h"
 
 #include "gt_preferencesapp.h"
+#include <QStandardItemModel>
+
+#include <cassert>
 
 struct LoggingVerbosity
 {
@@ -108,6 +111,15 @@ GtPreferencesApp::GtPreferencesApp() :
     m_themeSelection->addItem(tr("System selection"));
     m_themeSelection->addItem(tr("Bright mode"));
     m_themeSelection->addItem(tr("Dark mode"));
+
+    // disable system selection on linux
+#if !defined(WIN32)
+    auto* model = qobject_cast<QStandardItemModel*>(m_themeSelection->model());
+    assert(model != nullptr && model->item(0));
+    auto* item = model->item(0);
+    item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+#endif
+
     formLay->addRow(tr("Theme section:"), m_themeSelection);
 
     generalLayout->addLayout(formLay);
