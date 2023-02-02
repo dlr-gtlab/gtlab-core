@@ -271,7 +271,7 @@ GtMdiLauncher::print(QWidget* subWindow)
 }
 
 bool
-GtMdiLauncher::isPrintable(QMdiSubWindow* subWindow) const
+GtMdiLauncher::isPrintable(QWidget* subWindow) const
 {
     if (!subWindow)
     {

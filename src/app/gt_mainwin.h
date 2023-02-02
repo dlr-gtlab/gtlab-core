@@ -379,9 +379,9 @@ private slots:
 
     /**
      * @brief Called by activate an mdi item.
-     * @param mdi sub window
+     * @param mdi sub window index
      */
-    void onEditorWindowActive(QMdiSubWindow* window);
+    void onEditorWindowActive(int editorIndex);
 
 signals:
     /**

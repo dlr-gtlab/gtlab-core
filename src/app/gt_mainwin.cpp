@@ -74,7 +74,6 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     ui->setupUi(this);
 
-
     // hide some stuff
     ui->menuUpdate_available->menuAction()->setVisible(false);
 
@@ -231,8 +230,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     loadPerspectiveSettings();
 	
-    connect(ui->mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
-            SLOT(onEditorWindowActive(QMdiSubWindow*)));
+    connect(ui->mdiArea, SIGNAL(currentChanged(int)),
+            SLOT(onEditorWindowActive(int)));
 
     loadPerspectiveSettings();
 
@@ -1311,10 +1310,10 @@ GtMainWin::onLogMessage(const QString& msg, int level)
 }
 
 void
-GtMainWin::onEditorWindowActive(QMdiSubWindow* window)
+GtMainWin::onEditorWindowActive(int editorIndex)
 {
-
-    emit currentMdiItemPrintable(gtMdiLauncher->isPrintable(window));
+    emit currentMdiItemPrintable(
+                gtMdiLauncher->isPrintable(ui->mdiArea->widget(editorIndex)));
 }
 
 void

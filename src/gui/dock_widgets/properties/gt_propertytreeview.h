@@ -89,16 +89,6 @@ public:
 
 protected:
     /**
-     * @brief drawRow
-     * @param painter
-     * @param option
-     * @param index
-     */
-    void drawRow(QPainter* painter,
-                 const QStyleOptionViewItem& option,
-                 const QModelIndex& index) const override;
-
-    /**
      * @brief resizeEvent
      * @param event
      */

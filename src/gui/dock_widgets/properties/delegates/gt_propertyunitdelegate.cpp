@@ -130,37 +130,3 @@ GtPropertyUnitDelegate::setData(int /*val*/)
 {
     emit commitData(m_comboBox);
 }
-
-void
-GtPropertyUnitDelegate::paint(QPainter* painter,
-                              const QStyleOptionViewItem& option,
-                              const QModelIndex& index) const
-{
-    bool isCategory = index.data(GtPropertyModel::CategoryRole).toBool();
-
-    if (!painter)
-    {
-        return;
-    }
-
-    if (isCategory)
-    {
-        QStyledItemDelegate::paint(painter, option, index);
-        return;
-    }
-
-    painter->save();
-
-    QStyledItemDelegate::paint(painter, option, index);
-
-    QColor color =
-        static_cast<QRgb>(QApplication::style()->styleHint(
-                              QStyle::SH_Table_GridLineColor, &option));
-    painter->setPen(QPen(color));
-
-    int right = (option.direction == Qt::LeftToRight) ? option.rect.right() :
-                 option.rect.left();
-    painter->drawLine(right, option.rect.y(), right, option.rect.bottom());
-
-    painter->restore();
-}

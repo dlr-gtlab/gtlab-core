@@ -30,8 +30,6 @@ GtToolbarHandler::GtToolbarHandler()
 void
 GtToolbarHandler::buttonClicked(const QString &btnId)
 {
-    gtInfo() << "toolbar button clicked! (" << btnId << ")";
-
     if (btnId == "btn_save_project")
     {
         emit saveProjectButtonClicked();
@@ -85,7 +83,6 @@ GtToolbarHandler::onObjectSelected(GtObject* obj)
 {
     if (obj != m_selectedObj)
     {
-//        gtInfo() << "GtToolbarHandler::onObjectSelected";
         m_selectedObj = obj;
     }
 }

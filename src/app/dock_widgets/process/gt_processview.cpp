@@ -156,5 +156,5 @@ GtProcessView::resizeColumns()
 
     int stateIconSpace = 2 * gt::gui::icon::standardSizeSmall().width();
 
-    setColumnWidth(0, width() - stateIconSpace - delta);
+    setColumnWidth(0, width() - stateIconSpace - delta - 10);
 }
