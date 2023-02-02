@@ -23,7 +23,9 @@ GtDockWidget::GtDockWidget()
     qml_titlebar->resize(QSize(50, 25));
     qml_titlebar->setResizeMode(QQuickWidget::SizeRootObjectToView);
     qml_titlebar->rootContext()->setContextProperty("dockwidget", this);
+    qml_titlebar->rootContext()->setContextProperty("gtapp", gtApp);
     qml_titlebar->setSource(QUrl("qrc:/qml/dockbar.qml"));
+
     setTitleBarWidget(qml_titlebar);
 
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),

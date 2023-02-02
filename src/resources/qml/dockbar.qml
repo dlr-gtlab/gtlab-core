@@ -23,7 +23,7 @@ Rectangle {
             text: dockwidget.objectName
 			font.family: "Helvetica"
             font.pointSize: 8
-			color: "black"
+            color: dockBar.dark_mode ? "white" : "black"
 		}
 
         RowLayout {
@@ -88,5 +88,17 @@ Rectangle {
                 }
 
             }
+        }
+
+        Connections
+        {
+            target: gtapp
+
+            function onThemeChanged(dark)
+            {
+                console.log("QML: Theme changed!");
+                dark_mode = dark;
+            }
+
         }
 }
