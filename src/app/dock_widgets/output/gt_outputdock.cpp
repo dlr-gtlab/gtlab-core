@@ -77,6 +77,7 @@ GtOutputDock::GtOutputDock()
     m_logView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_logView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_logView->setSizeAdjustPolicy(GtTableView::AdjustToContents);
+    m_logView->setShowGrid(false);
     m_logView->setModel(m_model);
 
     // resize the level and time columns as they wont change
@@ -274,6 +275,8 @@ GtOutputDock::GtOutputDock()
     registerShortCut("toggleWarningOutput", QKeySequence(Qt::CTRL + Qt::Key_W));
     registerShortCut("toggleErrorOutput", QKeySequence(Qt::CTRL + Qt::Key_E));
     registerShortCut("clearOutput", QKeySequence(Qt::CTRL + Qt::Key_L));
+
+    m_logView->verticalHeader()->hide();
 }
 
 Qt::DockWidgetArea
