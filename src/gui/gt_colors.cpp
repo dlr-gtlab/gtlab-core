@@ -18,7 +18,7 @@ QColor
 gt::gui::color::basicDark()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return {21,34, 49};        //QColor(45, 45, 45);
+    return QColor{21,34, 49};
 }
 
 QColor
@@ -32,7 +32,6 @@ gt::gui::color::dummyObjectBackground()
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return QColor{255, 140, 140};
-
 }
 
 QColor
