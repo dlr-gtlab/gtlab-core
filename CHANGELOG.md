@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed a bug where the "Add Process" button was not disabled after closing a project - #369
 - Fixed bug that prevents the process importer from working - #381 
+- Fixed bug that prevented the creation of a new task when the project was created by another user - #388
 
 ### Added
 - Added batch application commands `list_variables` and `set_variable <id> <value>` - #391
