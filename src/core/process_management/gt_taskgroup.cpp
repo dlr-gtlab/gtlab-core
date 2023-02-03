@@ -90,6 +90,9 @@ GtTaskGroup::read(const QString& projectPath,
     {
         // index file not found. empty or new task group
         m_pimpl-> _initialized = true;
+
+        // init folder structure
+        this->save(projectPath, scope);
         return true;
     }
 
