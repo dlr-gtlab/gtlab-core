@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.0-pr-alpha6] - 2023-02-03
 ### Changed
 - The Output Dock now displays all log message in a table format - #347
 - The log error message box will spawn delayed if one was closed recently - #373
@@ -27,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed option to enable dev mode in the GUI application using `-dev`. Use `--dev` instead.
 
-## [2.0.0-pr-alpha5] - 2021-12-14
+## [2.0.0-pr-alpha5] - 2022-12-14
 ### Fixed
 - Unknown or duplicate shortcuts in the shortcut preference page will be removed once "Restore" was clicked - #290 
 - Fixed some shortcuts being registered multiple times - #361
@@ -43,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shortcut for closing current MDI-Tab (`Crtl+W` by default) - #357
 - Added batch application command `load_module <my_module_file>` which can be used for module testing - #260
 
-## [2.0.0-pr-alpha4] - 2021-12-06
+## [2.0.0-pr-alpha4] - 2022-12-06
 ### Fixed 
 - Initial structure to avoid loading of GUI elements in console mode - #2
 - Exporter: Setting an invalid or empty file extension will no longer crash GTlab - #130
