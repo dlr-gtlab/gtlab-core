@@ -221,8 +221,6 @@ main(int argc, char* argv[])
 
     w.show();
 
-    gtApp->setDarkMode(gtApp->settings()->darkMode());
-
     splash.finish(&w);
 
     return a.exec();

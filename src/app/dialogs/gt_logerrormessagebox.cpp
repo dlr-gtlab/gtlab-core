@@ -13,6 +13,7 @@
 #include "gt_colors.h"
 #include "gt_logging.h"
 #include "gt_listview.h"
+#include "gt_palette.h"
 
 #include <QMessageBox>
 #include <QPointer>
@@ -123,7 +124,7 @@ GtLogErrorMessageBox::GtLogErrorMessageBox(QWidget* parent) :
     m_model = new GtLogErrorMessageBoxModel;
     m_view->setModel(m_model);
 
-    QPalette p;
+    QPalette p = gt::gui::currentTheme();
     p.setColor(QPalette::Base, p.color(QPalette::Window));
     m_view->setPalette(p);
 

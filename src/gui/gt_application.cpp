@@ -68,7 +68,7 @@ GtApplication::GtApplication(QCoreApplication* parent,
 
     m_devMode = devMode;
     m_appMode = batchMode;
-    m_darkMode = false;
+    setDarkMode(settings()->darkMode());
 
     // apppend shortcuts object
     auto sc = new GtShortCuts(this);
@@ -749,10 +749,8 @@ GtApplication::inDarkMode()
 void
 GtApplication::setDarkMode(bool dark)
 {
-
     static bool initial = true;
     m_darkMode = dark;
-
 
     if (!initial)
     {
@@ -763,7 +761,6 @@ GtApplication::setDarkMode(bool dark)
 
     initial = false;
     emit themeChanged(dark);
-
 }
 
 bool
@@ -842,5 +839,8 @@ void
 GtApplication::onGuiInitializationFinished()
 {
     initModules();
+
+    // update theme
+    emit themeChanged(m_darkMode);
 }
 
