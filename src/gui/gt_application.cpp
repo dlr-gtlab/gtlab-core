@@ -7,14 +7,7 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QIcon>
-#include <QApplication>
-#include <QDir>
-#include <QClipboard>
-#include <QUndoStack>
-#include <QUuid>
-#include <QDebug>
-#include <QKeyEvent>
+#include "gt_application.h"
 
 #include "gt_mdilauncher.h"
 #include "gt_guimoduleloader.h"
@@ -27,6 +20,7 @@
 #include "gt_mementochangecommand.h"
 #include "gt_processrunner.h"
 #include "gt_processexecutor.h"
+#include "gt_filesystem.h"
 
 #include "gt_datamodel.h"
 #include "gt_command.h"
@@ -38,7 +32,16 @@
 #include "gt_shortcuts.h"
 #include "gt_projectui.h"
 
-#include "gt_application.h"
+#include <QIcon>
+#include <QApplication>
+#include <QDir>
+#include <QClipboard>
+#include <QUndoStack>
+#include <QUuid>
+#include <QDebug>
+#include <QKeyEvent>
+#include <QStandardPaths>
+
 
 GtApplication::GtApplication(QCoreApplication* parent,
                              bool devMode,
@@ -792,6 +795,36 @@ GtApplication::readPerspectiveIds()
 bool
 GtApplication::initFirstRun()
 {
+    // check existence of old roaming path directory
+#ifdef Q_OS_UNIX
+    auto oldConfigPath = QStandardPaths::writableLocation(
+                QStandardPaths::GenericConfigLocation);
+#else
+    auto oldConfigPath = roamingPath();
+#endif
+    auto configPath = roamingPath();
+
+
+    if (oldConfigPath != configPath &&
+        QDir(oldConfigPath).exists() &&
+       !QDir(configPath).exists())
+    {
+        auto button = QMessageBox::question(nullptr, tr("Migrate configuration"),
+                              tr("GTlab found a configuration of an older GTlab"
+                                 " version. Do you want to migrate the data?"));
+
+        QDir newPath(configPath);
+        if (!newPath.exists())
+        {
+            QDir().mkpath(configPath);
+        }
+
+        if (button == QMessageBox::Yes)
+        {
+            migrateConfigData(oldConfigPath, configPath);
+        }
+    }
+
     GtCoreApplication::initFirstRun();
 
     // create application directories

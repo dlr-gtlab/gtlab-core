@@ -411,6 +411,10 @@ public:
     void addSuppression(const GtModuleInterface& suppressor,
         const QString& suppressedModuleId);
 
+    /**
+     * @brief Copies GTlab config files from src to target
+     */
+    void migrateConfigData(const QDir &srcDir, const QDir &targetDir);
 protected:
     /// Current session
     std::unique_ptr<GtSession> m_session;

@@ -92,7 +92,7 @@ GtCoreApplication::roamingPath()
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 #else
     return QStandardPaths::writableLocation(
-                QStandardPaths::GenericConfigLocation);
+                QStandardPaths::AppConfigLocation);
 #endif
 }
 
@@ -150,20 +150,6 @@ GtCoreApplication::init()
     m_self = this;
 
     initLogging();
-
-    // TODO: delete after alpha Version
-    QString wPath = roamingPath() + QDir::separator() +
-                    QStringLiteral("workspace");
-    QString sPath = roamingPath() + QDir::separator() +
-                    QStringLiteral("session");
-
-    QDir path(wPath);
-
-    if (path.exists())
-    {
-        bool s = path.rename(wPath, sPath);
-        qDebug() << "workspace renamed = " << s;
-    }
 
     // #####
     initFirstRun();
@@ -1022,4 +1008,49 @@ GtCoreApplication::switchCurrentProject()
     {
         emit currentProjectChanged(nullptr);
     }
+}
+
+
+void
+GtCoreApplication::migrateConfigData(const QDir& srcDir, const QDir& targetDir)
+{
+    if (!srcDir.exists())
+    {
+        gtError() << QObject::tr("Cannot migrate config data."
+                                 "Config path %1 does not exist.")
+                     .arg(srcDir.absolutePath());
+        return;
+    }
+
+    if (!targetDir.exists())
+    {
+        QDir().mkpath(targetDir.absolutePath());
+    }
+
+    // copy session/*.json
+    QDir sessionDir(srcDir.absolutePath() + QDir::separator() + "session");
+    if (sessionDir.exists())
+    {
+        QDir newSessionDir(targetDir.absolutePath() +
+                           QDir::separator() + "session");
+        gt::filesystem::copyDir(sessionDir, newSessionDir,
+                                gt::filesystem::OverwriteFiles,
+                                QRegularExpression(R"(.*\.json)"));
+    }
+
+
+    // copy perspective folder
+    QDir perspectiveDir(srcDir.absolutePath() +
+                        QDir::separator() + "perspective");
+    if (perspectiveDir.exists())
+    {
+        QDir newPerspectiveDir(targetDir.absolutePath() +
+                               QDir::separator() + "perspective");
+        gt::filesystem::copyDir(perspectiveDir, newPerspectiveDir,
+                                gt::filesystem::OverwriteFiles);
+    }
+
+    // copy env.ini
+    QFile::copy(srcDir.absolutePath() + QDir::separator() + "env.ini",
+                targetDir.absolutePath() + QDir::separator() + "env.ini");
 }
