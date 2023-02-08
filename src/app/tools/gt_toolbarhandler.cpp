@@ -9,6 +9,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QQmlContext>
 
 #include "gt_logging.h"
 #include "gt_datamodel.h"
@@ -22,13 +23,32 @@
 
 #include "gt_toolbarhandler.h"
 
-GtToolbarHandler::GtToolbarHandler()
-{
+#include "gt_mainwin.h"
 
+GtToolbar::GtToolbar(GtMainWin* parent)
+    : QQuickWidget(parent)
+{
+    //    m_myqmlwid->rootContext()->setContextProperty("_cppModel",
+    //                                                   m_model);
+
+
+    //    m_myqmlwid->rootContext()->setContextProperty("global_fullname",
+    //                                                  my_client.userFullName());
+    //    m_myqmlwid->rootContext()->setContextProperty("global_icon",
+    //                                                  my_client.userAvatarUrl());
+    rootContext()->setContextProperty("mainwin",
+                                      parent);
+    rootContext()->setContextProperty("gtapp",
+                                                  gtApp);
+    rootContext()->setContextProperty("undostack",
+                                                  gtApp->undoStack());
+    rootContext()->setContextProperty("handler", this);
+
+    setSource(QUrl("qrc:/qml/toolbar.qml"));
 }
 
 void
-GtToolbarHandler::buttonClicked(const QString &btnId)
+GtToolbar::buttonClicked(const QString &btnId)
 {
     if (btnId == "btn_save_project")
     {
@@ -79,7 +99,7 @@ GtToolbarHandler::buttonClicked(const QString &btnId)
 }
 
 void
-GtToolbarHandler::onObjectSelected(GtObject* obj)
+GtToolbar::onObjectSelected(GtObject* obj)
 {
     if (obj != m_selectedObj)
     {
@@ -88,7 +108,7 @@ GtToolbarHandler::onObjectSelected(GtObject* obj)
 }
 
 bool
-GtToolbarHandler::projectHasInfo()
+GtToolbar::projectHasInfo()
 {
     // check project readme and show content
     GtProject* currentProject = gtApp->currentProject();

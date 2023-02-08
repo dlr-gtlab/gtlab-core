@@ -28,7 +28,7 @@ class GtAbstractLoadingHelper;
 class GtObject;
 class GtDockWidget;
 class GtProcessQueueWidget;
-class GtToolbarHandler;
+class GtToolbar;
 class QUndoView;
 class QQuickWidget;
 class QMdiSubWindow;
@@ -110,10 +110,8 @@ private:
     QPointer<QUndoView> m_undoView;
 
     /// Qml toolbar widget
-    QQuickWidget* m_myqmlwid;
+    GtToolbar* m_myqmlwid;
 
-    /// Qml toolbar handler
-    std::unique_ptr<GtToolbarHandler> m_toolBarHandler;
 
     /**
      * @brief setupDockWidgets

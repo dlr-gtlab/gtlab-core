@@ -14,16 +14,17 @@
 #include <QPointer>
 
 #include "gt_object.h"
+#include <QQuickWidget>
 
 /**
  * @brief Class for controlling the QML Toolbar.
  */
-class GtToolbarHandler: public QObject
+class GtToolbar: public QQuickWidget
 {
     Q_OBJECT
 
 public:
-    GtToolbarHandler();
+    GtToolbar(class GtMainWin* parent = nullptr);
 
 public slots:
     /**
@@ -47,6 +48,7 @@ public slots:
     bool projectHasInfo();
 
 private:
+
     /// Pointer to selected object
     QPointer<GtObject> m_selectedObj;
 
