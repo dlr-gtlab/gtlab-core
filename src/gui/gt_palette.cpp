@@ -26,69 +26,105 @@ gt::gui::currentTheme()
     return standardTheme();
 }
 
+struct ColorConfig
+{
+    QColor main;
+    QColor base;
+    QColor text;
+    QColor disabled;
+    QColor highlight;
+    QColor textHighlighted;
+    QColor link;
+    QColor linkVisited;
+};
+
+QPalette
+generateTheme(ColorConfig const& config)
+{
+    QPalette palette;
+
+    // window stuff
+    palette.setColor(QPalette::Window, config.main);
+    palette.setColor(QPalette::Base, config.base);
+    palette.setColor(QPalette::AlternateBase, config.main);
+
+    // widgets
+    palette.setColor(QPalette::Button, config.main);
+
+    // tones
+    palette.setColor(QPalette::Light, config.main); // used for text shadows
+    // QPalette::Dark = QFrame::Sunken
+    // QPalette::Mid  = QWizard: QFrame between page and buttons
+
+    // highlights
+    palette.setColor(QPalette::Highlight, config.highlight);
+    palette.setColor(QPalette::HighlightedText, config.textHighlighted);
+
+    // links
+    palette.setColor(QPalette::Link, config.link);
+    palette.setColor(QPalette::LinkVisited, config.linkVisited);
+
+    // general text
+    palette.setColor(QPalette::Text, config.text);
+    palette.setColor(QPalette::BrightText, config.text);
+    palette.setColor(QPalette::WindowText, config.text);
+    palette.setColor(QPalette::ToolTipText, config.text);
+    palette.setColor(QPalette::ButtonText, config.text);
+    palette.setColor(QPalette::PlaceholderText, config.disabled);
+
+    // disabled text
+    palette.setColor(QPalette::Disabled, QPalette::Text, config.disabled);
+    palette.setColor(QPalette::Disabled, QPalette::BrightText, config.disabled);
+    palette.setColor(QPalette::Disabled, QPalette::ButtonText, config.disabled);
+
+    return palette;
+}
+
+
 QPalette
 gt::gui::darkTheme()
 {
-    QPalette palette;
-    QColor darkColor = color::basicDark();
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    QColor disabledColor = QColor(127, 127, 127);
+    static const QPalette p = [](){
 
-    palette.setColor(QPalette::Window, darkColor);
-    palette.setColor(QPalette::Background, darkColor);
-    palette.setColor(QPalette::WindowText, Qt::white);
-    palette.setColor(QPalette::Base, darkColor); //QColor(18,18,18));
-    palette.setColor(QPalette::AlternateBase, darkColor);
-    palette.setColor(QPalette::ToolTipBase, Qt::white);
-    palette.setColor(QPalette::ToolTipText, Qt::white);
-    palette.setColor(QPalette::Text, Qt::white);
-    palette.setColor(QPalette::Disabled, QPalette::Text, disabledColor);
-    palette.setColor(QPalette::Button, darkColor);
-    palette.setColor(QPalette::ButtonText, Qt::white);
-    palette.setColor(QPalette::Disabled, QPalette::ButtonText, disabledColor);
-    palette.setColor(QPalette::BrightText, Qt::red);
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    palette.setColor(QPalette::Link, QColor(42, 130, 218));
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    palette.setColor(QPalette::HighlightedText, Qt::black);
-    palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
-                     disabledColor);
-    return palette;
+        // TODO: add these categories to gt::gui::color
+        ColorConfig config;
+        config.main = color::basicDark();
+        config.base = config.main;
+        config.text = Qt::lightGray;
+        config.disabled = config.text.darker();
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+        config.highlight =  QColor{42, 130, 218};
+        config.textHighlighted = config.text;
+        config.link = config.highlight;
+        config.linkVisited = config.link.darker();
 
+        return generateTheme(config);
+    }();
+
+    return p;
 }
 
 QPalette
 gt::gui::standardTheme()
 {
-    QPalette palette;
+    static const QPalette p = [](){
 
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    QColor mainColor = QColor(245, 245, 245);
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    QColor disabledColor = QColor(127, 127, 127);
+        ColorConfig config;
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+        config.main = QColor{245, 245, 245};
+        config.base = Qt::white;
+        config.text = Qt::black;
+        config.disabled = Qt::darkGray;
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+        config.highlight =  QColor{42, 130, 218};  // TODO: add highlight
+        config.textHighlighted = config.text;
+        config.link = config.highlight;
+        config.linkVisited = config.link.darker();
 
-    palette.setColor(QPalette::Window, mainColor);
-    palette.setColor(QPalette::Background, mainColor);
-    palette.setColor(QPalette::WindowText, Qt::black);
-    palette.setColor(QPalette::Base, Qt::white);
-    palette.setColor(QPalette::AlternateBase, mainColor);
-    palette.setColor(QPalette::ToolTipBase, Qt::black);
-    palette.setColor(QPalette::ToolTipText, Qt::black);
-    palette.setColor(QPalette::Text, Qt::black);
-    palette.setColor(QPalette::Button, mainColor);
-    palette.setColor(QPalette::ButtonText, Qt::black);
-    palette.setColor(QPalette::Disabled, QPalette::ButtonText, disabledColor);
-    palette.setColor(QPalette::BrightText, Qt::red);
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    palette.setColor(QPalette::Link, QColor(42, 130, 218));
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    palette.setColor(QPalette::HighlightedText, Qt::black);
-    palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
-                     disabledColor);
+        return generateTheme(config);
+    }();
 
-    return palette;
+    return p;
 }
 
 void
