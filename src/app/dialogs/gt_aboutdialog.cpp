@@ -104,6 +104,12 @@ GtAboutDialog::exportFootprint()
                        QString(), tr("XML files (*.xml)"),
                        initFileName);
 
+    if (filename.isEmpty())
+    {
+        // abort has been pressed
+        return;
+    }
+
     QFile file(filename);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
