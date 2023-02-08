@@ -71,6 +71,7 @@ HEADERS += $$files(gui/*.h)
 
 #### SOURCES
 SOURCES += \
+    datamodel/test_gtobjectio.cpp \
     main.cpp \
     gt_testhelper.cpp \
     slotadaptor.cpp
