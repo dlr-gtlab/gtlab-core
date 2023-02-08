@@ -55,6 +55,6 @@ gt::PropertyFactoryFunction
 gt::makeVariantProperty(const GtUnit::Category &unitCategory)
 {
     return [=](const QString& id) {
-        return new GtVariantProperty(id, "", "", unitCategory);
+        return new GtVariantProperty(id, id, "", unitCategory);
     };
 }
