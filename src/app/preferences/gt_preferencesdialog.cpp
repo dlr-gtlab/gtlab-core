@@ -13,6 +13,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QProcess>
 
 #include "gt_preferencesdialog.h"
 #include "gt_preferencesapp.h"
@@ -25,6 +26,7 @@
 #include "gt_icons.h"
 #include "gt_application.h"
 #include "gt_settings.h"
+#include "qapplication.h"
 
 
 GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
@@ -172,6 +174,30 @@ GtPreferencesDialog::changePage(QListWidgetItem* current,
     m_pagesWidget->setCurrentIndex(m_contentsWidget->row(current));
 }
 
+void askUserAndRestart()
+{
+
+    QMessageBox dialog;
+    dialog.setWindowTitle(QObject::tr("Restart required"));
+    dialog.setText(QObject::tr("The changes require a restart "
+                               "of GTlab to take effect."));
+    auto restartButton = dialog.addButton(QObject::tr("Restart now"),
+                                       QMessageBox::AcceptRole);
+    dialog.addButton(QString(QObject::tr("Later")),
+                  QMessageBox::RejectRole);
+
+    dialog.setModal(true);
+    dialog.setIcon(QMessageBox::Information);
+    dialog.exec();
+
+    if (dialog.clickedButton() == restartButton)
+    {
+        // now restart the app
+        qApp->quit();
+        QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+    }
+}
+
 void
 GtPreferencesDialog::saveChanges()
 {
@@ -185,8 +211,7 @@ GtPreferencesDialog::saveChanges()
 
     if (gtApp->settings()->requiresAppRestart())
     {
-        QMessageBox::information(this, tr("Restart required"),
-            tr("The changes require a restart of GTlab to take effect"));
+        askUserAndRestart();
     }
 
     accept();
