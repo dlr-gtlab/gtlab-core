@@ -36,7 +36,7 @@
 #include "gt_icons.h"
 #include "gt_palette.h"
 #include "gt_algorithms.h"
-#include "gt_toolbarhandler.h"
+#include "gt_qmltoolbar.h"
 
 #include <gt_logdest.h>
 
@@ -66,7 +66,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     m_cornerWidget(new GtCornerWidget(this)),
     m_forceQuit(false),
     m_firstTimeShowEvent(true),
-    m_processQueue(nullptr)
+    m_processQueue(nullptr),
+    m_mainWindowToolbar(new GtQmlToolbar(this))
 {
     // dock widget have to be initialized before setup the ui
     setupDockWidgets();
@@ -225,26 +226,25 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     ui->qmlToolBar->setStyleSheet("QToolBar {border-bottom: 0px solid black; border-top: 0px solid black;}");
 
-    m_myqmlwid = new GtToolbar(this);
-    ui->qmlToolBar->addWidget(m_myqmlwid);
+;
+    ui->qmlToolBar->addWidget(m_mainWindowToolbar);
 
-    m_myqmlwid->resize(QSize(1500, 50));
-    m_myqmlwid->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_mainWindowToolbar->resize(QSize(1500, 50));
+    m_mainWindowToolbar->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-    connect(m_myqmlwid, SIGNAL(newProjectButtonClicked()),
+    connect(m_mainWindowToolbar, SIGNAL(newProjectButtonClicked()),
            SLOT(showProjectWizard()));
 
-    connect(m_myqmlwid, SIGNAL(saveProjectButtonClicked()),
+    connect(m_mainWindowToolbar, SIGNAL(saveProjectButtonClicked()),
            SLOT(saveCurrentProject()));
-    connect(m_myqmlwid, SIGNAL(openProjectButtonClicked()),
+    connect(m_mainWindowToolbar, SIGNAL(openProjectButtonClicked()),
            SLOT(importProject()));
-    connect(m_myqmlwid, SIGNAL(undoButtonClicked()),
+    connect(m_mainWindowToolbar, SIGNAL(undoButtonClicked()),
            gtApp->undoStack(), SLOT(undo()));
-    connect(m_myqmlwid, SIGNAL(redoButtonClicked()),
+    connect(m_mainWindowToolbar, SIGNAL(redoButtonClicked()),
            gtApp->undoStack(), SLOT(redo()));
     connect(gtApp, SIGNAL(objectSelected(GtObject*)),
-           m_myqmlwid, SLOT(onObjectSelected(GtObject*)));
-
+           m_mainWindowToolbar, SLOT(onObjectSelected(GtObject*)));
 
 }
 
@@ -400,7 +400,7 @@ GtMainWin::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
 
-    m_myqmlwid->resize(QSize(this->width(), 50));
+    m_mainWindowToolbar->resize(QSize(this->width(), 50));
 }
 
 void

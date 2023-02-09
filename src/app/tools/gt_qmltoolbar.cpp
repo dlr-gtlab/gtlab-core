@@ -10,45 +10,40 @@
 #include <QDir>
 #include <QFile>
 #include <QQmlContext>
+#include <QAction>
 
 #include "gt_logging.h"
-#include "gt_datamodel.h"
 #include "gt_application.h"
 #include "gt_mdilauncher.h"
-#include "gt_projectprovider.h"
-#include "gt_projectwizard.h"
 #include "gt_project.h"
-#include "gt_projectui.h"
 #include "gt_markdowneditor.h"
 
-#include "gt_toolbarhandler.h"
+#include "gt_qmltoolbar.h"
 
 #include "gt_mainwin.h"
+#include "gt_icons.h"
 
-GtToolbar::GtToolbar(GtMainWin* parent)
+GtQmlToolbar::GtQmlToolbar(GtMainWin* parent)
     : QQuickWidget(parent)
+    , m_customActions(new GtQmlObjectListModel(this))
 {
-    //    m_myqmlwid->rootContext()->setContextProperty("_cppModel",
-    //                                                   m_model);
+    setObjectName("MainWindowToolbar");
 
-
-    //    m_myqmlwid->rootContext()->setContextProperty("global_fullname",
-    //                                                  my_client.userFullName());
-    //    m_myqmlwid->rootContext()->setContextProperty("global_icon",
-    //                                                  my_client.userAvatarUrl());
     rootContext()->setContextProperty("mainwin",
                                       parent);
     rootContext()->setContextProperty("gtapp",
                                                   gtApp);
     rootContext()->setContextProperty("undostack",
                                                   gtApp->undoStack());
-    rootContext()->setContextProperty("handler", this);
+    rootContext()->setContextProperty("toolbar", this);
+
+    rootContext()->setContextProperty("customActions", m_customActions);
 
     setSource(QUrl("qrc:/qml/toolbar.qml"));
 }
 
 void
-GtToolbar::buttonClicked(const QString &btnId)
+GtQmlToolbar::buttonClicked(const QString &btnId)
 {
     if (btnId == "btn_save_project")
     {
@@ -99,7 +94,7 @@ GtToolbar::buttonClicked(const QString &btnId)
 }
 
 void
-GtToolbar::onObjectSelected(GtObject* obj)
+GtQmlToolbar::onObjectSelected(GtObject* obj)
 {
     if (obj != m_selectedObj)
     {
@@ -108,7 +103,7 @@ GtToolbar::onObjectSelected(GtObject* obj)
 }
 
 bool
-GtToolbar::projectHasInfo()
+GtQmlToolbar::projectHasInfo()
 {
     // check project readme and show content
     GtProject* currentProject = gtApp->currentProject();
@@ -122,4 +117,12 @@ GtToolbar::projectHasInfo()
     QFile readmeFile(projectDir.absoluteFilePath("README.md"));
 
     return readmeFile.exists();
+}
+
+GtQmlAction*
+GtQmlToolbar::addCustomButton(const QString &text, const QUrl &iconUrl)
+{
+    auto action = new GtQmlAction(text, iconUrl, this);
+    m_customActions->addObject(action);
+    return action;
 }

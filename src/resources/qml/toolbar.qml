@@ -68,7 +68,7 @@ Rectangle {
                         id: btnHome
                         objectName: "btnHome"
                         text: "Home"
-                        onClicked: handler.buttonClicked(this.objectName)
+                        onClicked: toolbar.buttonClicked(this.objectName)
                     }
                     AnimatedButton {
                         id: btnNewProject
@@ -82,7 +82,7 @@ Rectangle {
 //                        custom_iconColorDark: custom_secondaryColor
 //                        custom_backgroundColor: "#f5deb3"
                         text: "New Project"
-                        onClicked: handler.buttonClicked(this.objectName)
+                        onClicked: toolbar.buttonClicked(this.objectName)
                     }
                     AnimatedButton {
                         id: btnOpenProject
@@ -91,7 +91,7 @@ Rectangle {
                         icon.width: 16
                         icon.height: 16
                         text: "Open Project"
-                        onClicked: handler.buttonClicked(this.objectName)
+                        onClicked: toolbar.buttonClicked(this.objectName)
                     }
                 }
             }
@@ -150,7 +150,7 @@ Rectangle {
                         icon.height: 10
                         text: "Save Project"
                         visible: false
-                        onClicked: handler.buttonClicked(this.objectName)
+                        onClicked: toolbar.buttonClicked(this.objectName)
                     }
 
                     AnimatedButton {
@@ -161,7 +161,7 @@ Rectangle {
                         icon.height: 10
                         text: "Undo"
                         visible: false
-                        onClicked: handler.buttonClicked(this.objectName)
+                        onClicked: toolbar.buttonClicked(this.objectName)
                     }
 
                     AnimatedButton {
@@ -172,7 +172,7 @@ Rectangle {
                         icon.height: 10
                         text: "Redo"
                         visible: false
-                        onClicked: handler.buttonClicked(this.objectName)
+                        onClicked: toolbar.buttonClicked(this.objectName)
                     }
 
                     AnimatedButton {
@@ -183,7 +183,7 @@ Rectangle {
                         icon.height: 6
                         text: "Project Info"
                         visible: false
-                        onClicked: handler.buttonClicked(this.objectName)
+                        onClicked: toolbar.buttonClicked(this.objectName)
                     }
                 }
             }
@@ -243,7 +243,7 @@ Rectangle {
                         icon.height: 10
                         text: "Print"
                         visible: false
-                        onClicked: handler.buttonClicked(this.objectName)
+                        onClicked: toolbar.buttonClicked(this.objectName)
                     }
                 }
             }
@@ -254,28 +254,37 @@ Rectangle {
                 implicitWidth: toolBar.width - 10 - system_context.width - project_context.width - editor_context.width - 15
                 implicitHeight: 40
 
+
                 radius: 10
                 x: 5
                 y: 5
 
-                RowLayout {
-                    id: rowFinal
-                    //width: 453
-                    //height: 155
-                    spacing: 2
-                    anchors.fill: parent
+                // Show a list of added buttons at the right side of the toolbar
+                ListView {
+                    id: customActionButtons
                     layoutDirection: Qt.RightToLeft
+                    anchors.fill: parent
+                    orientation: ListView.Horizontal
+                    clip: true
+                    model: customActions
 
-//                    AnimatedButtonGitLab {
-//                        //x: parent.width - width - 30
-//                        y: 10
-//                        id: gitlabBtn
-//                        icon.source: global_icon
-//                        icon.width: 10
-//                        icon.height: 10
-//                        text: global_fullname
-//                        Layout.rightMargin: 5
-//                    }
+                    delegate: AnimatedButton {
+
+                        // disable + hide button, if action disabled
+                        enabled: object.enabled
+                        visible: object.enabled
+
+                        y: 5
+                        spacing: 2
+                        icon.source: object.iconUrl
+                        icon.width: 10
+                        icon.height: 10
+
+                        text: object.text
+
+                        // delegate to action signal
+                        onClicked: object.trigger()
+                    }
                 }
             }
         }
@@ -310,7 +319,7 @@ Rectangle {
                     btn_redo.inactive_animation.complete()
 
                     btn_save_project.active_animation.restart();
-                    if (handler.projectHasInfo())
+                    if (toolbar.projectHasInfo())
                     {
                         btn_info.active_animation.restart();
                     }
