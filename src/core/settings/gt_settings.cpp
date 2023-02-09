@@ -127,7 +127,7 @@ GtSettings::GtSettings()
                 QStringLiteral("application/general/shortCuts"),
                 initialShortCuts());
 
-    pimpl->themeSelection = registerSetting(
+    pimpl->themeSelection = registerSettingRestart(
                         QStringLiteral("application/general/themeSelection"),
                         QStringLiteral("system"));
 
