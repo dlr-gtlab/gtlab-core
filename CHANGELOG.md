@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - The directory of GTlab's config files has been changed on Linux to ~/.config/DLR/GTlab - #327
 
+### Fixed
+- Fixed missing undo/redo functionality for object link and file/folder selection properties - #28
+
 ## [2.0.0-pr-alpha6] - 2023-02-03
 ### Changed
 - The Output Dock now displays all log message in a table format - #347

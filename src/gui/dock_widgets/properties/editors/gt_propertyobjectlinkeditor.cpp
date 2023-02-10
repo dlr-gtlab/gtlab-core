@@ -22,6 +22,8 @@
 #include "gt_application.h"
 #include "gt_datamodel.h"
 #include "gt_objectfactory.h"
+#include "gt_command.h"
+#include "gt_project.h"
 
 #include "gt_propertyobjectlinkeditor.h"
 
@@ -77,9 +79,9 @@ GtPropertyObjectLinkEditor::setObjectLinkProperty(GtObjectLinkProperty* prop)
 {
     m_prop = prop;
 
-    if (!m_prop)
+    if (m_prop)
     {
-        qDebug() << "m_prop == nullptr";
+        connect(m_prop.data(), SIGNAL(changed()), SLOT(propertyValueChanged()));
     }
 
     updateText();
@@ -159,8 +161,7 @@ GtPropertyObjectLinkEditor::dropEvent(QDropEvent* event)
 
     if (obj && m_prop->allowedClasses().contains(obj->metaObject()->className()))
     {
-        m_prop->setVal(obj->uuid());
-        updateText();
+        setPropertyValue(obj->uuid());
         emit objectSelected();
     }
 
@@ -229,6 +230,21 @@ GtPropertyObjectLinkEditor::allowedSuperClassObjects(GtObject* obj)
 }
 
 void
+GtPropertyObjectLinkEditor::setPropertyValue(const QString& val)
+{
+    if (!m_scope || !m_prop) return;
+
+    const QString commandMsg = m_scope->objectName() + QStringLiteral(" - ") +
+            m_prop->objectName() + QStringLiteral(" ") + QObject::tr("changed");
+
+    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), commandMsg);
+
+    m_prop->setVal(val);
+
+    gtApp->endCommand(cmd);
+}
+
+void
 GtPropertyObjectLinkEditor::findObject()
 {
     QString uuid = m_prop->getVal();
@@ -242,6 +258,12 @@ GtPropertyObjectLinkEditor::findObject()
 }
 
 void
+GtPropertyObjectLinkEditor::propertyValueChanged()
+{
+    updateText();
+}
+
+void
 GtPropertyObjectLinkEditor::selectObjectLink()
 {
     QList<GtObject*> allowedObjs = allowedObjects(m_scope);
@@ -250,7 +272,7 @@ GtPropertyObjectLinkEditor::selectObjectLink()
 
     if (allowedObjs.size() == 1 && m_prop->get().isEmpty())
     {
-        m_prop->setVal(allowedObjs.first()->uuid());
+        setPropertyValue(allowedObjs.first()->uuid());
     }
     else
     {
@@ -271,7 +293,7 @@ GtPropertyObjectLinkEditor::selectObjectLink()
 
             if (obj)
             {
-                m_prop->setVal(obj->uuid());
+                setPropertyValue(obj->uuid());
             }
         }
     }
@@ -284,9 +306,7 @@ GtPropertyObjectLinkEditor::selectObjectLink()
 void
 GtPropertyObjectLinkEditor::deleteObjectLink()
 {
-    m_prop->setVal(QString());
-
-    updateText();
+    setPropertyValue(QString());
 
     emit objectSelected();
 }

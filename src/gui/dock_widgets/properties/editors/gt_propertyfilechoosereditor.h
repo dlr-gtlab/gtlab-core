@@ -57,6 +57,12 @@ private:
      */
     void updateText();
 
+    /**
+     * @brief Sets property value considering undo/redo functionality.
+     * @param val New property value.
+     */
+    void setPropertyValue(const QString& val);
+
 private slots:
     /**
      * @brief selectFilePath
@@ -67,6 +73,11 @@ private slots:
      * @brief deleteFilePath
      */
     void deleteFilePath();
+
+    /**
+     * @brief Called by property change signal to update editor text.
+     */
+    void propertyValueChanged();
 
 signals:
     void fileSelected(const QString& str);
