@@ -30,7 +30,7 @@ public:
     GtQmlAction(QString text, QUrl iconUrl, QObject* parent = nullptr);
 
     QString text() const;
-    void setText(const QString text);
+    void setText(const QString& text);
 
     QUrl iconUrl() const;
     void setIconUrl(const QUrl&url);

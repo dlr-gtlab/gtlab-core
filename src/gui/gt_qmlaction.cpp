@@ -31,11 +31,11 @@ GtQmlAction::text() const
 }
 
 void
-GtQmlAction::setText(const QString text)
+GtQmlAction::setText(const QString& text)
 {
     if (m_text != text)
     {
-        m_text = std::move(text);
+        m_text = text;
         emit textChanged();
     }
 }
