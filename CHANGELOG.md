@@ -5,19 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.0-pr-beta1] - 2023-02-10
 ### Changed
 - ___Highlight__: Updated the icon set. Default icons will adapt to theme - #374
 - The directory of GTlab's config files has been changed on Linux to `~/.config/DLR/GTlab` - #327
 - Animated splash screen - #418
 
 ### Added
-- Added Icon Browser available in Dev-Mode
+- Added icon browser available in dev-mode - #374
 
 ### Fixed
 - Fixed missing undo/redo functionality for object link and file/folder selection properties - #28
 - Fixed missing functionality for print button in new toolbar widget - #422
 - Fix content margins of preferences pages - #420
-- Low DPI Pixmaps on High DPI monitors
+- Fixed low DPI pixmaps on high DPI monitors - #374
 
 ## [2.0.0-pr-alpha6] - 2023-02-03
 ### Changed
