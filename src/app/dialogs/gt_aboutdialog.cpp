@@ -38,6 +38,7 @@
 #include "gt_sharedfunctionswidget.h"
 #include "gt_taskdata.h"
 #include "gt_taskfactory.h"
+#include "gt_splashscreen.h"
 
 #include "gt_aboutdialog.h"
 
@@ -89,8 +90,8 @@ GtAboutDialog::GtAboutDialog(int startPage, QWidget* parent) : GtDialog(parent)
 
     tabs->setCurrentIndex(startPage);
 
-    setMinimumSize(555, 430);
-    setMaximumSize(555, 430);
+    setMinimumSize(575, 470);
+    setMaximumSize(575, 470);
 }
 
 void
@@ -131,11 +132,10 @@ GtAboutDialog::coreAbout() const
 
     auto* layout = new QVBoxLayout;
 
-    auto* logo = new GtAboutLogo;
-    logo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,
+    auto anim = new GtSplashScreen;
+    anim->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,
                                     QSizePolicy::Expanding));
-
-    layout->addWidget(logo);
+    layout->addWidget(anim);
 
     auto* hLayout = new QHBoxLayout;
 
@@ -171,7 +171,7 @@ GtAboutDialog::coreAbout() const
 
     layout->addLayout(btnLayout);
 
-    layout->setSpacing(0);
+    layout->setSpacing(5);
 
     w->setLayout(layout);
 

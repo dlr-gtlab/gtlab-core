@@ -129,6 +129,7 @@ HEADERS += \
     dialogs/gt_aboutdialog.h \
     tools/gt_accessgroupmodel.h \
     dialogs/gt_accessdatadialog.h \
+    widgets/gt_splashscreen.h \
     widgets/gt_startuppage.h \
     dialogs/gt_checkforupdatesdialog.h \
     widgets/gt_cornerwidget.h \
@@ -222,6 +223,7 @@ SOURCES += \
     dialogs/gt_aboutdialog.cpp \
     tools/gt_accessgroupmodel.cpp \
     dialogs/gt_accessdatadialog.cpp \
+    widgets/gt_splashscreen.cpp \
     widgets/gt_startuppage.cpp \
     dialogs/gt_checkforupdatesdialog.cpp \
     widgets/gt_cornerwidget.cpp \

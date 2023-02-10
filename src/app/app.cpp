@@ -9,7 +9,6 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
-#include <QSplashScreen>
 #include <QMessageBox>
 #include <QSettings>
 #include <QProcess>
@@ -50,6 +49,7 @@
 #include "gt_labelsdock.h"
 #include "gt_postdock.h"
 #include "gt_calculatorsdock.h"
+#include "gt_splashscreen.h"
 
 #ifdef GT_MODELTEST
 #include <QAbstractItemModelTester>
@@ -95,39 +95,41 @@ main(int argc, char* argv[])
 
     QApplication a(argc, argv);
 
-    QSplashScreen splash(gt::gui::pixmap::splash());
+    GtSplashScreen splash(true, true);
     splash.show();
 
     GtApplication app(qApp);
 
-    splash.showMessage(QObject::tr("initializing..."));
-    app.init();
+    splash.process(QObject::tr("initializing..."), [&app](){
+        app.init();
+        // error message box logging destination
+        auto* errorHandler = new GtlogErrorMessageBoxHandler;
+        errorHandler->setParent(&app);
 
-    // error message box logging destination
-    auto* errorHandler = new GtlogErrorMessageBoxHandler;
-    errorHandler->setParent(&app);
-
-    auto& logger = gt::log::Logger::instance();
-    auto dest = gt::log::makeSignalSlotDestination(
-                    errorHandler, &GtlogErrorMessageBoxHandler::onLogMessage);
-    logger.addDestination("error_message_box", std::move(dest));
+        auto& logger = gt::log::Logger::instance();
+        auto dest = gt::log::makeSignalSlotDestination(
+            errorHandler, &GtlogErrorMessageBoxHandler::onLogMessage);
+        logger.addDestination("error_message_box", std::move(dest));
+    });
 
     // TODO: we need shared and environment variables
     // load module environments vars and fill in GTlab environment
     QMap<QString, QString> modEnv = GtModuleLoader::moduleEnvironmentVars();
     QStringList modInitEnvSetup;
 
-    for(auto iter = modEnv.constBegin(); iter != modEnv.constEnd(); ++iter)
-    {
-        const auto& e = iter.key();
-        if (!gtEnvironment->environmentVariableExists(e))
+    splash.process([&modEnv, &modInitEnvSetup](){
+        for(auto iter = modEnv.constBegin(); iter != modEnv.constEnd(); ++iter)
         {
-            gtEnvironment->addEnvironmentVariable(e);
-            QDir envDir(modEnv.value(e));
-            gtEnvironment->setValue(e, envDir.absolutePath());
-            modInitEnvSetup << e;
+            const auto& e = iter.key();
+            if (!gtEnvironment->environmentVariableExists(e))
+            {
+                gtEnvironment->addEnvironmentVariable(e);
+                QDir envDir(modEnv.value(e));
+                gtEnvironment->setValue(e, envDir.absolutePath());
+                modInitEnvSetup << e;
+            }
         }
-    }
+    });
 
     // user dialog to specify unset environment settings
     if (!modInitEnvSetup.isEmpty())
@@ -140,8 +142,12 @@ main(int argc, char* argv[])
         envDialog.exec();
     }
 
+
+
     // save to system environment (temporary)
-    app.saveSystemEnvironment();
+    splash.process([&app](){
+        app.saveSystemEnvironment();
+    });
 
 #ifdef GT_LICENCE
     if (!app.checkLicence())
@@ -167,18 +173,27 @@ main(int argc, char* argv[])
 //        gtGuiApp->initLanguage();
 //    }
     // language initialization
-    app.initLanguage();
+    splash.process([&app](){
+        app.initLanguage();
+    });
 
-    // chort cuts initialization
-    app.initShortCuts();
+    splash.process([&app](){
+        // chort cuts initialization
+        app.initShortCuts();
+    });
+
 
     // datamodel initialization
-    app.initDatamodel();
+    splash.process(QObject::tr("loading datamodel..."), [&app](){
+        app.initDatamodel();
+        // mdi launcher initialization
+        app.initMdiLauncher();
+    }, 300);
 
-    // mdi launcher initialization
-    app.initMdiLauncher();
+    splash.process(QObject::tr("registering widgets..."), [](){
+        registerWidgets();
+    }, 300);
 
-    registerWidgets();
 
     // show refused plugins (application last run crash)
     if (!gtApp->crashedModules().isEmpty())
@@ -189,17 +204,28 @@ main(int argc, char* argv[])
     }
 
     // load GTlab modules
-    splash.showMessage(QObject::tr("loading modules..."));
-    app.loadModules();
+
+    splash.process(QObject::tr("loading modules..."), [&app](){
+        app.loadModules();
+    }, 300);
+
 
     // calculator initialization
-    app.initCalculators();
+    splash.process(QObject::tr("loading calculators..."), [&app](){
+        app.initCalculators();
+    }, 300);
+
 
     // session initialization
-    app.initSession();
+    splash.process(QObject::tr("loading session..."), [&app](){
+        app.initSession();
+    }, 300);
+
 
     // perspective initialization
-    app.initPerspective();
+    splash.process(QObject::tr("loading perspectives..."), [&app](){
+        app.initPerspective();
+    }, 300);
 
 //    gtApp->setLanguage("de");
 
@@ -215,6 +241,8 @@ main(int argc, char* argv[])
 #endif
 
     GtMainWin w;
+
+    splash.processEvents();
 
     QObject::connect(&w, SIGNAL(guiInitialized()),
                      &app, SLOT(onGuiInitializationFinished()));
