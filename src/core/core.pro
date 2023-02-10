@@ -53,6 +53,7 @@ INCLUDEPATH += .\
     process_management/process_runner/commands \
     network \
     states \
+    thirdparty \
     ../dataprocessor \
     ../dataprocessor/property
 

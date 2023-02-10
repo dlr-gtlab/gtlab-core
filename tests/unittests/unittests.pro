@@ -49,6 +49,7 @@ INCLUDEPATH += .\
     ../../src/core/settings \
     ../../src/core/process_management \
     ../../src/core/network \
+    ../../src/core/thirdparty \
     ../../src/gui \
     ../../src/gui/tools \
     ../../src/gui/dialogs \
