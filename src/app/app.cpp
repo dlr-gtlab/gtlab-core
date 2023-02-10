@@ -81,7 +81,7 @@ registerWidgets()
 int
 main(int argc, char* argv[])
 {
-    constexpr int delay = 200;
+    constexpr int delay = 100;
 
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 

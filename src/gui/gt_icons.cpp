@@ -100,12 +100,18 @@ public:
 
     explicit GtSvgIconEngine(QString const& path,
                              ColorFunction active,
-                             ColorFunction disbaled = {}) :
+                             ColorFunction disabled = {}) :
         GtSvgIconEngine()
     {
-        if (active) m_colorActive = active;
-        if (disbaled) m_colorDisabled = disbaled;
-        else m_colorDisabled = m_colorActive;
+        if (active)
+        {
+            m_colorActive = active;
+            m_colorDisabled = active; // fall back if disabled is null
+        }
+        if (disabled)
+        {
+            m_colorDisabled = disabled;
+        }
 
         GtSvgIconEngine::addFile(path, QSize{}, QIcon::Active, QIcon::On);
     }

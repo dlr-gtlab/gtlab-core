@@ -257,6 +257,15 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
 
                 break;
             }
+            case Qt::TextColorRole:
+            {
+                auto project = qobject_cast<GtProject*>(obj);
+
+                if (project && !project->isOpen())
+                {
+                    return gt::gui::color::debugText();
+                }
+            }
         }
     }
     else if (column == 1)
