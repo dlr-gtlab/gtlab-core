@@ -90,6 +90,11 @@ public:
     GtCollectionInterface* collection(const QString& id);
 
     /**
+     * @brief Calls print routine of current mdi window.
+     */
+    void printCurrentWindow();
+
+    /**
      * @brief print
      * @param subWindow
      */

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed missing undo/redo functionality for object link and file/folder selection properties - #28
+- Fixed missing functionality for print button in new toolbar widget - #422
 
 ## [2.0.0-pr-alpha6] - 2023-02-03
 ### Changed
