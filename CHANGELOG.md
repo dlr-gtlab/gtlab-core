@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - The directory of GTlab's config files has been changed on Linux to ~/.config/DLR/GTlab - #327
+- Animated splash screen - #418
 
 ## [2.0.0-pr-alpha6] - 2023-02-03
 ### Changed

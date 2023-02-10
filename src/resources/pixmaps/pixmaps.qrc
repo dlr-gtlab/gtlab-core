@@ -15,5 +15,6 @@
         <file>gt-logo-dark.png</file>
         <file>loading2.gif</file>
         <file>startup-background_dark.png</file>
+		<file>splash_anim.gif</file>
     </qresource>
 </RCC>

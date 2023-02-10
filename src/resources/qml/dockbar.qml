@@ -20,7 +20,7 @@ Rectangle {
 		Text {
             x: 5
 			y: 4
-            text: dockwidget.objectName
+            text: dockwidget ? dockwidget.objectName : ""
 			font.family: "Helvetica"
             font.pointSize: 8
             color: dockBar.dark_mode ? "white" : "black"
