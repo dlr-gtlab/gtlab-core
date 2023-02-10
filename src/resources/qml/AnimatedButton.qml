@@ -42,7 +42,7 @@ Button {
     property bool custom_Enabled: true
 
     icon.color: "transparent"
-    icon.source: "qml_icons/home-icon.svg"
+    icon.source: "../icons/home.svg"
     icon.width: 16
     icon.height: 16
     property ParallelAnimation active_animation: active_animation

@@ -25,6 +25,42 @@ namespace color
 {
 
 /**
+ * @brief Palette main color
+ * @return
+ */
+GT_GUI_EXPORT QColor main();
+
+/**
+ * @brief Palette base color
+ * @return
+ */
+GT_GUI_EXPORT QColor base();
+
+/**
+ * @brief Palette text color
+ * @return
+ */
+GT_GUI_EXPORT QColor text();
+
+/**
+ * @brief Palette disabled color
+ * @return
+ */
+GT_GUI_EXPORT QColor disabled();
+
+/**
+ * @brief Palette highlight color
+ * @return
+ */
+GT_GUI_EXPORT QColor highlight();
+
+/**
+ * @brief Palette highlighted text color
+ * @return
+ */
+GT_GUI_EXPORT QColor textHighlight();
+
+/**
  * @brief basicDarkColor
  * @return return basic dark color
  */
@@ -62,6 +98,12 @@ GT_GUI_EXPORT QColor footprintWarning();
  * @return color for errors in the footprint dialog
  */
 GT_GUI_EXPORT QColor footprintError();
+
+/**
+ * @brief debugText
+ * @return color for debug texts
+ */
+GT_GUI_EXPORT QColor debugText();
 
 /**
  * @brief infoText

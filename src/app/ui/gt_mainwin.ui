@@ -43,7 +43,7 @@
     <item>
      <widget class="QTabWidget" name="mdiArea">
       <property name="styleSheet">
-       <string notr="true">border:0</string>
+       <string notr="true">border: 0</string>
       </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
@@ -70,7 +70,7 @@
      <x>0</x>
      <y>0</y>
      <width>1009</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
@@ -83,10 +83,6 @@
     <widget class="QMenu" name="menuSession">
      <property name="title">
       <string>&amp;Session</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/icons/icons.qrc">
-       <normaloff>:/icons/sessionIcon.png</normaloff>:/icons/sessionIcon.png</iconset>
      </property>
     </widget>
     <addaction name="actionNewProject"/>
@@ -109,18 +105,10 @@
      <property name="title">
       <string>&amp;Show Perspective</string>
      </property>
-     <property name="icon">
-      <iconset resource="../../resources/icons/icons.qrc">
-       <normaloff>:/icons/arrowrightIcon.png</normaloff>:/icons/arrowrightIcon.png</iconset>
-     </property>
     </widget>
     <widget class="QMenu" name="menuDock_Widgets">
      <property name="title">
       <string>Dock Widgets</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/icons/icons.qrc">
-       <normaloff>:/icons/dockIcon.png</normaloff>:/icons/dockIcon.png</iconset>
      </property>
     </widget>
     <addaction name="menuPerspective"/>
@@ -166,6 +154,7 @@
     <addaction name="actionMemento_Viewer"/>
     <addaction name="separator"/>
     <addaction name="actionWidgetStructure"/>
+    <addaction name="actionIcon_Browser"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -191,10 +180,6 @@
    </attribute>
   </widget>
   <action name="actionExit">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/closeIcon_16.png</normaloff>:/icons/closeIcon_16.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Exit</string>
    </property>
@@ -203,10 +188,6 @@
    </property>
   </action>
   <action name="actionNewProject">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/addProjectIcon_24.png</normaloff>:/icons/addProjectIcon_24.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;New Project</string>
    </property>
@@ -220,7 +201,7 @@
   <action name="actionSaveProject">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/saveProjectIcon_24.png</normaloff>:/icons/saveProjectIcon_24.png</iconset>
+     <normaloff>:/icons/save.svg</normaloff>:/icons/save.svg</iconset>
    </property>
    <property name="text">
     <string>Save All Projects</string>
@@ -238,7 +219,7 @@
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/historyIcon_16.png</normaloff>:/icons/historyIcon_16.png</iconset>
+     <normaloff>:/icons/history.svg</normaloff>:/icons/history.svg</iconset>
    </property>
    <property name="text">
     <string>Command History</string>
@@ -248,10 +229,6 @@
    </property>
   </action>
   <action name="actionHelpContents">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/questionIcon_16.png</normaloff>:/icons/questionIcon_16.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Help Contents</string>
    </property>
@@ -260,10 +237,6 @@
    </property>
   </action>
   <action name="actionAbout">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/infoIcon_16.png</normaloff>:/icons/infoIcon_16.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;About GTlab</string>
    </property>
@@ -271,10 +244,6 @@
   <action name="actionOpen_Project">
    <property name="enabled">
     <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/openProjectIcon_24.png</normaloff>:/icons/openProjectIcon_24.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Open Project</string>
@@ -287,10 +256,6 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/saveProjectIcon_24.png</normaloff>:/icons/saveProjectIcon_24.png</iconset>
-   </property>
    <property name="text">
     <string>Save Project</string>
    </property>
@@ -298,10 +263,21 @@
     <string>Ctrl+S</string>
    </property>
   </action>
+  <action name="actionSave_As">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save As...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
   <action name="actionPreferences">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/configIcon_16.png</normaloff>:/icons/configIcon_16.png</iconset>
+     <normaloff>:/icons/config.svg</normaloff>:/icons/config.svg</iconset>
    </property>
    <property name="text">
     <string>Preferences</string>
@@ -314,10 +290,6 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/closeProjectIcon_16.png</normaloff>:/icons/closeProjectIcon_16.png</iconset>
-   </property>
    <property name="text">
     <string>Close Project</string>
    </property>
@@ -328,7 +300,7 @@
   <action name="actionPrint">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/printerIcon_24.png</normaloff>:/icons/printerIcon_24.png</iconset>
+     <normaloff>:/icons/print.svg</normaloff>:/icons/print.svg</iconset>
    </property>
    <property name="text">
     <string>Print</string>
@@ -341,37 +313,21 @@
    </property>
   </action>
   <action name="actionCheck_for_update">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/updateIcon.png</normaloff>:/icons/updateIcon.png</iconset>
-   </property>
    <property name="text">
     <string>Check for &amp;Updates...</string>
    </property>
   </action>
   <action name="actionInstall_Update">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/updateIcon.png</normaloff>:/icons/updateIcon.png</iconset>
-   </property>
    <property name="text">
     <string>Install Update</string>
    </property>
   </action>
   <action name="actionBug_Report">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/bugIcon.png</normaloff>:/icons/bugIcon.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Bug Report</string>
    </property>
   </action>
   <action name="actionChangelog">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/logIcon_16.png</normaloff>:/icons/logIcon_16.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Changelog</string>
    </property>
@@ -379,7 +335,7 @@
   <action name="actionLayer_Manager">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/layerIcon.png</normaloff>:/icons/layerIcon.png</iconset>
+     <normaloff>:/icons/layers.svg</normaloff>:/icons/layers.svg</iconset>
    </property>
    <property name="text">
     <string>Layer Manager</string>
@@ -388,25 +344,13 @@
   <action name="actionProcessQueue">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/queueIcon_16.png</normaloff>:/icons/queueIcon_16.png</iconset>
+     <normaloff>:/icons/queue.svg</normaloff>:/icons/queue.svg</iconset>
    </property>
    <property name="text">
     <string>Process Queue</string>
    </property>
   </action>
-  <action name="actionSave_As">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Save As...</string>
-   </property>
-  </action>
   <action name="actionExamples">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/examplesIcon_16.png</normaloff>:/icons/examplesIcon_16.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Examples</string>
    </property>
@@ -414,17 +358,13 @@
   <action name="actionNetwork_Access_Manager">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/networkIcon_16.png</normaloff>:/icons/networkIcon_16.png</iconset>
+     <normaloff>:/icons/network.svg</normaloff>:/icons/network.svg</iconset>
    </property>
    <property name="text">
     <string>Network Access Manager</string>
    </property>
   </action>
   <action name="actionMemento_Viewer">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/own_editPen.png</normaloff>:/icons/own_editPen.png</iconset>
-   </property>
    <property name="text">
     <string>Memento Viewer</string>
    </property>
@@ -432,7 +372,7 @@
   <action name="actionSessionBrowser">
    <property name="icon">
     <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/zoomIcon_16.png</normaloff>:/icons/zoomIcon_16.png</iconset>
+     <normaloff>:/icons/zoomPlus.svg</normaloff>:/icons/zoomPlus.svg</iconset>
    </property>
    <property name="text">
     <string>Session Browser</string>
@@ -444,19 +384,11 @@
    </property>
   </action>
   <action name="actionEditPerspectives">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/perspectivesIcon_16.png</normaloff>:/icons/perspectivesIcon_16.png</iconset>
-   </property>
    <property name="text">
     <string>Edit Perspectives</string>
    </property>
   </action>
   <action name="actionState_Browser">
-   <property name="icon">
-    <iconset resource="../../resources/icons/icons.qrc">
-     <normaloff>:/icons/propertyIcon.png</normaloff>:/icons/propertyIcon.png</iconset>
-   </property>
    <property name="text">
     <string>State Browser</string>
    </property>
@@ -474,6 +406,11 @@
   <action name="actionChangeTheme">
    <property name="text">
     <string>Change Theme</string>
+   </property>
+  </action>
+  <action name="actionIcon_Browser">
+   <property name="text">
+    <string>Icon Browser</string>
    </property>
   </action>
  </widget>

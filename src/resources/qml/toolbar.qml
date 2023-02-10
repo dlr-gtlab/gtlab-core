@@ -73,7 +73,7 @@ Rectangle {
                     AnimatedButton {
                         id: btnNewProject
                         objectName: "btnNewProject"
-                        icon.source: "qml_icons/newproject-icon.svg"
+                        icon.source: "../icons/projectAdd.svg"
                         icon.width: 20
                         icon.height: 20
 //                        custom_hoverColor: "#f5deb3"
@@ -87,7 +87,7 @@ Rectangle {
                     AnimatedButton {
                         id: btnOpenProject
                         objectName: "btnOpenProject"
-                        icon.source: "qml_icons/open-icon.svg"
+                        icon.source: "../icons/folderOpen.svg"
                         icon.width: 16
                         icon.height: 16
                         text: "Open Project"
@@ -145,7 +145,7 @@ Rectangle {
                     AnimatedButton {
                         id: btn_save_project
                         objectName: "btn_save_project"
-                        icon.source: "qml_icons/save-icon.svg"
+                        icon.source: "../icons/save.svg"
                         icon.width: 10
                         icon.height: 10
                         text: "Save Project"
@@ -156,7 +156,7 @@ Rectangle {
                     AnimatedButton {
                         id: btn_undo
                         objectName: "btn_undo"
-                        icon.source: "qml_icons/undo-icon.svg"
+                        icon.source: "../icons/undo.svg"
                         icon.width: 10
                         icon.height: 10
                         text: "Undo"
@@ -167,7 +167,7 @@ Rectangle {
                     AnimatedButton {
                         id: btn_redo
                         objectName: "btn_redo"
-                        icon.source: "qml_icons/redo-icon.svg"
+                        icon.source: "../icons/redo.svg"
                         icon.width: 10
                         icon.height: 10
                         text: "Redo"
@@ -178,7 +178,7 @@ Rectangle {
                     AnimatedButton {
                         id: btn_info
                         objectName: "btn_info"
-                        icon.source: "qml_icons/info-icon.svg"
+                        icon.source: "../icons/info2.svg"
                         icon.width: 6
                         icon.height: 6
                         text: "Project Info"
@@ -238,7 +238,7 @@ Rectangle {
                     AnimatedButton {
                         id: btnPrint
                         objectName: "btnPrint"
-                        icon.source: "qml_icons/print-icon.svg"
+                        icon.source: "../icons/print.svg"
                         icon.width: 10
                         icon.height: 10
                         text: "Print"

@@ -370,12 +370,6 @@ private slots:
     void onWidgetStructureClicked();
 
     /**
-     * @brief Displays an error dialog including a message.
-     * @param msg Error message to be displayed.
-     */
-    void onLogMessage(const QString& msg, int level);
-
-    /**
      * @brief Called by activate an mdi item.
      * @param mdi sub window index
      */

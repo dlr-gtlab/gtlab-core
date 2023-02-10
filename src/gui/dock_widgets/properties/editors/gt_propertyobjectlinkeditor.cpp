@@ -36,29 +36,32 @@ GtPropertyObjectLinkEditor::GtPropertyObjectLinkEditor(QWidget* parent) :
 
     setAcceptDrops(true);
 
-    QPushButton* restoreButton = new QPushButton(QLatin1String{});
-    restoreButton->setIcon(gt::gui::icon::restore16());
+    QPushButton* restoreButton = new QPushButton();
+    restoreButton->setIcon(gt::gui::icon::clear());
     restoreButton->setFlat(true);
-    restoreButton->setMaximumWidth(15);
+    restoreButton->setMaximumWidth(16);
     restoreButton->setAutoDefault(false);
-    restoreButton->setToolTip(tr("Delete Object Link"));
+    restoreButton->setToolTip(tr("Clear Object Link"));
 
-    auto selectObjectButton = new QPushButton(QStringLiteral("..."));
-    selectObjectButton->setMaximumWidth(30);
+    auto selectObjectButton = new QPushButton();
+    selectObjectButton->setIcon(gt::gui::icon::dots());
+    selectObjectButton->setFlat(true);
+    selectObjectButton->setMaximumWidth(16);
     selectObjectButton->setAutoDefault(false);
     selectObjectButton->setToolTip(tr("Choose Object"));
 
     auto findObjectButton = new QPushButton(QLatin1String{});
+    findObjectButton->setFlat(true);
     findObjectButton->setIcon(gt::gui::icon::jumpTo());
-    findObjectButton->setMaximumWidth(15);
+    findObjectButton->setMaximumWidth(16);
     findObjectButton->setAutoDefault(false);
-    findObjectButton->setToolTip(tr("Find Object"));
+    findObjectButton->setToolTip(tr("Jump to Object"));
 
     setLayout(lay);
     lay->addWidget(m_objectId);
-    lay->addWidget(findObjectButton);
-    lay->addSpacing(1);
     lay->addWidget(restoreButton);
+    lay->addSpacing(1);
+    lay->addWidget(findObjectButton);
     lay->addSpacing(1);
     lay->addWidget(selectObjectButton);
 

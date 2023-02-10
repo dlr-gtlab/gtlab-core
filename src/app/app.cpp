@@ -81,6 +81,8 @@ registerWidgets()
 int
 main(int argc, char* argv[])
 {
+    constexpr int delay = 200;
+
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     QApplication::setOrganizationDomain("www.dlr.de");
@@ -89,9 +91,8 @@ main(int argc, char* argv[])
 
     QApplication::setApplicationVersion(GtApplication::version().toString());
 
-#if QT_VERSION >= 0x050900
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     QApplication a(argc, argv);
 
@@ -100,15 +101,17 @@ main(int argc, char* argv[])
 
     GtApplication app(qApp);
 
-    splash.process(QObject::tr("initializing..."), [&app](){
+    // error message box logging destination
+    GtlogErrorMessageBoxHandler errorHandler;
+    // "disable/hide" message box until main win is visible
+    errorHandler.moveToThread(nullptr);
+
+    splash.process(QObject::tr("initializing..."), [&app, &errorHandler](){
         app.init();
-        // error message box logging destination
-        auto* errorHandler = new GtlogErrorMessageBoxHandler;
-        errorHandler->setParent(&app);
 
         auto& logger = gt::log::Logger::instance();
         auto dest = gt::log::makeSignalSlotDestination(
-            errorHandler, &GtlogErrorMessageBoxHandler::onLogMessage);
+            &errorHandler, &GtlogErrorMessageBoxHandler::onLogMessage);
         logger.addDestination("error_message_box", std::move(dest));
     });
 
@@ -141,8 +144,6 @@ main(int argc, char* argv[])
                                       "GTlab environment variables.");
         envDialog.exec();
     }
-
-
 
     // save to system environment (temporary)
     splash.process([&app](){
@@ -188,11 +189,11 @@ main(int argc, char* argv[])
         app.initDatamodel();
         // mdi launcher initialization
         app.initMdiLauncher();
-    }, 300);
+    }, delay);
 
     splash.process(QObject::tr("registering widgets..."), [](){
         registerWidgets();
-    }, 300);
+    }, delay);
 
 
     // show refused plugins (application last run crash)
@@ -207,25 +208,25 @@ main(int argc, char* argv[])
 
     splash.process(QObject::tr("loading modules..."), [&app](){
         app.loadModules();
-    }, 300);
+    }, delay);
 
 
     // calculator initialization
     splash.process(QObject::tr("loading calculators..."), [&app](){
         app.initCalculators();
-    }, 300);
+    }, delay);
 
 
     // session initialization
     splash.process(QObject::tr("loading session..."), [&app](){
         app.initSession();
-    }, 300);
+    }, delay);
 
 
     // perspective initialization
     splash.process(QObject::tr("loading perspectives..."), [&app](){
         app.initPerspective();
-    }, 300);
+    }, delay);
 
 //    gtApp->setLanguage("de");
 
@@ -250,6 +251,8 @@ main(int argc, char* argv[])
     w.show();
 
     splash.finish(&w);
+
+    errorHandler.moveToThread(qApp->thread());
 
     return a.exec();
 }

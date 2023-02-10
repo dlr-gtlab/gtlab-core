@@ -13,6 +13,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
+#include <QMessageBox>
+#include <QStyle>
 
 #include "gt_icons.h"
 
@@ -24,7 +26,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     m_checkBox(nullptr)
 {
     setWindowTitle(tr("Delete from Session"));
-    setWindowIcon(gt::gui::icon::deleteProject16());
+    setWindowIcon(gt::gui::icon::projectRemove());
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -36,30 +38,30 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     layout->addLayout(textLayout);
 
     QLabel* infoIcon = new QLabel;
+    infoIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    infoIcon->setPixmap(gt::gui::pixmap::question24());
+    // cheesy way to access message box icons
+    {
+        QMessageBox dummy;
+        // set the appropriate icon
+        dummy.setIcon(QMessageBox::Question);
+        infoIcon->setPixmap(dummy.iconPixmap());
+    }
 
     textLayout->addSpacerItem(new QSpacerItem(15, 10, QSizePolicy::Minimum,
                                               QSizePolicy::Minimum));
 
     textLayout->addWidget(infoIcon);
 
-
-    textLayout->addSpacerItem(new QSpacerItem(5, 10, QSizePolicy::Expanding,
-                                              QSizePolicy::Minimum));
-
-    QString text = QString(tr("Are your sure you want to remove project '"))
-            + projectName + QString(tr("' from session"));
+    QString text = tr("Are your sure you want to remove project '")
+                   + projectName + tr("' from the current session?");
 
     QLabel* infoText = new QLabel;
+    infoText->setWordWrap(true);
     infoText->setText(text);
 
+    textLayout->addSpacing(10);
     textLayout->addWidget(infoText);
-
-    textLayout->addSpacerItem(new QSpacerItem(15, 10, QSizePolicy::Minimum,
-                                              QSizePolicy::Minimum));
-
-
 
     QHBoxLayout* checkLay = new QHBoxLayout;
 
@@ -101,7 +103,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     QHBoxLayout* buttonsLayout = new QHBoxLayout;
 
     QPushButton* yesButton = new QPushButton(tr("Delete"));
-    yesButton->setIcon(gt::gui::icon::deleteProject16());
+    yesButton->setIcon(gt::gui::icon::projectDelete());
 
     buttonsLayout->addSpacerItem(new QSpacerItem(10, 10,
                                                  QSizePolicy::Expanding,
@@ -111,7 +113,7 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     buttonsLayout->addWidget(yesButton);
 
     QPushButton* noButton = new QPushButton(tr("Cancel"));
-    noButton->setIcon(gt::gui::icon::delete16());
+    noButton->setIcon(gt::gui::icon::cancel());
     buttonsLayout->addWidget(noButton);
 
     buttonsLayout->setContentsMargins(9, 9, 9, 9);

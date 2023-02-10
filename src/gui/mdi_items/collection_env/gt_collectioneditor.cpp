@@ -150,7 +150,7 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
     hLay->addSpacerItem(spacer);
 
     m_updateAllButton =
-            new QPushButton(gt::gui::icon::update16(), tr("Update All"));
+            new QPushButton(gt::gui::icon::sync(), tr("Update All"));
     m_updateAllButton->setVisible(false);
     hLay->addWidget(m_updateAllButton);
 

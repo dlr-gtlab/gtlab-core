@@ -76,7 +76,7 @@ GtStartupPage::GtStartupPage()
 QIcon
 GtStartupPage::icon() const
 {
-    return gt::gui::icon::infoBlue16();
+    return gt::gui::icon::home();
 }
 
 bool

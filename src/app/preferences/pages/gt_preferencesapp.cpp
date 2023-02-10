@@ -41,7 +41,7 @@ std::array<LoggingVerbosity, 3> const s_verbosityLevels{
 GtPreferencesApp::GtPreferencesApp() :
     GtPreferencesPage(tr("Application"))
 {
-    setIcon(gt::gui::icon::application());
+    setIcon(gt::gui::icon::applicationSettings());
     QTabWidget* tabWidget = new QTabWidget;
 
     tabWidget->setContentsMargins(0, 0, 0, 0);

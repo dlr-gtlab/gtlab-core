@@ -45,8 +45,6 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
     m_label->setAlignment(Qt::AlignCenter);
     m_label->setMinimumHeight(20);
     m_label->setMinimumWidth(20);
-    //m_label->setStyleSheet("QLabel { background-color : #f2f3f5; "
-    //                       "color : black; }");
     hLay->addWidget(m_label);
 
     layout->addLayout(hLay);

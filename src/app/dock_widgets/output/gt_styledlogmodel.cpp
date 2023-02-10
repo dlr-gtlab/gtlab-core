@@ -41,17 +41,17 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             switch (loggingLevel(index))
             {
             case gt::log::TraceLevel:
-                return gt::gui::icon::jumpTo();
+                return gt::gui::icon::traceColorized();
             case gt::log::DebugLevel:
-                return gt::gui::icon::bug();
+                return gt::gui::icon::bugColorized();
             case gt::log::InfoLevel:
-                return gt::gui::icon::infoBlue16();
+                return gt::gui::icon::infoColorized();
             case gt::log::WarnLevel:
-                return gt::gui::icon::processFailed16();
+                return gt::gui::icon::warningColorized();
             case gt::log::ErrorLevel:
-                return gt::gui::icon::error16();
+                return gt::gui::icon::errorColorized();
             case gt::log::FatalLevel:
-                return gt::gui::icon::fatal16();
+                return gt::gui::icon::fatalColorized();
             default:
                 break;
             }
@@ -77,6 +77,11 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
     case Qt::TextColorRole:
         switch (loggingLevel(index))
         {
+        case gt::log::TraceLevel:
+        case gt::log::DebugLevel:
+            return gt::gui::color::debugText();
+        case gt::log::InfoLevel:
+            return gt::gui::color::infoText();
         case gt::log::WarnLevel:
             return gt::gui::color::warningText();
         case gt::log::ErrorLevel:

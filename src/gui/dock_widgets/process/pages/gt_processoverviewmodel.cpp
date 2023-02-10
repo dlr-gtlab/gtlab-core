@@ -95,10 +95,10 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 {
                     if (catItem->collapsed())
                     {
-                        return gt::gui::icon::arrowRight();
+                        return gt::gui::icon::collapsed();
                     }
 
-                    return gt::gui::icon::arrowDown();
+                    return gt::gui::icon::uncollapsed();
                 }
 
                 break;

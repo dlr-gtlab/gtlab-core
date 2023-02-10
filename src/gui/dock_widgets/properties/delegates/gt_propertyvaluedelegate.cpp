@@ -33,7 +33,9 @@ GtPropertyValueDelegate::createEditor(QWidget* parent,
         GtAbstractPropertyItem* item =
                static_cast<GtAbstractPropertyItem*>(srcIndex.internalPointer());
 
-        return item->editorWidget(parent, this);
+        QWidget* w = item->editorWidget(parent, this);
+        w->setAutoFillBackground(true);
+        return w;
     }
 
     return nullptr;

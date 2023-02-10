@@ -68,7 +68,7 @@ GtAboutLogo::mouseDoubleClickEvent(QMouseEvent* event)
 GtAboutDialog::GtAboutDialog(int startPage, QWidget* parent) : GtDialog(parent)
 {
     setWindowTitle(tr("About GTlab"));
-    setWindowIcon(gt::gui::icon::info16());
+    setWindowIcon(gt::gui::icon::info2());
 
     auto* mainL = new QVBoxLayout;
 
@@ -137,36 +137,39 @@ GtAboutDialog::coreAbout() const
                                     QSizePolicy::Expanding));
     layout->addWidget(anim);
 
-    auto* hLayout = new QHBoxLayout;
+    auto* aboutHLay = new QHBoxLayout;
 
     auto* copyLabel =
-            new QLabel(QStringLiteral(
-                "GTlab - Gas Turbine laboratory\ncopyright 2022 by DLR"));
+            new QLabel(QStringLiteral("GTlab - Gas Turbine laboratory\n"
+                                      "copyright 2022 by DLR\n"));
 
-    hLayout->addWidget(copyLabel);
-
-    QString vers = gtApp->version().toString() +
-                   QStringLiteral("\nHelium");
-
-    auto* versLabel = new QLabel(vers);
+    auto* versLabel =
+            new QLabel(gtApp->version().toString() +
+                       QStringLiteral("\nHelium"));
     versLabel->setAlignment(Qt::AlignRight);
 
-    hLayout->addWidget(versLabel);
+    aboutHLay->addWidget(copyLabel);
+    aboutHLay->addWidget(versLabel);
 
-    layout->addLayout(hLayout);
+    auto* iconLabel =
+            new QLabel(QStringLiteral("The icon set was created by "
+                                      "<a href=\"https://pictogrammers.com/\">"
+                                      "Pictogrammers</a>"));
+    iconLabel->setTextFormat(Qt::RichText);
+    iconLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    iconLabel->setOpenExternalLinks(true);
 
+    layout->addLayout(aboutHLay);
     layout->addSpacerItem(new QSpacerItem(5, 5, QSizePolicy::Minimum,
                                           QSizePolicy::Minimum));
 
     auto* btnLayout = new QHBoxLayout;
 
-
-    btnLayout->addSpacerItem(new QSpacerItem(10, 20, QSizePolicy::Expanding,
-                                             QSizePolicy::Minimum));
-
     auto exportFootprintBtn = new QPushButton(tr("Export Framework Footprint"));
     exportFootprintBtn->setIcon(gt::gui::icon::export16());
     exportFootprintBtn->setFocusPolicy(Qt::NoFocus);
+    btnLayout->addWidget(iconLabel);
+    btnLayout->addStretch();
     btnLayout->addWidget(exportFootprintBtn);
 
     layout->addLayout(btnLayout);

@@ -41,6 +41,7 @@ GT_GUI_EXPORT QPalette standardTheme();
  * @param w - widget to manipulate
  */
 GT_GUI_EXPORT void applyThemeToWidget(QWidget* w);
+GT_GUI_EXPORT void applyThemeToApplication();
 
 } // namespace gui
 

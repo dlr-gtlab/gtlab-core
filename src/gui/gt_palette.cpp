@@ -14,6 +14,7 @@
 #include <QSettings>
 #include <QWidget>
 #include <QStyleFactory>
+#include <QApplication>
 
 QPalette
 gt::gui::currentTheme()
@@ -86,12 +87,11 @@ gt::gui::darkTheme()
 {
     static const QPalette p = [](){
 
-        // TODO: add these categories to gt::gui::color
         ColorConfig config;
         config.main = color::basicDark();
-        config.base = config.main;
-        config.text = Qt::lightGray;
-        config.disabled = config.text.darker();
+        config.base = config.main.lighter(105);
+        config.text = Qt::white;
+        config.disabled = Qt::gray;
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
         config.highlight =  QColor{42, 130, 218};
         config.textHighlighted = config.text;
@@ -114,9 +114,9 @@ gt::gui::standardTheme()
         config.main = QColor{245, 245, 245};
         config.base = Qt::white;
         config.text = Qt::black;
-        config.disabled = Qt::darkGray;
+        config.disabled = Qt::gray;
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-        config.highlight =  QColor{42, 130, 218};  // TODO: add highlight
+        config.highlight =  QColor{42, 130, 218};
         config.textHighlighted = config.text;
         config.link = config.highlight;
         config.linkVisited = config.link.darker();
@@ -127,27 +127,54 @@ gt::gui::standardTheme()
     return p;
 }
 
-void
-gt::gui::applyThemeToWidget(QWidget* w)
+template <typename Widget>
+inline void applyTheme(Widget& w)
 {
+    QString stylesheet = QStringLiteral(
+        "QTabBar {"
+        "   border: 0px; }"
+    );
+
+#ifndef Q_OS_WIN
+    QString style = QStringLiteral("Default");
+#else
+    QString style = QStringLiteral("windowsvista");
+#endif
+
     if (gtApp->inDarkMode())
     {
-        w->setStyle(QStyleFactory::create("Fusion"));
-        w->setPalette(gt::gui::darkTheme());
-        w->setStyleSheet("QToolTip { color: #ffffff; "
-                      "background-color: #2a82da; "
-                      "border: 1px solid white; }");
+        style = QStringLiteral("Fusion");
+        stylesheet.append(QStringLiteral(
+            "QToolTip { color: #ffffff; "
+            "background-color: #2a82da; "
+            "border: 1px solid white; }"
+        ));
     }
     else
     {
-        w->setPalette(gt::gui::standardTheme());
-        QString style = "Default";
-#ifdef Q_OS_WIN
-        style = "windowsvista";
-#endif
-        w->setStyle(QStyleFactory::create(style));
-        w->setStyleSheet("QToolTip { color: black; "
-                      "background-color: white; "
-                      "border: 1px solid black; }");
+        stylesheet.append(QStringLiteral(
+            "QToolTip { color: black; "
+            "background-color: white; "
+            "border: 1px solid black; }"
+        ));
     }
+
+    w.setPalette(gt::gui::currentTheme());
+    w.setStyle(QStyleFactory::create(style));
+    w.setStyleSheet(stylesheet);
 }
+
+void
+gt::gui::applyThemeToWidget(QWidget* w)
+{
+    assert(w);
+    applyTheme(*w);
+}
+
+void
+gt::gui::applyThemeToApplication()
+{
+    assert(qApp);
+    applyTheme(*qApp);
+}
+

@@ -34,7 +34,7 @@ Rectangle {
             DockBarButton {
                 id: btn_close
                 objectName: "btn_close"
-                icon.source: "qml_icons/close-icon.svg"
+                icon.source: "../icons/cross.svg"
                 text: "Close"
                 visible: false
 

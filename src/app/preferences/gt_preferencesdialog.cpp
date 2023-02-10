@@ -57,9 +57,9 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     }
 
     QPushButton* saveButton = new QPushButton(tr("Save"));
-    saveButton->setIcon(gt::gui::icon::saveProject16());
+    saveButton->setIcon(gt::gui::icon::save());
     QPushButton* closeButton = new QPushButton(tr("Cancel"));
-    closeButton->setIcon(gt::gui::icon::delete16());
+    closeButton->setIcon(gt::gui::icon::cancel());
 
     connect(m_contentsWidget,
             SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
@@ -87,7 +87,7 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     setLayout(mainLayout);
 
     setWindowTitle(tr("Preferences"));
-    setWindowIcon(gt::gui::icon::config16());
+    setWindowIcon(gt::gui::icon::config());
     setFixedHeight(530);
     setFixedWidth(600);
 

@@ -93,7 +93,7 @@ GtProcessDock::GtProcessDock() :
     frameLayout->setSpacing(0);
 
     m_runButton = new QPushButton(tr("Run"));
-    m_runButton->setIcon(gt::gui::icon::runProcess16());
+    m_runButton->setIcon(gt::gui::icon::processRun());
     m_runButton->setToolTip(tr("Run Selected Process"));
     m_runButton->setEnabled(false);
 
@@ -102,7 +102,7 @@ GtProcessDock::GtProcessDock() :
                     gt::gui::stylesheet::RunButtonState::NotSelected));
 
     m_addElementButton = new QPushButton(tr("Add..."));
-    m_addElementButton->setIcon(gt::gui::icon::add16());
+    m_addElementButton->setIcon(gt::gui::icon::add());
     m_addElementButton->setToolTip(tr("Add New Element"));
     m_addElementButton->setEnabled(false);
     m_addElementButton->setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
@@ -114,7 +114,7 @@ GtProcessDock::GtProcessDock() :
     btnLayout->addWidget(m_addElementButton);
 
     m_processQueueButton = new QPushButton();
-    m_processQueueButton->setIcon(gt::gui::icon::queue16());
+    m_processQueueButton->setIcon(gt::gui::icon::queue());
     m_processQueueButton->setMaximumSize(QSize(20, 20));
     m_processQueueButton->setFlat(true);
     m_processQueueButton->setToolTip(tr("View Process Queue"));
@@ -668,7 +668,7 @@ GtProcessDock::updateRunButton()
     // no process selected
     if (!m_currentProcess)
     {
-        m_runButton->setIcon(gt::gui::icon::runProcess16());
+        m_runButton->setIcon(gt::gui::icon::processRun());
 
         m_runButton->setStyleSheet(
                     gt::gui::stylesheet::processRunButton(
@@ -687,7 +687,7 @@ GtProcessDock::updateRunButton()
     // no task is running
     if (!current)
     {
-        m_runButton->setIcon(gt::gui::icon::runProcess16());
+        m_runButton->setIcon(gt::gui::icon::processRun());
 
         m_runButton->setStyleSheet(
                     gt::gui::stylesheet::processRunButton(
@@ -719,7 +719,7 @@ GtProcessDock::updateRunButton()
     else if (current != m_currentProcess)
     {
         // queue
-        m_runButton->setIcon(gt::gui::icon::queue16());
+        m_runButton->setIcon(gt::gui::icon::queue());
 
         m_runButton->setStyleSheet(
                     gt::gui::stylesheet::processRunButton(
@@ -749,14 +749,14 @@ GtProcessDock::updateRunButton()
         if (m_currentProcess->currentState() ==
                 GtProcessComponent::TERMINATION_REQUESTED)
         {
-            m_runButton->setIcon(gt::gui::icon::stopRequest16());
+            m_runButton->setIcon(gt::gui::icon::timer());
             m_runButton->setEnabled(false);
             m_runButton->setToolTip(tr("Terminating process..."));
             m_runButton->setText(str + tr(" terminating..."));
         }
         else
         {
-            m_runButton->setIcon(gt::gui::icon::stop16());
+            m_runButton->setIcon(gt::gui::icon::stop());
             m_runButton->setEnabled(true);
 
             QString text;
@@ -900,7 +900,7 @@ GtProcessDock::addElement()
     QModelIndex srcIndex = mapToSource(m_view->currentIndex());
 
     QAction* addemptytask = menu.addAction(tr("Empty Task"));
-    addemptytask->setIcon(gt::gui::icon::addProcess16());
+    addemptytask->setIcon(gt::gui::icon::processAdd());
 
     if (!srcIndex.isValid())
     {
@@ -908,10 +908,10 @@ GtProcessDock::addElement()
     }
 
     QAction* addtask = menu.addAction(tr("New Task..."));
-    addtask->setIcon(gt::gui::icon::addProcess16());
+    addtask->setIcon(gt::gui::icon::processAdd());
 
     QAction* addcalc = menu.addAction(tr("New Calculator..."));
-    addcalc->setIcon(gt::gui::icon::calculator16());
+    addcalc->setIcon(gt::gui::icon::calculator());
 
     if (!srcIndex.isValid())
     {
@@ -990,15 +990,15 @@ GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
     {
         QMenu menu(this);
 
-        QMenu* addMenu = menu.addMenu(gt::gui::icon::add16(), tr("Add..."));
+        QMenu* addMenu = menu.addMenu(gt::gui::icon::add(), tr("Add..."));
 
         QAction* addemptytask = addMenu->addAction(tr("Empty Task"));
-        addemptytask->setIcon(gt::gui::icon::addProcess16());
+        addemptytask->setIcon(gt::gui::icon::processAdd());
 
         addMenu->addSeparator();
 
         QAction* addtask = addMenu->addAction(tr("New Task..."));
-        addtask->setIcon(gt::gui::icon::addProcess16());
+        addtask->setIcon(gt::gui::icon::processAdd());
 
         if (!gtApp->settings()->lastProcessElements().isEmpty())
         {
@@ -1015,7 +1015,7 @@ GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
         menu.addSeparator();
 
         QAction* actpaste = menu.addAction("Paste");
-        actpaste->setIcon(gt::gui::icon::paste16());
+        actpaste->setIcon(gt::gui::icon::paste());
         actpaste->setEnabled(false);
 
         QClipboard* clipboard = QApplication::clipboard();
@@ -1076,11 +1076,11 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     QMenu menu(this);
 
     QAction* actrunRemote = menu.addAction(tr("Run Task - detached execution"));
-    actrunRemote->setIcon(gt::gui::icon::runProcess16());
+    actrunRemote->setIcon(gt::gui::icon::processRun());
     QAction* actrunLocal = menu.addAction(tr("Run Task"));
-    actrunLocal->setIcon(gt::gui::icon::runProcess16());
+    actrunLocal->setIcon(gt::gui::icon::processRun());
     QAction* actstop = menu.addAction(tr("Stop Task"));
-    actstop->setIcon(gt::gui::icon::stop16());
+    actstop->setIcon(gt::gui::icon::stop());
 
     /// This line is only for the entry in the context menu and
     /// does not trigger the action
@@ -1101,20 +1101,20 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     menu.addSeparator();
 
     QAction* actconfig = menu.addAction("Config...");
-    actconfig->setIcon(gt::gui::icon::config16());
+    actconfig->setIcon(gt::gui::icon::config());
 
     QAction* actconnect = menu.addAction(tr("Connection Editor"));
     actconnect->setIcon(gt::gui::icon::connection16());
 
     menu.addSeparator();
 
-    QMenu* addMenu = menu.addMenu(gt::gui::icon::add16(), tr("Add..."));
+    QMenu* addMenu = menu.addMenu(gt::gui::icon::add(), tr("Add..."));
 
     QAction* addtask = addMenu->addAction(tr("New Task..."));
-    addtask->setIcon(gt::gui::icon::addElement16());
+    addtask->setIcon(gt::gui::icon::processAdd());
 
     QAction* addcalc = addMenu->addAction(tr("New Calculator..."));
-    addcalc->setIcon(gt::gui::icon::calculator16());
+    addcalc->setIcon(gt::gui::icon::calculator());
 
     if (!gtApp->settings()->lastProcessElements().isEmpty())
     {
@@ -1125,11 +1125,11 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     menu.addSeparator();
 
     QAction* actskip = menu.addAction("Skip");
-    actskip->setIcon(gt::gui::icon::skip16());
+    actskip->setIcon(gt::gui::icon::skip());
     actskip->setShortcut(getShortCut("skipProcess"));
 
     QAction* actunskip = menu.addAction("Unskip");
-    actunskip->setIcon(gt::gui::icon::arrowRight());
+    actunskip->setIcon(gt::gui::icon::cancel());
     actunskip->setShortcut(getShortCut("unskipProcess"));
 
     if (!obj->isSkipped())
@@ -1142,7 +1142,7 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     }
 
     QAction* actrename = menu.addAction("Rename");
-    actrename->setIcon(gt::gui::icon::input16());
+    actrename->setIcon(gt::gui::icon::rename());
     actrename->setShortcut(gtApp->getShortCutSequence("rename"));
 
     menu.addSeparator();
@@ -1174,22 +1174,22 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     }
 
     QAction* actclone = menu.addAction("Clone");
-    actclone->setIcon(gt::gui::icon::clone16());
+    actclone->setIcon(gt::gui::icon::clone());
 
     QAction* actcut = menu.addAction("Cut");
     actcut->setShortcut(gtApp->getShortCutSequence("cut"));
-    actcut->setIcon(gt::gui::icon::cut16());
+    actcut->setIcon(gt::gui::icon::cut());
 
     QAction* actcopy = menu.addAction("Copy");
     actcopy->setShortcut(gtApp->getShortCutSequence("copy"));
-    actcopy->setIcon(gt::gui::icon::copy16());
+    actcopy->setIcon(gt::gui::icon::copy());
     QAction* actpaste = menu.addAction("Paste");
-    actpaste->setIcon(gt::gui::icon::paste16());
+    actpaste->setIcon(gt::gui::icon::paste());
     actpaste->setShortcut(gtApp->getShortCutSequence("paste"));
     actpaste->setEnabled(false);
     menu.addSeparator();
     QAction* actdelete = menu.addAction("Delete");
-    actdelete->setIcon(gt::gui::icon::delete16());
+    actdelete->setIcon(gt::gui::icon::delete_());
     actdelete->setShortcut(gtApp->getShortCutSequence("delete"));
 
     if (!hasInvalidParents)
@@ -1324,7 +1324,7 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
 
     QMenu menu(this);
     QAction* actconfig = menu.addAction("Config...");
-    actconfig->setIcon(gt::gui::icon::config16());
+    actconfig->setIcon(gt::gui::icon::config());
 
     QAction* actconnect = menu.addAction(tr("Connection Editor"));
     actconnect->setIcon(gt::gui::icon::connection16());
@@ -1332,11 +1332,11 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     menu.addSeparator();
 
     QAction* actskip = menu.addAction("Skip");
-    actskip->setIcon(gt::gui::icon::skip16());
+    actskip->setIcon(gt::gui::icon::skip());
     actskip->setShortcut(getShortCut("skipProcess"));
 
     QAction* actunskip = menu.addAction("Unskip");
-    actunskip->setIcon(gt::gui::icon::arrowRight());
+    actunskip->setIcon(gt::gui::icon::cancel());
     actunskip->setShortcut(getShortCut("unskipProcess"));
 
     if (!obj->isSkipped())
@@ -1349,7 +1349,7 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     }
 
     QAction* actrename = menu.addAction("Rename");
-    actrename->setIcon(gt::gui::icon::input16());
+    actrename->setIcon(gt::gui::icon::rename());
     actrename->setShortcut(gtApp->getShortCutSequence("rename"));
 
     if (!obj->isRenamable())
@@ -1385,25 +1385,25 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     }
 
     QAction* actclone = menu.addAction("Clone");
-    actclone->setIcon(gt::gui::icon::clone16());
+    actclone->setIcon(gt::gui::icon::clone());
 
     QAction* actcut = menu.addAction("Cut");
     actcut->setShortcut(gtApp->getShortCutSequence("cut"));
-    actcut->setIcon(gt::gui::icon::cut16());
+    actcut->setIcon(gt::gui::icon::cut());
 
     QAction* actcopy = menu.addAction("Copy");
     actcopy->setShortcut(gtApp->getShortCutSequence("copy"));
-    actcopy->setIcon(gt::gui::icon::copy16());
+    actcopy->setIcon(gt::gui::icon::copy());
 
     QAction* actpaste = menu.addAction("Paste");
-    actpaste->setIcon(gt::gui::icon::paste16());
+    actpaste->setIcon(gt::gui::icon::paste());
     actpaste->setShortcut(gtApp->getShortCutSequence("paste"));
     actpaste->setEnabled(false);
 
     menu.addSeparator();
 
     QAction* actdelete = menu.addAction("Delete");
-    actdelete->setIcon(gt::gui::icon::delete16());
+    actdelete->setIcon(gt::gui::icon::delete_());
     actdelete->setShortcut(gtApp->getShortCutSequence("delete"));
 
     if (!componentIsReady(obj) || hasInvalidParents)
@@ -1473,13 +1473,13 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
     QMenu menu(this);
 
     QAction* skipCalcs = menu.addAction("Skip Selected Calculators");
-    skipCalcs->setIcon(gt::gui::icon::skip16());
+    skipCalcs->setIcon(gt::gui::icon::skip());
 
     QAction* unskipCalcs = menu.addAction("Unskip Selected Calculators");
-    unskipCalcs->setIcon(gt::gui::icon::arrowRight());
+    unskipCalcs->setIcon(gt::gui::icon::cancel());
 
     QAction* deleteElements = menu.addAction("Delete Process Elements");
-    deleteElements->setIcon(gt::gui::icon::delete16());
+    deleteElements->setIcon(gt::gui::icon::delete_());
 
     bool allSkipped = true;
     bool allUnskipped = true;
@@ -2734,7 +2734,7 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
 
                         if (icn.isNull())
                         {
-                            icn = gt::gui::icon::process16();
+                            icn = gt::gui::icon::process();
                         }
 
                         act->setIcon(icn);
@@ -2774,7 +2774,7 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                     if (!extendedData ||
                         extendedData->icon.isNull())
                     {
-                        act->setIcon(gt::gui::icon::calculator16());
+                        act->setIcon(gt::gui::icon::calculator());
                     }
                     else
                     {

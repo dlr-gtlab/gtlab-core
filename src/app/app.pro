@@ -116,6 +116,7 @@ HEADERS += \
     preferences/pages/gt_preferencessession.h \
     preferences/pages/gt_preferencesshortcuts.h \
     tools/gt_qmltoolbar.h \
+    tools/gt_iconbrowser.h \
     widgets/gt_sessionlistwidget.h \
     preferences/pages/gt_preferencesperspective.h \
     widgets/gt_perspectiveslistwidget.h \
@@ -211,6 +212,7 @@ SOURCES += \
     preferences/pages/gt_preferencessession.cpp \
     preferences/pages/gt_preferencesshortcuts.cpp \
     tools/gt_qmltoolbar.cpp \
+    tools/gt_iconbrowser.cpp \
     widgets/gt_sessionlistwidget.cpp \
     preferences/pages/gt_preferencesperspective.cpp \
     widgets/gt_perspectiveslistwidget.cpp \

@@ -267,7 +267,7 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
                  gtApp->session());
 
     dialog.setWindowTitle(tr("Save Example Project As..."));
-    dialog.setWindowIcon(gt::gui::icon::saveProject16());
+    dialog.setWindowIcon(gt::gui::icon::save());
 
     QVBoxLayout* layout = new QVBoxLayout;
     QLabel* infoLabel = new QLabel;
@@ -288,12 +288,12 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
     QHBoxLayout* btnLay = new QHBoxLayout;
 
     QPushButton* acceptBtn = new QPushButton(tr("Save"));
-    acceptBtn->setIcon(gt::gui::icon::saveProject16());
+    acceptBtn->setIcon(gt::gui::icon::save());
 
     connect(acceptBtn, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
 
     QPushButton* cancleBtn = new QPushButton(tr("Cancel"));
-    cancleBtn->setIcon(gt::gui::icon::delete16());
+    cancleBtn->setIcon(gt::gui::icon::cancel());
 
     connect(cancleBtn, SIGNAL(clicked(bool)), &dialog, SLOT(reject()));
 
@@ -442,7 +442,7 @@ GtExamplesMdiWidget::getAllCategories()
 QIcon
 GtExamplesMdiWidget::icon() const
 {
-    return gt::gui::icon::examples16();
+    return gt::gui::icon::examples();
 }
 
 bool

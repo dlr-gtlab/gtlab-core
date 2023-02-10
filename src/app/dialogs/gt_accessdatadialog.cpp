@@ -105,12 +105,12 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     btnLay->addSpacerItem(spacer);
 
     m_saveBtn = new QPushButton(tr("Save"));
-    m_saveBtn->setIcon(gt::gui::icon::check16());
+    m_saveBtn->setIcon(gt::gui::icon::check());
 
     btnLay->addWidget(m_saveBtn);
 
     m_cancelBtn = new QPushButton(tr("Cancel"));
-    m_cancelBtn->setIcon(gt::gui::icon::delete16());
+    m_cancelBtn->setIcon(gt::gui::icon::cancel());
 
     btnLay->addWidget(m_cancelBtn);
 

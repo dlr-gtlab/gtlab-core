@@ -33,7 +33,6 @@ public slots:
     void onLogMessage(QString const& msg, int lvl, GtLogDetails const& details);
 };
 
-
 /**
  * @brief The GtLogErrorMessageBox class
  * A simple dialog that displays accumulating messages into a single message

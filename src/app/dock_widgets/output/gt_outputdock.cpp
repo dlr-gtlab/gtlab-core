@@ -159,19 +159,19 @@ GtOutputDock::GtOutputDock()
     };
 
     // clear log button
-    setupActionButton(gt::gui::icon::clear16(),
+    setupActionButton(gt::gui::icon::clear(),
                       tr("Clear Output"),
                       gtLogModel, &GtLogModel::clearLog);
 
     // export log button
-    setupActionButton(gt::gui::icon::export16(),
+    setupActionButton(gt::gui::icon::export_(),
                       tr("Export Output to file"),
                       this, &GtOutputDock::exportLog);
 
     if (gtApp->devMode())
     {
         // test button
-        auto* testButton = setupActionButton(gt::gui::icon::file16(),
+        auto* testButton = setupActionButton(gt::gui::icon::bugPlay(),
                                              tr("Test Output"),
                                              this, &GtOutputDock::testOutput);
 
@@ -198,27 +198,27 @@ GtOutputDock::GtOutputDock()
     auto loggingLevel = gt::log::Logger::instance().loggingLevel();
 
     // trace message button
-    m_traceButton = setupToggleButton(gt::gui::icon::jumpTo(),
+    m_traceButton = setupToggleButton(gt::gui::icon::traceColorized(),
                                       tr("Show/Hide Trace Output"),
                                       &GtFilteredLogModel::filterTraceLevel);
 
     // debug message button
-    m_debugButton = setupToggleButton(gt::gui::icon::bug(),
+    m_debugButton = setupToggleButton(gt::gui::icon::bugColorized(),
                                       tr("Show/Hide Debug Output"),
                                       &GtFilteredLogModel::filterDebugLevel);
 
     // info message button
-    m_infoButton = setupToggleButton(gt::gui::icon::infoBlue16(),
+    m_infoButton = setupToggleButton(gt::gui::icon::infoColorized(),
                                      tr("Show/Hide Info Output"),
                                      &GtFilteredLogModel::filterInfoLevel);
 
     // warning message button
-    m_warningButton = setupToggleButton(gt::gui::icon::processFailed16(),
+    m_warningButton = setupToggleButton(gt::gui::icon::warningColorized(),
                                         tr("Show/Hide Warning Output"),
                                         &GtFilteredLogModel::filterWarningLevel);
 
     // error message button
-    m_errorButton = setupToggleButton(gt::gui::icon::error16(),
+    m_errorButton = setupToggleButton(gt::gui::icon::errorColorized(),
                                       tr("Show/Hide Error Output"),
                                       &GtFilteredLogModel::filterErrorLevel);
 
@@ -449,9 +449,9 @@ GtOutputDock::openContextMenu()
 
     QMenu menu(this);
 
-    QAction* actionCopy = menu.addAction(gt::gui::icon::copy16(), tr("Copy"));
+    QAction* actionCopy = menu.addAction(gt::gui::icon::copy(), tr("Copy"));
 
-    QAction* actionRemove = menu.addAction(gt::gui::icon::clear16(),
+    QAction* actionRemove = menu.addAction(gt::gui::icon::delete_(),
                                            tr("Delete"));
 
     QAction* a = menu.exec(QCursor::pos());
