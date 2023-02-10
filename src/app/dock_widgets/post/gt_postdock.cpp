@@ -40,17 +40,13 @@ GtPostDock::GtPostDock() : m_project(nullptr)
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(2);
+    layout->setSpacing(0);
     widget->setLayout(layout);
 
     m_listView = new GtListView;
     m_listView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_listView->setEditTriggers(GtListView::SelectedClicked);
     m_listView->setItemDelegate(new GtPostDelegate(this));
-
-    widget->setFrameShape(m_listView->frameShape());
-    widget->setFrameStyle(m_listView->frameStyle());
-    widget->setFrameShadow(m_listView->frameShadow());
 
     widget->setAutoFillBackground(true);
 
@@ -89,7 +85,7 @@ GtPostDock::GtPostDock() : m_project(nullptr)
     {
         // export button
         m_exportButton = new QPushButton;
-        m_exportButton->setIcon(gt::gui::icon::export16());
+        m_exportButton->setIcon(gt::gui::icon::export_());
         m_exportButton->setMaximumSize(QSize(20, 20));
         m_exportButton->setFlat(true);
         m_exportButton->setToolTip(tr("Export templates to file"));
@@ -100,7 +96,7 @@ GtPostDock::GtPostDock() : m_project(nullptr)
 
         // import button
         m_importButton = new QPushButton;
-        m_importButton->setIcon(gt::gui::icon::import16());
+        m_importButton->setIcon(gt::gui::icon::import());
         m_importButton->setMaximumSize(QSize(20, 20));
         m_importButton->setFlat(true);
         m_importButton->setToolTip(tr("Import templates from file"));
@@ -112,7 +108,7 @@ GtPostDock::GtPostDock() : m_project(nullptr)
 
     // add button
     m_addButton = new QPushButton;
-    m_addButton->setIcon(gt::gui::icon::add16());
+    m_addButton->setIcon(gt::gui::icon::add());
     m_addButton->setMaximumSize(QSize(20, 20));
     m_addButton->setFlat(true);
     m_addButton->setToolTip(tr("Add new template"));
@@ -317,13 +313,13 @@ GtPostDock::customContextMenu(QModelIndex const& index)
         QMenu menu(this);
 
         QAction* actrename = menu.addAction(tr("Rename"));
-        actrename->setIcon(gt::gui::icon::input16());
+        actrename->setIcon(gt::gui::icon::rename());
 
 
         menu.addSeparator();
 
         QAction* actdelete = menu.addAction(tr("Delete"));
-        actdelete->setIcon(gt::gui::icon::delete16());
+        actdelete->setIcon(gt::gui::icon::delete_());
 
         QAction* a = menu.exec(QCursor::pos());
 
@@ -343,7 +339,7 @@ GtPostDock::customContextMenu(QModelIndex const& index)
         QMenu menu(this);
 
         QAction* addtemplate = menu.addAction(tr("Add new template"));
-        addtemplate->setIcon(gt::gui::icon::add16());
+        addtemplate->setIcon(gt::gui::icon::add());
 
         QAction* a = menu.exec(QCursor::pos());
 

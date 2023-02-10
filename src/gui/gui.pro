@@ -18,7 +18,7 @@ CONFIG(debug, debug|release){
     TARGET = GTlabGui
 }
 
-QT += core widgets network xml printsupport qml concurrent quickwidgets
+QT += core widgets network xml printsupport qml concurrent quickwidgets svg
 TEMPLATE = lib
 CONFIG += plugin
 CONFIG += silent
@@ -416,7 +416,8 @@ SOURCES += \
     gt_finishedprocessloadinghelper.cpp \
     importer/processImporter/gt_processimporter.cpp
 
-RESOURCES += ../resources/icons/icons.qrc \
+RESOURCES += \
+    ../resources/icons/icons.qrc \
     ../resources/pixmaps/pixmaps.qrc \
     ../resources/qml/qml.qrc
 

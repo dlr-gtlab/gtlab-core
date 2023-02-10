@@ -32,14 +32,16 @@ GtPropertyFileChooserEditor::GtPropertyFileChooserEditor(QWidget* parent) :
     lay->addWidget(m_filePath);
 
     m_restoreButton = new QPushButton(QLatin1String{});
-    m_restoreButton->setIcon(gt::gui::icon::restore16());
+    m_restoreButton->setIcon(gt::gui::icon::clear());
     m_restoreButton->setFlat(true);
-    m_restoreButton->setMaximumWidth(15);
+    m_restoreButton->setMaximumWidth(16);
     m_restoreButton->setAutoDefault(false);
     m_restoreButton->setToolTip(tr("Clear File Path"));
 
-    m_selectButton = new QPushButton(QStringLiteral("..."));
-    m_selectButton->setMaximumWidth(30);
+    m_selectButton = new QPushButton();
+    m_selectButton->setFlat(true);
+    m_selectButton->setIcon(gt::gui::icon::dots());
+    m_selectButton->setMaximumWidth(16);
     m_selectButton->setAutoDefault(false);
     m_selectButton->setToolTip(tr("Select File Path"));
 

@@ -8,11 +8,45 @@
  */
 
 #include "gt_colors.h"
-
+#include "gt_application.h"
+#include "gt_palette.h"
 
 #include <QPainter>
 #include <QRandomGenerator>
-#include "gt_application.h"
+
+QColor
+gt::gui::color::main()
+{
+    return currentTheme().color(QPalette::Window);
+}
+
+QColor
+gt::gui::color::base()
+{
+    return currentTheme().color(QPalette::Base);
+}
+
+QColor
+gt::gui::color::text()
+{
+    return currentTheme().color(QPalette::Text);
+}
+
+QColor
+gt::gui::color::disabled()
+{
+    return currentTheme().color(QPalette::Disabled, QPalette::Text);
+}
+
+QColor gt::gui::color::highlight()
+{
+    return currentTheme().color(QPalette::Highlight);
+}
+
+QColor gt::gui::color::textHighlight()
+{
+    return currentTheme().color(QPalette::HighlightedText);
+}
 
 QColor
 gt::gui::color::basicDark()
@@ -120,16 +154,20 @@ gt::gui::color::environmentModelBack()
 }
 
 QColor
-gt::gui::color::infoText()
+gt::gui::color::debugText()
 {
     if (gtApp->inDarkMode())
     {
-        return {Qt::white};
+        return QColor(Qt::gray).lighter(120);
     }
-
-    return {Qt::black};
+    return QColor(Qt::gray).darker();
 }
 
+QColor
+gt::gui::color::infoText()
+{
+    return text();
+}
 
 void
 gt::gui::color::setPaintertoGray(QPainter* painter)

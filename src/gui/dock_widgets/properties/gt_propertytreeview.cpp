@@ -241,12 +241,12 @@ GtPropertyTreeView::onCollapsed(const QModelIndex& index)
 
         if (isMonitoring)
         {
-            model()->setData(index, gt::gui::icon::arrowRightBlue(),
+            model()->setData(index, gt::gui::icon::collapsedColorized(),
                              Qt::DecorationRole);
         }
         else
         {
-            model()->setData(index, gt::gui::icon::arrowRight(),
+            model()->setData(index, gt::gui::icon::collapsed(),
                              Qt::DecorationRole);
         }
     }
@@ -274,12 +274,12 @@ GtPropertyTreeView::onExpanded(const QModelIndex& index)
 
         if (isMonitoring)
         {
-            model()->setData(index, gt::gui::icon::arrowDownBlue(),
+            model()->setData(index, gt::gui::icon::uncollapsedColorized(),
                              Qt::DecorationRole);
         }
         else
         {
-            model()->setData(index, gt::gui::icon::arrowDown(),
+            model()->setData(index, gt::gui::icon::uncollapsed(),
                              Qt::DecorationRole);
         }
     }

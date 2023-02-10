@@ -24,7 +24,7 @@ GtProjectRestoreBackupDialog::GtProjectRestoreBackupDialog(
     m_folders(validBackupDirs)
 {
     setWindowTitle(tr("Restore Backup"));
-    setWindowIcon(gt::gui::getIcon("database-arrow-up-icon_own_16.png"));
+    setWindowIcon(gt::gui::icon::dataArrowUp());
     auto* layout = new QVBoxLayout;
     setLayout(layout);
 

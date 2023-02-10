@@ -158,8 +158,7 @@ GtLocalCollectionWidget::onCustomContextMenuRequested(const QPoint& /*pos*/)
     QMenu menu;
 
     QAction* deleteAction = menu.addAction(
-                gt::gui::icon::delete16(),
-                tr("Uninstall"));
+                gt::gui::icon::remove(), tr("Uninstall"));
 
     QAction* a = menu.exec(QCursor::pos());
 

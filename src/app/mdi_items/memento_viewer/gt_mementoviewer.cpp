@@ -32,14 +32,12 @@ GtMementoViewer::GtMementoViewer()
     lay->addWidget(editor);
 }
 
-GtMementoViewer::~GtMementoViewer()
-{
-}
+GtMementoViewer::~GtMementoViewer() = default;
 
 QIcon
 GtMementoViewer::icon() const
 {
-    return gt::gui::icon::clone16();
+    return gt::gui::icon::listFormatted();
 }
 
 bool

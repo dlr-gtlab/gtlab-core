@@ -46,7 +46,7 @@ GtStateViewer::GtStateViewer()
 QIcon
 GtStateViewer::icon() const
 {
-    return gt::gui::icon::emptyElement();
+    return gt::gui::icon::listFormatted();
 }
 
 void

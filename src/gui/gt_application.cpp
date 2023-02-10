@@ -757,9 +757,9 @@ GtApplication::setDarkMode(bool dark)
 
     if (!initial)
     {
-        gtInfo() << tr("Theme has changed.")
-                 << tr("For an optimal view of all displays, "
-                       "it is recommended to restart the application.");
+        gtInfo() << tr("The Theme was changed.")
+                 << tr("It is recommended to restart the application as some "
+                       "color or theme changes may not be applied correctly.");
     }
 
     initial = false;

@@ -42,8 +42,8 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
 
 
     QPushButton* moveUpButton = new QPushButton();
-    moveUpButton->setToolTip(tr("Move plot up by one."));
-    moveUpButton->setIcon(gt::gui::icon::arrowUpBlueAll());
+    moveUpButton->setToolTip(tr("Move plot up by one"));
+    moveUpButton->setIcon(gt::gui::icon::arrowUp());
     moveUpButton->setIconSize(QSize(16, 16));
     moveUpButton->setFlat(true);
     moveUpButton->setMaximumWidth(23);
@@ -52,8 +52,8 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
             SLOT(moveUp()));
 
     QPushButton* moveDownButton = new QPushButton();
-    moveDownButton->setToolTip(tr("Move plot down by one."));
-    moveDownButton->setIcon(gt::gui::icon::arrowDownBlueAll());
+    moveDownButton->setToolTip(tr("Move plot down by one"));
+    moveDownButton->setIcon(gt::gui::icon::arrowDown());
     moveDownButton->setIconSize(QSize(16, 16));
     moveDownButton->setFlat(true);
     moveDownButton->setMaximumWidth(23);
@@ -62,8 +62,8 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
             SLOT(moveDown()));
 
     m_configButton = new QPushButton();
-    m_configButton->setToolTip(tr("Configurate the plot."));
-    m_configButton->setIcon(gt::gui::icon::config16());
+    m_configButton->setToolTip(tr("Configurate the plot"));
+    m_configButton->setIcon(gt::gui::icon::config());
     m_configButton->setFlat(true);
     m_configButton->setMaximumWidth(23);
 
@@ -71,8 +71,8 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
             SLOT(configurePlot()));
 
     m_printButton = new QPushButton();
-    m_printButton->setToolTip(tr("Print the plot."));
-    m_printButton->setIcon(gt::gui::icon::printer());
+    m_printButton->setToolTip(tr("Print the plot"));
+    m_printButton->setIcon(gt::gui::icon::print());
     m_printButton->setFlat(true);
     m_printButton->setMaximumWidth(23);
 
@@ -80,8 +80,8 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
             SLOT(exportPlot()));
 
     m_copyButton = new QPushButton();
-    m_copyButton->setToolTip(tr("Copy the plot."));
-    m_copyButton->setIcon(gt::gui::icon::copy16());
+    m_copyButton->setToolTip(tr("Copy the plot"));
+    m_copyButton->setIcon(gt::gui::icon::copy());
     m_copyButton->setFlat(true);
     m_copyButton->setMaximumWidth(23);
 
@@ -89,8 +89,8 @@ GtAbstractItemUI::GtAbstractItemUI(GtAbstractPostWidget* widget)
             SLOT(copyPlot()));
 
     m_closeButton = new QPushButton();
-    m_closeButton->setToolTip(tr("Delete the plot."));
-    m_closeButton->setIcon(gt::gui::icon::delete16());
+    m_closeButton->setToolTip(tr("Delete the plot"));
+    m_closeButton->setIcon(gt::gui::icon::delete_());
     m_closeButton->setFlat(true);
     m_closeButton->setMaximumWidth(23);
 
@@ -208,14 +208,13 @@ GtAbstractItemUI::adjustToolBar()
     setIsPrintable(m_widget->isPrintable());
 
     // icon initialization
-    QString icon = m_widget->iconString();
+    QIcon plotIcon = gt::gui::getIcon(m_widget->iconString());
 
-    if (icon.isEmpty())
+    if (plotIcon.isNull())
     {
-        icon = "emptyElementIcon_16.png";
+        plotIcon = gt::gui::icon::objectEmpty();
     }
 
-    QIcon plotIcon = gt::gui::getIcon(icon);
     m_iconLabel->setPixmap(plotIcon.pixmap(20, 20));
 }
 
@@ -248,22 +247,14 @@ GtAbstractItemUI::exportPlot()
 {
     QMenu menu;
 
-    //QAction* actprint = menu.addAction(tr("Print..."));
     QAction* actexport = menu.addAction(tr("Export to PDF..."));
     QAction* expPng = menu.addAction(tr("Export to PNG..."));
 
-    //actprint->setIcon(gt::gui::icon::printer());
-    actexport->setIcon(gt::gui::icon::printPDF());
-    expPng->setIcon(gt::gui::icon::saveProject16());
+    actexport->setIcon(gt::gui::icon::pdf());
+    expPng->setIcon(gt::gui::icon::save());
 
     QAction* a = menu.exec(QCursor::pos());
 
-    /*    if (a == actprint)
-        {
-            //        plotToPrinter();
-        }
-
-        else if (a == actexport)*/
     if (a == actexport)
     {
         m_widget->plotToPdf();

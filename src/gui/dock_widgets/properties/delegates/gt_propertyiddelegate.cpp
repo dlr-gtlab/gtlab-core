@@ -84,7 +84,7 @@ GtPropertyIdDelegate::editorEvent(QEvent* event,
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
         mb.setWindowTitle(tr("Delete entry?"));
-        mb.setWindowIcon(gt::gui::icon::delete16());
+        mb.setWindowIcon(gt::gui::icon::delete_());
         mb.setText(tr("Delete ") + index.data().toString() + "?");
         mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
         mb.setDefaultButton(QMessageBox::Cancel);

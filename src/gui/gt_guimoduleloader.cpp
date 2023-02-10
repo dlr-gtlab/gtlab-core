@@ -8,6 +8,7 @@
  */
 
 #include <QString>
+#include <QApplication>
 
 #include "gt_guimoduleloader.h"
 #include "gt_moduleinterface.h"
@@ -111,6 +112,7 @@ GtGuiModuleLoader::knownUIObjects() const
 bool
 GtGuiModuleLoader::check(GtModuleInterface* plugin) const
 {
+    QApplication::processEvents();
     const auto errorString = [=](){
         return QObject::tr("Loading module '%1' failed:").arg(plugin->ident());
     };
@@ -261,6 +263,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
 void
 GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 {
+    QApplication::processEvents();
     GtCoreModuleLoader::insert(plugin);
 
     GtMdiInterface* mdip = dynamic_cast<GtMdiInterface*>(plugin);

@@ -7,6 +7,7 @@
  */
 
 #include "gt_logerrormessagebox.h"
+#include "gt_application.h"
 #include "gt_eventloop.h"
 #include "gt_logmodel.h"
 #include "gt_icons.h"

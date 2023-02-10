@@ -205,7 +205,7 @@ GtProcessPropertyConnectionEntity::contextMenuEvent(
     QMenu menu;
 
     QAction* actdelete = menu.addAction(tr("Delete Connection"));
-    actdelete->setIcon(gt::gui::icon::delete16());
+    actdelete->setIcon(gt::gui::icon::delete_());
 
     QAction* a = menu.exec(QCursor::pos());
 

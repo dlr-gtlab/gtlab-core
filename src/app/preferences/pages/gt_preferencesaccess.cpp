@@ -26,7 +26,7 @@
 GtPreferencesAccess::GtPreferencesAccess() :
     GtPreferencesPage(tr("Access"))
 {
-    setIcon(gt::gui::icon::login());
+    setIcon(gt::gui::icon::web());
     m_tabWidget = new QTabWidget;
 
     auto* layout = new QVBoxLayout;

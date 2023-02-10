@@ -9,8 +9,10 @@
 
 #include <QCoreApplication>
 #include <QMdiArea>
+#include <QTabBar>
 #include <QTabWidget>
 #include <QMdiSubWindow>
+#include <QPushButton>
 
 #include "gt_mdilauncher.h"
 #include "gt_mdiitem.h"
@@ -419,14 +421,18 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     QIcon icon = mdiItem->icon();
 
-    if (!icon.isNull())
-    {       
-        m_area->addTab(wid, mdiItem->icon(), mdiItem->objectName());
-    }
-    else
+    if (icon.isNull())
     {
-        m_area->addTab(wid, gt::gui::icon::frame(), mdiItem->objectName());
+        icon = gt::gui::icon::layers();
     }
+
+    int idx = m_area->addTab(wid, icon, mdiItem->objectName());
+
+    // set custom close button
+    QPushButton* closeBtn = new QPushButton;
+    closeBtn->setIcon(gt::gui::icon::close());
+    m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, closeBtn);
+    connect(closeBtn, &QPushButton::clicked, wid, &QWidget::deleteLater);
 
     mdiItem->initialized();
 

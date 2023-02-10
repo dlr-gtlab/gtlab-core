@@ -56,7 +56,7 @@ GtExplorerDock::GtExplorerDock() :
 
     QFrame* frame = new QFrame;
     QVBoxLayout* frameLayout = new QVBoxLayout;
-
+    frameLayout->setSpacing(0);
     frameLayout->setContentsMargins(0, 0, 0, 0);
 
     m_view = new GtExplorerView(this);
@@ -68,7 +68,7 @@ GtExplorerDock::GtExplorerDock() :
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(2);
+    layout->setSpacing(0);
     frameLayout->addWidget(m_view);
 //    frameLayout->addWidget(m_resultView);
 
@@ -215,7 +215,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
     QMenu menu(this);
 
     QAction* actionOpen = menu.addAction(tr("Open"));
-    actionOpen->setIcon(gt::gui::icon::open16());
+    actionOpen->setIcon(gt::gui::icon::open());
 
     actionOpen->setVisible(false);
 
@@ -322,7 +322,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 
     // rename object action
     QAction* actrename = menu.addAction("Rename");
-    actrename->setIcon(gt::gui::icon::input16());
+    actrename->setIcon(gt::gui::icon::rename());
 
     if (obj->isRenamable())
     {
@@ -334,7 +334,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
         actrename->setVisible(false);
     }
 
-    QAction* actionDelete = menu.addAction(gt::gui::icon::delete16(),
+    QAction* actionDelete = menu.addAction(gt::gui::icon::delete_(),
                                            tr("Delete"));
 
     // delete object action
@@ -443,13 +443,13 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
 
     if (oneDeletable)
     {
-        actionDelete = menu.addAction(gt::gui::icon::delete16(),
+        actionDelete = menu.addAction(gt::gui::icon::delete_(),
                                       tr("Delete"));
     }
 
     if (allProjects)
     {
-       actionRemoveProjects = menu.addAction(gt::gui::icon::delete16(),
+       actionRemoveProjects = menu.addAction(gt::gui::icon::projectRemove(),
                                              tr("Delete from session"));
     }
 

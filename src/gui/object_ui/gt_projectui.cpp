@@ -63,37 +63,37 @@ GtProjectUI::GtProjectUI()
 {
     addSingleAction(tr("Upgrade Project Data..."),
                     &GtProjectUI::upgradeProjectData)
-            .setIcon(gt::gui::icon::upgradeProjectData())
+            .setIcon(gt::gui::icon::upload())
             .setVerificationMethod(&GtProjectUI::canUpgradeProjectData)
             .setVisibilityMethod(&GtProjectUI::canUpgradeProjectData);
 
     addSingleAction(tr("Set as active Project"),
                     &GtProjectUI::setCurrentProject)
-            .setIcon(gt::gui::icon::empty16())
+            .setIcon(gt::gui::icon::objectEmpty())
             .setVerificationMethod(&GtProjectUI::canSetCurrentProject)
             .setVisibilityMethod(&GtProjectUI::canSetCurrentProject);
 
     addSingleAction(tr("Open Project"),
                     &GtProjectUI::openProject)
-            .setIcon(gt::gui::icon::openProject16())
+            .setIcon(gt::gui::icon::projectOpen())
             .setVerificationMethod(&GtProjectUI::canOpenProject)
             .setShortCut(gtApp->getShortCutSequence("openProject"));
 
     addSingleAction(tr("Close Project"),
                     &GtProjectUI::closeProject)
-            .setIcon(gt::gui::icon::closeProject())
+            .setIcon(gt::gui::icon::projectClose())
             .setVerificationMethod(&GtProjectUI::canCloseProject)
             .setShortCut(gtApp->getShortCutSequence("closeProject"));
 
     addSingleAction(tr("Save Project"),
                     &GtProjectUI::saveProject)
-            .setIcon(gt::gui::icon::saveProject16())
+            .setIcon(gt::gui::icon::save())
             .setVerificationMethod(&GtProjectUI::canSaveProject)
             .setShortCut(gtApp->getShortCutSequence("save"));
 
     addSingleAction(tr("Save Project As..."),
                     &GtProjectUI::saveProjectAs)
-            .setIcon(gt::gui::icon::saveProject16())
+            .setIcon(gt::gui::icon::save())
             .setVerificationMethod(&GtProjectUI::canSaveProjectAs);
 
     addSeparator();
@@ -117,7 +117,7 @@ GtProjectUI::GtProjectUI()
 
         addSingleAction(tr("Enable Version Control"),
                         &GtProjectUI::enableVersionControl)
-                .setIcon(gt::gui::icon::checkSmall16())
+                .setIcon(gt::gui::icon::check())
                 .setVerificationMethod(&GtProjectUI::canEnableVersionControl)
                 .setVisibilityMethod(&GtProjectUI::canEnableVersionControl);
 
@@ -133,12 +133,12 @@ GtProjectUI::GtProjectUI()
  
     addSingleAction(tr("Open Project Settings..."),
                     &GtProjectUI::openProjectSettings)
-            .setIcon(gt::gui::icon::config16())
+            .setIcon(gt::gui::icon::config())
             .setVerificationMethod(&GtProjectUI::projectIsOpen);
 
     addSingleAction(tr("Show Project Footprint"),
                     &GtProjectUI::showFootprint)
-            .setIcon(gt::gui::icon::infoBlue16())
+            .setIcon(gt::gui::icon::info2())
             .setShortCut(gtApp->getShortCutSequence("ShowFootprint"));
 
     addSingleAction(tr("Edit Comment"),
@@ -150,12 +150,12 @@ GtProjectUI::GtProjectUI()
 
     addSingleAction(tr("Show in Explorer"),
                     &GtProjectUI::showInExplorer)
-            .setIcon(gt::gui::icon::folder16());
+            .setIcon(gt::gui::icon::folderOpen());
 
 
     addSingleAction(tr("Rename Project"),
                     &GtProjectUI::renameProject)
-            .setIcon(gt::gui::icon::input16())
+            .setIcon(gt::gui::icon::rename())
             .setVerificationMethod(&GtProjectUI::canRenameProject)
             .setShortCut(gtApp->getShortCutSequence("rename"));
 
@@ -163,29 +163,29 @@ GtProjectUI::GtProjectUI()
 
     addSingleAction(tr("Choose Project Modules"),
                     &GtProjectUI::chooseProjectModule)
-            .setIcon(gt::gui::icon::plugin16())
+            .setIcon(gt::gui::icon::plugin())
             .setVerificationMethod(&GtProjectUI::canChooseProjectModule);
 
     addSingleAction(tr("Export Meta Data"),
                     &GtProjectUI::exportMetaData)
-            .setIcon(gt::gui::icon::export16())
+            .setIcon(gt::gui::icon::export_())
             .setVerificationMethod(&GtProjectUI::canExportMetaData)
             .setVisibilityMethod(&GtProjectUI::canExportMetaData);
 
     addSingleAction(tr("Delete from Session"),
                     &GtProjectUI::deleteProject)
-            .setIcon(gt::gui::icon::delete16())
+            .setIcon(gt::gui::icon::projectRemove())
             .setVerificationMethod(&GtProjectUI::canDeleteProject);
 
     addSingleAction(tr("Generate Backup"),
                     &GtProjectUI::backupProject)
             .setVerificationMethod(&GtProjectUI::projectIsOpen)
             .setVisibilityMethod(&GtProjectUI::projectIsOpen)
-            .setIcon(gt::gui::icon::data16());
+            .setIcon(gt::gui::icon::data());
 
     addSingleAction(tr("Restore Backup"),
                     &GtProjectUI::restoreBackup)
-            .setIcon(QStringLiteral("database-arrow-up-icon_own_16.png"))
+            .setIcon(gt::gui::icon::dataArrowUp())
             .setVerificationMethod(&GtProjectUI::canRestoreBackup);
 }
 
@@ -201,15 +201,15 @@ GtProjectUI::icon(GtObject* obj) const
 
     if (project->isOpen())
     {
-        return gt::gui::icon::components16();
+        return gt::gui::icon::projectOpen();
     }
 
     if (project->upgradesAvailable())
     {
-        return gt::gui::icon::inconsistentProject16();
+        return gt::gui::icon::objectInvalid();
     }
 
-    return gt::gui::icon::closedProject16();
+    return gt::gui::icon::projectClosed();
 }
 
 void
@@ -359,7 +359,7 @@ GtProjectUI::openProject(GtObject* obj)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Open Project"));
-        mb.setWindowIcon(gt::gui::icon::openProject16());
+        mb.setWindowIcon(gt::gui::icon::projectOpen());
         mb.setText(tr("Cannot open new project while a task is running."));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);
@@ -517,7 +517,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
     GtDialog dialog;
 
     dialog.setWindowTitle(tr("Save Project As..."));
-    dialog.setWindowIcon(gt::gui::icon::saveProject16());
+    dialog.setWindowIcon(gt::gui::icon::save());
 
     auto layout = new QVBoxLayout;
 
@@ -534,12 +534,12 @@ GtProjectUI::saveProjectAs(GtObject* obj)
     auto btnLay = new QHBoxLayout;
 
     auto acceptBtn = new QPushButton(tr("Save"));
-    acceptBtn->setIcon(gt::gui::icon::saveProject16());
+    acceptBtn->setIcon(gt::gui::icon::save());
 
     connect(acceptBtn, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
 
     auto cancleBtn = new QPushButton(tr("Cancel"));
-    cancleBtn->setIcon(gt::gui::icon::delete16());
+    cancleBtn->setIcon(gt::gui::icon::cancel());
 
     connect(cancleBtn, SIGNAL(clicked(bool)), &dialog, SLOT(reject()));
     connect(pspecs, SIGNAL(validated(bool)), acceptBtn, SLOT(setEnabled(bool)));
@@ -742,7 +742,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 
     dialog.setWindowTitle(tr("Project Modules") +
                           QStringLiteral(" - ") + project->objectName());
-    dialog.setWindowIcon(gt::gui::icon::plugin16());
+    dialog.setWindowIcon(gt::gui::icon::plugin());
 
     auto layout = new QVBoxLayout;
 
@@ -764,7 +764,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
 
 
     auto okButton = new QPushButton(tr("Ok"));
-    okButton->setIcon(gt::gui::icon::check16());
+    okButton->setIcon(gt::gui::icon::check());
 
     connect(okButton, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
     connect(model, SIGNAL(noItemSelected(bool)), okButton,
@@ -795,7 +795,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
             mb.setWindowTitle(tr("Save Project"));
-            mb.setWindowIcon(gt::gui::icon::saveProject16());
+            mb.setWindowIcon(gt::gui::icon::save());
             mb.setText(tr("Found unsaved changes.\nDo you want to save ")
                        + tr("your changes?"));
             mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
@@ -1007,7 +1007,7 @@ GtProjectUI::exportMetaData(GtObject* obj)
 
     GtDialog dialog;
     dialog.setWindowTitle(tr("Export Meta Data"));
-    dialog.setWindowIcon(gt::gui::icon::export16());
+    dialog.setWindowIcon(gt::gui::icon::export_());
 
     GtCheckableStringListModel model(taskNames);
     model.setSelectionMode(GtCheckableStringListModel::SingleSelection);
@@ -1214,7 +1214,7 @@ GtProjectUI::renameProject(GtObject* obj)
 
 //    dialog.setInputMode(QInputDialog::IntInput);
     dialog.setWindowTitle(tr("Rename Project"));
-    dialog.setWindowIcon(gt::gui::icon::input16());
+    dialog.setWindowIcon(gt::gui::icon::input());
     dialog.setLabelText(tr("Note: The associated project path "
                            "on the hard disk is not changed."
                            "\n\nNew project name:"));
@@ -1316,7 +1316,7 @@ GtProjectUI::showFootprint(GtObject* obj)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Footprint Not Found"));
-        mb.setWindowIcon(gt::gui::icon::components16());
+        mb.setWindowIcon(gt::gui::icon::error());
         mb.setText(tr("No footprint was found in the project file.\nIt seems "
                       "that the project was created with a GTlab version "
                       "< 1.6.\n\nSaving the project with a GTlab version >= "
@@ -1341,7 +1341,7 @@ GtProjectUI::showFootprint(GtObject* obj)
             frameworkFootpring.frameworkVersion().toString();
 
     GtDialog dialog;
-    dialog.setWindowIcon(gt::gui::icon::components16());
+    dialog.setWindowIcon(gt::gui::icon::info2());
     dialog.setWindowTitle(tr("Footprint Information"));
 
     auto mLay = new QVBoxLayout;
@@ -1772,7 +1772,7 @@ GtProjectUI::restoreBackup(GtObject *obj)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
         mb.setWindowTitle(tr("Confirm Restore"));
-        mb.setWindowIcon(gt::gui::icon::saveProject16());
+        mb.setWindowIcon(gt::gui::icon::check());
 
         const bool initialOpenProject = project->isOpen();
 

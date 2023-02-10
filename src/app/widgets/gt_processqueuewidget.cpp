@@ -27,7 +27,7 @@ GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
 {
     setWindowTitle("Process Queue");
 
-    setWindowIcon(gt::gui::icon::queue16());
+    setWindowIcon(gt::gui::icon::queue());
 
     QFrame* frame = new QFrame;
     QVBoxLayout* frameLayout = new QVBoxLayout;
@@ -40,7 +40,7 @@ GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
     m_upButton->setStyleSheet(styleSheet);
 
     m_removeButton = new QPushButton(tr("Remove"));
-    m_removeButton->setIcon(gt::gui::icon::delete16());
+    m_removeButton->setIcon(gt::gui::icon::delete_());
     m_removeButton->setToolTip(tr("Remove from queue"));
     m_removeButton->setStyleSheet(styleSheet);
 
@@ -298,7 +298,7 @@ GtProcessQueueWidget::onContextMenuRequest(const QPoint& pos)
         menu.addSeparator();
 
         QAction* actRemove = menu.addAction("Remove");
-        actRemove->setIcon(gt::gui::icon::delete16());
+        actRemove->setIcon(gt::gui::icon::delete_());
 
         if (selection.row() == 1)
         {

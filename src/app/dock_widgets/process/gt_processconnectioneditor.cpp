@@ -65,9 +65,9 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
     lay->addLayout(mainLay);
 
     QPushButton* saveButton = new QPushButton(tr("Ok"));
-    saveButton->setIcon(gt::gui::icon::check16());
+    saveButton->setIcon(gt::gui::icon::check());
     QPushButton* closeButton = new QPushButton(tr("Cancel"));
-    closeButton->setIcon(gt::gui::icon::delete16());
+    closeButton->setIcon(gt::gui::icon::cancel());
 
     connect(closeButton, SIGNAL(clicked()), SLOT(reject()));
     connect(saveButton, SIGNAL(clicked()), SLOT(accept()));

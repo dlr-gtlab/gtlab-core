@@ -188,28 +188,28 @@ GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state,
             return gt::gui::icon::processRunningIcon(progress);
 
         case GtProcessComponent::QUEUED:
-            return gt::gui::icon::sleep16();
+            return gt::gui::icon::sleep();
 
         case GtProcessComponent::FAILED:
-            return gt::gui::icon::error16();
+            return gt::gui::icon::error();
 
         case GtProcessComponent::FINISHED:
-            return gt::gui::icon::check16();
+            return gt::gui::icon::check();
 
         case GtProcessComponent::CONNECTING:
-            return gt::gui::icon::network16();
+            return gt::gui::icon::network();
 
         case GtProcessComponent::SKIPPED:
-            return gt::gui::icon::skip16();
+            return gt::gui::icon::skip();
 
         case GtProcessComponent::TERMINATION_REQUESTED:
-            return gt::gui::icon::stopRequest16();
+            return gt::gui::icon::timer();
 
         case GtProcessComponent::TERMINATED:
-            return gt::gui::icon::stop16();
+            return gt::gui::icon::stop();
 
         case GtProcessComponent::WARN_FINISHED:
-            return gt::gui::icon::processFailed16();
+            return gt::gui::icon::warning();
 
         default:
             break;

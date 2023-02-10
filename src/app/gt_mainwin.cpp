@@ -37,8 +37,7 @@
 #include "gt_palette.h"
 #include "gt_algorithms.h"
 #include "gt_qmltoolbar.h"
-
-#include <gt_logdest.h>
+#include "gt_iconbrowser.h"
 
 #include <QSignalMapper>
 #include <QDir>
@@ -77,24 +76,45 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     // hide some stuff
     ui->menuUpdate_available->menuAction()->setVisible(false);
 
-    // disable some stuff
-    //    ui->actionHelpContents->setEnabled(false);
+    // setup icons (to make use of different icon sets etc.)
+    ui->actionNewProject->setIcon(gt::gui::icon::projectAdd());
+    ui->actionOpen_Project->setIcon(gt::gui::icon::folderOpen());
+    ui->actionCloseProject->setIcon(gt::gui::icon::projectClose());
+    ui->actionSave_Project->setIcon(gt::gui::icon::save());
+    ui->actionSave_As->setIcon(gt::gui::icon::save());
+    ui->menuSession->setIcon(gt::gui::icon::session());
+    ui->actionExit->setIcon(gt::gui::icon::close());
+
+    ui->actionUndoHistory->setIcon(gt::gui::icon::history());
+    ui->actionProcessQueue->setIcon(gt::gui::icon::queue());
+    ui->actionPreferences->setIcon(gt::gui::icon::config());
+
+    ui->menuPerspective->setIcon(gt::gui::icon::perspectives());
+    ui->actionEditPerspectives->setIcon(gt::gui::icon::perspectivesEdit());
+    ui->menuDock_Widgets->setIcon(gt::gui::icon::dock());
+
+    ui->actionHelpContents->setIcon(gt::gui::icon::help());
+    ui->actionExamples->setIcon(gt::gui::icon::examples());
+    ui->actionCheck_for_update->setIcon(gt::gui::icon::update());
+    ui->actionInstall_Update->setIcon(gt::gui::icon::update());
+    ui->actionBug_Report->setIcon(gt::gui::icon::bug());
+    ui->actionChangelog->setIcon(gt::gui::icon::fileClock());
+    ui->actionAbout->setIcon(gt::gui::icon::info2());
+
+    ui->actionPrint->setIcon(gt::gui::icon::print());
+    ui->actionLayer_Manager->setIcon(gt::gui::icon::layers());
+
+    ui->actionState_Browser->setIcon(gt::gui::icon::list());
+    ui->actionMemento_Viewer->setIcon(gt::gui::icon::listFormatted());
+    ui->actionWidgetStructure->setIcon(gt::gui::icon::tree());
+    ui->actionIcon_Browser->setIcon(gt::gui::icon::list());
 
     // dev mode initialization
-    if (gtApp->devMode())
-    {
-    }
-    else
+    if (!gtApp->devMode())
     {
         ui->menuDev->menuAction()->setVisible(false);
 
         ui->menuTools->menuAction()->setVisible(false);
-
-//        ui->actionBug_Report->setVisible(false);
-
-//        ui->actionHelpContents->setEnabled(false);
-
-        //ui->actionExamples->setVisible(false);
     }
 
     // session initialization
@@ -114,14 +134,14 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     // undo action
     QAction* undoAct = gtApp->undoStack()->createUndoAction(this,
                        tr("Undo"));
-    undoAct->setIcon(gt::gui::icon::undo24());
+    undoAct->setIcon(gt::gui::icon::undo());
     undoAct->setText(tr("Undo"));
     undoAct->setShortcut(gtApp->getShortCutSequence("undo"));
 
     // redo action
     QAction* redoAct = gtApp->undoStack()->createRedoAction(this,
                        tr("Redo"));
-    redoAct->setIcon(gt::gui::icon::redo24());
+    redoAct->setIcon(gt::gui::icon::redo());
     redoAct->setText(tr("Redo"));
     redoAct->setShortcut(gtApp->getShortCutSequence("redo"));
 
@@ -206,6 +226,10 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(closeProject()));
     connect(ui->actionWidgetStructure, SIGNAL(triggered(bool)),
             SLOT(onWidgetStructureClicked()));
+    connect(ui->actionIcon_Browser, &QAction::triggered, this, [](){
+        auto* dialog = new GtIconBrowser;
+        dialog->exec();
+    });
     connect(gtApp, SIGNAL(themeChanged(bool)),
             SLOT(setTheme(bool)));
 
@@ -218,7 +242,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
             SLOT(openAboutModulesDialog()));
 
     loadPerspectiveSettings();
-	
+
     connect(ui->mdiArea, SIGNAL(currentChanged(int)),
             SLOT(onEditorWindowActive(int)));
 
@@ -272,7 +296,7 @@ GtMainWin::closeEvent(QCloseEvent* event)
             QMessageBox mb;
             mb.setIcon(QMessageBox::Question);
             mb.setWindowTitle(tr("Confirm Exit"));
-            mb.setWindowIcon(gt::gui::icon::delete16());
+            mb.setWindowIcon(gt::gui::icon::close());
             mb.setText(tr("Attention: \n"
                           "You try to exit GTlab while  a process is running \n"
                           "Are you sure quit?"));
@@ -331,9 +355,9 @@ GtMainWin::closeEvent(QCloseEvent* event)
             QMessageBox mb;
             mb.setPalette(qApp->palette());
             mb.setIcon(QMessageBox::Question);
-            mb.setWindowTitle("Confirm Exit");
-            mb.setWindowIcon(gt::gui::icon::delete16());
-            mb.setText(QString("Exit GTlab?"));
+            mb.setWindowTitle(tr("Confirm Exit"));
+            mb.setWindowIcon(gt::gui::icon::close());
+            mb.setText(tr("Exit GTlab?"));
             mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
             mb.setDefaultButton(QMessageBox::Yes);
             int ret = mb.exec();
@@ -733,7 +757,7 @@ GtMainWin::openCommandHistory()
     {
         m_undoView = new QUndoView();
         m_undoView->setWindowTitle(QStringLiteral("GTlab - Command History"));
-        m_undoView->setWindowIcon(gt::gui::icon::history16());
+        m_undoView->setWindowIcon(gt::gui::icon::history());
         m_undoView->setStack(gtApp->undoStack());
         m_undoView->show();
         m_undoView->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -1108,9 +1132,9 @@ GtMainWin::runUpdate()
     {
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
-        mb.setWindowTitle("Confirm Exit");
-        mb.setWindowIcon(gt::gui::icon::delete16());
-        mb.setText(QString("Exit GTlab?"));
+        mb.setWindowTitle(tr("Confirm Exit"));
+        mb.setWindowIcon(gt::gui::icon::delete_());
+        mb.setText(tr("Exit GTlab?"));
         mb.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
         mb.setDefaultButton(QMessageBox::Yes);
         int ret = mb.exec();
@@ -1284,17 +1308,6 @@ GtMainWin::onWidgetStructureClicked()
 }
 
 void
-GtMainWin::onLogMessage(const QString& msg, int level)
-{
-//    if (level > 3) // Pipe errors (level 4) to a message box
-//    {
-//        QsLogging::Level l = QsLogging::Logger::levelFromInt(level);
-//        QMessageBox::critical(this, QsLogging::Logger::levelToString(l),
-//                              msg, QMessageBox::Ok);
-//    }
-}
-
-void
 GtMainWin::onEditorWindowActive(int editorIndex)
 {
     emit currentMdiItemPrintable(
@@ -1302,48 +1315,8 @@ GtMainWin::onEditorWindowActive(int editorIndex)
 }
 
 void
-GtMainWin::setTheme(bool dark)
+GtMainWin::setTheme(bool /*dark*/)
 {
-    QPalette p;
-    if (!dark)
-    {
-        QString style = "Default";
-#ifdef Q_OS_WIN
-        style = "windowsvista";
-#endif
-        p = gt::gui::standardTheme();
-
-        qApp->setPalette(p);
-        qApp->setStyle(QStyleFactory::create(style));
-        qApp->setStyleSheet("QToolTip { color: black; "
-                            "background-color: white; "
-                            "border: 1px solid black; }");
-
-        this->setPalette(p);
-        this->setStyle(QStyleFactory::create(style));
-        this->setStyleSheet("QToolTip { color: black; "
-                            "background-color: white; "
-                            "border: 1px solid black; }");
-
-    }
-    else
-    {
-        p = gt::gui::darkTheme();
-
-        qApp->setPalette(p);
-        qApp->setStyle(QStyleFactory::create("Fusion"));
-        qApp->setStyleSheet("QToolTip { color: #ffffff; "
-                            "background-color: #2a82da; "
-                            "border: 1px solid white; }");
-
-        this->setPalette(p);
-        this->setStyle(QStyleFactory::create("Fusion"));
-        this->setStyleSheet("QToolTip { color: #ffffff; "
-                            "background-color: #2a82da; "
-                            "border: 1px solid white; }");
-
-    }
-
-    ui->menubar->setPalette(p);
-    ui->mdiArea->setPalette(p);
+    gt::gui::applyThemeToApplication();
+    gt::gui::applyThemeToWidget(this);
 }
