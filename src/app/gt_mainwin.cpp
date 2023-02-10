@@ -36,7 +36,7 @@
 #include "gt_icons.h"
 #include "gt_palette.h"
 #include "gt_algorithms.h"
-#include "gt_toolbarhandler.h"
+#include "gt_qmltoolbar.h"
 
 #include <gt_logdest.h>
 
@@ -67,7 +67,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     m_forceQuit(false),
     m_firstTimeShowEvent(true),
     m_processQueue(nullptr),
-    m_toolBarHandler{std::make_unique<GtToolbarHandler>()}
+    m_mainWindowToolbar(new GtQmlToolbar(this))
 {
     // dock widget have to be initialized before setup the ui
     setupDockWidgets();
@@ -137,18 +137,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui->menubar->setCornerWidget(m_cornerWidget);
 
     // connections
-    connect(m_toolBarHandler.get(), SIGNAL(newProjectButtonClicked()),
-            SLOT(showProjectWizard()));
-    connect(m_toolBarHandler.get(), SIGNAL(saveProjectButtonClicked()),
-            SLOT(saveCurrentProject()));
-    connect(m_toolBarHandler.get(), SIGNAL(openProjectButtonClicked()),
-            SLOT(importProject()));
-    connect(m_toolBarHandler.get(), SIGNAL(undoButtonClicked()),
-            gtApp->undoStack(), SLOT(undo()));
-    connect(m_toolBarHandler.get(), SIGNAL(redoButtonClicked()),
-            gtApp->undoStack(), SLOT(redo()));
-    connect(gtApp, SIGNAL(objectSelected(GtObject*)),
-            m_toolBarHandler.get(), SLOT(onObjectSelected(GtObject*)));
+
 
     connect(ui->actionNewProject, SIGNAL(triggered(bool)),
             SLOT(showProjectWizard()));
@@ -237,29 +226,25 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     ui->qmlToolBar->setStyleSheet("QToolBar {border-bottom: 0px solid black; border-top: 0px solid black;}");
 
-    m_myqmlwid = new QQuickWidget;
-    ui->qmlToolBar->addWidget(m_myqmlwid);
+;
+    ui->qmlToolBar->addWidget(m_mainWindowToolbar);
 
-   m_myqmlwid->resize(QSize(1500, 50));
-    m_myqmlwid->setResizeMode(QQuickWidget::SizeRootObjectToView);
-//    m_myqmlwid->rootContext()->setContextProperty("_cppModel",
-//                                                   m_model);
+    m_mainWindowToolbar->resize(QSize(1500, 50));
+    m_mainWindowToolbar->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
+    connect(m_mainWindowToolbar, SIGNAL(newProjectButtonClicked()),
+           SLOT(showProjectWizard()));
 
-//    m_myqmlwid->rootContext()->setContextProperty("global_fullname",
-//                                                  my_client.userFullName());
-//    m_myqmlwid->rootContext()->setContextProperty("global_icon",
-//                                                  my_client.userAvatarUrl());
-    m_myqmlwid->rootContext()->setContextProperty("mainwin",
-                                                  this);
-    m_myqmlwid->rootContext()->setContextProperty("gtapp",
-                                                  gtApp);
-    m_myqmlwid->rootContext()->setContextProperty("undostack",
-                                                  gtApp->undoStack());
-    m_myqmlwid->rootContext()->setContextProperty("handler",
-                                                  m_toolBarHandler.get());
-
-    m_myqmlwid->setSource(QUrl("qrc:/qml/toolbar.qml"));
+    connect(m_mainWindowToolbar, SIGNAL(saveProjectButtonClicked()),
+           SLOT(saveCurrentProject()));
+    connect(m_mainWindowToolbar, SIGNAL(openProjectButtonClicked()),
+           SLOT(importProject()));
+    connect(m_mainWindowToolbar, SIGNAL(undoButtonClicked()),
+           gtApp->undoStack(), SLOT(undo()));
+    connect(m_mainWindowToolbar, SIGNAL(redoButtonClicked()),
+           gtApp->undoStack(), SLOT(redo()));
+    connect(gtApp, SIGNAL(objectSelected(GtObject*)),
+           m_mainWindowToolbar, SLOT(onObjectSelected(GtObject*)));
 
 }
 
@@ -415,7 +400,7 @@ GtMainWin::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
 
-    m_myqmlwid->resize(QSize(this->width(), 50));
+    m_mainWindowToolbar->resize(QSize(this->width(), 50));
 }
 
 void

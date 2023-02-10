@@ -96,6 +96,7 @@ HEADERS += \
     gt_mdiitem.h \
     gt_mdilauncher.h \
     gt_palette.h \
+    gt_qmlaction.h \
     gt_shortcut.h \
     gt_shortcuts.h \
     tools/gt_changelogparser.h \
@@ -265,6 +266,7 @@ SOURCES += \
     gt_mdiitem.cpp \
     gt_mdilauncher.cpp \
     gt_palette.cpp \
+    gt_qmlaction.cpp \
     gt_shortcut.cpp \
     gt_shortcuts.cpp \
     tools/gt_changelogparser.cpp \

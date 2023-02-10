@@ -14,16 +14,21 @@
 #include <QPointer>
 
 #include "gt_object.h"
+#include "gt_qmlaction.h"
+
+#include <QQuickWidget>
+
+#include "gt_qmlobjectlistmodel.h"
 
 /**
  * @brief Class for controlling the QML Toolbar.
  */
-class GtToolbarHandler: public QObject
+class GtQmlToolbar: public QQuickWidget
 {
     Q_OBJECT
 
 public:
-    GtToolbarHandler();
+    explicit GtQmlToolbar(class GtMainWin* parent = nullptr);
 
 public slots:
     /**
@@ -46,9 +51,16 @@ public slots:
      */
     bool projectHasInfo();
 
+    /**
+     * @brief Adds an custom button to the right side of the toolbar
+     */
+    Q_INVOKABLE class GtQmlAction *addCustomButton(const QString& text, const QUrl& iconUrl);
+
 private:
+
     /// Pointer to selected object
     QPointer<GtObject> m_selectedObj;
+    QPointer<GtQmlObjectListModel> m_customActions;
 
 signals:
     /**
