@@ -21,6 +21,7 @@ GtPreferencesPerspective::GtPreferencesPerspective()
 {
     setIcon(gt::gui::icon::perspectives());
     QVBoxLayout* lay = new QVBoxLayout;
+    lay->setContentsMargins(0, 0, 0, 0);
 
     QHBoxLayout* hLayout = new QHBoxLayout;
 

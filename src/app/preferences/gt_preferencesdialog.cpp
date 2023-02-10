@@ -105,7 +105,8 @@ GtPreferencesDialog::setStartingPage(const QString& title)
     m_contentsWidget->setCurrentRow(pageIndex(title));
 }
 
-void GtPreferencesDialog::addPage(GtPreferencesPage *page)
+void
+GtPreferencesDialog::addPage(GtPreferencesPage* page)
 {
     if (!page)
     {

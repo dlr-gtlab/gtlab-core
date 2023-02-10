@@ -30,6 +30,7 @@ GtPreferencesAccess::GtPreferencesAccess() :
     m_tabWidget = new QTabWidget;
 
     auto* layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_tabWidget);
     setLayout(layout);
 

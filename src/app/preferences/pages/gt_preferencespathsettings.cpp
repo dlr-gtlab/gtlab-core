@@ -33,6 +33,7 @@ GtPreferencesPathSettings::GtPreferencesPathSettings() :
     view->verticalHeader()->setDefaultSectionSize(16);
 
     auto layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(view);
     setLayout(layout);
 

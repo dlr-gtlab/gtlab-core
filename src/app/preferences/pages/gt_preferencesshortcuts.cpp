@@ -53,6 +53,7 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
     blay->addStretch(1);
 
     auto hlay = new QHBoxLayout;
+    hlay->setContentsMargins(0, 0, 0, 0);
     hlay->addWidget(m_tab);
     hlay->addLayout(blay);
     setLayout(hlay);
