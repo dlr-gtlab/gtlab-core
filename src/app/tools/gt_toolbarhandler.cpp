@@ -76,6 +76,10 @@ GtToolbarHandler::buttonClicked(const QString &btnId)
     {
         gtMdiLauncher->open("GtStartupPage");
     }
+    else if (btnId == "btnPrint")
+    {
+       gtMdiLauncher->printCurrentWindow();
+    }
 }
 
 void

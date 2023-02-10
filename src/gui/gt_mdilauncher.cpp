@@ -257,12 +257,20 @@ GtMdiLauncher::collection(const QString& id)
 }
 
 void
-GtMdiLauncher::print(QWidget* subWindow)
+GtMdiLauncher::printCurrentWindow()
 {
-    if (!subWindow)
+    if (!m_area)
     {
         return;
     }
+
+    print(m_area->currentWidget());
+}
+
+void
+GtMdiLauncher::print(QWidget* subWindow)
+{
+    if (!subWindow) return;
 
     if (m_openItems.contains(subWindow))
     {
