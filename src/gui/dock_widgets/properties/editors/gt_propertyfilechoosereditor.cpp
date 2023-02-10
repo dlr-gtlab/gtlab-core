@@ -18,6 +18,9 @@
 #include "gt_openfilenameproperty.h"
 #include "gt_savefilenameproperty.h"
 #include "gt_existingdirectoryproperty.h"
+#include "gt_application.h"
+#include "gt_command.h"
+#include "gt_project.h"
 
 #include "gt_propertyfilechoosereditor.h"
 
@@ -58,6 +61,11 @@ GtPropertyFileChooserEditor::setFileChooserProperty(GtFileChooserProperty* prop)
 {
     m_prop = prop;
 
+    if (m_prop)
+    {
+        connect(m_prop.data(), SIGNAL(changed()), SLOT(propertyValueChanged()));
+    }
+
     updateText();
 }
 
@@ -83,6 +91,21 @@ GtPropertyFileChooserEditor::updateText()
         m_restoreButton->setToolTip(tr("Clear File Path"));
         m_selectButton->setToolTip(tr("Select File Path"));
     }
+}
+
+void
+GtPropertyFileChooserEditor::setPropertyValue(const QString &val)
+{
+    if (!m_prop) return;
+
+    const QString commandMsg = m_prop->objectName() + QStringLiteral(" ") +
+            QObject::tr("changed");
+
+    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), commandMsg);
+
+    m_prop->setVal(val);
+
+    gtApp->endCommand(cmd);
 }
 
 void
@@ -147,7 +170,7 @@ GtPropertyFileChooserEditor::selectFilePath()
 
     if (!filename.isEmpty())
     {
-        m_prop->setVal(filename);
+        setPropertyValue(filename);
     }
 
     updateText();
@@ -163,9 +186,13 @@ GtPropertyFileChooserEditor::deleteFilePath()
         return;
     }
 
-    m_prop->setVal(QString());
-
-    updateText();
+    setPropertyValue(QString());
 
     emit fileSelected(QString());
+}
+
+void
+GtPropertyFileChooserEditor::propertyValueChanged()
+{
+    updateText();
 }

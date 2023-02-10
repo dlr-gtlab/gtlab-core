@@ -92,6 +92,13 @@ private:
     QList<GtObject*> allowedObjects(GtObject* obj);
 
     bool allowedSuperClassObjects(GtObject* obj);
+
+    /**
+     * @brief Sets property value considering undo/redo functionality.
+     * @param val New property value.
+     */
+    void setPropertyValue(const QString& val);
+
 private slots:
     /**
      * @brief selectObjectLink
@@ -108,6 +115,12 @@ private slots:
      * find the object of the objectlink property in the explorer dock widget
      */
     void findObject();
+
+    /**
+     * @brief Called by property change signal to update editor text.
+     */
+    void propertyValueChanged();
+
 signals:
     /**
      * @brief objectSelected
