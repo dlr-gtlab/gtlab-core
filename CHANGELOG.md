@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0-pr-beta1] - 2023-02-10
 ### Changed
-- ___Highlight__: Updated the icon set. Default icons will adapt to theme - #374
+- __Highlight__: Updated the icon set. Default icons will adapt to theme - #374
 - The directory of GTlab's config files has been changed on Linux to `~/.config/DLR/GTlab` - #327
 - Animated splash screen - #418
 
