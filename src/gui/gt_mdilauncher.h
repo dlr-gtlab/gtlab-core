@@ -179,7 +179,7 @@ private:
     QHash<QString, QMetaObject> m_dockWidgets;
 
     /// List of all open mdi items
-    QMap<const QObject*, GtMdiItem*> m_openItems;
+    QMap<const QObject*, QPointer<GtMdiItem>> m_openItems;
 
     /// Collections
     QHash<QString, GtCollectionInterface*> m_collections;

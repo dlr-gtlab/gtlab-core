@@ -96,7 +96,7 @@ GtMdiLauncher::openItemIds()
 {
     QStringList retval;
 
-    QList<GtMdiItem*> openItems = m_openItems.values();
+    const auto openItems = m_openItems.values();
 
     foreach (GtMdiItem* openItem, openItems)
     {
@@ -290,7 +290,7 @@ GtMdiLauncher::isPrintable(QWidget* subWindow) const
         return false;
     }
 
-    if (m_openItems.contains(subWindow))
+    if (m_openItems.contains(subWindow) && m_openItems.value(subWindow))
     {
         return m_openItems.value(subWindow)->isPrintable();
     }
@@ -401,7 +401,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     {
         if (data && mdiItem->objectName() == "Result Viewer")
         {
-            QList<GtMdiItem*> openItems = m_openItems.values();
+            const auto openItems = m_openItems.values();
 
             foreach (GtMdiItem* openItem, openItems)
             {
@@ -426,12 +426,6 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     if (icon.isNull())
     {
         icon = gt::gui::icon::layers();
-    }
-
-    // remove ugly border of the widget (if possible)
-    if (auto* frame = qobject_cast<QFrame*>(wid))
-    {
-        frame->setFrameStyle(QFrame::NoFrame);
     }
 
     int idx = m_area->addTab(wid, icon, mdiItem->objectName());
