@@ -33,7 +33,10 @@
 #include <QMenu>
 #include <QApplication>
 #include <QClipboard>
+
+#ifdef QT_DEBUG
 #include <QAbstractItemModelTester>
+#endif
 
 #include <algorithm>
 
