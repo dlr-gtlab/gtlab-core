@@ -72,6 +72,9 @@ private:
     /// Flag inidicating that the id column was resized programmatically
     bool m_resizedColumns{false};
 
+    /// Flag, whether the log should be automatically scrolled to the bottom or not
+    bool m_autoScrollToBottom{true};
+
     /**
      * @brief copyToClipboard
      * @param indexes

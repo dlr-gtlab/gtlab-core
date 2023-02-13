@@ -286,6 +286,14 @@ GtOutputDock::GtOutputDock()
     registerShortCut("clearOutput", QKeySequence(Qt::CTRL + Qt::Key_L));
 
     m_logView->verticalHeader()->hide();
+
+    QScrollBar* bar = m_logView->verticalScrollBar();
+    assert(bar);
+
+    bar->setTracking(false);
+    connect(bar, &QScrollBar::valueChanged, this, [this, bar](int value) {
+        this->m_autoScrollToBottom = bar->maximum() == value;
+    });
 }
 
 Qt::DockWidgetArea
@@ -394,13 +402,9 @@ GtOutputDock::onRowsInserted()
     // resize rows
     m_logView->resizeRowsToContents();
 
-    // only scroll to bottom if scroll bar is at its maximum
-    if (QScrollBar* bar = m_logView->verticalScrollBar())
+    if (m_autoScrollToBottom)
     {
-        if (bar->value() == bar->maximum())
-        {
-            m_logView->scrollToBottom();
-        }
+        m_logView->scrollToBottom();
     }
 }
 
