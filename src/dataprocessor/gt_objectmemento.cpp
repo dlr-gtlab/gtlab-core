@@ -342,8 +342,9 @@ readProperties(const GtObjectMemento& memento,
 
         if (!success)
         {
-            gtWarning() << QObject::tr("Unknown property '%1' of object "
-                                       "'%2' (type=%3) ignored").arg(
+            gtWarning().medium()
+                << QObject::tr("Unknown property '%1' of object "
+                               "'%2' (type=%3) ignored").arg(
                                    p.name,
                                    memento.ident(),
                                    obj.metaObject()->className());
