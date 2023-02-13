@@ -35,6 +35,7 @@ public:
             gradient.setColorAt(1.0, Qt::transparent);
 
             painter.fillRect(QRect(1, 1, 574, 16), gradient);
+            painter.setPen(Qt::black);
             painter.drawText(5, 12, m_txt);
 
             painter.restore();
@@ -43,10 +44,8 @@ public:
 };
 
 GtSplashScreen::GtSplashScreen(bool showBorder, bool showMessage)
+    : QWidget(nullptr, Qt::SplashScreen | Qt::FramelessWindowHint)
 {
-    setWindowFlags(Qt::SubWindow |
-                   Qt::FramelessWindowHint);
-
     auto mainLay = new QVBoxLayout;
     mainLay->setContentsMargins({0, 0, 0, 0});
 
