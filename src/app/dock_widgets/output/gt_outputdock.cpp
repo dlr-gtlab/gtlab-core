@@ -33,6 +33,7 @@
 #include <QMenu>
 #include <QApplication>
 #include <QClipboard>
+#include <QAbstractItemModelTester>
 
 #include <algorithm>
 
@@ -46,6 +47,14 @@ GtOutputDock::GtOutputDock()
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
+
+    // run model test only in debug mode
+#ifdef QT_DEBUG
+    new QAbstractItemModelTester(
+                gtLogModel,
+                QAbstractItemModelTester::FailureReportingMode::Fatal,
+                this);
+#endif
 
     GtStyledLogModel* styleModel = new GtStyledLogModel(this);
     m_model = new GtFilteredLogModel(styleModel);
@@ -277,6 +286,14 @@ GtOutputDock::GtOutputDock()
     registerShortCut("clearOutput", QKeySequence(Qt::CTRL + Qt::Key_L));
 
     m_logView->verticalHeader()->hide();
+
+    QScrollBar* bar = m_logView->verticalScrollBar();
+    assert(bar);
+
+    bar->setTracking(false);
+    connect(bar, &QScrollBar::valueChanged, this, [this, bar](int value) {
+        this->m_autoScrollToBottom = bar->maximum() == value;
+    });
 }
 
 Qt::DockWidgetArea
@@ -312,26 +329,7 @@ GtOutputDock::copyToClipboard(const QModelIndexList& indexes)
 void
 GtOutputDock::removeItems(const QModelIndexList& indexes)
 {
-    int first = indexes.first().row();
-    int last = indexes.last().row();
-
-    int indexBeforeFirst = 0;
-
-    if (first > 0)
-    {
-        indexBeforeFirst = first - 1;
-    }
-
-    QModelIndex beforeFirst = m_model->index(indexBeforeFirst,
-                                             indexes.first().column());
-
-    gtLogModel->removeElementList(indexes, first, last);
-
-    if (QScrollBar* bar = m_logView->verticalScrollBar())
-    {
-        m_logView->scrollTo(beforeFirst, QAbstractItemView::PositionAtCenter);
-        bar->update();
-    }
+    gtLogModel->removeElementList(indexes);
 }
 
 void
@@ -404,13 +402,9 @@ GtOutputDock::onRowsInserted()
     // resize rows
     m_logView->resizeRowsToContents();
 
-    // only scroll to bottom if scroll bar is at its maximum
-    if (QScrollBar* bar = m_logView->verticalScrollBar())
+    if (m_autoScrollToBottom)
     {
-        if (bar->value() == bar->maximum())
-        {
-            m_logView->scrollToBottom();
-        }
+        m_logView->scrollToBottom();
     }
 }
 

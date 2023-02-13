@@ -88,15 +88,19 @@ GtLogModel::format(const Entry& entry)
 }
 
 int
-GtLogModel::rowCount(const QModelIndex& /*parent*/) const
+GtLogModel::rowCount(const QModelIndex& parent) const
 {
+    if(parent.isValid()) return 0; //no children
+
     return m_entries.count();
 }
 
 int
-GtLogModel::columnCount(const QModelIndex& /*parent*/) const
+GtLogModel::columnCount(const QModelIndex& parent) const
 {
-    // level, time, id, message
+    if(parent.isValid()) return 0; //no children
+
+    // col(number) = level, time, id, message
     return 4;
 }
 
@@ -105,7 +109,8 @@ GtLogModel::data(const QModelIndex& index, int role) const
 {
     int row = index.row();
     int col = index.column();
-    if (row < 0 || col < 0 || row >= m_entries.count())
+
+    if (!index.isValid() || row >= m_entries.count())
     {
         return {};
     }
@@ -116,7 +121,7 @@ GtLogModel::data(const QModelIndex& index, int role) const
         role = columnToRole(col);
     }
 
-    Entry const& entry = m_entries[index.row()];
+    Entry const& entry = m_entries.at(index.row());
 
     // get data
     switch (role)
@@ -252,12 +257,21 @@ GtLogModel::mimeData(QModelIndexList const& indexes) const
 void
 GtLogModel::setMaxLogLength(int val)
 {
-    if (val <= 10)
-    {
-        return;
-    }
+    if (val < 1) return;
 
     m_maxEntries = val;
+
+    // remove some entries
+    if (m_entries.size() > m_maxEntries)
+    {
+        beginResetModel();
+
+        m_entries = m_entries.mid(m_entries.size() - m_maxEntries);
+
+        assert(m_entries.size() == m_maxEntries);
+
+        endResetModel();
+    }
 }
 
 void
@@ -270,7 +284,7 @@ GtLogModel::onMessage(const QString& msg, int level, Details const& details)
     }
     else
     {
-        insertMessage(msg, level, details);
+        insertMessageNonlocked(msg, level, details);
         m_timer.start(500);
     }
 }
@@ -302,14 +316,12 @@ GtLogModel::clearLog()
 }
 
 void
-GtLogModel::insertMessage(QString const& msg, int level, Details const& details)
+GtLogModel::insertMessageNonlocked(QString const& msg, int level, Details const& details)
 {
-    if (m_entries.size() + 1 >= m_maxEntries)
+    if (m_entries.size() >= m_maxEntries)
     {
-        int offset = m_entries.size() + 2 - m_maxEntries;
-        beginRemoveRows(QModelIndex(), 0, offset);
-        m_entries.remove(0, offset);
-        endRemoveRows();
+        // we must use the non-locked
+        removeElementListNonlocked({index(0, 0)});
     }
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size());
@@ -318,41 +330,41 @@ GtLogModel::insertMessage(QString const& msg, int level, Details const& details)
 }
 
 void
-GtLogModel::removeElement(QModelIndex index, int first, int last)
+GtLogModel::removeElement(QModelIndex index)
 {
-    beginRemoveRows(index, first, last);
-    for (int i = 0; i <= (last - first); ++i)
-    {
-        m_entries.removeAt(first);
-    }
-    endRemoveRows();
+    removeElementList({index});
 }
+
 
 void
-GtLogModel::removeElementList(QModelIndexList indexList, int first, int last)
+GtLogModel::removeElementListNonlocked(const QModelIndexList& indexList)
 {
-    int size = indexList.size();
 
-    beginRemoveRows(indexList.first().parent(), first, last);
-
-    for (int i = 0; i < size; ++i)
+    for (auto iter = indexList.rbegin(); iter != indexList.rend(); ++iter)
     {
-        m_entries.removeAt(indexList.at(size - 1 - i).row());
+        const auto& idx = *iter;
+
+        if (idx.row() < 0 || idx.row() >= m_entries.size())
+        {
+            continue;
+        }
+
+        beginRemoveRows(QModelIndex(), idx.row(), idx.row());
+
+        m_entries.removeAt(idx.row());
+
+        endRemoveRows();
     }
-
-    endRemoveRows();
 }
 
-QModelIndex
-GtLogModel::index(int row, int column, const QModelIndex& /*parent*/) const
-{
-    return createIndex(row, column);
-}
 
-QModelIndex
-GtLogModel::parent(const QModelIndex& /*index*/) const
+void
+GtLogModel::removeElementList(QModelIndexList indexList)
 {
-    return {};
+    if (indexList.isEmpty()) return;
+
+    QMutexLocker locker{&m_mutex};
+    removeElementListNonlocked(indexList);
 }
 
 void

@@ -17,6 +17,7 @@
 
 #include <QDateTime>
 #include <QAbstractItemModel>
+#include <QAbstractTableModel>
 #include <QMutex>
 #include <QTimer>
 
@@ -106,7 +107,7 @@ makeSignalSlotDestination(T* receiver, F member)
 /**
  * @brief The GtLogModel class
  */
-class GT_CORE_EXPORT GtLogModel : public QAbstractItemModel
+class GT_CORE_EXPORT GtLogModel : public QAbstractTableModel
 {
     Q_OBJECT
 
@@ -234,7 +235,7 @@ public:
      * @param first Index of first element to be removed
      * @param last Index of last elment to be removed
      */
-    void removeElement(QModelIndex index, int first, int last);
+    void removeElement(QModelIndex index);
 
     /**
      * @brief Removes the elements from the logmodel
@@ -243,27 +244,7 @@ public:
      * @param first Index of first element to be removed
      * @param last Index of last elment to be removed
      */
-    void removeElementList(QModelIndexList indexList, int first, int last);
-
-    /**
-     * @brief Returns the index of the item in the model specified by the given
-     * row, column and parent index. The parent index is not used as this
-     * model does not support hierarchical views.
-     * @param row Row
-     * @param column Column
-     * @param parent Parent index
-     * @return Index
-     */
-    QModelIndex index(int row, int column, QModelIndex const& parent = {}) const override;
-
-    /**
-     * @brief Returns the parent of the model item with the given index. This
-     * model does not support hierarchical views and will allways return an
-     * invalid parent.
-     * @param Index index
-     * @return Index
-     */
-    QModelIndex parent(QModelIndex const& index) const override;
+    void removeElementList(QModelIndexList indexList);
 
 public slots:
 
@@ -320,7 +301,12 @@ private:
      * @param level Level
      * @param details Logging details
      */
-    void insertMessage(const QString& msg ,int level, Details const& details);
+    void insertMessageNonlocked(const QString& msg ,int level, Details const& details);
+
+    /**
+     * @brief Non mutex-locked implementation of element removal
+     */
+    void removeElementListNonlocked(const QModelIndexList& indexList);
 
     /**
      * @brief Helper method for clearing the output log
