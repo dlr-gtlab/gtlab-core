@@ -17,11 +17,38 @@ namespace gt
 namespace gui
 {
 
+/// function pointer type for getting a color
+using ColorFunction = QColor(*)();
+
 /**
  *  @brief Creates a new icon from a resource file.
+ *  Svg files (ending with .svg) will be colored according to the theme used.
  *  @param iconPath Relative or custom resource path to a icon file.
  */
 GT_GUI_EXPORT QIcon getIcon(const QString& iconPath);
+
+/**
+ *  @brief Creates a new icon from an exisiting icon and colorizes it.
+ *  Only works for svg based icons.
+ *
+ *  Usage:
+ *      gt::gui::colorize(gt::gui::icon::add(),
+ *                       gt::gui::color::highlight);
+ *      // OR for custom color
+ *      gt::gui::colorize(gt::gui::icon::add(),
+ *                       []() -> QColor {
+ *          return gtApp->inDarkMode() ? Qt::red : Qt::blue;
+ *      });
+ *
+ *  @param icon Icon to colorize.
+ *  @param getActiveColor Getter-function for the color of the icon if
+ *  active (normal).
+ *  @param getDisabledColor Getter-function for the color of the icon if
+ *  disabled.
+ */
+GT_GUI_EXPORT QIcon colorize(const QIcon& icon,
+                             ColorFunction getActiveColor,
+                             ColorFunction getDisabledColor = {});
 
 namespace icon
 {
@@ -83,6 +110,7 @@ GT_GUI_EXPORT QIcon chartBell();
 GT_GUI_EXPORT QIcon chartCurve();
 GT_GUI_EXPORT QIcon chartLine();
 GT_GUI_EXPORT QIcon chartScatter();
+GT_GUI_EXPORT QIcon chartXY();
 
 GT_GUI_EXPORT QIcon check();
 [[deprecated("Use check instead")]]
@@ -132,6 +160,12 @@ GT_GUI_EXPORT QIcon config16();
 GT_GUI_EXPORT QIcon connection();
 GT_GUI_EXPORT QIcon connection16();
 
+GT_GUI_EXPORT QIcon convergence();
+[[deprecated("Use convergence instead")]]
+GT_GUI_EXPORT QIcon convergence16();
+[[deprecated("Use convergence instead")]]
+GT_GUI_EXPORT QIcon convergence24();
+
 GT_GUI_EXPORT QIcon copy();
 [[deprecated("Use copy instead")]]
 GT_GUI_EXPORT QIcon copy16();
@@ -152,6 +186,8 @@ GT_GUI_EXPORT QIcon data();
 GT_GUI_EXPORT QIcon data16();
 GT_GUI_EXPORT QIcon dataArrowUp();
 GT_GUI_EXPORT QIcon dataEye();
+GT_GUI_EXPORT QIcon dataLock();
+GT_GUI_EXPORT QIcon dataSingle();
 
 GT_GUI_EXPORT QIcon delete_();
 [[deprecated("Use delete_ instead")]]
@@ -207,6 +243,8 @@ GT_GUI_EXPORT QIcon fatalColorized();
 GT_GUI_EXPORT QIcon fatal16();
 
 GT_GUI_EXPORT QIcon file();
+[[deprecated("Use file instead")]]
+GT_GUI_EXPORT QIcon file16();
 GT_GUI_EXPORT QIcon fileAdd();
 GT_GUI_EXPORT QIcon fileClock();
 GT_GUI_EXPORT QIcon fileCode();
@@ -216,9 +254,6 @@ GT_GUI_EXPORT QIcon fileEdit();
 GT_GUI_EXPORT QIcon fileEye();
 GT_GUI_EXPORT QIcon fileImport();
 GT_GUI_EXPORT QIcon fileStep();
-
-[[deprecated("Use file instead")]]
-GT_GUI_EXPORT QIcon file16();
 
 GT_GUI_EXPORT QIcon folder();
 [[deprecated("Use folder instead")]]
@@ -246,6 +281,7 @@ GT_GUI_EXPORT QIcon gasTypes24();
 GT_GUI_EXPORT QIcon global();
 
 GT_GUI_EXPORT QIcon grid();
+GT_GUI_EXPORT QIcon gridSnap();
 
 GT_GUI_EXPORT QIcon help();
 
@@ -315,6 +351,8 @@ GT_GUI_EXPORT QIcon loop16();
 [[deprecated("Use loop instead")]]
 GT_GUI_EXPORT QIcon loop2_16();
 
+GT_GUI_EXPORT QIcon magnet();
+
 GT_GUI_EXPORT QIcon mathDivision();
 GT_GUI_EXPORT QIcon mathExponent();
 GT_GUI_EXPORT QIcon mathMinus();
@@ -330,9 +368,13 @@ GT_GUI_EXPORT QIcon noteEdit();
 
 GT_GUI_EXPORT QIcon notificationUnread();
 
+GT_GUI_EXPORT QIcon objectCombustor();
 GT_GUI_EXPORT QIcon objectEmpty();
+GT_GUI_EXPORT QIcon objectEngine();
 GT_GUI_EXPORT QIcon objectInvalid();
 GT_GUI_EXPORT QIcon objectUnkown();
+GT_GUI_EXPORT QIcon objectTurbine();
+GT_GUI_EXPORT QIcon objectCompressor();
 
 GT_GUI_EXPORT QIcon open();
 [[deprecated("Use open instead")]]
@@ -355,18 +397,23 @@ GT_GUI_EXPORT QIcon paste16();
 
 GT_GUI_EXPORT QIcon pause();
 
+GT_GUI_EXPORT QIcon pdf();
+
+GT_GUI_EXPORT QIcon perfOperatingPoint();
+GT_GUI_EXPORT QIcon perfSpeedLine();
+GT_GUI_EXPORT QIcon perfWorkingLine();
+
 GT_GUI_EXPORT QIcon perspectives();
 [[deprecated("Use perspectives instead")]]
 GT_GUI_EXPORT QIcon perspectives16();
 GT_GUI_EXPORT QIcon perspectivesEdit();
-
-GT_GUI_EXPORT QIcon pdf();
 
 GT_GUI_EXPORT QIcon play();
 
 GT_GUI_EXPORT QIcon plugin();
 [[deprecated("Use plugin instead")]]
 GT_GUI_EXPORT QIcon plugin16();
+GT_GUI_EXPORT QIcon pluginSettings();
 
 GT_GUI_EXPORT QIcon print();
 [[deprecated("Use print instead")]]
@@ -459,12 +506,17 @@ GT_GUI_EXPORT QIcon session16();
 GT_GUI_EXPORT QIcon skip();
 [[deprecated("Use skip instead")]]
 GT_GUI_EXPORT QIcon skip16();
+GT_GUI_EXPORT QIcon unskip();
 
 GT_GUI_EXPORT QIcon sleep();
 [[deprecated("Use sleep instead")]]
 GT_GUI_EXPORT QIcon sleep16();
 
-GT_GUI_EXPORT QIcon gridSnap();
+GT_GUI_EXPORT QIcon showText();
+[[deprecated("Use showText instead")]]
+GT_GUI_EXPORT QIcon showText16();
+[[deprecated("Use showText instead")]]
+GT_GUI_EXPORT QIcon showText24();
 
 GT_GUI_EXPORT QIcon sort();
 GT_GUI_EXPORT QIcon sortAsc();
@@ -501,7 +553,10 @@ GT_GUI_EXPORT QIcon triangleSmallLeft();
 GT_GUI_EXPORT QIcon triangleSmallRight();
 GT_GUI_EXPORT QIcon triangleSmallUp();
 
+[[deprecated("Use objectTurbine instead")]]
 GT_GUI_EXPORT QIcon turbine();
+[[deprecated("Use objectTurbine instead")]]
+GT_GUI_EXPORT QIcon turbine16();
 
 GT_GUI_EXPORT QIcon undo();
 [[deprecated("Use undo instead")]]
@@ -516,10 +571,13 @@ GT_GUI_EXPORT QIcon upload();
 GT_GUI_EXPORT QIcon variable();
 
 GT_GUI_EXPORT QIcon vectorBezier();
+GT_GUI_EXPORT QIcon vectorBezier2();
 GT_GUI_EXPORT QIcon vectorCurve();
 GT_GUI_EXPORT QIcon vectorLine();
 GT_GUI_EXPORT QIcon vectorPoint();
 GT_GUI_EXPORT QIcon vectorPointEdit();
+GT_GUI_EXPORT QIcon vectorPoly();
+GT_GUI_EXPORT QIcon vectorSimple();
 GT_GUI_EXPORT QIcon vectorSquare();
 GT_GUI_EXPORT QIcon vectorSquareEdit();
 GT_GUI_EXPORT QIcon vectorTriangle();
@@ -533,8 +591,9 @@ GT_GUI_EXPORT QIcon web();
 
 GT_GUI_EXPORT QIcon xml();
 
+GT_GUI_EXPORT QIcon zoomMinus();
 GT_GUI_EXPORT QIcon zoomPlus();
-[[deprecated("Use zoomPlus instead")]]
+[[deprecated("Use zoomPlus/zoomMinus instead")]]
 GT_GUI_EXPORT QIcon zoom16();
 
 
@@ -644,12 +703,42 @@ GT_GUI_EXPORT QIcon addProcess16();
 [[deprecated("use download instead")]]
 GT_GUI_EXPORT QIcon dropdown();
 
-[[deprecated("Use data instead")]]
+[[deprecated("Use dataSingle instead")]]
 GT_GUI_EXPORT QIcon globals16();
 
-/** MISSING **/
-GT_GUI_EXPORT QIcon pluginSettings();
+[[deprecated("Use chartXY instead")]]
+GT_GUI_EXPORT QIcon xyPlot16();
 
+[[deprecated("Use objectEngine instead")]]
+GT_GUI_EXPORT QIcon engine();
+[[deprecated("Use objectEngine instead")]]
+GT_GUI_EXPORT QIcon engine16();
+
+[[deprecated("Use objectCombustor instead")]]
+GT_GUI_EXPORT QIcon combustor();
+[[deprecated("Use objectCombustor instead")]]
+GT_GUI_EXPORT QIcon combustor16();
+
+[[deprecated("Use objectCompressor instead")]]
+GT_GUI_EXPORT QIcon compressor();
+[[deprecated("Use objectCompressor instead")]]
+GT_GUI_EXPORT QIcon compressor16();
+
+[[deprecated("Use perfSpeedLine instead")]]
+GT_GUI_EXPORT QIcon speedLine();
+[[deprecated("Use perfSpeedLine instead")]]
+GT_GUI_EXPORT QIcon speedLine16();
+[[deprecated("Use perfSpeedLine instead")]]
+GT_GUI_EXPORT QIcon speedLine24();
+
+[[deprecated("Use perfOperatingPoint instead")]]
+GT_GUI_EXPORT QIcon performanceOffDesign();
+[[deprecated("Use perfOperatingPoint instead")]]
+GT_GUI_EXPORT QIcon performanceOffDesign16();
+[[deprecated("Use perfOperatingPoint instead")]]
+GT_GUI_EXPORT QIcon performanceOffDesign24();
+
+/** MISSING **/
 GT_GUI_EXPORT QIcon minimize();
 
 GT_GUI_EXPORT QIcon map();
@@ -660,17 +749,8 @@ GT_GUI_EXPORT QIcon exportMap();
 GT_GUI_EXPORT QIcon exportMap16();
 GT_GUI_EXPORT QIcon exportMap24();
 GT_GUI_EXPORT QIcon carpetPlot();
-GT_GUI_EXPORT QIcon xyPlot16();
 GT_GUI_EXPORT QIcon tsDiagram16();
 GT_GUI_EXPORT QIcon blades();
-
-GT_GUI_EXPORT QIcon showText();
-GT_GUI_EXPORT QIcon showText16();
-GT_GUI_EXPORT QIcon showText24();
-
-GT_GUI_EXPORT QIcon convergence();
-GT_GUI_EXPORT QIcon convergence16();
-GT_GUI_EXPORT QIcon convergence24();
 
 GT_GUI_EXPORT QIcon double16();
 GT_GUI_EXPORT QIcon int16();
@@ -693,9 +773,6 @@ GT_GUI_EXPORT QIcon bleedPortGroup();
 GT_GUI_EXPORT QIcon bleedPortGroup16();
 GT_GUI_EXPORT QIcon bleedPortGroup24();
 
-GT_GUI_EXPORT QIcon engine();
-GT_GUI_EXPORT QIcon engine16();
-
 GT_GUI_EXPORT QIcon engineInstallation16();
 GT_GUI_EXPORT QIcon engineInstallation24();
 GT_GUI_EXPORT QIcon engineInstallation32();
@@ -703,10 +780,6 @@ GT_GUI_EXPORT QIcon engineInstallation32();
 GT_GUI_EXPORT QIcon performanceDesign();
 GT_GUI_EXPORT QIcon performanceDesign16();
 GT_GUI_EXPORT QIcon performanceDesign24();
-
-GT_GUI_EXPORT QIcon performanceOffDesign();
-GT_GUI_EXPORT QIcon performanceOffDesign16();
-GT_GUI_EXPORT QIcon performanceOffDesign24();
 
 GT_GUI_EXPORT QIcon fluidPort();
 GT_GUI_EXPORT QIcon fluidPort16();
@@ -719,19 +792,6 @@ GT_GUI_EXPORT QIcon fluidPortGroup24();
 GT_GUI_EXPORT QIcon shaftPort();
 GT_GUI_EXPORT QIcon shaftPort16();
 GT_GUI_EXPORT QIcon shaftPort24();
-
-GT_GUI_EXPORT QIcon speedLine();
-GT_GUI_EXPORT QIcon speedLine16();
-GT_GUI_EXPORT QIcon speedLine24();
-
-GT_GUI_EXPORT QIcon compressor();
-GT_GUI_EXPORT QIcon compressor16();
-
-GT_GUI_EXPORT QIcon turbine();
-GT_GUI_EXPORT QIcon turbine16();
-
-GT_GUI_EXPORT QIcon combustor();
-GT_GUI_EXPORT QIcon combustor16();
 
 GT_GUI_EXPORT QIcon paramStudy();
 GT_GUI_EXPORT QIcon paramStudy16();

@@ -70,7 +70,7 @@
     }
 
 /// function pointer type for getting a color
-using ColorFunction = QColor(*)();
+using ColorFunction = gt::gui::ColorFunction;
 
 /**
  * @brief The GtSvgIconEngine class. Can colorize an svg image.
@@ -121,6 +121,8 @@ public:
      * @return clone
      */
     QIconEngine* clone() const override { return new GtSvgIconEngine(*this); }
+
+    QString iconName() const override { return m_file; }
 
     /**
      * @brief Updates the svg file
@@ -259,8 +261,8 @@ private:
 };
 
 QIcon getIconHelper(QString const& iconPath,
-                    ColorFunction active = {},
-                    ColorFunction disabled = {})
+                    ColorFunction getActiveColor = {},
+                    ColorFunction getDisabledColor = {})
 {
     QString path = iconPath;
     if (!path.startsWith(QStringLiteral(":/")))
@@ -270,7 +272,8 @@ QIcon getIconHelper(QString const& iconPath,
 
     if (path.endsWith(QStringLiteral(".svg")))
     {
-        return QIcon(new GtSvgIconEngine(path, active, disabled));
+        return QIcon(new GtSvgIconEngine(
+                         path, getActiveColor, getDisabledColor));
     }
 
     QIcon ic(path);
@@ -286,6 +289,14 @@ QIcon
 gt::gui::getIcon(QString const& iconPath)
 {
     return getIconHelper(iconPath);
+}
+
+QIcon
+gt::gui::colorize(const QIcon& icon,
+                   ColorFunction getActiveColor,
+                   ColorFunction getDisabledColor)
+{
+    return getIconHelper(icon.name(), getActiveColor, getDisabledColor);
 }
 
 QSize
@@ -337,6 +348,7 @@ GT_DEF_ICON(chartBell, "chartBell.svg")
 GT_DEF_ICON(chartCurve, "chartCurve.svg")
 GT_DEF_ICON(chartLine, "chartLine.svg")
 GT_DEF_ICON(chartScatter, "chartScatter.svg")
+GT_DEF_ICON(chartXY, "chartXY_custom.svg")
 
 GT_DEF_ICON(check, "check.svg")
 GT_DEF_ICON_ALIAS(check16, check)
@@ -376,6 +388,10 @@ GT_DEF_ICON_ALIAS(config16, config);
 GT_DEF_ICON(connection, "connection.svg")
 GT_DEF_ICON_ALIAS(connection16, connection);
 
+GT_DEF_ICON(convergence, "convergence_custom.svg")
+GT_DEF_ICON_ALIAS(convergence16, convergence);
+GT_DEF_ICON_ALIAS(convergence24, convergence);
+
 GT_DEF_ICON(copy, "copy.svg")
 GT_DEF_ICON_ALIAS(copy16, copy);
 
@@ -392,6 +408,8 @@ GT_DEF_ICON(data, "data.svg")
 GT_DEF_ICON_ALIAS(data16, data);
 GT_DEF_ICON(dataArrowUp, "dataArrowUp.svg")
 GT_DEF_ICON(dataEye, "dataEye.svg")
+GT_DEF_ICON(dataLock, "dataLock_custom.svg")
+GT_DEF_ICON(dataSingle, "dataSingle_custom.svg")
 
 GT_DEF_ICON(delete_, "delete.svg")
 GT_DEF_ICON_ALIAS(delete16, delete_);
@@ -435,6 +453,7 @@ GT_DEF_ICON_COLORED(fatalColorized, "fatal.svg", color::fatalText)
 GT_DEF_ICON_ALIAS(fatal16, fatal);
 
 GT_DEF_ICON(file, "file.svg")
+GT_DEF_ICON_ALIAS(file16, file)
 GT_DEF_ICON(fileAdd, "fileAdd.svg")
 GT_DEF_ICON(fileClock, "fileClock.svg")
 GT_DEF_ICON(fileCode, "fileCode.svg")
@@ -444,8 +463,6 @@ GT_DEF_ICON(fileEdit, "fileEdit.svg")
 GT_DEF_ICON(fileEye, "fileEye.svg")
 GT_DEF_ICON(fileImport, "fileImport_custom.svg")
 GT_DEF_ICON(fileStep, "fileStep.png")
-
-GT_DEF_ICON_ALIAS(file16, file)
 
 GT_DEF_ICON(folder, "folder.svg")
 GT_DEF_ICON_ALIAS(folder16, folder)
@@ -467,6 +484,7 @@ GT_DEF_ICON_ALIAS(gasTypes24, gas)
 GT_DEF_ICON_ALIAS(global, web)
 
 GT_DEF_ICON(grid, "grid.svg")
+GT_DEF_ICON(gridSnap, "gridSnap_custom.svg")
 
 GT_DEF_ICON(help, "help.svg")
 
@@ -522,6 +540,8 @@ GT_DEF_ICON_ALIAS(loop, repeat)
 GT_DEF_ICON_ALIAS(loop16, loop)
 GT_DEF_ICON_ALIAS(loop2_16, loop)
 
+GT_DEF_ICON(magnet, "magnet.svg")
+
 GT_DEF_ICON(mathDivision, "mathDivision.svg")
 GT_DEF_ICON(mathExponent, "mathExponent.svg")
 GT_DEF_ICON(mathMinus, "mathMinus.svg")
@@ -536,9 +556,13 @@ GT_DEF_ICON_ALIAS(noteEdit, fileEdit)
 
 GT_DEF_ICON(notificationUnread, "notificationUnread.svg")
 
+GT_DEF_ICON_ALIAS(objectCombustor, objectEmpty)
+GT_DEF_ICON_ALIAS(objectCompressor, objectEmpty)
 GT_DEF_ICON(objectEmpty, "objectEmpty.svg")
+GT_DEF_ICON(objectEngine, "objectEngine.svg")
 GT_DEF_ICON(objectInvalid, "objectInvalid.svg")
 GT_DEF_ICON(objectUnkown, "objectUnkown.svg")
+GT_DEF_ICON_ALIAS(objectTurbine, objectEmpty)
 
 GT_DEF_ICON(open, "open.svg")
 GT_DEF_ICON_ALIAS(open16, open)
@@ -555,16 +579,21 @@ GT_DEF_ICON_ALIAS(paste16, paste)
 
 GT_DEF_ICON(pause, "pause.svg")
 
+GT_DEF_ICON(pdf, "pdf_custom.svg")
+
+GT_DEF_ICON(perfOperatingPoint, "perfOperatingPoint_custom.svg")
+GT_DEF_ICON(perfSpeedLine, "perfSpeedLine_custom.svg")
+GT_DEF_ICON(perfWorkingLine, "perfWorkingLine_custom.svg")
+
 GT_DEF_ICON_ALIAS(perspectives, devices)
 GT_DEF_ICON(perspectivesEdit, "devicesEdit.svg")
 GT_DEF_ICON_ALIAS(perspectives16, perspectives)
-
-GT_DEF_ICON(pdf, "pdf.svg")
 
 GT_DEF_ICON(play, "play.svg")
 
 GT_DEF_ICON_ALIAS(plugin, puzzle)
 GT_DEF_ICON_ALIAS(plugin16, plugin)
+GT_DEF_ICON_COLORED(pluginSettings, "puzzle.svg", color::highlight)
 
 GT_DEF_ICON(print, "print.svg")
 GT_DEF_ICON_ALIAS(printer, print)
@@ -639,12 +668,15 @@ GT_DEF_ICON(session, "session.svg")
 GT_DEF_ICON_ALIAS(session16, session)
 
 GT_DEF_ICON(skip, "skip.svg")
+GT_DEF_ICON(unskip, "unskip_custom.svg")
 GT_DEF_ICON_ALIAS(skip16, skip)
 
 GT_DEF_ICON(sleep, "sleep.svg")
 GT_DEF_ICON_ALIAS(sleep16, sleep)
 
-GT_DEF_ICON(gridSnap, "gridSnap.svg")
+GT_DEF_ICON(showText, "showText_custom.svg")
+GT_DEF_ICON_ALIAS(showText16, showText)
+GT_DEF_ICON_ALIAS(showText24, showText)
 
 GT_DEF_ICON(sort, "sort.svg")
 GT_DEF_ICON(sortAsc, "sortAsc.svg")
@@ -678,7 +710,8 @@ GT_DEF_ICON(triangleSmallLeft, "triangleSmallLeft.svg")
 GT_DEF_ICON(triangleSmallRight, "triangleSmallRight.svg")
 GT_DEF_ICON(triangleSmallUp, "triangleSmallUp.svg")
 
-GT_DEF_ICON(turbine, "turbine.svg")
+GT_DEF_ICON_ALIAS(turbine, objectTurbine)
+GT_DEF_ICON_ALIAS(turbine16, objectTurbine)
 
 GT_DEF_ICON(undo, "undo.svg")
 GT_DEF_ICON_ALIAS(undo24, undo)
@@ -691,10 +724,13 @@ GT_DEF_ICON(upload, "upload.svg")
 GT_DEF_ICON(variable, "variable.svg")
 
 GT_DEF_ICON(vectorBezier, "vectorBezier.svg")
+GT_DEF_ICON(vectorBezier2, "vectorBezier2_custom.svg")
 GT_DEF_ICON(vectorCurve, "vectorCurve.svg")
 GT_DEF_ICON(vectorLine, "vectorLine.svg")
 GT_DEF_ICON(vectorPoint, "vectorPoint.svg")
 GT_DEF_ICON(vectorPointEdit, "vectorPointEdit.svg")
+GT_DEF_ICON(vectorPoly, "vectorPoly_custom.svg")
+GT_DEF_ICON(vectorSimple, "vectorSimple_custom.svg")
 GT_DEF_ICON(vectorSquare, "vectorSquare.svg")
 GT_DEF_ICON(vectorSquareEdit, "vectorSquareEdit.svg")
 GT_DEF_ICON(vectorTriangle, "vectorTriangle.svg")
@@ -707,6 +743,7 @@ GT_DEF_ICON(web, "web.svg")
 
 GT_DEF_ICON(xml, "xml.svg")
 
+GT_DEF_ICON(zoomMinus, "zoomMinus.svg")
 GT_DEF_ICON(zoomPlus, "zoomPlus.svg")
 GT_DEF_ICON_ALIAS(zoom16, zoomPlus)
 
@@ -776,14 +813,26 @@ GT_DEF_ICON_ALIAS(addElement16, processAdd)
 
 GT_DEF_ICON_ALIAS(dropdown, download)
 
-GT_DEF_ICON_ALIAS(globals16, data)
+GT_DEF_ICON_ALIAS(globals16, dataSingle)
 
+GT_DEF_ICON_ALIAS(xyPlot16, chartXY)
 
-QIcon
-gt::gui::icon::pluginSettings()
-{
-    return gt::gui::getIcon(QStringLiteral("pluginSettingsIcon.png"));
-}
+GT_DEF_ICON_ALIAS(engine, objectEngine)
+GT_DEF_ICON_ALIAS(engine16, engine)
+
+GT_DEF_ICON_ALIAS(combustor, objectCombustor)
+GT_DEF_ICON_ALIAS(combustor16, combustor)
+
+GT_DEF_ICON_ALIAS(compressor, objectCompressor)
+GT_DEF_ICON_ALIAS(compressor16, compressor)
+
+GT_DEF_ICON_ALIAS(speedLine, perfSpeedLine)
+GT_DEF_ICON_ALIAS(speedLine16, speedLine)
+GT_DEF_ICON_ALIAS(speedLine24, speedLine)
+
+GT_DEF_ICON_ALIAS(performanceOffDesign, perfOperatingPoint)
+GT_DEF_ICON_ALIAS(performanceOffDesign16, speedLine)
+GT_DEF_ICON_ALIAS(performanceOffDesign24, speedLine)
 
 QIcon
 gt::gui::icon::minimize()
@@ -840,12 +889,6 @@ gt::gui::icon::carpetPlot()
 }
 
 QIcon
-gt::gui::icon::xyPlot16()
-{
-    return gt::gui::getIcon(QStringLiteral("schedules4Icon_16.png"));
-}
-
-QIcon
 gt::gui::icon::tsDiagram16()
 {
     return gt::gui::getIcon(QStringLiteral("tsDiagramm_16.png"));
@@ -856,43 +899,6 @@ gt::gui::icon::blades()
 {
     return gt::gui::getIcon(QStringLiteral("bladesIcon.png"));
 }
-
-QIcon
-gt::gui::icon::showText()
-{
-    return gt::gui::getIcon(QStringLiteral("showTextIcon.png"));
-}
-
-QIcon
-gt::gui::icon::showText16()
-{
-    return gt::gui::getIcon(QStringLiteral("showTextIcon_16.png"));
-}
-
-QIcon
-gt::gui::icon::showText24()
-{
-    return gt::gui::getIcon(QStringLiteral("showTextIcon_24.png"));
-}
-
-QIcon
-gt::gui::icon::convergence()
-{
-    return gt::gui::getIcon(QStringLiteral("convIcon.png"));
-}
-
-QIcon
-gt::gui::icon::convergence16()
-{
-    return gt::gui::getIcon(QStringLiteral("convIcon_16.png"));
-}
-
-QIcon
-gt::gui::icon::convergence24()
-{
-    return gt::gui::getIcon(QStringLiteral("convIcon_24.png"));
-}
-
 
 QIcon
 gt::gui::icon::double16()
@@ -979,18 +985,6 @@ gt::gui::icon::bleedPortGroup24()
 }
 
 QIcon
-gt::gui::icon::engine()
-{
-    return gt::gui::getIcon(QStringLiteral("engineIcon.png"));
-}
-
-QIcon
-gt::gui::icon::engine16()
-{
-    return gt::gui::getIcon(QStringLiteral("engineIcon_16.png"));
-}
-
-QIcon
 gt::gui::icon::engineInstallation16()
 {
     return gt::gui::getIcon(QStringLiteral("engine_installation_16.png"));
@@ -1024,24 +1018,6 @@ QIcon
 gt::gui::icon::performanceDesign24()
 {
     return gt::gui::getIcon(QStringLiteral("DPcalculator_24.png"));
-}
-
-QIcon
-gt::gui::icon::performanceOffDesign()
-{
-    return gt::gui::getIcon(QStringLiteral("operatingPoint.png"));
-}
-
-QIcon
-gt::gui::icon::performanceOffDesign16()
-{
-    return gt::gui::getIcon(QStringLiteral("operatingPoint_16.png"));
-}
-
-QIcon
-gt::gui::icon::performanceOffDesign24()
-{
-    return gt::gui::getIcon(QStringLiteral("operatingPoint_24.png"));
 }
 
 QIcon
@@ -1096,54 +1072,6 @@ QIcon
 gt::gui::icon::shaftPort24()
 {
     return gt::gui::getIcon(QStringLiteral("shaftPort3Icon_24.png"));
-}
-
-QIcon
-gt::gui::icon::speedLine()
-{
-    return gt::gui::getIcon(QStringLiteral("speedLineIcon_32.png"));
-}
-
-QIcon
-gt::gui::icon::speedLine16()
-{
-    return gt::gui::getIcon(QStringLiteral("speedLineIcon_16.png"));
-}
-
-QIcon
-gt::gui::icon::speedLine24()
-{
-    return gt::gui::getIcon(QStringLiteral("speedLineIcon_24.png"));
-}
-
-QIcon
-gt::gui::icon::compressor()
-{
-    return gt::gui::getIcon(QStringLiteral("compressorIcon.png"));
-}
-
-QIcon
-gt::gui::icon::compressor16()
-{
-    return gt::gui::getIcon(QStringLiteral("compressorIcon_16.png"));
-}
-
-QIcon
-gt::gui::icon::turbine16()
-{
-    return gt::gui::getIcon(QStringLiteral("turbineIcon_16.png"));
-}
-
-QIcon
-gt::gui::icon::combustor()
-{
-    return gt::gui::getIcon(QStringLiteral("combustorIcon.png"));
-}
-
-QIcon
-gt::gui::icon::combustor16()
-{
-    return gt::gui::getIcon(QStringLiteral("combustorIcon_16.png"));
 }
 
 QIcon

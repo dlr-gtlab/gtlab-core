@@ -1129,7 +1129,7 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     actskip->setShortcut(getShortCut("skipProcess"));
 
     QAction* actunskip = menu.addAction("Unskip");
-    actunskip->setIcon(gt::gui::icon::cancel());
+    actunskip->setIcon(gt::gui::icon::unskip());
     actunskip->setShortcut(getShortCut("unskipProcess"));
 
     if (!obj->isSkipped())
@@ -1336,7 +1336,7 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     actskip->setShortcut(getShortCut("skipProcess"));
 
     QAction* actunskip = menu.addAction("Unskip");
-    actunskip->setIcon(gt::gui::icon::cancel());
+    actunskip->setIcon(gt::gui::icon::unskip());
     actunskip->setShortcut(getShortCut("unskipProcess"));
 
     if (!obj->isSkipped())
@@ -1476,7 +1476,7 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
     skipCalcs->setIcon(gt::gui::icon::skip());
 
     QAction* unskipCalcs = menu.addAction("Unskip Selected Calculators");
-    unskipCalcs->setIcon(gt::gui::icon::cancel());
+    unskipCalcs->setIcon(gt::gui::icon::unskip());
 
     QAction* deleteElements = menu.addAction("Delete Process Elements");
     deleteElements->setIcon(gt::gui::icon::delete_());
