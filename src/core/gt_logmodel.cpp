@@ -277,15 +277,14 @@ GtLogModel::setMaxLogLength(int val)
 void
 GtLogModel::onMessage(const QString& msg, int level, Details const& details)
 {
-
+    QMutexLocker locker{&m_mutex};
     if (m_timer.isActive())
     {
-        QMutexLocker locker{&m_mutex};
         m_tmpEntries << Entry({ msg, level, details});
     }
     else
     {
-        insertMessage(msg, level, details);
+        insertMessageUnsafe(msg, level, details);
         m_timer.start(500);
     }
 }
@@ -317,14 +316,13 @@ GtLogModel::clearLog()
 }
 
 void
-GtLogModel::insertMessage(QString const& msg, int level, Details const& details)
+GtLogModel::insertMessageUnsafe(QString const& msg, int level, Details const& details)
 {
     if (m_entries.size() >= m_maxEntries)
     {
-        removeElement(index(0, 0));
+        // we must use the non-locked
+        removeElementListUnsafe({index(0, 0)});
     }
-
-    QMutexLocker locker{&m_mutex};
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size());
     m_entries << Entry({ msg, level, details });
@@ -337,12 +335,10 @@ GtLogModel::removeElement(QModelIndex index)
     removeElementList({index});
 }
 
-void
-GtLogModel::removeElementList(QModelIndexList indexList)
-{
-    if (indexList.isEmpty()) return;
 
-    QMutexLocker locker{&m_mutex};
+void
+GtLogModel::removeElementListUnsafe(const QModelIndexList& indexList)
+{
 
     for (auto iter = indexList.rbegin(); iter != indexList.rend(); ++iter)
     {
@@ -359,6 +355,16 @@ GtLogModel::removeElementList(QModelIndexList indexList)
 
         endRemoveRows();
     }
+}
+
+
+void
+GtLogModel::removeElementList(QModelIndexList indexList)
+{
+    if (indexList.isEmpty()) return;
+
+    QMutexLocker locker{&m_mutex};
+    removeElementListUnsafe(indexList);
 }
 
 void
