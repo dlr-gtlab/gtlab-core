@@ -1319,4 +1319,5 @@ GtMainWin::setTheme(bool /*dark*/)
 {
     gt::gui::applyThemeToApplication();
     gt::gui::applyThemeToWidget(this);
+    gt::gui::applyThemeToWidget(ui->mdiArea);
 }

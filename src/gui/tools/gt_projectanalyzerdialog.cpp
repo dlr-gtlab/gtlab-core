@@ -125,6 +125,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             QTabWidget* tabWid = tabWidget();
 
             QListWidget* umListWid = new QListWidget;
+            umListWid->setFrameStyle(QFrame::NoFrame);
 
             gt::for_each_key(unknownModules, [&](const QString& str)
             {
@@ -146,6 +147,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             QTabWidget* tabWid = tabWidget();
 
             QTreeWidget* tWid = new QTreeWidget;
+            tWid->setFrameStyle(QFrame::NoFrame);
             tWid->setColumnCount(3);
             tWid->setHeaderLabels(QStringList() << "" << "Project" <<
                                   "Framework");
@@ -177,6 +179,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             QTabWidget* tabWid = tabWidget();
 
             QListWidget* ucListWid = new QListWidget;
+            ucListWid->setFrameStyle(QFrame::NoFrame);
 
             foreach (const QString& str, analyzer->unknownClasses())
             {

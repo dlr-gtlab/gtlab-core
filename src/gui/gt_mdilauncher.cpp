@@ -13,6 +13,7 @@
 #include <QTabWidget>
 #include <QMdiSubWindow>
 #include <QPushButton>
+#include <QFrame>
 
 #include "gt_mdilauncher.h"
 #include "gt_mdiitem.h"
@@ -20,6 +21,7 @@
 #include "gt_collectioninterface.h"
 #include "gt_algorithms.h"
 #include "gt_icons.h"
+#include "gt_palette.h"
 
 GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
     m_area(nullptr)
@@ -426,11 +428,18 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
         icon = gt::gui::icon::layers();
     }
 
+    // remove ugly border of the widget (if possible)
+    if (auto* frame = qobject_cast<QFrame*>(wid))
+    {
+        frame->setFrameStyle(QFrame::NoFrame);
+    }
+
     int idx = m_area->addTab(wid, icon, mdiItem->objectName());
 
     // set custom close button
     QPushButton* closeBtn = new QPushButton;
     closeBtn->setIcon(gt::gui::icon::close());
+    closeBtn->setFlat(true);
     m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, closeBtn);
     connect(closeBtn, &QPushButton::clicked, wid, &QWidget::deleteLater);
 
