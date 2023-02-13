@@ -22,6 +22,7 @@ struct TestGtObjectIO_Read : public ::testing::Test
         <object class="TestSpecialGtObject" name="Group" uuid="{a-uid}">
          <propertylist name="emptyStringList" type="QString"></propertylist>
          <propertylist name="stringList" type="QString">hello;world</propertylist>
+         <propertylist name="threeStrings" type="QString">;;</propertylist>
         </object>
         )";
 
@@ -60,3 +61,21 @@ TEST_F(TestGtObjectIO_Read, readStringList)
     EXPECT_EQ("hello", list[0].toStdString());
     EXPECT_EQ("world", list[1].toStdString());
 }
+
+TEST_F(TestGtObjectIO_Read, read3Strings)
+{
+    auto strList = GtObjectMemento::findPropertyByName(memento.properties,
+                                                       "threeStrings");
+
+    ASSERT_TRUE(strList != nullptr);
+
+    QVariant variant = strList->data();
+    EXPECT_EQ(variant.userType(), QMetaType::QStringList);
+
+    auto list = variant.toStringList();
+    ASSERT_EQ(3, list.size());
+    EXPECT_EQ("", list[0].toStdString());
+    EXPECT_EQ("", list[1].toStdString());
+    EXPECT_EQ("", list[2].toStdString());
+}
+
