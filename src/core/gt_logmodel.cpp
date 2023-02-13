@@ -98,9 +98,9 @@ GtLogModel::rowCount(const QModelIndex& parent) const
 int
 GtLogModel::columnCount(const QModelIndex& parent) const
 {
-    // col(number) = level, time, id, message
     if(parent.isValid()) return 0; //no children
 
+    // col(number) = level, time, id, message
     return 4;
 }
 
