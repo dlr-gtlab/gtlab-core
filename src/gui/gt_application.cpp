@@ -753,14 +753,15 @@ void
 GtApplication::setDarkMode(bool dark)
 {
     static bool initial = true;
-    m_darkMode = dark;
 
-    if (!initial)
+    if (!initial && m_darkMode != dark)
     {
         gtInfo() << tr("The Theme was changed.")
                  << tr("It is recommended to restart the application as some "
                        "color or theme changes may not be applied correctly.");
     }
+
+    m_darkMode = dark;
 
     initial = false;
     emit themeChanged(dark);
