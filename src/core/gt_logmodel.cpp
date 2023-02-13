@@ -261,12 +261,14 @@ GtLogModel::setMaxLogLength(int val)
 
     m_maxEntries = val;
 
-    if (m_entries.size() > val)
+    // remove some entries
+    if (m_entries.size() > m_maxEntries)
     {
         beginResetModel();
 
-        m_entries = m_entries.mid(m_entries.size() - m_maxEntries - 1,
-                                  m_maxEntries);
+        m_entries = m_entries.mid(m_entries.size() - m_maxEntries);
+
+        assert(m_entries.size() == m_maxEntries);
 
         endResetModel();
     }
