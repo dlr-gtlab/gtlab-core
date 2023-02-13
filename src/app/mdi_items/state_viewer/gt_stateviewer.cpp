@@ -8,12 +8,12 @@
  */
 
 #include <QIcon>
-#include <QTreeView>
 #include <QVBoxLayout>
 
 #include "gt_icons.h"
 #include "gt_statemodel.h"
 #include "gt_statehandler.h"
+#include "gt_treeview.h"
 
 #include "gt_stateviewer.h"
 
@@ -21,8 +21,9 @@ GtStateViewer::GtStateViewer()
 {
     setObjectName(tr("State Viewer"));
 
-    m_tree = new QTreeView(widget());
+    m_tree = new GtTreeView(widget());
     m_tree->setAlternatingRowColors(true);
+    m_tree->setFrameStyle(QFrame::NoFrame);
 
     QVBoxLayout* lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);

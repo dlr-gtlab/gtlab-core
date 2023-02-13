@@ -12,7 +12,7 @@
 
 #include "gt_mdiitem.h"
 
-class QTreeView;
+class GtTreeView;
 class GtStateModel;
 
 /**
@@ -44,7 +44,7 @@ private:
     GtStateModel* m_model;
 
     /// Tree view
-    QTreeView* m_tree;
+    GtTreeView* m_tree;
 
 private slots:
     /**

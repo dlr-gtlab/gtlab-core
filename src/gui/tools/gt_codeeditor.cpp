@@ -32,6 +32,7 @@ GtCodeEditor::GtCodeEditor(QWidget* parent) : QPlainTextEdit(parent)
     setAcceptDrops(true);
 
     setLineWrapMode(QPlainTextEdit::NoWrap);
+    setFrameStyle(QFrame::NoFrame);
 }
 
 int

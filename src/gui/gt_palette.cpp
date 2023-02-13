@@ -116,7 +116,7 @@ gt::gui::standardTheme()
         config.text = Qt::black;
         config.disabled = Qt::gray;
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-        config.highlight =  QColor{42, 130, 218};
+        config.highlight = QColor{42, 130, 218};
         config.textHighlighted = config.text;
         config.link = config.highlight;
         config.linkVisited = config.link.darker();
@@ -130,10 +130,7 @@ gt::gui::standardTheme()
 template <typename Widget>
 inline void applyTheme(Widget& w)
 {
-    QString stylesheet = QStringLiteral(
-        "QTabBar {"
-        "   border: 0px; }"
-    );
+    QString stylesheet;
 
 #ifndef Q_OS_WIN
     QString style = QStringLiteral("Default");
@@ -159,9 +156,9 @@ inline void applyTheme(Widget& w)
         ));
     }
 
-    w.setPalette(gt::gui::currentTheme());
     w.setStyle(QStyleFactory::create(style));
     w.setStyleSheet(stylesheet);
+    w.setPalette(gt::gui::currentTheme());
 }
 
 void
