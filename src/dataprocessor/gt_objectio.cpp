@@ -982,7 +982,12 @@ propertyListToVariant(const QString& value, const QString& type)
     else if (type == QStringLiteral("QString") ||
              type == QStringLiteral("string"))
     {
-        QStringList list = value.split(QStringLiteral(";"), Qt::SkipEmptyParts);
+        if (value.isEmpty())
+        {
+            return QVariant(QStringList{});
+        }
+
+        QStringList list = value.split(QStringLiteral(";"));
         var.setValue(list);
     }
     else if (type == QStringLiteral("QPointF"))
