@@ -23,7 +23,7 @@
 GtMdiItem::GtMdiItem() : m_frame(new QFrame), m_d(nullptr),
     m_subWin(nullptr), m_queueEvents(false)
 {
-    m_frame->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+    m_frame->setFrameStyle(QFrame::NoFrame);
 
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
             SLOT(onProjectChanged(GtProject*)));
