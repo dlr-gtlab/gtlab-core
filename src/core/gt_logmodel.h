@@ -246,26 +246,6 @@ public:
      */
     void removeElementList(QModelIndexList indexList);
 
-    /**
-     * @brief Returns the index of the item in the model specified by the given
-     * row, column and parent index. The parent index is not used as this
-     * model does not support hierarchical views.
-     * @param row Row
-     * @param column Column
-     * @param parent Parent index
-     * @return Index
-     */
-//    QModelIndex index(int row, int column, QModelIndex const& parent = {}) const override;
-
-    /**
-     * @brief Returns the parent of the model item with the given index. This
-     * model does not support hierarchical views and will allways return an
-     * invalid parent.
-     * @param Index index
-     * @return Index
-     */
-//    QModelIndex parent(QModelIndex const& index) const override;
-
 public slots:
 
     void onMessage(QString const& msg ,int level, GtLogDetails const& details);
