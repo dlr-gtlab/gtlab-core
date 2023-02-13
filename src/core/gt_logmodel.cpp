@@ -284,7 +284,7 @@ GtLogModel::onMessage(const QString& msg, int level, Details const& details)
     }
     else
     {
-        insertMessageUnsafe(msg, level, details);
+        insertMessageNonlocked(msg, level, details);
         m_timer.start(500);
     }
 }
@@ -316,12 +316,12 @@ GtLogModel::clearLog()
 }
 
 void
-GtLogModel::insertMessageUnsafe(QString const& msg, int level, Details const& details)
+GtLogModel::insertMessageNonlocked(QString const& msg, int level, Details const& details)
 {
     if (m_entries.size() >= m_maxEntries)
     {
         // we must use the non-locked
-        removeElementListUnsafe({index(0, 0)});
+        removeElementListNonlocked({index(0, 0)});
     }
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size());
@@ -337,7 +337,7 @@ GtLogModel::removeElement(QModelIndex index)
 
 
 void
-GtLogModel::removeElementListUnsafe(const QModelIndexList& indexList)
+GtLogModel::removeElementListNonlocked(const QModelIndexList& indexList)
 {
 
     for (auto iter = indexList.rbegin(); iter != indexList.rend(); ++iter)
@@ -364,7 +364,7 @@ GtLogModel::removeElementList(QModelIndexList indexList)
     if (indexList.isEmpty()) return;
 
     QMutexLocker locker{&m_mutex};
-    removeElementListUnsafe(indexList);
+    removeElementListNonlocked(indexList);
 }
 
 void

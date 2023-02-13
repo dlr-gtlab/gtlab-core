@@ -301,12 +301,12 @@ private:
      * @param level Level
      * @param details Logging details
      */
-    void insertMessageUnsafe(const QString& msg ,int level, Details const& details);
+    void insertMessageNonlocked(const QString& msg ,int level, Details const& details);
 
     /**
      * @brief Non mutex-locked implementation of element removal
      */
-    void removeElementListUnsafe(const QModelIndexList& indexList);
+    void removeElementListNonlocked(const QModelIndexList& indexList);
 
     /**
      * @brief Helper method for clearing the output log
