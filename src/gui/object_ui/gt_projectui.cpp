@@ -194,10 +194,7 @@ GtProjectUI::icon(GtObject* obj) const
 {
     auto project = qobject_cast<GtProject*>(obj);
 
-    if (!project)
-    {
-        return QIcon();
-    }
+    if (!project) return {};
 
     if (project->isOpen())
     {
@@ -206,10 +203,12 @@ GtProjectUI::icon(GtObject* obj) const
 
     if (project->upgradesAvailable())
     {
-        return gt::gui::icon::objectInvalid();
+        return gt::gui::colorize(gt::gui::icon::objectInvalid(),
+                                 gt::gui::color::warningText);
     }
 
-    return gt::gui::icon::projectClosed();
+    return gt::gui::colorize(gt::gui::icon::projectClosed(),
+                             gt::gui::color::debugText);
 }
 
 void

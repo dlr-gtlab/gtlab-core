@@ -430,6 +430,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     // set custom close button
     QPushButton* closeBtn = new QPushButton;
+    closeBtn->setIconSize(QSize{12, 12}); // because stani wants it this way...
     closeBtn->setIcon(gt::gui::icon::close());
     m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, closeBtn);
     connect(closeBtn, &QPushButton::clicked, wid, &QWidget::deleteLater);

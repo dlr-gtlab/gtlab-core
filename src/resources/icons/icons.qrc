@@ -95,6 +95,7 @@
         <file>chartCurve.svg</file>
         <file>chartLine.svg</file>
         <file>chartScatter.svg</file>
+        <file>chartXY_custom.svg</file>
         <file>check.svg</file>
         <file>clear.svg</file>
         <file>clone.svg</file>
@@ -112,6 +113,7 @@
         <file>compressorIcon_16.png</file>
         <file>config.svg</file>
         <file>connection.svg</file>
+        <file>convergence_custom.svg</file>
         <file>copy.svg</file>
         <file>cross.svg</file>
         <file>cursor.svg</file>
@@ -120,6 +122,8 @@
         <file>data.svg</file>
         <file>dataArrowUp.svg</file>
         <file>dataEye.svg</file>
+        <file>dataLock_custom.svg</file>
+        <file>dataSingle_custom.svg</file>
         <file>delete.svg</file>
         <file>devices.svg</file>
         <file>devicesEdit.svg</file>
@@ -176,7 +180,7 @@
         <file>font.svg</file>
         <file>gas.svg</file>
         <file>grid.svg</file>
-        <file>gridSnap.svg</file>
+        <file>gridSnap_custom.svg</file>
         <file>gtdIcon.png</file>
         <file>gtdIcon_16.png</file>
         <file>gtdIcon_24.png</file>
@@ -202,6 +206,7 @@
         <file>list.svg</file>
         <file>listFormatted.svg</file>
         <file>login.svg</file>
+        <file>magnet.svg</file>
         <file>mapIcon.png</file>
         <file>mapIcon_16.png</file>
         <file>mapIcon_24.png</file>
@@ -218,7 +223,9 @@
         <file>network.svg</file>
         <file>noMapIcon.png</file>
         <file>notificationUnread.svg</file>
+        <file>objectCombustor_custom.svg</file>
         <file>objectEmpty.svg</file>
+        <file>objectEngine.svg</file>
         <file>objectInvalid.svg</file>
         <file>objectUnkown.svg</file>
         <file>oIcon.png</file>
@@ -234,8 +241,11 @@
         <file>paramStudyIcon_24.png</file>
         <file>paste.svg</file>
         <file>pause.svg</file>
-        <file>pdf.svg</file>
+        <file>pdf_custom.svg</file>
         <file>performanceModel_own.png</file>
+        <file>perfOperatingPoint_custom.svg</file>
+        <file>perfSpeedLine_custom.svg</file>
+        <file>perfWorkingLine_custom.svg</file>
         <file>play.svg</file>
         <file>print.svg</file>
         <file>projectAdd.svg</file>
@@ -266,6 +276,7 @@
         <file>shaftPort3Icon_16.png</file>
         <file>shaftPort3Icon_24.png</file>
         <file>skip.svg</file>
+        <file>unskip_custom.svg</file>
         <file>sleep.svg</file>
         <file>sort.svg</file>
         <file>sortAsc.svg</file>
@@ -294,7 +305,6 @@
         <file>tsDiagramm.png</file>
         <file>tsDiagramm_16.png</file>
         <file>tsDiagramm_32.png</file>
-        <file>turbine.svg</file>
         <file>turbineIcon.png</file>
         <file>turbineIcon_16.png</file>
         <file>undo.svg</file>
@@ -302,16 +312,20 @@
         <file>upload.svg</file>
         <file>variable.svg</file>
         <file>vectorBezier.svg</file>
+        <file>vectorBezier2_custom.svg</file>
         <file>vectorCurve.svg</file>
         <file>vectorLine.svg</file>
         <file>vectorPoint.svg</file>
         <file>vectorPointEdit.svg</file>
+        <file>vectorPoly_custom.svg</file>
+        <file>vectorSimple_custom.svg</file>
         <file>vectorSquare.svg</file>
         <file>vectorSquareEdit.svg</file>
         <file>vectorTriangle.svg</file>
         <file>warning.svg</file>
         <file>web.svg</file>
         <file>xml.svg</file>
+        <file>zoomMinus.svg</file>
         <file>zoomPlus.svg</file>
         <file>schedules3Icon.png</file>
         <file>schedules3Icon_16.png</file>
@@ -320,6 +334,7 @@
         <file>schedules4Icon_16.png</file>
         <file>schedules4Icon_24.png</file>
         <file>minimizeIcons.png</file>
+        <file>showText_custom.svg</file>
         <file>showTextIcon.png</file>
         <file>showTextIcon_16.png</file>
         <file>showTextIcon_24.png</file>
