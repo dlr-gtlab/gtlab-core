@@ -19,6 +19,12 @@ win32 {
 TARGET = GTlab
 
 QT += widgets xml network quickwidgets
+
+# activate testlib only in debug mode
+CONFIG(debug, debug|release){
+    QT += testlib
+}
+
 TEMPLATE = app
 CONFIG += silent
 CONFIG += c++14

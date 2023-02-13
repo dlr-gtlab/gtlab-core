@@ -17,6 +17,7 @@
 
 #include <QDateTime>
 #include <QAbstractItemModel>
+#include <QAbstractTableModel>
 #include <QMutex>
 #include <QTimer>
 
@@ -106,7 +107,7 @@ makeSignalSlotDestination(T* receiver, F member)
 /**
  * @brief The GtLogModel class
  */
-class GT_CORE_EXPORT GtLogModel : public QAbstractItemModel
+class GT_CORE_EXPORT GtLogModel : public QAbstractTableModel
 {
     Q_OBJECT
 
@@ -234,7 +235,7 @@ public:
      * @param first Index of first element to be removed
      * @param last Index of last elment to be removed
      */
-    void removeElement(QModelIndex index, int first, int last);
+    void removeElement(QModelIndex index);
 
     /**
      * @brief Removes the elements from the logmodel
@@ -243,7 +244,7 @@ public:
      * @param first Index of first element to be removed
      * @param last Index of last elment to be removed
      */
-    void removeElementList(QModelIndexList indexList, int first, int last);
+    void removeElementList(QModelIndexList indexList);
 
     /**
      * @brief Returns the index of the item in the model specified by the given
@@ -254,7 +255,7 @@ public:
      * @param parent Parent index
      * @return Index
      */
-    QModelIndex index(int row, int column, QModelIndex const& parent = {}) const override;
+//    QModelIndex index(int row, int column, QModelIndex const& parent = {}) const override;
 
     /**
      * @brief Returns the parent of the model item with the given index. This
@@ -263,7 +264,7 @@ public:
      * @param Index index
      * @return Index
      */
-    QModelIndex parent(QModelIndex const& index) const override;
+//    QModelIndex parent(QModelIndex const& index) const override;
 
 public slots:
 
