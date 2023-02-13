@@ -342,14 +342,13 @@ readProperties(const GtObjectMemento& memento,
 
         if (!success)
         {
+            gtWarning().medium()
+                << QObject::tr("Unknown property '%1' of object "
+                               "'%2' (type=%3) ignored").arg(
+                                   p.name,
+                                   memento.ident(),
+                                   obj.metaObject()->className());
 
-            gtWarning() << QObject::tr("could not find property") <<
-                QStringLiteral(" (") << memento.className() <<
-                QStringLiteral("::") << p.name <<
-                QStringLiteral(")");
-            gtWarning() << "     |-> "
-                        << obj.metaObject()->className();
-            gtWarning() << "     |-> " << obj.objectName();
         }
     }
 }
