@@ -362,6 +362,10 @@ GtCollectionLoader::readNetworkItemInformation(const QUrl& url,
 
             retval.m_properties.insert(e, var);
         }
+        else
+        {
+            retval.m_properties.insert(e, {});
+        }
     });
 
     return retval;
@@ -410,17 +414,17 @@ GtCollectionLoader::itemIsValid(const QJsonObject& json)
         const auto& e = iter.key();
         if (!json.contains(e))
         {
-            gtError() << e << QStringLiteral(" ") << tr("not found!");
-            return false;
+            gtWarning().medium() << tr("Property '%1' not found!").arg(e);
         }
-
-        QJsonValue val = json.value(e);
-        QVariant var = val.toVariant();
-
-        if (var.type() != colStruct.value(e))
+        else
         {
-            gtError() << tr("Invalid property type!");
-            return false;
+            QJsonValue val = json.value(e);
+            QVariant var = val.toVariant();
+
+            if (var.type() != colStruct.value(e))
+            {
+                gtWarning().medium() << tr("Invalid property type!");
+            }
         }
     }
 
