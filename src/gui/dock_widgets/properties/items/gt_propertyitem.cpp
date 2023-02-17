@@ -265,7 +265,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
             QSpinBox* spinbox = new QSpinBox(parent);
             spinbox->setRange(std::numeric_limits<int>::min(),
                               std::numeric_limits<int>::max());
-            connect(spinbox, SIGNAL(valueChanged(int)),
+            connect(spinbox, SIGNAL(editingFinished()),
                     delegate, SLOT(onDataChange()));
             return spinbox;
         }
