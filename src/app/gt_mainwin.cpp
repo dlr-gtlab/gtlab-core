@@ -130,6 +130,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     gtMdiLauncher->setMdiArea(ui->mdiArea);
 
     ui->mdiArea->tabBar()->setExpanding(true);
+    ui->mdiArea->tabBar()->setIconSize(QSize(16,16));
 
     // undo action
     QAction* undoAct = gtApp->undoStack()->createUndoAction(this,
