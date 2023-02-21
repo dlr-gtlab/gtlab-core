@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Integer property change only triggers if user finished editing and not on each key press - #437
+- Object names in the explorer dock are no longer truncated by default - #439
 
 ## [2.0.0-pr-beta1] - 2023-02-10
 ### Changed

@@ -15,6 +15,7 @@
 #include <QMimeData>
 #include <QUrl>
 #include <QFileInfo>
+#include <QHeaderView>
 
 #include "gt_projectprovider.h"
 #include "gt_project.h"
@@ -36,21 +37,14 @@ GtExplorerView::GtExplorerView(QWidget* parent) :
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     setDragDropMode(DragDrop);
+    header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 void
 GtExplorerView::resizeEvent(QResizeEvent* event)
 {
-    setColumnWidth(1, 15);
+    setColumnWidth(1, 0);
 
-    int delta = 0;
-
-    if (verticalScrollBar()->isVisible())
-    {
-        delta = verticalScrollBar()->width();
-    }
-
-    setColumnWidth(0, width() - 50 - delta);
     QTreeView::resizeEvent(event);
 }
 
