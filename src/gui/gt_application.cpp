@@ -553,7 +553,7 @@ GtApplication::endCommand(const GtCommand& command)
         return;
     }
 
-    GtObjectMemento newMemento = gtApp->currentProject()->toMemento();
+    GtObjectMemento newMemento = m_d->m_commandRoot->toMemento();
 
     GtObjectMementoDiff diff(m_d->m_commandMemento, newMemento);
 

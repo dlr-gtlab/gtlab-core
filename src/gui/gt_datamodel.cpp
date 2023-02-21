@@ -206,7 +206,7 @@ GtDataModel::appendChildren(const QList<GtObject*>& children, GtObject* parent)
                      tr("objects") + QStringLiteral(" ") + tr("added");
     }
 
-    GtCommand command = gtApp->startCommand(gtApp->currentProject(),
+    GtCommand command = gtApp->startCommand(parent,
                                             commandMsg);
 
     // append children
@@ -252,7 +252,7 @@ GtDataModel::insertChild(GtObject* child, GtObject* parent, int row)
     QString commandMsg = child->objectName() + QStringLiteral(" ") +
                          tr("inserted");
 
-    GtCommand command = gtApp->startCommand(gtApp->currentProject(),
+    GtCommand command = gtApp->startCommand(parent,
                                             commandMsg);
 
     QModelIndex retval = GtCoreDatamodel::insertChild(child, parent, row);
