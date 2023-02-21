@@ -21,6 +21,7 @@
 #include <typeinfo>
 
 #include "gt_object.h"
+#include "gt_externalizedobject.h"
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
@@ -391,7 +392,6 @@ GtObjectIO::applyDiff(GtObjectMementoDiff& diff, GtObject* obj)
 
         GtObject* parentObject = obj->getObjectByUuid(parentUUID);
 
-
         if (!applyDiffOnObject(parent, parentObject, DiffMode::Apply))
         {
             return false;
@@ -430,7 +430,6 @@ GtObjectIO::revertDiff(GtObjectMementoDiff& diff, GtObject* obj)
         }
 
         GtObject* parentObject = obj->getObjectByUuid(parentUUID);
-
 
         if (!applyDiffOnObject(parent, parentObject, DiffMode::Revert))
         {
@@ -1354,6 +1353,21 @@ handlePropertyNodeChange(GtObject& target,
 
     GtAbstractProperty* prop = target.findProperty(propName);
 
+//    // target may be itself an externalized object or child of one
+//    // -> make sure to fetch the data before diffing (see issue #251)
+//    if (auto* extObj = qobject_cast<GtExternalizedObject*>(&target))
+//    {
+//        gtDebug() << __FUNCTION__ << extObj->objectName() << extObj->metaObject()->className() << propName << change.text();
+//        extObj->internalize();
+//        if (propName == "isFecthed") return true;
+//    }
+//    else if (auto* extParent = target.findParent<GtExternalizedObject*>())
+//    {
+//        gtDebug() << __FUNCTION__ << "(PARENT)" << extParent->objectName() << extParent->metaObject()->className() << propName << change.text();
+//        extParent->internalize();
+//        if (propName == "isFecthed") return true;
+//    }
+
     // ------------------------------------------------------- //
 
     if (prop)
@@ -1481,9 +1495,10 @@ handleObjectRemove(GtObject& parent,
     return true;
 }
 
-bool handleObjectAddRemove(GtObject& target,
-                           const QDomElement& diffTag,
-                           DiffMode mode)
+bool
+handleObjectAddRemove(GtObject& target,
+                      const QDomElement& diffTag,
+                      DiffMode mode)
 {
     assert(diffTag.tagName() == gt::xml::S_DIFF_OBJ_ADD_TAG ||
            diffTag.tagName() == gt::xml::S_DIFF_OBJ_REMOVE_TAG);

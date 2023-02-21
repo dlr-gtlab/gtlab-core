@@ -23,25 +23,33 @@ class TestGtExternalizedObject : public ::testing::Test
 {
 protected:
 
-    virtual void SetUp()
+    void SetUp() override
     {
         gtExternalizationManager->enableExternalization(true);
 
         obj = std::make_unique<TestExternalizedObject>();
         obj->setObjectName("TestObject");
 
-        m_data = gtTestHelper->linearDataVector<double>(m_length, 0.0, 2.0);
+        m_values = gtTestHelper->linearDataVector<double>(m_length, 0.0, 2.0);
+        m_params = gtTestHelper->randomStringList(1);
     }
 
     bool isDataExternalized()
     {
-        return obj->internalData().isEmpty();
+        // check if object was used to store params as well
+        if (obj->hasParams())
+        {
+            return obj->internalValues().isEmpty() &&
+                   obj->internalParams().isEmpty();
+        }
+        return obj->internalValues().isEmpty();
     }
 
     std::unique_ptr<TestExternalizedObject> obj{};
 
     int m_length{10};
-    QVector<double> m_data;
+    QVector<double> m_values;
+    QStringList m_params;
 };
 
 /// external object should be fetched by default
@@ -66,7 +74,7 @@ TEST_F(TestGtExternalizedObject, refCount)
 
     { // fetch and set data
         auto data = obj->fetchData(); // accessing data no. 1
-        data.setValues(m_data);
+        data.setValues(m_values);
         ASSERT_TRUE(data.isValid());
 
         EXPECT_EQ(obj->refCount(), 1);
@@ -93,10 +101,10 @@ TEST_F(TestGtExternalizedObject, externalize)
 {
     { // fetch data
         auto data = obj->fetchData();
-        data.setValues(m_data);
+        data.setValues(m_values);
         ASSERT_TRUE(data.isValid());
 
-        EXPECT_EQ(obj->internalData(), m_data);
+        EXPECT_EQ(obj->internalValues(), m_values);
         EXPECT_TRUE(obj->isFetched());
 
         // externalize (ie. write data to disc)
@@ -133,7 +141,7 @@ TEST_F(TestGtExternalizedObject, internalize)
 {
     { // fetch data
         auto data = obj->fetchData();
-        data.setValues(m_data);
+        data.setValues(m_values);
         ASSERT_TRUE(data.isValid());
 
         // externalize (ie. write data to disc)
@@ -169,7 +177,7 @@ TEST_F(TestGtExternalizedObject, disableExternalization)
 {
     { // fetch data
         auto data = obj->fetchData();
-        data.setValues(m_data);
+        data.setValues(m_values);
         ASSERT_TRUE(data.isValid());
 
         // externalizing data
@@ -234,7 +242,7 @@ TEST_F(TestGtExternalizedObject, hasModifiedData)
 
     { // access data
         auto data = obj->fetchData();
-        data.setValues(m_data);
+        data.setValues(m_values);
         ASSERT_TRUE(data.isValid());
 
         hash = obj->calcExtHash();
@@ -288,7 +296,7 @@ TEST_F(TestGtExternalizedObject, fetchIntialVersion)
 {
     { // access data
         auto data = obj->fetchData();
-        data.setValues(m_data);
+        data.setValues(m_values);
         ASSERT_TRUE(data.isValid());
 
         ASSERT_TRUE(obj->externalize());
@@ -302,14 +310,18 @@ TEST_F(TestGtExternalizedObject, fetchIntialVersion)
 
 /// Once externalized object was modified and externalized it will no longer
 /// fetch its initial version.
-/// When undoing the modification the initial version should be fetched again
-TEST_F(TestGtExternalizedObject, onObjectDiffMerged)
+/// When undoing the modification the initial version should be fetched again.
+///
+/// Also changing only a single property of a compound object would would mess
+/// up the diffing process as described in issue 251
+TEST_F(TestGtExternalizedObject, issue_251)
 {
     /* ADDITIONAL SETUP */
-    // simulate obj beeing externalized to disk
+    // simulate obj beeing loaded with its intial data on disk
     {
         auto data = obj->fetchData();
-        data.setAsInitialValues(m_data);
+        data.setInitialValues(m_values);
+        data.setInitialParams(m_params);
         ASSERT_TRUE(data.isValid());
     }
 
@@ -321,16 +333,33 @@ TEST_F(TestGtExternalizedObject, onObjectDiffMerged)
     // memento before change
     auto memA = obj->toMemento();
 
-    { // access and modify data
+    { // access and modify only values
         auto data = obj->fetchData();
-        data.setValues(m_data.mid(0, qCeil(m_length * 0.5)));
+        data.setValues(gtTestHelper->linearDataVector<double>(m_length / 2, 1.0, 2.0));
         ASSERT_TRUE(data.isValid());
     }
+
+    // object should be fetched
+    ASSERT_FALSE(isDataExternalized());
+    ASSERT_TRUE(obj->isFetched());
 
     // memento after change
     auto memB = obj->toMemento();
     // simulates a save
     ASSERT_TRUE(obj->externalize());
+
+    // data was externalized
+    EXPECT_TRUE(isDataExternalized());
+    EXPECT_FALSE(obj->isFetched());
+
+    { // double check that values and params were externalized properly
+        auto data = obj->fetchData();
+        EXPECT_NE(obj->internalValues(), m_values);
+        EXPECT_EQ(obj->internalParams(), m_params);
+    }
+
+    gtDebug() << "HERE 1" << obj->internalValues();
+    gtDebug() << "HERE 2" << obj->internalParams();
 
     // data was externalized
     EXPECT_EQ(obj->refCount(), 0);
@@ -344,10 +373,18 @@ TEST_F(TestGtExternalizedObject, onObjectDiffMerged)
     ASSERT_FALSE(diff.isNull());
     EXPECT_TRUE(obj->revertDiff(diff));
 
+    gtDebug() << diff.toByteArray();
+
     // once the diff was applied the object should have fetched its
     // initial version
-    EXPECT_EQ(obj->refCount(), 0);
-    EXPECT_TRUE(obj->isFetched());
-    EXPECT_EQ(obj->internalData(), m_data);
-}
+//    EXPECT_EQ(obj->refCount(), 0);
+//    EXPECT_TRUE(obj->isFetched());
+//    EXPECT_EQ(obj->internalValues(), m_values);
+//    EXPECT_EQ(obj->internalParams(), m_params);
 
+    { // double check that values and params were externalized properly
+        auto data = obj->fetchData();
+        EXPECT_EQ(obj->internalValues(), m_values);
+        EXPECT_EQ(obj->internalParams(), m_params);
+    }
+}

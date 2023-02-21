@@ -8,7 +8,8 @@
 
 #include "test_dmi_package.h"
 
-#include "test_dmi_class.h"
+#include "test_dmi_data.h"
+#include "test_dmi_externalobject.h"
 
 ///generated (v 0.1)
 TestDmiPackage::TestDmiPackage() :
@@ -17,10 +18,15 @@ TestDmiPackage::TestDmiPackage() :
 {
     setObjectName("Test DMI Package");
 
-    TestDmClass* data = new TestDmClass;
-    data->setObjectName("Data");
-    appendChild(data);
+    auto* data = new TestDmiData;
+//    data->setObjectName("Data");
     data->setDefault(true);
+    appendChild(data);
+
+    auto* extData = new TestDmiExternalObject;
+//    extData->setObjectName("ExtData[0]");
+    extData->setDefault(true);
+    appendChild(extData);
 
     registerProperty(m_link);
 }

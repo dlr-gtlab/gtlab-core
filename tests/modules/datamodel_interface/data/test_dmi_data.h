@@ -19,7 +19,7 @@
 /**
  * @brief The TestDmiClass class
  */
-class TestDmClass : public GtObject
+class TestDmiData : public GtObject
 {
     Q_OBJECT
 
@@ -27,7 +27,7 @@ public:
     /**
      * @brief Constructor.
      */
-    Q_INVOKABLE TestDmClass();
+    Q_INVOKABLE TestDmiData();
 
 private:
     GtDoubleProperty m_value;

@@ -27,6 +27,8 @@ CONFIG += silent
 CONFIG += c++14
 
 DEFINES += TEST_DATAMODEL_INTERFACE_DLL
+# enable HDF5
+DEFINES += GT_H5
 
 isEmpty(GT_MODULE_ID) {
    error("GT_MODULE_ID undefined. Please define variable GT_MODULE_ID=\"My Module ID\" in project file.")
@@ -46,25 +48,29 @@ DESTDIR = $${BUILD_DEST}
 PRECOMPILED_HEADER = $${GTLAB_LOGGING_PATH}/include/logging/gt_logging.h
 
 HEADERS += \
+    data/test_dmi_data.h \
+    data/test_dmi_externalobject.h \
     test_datamodel_interface_exports.h  \
     test_datamodel_interface.h  \
-    data/test_dmi_class.h \
     data/test_dmi_package.h
 
 
 SOURCES += \
+    data/test_dmi_data.cpp \
+    data/test_dmi_externalobject.cpp \
     test_datamodel_interface.cpp  \
-    data/test_dmi_class.cpp \
     data/test_dmi_package.cpp
 
 CONFIG(debug, debug|release){
     # GTLAB CORE
     LIBS += -lGTlabLogging-d
     LIBS += -lGTlabCore-d -lGTlabDataProcessor-d
+    LIBS += -lGenH5-d
 } else {
     # GTLAB CORE
     LIBS += -lGTlabLogging
     LIBS += -lGTlabCore -lGTlabDataProcessor
+    LIBS += -lGenH5
 }
 
 # add search paths to shared libraries

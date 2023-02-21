@@ -134,6 +134,17 @@ GtH5ExternalizeHelper::overwriteDataSet(const GenH5::DataType& dataType,
 
     // try retrieving by h5 reference
     auto dset = dereferenceDataSet(file, refVariant);
+    if (dset.isValid())
+    {
+        // make sure dataset has enough space
+        if (dset.dataSpace() != dataSpace || dset.dataType() != dataType)
+        {
+            dset.deleteRecursively();
+            dset = GenH5::DataSet{};
+        }
+    }
+
+    // recreate by path
     if (!dset.isValid())
     {
         // try retrieving by path

@@ -22,126 +22,192 @@ TestExternalizedObjectData::TestExternalizedObjectData(TestExternalizedObject* b
 const QVector<double>&
 TestExternalizedObjectData::values() const
 {
-    Q_ASSERT(m_base != nullptr);
-
+    assert(m_base);
     return base()->m_values;
 }
 
 void
 TestExternalizedObjectData::setValues(const QVector<double>  &values)
 {
-    Q_ASSERT(m_base != nullptr);
-
+    assert(m_base);
     base()->m_values = values;
 }
 
-void
-TestExternalizedObjectData::setAsInitialValues(const QVector<double>& values)
+const QStringList&
+TestExternalizedObjectData::params() const
 {
-    Q_ASSERT(m_base != nullptr);
+    assert(m_base);
+    return base()->m_params;
+}
 
+void
+TestExternalizedObjectData::setParams(const QStringList& params)
+{
+    assert(m_base);
+    base()->m_params = params;
+}
+
+void
+TestExternalizedObjectData::setInitialValues(const QVector<double>& values)
+{
+    assert(m_base);
     base()->m_values = values;
     base()->m_initialValues = values;
+}
+
+
+void
+TestExternalizedObjectData::setInitialParams(const QStringList& params)
+{
+    assert(m_base);
+    base()->m_params = params;
+    base()->m_initialParams = params;
 }
 
 void
 TestExternalizedObjectData::clearValues()
 {
-    Q_ASSERT(m_base != nullptr);
-
+    assert(m_base);
     base()->m_values.clear();
 }
 
 const QVector<double>&
-TestExternalizedObject::internalData() const
+TestExternalizedObject::internalValues() const
 {
     return m_values;
+}
+
+const QStringList&
+TestExternalizedObject::internalParams() const
+{
+    return m_params;
+}
+
+bool
+TestExternalizedObject::hasParams() const
+{
+    return !m_initialParams.isEmpty();
 }
 
 bool
 TestExternalizedObject::doFetchData(QVariant& /*metaData*/,
                                     bool fetchInitialVersion)
 {
+    const auto readDataHelper = [uuid = uuid()](const QString& suffix,
+                                                const auto& deserializer) {
+        QDir projectDir{gtExternalizationManager->projectDir()};
+        if (!projectDir.exists())
+        {
+            gtError() << "Project dir does not exist!";
+            return false;
+        }
+
+        // read data
+        QFile file{projectDir.absoluteFilePath("test_ext" + uuid + "_" +
+                                               suffix + ".txt")};
+
+        if (!file.open(QFile::ReadOnly))
+        {
+            gtError() << "Failed to open file!";
+            return false;
+        }
+
+        QByteArray data = file.readAll();
+        // deserialize data
+        return deserializer(data);
+    };
+
     if (fetchInitialVersion)
     {
         m_values = m_initialValues;
+        m_params = m_initialParams;
         return true;
     }
 
-    QDir projectDir{gtExternalizationManager->projectDir()};
-
-    if (!projectDir.exists())
-    {
-        qDebug() << "project dir does not exist!";
-        return false;
-    }
-
-    // read data
-    QFile file{projectDir.absoluteFilePath("test_ext" + uuid() + ".txt")};
-
-    if (!file.open(QFile::ReadOnly))
-    {
-        qDebug() << "failed to open file!";
-        return false;
-    }
-
-    QByteArray data = file.readAll();
-
-    if (data.isEmpty())
-    {
-        qDebug() << "failed to read the data!";
-        return false;
-    }
-
-    // deserialize data
-    m_values.clear();
-    for (auto sValue : data.split(';'))
-    {
-        m_values.append(sValue.toDouble());
-    }
-
-    return true;
+    // read values and params consecutively
+    bool success = true;
+    success &= readDataHelper("values", [&](const QByteArray& data){
+        m_values.clear();
+        for (auto sValue : data.split(';'))
+        {
+            m_values.append(sValue.toDouble());
+        }
+        return true;
+    });
+    success &= readDataHelper("params", [&](const QByteArray& data){
+        m_params.clear();
+        for (auto p : data.split(';'))
+        {
+            m_params.append(p);
+        }
+        return true;
+    });
+    return success;
 }
 
 bool
 TestExternalizedObject::doExternalizeData(QVariant& /*metaData*/)
 {
-    QDir projectDir{gtExternalizationManager->projectDir()};
+    const auto writeDataHelper = [uuid = uuid()](const QString& suffix,
+                                                 const auto& serializer) {
+        QDir projectDir{gtExternalizationManager->projectDir()};
+        if (!projectDir.exists())
+        {
+            gtError() << "Project dir does not exist!";
+            return false;
+        }
 
-    if (!projectDir.exists())
-    {
-        qDebug() << "project dir does not exist!";
-        return false;
-    }
+        // read data
+        QFile file{projectDir.absoluteFilePath("test_ext" + uuid + "_" +
+                                               suffix + ".txt")};
 
-    // serialize data
-    QByteArray data;
-    for (auto value : qAsConst(m_values))
-    {
-        data.append(QByteArray::number(value) + ";");
-    }
-    data.chop(1); // cop trailing ;
+        if (!file.open(QFile::ReadWrite | QIODevice::Truncate))
+        {
+            gtError() << "Failed to open file!";
+            return false;
+        }
 
-    // write data
-    QFile file{projectDir.absoluteFilePath("test_ext" + uuid()) + ".txt"};
+        // serialize and write data
+        QByteArray data = serializer();
+        if (file.write(data) != data.length())
+        {
+            qDebug() << "Failed to write the data!";
+            return false;
+        }
 
-    if (!file.open(QFile::WriteOnly))
-    {
-        qDebug() << "failed to open file!";
-        return false;
-    }
+        return true;
+    };
 
-    if (file.write(data) != data.length())
-    {
-        qDebug() << "failed to write the data!";
-        return false;
-    }
+    // write values and params consecutively
+    bool success = true;
+    success &= writeDataHelper("values", [&](){
+        QByteArray data;
 
-    return true;
+        if (m_values.isEmpty()) return data;
+
+        for (auto value : qAsConst(m_values))
+        {
+            data.append(QByteArray::number(value) + ";");
+        }
+        return data.chopped(1); // chop trailing ;
+    });
+    success &= writeDataHelper("params", [&](){
+        QByteArray data;
+
+        if (m_params.isEmpty()) return data;
+
+        for (const auto& p : qAsConst(m_params))
+        {
+            data.append(p.toUtf8() + ";");
+        }
+        return data.chopped(1); // chop trailing ;
+    });
+    return success;
 }
 
 void
 TestExternalizedObject::doClearExternalizedData()
 {
     m_values.clear();
+    m_params.clear();
 }

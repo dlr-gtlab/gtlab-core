@@ -85,7 +85,7 @@ public:
     GtExternalizedObjectData& operator=(GtExternalizedObjectData&&) = default;
 
     /**
-     * @brief isValid. Will delegate to virtual iSvaid method of base class
+     * @brief isValid. Will delegate to virtual isDataValid method of base class
      * @return whether base pointer is valid and object is fetched
      */
     bool isValid() const;
