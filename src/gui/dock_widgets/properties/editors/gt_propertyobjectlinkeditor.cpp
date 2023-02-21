@@ -240,7 +240,7 @@ GtPropertyObjectLinkEditor::setPropertyValue(const QString& val)
     const QString commandMsg = m_scope->objectName() + QStringLiteral(" - ") +
             m_prop->objectName() + QStringLiteral(" ") + QObject::tr("changed");
 
-    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), commandMsg);
+    GtCommand cmd = gtApp->startCommand(m_scope, commandMsg);
 
     m_prop->setVal(val);
 

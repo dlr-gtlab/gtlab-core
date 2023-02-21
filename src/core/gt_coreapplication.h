@@ -469,9 +469,9 @@ protected:
     bool setToSystemLanguage();
 
     /**
-     * @brief generateCommand
-     * @param uuid
-     * @return
+     * @brief Generates command based on command identification string and
+     * root object (scope) for change detection.
+     * @param uuid command identification string (usually an uuid)
      */
     GtCommand generateCommand(const QString& uuid = QString());
 

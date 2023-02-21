@@ -381,7 +381,7 @@ gt::propertyItemChange(GtObject& obj,
     }
 
     GtCommand cmd = gtApp->startCommand(
-                gtApp->currentProject(),
+                &obj,
                 gt::propertyItemCommandString(
                     obj.objectName(), property.objectName(),
                     QObject::tr("changed")));

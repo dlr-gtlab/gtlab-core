@@ -2179,7 +2179,7 @@ GtProcessDock::configCalculator(GtCalculator* calc)
     }
 
     GtCommand command =
-        gtApp->startCommand(gtApp->currentProject(),
+        gtApp->startCommand(calc,
                             calc->objectName() +
                             tr(" configuration changed"));
     calc->fromMemento(memento);
@@ -2222,7 +2222,7 @@ GtProcessDock::configTask(GtTask* task)
     }
 
     GtCommand command =
-        gtApp->startCommand(project,
+        gtApp->startCommand(task,
                             task->objectName() +
                             tr(" configuration changed"));
     task->fromMemento(memento);

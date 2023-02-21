@@ -718,7 +718,7 @@ GtCoreDatamodel::setData(const QModelIndex& index, const QVariant& value,
 
     // update identification string
     GtCommand command = gtApp->startCommand(
-                            gtApp->currentProject(),
+                            item,
                             item->objectName() + tr(" renamed"));
     item->setObjectName(value.toString());
     gtApp->endCommand(command);
