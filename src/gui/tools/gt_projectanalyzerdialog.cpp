@@ -183,7 +183,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 
             foreach (const QString& str, analyzer->unknownClasses())
             {
-                auto lItem = new QListWidgetItem(gt::gui::icon::empty16(), str);
+                auto lItem = new QListWidgetItem(gt::gui::icon::objectUnkown(), str);
                 ucListWid->addItem(lItem);
             }
 
