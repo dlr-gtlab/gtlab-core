@@ -16,6 +16,7 @@
 #include "gt_objectio.h"
 #include "gt_structproperty.h"
 #include "gt_propertystructcontainer.h"
+#include "gt_objectfactory.h"
 
 #include "gt_object.h"
 #include "gt_qtutilities.h"
@@ -173,48 +174,46 @@ GtObject::revertDiff(GtObjectMementoDiff& diff)
     return GtObjectIO::revertDiff(diff, this);
 }
 
-GtObject*
-GtObject::copy() const
+namespace {
+GtObject* copyCloneHelper(const GtObject* toCopy,
+                          GtAbstractObjectFactory* fac,
+                          bool clone)
 {
     // check for factory
-    if (!pimpl->factory)
+    if (!fac)
     {
-        gtError() << tr("No factory set!") << QStringLiteral("(")
-                  << objectName() << QStringLiteral(")");
-        return nullptr;
+        gtWarning().verbose()
+                << QObject::tr("No factory set for %1 object '%2'! (Using default)")
+                   .arg(clone ? QStringLiteral("copying") : QStringLiteral("cloning"),
+                        toCopy->objectName());
+
+        assert(gtObjectFactory);
+
+        fac = gtObjectFactory;
     }
 
     // generate memento
-    GtObjectMemento memento = toMemento(false);
+    GtObjectMemento memento = toCopy->toMemento(clone);
 
     if (memento.isNull())
     {
         return nullptr;
     }
 
-    return memento.restore(pimpl->factory);
+    return memento.restore(fac);
+}
+}
+
+GtObject*
+GtObject::copy() const
+{
+    return copyCloneHelper(this, pimpl->factory, false);
 }
 
 GtObject*
 GtObject::clone() const
 {
-    // check for factory
-    if (!pimpl->factory)
-    {
-        gtError() << tr("No factory set!") << QStringLiteral("(")
-                  << objectName() << QStringLiteral(")");
-        return nullptr;
-    }
-
-    // generate memento
-    GtObjectMemento memento = toMemento(true);
-
-    if (memento.isNull())
-    {
-        return nullptr;
-    }
-
-    return memento.restore(pimpl->factory);
+    return copyCloneHelper(this, pimpl->factory, true);
 }
 
 bool
