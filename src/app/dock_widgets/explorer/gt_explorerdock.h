@@ -50,6 +50,9 @@ public:
      */
     void initAfterStartup() override;
 
+protected:
+    void projectChangedEvent(GtProject* project) override;
+
 private:
     /// Tree view
     GtExplorerView* m_view;
