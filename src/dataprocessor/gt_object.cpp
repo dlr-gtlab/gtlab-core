@@ -985,6 +985,8 @@ namespace gt
     {
         if (!prop || !thread) return;
 
+        if (prop->parent()) return;
+
         prop->QObject::moveToThread(thread);
     }
 
