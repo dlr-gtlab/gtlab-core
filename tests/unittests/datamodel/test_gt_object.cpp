@@ -133,6 +133,18 @@ TEST_F(TestGtObject, copy)
     ASSERT_STRNE(myCopy->uuid().toStdString().c_str(), obj.uuid().toStdString().c_str());
 
     delete myCopy;
+
+    GtObject origWithoutFactory;
+
+    ASSERT_TRUE(origWithoutFactory.factory() == nullptr);
+
+    GtObject* copiedWithDefaultFactory = origWithoutFactory.clone();
+
+    ASSERT_TRUE(copiedWithDefaultFactory != nullptr);
+
+    delete copiedWithDefaultFactory ;
+
+    ASSERT_TRUE(origWithoutFactory.factory() == nullptr);
 }
 
 TEST_F(TestGtObject, objectPath)
@@ -183,6 +195,18 @@ TEST_F(TestGtObject, clone)
     ASSERT_STREQ(cloned->uuid().toStdString().c_str(), obj.uuid().toStdString().c_str());
 
     delete cloned;
+
+    GtObject origWithoutFactory;
+
+    ASSERT_TRUE(origWithoutFactory.factory() == nullptr);
+
+    GtObject* clonedWithDefaultFactory = origWithoutFactory.clone();
+
+    ASSERT_TRUE(clonedWithDefaultFactory != nullptr);
+
+    delete clonedWithDefaultFactory;
+
+    ASSERT_TRUE(origWithoutFactory.factory() == nullptr);
 }
 
 TEST_F(TestGtObject, appendChild)
