@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0-pr-beta2] - 2023-02-22
 ### Fixed
 - Integer property change only triggers if user finished editing and not on each key press - #437
 - Object names in the explorer dock are no longer truncated by default - #439
