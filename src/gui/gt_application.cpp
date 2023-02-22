@@ -521,6 +521,8 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
 
     qDebug() << "######## COMMAND STARTED! (" << m_d->m_commandId << ")";
 
+    gtDataModel->beginResetModelView();
+
     return generateCommand(m_d->m_commandUuid);
 }
 
@@ -572,6 +574,8 @@ GtApplication::endCommand(const GtCommand& command)
     //    // cleanup
     m_d->m_commandRoot = nullptr;
     m_d->m_commandId = QString();
+
+    gtDataModel->endResetModelView();
 }
 
 bool
