@@ -63,6 +63,7 @@ GtProjectUpgradeSettingsPage::GtProjectUpgradeSettingsPage(GtProject* project,
                   m_specWid->pathLine());
 
     connect(m_specWid, SIGNAL(statesUpdated()), SIGNAL(completeChanged()));
+    connect(m_overwrite, SIGNAL(toggled(bool)), SIGNAL(completeChanged()));
 
     layout->addStretch(1);
 
@@ -72,7 +73,7 @@ GtProjectUpgradeSettingsPage::GtProjectUpgradeSettingsPage(GtProject* project,
 bool
 GtProjectUpgradeSettingsPage::isComplete() const
 {
-    return m_specWid->isValid();
+    return m_overwrite->isChecked() ? true : m_specWid->isValid();
 }
 
 bool

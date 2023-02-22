@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integer property change only triggers if user finished editing and not on each key press - #437
 - Object names in the explorer dock are no longer truncated by default - #439
 - Fixed project `task` folder is not copied when upgrading a project or creating a project backup - #441
+- Fixed bug after upgrading a project to a new one - #436
 
 ## [2.0.0-pr-beta1] - 2023-02-10
 ### Changed

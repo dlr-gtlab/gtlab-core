@@ -1114,5 +1114,31 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
 
         default:
             break;
+        }
+}
+
+/**
+ * @brief Make sure that the project is expanded and selected
+ */
+void
+GtExplorerDock::projectChangedEvent(GtProject* project)
+{
+    if (!project || !m_view) return;
+
+    auto srcIdx = gtDataModel->indexFromObject(project);
+
+    if (!srcIdx.isValid()) return;
+
+    auto idx = mapFromSource(srcIdx);
+
+    if (!idx.isValid()) return;
+
+    m_view->expand(idx);
+
+    if (m_view->selectionModel())
+    {
+        m_view->selectionModel()->select(
+            idx, QItemSelectionModel::ClearAndSelect);
+        m_view->scrollTo(idx);
     }
 }
