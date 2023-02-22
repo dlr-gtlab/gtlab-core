@@ -38,7 +38,7 @@ GtMementoChangeCommand::redo()
 
     const bool objTreeChanges = m_diff.hasObjectTreeChanges();
 
-    if (objTreeChanges)
+    if (objTreeChanges && !m_firstTime)
     {
         gtDataModel->beginResetModelView();
     }
@@ -57,7 +57,7 @@ GtMementoChangeCommand::redo()
         m_firstTime = false;
     }
 
-    if (objTreeChanges)
+    if (objTreeChanges && !m_firstTime)
     {
         gtDataModel->endResetModelView();
     }

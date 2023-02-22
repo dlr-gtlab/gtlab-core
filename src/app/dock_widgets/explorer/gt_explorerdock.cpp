@@ -129,9 +129,9 @@ GtExplorerDock::GtExplorerDock() :
     connect(gtApp, SIGNAL(selectionByUuidRequested(QString)),
             SLOT(selectObjectByUuid(QString)));
     connect(gtDataModel, SIGNAL(triggerBeginResetDataModelView()),
-            SLOT(beginResetView()));
+            SLOT(beginResetView()), Qt::DirectConnection);
     connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
-            SLOT(endResetView()));
+            SLOT(endResetView()), Qt::DirectConnection);
 
     widget->setLayout(layout);
 
