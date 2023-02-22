@@ -87,7 +87,7 @@ gt::filesystem::copyDir(const QDir& originDirectory, const QDir& destinationDire
         if (!targetFileInfo.exists() || flags & OverwriteFiles)
         {
             auto subDir = targetFileInfo.dir();
-            if (!subDir.exists()) subDir.mkdir(".");
+            if (!subDir.exists()) QDir().mkpath(subDir.absolutePath());
 
             QFile::copy(originDirectory.path() + "/" + fileName,
                         targetFileName);
