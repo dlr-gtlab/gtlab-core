@@ -390,7 +390,9 @@ GtProjectUI::openProject(GtObject* obj)
 
     if (canUpgradeProjectData(obj))
     {
+        // Note upgradeProjectData changes the currentProject
         upgradeProjectData(obj);
+        project = gtApp->currentProject();
     }
 
     switchToProject(*project);
