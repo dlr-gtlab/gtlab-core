@@ -6,6 +6,9 @@
  *  Tel.: +49 2203 601 2264
  */
 
+#ifndef GT_QTUTILITIES_H
+#define GT_QTUTILITIES_H
+
 #include "gt_typetraits.h"
 
 #include <QObject>
@@ -112,4 +115,98 @@ QStringList objectNames(Container const& t)
     return names;
 }
 
+namespace detail
+{
+
+template<typename ObjectList, typename GetNameFunc>
+inline QString
+makeUniqueObjectNameImpl(const QString& name,
+                         const ObjectList& objs,
+                         const GetNameFunc& getName,
+                         QString initName = {},
+                         int iteration = 2)
+{
+    auto iter = std::find_if(std::begin(objs), std::end(objs),
+                             [&](const auto& o) {
+        return name == getName(o);
+    });
+
+    if (iter == std::end(objs)) return name;
+
+    if (initName.isEmpty()) initName = name;
+
+    QString newName = initName +
+                      QStringLiteral("[") +
+                      QString::number(iteration) +
+                      QStringLiteral("]");
+
+    return makeUniqueObjectNameImpl(
+                newName, objs, getName, std::move(initName), iteration + 1);
+}
+
+} // namespace detail
+
+/**
+ * @brief Returns a unique name given a list of objects names
+ *
+ * @param name The base name. If e.g. "aa" already exists, "aa[1]" is returned
+ * @param objs List of objects to query from
+ * @param func A function to get the name from an object
+ * @return A unique name
+ */
+template<typename ObjectList, typename GetNameFunc>
+inline QString
+makeUniqueObjectName(const QString& name,
+                     const ObjectList& objs,
+                     const GetNameFunc& getName)
+{
+    if (name.isEmpty()) return {};
+
+    return detail::makeUniqueObjectNameImpl(name, objs, getName);
+}
+
+/**
+ * @brief Returns a unique name given a list of names
+ *
+ * @param name The base name. If e.g. "aa" already exists, "aa[1]" is returned
+ * @param names List of names to query from
+ * @return A unique name
+ */
+template<typename StringList,
+         typename T = trait::value_t<StringList>,
+         trait::enable_if_convertible<T, QString> = true>
+inline QString
+makeUniqueObjectName(const QString& name, const StringList& names)
+{
+    if (name.isEmpty()) return {};
+
+    return detail::makeUniqueObjectNameImpl(
+                name, names, [](const auto& listItem) -> QString {
+        return listItem;
+    });
+}
+
+/**
+ * @brief Creates an unique object name based on given initial string and
+ * a parent object reference.
+ *
+ * @param Initial object name
+ * @param Parent obje
+ * @return Unique object name
+ */
+inline QString
+makeUniqueObjectName(const QString& name, const QObject& parent)
+{
+    if (name.isEmpty()) return {};
+
+    auto const childs = parent.findChildren<const QObject*>(
+                            QString{}, Qt::FindDirectChildrenOnly);
+
+    return detail::makeUniqueObjectNameImpl(name, childs, [](const QObject* o){
+        return o->objectName();
+    });
+}
+
 } // namespace gt
+
+#endif // GT_QTUTILITIES_H

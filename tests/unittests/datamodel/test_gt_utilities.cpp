@@ -136,6 +136,27 @@ TEST_F(TestGtUtilities, container_const_cast)
     EXPECT_EQ(stdrefwrapper[0], const_stdrefwrapper[0]);
 }
 
+// see core/test_gt_coredatamodel for more tests
+TEST_F(TestGtUtilities, makeUnqiueObjectName)
+{
+    GtObject parent;
+    GtObject* child1 = new GtObject;
+    child1->setObjectName("Test");
+    parent.appendChild(child1);
+    GtObject* child2 = new GtObject;
+    child2->setObjectName("Test[3]");
+    parent.appendChild(child2);
+
+    auto newName = gt::makeUniqueObjectName("Test", parent);
+    EXPECT_EQ(newName.toStdString(), "Test[2]");
+
+    GtObject* child3 = new GtObject;
+    child3->setObjectName(newName);
+    parent.appendChild(child3);
+
+    EXPECT_EQ(gt::makeUniqueObjectName("Test", parent).toStdString(), "Test[4]");
+}
+
 TEST_F(TestGtUtilities, finally_member)
 {
     QMutex m;

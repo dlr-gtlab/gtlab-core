@@ -39,7 +39,7 @@ GtCoreDatamodel::flags(const QModelIndex& index) const
     // check index
     if (!index.isValid())
     {
-        return 0;
+        return {};
     }
 
     // collect default flags
@@ -1048,51 +1048,23 @@ GtCoreDatamodel::deleteFromModel(QList<GtObject*> objects)
 QString
 GtCoreDatamodel::uniqueObjectName(const QString& name, GtObject* parent)
 {
-    // check initial string
-    if (name.isEmpty())
-    {
-        return QString();
-    }
+    if (!parent) return {};
 
-    // check parent object
-    if (!parent)
-    {
-        return QString();
-    }
-
-    // collect child objects of parent
-    QList<GtObject*> childs = parent->findDirectChildren<GtObject*>();
-
-    // return unique object name
-    return getUniqueName(name, childs, [](const GtObject* o){
-        return o->objectName();
-    });
+    return gt::makeUniqueObjectName(name, *parent);
 }
 
 QString
 GtCoreDatamodel::uniqueObjectName(const QString& name,
                                   const QModelIndex& parent)
 {
-    // check initial string
-    if (name.isEmpty())
-    {
-        return QString();
-    }
-
     // check model index
-    if (!parent.isValid())
-    {
-        return QString();
-    }
+    if (!parent.isValid()) return {};
 
     // check model of index
-    if (parent.model() != this)
-    {
-        return QString();
-    }
+    if (parent.model() != this) return {};
 
     // return unique object name
-    return  uniqueObjectName(name, objectFromIndex(parent));
+    return uniqueObjectName(name, objectFromIndex(parent));
 }
 
 GtObject*
