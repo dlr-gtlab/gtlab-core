@@ -105,7 +105,7 @@ GtPropertyItem::data(int column, int role) const
             {
                 if (column == 0)
                 {
-                    return gt::gui::icon::chain16();
+                    return gt::gui::icon::chain();
                 }
             }
 

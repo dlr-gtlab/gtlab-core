@@ -27,7 +27,7 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
 {
     setWindowTitle(tr("Connections"));
 
-    setWindowIcon(gt::gui::icon::connection16());
+    setWindowIcon(gt::gui::icon::connection());
 
     QVBoxLayout* lay = new QVBoxLayout;
 

@@ -25,7 +25,7 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
     m_root(root)
 {
     setWindowTitle(tr("Choose Object"));
-    setWindowIcon(gt::gui::icon::property16());
+    setWindowIcon(gt::gui::icon::property());
 
     auto lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);

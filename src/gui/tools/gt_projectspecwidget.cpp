@@ -99,8 +99,8 @@ GtProjectSpecWidget::setProjectInformation(const QString& initName,
 bool
 GtProjectSpecWidget::updateStates()
 {
-    QPixmap check = gt::gui::icon::checkSmall16().pixmap(QSize(20, 20));
-    QPixmap cross = gt::gui::icon::cross16().pixmap(QSize(20, 20));
+    QPixmap check = gt::gui::icon::check().pixmap(QSize(20, 20));
+    QPixmap cross = gt::gui::icon::cross().pixmap(QSize(20, 20));
 
     bool retval = true;
 

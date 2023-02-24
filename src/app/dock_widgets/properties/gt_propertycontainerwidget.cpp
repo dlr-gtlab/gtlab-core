@@ -36,7 +36,7 @@ GtPropertyContainerWidget::GtPropertyContainerWidget(
 
     QPushButton* addBtn = new QPushButton(tr("Add new ") +
                                           container.entryPrefix());
-    addBtn->setIcon(gt::gui::icon::add16());
+    addBtn->setIcon(gt::gui::icon::add());
     addBtn->setToolTip(tr("Add New Entry"));
     addBtn->setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
 

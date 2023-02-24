@@ -8,7 +8,6 @@
 
 #include "gt_iconbrowser.h"
 
-#include "gt_grid.h"
 #include "gt_icons.h"
 
 #include <QKeyEvent>
@@ -162,7 +161,7 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(objectEmpty));
     grid->addWidget(MAKE_ICON(objectEngine));
     grid->addWidget(MAKE_ICON(objectInvalid));
-    grid->addWidget(MAKE_ICON(objectUnkown));
+    grid->addWidget(MAKE_ICON(objectUnknown));
     grid->addWidget(MAKE_ICON(objectTurbine));
     grid->addWidget(MAKE_ICON(open));
     grid->addWidget(MAKE_ICON(palette));

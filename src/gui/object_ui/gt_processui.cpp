@@ -21,7 +21,7 @@ GtProcessUI::GtProcessUI()
 QIcon
 GtProcessUI::icon(GtObject* /*obj*/) const
 {
-    return gt::gui::icon::process16();
+    return gt::gui::icon::process();
 }
 
 QStringList

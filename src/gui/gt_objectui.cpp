@@ -225,7 +225,7 @@ GtObjectUI::validatorRegExp()
 QIcon
 GtObjectUI::icon(GtObject* /*obj*/) const
 {
-    return gt::gui::icon::empty16();
+    return gt::gui::icon::objectEmpty();
 }
 
 QVariant
@@ -261,7 +261,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy())
                 {
-                    return gt::gui::icon::unknown();
+                    return gt::gui::icon::objectUnknown();
                 }
 
                 return icon(obj);
@@ -309,17 +309,17 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->isDummy() || obj->hasDummyChildren())
                 {
-                    return gt::gui::icon::unknown();
+                    return gt::gui::icon::objectUnknown();
                 }
 
                 if (obj->newlyCreated())
                 {
-                    return gt::gui::icon::add16();
+                    return gt::gui::icon::add();
                 }
 
                 if (obj->hasChanges())
                 {
-                    return gt::gui::icon::exclamation16();
+                    return gt::gui::icon::exclamationmark();
                 }
                 break;
             }

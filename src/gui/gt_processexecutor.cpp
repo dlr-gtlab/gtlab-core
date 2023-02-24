@@ -70,7 +70,7 @@ GtProcessExecutor::terminateCurrentTask()
     QMessageBox mb;
     mb.setIcon(QMessageBox::Question);
     mb.setWindowTitle(tr("Stop Running Task"));
-    mb.setWindowIcon(gt::gui::icon::stop16());
+    mb.setWindowIcon(gt::gui::icon::stop());
     mb.setText(tr("Stop the execution of") + " " +
                m_current->objectName() + "?\n\n" +
                tr("Note: The process cannot be aborted while a "

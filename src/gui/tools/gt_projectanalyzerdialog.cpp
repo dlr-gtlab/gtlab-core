@@ -28,7 +28,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
     m_tabWid(nullptr)
 {
     setWindowTitle(tr("Project Analyzer"));
-    setWindowIcon(gt::gui::icon::components16());
+    setWindowIcon(gt::gui::icon::projectOpen());
 
     QVBoxLayout* mLay = new QVBoxLayout;
 
@@ -43,7 +43,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             QHBoxLayout* ftrntInfoLay = new QHBoxLayout;
 
             QLabel* ftrntIcon = new QLabel;
-            ftrntIcon->setPixmap(gt::gui::icon::infoBlue().pixmap(32, 32));
+            ftrntIcon->setPixmap(gt::gui::icon::info2().pixmap(32, 32));
 
             QSpacerItem* spacer = new QSpacerItem(10, 20,
                                                   QSizePolicy::Expanding,
@@ -134,7 +134,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                 umListWid->addItem(lItem);
             });
 
-            tabWid->addTab(umListWid, gt::gui::icon::error16(),
+            tabWid->addTab(umListWid, gt::gui::icon::error(),
                            tr("Unknown Modules"));
         }
 
@@ -169,7 +169,7 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 
             tWid->setColumnWidth(0, 200);
 
-            tabWid->addTab(tWid, gt::gui::icon::error16(),
+            tabWid->addTab(tWid, gt::gui::icon::error(),
                            tr("Incompatible Modules"));
         }
 
@@ -181,13 +181,14 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
             QListWidget* ucListWid = new QListWidget;
             ucListWid->setFrameStyle(QFrame::NoFrame);
 
-            foreach (const QString& str, analyzer->unknownClasses())
+            for (const auto& str : analyzer->unknownClasses())
             {
-                auto lItem = new QListWidgetItem(gt::gui::icon::objectUnkown(), str);
+                auto lItem = new QListWidgetItem(gt::gui::icon::objectUnknown(),
+                                                 str);
                 ucListWid->addItem(lItem);
             }
 
-            tabWid->addTab(ucListWid, gt::gui::icon::error16(),
+            tabWid->addTab(ucListWid, gt::gui::icon::error(),
                            tr("Unknown Classes"));
         }
     }

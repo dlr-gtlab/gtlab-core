@@ -182,7 +182,7 @@ GtProcessConnectionItem::data(int column, int role)
                             return eData->icon;
                         }
 
-                        return gt::gui::icon::calculator16();
+                        return gt::gui::icon::calculator();
 
                     }
                     else
@@ -218,7 +218,7 @@ GtProcessConnectionItem::data(int column, int role)
                     {
                         if (itemType() == PROPERTY_CONTAINER)
                         {
-                            return gt::gui::icon::list16();
+                            return gt::gui::icon::list();
                         }
                         else if (itemType() == CONTAINER_ENTRY)
                         {

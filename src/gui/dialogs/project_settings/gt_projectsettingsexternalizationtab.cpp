@@ -38,7 +38,7 @@ GtProjectSettingsExternalizationTab::GtProjectSettingsExternalizationTab(
 
     QSize size{16, 16};
     auto* infoIcon = new QLabel();
-    infoIcon->setPixmap(gt::gui::icon::infoBlue16().pixmap(size));
+    infoIcon->setPixmap(gt::gui::icon::info2().pixmap(size));
     infoIcon->setFixedSize(size);
 
     infoLayout->addWidget(infoIcon);

@@ -1104,7 +1104,7 @@ GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
     actconfig->setIcon(gt::gui::icon::config());
 
     QAction* actconnect = menu.addAction(tr("Connection Editor"));
-    actconnect->setIcon(gt::gui::icon::connection16());
+    actconnect->setIcon(gt::gui::icon::connection());
 
     menu.addSeparator();
 
@@ -1323,19 +1323,19 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
     bool hasInvalidParents = obj->hasDummyParents();
 
     QMenu menu(this);
-    QAction* actconfig = menu.addAction("Config...");
+    QAction* actconfig = menu.addAction(tr("Config..."));
     actconfig->setIcon(gt::gui::icon::config());
 
     QAction* actconnect = menu.addAction(tr("Connection Editor"));
-    actconnect->setIcon(gt::gui::icon::connection16());
+    actconnect->setIcon(gt::gui::icon::connection());
 
     menu.addSeparator();
 
-    QAction* actskip = menu.addAction("Skip");
+    QAction* actskip = menu.addAction(tr("Skip"));
     actskip->setIcon(gt::gui::icon::skip());
     actskip->setShortcut(getShortCut("skipProcess"));
 
-    QAction* actunskip = menu.addAction("Unskip");
+    QAction* actunskip = menu.addAction(tr("Unskip"));
     actunskip->setIcon(gt::gui::icon::unskip());
     actunskip->setShortcut(getShortCut("unskipProcess"));
 
@@ -1348,7 +1348,7 @@ GtProcessDock::calculatorContextMenu(GtCalculator* obj,
         actskip->setVisible(false);
     }
 
-    QAction* actrename = menu.addAction("Rename");
+    QAction* actrename = menu.addAction(tr("Rename"));
     actrename->setIcon(gt::gui::icon::rename());
     actrename->setShortcut(gtApp->getShortCutSequence("rename"));
 

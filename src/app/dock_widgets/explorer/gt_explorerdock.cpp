@@ -347,11 +347,6 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
         actionDelete->setVisible(false);
     }
 
-    //QAction* actionDetails =
-    //        menu.addAction(gt::gui::icon::info16(),
-    //                       tr("Details"));
-    //
-    //actionDetails->setEnabled(false);
     bool anyVisible = false;
 
     foreach (QAction* a, menu.actions())

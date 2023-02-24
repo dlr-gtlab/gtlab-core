@@ -44,7 +44,7 @@ GtProcessImporter::targets() const
 QIcon
 GtProcessImporter::icon() const
 {
-    return gt::gui::icon::import16();
+    return gt::gui::icon::import();
 }
 
 bool

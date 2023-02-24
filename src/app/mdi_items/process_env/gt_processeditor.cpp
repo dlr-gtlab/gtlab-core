@@ -52,7 +52,7 @@ GtProcessEditor::GtProcessEditor()
 
     // legend button
     m_showLegendButton = new QPushButton;
-    m_showLegendButton->setIcon(gt::gui::icon::infoBlue16());
+    m_showLegendButton->setIcon(gt::gui::icon::info2());
     m_showLegendButton->setMaximumSize(QSize(20, 20));
     m_showLegendButton->setFlat(true);
     m_showLegendButton->setCheckable(true);
@@ -81,7 +81,7 @@ GtProcessEditor::GtProcessEditor()
 
     // temporary preview mode button
     QPushButton* previewButton = new QPushButton;
-    previewButton->setIcon(gt::gui::icon::results16());
+    previewButton->setIcon(gt::gui::icon::results());
     previewButton->setMaximumSize(QSize(20, 20));
     previewButton->setFlat(true);
     previewButton->setToolTip(tr("Preview Mode"));

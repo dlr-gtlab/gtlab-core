@@ -79,19 +79,19 @@ GtTemplateViewer::GtTemplateViewer() :
 
     QPushButton* buttonAdd = new QPushButton(tr("Add"));
     buttonAdd->setToolTip("Adds a plot to current template.");
-    buttonAdd->setIcon(gt::gui::icon::add16());
+    buttonAdd->setIcon(gt::gui::icon::add());
     buttonAdd->setMaximumWidth(60);
     buttonAdd->setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
 
     QPushButton* buttonPDF = new QPushButton(tr("To PDF"));
     buttonPDF->setToolTip("Prints template to PDF.");
-    buttonPDF->setIcon(gt::gui::icon::printPDF());
+    buttonPDF->setIcon(gt::gui::icon::pdf());
     buttonPDF->setMaximumWidth(60);
     buttonPDF->setStyleSheet(buttonAdd->styleSheet());
 
     QPushButton* buttonPrint = new QPushButton(tr("Print..."));
     buttonPrint->setToolTip("Prints template.");
-    buttonPrint->setIcon(gt::gui::icon::printer());
+    buttonPrint->setIcon(gt::gui::icon::print());
     buttonPrint->setMaximumWidth(60);
     buttonPrint->setStyleSheet(buttonAdd->styleSheet());
 
@@ -554,15 +554,15 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
 {
     if (str == "GtppBarProvider")
     {
-        actPlot->setIcon(gt::gui::icon::histogram16());
+        actPlot->setIcon(gt::gui::icon::histogram());
     }
     else if (str == "GtppXyProvider")
     {
-        actPlot->setIcon(gt::gui::icon::xyPlot16());
+        actPlot->setIcon(gt::gui::icon::chartXY());
     }
     else if (str == "GtpXyProvider")
     {
-        actPlot->setIcon(gt::gui::icon::xyPlot16());
+        actPlot->setIcon(gt::gui::icon::chartXY());
     }
     else if (str == "GtpMapProvider")
     {
@@ -582,7 +582,7 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
     }
     else
     {
-        actPlot->setIcon(gt::gui::icon::post());
+        actPlot->setIcon(gt::gui::icon::chartLine());
     }
 }
 

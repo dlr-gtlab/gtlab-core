@@ -31,7 +31,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     m_connectionMetaData(connection)
 {
     setWindowTitle(tr("Add Access Data"));
-    setWindowIcon(gt::gui::icon::login16());
+    setWindowIcon(gt::gui::icon::login());
     setMaximumSize(QSize(350, 300));
 
     QVBoxLayout* lay = new QVBoxLayout;
@@ -96,7 +96,7 @@ GtAccessDataDialog::GtAccessDataDialog(GtAccessData& data,
     btnLay->setContentsMargins(9, 9, 9, 9);
 
     m_testConnectionBtn = new QPushButton(tr("Test Connection"));
-    m_testConnectionBtn->setIcon(gt::gui::icon::connection16());
+    m_testConnectionBtn->setIcon(gt::gui::icon::connection());
 
     btnLay->addWidget(m_testConnectionBtn);
 

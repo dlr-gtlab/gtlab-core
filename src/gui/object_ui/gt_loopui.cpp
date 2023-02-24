@@ -23,7 +23,7 @@ GtLoopUI::GtLoopUI()
 QIcon
 GtLoopUI::icon(GtObject* /*obj*/) const
 {
-    return gt::gui::icon::loop2_16();
+    return gt::gui::icon::loop();
 }
 
 QVariant
