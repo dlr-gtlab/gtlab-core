@@ -27,7 +27,7 @@ GtExportMenu::GtExportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
     m_obj(obj)
 {
     setTitle(tr("Export"));
-    setIcon(gt::gui::icon::export16());
+    setIcon(gt::gui::icon::export_());
 
     connect(m_signalMapper, SIGNAL(mapped(QObject*)),
             SLOT(onActionTrigger(QObject*)));

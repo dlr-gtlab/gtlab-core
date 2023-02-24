@@ -29,7 +29,7 @@ GtImportMenu::GtImportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
     m_obj(obj)
 {
     setTitle(tr("Import"));
-    setIcon(gt::gui::icon::import16());
+    setIcon(gt::gui::icon::import());
 
     connect(m_signalMapper, SIGNAL(mapped(QObject*)),
             SLOT(onActionTrigger(QObject*)));

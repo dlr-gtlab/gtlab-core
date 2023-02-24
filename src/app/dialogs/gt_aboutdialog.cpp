@@ -166,7 +166,7 @@ GtAboutDialog::coreAbout() const
     auto* btnLayout = new QHBoxLayout;
 
     auto exportFootprintBtn = new QPushButton(tr("Export Framework Footprint"));
-    exportFootprintBtn->setIcon(gt::gui::icon::export16());
+    exportFootprintBtn->setIcon(gt::gui::icon::export_());
     exportFootprintBtn->setFocusPolicy(Qt::NoFocus);
     btnLayout->addWidget(iconLabel);
     btnLayout->addStretch();
@@ -205,7 +205,7 @@ GtAboutDialog::modulesWidget()
         info << id;
         info << gtApp->moduleVersion(id).toString();
         auto* item = new QTreeWidgetItem(info);
-        item->setIcon(0, gt::gui::icon::plugin16());
+        item->setIcon(0, gt::gui::icon::plugin());
         item->setToolTip(0, gtApp->moduleDescription(id));
         m_modulesTree->addTopLevelItem(item);
     }
@@ -213,7 +213,7 @@ GtAboutDialog::modulesWidget()
     auto* btnLayout = new QHBoxLayout;
 
     m_detailsButton = new QPushButton(tr("Details"));
-    m_detailsButton->setIcon(gt::gui::icon::info16());
+    m_detailsButton->setIcon(gt::gui::icon::info2());
     m_detailsButton->setDisabled(true);
 
     connect(m_detailsButton, SIGNAL(clicked()),

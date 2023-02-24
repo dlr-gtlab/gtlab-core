@@ -106,7 +106,7 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
                         return eData->icon;
                     }
 
-                    return gt::gui::icon::calculator16();
+                    return gt::gui::icon::calculator();
 
                 }
 

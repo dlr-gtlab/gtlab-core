@@ -75,12 +75,13 @@ GtCollectionEditor::GtCollectionEditor() :
 
     m_collectionWidget = new QWidget;
 
-    m_tabWidget->addTab(m_collectionWidget, gt::gui::icon::dropdown(),
+    m_tabWidget->addTab(m_collectionWidget, gt::gui::icon::download(),
                         tr("Collection"));
 
     m_browserWidget = new QWidget;
 
-    m_tabWidget->addTab(m_browserWidget, gt::gui::icon::zoom16(), tr("Browse"));
+    m_tabWidget->addTab(m_browserWidget, gt::gui::icon::zoomPlus(),
+                        tr("Browse"));
 
     frameLay->addWidget(m_tabWidget);
 

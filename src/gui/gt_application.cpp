@@ -450,7 +450,7 @@ GtApplication::switchSession(const QString& id)
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
         mb.setWindowTitle(tr("Switch Session"));
-        mb.setWindowIcon(gt::gui::icon::session16());
+        mb.setWindowIcon(gt::gui::icon::session());
         mb.setText(tr("Cannot switch session while a task is running."));
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);

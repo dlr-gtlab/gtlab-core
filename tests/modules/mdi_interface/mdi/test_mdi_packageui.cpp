@@ -19,10 +19,10 @@ TestMdiPackageUI::TestMdiPackageUI()
 {
     addSingleAction("Test Action", "testAction")
         .registerShortCut("testMdiShortCut", QKeySequence{"Alt+R"})
-        .setIcon(gt::gui::icon::config16());
+        .setIcon(gt::gui::icon::config());
 
     addActionGroup("Test Action Group", 3)
-        .setIcon(gt::gui::icon::folder16())
+        .setIcon(gt::gui::icon::folder())
         << makeSingleAction("Test Group Action 1", "testGroupAction")
         << makeSingleAction("Test Group Action 2",
                             [](GtObject* /*obj*/){

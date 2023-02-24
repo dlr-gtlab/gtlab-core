@@ -17,7 +17,7 @@ GtSaveProjectMessageBox::GtSaveProjectMessageBox(const QString& text,
 {
     setIcon(QMessageBox::Question);
     setWindowTitle(tr("Save Project"));
-    setWindowIcon(gt::gui::icon::saveProject16());
+    setWindowIcon(gt::gui::icon::save());
 
     if (text.isEmpty())
     {

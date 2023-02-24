@@ -331,7 +331,7 @@ GtProcessWizard::executionSettings()
 
     GtDialog dialog;
     dialog.setWindowTitle(tr("Execution Settings"));
-    dialog.setWindowIcon(gt::gui::icon::config16());
+    dialog.setWindowIcon(gt::gui::icon::config());
 
     GtPropertyTreeView view(m_scope);
     view.setFrameStyle(GtPropertyTreeView::NoFrame);

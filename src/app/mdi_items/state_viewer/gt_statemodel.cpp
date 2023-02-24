@@ -70,18 +70,18 @@ GtStateModel::data(const QModelIndex& index, int role) const
                             return gt::gui::icon::global();
                         }
 
-                        return gt::gui::icon::folder16();
+                        return gt::gui::icon::folder();
                     }
 
-                    return gt::gui::icon::components16();
+                    return gt::gui::icon::projectOpen();
                 }
                 else if (qobject_cast<GtStateGroup*>(item))
                 {
-                    return gt::gui::icon::folder16();
+                    return gt::gui::icon::folder();
                 }
                 else if (qobject_cast<GtState*>(item))
                 {
-                    return gt::gui::icon::emptyElement();
+                    return gt::gui::icon::objectEmpty();
                 }
 
                 break;

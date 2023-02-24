@@ -134,7 +134,7 @@ GtCalculatorOverviewModel::icon(GtAbstractProcessItem* item) const
 
     if (!extendedData || extendedData->icon.isNull())
     {
-         return gt::gui::icon::calculator16();
+         return gt::gui::icon::calculator();
     }
 
     return extendedData->icon;

@@ -9,9 +9,8 @@
 
 #include <QIcon>
 
-#include "gt_task.h"
-#include "gt_calculator.h"
 #include "gt_logging.h"
+#include "gt_processcomponent.h"
 #include "gt_objectmemento.h"
 #include "gt_calculatorfactory.h"
 #include "gt_taskfactory.h"
@@ -48,7 +47,7 @@ GtProcessExporter::targets() const
 QIcon
 GtProcessExporter::icon() const
 {
-    return gt::gui::icon::export16();
+    return gt::gui::icon::export_();
 }
 
 bool

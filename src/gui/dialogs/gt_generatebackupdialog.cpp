@@ -21,7 +21,7 @@ GtGenerateBackUpDialog::GtGenerateBackUpDialog(QWidget* parent) :
     GtDialog(parent)
 {
     setWindowTitle(tr("Generate Backup"));
-    setWindowIcon(gt::gui::icon::data16());
+    setWindowIcon(gt::gui::icon::data());
 
     auto* layout = new QVBoxLayout;
     setLayout(layout);

@@ -9,7 +9,6 @@
 
 #include <QIcon>
 
-#include "gt_application.h"
 #include "gt_icons.h"
 #include "gt_colors.h"
 
@@ -77,7 +76,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return gt::gui::icon::update16();
+                return gt::gui::icon::update();
             }
 
             if (role == Qt::BackgroundRole)
@@ -113,7 +112,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return gt::gui::icon::collection16();
+                return gt::gui::icon::server();
             }
 
             if (role == Qt::BackgroundRole)
@@ -156,12 +155,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return gt::gui::icon::plugin16();
+                    return gt::gui::icon::plugin();
                 }
 
                 if (col == 1)
                 {
-                    return gt::gui::icon::infoBlue16();
+                    return gt::gui::icon::info2();
                 }
             }
             else if (role == Qt::CheckStateRole && col == 0)
@@ -209,12 +208,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return gt::gui::icon::plugin16();
+                    return gt::gui::icon::plugin();
                 }
 
                 if (col == 1)
                 {
-                    return gt::gui::icon::infoBlue16();
+                    return gt::gui::icon::info2();
                 }
             }
             else if (role == Qt::CheckStateRole && col == 0)
@@ -268,12 +267,12 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             {
                 if (col == 0)
                 {
-                    return gt::gui::icon::plugin16();
+                    return gt::gui::icon::plugin();
                 }
 
                 if (col == 1)
                 {
-                    return gt::gui::icon::infoBlue16();
+                    return gt::gui::icon::info2();
                 }
             }
             else if (role == Qt::ForegroundRole)

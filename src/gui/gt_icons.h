@@ -219,7 +219,7 @@ GT_GUI_EXPORT QIcon examples();
 GT_GUI_EXPORT QIcon examples16();
 
 GT_GUI_EXPORT QIcon exclamationmark();
-[[deprecated("Use exclamation instead")]]
+[[deprecated("Use exclamationmark instead")]]
 GT_GUI_EXPORT QIcon exclamation16();
 
 GT_GUI_EXPORT QIcon export_();
@@ -372,9 +372,12 @@ GT_GUI_EXPORT QIcon objectCombustor();
 GT_GUI_EXPORT QIcon objectEmpty();
 GT_GUI_EXPORT QIcon objectEngine();
 GT_GUI_EXPORT QIcon objectInvalid();
-GT_GUI_EXPORT QIcon objectUnkown();
+GT_GUI_EXPORT QIcon objectUnknown();
 GT_GUI_EXPORT QIcon objectTurbine();
 GT_GUI_EXPORT QIcon objectCompressor();
+
+[[deprecated("Use objectUnknown instead")]]
+GT_GUI_EXPORT QIcon objectUnkown();
 
 GT_GUI_EXPORT QIcon open();
 [[deprecated("Use open instead")]]
@@ -614,7 +617,7 @@ GT_GUI_EXPORT QIcon pathSettings();
 [[deprecated("Use layers instead")]]
 GT_GUI_EXPORT QIcon frame();
 
-[[deprecated("Use objectUnkown instead")]]
+[[deprecated("Use objectUnknown instead")]]
 GT_GUI_EXPORT QIcon unknown();
 
 [[deprecated("Use close instead")]]
