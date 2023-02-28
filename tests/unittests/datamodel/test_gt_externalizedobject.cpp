@@ -129,7 +129,7 @@ TEST_F(TestGtExternalizedObject, externalize)
         EXPECT_FALSE(isDataExternalized());
     }
 
-    // data is no longer acessed -> data shoudl be cleared again
+    // data is no longer acessed -> data should be cleared again
     EXPECT_EQ(obj->refCount(), 0);
     EXPECT_FALSE(obj->isFetched());
     EXPECT_TRUE(isDataExternalized());
@@ -156,7 +156,12 @@ TEST_F(TestGtExternalizedObject, internalize)
     // explcitly intrnalize data
     EXPECT_TRUE(obj->internalize());
 
-    { // fetch data
+    // oject should not be fetched
+    EXPECT_FALSE(isDataExternalized());
+    EXPECT_TRUE(obj->isFetched());
+    EXPECT_EQ(obj->refCount(), 0);
+
+    { // fetch data should not change anything
         auto data = obj->fetchData();
     }
 
@@ -308,83 +313,71 @@ TEST_F(TestGtExternalizedObject, fetchIntialVersion)
     EXPECT_FALSE(obj->fetchInitialVersion());
 }
 
-/// Once externalized object was modified and externalized it will no longer
-/// fetch its initial version.
-/// When undoing the modification the initial version should be fetched again.
-///
-/// Also changing only a single property of a compound object would would mess
-/// up the diffing process as described in issue 251
-TEST_F(TestGtExternalizedObject, issue_251)
+/// object was fetched when creating m1 and m2.
+/// When saving object was externalized.
+/// Reverting should internalie object and apply m1 correctly
+TEST_F(TestGtExternalizedObject, revert_and_apply_after_externalizing)
 {
-    /* ADDITIONAL SETUP */
-    // simulate obj beeing loaded with its intial data on disk
+    // setup object
     {
         auto data = obj->fetchData();
-        data.setInitialValues(m_values);
-        data.setInitialParams(m_params);
-        ASSERT_TRUE(data.isValid());
+        data.setParams({"p1"});
+        data.setValues({1});
     }
 
-    ASSERT_TRUE(obj->externalize());
-    obj->setFetchInitialVersion(true);
-
-    /* ACTUAL TEST */
-
-    // memento before change
-    auto memA = obj->toMemento();
-
-    { // access and modify only values
-        auto data = obj->fetchData();
-        data.setValues(gtTestHelper->linearDataVector<double>(m_length / 2, 1.0, 2.0));
-        ASSERT_TRUE(data.isValid());
-    }
-
-    // object should be fetched
-    ASSERT_FALSE(isDataExternalized());
     ASSERT_TRUE(obj->isFetched());
+    auto m1 = obj->toMemento();
 
-    // memento after change
-    auto memB = obj->toMemento();
-    // simulates a save
-    ASSERT_TRUE(obj->externalize());
-
-    // data was externalized
-    EXPECT_TRUE(isDataExternalized());
-    EXPECT_FALSE(obj->isFetched());
-
-    { // double check that values and params were externalized properly
+    {
         auto data = obj->fetchData();
-        EXPECT_NE(obj->internalValues(), m_values);
-        EXPECT_EQ(obj->internalParams(), m_params);
+        data.setParams({"p1", "p2"});
+        data.setValues({1, 2});
     }
 
-    gtDebug() << "HERE 1" << obj->internalValues();
-    gtDebug() << "HERE 2" << obj->internalParams();
+    ASSERT_TRUE(obj->isFetched());
+    auto m2 = obj->toMemento();
 
-    // data was externalized
-    EXPECT_EQ(obj->refCount(), 0);
-    EXPECT_TRUE(isDataExternalized());
+    // externalize
+    ASSERT_TRUE(obj->externalize());
     EXPECT_FALSE(obj->isFetched());
-    // data should no longer fetch its initial version
-    EXPECT_FALSE(obj->fetchInitialVersion());
 
-    // revert changes
-    GtObjectMementoDiff diff{memA, memB};
-    ASSERT_FALSE(diff.isNull());
-    EXPECT_TRUE(obj->revertDiff(diff));
+    GtObjectMementoDiff diff{m1, m2};
 
-    gtDebug() << diff.toByteArray();
+    /*
+     * Create diff
+     */
+    ASSERT_TRUE(obj->revertDiff(diff));
 
-    // once the diff was applied the object should have fetched its
-    // initial version
-//    EXPECT_EQ(obj->refCount(), 0);
-//    EXPECT_TRUE(obj->isFetched());
-//    EXPECT_EQ(obj->internalValues(), m_values);
-//    EXPECT_EQ(obj->internalParams(), m_params);
+    // obj should be fetched
+    EXPECT_TRUE(obj->isFetched());
 
-    { // double check that values and params were externalized properly
+    // data should be reverted correctly
+    {
         auto data = obj->fetchData();
-        EXPECT_EQ(obj->internalValues(), m_values);
-        EXPECT_EQ(obj->internalParams(), m_params);
+        EXPECT_EQ(data.params(), QStringList{"p1"});
+        EXPECT_EQ(data.values(), QVector<double>{1});
+    }
+
+    /*
+     * Apply diff
+     */
+
+    // externalize one again
+    ASSERT_TRUE(obj->externalize());
+    EXPECT_FALSE(obj->isFetched());
+
+    ASSERT_TRUE(obj->applyDiff(diff));
+    // obj should be fetched
+    EXPECT_TRUE(obj->isFetched());
+
+    // data should be reverted correctly
+    {
+        auto data = obj->fetchData();
+        EXPECT_EQ(data.params(), (QStringList{"p1", "p2"}));
+        EXPECT_EQ(data.values(), (QVector<double>{1, 2}));
     }
 }
+
+
+
+

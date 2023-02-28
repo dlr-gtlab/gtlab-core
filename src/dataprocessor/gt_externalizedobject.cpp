@@ -159,7 +159,7 @@ GtExternalizedObject::calcExtHash()
     pimpl->pMetaData.revert();
     pimpl->states = {};
 
-    gtDebug() << toMemento().toByteArray();
+//    gtDebug() << toMemento().toByteArray();
 
     // calc object hash
     return calcHash();
