@@ -26,7 +26,8 @@ protected:
         m_obj = new TestExternalizedObject();
 
         m_data = gtTestHelper->linearDataVector<double>(m_length, 0.0, 2.0);
-        m_obj->fetchData().setValues(m_data);
+        auto data = m_obj->fetchData();
+        data.setValues(m_data);
 
         ASSERT_TRUE(m_obj->externalize());
     }

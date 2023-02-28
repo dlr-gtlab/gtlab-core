@@ -10,6 +10,8 @@
 
 #include "gt_externalizationmanager.h"
 
+#include "gt_logging.h"
+
 #include <QDir>
 #include <QDebug>
 
@@ -27,7 +29,7 @@ TestExternalizedObjectData::values() const
 }
 
 void
-TestExternalizedObjectData::setValues(const QVector<double>  &values)
+TestExternalizedObjectData::setValues(const QVector<double>  &values) &
 {
     assert(m_base);
     base()->m_values = values;
@@ -41,14 +43,14 @@ TestExternalizedObjectData::params() const
 }
 
 void
-TestExternalizedObjectData::setParams(const QStringList& params)
+TestExternalizedObjectData::setParams(const QStringList& params) &
 {
     assert(m_base);
     base()->m_params = params;
 }
 
 void
-TestExternalizedObjectData::setInitialValues(const QVector<double>& values)
+TestExternalizedObjectData::setInitialValues(const QVector<double>& values) &
 {
     assert(m_base);
     base()->m_values = values;
@@ -57,7 +59,7 @@ TestExternalizedObjectData::setInitialValues(const QVector<double>& values)
 
 
 void
-TestExternalizedObjectData::setInitialParams(const QStringList& params)
+TestExternalizedObjectData::setInitialParams(const QStringList& params) &
 {
     assert(m_base);
     base()->m_params = params;
@@ -65,7 +67,7 @@ TestExternalizedObjectData::setInitialParams(const QStringList& params)
 }
 
 void
-TestExternalizedObjectData::clearValues()
+TestExternalizedObjectData::clearValues() &
 {
     assert(m_base);
     base()->m_values.clear();

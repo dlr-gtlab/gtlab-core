@@ -351,7 +351,19 @@ applyDiffOnObject(QDomElement& parent, GtObject* parentObject, DiffMode mode)
     const auto& diffFuncs = getDiffFuncs();
 
     QDomElement diffTag = parent.firstChildElement();
-    while (!diffTag.isNull())
+
+    if (diffTag.isNull())
+    {
+        return okay;
+    }
+
+    // object must be fetched when applying/reverting diff
+    if (auto* ext = qobject_cast<GtExternalizedObject*>(parentObject))
+    {
+        ext->internalize();
+    }
+
+    do
     {
         auto iter = diffFuncs.find(diffTag.tagName());
 
@@ -363,6 +375,7 @@ applyDiffOnObject(QDomElement& parent, GtObject* parentObject, DiffMode mode)
 
         diffTag = diffTag.nextSiblingElement();
     }
+    while (!diffTag.isNull());
 
     return okay;
 }
@@ -1352,21 +1365,6 @@ handlePropertyNodeChange(GtObject& target,
     }
 
     GtAbstractProperty* prop = target.findProperty(propName);
-
-//    // target may be itself an externalized object or child of one
-//    // -> make sure to fetch the data before diffing (see issue #251)
-//    if (auto* extObj = qobject_cast<GtExternalizedObject*>(&target))
-//    {
-//        gtDebug() << __FUNCTION__ << extObj->objectName() << extObj->metaObject()->className() << propName << change.text();
-//        extObj->internalize();
-//        if (propName == "isFecthed") return true;
-//    }
-//    else if (auto* extParent = target.findParent<GtExternalizedObject*>())
-//    {
-//        gtDebug() << __FUNCTION__ << "(PARENT)" << extParent->objectName() << extParent->metaObject()->className() << propName << change.text();
-//        extParent->internalize();
-//        if (propName == "isFecthed") return true;
-//    }
 
     // ------------------------------------------------------- //
 

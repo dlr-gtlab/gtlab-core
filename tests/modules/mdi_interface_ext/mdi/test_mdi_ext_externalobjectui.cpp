@@ -11,11 +11,14 @@
 #include "test_dmi_externalobject.h"
 
 #include "gt_icons.h"
+#include "gt_logging.h"
 #include "gt_utilities.h"
 #include "gt_datamodel.h"
 #include "gt_application.h"
 #include "gt_command.h"
 #include "gt_objectfactory.h"
+
+#include <cmath>
 
 TestMdiExtExternalObjectUI::TestMdiExtExternalObjectUI()
 {
@@ -104,32 +107,28 @@ TestMdiExtExternalObjectUI::addData(GtObject* obj)
     auto* extObj = qobject_cast<TestDmiExternalObject*>(obj);
     if (!extObj) return;
 
+    auto data = extObj->fetchData();
+
     auto cmd = gtApp->startCommand(extObj->parentObject(), "Test::addData");
     auto finally = gt::finally([&](){
         gtApp->endCommand(cmd);
     });
 
+    auto params = data.params();
+    auto values = data.values();
+
+    // add single entry
+    params.append(QStringLiteral("param_") + QString::number(params.size()));
+    double size = values.size();
+    double value = size;
+    for (int i = 0; i < 3; ++i)
     {
-        auto data = extObj->fetchData();
-        auto params = data.params();
-        auto values = data.values();
-
-        // add single entry
-        params.append(QStringLiteral("param_") + QString::number(params.size()));
-        double size = values.size();
-        double value = size;
-        for (int i = 0; i < 3; ++i)
-        {
-            value += (size + i + 1) * std::pow(0.1, i + 1);
-        }
-        values.append(value);
-
-        gtDebug() << "NEW VALUES" << values;
-        gtDebug() << "NEW PARAMS" << params;
-
-        data.setValues(std::move(values));
-        data.setParams(std::move(params));
+        value += (size + i + 1) * std::pow(0.1, i + 1);
     }
+    values.append(value);
+
+    data.setValues(std::move(values));
+    data.setParams(std::move(params));
 }
 
 QStringList

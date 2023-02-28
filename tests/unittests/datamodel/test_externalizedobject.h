@@ -27,17 +27,17 @@ public:
 
     const QVector<double>& values() const;
 
-    void setValues(const QVector<double>& values);
+    void setValues(const QVector<double>& values) &;
 
     const QStringList& params() const;
 
-    void setParams(const QStringList& params);
+    void setParams(const QStringList& params) &;
 
-    void setInitialValues(const QVector<double>& values);
+    void setInitialValues(const QVector<double>& values) &;
 
-    void setInitialParams(const QStringList& params);
+    void setInitialParams(const QStringList& params) &;
 
-    void clearValues();
+    void clearValues() &;
 };
 
 

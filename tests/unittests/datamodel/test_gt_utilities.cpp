@@ -13,7 +13,6 @@
 
 #include "gtest/gtest.h"
 
-
 #include "gt_object.h"
 #include "gt_utilities.h"
 #include "gt_qtutilities.h"

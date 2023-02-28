@@ -108,8 +108,6 @@ GtH5ExternalizeHelper::write(const Data& data,
         return false;
     }
 
-    gtDebug() << "WRITING DATA" << data.raw().toStdVector();
-
     // open the associated dataset
     auto dset = overwriteDataSet(data.dataType(), data.dataSpace(), refVariant);
 
