@@ -131,8 +131,13 @@ GtModuleDetailsDialog::changeLogWidget()
 QWidget*
 GtModuleDetailsDialog::readMeWidget()
 {
-    std::tuple<QString,GtTextEdit::contentType> t =
-            loadInfoFile("README.*");
+    return fileContentWidget("README.*");
+}
+
+QWidget*
+GtModuleDetailsDialog::fileContentWidget(const QString& fileName)
+{
+    std::tuple<QString,GtTextEdit::contentType> t = loadInfoFile(fileName);
 
     GtTextEdit::contentType type = std::get<1>(t);
     if (type == GtTextEdit::NONE)
@@ -143,18 +148,26 @@ GtModuleDetailsDialog::readMeWidget()
 
     QString shortTxt = std::get<0>(t);
 
-    int cut = shortTxt.indexOf(QRegExp("\\n"), 250) + 1;
-
-    shortTxt.truncate(cut);
+    int cutting = 250;
 
     if (shortTxt.isEmpty())
     {
-        shortTxt = QStringLiteral("No read me could be found");
+        shortTxt = QStringLiteral("No content for '%1' could "
+                                  "be found").arg(fileName);
     }
-
-    if (std::get<0>(t).size() > cut)
+    else if (shortTxt >= cutting)
     {
-        shortTxt.append("\n...");
+        int cut = shortTxt.indexOf(QRegExp("\\n"), cutting) + 1;
+
+        if (cut > -1)
+        {
+            shortTxt.truncate(cut);
+
+            if (std::get<0>(t).size() > cut)
+            {
+                shortTxt.append("\n...");
+            }
+        }
     }
 
     auto* w = new QWidget;
