@@ -47,4 +47,7 @@ private:
 
 };
 
+GT_DATAMODEL_EXPORT QString
+buildDialogFileFilter(const QStringList& filterList);
+
 #endif // GTFILECHOOSERPROPERTY_H

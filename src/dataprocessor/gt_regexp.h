@@ -106,6 +106,14 @@ QRegExp GT_DATAMODEL_EXPORT forDoublesLists();
  */
 QRegExp GT_DATAMODEL_EXPORT forSemVers();
 
+/**
+ * @brief Matches file filter strings, e.g.
+ *
+ * "Python (python* python3)"
+ * "Textfiles (*.txt)"
+ */
+QRegExp GT_DATAMODEL_EXPORT forDialogFileFilters();
+
 } // namespace re
 
 } // namespace gt

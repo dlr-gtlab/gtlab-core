@@ -9,6 +9,8 @@
 
 #include "gt_filechooserproperty.h"
 
+#include "gt_regexp.h"
+
 GtFileChooserProperty::GtFileChooserProperty(const QString& id,
                                              const QString& name,
                                              const QString& brief,
@@ -23,4 +25,43 @@ const QStringList&
 GtFileChooserProperty::filter()
 {
     return m_filter;
+}
+
+QString buildDialogFileFilter(const QStringList &filterList)
+{
+
+    if (filterList.empty())
+    {
+        return "";
+    }
+
+    auto re = gt::re::forDialogFileFilters();
+    auto isQtFilter = [&re](const QString& filter)
+    {
+        return re.indexIn(filter) >= 0;
+    };
+
+    QString result;
+
+    for (int i = 0; i < filterList.size()-1; ++i)
+    {
+        auto filter = filterList[i];
+        auto&& nextFilter = filterList[i+1];
+
+        QString delimiter = ";;";
+        if (!isQtFilter(filter))
+        {
+            if (!isQtFilter(nextFilter)) delimiter = "; ";
+            filter = "*" + filter;
+        }
+
+        result += filter + delimiter;
+    }
+
+    QString lastFilter = filterList.last();
+    if (!isQtFilter(lastFilter)) lastFilter = "*" + lastFilter;
+
+    result += lastFilter;
+
+    return result;
 }
