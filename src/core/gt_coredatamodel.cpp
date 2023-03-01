@@ -1050,7 +1050,7 @@ GtCoreDatamodel::uniqueObjectName(const QString& name, GtObject* parent)
 {
     if (!parent) return {};
 
-    return gt::makeUniqueObjectName(name, *parent);
+    return gt::makeUniqueName(name, *parent);
 }
 
 QString

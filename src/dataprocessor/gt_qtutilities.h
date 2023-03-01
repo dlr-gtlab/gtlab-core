@@ -120,7 +120,7 @@ namespace detail
 
 template<typename ObjectList, typename GetNameFunc>
 inline QString
-makeUniqueObjectNameImpl(const QString& name,
+makeUniqueNameImpl(const QString& name,
                          const ObjectList& objs,
                          const GetNameFunc& getName,
                          QString initName = {},
@@ -140,7 +140,7 @@ makeUniqueObjectNameImpl(const QString& name,
                       QString::number(iteration) +
                       QStringLiteral("]");
 
-    return makeUniqueObjectNameImpl(
+    return makeUniqueNameImpl(
                 newName, objs, getName, std::move(initName), iteration + 1);
 }
 
@@ -156,13 +156,13 @@ makeUniqueObjectNameImpl(const QString& name,
  */
 template<typename ObjectList, typename GetNameFunc>
 inline QString
-makeUniqueObjectName(const QString& name,
+makeUniqueName(const QString& name,
                      const ObjectList& objs,
                      const GetNameFunc& getName)
 {
     if (name.isEmpty()) return {};
 
-    return detail::makeUniqueObjectNameImpl(name, objs, getName);
+    return detail::makeUniqueNameImpl(name, objs, getName);
 }
 
 /**
@@ -176,11 +176,11 @@ template<typename StringList,
          typename T = trait::value_t<StringList>,
          trait::enable_if_convertible<T, QString> = true>
 inline QString
-makeUniqueObjectName(const QString& name, const StringList& names)
+makeUniqueName(const QString& name, const StringList& names)
 {
     if (name.isEmpty()) return {};
 
-    return detail::makeUniqueObjectNameImpl(
+    return detail::makeUniqueNameImpl(
                 name, names, [](const auto& listItem) -> QString {
         return listItem;
     });
@@ -195,14 +195,14 @@ makeUniqueObjectName(const QString& name, const StringList& names)
  * @return Unique object name
  */
 inline QString
-makeUniqueObjectName(const QString& name, const QObject& parent)
+makeUniqueName(const QString& name, const QObject& parent)
 {
     if (name.isEmpty()) return {};
 
     auto const childs = parent.findChildren<const QObject*>(
                             QString{}, Qt::FindDirectChildrenOnly);
 
-    return detail::makeUniqueObjectNameImpl(name, childs, [](const QObject* o){
+    return detail::makeUniqueNameImpl(name, childs, [](const QObject* o){
         return o->objectName();
     });
 }

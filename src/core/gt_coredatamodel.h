@@ -375,14 +375,14 @@ signals:
 };
 
 template<typename ObjectList, typename GetNameFunc>
-[[deprecated("Use gt::detail::makeUniqueObjectNameImpl instead")]]
+[[deprecated("Use gt::detail::makeUniqueNameImpl instead")]]
 QString _getUniqueName_impl(const QString& name,
-                   const ObjectList& objs,
-                   GetNameFunc getName,
-                   QString initName,
-                   int iteration)
+                            const ObjectList& objs,
+                            GetNameFunc getName,
+                            QString initName,
+                            int iteration)
 {
-    return gt::detail::makeUniqueObjectNameImpl(
+    return gt::detail::makeUniqueNameImpl(
                 name, objs, std::move(getName), std::move(initName));
 }
 
@@ -395,12 +395,12 @@ QString _getUniqueName_impl(const QString& name,
  * @return A unique name
  */
 template<typename ObjectList, typename GetNameFunc>
-[[deprecated("Use gt::makeUniqueObjectName instead")]]
+[[deprecated("Use gt::makeUniqueName instead")]]
 QString getUniqueName(const QString& name,
                       const ObjectList& objs,
                       GetNameFunc getName)
 {
-    return gt::makeUniqueObjectName(name, objs, getName);
+    return gt::makeUniqueName(name, objs, getName);
 }
 
 /**
@@ -411,11 +411,11 @@ QString getUniqueName(const QString& name,
  * @return A unique name
  */
 template<typename StringList>
-[[deprecated("Use gt::makeUniqueObjectName instead")]]
+[[deprecated("Use gt::makeUniqueName instead")]]
 QString getUniqueName(const QString& name,
                       const StringList& names)
 {
-    return gt::makeUniqueObjectName(name, names);
+    return gt::makeUniqueName(name, names);
 }
 
 #endif // GTCOREDATAMODEL_H
