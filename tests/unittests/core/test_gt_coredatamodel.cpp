@@ -10,6 +10,7 @@
 #include "gtest/gtest.h"
 
 #include "gt_coredatamodel.h"
+#include "gt_object.h"
 
 class TestCoreDataModel : public GtCoreDatamodel
 {
@@ -70,4 +71,24 @@ TEST_F(TestGtCoreDataModel, getUniqueName)
     EXPECT_EQ(s("aa[2]"), getUniqueName("aa", l2).toStdString());
     EXPECT_EQ(s("bb[3]"), getUniqueName("bb", l2).toStdString());
     EXPECT_EQ(s("cc[4]"), getUniqueName("cc", l2).toStdString());
+}
+
+TEST_F(TestGtCoreDataModel, makeUnqiueName)
+{
+    GtObject parent;
+    GtObject* child1 = new GtObject;
+    child1->setObjectName("Test");
+    parent.appendChild(child1);
+    GtObject* child2 = new GtObject;
+    child2->setObjectName("Test[3]");
+    parent.appendChild(child2);
+
+    auto newName = gt::makeUniqueName("Test", parent);
+    EXPECT_EQ(newName.toStdString(), "Test[2]");
+
+    GtObject* child3 = new GtObject;
+    child3->setObjectName(newName);
+    parent.appendChild(child3);
+
+    EXPECT_EQ(gt::makeUniqueName("Test", parent).toStdString(), "Test[4]");
 }

@@ -11,6 +11,7 @@
 #define GTCOREDATAMODEL_H
 
 #include "gt_core_exports.h"
+#include "gt_qtutilities.h"
 
 #include <QAbstractItemModel>
 #include <QPointer>
@@ -374,28 +375,15 @@ signals:
 };
 
 template<typename ObjectList, typename GetNameFunc>
+[[deprecated("Use gt::detail::makeUniqueNameImpl instead")]]
 QString _getUniqueName_impl(const QString& name,
-                   const ObjectList& objs,
-                   GetNameFunc getName,
-                   QString initName,
-                   int iteration)
+                            const ObjectList& objs,
+                            GetNameFunc getName,
+                            QString initName,
+                            int iteration)
 {
-
-    auto iter = std::find_if(std::begin(objs), std::end(objs),
-                             [&](const typename ObjectList::value_type& o)
-    {
-        return name == getName(o);
-    });
-
-    if (iter == std::end(objs)) return name;
-
-    if (initName.isEmpty()) initName = name;
-
-    QString new_name = initName + QStringLiteral("[") +
-                       QString::number(iteration + 1) + QStringLiteral("]");
-
-    return _getUniqueName_impl(new_name, objs, getName,
-                               initName, iteration + 1);
+    return gt::detail::makeUniqueNameImpl(
+                name, objs, std::move(getName), std::move(initName));
 }
 
 /**
@@ -407,11 +395,12 @@ QString _getUniqueName_impl(const QString& name,
  * @return A unique name
  */
 template<typename ObjectList, typename GetNameFunc>
+[[deprecated("Use gt::makeUniqueName instead")]]
 QString getUniqueName(const QString& name,
                       const ObjectList& objs,
                       GetNameFunc getName)
 {
-    return _getUniqueName_impl(name, objs, getName, {}, 1);
+    return gt::makeUniqueName(name, objs, getName);
 }
 
 /**
@@ -422,13 +411,11 @@ QString getUniqueName(const QString& name,
  * @return A unique name
  */
 template<typename StringList>
+[[deprecated("Use gt::makeUniqueName instead")]]
 QString getUniqueName(const QString& name,
                       const StringList& names)
 {
-    auto func = [](const typename StringList::value_type& listItem) {
-        return QString(listItem);
-    };
-    return _getUniqueName_impl(name, names, func, {}, 1);
+    return gt::makeUniqueName(name, names);
 }
 
 #endif // GTCOREDATAMODEL_H
