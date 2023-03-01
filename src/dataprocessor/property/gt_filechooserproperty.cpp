@@ -27,7 +27,8 @@ GtFileChooserProperty::filter()
     return m_filter;
 }
 
-QString buildDialogFileFilter(const QStringList &filterList)
+QString
+buildDialogFileFilter(const QStringList &filterList)
 {
 
     if (filterList.empty())
@@ -43,25 +44,25 @@ QString buildDialogFileFilter(const QStringList &filterList)
 
     QString result;
 
-    for (int i = 0; i < filterList.size()-1; ++i)
+    for (int i = 0; i < filterList.size(); ++i)
     {
         auto filter = filterList[i];
-        auto&& nextFilter = filterList[i+1];
 
         QString delimiter = ";;";
         if (!isQtFilter(filter))
         {
-            if (!isQtFilter(nextFilter)) delimiter = "; ";
+            if (i < filterList.size()-1 &&
+                !isQtFilter(filterList[i+1]))
+            {
+                delimiter = "; ";
+            }
             filter = "*" + filter;
         }
 
         result += filter + delimiter;
     }
 
-    QString lastFilter = filterList.last();
-    if (!isQtFilter(lastFilter)) lastFilter = "*" + lastFilter;
-
-    result += lastFilter;
+    result.chop(2);
 
     return result;
 }
