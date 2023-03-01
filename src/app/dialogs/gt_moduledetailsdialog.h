@@ -52,6 +52,13 @@ private:
      */
     QWidget* readMeWidget();
 
+    /**
+     * @brief markdownWidget
+     * @param fileName
+     * @return a widget showing the content of a markdown file
+     */
+    QWidget* fileContentWidget(QString const& fileName);
+
     /// id of the module
     QString m_moduleId;
 
