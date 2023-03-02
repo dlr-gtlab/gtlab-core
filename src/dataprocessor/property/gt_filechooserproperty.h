@@ -34,7 +34,7 @@ protected:
      * @param Property identification string.
      * @param Property name.
      * @param Property description.
-     * @param File extension filter (eg. ".exe")
+     * @param File extension filter list (eg. ".exe", or "Executable (*.exe)")
      */
     GtFileChooserProperty(const QString& id,
                           const QString& name,
