@@ -118,19 +118,9 @@ GtPropertyFileChooserEditor::selectFilePath()
         return;
     }
 
-    QString selfilter;
+    QString selfilter = gt::detail::buildFileDialogFileFilter(m_prop->filter());
+
     QString filename;
-
-    foreach (const QString& filter, m_prop->filter())
-    {
-        if (!selfilter.isEmpty())
-        {
-            selfilter = selfilter + QStringLiteral("; ");
-        }
-
-        selfilter = selfilter + QStringLiteral("*") + filter;
-    }
-
 
 
     if (qobject_cast<GtSaveFileNameProperty*>(m_prop))

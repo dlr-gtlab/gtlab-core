@@ -34,7 +34,7 @@ protected:
      * @param Property identification string.
      * @param Property name.
      * @param Property description.
-     * @param File extension filter (eg. ".exe")
+     * @param File extension filter list (eg. ".exe", or "Executable (*.exe)")
      */
     GtFileChooserProperty(const QString& id,
                           const QString& name,
@@ -46,5 +46,30 @@ private:
     QStringList m_filter;
 
 };
+
+namespace gt
+{
+
+namespace detail
+{
+
+
+ /**
+ * @brief This function takes several file filters and concatenates them
+ *        to be used for the filedialog filter entries
+ *
+ * It supports old-style filters (e.g. ".txt")
+ * and Qt-style filters (e.g. "Textfile (*.txt)");
+ *
+ * The filter styles can be combined arbitrarily
+ *
+ * @param filterList List of filters
+ * @return Concatenated filter string to be used by QFileDialog
+ */
+GT_DATAMODEL_EXPORT QString
+buildFileDialogFileFilter(const QStringList& filterList);
+
+} // namespace detail
+} // namespace gt
 
 #endif // GTFILECHOOSERPROPERTY_H

@@ -89,3 +89,13 @@ gt::re::forSemVers()
     return QRegExp(R"(^(0|[1-9]\d*)(\.(0|[1-9]\d*)(\.(0|[1-9]\d*))?)?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))"
                                          R"((?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$)");
 }
+
+const QRegExp&
+gt::re::forFileDialogFilters()
+{
+    static auto r = QRegExp(R"(([a-z,A-Z,0-9,_,-]+)" // check for a string
+                            R"([\s]*[(][a-z,A-Z,0-9,_,-,*,?,.]+)" // check for space + (string string)
+                            R"(([\s]+[a-z,A-Z,0-9,_,-,*,?,.]+)*[)]))");
+
+    return r;
+}
