@@ -35,7 +35,7 @@ for error in errors:
         fn = frame.find('fn')
         fi = frame.find('file')
         li = frame.find('line')
-        bodytext = fn.text
+        bodytext = fn.text if fn is not None else "unknown_location"
         bodytext = bodytext.replace("&","&amp;")
         bodytext = bodytext.replace("<","&lt;")
         bodytext = bodytext.replace(">","&gt;")
