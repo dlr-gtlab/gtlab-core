@@ -131,6 +131,7 @@ GtProcessRunnerTransceiver::~GtProcessRunnerTransceiver()
 {
     gtDebugId(GT_EXEC_ID).medium() << tr("Closing down Process Runner...");
     // join thread - should happen instantaneously
+    m_thread.quit();
     m_thread.wait(std::chrono::seconds{1});
 }
 
