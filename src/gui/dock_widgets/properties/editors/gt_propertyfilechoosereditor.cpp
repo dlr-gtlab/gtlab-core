@@ -118,7 +118,7 @@ GtPropertyFileChooserEditor::selectFilePath()
         return;
     }
 
-    QString selfilter = buildDialogFileFilter(m_prop->filter());
+    QString selfilter = gt::detail::buildFileDialogFileFilter(m_prop->filter());
 
     QString filename;
 

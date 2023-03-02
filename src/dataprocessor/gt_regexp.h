@@ -10,6 +10,7 @@
 #define GTREGEXP_H
 
 #include <QRegExp>
+#include <QRegularExpression>
 
 #include "gt_datamodel_exports.h"
 
@@ -112,7 +113,7 @@ QRegExp GT_DATAMODEL_EXPORT forSemVers();
  * "Python (python* python3)"
  * "Textfiles (*.txt)"
  */
-QRegExp GT_DATAMODEL_EXPORT forDialogFileFilters();
+GT_DATAMODEL_EXPORT const QRegularExpression&  forFileDialogFilters();
 
 } // namespace re
 

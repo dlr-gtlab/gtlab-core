@@ -5,18 +5,18 @@
 
 TEST(RegExp, fileFilter)
 {
-    auto re = gt::re::forDialogFileFilters();
+    auto re = gt::re::forFileDialogFilters();
 
     // check for correct qt dialog file filter
-    EXPECT_EQ(0, re.indexIn("Python (python* python3)"));
-    EXPECT_EQ(1, re.indexIn(" Python (python* python3) "));
-    EXPECT_EQ(0, re.indexIn("Text-File (*.txt)"));
-    EXPECT_EQ(0, re.indexIn("Document (*.txt *.text *.md *.doc)"));
-    EXPECT_EQ(0, re.indexIn("Document  (*.txt *.text *.md *.doc)"));
+    EXPECT_TRUE(re.match("Python (python* python3)").hasMatch());
+    EXPECT_TRUE(re.match(" Python (python* python3) ").hasMatch());
+    EXPECT_TRUE(re.match("Text-File (*.txt)").hasMatch());
+    EXPECT_TRUE(re.match("Document (*.txt *.text *.md *.doc)").hasMatch());
+    EXPECT_TRUE(re.match("Document  (*.txt *.text *.md *.doc)").hasMatch());
 
     // check for other, that dont match
-    EXPECT_EQ(-1, re.indexIn(".txt .bat"));
-    EXPECT_EQ(-1, re.indexIn("*.exe"));
-    EXPECT_EQ(-1, re.indexIn("Document  (*.txt *.text *.md *.doc"));
+    EXPECT_FALSE(re.match(".txt .bat").hasMatch());
+    EXPECT_FALSE(re.match("*.exe").hasMatch());
+    EXPECT_FALSE(re.match("Document  (*.txt *.text *.md *.doc").hasMatch());
 }
 

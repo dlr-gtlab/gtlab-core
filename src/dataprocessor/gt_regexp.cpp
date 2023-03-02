@@ -90,7 +90,16 @@ gt::re::forSemVers()
                                          R"((?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$)");
 }
 
-QRegExp gt::re::forDialogFileFilters()
+const QRegularExpression&
+gt::re::forFileDialogFilters()
 {
-    return QRegExp(R"(([a-z,A-Z,0-9,_,-]+[\s]*[(][a-z,A-Z,0-9,_,-,*,?,.]+([\s]+[a-z,A-Z,0-9,_,-,*,?,.]+)*[)]))");
+    static auto r = []() {
+        QRegularExpression r(R"(([a-z,A-Z,0-9,_,-]+)" // check for a string
+            R"([\s]*[(][a-z,A-Z,0-9,_,-,*,?,.]+)" // check for space + (string string)
+            R"(([\s]+[a-z,A-Z,0-9,_,-,*,?,.]+)*[)]))");
+        r.optimize();
+        return r;
+    }();
+
+    return r;
 }
