@@ -9,7 +9,6 @@
 
 #include <QGraphicsSceneDragDropEvent>
 #include <QMimeData>
-#include <QDebug>
 
 #include "gt_processeditorscene.h"
 #include "gt_object.h"
@@ -72,7 +71,6 @@ GtProcessEditorScene::setPreviewMode()
 void
 GtProcessEditorScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 {
-//    qDebug() << "GtProcessEditorScene::dragEnterEvent";
     const QMimeData* mimeData = event->mimeData();
 
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
@@ -80,8 +78,6 @@ GtProcessEditorScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 
     if (obj)
     {
-//        qDebug() << "obj = " << obj->objectName();
-//        qDebug() << "uuid = " << obj->uuid();
         delete obj;
 
         setPreviewMode();
@@ -101,7 +97,6 @@ GtProcessEditorScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 //void
 //GtProcessEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
 //{
-//    qDebug() << "GtProcessEditorScene::mouseReleaseEvent";
 //    if (m_mode == M_PREVIEW)
 //    {
 //        switchMode(M_DEFAULT);
@@ -113,8 +108,6 @@ GtProcessEditorScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 void
 GtProcessEditorScene::dragLeaveEvent(QGraphicsSceneDragDropEvent* event)
 {
-//    qDebug() << "GtProcessEditorScene::dragLeaveEvent";
-
     if (m_mode == M_PREVIEW)
     {
         switchMode(M_DEFAULT);
@@ -277,10 +270,10 @@ GtProcessEditorScene::onRowsRemoved(const QModelIndex& parent, int start,
 
     if (isMemberOf(parent, m_rootIndex))
     {
-        qDebug() << "GtProcessEditorScene::onRowsRemoved";
-        qDebug() << parent;
-        qDebug() << "start = " << start;
-        qDebug() << "end   = " << end;
+        gtDebug().medium() << "GtProcessEditorScene::onRowsRemoved";
+        gtDebug().medium() << parent;
+        gtDebug().medium() << "start = " << start;
+        gtDebug().medium() << "end   = " << end;
 
         for (int i = start; i <= end; i++)
         {
@@ -290,7 +283,7 @@ GtProcessEditorScene::onRowsRemoved(const QModelIndex& parent, int start,
 
             if (obj)
             {
-                qDebug() << "deleting " << obj->objectName() << "...";
+                gtDebug().medium() << "deleting " << obj->objectName() << "...";
             }
         }
     }

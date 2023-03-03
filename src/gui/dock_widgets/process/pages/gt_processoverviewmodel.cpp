@@ -9,10 +9,10 @@
 
 #include <QColor>
 #include <QIcon>
-#include <QDebug>
 #include "gt_application.h"
 #include "gt_processcategoryitem.h"
 #include "gt_icons.h"
+#include "gt_logging.h"
 
 #include "gt_processoverviewmodel.h"
 
@@ -308,16 +308,16 @@ GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
         }
         else
         {
-            qWarning() << "WARNING (GtCalculatorOverviewModel::indexFromObject): " <<
-                       "object has no parent!";
-            qWarning() << " |-> obj = " << item->objectName();
+            gtWarning().medium().nospace()
+                    << __FUNCTION__ << ": " << tr("Object has no parent!");
+            gtWarning().medium() << " |-> obj =" << item->objectName();
         }
     }
 
     if (row == -1)
     {
-        qWarning() << "WARNING (GtCalculatorOverviewModel::indexFromObject): "
-                   << "row == -1!";
+        gtWarning().medium().nospace()
+                << __FUNCTION__ << ": row == -1!";
         return {};
     }
 

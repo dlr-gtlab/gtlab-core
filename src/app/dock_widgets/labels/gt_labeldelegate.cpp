@@ -9,7 +9,6 @@
 
 #include <QLineEdit>
 #include <QMessageBox>
-#include <QDebug>
 
 #include "gt_labelsdock.h"
 #include "gt_project.h"
@@ -98,9 +97,6 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
     QString newId = lineEdit->text();
     QString oldId = index.data(Qt::DisplayRole).toString();
 
-    qDebug() << "newId = " << newId;
-    qDebug() << "oldId = " << oldId;
-
     if (newId == oldId)
     {
         return;
@@ -112,7 +108,7 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 
     QString msg;
 
-    qDebug() << "GtLabelDelegate::setModelData - " << nou;
+    gtDebug().verbose().nospace() << __FUNCTION__ << ": " << nou;
 
     if (nou <= 0)
     {

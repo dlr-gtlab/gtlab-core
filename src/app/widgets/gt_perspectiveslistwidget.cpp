@@ -8,11 +8,11 @@
  */
 
 #include <QLineEdit>
-#include <QDebug>
 
 #include "gt_perspectiveslistwidget.h"
 #include "gt_application.h"
 #include "gt_deleteitemmessagebox.h"
+#include "gt_logging.h"
 
 GtPerspectivesListWidget::GtPerspectivesListWidget(bool initialize,
                                                    QWidget* parent) :
@@ -206,8 +206,7 @@ GtPerspectivesListWidget::onLstItemsCommitData(QWidget* pLineEdit)
 
     if (gtApp->perspectiveIds().contains(strNewText))
     {
-        // TODO: user warning
-        qDebug() << "duplicate!";
+        gtWarning() << tr("Duplicate perspective name!");
         item(currentRow())->setText(m_lastId);
     }
     else

@@ -48,7 +48,6 @@
 #include <QProcess>
 #include <QThread>
 #include <QTimer>
-#include <QDebug>
 #include <QStyleFactory>
 #include <QSettings>
 #include <QShortcut>
@@ -716,8 +715,7 @@ GtMainWin::openPreDesignPlot()
 {
     if (!gtMdiLauncher->open("GtdPreDesignPlot"))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not open pre design plot!");
+        gtWarning() << tr("Could not open pre design plot!");
     }
 }
 
@@ -726,8 +724,7 @@ GtMainWin::openSessionViewer()
 {
     if (!gtMdiLauncher->open("GtSessionViewer"))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not open session viewer!");
+        gtWarning() << tr("Could not open session viewer!");
     }
 }
 
@@ -736,8 +733,7 @@ GtMainWin::openStateViewer()
 {
     if (!gtMdiLauncher->open("GtStateViewer"))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not open state viewer!");
+        gtWarning() << tr("Could not open state viewer!");
     }
 }
 
@@ -746,8 +742,7 @@ GtMainWin::openExamplesWidget()
 {
     if (!gtMdiLauncher->open("GtExamplesMdiWidget"))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not open examples viewer!");
+        gtWarning() << tr("Could not open examples viewer!");
     }
 }
 
@@ -790,7 +785,8 @@ GtMainWin::onSessionAction(QObject* widget)
 
     if (action)
     {
-        qDebug() << "switching session to " << action->text() << "...";
+        gtDebug().medium().nospace()
+                    << tr("switching session to ") << action->text() << "...";
         gtApp->switchSession(action->text());
     }
 }
@@ -802,7 +798,8 @@ GtMainWin::onPerspectiveAction(QObject* widget)
 
     if (action)
     {
-        qDebug() << "switching perspective to " << action->text() << "...";
+        gtDebug().medium().nospace()
+                    << tr("switching perspective to ") << action->text() << "...";
         gtApp->switchPerspective(action->text());
     }
 }
@@ -864,8 +861,6 @@ GtMainWin::onCurrentProjectChanged(GtProject* project)
 void
 GtMainWin::printCurrentMdiItem()
 {
-    qDebug() << "print requested...";
-
     if (ui->mdiArea->count() != 0)
     {
         gtMdiLauncher->print(ui->mdiArea->currentWidget());
@@ -909,7 +904,7 @@ GtMainWin::openHelpContents()
             "run_help.sh";
 #endif
 
-    qDebug() << args;
+    gtDebug().verbose().nospace() << __FUNCTION__ << "->args: " << args;
 
     process->start(binary, args);
 
@@ -925,48 +920,6 @@ GtMainWin::openHelpContents()
 
         return;
     }
-
-//    QDir docDir(path);
-//    docDir.setNameFilters(QStringList() << QStringLiteral("*.qch"));
-
-//    QStringList fileList = docDir.entryList();
-
-//    gtDebug() << fileList.size() << tr(" documentation files found!");
-
-//    QByteArray ba;
-
-//    foreach (const QString& file, fileList)
-//    {
-
-
-//        QString command =  QStringLiteral("register ") + path +
-//                           QDir::separator() + file + QStringLiteral(";");
-
-//        gtDebug() << "remote command: " << command;
-
-//        ba.append(command);
-
-
-//    }
-
-//    if (process->write(ba) < 0)
-//    {
-//        gtError() << "remote command failed!";
-//    }
-//    else
-//    {
-//        gtDebug() << "remote command successful!";
-//    }
-
-    //    process->close();
-
-    //    QString command =  QStringLiteral("register ") + path + QDir::separator() +
-    //                       QStringLiteral("GTlab_Help_Performance.qch");
-
-    //    qDebug() << "remote command: " << command;
-
-    //    ba.append(command);
-
 }
 
 void

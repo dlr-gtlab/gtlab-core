@@ -7,8 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-
 #include "gt_processconnectionview.h"
 #include "gt_processconnectionmodel.h"
 #include "gt_processconnectionscene.h"
@@ -108,7 +106,6 @@ GtProcessConnectionGraphicsView::updatePorts(GtProcessConnectionView* view,
     // check whether view is equal to output view
     if (m_outputView == view)
     {
-        //        qDebug() << "#### updating output ports...";
         GtProcessPortMap tmpMap = m_outputPorts;
         GtProcessConnectionModel* model = m_outputView->connectionModel();
 
@@ -206,8 +203,6 @@ GtProcessConnectionGraphicsView::createConnection(
     // add entity to scene
     m_scene->addItem(entity);
 
-    qDebug() << "connection entity created!";
-
     // return success
     return entity;
 }
@@ -241,7 +236,6 @@ GtProcessPropertyPortEntity*
 GtProcessConnectionGraphicsView::findInputPortEntity(const QString& uuid,
                                                      const QString& propId)
 {
-//    qDebug() << "#### findInputPortEntity";
     return findPortEntityHelper(m_inputPorts, uuid, propId);
 }
 
@@ -390,14 +384,12 @@ GtProcessConnectionGraphicsView::updatePortEntity(GtProcessConnectionItem* item,
     // check item
     if (!item)
     {
-        qDebug() << "item == nullptr";
         return nullptr;
     }
 
     // check alignment - only left right supported
     if (align != Qt::AlignRight && align != Qt::AlignLeft)
     {
-        qDebug() << "align != Qt::AlignRight || align != Qt::AlignLeft";
         return nullptr;
     }
 

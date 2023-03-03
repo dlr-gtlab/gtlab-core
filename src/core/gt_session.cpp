@@ -10,12 +10,10 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QDir>
-#include <QDebug>
 
 #include "gt_session.h"
 #include "gt_project.h"
 #include "gt_coreapplication.h"
-#include "gt_coredatamodel.h"
 #include "gt_logging.h"
 #include "gt_algorithms.h"
 
@@ -131,15 +129,12 @@ GtSession::createEmptySession(const QString& id)
     if (file.exists())
     {
         // file found -> nothing to do here
-//        qWarning() << tr("WARNING") << ": "
-//                   << tr("default session file already exists!");
         return true;
     }
 
     if (!file.open(QIODevice::WriteOnly))
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("could not create session file!");
+        gtWarning().medium() << tr("Could not create session file!");
         return false;
     }
 
@@ -160,8 +155,8 @@ GtSession::duplicateSession(const QString& source, const QString& target)
 
     if (!dir.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("roaming path not found!");
+        gtWarning().medium() << tr("WARNING") << ": "
+                             << tr("roaming path not found!");
         return false;
     }
 
@@ -169,14 +164,11 @@ GtSession::duplicateSession(const QString& source, const QString& target)
 
     if (!file.exists())
     {
-        qWarning() << tr("WARNING") << ": "
-                   << tr("Session file not found!");
+        gtWarning().medium() << tr("Session file not found!");
         return false;
     }
 
     QString targetFilename = target + QStringLiteral(".json");
-
-//    qDebug() << "targetFilename = " << targetFilename;
 
     return file.copy(dir.absoluteFilePath(targetFilename));
 }
@@ -231,8 +223,7 @@ GtSession::setCurrentProject(const QString& id)
 
     if (!project)
     {
-        qWarning() << tr("WARNING: ") <<
-                      tr("could not set current project! project id not found");
+        gtWarning().medium() << tr("Could not set current project! (project id not found)");
         return false;
     }
 
@@ -250,9 +241,8 @@ GtSession::setCurrentProject(GtProject* project)
 
     if (!projects().contains(project))
     {
-        qWarning() << tr("WARNING: ")
-                   << tr("could not set current project!") << " "
-                   << tr("project not found in session!");
+        gtWarning().medium() << tr("Could not set current project!")
+                             << tr("(Project not found in session)");
         return false;
     }
 
@@ -359,13 +349,13 @@ GtSession::toJsonObject()
 
     if (!file.exists())
     {
-        qWarning() << "session file not found!";
+        gtWarning().medium() << tr("Session file not found!");
         return false;
     }
 
     if (!file.open(QIODevice::WriteOnly))
     {
-        qWarning() << "could not read session information!";
+        gtWarning().medium() << tr("Could not read session information!");
         return false;
     }
 
@@ -400,7 +390,7 @@ GtSession::fromJsonObject(const QString& sessionPath)
 
     if (!file.open(QIODevice::ReadOnly))
     {
-        qWarning() << "could not read session information!";
+        gtWarning().medium() << tr("Could not read session information!");
         return false;
     }
 
@@ -413,18 +403,16 @@ GtSession::fromJsonObject(const QString& sessionPath)
 
     QJsonObject projects = json[QStringLiteral("projects")].toObject();
 
-//    qDebug() << "projects:";
     gt::for_each_key(projects, [&](const QString& e)
     {
-//        qDebug() << "   |-> " << e;
         GtProject* project = new GtProject(e);
 
         if (!project->isValid() || findProject(project->objectName()))
         {
-            qWarning() << "WARNING: " << "project " << project->objectName() <<
-                          " already exists in session or is not valid!";
-            gtError() << tr("Could not load project!")
-                      << " (" << e << ")";
+            gtWarning().medium()
+                    << tr("Project '%1' already exists in session or is not valid!")
+                       .arg(project->objectName());
+            gtError() << tr("Could not load project '%1'!").arg(e);
             delete project;
         }
         else

@@ -9,7 +9,6 @@
 
 #include <QBrush>
 #include <QPen>
-#include <QDebug>
 
 #include "gt_taskarrowentity.h"
 #include "gt_calculatorentity.h"
@@ -62,8 +61,6 @@ GtTaskArrowEntity::updateShape()
 
     QPainterPath path;
     QPainterPath head;
-
-//    qDebug() << "GtTaskArrowEntity::updateShape() - " << m_from->toString();
 
     QRectF rect1 = m_from->boundingRect();
     QRectF rect2 = m_to->boundingRect();
@@ -136,7 +133,6 @@ GtTaskArrowEntity::updateShape()
 void
 GtTaskArrowEntity::setToPreviewMode()
 {
-//    qDebug() << "GtTaskArrowEntity::setToPreviewMode";
     GtTaskArrowLabelEntity* label = new GtTaskArrowLabelEntity(this);
 
     connect(label, SIGNAL(addNewItem(GtObject*)), SLOT(onItemAdd(GtObject*)));
@@ -158,7 +154,6 @@ GtTaskArrowEntity::onItemAdd(GtObject* obj)
         else
         {
             delete obj;
-            qDebug() << "GtTaskArrowEntity::onItemAdd";
         }
     }
 }

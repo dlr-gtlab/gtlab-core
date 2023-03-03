@@ -27,7 +27,6 @@
 #include "gt_datamodel.h"
 #include "gt_refusedpluginsdialog.h"
 #include "gt_mdilauncher.h"
-#include "gt_icons.h"
 #include "gt_versionnumber.h"
 
 #include "gt_mementoviewer.h"

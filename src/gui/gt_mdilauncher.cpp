@@ -21,7 +21,7 @@
 #include "gt_collectioninterface.h"
 #include "gt_algorithms.h"
 #include "gt_icons.h"
-#include "gt_palette.h"
+#include "gt_logging.h"
 
 GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
     m_area(nullptr)
@@ -304,8 +304,8 @@ GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 
     if (m_dockWidgets.contains(metaObj.className()))
     {
-        qWarning() << tr("Dockwidget") << metaObj.className()
-                   << tr("already registered");
+        gtWarning().medium() << tr("Dock widget '%1' already registered")
+                                .arg(metaObj.className());
         return false;
     }
 
@@ -322,7 +322,8 @@ GtMdiLauncher::dockWidgetsExist(const QList<QMetaObject>& metaData)
         QString classname = mobj.className();
         if (m_dockWidgets.contains(classname))
         {
-            qWarning() << "dock widget class name already exists!";
+            gtWarning().medium()
+                    << tr("Dock widget class name already exists!");
             return true;
         }
     }

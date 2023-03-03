@@ -36,11 +36,11 @@ void GtPropertyFactory::registerQObjectClass(){
 
         if (!retval && !m_silent)
         {
-            qCritical() << QStringLiteral("GtPropertyFactory : ") <<
-                tr("Error casting property") <<
-                QStringLiteral(" ") <<
-                T::staticMetaObject.className();
-            qDebug() << knownClasses();
+            gtWarning().medium() 
+                        << QStringLiteral("GtPropertyFactory:")
+                        << tr("Error casting property '%1'!").arg(T::staticMetaObject.className());
+            gtWarning().medium() 
+                        << tr("Known property classes:") << knownClasses();
         }
 
         obj.release();

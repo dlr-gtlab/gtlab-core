@@ -15,7 +15,6 @@
 #include <QDrag>
 #include <QWidget>
 #include <QMimeData>
-#include <QDebug>
 
 #include "gt_calculatorentity.h"
 #include "gt_calculator.h"
@@ -329,8 +328,7 @@ GtCalculatorEntity::insertCalculator(GtCalculator* calc,
 {
     if (idx < 0 || idx > m_subCalcs.size())
     {
-        qWarning() << "index error!"
-                   << " (GtCalculatorEntity::insertCalculator)";
+        gtWarning().medium().nospace() << __FUNCTION__ << ": "<< tr("Index error!");
         return nullptr;
     }
 
@@ -757,12 +755,13 @@ GtCalculatorEntity::debugNode()
 {
     if (isRoot())
     {
-        qDebug() << " ROOT - (" << m_normX << ", " << m_normY << ")";
+        gtDebug().verbose().nospace() << " ROOT - (" << m_normX << ", " << m_normY << ")";
     }
     else
     {
-        qDebug() << m_calculator->objectName() << " - (" << m_normX
-                 << ", " << m_normY << ")";
+        gtDebug().verbose().nospace()
+                            << m_calculator->objectName() << " - (" << m_normX
+                            << ", " << m_normY << ")";
     }
 
     foreach (GtCalculatorEntity* child, m_subCalcs)
@@ -862,9 +861,6 @@ GtCalculatorEntity::addChild(GtObject* obj)
             delete obj;
             return;
         }
-
-        qDebug() << "GtCalculatorEntity::addChild";
-
 
         if (!appendCalculator(calc))
         {

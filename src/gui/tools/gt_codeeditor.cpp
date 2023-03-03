@@ -91,52 +91,32 @@ GtCodeEditor::resizeEvent(QResizeEvent* e)
 void
 GtCodeEditor::dragEnterEvent(QDragEnterEvent* event)
 {
-    //    qDebug() << "CodeEditor::dragEnterEvent";
     if (event->mimeData()->formats().contains("GtObject"))
     {
-        //            clear();
-        //            setPlainText(event->mimeData()->data("GtdObject"));
-        //        qDebug() << "   |-> accepted!";
         event->accept();
     }
     else
     {
-        //        qDebug() << "   |-> ignored!";
         event->ignore();
     }
-
-
-    //        QPlainTextEdit::dragEnterEvent(event);
 }
 
 void
 GtCodeEditor::dragMoveEvent(QDragMoveEvent* event)
 {
-    //    qDebug() << "CodeEditor::dragMoveEvent";
-    //    event->accept();
-
     if (event->mimeData()->formats().contains("GtObject"))
     {
-        //            clear();
-        //            setPlainText(event->mimeData()->data("GtdObject"));
-        //        qDebug() << "   |-> accepted!";
         event->accept();
     }
     else
     {
-        //        qDebug() << "   |-> ignored!";
         event->ignore();
     }
-
-
-    //    QPlainTextEdit::dragMoveEvent(event);
 }
 
 void
 GtCodeEditor::dropEvent(QDropEvent* event)
 {
-    //    qDebug() << "CodeEditor::dropEvent";
-
     if (event->mimeData()->formats().contains("GtObject"))
     {
         clear();

@@ -124,7 +124,6 @@ GtCalculator::exec()
 
     // current execution mode identification string
     QString execMode = pimpl->execMode.get();
-    qDebug() << "|-> exec mode: " << execMode;
 
     if (execMode != "local")
     {

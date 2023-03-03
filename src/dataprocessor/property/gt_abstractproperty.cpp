@@ -105,34 +105,6 @@ GtAbstractProperty::fullProperties() const
 void
 GtAbstractProperty::registerSubProperty(GtAbstractProperty& property)
 {
-//    if (m_subProperties.contains(&property))
-//    {
-//        gtWarning() << tr("multiple property registration!")
-//                    << " (" << objectName() << ")";
-//        return;
-//    }
-
-//    QList<QString> propNames;
-//    foreach(GtAbstractProperty* absProp, m_subProperties)
-//    {
-//        propNames.append(absProp->objectName());
-//    }
-
-//    if (propNames.contains(property.objectName()))
-//    {
-//        gtWarning() << tr("property name already taken!")
-//                    << " (" << objectName() << ")";
-//        return;
-//    }
-
-//    m_subProperties.append(&property);
-
-//    qDebug() << "Current sub properties:";
-//    foreach(GtAbstractProperty* prop, m_subProperties)
-//    {
-//        qDebug() << prop;
-//    }
-
     insertSubProperty(property, m_subProperties.size());
 }
 

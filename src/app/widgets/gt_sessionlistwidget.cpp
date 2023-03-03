@@ -9,11 +9,11 @@
 
 #include <QLineEdit>
 #include <QToolTip>
-#include <QDebug>
 
 #include "gt_sessionlistwidget.h"
 #include "gt_application.h"
 #include "gt_deleteitemmessagebox.h"
+#include "gt_logging.h"
 
 GtSessionListWidget::GtSessionListWidget(bool initialize, QWidget* parent) :
     QListWidget(parent)
@@ -230,8 +230,7 @@ GtSessionListWidget::onLstItemsCommitData(QWidget* pLineEdit)
 
     if (gtApp->sessionIds().contains(strNewText))
     {
-        // TODO: user warning
-        qDebug() << "duplicate!";
+        gtWarning() << tr("Duplicate session name!");
         item(currentRow())->setText(m_lastId);
     }
     else

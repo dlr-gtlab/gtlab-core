@@ -11,7 +11,6 @@
 #include <QApplication>
 #include <QMenu>
 #include <QIcon>
-#include <QDebug>
 
 #include "gt_processpropertyportentity.h"
 #include "gt_icons.h"
@@ -200,8 +199,6 @@ void
 GtProcessPropertyConnectionEntity::contextMenuEvent(
         QGraphicsSceneContextMenuEvent* event)
 {
-    qDebug() << "connection context menu!";
-
     QMenu menu;
 
     QAction* actdelete = menu.addAction(tr("Delete Connection"));

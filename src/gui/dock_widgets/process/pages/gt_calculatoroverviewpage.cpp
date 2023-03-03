@@ -8,7 +8,6 @@
  */
 
 #include <QVBoxLayout>
-#include <QDebug>
 
 #include "gt_processwizard.h"
 #include "gt_searchwidget.h"
@@ -22,7 +21,6 @@
 #include "gt_customprocesswizard.h"
 #include "gt_processwizardpage.h"
 #include "gt_palette.h"
-#include "gt_application.h"
 
 
 #include "gt_calculatoroverviewpage.h"
@@ -137,7 +135,6 @@ GtCalculatorOverviewPage::validatePage()
     }
     else
     {
-        qDebug() << "#### found custom wizard!";
         QList<GtProcessWizardPage*> cPages;
 
         foreach (const QMetaObject& metaObj, eData->wizard->pages())
@@ -146,7 +143,6 @@ GtCalculatorOverviewPage::validatePage()
 
             if (!obj)
             {
-                qDebug() << "page not invokable!";
                 cPages.clear();
                 break;
             }
@@ -155,7 +151,6 @@ GtCalculatorOverviewPage::validatePage()
 
             if (!pwp)
             {
-                qDebug() << "page corrupted!";
                 delete obj;
                 cPages.clear();
                 break;
@@ -166,8 +161,6 @@ GtCalculatorOverviewPage::validatePage()
 
             cPages << pwp;
         }
-
-        qDebug() << "found " << cPages.size() << " pages!";
 
         if (cPages.isEmpty())
         {

@@ -268,8 +268,8 @@ GtProcessConnectionModel::indexFromItem(GtProcessConnectionItem* item) const
     // check row
     if (row == -1)
     {
-        qWarning() << "WARNING (GtProcessConnectionModel::indexFromItem): " <<
-                      "row == -1!";
+        gtWarning().medium().nospace()
+                << __FUNCTION__ << ": row == -1!";
         return {};
     }
 
