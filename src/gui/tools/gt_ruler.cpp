@@ -13,7 +13,9 @@
 #include "gt_application.h"
 
 GtRuler::GtRuler(Qt::Orientation o) :
-    m_orientation(o), m_needsRepaint(true)
+    m_orientation(o),
+    m_buffer(20, 20, QImage::Format_ARGB32),
+    m_needsRepaint(true)
 {
     m_cursorArrow.moveTo(0,0);
     m_cursorArrow.lineTo(-3,-3);
@@ -61,7 +63,7 @@ GtRuler::paintEvent(QPaintEvent* e)
 void
 GtRuler::resizeEvent(QResizeEvent *e)
 {
-    m_buffer = QImage(e->size(), QImage::Format_ARGB32);
+    m_buffer = m_buffer.scaled(e->size(), Qt::IgnoreAspectRatio);
     m_needsRepaint = true;
 }
 
