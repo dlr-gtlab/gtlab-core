@@ -280,7 +280,7 @@ GtProcessComponentModel::moveRows(const QModelIndex& sourceParent,
     // check model index
     if (!sourceParent.isValid() || !destinationParent.isValid())
     {
-        qWarning() << "invalid model indices!";
+        gtWarning().verbose() << "invalid model indices!";
         return false;
     }
 
@@ -301,19 +301,19 @@ GtProcessComponentModel::moveRows(const QModelIndex& sourceParent,
     // check source indices
     if (sourceRow < 0)
     {
-        qWarning() << "source row < 0!";
+        gtWarning().verbose() << "source row < 0!";
         return false;
     }
 
     if (count <= 0)
     {
-        qWarning() << "count <= 0!";
+        gtWarning().verbose() << "count <= 0!";
         return false;
     }
 
     if (sourceRow >= nosc || (sourceRow + count) > nosc)
     {
-        qWarning() << "invalid source row!";
+        gtWarning().verbose() << "invalid source row!";
         return false;
     }
 
@@ -322,7 +322,7 @@ GtProcessComponentModel::moveRows(const QModelIndex& sourceParent,
 
     if (destinationChild > nodc)
     {
-        qWarning() << "destinationChild out of index!";
+        gtWarning().verbose() << "destinationChild out of index!";
         return false;
     }
 

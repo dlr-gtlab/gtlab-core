@@ -11,7 +11,6 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QInputDialog>
-#include <QDebug>
 
 #include "gt_preferencessession.h"
 
@@ -174,13 +173,12 @@ GtPreferencesSession::onItemSelectionChange()
 void
 GtPreferencesSession::onItemTextChange(const QString& val)
 {
-    qDebug() << "GtPreferencesSession::onItemTextChange: " << val;
+
 }
 
 void
 GtPreferencesSession::onLstItemsCommitData(QWidget* pLineEdit)
 {
-    QString strNewText = reinterpret_cast<QLineEdit*>(pLineEdit)->text();
-    qDebug() << strNewText;
+
 }
 

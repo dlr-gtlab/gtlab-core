@@ -11,12 +11,10 @@
 #include <QXmlStreamWriter>
 #include <QDir>
 #include <QDateTime>
-#include <QDebug>
 
 #include "gt_project.h"
 #include "gt_processdata.h"
 #include "gt_task.h"
-#include "gt_processfactory.h"
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_coreapplication.h"
@@ -33,8 +31,6 @@
 #include "gt_xmlutilities.h"
 #include "gt_qtutilities.h"
 #include "gt_filesystem.h"
-#include "gt_objectio.h"
-#include "gt_taskgroup.h"
 
 #include "internal/gt_moduleupgrader.h"
 #include "internal/gt_moduleupgrader.h"
@@ -336,14 +332,14 @@ GtProject::loadMetaData()
 
     if (root.isNull())
     {
-        qWarning() << "WARNING: root is null!";
+        gtWarning() << tr("Root is null!");
         return false;
     }
 
     QString projectname = root.attribute(QStringLiteral("projectname"));
     if (projectname.isEmpty())
     {
-        qDebug() << "ERROR: Invalid GTlab project file!";
+        gtError() << tr("Invalid GTlab project file!");
         return false;
     }
 
@@ -1068,10 +1064,7 @@ GtProject::updateModuleFootprint(const QStringList& modIds)
     }
 }
 
-GtProject::~GtProject()
-{
-//    qDebug() << "project deleted!";
-}
+GtProject::~GtProject() = default;
 
 const QString&
 GtProject::path() const
@@ -1236,7 +1229,6 @@ GtProject::findLabelUsages(GtLabel* label)
 GtObjectMemento
 GtProject::toProjectDataMemento()
 {
-    qDebug() << "GtProject::toProjectDataMemento()";
     GtObjectGroup* group = new GtObjectGroup;
     group->setUuid(QStringLiteral("-"));
 

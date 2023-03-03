@@ -8,7 +8,6 @@
  */
 
 #include <QSignalMapper>
-#include <QDebug>
 
 #include "gt_icons.h"
 #include "gt_exporthandler.h"
@@ -16,8 +15,6 @@
 #include "gt_project.h"
 #include "gt_abstractexporter.h"
 #include "gt_abstractexporterpage.h"
-#include "gt_objectmemento.h"
-#include "gt_objectmementodiff.h"
 #include "gt_wizard.h"
 
 #include "gt_exportmenu.h"
@@ -85,8 +82,6 @@ GtExportMenu::onActionTrigger(QObject* obj)
     {
         return;
     }
-
-    qDebug() << "exporter triggered! (" << str << ")";
 
     // get exporter corresponding to classname
     GtAbstractExporter* exporter = gtExportHandler->newExporter(str);

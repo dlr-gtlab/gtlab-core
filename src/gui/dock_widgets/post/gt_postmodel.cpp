@@ -136,8 +136,6 @@ GtPostModel::deleteEntry(const QModelIndex& index)
 {
     QString filename = indexToFilename(index);
 
-    qDebug() << "filename = " << filename;
-
     QDir projectDir;
 
     if (!projectPostDirectory(projectDir))
@@ -193,13 +191,11 @@ GtPostModel::indexToFilename(const QModelIndex& index)
 {
     if (!index.isValid())
     {
-        qDebug() << "index not valid";
         return QString();
     }
 
     if (index.model() != this)
     {
-        qDebug() << "model is not this";
         return QString();
     }
 
@@ -328,8 +324,6 @@ GtPostModel::createTemplatePath(const QModelIndex& index)
     }
 
     QString filename = indexToFilename(index);
-    qDebug() << "index = " << index;
-    qDebug() << "filename = " << filename;
 
     if (filename.isEmpty())
     {

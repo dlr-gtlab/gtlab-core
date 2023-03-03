@@ -40,7 +40,6 @@
 #include <QCheckBox>
 #include <QMenu>
 #include <QKeyEvent>
-#include <QDebug>
 
 #include <algorithm>
 #include <memory>
@@ -847,8 +846,6 @@ GtExplorerDock::onSessionChanged()
         return;
     }
 
-//    qDebug() << "#### GtExplorerDock::onSessionChanged()";
-
     // connect data changed signals
     connect(gtApp->session(), SIGNAL(dataChanged(GtObject*)),
             gtDataModel, SLOT(onObjectDataChanged(GtObject*)));
@@ -948,7 +945,6 @@ GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
 
         if (!indexUnderMouse.isValid())
         {
-            qDebug() << "origin index invalid!";
             return;
         }
 

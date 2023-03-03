@@ -23,7 +23,6 @@
 
 #include <QUuid>
 #include <QSignalMapper>
-#include <QDebug>
 #include <QThread>
 
 #include <algorithm>
@@ -154,7 +153,7 @@ GtObject::fromMemento(const GtObjectMemento& memento)
     // check for factory
     if (!pimpl->factory)
     {
-        qDebug() << "factory is null";
+        gtDebug().verbose() << tr("Factory is null for ") << objectName();
         return;
     }
 

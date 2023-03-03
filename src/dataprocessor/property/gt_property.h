@@ -208,8 +208,6 @@ inline void GtProperty<ParamType>::forceSetVal(const ParamType& value,
 template<class ParamType>
 inline void GtProperty<ParamType>::setValFromConnection()
 {
-    qDebug() << "#### setValFromConnection!";
-
     // check connection
     if (!m_connection)
     {

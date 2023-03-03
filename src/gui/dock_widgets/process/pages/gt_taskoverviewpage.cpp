@@ -8,7 +8,6 @@
  */
 
 #include <QVBoxLayout>
-#include <QDebug>
 
 #include "gt_processwizard.h"
 #include "gt_searchwidget.h"
@@ -16,7 +15,6 @@
 #include "gt_treefiltermodel.h"
 #include "gt_taskoverviewmodel.h"
 #include "gt_processtaskitem.h"
-#include "gt_taskfactory.h"
 #include "gt_calculatorsettingspage.h"
 #include "gt_abstractprocessprovider.h"
 #include "gt_extendedtaskdata.h"
@@ -152,7 +150,6 @@ GtTaskOverviewPage::validatePage()
 
             if (!obj)
             {
-                qDebug() << "page not invokable!";
                 cPages.clear();
                 break;
             }
@@ -161,7 +158,6 @@ GtTaskOverviewPage::validatePage()
 
             if (!pwp)
             {
-                qDebug() << "page corrupted!";
                 delete obj;
                 cPages.clear();
                 break;

@@ -368,7 +368,7 @@ GtCoreApplication::switchSession(const QString& id)
     if (!m_session->isValid())
     {
         m_session.reset();
-        qCritical() << "ERROR: could not load session!";
+        gtError() << tr("Could not load session!");
     }
     else
     {
@@ -530,7 +530,6 @@ GtCoreApplication::deleteSession(const QString& id)
 void
 GtCoreApplication::loadModules()
 {
-    //    qDebug() << "GtCoreApplication::loadModules";
     if (!m_moduleLoader)
     {
         m_moduleLoader = std::make_unique<GtCoreModuleLoader>();
@@ -838,8 +837,8 @@ GtCoreApplication::setLanguage(const QString& id)
     {
         if (!m_translator->load(QStringLiteral("gtlab_de")))
         {
-            qWarning() << "WARNING: " << tr("could not load language!") <<
-                       " (" << id << ")";
+            gtWarning().verbose() << tr("Could not load language '%1'!").arg(id);
+
             return false;
         }
 
@@ -847,12 +846,11 @@ GtCoreApplication::setLanguage(const QString& id)
     }
     else
     {
-        qWarning() << "WARNING: " << tr("unknown language!") << " (" << id
-                   << ")";
+        gtWarning().verbose() << tr("Unknown language '%1'!").arg(id);
         return false;
     }
 
-    qDebug() << tr("language package = ") << id;
+    gtDebug().verbose() << tr("language package =") << id;
     return true;
 }
 

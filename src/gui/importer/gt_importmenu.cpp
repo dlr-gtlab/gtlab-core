@@ -8,7 +8,6 @@
  */
 
 #include <QSignalMapper>
-#include <QDebug>
 
 #include "gt_application.h"
 #include "gt_importhandler.h"
@@ -87,8 +86,6 @@ GtImportMenu::onActionTrigger(QObject* obj)
     {
         return;
     }
-
-    qDebug() << "importer triggered! (" << str << ")";
 
     // get importer corresponding to classname
     GtAbstractImporter* importer = gtImportHandler->newImporter(str);

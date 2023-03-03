@@ -71,9 +71,6 @@ GtParameterLoop::runChildElements()
     // increment current iteration step and continue iteration
     m_currentIter.setVal(m_currentIter.getVal() + 1);
 
-    qDebug() << "iteration step (" << m_currentIter << "/" << m_maxIter <<
-             ")";
-
     // trigger transfer of monitoring properties before running calculators
     emit transferMonitoringProperties();
 
@@ -82,8 +79,6 @@ GtParameterLoop::runChildElements()
     {
         comp->setStateRecursively(GtProcessComponent::QUEUED);
     }
-
-    qDebug() << "running calculators...";
 
     // run calculators
     foreach (GtProcessComponent* comp, childs)
@@ -97,8 +92,6 @@ GtParameterLoop::runChildElements()
             {
             // calculator run failed
             //setState(GtProcessComponent::FAILED);
-            //
-            //qDebug() << "   |-> run failed!";
             //
             //return false;
             gtWarning() << "Current Step failed";
@@ -127,7 +120,6 @@ GtParameterLoop::runChildElements()
         }
     }
 
-    qDebug() << "evaluating...";
     // evaluate current iteration step
     m_lastEval = evaluate();
 

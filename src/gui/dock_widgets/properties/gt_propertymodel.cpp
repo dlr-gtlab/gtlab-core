@@ -599,16 +599,18 @@ GtPropertyModel::indexFromProperty(GtAbstractPropertyItem* obj) const
         }
         else
         {
-            qWarning() << "WARNING (GtPropertyModel::indexFromObject): " <<
-                       "object has no parent!";
-            qWarning() << " |-> obj = " << obj->objectName();
+            gtWarning().verbose()
+                    << "WARNING (GtPropertyModel::indexFromObject): "
+                    << "object has no parent!";
+            gtWarning().medium().nospace()
+                    << __FUNCTION__ << ": " << tr("Object has no parent!");
+            gtWarning().medium() << " |-> obj =" << obj->objectName();
         }
     }
 
     if (row == -1)
     {
-        qWarning() << "WARNING (GtPropertyModel::indexFromObject): " <<
-                   "row == -1!";
+        gtWarning().medium().nospace() << __FUNCTION__ << ": row == -1!";
         return {};
     }
 

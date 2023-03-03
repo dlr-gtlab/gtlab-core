@@ -15,7 +15,6 @@
 #include <QPushButton>
 #include <QListView>
 #include <QCheckBox>
-#include <QDebug>
 #include <QFile>
 #include <QTextStream>
 #include <QInputDialog>
@@ -568,7 +567,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
     {
         QDir pathNew(pspecs->pathLine()->text());
 
-        qDebug() << "pathNew = " << pathNew.absolutePath();
+        gtDebug().verbose() << "pathNew = " << pathNew.absolutePath();
 
         if (pathNew.exists())
         {
@@ -797,8 +796,8 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
             }
         }
 
-        qDebug() << "added modules = " << tmpAdd;
-        qDebug() << "removed modules = " << tmpRemove;
+        gtDebug().medium() << "added modules = " << tmpAdd;
+        gtDebug().medium() << "removed modules = " << tmpRemove;
 
         if (!tmpAdd.isEmpty() || !tmpRemove.isEmpty())
         {
@@ -817,7 +816,7 @@ GtProjectUI::chooseProjectModule(GtObject* obj)
             {
                 case QMessageBox::Yes:
                 {
-                    qDebug() << "changing project...";
+                    gtDebug().medium() << tr("changing project...");
 
                     gtDataModel->saveProject(project);
                     gtDataModel->closeProject(project);

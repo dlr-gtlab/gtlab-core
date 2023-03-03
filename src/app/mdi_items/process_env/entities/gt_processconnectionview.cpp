@@ -9,7 +9,6 @@
 
 #include <QPainter>
 #include <QApplication>
-#include <QDebug>
 
 #include "gt_processconnectionmodel.h"
 #include "gt_processconnectiongraphicsview.h"
@@ -136,11 +135,6 @@ GtProcessConnectionView::lastVisibleParentIndex(const QModelIndex& index)
     }
 
     return lastVisibleParentIndex(parentIndex);
-
-//    qDebug() << "#### get last visible parent index";
-//    qDebug() << "   |-> index " << index;
-//    qDebug() << "   |-> row count = " << rowCount;
-//    qDebug() << "   |-> isExpanded = " << isExpanded(index);
 }
 
 GtProcessConnectionModel*

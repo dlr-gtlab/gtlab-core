@@ -319,9 +319,6 @@ GtTaskRunner::transferMonitoringProperties()
             return;
         }
 
-        //    qDebug() << "   |-> setting property to " <<
-        //                prop->valueToVariant().toDouble();
-
         // set original property to new value
         origProp->setValueFromVariant(prop->valueToVariant());
     }

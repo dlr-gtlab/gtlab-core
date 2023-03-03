@@ -564,7 +564,7 @@ GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
     // append data set to data table and check success
     if (!pimpl->monitoringDataTable.append(iteration, set))
     {
-        qWarning() << tr("Could not append data set!");
+        gtWarning().medium() << tr("Could not append data set!");
         return;
     }
 

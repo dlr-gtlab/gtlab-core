@@ -20,25 +20,22 @@
 #include "gt_mementochangecommand.h"
 #include "gt_processrunner.h"
 #include "gt_processexecutor.h"
-#include "gt_filesystem.h"
 
 #include "gt_datamodel.h"
 #include "gt_command.h"
 #include "gt_applicationprivate.h"
-#include "gt_project.h"
 #include "gt_logging.h"
-#include "gt_saveprojectmessagebox.h"
 #include "gt_icons.h"
 #include "gt_shortcuts.h"
 #include "gt_projectui.h"
 
+#include <QMessageBox>
 #include <QIcon>
 #include <QApplication>
 #include <QDir>
 #include <QClipboard>
 #include <QUndoStack>
 #include <QUuid>
-#include <QDebug>
 #include <QKeyEvent>
 #include <QStandardPaths>
 
@@ -496,13 +493,13 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
 
     if (!root)
     {
-        qDebug() << tr("root object == NULL!");
+        gtWarning().medium() << tr("root object == NULL!");
         return GtCommand();
     }
 
     if (commandId.isEmpty())
     {
-        qDebug() << tr("cannot start command with empty id!");
+        gtWarning().medium() << tr("cannot start command with empty id!");
         return GtCommand();
     }
 
@@ -519,7 +516,8 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
     m_d->m_commandId = commandId;
     m_d->m_commandUuid = QUuid::createUuid().toString();
 
-    qDebug() << "######## COMMAND STARTED! (" << m_d->m_commandId << ")";
+    gtDebug().verbose() << "######## COMMAND STARTED! ("
+                        << m_d->m_commandId << ")";
 
     gtDataModel->beginResetModelView();
 
@@ -533,25 +531,25 @@ GtApplication::endCommand(const GtCommand& command)
 
     if (m_d->m_commandUuid.isEmpty())
     {
-        qDebug() << tr("command uuid is empty!");
+        gtWarning().medium() << tr("command uuid is empty!");
         return;
     }
 
     if (!command.isValid())
     {
-        qDebug() << tr("command is invlid!");
+        gtWarning().medium() << tr("command is invlid!");
         return;
     }
 
     if (m_d->m_commandUuid != command.id())
     {
-        qDebug() << tr("wrong command uuid!");
+        gtWarning().medium() << tr("wrong command uuid!");
         return;
     }
 
     if (!m_d->m_commandRoot)
     {
-        qDebug() << tr("invlid command root!");
+        gtWarning().medium() << tr("invlid command root!");
         return;
     }
 
@@ -559,12 +557,12 @@ GtApplication::endCommand(const GtCommand& command)
 
     GtObjectMementoDiff diff(m_d->m_commandMemento, newMemento);
 
-    qDebug() << "######## COMMAND END! (" << m_d->m_commandId << ")";
+    gtDebug().verbose() << "######## COMMAND END! (" << m_d->m_commandId << ")";
 
     auto* root =  m_d->m_commandRoot->findRoot<GtSession*>();
     if (!root)
     {
-        qDebug() << tr("no root object found!");
+        gtWarning().medium() << tr("no root object found!");
         return;
     }
 

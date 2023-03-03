@@ -7,8 +7,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-
 #include "gt_logging.h"
 
 #include "gt_propertyconnection.h"
@@ -73,7 +71,7 @@ GtPropertyConnection::setTargetProp(const QString& targetProp)
 void
 GtPropertyConnection::makeConnection()
 {
-    qDebug() << "#### make connection...";
+    gtDebug().verbose() << "#### make connection...";
 
     // check source property pointer
     if (m_sourcePropObj)
@@ -178,7 +176,7 @@ GtPropertyConnection::makeConnection()
     // establish connection
     targetPropety->propertyConnect(this);
 
-    qDebug() << "#### connection established!";
+    gtDebug().verbose() << "#### connection established!";
 }
 
 QVariant

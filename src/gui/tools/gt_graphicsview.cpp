@@ -77,7 +77,8 @@ GtGraphicsView::setHorizontalRuler(GtRuler *ruler)
 {
     if (!m_grid)
     {
-        qWarning() << "WARNING: could not set Ruler. Set grid first!";
+        gtWarning().verbose().nospace()
+                << __FUNCTION__ << ": " << tr("Could not set Ruler. Set grid first!");
         return;
     }
 
@@ -89,7 +90,8 @@ GtGraphicsView::setVerticalRuler(GtRuler *ruler)
 {
     if (!m_grid)
     {
-        qWarning() << "WARNING: could not set Ruler. Set grid first!";
+        gtWarning().verbose().nospace()
+                << __FUNCTION__ << ": " << tr("Could not set Ruler. Set grid first!");
         return;
     }
 

@@ -364,8 +364,6 @@ GtProjectProvider::mapToSource()
     }
     else
     {
-        //        qDebug() << "selected modules: " << m_pModules;
-
         if (generateFiles())
         {
             m_project = new GtProject(m_pPath);
@@ -375,8 +373,6 @@ GtProjectProvider::mapToSource()
             {
                 delete m_project;
             }
-
-            //            m_project->setModuleIds(m_pModules);
         }
     }
 }
@@ -578,12 +574,12 @@ GtProjectProvider::modifyMainProjectFile()
     {
         QString id = me.attribute(QStringLiteral("name"));
 
-        qDebug() << "checking module " << id << "...";
+        gtDebug().verbose() << tr("Checking module '%1'...").arg(id);
 
         if (!m_pModules.contains(id))
         {
             // remove entry
-            qDebug() << "removing child " << id << "...";
+            gtDebug().verbose() << tr("Removing child '%1'...").arg(id);
             modElement.removeChild(me);
         }
 

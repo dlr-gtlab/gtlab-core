@@ -13,8 +13,8 @@
 #include "gt_ruler.h"
 #include "gt_application.h"
 #include "gt_colors.h"
+#include "gt_logging.h"
 #include <QtMath>
-#include <QDebug>
 
 GtGrid::GtGrid(GtGraphicsView& view) :
     m_view(view),
@@ -41,7 +41,7 @@ GtGrid::setGridWidth(int val)
 {
     if (val < 10)
     {
-        qWarning() << "WARNING: grid width < 10!";
+        gtWarning().verbose() << tr("Grid width < 10!");
         return;
     }
 
@@ -53,7 +53,7 @@ GtGrid::setGridHeight(int val)
 {
     if (val < 10)
     {
-        qWarning() << "WARNING: grid height < 10!";
+        gtWarning().verbose() << tr("Grid height < 10!");
         return;
     }
 
@@ -65,7 +65,7 @@ GtGrid::setNumberOfGridPoints(int horizontal, int vertical)
 {
     if (horizontal < 2 || vertical < 2)
     {
-        qWarning() << "WARNING: number of points < 2!";
+        gtWarning().verbose() << tr("Number of points < 2!");
         return;
     }
 
@@ -201,28 +201,27 @@ GtGrid::paintRuler(GtRuler* ruler)
 {
     if (!ruler)
     {
-        qWarning() << "WARNING: ruler == NULL";
-//        QLOG_WARN() << "WARNING: ruler == NULL";
+        gtWarning().verbose().nospace() 
+                << __FUNCTION__ << ": " << tr("Ruler == NULL");
         return;
     }
 
     if (ruler->buffer().isNull())
     {
-        qWarning() << "WARNING: buffer == NULL";
-//        QLOG_WARN() << "WARNING: buffer == NULL";
+        gtWarning().verbose() << "GtGrid::paintRuler"
+                              << tr("WARNING: buffer == NULL");
         return;
     }
 
     if (!m_rect.isValid())
     {
-        qWarning() << "WARNING: m_rect not valid";
-        qWarning() << " |-> " << m_rect;
+        gtWarning().verbose() << "GtGrid::paintRuler"
+                              << tr("WARNING: m_rect not valid");
+        gtWarning().verbose() << " |-> " << m_rect;
 
         m_rect.setBottomRight(QPointF(0.0, 0.0));
         m_rect.setTopLeft(QPointF(0.0, 0.0));
 
-//        QLOG_WARN() << "WARNING: m_rect not valid";
-//        QLOG_WARN() << " |-> " << m_rect;
 //        return;
     }
 

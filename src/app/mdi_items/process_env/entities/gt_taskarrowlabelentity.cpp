@@ -9,13 +9,11 @@
 
 #include <QPainter>
 #include <QGraphicsSceneDragDropEvent>
-#include <QDebug>
 
 #include "gt_taskarrowlabelentity.h"
 #include "gt_object.h"
 #include "gt_datamodel.h"
 #include "gt_processfactory.h"
-#include "gt_application.h"
 #include "gt_colors.h"
 
 GtTaskArrowLabelEntity::GtTaskArrowLabelEntity(QGraphicsItem* parent) :
@@ -56,8 +54,6 @@ GtTaskArrowLabelEntity::boundingRect() const
 void
 GtTaskArrowLabelEntity::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 {
-//    qDebug() << "GtTaskArrowLabelEntity::dragEnterEvent";
-
     const QMimeData* mimeData = event->mimeData();
 
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
@@ -65,8 +61,6 @@ GtTaskArrowLabelEntity::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 
     if (obj)
     {
-//        qDebug() << "obj = " << obj->objectName();
-//        qDebug() << "uuid = " << obj->uuid();
         delete obj;
 
         event->setAccepted(true);
@@ -74,20 +68,14 @@ GtTaskArrowLabelEntity::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 
 //        event->setDropAction(Qt::LinkAction);
 //        event->acceptProposedAction();
-
-
-//        qDebug() << "accepted!";
     }
     else
     {
         event->setAccepted(false);
 
-
 //        event->setDropAction(Qt::IgnoreAction);
 //        event->acceptProposedAction();
 
-
-//        qDebug() << "ignored!";
     }
 
     //    QGraphicsTextItem::dragEnterEvent(event);
@@ -96,14 +84,12 @@ GtTaskArrowLabelEntity::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 void
 GtTaskArrowLabelEntity::dragLeaveEvent(QGraphicsSceneDragDropEvent* /*event*/)
 {
-//    qDebug() << "GtTaskArrowLabelEntity::dragLeaveEvent";
+
 }
 
 void
 GtTaskArrowLabelEntity::dropEvent(QGraphicsSceneDragDropEvent* event)
 {
-    qDebug() << "GtTaskArrowLabelEntity::dropEvent";
-
     const QMimeData* mimeData = event->mimeData();
 
     GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,

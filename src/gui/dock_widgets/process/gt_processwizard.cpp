@@ -362,9 +362,6 @@ GtProcessWizard::executionSettings()
 
     if (dialog.exec())
     {
-        qDebug() << "#### EXECUTION SETTINGS END";
-        qDebug() << calc->toMemento().toByteArray();
-
         m_provider->setComponentData(calc->toMemento());
         currentPage()->initializePage();
     }
