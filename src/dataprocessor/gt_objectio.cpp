@@ -932,6 +932,11 @@ QVariant
 propertyToVariant(const QString& value, const QString& type)
 {
 
+    if (type.isEmpty() && value.trimmed().isEmpty())
+    {
+        return QVariant{};
+    }
+
     std::string str = type.toStdString();
     const char* p = str.c_str();
 
