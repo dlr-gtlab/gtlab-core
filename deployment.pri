@@ -174,6 +174,12 @@ defineTest(copyToEnvironmentPath) {
             dllPath ~= s,/,\\,g
 
             QMAKE_POST_LINK += $$MY_COPY $$shell_quote($$dllPath) $$shell_quote($$environmentPath) $$escape_expand(\\n\\t)
+
+            libPath = $${DESTDIR}/$${TARGET}.lib
+            libPath ~= s,/,\\,g
+
+            QMAKE_POST_LINK += $$MY_COPY $$shell_quote($$libPath) $$shell_quote($$environmentPath) $$escape_expand(\\n\\t)
+
         }
 
         unix:  QMAKE_POST_LINK += find $${DESTDIR} -name $$shell_quote(*$${TARGET}.so*) -exec cp $$shell_quote({}) $$shell_quote($$environmentPath) \; $$escape_expand(\\n\\t)
