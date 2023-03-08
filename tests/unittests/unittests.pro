@@ -43,13 +43,13 @@ CONFIG += console
 INCLUDEPATH += .\
     ../../src/dataprocessor \
     ../../src/dataprocessor/property \
+    ../../src/dataprocessor/thirdparty \
     ../../src/core \
     ../../src/core/network \
     ../../src/core/provider \
     ../../src/core/settings \
     ../../src/core/process_management \
     ../../src/core/network \
-    ../../src/core/thirdparty \
     ../../src/gui \
     ../../src/gui/tools \
     ../../src/gui/dialogs \

@@ -47,7 +47,8 @@ CONFIG(debug, debug|release){
 }
 
 INCLUDEPATH += .\
-    property
+    property \
+    thirdparty
 
 DESTDIR = $${BUILD_DEST}
 
