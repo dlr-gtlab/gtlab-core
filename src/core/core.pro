@@ -280,7 +280,10 @@ unix:{
 
 contains(BUILD_DEPLOY, true) {
 
-    copyHeaders($$HEADERS)
+    KEEP_INCLUDEPATHS =
+    PRIVATE_INCLUDEPATHS += internal
+
+    copyHeaders($$HEADERS, $$KEEP_INCLUDEPATHS, $$PRIVATE_INCLUDEPATHS)
     copyToEnvironmentPath()
 }
 

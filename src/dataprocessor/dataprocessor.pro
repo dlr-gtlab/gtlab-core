@@ -115,7 +115,8 @@ HEADERS += \
     gt_regexp.h \
     gt_algorithms.h \
     gt_mpl.h \
-    gt_versionnumber.h
+    gt_versionnumber.h \
+    thirdparty/mpark/variant.hpp
 
 SOURCES += \
     gt_abstractexternalizationinterface.cpp \
@@ -216,7 +217,10 @@ unix:{
 
 contains(BUILD_DEPLOY, true) {
 
-    copyHeaders($$HEADERS)
+    KEEP_INCLUDEPATHS = thirdparty/mpark
+    PRIVATE_INCLUDEPATHS += internal
+
+    copyHeaders($$HEADERS, $$KEEP_INCLUDEPATHS, $$PRIVATE_INCLUDEPATHS)
     copyToEnvironmentPath()
 }
 
