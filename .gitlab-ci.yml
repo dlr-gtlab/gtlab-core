@@ -106,7 +106,7 @@ windowsBuildDebug:
       - build/GTlabConsole.exe
       - build/$UNITTESTSNAME.exe
       - build/$UNITTESTSNAME.pdb
-      - include/$TARGETDIRNAME/*.h
+      - include/$TARGETDIRNAME/
     expire_in: 1 week
     when: always
   variables:
@@ -123,7 +123,7 @@ windowsBuildRelease:
     paths:
       - lib/$TARGETDIRNAME/*.dll
       - lib/$TARGETDIRNAME/*.lib
-      - include\$TARGETDIRNAME\*.h
+      - include\$TARGETDIRNAME\
       - build/GTlabGui.dll
       - build/GTlabGui.lib
       - build/$TARGETNAME.exe
@@ -173,7 +173,7 @@ linuxBuildRelease:
     - build/$TARGETNAME
     - build/GTlabConsole
     - build/libGTlabGui.so*
-    - include/$TARGETDIRNAME/*.h
+    - include/$TARGETDIRNAME/
     expire_in: 1 week
   variables:
     BUILDMODE: release
