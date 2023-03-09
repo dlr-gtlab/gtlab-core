@@ -52,7 +52,7 @@ GtPostModel::data(const QModelIndex& index, int role) const
 
         case Qt::DecorationRole:
         {
-            return gt::gui::icon::post();
+            return gt::gui::icon::chartLine();
         }
     }
 
@@ -267,7 +267,7 @@ GtPostModel::newPostTemplate()
 
     QStringList oldEntries = entries();
 
-    QString id = getUniqueName(QStringLiteral("New_Template"), oldEntries);
+    QString id = gt::makeUniqueName(QStringLiteral("New_Template"), oldEntries);
 
     QString filename = createFilename(id);
 

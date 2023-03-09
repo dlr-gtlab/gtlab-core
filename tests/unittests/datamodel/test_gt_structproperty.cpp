@@ -84,16 +84,16 @@ TEST_F(TestGtStructProperty, checkPropertySize)
 {
     TestObject obj;
 
-    EXPECT_EQ(0, obj.environmentVars.size());
+    EXPECT_EQ(0u, obj.environmentVars.size());
 
     auto* props = obj.findPropertyContainer("environmentVars");
     ASSERT_TRUE(props != nullptr);
 
-    EXPECT_EQ(0, props->size());
+    EXPECT_EQ(0u, props->size());
 
     obj.addEnvironmentVar("PATH", "/usr/bin");
 
-    EXPECT_EQ(1, props->size());
+    EXPECT_EQ(1u, props->size());
 }
 
 TEST_F(TestGtStructProperty, checkContent)
@@ -103,7 +103,7 @@ TEST_F(TestGtStructProperty, checkContent)
 
     auto* props = obj.findPropertyContainer("environmentVars");
 
-    ASSERT_EQ(1, props->size());
+    ASSERT_EQ(1u, props->size());
 
     auto& props0 = props->at(0);
 
@@ -199,14 +199,14 @@ TEST_F(TestGtStructProperty, readFromMemento)
 
     TestObject newObj;
 
-    EXPECT_EQ(0, newObj.environmentVars.size());
+    EXPECT_EQ(0u, newObj.environmentVars.size());
 
     memento.mergeTo(newObj, *gtObjectFactory);
 
     // check equality of both objects by comparing the mementos
     EXPECT_TRUE(GtObjectMementoDiff(memento, newObj.toMemento()).isNull());
 
-    ASSERT_EQ(2, newObj.environmentVars.size());
+    ASSERT_EQ(2u, newObj.environmentVars.size());
 
     const auto& entry0 = newObj.environmentVars[0];
     EXPECT_EQ(QString("PATH"), entry0.getMemberVal<QString>("name"));
@@ -243,13 +243,13 @@ TEST_F(TestGtStructProperty, readMissingDynprop)
     newObj.addEnvironmentVar("PATH", "/usr/bin");
     newObj.addEnvironmentVar("LD_DEBUG", "1");
 
-    EXPECT_EQ(2, newObj.environmentVars.size());
+    EXPECT_EQ(2u, newObj.environmentVars.size());
 
     // hence, the memento should not delete / change the
     // environment vars, since it was deleted from the memento
     memento.mergeTo(newObj, *gtObjectFactory);
 
-    EXPECT_EQ(2, newObj.environmentVars.size());
+    EXPECT_EQ(2u, newObj.environmentVars.size());
 }
 
 TEST_F(TestGtStructProperty, readXmlToMemento)
@@ -726,7 +726,7 @@ TEST_F(TestGtStructProperty, moveToThreadBug)
     });
 
     ASSERT_TRUE(obj != nullptr);
-    ASSERT_EQ(obj->environmentVars.size(), 1);
+    ASSERT_EQ(obj->environmentVars.size(), 1u);
     EXPECT_FALSE(changed);
 
     obj->environmentVars.at(0).setMemberVal("value", "world");

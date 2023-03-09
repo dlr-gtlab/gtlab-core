@@ -103,7 +103,7 @@ GtGraphicsView::wheelEvent(QWheelEvent* e)
 {
     if (e->modifiers() & Qt::ControlModifier)
     {
-        zoomAnimation(e->delta());
+        zoomAnimation(e->angleDelta().y());
         e->accept();
     }
     else

@@ -87,7 +87,7 @@ QString getFunctionSignature()
 
     if (!args.empty())
     {
-        for (int i = 0; i < args.size(); ++i)
+        for (size_t i = 0; i < args.size(); ++i)
         {
             signature += QString{args[i]} + QString{argSigs[i]};
             signature += QStringLiteral(", ");

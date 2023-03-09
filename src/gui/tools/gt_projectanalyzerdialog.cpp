@@ -158,10 +158,11 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
                                      incompatibleModules.value(e).toString() <<
                                      gtApp->moduleVersion(e).toString());
 
-                incompatibleModule->setBackgroundColor(1,
-                                                       QColor(255, 0, 0, 100));
-                incompatibleModule->setBackgroundColor(2,
-                                                       QColor(255, 0, 0, 100));
+                incompatibleModule->setData(1, Qt::BackgroundRole,
+                                            QColor(255, 0, 0, 100));
+                incompatibleModule->setData(2, Qt::BackgroundRole,
+                                            QColor(255, 0, 0, 100));
+
                 incompatibleModule->setIcon(0, gt::gui::icon::plugin());
 
                 tWid->addTopLevelItem(incompatibleModule);

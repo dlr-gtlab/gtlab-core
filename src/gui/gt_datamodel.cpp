@@ -44,7 +44,7 @@ GtDataModel::flags(const QModelIndex& index) const
     // check index
     if (!index.isValid())
     {
-        return nullptr;
+        return {};
     }
 
     // collect default flags

@@ -20,7 +20,7 @@ GtPreferencesPathSettings::GtPreferencesPathSettings() :
     GtPreferencesPage(tr("Environment Variables"))
 {
     setTitleShort(tr("Environment"));
-    setIcon(gt::gui::icon::pathSettings());
+    setIcon(gt::gui::icon::applicationVar());
 
     QTableView* view = new QTableView;
 

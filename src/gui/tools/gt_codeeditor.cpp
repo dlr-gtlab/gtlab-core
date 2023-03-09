@@ -47,7 +47,7 @@ GtCodeEditor::lineNumberAreaWidth()
         ++digits;
     }
 
-    int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
+    int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
 
     return space;
 }
@@ -131,7 +131,7 @@ GtCodeEditor::wheelEvent(QWheelEvent* event)
 {
     if (event->modifiers() == Qt::ControlModifier && !isReadOnly())
     {
-        if (event->delta() > 0)
+        if (event->angleDelta().y() > 0)
         {
             zoomIn(2);
         }
@@ -142,7 +142,7 @@ GtCodeEditor::wheelEvent(QWheelEvent* event)
 
         const int tabStop = 4;
         QFontMetrics metrics(font());
-        setTabStopWidth(tabStop * metrics.width(' '));
+        setTabStopDistance(tabStop * metrics.horizontalAdvance(' '));
     }
     else
     {

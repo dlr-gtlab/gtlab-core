@@ -666,7 +666,7 @@ GtApplication::compareKeyEvent(QKeyEvent* keyEvent,
         return false;
     }
 
-    return k[0] == (keyEvent->key() | keyEvent->modifiers());
+    return k[0] == (keyEvent->key() | static_cast<int>(keyEvent->modifiers()));
 }
 
 GtShortCuts*

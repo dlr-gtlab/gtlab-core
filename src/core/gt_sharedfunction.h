@@ -48,7 +48,7 @@ public:
     // We want to have implicit conversion from nullptr as it should behave
     // as a function pointer
     // cppcheck-suppress noExplicitConstructor // NOLINTNEXTLINE
-    SharedFunction(nullptr_t) {}
+    SharedFunction(std::nullptr_t) {}
 
     /**
      * @brief Calls the function
@@ -89,12 +89,12 @@ public:
         return !isNull();
     }
 
-    bool operator==(nullptr_t) const
+    bool operator==(std::nullptr_t) const
     {
         return isNull();
     }
 
-    bool operator!=(nullptr_t) const
+    bool operator!=(std::nullptr_t) const
     {
         return !isNull();
     }

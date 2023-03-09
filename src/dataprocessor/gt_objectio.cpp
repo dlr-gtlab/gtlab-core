@@ -1248,7 +1248,7 @@ bool handlePropContEntryAdd(const QDomElement& diffTag,
     bool okay = false;
     auto idx = idxStr.toInt(&okay);
 
-    if (!okay || idx < 0 || idx > container.size())
+    if (!okay || idx < 0 || idx > static_cast<long>(container.size()))
         return false; // index cannot be parsed
 
     auto pos = container.begin();

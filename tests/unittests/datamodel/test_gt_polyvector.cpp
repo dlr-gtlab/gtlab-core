@@ -65,7 +65,7 @@ TEST_F(TestPolyVector, emplace)
     vec.emplace_back<DerivedCopyable>("AnotherName");
     vec.emplace_back<DerivedNotCopyable>();
 
-    ASSERT_EQ(4, vec.size());
+    ASSERT_EQ(4u, vec.size());
 
     EXPECT_EQ("Base", vec[0].clz());
     EXPECT_EQ("DerivedCopyable", vec[1].clz());
@@ -85,7 +85,7 @@ TEST_F(TestPolyVector, push_back)
     DerivedCopyable d("YetAnotherName");
     vec.push_back(d);
 
-    ASSERT_EQ(5, vec.size());
+    ASSERT_EQ(5u, vec.size());
 
     EXPECT_EQ("Base", vec[0].clz());
     EXPECT_EQ("DerivedCopyable", vec[1].clz());

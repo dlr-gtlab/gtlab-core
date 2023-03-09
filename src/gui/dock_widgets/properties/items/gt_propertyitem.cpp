@@ -165,7 +165,7 @@ GtPropertyItem::data(int column, int role) const
             break;
 
         case GtPropertyModel::UnitCategoryRole:
-            return qVariantFromValue(m_property->unitCategory());
+            return QVariant::fromValue(m_property->unitCategory());
 
         case GtPropertyModel::ReadOnlyRole:
             return m_property->isReadOnly();

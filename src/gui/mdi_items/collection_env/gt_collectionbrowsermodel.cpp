@@ -41,6 +41,10 @@ GtCollectionBrowserModel::rowCount(const QModelIndex& parent) const
 
         case InstalledItemGroup:
             return m_installedItems.size();
+        case InstalledItem:
+        case AvailableItem:
+        case UpdateAvailableItem:
+            ;// do nothing
     }
 
     return 0;
@@ -97,7 +101,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
 
             if (role == Qt::DecorationRole && col == 0)
             {
-                return gt::gui::icon::stack();
+                return gt::gui::icon::layers();
             }
 
             break;
@@ -363,6 +367,11 @@ GtCollectionBrowserModel::setData(const QModelIndex& index,
 
             break;
         }
+        case InstalledItem:
+        case InstalledItemGroup:
+        case AvailableItemGroup:
+        case UpdateAvailableItemGroup:
+            ;// do nothing
     }
 
     return QAbstractItemModel::setData(index, value, role);
@@ -524,6 +533,8 @@ GtCollectionBrowserModel::flags(const QModelIndex& index) const
             {
                 flags = flags | Qt::ItemIsUserCheckable;
             }
+            default:
+                ;// do nothing
 
         }
     }

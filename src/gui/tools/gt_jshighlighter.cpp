@@ -496,12 +496,12 @@ GtJsHighlighter::mark(const QString& str, Qt::CaseSensitivity caseSensitivity)
 QStringList
 GtJsHighlighter::keywords() const
 {
-    return m_keywords.toList();
+    return m_keywords.values();
 }
 
 void
 GtJsHighlighter::setKeywords(const QStringList& keywords)
 {
-    m_keywords = QSet<QString>::fromList(keywords);
+    m_keywords = QSet<QString>(keywords.begin(), keywords.end());
     rehighlight();
 }

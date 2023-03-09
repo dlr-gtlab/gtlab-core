@@ -65,7 +65,7 @@ public:
         m_linkProp("linkProp", "Test Link", QString(), QString(), this, {}),
         m_strProp("strProp", "Test String",  QString(), "Test",
                    new QRegExpValidator(gt::re::onlyLettersAndNumbers(), this)),
-        m_varProp("Test Variant", QString()),
+        m_varProp("variantProp", "Test Variant", QString()),
         m_doubleListProp("dblList", "Double List Property"),
         m_exDirProp("exDir", "Existing Directory", "Existing Directory Property"),
         m_fileChooser("fileChooser", "File Chooser", "File Chooser", {"dat"})
