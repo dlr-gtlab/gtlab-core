@@ -23,6 +23,7 @@ struct TestGtObjectIO_Read : public ::testing::Test
          <propertylist name="emptyStringList" type="QString"></propertylist>
          <propertylist name="stringList" type="QString">hello;world</propertylist>
          <propertylist name="threeStrings" type="QString">;;</propertylist>
+         <property name="invalidVariant" type=""/>
         </object>
         )";
 
@@ -77,5 +78,17 @@ TEST_F(TestGtObjectIO_Read, read3Strings)
     EXPECT_EQ("", list[0].toStdString());
     EXPECT_EQ("", list[1].toStdString());
     EXPECT_EQ("", list[2].toStdString());
+}
+
+TEST_F(TestGtObjectIO_Read, invalidQVariant)
+{
+    auto variantProp = GtObjectMemento::findPropertyByName(memento.properties,
+                                                       "invalidVariant");
+
+    ASSERT_TRUE(variantProp != nullptr);
+
+    QVariant variant = variantProp->data();
+
+    EXPECT_FALSE(variant.isValid());
 }
 
