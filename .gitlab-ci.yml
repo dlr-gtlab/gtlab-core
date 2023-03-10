@@ -368,6 +368,8 @@ valgrind:
     - mv pkg/$BINDIR/*.lib pkg/lib/$TARGETDIRNAME/ 2> /dev/null || `:`
     - cp pkg/$BINDIR/*.so pkg/lib/$TARGETDIRNAME/ 2> /dev/null || `:`
     - rm pkg/$BINDIR/$UNITTESTSNAME* 2> /dev/null || `:`
+    # move CHANGELOG.md into package
+    - mv CHANGELOG.md pkg/ 2> /dev/null || `:`
     # show package contents
     - find pkg/
   artifacts:
