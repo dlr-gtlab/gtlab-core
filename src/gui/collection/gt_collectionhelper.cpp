@@ -106,7 +106,7 @@ GtCollectionHelper::processListData(const QByteArray& byteArray,
 {
     QString str = byteArray;
     QStringList urls = str.split(QRegExp(QStringLiteral("[\r\n]")),
-                                 QString::SkipEmptyParts);
+                                 Qt::SkipEmptyParts);
 
     url.setUrl(url.toDisplayString().remove(QStringLiteral("index.dat")));
 

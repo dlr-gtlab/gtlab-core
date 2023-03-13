@@ -156,7 +156,7 @@ GtCollectionEditor::generateCollectionSpecificWidgets()
     hLay->addWidget(m_updateAllButton);
 
     m_downloadButton =
-            new QPushButton(gt::gui::icon::dropdown(),
+            new QPushButton(gt::gui::icon::download(),
                             tr("Download Selected"));
 
     m_downloadButton->setEnabled(false);

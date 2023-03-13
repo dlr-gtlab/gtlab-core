@@ -113,8 +113,7 @@ GtTaskLinkEntity::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
     else
     {
 //        QApplication::restoreOverrideCursor();
-        QPixmap pixmap = gt::gui::pixmap::jumpTo();
-        pixmap = pixmap.scaledToWidth(30);
+        QPixmap pixmap = gt::gui::icon::jumpTo().pixmap(30,30);
         QCursor cursor(pixmap);
         setCursor(cursor);
     }

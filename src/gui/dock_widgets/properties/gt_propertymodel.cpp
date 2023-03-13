@@ -469,7 +469,7 @@ GtPropertyModel::removeStructContainerEntry(const QModelIndex& index)
         return;
     }
 
-    if (index.row() >= container->size())
+    if (index.row() >= static_cast<int>(container->size()))
     {
         gtWarning() << tr("index out of bounds!");
         return;

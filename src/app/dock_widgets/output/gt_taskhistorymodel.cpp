@@ -64,6 +64,7 @@ GtTaskHistoryModel::data(const QModelIndex& index, int role) const
                 case 3:
                     return entry.m_endTime.toString(m_dateFormat);
             }
+            break;
         }
 
         case Qt::DecorationRole:
@@ -280,6 +281,8 @@ GtTaskHistoryModel::taskStateToString(GtProcessComponent::STATE state) const
 
         case GtProcessComponent::TERMINATED:
             return tr("[TERMINATED]");
+        default:
+            return {};
 
     }
 

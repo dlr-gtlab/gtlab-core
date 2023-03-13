@@ -42,7 +42,7 @@ GtLabelUsageDelegate::paint(QPainter* painter,
     foreach (const QString& s, subStrs)
     {
 
-        int lineWidth = fm.width(s);
+        int lineWidth = fm.horizontalAdvance(s);
 
         const QRect strRect(rect.left() + current,
                             rect.top(),

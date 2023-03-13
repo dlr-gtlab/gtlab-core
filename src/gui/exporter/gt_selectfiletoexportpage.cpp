@@ -120,7 +120,7 @@ GtSelectFileToExportPage::selectFilePath()
         QString ext = m_fileExtension;
         ext.remove(QStringLiteral("(*"));
         ext.remove(QStringLiteral(")"));
-        QStringList extSplit = ext.split(".", QString::SkipEmptyParts);
+        QStringList extSplit = ext.split(".", Qt::SkipEmptyParts);
 
         initFileName += QStringLiteral(".") + extSplit.last();
     }

@@ -760,7 +760,7 @@ GT_DEF_ICON_ALIAS(pathSettings, applicationVar)
 
 GT_DEF_ICON_ALIAS(frame, layers)
 
-GT_DEF_ICON_ALIAS(unknown, objectUnkown)
+GT_DEF_ICON_ALIAS(unknown, objectUnknown)
 
 GT_DEF_ICON_ALIAS(close24, cross)
 
@@ -779,8 +779,8 @@ GT_DEF_ICON_ALIAS(printPDF, pdf)
 GT_DEF_ICON_ALIAS(upgradeProjectData, update)
 
 GT_DEF_ICON_ALIAS(move, cursorMove)
-GT_DEF_ICON_ALIAS(move16, move)
-GT_DEF_ICON_ALIAS(move24, move)
+GT_DEF_ICON_ALIAS(move16, cursorMove)
+GT_DEF_ICON_ALIAS(move24, cursorMove)
 
 GT_DEF_ICON_ALIAS(plus, mathPlus)
 GT_DEF_ICON_ALIAS(minus, mathMinus)
@@ -790,12 +790,12 @@ GT_DEF_ICON_ALIAS(square, mathExponent)
 GT_DEF_ICON_ALIAS(squareRoot, mathRoot)
 
 GT_DEF_ICON_ALIAS(stepFile, fileStep)
-GT_DEF_ICON_ALIAS(stepFile16, stepFile)
-GT_DEF_ICON_ALIAS(stepFile24, stepFile)
+GT_DEF_ICON_ALIAS(stepFile16, fileStep)
+GT_DEF_ICON_ALIAS(stepFile24, fileStep)
 
 GT_DEF_ICON_ALIAS(fileIn, fileImport)
-GT_DEF_ICON_ALIAS(fileIn16, fileIn)
-GT_DEF_ICON_ALIAS(fileIn24, fileIn)
+GT_DEF_ICON_ALIAS(fileIn16, fileImport)
+GT_DEF_ICON_ALIAS(fileIn24, fileImport)
 
 GT_DEF_ICON_ALIAS(textNote24, text)
 
@@ -804,8 +804,8 @@ GT_DEF_ICON_ALIAS(bezierCurve, vectorBezier)
 GT_DEF_ICON_ALIAS(simpleCurve, vectorCurve)
 
 GT_DEF_ICON_ALIAS(dataBaseArrowUp, dataArrowUp)
-GT_DEF_ICON_ALIAS(dataBaseArrowUp16, dataBaseArrowUp)
-GT_DEF_ICON_ALIAS(dataBaseArrowUp24, dataBaseArrowUp)
+GT_DEF_ICON_ALIAS(dataBaseArrowUp16, dataArrowUp)
+GT_DEF_ICON_ALIAS(dataBaseArrowUp24, dataArrowUp)
 
 GT_DEF_ICON_ALIAS(editPen, rename)
 
@@ -819,21 +819,21 @@ GT_DEF_ICON_ALIAS(globals16, dataSingle)
 GT_DEF_ICON_ALIAS(xyPlot16, chartXY)
 
 GT_DEF_ICON_ALIAS(engine, objectEngine)
-GT_DEF_ICON_ALIAS(engine16, engine)
+GT_DEF_ICON_ALIAS(engine16, objectEngine)
 
 GT_DEF_ICON_ALIAS(combustor, objectCombustor)
-GT_DEF_ICON_ALIAS(combustor16, combustor)
+GT_DEF_ICON_ALIAS(combustor16, objectCombustor)
 
 GT_DEF_ICON_ALIAS(compressor, objectCompressor)
-GT_DEF_ICON_ALIAS(compressor16, compressor)
+GT_DEF_ICON_ALIAS(compressor16, objectCompressor)
 
 GT_DEF_ICON_ALIAS(speedLine, perfSpeedLine)
-GT_DEF_ICON_ALIAS(speedLine16, speedLine)
-GT_DEF_ICON_ALIAS(speedLine24, speedLine)
+GT_DEF_ICON_ALIAS(speedLine16, perfSpeedLine)
+GT_DEF_ICON_ALIAS(speedLine24, perfSpeedLine)
 
 GT_DEF_ICON_ALIAS(performanceOffDesign, perfOperatingPoint)
-GT_DEF_ICON_ALIAS(performanceOffDesign16, speedLine)
-GT_DEF_ICON_ALIAS(performanceOffDesign24, speedLine)
+GT_DEF_ICON_ALIAS(performanceOffDesign16, perfOperatingPoint)
+GT_DEF_ICON_ALIAS(performanceOffDesign24, perfOperatingPoint)
 
 QIcon
 gt::gui::icon::minimize()

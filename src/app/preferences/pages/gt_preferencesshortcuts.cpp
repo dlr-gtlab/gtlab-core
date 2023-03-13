@@ -26,7 +26,7 @@
 GtPreferencesShortCuts::GtPreferencesShortCuts() :
     GtPreferencesPage(tr("Short Cuts"))
 {
-    setIcon(gt::gui::icon::input2());
+    setIcon(gt::gui::icon::inputSettings());
 
     m_tab = new QTableWidget(1, 1, this);
 

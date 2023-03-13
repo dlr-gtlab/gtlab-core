@@ -83,7 +83,7 @@ QSize
 GtRuler::getFontSizeHint(const QString &str) const
 {
     QFontMetrics fm(getFont());
-    QSize size(int(fm.width(str) * 1.5), fm.height());
+    QSize size(int(fm.horizontalAdvance(str) * 1.5), fm.height());
 
     if (m_orientation == Qt::Vertical)
     {

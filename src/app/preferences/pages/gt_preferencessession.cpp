@@ -171,13 +171,13 @@ GtPreferencesSession::onItemSelectionChange()
 }
 
 void
-GtPreferencesSession::onItemTextChange(const QString& val)
+GtPreferencesSession::onItemTextChange(const QString& /* val */)
 {
 
 }
 
 void
-GtPreferencesSession::onLstItemsCommitData(QWidget* pLineEdit)
+GtPreferencesSession::onLstItemsCommitData(QWidget* /* pLineEdit */)
 {
 
 }

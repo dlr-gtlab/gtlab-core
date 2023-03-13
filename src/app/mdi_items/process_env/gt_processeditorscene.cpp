@@ -277,7 +277,7 @@ GtProcessEditorScene::onRowsRemoved(const QModelIndex& parent, int start,
 
         for (int i = start; i <= end; i++)
         {
-            QModelIndex child = parent.child(start, 0);
+            QModelIndex child = m_model->index(start, 0, parent);
 
             GtObject* obj = gtDataModel->objectFromIndex(child);
 

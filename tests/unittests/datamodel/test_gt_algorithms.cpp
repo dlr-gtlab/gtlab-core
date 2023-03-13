@@ -37,7 +37,7 @@ TEST(TestGtAlgorithms, topoSort)
         return std::find(result.begin(), result.end(), n);
     };
 
-    ASSERT_EQ(8, result.size());
+    ASSERT_EQ(8u, result.size());
 
     // check that all nodes are in result
     ASSERT_TRUE(findNumber(11) != result.end());
