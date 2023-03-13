@@ -9,6 +9,7 @@
 #include "gt_palette.h"
 
 #include "gt_colors.h"
+#include "gt_stylesheets.h"
 #include "gt_application.h"
 
 #include <QSettings>
@@ -130,7 +131,13 @@ gt::gui::standardTheme()
 template <typename Widget>
 inline void applyTheme(Widget& w)
 {
-    QString stylesheet;
+    QString stylesheet =
+            gt::gui::stylesheet::toolTip() +
+            gt::gui::stylesheet::lineEdit() +
+            gt::gui::stylesheet::checkBox() +
+            gt::gui::stylesheet::comboBox() +
+            gt::gui::stylesheet::spinbox() +
+            gt::gui::stylesheet::pushButton();
 
 #ifndef Q_OS_WIN
     QString style = QStringLiteral("Default");
@@ -141,26 +148,6 @@ inline void applyTheme(Widget& w)
     if (gtApp->inDarkMode())
     {
         style = QStringLiteral("Fusion");
-        stylesheet.append(QStringLiteral(
-            "QToolTip {"
-            " color: white; "
-            " background-color: #2a82da;"
-            " border: 1px solid white;"
-            "}"
-//            "QCheckBox::indicator {"
-//            " border: 1px solid gray;"
-//            "}"
-        ));
-    }
-    else
-    {
-        stylesheet.append(QStringLiteral(
-            "QToolTip {"
-            " color: black; "
-            " background-color: white;"
-            " border: 1px solid black;"
-            "}"
-        ));
     }
 
     w.setStyle(QStyleFactory::create(style));

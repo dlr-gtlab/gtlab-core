@@ -233,6 +233,7 @@ GtPreferencesApp::GtPreferencesApp() :
 
 //    connect(m_autoSaveModifications, SIGNAL(clicked(bool)),
 //            SLOT(onAutoSaveTriggered(bool)));
+    m_updateAtStartup->setTristate(true);
 }
 
 void

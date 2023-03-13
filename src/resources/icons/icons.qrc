@@ -735,5 +735,9 @@
         <file>stylesheets/arrowDown_dark.svg</file>
         <file>stylesheets/arrowUp_dark.svg</file>
         <file>diskGradient_custom.svg</file>
+        <file>stylesheets/checked.svg</file>
+        <file>stylesheets/checked_dark.svg</file>
+        <file>stylesheets/checked_intermediate.svg</file>
+        <file>stylesheets/checked_intermediate_dark.svg</file>
     </qresource>
 </RCC>

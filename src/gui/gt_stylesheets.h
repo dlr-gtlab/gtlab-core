@@ -29,6 +29,23 @@ enum class RunButtonState
     QueueProcess
 };
 
+QString GT_GUI_EXPORT toolTip();
+
+QString GT_GUI_EXPORT lineEdit();
+
+QString GT_GUI_EXPORT checkBox();
+
+QString GT_GUI_EXPORT comboBox();
+
+/**
+ * @brief Prefered stylesheet for spinboxes
+ * @return
+ */
+QString GT_GUI_EXPORT spinbox();
+
+QString GT_GUI_EXPORT pushButton();
+
+
 /**
 * @brief buttonStyleSheet
 * @return the standard button style sheet (rounded edges,
@@ -64,6 +81,7 @@ QString GT_GUI_EXPORT processRunButton(RunButtonState const& state);
  * @brief performanceTaskLineEdit0
  * @return
  */
+[[deprecated("Use lineEdit instead and use QLineEdit::setFrame(false)")]]
 QString GT_GUI_EXPORT performanceTaskLineEdit0();
 
 /**
@@ -71,6 +89,7 @@ QString GT_GUI_EXPORT performanceTaskLineEdit0();
  * (rounded corners, white backgorund...)
  * @return
  */
+[[deprecated("Use lineEdit instead")]]
 QString GT_GUI_EXPORT standardLineEdit();
 
 /**
@@ -93,6 +112,7 @@ QString GT_GUI_EXPORT standardLabel();
  * @param maxWidth
  * @return
  */
+[[deprecated("Use comboBox instead")]]
 QString GT_GUI_EXPORT selectionComboBox(const QString& minWidth,
                                         const QString& maxWidth);
 

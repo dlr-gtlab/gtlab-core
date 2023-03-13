@@ -25,6 +25,7 @@ GtShortCutEdit::GtShortCutEdit(const QKeySequence& shortcut,
 
     setAcceptDrops(false);
     setContextMenuPolicy(Qt::ContextMenuPolicy::NoContextMenu);
+    setFrame(false);
 
     setKeySequence(m_keySequence);
 
