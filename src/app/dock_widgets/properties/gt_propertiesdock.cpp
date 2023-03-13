@@ -53,7 +53,6 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
     m_processComponentSettingBtn->setVisible(false);
 
     m_tab = new QTabWidget;
-    m_tab->setStyleSheet("QTabWidget::pane { border: 0; }");
 
     m_treeView = new GtPropertyTreeView(gtApp->session());
 

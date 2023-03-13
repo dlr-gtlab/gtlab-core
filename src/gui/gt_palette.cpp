@@ -42,7 +42,7 @@ struct ColorConfig
 QPalette
 generateTheme(ColorConfig const& config)
 {
-    QPalette palette;
+    QPalette palette = qApp->palette();
 
     // window stuff
     palette.setColor(QPalette::Window, config.main);
@@ -142,17 +142,24 @@ inline void applyTheme(Widget& w)
     {
         style = QStringLiteral("Fusion");
         stylesheet.append(QStringLiteral(
-            "QToolTip { color: #ffffff; "
-            "background-color: #2a82da; "
-            "border: 1px solid white; }"
+            "QToolTip {"
+            " color: white; "
+            " background-color: #2a82da;"
+            " border: 1px solid white;"
+            "}"
+//            "QCheckBox::indicator {"
+//            " border: 1px solid gray;"
+//            "}"
         ));
     }
     else
     {
         stylesheet.append(QStringLiteral(
-            "QToolTip { color: black; "
-            "background-color: white; "
-            "border: 1px solid black; }"
+            "QToolTip {"
+            " color: black; "
+            " background-color: white;"
+            " border: 1px solid black;"
+            "}"
         ));
     }
 
