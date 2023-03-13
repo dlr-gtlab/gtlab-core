@@ -30,12 +30,17 @@ class GT_GUI_EXPORT GtCustomActionMenu : public QObject
 
 public:
     /**
-     * @brief GtOpenWithMenu
-     * @param list
-     * @param parent
+     * @brief Appends the actions in list to the menu. Actions will be invoked
+     * automatically once triggered
+     * @param list List of actions to append
+     * @param targetObject Target object
+     * @param parentObject Parent object
+     * @param menu Menu
      */
-    GtCustomActionMenu(const QList<GtObjectUIAction>& list, GtObject* targetObj,
-                       QObject* parentObject, QMenu* menu);
+    GtCustomActionMenu(const QList<GtObjectUIAction>& list,
+                       GtObject* targetObject,
+                       QObject* parentObject,
+                       QMenu* menu);
 
 private:
     /// mapper for action signals

@@ -29,19 +29,21 @@ findParentWidget(QMenu*  menu)
 }
 
 GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
-                                       GtObject* targetObj,
+                                       GtObject* targetObject,
                                        QObject* parentObject,
                                        QMenu* menu) :
     QObject(menu),
     m_signalMapper(new QSignalMapper(this)),
-    m_targetObj(targetObj),
+    m_targetObj(targetObject),
     m_parentObj(parentObject)
 {
     connect(m_signalMapper, SIGNAL(mapped(QObject*)),
             SLOT(onActionTrigger(QObject*)));
 
-    foreach (const GtObjectUIAction& a, list)
+    for (const GtObjectUIAction& a : list)
     {
+        assert(menu);
+
         // separator
         if (a.text().isEmpty())
         {
@@ -90,7 +92,6 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
         m_actions.insert(act, a);
     }
 }
-
 
 void
 GtCustomActionMenu::onActionTrigger(QObject* obj)

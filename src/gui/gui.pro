@@ -91,6 +91,7 @@ HEADERS += \
     gt_colors.h \
     gt_gui_exports.h \
     gt_application.h \
+    gt_guiutilities.h \
     gt_icons.h \
     gt_mdiinterface.h \
     gt_mdiitem.h \
@@ -150,6 +151,7 @@ HEADERS += \
     object_ui/gt_processlinkui.h \
     object_ui/gt_labelui.h \
     object_ui/gt_loopui.h \
+    internal/gt_openwithmenu.h \
     dock_widgets/process/gt_processwizard.h \
     dock_widgets/process/gt_processfiltermodel.h \
     dock_widgets/process/gt_processcomponentmodel.h \
@@ -262,6 +264,7 @@ SOURCES += \
     dialogs/project_upgrader/gt_projectupgradestartpage.cpp \
     gt_application.cpp \
     gt_colors.cpp \
+    gt_guiutilities.cpp \
     gt_icons.cpp \
     gt_mdiitem.cpp \
     gt_mdilauncher.cpp \
@@ -317,6 +320,7 @@ SOURCES += \
     object_ui/gt_processlinkui.cpp \
     object_ui/gt_labelui.cpp \
     object_ui/gt_loopui.cpp \
+    internal/gt_openwithmenu.cpp \
     dock_widgets/process/gt_processwizard.cpp \
     dock_widgets/process/gt_processfiltermodel.cpp \
     dock_widgets/process/pages/gt_calculatoroverviewpage.cpp \

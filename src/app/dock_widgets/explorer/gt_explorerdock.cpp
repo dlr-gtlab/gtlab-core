@@ -13,14 +13,8 @@
 #include "gt_searchwidget.h"
 #include "gt_project.h"
 #include "gt_objectui.h"
-#include "gt_openwithmenu.h"
-#include "gt_customactionmenu.h"
 #include "gt_mdilauncher.h"
 #include "gt_application.h"
-#include "gt_importhandler.h"
-#include "gt_importmenu.h"
-#include "gt_exporthandler.h"
-#include "gt_exportmenu.h"
 #include "gt_command.h"
 #include "gt_settings.h"
 #include "gt_logging.h"
@@ -33,6 +27,7 @@
 #include "gt_styledmodel.h"
 #include "gt_explorermodel.h"
 #include "gt_icons.h"
+#include "gt_guiutilities.h"
 
 
 #include <QVBoxLayout>
@@ -213,183 +208,9 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 
     QMenu menu(this);
 
-    QAction* actionOpen = menu.addAction(tr("Open"));
-    actionOpen->setIcon(gt::gui::icon::open());
-
-    actionOpen->setVisible(false);
-
-    QList<GtObjectUI*> ouis = gtApp->objectUI(obj);
-    QString openStr;
-    QStringList openList;
-    QVector<QPair<GtObjectUI*, QList<GtObjectUIActionGroup> > > actionGroups;
-    QVector<QPair<GtObjectUI*, QList<GtObjectUIAction> > > actions;
-
-    for (auto* oui : qAsConst(ouis))
+    if (gt::gui::makeObjectContextMenu(menu, *obj, mapToSource(index), m_view))
     {
-        openList.append(oui->openWith(obj));
-
-        if (oui->hasActionGroups())
-        {
-            actionGroups.push_back(
-                        QPair<GtObjectUI*,
-                        QList<GtObjectUIActionGroup> >(oui,
-                                                       oui->actionGroups()));
-        }
-
-        if (oui->hasActions())
-        {
-            actions.push_back(
-                        QPair<GtObjectUI*,
-                        QList<GtObjectUIAction> >(oui, oui->actions()));
-        }
-    }
-
-    // open with
-    if (!openList.isEmpty())
-    {
-        actionOpen->setVisible(true);
-        openStr = openList.first();
-        if (openList.size() > 1)
-        {
-            GtOpenWithMenu* openWith = new GtOpenWithMenu(openList,
-                                                          obj,
-                                                          &menu);
-            menu.addMenu(openWith);
-        }
-        menu.addSeparator();
-    }
-
-    // custom menu
-    bool hasCustomMenu = false;
-
-    if (!actionGroups.isEmpty() || !actions.isEmpty())
-    {
-        hasCustomMenu = true;
-    }
-
-    for (int i = 0; i < actionGroups.size(); ++i)
-    {
-        foreach(GtObjectUIActionGroup actGroup, actionGroups[i].second)
-        {
-            QMenu* submenu = menu.addMenu(actGroup.name());
-
-            new GtCustomActionMenu(actGroup.actions(), obj,
-                                   actionGroups[i].first,
-                                   submenu);
-
-            submenu->setIcon(actGroup.icon());
-        }
-    }
-
-    for (int i = 0; i < actions.size(); ++i)
-    {
-        new GtCustomActionMenu(actions[i].second, obj,
-                               actions[i].first, &menu);
-
-    }
-
-    if (hasCustomMenu)
-    {
-        menu.addSeparator();
-    }
-
-    // importer menu
-    QList<GtImporterMetaData> importerList =
-            gtImportHandler->importerMetaData(obj->metaObject()->className());
-
-    if (!importerList.isEmpty())
-    {
-        GtImportMenu* imenu = new GtImportMenu(obj, &menu);
-
-        menu.addMenu(imenu);
-
-        menu.addSeparator();
-    }
-
-    // exporter menu
-    QList<GtExporterMetaData> exporterList =
-            gtExportHandler->exporterMetaData(obj->metaObject()->className());
-
-    if (!exporterList.isEmpty())
-    {
-        GtExportMenu* emenu = new GtExportMenu(obj, &menu);
-
-        menu.addMenu(emenu);
-
-        menu.addSeparator();
-    }
-
-    // rename object action
-    QAction* actrename = menu.addAction("Rename");
-    actrename->setIcon(gt::gui::icon::rename());
-
-    if (obj->isRenamable())
-    {
-        menu.addSeparator();
-        actrename->setShortcut(gtApp->getShortCutSequence("rename"));
-    }
-    else
-    {
-        actrename->setVisible(false);
-    }
-
-    QAction* actionDelete = menu.addAction(gt::gui::icon::delete_(),
-                                           tr("Delete"));
-
-    // delete object action
-    if (obj->isDeletable())
-    {
-        menu.addSeparator();
-    }
-    else
-    {
-        actionDelete->setVisible(false);
-    }
-
-    bool anyVisible = false;
-
-    foreach (QAction* a, menu.actions())
-    {
-        if (!a->isSeparator())
-        {
-            if (a->isVisible())
-            {
-                anyVisible = true;
-                break;
-            }
-        }
-    }
-
-    if (!anyVisible)
-    {
-        menu.clear();
-        return;
-    }
-
-    // catch action
-    QAction* a = menu.exec(QCursor::pos());
-
-    if (a == actionOpen)
-    {
-        gtMdiLauncher->open(openStr, obj);
-    }
-    else if (a == actionDelete)
-    {
-        GtProject* project = obj->findRoot<GtProject*>();
-
-        if (project)
-        {
-            gtDataModel->deleteFromModel(obj);
-        }
-    }
-    else if (a == actrename)
-    {
-        QModelIndex idx = mapFromSource(index);
-
-        if (idx.isValid())
-        {
-            m_view->edit(idx);
-        }
+        menu.exec(QCursor::pos());
     }
 }
 
@@ -398,18 +219,16 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
 {
     if (objs.isEmpty())
     {
-        gtError() << "object list is empty!";
         return;
-    }    
-
+    }
 
     QList<GtProject*> projectsList;
     /// handle the special case of only projects selected
     bool allProjects = true;
 
-    foreach (GtObject* obj, objs)
+    for (GtObject* obj : objs)
     {
-        GtProject* proj = qobject_cast<GtProject*>(obj);
+        auto* proj = qobject_cast<GtProject*>(obj);
         if (!qobject_cast<GtProject*>(obj))
         {
             allProjects = false;
@@ -417,10 +236,10 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
         }
 
         projectsList.append(proj);
-
     }
 
-    bool oneDeletable = std::any_of(std::begin(objs), std::end(objs), [](const GtObject* obj) {
+    bool oneDeletable = std::any_of(std::begin(objs), std::end(objs),
+                                    [](const GtObject* obj) {
         return obj->isDeletable();
     });
 
@@ -430,7 +249,6 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
     }
 
     QMenu menu(this);
-
 
     QAction* actionDelete = nullptr;
     QAction* actionRemoveProjects = nullptr;
@@ -460,7 +278,7 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
     }
     else if (a == actionRemoveProjects)
     {
-        gtInfo() << "Remove several projects";
+        gtInfo() << tr("Removing several projects...");
 
         if (std::any_of(std::begin(projectsList), std::end(projectsList), [](const GtProject* p) {
                 return p->isOpen();
@@ -935,9 +753,12 @@ GtExplorerDock::onSearchEnabled()
 void
 GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
 {
-    QModelIndexList indexlist = m_view->selectionModel()->selectedIndexes();
+    QModelIndexList const indexlist =
+            m_view->selectionModel()->selectedIndexes();
 
-    if (!indexlist.empty() && indexlist.size() < 4)
+    if (indexlist.empty()) return;
+
+    if (indexlist.size() < 4)
     {
         QModelIndex indexUnderMouse = indexOrigin;
 
@@ -948,33 +769,30 @@ GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
             return;
         }
 
-        GtObject* item = gtDataModel->objectFromIndex(indexUnderMouse);
-
-        if (item)
+        if (GtObject* item = gtDataModel->objectFromIndex(indexUnderMouse))
         {
             objectContextMenu(item, indexUnderMouse);
         }
+        return;
     }
-    else if (indexlist.size() > 3)
+
+    GtObjectList selectedObjects;
+
+    for (const QModelIndex& index : indexlist)
     {
-        GtObjectList selectedObjects;
-
-        foreach (const QModelIndex& index, indexlist)
+        if (index.column() == 0)
         {
-            if (index.column() == 0)
-            {
-                QModelIndex mappedIndex = mapToSource(index);
-                GtObject* item = gtDataModel->objectFromIndex(mappedIndex);
+            QModelIndex mappedIndex = mapToSource(index);
+            GtObject* item = gtDataModel->objectFromIndex(mappedIndex);
 
-                if (item)
-                {
-                    selectedObjects << item;
-                }
+            if (item)
+            {
+                selectedObjects << item;
             }
         }
-
-        objectContextMenu(selectedObjects);
     }
+
+    objectContextMenu(selectedObjects);
 }
 
 void
