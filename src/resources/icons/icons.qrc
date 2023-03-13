@@ -1,5 +1,59 @@
 <RCC>
     <qresource prefix="/icons">
+        <file>stylesheets/arrowDown.svg</file>
+        <file>stylesheets/arrowUp.svg</file>
+        <file>letters/a_capital.svg</file>
+        <file>letters/a_lower.svg</file>
+        <file>letters/b_lower.svg</file>
+        <file>letters/c_lower.svg</file>
+        <file>letters/d_lower.svg</file>
+        <file>letters/e_lower.svg</file>
+        <file>letters/f_lower.svg</file>
+        <file>letters/g_lower.svg</file>
+        <file>letters/h_lower.svg</file>
+        <file>letters/i_lower.svg</file>
+        <file>letters/j_lower.svg</file>
+        <file>letters/k_lower.svg</file>
+        <file>letters/l_lower.svg</file>
+        <file>letters/m_lower.svg</file>
+        <file>letters/n_lower.svg</file>
+        <file>letters/o_lower.svg</file>
+        <file>letters/p_lower.svg</file>
+        <file>letters/q_lower.svg</file>
+        <file>letters/r_lower.svg</file>
+        <file>letters/s_lower.svg</file>
+        <file>letters/t_lower.svg</file>
+        <file>letters/u_lower.svg</file>
+        <file>letters/v_lower.svg</file>
+        <file>letters/w_lower.svg</file>
+        <file>letters/x_lower.svg</file>
+        <file>letters/y_lower.svg</file>
+        <file>letters/z_lower.svg</file>
+        <file>letters/b_capital.svg</file>
+        <file>letters/c_capital.svg</file>
+        <file>letters/d_capital.svg</file>
+        <file>letters/e_capital.svg</file>
+        <file>letters/f_capital.svg</file>
+        <file>letters/g_capital.svg</file>
+        <file>letters/h_capital.svg</file>
+        <file>letters/i_capital.svg</file>
+        <file>letters/j_capital.svg</file>
+        <file>letters/k_capital.svg</file>
+        <file>letters/l_capital.svg</file>
+        <file>letters/m_capital.svg</file>
+        <file>letters/n_capital.svg</file>
+        <file>letters/o_capital.svg</file>
+        <file>letters/p_capital.svg</file>
+        <file>letters/q_capital.svg</file>
+        <file>letters/r_capital.svg</file>
+        <file>letters/s_capital.svg</file>
+        <file>letters/t_capital.svg</file>
+        <file>letters/u_capital.svg</file>
+        <file>letters/v_capital.svg</file>
+        <file>letters/w_capital.svg</file>
+        <file>letters/x_capital.svg</file>
+        <file>letters/y_capital.svg</file>
+        <file>letters/z_capital.svg</file>
         <file>letters/aLetterIcon.png</file>
         <file>letters/aLetterIconSmall.png</file>
         <file>letters/bLetterIcon.png</file>
@@ -227,7 +281,7 @@
         <file>objectEmpty.svg</file>
         <file>objectEngine.svg</file>
         <file>objectInvalid.svg</file>
-        <file>objectUnkown.svg</file>
+        <file>objectUnknown.svg</file>
         <file>oIcon.png</file>
         <file>oIcon_16.png</file>
         <file>oIcon_24.png</file>
@@ -661,5 +715,25 @@
         <file>zoomIcon.png</file>
         <file>zoomIcon_16.png</file>
         <file>zoomIcon_24.png</file>
+        <file>collection_custom.svg</file>
+        <file>perfMap_custom.svg</file>
+        <file>perfStageMap_custom.svg</file>
+        <file>schedules_custom.svg</file>
+        <file>schedules2_custom.svg</file>
+        <file>perfTsDiagram_custom.svg</file>
+        <file>stepFile_custom.svg</file>
+        <file>hdf5_custom.svg</file>
+        <file>objectCompressor_custom.svg</file>
+        <file>objectTurbine_custom.svg</file>
+        <file>perfMapExport_custom.svg</file>
+        <file>perfNoMap_custom.svg</file>
+        <file>paramStudy_custom.svg</file>
+        <file>blades_custom.svg</file>
+        <file>python.svg</file>
+        <file>objectFreestyleComponent_custom.svg</file>
+        <file>disk_custom.svg</file>
+        <file>stylesheets/arrowDown_dark.svg</file>
+        <file>stylesheets/arrowUp_dark.svg</file>
+        <file>diskGradient_custom.svg</file>
     </qresource>
 </RCC>

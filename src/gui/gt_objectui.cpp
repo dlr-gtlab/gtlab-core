@@ -127,11 +127,7 @@ GtObjectUI::makeSingleAction(const QString& actionText,
                              ActionFunction actionMethod)
 {
     // parent object not needed here
-    return GtObjectUIAction(actionText,
-                            [m = std::move(actionMethod)]
-                            (QObject* /*parent*/, GtObject* target){
-        if (m) m(target);
-    });
+    return GtObjectUIAction(actionText, std::move(actionMethod));
 }
 
 void

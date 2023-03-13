@@ -10,24 +10,16 @@
 #include "gt_colors.h"
 #include "gt_application.h"
 #include "gt_logging.h"
+#include "gt_svgiconengine.h"
 
-#include <QFileInfo>
-#include <QRegularExpression>
-#include <QIconEngine>
 #include <QPainter>
-#include <QPixmap>
-#include <QImage>
-#include <QGraphicsEffect>
-
 #include <QScreen>
-#include <QSvgRenderer>
-#include <QPainter>
 #include <QApplication>
 #include <QDesktopWidget>
 
 /// helper macro for creating an icon:
-/// Impelments FUNCTION using
-/// a static getter function named NAME to reduce redundant calls.
+/// Implements FUNCTION using
+/// a static getter function named NAME to reduce code duplication.
 /// Opens the resource at PATH
 #define GT_ICON_IMPL(NAME, FUNCTION, PATH) \
     QIcon const& NAME##_impl() { \
@@ -39,28 +31,40 @@
     }
 
 /// same as above but for coloring icons
-#define GT_DEF_ICON_COLORED(FUNCTION, PATH, ACTIVE) \
-    QIcon const& FUNCTION##_impl() { \
-        static QIcon ic = getIconHelper(QStringLiteral(PATH), \
-                                        gt::gui::ACTIVE, gt::gui::ACTIVE); \
+#define GT_ICON_IMPL_COLORED(NAME, FUNCTION, PATH, ACTIVE) \
+    QIcon const& NAME##_impl() { \
+        static QIcon ic = getSvgIconHelper(QStringLiteral(PATH), \
+                                           {gt::gui::ACTIVE}); \
         return ic; \
     } \
     QIcon gt::gui::icon::FUNCTION() { \
-        return FUNCTION##_impl(); \
+        return NAME##_impl(); \
     }
 
 /// Defines an icon implementation
 #define GT_DEF_ICON(FUNCTION, PATH) \
-    GT_ICON_IMPL(FUNCTION,FUNCTION, PATH)
+    GT_ICON_IMPL(FUNCTION, FUNCTION, PATH)
+
+#define GT_DEF_ICON_COLORED(FUNCTION, PATH, ACTIVE) \
+    GT_ICON_IMPL_COLORED(FUNCTION, FUNCTION, PATH, ACTIVE)
 
 /// Defines an letter icon implementation
 #define GT_DEF_ICON_LETTER(FUNCTION, PATH) \
-    GT_ICON_IMPL(letter_##FUNCTION, letter::FUNCTION, PATH)
+    GT_ICON_IMPL(letter_##FUNCTION, letter::FUNCTION, "letters/" PATH)
+
+#define GT_DEF_ICON_LETTER_COLORED(FUNCTION, PATH, ACTIVE) \
+    GT_ICON_IMPL_COLORED(letter_##FUNCTION, letter::FUNCTION, "letters/" PATH, ACTIVE)
 
 /// Defines an icon alias
 #define GT_DEF_ICON_ALIAS(FUNCTION, TARGET) \
     QIcon gt::gui::icon::FUNCTION() { \
         return TARGET(); \
+    }
+
+/// Defines a letter alias
+#define GT_DEF_ICON_LETTER_ALIAS(FUNCTION, TARGET) \
+    QIcon gt::gui::icon::letter::FUNCTION() { \
+        return letter::TARGET(); \
     }
 
 /// Defines  pixmap implementation
@@ -69,234 +73,80 @@
         return {QStringLiteral(":/pixmaps/" PATH)}; \
     }
 
-/// function pointer type for getting a color
-using ColorFunction = gt::gui::ColorFunction;
-
-/**
- * @brief The GtSvgIconEngine class. Can colorize an svg image.
- *
- * Source:
- *
- * https://stackoverflow.com/questions/43125339/
- *      creating-qicon-from-svg-contents-in-memory
- */
-class GtSvgIconEngine : public QIconEngine
+QString
+resourcePath(QString const& iconPath)
 {
-public:
-
-    GtSvgIconEngine() :
-        m_colorActive(gt::gui::color::text),
-        m_colorDisabled(gt::gui::color::disabled)
+    if (!iconPath.startsWith(QStringLiteral(":/")))
     {
-        assert(gtApp);
-        m_dark = gtApp->inDarkMode();
-    };
-
-    explicit GtSvgIconEngine(QString const& path) :
-        GtSvgIconEngine()
-    {
-        GtSvgIconEngine::addFile(path, QSize{}, QIcon::Active, QIcon::On);
+        return QStringLiteral(":/icons/") + iconPath;
     }
+    return iconPath;
+}
 
-    explicit GtSvgIconEngine(QString const& path,
-                             ColorFunction active,
-                             ColorFunction disabled = {}) :
-        GtSvgIconEngine()
-    {
-        if (active)
-        {
-            m_colorActive = active;
-            m_colorDisabled = active; // fall back if disabled is null
-        }
-        if (disabled)
-        {
-            m_colorDisabled = disabled;
-        }
-
-        GtSvgIconEngine::addFile(path, QSize{}, QIcon::Active, QIcon::On);
-    }
-
-    /**
-     * @brief Clones this icon enigne
-     * @return clone
-     */
-    QIconEngine* clone() const override { return new GtSvgIconEngine(*this); }
-
-    QString iconName() const override { return m_file; }
-
-    /**
-     * @brief Updates the svg file
-     * @param fileName file name
-     * @param size Size fo the pixmap
-     * @param mode Icon mode
-     * @param state Icon state
-     */
-    void addFile(const QString& fileName,
-                 QSize const& /*size*/,
-                 QIcon::Mode /*mode*/,
-                 QIcon::State /*state*/) override
-    {
-        if (!QFileInfo::exists(fileName))
-        {
-            gtWarningId("GtSvgIconEngine")
-                    << QObject::tr("Invalid icon:") << fileName;
-            return;
-        }
-
-        QFile file(fileName);
-        file.open(QFile::ReadOnly);
-        auto data = file.readAll();
-        m_file = fileName;
-
-        m_svg = data;
-        m_svgDisabled = std::move(data);
-        updateColor();
-    }
-
-    /**
-     * @brief Paints the svg icon
-     * @param painter Painter to paint with
-     * @param rect Rect specifying icon dimensions
-     * @param mode Icon mode
-     * @param state Icon state
-     */
-    void paint(QPainter* painter,
-               const QRect& rect,
-               QIcon::Mode mode,
-               QIcon::State /*state*/) override
-    {
-        if (m_svg.isEmpty()) return;
-        assert(painter);
-        painter->setRenderHint(QPainter::Antialiasing);
-
-        if (m_dark != gtApp->inDarkMode())
-        {
-            updateColor();
-        }
-
-        QSvgRenderer renderer(mode == QIcon::Disabled ? m_svgDisabled : m_svg);
-        renderer.setAspectRatioMode(Qt::KeepAspectRatio);
-        renderer.render(painter, rect);
-    }
-
-    /**
-     * @brief Returns a pixmap of the svg icon
-     * @param size Size fo the pixmap
-     * @param mode Icon mode
-     * @param state Icon state
-     * @return pixmap
-     */
-    QPixmap pixmap(const QSize& size,
-                   QIcon::Mode mode,
-                   QIcon::State state) override
-    {
-        // create transparent pixmap
-        QPixmap pix{size};
-        pix.fill(Qt::transparent);
-
-        if (!m_svg.isEmpty())
-        {
-            QPainter painter(&pix);
-            QRect r{QPoint{0, 0}, size};
-            this->paint(&painter, r, mode, state);
-        }
-        return pix;
-     }
-
-private:
-
-    QString m_file;
-    QByteArray m_svg;
-    QByteArray m_svgDisabled;
-    ColorFunction m_colorActive{}, m_colorDisabled{};
-    bool m_dark = false;
-
-    /**
-     * @brief Overrides the color of the svg data
-     * @param data Svg data
-     * @param color Color
-     * @return New data
-     */
-    QByteArray setColor(QByteArray data, const QColor& color)
-    {
-        // regexp for setting svg path fill color
-        static const auto re = [](){
-            QRegularExpression re{R"(path\s(fill=\"[#\w\d]+\")?)"};
-            re.optimize();
-            return re;
-        }();
-
-        auto match = re.match(data);
-        int idx = match.capturedStart();
-        if (idx > 1)
-        {
-            data.replace(idx, match.capturedLength(),
-                         QByteArrayLiteral("path fill=\"") +
-                         color.name().toUtf8() +
-                         QByteArrayLiteral("\" "));
-        }
-        return data;
-    }
-
-    /**
-     * @brief Updates the color of the svg icon
-     */
-    void updateColor()
-    {
-        m_dark = gtApp->inDarkMode();
-        m_svg = setColor(m_svg, m_colorActive());
-        m_svgDisabled = setColor(m_svgDisabled, m_colorDisabled());
-    }
-
-    /**
-     * @brief This icon engine does not support svgs
-     */
-    void addPixmap(const QPixmap& /*fileName*/,
-                   QIcon::Mode /*mode*/,
-                   QIcon::State /*state*/) override
-    {
-        gtWarningId("GtSvgIconEngine")
-                << QObject::tr("SVG Icon Engine does not accept QPixmaps!");
-    }
-};
-
-QIcon getIconHelper(QString const& iconPath,
-                    ColorFunction getActiveColor = {},
-                    ColorFunction getDisabledColor = {})
+QIcon
+getSvgIconHelper(QString const& iconPath, gt::gui::SvgColorData colorData = {})
 {
-    QString path = iconPath;
-    if (!path.startsWith(QStringLiteral(":/")))
-    {
-        path.prepend(QStringLiteral(":/icons/"));
-    }
-
-    if (path.endsWith(QStringLiteral(".svg")))
-    {
-        return QIcon(new GtSvgIconEngine(
-                         path, getActiveColor, getDisabledColor));
-    }
-
-    QIcon ic(path);
-    if (ic.isNull())
+    auto* iconEngine = new GtSvgIconEngine(resourcePath(iconPath),
+                                           std::move(colorData));
+    QIcon icon(iconEngine);
+    if (icon.isNull())
     {
         gtWarning().medium()
-                << QObject::tr("Icon '%1' not found").arg(path);
+                << QObject::tr("Icon '%1' not found!").arg(iconPath);
     }
-    return ic;
+    return icon;
+}
+
+QIcon
+getIconHelper(QString const& iconPath)
+{
+    if (iconPath.endsWith(QStringLiteral(".svg")))
+    {
+        return getSvgIconHelper(iconPath);
+    }
+
+    QIcon icon(resourcePath(iconPath));
+    if (icon.isNull())
+    {
+        gtWarning().medium()
+                << QObject::tr("Icon '%1' not found!").arg(iconPath);
+    }
+    return icon;
 }
 
 QIcon
 gt::gui::getIcon(QString const& iconPath)
 {
-    return getIconHelper(iconPath);
+    if (iconPath.endsWith(QStringLiteral(".svg")))
+    {
+        return getSvgIconHelper(iconPath);
+    }
+
+    QIcon ic(resourcePath(iconPath));
+    if (ic.isNull())
+    {
+        gtWarning().medium()
+                << QObject::tr("Icon '%1' not found!").arg(iconPath);
+    }
+    return ic;
 }
 
 QIcon
 gt::gui::colorize(const QIcon& icon,
-                   ColorFunction getActiveColor,
-                   ColorFunction getDisabledColor)
+                  ColorFunctionPtr getActiveColor,
+                  ColorFunctionPtr getDisabledColor)
 {
-    return getIconHelper(icon.name(), getActiveColor, getDisabledColor);
+    gt::gui::SvgColorData colorData{
+        getActiveColor,
+        getDisabledColor
+    };
+    return getSvgIconHelper(icon.name(), std::move(colorData));
+}
+
+QIcon
+gt::gui::colorize(const QIcon& icon, SvgColorData colorData)
+{
+    return getSvgIconHelper(icon.name(), std::move(colorData));
 }
 
 QSize
@@ -325,6 +175,8 @@ GT_DEF_ICON_ALIAS(arrowUpBlueAll, arrowUp)
 
 GT_DEF_ICON(backspace, "backspace.svg")
 GT_DEF_ICON(backspaceFlipped, "backspaceFlipped.svg")
+
+GT_DEF_ICON(blades, "blades_custom.svg")
 
 GT_DEF_ICON(brush, "brush.svg")
 
@@ -380,6 +232,9 @@ GT_DEF_ICON(uncollapsed, "uncollapsed_custom.svg")
 GT_DEF_ICON_COLORED(uncollapsedColorized, "uncollapsed_custom.svg",
                     color::highlight)
 
+GT_DEF_ICON(collection, "collection_custom.svg");
+GT_DEF_ICON_ALIAS(collection16, collection);
+
 GT_DEF_ICON(comment, "comment.svg")
 
 GT_DEF_ICON(config, "config.svg")
@@ -413,6 +268,9 @@ GT_DEF_ICON(dataSingle, "dataSingle_custom.svg")
 
 GT_DEF_ICON(delete_, "delete.svg")
 GT_DEF_ICON_ALIAS(delete16, delete_);
+
+GT_DEF_ICON(disk, "disk_custom.svg")
+GT_DEF_ICON(diskGradient, "diskGradient_custom.svg")
 
 GT_DEF_ICON_ALIAS(deleteProject16, projectDelete);
 
@@ -462,7 +320,7 @@ GT_DEF_ICON(fileDoc, "fileDoc.svg")
 GT_DEF_ICON(fileEdit, "fileEdit.svg")
 GT_DEF_ICON(fileEye, "fileEye.svg")
 GT_DEF_ICON(fileImport, "fileImport_custom.svg")
-GT_DEF_ICON(fileStep, "fileStep.png")
+GT_DEF_ICON_ALIAS(fileStep, stepFile)
 
 GT_DEF_ICON(folder, "folder.svg")
 GT_DEF_ICON_ALIAS(folder16, folder)
@@ -487,6 +345,8 @@ GT_DEF_ICON(grid, "grid.svg")
 GT_DEF_ICON(gridSnap, "gridSnap_custom.svg")
 
 GT_DEF_ICON(help, "help.svg")
+
+GT_DEF_ICON(hdf5, "hdf5_custom.svg")
 
 GT_DEF_ICON(histogram, "histogram.svg")
 GT_DEF_ICON(histogram16, "histogram16.svg")
@@ -549,6 +409,8 @@ GT_DEF_ICON(mathMultiplication, "mathMultiplication.svg")
 GT_DEF_ICON(mathPlus, "mathPlus.svg")
 GT_DEF_ICON(mathRoot, "mathRoot.svg")
 
+GT_DEF_ICON_ALIAS(minimize, mathMinus)
+
 GT_DEF_ICON(network, "network.svg")
 GT_DEF_ICON_ALIAS(network16, network)
 
@@ -556,13 +418,14 @@ GT_DEF_ICON_ALIAS(noteEdit, fileEdit)
 
 GT_DEF_ICON(notificationUnread, "notificationUnread.svg")
 
-GT_DEF_ICON_ALIAS(objectCombustor, objectEmpty)
-GT_DEF_ICON_ALIAS(objectCompressor, objectEmpty)
+GT_DEF_ICON(objectCombustor, "objectCombustor_custom.svg")
+GT_DEF_ICON(objectCompressor, "objectCompressor_custom.svg")
 GT_DEF_ICON(objectEmpty, "objectEmpty.svg")
 GT_DEF_ICON(objectEngine, "objectEngine.svg")
+GT_DEF_ICON(objectFreestyleComponent, "objectFreestyleComponent_custom.svg")
 GT_DEF_ICON(objectInvalid, "objectInvalid.svg")
-GT_DEF_ICON(objectUnknown, "objectUnkown.svg")
-GT_DEF_ICON_ALIAS(objectTurbine, objectEmpty)
+GT_DEF_ICON(objectUnknown, "objectUnknown.svg")
+GT_DEF_ICON(objectTurbine, "objectTurbine_custom.svg")
 GT_DEF_ICON_ALIAS(objectUnkown, objectUnknown)
 
 GT_DEF_ICON(open, "open.svg")
@@ -575,6 +438,10 @@ GT_DEF_ICON_ALIAS(openProject16, projectOpen)
 
 GT_DEF_ICON(palette, "palette.svg")
 
+GT_DEF_ICON(paramStudy, "paramStudy_custom.svg")
+GT_DEF_ICON_ALIAS(paramStudy16, paramStudy)
+GT_DEF_ICON_ALIAS(paramStudy24, paramStudy)
+
 GT_DEF_ICON(paste, "paste.svg")
 GT_DEF_ICON_ALIAS(paste16, paste)
 
@@ -582,8 +449,13 @@ GT_DEF_ICON(pause, "pause.svg")
 
 GT_DEF_ICON(pdf, "pdf_custom.svg")
 
+GT_DEF_ICON(perfMap, "perfMap_custom.svg")
+GT_DEF_ICON(perfMapExport, "perfMapExport_custom.svg")
+GT_DEF_ICON(perfNoMap, "perfNoMap_custom.svg")
 GT_DEF_ICON(perfOperatingPoint, "perfOperatingPoint_custom.svg")
+GT_DEF_ICON(perfStageMap, "perfStageMap_custom.svg")
 GT_DEF_ICON(perfSpeedLine, "perfSpeedLine_custom.svg")
+GT_DEF_ICON(perfTsDiagram, "perfTsDiagram_custom.svg")
 GT_DEF_ICON(perfWorkingLine, "perfWorkingLine_custom.svg")
 
 GT_DEF_ICON_ALIAS(perspectives, devices)
@@ -622,7 +494,7 @@ GT_DEF_ICON_ALIAS(prp16, prp)
 
 GT_DEF_ICON(puzzle, "puzzle.svg")
 
-GT_DEF_ICON(python, "")
+GT_DEF_ICON(python, "python.svg")
 GT_DEF_ICON_ALIAS(python16, python)
 
 GT_DEF_ICON(questionmark, "questionmark.svg")
@@ -658,6 +530,9 @@ GT_DEF_ICON_ALIAS(runProcess16, play)
 GT_DEF_ICON(save, "save.svg")
 GT_DEF_ICON_ALIAS(saveProject16, save)
 
+GT_DEF_ICON(schedules, "schedules_custom.svg")
+GT_DEF_ICON(schedules2, "schedules2_custom.svg")
+
 GT_DEF_ICON(search, "search.svg")
 GT_DEF_ICON_ALIAS(search16, search)
 
@@ -686,6 +561,10 @@ GT_DEF_ICON(sortDesc, "sortDesc.svg")
 GT_DEF_ICON(stop, "stop.svg")
 GT_DEF_ICON_ALIAS(stop16, stop)
 
+GT_DEF_ICON(stepFile, "stepFile_custom.svg")
+GT_DEF_ICON_ALIAS(stepFile16, stepFile)
+GT_DEF_ICON_ALIAS(stepFile24, stepFile)
+
 GT_DEF_ICON(stretch, "stretch.svg")
 
 GT_DEF_ICON(swap, "swap.svg")
@@ -710,6 +589,8 @@ GT_DEF_ICON(triangleSmallDown, "triangleSmallDown.svg")
 GT_DEF_ICON(triangleSmallLeft, "triangleSmallLeft.svg")
 GT_DEF_ICON(triangleSmallRight, "triangleSmallRight.svg")
 GT_DEF_ICON(triangleSmallUp, "triangleSmallUp.svg")
+
+GT_DEF_ICON_ALIAS(tsDiagram16, perfTsDiagram)
 
 GT_DEF_ICON_ALIAS(turbine, objectTurbine)
 GT_DEF_ICON_ALIAS(turbine16, objectTurbine)
@@ -772,8 +653,6 @@ GT_DEF_ICON_ALIAS(labels, label)
 
 GT_DEF_ICON_ALIAS(stack, layers)
 
-GT_DEF_ICON_ALIAS(collection16, server)
-
 GT_DEF_ICON_ALIAS(printPDF, pdf)
 
 GT_DEF_ICON_ALIAS(upgradeProjectData, update)
@@ -788,10 +667,6 @@ GT_DEF_ICON_ALIAS(multiply, mathMultiplication)
 GT_DEF_ICON_ALIAS(divide, mathDivision)
 GT_DEF_ICON_ALIAS(square, mathExponent)
 GT_DEF_ICON_ALIAS(squareRoot, mathRoot)
-
-GT_DEF_ICON_ALIAS(stepFile, fileStep)
-GT_DEF_ICON_ALIAS(stepFile16, fileStep)
-GT_DEF_ICON_ALIAS(stepFile24, fileStep)
 
 GT_DEF_ICON_ALIAS(fileIn, fileImport)
 GT_DEF_ICON_ALIAS(fileIn16, fileImport)
@@ -835,319 +710,114 @@ GT_DEF_ICON_ALIAS(performanceOffDesign, perfOperatingPoint)
 GT_DEF_ICON_ALIAS(performanceOffDesign16, perfOperatingPoint)
 GT_DEF_ICON_ALIAS(performanceOffDesign24, perfOperatingPoint)
 
-QIcon
-gt::gui::icon::minimize()
-{
-    return gt::gui::getIcon(QStringLiteral("minimizeIcons.png"));
-}
+GT_DEF_ICON_ALIAS(map, perfMap)
+GT_DEF_ICON_ALIAS(map16, perfMap)
+GT_DEF_ICON_ALIAS(map24, perfMap)
 
-QIcon
-gt::gui::icon::map16()
-{
-    return gt::gui::getIcon(QStringLiteral("mapIcon_16.png"));
-}
+GT_DEF_ICON_ALIAS(noMap, perfNoMap)
 
-QIcon
-gt::gui::icon::map()
-{
-    return gt::gui::getIcon(QStringLiteral("mapIcon.png"));
-}
+GT_DEF_ICON_ALIAS(exportMap, perfMapExport)
+GT_DEF_ICON_ALIAS(exportMap16, perfMapExport)
+GT_DEF_ICON_ALIAS(exportMap24, perfMapExport)
 
-QIcon
-gt::gui::icon::map24()
-{
-    return gt::gui::getIcon(QStringLiteral("mapIcon_24.png"));
-}
+GT_DEF_ICON_ALIAS(double16, letter::d)
+GT_DEF_ICON_ALIAS(int16, letter::i)
+GT_DEF_ICON_ALIAS(o16, letter::o)
+GT_DEF_ICON_ALIAS(string16, letter::s)
 
-QIcon
-gt::gui::icon::noMap()
-{
-    return gt::gui::getIcon(QStringLiteral("noMapIcon.png"));
-}
+GT_DEF_ICON(performanceModel, "performanceModel_own.png");
 
-QIcon
-gt::gui::icon::exportMap()
-{
-    return gt::gui::getIcon(QStringLiteral("exportMapIcon.png"));
-}
+GT_DEF_ICON(performanceDesign, "DPcalculator.png");
+GT_DEF_ICON(performanceDesign16, "DPcalculator_16.png");
+GT_DEF_ICON(performanceDesign24, "DPcalculator_24.png");
 
-QIcon
-gt::gui::icon::exportMap16()
-{
-    return gt::gui::getIcon(QStringLiteral("exportMapIcon_16.png"));
-}
+GT_DEF_ICON(engineInstallation, "engine_installation_32.png");
+GT_DEF_ICON(engineInstallation16, "engine_installation_16.png");
+GT_DEF_ICON(engineInstallation24, "engine_installation_24.png");
+GT_DEF_ICON_ALIAS(engineInstallation32, engineInstallation);
 
-QIcon
-gt::gui::icon::exportMap24()
-{
-    return gt::gui::getIcon(QStringLiteral("exportMapIcon_24.png"));
-}
+GT_DEF_ICON(carpetPlot, "carpetPlotIcon2.png");
 
-QIcon
-gt::gui::icon::carpetPlot()
-{
-    return gt::gui::getIcon(QStringLiteral("carpetPlotIcon2.png"));
-}
+GT_DEF_ICON(bleedInPort, "bleedInPort3Icon.png");
+GT_DEF_ICON(bleedInPort16, "bleedInPort3Icon_16.png");
+GT_DEF_ICON(bleedInPort24, "bleedInPort3Icon_24.png");
 
-QIcon
-gt::gui::icon::tsDiagram16()
-{
-    return gt::gui::getIcon(QStringLiteral("tsDiagramm_16.png"));
-}
+GT_DEF_ICON(bleedOutPort, "bleedOutPort3Icon.png");
+GT_DEF_ICON(bleedOutPort16, "bleedOutPort3Icon_16.png");
+GT_DEF_ICON(bleedOutPort24, "bleedOutPort3Icon_24.png");
 
-QIcon
-gt::gui::icon::blades()
-{
-    return gt::gui::getIcon(QStringLiteral("bladesIcon.png"));
-}
+GT_DEF_ICON(bleedPortGroup, "bleedPortGroupIcon.png");
+GT_DEF_ICON(bleedPortGroup16, "bleedPortGroupIcon_16.png");
+GT_DEF_ICON(bleedPortGroup24, "bleedPortGroupIcon_24.png");
 
-QIcon
-gt::gui::icon::double16()
-{
-    return gt::gui::getIcon(QStringLiteral("doubleIcon_16.png"));
-}
+GT_DEF_ICON(fluidPort, "fluidPort3Icon.png");
+GT_DEF_ICON(fluidPort16, "fluidPort3Icon_16.png");
+GT_DEF_ICON(fluidPort24, "fluidPort3Icon_24.png");
 
-QIcon
-gt::gui::icon::int16()
-{
-    return gt::gui::getIcon(QStringLiteral("intIcon_16.png"));
-}
+GT_DEF_ICON(fluidPortGroup, "fluidPortGroupIcon.png");
+GT_DEF_ICON(fluidPortGroup16, "fluidPortGroupIcon_16.png");
+GT_DEF_ICON(fluidPortGroup24, "fluidPortGroupIcon_24.png");
 
-QIcon
-gt::gui::icon::o16()
-{
-    return gt::gui::getIcon(QStringLiteral("oIcon_16.png"));
-}
+GT_DEF_ICON(shaftPort, "shaftPort3Icon.png");
+GT_DEF_ICON(shaftPort16, "shaftPort3Icon_16.png");
+GT_DEF_ICON(shaftPort24, "shaftPort3Icon_24.png");
 
-QIcon
-gt::gui::icon::string16()
-{
-    return gt::gui::getIcon(QStringLiteral("stringIcon_16.png"));
-}
-
-QIcon
-gt::gui::icon::performanceModel()
-{
-    return gt::gui::getIcon(QStringLiteral("performanceModel_own.png"));
-}
-
-QIcon
-gt::gui::icon::bleedInPort()
-{
-    return gt::gui::getIcon(QStringLiteral("bleedInPort3Icon.png"));
-}
-
-QIcon
-gt::gui::icon::bleedInPort16()
-{
-    return gt::gui::getIcon(QStringLiteral("bleedInPort3Icon_16.png"));
-}
-
-QIcon
-gt::gui::icon::bleedInPort24()
-{
-    return gt::gui::getIcon(QStringLiteral("bleedInPort3Icon_24.png"));
-}
-
-QIcon
-gt::gui::icon::bleedOutPort()
-{
-    return gt::gui::getIcon(QStringLiteral("bleedOutPort3Icon.png"));
-}
-
-QIcon
-gt::gui::icon::bleedOutPort16()
-{
-    return gt::gui::getIcon(QStringLiteral("bleedOutPort3Icon_16.png"));
-}
-
-QIcon
-gt::gui::icon::bleedOutPort24()
-{
-    return gt::gui::getIcon(QStringLiteral("bleedOutPort3Icon_24.png"));
-}
-
-QIcon
-gt::gui::icon::bleedPortGroup()
-{
-    return gt::gui::getIcon(QStringLiteral("bleedPortGroupIcon.png"));
-}
-
-QIcon
-gt::gui::icon::bleedPortGroup16()
-{
-    return gt::gui::getIcon(QStringLiteral("bleedPortGroupIcon_16.png"));
-}
-
-QIcon
-gt::gui::icon::bleedPortGroup24()
-{
-    return gt::gui::getIcon(QStringLiteral("bleedPortGroupIcon_24.png"));
-}
-
-QIcon
-gt::gui::icon::engineInstallation16()
-{
-    return gt::gui::getIcon(QStringLiteral("engine_installation_16.png"));
-}
-
-QIcon
-gt::gui::icon::engineInstallation24()
-{
-    return gt::gui::getIcon(QStringLiteral("engine_installation_24.png"));
-}
-
-QIcon
-gt::gui::icon::engineInstallation32()
-{
-    return gt::gui::getIcon(QStringLiteral("engine_installation_32.png"));
-}
-
-QIcon
-gt::gui::icon::performanceDesign()
-{
-    return gt::gui::getIcon(QStringLiteral("DPcalculator.png"));
-}
-
-QIcon
-gt::gui::icon::performanceDesign16()
-{
-    return gt::gui::getIcon(QStringLiteral("DPcalculator_16.png"));
-}
-
-QIcon
-gt::gui::icon::performanceDesign24()
-{
-    return gt::gui::getIcon(QStringLiteral("DPcalculator_24.png"));
-}
-
-QIcon
-gt::gui::icon::fluidPort()
-{
-    return gt::gui::getIcon(QStringLiteral("fluidPort3Icon.png"));
-}
-
-QIcon
-gt::gui::icon::fluidPort16()
-{
-    return gt::gui::getIcon(QStringLiteral("fluidPort3Icon_16.png"));
-}
-
-QIcon
-gt::gui::icon::fluidPort24()
-{
-    return gt::gui::getIcon(QStringLiteral("fluidPort3Icon_24.png"));
-}
-
-QIcon
-gt::gui::icon::fluidPortGroup()
-{
-    return gt::gui::getIcon(QStringLiteral("fluidPortGroupIcon.png"));
-}
-
-QIcon
-gt::gui::icon::fluidPortGroup16()
-{
-    return gt::gui::getIcon(QStringLiteral("fluidPortGroupIcon_16.png"));
-}
-
-QIcon
-gt::gui::icon::fluidPortGroup24()
-{
-    return gt::gui::getIcon(QStringLiteral("fluidPortGroupIcon_24.png"));
-}
-
-QIcon
-gt::gui::icon::shaftPort()
-{
-    return gt::gui::getIcon(QStringLiteral("shaftPort3Icon.png"));
-}
-
-QIcon
-gt::gui::icon::shaftPort16()
-{
-    return gt::gui::getIcon(QStringLiteral("shaftPort3Icon_16.png"));
-}
-
-QIcon
-gt::gui::icon::shaftPort24()
-{
-    return gt::gui::getIcon(QStringLiteral("shaftPort3Icon_24.png"));
-}
-
-QIcon
-gt::gui::icon::paramStudy()
-{
-    return gt::gui::getIcon(QStringLiteral("paramStudyIcon.png"));
-}
-
-QIcon
-gt::gui::icon::paramStudy16()
-{
-    return gt::gui::getIcon(QStringLiteral("paramStudyIcon_16.png"));
-}
-
-QIcon
-gt::gui::icon::paramStudy24()
-{
-    return gt::gui::getIcon(QStringLiteral("paramStudyIcon_24.png"));
-}
-
-
-GT_DEF_ICON_LETTER(a, "aLetterIcon.png")
-GT_DEF_ICON_LETTER(aSmall, "aLetterIconSmall.png")
-GT_DEF_ICON_LETTER(b, "bLetterIcon.png")
-GT_DEF_ICON_LETTER(bSmall, "bLetterIconSmall.png")
-GT_DEF_ICON_LETTER(c, "cLetterIcon.png")
-GT_DEF_ICON_LETTER(cSmall, "cLetterIconSmall.png")
-GT_DEF_ICON_LETTER(d, "dLetterIcon.png")
-GT_DEF_ICON_LETTER(dSmall, "dLetterIconSmall.png")
-GT_DEF_ICON_LETTER(e, "eLetterIconBlue.png")
-GT_DEF_ICON_LETTER(eSmall, "eLetterIconSmallBlue.png")
-GT_DEF_ICON_LETTER(eBrown, "eLetterIcon.png")
-GT_DEF_ICON_LETTER(eBrownSmall, "e_LetterIconSmall.png")
-GT_DEF_ICON_LETTER(f, "fLetterIcon.png")
-GT_DEF_ICON_LETTER(fSmall, "fLetterIconSmall.png")
-GT_DEF_ICON_LETTER(g, "gLetterIcon.png")
-GT_DEF_ICON_LETTER(gSmall, "gLetterIconSmall.png")
-GT_DEF_ICON_LETTER(h, "hLetterIcon.png")
-GT_DEF_ICON_LETTER(hSmall, "hLetterIconSmall.png")
-GT_DEF_ICON_LETTER(i, "iLetterIcon.png")
-GT_DEF_ICON_LETTER(iSmall, "iLetterIconSmall.png")
-GT_DEF_ICON_LETTER(j, "jLetterIcon.png")
-GT_DEF_ICON_LETTER(jSmall, "jLetterIconSmall.png")
-GT_DEF_ICON_LETTER(k, "kLetterIcon.png")
-GT_DEF_ICON_LETTER(kSmall, "kLetterIconSmall.png")
-GT_DEF_ICON_LETTER(l, "lLetterIcon.png")
-GT_DEF_ICON_LETTER(lSmall, "lLetterIconSmall.png")
-GT_DEF_ICON_LETTER(m, "mLetterIcon.png")
-GT_DEF_ICON_LETTER(mSmall, "mLetterIconSmall.png")
-GT_DEF_ICON_LETTER(n, "nLetterIcon.png")
-GT_DEF_ICON_LETTER(nSmall, "nLetterIconSmall.png")
-GT_DEF_ICON_LETTER(o, "oLetterIcon.png")
-GT_DEF_ICON_LETTER(oSmall, "oLetterIconSmall.png")
-GT_DEF_ICON_LETTER(p, "pLetterIcon.png")
-GT_DEF_ICON_LETTER(pSmall, "pLetterIconSmall.png")
-GT_DEF_ICON_LETTER(q, "qLetterIcon.png")
-GT_DEF_ICON_LETTER(qSmall, "qLetterIconSmall.png")
-GT_DEF_ICON_LETTER(r, "rLetterIcon.png")
-GT_DEF_ICON_LETTER(rSmall, "rLetterIconSmall.png")
-GT_DEF_ICON_LETTER(s, "sLetterIcon.png")
-GT_DEF_ICON_LETTER(sSmall, "sLetterIconSmall.png")
-GT_DEF_ICON_LETTER(t, "tLetterIcon.png")
-GT_DEF_ICON_LETTER(tSmall, "tLetterIconSmall.png")
-GT_DEF_ICON_LETTER(u, "uLetterIcon.png")
-GT_DEF_ICON_LETTER(uSmall, "uLetterIconSmall.png")
-GT_DEF_ICON_LETTER(v, "vLetterIcon.png")
-GT_DEF_ICON_LETTER(vSmall, "vLetterIconSmall.png")
-GT_DEF_ICON_LETTER(w, "wLetterIcon.png")
-GT_DEF_ICON_LETTER(wSmall, "wLetterIconSmall.png")
-GT_DEF_ICON_LETTER(x, "xLetterIcon.png")
-GT_DEF_ICON_LETTER(xSmall, "xLetterIconSmall.png")
-GT_DEF_ICON_LETTER(y, "yLetterIcon.png")
-GT_DEF_ICON_LETTER(ySmall, "yLetterIconSmall.png")
-GT_DEF_ICON_LETTER(z, "zLetterIcon.png")
-GT_DEF_ICON_LETTER(zSmall, "zLetterIconSmall.png")
+GT_DEF_ICON_LETTER(a, "a_capital.svg")
+GT_DEF_ICON_LETTER(aSmall, "a_lower.svg")
+GT_DEF_ICON_LETTER(b, "b_capital.svg")
+GT_DEF_ICON_LETTER(bSmall, "b_lower.svg")
+GT_DEF_ICON_LETTER(c, "c_capital.svg")
+GT_DEF_ICON_LETTER(cSmall, "c_lower.svg")
+GT_DEF_ICON_LETTER(d, "d_capital.svg")
+GT_DEF_ICON_LETTER(dSmall, "d_lower.svg")
+GT_DEF_ICON_LETTER(e, "e_capital.svg")
+GT_DEF_ICON_LETTER(eSmall, "e_lower.svg")
+GT_DEF_ICON_LETTER_COLORED(eColorized, "e_capital.svg", color::highlight)
+GT_DEF_ICON_LETTER_COLORED(eSmallColorized, "e_lower.svg", color::highlight)
+GT_DEF_ICON_LETTER_ALIAS(eBrown, eColorized)
+GT_DEF_ICON_LETTER_ALIAS(eBrownSmall, eSmallColorized)
+GT_DEF_ICON_LETTER(f, "f_capital.svg")
+GT_DEF_ICON_LETTER(fSmall, "f_lower.svg")
+GT_DEF_ICON_LETTER(g, "g_capital.svg")
+GT_DEF_ICON_LETTER(gSmall, "g_lower.svg")
+GT_DEF_ICON_LETTER(h, "h_capital.svg")
+GT_DEF_ICON_LETTER(hSmall, "h_lower.svg")
+GT_DEF_ICON_LETTER(i, "i_capital.svg")
+GT_DEF_ICON_LETTER(iSmall, "i_lower.svg")
+GT_DEF_ICON_LETTER(j, "j_capital.svg")
+GT_DEF_ICON_LETTER(jSmall, "j_lower.svg")
+GT_DEF_ICON_LETTER(k, "k_capital.svg")
+GT_DEF_ICON_LETTER(kSmall, "k_lower.svg")
+GT_DEF_ICON_LETTER(l, "l_capital.svg")
+GT_DEF_ICON_LETTER(lSmall, "l_lower.svg")
+GT_DEF_ICON_LETTER(m, "m_capital.svg")
+GT_DEF_ICON_LETTER(mSmall, "m_lower.svg")
+GT_DEF_ICON_LETTER(n, "n_capital.svg")
+GT_DEF_ICON_LETTER(nSmall, "n_lower.svg")
+GT_DEF_ICON_LETTER(o, "o_capital.svg")
+GT_DEF_ICON_LETTER(oSmall, "o_lower.svg")
+GT_DEF_ICON_LETTER(p, "p_capital.svg")
+GT_DEF_ICON_LETTER(pSmall, "p_lower.svg")
+GT_DEF_ICON_LETTER(q, "q_capital.svg")
+GT_DEF_ICON_LETTER(qSmall, "q_lower.svg")
+GT_DEF_ICON_LETTER(r, "r_capital.svg")
+GT_DEF_ICON_LETTER(rSmall, "r_lower.svg")
+GT_DEF_ICON_LETTER(s, "s_capital.svg")
+GT_DEF_ICON_LETTER(sSmall, "s_lower.svg")
+GT_DEF_ICON_LETTER(t, "t_capital.svg")
+GT_DEF_ICON_LETTER(tSmall, "t_lower.svg")
+GT_DEF_ICON_LETTER(u, "u_capital.svg")
+GT_DEF_ICON_LETTER(uSmall, "u_lower.svg")
+GT_DEF_ICON_LETTER(v, "v_capital.svg")
+GT_DEF_ICON_LETTER(vSmall, "v_lower.svg")
+GT_DEF_ICON_LETTER(w, "w_capital.svg")
+GT_DEF_ICON_LETTER(wSmall, "w_lower.svg")
+GT_DEF_ICON_LETTER(x, "x_capital.svg")
+GT_DEF_ICON_LETTER(xSmall, "x_lower.svg")
+GT_DEF_ICON_LETTER(y, "y_capital.svg")
+GT_DEF_ICON_LETTER(ySmall, "y_lower.svg")
+GT_DEF_ICON_LETTER(z, "z_capital.svg")
+GT_DEF_ICON_LETTER(zSmall, "z_lower.svg")
 
 
 QIcon
@@ -1198,11 +868,25 @@ gt::gui::icon::processRunningIcon(int progress)
     return retValIcon;
 }
 
+QString
+gt::gui::pixmap::backgroundPath()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QStringLiteral(":/pixmaps/startup-background_dark.png");
+    }
+
+    return QStringLiteral(":/pixmaps/startup-background.png");
+}
 
 QString
 gt::gui::pixmap::logoString()
 {
-    return {":/pixmaps/gt-logo.png"};
+    if (gtApp->inDarkMode())
+    {
+        return QStringLiteral(":/pixmaps/gt-logo-dark.png");
+    }
+    return QStringLiteral(":/pixmaps/gt-logo.png");
 }
 
 GT_DEF_PIXMAP(splash, "splash.png");
@@ -1230,12 +914,13 @@ gt::gui::pixmap::jumpTo()
 }
 
 QPixmap
+gt::gui::pixmap::background()
+{
+    return QPixmap(backgroundPath());
+}
+
+QPixmap
 gt::gui::pixmap::logo()
 {
-    if (gtApp->inDarkMode())
-    {
-        return {":/pixmaps/gt-logo-dark.png"};
-    }
-
-    return {":/pixmaps/gt-logo.png"};
+    return QPixmap(logoString());
 }

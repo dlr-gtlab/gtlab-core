@@ -1019,8 +1019,6 @@ GtMainWin::updateAvailable()
     m_cornerWidget->showUpdateWidget(false);
     gtDebug() << "new update found!";
     ui->menuUpdate_available->menuAction()->setVisible(true);
-    //    GtdApplication::notify("GTlab Update available!",
-    //                           GtdUtilitiesOld::icon("updateToIcon.png"));
 }
 
 void

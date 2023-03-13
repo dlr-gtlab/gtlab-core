@@ -99,21 +99,6 @@ GtProjectUI::GtProjectUI()
 
     if (gtApp->devMode())
     {
-
-        //        addAction(tr("Test Commit"),
-        //                  QStringLiteral("jumpToIcon.png"),
-        //                  QStringLiteral("testCommit"),
-        //                  QStringLiteral("canTestCommit"));
-
-
-        //          ATTENTION: former Icon "arrowRightIconBlue"
-        //                     is not in resources anymore!
-
-        //        addAction(tr("Test Checkout"),
-        //                  QStringLiteral("arrowRightIconBlue.png"),
-        //                  QStringLiteral("testCheckout"),
-        //                  QStringLiteral("canTestCheckout"));
-
         addSingleAction(tr("Enable Version Control"),
                         &GtProjectUI::enableVersionControl)
                 .setIcon(gt::gui::icon::check())
@@ -121,12 +106,6 @@ GtProjectUI::GtProjectUI()
                 .setVisibilityMethod(&GtProjectUI::canEnableVersionControl);
 
         addSeparator();
-
-
-        // init version control, quick and dirty for now
-        //        GtProjectDiffPatch * differ = new GtProjectDiffPatch;
-        //        GtdVCSDBInterface * vcInterface = new GtdVCSDBInterface;
-        //        vc = new GtdVersionControlCore(vcInterface, differ);
 
     }
  

@@ -3,9 +3,11 @@
 
 #include "gt_gui_exports.h"
 
-#include "QList"
-#include <QWidget>
 #include "gt_object.h"
+#include "gt_objectuiaction.h"
+
+#include <QList>
+#include <QWidget>
 
 
 class GtPostTemplateItem;
@@ -13,9 +15,6 @@ class QPrinter;
 class QPainter;
 class QRect;
 class GtAbstractChartProvider;
-
-
-#include "gt_objectuiaction.h"
 
 /**
  * @brief The GtAbstractPostWidget class
@@ -25,6 +24,9 @@ class GT_GUI_EXPORT GtAbstractPostWidget : public QWidget
     Q_OBJECT
 
 public:
+
+    using ActionFunction = GtObjectUIAction::ActionMethod;
+
     /**
      * @brief GtAbstractPostWidget
      */
@@ -49,6 +51,27 @@ public:
     void setData(GtPostTemplateItem* dm);
 
     /**
+     * @brief Constructs a config action object and returns it as a reference.
+     * Useful for specify its properties after a function call.
+     * NOTE: Reference may become invalid if a new action has been added.
+     * @param actionText Action name
+     * @param actionMethod Action method to invoke. Must be invokable
+     * from MOS (Meta Object System).
+     * @return Action reference
+     */
+    GtObjectUIAction& addConfigAction(const QString& actionText,
+                                      const QString& actionMethod);
+
+    /**
+     * @brief Overload.Accepts a lambda or function pointer.
+     * @param actionText Action name
+     * @param actionMethod Method/Function/lambda to invoke
+     * @return Action reference
+     */
+    GtObjectUIAction& addConfigAction(const QString& actionText,
+                                      ActionFunction actionMethod);
+
+    /**
      * @brief addConfigAction
      * @param actionText
      * @param actionIcon
@@ -56,6 +79,10 @@ public:
      * @param actionVerification
      * @return
      */
+    [[deprecated("Use dedicated setters instead: "
+                 "addConfigAction(<text>, <method>)"
+                 "  .setIcon(<icon>)"
+                 "  .setVerificationMethod(<method>)")]]
     bool addConfigAction(const QString& actionText,
                          const QString& actionMethod,
                          const QString& actionIcon,
@@ -70,6 +97,11 @@ public:
      * @param actionVisibility
      * @return
      */
+    [[deprecated("Use dedicated setters instead: "
+                 "addConfigAction(<text>, <method>)"
+                 "  .setIcon(<icon>)"
+                 "  .setVerificationMethod(<method>)"
+                 "  .setVisibilityMethod(<method>)")]]
     bool addConfigAction(const QString& actionText,
                          const QString& actionMethod,
                          const QString& actionIcon,
@@ -92,13 +124,27 @@ public:
      * @brief iconString
      * @return
      */
+    [[deprecated("Use icon instead")]]
     QString iconString();
 
     /**
      * @brief setIconString
      * @param iconString
      */
+    [[deprecated("Use setIcon instead")]]
     void setIconString(const QString& iconString);
+
+    /**
+     * @brief Returns the icon of the post widget
+     * @return icon
+     */
+    QIcon icon();
+
+    /**
+     * @brief Sets the icon of the post widget
+     * @param icon Icon
+     */
+    void setIcon(const QIcon& icon);
 
     /**
      * @brief changePlotName
@@ -119,7 +165,8 @@ public:
      * @brief pdfEmbedded
      */
     virtual void printEmbedded(QPrinter* /*printer*/,
-                               QPainter* /*painter*/, QRectF /*rect*/) {}
+                               QPainter* /*painter*/,
+                               QRectF /*rect*/) {}
 
     /**
      * @brief updatePlot
@@ -143,6 +190,7 @@ public:
     virtual QString providerName();
 
 protected:
+
     GtAbstractChartProvider* chartProvider();
 
 private:
@@ -151,6 +199,9 @@ private:
 
     bool m_printable;
 
+    // We should use a QIcon member here instead of the QString.
+    // However this might break the ABI
+    [[deprecated("Use a QIcon member instead")]]
     QString m_iconString;
 
     /// List of UI actions

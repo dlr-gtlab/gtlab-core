@@ -36,6 +36,7 @@
 #include "gt_dialog.h"
 #include "gt_logging.h"
 #include "gt_icons.h"
+#include "gt_stylesheets.h"
 
 #include "gt_examplesmdiwidget.h"
 
@@ -122,19 +123,10 @@ GtExamplesMdiWidget::setBasicLayoutToTabPage(QScrollArea* tabPage,
     frame->setAutoFillBackground(true);
     frame->setFrameShape(QFrame::Box);
     frame->setFrameShadow(QFrame::Raised);
+    frame->setStyleSheet(gt::gui::stylesheet::backgroundFrame());
 
-    if (gtApp->inDarkMode())
-    {
-        frame->setStyleSheet("#frame {border-image:"
-                             "url(:/pixmaps/startup-background_dark.png)}");
-    }
-    else
-    {
-        frame->setStyleSheet("#frame {border-image:"
-                             "url(:/pixmaps/startup-background.png)}");
-    }
     QGridLayout* grid = new QGridLayout;
-    grid->setObjectName("grid");
+    grid->setObjectName(QStringLiteral("grid"));
 
     frame->setLayout(grid);
 

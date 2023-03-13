@@ -28,7 +28,7 @@ TestMdiExtPackageUI::TestMdiExtPackageUI()
         .setShortCut(k);
 
     addActionGroup("Test Action Group 2")
-        .setIcon("folder_16.png")
+        .setIcon("folder.svg") // test icon by path
         << makeSingleAction("Test Group Action", "testGroupAction")
             .registerShortCut("testMdiExtShortCut_2", "testMdiExt",
                               QKeySequence(Qt::Key_F10), true);

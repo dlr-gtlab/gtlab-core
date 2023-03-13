@@ -49,7 +49,7 @@ public slots:
 
 private:
     QString m_text;
-    QUrl m_iconUrl{"qrc:/icons/unknownIcon.png"};
+    QUrl m_iconUrl{"qrc:/icons/objectUnknown.svg"};
     bool m_enabled{true};
 };
 #endif // GTQMLACTION_H

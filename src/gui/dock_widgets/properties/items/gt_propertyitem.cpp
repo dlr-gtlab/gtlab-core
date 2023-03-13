@@ -73,7 +73,7 @@ GtPropertyItem::data(int column, int role) const
                 }
 
                 return QStringLiteral("[") + m_currentUnit +
-                        QStringLiteral("]");
+                       QStringLiteral("]");
 
             }
 

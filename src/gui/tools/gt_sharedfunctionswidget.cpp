@@ -59,7 +59,7 @@ GtSharedFunctionsWidget::GtSharedFunctionsWidget(QWidget* parent) :
         {
             auto catItem = new QTreeWidgetItem(QStringList {moduleId});
 
-            catItem->setIcon(0, gui::icon::open());
+            catItem->setIcon(0, gui::icon::variable());
             m_content->addTopLevelItem(catItem);
 
             cats.append(catItem);
