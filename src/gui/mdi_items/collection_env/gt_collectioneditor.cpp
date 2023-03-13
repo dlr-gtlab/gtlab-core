@@ -30,6 +30,7 @@
 #include "gt_collectionloadingwidget.h"
 #include "gt_logging.h"
 #include "gt_icons.h"
+#include "gt_stylesheets.h"
 
 #include "gt_collectioneditor.h"
 
@@ -55,18 +56,7 @@ GtCollectionEditor::GtCollectionEditor() :
     frame->setAutoFillBackground(true);
     frame->setFrameShape(QFrame::Box);
     frame->setFrameShadow(QFrame::Raised);
-
-    if (gtApp->inDarkMode())
-    {
-        frame->setStyleSheet("#frame {border-image: "
-                             "url(:/pixmaps/startup-background_dark.png)}");
-    }
-    else
-    {
-        frame->setStyleSheet("#frame {border-image: "
-                             "url(:/pixmaps/startup-background.png)}");
-
-    }
+    frame->setStyleSheet(gt::gui::stylesheet::backgroundFrame());
 
     QVBoxLayout* frameLay = new QVBoxLayout;
     frameLay->setContentsMargins(10, 10, 10, 10);

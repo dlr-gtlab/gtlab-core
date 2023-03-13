@@ -208,7 +208,7 @@ GtAbstractItemUI::adjustToolBar()
     setIsPrintable(m_widget->isPrintable());
 
     // icon initialization
-    QIcon plotIcon = gt::gui::getIcon(m_widget->iconString());
+    QIcon plotIcon = m_widget->icon();
 
     if (plotIcon.isNull())
     {

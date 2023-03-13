@@ -18,6 +18,7 @@
 #include "gt_application.h"
 #include "gt_palette.h"
 #include "gt_icons.h"
+#include "gt_stylesheets.h"
 
 #include "gt_collectionitemwidget.h"
 
@@ -39,19 +40,7 @@ GtCollectionItemWidget::GtCollectionItemWidget(
     frame->setAutoFillBackground(true);
     frame->setFrameShape(QFrame::Box);
     frame->setFrameShadow(QFrame::Raised);
-
-    if (gtApp->inDarkMode())
-    {
-        frame->setStyleSheet("#frame {border-image: "
-                             "url(:/pixmaps/startup-background_dark.png)}");
-    }
-    else
-    {
-        frame->setStyleSheet("#frame {border-image: "
-                             "url(:/pixmaps/startup-background.png)}");
-
-    }
-
+    frame->setStyleSheet(gt::gui::stylesheet::backgroundFrame());
 
     auto frameLay = new QVBoxLayout;
     frameLay->setContentsMargins(10, 10, 10, 10);

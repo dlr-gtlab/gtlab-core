@@ -11,6 +11,8 @@
 #include "gt_posttemplateitem.h"
 #include "gt_abstractchartprovider.h"
 
+#include "gt_icons.h"
+
 #include <QWidget>
 
 #include <gt_logging.h>
@@ -22,33 +24,29 @@ GtAbstractPostWidget::GtAbstractPostWidget(QWidget* w) :
     m_iconString(QString())
 {
     addConfigAction(tr("Configuration Menu"),
-                    QStringLiteral("showConfigurationMenu"),
-                    QStringLiteral("configIcon_16.png"),
-                    QStringLiteral("canShowConfigurationMenu"));
+                    QStringLiteral("showConfigurationMenu"))
+            .setIcon(gt::gui::icon::config())
+            .setVerificationMethod(QStringLiteral("canShowConfigurationMenu"));
 
-    addConfigAction(tr("Hide Widgets"),
-                    QStringLiteral("hideAxisLabels"),
-                    QStringLiteral("eyeOffIcon_16.png"),
-                    QStringLiteral("canHideAxisLabels"),
-                    QStringLiteral("canHideAxisLabels"));
+    addConfigAction(tr("Hide Widgets"), QStringLiteral("hideAxisLabels"))
+            .setIcon(gt::gui::icon::eyeOff())
+            .setVerificationMethod(QStringLiteral("canHideAxisLabels"))
+            .setVisibilityMethod(QStringLiteral("canHideAxisLabels"));
 
-    addConfigAction(tr("Show Widgets"),
-                    QStringLiteral("showAxisLabels"),
-                    QStringLiteral("eyeIcon_16.png"),
-                    QStringLiteral("canShowAxisLabels"),
-                    QStringLiteral("canShowAxisLabels"));
+    addConfigAction(tr("Show Widgets"), QStringLiteral("showAxisLabels"))
+            .setIcon(gt::gui::icon::eye())
+            .setVerificationMethod(QStringLiteral("canShowAxisLabels"))
+            .setVisibilityMethod(QStringLiteral("canShowAxisLabels"));
 
-    addConfigAction(tr("Hide Markers"),
-                    QStringLiteral("hideMarkers"),
-                    QStringLiteral("eyeOffIcon_16.png"),
-                    QStringLiteral("canHideMarkers"),
-                    QStringLiteral("canHideMarkers"));
+    addConfigAction(tr("Hide Markers"), QStringLiteral("hideMarkers"))
+            .setIcon(gt::gui::icon::eyeOff())
+            .setVerificationMethod(QStringLiteral("canHideMarkers"))
+            .setVisibilityMethod(QStringLiteral("canHideMarkers"));
 
-    addConfigAction(tr("Show Markers"),
-                    QStringLiteral("showMarkers"),
-                    QStringLiteral("eyeIcon_16.png"),
-                    QStringLiteral("canShowMarkers"),
-                    QStringLiteral("canShowMarkers"));
+    addConfigAction(tr("Show Markers"), QStringLiteral("showMarkers"))
+            .setIcon(gt::gui::icon::eye())
+            .setVerificationMethod(QStringLiteral("canShowMarkers"))
+            .setVisibilityMethod(QStringLiteral("canShowMarkers"));
 }
 
 GtActionList
@@ -67,6 +65,21 @@ void
 GtAbstractPostWidget::setData(GtPostTemplateItem* dm)
 {
     m_data = dm;
+}
+
+GtObjectUIAction&
+GtAbstractPostWidget::addConfigAction(const QString& actionText,
+                                      const QString& actionMethod)
+{
+    m_actionList << GtObjectUIAction(actionText, actionMethod);
+    return m_actionList.last();
+}
+
+GtObjectUIAction&
+GtAbstractPostWidget::addConfigAction(const QString& actionText, ActionFunction actionMethod)
+{
+    m_actionList << GtObjectUIAction(actionText, std::move(actionMethod));
+    return m_actionList.last();
 }
 
 bool
@@ -128,6 +141,18 @@ GtAbstractPostWidget::setIconString(const QString& iconString)
     m_iconString = iconString;
 }
 
+QIcon
+GtAbstractPostWidget::icon()
+{
+    return gt::gui::getIcon(m_iconString);
+}
+
+void
+GtAbstractPostWidget::setIcon(const QIcon& icon)
+{
+    m_iconString = icon.name();
+}
+
 void
 GtAbstractPostWidget::initShowHideMarkers()
 {
@@ -137,7 +162,7 @@ GtAbstractPostWidget::initShowHideMarkers()
 QString
 GtAbstractPostWidget::providerName()
 {
-    return QString("");
+    return QString{};
 }
 
 void

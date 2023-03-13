@@ -19,6 +19,7 @@
 #include "gt_application.h"
 #include "gt_settings.h"
 #include "gt_icons.h"
+#include "gt_stylesheets.h"
 
 #include "gt_startuppage.h"
 
@@ -109,14 +110,5 @@ GtStartupPage::initializeTheme()
     m_logoLabel->setPixmap(gt::gui::pixmap::logo());
     m_logoLabel->setLayoutDirection(Qt::RightToLeft);
 
-    if (gtApp->inDarkMode())
-    {
-        m_frame->setStyleSheet("#frame {border-image: "
-                             "url(:/pixmaps/startup-background_dark.png)}");
-    }
-    else
-    {
-        m_frame->setStyleSheet("#frame {border-image: "
-                             "url(:/pixmaps/startup-background.png)}");
-    }
+    m_frame->setStyleSheet(gt::gui::stylesheet::backgroundFrame());
 }

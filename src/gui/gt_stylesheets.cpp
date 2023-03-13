@@ -9,6 +9,9 @@
 
 #include "gt_stylesheets.h"
 #include "gt_application.h"
+#include "gt_icons.h"
+#include "gt_svgiconengine.h"
+
 #include <QCoreApplication>
 
 QString basicButtonStyleSheet(const QString& size = "min-width: 70px;"
@@ -138,23 +141,30 @@ QString
 gt::gui::stylesheet::selectionComboBox(const QString& minWidth,
                                        const QString& maxWidth)
 {
-    QString text = "QComboBox { border: 1px solid gray;"
-                   "border-radius: 4px;"
-                   "min-width:" + minWidth + "px;max-width: " + maxWidth + "px;"
-                   "min-height:15px}"
-                   "QComboBox::drop-down {"
-                   "subcontrol-origin: padding;"
-                   "subcontrol-position: top right;"
-                   "width: 15px;border-left-width: 1px;"
-                   "border-left-color: darkgray;"
-                   "border-left-style: solid;"
-                   "border-top-right-radius: 3px;"
-                   "border-bottom-right-radius: 3px;}"
-                   "QComboBox::down-arrow {"
-                   "image: url(:/icons/arrowdownGrayIcon_7.png);"
-                   "width: 7px;height: 7px;}";
-
-    return text;
+    return QStringLiteral(
+            "QComboBox {"
+            "   border: 1px solid gray;"
+            "   border-radius: 4px;"
+            "   min-width: %1px;"
+            "   max-width: %2px;"
+            "   min-height:15px"
+            "}"
+            "QComboBox::drop-down {"
+            "   subcontrol-origin: padding;"
+            "   subcontrol-position: top right;"
+            "   width: 15px;"
+            "   border-left-width: 1px;"
+            "   border-left-color: darkgray;"
+            "   border-left-style: solid;"
+            "   border-top-right-radius: 3px;"
+            "   border-bottom-right-radius: 3px;"
+            "}"
+            "QComboBox::down-arrow {"
+            "   image: url(:/icons/stylesheets/arrowDown%3.svg);"
+            "   width: 7px;"
+            "   height: 7px;"
+            "}"
+    ).arg(minWidth, maxWidth, gtApp->inDarkMode() ? "_dark":"");
 }
 
 QString
@@ -184,4 +194,11 @@ gt::gui::stylesheet::coloredCarpetPlotBtn(const QColor& col)
                    "min-height:22px}";
 
     return text;
+}
+
+QString
+gt::gui::stylesheet::backgroundFrame()
+{
+    return QStringLiteral("#frame {border-image: url(%1)}")
+           .arg(gt::gui::pixmap::backgroundPath());
 }

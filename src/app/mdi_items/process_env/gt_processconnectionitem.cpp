@@ -230,22 +230,22 @@ GtProcessConnectionItem::data(int column, int role)
 
                     if (qobject_cast<GtDoubleProperty*>(m_property))
                     {
-                        return gt::gui::icon::double16();
+                        return gt::gui::icon::letter::d();
                     }
 
                     if (qobject_cast<GtIntProperty*>(m_property))
                     {
-                        return gt::gui::icon::int16();
+                        return gt::gui::icon::letter::i();
                     }
 
                     if (qobject_cast<GtObjectLinkProperty*>(m_property))
                     {
-                        return gt::gui::icon::o16();
+                        return gt::gui::icon::letter::o();
                     }
 
                     if (qobject_cast<GtStringProperty*>(m_property))
                     {
-                        return gt::gui::icon::string16();
+                        return gt::gui::icon::letter::s();
                     }
                 }
 

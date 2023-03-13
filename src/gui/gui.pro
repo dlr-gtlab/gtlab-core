@@ -103,6 +103,7 @@ HEADERS += \
     tools/gt_changelogparser.h \
     tools/gt_changelogwidget.h \
     tools/gt_sharedfunctionswidget.h \
+    tools/gt_svgiconengine.h \
     tools/gt_switchprojectmessagebox.h \
     tools/gt_textedit.h \
     widgets/gt_shortcutedit.h \
@@ -275,6 +276,7 @@ SOURCES += \
     tools/gt_changelogparser.cpp \
     tools/gt_changelogwidget.cpp \
     tools/gt_sharedfunctionswidget.cpp \
+    tools/gt_svgiconengine.cpp \
     tools/gt_switchprojectmessagebox.cpp \
     tools/gt_textedit.cpp \
     widgets/gt_shortcutedit.cpp \

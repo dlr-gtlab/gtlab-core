@@ -103,11 +103,18 @@ QString GT_GUI_EXPORT selectionComboBox(const QString& minWidth,
  */
 
 QString GT_GUI_EXPORT resultViewerTitleLabel();
+
 /**
  * @brief coloredCarpetPlotBtn - gives carpet plot button a color
  * @return
  */
 QString GT_GUI_EXPORT coloredCarpetPlotBtn(const QColor& col);
+
+/**
+ * @brief backgroundFrame - Applies the background image to a QFrame
+ * @return Stylesheet for QFrame
+ */
+QString GT_GUI_EXPORT backgroundFrame();
 
 } // namespace stylesheet
 
