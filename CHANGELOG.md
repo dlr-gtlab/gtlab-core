@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 - Fixed / improved GtFileChooserProperty file filters to be also compatible to Qt filters - #446
+- Fixed wizard style issues - #474
 - Fixed graphical glitch in ruler when resizing the window - #425
 
 ## [2.0.0-pr-beta2] - 2023-02-22

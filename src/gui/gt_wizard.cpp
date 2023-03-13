@@ -14,17 +14,8 @@
 GtWizard::GtWizard(QWidget* parent) :
     QWizard(parent)
 {
-    if (gtApp->inDarkMode())
-    {
-        setWizardStyle(QWizard::ModernStyle);
-        setAutoFillBackground(true);
-    }
-    else
-    {
-        setWizardStyle(QWizard::AeroStyle);
-        setAutoFillBackground(false);
-    }
-
+    setWizardStyle(QWizard::ModernStyle);
+    setAutoFillBackground(false);
 
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
