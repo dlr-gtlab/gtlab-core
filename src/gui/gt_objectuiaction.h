@@ -45,14 +45,26 @@ public:
     /**
      * @brief GtObjectUIAction
      */
+    [[deprecated("Set action properties using dedicated setters instead")]]
     GtObjectUIAction(const QString& text,
                      const QString& method,
                      const QString& icon = {},
                      const QString& verification = {},
                      const QString& visibility = {},
                      const QKeySequence& shortCut = {});
+
     /**
-     * @brief GtObjectUIAction
+     * @brief Constructor
+     * @param text Action text
+     * @param method Method to execute when action was triggered
+     */
+    GtObjectUIAction(const QString& text, ActionMethod method);
+
+    /**
+     * @brief Overload. Constructor.
+     * @param text Action text
+     * @param method Method to execute when action was triggered.
+     * Function requires a parent object
      */
     GtObjectUIAction(const QString& text, InvokableActionMethod method);
 

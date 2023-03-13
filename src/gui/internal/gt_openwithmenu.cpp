@@ -12,7 +12,8 @@
 #include "gt_openwithmenu.h"
 #include "gt_mdilauncher.h"
 
-GtOpenWithMenu::GtOpenWithMenu(const QStringList& list, GtObject* obj,
+GtOpenWithMenu::GtOpenWithMenu(const QStringList& list,
+                               GtObject* obj,
                                QWidget* parent) :
     QMenu(parent),
     m_signalMapper(new QSignalMapper(this)),
@@ -23,7 +24,7 @@ GtOpenWithMenu::GtOpenWithMenu(const QStringList& list, GtObject* obj,
     connect(m_signalMapper, SIGNAL(mapped(QObject*)),
             SLOT(onActionTrigger(QObject*)));
 
-    foreach (const QString& str, list)
+    for (const QString& str : list)
     {
         QString name = cleanMenuName(str);
 
@@ -58,7 +59,7 @@ GtOpenWithMenu::onActionTrigger(QObject* obj)
 
 QString
 GtOpenWithMenu::cleanMenuName(const QString& className)
-{   
+{
     if (className == "GtdPreDesignPlot")
     {
         return "Pre Design Plot";

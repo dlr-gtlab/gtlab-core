@@ -33,7 +33,17 @@ GtObjectUIAction::GtObjectUIAction(const QString& text,
     setVisibilityMethod(visibility);
 }
 
-GtObjectUIAction::GtObjectUIAction(const QString& text, InvokableActionMethod method) :
+GtObjectUIAction::GtObjectUIAction(const QString& text,
+                                   ActionMethod method) :
+    GtObjectUIAction(text,
+                     [m = std::move(method)](QObject* parent, GtObject* target){
+        Q_UNUSED(parent)
+        if (m) m(target);
+    })
+{ }
+
+GtObjectUIAction::GtObjectUIAction(const QString& text,
+                                   InvokableActionMethod method) :
     m_text(text),
     m_method(std::move(method))
 {

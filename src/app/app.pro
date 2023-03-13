@@ -188,7 +188,6 @@ HEADERS += \
     dock_widgets/output/gt_taskhistorymodel.h \
     dock_widgets/explorer/gt_explorerdock.h \
     dock_widgets/explorer/gt_explorerview.h \
-    dock_widgets/explorer/gt_openwithmenu.h \
     dock_widgets/process/gt_processdock.h \
     dock_widgets/process/gt_processview.h \
     dock_widgets/process/gt_processconnectioneditor.h \
@@ -284,7 +283,6 @@ SOURCES += \
     dock_widgets/output/gt_taskhistorymodel.cpp \
     dock_widgets/explorer/gt_explorerdock.cpp \
     dock_widgets/explorer/gt_explorerview.cpp \
-    dock_widgets/explorer/gt_openwithmenu.cpp \
     dock_widgets/process/gt_processdock.cpp \
     dock_widgets/process/gt_processview.cpp \
     dock_widgets/process/gt_processconnectioneditor.cpp \
