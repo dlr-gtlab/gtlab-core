@@ -53,6 +53,11 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
     m_processComponentSettingBtn->setVisible(false);
 
     m_tab = new QTabWidget;
+    // NOTE:
+    // Setting the stylesheet may cause issues when changing the theme as it
+    // wont be applied correctly. Appears to only happen if no global
+    // stylesheet is used?
+    m_tab->setStyleSheet("QTabWidget::pane { border: 0; }");
 
     m_treeView = new GtPropertyTreeView(gtApp->session());
 
