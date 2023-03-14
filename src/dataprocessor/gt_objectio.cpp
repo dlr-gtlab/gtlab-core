@@ -16,6 +16,7 @@
 #include <QDataStream>
 #include <QtGlobal>
 #include <QDebug>
+#include <QMetaType>
 
 #include <cfloat>
 #include <typeinfo>

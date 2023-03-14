@@ -8,6 +8,7 @@
  */
 
 #include "gt_h5externalizehelper.h"
+#include "gt_version.h"
 
 #ifdef GT_H5
 #include "gt_externalizedobject.h"
@@ -156,6 +157,12 @@ GtH5ExternalizeHelper::overwriteDataSet(const GenH5::DataType& dataType,
     }
     // update version attribute
     dset.writeVersionAttribute();
+    dset.writeAttribute0D("GT_VERSION",
+                          GenH5::Version{GT_VERSION_MAJOR,
+                                         GT_VERSION_MINOR,
+                                         GT_VERSION_PATCH});
+    dset.writeAttribute0D("GT_VERSION_PRE_RELEASE",
+                          GT_VERSION_PRE_RELEASE);
     return dset;
 }
 

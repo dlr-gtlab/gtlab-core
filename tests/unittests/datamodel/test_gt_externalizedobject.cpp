@@ -25,6 +25,11 @@ protected:
 
     void SetUp() override
     {
+        static const auto register_class_once = [](){
+            gtObjectFactory->registerClass(GT_METADATA(TestExternalizedObject));
+            return 0;
+        }();
+
         gtExternalizationManager->enableExternalization(true);
 
         obj = std::make_unique<TestExternalizedObject>();
@@ -32,6 +37,7 @@ protected:
 
         m_values = gtTestHelper->linearDataVector<double>(m_length, 0.0, 2.0);
         m_params = gtTestHelper->randomStringList(1);
+
     }
 
     bool isDataExternalized()
@@ -492,9 +498,9 @@ TEST_F(TestGtExternalizedObject, diff_after_externalizing)
 
         auto m2 = obj->toMemento();
 
-        EXPECT_TRUE(doExternalize());
-
         GtObjectMementoDiff diff{m1, m2};
+
+        EXPECT_TRUE(doExternalize());
 
         ASSERT_TRUE(obj->revertDiff(diff));
 
@@ -531,14 +537,17 @@ TEST_F(TestGtExternalizedObject, m1_before_fetch_and_diff_after_externalizing)
         EXPECT_TRUE(doExternalize());
 
         auto m1 = obj->toMemento();
+        gtDebug() << "M1" << m1.toByteArray();
 
         ASSERT_TRUE(doChangeData());
 
         auto m2 = obj->toMemento();
-
-        EXPECT_TRUE(doExternalize());
+        gtDebug() << "M2" << m2.toByteArray();
 
         GtObjectMementoDiff diff{m1, m2};
+        gtDebug() << "diff" << diff.toByteArray();
+
+        EXPECT_TRUE(doExternalize());
 
         ASSERT_TRUE(obj->revertDiff(diff));
 

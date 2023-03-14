@@ -208,6 +208,16 @@ GtAbstractObjectFactory::allInvokable(const QList<QMetaObject>& metaData)
     });
 }
 
+const QMetaObject*
+GtAbstractObjectFactory::metaObject(const QString& clzName) const
+{
+    auto found = m_knownClasses.find(clzName);
+
+    if (found != m_knownClasses.end()) return &found.value();
+
+    return nullptr;
+}
+
 bool
 GtAbstractObjectFactory::invokable(const QMetaObject& metaObj) const
 {

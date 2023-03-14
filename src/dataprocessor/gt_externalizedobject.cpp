@@ -9,7 +9,6 @@
 
 #include "gt_externalizedobject.h"
 
-#include "gt_objectmemento.h" // remove me
 #include "gt_boolproperty.h"
 #include "gt_stringproperty.h"
 #include "gt_utilities.h"
@@ -127,8 +126,6 @@ GtExternalizedObject::hasModifiedData()
 bool
 GtExternalizedObject::hasModifiedData(const QString& otherHash) const
 {
-    gtDebug() << pimpl->pCachedHash.get() << "VS";
-    gtDebug() << otherHash;
     return pimpl->pCachedHash.get().isEmpty() ||
            pimpl->pCachedHash != otherHash;
 }
@@ -159,8 +156,6 @@ GtExternalizedObject::calcExtHash()
     pimpl->pMetaData.revert();
     pimpl->states = {};
 
-//    gtDebug() << toMemento().toByteArray();
-
     // calc object hash
     return calcHash();
 }
@@ -168,8 +163,7 @@ GtExternalizedObject::calcExtHash()
 void
 GtExternalizedObject::onObjectDiffMerged()
 {
-//    fetch();
-//    release();
+    // nothing to do here
     return GtObject::onObjectDiffMerged();
 }
 
@@ -247,9 +241,7 @@ GtExternalizedObject::release()
 
     // dont externalize if data is still in use
     if (pimpl->refCount > 0 || pimpl->states & KeepInternalized)
-    {        
-        gtDebug().medium() << "Object still used..." << gt::quoted(objectName());
-
+    {
         return true;
     }
 
@@ -258,13 +250,10 @@ GtExternalizedObject::release()
     // scedule for externalization
     if (hasModifiedData())
     {
-        gtDebug().medium() << "Object was modified..." << gt::quoted(objectName());
         setFetchInitialVersion(false);
         pimpl->setExternalizeState(ExternalizeOnSave, true);
         return true;
     }
-
-    gtDebug().medium() << "Releasing object..." << gt::quoted(objectName());
 
     // clear fetched state and free internal data
     pimpl->setExternalizeState(ExternalizeOnSave, false);
@@ -296,7 +285,6 @@ GtExternalizedObject::externalize()
     if (!(pimpl->states & ExternalizeOnSave || pimpl->states & KeepInternalized ||
           hasModifiedData(hash)))
     {
-        gtDebug().medium() << "Not marked for exrernalization..." << gt::quoted(objectName()) << pimpl->states << hasModifiedData(hash);
         return true;
     }
 

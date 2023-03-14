@@ -10,22 +10,9 @@
 #ifndef GT_GLOBALS_H
 #define GT_GLOBALS_H
 
-#define GT_VERSION_MAJOR 2
-#define GT_VERSION_MINOR 0
-#define GT_VERSION_PATCH 0
-#define GT_VERSION_PRE_RELEASE "beta.2"
-#define GT_VERSION_BUILD "0"
+#include "gt_version.h"
+
 #define GT_MAINTENANCETOOL "MaintenanceTool"
-
-/*
-   GT_VERSION is (major << 16) + (minor << 8) + patch.
-*/
-#define GT_VERSION      GT_VERSION_CHECK(GT_VERSION_MAJOR, GT_VERSION_MINOR, GT_VERSION_PATCH)
-
-/*
-   can be used like #if (GT_VERSION >= GT_VERSION_CHECK(4, 4, 0))
-*/
-#define GT_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
 #ifndef GT_MODULE_ID
 #error GT_MODULE_ID must be defined globally when using GTlab Core Libraries. \

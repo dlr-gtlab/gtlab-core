@@ -107,6 +107,7 @@ class GT_DATAMODEL_EXPORT GtExternalizedObject : public GtObject
 
     GT_DECL_DATACLASS(GtExternalizedObjectData)
 
+    friend class GtObjectMementoDiff;
     friend class GtExternalizationManager;
     friend class TestExternalizedObject;
 
@@ -142,6 +143,14 @@ public:
      * @return whether the object is fetched.
      */
     Q_INVOKABLE bool isFetched() const;
+
+    /**
+     * @brief Calculates a special hash of this object used to check for changes
+     * in the externalized data. Member variables of this class do not count
+     * towards a different hash.
+     * @return new hash
+     */
+    QString calcExtHash();
 
 protected:
 
@@ -235,14 +244,6 @@ private:
      * @return whether the object changed compared to the externalized version
      */
     bool hasModifiedData(const QString& otherHash) const;
-
-    /**
-     * @brief Calculates a special hash of this object used to check for changes
-     * in the externalized data. Member variables of this class do not count
-     * towards a different hash.
-     * @return new hash
-     */
-    QString calcExtHash();
 };
 
 #endif // GTEXTERNALIZEDOBJECT_H

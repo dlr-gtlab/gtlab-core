@@ -9,9 +9,13 @@
 
 #include "gt_objectmementodiff.h"
 #include "gt_objectmemento.h"
+#include "gt_externalizedobject.h"
+#include "gt_qtutilities.h"
 #include "gt_objectio.h"
 #include "gt_algorithms.h"
 #include "gt_xmlexpr.h"
+
+#include "gt_objectfactory.h"
 
 #include <QCryptographicHash>
 #include <QHash>
@@ -163,21 +167,23 @@ GtObjectMementoDiff::numberOfDiffSteps()
     return retval;
 }
 
+
+
 bool
-GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
-                              const GtObjectMemento& right,
+GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
+                              const GtObjectMemento& rightOrig,
                               QDomElement& diffRoot)
 {
     // update hashes if needed
-    left.calculateHashes();
-    right.calculateHashes();
-    if (left.fullHash() == right.fullHash() && diffRoot.isNull())
+    leftOrig.calculateHashes();
+    rightOrig.calculateHashes();
+    if (leftOrig.fullHash() == rightOrig.fullHash() && diffRoot.isNull())
     {
         gtDebug() << QObject::tr("compared object mementos are identical!");
         return true;
     }
 
-    if (left.uuid() != right.uuid())
+    if (leftOrig.uuid() != rightOrig.uuid())
     {
         gtWarning() << QObject::tr("root objects not equal!");
         QDomElement rootError =
@@ -192,6 +198,105 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         }
         return false;
     }
+
+    int isLeft = -1;
+    GtObjectMemento dummy;
+
+    auto externalizationInfoLeft = leftOrig.externalizationInfo(*gtObjectFactory);
+    if (externalizationInfoLeft.isValid())
+    {
+        auto externalizationInfoRight = rightOrig.externalizationInfo(*gtObjectFactory);
+        assert(externalizationInfoRight.isValid());
+
+        gtDebug() << "######################################";
+        gtDebug() << "LEFT:" << externalizationInfoLeft.isFetched << externalizationInfoLeft.hash;
+        gtDebug() << "### VS";
+        gtDebug() << "LEFT:" << externalizationInfoRight.isFetched << externalizationInfoRight.hash;
+        gtDebug() << "######################################";
+
+        if (!externalizationInfoLeft.isFetched &&
+            !externalizationInfoRight.isFetched &&
+            externalizationInfoLeft.hash != externalizationInfoRight.hash)
+        {
+            gtError() << QObject::tr("failed to create diff for externalized object data!");
+            return false;
+        }
+
+        if (externalizationInfoLeft.isFetched && externalizationInfoRight.isFetched)
+        {
+            // nothing to do here
+            gtDebug() << "### both object mementos are fetched!";
+        }
+        else
+        {
+            auto tmpInstanceLeft  = std::unique_ptr<QObject>(externalizationInfoLeft.metaObject->newInstance());
+            auto tmpInstanceRight = std::unique_ptr<QObject>(externalizationInfoRight.metaObject->newInstance());
+
+            auto externalizedObjectLeft  = gt::unique_qobject_cast<GtExternalizedObject>(std::move(tmpInstanceLeft));
+            auto externalizedObjectRight = gt::unique_qobject_cast<GtExternalizedObject>(std::move(tmpInstanceRight));
+
+            if (!externalizedObjectLeft || !externalizedObjectRight)
+            {
+                gtError() << QObject::tr("failed to restore externalized data for diff creation!");
+                return false;
+            }
+
+            gtDebug() << "### object successfully recreated!";
+
+            if (!leftOrig.mergeTo(*externalizedObjectLeft, *gtObjectFactory) ||
+                !rightOrig.mergeTo(*externalizedObjectRight, *gtObjectFactory))
+            {
+                gtError() << QObject::tr("failed to restore externalized objects for diff creation!");
+                return false;
+            }
+
+            if (!externalizationInfoLeft.isFetched)
+            {
+                if (externalizationInfoLeft.hash == externalizedObjectRight->calcExtHash())
+                {
+                    // nothing to do here
+                    gtDebug() << "### object mementos are compatible (left)!";
+                }
+                else
+                {
+                    if (!externalizedObjectLeft->internalize())
+                    {
+                        gtError() << QObject::tr("failed to internalized externalized object (left)!");
+                        return false;
+                    }
+
+                    dummy = externalizedObjectLeft->toMemento();
+                    isLeft = 1;
+                }
+            }
+            else
+            {
+                if (externalizationInfoRight.hash == externalizedObjectLeft->calcExtHash())
+                {
+                    // nothing to do here
+                    gtDebug() << "### object mementos are compatible (right)!";
+                }
+                else
+                {
+                    if (!externalizedObjectRight->internalize())
+                    {
+                        gtError() << QObject::tr("failed to internalized externalized object (right)!");
+                        return false;
+                    }
+
+                    dummy = externalizedObjectRight->toMemento();
+                    isLeft = 0;
+                }
+            }
+        }
+    }
+    else
+    {
+        gtDebug() << "###### Not an externalized object!" << leftOrig.className();
+    }
+
+    const GtObjectMemento& left =  isLeft == 1 ? dummy : leftOrig;
+    const GtObjectMemento& right = isLeft == 0 ? dummy : rightOrig;
 
     // create diff element to store changes
     QDomElement diffObj = this->createElement(gt::xml::S_OBJECT_TAG);

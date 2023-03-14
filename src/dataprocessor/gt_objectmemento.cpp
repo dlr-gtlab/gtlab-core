@@ -13,6 +13,7 @@
 #include <QDataStream>
 #include <QMetaProperty>
 
+#include "gt_externalizedobject.h"
 #include "gt_objectmemento.h"
 #include "gt_objectio.h"
 #include "gt_abstractobjectfactory.h"
@@ -292,6 +293,35 @@ GtObjectMemento::findPropertyByName(const QVector<PropertyData> &list,
     });
 
     return iter != list.end() ? &*iter : nullptr;
+}
+
+GtObjectMemento::ExternalizationInfo
+GtObjectMemento::externalizationInfo(const GtAbstractObjectFactory& factory) const
+{
+    auto* metaObject = factory.metaObject(m_className);
+
+    if (!metaObject ||
+        !metaObject->inherits(&GtExternalizedObject::staticMetaObject))
+    {
+        return {};
+    }
+
+    auto* pFetched = findPropertyByName(properties, QStringLiteral("isFetched"));
+    auto* pHash = findPropertyByName(properties, QStringLiteral("cachedHash"));
+
+    if (!pFetched || !pHash)
+    {
+        gtError() << QObject::tr("Failed to retrieve externalization info from "
+                                 "memento for '%1'!")
+                     .arg(m_className);
+        return {};
+    }
+
+    return ExternalizationInfo{
+        pFetched->data().toBool(),
+        pHash->data().toByteArray(),
+        metaObject,
+    };
 }
 
 bool

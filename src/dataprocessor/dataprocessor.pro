@@ -75,6 +75,7 @@ HEADERS += \
     gt_typetraits.h \
     gt_utilities.h \
     gt_variantconvert.h \
+    gt_version.h \
     gt_xmlexpr.h \
     gt_xmlutilities.h \
     internal/varianthasher.h \
