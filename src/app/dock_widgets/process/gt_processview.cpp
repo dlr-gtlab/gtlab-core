@@ -120,6 +120,8 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
             return;
         }
     }
+
+    GtTreeView::keyPressEvent(event);
 }
 
 void
