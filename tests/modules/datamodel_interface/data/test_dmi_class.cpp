@@ -14,7 +14,10 @@
 TestDmClass::TestDmClass() :
     m_value("value", "Value", "Value to use in Example",
             GtUnit::EnergyDensity, 1.0),
-    m_container("notes", "notes")
+    m_container("notes", "notes"),
+    m_mode("modeProp", "ModeProp", "A mode-property"),
+    m_propTypeA("Type A", "Type A brief"),
+    m_propTypeB("Type B", "Type B brief")
 {
     setObjectName("DMI Object");
 
@@ -26,5 +29,11 @@ TestDmClass::TestDmClass() :
     m_container.registerAllowedType(stringEntryDef);
 
     registerPropertyStructContainer(m_container);
+
+
+    m_mode.registerSubProperty(m_propTypeA);
+    m_mode.registerSubProperty(m_propTypeB);
+
+    registerProperty(m_mode);
 
 }
