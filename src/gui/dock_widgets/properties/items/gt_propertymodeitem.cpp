@@ -18,6 +18,16 @@
 #include "gt_modetypeproperty.h"
 #include "gt_propertyvaluedelegate.h"
 
+
+namespace
+{
+    void setBrief(GtModeProperty& prop, QComboBox& box)
+    {
+        GtModeTypeProperty* mode = prop.typeProperty(prop.get());
+        if (mode) box.setToolTip(mode->brief());
+    }
+}
+
 GtPropertyModeItem::GtPropertyModeItem()
 {
 }
@@ -137,14 +147,7 @@ GtPropertyModeItem::setEditorData(QWidget* editor, QVariant& /*var*/) const
     QComboBox* box = static_cast<QComboBox*>(editor);
 
     box->setCurrentText(modeProperty()->get());
-
-    GtModeTypeProperty* mode = modeProperty()->typeProperty(
-                modeProperty()->get());
-
-    if (mode)
-    {
-        box->setToolTip(mode->brief());
-    }
+    setBrief(*modeProperty(), *box);
 }
 
 void
@@ -159,6 +162,10 @@ GtPropertyModeItem::setModelData(QWidget* editor, QAbstractItemModel* model,
     QComboBox* box = static_cast<QComboBox*>(editor);
 
     model->setData(index, box->currentText(), Qt::EditRole);
+
+    // the mode prop now has changed, we need to set the brief
+    // text to the combo box delegate
+    setBrief(*modeProperty(), *box);
 }
 
 void

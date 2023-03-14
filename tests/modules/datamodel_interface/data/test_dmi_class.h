@@ -12,6 +12,8 @@
 
 #include "gt_object.h"
 #include "gt_doubleproperty.h"
+#include "gt_modeproperty.h"
+#include "gt_modetypeproperty.h"
 #include "gt_propertystructcontainer.h"
 
 /**
@@ -30,6 +32,8 @@ public:
 private:
     GtDoubleProperty m_value;
     GtPropertyStructContainer m_container;
+    GtModeProperty m_mode;
+    GtModeTypeProperty m_propTypeA, m_propTypeB;
 };
 
 #endif // TESTDMICLASS_H
