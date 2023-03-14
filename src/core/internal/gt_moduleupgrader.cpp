@@ -64,12 +64,24 @@ public:
                         continue;
                     }
 
+                    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+                    {
+                        gtErrorId("module data upgrader")
+                                << "WARNING: could not open file!";
+                        gtErrorId("module data upgrader") << " |-> " << modData;
+
+                        continue;
+                    }
+
+                    const auto content = file.readAll();
+                    file.close();
+
                     QDomDocument document;
                     QString errorStr;
                     int errorLine;
                     int errorColumn;
 
-                    if (!document.setContent(&file, true, &errorStr,
+                    if (!document.setContent(content, true, &errorStr,
                                              &errorLine, &errorColumn))
                     {
                         gtErrorId("module data upgrader")
