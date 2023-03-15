@@ -10,9 +10,11 @@
 
 GtAbstractWizard::GtAbstractWizard()
 {
+    setWizardStyle(QWizard::ModernStyle);
+    setAutoFillBackground(false);
+
     /// Turn  off the "?"-Button in the header
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~Qt::WindowContextHelpButtonHint);
     setWindowFlags(flags);
-
 }

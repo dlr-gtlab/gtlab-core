@@ -17,7 +17,8 @@
 /**
  * @brief The GtAbstractWizard class
  */
-class GT_GUI_EXPORT GtAbstractWizard : public QWizard
+class GT_GUI_EXPORT [[deprecated("Use GtWizard instead")]] GtAbstractWizard :
+    public QWizard
 {
 public:
     GtAbstractWizard();
