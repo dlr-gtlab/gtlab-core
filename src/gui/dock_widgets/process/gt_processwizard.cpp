@@ -34,6 +34,74 @@
 
 #include "gt_processwizard.h"
 
+template <typename ProcessData, typename Provider, typename ProcessDataGetter>
+bool setupWizard(GtProcessWizard* wizard,
+                 Provider* provider,
+                 GtProject* scope,
+                 ProcessDataGetter const& getProcessData)
+{
+    wizard->setWindowTitle(QObject::tr("New Calculator Wizard"));
+
+    QString classname = provider->componentClassName();
+
+    if (classname.isEmpty()) return false;
+
+    auto calcData = getProcessData(classname);
+
+    auto* eData =
+            dynamic_cast<ProcessData*>(calcData.get());
+
+    if (!eData) return false;
+
+    wizard->setWindowIcon(eData->icon);
+
+    if (!eData->wizard) return false;
+
+    QList<GtProcessWizardPage*> cPages;
+
+    for (const QMetaObject& metaObj : eData->wizard->pages())
+    {
+        QObject* obj = metaObj.newInstance();
+
+        if (!obj)
+        {
+            cPages.clear();
+            break;
+        }
+
+        GtProcessWizardPage* pwp =
+                qobject_cast<GtProcessWizardPage*>(obj);
+
+        if (!pwp)
+        {
+            delete obj;
+            cPages.clear();
+            break;
+        }
+
+        pwp->setProvider(provider);
+        pwp->setScope(scope);
+
+        cPages << pwp;
+    }
+
+    if (cPages.isEmpty()) return false;
+
+    for (GtProcessWizardPage* pwp : qAsConst(cPages))
+    {
+        wizard->addPage(pwp);
+    }
+
+    QSize cwSize = eData->wizard->size();
+
+    if (!cwSize.isEmpty())
+    {
+        wizard->resize(cwSize);
+    }
+
+    return true;
+}
+
 GtProcessWizard::GtProcessWizard(GtProject* project,
                                  GtCalculatorProvider* provider,
                                  QWidget* parent) :
@@ -42,211 +110,49 @@ GtProcessWizard::GtProcessWizard(GtProject* project,
     m_scope(project),
     m_execSettingBtn(nullptr)
 {
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
-
-    setWindowTitle(tr("New Calculator Wizard"));
-
-    if (gtApp->inDarkMode())
-    {
-        setAutoFillBackground(true);
-        setWizardStyle(QWizard::WizardStyle::ModernStyle);
-    }
-    else
-    {
-        setWizardStyle(QWizard::AeroStyle);
-        setAutoFillBackground(false);
-    }
-
     if (!provider->componentInitialized())
     {
         setPage(startCalculatorPage, new GtCalculatorOverviewPage(this));
     }
 
-    QString classname = provider->componentClassName();
-
-    bool customWizard = false;
-
-    if (!classname.isEmpty())
-    {
-        GtCalculatorData calcData =
-            gtCalculatorFactory->calculatorData(classname);
-
-        GtExtendedCalculatorDataImpl* eData =
-            dynamic_cast<GtExtendedCalculatorDataImpl*>(
-                calcData.get());
-
-        if (eData)
-        {
-            setWindowIcon(eData->icon);
-
-            QList<GtProcessWizardPage*> cPages;
-
-            if (eData->wizard)
-            {
-                foreach (const QMetaObject& metaObj, eData->wizard->pages())
-                {
-                    QObject* obj = metaObj.newInstance();
-
-                    if (!obj)
-                    {
-                        cPages.clear();
-                        break;
-                    }
-
-                    GtProcessWizardPage* pwp =
-                            qobject_cast<GtProcessWizardPage*>(obj);
-
-                    if (!pwp)
-                    {
-                        delete obj;
-                        cPages.clear();
-                        break;
-                    }
-
-                    pwp->setProvider(provider);
-                    pwp->setScope(m_scope);
-
-                    cPages << pwp;
-                }
-            }
-
-            if (!cPages.isEmpty())
-            {
-                customWizard = true;
-
-                setEnableExecutionSettings(true);
-
-                foreach (GtProcessWizardPage* pwp, cPages)
-                {
-                    addPage(pwp);
-                }
-
-                QSize cwSize = eData->wizard->size();
-
-                if (!cwSize.isEmpty())
-                {
-                    resize(cwSize);
-                }
-            }
-        }
-    }
+    bool customWizard = setupWizard<GtExtendedCalculatorDataImpl>
+                        (this, provider, m_scope, [](QString const& classname){
+        return gtCalculatorFactory->calculatorData(classname);
+    });
 
     if (!customWizard)
     {
-        setPage(calculatorSettingsPage, new GtCalculatorSettingsPage(m_scope,
-                this));
+        setPage(calculatorSettingsPage,
+                new GtCalculatorSettingsPage(m_scope, this));
+    }
+    else
+    {
+        setEnableExecutionSettings(true);
     }
 }
 
-GtProcessWizard::GtProcessWizard(GtProject* project, GtTaskProvider* provider,
+GtProcessWizard::GtProcessWizard(GtProject* project,
+                                 GtTaskProvider* provider,
                                  QWidget* parent) :
     GtWizard(parent),
     m_provider(provider),
     m_scope(project),
     m_execSettingBtn(nullptr)
 {
-    setWindowTitle(tr("New Task Wizard"));
-
-    if (gtApp->inDarkMode())
-    {
-        setAutoFillBackground(true);
-        setWizardStyle(QWizard::WizardStyle::ModernStyle);
-    }
-    else
-    {
-        setWizardStyle(QWizard::AeroStyle);
-        setAutoFillBackground(false);
-    }
-
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(flags);
-
     if (!provider->componentInitialized())
     {
         setPage(startTaskPage, new GtTaskOverviewPage(this));
     }
 
-    QString classname = provider->componentClassName();
-
-    bool customWizard = false;
-
-    if (!classname.isEmpty())
-    {
-        GtTaskData taskData = gtTaskFactory->taskData(classname);
-
-        if (!taskData)
-        {
-            return;
-        }
-
-        setWindowTitle(tr("Config ") + taskData->id);
-
-        GtExtendedTaskDataImpl* eData =
-                dynamic_cast<GtExtendedTaskDataImpl*>(
-                    taskData.get());
-
-        if (eData)
-        {
-            // set icon
-            setWindowIcon(eData->icon);
-
-            QList<GtProcessWizardPage*> cPages;
-
-            if (eData->wizard)
-            {
-                foreach (const QMetaObject& metaObj, eData->wizard->pages())
-                {
-                    QObject* obj = metaObj.newInstance();
-
-                    if (!obj)
-                    {
-                        cPages.clear();
-                        break;
-                    }
-
-                    GtProcessWizardPage* pwp =
-                            qobject_cast<GtProcessWizardPage*>(obj);
-
-                    if (!pwp)
-                    {
-                        delete obj;
-                        cPages.clear();
-                        break;
-                    }
-
-                    pwp->setProvider(provider);
-                    pwp->setScope(m_scope);
-
-                    cPages << pwp;
-                }
-            }
-
-            if (!cPages.isEmpty())
-            {
-                customWizard = true;
-
-                foreach (GtProcessWizardPage* pwp, cPages)
-                {
-                    addPage(pwp);
-                }
-
-                QSize cwSize = eData->wizard->size();
-
-                if (!cwSize.isEmpty())
-                {
-                    resize(cwSize);
-                }
-            }
-        }
-    }
+    bool customWizard = setupWizard<GtExtendedTaskDataImpl>
+                        (this, provider, m_scope, [](QString const& classname){
+        return gtTaskFactory->taskData(classname);
+    });
 
     if (!customWizard)
     {
-        setPage(calculatorSettingsPage, new GtCalculatorSettingsPage(m_scope,
-                this));
+        setPage(calculatorSettingsPage,
+                new GtCalculatorSettingsPage(m_scope, this));
     }
 }
 
@@ -288,13 +194,6 @@ GtProcessWizard::setEnableExecutionSettings(bool enabled)
     }
     else
     {
-//        if (m_execSettingBtn)
-//        {
-//            delete m_execSettingBtn;
-//            m_execSettingBtn = nullptr;
-//        }
-
-//        setButton(QWizard::CustomButton1, m_execSettingBtn);
         setOption(QWizard::HaveCustomButton1, false);
 
         QList<QWizard::WizardButton> layout;
