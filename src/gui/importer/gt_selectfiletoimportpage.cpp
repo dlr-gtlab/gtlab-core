@@ -16,6 +16,7 @@
 #include "gt_abstractimporter.h"
 #include "gt_filedialog.h"
 #include "gt_logging.h"
+#include "gt_filechooserproperty.h"
 
 #include "gt_selectfiletoimportpage.h"
 
@@ -114,17 +115,7 @@ GtSelectFileToImportPage::isComplete() const
 void
 GtSelectFileToImportPage::selectFilePath()
 {
-    QString selfilter;
-
-    foreach (const QString& filter, m_fileExtensions)
-    {
-        if (!selfilter.isEmpty())
-        {
-            selfilter = selfilter + QStringLiteral("; ");
-        }
-
-        selfilter = selfilter + QStringLiteral("*") + filter;
-    }
+    QString selfilter = gt::detail::buildFileDialogFileFilter(m_fileExtensions);
 
     QString filename = GtFileDialog::getOpenFileName(this,
                        tr("Choose File"),
