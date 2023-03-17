@@ -152,6 +152,12 @@ public:
      */
     QString calcExtHash();
 
+    /**
+     * @brief Getter for the hash of the externalized data
+     * @return
+     */
+    QString const& extHash() const;
+
 protected:
 
     /**

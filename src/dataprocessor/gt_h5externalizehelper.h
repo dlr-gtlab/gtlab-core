@@ -90,8 +90,8 @@ public:
 
 private:
 
-    /// class name of the externalized object
-    QString m_objClassName;
+    /// meta data of the object (e.g. class name)
+    QString m_metaData;
     /// uuid of the externalized object
     QString m_objUuid;
 };

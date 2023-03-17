@@ -160,6 +160,12 @@ GtExternalizedObject::calcExtHash()
     return calcHash();
 }
 
+const
+QString& GtExternalizedObject::extHash() const
+{
+    return pimpl->pCachedHash.get();
+}
+
 void
 GtExternalizedObject::onObjectDiffMerged()
 {
@@ -290,17 +296,20 @@ GtExternalizedObject::externalize()
 
     gtDebug().medium() << "Externalizing object..." << gt::quoted(objectName());
 
+    // swap with old hash
+    hash.swap(pimpl->pCachedHash.get());
+
     // externalize
     if (!doExternalizeData(pimpl->pMetaData.get()))
     {
         gtError() << tr("Externalizing object failed!")
                   << tr("(Path: '%1')").arg(objectPath())
                   << pimpl->pMetaData;
+        // restore last hash
+        pimpl->pCachedHash = hash;
         return false;
     }
 
-    // save the new hash
-    pimpl->pCachedHash = hash;
     // update states
     pimpl->pFetchInitialVersion = false;
     pimpl->setExternalizeState(ExternalizeOnSave, false);

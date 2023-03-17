@@ -21,6 +21,7 @@ TestMdiExtExternalObjectViewer::TestMdiExtExternalObjectViewer()
 
     auto* lay = new QVBoxLayout(widget());
     auto* view = new GtTableView();
+    view->setFrameStyle(QFrame::NoFrame);
 
     m_model = new ExternalObjectModel;
     m_model->setParent(this);

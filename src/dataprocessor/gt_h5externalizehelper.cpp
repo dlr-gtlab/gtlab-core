@@ -22,6 +22,15 @@
 #include <QFile>
 #include <QFileInfo>
 
+static const auto S_GT_VERSION_ATTR = QByteArrayLiteral("GT_VERSION");
+static const auto S_EXT_HASH_ATTR = QByteArrayLiteral("GT_EXT_HASH");
+
+static const GenH5::Version s_currentGTlabVersion{
+    GT_VERSION_MAJOR,
+    GT_VERSION_MINOR,
+    GT_VERSION_PATCH
+};
+
 namespace
 {
 
@@ -69,46 +78,111 @@ referenceDataSet(const GenH5::DataSet& dset, QVariant& refVariant)
  * @param dset dataset
  */
 inline void
-checkVersionAttribute(const GenH5::DataSet& dset)
+checkAttributes(const GenH5::DataSet& dset, QString const& hash)
 {
-    static auto printVersion = [](const GenH5::Version& version,
-                                  const GenH5::Version& current,
-                                  const QByteArray& path) {
-        return "(0x" + QByteArray::number(version.toInt(), 16) + " vs. current "
-                "0x" + QByteArray::number(current.toInt(), 16) + "; "
-                "Dataset path: '" + path + "')";
+    auto const printVersionDiff = [&](const GenH5::Version& version,
+                                      const GenH5::Version& current,
+                                      const char* type) {
+        using namespace gt::log;
+
+        gtWarning().verbose(version < current ? Silent : Medium)
+                << QObject::tr("HDF5 dataset was created using an %1 version of %2! "
+                               "(0x%3 vs. current 0x%4; path: %5")
+                   .arg(version < current ? "older":"newer",
+                        type,
+                        QString::number(version.toInt(), 16),
+                        QString::number(current.toInt(), 16),
+                        dset.path());
     };
 
-    // check version of dataset
-    GenH5::Version version{};
-    GenH5::Version current = GenH5::Version::current();
+    // check version attr of GenH5
     if (dset.hasVersionAttribute())
     {
-        version = dset.readVersionAttribute();
-    }
+        GenH5::Version version = dset.readVersionAttribute();
+        GenH5::Version current = GenH5::Version::current();
 
-    if (version.toInt() < current)
-    {
-        gtWarning().medium()
-                << "HDF5 Dataset was created using an older version of GenH5!"
-                << printVersion(version, current, dset.path());
+        if (version != current) printVersionDiff(version, current, "GenH5");
     }
-    else if (version.toInt() > current)
+    else
     {
         gtWarning()
-                << "HDF5 Dataset was created using a newer version of GenH5!"
-                << printVersion(version, current, dset.path());
+                << QObject::tr("No GenH5 version attribute on HDF5 dataset found!");
     }
+
+    // check version attr of GTlab
+    if (dset.hasVersionAttribute(S_GT_VERSION_ATTR))
+    {
+        GenH5::Version version = dset.readVersionAttribute(S_GT_VERSION_ATTR);
+        GenH5::Version current = s_currentGTlabVersion;
+
+        if (version != current) printVersionDiff(version, current, "GTlab");
+    }
+    else
+    {
+        gtWarning().medium()
+                << QObject::tr("No GTlab version attribute on HDF5 dataset found!");
+    }
+
+    // check hash attr
+    if (dset.hasAttribute(S_EXT_HASH_ATTR))
+    {
+        auto otherHash = dset.readAttribute0D<GenH5::FixedString0D>(S_EXT_HASH_ATTR);
+
+        if (otherHash != hash)
+        {
+            gtWarning() << QObject::tr("Hash on HDF5 dastaset does not match! "
+                                       "(%1 vs. expected %2; path: %3)")
+                           .arg(otherHash.value(), hash, dset.path());
+        }
+    }
+    else
+    {
+        gtWarning().medium()
+                << QObject::tr("No Hash attribute on HDF5 dataset found!");
+    }
+}
+
+inline void
+updateAttributes(const GenH5::DataSet& dset, QString const& hash)
+{
+    // update GenH5 version attribute
+    dset.writeVersionAttribute();
+    // update GTlab version attribute
+    dset.writeVersionAttribute(S_GT_VERSION_ATTR, s_currentGTlabVersion);
+    dset.writeAttribute(S_EXT_HASH_ATTR, GenH5::makeFixedStr(hash));
+}
+
+inline QString
+className(QString const& name)
+{
+    // class name contains
+    int idx = name.indexOf(QStringLiteral("$$"));
+    assert (idx >= 0);
+
+    return name.mid(0, idx);
+}
+
+inline QString
+extHash(QString const& name)
+{
+    // class name contains
+    int idx = name.indexOf(QStringLiteral("$$"));
+    assert (idx >= 0);
+
+    return name.mid(idx + 2);
 }
 
 }
 
 GtH5ExternalizeHelper::GtH5ExternalizeHelper(const GtExternalizedObject& obj) :
-    m_objClassName(obj.metaObject()->className()),
+    // we need not only the class name but also the externalized hash
+    // as we dont want to cause an ABI incompatibility we engrave the hash
+    // into this property
+    m_metaData(obj.metaObject()->className() +
+               QStringLiteral("$$") +
+               obj.extHash()),
     m_objUuid(obj.uuid())
-{
-
-}
+{ }
 
 GenH5::File
 GtH5ExternalizeHelper::openFile(GenH5::FileAccessFlags flags,
@@ -148,21 +222,16 @@ GtH5ExternalizeHelper::overwriteDataSet(const GenH5::DataType& dataType,
     // recreate by path
     if (!dset.isValid())
     {
+
         // try retrieving by path
-        auto group =  file.root().createGroup(m_objClassName.toUtf8());
+        auto group =  file.root().createGroup(className(m_metaData).toUtf8());
         dset = group.createDataSet(m_objUuid.toUtf8(), dataType, dataSpace);
 
         // update ref
         referenceDataSet(dset, refVariant);
     }
-    // update version attribute
-    dset.writeVersionAttribute();
-    dset.writeAttribute0D("GT_VERSION",
-                          GenH5::Version{GT_VERSION_MAJOR,
-                                         GT_VERSION_MINOR,
-                                         GT_VERSION_PATCH});
-    dset.writeAttribute0D("GT_VERSION_PRE_RELEASE",
-                          GT_VERSION_PRE_RELEASE);
+
+    updateAttributes(dset, extHash(m_metaData));
     return dset;
 }
 
@@ -179,14 +248,14 @@ GtH5ExternalizeHelper::openDataSet(QVariant& refVariant,
     if (!dset.isValid())
     {
         // try retrieving by path
-        QStringList path{m_objClassName, m_objUuid};
+        QStringList path{className(m_metaData), m_objUuid};
         dset = file.root().openDataSet(path.join('/').toUtf8());
 
         // update ref
         referenceDataSet(dset, refVariant);
     }
 
-    checkVersionAttribute(dset);
+    checkAttributes(dset, extHash(m_metaData));
     return dset;
 }
 #endif
