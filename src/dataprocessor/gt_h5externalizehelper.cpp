@@ -149,7 +149,12 @@ updateAttributes(const GenH5::DataSet& dset, QString const& hash)
     dset.writeVersionAttribute();
     // update GTlab version attribute
     dset.writeVersionAttribute(S_GT_VERSION_ATTR, s_currentGTlabVersion);
-    dset.writeAttribute(S_EXT_HASH_ATTR, GenH5::makeFixedStr(hash));
+    auto hashData = GenH5::makeFixedStr(hash);
+    if (hashData.stringSize() == 0)
+    {
+        hashData = QByteArrayLiteral("\0");
+    }
+    dset.writeAttribute(S_EXT_HASH_ATTR, hashData);
 }
 
 inline QString

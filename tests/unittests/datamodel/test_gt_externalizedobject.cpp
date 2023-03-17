@@ -385,7 +385,7 @@ TEST_F(TestGtExternalizedObject, fetchIntialVersion)
     EXPECT_FALSE(obj->fetchInitialVersion());
 }
 
-/*
+/* Diffing behavious of an externalized object:
 
   CASE 1: diff while fetched (normal diffing behaviour)
     > fetch object
@@ -438,254 +438,207 @@ TEST_F(TestGtExternalizedObject, fetchIntialVersion)
     > revert diff
  */
 
+// To make sure that externalizing before redoing the diff does not change
+// anything we use a parametric test
+class TestGtExternalizedObjectDiff :
+        public TestGtExternalizedObject,
+        public ::testing::WithParamInterface<bool>
+{ };
+
+INSTANTIATE_TEST_SUITE_P(TestGtExternalizedObjectDiff,
+                         TestGtExternalizedObjectDiff,
+                         testing::Values(true, false));
+
+
 /// Object was fetched when creating m1 and m2 and when reverting diff. The
 /// diffing should behave as if the object was an ordinary GtObject.
-TEST_F(TestGtExternalizedObject, diff_while_fetched)
+TEST_P(TestGtExternalizedObjectDiff, diff_while_fetched)
 {
-    // To make sure that externalizing before redoing the diff does not change
-    // anything we use this flag and test both cases
-    bool externalizeBeforeRedo = false;
+    bool externalizeBeforeRedo = GetParam();
 
-    for (int i = 0; i < 2; ++i, externalizeBeforeRedo = i != 0)
+    gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
+
+    ASSERT_TRUE(doSetupObject());
+
+    auto m1 = obj->toMemento();
+
+    ASSERT_TRUE(doChangeData());
+
+    auto m2 = obj->toMemento();
+
+    GtObjectMementoDiff diff{m1, m2};
+
+    ASSERT_TRUE(obj->revertDiff(diff));
+
+    EXPECT_TRUE(hasOriginalData());
+
+    if (externalizeBeforeRedo)
     {
-        gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
-
-        ASSERT_TRUE(doSetupObject());
-
-        auto m1 = obj->toMemento();
-
-        ASSERT_TRUE(doChangeData());
-
-        auto m2 = obj->toMemento();
-
-        GtObjectMementoDiff diff{m1, m2};
-
-        ASSERT_TRUE(obj->revertDiff(diff));
-
-        EXPECT_TRUE(hasOriginalData());
-
-        if (externalizeBeforeRedo)
-        {
-            EXPECT_TRUE(doExternalize());
-        }
-
-        ASSERT_TRUE(obj->applyDiff(diff));
-
-        EXPECT_TRUE(hasChangedData());
-
-        gtDebug() << "### END";
+        EXPECT_TRUE(doExternalize());
     }
+
+    ASSERT_TRUE(obj->applyDiff(diff));
+
+    EXPECT_TRUE(hasChangedData());
 }
 
 /// Object was fetched when creating m1 and m2.
 /// Before reverting diff object was externalized.
 /// Reverting should internalie object and apply m1 correctly
-TEST_F(TestGtExternalizedObject, diff_after_externalizing)
+TEST_P(TestGtExternalizedObjectDiff, diff_after_externalizing)
 {
-    // To make sure that externalizing before redoing the diff does not change
-    // anything we use this flag and test both cases
-    bool externalizeBeforeRedo = false;
+    bool externalizeBeforeRedo = GetParam();
 
-    for (int i = 0; i < 2; ++i, externalizeBeforeRedo = !externalizeBeforeRedo)
+    gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
+
+    ASSERT_TRUE(doSetupObject());
+
+    auto m1 = obj->toMemento();
+
+    ASSERT_TRUE(doChangeData());
+
+    auto m2 = obj->toMemento();
+
+    GtObjectMementoDiff diff{m1, m2};
+
+    EXPECT_TRUE(doExternalize());
+
+    ASSERT_TRUE(obj->revertDiff(diff));
+
+    EXPECT_TRUE(hasOriginalData());
+
+    if (externalizeBeforeRedo)
     {
-        gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
-
-        ASSERT_TRUE(doSetupObject());
-
-        auto m1 = obj->toMemento();
-
-        ASSERT_TRUE(doChangeData());
-
-        auto m2 = obj->toMemento();
-
-        GtObjectMementoDiff diff{m1, m2};
-
         EXPECT_TRUE(doExternalize());
-
-        ASSERT_TRUE(obj->revertDiff(diff));
-
-        EXPECT_TRUE(hasOriginalData());
-
-        if (externalizeBeforeRedo)
-        {
-            EXPECT_TRUE(doExternalize());
-        }
-
-        ASSERT_TRUE(obj->applyDiff(diff));
-
-        EXPECT_TRUE(hasChangedData());
-
-        gtDebug() << "### END";
     }
+
+    ASSERT_TRUE(obj->applyDiff(diff));
+
+    EXPECT_TRUE(hasChangedData());
 }
 
 /// Object was NOT fetched when creating m1 and m2.
 /// Before reverting diff object was externalized.
 /// Reverting should internalie object and apply m1 correctly
-TEST_F(TestGtExternalizedObject, m1_before_fetch_and_diff_after_externalizing)
+TEST_P(TestGtExternalizedObjectDiff, m1_before_fetch_and_diff_after_externalizing)
 {
-    // To make sure that externalizing before redoing the diff does not change
-    // anything we use this flag and test both cases
-    bool externalizeBeforeRedo = false;
+    bool externalizeBeforeRedo = GetParam();
 
-    for (int i = 0; i < 2; ++i, externalizeBeforeRedo = !externalizeBeforeRedo)
+    gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
+
+    ASSERT_TRUE(doSetupObject());
+
+    EXPECT_TRUE(doExternalize());
+
+    auto m1 = obj->toMemento();
+
+    ASSERT_TRUE(doChangeData());
+
+    auto m2 = obj->toMemento();
+
+    GtObjectMementoDiff diff{m1, m2};
+
+    EXPECT_TRUE(doExternalize());
+
+    ASSERT_TRUE(obj->revertDiff(diff));
+
+    EXPECT_TRUE(hasOriginalData());
+
+    if (externalizeBeforeRedo)
     {
-        gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
-
-        ASSERT_TRUE(doSetupObject());
-
         EXPECT_TRUE(doExternalize());
-
-        auto m1 = obj->toMemento();
-        gtDebug() << "M1" << m1.toByteArray();
-
-        ASSERT_TRUE(doChangeData());
-
-        auto m2 = obj->toMemento();
-        gtDebug() << "M2" << m2.toByteArray();
-
-        GtObjectMementoDiff diff{m1, m2};
-        gtDebug() << "diff" << diff.toByteArray();
-
-        EXPECT_TRUE(doExternalize());
-
-        ASSERT_TRUE(obj->revertDiff(diff));
-
-        EXPECT_TRUE(hasOriginalData());
-
-        if (externalizeBeforeRedo)
-        {
-            EXPECT_TRUE(doExternalize());
-        }
-
-        ASSERT_TRUE(obj->applyDiff(diff));
-
-        EXPECT_TRUE(hasChangedData());
-
-        gtDebug() << "### END";
     }
+
+    ASSERT_TRUE(obj->applyDiff(diff));
+
+    EXPECT_TRUE(hasChangedData());
 }
 
 /// Object was NOT fetched when creating m1 and m2.
 /// Reverting should internalie object and apply m1 correctly
-TEST_F(TestGtExternalizedObject, m1_before_fetch_and_diff_while_fetched)
+TEST_P(TestGtExternalizedObjectDiff, m1_before_fetch_and_diff_while_fetched)
 {
-    // To make sure that externalizing before redoing the diff does not change
-    // anything we use this flag and test both cases
-    bool externalizeBeforeRedo = false;
+    bool externalizeBeforeRedo = GetParam();
 
-    for (int i = 0; i < 2; ++i, externalizeBeforeRedo = !externalizeBeforeRedo)
+    gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
+
+    ASSERT_TRUE(doSetupObject());
+
+    EXPECT_TRUE(doExternalize());
+
+    auto m1 = obj->toMemento();
+
+    ASSERT_TRUE(doChangeData());
+
+    auto m2 = obj->toMemento();
+
+    GtObjectMementoDiff diff{m1, m2};
+
+    ASSERT_TRUE(obj->revertDiff(diff));
+
+    EXPECT_TRUE(hasOriginalData());
+
+    if (externalizeBeforeRedo)
     {
-        gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
-
-        ASSERT_TRUE(doSetupObject());
-
         EXPECT_TRUE(doExternalize());
-
-        auto m1 = obj->toMemento();
-
-        ASSERT_TRUE(doChangeData());
-
-        auto m2 = obj->toMemento();
-
-        GtObjectMementoDiff diff{m1, m2};
-
-        ASSERT_TRUE(obj->revertDiff(diff));
-
-        EXPECT_TRUE(hasOriginalData());
-
-        if (externalizeBeforeRedo)
-        {
-            EXPECT_TRUE(doExternalize());
-        }
-
-        ASSERT_TRUE(obj->applyDiff(diff));
-
-        EXPECT_TRUE(hasChangedData());
-
-        gtDebug() << "### END";
     }
+
+    ASSERT_TRUE(obj->applyDiff(diff));
+
+    EXPECT_TRUE(hasChangedData());
 }
 
 /// Object was fetched when reating m1 but was externalized when creating m2 and
 /// diffing
-TEST_F(TestGtExternalizedObject, m2_and_diff_after_externalizing)
+TEST_P(TestGtExternalizedObjectDiff, m2_and_diff_after_externalizing)
 {
-    // To make sure that externalizing before redoing the diff does not change
-    // anything we use this flag and test both cases
-    bool externalizeBeforeRedo = false;
+    bool externalizeBeforeRedo = GetParam();
 
-    for (int i = 0; i < 2; ++i, externalizeBeforeRedo = !externalizeBeforeRedo)
+    gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
+
+    ASSERT_TRUE(doSetupObject());
+
+    auto m1 = obj->toMemento();
+
+    ASSERT_TRUE(doChangeData());
+
+    EXPECT_TRUE(doExternalize());
+
+    auto m2 = obj->toMemento();
+
+    GtObjectMementoDiff diff{m1, m2};
+
+    ASSERT_TRUE(obj->revertDiff(diff));
+
+    EXPECT_TRUE(hasOriginalData());
+
+    if (externalizeBeforeRedo)
     {
-        gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
-
-        ASSERT_TRUE(doSetupObject());
-
-        auto m1 = obj->toMemento();
-
-        ASSERT_TRUE(doChangeData());
-
         EXPECT_TRUE(doExternalize());
-
-        auto m2 = obj->toMemento();
-
-        GtObjectMementoDiff diff{m1, m2};
-
-        ASSERT_TRUE(obj->revertDiff(diff));
-
-        EXPECT_TRUE(hasOriginalData());
-
-        if (externalizeBeforeRedo)
-        {
-            EXPECT_TRUE(doExternalize());
-        }
-
-        ASSERT_TRUE(obj->applyDiff(diff));
-
-        EXPECT_TRUE(hasChangedData());
-
-        gtDebug() << "### END";
     }
+
+    ASSERT_TRUE(obj->applyDiff(diff));
+
+    EXPECT_TRUE(hasChangedData());
 }
 
 TEST_F(TestGtExternalizedObject, m1_before_fetch_and_m2_and_diff_after_externalizing)
 {
-    // To make sure that externalizing before redoing the diff does not change
-    // anything we use this flag and test both cases
-    bool externalizeBeforeRedo = false;
+    ASSERT_TRUE(doSetupObject());
 
-    for (int i = 0; i < 2; ++i, externalizeBeforeRedo = !externalizeBeforeRedo)
-    {
-        gtDebug() << "### Externalize before redo:" << externalizeBeforeRedo;
+    EXPECT_TRUE(doExternalize());
 
-        ASSERT_TRUE(doSetupObject());
+    auto m1 = obj->toMemento();
 
-        EXPECT_TRUE(doExternalize());
+    ASSERT_TRUE(doChangeData());
 
-        auto m1 = obj->toMemento();
+    EXPECT_TRUE(doExternalize());
 
-        ASSERT_TRUE(doChangeData());
+    auto m2 = obj->toMemento();
 
-        EXPECT_TRUE(doExternalize());
+    GtObjectMementoDiff diff{m1, m2};
 
-        auto m2 = obj->toMemento();
-
-        GtObjectMementoDiff diff{m1, m2};
-
-        ASSERT_TRUE(obj->revertDiff(diff));
-
-        EXPECT_TRUE(hasOriginalData());
-
-        if (externalizeBeforeRedo)
-        {
-            EXPECT_TRUE(doExternalize());
-        }
-
-        ASSERT_TRUE(obj->applyDiff(diff));
-
-        EXPECT_TRUE(hasChangedData());
-
-        gtDebug() << "### END";
-    }
+    // diff creation failed as both m1 and m2 contain externalized states of the object
+    ASSERT_TRUE(diff.isNull());
 }
 
