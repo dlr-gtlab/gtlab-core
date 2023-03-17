@@ -64,6 +64,7 @@ INCLUDEPATH += .\
     importer/processImporter \
     exporter \
     exporter/processExporter \
+    style \
     collection \
     widgets \
     process_runner \
@@ -96,7 +97,6 @@ HEADERS += \
     gt_mdiinterface.h \
     gt_mdiitem.h \
     gt_mdilauncher.h \
-    gt_palette.h \
     gt_qmlaction.h \
     gt_shortcut.h \
     gt_shortcuts.h \
@@ -250,7 +250,9 @@ HEADERS += \
     dialogs/project_settings/gt_projectsettingsexternalizationtab.h \
     dialogs/project_settings/gt_projectsettingstab.h \
     post/gt_scaleproperty.h \
-    gt_stylesheets.h \
+    style/gt_style.h \
+    style/gt_stylesheets.h \
+    style/gt_palette.h \
     gt_textfilterdelegate.h \
     gt_finishedprocessloadinghelper.h \
     importer/processImporter/gt_processimporter.h
@@ -269,7 +271,6 @@ SOURCES += \
     gt_icons.cpp \
     gt_mdiitem.cpp \
     gt_mdilauncher.cpp \
-    gt_palette.cpp \
     gt_qmlaction.cpp \
     gt_shortcut.cpp \
     gt_shortcuts.cpp \
@@ -417,7 +418,9 @@ SOURCES += \
     dialogs/project_settings/gt_projectsettingsexternalizationtab.cpp \
     dialogs/project_settings/gt_projectsettingstab.cpp \
     post/gt_scaleproperty.cpp \
-    gt_stylesheets.cpp \
+    style/gt_style.cpp \
+    style/gt_stylesheets.cpp \
+    style/gt_palette.cpp \
     gt_textfilterdelegate.cpp \
     gt_finishedprocessloadinghelper.cpp \
     importer/processImporter/gt_processimporter.cpp

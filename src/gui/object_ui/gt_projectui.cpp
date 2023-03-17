@@ -222,23 +222,28 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
             {
                 auto project = qobject_cast<GtProject*>(obj);
 
-                if (project)
+                if (!project) break;
+
+                if (project->upgradesAvailable())
                 {
-                    if (project->upgradesAvailable())
-                    {
-                        return tr("Some of the project data is outdated and "
+                    return tr("Some of the project data is outdated and "
                               "requires an upgrade before the project can "
                               "be opened.");
-                    }
                 }
-
                 break;
             }
             case Qt::TextColorRole:
             {
                 auto project = qobject_cast<GtProject*>(obj);
 
-                if (project && !project->isOpen())
+                if (!project) break;
+
+                if (project->upgradesAvailable())
+                {
+                    return gt::gui::color::warningText();
+                }
+
+                if (!project->isOpen())
                 {
                     return gt::gui::color::debugText();
                 }

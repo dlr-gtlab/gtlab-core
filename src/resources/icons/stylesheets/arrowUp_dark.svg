@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-    <g transform="matrix(2.5,0,0,2.5714286,-18,-17.571429)">
-	    <path fill="white" d="m 8,15 h 8 L 12,8" />
-    </g>
+  <g transform="matrix(-2.5,0,0,2,42,-11)">
+    <path fill="white" d="m 8,15 h 8 L 12,8"/>
+  </g>
 </svg>

@@ -103,7 +103,8 @@ INCLUDEPATH += .\
     ../gui/dock_widgets/properties \
     ../gui/dock_widgets/post \
     ../gui/process_runner \
-    ../gui/widgets
+    ../gui/widgets \
+    ../gui/style
 
 DESTDIR = $${BUILD_DEST}
 

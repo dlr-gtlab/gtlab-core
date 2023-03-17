@@ -32,10 +32,10 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
 
     QFrame* frame = new QFrame;
 
-    QVBoxLayout* layout = new QVBoxLayout;
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
-    frame->setLayout(layout);
+    m_mainLayout = new QVBoxLayout;
+    m_mainLayout->setContentsMargins(0, 0, 0, 0);
+    m_mainLayout->setSpacing(0);
+    frame->setLayout(m_mainLayout);
 
     QHBoxLayout* hLay = new QHBoxLayout;
     hLay->setContentsMargins(0, 0, 0, 0);
@@ -47,13 +47,12 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
     m_label->setMinimumWidth(20);
     hLay->addWidget(m_label);
 
-    layout->addLayout(hLay);
+    m_mainLayout->addLayout(hLay);
 
     m_processComponentSettingBtn = new GtProcessComponentSettingsButton;
     m_processComponentSettingBtn->setVisible(false);
 
     m_tab = new QTabWidget;
-    m_tab->setStyleSheet("QTabWidget::pane { border: 0; }");
 
     m_treeView = new GtPropertyTreeView(gtApp->session());
 
@@ -62,16 +61,23 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
     m_treeView->setColumnWidth(2, 50);
     m_treeView->setFrameStyle(QTreeView::NoFrame);
 
-    layout->addWidget(m_processComponentSettingBtn);
+    m_mainLayout->addWidget(m_processComponentSettingBtn);
 
-    m_tab->addTab(m_treeView, "Main");
-    m_tab->tabBar()->hide();
+    m_tabLayout = new QVBoxLayout;
+    m_tabLayout->setContentsMargins(0, 0, 0, 0);
 
-    layout->addWidget(m_tab);
+    auto* mainTab = new QWidget;
+    mainTab->setLayout(m_tabLayout);
+
+    m_tab->addTab(mainTab, tr("Main"));
+    m_tab->hide();
+
+    m_mainLayout->addWidget(m_tab);
+    m_mainLayout->addWidget(m_treeView);
 
     QHBoxLayout* toolbarLayout = new QHBoxLayout;
     toolbarLayout->setContentsMargins(0, 0, 0, 0);
-    layout->addLayout(toolbarLayout);
+    m_mainLayout->addLayout(toolbarLayout);
 
     m_search = new GtSearchWidget;
 
@@ -125,7 +131,12 @@ GtPropertiesDock::objectSelected(GtObject* obj)
     {
         m_treeView->setScope(obj->findParent<GtProject*>());
 
-        m_tab->tabBar()->setHidden(obj->propertyContainers().empty());
+        // move view to active layout
+        bool showTabWidget = !obj->propertyContainers().empty();
+        auto* activeLayout = showTabWidget ? m_tabLayout : m_mainLayout;
+
+        activeLayout->addWidget(m_treeView);
+        m_tab->setVisible(showTabWidget);
 
         // check for property container
         for (GtPropertyStructContainer& c : obj->propertyContainers())

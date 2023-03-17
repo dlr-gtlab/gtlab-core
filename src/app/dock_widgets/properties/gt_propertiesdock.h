@@ -16,6 +16,7 @@
 
 class QTabWidget;
 class QLabel;
+class QVBoxLayout;
 
 class GtProcessComponentSettingsButton;
 class GtSearchWidget;
@@ -42,6 +43,12 @@ public:
     Qt::DockWidgetArea getDockWidgetArea() override;
 
 private:
+
+    /// layout of the main tab widget
+    QVBoxLayout* m_tabLayout;
+    /// main layout
+    QVBoxLayout* m_mainLayout;
+
     /// Property tab widget
     QTabWidget* m_tab;
 
