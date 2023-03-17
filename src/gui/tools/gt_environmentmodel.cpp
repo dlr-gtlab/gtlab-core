@@ -15,7 +15,6 @@
 #include "gt_algorithms.h"
 
 #include <QFont>
-#include <QColor>
 
 
 GtEnvironmentModel::GtEnvironmentModel(const QStringList& vars,

@@ -14,6 +14,7 @@
 #include "gt_codeeditor.h"
 #include "gt_linenumberarea.h"
 #include "gt_application.h"
+#include "gt_colors.h"
 
 GtCodeEditor::GtCodeEditor(QWidget* parent) : QPlainTextEdit(parent)
 {
@@ -159,9 +160,8 @@ GtCodeEditor::highlightCurrentLine()
     {
         QTextEdit::ExtraSelection selection;
 
-        QColor lineColor = QColor(Qt::yellow).lighter(160);
-
-        selection.format.setBackground(lineColor);
+        selection.format.setBackground(
+                    gt::gui::color::code_editor::highlightLine());
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = textCursor();
         selection.cursor.clearSelection();

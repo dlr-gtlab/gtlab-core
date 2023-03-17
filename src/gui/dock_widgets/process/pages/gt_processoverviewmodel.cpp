@@ -7,12 +7,11 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QColor>
-#include <QIcon>
 #include "gt_application.h"
 #include "gt_processcategoryitem.h"
 #include "gt_icons.h"
 #include "gt_logging.h"
+#include "gt_colors.h"
 
 #include "gt_processoverviewmodel.h"
 
@@ -76,8 +75,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
 
     if (qobject_cast<GtProcessCategoryItem*>(abstractItem))
     {
-        GtProcessCategoryItem* catItem =
-            qobject_cast<GtProcessCategoryItem*>(abstractItem);
+        auto* catItem = qobject_cast<GtProcessCategoryItem*>(abstractItem);
 
         switch (role)
         {
@@ -93,7 +91,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
             case Qt::DecorationRole:
                 if (col == 0)
                 {
-                    if (catItem->collapsed())
+                    if (catItem && catItem->collapsed())
                     {
                         return gt::gui::icon::collapsed();
                     }
@@ -106,7 +104,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
             case Qt::BackgroundRole:
                 if (!gtApp->inDarkMode())
                 {
-                    return QColor(246, 246, 246);
+                    return gt::gui::color::main();
                 }
                 break;
             case CategoryRole:
@@ -145,7 +143,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 {
                     if (!gtApp->inDarkMode())
                     {
-                        return QColor(Qt::gray);
+                        return gt::gui::color::disabled();
                     }
                 }
 

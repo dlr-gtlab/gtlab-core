@@ -69,7 +69,7 @@ gt::gui::color::dummyObjectBackground()
 }
 
 QColor
-gt::gui::color::newObjectForground()
+gt::gui::color::newObjectForeground()
 {
     if (gtApp->inDarkMode())
     {
@@ -80,7 +80,7 @@ gt::gui::color::newObjectForground()
 }
 
 QColor
-gt::gui::color::changedObjectForground()
+gt::gui::color::changedObjectForeground()
 {
     if (gtApp->inDarkMode())
     {
@@ -88,6 +88,19 @@ gt::gui::color::changedObjectForground()
     }
 
     return {Qt::blue};
+}
+
+
+QColor
+gt::gui::color::newObjectForground()
+{
+    return newObjectForeground();
+}
+
+QColor
+gt::gui::color::changedObjectForground()
+{
+    return changedObjectForeground();
 }
 
 QColor
@@ -198,13 +211,173 @@ gt::gui::color::randomColor()
 QColor
 gt::gui::color::gridLineColor()
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return QColor(200, 200, 255, 125);
+    return gridLine();
 }
 
 QColor
 gt::gui::color::gridPointColor()
 {
+    return gridPoint();
+}
+
+QColor
+gt::gui::color::gridLine()
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return QColor(200, 200, 255, 125);
+}
+
+QColor
+gt::gui::color::gridPoint()
+{
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return QColor(100, 100, 155);
 }
+
+QColor
+gt::gui::color::gridAxis()
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return QColor(150, 150, 150);
+}
+
+QColor
+gt::gui::color::code_editor::highlightLine()
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return QColor(Qt::yellow).lighter(160);
+}
+
+QColor
+gt::gui::color::xml_highlight::syntaxChar()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(235, 160, 50);
+    }
+
+    return Qt::blue;
+}
+
+QColor
+gt::gui::color::xml_highlight::elementName()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(190, 35, 35);
+    }
+
+    return Qt::darkRed;
+}
+
+QColor
+gt::gui::color::xml_highlight::comment()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::green;
+    }
+
+    return Qt::darkGreen;
+}
+
+QColor
+gt::gui::color::xml_highlight::attributeName()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::red;
+    }
+
+    return Qt::red;
+}
+
+QColor
+gt::gui::color::xml_highlight::attributeValue()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(100, 200, 255);
+    }
+
+    return Qt::blue;
+}
+
+QColor
+gt::gui::color::xml_highlight::error()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::magenta;
+    }
+
+    return Qt::darkMagenta;
+}
+
+QColor
+gt::gui::color::xml_highlight::other()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(200, 200, 200);
+    }
+
+    return Qt::black;
+}
+
+QColor
+gt::gui::color::js_highlight::normal()
+{
+    return QColor(0, 0, 0);
+}
+
+QColor
+gt::gui::color::js_highlight::comment()
+{
+    return QColor(0, 128, 0);
+}
+
+QColor
+gt::gui::color::js_highlight::number()
+{
+    return QColor(255, 0, 0);
+}
+
+QColor
+gt::gui::color::js_highlight::string()
+{
+    return QColor(0, 0, 255);
+}
+
+QColor
+gt::gui::color::js_highlight::operator_()
+{
+    return QColor(0, 0, 0);
+}
+
+QColor
+gt::gui::color::js_highlight::identifier()
+{
+    return QColor(0, 0, 32);
+}
+
+QColor
+gt::gui::color::js_highlight::keyword()
+{
+    return QColor(0, 0, 128);
+}
+
+QColor
+gt::gui::color::js_highlight::builtIn()
+{
+    return QColor(0, 128, 128);
+}
+
+QColor
+gt::gui::color::js_highlight::marker()
+{
+    return QColor(255, 255, 0);
+}
+
+
+

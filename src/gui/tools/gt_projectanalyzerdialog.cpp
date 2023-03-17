@@ -20,6 +20,7 @@
 #include "gt_versionnumber.h"
 #include "gt_algorithms.h"
 #include "gt_icons.h"
+#include "gt_colors.h"
 
 #include "gt_projectanalyzerdialog.h"
 
@@ -146,22 +147,24 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
         {
             QTabWidget* tabWid = tabWidget();
 
-            QTreeWidget* tWid = new QTreeWidget;
+            auto* tWid = new QTreeWidget;
             tWid->setFrameStyle(QFrame::NoFrame);
             tWid->setColumnCount(3);
             tWid->setHeaderLabels(QStringList() << "" << "Project" <<
                                   "Framework");
             gt::for_each_key(incompatibleModules, [&](const QString& e)
             {
-                QTreeWidgetItem* incompatibleModule =
+                auto* incompatibleModule =
                         new QTreeWidgetItem(QStringList() << e <<
                                      incompatibleModules.value(e).toString() <<
                                      gtApp->moduleVersion(e).toString());
 
-                incompatibleModule->setData(1, Qt::BackgroundRole,
-                                            QColor(255, 0, 0, 100));
-                incompatibleModule->setData(2, Qt::BackgroundRole,
-                                            QColor(255, 0, 0, 100));
+                incompatibleModule->setData(
+                            1, Qt::BackgroundRole,
+                            gt::gui::color::footprintError());
+                incompatibleModule->setData(
+                            2, Qt::BackgroundRole,
+                            gt::gui::color::footprintError());
 
                 incompatibleModule->setIcon(0, gt::gui::icon::plugin());
 
