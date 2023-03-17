@@ -7,6 +7,7 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_colors.h"
 #include "gt_jshighlighter.h"
 
 GtJsHighlighter::GtJsHighlighter(QObject* parent)
@@ -33,15 +34,15 @@ GtJsHighlighter::init()
     m_markCaseSensitivity = Qt::CaseInsensitive;
 
     // default color scheme
-    m_colors[Normal]     = QColor("#000000");
-    m_colors[Comment]    = QColor("#008000");
-    m_colors[Number]     = QColor("#ff0000");
-    m_colors[String]     = QColor("#0000ff");
-    m_colors[Operator]   = QColor("#000000");
-    m_colors[Identifier] = QColor("#000020");
-    m_colors[Keyword]    = QColor("#000080");
-    m_colors[BuiltIn]    = QColor("#008080");
-    m_colors[Marker]     = QColor("#ffff00");
+    m_colors[Normal]     = gt::gui::color::js_highlight::normal();
+    m_colors[Comment]    = gt::gui::color::js_highlight::comment();
+    m_colors[Number]     = gt::gui::color::js_highlight::number();
+    m_colors[String]     = gt::gui::color::js_highlight::string();
+    m_colors[Operator]   = gt::gui::color::js_highlight::operator_();
+    m_colors[Identifier] = gt::gui::color::js_highlight::identifier();
+    m_colors[Keyword]    = gt::gui::color::js_highlight::keyword();
+    m_colors[BuiltIn]    = gt::gui::color::js_highlight::builtIn();
+    m_colors[Marker]     = gt::gui::color::js_highlight::marker();
 
     // https://developer.mozilla.org/en/JavaScript/Reference/Reserved_Words
     m_keywords << "break";

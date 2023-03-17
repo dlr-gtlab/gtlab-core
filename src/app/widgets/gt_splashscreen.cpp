@@ -12,6 +12,7 @@
 #  include <time.h>
 #endif
 
+#include "gt_colors.h"
 #include "gt_splashscreen.h"
 
 class SplashLabel : public QLabel

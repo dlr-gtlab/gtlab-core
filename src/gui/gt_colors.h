@@ -74,18 +74,18 @@ GT_GUI_EXPORT QColor basicDark();
 GT_GUI_EXPORT QColor dummyObjectBackground();
 
 /**
- * @brief newObjectForground
+ * @brief newObjectForeground
  * @return foreground color of objects in the datamodel view widget
  * which are new
  */
-GT_GUI_EXPORT QColor newObjectForground();
+GT_GUI_EXPORT QColor newObjectForeground();
 
 /**
- * @brief newObjectForground
+ * @brief newObjectForeground
  * @return foreground color of objects in the datamodel view widget
  * which are changed
  */
-GT_GUI_EXPORT QColor changedObjectForground();
+GT_GUI_EXPORT QColor changedObjectForeground();
 
 /**
  * @brief footprintWarning
@@ -160,9 +160,51 @@ GT_GUI_EXPORT void setPaintertoGray(QPainter* painter);
 
 GT_GUI_EXPORT QColor randomColor();
 
+GT_GUI_EXPORT QColor gridLine();
+
+GT_GUI_EXPORT QColor gridPoint();
+
+GT_GUI_EXPORT QColor gridAxis();
+
+namespace code_editor {
+GT_GUI_EXPORT QColor highlightLine();
+} // namespace code_editor
+
+namespace xml_highlight {
+GT_GUI_EXPORT QColor syntaxChar();
+GT_GUI_EXPORT QColor elementName();
+GT_GUI_EXPORT QColor comment();
+GT_GUI_EXPORT QColor attributeName();
+GT_GUI_EXPORT QColor attributeValue();
+GT_GUI_EXPORT QColor error();
+GT_GUI_EXPORT QColor other();
+} // namespace xml_highlight
+
+namespace js_highlight {
+GT_GUI_EXPORT QColor normal();
+GT_GUI_EXPORT QColor comment();
+GT_GUI_EXPORT QColor number();
+GT_GUI_EXPORT QColor string();
+GT_GUI_EXPORT QColor operator_();
+GT_GUI_EXPORT QColor identifier();
+GT_GUI_EXPORT QColor keyword();
+GT_GUI_EXPORT QColor builtIn();
+GT_GUI_EXPORT QColor marker();
+} // namespace js_highlight
+
+
+/// Deprecated functions
+[[deprecated("Use gridLine instead")]]
 GT_GUI_EXPORT QColor gridLineColor();
 
+[[deprecated("Use gridPoint instead")]]
 GT_GUI_EXPORT QColor gridPointColor();
+
+[[deprecated("Use newObjectForeground instead")]]
+GT_GUI_EXPORT QColor newObjectForground();
+
+[[deprecated("Use changedObjectForeground instead")]]
+GT_GUI_EXPORT QColor changedObjectForground();
 
 } // namespace color
 

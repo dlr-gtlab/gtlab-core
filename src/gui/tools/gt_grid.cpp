@@ -384,7 +384,7 @@ GtGrid::paintAxis(QPainter* painter, const QRectF& rect)
     }
 
     QPen pen = painter->pen();
-    pen.setColor(QColor(150, 150, 150));
+    pen.setColor(gt::gui::color::gridAxis());
     painter->setPen(pen);
 
     painter->drawLine(int(rect.left()), 0, int(rect.right()), 0);

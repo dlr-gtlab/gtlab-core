@@ -14,6 +14,7 @@
 #include "gt_stategroup.h"
 #include "gt_state.h"
 #include "gt_icons.h"
+#include "gt_colors.h"
 
 #include "gt_statemodel.h"
 
@@ -125,7 +126,7 @@ GtStateModel::data(const QModelIndex& index, int role) const
 
             case Qt::ForegroundRole:
             {
-                return QColor(Qt::gray);
+                return gt::gui::color::disabled();
             }
 
             default:
@@ -148,7 +149,7 @@ GtStateModel::data(const QModelIndex& index, int role) const
 
             case Qt::ForegroundRole:
             {
-                return QColor(Qt::gray);
+                return gt::gui::color::disabled();
             }
 
             default:

@@ -16,6 +16,7 @@
 
 #include "gt_xmlhighlighter.h"
 #include "gt_application.h"
+#include "gt_colors.h"
 
 // Regular expressions for parsing XML borrowed from:
 // http://www.cs.sfu.ca/~cameron/REX.html
@@ -46,32 +47,15 @@ GtXmlHighlighter::GtXmlHighlighter(QTextEdit* parent)
 void
 GtXmlHighlighter::init()
 {
-    QColor DEFAULT_SYNTAX_CHAR		= Qt::blue;
-    QColor DEFAULT_ELEMENT_NAME     = Qt::darkRed;
-    QColor DEFAULT_COMMENT			= Qt::darkGreen;
-    QColor DEFAULT_ATTRIBUTE_NAME	= Qt::red;
-    QColor DEFAULT_ATTRIBUTE_VALUE	= Qt::blue;
-    QColor DEFAULT_ERROR			= Qt::darkMagenta;
-    QColor DEFAULT_OTHER			= Qt::black;
-
-    if (gtApp->inDarkMode())
-    {
-        DEFAULT_SYNTAX_CHAR		= QColor(235, 160, 50);   //Orange
-        DEFAULT_ELEMENT_NAME    = QColor(190, 35, 35);
-        DEFAULT_COMMENT			= Qt::green;
-        DEFAULT_ATTRIBUTE_NAME	= Qt::red;
-        DEFAULT_ATTRIBUTE_VALUE	= QColor(100, 200, 255);
-        DEFAULT_ERROR			= Qt::magenta;
-        DEFAULT_OTHER			= QColor(200, 200, 200);
-    }
-
-    fmtSyntaxChar.setForeground(DEFAULT_SYNTAX_CHAR);
-    fmtElementName.setForeground(DEFAULT_ELEMENT_NAME);
-    fmtComment.setForeground(DEFAULT_COMMENT);
-    fmtAttributeName.setForeground(DEFAULT_ATTRIBUTE_NAME);
-    fmtAttributeValue.setForeground(DEFAULT_ATTRIBUTE_VALUE);
-    fmtError.setForeground(DEFAULT_ERROR);
-    fmtOther.setForeground(DEFAULT_OTHER);
+    fmtSyntaxChar.setForeground(gt::gui::color::xml_highlight::syntaxChar());
+    fmtElementName.setForeground(gt::gui::color::xml_highlight::elementName());
+    fmtComment.setForeground(gt::gui::color::xml_highlight::comment());
+    fmtAttributeName.setForeground(
+                gt::gui::color::xml_highlight::attributeName());
+    fmtAttributeValue.setForeground(
+                gt::gui::color::xml_highlight::attributeValue());
+    fmtError.setForeground(gt::gui::color::xml_highlight::error());
+    fmtOther.setForeground(gt::gui::color::xml_highlight::other());
 }
 
 void

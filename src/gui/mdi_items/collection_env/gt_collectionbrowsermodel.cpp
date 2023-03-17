@@ -281,7 +281,7 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
             }
             else if (role == Qt::ForegroundRole)
             {
-                return QColor(Qt::darkGray);
+                return gt::gui::color::disabled();
             }
 
             break;
