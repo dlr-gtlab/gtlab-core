@@ -9,6 +9,8 @@
 #include "gt_palette.h"
 
 #include "gt_colors.h"
+#include "gt_style.h"
+#include "gt_stylesheets.h"
 #include "gt_application.h"
 
 #include <QSettings>
@@ -42,7 +44,7 @@ struct ColorConfig
 QPalette
 generateTheme(ColorConfig const& config)
 {
-    QPalette palette;
+    QPalette palette = qApp->palette();
 
     // window stuff
     palette.setColor(QPalette::Window, config.main);
@@ -53,7 +55,6 @@ generateTheme(ColorConfig const& config)
     palette.setColor(QPalette::Button, config.main);
 
     // tones
-    palette.setColor(QPalette::Light, config.main); // used for text shadows
     // QPalette::Dark = QFrame::Sunken
     // QPalette::Mid  = QWizard: QFrame between page and buttons
 
@@ -130,33 +131,9 @@ gt::gui::standardTheme()
 template <typename Widget>
 inline void applyTheme(Widget& w)
 {
-    QString stylesheet;
+    QString stylesheet = gt::gui::stylesheet::toolTip();
 
-#ifndef Q_OS_WIN
-    QString style = QStringLiteral("Default");
-#else
-    QString style = QStringLiteral("windowsvista");
-#endif
-
-    if (gtApp->inDarkMode())
-    {
-        style = QStringLiteral("Fusion");
-        stylesheet.append(QStringLiteral(
-            "QToolTip { color: #ffffff; "
-            "background-color: #2a82da; "
-            "border: 1px solid white; }"
-        ));
-    }
-    else
-    {
-        stylesheet.append(QStringLiteral(
-            "QToolTip { color: black; "
-            "background-color: white; "
-            "border: 1px solid black; }"
-        ));
-    }
-
-    w.setStyle(QStyleFactory::create(style));
+    w.setStyle(new GtStyle());
     w.setStyleSheet(stylesheet);
     w.setPalette(gt::gui::currentTheme());
 }

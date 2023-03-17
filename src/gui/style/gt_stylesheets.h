@@ -26,7 +26,8 @@ enum class RunButtonState
 {
     NotSelected = 0,
     StopProcess,
-    QueueProcess
+    QueueProcess,
+    RunProcess
 };
 
 /**
@@ -35,18 +36,21 @@ enum class RunButtonState
 * white background, min-heigth 22...)
 */
 QString GT_GUI_EXPORT buttonStyleSheet();
+QString GT_GUI_EXPORT buttonStyleSheet(const QColor& baseColor);
 
 /**
 * @brief buttonStyleSheet
 * @return the standard button style sheet (rounded edges,
 * white background, min-heigth 20...)
 */
+[[deprecated("Use buttonStyleSheet instead with color::base")]]
 QString GT_GUI_EXPORT buttonStyleSheet2();
 
 /**
  * @brief performanceTaskElementDelBtn
  * @return
  */
+[[deprecated("Use buttonStyleSheet instead and use 'setFlat(true)'")]]
 QString GT_GUI_EXPORT performanceTaskElementDelBtn();
 
 /**
@@ -64,6 +68,7 @@ QString GT_GUI_EXPORT processRunButton(RunButtonState const& state);
  * @brief performanceTaskLineEdit0
  * @return
  */
+[[deprecated("Use standardLineEdit instead and use 'setFrame(false)'")]]
 QString GT_GUI_EXPORT performanceTaskLineEdit0();
 
 /**
@@ -74,35 +79,52 @@ QString GT_GUI_EXPORT performanceTaskLineEdit0();
 QString GT_GUI_EXPORT standardLineEdit();
 
 /**
- * @brief warningLabel - returns styleSheet for QLabel
- * with white background and red letters
+ * @brief StyleSheet for warning labels
  * @return
  */
 QString GT_GUI_EXPORT warningLabel();
 
 /**
- * @brief standardLabel- returns styleSheet for QLabel
- * with white background and black letters
+ * @brief StyleSheet for info labels
  * @return
  */
 QString GT_GUI_EXPORT standardLabel();
 
 /**
- * @brief selectionComboBox
- * @param minWidth
- * @param maxWidth
+ * @brief Standard title line styleSheet for viewers etc.
  * @return
  */
+QString GT_GUI_EXPORT titleLabel();
+[[deprecated("Use titleLabel instead")]]
+QString GT_GUI_EXPORT resultViewerTitleLabel();
+
+/**
+ * @brief Prefered stylesheet for comboboxes. Does not set min and max width
+ * @return
+ */
+QString GT_GUI_EXPORT comboBox();
+
+/**
+ * @brief Prefered stylesheet for comboboxes
+ * @param minWidth Min width of combobox
+ * @param maxWidth Max width of combobox
+ * @return
+ */
+[[deprecated("Use comboBox instead and set min-max width manually on widget")]]
 QString GT_GUI_EXPORT selectionComboBox(const QString& minWidth,
                                         const QString& maxWidth);
 
 /**
- * @brief resultViewerTitleLabel - standard title line styleSheet for
- * resultviewer
+ * @brief Prefered stylesheet for spinboxes
  * @return
  */
+QString GT_GUI_EXPORT spinbox();
 
-QString GT_GUI_EXPORT resultViewerTitleLabel();
+/**
+ * @brief Stylesheet for tooltips
+ * @return
+ */
+QString GT_GUI_EXPORT toolTip();
 
 /**
  * @brief coloredCarpetPlotBtn - gives carpet plot button a color

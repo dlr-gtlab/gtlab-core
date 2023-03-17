@@ -160,6 +160,11 @@ GtProcessDock::GtProcessDock() :
 
     widget->setLayout(layout);
 
+    connect(gtApp, &GtApplication::themeChanged, this, [&](){
+        m_addElementButton->setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
+        updateRunButton();
+    });
+
     connect(m_search, SIGNAL(textEdited(QString)),
             SLOT(filterData(QString)));
     connect(m_search, SIGNAL(textChanged(QString)),
@@ -687,11 +692,11 @@ GtProcessDock::updateRunButton()
     // no task is running
     if (!current)
     {
-        m_runButton->setIcon(gt::gui::icon::processRun());
 
+        m_runButton->setIcon(gt::gui::icon::processRun());
         m_runButton->setStyleSheet(
                     gt::gui::stylesheet::processRunButton(
-                        gt::gui::stylesheet::RunButtonState::NotSelected));
+                        gt::gui::stylesheet::RunButtonState::RunProcess));
 
         if (str.isEmpty())
         {
@@ -799,6 +804,9 @@ GtProcessDock::updateRunButton()
         // text, style and icon are already set
         m_runButton->setEnabled(false);
         m_runButton->setToolTip(tr("Invalid Process selected"));
+        m_runButton->setStyleSheet(
+                    gt::gui::stylesheet::processRunButton(
+                        gt::gui::stylesheet::RunButtonState::NotSelected));
     }
 }
 

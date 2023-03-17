@@ -10,9 +10,40 @@
 #include "gt_colors.h"
 #include "gt_application.h"
 #include "gt_palette.h"
+#include "gt_utilities.h"
 
 #include <QPainter>
 #include <QRandomGenerator>
+
+/// helper function to desaturate a color
+inline QColor desaturate(QColor const& color, double multiplier)
+{
+    int blackness = (color.red() + color.green() + color.blue()) / 3;
+
+    int dr = blackness - color.red();
+    int dg = blackness - color.green();
+    int db = blackness - color.blue();
+
+    return QColor{
+        color.red() +   static_cast<int>(dr * multiplier),
+        color.green() + static_cast<int>(dg * multiplier),
+        color.blue() +  static_cast<int>(db * multiplier)
+    };
+}
+
+QColor
+gt::gui::color::lighten(const QColor& color, int amount)
+{
+    constexpr int limit = std::numeric_limits<uint8_t>::max();
+    int offset = (gtApp->inDarkMode() ? -1:1) * amount;
+
+    QColor c = color;
+    c.setRed(gt::clamp(c.red() + offset, 0, limit));
+    c.setGreen(gt::clamp(c.green() + offset, 0, limit));
+    c.setBlue(gt::clamp(c.blue() + offset, 0, limit));
+
+    return c;
+}
 
 QColor
 gt::gui::color::main()
@@ -38,21 +69,65 @@ gt::gui::color::disabled()
     return currentTheme().color(QPalette::Disabled, QPalette::Text);
 }
 
-QColor gt::gui::color::highlight()
+QColor
+gt::gui::color::highlight()
 {
     return currentTheme().color(QPalette::Highlight);
 }
 
-QColor gt::gui::color::textHighlight()
+QColor
+gt::gui::color::textHighlight()
 {
     return currentTheme().color(QPalette::HighlightedText);
+}
+
+QColor
+gt::gui::color::frame()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::lightGray;
+    }
+
+    return Qt::darkGray;
+}
+
+QColor
+gt::gui::color::lightFrame()
+{
+    if (gtApp->inDarkMode())
+    {
+        return desaturate(main(), 0.5).lighter(200);
+    }
+
+    return QColor(Qt::lightGray).lighter(120);
+}
+
+QColor
+gt::gui::color::titleLabelBackground()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::black;
+    }
+    return main();
+}
+
+QColor
+gt::gui::color::infoLabelBackground()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::black;
+    }
+    return base();
 }
 
 QColor
 gt::gui::color::basicDark()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    return QColor{21,34, 49};
+    return QColor{21, 34, 49};
 }
 
 QColor

@@ -25,6 +25,32 @@ namespace color
 {
 
 /**
+ * @brief Makes the color lighter (or darker) depending on the current theme
+ * mode.  Amount denotes the value to lighten the color. The value will be
+ * applied additively and not percentage wise, therefore the amount maybe in
+ * range of 0 and 255. Negative values can be used to darken the color
+ * @param color Color to lighten
+ * @param amount Value to lighten the color by. May be negative to darken the
+ * color
+ * @return New color
+ */
+GT_GUI_EXPORT QColor lighten(QColor const& color, int amount);
+
+
+/**
+ * @brief Same as lighten, but makes the color darker depending on the current
+ * theme. The value will be applied additively
+ * @param color Color to darken
+ * @param amount Value to darken the color by. May be negative to lighten the
+ * color
+ * @return New color
+ */
+inline QColor darken(QColor const& color, int amount)
+{
+    return lighten(color, amount * -1);
+}
+
+/**
  * @brief Palette main color
  * @return
  */
@@ -59,6 +85,30 @@ GT_GUI_EXPORT QColor highlight();
  * @return
  */
 GT_GUI_EXPORT QColor textHighlight();
+
+/**
+ * @brief Color for frames with a heavy constrast (e.g. lineedits or checkboxes)
+ * @return
+ */
+GT_GUI_EXPORT QColor frame();
+
+/**
+ * @brief Color for frames with a light contrast (e.g. for tabwidgets or views)
+ * @return
+ */
+GT_GUI_EXPORT QColor lightFrame();
+
+/**
+ * @brief Color for title labels in viewers etc.
+ * @return
+ */
+GT_GUI_EXPORT QColor titleLabelBackground();
+
+/**
+ * @brief Color for standard info labels.
+ * @return
+ */
+GT_GUI_EXPORT QColor infoLabelBackground();
 
 /**
  * @brief basicDarkColor
