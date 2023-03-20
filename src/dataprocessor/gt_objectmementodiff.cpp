@@ -181,12 +181,12 @@ fetchExternalizedMementos(const GtObjectMemento& leftOrig,
                           const GtObjectMemento& rightOrig,
                           GtAbstractObjectFactory& factory)
 {
-    auto externalizationInfoLeft = leftOrig.externalizationInfo(factory);
+    auto const externalizationInfoLeft = leftOrig.externalizationInfo(factory);
 
     // not an externalized object -> nothing to do
     if (!externalizationInfoLeft.isValid()) return {};
 
-    auto externalizationInfoRight = rightOrig.externalizationInfo(factory);
+    auto const externalizationInfoRight = rightOrig.externalizationInfo(factory);
     assert(externalizationInfoRight.isValid());
 
     // check if we can diff the data
