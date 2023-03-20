@@ -178,8 +178,8 @@ struct FetchMementoResult
 
 FetchMementoResult
 fetchExternalizedMementos(const GtObjectMemento& leftOrig,
-                               const GtObjectMemento& rightOrig,
-                               GtAbstractObjectFactory& factory)
+                          const GtObjectMemento& rightOrig,
+                          GtAbstractObjectFactory& factory)
 {
     auto externalizationInfoLeft = leftOrig.externalizationInfo(factory);
 
@@ -230,7 +230,7 @@ fetchExternalizedMementos(const GtObjectMemento& leftOrig,
     auto& externalizationInfo =
             fetchLeft ? externalizationInfoLeft : externalizationInfoRight;
     auto& objectToFetch =
-            fetchLeft ? externalizedObjectLeft : externalizedObjectRight;
+            fetchLeft ? externalizedObjectLeft  : externalizedObjectRight;
     auto& fetchedObject =
             fetchLeft ? externalizedObjectRight : externalizedObjectLeft;
 
