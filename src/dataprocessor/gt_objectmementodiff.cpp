@@ -14,14 +14,12 @@
 #include "gt_objectio.h"
 #include "gt_algorithms.h"
 #include "gt_xmlexpr.h"
-
 #include "gt_objectfactory.h"
-
-#include "tl/optional.hpp"
 
 #include <QCryptographicHash>
 #include <QHash>
 
+#include <tl/optional.hpp>
 #include <algorithm>
 
 using PD = GtObjectMemento::PropertyData;
