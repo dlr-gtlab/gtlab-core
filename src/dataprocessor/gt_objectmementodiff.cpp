@@ -187,17 +187,13 @@ setupDiffForExternalizedObject(const GtObjectMemento& leftOrig,
 {
     auto externalizationInfoLeft = leftOrig.externalizationInfo(factory);
 
+    // not an externalized object -> nothing to do
     if (!externalizationInfoLeft.isValid()) return { true };
 
     auto externalizationInfoRight = rightOrig.externalizationInfo(factory);
     assert(externalizationInfoRight.isValid());
 
-    gtTrace().verbose() << "######################################";
-    gtTrace().verbose() << "LEFT:" << externalizationInfoLeft.isFetched << externalizationInfoLeft.hash;
-    gtTrace().verbose() << "### VS";
-    gtTrace().verbose() << "LEFT:" << externalizationInfoRight.isFetched << externalizationInfoRight.hash;
-    gtTrace().verbose() << "######################################";
-
+    // check if we can diff the data
     if (!externalizationInfoLeft.isFetched &&
         !externalizationInfoRight.isFetched &&
         externalizationInfoLeft.hash != externalizationInfoRight.hash)
@@ -233,42 +229,32 @@ setupDiffForExternalizedObject(const GtObjectMemento& leftOrig,
 
     // objects successfully recreated
 
-    if (!externalizationInfoLeft.isFetched)
-    {
-        // left must be fetched
-        if (externalizationInfoLeft.hash == externalizedObjectRight->calcExtHash())
-        {
-            // nothing to do here -> diffs are equal
-            return { true };
-        }
+    // check which memento to fetch
+    bool fetchLeft = !externalizationInfoLeft.isFetched;
 
-        if (!externalizedObjectLeft->internalize())
-        {
-            gtError() << QObject::tr("Failed to internalize left memento for '%1'!")
-                         .arg(leftOrig.ident());
-            return { false };
-        }
+    auto& externalizationInfo =
+            fetchLeft ? externalizationInfoLeft : externalizationInfoRight;
+    auto& objectToFetch =
+            fetchLeft ? externalizedObjectLeft : externalizedObjectRight;
+    auto& fetchedObject =
+            fetchLeft ? externalizedObjectRight : externalizedObjectLeft;
 
-        dummy = externalizedObjectLeft->toMemento();
-        return { true, Left };
-    }
-
-    // right memento must be fetched
-    if (externalizationInfoRight.hash == externalizedObjectLeft->calcExtHash())
+    // check if object must be fetched
+    if (externalizationInfo.hash == fetchedObject->calcExtHash())
     {
         // nothing to do here -> diffs are equal
         return { true };
     }
 
-    if (!externalizedObjectRight->internalize())
+    if (!objectToFetch->internalize())
     {
-        gtError() << QObject::tr("Failed to internalize right memento for '%1'!")
-                     .arg(leftOrig.ident());
+        gtError() << QObject::tr("Failed to internalize %1 memento for '%2'!")
+                     .arg(fetchLeft ? "left" : "right", leftOrig.ident());
         return { false };
     }
 
-    dummy = externalizedObjectRight->toMemento();
-    return { true, Right };
+    dummy = objectToFetch->toMemento();
+    return { true, fetchLeft ? Left : Right };
 }
 
 bool
