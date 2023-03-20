@@ -119,6 +119,7 @@ HEADERS += \
     gt_mpl.h \
     gt_versionnumber.h \
     thirdparty/mpark/variant.hpp
+    thirdparty/tl/optional.hpp
 
 SOURCES += \
     gt_abstractexternalizationinterface.cpp \
@@ -219,7 +220,10 @@ unix:{
 
 contains(BUILD_DEPLOY, true) {
 
-    KEEP_INCLUDEPATHS = thirdparty/mpark
+    KEEP_INCLUDEPATHS += \
+        thirdparty/mpark \
+        thirdparty/tl
+
     PRIVATE_INCLUDEPATHS += internal
 
     copyHeaders($$HEADERS, $$KEEP_INCLUDEPATHS, $$PRIVATE_INCLUDEPATHS)

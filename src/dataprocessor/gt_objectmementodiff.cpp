@@ -17,6 +17,8 @@
 
 #include "gt_objectfactory.h"
 
+#include "tl/optional.hpp"
+
 #include <QCryptographicHash>
 #include <QHash>
 
@@ -167,28 +169,24 @@ GtObjectMementoDiff::numberOfDiffSteps()
     return retval;
 }
 
-enum AffectedMemento
+/// helper struct for return value of setup function
+struct FetchMementoResult
 {
-    None = 0,
-    Left,
-    Right
-};
-
-struct SetupResult {
+    // indicates if setup was sucessful
     bool success = true;
-    AffectedMemento fetchedMemento = None;
+    // optional replacement for left or right memento
+    tl::optional<GtObjectMemento> left{}, right{};
 };
 
-SetupResult
-setupDiffForExternalizedObject(const GtObjectMemento& leftOrig,
+FetchMementoResult
+fetchExternalizedMementos(const GtObjectMemento& leftOrig,
                                const GtObjectMemento& rightOrig,
-                               GtObjectMemento& dummy,
                                GtAbstractObjectFactory& factory)
 {
     auto externalizationInfoLeft = leftOrig.externalizationInfo(factory);
 
     // not an externalized object -> nothing to do
-    if (!externalizationInfoLeft.isValid()) return { true };
+    if (!externalizationInfoLeft.isValid()) return {};
 
     auto externalizationInfoRight = rightOrig.externalizationInfo(factory);
     assert(externalizationInfoRight.isValid());
@@ -207,7 +205,7 @@ setupDiffForExternalizedObject(const GtObjectMemento& leftOrig,
     if (externalizationInfoLeft.isFetched && externalizationInfoRight.isFetched)
     {
         // nothing to do here ->  both object mementos are fetched!
-        return { true };
+        return {};
     }
 
     auto tmpInstanceLeft  = std::unique_ptr<QObject>(externalizationInfoLeft.metaObject->newInstance());
@@ -216,6 +214,7 @@ setupDiffForExternalizedObject(const GtObjectMemento& leftOrig,
     auto externalizedObjectLeft  = gt::unique_qobject_cast<GtExternalizedObject>(std::move(tmpInstanceLeft));
     auto externalizedObjectRight = gt::unique_qobject_cast<GtExternalizedObject>(std::move(tmpInstanceRight));
 
+    // check if object was recreated successfully
     if (!externalizedObjectLeft ||
         !externalizedObjectRight ||
         !leftOrig.mergeTo(*externalizedObjectLeft, factory) ||
@@ -226,8 +225,6 @@ setupDiffForExternalizedObject(const GtObjectMemento& leftOrig,
                      .arg(leftOrig.ident());
         return { false };
     }
-
-    // objects successfully recreated
 
     // check which memento to fetch
     bool fetchLeft = !externalizationInfoLeft.isFetched;
@@ -243,7 +240,7 @@ setupDiffForExternalizedObject(const GtObjectMemento& leftOrig,
     if (externalizationInfo.hash == fetchedObject->calcExtHash())
     {
         // nothing to do here -> diffs are equal
-        return { true };
+        return {};
     }
 
     if (!objectToFetch->internalize())
@@ -253,8 +250,9 @@ setupDiffForExternalizedObject(const GtObjectMemento& leftOrig,
         return { false };
     }
 
-    dummy = objectToFetch->toMemento();
-    return { true, fetchLeft ? Left : Right };
+    FetchMementoResult result{};
+    (fetchLeft ? result.left : result.right) = objectToFetch->toMemento();
+    return result;
 }
 
 bool
@@ -289,14 +287,12 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
 
     // left or right memento may needs to be fetched in case it belongs to an
     // externalized object
-    GtObjectMemento dummy;
-    auto setup = setupDiffForExternalizedObject(leftOrig, rightOrig,
-                                                dummy, *gtObjectFactory);
+    auto setup = fetchExternalizedMementos(leftOrig, rightOrig, *gtObjectFactory);
 
     if (!setup.success) return false;
 
-    const GtObjectMemento& left =  setup.fetchedMemento == Left ? dummy : leftOrig;
-    const GtObjectMemento& right = setup.fetchedMemento == Right ? dummy : rightOrig;
+    const GtObjectMemento& left =  setup.left.value_or(leftOrig);
+    const GtObjectMemento& right = setup.right.value_or(rightOrig);
 
     // create diff element to store changes
     QDomElement diffObj = this->createElement(gt::xml::S_OBJECT_TAG);

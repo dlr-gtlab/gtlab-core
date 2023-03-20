@@ -79,6 +79,7 @@ SOURCES += \
 SOURCES += $$files(datamodel/*.cpp)
 SOURCES += $$files(calculators/*.cpp)
 SOURCES += $$files(core/*.cpp)
+SOURCES += $$files(thirdparty/*.cpp)
 SOURCES += $$files(exporter/*.cpp)
 SOURCES += $$files(mdi/*.cpp)
 #SOURCES += $$files(network/*.cpp)
