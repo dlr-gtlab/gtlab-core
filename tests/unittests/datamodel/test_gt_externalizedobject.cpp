@@ -18,6 +18,8 @@
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
 
+#include "test_gt_object.h"
+
 /// This is a test fixture that does a init for each test
 class TestGtExternalizedObject : public ::testing::Test
 {
@@ -383,6 +385,43 @@ TEST_F(TestGtExternalizedObject, fetchIntialVersion)
     EXPECT_FALSE(obj->isFetched());
     // data was externalized -> data should now fetch modified data
     EXPECT_FALSE(obj->fetchInitialVersion());
+}
+
+TEST_F(TestGtExternalizedObject, memento_externalization_info)
+{
+    // before externalization
+    auto m1 = obj->toMemento();
+    ASSERT_FALSE(m1.isNull());
+
+    auto info1 = m1.externalizationInfo(*gtObjectFactory);
+    EXPECT_TRUE(info1.isValid());
+    EXPECT_TRUE(info1.isFetched);
+    EXPECT_TRUE(info1.hash.isEmpty());
+
+    // set values
+    {
+        auto data = obj->fetchData();
+        data.setValues(m_values);
+        ASSERT_TRUE(obj->externalize());
+    }
+    ASSERT_FALSE(obj->isFetched());
+
+    // after externalization
+    auto m2 = obj->toMemento();
+    ASSERT_FALSE(m2.isNull());
+
+    auto info2 = m2.externalizationInfo(*gtObjectFactory);
+    EXPECT_TRUE(info2.isValid());
+    EXPECT_FALSE(info2.isFetched);
+    EXPECT_EQ(info2.hash, obj->extHash());
+
+    // not an externalized object
+    TestSpecialGtObject object;
+    auto mOther = object.toMemento();
+    ASSERT_FALSE(mOther.isNull());
+
+    auto infoOther = mOther.externalizationInfo(*gtObjectFactory);
+    EXPECT_FALSE(infoOther.isValid());
 }
 
 /* Diffing behavious of an externalized object:

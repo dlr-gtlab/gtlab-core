@@ -9,77 +9,15 @@
 
 #include "gt_externalizedobject.h"
 
-#include "gt_boolproperty.h"
-#include "gt_stringproperty.h"
-#include "gt_utilities.h"
-#include "gt_variantproperty.h"
-#include "gt_externalizationmanager.h"
-
 #include "gt_logging.h"
+#include "gt_utilities.h"
+#include "gt_externalizationmanager.h"
+#include "internal/gt_externalizedobjectprivate.h"
 
-/**
- * @brief The ExternalizeState enum
- */
-enum ExternalizeState
-{
-    /// indicates whether the data should be externalized on next save
-    ExternalizeOnSave = 2,
-    /// inidatces that data should not be externalized indirectly
-    /// (ref count reaches 0)
-    KeepInternalized = 8
-};
-Q_DECLARE_FLAGS(ExternalizeStates, ExternalizeState)
-
-struct GtExternalizedObject::Impl
-{
-    /// indicates whether the data is fetched (independent of ref count)
-    GtBoolProperty pFetched{
-        "isFetched", tr("Is Fetched"), tr("Is Object Fetched"), true
-    };
-
-    /// inidatces that data should be fetched from original location
-    GtBoolProperty pFetchInitialVersion{
-        "fetchInitialVersion", tr("Fetch initial version"),
-        tr("Fetch initial version"), true
-    };
-
-    /// hash of this object, calculated on last externalization
-    GtStringProperty pCachedHash{
-        "cachedHash", tr("Cached Hash"), tr("Cached Object Hash")
-    };
-
-    /// meta data for the externalization process (eg. hdf5 reference)
-    GtVariantProperty pMetaData{
-        "metaData", tr("Meta Data"), tr("Meta Data"),
-        GtUnit::None, QVariant::fromValue(0)
-    };
-
-    /// keeps track of number of accesses
-    int refCount{0};
-
-    /// object states
-    ExternalizeStates states{ ExternalizeOnSave };
-
-    /**
-     * @brief Sets the desired state
-     * @param state state to set
-     * @param enable whether state should be set or cleared
-     */
-    inline void setExternalizeState(ExternalizeState state, bool enable)
-    {
-        if (enable)
-        {
-            states |= state;
-        }
-        else
-        {
-            states &= ~state;
-        }
-    }
-};
+using namespace gt::internal;
 
 GtExternalizedObject::GtExternalizedObject() :
-    pimpl(std::make_unique<Impl>())
+    pimpl(std::make_unique<GtExternalizedObjectPrivate>())
 {
     static const QString cat = tr("Externalization");
     registerSilentProperty(pimpl->pFetched, cat);
@@ -303,8 +241,7 @@ GtExternalizedObject::externalize()
     if (!doExternalizeData(pimpl->pMetaData.get()))
     {
         gtError() << tr("Externalizing object failed!")
-                  << tr("(Path: '%1')").arg(objectPath())
-                  << pimpl->pMetaData;
+                  << tr("(Path: '%1')").arg(objectPath());
         // restore last hash
         pimpl->pCachedHash = hash;
         return false;

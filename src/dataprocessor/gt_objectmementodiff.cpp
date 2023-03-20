@@ -202,8 +202,8 @@ setupDiffForExternalizedObject(const GtObjectMemento& leftOrig,
         !externalizationInfoRight.isFetched &&
         externalizationInfoLeft.hash != externalizationInfoRight.hash)
     {
-        gtError() << QObject::tr("Failed to create diff for mementos with "
-                                 "incomaptible externalized object data for '%1'!")
+        gtError() << QObject::tr("Inconsitency in externalized data for '%1' "
+                                 "detected! Aborting diff operation!")
                      .arg(leftOrig.ident());
         return { false };
     }

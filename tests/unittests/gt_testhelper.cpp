@@ -28,7 +28,6 @@ GtTestHelper::GtTestHelper()
      gt::log::Logger& logger = gt::log::Logger::instance();
      auto dest = gt::log::makeDebugOutputDestination();
      logger.addDestination("console", std::move(dest));
-     logger.setVerbosity(gt::log::Everything);
 }
 
 GtTestHelper*

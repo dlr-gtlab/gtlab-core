@@ -80,42 +80,25 @@ referenceDataSet(const GenH5::DataSet& dset, QVariant& refVariant)
 inline void
 checkAttributes(const GenH5::DataSet& dset, QString const& hash)
 {
-    auto const printVersionDiff = [&](const GenH5::Version& version,
-                                      const GenH5::Version& current,
-                                      const char* type) {
-        using namespace gt::log;
-
-        gtWarning().verbose(version < current ? Silent : Medium)
-                << QObject::tr("HDF5 dataset was created using an %1 version of %2! "
-                               "(0x%3 vs. current 0x%4; path: %5")
-                   .arg(version < current ? "older":"newer",
-                        type,
-                        QString::number(version.toInt(), 16),
-                        QString::number(current.toInt(), 16),
-                        dset.path());
-    };
-
-    // check version attr of GenH5
-    if (dset.hasVersionAttribute())
-    {
-        GenH5::Version version = dset.readVersionAttribute();
-        GenH5::Version current = GenH5::Version::current();
-
-        if (version != current) printVersionDiff(version, current, "GenH5");
-    }
-    else
-    {
-        gtWarning()
-                << QObject::tr("No GenH5 version attribute on HDF5 dataset found!");
-    }
-
     // check version attr of GTlab
     if (dset.hasVersionAttribute(S_GT_VERSION_ATTR))
     {
         GenH5::Version version = dset.readVersionAttribute(S_GT_VERSION_ATTR);
         GenH5::Version current = s_currentGTlabVersion;
 
-        if (version != current) printVersionDiff(version, current, "GTlab");
+        if (version != current)
+        {
+            using namespace gt::log;
+
+            gtWarning().verbose(version < current ? Silent : Medium)
+                    << QObject::tr("HDF5 dataset was created using an %1 "
+                                   "version of GTlab! (0x%2 vs. current 0x%3; "
+                                   "path: %4")
+                       .arg(version < current ? "older":"newer",
+                            QString::number(version.toInt(), 16),
+                            QString::number(current.toInt(), 16),
+                            dset.path());
+        }
     }
     else
     {
@@ -145,8 +128,6 @@ checkAttributes(const GenH5::DataSet& dset, QString const& hash)
 inline void
 updateAttributes(const GenH5::DataSet& dset, QString const& hash)
 {
-    // update GenH5 version attribute
-    dset.writeVersionAttribute();
     // update GTlab version attribute
     dset.writeVersionAttribute(S_GT_VERSION_ATTR, s_currentGTlabVersion);
     auto hashData = GenH5::makeFixedStr(hash);
@@ -182,7 +163,7 @@ extHash(QString const& name)
 GtH5ExternalizeHelper::GtH5ExternalizeHelper(const GtExternalizedObject& obj) :
     // we need not only the class name but also the externalized hash
     // as we dont want to cause an ABI incompatibility we engrave the hash
-    // into this property
+    // into this property (TODO: this should be fixed, see issue #488)
     m_metaData(obj.metaObject()->className() +
                QStringLiteral("$$") +
                obj.extHash()),

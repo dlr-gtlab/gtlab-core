@@ -371,7 +371,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     if (!knownClass(id))
     {
-        gtWarning().medium() << tr("Unkown Mdi item '%1'!").arg(id);
+        gtWarning().medium() << tr("Unknown Mdi item '%1'!").arg(id);
         return nullptr;
     }
 

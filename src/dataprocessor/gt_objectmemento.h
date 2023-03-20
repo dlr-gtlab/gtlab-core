@@ -240,20 +240,20 @@ public:
      */
     void calculateHashes() const;
 
-    QVector<PropertyData> properties;
-    QVector<PropertyData> propertyContainers;
-    QVector<GtObjectMemento> childObjects;
-
     struct ExternalizationInfo
     {
         bool isFetched = true;
-        QByteArray hash;
-        const QMetaObject* metaObject;
+        QByteArray hash{};
+        const QMetaObject* metaObject{};
 
         bool isValid() const { return metaObject != nullptr; }
     };
 
     ExternalizationInfo externalizationInfo(const GtAbstractObjectFactory& factory) const;
+
+    QVector<PropertyData> properties;
+    QVector<PropertyData> propertyContainers;
+    QVector<GtObjectMemento> childObjects;
 
 private:
     /**

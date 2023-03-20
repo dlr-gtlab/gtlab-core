@@ -101,13 +101,13 @@ protected:
  * Represents a data object that may externalize (some of) its data at runtime
  * to reduce overall resource usage.
  */
+struct GtExternalizedObjectPrivate;
 class GT_DATAMODEL_EXPORT GtExternalizedObject : public GtObject
 {
     Q_OBJECT
 
     GT_DECL_DATACLASS(GtExternalizedObjectData)
 
-    friend class GtObjectMementoDiff;
     friend class GtExternalizationManager;
     friend class TestExternalizedObject;
 
@@ -210,8 +210,7 @@ protected:
 
 private:
 
-    struct Impl;
-    std::unique_ptr<Impl> pimpl;
+    std::unique_ptr<GtExternalizedObjectPrivate> pimpl;
 
     /**
      * @brief Increments ref count and fetches the data if not fetched yet.

@@ -19,12 +19,10 @@ TestDmiPackage::TestDmiPackage() :
     setObjectName("Test DMI Package");
 
     auto* data = new TestDmiData;
-//    data->setObjectName("Data");
     data->setDefault(true);
     appendChild(data);
 
     auto* extData = new TestDmiExternalObject;
-//    extData->setObjectName("ExtData[0]");
     extData->setDefault(true);
     appendChild(extData);
 

@@ -100,7 +100,7 @@ TEST_F(TestGtH5ExternalizeHelper, overwriteDataSet_issue_453)
     catch (GenH5::Exception const& e)
     {
         gtError() << "EXPECTION:" << e.what();
-        ASSERT_NO_THROW(false);
+        ASSERT_NO_THROW(throw e);
     }
 }
 

@@ -22,6 +22,7 @@
 #include "gt_structproperty.h"
 #include "gt_exceptions.h"
 #include "internal/varianthasher.h"
+#include "internal/gt_externalizedobjectprivate.h"
 
 using PD = GtObjectMemento::PropertyData;
 
@@ -306,8 +307,9 @@ GtObjectMemento::externalizationInfo(const GtAbstractObjectFactory& factory) con
         return {};
     }
 
-    auto* pFetched = findPropertyByName(properties, QStringLiteral("isFetched"));
-    auto* pHash = findPropertyByName(properties, QStringLiteral("cachedHash"));
+    using namespace gt::internal;
+    auto* pFetched = findPropertyByName(properties, S_EXT_OBJECT_PROP_IS_FETCHED);
+    auto* pHash = findPropertyByName(properties, S_EXT_OBJECT_PROP_HASH);
 
     if (!pFetched || !pHash)
     {

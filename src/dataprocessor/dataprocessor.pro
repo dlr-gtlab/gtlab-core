@@ -78,6 +78,7 @@ HEADERS += \
     gt_version.h \
     gt_xmlexpr.h \
     gt_xmlutilities.h \
+    internal/gt_externalizedobjectprivate.h \
     internal/varianthasher.h \
     property/gt_enumproperty.h \
     property/gt_objectlinkproperty.h \
