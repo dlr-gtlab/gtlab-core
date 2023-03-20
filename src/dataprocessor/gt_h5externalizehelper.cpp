@@ -8,6 +8,7 @@
  */
 
 #include "gt_h5externalizehelper.h"
+#include "gt_version.h"
 
 #ifdef GT_H5
 #include "gt_externalizedobject.h"
@@ -20,6 +21,15 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+
+static const auto S_GT_VERSION_ATTR = QByteArrayLiteral("GT_VERSION");
+static const auto S_EXT_HASH_ATTR = QByteArrayLiteral("GT_EXT_HASH");
+
+static const GenH5::Version s_currentGTlabVersion{
+    GT_VERSION_MAJOR,
+    GT_VERSION_MINOR,
+    GT_VERSION_PATCH
+};
 
 namespace
 {
@@ -68,46 +78,97 @@ referenceDataSet(const GenH5::DataSet& dset, QVariant& refVariant)
  * @param dset dataset
  */
 inline void
-checkVersionAttribute(const GenH5::DataSet& dset)
+checkAttributes(const GenH5::DataSet& dset, QString const& hash)
 {
-    static auto printVersion = [](const GenH5::Version& version,
-                                  const GenH5::Version& current,
-                                  const QByteArray& path) {
-        return "(0x" + QByteArray::number(version.toInt(), 16) + " vs. current "
-                "0x" + QByteArray::number(current.toInt(), 16) + "; "
-                "Dataset path: '" + path + "')";
-    };
-
-    // check version of dataset
-    GenH5::Version version{};
-    GenH5::Version current = GenH5::Version::current();
-    if (dset.hasVersionAttribute())
+    // check version attr of GTlab
+    if (dset.hasVersionAttribute(S_GT_VERSION_ATTR))
     {
-        version = dset.readVersionAttribute();
-    }
+        GenH5::Version version = dset.readVersionAttribute(S_GT_VERSION_ATTR);
+        GenH5::Version current = s_currentGTlabVersion;
 
-    if (version.toInt() < current)
+        if (version != current)
+        {
+            using namespace gt::log;
+
+            gtWarning().verbose(version < current ? Silent : Medium)
+                    << QObject::tr("HDF5 dataset was created using an %1 "
+                                   "version of GTlab! (0x%2 vs. current 0x%3; "
+                                   "path: %4")
+                       .arg(version < current ? "older":"newer",
+                            QString::number(version.toInt(), 16),
+                            QString::number(current.toInt(), 16),
+                            dset.path());
+        }
+    }
+    else
     {
         gtWarning().medium()
-                << "HDF5 Dataset was created using an older version of GenH5!"
-                << printVersion(version, current, dset.path());
+                << QObject::tr("No GTlab version attribute on HDF5 dataset found!");
     }
-    else if (version.toInt() > current)
+
+    // check hash attr
+    if (dset.hasAttribute(S_EXT_HASH_ATTR))
     {
-        gtWarning()
-                << "HDF5 Dataset was created using a newer version of GenH5!"
-                << printVersion(version, current, dset.path());
+        auto otherHash = dset.readAttribute0D<GenH5::FixedString0D>(S_EXT_HASH_ATTR);
+
+        if (otherHash != hash)
+        {
+            gtWarning() << QObject::tr("Hash on HDF5 dastaset does not match! "
+                                       "(%1 vs. expected %2; path: %3)")
+                           .arg(otherHash.value(), hash, dset.path());
+        }
     }
+    else
+    {
+        gtWarning().medium()
+                << QObject::tr("No Hash attribute on HDF5 dataset found!");
+    }
+}
+
+inline void
+updateAttributes(const GenH5::DataSet& dset, QString const& hash)
+{
+    // update GTlab version attribute
+    dset.writeVersionAttribute(S_GT_VERSION_ATTR, s_currentGTlabVersion);
+    auto hashData = GenH5::makeFixedStr(hash);
+    if (hashData.stringSize() == 0)
+    {
+        hashData = QByteArrayLiteral("\0");
+    }
+    dset.writeAttribute(S_EXT_HASH_ATTR, hashData);
+}
+
+inline QString
+className(QString const& name)
+{
+    // class name contains
+    int idx = name.indexOf(QStringLiteral("$$"));
+    assert (idx >= 0);
+
+    return name.mid(0, idx);
+}
+
+inline QString
+extHash(QString const& name)
+{
+    // class name contains
+    int idx = name.indexOf(QStringLiteral("$$"));
+    assert (idx >= 0);
+
+    return name.mid(idx + 2);
 }
 
 }
 
 GtH5ExternalizeHelper::GtH5ExternalizeHelper(const GtExternalizedObject& obj) :
-    m_objClassName(obj.metaObject()->className()),
+    // we need not only the class name but also the externalized hash
+    // as we dont want to cause an ABI incompatibility we engrave the hash
+    // into this property (TODO: this should be fixed, see issue #488)
+    m_metaData(obj.metaObject()->className() +
+               QStringLiteral("$$") +
+               obj.extHash()),
     m_objUuid(obj.uuid())
-{
-
-}
+{ }
 
 GenH5::File
 GtH5ExternalizeHelper::openFile(GenH5::FileAccessFlags flags,
@@ -134,17 +195,29 @@ GtH5ExternalizeHelper::overwriteDataSet(const GenH5::DataType& dataType,
 
     // try retrieving by h5 reference
     auto dset = dereferenceDataSet(file, refVariant);
+    if (dset.isValid())
+    {
+        // make sure dataset has enough space
+        if (dset.dataSpace() != dataSpace || dset.dataType() != dataType)
+        {
+            dset.deleteRecursively();
+            dset = GenH5::DataSet{};
+        }
+    }
+
+    // recreate by path
     if (!dset.isValid())
     {
+
         // try retrieving by path
-        auto group =  file.root().createGroup(m_objClassName.toUtf8());
+        auto group =  file.root().createGroup(className(m_metaData).toUtf8());
         dset = group.createDataSet(m_objUuid.toUtf8(), dataType, dataSpace);
 
         // update ref
         referenceDataSet(dset, refVariant);
     }
-    // update version attribute
-    dset.writeVersionAttribute();
+
+    updateAttributes(dset, extHash(m_metaData));
     return dset;
 }
 
@@ -161,14 +234,14 @@ GtH5ExternalizeHelper::openDataSet(QVariant& refVariant,
     if (!dset.isValid())
     {
         // try retrieving by path
-        QStringList path{m_objClassName, m_objUuid};
+        QStringList path{className(m_metaData), m_objUuid};
         dset = file.root().openDataSet(path.join('/').toUtf8());
 
         // update ref
         referenceDataSet(dset, refVariant);
     }
 
-    checkVersionAttribute(dset);
+    checkAttributes(dset, extHash(m_metaData));
     return dset;
 }
 #endif

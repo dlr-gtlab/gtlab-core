@@ -9,13 +9,17 @@
 
 #include "gt_objectmementodiff.h"
 #include "gt_objectmemento.h"
+#include "gt_externalizedobject.h"
+#include "gt_qtutilities.h"
 #include "gt_objectio.h"
 #include "gt_algorithms.h"
 #include "gt_xmlexpr.h"
+#include "gt_objectfactory.h"
 
 #include <QCryptographicHash>
 #include <QHash>
 
+#include <tl/optional.hpp>
 #include <algorithm>
 
 using PD = GtObjectMemento::PropertyData;
@@ -163,21 +167,107 @@ GtObjectMementoDiff::numberOfDiffSteps()
     return retval;
 }
 
+/// helper struct for return value of setup function
+struct FetchMementoResult
+{
+    // indicates if setup was sucessful
+    bool success = true;
+    // optional replacement for left or right memento
+    tl::optional<GtObjectMemento> left{}, right{};
+};
+
+FetchMementoResult
+fetchExternalizedMementos(const GtObjectMemento& leftOrig,
+                          const GtObjectMemento& rightOrig,
+                          GtAbstractObjectFactory& factory)
+{
+    auto const externalizationInfoLeft = leftOrig.externalizationInfo(factory);
+
+    // not an externalized object -> nothing to do
+    if (!externalizationInfoLeft.isValid()) return {};
+
+    auto const externalizationInfoRight = rightOrig.externalizationInfo(factory);
+    assert(externalizationInfoRight.isValid());
+
+    // check if we can diff the data
+    if (!externalizationInfoLeft.isFetched &&
+        !externalizationInfoRight.isFetched &&
+        externalizationInfoLeft.hash != externalizationInfoRight.hash)
+    {
+        gtError() << QObject::tr("Inconsitency in externalized data for '%1' "
+                                 "detected! Aborting diff operation!")
+                     .arg(leftOrig.ident());
+        return { false };
+    }
+
+    if (externalizationInfoLeft.isFetched && externalizationInfoRight.isFetched)
+    {
+        // nothing to do here ->  both object mementos are fetched!
+        return {};
+    }
+
+    auto tmpInstanceLeft  = std::unique_ptr<QObject>(externalizationInfoLeft.metaObject->newInstance());
+    auto tmpInstanceRight = std::unique_ptr<QObject>(externalizationInfoRight.metaObject->newInstance());
+
+    auto externalizedObjectLeft  = gt::unique_qobject_cast<GtExternalizedObject>(std::move(tmpInstanceLeft));
+    auto externalizedObjectRight = gt::unique_qobject_cast<GtExternalizedObject>(std::move(tmpInstanceRight));
+
+    // check if object was recreated successfully
+    if (!externalizedObjectLeft ||
+        !externalizedObjectRight ||
+        !leftOrig.mergeTo(*externalizedObjectLeft, factory) ||
+        !rightOrig.mergeTo(*externalizedObjectRight, factory))
+    {
+        gtError() << QObject::tr("Failed to restore externalized object data "
+                                 "of '%1' for diff creation!")
+                     .arg(leftOrig.ident());
+        return { false };
+    }
+
+    // check which memento to fetch
+    bool fetchLeft = !externalizationInfoLeft.isFetched;
+
+    auto const& externalizationInfo =
+            fetchLeft ? externalizationInfoLeft : externalizationInfoRight;
+    auto& objectToFetch =
+            fetchLeft ? externalizedObjectLeft  : externalizedObjectRight;
+    auto& fetchedObject =
+            fetchLeft ? externalizedObjectRight : externalizedObjectLeft;
+
+    // check if object must be fetched
+    if (externalizationInfo.hash == fetchedObject->calcExtHash())
+    {
+        // nothing to do here -> diffs are equal
+        return {};
+    }
+
+    if (!objectToFetch->internalize())
+    {
+        gtError() << QObject::tr("Failed to internalize %1 memento for '%2'!")
+                     .arg(fetchLeft ? "left" : "right", leftOrig.ident());
+        return { false };
+    }
+
+    FetchMementoResult result{};
+    (fetchLeft ? result.left : result.right) = objectToFetch->toMemento();
+    return result;
+}
+
 bool
-GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
-                              const GtObjectMemento& right,
+GtObjectMementoDiff::makeDiff(const GtObjectMemento& leftOrig,
+                              const GtObjectMemento& rightOrig,
                               QDomElement& diffRoot)
 {
     // update hashes if needed
-    left.calculateHashes();
-    right.calculateHashes();
-    if (left.fullHash() == right.fullHash() && diffRoot.isNull())
+    leftOrig.calculateHashes();
+    rightOrig.calculateHashes();
+    if (leftOrig.fullHash() == rightOrig.fullHash() && diffRoot.isNull())
     {
         gtDebug() << QObject::tr("compared object mementos are identical!");
         return true;
     }
 
-    if (left.uuid() != right.uuid())
+    if (leftOrig.uuid() != rightOrig.uuid())
     {
         gtWarning() << QObject::tr("root objects not equal!");
         QDomElement rootError =
@@ -192,6 +282,15 @@ GtObjectMementoDiff::makeDiff(const GtObjectMemento& left,
         }
         return false;
     }
+
+    // left or right memento may needs to be fetched in case it belongs to an
+    // externalized object
+    auto setup = fetchExternalizedMementos(leftOrig, rightOrig, *gtObjectFactory);
+
+    if (!setup.success) return false;
+
+    const GtObjectMemento& left =  setup.left.value_or(leftOrig);
+    const GtObjectMemento& right = setup.right.value_or(rightOrig);
 
     // create diff element to store changes
     QDomElement diffObj = this->createElement(gt::xml::S_OBJECT_TAG);

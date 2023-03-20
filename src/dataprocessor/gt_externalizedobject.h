@@ -85,7 +85,7 @@ public:
     GtExternalizedObjectData& operator=(GtExternalizedObjectData&&) = default;
 
     /**
-     * @brief isValid. Will delegate to virtual iSvaid method of base class
+     * @brief isValid. Will delegate to virtual isDataValid method of base class
      * @return whether base pointer is valid and object is fetched
      */
     bool isValid() const;
@@ -101,6 +101,7 @@ protected:
  * Represents a data object that may externalize (some of) its data at runtime
  * to reduce overall resource usage.
  */
+struct GtExternalizedObjectPrivate;
 class GT_DATAMODEL_EXPORT GtExternalizedObject : public GtObject
 {
     Q_OBJECT
@@ -142,6 +143,20 @@ public:
      * @return whether the object is fetched.
      */
     Q_INVOKABLE bool isFetched() const;
+
+    /**
+     * @brief Calculates a special hash of this object used to check for changes
+     * in the externalized data. Member variables of this class do not count
+     * towards a different hash.
+     * @return new hash
+     */
+    QString calcExtHash();
+
+    /**
+     * @brief Getter for the hash of the externalized data
+     * @return
+     */
+    QString const& extHash() const;
 
 protected:
 
@@ -195,8 +210,7 @@ protected:
 
 private:
 
-    struct Impl;
-    std::unique_ptr<Impl> pimpl;
+    std::unique_ptr<GtExternalizedObjectPrivate> pimpl;
 
     /**
      * @brief Increments ref count and fetches the data if not fetched yet.
@@ -235,14 +249,6 @@ private:
      * @return whether the object changed compared to the externalized version
      */
     bool hasModifiedData(const QString& otherHash) const;
-
-    /**
-     * @brief Calculates a special hash of this object used to check for changes
-     * in the externalized data. Member variables of this class do not count
-     * towards a different hash.
-     * @return new hash
-     */
-    QString calcExtHash();
 };
 
 #endif // GTEXTERNALIZEDOBJECT_H

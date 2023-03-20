@@ -79,6 +79,7 @@ SOURCES += \
 SOURCES += $$files(datamodel/*.cpp)
 SOURCES += $$files(calculators/*.cpp)
 SOURCES += $$files(core/*.cpp)
+SOURCES += $$files(thirdparty/*.cpp)
 SOURCES += $$files(exporter/*.cpp)
 SOURCES += $$files(mdi/*.cpp)
 #SOURCES += $$files(network/*.cpp)
@@ -120,6 +121,20 @@ LIBS += -L$${BUILD_DEST_TEMP}
 # Use of pre compiled logging header to reduce compile time
 PRECOMPILED_HEADER = $${GTLAB_LOGGING_PATH}/include/logging/gt_logging.h
 
+contains(USE_HDF5, true) {
+    message("USE_HDF5 = true")
+    DEFINES += GT_H5
+
+    CONFIG(debug, debug|release) {
+        win32: LIBS += -lhdf5_D -lhdf5_cpp_D
+        unix: LIBS += -lhdf5 -lhdf5_cpp
+        LIBS += -lGenH5-d
+    } else {
+        LIBS += -lhdf5 -lhdf5_cpp
+        LIBS += -lGenH5
+    }
+}
+
 CONFIG(debug, debug|release){
     # Utilities
     LIBS += -lGTlabLogging-d
@@ -127,16 +142,6 @@ CONFIG(debug, debug|release){
     LIBS += -lGTlabDataProcessor-d -lGTlabCore-d
     # GUI
     LIBS += -lGTlabGui-d
-
-    # THIRD PARTY
-    win32 {
-    }
-    unix {
-        contains(USE_HDF5, true) {
-            LIBS += -lhdf5 -lhdf5_cpp
-            LIBS += -lGenH5-d
-        }
-    }
 } else {
     # Utilities
     LIBS += -lGTlabLogging
@@ -144,14 +149,6 @@ CONFIG(debug, debug|release){
     LIBS += -lGTlabDataProcessor -lGTlabCore
     # GUI
     LIBS += -lGTlabGui
-
-    # THIRD PARTY
-    unix {
-        contains(USE_HDF5, true) {
-            LIBS += -lhdf5 -lhdf5_cpp
-            LIBS += -lGenH5
-        }
-    }
 }
 
 # third party

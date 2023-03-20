@@ -1,0 +1,28 @@
+/* GTlab - Gas Turbine laboratory
+ * copyright 2009-2023 by DLR
+ *
+ *  Created on: 14.3.2023
+ *  Author: Marius Bröcker (AT-TWK)
+ *  E-Mail: marius.broecker@dlr.de
+ */
+
+#ifndef GT_VERSION_H
+#define GT_VERSION_H
+
+#define GT_VERSION_MAJOR 2
+#define GT_VERSION_MINOR 0
+#define GT_VERSION_PATCH 0
+#define GT_VERSION_PRE_RELEASE "beta.2"
+#define GT_VERSION_BUILD "0"
+
+/*
+   GT_VERSION is (major << 16) + (minor << 8) + patch.
+*/
+#define GT_VERSION      GT_VERSION_CHECK(GT_VERSION_MAJOR, GT_VERSION_MINOR, GT_VERSION_PATCH)
+
+/*
+   can be used like #if (GT_VERSION >= GT_VERSION_CHECK(4, 4, 0))
+*/
+#define GT_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
+
+#endif // GT_VERSION_H

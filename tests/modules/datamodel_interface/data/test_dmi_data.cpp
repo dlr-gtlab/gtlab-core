@@ -7,11 +7,11 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include "test_dmi_class.h"
+#include "test_dmi_data.h"
 #include "gt_structproperty.h"
 #include "gt_stringproperty.h"
 
-TestDmClass::TestDmClass() :
+TestDmiData::TestDmiData() :
     m_value("value", "Value", "Value to use in Example",
             GtUnit::EnergyDensity, 1.0),
     m_container("notes", "notes"),
@@ -19,7 +19,9 @@ TestDmClass::TestDmClass() :
     m_propTypeA("Type A", "Type A brief"),
     m_propTypeB("Type B", "Type B brief")
 {
-    setObjectName("DMI Object");
+    setObjectName("Internal_Data");
+    setFlag(UserDeletable);
+    setFlag(UserRenamable);
 
     registerProperty(m_value);
 
@@ -30,10 +32,8 @@ TestDmClass::TestDmClass() :
 
     registerPropertyStructContainer(m_container);
 
-
     m_mode.registerSubProperty(m_propTypeA);
     m_mode.registerSubProperty(m_propTypeB);
 
     registerProperty(m_mode);
-
 }

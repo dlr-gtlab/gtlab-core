@@ -1,5 +1,5 @@
-#ifndef VARIANTHASHER_H
-#define VARIANTHASHER_H
+#ifndef GT_INTERNAL_VARIANTHASHER_H
+#define GT_INTERNAL_VARIANTHASHER_H
 
 #include "gt_datamodel_exports.h"
 
@@ -33,4 +33,4 @@ namespace gt
 } // namespace gt
 
 
-#endif // VARIANTHASHER_H
+#endif // GT_INTERNAL_VARIANTHASHER_H

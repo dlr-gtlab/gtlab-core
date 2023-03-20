@@ -7,7 +7,8 @@
  */
 
 #include "test_dmi_package.h"
-#include "test_dmi_class.h"
+#include "test_dmi_data.h"
+#include "test_dmi_externalobject.h"
 
 #include "gt_functionalinterface.h"
 
@@ -37,7 +38,8 @@ TestDatamodelInterface::data()
 {
     QList<QMetaObject> metaData;
 
-    metaData << GT_METADATA(TestDmClass);
+    metaData << GT_METADATA(TestDmiData);
+    metaData << GT_METADATA(TestDmiExternalObject);
 
     return metaData;
 }

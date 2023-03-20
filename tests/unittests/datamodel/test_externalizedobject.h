@@ -27,11 +27,17 @@ public:
 
     const QVector<double>& values() const;
 
-    void setValues(const QVector<double>& values);
+    void setValues(const QVector<double>& values) &;
 
-    void setAsInitialValues(const QVector<double>& values);
+    const QStringList& params() const;
 
-    void clearValues();
+    void setParams(const QStringList& params) &;
+
+    void setInitialValues(const QVector<double>& values) &;
+
+    void setInitialParams(const QStringList& params) &;
+
+    void clearValues() &;
 };
 
 
@@ -41,6 +47,8 @@ class TestExternalizedObject : public GtExternalizedObject
 
     Q_PROPERTY(QVector<double> values MEMBER m_values)
 
+    Q_PROPERTY(QStringList params MEMBER m_params)
+
     GT_DECL_DATACLASS(TestExternalizedObjectData)
 
 public:
@@ -48,7 +56,11 @@ public:
     Q_INVOKABLE TestExternalizedObject() = default;
 
     /// access to internal data for testing purpose
-    const QVector<double> &internalData() const;
+    const QVector<double>& internalValues() const;
+    const QStringList& internalParams() const;
+
+    /// check if the data was used with params
+    bool hasParams() const;
 
     /// forwarding internal methods and member for easier testing
     bool fetchInitialVersion() const
@@ -101,11 +113,15 @@ protected:
 
 private:
 
-    /// simple int data to test externalization
+    /// simple double data to test externalization
     QVector<double> m_values;
+    /// optional string data to test externalization for compound data
+    QStringList m_params;
 
     /// simulates initial values
     QVector<double> m_initialValues;
+    /// simulates initial params
+    QStringList m_initialParams;
 };
 
 #endif // TEST_EXTERNALOBECT_H

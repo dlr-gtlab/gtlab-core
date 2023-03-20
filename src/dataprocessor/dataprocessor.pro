@@ -75,8 +75,10 @@ HEADERS += \
     gt_typetraits.h \
     gt_utilities.h \
     gt_variantconvert.h \
+    gt_version.h \
     gt_xmlexpr.h \
     gt_xmlutilities.h \
+    internal/gt_externalizedobjectprivate.h \
     internal/varianthasher.h \
     property/gt_enumproperty.h \
     property/gt_objectlinkproperty.h \
@@ -117,6 +119,7 @@ HEADERS += \
     gt_mpl.h \
     gt_versionnumber.h \
     thirdparty/mpark/variant.hpp
+    thirdparty/tl/optional.hpp
 
 SOURCES += \
     gt_abstractexternalizationinterface.cpp \
@@ -217,7 +220,10 @@ unix:{
 
 contains(BUILD_DEPLOY, true) {
 
-    KEEP_INCLUDEPATHS = thirdparty/mpark
+    KEEP_INCLUDEPATHS += \
+        thirdparty/mpark \
+        thirdparty/tl
+
     PRIVATE_INCLUDEPATHS += internal
 
     copyHeaders($$HEADERS, $$KEEP_INCLUDEPATHS, $$PRIVATE_INCLUDEPATHS)

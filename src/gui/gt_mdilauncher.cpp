@@ -301,11 +301,11 @@ GtMdiLauncher::isPrintable(QWidget* subWindow) const
 bool
 GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 {
-
     if (m_dockWidgets.contains(metaObj.className()))
     {
-        gtWarning().medium() << tr("Dock widget '%1' already registered")
-                                .arg(metaObj.className());
+        gtWarning().medium()
+                << tr("Dockwidget '%1' was already registered")
+                   .arg(metaObj.className());
         return false;
     }
 
@@ -317,13 +317,14 @@ GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 bool
 GtMdiLauncher::dockWidgetsExist(const QList<QMetaObject>& metaData)
 {
-    foreach (const QMetaObject& mobj, metaData)
+    for (const QMetaObject& mobj : metaData)
     {
         QString classname = mobj.className();
         if (m_dockWidgets.contains(classname))
         {
             gtWarning().medium()
-                    << tr("Dock widget class name already exists!");
+                    << tr("Dockwidget '%1' was already registered")
+                       .arg(classname);
             return true;
         }
     }
@@ -338,7 +339,7 @@ GtMdiLauncher::registerDockWidgets(const QList<QMetaObject>& metaData)
         return false;
     }
 
-    foreach (const QMetaObject& metaObj, metaData)
+    for (const QMetaObject& metaObj : metaData)
     {
         m_dockWidgets.insert(metaObj.className(), metaObj);
     }
@@ -370,6 +371,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     if (!knownClass(id))
     {
+        gtWarning().medium() << tr("Unknown Mdi item '%1'!").arg(id);
         return nullptr;
     }
 

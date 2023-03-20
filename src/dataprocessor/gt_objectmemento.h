@@ -216,7 +216,6 @@ public:
 
     };
 
-
     /**
      * @brief Searches a property by its name
      * @param list The list to search for
@@ -225,7 +224,6 @@ public:
      */
     static PropertyData const *
     findPropertyByName(const QVector<PropertyData>& list, const QString& name);
-
 
     /**
      * @brief get hash of this object's properties
@@ -241,6 +239,17 @@ public:
      * @brief update fullHash and propertyHash, needs to be called before accessing these
      */
     void calculateHashes() const;
+
+    struct ExternalizationInfo
+    {
+        bool isFetched = true;
+        QByteArray hash{};
+        const QMetaObject* metaObject{};
+
+        bool isValid() const { return metaObject != nullptr; }
+    };
+
+    ExternalizationInfo externalizationInfo(const GtAbstractObjectFactory& factory) const;
 
     QVector<PropertyData> properties;
     QVector<PropertyData> propertyContainers;

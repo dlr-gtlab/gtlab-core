@@ -16,11 +16,13 @@
 #include <QDataStream>
 #include <QtGlobal>
 #include <QDebug>
+#include <QMetaType>
 
 #include <cfloat>
 #include <typeinfo>
 
 #include "gt_object.h"
+#include "gt_externalizedobject.h"
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_objectmementodiff.h"
@@ -350,7 +352,19 @@ applyDiffOnObject(QDomElement& parent, GtObject* parentObject, DiffMode mode)
     const auto& diffFuncs = getDiffFuncs();
 
     QDomElement diffTag = parent.firstChildElement();
-    while (!diffTag.isNull())
+
+    if (diffTag.isNull())
+    {
+        return okay;
+    }
+
+    // object must be fetched when applying/reverting diff
+    if (auto* ext = qobject_cast<GtExternalizedObject*>(parentObject))
+    {
+        ext->internalize();
+    }
+
+    do
     {
         auto iter = diffFuncs.find(diffTag.tagName());
 
@@ -362,6 +376,7 @@ applyDiffOnObject(QDomElement& parent, GtObject* parentObject, DiffMode mode)
 
         diffTag = diffTag.nextSiblingElement();
     }
+    while (!diffTag.isNull());
 
     return okay;
 }
@@ -390,7 +405,6 @@ GtObjectIO::applyDiff(GtObjectMementoDiff& diff, GtObject* obj)
         }
 
         GtObject* parentObject = obj->getObjectByUuid(parentUUID);
-
 
         if (!applyDiffOnObject(parent, parentObject, DiffMode::Apply))
         {
@@ -430,7 +444,6 @@ GtObjectIO::revertDiff(GtObjectMementoDiff& diff, GtObject* obj)
         }
 
         GtObject* parentObject = obj->getObjectByUuid(parentUUID);
-
 
         if (!applyDiffOnObject(parent, parentObject, DiffMode::Revert))
         {
@@ -1481,9 +1494,10 @@ handleObjectRemove(GtObject& parent,
     return true;
 }
 
-bool handleObjectAddRemove(GtObject& target,
-                           const QDomElement& diffTag,
-                           DiffMode mode)
+bool
+handleObjectAddRemove(GtObject& target,
+                      const QDomElement& diffTag,
+                      DiffMode mode)
 {
     assert(diffTag.tagName() == gt::xml::S_DIFF_OBJ_ADD_TAG ||
            diffTag.tagName() == gt::xml::S_DIFF_OBJ_REMOVE_TAG);

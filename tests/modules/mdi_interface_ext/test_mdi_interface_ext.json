@@ -1,5 +1,6 @@
 {
 	"dependencies" : [
-		{ "name" : "Test Mdi Interface", "version" : "1.2.3" }
+		{ "name" : "Test Mdi Interface", "version" : "1.2.3" },
+                { "name" : "Test Datamodel Interface", "version" : "1" }
 	]
 }

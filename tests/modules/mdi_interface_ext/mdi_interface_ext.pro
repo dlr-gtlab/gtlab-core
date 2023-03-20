@@ -34,13 +34,16 @@ INCLUDEPATH += . \
     data \
     mdi \
     ../mdi_interface \
-    ../mdi_interface/data
+    ../mdi_interface/data \
+    ../datamodel_interface/ \
+    ../datamodel_interface/data
 
 # Core
 INCLUDEPATH += ../../../include/core
 LIBS        += -L../../../lib/core
 DEPENDPATH  += ../../../lib/core
 
+# other test modules
 LIBS        += -L$${BUILD_DEST}
 DEPENDPATH  += $${BUILD_DEST}
 
@@ -50,6 +53,8 @@ DESTDIR = $${BUILD_DEST}
 PRECOMPILED_HEADER = $${GTLAB_LOGGING_PATH}/include/logging/gt_logging.h
 
 HEADERS += \
+    mdi/test_mdi_ext_externalobjectui.h \
+    mdi/test_mdi_ext_externalobjectviewer.h \
     mdi/test_mdi_ext_packageui.h \
     data/test_mdi_ext_package.h \
     mdi/test_mdi_ext_viewer.h \
@@ -57,6 +62,8 @@ HEADERS += \
 
 
 SOURCES += \
+    mdi/test_mdi_ext_externalobjectui.cpp \
+    mdi/test_mdi_ext_externalobjectviewer.cpp \
     mdi/test_mdi_ext_packageui.cpp \
     data/test_mdi_ext_package.cpp \
     mdi/test_mdi_ext_viewer.cpp \
@@ -66,11 +73,13 @@ CONFIG(debug, debug|release){
     # GTLAB CORE
     LIBS += -lGTlabLogging-d
     LIBS += -lGTlabCore-d -lGTlabDataProcessor-d -lGTlabGui-d
+    LIBS += -lTestDatamodelInterface-d
     LIBS += -lTestMdiInterface-d
 } else {
     # GTLAB CORE
     LIBS += -lGTlabLogging
     LIBS += -lGTlabCore -lGTlabDataProcessor -lGTlabGui
+    LIBS += -lTestDatamodelInterface
     LIBS += -lTestMdiInterface
 }
 

@@ -10,6 +10,10 @@
 #include "test_mdi_ext_package.h"
 #include "test_mdi_ext_packageui.h"
 #include "test_mdi_ext_viewer.h"
+#include "test_mdi_ext_externalobjectviewer.h"
+#include "test_mdi_ext_externalobjectui.h"
+
+#include "test_dmi_externalobject.h"
 
 /**
  * generated (v 0.1)
@@ -50,6 +54,7 @@ TestDatamodelInterfaceExt::mdiItems()
     QList<QMetaObject> retval{};
 
     retval << GT_METADATA(TestMdiExtViewer);
+    retval << GT_METADATA(TestMdiExtExternalObjectViewer);
 
     return retval;
 }
@@ -59,7 +64,11 @@ TestDatamodelInterfaceExt::uiItems()
 {
     QMap<const char*, QMetaObject> retval;
 
-    retval.insert(GT_CLASSNAME(TestMdiPackage), GT_METADATA(TestMdiExtPackageUI));
+    retval.insert(GT_CLASSNAME(TestMdiPackage),
+                  GT_METADATA(TestMdiExtPackageUI));
+
+    retval.insert(GT_CLASSNAME(TestDmiExternalObject),
+                  GT_METADATA(TestMdiExtExternalObjectUI));
 
     return retval;
 }

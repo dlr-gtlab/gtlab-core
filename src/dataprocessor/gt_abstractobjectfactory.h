@@ -103,7 +103,18 @@ public:
      */
     bool allInvokable(const QList<QMetaObject>& metaData);
 
+    /**
+     * @brief Returns the meta object for a given type
+     *
+     * Returns nullptr, if the type is unknown
+     *
+     * @param clzName Class / type name
+     * @return pointer to meta object
+     */
+    const QMetaObject* metaObject(const QString& clzName) const;
+
 protected:
+
     /// registered meta objects
     QHash<QString, QMetaObject> m_knownClasses;
 

@@ -18,7 +18,6 @@
 namespace gt
 {
 
-
 /**
  * @brief Similiar to const_cast but exclusively for casting a container of
  * pointers to a container of const pointers.
@@ -34,7 +33,7 @@ namespace gt
  * @return Const container
  */
 template<template<class...> class Vec, typename... T>
-auto& container_const_cast(Vec<T...>& contianer)
+inline auto& container_const_cast(Vec<T...>& contianer)
 {
     void* ptr = static_cast<void*>(&contianer); // :)
     return *static_cast<Vec<gt::trait::to_const_t<T>...>*>(ptr);
@@ -46,7 +45,7 @@ auto& container_const_cast(Vec<T...>& contianer)
  * @return Const container
  */
 template<template<class...> class Vec, typename... T>
-auto const& container_const_cast(Vec<T...> const& contianer)
+inline auto const& container_const_cast(Vec<T...> const& contianer)
 {
     void const* ptr = static_cast<void const*>(&contianer); // :)
     return *static_cast<Vec<gt::trait::to_const_t<T>...> const*>(ptr);
@@ -58,7 +57,7 @@ auto const& container_const_cast(Vec<T...> const& contianer)
  * @return Const container
  */
 template<template<class...> class Vec, typename... T>
-auto container_const_cast(Vec<T...>&& contianer)
+inline auto container_const_cast(Vec<T...>&& contianer)
 {
     void* ptr = static_cast<void*>(&contianer); // :)
     return *static_cast<Vec<gt::trait::to_const_t<T>...>*>(ptr);
@@ -80,7 +79,7 @@ auto container_const_cast(Vec<T...>&& contianer)
  * @return
  */
 template<typename Derived, typename Base>
-std::unique_ptr<Derived>
+inline std::unique_ptr<Derived>
 unique_qobject_cast(std::unique_ptr<Base>&& basePtr) noexcept
 {
     auto derivedPtr = std::unique_ptr<Derived>(
@@ -104,7 +103,8 @@ unique_qobject_cast(std::unique_ptr<Base>&& basePtr) noexcept
 template <typename Container,
           typename T = gt::trait::value_t<Container>,
           gt::trait::enable_if_ptr_derived_of_qobject<T> = true>
-QStringList objectNames(Container const& t)
+inline QStringList
+objectNames(Container const& t)
 {
     QStringList names;
     std::transform(std::begin(t), std::end(t),
