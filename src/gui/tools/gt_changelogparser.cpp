@@ -12,6 +12,8 @@
 #include <QRegularExpressionMatch>
 #include <QRegularExpression>
 
+#include "gt_regexp.h"
+
 GtChangeLogParser::GtChangeLogParser(const QString& fileContent)
 {
     parse(fileContent);
@@ -146,11 +148,16 @@ GtChangeLogEntry::versionFromMD(const QString& content)
 {
     /// to find the version number exactly
     /// to get the GtVersionnumber based on it.
-    static QRegularExpression e("\\[([0-9].){1,3}\\-?[a-z,0-9]+\\]");
+    static QRegularExpression e(QString(R"(\[(%1)\])")
+                                    .arg(gt::re::forSemVers().pattern()));
+
     QRegularExpressionMatch match = e.match(content);
-    QString v = match.captured();
-    v.remove(v.size() - 1, 1).remove(0, 1);
-    return GtVersionNumber(v);
+    if (match.hasMatch())
+    {
+        return GtVersionNumber(match.captured(1));
+    }
+    return GtVersionNumber{};
+
 }
 
 QDate
