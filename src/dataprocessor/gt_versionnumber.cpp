@@ -187,7 +187,7 @@ GtVersionNumber::GtVersionNumber(const QString& versStr) :
 
     std::string str = versStr.toStdString();
 
-    if (std::regex_search(str, results, expr)) {
+    if (std::regex_match(str, results, expr)) {
         int major = (int)atof(results[1].str().c_str());
 
         if (results[3].length() != 0)
