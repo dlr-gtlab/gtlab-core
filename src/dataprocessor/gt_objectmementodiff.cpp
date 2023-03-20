@@ -227,7 +227,7 @@ fetchExternalizedMementos(const GtObjectMemento& leftOrig,
     // check which memento to fetch
     bool fetchLeft = !externalizationInfoLeft.isFetched;
 
-    auto& externalizationInfo =
+    auto const& externalizationInfo =
             fetchLeft ? externalizationInfoLeft : externalizationInfoRight;
     auto& objectToFetch =
             fetchLeft ? externalizedObjectLeft  : externalizedObjectRight;
