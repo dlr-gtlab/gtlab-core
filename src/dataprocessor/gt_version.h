@@ -12,7 +12,7 @@
 #define GT_VERSION_MAJOR 2
 #define GT_VERSION_MINOR 0
 #define GT_VERSION_PATCH 0
-#define GT_VERSION_PRE_RELEASE "beta.2"
+#define GT_VERSION_PRE_RELEASE "rc.1"
 #define GT_VERSION_BUILD "0"
 
 /*
