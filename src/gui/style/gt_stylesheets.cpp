@@ -161,7 +161,7 @@ comboBoxHelper(const QString& width = {})
             "QComboBox {"
             " border: 1px solid %1;"
             " border-radius: 4px;"
-            " min-height:15px"
+            " min-height: 15px;"
             " %2"
             "}"
             "QComboBox::drop-down {"

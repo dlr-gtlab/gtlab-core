@@ -29,28 +29,23 @@ gt::gui::SvgColorData::SvgColorData() :
 gt::gui::SvgColorData::SvgColorData(ColorFunctor _normal,
                                     ColorFunctor _disabled,
                                     ColorFunctor _selected) :
-    SvgColorData()
-{
-    if (_normal) normal = std::move(_normal);
-    if (_disabled) disabled = std::move(_disabled);
-    if (_selected) selected = std::move(_selected);
-}
+    normal(_normal ?     std::move(_normal)   : color::text),
+    disabled(_disabled ? std::move(_disabled) : this->normal),
+    selected(_selected ? std::move(_selected) : this->normal)
+{ }
 
 gt::gui::SvgColorData::SvgColorData(QColor const& _normal,
                                     QColor const& _disabled,
                                     QColor const& _selected) :
-    SvgColorData()
-{
-    if (_normal.isValid()) normal = [=](){ return _normal; };
-    if (_disabled.isValid()) normal = [=](){ return _disabled; };
-    if (_selected.isValid()) normal = [=](){ return _selected; };
-}
+    normal(_normal.isValid() ?     ColorFunctor([=](){ return _normal; })   :
+                                   color::text),
+    disabled(_disabled.isValid() ? ColorFunctor([=](){ return _disabled; }) :
+                                   this->normal),
+    selected(_selected.isValid() ? ColorFunctor([=](){ return _selected; }) :
+                                   this->normal)
+{ }
 
-GtSvgIconEngine::GtSvgIconEngine()
-{
-    assert(gtApp);
-    m_dark = gtApp->inDarkMode();
-}
+GtSvgIconEngine::GtSvgIconEngine() = default;
 
 GtSvgIconEngine::GtSvgIconEngine(const QString& path) :
     GtSvgIconEngine()
@@ -106,7 +101,7 @@ GtSvgIconEngine::addFile(const QString& fileName,
     m_file = fileName;
     m_svg = std::move(data);
 
-    updateColor(mode);
+    applyColor(mode);
 }
 
 void
@@ -120,10 +115,7 @@ GtSvgIconEngine::paint(QPainter* painter,
     assert(painter);
     painter->setRenderHint(QPainter::Antialiasing);
 
-    if (m_mode != mode || m_dark != gtApp->inDarkMode())
-    {
-        updateColor(mode);
-    }
+    applyColor(m_color.color(mode));
 
     QSvgRenderer renderer(m_svg);
     renderer.setAspectRatioMode(Qt::KeepAspectRatio);
@@ -181,15 +173,6 @@ GtSvgIconEngine::applyColor(const QColor& color)
                       prefix + color.name().toUtf8() + suffix);
         m_svgIdx = idx + prefix.size();
     }
-}
-
-void
-GtSvgIconEngine::updateColor(QIcon::Mode mode)
-{
-    m_mode = mode;
-    m_dark = gtApp->inDarkMode();
-
-    applyColor(m_color.color(mode));
 }
 
 void

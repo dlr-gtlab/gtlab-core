@@ -25,6 +25,7 @@
 #include "gt_propertyconnection.h"
 #include "gt_processcomponentmodel.h"
 #include "gt_icons.h"
+#include "gt_colors.h"
 #include "gt_taskgroup.h"
 
 using namespace gt::gui;
@@ -191,7 +192,7 @@ GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state,
             return gt::gui::icon::sleep();
 
         case GtProcessComponent::FAILED:
-            return gt::gui::icon::error();
+            return gt::gui::icon::errorColorized();
 
         case GtProcessComponent::FINISHED:
             return gt::gui::icon::check();
@@ -203,13 +204,15 @@ GtProcessComponentModel::stateToIcon(GtProcessComponent::STATE state,
             return gt::gui::icon::skip();
 
         case GtProcessComponent::TERMINATION_REQUESTED:
-            return gt::gui::icon::timer();
+        return gt::gui::colorize(gt::gui::icon::timer(),
+                                 gt::gui::color::errorText);
 
         case GtProcessComponent::TERMINATED:
-            return gt::gui::icon::stop();
+            return gt::gui::colorize(gt::gui::icon::stop(),
+                                     gt::gui::color::errorText);
 
         case GtProcessComponent::WARN_FINISHED:
-            return gt::gui::icon::warning();
+            return gt::gui::icon::warningColorized();
 
         default:
             break;
@@ -235,10 +238,7 @@ GtProcessComponentModel::stateToString(GtProcessComponent::STATE state,
             {
                 return tr("Running");
             }
-            else
-            {
-                return tr("Progress: ") + QString::number(progress) + "%";
-            }
+            return tr("Progress: ") + QString::number(progress) + "%";
 
         case GtProcessComponent::QUEUED:
             return tr("Queued");

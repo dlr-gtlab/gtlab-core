@@ -28,3 +28,14 @@ TEST_F(TestGtSvgIconEngine, SvgColorData_implicit_conversion)
     toSvgColorData(QColor{Qt::red});
     toSvgColorData(ColorFunctor{[](){ return Qt::red; }});
 }
+
+// test that this compiles
+TEST_F(TestGtSvgIconEngine, SvgColorData_setters)
+{
+    using namespace gt::gui;
+
+    auto data = SvgColorData{color::basicDark}
+                .setSelectedColor(Qt::red)
+                .setDisabledColor(QColor{Qt::blue})
+                .setNormalColor([](){ return Qt::green; });
+}
