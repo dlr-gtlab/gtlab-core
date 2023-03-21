@@ -212,6 +212,8 @@ GT_GUI_EXPORT QColor randomColor();
 
 GT_GUI_EXPORT QColor gridLine();
 
+GT_GUI_EXPORT QColor gridLineMinor();
+
 GT_GUI_EXPORT QColor gridPoint();
 
 GT_GUI_EXPORT QColor gridAxis();

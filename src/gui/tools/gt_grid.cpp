@@ -27,9 +27,9 @@ GtGrid::GtGrid(GtGraphicsView& view) :
     m_showGridPoints(false),
     m_showAxis(false),
     m_hideGrid(false),
-    m_hgColor(gt::gui::color::gridLineColor()),
-    m_vgColor(gt::gui::color::gridLineColor()),
-    m_gpColor(gt::gui::color::gridPointColor()),
+    m_hgColor(gt::gui::color::gridLine()),
+    m_vgColor(gt::gui::color::gridLine()),
+    m_gpColor(gt::gui::color::gridPoint()),
     m_hRuler(nullptr),
     m_vRuler(nullptr)
 {
@@ -193,7 +193,6 @@ GtGrid::setGridScaleFactor(int val)
     {
         m_vRuler->setNeedsRepaint(true);
     }
-
 }
 
 void
@@ -333,6 +332,47 @@ GtGrid::showGrid(bool val)
     emit update();
 }
 
+
+template <int NLinesPrealloc>
+void
+paintGridLinesImpl(const QRectF& sceneRect,
+                   double vLineDistance,
+                   double hLineDistance,
+                   const QColor& lineColor,
+                   QPainter* painter)
+{
+    // draw also minor grid lines
+    Q_ASSERT(vLineDistance > 0);
+    Q_ASSERT(hLineDistance > 0);
+
+    qreal firstVLineXPos = int(sceneRect.left()) - (int(sceneRect.left())
+                         % (static_cast<int>(std::ceil(vLineDistance))));
+    qreal firstHLineYPos = int(sceneRect.top()) - (int(sceneRect.top())
+                         % (static_cast<int>(std::ceil(hLineDistance))));
+
+    QVarLengthArray<QLineF, NLinesPrealloc> hLinesMinor;
+    QVarLengthArray<QLineF, NLinesPrealloc> vLinesMinor;
+
+    for (qreal y = firstHLineYPos; y < sceneRect.bottom(); y += hLineDistance)
+    {
+        hLinesMinor.append(QLineF(sceneRect.left(), y, sceneRect.right(), y));
+    }
+
+    for (qreal x = firstVLineXPos; x < sceneRect.right(); x += vLineDistance)
+    {
+        vLinesMinor.append(QLineF(x, sceneRect.top(), x, sceneRect.bottom()));
+    }
+
+    QPen pen = painter->pen();
+    pen.setCosmetic(true);
+    pen.setColor(lineColor);
+
+    painter->setPen(pen);
+
+    painter->drawLines(hLinesMinor.data(), hLinesMinor.size());
+    painter->drawLines(vLinesMinor.data(), vLinesMinor.size());
+}
+
 void
 GtGrid::paintGridLines(QPainter* painter, const QRectF& rect)
 {
@@ -341,38 +381,35 @@ GtGrid::paintGridLines(QPainter* painter, const QRectF& rect)
         return;
     }
 
-    QVarLengthArray<QLineF, 100> hLines;
-    QVarLengthArray<QLineF, 100> vLines;
+    // minimum distance between to minor linex in device independent pixels
+    constexpr const auto minimalMinorLineDistance = 9u;
 
     // qCeil to prevent bad rounding and divison by zero in modulo operation
-    int tmpWidth = qCeil(getScaledGrid(Qt::Horizontal));
-    int tmpHeight = qCeil(getScaledGrid(Qt::Vertical));
+    const int tmpWidth = qCeil(getScaledGrid(Qt::Horizontal));
+    const int tmpHeight = qCeil(getScaledGrid(Qt::Vertical));
 
-    Q_ASSERT(tmpWidth > 0);
-    Q_ASSERT(tmpHeight > 0);
 
-    qreal left = int(rect.left()) - (int(rect.left()) % tmpWidth);
-    qreal top = int(rect.top()) - (int(rect.top()) % tmpHeight);
+    const qreal left = int(rect.left()) - (int(rect.left()) % tmpWidth);
+    const int nVLines = std::ceil(-(left - rect.right()) / tmpWidth);
 
-    for (qreal y = top; y < rect.bottom(); y += tmpHeight)
+
+    // compute n pixels between two vertical lines
+    const auto viewPixelSize = painter->worldTransform().map(
+        QPointF(rect.right(), rect.bottom()));
+
+    const auto majorLineDistance = viewPixelSize.x() / nVLines;
+
+    if(majorLineDistance > minimalMinorLineDistance * 10.)
     {
-        hLines.append(QLineF(rect.left(), y, rect.right(), y));
+        // draw also minor grid lines
+        const double tmpWidthMinor = static_cast<double>(tmpWidth) / 10.;
+        const double tmpHeightMinor = static_cast<double>(tmpHeight) / 10.;
+
+        paintGridLinesImpl<1000>(rect, tmpWidthMinor, tmpHeightMinor,
+                                gt::gui::color::gridLineMinor(), painter);
     }
 
-    for (qreal x = left; x < rect.right(); x += tmpWidth)
-    {
-        vLines.append(QLineF(x, rect.top(), x, rect.bottom()));
-    }
-
-    QPen pen = painter->pen();
-    pen.setCosmetic(true);
-    pen.setColor(m_hgColor);
-    painter->setPen(pen);
-    painter->drawLines(hLines.data(), hLines.size());
-    pen.setColor(m_vgColor);
-    painter->setPen(pen);
-    painter->drawLines(vLines.data(), vLines.size());
-
+    paintGridLinesImpl<100>(rect, tmpWidth, tmpWidth, m_hgColor, painter);
 }
 
 void

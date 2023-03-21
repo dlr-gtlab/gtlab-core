@@ -290,6 +290,14 @@ gt::gui::color::gridLineColor()
 }
 
 QColor
+gt::gui::color::gridLineMinor()
+{
+
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return QColor(150, 150, 150, 20);
+}
+
+QColor
 gt::gui::color::gridPointColor()
 {
     return gridPoint();
@@ -298,6 +306,12 @@ gt::gui::color::gridPointColor()
 QColor
 gt::gui::color::gridLine()
 {
+    if (gtApp->inDarkMode())
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+        return QColor(25, 25, 25, 255);
+    }
+
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return QColor(200, 200, 255, 125);
 }
