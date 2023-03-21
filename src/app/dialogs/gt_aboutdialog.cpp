@@ -23,6 +23,7 @@
 #include <QSpacerItem>
 #include <QApplication>
 #include <QDir>
+#include <QDesktopServices>
 
 #include "gt_application.h"
 #include "gt_filedialog.h"
@@ -65,7 +66,8 @@ GtAboutLogo::mouseDoubleClickEvent(QMouseEvent* event)
 }
 
 
-GtAboutDialog::GtAboutDialog(int startPage, QWidget* parent) : GtDialog(parent)
+GtAboutDialog::GtAboutDialog(GtAboutDialog::Tabs startPage,
+                             QWidget* parent) : GtDialog(parent)
 {
     setWindowTitle(tr("About GTlab"));
     setWindowIcon(gt::gui::icon::info2());
@@ -80,8 +82,7 @@ GtAboutDialog::GtAboutDialog(int startPage, QWidget* parent) : GtDialog(parent)
 
     if (gtApp->devMode())
     {
-        tabs->addTab(sharedFunctionsWidget(),
-                     tr("Shared functions"));
+        tabs->addTab(sharedFunctionsWidget(), tr("Shared functions"));
         addDevelopmentTabs(tabs);
     }
 
@@ -141,7 +142,7 @@ GtAboutDialog::coreAbout() const
 
     auto* copyLabel =
             new QLabel(QStringLiteral("GTlab - Gas Turbine laboratory\n"
-                                      "copyright 2022 by DLR\n"));
+                                      "copyright 2023 by DLR\n"));
 
     auto* versLabel =
             new QLabel(gtApp->version().toString() +
@@ -151,13 +152,15 @@ GtAboutDialog::coreAbout() const
     aboutHLay->addWidget(copyLabel);
     aboutHLay->addWidget(versLabel);
 
-    auto* iconLabel =
-            new QLabel(QStringLiteral("The icon set was created by "
-                                      "<a href=\"https://pictogrammers.com/\">"
-                                      "Pictogrammers</a>"));
-    iconLabel->setTextFormat(Qt::RichText);
-    iconLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    iconLabel->setOpenExternalLinks(true);
+    auto* iconLabel = new QPushButton(tr("License information"));
+    iconLabel->setFlat(true);
+    iconLabel->setContentsMargins(0, 0, 0, 0);
+    QFont f = iconLabel->font();
+    f.setUnderline(true);
+    iconLabel->setFont(f);
+    iconLabel->setStyleSheet("QPushButton {color : blue; border:none;}");
+
+    connect(iconLabel, SIGNAL(clicked()), SLOT(openLicenseFolder()));
 
     layout->addLayout(aboutHLay);
     layout->addSpacerItem(new QSpacerItem(5, 5, QSizePolicy::Minimum,
@@ -165,7 +168,8 @@ GtAboutDialog::coreAbout() const
 
     auto* btnLayout = new QHBoxLayout;
 
-    auto exportFootprintBtn = new QPushButton(tr("Export Framework Footprint"));
+    auto* exportFootprintBtn =
+            new QPushButton(tr("Export Framework Footprint"));
     exportFootprintBtn->setIcon(gt::gui::icon::export_());
     exportFootprintBtn->setFocusPolicy(Qt::NoFocus);
     btnLayout->addWidget(iconLabel);
@@ -243,9 +247,7 @@ GtAboutDialog::changeLogWidget() const
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    QString text = readChangeLog();
-
-    auto* textEdit = new GtChangeLogWidget(text);
+    auto* textEdit = new GtChangeLogWidget(readChangeLog());
 
     layout->addWidget(textEdit);
 
@@ -256,28 +258,73 @@ GtAboutDialog::changeLogWidget() const
 QWidget*
 GtAboutDialog::sharedFunctionsWidget()
 {
-    auto* dw = new GtSharedFunctionsWidget();
-
-    return dw;
+    return new GtSharedFunctionsWidget();
 }
 
 QString
 GtAboutDialog::readChangeLog() const
 {
+    return readApplicationDirFile("CHANGELOG.md");
+}
+
+void
+GtAboutDialog::addDevelopmentTabs(QTabWidget* tabs)
+{
+    auto entry = [this, tabs](QStringList const& entries, QString const& title)
+    {
+        auto* page = new QWidget(this);
+        tabs->addTab(page, title);
+        auto* layout = new QVBoxLayout;
+        auto* listWidget = new QListWidget;
+        listWidget->setFrameStyle(QListWidget::NoFrame);
+        listWidget->insertItems(0, entries);
+        listWidget->sortItems();
+        layout->addWidget(listWidget);
+        page->setLayout(layout);
+    };
+
+    // datamodel
+    entry(gtObjectFactory->knownClasses(), tr("Datamodel"));
+
+    // calculators
+    entry(gtProcessFactory->calculatorFactory()->knownClasses(),
+          tr("Calculators"));
+
+    // tasks
+    QStringList itemNames;
+    for (const GtTaskData& taskData : gtTaskFactory->taskDataList())
+    {
+        itemNames.append(taskData->metaData().className());
+    }
+    entry(itemNames, tr("Tasks"));
+
+    // mdi items
+    entry(gtMdiLauncher->knownClasses(), tr("MDI Items"));
+
+    // ui objects
+    entry(gtApp->knownUIObjects(), tr("UI Objects"));
+
+    // dock widgets
+    entry(gtMdiLauncher->dockWidgetIds(), tr("Dock Widgets"));
+}
+
+QString
+GtAboutDialog::readApplicationDirFile(const QString& fileName) const
+{
     QDir appDir(QApplication::applicationDirPath());
     appDir.cdUp();
 
-    QFile file(appDir.absoluteFilePath("CHANGELOG.md"));
+    QFile file(appDir.absoluteFilePath(fileName));
 
     if (!file.exists())
     {
-        gtDebug() << tr("file not exists!");
+        gtDebug() << tr("file '%1' not exists!").arg(file.fileName());
         return {};
     }
 
     if (!file.open(QFile::ReadOnly))
     {
-        gtDebug() << tr("could not open file!");
+        gtDebug() << tr("could not open file '%1'!").arg(file.fileName());
         return {};
     }
 
@@ -286,83 +333,6 @@ GtAboutDialog::readChangeLog() const
     file.close();
 
     return content;
-}
-
-void
-GtAboutDialog::addDevelopmentTabs(QTabWidget *tabs)
-{
-    // datamodel
-    auto* datamodelPage = new QWidget(this);
-    tabs->addTab(datamodelPage, tr("Datamodel"));
-    auto* datamodelLayout = new QVBoxLayout;
-    auto* datamodelClassList = new QListWidget;
-    datamodelClassList->setFrameStyle(QListWidget::NoFrame);
-    datamodelClassList->insertItems(0, gtObjectFactory->knownClasses());
-    datamodelClassList->sortItems();
-    datamodelLayout->addWidget(datamodelClassList);
-    datamodelPage->setLayout(datamodelLayout);
-
-    // calculators
-    auto* calculatorsPage = new QWidget(this);
-    tabs->addTab(calculatorsPage, tr("Calculators"));
-    auto* calculatorLayout = new QVBoxLayout;
-    auto* calculatorClassList = new QListWidget;
-    calculatorClassList->setFrameStyle(QListWidget::NoFrame);
-    calculatorClassList->insertItems(
-                0, gtProcessFactory->calculatorFactory()->knownClasses());
-    calculatorClassList->sortItems();
-    calculatorLayout->addWidget(calculatorClassList);
-    calculatorsPage->setLayout(calculatorLayout);
-
-    // tasks
-    auto* tasksPage = new QWidget(this);
-    tabs->addTab(tasksPage, tr("Tasks"));
-    auto* taskLayout = new QVBoxLayout;
-    auto* taskClassList = new QListWidget;
-    taskClassList->setFrameStyle(QListWidget::NoFrame);
-    QStringList itemNames;
-    for (const GtTaskData& taskData : gtTaskFactory->taskDataList())
-    {
-        itemNames.append(taskData->metaData().className());
-    }
-
-    taskClassList->insertItems(0, itemNames);
-    taskClassList->sortItems();
-    taskLayout->addWidget(taskClassList);
-    tasksPage->setLayout(taskLayout);
-
-    // mdi items
-    auto* mdiPage = new QWidget(this);
-    tabs->addTab(mdiPage, tr("MDI Items"));
-    auto* mdiLayout = new QVBoxLayout;
-    mdiPage->setLayout(mdiLayout);
-    auto* mdiitemsClassList = new QListWidget;
-    mdiitemsClassList->setFrameStyle(QListWidget::NoFrame);
-    mdiLayout->addWidget(mdiitemsClassList);
-    mdiitemsClassList->insertItems(0, gtMdiLauncher->knownClasses());
-    mdiitemsClassList->sortItems();
-
-    // ui objects
-    auto* uiPage = new QWidget(this);
-    tabs->addTab(uiPage, tr("UI Objects"));
-    auto* uiLayout = new QVBoxLayout;
-    uiPage->setLayout(uiLayout);
-    auto* uiitemsClassList = new QListWidget;
-    uiitemsClassList->setFrameStyle(QListWidget::NoFrame);
-    uiLayout->addWidget(uiitemsClassList);
-    uiitemsClassList->insertItems(0, gtApp->knownUIObjects());
-    uiitemsClassList->sortItems();
-
-    // dock widgets
-    auto* dockPage = new QWidget(this);
-    tabs->addTab(dockPage, tr("Dock Widgets"));
-    auto* dockLayout = new QVBoxLayout;
-    dockPage->setLayout(dockLayout);
-    auto* dockClassList = new QListWidget;
-    dockClassList->setFrameStyle(QListWidget::NoFrame);
-    dockLayout->addWidget(dockClassList);
-    dockClassList->insertItems(0, gtMdiLauncher->dockWidgetIds());
-    dockClassList->sortItems();
 }
 
 void
@@ -394,4 +364,35 @@ GtAboutDialog::openModuleDetails(const QModelIndex& indexOfModule) const
 
         d.exec();
     }
+}
+
+void
+GtAboutDialog::openLicenseFolder()
+{
+    QDir appDir(QApplication::applicationDirPath());
+    appDir.cdUp();
+
+    QDir appLicenseDir(appDir.absolutePath() + QDir::separator() + "Licenses");
+
+    if (appLicenseDir.exists())
+    {
+        QDesktopServices::openUrl(appLicenseDir.absolutePath());
+        return;
+    }
+    /// Search for Licenses in the Dev-Tools-Structure
+    appDir.cdUp(); /// folder for selection of number of stable/unstable version
+    appDir.cdUp(); /// main folder of devtools
+
+    QDir devToolsLicenseDir(appDir.absolutePath()
+                            + QDir::separator() + "Licenses");
+
+    if (devToolsLicenseDir.exists())
+    {
+        QDesktopServices::openUrl(devToolsLicenseDir.absolutePath());
+        return;
+    }
+
+    gtError() << tr("No licenses information could be found.");
+    gtError() << tr("Your installation might be broken.");
+    gtError() << tr("Please contact the developers for further information.");
 }

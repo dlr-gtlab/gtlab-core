@@ -53,6 +53,12 @@ private:
     QWidget* readMeWidget();
 
     /**
+     * @brief licenseWidget
+     * @return widget for the license content
+     */
+    QWidget* licenseWidget();
+
+    /**
      * @brief markdownWidget
      * @param fileName
      * @return a widget showing the content of a markdown file

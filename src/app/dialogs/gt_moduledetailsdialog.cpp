@@ -62,6 +62,15 @@ GtModuleDetailsDialog::GtModuleDetailsDialog(QString const& moduleId,
         gtWarning() << tr("Cannot find changelog of module");
     }
 
+    if (auto* licenseW = licenseWidget())
+    {
+        tab->addTab(licenseW, tr("License"));
+    }
+    else
+    {
+        gtWarning().medium() << tr("Cannot find license information of module");
+    }
+
     l->addWidget(tab);
 
     setFixedWidth(600);
@@ -135,6 +144,12 @@ GtModuleDetailsDialog::readMeWidget()
 }
 
 QWidget*
+GtModuleDetailsDialog::licenseWidget()
+{
+    return fileContentWidget("LICENSE.*");
+}
+
+QWidget*
 GtModuleDetailsDialog::fileContentWidget(const QString& fileName)
 {
     std::tuple<QString,GtTextEdit::contentType> t = loadInfoFile(fileName);
@@ -198,13 +213,9 @@ GtModuleDetailsDialog::addLine(const QString& title, const QString& value)
 std::tuple<QString,GtTextEdit::contentType>
 GtModuleDetailsDialog::loadInfoFile(QString const& filter)
 {
-#ifndef Q_OS_ANDROID
     QString path = QCoreApplication::applicationDirPath() +
             QDir::separator() + QStringLiteral("modules") +
             QDir::separator() + QStringLiteral("meta") + QDir::separator();
-#else
-    QString path = QCoreApplication::applicationDirPath();
-#endif
 
     QDir modulesDir(path + windowTitle());
 
