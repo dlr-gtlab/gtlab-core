@@ -62,12 +62,18 @@ class GtAboutDialog : public GtDialog
     Q_OBJECT
 
 public:
+    enum Tabs{
+        About = 0,
+        ChangeLog = 1,
+        Modules = 2
+    };
+
     /**
      * @brief Constructor
      * @param startPage - number of page to start with
      * @param parent widget
      */
-    explicit GtAboutDialog(int startPage, QWidget* parent = nullptr);
+    explicit GtAboutDialog(Tabs startPage, QWidget* parent = nullptr);
 
 private slots:
     /**
@@ -96,6 +102,11 @@ private slots:
      */
     void openModuleDetails(const QModelIndex& indexOfModule) const;
 
+    /**
+     * @brief openLicenseFolder
+     * Open the folder with the licenses files of GTlab
+     */
+    void openLicenseFolder();
 private:
     /**
      * @brief coreAbout
@@ -140,6 +151,8 @@ private:
 
     /// main treeview for the modules
     QTreeWidget* m_modulesTree;
+
+    QString readApplicationDirFile(QString const& fileName) const;
 };
 
 #endif // GTABOUTDIALOG_H

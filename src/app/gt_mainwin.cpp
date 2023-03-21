@@ -925,7 +925,7 @@ GtMainWin::openHelpContents()
 void
 GtMainWin::openAboutDialog()
 {
-    GtAboutDialog dialog(0);
+    GtAboutDialog dialog(GtAboutDialog::About);
 
     dialog.exec();
 }
@@ -933,7 +933,7 @@ GtMainWin::openAboutDialog()
 void
 GtMainWin::openAboutModulesDialog()
 {
-    GtAboutDialog dialog(2);
+    GtAboutDialog dialog(GtAboutDialog::Modules);
 
     dialog.exec();
 }
@@ -941,7 +941,7 @@ GtMainWin::openAboutModulesDialog()
 void
 GtMainWin::openChangelogDialog()
 {
-    GtAboutDialog dialog(1);
+    GtAboutDialog dialog(GtAboutDialog::ChangeLog);
 
     dialog.exec();
 }
