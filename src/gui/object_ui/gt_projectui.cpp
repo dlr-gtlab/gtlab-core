@@ -258,12 +258,14 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
         {
             auto project = qobject_cast<GtProject*>(obj);
 
-            if (project)
+            if (project && !project->comment().isEmpty())
             {
-                if (!project->comment().isEmpty())
+                if (project->isOpen())
                 {
                     return gt::gui::icon::comment();
                 }
+                return gt::gui::colorize(gt::gui::icon::comment(),
+                                         gt::gui::color::debugText());
             }
 
             break;

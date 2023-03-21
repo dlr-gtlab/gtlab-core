@@ -267,11 +267,11 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
             {
                 if (obj->newlyCreated())
                 {
-                    return gt::gui::color::newObjectForground();
+                    return gt::gui::color::newObjectForeground();
                 }
                 else if (obj->hasChanges() || obj->hasChildChanged())
                 {
-                    return gt::gui::color::changedObjectForground();
+                    return gt::gui::color::changedObjectForeground();
                 }
 
                 break;
@@ -310,12 +310,14 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
 
                 if (obj->newlyCreated())
                 {
-                    return gt::gui::icon::add();
+                    return gt::gui::colorize(gt::gui::icon::add(),
+                                             gt::gui::color::newObjectForeground);
                 }
 
                 if (obj->hasChanges())
                 {
-                    return gt::gui::icon::exclamationmark();
+                    return gt::gui::colorize(gt::gui::icon::exclamationmark(),
+                                             gt::gui::color::changedObjectForeground);
                 }
                 break;
             }

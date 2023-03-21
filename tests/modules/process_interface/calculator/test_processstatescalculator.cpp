@@ -26,13 +26,17 @@ TestProcessStatesCalculator::TestProcessStatesCalculator() :
 bool
 TestProcessStatesCalculator::run()
 {
-    // states to cycle
     QVector<STATE> states{
-        CONNECTING,
+        NONE,
+        RUNNING,
         QUEUED,
+        FAILED,
+        FINISHED,
+        WARN_FINISHED,
         CONNECTING,
         SKIPPED,
         TERMINATION_REQUESTED,
+        TERMINATED
     };
 
     for (int i = 0; i < m_pIterations - 1; ++i)

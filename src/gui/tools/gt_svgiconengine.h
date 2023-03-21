@@ -54,9 +54,35 @@ struct SvgColorData
         SvgColorData(QColor{color})
     { }
 
-    ColorFunctor normal;
-    ColorFunctor disabled;
-    ColorFunctor selected;
+    SvgColorData& setNormalColor(ColorFunctor color)
+    {
+        if (color) normal = std::move(color);
+        return *this;
+    }
+    SvgColorData& setNormalColor(QColor const& color)
+    {
+        return setNormalColor([=](){ return color; });
+    }
+
+    SvgColorData& setDisabledColor(ColorFunctor color)
+    {
+        if (color) disabled = std::move(color);
+        return *this;
+    }
+    SvgColorData& setDisabledColor(QColor const& color)
+    {
+        return setNormalColor([=](){ return color; });
+    }
+
+    SvgColorData& setSelectedColor(ColorFunctor color)
+    {
+        if (color) selected = std::move(color);
+        return *this;
+    }
+    SvgColorData& setSelectedColor(QColor const& color)
+    {
+        return setNormalColor([=](){ return color; });
+    }
 
     /**
     * @brief Returns the color for the icon mode
@@ -78,6 +104,10 @@ struct SvgColorData
             return normal();
         }
     }
+
+    ColorFunctor normal;
+    ColorFunctor disabled;
+    ColorFunctor selected;
 };
 
 } // namespace gui
@@ -172,24 +202,11 @@ private:
     /// Used to overwrite color more efficiently
     int m_svgIdx = -1;
 
-    /// Mode of last icon.
-    /// Used to check if update is required
-    QIcon::Mode m_mode = QIcon::Normal;
-    /// Flag indicating if color is for dark mode.
-    /// Used to check if update is required
-    bool m_dark = false;
-
     /**
      * @brief Overrides the color of the svg data
      * @param color Color
      */
     void applyColor(const QColor& color);
-
-    /**
-     * @brief Updates the color of the svg icon if a change is necessary
-     * @return Returns whether the icon data was updated
-     */
-    void updateColor(QIcon::Mode mode = QIcon::Normal);
 
     /**
      * @brief This icon engine does not support pixmaps
