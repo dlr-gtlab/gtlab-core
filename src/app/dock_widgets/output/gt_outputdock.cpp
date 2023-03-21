@@ -21,6 +21,8 @@
 #include "gt_datamodel.h"
 #include "gt_task.h"
 #include "gt_icons.h"
+#include "gt_statehandler.h"
+#include "gt_state.h"
 
 #include <QHeaderView>
 #include <QVBoxLayout>
@@ -193,18 +195,39 @@ GtOutputDock::GtOutputDock()
                 this, &GtOutputDock::openTestCaseContextMenu);
     }
 
+    GtObject* guardian = new GtObject;
+    guardian->setParent(this);
+
     /// helper method for setting up an output toggle button
     const auto setupToggleButton =
-            [&](QIcon const& icon, QString const& tooltip, auto signal){
+            [&](QIcon const& icon, QString const& type, QString const& tooltip, auto signal){
+
+        GtState* state =
+                gtStateHandler->initializeState(metaObject()->className(),
+                                                type, type.toLower(),
+                                                QVariant::fromValue(true),
+                                                guardian);
+
         auto* button = new QPushButton;
         button->setIcon(icon);
         button->setMaximumSize(QSize(20, 20));
         button->setFlat(true);
         button->setCheckable(true);
-        button->setChecked(true);
         button->setToolTip(tooltip);
         filterLayout->addWidget(button);
+
+        // apply value from state
+        bool isChecked = state->getValue().toBool();
+        button->setChecked(isChecked);
+
         connect(button, &QPushButton::toggled, m_model, signal);
+        connect(button, &QPushButton::toggled, state, [=](bool checked){
+            state->setValue(checked, false);
+        });
+
+        // trigger signal
+        emit button->toggled(isChecked);
+
         return button;
     };
 
@@ -212,26 +235,31 @@ GtOutputDock::GtOutputDock()
 
     // trace message button
     m_traceButton = setupToggleButton(gt::gui::icon::traceColorized(),
+                                      QStringLiteral("Trace"),
                                       tr("Show/Hide Trace Output"),
                                       &GtFilteredLogModel::filterTraceLevel);
 
     // debug message button
     m_debugButton = setupToggleButton(gt::gui::icon::bugColorized(),
+                                      QStringLiteral("Debug"),
                                       tr("Show/Hide Debug Output"),
                                       &GtFilteredLogModel::filterDebugLevel);
 
     // info message button
     m_infoButton = setupToggleButton(gt::gui::icon::infoColorized(),
+                                     QStringLiteral("Info"),
                                      tr("Show/Hide Info Output"),
                                      &GtFilteredLogModel::filterInfoLevel);
 
     // warning message button
     m_warningButton = setupToggleButton(gt::gui::icon::warningColorized(),
+                                        QStringLiteral("Warning"),
                                         tr("Show/Hide Warning Output"),
                                         &GtFilteredLogModel::filterWarningLevel);
 
     // error message button
     m_errorButton = setupToggleButton(gt::gui::icon::errorColorized(),
+                                      QStringLiteral("Error"),
                                       tr("Show/Hide Error Output"),
                                       &GtFilteredLogModel::filterErrorLevel);
 

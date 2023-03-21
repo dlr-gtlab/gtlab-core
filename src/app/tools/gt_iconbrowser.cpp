@@ -256,7 +256,6 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(vectorPointEdit));
     grid->addWidget(MAKE_ICON(vectorPoly));
     grid->addWidget(MAKE_ICON(vectorSimple));
-    grid->addWidget(MAKE_ICON(vectorPointEdit));
     grid->addWidget(MAKE_ICON(vectorSquare));
     grid->addWidget(MAKE_ICON(vectorSquareEdit));
     grid->addWidget(MAKE_ICON(vectorTriangle));
