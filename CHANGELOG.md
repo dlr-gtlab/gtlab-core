@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed potential data loss when using an externalized object - #453, #251
 - Fixed graphical glitch in ruler when resizing the window - #425
 
+### Added
+- The output dock widget will now remember the filter for the log levels - #123
+
 ## [2.0.0-pr-beta2] - 2023-02-22
 ### Fixed
 - Integer property change only triggers if user finished editing and not on each key press - #437
