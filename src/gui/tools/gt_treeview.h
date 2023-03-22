@@ -46,6 +46,11 @@ signals:
      */
     void copyRequest();
 
+    /**
+     * @brief copyRequest
+     */
+    void deleteRequest();
+
 };
 
 #endif // GTTREEVIEW_H

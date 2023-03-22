@@ -270,7 +270,7 @@ private slots:
      * @brief deleteElements
      * @param indexList
      */
-    void deleteElements(const QList<QModelIndex> &indexList);
+    void deleteElements(const QList<QModelIndex>& indexList);
 
 signals:
     /**
