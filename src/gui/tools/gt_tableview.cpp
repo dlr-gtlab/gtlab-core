@@ -21,19 +21,16 @@ GtTableView::keyPressEvent(QKeyEvent* event)
     if (gtApp->compareKeyEvent(event, "search"))
     {
         emit searchRequest();
-        return;
     }
 
     if (gtApp->compareKeyEvent(event, "copy"))
     {
         emit copyRequest();
-        return;
     }
 
     if (gtApp->compareKeyEvent(event, "delete"))
     {
         emit deleteRequest();
-        return;
     }
 
     return QTableView::keyPressEvent(event);

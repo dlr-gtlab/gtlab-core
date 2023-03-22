@@ -74,14 +74,6 @@ GtExplorerView::mouseDoubleClickEvent(QMouseEvent* event)
 void
 GtExplorerView::keyPressEvent(QKeyEvent *event)
 {
-    QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
-
-    if (gtApp->compareKeyEvent(event, "delete"))
-    {
-        emit deleteElementsRequest(indexes);
-        return;
-    }
-
     GtTreeView::keyPressEvent(event);
 }
 

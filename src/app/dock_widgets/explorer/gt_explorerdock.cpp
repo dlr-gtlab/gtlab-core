@@ -104,8 +104,10 @@ GtExplorerDock::GtExplorerDock() :
             SLOT(onSearchEnabled()));
     connect(m_view, SIGNAL(searchRequest()), m_searchWidget,
             SLOT(enableSearch()));
-    connect(m_view, &GtExplorerView::deleteElementsRequest,
-            this, &GtExplorerDock::deleteElements);
+    connect(m_view, &GtExplorerView::deleteRequest, this, [this](){
+        QList<QModelIndex> indexes = m_view->selectionModel()->selectedIndexes();
+        deleteElements(indexes);
+    });
     connect(m_view, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(customContextMenuDataView(QPoint)));
     connect(this, SIGNAL(contextMenuKeyPressSignal(QModelIndex)),
@@ -923,7 +925,7 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
 
         default:
             break;
-        }
+    }
 }
 
 /**

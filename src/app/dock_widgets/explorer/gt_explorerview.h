@@ -77,12 +77,6 @@ signals:
      */
     void mdiItemRequested(const QModelIndex& index);
 
-    /**
-     * @brief mdiItemRequested
-     * @param index
-     */
-    void deleteElementsRequest(const QList<QModelIndex>& indexList);
-
 };
 
 #endif // GTEXPLORERVIEW_H
