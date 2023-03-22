@@ -208,7 +208,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 
     QMenu menu(this);
 
-    if (gt::gui::makeObjectContextMenu(menu, *obj, mapToSource(index), m_view))
+    if (gt::gui::makeObjectContextMenu(menu, *obj, mapFromSource(index), m_view))
     {
         menu.exec(QCursor::pos());
     }
