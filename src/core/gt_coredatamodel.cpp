@@ -833,13 +833,10 @@ GtCoreDatamodel::indexFromObject(GtObject* obj, int col) const
         // get index from project
         row = projects.indexOf(qobject_cast<GtProject*>(obj));
     }
-    else
+    // handle object
+    else if (obj->parent())
     {
-        // handle object
-        if (obj->parent())
-        {
-            row = obj->childNumber();
-        }
+        row = obj->childNumber();
     }
 
     // check row

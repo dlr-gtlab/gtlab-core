@@ -82,6 +82,7 @@ GtObjectUIList
 GtGuiModuleLoader::objectUI(GtObject* obj) const
 {
     assert(obj);
+    assert(obj->metaObject());
     return objectUI(obj->metaObject()->className());
 }
 

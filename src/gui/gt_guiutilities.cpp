@@ -20,9 +20,13 @@
 #include "gt_project.h"
 #include "gt_icons.h"
 
+#include "gt_projectui.h"
+#include "gt_application.h"
 #include "internal/gt_openwithmenu.h"
 
+#include <QTreeView>
 #include <QMenu>
+#include <QKeyEvent>
 #include <QAbstractItemView>
 
 /// counts the visible actions (not separators)
@@ -221,7 +225,8 @@ addObjectActions(QMenu& menu,
             }
         });
 
-        deleteAction.setIcon(gt::gui::icon::delete_());
+        deleteAction.setIcon(gt::gui::icon::delete_())
+                .setShortCut(gtApp->getShortCutSequence("delete"));
 
         new GtCustomActionMenu({deleteAction}, &obj, nullptr, &menu);
 
@@ -246,4 +251,88 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
     addObjectActions(menu, obj, idx, view);
 
     return countVisibleActions(menu.actions());
+}
+
+void
+gt::gui::handleObjectDoubleClick(GtObject& obj)
+{
+    if (GtObjectUI* oui = gtApp->defaultObjectUI(&obj))
+    {
+        oui->doubleClicked(&obj);
+    }
+}
+
+/// opens the context menu in the view for obj
+inline void
+openContextMenu(QKeyEvent& event,
+                GtObject& obj,
+                QModelIndex const& idx,
+                QAbstractItemView* view)
+{
+    if (idx.isValid() && view)
+    {
+        emit view->customContextMenuRequested(view->visualRect(idx).center());
+        event.accept();
+    }
+}
+
+/// logic for renaming obj in the view
+inline bool
+renameObject(QKeyEvent& event, GtObject& obj, QModelIndex const& idx, QAbstractItemView* view)
+{
+    if (obj.isRenamable() && idx.isValid() && view)
+    {
+        view->edit(idx);
+        return true;
+    }
+    return false;
+}
+
+/// checks the actions registered from the object uis and invokes the actions
+/// that match the shortcut
+inline void
+shortcutAction(QKeyEvent& event, GtObject& obj)
+{
+    /// General approach to read Shortcut from ui
+    for (auto* oui : gtApp->objectUI(&obj))
+    {
+        assert(oui);
+
+        // only add single actions
+        for (auto const& a : oui->actions())
+        {
+            QKeySequence k = a.shortCut();
+
+            if (gtApp->compareKeyEvent(&event, k))
+            {
+                a.method()(oui, &obj);
+            }
+        }
+    }
+}
+
+void
+gt::gui::handleObjectKeyEvent(QKeyEvent& event,
+                              GtObject& obj,
+                              const QModelIndex& idx,
+                              QAbstractItemView* view)
+{
+    if (gtApp->compareKeyEvent(&event, "openContextMenu"))
+    {
+        return openContextMenu(event, obj, idx, view);
+    }
+
+    if (gtApp->compareKeyEvent(&event, "rename"))
+    {
+        // object may have custom rename action registered
+        if (renameObject(event, obj, idx, view)) return;
+    }
+
+    /// sanme as double click
+    if (gtApp->compareKeyEvent(&event, QKeySequence(Qt::Key_Return)))
+    {
+        return handleObjectDoubleClick(obj);
+    }
+
+    shortcutAction(event, obj);
 }

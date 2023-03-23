@@ -73,9 +73,9 @@ private:
     GtSearchWidget* m_searchWidget;
 
     /**
-     * @brief objectContextMenu
-     * @param obj
-     * @param index
+     * @brief Open the context menu of obj
+     * @param obj Object
+     * @param index View index
      */
     void objectContextMenu(GtObject* obj, const QModelIndex& index);
 
@@ -83,7 +83,7 @@ private:
      * @brief objectContextMenu
      * @param objs
      */
-    void objectContextMenu(const QList<GtObject *> &objs);
+    void objectContextMenu(const QList<GtObject*>& objs);
 
     /**
      * @brief mapToSource
@@ -117,6 +117,13 @@ private:
 
         return true;
     }
+
+    /**
+     * @brief maps the view index to a GtObject* in the source model
+     * @param index
+     * @return
+     */
+    GtObject* mapToObject(const QModelIndex& index);
 
     /**
      * @brief mapFromSource
@@ -277,13 +284,6 @@ signals:
      * @brief selectedObjectChanged
      */
     void selectedObjectChanged(GtObject*);
-
-    /**
-     * @brief contextMenuKeyPressSignal
-     * Signal to emit if the context menu is requested by the key press
-     * of shortcut
-     */
-    void contextMenuKeyPressSignal(QModelIndex);
 
 };
 

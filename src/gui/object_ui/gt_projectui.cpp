@@ -1193,17 +1193,12 @@ GtProjectUI::showInExplorer(GtObject* obj)
 void
 GtProjectUI::renameProject(GtObject* obj)
 {
+    if (!canRenameProject(obj)) return;
+
     auto project = qobject_cast<GtProject*>(obj);
 
-    if (!project)
-    {
-        return;
-    }
-
-    if (!gtApp->session())
-    {
-        return;
-    }
+    assert(project);
+    assert(gtApp->session());
 
     GtInputDialog dialog;
 
@@ -1211,7 +1206,7 @@ GtProjectUI::renameProject(GtObject* obj)
     dialog.setWindowTitle(tr("Rename Project"));
     dialog.setWindowIcon(gt::gui::icon::input());
     dialog.setLabelText(tr("Note: The associated project path "
-                           "on the hard disk is not changed."
+                           "on the disk is not changed."
                            "\n\nNew project name:"));
     dialog.setInitialTextValue(project->objectName());
 
@@ -1284,6 +1279,11 @@ GtProjectUI::canRenameProject(GtObject* obj)
     }
 
     if (project->isOpen())
+    {
+        return false;
+    }
+
+    if (!gtApp->session())
     {
         return false;
     }
@@ -1597,19 +1597,19 @@ GtProjectUI::openProjectSettings(GtObject* obj)
 
     // connect signals
     QObject::connect(&dialog, &GtProjectSettingsDialog::projectSaveRequested,
-                     [&]() {
+                     &dialog, [&]() {
         if (!canSaveProject(project))
         {
-            gtError() << "project not ready for saving!";
+            gtError() << tr("Project is not ready for saving!");
             return;
         }
         saveProject(project);
     });
     QObject::connect(&dialog, &GtProjectSettingsDialog::projectCloseRequested,
-                     [&]() {
+                     &dialog, [&]() {
         if (!canCloseProject(project))
         {
-            gtError() << "project not ready for closing!";
+            gtError() << tr("Project is not ready for closing!");
             return;
         }
         closeProject(project);
