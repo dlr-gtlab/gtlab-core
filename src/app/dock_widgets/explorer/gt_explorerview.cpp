@@ -55,8 +55,7 @@ GtExplorerView::mouseDoubleClickEvent(QMouseEvent* event)
 
     if (!index.isValid())
     {
-        GtTreeView::mouseDoubleClickEvent(event);
-        return;
+        return GtTreeView::mouseDoubleClickEvent(event);
     }
 
     if (isExpanded(index))

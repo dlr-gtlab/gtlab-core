@@ -110,10 +110,6 @@ GtExplorerDock::GtExplorerDock() :
     });
     connect(m_view, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(customContextMenuDataView(QPoint)));
-    connect(this, SIGNAL(contextMenuKeyPressSignal(QModelIndex)),
-            SLOT(customContextMenuDataView(QModelIndex)));
-    //connect(m_viewModeBox, SIGNAL(currentIndexChanged(int)),
-    //        SLOT(switchViewMode(int)));
     connect(this, SIGNAL(selectedObjectChanged(GtObject*)),
             gtApp, SIGNAL(objectSelected(GtObject*)));
     connect(m_view, SIGNAL(clicked(QModelIndex)),
@@ -203,14 +199,11 @@ GtExplorerDock::initAfterStartup()
 void
 GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 {
-    if (!obj)
-    {
-        return;
-    }
+    if (!obj) return;
 
     QMenu menu(this);
 
-    if (gt::gui::makeObjectContextMenu(menu, *obj, mapFromSource(index), m_view))
+    if (gt::gui::makeObjectContextMenu(menu, *obj, index, m_view))
     {
         menu.exec(QCursor::pos());
     }
@@ -219,10 +212,7 @@ GtExplorerDock::objectContextMenu(GtObject* obj, const QModelIndex& index)
 void
 GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
 {
-    if (objs.isEmpty())
-    {
-        return;
-    }
+    if (objs.isEmpty()) return;
 
     QList<GtProject*> projectsList;
     /// handle the special case of only projects selected
@@ -286,12 +276,11 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
                 return p->isOpen();
             }))
         {
-            gtWarning() << tr("Open project cannot be removed "
-                              "from session");
+            gtWarning() << tr("Open project cannot be removed from session");
             return;
         }
 
-        foreach (GtProject* p, projectsList)
+        for (GtProject* p : qAsConst(projectsList))
         {
             gtDataModel->deleteProject(p);
         }
@@ -319,7 +308,17 @@ GtExplorerDock::mapToSource(const QModelIndex& index)
         return {};
     }
 
+    assert(tmp.model() == gtDataModel);
+
     return tmp;
+}
+
+GtObject*
+GtExplorerDock::mapToObject(const QModelIndex& index)
+{
+    QModelIndex source = mapToSource(index);
+
+    return gtDataModel->objectFromIndex(source);
 }
 
 QModelIndex
@@ -341,6 +340,8 @@ GtExplorerDock::mapFromSource(const QModelIndex& index)
     {
         return {};
     }
+
+    assert(tmp.model() == m_model);
 
     return  tmp;
 }
@@ -514,148 +515,32 @@ GtExplorerDock::selectObjectByUuid(const QString& uuid)
 
     if (iter != std::end(list))
     {
-        QModelIndex indexMapper = mapToSource(*iter);
-
-        GtObject* obj = gtDataModel->objectFromIndex(indexMapper);
-
-        if (obj)
+        if (GtObject* obj = mapToObject(*iter))
         {
             m_view->setCurrentIndex(*iter);
             m_view->scrollTo(*iter);
-            emit selectedObjectChanged(obj);
+            return emit selectedObjectChanged(obj);
         }
-        else
-        {
-            gtWarning() << "Cannot select the requested object";
-        }
+
+        gtWarning() << tr("Cannot select the requested object");
     }
 }
 
 void
 GtExplorerDock::keyPressEvent(QKeyEvent* event)
 {
-    if (m_view)
+    assert(m_view);
+    assert(m_view->selectionModel());
+
+    auto first = firstSelectedIndex();
+
+    GtObject* obj = mapToObject(first);
+    if (!obj)
     {
-        if (m_view->selectionModel())
-        {
-            if (gtApp->compareKeyEvent(event, "openContextMenu"))
-            {
-                QModelIndex first = firstSelectedIndex();
-
-                if (first.isValid())
-                {
-                    emit contextMenuKeyPressSignal(first);
-                    event->accept();
-                    return;
-                }
-            }
-            if (gtApp->compareKeyEvent(event, "rename"))
-            {
-                QModelIndex first = firstSelectedIndex();
-
-                QModelIndex index = mapToSource(first);
-
-                if (!index.isValid())
-                {
-                    return;
-                }
-
-                GtObject* obj = gtDataModel->objectFromIndex(index);
-
-                if (obj)
-                {
-                    auto project = qobject_cast<GtProject*>(obj);
-
-                    // special case to rename a project
-                    if (project)
-                    {
-                        GtObjectUI* oui = gtApp->defaultObjectUI(project);
-
-                        auto projectui = qobject_cast<GtProjectUI*>(oui);
-
-                        if (!projectui)
-                        {
-                            return;
-                        }
-
-                        if (projectui->canRenameProject(project))
-                        {
-                            projectui->renameProject(project);
-                        }
-                        else
-                        {
-                            gtInfo() << tr("Cannot rename open project");
-                        }
-                        return;
-                    }
-                }
-
-                if (first.isValid())
-                {
-                    m_view->edit(first);
-                }
-            }
-            if (gtApp->compareKeyEvent(event, QKeySequence(Qt::Key_Return)))
-            {
-                QModelIndex first = firstSelectedIndex();
-
-                QModelIndex index = mapToSource(first);
-
-                if (!index.isValid())
-                {
-                    return;
-                }
-
-                if (GtObject* obj = gtDataModel->objectFromIndex(index))
-                {
-                    if (GtObjectUI* oui = gtApp->defaultObjectUI(obj))
-                    {
-                        QStringList mdiOptions = oui->openWith(obj);
-
-                        if (!mdiOptions.isEmpty())
-                        {
-                            gtMdiLauncher->open(mdiOptions.constFirst(), obj);
-                        }
-                    }
-                }
-            }
-
-            /// General approach to read Shortcut from ui
-            QModelIndex first = firstSelectedIndex();
-            if (!first.isValid())
-            {
-                return;
-            }
-
-            QModelIndex index = mapToSource(first);
-            if (!index.isValid())
-            {
-                return;
-            }
-
-            GtObject* obj = gtDataModel->objectFromIndex(index);
-            if (!obj)
-            {
-                return;
-            }
-
-            for (auto* oui : gtApp->objectUI(obj))
-            {
-                assert(oui);
-
-                // only add single actions
-                for (auto const& a : oui->actions())
-                {
-                    QKeySequence k = a.shortCut();
-
-                    if (gtApp->compareKeyEvent(event, k))
-                    {
-                        a.method()(oui, obj);
-                    }
-                }
-            }
-        }
+        return;
     }
+
+    gt::gui::handleObjectKeyEvent(*event, *obj, first, m_view);
 }
 
 void
@@ -683,10 +568,7 @@ GtExplorerDock::onCurrentChanged(const QModelIndex& current,
 {
     QModelIndex index = mapToSource(current);
 
-    if (!index.isValid())
-    {
-        return;
-    }
+    if (!index.isValid()) return;
 
     GtObject* obj = gtDataModel->objectFromIndex(index);
 
@@ -707,34 +589,9 @@ GtExplorerDock::onClicked(const QModelIndex& index)
 void
 GtExplorerDock::onMdiItemRequested(const QModelIndex& index)
 {
-    if (!index.isValid())
+    if (GtObject* item = mapToObject(index))
     {
-        return;
-    }
-
-    QModelIndex srcIndex = mapToSource(index);
-
-    GtObject* item = gtDataModel->objectFromIndex(srcIndex);
-
-    if (!item)
-    {
-        return;
-    }
-
-    GtObjectUI* oui = gtApp->defaultObjectUI(item);
-
-    if (!oui)
-    {
-        return;
-    }
-
-    oui->doubleClicked(item);
-
-    GtProject* project = qobject_cast<GtProject*>(item);
-
-    if (project)
-    {
-        m_view->expand(index);
+        gt::gui::handleObjectDoubleClick(*item);
     }
 }
 
@@ -762,18 +619,9 @@ GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
 
     if (indexlist.size() < 4)
     {
-        QModelIndex indexUnderMouse = indexOrigin;
-
-        indexUnderMouse = mapToSource(indexUnderMouse);
-
-        if (!indexUnderMouse.isValid())
+        if (GtObject* item = mapToObject(indexOrigin))
         {
-            return;
-        }
-
-        if (GtObject* item = gtDataModel->objectFromIndex(indexUnderMouse))
-        {
-            objectContextMenu(item, indexUnderMouse);
+            objectContextMenu(item, indexOrigin);
         }
         return;
     }
@@ -784,10 +632,7 @@ GtExplorerDock::customContextMenuDataView(const QModelIndex& indexOrigin)
     {
         if (index.column() == 0)
         {
-            QModelIndex mappedIndex = mapToSource(index);
-            GtObject* item = gtDataModel->objectFromIndex(mappedIndex);
-
-            if (item)
+            if (auto* item = mapToObject(index))
             {
                 selectedObjects << item;
             }
@@ -832,31 +677,11 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
 
     QList<GtObject*> objects;
 
-    foreach(QModelIndex index, indexList)
+    for (QModelIndex const& index : indexList)
     {
-        if (!index.isValid())
-        {
-            continue;
-        }
+        GtObject* obj = mapToObject(index);
 
-        QModelIndex srcIndex = mapToSource(index);
-
-        if (!srcIndex.isValid())
-        {
-            continue;
-        }
-
-        if (srcIndex.model() != gtDataModel)
-        {
-            continue;
-        }
-
-        GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
-
-        if (!obj)
-        {
-            continue;
-        }
+        if (!obj) continue;
 
         if (!objects.contains(obj))
         {
@@ -867,7 +692,7 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
     gtDataModel->reduceToParents(objects);
 
     QList<GtObject*> deletables;
-    foreach(GtObject* obj, objects)
+    for (GtObject* obj : qAsConst(objects))
     {
         if (obj->isDeletable())
         {
@@ -883,7 +708,7 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
 
     if (deletables.size() != objects.size())
     {
-        foreach(GtObject* obj, objects)
+        for (GtObject* obj : qAsConst(objects))
         {
             if (!deletables.contains(obj))
             {
