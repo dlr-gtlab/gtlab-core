@@ -14,6 +14,7 @@
 #include "gt_variantconvert.h"
 #include "gt_mpl.h"
 #include "gt_typetraits.h"
+#include "gt_object.h"
 #include "gt_platform.h"
 
 #include <stdexcept>
@@ -200,6 +201,55 @@ makeSharedFunction(QString const& funcName, Func&& f, QString help = {})
 
     return SharedFunction(funcName, std::forward<Func>(f), std::move(help));
 }
+
+
+/**
+ * @brief gtPointerFromVariant
+ * reads a pointer value from a QVariant
+ *
+ * Use it as:
+ * auto* exp = pointerFromVariant<GtpExpression*>(v);
+ *
+ * @param v - QVariant to read from
+ * @return a pointer to a GtObject based object
+ */
+template<typename T>
+T gtPointerFromVariant(QVariant const& v)
+{
+    if (!v.canConvert<GtObject*>())
+    {
+        gtError().medium() << QObject::tr("Conversion to GtObject failed");
+        return nullptr;
+    }
+
+    GtObject* obj = v.value<GtObject*>();
+
+    if (!obj)
+    {
+        gtError().medium()  << QObject::tr("GtObject not found");
+        return nullptr;
+    }
+
+    return qobject_cast<T>(obj);
+}
+
+/**
+ * @brief variantFromGtPointer
+ * stores a pointer value in a QVariant.
+ *
+ * Use it as:
+ * QVariant v = variantFromGtPointer<GtdBladeRow*>(pointer);
+ *
+ * @param pointer to a GtObject based object.
+ * @return a variant which stores the pointer to a GtObject based object.
+ */
+template<typename T>
+QVariant variantFromGtPointer(T pointer)
+{
+    QVariant valExp;
+    return valExp.setValue(pointer);
+}
+
 
 } // namespace interface
 
