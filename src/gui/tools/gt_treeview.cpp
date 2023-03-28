@@ -24,13 +24,11 @@ GtTreeView::keyPressEvent(QKeyEvent* event)
     {
         emit searchRequest();
     }
-
-    if (gtApp->compareKeyEvent(event, "copy"))
+    else if (gtApp->compareKeyEvent(event, "copy"))
     {
         emit copyRequest();
     }
-
-    if (gtApp->compareKeyEvent(event, "delete"))
+    else if (gtApp->compareKeyEvent(event, "delete"))
     {
         emit deleteRequest();
     }
