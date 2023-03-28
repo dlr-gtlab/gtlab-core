@@ -142,7 +142,7 @@ GtTaskGroup::save(const QString& projectPath,
     {
         gtDebug().nospace() << "Save procedure not needed. Group not initialized! (" <<
                      objectName() << ")";
-        return false;
+        return true;
     }
 
     // init full file structure for given task group
