@@ -60,6 +60,7 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(backspace));
     grid->addWidget(MAKE_ICON(backspaceFlipped));
     grid->addWidget(MAKE_ICON(blades));
+    grid->addWidget(MAKE_ICON(bladesMirrored));
     grid->addWidget(MAKE_ICON(brush));
     grid->addWidget(MAKE_ICON(bug));
     grid->addWidget(MAKE_ICON(bugPlay));

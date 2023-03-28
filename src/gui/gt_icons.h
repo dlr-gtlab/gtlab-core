@@ -100,6 +100,8 @@ GT_GUI_EXPORT QIcon backspaceFlipped();
 
 GT_GUI_EXPORT QIcon blades();
 
+GT_GUI_EXPORT QIcon bladesMirrored();
+
 GT_GUI_EXPORT QIcon brush();
 
 GT_GUI_EXPORT QIcon bug();

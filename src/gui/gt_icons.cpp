@@ -177,6 +177,7 @@ GT_DEF_ICON(backspace, "backspace.svg")
 GT_DEF_ICON(backspaceFlipped, "backspaceFlipped.svg")
 
 GT_DEF_ICON(blades, "blades_custom.svg")
+GT_DEF_ICON(bladesMirrored, "blades_custom_mirrored.svg")
 
 GT_DEF_ICON(brush, "brush.svg")
 
