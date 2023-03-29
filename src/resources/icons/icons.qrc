@@ -735,6 +735,6 @@
         <file>stylesheets/arrowDown_dark.svg</file>
         <file>stylesheets/arrowUp_dark.svg</file>
         <file>diskGradient_custom.svg</file>
-        <file>blades_custom_mirrored.svg</file>
+        <file>bladesMirrored_custom.svg</file>
     </qresource>
 </RCC>
