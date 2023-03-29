@@ -153,8 +153,7 @@ TestModuleInterface::metaInformation() const
 void
 TestModuleInterface::init()
 {
-    gtApp->settings()->registerSetting(
-        moduleSettingPath(GT_MODULENAME(), "testtext"), "A default value");
+    gtApp->settings()->registerModuleSetting("testtext", "A default value");
 
     auto pageFactory = []() -> GtPreferencesPage* {
         return new TestPreferencePage;
