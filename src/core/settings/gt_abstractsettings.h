@@ -71,8 +71,17 @@ public:
      */
     QVariant getSetting(const QString& ident) const;
 
+    /**
+     * @brief Returns true if the setting "ident" exists
+     * @param ident Ident of setting
+     * @return Whether the setting exists
+     */
     bool hasSetting(const QString& ident) const;
 
+    /**
+     * @brief Returns a list of all setting ids
+     * @return setting ids
+     */
     QStringList getAllSettingIds() const;
 
     /**
@@ -89,9 +98,9 @@ public:
     bool requiresAppRestart() const;
 
 private:
-    ///
-    QMap<QString, GtSettingsItem*> m_settings;
 
+    /// Map of settings
+    QMap<QString, GtSettingsItem*> m_settings;
 };
 
 #endif // GTABSTRACTSETTINGS_H

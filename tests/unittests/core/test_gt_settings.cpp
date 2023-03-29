@@ -1,3 +1,4 @@
+#include "gt_settings.h"
 #include "gtest/gtest.h"
 
 #include <gt_abstractsettings.h>
@@ -49,5 +50,12 @@ TEST_F(TestSettings, getUnknown)
 {
     auto value = settings.getSetting("test/_unknown_");
     ASSERT_TRUE(value.isNull());
+}
+
+/// check if module settings path actaully contains the correct name
+TEST_F(TestSettings, moduleSettingsPath)
+{
+    QString value = gt::makeModuleSettingsPath("bla");
+    ASSERT_TRUE(value.contains("Unittests"));
 }
 

@@ -12,7 +12,24 @@
 
 #include "gt_core_exports.h"
 #include "gt_abstractsettings.h"
+#include "gt_globals.h"
 #include "gt_shortcutsettingsdata.h"
+
+namespace gt
+{
+
+/**
+ * @brief Helper method for creating a module settings path
+ * @param ident Ident of setting
+ * @return Module settings path
+ */
+inline QString
+makeModuleSettingsPath(const QString & ident)
+{
+    return QStringLiteral("modules/%1/%2").arg(GT_MODULENAME(), ident);
+}
+
+} // namespace gt
 
 /**
  * @brief The GtSettings class
@@ -26,6 +43,82 @@ public:
     GtSettings();
 
     ~GtSettings() override;
+
+    /**
+     * @brief reigsters the given module setting. Will be placed in the correct
+     * settings category automatically.
+     * Usage:
+     *
+     *    gtApp->settings()->registerModuleSetting("my_setting", 42);
+     *
+     * @param ident Ident of module setting
+     * @param initVal Init value of setting
+     */
+    template<typename Dummy = void>
+    GtSettingsItem* registerModuleSetting(const QString& ident,
+                                          const QVariant& initVal = {})
+    {
+        return registerSetting(gt::makeModuleSettingsPath(ident), initVal);
+    }
+
+    /**
+     * @brief Same as "registerModuleSetting" but indicates that the app
+     * has to be restarted for the changes to take effect.
+     * @param ident Ident of the module setting
+     * @param initVal Init value of setting
+     */
+    template<typename Dummy = void>
+    GtSettingsItem* registerModuleSettingRestart(const QString& ident,
+                                                 const QVariant& initVal = {})
+    {
+        return registerSettingRestart(gt::makeModuleSettingsPath(ident), initVal);
+    }
+
+    /**
+     * @brief Sets a new value for the module setting named "ident". Make sure
+     * to register the setting first (e.g. in the init mehtod of your module).
+     * Usage:
+     *
+     *    gtApp->settings()->setModuleSetting("my_setting", 42);
+     *
+     * @param ident Ident of the module setting
+     * @param initVal New value of setting
+     */
+    template<typename Dummy = void>
+    void setModuleSetting(const QString& ident, const QVariant& value = {})
+    {
+        return setSetting(gt::makeModuleSettingsPath(ident), value);
+    }
+
+    /**
+     * @brief Returns the value for the module setting named "ident".
+     * Usage:
+     *
+     *    QVariant value = gtApp->settings()->getModuleSetting("my_setting");
+     *
+     * @param ident Ident of module setting
+     * @return Settings value
+     */
+    template<typename Dummy = void>
+    QVariant getModuleSetting(const QString& ident) const
+    {
+        return getSetting(gt::makeModuleSettingsPath(ident));
+    }
+
+    /**
+     * @brief Returns true if the module setting "ident" exists.
+     * @param ident Ident of the module setting
+     * @return Whether the module setting exists
+     */
+    template<typename Dummy = void>
+    bool hasModuleSetting(const QString& ident) const
+    {
+        return hasSetting(gt::makeModuleSettingsPath(ident));
+    }
+
+    /*
+     * APP SETTINGS
+     */
 
     /**
      * @brief lastSession
@@ -214,10 +307,22 @@ public:
      */
     QList<GtShortCutSettingsData> intialShortCutsList() const;
 
+    /**
+     * @brief Returns the current theme name
+     * @return Theme name
+     */
     QString themeMode();
 
+    /**
+     * @brief Returns if the current theme is "dark"
+     * @return Is current theme dark
+     */
     bool darkMode();
 
+    /**
+     * @brief Sets the current theme name
+     * @param theme name
+     */
     void setThemeMode(const QString& theme);
 
     /**
@@ -245,6 +350,7 @@ public:
     void setAutostartProcessRunner(bool value);
 
 private:
+
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 };

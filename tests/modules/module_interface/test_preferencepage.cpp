@@ -19,15 +19,14 @@ TestPreferencePage::TestPreferencePage()
 }
 
 void
-TestPreferencePage::saveSettings(GtSettings & s) const
+TestPreferencePage::saveSettings(GtSettings& s) const
 {
-    s.setSetting(moduleSettingPath(GT_MODULENAME(), "testtext"),
-                 m_label->text());
+    assert(s.hasSetting(gt::makeModuleSettingsPath("testtext")));
+    s.setModuleSetting("testtext", m_label->text());
 }
 
 void
-TestPreferencePage::loadSettings(const GtSettings & s)
+TestPreferencePage::loadSettings(const GtSettings& s)
 {
-    m_label->setText(
-        s.getSetting(moduleSettingPath(GT_MODULENAME(), "testtext")).toString());
+    m_label->setText(s.getModuleSetting("testtext").toString());
 }

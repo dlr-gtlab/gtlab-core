@@ -205,6 +205,7 @@ public:
  * settings value
  * @return
  */
+[[deprecated("Use gt::makeModuleSettingsPath instead")]]
 inline QString moduleSettingPath(const QString& modID,
                                  const QString& settingID)
 {
