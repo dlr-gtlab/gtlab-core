@@ -333,6 +333,12 @@ gt::gui::color::gridAxis()
 QColor
 gt::gui::color::code_editor::highlightLine()
 {
+    if (gtApp->inDarkMode())
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+        return QColor(160, 160, 0);
+    }
+
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return QColor(Qt::yellow).lighter(160);
 }
