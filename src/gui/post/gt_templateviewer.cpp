@@ -81,7 +81,7 @@ GtTemplateViewer::GtTemplateViewer() :
     buttonAdd->setToolTip("Adds a plot to current template.");
     buttonAdd->setIcon(gt::gui::icon::add());
     buttonAdd->setMaximumWidth(60);
-    buttonAdd->setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
+    buttonAdd->setStyleSheet(gt::gui::stylesheet::button());
 
     QPushButton* buttonPDF = new QPushButton(tr("To PDF"));
     buttonPDF->setToolTip("Prints template to PDF.");

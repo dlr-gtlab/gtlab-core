@@ -31,7 +31,7 @@ GtProcessComponentSettingsButton::GtProcessComponentSettingsButton() :
     setText(tr("Config..."));
     setIcon(gt::gui::icon::config());
     setToolTip(tr("Open Wizard"));
-    setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
+    setStyleSheet(gt::gui::stylesheet::button());
 
     connect(this, SIGNAL(clicked(bool)), SLOT(openProcessComponentWizard()));
 

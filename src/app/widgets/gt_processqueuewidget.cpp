@@ -35,7 +35,7 @@ GtProcessQueueWidget::GtProcessQueueWidget(GtProcessQueueModel* model) :
     m_upButton = new QPushButton(tr("Move Up"));
     m_upButton->setIcon(gt::gui::icon::arrowUp());
     m_upButton->setToolTip(tr("Move up task"));
-    QString styleSheet = gt::gui::stylesheet::buttonStyleSheet();
+    QString styleSheet = gt::gui::stylesheet::button();
 
     m_upButton->setStyleSheet(styleSheet);
 

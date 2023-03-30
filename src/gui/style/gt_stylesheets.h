@@ -31,11 +31,21 @@ enum class RunButtonState
 };
 
 /**
-* @brief buttonStyleSheet
+* @brief Standard button stylesheet.
 * @return the standard button style sheet (rounded edges,
 * white background, min-heigth 22...)
 */
+QString GT_GUI_EXPORT button();
+/**
+* @brief Standard button stylesheet. Accepts a QColor as an Input which will be
+* used for the background and the different hover effects
+* @return the standard button style sheet
+*/
+QString GT_GUI_EXPORT button(const QColor& baseColor);
+
+[[deprecated("Use button instead")]]
 QString GT_GUI_EXPORT buttonStyleSheet();
+[[deprecated("Use button instead")]]
 QString GT_GUI_EXPORT buttonStyleSheet(const QColor& baseColor);
 
 /**
@@ -43,14 +53,14 @@ QString GT_GUI_EXPORT buttonStyleSheet(const QColor& baseColor);
 * @return the standard button style sheet (rounded edges,
 * white background, min-heigth 20...)
 */
-[[deprecated("Use buttonStyleSheet instead with color::base")]]
+[[deprecated("Use button instead with color::base")]]
 QString GT_GUI_EXPORT buttonStyleSheet2();
 
 /**
  * @brief performanceTaskElementDelBtn
  * @return
  */
-[[deprecated("Use buttonStyleSheet instead and use 'setFlat(true)'")]]
+[[deprecated("Use button instead and use 'setFlat(true)'")]]
 QString GT_GUI_EXPORT performanceTaskElementDelBtn();
 
 /**

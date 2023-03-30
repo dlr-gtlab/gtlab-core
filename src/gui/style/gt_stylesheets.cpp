@@ -16,7 +16,7 @@
 #include <QCoreApplication>
 
 QString
-gt::gui::stylesheet::buttonStyleSheet(const QColor& baseColor)
+gt::gui::stylesheet::button(const QColor& baseColor)
 {
     return QString(
         "QAbstractButton{"
@@ -46,15 +46,27 @@ gt::gui::stylesheet::buttonStyleSheet(const QColor& baseColor)
 }
 
 QString
+gt::gui::stylesheet::button()
+{
+    return button(color::main());
+}
+
+QString
+gt::gui::stylesheet::buttonStyleSheet(const QColor& baseColor)
+{
+    return button(baseColor);
+}
+
+QString
 gt::gui::stylesheet::buttonStyleSheet()
 {
-    return buttonStyleSheet(color::main());
+    return button();
 }
 
 QString
 gt::gui::stylesheet::buttonStyleSheet2()
 {
-    return buttonStyleSheet(color::base());
+    return button(color::base());
 }
 
 QString
@@ -151,7 +163,7 @@ gt::gui::stylesheet::processRunButton(RunButtonState const& state)
         break;
     }
 
-    return buttonStyleSheet(backgroundColor);
+    return button(backgroundColor);
 }
 
 QString

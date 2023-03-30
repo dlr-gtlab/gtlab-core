@@ -105,7 +105,7 @@ GtProcessDock::GtProcessDock() :
     m_addElementButton->setIcon(gt::gui::icon::add());
     m_addElementButton->setToolTip(tr("Add New Element"));
     m_addElementButton->setEnabled(false);
-    m_addElementButton->setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
+    m_addElementButton->setStyleSheet(gt::gui::stylesheet::button());
 
     auto btnLayout = new QHBoxLayout;
     btnLayout->setContentsMargins(0, 0, 0, 0);
@@ -161,7 +161,7 @@ GtProcessDock::GtProcessDock() :
     widget->setLayout(layout);
 
     connect(gtApp, &GtApplication::themeChanged, this, [&](){
-        m_addElementButton->setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
+        m_addElementButton->setStyleSheet(gt::gui::stylesheet::button());
         updateRunButton();
     });
 
