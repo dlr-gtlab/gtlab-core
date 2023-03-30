@@ -38,7 +38,7 @@ GtPropertyContainerWidget::GtPropertyContainerWidget(
                                           container.entryPrefix());
     addBtn->setIcon(gt::gui::icon::add());
     addBtn->setToolTip(tr("Add New Entry"));
-    addBtn->setStyleSheet(gt::gui::stylesheet::buttonStyleSheet());
+    addBtn->setStyleSheet(gt::gui::stylesheet::button());
 
     lay->addWidget(addBtn);
 
