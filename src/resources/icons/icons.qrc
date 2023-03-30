@@ -351,7 +351,6 @@
         <file>timer.svg</file>
         <file>timerSand.svg</file>
         <file>trace.svg</file>
-        <file>tree.svg</file>
         <file>triangleSmallDown.svg</file>
         <file>triangleSmallLeft.svg</file>
         <file>triangleSmallRight.svg</file>
@@ -735,5 +734,16 @@
         <file>stylesheets/arrowDown_dark.svg</file>
         <file>stylesheets/arrowUp_dark.svg</file>
         <file>diskGradient_custom.svg</file>
+        <file>perfModel_custom.svg</file>
+        <file>perfDesignPoint_custom.svg</file>
+        <file>triangleDown_custom.svg</file>
+        <file>triangleLeft_custom.svg</file>
+        <file>triangleRight_custom.svg</file>
+        <file>triangleRightGroup_custom.svg</file>
+        <file>triangleUp_custom.svg</file>
+        <file>carpetPlot_custom.svg</file>
+        <file>engineInstallation_custom.svg</file>
+        <file>binaryTree.svg</file>
+        <file>tree.svg</file>
     </qresource>
 </RCC>

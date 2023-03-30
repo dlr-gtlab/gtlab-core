@@ -59,12 +59,14 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(arrowLeft));
     grid->addWidget(MAKE_ICON(backspace));
     grid->addWidget(MAKE_ICON(backspaceFlipped));
+    grid->addWidget(MAKE_ICON(binaryTree));
     grid->addWidget(MAKE_ICON(blades));
     grid->addWidget(MAKE_ICON(brush));
     grid->addWidget(MAKE_ICON(bug));
     grid->addWidget(MAKE_ICON(bugPlay));
     grid->addWidget(MAKE_ICON(calculator));
     grid->addWidget(MAKE_ICON(cancel));
+    grid->addWidget(MAKE_ICON(carpetPlot));
     grid->addWidget(MAKE_ICON(chain));
     grid->addWidget(MAKE_ICON(chainOff));
     grid->addWidget(MAKE_ICON(chartBar));
@@ -102,6 +104,7 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(dots));
     grid->addWidget(MAKE_ICON(download));
     grid->addWidget(MAKE_ICON(duplicate));
+    grid->addWidget(MAKE_ICON(engineInstallation));
     grid->addWidget(MAKE_ICON(error));
     grid->addWidget(MAKE_ICON(examples));
     grid->addWidget(MAKE_ICON(exclamationmark));
@@ -176,9 +179,11 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(paste));
     grid->addWidget(MAKE_ICON(pause));
     grid->addWidget(MAKE_ICON(pdf));
+    grid->addWidget(MAKE_ICON(perfDesignPoint));
     grid->addWidget(MAKE_ICON(perfMap));
     grid->addWidget(MAKE_ICON(perfMapExport));
     grid->addWidget(MAKE_ICON(perfNoMap));
+    grid->addWidget(MAKE_ICON(perfModel));
     grid->addWidget(MAKE_ICON(perfOperatingPoint));
     grid->addWidget(MAKE_ICON(perfStageMap));
     grid->addWidget(MAKE_ICON(perfSpeedLine));
@@ -222,10 +227,11 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(select));
     grid->addWidget(MAKE_ICON(server));
     grid->addWidget(MAKE_ICON(session));
+    grid->addWidget(MAKE_ICON(showText));
     grid->addWidget(MAKE_ICON(skip));
     grid->addWidget(MAKE_ICON(unskip));
     grid->addWidget(MAKE_ICON(sleep));
-    grid->addWidget(MAKE_ICON(showText));
+    grid->addWidget(MAKE_ICON(square));
     grid->addWidget(MAKE_ICON(sort));
     grid->addWidget(MAKE_ICON(sortAsc));
     grid->addWidget(MAKE_ICON(sortDesc));
@@ -240,6 +246,11 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(timerSand));
     grid->addWidget(MAKE_ICON(trace));
     grid->addWidget(MAKE_ICON(tree));
+    grid->addWidget(MAKE_ICON(triangleDown));
+    grid->addWidget(MAKE_ICON(triangleLeft));
+    grid->addWidget(MAKE_ICON(triangleRight));
+    grid->addWidget(MAKE_ICON(triangleRightGroup));
+    grid->addWidget(MAKE_ICON(triangleUp));
     grid->addWidget(MAKE_ICON(triangleSmallDown));
     grid->addWidget(MAKE_ICON(triangleSmallLeft));
     grid->addWidget(MAKE_ICON(triangleSmallRight));
@@ -263,6 +274,12 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(web));
     grid->addWidget(MAKE_ICON(zoomMinus));
     grid->addWidget(MAKE_ICON(zoomPlus));
+    grid->addWidget(MAKE_ICON(bleedInPort));
+    grid->addWidget(MAKE_ICON(bleedOutPort));
+    grid->addWidget(MAKE_ICON(bleedPortGroup));
+    grid->addWidget(MAKE_ICON(fluidPort));
+    grid->addWidget(MAKE_ICON(fluidPortGroup));
+    grid->addWidget(MAKE_ICON(shaftPort));
     makeSeparator();
     grid->addWidget(new QLabel(tr("Letters:")), row, incCol());
     makeSeparator();
@@ -332,19 +349,6 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(pluginSettings));
     grid->addWidget(MAKE_ICON(letter::eColorized));
     grid->addWidget(MAKE_ICON(letter::eSmallColorized));
-    makeSeparator();
-    grid->addWidget(new QLabel(tr("Other:")), row, incCol());
-    makeSeparator();
-    grid->addWidget(MAKE_ICON(performanceModel));
-    grid->addWidget(MAKE_ICON(performanceDesign));
-    grid->addWidget(MAKE_ICON(engineInstallation));
-    grid->addWidget(MAKE_ICON(carpetPlot));
-    grid->addWidget(MAKE_ICON(bleedInPort));
-    grid->addWidget(MAKE_ICON(bleedOutPort));
-    grid->addWidget(MAKE_ICON(bleedPortGroup));
-    grid->addWidget(MAKE_ICON(fluidPort));
-    grid->addWidget(MAKE_ICON(fluidPortGroup));
-    grid->addWidget(MAKE_ICON(shaftPort));
 }
 
 void
