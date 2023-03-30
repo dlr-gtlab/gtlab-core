@@ -176,6 +176,8 @@ GT_DEF_ICON_ALIAS(arrowUpBlueAll, arrowUp)
 GT_DEF_ICON(backspace, "backspace.svg")
 GT_DEF_ICON(backspaceFlipped, "backspaceFlipped.svg")
 
+GT_DEF_ICON(binaryTree, "binaryTree.svg")
+
 GT_DEF_ICON(blades, "blades_custom.svg")
 
 GT_DEF_ICON(brush, "brush.svg")
@@ -449,9 +451,11 @@ GT_DEF_ICON(pause, "pause.svg")
 
 GT_DEF_ICON(pdf, "pdf_custom.svg")
 
+GT_DEF_ICON(perfDesignPoint, "perfDesignPoint_custom.svg")
 GT_DEF_ICON(perfMap, "perfMap_custom.svg")
 GT_DEF_ICON(perfMapExport, "perfMapExport_custom.svg")
 GT_DEF_ICON(perfNoMap, "perfNoMap_custom.svg")
+GT_DEF_ICON(perfModel, "perfModel_custom.svg")
 GT_DEF_ICON(perfOperatingPoint, "perfOperatingPoint_custom.svg")
 GT_DEF_ICON(perfStageMap, "perfStageMap_custom.svg")
 GT_DEF_ICON(perfSpeedLine, "perfSpeedLine_custom.svg")
@@ -543,6 +547,10 @@ GT_DEF_ICON(server, "server.svg")
 GT_DEF_ICON(session, "session.svg")
 GT_DEF_ICON_ALIAS(session16, session)
 
+GT_DEF_ICON(showText, "showText_custom.svg")
+GT_DEF_ICON_ALIAS(showText16, showText)
+GT_DEF_ICON_ALIAS(showText24, showText)
+
 GT_DEF_ICON(skip, "skip.svg")
 GT_DEF_ICON(unskip, "unskip_custom.svg")
 GT_DEF_ICON_ALIAS(skip16, skip)
@@ -550,9 +558,7 @@ GT_DEF_ICON_ALIAS(skip16, skip)
 GT_DEF_ICON(sleep, "sleep.svg")
 GT_DEF_ICON_ALIAS(sleep16, sleep)
 
-GT_DEF_ICON(showText, "showText_custom.svg")
-GT_DEF_ICON_ALIAS(showText16, showText)
-GT_DEF_ICON_ALIAS(showText24, showText)
+GT_DEF_ICON_ALIAS(square, stop)
 
 GT_DEF_ICON(sort, "sort.svg")
 GT_DEF_ICON(sortAsc, "sortAsc.svg")
@@ -585,6 +591,11 @@ GT_DEF_ICON_ALIAS(trace16, trace)
 
 GT_DEF_ICON(tree, "tree.svg")
 
+GT_DEF_ICON(triangleDown, "triangleDown_custom.svg")
+GT_DEF_ICON(triangleLeft, "triangleLeft_custom.svg")
+GT_DEF_ICON(triangleRight, "triangleRight_custom.svg")
+GT_DEF_ICON(triangleRightGroup, "triangleRightGroup_custom.svg")
+GT_DEF_ICON(triangleUp, "triangleUp_custom.svg")
 GT_DEF_ICON(triangleSmallDown, "triangleSmallDown.svg")
 GT_DEF_ICON(triangleSmallLeft, "triangleSmallLeft.svg")
 GT_DEF_ICON(triangleSmallRight, "triangleSmallRight.svg")
@@ -665,7 +676,6 @@ GT_DEF_ICON_ALIAS(plus, mathPlus)
 GT_DEF_ICON_ALIAS(minus, mathMinus)
 GT_DEF_ICON_ALIAS(multiply, mathMultiplication)
 GT_DEF_ICON_ALIAS(divide, mathDivision)
-GT_DEF_ICON_ALIAS(square, mathExponent)
 GT_DEF_ICON_ALIAS(squareRoot, mathRoot)
 
 GT_DEF_ICON_ALIAS(fileIn, fileImport)
@@ -725,42 +735,43 @@ GT_DEF_ICON_ALIAS(int16, letter::i)
 GT_DEF_ICON_ALIAS(o16, letter::o)
 GT_DEF_ICON_ALIAS(string16, letter::s)
 
-GT_DEF_ICON(performanceModel, "performanceModel_own.png");
+GT_DEF_ICON_ALIAS(performanceModel, perfModel);
 
-GT_DEF_ICON(performanceDesign, "DPcalculator.png");
-GT_DEF_ICON(performanceDesign16, "DPcalculator_16.png");
-GT_DEF_ICON(performanceDesign24, "DPcalculator_24.png");
+GT_DEF_ICON_ALIAS(performanceDesign, perfDesignPoint);
+GT_DEF_ICON_ALIAS(performanceDesign16, performanceDesign);
+GT_DEF_ICON_ALIAS(performanceDesign24, performanceDesign);
 
-GT_DEF_ICON(engineInstallation, "engine_installation_32.png");
-GT_DEF_ICON(engineInstallation16, "engine_installation_16.png");
-GT_DEF_ICON(engineInstallation24, "engine_installation_24.png");
+GT_DEF_ICON(engineInstallation, "engineInstallation_custom.svg");
+GT_DEF_ICON_ALIAS(engineInstallation16, engineInstallation);
+GT_DEF_ICON_ALIAS(engineInstallation24, engineInstallation);
 GT_DEF_ICON_ALIAS(engineInstallation32, engineInstallation);
 
-GT_DEF_ICON(carpetPlot, "carpetPlotIcon2.png");
+GT_DEF_ICON(carpetPlot, "carpetPlot_custom.svg");
 
-GT_DEF_ICON(bleedInPort, "bleedInPort3Icon.png");
-GT_DEF_ICON(bleedInPort16, "bleedInPort3Icon_16.png");
-GT_DEF_ICON(bleedInPort24, "bleedInPort3Icon_24.png");
+GT_DEF_ICON_ALIAS(bleedInPort, triangleDown);
+GT_DEF_ICON_ALIAS(bleedInPort16, bleedInPort);
+GT_DEF_ICON_ALIAS(bleedInPort24, bleedInPort);
 
-GT_DEF_ICON(bleedOutPort, "bleedOutPort3Icon.png");
-GT_DEF_ICON(bleedOutPort16, "bleedOutPort3Icon_16.png");
-GT_DEF_ICON(bleedOutPort24, "bleedOutPort3Icon_24.png");
+GT_DEF_ICON_ALIAS(bleedOutPort, triangleUp);
+GT_DEF_ICON_ALIAS(bleedOutPort16, bleedOutPort);
+GT_DEF_ICON_ALIAS(bleedOutPort24, bleedOutPort);
 
-GT_DEF_ICON(bleedPortGroup, "bleedPortGroupIcon.png");
-GT_DEF_ICON(bleedPortGroup16, "bleedPortGroupIcon_16.png");
-GT_DEF_ICON(bleedPortGroup24, "bleedPortGroupIcon_24.png");
+GT_DEF_ICON_ALIAS(bleedPortGroup, triangleRightGroup);
+GT_DEF_ICON_ALIAS(bleedPortGroup16, bleedPortGroup);
+GT_DEF_ICON_ALIAS(bleedPortGroup24, bleedPortGroup);
 
-GT_DEF_ICON(fluidPort, "fluidPort3Icon.png");
-GT_DEF_ICON(fluidPort16, "fluidPort3Icon_16.png");
-GT_DEF_ICON(fluidPort24, "fluidPort3Icon_24.png");
 
-GT_DEF_ICON(fluidPortGroup, "fluidPortGroupIcon.png");
-GT_DEF_ICON(fluidPortGroup16, "fluidPortGroupIcon_16.png");
-GT_DEF_ICON(fluidPortGroup24, "fluidPortGroupIcon_24.png");
+GT_DEF_ICON_ALIAS(fluidPort, triangleRight);
+GT_DEF_ICON_ALIAS(fluidPort16, fluidPort);
+GT_DEF_ICON_ALIAS(fluidPort24, fluidPort);
 
-GT_DEF_ICON(shaftPort, "shaftPort3Icon.png");
-GT_DEF_ICON(shaftPort16, "shaftPort3Icon_16.png");
-GT_DEF_ICON(shaftPort24, "shaftPort3Icon_24.png");
+GT_DEF_ICON_ALIAS(fluidPortGroup, triangleRightGroup);
+GT_DEF_ICON_ALIAS(fluidPortGroup16, fluidPortGroup);
+GT_DEF_ICON_ALIAS(fluidPortGroup24, fluidPortGroup);
+
+GT_DEF_ICON_ALIAS(shaftPort, square);
+GT_DEF_ICON_ALIAS(shaftPort16, shaftPort);
+GT_DEF_ICON_ALIAS(shaftPort24, shaftPort);
 
 GT_DEF_ICON_LETTER(a, "a_capital.svg")
 GT_DEF_ICON_LETTER(aSmall, "a_lower.svg")

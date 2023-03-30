@@ -98,6 +98,8 @@ GT_GUI_EXPORT QIcon arrowUpBlueAll();
 GT_GUI_EXPORT QIcon backspace();
 GT_GUI_EXPORT QIcon backspaceFlipped();
 
+GT_GUI_EXPORT QIcon binaryTree();
+
 GT_GUI_EXPORT QIcon blades();
 
 GT_GUI_EXPORT QIcon brush();
@@ -434,9 +436,11 @@ GT_GUI_EXPORT QIcon pause();
 
 GT_GUI_EXPORT QIcon pdf();
 
+GT_GUI_EXPORT QIcon perfDesignPoint();
 GT_GUI_EXPORT QIcon perfMap();
 GT_GUI_EXPORT QIcon perfMapExport();
 GT_GUI_EXPORT QIcon perfNoMap();
+GT_GUI_EXPORT QIcon perfModel();
 GT_GUI_EXPORT QIcon perfOperatingPoint();
 GT_GUI_EXPORT QIcon perfStageMap();
 GT_GUI_EXPORT QIcon perfSpeedLine();
@@ -545,6 +549,12 @@ GT_GUI_EXPORT QIcon session();
 [[deprecated("Use session instead")]]
 GT_GUI_EXPORT QIcon session16();
 
+GT_GUI_EXPORT QIcon showText();
+[[deprecated("Use showText instead")]]
+GT_GUI_EXPORT QIcon showText16();
+[[deprecated("Use showText instead")]]
+GT_GUI_EXPORT QIcon showText24();
+
 GT_GUI_EXPORT QIcon skip();
 [[deprecated("Use skip instead")]]
 GT_GUI_EXPORT QIcon skip16();
@@ -554,11 +564,7 @@ GT_GUI_EXPORT QIcon sleep();
 [[deprecated("Use sleep instead")]]
 GT_GUI_EXPORT QIcon sleep16();
 
-GT_GUI_EXPORT QIcon showText();
-[[deprecated("Use showText instead")]]
-GT_GUI_EXPORT QIcon showText16();
-[[deprecated("Use showText instead")]]
-GT_GUI_EXPORT QIcon showText24();
+GT_GUI_EXPORT QIcon square();
 
 GT_GUI_EXPORT QIcon sort();
 GT_GUI_EXPORT QIcon sortAsc();
@@ -596,6 +602,11 @@ GT_GUI_EXPORT QIcon trace16();
 
 GT_GUI_EXPORT QIcon tree();
 
+GT_GUI_EXPORT QIcon triangleDown();
+GT_GUI_EXPORT QIcon triangleLeft();
+GT_GUI_EXPORT QIcon triangleRight();
+GT_GUI_EXPORT QIcon triangleRightGroup();
+GT_GUI_EXPORT QIcon triangleUp();
 GT_GUI_EXPORT QIcon triangleSmallDown();
 GT_GUI_EXPORT QIcon triangleSmallLeft();
 GT_GUI_EXPORT QIcon triangleSmallRight();
@@ -704,8 +715,6 @@ GT_GUI_EXPORT QIcon minus();
 GT_GUI_EXPORT QIcon multiply();
 [[deprecated("Use mathDivision instead")]]
 GT_GUI_EXPORT QIcon divide();
-[[deprecated("Use mathExponent instead")]]
-GT_GUI_EXPORT QIcon square();
 [[deprecated("Use mathRoot instead")]]
 GT_GUI_EXPORT QIcon squareRoot();
 
@@ -806,14 +815,20 @@ GT_GUI_EXPORT QIcon o16();
 GT_GUI_EXPORT QIcon string16();
 
 /** OTHER **/
+[[deprecated("Use perfModel instead")]]
 GT_GUI_EXPORT QIcon performanceModel();
 
+[[deprecated("Use perfDesignPoint instead")]]
 GT_GUI_EXPORT QIcon performanceDesign();
+[[deprecated("Use perfDesignPoint instead")]]
 GT_GUI_EXPORT QIcon performanceDesign16();
+[[deprecated("Use perfDesignPoint instead")]]
 GT_GUI_EXPORT QIcon performanceDesign24();
 
 GT_GUI_EXPORT QIcon engineInstallation();
+[[deprecated("Use engineInstallation instead")]]
 GT_GUI_EXPORT QIcon engineInstallation16();
+[[deprecated("Use engineInstallation instead")]]
 GT_GUI_EXPORT QIcon engineInstallation24();
 [[deprecated("Use engineInstallation instead")]]
 GT_GUI_EXPORT QIcon engineInstallation32();
