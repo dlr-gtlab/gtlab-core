@@ -106,7 +106,7 @@ GtPreferencesDialog::setStartingPage(const QString& title)
 }
 
 QString
-GtPreferencesDialog::getCurrentPageTitle() const
+GtPreferencesDialog::currentPageTitle() const
 {
     assert(m_contentsWidget);
 

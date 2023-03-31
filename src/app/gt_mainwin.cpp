@@ -590,7 +590,7 @@ GtMainWin::showPreferences()
     dialog.setStartingPage(lastPageOpened);
 
     dialog.exec();
-    lastPageOpened = dialog.getCurrentPageTitle();
+    lastPageOpened = dialog.currentPageTitle();
 }
 
 void

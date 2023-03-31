@@ -41,7 +41,7 @@ public:
      * @brief Returns the title of the current page
      * @return
      */
-    QString getCurrentPageTitle() const;
+    QString currentPageTitle() const;
 
 public slots:
     /**
