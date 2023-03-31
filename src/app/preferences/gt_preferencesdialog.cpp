@@ -105,6 +105,17 @@ GtPreferencesDialog::setStartingPage(const QString& title)
     m_contentsWidget->setCurrentRow(pageIndex(title));
 }
 
+QString
+GtPreferencesDialog::getCurrentPageTitle() const
+{
+    assert(m_contentsWidget);
+
+    const auto* page = m_pages[m_contentsWidget->currentRow()];
+    assert(page);
+
+    return page->title();
+}
+
 void
 GtPreferencesDialog::addPage(GtPreferencesPage* page)
 {

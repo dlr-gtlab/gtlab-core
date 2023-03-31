@@ -37,6 +37,12 @@ public:
      */
     void setStartingPage(const QString& title);
 
+    /**
+     * @brief Returns the title of the current page
+     * @return
+     */
+    QString getCurrentPageTitle() const;
+
 public slots:
     /**
      * @brief changePage
