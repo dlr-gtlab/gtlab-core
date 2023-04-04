@@ -482,7 +482,7 @@ GtExplorerDock::listElements(QModelIndex const& parent) const
 void
 GtExplorerDock::selectObjectByUuid(const QString& uuid)
 {
-    if (!gtApp->currentProject())
+    if (uuid.isEmpty() || !gtApp->currentProject())
     {
         return;
     }

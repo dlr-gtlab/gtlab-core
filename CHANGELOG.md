@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - New Project Wizard will remember the last path used when creating a project - #508
 
+### Added
+- Option to collapse/expand all items in the object selection dialog for object link properties - #395
+
 ## [2.0.0-rc1] - 2023-03-21
 ### Fixed
 - Fixed / improved GtFileChooserProperty file filters to be also compatible to Qt filters - #446
