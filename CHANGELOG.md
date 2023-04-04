@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Option to collapse/expand all items in the object selection dialog for object link properties - #395
+- New function `gt::interface::sharedFunctionIDs` to query all shared function IDs - #505
 
 ## [2.0.0-rc1] - 2023-03-21
 ### Fixed

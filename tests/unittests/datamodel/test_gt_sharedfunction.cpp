@@ -199,3 +199,16 @@ TEST_F(SharedFunction, passByRef)
     EXPECT_STREQ("S1,S2,3,4", result.at(0).toString().toStdString().c_str());
 }
 
+TEST_F(SharedFunction, getIds)
+{
+    ASSERT_TRUE(gt::interface::detail::registerFunction("aa_testmod",
+        makeSharedFunction("aa_insane_fun", my_insane_test_fun)));
+
+    const auto ids = gt::interface::sharedFunctionIDs();
+
+    ASSERT_GE(ids.size(), 1);
+
+    EXPECT_EQ("aa_testmod", ids[0].moduleId.toStdString());
+    EXPECT_EQ("aa_insane_fun", ids[0].functionId.toStdString());
+}
+
