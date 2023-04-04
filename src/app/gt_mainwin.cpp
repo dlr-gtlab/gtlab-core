@@ -585,7 +585,12 @@ GtMainWin::showPreferences()
 {
     GtPreferencesDialog dialog;
 
+    // reopen the last page
+    static QString lastPageOpened = "";
+    dialog.setStartingPage(lastPageOpened);
+
     dialog.exec();
+    lastPageOpened = dialog.currentPageTitle();
 }
 
 void
