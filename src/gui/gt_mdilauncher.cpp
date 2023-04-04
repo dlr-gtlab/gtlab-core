@@ -439,6 +439,9 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     closeBtn->resize(QSize(14, 14));
     closeBtn->setIcon(gt::gui::icon::close());
     closeBtn->setFlat(true);
+    // for identification in gui tests
+    closeBtn->setObjectName(QStringLiteral("MdiTabCloseBtn"));
+
     m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, closeBtn);
     connect(closeBtn, &QPushButton::clicked, wid, &QWidget::deleteLater);
 

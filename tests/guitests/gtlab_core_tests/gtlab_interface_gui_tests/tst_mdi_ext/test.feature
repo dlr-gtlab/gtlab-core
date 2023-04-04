@@ -4,12 +4,12 @@ Feature: Test the mdi interface by extending a module
     Scenario: Setup
 
         Given GTlab is running
-          And only the modules 'Test Mdi Interface, Test Mdi Interface Ext' are included at startup
+          And only the modules 'Test Datamodel Interface, Test Mdi Interface, Test Mdi Interface Ext' are included at startup
 
 
     Scenario: The module package contains the extended UI items
 
-        # enable the required plugins in case they caused a crash  
+        # enable the required plugins in case they caused a crash
         Given the plugins 'MdiInterfaceExt, MdiInterface' are marked as reenabled at startup
         Given GTlab is running
           And the dock widgets 'Explorer, Output' are visible
