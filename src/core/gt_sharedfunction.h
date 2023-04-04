@@ -118,6 +118,19 @@ namespace interface
 GT_CORE_EXPORT SharedFunction
 getSharedFunction(const QString& moduleId, const QString& functionId);
 
+struct SharedFunctionID
+{
+    QString moduleId;
+    QString functionId;
+};
+
+/**
+ * @brief Returns a list of all shared function ids,
+ * separates as moduleID, functionID
+ */
+GT_CORE_EXPORT QVector<SharedFunctionID>
+sharedFunctionIDs();
+
 }  // namespace interface
 
 } // namespace gt
