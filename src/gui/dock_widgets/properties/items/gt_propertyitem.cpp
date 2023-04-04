@@ -27,6 +27,7 @@
 #include "gt_icons.h"
 #include "gt_command.h"
 #include "gt_project.h"
+#include "gt_colors.h"
 
 GtPropertyItem::GtPropertyItem() :
     m_currentUnit(QString())
@@ -99,6 +100,13 @@ GtPropertyItem::data(int column, int role) const
             }
 
             break;
+
+        case Qt::ForegroundRole:
+            if (m_property->isReadOnly() && column == 2)
+            {
+                return gt::gui::color::disabled();
+            }
+        break;
 
         case Qt::DecorationRole:
             if (m_property->isConnected())
