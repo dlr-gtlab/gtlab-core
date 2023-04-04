@@ -6,11 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+### Changed
+### Added
+### Removed
+
+## [2.0.0] - 2023-04-04
+### Fixed
 - Fixed "rename" action not beeing visible in the contextmenu of objects - #493
 - Fixed uninitialized Task Group when saving a new project for the first time - #507
 
 ### Changed
 - New Project Wizard will remember the last path used when creating a project - #508
+- Preference Dialog will remember the last page visited and reopen it - #509
 
 ### Added
 - Option to collapse/expand all items in the object selection dialog for object link properties - #395
