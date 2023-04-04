@@ -135,7 +135,8 @@ GtPropertiesDock::objectSelected(GtObject* obj)
         bool showTabWidget = !obj->propertyContainers().empty();
         auto* activeLayout = showTabWidget ? m_tabLayout : m_mainLayout;
 
-        activeLayout->addWidget(m_treeView);
+        int count = activeLayout->count();
+        activeLayout->insertWidget(gt::clamp(count, 0, count - 2), m_treeView);
         m_tab->setVisible(showTabWidget);
 
         // check for property container
