@@ -39,7 +39,7 @@ Feature: Test specific features of the process dock
          When the process element is selected
           And the context menu of the process element is opened
           And the action 'Skip' is activated
-         Then the text of the entry is crossed out
+         Then the text of the process entry is crossed out
          When the context menu of the process element is opened
           And the action 'Unskip' is activated
-         Then the text of the entry is not crossed out
+         Then the text of the process entry is not crossed out

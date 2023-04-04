@@ -15,7 +15,10 @@
 #include <QFileDialog>
 #include <QRegularExpressionValidator>
 
+#include "gt_filedialog.h"
 #include "gt_icons.h"
+#include "gt_application.h"
+#include "gt_settings.h"
 #include "gt_projectprovider.h"
 #include "gt_regexp.h"
 
@@ -25,6 +28,8 @@ GtProjectSpecWidget::GtProjectSpecWidget(QWidget* parent) : QWidget(parent),
     m_tmpName(QStringLiteral("New Project")),
     m_valid(false)
 {
+    assert(gtApp);
+
     QGridLayout* layout = new QGridLayout;
 
     // project name
@@ -45,15 +50,17 @@ GtProjectSpecWidget::GtProjectSpecWidget(QWidget* parent) : QWidget(parent),
             SLOT(onNameChange(QString)));
 
     // project path
-    QLabel* pathLabel = new QLabel(tr("Directory") + QStringLiteral(":"));
+    QLabel* pathLabel = new QLabel(tr("Directory")+ QStringLiteral(":"));
     layout->addWidget(pathLabel, 1, 0);
     m_pathLine = new QLineEdit;
-    m_pathLine->setText(QDir::homePath());
+    m_pathLine->setText(gtApp->settings()->lastPath());
     layout->addWidget(m_pathLine, 1, 1);
     m_pathCheck = new QLabel;
     layout->addWidget(m_pathCheck, 1, 2);
-    QPushButton* pathButton = new QPushButton(QStringLiteral("..."));
+    QPushButton* pathButton = new QPushButton();
     pathButton->setMaximumWidth(30);
+    pathButton->setFlat(true);
+    pathButton->setIcon(gt::gui::icon::dots());
     layout->addWidget(pathButton, 1, 3);
 
     connect(pathButton, SIGNAL(clicked(bool)), SLOT(browseDirectory()));
@@ -183,13 +190,12 @@ GtProjectSpecWidget::onNameChange(const QString& val)
     m_tmpName = val;
 
     updateStates();
-
 }
 
 void
 GtProjectSpecWidget::browseDirectory()
 {
-    QString directory = QFileDialog::getExistingDirectory(this,
+    QString directory = GtFileDialog::getExistingDirectory(this,
                           tr("Select new project directory"),
                           m_pathLine->text());
 

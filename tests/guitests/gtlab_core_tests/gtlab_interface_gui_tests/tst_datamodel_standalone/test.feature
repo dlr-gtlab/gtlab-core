@@ -15,7 +15,7 @@ Feature: Test the Datamodel Interface
           And the dock widget 'Explorer' is visible
          Then the project 'dm_test' does not exists
          # create a project
-         When the 'Create New Project' toolbutton is pressed
+         When the action 'File > New Project' in the main menu bar is activated
          Then the 'New Project' wizard is enabled
          When the wizard proceeds
          # set the name and path of the project
@@ -38,8 +38,7 @@ Feature: Test the Datamodel Interface
          Then the project 'dm_test' exists
           And the project entry 'Test DMI Package' exists
          # save and reopen the project
-         When the 'Save Project' toolbutton is pressed
-          And wait 10 seconds
+         When the action 'File > Save Project' in the main menu bar is activated
           And the project is closed
           And the project is opened
          Then the entry exists

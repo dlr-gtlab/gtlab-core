@@ -183,7 +183,6 @@ linuxBuildRelease:
 
 # Template for the two GUI-Testing jobs
 .guiTestTemplate:
-  allow_failure: true
   before_script:
     # sync submodules
     - git submodule sync

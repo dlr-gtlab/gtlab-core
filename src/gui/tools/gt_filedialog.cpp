@@ -31,7 +31,6 @@ GtFileDialog::getOpenFileName(QWidget* parent, const QString& caption,
         retval = readLastPath();
     }
 
-
     retval = QFileDialog::getOpenFileName(parent, caption, retval, filter,
                                           selectedFilter);
 
@@ -102,12 +101,12 @@ GtFileDialog::readLastPath()
 
     if (lastPath.isEmpty())
     {
-        gtDebug() << QObject::tr("last path not set... using home path!");
+        gtDebug().medium() << QObject::tr("last path not set, using home dir!");
         lastPath = QDir::homePath();
     }
     else
     {
-        gtDebug() << QObject::tr("last path") << ": " << lastPath;
+        gtDebug().medium() << QObject::tr("last path: '%1'").arg(lastPath);
     }
 
     return lastPath;
@@ -116,10 +115,13 @@ GtFileDialog::readLastPath()
 void
 GtFileDialog::writeLastPath(const QString& val)
 {
-    QFile file(val);
-    QFileInfo info(file);
-    gtDebug() << QObject::tr("new last path") << ": "
-              << info.absolutePath();
+    QFileInfo info(val);
+
+    // last path should point to a directory
+    QString lastPath = info.isFile() ? info.absolutePath() : val;
+
     gtApp->settings()->setLastPath(info.absolutePath());
+
+    gtDebug().medium() << QObject::tr("new last path") << ": " << lastPath;
 }
 

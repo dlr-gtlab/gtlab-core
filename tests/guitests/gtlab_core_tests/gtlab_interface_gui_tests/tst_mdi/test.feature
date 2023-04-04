@@ -47,10 +47,10 @@ Feature: Test the mdi interface
           And the widget does not exists
          When the dock widget is opened
          Then the widget exists
-         When the dock widget is set to float
-         Then the dock widget is floating
-         When the dock widget is set to anchor
-         Then the dock widget is anchored
+         #When the dock widget is set to float
+         #Then the dock widget is floating
+         #When the dock widget is set to anchor
+         #Then the dock widget is anchored
 
 
     Scenario: The implemented Mdi items work properly

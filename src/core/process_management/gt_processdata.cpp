@@ -150,7 +150,7 @@ GtProcessData::taskGroup() const
 bool
 GtProcessData::read(const QString& projectPath)
 {
-    if (m_pimpl-> _initialized)
+    if (m_pimpl->_initialized)
     {
         gtError() << tr("Process data was already initialized!");
         return false;
@@ -169,7 +169,6 @@ GtProcessData::read(const QString& projectPath)
         return false;
     }
 
-
     // init last active task group
     if (!m_pimpl->initTaskGroup(GtTaskGroup::defaultUserGroupId(), projectPath,
                                 GtTaskGroup::USER))
@@ -182,7 +181,7 @@ GtProcessData::read(const QString& projectPath)
     }
 
     // initialization finished. Yippee-ki-yay, mot*********
-    m_pimpl-> _initialized = true;
+    m_pimpl->_initialized = true;
 
     return true;
 }
@@ -192,7 +191,7 @@ GtProcessData::switchCurrentTaskGroup(const QString& taskGroupId,
                                       GtTaskGroup::SCOPE scope,
                                       const QString& projectPath)
 {
-    if (!m_pimpl-> _initialized)
+    if (!m_pimpl->_initialized)
     {
         gtError() << tr("Process data is not initialized!") << tr("Call init() first!");
         return false;
@@ -204,7 +203,7 @@ GtProcessData::switchCurrentTaskGroup(const QString& taskGroupId,
 bool
 GtProcessData::save(const QString& projectPath) const
 {
-    if (!m_pimpl-> _initialized)
+    if (!m_pimpl->_initialized)
     {
         gtError() << tr("Cannot save an uninitialized task group!");
         return false;
@@ -250,7 +249,6 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
         return nullptr;
     }
 
-
     auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId);
 
     if (!newGroup->read(projectPath, scope))
@@ -259,9 +257,9 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
         return nullptr;
     }
 
-    groupContainer->appendChild(newGroup.release());
+    groupContainer->appendChild(newGroup.get());
 
-    return group;
+    return newGroup.release();
 }
 
 bool
@@ -270,7 +268,7 @@ GtProcessData::renameTaskGroup(const QString& taskGroupId,
                                GtTaskGroup::SCOPE scope,
                                const QString& projectPath)
 {
-    if (!m_pimpl-> _initialized)
+    if (!m_pimpl->_initialized)
     {
         gtError().medium() << tr("Process data is not initialized!") <<
                      tr("Call init() first!");
@@ -451,7 +449,8 @@ GtProcessData::Impl::initTaskGroup(const QString& groupId,
     return true;
 }
 
-bool GtProcessData::Impl::initDefaultUserGroup(const QString& projectPath)
+bool
+GtProcessData::Impl::initDefaultUserGroup(const QString& projectPath)
 {
     // init default user
     QString sysUsername = GtTaskGroup::defaultUserGroupId();
