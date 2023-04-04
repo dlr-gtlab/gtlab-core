@@ -77,7 +77,6 @@ private slots:
      * @param val
      */
     void filterData(const QString& val);
-
 };
 
 #endif // GTOBJECTSELECTIONDIALOG_H

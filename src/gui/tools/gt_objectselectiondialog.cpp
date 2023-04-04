@@ -8,6 +8,7 @@
  */
 
 #include <QVBoxLayout>
+#include <QPushButton>
 
 #include "gt_icons.h"
 #include "gt_treeview.h"
@@ -35,8 +36,19 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
     m_treeView->setFrameStyle(QTreeView::NoFrame);
     lay->addWidget(m_treeView);
 
+    auto* btnLay = new QHBoxLayout;
+    btnLay->setContentsMargins(0, 0, 0, 0);
+    btnLay->setSpacing(0);
+    lay->addLayout(btnLay);
+
     auto searchWidget = new GtSearchWidget(this);
-    lay->addWidget(searchWidget);
+    btnLay->addWidget(searchWidget);
+    btnLay->addStretch();
+
+    auto* expandBtn = new QPushButton;
+    expandBtn->setFlat(true);
+
+    btnLay->addWidget(expandBtn);
 
     m_srcModel = new GtObjectModel(this);
     m_srcModel->setRootObject(m_root);
@@ -67,7 +79,53 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
     connect(m_treeView, SIGNAL(searchRequest()), searchWidget,
             SLOT(enableSearch()));
 
+    /// returns whether the view is expanded by checking the children of root
+    auto const isViewExpanded = [=](){
+        int rowCount = m_filterModel->rowCount();
+
+        QVector<QModelIndex> idxs;
+        idxs.reserve(rowCount);
+
+        auto root = m_treeView->rootIndex();
+        for (int i = 0; i < rowCount; ++i)
+        {
+            auto idx = m_filterModel->index(i, 0, root);
+            if (idx.isValid()) idxs.append(std::move(idx));
+        }
+
+        return std::all_of(std::cbegin(idxs), std::cend(idxs),
+                           [=](auto const& idx){
+            return m_treeView->isExpanded(idx);
+        });
+    };
+
+    /// updates the visuals of the expand btn
+    auto const updateExpandBtn = [=](bool isExpanded){
+        using namespace gt::gui;
+        expandBtn->setIcon(isExpanded ? icon::collapsed():icon::uncollapsed());
+        expandBtn->setToolTip(isExpanded ? tr("Collapse All"):tr("Expand All"));
+    };
+
+    /// updates the visuals of the expand btn if an item was expanded
+    auto const onExpandStateChanged = [=](QModelIndex const& idx){
+        if (idx.parent() == m_treeView->rootIndex())
+        {
+            updateExpandBtn(isViewExpanded());
+        }
+    };
+
+    connect(m_treeView, &QTreeView::expanded, this, onExpandStateChanged);
+    connect(m_treeView, &QTreeView::collapsed, this, onExpandStateChanged);
+
+    connect(expandBtn, &QPushButton::clicked, this, [=](){
+        bool expand = !isViewExpanded();
+        expand ? m_treeView->expandAll() : m_treeView->collapseAll();
+        updateExpandBtn(expand);
+    });
+
     setFilterData(QStringList());
+
+    resize(300, 330);
 }
 
 void
@@ -100,4 +158,5 @@ void
 GtObjectSelectionDialog::filterData(const QString& val)
 {
     m_filterModel->setFilterRegExp(val);
+    m_treeView->expandAll();
 }
