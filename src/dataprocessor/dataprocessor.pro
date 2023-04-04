@@ -118,7 +118,7 @@ HEADERS += \
     gt_algorithms.h \
     gt_mpl.h \
     gt_versionnumber.h \
-    thirdparty/mpark/variant.hpp
+    thirdparty/mpark/variant.hpp \
     thirdparty/tl/optional.hpp
 
 SOURCES += \
