@@ -223,6 +223,12 @@ gt::gui::color::fatalTextBackground()
 QColor
 gt::gui::color::collectionAvailableItemBackground()
 {
+    if (gtApp->inDarkMode())
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+        return QColor{89, 110, 93};
+    }
+
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return QColor{180, 229, 190};
 }

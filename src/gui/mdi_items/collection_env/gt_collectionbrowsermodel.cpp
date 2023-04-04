@@ -119,11 +119,6 @@ GtCollectionBrowserModel::data(const QModelIndex& index, int role) const
                 return gt::gui::icon::server();
             }
 
-            if (role == Qt::BackgroundRole)
-            {
-                return gt::gui::color::collectionInstalledItemBackground();
-            }
-
             break;
         }
 
