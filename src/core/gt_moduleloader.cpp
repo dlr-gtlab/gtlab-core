@@ -90,6 +90,12 @@ public:
         return m_deps;
     }
 
+    const std::vector<std::pair<QString, GtVersionNumber>>&
+    optionalDependencies() const noexcept
+    {
+        return m_deps_optional;
+    }
+
     /// Returns a list of modules that allow to suppress this module
     const QStringList& suppressorModules() const noexcept
     {
@@ -110,7 +116,7 @@ private:
 
     QString m_id;
     QString m_libraryLocation;
-    std::vector<std::pair<QString, GtVersionNumber>> m_deps;
+    std::vector<std::pair<QString, GtVersionNumber>> m_deps, m_deps_optional;
     QMap<QString, QString> m_envVars;
     QStringList m_suppression;
 };
@@ -747,6 +753,11 @@ createAdjacencyMatrixImpl(const QStringList& modulesToLoad,
             moduleDeps.push_back(dep.first);
         }
 
+        for (const auto& dep : moduleIt->second.optionalDependencies())
+        {
+            moduleDeps.push_back(dep.first);
+        }
+
         // recurse into dependencies
         createAdjacencyMatrixImpl(moduleDeps, allModules, matrix);
     }
@@ -870,11 +881,6 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
 bool
 GtModuleLoader::Impl::dependenciesOkay(const ModuleMetaData& meta)
 {
-    if (meta.directDependencies().empty())
-    {
-        return true;
-    }
-
     for (const auto& dep : meta.directDependencies())
     {
         const QString name = dep.first;
@@ -910,6 +916,35 @@ GtModuleLoader::Impl::dependenciesOkay(const ModuleMetaData& meta)
                        .arg(name, meta.moduleId())
                     << QObject::tr("(needed: >= %1, current: %2)")
                        .arg(version.toString(), depVersion.toString());
+        }
+    }
+
+    for (const auto& dep : meta.optionalDependencies())
+    {
+        const QString name = dep.first;
+
+        // check dependency
+        if (!m_plugins.contains(name))
+        {
+            gtWarning() << QObject::tr("Module '%1' has optional dependency '%2'"
+                                       ", which could not be met! "
+                                       "Not all functions will be available.")
+                             .arg(meta.moduleId(), name);
+            continue;
+        }
+
+        // check version
+        const GtVersionNumber depVersion = m_plugins.value(name)->version();
+        const GtVersionNumber version = dep.second;
+
+        if (depVersion < version)
+        {
+            gtWarning() << QObject::tr("Module '%1' optionally requires module "
+                                       "'%2', which is outdated "
+                                       "(needed >= %3, current: %4). "
+                                       "This may lead to unexpected behaviour!")
+                               .arg(meta.moduleId(), name,
+                                    version.toString(), depVersion.toString());
         }
     }
 
@@ -988,18 +1023,27 @@ ModuleMetaData::readFromJson(const QJsonObject &pluginMetaData)
     // read plugin/module id
     m_id = pluginMetaData.value("IID").toString();
 
-    // read dependencies
-    QVariantList deps = metaArray(json, QStringLiteral("dependencies"));
-
-    m_deps.clear();
-    for (const auto& d : qAsConst(deps))
+    auto readDependencies = [this, &json](const QString& id, auto& deps_array)
     {
-        QVariantMap mitem = d.toMap();
+        // read dependencies
+        QVariantList deps = metaArray(json, id);
 
-        auto name = mitem.value(QStringLiteral("name")).toString();
-        GtVersionNumber version(mitem.value(QStringLiteral("version")).toString());
-        m_deps.push_back(std::make_pair(name, version));
-    }
+        deps_array.clear();
+        for (const auto& d : qAsConst(deps))
+        {
+            QVariantMap mitem = d.toMap();
+
+            auto name = mitem.value(QStringLiteral("name")).toString();
+            GtVersionNumber version(mitem.value(QStringLiteral("version"))
+                                        .toString());
+            deps_array.push_back(std::make_pair(name, version));
+        }
+    };
+
+    // read dependencies
+    readDependencies(QStringLiteral("dependencies"), m_deps);
+    readDependencies(QStringLiteral("optional_dependencies"), m_deps_optional);
+
 
     // get sys_env_vars list
     QVariantList sys_vars = metaArray(json,
