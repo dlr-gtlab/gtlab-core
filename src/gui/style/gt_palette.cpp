@@ -55,8 +55,22 @@ generateTheme(ColorConfig const& config)
     palette.setColor(QPalette::Button, config.main);
 
     // tones
-    // QPalette::Dark = QFrame::Sunken
-    // QPalette::Mid  = QWizard: QFrame between page and buttons
+    /// QPalette::Dark: Apperantly affects the lower part of a raised frame
+    palette.setColor(QPalette::Dark,
+                     gt::gui::color::darken(config.main, 40));
+
+    /// QPalette::Mid:
+    palette.setColor(QPalette::Mid,
+                     gt::gui::color::darken(config.main, 20));
+
+    /// QPalette::Midlight: ???
+
+    /// QPalette::Light: Apperantly affects the top part of a raised frame
+    palette.setColor(QPalette::Light,
+                     gt::gui::color::lighten(
+                         gt::gui::color::desaturate(config.main, 0.5), 20));
+
+    /// QPalette::Shadow: ???
 
     // highlights
     palette.setColor(QPalette::Highlight, config.highlight);
@@ -69,6 +83,7 @@ generateTheme(ColorConfig const& config)
     // general text
     palette.setColor(QPalette::Text, config.text);
     palette.setColor(QPalette::BrightText, config.text);
+    /// QPalette::WindowText: Apperantly also affects the color of QFrame::Plain
     palette.setColor(QPalette::WindowText, config.text);
     palette.setColor(QPalette::ToolTipText, config.text);
     palette.setColor(QPalette::ButtonText, config.text);

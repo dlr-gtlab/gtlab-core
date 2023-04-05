@@ -16,7 +16,8 @@
 #include <QRandomGenerator>
 
 /// helper function to desaturate a color
-inline QColor desaturate(QColor const& color, double multiplier)
+QColor
+gt::gui::color::desaturate(QColor const& color, double multiplier)
 {
     int blackness = (color.red() + color.green() + color.blue()) / 3;
 
@@ -35,7 +36,7 @@ QColor
 gt::gui::color::lighten(const QColor& color, int amount)
 {
     constexpr int limit = std::numeric_limits<uint8_t>::max();
-    int offset = (gtApp->inDarkMode() ? -1:1) * amount;
+    int offset = (gtApp->inDarkMode() ? -1 : 1) * amount;
 
     QColor c = color;
     c.setRed(gt::clamp(c.red() + offset, 0, limit));
@@ -84,23 +85,14 @@ gt::gui::color::textHighlight()
 QColor
 gt::gui::color::frame()
 {
-    if (gtApp->inDarkMode())
-    {
-        return Qt::lightGray;
-    }
-
-    return Qt::darkGray;
+    return lighten(currentTheme().color(QPalette::WindowText),
+                   gtApp->inDarkMode() ? 80 : 110);
 }
 
 QColor
 gt::gui::color::lightFrame()
 {
-    if (gtApp->inDarkMode())
-    {
-        return desaturate(main(), 0.5).lighter(200);
-    }
-
-    return QColor(Qt::lightGray).lighter(120);
+    return currentTheme().color(QPalette::Dark);
 }
 
 QColor

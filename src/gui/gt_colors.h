@@ -26,7 +26,7 @@ namespace color
 
 /**
  * @brief Makes the color lighter (or darker) depending on the current theme
- * mode.  Amount denotes the value to lighten the color. The value will be
+ * mode. Amount denotes the value to lighten the color. The value will be
  * applied additively and not percentage wise, therefore the amount maybe in
  * range of 0 and 255. Negative values can be used to darken the color
  * @param color Color to lighten
@@ -35,6 +35,15 @@ namespace color
  * @return New color
  */
 GT_GUI_EXPORT QColor lighten(QColor const& color, int amount);
+
+/**
+ * @brief Desaturates the given color by the specified multiplier.
+ * @param color The color to be desaturated.
+ * @param multiplier The amount of desaturation to be applied.
+ * 0 = meaning no changes.
+ * @return A new QColor object representing the desaturated color.
+ */
+GT_GUI_EXPORT QColor desaturate(QColor const& color, double multiplier);
 
 
 /**

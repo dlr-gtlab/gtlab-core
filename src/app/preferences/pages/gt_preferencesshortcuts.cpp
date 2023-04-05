@@ -29,7 +29,7 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
     setIcon(gt::gui::icon::inputSettings());
 
     m_tab = new QTableWidget(1, 1, this);
-
+    m_tab->setFrameShape(QFrame::NoFrame);
     m_tab->setColumnCount(3);
     m_tab->setHorizontalHeaderLabels(QStringList{tr("Function"),
                                                  tr("ShortCut"),
