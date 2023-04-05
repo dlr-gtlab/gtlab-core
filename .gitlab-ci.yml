@@ -336,19 +336,12 @@ valgrind:
   tags:
     - Win10
 
-.unstableTagTemplate:
+.tagTemplate:
   extends: .copyTemplate
   rules:
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/
+    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+.*$/
   variables:
     RELEASESTATUS: unstable
-
-.stableTagTemplate:
-  extends: .copyTemplate
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/
-  variables:
-    RELEASESTATUS: stable
 
 .package:
   stage: package
@@ -414,7 +407,7 @@ packageLinuxRelease:
 
 copyForDeploymentWinUnstable:
   stage: copy
-  extends: .unstableTagTemplate
+  extends: .tagTemplate
   needs: ["packageWinDebug", "packageWinRelease"]
   dependencies: ["packageWinDebug", "packageWinRelease"]
   variables:
@@ -424,7 +417,7 @@ copyForDeploymentWinUnstable:
 
 copyForDeploymentLinuxUnstable:
   stage: copy
-  extends: .unstableTagTemplate
+  extends: .tagTemplate
   needs: ["packageLinuxRelease", "packageLinuxDebug"]
   dependencies: ["packageLinuxRelease", "packageLinuxDebug"]
   variables:
