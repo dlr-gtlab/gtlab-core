@@ -80,20 +80,24 @@ public:
         return m_id;
     }
 
+    struct Dependency
+    {
+        // avoids faulty cpp-check warning
+        bool optional() const { return isOptional; }
+
+        QString name;
+        GtVersionNumber version;
+        bool isOptional {false};
+    };
+
     /**
      * @return A list of modules (modulename, version) of which
      * this module depends.
      */
-    const std::vector<std::pair<QString, GtVersionNumber>>&
+    const std::vector<Dependency>&
     directDependencies() const noexcept
     {
         return m_deps;
-    }
-
-    const std::vector<std::pair<QString, GtVersionNumber>>&
-    optionalDependencies() const noexcept
-    {
-        return m_deps_optional;
     }
 
     /// Returns a list of modules that allow to suppress this module
@@ -116,7 +120,8 @@ private:
 
     QString m_id;
     QString m_libraryLocation;
-    std::vector<std::pair<QString, GtVersionNumber>> m_deps, m_deps_optional;
+
+    std::vector<Dependency> m_deps;
     QMap<QString, QString> m_envVars;
     QStringList m_suppression;
 };
@@ -750,12 +755,7 @@ createAdjacencyMatrixImpl(const QStringList& modulesToLoad,
         auto& moduleDeps = insertResult.first->second;
         for (const auto& dep : moduleIt->second.directDependencies())
         {
-            moduleDeps.push_back(dep.first);
-        }
-
-        for (const auto& dep : moduleIt->second.optionalDependencies())
-        {
-            moduleDeps.push_back(dep.first);
+            moduleDeps.push_back(dep.name);
         }
 
         // recurse into dependencies
@@ -878,73 +878,108 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
     return failedModules.empty();
 }
 
+/**
+ * @brief Checks a optional dependency of a module and warns, if required
+ */
+void checkOptionalDependency(const QString& moduleId,
+                       const ModuleMetaData::Dependency& dependency,
+                       const QMap<QString, GtModuleInterface*>& allModules)
+{
+    assert(dependency.optional());
+
+    // check dependency
+    if (!allModules.contains(dependency.name))
+    {
+        gtWarning() << QObject::tr("Module '%1' has optional dependency '%2'"
+                                   ", which could not be met! "
+                                   "Not all functions will be available.")
+                           .arg(moduleId, dependency.name);
+        return;
+    }
+
+    // dependency exists, check version
+    const GtVersionNumber currentVersion =
+        allModules.value(dependency.name)->version();
+
+    if (currentVersion < dependency.version)
+    {
+        gtWarning() << QObject::tr("Module '%1' optionally requires module "
+                                   "'%2', which is outdated "
+                                   "(needed >= %3, current: %4). "
+                                   "This may lead to unexpected behaviour!")
+                           .arg(moduleId, dependency.name,
+                                dependency.version.toString(),
+                                currentVersion.toString());
+    }
+}
+
+/**
+ * @brief Checks a required dependency
+ *
+ * returns false, if the dependency could not be met, i.e.
+ *  - dependency does not exists or
+ *  - dependency is outdated
+ */
+bool checkRequiredDependency(const QString& moduleId,
+                        const ModuleMetaData::Dependency& dependency,
+                        const QMap<QString, GtModuleInterface*>& allModules)
+{
+
+    assert(!dependency.optional());
+
+    // check dependency
+    if (!allModules.contains(dependency.name))
+    {
+        gtError() << QObject::tr("Cannot load module '%1' due to missing "
+                                 "dependency '%2'")
+                         .arg(moduleId, dependency.name);
+        return false;
+    }
+
+    // check version
+    const auto currentVersion = allModules.value(dependency.name)->version();
+
+    if (currentVersion < dependency.version)
+    {
+        gtError().nospace() << QObject::tr("Loading")
+                            << moduleId + QStringLiteral(":");
+        gtError()
+            << QObject::tr("Dependency '%1' is outdated!").arg(dependency.name)
+            << QObject::tr("(needed: >= %1, current: %2)")
+                   .arg(dependency.version.toString(),
+                        currentVersion.toString());
+        return false;
+    }
+    else if (currentVersion > dependency.version)
+    {
+        gtInfo().medium()
+            << QObject::tr("Dependency '%1' has a newer version than "
+                           "the module '%2' requires")
+                   .arg(dependency.name, moduleId)
+            << QObject::tr("(needed: >= %1, current: %2)")
+                   .arg(dependency.version.toString(),
+                        currentVersion.toString());
+    }
+
+    return true;
+}
+
 bool
 GtModuleLoader::Impl::dependenciesOkay(const ModuleMetaData& meta)
 {
-    for (const auto& dep : meta.directDependencies())
+    for (const ModuleMetaData::Dependency& dep : meta.directDependencies())
     {
-        const QString name = dep.first;
-        const GtVersionNumber version = dep.second;
-
-        // check dependency
-        if (!m_plugins.contains(name))
+        if (dep.optional())
         {
-            gtError() << QObject::tr("Cannot load module '%1' due to missing "
-                                     "dependency '%2'")
-                         .arg(meta.moduleId(), name);
-            return false;
-        }
-
-        // check version
-        const GtVersionNumber depVersion = m_plugins.value(name)->version();
-
-        if (depVersion < version)
-        {
-            gtError().nospace() << QObject::tr("Loading")
-                    << meta.moduleId() + QStringLiteral(":");
-            gtError()
-                    << QObject::tr("Dependency '%1' is outdated!").arg(name)
-                    << QObject::tr("(needed: >= %1, current: %2)")
-                       .arg(version.toString(), depVersion.toString());
-            return false;
-        }
-        else if (depVersion > version)
-        {
-            gtInfo().medium()
-                    << QObject::tr("Dependency '%1' has a newer version than "
-                                   "the module '%2' requires")
-                       .arg(name, meta.moduleId())
-                    << QObject::tr("(needed: >= %1, current: %2)")
-                       .arg(version.toString(), depVersion.toString());
-        }
-    }
-
-    for (const auto& dep : meta.optionalDependencies())
-    {
-        const QString name = dep.first;
-
-        // check dependency
-        if (!m_plugins.contains(name))
-        {
-            gtWarning() << QObject::tr("Module '%1' has optional dependency '%2'"
-                                       ", which could not be met! "
-                                       "Not all functions will be available.")
-                             .arg(meta.moduleId(), name);
+            checkOptionalDependency(meta.moduleId(), dep, m_plugins);
             continue;
         }
 
-        // check version
-        const GtVersionNumber depVersion = m_plugins.value(name)->version();
-        const GtVersionNumber version = dep.second;
-
-        if (depVersion < version)
+        // not optional
+        if (!checkRequiredDependency(meta.moduleId(), dep, m_plugins))
         {
-            gtWarning() << QObject::tr("Module '%1' optionally requires module "
-                                       "'%2', which is outdated "
-                                       "(needed >= %3, current: %4). "
-                                       "This may lead to unexpected behaviour!")
-                               .arg(meta.moduleId(), name,
-                                    version.toString(), depVersion.toString());
+            // module cannot be loaded
+            return false;
         }
     }
 
@@ -978,10 +1013,11 @@ GtModuleLoader::Impl::printDependencies(const ModuleMetaData& meta)
     gtWarning() << QString("### %1 (%2)")
                    .arg(meta.moduleId(), meta.location());
 
-    for (const auto& dep : meta.directDependencies())
+    for (const ModuleMetaData::Dependency& dep : meta.directDependencies())
     {
-        gtWarning() << QObject::tr("###   - %1 (%2)")
-            .arg(dep.first, dep.second.toString());
+        gtWarning() << QObject::tr("###   - %1 (%2)%3")
+            .arg(dep.name, dep.version.toString(),
+                 dep.optional() ? " (optional)" : "");
     }
 }
 
@@ -1023,27 +1059,24 @@ ModuleMetaData::readFromJson(const QJsonObject &pluginMetaData)
     // read plugin/module id
     m_id = pluginMetaData.value("IID").toString();
 
-    auto readDependencies = [this, &json](const QString& id, auto& deps_array)
-    {
-        // read dependencies
-        QVariantList deps = metaArray(json, id);
-
-        deps_array.clear();
-        for (const auto& d : qAsConst(deps))
-        {
-            QVariantMap mitem = d.toMap();
-
-            auto name = mitem.value(QStringLiteral("name")).toString();
-            GtVersionNumber version(mitem.value(QStringLiteral("version"))
-                                        .toString());
-            deps_array.push_back(std::make_pair(name, version));
-        }
-    };
-
     // read dependencies
-    readDependencies(QStringLiteral("dependencies"), m_deps);
-    readDependencies(QStringLiteral("optional_dependencies"), m_deps_optional);
+    QVariantList deps = metaArray(json, QStringLiteral("dependencies"));
 
+    m_deps.clear();
+    for (const auto& d : qAsConst(deps))
+    {
+        QVariantMap mitem = d.toMap();
+
+        auto name = mitem.value(QStringLiteral("name")).toString();
+        GtVersionNumber version(mitem.value(QStringLiteral("version"))
+                                    .toString());
+
+        auto isOptionalVar = mitem.value(QStringLiteral("optional"));
+        bool isOptional = isOptionalVar.isValid() ?
+                              isOptionalVar.toBool() : false;
+
+        m_deps.push_back({name, version, isOptional});
+    }
 
     // get sys_env_vars list
     QVariantList sys_vars = metaArray(json,

@@ -1,5 +1,5 @@
 {
-    "optional_dependencies" : [
-    { "name" : "PreDesign", "version" : "3.2.0" }
+    "dependencies" : [
+    { "name" : "PreDesign", "version" : "3.2.0", "optional": "true" }
     ]
 }
