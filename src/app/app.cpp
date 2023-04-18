@@ -86,7 +86,7 @@ main(int argc, char* argv[])
 
     QApplication::setOrganizationDomain("www.dlr.de");
     QApplication::setOrganizationName("DLR");
-    QApplication::setApplicationName("GTlab");
+    QApplication::setApplicationName("GTlab 2");
 
     QApplication::setApplicationVersion(GtApplication::version().toString());
 

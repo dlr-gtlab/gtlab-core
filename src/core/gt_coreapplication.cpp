@@ -1008,10 +1008,48 @@ GtCoreApplication::switchCurrentProject()
     }
 }
 
+gt::SettingsConfig
+gt::settingsConfig(gt::SettingsVersions version, const GtCoreApplication& app)
+{
+
+    QDir basePath(app.roamingPath());
+    basePath.cdUp();
+
+    switch (version)
+    {
+    case GT_1_7:
+
+#ifdef Q_OS_UNIX
+        return {
+            QStandardPaths::writableLocation(
+                QStandardPaths::GenericConfigLocation),
+            std::make_unique<QSettings>("DLR", "GTlab")
+        };
+#else
+        return {
+            basePath.filePath("GTlab"),
+            std::make_unique<QSettings>("DLR", "GTlab")
+        };
+#endif
+    case GT_2_0:
+    default:
+        return {
+            app.roamingPath(),
+            std::make_unique<QSettings>()
+        };
+    }
+}
 
 void
-GtCoreApplication::migrateConfigData(const QDir& srcDir, const QDir& targetDir)
+GtCoreApplication::migrateConfigData(gt::SettingsVersions srcVer,
+                                     gt::SettingsVersions targetVer)
 {
+    auto srcConfig = gt::settingsConfig(srcVer, *this);
+    auto targetConfig = gt::settingsConfig(targetVer, *this);
+
+    const QDir& srcDir = srcConfig.path;
+    const QDir& targetDir = targetConfig.path;
+
     if (!srcDir.exists())
     {
         gtError() << QObject::tr("Cannot migrate config data."
@@ -1051,4 +1089,14 @@ GtCoreApplication::migrateConfigData(const QDir& srcDir, const QDir& targetDir)
     // copy env.ini
     QFile::copy(srcDir.absolutePath() + QDir::separator() + "env.ini",
                 targetDir.absolutePath() + QDir::separator() + "env.ini");
+
+    // copy settings (which are e.g. stored in the registry)
+    auto& sourceSettings = srcConfig.settings;
+    auto& destSettings = targetConfig.settings;
+
+    foreach (const auto& key, sourceSettings->allKeys())
+    {
+        QVariant value = sourceSettings->value(key);
+        destSettings->setValue(key, value);
+    }
 }
