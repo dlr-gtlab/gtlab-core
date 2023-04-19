@@ -39,6 +39,7 @@
 #include <QKeyEvent>
 #include <QStandardPaths>
 #include <QSettings>
+#include <QProcess>
 
 
 GtApplication::GtApplication(QCoreApplication* parent,
@@ -819,6 +820,12 @@ GtApplication::initFirstRun()
         if (button == QMessageBox::Yes)
         {
             migrateConfigData(oldVersion, newVersion);
+
+            gtInfo() << tr("Data migration done, restarting GTlab");
+            auto args = qApp->arguments();
+            args.removeFirst();
+            QProcess::startDetached(QApplication::applicationFilePath(), args);
+            exit(0);
         }
     }
 
