@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    metadatafile similar to `depenencies`. - #517
    
 ### Fixed
+ - Fixed objects were not marked as changed, when adding / removing property container entries - #529
 
 ### Changed
  - Changed the location of the GTlab config files path to not collide with older versions - #530
