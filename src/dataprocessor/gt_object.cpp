@@ -885,6 +885,18 @@ GtObject::registerPropertyStructContainer(GtPropertyStructContainer & c)
         emit dataChanged(this, property);
     });
 
+    connect(&c, &GtPropertyStructContainer::entryAdded, this,
+            [this](int) {
+        setFlag(GtObject::HasOwnChanges, true);
+        emit dataChanged(this);
+    });
+
+    connect(&c, &GtPropertyStructContainer::entryRemoved, this,
+            [this](int) {
+        setFlag(GtObject::HasOwnChanges, true);
+        emit dataChanged(this);
+    });
+
     return true;
 }
 
