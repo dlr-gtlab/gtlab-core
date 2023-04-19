@@ -38,6 +38,8 @@
 #include <QUuid>
 #include <QKeyEvent>
 #include <QStandardPaths>
+#include <QSettings>
+#include <QProcess>
 
 
 GtApplication::GtApplication(QCoreApplication* parent,
@@ -799,15 +801,12 @@ GtApplication::readPerspectiveIds()
 bool
 GtApplication::initFirstRun()
 {
-    // check existence of old roaming path directory
-#ifdef Q_OS_UNIX
-    auto oldConfigPath = QStandardPaths::writableLocation(
-                QStandardPaths::GenericConfigLocation);
-#else
-    auto oldConfigPath = roamingPath();
-#endif
-    auto configPath = roamingPath();
+    auto oldVersion = gt::GT_1_7;
+    auto newVersion = gt::GT_2_0;
 
+    // check existence of old roaming path directory
+    auto oldConfigPath = gt::settingsConfig(oldVersion, *this).path;
+    auto configPath = gt::settingsConfig(newVersion, *this).path;
 
     if (oldConfigPath != configPath &&
         QDir(oldConfigPath).exists() &&
@@ -817,15 +816,16 @@ GtApplication::initFirstRun()
                               tr("GTlab found a configuration of an older GTlab"
                                  " version. Do you want to migrate the data?"));
 
-        QDir newPath(configPath);
-        if (!newPath.exists())
-        {
-            QDir().mkpath(configPath);
-        }
 
         if (button == QMessageBox::Yes)
         {
-            migrateConfigData(oldConfigPath, configPath);
+            migrateConfigData(oldVersion, newVersion);
+
+            gtInfo() << tr("Data migration done, restarting GTlab");
+            auto args = qApp->arguments();
+            args.removeFirst();
+            QProcess::startDetached(QApplication::applicationFilePath(), args);
+            exit(0);
         }
     }
 

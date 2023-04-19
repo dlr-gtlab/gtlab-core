@@ -25,6 +25,7 @@
 class QCoreApplication;
 class QTranslator;
 class QDir;
+class QSettings;
 
 class GtSession;
 class GtProject;
@@ -38,6 +39,31 @@ class GtAbstractLoadingHelper;
 class GtCommand;
 class GtVersionNumber;
 class GtModuleInterface;
+class GtCoreApplication;
+
+namespace gt
+{
+
+    struct SettingsConfig
+    {
+        QString path; /// Directory path of the settings
+        std::unique_ptr<QSettings> settings; /// registry path
+    };
+
+    enum SettingsVersions
+    {
+        GT_1_7,
+        GT_2_0
+    };
+
+    /**
+ * @brief Returns the settings configuration for a specified version
+ */
+    GT_CORE_EXPORT
+    SettingsConfig settingsConfig(SettingsVersions version,
+                   const GtCoreApplication& app);
+
+} // namespace gt
 
 /**
  * @brief The GtApplication class
@@ -414,7 +440,8 @@ public:
     /**
      * @brief Copies GTlab config files from src to target
      */
-    void migrateConfigData(const QDir &srcDir, const QDir &targetDir);
+    void migrateConfigData(gt::SettingsVersions srcVer,
+                           gt::SettingsVersions targetVer);
 protected:
     /// Current session
     std::unique_ptr<GtSession> m_session;
