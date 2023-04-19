@@ -732,3 +732,51 @@ TEST_F(TestGtStructProperty, moveToThreadBug)
     obj->environmentVars.at(0).setMemberVal("value", "world");
     EXPECT_TRUE(changed);
 }
+
+TEST_F(TestGtStructProperty, checkPropagateElementAdded)
+{
+    TestObject obj;
+
+    using dataChangedT = void (TestObject::*)(GtObject*);
+
+    bool changed=false;
+
+    QObject::connect(
+        &obj,
+        static_cast<dataChangedT>(&TestObject::dataChanged),
+        &obj,
+        [&changed](GtObject*)
+        {
+            changed = true;
+        });
+
+    obj.addEnvironmentVar("test", "value");
+
+    EXPECT_EQ(changed, true);
+}
+
+TEST_F(TestGtStructProperty, checkPropagateElementRemoved)
+{
+    TestObject obj;
+    obj.addEnvironmentVar("test", "value");
+
+    using dataChangedT = void (TestObject::*)(GtObject*);
+
+    bool changed=false;
+
+    QObject::connect(
+        &obj,
+        static_cast<dataChangedT>(&TestObject::dataChanged),
+        &obj,
+        [&changed](GtObject*)
+        {
+            changed = true;
+        });
+
+    auto* vars = obj.findPropertyContainer("environmentVars");
+    ASSERT_TRUE(vars);
+
+    vars->removeEntry(vars->begin());
+
+    EXPECT_EQ(changed, true);
+}
