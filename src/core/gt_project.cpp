@@ -550,7 +550,8 @@ GtProject::readModuleData()
         int errorLine;
         int errorColumn;
 
-        if (!document.setContent(&file, true, &errorStr, &errorLine, &errorColumn))
+        if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
+                                              &errorLine, &errorColumn))
         {
             gtWarning() << tr("XML ERROR!") << " " << tr("line") << ": "
                       << errorLine << " " << tr("column") << ": "
@@ -853,7 +854,8 @@ GtProject::readProjectData(const QDir& projectPath)
     int errorLine;
     int errorColumn;
 
-    if (!document.setContent(&file, true, &errorStr, &errorLine, &errorColumn))
+    if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
+                                          &errorLine, &errorColumn))
     {
         gtDebug() << tr("XML ERROR!") << " " << tr("line") << ": "
                   << errorLine << " " << tr("column") << ": "
@@ -1376,7 +1378,8 @@ GtProject::readFootprint() const
     int errorLine;
     int errorColumn;
 
-    if (!document.setContent(&file, true, &errorStr, &errorLine, &errorColumn))
+    if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
+                                          &errorLine, &errorColumn))
     {
         gtDebug() << tr("XML ERROR!") << " " << tr("line") << ": "
                   << errorLine << " " << tr("column") << ": "

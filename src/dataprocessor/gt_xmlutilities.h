@@ -18,6 +18,7 @@
 class QDomDocument;
 class QXmlStreamWriter;
 class QString;
+class QFile;
 
 namespace gt
 {
@@ -49,6 +50,18 @@ bool GT_DATAMODEL_EXPORT writeDomElementOrderedAttribute(
 bool GT_DATAMODEL_EXPORT writeDomDocumentToFile(const QString& filePath,
                                                 const QDomDocument& doc,
                                                 bool attrOrdered = true);
+
+/**
+ * @brief This function parses the XML document from given file.
+ * File is opened in TextMode. (Fix for broken line endings)
+ * Read Qt documentation for further information: QDomDocument::setContent
+ */
+bool GT_DATAMODEL_EXPORT readDomDocumentFromFile(QFile& file,
+                                                 QDomDocument& doc,
+                                                 bool namespaceProcessing,
+                                                 QString* errorMsg=nullptr,
+                                                 int* errorLine=nullptr,
+                                                 int* errorColumn=nullptr);
 
 /**
  * @brief Finds all elements below root of a specific gtobject type

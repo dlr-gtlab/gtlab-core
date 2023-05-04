@@ -23,6 +23,7 @@
 #include "gt_coreprocessexecutor.h"
 #include "gt_objectgroup.h"
 #include "gt_versionnumber.h"
+#include "gt_xmlutilities.h"
 
 bool
 gt::batch::checkInput(const QString& inputName,
@@ -56,8 +57,8 @@ gt::batch::checkInput(const QString& inputName,
     int errorLine;
     int errorColumn;
 
-    if (!document.setContent(&currentFile, true, &errorStr,
-                             &errorLine, &errorColumn))
+    if (!gt::xml::readDomDocumentFromFile(currentFile, document, true,
+                                          &errorStr, &errorLine, &errorColumn))
     {
         qDebug() << "XML ERROR!" << " " << "line" << ": "
                  << errorLine << " " << "column" << ": "
@@ -261,8 +262,8 @@ gt::batch::run(const QString& inputName,
     int errorLine;
     int errorColumn;
 
-    if (!document.setContent(&currentFile, true, &errorStr,
-                             &errorLine, &errorColumn))
+    if (!gt::xml::readDomDocumentFromFile(currentFile, document, true,
+                                          &errorStr, &errorLine, &errorColumn))
     {
         qDebug() << "XML ERROR!" << " " << "line" << ": "
                  << errorLine << " " << "column" << ": "

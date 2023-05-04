@@ -16,6 +16,7 @@
 #include "gt_logging.h"
 #include "gt_posttemplatepath.h"
 #include "gt_coredatamodel.h"
+#include "gt_xmlutilities.h"
 
 #include "gt_postmodel.h"
 
@@ -378,7 +379,7 @@ GtPostModel::renameFile(const QString& oldName, const QString& newName)
                         << fileNewAndPath << QStringLiteral(")");
         }
 
-        if (!fileNew.open(QIODevice::ReadWrite))
+        if (!fileNew.open(QIODevice::ReadWrite | QIODevice::Text))
         {
             gtWarning() << objectName() << QStringLiteral(": ")
                         << tr("Failed to edit template data!")
@@ -477,19 +478,14 @@ GtPostModel::readTemplateId(const QString& path)
         return QString();
     }
 
-    if (!file.open(QFile::ReadOnly))
-    {
-        gtWarning() << tr("could not open template file") <<
-                       QStringLiteral("! (") << path << QStringLiteral(")");
-    }
-
     QDomDocument document;
 
     QString errorStr;
     int errorLine;
     int errorColumn;
 
-    if (!document.setContent(&file, true, &errorStr, &errorLine, &errorColumn))
+    if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
+                                          &errorLine, &errorColumn))
     {
         gtWarning() << tr("XML ERROR!") << " " << tr("line") << ": "
                   << errorLine << " " << tr("column") << ": "

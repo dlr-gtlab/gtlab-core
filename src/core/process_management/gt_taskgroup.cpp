@@ -21,6 +21,7 @@
 #include "gt_processfactory.h"
 #include "gt_task.h"
 #include "gt_objectfactory.h"
+#include "gt_xmlutilities.h"
 #include "internal/gt_platformspecifics.h"
 
 static const char* S_INDEX_FILE_NAME = "index.json";
@@ -454,7 +455,8 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
     int errorLine;
     int errorColumn;
 
-    if (!document.setContent(&taskFile, true, &errorStr, &errorLine, &errorColumn))
+    if (!gt::xml::readDomDocumentFromFile(taskFile, document, true, &errorStr,
+                                          &errorLine, &errorColumn))
     {
         gtError() << QObject::tr("Could not open task file (%1)").arg(filePath);
         return nullptr;
