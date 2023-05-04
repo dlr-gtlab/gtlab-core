@@ -69,7 +69,7 @@ devtoolsUpdateLinux:
   tags:
     - windows
     - docker
-  image: dlr-at/gtlabdev-msvc-2019
+  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-win
   before_script:
     - '& $VCvarsall'
     - '& echo "Using Devtools: $DEVTOOLS"'
