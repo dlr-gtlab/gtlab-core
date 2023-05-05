@@ -16,6 +16,7 @@
 #include "gt_footprint.h"
 #include "gt_algorithms.h"
 #include "gt_xmlexpr.h"
+#include "gt_xmlutilities.h"
 
 #include <QFile>
 #include <QDir>
@@ -541,7 +542,8 @@ GtProjectProvider::modifyMainProjectFile()
     int errorLine;
     int errorColumn;
 
-    if (!document.setContent(&file, true, &errorStr, &errorLine, &errorColumn))
+    if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
+                                          &errorLine, &errorColumn))
     {
         gtError() << tr("XML ERROR!") << " " << tr("line") << ": "
                   << errorLine << " " << tr("column") << ": "

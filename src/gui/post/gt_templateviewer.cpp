@@ -37,6 +37,7 @@
 #include "gt_postmodel.h"
 #include "gt_stylesheets.h"
 #include "gt_icons.h"
+#include "gt_xmlutilities.h"
 
 
 GtTemplateViewer::GtTemplateViewer() :
@@ -199,8 +200,8 @@ GtTemplateViewer::readFromXMLmemento(const QString& path)
     int errorLine;
     int errorColumn;
 
-    if (!document.setContent(&file, true, &errorStr,
-                             &errorLine, &errorColumn))
+    if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
+                                          &errorLine, &errorColumn))
     {
         gtDebug() << tr("XML ERROR!") << " " << tr("line") << ": "
                   << errorLine << " " << tr("column") << ": "

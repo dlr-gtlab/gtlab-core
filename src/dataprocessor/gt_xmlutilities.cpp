@@ -202,3 +202,30 @@ QDomElement gt::xml::findPropertyElement(const QDomElement &root,
     return result.at(0);
 
 }
+
+bool
+gt::xml::readDomDocumentFromFile(QFile& file,
+                                 QDomDocument& doc,
+                                 bool namespaceProcessing,
+                                 QString* errorMsg,
+                                 int* errorLine,
+                                 int* errorColumn)
+{
+    assert(!file.isOpen());
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        if (errorMsg)
+        {
+            *errorMsg = QStringLiteral(
+                            "could not open file! (%1)").arg(file.fileName());
+        }
+
+        return false;
+    }
+
+    const auto content = file.readAll();
+    file.close();
+
+    return doc.setContent(content, true, errorMsg, errorLine, errorColumn);
+}
