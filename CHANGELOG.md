@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+
+### Removed
+
 ### Fixed
  - Fixed replicating unnamed child objects. This bug appeared in the Sketchpad SplineComet calculator - #539
+
+### Added
+- Added option to output dock to ignore all incoming messages. This may be useful if lots of incomming messages are slowing down GTlab - #531
 
 ## [2.0.2] - 2023-05-04
 ### Fixed

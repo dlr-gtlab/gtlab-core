@@ -745,5 +745,6 @@
         <file>engineInstallation_custom.svg</file>
         <file>binaryTree.svg</file>
         <file>tree.svg</file>
+        <file>sleepOff_custom.svg</file>
     </qresource>
 </RCC>

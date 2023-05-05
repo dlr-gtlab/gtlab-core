@@ -563,6 +563,7 @@ GT_GUI_EXPORT QIcon unskip();
 GT_GUI_EXPORT QIcon sleep();
 [[deprecated("Use sleep instead")]]
 GT_GUI_EXPORT QIcon sleep16();
+GT_GUI_EXPORT QIcon sleepOff();
 
 GT_GUI_EXPORT QIcon square();
 

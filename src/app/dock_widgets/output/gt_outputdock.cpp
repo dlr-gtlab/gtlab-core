@@ -159,17 +159,55 @@ GtOutputDock::GtOutputDock()
 
     filterLayout->addStretch(1);
 
-    /// helper method for setting up an output action button
-    const auto setupActionButton =
-            [&](QIcon const& icon, QString const& tooltip,
-                auto reciever, auto signal){
+    const auto setupButton =
+        [&](QIcon const& icon = {}, QString const& tooltip = {}){
         auto* button = new QPushButton;
         button->setIcon(icon);
         button->setMaximumSize(QSize(20, 20));
         button->setFlat(true);
         button->setToolTip(tooltip);
         filterLayout->addWidget(button);
+        return button;
+    };
+
+    /// helper method for setting up an output action button
+    const auto setupActionButton =
+            [&](QIcon const& icon, QString const& tooltip,
+                auto reciever, auto signal){
+        auto* button = setupButton(icon, tooltip);
         QObject::connect(button, &QPushButton::clicked, reciever, signal);
+        return button;
+    };
+
+    GtObject* guardian = new GtObject;
+    guardian->setParent(this);
+
+    /// helper method for setting up an output toggle button
+    const auto setupToggleButton =
+            [&](QIcon const& icon, QString const& type, QString const& tooltip, auto* reciever, auto signal){
+
+        auto* button = setupButton(icon, tooltip);
+        button->setCheckable(true);
+
+        connect(button, &QPushButton::toggled, reciever, signal);
+
+        GtState* state =
+            gtStateHandler->initializeState(metaObject()->className(),
+                                            type, type.toLower(),
+                                            QVariant::fromValue(true),
+                                            guardian);
+
+        // apply value from state
+        bool isChecked = state->getValue().toBool();
+        button->setChecked(isChecked);
+
+        connect(button, &QPushButton::toggled, state, [=](bool checked){
+            state->setValue(checked, false);
+        });
+
+        // trigger signal
+        emit button->toggled(isChecked);
+
         return button;
     };
 
@@ -193,43 +231,24 @@ GtOutputDock::GtOutputDock()
         testButton->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(testButton, &QWidget::customContextMenuRequested,
                 this, &GtOutputDock::openTestCaseContextMenu);
+
+        // ingore incoming messages button
+        auto* ignoreButton = setupButton();
+        ignoreButton->setCheckable(true);
+
+        auto updateIgnoreButton = [=](bool isChecked){
+            auto& model = GtLogModel::instance();
+            model.setEnabled(!isChecked);
+            ignoreButton->setIcon(isChecked ? gt::gui::icon::sleepOff() :
+                                              gt::gui::icon::sleep());
+            ignoreButton->setToolTip(isChecked ? tr("Enable log model") :
+                                                 tr("Disable log model"));
+        };
+
+        updateIgnoreButton(false);
+
+        connect(ignoreButton, &QPushButton::toggled, this, updateIgnoreButton);
     }
-
-    GtObject* guardian = new GtObject;
-    guardian->setParent(this);
-
-    /// helper method for setting up an output toggle button
-    const auto setupToggleButton =
-            [&](QIcon const& icon, QString const& type, QString const& tooltip, auto signal){
-
-        GtState* state =
-                gtStateHandler->initializeState(metaObject()->className(),
-                                                type, type.toLower(),
-                                                QVariant::fromValue(true),
-                                                guardian);
-
-        auto* button = new QPushButton;
-        button->setIcon(icon);
-        button->setMaximumSize(QSize(20, 20));
-        button->setFlat(true);
-        button->setCheckable(true);
-        button->setToolTip(tooltip);
-        filterLayout->addWidget(button);
-
-        // apply value from state
-        bool isChecked = state->getValue().toBool();
-        button->setChecked(isChecked);
-
-        connect(button, &QPushButton::toggled, m_model, signal);
-        connect(button, &QPushButton::toggled, state, [=](bool checked){
-            state->setValue(checked, false);
-        });
-
-        // trigger signal
-        emit button->toggled(isChecked);
-
-        return button;
-    };
 
     auto loggingLevel = gt::log::Logger::instance().loggingLevel();
 
@@ -237,30 +256,35 @@ GtOutputDock::GtOutputDock()
     m_traceButton = setupToggleButton(gt::gui::icon::traceColorized(),
                                       QStringLiteral("Trace"),
                                       tr("Show/Hide Trace Output"),
+                                      m_model,
                                       &GtFilteredLogModel::filterTraceLevel);
 
     // debug message button
     m_debugButton = setupToggleButton(gt::gui::icon::bugColorized(),
                                       QStringLiteral("Debug"),
                                       tr("Show/Hide Debug Output"),
+                                      m_model,
                                       &GtFilteredLogModel::filterDebugLevel);
 
     // info message button
     m_infoButton = setupToggleButton(gt::gui::icon::infoColorized(),
                                      QStringLiteral("Info"),
                                      tr("Show/Hide Info Output"),
+                                     m_model,
                                      &GtFilteredLogModel::filterInfoLevel);
 
     // warning message button
     m_warningButton = setupToggleButton(gt::gui::icon::warningColorized(),
                                         QStringLiteral("Warning"),
                                         tr("Show/Hide Warning Output"),
+                                        m_model,
                                         &GtFilteredLogModel::filterWarningLevel);
 
     // error message button
     m_errorButton = setupToggleButton(gt::gui::icon::errorColorized(),
                                       QStringLiteral("Error"),
                                       tr("Show/Hide Error Output"),
+                                      m_model,
                                       &GtFilteredLogModel::filterErrorLevel);
 
     defaultLayout->addLayout(filterLayout);
