@@ -87,6 +87,9 @@ SOURCES += $$files(gui/*.cpp)
 
 #SOURCES += $${CURRENT_DIR}/mdi/*.cpp
 
+RESOURCES += \
+    datamodel/data/data.qrc
+
 #### THIRD PARTY LIBRARIES
 equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 12) {
     message(Qt Version 5.12 or newer)

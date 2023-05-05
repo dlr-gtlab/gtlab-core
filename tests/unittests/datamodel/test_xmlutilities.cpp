@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QDomDocument>
+#include <QFile>
 
 
 
@@ -79,4 +80,20 @@ TEST_F(TestXmlUtilities, addPropertyElement)
     EXPECT_EQ("myprop", prop.attribute("name").toStdString());
     EXPECT_EQ("double", prop.attribute("type").toStdString());
     EXPECT_EQ("1.1", prop.text().toStdString());
+}
+
+/**
+ * @brief Tests an issue, where new lines in xml strings have been imported
+ * incorrectly, resulting the multiplcation of new lines in the next save process
+ * (Bug #536)
+ */
+TEST_F(TestXmlUtilities, readToDomFromFile)
+{
+    QFile file(":/testdata/line-endings.xml");
+    ASSERT_TRUE(file.exists());
+
+    QDomDocument doc;
+    EXPECT_TRUE(gt::xml::readDomDocumentFromFile(file, doc, true,
+                                                 nullptr, nullptr, nullptr));
+    EXPECT_FALSE(doc.toString().contains("&#xd;"));
 }
