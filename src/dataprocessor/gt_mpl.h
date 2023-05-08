@@ -13,6 +13,7 @@
 
 #include <tuple>
 #include <functional>
+#include <array>
 
 #if CPP_STANDARD_VERSION < 201400
 #error "C++14 or better is required"

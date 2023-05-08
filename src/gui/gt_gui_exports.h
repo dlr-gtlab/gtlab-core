@@ -11,10 +11,14 @@
 #define GT_GUI_EXPORTS_H
 
 #if defined(WIN32)
-  #if defined (GT_GUI_DLL)
+  #if defined (GT_GUI_DLL) // Build gui dll
     #define GT_GUI_EXPORT __declspec (dllexport)
   #else
-    #define GT_GUI_EXPORT __declspec (dllimport)
+    #if defined (GT_GUI_LIB) // use static lib
+      #define GT_GUI_EXPORT
+    #else // use dll
+      #define GT_GUI_EXPORT __declspec (dllimport)
+    #endif
   #endif
 #else
     #define GT_GUI_EXPORT

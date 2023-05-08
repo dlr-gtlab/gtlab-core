@@ -11,10 +11,14 @@
 #define GT_CORE_EXPORTS_H
 
 #if defined(WIN32)
-  #if defined (GT_CORE_DLL)
+  #if defined (GT_CORE_DLL) // Build gui dll
     #define GT_CORE_EXPORT __declspec (dllexport)
   #else
-    #define GT_CORE_EXPORT __declspec (dllimport)
+    #if defined (GT_CORE_LIB) // use static lib
+      #define GT_CORE_EXPORT
+    #else // use dll
+      #define GT_CORE_EXPORT __declspec (dllimport)
+    #endif
   #endif
 #else
     #define GT_CORE_EXPORT
