@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+ - Switched build system to cmake. This makes it also easier to consume GTlab from other cmake based projects - #537
 
 ### Removed
 
