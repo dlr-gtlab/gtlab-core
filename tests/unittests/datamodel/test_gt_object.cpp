@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "test_gt_object.h"
+#include "test_propertycontainerobject.h"
 
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
@@ -482,4 +483,37 @@ TEST(GtObjectBugs, subPropsSignalsFromThread)
 
     obj->m_modeTypeProp.setVal("a new value");
     EXPECT_TRUE(changed);
+}
+
+
+/**
+ * In bug 539, the number of child objects kept increasing
+ * if they were unnamed
+ */
+TEST_F(TestGtObject, bug539)
+{
+    gtObjectFactory->registerClass(TestSpecialGtObject::staticMetaObject);
+    gtObjectFactory->registerClass(TestObject::staticMetaObject);
+
+    // with properties
+    TestSpecialGtObject parent;
+    parent.setFactory(gtObjectFactory);
+
+    auto o1 = new TestObject;
+    o1->setObjectName("");
+    parent.appendChild(o1);
+
+    auto o2 = new TestSpecialGtObject;
+    o2->setObjectName("");
+    parent.appendChild(o2);
+
+    ASSERT_EQ(parent.findDirectChildren<TestObject*>().size(), 1);
+    ASSERT_EQ(parent.findDirectChildren<TestSpecialGtObject*>().size(), 1);
+
+    // merge back its data into itself, it should not change its layout
+    auto memento = parent.toMemento();
+    parent.fromMemento(memento);
+
+    EXPECT_EQ(parent.findDirectChildren<TestObject*>().size(), 1);
+    EXPECT_EQ(parent.findDirectChildren<TestSpecialGtObject*>().size(), 1);
 }
