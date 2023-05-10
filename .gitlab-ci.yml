@@ -19,7 +19,7 @@ variables:
 
 # inlcude some templates from this file
 include:
-  - project: 'gtlab-bugtracking/gitlab-templates'
+  - project: 'at-twk/gitlab-templates'
     file: '/ci-templates/.ci-templates.yml'
    
 stages:
