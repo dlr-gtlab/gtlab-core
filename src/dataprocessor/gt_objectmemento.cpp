@@ -526,6 +526,13 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
         obj.importMementoIntoDummy(*this);
     }
 
+
+    // We keep track of old objects, which need to be deleted later.
+    // There are two exceptions:
+    //   - a child is a default object. Then, it must not be deleted
+    //   - a memento was merged into a child. Then, the child must be kept as well
+    QList<GtObject*> oldChildObjs = obj.findDirectChildren<GtObject*>();
+
     // loop over all childs in memento, that are not yet in the object
     for (auto const & mementoChild : childObjects)
     {
@@ -538,24 +545,24 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
             (child->uuid() == mementoChild.uuid() || child->isDefault()))
         {
             mementoChild.mergeTo(*child, factory);
+
+            // since memento has been merged to child, child needs to be kept
+            oldChildObjs.removeOne(child);
         }
         else
         {
             // we need to create a new object
             auto newobj = mementoChild.toObject(factory, &obj);
             assert(newobj);
+            Q_UNUSED(newobj);
         }
     }
 
-    // delete all objects that are not in memento included
-    auto childs = obj.findDirectChildren<GtObject*>();
-    for (auto& child : childs)
+    // Clean up all old childs, which have not been merged
+    for (auto& child : oldChildObjs)
     {
         assert(child);
-        if (!findChildByUuid(child->uuid()) && !child->isDefault())
-        {
-            delete child;
-        }
+        if (!child->isDefault()) delete child;
     }
 
     obj.onObjectDataMerged();
