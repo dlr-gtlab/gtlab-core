@@ -185,11 +185,15 @@ if (BUILD_WITH_HDF5)
     )
 endif(BUILD_WITH_HDF5)
 
+set_target_properties(GTlabDataProcessor PROPERTIES 
+  # set rpath to lib directory, since it is installed to lib/core
+  INSTALL_RPATH "\$ORIGIN:\$ORIGIN/..") 
+
 install(TARGETS GTlabDataProcessor
     EXPORT GTlabTargets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
 )
 
 install(FILES ${HEADERS} DESTINATION include/core)

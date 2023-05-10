@@ -422,11 +422,17 @@ target_link_libraries(GTlabGui
         Qt5::QuickWidgets
 )
 
+
+set_target_properties(GTlabGui PROPERTIES 
+  # set rpath to lib directory, since it is installed to lib/core
+  INSTALL_RPATH "\$ORIGIN:\$ORIGIN/..") 
+
+
 install(TARGETS GTlabGui
     EXPORT GTlabTargets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/core
 )
 
 install(FILES ${headers} DESTINATION include/core)
