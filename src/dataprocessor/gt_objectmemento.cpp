@@ -546,7 +546,7 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
         {
             mementoChild.mergeTo(*child, factory);
 
-            // since memento has been merged to child, child need to be kept
+            // since memento has been merged to child, child needs to be kept
             oldChildObjs.removeOne(child);
         }
         else
