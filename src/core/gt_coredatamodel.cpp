@@ -1045,9 +1045,7 @@ GtCoreDatamodel::deleteFromModel(QList<GtObject*> objects)
 QString
 GtCoreDatamodel::uniqueObjectName(const QString& name, GtObject* parent)
 {
-    if (!parent) return {};
-
-    return gt::makeUniqueName(name, *parent);
+    return gt::makeUniqueName(name, parent);
 }
 
 QString
