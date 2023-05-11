@@ -118,8 +118,9 @@ GtAbstractProperty::insertSubProperty(GtAbstractProperty& property, int index)
 
     if (m_subProperties.contains(&property))
     {
-        gtWarning() << tr("multiple property registration!")
-                    << " (" << objectName() << ")";
+        gtWarning() << tr("Multiple property registration!")
+                    << tr("Property '%1' already contains sub-property '%2'.")
+                       .arg(objectName()).arg(property.objectName());
         return;
     }
 
