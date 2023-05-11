@@ -557,6 +557,7 @@ GT_DEF_ICON_ALIAS(skip16, skip)
 
 GT_DEF_ICON(sleep, "sleep.svg")
 GT_DEF_ICON_ALIAS(sleep16, sleep)
+GT_DEF_ICON(sleepOff, "sleepOff_custom.svg")
 
 GT_DEF_ICON_ALIAS(square, stop)
 

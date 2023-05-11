@@ -21,6 +21,8 @@
 #include "gt_logdest.h"
 #include "gt_utilities.h"
 
+const auto DESTINATION_ID = [](){ return GT_CLASSNAME(GtLogModel); };
+
 void
 GtLogSignalSlotDestination::write(std::string const& message,
                                   gt::log::Level level,
@@ -43,11 +45,7 @@ GtLogModel::GtLogModel() :
     m_tmpClearLog(false),
     m_maxEntries(2000)
 {
-    gt::log::Logger& logger = gt::log::Logger::instance();
-
-    auto dest = gt::log::makeSignalSlotDestination(this, &GtLogModel::onMessage);
-
-    logger.addDestination(GT_CLASSNAME(GtLogModel), std::move(dest));
+    setupLoggingDestination();
 
     connect(&m_timer, SIGNAL(timeout()), SLOT(insertQueue()));
 
@@ -68,6 +66,15 @@ GtLogModel::instance()
     return self;
 }
 
+void
+GtLogModel::setupLoggingDestination()
+{
+    gt::log::Logger& logger = gt::log::Logger::instance();
+
+    auto dest = gt::log::makeSignalSlotDestination(this, &GtLogModel::onMessage);
+    logger.addDestination(DESTINATION_ID(), std::move(dest));
+}
+
 QString
 GtLogModel::format(QString const& msg, GtLogDetails const& details)
 {
@@ -79,6 +86,35 @@ GtLogModel::format(QString const& msg, GtLogDetails const& details)
     }
 
     return QStringLiteral("[%1] %2").arg(time, msg);
+}
+
+bool
+GtLogModel::isEnabled() const
+{
+    gt::log::Logger& logger = gt::log::Logger::instance();
+    return logger.hasDestination(DESTINATION_ID());
+}
+
+void
+GtLogModel::setEnabled(bool enable)
+{
+    if (isEnabled() == enable) return;
+
+    gt::log::Logger& logger = gt::log::Logger::instance();
+
+    if (!enable)
+    {
+        gtWarningId(DESTINATION_ID())
+            << tr("Logmodel is now disabled, ignoring incomming messages!");
+
+        logger.removeDestination(DESTINATION_ID());
+        return;
+    }
+
+    setupLoggingDestination();
+
+    gtInfoId(DESTINATION_ID())
+        << tr("Logmodel is now enabled, recieving incomming messages!");
 }
 
 QString

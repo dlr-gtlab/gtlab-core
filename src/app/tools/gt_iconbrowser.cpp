@@ -231,6 +231,7 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(skip));
     grid->addWidget(MAKE_ICON(unskip));
     grid->addWidget(MAKE_ICON(sleep));
+    grid->addWidget(MAKE_ICON(sleepOff));
     grid->addWidget(MAKE_ICON(square));
     grid->addWidget(MAKE_ICON(sort));
     grid->addWidget(MAKE_ICON(sortAsc));

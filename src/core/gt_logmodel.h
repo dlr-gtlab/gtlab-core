@@ -174,6 +174,22 @@ public:
     }
 
     /**
+     * @brief Returns whether the log model is enables (effectively ignoring
+     * any incoming messages)
+     * @return Whether incoming messages are ignored
+     */
+    bool isEnabled() const;
+
+    /**
+     * @brief Enables/Disables the log model effectively making it ignoring
+     * incoming messages. Useful if one knows that many irrelevant messgaes are
+     * about to be triggered. Handle with care: All messages that are ignored
+     * cannot be viewed/accessed using the log model.
+     * @param value Whether to enable or disable the log model
+     */
+    void setEnabled(bool enable = true);
+
+    /**
      * @brief Returns the row count of this model
      * @param parent Parent index
      * @return row count
@@ -312,6 +328,11 @@ private:
      * @brief Helper method for clearing the output log
      */
     void execClear();
+
+    /**
+     * @brief Adds a logging destion for this class
+     */
+    void setupLoggingDestination();
 
 private slots:
 

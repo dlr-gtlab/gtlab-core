@@ -18,7 +18,6 @@
 
 #include "gt_mainwin.h"
 #include "gt_application.h"
-#include "gt_settings.h"
 #include "gt_logging.h"
 #include "gt_logmodel.h"
 #include "gt_environmentdialog.h"
@@ -47,7 +46,6 @@
 #include "gt_propertiesdock.h"
 #include "gt_labelsdock.h"
 #include "gt_postdock.h"
-#include "gt_calculatorsdock.h"
 #include "gt_splashscreen.h"
 
 #ifdef GT_MODELTEST
@@ -105,13 +103,19 @@ main(int argc, char* argv[])
     // "disable/hide" message box until main win is visible
     errorHandler.moveToThread(nullptr);
 
-    splash.process(QObject::tr("initializing..."), [&app, &errorHandler](){
+    splash.process(QObject::tr("initializing..."), [&a, &app, &errorHandler](){
         app.init();
 
-        auto& logger = gt::log::Logger::instance();
-        auto dest = gt::log::makeSignalSlotDestination(
-            &errorHandler, &GtlogErrorMessageBoxHandler::onLogMessage);
-        logger.addDestination("error_message_box", std::move(dest));
+        bool enableErrorMessageBox = !a.arguments().contains(
+            QStringLiteral("--no-error-dialog"));
+
+        if (enableErrorMessageBox)
+        {
+            auto& logger = gt::log::Logger::instance();
+            auto dest = gt::log::makeSignalSlotDestination(
+                &errorHandler, &GtlogErrorMessageBoxHandler::onLogMessage);
+            logger.addDestination("error_message_box", std::move(dest));
+        }
     });
 
     // TODO: we need shared and environment variables
