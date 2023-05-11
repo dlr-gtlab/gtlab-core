@@ -234,35 +234,21 @@ GtObject::appendChild(GtObject* c)
         return false;
     }
 
-    // disconnect old signals and slots
-    if (c->parent())
-    {
-        disconnect(c, SIGNAL(dataChanged(GtObject*)),
-                   c->parent(), SIGNAL(dataChanged(GtObject*)));
-        disconnect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
-                   c->parent(),
-                   SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)));
-        disconnect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
-                   c->parent(), SLOT(onChildDataChanged()));
-        disconnect(c, SIGNAL(dataChanged(GtObject*)),
-                   c->parent(), SLOT(onChildDataChanged()));
-        disconnect(c, SIGNAL(destroyed(QObject*)),
-                   c->parent(), SLOT(changed()));
-        disconnect(c, SIGNAL(childAppended(GtObject*,GtObject*)),
-                   c->parent(), SIGNAL(childAppended(GtObject*,GtObject*)));
-    }
-
+    c->disconnectFromParent();
     c->setParent(this);
 
-    connect(c, SIGNAL(dataChanged(GtObject*)), SIGNAL(dataChanged(GtObject*)));
-    connect(c, SIGNAL(childAppended(GtObject*,GtObject*)),
-            SIGNAL(childAppended(GtObject*,GtObject*)));
-    connect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
-            SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)));
-    connect(c, SIGNAL(dataChanged(GtObject*,GtAbstractProperty*)),
-            SLOT(onChildDataChanged()));
-    connect(c, SIGNAL(dataChanged(GtObject*)), SLOT(onChildDataChanged()));
-    connect(c, SIGNAL(destroyed(QObject*)), SLOT(changed()));
+    connect(c, qOverload<GtObject*>(&GtObject::dataChanged),
+            this, qOverload<GtObject*>(&GtObject::dataChanged));
+    connect(c, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged),
+            this, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged));
+    connect(c, &GtObject::childAppended,
+            this, &GtObject::childAppended);
+    connect(c, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged),
+            this, &GtObject::onChildDataChanged);
+    connect(c, qOverload<GtObject*>(&GtObject::dataChanged),
+            this, &GtObject::onChildDataChanged);
+    connect(c, &QObject::destroyed,
+            this, &GtObject::changed);
 
     changed();
 
@@ -282,21 +268,21 @@ GtObject::appendChildren(const QList<GtObject*>& list)
 void
 GtObject::disconnectFromParent()
 {
-    if (parent())
+    if (GtObject* p = parentObject())
     {
-        disconnect(this, SIGNAL(dataChanged(GtObject*)),
-                   parent(), SIGNAL(dataChanged(GtObject*)));
-        disconnect(this, SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
-                   parent(),
-                   SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)));
-        disconnect(this, SIGNAL(dataChanged(GtObject*, GtAbstractProperty*)),
-                   parent(), SLOT(onChildDataChanged()));
-        disconnect(this, SIGNAL(dataChanged(GtObject*)),
-                   parent(), SLOT(onChildDataChanged()));
-        disconnect(this, SIGNAL(destroyed(QObject*)),
-                   parent(), SLOT(changed()));
-        disconnect(this, SIGNAL(childAppended(GtObject*, GtObject*)),
-                   parent(), SIGNAL(childAppended(GtObject*, GtObject*)));
+        // disconnect old signals and slots
+        disconnect(this, qOverload<GtObject*>(&GtObject::dataChanged),
+                   p, qOverload<GtObject*>(&GtObject::dataChanged));
+        disconnect(this, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged),
+                   p, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged));
+        disconnect(this, &GtObject::childAppended,
+                   p, &GtObject::childAppended);
+        disconnect(this, qOverload<GtObject*, GtAbstractProperty*>(&GtObject::dataChanged),
+                   p, &GtObject::onChildDataChanged);
+        disconnect(this, qOverload<GtObject*>(&GtObject::dataChanged),
+                   p, &GtObject::onChildDataChanged);
+        disconnect(this, &QObject::destroyed,
+                   p, &GtObject::changed);
     }
 
     setParent(nullptr);
