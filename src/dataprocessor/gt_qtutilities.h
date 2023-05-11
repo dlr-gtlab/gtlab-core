@@ -157,8 +157,8 @@ makeUniqueNameImpl(const QString& name,
 template<typename ObjectList, typename GetNameFunc>
 inline QString
 makeUniqueName(const QString& name,
-                     const ObjectList& objs,
-                     const GetNameFunc& getName)
+               const ObjectList& objs,
+               const GetNameFunc& getName)
 {
     if (name.isEmpty()) return {};
 
@@ -190,8 +190,8 @@ makeUniqueName(const QString& name, const StringList& names)
  * @brief Creates an unique object name based on given initial string and
  * a parent object reference.
  *
- * @param Initial object name
- * @param Parent obje
+ * @param name Initial object name
+ * @param parent Parent object
  * @return Unique object name
  */
 inline QString
@@ -206,6 +206,61 @@ makeUniqueName(const QString& name, const QObject& parent)
         return o->objectName();
     });
 }
+
+/**
+ * @brief Overload that accepts an object pointer. If the pointer is null name
+ * is returned
+ * @param name Initial object name
+ * @param parent Parent object
+ * @return Unique object name
+ */
+inline QString
+makeUniqueName(const QString& name, const QObject* parent)
+{
+    return parent ? gt::makeUniqueName(name, *parent) : name;
+}
+
+/**
+ * @brief Overload that accepts an object directly. Find a unique object name
+ * based on its current object name or the name provided
+ * Checks its siblings for a the same name.
+ * @param object Object
+ * @param name Custom object name
+ * @return Unique object name
+ */
+inline QString
+makeUniqueName(QObject const& obj, QString const& name = {})
+{
+    QString objectName = name.isEmpty() ? obj.objectName() : name;
+
+    if (auto* parent = obj.parent())
+    {
+        auto list = parent->findChildren<QObject const*>(
+                        QString{}, Qt::FindDirectChildrenOnly);
+
+        list.removeOne(&obj);
+
+        return gt::detail::makeUniqueNameImpl(objectName, list,
+                                              [](QObject const* o){
+            return o->objectName();
+        });
+    }
+
+    return objectName;
+}
+
+/**
+ * @brief Method for setting a unique object name based on its object name or
+ * the name provided. Checks only its siblings for a the same name.
+ * @param object Object
+ * @param name Custom object name
+ */
+inline void
+setUniqueName(QObject& obj, QString const& name = {})
+{
+    obj.setObjectName(makeUniqueName(obj, name));
+}
+
 
 } // namespace gt
 

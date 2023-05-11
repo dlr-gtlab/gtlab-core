@@ -91,4 +91,15 @@ TEST_F(TestGtCoreDataModel, makeUnqiueName)
     parent.appendChild(child3);
 
     EXPECT_EQ(gt::makeUniqueName("Test", parent).toStdString(), "Test[4]");
+
+    // this overload should only check its siblings
+    EXPECT_EQ(gt::makeUniqueName(*child3).toStdString(), "Test[2]");
+    // check if custom name is provided
+    EXPECT_EQ(gt::makeUniqueName(*child3, "Test[3]").toStdString(), "Test[3][2]");
+}
+
+TEST_F(TestGtCoreDataModel, makeUnqiueName_null_parent)
+{
+    auto newName = gt::makeUniqueName("Test", nullptr);
+    EXPECT_EQ(newName.toStdString(), "Test");
 }
