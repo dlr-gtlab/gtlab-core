@@ -152,6 +152,9 @@ private:
     /// Button to open the process queue
     QPushButton* m_processQueueButton;
 
+    /// Button to open task group editor
+    QPushButton* m_editTaskGroupsBtn;
+
     /// Tree view
     GtProcessView* m_view;
 
@@ -407,6 +410,8 @@ private slots:
     void onExecutorChanged(GtCoreProcessExecutor* exec);
 
     void currentTaskGroupIndexChanged(int index);
+
+    void openTaskGroupWidget();
 
 signals:
     /**

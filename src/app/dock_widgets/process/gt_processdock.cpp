@@ -58,6 +58,7 @@
 #include "gt_utilities.h"
 #include "gt_taskgroup.h"
 #include "gt_taskgroupmodel.h"
+#include "gt_taskgroupeditorwidget.h"
 
 #include "gt_processdock.h"
 
@@ -150,10 +151,20 @@ GtProcessDock::GtProcessDock() :
     m_taskGroupModel = new GtTaskGroupModel;
     m_taskGroupSelection->setModel(m_taskGroupModel);
 
+    m_editTaskGroupsBtn = new QPushButton("...");
+    m_editTaskGroupsBtn->setToolTip(tr("Edit Task Groups"));
+    m_editTaskGroupsBtn->setEnabled(false);
+    m_editTaskGroupsBtn->setMaximumWidth(20);
+
+    // task group selection layout
+    auto groupSelLay = new QHBoxLayout;
+    groupSelLay->addWidget(m_taskGroupSelection);
+    groupSelLay->addWidget(m_editTaskGroupsBtn);
+
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(2);
-    layout->addWidget(m_taskGroupSelection);
+    layout->addLayout(groupSelLay);
     layout->addLayout(btnLayout);
 
     layout->addWidget(frame);
@@ -193,6 +204,8 @@ GtProcessDock::GtProcessDock() :
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
+    connect(m_editTaskGroupsBtn, SIGNAL(clicked(bool)),
+            SLOT(openTaskGroupWidget()));
 
     // open process queue via main window
     connect(m_processQueueButton, &QPushButton::clicked, this, [&](bool){
@@ -279,6 +292,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 
     m_processQueueButton->setEnabled(isProjectValid);
     m_addElementButton->setEnabled(isProjectValid);
+    m_editTaskGroupsBtn->setEnabled(isProjectValid);
 
     if (project != m_project)
     {
@@ -2614,6 +2628,20 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
     m_taskGroup = m_project->processData()->taskGroup();
     updateCurrentTaskGroup();
 
+}
+
+void
+GtProcessDock::openTaskGroupWidget()
+{
+    if (!m_project || !m_project->processData())
+    {
+        return;
+    }
+
+    GtTaskGroupEditorWidget editor(*m_project->processData(),
+                                   m_project->path());
+
+    editor.exec();
 }
 
 bool
