@@ -390,6 +390,9 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
         return nullptr;
     }
 
+    // add parent to this class for now
+    mdiItem->setParent(this);
+
     if (data)
     {
         mdiItem->m_d = data;
@@ -424,6 +427,9 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     QWidget* wid = mdiItem->widget();
 
+    // move to widget
+    mdiItem->setParent(wid);
+
     QIcon icon = mdiItem->icon();
 
     if (icon.isNull())
@@ -443,21 +449,18 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     closeBtn->setObjectName(QStringLiteral("MdiTabCloseBtn"));
 
     m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, closeBtn);
-    connect(closeBtn, &QPushButton::clicked, wid, &QWidget::deleteLater);
+    connect(closeBtn, &QPushButton::clicked, wid, &QObject::deleteLater);
 
     mdiItem->initialized();
 
-    connect(wid, SIGNAL(destroyed(QObject*)), mdiItem,
-           SLOT(deleteLater()));
-    connect(wid, SIGNAL(destroyed(QObject*)),
-            SLOT(onSubWindowClose(QObject*)));
-    connect(mdiItem, &GtMdiItem::objectNameChanged,
+    connect(wid, &QObject::destroyed,
+            this, &GtMdiLauncher::onSubWindowClose);
+    connect(mdiItem, &QObject::objectNameChanged,
             this, &GtMdiLauncher::changeTabTitle);
-
-    connect(mdiItem, SIGNAL(destroyed(QObject*)), wid,
-            SLOT(deleteLater()));
-    connect(gtApp, SIGNAL(themeChanged(bool)), mdiItem,
-            SLOT(onThemeChanged()));
+    connect(mdiItem, &QObject::destroyed,
+            wid, &QObject::deleteLater);
+    connect(gtApp, &GtApplication::themeChanged,
+            mdiItem, &GtMdiItem::onThemeChanged);
 
     m_openItems.insert(wid, mdiItem);
 

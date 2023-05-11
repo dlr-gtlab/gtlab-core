@@ -3,6 +3,7 @@
 #include "gt_graphicsview.h"
 #include "gt_graphicsscene.h"
 #include "gt_grid.h"
+#include "gt_logging.h"
 
 #include <QVBoxLayout>
 
@@ -24,6 +25,11 @@ TestMdiViewer::TestMdiViewer()
     lay->addWidget(m_view);
 
     widget()->setLayout(lay);
+}
+
+TestMdiViewer::~TestMdiViewer()
+{
+    gtDebug() << __FUNCTION__;
 }
 
 bool

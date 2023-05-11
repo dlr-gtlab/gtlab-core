@@ -18,6 +18,7 @@ public:
      * @brief Constructor.
      */
     Q_INVOKABLE TestMdiViewer();
+    ~TestMdiViewer() override;
 
     /**
      * @brief Test that only one instance of this item can be created
