@@ -21,7 +21,7 @@ if(NOT DEFINED CMAKE_BUILD_TYPE)
     "MinSizeRel" "RelWithDebInfo")
 endif()
 
-project(GTlab-Core VERSION 2.0.2)
+project(GTlab-Core VERSION 2.0.3)
 
 option(BUILD_WITH_HDF5 "Build with hdf5 support" ON)
 option(BUILD_UNITTESTS "Build the unit tests" OFF)

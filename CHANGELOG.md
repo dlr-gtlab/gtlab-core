@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.3] - 2023-05-15
 ### Changed
  - Switched build system to cmake. This makes it also easier to consume GTlab from other cmake based projects - #537
 
