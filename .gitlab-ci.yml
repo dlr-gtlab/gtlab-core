@@ -20,7 +20,8 @@ variables:
 # inlcude some templates from this file
 include:
   - project: 'at-twk/gitlab-templates'
-    file: '/ci-templates/.ci-templates.yml'
+    file: '/ci-templates/.ci-templates-cmake-1.0.yml'
+
    
 stages:
   - update
@@ -51,135 +52,75 @@ stages:
     - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ # stable tag
     - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
 
-# DevTools Update
-devtoolsUpdateWindows:
-  extends: .devToolsUpdateWindows
-  stage: update
-  only:
-    - master  
 
-devtoolsUpdateLinux:
-  extends: .devToolsUpdateLinux
-  stage: update
-  only:
-    - master  
-
-.buildWindows:
-  stage: build
-  tags:
-    - windows
-    - docker
-  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-win
-  before_script:
-    - '& $VCvarsall'
-    - '& echo "Using Devtools: $DEVTOOLS"'
-    - '& echo "Using QMake: $QMAKE_PATH"'
-    - '& echo "Build-Config: $BUILDMODE"'
-    - '& $MAINTENANCETOOL up --confirm-command; $null'
-  script:
-    - copy features\gitlab_pipeline_local_settings.pri local_settings.pri
-    - '& $QMAKE_PATH $PROFILENAME -spec win32-msvc "CONFIG+=$BUILDMODE"'
-    - '& $JOM_PATH'
-  variables:
-    MAINTENANCETOOL: "C:\\devel\\GTlab-DevTools\\Setup GTlab-DevTools.exe"
-    VCvarsall: "C:\\devel\\vcvars2019_64.ps1"
-    QMAKE_PATH: C:\\Qt\\Qt5.15\\5.15.2\\msvc2019_64\\bin\\qmake.exe
-    JOM_PATH: C:\\Qt\\Qt5.15\\Tools\\QtCreator\\bin\\jom\\jom.exe
-    GIT_SUBMODULE_STRATEGY: "recursive"
-    GIT_STRATEGY: "clone"
-
-
-# Windows build
+# build on Windows system
 windowsBuildDebug:
   stage: build
   extends: 
-    - .debugBuildRules 
-    - .buildWindows
+    - .build-win_20
+    - .debugBuildRules
+  script:
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTLAB_DEVTOOLS_DIR="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2019-dbg -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON
+    - cmake --build build --target install
   artifacts:
     paths:
-      - lib/$TARGETDIRNAME/*-d.dll
-      - lib/$TARGETDIRNAME/*-d.lib
-      - build/*-d.pdb
-      - build/GTlabGui-d.dll
-      - build/GTlabGui-d.lib
-      - build/$TARGETNAME.exe
-      - build/GTlabConsole.exe
-      - build/$UNITTESTSNAME.exe
-      - build/$UNITTESTSNAME.pdb
-      - include/$TARGETDIRNAME/
-    expire_in: 1 week
-    when: always
-  variables:
-    BUILDMODE: debug
-    BUILDUNITTESTS: "true"
-    DEVTOOLS: $DEVTOOLS_Win_Unstable
-    
+      - install*
+      - build/**/*.dll
+      - build/**/*.exe
+      - build/**/*.lib
+      - build/**/*.pdb
+      - build/modules
+      - build/**/*.txt
+      - build/**/*.cmake
+      - build/**/*.ninja
+      - build/**/*.log
+      - build/_deps/*-src
+
 windowsBuildRelease:
   stage: build
   extends: 
+    - .build-win_20
     - .releaseBuildRules
-    - .buildWindows
+  script:
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGTLAB_DEVTOOLS_DIR="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2019
+    - cmake --build build --target install
   artifacts:
     paths:
-      - lib/$TARGETDIRNAME/*.dll
-      - lib/$TARGETDIRNAME/*.lib
-      - include\$TARGETDIRNAME\
-      - build/GTlabGui.dll
-      - build/GTlabGui.lib
-      - build/$TARGETNAME.exe
-      - build/GTlabConsole.exe
-    expire_in: 1 week
-    when: always
-  variables:
-    BUILDMODE: release
-    BUILDUNITTESTS: "false"
-    DEVTOOLS: $DEVTOOLS_Win_Unstable
+      - install*
+
 
 # Linux build
 linuxBuildDebug:
   stage: build
   extends: 
+    - .build-linux_20
     - .debugBuildRules
-    - .buildLinux 
-  tags:
-    - Linux
+  script:
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTLAB_DEVTOOLS_DIR=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux-dbg -DBUILD_UNITTESTS=ON -DBUILD_WITH_COVERAGE=ON -DBUILD_TESTMODULES=ON
+    - cmake --build build --target install
   artifacts:
     paths:
-    - linuxBuild.txt
-    - lib/$TARGETDIRNAME/*.so*
-    - build/$TARGETNAME
-    - build/GTlabConsole
-    - build/*.so*
-    - build/$UNITTESTSNAME
-    - build/modules
-    when: always
-    expire_in: 1 week
-  variables:
-    BUILDMODE: debug
-    BUILDUNITTESTS: "true"
-    QMAKE_EXECUTABLE: $QT_DIR_LINUX2/bin/qmake
-    DEVTOOLS: $DEVTOOLS_Linux_Unstable 
+      - install*
+      - build/*.so*
+      - build/GTlab*
+      - build/modules
+      - build/**/*.txt
+      - build/**/*.cmake
+      - build/**/*.ninja
+      - build/**/*.log
+      - build/_deps/*-src
 
 linuxBuildRelease:
-  stage: build 
+  stage: build
   extends: 
+    - .build-linux_20
     - .releaseBuildRules
-    - .buildLinux 
-  tags:
-    - Linux
+  script:
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGTLAB_DEVTOOLS_DIR=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux
+    - cmake --build build --target install
   artifacts:
     paths:
-    - lib/$TARGETDIRNAME/*.so*
-    - build/$TARGETNAME
-    - build/GTlabConsole
-    - build/libGTlabGui.so*
-    - include/$TARGETDIRNAME/
-    expire_in: 1 week
-  variables:
-    BUILDMODE: release
-    BUILDUNITTESTS: "false"
-    QMAKE_EXECUTABLE: $QT_DIR_LINUX2/bin/qmake
-    DEVTOOLS: $DEVTOOLS_Linux_Unstable
+      - install*
 
 # Template for the two GUI-Testing jobs
 .guiTestTemplate:
@@ -206,28 +147,8 @@ linuxBuildRelease:
     expire_in: 1 week
     when: always
 
-# GUI Testing
-.guiTests:
-  stage: guiTestStable
-  extends: .guiTestTemplate  
-  tags:
-    - Linux
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: never
-    - if: $CI_COMMIT_TAG == null
-    - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+$/ # stable tag
-  needs: 
-      - linuxBuildDebug
-      - job: "testLinux512"
-        artifacts: false
-  dependencies:
-    - linuxBuildDebug
-  variables:
-    DEVTOOLS_DIR: $DEVTOOLS_Linux_Stable 
-
 # GUI Testing Unstable
-guiTestsUnstable:
+guiTests:
   stage: guiTestUnstable
   extends: .guiTestTemplate
   tags:
@@ -238,14 +159,15 @@ guiTestsUnstable:
     - if: $CI_COMMIT_TAG == null
   needs:
       - linuxBuildDebug
-      - job: "testLinux512Unstable"
+      - job: "testLinux"
         artifacts: false
   dependencies:
     - linuxBuildDebug
   variables:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable      
 
-guiTestsUnstableTag:
+# todo, make only one require
+guiTestsTag:
   stage: guiTestUnstable
   extends: .guiTestTemplate
   tags:
@@ -256,7 +178,7 @@ guiTestsUnstableTag:
     - if: $CI_COMMIT_TAG =~ /^[1-9][0-9]*-[0-9]+-[0-9]+-.*$/ # unstable tag
   needs:
       - linuxBuildDebug
-      - job: "testLinux512Unstable"
+      - job: "testLinux"
         artifacts: false
   dependencies:
     - linuxBuildDebug
@@ -264,60 +186,91 @@ guiTestsUnstableTag:
     DEVTOOLS_DIR: $DEVTOOLS_Linux_Unstable
 
 # run tests using the binary built before
-.testWin512:
-  extends: 
-    - .winTestTemplate
-    - .debugBuildRules
+testWin:
+  stage: test
+  tags: ["windows", "docker"]
+  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-win
   needs: ["windowsBuildDebug"]
-  dependencies: ["windowsBuildDebug"]
-  variables:
-    DEVTOOLS: $DEVTOOLS_Win_Stable
-
-testWin512Unstable:
   extends: 
-    - .winTestTemplate
     - .debugBuildRules
-  needs: ["windowsBuildDebug"]
-  dependencies: ["windowsBuildDebug"]
-  variables:
-    DEVTOOLS: $DEVTOOLS_Win_Unstable
-    TESTRUNNER: .\tests\pipeline-scripts\unittests\runUnittestsQt515.bat
+  before_script:
+    - '& $env:GTLAB_UPDATE_TOOL up --confirm-command; $null'
+  script:
+    - $env:path = "$env:GTLAB_DEV_TOOLS\binDebug;$env:path"
+    - cd build
+    - .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
+  artifacts:
+    paths:
+      - "build/unittests.xml"
+    expire_in: 1 week
+    reports:
+      junit: build/unittests.xml
 
-.testLinux512:
-  extends: 
-    - .linuxTestTemplate
-    - .debugBuildRules
+testLinux:
+  stage: test
+  tags: ["linux", "docker"]
+  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
   needs: ["linuxBuildDebug"]
-  dependencies:
+  extends: 
+    - .debugBuildRules
+  before_script:
+    # update to latest dev tools
+    - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
+  script:
+    - cd build
+    - ./GTlabUnitTest --gtest_output=xml:unittests.xml
+  variables:
+    GIT_SUBMODULE_STRATEGY: "none"
+  artifacts:
+    paths:
+      - "build/unittests.xml"
+    expire_in: 1 week
+    reports:
+      junit: build/unittests.xml  
+
+code-coverage:
+  stage: codequality
+  tags: ["linux", "docker"]
+  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
+  extends: 
+    - .debugBuildRules
+  needs: 
     - linuxBuildDebug
+  before_script:
+    # update to latest dev tools
+    - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
+  script:
+    - cd build
+    - ninja test-coverage
+    - mv test-coverage ..
+  coverage: '/^\s{2}lines\.+:\s+(\d+.\d+\%)/'
   variables:
-    DEVTOOLS: $DEVTOOLS_Linux_Stable    
-
-testLinux512Unstable:
-  extends: 
-    - .linuxTestTemplate
-    - .debugBuildRules
-  needs: ["linuxBuildDebug"]
-  dependencies: ["linuxBuildDebug"]
-  variables:
-    DEVTOOLS: $DEVTOOLS_Linux_Unstable   
+    GIT_SUBMODULE_STRATEGY: "none"
+  artifacts:
+    expose_as: 'TestCoverage'
+    name: "TestCoverage-$CI_COMMIT_REF_NAME"
+    paths:
+      - "test-coverage"
 
 valgrind:
   extends: 
     - .debugBuildRules
   needs: ["linuxBuildDebug"]
-  dependencies: ["linuxBuildDebug"]
   stage: test
+  tags: ["linux", "docker"]
+  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
   before_script:
+    - apt install -y xvfb
+    - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
     - chmod +x ./tests/memcheck/runValgrind.sh
     - chmod +x ./tests/memcheck/post.py
     - python3 -m venv env
     - source env/bin/activate
   script:
+    - export DEVTOOLS=$GTLAB_DEV_TOOLS
+    - export GTLAB_LIBRARY_DIR=`pwd`/build
     - xvfb-run -a ./tests/memcheck/runValgrind.sh
     - python3 ./tests/memcheck/post.py
-  tags:
-    - Linux
   artifacts:
     paths:
       - valgrind-report.xml
@@ -326,7 +279,8 @@ valgrind:
       junit: cpputest_valgrind.xml   
     expire_in: 1 week
   variables:
-    DEVTOOLS: $DEVTOOLS_Linux_Unstable
+    GIT_SUBMODULE_STRATEGY: "none"
+
 
 # copy templates
 .copyTemplate:
@@ -345,87 +299,34 @@ valgrind:
 
 .package:
   stage: package
-  tags:
-    - Linux
+  tags: ["docker", "linux"]
+  extends: [".releaseBuildRules"]
+  image: debian:buster
   script:
-    - mkdir pkg
-    - mkdir pkg/$BINDIR
-    - mv build/* pkg/$BINDIR
-    # copy all runtime libs into bindir
-    - mv lib/$TARGETDIRNAME/*.dll pkg/$BINDIR 2> /dev/null || `:`
-    - cp lib/$TARGETDIRNAME/*.so pkg/$BINDIR 2> /dev/null || `:`
-    # move include and libdir into package
-    - mv lib/ include/ pkg/ 2> /dev/null || `:`
-    # make sure all link libraries are in lib/core
-    - mv pkg/$BINDIR/*.lib pkg/lib/$TARGETDIRNAME/ 2> /dev/null || `:`
-    - cp pkg/$BINDIR/*.so pkg/lib/$TARGETDIRNAME/ 2> /dev/null || `:`
-    - rm pkg/$BINDIR/$UNITTESTSNAME* 2> /dev/null || `:`
-    # move CHANGELOG.md into package
-    - mv CHANGELOG.md pkg/ 2> /dev/null || `:`
-    # show package contents
-    - find pkg/
+    - cp -r install-$toolchain-dbg/* install-$toolchain
+    - mv install-$toolchain gtlab-core-$toolchain
+    - tar czf gtlab-core-$toolchain.tar.gz gtlab-core-$toolchain
   artifacts:
-    paths:
-    - pkg
+    name: "gtlab-core-$toolchain"
+    paths: ["gtlab-core-$toolchain.tar.gz"]
   variables:
-    BINDIR: bin
+    toolchain: msvc2019
+    GIT_STRATEGY: "none"
 
-packageWinDebug:
-  extends:
-    - .package
-    - .debugBuildRules 
-  needs: ["windowsBuildDebug"]
-  dependencies: ["windowsBuildDebug"]
-  
+package-win:
+  extends: [".package"]
+  needs: ["windowsBuildRelease", "windowsBuildDebug"]
   variables:
-    BINDIR: binDebug
+    toolchain: msvc2019
 
-packageWinRelease:
-  extends:
-    - .package
-    - .releaseBuildRules 
-  needs: ["windowsBuildRelease"]
-  dependencies: ["windowsBuildRelease"]
-
-
-packageLinuxDebug:
-  extends:
-    - .package
-    - .debugBuildRules 
-  needs: ["linuxBuildDebug"]
-  dependencies: ["linuxBuildDebug"]
+package-linux:
+  extends: [".package"]
+  needs: ["linuxBuildRelease", "linuxBuildDebug"]
   variables:
-    BINDIR: binDebug
-
-
-packageLinuxRelease:
-  extends:
-    - .package
-    - .releaseBuildRules 
-  needs: ["linuxBuildRelease"]
-  dependencies: ["linuxBuildRelease"]
-
-copyForDeploymentWinUnstable:
-  stage: copy
-  extends: .tagTemplate
-  needs: ["packageWinDebug", "packageWinRelease"]
-  dependencies: ["packageWinDebug", "packageWinRelease"]
-  variables:
-    PLATFORMNAME:  windows
-    DESTDIR: bin
-
-
-copyForDeploymentLinuxUnstable:
-  stage: copy
-  extends: .tagTemplate
-  needs: ["packageLinuxRelease", "packageLinuxDebug"]
-  dependencies: ["packageLinuxRelease", "packageLinuxDebug"]
-  variables:
-    PLATFORMNAME:  linux
-    DESTDIR: bin
+    toolchain: linux
 
 # code quality
-codingstyle:
+.codingstyle:
   stage: codequality
   extends: .codingStyleTemplate 
   except:
@@ -433,16 +334,13 @@ codingstyle:
 
 cppcheck:
   stage: codequality
-  extends: .cppCheckReportTemplateFunc
+  extends: .cppCheckReportTemplate
   variables:
     COMPARE_TO: master
    
 pages:
   stage: badges
-  extends: .pageTemplate 
-  only:
-    - master
-    - tag
+  extends: .pageTemplate
 
 # badges
 badges:

@@ -4,49 +4,36 @@
 #          / /_/ / / / / / /_/ / /_/ /
 #         ____/ /_/ /_/\__,_/_.___/
 
-include_directories(
-    .
-    ${CMAKE_CURRENT_SOURCE_DIR}/../datamodel
-    ${CMAKE_CURRENT_SOURCE_DIR}/../calculators
-    ${CMAKE_CURRENT_SOURCE_DIR}/../core
-    ${CMAKE_CURRENT_SOURCE_DIR}/../mdi
-    ${CMAKE_CURRENT_SOURCE_DIR}/../utilities/logging
-    ${CMAKE_CURRENT_SOURCE_DIR}/../utilities/numerics
-    ${CMAKE_CURRENT_SOURCE_DIR}/../utilities/numerics/bspline
-    ${CMAKE_CURRENT_SOURCE_DIR}/../datamodel/property
-)
-
 set(headers
     batchremote.h
+    gt_consoleparser.h
+    gt_remoteprocessrunner.h
+    gt_remoteprocessrunnerstates.h
 )
 
 set(sources
     batch.cpp
     batchremote.cpp
+    gt_consoleparser.cpp
+    gt_remoteprocessrunner.cpp
+    gt_remoteprocessrunnerstates.cpp
 )
 
 if (WIN32)
     set(sources ${sources} batch.rc)
 endif(WIN32)
 
-# add search paths to shared libraries
-# unix: QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN:\$$ORIGIN/modules\''
+
 
 add_executable(GTlabConsole  ${sources} ${headers})
+target_compile_definitions(GTlabConsole PRIVATE GT_MODULE_ID="Batch" GT_EXEC_ID="Exec")
+
 target_link_libraries(GTlabConsole
-    Qt5::Xml
-    Qt5::Widgets
-    Qt5::Network
-    GTlabNumerics
-    GTlabPhysics
-    GTlabLogging
-    GTlabDatamodel
-    GTlabNetwork
-    GTlabCalculators
-    GTlabVersionControl
+    PRIVATE
     GTlabCore
-    GTlabMdi
-    ${QWT_LIBRARY}
+    GTlabDataProcessor
+    Qt5::Widgets
+    Qt5::Xml
 )
 
 install(TARGETS GTlabConsole DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -19,19 +19,21 @@ The easiest way to build GTlab is from the QtCreator IDE - but it is
 also possible to use an IDE of your choice.
 
 ### QtCreator
--   Copy *local_settings.pri* form *features* directory to GTlab *root*
-    directory
--   Edit *DEV_TOOLS* path inside the *local_settings.pri* to GTlab-DevTools location on 
-    your system
+Note: CMake has support for multiple build systems. This is set via the "Generator" setting of cmake.
+"Ninja" is the fastest make program, which is available on Linux and Windows, but must be downloaded first.
+To enable ninja, go into QtCreator's preferences, Kits. Select the Kit  and choose "Ninja" or "Ninja Multi-Config" as the CMake generator.
+
 -   Run *QtCreator*
--   Open *gtlab.pro*
--   Run *qmake*
+-   Open CMakeLists.txt from gtlab's source directory
+-   Choose build directories for debug and release mode
+-   Set DevTools to the cmake configuration, by adding the variable `GTLAB_DEVTOOLS_DIR` with the devtools path (e.g. `/path/to/devtools/stable/2_0`) and press configure
 -   Build!
 
-### Additional Settings
-To make use of multiple cores in the compilation process use command line
-argument:
+### Command prompt
+From within the source directory, run the following commands
 
-Unix:   -jn (n = number of cores)
+- Configure the build: `cmake -B build -S . -G Ninja -DGTLAB_DEVTOOLS_DIR=<path/to/devtools>`
+- Do the build: `cmake --build .`
+
 
 --------
