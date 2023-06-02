@@ -11,7 +11,7 @@
 
 #define GT_VERSION_MAJOR 2
 #define GT_VERSION_MINOR 0
-#define GT_VERSION_PATCH 3
+#define GT_VERSION_PATCH 4
 #define GT_VERSION_PRE_RELEASE ""
 #define GT_VERSION_BUILD ""
 
