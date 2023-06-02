@@ -4,6 +4,7 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(Qt5 COMPONENTS Core Gui Xml Widgets Network PrintSupport)
 find_dependency(GTlabLogging)
+find_dependency(GenH5)
 
 include("${CMAKE_CURRENT_LIST_DIR}/GTlabTargets.cmake")
 
