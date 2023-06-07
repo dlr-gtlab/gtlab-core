@@ -57,6 +57,12 @@ GtObjectLinkProperty::setValueFromVariant(const QVariant& val,
     return ok;
 }
 
+void
+GtObjectLinkProperty::setAllowedClasses(QStringList allowedClasses)
+{
+    m_allowedClasses = std::move(allowedClasses);
+}
+
 GtObject*
 GtObjectLinkProperty::linkedObject(GtObject* root)
 {

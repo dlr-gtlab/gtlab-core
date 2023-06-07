@@ -111,6 +111,12 @@ public:
     const QStringList& allowedClasses() const;
 
     /**
+     * @brief Sets the list of allowed classes
+     * @param allowedClasses Allowed classes
+     */
+    void setAllowedClasses(QStringList allowedClasses);
+
+    /**
      * @brief linkFromSuperClass
      * @return true if classes which inherit
      * allowed classes should be allowed, too
