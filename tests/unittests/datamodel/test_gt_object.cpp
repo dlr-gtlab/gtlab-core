@@ -17,14 +17,11 @@
 class TestGtObject : public ::testing::Test
 {
 protected:
-    virtual void SetUp()
+
+    void SetUp() override
     {
         obj.setObjectName("MyObject");
         obj.setFactory(gtObjectFactory);
-    }
-
-    virtual void TearDown()
-    {
     }
 
     GtObjectGroup obj;
@@ -37,34 +34,6 @@ TEST_F(TestGtObject, toMemento)
     // without properties
     GtObjectMemento memento = obj.toMemento();
     ASSERT_FALSE(memento.isNull());
-
-//    GtObjectMemento mementoNew = obj.toMementoNew();
-//    ASSERT_FALSE(mementoNew.isNull());
-
-//    GtObjectMementoDiff diff(memento, mementoNew);
-//    ASSERT_TRUE(diff.isNull());
-
-    // with properties
-//    TestSpecialGtObject op1;
-//    TestSpecialGtObject op2;
-//    op2.setUuid(op1.uuid());
-
-//    GtObjectMemento mp1 = op1.toMemento();
-//    ASSERT_FALSE(mp1.isNull());
-
-//    qDebug() << mp1.toString();
-
-//    qDebug() << "";
-
-//    GtObjectMemento mp2 = op2.toMementoNew();
-//    ASSERT_FALSE(mp2.isNull());
-
-//    qDebug() << mp2.toString();
-
-//    GtObjectMementoDiff diffp(mp1, mp2);
-//    ASSERT_TRUE(diffp.isNull());
-
-//    qDebug() << "####";
 }
 
 TEST_F(TestGtObject, fromMemento)
@@ -89,38 +58,6 @@ TEST_F(TestGtObject, fromMemento)
 
     GtObjectMemento mp1 = op1.toMemento();
     ASSERT_FALSE(mp1.isNull());
-
-//    qDebug() << mp1.toString();
-
-//    qDebug() << "";
-
-//    TestSpecialGtObject op2;
-
-//    ASSERT_FALSE(op2.getBool());
-//    ASSERT_DOUBLE_EQ(op2.getDouble(), 0.0);
-//    ASSERT_TRUE(op2.getFile().isEmpty());
-//    ASSERT_EQ(op2.getInt(), 0);
-//    ASSERT_TRUE(op2.getLabel().isEmpty());
-//    ASSERT_TRUE(op2.getLink().isEmpty());
-//    ASSERT_STREQ(op2.getString().toStdString().c_str(), "Test");
-
-//    op2.setUuid(op1.uuid());
-//    op2.setFactory(gtObjectFactory);
-
-//    op2.fromMementoNew(mp1);
-
-//    ASSERT_TRUE(op2.getBool());
-//    ASSERT_DOUBLE_EQ(op2.getDouble(), 1.0);
-//    ASSERT_STREQ(op2.getFile().toStdString().c_str(), "bla");
-//    ASSERT_EQ(op2.getInt(), 20);
-//    ASSERT_STREQ(op2.getLabel().toStdString().c_str(), "lab");
-//    ASSERT_STREQ(op2.getLink().toStdString().c_str(), "link");
-//    ASSERT_STREQ(op2.getString().toStdString().c_str(), "str");
-
-//    GtObjectMemento mp2 = op2.toMementoNew();
-//    ASSERT_FALSE(mp2.isNull());
-
-//    qDebug() << mp2.toString();
 }
 
 TEST_F(TestGtObject, copy)
@@ -307,20 +244,29 @@ TEST_F(TestGtObject, insertChild)
 
 TEST_F(TestGtObject, isDerivedFromClass)
 {
-    /// Test with nullptr
-    ASSERT_FALSE(gt::isDerivedFromClass(nullptr, GT_CLASSNAME(GtObjectGroup)));
+    GtLabelData label;
+    auto* p = &label;
+    auto* m = p->metaObject();
+    ASSERT_TRUE(m);
 
-    GtLabelData p;
     /// test with empty classname
-    ASSERT_FALSE(gt::isDerivedFromClass(&p, ""));
+    ASSERT_FALSE(gt::isDerivedFromClass(p, ""));
+    ASSERT_FALSE(gt::isDerivedFromClass(m, ""));
     /// check valid result
-    ASSERT_TRUE(gt::isDerivedFromClass(&p, GT_CLASSNAME(GtObjectGroup)));
+    ASSERT_TRUE(gt::isDerivedFromClass(p, GT_CLASSNAME(GtObjectGroup)));
+    ASSERT_TRUE(gt::isDerivedFromClass(m, GT_CLASSNAME(GtObjectGroup)));
     /// check for wrong superclass
-    ASSERT_FALSE(gt::isDerivedFromClass(&p, "GtCalculator"));
+    ASSERT_FALSE(gt::isDerivedFromClass(p, "GtCalculator"));
+    ASSERT_FALSE(gt::isDerivedFromClass(m, "GtCalculator"));
+    /// check for its own class
+    ASSERT_FALSE(gt::isDerivedFromClass(p, "GtLabelData"));
+    ASSERT_FALSE(gt::isDerivedFromClass(m, "GtLabelData"));
     /// check if object is derived from GtObject
-    ASSERT_TRUE(gt::isDerivedFromClass(&p, "GtObject"));
+    ASSERT_TRUE(gt::isDerivedFromClass(p, "GtObject"));
+    ASSERT_TRUE(gt::isDerivedFromClass(m, "GtObject"));
     /// check if function stops before QObject
-    ASSERT_FALSE(gt::isDerivedFromClass(&p, "QObject"));
+    ASSERT_FALSE(gt::isDerivedFromClass(p, "QObject"));
+    ASSERT_FALSE(gt::isDerivedFromClass(m, "QObject"));
 }
 
 TEST_F(TestGtObject, findParent)

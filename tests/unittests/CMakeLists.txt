@@ -31,7 +31,7 @@ FILE (GLOB_RECURSE EXP_SRCS exporter/*.cpp exporter/*.h)
 FILE (GLOB_RECURSE MDI_SRCS mdi/*.cpp mdi/*.h)
 FILE (GLOB_RECURSE GUI_SRCS gui/*.cpp gui/*.h)
 
-set(SOURCES 
+set(SOURCES
     ${DM_SRCS}
     ${CAL_SRCS}
     ${CORE_SRCS}

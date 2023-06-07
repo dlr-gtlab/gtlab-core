@@ -941,97 +941,88 @@ GtObject::childAccepted(GtObject* /*child*/)
 bool
 gt::isDerivedFromClass(GtObject* obj, const QString& superClassName)
 {
-    if (!obj)
+    if (!obj) return false;
+
+    const QMetaObject* metaObject = obj->metaObject();
+
+    return isDerivedFromClass(metaObject, superClassName);
+}
+
+bool
+gt::isDerivedFromClass(const QMetaObject* metaObject,
+                       const QString& superClassName)
+{
+    if (superClassName.isEmpty()) return false;
+
+    // check recursively if the current meta object matches the super class name
+    while (metaObject && superClassName != QStringLiteral("QObject"))
     {
-        return false;
-    }
+        const QMetaObject* superClass = metaObject->superClass();
 
-    if (superClassName.isEmpty())
-    {
-        return false;
-    }
+        if (!superClass) return false;
 
-    const QMetaObject* currentMetaObject = obj->metaObject();
+        if (superClassName == superClass->className()) return true;
 
-    while (superClassName != "QObject")
-    {
-        const QMetaObject* currentSuperClass =
-                currentMetaObject->superClass();
-
-        if (!currentSuperClass)
-        {
-            return false;
-        }
-
-        if (superClassName == currentSuperClass->className())
-        {
-            return true;
-        }
-
-        currentMetaObject = currentSuperClass;
+        metaObject = superClass;
     }
 
     return false;
 }
 
-
-namespace gt
+void
+moveToThread(GtAbstractProperty* prop, QThread* thread)
 {
-    void moveToThread(GtAbstractProperty* prop, QThread* thread)
-    {
-        if (!prop || !thread) return;
+    if (!prop || !thread) return;
 
-        if (prop->parent()) return;
+    if (prop->parent()) return;
 
-        prop->QObject::moveToThread(thread);
-    }
-
-
-    void moveToThread(GtPropertyStructContainer& container, QThread* thread)
-    {
-        if (!thread) return;
-
-        // iterate over struct entries and move to new thread
-        for (auto& containerEntry : container)
-        {
-            // iterate over props of struct entry and move to new thread
-            for (auto* entryProp : containerEntry.fullProperties())
-            {
-                moveToThread(entryProp, thread);
-            }
-
-            moveToThread(&containerEntry, thread);
-        }
-
-        container.QObject::moveToThread(thread);
-    }
-
-    void
-    moveToThread(GtObject& object, QThread* thread)
-    {
-        if (!thread) return;
-
-        // collect all child objects and add root object to list
-        auto objs = object.findChildren<GtObject*>();
-        objs.push_front(&object);
-
-        for (auto* obj : qAsConst(objs))
-        {
-            const auto allChildProps = obj->fullPropertyList();
-            // move all properties of current object to new thread
-            for (auto* childProp : allChildProps)
-            {
-                moveToThread(childProp, thread);
-            }
-
-            // iterate over struct container and move to new thread
-            for (auto& container: obj->propertyContainers())
-            {
-                moveToThread(container, thread);
-            }
-        }
-
-        object.QObject::moveToThread(thread);
+    prop->QObject::moveToThread(thread);
 }
 
-} // namespace gt
+void
+moveToThread(GtPropertyStructContainer& container, QThread* thread)
+{
+    if (!thread) return;
+
+    // iterate over struct entries and move to new thread
+    for (auto& containerEntry : container)
+    {
+        // iterate over props of struct entry and move to new thread
+        for (auto* entryProp : containerEntry.fullProperties())
+        {
+            moveToThread(entryProp, thread);
+        }
+
+        moveToThread(&containerEntry, thread);
+    }
+
+    container.QObject::moveToThread(thread);
+}
+
+void
+gt::moveToThread(GtObject& object, QThread* thread)
+{
+    if (!thread) return;
+
+    // collect all child objects and add root object to list
+    auto objs = object.findChildren<GtObject*>();
+    objs.push_front(&object);
+
+    for (auto* obj : qAsConst(objs))
+    {
+        const auto allChildProps = obj->fullPropertyList();
+        // move all properties of current object to new thread
+        for (auto* childProp : allChildProps)
+        {
+            ::moveToThread(childProp, thread);
+        }
+
+        // iterate over struct container and move to new thread
+        for (auto& container: obj->propertyContainers())
+        {
+            ::moveToThread(container, thread);
+        }
+    }
+
+    object.QObject::moveToThread(thread);
+}

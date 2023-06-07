@@ -8,8 +8,10 @@
  */
 
 #include "gt_objectlinkproperty.h"
-#include <utility>
 #include "gt_object.h"
+#include "gt_objectfactory.h"
+
+#include <utility>
 
 GtObjectLinkProperty::GtObjectLinkProperty(const QString& ident,
         const QString& name,
@@ -108,4 +110,41 @@ bool
 GtObjectLinkProperty::linkFromSuperClass() const
 {
     return m_linkFromSuperClassesEnabled;
+}
+
+bool
+GtObjectLinkProperty::isAllowed(const QString& className) const
+{
+    if (m_allowedClasses.contains(className)) return true;
+
+    if (!m_obj || !linkFromSuperClass()) return false;
+
+    auto const* factory = m_obj->factory();
+    if (!factory)
+    {
+        // default to GtObjectFactory
+        factory = static_cast<GtAbstractObjectFactory const*>(gtObjectFactory);
+    }
+
+    auto* meta = factory->metaObject(className);
+    if (!meta)
+    {
+        // check GtObjectFactory (see issue 552, derived factories may not work)
+        meta = static_cast<GtAbstractObjectFactory const*>(gtObjectFactory)
+                   ->metaObject(className);
+
+        if (!meta)
+        {
+            gtError() << tr("Failed to check if '%1' is an allowed class for "
+                            "the object link property '%2'! (Metaobject for "
+                            "class name not found)").arg(className, ident());
+            return false;
+        }
+    }
+
+    // check allowed objects repeatively
+    return std::any_of(m_allowedClasses.cbegin(), m_allowedClasses.cend(),
+                       [=](const QString& cls){
+        return gt::isDerivedFromClass(meta, cls);
+    });
 }
