@@ -850,18 +850,32 @@ findObject(const QString& objectUUID, const List& list)
 }
 
 /**
- * @brief isDerivedFromClass
- * @param obj - object to analyze
- * @param superClassName - name of possible super class
- * @return true if the class of obj is herited from the super class
- * given by the name.
- *
- * The superclasses are analyzed up to the GtObject class.
- *
- * returns false aswell if obj is a nullptr or the superclassname is empty
+ * @brief Returns true if obj is derived of the class named superClassName
+ * @param obj Object to check
+ * @param superClassName Name of the super class to check
+ * @return Returns true if the class of obj inherits the super class
+ * given by the super class name.
+ * *
+ * @note: Returns false aswell if obj is a nullptr or the super class name is
+ * empty. The super classes are analyzed up to the GtObject class.
  */
 GT_DATAMODEL_EXPORT
-bool isDerivedFromClass(GtObject* obj, QString const& superClassName);
+bool isDerivedFromClass(GtObject* obj,
+                        QString const& superClassName);
+
+/**
+ * @brief Overlaod that accepts a meta object pointer.
+ * @param metaObject Meta object to check
+ * @param superClassName Name of the super class to check
+ * @return Returns true if the class inherits the class denoted by the super
+ * class name
+ */
+GT_DATAMODEL_EXPORT
+bool isDerivedFromClass(QMetaObject const* metaObject,
+                        QString const& superClassName);
+
+/// disables usage with nullptr
+bool isDerivedFromClass(nullptr_t, QString const&) = delete;
 
 } // namespace gt
 

@@ -137,35 +137,26 @@ GtPropertyObjectLinkItem::setModelData(QWidget* /*editor*/,
 bool
 GtPropertyObjectLinkItem::acceptDrop(const QMimeData* mime) const
 {
-    if (!objectLinkProperty())
-    {
-        return false;
-    }
+    if (!objectLinkProperty()) return false;
 
     GtObject* obj = gtDataModel->objectFromMimeData(mime, false,
                                                     gtObjectFactory);
 
-    return obj != nullptr && objectLinkProperty()->allowedClasses().contains(
-               obj->metaObject()->className());
+    if (!obj) return false;
+
+    return obj && objectLinkProperty()->isAllowed(*obj);
 }
 
 bool
 GtPropertyObjectLinkItem::dropMimeData(const QMimeData* mime)
 {
-    if (!objectLinkProperty())
-    {
-        return false;
-    }
+    if (!acceptDrop(mime)) return false;
 
     GtObject* obj = gtDataModel->objectFromMimeData(mime, false,
                                                     gtObjectFactory);
 
-    if (obj && objectLinkProperty()->allowedClasses().contains(
-                obj->metaObject()->className()))
-    {
-        objectLinkProperty()->setVal(obj->uuid());
-        return true;
-    }
+    assert(obj);
 
-    return false;
+    objectLinkProperty()->setVal(obj->uuid());
+    return true;
 }

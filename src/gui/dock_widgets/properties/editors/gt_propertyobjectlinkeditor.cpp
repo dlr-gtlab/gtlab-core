@@ -23,7 +23,6 @@
 #include "gt_datamodel.h"
 #include "gt_objectfactory.h"
 #include "gt_command.h"
-#include "gt_project.h"
 
 #include "gt_propertyobjectlinkeditor.h"
 
@@ -162,12 +161,11 @@ GtPropertyObjectLinkEditor::dropEvent(QDropEvent* event)
     GtObject* obj = gtDataModel->objectFromMimeData(mime, false,
                                                     gtObjectFactory);
 
-    if (obj && m_prop->allowedClasses().contains(obj->metaObject()->className()))
+    if (obj && m_prop->isAllowed(*obj))
     {
         setPropertyValue(obj->uuid());
         emit objectSelected();
     }
-
 }
 
 void
@@ -177,7 +175,8 @@ GtPropertyObjectLinkEditor::dragEnterEvent(QDragEnterEvent* e)
 
     GtObject* obj = gtDataModel->objectFromMimeData(mime, false,
                                                     gtObjectFactory);
-    if (obj && m_prop->allowedClasses().contains(obj->metaObject()->className()))
+
+    if (obj && m_prop->isAllowed(*obj))
     {
         e->accept();
         return;
@@ -185,51 +184,34 @@ GtPropertyObjectLinkEditor::dragEnterEvent(QDragEnterEvent* e)
     e->ignore();
 }
 
-QList<GtObject*>
-GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj)
+/// helper method for accumulating all allowed objects
+void
+accumulateAllowedObjects(GtObjectLinkProperty const& prop,
+                         QList<GtObject*>& objs,
+                         GtObject& obj)
 {
-    if (!obj)
+    if (prop.isAllowed(obj))
     {
-        return QList<GtObject*>();
+        objs << &obj;
     }
 
-    QList<GtObject*> retval;
-
-    QStringList allowedClasses = m_prop->allowedClasses();
-
-    bool useSuperClasses = m_prop->linkFromSuperClass();
-
-    if (allowedClasses.contains(obj->metaObject()->className()))
+    foreach (GtObject* child, obj.findDirectChildren<GtObject*>())
     {
-        retval << obj;
+        assert(child);
+        accumulateAllowedObjects(prop, objs, *child);
     }
-    /// if the class is not directly allowed it might inherit from
-    /// one of the allowed classes
-    else if (useSuperClasses)
-    {
-        if (allowedSuperClassObjects(obj))
-        {
-            retval.append(obj);
-        }
-    }
-
-    foreach (GtObject* child, obj->findDirectChildren<GtObject*>())
-    {
-        retval.append(allowedObjects(child));
-    }
-
-    return retval;
 }
 
-bool
-GtPropertyObjectLinkEditor::allowedSuperClassObjects(GtObject* obj)
+QList<GtObject*>
+GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj) const
 {
-    QStringList allowedClasses = m_prop->allowedClasses();
+    QList<GtObject*> objs;
 
-    return std::any_of(std::begin(allowedClasses),
-                       std::end(allowedClasses), [obj](const QString& s) {
-        return (gt::isDerivedFromClass(obj, s));
-    });
+    if (!obj) return objs;
+
+    accumulateAllowedObjects(*m_prop, objs, *obj);
+
+    return objs;
 }
 
 void

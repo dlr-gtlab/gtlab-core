@@ -111,11 +111,37 @@ public:
     const QStringList& allowedClasses() const;
 
     /**
+     * @brief Sets the list of allowed classes
+     * @param allowedClasses Allowed classes
+     */
+    void setAllowedClasses(QStringList allowedClasses);
+
+    /**
      * @brief linkFromSuperClass
      * @return true if classes which inherit
      * allowed classes should be allowed, too
      */
     bool linkFromSuperClass() const;
+
+    /**
+     * @brief Returns true if the class name is allowed to be stored within
+     * this property. It will check super class as well if enabled.
+     * @param className Class to check
+     * @return True if the class is allowed
+     */
+    bool isAllowed(const QString& className) const;
+
+    /**
+     * @brief Overlaod that accepts a GtObject*
+     * @param object Object to check
+     * @return True if the class is allowed
+     */
+    bool isAllowed(const GtObject& object) const
+    {
+        auto m = object.metaObject();
+        assert(m);
+        return isAllowed(m->className());
+    }
 
 protected:
     /// Pointer to parent object.

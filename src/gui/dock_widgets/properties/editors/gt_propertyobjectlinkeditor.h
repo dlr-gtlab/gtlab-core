@@ -89,9 +89,7 @@ private:
      * @brief allowedObjects
      * @return
      */
-    QList<GtObject*> allowedObjects(GtObject* obj);
-
-    bool allowedSuperClassObjects(GtObject* obj);
+    QList<GtObject*> allowedObjects(GtObject* obj) const;
 
     /**
      * @brief Sets property value considering undo/redo functionality.
