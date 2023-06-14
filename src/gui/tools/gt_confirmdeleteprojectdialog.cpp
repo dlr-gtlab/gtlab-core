@@ -63,15 +63,12 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
     textLayout->addSpacing(10);
     textLayout->addWidget(infoText);
 
-    QHBoxLayout* checkLay = new QHBoxLayout;
+    auto* checkLay = new QHBoxLayout;
 
-    m_checkBox = new QCheckBox;
+    QString checkBoxText = tr("Delete project contents on"
+                              " disk (cannot be undone)");
+    m_checkBox = new QCheckBox(checkBoxText);
     m_checkBox->setChecked(false);
-
-
-
-    QLabel* label = new QLabel(tr("Delete project contents on"
-                                  " disk (cannot be undone)"));
 
     layout->addLayout(checkLay);
 
@@ -82,16 +79,14 @@ GtConfirmDeleteProjectDialog::GtConfirmDeleteProjectDialog(
 
     checkLay->addWidget(m_checkBox);
 
-    checkLay->addSpacerItem(new QSpacerItem(10, 10,
-                                            QSizePolicy::Minimum,
-                                            QSizePolicy::Minimum));
-
-    checkLay->addWidget(label);
 
     checkLay->addSpacerItem(new QSpacerItem(5, 10,
                                             QSizePolicy::Expanding,
                                             QSizePolicy::Minimum));
 
+    layout->addSpacerItem(new QSpacerItem(10, 30,
+                                          QSizePolicy::Fixed,
+                                          QSizePolicy::Fixed));
 
 
     QFrame* line = new QFrame;
