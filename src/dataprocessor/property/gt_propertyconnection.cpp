@@ -170,7 +170,8 @@ GtPropertyConnection::makeConnection()
     m_sourcePropObj = sourcePropety;
 
     // connect signals
-    connect(sourcePropety, SIGNAL(changed()), SLOT(onSourcePropertyChange()));
+    connect(sourcePropety, SIGNAL(changed()), 
+            SLOT(onSourcePropertyChange()), Qt::DirectConnection);
     connect(sourcePropety, SIGNAL(destroyed(QObject*)), SLOT(deleteLater()));
 
     // establish connection
