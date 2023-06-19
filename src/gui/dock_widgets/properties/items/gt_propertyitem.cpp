@@ -15,18 +15,14 @@
 #include "gt_propertyitem.h"
 #include "gt_abstractproperty.h"
 #include "gt_propertymodel.h"
-#include "gt_groupproperty.h"
-#include "gt_modeproperty.h"
 #include "gt_stringproperty.h"
 #include "gt_objectpathproperty.h"
-#include "gt_propertychangecommand.h"
 #include "gt_application.h"
 #include "gt_propertyvaluedelegate.h"
 #include "gt_session.h"
 #include "gt_regexp.h"
 #include "gt_icons.h"
 #include "gt_command.h"
-#include "gt_project.h"
 #include "gt_colors.h"
 
 GtPropertyItem::GtPropertyItem() :
@@ -39,12 +35,12 @@ GtPropertyItem::data(int column, int role) const
 {
     if (column < 0 || column >= 3)
     {
-        return QVariant();
+        return {};
     }
 
     if (!m_property)
     {
-        return QVariant();
+        return {};
     }
 
     switch (role)
@@ -102,7 +98,8 @@ GtPropertyItem::data(int column, int role) const
             break;
 
         case Qt::ForegroundRole:
-            if (m_property->isReadOnly() && column == 2)
+            if (!m_property->isActive() || 
+                (m_property->isReadOnly() && column == 2))
             {
                 return gt::gui::color::disabled();
             }
@@ -185,7 +182,7 @@ GtPropertyItem::data(int column, int role) const
             return m_property->isActive();
     }
 
-    return QVariant();
+    return {};
 }
 
 bool
@@ -262,7 +259,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
     {
         case QVariant::Double:
         {
-            QLineEdit* lineEdit = new QLineEdit(parent);
+            auto* lineEdit = new QLineEdit(parent);
             lineEdit->setValidator(new QRegExpValidator(
                                        gt::re::forDoubles(), lineEdit));
             return lineEdit;
@@ -270,7 +267,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
 
         case QVariant::Int:
         {
-            QSpinBox* spinbox = new QSpinBox(parent);
+            auto* spinbox = new QSpinBox(parent);
             spinbox->setRange(std::numeric_limits<int>::min(),
                               std::numeric_limits<int>::max());
             connect(spinbox, SIGNAL(editingFinished()),
@@ -280,9 +277,9 @@ GtPropertyItem::editorWidget(QWidget* parent,
 
         case QVariant::String:
         {
-            QLineEdit* lineEdit = new QLineEdit(parent);
+            auto* lineEdit = new QLineEdit(parent);
             QValidator* validator = nullptr;
-            GtStringProperty* s = qobject_cast<GtStringProperty*>(m_property);
+            auto* s = qobject_cast<GtStringProperty*>(m_property);
             auto p = qobject_cast<GtObjectPathProperty*>(m_property);
 
             if (s)
@@ -323,7 +320,7 @@ GtPropertyItem::setEditorData(QWidget* editor, QVariant& var) const
     {
         case QVariant::Int:
         {
-            QSpinBox* spinbox = static_cast<QSpinBox*>(editor);
+            auto* spinbox = static_cast<QSpinBox*>(editor);
             spinbox->setValue(var.toInt());
             return;
         }
@@ -344,7 +341,7 @@ GtPropertyItem::setModelData(QWidget* editor, QAbstractItemModel* model,
     {
         case QVariant::Int:
         {
-            QSpinBox* spinbox = static_cast<QSpinBox*>(editor);
+            auto* spinbox = static_cast<QSpinBox*>(editor);
             model->setData(index, spinbox->value(), Qt::EditRole);
             break;
         }
@@ -376,7 +373,7 @@ gt::propertyItemChange(GtObject& obj,
                        const QVariant& value,
                        const QString& unit)
 {
-    GtSession* root =  obj.findRoot<GtSession*>();
+    auto* root = obj.findRoot<GtSession*>();
 
     if (!root)
     {

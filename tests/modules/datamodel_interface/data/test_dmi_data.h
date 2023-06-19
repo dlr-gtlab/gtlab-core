@@ -34,6 +34,7 @@ private:
     GtPropertyStructContainer m_container;
     GtModeProperty m_mode;
     GtModeTypeProperty m_propTypeA, m_propTypeB;
+    GtDoubleProperty m_optionalValue;
 };
 
 #endif // TESTDMICLASS_H

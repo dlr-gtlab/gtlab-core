@@ -17,7 +17,9 @@ TestDmiData::TestDmiData() :
     m_container("notes", "notes"),
     m_mode("modeProp", "ModeProp", "A mode-property"),
     m_propTypeA("Type A", "Type A brief"),
-    m_propTypeB("Type B", "Type B brief")
+    m_propTypeB("Type B", "Type B brief"),
+    m_optionalValue("optionalValue", "Optional Value",
+                    "This property is optional")
 {
     setObjectName("Internal_Data");
     setFlag(UserDeletable);
@@ -36,4 +38,8 @@ TestDmiData::TestDmiData() :
     m_mode.registerSubProperty(m_propTypeB);
 
     registerProperty(m_mode);
+
+    m_optionalValue.setOptional(true);
+
+    registerProperty(m_optionalValue);
 }
