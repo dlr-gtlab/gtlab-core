@@ -63,6 +63,14 @@ void
 GtObjectLinkProperty::setAllowedClasses(QStringList allowedClasses)
 {
     m_allowedClasses = std::move(allowedClasses);
+
+    if (auto* obj = linkedObject())
+    {
+        if (!isAllowed(*obj))
+        {
+            m_value.clear();
+        }
+    }
 }
 
 GtObject*

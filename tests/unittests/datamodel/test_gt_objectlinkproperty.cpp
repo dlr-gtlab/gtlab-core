@@ -130,3 +130,34 @@ TEST_F(TestObjectLinkProperty, isAllowed_superClasses)
     EXPECT_TRUE(prop.isAllowed(GT_CLASSNAME(GtObjectGroup)));
     EXPECT_TRUE(prop.isAllowed(GT_CLASSNAME(GtObject)));
 }
+
+TEST_F(TestObjectLinkProperty, setAllowedClassesMyClearLinkedObject)
+{
+    GtObject myObject;
+    myObject.setFactory(&factory);
+
+    GtObjectLinkProperty prop{
+        "my_id",
+        "my_name",
+        "my_brief",
+        {},
+        &myObject,
+        QStringList{
+            GT_CLASSNAME(TestSpecialGtObject)
+        }
+    };
+
+    auto* o = new TestSpecialGtObject;
+    myObject.appendChild(o);
+
+    // set linked object
+    prop.setVal(o->uuid());
+
+    EXPECT_EQ(prop.linkedObject(), o);
+
+    // removing the classname from the list should reset the linked object
+    prop.setAllowedClasses(QStringList{
+    });
+
+    EXPECT_EQ(prop.linkedObject(), nullptr);
+}
