@@ -91,6 +91,7 @@ public:
      * @return
      */
     GtObject* linkedObject(GtObject* root = nullptr);
+    GtObject const* linkedObject(GtObject const* root = nullptr) const;
 
     /**
      * @brief object

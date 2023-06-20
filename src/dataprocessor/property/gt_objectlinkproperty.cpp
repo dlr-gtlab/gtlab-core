@@ -88,6 +88,13 @@ GtObjectLinkProperty::linkedObject(GtObject* root)
     return rootObject->getObjectByUuid(m_value);
 }
 
+GtObject const*
+GtObjectLinkProperty::linkedObject(const GtObject* root) const
+{
+    return const_cast<GtObjectLinkProperty*>(this)
+           ->linkedObject(const_cast<GtObject*>(root));
+}
+
 GtObject*
 GtObjectLinkProperty::object() const
 {
