@@ -19,6 +19,7 @@
 #include "gt_labelproperty.h"
 #include "gt_objectpathproperty.h"
 #include "gt_modeproperty.h"
+#include "gt_calculatorfactory.h"
 
 #include "gt_calculator.h"
 
@@ -225,6 +226,17 @@ GtCalculator::runFailsOnWarning()
     return pimpl->failRunOnWarning;
 }
 
+GtCalculator::CalculatorInformation
+GtCalculator::calculatorInformation()
+{
+    QString className = metaObject()->className();
+    GtCalculatorData dat = gtCalculatorFactory->calculatorData(className);
+
+    assert(dat);
+
+    return CalculatorInformation(std::move(dat));
+}
+
 bool
 GtCalculator::run()
 {
@@ -281,4 +293,29 @@ GtCalculator::hideLabelProperty(bool val)
     pimpl->labelProperty.hide(val);
 }
 
+GtCalculator::CalculatorInformation::CalculatorInformation(GtCalculatorData data) :
+    m_dat(std::move(data))
+{
 
+}
+
+const QString&
+GtCalculator::CalculatorInformation::author() const
+{
+    assert(m_dat);
+    return m_dat->author;
+}
+
+const QString&
+GtCalculator::CalculatorInformation::id() const
+{
+    assert(m_dat);
+    return m_dat->id;
+}
+
+const GtVersionNumber&
+GtCalculator::CalculatorInformation::version() const
+{
+    assert(m_dat);
+    return m_dat->version;
+}
