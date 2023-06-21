@@ -14,6 +14,7 @@
 #include "gt_labelproperty.h"
 #include "gt_modeproperty.h"
 #include "gt_processcomponent.h"
+#include "gt_calculatordata.h"
 
 #include <QPointer>
 #include <memory>
@@ -31,6 +32,43 @@ class GT_CORE_EXPORT GtCalculator : public GtProcessComponent
     Q_OBJECT
 
 public:
+    /**
+     * @brief The CalculatorInformation class
+     * Struct for access to general information about the calculator
+     * given while the registration.
+     */
+    struct GT_CORE_EXPORT CalculatorInformation
+    {
+    public:
+    
+        /**
+         * @brief constructor
+         * @param data Calculator data
+         */
+        explicit CalculatorInformation(GtCalculatorData data);
+
+        /**
+         * @brief author
+         * @return author of the calculator
+         */
+        QString const& author() const;
+
+        /**
+         * @brief id
+         * @return id of the calculator
+         */
+        QString const& id() const;
+
+        /**
+         * @brief version
+         * @return version number of the calculator
+         */
+        GtVersionNumber const& version() const;
+
+    private:
+        GtCalculatorData m_dat;
+    };
+
     /**
      * @brief Destructor
      */
@@ -89,6 +127,12 @@ public:
      * @return Whether run should be marked as failed or not.
      */
     bool runFailsOnWarning();
+
+    /**
+     * @brief calculatorInformation
+     * @return
+     */
+    CalculatorInformation calculatorInformation();
 
 protected:
     /**

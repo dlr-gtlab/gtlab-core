@@ -523,7 +523,7 @@ GtTask::handleRunnableFinished()
 {
     bool success = true;
 
-    qDebug() << "GtTask::handleRunnableFinished()";
+    qDebug() << __FUNCTION__;
 
     if (!runnable()->successful())
     {

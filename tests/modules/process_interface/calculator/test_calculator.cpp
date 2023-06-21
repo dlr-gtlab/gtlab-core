@@ -51,5 +51,12 @@ TestCalculator::run()
 
     m_result.setVal(m_value * m_value);
 
+    GtCalculator::CalculatorInformation info = calculatorInformation();
+
+    gtInfo() << "The author of this calculator is"
+             << info.author();
+    gtInfo() << "The version of this calculator is"
+             << info.version().toString();
+
     return true;
 }
