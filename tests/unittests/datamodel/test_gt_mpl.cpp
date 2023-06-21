@@ -17,23 +17,25 @@ class TestMpl : public testing::Test {};
 // Therefore this test is enabled for MSVC only
 #ifdef _MSVC_LANG
 
+int myFunction(QString const, bool* = nullptr) { return 0; }
+
+void myOtherFunction() { }
+
 TEST_F(TestMpl, functionSignature)
 {
-    int myFunction(QString const str, bool* ok = nullptr);
 
-    QString signature1 = gt::interface::getFunctionSignature<decltype(myFunction)>();
+    QString signature1 = gt::interface::getFunctionSignature(myFunction);
     gtDebug() << "Signature 1:" << signature1;
     EXPECT_EQ(signature1, "int (QString, bool*)");
 
-    void myOtherFunction();
 
-    QString signature2 = gt::interface::getFunctionSignature<decltype(myOtherFunction)>();
+    QString signature2 = gt::interface::getFunctionSignature(myOtherFunction);
     gtDebug() << "Signature 2_1:" << signature2;
     EXPECT_EQ(signature2, "void ()");
 
     auto myLambda= [](float const&, QString*, double){ return QChar{}; };
 
-    QString lambdaSig = gt::interface::getFunctionSignature<decltype(myLambda)>();
+    QString lambdaSig = gt::interface::getFunctionSignature(myLambda);
     gtDebug() << "Signature Lambda:" << lambdaSig;
     EXPECT_EQ(lambdaSig, "QChar (float const&, QString*, double)");
 
@@ -42,7 +44,7 @@ TEST_F(TestMpl, functionSignature)
         bool operator()(QString const&, int const*, char const);
     };
 
-    QString customFunctor = gt::interface::getFunctionSignature<CustomFunctor>();
+    QString customFunctor = gt::interface::getFunctionSignature(CustomFunctor());
     gtDebug() << "Signature Functor:" << customFunctor;
     EXPECT_EQ(customFunctor, "bool (QString const&, int const*, char" /*'const' is not matched somehow*/ ")");
 }
