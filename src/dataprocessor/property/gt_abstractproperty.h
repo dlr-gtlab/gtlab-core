@@ -255,7 +255,7 @@ public:
      * @return Whether property is connected or not.
      */
     bool isConnected();
-
+    bool isConnected() const;
 protected:
     /**
      * @brief GtAbstractProperty

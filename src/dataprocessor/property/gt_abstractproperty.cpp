@@ -332,6 +332,12 @@ GtAbstractProperty::isConnected()
     return m_connection != nullptr;
 }
 
+bool
+GtAbstractProperty::isConnected() const
+{
+    return const_cast<GtAbstractProperty*>(this)->isConnected();
+}
+
 GtAbstractProperty::GtAbstractProperty() = default;
 
 void
