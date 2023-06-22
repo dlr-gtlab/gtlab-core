@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
+
 # description: executes a set of gui testing suites
 #
 # author: Marius Bröcker AT-TWK

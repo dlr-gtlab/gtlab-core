@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
 
 add_library(TestMdiInterfaceExt SHARED
     mdi/test_mdi_ext_externalobjectui.h

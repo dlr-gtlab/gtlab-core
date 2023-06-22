@@ -1,0 +1,21 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: GTlab
+Upstream-Contact:  <>
+Source: 
+
+Files: src/resources/**/*.qrc
+Copyright: 2023 German Aerospace Center (DLR)
+License: MPL-2.0+
+
+Files: tests/guitests/**/*.feature
+Copyright: 2023 German Aerospace Center (DLR)
+License: MPL-2.0+
+
+Files: tests/modules/**/*.json
+Copyright: 2023 German Aerospace Center (DLR)
+License: MPL-2.0+
+
+
+Files: translations/*.ts
+Copyright: 2023 German Aerospace Center (DLR)
+License: MPL-2.0+

@@ -1,3 +1,13 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ *
+ *  Created on: 08.09.2022
+ *  Author: Marius Bröcker (AT-TWK)
+ *  E-Mail: marius.broecker@dlr.de
+ */
+
 #include "gt_processrunnerresponse.h"
 
 #include "gt_task.h"

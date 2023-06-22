@@ -1,3 +1,7 @@
+REM SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+REM
+REM SPDX-License-Identifier: MPL-2.0+
+
 @echo off
 
 SET SERVERPATH=C:\deployment\%PLATFORMNAME%\%CATEGORY%\bin\%RELEASESTATUS%\%CI_COMMIT_TAG%

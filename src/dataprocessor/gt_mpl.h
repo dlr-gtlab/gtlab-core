@@ -1,10 +1,5 @@
-/**
- * Adapted from pybind11/mpl.h and extended
- * 
- * Copyright (c) 2016 Wenzel Jakob <wenzel.jakob@epfl.ch>, All rights reserved.
- *
- * Licensed unter the 3-clause BSD license
- */
+// Copyright (c) 2016 Wenzel Jakob <wenzel.jakob@epfl.ch>, All rights reserved.
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef GT_MPL_H
 #define GT_MPL_H

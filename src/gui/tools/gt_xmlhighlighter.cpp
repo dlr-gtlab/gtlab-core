@@ -1,18 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2006 J-P Nurmi. All rights reserved.
-**
-** The used XML syntax highlighting principles have been adapted from
-** KXESyntaxHighlighter, which is part of KXML Editor 1.1.4,
-** (C) 2003 by The KXMLEditor Team (http://kxmleditor.sourceforge.net).
-**
-** This file may be used under the terms of the GPL Version 2, June 1991.
-** For details, see http://www.gnu.org/licenses/gpl.html
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
+// Copyright (C) 2006 J-P Nurmi. All rights reserved.
+
 
 #include "gt_xmlhighlighter.h"
 #include "gt_application.h"

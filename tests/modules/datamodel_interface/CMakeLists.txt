@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
 
 add_library(TestDatamodelInterface SHARED
     data/test_dmi_data.h

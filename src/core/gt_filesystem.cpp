@@ -1,3 +1,11 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ *
+ * Author: Martin Siggel <martin.siggel@dlr.de>
+ */
+
 #include "gt_filesystem.h"
 
 #include <QDir>

@@ -1,3 +1,9 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ */
+
 #ifndef TEST_GT_ENUMPROPERTY_H
 #define TEST_GT_ENUMPROPERTY_H
 

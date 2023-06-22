@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
+
 # -*- coding: utf-8 -*-
 
 # This file contains hook functions to run as the .feature file is executed.

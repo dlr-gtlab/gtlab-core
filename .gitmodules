@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
+
 [submodule "tests/guitests/testing_resources"]
 	path = tests/guitests/testing_resources
 	url = https://gitlab.dlr.de/at-twk/gui-testing/testing-resources.git

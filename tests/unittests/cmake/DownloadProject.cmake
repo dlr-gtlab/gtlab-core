@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
+
 # Distributed under the OSI-approved MIT License.  See accompanying
 # file LICENSE or https://github.com/Crascit/DownloadProject for details.
 #

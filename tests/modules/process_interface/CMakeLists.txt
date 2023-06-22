@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
 
 add_library(TestProcessInterface SHARED
     calculator/test_calculator.h

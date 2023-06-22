@@ -1,3 +1,7 @@
+// GTlab - Gas Turbine laboratory
+//
+// SPDX-License-Identifier: MPL-2.0+
+// SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15

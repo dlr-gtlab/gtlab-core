@@ -1,6 +1,7 @@
 /* GTlab - Gas Turbine laboratory
- * Source File:
- * copyright 2009-2015 by DLR
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  *
  *  Created on: 28.10.2015
  *  Author: Stanislaus Reitenbach (AT-TW)

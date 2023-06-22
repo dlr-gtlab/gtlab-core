@@ -1,3 +1,14 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * Source File: gt_exceptions.h
+ *
+ *  Created on: 28.10.2015
+ *  Author: Richard Becker (AT-TWK)
+ *  Tel.: +49 2203 601 3493
+ */
+
 #include <QTextStream>
 
 #include "gt_exceptions.h"
