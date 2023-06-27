@@ -89,4 +89,21 @@ private:
     QIcon m_icon;
 };
 
+namespace gt
+{
+namespace gui
+{
+
+inline GtObjectUIActionGroup
+makeActionGroup(const QString& groupName, int sizeHint = -1)
+{
+    auto tmp = GtObjectUIActionGroup(groupName, {});
+    tmp.reserve(sizeHint);
+    return tmp;
+}
+
+} // namespace gui
+
+} // namespace gt
+
 #endif // GTOBJECTUIACTIONGROUP_H

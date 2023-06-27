@@ -20,7 +20,6 @@
 #include "gt_project.h"
 #include "gt_icons.h"
 
-#include "gt_projectui.h"
 #include "gt_application.h"
 #include "internal/gt_openwithmenu.h"
 
@@ -39,19 +38,21 @@ countVisibleActions(QList<QAction*> const& actions)
     });
 }
 
-/// adds the actions to the menu
-inline void
-addToMenu(const QList<GtObjectUIAction>& actions, QMenu& menu,
-          GtObject& obj, QObject* parent = {})
+void
+gt::gui::addToMenu(const QList<GtObjectUIAction>& actions,
+                   QMenu& menu,
+                   GtObject* obj,
+                   QObject* parent)
 {
     // menu will take ownership
-    new GtCustomActionMenu(actions, &obj, parent, &menu);
+    new GtCustomActionMenu(actions, obj, parent, &menu);
 }
 
-/// adds the action to the menu
-inline void
-addToMenu(GtObjectUIAction const& action, QMenu& menu,
-          GtObject& obj, QObject* parent = {})
+void
+gt::gui::addToMenu(GtObjectUIAction const& action,
+                   QMenu& menu,
+                   GtObject* obj,
+                   QObject* parent)
 {
     addToMenu(QList<GtObjectUIAction>{action}, menu, obj, parent);
 }
@@ -71,14 +72,13 @@ addOpenWithActions(QMenu& menu, GtObject& obj)
     // open with
     if (!openWithList.isEmpty())
     {
-        GtObjectUIAction openAction(QObject::tr("Open"),
-                    [name = openWithList.first(), o = &obj](GtObject* target){
+        auto lambda = [name = openWithList.first(), o = &obj](GtObject* target){
             gtMdiLauncher->open(name, o);
-        });
+        };
+        auto openAction = gt::gui::makeAction(QObject::tr("Open"), lambda)
+                              .setIcon(gt::gui::icon::open());
 
-        openAction.setIcon(gt::gui::icon::open());
-
-        addToMenu(openAction, menu, obj);
+        gt::gui::addToMenu(openAction, menu, &obj);
 
         if (openWithList.size() > 1)
         {
@@ -133,13 +133,13 @@ addCustomActions(QMenu& menu, GtObject& obj)
             QMenu* submenu = menu.addMenu(group.name());
             submenu->setIcon(group.icon());
 
-            addToMenu(group.actions(), *submenu, obj, data.ui);
+            gt::gui::addToMenu(group.actions(), *submenu, &obj, data.ui);
         }
     }
 
     for (auto const& data : singleActions)
     {
-        addToMenu(data.actions, menu, obj, data.ui);
+        gt::gui::addToMenu(data.actions, menu, &obj, data.ui);
     }
 
     auto actionsAfter = menu.actions();
@@ -155,9 +155,8 @@ addCustomActions(QMenu& menu, GtObject& obj)
     }
 }
 
-/// adds the import menu actions to the menu
-inline void
-addImportMenu(QMenu& menu, GtObject& obj)
+QMenu*
+gt::gui::addImportMenu(QMenu& menu, GtObject& obj)
 {
     QList<GtImporterMetaData> importerList =
             gtImportHandler->importerMetaData(obj.metaObject()->className());
@@ -168,13 +167,14 @@ addImportMenu(QMenu& menu, GtObject& obj)
 
         menu.addMenu(imenu);
 
-        menu.addSeparator();
+        return imenu;
     }
+
+    return nullptr;
 }
 
-/// adds the export menu actions to the menu
-inline void
-addExportMenu(QMenu& menu, GtObject& obj)
+QMenu*
+gt::gui::addExportMenu(QMenu& menu, GtObject& obj)
 {
     QList<GtExporterMetaData> exporterList =
             gtExportHandler->exporterMetaData(obj.metaObject()->className());
@@ -185,53 +185,54 @@ addExportMenu(QMenu& menu, GtObject& obj)
 
         menu.addMenu(emenu);
 
-        menu.addSeparator();
+        return emenu;
     }
+
+    return nullptr;
 }
 
-/// adds the actions for removing and renaming an object to the menu
-inline void
-addObjectActions(QMenu& menu,
-                 GtObject& obj,
-                 QModelIndex const& idx,
-                 QAbstractItemView* view)
+GtObjectUIAction
+gt::gui::makeDeleteAction(QMenu& menu, GtObject& obj)
 {
-    // rename object action
-    if (obj.isRenamable() && idx.isValid() && view)
-    {
-        GtObjectUIAction renameAction(QObject::tr("Rename"),
-                                      [=](GtObject* target){
-            assert(idx.isValid());
-            assert(view);
-            view->edit(idx);
-        });
-
-        renameAction.setIcon(gt::gui::icon::rename())
-                    .setShortCut(gtApp->getShortCutSequence("rename"));
-
-        new GtCustomActionMenu({renameAction}, &obj, nullptr, &menu);
-
-        menu.addSeparator();
-    }
-
     // delete object action
     if (obj.isDeletable())
     {
-        GtObjectUIAction deleteAction(QObject::tr("Delete"),
-                                      [](GtObject* target){
+        auto lambda = [=](GtObject* target){
             if (GtProject* project = target->findRoot<GtProject*>())
             {
                 gtDataModel->deleteFromModel(target);
             }
-        });
-
-        deleteAction.setIcon(gt::gui::icon::delete_())
-                .setShortCut(gtApp->getShortCutSequence("delete"));
-
-        new GtCustomActionMenu({deleteAction}, &obj, nullptr, &menu);
-
-        menu.addSeparator();
+        };
+        return makeAction(QObject::tr("Delete"), lambda)
+            .setIcon(gt::gui::icon::delete_())
+            .setShortCut(gtApp->getShortCutSequence("delete"));
     }
+
+    return {};
+}
+
+GtObjectUIAction
+gt::gui::makeRenameAction(QMenu& menu,
+                         GtObject& obj,
+                         const QModelIndex& idx,
+                         QAbstractItemView* view)
+{
+    // rename object action
+    if (obj.isRenamable() && idx.isValid() && view)
+    {
+        auto lambda = [=](GtObject* target){
+            assert(idx.isValid());
+            assert(view);
+            view->edit(idx);
+        };
+        auto renameAction = gt::gui::makeAction(QObject::tr("Rename"), lambda)
+                                .setIcon(gt::gui::icon::rename())
+                                .setShortCut(gtApp->getShortCutSequence("rename"));
+
+        gt::gui::addToMenu(renameAction, menu, &obj);
+    }
+
+    return {};
 }
 
 int
@@ -245,10 +246,24 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
     addCustomActions(menu, obj);
 
     addImportMenu(menu, obj);
+    menu.addSeparator();
 
     addExportMenu(menu, obj);
+    menu.addSeparator();
 
-    addObjectActions(menu, obj, idx, view);
+    auto rename = makeRenameAction(menu, obj, idx, view);
+    if (!rename.isEmpty())
+    {
+        addToMenu(rename, menu, &obj);
+        menu.addSeparator();
+    }
+
+    auto delete_ = makeDeleteAction(menu, obj);
+    if (!delete_.isEmpty())
+    {
+        addToMenu(delete_, menu, &obj);
+        menu.addSeparator();
+    }
 
     return countVisibleActions(menu.actions());
 }

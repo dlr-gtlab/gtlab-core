@@ -18,7 +18,6 @@
 #include "gt_object.h"
 #include "gt_regexp.h"
 #include "gt_colors.h"
-#include "gt_logging.h"
 #include "gt_application.h"
 
 GtObjectUI::GtObjectUI()
@@ -127,7 +126,7 @@ GtObjectUI::makeSingleAction(const QString& actionText,
                              ActionFunction actionMethod)
 {
     // parent object not needed here
-    return GtObjectUIAction(actionText, std::move(actionMethod));
+    return gt::gui::makeAction(actionText, std::move(actionMethod));
 }
 
 void
@@ -144,10 +143,8 @@ GtObjectUI::addSingleAction(const QString& actionText,
 GtObjectUIActionGroup&
 GtObjectUI::addActionGroup(const QString& groupName, int sizeHint)
 {
-    m_actionGroups << GtObjectUIActionGroup(groupName, {});
-    auto& last = m_actionGroups.last();
-    last.reserve(sizeHint);
-    return last;
+    m_actionGroups << gt::gui::makeActionGroup(groupName, sizeHint);
+    return m_actionGroups.last();
 }
 
 void

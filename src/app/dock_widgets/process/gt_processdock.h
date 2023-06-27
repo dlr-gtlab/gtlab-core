@@ -198,6 +198,8 @@ private:
      */
     void addEmptyTaskToRoot();
 
+    void addEmptyTask(GtObject* root);
+
     /**
      * @brief addCalculator
      */
@@ -266,10 +268,36 @@ private:
     void keyPressEvent(QKeyEvent* event) override;
 
     /**
-     * @brief customContextMenu
-     * @param srcIndex
+     * @brief Helper method for creating the add element menu of most context
+     * menus
+     * @param menu Menu to fill
+     */
+    void makeAddMenu(QMenu& menu);
+
+    /**
+     * @brief Creates the context menu based on the current selection and
+     * the index provided.
+     * @param srcIndex Index to create context menu on
      */
     void customContextMenu(QModelIndex const& srcIndex);
+
+    /**
+     * @brief Creates the default context menu (i.e. when no valid index was
+     * selected)
+     */
+    void defaultContextMenu();
+
+    /**
+     * @brief processContextMenu
+     * @param obj
+     */
+    void processContextMenu(GtProcessComponent& obj, const QModelIndex& index, bool isTask);
+
+    /**
+     * @brief multiSelectionContextMenu
+     * @param indexList
+     */
+    void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
 private slots:
     /**
@@ -332,28 +360,11 @@ private slots:
     void addElement();
 
     /**
-     * @brief customContextMenu
-     * @param pos
+     * @brief Creates a context menu at the screen position depending on the
+     * current selection etc.
+     * @param pos Cursor position
      */
     void customContextMenu(const QPoint& pos);
-
-    /**
-     * @brief processContextMenu
-     * @param obj
-     */
-    void processContextMenu(GtTask* obj, const QModelIndex& index);
-
-    /**
-     * @brief calculatorContextMenu
-     * @param obj
-     */
-    void calculatorContextMenu(GtCalculator* obj, const QModelIndex& index);
-
-    /**
-     * @brief multiSelectionContextMenu
-     * @param indexList
-     */
-    void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
     /**
      * @brief Opens the calcualtor configuration wizard.

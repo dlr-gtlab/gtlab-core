@@ -19,12 +19,65 @@ class QTreeView;
 class QAbstractItemView;
 
 class GtObject;
-
+class GtObjectUIAction;
 namespace gt
 {
 
 namespace gui
 {
+
+/**
+ * @brief Appends the actions to the menu.
+ * @param actions Actions to append
+ * @param menu Menu to append actions to.
+ * @param obj Object to pass to action methods
+ * @pram parent Optional parent object used to invoke object ui actions on
+ */
+GT_GUI_EXPORT void addToMenu(const QList<GtObjectUIAction>& actions,
+                             QMenu& menu,
+                             GtObject* obj,
+                             QObject* parent = {});
+
+/**
+ * @brief Appends the action to the menu.
+ *
+ * Usage:
+ *
+ *  QMenu menu(this);
+ *
+ *  auto action = gt::gui::makeAction("My Action Text", myActionMethod)
+ *      .setIcon(...)
+ *      .setVisibility(...);
+ *
+ *  gt::gui::addToMenu(action, menu, nullptr);
+ *
+ *  menu.exec(QCursor::pos());
+ *
+ * @param actions Action to append
+ * @param menu Menu to append action to.
+ * @param obj Object to pass to action method
+ * @pram parent Optional parent object used to invoke object ui actions on
+ */
+GT_GUI_EXPORT void addToMenu(const GtObjectUIAction& action,
+                             QMenu& menu,
+                             GtObject* obj,
+                             QObject* parent = {});
+
+
+/// adds the import menu actions to the menu
+GT_GUI_EXPORT QMenu* addImportMenu(QMenu& menu, GtObject& obj);
+
+/// adds the export menu actions to the menu
+GT_GUI_EXPORT QMenu* addExportMenu(QMenu& menu, GtObject& obj);
+
+/// adds the export menu actions to the menu
+GT_GUI_EXPORT GtObjectUIAction makeDeleteAction(QMenu& menu, GtObject& obj);
+
+/// adds the export menu actions to the menu
+GT_GUI_EXPORT GtObjectUIAction makeRenameAction(QMenu& menu,
+                                                GtObject& obj,
+                                                QModelIndex const& idx,
+                                                QAbstractItemView* view);
 
 /**
  * @brief Appends the ObjectUI Actions of obj to menu. Returns the number of

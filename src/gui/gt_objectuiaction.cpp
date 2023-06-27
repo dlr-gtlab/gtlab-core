@@ -12,11 +12,9 @@
 #include "gt_application.h"
 #include "gt_icons.h"
 #include "gt_logging.h"
+#include "gt_utilities.h"
 
-GtObjectUIAction::GtObjectUIAction()
-{
-
-}
+GtObjectUIAction::GtObjectUIAction() = default;
 
 GtObjectUIAction::GtObjectUIAction(const QString& text,
                                    const QString& method,
@@ -48,6 +46,12 @@ GtObjectUIAction::GtObjectUIAction(const QString& text,
     m_method(std::move(method))
 {
 
+}
+
+bool
+GtObjectUIAction::isEmpty() const
+{
+    return m_text.isEmpty();
 }
 
 const QString&
@@ -110,8 +114,8 @@ GtObjectUIAction&
 GtObjectUIAction::setVerificationMethod(VerificationMethod method)
 {
     // parent object not needed here
-    return setVisibilityMethod([m = std::move(method)]
-                               (QObject* /*parent*/, GtObject* target){
+    return setVerificationMethod([m = std::move(method)]
+                                 (QObject* /*parent*/, GtObject* target){
         return m && m(target);
     });
 }
@@ -132,13 +136,19 @@ GtObjectUIAction::setVerificationMethod(const QString& methodName)
                                        Q_RETURN_ARG(bool, verified),
                                        Q_ARG(GtObject*, target)))
         {
-            gtWarning().nospace()
-                    << QObject::tr("Could not invoke verification method!")
-                    << " (" << methodName << ")";
+            gtWarning()
+                << QObject::tr("Could not invoke verification method!")
+                << gt::brackets(methodName);
         }
 
         return verified;
     });
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setEnabled(bool enabled)
+{
+    return setVerificationMethod([=](GtObject*){ return enabled; });
 }
 
 GtObjectUIAction&
@@ -174,12 +184,18 @@ GtObjectUIAction::setVisibilityMethod(const QString& methodName)
                                        Q_RETURN_ARG(bool, visible),
                                        Q_ARG(GtObject*, target)))
         {
-            gtWarning().nospace()
-                    << QObject::tr("Could not invoke visibility method!")
-                    << " (" << methodName << ")";
+            gtWarning()
+                << QObject::tr("Could not invoke visibility method!")
+                << gt::brackets(methodName);
         }
         return visible;
     });
+}
+
+GtObjectUIAction&
+GtObjectUIAction::setVisible(bool visible)
+{
+    return setVisibilityMethod([=](GtObject*){ return visible; });
 }
 
 GtObjectUIAction&

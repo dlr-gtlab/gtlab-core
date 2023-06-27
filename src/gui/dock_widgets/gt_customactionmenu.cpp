@@ -45,7 +45,7 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
         assert(menu);
 
         // separator
-        if (a.text().isEmpty())
+        if (a.isEmpty())
         {
             menu->addSeparator();
             continue;
