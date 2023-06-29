@@ -192,7 +192,7 @@ gt::gui::addExportMenu(QMenu& menu, GtObject& obj)
 }
 
 GtObjectUIAction
-gt::gui::makeDeleteAction(QMenu& menu, GtObject& obj)
+gt::gui::makeDeleteAction(GtObject& obj)
 {
     // delete object action
     if (obj.isDeletable())
@@ -212,24 +212,19 @@ gt::gui::makeDeleteAction(QMenu& menu, GtObject& obj)
 }
 
 GtObjectUIAction
-gt::gui::makeRenameAction(QMenu& menu,
-                         GtObject& obj,
-                         const QModelIndex& idx,
-                         QAbstractItemView* view)
+gt::gui::makeRenameAction(GtObject& obj,
+                          const QModelIndex& idx,
+                          QAbstractItemView& view)
 {
     // rename object action
-    if (obj.isRenamable() && idx.isValid() && view)
+    if (obj.isRenamable() && idx.isValid())
     {
-        auto lambda = [=](GtObject* target){
-            assert(idx.isValid());
-            assert(view);
-            view->edit(idx);
+        auto lambda = [idx, v = &view](GtObject* target){
+            v->edit(idx);
         };
-        auto renameAction = gt::gui::makeAction(QObject::tr("Rename"), lambda)
-                                .setIcon(gt::gui::icon::rename())
-                                .setShortCut(gtApp->getShortCutSequence("rename"));
-
-        gt::gui::addToMenu(renameAction, menu, &obj);
+        return gt::gui::makeAction(QObject::tr("Rename"), lambda)
+            .setIcon(gt::gui::icon::rename())
+            .setShortCut(gtApp->getShortCutSequence("rename"));
     }
 
     return {};
@@ -251,14 +246,17 @@ gt::gui::makeObjectContextMenu(QMenu& menu,
     addExportMenu(menu, obj);
     menu.addSeparator();
 
-    auto rename = makeRenameAction(menu, obj, idx, view);
-    if (!rename.isEmpty())
+    if (view)
     {
-        addToMenu(rename, menu, &obj);
-        menu.addSeparator();
+        auto rename = makeRenameAction(obj, idx, *view);
+        if (!rename.isEmpty())
+        {
+            addToMenu(rename, menu, &obj);
+            menu.addSeparator();
+        }
     }
 
-    auto delete_ = makeDeleteAction(menu, obj);
+    auto delete_ = makeDeleteAction(obj);
     if (!delete_.isEmpty())
     {
         addToMenu(delete_, menu, &obj);

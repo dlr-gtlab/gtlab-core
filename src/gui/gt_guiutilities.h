@@ -63,21 +63,46 @@ GT_GUI_EXPORT void addToMenu(const GtObjectUIAction& action,
                              GtObject* obj,
                              QObject* parent = {});
 
-
-/// adds the import menu actions to the menu
+/**
+ * @brief Creates a new import menu based on the registered importers and appends
+ * it to the menu. Returns a pointer to new menu, which can be used to hide or
+ * disable it. Ownership is already transfered to the base mneu.
+ * @param menu Menu to append import menu to
+ * @param obj Object to create import menu for
+ * @return Pointer to menu. May be null if no importers are registered
+ */
 GT_GUI_EXPORT QMenu* addImportMenu(QMenu& menu, GtObject& obj);
 
-/// adds the export menu actions to the menu
+/**
+ * @brief Creates a new export menu based on the registered exporters and appends
+ * it to the menu. Returns a pointer to new menu, which can be used to hide or
+ * disable it. Ownership is already transfered to the base mneu.
+ * @param menu Menu to append export menu to
+ * @param obj Object to create import menu for
+ * @return Pointer to menu. May be null if no importers are registered
+ */
 GT_GUI_EXPORT QMenu* addExportMenu(QMenu& menu, GtObject& obj);
 
-/// adds the export menu actions to the menu
-GT_GUI_EXPORT GtObjectUIAction makeDeleteAction(QMenu& menu, GtObject& obj);
+/**
+ * @brief Creates a default delete action, that deletes the object from the
+ * datamodel (only if the object is deletable)
+ * @param obj Object to create delete action for
+ * @return Delete action. Note: May be empty if the object is not deletable
+ */
+GT_GUI_EXPORT GtObjectUIAction makeDeleteAction(GtObject& obj);
 
-/// adds the export menu actions to the menu
-GT_GUI_EXPORT GtObjectUIAction makeRenameAction(QMenu& menu,
-                                                GtObject& obj,
+/**
+ * @brief Creates a default rename action, that renames the object from the
+ * datamodel (only if the object is renameable)
+ * @param obj Object to rename
+ * @param idx Index of the object in the view (mapped to view model)
+ * @param view View object
+ * @return Rename action. Note: May be empty if the object is not renameable or
+ * the index is invalid
+ */
+GT_GUI_EXPORT GtObjectUIAction makeRenameAction(GtObject& obj,
                                                 QModelIndex const& idx,
-                                                QAbstractItemView* view);
+                                                QAbstractItemView& view);
 
 /**
  * @brief Appends the ObjectUI Actions of obj to menu. Returns the number of

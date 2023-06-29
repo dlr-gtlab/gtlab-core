@@ -1024,7 +1024,7 @@ makePasteAction(GtProcessDock* dock, GtObject* obj, bool allowCalculator = false
 
     return gt::gui::makeAction(QObject::tr("Paste"), doPaste)
         .setIcon(gt::gui::icon::paste())
-        .setShortCut(gtApp->getShortCutSequence("paste"))
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("paste")))
         .setVerificationMethod(isEnabled);
 }
 
@@ -1076,20 +1076,22 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
             }
         };
 
+        bool isTaskReady = isReady && !obj.isSkipped();
+
         auto runremote = gt::gui::makeAction(tr("Run Task - detached execution"),
                                              [doRun](GtObject*){
                 doRun(GtProcessRunner::S_ID);
             })
             .setIcon(gt::gui::icon::processRun())
-            .setEnabled(isReady)
+            .setEnabled(isTaskReady)
             .setVisible(useExtendedProcessExecutor());
 
         auto runlocal = gt::gui::makeAction(tr("Run Task"), [doRun](GtObject*){
                 doRun(GtProcessExecutor::S_ID);
             })
             .setIcon(gt::gui::icon::processRun())
-            .setEnabled(isReady)
-            .setShortCut(getShortCut("runProcess"));
+            .setEnabled(isTaskReady)
+            .setShortCut(getShortCut(QStringLiteral("runProcess")));
 
         auto stop = gt::gui::makeAction(tr("Stop Task"), [=](GtObject*){
                 terminateProcess();
@@ -1119,25 +1121,28 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
 
     menu.addSeparator();
 
-    QMenu* addMenu = menu.addMenu(gt::gui::icon::add(), tr("Add..."));
-    addMenu->setEnabled(isReady);
+    if (isTask)
+    {
+        QMenu* addMenu = menu.addMenu(gt::gui::icon::add(), tr("Add..."));
+        addMenu->setEnabled(isReady);
 
-    makeAddMenu(*addMenu);
+        makeAddMenu(*addMenu);
 
-    menu.addSeparator();
+        menu.addSeparator();
+    }
 
     auto skip = gt::gui::makeAction(tr("Skip"), [=](GtObject*){
             skipComponent(mapFromSource(index));
         })
         .setIcon(gt::gui::icon::skip())
-        .setShortCut(getShortCut("skipProcess"))
+        .setShortCut(getShortCut(QStringLiteral("skipProcess")))
         .setVisible(!obj.isSkipped());
 
     auto unskip = gt::gui::makeAction(tr("Unskip"), [=](GtObject*){
             skipComponent(mapFromSource(index), false);
         })
         .setIcon(gt::gui::icon::unskip())
-        .setShortCut(getShortCut("skipProcess"))
+        .setShortCut(getShortCut(QStringLiteral("unskipProcess")))
         .setVisible(obj.isSkipped());
 
     gt::gui::addToMenu({ skip, unskip }, menu, &obj);
@@ -1158,7 +1163,7 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
         menu.addSeparator();
     }
 
-    auto rename = gt::gui::makeRenameAction(menu, obj, mapFromSource(index), m_view);
+    auto rename = gt::gui::makeRenameAction(obj, mapFromSource(index), *m_view);
 
     if (!rename.isEmpty())
     {
@@ -1176,14 +1181,14 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
             cutElement(mapFromSource(index));
         })
         .setIcon(gt::gui::icon::cut())
-        .setShortCut(gtApp->getShortCutSequence("cut"))
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("cut")))
         .setEnabled(isReady);
 
     auto copy = gt::gui::makeAction(tr("Copy"), [=](GtObject*){
             copyElement(mapFromSource(index));
         })
         .setIcon(gt::gui::icon::copy())
-        .setShortCut(gtApp->getShortCutSequence("copy"))
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("copy")))
         .setEnabled(isReady);
 
     gt::gui::addToMenu({ clone, cut, copy}, menu, &obj);
@@ -1202,7 +1207,7 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
             deleteProcessElements(m_view->selectionModel()->selectedIndexes());
         })
         .setIcon(gt::gui::icon::delete_())
-        .setShortCut(gtApp->getShortCutSequence("delete"))
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("delete")))
         .setEnabled(isReady);
 
     gt::gui::addToMenu(delete_, menu, &obj);
