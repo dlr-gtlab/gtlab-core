@@ -368,7 +368,7 @@ GtRemoteProcessRunner::exec(const QHostAddress& client,
 
     QLockFile portLockFile{lockFilePath};
     // unlock file on exit
-    auto finally = gt::finally(&portLockFile, &QLockFile::unlock);
+    auto cleanup = gt::finally(&portLockFile, &QLockFile::unlock);
 
     // we will lock this file indefinetly
     portLockFile.setStaleLockTime(0);
@@ -418,7 +418,7 @@ GtRemoteProcessRunner::exec(const QHostAddress& client,
     auto code = execMainLoop(server);
 
     // unlock file
-    finally.exec();
+    cleanup.finalize();
 
     switch (code)
     {

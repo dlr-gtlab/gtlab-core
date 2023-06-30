@@ -371,9 +371,10 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
     }
 
     beginResetModel();
-    auto _ = gt::finally([this](){
+    auto finally = gt::finally([this](){
         endResetModel();
     });
+    Q_UNUSED(finally)
 
     qDeleteAll(m_properties);
     m_properties.clear();
@@ -419,24 +420,26 @@ GtPropertyModel::addNewStructContainerEntry(
 
     beginInsertRows(QModelIndex(), m_properties.size(), m_properties.size());
 
-    GtCommand cmd = gtApp->startCommand(
-                gtApp->currentProject(),
-                gt::propertyItemCommandString(m_obj->objectName(),
-                                              container.name(),
-                                              QObject::tr("Entry added")));
+    GtPropertyStructInstance* newEntry = nullptr;
 
-    auto& newEntry = container.newEntry(entryType);
+    {
+        auto cmd = gtApp->makeCommand(gtApp->currentProject(),
+                                      gt::propertyItemCommandString(
+                                          m_obj->objectName(),
+                                          container.name(),
+                                          QObject::tr("Entry added")));
+        Q_UNUSED(cmd)
 
-    gtApp->endCommand(cmd);
+        newEntry = &container.newEntry(entryType);
+    }
 
-    GtPropertyCategoryItem* cat =
-            new GtPropertyCategoryItem(m_scope,
-                                       container.entryPrefix(),
-                                       this);
+    auto* cat = new GtPropertyCategoryItem(m_scope,
+                                           container.entryPrefix(),
+                                           this);
     cat->setIsContainer(true);
     m_properties << cat;
 
-    foreach (GtAbstractProperty* pChild, newEntry.properties())
+    for (GtAbstractProperty* pChild : newEntry->properties())
     {
         cat->addPropertyItem(pChild);
     }
@@ -486,15 +489,14 @@ GtPropertyModel::removeStructContainerEntry(const QModelIndex& index)
         return;
     }
 
-    GtCommand cmd = gtApp->startCommand(
-                gtApp->currentProject(),
-                gt::propertyItemCommandString(m_obj->objectName(),
-                                              container->name(),
-                                              QObject::tr("Entry deleted")));
+    auto cmd = gtApp->makeCommand(gtApp->currentProject(),
+                                  gt::propertyItemCommandString(
+                                      m_obj->objectName(),
+                                      container->name(),
+                                      QObject::tr("Entry deleted")));
+    Q_UNUSED(cmd)
 
     container->removeEntry(iter);
-
-    gtApp->endCommand(cmd);
 }
 
 GtObject*

@@ -363,8 +363,10 @@ gt::propertyItemCommandString(const QString& objName,
                               const QString& propertyName,
                               const QString& commandStr)
 {
-    return  {objName + QStringLiteral(" - ") + propertyName +
-            QStringLiteral(" ") + commandStr};
+    return  {
+        objName + QStringLiteral(" - ") + propertyName +
+        QStringLiteral(" ") + commandStr
+    };
 }
 
 bool
@@ -385,15 +387,11 @@ gt::propertyItemChange(GtObject& obj,
         return false;
     }
 
-    GtCommand cmd = gtApp->startCommand(
-                &obj,
-                gt::propertyItemCommandString(
-                    obj.objectName(), property.objectName(),
-                    QObject::tr("changed")));
+    auto cmd = gtApp->makeCommand(&obj,
+                                  gt::propertyItemCommandString(
+                                      obj.objectName(), property.objectName(),
+                                      QObject::tr("changed")));
+    Q_UNUSED(cmd)
 
-    bool retval = property.setValueFromVariant(value, unit);
-
-    gtApp->endCommand(cmd);
-
-    return retval;
+    return property.setValueFromVariant(value, unit);
 }

@@ -11,11 +11,10 @@
 #define GTPROCESSDOCK_H
 
 #include "gt_dockwidget.h"
+#include "gt_command.h"
 
 #include <QPointer>
 #include <QPersistentModelIndex>
-
-#include "gt_command.h"
 
 class QPushButton;
 class QMenu;
@@ -180,7 +179,7 @@ private:
     QPointer<GtProject> m_project;
 
     /// Command
-    GtCommand m_command;
+    GtCommand m_command{};
 
     /// mapper for action signals
     QSignalMapper* m_actionMapper;

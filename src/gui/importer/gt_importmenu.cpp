@@ -133,11 +133,10 @@ GtImportMenu::onActionTrigger(QObject* obj)
                              QStringLiteral(" ") +
                              m_obj->objectName();
 
-            GtCommand command = gtApp->startCommand(project, msg);
+            auto command = gtApp->makeCommand(project, msg);
+            Q_UNUSED(command)
 
             m_obj->applyDiff(diff);
-
-            gtApp->endCommand(command);
         }
     }
 

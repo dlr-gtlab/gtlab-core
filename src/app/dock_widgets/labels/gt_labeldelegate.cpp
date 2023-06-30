@@ -102,7 +102,7 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
         return;
     }
 
-    QList<GtLabel*> labels = project->findLabelUsages(label);
+    QList<GtLabel*> const labels = project->findLabelUsages(label);
 
     int nou = labels.size();
 
@@ -135,17 +135,16 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
             {
                 QString delMsg = tr("Rename Label") + QStringLiteral(" - ") +
                                  label->objectName();
-                GtCommand command = gtApp->startCommand(project, delMsg);
+                auto command = gtApp->makeCommand(project, delMsg);
+                Q_UNUSED(command)
 
                 model->setData(index, newId);
 
-                foreach (GtLabel* l, labels)
+                for (GtLabel* l : labels)
                 {
                     QModelIndex tmpIndex = gtDataModel->indexFromObject(l);
                     gtDataModel->setData(tmpIndex, newId);
                 }
-
-                gtApp->endCommand(command);
 
                 break;
             }

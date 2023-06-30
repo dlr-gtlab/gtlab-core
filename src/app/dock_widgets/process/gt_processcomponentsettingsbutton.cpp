@@ -184,12 +184,12 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
                 return;
             }
 
-            GtCommand command =
-                gtApp->startCommand(calc,
-                                    calc->objectName() +
-                                    tr(" configuration changed"));
+            auto command = gtApp->makeCommand(calc,
+                                              calc->objectName() +
+                                              tr(" configuration changed"));
+            Q_UNUSED(command)
+
             calc->fromMemento(memento);
-            gtApp->endCommand(command);
         }
     }
     else if (GtTask* task = qobject_cast<GtTask*>(m_pc))
@@ -220,12 +220,12 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
                 return;
             }
 
-            GtCommand command =
-                gtApp->startCommand(task,
-                                    task->objectName() +
-                                    tr(" configuration changed"));
+            auto command = gtApp->makeCommand(task,
+                                              task->objectName() +
+                                              tr(" configuration changed"));
+            Q_UNUSED(command)
+
             task->fromMemento(memento);
-            gtApp->endCommand(command);
         }
     }
 }

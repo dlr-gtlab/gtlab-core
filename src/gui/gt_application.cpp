@@ -518,8 +518,8 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
     m_d->m_commandId = commandId;
     m_d->m_commandUuid = QUuid::createUuid().toString();
 
-    gtDebug().verbose() << "######## COMMAND STARTED! ("
-                        << m_d->m_commandId << ")";
+    gtDebug().verbose() << "######## COMMAND STARTED!"
+                        << gt::brackets(m_d->m_commandId);
 
     gtDataModel->beginResetModelView();
 

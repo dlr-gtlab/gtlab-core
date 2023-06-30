@@ -211,16 +211,23 @@ public:
                          GtObject* root = nullptr) override;
 
     /**
-     * @brief startCommand
-     * @param root
-     * @param commandId
-     * @return
+     * @brief Begins recording of an undo/redo command. Any changes to the
+     * datamodel will be tracked using mementos.
+     *
+     * Note: When starting a command always make sure to end the same command!
+     * Prefer "makeCommand" instead.
+     *
+     * @param root Root object to create memento diffs from
+     * @param commandId Name of command, should be in a readable format, so that
+     * the user can identify the undo/redo command as such
+     * @return Command
      */
-    GtCommand startCommand(GtObject* root,
-                           const QString& commandId) override;
+    GT_NO_DISCARD
+    GtCommand startCommand(GtObject* root, const QString& commandId) override;
 
     /**
-     * @brief endCommand
+     * @brief Ends the command.
+     * @param command Command to end
      */
     void endCommand(const GtCommand& command) override;
 

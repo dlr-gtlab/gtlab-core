@@ -9,6 +9,8 @@
 #ifndef GT_UTILITIES_H
 #define GT_UTILITIES_H
 
+#include "gt_finally.h" // to keep API compatibility
+
 #include <utility>
 #include <limits>
 
@@ -112,117 +114,6 @@ checkNumericalLimits(U u)
 {
     return !(u < static_cast<U>(std::numeric_limits<T>::min()) ||
              u > static_cast<U>(std::numeric_limits<T>::max()));
-}
-
-/**
- * @brief The Finally class.
- * Calls a member function on an object in the destructor. Used for cleaning up.
- */
-template <typename Functor>
-class Finally
-{
-public:
-
-    explicit Finally(Functor func) :
-        m_func{std::move(func)}
-    { }
-
-    // no copy
-    Finally(Finally const&) = delete;
-    Finally& operator=(Finally const&) = delete;
-
-    // move allowed
-    Finally(Finally&& other) :
-        m_func{other.m_func},
-        m_invoked{other.m_invoked}
-    {
-        other.clear();
-    };
-
-    Finally& operator=(Finally&& other)
-    {
-        using std::swap; // ADL
-        Finally tmp{std::move(other)};
-        swap(m_func, tmp.m_func);
-        swap(m_invoked, tmp.m_invoked);
-        return *this;
-    };
-
-    ~Finally() { invoke(); }
-
-    /**
-     * @brief Check if function or object is null
-     * @return
-     */
-    bool isNull() const
-    {
-        return m_invoked;
-    }
-
-    /**
-     * @brief Calls the cleanup function. Object will go invalid.
-     */
-    void exec()
-    {
-        invoke();
-        clear();
-    }
-
-    /**
-     * @brief Clears object
-     */
-    void clear()
-    {
-        m_invoked = true;
-    }
-
-private:
-
-    // actual function to call
-    Functor m_func;
-
-    /// Indicates that method was already
-    /// called
-    bool m_invoked = false;
-
-    /**
-     * @brief Calls the cleanup function.
-     */
-    void invoke()
-    {
-        // call cleanup function
-        if (!isNull()) m_func();
-    }
-};
-
-/**
- * @brief Makes a finally object from a lambda
- * @param t object
- * @param func Function to call on cleanup
- */
-template<typename Functor>
-auto finally(Functor func)
-{
-    return Finally<Functor>{std::move(func)};
-}
-
-/**
- * @brief Makes a finally object from a member function
- * @param t object
- * @param func Function to call on cleanup
- */
-template<typename T, typename R>
-auto finally(T* t, R(T::*func)())
-{
-    // construct helper lambda
-    return finally(
-        [obj = t, func](){
-            if (obj && func)
-            {
-                (obj->*func)();
-            }
-        }
-    );
 }
 
 /**

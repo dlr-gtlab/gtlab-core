@@ -19,6 +19,9 @@
 #include <memory>
 
 #include "gt_globals.h"
+#include "gt_platform.h"
+#include "gt_finally.h"
+#include "gt_command.h"
 
 #define gtApp (GtCoreApplication::instance())
 
@@ -79,6 +82,18 @@ public:
         Batch = 0,
         Gui
     };
+
+    /// Helper functor object to end a GtCommand
+    struct EndCommandFunctor
+    {
+        inline void operator()() const noexcept
+        {
+            gtApp->endCommand(cmd);
+        }
+        GtCommand cmd;
+    };
+
+    using SmartCommand = gt::Finally<EndCommandFunctor>;
 
     /**
      * @brief GtApplication
@@ -383,15 +398,35 @@ public:
     static bool removeTempDir(const QString& path);
 
     /**
-     * @brief startCommand
-     * @param root
-     * @param commandId
-     * @return
+     * @brief Records an undo/redo command. Any changes to the datamodel will
+     * be tracked using mementos. Once the returned object goes out of scope
+     * the command will automatically be ended.
+     * @param root Root object to create memento diffs from
+     * @param commandId Name of command, should be in a readable format, so that
+     * the user can identify the undo/redo command as such
+     * @return Command helper object.
      */
+    GT_NO_DISCARD
+    static SmartCommand makeCommand(GtObject* root, QString const& commandId);
+
+    /**
+     * @brief Begins recording of an undo/redo command. Any changes to the
+     * datamodel will be tracked using mementos.
+     *
+     * Note: When starting a command always make sure to end the same command!
+     * Prefer "makeCommand" instead.
+     *
+     * @param root Root object to create memento diffs from
+     * @param commandId Name of command, should be in a readable format, so that
+     * the user can identify the undo/redo command as such
+     * @return Command
+     */
+    GT_NO_DISCARD
     virtual GtCommand startCommand(GtObject* root, const QString& commandId);
 
     /**
-     * @brief endCommand
+     * @brief Ends the command.
+     * @param command Command to end
      */
     virtual void endCommand(const GtCommand& command);
 

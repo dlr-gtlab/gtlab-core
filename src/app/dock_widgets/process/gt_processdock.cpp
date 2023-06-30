@@ -21,7 +21,6 @@
 #include "gt_mainwin.h"
 #include "gt_processview.h"
 #include "gt_datamodel.h"
-#include "gt_application.h"
 #include "gt_project.h"
 #include "gt_processdata.h"
 #include "gt_processcomponentmodel.h"
@@ -39,7 +38,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_taskprovider.h"
 #include "gt_propertyconnection.h"
-#include "gt_command.h"
+#include "gt_application.h"
 #include "gt_settings.h"
 #include "gt_extendedtaskdata.h"
 #include "gt_extendedcalculatordata.h"
@@ -1569,15 +1568,14 @@ GtProcessDock::cutElement(const QModelIndex& index)
 
     toDelete.append(pComp);
 
-    GtCommand command =
-        gtApp->startCommand(gtApp->currentProject(),
-                            tr("Cut Process Element") +
-                            QStringLiteral(" (") + obj->objectName() +
-                            QStringLiteral(")"));
+    auto command =
+        gtApp->makeCommand(gtApp->currentProject(),
+                           tr("Cut Process Element") +
+                           QStringLiteral(" (") + obj->objectName() +
+                           QStringLiteral(")"));
+    Q_UNUSED(command)
 
     gtDataModel->deleteFromModel(toDelete);
-
-    gtApp->endCommand(command);
 }
 
 void
@@ -1651,16 +1649,14 @@ GtProcessDock::deleteProcessElements(const QList<QModelIndex>& indexList)
         {
             gtDataModel->reduceToParents(objects);
 
-            GtCommand cmmd = gtApp->startCommand(gtApp->currentProject(),
-                                                 "Delete Process Elements");
+            auto cmd = gtApp->makeCommand(gtApp->currentProject(),
+                                          tr("Delete Process Elements"));
+            Q_UNUSED(cmd)
 
-            foreach (GtObject* obj, objects)
+            for (GtObject* obj : qAsConst(objects))
             {
                 deleteProcessComponent(obj);
             }
-
-            gtApp->endCommand(cmmd);
-
         }
 
         case QMessageBox::Cancel:
@@ -1743,13 +1739,12 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 
     m_view->setFocus();
 
-    GtCommand paste = gtApp->startCommand(gtApp->currentProject(),
-                                          "paste process element");
+    auto pasteCmd = gtApp->makeCommand(gtApp->currentProject(),
+                                       tr("Paste process element"));
 
-    QList<GtPropertyConnection*> propCons =
-        obj->findChildren<GtPropertyConnection*>();
+    auto const propCons = obj->findChildren<GtPropertyConnection*>();
 
-    foreach (GtPropertyConnection* propCon, propCons)
+    for (GtPropertyConnection* propCon : propCons)
     {
         propCon->setParent(nullptr);
     }
@@ -1764,14 +1759,14 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 
         if (highestParent)
         {
-            foreach (GtPropertyConnection* propCon, propCons)
+            for (GtPropertyConnection* propCon : propCons)
             {
                 gtDataModel->appendChild(propCon, highestParent);
             }
         }
     }
 
-    gtApp->endCommand(paste);
+    pasteCmd.exec();
 
     QModelIndex index = mapFromSource(srcIndex);
 
@@ -1821,23 +1816,13 @@ GtProcessDock::pasteElement(const QModelIndex& parentIndex)
 void
 GtProcessDock::skipComponent(const QModelIndex& index, bool skip)
 {
-    QString msg;
+    QString msg = tr("%1 selected Process Elements")
+                  .arg(skip ? tr("Skip") : tr("Unskip"));
 
-    if (skip)
-    {
-        msg = "Skip";
-    }
-    else
-    {
-        msg = "Unskip";
-    }
+    auto cmd = gtApp->makeCommand(gtApp->currentProject(), msg);
+    Q_UNUSED(cmd)
 
-    msg.append(" Selected Process Elements");
-
-    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), msg);
     skipComponent(componentByModelIndex(index), skip);
-
-    gtApp->endCommand(cmd);
 }
 
 void
@@ -1845,14 +1830,11 @@ GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
 {
     QList<GtProcessComponent*> pcs;
 
-    foreach (QModelIndex index, indexList)
+    for (QModelIndex index : indexList)
     {
         GtProcessComponent* pc = componentByModelIndex(index);
 
-        if (!pc)
-        {
-            continue;
-        }
+        if (!pc) continue;
 
         if (!pcs.contains(pc))
         {
@@ -1860,37 +1842,22 @@ GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
         }
     }
 
-    QString msg;
+    QString msg = tr("%1 selected Process Elements")
+                  .arg(skip ? tr("Skip") : tr("Unskip"));
 
-    if (skip)
-    {
-        msg = "Skip";
-    }
-    else
-    {
-        msg = "Unskip";
-    }
+    auto cmd = gtApp->makeCommand(gtApp->currentProject(), msg);
+    Q_UNUSED(cmd)
 
-    msg.append(" Selected Process Elements");
-
-    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), msg);
-    foreach (GtProcessComponent* pc, pcs)
+    for (GtProcessComponent* pc : qAsConst(pcs))
     {
         skipComponent(pc, skip);
     }
-
-    gtApp->endCommand(cmd);
 }
 
 void
 GtProcessDock::skipComponent(GtProcessComponent* comp, bool skip)
 {
-    if (!comp)
-    {
-        return;
-    }
-
-    comp->setSkipped(skip);
+    if (comp) comp->setSkipped(skip);
 }
 
 void
@@ -1926,12 +1893,12 @@ GtProcessDock::configCalculator(GtCalculator* calc)
         return;
     }
 
-    GtCommand command =
-        gtApp->startCommand(calc,
-                            calc->objectName() +
-                            tr(" configuration changed"));
+    auto command = gtApp->makeCommand(calc,
+                                      calc->objectName() +
+                                      tr(" configuration changed"));
+    Q_UNUSED(command)
+
     calc->fromMemento(memento);
-    gtApp->endCommand(command);
 }
 
 void
@@ -1969,12 +1936,12 @@ GtProcessDock::configTask(GtTask* task)
         return;
     }
 
-    GtCommand command =
-        gtApp->startCommand(task,
-                            task->objectName() +
-                            tr(" configuration changed"));
+    auto command = gtApp->makeCommand(task,
+                                      task->objectName() +
+                                      tr(" configuration changed"));
+    Q_UNUSED(command)
+
     task->fromMemento(memento);
-    gtApp->endCommand(command);
 }
 
 QModelIndex
@@ -2071,16 +2038,14 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
 
             if (!diff.isNull())
             {
-
                 QString delMsg = tr("Update Task Connections") +
                                  QStringLiteral(" - ") +
                                  rootTask->objectName();
 
-                GtCommand command = gtApp->startCommand(project, delMsg);
+                auto command = gtApp->makeCommand(project, delMsg);
+                Q_UNUSED(command)
 
                 rootTask->applyDiff(diff);
-
-                gtApp->endCommand(command);
             }
         }
     }

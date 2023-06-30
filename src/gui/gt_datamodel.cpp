@@ -206,15 +206,11 @@ GtDataModel::appendChildren(const QList<GtObject*>& children, GtObject* parent)
                      tr("objects") + QStringLiteral(" ") + tr("added");
     }
 
-    GtCommand command = gtApp->startCommand(parent,
-                                            commandMsg);
+    auto command = gtApp->makeCommand(parent, commandMsg);
+    Q_UNUSED(command)
 
     // append children
-    QModelIndexList retval = GtCoreDatamodel::appendChildren(children, parent);
-
-    gtApp->endCommand(command);
-
-    return retval;
+    return GtCoreDatamodel::appendChildren(children, parent);
 }
 
 QModelIndex
@@ -252,14 +248,10 @@ GtDataModel::insertChild(GtObject* child, GtObject* parent, int row)
     QString commandMsg = child->objectName() + QStringLiteral(" ") +
                          tr("inserted");
 
-    GtCommand command = gtApp->startCommand(parent,
-                                            commandMsg);
+    auto command = gtApp->makeCommand(parent, commandMsg);
+    Q_UNUSED(command)
 
-    QModelIndex retval = GtCoreDatamodel::insertChild(child, parent, row);
-
-    gtApp->endCommand(command);
-
-    return retval;
+    return GtCoreDatamodel::insertChild(child, parent, row);
 }
 
 bool
@@ -292,40 +284,26 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
 
     reduceToParents(objects);
 
-    GtCommand command = gtApp->startCommand(gtApp->currentProject(),
-                                            commandMsg);
+    auto command = gtApp->makeCommand(gtApp->currentProject(),
+                                      commandMsg);
+    Q_UNUSED(command)
 
     // append children
-    bool retval = GtCoreDatamodel::deleteFromModel(objects);
-
-    gtApp->endCommand(command);
-
-    return retval;
+    return GtCoreDatamodel::deleteFromModel(objects);
 }
 
 void
 GtDataModel::dataChangedToRoot(const QModelIndex& index)
 {
     // check index
-    if (!index.isValid())
-    {
-        return;
-    }
+    if (!index.isValid()) return;
 
-//    // temporary index for second column
+    // temporary index for second column
     QModelIndex tmpIndex = createIndex(index.row(), 1,
                                        index.internalPointer());
 
-//    // notify model
+    // notify model
     emit dataChanged(index, tmpIndex);
-
-//    // check parent index
-//    if (index.parent().isValid())
-//    {
-//        // notify model recursively
-//        dataChangedToRoot(index.parent());
-//    }
-    //    emit dataChanged(index, index);
 }
 
 void
