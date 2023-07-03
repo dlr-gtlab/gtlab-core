@@ -12,16 +12,12 @@
 #include "gt_explorerview.h"
 #include "gt_searchwidget.h"
 #include "gt_project.h"
-#include "gt_objectui.h"
-#include "gt_mdilauncher.h"
+#include "gt_qtutilities.h"
 #include "gt_application.h"
-#include "gt_command.h"
 #include "gt_settings.h"
 #include "gt_logging.h"
 #include "gt_textfilterdelegate.h"
 #include "gt_deleteitemmessagebox.h"
-#include "gt_stylesheets.h"
-#include "gt_projectui.h"
 
 #include "gt_datamodel.h"
 #include "gt_styledmodel.h"
@@ -214,31 +210,16 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
 {
     if (objs.isEmpty()) return;
 
-    QList<GtProject*> projectsList;
+    auto const projectsList = gt::filterObjects<GtProject*>(objs);
     /// handle the special case of only projects selected
-    bool allProjects = true;
-
-    for (GtObject* obj : objs)
-    {
-        auto* proj = qobject_cast<GtProject*>(obj);
-        if (!qobject_cast<GtProject*>(obj))
-        {
-            allProjects = false;
-            break;
-        }
-
-        projectsList.append(proj);
-    }
+    bool allProjects  = projectsList.size() == objs.size();
 
     bool oneDeletable = std::any_of(std::begin(objs), std::end(objs),
                                     [](const GtObject* obj) {
         return obj->isDeletable();
     });
 
-    if (!oneDeletable && !allProjects)
-    {
-        return;
-    }
+    if (!oneDeletable && !allProjects) return;
 
     QMenu menu(this);
 
@@ -261,9 +242,7 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
 
     if (a == actionDelete)
     {
-        GtProject* project = objs.first()->findRoot<GtProject*>();
-
-        if (project)
+        if (GtProject* project = objs.first()->findRoot<GtProject*>())
         {
             deleteElements(m_view->selectionModel()->selectedIndexes());
         }
@@ -272,20 +251,23 @@ GtExplorerDock::objectContextMenu(const QList<GtObject*>& objs)
     {
         gtInfo() << tr("Removing several projects...");
 
-        if (std::any_of(std::begin(projectsList), std::end(projectsList), [](const GtProject* p) {
-                return p->isOpen();
-            }))
+        bool allProjectsOpen = std::any_of(std::begin(projectsList),
+                                           std::end(projectsList),
+                                           [](const GtProject* p) {
+                                               return p->isOpen();
+                                           });
+
+        if (allProjectsOpen)
         {
             gtWarning() << tr("Open project cannot be removed from session");
             return;
         }
 
-        for (GtProject* p : qAsConst(projectsList))
+        for (GtProject* p : projectsList)
         {
             gtDataModel->deleteProject(p);
         }
     }
-
 }
 
 QModelIndex
@@ -702,7 +684,7 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
 
     if (deletables.isEmpty())
     {
-        gtInfo() << "No deletable objects selected!";
+        gtInfo().verbose() << tr("No deletable objects selected!");
         return;
     }
 
@@ -712,7 +694,8 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
         {
             if (!deletables.contains(obj))
             {
-                gtInfo() << "Item is not deletable:" << obj->objectName();
+                gtInfo() << tr("Item is not deletable:")
+                         << obj->objectName();
             }
         }
     }

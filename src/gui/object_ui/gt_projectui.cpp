@@ -153,7 +153,8 @@ GtProjectUI::GtProjectUI()
     addSingleAction(tr("Delete from Session"),
                     &GtProjectUI::deleteProject)
             .setIcon(gt::gui::icon::projectRemove())
-            .setVerificationMethod(&GtProjectUI::canDeleteProject);
+            .setVerificationMethod(&GtProjectUI::canDeleteProject)
+            .setShortCut(gtApp->getShortCutSequence(QStringLiteral("delete")));
 
     addSingleAction(tr("Generate Backup"),
                     &GtProjectUI::backupProject)
@@ -606,17 +607,9 @@ GtProjectUI::canSaveProjectAs(GtObject* obj)
 void
 GtProjectUI::deleteProject(GtObject* obj)
 {
-    auto project = qobject_cast<GtProject*>(obj);
+    if (!canDeleteProject(obj)) return;
 
-    if (!project)
-    {
-        return;
-    }
-
-    if (project->isOpen())
-    {
-        return;
-    }
+    auto project = static_cast<GtProject*>(obj);
 
     GtConfirmDeleteProjectDialog confirmationDialog(
                 nullptr, project->objectName());

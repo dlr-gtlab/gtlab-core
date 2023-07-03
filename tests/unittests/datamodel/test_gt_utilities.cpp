@@ -13,6 +13,7 @@
 
 #include "gtest/gtest.h"
 
+#include "datamodel/test_gt_object.h"
 #include "gt_object.h"
 #include "gt_utilities.h"
 #include "gt_qtutilities.h"
@@ -109,6 +110,27 @@ TEST_F(TestGtUtilities, objectNames)
     QStringList names = gt::objectNames(ptrs);
 
     EXPECT_EQ(names, expected);
+}
+
+TEST_F(TestGtUtilities, filterObjects)
+{
+    GtObject g1, g2;
+
+    QObject o1, o2;
+
+    TestSpecialGtObject s1;
+
+    QList<QObject*> objects = {&g1, &g2, &o1, &o2, &s1};
+
+    EXPECT_EQ(objects, gt::filterObjects<QObject*>(objects));
+
+    auto gtobjects = gt::filterObjects<GtObject*>(objects);
+
+    EXPECT_EQ(gtobjects, (QList<GtObject*>{&g1, &g2, &s1}));
+
+    auto sobjects = gt::filterObjects<TestSpecialGtObject*>(gtobjects);
+
+    EXPECT_EQ(sobjects, (QList<TestSpecialGtObject*>{&s1}));
 }
 
 TEST_F(TestGtUtilities, container_const_cast)
