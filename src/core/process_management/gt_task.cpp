@@ -87,44 +87,44 @@ GtTask::exec()
     setRunnable(findParent<GtAbstractRunnable*>());
 
     // collect all calculator properties
-    QList<GtAbstractProperty*> props = fullPropertyList();
+    QList<GtAbstractProperty*> const props = fullPropertyList();
 
     // search for object link and object path properties
-    foreach (GtAbstractProperty* prop, props)
+    for (GtAbstractProperty* prop : props)
     {
-        if (GtObjectLinkProperty* objLink =
-                    qobject_cast<GtObjectLinkProperty*>(prop))
+        if (auto* linkProp = qobject_cast<GtObjectLinkProperty*>(prop))
         {
             // object link property found
-            GtObject* linkedObj =
-                runnable()->data<GtObject*>(objLink->linkedObjectUUID());
+            auto* obj = runnable()->data<GtObject*>(linkProp->linkedObjectUUID());
 
-            if (linkedObj)
+            if (!obj)
             {
-                // linked object found -> store inside list
-                linkedObjects().append(linkedObj);
+                gtWarning().medium()
+                    << tr("Linked object for '%1' not found in runnable")
+                           .arg(linkProp->objectName());
+                continue;
             }
-            else
-            {
-                qDebug() << "Linked object not found in runnable";
-            }
+
+            // linked object found -> store inside list
+            linkedObjects().append(obj);
+            continue;
         }
-        else if (GtObjectPathProperty* objPath =
-                     qobject_cast<GtObjectPathProperty*>(prop))
+        if (auto* pathProp = qobject_cast<GtObjectPathProperty*>(prop))
         {
             // object path property found
-            GtObject* linkedObj =
-                runnable()->data<GtObject*>(objPath->path());
+            auto* obj = runnable()->data<GtObject*>(pathProp->path());
 
-            if (linkedObj)
+            if (!obj)
             {
-                // linked object found -> store inside list
-                linkedObjects().append(linkedObj);
+                gtWarning().medium()
+                    << tr("Linked object path '%1' not found in runnable")
+                           .arg(pathProp->path().toString());
+                continue;
+
             }
-            else
-            {
-                qDebug() << "Linked object not found in runnable";
-            }
+
+            // linked object found -> store inside list
+            linkedObjects().append(obj);
         }
     }
 
@@ -162,11 +162,7 @@ GtTask::exec()
     {
         setState(GtProcessComponent::WARN_FINISHED);
     }
-    else if (this->currentState() == GtProcessComponent::WARN_FINISHED)
-    {
-        /// nothing to do ==> state is already set
-    }
-    else
+    else if (this->currentState() != GtProcessComponent::WARN_FINISHED)
     {
         setState(GtProcessComponent::FINISHED);
     }

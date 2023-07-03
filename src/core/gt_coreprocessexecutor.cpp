@@ -406,11 +406,19 @@ GtCoreProcessExecutor::clearCurrentTask()
                  m_current->currentState() == STATE::TERMINATION_REQUESTED) ?
                     STATE::TERMINATED : STATE::FAILED;
 
-        auto pcs = m_current->findChildren<GtProcessComponent*>() << m_current;
+        m_current->setState(state);
 
-        for (auto* pc : qAsConst(pcs))
+        auto const pcs = m_current->findChildren<GtProcessComponent*>();
+
+        for (auto* pc : pcs)
         {
-            if (!pc->isComponentReady())
+            // queued elements were not executed effectively skipping them
+            if (pc->currentState() == STATE::QUEUED)
+            {
+                pc->setState(STATE::SKIPPED);
+            }
+            // mark any component, that is not ready as failed
+            else if (!pc->isComponentReady())
             {
                 pc->setState(state);
             }

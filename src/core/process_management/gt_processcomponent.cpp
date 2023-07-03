@@ -64,7 +64,8 @@ GtProcessComponent::GtProcessComponent() :
 
     registerProperty(pimpl->skipped, tr("Execution"));
 
-    connect(&pimpl->skipped, SIGNAL(changed()), SIGNAL(skipPropertyChanged()));
+    connect(&pimpl->skipped, &GtAbstractProperty::changed,
+            this, &GtProcessComponent::skipPropertyChanged);
 }
 
 void
@@ -122,10 +123,7 @@ GtProcessComponent::setState(GtProcessComponent::STATE state)
     }
 
     // check whether new state is already the current state
-    if (state == pimpl->state)
-    {
-        return;
-    }
+    if (state == pimpl->state) return;
 
     // set new state
     pimpl->state = state;
@@ -140,7 +138,6 @@ GtProcessComponent::setState(GtProcessComponent::STATE state)
 void
 GtProcessComponent::setStateRecursively(GtProcessComponent::STATE state)
 {
-    // set state
     setState(state);
 
     // loop over children and set state recursively
@@ -312,6 +309,9 @@ GtProcessComponent::~GtProcessComponent() = default;
 GtProcessComponent::STATE
 GtProcessComponent::currentState() const
 {
+    // always forward skipped state
+    if (pimpl->skipped) return GtProcessComponent::SKIPPED;
+
     return pimpl->state;
 }
 
