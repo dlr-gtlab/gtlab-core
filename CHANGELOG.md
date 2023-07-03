@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Checkbox for permanently deleting project can now be toggled by clicking on the checkbox text - #549
+- Task and calculator states will now more accurately show which task succeeded, failed or was skipped - #542
+- A Project can be deleted/removed from session using the default delete shortcut - #564
 
 ### Added
 - Added "Empty Task" action to all process dock context menus - #543
