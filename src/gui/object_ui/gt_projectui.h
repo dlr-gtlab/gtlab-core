@@ -239,8 +239,9 @@ private:
     static bool canSetCurrentProject(GtObject* obj);
 
     /**
-     * @brief deleteProject
-     * @param obj
+     * @brief Prompts the user whether to remove the project from session and
+     * whether to delte the project permanently
+     * @param obj Project object
      */
     static void deleteProject(GtObject* obj);
 

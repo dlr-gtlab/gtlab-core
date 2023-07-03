@@ -115,6 +115,27 @@ objectNames(Container const& t)
     return names;
 }
 
+/**
+ * @brief Filters out any object that is derived of T and returns a them as a
+ * new list.
+ * @param objects Objects to filter
+ * @tparam T Class to filter. Must be derived of QObject
+ * @return List of Ts
+ */
+template <typename T, typename Container,
+          typename Value = trait::value_t<Container>,
+          trait::enable_if_ptr_derived_of_qobject<Value> = true>
+inline QList<T>
+filterObjects(Container const& objects)
+{
+    QList<T> filtered;
+    for (QObject* obj : objects)
+    {
+        if (auto* proj = qobject_cast<T>(obj)) filtered << proj;
+    }
+    return filtered;
+}
+
 namespace detail
 {
 
@@ -222,7 +243,7 @@ makeUniqueName(const QString& name, const QObject* parent)
 
 /**
  * @brief Overload that accepts an object directly. Find a unique object name
- * based on its current object name or the name provided
+ * based on its current object name or the name provided.
  * Checks its siblings for a the same name.
  * @param object Object
  * @param name Custom object name
