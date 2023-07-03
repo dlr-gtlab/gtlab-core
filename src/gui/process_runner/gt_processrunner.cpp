@@ -211,7 +211,7 @@ GtProcessRunner::onTaskCollected()
                 << tr("Data changes from the task '%1' could not be merged "
                       "into the datamodel").arg(m_current->objectName());
 
-        m_current->setStateRecursively(GtProcessComponent::FAILED);
+        m_current->setState(GtProcessComponent::FAILED);
     }
 
     gtApp->endCommand(command);

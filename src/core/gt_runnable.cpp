@@ -33,7 +33,7 @@ GtRunnable::run()
     readObjects();
 
     // set all states to QUEUED
-    foreach (GtProcessComponent* calc, m_queue)
+    for (GtProcessComponent* calc : qAsConst(m_queue))
     {
         calc->setStateRecursively(GtProcessComponent::QUEUED);
     }
@@ -43,30 +43,30 @@ GtRunnable::run()
 
     for (GtProcessComponent* pc : qAsConst(m_queue))
     {
-        if (!pc->exec())
-        { // cppcheck-suppress useStlAlgorithm
-            gtError() << "Calculator execution failed!";
-            success = false;
+        // success
+        if (pc->exec()) continue;
 
-            QList<GtTask*> tasks = pc->findChildren<GtTask*>();
+        // failure
+        gtError() << "Calculator execution failed!";
+        success = false;
 
-            for (GtTask* task : qAsConst(tasks))
+        auto const tasks = pc->findChildren<GtTask*>();
+
+        for (GtTask* task : tasks)
+        {
+            if (task->currentState() ==
+                GtProcessComponent::TERMINATION_REQUESTED)
             {
-                if (task->currentState() ==
-                        GtProcessComponent::TERMINATION_REQUESTED)
-                {
-                    task->setState(GtProcessComponent::TERMINATED);
-                }
-
-                if (task->currentState() == GtProcessComponent::TERMINATED &&
-                        pc->currentState() != GtProcessComponent::TERMINATED)
-                {
-                    pc->setState(GtProcessComponent::TERMINATED);
-                }
+                task->setState(GtProcessComponent::TERMINATED);
             }
 
-            break;
+            if (task->currentState() == GtProcessComponent::TERMINATED &&
+                pc->currentState() != GtProcessComponent::TERMINATED)
+            {
+                pc->setState(GtProcessComponent::TERMINATED);
+            }
         }
+        break;
     }
 
     if (success)
