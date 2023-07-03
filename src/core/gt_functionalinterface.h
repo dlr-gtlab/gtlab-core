@@ -72,7 +72,7 @@ struct SharedFunctionBuilder
  * @return Function signature
  */
 template <typename Func>
-QString getFunctionSignature()
+inline QString getFunctionSignature()
 {
     using f_traits = gt::mpl::function_traits<Func>;
 
@@ -104,14 +104,34 @@ QString getFunctionSignature()
 }
 
 /**
+ * @brief Overload that accepts a functor directly
+ * @return Function signature
+ */
+template <typename Func>
+inline QString getFunctionSignature(Func const&)
+{
+    return getFunctionSignature<Func>();
+}
+
+/**
  * @brief Generates a default help for the function consiting of its signature.
  * This may not be perfect, therefore one should provide a proper help.
  * @return Default help
  */
 template <typename Func>
-QString getDefaultHelp()
+inline QString getDefaultHelp()
 {
     return QStringLiteral("Signature: ") + getFunctionSignature<Func>();
+}
+
+/**
+ * @brief Overload that accepts a functor directly
+ * @return Default help
+ */
+template <typename Func>
+inline QString getDefaultHelp(Func const&)
+{
+    return getDefaultHelp<Func>();
 }
 
 /**
