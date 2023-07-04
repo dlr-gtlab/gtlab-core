@@ -23,7 +23,7 @@ Feature: Test the mdi interface
          When the context menu of the entry is opened
          Then the menu contains 3 entries
          # Only one mdi item is registered -> no open with menu visible
-          And the action 'Open With' does not exists
+          And the action 'Open With' does not exist
          # check listed actions and check the output dock
          When the action 'Test Action Group > Test Group Action 1' is activated
          Then the last output line reads 'TEST MDI INTERFACE - TEST GROUP ACTION 1'
@@ -44,7 +44,7 @@ Feature: Test the mdi interface
          Then the widget of type 'QLabel' with the inscription 'Test Label' exists
          When the dock widget is closed
          Then the dock widget is not visible
-          And the widget does not exists
+          And the widget does not exist
          When the dock widget is opened
          Then the widget exists
          #When the dock widget is set to float
@@ -64,7 +64,7 @@ Feature: Test the mdi interface
          # double click should open the only listed mdi item
           And the mdi tab 'Test Mdi Viewer' exists
          When the mdi tab is closed
-         Then the mdi tab does not exists
+         Then the mdi tab does not exist
          # check that action 'Open' opens the only listed mdi item
          When the action 'Open' in the context menu of the entry is activated
          Then the mdi tab exists
@@ -90,7 +90,7 @@ Feature: Test the mdi interface
         Given GTlab is running
           And the dock widget 'Explorer' is visible
          When the project 'mdi_test' is removed from the session
-         Then the project does not exists
+         Then the project does not exist
 
 
 

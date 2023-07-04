@@ -69,14 +69,20 @@ public:
     GtObjectUIAction(const QString& text, InvokableActionMethod method);
 
     /**
-     * @brief text
-     * @return
+     * @brief Returns whether this action is empty
+     * @return is empty
+     */
+    bool isEmpty() const;
+
+    /**
+     * @brief Returns the action text
+     * @return Action text
      */
     const QString& text() const;
 
     /**
-     * @brief icon
-     * @return
+     * @brief Returns the action icon
+     * @return Action icon
      */
     const QIcon& icon() const;
 
@@ -148,6 +154,14 @@ public:
     GtObjectUIAction& setVerificationMethod(const QString& methodName);
 
     /**
+     * @brief Sets whether the action should be enabled. Overrides any
+     * verification method set previously.
+     * @param enabled Whether to enable the action
+     * @return This
+     */
+    GtObjectUIAction& setEnabled(bool enabled);
+
+    /**
      * @brief Dedicated setter for the visibility method. Function signature
      * must accept a pointer of the parent object to invoke method on and the
      * target object.
@@ -170,6 +184,14 @@ public:
      * @return This
      */
     GtObjectUIAction& setVisibilityMethod(const QString& methodName);
+
+    /**
+     * @brief Sets whether the action should be visible. Overrides any
+     * visibility method set previously.
+     * @param visible Whether the action should be visible
+     * @return This
+     */
+    GtObjectUIAction& setVisible(bool visible);
 
     /**
      * @brief Dedicated setter for the shortcut. Shortcut must be registered
@@ -238,5 +260,20 @@ private:
 };
 
 using GtActionList = QList<GtObjectUIAction>;
+
+namespace gt
+{
+namespace gui
+{
+
+inline GtObjectUIAction
+makeAction(const QString& actionText, GtObjectUIAction::ActionMethod actionMethod)
+{
+    return GtObjectUIAction(actionText, std::move(actionMethod));
+}
+
+} // namespace gui
+
+} // namespace gt
 
 #endif // GTOBJECTUIACTION_H

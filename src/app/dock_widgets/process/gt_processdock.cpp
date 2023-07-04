@@ -49,13 +49,11 @@
 #include "gt_deleteitemmessagebox.h"
 #include "gt_objectui.h"
 #include "gt_stylesheets.h"
-#include "gt_importhandler.h"
 #include "gt_importmenu.h"
-#include "gt_exporthandler.h"
-#include "gt_exportmenu.h"
 #include "gt_propertyconnectionfunctions.h"
 #include "gt_icons.h"
 #include "gt_utilities.h"
+#include "gt_guiutilities.h"
 #include "gt_taskgroup.h"
 #include "gt_taskgroupmodel.h"
 
@@ -314,7 +312,8 @@ GtProcessDock::projectChangedEvent(GtProject* project)
     updateCurrentTaskGroup();
 }
 
-void GtProcessDock::updateCurrentTaskGroup()
+void
+GtProcessDock::updateCurrentTaskGroup()
 {
     setCurrentProcess();
 
@@ -344,41 +343,40 @@ void GtProcessDock::updateCurrentTaskGroup()
 void
 GtProcessDock::addEmptyTaskToRoot()
 {
-    if (!m_taskGroup)
-    {
-        return;
-    }
+    addEmptyTask(m_taskGroup);
+}
 
-    QString taskId = gtDataModel->uniqueObjectName(tr("New Task"),
-                     m_taskGroup);
+void
+GtProcessDock::addEmptyTask(GtObject* root)
+{
+    if (!root) return;
 
-    if (taskId.isEmpty())
-    {
-        return;
-    }
+    QString taskId = gtDataModel->uniqueObjectName(tr("New Task"), root);
+
+    if (taskId.isEmpty()) return;
 
     m_view->setFocus();
 
-    auto task = new GtTask;
+    auto task = std::make_unique<GtTask>();
     task->setObjectName(taskId);
     task->setFactory(gtProcessFactory);
 
-    QModelIndex srcIndex = gtDataModel->appendChild(task, m_taskGroup);
+    QModelIndex srcIndex = gtDataModel->appendChild(task.get(), root);
 
     QModelIndex index = mapFromSource(srcIndex);
 
-    if (index.isValid())
-    {
-        QModelIndex tmpIndex = m_filterModel->index(index.row(), 1,
-                               index.parent());
-        QItemSelection itemSel(index, tmpIndex);
+    if (!index.isValid()) return;
 
-        m_view->scrollTo(index);
-        m_view->selectionModel()->select(itemSel,
-                                         QItemSelectionModel::ClearAndSelect);
-        m_view->setCurrentIndex(index);
-        m_view->edit(index);
-    }
+    task.release();
+    QModelIndex tmpIndex = m_filterModel->index(index.row(), 1,
+                                                index.parent());
+    QItemSelection itemSel(index, tmpIndex);
+
+    m_view->scrollTo(index);
+    m_view->selectionModel()->select(itemSel,
+                                     QItemSelectionModel::ClearAndSelect);
+    m_view->setCurrentIndex(index);
+    m_view->edit(index);
 }
 
 GtProcessComponent*
@@ -905,161 +903,82 @@ GtProcessDock::addElement()
 {
     QMenu menu(this);
 
-    QModelIndex srcIndex = mapToSource(m_view->currentIndex());
+    makeAddMenu(menu);
 
-    QAction* addemptytask = menu.addAction(tr("Empty Task"));
-    addemptytask->setIcon(gt::gui::icon::processAdd());
+    menu.exec(QCursor::pos());
+}
 
-    if (!srcIndex.isValid())
+void
+GtProcessDock::makeAddMenu(QMenu& menu)
+{
+    QModelIndex srcIdx = mapToSource(m_view->currentIndex());
+
+    GtObject* obj = srcIdx.isValid() ?
+                        gtDataModel->objectFromIndex(srcIdx) : nullptr;
+
+    // add empty task action
+    auto addEmptyTask = [this](GtObject* obj){
+        obj ? this->addEmptyTask(obj) : addEmptyTaskToRoot();
+    };
+    auto addemptytask = gt::gui::makeAction(tr("Empty Task"), addEmptyTask)
+                            .setIcon(gt::gui::icon::processAdd());
+
+    auto addCalculator = std::bind(&GtProcessDock::addCalculator, this);
+    auto addcalc = gt::gui::makeAction(tr("New Calculator..."), addCalculator)
+                       .setIcon(gt::gui::icon::calculator());
+
+    auto addTask = std::bind(&GtProcessDock::addTask, this);
+    auto addtask = gt::gui::makeAction(tr("New Task..."), addTask)
+                       .setIcon(gt::gui::icon::processAdd());
+
+    gt::gui::addToMenu(addemptytask, menu, obj);
+
+    menu.addSeparator();
+
+    // add calculator action
+    if (obj && qobject_cast<GtTask*>(obj))
     {
-        menu.addSeparator();
+        gt::gui::addToMenu(addcalc, menu, obj);
     }
-
-    QAction* addtask = menu.addAction(tr("New Task..."));
-    addtask->setIcon(gt::gui::icon::processAdd());
-
-    QAction* addcalc = menu.addAction(tr("New Calculator..."));
-    addcalc->setIcon(gt::gui::icon::calculator());
-
-    if (!srcIndex.isValid())
+    // only add task if obj is not a calc
+    if (!obj || qobject_cast<GtTask*>(obj))
     {
-        addcalc->setVisible(false);
-    }
-    else
-    {
-        addemptytask->setVisible(false);
-
-        GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
-
-        if (!obj)
-        {
-            return;
-        }
-
-        if (!qobject_cast<GtTask*>(obj))
-        {
-            addcalc->setEnabled(false);
-            addtask->setEnabled(false);
-        }
+        gt::gui::addToMenu(addtask, menu, obj);
     }
 
     if (!gtApp->settings()->lastProcessElements().isEmpty())
     {
         menu.addSeparator();
-        generateLastUsedElementMenu(&menu, !srcIndex.isValid());
-    }
-
-    QAction* a = menu.exec(QCursor::pos());
-
-    if (a == addemptytask)
-    {
-        addEmptyTaskToRoot();
-    }
-    else if (a == addtask)
-    {
-        addTask();
-    }
-    else if (a == addcalc)
-    {
-        addCalculator();
+        generateLastUsedElementMenu(&menu, !srcIdx.isValid());
     }
 }
 
 void
 GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
 {
-    if (srcIndex.isValid())
+    // invalid index selected
+    if (!srcIndex.isValid())
     {
-        if (m_view->selectionModel()->selectedIndexes().size() < 3)
-        {
-            GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
-
-            if (!obj)
-            {
-                return;
-            }
-
-            if (auto p = qobject_cast<GtTask*>(obj))
-            {
-                processContextMenu(p, srcIndex);
-            }
-            else if (auto c = qobject_cast<GtCalculator*>(obj))
-            {
-                calculatorContextMenu(c, srcIndex);
-            }
-        }
-        else
-        {
-            multiSelectionContextMenu(
-                        m_view->selectionModel()->selectedIndexes());
-        }
+        return defaultContextMenu();
     }
-    else
+
+    // multi selection
+    if (m_view->selectionModel()->selectedRows(0).size() > 1)
     {
-        QMenu menu(this);
-
-        QMenu* addMenu = menu.addMenu(gt::gui::icon::add(), tr("Add..."));
-
-        QAction* addemptytask = addMenu->addAction(tr("Empty Task"));
-        addemptytask->setIcon(gt::gui::icon::processAdd());
-
-        addMenu->addSeparator();
-
-        QAction* addtask = addMenu->addAction(tr("New Task..."));
-        addtask->setIcon(gt::gui::icon::processAdd());
-
-        if (!gtApp->settings()->lastProcessElements().isEmpty())
-        {
-            addMenu->addSeparator();
-            generateLastUsedElementMenu(addMenu, true);
-        }
-
-        menu.addSeparator();
-
-        auto imenu = new GtImportMenu(m_taskGroup, &menu);
-
-        menu.addMenu(imenu);
-
-        menu.addSeparator();
-
-        QAction* actpaste = menu.addAction("Paste");
-        actpaste->setIcon(gt::gui::icon::paste());
-        actpaste->setEnabled(false);
-
-        QClipboard* clipboard = QApplication::clipboard();
-        const QMimeData* mimeData = clipboard->mimeData();
-
-        if (mimeData &&
-                mimeData->hasFormat(QStringLiteral("GtObject")))
-        {
-            GtObjectMemento memento(mimeData->data(QStringLiteral("GtObject")));
-
-            if (memento.canCastTo(GtTask::staticMetaObject.className(),
-                                  gtProcessFactory))
-            {
-                actpaste->setEnabled(true);
-            }
-        }
-
-        QAction* a = menu.exec(QCursor::pos());
-
-        if (a == actpaste)
-        {
-            pasteElement(m_taskGroup);
-            //            pasteProcessComponent(QModelIndex());
-            //            pasteProcessElement(index);
-        }
-        else if (a == addemptytask)
-        {
-            addEmptyTaskToRoot();
-        }
-        else if (a == addtask)
-        {
-            addTask();
-        }
+        multiSelectionContextMenu(m_view->selectionModel()->selectedIndexes());
     }
+
+    // single selection
+    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+    if (!obj) return;
+
+    auto* task = qobject_cast<GtTask*>(obj);
+    auto* calc = qobject_cast<GtCalculator*>(obj);
+
+    if (!task && !calc) return;
+
+    processContextMenu(*static_cast<GtProcessComponent*>(obj), srcIndex, task);
 }
-
 
 void
 GtProcessDock::customContextMenu(const QPoint& pos)
@@ -1075,404 +994,225 @@ GtProcessDock::customContextMenu(const QPoint& pos)
     customContextMenu(srcIndex);
 }
 
-void
-GtProcessDock::processContextMenu(GtTask* obj, const QModelIndex& index)
+/// helper method for creating paste action
+GtObjectUIAction
+makePasteAction(GtProcessDock* dock, GtObject* obj, bool allowCalculator = false)
 {
-    // incomplete processelements should not be modified
-    bool hasInvalidParents = obj->hasDummyParents();
+    auto doPaste = [=](GtObject*){
+        dock->pasteElement(obj);
+    };
 
-    QMenu menu(this);
+    auto isEnabled = [=](GtObject*){
+        auto* clipboard = QApplication::clipboard();
+        auto const* mimeData = clipboard->mimeData();
 
-    QAction* actrunRemote = menu.addAction(tr("Run Task - detached execution"));
-    actrunRemote->setIcon(gt::gui::icon::processRun());
-    QAction* actrunLocal = menu.addAction(tr("Run Task"));
-    actrunLocal->setIcon(gt::gui::icon::processRun());
-    QAction* actstop = menu.addAction(tr("Stop Task"));
-    actstop->setIcon(gt::gui::icon::stop());
-
-    /// This line is only for the entry in the context menu and
-    /// does not trigger the action
-    actrunRemote->setShortcut(getShortCut("runProcess"));
-
-    if (qobject_cast<GtTaskGroup*>(obj->parent()))
-    {
-        actrunRemote->setVisible(true);
-        actstop->setVisible(true);
-    }
-    else
-    {
-        actrunRemote->setVisible(false);
-        actrunLocal->setVisible(false);
-        actstop->setVisible(false);
-    }
-
-    menu.addSeparator();
-
-    QAction* actconfig = menu.addAction("Config...");
-    actconfig->setIcon(gt::gui::icon::config());
-
-    QAction* actconnect = menu.addAction(tr("Connection Editor"));
-    actconnect->setIcon(gt::gui::icon::connection());
-
-    menu.addSeparator();
-
-    QMenu* addMenu = menu.addMenu(gt::gui::icon::add(), tr("Add..."));
-
-    QAction* addtask = addMenu->addAction(tr("New Task..."));
-    addtask->setIcon(gt::gui::icon::processAdd());
-
-    QAction* addcalc = addMenu->addAction(tr("New Calculator..."));
-    addcalc->setIcon(gt::gui::icon::calculator());
-
-    if (!gtApp->settings()->lastProcessElements().isEmpty())
-    {
-        addMenu->addSeparator();
-        generateLastUsedElementMenu(addMenu, false);
-    }
-
-    menu.addSeparator();
-
-    QAction* actskip = menu.addAction("Skip");
-    actskip->setIcon(gt::gui::icon::skip());
-    actskip->setShortcut(getShortCut("skipProcess"));
-
-    QAction* actunskip = menu.addAction("Unskip");
-    actunskip->setIcon(gt::gui::icon::unskip());
-    actunskip->setShortcut(getShortCut("unskipProcess"));
-
-    if (!obj->isSkipped())
-    {
-        actunskip->setVisible(false);
-    }
-    else
-    {
-        actskip->setVisible(false);
-    }
-
-    QAction* actrename = menu.addAction("Rename");
-    actrename->setIcon(gt::gui::icon::rename());
-    actrename->setShortcut(gtApp->getShortCutSequence("rename"));
-
-    menu.addSeparator();
-
-    // importer menu
-    QList<GtImporterMetaData> importerList =
-            gtImportHandler->importerMetaData(obj->metaObject()->className());
-
-    if (!importerList.isEmpty())
-    {
-        auto imenu = new GtImportMenu(obj, &menu);
-        imenu->setEnabled(!hasInvalidParents);
-
-        menu.addMenu(imenu);
-        menu.addSeparator();
-    }
-
-    // exporter menu
-    QList<GtExporterMetaData> exporterList =
-            gtExportHandler->exporterMetaData(obj->metaObject()->className());
-
-    if (!exporterList.isEmpty())
-    {
-        auto emenu = new GtExportMenu(obj, &menu);
-        emenu->setEnabled(!obj->hasDummyChildren());
-
-        menu.addMenu(emenu);
-        menu.addSeparator();
-    }
-
-    QAction* actclone = menu.addAction("Clone");
-    actclone->setIcon(gt::gui::icon::clone());
-
-    QAction* actcut = menu.addAction("Cut");
-    actcut->setShortcut(gtApp->getShortCutSequence("cut"));
-    actcut->setIcon(gt::gui::icon::cut());
-
-    QAction* actcopy = menu.addAction("Copy");
-    actcopy->setShortcut(gtApp->getShortCutSequence("copy"));
-    actcopy->setIcon(gt::gui::icon::copy());
-    QAction* actpaste = menu.addAction("Paste");
-    actpaste->setIcon(gt::gui::icon::paste());
-    actpaste->setShortcut(gtApp->getShortCutSequence("paste"));
-    actpaste->setEnabled(false);
-    menu.addSeparator();
-    QAction* actdelete = menu.addAction("Delete");
-    actdelete->setIcon(gt::gui::icon::delete_());
-    actdelete->setShortcut(gtApp->getShortCutSequence("delete"));
-
-    if (!hasInvalidParents)
-    {
-        QClipboard* clipboard = QApplication::clipboard();
-        const QMimeData* mimeData = clipboard->mimeData();
-
-        if (mimeData &&
-                mimeData->hasFormat(QStringLiteral("GtObject")))
+        if (mimeData && mimeData->hasFormat(GT_CLASSNAME(GtObject)))
         {
-            GtObjectMemento memento(mimeData->data(QStringLiteral("GtObject")));
+            GtObjectMemento memento{mimeData->data(GT_CLASSNAME(GtObject))};
 
-            if (memento.canCastTo(GtCalculator::staticMetaObject.className(),
-                                  gtProcessFactory))
+            if (allowCalculator)
             {
-                actpaste->setEnabled(true);
+                return memento.canCastTo(GT_CLASSNAME(GtCalculator),
+                                         gtProcessFactory);
             }
-            else if (memento.canCastTo(GtTask::staticMetaObject.className(),
-                                       gtProcessFactory))
-            {
-                actpaste->setEnabled(true);
-            }
+
+            return memento.canCastTo(GT_CLASSNAME(GtTask),
+                                     gtProcessFactory);
         }
-    }
+        return false;
+    };
 
-    if (!componentIsReady(obj) || hasInvalidParents)
-    {
-        actrunRemote->setEnabled(false);
-        actrunLocal->setEnabled(false);
-        actconnect->setEnabled(false);
-        actrename->setEnabled(false);
-        actclone->setEnabled(false);
-        actcut->setEnabled(false);
-        actcopy->setEnabled(false);
-        actdelete->setEnabled(false);
-        actconfig->setEnabled(false);
-        addMenu->setEnabled(false);
-    }
-    else
-    {
-        actstop->setVisible(false);
-    }
-
-    if (!useExtendedProcessExecutor())
-    {
-        actrunRemote->setVisible(false);
-    }
-
-    QAction* a = menu.exec(QCursor::pos());
-
-    if (a == actdelete)
-    {
-        deleteProcessElements(m_view->selectionModel()->selectedIndexes());
-    }
-    else if (a == actrename)
-    {
-        QModelIndex idx = mapFromSource(index);
-
-        if (idx.isValid())
-        {
-            m_view->edit(idx);
-        }
-    }
-    else if (a == actskip)
-    {
-        skipComponent(mapFromSource(index));
-    }
-    else if (a == actunskip)
-    {
-        skipComponent(mapFromSource(index), false);
-    }
-    else if (a == actcopy)
-    {
-        copyElement(mapFromSource(index));
-    }
-    else if (a == actcut)
-    {
-        cutElement(mapFromSource(index));
-    }
-    else if (a == actclone)
-    {
-        cloneElement(mapFromSource(index));
-    }
-    else if (a == actpaste)
-    {
-        pasteElement(obj);
-    }
-    else if (a == actrunRemote)
-    {
-        if (gt::processExecutorManager().setCurrentExecutor(
-                GtProcessRunner::S_ID))
-        {
-            runProcess();
-        }
-    }
-    else if (a == actrunLocal)
-    {
-        if (gt::processExecutorManager().setCurrentExecutor(
-                GtProcessExecutor::S_ID))
-        {
-            runProcess();
-        }
-    }
-    else if (a == actstop)
-    {
-        terminateProcess();
-    }
-    else if (a == actconnect)
-    {
-        openConnectionEditor(index);
-    }
-    else if (a == addtask)
-    {
-        addTask();
-    }
-    else if (a == addcalc)
-    {
-        addCalculator();
-    }
-    else if (a == actconfig)
-    {
-        configTask(obj);
-    }
+    return gt::gui::makeAction(QObject::tr("Paste"), doPaste)
+        .setIcon(gt::gui::icon::paste())
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("paste")))
+        .setVerificationMethod(isEnabled);
 }
 
 void
-GtProcessDock::calculatorContextMenu(GtCalculator* obj,
-                                     const QModelIndex& index)
+GtProcessDock::defaultContextMenu()
 {
-    // incomplete processelements should not be modified
-    bool hasInvalidParents = obj->hasDummyParents();
-
     QMenu menu(this);
-    QAction* actconfig = menu.addAction(tr("Config..."));
-    actconfig->setIcon(gt::gui::icon::config());
 
-    QAction* actconnect = menu.addAction(tr("Connection Editor"));
-    actconnect->setIcon(gt::gui::icon::connection());
+    QMenu* addMenu = menu.addMenu(gt::gui::icon::add(), tr("Add..."));
+
+    // add menu
+    makeAddMenu(*addMenu);
 
     menu.addSeparator();
 
-    QAction* actskip = menu.addAction(tr("Skip"));
-    actskip->setIcon(gt::gui::icon::skip());
-    actskip->setShortcut(getShortCut("skipProcess"));
+    // import action
+    auto imenu = new GtImportMenu(m_taskGroup, &menu);
 
-    QAction* actunskip = menu.addAction(tr("Unskip"));
-    actunskip->setIcon(gt::gui::icon::unskip());
-    actunskip->setShortcut(getShortCut("unskipProcess"));
+    menu.addMenu(imenu);
 
-    if (!obj->isSkipped())
+    menu.addSeparator();
+
+    auto paste = makePasteAction(this, m_taskGroup);
+
+    gt::gui::addToMenu(paste, menu, m_taskGroup);
+
+    menu.exec(QCursor::pos());
+}
+
+void
+GtProcessDock::processContextMenu(GtProcessComponent& obj,
+                                  const QModelIndex& index,
+                                  bool isTask)
+{
+    // incomplete processelements should not be modified
+    bool hasInvalidParents = obj.hasDummyParents();
+    bool isReady = componentIsReady(&obj) && !hasInvalidParents;
+
+    QMenu menu(this);
+
+    // run and stop root task
+    bool isRootTask = isTask && qobject_cast<GtTaskGroup*>(obj.parent());
+    if (isRootTask)
     {
-        actunskip->setVisible(false);
-    }
-    else
-    {
-        actskip->setVisible(false);
+        auto const doRun = [this](auto ID){
+            if (gt::processExecutorManager().setCurrentExecutor(ID))
+            {
+                runProcess();
+            }
+        };
+
+        bool isTaskReady = isReady && !obj.isSkipped();
+
+        auto runremote = gt::gui::makeAction(tr("Run Task - detached execution"),
+                                             [doRun](GtObject*){
+                doRun(GtProcessRunner::S_ID);
+            })
+            .setIcon(gt::gui::icon::processRun())
+            .setEnabled(isTaskReady)
+            .setVisible(useExtendedProcessExecutor());
+
+        auto runlocal = gt::gui::makeAction(tr("Run Task"), [doRun](GtObject*){
+                doRun(GtProcessExecutor::S_ID);
+            })
+            .setIcon(gt::gui::icon::processRun())
+            .setEnabled(isTaskReady)
+            .setShortCut(getShortCut(QStringLiteral("runProcess")));
+
+        auto stop = gt::gui::makeAction(tr("Stop Task"), [=](GtObject*){
+                terminateProcess();
+            })
+            .setIcon(gt::gui::icon::stop())
+            .setVisible(!isReady);
+
+        gt::gui::addToMenu({ runremote, runlocal, stop }, menu, &obj);
+
+        menu.addSeparator();
     }
 
-    QAction* actrename = menu.addAction(tr("Rename"));
-    actrename->setIcon(gt::gui::icon::rename());
-    actrename->setShortcut(gtApp->getShortCutSequence("rename"));
+    auto config = gt::gui::makeAction(tr("Config..."), [=, o = &obj](GtObject*){
+            isTask ? configTask(static_cast<GtTask*>(o)) :
+                     configCalculator(static_cast<GtCalculator*>(o));
+        })
+        .setIcon(gt::gui::icon::config())
+        .setEnabled(isReady);
 
-    if (!obj->isRenamable())
+    auto connect = gt::gui::makeAction(tr("Connection Editor"), [=](GtObject*){
+            openConnectionEditor(index);
+        })
+        .setIcon(gt::gui::icon::connection())
+        .setEnabled(isReady);
+
+    gt::gui::addToMenu({ config, connect }, menu, &obj);
+
+    menu.addSeparator();
+
+    if (isTask)
     {
-        actrename->setEnabled(false);
+        QMenu* addMenu = menu.addMenu(gt::gui::icon::add(), tr("Add..."));
+        addMenu->setEnabled(isReady);
+
+        makeAddMenu(*addMenu);
+
+        menu.addSeparator();
     }
+
+    auto skip = gt::gui::makeAction(tr("Skip"), [=](GtObject*){
+            skipComponent(mapFromSource(index));
+        })
+        .setIcon(gt::gui::icon::skip())
+        .setShortCut(getShortCut(QStringLiteral("skipProcess")))
+        .setVisible(!obj.isSkipped());
+
+    auto unskip = gt::gui::makeAction(tr("Unskip"), [=](GtObject*){
+            skipComponent(mapFromSource(index), false);
+        })
+        .setIcon(gt::gui::icon::unskip())
+        .setShortCut(getShortCut(QStringLiteral("unskipProcess")))
+        .setVisible(obj.isSkipped());
+
+    gt::gui::addToMenu({ skip, unskip }, menu, &obj);
 
     menu.addSeparator();
 
     // importer menu
-    QList<GtImporterMetaData> importerList =
-            gtImportHandler->importerMetaData(obj->metaObject()->className());
-
-    if (!importerList.isEmpty())
+    if (auto* imenu = gt::gui::addImportMenu(menu, obj))
     {
-        auto imenu = new GtImportMenu(obj, &menu);
         imenu->setEnabled(!hasInvalidParents);
-
-        menu.addMenu(imenu);
         menu.addSeparator();
     }
 
     // exporter menu
-    QList<GtExporterMetaData> exporterList =
-            gtExportHandler->exporterMetaData(obj->metaObject()->className());
-
-    if (!exporterList.isEmpty())
+    if (auto* emenu = gt::gui::addExportMenu(menu, obj))
     {
-        auto emenu = new GtExportMenu(obj, &menu);
-
-        menu.addMenu(emenu);
+        emenu->setEnabled(!hasInvalidParents);
         menu.addSeparator();
     }
 
-    QAction* actclone = menu.addAction("Clone");
-    actclone->setIcon(gt::gui::icon::clone());
+    auto rename = gt::gui::makeRenameAction(obj, mapFromSource(index), *m_view);
 
-    QAction* actcut = menu.addAction("Cut");
-    actcut->setShortcut(gtApp->getShortCutSequence("cut"));
-    actcut->setIcon(gt::gui::icon::cut());
+    if (!rename.isEmpty())
+    {
+        rename.setEnabled(isReady);
+        gt::gui::addToMenu(rename, menu, &obj);
+    }
 
-    QAction* actcopy = menu.addAction("Copy");
-    actcopy->setShortcut(gtApp->getShortCutSequence("copy"));
-    actcopy->setIcon(gt::gui::icon::copy());
+    auto clone = gt::gui::makeAction(tr("Clone"), [=](GtObject*){
+            cloneElement(mapFromSource(index));
+        })
+        .setIcon(gt::gui::icon::clone())
+        .setEnabled(isReady);
 
-    QAction* actpaste = menu.addAction("Paste");
-    actpaste->setIcon(gt::gui::icon::paste());
-    actpaste->setShortcut(gtApp->getShortCutSequence("paste"));
-    actpaste->setEnabled(false);
+    auto cut = gt::gui::makeAction(tr("Cut"), [=](GtObject*){
+            cutElement(mapFromSource(index));
+        })
+        .setIcon(gt::gui::icon::cut())
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("cut")))
+        .setEnabled(isReady);
+
+    auto copy = gt::gui::makeAction(tr("Copy"), [=](GtObject*){
+            copyElement(mapFromSource(index));
+        })
+        .setIcon(gt::gui::icon::copy())
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("copy")))
+        .setEnabled(isReady);
+
+    gt::gui::addToMenu({ clone, cut, copy}, menu, &obj);
+
+    if (isTask)
+    {
+        auto paste = makePasteAction(this, &obj, true);
+
+        gt::gui::addToMenu(paste, menu, &obj);
+    }
 
     menu.addSeparator();
 
-    QAction* actdelete = menu.addAction("Delete");
-    actdelete->setIcon(gt::gui::icon::delete_());
-    actdelete->setShortcut(gtApp->getShortCutSequence("delete"));
+    auto delete_ =
+        gt::gui::makeAction(tr("Delete"), [=](GtObject*){
+            deleteProcessElements(m_view->selectionModel()->selectedIndexes());
+        })
+        .setIcon(gt::gui::icon::delete_())
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("delete")))
+        .setEnabled(isReady);
 
-    if (!componentIsReady(obj) || hasInvalidParents)
-    {
-        actconfig->setEnabled(false);
-        actconnect->setEnabled(false);
-        actrename->setEnabled(false);
-        actclone->setEnabled(false);
-        actcut->setEnabled(false);
-        actcopy->setEnabled(false);
-        actdelete->setEnabled(false);
-        actskip->setEnabled(false);
-    }
+    gt::gui::addToMenu(delete_, menu, &obj);
 
-    QAction* a = menu.exec(QCursor::pos());
-
-    if (a == actdelete)
-    {
-        deleteProcessElements(m_view->selectionModel()->selectedIndexes());
-    }
-    else if (a == actrename)
-    {
-        QModelIndex idx = mapFromSource(index);
-
-        if (idx.isValid())
-        {
-            m_view->edit(idx);
-        }
-    }
-    else if (a == actskip)
-    {
-        skipComponent(mapFromSource(index));
-    }
-    else if (a == actunskip)
-    {
-        skipComponent(mapFromSource(index), false);
-    }
-    else if (a == actcopy)
-    {
-        copyElement(mapFromSource(index));
-    }
-    else if (a == actcut)
-    {
-        cutElement(mapFromSource(index));
-    }
-    else if (a == actclone)
-    {
-        cloneElement(mapFromSource(index));
-    }
-    else if (a == actpaste)
-    {
-        pasteElement(obj);
-    }
-    else if (a == actconfig)
-    {
-        configCalculator(obj);
-    }
-    else if (a == actconnect)
-    {
-        openConnectionEditor(index);
-    }
+    menu.exec(QCursor::pos());
 }
 
 void
@@ -1480,13 +1220,13 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
 {
     QMenu menu(this);
 
-    QAction* skipCalcs = menu.addAction("Skip Selected Calculators");
+    QAction* skipCalcs = menu.addAction(tr("Skip Selected Elements"));
     skipCalcs->setIcon(gt::gui::icon::skip());
 
-    QAction* unskipCalcs = menu.addAction("Unskip Selected Calculators");
+    QAction* unskipCalcs = menu.addAction(tr("Unskip Selected Elements"));
     unskipCalcs->setIcon(gt::gui::icon::unskip());
 
-    QAction* deleteElements = menu.addAction("Delete Process Elements");
+    QAction* deleteElements = menu.addAction(tr("Delete Process Elements"));
     deleteElements->setIcon(gt::gui::icon::delete_());
 
     bool allSkipped = true;

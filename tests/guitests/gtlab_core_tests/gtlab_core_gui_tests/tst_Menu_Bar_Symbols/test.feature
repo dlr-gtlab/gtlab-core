@@ -47,10 +47,10 @@ Feature: GTlab has multiple toolbuttons in the main menu bar to acces certain fu
          When the mdi tab is closed
          Then the mdi tab exists once
          When the mdi tab is closed
-         Then the mdi tab does not exists
+         Then the mdi tab does not exist
 	      # Test state browser
 	     When the action 'Dev > State Browser' in the main menu bar is activated
 	      And the same action in the main menu bar is activated
 	     Then the mdi tab 'State Viewer' exists once
          When the mdi tab is closed
-         Then the mdi tab does not exists
+         Then the mdi tab does not exist

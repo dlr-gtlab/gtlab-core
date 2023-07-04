@@ -4,42 +4,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Changed
+- Checkbox for permanently deleting project can now be toggled by clicking on the checkbox text - #549
+- Task and calculator states will now more accurately show which task succeeded, failed or was skipped - #542
+- A Project can be deleted/removed from session using the default delete shortcut - #564
+
+### Added
+- Added "Empty Task" action to all process dock context menus - #543
+
+### Fixed
+- Deactivated optional properties are now greyed out - #551
 
 ## [2.0.4] - 2023-06-02
 ### Fixed
- - Fixed multiple inclusion error of GTlabConfig.cmake
+- Fixed multiple inclusion error of GTlabConfig.cmake
 
 ## [2.0.3] - 2023-05-15
 ### Changed
- - Switched build system to cmake. This makes it also easier to consume GTlab from other cmake based projects - #537
-
-### Removed
+- Switched build system to cmake. This makes it also easier to consume GTlab from other cmake based projects - #537
 
 ### Fixed
- - Fixed replicating unnamed child objects. This bug appeared in the Sketchpad SplineComet calculator - #539
+- Fixed replicating unnamed child objects. This bug appeared in the Sketchpad SplineComet calculator - #539
 
 ### Added
 - Added option to output dock to ignore all incoming messages. This may be useful if lots of incomming messages are slowing down GTlab - #531
 
 ## [2.0.2] - 2023-05-04
 ### Fixed
- - Fixed permanent adding of line endings / line breaks when opening a project; Especially for larger strings like python scripts - #536
+- Fixed permanent adding of line endings / line breaks when opening a project; Especially for larger strings like python scripts - #536
 
 ## [2.0.1] - 2023-04-19
 
 This is the first patch release of the 2.0 series.
 
 ### Added
- - Modules can now have `optional_dependencies`, which are defined in the `module.json`
-   metadatafile similar to `depenencies`. - #517
+- Modules can now have `optional_dependencies`, which are defined in the `module.json`
+  metadatafile similar to `depenencies`. - #517
    
 ### Fixed
- - Fixed objects were not marked as changed, when adding / removing property container entries - #529
+- Fixed objects were not marked as changed, when adding / removing property container entries - #529
 
 ### Changed
- - Changed the location of the GTlab config files path to not collide with older versions - #530
-
-### Removed
+- Changed the location of the GTlab config files path to not collide with older versions - #530
 
 ## [2.0.0] - 2023-04-04
 ### Fixed

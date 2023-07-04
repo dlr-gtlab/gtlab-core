@@ -17,7 +17,7 @@ Feature: Test the mdi interface by extending a module
          When the project 'mdi_test' is loaded from '../tests/modules/resources/projects' relative to the AUT
          Then the project exists
          # check that only the base Package is listed
-          And the project entry 'Test MDI EXT Package' does not exists
+          And the project entry 'Test MDI EXT Package' does not exist
           But the project entry 'Test MDI Package' exists
          # check that the icon is still valid
          When the entry is selected
@@ -46,7 +46,7 @@ Feature: Test the mdi interface by extending a module
          # double click should open the first item in the 'Open With' menu
           And the mdi tab 'Test Mdi Viewer' exists
          When the mdi tab is closed
-         Then the mdi tab does not exists
+         Then the mdi tab does not exist
          # 'Open' should open the first item in the 'Open With' menu
          When the action 'Open' in the context menu of the entry is activated
          Then the mdi tab exists once
@@ -63,7 +63,7 @@ Feature: Test the mdi interface by extending a module
          When the mdi tab is closed
          Then the mdi tab exists once
          When the mdi tab is closed
-         Then the mdi tab does not exists
+         Then the mdi tab does not exist
 
 
     Scenario: Remove the corresponding project from the active session
@@ -71,5 +71,5 @@ Feature: Test the mdi interface by extending a module
         Given GTlab is running
           And the dock widget 'Explorer' is visible
          When the project 'mdi_test' is removed from the session
-         Then the project does not exists
+         Then the project does not exist
 

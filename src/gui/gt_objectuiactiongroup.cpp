@@ -46,7 +46,7 @@ GtObjectUIActionGroup::icon() const
 void
 GtObjectUIActionGroup::reserve(int size)
 {
-    m_actions.reserve(size);
+    if (size > 0) m_actions.reserve(size);
 }
 
 GtObjectUIActionGroup&

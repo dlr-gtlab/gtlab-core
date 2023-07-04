@@ -13,7 +13,7 @@ Feature: Test the Datamodel Interface
         Given the plugins 'DatamodelInterface' are marked as reenabled at startup
         Given GTlab is running
           And the dock widget 'Explorer' is visible
-         Then the project 'dm_test' does not exists
+         Then the project 'dm_test' does not exist
          # create a project
          When the action 'File > New Project' in the main menu bar is activated
          Then the 'New Project' wizard is enabled
@@ -45,7 +45,7 @@ Feature: Test the Datamodel Interface
          # close and remove the project from the seesion
          When the project is closed
           And the project is removed from the session
-         Then the project does not exists
+         Then the project does not exist
 
 
     Scenario: Reload and delete the newly created project
@@ -59,6 +59,6 @@ Feature: Test the Datamodel Interface
          # delete project permanently
          When the project is closed
           And the project is deleted permanently
-         Then the project does not exists
+         Then the project does not exist
           And the last output line reads 'Project has been deleted from hard-disk successfully'
 
