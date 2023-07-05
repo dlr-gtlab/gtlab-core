@@ -36,7 +36,6 @@
 #include "gt_environment.h"
 #include "gt_command.h"
 #include "gt_versionnumber.h"
-#include "gt_globals.h"
 #include "gt_algorithms.h"
 #include "gt_moduleinterface.h"
 #include "gt_taskgroup.h"
@@ -128,7 +127,7 @@ GtCoreApplication::readSessionIds()
         foreach (QString entry, entries)
         {
             m_sessionIds.append(entry.replace(QStringLiteral(".json"),
-                                              QStringLiteral("")));
+                                              QString{}));
         }
 
         m_sessionIds.removeDuplicates();
@@ -359,7 +358,7 @@ GtCoreApplication::switchSession(const QString& id)
     // save last used session
     if (m_session)
     {
-        gtApp->settings()->setLastProject(QStringLiteral(""));
+        gtApp->settings()->setLastProject(QString{});
     }
 
     // open new session
@@ -745,6 +744,13 @@ GtCoreApplication::removeTempDir(const QString& path)
     }
 
     return false;
+}
+
+GtCoreApplication::SmartCommand
+GtCoreApplication::makeCommand(GtObject* root, const QString& commandId)
+{
+    GtCommand cmd = gtApp->startCommand(root, commandId);
+    return gt::finally(EndCommandFunctor{std::move(cmd)});
 }
 
 GtCommand

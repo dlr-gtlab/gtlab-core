@@ -103,11 +103,10 @@ GtPropertyFileChooserEditor::setPropertyValue(const QString &val)
     const QString commandMsg = m_prop->objectName() + QStringLiteral(" ") +
             QObject::tr("changed");
 
-    GtCommand cmd = gtApp->startCommand(gtApp->currentProject(), commandMsg);
+    auto cmd = gtApp->makeCommand(gtApp->currentProject(), commandMsg);
+    Q_UNUSED(cmd)
 
     m_prop->setVal(val);
-
-    gtApp->endCommand(cmd);
 }
 
 void

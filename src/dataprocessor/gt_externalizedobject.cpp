@@ -86,6 +86,7 @@ GtExternalizedObject::calcExtHash()
         pimpl->pFetchInitialVersion = fiv;
         pimpl->pFetched = fetched;
     });
+    Q_UNUSED(finally)
 
     // clear properties for hash calculation
     pimpl->pFetched.revert();

@@ -195,26 +195,27 @@ GtProcessRunner::onTaskCollected()
     }
 
     // create command
-    QString commandMsg = QStringLiteral("Merge Task '%1'")
-                            .arg(m_current->objectName());
-
-    GtCommand command = gtApp->startCommand(project, commandMsg);
-
-    // apply diffs
-    bool ok = true;
-    ok &= project->applyDiff(*diffs.data);
-    ok &= processData->applyDiff(*diffs.task);
-
-    if (!ok)
     {
-        gtErrorId(GT_EXEC_ID)
+        QString commandMsg = QStringLiteral("Merge Task '%1'")
+                                 .arg(m_current->objectName());
+
+        auto command = gtApp->makeCommand(project, commandMsg);
+        Q_UNUSED(command)
+
+        // apply diffs
+        bool ok = true;
+        ok &= project->applyDiff(*diffs.data);
+        ok &= processData->applyDiff(*diffs.task);
+
+        if (!ok)
+        {
+            gtErrorId(GT_EXEC_ID)
                 << tr("Data changes from the task '%1' could not be merged "
                       "into the datamodel").arg(m_current->objectName());
 
-        m_current->setState(GtProcessComponent::FAILED);
+            m_current->setState(GtProcessComponent::FAILED);
+        }
     }
-
-    gtApp->endCommand(command);
 
     clearCurrentTask();
 

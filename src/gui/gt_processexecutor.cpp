@@ -98,43 +98,33 @@ GtProcessExecutor::onHelperFinished()
 {
     assert(m_task);
 
-    GtFinishedProcessLoadingHelper* helper =
-            qobject_cast<GtFinishedProcessLoadingHelper*>(sender());
+    auto* helper = qobject_cast<GtFinishedProcessLoadingHelper*>(sender());
 
-    if (!helper)
-    {
-        return;
-    }
+    if (!helper) return;
 
-    if (helper->sumDiff()->isNull())
-    {
-        helper->deleteLater();
-        return;
-    }
+    auto cleanup = gt::finally(helper, &QObject::deleteLater);
+    Q_UNUSED(cleanup)
+
+    if (helper->sumDiff()->isNull()) return;
 
     const QString commandMsg = tr("Run '%1'").arg(m_task->objectName());
 
-    if (m_source)
-    {
-
-        GtCommand command = gtApp->startCommand(m_source, commandMsg);
-
-        if (!m_source->applyDiff(*helper->sumDiff()))
-        {
-            gtErrorId(GT_EXEC_ID)
-                    << tr("Data changes from the task '%1' could not be "
-                           "merged back into datamodel!")
-                       .arg(m_task->objectName());
-            m_task->setState(GtProcessComponent::FAILED);
-        }
-
-        gtApp->endCommand(command);
-    }
-    else
+    if (!m_source)
     {
         gtErrorId(GT_EXEC_ID)
-                << tr("Unable to find Root object to apply task results!");
+            << tr("Unable to find Root object to apply task results!");
+        return;
     }
 
-    helper->deleteLater();
+    auto command = gtApp->makeCommand(m_source, commandMsg);
+    Q_UNUSED(command)
+
+    if (!m_source->applyDiff(*helper->sumDiff()))
+    {
+            gtErrorId(GT_EXEC_ID)
+                << tr("Data changes from the task '%1' could not be "
+                      "merged back into datamodel!")
+                       .arg(m_task->objectName());
+            m_task->setState(GtProcessComponent::FAILED);
+    }
 }

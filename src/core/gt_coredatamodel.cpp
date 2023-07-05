@@ -717,11 +717,10 @@ GtCoreDatamodel::setData(const QModelIndex& index, const QVariant& value,
     }
 
     // update identification string
-    GtCommand command = gtApp->startCommand(
-                            item,
-                            item->objectName() + tr(" renamed"));
+    auto cmd = gtApp->makeCommand(item, item->objectName() + tr(" renamed"));
+    Q_UNUSED(cmd)
+
     item->setObjectName(value.toString());
-    gtApp->endCommand(command);
 
     return true;
 }
