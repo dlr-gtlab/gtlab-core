@@ -82,12 +82,6 @@ main(int argc, char* argv[])
 
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-    QApplication::setOrganizationDomain("www.dlr.de");
-    QApplication::setOrganizationName("DLR");
-    QApplication::setApplicationName("GTlab 2");
-
-    QApplication::setApplicationVersion(GtApplication::version().toString());
-
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 

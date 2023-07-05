@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Deactivated optional properties are now greyed out - #551
+- Fixed wrong gtlab config settings path in batch application - #569
 
 ## [2.0.4] - 2023-06-02
 ### Fixed

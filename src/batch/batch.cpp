@@ -989,12 +989,6 @@ initModuleTest(QStringList const& arguments, GtCoreApplication& app)
 
 int main(int argc, char* argv[])
 {
-    QCoreApplication::setOrganizationDomain("www.dlr.de");
-    QCoreApplication::setOrganizationName("DLR");
-    QCoreApplication::setApplicationName("GTlab");
-
-    QCoreApplication::setApplicationVersion(
-                GtCoreApplication::version().toString());
 
     QApplication a(argc, argv);
 

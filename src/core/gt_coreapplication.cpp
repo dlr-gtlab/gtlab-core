@@ -66,6 +66,13 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     m_appMode(batch),
     m_dataModel(new GtCoreDatamodel(parent))
 {
+    QCoreApplication::setOrganizationDomain("www.dlr.de");
+    QCoreApplication::setOrganizationName("DLR");
+    QCoreApplication::setApplicationName("GTlab 2");
+
+    QCoreApplication::setApplicationVersion(
+        GtCoreApplication::version().toString());
+
     /// set locale to international standard for unix OS
 #if defined(Q_OS_UNIX)
     setlocale(LC_ALL, "C");
