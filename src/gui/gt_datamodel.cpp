@@ -8,9 +8,7 @@
  */
 
 #include "gt_object.h"
-#include "gt_objectmementodiff.h"
-#include "gt_mementochangecommand.h"
-#include "gt_session.h"
+#include "gt_algorithms.h"
 #include "gt_application.h"
 #include "gt_loadprojecthelper.h"
 #include "gt_saveprojecthelper.h"
@@ -284,8 +282,19 @@ GtDataModel::deleteFromModel(QList<GtObject*> objects)
 
     reduceToParents(objects);
 
-    auto command = gtApp->makeCommand(gtApp->currentProject(),
-                                      commandMsg);
+    auto* commonParent = qobject_cast<GtObject*>(
+        gt::find_lowest_ancestor(objects, gt::get_parent_object)
+    );
+
+    if (!commonParent)
+    {
+        gtWarning().verbose()
+            << tr("Failed to find common parent object for deletion! "
+                  "Defaulting to current project");
+        commonParent = gtApp->currentProject();
+    }
+
+    auto command = gtApp->makeCommand(commonParent, commandMsg);
     Q_UNUSED(command)
 
     // append children

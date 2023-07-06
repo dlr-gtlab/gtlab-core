@@ -31,33 +31,31 @@ GtMementoChangeCommand::redo()
 {
     if (!m_root)
     {
-        gtWarning() << QObject::tr("Root object not found!") <<
-                       QStringLiteral(" (change command)");
+        gtWarning() << QObject::tr("Root object not found!")
+                    << QStringLiteral(" (change command)");
+        return;
+    }
+
+    if (m_firstTime)
+    {
+        m_firstTime = false;
         return;
     }
 
     const bool objTreeChanges = m_diff.hasObjectTreeChanges();
 
-    if (objTreeChanges && !m_firstTime)
+    if (objTreeChanges)
     {
         gtDataModel->beginResetModelView();
     }
 
-    if (!m_firstTime)
+    if (!m_root->applyDiff(m_diff))
     {
-        if (!m_root->applyDiff(m_diff))
-        {
-            gtWarning() << QObject::tr("Could not apply diff!") <<
-                           QStringLiteral(" (change command)");
-//            gtDebug() << m_diff.toString();
-        }
-    }
-    else
-    {
-        m_firstTime = false;
+        gtWarning() << QObject::tr("Could not apply diff!")
+                    << QStringLiteral(" (change command)");
     }
 
-    if (objTreeChanges && !m_firstTime)
+    if (objTreeChanges)
     {
         gtDataModel->endResetModelView();
     }

@@ -571,7 +571,7 @@ GtApplication::endCommand(const GtCommand& command)
     auto* changeCmd = new GtMementoChangeCommand(diff, m_d->m_commandId, root);
     undoStack()->push(changeCmd);
 
-    //    // cleanup
+    // cleanup
     m_d->m_commandRoot = nullptr;
     m_d->m_commandId = QString();
 
