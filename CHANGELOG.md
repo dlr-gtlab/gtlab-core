@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Deactivated optional properties are now greyed out - #551
 - Fixed wrong gtlab config settings path in batch application - #569
+- Slight performance increase when deleting one or multiple objects - #528
 
 ## [2.0.4] - 2023-06-02
 ### Fixed
@@ -47,7 +48,11 @@ This is the first patch release of the 2.0 series.
 - Fixed objects were not marked as changed, when adding / removing property container entries - #529
 
 ### Changed
+<<<<<<< HEAD
 - Changed the location of the GTlab config files path to not collide with older versions - #530
+=======
+ - Changed the location of the GTlab config files path to not collide with older versions - #530
+>>>>>>> f4bafba4 (deleteFromModel attempts to find a common parent instead of using the whole project to speed up deletions)
 
 ## [2.0.0] - 2023-04-04
 ### Fixed

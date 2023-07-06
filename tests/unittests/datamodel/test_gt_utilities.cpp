@@ -236,5 +236,5 @@ TEST_F(TestGtUtilities, clamp)
 
     // clamp double to int
     EXPECT_DOUBLE_EQ(gt::clamp<double>(523, 12.134, 321.12345), 321.12345);
-
 }
+
