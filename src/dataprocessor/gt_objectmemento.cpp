@@ -436,41 +436,81 @@ void createNewStructEntryFromMemento(const PD& propStruct, GtPropertyStructConta
 
 }
 
-void readStructContainer(const PD& prop, GtPropertyStructContainer& c)
+void mergePropertyContainer(const PD& prop, GtPropertyStructContainer& c)
 {
+    assert(prop.name == c.name());
 
-    // remove all entries from the container and add the new ones
-    // from the memento
-    c.clear();
+    // search, all entries not in memento. If so, schedule for deletion
+    std::vector<QString> idsToDelete;
 
+    for (const auto& entryInC : c)
+    {
+        auto entryInMemento = std::find_if(std::begin(prop.childProperties),
+                                           std::end(prop.childProperties),
+                                           [&entryInC](const PD& entryInMemento) {
+            return entryInMemento.name == entryInC.ident();
+        });
+
+        if (entryInMemento == prop.childProperties.end() ||
+            entryInMemento->dataType() != entryInC.typeName())
+        {
+            // entry not in memento or it is incompatible
+            idsToDelete.push_back(entryInC.ident());
+        }
+    }
+
+    // delete all entries in c not found in memento
+    for (const auto& idToDelete : idsToDelete)
+    {
+        auto iter = c.findEntry(idToDelete);
+        assert(iter != c.end());
+        c.removeEntry(iter);
+    }
+
+    idsToDelete.clear();
+
+    // at this time, c only contains elements in the memento, but the memento could also contain
+    // elements not in c
     for (const auto& entryInMemento : prop.childProperties)
     {
-        createNewStructEntryFromMemento(entryInMemento, c);
+        auto entryInC = c.findEntry(entryInMemento.name);
 
+        if (entryInC != c.end())
+        {
+            // by construction of upper code
+            assert(entryInC->typeName() == entryInMemento.dataType());
+
+            // yes, we found the object, merge it
+            gt::importStructEntryFromMemento(entryInMemento, *entryInC);
+        }
+        else {
+            // create a new entry
+            createNewStructEntryFromMemento(entryInMemento, c);
+        }
     }
 }
 
 void
-readDynamicProperties(const GtObjectMemento& memento, GtObject& obj)
+mergeAllPropertyContainers(const GtObjectMemento& memento, GtObject& obj)
 {
-    const auto& memdynProps = memento.propertyContainers;
+    const auto& memPropConts = memento.propertyContainers;
 
 
     for (GtPropertyStructContainer & c : obj.propertyContainers())
     {
-        auto iter = std::find_if(std::begin(memdynProps), std::end(memdynProps),
+        auto iter = std::find_if(std::begin(memPropConts), std::end(memPropConts),
                     [&c](const GtObjectMemento::PropertyData& mementoProp) {
             return mementoProp.name == c.ident();
         });
 
-        if (iter != std::end(memdynProps))
+        if (iter != std::end(memPropConts))
         {
-            readStructContainer(*iter, c);
+            mergePropertyContainer(*iter, c);
         }
         else
         {
             gtWarning().noquote().nospace()
-                    << "No memento found for dynamic property '"
+                    << "No memento found for property container '"
                     << c.ident() << "' of object '" << memento.ident() << "'.";
         }
     }
@@ -519,7 +559,7 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
     if (!obj.isDummy())
     {
         ::readProperties(*this, obj);
-        ::readDynamicProperties(*this, obj);
+        ::mergeAllPropertyContainers(*this, obj);
     }
     else
     {
