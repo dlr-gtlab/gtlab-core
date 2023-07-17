@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deactivated optional properties are now greyed out - #551
 - Fixed wrong gtlab config settings path in batch application - #569
 - Slight performance increase when deleting one or multiple objects - #528
+- Updated delete icon of property container items in the properties dock - #535
 
 ## [2.0.4] - 2023-06-02
 ### Fixed

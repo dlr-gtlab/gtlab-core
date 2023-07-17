@@ -15,6 +15,7 @@
 #include "gt_propertymodel.h"
 #include "gt_propertytreeview.h"
 #include "gt_icons.h"
+#include "gt_style.h"
 
 #include "gt_propertyiddelegate.h"
 
@@ -38,14 +39,16 @@ GtPropertyIdDelegate::paint(QPainter* painter,
 
         bool isContainer = index.data(GtPropertyModel::ContainerRole).toBool();
 
+        // draw delete button
         if (isContainer)
         {
             painter->save();
 
             QStyleOptionViewItem opt = containerStyleOption(option);
 
-            QApplication::style()->drawPrimitive(QStyle::PE_IndicatorTabClose,
-                                                 &opt, painter);
+            auto const& deleteIcon = QApplication::style()->standardIcon(
+                QStyle::SP_DialogCloseButton);
+            deleteIcon.paint(painter, opt.rect);
 
             painter->restore();
         }
@@ -114,16 +117,19 @@ GtPropertyIdDelegate::containerStyleOption(
     QStyleOptionComboBox box;
     box.rect = option.rect;
 
-    QRect r = QApplication::style()->subControlRect(QStyle::CC_ComboBox,
-                                                    &box,
+    QRect r = QApplication::style()->subControlRect(QStyle::CC_ComboBox, &box,
                                                     QStyle::SC_ComboBoxArrow);
 
     QStyleOptionViewItem opt = option;
 
-    double dx = (r.width() - 10) / 2;
-    double dy = (r.height() - 10) / 2;
+    // scale down rect, otherwise the icon would be too big
+    constexpr const double scale = 0.75;
+    constexpr const double offset = (1.0 - scale) / 2;
+    double dx = (r.width() * offset);
+    double dy = (r.height() * offset);
 
-    opt.rect = QRect(r.x() + dx, r.y() + dy, 10, 10);
+    double const size = opt.rect.height() * scale;
+    opt.rect = QRect(r.x() + dx, r.y() + dy, size, size);
 
     return opt;
 }
