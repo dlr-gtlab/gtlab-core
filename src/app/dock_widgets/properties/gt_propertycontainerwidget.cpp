@@ -48,7 +48,11 @@ GtPropertyContainerWidget::GtPropertyContainerWidget(
     m_obj = obj;
     m_containerId = container.ident();
 
-    connect(addBtn, SIGNAL(clicked(bool)), SLOT(addNewEntry()));
+    connect(addBtn, &QPushButton::clicked,
+            this, qOverload<>(&GtPropertyContainerWidget::addNewEntry));
+    connect(gtApp, &GtApplication::themeChanged, addBtn, [=](){
+        addBtn->setStyleSheet(gt::gui::stylesheet::button());
+    });
 
     GtPropertyModel* model = m_containerTree->propertyModel();
 
