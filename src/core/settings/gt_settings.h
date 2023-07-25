@@ -145,14 +145,17 @@ public:
     void setLastPerspective(const QString& perspective);
 
     /**
-     * @brief lastPath
-     * @return
+     * @brief Returns the "last path" i.e. the path that was used last to save,
+     * open, export or import file to and from. It is used to allow quick access
+     * to a frequently used directory. By default or if the last path is invalid
+     * the home directory is returned.
+     * @return Last path used by the user
      */
     QString lastPath();
 
     /**
-     * @brief setLastPath
-     * @param val
+     * @brief Sets the "last path" setting.
+     * @param val New last path
      */
     void setLastPath(const QString& path);
 
