@@ -9,8 +9,8 @@
 
 #include "gt_settings.h"
 #include "gt_settingsitem.h"
-#include "gt_algorithms.h"
 
+#include <QDir>
 #include <QSettings>
 #include <QMap>
 #include <QKeySequence>
@@ -377,7 +377,13 @@ GtSettings::setLastPerspective(const QString& perspective)
 QString
 GtSettings::lastPath()
 {
-    return pimpl->lastPath->getValue().toString();
+    // default to home directory
+    auto tmp = pimpl->lastPath->getValue().toString();
+    if (tmp.isEmpty())
+    {
+        return QDir::homePath();
+    }
+    return tmp;
 }
 
 void

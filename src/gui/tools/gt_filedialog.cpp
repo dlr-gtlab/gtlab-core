@@ -99,15 +99,7 @@ GtFileDialog::readLastPath()
 {
     QString lastPath = gtApp->settings()->lastPath();
 
-    if (lastPath.isEmpty())
-    {
-        gtDebug().medium() << QObject::tr("last path not set, using home dir!");
-        lastPath = QDir::homePath();
-    }
-    else
-    {
-        gtDebug().medium() << QObject::tr("last path: '%1'").arg(lastPath);
-    }
+    gtDebug().medium() << QObject::tr("last path: '%1'").arg(lastPath);
 
     return lastPath;
 }
