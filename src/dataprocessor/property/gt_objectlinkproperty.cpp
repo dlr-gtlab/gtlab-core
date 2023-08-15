@@ -76,22 +76,16 @@ GtObjectLinkProperty::setAllowedClasses(QStringList allowedClasses)
 GtObject*
 GtObjectLinkProperty::linkedObject(GtObject* root)
 {
-    if (m_value.isEmpty())
-    {
-        return nullptr;
-    }
+    if (m_value.isEmpty()) return nullptr;
 
     GtObject* rootObject = root;
 
-    if (!rootObject)
+    if (!rootObject && m_obj)
     {
-        rootObject = object()->findRoot<GtObject*>(object());
+        rootObject = m_obj->findRoot<GtObject*>(m_obj);
     }
 
-    if (!rootObject)
-    {
-        return nullptr;
-    }
+    if (!rootObject) return nullptr;
 
     return rootObject->getObjectByUuid(m_value);
 }
@@ -132,27 +126,30 @@ GtObjectLinkProperty::isAllowed(const QString& className) const
 {
     if (m_allowedClasses.contains(className)) return true;
 
-    if (!m_obj || !linkFromSuperClass()) return false;
+    if (!linkFromSuperClass()) return false;
 
-    auto const* factory = m_obj->factory();
-    if (!factory)
-    {
-        // default to GtObjectFactory
-        factory = static_cast<GtAbstractObjectFactory const*>(gtObjectFactory);
-    }
+    // default to GtObjectFactory
+    GtAbstractObjectFactory const* factory = gtObjectFactory;
+
+    // prefer factory of object
+    if (m_obj && m_obj->factory()) factory = m_obj->factory();
 
     auto* meta = factory->metaObject(className);
     if (!meta)
     {
-        // check GtObjectFactory (see issue 552, derived factories may not work)
-        meta = static_cast<GtAbstractObjectFactory const*>(gtObjectFactory)
-                   ->metaObject(className);
+        if (factory != gtObjectFactory)
+        {
+            // check GtObjectFactory (see issue 552, derived factories may not work yet)
+            meta = static_cast<GtAbstractObjectFactory const*>(gtObjectFactory)
+                       ->metaObject(className);
+        }
 
         if (!meta)
         {
-            gtError() << tr("Failed to check if '%1' is an allowed class for "
-                            "the object link property '%2'! (Metaobject for "
-                            "class name not found)").arg(className, ident());
+            gtError().verbose()
+                << tr("Failed to check if '%1' is an allowed class for "
+                      "the object link property '%2'! (Metaobject for "
+                      "class name not found)").arg(className, ident());
             return false;
         }
     }
