@@ -23,13 +23,28 @@ struct TestFactory : public GtAbstractObjectFactory
     }
 };
 
+enum PARAMETER
+{
+    // set object attribute of property
+    WITH_OBJECT,
+    // (see issue #587) do not set object attribute of property (i.e. use nullptr)
+    WITH_NULLPTR
+};
+
 struct TestObjectLinkProperty : public testing::Test
 {
     TestFactory factory;
 };
 
-TEST_F(TestObjectLinkProperty, isAllowed)
+struct TestObjectLinkPropertyParametric : public testing::TestWithParam<PARAMETER>
 {
+    TestFactory factory;
+};
+
+TEST_P(TestObjectLinkPropertyParametric, isAllowed)
+{
+    PARAMETER param = GetParam();
+
     GtObject myObject;
     myObject.setFactory(&factory);
     GtObjectLinkProperty prop{
@@ -37,7 +52,7 @@ TEST_F(TestObjectLinkProperty, isAllowed)
         "my_name",
         "my_brief",
         {},
-        &myObject,
+        (param == WITH_OBJECT) ? &myObject : nullptr,
         QStringList{},
         false
     };
@@ -63,8 +78,8 @@ TEST_F(TestObjectLinkProperty, isAllowed)
 
     prop.setAllowedClasses(
         prop.allowedClasses() + QStringList{
-        GT_CLASSNAME(GtObjectGroup)
-    });
+                                    GT_CLASSNAME(GtObjectGroup)
+                                });
 
     EXPECT_TRUE(prop.isAllowed(o));
     EXPECT_TRUE(prop.isAllowed(GT_CLASSNAME(TestSpecialGtObject)));
@@ -73,8 +88,10 @@ TEST_F(TestObjectLinkProperty, isAllowed)
     EXPECT_FALSE(prop.isAllowed(GT_CLASSNAME(GtObject)));
 }
 
-TEST_F(TestObjectLinkProperty, isAllowed_superClasses)
+TEST_P(TestObjectLinkPropertyParametric, isAllowed_with_super_classes)
 {
+    PARAMETER param = GetParam();
+
     GtObject myObject;
     myObject.setFactory(&factory);
     GtObjectLinkProperty prop{
@@ -82,13 +99,23 @@ TEST_F(TestObjectLinkProperty, isAllowed_superClasses)
         "my_name",
         "my_brief",
         {},
-        &myObject,
+        (param == WITH_OBJECT) ? &myObject : nullptr,
         QStringList{},
         true
     };
 
     TestSpecialGtObject o;
     GtLabelData l;
+
+    bool wasRegistered = gtObjectFactory->knownClass(o.metaObject()->className());
+    if (!wasRegistered) gtObjectFactory->registerClass(*o.metaObject());
+
+    auto cleanup = gt::finally([&](){
+        if (!wasRegistered) gtObjectFactory->unregisterClass(*o.metaObject());
+    });
+
+    Q_UNUSED(cleanup);
+
     // not allowed classes set
     EXPECT_FALSE(prop.isAllowed(o));
     EXPECT_FALSE(prop.isAllowed(GT_CLASSNAME(TestSpecialGtObject)));
@@ -131,7 +158,13 @@ TEST_F(TestObjectLinkProperty, isAllowed_superClasses)
     EXPECT_TRUE(prop.isAllowed(GT_CLASSNAME(GtObject)));
 }
 
-TEST_F(TestObjectLinkProperty, setAllowedClassesMyClearLinkedObject)
+INSTANTIATE_TEST_SUITE_P(ParamSet,
+                         TestObjectLinkPropertyParametric,
+                         ::testing::Values(PARAMETER::WITH_OBJECT,
+                                           PARAMETER::WITH_NULLPTR)
+                         );
+
+TEST_F(TestObjectLinkProperty, setAllowedClasses_clears_linked_object)
 {
     GtObject myObject;
     myObject.setFactory(&factory);
