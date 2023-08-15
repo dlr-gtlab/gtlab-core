@@ -184,21 +184,47 @@ GtPropertyObjectLinkEditor::dragEnterEvent(QDragEnterEvent* e)
     e->ignore();
 }
 
+// helper enum to keep track if a class name was checked
+enum CheckedState
+{
+    NotAllowed = 0,
+    Allowed = 1,
+    NotChecked = 2,
+};
+
+using ClassName_t = char const*;
+
 /// helper method for accumulating all allowed objects
 void
 accumulateAllowedObjects(GtObjectLinkProperty const& prop,
                          QList<GtObject*>& objs,
-                         GtObject& obj)
+                         GtObject& obj,
+                         QHash<ClassName_t, CheckedState>& checkedClasses)
 {
-    if (prop.isAllowed(obj))
+    // check if we have already checked class name
+    auto className = obj.metaObject()->className();
+    auto checkedState = checkedClasses.value(className, NotChecked);
+
+    switch (checkedState)
     {
+    case NotChecked:
+    {
+        auto isAllowed = prop.isAllowed(className);
+        checkedClasses.insert(className, static_cast<CheckedState>(isAllowed));
+
+        if (!isAllowed) break;
+        // allow fall through
+    }
+    case Allowed:
         objs << &obj;
+    case NotAllowed:
+        break;
     }
 
     foreach (GtObject* child, obj.findDirectChildren<GtObject*>())
     {
         assert(child);
-        accumulateAllowedObjects(prop, objs, *child);
+        accumulateAllowedObjects(prop, objs, *child, checkedClasses);
     }
 }
 
@@ -209,7 +235,9 @@ GtPropertyObjectLinkEditor::allowedObjects(GtObject* obj) const
 
     if (!obj) return objs;
 
-    accumulateAllowedObjects(*m_prop, objs, *obj);
+    QHash<ClassName_t, CheckedState> checkedClasses;
+
+    accumulateAllowedObjects(*m_prop, objs, *obj, checkedClasses);
 
     return objs;
 }
@@ -261,12 +289,11 @@ GtPropertyObjectLinkEditor::selectObjectLink()
     else
     {
         QStringList list;
-        foreach(GtObject* o, allowedObjs)
+        for (GtObject* o : qAsConst(allowedObjs))
         {
             list.append(o->metaObject()->className());
         }
         list.removeDuplicates();
-
 
         GtObjectSelectionDialog dialog(m_scope);
         dialog.setFilterData(list);
