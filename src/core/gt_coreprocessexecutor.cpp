@@ -317,8 +317,8 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
     assert(task);
 
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "(batch mode)";
-    gtDebugId(GT_EXEC_ID).medium() << "changed data = " << changedData.size();
-    gtDebugId(GT_EXEC_ID).medium() << "source = " << m_source;
+    gtDebugId(GT_EXEC_ID).medium() << "changed data =" << changedData.size();
+    gtDebugId(GT_EXEC_ID).medium() << "source =" << m_source;
 
     bool ok = true;
 
@@ -343,7 +343,7 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
             if (target)
             {
                 gtDebugId(GT_EXEC_ID).medium()
-                        << "target found = " << target->objectName();
+                        << "target found =" << target->objectName();
 
                 GtObjectMemento old = target->toMemento(true);
                 GtObjectMementoDiff diff(old, memento);
@@ -400,11 +400,11 @@ GtCoreProcessExecutor::clearCurrentTask()
     {
         using STATE =  GtProcessComponent::STATE;
 
-        // either mark all as terminated or failed
-        STATE state =
-                (m_current->currentState() == STATE::TERMINATED ||
-                 m_current->currentState() == STATE::TERMINATION_REQUESTED) ?
-                    STATE::TERMINATED : STATE::FAILED;
+        STATE state = m_current->currentState();
+
+        // mark as terminated or failed if process element is not ready
+        if (state == STATE::TERMINATION_REQUESTED) state = STATE::TERMINATED;
+        else if (!m_current->isComponentReady()) state = STATE::FAILED;
 
         m_current->setState(state);
 
@@ -437,8 +437,10 @@ GtCoreProcessExecutor::setupTaskRunner()
     assert(m_current);
     assert(m_source);
 
-    gtInfoId(GT_EXEC_ID) << "----> Running Task:" << m_current->objectName() << " <----";
-    gtDebugId(GT_EXEC_ID) << "  |-> " << m_source->objectName();
+    gtInfoId(GT_EXEC_ID)
+        << tr("----> Running Task '%1' (source: %2) <----")
+               .arg(m_current->objectName(),
+                    m_source->objectName());
 
     // create new task runner
     auto* runner = new GtTaskRunner{m_current};
@@ -480,14 +482,14 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
     // check task runne rpointer
     if (!taskRunner)
     {
-        gtFatal() << tr("Sender not a task runner object!");
+        gtFatalId(GT_EXEC_ID) << tr("Sender not a task runner object!");
         return;
     }
 
     // check current task
     if (!m_current)
     {
-        gtFatal() << tr("Current task corrupted!");
+        gtFatalId(GT_EXEC_ID) << tr("Current task corrupted!");
         taskRunner->deleteLater();
         return;
     }
@@ -500,10 +502,9 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
 
     if (pimpl->save)
     {
-        qDebug() << "|-> Finished Task:"
-                 << finishedTask->objectName()
-                 << " <----";
-        qDebug() << "|-> Data to merge: " << changedData.size();
+        gtInfoId(GT_EXEC_ID).medium()
+            << tr("Finished task execution!")
+            << gt::brackets(finishedTask->objectName());
 
         // handle task post processing if finished successfully
         if (finishedTask->currentState() == GtProcessComponent::FINISHED ||
@@ -513,8 +514,9 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
         }
     }
 
-    gtInfoId(GT_EXEC_ID).medium() << "----> Task finished <----";
-    gtDebugId(GT_EXEC_ID).medium() << "   |-> " << timer.elapsed();
+    gtInfoId(GT_EXEC_ID).medium()
+        << tr("----> Task finished (took %1 ms to merge) <----")
+               .arg(timer.elapsed());
 
     // reset source
     m_source.clear();
