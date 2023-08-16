@@ -202,6 +202,10 @@ protected:
     virtual void handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
                                           GtTask* task);
 
+    /**
+     * @brief Clears the current task and removes it from the queue. If a task
+     * was set, its is made ready (i.e. its state is updated accordingly).
+     */
     void clearCurrentTask();
 
     /**

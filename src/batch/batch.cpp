@@ -432,13 +432,13 @@ printRunHelp()
     std::cout << "There are two basic methods to start a process:" << std::endl;
     std::cout << "\tDefine the project by name from the current session"
                  "(default option or --name or -n)" << std::endl;
-    std::cout  << "\tGTlabConsole.exe run -f <projectName> <processname> [-s] "
-               << std::endl;
+    std::cout << "\tGTlabConsole.exe run [-n] <fileName> <processname> [-s]  "
+              << std::endl;
 
     std::cout << std::endl;
     std::cout << "\tDefine the project by file (use the option --file or -f"
               << std::endl;
-    std::cout << "\tGTlabConsole.exe run [-n] <fileName> <processname> [-s]  "
+    std::cout << "\tGTlabConsole.exe run -f <projectName> <processname> [-s] "
               << std::endl;
 
     std::cout << std::endl;
@@ -495,19 +495,15 @@ run(QStringList const& args)
                 p.positionalArguments().at(1), save);
     }
 
-    if (p.option("name"))
+    // default
+    if (p.positionalArguments().size() != 2)
     {
-        if (p.positionalArguments().size() != 2)
-        {
-            qWarning() << "Invalid usage of name option";
-            return -1;
-        }
-
-        return runProcess(p.positionalArguments().at(0),
-                p.positionalArguments().at(1), save);
+        qWarning() << "Invalid usage of name option";
+        return -1;
     }
 
-    return -1;
+    return runProcess(p.positionalArguments().at(0),
+                      p.positionalArguments().at(1), save);
 }
 
 int

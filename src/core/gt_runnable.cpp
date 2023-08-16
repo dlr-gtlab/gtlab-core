@@ -27,7 +27,6 @@ GtRunnable::GtRunnable(QString projectPath) :
 void
 GtRunnable::run()
 {
-    qDebug() << "GtRunnable::run()";
     bool success = true;
 
     readObjects();

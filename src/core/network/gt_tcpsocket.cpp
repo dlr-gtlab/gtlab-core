@@ -80,12 +80,13 @@ GtTcpSocket::connectTo(GtEventLoop& loop, std::unique_ptr<QTcpSocket> socket)
         return emit loop.failed();
     }
 
-    loop.connectSuccess(m_socket.data(), &QTcpSocket::connected);
-    loop.connectAbort(m_socket.data(), &QTcpSocket::disconnected);
-
     // take ownership by setting the parent
     m_socket = socket.release();
     m_socket->setParent(this);
+
+    loop.connectSuccess(m_socket.data(), &QTcpSocket::connected);
+    loop.connectAbort(m_socket.data(), &QTcpSocket::disconnected);
+
     setupConnections();
 
     // socket may already be connected
