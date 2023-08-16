@@ -82,3 +82,22 @@ Feature: Test specific features of the process dock
 		 Then the action 'Paste' is enabled
 		 When the action 'Paste' is activated
          Then the process element 'New Task[2]' exists
+
+
+	Scenario: Running a task
+        Given GTlab is running in DEV mode
+          And the dock widgets 'Explorer, Processes/Calculators' are visible
+         When the standard testing project is opened
+         Then the 'Run*' button is greyed out
+         # add process element
+		 When the context menu of the process view is opened
+		  And the action 'Add... > Empty Task' is activated
+         Then the process element 'New Task' exists
+		 # run task using context menu
+         When the process element is selected
+         Then the 'Run*' button is enabled
+         When the button is pressed
+         # give it time to execute
+         Then wait 1 seconds
+         # check success
+         Then the process element state is 'Finished'
