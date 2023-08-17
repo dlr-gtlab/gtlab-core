@@ -378,6 +378,8 @@ GT_GUI_EXPORT QIcon loop2_16();
 
 GT_GUI_EXPORT QIcon magnet();
 
+GT_GUI_EXPORT QIcon mass();
+
 GT_GUI_EXPORT QIcon mathDivision();
 GT_GUI_EXPORT QIcon mathExponent();
 GT_GUI_EXPORT QIcon mathMinus();
