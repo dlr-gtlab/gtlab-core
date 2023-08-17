@@ -50,11 +50,7 @@ This is the first patch release of the 2.0 series.
 - Fixed objects were not marked as changed, when adding / removing property container entries - #529
 
 ### Changed
-<<<<<<< HEAD
 - Changed the location of the GTlab config files path to not collide with older versions - #530
-=======
- - Changed the location of the GTlab config files path to not collide with older versions - #530
->>>>>>> f4bafba4 (deleteFromModel attempts to find a common parent instead of using the whole project to speed up deletions)
 
 ## [2.0.0] - 2023-04-04
 ### Fixed
