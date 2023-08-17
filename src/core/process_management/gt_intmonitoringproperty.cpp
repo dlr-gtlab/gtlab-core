@@ -23,3 +23,9 @@ GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
 {
 
 }
+
+gt::PropertyFactoryFunction
+gt::makeIntMonitoringProperty(int value)
+{
+    return makePropertyFactory<GtIntMonitoringProperty>(std::move(value));
+}

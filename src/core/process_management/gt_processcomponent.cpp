@@ -18,6 +18,8 @@
 #include "gt_environment.h"
 #include "gt_abstractrunnable.h"
 #include "gt_monitoringproperty.h"
+#include "gt_propertystructcontainer.h"
+#include "gt_structproperty.h"
 
 #include "gt_processcomponent.h"
 
@@ -49,6 +51,9 @@ struct GtProcessComponent::Impl
 
     /// Monitoring properties
     QList<GtAbstractProperty*> monitorProperties;
+
+    /// Container monitoring property references
+    QList<GtPropertyReference> containerMonitorPropertyRefs;
 
     /// Skip indicator
     GtBoolProperty skipped;
@@ -94,6 +99,24 @@ GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
 
     // append property to monitoring container
     pimpl->monitorProperties << &property;
+}
+
+bool
+GtProcessComponent::registerMonitoringPropertyStructContainer(
+        GtPropertyStructContainer& c)
+{
+    if (!registerPropertyStructContainer(c))
+    {
+        return false;
+    }
+
+    // connect container with entryAdded signal
+    connect(&c, &GtPropertyStructContainer::entryAdded, this,
+            [this, &c](int idx) {
+        onEntryAdded(c, idx);
+    });
+
+    return true;
 }
 
 void
@@ -182,6 +205,12 @@ GtProcessComponent::monitoringProperties()
     return pimpl->monitorProperties;
 }
 
+const QList<GtPropertyReference>&
+GtProcessComponent::containerMonitoringPropertyRefs() const
+{
+    return pimpl->containerMonitorPropertyRefs;
+}
+
 QList<GtAbstractProperty*>
 GtProcessComponent::readWriteProperties()
 {
@@ -226,6 +255,14 @@ GtProcessComponent::resetMonitoringProperties()
     foreach (GtAbstractProperty* prop, monitoringProperties())
     {
         prop->revert();
+    }
+
+    for (const auto& ref : containerMonitoringPropertyRefs())
+    {
+        if (auto* prop = ref.resolve(*this))
+        {
+            prop->revert();
+        }
     }
 
     foreach (GtProcessComponent* child,
@@ -406,6 +443,56 @@ QList<QPointer<GtObject>>&
 GtProcessComponent::linkedObjects()
 {
     return pimpl->linkedObjects;
+}
+
+void
+GtProcessComponent::onEntryAdded(const GtPropertyStructContainer& c, int idx)
+{
+    // get added entry
+    const auto& entry = c.at(idx);
+
+    // get container monitoring property reference list
+    auto& refs = pimpl->containerMonitorPropertyRefs;
+    const auto refsSize = refs.size();
+
+    // add the monitoring properties of the new entry to the reference list
+    // of container monitoring properties
+    for (auto* prop : entry.fullProperties())
+    {
+        if (dynamic_cast<GtMonitoringProperty*>(prop))
+        {
+            refs << GtPropertyReference{c.ident(), entry.ident(), prop->ident()};
+        }
+    }
+
+    // return if no property reference was added
+    if (refs.size() <= refsSize)
+    {
+        return;
+    }
+
+    // Connect the newly created entry with the destroyed signal.
+    // This recognizes when an element needs to be removed from the
+    // reference list.
+    connect(&entry, &GtPropertyStructInstance::destroyed, this,
+            [this, &c, &entry](QObject*) {
+        onEntryDestroyed(c.ident(), entry.ident());
+    });
+}
+
+void
+GtProcessComponent::onEntryDestroyed(
+        const QString& cIdent, const QString& eIdent)
+{
+    auto& refs = pimpl->containerMonitorPropertyRefs;
+
+    // remove elements from the reference list that refer to properties
+    // of the given entry
+    refs.erase(std::remove_if(refs.begin(), refs.end(),
+                              [&cIdent, &eIdent](const GtPropertyReference& ref) {
+        return ref.containerId() == cIdent && ref.entryId() == eIdent;
+    }),
+               refs.end());
 }
 
 QDir

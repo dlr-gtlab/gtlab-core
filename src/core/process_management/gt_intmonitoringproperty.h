@@ -47,4 +47,15 @@ public:
 
 };
 
+namespace gt
+{
+
+/**
+ * @brief Creates a property factory for monitoring ints with a default value
+ */
+GT_CORE_EXPORT
+gt::PropertyFactoryFunction makeIntMonitoringProperty(int value);
+
+} // namespace gt
+
 #endif // GTINTMONITORINGPROPERTY_H

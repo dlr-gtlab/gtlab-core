@@ -17,6 +17,7 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_processdata.h"
 #include "gt_labeldata.h"
+#include "gt_structproperty.h"
 
 #include "gt_taskrunner.h"
 
@@ -321,5 +322,25 @@ GtTaskRunner::transferMonitoringProperties()
 
         // set original property to new value
         origProp->setValueFromVariant(prop->valueToVariant());
+    }
+
+    // transfer property struct container monitoring properties to original
+    for(const auto& ref : component->containerMonitoringPropertyRefs())
+    {
+        auto* oProp = ref.resolve(*orig);
+
+        // check original property
+        if (!oProp)
+        {
+            qWarning() << tr("Transfer of monitoring property failed. "
+                             "'%1' not found!").arg(ref.toString());
+            return;
+        }
+
+        // set original property to new value
+        if (auto* prop = ref.resolve(*component))
+        {
+            oProp->setValueFromVariant(prop->valueToVariant());
+        }
     }
 }
