@@ -155,6 +155,7 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(login));
     grid->addWidget(MAKE_ICON(loop));
     grid->addWidget(MAKE_ICON(magnet));
+    grid->addWidget(MAKE_ICON(mass));
     grid->addWidget(MAKE_ICON(mathDivision));
     grid->addWidget(MAKE_ICON(mathExponent));
     grid->addWidget(MAKE_ICON(mathMinus));

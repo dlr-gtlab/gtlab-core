@@ -404,6 +404,8 @@ GT_DEF_ICON_ALIAS(loop2_16, loop)
 
 GT_DEF_ICON(magnet, "magnet.svg")
 
+GT_DEF_ICON(mass, "mass.svg")
+
 GT_DEF_ICON(mathDivision, "mathDivision.svg")
 GT_DEF_ICON(mathExponent, "mathExponent.svg")
 GT_DEF_ICON(mathMinus, "mathMinus.svg")
