@@ -438,7 +438,7 @@ void createNewStructEntryFromMemento(const PD& propStruct, GtPropertyStructConta
 
 void mergePropertyContainer(const PD& prop, GtPropertyStructContainer& c)
 {
-    assert(prop.name == c.name());
+    assert(prop.name == c.ident());
 
     // search, all entries not in memento. If so, schedule for deletion
     std::vector<QString> idsToDelete;
