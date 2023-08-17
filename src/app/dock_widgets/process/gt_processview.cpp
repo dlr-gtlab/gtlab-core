@@ -83,6 +83,16 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
                 }
             }
 
+            if (gtApp->compareKeyEvent(event, "clone", "Core"))
+            {
+                if (index.isValid())
+                {
+                    emit cloneProcessElement(index);
+                    event->accept();
+                    return;
+                }
+            }
+
             if (gtApp->compareKeyEvent(event, "skipProcess", "GtProcessDock"))
             {
                 if (index.isValid())

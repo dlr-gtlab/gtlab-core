@@ -72,6 +72,12 @@ signals:
     void cutProcessElement(const QModelIndex& index);
 
     /**
+     * @brief cloneProcessElement
+     * @param index - modelindex for which the signal is emited
+     */
+    void cloneProcessElement(const QModelIndex& index);
+
+    /**
      * @brief deleteProcessElements
      * @param indexList
      */

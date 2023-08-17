@@ -200,7 +200,7 @@ GtSettings::initialShortCuts() const
 QList<GtShortCutSettingsData>
 GtSettings::intialShortCutsList() const
 {
-    QString catCore = QStringLiteral("Core");
+    QString const& catCore = QStringLiteral("Core");
 
     QList<GtShortCutSettingsData> shortCuts;
 
@@ -230,6 +230,10 @@ GtSettings::intialShortCutsList() const
     /// copy
     shortCuts.append({QStringLiteral("copy"), catCore,
                       QKeySequence(QKeySequence::Copy), true});
+
+    /// clone/duplicate
+    shortCuts.append({QStringLiteral("clone"), catCore,
+                      QKeySequence(Qt::CTRL + Qt::Key_D), true});
 
     /// paste
     shortCuts.append({QStringLiteral("paste"), catCore,
