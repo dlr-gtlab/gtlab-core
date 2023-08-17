@@ -177,6 +177,8 @@ GtProcessDock::GtProcessDock() :
             SLOT(copyElement(QModelIndex)));
     connect(m_view, SIGNAL(cutProcessElement(QModelIndex)),
             SLOT(cutElement(QModelIndex)));
+    connect(m_view, SIGNAL(cloneProcessElement(QModelIndex)),
+            SLOT(cloneElement(QModelIndex)));
     connect(m_view, SIGNAL(deleteProcessElements(QList<QModelIndex>)),
             SLOT(deleteProcessElements(QList<QModelIndex>)));
     connect(m_view, SIGNAL(pasteProcessElement(QModelIndex)),
@@ -1174,6 +1176,7 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
             cloneElement(mapFromSource(index));
         })
         .setIcon(gt::gui::icon::clone())
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("clone")))
         .setEnabled(isReady);
 
     auto cut = gt::gui::makeAction(tr("Cut"), [=](GtObject*){
