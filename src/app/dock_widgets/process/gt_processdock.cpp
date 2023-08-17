@@ -826,7 +826,7 @@ GtProcessDock::onCurrentChanged(const QModelIndex& current,
 void
 GtProcessDock::onClicked(const QModelIndex& index)
 {
-    onCurrentChanged(index);
+    /// nothing to do here. The selection of the new object is handled by the view (see filterData)
 }
 
 void
