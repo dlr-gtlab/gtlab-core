@@ -354,6 +354,14 @@ GtProcessConnectionModel::createDataTree(GtProcessComponent* component,
         {
             defaultProperties << prop;
         }
+
+        for (const auto& ref : component->containerMonitoringPropertyRefs())
+        {
+            if (auto* prop = ref.resolve(*component))
+            {
+                defaultProperties << prop;
+            }
+        }
     }
 
     // generate connection items

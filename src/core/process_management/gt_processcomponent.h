@@ -14,6 +14,7 @@
 #include "gt_object.h"
 #include "gt_boolproperty.h"
 #include "gt_objectpath.h"
+#include "gt_propertyreference.h"
 
 class QDir;
 class GtAbstractRunnable;
@@ -97,6 +98,12 @@ public:
      * @return List of monitoring properties.
      */
     const QList<GtAbstractProperty*>& monitoringProperties();
+
+    /**
+     * @brief containerMonitoringPropertyRefs
+     * @return
+     */
+    const QList<GtPropertyReference>& containerMonitoringPropertyRefs() const;
 
     /**
      * @brief Returns list of all read and write properties.
@@ -276,6 +283,14 @@ protected:
     void registerMonitoringProperty(GtAbstractProperty& property);
 
     /**
+     * @brief registerMonitoringPropertyStructContainer
+     * @param c
+     * @return
+     */
+    bool registerMonitoringPropertyStructContainer(
+            GtPropertyStructContainer& c);
+
+    /**
      * @brief Sets warning flag.
      * @param val New warning flag state.
      */
@@ -324,6 +339,22 @@ protected:
 private:
     struct Impl;
     std::unique_ptr<Impl> pimpl;
+
+    /**
+     * @brief Adds the monitoring properties of the newly added entry to the
+     * list of container monitoring property references.
+     * @param c The container to which the entry was added
+     * @param idx Index of the new entry
+     */
+    void onEntryAdded(const GtPropertyStructContainer& c, int idx);
+
+    /**
+     * @brief Removes items from the list of container monitoring property
+     * references that belong to the destroyed entry.
+     * @param cIdent Ident of the container the entry was removed from
+     * @param eIdent Ident of the destroyed entry
+     */
+    void onEntryDestroyed(const QString& cIdent, const QString& eIdent);
 
 signals:
     /**

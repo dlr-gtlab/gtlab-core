@@ -43,4 +43,15 @@ public:
                                            const QString& brief);
 };
 
+namespace gt
+{
+
+/**
+ * @brief Creates a property factory for monitoring strings with a default value
+ */
+GT_CORE_EXPORT
+gt::PropertyFactoryFunction makeStringMonitoringProperty(QString value = "");
+
+} // namespace gt
+
 #endif // GTSTRINGMONITORINGPROPETY_H

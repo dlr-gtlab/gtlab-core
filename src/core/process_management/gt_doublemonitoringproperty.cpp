@@ -24,3 +24,8 @@ GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
 
 }
 
+gt::PropertyFactoryFunction
+gt::makeDoubleMonitoringProperty(double value)
+{
+    return makePropertyFactory<GtDoubleMonitoringProperty>(std::move(value));
+}

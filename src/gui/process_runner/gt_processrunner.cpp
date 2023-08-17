@@ -304,10 +304,42 @@ GtProcessRunner::onTaskPropertyChange(GtProcessComponent* other)
         return;
     }
 
+    // check if the container monitoring properties match
+    // the order of the property references must also match
+    const auto& otherConProps = other->containerMonitoringPropertyRefs();
+    const auto& localConProps = local->containerMonitoringPropertyRefs();
+
+    bool canMergeContainerData =
+            (localConProps.size() == otherConProps.size()) &&
+            std::equal(std::cbegin(otherConProps), std::cend(otherConProps),
+                       std::cbegin(localConProps), [](auto& a, auto& b){
+        return a.toString() == b.toString();
+    });
+
+    if (!canMergeContainerData)
+    {
+        gtWarningId(GT_EXEC_ID)
+               << tr("Cannot update the container monitoring properties, "
+                     "data mismatch!");
+        return;
+    }
+
     // update properties
     for (int j = 0; j < size; ++j)
     {
         localProps[j]->setValueFromVariant(otherProps[j]->valueToVariant());
+    }
+
+    // update container monitoring properties
+    for (const auto& ref : otherConProps)
+    {
+        if (auto* oProp = ref.resolve(*other))
+        {
+            if (auto* lProp = ref.resolve(*local))
+            {
+                lProp->setValueFromVariant(oProp->valueToVariant());
+            }
+        }
     }
 }
 

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added "Empty Task" action to all process dock context menus - #543
+- Property struct containers can now also contain monitoring properties. - #547
 
 ### Fixed
 - Deactivated optional properties are now greyed out - #551

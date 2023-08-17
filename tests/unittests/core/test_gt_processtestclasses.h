@@ -13,6 +13,8 @@
 #include "gt_loop.h"
 #include "gt_doubleproperty.h"
 #include "gt_relativeobjectlinkproperty.h"
+#include "gt_propertystructcontainer.h"
+#include "gt_structproperty.h"
 
 
 class TestGtCalculator : public GtCalculator
@@ -126,6 +128,40 @@ private:
     GtDoubleProperty* m_doubleProp1;
     GtDoubleProperty* m_doubleProp2;
     GtDoubleProperty* m_doubleProp3;
+};
+
+class TestGtProcessComponent : public GtProcessComponent
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE TestGtProcessComponent()
+    {
+        GtPropertyStructDefinition monVarStruct("MonitoringVarsStruct");
+        monVarStruct.defineMember("name", gt::makeStringProperty());
+        monVarStruct.defineMember("value", gt::makeIntMonitoringProperty(0));
+
+        monitoringVars.registerAllowedType(monVarStruct);
+
+        registerMonitoringPropertyStructContainer(monitoringVars);
+    }
+
+    bool exec() override
+    {
+        return true;
+    }
+
+    void addMonitoringVar(QString name, int value)
+    {
+        auto* vars = findPropertyContainer("monitoringVars");
+        auto& var = vars->newEntry("MonitoringVarsStruct");
+
+        var.setMemberVal("name", name);
+        var.setMemberVal("value", value);
+    }
+
+private:
+    GtPropertyStructContainer monitoringVars{"monitoringVars"};
 };
 
 #endif // TEST_GT_PROCESSDOCK_H

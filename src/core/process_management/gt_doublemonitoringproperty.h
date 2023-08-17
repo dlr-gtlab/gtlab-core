@@ -47,4 +47,15 @@ public:
 
 };
 
+namespace gt
+{
+
+/**
+ * @brief Creates a property factory for monitoring doubles with a default value
+ */
+GT_CORE_EXPORT
+gt::PropertyFactoryFunction makeDoubleMonitoringProperty(double value);
+
+} // namespace gt
+
 #endif // GTDOUBLEMONITORINGPROPERTY_H

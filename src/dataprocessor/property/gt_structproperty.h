@@ -5,6 +5,9 @@
  *  Tel.: +49 2203 601 2264
  */
 
+#ifndef GTSTRUCTPROPERTY_H
+#define GTSTRUCTPROPERTY_H
+
 #include "gt_datamodel_exports.h"
 
 #include "gt_groupproperty.h"
@@ -146,3 +149,5 @@ private:
     std::vector<MemberType> members;
     QString instanceTypeName;
 };
+
+#endif //GTSTRUCTPROPERTY_H

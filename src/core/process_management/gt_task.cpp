@@ -448,18 +448,29 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
     }
 
     // get monitoring properties
-    QList<GtAbstractProperty*> monProps = component->monitoringProperties();
+    auto monProps = component->monitoringProperties();
+    auto conMonProps = component->containerMonitoringPropertyRefs();
 
     // check whether monitoring properties exists
-    if (!monProps.isEmpty())
+    if (!monProps.isEmpty() || !conMonProps.isEmpty())
     {
         // create new monitoring data container
         GtMonitoringData monData;
 
         // iterate over monitoring properties and append them to container
-        foreach (GtAbstractProperty* prop, monProps)
+        for (const auto* prop : monProps)
         {
             monData.addData(prop->ident(), prop->valueToVariant());
+        }
+
+        // iterate over container monitoring property references and append
+        // them to container
+        for (const auto& propRef : conMonProps)
+        {
+            if (auto* resolved = propRef.resolve(*component))
+            {
+                monData.addData(propRef.toString(), resolved->valueToVariant());
+            }
         }
 
         // append monitoring data container to monitoring map
