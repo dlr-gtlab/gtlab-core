@@ -36,7 +36,7 @@ public:
         var.setMemberVal("value", value);
     }
 
-    GtPropertyStructContainer environmentVars{"environmentVars"};
+    GtPropertyStructContainer environmentVars{"environmentVars", "variables"};
 };
 
 
