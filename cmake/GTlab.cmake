@@ -59,6 +59,7 @@ macro(enable_gtlab_devtools)
             ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/NLopt
             ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/Qwt
             ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/SplineLib
+            ${GTLAB_DEVTOOLS_DIR}/../../tools/CompatibilityLib
         )
     endif()
 	
@@ -67,17 +68,27 @@ endmacro()
 # Function to add a gtlab module
 #
 # This makes sure to add a module id and deploy to the correct
-# folders
+# folders.
+#
+# Arguments:
+#   MODULE_ID:   String containing the module ID of the module
+#   SOURCES:     Sources (and headers) of the module to be built
+#
+# Optional arguments:
+#   README_FILE: Location to the readme. This is used to copy the readme to the module's meta directory.
+#   CHANGELOG_FILE: Location to the changelog, which is also copied to the meta directory in the install step.
 #
 # Usage:
 #   add_gtlab_module(mymodule
 #     SOURCES mod.cpp mod2.cpp mod.h
 #     MODULE_ID "my mod"
+#     README_FILE "${PROJECT_SOURCE_DIR}/README.md"
+#     CHANGELOG_FILE "${PROJECT_SOURCE_DIR}/CHANGELOG.md"
 #   )
 function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
   cmake_parse_arguments(
-    PARSE_ARGV 1 GTLAB_ADD_MODULE "" "MODULE_ID"
-    "SOURCES")
+    PARSE_ARGV 1 GTLAB_ADD_MODULE "" "MODULE_ID;README_FILE;CHANGELOG_FILE" "SOURCES"
+  )
 
   if (NOT DEFINED GTLAB_ADD_MODULE_MODULE_ID)
       message(FATAL_ERROR "In add_gtlab_module: Missing argument MODULE_ID for target ${GTLAB_ADD_MODULE_TARGET}")
@@ -121,5 +132,17 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
             $<IF:$<CONFIG:Debug>,binDebug/modules,bin/modules>
         )
     endif(UNIX)
+
+    # Copy of README and CHANGELOG to meta directory
+    if (DEFINED GTLAB_ADD_MODULE_README_FILE)
+        install(FILES ${GTLAB_ADD_MODULE_README_FILE}
+                DESTINATION $<IF:$<CONFIG:Debug>,binDebug/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID},bin/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID}>)
+    endif()
+
+    if (DEFINED GTLAB_ADD_MODULE_CHANGELOG_FILE)
+        install(FILES ${GTLAB_ADD_MODULE_CHANGELOG_FILE}
+                DESTINATION $<IF:$<CONFIG:Debug>,binDebug/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID},bin/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID}>)
+    endif()
+
   endif ()
 endfunction()
