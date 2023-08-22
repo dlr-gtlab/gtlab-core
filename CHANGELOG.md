@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.5] - 2023-08-22
 ### Changed
 - Checkbox for permanently deleting project can now be toggled by clicking on the checkbox text - #549
 - Task and calculator states will now more accurately show which task succeeded, failed or was skipped - #542

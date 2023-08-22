@@ -7,7 +7,7 @@ required_conan_version = ">=1.45.0"
 
 class GTlabCore(ConanFile):
     name = "gtlab-core"
-    version = "2.0.4"
+    version = "2.0.5"
     license = "GTlab license"
     author = "Martin Siggel <martin.siggel@dlr.de>"
     url = "https://gitlab.dlr.de/gtlab-coredev/gtlab"
