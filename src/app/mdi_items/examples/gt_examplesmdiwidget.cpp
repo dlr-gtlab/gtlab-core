@@ -31,14 +31,16 @@
 #include "gt_examplestabwidget.h"
 #include "gt_datamodel.h"
 #include "gt_projectprovider.h"
+#include "gt_examplesmdiwidget.h"
+
 #include "gt_project.h"
 #include "gt_projectspecwidget.h"
 #include "gt_dialog.h"
-#include "gt_logging.h"
 #include "gt_icons.h"
 #include "gt_stylesheets.h"
+#include "gt_filesystem.h"
 
-#include "gt_examplesmdiwidget.h"
+#include <gt_logging.h>
 
 GtExamplesMdiWidget::GtExamplesMdiWidget() :
     m_tabWidget(nullptr)
@@ -107,16 +109,13 @@ void
 GtExamplesMdiWidget::setBasicLayoutToTabPage(QScrollArea* tabPage,
                                              const QString& category)
 {
-    if (!tabPage)
-    {
-        return;
-    }
+    if (!tabPage) return;
 
     tabPage->setObjectName(category);
 
     tabPage->setWidgetResizable(true);
 
-    QFrame* frame = new QFrame();
+    auto* frame = new QFrame();
 
     frame->setAutoFillBackground(true);
     frame->setObjectName(QStringLiteral("frame"));
@@ -125,7 +124,7 @@ GtExamplesMdiWidget::setBasicLayoutToTabPage(QScrollArea* tabPage,
     frame->setFrameShadow(QFrame::Raised);
     frame->setStyleSheet(gt::gui::stylesheet::backgroundFrame());
 
-    QGridLayout* grid = new QGridLayout;
+    auto* grid = new QGridLayout;
     grid->setObjectName(QStringLiteral("grid"));
 
     frame->setLayout(grid);
@@ -138,7 +137,7 @@ GtExamplesMdiWidget::initializeWidget()
 {
     QWidget* mainWidget = widget();
 
-    QFrame* frame = qobject_cast<QFrame*>(widget());
+    auto* frame = qobject_cast<QFrame*>(widget());
 
     if (frame)
     {
@@ -150,7 +149,7 @@ GtExamplesMdiWidget::initializeWidget()
         return;
     }
 
-    QVBoxLayout* lay1 = new QVBoxLayout;
+    auto* lay1 = new QVBoxLayout;
 
     mainWidget->setLayout(lay1);
 
@@ -164,7 +163,7 @@ GtExamplesMdiWidget::initializeWidget()
 
     foreach (QString cat, categories)
     {
-        QScrollArea* tabpage = new QScrollArea(m_tabWidget);
+        auto* tabpage = new QScrollArea(m_tabWidget);
 
         setBasicLayoutToTabPage(tabpage, cat);
 
@@ -175,8 +174,7 @@ GtExamplesMdiWidget::initializeWidget()
 
     foreach (const auto& entry, m_examplesEntries)
     {
-        GtExampleGraphicalItem* item = new
-        GtExampleGraphicalItem(entry);
+        auto* item = new GtExampleGraphicalItem(entry);
 
         connect(item, SIGNAL(openProject(QString)),
                 this, SLOT(onOpenProject(QString)));
@@ -208,14 +206,14 @@ GtExamplesMdiWidget::sortItems()
         columnsPerRow = 1;
     }
 
-    foreach (GtExampleGraphicalItem* item, m_graphicalItems)
+    foreach (auto* item, m_graphicalItems)
     {
 
         QString category = item->m_data.category();
 
         QWidget* page = getCurrentPage(category);
 
-        QGridLayout* lay = page->findChild<QGridLayout*>("grid");
+        auto* lay = page->findChild<QGridLayout*>("grid");
 
         if (!lay)
         {
@@ -237,7 +235,6 @@ GtExamplesMdiWidget::sortItems()
 
         columnMap[category]++;
     }
-
 }
 
 void
@@ -261,14 +258,14 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
     dialog.setWindowTitle(tr("Save Example Project As..."));
     dialog.setWindowIcon(gt::gui::icon::save());
 
-    QVBoxLayout* layout = new QVBoxLayout;
-    QLabel* infoLabel = new QLabel;
+    auto* layout = new QVBoxLayout;
+    auto* infoLabel = new QLabel;
     layout->addWidget(infoLabel);
     infoLabel->setText(tr("The project you are about to open is located in a "
                           "write-protected location.\nPlease select a folder "
                           "to open a modifable copy of the project."));
 
-    GtProjectSpecWidget* pspecs = new GtProjectSpecWidget;
+    auto* pspecs = new GtProjectSpecWidget;
     layout->addWidget(pspecs);
 
     QDir projectDir = gtApp->settings()->lastPath();
@@ -277,14 +274,14 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
 
     layout->addStretch(1);
 
-    QHBoxLayout* btnLay = new QHBoxLayout;
+    auto* btnLay = new QHBoxLayout;
 
-    QPushButton* acceptBtn = new QPushButton(tr("Save"));
+    auto* acceptBtn = new QPushButton(tr("Save"));
     acceptBtn->setIcon(gt::gui::icon::save());
 
     connect(acceptBtn, SIGNAL(clicked(bool)), &dialog, SLOT(accept()));
 
-    QPushButton* cancleBtn = new QPushButton(tr("Cancel"));
+    auto* cancleBtn = new QPushButton(tr("Cancel"));
     cancleBtn->setIcon(gt::gui::icon::cancel());
 
     connect(cancleBtn, SIGNAL(clicked(bool)), &dialog, SLOT(reject()));
@@ -334,47 +331,13 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
         return;
     }
 
-    QStringList oldDirContent = oldProjectDir.entryList(QDir::NoFilter);
-    oldDirContent.removeOne(".");
-    oldDirContent.removeOne("..");
+    gt::filesystem::CopyStatus res =
+            gt::filesystem::copyDir(oldProjectDir, newProjectDir);
 
-    foreach (QString path, oldDirContent)
+    if (res != gt::filesystem::CopyStatus::Success)
     {
-        QFile file(oldProjectDir.absoluteFilePath(path));
-
-        QDir dir(oldProjectDir.absolutePath() +  QDir::separator() + path);
-
-        if (file.exists())
-        {
-            file.copy(newProjectDir.absoluteFilePath(path));
-        }
-
-        if (dir.exists())
-        {
-            newProjectDir.mkdir(path);
-
-            QDir newSubDir(newProjectDir.absolutePath() + QDir::separator()
-                           + path);
-
-            QStringList oldSubDirContent = dir.entryList(QDir::NoFilter);
-            oldSubDirContent.removeOne(".");
-            oldSubDirContent.removeOne("..");
-
-            foreach (QString subPath, oldSubDirContent)
-            {
-                QFile file2(dir.absoluteFilePath(subPath));
-
-                if (file2.exists())
-                {
-                    file2.copy(newSubDir.absoluteFilePath(subPath));
-                }
-                else
-                {
-                    gtWarning() << tr("Examples supports only two levels of"
-                                      "directories");
-                }
-            }
-        }
+        gtError() << tr("Copy the example to a new project failed");
+        return;
     }
 
     QString projectFile = newProjectDir.absoluteFilePath("project.gtlab");
@@ -399,10 +362,7 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
         return;
     }
 
-    if (!GtProjectUI::saveAndCloseCurrentProject())
-    {
-        return;
-    }
+    if (!GtProjectUI::saveAndCloseCurrentProject()) return;
 
     if (!gtDataModel->openProject(project))
     {
