@@ -27,5 +27,5 @@ Collections/
 modules/
 !tests/build/
 !tests/modules/
-
+install/
 src/gui/_resources_qml_qml_qmlcache.qrc

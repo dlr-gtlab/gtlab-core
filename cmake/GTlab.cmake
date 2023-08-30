@@ -77,6 +77,15 @@ endmacro()
 # Optional arguments:
 #   README_FILE: Location to the readme. This is used to copy the readme to the module's meta directory.
 #   CHANGELOG_FILE: Location to the changelog, which is also copied to the meta directory in the install step.
+#   EXAMPLES_DIR: Directory containing the example folders of the project for the automatic example presentation of GTlab
+#                 Each example should be in a subdirectory of the following structure:
+#                 EXAMPLE_DIR/
+#                   -> project/
+#                       -> CONTENT OF THE GTLAB PROJECT (e.g. performance.gtmod)
+#                   -> index.json
+#                   -> picture.png
+#
+#                 For more details see the documentation of gtlab about offering examples
 #
 # Usage:
 #   add_gtlab_module(mymodule
@@ -84,10 +93,11 @@ endmacro()
 #     MODULE_ID "my mod"
 #     README_FILE "${PROJECT_SOURCE_DIR}/README.md"
 #     CHANGELOG_FILE "${PROJECT_SOURCE_DIR}/CHANGELOG.md"
+#     EXAMPLES_DIR "${PROJECT_SOURCE_DIR}/examples/"
 #   )
 function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
   cmake_parse_arguments(
-    PARSE_ARGV 1 GTLAB_ADD_MODULE "" "MODULE_ID;README_FILE;CHANGELOG_FILE" "SOURCES"
+    PARSE_ARGV 1 GTLAB_ADD_MODULE "" "MODULE_ID;README_FILE;CHANGELOG_FILE;EXAMPLES_DIR" "SOURCES"
   )
 
   if (NOT DEFINED GTLAB_ADD_MODULE_MODULE_ID)
@@ -142,6 +152,11 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
     if (DEFINED GTLAB_ADD_MODULE_CHANGELOG_FILE)
         install(FILES ${GTLAB_ADD_MODULE_CHANGELOG_FILE}
                 DESTINATION $<IF:$<CONFIG:Debug>,binDebug/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID},bin/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID}>)
+    endif()
+
+    if (DEFINED GTLAB_ADD_MODULE_EXAMPLES_DIR)
+        install(DIRECTORY  ${GTLAB_ADD_MODULE_EXAMPLES_DIR}
+                DESTINATION examples/)
     endif()
 
   endif ()
