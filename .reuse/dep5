@@ -15,15 +15,34 @@ Files: src/resources/icons/stylesheets/*.svg
 Copyright: 2023 German Aerospace Center (DLR)
 License: CC-BY-SA-4.0
 
+Files: translations/*.ts
+Copyright: 2023 German Aerospace Center (DLR)
+License: MPL-2.0+
+
+Files: src/**/*.ui
+Copyright: 2023 German Aerospace Center (DLR)
+License: MPL-2.0+
+
+Files:  src/**/*.rc
+Copyright: 2023 German Aerospace Center (DLR)
+License: MPL-2.0+
+
+# sample test project files
+Files: tests/**/*.gt*
+Copyright: 2023 German Aerospace Center (DLR)
+License: CC0-1.0
+
+# test resource definitions
+Files: tests/**/*.qrc
+Copyright: 2023 German Aerospace Center (DLR)
+License: CC0-1.0
+
+# gui test definitions
 Files: tests/guitests/**/*.feature
 Copyright: 2023 German Aerospace Center (DLR)
 License: MPL-2.0+
 
+# gui test module json files
 Files: tests/modules/**/*.json
 Copyright: 2023 German Aerospace Center (DLR)
-License: MPL-2.0+
-
-
-Files: translations/*.ts
-Copyright: 2023 German Aerospace Center (DLR)
-License: MPL-2.0+
+License: CC0-1.0

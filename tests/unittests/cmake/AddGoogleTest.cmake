@@ -1,6 +1,6 @@
-# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+# SPDX-FileCopyrightText: 2017 University of Cincinnati
 #
-# SPDX-License-Identifier: MPL-2.0+
+# SPDX-License-Identifier: BSD-3-Clause
 
 # 
 #
@@ -12,33 +12,17 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 # Build gtest as a static lib
 set(BUILD_SHARED_LIBS OFF)
-if(CMAKE_VERSION VERSION_LESS 3.11)
-    set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 
-    include(DownloadProject)
-    download_project(PROJ                googletest
-		     GIT_REPOSITORY      https://github.com/google/googletest.git
-                     GIT_TAG             release-1.12.1
-		     UPDATE_DISCONNECTED 1
-		     QUIET
-    )
-
-    # CMake warning suppression will not be needed in version 1.9
-    set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE BOOL "")
-    add_subdirectory(${googletest_SOURCE_DIR} ${googletest_SOURCE_DIR} EXCLUDE_FROM_ALL)
-    unset(CMAKE_SUPPRESS_DEVELOPER_WARNINGS)
-else()
-    include(FetchContent)
-    FetchContent_Declare(googletest
-        GIT_REPOSITORY      https://github.com/google/googletest.git
-        GIT_TAG             release-1.12.1)
-    FetchContent_GetProperties(googletest)
-    if(NOT googletest_POPULATED)
-        FetchContent_Populate(googletest)
-        set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE BOOL "")
-        add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
-        unset(CMAKE_SUPPRESS_DEVELOPER_WARNINGS)
-    endif()
+include(FetchContent)
+FetchContent_Declare(googletest
+	GIT_REPOSITORY      https://github.com/google/googletest.git
+	GIT_TAG             release-1.12.1)
+FetchContent_GetProperties(googletest)
+if(NOT googletest_POPULATED)
+	FetchContent_Populate(googletest)
+	set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE BOOL "")
+	add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
+	unset(CMAKE_SUPPRESS_DEVELOPER_WARNINGS)
 endif()
 
 
