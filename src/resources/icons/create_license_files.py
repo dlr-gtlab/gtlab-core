@@ -6,7 +6,7 @@ directory_path = '.'
 file_filter = '.svg'            
 
 license_text = """
-SPDX-License-Identifier: CC
+SPDX-License-Identifier: CC-BY-SA-4.0
 SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 """
 license_text_2 = """
