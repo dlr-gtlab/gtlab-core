@@ -10,7 +10,7 @@ SPDX-License-Identifier: CC
 SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 """
 license_text_2 = """
-SPDX-License-Identifier: Apache 2.0
+SPDX-License-Identifier: Apache-2.0
 SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 """
 
