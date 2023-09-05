@@ -193,7 +193,7 @@ private:
     void setCurrentProcess(GtTask* process = nullptr);
 
     /**
-     * @brief addTask
+     * @brief addEmptyTaskToRoot
      */
     void addEmptyTaskToRoot();
 
@@ -208,6 +208,17 @@ private:
      * @brief Opens task wizard to select new task.
      */
     void addTask();
+
+    /**
+     * @brief Opens task wizard to select new task to be added as root.
+     */
+    void addRootTask();
+
+    /**
+     * @brief addTaskToParent
+     * @param parent
+     */
+    void addTaskToParent(GtObject* parentObj);
 
     /**
      * @brief findRootTaskHelper
