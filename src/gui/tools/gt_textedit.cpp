@@ -8,6 +8,8 @@
  */
 #include "gt_textedit.h"
 
+#include <QRegularExpression>
+
 GtTextEdit::GtTextEdit(QString text, contentType type, QWidget* parent) :
     QTextEdit(parent),
     m_text(text),
@@ -105,4 +107,13 @@ GtTextEdit::updateText(const QString& text)
     {
         setText(text);
     }
+}
+
+void
+GtTextEdit::setMarkdown(QString markdown)
+{
+    static QRegularExpression htmlComments("<!--(.*\n)*?.*?-->");
+    markdown.remove(htmlComments);
+
+    QTextEdit::setMarkdown(markdown);
 }

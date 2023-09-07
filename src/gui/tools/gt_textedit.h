@@ -78,6 +78,13 @@ public slots:
      */
     void updateText(QString const& text);
 
+    /**
+     * @brief setMarkdown
+     * Removes html coments from the markdown and calls QTextEdit::setMarkdown.
+     * @param markdown
+     */
+    void setMarkdown(QString markdown);
+
 private:
     QString m_text;
 
