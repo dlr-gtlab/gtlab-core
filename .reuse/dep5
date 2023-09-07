@@ -7,11 +7,15 @@ Files: src/resources/**/*.qrc
 Copyright: 2023 German Aerospace Center (DLR)
 License: MPL-2.0+
 
-Files: src/resources/icons/letters/*.svg
+Files: src/resources/icons/*.png
 Copyright: 2023 German Aerospace Center (DLR)
 License: CC-BY-SA-4.0
 
-Files: src/resources/icons/stylesheets/*.svg
+Files: src/resources/icons/letters/*
+Copyright: 2023 German Aerospace Center (DLR)
+License: CC-BY-SA-4.0
+
+Files: src/resources/icons/stylesheets/*
 Copyright: 2023 German Aerospace Center (DLR)
 License: CC-BY-SA-4.0
 
