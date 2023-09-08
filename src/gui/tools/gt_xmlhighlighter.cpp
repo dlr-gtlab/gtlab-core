@@ -1,334 +1,107 @@
-// Copyright (C) 2006 J-P Nurmi. All rights reserved.
-
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MIT
+ * SPDX-FileCopyrightText: 2023 Copyright (c) 2015 Dmitry Ivanov
+ *
+ * Adapted code from https://github.com/d1vanov/basic-xml-syntax-highlighter
+ */
 
 #include "gt_xmlhighlighter.h"
-#include "gt_application.h"
+
 #include "gt_colors.h"
 
-// Regular expressions for parsing XML borrowed from:
-// http://www.cs.sfu.ca/~cameron/REX.html
-static const QString EXPR_COMMENT			= "<!--[^-]*-([^-][^-]*-)*->";
-static const QString EXPR_COMMENT_BEGIN		= "<!--";
-static const QString EXPR_COMMENT_END		= "[^-]*-([^-][^-]*-)*->";
-static const QString EXPR_ATTRIBUTE_VALUE	= "\"[^<\"]*\"|'[^<']*'";
-static const QString EXPR_NAME				= "([A-Za-z_:]|[^\\x00-\\x7F])([A-Za-z0-9_:.-]|[^\\x00-\\x7F])*";
-
-GtXmlHighlighter::GtXmlHighlighter(QObject* parent)
-    : QSyntaxHighlighter(parent)
+GtXmlHighlighter::GtXmlHighlighter(QObject * parent) :
+    QSyntaxHighlighter(parent)
 {
-    init();
+    setRegexes();
+    setFormats();
 }
 
-GtXmlHighlighter::GtXmlHighlighter(QTextDocument* parent)
-    : QSyntaxHighlighter(parent)
+GtXmlHighlighter::GtXmlHighlighter(QTextDocument * parent) :
+    QSyntaxHighlighter(parent)
 {
-    init();
+    setRegexes();
+    setFormats();
 }
 
-GtXmlHighlighter::GtXmlHighlighter(QTextEdit* parent)
-    : QSyntaxHighlighter(parent)
+GtXmlHighlighter::GtXmlHighlighter(QTextEdit * parent) :
+    QSyntaxHighlighter(parent)
 {
-    init();
+    setRegexes();
+    setFormats();
 }
 
-void
-GtXmlHighlighter::init()
+void GtXmlHighlighter::highlightBlock(const QString & text)
 {
-    fmtSyntaxChar.setForeground(gt::gui::color::xml_highlight::syntaxChar());
-    fmtElementName.setForeground(gt::gui::color::xml_highlight::elementName());
-    fmtComment.setForeground(gt::gui::color::xml_highlight::comment());
-    fmtAttributeName.setForeground(
-                gt::gui::color::xml_highlight::attributeName());
-    fmtAttributeValue.setForeground(
-                gt::gui::color::xml_highlight::attributeValue());
-    fmtError.setForeground(gt::gui::color::xml_highlight::error());
-    fmtOther.setForeground(gt::gui::color::xml_highlight::other());
-}
-
-void
-GtXmlHighlighter::setHighlightColor(HighlightType type, QColor const& color,
-                                    bool foreground)
-{
-    QTextCharFormat format;
-    if (foreground)
-        format.setForeground(color);
-    else
-        format.setBackground(color);
-    setHighlightFormat(type, format);
-}
-
-void
-GtXmlHighlighter::setHighlightFormat(HighlightType type,
-                                     QTextCharFormat const& format)
-{
-    switch (type)
+    // Special treatment for xml element regex as we use captured text to emulate lookbehind
+    int xmlElementIndex = m_xmlElementRegex.indexIn(text);
+    while(xmlElementIndex >= 0)
     {
-    case SyntaxChar:
-        fmtSyntaxChar = format;
-        break;
-    case ElementName:
-        fmtElementName = format;
-        break;
-    case Comment:
-        fmtComment = format;
-        break;
-    case AttributeName:
-        fmtAttributeName = format;
-        break;
-    case AttributeValue:
-        fmtAttributeValue = format;
-        break;
-    case Error:
-        fmtError = format;
-        break;
-    case Other:
-        fmtOther = format;
-        break;
+        int matchedPos = m_xmlElementRegex.pos(1);
+        int matchedLength = m_xmlElementRegex.cap(1).length();
+        setFormat(matchedPos, matchedLength, m_xmlElementFormat);
+
+        xmlElementIndex = m_xmlElementRegex.indexIn(text, matchedPos + matchedLength);
     }
+
+    // Highlight xml keywords *after* xml elements to fix any occasional / captured into the enclosing element
+    typedef QList<QRegExp>::const_iterator Iter;
+    Iter xmlKeywordRegexesEnd = m_xmlKeywordRegexes.end();
+    for(Iter it = m_xmlKeywordRegexes.begin(); it != xmlKeywordRegexesEnd; ++it) {
+        const QRegExp & regex = *it;
+        highlightByRegex(m_xmlKeywordFormat, regex, text);
+    }
+
+    highlightByRegex(m_xmlAttributeFormat, m_xmlAttributeRegex, text);
+    highlightByRegex(m_xmlCommentFormat, m_xmlCommentRegex, text);
+    highlightByRegex(m_xmlValueFormat, m_xmlValueRegex, text);
+}
+
+void GtXmlHighlighter::highlightByRegex(const QTextCharFormat & format,
+                                                 const QRegExp & regex, const QString & text)
+{
+    int index = regex.indexIn(text);
+
+    while(index >= 0)
+    {
+        int matchedLength = regex.matchedLength();
+        setFormat(index, matchedLength, format);
+
+        index = regex.indexIn(text, index + matchedLength);
+    }
+}
+
+// TODO: rename to: GtXmlHighlighter
+
+void GtXmlHighlighter::setRegexes()
+{
+    m_xmlElementRegex.setPattern("<[?\\s]*[/]?[\\s]*([^\\n][^>]*)(?=[\\s/>])");
+    m_xmlAttributeRegex.setPattern("\\w+(?=\\=)");
+    m_xmlValueRegex.setPattern("\"[^\\n\"]+\"(?=[?\\s/>])");
+    m_xmlCommentRegex.setPattern("<!--[^\\n]*-->");
+
+    m_xmlKeywordRegexes = QList<QRegExp>() << QRegExp("<\\?") << QRegExp("/>")
+                                           << QRegExp(">") << QRegExp("<") << QRegExp("</")
+                                           << QRegExp("\\?>");
+}
+
+void GtXmlHighlighter::setFormats()
+{
+    m_xmlKeywordFormat.setForeground(gt::gui::color::xml_highlight::syntaxChar());
+
+    m_xmlElementFormat.setForeground(gt::gui::color::xml_highlight::elementName());
+
+    m_xmlAttributeFormat.setForeground(gt::gui::color::xml_highlight::attributeName());
+
+    m_xmlValueFormat.setForeground(gt::gui::color::xml_highlight::attributeValue());
+
+    m_xmlCommentFormat.setForeground(gt::gui::color::xml_highlight::comment());
+
+}
+
+void GtXmlHighlighter::onThemeChanged()
+{
+    setFormats();
     rehighlight();
 }
 
-void
-GtXmlHighlighter::highlightBlock(const QString& text)
-{
-    int i = 0;
-    int pos = 0;
-    int brackets = 0;
-
-    state = (previousBlockState() == InElement ? ExpectAttributeOrEndOfElement : NoState);
-
-    if (previousBlockState() == InComment)
-    {
-        // search for the end of the comment
-        QRegExp expression(EXPR_COMMENT_END);
-        pos = expression.indexIn(text, i);
-
-        if (pos >= 0)
-        {
-            // end comment found
-            const int iLength = expression.matchedLength();
-            setFormat(0, iLength - 3, fmtComment);
-            setFormat(iLength - 3, 3, fmtSyntaxChar);
-            i += iLength; // skip comment
-        }
-        else
-        {
-            // in comment
-            setFormat(0, text.length(), fmtComment);
-            setCurrentBlockState(InComment);
-            return;
-        }
-    }
-
-    for (; i < text.length(); i++)
-    {
-        switch (text.at(i).unicode())
-        {
-        case '<':
-            brackets++;
-            if (brackets == 1)
-            {
-                setFormat(i, 1, fmtSyntaxChar);
-                state = ExpectElementNameOrSlash;
-            }
-            else
-            {
-                // wrong bracket nesting
-                setFormat(i, 1, fmtError);
-            }
-            break;
-
-        case '>':
-            brackets--;
-            if (brackets == 0)
-            {
-                setFormat(i, 1, fmtSyntaxChar);
-            }
-            else
-            {
-                // wrong bracket nesting
-                setFormat( i, 1, fmtError);
-            }
-            state = NoState;
-            break;
-
-        case '/':
-            if (state == ExpectElementNameOrSlash)
-            {
-                state = ExpectElementName;
-                setFormat(i, 1, fmtSyntaxChar);
-            }
-            else
-            {
-                if (state == ExpectAttributeOrEndOfElement)
-                {
-                    setFormat(i, 1, fmtSyntaxChar);
-                }
-                else
-                {
-                    processDefaultText(i, text);
-                }
-            }
-            break;
-
-        case '=':
-            if (state == ExpectEqual)
-            {
-                state = ExpectAttributeValue;
-                setFormat(i, 1, fmtOther);
-            }
-            else
-            {
-                processDefaultText(i, text);
-            }
-            break;
-
-        case '\'':
-        case '\"':
-            if (state == ExpectAttributeValue)
-            {
-                // search attribute value
-                QRegExp expression(EXPR_ATTRIBUTE_VALUE);
-                pos = expression.indexIn(text, i);
-
-                if (pos == i) // attribute value found ?
-                {
-                    const int iLength = expression.matchedLength();
-
-                    setFormat(i, 1, fmtOther);
-                    setFormat(i + 1, iLength - 2, fmtAttributeValue);
-                    setFormat(i + iLength - 1, 1, fmtOther);
-
-                    i += iLength - 1; // skip attribute value
-                    state = ExpectAttributeOrEndOfElement;
-                }
-                else
-                {
-                    processDefaultText(i, text);
-                }
-            }
-            else
-            {
-                processDefaultText(i, text);
-            }
-            break;
-
-        case '!':
-            if (state == ExpectElementNameOrSlash)
-            {
-                // search comment
-                QRegExp expression(EXPR_COMMENT);
-                pos = expression.indexIn(text, i - 1);
-
-                if (pos == i - 1) // comment found ?
-                {
-                    const int iLength = expression.matchedLength();
-
-                    setFormat(pos, 4, fmtSyntaxChar);
-                    setFormat(pos + 4, iLength - 7, fmtComment);
-                    setFormat(iLength - 3, 3, fmtSyntaxChar);
-                    i += iLength - 2; // skip comment
-                    state = NoState;
-                    brackets--;
-                }
-                else
-                {
-                    // Try find multiline comment
-                    QRegExp beginCommentExpression(EXPR_COMMENT_BEGIN); // search comment start
-                    pos = beginCommentExpression.indexIn(text, i - 1);
-
-                    //if (pos == i - 1) // comment found ?
-                    if (pos >= i - 1)
-                    {
-                        setFormat(i, 3, fmtSyntaxChar);
-                        setFormat(i + 3, text.length() - i - 3, fmtComment);
-                        setCurrentBlockState(InComment);
-                        return;
-                    }
-
-                    processDefaultText(i, text);
-                }
-            }
-            else
-            {
-                processDefaultText(i, text);
-            }
-
-            break;
-
-        default:
-            const int iLength = processDefaultText(i, text);
-            if (iLength > 0)
-                i += iLength - 1;
-            break;
-        }
-    }
-
-    if (state == ExpectAttributeOrEndOfElement)
-    {
-        setCurrentBlockState(InElement);
-    }
-}
-
-int
-GtXmlHighlighter::processDefaultText(int i, const QString& text)
-{
-    // length of matched text
-    int iLength = 0;
-
-    switch(state)
-    {
-    case ExpectElementNameOrSlash:
-    case ExpectElementName:
-    {
-        // search element name
-        QRegExp expression(EXPR_NAME);
-        const int pos = expression.indexIn(text, i);
-
-        if (pos == i) // found ?
-        {
-            iLength = expression.matchedLength();
-
-            setFormat(pos, iLength, fmtElementName);
-            state = ExpectAttributeOrEndOfElement;
-        }
-        else
-        {
-            setFormat(i, 1, fmtOther);
-        }
-    }
-        break;
-
-    case ExpectAttributeOrEndOfElement:
-    {
-        // search attribute name
-        QRegExp expression(EXPR_NAME);
-        const int pos = expression.indexIn(text, i);
-
-        if (pos == i) // found ?
-        {
-            iLength = expression.matchedLength();
-
-            setFormat(pos, iLength, fmtAttributeName);
-            state = ExpectEqual;
-        }
-        else
-        {
-            setFormat(i, 1, fmtOther);
-        }
-    }
-        break;
-
-    default:
-        setFormat(i, 1, fmtOther);
-        break;
-    }
-    return iLength;
-}
-
-void
-GtXmlHighlighter::onThemeChanged()
-{
-    init();
-    rehighlight();
-}

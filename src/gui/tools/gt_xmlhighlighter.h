@@ -1,5 +1,8 @@
-// Copyright (C) 2006 J-P Nurmi. All rights reserved.
-
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MIT
+ * SPDX-FileCopyrightText: 2023 Copyright (c) 2015 Dmitry Ivanov
+ */
 
 #ifndef GTXMLHIGHLIGHTER_H
 #define GTXMLHIGHLIGHTER_H
@@ -7,77 +10,41 @@
 #include "gt_gui_exports.h"
 
 #include <QSyntaxHighlighter>
-#include <QTextCharFormat>
-#include <QColor>
 #include <QTextEdit>
 
 class GT_GUI_EXPORT GtXmlHighlighter : public QSyntaxHighlighter
 {
+    Q_OBJECT
 public:
-    explicit GtXmlHighlighter(QObject* parent);
-    explicit GtXmlHighlighter(QTextDocument* parent);
-    explicit GtXmlHighlighter(QTextEdit* parent);
-
-    enum HighlightType
-    {
-        SyntaxChar,
-        ElementName,
-        Comment,
-        AttributeName,
-        AttributeValue,
-        Error,
-        Other
-    };
-
-    void setHighlightColor(HighlightType type,
-                           const QColor& color,
-                           bool foreground = true);
-
-    void setHighlightFormat(HighlightType type,
-                            const QTextCharFormat& format);
+    GtXmlHighlighter(QObject * parent);
+    GtXmlHighlighter(QTextDocument * parent);
+    GtXmlHighlighter(QTextEdit * parent);
 
 protected:
-    void highlightBlock(const QString& rstrText) override;
+    virtual void highlightBlock(const QString & text);
 
-    int  processDefaultText(int i, const QString& rstrText);
+private:
+    void highlightByRegex(const QTextCharFormat & format,
+                          const QRegExp & regex, const QString & text);
+
+    void setRegexes();
+    void setFormats();
 
 public slots:
-    /**
-     * @brief onThemeChanged - handles reaction on change of the GUI theme
-     * Changes the colors for the highlights and rehighlights the text
-     */
     void onThemeChanged();
 
 private:
-    void init();
+    QTextCharFormat     m_xmlKeywordFormat;
+    QTextCharFormat     m_xmlElementFormat;
+    QTextCharFormat     m_xmlAttributeFormat;
+    QTextCharFormat     m_xmlValueFormat;
+    QTextCharFormat     m_xmlCommentFormat;
 
-    QTextCharFormat fmtSyntaxChar;
-    QTextCharFormat fmtElementName;
-    QTextCharFormat fmtComment;
-    QTextCharFormat fmtAttributeName;
-    QTextCharFormat fmtAttributeValue;
-    QTextCharFormat fmtError;
-    QTextCharFormat fmtOther;
-
-    enum ParsingState
-    {
-        NoState = 0,
-        ExpectElementNameOrSlash,
-        ExpectElementName,
-        ExpectAttributeOrEndOfElement,
-        ExpectEqual,
-        ExpectAttributeValue
-    };
-
-    enum BlockState
-    {
-        NoBlock = -1,
-        InComment,
-        InElement
-    };
-
-    ParsingState state;
-
+    QList<QRegExp>      m_xmlKeywordRegexes;
+    QRegExp             m_xmlElementRegex;
+    QRegExp             m_xmlAttributeRegex;
+    QRegExp             m_xmlValueRegex;
+    QRegExp             m_xmlCommentRegex;
 };
 
 #endif // GTXMLHIGHLIGHTER_H
