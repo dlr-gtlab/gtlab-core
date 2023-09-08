@@ -32,11 +32,15 @@ GtSimpleLoadingWidget::GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
 
     QVBoxLayout* lay = new QVBoxLayout;
 
+    int loaderSize = 48;
+
     m_animation = new QMovie(QStringLiteral(":/pixmaps/loading2.gif"),
                              QByteArray(), this);
 
+    m_animation->setScaledSize(QSize(loaderSize, loaderSize));
     QLabel* animLabel = new QLabel;
     animLabel->setMovie(m_animation);
+    animLabel->setFixedSize(loaderSize, loaderSize);
 
     lay->addWidget(animLabel);
 
