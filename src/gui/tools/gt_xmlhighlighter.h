@@ -16,9 +16,9 @@ class GT_GUI_EXPORT GtXmlHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
-    GtXmlHighlighter(QObject * parent);
-    GtXmlHighlighter(QTextDocument * parent);
-    GtXmlHighlighter(QTextEdit * parent);
+    explicit GtXmlHighlighter(QObject * parent);
+    explicit GtXmlHighlighter(QTextDocument * parent);
+    explicit GtXmlHighlighter(QTextEdit * parent);
 
 protected:
     virtual void highlightBlock(const QString & text);
