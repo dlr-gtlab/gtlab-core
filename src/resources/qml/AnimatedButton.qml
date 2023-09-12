@@ -15,6 +15,10 @@ import QtGraphicalEffects 1.15
 Button {
     id: control
 
+    property string tooltipText: ""
+    property string tooltipPrefix: ""
+    property bool hasTooltip: false
+
     implicitWidth: Math.max(
                        buttonBackground ? buttonBackground.implicitWidth : 0,
                        myContentItem.implicitWidth + leftPadding + rightPadding)
@@ -188,6 +192,8 @@ Button {
         cursorShape: Qt.PointingHandCursor
         onHoveredChanged:
         {
+            toolTip.visible = hasTooltip && tooltipText !== "" ? hovered : false;
+
             if(hovered)
             {
                 hoverenter_animation.restart()
@@ -207,6 +213,22 @@ Button {
             onClicked: control.clicked()
             onPressed: control.pressed()
             onReleased: control.released()
+
+            ToolTip {
+                id: toolTip
+                delay: 1000
+                timeout: 5000
+                text: tooltipPrefix + tooltipText
+                visible: false
+                x: parent.width * 2 / 3
+                y: parent.height / 2 + 10
+
+                onTextChanged: {
+                    if (visible) {
+                        visible = (tooltipText !== "")
+                    }
+                }
+            }
     }
 
 }
