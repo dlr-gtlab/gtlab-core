@@ -160,6 +160,8 @@ Rectangle {
                         icon.width: 10
                         icon.height: 10
                         text: "Undo"
+                        hasTooltip: true
+                        tooltipPrefix: "Undo "
                         visible: false
                         onClicked: toolbar.buttonClicked(this.objectName)
                     }
@@ -171,6 +173,8 @@ Rectangle {
                         icon.width: 10
                         icon.height: 10
                         text: "Redo"
+                        hasTooltip: true
+                        tooltipPrefix: "Redo "
                         visible: false
                         onClicked: toolbar.buttonClicked(this.objectName)
                     }
@@ -401,6 +405,18 @@ Rectangle {
                         btn_redo.custom_Enabled = false
                     }
                 }
+            }
+
+            function onUndoTextChanged(undoText)
+            {
+                // tool tip
+                btn_undo.tooltipText = undoText
+            }
+
+            function onRedoTextChanged(redoText)
+            {
+                // tool tip
+                btn_redo.tooltipText = redoText
             }
         }
 }

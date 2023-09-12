@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix examples widget for new structure of process files - #593
 
+### Added
+- Undo and redo toolbar buttons show tooltip information based on the operation being perform on click - #572
+
 ## [2.0.5] - 2023-08-22
 ### Changed
 - Checkbox for permanently deleting project can now be toggled by clicking on the checkbox text - #549
