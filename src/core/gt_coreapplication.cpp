@@ -359,7 +359,7 @@ GtCoreApplication::switchSession(const QString& id)
 {
     if (!m_sessionIds.contains(id))
     {
-        gtWarning() << tr("WARNING") << ": " << tr("session id not found!");
+        gtWarning() << tr("WARNING") << ": " << tr("session '%1' not found!").arg(id);
     }
 
     // save last used session
@@ -450,14 +450,14 @@ GtCoreApplication::newSession(const QString& id)
     if (m_sessionIds.contains(id))
     {
         qWarning() << tr("WARNING") << ": " <<
-                   tr("Session id already exists!");
+            tr("Session '%1' already exists!").arg(id);
         return false;
     }
 
     if (!GtSession::createEmptySession(id))
     {
         qWarning() << tr("WARNING") << ": " <<
-                   tr("Could not create session!");
+            tr("Could not create session '%1'!").arg(id);
         return false;
     }
 
@@ -488,14 +488,14 @@ GtCoreApplication::deleteSession(const QString& id)
     if (!m_sessionIds.contains(id))
     {
         qWarning() << tr("WARNING") << ": " <<
-                   tr("Session id not found!");
+            tr("Session '%1' not found!").arg(id);
         return false;
     }
 
     if (sessionId() == id)
     {
         qWarning() << tr("WARNING") << ": " <<
-                   tr("Current session cannot be deleted!");
+            tr("Current session '%1' cannot be deleted!").arg(id);
         return false;
     }
 

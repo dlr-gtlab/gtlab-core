@@ -878,6 +878,101 @@ list(const QStringList& args)
     return 0;
 }
 
+int
+create_session(const QStringList& args)
+{
+    if (args.size() != 1)
+    {
+        // print usage message
+        std::cout << QObject::tr("create_session: Invalid arguments\n\n")
+                         .toStdString();
+
+        auto func = GtCommandLineFunctionHandler::instance().getFunction(
+            "create_session");
+
+        assert(func);
+
+        func.showDefaultHelp();
+
+        return 1;
+    }
+
+    auto sessionID = args[0];
+
+    if (!gtApp->newSession(sessionID))
+    {
+        return 1;
+    }
+
+    std::cout << QObject::tr("Session '%1' has been created\n")
+                     .arg(sessionID)
+                     .toStdString();
+    return 0;
+}
+
+int
+delete_session(const QStringList& args)
+{
+    if (args.size() != 1)
+    {
+        // print usage message
+        std::cout << QObject::tr("delete_session: Invalid arguments\n\n")
+                         .toStdString();
+
+        auto func = GtCommandLineFunctionHandler::instance().getFunction(
+            "delete_session");
+
+        assert(func);
+
+        func.showDefaultHelp();
+
+        return 1;
+    }
+    if (!gtApp->deleteSession(args[0]))
+    {
+        return 1;
+    }
+    auto sessionID = args[0];
+    std::cout << QObject::tr("Session '%1' has been deleted\n")
+                     .arg(sessionID)
+                     .toStdString();
+    return 0;
+}
+
+int
+switch_session(const QStringList& args)
+{
+    if (args.size() != 1)
+    {
+        // print usage message
+        std::cout << QObject::tr("switch_session: Invalid arguments\n\n")
+                         .toStdString();
+
+        auto func = GtCommandLineFunctionHandler::instance().getFunction(
+            "switch_session");
+
+        assert(func);
+
+        func.showDefaultHelp();
+
+        return 1;
+    }
+    gtApp->switchSession(args[0]);
+    auto sessionID = args[0];
+    if (gtApp->sessionIds().contains(args[0]))
+    {
+        std::cout << QObject::tr("Switched to Session '%1'\n")
+                         .arg(sessionID)
+                         .toStdString();
+    }
+    else
+    {
+        std::cout << QObject::tr("Session '%1' doesn't exist\n")
+                         .arg(sessionID)
+                         .toStdString();
+    }
+    return 0;
+}
 
 void
 initPosArgument(QString const& id,
@@ -944,6 +1039,18 @@ initSystemOptions()
                     "\tEnables the modules specified. A module is disabled if "
                     "it caused a crash on a previous application run.",
                     {}, {}, false);
+
+    initPosArgument("create_session", create_session,
+                    "Creates a session if it doesn't exist already", {},
+                    {GtCommandLineArgument{"session_id", "Session ID"}});
+
+    initPosArgument("delete_session", delete_session,
+                    "Deletes the given session", {},
+                    {GtCommandLineArgument{"session_id", "Session ID"}});
+
+    initPosArgument("switch_session", switch_session,
+                    "Switches to the given session", {},
+                    {GtCommandLineArgument{"session_id", "Session ID"}});
 }
 
 int
@@ -1125,11 +1232,11 @@ int main(int argc, char* argv[])
             }
         }
 
-        /// remove the argument which lead to this function call
-        parser.removeArg(mainArg);
 
-        /// if a customHelpIs
-        return f(parser.arguments());
+        // remove all argument before and including the command
+        auto commandArgsStartIdx = parser.arguments().indexOf(mainArg) + 1;
+        assert(commandArgsStartIdx > 0);
+        return f(parser.arguments().mid(commandArgsStartIdx));
     }
     else
     {
