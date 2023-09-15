@@ -196,7 +196,7 @@ GtDoubleProperty::validateValue(const double& value)
         if (value < m_boundLo)
         {
             gtWarning() << tr("Invalid value for ") << objectName()
-                        << tr(". Value has to be bigger than")
+                        << tr(". Value has to be bigger or equal than")
                         << m_boundLo;
             return false;
         }
@@ -207,7 +207,7 @@ GtDoubleProperty::validateValue(const double& value)
         if (value > m_boundHi)
         {
             gtWarning() << tr("Invalid value for ") << objectName()
-                        << tr(". Value has to be lower than")
+                        << tr(". Value has to be lower or equal than")
                         << m_boundHi;
             return false;
         }
