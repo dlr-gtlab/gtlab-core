@@ -21,7 +21,7 @@ public:
     explicit GtXmlHighlighter(QTextEdit * parent);
 
 protected:
-    virtual void highlightBlock(const QString & text);
+    void highlightBlock(const QString & text) override;
 
 private:
     void highlightByRegex(const QTextCharFormat & format,

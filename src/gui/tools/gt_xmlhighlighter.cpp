@@ -71,8 +71,6 @@ void GtXmlHighlighter::highlightByRegex(const QTextCharFormat & format,
     }
 }
 
-// TODO: rename to: GtXmlHighlighter
-
 void GtXmlHighlighter::setRegexes()
 {
     m_xmlElementRegex.setPattern("<[?\\s]*[/]?[\\s]*([^\\n][^>]*)(?=[\\s/>])");
