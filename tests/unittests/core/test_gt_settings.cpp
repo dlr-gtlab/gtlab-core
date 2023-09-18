@@ -59,3 +59,10 @@ TEST_F(TestSettings, moduleSettingsPath)
     ASSERT_TRUE(value.contains("Unittests"));
 }
 
+/// check if module settings path is correct (using a module id)
+TEST_F(TestSettings, moduleSettingsPathWithModuleID)
+{
+    QString value = gt::makeModuleSettingsPath("mymodule", "bla");
+    ASSERT_TRUE(value.contains("mymodule/bla"));
+}
+
