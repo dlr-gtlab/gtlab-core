@@ -567,7 +567,7 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
     }
     else if (str == "GtpMapProvider")
     {
-        actPlot->setIcon(gt::gui::icon::map16());
+        actPlot->setIcon(gt::gui::icon::perfMap());
     }
     else if (str == "GtppCarpetProvider")
     {
@@ -579,7 +579,7 @@ GtTemplateViewer::setPlotIcon(QAction* actPlot, const QString& str) const
     }
     else if (str == "GtpTSDiagramProvider")
     {
-        actPlot->setIcon(gt::gui::icon::tsDiagram16());
+        actPlot->setIcon(gt::gui::icon::perfTsDiagram());
     }
     else
     {

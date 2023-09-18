@@ -41,7 +41,7 @@ TEST_F(TestMpl, functionSignature)
 
     struct CustomFunctor
     {
-        bool operator()(QString const&, int const*, char const);
+        bool operator()(QString const&, int const*, char const){return true;}
     };
 
     QString customFunctor = gt::interface::getFunctionSignature(CustomFunctor());

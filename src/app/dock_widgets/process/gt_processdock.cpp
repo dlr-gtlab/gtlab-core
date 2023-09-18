@@ -1769,7 +1769,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
         }
     }
 
-    pasteCmd.exec();
+    pasteCmd.finalize();
 
     QModelIndex index = mapFromSource(srcIndex);
 

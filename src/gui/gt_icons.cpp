@@ -741,8 +741,8 @@ GT_DEF_ICON_ALIAS(string16, letter::s)
 GT_DEF_ICON_ALIAS(performanceModel, perfModel);
 
 GT_DEF_ICON_ALIAS(performanceDesign, perfDesignPoint);
-GT_DEF_ICON_ALIAS(performanceDesign16, performanceDesign);
-GT_DEF_ICON_ALIAS(performanceDesign24, performanceDesign);
+GT_DEF_ICON_ALIAS(performanceDesign16, perfDesignPoint);
+GT_DEF_ICON_ALIAS(performanceDesign24, perfDesignPoint);
 
 GT_DEF_ICON(engineInstallation, "engineInstallation_custom.svg");
 GT_DEF_ICON_ALIAS(engineInstallation16, engineInstallation);
