@@ -928,11 +928,11 @@ delete_session(const QStringList& args)
 
         return 1;
     }
-    if (!gtApp->deleteSession(args[0]))
+    auto sessionID = args[0];
+    if (!gtApp->deleteSession(sessionID))
     {
         return 1;
     }
-    auto sessionID = args[0];
     std::cout << QObject::tr("Session '%1' has been deleted\n")
                      .arg(sessionID)
                      .toStdString();
@@ -957,9 +957,9 @@ switch_session(const QStringList& args)
 
         return 1;
     }
-    gtApp->switchSession(args[0]);
-    auto sessionID = args[0];
-    if (gtApp->sessionIds().contains(args[0]))
+    auto const& sessionID = args[0];
+    gtApp->switchSession(sessionID);
+    if (gtApp->sessionIds().contains(sessionID))
     {
         std::cout << QObject::tr("Switched to Session '%1'\n")
                          .arg(sessionID)
