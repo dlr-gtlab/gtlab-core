@@ -20,13 +20,25 @@ namespace gt
 
 /**
  * @brief Helper method for creating a module settings path
+ * @param moduleID The ID of the module
+ * @param ident Ident of setting
+ * @return Module settings path
+ */
+inline QString
+makeModuleSettingsPath(const QString & moduleID, const QString & ident)
+{
+    return QStringLiteral("modules/%1/%2").arg(moduleID, ident);
+}
+
+/**
+ * @brief Helper method for creating a module settings path
  * @param ident Ident of setting
  * @return Module settings path
  */
 inline QString
 makeModuleSettingsPath(const QString & ident)
 {
-    return QStringLiteral("modules/%1/%2").arg(GT_MODULENAME(), ident);
+    return makeModuleSettingsPath(GT_MODULENAME(), ident);
 }
 
 } // namespace gt
