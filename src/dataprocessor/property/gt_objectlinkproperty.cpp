@@ -144,14 +144,7 @@ GtObjectLinkProperty::isAllowed(const QString& className) const
                        ->metaObject(className);
         }
 
-        if (!meta)
-        {
-            gtError().verbose()
-                << tr("Failed to check if '%1' is an allowed class for "
-                      "the object link property '%2'! (Metaobject for "
-                      "class name not found)").arg(className, ident());
-            return false;
-        }
+        if (!meta) return false;
     }
 
     // check allowed objects repeatively
