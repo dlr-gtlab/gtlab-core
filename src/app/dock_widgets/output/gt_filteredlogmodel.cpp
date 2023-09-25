@@ -98,7 +98,7 @@ GtFilteredLogModel::filterAcceptsRow(int srcRow,
     case gt::log::InfoLevel:
         doFilter = m_filter & FilterInfo;
         break;
-    case gt::log::WarnLevel:
+    case gt::log::WarningLevel:
         doFilter = m_filter & FilterWarning;
         break;
     case gt::log::ErrorLevel:
