@@ -74,7 +74,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
         break;
     case Qt::TextAlignmentRole:
         return Qt::AlignTop;
-    case Qt::TextColorRole:
+    case Qt::ForegroundRole:
         switch (loggingLevel(index))
         {
         case gt::log::TraceLevel:
@@ -92,7 +92,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             break;
         }
         break;
-    case Qt::BackgroundColorRole:
+    case Qt::BackgroundRole:
         switch (loggingLevel(index))
         {
         case gt::log::FatalLevel:

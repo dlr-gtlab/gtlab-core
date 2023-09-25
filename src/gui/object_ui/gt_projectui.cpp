@@ -233,7 +233,7 @@ GtProjectUI::specificData(GtObject* obj, int role, int column) const
                 }
                 break;
             }
-            case Qt::TextColorRole:
+            case Qt::ForegroundRole:
             {
                 auto project = qobject_cast<GtProject*>(obj);
 

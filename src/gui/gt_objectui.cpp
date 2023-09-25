@@ -274,7 +274,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                 break;
             }
 
-            case Qt::BackgroundColorRole:
+            case Qt::BackgroundRole:
             {
                 if (obj->isDummy())
                 {
@@ -334,7 +334,7 @@ GtObjectUI::data(GtObject* obj, int role, int column) const
                 return QVariant();
             }
 
-            case Qt::BackgroundColorRole:
+            case Qt::BackgroundRole:
             {
                 if (obj->isDummy())
                 {
