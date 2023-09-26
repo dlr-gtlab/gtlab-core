@@ -163,13 +163,15 @@ public:
     void setReadOnly(bool val);
 
     /**
-     * @brief isActive
-     * @return
+     * @brief Returns the is active flag. This flag is only relevant for
+     * properties that are optional.
+     * @return Returns whether the property is active or not
      */
     bool isActive() const;
 
     /**
-     * @brief setActive
+     * @brief Setter for the is active flag. This flag is only relevant for
+     * properties that are optional.
      * @param val
      */
     void setActive(bool val);
