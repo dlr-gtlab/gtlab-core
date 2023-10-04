@@ -43,8 +43,28 @@ public:
      * @param name
      * @param brief
      */
-    Q_INVOKABLE GtIntProperty(const QString& ident, const QString& name,
+    Q_INVOKABLE GtIntProperty(const QString& ident,
+                              const QString& name,
                               const QString& brief);
+
+    GtIntProperty(const QString& ident,
+                  const QString& name,
+                  const QString& brief,
+                  int value);
+
+    GtIntProperty(const QString& ident,
+                  const QString& name,
+                  const QString& brief,
+                  int lowSideBoundary,
+                  int highSideBoundary,
+                  int value = 0);
+
+    GtIntProperty(const QString& ident,
+                  const QString& name,
+                  const QString& brief,
+                  BoundType boundType,
+                  int boundary,
+                  int value = 0);
 
     /**
      * @brief GtIntProperty
@@ -54,6 +74,8 @@ public:
      * @param unitCategory
      * @param value
      */
+    [[deprecated("Int Properties do not support units properly and "
+                 "will be removed in the future")]]
     GtIntProperty(const QString& ident,
                   const QString& name,
                   const QString& brief,
@@ -70,6 +92,8 @@ public:
      * @param highSideBoundary
      * @param value
      */
+    [[deprecated("Int Properties do not support units properly and "
+                 "will be removed in the future")]]
     GtIntProperty(const QString& ident,
                   const QString& name,
                   const QString& brief,
@@ -88,6 +112,8 @@ public:
      * @param boundary
      * @param value
      */
+    [[deprecated("Int Properties do not support units properly and "
+                 "will be removed in the future")]]
     GtIntProperty(const QString& ident,
                   const QString& name,
                   const QString& brief,
@@ -154,9 +180,34 @@ namespace gt
 
 /**
  * @brief Creates a property factory for ints with a default value
+ * @param value Default value
  */
 GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeIntProperty(int value);
+
+    /**
+ * @brief Creates a property factory for ints with a default value and a low
+ * and high side boundary
+ * @param value Default value
+ * @param lowSideBoundary Lower side boundary
+ * @param highSideBoundary High side boundary
+ */
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeIntProperty(int lowSideBoundary,
+                                            int highSideBoundary,
+                                            int value = 0);
+
+/**
+ * @brief Creates a property factory for ints with a default value and a custom
+ * boundary
+ * @param value Default value
+ * @param boundaryType Boundary type
+ * @param boundary Boundary
+ */
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeIntProperty(GtIntProperty::BoundType boundaryType,
+                                            int boundary,
+                                            int value = 0);
 
 } // namespace gt
 
