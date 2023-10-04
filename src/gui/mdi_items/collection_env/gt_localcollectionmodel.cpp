@@ -269,7 +269,7 @@ GtLocalCollectionModel::sort(int column, Qt::SortOrder order)
             QString const& prop = m_propIds.at(column - 3);
             function = [ascending, &prop](const T& x, const T& y){
                 // The "<" operator is deprecated, but the replacement "compare" fails under linux
-                return ascending == x.property(prop) < y.property(prop);
+                return ascending == (x.property(prop) < y.property(prop));
             };
         }
         break;
