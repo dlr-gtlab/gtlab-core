@@ -216,8 +216,7 @@ GtCoreApplication::loadLastSession()
     }
     else
     {
-        qWarning() << tr("WARNING: ") <<
-                   tr("could not find last session");
+        gtWarning() << tr("could not find last session");
 
         return false;
     }
@@ -260,8 +259,7 @@ GtCoreApplication::initSession(const QString& id)
         // load session info
         if (!readSessionIds())
         {
-            qWarning() << tr("WARNING: ") <<
-                       tr("could not read session information");
+            gtWarning() << tr("could not read session information");
         }
         else
         {
@@ -284,8 +282,7 @@ GtCoreApplication::initSession(const QString& id)
     }
     else
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("session already initialized!");
+        gtWarning() << tr("session already initialized!");
     }
 }
 
@@ -359,7 +356,7 @@ GtCoreApplication::switchSession(const QString& id)
 {
     if (!m_sessionIds.contains(id))
     {
-        gtWarning() << tr("WARNING") << ": " << tr("session id not found!");
+        gtWarning() << tr("Session '%1' not found!").arg(id);
     }
 
     // save last used session
@@ -391,29 +388,25 @@ GtCoreApplication::renameSession(const QString& oldId, const QString& newId)
 {
     if (!sessionIds().contains(oldId))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Session id not found!");
+        gtWarning() << tr("Session id not found!");
         return false;
     }
 
     if (sessionIds().contains(newId))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Session id already exists!");
+        gtWarning() << tr("Session id already exists!");
         return false;
     }
 
     if (sessionId() == oldId)
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Current session cannot be renamed!");
+        gtError() << tr("Current session cannot be renamed!");
         return false;
     }
 
     if (oldId == QLatin1String("default"))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Default session cannot be renamed!");
+        gtWarning() << tr("Default session cannot be renamed!");
         return false;
     }
 
@@ -421,8 +414,7 @@ GtCoreApplication::renameSession(const QString& oldId, const QString& newId)
 
     if (!path.exists() || !path.cd(QStringLiteral("session")))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Session directory not found!");
+        gtWarning() << tr("Session directory not found!");
         return false;
     }
 
@@ -432,8 +424,7 @@ GtCoreApplication::renameSession(const QString& oldId, const QString& newId)
     if (!QFile::rename(path.absoluteFilePath(filenameOld),
                        path.absoluteFilePath(filenameNew)))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Could not rename session file!");
+        gtWarning() << tr("Could not rename session file!");
     }
 
     // refresh session ids
@@ -449,15 +440,13 @@ GtCoreApplication::newSession(const QString& id)
 {
     if (m_sessionIds.contains(id))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Session id already exists!");
+        gtWarning() << tr("Session '%1' already exists!").arg(id);
         return false;
     }
 
     if (!GtSession::createEmptySession(id))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Could not create session!");
+        gtError() << tr("Could not create session '%1'!").arg(id);
         return false;
     }
 
@@ -474,8 +463,7 @@ GtCoreApplication::duplicateSession(const QString& source,
 {
     if (!m_sessionIds.contains(source))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Session id not found!");
+        gtWarning() << tr("Session id not found!");
         return false;
     }
 
@@ -487,22 +475,19 @@ GtCoreApplication::deleteSession(const QString& id)
 {
     if (!m_sessionIds.contains(id))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Session id not found!");
+        gtWarning() << tr("Session '%1' not found!").arg(id);
         return false;
     }
 
     if (sessionId() == id)
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Current session cannot be deleted!");
+        gtError() << tr("Current session '%1' cannot be deleted!").arg(id);
         return false;
     }
 
     if (id == QLatin1String("default"))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Default session cannot be deleted!");
+        gtWarning() << tr("Default session cannot be deleted!");
         return false;
     }
 
@@ -510,8 +495,7 @@ GtCoreApplication::deleteSession(const QString& id)
 
     if (!path.exists() || !path.cd(QStringLiteral("session")))
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Session directory not found!");
+        gtWarning() << tr("Session directory not found!");
         return false;
     }
 
@@ -521,8 +505,7 @@ GtCoreApplication::deleteSession(const QString& id)
 
     if (!file.remove())
     {
-        qWarning() << tr("WARNING") << ": " <<
-                   tr("Could not delete session file!");
+        gtWarning() << tr("Could not delete session file!");
         return false;
     }
 
