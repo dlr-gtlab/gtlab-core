@@ -439,7 +439,7 @@ GtMainWin::setupDockWidgets()
         if (dock)
         {
             dock->setWindowTitle(dock->objectName());
-            dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+            dock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
             addDockWidget(dock->getDockWidgetArea(), dock);
 
             // add dockwidgets to map and initialize actions with null pointer

@@ -46,7 +46,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
                 return gt::gui::icon::bugColorized();
             case gt::log::InfoLevel:
                 return gt::gui::icon::infoColorized();
-            case gt::log::WarnLevel:
+            case gt::log::WarningLevel:
                 return gt::gui::icon::warningColorized();
             case gt::log::ErrorLevel:
                 return gt::gui::icon::errorColorized();
@@ -74,7 +74,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
         break;
     case Qt::TextAlignmentRole:
         return Qt::AlignTop;
-    case Qt::TextColorRole:
+    case Qt::ForegroundRole:
         switch (loggingLevel(index))
         {
         case gt::log::TraceLevel:
@@ -82,7 +82,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             return gt::gui::color::debugText();
         case gt::log::InfoLevel:
             return gt::gui::color::infoText();
-        case gt::log::WarnLevel:
+        case gt::log::WarningLevel:
             return gt::gui::color::warningText();
         case gt::log::ErrorLevel:
             return gt::gui::color::errorText();
@@ -92,7 +92,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
             break;
         }
         break;
-    case Qt::BackgroundColorRole:
+    case Qt::BackgroundRole:
         switch (loggingLevel(index))
         {
         case gt::log::FatalLevel:

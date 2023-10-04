@@ -162,7 +162,7 @@ void GtProcessConnectionView::drawRow(QPainter* painter,
                                       const QStyleOptionViewItem& option,
                                       const QModelIndex& index) const
 {
-    QStyleOptionViewItemV3 opt = option;
+    QStyleOptionViewItem opt = option;
 
     // check whether index has property role
     //bool isProperty =

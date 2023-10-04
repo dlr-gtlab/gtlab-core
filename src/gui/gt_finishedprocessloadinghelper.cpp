@@ -3,7 +3,6 @@
 #include <QDir>
 
 #include "gt_objectmementodiff.h"
-#include "gt_application.h"
 #include "gt_finishedprocessloadinghelper.h"
 
 GtFinishedProcessLoadingHelper::GtFinishedProcessLoadingHelper(

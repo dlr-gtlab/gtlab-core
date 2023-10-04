@@ -295,13 +295,13 @@ GtLogErrorMessageBoxModel::data(const QModelIndex& index, int role) const
 
     switch (role)
     {
-    case Qt::TextColorRole:
+    case Qt::ForegroundRole:
         if (m_entries[row].level == gt::log::FatalLevel)
         {
             return gt::gui::color::fatalText();
         }
         break;
-    case Qt::BackgroundColorRole:
+    case Qt::BackgroundRole:
         if (m_entries[row].level == gt::log::FatalLevel)
         {
             return gt::gui::color::fatalTextBackground();

@@ -70,6 +70,7 @@ GtIconBrowser::GtIconBrowser()
     grid->addWidget(MAKE_ICON(chain));
     grid->addWidget(MAKE_ICON(chainOff));
     grid->addWidget(MAKE_ICON(chartBar));
+    grid->addWidget(MAKE_ICON(chartBell));
     grid->addWidget(MAKE_ICON(chartCurve));
     grid->addWidget(MAKE_ICON(chartLine));
     grid->addWidget(MAKE_ICON(chartScatter));

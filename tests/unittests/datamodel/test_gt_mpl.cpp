@@ -13,7 +13,7 @@
 
 class TestMpl : public testing::Test {};
 
-// the signature is compiler dependent (for example gcc will conver 'bool*' to 'b*' etc).
+// the signature is compiler dependent (for example gcc will convert 'bool*' to 'b*' etc).
 // Therefore this test is enabled for MSVC only
 #ifdef _MSVC_LANG
 
@@ -41,7 +41,7 @@ TEST_F(TestMpl, functionSignature)
 
     struct CustomFunctor
     {
-        bool operator()(QString const&, int const*, char const);
+        bool operator()(QString const&, int const*, char const){return true;}
     };
 
     QString customFunctor = gt::interface::getFunctionSignature(CustomFunctor());
