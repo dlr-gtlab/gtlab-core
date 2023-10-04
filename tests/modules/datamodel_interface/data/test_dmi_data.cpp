@@ -28,7 +28,7 @@ TestDmiData::TestDmiData() :
     registerProperty(m_value);
 
     GtPropertyStructDefinition stringEntryDef("StringStruct");
-    stringEntryDef.defineMember("value", gt::makeStringProperty(""));
+    stringEntryDef.defineMember("value", gt::makeOptional(gt::makeStringProperty(""), true));
 
     m_container.registerAllowedType(stringEntryDef);
 

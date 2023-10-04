@@ -314,6 +314,54 @@ inline gt::PropertyFactoryFunction makePropertyFactory(const T& value)
     };
 }
 
+/**
+ * @brief Wraps a property factory function and returns a read only property
+ * @param propertyFactory Function to wrap
+ * @return Read only property factory function
+ */
+template <typename Functor>
+inline gt::PropertyFactoryFunction makeReadOnly(Functor propertyFactory)
+{
+    return [func = std::move(propertyFactory)](QString const& id){
+        GtAbstractProperty* tmp = func(id);
+        tmp->setReadOnly(true);
+        return tmp;
+    };
+};
+
+/**
+ * @brief Wraps a property factory function and returns a hidden property
+ * @param propertyFactory Function to wrap
+ * @return Hidden property factory function
+ */
+template <typename Functor>
+inline gt::PropertyFactoryFunction makeHidden(Functor propertyFactory)
+{
+    return [func = std::move(propertyFactory)](QString const& id){
+        GtAbstractProperty* tmp = func(id);
+        tmp->hide(true);
+        return tmp;
+    };
+};
+
+/**
+ * @brief Wraps a property factory function and returns an optional property
+ * @param propertyFactory Function to wrap
+ * @param isActive Flag to set the property as active
+ * @return Optional property factory function
+ */
+template <typename Functor>
+inline gt::PropertyFactoryFunction makeOptional(Functor propertyFactory,
+                                                bool isActive = false)
+{
+    return [func = std::move(propertyFactory), isActive](QString const& id){
+        GtAbstractProperty* tmp = func(id);
+        tmp->setOptional(true);
+        tmp->setActive(isActive);
+        return tmp;
+    };
+};
+
 } // namespace gt
 
 #endif // GTLAB_PARAMETER_H
