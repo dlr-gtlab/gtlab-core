@@ -582,7 +582,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
             return;
         }
 
-        gtDataModel->newProject(newProject);
+        gtDataModel->newProject(newProject, true);
         gtDataModel->saveProject(newProject);
         gtDataModel->closeProject(newProject);
         gtDataModel->closeProject(project);

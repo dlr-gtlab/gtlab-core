@@ -134,6 +134,7 @@ public:
      *
      * See: newProject(project, doOpen)
      */
+    [[deprecated("Use newProject(project, doOpen) instead")]]
     bool newProject(GtProject* project);
 
     /**

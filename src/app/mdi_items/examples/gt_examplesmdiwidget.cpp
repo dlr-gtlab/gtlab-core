@@ -355,7 +355,7 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
                                project->objectName(), gtApp->session()));
     }
 
-    if (!gtDataModel->newProject(project))
+    if (!gtDataModel->newProject(project, true))
     {
         delete project;
         gtError() << tr("Invalid example project");
