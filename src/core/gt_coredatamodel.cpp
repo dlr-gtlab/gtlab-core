@@ -442,8 +442,14 @@ GtCoreDatamodel::deleteProject(GtProject* project)
     return true;
 }
 
+bool GtCoreDatamodel::newProject(GtProject* project)
+{
+    return newProject(project, true);
+}
+
+
 bool
-GtCoreDatamodel::newProject(GtProject* project)
+GtCoreDatamodel::newProject(GtProject* project, bool doOpen)
 {
     // check project
     if (!project)
@@ -487,7 +493,10 @@ GtCoreDatamodel::newProject(GtProject* project)
     endInsertRows();
 
     // open added project
-    openProject(project->objectName());
+    if (doOpen)
+    {
+        openProject(project->objectName());
+    }
 
     // return success
     return true;

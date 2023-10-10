@@ -1521,8 +1521,8 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
                 newProject->upgradeProjectData();
             }).get());
 
-            gtDataModel->newProject(newProject.get());
-            gtApp->setCurrentProject(newProject.release());
+            // append to session but don't open
+            gtDataModel->newProject(newProject.release(), false);
         }
     }
 }
