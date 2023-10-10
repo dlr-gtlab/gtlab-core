@@ -124,8 +124,17 @@ public:
     /**
      * @brief Adds given project to current session.
      * @param Project pointer
+     * @param doOpen Whether to open the project after adding the project
      * @return Whether project could be added or not
      */
+    bool newProject(GtProject* project, bool doOpen);
+
+    /**
+     * @brief Adds given project to current session and opens it
+     *
+     * See: newProject(project, doOpen)
+     */
+    [[deprecated("Use newProject(project, doOpen) instead")]]
     bool newProject(GtProject* project);
 
     /**

@@ -531,7 +531,7 @@ GtMainWin::showProjectWizard()
     {
         GtProject* project = provider.project();
 
-        if (!gtDataModel->newProject(project))
+        if (!gtDataModel->newProject(project, true))
         {
             delete project;
             gtError() << "Created project can not be added to session. Abort";
@@ -562,7 +562,7 @@ GtMainWin::importProject()
     GtProjectProvider provider(filename);
     GtProject* loadedProject = provider.project();
 
-    bool isNewProject = gtDataModel->newProject(loadedProject);
+    bool isNewProject = gtDataModel->newProject(loadedProject, true);
 
 
     // the project already exists in the session, open this instead

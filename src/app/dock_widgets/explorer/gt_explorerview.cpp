@@ -123,7 +123,7 @@ GtExplorerView::dropEvent(QDropEvent* event)
             GtProjectProvider provider(url.toLocalFile());
             GtProject* project = provider.project();
 
-            if (!gtDataModel->newProject(project))
+            if (!gtDataModel->newProject(project, true))
             {
                 delete project;
             }
