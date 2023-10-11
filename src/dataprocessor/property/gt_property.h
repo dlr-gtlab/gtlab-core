@@ -322,8 +322,10 @@ inline gt::PropertyFactoryFunction makePropertyFactory(const T& value)
 template <typename Functor>
 inline gt::PropertyFactoryFunction makeReadOnly(Functor propertyFactory)
 {
-    return [func = std::move(propertyFactory)](QString const& id){
+    return [func = std::move(propertyFactory)](QString const& id) -> GtAbstractProperty* {
         GtAbstractProperty* tmp = func(id);
+        if (!tmp) return nullptr;
+
         tmp->setReadOnly(true);
         return tmp;
     };
@@ -337,8 +339,10 @@ inline gt::PropertyFactoryFunction makeReadOnly(Functor propertyFactory)
 template <typename Functor>
 inline gt::PropertyFactoryFunction makeHidden(Functor propertyFactory)
 {
-    return [func = std::move(propertyFactory)](QString const& id){
+    return [func = std::move(propertyFactory)](QString const& id)  -> GtAbstractProperty* {
         GtAbstractProperty* tmp = func(id);
+        if (!tmp) return nullptr;
+
         tmp->hide(true);
         return tmp;
     };
@@ -354,8 +358,10 @@ template <typename Functor>
 inline gt::PropertyFactoryFunction makeOptional(Functor propertyFactory,
                                                 bool isActive = false)
 {
-    return [func = std::move(propertyFactory), isActive](QString const& id){
+    return [func = std::move(propertyFactory), isActive](QString const& id) -> GtAbstractProperty* {
         GtAbstractProperty* tmp = func(id);
+        if (!tmp) return nullptr;
+
         tmp->setOptional(true);
         tmp->setActive(isActive);
         return tmp;
