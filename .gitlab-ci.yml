@@ -266,17 +266,18 @@ valgrind:
     - chmod +x ./tests/memcheck/post.py
     - python3 -m venv env
     - source env/bin/activate
+    - pip3 install valgrind-codequality
   script:
     - export DEVTOOLS=$GTLAB_DEV_TOOLS
     - export GTLAB_LIBRARY_DIR=`pwd`/build
     - xvfb-run -a ./tests/memcheck/runValgrind.sh
-    - python3 ./tests/memcheck/post.py
+    # Convert to codequality format
+    - valgrind-codequality --input-file valgrind-report.xml --output-file valgrind.json
   artifacts:
     paths:
       - valgrind-report.xml
-      - cpputest_valgrind.xml
     reports:
-      junit: cpputest_valgrind.xml   
+      codequality: valgrind.json
     expire_in: 1 week
   variables:
     GIT_SUBMODULE_STRATEGY: "none"
