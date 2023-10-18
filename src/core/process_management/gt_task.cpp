@@ -44,8 +44,9 @@ struct GtTask::Impl
 };
 
 GtTask::GtTask() :
-    m_maxIter(QStringLiteral("maxIter"), tr("Number Of Iterations"),
-              tr("Number of iteration steps"), GtUnit::Category::None,
+    m_maxIter(QStringLiteral("maxIter"),
+              tr("Number Of Iterations"),
+              tr("Number of iteration steps"),
               GtIntProperty::BoundLow, 1, 1),
     m_currentIter(QStringLiteral("currentIter"), tr("Current Iteration")),
     m_lastEval(GtTask::EVAL_FINISHED),
@@ -65,7 +66,6 @@ GtTask::GtTask() :
 
     registerProperty(pimpl->processRunner, tr("Execution"));
 
-
     pimpl->processRunner.hide(!gtApp || !gtApp->devMode());
 }
 
@@ -80,11 +80,20 @@ GtTask::exec()
     if (isSkipped())
     {
         setState(GtTask::SKIPPED);
-        gtDebug() << objectName() << tr(" skipped");
+        gtDebug() << objectName() << tr("skipped");
         return true;
     }
 
     setRunnable(findParent<GtAbstractRunnable*>());
+
+    auto runnable = this->runnable();
+    if (!runnable)
+    {
+        setState(GtProcessComponent::FAILED);
+        gtError() << tr("%1: Failed to execute task, runnable not found!")
+                         .arg(objectName());
+        return false;
+    }
 
     // collect all calculator properties
     QList<GtAbstractProperty*> const props = fullPropertyList();
@@ -95,7 +104,7 @@ GtTask::exec()
         if (auto* linkProp = qobject_cast<GtObjectLinkProperty*>(prop))
         {
             // object link property found
-            auto* obj = runnable()->data<GtObject*>(linkProp->linkedObjectUUID());
+            auto* obj = runnable->data<GtObject*>(linkProp->linkedObjectUUID());
 
             if (!obj)
             {
@@ -112,7 +121,7 @@ GtTask::exec()
         if (auto* pathProp = qobject_cast<GtObjectPathProperty*>(prop))
         {
             // object path property found
-            auto* obj = runnable()->data<GtObject*>(pathProp->path());
+            auto* obj = runnable->data<GtObject*>(pathProp->path());
 
             if (!obj)
             {
@@ -145,6 +154,11 @@ GtTask::exec()
         return false;
     }
 
+    // emit `finihed` signal if task was not triggered by the `run` method
+    auto finally = gt::finally([this, isStandaone = pimpl->eventLoop.isRunning()](){
+        if (!isStandaone) emit finished();
+    });
+
     setState(GtProcessComponent::RUNNING);
 
     // clear existing monitoring data
@@ -174,6 +188,14 @@ GtTask::exec()
 void
 GtTask::run(GtAbstractRunnable* r)
 {
+    if (!r)
+    {
+        setState(GtProcessComponent::FAILED);
+        gtError() << tr("%1: Failed to run task, invalid runnable!")
+                         .arg(objectName());
+        return;
+    }
+
     setState(GtTask::RUNNING);
     pimpl->dataToMerge.clear();
 
