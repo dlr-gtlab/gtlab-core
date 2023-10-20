@@ -1,10 +1,11 @@
 /* GTlab - Gas Turbine laboratory
- * Source File: test_gt_processcomponent.cpp
- * copyright 2009-2019 by DLR
  *
- *  Created on: 17.07.2023
- *  Author: Marvin Noethen (AT-TW)
- *  Tel.: +49 2203 601 2692
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ *
+ * Created on: 17.07.2023
+ * Author: Marvin Noethen (AT-TW)
+ * Tel.: +49 2203 601 2692
  */
 #include "gtest/gtest.h"
 
