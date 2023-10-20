@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
+
 import xml.etree.ElementTree as ET
 doc = ET.parse('valgrind-report.xml')
 errors = doc.findall('.//error')

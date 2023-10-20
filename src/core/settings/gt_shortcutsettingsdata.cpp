@@ -1,3 +1,13 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ *
+ *  Created on: 02.03.2022
+ *  Author: Jens Schmeink (AT-TWK)
+ *  Tel.: +49 2203 601 2191
+ */
+
 #include "gt_shortcutsettingsdata.h"
 
 GtShortCutSettingsData::GtShortCutSettingsData()

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
 # GTlab Framework
 
 GTlab is an interactive, cross-platform simulation and pre-design environment for gas turbines and aircraft engines.

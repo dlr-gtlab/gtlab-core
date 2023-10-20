@@ -1,6 +1,8 @@
 /* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  * Source File: test_gt_object
- * copyright 2009-2016 by DLR
  *
  *  Created on: 20.07.2016
  *  Author: Stanislaus Reitenbach (AT-TW)

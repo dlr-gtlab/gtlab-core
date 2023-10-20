@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+
+SPDX-License-Identifier: MPL-2.0+
+-->
+
 ## Prepare release
 - [ ] Create a release branch from the right revision of the ``master`` branch
       / release tag following the naming template `release/MAJOR.MINOR.PATCH`

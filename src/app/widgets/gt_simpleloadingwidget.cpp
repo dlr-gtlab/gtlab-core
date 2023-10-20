@@ -1,6 +1,8 @@
 /* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  * Source File: gt_simpleloadingwidget.cpp
- * copyright 2009-2017 by DLR
  *
  *  Created on: 29.06.2017
  *  Author: Stanislaus Reitenbach (AT-TW)
@@ -30,11 +32,15 @@ GtSimpleLoadingWidget::GtSimpleLoadingWidget(GtAbstractLoadingHelper* helper,
 
     QVBoxLayout* lay = new QVBoxLayout;
 
+    int loaderSize = 48;
+
     m_animation = new QMovie(QStringLiteral(":/pixmaps/loading2.gif"),
                              QByteArray(), this);
 
+    m_animation->setScaledSize(QSize(loaderSize, loaderSize));
     QLabel* animLabel = new QLabel;
     animLabel->setMovie(m_animation);
+    animLabel->setFixedSize(loaderSize, loaderSize);
 
     lay->addWidget(animLabel);
 

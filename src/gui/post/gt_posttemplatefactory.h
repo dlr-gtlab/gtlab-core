@@ -1,3 +1,13 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ *
+ *  Created on: 20.01.2016
+ *  Author: Maximilian Vieweg (AT-TW)
+ *  Tel.: +49 2203 601 4799
+ */
+
 #ifndef GTPOSTTEMPLATEFACTORY_H
 #define GTPOSTTEMPLATEFACTORY_H
 

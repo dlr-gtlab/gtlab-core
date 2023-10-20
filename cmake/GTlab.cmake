@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#
+# SPDX-License-Identifier: MPL-2.0+
+
 # This function set some variables that are common
 # to the gtlab build system.
 # It makes sure, that libraries are put into the root build folder,

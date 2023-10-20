@@ -1,5 +1,7 @@
 /* GTlab - Gas Turbine laboratory
- * copyright 2009-2023 by DLR
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  *
  *  Created on: 14.3.2023
  *  Author: Marius Bröcker (AT-TWK)

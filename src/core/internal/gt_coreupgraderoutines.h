@@ -1,3 +1,12 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ *
+ *  Author: Stanislaus Reitenbach (AT-TWK)
+ */
+
+
 #ifndef GT_COREUPGRADEROUTINES_H
 #define GT_COREUPGRADEROUTINES_H
 

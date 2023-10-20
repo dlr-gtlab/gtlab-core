@@ -1,5 +1,7 @@
 /* GTlab - Gas Turbine laboratory
- * copyright 2022 by DLR
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  *
  *  Author: Martin Siggel (AT-TW)
  *  Tel.: +49 2203 601 2264
