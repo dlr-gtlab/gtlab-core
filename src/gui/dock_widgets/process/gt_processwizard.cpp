@@ -19,7 +19,6 @@
 #include "gt_extendedcalculatordata.h"
 #include "gt_processwizardpage.h"
 #include "gt_customprocesswizard.h"
-#include "gt_application.h"
 #include "gt_propertytreeview.h"
 #include "gt_processfactory.h"
 #include "gt_objectmemento.h"
@@ -36,13 +35,40 @@
 
 #include "gt_processwizard.h"
 
+template <typename ProcessData>
+QString getProcessTypeName ()
+{
+    return QStringLiteral("Process");
+}
+
+template <>
+QString getProcessTypeName <GtExtendedCalculatorDataImpl>()
+{
+    return QStringLiteral("Calculator");
+}
+
+template <>
+QString getProcessTypeName <GtExtendedTaskDataImpl>()
+{
+    return QStringLiteral("Task");
+}
+
 template <typename ProcessData, typename Provider, typename ProcessDataGetter>
 bool setupWizard(GtProcessWizard* wizard,
                  Provider* provider,
                  GtProject* scope,
                  ProcessDataGetter const& getProcessData)
 {
-    wizard->setWindowTitle(QObject::tr("New Calculator Wizard"));
+    QString headerStart = QObject::tr("New");
+    if (provider->componentInitialized())
+    {
+        headerStart = QObject::tr("Edit");
+    }
+
+    QString headerType = getProcessTypeName<ProcessData>();
+
+    wizard->setWindowTitle(QObject::tr("%1 %2 Wizard").arg(headerStart,
+                                                           headerType));
 
     QString classname = provider->componentClassName();
 
@@ -50,8 +76,7 @@ bool setupWizard(GtProcessWizard* wizard,
 
     auto calcData = getProcessData(classname);
 
-    auto* eData =
-            dynamic_cast<ProcessData*>(calcData.get());
+    auto* eData = dynamic_cast<ProcessData*>(calcData.get());
 
     if (!eData) return false;
 
@@ -71,8 +96,7 @@ bool setupWizard(GtProcessWizard* wizard,
             break;
         }
 
-        GtProcessWizardPage* pwp =
-                qobject_cast<GtProcessWizardPage*>(obj);
+        auto* pwp = qobject_cast<GtProcessWizardPage*>(obj);
 
         if (!pwp)
         {
