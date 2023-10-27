@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] 
 ### Fixed
 - Fix examples widget for new structure of process files - #593
+- Fixed problems opening projects after project conversion.
+  Now projects are not automatilly opened anymore after conversion and saved as a new project - #585
+- Fixed all wizards were names "New Calculator Wizard" - #601
+- Fixed GtTask::finished signal is not emitted, if the task was started using a process executor - #582
+- Fixed batch command "set_variable" crashing, when providing additional command like "--dev" - #504
 
 ### Added
 - Undo and redo toolbar buttons show tooltip information based on the operation being perform on click - #572
@@ -28,8 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Property struct containers can now also contain monitoring properties. - #547
 
 ### Fixed
-- Fixed problems opening projects after project conversion.
-  Now projects are not automatilly opened anymore after conversion and saved as a new project - #585
 - Deactivated optional properties are now greyed out - #551
 - Fixed wrong gtlab config settings path in batch application - #569
 - Slight performance increase when deleting one or multiple objects - #528
