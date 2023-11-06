@@ -149,6 +149,8 @@ GtProcessView::mousePressEvent(QMouseEvent* event)
             return;
         }
 
+        assert(selectionModel());
+
         clearSelection();
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
         emit clicked(index);
