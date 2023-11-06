@@ -264,7 +264,7 @@ valgrind:
   tags: ["linux", "docker"]
   image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
   before_script:
-    - apt install -y xvfb
+    - apt update -y && apt install -y xvfb
     - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
     - chmod +x ./tests/memcheck/runValgrind.sh
     - chmod +x ./tests/memcheck/post.py
