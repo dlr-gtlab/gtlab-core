@@ -28,6 +28,16 @@ macro(gtlab_standard_setup)
         set(CMAKE_INSTALL_BINDIR "$<$<CONFIG:DEBUG>:binDebug>$<$<NOT:$<CONFIG:DEBUG>>:bin>")
     endif(NOT DEFINED CMAKE_INSTALL_BINDIR)
 
+    if(NOT DEFINED CMAKE_INSTALL_MODULEDIR)
+        if (IS_DIRECTORY ${CMAKE_INSTALL_PREFIX}/build)
+          message(STATUS "Deploying into GTlab build dir")
+          set(CMAKE_INSTALL_MODULEDIR build/modules)
+
+        else ()
+          set(CMAKE_INSTALL_MODULEDIR ${CMAKE_INSTALL_BINDIR}/modules)
+        endif()
+    endif(NOT DEFINED CMAKE_INSTALL_MODULEDIR)
+
     if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
         set(CMAKE_INSTALL_LIBDIR "lib")
     endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
@@ -53,18 +63,22 @@ macro(enable_gtlab_devtools)
     if (EXISTS ${GTLAB_DEVTOOLS_DIR})
         message("GTlab DevTools enabled at " ${GTLAB_DEVTOOLS_DIR})
 
-        set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
-            ${GTLAB_DEVTOOLS_DIR}
-            ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/BladeGenInterface
-            ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/GoogleTest
-            ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/hdf5
-            ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/LibXML
-            ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/minpack
-            ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/NLopt
-            ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/Qwt
-            ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/SplineLib
-            ${GTLAB_DEVTOOLS_DIR}/../../tools/CompatibilityLib
-        )
+        set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${GTLAB_DEVTOOLS_DIR})
+
+        set(bladegen_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/BladeGenInterface)
+        set(ceres_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/ceres)
+        set(GTest_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/GoogleTest)
+        set(hdf5_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/hdf5)
+        set(LibXml2_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/LibXML)
+        set(CMinpack_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/minpack)
+        set(nlopt_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/NLopt)
+        set(optymal_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/Optymal)
+
+        set(Qwt_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/Qwt)
+        set(SplineLib_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/SplineLib)
+
+        set(GTlabCompat_ROOT ${GTLAB_DEVTOOLS_DIR}/../../tools/CompatibilityLib)
+
     endif()
 	
 endmacro()
@@ -121,47 +135,33 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
                      INSTALL_RPATH_USE_LINK_PATH FALSE)
   endif (UNIX)
 
-  if (IS_DIRECTORY ${CMAKE_INSTALL_PREFIX}/build)
-    message(STATUS "Deploying into GTlab build dir")
 
-    if (UNIX)
-        install (TARGETS ${GTLAB_ADD_MODULE_TARGET}
-            LIBRARY DESTINATION build/modules
-        )
+  if (UNIX)
+    install (TARGETS ${GTLAB_ADD_MODULE_TARGET}
+        LIBRARY DESTINATION
+        ${CMAKE_INSTALL_MODULEDIR}
+    )
+  else(UNIX)
+    install (TARGETS ${GTLAB_ADD_MODULE_TARGET}
+        RUNTIME DESTINATION
+        ${CMAKE_INSTALL_MODULEDIR}
+    )
+  endif(UNIX)
 
-    else(UNIX)
-        install (TARGETS ${GTLAB_ADD_MODULE_TARGET}
-            RUNTIME DESTINATION build/modules
-        )
-    endif(UNIX)
-  else ()
-    if (UNIX)
-        install (TARGETS ${GTLAB_ADD_MODULE_TARGET}
-            LIBRARY DESTINATION
-            $<IF:$<CONFIG:Debug>,binDebug/modules,bin/modules>
-        )
-    else(UNIX)
-        install (TARGETS ${GTLAB_ADD_MODULE_TARGET}
-            RUNTIME DESTINATION
-            $<IF:$<CONFIG:Debug>,binDebug/modules,bin/modules>
-        )
-    endif(UNIX)
+  # Copy of README and CHANGELOG to meta directory
+  if (DEFINED GTLAB_ADD_MODULE_README_FILE)
+    install(FILES ${GTLAB_ADD_MODULE_README_FILE}
+            DESTINATION ${CMAKE_INSTALL_MODULEDIR}/meta/${GTLAB_ADD_MODULE_MODULE_ID})
+  endif()
 
-    # Copy of README and CHANGELOG to meta directory
-    if (DEFINED GTLAB_ADD_MODULE_README_FILE)
-        install(FILES ${GTLAB_ADD_MODULE_README_FILE}
-                DESTINATION $<IF:$<CONFIG:Debug>,binDebug/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID},bin/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID}>)
-    endif()
+  if (DEFINED GTLAB_ADD_MODULE_CHANGELOG_FILE)
+    install(FILES ${GTLAB_ADD_MODULE_CHANGELOG_FILE}
+            DESTINATION ${CMAKE_INSTALL_MODULEDIR}/meta/${GTLAB_ADD_MODULE_MODULE_ID})
+  endif()
 
-    if (DEFINED GTLAB_ADD_MODULE_CHANGELOG_FILE)
-        install(FILES ${GTLAB_ADD_MODULE_CHANGELOG_FILE}
-                DESTINATION $<IF:$<CONFIG:Debug>,binDebug/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID},bin/modules/meta/${GTLAB_ADD_MODULE_MODULE_ID}>)
-    endif()
+  if (DEFINED GTLAB_ADD_MODULE_EXAMPLES_DIR)
+    install(DIRECTORY  ${GTLAB_ADD_MODULE_EXAMPLES_DIR}
+            DESTINATION examples/)
+  endif()
 
-    if (DEFINED GTLAB_ADD_MODULE_EXAMPLES_DIR)
-        install(DIRECTORY  ${GTLAB_ADD_MODULE_EXAMPLES_DIR}
-                DESTINATION examples/)
-    endif()
-
-  endif ()
 endfunction()
