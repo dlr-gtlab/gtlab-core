@@ -390,7 +390,6 @@ target_include_directories(GTlabGui PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/importer/processImporter>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/exporter>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/exporter/processExporter>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/exporter/dataZoneExporter>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/post>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dock_widgets>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dock_widgets/post>
