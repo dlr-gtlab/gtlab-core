@@ -3,6 +3,11 @@ Upstream-Name: GTlab
 Upstream-Contact:  <>
 Source: 
 
+Files: .github/*
+Copyright: 2023 German Aerospace Center (DLR)
+License: MPL-2.0+
+
+
 Files: src/resources/**/*.qrc
 Copyright: 2023 German Aerospace Center (DLR)
 License: MPL-2.0+
