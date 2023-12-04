@@ -339,9 +339,9 @@ package-linux:
 
 cppcheck:
   stage: codequality
-  extends: .cppCheckReportTemplate
+  extends: .cppCheckTemplate
   variables:
-    COMPARE_TO: master
+    GIT_SUBMODULE_STRATEGY: "none"
    
 check-license:
    stage: codequality
