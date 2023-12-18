@@ -28,7 +28,7 @@ if you are interested in working with us together.
 
 ### Prerequisites
 
-Our own libraries required to build GTlab GTlab are bundled with GTlab and will be automatically
+Our own libraries required to build GTlab are bundled with GTlab and will be automatically
 downloaded during the CMake configuration phase. Whether to use the bundled libraries can be
 adjusted using the CMake variable `GTLAB_USE_BUNDLED_XXX=ON`.
 
@@ -80,7 +80,7 @@ To scite the data model: Vieweg M and Hollmann C. and Reitenbach W. and Schnoes 
 [Collaborative Aircraft Engine Preliminary Design using a Virtual Engine Platform, Part B: Application, AIAA Scitech 2020 Forum, 2020](https://arc.aiaa.org/doi/10.2514/6.2020-0124)
 
 ```
-@article{vieweg2020dm,
+@inproceedings{vieweg2020dm,
   author = {Maximilian Vieweg and Carsten Hollmann and Stanislaus Reitenbach and Markus Schnoes
             and Thomas Behrendt and Alexander Krumme},
   title = {Collaborative Aircraft Engine Preliminary Design using a Virtual Engine Platform,
