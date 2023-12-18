@@ -2,7 +2,7 @@
 # ===========================================
 # See https://github.com/cpm-cmake/CPM.cmake for usage and update instructions.
 #
-# SPDX-License-Identifier: MIT License
+# SPDX-License-Identifier: MIT
 # -----------
 #[[
   SPDX-FileCopyrightText: 2019-2022 Lars Melchior and contributors
