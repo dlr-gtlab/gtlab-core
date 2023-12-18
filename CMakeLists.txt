@@ -32,12 +32,19 @@ option(BUILD_UNITTESTS "Build the unit tests" OFF)
 option(BUILD_WITH_COVERAGE "Build with code coverage (linux only)" OFF)
 option(BUILD_TESTMODULES "Build the test modules" OFF)
 
-# generic GTlab-Ecosystem defaults
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+# generic GTlab-Ecosystem defaults
 include(GTlab)
 
 gtlab_standard_setup()
 enable_gtlab_devtools()
+
+find_package(Qt5 COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets Test REQUIRED)
+
+if (NOT DEFINED BUILD_SHARED_LIBS)
+  set(BUILD_SHARED_LIBS ON)
+endif()
 
 if (BUILD_WITH_COVERAGE)
     set(CODE_COVERAGE_VERBOSE ON)
@@ -45,15 +52,11 @@ if (BUILD_WITH_COVERAGE)
     append_coverage_compiler_flags()
 endif(BUILD_WITH_COVERAGE)
 
-if (NOT DEFINED BUILD_SHARED_LIBS)
-  set(BUILD_SHARED_LIBS ON)
-endif()
+include(GetDependencies)
 
 if (NOT BUILD_SHARED_LIBS)
     message(WARNING "Static library builds of GTlab are not yet fully supported.") 
 endif()
-
-find_package(Qt5 COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets Test REQUIRED)
 
 if (NOT TARGET GTlab::Logging)
   find_package(GTlabLogging REQUIRED)
