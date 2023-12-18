@@ -371,10 +371,12 @@ GtAboutDialog::openModuleDetails(const QModelIndex& indexOfModule) const
 void
 GtAboutDialog::openLicenseFolder()
 {
+    QString LicenseDirName = "LICENSES";
+
     QDir appDir(QApplication::applicationDirPath());
     appDir.cdUp();
 
-    QDir appLicenseDir(appDir.absolutePath() + QDir::separator() + "Licenses");
+    QDir appLicenseDir(appDir.absolutePath() + QDir::separator() + LicenseDirName);
 
     if (appLicenseDir.exists())
     {
@@ -386,7 +388,7 @@ GtAboutDialog::openLicenseFolder()
     appDir.cdUp(); /// main folder of devtools
 
     QDir devToolsLicenseDir(appDir.absolutePath()
-                            + QDir::separator() + "Licenses");
+                            + QDir::separator() + LicenseDirName);
 
     if (devToolsLicenseDir.exists())
     {

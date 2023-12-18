@@ -71,6 +71,7 @@ add_subdirectory(src/gui)
 add_subdirectory(src/app)
 
 install(FILES CHANGELOG.md DESTINATION .)
+install(DIRECTORY LICENSES/ DESTINATION LICENSES)
 
 # write exports
 install(EXPORT GTlabTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
