@@ -13,7 +13,7 @@ endif()
 
 
 option(GTLAB_USE_BUNDLED_LOGGING "Build logging library bundled with GTlab" ON)
-option(GTLAB_USE_BUNDLED_GENH5 "Build logging library bundled with GTlab" ON)
+option(GTLAB_USE_BUNDLED_GENH5 "Build genh5 (hdf5 c++ wrapper) bundled with GTlab" ON)
 
 include(CPM)
 
