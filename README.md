@@ -88,6 +88,7 @@ To scite the data model: Vieweg M and Hollmann C. and Reitenbach W. and Schnoes 
   booktitle = {AIAA Scitech 2020 Forum},
   year = {2020},
   doi = {10.2514/6.2020-0124}
+}
 ```
 
 --------
