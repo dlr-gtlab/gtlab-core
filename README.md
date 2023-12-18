@@ -72,22 +72,24 @@ To scite the framework: Reitenbach S. and Vieweg  M. and Becker R. and Hollmann 
   booktitle = {AIAA Scitech 2020 Forum},
   year = {2020},
   doi = {10.2514/6.2020-0867}
+  issn = {AIAA 2020-0867},
 }
 ```
 
-To scite the data model: Vieweg M and Hollmann C. and Reitenbach W. and Schnoes M. and Behrendt T. and Krumme A.
+To scite the data model: Reitenbach S. and Hollmann C. and Schmeink J.
+and Vieweg M. and Otten T. and Haessy J. and Siggel M.
 
-[Collaborative Aircraft Engine Preliminary Design using a Virtual Engine Platform, Part B: Application, AIAA Scitech 2020 Forum, 2020](https://arc.aiaa.org/doi/10.2514/6.2020-0124)
+[Parametric datamodel for collaborative preliminary aircraft engine design, AIAA Scitech 2021 Forum, 2021](https://arc.aiaa.org/doi/10.2514/6.2021-1419)
 
 ```
-@inproceedings{vieweg2020dm,
-  author = {Maximilian Vieweg and Carsten Hollmann and Stanislaus Reitenbach and Markus Schnoes
-            and Thomas Behrendt and Alexander Krumme},
-  title = {Collaborative Aircraft Engine Preliminary Design using a Virtual Engine Platform,
-           Part B: Application},
-  booktitle = {AIAA Scitech 2020 Forum},
-  year = {2020},
-  doi = {10.2514/6.2020-0124}
+@inproceedings{reitenbach2021dm,
+  title={Parametric datamodel for collaborative preliminary aircraft engine design},
+  author={Reitenbach, Stanislaus and Hollmann, Carsten and Schmeink, Jens and
+          Vieweg, Maximilian and Otten, Tom and Haessy, Jannik and Siggel, Martin},
+  booktitle={AIAA Scitech 2021 Forum},
+  year={2021},
+  doi = {10.2514/6.2021-1419},
+  issn = {AIAA 2021-1419}
 }
 ```
 
