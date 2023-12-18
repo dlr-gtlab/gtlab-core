@@ -23,6 +23,17 @@ Please use our [test modules](tests/modules) for a first guideline on how to imp
 Please [contact us](https://www.dlr.de/at/de/desktopdefault.aspx/tabid-1500/mailcontact-29012/),
 if you are interested in working with us together.
 
+## License
+
+The largest portion of the code is licensed under the `Mozilla Public License 2.0` (MPL 2.0).
+This license allows in particular
+ - The use of GTlab in closed-source environments for commercial applications.
+ - Creation and distribution of commercial modules.
+
+Smaller thirdparty party code part of code base uses other permissive licenses, such as the
+`BSD` and `MIT` licenses. Please review the directory [LICENSES](LICENSES) and [.reuse](.reuse)
+for a full overview on all licensed used.
+
 ## Building GTlab
 
 ### Prerequisites
