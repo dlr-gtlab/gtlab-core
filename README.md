@@ -4,11 +4,10 @@ SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 SPDX-License-Identifier: MPL-2.0+
 -->
 
-# GTlab Framework
 
-![gtlab logo](src/resources/pixmaps/gt-logo.png)
+# ![gtlab logo](src/resources/pixmaps/gt-logo.png)
 
-This repository includes the core GTlab framework. GTlab (Gas Turbine Laboratory) is a versatile
+This repository includes the core __GTlab core framework__. GTlab (Gas Turbine Laboratory) is a versatile
 software framework designed for collaborative, multidisciplinary research in aircraft propulsion.
 It supports the design and simulation of propulsion systems and components across various levels
 of detail throughout their lifecycle. With advanced core functions in data modeling, management,
@@ -34,12 +33,12 @@ adjusted using the CMake variable `GTLAB_USE_BUNDLED_XXX=ON`.
 
 GTlab comes with optional support for HDF5. To enable, set `BUILD_WITH_HDF5=ON` during the config step.
 
-| Library       | Version  | Required | Bundled | Where to get                                 |
-| ------------- | -------- | -------- | ------- | -------------------------------------------- |
-| Qt            | > 5.15   | Yes      | No      | https://download.qt.io/official_releases/qt/ |
-| GTlab Logging | > 4.4.0  | Yes      | Yes     | https://github.com/dlr-gtlab/gt-logging      |
-| GenH5         | > 3.3.0  | No       | Yes     | https://github.com/dlr-gtlab/genh5           |
-| HDF5          | > 1.12.0 | No       | No      | https://github.com/HDFGroup/hdf5/releases    |
+| Library       |  Version  | Required | Bundled | Where to get                                 |
+| ------------- | --------- | -------- | ------- | -------------------------------------------- |
+| Qt            |  5.15.x   | Yes      | No      | https://download.qt.io/official_releases/qt/ |
+| GTlab Logging | >= 4.4.0  | Yes      | Yes     | https://github.com/dlr-gtlab/gt-logging      |
+| GenH5         | >= 3.3.0  | No       | Yes     | https://github.com/dlr-gtlab/genh5           |
+| HDF5          | >= 1.12.0 | No       | No      | https://github.com/HDFGroup/hdf5/releases    |
 
 ### Building
 
