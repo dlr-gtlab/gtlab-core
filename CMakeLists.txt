@@ -73,11 +73,7 @@ add_subdirectory(src/app)
 # ChangeLog installation
 install(FILES CHANGELOG.md DESTINATION .)
 # License installation
-if (UNIX)
-    install(DIRECTORY LICENSES/ DESTINATION /usr/LICENSES)
-else(UNIX)
-    install(DIRECTORY LICENSES/ DESTINATION LICENSES)
-endif(UNIX)
+install(DIRECTORY LICENSES/ DESTINATION share/gtlab/LICENSES)
 
 # write exports
 install(EXPORT GTlabTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
