@@ -1097,3 +1097,44 @@ GtCoreApplication::migrateConfigData(gt::SettingsVersions srcVer,
         destSettings->setValue(key, value);
     }
 }
+
+QString
+GtCoreApplication::licenseFolder() const
+{
+    const QString LicenseDirName = "LICENSES";
+
+#ifdef __linux__
+    QString liPath = QStringLiteral("usr") + QDir::separator() + LicenseDirName;
+
+    QDir appLicenseDir(liPath);
+#else
+    QDir appDir(QCoreApplication::applicationDirPath());
+    appDir.cdUp();
+
+    QDir appLicenseDir(appDir.absolutePath() + QDir::separator()
+                       + LicenseDirName);
+#endif
+    if (appLicenseDir.exists())
+    {
+        return appLicenseDir.absolutePath();
+    }
+
+#ifdef __linux__
+    QDir appDir(QCoreApplication::applicationDirPath());
+    appDir.cdUp();
+#endif
+
+    /// Search for Licenses in the Dev-Tools-Structure
+    appDir.cdUp(); /// folder for selection of number of stable/unstable version
+    appDir.cdUp(); /// main folder of devtools
+
+    QDir devToolsLicenseDir(appDir.absolutePath()
+                            + QDir::separator() + LicenseDirName);
+
+    if (devToolsLicenseDir.exists())
+    {
+        return devToolsLicenseDir.absolutePath();
+    }
+
+    return {};
+}

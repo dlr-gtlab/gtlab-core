@@ -70,8 +70,14 @@ add_subdirectory(src/batch)
 add_subdirectory(src/gui)
 add_subdirectory(src/app)
 
+# ChangeLog installation
 install(FILES CHANGELOG.md DESTINATION .)
-install(DIRECTORY LICENSES/ DESTINATION LICENSES)
+# License installation
+if (UNIX)
+    install(DIRECTORY LICENSES/ DESTINATION /usr/LICENSES)
+else(UNIX)
+    install(DIRECTORY LICENSES/ DESTINATION LICENSES)
+endif(UNIX)
 
 # write exports
 install(EXPORT GTlabTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
