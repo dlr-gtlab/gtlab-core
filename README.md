@@ -7,21 +7,19 @@ SPDX-License-Identifier: MPL-2.0+
 
 # ![gtlab logo](src/resources/pixmaps/gt-logo.png)
 
-This repository includes the core __GTlab core framework__. GTlab (Gas Turbine Laboratory) is a versatile
-software framework designed for collaborative, multidisciplinary research in aircraft propulsion.
-It supports the design and simulation of propulsion systems and components across various levels
-of detail throughout their lifecycle. With advanced core functions in data modeling, management,
-workflow, and collaborative architectures, GTlab extends beyond propulsion technology,
-allowing  generic applications across diverse fields.
+This repository includes the __GTlab core framework__. GTlab (Gas Turbine Laboratory) is a versatile
+software framework designed for multidisciplinary, collaborative research in the field of aircraft propulsion.
+It supports the design and simulation of propulsion systems and individual components across various levels
+of detail throughout the entire lifecycle. With advanced core functions in data modeling, data management,
+workflow management, and other collaborative architectures, GTlab has the potential for applications far beyond the area of propulsion technology.
 
-GTlab allows the addition of specialized, plugin-enabled extension `modules` to support a wide
-spectrum of use cases. GTlab's modularity proves vital in promoting teamwork and collaboration,
-allowing different teams to efficiently collaborate and pool their expertise on a unified platform.  
+The key strength of GTlab is its consistently implemented modularity. In addition to powerful core functions and modules, GTlab allows the integration of special plugin-capable extensions to support a wide range of applications. Its high degree of adaptability, extensibility and flexibility is ensured by an object-oriented software concept based on the C++ programming language, coupled with the utilisation of standardised libraries.
 
-We welcome the development of extension module from interested parties.
+GTlab's modularity is also a key factor in promoting teamwork and collaboration. Different teams can work together efficiently and combine their expertise on a common platform. This increases productivity while encouraging the interdisciplinary approach that is essential for solving complex engineering challenges.
+
+We welcome the development of extension modules by interested parties.
 Please use our [test modules](tests/modules) for a first guideline on how to implement GTlab modules.
-Please [contact us](https://www.dlr.de/at/de/desktopdefault.aspx/tabid-1500/mailcontact-29012/),
-if you are interested in working with us together.
+If you are interested in collaborating with us, please feel free to [contact us](https://www.dlr.de/at/de/desktopdefault.aspx/tabid-1500/mailcontact-29012/).
 
 ## License
 
@@ -86,7 +84,7 @@ To scite the framework: Reitenbach S. and Vieweg  M. and Becker R. and Hollmann 
 }
 ```
 
-To scite the data model: Reitenbach S. and Hollmann C. and Schmeink J.
+To scite the data model approach: Reitenbach S. and Hollmann C. and Schmeink J.
 and Vieweg M. and Otten T. and Haessy J. and Siggel M.
 
 [Parametric datamodel for collaborative preliminary aircraft engine design, AIAA Scitech 2021 Forum, 2021](https://arc.aiaa.org/doi/10.2514/6.2021-1419)
