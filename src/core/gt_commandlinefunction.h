@@ -154,12 +154,12 @@ public:
         return !isNull();
     }
 
-    bool operator==(nullptr_t) const
+    bool operator==(std::nullptr_t) const
     {
         return isNull();
     }
 
-    bool operator!=(nullptr_t) const
+    bool operator!=(std::nullptr_t) const
     {
         return !isNull();
     }
