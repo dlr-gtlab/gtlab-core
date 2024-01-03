@@ -87,6 +87,18 @@ public:
     void setVal(const T value, bool *success = nullptr);
 
     /**
+     * @brief Sets the value of this property from an variant.
+     * If the variants string cannot be converted into the respective enum, the value is not changed.
+     * In order to set the value, the GtModeProperty::setValueFromVariant method is called.
+     * @param value that should be set.
+     * @param unit is forwarded to GtModeProperty::setValueFromVariant
+     * @return if it was able to set the value and if the value is a valid for the respective enum.
+     */
+    GT_NO_DISCARD
+    bool setValueFromVariant(const QVariant& value,
+                             const QString& unit) override;
+
+    /**
      * @brief Creates a meta enum out of the template enum.
      * @return The QMetaEnum generatd.
      */
@@ -156,6 +168,22 @@ template<typename T>
 inline void GtEnumProperty<T>::setVal(const T value, bool* success)
 {
     GtModeProperty::setVal(getMetaEnum().valueToKey(value), success);
+}
+
+template<typename T>
+inline bool GtEnumProperty<T>::setValueFromVariant(const QVariant &value, const QString &unit)
+{
+    bool succeed = false;
+    const QString tmpVal = val.toString();
+    //Check if it is possible to convert value into an enum value
+    getMetaEnum().keyToValue(tmpVal.toUtf8(), &succeed);
+
+    if (succeed)
+    {
+        succeed = GtModeProperty::setValueFromVariant(val, unit);
+    }
+
+    return succeed;
 }
 
 template<typename T>
