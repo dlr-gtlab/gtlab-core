@@ -1097,3 +1097,34 @@ GtCoreApplication::migrateConfigData(gt::SettingsVersions srcVer,
         destSettings->setValue(key, value);
     }
 }
+
+QString
+GtCoreApplication::licenseFolder() const
+{
+    const QString LicenseDirName = "LICENSES";
+
+    QDir appDir(QCoreApplication::applicationDirPath());
+    appDir.cdUp();
+
+    QDir appLicenseDir(appDir.absolutePath() + QDir::separator() + "share"
+                       + QDir::separator() + "gtlab" + QDir::separator()
+                       + LicenseDirName);
+    if (appLicenseDir.exists())
+    {
+        return appLicenseDir.absolutePath();
+    }
+
+    /// Search for Licenses in the Dev-Tools-Structure
+    appDir.cdUp(); /// folder for selection of number of stable/unstable version
+    appDir.cdUp(); /// main folder of devtools
+
+    QDir devToolsLicenseDir(appDir.absolutePath()
+                            + QDir::separator() + LicenseDirName);
+
+    if (devToolsLicenseDir.exists())
+    {
+        return devToolsLicenseDir.absolutePath();
+    }
+
+    return {};
+}
