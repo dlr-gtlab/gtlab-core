@@ -482,10 +482,37 @@ GtProcessDock::addCalculator()
 void
 GtProcessDock::addTask()
 {
-    if (!m_taskGroup)
+    GtObject* parentObj = nullptr;
+
+    if (!m_view->currentIndex().isValid())
     {
-        return;
+        parentObj = m_taskGroup;
     }
+    else
+    {
+        // add task to other task
+        QModelIndex srcIndex = mapToSource(m_view->currentIndex());
+
+        if (!srcIndex.isValid()) return;
+
+        parentObj = gtDataModel->objectFromIndex(srcIndex);
+    }
+
+    addTaskToParent(parentObj);
+}
+
+void
+GtProcessDock::addRootTask()
+{
+    addTaskToParent(m_taskGroup);
+}
+
+void
+GtProcessDock::addTaskToParent(GtObject* parentObj)
+{
+    if (!m_taskGroup) return;
+
+    if (!parentObj) return;
 
     auto project = m_taskGroup->findParent<GtProject*>();
 
@@ -499,55 +526,24 @@ GtProcessDock::addTask()
     GtProcessWizard wizard(project, &provider, this);
     wizard.resize(560, 500);
 
-    if (!wizard.exec())
-    {
-        return;
-    }
+    if (!wizard.exec()) return;
 
-    GtObject* parentObj = nullptr;
-
-    if (!m_view->currentIndex().isValid())
-    {
-        parentObj = m_taskGroup;
-    }
-    else
-    {
-        // add task to other task
-        QModelIndex srcIndex = mapToSource(m_view->currentIndex());
-
-        if (!srcIndex.isValid())
-        {
-            return;
-        }
-
-        parentObj = gtDataModel->objectFromIndex(srcIndex);
-    }
-
-    if (!parentObj)
-    {
-        return;
-    }
+    if (!parentObj) return;
 
     GtObjectMemento memento = provider.componentData();
 
-    if (memento.isNull())
-    {
-        return;
-    }
+    if (memento.isNull()) return;
 
     auto newObj = memento.restore<GtProcessComponent*>(gtProcessFactory);
 
-    if (!newObj)
-    {
-        return;
-    }
+    if (!newObj) return;
 
     QString taskId = gtDataModel->uniqueObjectName(newObj->objectName(),
                      parentObj);
     newObj->setObjectName(taskId);
 
-    gtDebug() << "Task appended! (" << newObj->metaObject()->className()
-              << ")";
+    gtDebug().verbose() << tr("Task appended! (%1)").arg(
+                               newObj->metaObject()->className());
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
@@ -555,10 +551,7 @@ GtProcessDock::addTask()
 
     QModelIndex index = mapFromSource(newIndex);
 
-    if (!index.isValid())
-    {
-        return;
-    }
+    if (!index.isValid()) return;
 
     m_view->setFocus();
 
@@ -573,6 +566,7 @@ GtProcessDock::addTask()
     m_view->setCurrentIndex(index);
     m_view->edit(index);
 }
+
 
 GtTask*
 GtProcessDock::findRootTaskHelper(GtObject* obj)
@@ -919,10 +913,9 @@ GtProcessDock::makeAddMenu(QMenu& menu)
                         gtDataModel->objectFromIndex(srcIdx) : nullptr;
 
     // add empty task action
-    auto addEmptyTask = [this](GtObject* obj){
-        obj ? this->addEmptyTask(obj) : addEmptyTaskToRoot();
-    };
-    auto addemptytask = gt::gui::makeAction(tr("Empty Task"), addEmptyTask)
+    auto addEmptyTask = std::bind(&GtProcessDock::addEmptyTaskToRoot, this);
+    auto addemptytask = gt::gui::makeAction(tr("Empty Task as Root"),
+                                            addEmptyTask)
                             .setIcon(gt::gui::icon::processAdd());
 
     auto addCalculator = std::bind(&GtProcessDock::addCalculator, this);
@@ -933,6 +926,10 @@ GtProcessDock::makeAddMenu(QMenu& menu)
     auto addtask = gt::gui::makeAction(tr("New Task..."), addTask)
                        .setIcon(gt::gui::icon::processAdd());
 
+    auto addRootTask = std::bind(&GtProcessDock::addRootTask, this);
+    auto addroottask = gt::gui::makeAction(tr("New Root Task..."), addRootTask)
+                       .setIcon(gt::gui::icon::processAdd());
+
     gt::gui::addToMenu(addemptytask, menu, obj);
 
     menu.addSeparator();
@@ -941,11 +938,12 @@ GtProcessDock::makeAddMenu(QMenu& menu)
     if (obj && qobject_cast<GtTask*>(obj))
     {
         gt::gui::addToMenu(addcalc, menu, obj);
+        gt::gui::addToMenu(addroottask, menu, obj);
     }
     // only add task if obj is not a calc
     if (!obj || qobject_cast<GtTask*>(obj))
     {
-        gt::gui::addToMenu(addtask, menu, obj);
+        gt::gui::addToMenu(addtask, menu, obj);  
     }
 
     if (!gtApp->settings()->lastProcessElements().isEmpty())
