@@ -876,7 +876,7 @@ bool isDerivedFromClass(QMetaObject const* metaObject,
                         QString const& superClassName);
 
 /// disables usage with nullptr
-bool isDerivedFromClass(nullptr_t, QString const&) = delete;
+bool isDerivedFromClass(std::nullptr_t, QString const&) = delete;
 
 } // namespace gt
 
