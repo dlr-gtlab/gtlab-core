@@ -376,8 +376,6 @@ GtAboutDialog::openLicenseFolder()
     if (licenseDirPath.isEmpty())
     {
         gtError() << tr("No licenses information could be found.");
-        gtError() << tr("Your installation might be broken.");
-        gtError() << tr("Please contact the developers for further information.");
         return;
     }
 
