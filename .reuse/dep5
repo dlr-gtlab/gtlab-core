@@ -59,3 +59,8 @@ License: MPL-2.0+
 Files: tests/modules/**/*.json
 Copyright: 2023 German Aerospace Center (DLR)
 License: CC0-1.0
+
+# documentation
+Files: docs/**/*.*
+Copyright: 2024 German Aerospace Center (DLR)
+License: MPL-2.0+
