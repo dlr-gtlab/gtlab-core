@@ -478,6 +478,13 @@ public:
      */
     void migrateConfigData(gt::SettingsVersions srcVer,
                            gt::SettingsVersions targetVer);
+
+    /**
+     * @brief licenseFolder
+     * @return path of the folder for licenses of GTlab, its dependencies
+     * and its modules
+     */
+    QString licenseFolder() const;
 protected:
     /// Current session
     std::unique_ptr<GtSession> m_session;

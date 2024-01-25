@@ -75,7 +75,10 @@ add_subdirectory(src/app)
 
 add_subdirectory(docs)
 
+# ChangeLog installation
 install(FILES CHANGELOG.md DESTINATION .)
+# License installation
+install(DIRECTORY LICENSES/ DESTINATION share/gtlab/LICENSES)
 
 # write exports
 install(EXPORT GTlabTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
