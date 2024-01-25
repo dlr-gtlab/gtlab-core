@@ -25,4 +25,5 @@ jobs:
         doxygen
     - name: Create documentation
       run: |
+        cd docs
         sphinx-build . html
