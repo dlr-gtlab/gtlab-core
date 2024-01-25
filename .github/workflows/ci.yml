@@ -27,3 +27,9 @@ jobs:
       run: |
         cd docs
         sphinx-build . html
+    - name: Save as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: doc-devel
+        path: |
+          docs/html
