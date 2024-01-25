@@ -9,24 +9,20 @@ if (GTLAB_BUILD_DOCS)
     set(DOXYGEN_INDEX_FILE ${CMAKE_CURRENT_SOURCE_DIR}/html/index.html)
 
     set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/src)
-    set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/doxygen)
-    set(DOXYFILE_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
-    set(DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    set(SPHINXCONF_IN ${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in)
-    set(SPHINXCONF_OUT ${CMAKE_CURRENT_BINARY_DIR}/conf.py)
+    set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doxygen)
+    set(DOXYFILE ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
+    set(SPHINXCONF ${CMAKE_CURRENT_SOURCE_DIR}/conf.py)
 
-    #Replace variables inside @@ with the current values
-    configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
-    configure_file(${SPHINXCONF_IN} ${SPHINXCONF_OUT} @ONLY)
+
 
     file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR}) #Doxygen won't create this for us
-    add_custom_command(OUTPUT ${DOXYGEN_OUTPUT_DIR}/xml/index.xml
-                       COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/xml/index.xml
+                       COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                       MAIN_DEPENDENCY ${DOXYFILE_OUT} ${DOXYFILE_IN}
+                       MAIN_DEPENDENCY ${DOXYFILE} ${DOXYFILE_IN}
                        COMMENT "Generating docs")
 
-    add_custom_target(Doxygen DEPENDS ${DOXYGEN_OUTPUT_DIR}/xml/index.xml)
+    add_custom_target(Doxygen DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/xml/index.xml)
 
     set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
     set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/html)
@@ -34,7 +30,7 @@ if (GTLAB_BUILD_DOCS)
     add_custom_target(doc
                       DEPENDS Doxygen
                       COMMAND
-                      ${SPHINX_EXECUTABLE} -b html -c ${CMAKE_CURRENT_BINARY_DIR}
+                      ${SPHINX_EXECUTABLE} -b html
                       ${SPHINX_SOURCE} ${SPHINX_BUILD}
                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                       COMMENT "Generating documentation with Sphinx")
