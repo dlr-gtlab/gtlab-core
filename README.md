@@ -5,7 +5,7 @@ SPDX-License-Identifier: MPL-2.0+
 -->
 
 
-# ![gtlab logo](src/resources/pixmaps/gt-logo.png)
+# ![gtlab logo](https://raw.githubusercontent.com/dlr-gtlab/gtlab-core/master/src/resources/pixmaps/gt-logo.png)
 
 This repository includes the __GTlab core framework__. GTlab (Gas Turbine Laboratory) is a versatile
 software framework designed for multidisciplinary, collaborative research in the field of aircraft propulsion.
@@ -29,7 +29,7 @@ This license allows in particular
  - Creation and distribution of commercial modules.
 
 Smaller thirdparty party code part of code base uses other permissive licenses, such as the
-`BSD` and `MIT` licenses. Please review the directory [LICENSES](LICENSES) and [.reuse](.reuse)
+`BSD` and `MIT` licenses. Please review the directory [LICENSES](https://github.com/dlr-gtlab/gtlab-core/tree/master/LICENSES) and [.reuse](https://github.com/dlr-gtlab/gtlab-core/tree/master/.reuse)
 for a full overview on all licensed used.
 
 ## Building GTlab

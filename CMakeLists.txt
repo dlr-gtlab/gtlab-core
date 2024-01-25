@@ -73,6 +73,8 @@ add_subdirectory(src/batch)
 add_subdirectory(src/gui)
 add_subdirectory(src/app)
 
+add_subdirectory(docs)
+
 install(FILES CHANGELOG.md DESTINATION .)
 
 # write exports
