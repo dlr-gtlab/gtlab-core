@@ -24,4 +24,10 @@ Data Processor API
 .. doxygenclass:: GtAbstractProperty
    :members:
 
+.. doxygenclass:: GtObjectLinkProperty
+   :members:
+
+.. doxygenclass:: GtObjectPathProperty
+   :members:
+
 .. _operators-api:
