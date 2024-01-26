@@ -71,22 +71,30 @@ serialized object state. Please note that the values of the properties are alway
 
 There are some functionalities that are independent of the property type:
 
-Sub Properties
+Sub-Properties
 ^^^^^^^^^^^^^^
 
-Properties can be ordered in a hierarchical manner. For example, a child property can be added to a property
-via GtAbstractProperty::registerSubProperty. The hierarchical structure has no influence on the serialization
+Properties can be ordered in a hierarchical manner in GTlab's user interface.
+For example, a child property can be added to a property via :cpp:func:`GtAbstractProperty::registerSubProperty`.
+The hierarchical structure has no influence on the serialization
 of the object.
 
-When registering the properties, please note that all subproperties must be added before the main property is
-registered to the object.
+An example of sub-properties is shown in the following screenshot, where
+the center of gravity property contains three sub properties - x,y,z:
 
-.. code-block:: cpp
+.. figure:: images/concepts/subprops.png
+  :alt: Image of subproperties
 
-   m_ETAtype.registerSubProperty(m_ETAisMode);
-   m_ETAtype.registerSubProperty(m_ETApolMode);
-   
-   registerProperty(m_ETAtype);
+.. note::
+
+   When registering the properties, please note that all subproperties must be added before
+   the main property is registered to the object.
+
+   .. code-block:: cpp
+
+      m_ETAtype.registerSubProperty(m_ETAisMode);
+      m_ETAtype.registerSubProperty(m_ETApolMode);
+      registerProperty(m_ETAtype);
 
 Read-only Properties
 ^^^^^^^^^^^^^^^^^^^^
