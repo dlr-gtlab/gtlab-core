@@ -8,7 +8,7 @@
    changelog
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 0
    :caption: The Basics
 
    building
@@ -19,6 +19,12 @@
    :maxdepth: 2
 
    howtos/basic_module.rst
+
+.. toctree::
+   :caption: Extra information
+   :maxdepth: 2
+
+   faq
 
 .. toctree::
    :caption: Reference
