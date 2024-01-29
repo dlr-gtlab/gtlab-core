@@ -92,9 +92,10 @@ the center of gravity property contains three sub properties - x,y,z:
 
    .. code-block:: cpp
 
-      m_ETAtype.registerSubProperty(m_ETAisMode);
-      m_ETAtype.registerSubProperty(m_ETApolMode);
-      registerProperty(m_ETAtype);
+      cog.registerSubProperty(cogX);
+      cog.registerSubProperty(cogY);
+      cog.registerSubProperty(cogZ);
+      registerProperty(cog);
 
 Read-only Properties
 ^^^^^^^^^^^^^^^^^^^^
