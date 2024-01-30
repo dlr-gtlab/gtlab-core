@@ -82,7 +82,7 @@ of the object.
 An example of sub-properties is shown in the following screenshot, where
 the center of gravity property contains three sub properties - x,y,z:
 
-.. figure:: images/concepts/subprops.png
+.. figure:: ../images/concepts/subprops.png
   :alt: Image of subproperties
 
 .. note::
@@ -132,7 +132,7 @@ See :cpp:func:`GtAbstractProperty::setOptional()`, :cpp:func:`GtAbstractProperty
 Serialization API / Mementos
 ----------------------------
 
-.. image:: images/memento.png
+.. image:: ../images/memento.png
   :align: center
   :alt: Serialization process using GtObjectMemento
 
