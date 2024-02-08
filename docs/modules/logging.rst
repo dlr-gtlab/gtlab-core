@@ -55,20 +55,20 @@ To maintain consistency in logging practices, the following table serves as a gu
 
 Usage Guidelines:
 
-- *Trace*: Provides very detailed information, more granular than Debug, typically used for tracing the execution flow within the system. This level of logging can be extremely verbose and is typically reserved for troubleshooting complex issues.
-
-- *Debug*: Use for detailed information relevant during development or debugging phases. This level of logging is typically disabled in production environments due to its verbosity.
-
-- *Info*: Utilize for general information about your module events or functions to provide a high-level overview of what's happening. This level of logging is often enabled in production environments to monitor system behavior.
-  Use sparingly to avoid flooding the log.
-
-- *Warning*: Indicate potential issues or situations that may require attention by the user to avoid follow-up problems.
+- *Fatal*: Reserved for severe errors or critical conditions that require immediate attention, such as unrecoverable failures or resource exhaustion.
 
 - *Error*: Notify of errors or unexpected behaviors that may impact or interrupt your modules functionality, such as failed operations or invalid inputs.
 
-- *Fatal*: Reserved for severe errors or critical conditions that require immediate attention, such as unrecoverable failures or resource exhaustion.
+- *Warning*: Indicate potential issues or situations that may require attention by the user to avoid follow-up problems.
 
+- *Info*: Utilize for general information about your module events or functions to provide a high-level overview of what's happening.
+  This level of logging is often enabled in production environments to monitor system behavior. Use sparingly to avoid flooding the log.
 
+- *Debug*: Use for detailed information relevant during development or debugging phases.
+  This level of logging is typically disabled in production environments due to its verbosity.
+
+- *Trace*: Provides very detailed information, more granular than Debug, typically used for tracing the execution flow within the system.
+  This level of logging can be extremely verbose and is typically reserved for troubleshooting complex issues.
 
 Logging Functions
 ^^^^^^^^^^^^^^^^^
