@@ -38,7 +38,7 @@ To maintain consistency in logging practices, the following table serves as a gu
      - Unrecoverable errors that lead to the termination of the application.
 
    * - Error
-     - Indicates critical errors that need attention of the user and may impact the workflow's functionality.
+     - Indicates critical errors that need attention of the user and may impact or interrupt the workflow's functionality.
 
    * - Warning
      - Indicates potential issues or situations that might lead to problems if not addressed.
