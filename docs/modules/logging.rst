@@ -18,6 +18,58 @@ When using GTlab's logging library, module developer need to define the preproce
 ``GT_MODULE_ID`` accordingly. Settings this variable up is part of the module building instructions
 (see :ref:`Getting Started <getting-started>`). 
 
+Logging Levels
+^^^^^^^^^^^^^^
+
+In GTlab, logging messages are associated with different logging levels, representing their importance in the context of debugging and monitoring.
+For example, an error has a higher importance than a information message.
+Consistent logging practices across all components of GTlab including the core framework, first-party, and third-party modules, is essential for effective debugging and monitoring.
+
+To maintain consistency in logging practices, the following table serves as a guideline for determining when each logging level should be used:
+
+.. list-table::
+   :widths: 20 80
+   :header-rows: 1
+
+   * - Logging Level
+     - Description
+
+   * - Fatal
+     - Unrecoverable errors that lead to the termination of the application.
+
+   * - Error
+     - Indicates critical errors that need attention of the user and may impact the workflow's functionality.
+
+   * - Warning
+     - Indicates potential issues or situations that might lead to problems if not addressed.
+
+   * - Info
+     - General information about the process, useful for understanding the system's normal operation.
+
+   * - Debug
+     - Detailed information, typically of interest only during development or debugging phases.
+
+   * - Trace
+     - Very detailed information, more granular than Debug, used for tracing execution flow.
+
+
+Usage Guidelines:
+
+- *Trace*: Provides very detailed information, more granular than Debug, typically used for tracing the execution flow within the system. This level of logging can be extremely verbose and is typically reserved for troubleshooting complex issues.
+
+- *Debug*: Use for detailed information relevant during development or debugging phases. This level of logging is typically disabled in production environments due to its verbosity.
+
+- *Info*: Utilize for general information about your module events or functions to provide a high-level overview of what's happening. This level of logging is often enabled in production environments to monitor system behavior.
+  Use sparingly to avoid flooding the log.
+
+- *Warning*: Indicate potential issues or situations that may require attention by the user to avoid follow-up problems.
+
+- *Error*: Notify of errors or unexpected behaviors that may impact or interrupt your modules functionality, such as failed operations or invalid inputs.
+
+- *Fatal*: Reserved for severe errors or critical conditions that require immediate attention, such as unrecoverable failures or resource exhaustion.
+
+
+
 Logging Functions
 ^^^^^^^^^^^^^^^^^
 
@@ -77,55 +129,6 @@ This can be enabled by defining the preprocessor macro ``GT_LOG_LINE_NUMBERS``.
     // DEBUG [11-12-42] my_file.cpp@123: My fancy message
 
 Note, that line number should only be enabled in debug mode!
-
-Logging Levels
-^^^^^^^^^^^^^^
-
-In GTlab, consistent logging across its various components, including the core framework, first-party, and third-party modules, is essential for effective debugging and monitoring.
-
-To maintain consistency in logging practices, the following table serves as a guideline for determining when each logging level should be used:
-
-.. list-table::
-   :widths: 20 80
-   :header-rows: 1
-
-   * - Logging Level
-     - Description
-
-   * - Fatal
-     - Unrecoverable errors that lead to the termination of the application.
-
-   * - Error
-     - Indicates critical errors that need attention of the user and may impact the workflow's functionality.
-
-   * - Warning
-     - Indicates potential issues or situations that might lead to problems if not addressed.
-
-   * - Info
-     - General information about the process, useful for understanding the system's normal operation.
-
-   * - Debug
-     - Detailed information, typically of interest only during development or debugging phases.
-
-   * - Trace
-     - Very detailed information, more granular than Debug, used for tracing execution flow.
-
-
-Usage Guidelines:
-
-- *Trace*: Provides very detailed information, more granular than Debug, typically used for tracing the execution flow within the system. This level of logging can be extremely verbose and is typically reserved for troubleshooting complex issues.
-
-- *Debug*: Use for detailed information relevant during development or debugging phases. This level of logging is typically disabled in production environments due to its verbosity.
-
-- *Info*: Utilize for general information about your module events or funcgtions to provide a high-level overview of what's happening. This level of logging is often enabled in production environments to monitor system behavior.
-  Use sparingly to avoid flooding the log.
-
-- *Warning*: Indicate potential issues or situations that may require attention by the user to avoid follow-up problems.
-
-- *Error*: Notify of errors or unexpected behaviors that may impact the your modules functionality, such as failed operations or invalid inputs.
-
-- *Fatal*: Reserved for severe errors or critical conditions that require immediate attention, such as unrecoverable failures or resource exhaustion.
-
 
 Advanced Usage
 --------------
@@ -195,26 +198,25 @@ Verbosity Levels
 ^^^^^^^^^^^^^^^^
 
 The logging system also allows for tagging messages to different verbosities.
-Conceptually, also the logging levels define a type of verbosity, in which DEBUG
-should be more verbose than INTO etc.
+Conceptually, also the logging levels define a type of verbosity, in which `DEBUG`
+should be more verbose than `INFO` etc.
 
-In some rare cases, this is not enough. For example, when e.g. certain known warnings
-should be silenced in certain situations.
+In some rare cases, this is not enough. For example, when e.g. known warning
+should be silenced in a specific situations.
 
 In this case, the warning can be made mode verbose via
 
 .. code-block:: cpp
 
-    gtInfo().verbose() << "This warning only appears, of the verbosity level of GTlab is set to VERBOSE";
+    gtInfo().verbose() << "This warning only appears, if the verbosity level is set to 'Everything'";
 
-Verbosity levels should be mainly used, when module developers want to differentiate between GTlab's
-GUI and the batch mode or other stand-alone commands.
+**Important:** Verbosity levels should be mainly used, when module developers want to differentiate between GTlab's
+GUI and the batch mode or other stand-alone commands!
 
-.. note:: 
+.. warning:: 
 
     **Prefer logging level over verbosity levels!**
 
-    Don't overuse verbosities.
     Only use verbosity levels in exceptional cases when you want to
     make the messages visible in certain cases and in others not.
 
