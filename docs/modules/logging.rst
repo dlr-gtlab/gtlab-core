@@ -204,7 +204,7 @@ should be more verbose than `INFO` etc.
 In some rare cases, this is not enough. For example, when e.g. known warning
 should be silenced in a specific situations.
 
-In this case, the warning can be made mode verbose via
+In this case, the warning can be made more verbose via
 
 .. code-block:: cpp
 
