@@ -163,7 +163,7 @@ However, developers can enable Qt support within their modules by defining the p
     If you are using CMake as your build system, ``GT_LOG_USE_QT_BINDINGS`` is already defined
     by the GTlab::Core target. You don't have to do anything.
 
-Extended STL support
+Extended STL Support
 ^^^^^^^^^^^^^^^^^^^^
 
 By default, the logging library does not provide logging operators for most STL classes (such as vector, list, tuple, etc.)
