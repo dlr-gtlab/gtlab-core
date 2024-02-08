@@ -194,3 +194,34 @@ It must be defined in the global namespace:
 Verbosity Levels
 ^^^^^^^^^^^^^^^^
 
+The logging system also allows for tagging messages to different verbosities.
+Conceptually, also the logging levels define a type of verbosity, in which DEBUG
+should be more verbose than INTO etc.
+
+In some rare cases, this is not enough. For example, when e.g. certain known warnings
+should be silenced in certain situations.
+
+In this case, the warning can be made mode verbose via
+
+.. code-block:: cpp
+
+    gtInfo().verbose() << "This warning only appears, of the verbosity level of GTlab is set to VERBOSE";
+
+Verbosity levels should be mainly used, when module developers want to differentiate between GTlab's
+GUI and the batch mode or other stand-alone commands.
+
+.. note:: 
+
+    **Prefer logging level over verbosity levels!**
+
+    Don't overuse verbosities.
+    Only use verbosity levels in exceptional cases when you want to
+    make the messages visible in certain cases and in others not.
+
+**Switching the verbosity of the application**
+
+The verbosity of the application can be changed, which has an impact on verbose messages via e.g.
+
+.. code-block:: cpp
+
+    gt::log::Logger::instance().setVerbosity(gt::log::Everything);
