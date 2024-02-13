@@ -4,8 +4,9 @@ SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 SPDX-License-Identifier: MPL-2.0+
 -->
 
+<img src="https://raw.githubusercontent.com/dlr-gtlab/gtlab-core/master/src/resources/pixmaps/gt-logo.png" alt="gtlab logo" style="max-width: 100%;" class="hideindoc">
 
-# ![gtlab logo](https://raw.githubusercontent.com/dlr-gtlab/gtlab-core/master/src/resources/pixmaps/gt-logo.png)
+# About
 
 This repository includes the __GTlab core framework__. GTlab (Gas Turbine Laboratory) is a versatile
 software framework designed for multidisciplinary, collaborative research in the field of aircraft propulsion.
