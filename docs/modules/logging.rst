@@ -15,7 +15,7 @@ Preparation
 ^^^^^^^^^^^
 
 When using GTlab's logging library, module developer need to define the preprocessor variable
-``GT_MODULE_ID`` accordingly. Settings this variable up is part of the module building instructions
+``GT_MODULE_ID`` accordingly. Setting this variable is part of the module building instructions
 (see :ref:`Getting Started <getting-started>`). 
 
 Logging Levels
@@ -99,6 +99,9 @@ To make a message appear only once, use `gtLogOnce` together with the log level
 .. code-block:: cpp
     
     gtLogOnce(Info) << "This message appears only once";
+    // Outputs: INFO  [11-12-42] This message appears only once
+    gtLogOnce(Info) << "This message appears only once";
+    // No output
 
 Debugging
 ^^^^^^^^^
@@ -154,6 +157,7 @@ For example
 .. code-block:: cpp
 
     gtWarningId("SolverComponent") << "The solver has not converged";
+    // WARN [10:38:46] [SolverComponent] The solver has not converged
 
 This usage assigns the custom logging ID "SolverComponent" to the warning message,
 enabling more granular filtering and identification of log messages originating
@@ -192,8 +196,8 @@ Alternatively, developers can include specific header files to enable extended S
 Logging of Custom Types
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-To implement logging for a custom type, a custom ``operator<<`` must be defined for this type.
-It must be defined in the global namespace:
+To implement logging for a custom type, a corresponding custom ``operator<<`` must be defined.
+This operator must be located in the global namespace:
 
 .. code-block:: cpp
 
