@@ -92,6 +92,14 @@ Each log message is accompanied by a timestamp and the moduleID in GTlab's outpu
 
 By employing these logging functions appropriately, developers can ensure comprehensive logging coverage within their modules, aiding in debugging and system monitoring.
 
+**Logging messages only once**
+
+To make a message appear only once, use `gtLogOnce` together with the log level
+
+.. code-block:: cpp
+    
+    gtLogOnce(Info) << "This message appears only once";
+
 Debugging
 ^^^^^^^^^
 
@@ -107,7 +115,7 @@ For debugging purposes, GTlab provides the two functions ``gtDebug`` and ``gtTra
     gtDebug() << "Iteration count = " << count;
     // DEBUG [11-12-42] Iteration count = 101
     gtTrace() << "Begin MyTask::run";
-    // TRACE [11-12-42] My fancy trace message
+    // TRACE [11-12-42] Begin MyTask::run
 
 .. note::
 
