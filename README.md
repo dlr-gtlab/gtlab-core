@@ -18,7 +18,7 @@ The key strength of GTlab is its consistently implemented modularity. In additio
 GTlab's modularity is also a key factor in promoting teamwork and collaboration. Different teams can work together efficiently and combine their expertise on a common platform. This increases productivity while encouraging the interdisciplinary approach that is essential for solving complex engineering challenges.
 
 We welcome the development of extension modules by interested parties.
-Please use our [test modules](tests/modules) for a first guideline on how to implement GTlab modules.
+Please use our [test modules](https://github.com/dlr-gtlab/gtlab-core/tree/master/tests/modules) for a first guideline on how to implement GTlab modules.
 If you are interested in collaborating with us, please feel free to [contact us](https://www.dlr.de/at/de/desktopdefault.aspx/tabid-1500/mailcontact-29012/).
 
 ## License
