@@ -57,14 +57,14 @@ cpp_index_common_prefix = ['Gt']
 
 html_theme_options = {
     "sidebar_hide_name": True,
+    "light_logo": "images/gt-logo.png",
+    "dark_logo": "images/gt-logo-darktheme.png",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
-
-html_logo = 'images/gt-logo.png'
+html_static_path = ['static']
 
 # Breathe Configuration
 breathe_projects = {"gtlab": "doxygen/xml"}
