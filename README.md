@@ -6,6 +6,13 @@ SPDX-License-Identifier: MPL-2.0+
 
 <img src="https://raw.githubusercontent.com/dlr-gtlab/gtlab-core/master/src/resources/pixmaps/gt-logo.png" alt="gtlab logo" style="max-width: 100%;" class="hideindoc">
 
+<div class="hideindoc" id="badgesbox">
+ <a href='https://gtlab.readthedocs.io/en/latest/?badge=latest'>
+     <img src='https://readthedocs.org/projects/gtlab/badge/?version=latest' alt='Documentation Status' />
+ </a>
+ <!-- Add badges here-->
+</div>
+
 # About
 
 This repository includes the __GTlab core framework__. GTlab (Gas Turbine Laboratory) is a versatile
