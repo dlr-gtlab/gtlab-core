@@ -21,6 +21,8 @@
 #include "internal/gt_commandlinefunctionhandler.h"
 #include "batchremote.h"
 
+#include "gt_application.h"
+
 #include "gt_coreapplication.h"
 #include "gt_coredatamodel.h"
 #include "gt_coreprocessexecutor.h"
@@ -1138,7 +1140,7 @@ int main(int argc, char* argv[])
     initSystemOptions();
 
     // application initialization
-    GtCoreApplication app(qApp, GtCoreApplication::AppMode::Batch);
+    GtApplication app(qApp, true, GtCoreApplication::AppMode::Batch);
 
     // version option
     if (parser.option("version"))
