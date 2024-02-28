@@ -124,7 +124,7 @@ GtLogErrorMessageBox::GtLogErrorMessageBox(QWidget* parent) :
     m_infoLabel->setSizePolicy(fixedSizePolicy);
 
     m_view = new GtListView;
-    m_model = new GtLogErrorMessageBoxModel;
+    m_model = new GtLogErrorMessageBoxModel(this);
     m_view->setModel(m_model);
 
     QPalette p = gt::gui::currentTheme();

@@ -27,6 +27,8 @@ public:
     QString m_txt;
     bool m_showMessage = {false};
 
+    explicit SplashLabel(QWidget * obj) : QLabel(obj) {}
+
     void paintEvent(QPaintEvent* e) override
     {
         QLabel::paintEvent(e);
@@ -56,8 +58,8 @@ GtSplashScreen::GtSplashScreen(bool showBorder, bool showMessage)
     auto mainLay = new QVBoxLayout;
     mainLay->setContentsMargins({0, 0, 0, 0});
 
-    m_movie = new QMovie(":pixmaps/splash_anim.gif");
-    m_processLabel = new SplashLabel;
+    m_processLabel = new SplashLabel(this);
+    m_movie = new QMovie(":pixmaps/splash_anim.gif", QByteArray(), m_processLabel);
     m_processLabel->resize({576, 324});
     m_processLabel->m_showMessage = showMessage;
     mainLay->addWidget(m_processLabel);

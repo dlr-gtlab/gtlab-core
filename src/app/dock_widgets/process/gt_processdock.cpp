@@ -145,7 +145,7 @@ GtProcessDock::GtProcessDock() :
     // task group overview and selection
     m_taskGroupSelection = new QComboBox;
 
-    m_taskGroupModel = new GtTaskGroupModel;
+    m_taskGroupModel = new GtTaskGroupModel(this);
     m_taskGroupSelection->setModel(m_taskGroupModel);
 
     auto layout = new QVBoxLayout;
