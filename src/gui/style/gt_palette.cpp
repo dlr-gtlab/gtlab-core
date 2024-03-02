@@ -146,15 +146,23 @@ gt::gui::standardTheme()
 }
 
 
+namespace
+{
+    GtStyle& getStyle()
+    {
+        static GtStyle s;
+        return s;
+    }
+}
+
+
 template <typename Widget>
 void setStyle(Widget& w);
 
 template <>
 void setStyle(QWidget& w)
 {
-    auto style = new GtStyle();
-    w.setStyle(style);
-    style->deleteLater();
+    w.setStyle(&getStyle());
 }
 
 template <>
