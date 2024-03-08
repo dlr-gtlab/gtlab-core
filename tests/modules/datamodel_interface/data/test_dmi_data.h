@@ -17,6 +17,7 @@
 #include "gt_modeproperty.h"
 #include "gt_modetypeproperty.h"
 #include "gt_propertystructcontainer.h"
+#include "gt_enumproperty.h"
 
 /**
  * @brief The TestDmiClass class
@@ -36,7 +37,16 @@ private:
     GtPropertyStructContainer m_container;
     GtModeProperty m_mode;
     GtModeTypeProperty m_propTypeA, m_propTypeB;
-    GtDoubleProperty m_optionalValue;
+    GtDoubleProperty m_optionalValue;    
+
+    enum class Fruit
+    {
+        Apple,
+        Pineapple
+    };
+    GtEnumProperty<Fruit> m_fruit;
+
+    Q_ENUM(Fruit)
 };
 
 #endif // TESTDMICLASS_H
