@@ -36,6 +36,7 @@ target_link_libraries(GTlabConsole
     PRIVATE
     GTlabCore
     GTlabDataProcessor
+    GTlabGui
     Qt5::Widgets
     Qt5::Xml
 )

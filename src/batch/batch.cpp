@@ -21,7 +21,9 @@
 #include "internal/gt_commandlinefunctionhandler.h"
 #include "batchremote.h"
 
-#include "gt_coreapplication.h"
+#include "gt_application.h"
+
+//#include "gt_coreapplication.h"
 #include "gt_coredatamodel.h"
 #include "gt_coreprocessexecutor.h"
 #include "gt_project.h"
@@ -1138,7 +1140,7 @@ int main(int argc, char* argv[])
     initSystemOptions();
 
     // application initialization
-    GtCoreApplication app(qApp, GtCoreApplication::AppMode::Batch);
+    GtApplication app(qApp, true, GtCoreApplication::AppMode::Batch);
 
     // version option
     if (parser.option("version"))
@@ -1166,6 +1168,7 @@ int main(int argc, char* argv[])
     }
 
     // load GTlab modules
+    app.initMdiLauncher();
     app.loadModules();
 
     // calculator initialization
