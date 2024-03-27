@@ -99,7 +99,6 @@ GtPropertyModel::data(const QModelIndex& index, int role) const
                 if (index.row() < static_cast<int>(container->size()))
                 {
                     auto& entry = container->at(index.row());
-
                     return entry.typeName();
                 }
             }
