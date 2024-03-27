@@ -32,21 +32,20 @@ public:
      */
     Q_INVOKABLE TestDmiData();
 
+    enum class Fruit
+    {
+        Apple,
+        Pineapple
+    };
+    Q_ENUM(Fruit)
+
 private:
     GtDoubleProperty m_value;
     GtPropertyStructContainer m_container;
     GtModeProperty m_mode;
     GtModeTypeProperty m_propTypeA, m_propTypeB;
     GtDoubleProperty m_optionalValue;    
-
-    enum class Fruit
-    {
-        Apple,
-        Pineapple
-    };
     GtEnumProperty<Fruit> m_fruit;
-
-    Q_ENUM(Fruit)
 };
 
 #endif // TESTDMICLASS_H
