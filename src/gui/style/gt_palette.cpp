@@ -155,6 +155,16 @@ namespace
 }
 
 
+namespace
+{
+    GtStyle& getStyle()
+    {
+        static GtStyle s;
+        return s;
+    }
+}
+
+
 template <typename Widget>
 void setStyle(Widget& w);
 
