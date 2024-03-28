@@ -84,13 +84,26 @@ GtPropertyModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    if (item->data(index.column(), GtPropertyModel::ContainerRole).toBool() &&
-            role == Qt::DisplayRole)
+    if (item->data(index.column(), GtPropertyModel::ContainerRole).toBool())
     {
-        return item->data(index.column(), role).toString() + + " [" +
-                QString::number(index.row()) + "]";
-    }
+        if (role == Qt::DisplayRole)
+        {
+            return item->data(index.column(), role).toString() +
+                    + " [" + QString::number(index.row()) + "]";
+        }
 
+        if (role == Qt::ToolTipRole)
+        {
+            auto* container = m_obj->findPropertyContainer(m_containerId);
+
+            if (!container) return {};
+
+            if (index.row() >= static_cast<int>(container->size())) return {};
+
+            return container->at(index.row()).typeName();
+        }
+    }
+    
     return item->data(index.column(), role);
 }
 
