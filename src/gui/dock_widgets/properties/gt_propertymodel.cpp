@@ -94,15 +94,13 @@ GtPropertyModel::data(const QModelIndex& index, int role) const
 
         if (role == Qt::ToolTipRole)
         {
-            if (auto* container = m_obj->findPropertyContainer(m_containerId))
-            {
-                if (index.row() < static_cast<int>(container->size()))
-                {
-                    auto& entry = container->at(index.row());
+            auto* container = m_obj->findPropertyContainer(m_containerId);
 
-                    return entry.typeName();
-                }
-            }
+            if (!container) return {};
+
+            if (index.row() >= static_cast<int>(container->size())) return {};
+
+            return container->at(index.row()).typeName();
         }
     }
     
