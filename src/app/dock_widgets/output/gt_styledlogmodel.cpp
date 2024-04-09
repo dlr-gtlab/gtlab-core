@@ -37,7 +37,7 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
     {
     case Qt::DecorationRole:
         // convert level to icon
-        if (col == 0)
+        if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
         {
             switch (loggingLevel(index))
             {
@@ -60,14 +60,14 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
         break;
     case Qt::DisplayRole:
         // we only want to display the icon not the text
-        if (col == 0)
+        if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
         {
             return {};
         }
         break;
     case Qt::ToolTipRole:
         // tooltip for level
-        if (col == 0)
+        if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
         {
             auto level = gt::log::levelToString(loggingLevel(index));
             return QString::fromStdString(level);
