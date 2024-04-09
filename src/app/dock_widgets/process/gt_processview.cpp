@@ -141,21 +141,21 @@ GtProcessView::mousePressEvent(QMouseEvent* event)
 {
     QTreeView::mousePressEvent(event);
 
-    //    QModelIndex index = indexAt(event->pos());
+    QModelIndex index = indexAt(event->pos());
 
-    //    if (!index.isValid())
-    //    {
-    //        if (!gtApp->currentProject())
-    //        {
-    //            return;
-    //        }
+    if (!index.isValid())
+    {
+        if (!gtApp->currentProject())
+        {
+            return;
+        }
 
-    //        assert(selectionModel());
+        assert(selectionModel());
 
-    //        clearSelection();
-    //        selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
-    //        emit clicked(index);
-    //    }
+        clearSelection();
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
+        emit clicked(index);
+    }
 }
 
 void
