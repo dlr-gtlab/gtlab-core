@@ -1,24 +1,24 @@
 name: "🐛 Bug Report"
-description: Create a new ticket for a bug.
+description: Create a new issue for a bug.
 title: "🐛 [BUG] - <title>"
 labels: [
-  "bug"
+  "type::bug"
 ]
 body:
   - type: textarea
     id: description
     attributes:
-      label: "Description"
+      label: "Summary"
       description: Please enter an explicit description of your issue
       placeholder: Short and explicit description of your incident...
     validations:
       required: true
-  - type: input
-    id: reprod-url
+  - type: textarea
+    id: correct_behav
     attributes:
-      label: "Reproduction URL"
-      description: Please enter your GitHub URL to provide a reproduction of the issue
-      placeholder: ex. https://github.com/USERNAME/REPO-NAME
+      label: "Expected Behaviour"
+      description: What is the expected behaviour
+      placeholder: A short and explicit description the correct behaviour...
     validations:
       required: true
   - type: textarea
@@ -52,18 +52,15 @@ body:
       render: bash
     validations:
       required: false
-  - type: dropdown
-    id: browsers
+  - type: textarea
+    id: gtlav_env
     attributes:
-      label: "Browsers"
-      description: What browsers are you seeing the problem on ?
-      multiple: true
-      options:
-        - Firefox
-        - Chrome
-        - Safari
-        - Microsoft Edge
-        - Opera
+      label: "GTlab environment"
+      description: Which version of GTlab are you using?
+      value: |
+        GTlab Version: X.Y.Z
+        Module 1 Version: X.Y.Z
+        Module 2 Version: X.Y.Z 
     validations:
       required: false
   - type: dropdown
@@ -75,6 +72,5 @@ body:
       options:
         - Windows
         - Linux
-        - Mac
     validations:
       required: false
