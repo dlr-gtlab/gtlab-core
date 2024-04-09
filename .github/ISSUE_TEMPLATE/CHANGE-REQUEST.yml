@@ -1,0 +1,31 @@
+name: "Change Request"
+description: Create a new issue for a new change request
+title: "[CHANGE] - <title>"
+labels: [
+  "NeedsDiscussion"
+]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Summary"
+      description: Provide a brief explanation of the change
+      placeholder: Describe in a few lines your change request
+    validations:
+      required: true
+  - type: textarea
+    id: improvement
+    attributes:
+      label: "Impact on the codebase"
+      description: How does the change effect the code?
+      placeholder: What does it improve? What are the side effects? Are there API/ABI changes? Estimate the implementation effort if possible.
+    validations:
+      required: true
+  - type: textarea
+    id: workarounds
+    attributes:
+      label: "Current workarounds"
+      description: Are there any workarounds that you use right now?
+      placeholder: If possible, provide ways / workarounds you are using right now that don't rely on the feature...
+    validations:
+      required: false
