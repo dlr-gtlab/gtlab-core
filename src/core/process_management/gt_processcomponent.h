@@ -256,6 +256,18 @@ public:
         return nullptr;
     }
 
+    /**
+     * @brief appendToLinkObjects
+     * The data<> function of the process elements dan only refer to objects
+     * which are collected in the list of linkable objects.
+     * With this  function here it is possible to add more objects from outside
+     * the process management system e.g. for the usage in the graph system
+     *
+     * @param p - object pointer to add to the object to the list of objects
+     * which the processcomponent can refer to in its data<> function
+     */
+    void appendToLinkObjects(QPointer<GtObject> p);
+
 public slots:
     /**
      * @brief Handles process component state changes.
