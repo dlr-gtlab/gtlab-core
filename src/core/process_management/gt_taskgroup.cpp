@@ -196,7 +196,10 @@ GtTaskGroup::scopeId(const SCOPE scope)
 QString
 GtTaskGroup::defaultUserGroupId()
 {
-    return QString::fromStdString(gt::detail::systemUsername());
+    auto id = QString::fromStdString(gt::detail::systemUsername());
+    if (id.isEmpty()) id = "undefined";
+
+    return id;
 }
 
 QString
