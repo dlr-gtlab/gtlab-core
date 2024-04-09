@@ -127,6 +127,7 @@ gt::xml::writeDomDocumentToFile(const QString& filePath,
     if (attrOrdered)
     {
         QXmlStreamWriter str_w(&file);
+        str_w.setCodec("UTF-8");
         str_w.setAutoFormatting(true);
 
         str_w.writeStartDocument(QStringLiteral("1.0"));
@@ -146,7 +147,8 @@ gt::xml::writeDomDocumentToFile(const QString& filePath,
     else
     {
         QTextStream stream(&file);
-        stream << doc.toString(5);
+        stream.setCodec("UTF-8");
+        stream << doc.toString(4);
     }
 
     file.close();
