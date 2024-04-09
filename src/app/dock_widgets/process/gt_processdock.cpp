@@ -190,6 +190,8 @@ GtProcessDock::GtProcessDock() :
             SLOT(skipComponent(QModelIndex,bool)));
     connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
+    connect(m_view, SIGNAL(moveProcessElements(QList<QModelIndex>, QModelIndex)),
+            SLOT(moveElements(QList<QModelIndex>, QModelIndex)));
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
@@ -1397,6 +1399,93 @@ GtProcessDock::renameElement()
     {
         m_view->edit(m_view->currentIndex());
     }
+}
+
+void
+GtProcessDock::moveElements(const QList<QModelIndex>& source,
+                            const QModelIndex& target)
+{
+    if (!target.isValid()) return;
+
+    if (source.isEmpty()) return;
+
+    QList<QModelIndex> mapped;
+
+    for (auto i : source)
+    {
+        if (i.isValid()) mapped.append(mapToSource(i));
+    }
+
+    if (mapped.isEmpty()) return;
+
+    QList<GtObject*> objToMove;
+
+    /// check if all elements to move have the same parent
+    GtObject* parent = nullptr;
+
+    for (auto j : mapped)
+    {
+        if (j.model() != gtDataModel) return;
+
+        if (auto p = gtDataModel->objectFromIndex(j))
+        {
+            if (!parent) parent = p->parentObject();
+
+            if (parent != p->parentObject())
+            {
+                gtWarning() << tr("It is only allowed to move elements of the"
+                                  "same task");
+                return;
+            }
+
+            objToMove.append(p);
+        }
+    }
+
+    if (objToMove.isEmpty()) return;
+
+    QModelIndex mappedTarget = mapToSource(target);
+
+    GtObject* targetObject = gtDataModel->objectFromIndex(mappedTarget);
+
+    auto targetComp = qobject_cast<GtProcessComponent*>(targetObject);
+
+    if (!targetComp) return;
+
+    auto moveCmd = gtApp->makeCommand(gtApp->currentProject(),
+                                       tr("move process element"));
+
+    if (auto taskParent = qobject_cast<GtTask*>(targetComp))
+    {
+        for (auto o: objToMove)
+        {
+            gtDataModel->appendChild(o, taskParent);
+        }
+    }
+    else
+    {
+        GtObject* targetparent = targetComp->parentObject();
+
+        if (auto tp = qobject_cast<GtTask*>(targetparent))
+        {
+            /// to keep the order the swap is neede if the new parent is
+            ///  not the current parent
+            if (objToMove.first()->parentObject() != tp)
+            {
+                std::reverse(objToMove.begin(), objToMove.end());
+            }
+
+            for (auto o: objToMove)
+            {
+                /// if parent is not reset before the insert function
+                /// does not work
+                o->setParent(nullptr);
+                gtDataModel->insertChild(o, tp, mappedTarget.row());
+            }
+        }
+    }
+
+    moveCmd.finalize();
 }
 
 void

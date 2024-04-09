@@ -11,6 +11,7 @@
 #include <QScrollBar>
 #include <QKeyEvent>
 
+#include "gt_logging.h"
 #include "gt_application.h"
 #include "gt_icons.h"
 #include "gt_processview.h"
@@ -140,21 +141,38 @@ GtProcessView::mousePressEvent(QMouseEvent* event)
 {
     QTreeView::mousePressEvent(event);
 
-    QModelIndex index = indexAt(event->pos());
+    //    QModelIndex index = indexAt(event->pos());
 
-    if (!index.isValid())
+    //    if (!index.isValid())
+    //    {
+    //        if (!gtApp->currentProject())
+    //        {
+    //            return;
+    //        }
+
+    //        assert(selectionModel());
+
+    //        clearSelection();
+    //        selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
+    //        emit clicked(index);
+    //    }
+}
+
+void
+GtProcessView::dropEvent(QDropEvent* event)
+{
+    QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
+
+    QModelIndex newIndex = indexAt(event->pos());
+
+    if (newIndex.isValid() && !indexes.isEmpty())
     {
-        if (!gtApp->currentProject())
-        {
-            return;
-        }
-
-        assert(selectionModel());
-
-        clearSelection();
-        selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
-        emit clicked(index);
+        emit moveProcessElements(indexes, newIndex);
+        event->accept();
+        return;
     }
+
+    GtTreeView::dropEvent(event);
 }
 
 void
