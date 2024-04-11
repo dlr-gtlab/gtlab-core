@@ -1433,7 +1433,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
 
             if (parent != p->parentObject())
             {
-                gtWarning() << tr("It is only allowed to move elements of the"
+                gtWarning() << tr("It is only allowed to move elements of the "
                                   "same task");
                 return;
             }
