@@ -19,8 +19,7 @@
 #include "gt_outputtester.h"
 #include "gt_searchwidget.h"
 #include "gt_project.h"
-#include "gt_datamodel.h"
-#include "gt_task.h"
+#include "gt_colors.h"
 #include "gt_icons.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
@@ -63,8 +62,8 @@ GtOutputDock::GtOutputDock()
 #endif
 
     GtStyledLogModel* styleModel = new GtStyledLogModel(this);
-    m_model = new GtFilteredLogModel(styleModel);
     styleModel->setSourceModel(gtLogModel);
+    m_model = new GtFilteredLogModel(styleModel);
     m_model->setSourceModel(styleModel);
     m_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
@@ -96,14 +95,17 @@ GtOutputDock::GtOutputDock()
     m_logView->setFrameStyle(QFrame::NoFrame);
     m_logView->setModel(m_model);
 
-    // resize the level and time columns as they wont change
-    m_logView->resizeColumnToContents(
-                GtLogModel::columnFromRole(GtLogModel::LevelRole));
-    m_logView->resizeColumnToContents(
-                GtLogModel::columnFromRole(GtLogModel::TimeRole));
-
     // stretch the last section
     m_logView->horizontalHeader()->setStretchLastSection(true);
+
+    QFontMetrics metrics{QFont()};
+    m_logView->verticalHeader()->setDefaultSectionSize(metrics.height());
+
+    // resize the level and time columns as they wont change
+    m_logView->resizeColumnToContents(
+        GtLogModel::columnFromRole(GtLogModel::LevelRole));
+    m_logView->resizeColumnToContents(
+        GtLogModel::columnFromRole(GtLogModel::TimeRole));
 
     // timer to reduce the number of times the view auto resizes itself
     auto* rowResizeTimer = new QTimer{this};
@@ -118,25 +120,8 @@ GtOutputDock::GtOutputDock()
     // resize rows once the section was resized
     connect(m_logView->horizontalHeader(), &QHeaderView::sectionResized,
             this, [&,rowResizeTimer](int idx, int /*oldSize*/, int /*newSize*/){
-        // if we have not resized the id column ourselfes we do not
-        // want to auto resize the column anymore
-        if (!rowResizeTimer->isActive() &&
-            idx == GtLogModel::columnFromRole(GtLogModel::IdRole))
-        {
-            if (!m_resizedColumns)
-            {
-                m_autoResizeIdColumn = false;
-            }
-            // clear resize flag
-            m_resizedColumns = false;
-        }
         // (re-) start timer, which triggers the resize
         rowResizeTimer->start();
-    });
-
-    // reset auto resize flag
-    connect(gtLogModel, &GtLogModel::logCleared, this, [&](){
-        m_autoResizeIdColumn = true;
     });
 
     // other connections
@@ -160,8 +145,8 @@ GtOutputDock::GtOutputDock()
 
     filterLayout->addStretch(1);
 
-    const auto setupButton =
-        [&](QIcon const& icon = {}, QString const& tooltip = {}){
+    const auto setupButton = [&](QIcon const& icon = {},
+                                 QString const& tooltip = {}){
         auto* button = new QPushButton;
         button->setIcon(icon);
         button->setMaximumSize(QSize(20, 20));
@@ -172,9 +157,10 @@ GtOutputDock::GtOutputDock()
     };
 
     /// helper method for setting up an output action button
-    const auto setupActionButton =
-            [&](QIcon const& icon, QString const& tooltip,
-                auto reciever, auto signal){
+    const auto setupActionButton = [&](QIcon const& icon,
+                                       QString const& tooltip,
+                                       auto* reciever,
+                                       auto signal){
         auto* button = setupButton(icon, tooltip);
         QObject::connect(button, &QPushButton::clicked, reciever, signal);
         return button;
@@ -184,16 +170,32 @@ GtOutputDock::GtOutputDock()
     guardian->setParent(this);
 
     /// helper method for setting up an output toggle button
-    const auto setupToggleButton =
-            [&](QIcon const& icon, QString const& type, QString const& tooltip, auto* reciever, auto signal){
+    const auto setupToggleButton = [&](QIcon const& icon,
+                                       QString const& type,
+                                       QString const& tooltip,
+                                       auto* reciever,
+                                       auto signal){
+
+        using gt::gui::color::lighten;
+        using gt::gui::color::disabled;
+        using gt::gui::color::text;
+        using gt::gui::colorize; // use custom colors for icon
 
         auto* button = setupButton(icon, tooltip);
         button->setCheckable(true);
 
+        // checked button do not use On/Off Icons, thus we have to update the
+        // icon ourselfes
+        auto const updateIconColor = [b = QPointer<QPushButton>(button)](){
+            assert (b);
+            return b->isChecked() ? text() : lighten(disabled(), 15);
+        };
+        button->setIcon(colorize(icon, gt::gui::SvgColorData{ updateIconColor }));
+
         connect(button, &QPushButton::toggled, reciever, signal);
 
         GtState* state =
-            gtStateHandler->initializeState(metaObject()->className(),
+            gtStateHandler->initializeState(staticMetaObject.className(),
                                             type, type.toLower(),
                                             QVariant::fromValue(true),
                                             guardian);
@@ -251,38 +253,41 @@ GtOutputDock::GtOutputDock()
         connect(ignoreButton, &QPushButton::toggled, this, updateIgnoreButton);
     }
 
+    // add spacer to distinguish filter buttons from the action buttons
+    filterLayout->addSpacing(8);
+
     auto loggingLevel = gt::log::Logger::instance().loggingLevel();
 
     // trace message button
-    m_traceButton = setupToggleButton(gt::gui::icon::traceColorized(),
+    m_traceButton = setupToggleButton(gt::gui::icon::trace(),
                                       QStringLiteral("Trace"),
                                       tr("Show/Hide Trace Output"),
                                       m_model,
                                       &GtFilteredLogModel::filterTraceLevel);
 
     // debug message button
-    m_debugButton = setupToggleButton(gt::gui::icon::bugColorized(),
+    m_debugButton = setupToggleButton(gt::gui::icon::bug(),
                                       QStringLiteral("Debug"),
                                       tr("Show/Hide Debug Output"),
                                       m_model,
                                       &GtFilteredLogModel::filterDebugLevel);
 
     // info message button
-    m_infoButton = setupToggleButton(gt::gui::icon::infoColorized(),
+    m_infoButton = setupToggleButton(gt::gui::icon::info(),
                                      QStringLiteral("Info"),
                                      tr("Show/Hide Info Output"),
                                      m_model,
                                      &GtFilteredLogModel::filterInfoLevel);
 
     // warning message button
-    m_warningButton = setupToggleButton(gt::gui::icon::warningColorized(),
+    m_warningButton = setupToggleButton(gt::gui::icon::warning(),
                                         QStringLiteral("Warning"),
                                         tr("Show/Hide Warning Output"),
                                         m_model,
                                         &GtFilteredLogModel::filterWarningLevel);
 
     // error message button
-    m_errorButton = setupToggleButton(gt::gui::icon::errorColorized(),
+    m_errorButton = setupToggleButton(gt::gui::icon::error(),
                                       QStringLiteral("Error"),
                                       tr("Show/Hide Error Output"),
                                       m_model,
@@ -298,38 +303,6 @@ GtOutputDock::GtOutputDock()
     {
         m_debugButton->hide();
     }
-
-    // task history overview page
-
-    // Temporarily removed! Do not touch!
-
-//    QWidget* taskPage = new QWidget(this);
-//    tab->addTab(taskPage, "Task History");
-
-//    QVBoxLayout* taskPageLayout = new QVBoxLayout;
-//    taskPageLayout->setContentsMargins(0, 0, 0, 0);
-//    taskPageLayout->setSpacing(0);
-//    taskPage->setLayout(taskPageLayout);
-
-//    m_taskPageView = new GtTreeView;
-//    m_taskPageView->setFrameStyle(QFrame::NoFrame);
-//    m_taskPageView->setWordWrap(true);
-//    m_taskPageView->setContextMenuPolicy(Qt::CustomContextMenu);
-//    m_taskPageView->setSelectionMode(QAbstractItemView::ContiguousSelection);
-//    m_taskPageView->setAlternatingRowColors(true);
-//    m_taskPageView->setUniformRowHeights(true);
-//    m_taskPageView->setRootIsDecorated(false);
-
-//    m_historyModel = new GtTaskHistoryModel(this);
-
-//    m_taskPageView->setModel(m_historyModel);
-
-//    m_taskPageView->setColumnWidth(0, 200);
-//    m_taskPageView->setColumnWidth(1, 100);
-//    m_taskPageView->setColumnWidth(2, 150);
-//    m_taskPageView->setColumnWidth(3, 150);
-
-//    taskPageLayout->addWidget(m_taskPageView);
 
     layout->addWidget(tab);
 
@@ -360,21 +333,7 @@ GtOutputDock::getDockWidgetArea()
 }
 
 void
-GtOutputDock::projectChangedEvent(GtProject* /*project*/)
-{
-    // Temporarily removed! Do not touch!
-
-//    gtDebug() << "GtOutputDock::projectChangedEvent";
-
-//    if (!project)
-//    {
-//        m_historyModel->clear();
-//    }
-//    else
-//    {
-//        m_historyModel->setPath(project->path());
-//    }
-}
+GtOutputDock::projectChangedEvent(GtProject* /*project*/) { }
 
 void
 GtOutputDock::copyToClipboard(const QModelIndexList& indexes)
@@ -397,8 +356,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
         return;
     }
 
-    const QMetaObject* m = metaObject();
-    QString cat = m->className();
+    QString cat = staticMetaObject.className();
 
     if (gtApp->compareKeyEvent(event, "toggleTraceOutput", cat))
     {
@@ -448,17 +406,6 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
 void
 GtOutputDock::onRowsInserted()
 {
-    // check if we should autoresize the id column
-    if (m_autoResizeIdColumn)
-    {
-        // indicate that we have resized the column ourselfes
-        m_resizedColumns = true;
-        m_logView->resizeColumnToContents(
-                    GtLogModel::columnFromRole(GtLogModel::IdRole));
-    }
-    // resize rows
-    m_logView->resizeRowsToContents();
-
     if (m_autoScrollToBottom)
     {
         m_logView->scrollToBottom();
