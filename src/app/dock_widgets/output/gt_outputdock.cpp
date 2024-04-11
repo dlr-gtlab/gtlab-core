@@ -401,6 +401,13 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
     {
         return openContextMenu();
     }
+    // TODO: fix and remove with #1175
+    if (gtApp->compareKeyEvent(event, "copy"))
+    {
+        return onCopyRequest();
+    }
+
+    return GtDockWidget::keyPressEvent(event);
 }
 
 void

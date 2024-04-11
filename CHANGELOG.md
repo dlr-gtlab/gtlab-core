@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed mirco stutters when new messages are appended to the output dock. - #1165
 - Fixed unicode characters not correctly saved to tasks, in particular python tasks and file properties - #1125, #45
+- Fixed copying in output dock using keyboard shortcut sometimes not working as expected. - #1136
 
 ### Changed
 - (In-)active filter buttons for the logging level in the output dock are now better distinuishable. - #606 
