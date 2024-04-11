@@ -25,13 +25,17 @@ protected:
         "propWValue", "test enum with value", "test brief with value",
         EnumContainer::TestEnum::B
     };
+
+    GtEnumProperty<EnumContainer::TestScopedEnum> m_propScoped {
+        "propScopedEnum", "propScopedEnum", ""
+    };
 };
 
 TEST_F(TestGtEnumProperty, initialization)
 {
     ASSERT_EQ(m_prop.getVal(), EnumContainer::TestEnum::A);
     ASSERT_EQ(m_propWithValue.getVal(), EnumContainer::TestEnum::B);
-
+    ASSERT_EQ(m_propScoped.getVal(), EnumContainer::TestScopedEnum::Pear);
     // Do not test other init things here since they are already tested in modeProperty test
 }
 
@@ -39,6 +43,18 @@ TEST_F(TestGtEnumProperty, setter)
 {
     m_prop.setVal(EnumContainer::TestEnum::C);
     ASSERT_EQ(m_prop.getVal(), EnumContainer::TestEnum::C);
+
+    m_propScoped.setVal(EnumContainer::TestScopedEnum::Lemon);
+    ASSERT_EQ(m_propScoped.getVal(), EnumContainer::TestScopedEnum::Lemon);
+}
+
+TEST_F(TestGtEnumProperty, getter)
+{
+    m_prop = EnumContainer::TestEnum::C;
+    ASSERT_EQ(m_prop.getVal(), EnumContainer::TestEnum::C);
+
+    m_propScoped = EnumContainer::TestScopedEnum::Lemon;
+    ASSERT_EQ(m_propScoped.getVal(), EnumContainer::TestScopedEnum::Lemon);
 }
 
 TEST_F(TestGtEnumProperty, implicitConversions)
@@ -46,6 +62,6 @@ TEST_F(TestGtEnumProperty, implicitConversions)
     m_prop.setVal(EnumContainer::TestEnum::C);
     ASSERT_EQ(m_prop, EnumContainer::TestEnum::C);
 
-    m_prop = EnumContainer::TestEnum::C;
-    ASSERT_EQ(m_prop.getVal(), EnumContainer::TestEnum::C);
+    m_propScoped.setVal(EnumContainer::TestScopedEnum::Pear);
+    ASSERT_EQ(m_propScoped, EnumContainer::TestScopedEnum::Pear);
 }

@@ -46,6 +46,10 @@ macro(gtlab_standard_setup)
         set(CMAKE_DEBUG_POSTFIX "-d")
     endif()
 
+    if(NOT DEFINED CMAKE_INSTALL_DOCDIR)
+        set(CMAKE_INSTALL_DOCDIR "share/doc/gtlab/")
+    endif(NOT DEFINED CMAKE_INSTALL_DOCDIR)
+
     # Instruct CMake to run moc automatically when needed.
     set(CMAKE_AUTOMOC ON)
 endmacro()

@@ -15,6 +15,7 @@
 
 #include <utility>
 #include <limits>
+#include <algorithm>
 
 namespace gt
 {

@@ -371,30 +371,22 @@ GtAboutDialog::openModuleDetails(const QModelIndex& indexOfModule) const
 void
 GtAboutDialog::openLicenseFolder()
 {
-    QDir appDir(QApplication::applicationDirPath());
-    appDir.cdUp();
+    QString licenseDirPath = gtApp->licenseFolder();
 
-    QDir appLicenseDir(appDir.absolutePath() + QDir::separator() + "Licenses");
-
-    if (appLicenseDir.exists())
+    if (licenseDirPath.isEmpty())
     {
-        QDesktopServices::openUrl(appLicenseDir.absolutePath());
-        return;
-    }
-    /// Search for Licenses in the Dev-Tools-Structure
-    appDir.cdUp(); /// folder for selection of number of stable/unstable version
-    appDir.cdUp(); /// main folder of devtools
-
-    QDir devToolsLicenseDir(appDir.absolutePath()
-                            + QDir::separator() + "Licenses");
-
-    if (devToolsLicenseDir.exists())
-    {
-        QDesktopServices::openUrl(devToolsLicenseDir.absolutePath());
+        gtError() << tr("No licenses information could be found.");
         return;
     }
 
-    gtError() << tr("No licenses information could be found.");
-    gtError() << tr("Your installation might be broken.");
-    gtError() << tr("Please contact the developers for further information.");
+    QDir licDir(licenseDirPath);
+
+    if (!licDir.exists())
+    {
+        gtError() << tr("Cannot find license directory. Expected to find it "
+                        "at %1").arg(licenseDirPath);
+        return;
+    }
+
+    QDesktopServices::openUrl(licDir.absolutePath());
 }

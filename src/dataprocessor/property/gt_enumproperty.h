@@ -155,7 +155,7 @@ inline T GtEnumProperty<T>::getVal() const
 template<typename T>
 inline void GtEnumProperty<T>::setVal(const T value, bool* success)
 {
-    GtModeProperty::setVal(getMetaEnum().valueToKey(value), success);
+    GtModeProperty::setVal(getMetaEnum().valueToKey(static_cast<int>(value)), success);
 }
 
 template<typename T>
