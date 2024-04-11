@@ -1405,9 +1405,7 @@ void
 GtProcessDock::moveElements(const QList<QModelIndex>& source,
                             const QModelIndex& target)
 {
-    if (!target.isValid()) return;
-
-    if (source.isEmpty()) return;
+    if (!target.isValid() || source.isEmpty()) return;
 
     QList<QModelIndex> mapped;
 
