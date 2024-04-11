@@ -1409,7 +1409,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
 
     QList<QModelIndex> mapped;
 
-    for (auto i : source)
+    for (QModelIndex i : source)
     {
         if (i.isValid()) mapped.append(mapToSource(i));
     }
@@ -1421,11 +1421,11 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     /// check if all elements to move have the same parent
     GtObject* parent = nullptr;
 
-    for (auto j : mapped)
+    for (QModelndex j : qAsConst(mapped))
     {
-        if (j.model() != gtDataModel) return;
+        assert (j.model() == gtDataModel);
 
-        if (auto p = gtDataModel->objectFromIndex(j))
+        if (auto* p = gtDataModel->objectFromIndex(j))
         {
             if (!parent) parent = p->parentObject();
 
