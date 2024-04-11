@@ -176,8 +176,9 @@ GtOutputDock::GtOutputDock()
                                        auto* reciever,
                                        auto signal){
 
-        using gt::gui::color::disabled;  // color if button is disabled
-        using gt::gui::color::highlight; // color if button is enabled
+        using gt::gui::color::lighten;
+        using gt::gui::color::disabled;
+        using gt::gui::color::text;
         using gt::gui::colorize; // use custom colors for icon
 
         auto* button = setupButton(icon, tooltip);
@@ -187,7 +188,7 @@ GtOutputDock::GtOutputDock()
         // icon ourselfes
         auto const updateIconColor = [b = QPointer<QPushButton>(button)](){
             assert (b);
-            return b->isChecked() ? highlight() : disabled();
+            return b->isChecked() ? text() : lighten(disabled(), 15);
         };
         button->setIcon(colorize(icon, gt::gui::SvgColorData{ updateIconColor }));
 
