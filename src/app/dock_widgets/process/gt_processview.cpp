@@ -11,7 +11,6 @@
 #include <QScrollBar>
 #include <QKeyEvent>
 
-#include "gt_logging.h"
 #include "gt_application.h"
 #include "gt_icons.h"
 #include "gt_processview.h"
