@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed unicode characters not correctly saved to tasks, in particular python tasks and file properties - #1125, #45
 
+### Changed
+- (In-)active filter buttons for the logging level in the output dock are now better distinuishable. - #606 
 
 ## [2.0.6] - 2023-11-07 
 ### Fixed
