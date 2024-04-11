@@ -62,8 +62,8 @@ GtOutputDock::GtOutputDock()
 #endif
 
     GtStyledLogModel* styleModel = new GtStyledLogModel(this);
-    m_model = new GtFilteredLogModel(styleModel);
     styleModel->setSourceModel(gtLogModel);
+    m_model = new GtFilteredLogModel(styleModel);
     m_model->setSourceModel(styleModel);
     m_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
@@ -95,14 +95,17 @@ GtOutputDock::GtOutputDock()
     m_logView->setFrameStyle(QFrame::NoFrame);
     m_logView->setModel(m_model);
 
-    // resize the level and time columns as they wont change
-    m_logView->resizeColumnToContents(
-                GtLogModel::columnFromRole(GtLogModel::LevelRole));
-    m_logView->resizeColumnToContents(
-                GtLogModel::columnFromRole(GtLogModel::TimeRole));
-
     // stretch the last section
     m_logView->horizontalHeader()->setStretchLastSection(true);
+
+    QFontMetrics metrics{QFont()};
+    m_logView->verticalHeader()->setDefaultSectionSize(metrics.height());
+
+    // resize the level and time columns as they wont change
+    m_logView->resizeColumnToContents(
+        GtLogModel::columnFromRole(GtLogModel::LevelRole));
+    m_logView->resizeColumnToContents(
+        GtLogModel::columnFromRole(GtLogModel::TimeRole));
 
     // timer to reduce the number of times the view auto resizes itself
     auto* rowResizeTimer = new QTimer{this};
@@ -117,25 +120,8 @@ GtOutputDock::GtOutputDock()
     // resize rows once the section was resized
     connect(m_logView->horizontalHeader(), &QHeaderView::sectionResized,
             this, [&,rowResizeTimer](int idx, int /*oldSize*/, int /*newSize*/){
-        // if we have not resized the id column ourselfes we do not
-        // want to auto resize the column anymore
-        if (!rowResizeTimer->isActive() &&
-            idx == GtLogModel::columnFromRole(GtLogModel::IdRole))
-        {
-            if (!m_resizedColumns)
-            {
-                m_autoResizeIdColumn = false;
-            }
-            // clear resize flag
-            m_resizedColumns = false;
-        }
         // (re-) start timer, which triggers the resize
         rowResizeTimer->start();
-    });
-
-    // reset auto resize flag
-    connect(gtLogModel, &GtLogModel::logCleared, this, [&](){
-        m_autoResizeIdColumn = true;
     });
 
     // other connections
@@ -317,38 +303,6 @@ GtOutputDock::GtOutputDock()
         m_debugButton->hide();
     }
 
-    // task history overview page
-
-    // Temporarily removed! Do not touch!
-
-//    QWidget* taskPage = new QWidget(this);
-//    tab->addTab(taskPage, "Task History");
-
-//    QVBoxLayout* taskPageLayout = new QVBoxLayout;
-//    taskPageLayout->setContentsMargins(0, 0, 0, 0);
-//    taskPageLayout->setSpacing(0);
-//    taskPage->setLayout(taskPageLayout);
-
-//    m_taskPageView = new GtTreeView;
-//    m_taskPageView->setFrameStyle(QFrame::NoFrame);
-//    m_taskPageView->setWordWrap(true);
-//    m_taskPageView->setContextMenuPolicy(Qt::CustomContextMenu);
-//    m_taskPageView->setSelectionMode(QAbstractItemView::ContiguousSelection);
-//    m_taskPageView->setAlternatingRowColors(true);
-//    m_taskPageView->setUniformRowHeights(true);
-//    m_taskPageView->setRootIsDecorated(false);
-
-//    m_historyModel = new GtTaskHistoryModel(this);
-
-//    m_taskPageView->setModel(m_historyModel);
-
-//    m_taskPageView->setColumnWidth(0, 200);
-//    m_taskPageView->setColumnWidth(1, 100);
-//    m_taskPageView->setColumnWidth(2, 150);
-//    m_taskPageView->setColumnWidth(3, 150);
-
-//    taskPageLayout->addWidget(m_taskPageView);
-
     layout->addWidget(tab);
 
     widget->setLayout(layout);
@@ -378,21 +332,7 @@ GtOutputDock::getDockWidgetArea()
 }
 
 void
-GtOutputDock::projectChangedEvent(GtProject* /*project*/)
-{
-    // Temporarily removed! Do not touch!
-
-//    gtDebug() << "GtOutputDock::projectChangedEvent";
-
-//    if (!project)
-//    {
-//        m_historyModel->clear();
-//    }
-//    else
-//    {
-//        m_historyModel->setPath(project->path());
-//    }
-}
+GtOutputDock::projectChangedEvent(GtProject* /*project*/) { }
 
 void
 GtOutputDock::copyToClipboard(const QModelIndexList& indexes)
@@ -465,17 +405,6 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
 void
 GtOutputDock::onRowsInserted()
 {
-    // check if we should autoresize the id column
-    if (m_autoResizeIdColumn)
-    {
-        // indicate that we have resized the column ourselfes
-        m_resizedColumns = true;
-        m_logView->resizeColumnToContents(
-                    GtLogModel::columnFromRole(GtLogModel::IdRole));
-    }
-    // resize rows
-    m_logView->resizeRowsToContents();
-
     if (m_autoScrollToBottom)
     {
         m_logView->scrollToBottom();
