@@ -43,19 +43,19 @@ GtPyHighlighter::GtPyHighlighter(QTextDocument* parent) :
 void
 GtPyHighlighter::initializeRules()
 {
-    foreach (const QString& currKeyword, keywords)
+    foreach (const QString& currKeyword, qAsConst(keywords))
     {
         rules.append(GtHighlightingRule(QString("\\b%1\\b").arg(currKeyword), 0,
                                         basicStyles.value("keyword")));
     }
 
-    foreach (const QString& currOperator, operators)
+    foreach (const QString& currOperator, qAsConst(operators))
     {
         rules.append(GtHighlightingRule(QString("%1").arg(currOperator), 0,
                                         basicStyles.value("operator")));
     }
 
-    foreach (const QString& currBrace, braces)
+    foreach (const QString& currBrace, qAsConst(braces))
     {
         rules.append(GtHighlightingRule(QString("%1").arg(currBrace), 0,
                                         basicStyles.value("brace")));
@@ -112,7 +112,7 @@ GtPyHighlighter::initializeRules()
 void
 GtPyHighlighter::highlightBlock(const QString& text)
 {
-    foreach (const GtHighlightingRule& currRule, rules)
+    foreach (const GtHighlightingRule& currRule, qAsConst(rules))
     {
         int idx = currRule.pattern.indexIn(text, 0);
 
