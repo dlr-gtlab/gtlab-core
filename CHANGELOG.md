@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed mirco stutters when new messages are appended to the output dock. - #1165
 - Fixed unicode characters not correctly saved to tasks, in particular python tasks and file properties - #1125, #45
 
+### Changed
+- Warning for unknown classes only triggers Error dialog in developer mode of GTlab - #1160
+
 ## [2.0.6] - 2023-11-07 
 ### Fixed
 - Fix examples widget for new structure of process files - #593
