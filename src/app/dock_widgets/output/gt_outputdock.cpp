@@ -19,8 +19,7 @@
 #include "gt_outputtester.h"
 #include "gt_searchwidget.h"
 #include "gt_project.h"
-#include "gt_datamodel.h"
-#include "gt_task.h"
+#include "gt_colors.h"
 #include "gt_icons.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
@@ -160,8 +159,8 @@ GtOutputDock::GtOutputDock()
 
     filterLayout->addStretch(1);
 
-    const auto setupButton =
-        [&](QIcon const& icon = {}, QString const& tooltip = {}){
+    const auto setupButton = [&](QIcon const& icon = {},
+                                 QString const& tooltip = {}){
         auto* button = new QPushButton;
         button->setIcon(icon);
         button->setMaximumSize(QSize(20, 20));
@@ -172,9 +171,10 @@ GtOutputDock::GtOutputDock()
     };
 
     /// helper method for setting up an output action button
-    const auto setupActionButton =
-            [&](QIcon const& icon, QString const& tooltip,
-                auto reciever, auto signal){
+    const auto setupActionButton = [&](QIcon const& icon,
+                                       QString const& tooltip,
+                                       auto* reciever,
+                                       auto signal){
         auto* button = setupButton(icon, tooltip);
         QObject::connect(button, &QPushButton::clicked, reciever, signal);
         return button;
@@ -184,16 +184,31 @@ GtOutputDock::GtOutputDock()
     guardian->setParent(this);
 
     /// helper method for setting up an output toggle button
-    const auto setupToggleButton =
-            [&](QIcon const& icon, QString const& type, QString const& tooltip, auto* reciever, auto signal){
+    const auto setupToggleButton = [&](QIcon const& icon,
+                                       QString const& type,
+                                       QString const& tooltip,
+                                       auto* reciever,
+                                       auto signal){
+
+        using gt::gui::color::disabled;  // color if button is disabled
+        using gt::gui::color::highlight; // color if button is enabled
+        using gt::gui::colorize; // use custom colors for icon
 
         auto* button = setupButton(icon, tooltip);
         button->setCheckable(true);
 
+        // checked button do not use On/Off Icons, thus we have to update the
+        // icon ourselfes
+        auto const updateIconColor = [b = QPointer<QPushButton>(button)](){
+            assert (b);
+            return b->isChecked() ? highlight() : disabled();
+        };
+        button->setIcon(colorize(icon, gt::gui::SvgColorData{ updateIconColor }));
+
         connect(button, &QPushButton::toggled, reciever, signal);
 
         GtState* state =
-            gtStateHandler->initializeState(metaObject()->className(),
+            gtStateHandler->initializeState(staticMetaObject.className(),
                                             type, type.toLower(),
                                             QVariant::fromValue(true),
                                             guardian);
@@ -251,38 +266,41 @@ GtOutputDock::GtOutputDock()
         connect(ignoreButton, &QPushButton::toggled, this, updateIgnoreButton);
     }
 
+    // add spacer to distinguish filter buttons from the action buttons
+    filterLayout->addSpacing(8);
+
     auto loggingLevel = gt::log::Logger::instance().loggingLevel();
 
     // trace message button
-    m_traceButton = setupToggleButton(gt::gui::icon::traceColorized(),
+    m_traceButton = setupToggleButton(gt::gui::icon::trace(),
                                       QStringLiteral("Trace"),
                                       tr("Show/Hide Trace Output"),
                                       m_model,
                                       &GtFilteredLogModel::filterTraceLevel);
 
     // debug message button
-    m_debugButton = setupToggleButton(gt::gui::icon::bugColorized(),
+    m_debugButton = setupToggleButton(gt::gui::icon::bug(),
                                       QStringLiteral("Debug"),
                                       tr("Show/Hide Debug Output"),
                                       m_model,
                                       &GtFilteredLogModel::filterDebugLevel);
 
     // info message button
-    m_infoButton = setupToggleButton(gt::gui::icon::infoColorized(),
+    m_infoButton = setupToggleButton(gt::gui::icon::info(),
                                      QStringLiteral("Info"),
                                      tr("Show/Hide Info Output"),
                                      m_model,
                                      &GtFilteredLogModel::filterInfoLevel);
 
     // warning message button
-    m_warningButton = setupToggleButton(gt::gui::icon::warningColorized(),
+    m_warningButton = setupToggleButton(gt::gui::icon::warning(),
                                         QStringLiteral("Warning"),
                                         tr("Show/Hide Warning Output"),
                                         m_model,
                                         &GtFilteredLogModel::filterWarningLevel);
 
     // error message button
-    m_errorButton = setupToggleButton(gt::gui::icon::errorColorized(),
+    m_errorButton = setupToggleButton(gt::gui::icon::error(),
                                       QStringLiteral("Error"),
                                       tr("Show/Hide Error Output"),
                                       m_model,
@@ -397,8 +415,7 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
         return;
     }
 
-    const QMetaObject* m = metaObject();
-    QString cat = m->className();
+    QString cat = staticMetaObject.className();
 
     if (gtApp->compareKeyEvent(event, "toggleTraceOutput", cat))
     {
