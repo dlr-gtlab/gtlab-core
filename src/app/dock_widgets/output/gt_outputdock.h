@@ -65,14 +65,6 @@ private:
     /// Toggle error button (hide/show)
     QPushButton* m_errorButton{};
 
-    /// Flag inidicating whether to resize the columns automatically.
-    /// (affects only id column, time and level columns are resized once,
-    ///  message column is always stretched)
-    bool m_autoResizeIdColumn{true};
-
-    /// Flag inidicating that the id column was resized programmatically
-    bool m_resizedColumns{false};
-
     /// Flag, whether the log should be automatically scrolled to the bottom or not
     bool m_autoScrollToBottom{true};
 
