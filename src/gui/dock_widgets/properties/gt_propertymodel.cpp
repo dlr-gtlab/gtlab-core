@@ -437,7 +437,7 @@ GtPropertyModel::addNewStructContainerEntry(
     GtPropertyStructInstance* newEntry = nullptr;
 
     {
-        auto cmd = gtApp->makeCommand(gtApp->currentProject(),
+        auto cmd = gtApp->makeCommand(m_scope,
                                       gt::propertyItemCommandString(
                                           m_obj->objectName(),
                                           container.name(),
@@ -503,7 +503,7 @@ GtPropertyModel::removeStructContainerEntry(const QModelIndex& index)
         return;
     }
 
-    auto cmd = gtApp->makeCommand(gtApp->currentProject(),
+    auto cmd = gtApp->makeCommand(m_scope,
                                   gt::propertyItemCommandString(
                                       m_obj->objectName(),
                                       container->name(),
