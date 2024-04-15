@@ -13,6 +13,7 @@ set(headers
     gt_consoleparser.h
     gt_remoteprocessrunner.h
     gt_remoteprocessrunnerstates.h
+    gt_consolerunprocess.h
 )
 
 set(sources
@@ -21,6 +22,7 @@ set(sources
     gt_consoleparser.cpp
     gt_remoteprocessrunner.cpp
     gt_remoteprocessrunnerstates.cpp
+    gt_consolerunprocess.cpp
 )
 
 if (WIN32)
