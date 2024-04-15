@@ -23,6 +23,10 @@ class GtStyle : public QProxyStyle
     Q_OBJECT
 
 public:
+    /**
+     * @brief Returns the current style
+     */
+    static GtStyle& current();
 
     /// constructor
     GtStyle();

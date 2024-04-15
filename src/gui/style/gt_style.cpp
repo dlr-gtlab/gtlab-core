@@ -20,6 +20,8 @@
 #include <QPainter>
 #include <QStyleOption>
 
+#include <mutex>
+
 using namespace gt::gui;
 
 GtStyle::GtStyle() :
@@ -194,4 +196,51 @@ GtStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption* option, c
     }
 
     return QProxyStyle::standardIcon(standardIcon, option, widget);
+}
+
+namespace
+{
+
+/**
+ * This manager can hold all the different styles
+ *
+ * it will create and store styles on the fly
+ */
+class StyleManager
+{
+public:
+    static StyleManager& instance()
+    {
+        static StyleManager inst;
+        return inst;
+    }
+
+    /// Returns the current style
+    GtStyle& currentStyle() const
+    {
+        const auto currentStyleMode = gtApp->inDarkMode();
+        const auto styleIter = map.find(currentStyleMode);
+
+        // we need to create new styles on the fly, as GtStyle cannot be set to a specific style
+        if (styleIter == std::end(map))
+        {
+            std::lock_guard<std::mutex> _(mapMutex);
+            map.emplace(currentStyleMode, std::make_unique<GtStyle>());
+        }
+
+        return *map[currentStyleMode];
+    }
+
+private:
+    StyleManager() = default;
+
+    mutable std::map<bool, std::unique_ptr<GtStyle>> map;
+    mutable std::mutex mapMutex;
+};
+
+} // namespace
+
+GtStyle &GtStyle::current()
+{
+    return StyleManager::instance().currentStyle();
 }

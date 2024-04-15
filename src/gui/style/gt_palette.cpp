@@ -145,15 +145,6 @@ gt::gui::standardTheme()
     return p;
 }
 
-namespace
-{
-    GtStyle& getStyle()
-    {
-        static GtStyle s;
-        return s;
-    }
-}
-
 
 template <typename Widget>
 void setStyle(Widget& w);
@@ -161,7 +152,7 @@ void setStyle(Widget& w);
 template <>
 void setStyle(QWidget& w)
 {
-    w.setStyle(&getStyle());
+    w.setStyle(&GtStyle::current());
 }
 
 template <>
