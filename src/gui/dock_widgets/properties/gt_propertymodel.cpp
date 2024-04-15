@@ -18,9 +18,6 @@
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 #include "gt_application.h"
-#include "gt_command.h"
-#include "gt_project.h"
-#include "gt_utilities.h"
 
 GtPropertyModel::GtPropertyModel(GtObject* scope,
                                  QObject* parent) :
