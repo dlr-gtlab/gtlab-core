@@ -32,7 +32,7 @@ struct GtPropertyStructContainer::Impl
     using TypeIdStr = QString;
     std::map<TypeIdStr, GtPropertyStructDefinition> allowedTypes;
     gt::PolyVector<GtPropertyStructInstance> entries;
-    int flags;
+    int flags = {0};
 };
 
 GtPropertyStructContainer::GtPropertyStructContainer(const QString& ident,
