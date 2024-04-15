@@ -143,6 +143,8 @@ GtPropertiesDock::objectSelected(GtObject* obj)
         // check for property container
         for (GtPropertyStructContainer& c : obj->propertyContainers())
         {
+            if (c.getFlags() & GtPropertyStructContainer::IsHidden) continue;
+
             GtPropertyContainerWidget* wid = new GtPropertyContainerWidget(
                         obj, c, m_tab);
 

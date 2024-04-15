@@ -44,6 +44,16 @@ public:
 
     ~GtPropertyStructContainer() override;
 
+    enum Flags
+    {
+        IsHidden   = 1,
+        IsReadOnly = 2,
+
+    };
+
+    int getFlags() const;
+    void setFlags(int);
+
     /**
      * @brief registerAllowedType
      * @param typeID
