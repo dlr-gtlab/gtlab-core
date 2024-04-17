@@ -51,7 +51,7 @@ gt::console::run(const QStringList &args)
 
     if (!p.parse(args))
     {
-        gtWarning() << QObject::tr("Run method without arguments is invalid");
+        gtError() << QObject::tr("Run method without arguments is invalid");
         return -1;
     }
 
@@ -83,7 +83,7 @@ gt::console::run(const QStringList &args)
         else if (p.positionalArguments().size() < 2 ||
                 p.positionalArguments().size() > 3)
         {
-            gtWarning() << QObject::tr("Invalid usage of file option");
+            gtError() << QObject::tr("Invalid usage of file option");
             return -1;
         }
 
@@ -97,9 +97,9 @@ gt::console::run(const QStringList &args)
         taskGroup = p.positionalArguments().at(2);
     }
     else if (p.positionalArguments().size() < 2 ||
-            p.positionalArguments().size() > 3)
+             p.positionalArguments().size() > 3)
     {
-        gtWarning() << QObject::tr("Invalid usage of file option");
+        gtError() << QObject::tr("Invalid usage of file option");
         return -1;
     }
 
@@ -156,16 +156,14 @@ gt::console::runProcess(const QString& projectId,
 
     if (projectId.isEmpty())
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("project id is empty!");
+        gtError() << QObject::tr("Project id is empty!");
 
         return -1;
     }
 
     if (processId.isEmpty())
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("process id is empty!");
+        gtError() << QObject::tr("Process id is empty!");
 
         return -1;
     }
@@ -174,40 +172,28 @@ gt::console::runProcess(const QString& projectId,
 
     if (!project)
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("project not found!")
-                    << QStringLiteral(" (") << projectId << QStringLiteral(")");
+        gtError() << QObject::tr("Project not found!")
+                  << QStringLiteral(" (") << projectId << QStringLiteral(")");
 
         return -1;
     }
 
     if (!gtDataModel->GtCoreDatamodel::openProject(project))
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("could not open project!")
-                    << QStringLiteral(" (") << projectId << QStringLiteral(")");
+        gtError() << QObject::tr("could not open project!")
+                  << QStringLiteral(" (") << projectId << QStringLiteral(")");
 
         return -1;
     }
 
     gtDebug() << QObject::tr("project opened!");
 
-    GtTask* process = nullptr;
-
-    if (taskGroupId.isEmpty())
-    {
-        process = project->findProcess(processId);
-    }
-    else
-    {
-        process = getTask(project, taskGroupId, processId);
-    }
+    GtTask* process = getTask(project, processId, taskGroupId);
 
     if (!process)
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("process not found!")
-                    << QStringLiteral(" (") << processId << QStringLiteral(")");
+        gtError() << QObject::tr("Process not found!")
+                  << QStringLiteral(" (") << processId << QStringLiteral(")");
 
         return -1;
     }
@@ -217,7 +203,7 @@ gt::console::runProcess(const QString& projectId,
 
     if (process->currentState() != GtProcessComponent::FINISHED)
     {
-        gtWarning() << QObject::tr("Calculator run failed!");
+        gtError() << QObject::tr("Calculator run failed!");
         return -1;
     }
 
@@ -227,10 +213,9 @@ gt::console::runProcess(const QString& projectId,
     {
         if (!gtDataModel->saveProject(project))
         {
-            gtWarning() << QStringLiteral("ERROR: ")
-                        << QObject::tr("project could not be saved!")
-                        << QStringLiteral(" (") << projectId
-                        << QStringLiteral(")");
+            gtError() << QObject::tr("Project could not be saved!")
+                      << QStringLiteral(" (") << projectId
+                      << QStringLiteral(")");
             return -1;
         }
     }
@@ -248,16 +233,14 @@ gt::console::runProcessByFile(const QString& projectFile,
 
     if (projectFile.isEmpty())
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("project file is empty!");
+        gtError() << QObject::tr("Project file is empty!");
 
         return -1;
     }
 
     if (processId.isEmpty())
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("process id is empty!");
+        gtError() << QObject::tr("Process id is empty!");
 
         return -1;
     }
@@ -266,10 +249,9 @@ gt::console::runProcessByFile(const QString& projectFile,
 
     if (!file.exists())
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("project file")
-                    << projectFile
-                    << QObject::tr("not found!");
+        gtError() << QObject::tr("project file")
+                  << projectFile
+                  << QObject::tr("not found!");
 
         return -1;
     }
@@ -287,10 +269,9 @@ gt::console::runProcessByFile(const QString& projectFile,
 
     if (!gtDataModel->GtCoreDatamodel::openProject(project))
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("could not open project!")
-                    << QStringLiteral(" (") << projectFile
-                    << QStringLiteral(")");
+        gtError() << QObject::tr("Could not open project!")
+                  << QStringLiteral(" (") << projectFile
+                  << QStringLiteral(")");
 
         return -1;
     }
@@ -301,9 +282,8 @@ gt::console::runProcessByFile(const QString& projectFile,
     GtTask* process = project->findProcess(processId);
     if (!process)
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("process not found!")
-                    << QStringLiteral(" (") << processId << QStringLiteral(")");
+        gtError() << QObject::tr("Process not found!")
+                  << QStringLiteral(" (") << processId << QStringLiteral(")");
 
         return -1;
     }
@@ -325,10 +305,9 @@ gt::console::runProcessByFile(const QString& projectFile,
     {
         if (!gtDataModel->saveProject(project))
         {
-            gtWarning() << QStringLiteral("ERROR: ")
-                        << QObject::tr("project could not be saved!")
-                        << QStringLiteral(" (") << projectFile
-                        << QStringLiteral(")");
+            gtError() << QObject::tr("project could not be saved!")
+                      << QStringLiteral(" (") << projectFile
+                      << QStringLiteral(")");
             return -1;
         }
     }
@@ -339,17 +318,21 @@ gt::console::runProcessByFile(const QString& projectFile,
 
 
 GtTask*
-gt::console::getTask(GtProject* project, const QString& groupid,
-                     const QString& taskId)
+gt::console::getTask(GtProject* project,
+                     const QString& taskId, const QString& groupid)
 {
     if (!project) return nullptr;
+
+    if (groupid.isEmpty())
+    {
+        return project->findProcess(taskId);
+    }
 
     GtProcessData* processData = project->processData();
 
     if (!processData)
     {
-        gtError() << QStringLiteral("ERROR:")
-                  << QObject::tr("Invalid Process data in project!")
+        gtError() << QObject::tr("Invalid Process data in project!")
                   << QStringLiteral(" (") << project->objectName()
                   << QStringLiteral(")");
         return nullptr;
@@ -361,14 +344,13 @@ gt::console::getTask(GtProject* project, const QString& groupid,
 
     if (!check)
     {
-        processData->switchCurrentTaskGroup(groupid, GtTaskGroup::USER,
-                                            project->path());
+        check = processData->switchCurrentTaskGroup(groupid, GtTaskGroup::USER,
+                                                    project->path());
     }
 
     if (!check)
     {
-        gtError() << QStringLiteral("ERROR:")
-                  << QObject::tr("Cannot switch to grouId '%1'!").arg(groupid);
+        gtError() << QObject::tr("Cannot switch to grouId '%1'!").arg(groupid);
         return nullptr;
     }
 

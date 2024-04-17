@@ -61,9 +61,8 @@ checkMetaInput(const QStringList& args)
 
     if (p.positionalArguments().size() != 1)
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("Invalid size of arguments for check meta!"
-                                   "Exactly one argument is required");
+        gtError() << QObject::tr("Invalid size of arguments for check meta!"
+                                 "Exactly one argument is required");
         return -1;
     }
 
@@ -73,8 +72,7 @@ checkMetaInput(const QStringList& args)
 
     if (fileName.isEmpty())
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("file name is empty!");
+        gtError() << QObject::tr("File name is empty!");
         return -1;
     }
 
@@ -82,8 +80,7 @@ checkMetaInput(const QStringList& args)
                                GtCoreApplication::version().toString(),
                                false, false))
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("meta input invalid!");
+        gtError() << QObject::tr("Meta input invalid!");
         return -1;
     }
 
@@ -99,8 +96,8 @@ runMetaInput(const QStringList& args)
 
     if (p.positionalArguments().size() < 2)
     {
-        gtWarning() << QObject::tr("Invalid arguments for runMetaInput.");
-        gtWarning() << QObject::tr("Two arguments needed as <Input> <Output>");
+        gtError() << QObject::tr("Invalid arguments for runMetaInput.");
+        gtError() << QObject::tr("Two arguments needed as <Input> <Output>");
 
         return -1;
     }
@@ -113,15 +110,13 @@ runMetaInput(const QStringList& args)
 
     if (inputFileName.isEmpty())
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("input file name is empty!");
+        gtError() << QObject::tr("input file name is empty!");
         return -1;
     }
 
     if (outputFileName.isEmpty())
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("output file name is empty!");
+        gtError() << QObject::tr("output file name is empty!");
         return -1;
     }
 
@@ -132,8 +127,7 @@ runMetaInput(const QStringList& args)
 
     if (inputCheck != 0)
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("meta input run failed!");
+        gtError() << QObject::tr("Meta input run failed!");
         return inputCheck;
     }
 
@@ -142,8 +136,7 @@ runMetaInput(const QStringList& args)
     if (!gt::batch::run(inputFileName, outputFileName,
                         GtCoreApplication::version().toString()))
     {
-        gtWarning() << QStringLiteral("ERROR: ")
-                    << QObject::tr("process execution failed!");
+        gtError() << QObject::tr("process execution failed!");
         return -1;
     }
 
@@ -791,7 +784,7 @@ initModuleTest(QStringList const& arguments, GtCoreApplication& app)
 
     if (p.positionalArguments().size() != 2)
     {
-        gtError().noquote() << QObject::tr("Error: missing module file\n");
+        gtError().noquote() << QObject::tr("Missing module file\n");
         gtInfo().noquote() << QObject::tr("Usage: load_module <module_file_path>");
         return -1;
     }
@@ -915,7 +908,7 @@ int main(int argc, char* argv[])
 
     if (!app.session())
     {
-        gtWarning() << QObject::tr("no session loaded!");
+        gtError() << QObject::tr("no session loaded!");
         return -1;
     }
 
@@ -942,8 +935,8 @@ int main(int argc, char* argv[])
             return 0;
         }
 
-        gtWarning() << QObject::tr("No valid argument could be found in the "
-                                   "arguments:");
+        gtError() << QObject::tr("No valid argument could be found in the "
+                                 "arguments:");
         parser.debugArguments();
         return -1;
     }
@@ -975,8 +968,8 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    gtWarning() << QObject::tr("invalid arguments! "
-                               "use run --help for further information.");
+    gtError() << QObject::tr("invalid arguments! "
+                             "use run --help for further information.");
 
     parser.showHelp();
 

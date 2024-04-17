@@ -30,8 +30,9 @@ int run(QStringList const& args);
 
 void printRunHelp();
 
-GtTask* getTask(GtProject* project, QString const& groupid,
-                QString const& taskId);
+GtTask* getTask(GtProject* project,
+                QString const& taskId,
+                QString const& groupid = "");
 
 /**
  * @brief runProcess
