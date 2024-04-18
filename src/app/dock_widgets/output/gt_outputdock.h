@@ -43,6 +43,12 @@ protected:
      */
     void projectChangedEvent(GtProject* project) override;
 
+    /**
+     * @brief keyPressEvent
+     * @param event - key press event to handle
+     */
+    void keyPressEvent(QKeyEvent* event) override;
+
 private:
     /// Log view
     GtTableView* m_logView{};
@@ -80,12 +86,6 @@ private:
      * @param indexes - list of modelIndices to be deleted
      */
     void removeItems(const QModelIndexList& indexes);
-
-    /**
-     * @brief keyPressEvent
-     * @param event - key press event to handle
-     */
-    void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
     /**
