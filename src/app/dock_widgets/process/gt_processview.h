@@ -53,6 +53,11 @@ protected:
      */
     void mousePressEvent(QMouseEvent* event) override;
 
+    /**
+     * @brief dropEvent
+     * @param event
+     */
+    void dropEvent(QDropEvent* event) override;
 signals:
     /**
      * @brief pasteProcessElement
@@ -102,6 +107,9 @@ signals:
      * @param index - modelindex for which the signal is emited
      */
     void renameProcessElement(const QModelIndex& index);
+
+    void moveProcessElements(const QList<QModelIndex>& source,
+                             const QModelIndex& target);
 };
 
 #endif // GTPROCESSVIEW_H
