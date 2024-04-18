@@ -13,6 +13,7 @@
 
 #include "gt_application.h"
 #include "gt_icons.h"
+#include "gt_logging.h"
 #include "gt_processview.h"
 
 GtProcessView::GtProcessView(QWidget* parent) : GtTreeView(parent)
@@ -164,7 +165,7 @@ GtProcessView::dropEvent(QDropEvent* event)
 
     QModelIndex newIndex = indexAt(event->pos());
 
-    if (newIndex.isValid() && !indexes.isEmpty())
+    if (!indexes.isEmpty())
     {
         emit moveProcessElements(indexes, newIndex);
         event->accept();

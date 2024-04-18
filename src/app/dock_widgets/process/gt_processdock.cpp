@@ -1405,8 +1405,9 @@ void
 GtProcessDock::moveElements(const QList<QModelIndex>& source,
                             const QModelIndex& target)
 {
-    if (!target.isValid() || source.isEmpty()) return;
+    if (source.isEmpty()) return;
 
+    // collect the objects to move
     QList<QModelIndex> mapped;
 
     for (QModelIndex i : source)
@@ -1440,7 +1441,32 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         }
     }
 
+    // if no valid object to move could be found leave
     if (objectsToMove.isEmpty()) return;
+
+    // if target is not valid it is the current task group
+    if (!target.isValid())
+    {
+        // check if all selected elements are tasks
+        for (auto* o : objectsToMove)
+        {
+            if (!qobject_cast<GtTask*>(o))
+            {
+                gtWarning() << tr("Only tasks can be made to root elements");
+                gtWarning() << o->objectName() << tr("is not a task");
+                return;
+            }
+        }
+
+        auto moveCmd = gtApp->makeCommand(gtApp->currentProject(),
+                                          tr("move tasks element"));
+        for (auto o : objectsToMove)
+        {
+            gtDataModel->appendChild(o, m_taskGroup);
+        }
+
+        return;
+    }
 
     QModelIndex mappedTarget = mapToSource(target);
 
@@ -1450,7 +1476,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
 
     if (!targetComp) return;
 
-    auto moveCmd = gtApp->makeCommand(gtApp->currentProject(),
+    auto moveCmd = gtApp->makeCommand(m_taskGroup,
                                       tr("move process element"));
 
     if (auto taskParent = qobject_cast<GtTask*>(targetComp))
