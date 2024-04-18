@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed unicode characters not correctly saved to tasks, in particular python tasks and file properties - #1125, #45
 - Fixed copying in output dock using keyboard shortcut sometimes not working as expected. - #1136
 
+### Added
+- Added app setting to change logging level at runtime. - #1086
+
 ### Changed
 - Improved performance of the python syntax highlighter - #1139
 - (In-)active filter buttons for the logging level in the output dock are now better distinuishable. - #606 

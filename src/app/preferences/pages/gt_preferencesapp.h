@@ -62,6 +62,9 @@ private:
     /// Select the logging verbosity
     QComboBox* m_verbositySelection;
 
+    /// Select the logging level
+    QComboBox* m_loggingLevelSelection;
+
     /// Select the theme to use (by system, dark, bright)
     QComboBox* m_themeSelection;
 
@@ -70,7 +73,7 @@ private slots:
      * @brief onAutoSaveTriggered
      * @param val
      */
-    void onAutoSaveTriggered(bool val);
+    [[deprecated]] void onAutoSaveTriggered(bool val);
 
 };
 

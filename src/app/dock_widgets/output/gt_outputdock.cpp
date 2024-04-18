@@ -295,15 +295,6 @@ GtOutputDock::GtOutputDock()
 
     defaultLayout->addLayout(filterLayout);
 
-    if (loggingLevel > gt::log::TraceLevel)
-    {
-        m_traceButton->hide();
-    }
-    if (loggingLevel > gt::log::DebugLevel)
-    {
-        m_debugButton->hide();
-    }
-
     layout->addWidget(tab);
 
     widget->setLayout(layout);

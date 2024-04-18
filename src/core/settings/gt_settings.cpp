@@ -10,13 +10,13 @@
 
 #include "gt_settings.h"
 #include "gt_settingsitem.h"
+#include "gt_loglevel.h"
 
 #include <QDir>
 #include <QSettings>
 #include <QMap>
 #include <QKeySequence>
 #include <QString>
-
 
 struct GtSettings::Impl
 {
@@ -56,6 +56,8 @@ struct GtSettings::Impl
 
     ///
     GtSettingsItem* loggingVerbosity;
+
+    GtSettingsItem* loggingLevel;
 
     ///
     GtSettingsItem* lastProcessElements;
@@ -115,6 +117,9 @@ GtSettings::GtSettings()
     pimpl->loggingVerbosity = registerSetting(
                          QStringLiteral("application/general/loggingVerbosity"),
                          (int) 0);
+    pimpl->loggingLevel = registerSetting(
+                         QStringLiteral("application/general/loggingLevel"),
+                         (int)gt::log::InfoLevel);
     pimpl->lastProcessElements =
             registerSetting(
                 QStringLiteral("application/process/lastelements"),
@@ -486,6 +491,18 @@ int
 GtSettings::loggingVerbosity() const
 {
     return pimpl->loggingVerbosity->getValue().toInt();
+}
+
+void
+GtSettings::setLoggingLevel(int value)
+{
+    pimpl->loggingLevel->setValue(value);
+}
+
+int
+GtSettings::loggingLevel() const
+{
+    return pimpl->loggingLevel->getValue().toInt();
 }
 
 void

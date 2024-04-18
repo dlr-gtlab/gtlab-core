@@ -275,6 +275,18 @@ public:
     int loggingVerbosity() const;
 
     /**
+     * @brief Setter for the logging level (see gt::log::Level)
+     * @param value
+     */
+    void setLoggingLevel(int value);
+
+    /**
+     * @brief Getter for the logging level (see gt::log::Level)
+     * @return Logging Level
+     */
+    int loggingLevel() const;
+
+    /**
      * @brief Sets last used process elements.
      * @param list List of last used process element class names.
      */
