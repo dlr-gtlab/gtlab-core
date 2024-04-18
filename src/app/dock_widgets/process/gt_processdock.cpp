@@ -914,7 +914,7 @@ GtProcessDock::makeAddMenu(QMenu& menu)
 
     // add empty task action
     auto addEmptyTask = std::bind(&GtProcessDock::addEmptyTaskToRoot, this);
-    auto addemptytask = gt::gui::makeAction(tr("Empty Task as Root"),
+    auto addemptytask = gt::gui::makeAction(tr("Empty Root Task"),
                                             addEmptyTask)
                             .setIcon(gt::gui::icon::processAdd());
 
