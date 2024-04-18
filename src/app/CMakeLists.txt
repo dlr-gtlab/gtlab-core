@@ -14,7 +14,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 
 set(headers
-    dialogs/gt_logerrormessagebox.h
     dialogs/gt_moduledetailsdialog.h
     dialogs/gt_markdowneditor.h
     dialogs/gt_refusedpluginsdialog.h
@@ -110,7 +109,6 @@ set(forms ui/gt_mainwin.ui)
 
 set(sources
     app.cpp
-    dialogs/gt_logerrormessagebox.cpp
     dialogs/gt_moduledetailsdialog.cpp
     dialogs/gt_markdowneditor.cpp
     dialogs/gt_refusedpluginsdialog.cpp

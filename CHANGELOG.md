@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Warning for unknown classes is now only shown in the developer mode of GTlab - #1160
 - Changed call of process execution in console application to enable call of tasks of different task groups- #1144
 
+### Removed
+- Removed the error message dialog. - #611
+
 ## [2.0.6] - 2023-11-07 
 ### Fixed
 - Fix examples widget for new structure of process files - #593
