@@ -18,9 +18,6 @@
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 #include "gt_application.h"
-#include "gt_command.h"
-#include "gt_project.h"
-#include "gt_utilities.h"
 
 GtPropertyModel::GtPropertyModel(GtObject* scope,
                                  QObject* parent) :
@@ -437,7 +434,7 @@ GtPropertyModel::addNewStructContainerEntry(
     GtPropertyStructInstance* newEntry = nullptr;
 
     {
-        auto cmd = gtApp->makeCommand(gtApp->currentProject(),
+        auto cmd = gtApp->makeCommand(m_scope,
                                       gt::propertyItemCommandString(
                                           m_obj->objectName(),
                                           container.name(),
@@ -503,7 +500,7 @@ GtPropertyModel::removeStructContainerEntry(const QModelIndex& index)
         return;
     }
 
-    auto cmd = gtApp->makeCommand(gtApp->currentProject(),
+    auto cmd = gtApp->makeCommand(m_scope,
                                   gt::propertyItemCommandString(
                                       m_obj->objectName(),
                                       container->name(),

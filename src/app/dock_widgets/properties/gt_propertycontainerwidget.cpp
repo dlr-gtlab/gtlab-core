@@ -142,7 +142,7 @@ GtPropertyContainerWidget::addNewEntry(GtPropertyStructContainer& container,
             QStringLiteral(" ") +
             QObject::tr("Entry added");
 
-    auto cmd = gtApp->makeCommand(gtApp->currentProject(), cmdStr);
+    auto cmd = gtApp->makeCommand(m_obj, cmdStr);
     Q_UNUSED(cmd)
 
     container.newEntry(entryType);
