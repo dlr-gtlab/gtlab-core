@@ -882,7 +882,7 @@ void
 GtMainWin::runBugReport()
 {
     QString link =
-        QStringLiteral("https://gitlab.dlr.de/gtlab-bugtracking/gtlab-issuetracking/-/issues");
+        QStringLiteral("https://github.com/dlr-gtlab/gtlab-core/issues");
     QDesktopServices::openUrl(QUrl(link));
 }
 

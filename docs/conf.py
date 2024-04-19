@@ -66,6 +66,10 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['static']
 
+html_css_files = [
+    'css/custom.css',
+]
+
 # Breathe Configuration
 breathe_projects = {"gtlab": "doxygen/xml"}
 breathe_default_project = "gtlab"

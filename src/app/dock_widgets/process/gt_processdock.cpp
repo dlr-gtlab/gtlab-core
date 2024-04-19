@@ -145,7 +145,7 @@ GtProcessDock::GtProcessDock() :
     // task group overview and selection
     m_taskGroupSelection = new QComboBox;
 
-    m_taskGroupModel = new GtTaskGroupModel;
+    m_taskGroupModel = new GtTaskGroupModel(this);
     m_taskGroupSelection->setModel(m_taskGroupModel);
 
     auto layout = new QVBoxLayout;
@@ -190,6 +190,8 @@ GtProcessDock::GtProcessDock() :
             SLOT(skipComponent(QModelIndex,bool)));
     connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
+    connect(m_view, SIGNAL(moveProcessElements(QList<QModelIndex>, QModelIndex)),
+            SLOT(moveElements(QList<QModelIndex>, QModelIndex)));
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
@@ -482,10 +484,37 @@ GtProcessDock::addCalculator()
 void
 GtProcessDock::addTask()
 {
-    if (!m_taskGroup)
+    GtObject* parentObj = nullptr;
+
+    if (!m_view->currentIndex().isValid())
     {
-        return;
+        parentObj = m_taskGroup;
     }
+    else
+    {
+        // add task to other task
+        QModelIndex srcIndex = mapToSource(m_view->currentIndex());
+
+        if (!srcIndex.isValid()) return;
+
+        parentObj = gtDataModel->objectFromIndex(srcIndex);
+    }
+
+    addTaskToParent(parentObj);
+}
+
+void
+GtProcessDock::addRootTask()
+{
+    addTaskToParent(m_taskGroup);
+}
+
+void
+GtProcessDock::addTaskToParent(GtObject* parentObj)
+{
+    if (!m_taskGroup) return;
+
+    if (!parentObj) return;
 
     auto project = m_taskGroup->findParent<GtProject*>();
 
@@ -499,55 +528,24 @@ GtProcessDock::addTask()
     GtProcessWizard wizard(project, &provider, this);
     wizard.resize(560, 500);
 
-    if (!wizard.exec())
-    {
-        return;
-    }
+    if (!wizard.exec()) return;
 
-    GtObject* parentObj = nullptr;
-
-    if (!m_view->currentIndex().isValid())
-    {
-        parentObj = m_taskGroup;
-    }
-    else
-    {
-        // add task to other task
-        QModelIndex srcIndex = mapToSource(m_view->currentIndex());
-
-        if (!srcIndex.isValid())
-        {
-            return;
-        }
-
-        parentObj = gtDataModel->objectFromIndex(srcIndex);
-    }
-
-    if (!parentObj)
-    {
-        return;
-    }
+    if (!parentObj) return;
 
     GtObjectMemento memento = provider.componentData();
 
-    if (memento.isNull())
-    {
-        return;
-    }
+    if (memento.isNull()) return;
 
     auto newObj = memento.restore<GtProcessComponent*>(gtProcessFactory);
 
-    if (!newObj)
-    {
-        return;
-    }
+    if (!newObj) return;
 
     QString taskId = gtDataModel->uniqueObjectName(newObj->objectName(),
                      parentObj);
     newObj->setObjectName(taskId);
 
-    gtDebug() << "Task appended! (" << newObj->metaObject()->className()
-              << ")";
+    gtDebug().verbose() << tr("Task appended! (%1)").arg(
+                               newObj->metaObject()->className());
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
@@ -555,10 +553,7 @@ GtProcessDock::addTask()
 
     QModelIndex index = mapFromSource(newIndex);
 
-    if (!index.isValid())
-    {
-        return;
-    }
+    if (!index.isValid()) return;
 
     m_view->setFocus();
 
@@ -573,6 +568,7 @@ GtProcessDock::addTask()
     m_view->setCurrentIndex(index);
     m_view->edit(index);
 }
+
 
 GtTask*
 GtProcessDock::findRootTaskHelper(GtObject* obj)
@@ -919,10 +915,9 @@ GtProcessDock::makeAddMenu(QMenu& menu)
                         gtDataModel->objectFromIndex(srcIdx) : nullptr;
 
     // add empty task action
-    auto addEmptyTask = [this](GtObject* obj){
-        obj ? this->addEmptyTask(obj) : addEmptyTaskToRoot();
-    };
-    auto addemptytask = gt::gui::makeAction(tr("Empty Task"), addEmptyTask)
+    auto addEmptyTask = std::bind(&GtProcessDock::addEmptyTaskToRoot, this);
+    auto addemptytask = gt::gui::makeAction(tr("Empty Root Task"),
+                                            addEmptyTask)
                             .setIcon(gt::gui::icon::processAdd());
 
     auto addCalculator = std::bind(&GtProcessDock::addCalculator, this);
@@ -933,6 +928,10 @@ GtProcessDock::makeAddMenu(QMenu& menu)
     auto addtask = gt::gui::makeAction(tr("New Task..."), addTask)
                        .setIcon(gt::gui::icon::processAdd());
 
+    auto addRootTask = std::bind(&GtProcessDock::addRootTask, this);
+    auto addroottask = gt::gui::makeAction(tr("New Root Task..."), addRootTask)
+                       .setIcon(gt::gui::icon::processAdd());
+
     gt::gui::addToMenu(addemptytask, menu, obj);
 
     menu.addSeparator();
@@ -941,11 +940,12 @@ GtProcessDock::makeAddMenu(QMenu& menu)
     if (obj && qobject_cast<GtTask*>(obj))
     {
         gt::gui::addToMenu(addcalc, menu, obj);
+        gt::gui::addToMenu(addroottask, menu, obj);
     }
     // only add task if obj is not a calc
     if (!obj || qobject_cast<GtTask*>(obj))
     {
-        gt::gui::addToMenu(addtask, menu, obj);
+        gt::gui::addToMenu(addtask, menu, obj);  
     }
 
     if (!gtApp->settings()->lastProcessElements().isEmpty())
@@ -1397,6 +1397,126 @@ GtProcessDock::renameElement()
     {
         m_view->edit(m_view->currentIndex());
     }
+}
+
+void
+GtProcessDock::moveElements(const QList<QModelIndex>& source,
+                            const QModelIndex& target)
+{
+    if (source.isEmpty()) return;
+
+    // collect the objects to move
+    QList<QModelIndex> mapped;
+
+    for (QModelIndex i : source)
+    {
+        if (i.isValid()) mapped.append(mapToSource(i));
+    }
+
+    if (mapped.isEmpty()) return;
+
+    QList<GtObject*> objectsToMove;
+
+    // check if all elements to move have the same parent
+    GtObject* parent = nullptr;
+
+    for (QModelIndex j : qAsConst(mapped))
+    {
+        assert (j.model() == gtDataModel);
+
+        if (auto* p = gtDataModel->objectFromIndex(j))
+        {
+            if (!parent) parent = p->parentObject();
+
+            if (parent != p->parentObject())
+            {
+                gtWarning() << tr("It is only allowed to move elements of the "
+                                  "same task");
+                return;
+            }
+
+            objectsToMove.append(p);
+        }
+    }
+
+    // if no valid object to move could be found leave
+    if (objectsToMove.isEmpty()) return;
+
+    // if target is not valid it is the current task group
+    if (!target.isValid())
+    {
+        // check if all selected elements are tasks
+        for (auto* o : objectsToMove)
+        {
+            if (!qobject_cast<GtTask*>(o))
+            {
+                gtWarning() << tr("Only tasks can be made to root elements");
+                gtWarning() << o->objectName() << tr("is not a task");
+                return;
+            }
+        }
+
+        auto moveCmd = gtApp->makeCommand(gtApp->currentProject(),
+                                          tr("move tasks element"));
+        for (auto o : objectsToMove)
+        {
+            gtDataModel->appendChild(o, m_taskGroup);
+        }
+
+        return;
+    }
+
+    QModelIndex mappedTarget = mapToSource(target);
+
+    GtObject* targetObject = gtDataModel->objectFromIndex(mappedTarget);
+
+    auto targetComp = qobject_cast<GtProcessComponent*>(targetObject);
+
+    if (!targetComp) return;
+
+    auto moveCmd = gtApp->makeCommand(m_taskGroup,
+                                      tr("move process element"));
+
+    if (auto taskParent = qobject_cast<GtTask*>(targetComp))
+    {
+        for (auto o : objectsToMove)
+        {
+            gtDataModel->appendChild(o, taskParent);
+        }
+
+        return;
+    }
+
+    GtObject* targetparent = targetComp->parentObject();
+
+    if (auto tp = qobject_cast<GtTask*>(targetparent))
+    {
+        // to keep the order the swap is neede if the new parent is
+        //  not the current parent
+        if (objectsToMove.first()->parentObject() != tp)
+        {
+            std::reverse(objectsToMove.begin(), objectsToMove.end());
+        }
+
+        for (auto o: objectsToMove)
+        {
+            // if parent is not reset before the insert function
+            // does not work. But remember old parent to use if insert failes
+            GtObject* oldParent = o->parentObject();
+            o->setParent(nullptr);
+
+            QModelIndex check = gtDataModel->insertChild(o, tp,
+                                                         mappedTarget.row());
+
+            if (!check.isValid())
+            {
+                gtWarning() << tr("Process element '%1' could not be "
+                                  "moved").arg(o->objectName());
+                o->setParent(oldParent);
+            }
+        }
+    }
+
 }
 
 void

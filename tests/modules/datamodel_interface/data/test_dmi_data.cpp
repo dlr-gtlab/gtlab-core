@@ -21,7 +21,8 @@ TestDmiData::TestDmiData() :
     m_propTypeA("Type A", "Type A brief"),
     m_propTypeB("Type B", "Type B brief"),
     m_optionalValue("optionalValue", "Optional Value",
-                    "This property is optional")
+                    "This property is optional"),
+    m_fruit("TestEnum", "TestEnum", "")
 {
     setObjectName("Internal_Data");
     setFlag(UserDeletable);
@@ -44,4 +45,8 @@ TestDmiData::TestDmiData() :
     m_optionalValue.setOptional(true);
 
     registerProperty(m_optionalValue);
+
+    m_fruit = Fruit::Apple;
+
+    registerProperty(m_fruit);
 }

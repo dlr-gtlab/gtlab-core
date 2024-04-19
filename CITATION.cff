@@ -1,0 +1,74 @@
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+# SPDX-License-Identifier: CC0-1.0
+
+cff-version: 1.2.0
+title: GTlab
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Stanislaus
+    family-names: Reitenbach
+    affiliation: German Aerospace Center (DLR)
+  - given-names: Jens
+    family-names: Schmeink
+    affiliation: German Aerospace Center (DLR)
+    orcid: 'https://orcid.org/0000-0001-8782-4931'
+  - given-names: Marius
+    family-names: Bröcker
+    affiliation: German Aerospace Center (DLR)
+  - given-names: Marvin
+    family-names: Nöthen
+    affiliation: German Aerospace Center (DLR)
+  - given-names: Martin
+    family-names: Siggel
+    affiliation: German Aerospace Center (DLR)
+    orcid: 'https://orcid.org/0000-0002-3952-4659'
+identifiers:
+  - type: doi
+    value: 10.2514/6.2020-0867
+    description: The paper to concepts and architecture of the core framework.
+  - type: doi
+    value: 10.5281/zenodo.10666587
+    description: Last version of the software
+  - type: doi
+    value: 10.2514/6.2021-1419
+    description: This is the paper for the data model of the propulsion system.
+repository-code: 'https://github.com/dlr-gtlab/gtlab-core'
+url: 'https://github.com/dlr-gtlab/gtlab-core'
+abstract: >-
+  GTlab (Gas Turbine Laboratory) is a versatile software
+  framework designed for multidisciplinary, collaborative
+  research in the field of aircraft propulsion. It supports
+  the design and simulation of propulsion systems and
+  individual components across various levels of detail
+  throughout the entire lifecycle. With advanced core
+  functions in data modeling, data management, workflow
+  management, and other collaborative architectures, GTlab
+  has the potential for applications far beyond the area of
+  propulsion technology.
+
+
+  The key strength of GTlab is its consistently implemented
+  modularity. In addition to powerful core functions and
+  modules, GTlab allows the integration of special
+  plugin-capable extensions to support a wide range of
+  applications. Its high degree of adaptability,
+  extensibility and flexibility is ensured by an
+  object-oriented software concept based on the C++
+  programming language, coupled with the utilization of
+  standardized libraries.
+
+
+  GTlab's modularity is also a key factor in promoting
+  teamwork and collaboration. Different teams can work
+  together efficiently and combine their expertise on a
+  common platform. This increases productivity while
+  encouraging the interdisciplinary approach that is
+  essential for solving complex engineering challenges.
+
+
+  GTlab is developed at the German Aerospace Center (DLR) at
+  the institute of Propulsion Technology.
+license: MPL-2.0

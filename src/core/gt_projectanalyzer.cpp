@@ -9,6 +9,7 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_coreapplication.h"
 #include "gt_footprint.h"
 #include "gt_objectmemento.h"
 
@@ -55,7 +56,7 @@ GtProjectAnalyzer::hasIrregularities()
         return true;
     }
 
-    if (!m_pimpl->m_unknownClasses.isEmpty())
+    if (!m_pimpl->m_unknownClasses.isEmpty() && gtApp->devMode())
     {
         return true;
     }

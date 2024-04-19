@@ -514,3 +514,9 @@ GtProcessComponent::tempDir()
 
     return QDir(pimpl->tempPath);
 }
+
+void
+GtProcessComponent::appendToLinkObjects(QPointer<GtObject> p)
+{
+    linkedObjects().append(p);
+}

@@ -1,0 +1,39 @@
+name: "💡 Feature Request"
+description: Create a new issue for a new feature request
+title: "💡 [REQUEST] - <title>"
+labels: [
+  "type::feature"
+]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Summary"
+      description: Provide a brief explanation of the feature
+      placeholder: Describe in a few lines your feature request
+    validations:
+      required: true
+  - type: textarea
+    id: improvement
+    attributes:
+      label: "Improvements"
+      description: What does the feature improve?
+      placeholder: A few specific words about your feature. What does it improve? Estimate the implementation effort if possible.
+    validations:
+      required: true
+  - type: textarea
+    id: drawbacks
+    attributes:
+      label: "Drawbacks"
+      description: What are the drawbacks/impacts of your feature request ?
+      placeholder: Identify the drawbacks and impacts while being neutral on your feature request. Are API changes required? ...
+    validations:
+      required: true
+  - type: textarea
+    id: workarounds
+    attributes:
+      label: "Current workarounds"
+      description: Are there any workarounds that you use right now?
+      placeholder: If possible, provide ways / workarounds you are using right now that don't rely on the feature...
+    validations:
+      required: false

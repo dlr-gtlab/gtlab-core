@@ -10,11 +10,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
+## [Unreleased]
 ### Fixed
-- Fixed error "Folder id is empty" when starting GTlab on docker  #1135
+- Fixed mirco stutters when new messages are appended to the output dock. - #1165
+- Fixed unicode characters not correctly saved to tasks, in particular python tasks and file properties - #1125, #45
+- Fixed copying in output dock using keyboard shortcut sometimes not working as expected. - #1136
+- Fixed error "Folder id is empty" when starting GTlab on docker - #1135
 
+### Changed
+- Improved performance of the python syntax highlighter - #1139
+- (In-)active filter buttons for the logging level in the output dock are now better distinuishable. - #606 
+- Warning for unknown classes is now only shown in the developer mode of GTlab - #1160
+- Changed call of process execution in console application to enable call of tasks of different task groups- #1144
+
+### Removed
+- Removed the error message dialog. - #611
 
 ## [2.0.6] - 2023-11-07 
 ### Fixed

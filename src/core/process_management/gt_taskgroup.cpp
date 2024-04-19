@@ -493,24 +493,18 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 bool
 GtTaskGroup::Impl::saveTaskToFile(const GtTask* task, const QString& groupPath) const
 {
-    QFile taskFile(groupPath + QDir::separator() + task->uuid() +
+    QString taskFile(groupPath + QDir::separator() + task->uuid() +
                    S_TASK_FILE_EXT);
 
-
-    if (!taskFile.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        gtError() << QObject::tr("Could not open file (%1)").arg(taskFile.fileName());
-        return false;
-    }
-
-    QTextStream out(&taskFile);
 
     QDomDocument doc;
     doc.setContent(task->toMemento().toByteArray());
 
-    out << doc.toString();
-
-    taskFile.close();
+    if (!gt::xml::writeDomDocumentToFile(taskFile, doc, false))
+    {
+        gtError() << QObject::tr("Could not open file (%1)").arg(taskFile);
+        return false;
+    }
 
     return true;
 }

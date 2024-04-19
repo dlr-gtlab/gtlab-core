@@ -43,6 +43,12 @@ protected:
      */
     void projectChangedEvent(GtProject* project) override;
 
+    /**
+     * @brief keyPressEvent
+     * @param event - key press event to handle
+     */
+    void keyPressEvent(QKeyEvent* event) override;
+
 private:
     /// Log view
     GtTableView* m_logView{};
@@ -65,14 +71,6 @@ private:
     /// Toggle error button (hide/show)
     QPushButton* m_errorButton{};
 
-    /// Flag inidicating whether to resize the columns automatically.
-    /// (affects only id column, time and level columns are resized once,
-    ///  message column is always stretched)
-    bool m_autoResizeIdColumn{true};
-
-    /// Flag inidicating that the id column was resized programmatically
-    bool m_resizedColumns{false};
-
     /// Flag, whether the log should be automatically scrolled to the bottom or not
     bool m_autoScrollToBottom{true};
 
@@ -88,12 +86,6 @@ private:
      * @param indexes - list of modelIndices to be deleted
      */
     void removeItems(const QModelIndexList& indexes);
-
-    /**
-     * @brief keyPressEvent
-     * @param event - key press event to handle
-     */
-    void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
     /**

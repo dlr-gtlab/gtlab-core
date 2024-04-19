@@ -1,0 +1,76 @@
+name: "🐛 Bug Report"
+description: Create a new issue for a bug.
+title: "🐛 [BUG] - <title>"
+labels: [
+  "type::bug"
+]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Summary"
+      description: Please enter an explicit description of your issue
+      placeholder: Short and explicit description of your incident...
+    validations:
+      required: true
+  - type: textarea
+    id: correct_behav
+    attributes:
+      label: "Expected Behaviour"
+      description: What is the expected behaviour
+      placeholder: A short and explicit description the correct behaviour...
+    validations:
+      required: true
+  - type: textarea
+    id: reprod
+    attributes:
+      label: "Reproduction steps"
+      description: Please enter an explicit description of your issue
+      value: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+      render: bash
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: "Screenshots"
+      description: If applicable, add screenshots to help explain your problem.
+      value: |
+        ![DESCRIPTION](LINK.png)
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs"
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: bash
+    validations:
+      required: false
+  - type: textarea
+    id: gtlav_env
+    attributes:
+      label: "GTlab environment"
+      description: Which version of GTlab are you using?
+      render: bash
+      value: |
+        GTlab Version: X.Y.Z
+        Module 1 Version: X.Y.Z
+        Module 2 Version: X.Y.Z 
+    validations:
+      required: false
+  - type: dropdown
+    id: os
+    attributes:
+      label: "OS"
+      description: What is the impacted environment ?
+      multiple: true
+      options:
+        - Windows
+        - Linux
+    validations:
+      required: true

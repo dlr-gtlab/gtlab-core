@@ -143,8 +143,8 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
 
         for (GtTaskData const& taskData : taskDataList)
         {
+            // includes registration in objectFactory
             gtTaskFactory->registerTaskData(taskData);
-            gtObjectFactory->registerClass(taskData->metaData());
         }
     }
 

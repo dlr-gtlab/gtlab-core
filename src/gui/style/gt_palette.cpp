@@ -145,12 +145,28 @@ gt::gui::standardTheme()
     return p;
 }
 
+
+template <typename Widget>
+void setStyle(Widget& w);
+
+template <>
+void setStyle(QWidget& w)
+{
+    w.setStyle(&GtStyle::current());
+}
+
+template <>
+void setStyle(QApplication& w)
+{
+    w.setStyle(new GtStyle());
+}
+
 template <typename Widget>
 inline void applyTheme(Widget& w)
 {
     QString stylesheet = gt::gui::stylesheet::toolTip();
 
-    w.setStyle(new GtStyle());
+    setStyle(w);
     w.setStyleSheet(stylesheet);
     w.setPalette(gt::gui::currentTheme());
 }

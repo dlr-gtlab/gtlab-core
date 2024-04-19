@@ -18,7 +18,15 @@ public:
         B = 3,
         C
     };
+
+    enum class TestScopedEnum {
+        Pear,
+        Grapefruit = 7,
+        Lemon
+    };
+    
     Q_ENUM(TestEnum)
+    Q_ENUM(TestScopedEnum)
 };
 
 #endif // TEST_GT_ENUMPROPERTY_H
