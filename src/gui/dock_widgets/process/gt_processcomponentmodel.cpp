@@ -616,10 +616,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         if (!moveRow(droppedObjectParentIndex, droppedObjectSrcRow,
                      destinationIndex, row))
         {
-            if (gtApp->devMode())
-            {
-                gtFatal() << "move rows failed!";
-            }
+            gtDebug() << tr("Move rows failed!");
 
             return false;
         }
@@ -636,12 +633,7 @@ GtProcessComponentModel::dropMimeData(const QMimeData* mimeData,
         if (!moveRow(droppedObjectParentIndex, droppedObjectSrcRow,
                      destinationIndex, destinationRowCount))
         {
-            if (gtApp->devMode())
-            {
-                // more checks in canDropMimeData function to prevent moveRow
-                // function return false.
-                gtFatal() << "move rows failed!";
-            }
+            gtDebug() << tr("Move rows failed!");
 
             return false;
         }
