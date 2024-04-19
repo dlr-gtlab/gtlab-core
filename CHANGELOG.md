@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed mirco stutters when new messages are appended to the output dock. - #1165
 - Fixed unicode characters not correctly saved to tasks, in particular python tasks and file properties - #1125, #45
 - Fixed copying in output dock using keyboard shortcut sometimes not working as expected. - #1136
+- Fixed error "Folder id is empty" when starting GTlab on docker - #1135
 
 ### Changed
 - Improved performance of the python syntax highlighter - #1139
