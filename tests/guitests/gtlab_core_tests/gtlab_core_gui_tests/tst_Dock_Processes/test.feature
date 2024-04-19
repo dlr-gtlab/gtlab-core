@@ -41,10 +41,10 @@ Feature: Test specific features of the process dock
          When the action 'Empty Root Task' is activated
          Then the process element 'New Task' exists
          When the process element is selected
-		 # add a second empty task as a child
+		 # add a second empty task as a second element
 		  And the context menu of the process element is opened
-          And the action 'Add... > Empty Task' is activated
-         Then the process element 'New Task > New Task' exists
+          And the action 'Add... > Empty Root Task' is activated
+         Then the process element 'New Task[2]' exists
 
 
 	Scenario: Skipping a task
