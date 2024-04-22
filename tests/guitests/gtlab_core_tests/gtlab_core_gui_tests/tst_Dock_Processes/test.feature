@@ -38,13 +38,13 @@ Feature: Test specific features of the process dock
 		 # add empty task using the add button
           And the 'Add*' button is pressed
          Then a context menu is visible
-         When the action 'Empty Task' is activated
+         When the action 'Empty Root Task' is activated
          Then the process element 'New Task' exists
          When the process element is selected
-		 # add a second empty task as a child
+		 # add a second empty task as a second element
 		  And the context menu of the process element is opened
-          And the action 'Add... > Empty Task' is activated
-         Then the process element 'New Task > New Task' exists
+          And the action 'Add... > Empty Root Task' is activated
+         Then the process element 'New Task[2]' exists
 
 
 	Scenario: Skipping a task
@@ -53,7 +53,7 @@ Feature: Test specific features of the process dock
          When the standard testing project is opened
 		  And the context menu of the process view is opened
 		 # add empty task
-		  And the action 'Add... > Empty Task' is activated
+		  And the action 'Add... > Empty Root Task' is activated
          Then the process element 'New Task' exists
 		 # test skip and unskip
          When the context menu of the process element is opened
@@ -73,7 +73,7 @@ Feature: Test specific features of the process dock
 		 Then the action 'Paste' is disabled
 		  And the action 'Import' is enabled
 		 # add empty task
-		 When the action 'Add... > Empty Task' is activated
+		 When the action 'Add... > Empty Root Task' is activated
          Then the process element 'New Task' exists
 		 # copy and paste
          When the context menu of the process element is opened
@@ -91,7 +91,7 @@ Feature: Test specific features of the process dock
          Then the 'Run*' button is greyed out
          # add process element
 		 When the context menu of the process view is opened
-		  And the action 'Add... > Empty Task' is activated
+		  And the action 'Add... > Empty Root Task' is activated
          Then the process element 'New Task' exists
 		 # run task using context menu
          When the process element is selected
