@@ -15,7 +15,7 @@
 #include <QTimer>
 
 static const int timeout = 1 * 1000;
-static const int no_timeout = 0 * 1000;
+static const int no_timeout = 0;
 
 class TestGtEventLoop :
         public ::testing::TestWithParam<int>
