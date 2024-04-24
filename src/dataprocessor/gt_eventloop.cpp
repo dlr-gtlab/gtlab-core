@@ -56,7 +56,7 @@ GtEventLoop::exec()
 {
     // trigger eventloop and timeout
     QTimer timer;
-    if (m_mstimeout > 0)
+    if (m_mstimeout >= 0)
     {
         timer.setSingleShot(true);
         connectFailed(&timer, &QTimer::timeout);
