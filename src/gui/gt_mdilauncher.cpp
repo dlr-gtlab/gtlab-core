@@ -155,7 +155,6 @@ GtMdiLauncher::close()
     {
         assert(item);
         assert(item->widget());
-        gtError() << "HERE BEFORE" << item->objectName() << item->widget();
         item->widget()->deleteLater();
     }
     m_openItems.clear();
@@ -201,10 +200,6 @@ GtMdiLauncher::instance()
         retval = new GtMdiLauncher(qApp);
     }
     return retval;
-}
-
-GtMdiLauncher::~GtMdiLauncher()
-{
 }
 
 void
