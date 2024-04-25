@@ -11,8 +11,6 @@
 #include <QFrame>
 #include <QIcon>
 #include <QMessageBox>
-#include <QApplication>
-#include <QSettings>
 
 #include "gt_mdiitem.h"
 #include "gt_application.h"
@@ -21,10 +19,17 @@
 #include "gt_objectchangedevent.h"
 #include "gt_statehandler.h"
 
+
+#include <gt_logging.h>
+
 GtMdiItem::GtMdiItem() : m_frame(new QFrame), m_d(nullptr),
     m_subWin(nullptr), m_queueEvents(false)
 {
     m_frame->setFrameStyle(QFrame::NoFrame);
+
+    connect(m_frame, &QObject::destroyed, [w=(void*)m_frame.data()](){
+        gtError() << "DELETED" << w;
+    });
 
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
             SLOT(onProjectChanged(GtProject*)));
@@ -37,7 +42,7 @@ GtMdiItem::GtMdiItem() : m_frame(new QFrame), m_d(nullptr),
 QWidget*
 GtMdiItem::widget()
 {
-    return m_frame;
+    return static_cast<QWidget*>(m_frame.data());
 }
 
 QIcon
@@ -54,11 +59,7 @@ GtMdiItem::setData(GtObject* /*obj*/)
 
 GtMdiItem::~GtMdiItem()
 {
-//    gtError() << "MDI ITEM DESTROYED!";
-    if (m_frame && !m_frame->parent())
-    {
-        delete m_frame;
-    }
+    gtError() << "HERE DELETE" << objectName() << m_frame;
 
     qDeleteAll(m_eventQueue);
 }
