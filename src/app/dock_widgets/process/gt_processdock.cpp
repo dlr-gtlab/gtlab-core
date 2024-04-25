@@ -1456,7 +1456,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
             }
         }
 
-        auto moveCmd = gtApp->makeCommand(gtApp->currentProject(),
+        auto moveCmd = gtApp->makeCommand(m_taskGroup,
                                           tr("move tasks element"));
         for (auto o : objectsToMove)
         {
@@ -1693,7 +1693,7 @@ GtProcessDock::cutElement(const QModelIndex& index)
     toDelete.append(pComp);
 
     auto command =
-        gtApp->makeCommand(gtApp->currentProject(),
+        gtApp->makeCommand(m_taskGroup,
                            tr("Cut Process Element") +
                            QStringLiteral(" (") + obj->objectName() +
                            QStringLiteral(")"));
@@ -1773,7 +1773,7 @@ GtProcessDock::deleteProcessElements(const QList<QModelIndex>& indexList)
         {
             gtDataModel->reduceToParents(objects);
 
-            auto cmd = gtApp->makeCommand(gtApp->currentProject(),
+            auto cmd = gtApp->makeCommand(m_taskGroup,
                                           tr("Delete Process Elements"));
             Q_UNUSED(cmd)
 
@@ -1863,7 +1863,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 
     m_view->setFocus();
 
-    auto pasteCmd = gtApp->makeCommand(gtApp->currentProject(),
+    auto pasteCmd = gtApp->makeCommand(m_taskGroup,
                                        tr("Paste process element"));
 
     auto const propCons = obj->findChildren<GtPropertyConnection*>();
@@ -1943,7 +1943,7 @@ GtProcessDock::skipComponent(const QModelIndex& index, bool skip)
     QString msg = tr("%1 selected Process Elements")
                   .arg(skip ? tr("Skip") : tr("Unskip"));
 
-    auto cmd = gtApp->makeCommand(gtApp->currentProject(), msg);
+    auto cmd = gtApp->makeCommand(m_taskGroup, msg);
     Q_UNUSED(cmd)
 
     skipComponent(componentByModelIndex(index), skip);
@@ -1969,7 +1969,7 @@ GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
     QString msg = tr("%1 selected Process Elements")
                   .arg(skip ? tr("Skip") : tr("Unskip"));
 
-    auto cmd = gtApp->makeCommand(gtApp->currentProject(), msg);
+    auto cmd = gtApp->makeCommand(m_taskGroup, msg);
     Q_UNUSED(cmd)
 
     for (GtProcessComponent* pc : qAsConst(pcs))
@@ -2178,7 +2178,9 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
 void
 GtProcessDock::onRowsAboutToBeMoved()
 {
-    m_command = gtApp->startCommand(gtApp->currentProject(),
+    assert(m_taskGroup);
+
+    m_command = gtApp->startCommand(m_taskGroup,
                                     tr("Process elements moved"));
 }
 
