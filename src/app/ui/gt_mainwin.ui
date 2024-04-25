@@ -41,7 +41,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTabWidget" name="mdiArea">
+     <widget class="GtTabWidget" name="mdiArea">
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
@@ -411,8 +411,15 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GtTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>gt_tabwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
-  <include location="../../resources/icons/icons.qrc"/>
   <include location="../../resources/icons/icons.qrc"/>
  </resources>
  <connections>

@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Warning for unknown classes is now only shown in the developer mode of GTlab - #1160
 - Changed call of process execution in console application to enable call of tasks of different task groups- #1144
 
+### Added
+- MDI Items can now be closed using middle mouse click (similarly to most common browsers). - #603
+
 ### Removed
 - Removed the error message dialog. - #611
 
