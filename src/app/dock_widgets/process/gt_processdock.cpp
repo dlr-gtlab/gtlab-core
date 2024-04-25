@@ -19,6 +19,7 @@
 #include <QMessageBox>
 #include <QSignalMapper>
 
+#include "gt_algorithms.h"
 #include "gt_mainwin.h"
 #include "gt_processview.h"
 #include "gt_datamodel.h"
@@ -1474,7 +1475,13 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
 
     if (!targetComp) return;
 
-    auto moveCmd = gtApp->makeCommand(m_taskGroup,
+
+    auto* commonParent = gt::find_lowest_ancestor(objectsToMove,
+                                                  gt::get_parent_object);
+    assert(commonParent);
+
+
+    auto moveCmd = gtApp->makeCommand(commonParent,
                                       tr("move process element"));
 
     if (auto taskParent = qobject_cast<GtTask*>(targetComp))
@@ -1626,57 +1633,34 @@ GtProcessDock::cloneElement(const QModelIndex& index)
 void
 GtProcessDock::cutElement(const QModelIndex& index)
 {
-    if (!index.isValid())
-    {
-        return;
-    }
+    if (!index.isValid()) return;
 
     QModelIndex srcIndex = mapToSource(index);
 
-    if (!srcIndex.isValid())
-    {
-        return;
-    }
+    if (!srcIndex.isValid()) return;
 
-    if (srcIndex.model() != gtDataModel)
-    {
-        return;
-    }
+    if (srcIndex.model() != gtDataModel) return;
 
     GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
 
-    if (!obj)
-    {
-        return;
-    }
+    if (!obj) return;
 
     auto pComp = qobject_cast<GtProcessComponent*>(obj);
 
-    if (!pComp)
-    {
-        return;
-    }
+    if (!pComp) return;
 
-    if (!pComp->isReady())
-    {
-        return;
-    }
+    if (!pComp->isReady()) return;
 
-    if (!m_taskGroup)
-    {
-        return;
-    }
+    if (!m_taskGroup) return;
 
     copyElement(index);
 
     QList<GtObject*> toDelete;
 
-    if (qobject_cast<GtTask*>(pComp))
+    if (GtTask* child = qobject_cast<GtTask*>(pComp))
     {
         if (!qobject_cast<GtTaskGroup*>(pComp->parent()))
         {
-            GtTask* child = qobject_cast<GtTask*>(pComp);
-
             QList<GtPropertyConnection*> relatedCons =
                 detail::relatedPropertyConnections(child);
 
@@ -1692,8 +1676,12 @@ GtProcessDock::cutElement(const QModelIndex& index)
 
     toDelete.append(pComp);
 
+    auto* commonParent = gt::find_lowest_ancestor(toDelete,
+                                                  gt::get_parent_object);
+    assert(commonParent);
+
     auto command =
-        gtApp->makeCommand(m_taskGroup,
+        gtApp->makeCommand(commonParent,
                            tr("Cut Process Element") +
                            QStringLiteral(" (") + obj->objectName() +
                            QStringLiteral(")"));
@@ -1773,7 +1761,11 @@ GtProcessDock::deleteProcessElements(const QList<QModelIndex>& indexList)
         {
             gtDataModel->reduceToParents(objects);
 
-            auto cmd = gtApp->makeCommand(m_taskGroup,
+            auto* commonParent = gt::find_lowest_ancestor(
+                        objects, gt::get_parent_object);
+            assert(commonParent);
+
+            auto cmd = gtApp->makeCommand(commonParent,
                                           tr("Delete Process Elements"));
             Q_UNUSED(cmd)
 
@@ -1829,29 +1821,17 @@ GtProcessDock::pasteElement(GtObject* parent)
 void
 GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 {
-    if (!obj || !parent)
-    {
-        return;
-    }
+    if (!obj || !parent) return;
 
-    if (qobject_cast<GtCalculator*>(parent))
-    {
-        return;
-    }
+    if (qobject_cast<GtCalculator*>(parent)) return;
 
     if (!qobject_cast<GtTaskGroup*>(parent))
     {
         auto pComp = qobject_cast<GtProcessComponent*>(parent);
 
-        if (!pComp)
-        {
-            return;
-        }
+        if (!pComp) return;
 
-        if (!pComp->isReady())
-        {
-            return;
-        }
+        if (!pComp->isReady()) return;
     }
 
     // create new unique identification string
@@ -1863,7 +1843,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
 
     m_view->setFocus();
 
-    auto pasteCmd = gtApp->makeCommand(m_taskGroup,
+    auto pasteCmd = gtApp->makeCommand(parent,
                                        tr("Paste process element"));
 
     auto const propCons = obj->findChildren<GtPropertyConnection*>();
