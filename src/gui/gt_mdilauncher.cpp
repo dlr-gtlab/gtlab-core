@@ -15,6 +15,7 @@
 #include <QMdiSubWindow>
 #include <QPushButton>
 #include <QFrame>
+#include <QHBoxLayout>
 
 #include "gt_mdilauncher.h"
 #include "gt_mdiitem.h"
@@ -147,11 +148,31 @@ GtMdiLauncher::setFocus(const QString& mdiId)
 }
 
 void
+GtMdiLauncher::close()
+{
+    // the ownership is quite a mess, deleting the widget
+    for (GtMdiItem* item : m_openItems)
+    {
+        assert(item);
+        assert(item->widget());
+        gtError() << "HERE BEFORE" << item->objectName() << item->widget();
+        item->widget()->deleteLater();
+    }
+    m_openItems.clear();
+}
+
+void
 GtMdiLauncher::onSubWindowClose(QObject* obj)
 {
-    if (m_openItems.contains(obj))
+    auto iter = m_openItems.find(obj);
+    if (iter != m_openItems.end())
     {
-        m_openItems.remove(obj);
+        QPointer<GtMdiItem> item = iter.value();
+        m_openItems.erase(iter);
+
+        bool isDetached = !obj->parent();
+        gtError() << "HERE BEFORE" << item->objectName() << obj;
+        if (isDetached) item->deleteLater();
     }
 }
 
@@ -180,6 +201,10 @@ GtMdiLauncher::instance()
         retval = new GtMdiLauncher(qApp);
     }
     return retval;
+}
+
+GtMdiLauncher::~GtMdiLauncher()
+{
 }
 
 void
@@ -449,8 +474,36 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     // for identification in gui tests
     closeBtn->setObjectName(QStringLiteral("MdiTabCloseBtn"));
 
-    m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, closeBtn);
+    QPushButton* undockBtn = new QPushButton;
+    undockBtn->setIcon(gt::gui::icon::dock());
+    undockBtn->setIconSize(QSize{14, 14});
+    undockBtn->resize(QSize(14, 14));
+    undockBtn->setFlat(true);
+
+    QHBoxLayout* buttonLay = new QHBoxLayout;
+    buttonLay->setContentsMargins(0, 0, 0, 0);
+    buttonLay->addWidget(undockBtn);
+    buttonLay->addWidget(closeBtn);
+
+    QWidget* layoutWidget = new QWidget;
+    layoutWidget->setLayout(buttonLay);
+
+    m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, layoutWidget);
     connect(closeBtn, &QPushButton::clicked, wid, &QObject::deleteLater);
+    connect(undockBtn, &QPushButton::clicked, wid,
+            [this, wid = QPointer<QWidget>(wid)](){
+        // get size
+        auto current = m_area->currentWidget();
+        assert(current);
+        QSize size = current->size();
+        // get screen pos
+        auto pos = wid->mapToGlobal(wid->pos());
+        // detach
+        wid->setParent(nullptr);
+        wid->move(pos);
+        wid->resize(size);
+        wid->show();
+    });
 
     mdiItem->initialized();
 
