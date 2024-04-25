@@ -28,7 +28,7 @@ GtMdiItem::GtMdiItem() : m_frame(new QFrame), m_d(nullptr),
     m_frame->setFrameStyle(QFrame::NoFrame);
 
     connect(m_frame, &QObject::destroyed, [w=(void*)m_frame.data()](){
-        gtError() << "DELETED" << w;
+        gtError() << "DELETED MDI WIDGET" << w;
     });
 
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
@@ -59,7 +59,7 @@ GtMdiItem::setData(GtObject* /*obj*/)
 
 GtMdiItem::~GtMdiItem()
 {
-    gtError() << "HERE DELETE" << objectName() << m_frame;
+    gtError() << "DELETED MDI ITEM" << objectName() << m_frame;
 
     qDeleteAll(m_eventQueue);
 }

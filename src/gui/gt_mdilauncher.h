@@ -44,7 +44,6 @@ public:
      * @return
      */
     static GtMdiLauncher* instance();
-    ~GtMdiLauncher();
 
     /**
      * @brief setMdiArea
