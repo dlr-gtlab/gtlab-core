@@ -11,55 +11,64 @@
 #include "gtest/gtest.h"
 
 #include "gt_eventloop.h"
-#include "gt_object.h"
 
 #include <QTimer>
 
 static const int timeout = 1 * 1000;
+static const int no_timeout = 0;
 
-class TestGtEventLoop : public testing::Test {};
+class TestGtEventLoop :
+        public ::testing::TestWithParam<int>
+{ };
 
-TEST_F(TestGtEventLoop, timeout)
+
+INSTANTIATE_TEST_SUITE_P(
+    TestGtEventLoop,
+    TestGtEventLoop,
+    ::testing::Values(timeout, no_timeout));
+
+
+TEST_P(TestGtEventLoop, timeout)
 {
-    GtEventLoop future{timeout};
+    GtEventLoop future{GetParam()};
 
     // future is not connected -> timeout
     EXPECT_TRUE(future.exec() == GtEventLoop::Failed);
 }
 
-TEST_F(TestGtEventLoop, success)
+TEST_P(TestGtEventLoop, success)
 {
     QTimer timer;
-    GtEventLoop loop{2 * timeout};
+    GtEventLoop loop{2 * (GetParam()+1)};
 
     loop.connectSuccess(&timer, &QTimer::timeout);
 
-    timer.start(timeout);
+    timer.start(GetParam());
 
     // future should wait until signal is emitted
     EXPECT_TRUE(loop.exec() == GtEventLoop::Success);
 }
 
-TEST_F(TestGtEventLoop, preliminaryState)
+TEST_P(TestGtEventLoop, preliminaryState)
 {
-    GtEventLoop loop{timeout};
+    GtEventLoop loop{GetParam()};
 
     // emitted before even loop
     emit loop.success();
 
-    // future should finish righ away
+    // future should finish right away
     EXPECT_TRUE(loop.exec() == GtEventLoop::Success);
 }
 
-TEST_F(TestGtEventLoop, multiplePreliminaryState)
+TEST_P(TestGtEventLoop, multiplePreliminaryState)
 {
-    GtEventLoop loop{timeout};
+    GtEventLoop loop{GetParam()};
 
     // emitted before even loop
     emit loop.abort();
     emit loop.success();
 
-    // future should finish righ away
+    // future should finish right away
     EXPECT_TRUE(loop.exec() == GtEventLoop::Success);
     // now loop will run into timeout
     EXPECT_TRUE(loop.exec() == GtEventLoop::Failed);
