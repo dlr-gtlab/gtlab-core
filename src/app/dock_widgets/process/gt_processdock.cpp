@@ -1476,7 +1476,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     if (!targetComp) return;
 
 
-    auto* commonParent = gt::find_lowest_ancestor(objectsToMove,
+    auto* commonParent = gt::find_lowest_ancestor(objectsToMove << targetComp,
                                                   gt::get_parent_object);
     assert(commonParent);
 
@@ -1923,10 +1923,13 @@ GtProcessDock::skipComponent(const QModelIndex& index, bool skip)
     QString msg = tr("%1 selected Process Elements")
                   .arg(skip ? tr("Skip") : tr("Unskip"));
 
-    auto cmd = gtApp->makeCommand(m_taskGroup, msg);
-    Q_UNUSED(cmd)
-
-    skipComponent(componentByModelIndex(index), skip);
+    auto* comp = componentByModelIndex(index);
+    if (!comp) return;
+    
+    auto cmd = gtApp->makeCommand(comp, msg);
+    Q_UNUSED(cmd);
+    
+    skipComponent(comp, skip);
 }
 
 void
