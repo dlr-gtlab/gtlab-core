@@ -23,11 +23,14 @@
 #include "gt_icons.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
+#include "gt_settings.h"
 
 #include <QHeaderView>
-#include <QVBoxLayout>
+#include <QGridLayout>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QTabWidget>
+#include <QComboBox>
 #include <QPushButton>
 #include <QScrollBar>
 #include <QFileDialog>
@@ -42,16 +45,38 @@
 
 #include <algorithm>
 
+struct LoggingLevel
+{
+    gt::log::Level level;
+    QString name;
+};
+
+std::array<LoggingLevel, 4> const s_loggingLevels{
+    LoggingLevel{gt::log::TraceLevel,   QStringLiteral("Trace")},
+    LoggingLevel{gt::log::DebugLevel,   QStringLiteral("Debug")},
+    LoggingLevel{gt::log::InfoLevel,    QStringLiteral("Default")},
+    LoggingLevel{gt::log::WarningLevel, QStringLiteral("Warnings Only")}
+};
+
 GtOutputDock::GtOutputDock()
 {
+    // order verbosity levels depending on their value
+    QStringList loggingLevels;
+    std::transform(std::begin(s_loggingLevels), std::end(s_loggingLevels),
+                   std::back_inserter(loggingLevels), [](auto const& entry){
+        return entry.name;
+    });
+
     setObjectName(tr("Output"));
 
-    QWidget* widget = new QWidget(this);
+    auto* widget = new QWidget(this);
     widget->setObjectName("centralWidget");
     setWidget(widget);
 
-    QVBoxLayout* layout = new QVBoxLayout;
+    auto* layout = new QGridLayout;
     layout->setContentsMargins(0, 0, 0, 0);
+
+    widget->setLayout(layout);
 
     // run model test only in debug mode
 #ifdef QT_DEBUG
@@ -69,6 +94,8 @@ GtOutputDock::GtOutputDock()
 
     QTabWidget* tab = new QTabWidget;
     tab->setObjectName("tabWidget");
+
+    layout->addWidget(tab, 0, 0);
 
     // default page
     QWidget* defaultPage = new QWidget(this);
@@ -144,6 +171,71 @@ GtOutputDock::GtOutputDock()
             m_model, &GtFilteredLogModel::filterData);
 
     filterLayout->addStretch(1);
+
+    // logging level
+    {
+        auto* loggingLevelLabel = new QLabel(tr("Logging Level:"));
+        auto* loggingLevelSelection = new QComboBox;
+        loggingLevelSelection->addItems(loggingLevels);
+
+        // dummy widget for layout
+        QWidget* dummy = new QWidget(widget);
+        auto* loggingLayout = new QHBoxLayout(dummy);
+        loggingLayout->setContentsMargins(0, 1, 0, 0);
+        loggingLayout->addStretch();
+        loggingLayout->addWidget(loggingLevelLabel);
+        loggingLayout->addSpacing(2);
+        loggingLayout->addWidget(loggingLevelSelection);
+
+
+        // stack tabwidget and the logging level selection
+        layout->addWidget(dummy, 0, 0, Qt::AlignTop | Qt::AlignRight);
+
+        // not using logging level setting here to get actual logging level
+        gt::log::Level loggingLevel = gt::log::Logger::instance().loggingLevel();
+
+        // set verbosity text
+        auto iter = std::find_if(std::begin(s_loggingLevels),
+                                 std::end(s_loggingLevels),
+                                 [=](auto const& entry){
+                                     return loggingLevel <= entry.level;
+                                 });
+
+        if (iter != std::end(s_loggingLevels))
+        {
+            loggingLevelSelection->setCurrentText(iter->name);
+        }
+
+        // save new logging level
+        connect(loggingLevelSelection, &QComboBox::currentTextChanged,
+                loggingLevelSelection, [loggingLevelSelection](){
+            auto loggingLevelText = loggingLevelSelection->currentText();
+            auto loggingLevel = gt::log::Logger::instance().loggingLevel();
+
+            auto iter = std::find_if(std::begin(s_loggingLevels),
+                                     std::end(s_loggingLevels),
+                                     [&](auto const& entry){
+                return loggingLevelText == entry.name;
+            });
+
+            if (iter != std::end(s_loggingLevels))
+            {
+                loggingLevel = iter->level;
+            }
+
+            gtApp->settings()->setLoggingLevel(loggingLevel);
+            gt::log::Logger::instance().setLoggingLevel(loggingLevel);
+        });
+    }
+
+//    // add spacer to distinguish selection box from the action buttons
+//    {
+//        auto frame = new QFrame;
+//        frame->setFrameStyle(QFrame::Raised);
+//        frame->setFrameShape(QFrame::VLine);
+//        filterLayout->addSpacing(2);
+//        filterLayout->addWidget(frame);
+//    }
 
     const auto setupButton = [&](QIcon const& icon = {},
                                  QString const& tooltip = {}){
@@ -254,9 +346,13 @@ GtOutputDock::GtOutputDock()
     }
 
     // add spacer to distinguish filter buttons from the action buttons
-    filterLayout->addSpacing(8);
-
-    auto loggingLevel = gt::log::Logger::instance().loggingLevel();
+    {
+        auto frame = new QFrame;
+        frame->setFrameStyle(QFrame::Raised);
+        frame->setFrameShape(QFrame::VLine);
+        filterLayout->addSpacing(2);
+        filterLayout->addWidget(frame);
+    }
 
     // trace message button
     m_traceButton = setupToggleButton(gt::gui::icon::trace(),
@@ -294,10 +390,6 @@ GtOutputDock::GtOutputDock()
                                       &GtFilteredLogModel::filterErrorLevel);
 
     defaultLayout->addLayout(filterLayout);
-
-    layout->addWidget(tab);
-
-    widget->setLayout(layout);
 
     registerShortCut("toggleTraceOutput", QKeySequence(Qt::CTRL + Qt::Key_T));
     registerShortCut("toggleDebugOutput", QKeySequence(Qt::CTRL + Qt::Key_D));

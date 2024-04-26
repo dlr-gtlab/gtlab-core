@@ -58,16 +58,18 @@ generateTheme(ColorConfig const& config)
 
     // tones
     /// QPalette::Dark: Apperantly affects the lower part of a raised frame
+    /// the bottom part of sunken frame
     palette.setColor(QPalette::Dark,
                      gt::gui::color::darken(config.main, 40));
 
-    /// QPalette::Mid:
+    /// QPalette::Mid: ???
     palette.setColor(QPalette::Mid,
                      gt::gui::color::darken(config.main, 20));
 
     /// QPalette::Midlight: ???
 
-    /// QPalette::Light: Apperantly affects the top part of a raised frame
+    /// QPalette::Light: Apperantly affects the top part of a raised frame and
+    /// the lower part of sunken frame
     palette.setColor(QPalette::Light,
                      gt::gui::color::lighten(
                          gt::gui::color::desaturate(config.main, 0.5), 20));

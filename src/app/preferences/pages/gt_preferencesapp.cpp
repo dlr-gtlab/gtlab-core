@@ -33,23 +33,10 @@ struct LoggingVerbosity
     QString name;
 };
 
-struct LoggingLevel
-{
-    gt::log::Level level;
-    QString name;
-};
-
 std::array<LoggingVerbosity, 3> const s_verbosityLevels{
     LoggingVerbosity{gt::log::Silent    , QStringLiteral("Silent")},
     LoggingVerbosity{gt::log::Medium    , QStringLiteral("Medium")},
     LoggingVerbosity{gt::log::Everything, QStringLiteral("High")  }
-};
-
-std::array<LoggingLevel, 4> const s_loggingLevels{
-    LoggingLevel{gt::log::TraceLevel,   QStringLiteral("Trace-Level")},
-    LoggingLevel{gt::log::DebugLevel,   QStringLiteral("Debug-Level")},
-    LoggingLevel{gt::log::InfoLevel,    QStringLiteral("User-Level")},
-    LoggingLevel{gt::log::WarningLevel, QStringLiteral("Warnings only")}
 };
 
 GtPreferencesApp::GtPreferencesApp() :
@@ -95,15 +82,6 @@ GtPreferencesApp::GtPreferencesApp() :
     m_verbositySelection = new QComboBox;
     m_verbositySelection->addItems(verbosityLevels);
     formLay->addRow(tr("Logging verbosity:"), m_verbositySelection);
-
-    // order verbosity levels depending on their value
-    QStringList loggingLevels;
-    std::transform(std::begin(s_loggingLevels), std::end(s_loggingLevels),
-                   std::back_inserter(loggingLevels), [](auto const& entry){
-        return entry.name;
-    });
-    m_loggingLevelSelection = new QComboBox;
-    m_loggingLevelSelection->addItems(loggingLevels);
     formLay->addRow(tr("Logging level:"), m_loggingLevelSelection);
 
     m_themeSelection = new QComboBox(this);
@@ -176,24 +154,6 @@ GtPreferencesApp::GtPreferencesApp() :
         }
     }
 
-    // logging level
-    {
-        // not using logging level setting here to get actual logging level
-        gt::log::Level loggingLevel = gt::log::Logger::instance().loggingLevel();
-
-        // set verbosity text
-        auto iter = std::find_if(std::begin(s_loggingLevels),
-                                 std::end(s_loggingLevels),
-                                 [=](auto const& entry){
-            return loggingLevel <= entry.level;
-        });
-
-        if (iter != std::end(s_loggingLevels))
-        {
-            m_loggingLevelSelection->setCurrentText(iter->name);
-        }
-    }
-
     // theme selection
     QString themeMode = settings->themeMode();
     if (themeMode == "bright")
@@ -239,26 +199,6 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
 
         settings.setLoggingVerbosity(verbosity);
         gt::log::Logger::instance().setVerbosity(verbosity);
-    }
-
-    // logging level
-    {
-        auto loggingLevelText = m_loggingLevelSelection->currentText();
-        auto loggingLevel = gt::log::Logger::instance().loggingLevel();
-
-        auto iter = std::find_if(std::begin(s_loggingLevels),
-                                 std::end(s_loggingLevels),
-                                 [&](auto const& entry){
-            return loggingLevelText == entry.name;
-        });
-
-        if (iter != std::end(s_loggingLevels))
-        {
-            loggingLevel = iter->level;
-        }
-
-        settings.setLoggingLevel(loggingLevel);
-        gt::log::Logger::instance().setLoggingLevel(loggingLevel);
     }
 
     // process executor

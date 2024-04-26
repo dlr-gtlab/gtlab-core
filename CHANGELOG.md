@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed copying in output dock using keyboard shortcut sometimes not working as expected. - #1136
 
 ### Added
-- Added app setting to change logging level at runtime. - #1086
+- Added setting to the output dock to change logging level at runtime. - #1086
 
 ### Changed
 - Improved performance of the python syntax highlighter - #1139
