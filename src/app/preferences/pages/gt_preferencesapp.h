@@ -62,9 +62,6 @@ private:
     /// Select the logging verbosity
     QComboBox* m_verbositySelection;
 
-    /// Select the logging level
-    QComboBox* m_loggingLevelSelection;
-
     /// Select the theme to use (by system, dark, bright)
     QComboBox* m_themeSelection;
 

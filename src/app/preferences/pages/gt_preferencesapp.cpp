@@ -82,7 +82,6 @@ GtPreferencesApp::GtPreferencesApp() :
     m_verbositySelection = new QComboBox;
     m_verbositySelection->addItems(verbosityLevels);
     formLay->addRow(tr("Logging verbosity:"), m_verbositySelection);
-    formLay->addRow(tr("Logging level:"), m_loggingLevelSelection);
 
     m_themeSelection = new QComboBox(this);
     m_themeSelection->addItem(tr("System selection"));
