@@ -96,7 +96,7 @@ public:
     /**
      * @brief isSelected
      * @param type
-     * @return true if the given mode type is the currentyl selected modetype
+     * @return true if the given mode type is the currently selected modetype
      */
     bool isSelected(GtModeTypeProperty const& type);
 
