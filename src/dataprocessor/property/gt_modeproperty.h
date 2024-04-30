@@ -93,6 +93,13 @@ public:
      */
     GtModeTypeProperty* typeProperty(const QString& mode);
 
+    /**
+     * @brief isSelected
+     * @param type
+     * @return true if the given mode type is the currentyl selected modetype
+     */
+    bool isSelected(GtModeTypeProperty const& type);
+
 private:
     /// temporary propertylist for selected mode type
     mutable QList<GtAbstractProperty*> m_tmpProperties;
