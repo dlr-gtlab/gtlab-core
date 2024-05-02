@@ -19,7 +19,6 @@
 #include "gt_objectchangedevent.h"
 #include "gt_statehandler.h"
 
-#include <gt_logging.h>
 
 GtMdiItem::GtMdiItem() :
     m_frame(new GtDockableFrame),
@@ -40,7 +39,7 @@ GtMdiItem::GtMdiItem() :
 QWidget*
 GtMdiItem::widget()
 {
-    return static_cast<QWidget*>(m_frame.data());
+    return m_frame;
 }
 
 QIcon
