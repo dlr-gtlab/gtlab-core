@@ -118,6 +118,15 @@ GtLogModel::setEnabled(bool enable)
         << tr("Logmodel is now enabled, recieving incomming messages!");
 }
 
+bool
+GtLogModel::containsLogLevel(gt::log::Level level) const
+{
+    return std::any_of(m_entries.begin(), m_entries.end(),
+                       [level](Entry const& e){
+        return e.level == level;
+    });
+}
+
 QString
 GtLogModel::format(const Entry& entry)
 {

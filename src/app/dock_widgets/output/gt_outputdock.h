@@ -87,6 +87,17 @@ private:
      */
     void removeItems(const QModelIndexList& indexes);
 
+    /**
+     * @brief Updates the filter buttons and hides/shows them depending on the
+     * logging level and the messages currently logged
+     */
+    void updateFilterButtons();
+
+    /**
+     * @brief scrollToBottom - scroll to bottom of the view
+     */
+    void scrollToBottom();
+
 private slots:
     /**
      * @brief Just a test output method.
@@ -95,9 +106,19 @@ private slots:
     void testOutput(int testCase = 1);
 
     /**
-     * @brief scrollToBottom - scroll to bottom of the view
+     * @brief Triggered when new rows were inserted
      */
     void onRowsInserted();
+
+    /**
+     * @brief Triggered on model reset
+     */
+    void onModelReset();
+
+    /**
+     * @brief Triggered when rows were deleted
+     */
+    void onRowsRemoved();
 
     /**
      * @brief exportLog

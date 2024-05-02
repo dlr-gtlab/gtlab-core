@@ -151,20 +151,6 @@ GtOutputDock::GtOutputDock()
         rowResizeTimer->start();
     });
 
-    // other connections
-    connect(gtLogModel, &GtLogModel::rowsInserted,
-            this, &GtOutputDock::onRowsInserted);
-    connect(m_model, &GtFilteredLogModel::modelReset,
-            this, &GtOutputDock::onRowsInserted);
-    connect(m_logView, &QWidget::customContextMenuRequested,
-            this, &GtOutputDock::openContextMenu);
-    connect(m_logView, &GtTableView::copyRequest,
-            this, &GtOutputDock::onCopyRequest);
-    connect(m_logView, &GtTableView::deleteRequest,
-            this, &GtOutputDock::onDeleteRequest);
-    connect(m_logView, &GtTableView::searchRequest,
-            searchWidget, &GtSearchWidget::enableSearch);
-
     defaultLayout->addWidget(m_logView);
 
     connect(searchWidget, &GtSearchWidget::textChanged,
@@ -187,7 +173,6 @@ GtOutputDock::GtOutputDock()
         loggingLayout->addSpacing(2);
         loggingLayout->addWidget(loggingLevelSelection);
 
-
         // stack tabwidget and the logging level selection
         layout->addWidget(dummy, 0, 0, Qt::AlignTop | Qt::AlignRight);
 
@@ -208,7 +193,7 @@ GtOutputDock::GtOutputDock()
 
         // save new logging level
         connect(loggingLevelSelection, &QComboBox::currentTextChanged,
-                loggingLevelSelection, [loggingLevelSelection](){
+                loggingLevelSelection, [this, loggingLevelSelection](){
             auto loggingLevelText = loggingLevelSelection->currentText();
             auto loggingLevel = gt::log::Logger::instance().loggingLevel();
 
@@ -225,17 +210,10 @@ GtOutputDock::GtOutputDock()
 
             gtApp->settings()->setLoggingLevel(loggingLevel);
             gt::log::Logger::instance().setLoggingLevel(loggingLevel);
+
+            updateFilterButtons();
         });
     }
-
-//    // add spacer to distinguish selection box from the action buttons
-//    {
-//        auto frame = new QFrame;
-//        frame->setFrameStyle(QFrame::Raised);
-//        frame->setFrameShape(QFrame::VLine);
-//        filterLayout->addSpacing(2);
-//        filterLayout->addWidget(frame);
-//    }
 
     const auto setupButton = [&](QIcon const& icon = {},
                                  QString const& tooltip = {}){
@@ -407,6 +385,24 @@ GtOutputDock::GtOutputDock()
     connect(bar, &QScrollBar::valueChanged, this, [this, bar](int value) {
         this->m_autoScrollToBottom = bar->maximum() == value;
     });
+
+    updateFilterButtons();
+
+    // other connections
+    connect(gtLogModel, &GtLogModel::rowsInserted,
+            this, &GtOutputDock::onRowsInserted);
+    connect(gtLogModel, &GtLogModel::rowsRemoved,
+            this, &GtOutputDock::onRowsRemoved);
+    connect(m_model, &GtFilteredLogModel::modelReset,
+            this, &GtOutputDock::onModelReset);
+    connect(m_logView, &QWidget::customContextMenuRequested,
+            this, &GtOutputDock::openContextMenu);
+    connect(m_logView, &GtTableView::copyRequest,
+            this, &GtOutputDock::onCopyRequest);
+    connect(m_logView, &GtTableView::deleteRequest,
+            this, &GtOutputDock::onDeleteRequest);
+    connect(m_logView, &GtTableView::searchRequest,
+            searchWidget, &GtSearchWidget::enableSearch);
 }
 
 Qt::DockWidgetArea
@@ -429,6 +425,27 @@ void
 GtOutputDock::removeItems(const QModelIndexList& indexes)
 {
     gtLogModel->removeElementList(indexes);
+}
+
+void
+GtOutputDock::updateFilterButtons()
+{
+    auto& logger = gt::log::Logger::instance();
+
+    auto const hideLevel = [&logger](QPushButton& btn, gt::log::Level level){
+        bool hideBtn = logger.loggingLevel() > level;
+        // if btn is visible and if it should be hidden check if the model
+        // contains old messages with that logging level
+        if (btn.isVisible() && hideBtn)
+        {
+            hideBtn = !gtLogModel->containsLogLevel(level);
+        }
+        btn.setHidden(hideBtn);
+    };
+
+    hideLevel(*m_traceButton, gt::log::TraceLevel);
+    hideLevel(*m_debugButton, gt::log::DebugLevel);
+    hideLevel(*m_infoButton, gt::log::InfoLevel);
 }
 
 void
@@ -494,12 +511,31 @@ GtOutputDock::keyPressEvent(QKeyEvent* event)
 }
 
 void
-GtOutputDock::onRowsInserted()
+GtOutputDock::scrollToBottom()
 {
     if (m_autoScrollToBottom)
     {
         m_logView->scrollToBottom();
     }
+}
+
+void
+GtOutputDock::onRowsInserted()
+{
+    scrollToBottom();
+}
+
+void
+GtOutputDock::onModelReset()
+{
+    scrollToBottom();
+    updateFilterButtons();
+}
+
+void
+GtOutputDock::onRowsRemoved()
+{
+    updateFilterButtons();
 }
 
 void
