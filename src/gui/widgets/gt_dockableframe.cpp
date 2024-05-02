@@ -12,8 +12,6 @@
 
 #include <QHideEvent>
 
-#include <gt_logging.h>
-
 GtDockableFrame::GtDockableFrame(QWidget* parent, Qt::WindowFlags f) :
     QFrame(parent, f)
 {
@@ -23,7 +21,6 @@ GtDockableFrame::GtDockableFrame(QWidget* parent, Qt::WindowFlags f) :
 void
 GtDockableFrame::hideEvent(QHideEvent* event)
 {
-    gtWarning() << parent() << event->spontaneous() << event->type();
     if (parent() || !event->spontaneous()) return QFrame::hideEvent(event);
 
     event->accept();

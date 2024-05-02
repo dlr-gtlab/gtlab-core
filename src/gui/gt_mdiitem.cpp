@@ -19,7 +19,6 @@
 #include "gt_objectchangedevent.h"
 #include "gt_statehandler.h"
 
-
 #include <gt_logging.h>
 
 GtMdiItem::GtMdiItem() :
@@ -29,10 +28,6 @@ GtMdiItem::GtMdiItem() :
     m_queueEvents(false)
 {
     m_frame->setFrameStyle(QFrame::NoFrame);
-
-    connect(m_frame, &QObject::destroyed, [w=(void*)m_frame.data()](){
-        gtError() << "DELETED MDI WIDGET" << w;
-    });
 
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
             SLOT(onProjectChanged(GtProject*)));
@@ -62,8 +57,6 @@ GtMdiItem::setData(GtObject* /*obj*/)
 
 GtMdiItem::~GtMdiItem()
 {
-    gtError() << "DELETED MDI ITEM" << objectName() << m_frame;
-
     qDeleteAll(m_eventQueue);
 }
 

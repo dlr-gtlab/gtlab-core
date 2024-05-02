@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - MDI Items can now be closed using middle mouse click (similarly to most common browsers). - #603
+- Allowed MDI Items to be detached and redocked by minimizing the window. Finally enabling multi-window workflows with GTlab (*Note:* This feature is still WIP). - #604
 
 ### Removed
 - Removed the error message dialog. - #611
