@@ -240,3 +240,31 @@ TEST_F(TestGtUtilities, clamp)
     EXPECT_DOUBLE_EQ(gt::clamp<double>(523, 12.134, 321.12345), 321.12345);
 }
 
+TEST_F(TestGtUtilities, range)
+{
+    std::array<size_t, 10> array;
+    std::iota(array.begin(), array.end(), 0);
+    ASSERT_EQ(array[0], 0);
+    ASSERT_EQ(array[9], 9);
+
+    auto range = gt::range(10);
+    EXPECT_EQ(range.size(), 10);
+    EXPECT_EQ(std::distance(range.begin(), range.end()), 10);
+    EXPECT_TRUE(std::equal(range.begin(), range.end(), array.begin(), array.end()));
+
+    range = gt::range(5, 10);
+    EXPECT_EQ(range.size(), 5);
+    EXPECT_EQ(std::distance(range.begin(), range.end()), 5);
+    EXPECT_TRUE(std::equal(range.begin(), range.end(), array.begin() + 5, array.end()));
+
+    range = gt::range(10, 10);
+    EXPECT_EQ(range.size(), 0);
+    EXPECT_EQ(std::distance(range.begin(), range.end()), 0);
+
+    range = gt::range(10, 20);
+    EXPECT_TRUE(std::copy(range.begin(), range.end(), array.begin()) == array.end());
+
+    EXPECT_TRUE(std::equal(range.begin(), range.end(), array.begin(), array.end()));
+
+    EXPECT_EQ(*gt::range(9, 10).begin(), 9);
+}

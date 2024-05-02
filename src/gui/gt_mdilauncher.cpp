@@ -386,10 +386,7 @@ GtMdiLauncher::registerCollection(const QString& str,
 GtMdiItem*
 GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 {
-    if (!m_area)
-    {
-        return nullptr;
-    }
+    if (!m_area) return nullptr;
 
     if (!knownClass(id))
     {
@@ -399,7 +396,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     GtObject* obj = newObject(id);
 
-    GtMdiItem* mdiItem = qobject_cast<GtMdiItem*>(obj);
+    auto* mdiItem = qobject_cast<GtMdiItem*>(obj);
 
     if (!mdiItem)
     {
@@ -464,7 +461,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
         assert(tabWidget);
 
         // set custom close button
-        QPushButton* closeBtn = new QPushButton;
+        auto* closeBtn = new QPushButton;
         closeBtn->setIconSize(QSize{14, 14}); // because stani wants it this way...
         closeBtn->resize(QSize(14, 14));
         closeBtn->setIcon(gt::gui::icon::close());
@@ -472,19 +469,19 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
         // for identification in gui tests
         closeBtn->setObjectName(QStringLiteral("MdiTabCloseBtn"));
 
-        QPushButton* undockBtn = new QPushButton;
+        auto* undockBtn = new QPushButton;
         undockBtn->setIconSize(QSize{14, 14});
         undockBtn->resize(QSize(14, 14));
         undockBtn->setIcon(gt::gui::icon::dock());
         undockBtn->setFlat(true);
         undockBtn->setVisible(false);
 
-        QHBoxLayout* buttonLay = new QHBoxLayout;
+        auto* buttonLay = new QHBoxLayout;
         buttonLay->setContentsMargins(0, 0, 0, 0);
         buttonLay->addWidget(undockBtn);
         buttonLay->addWidget(closeBtn);
 
-        QWidget* layoutWidget = new QWidget;
+        auto* layoutWidget = new QWidget;
         layoutWidget->setLayout(buttonLay);
 
         connect(closeBtn, &QPushButton::clicked, dockableWidget, &QObject::deleteLater);
@@ -501,7 +498,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
             assert(current);
             QSize size = current->size();
             // get screen pos
-            auto pos = dockableWidget->mapToGlobal(dockableWidget->pos());
+            QPoint pos = dockableWidget->mapToGlobal(dockableWidget->pos());
             // detach
             dockableWidget->setParent(nullptr); // automatically undocks widget
             assert(!tabWidget->contains(dockableWidget));

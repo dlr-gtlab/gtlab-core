@@ -12,6 +12,7 @@
 #include "gt_tabwidget.h"
 
 #include <gt_finally.h>
+#include <gt_utilities.h>
 #include <gt_qtutilities.h>
 
 #include <QMouseEvent>
@@ -28,16 +29,12 @@ GtTabWidget::tabIndex(QWidget const* widget) const
 {
     if (!widget) return -1;
 
-    int n = count();
-    for (int i = 0; i < n; ++i)
-    {
-        if (this->widget(i) == widget)
-        {
-            return i;
-        }
-    }
+    auto range = gt::range(count());
+    auto iter = std::find_if(range.begin(), range.end(), [this, widget](int idx){
+        return this->widget(idx) == widget;
+    });
 
-    return -1;
+    return iter != range.end() ? *iter : -1;
 }
 
 bool
@@ -50,8 +47,7 @@ QList<QWidget*>
 GtTabWidget::widgets()
 {
     QList<QWidget*> list;
-    int n = count();
-    for (int i = 0; i < n; ++i)
+    for (int i : gt::range(count()))
     {
         if (auto* w = widget(i)) list.append(w);
     }
