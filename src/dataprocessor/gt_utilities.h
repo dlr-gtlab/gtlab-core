@@ -157,13 +157,13 @@ public:
         using pointer           = void;
         using reference         = T;
 
-        explicit iterator(T _num) : num(_num) {}
+        constexpr explicit iterator(T _num) noexcept : num(_num) {}
 
-        iterator& operator++() { ++num; return *this; }
-        iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
-        bool operator==(iterator other) const { return num == other.num; }
-        bool operator!=(iterator other) const { return !(*this == other); }
-        reference operator*() const { return num; }
+        constexpr iterator& operator++() noexcept { ++num; return *this; }
+        constexpr iterator operator++(int) noexcept { iterator tmp = *this; ++(*this); return tmp; }
+        constexpr bool operator==(iterator other) const noexcept { return num == other.num; }
+        constexpr bool operator!=(iterator other) const noexcept { return !(*this == other); }
+        constexpr reference operator*() const noexcept { return num; }
 
     private:
 
@@ -173,12 +173,16 @@ public:
     using const_iterator = iterator;
 
     /// constructor
-    explicit DynamicRange(T from, T to) : m_begin(from), m_end(to) { }
+    constexpr explicit DynamicRange(T from, T to) noexcept :
+        m_begin(from), m_end(to)
+    {
+        assert(to >= from || !"only positive ranges are supported!");
+    }
 
-    iterator begin() const { return iterator(m_begin); }
-    iterator end() const { return iterator(m_end); }
+    constexpr iterator begin() const noexcept { return iterator(m_begin); }
+    constexpr iterator end() const noexcept { return iterator(m_end); }
 
-    size_t size() const { return m_end - m_begin; }
+    constexpr size_t size() const noexcept { return m_end - m_begin; }
 
 private:
 
@@ -196,7 +200,7 @@ private:
  * @return Range
  */
 template<typename T>
-inline DynamicRange<T> range(T from, T to)
+constexpr inline DynamicRange<T> range(T from, T to)
 {
     return DynamicRange<T>(from, to);
 }
@@ -206,7 +210,7 @@ inline DynamicRange<T> range(T from, T to)
  * @return Range
  */
 template<typename T>
-inline DynamicRange<T> range(T to)
+constexpr inline DynamicRange<T> range(T to)
 {
     return DynamicRange<T>(T(0), to >= T(0) ? to : T(0));
 }
