@@ -17,6 +17,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 
+#include "gt_dockableframe.h"
 #include "gt_mdilauncher.h"
 #include "gt_mdiitem.h"
 #include "gt_application.h"
@@ -169,9 +170,8 @@ GtMdiLauncher::onSubWindowClose(QObject* obj)
         QPointer<GtMdiItem> item = iter.value();
         m_openItems.erase(iter);
 
-        bool isDetached = !obj->parent();
-        gtError() << "HERE BEFORE" << item->objectName() << obj;
-        if (isDetached) item->deleteLater();
+//        bool isDetached = !obj->parent();
+//        if (isDetached) item->deleteLater();
     }
 }
 
@@ -297,9 +297,9 @@ GtMdiLauncher::print(QWidget* subWindow)
 {
     if (!subWindow) return;
 
-    if (m_openItems.contains(subWindow))
+    if (auto item = m_openItems.value(subWindow, nullptr))
     {
-        m_openItems.value(subWindow)->print();
+        item->print();
     }
 }
 
@@ -398,11 +398,6 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     GtObject* obj = newObject(id);
 
-    if (!obj)
-    {
-        return nullptr;
-    }
-
     GtMdiItem* mdiItem = qobject_cast<GtMdiItem*>(obj);
 
     if (!mdiItem)
@@ -458,47 +453,100 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
         icon = gt::gui::icon::layers();
     }
 
-    int idx = m_area->addTab(wid, icon, mdiItem->objectName());
+    // custom widget to handle redocking
+    QPointer<GtDockableFrame> dockableWidget{qobject_cast<GtDockableFrame*>(wid)};
 
-    // set custom close button
-    QPushButton* closeBtn = new QPushButton;
-    closeBtn->setIconSize(QSize{14, 14}); // because stani wants it this way...
-    closeBtn->resize(QSize(14, 14));
-    closeBtn->setIcon(gt::gui::icon::close());
-    closeBtn->setFlat(true);
-    // for identification in gui tests
-    closeBtn->setObjectName(QStringLiteral("MdiTabCloseBtn"));
+    // helper function to make mdi buttons
+    auto const makeMdiButton = [this, icon, dockableWidget,
+                                mdiItem = QPointer<GtMdiItem>(mdiItem)](){
+        // set custom close button
+        QPushButton* closeBtn = new QPushButton;
+        closeBtn->setIconSize(QSize{14, 14}); // because stani wants it this way...
+        closeBtn->resize(QSize(14, 14));
+        closeBtn->setIcon(gt::gui::icon::close());
+        closeBtn->setFlat(true);
+        // for identification in gui tests
+        closeBtn->setObjectName(QStringLiteral("MdiTabCloseBtn"));
 
-    QPushButton* undockBtn = new QPushButton;
-    undockBtn->setIcon(gt::gui::icon::dock());
-    undockBtn->setIconSize(QSize{14, 14});
-    undockBtn->resize(QSize(14, 14));
-    undockBtn->setFlat(true);
+        QPushButton* undockBtn = new QPushButton;
+        undockBtn->setIconSize(QSize{14, 14});
+        undockBtn->resize(QSize(14, 14));
+        undockBtn->setIcon(gt::gui::icon::dock());
+        undockBtn->setFlat(true);
+        undockBtn->setVisible(false);
 
-    QHBoxLayout* buttonLay = new QHBoxLayout;
-    buttonLay->setContentsMargins(0, 0, 0, 0);
-    buttonLay->addWidget(undockBtn);
-    buttonLay->addWidget(closeBtn);
+        QHBoxLayout* buttonLay = new QHBoxLayout;
+        buttonLay->setContentsMargins(0, 0, 0, 0);
+        buttonLay->addWidget(undockBtn);
+        buttonLay->addWidget(closeBtn);
 
-    QWidget* layoutWidget = new QWidget;
-    layoutWidget->setLayout(buttonLay);
+        QWidget* layoutWidget = new QWidget;
+        layoutWidget->setLayout(buttonLay);
 
-    m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, layoutWidget);
-    connect(closeBtn, &QPushButton::clicked, wid, &QObject::deleteLater);
-    connect(undockBtn, &QPushButton::clicked, wid,
-            [this, wid = QPointer<QWidget>(wid)](){
-        // get size
-        auto current = m_area->currentWidget();
-        assert(current);
-        QSize size = current->size();
-        // get screen pos
-        auto pos = wid->mapToGlobal(wid->pos());
-        // detach
-        wid->setParent(nullptr);
-        wid->move(pos);
-        wid->resize(size);
-        wid->show();
+        connect(closeBtn, &QPushButton::clicked, dockableWidget, &QObject::deleteLater);
+
+        if (!dockableWidget) return layoutWidget;
+
+        undockBtn->setVisible(true);
+        connect(undockBtn, &QPushButton::clicked,
+                dockableWidget, [this, icon, mdiItem, dockableWidget](){
+            assert(mdiItem);
+            assert(dockableWidget);
+            // get size of area
+            QWidget* current = m_area->currentWidget();
+            assert(current);
+            QSize size = current->size();
+            // get screen pos
+            auto pos = dockableWidget->mapToGlobal(dockableWidget->pos());
+            // detach
+            gtWarning() << "HERE #######";
+            gtWarning() << dockableWidget;
+            gtWarning() << dockableWidget->windowFlags();
+            gtWarning() << dockableWidget->parent();
+            gtWarning() << "############";
+            dockableWidget->setParent(nullptr);
+            dockableWidget->setAttribute(Qt::WA_DeleteOnClose);
+            dockableWidget->setWindowIcon(icon);
+            dockableWidget->setWindowTitle(mdiItem->objectName());
+            dockableWidget->move(pos);
+            dockableWidget->resize(size);
+            dockableWidget->show();
+        });
+
+        connect(layoutWidget, &QPushButton::destroyed, this, [](){
+            gtError() << "DELETED MDI BUTTONS";
+        });
+
+        return layoutWidget;
+    };
+
+    connect(dockableWidget, &GtDockableFrame::redockWidget,
+            this, [this, icon, makeMdiButton, dockableWidget](){
+        gtInfo() << "HERE DOCKING";
+        assert(dockableWidget && !dockableWidget->parent());
+
+        // check if widget is already appended
+        int n = m_area->count();
+        for (int idx = 0; idx < n; idx++)
+        {
+            if (m_area->widget(idx) == dockableWidget)
+            {
+                gtWarning() << tr("MdiItem '%1' is already docked!")
+                                  .arg(dockableWidget->windowTitle());
+                return;
+            }
+        }
+
+        // add tab
+        int idx = m_area->addTab(dockableWidget, icon, dockableWidget->windowTitle());
+        assert(idx >= 0);
+        m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, makeMdiButton());
+        m_area->setCurrentWidget(dockableWidget);
     });
+
+    // set name of widget to use when undocking
+    int idx = m_area->addTab(wid, icon, mdiItem->objectName());
+    m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, makeMdiButton());
 
     mdiItem->initialized();
 
@@ -556,6 +604,11 @@ GtMdiLauncher::changeTabTitle(const QString& newTitle)
     /// if index can be found:
     if (index > -1)
     {
+        if (auto* w = m_area->widget(index))
+        {
+            // undocked
+            if (!w->parent()) w->setWindowTitle(newTitle);
+        }
         m_area->setTabText(index, newTitle);
     }
 }

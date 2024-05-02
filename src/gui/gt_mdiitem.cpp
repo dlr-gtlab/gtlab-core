@@ -8,10 +8,10 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QFrame>
 #include <QIcon>
 #include <QMessageBox>
 
+#include "gt_dockableframe.h"
 #include "gt_mdiitem.h"
 #include "gt_application.h"
 #include "gt_datamodel.h"
@@ -22,8 +22,11 @@
 
 #include <gt_logging.h>
 
-GtMdiItem::GtMdiItem() : m_frame(new QFrame), m_d(nullptr),
-    m_subWin(nullptr), m_queueEvents(false)
+GtMdiItem::GtMdiItem() :
+    m_frame(new GtDockableFrame),
+    m_d(nullptr),
+    m_subWin(nullptr),
+    m_queueEvents(false)
 {
     m_frame->setFrameStyle(QFrame::NoFrame);
 
