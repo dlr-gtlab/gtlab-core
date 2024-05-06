@@ -15,7 +15,6 @@
 GtMdiWidget::GtMdiWidget(QWidget* parent, Qt::WindowFlags f) :
     QFrame(parent, f)
 {
-
     setFrameStyle(QFrame::NoFrame);
 }
 
