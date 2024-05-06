@@ -333,7 +333,7 @@ GtCoreApplication::initLogging()
     }
     else
     {
-        logger.setLoggingLevel(gt::log::InfoLevel);
+        logger.setLoggingLevel(gt::log::levelFromInt(m_settings->loggingLevel()));
     }
 
     // TODO: Remove this if block in GTlab 2.1 (see !294)

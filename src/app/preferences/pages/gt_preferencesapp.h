@@ -70,7 +70,7 @@ private slots:
      * @brief onAutoSaveTriggered
      * @param val
      */
-    void onAutoSaveTriggered(bool val);
+    [[deprecated]] void onAutoSaveTriggered(bool val);
 
 };
 

@@ -191,6 +191,15 @@ public:
     void setEnabled(bool enable = true);
 
     /**
+     * @brief Checks if the model contains messages that have the specified
+     * log level
+     * @param level Log level to check
+     * @return Whether the log model contains messages with the specified
+     * log level
+     */
+    bool containsLogLevel(gt::log::Level level) const;
+
+    /**
      * @brief Returns the row count of this model
      * @param parent Parent index
      * @return row count

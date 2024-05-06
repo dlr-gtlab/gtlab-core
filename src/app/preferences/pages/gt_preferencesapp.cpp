@@ -39,6 +39,49 @@ std::array<LoggingVerbosity, 3> const s_verbosityLevels{
     LoggingVerbosity{gt::log::Everything, QStringLiteral("High")  }
 };
 
+namespace
+{
+
+/// returns the display text for the current verbosity level
+QString const& currentVerbosityName()
+{
+    // not using verbosity setting here to get actual logging verbosity
+    int verbosityLevel = gt::log::Logger::instance().verbosity();
+
+    auto iter = std::find_if(std::begin(s_verbosityLevels),
+                             std::end(s_verbosityLevels),
+                             [=](auto const& entry){
+        return verbosityLevel <= entry.verbosity;
+    });
+
+    if (iter != std::end(s_verbosityLevels))
+    {
+        return iter->name;
+    }
+
+    /// fallback
+    return s_verbosityLevels[0].name;
+}
+
+/// returns the verbosity level for the given text
+gt::log::Verbosity verbosityLevel(QString const& verbosityText)
+{
+    auto iter = std::find_if(std::begin(s_verbosityLevels),
+                             std::end(s_verbosityLevels),
+                             [&](auto const& entry){
+                                 return verbosityText == entry.name;
+                             });
+
+    if (iter != std::end(s_verbosityLevels))
+    {
+        return iter->verbosity;
+    }
+
+    return s_verbosityLevels[0].verbosity;
+}
+
+} // namespace
+
 GtPreferencesApp::GtPreferencesApp() :
     GtPreferencesPage(tr("Application"))
 {
@@ -66,36 +109,12 @@ GtPreferencesApp::GtPreferencesApp() :
     generalLayout->addWidget(m_openWelcomePage);
     generalLayout->addWidget(m_updateAtStartup);
 
-//    QWidget* intervalWid = new QWidget;
-
-//    QHBoxLayout* intervalLay = new QHBoxLayout;
-//    intervalLay->setContentsMargins(0, 0, 0, 0);
-
-//    intervalWid->setLayout(intervalLay);
-
-//    m_autoSaveModifications = new QCheckBox(tr("Auto-save modified project"));
-//    intervalLay->addWidget(m_autoSaveModifications);
-
-//    QLabel* intervalLbl = new QLabel(tr("Interval:"));
-//    intervalLbl->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-//    intervalLay->addWidget(intervalLbl);
-
-//    m_autoSaveInterval = new QSpinBox;
-//    m_autoSaveInterval->setMaximum(0);
-//    m_autoSaveInterval->setMaximum(60);
-//    m_autoSaveInterval->setMaximumWidth(70);
-//    m_autoSaveInterval->setEnabled(false);
-//    m_autoSaveInterval->setSuffix(QStringLiteral(" min"));
-
-//    intervalLay->addWidget(m_autoSaveInterval);
-
-//    generalLayout->addWidget(intervalWid);
-
     QFormLayout* formLay = new QFormLayout;
 
     m_maxLogSpin = new QSpinBox;
     m_maxLogSpin->setMinimum(10);
     m_maxLogSpin->setMaximum(100000);
+    formLay->addRow(tr("Max. logging length:"), m_maxLogSpin);
 
     // order verbosity levels depending on their value
     QStringList verbosityLevels;
@@ -105,8 +124,7 @@ GtPreferencesApp::GtPreferencesApp() :
     });
     m_verbositySelection = new QComboBox;
     m_verbositySelection->addItems(verbosityLevels);
-
-    formLay->addRow(tr("Max. logging length:"), m_maxLogSpin);
+    m_verbositySelection->setCurrentText(currentVerbosityName());
     formLay->addRow(tr("Logging verbosity:"), m_verbositySelection);
 
     m_themeSelection = new QComboBox(this);
@@ -145,46 +163,6 @@ GtPreferencesApp::GtPreferencesApp() :
 
     tabWidget->setTabVisible(idx, gtApp->devMode());
 
-//    QWidget* notificationPage = new QWidget;
-//    tabWidget->addTab(notificationPage, tr("Notifications"));
-//    tabWidget->setTabEnabled(1, false);
-
-//    QCheckBox* showHeadsUpNotifications =
-//            new QCheckBox(tr("Show heads up notifications"));
-
-//    QVBoxLayout* notificationLayout = new QVBoxLayout(notificationPage);
-
-//    notificationLayout->addWidget(showHeadsUpNotifications);
-
-//    QFormLayout* nFormLayout = new QFormLayout;
-//    nFormLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
-//    nFormLayout->setFormAlignment(Qt::AlignRight);
-//    nFormLayout->setLabelAlignment(Qt::AlignLeft);
-
-//    QLabel* notificationTime = new QLabel(tr("Notification timeout (sec)"));
-
-//    QSpinBox* notifyTimeout = new QSpinBox;
-
-//    notifyTimeout->setFixedWidth(100);
-//    notifyTimeout->setRange(1, 10);
-//    notifyTimeout->setValue(5);
-
-//    nFormLayout->addRow(notificationTime, notifyTimeout);
-
-//    QLabel* notificationNumber = new QLabel("Max. heads up notifications");
-
-//    QSpinBox* maxNotifications = new QSpinBox;
-
-//    maxNotifications->setFixedWidth(100);
-//    maxNotifications->setRange(1, 10);
-//    maxNotifications->setValue(10);
-
-//    nFormLayout->addRow(notificationNumber, maxNotifications);
-
-//    notificationLayout->addLayout(nFormLayout);
-
-//    notificationLayout->addStretch(1);
-
     auto* settings = gtApp->settings();
     assert(settings);
 
@@ -201,21 +179,6 @@ GtPreferencesApp::GtPreferencesApp() :
     // log length
     m_maxLogSpin->setValue(settings->maxLogLength());
 
-    // not using verbosity setting here to get actual logging verbosity
-    int  verbosityLevel = gt::log::Logger::instance().verbosity();
-
-    // set verbosity text
-    auto iter = std::find_if(std::begin(s_verbosityLevels),
-                             std::end(s_verbosityLevels),
-                 [&](auto const& entry){
-        return verbosityLevel <= entry.verbosity;
-    });
-
-    if (iter != std::end(s_verbosityLevels))
-    {
-        m_verbositySelection->setCurrentText(iter->name);
-    }
-
     // theme selection
     QString themeMode = settings->themeMode();
     if (themeMode == "bright")
@@ -230,10 +193,6 @@ GtPreferencesApp::GtPreferencesApp() :
     {
         m_themeSelection->setCurrentIndex(0);
     }
-
-
-//    connect(m_autoSaveModifications, SIGNAL(clicked(bool)),
-//            SLOT(onAutoSaveTriggered(bool)));
 }
 
 void
@@ -248,20 +207,7 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
     GtLogModel::instance().setMaxLogLength(m_maxLogSpin->value());
 
     // verbosity
-    auto verbosityText = m_verbositySelection->currentText();
-    auto verbosity = gt::log::Silent;
-
-    auto iter = std::find_if(std::begin(s_verbosityLevels),
-                             std::end(s_verbosityLevels),
-                 [&](auto const& entry){
-        return verbosityText == entry.name;
-    });
-
-    if (iter != std::end(s_verbosityLevels))
-    {
-        verbosity = iter->verbosity;
-    }
-
+    auto verbosity = verbosityLevel(m_verbositySelection->currentText());
     settings.setLoggingVerbosity(verbosity);
     gt::log::Logger::instance().setVerbosity(verbosity);
 
@@ -299,6 +245,6 @@ GtPreferencesApp::loadSettings(const GtSettings&)
 void
 GtPreferencesApp::onAutoSaveTriggered(bool /*val*/)
 {
-//    m_autoSaveInterval->setEnabled(val);
+    // TODO: remove me
 }
 

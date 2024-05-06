@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed error "Folder id is empty" when starting GTlab on docker - #1135
 - Fixed restrictive validator when renaming some objects in the explorer - #523
 
+### Added
+- Added setting to the output dock to change logging level at runtime. - #1086
+
 ### Changed
 - Improved performance of the python syntax highlighter - #1139
 - (In-)active filter buttons for the logging level in the output dock are now better distinguishable. - #606 
