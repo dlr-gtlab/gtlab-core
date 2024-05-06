@@ -66,7 +66,7 @@ generateTheme(ColorConfig const& config)
     palette.setColor(QPalette::Mid,
                      gt::gui::color::darken(config.main, 20));
 
-    /// QPalette::Midlight: ???
+    /// QPalette::Midlight:
 
     /// QPalette::Light: Apperantly affects the top part of a raised frame and
     /// the lower part of sunken frame

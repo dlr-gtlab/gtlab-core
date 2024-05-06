@@ -50,6 +50,9 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
 
 private:
+
+    struct Impl;
+
     /// Log view
     GtTableView* m_logView{};
 

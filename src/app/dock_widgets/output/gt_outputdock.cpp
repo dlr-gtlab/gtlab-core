@@ -58,7 +58,125 @@ std::array<LoggingLevel, 4> const s_loggingLevels{
     LoggingLevel{gt::log::WarningLevel, QStringLiteral("Warnings Only")}
 };
 
-GtOutputDock::GtOutputDock()
+struct GtOutputDock::Impl
+{
+
+/// setups a basic button for the output dock
+static QPushButton* setupButton(QLayout* layout,
+                                    QIcon const& icon = {},
+                                    QString const& tooltip = {})
+{
+    auto* button = new QPushButton;
+    button->setIcon(icon);
+    button->setMaximumSize(QSize(20, 20));
+    button->setFlat(true);
+    button->setToolTip(tooltip);
+    layout->addWidget(button);
+    return button;
+};
+
+
+/// helper method for setting up an output action button
+template<typename Reciever, typename Signal>
+static QPushButton* setupActionButton(QLayout* layout,
+                                      QIcon const& icon,
+                                      QString const& tooltip,
+                                      Reciever reciever,
+                                      Signal signal)
+{
+    auto* button = setupButton(layout, icon, tooltip);
+    QObject::connect(button, &QPushButton::clicked, reciever, signal);
+    return button;
+};
+
+/// helper method for setting up an output toggle button
+template<typename Reciever, typename Signal>
+static QPushButton* setupToggleButton(QLayout* layout,
+                                      GtObject* guardian,
+                                      QIcon const& icon,
+                                      QString const& type,
+                                      QString const& tooltip,
+                                      Reciever reciever,
+                                      Signal signal)
+{
+    using gt::gui::color::lighten;
+    using gt::gui::color::disabled;
+    using gt::gui::color::text;
+    using gt::gui::colorize; // use custom colors for icon
+
+    auto* button = setupButton(layout, icon, tooltip);
+    button->setCheckable(true);
+
+    // checked button do not use On/Off Icons, thus we have to update the
+    // icon ourselfes
+    auto const updateIconColor = [b = QPointer<QPushButton>(button)](){
+        assert (b);
+        return b->isChecked() ? text() : lighten(disabled(), 15);
+    };
+    button->setIcon(colorize(icon, gt::gui::SvgColorData{ updateIconColor }));
+
+    QObject::connect(button, &QPushButton::toggled, reciever, signal);
+
+    GtState* state =
+        gtStateHandler->initializeState(GT_CLASSNAME(GtOutputDock),
+                                        type, type.toLower(),
+                                        QVariant::fromValue(true),
+                                        guardian);
+
+    // apply value from state
+    bool isChecked = state->getValue().toBool();
+    button->setChecked(isChecked);
+
+    QObject::connect(button, &QPushButton::toggled, state, [=](bool checked){
+        state->setValue(checked, false);
+    });
+
+    // trigger signal
+    emit button->toggled(isChecked);
+
+    return button;
+};
+
+/// returns the current logging level text
+static QString const& currentLoggingLevel()
+{
+    // not using logging level setting here to get actual logging level
+    gt::log::Level loggingLevel = gt::log::Logger::instance().loggingLevel();
+
+    auto iter = std::find_if(std::begin(s_loggingLevels),
+                             std::end(s_loggingLevels),
+                             [=](auto const& entry){
+        return loggingLevel <= entry.level;
+    });
+
+    if (iter != std::end(s_loggingLevels))
+    {
+        return iter->name;
+    }
+
+    return s_loggingLevels[0].name;
+}
+
+/// returns the logging level of the display text
+static gt::log::Level loggingLevel(QString const& loggingLevelText)
+{
+    auto iter = std::find_if(std::begin(s_loggingLevels),
+                             std::end(s_loggingLevels),
+                             [&](auto const& entry){
+        return loggingLevelText == entry.name;
+    });
+
+    if (iter != std::end(s_loggingLevels))
+    {
+        return iter->level;
+    }
+
+    return s_loggingLevels[0].level;
+}
+
+/// appends selection box for logging level to output dock
+static void installLogLevelComboBox(GtOutputDock* dock,
+                                    QGridLayout* layout)
 {
     // order verbosity levels depending on their value
     QStringList loggingLevels;
@@ -67,6 +185,39 @@ GtOutputDock::GtOutputDock()
         return entry.name;
     });
 
+    auto* loggingLevelLabel = new QLabel(QObject::tr("Logging Level:"));
+    auto* loggingLevelSelection = new QComboBox;
+    loggingLevelSelection->addItems(loggingLevels);
+
+    // dummy widget for layout
+    QWidget* dummy = new QWidget(dock);
+    auto* loggingLayout = new QHBoxLayout(dummy);
+    loggingLayout->setContentsMargins(0, 1, 0, 0);
+    loggingLayout->addStretch();
+    loggingLayout->addWidget(loggingLevelLabel);
+    loggingLayout->addSpacing(2);
+    loggingLayout->addWidget(loggingLevelSelection);
+
+    // stack tabwidget and the logging level selection
+    layout->addWidget(dummy, 0, 0, Qt::AlignTop | Qt::AlignRight);
+
+    loggingLevelSelection->setCurrentText(currentLoggingLevel());
+
+    // save new logging level
+    QObject::connect(loggingLevelSelection, &QComboBox::currentTextChanged,
+                     dock, [dock, loggingLevelSelection](){
+        auto level = loggingLevel(loggingLevelSelection->currentText());
+        gtApp->settings()->setLoggingLevel(level);
+        gt::log::Logger::instance().setLoggingLevel(level);
+
+        dock->updateFilterButtons();
+    });
+}
+
+}; // struct Impl
+
+GtOutputDock::GtOutputDock()
+{
     setObjectName(tr("Output"));
 
     auto* widget = new QWidget(this);
@@ -110,8 +261,9 @@ GtOutputDock::GtOutputDock()
     filterLayout->setSpacing(0);
 
     GtSearchWidget* searchWidget = new GtSearchWidget;
-
-    filterLayout->addWidget(searchWidget);
+    filterLayout->addWidget(searchWidget);    
+    connect(searchWidget, &GtSearchWidget::textChanged,
+            m_model, &GtFilteredLogModel::filterData);
 
     m_logView = new GtTableView;
     m_logView->setFrameStyle(QFrame::NoFrame);
@@ -153,160 +305,36 @@ GtOutputDock::GtOutputDock()
 
     defaultLayout->addWidget(m_logView);
 
-    connect(searchWidget, &GtSearchWidget::textChanged,
-            m_model, &GtFilteredLogModel::filterData);
-
     filterLayout->addStretch(1);
 
-    // logging level
-    {
-        auto* loggingLevelLabel = new QLabel(tr("Logging Level:"));
-        auto* loggingLevelSelection = new QComboBox;
-        loggingLevelSelection->addItems(loggingLevels);
-
-        // dummy widget for layout
-        QWidget* dummy = new QWidget(widget);
-        auto* loggingLayout = new QHBoxLayout(dummy);
-        loggingLayout->setContentsMargins(0, 1, 0, 0);
-        loggingLayout->addStretch();
-        loggingLayout->addWidget(loggingLevelLabel);
-        loggingLayout->addSpacing(2);
-        loggingLayout->addWidget(loggingLevelSelection);
-
-        // stack tabwidget and the logging level selection
-        layout->addWidget(dummy, 0, 0, Qt::AlignTop | Qt::AlignRight);
-
-        // not using logging level setting here to get actual logging level
-        gt::log::Level loggingLevel = gt::log::Logger::instance().loggingLevel();
-
-        // set verbosity text
-        auto iter = std::find_if(std::begin(s_loggingLevels),
-                                 std::end(s_loggingLevels),
-                                 [=](auto const& entry){
-                                     return loggingLevel <= entry.level;
-                                 });
-
-        if (iter != std::end(s_loggingLevels))
-        {
-            loggingLevelSelection->setCurrentText(iter->name);
-        }
-
-        // save new logging level
-        connect(loggingLevelSelection, &QComboBox::currentTextChanged,
-                loggingLevelSelection, [this, loggingLevelSelection](){
-            auto loggingLevelText = loggingLevelSelection->currentText();
-            auto loggingLevel = gt::log::Logger::instance().loggingLevel();
-
-            auto iter = std::find_if(std::begin(s_loggingLevels),
-                                     std::end(s_loggingLevels),
-                                     [&](auto const& entry){
-                return loggingLevelText == entry.name;
-            });
-
-            if (iter != std::end(s_loggingLevels))
-            {
-                loggingLevel = iter->level;
-            }
-
-            gtApp->settings()->setLoggingLevel(loggingLevel);
-            gt::log::Logger::instance().setLoggingLevel(loggingLevel);
-
-            updateFilterButtons();
-        });
-    }
-
-    const auto setupButton = [&](QIcon const& icon = {},
-                                 QString const& tooltip = {}){
-        auto* button = new QPushButton;
-        button->setIcon(icon);
-        button->setMaximumSize(QSize(20, 20));
-        button->setFlat(true);
-        button->setToolTip(tooltip);
-        filterLayout->addWidget(button);
-        return button;
-    };
-
-    /// helper method for setting up an output action button
-    const auto setupActionButton = [&](QIcon const& icon,
-                                       QString const& tooltip,
-                                       auto* reciever,
-                                       auto signal){
-        auto* button = setupButton(icon, tooltip);
-        QObject::connect(button, &QPushButton::clicked, reciever, signal);
-        return button;
-    };
-
-    GtObject* guardian = new GtObject;
-    guardian->setParent(this);
-
-    /// helper method for setting up an output toggle button
-    const auto setupToggleButton = [&](QIcon const& icon,
-                                       QString const& type,
-                                       QString const& tooltip,
-                                       auto* reciever,
-                                       auto signal){
-
-        using gt::gui::color::lighten;
-        using gt::gui::color::disabled;
-        using gt::gui::color::text;
-        using gt::gui::colorize; // use custom colors for icon
-
-        auto* button = setupButton(icon, tooltip);
-        button->setCheckable(true);
-
-        // checked button do not use On/Off Icons, thus we have to update the
-        // icon ourselfes
-        auto const updateIconColor = [b = QPointer<QPushButton>(button)](){
-            assert (b);
-            return b->isChecked() ? text() : lighten(disabled(), 15);
-        };
-        button->setIcon(colorize(icon, gt::gui::SvgColorData{ updateIconColor }));
-
-        connect(button, &QPushButton::toggled, reciever, signal);
-
-        GtState* state =
-            gtStateHandler->initializeState(staticMetaObject.className(),
-                                            type, type.toLower(),
-                                            QVariant::fromValue(true),
-                                            guardian);
-
-        // apply value from state
-        bool isChecked = state->getValue().toBool();
-        button->setChecked(isChecked);
-
-        connect(button, &QPushButton::toggled, state, [=](bool checked){
-            state->setValue(checked, false);
-        });
-
-        // trigger signal
-        emit button->toggled(isChecked);
-
-        return button;
-    };
+    Impl::installLogLevelComboBox(this, layout);
 
     // clear log button
-    setupActionButton(gt::gui::icon::clear(),
-                      tr("Clear Output"),
-                      gtLogModel, &GtLogModel::clearLog);
+    Impl::setupActionButton(filterLayout,
+                            gt::gui::icon::clear(),
+                            tr("Clear Output"),
+                            gtLogModel, &GtLogModel::clearLog);
 
     // export log button
-    setupActionButton(gt::gui::icon::export_(),
-                      tr("Export Output to file"),
-                      this, &GtOutputDock::exportLog);
+    Impl::setupActionButton(filterLayout,
+                            gt::gui::icon::export_(),
+                            tr("Export Output to file"),
+                            this, &GtOutputDock::exportLog);
 
     if (gtApp->devMode())
     {
         // test button
-        auto* testButton = setupActionButton(gt::gui::icon::bugPlay(),
-                                             tr("Test Output"),
-                                             this, &GtOutputDock::testOutput);
+        auto* testButton = Impl::setupActionButton(filterLayout,
+                                                   gt::gui::icon::bugPlay(),
+                                                   tr("Test Output"),
+                                                   this, &GtOutputDock::testOutput);
 
         testButton->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(testButton, &QWidget::customContextMenuRequested,
                 this, &GtOutputDock::openTestCaseContextMenu);
 
         // ingore incoming messages button
-        auto* ignoreButton = setupButton();
+        auto* ignoreButton = Impl::setupButton(filterLayout);
         ignoreButton->setCheckable(true);
 
         auto updateIgnoreButton = [=](bool isChecked){
@@ -332,40 +360,38 @@ GtOutputDock::GtOutputDock()
         filterLayout->addWidget(frame);
     }
 
+    GtObject* guardian = new GtObject;
+    guardian->setParent(this);
+
     // trace message button
-    m_traceButton = setupToggleButton(gt::gui::icon::trace(),
-                                      QStringLiteral("Trace"),
-                                      tr("Show/Hide Trace Output"),
-                                      m_model,
-                                      &GtFilteredLogModel::filterTraceLevel);
+    m_traceButton = Impl::setupToggleButton(
+        filterLayout, guardian, gt::gui::icon::trace(),
+        QStringLiteral("Trace"), tr("Show/Hide Trace Output"),
+        m_model, &GtFilteredLogModel::filterTraceLevel);
 
     // debug message button
-    m_debugButton = setupToggleButton(gt::gui::icon::bug(),
-                                      QStringLiteral("Debug"),
-                                      tr("Show/Hide Debug Output"),
-                                      m_model,
-                                      &GtFilteredLogModel::filterDebugLevel);
+    m_debugButton = Impl::setupToggleButton(
+        filterLayout, guardian, gt::gui::icon::bug(),
+        QStringLiteral("Debug"), tr("Show/Hide Debug Output"),
+        m_model, &GtFilteredLogModel::filterDebugLevel);
 
     // info message button
-    m_infoButton = setupToggleButton(gt::gui::icon::info(),
-                                     QStringLiteral("Info"),
-                                     tr("Show/Hide Info Output"),
-                                     m_model,
-                                     &GtFilteredLogModel::filterInfoLevel);
+    m_infoButton = Impl::setupToggleButton(
+        filterLayout, guardian, gt::gui::icon::info(),
+        QStringLiteral("Info"), tr("Show/Hide Info Output"),
+        m_model, &GtFilteredLogModel::filterInfoLevel);
 
     // warning message button
-    m_warningButton = setupToggleButton(gt::gui::icon::warning(),
-                                        QStringLiteral("Warning"),
-                                        tr("Show/Hide Warning Output"),
-                                        m_model,
-                                        &GtFilteredLogModel::filterWarningLevel);
+    m_warningButton = Impl::setupToggleButton(
+        filterLayout, guardian, gt::gui::icon::warning(),
+        QStringLiteral("Warning"), tr("Show/Hide Warning Output"),
+        m_model, &GtFilteredLogModel::filterWarningLevel);
 
     // error message button
-    m_errorButton = setupToggleButton(gt::gui::icon::error(),
-                                      QStringLiteral("Error"),
-                                      tr("Show/Hide Error Output"),
-                                      m_model,
-                                      &GtFilteredLogModel::filterErrorLevel);
+    m_errorButton = Impl::setupToggleButton(
+        filterLayout, guardian,  gt::gui::icon::error(),
+        QStringLiteral("Error"), tr("Show/Hide Error Output"),
+        m_model, &GtFilteredLogModel::filterErrorLevel);
 
     defaultLayout->addLayout(filterLayout);
 
