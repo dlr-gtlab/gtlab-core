@@ -135,6 +135,86 @@ T const& clamp(T const& value, T const& low, T const& high)
     return std::max(low, std::min(high, value));
 }
 
+/**
+ * @brief The DynamicRange class. Implements a simple way to iterator from a
+ * a starting number to an end number using iterators and without the need to
+ * create a temporary list.
+ *
+ * Only supports positive ranges.
+ */
+template<typename T>
+class DynamicRange
+{
+public:
+
+    /// iterator class
+    class iterator
+    {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using difference_type   = T;
+        using value_type        = T;
+        using pointer           = void;
+        using reference         = T;
+
+        constexpr explicit iterator(T _num) noexcept : num(_num) {}
+
+        constexpr iterator& operator++() noexcept { ++num; return *this; }
+        constexpr iterator operator++(int) noexcept { iterator tmp = *this; ++(*this); return tmp; }
+        constexpr bool operator==(iterator other) const noexcept { return num == other.num; }
+        constexpr bool operator!=(iterator other) const noexcept { return !(*this == other); }
+        constexpr reference operator*() const noexcept { return num; }
+
+    private:
+
+        T num = 0;
+    };
+
+    using const_iterator = iterator;
+
+    /// constructor
+    constexpr explicit DynamicRange(T from, T to) noexcept :
+        m_begin(from), m_end(to)
+    {
+        assert(to >= from || !"only positive ranges are supported!");
+    }
+
+    constexpr iterator begin() const noexcept { return iterator(m_begin); }
+    constexpr iterator end() const noexcept { return iterator(m_end); }
+
+    constexpr size_t size() const noexcept { return m_end - m_begin; }
+
+private:
+
+    T m_begin = 0, m_end = 0;
+};
+
+/**
+ * @brief Creates a dynamic range that can be iterated over using c++ iterators.
+ * Can be used to replace classic for loops with range based for loops
+ *
+ * for (auto idx : range(0, 10)) { ... }
+ *
+ * @param from Begin of range
+ * @param to End of range
+ * @return Range
+ */
+template<typename T>
+constexpr inline DynamicRange<T> range(T from, T to)
+{
+    return DynamicRange<T>(from, to);
+}
+/**
+ * @brief Overload. Starts range at 0.
+ * @param to End of range
+ * @return Range
+ */
+template<typename T>
+constexpr inline DynamicRange<T> range(T to)
+{
+    return DynamicRange<T>(T(0), to >= T(0) ? to : T(0));
+}
+
 } // namespace gt
 
 #endif // GT_UTILITIES_H

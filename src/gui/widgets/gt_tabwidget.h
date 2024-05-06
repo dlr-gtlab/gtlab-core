@@ -28,6 +28,29 @@ public:
 
     GtTabWidget(QWidget* parent = nullptr);
 
+    /**
+     * @brief Returns the index of `widget` in the tabbar. Returns -1 if it is
+     * not part of the tab widget.
+     * @param widget Widget
+     * @return Index of widget. Returns -1 if `widget` is not part of the
+     * tab widget.
+     */
+    int tabIndex(QWidget const* widget) const;
+
+    /**
+     * @brief Returns whether the tab widget contains `widget`
+     * @param widget Widget to check
+     * @return Whether tab widget contains `widget`
+     */
+    bool contains(QWidget const* widget) const;
+
+    /**
+     * @brief Returns a list of all widgets in this tab widget in order.
+     * @return List of widgets
+     */
+    QList<QWidget*> widgets();
+    QList<QWidget const*> widgets() const;
+
 protected:
 
     void mousePressEvent(QMouseEvent* event) override;

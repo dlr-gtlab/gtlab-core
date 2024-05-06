@@ -34,6 +34,7 @@ class GT_GUI_EXPORT GtMdiLauncher : public QObject,
         public GtAbstractObjectFactory
 {
     friend class GtGuiModuleLoader;
+    friend class GtMainWin;
 
     Q_OBJECT
 
@@ -211,6 +212,11 @@ private:
      * @param mdiId
      */
     void setFocus(const QString& mdiId);
+
+    /**
+     * @brief Closes all active MDI items.
+     */
+    void close();
 
 private slots:
     /**

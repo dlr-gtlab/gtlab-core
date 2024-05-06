@@ -397,6 +397,9 @@ GtMainWin::closeEvent(QCloseEvent* event)
         m_undoView->close();
     }
 
+    assert(GtMdiLauncher::instance());
+    GtMdiLauncher::instance()->close();
+
     QMainWindow::closeEvent(event);
 }
 
