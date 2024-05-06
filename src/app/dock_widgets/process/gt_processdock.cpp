@@ -1434,7 +1434,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
                 return;
             }
 
-            objectsToMove.append(p);
+            if (!objectsToMove.contains(p)) objectsToMove.append(p);
         }
     }
 
@@ -1472,57 +1472,51 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
 
     auto targetComp = qobject_cast<GtProcessComponent*>(targetObject);
 
+    // check if target index is an processComponent
     if (!targetComp) return;
 
+    // commonParent is used to have a minimal overhead to define undo/redo
+    QList<GtObject*> helper = objectsToMove;
+    helper.append(targetComp);
 
-    auto* commonParent = gt::find_lowest_ancestor(objectsToMove << targetComp,
+    auto* commonParent = gt::find_lowest_ancestor(helper,
                                                   gt::get_parent_object);
     assert(commonParent);
-
 
     auto _ = gtApp->makeCommand(commonParent, tr("move process element"));
     Q_UNUSED(_);
 
-    if (auto taskParent = qobject_cast<GtTask*>(targetComp))
-    {
-        for (auto o : objectsToMove)
-        {
-            gtDataModel->appendChild(o, taskParent);
-        }
+    auto taskParent = qobject_cast<GtTask*>(targetComp);
 
-        return;
+    if (!taskParent)
+    {
+        GtObject* targetparent = targetComp->parentObject();
+
+        taskParent = qobject_cast<GtTask*>(targetparent);
     }
 
-    GtObject* targetparent = targetComp->parentObject();
+    // invlid entry in process dock widget
+    if (!taskParent) return;
 
-    if (auto tp = qobject_cast<GtTask*>(targetparent))
+    for (auto o : objectsToMove)
     {
-        // to keep the order the swap is neede if the new parent is
-        //  not the current parent
-        if (objectsToMove.first()->parentObject() != tp)
+        if (o == taskParent) continue;
+
+        // if parent is not reset before the insert function
+        // does not work. But remember old parent to use if insert failes
+        GtObject* oldParent = o->parentObject();
+        o->setParent(nullptr);
+
+        QModelIndex check = gtDataModel->insertChild(o, taskParent,
+                                                     mappedTarget.row());
+
+        if (!check.isValid())
         {
-            std::reverse(objectsToMove.begin(), objectsToMove.end());
-        }
-
-        for (auto o: objectsToMove)
-        {
-            // if parent is not reset before the insert function
-            // does not work. But remember old parent to use if insert failes
-            GtObject* oldParent = o->parentObject();
-            o->setParent(nullptr);
-
-            QModelIndex check = gtDataModel->insertChild(o, tp,
-                                                         mappedTarget.row());
-
-            if (!check.isValid())
-            {
-                gtWarning() << tr("Process element '%1' could not be "
-                                  "moved").arg(o->objectName());
-                o->setParent(oldParent);
-            }
+            gtWarning() << tr("Process element '%1' could not be "
+                              "moved").arg(o->objectName());
+            o->setParent(oldParent);
         }
     }
-
 }
 
 void
