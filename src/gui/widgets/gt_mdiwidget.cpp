@@ -8,18 +8,19 @@
  * E-Mail: marius.broecker@dlr.de
  */
 
-#include "gt_dockableframe.h"
+#include "gt_mdiwidget.h"
 
 #include <QHideEvent>
 
-GtDockableFrame::GtDockableFrame(QWidget* parent, Qt::WindowFlags f) :
+GtMdiWidget::GtMdiWidget(QWidget* parent, Qt::WindowFlags f) :
     QFrame(parent, f)
 {
 
+    setFrameStyle(QFrame::NoFrame);
 }
 
 void
-GtDockableFrame::hideEvent(QHideEvent* event)
+GtMdiWidget::hideEvent(QHideEvent* event)
 {
     if (parent() || !event->spontaneous()) return QFrame::hideEvent(event);
 

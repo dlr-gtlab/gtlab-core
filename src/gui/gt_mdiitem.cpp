@@ -11,7 +11,7 @@
 #include <QIcon>
 #include <QMessageBox>
 
-#include "gt_dockableframe.h"
+#include "gt_mdiwidget.h"
 #include "gt_mdiitem.h"
 #include "gt_application.h"
 #include "gt_datamodel.h"
@@ -19,15 +19,12 @@
 #include "gt_objectchangedevent.h"
 #include "gt_statehandler.h"
 
-
 GtMdiItem::GtMdiItem() :
-    m_frame(new GtDockableFrame),
+    m_frame(new GtMdiWidget),
     m_d(nullptr),
     m_subWin(nullptr),
     m_queueEvents(false)
 {
-    m_frame->setFrameStyle(QFrame::NoFrame);
-
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
             SLOT(onProjectChanged(GtProject*)));
     connect(gtApp, SIGNAL(objectSelected(GtObject*)),
@@ -39,7 +36,7 @@ GtMdiItem::GtMdiItem() :
 QWidget*
 GtMdiItem::widget()
 {
-    return m_frame;
+    return m_frame.data();
 }
 
 QIcon
@@ -56,6 +53,14 @@ GtMdiItem::setData(GtObject* /*obj*/)
 
 GtMdiItem::~GtMdiItem()
 {
+    // if this object is a child of frame, the QPointer of frame was not set to
+    // null before this function is called, resulting in a double deletion of
+    // frame.
+    if (m_frame && !m_frame->parent() && parent() != m_frame)
+    {
+        delete m_frame;
+    }
+
     qDeleteAll(m_eventQueue);
 }
 

@@ -17,7 +17,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 
-#include "gt_dockableframe.h"
+#include "gt_mdiwidget.h"
 #include "gt_mdilauncher.h"
 #include "gt_mdiitem.h"
 #include "gt_application.h"
@@ -28,6 +28,91 @@
 #include "gt_tabwidget.h"
 
 static const QString S_WINDOW_PREFIX = QStringLiteral("GTlab - ");
+
+namespace
+{
+
+/// helper function to make tab buttons
+QWidget* makeTabButtons(QPointer<GtTabWidget> tabWidget,
+                        QIcon const& tabIcon,
+                        QPointer<GtMdiWidget> mdiWidget,
+                        QPointer<GtMdiItem> mdiItem)
+{
+    // set custom close button
+    auto* closeBtn = new QPushButton;
+    closeBtn->setIconSize(QSize{14, 14}); // because stani wants it this way...
+    closeBtn->resize(QSize(14, 14));
+    closeBtn->setIcon(gt::gui::icon::close());
+    closeBtn->setFlat(true);
+    // for identification in gui tests
+    closeBtn->setObjectName(QStringLiteral("MdiTabCloseBtn"));
+
+    auto* undockBtn = new QPushButton;
+    undockBtn->setIconSize(QSize{14, 14});
+    undockBtn->resize(QSize(14, 14));
+    undockBtn->setIcon(gt::gui::icon::dock());
+    undockBtn->setFlat(true);
+
+    auto* buttonLay = new QHBoxLayout;
+    buttonLay->setContentsMargins(0, 0, 0, 0);
+    buttonLay->addWidget(undockBtn);
+    buttonLay->addWidget(closeBtn);
+
+    auto* layoutWidget = new QWidget;
+    layoutWidget->setLayout(buttonLay);
+
+    QObject::connect(closeBtn, &QPushButton::clicked,
+                     mdiWidget, &QObject::deleteLater);
+
+    QObject::connect(undockBtn, &QPushButton::clicked,
+                     mdiWidget, [tabWidget, tabIcon, mdiItem, mdiWidget](){
+        assert(mdiItem);
+        assert(mdiWidget);
+        // get widget size
+        QWidget* current = tabWidget->currentWidget();
+        assert(current);
+        QSize size = current->size();
+        // get screen pos
+        QPoint pos = mdiWidget->mapToGlobal(mdiWidget->pos());
+        // detach
+        mdiWidget->setParent(nullptr); // automatically undocks widget
+        assert(!tabWidget->contains(mdiWidget));
+        mdiWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+        mdiWidget->setWindowIcon(tabIcon);
+        mdiWidget->setWindowTitle(S_WINDOW_PREFIX + mdiItem->objectName());
+        mdiWidget->move(pos);
+        mdiWidget->resize(size);
+        mdiWidget->show();
+    });
+
+    return layoutWidget;
+};
+
+/// helper function to setup redock action
+void setupRedockAction(QPointer<GtTabWidget> tabWidget,
+                       QIcon const& tabIcon,
+                       QPointer<GtMdiWidget> mdiWidget,
+                       QPointer<GtMdiItem> mdiItem)
+{
+    QObject::connect(mdiWidget, &GtMdiWidget::redockWidget,
+                     tabWidget, [tabWidget, tabIcon, mdiItem, mdiWidget](){
+        // widget may be deleted during queuing of signal
+        if (!mdiWidget) return;
+
+        assert(!mdiWidget->parent());
+        assert(tabWidget && !tabWidget->contains(mdiWidget));
+
+        // add tab
+        auto const& objectName = mdiWidget->windowTitle().mid(S_WINDOW_PREFIX.size());
+        int idx = tabWidget->addTab(mdiWidget, tabIcon, objectName);
+        assert(idx >= 0);
+        tabWidget->tabBar()->setTabButton(idx, QTabBar::RightSide,
+                                          makeTabButtons(tabWidget, tabIcon, mdiWidget, mdiItem));
+        tabWidget->setCurrentWidget(mdiWidget);
+    }, Qt::QueuedConnection); // <- this prohibits crash in drawing procedure
+}
+
+} // namespace
 
 GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
     m_area(nullptr)
@@ -160,6 +245,7 @@ GtMdiLauncher::close()
     for (GtMdiItem* item : m_openItems)
     {
         assert(item);
+        // cppcheck-suppress assertWithSideEffect
         assert(item->widget());
         item->widget()->deleteLater();
     }
@@ -388,6 +474,9 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 {
     if (!m_area) return nullptr;
 
+    auto* tabWidget = qobject_cast<GtTabWidget*>(m_area.data());
+    assert(tabWidget);
+
     if (!knownClass(id))
     {
         gtWarning().medium() << tr("Unknown Mdi item '%1'!").arg(id);
@@ -439,10 +528,11 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
         return nullptr;
     }
 
-    QWidget* wid = mdiItem->widget();
+    QPointer<GtMdiWidget> mdiWidget{qobject_cast<GtMdiWidget*>(mdiItem->widget())};
+    assert(mdiWidget);
 
     // move to widget
-    mdiItem->setParent(wid);
+    mdiItem->setParent(mdiWidget);
 
     QIcon icon = mdiItem->icon();
 
@@ -451,106 +541,30 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
         icon = gt::gui::icon::layers();
     }
 
-    // custom widget to handle redocking
-    QPointer<GtDockableFrame> dockableWidget{qobject_cast<GtDockableFrame*>(wid)};
-    auto* tabWidget = qobject_cast<GtTabWidget*>(m_area.data());
+    setupRedockAction(tabWidget, icon, mdiWidget, mdiItem);
 
-    // helper function to make mdi buttons
-    auto const makeMdiButton = [tabWidget, icon, dockableWidget,
-                                mdiItem = QPointer<GtMdiItem>(mdiItem)](){
-        assert(tabWidget);
-
-        // set custom close button
-        auto* closeBtn = new QPushButton;
-        closeBtn->setIconSize(QSize{14, 14}); // because stani wants it this way...
-        closeBtn->resize(QSize(14, 14));
-        closeBtn->setIcon(gt::gui::icon::close());
-        closeBtn->setFlat(true);
-        // for identification in gui tests
-        closeBtn->setObjectName(QStringLiteral("MdiTabCloseBtn"));
-
-        auto* undockBtn = new QPushButton;
-        undockBtn->setIconSize(QSize{14, 14});
-        undockBtn->resize(QSize(14, 14));
-        undockBtn->setIcon(gt::gui::icon::dock());
-        undockBtn->setFlat(true);
-        undockBtn->setVisible(false);
-
-        auto* buttonLay = new QHBoxLayout;
-        buttonLay->setContentsMargins(0, 0, 0, 0);
-        buttonLay->addWidget(undockBtn);
-        buttonLay->addWidget(closeBtn);
-
-        auto* layoutWidget = new QWidget;
-        layoutWidget->setLayout(buttonLay);
-
-        connect(closeBtn, &QPushButton::clicked, dockableWidget, &QObject::deleteLater);
-
-        if (!dockableWidget) return layoutWidget;
-
-        undockBtn->setVisible(true);
-        connect(undockBtn, &QPushButton::clicked,
-                dockableWidget, [tabWidget, icon, mdiItem, dockableWidget](){
-            assert(mdiItem);
-            assert(dockableWidget);
-            // get widget size
-            QWidget* current = tabWidget->currentWidget();
-            assert(current);
-            QSize size = current->size();
-            // get screen pos
-            QPoint pos = dockableWidget->mapToGlobal(dockableWidget->pos());
-            // detach
-            dockableWidget->setParent(nullptr); // automatically undocks widget
-            assert(!tabWidget->contains(dockableWidget));
-            dockableWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-            dockableWidget->setWindowIcon(icon);
-            dockableWidget->setWindowTitle(S_WINDOW_PREFIX + mdiItem->objectName());
-            dockableWidget->move(pos);
-            dockableWidget->resize(size);
-            dockableWidget->show();
-        });
-
-        return layoutWidget;
-    };
-
-    connect(dockableWidget, &GtDockableFrame::redockWidget,
-            this, [this, icon, tabWidget, makeMdiButton, dockableWidget](){
-        // widget may be deleted during queuing of signal
-        if (!dockableWidget) return;
-
-        assert(!dockableWidget->parent());
-        assert(tabWidget && !tabWidget->contains(dockableWidget));
-
-        // add tab
-        auto const& objectName = dockableWidget->windowTitle().mid(S_WINDOW_PREFIX.size());
-        int idx = m_area->addTab(dockableWidget, icon, objectName);
-        assert(idx >= 0);
-        m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, makeMdiButton());
-        m_area->setCurrentWidget(dockableWidget);
-
-    }, Qt::QueuedConnection); // <- this prohibits crash in drawing procedure
-
-    // set name of widget to use when undocking
-    int idx = m_area->addTab(wid, icon, mdiItem->objectName());
-    m_area->tabBar()->setTabButton(idx, QTabBar::RightSide, makeMdiButton());
+    int idx = tabWidget->addTab(mdiWidget, icon, mdiItem->objectName());
+    assert(idx >= 0);
+    tabWidget->tabBar()->setTabButton(idx, QTabBar::RightSide,
+                                      makeTabButtons(tabWidget, icon, mdiWidget, mdiItem));
 
     mdiItem->initialized();
 
-    connect(wid, &QObject::destroyed,
+    connect(mdiWidget, &QObject::destroyed,
             this, &GtMdiLauncher::onSubWindowClose);
     connect(mdiItem, &QObject::objectNameChanged,
             this, &GtMdiLauncher::changeTabTitle);
     connect(mdiItem, &QObject::destroyed,
-            wid, &QObject::deleteLater);
+            mdiWidget, &QObject::deleteLater);
     connect(gtApp, &GtApplication::themeChanged,
             mdiItem, &GtMdiItem::onThemeChanged);
 
-    m_openItems.insert(wid, mdiItem);
+    m_openItems.insert(mdiWidget, mdiItem);
 
-    mdiItem->setSubWin(wid);
+    mdiItem->setSubWin(mdiWidget);
 
-    m_area->setCurrentWidget(wid);
-    wid->show();
+    tabWidget->setCurrentWidget(mdiWidget);
+    mdiWidget->show();
     mdiItem->showEvent();
 
     if (data)
@@ -593,7 +607,7 @@ GtMdiLauncher::changeTabTitle(const QString& newTitle)
         if (auto* w = m_area->widget(index))
         {
             // undocked
-            if (!w->parent()) w->setWindowTitle(newTitle);
+            if (!w->parent()) w->setWindowTitle(S_WINDOW_PREFIX + newTitle);
         }
         m_area->setTabText(index, newTitle);
     }

@@ -40,7 +40,7 @@ set(headers
     tools/gt_svgiconengine.h
     tools/gt_switchprojectmessagebox.h
     tools/gt_textedit.h
-    widgets/gt_dockableframe.h
+    widgets/gt_mdiwidget.h
     widgets/gt_shortcutedit.h
     widgets/gt_tabwidget.h
     widgets/gt_preferencespage.h
@@ -217,7 +217,7 @@ set(sources
     tools/gt_svgiconengine.cpp
     tools/gt_switchprojectmessagebox.cpp
     tools/gt_textedit.cpp
-    widgets/gt_dockableframe.cpp
+    widgets/gt_mdiwidget.cpp
     widgets/gt_shortcutedit.cpp
     widgets/gt_tabwidget.cpp
     widgets/gt_preferencespage.cpp

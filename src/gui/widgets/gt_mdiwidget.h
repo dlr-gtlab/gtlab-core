@@ -8,22 +8,22 @@
  * E-Mail: marius.broecker@dlr.de
  */
 
-#ifndef GTDOCKABLEFRAME_H
-#define GTDOCKABLEFRAME_H
+#ifndef GTMDIWIDGET_H
+#define GTMDIWIDGET_H
 
 #include <QFrame>
 
 /**
- * @brief The GtDockableFrame class.
- * Helper class that is used to customize handling of undocked MDI Items.
+ * @brief The GtMdiWidget class.
+ * Used to customize handling of undocked MDI Items.
  */
-class GtDockableFrame : public QFrame
+class GtMdiWidget : public QFrame
 {
     Q_OBJECT
 
 public:
-
-    explicit GtDockableFrame(QWidget* parent = nullptr,
+    
+    explicit GtMdiWidget(QWidget* parent = nullptr,
                              Qt::WindowFlags f = Qt::WindowFlags());
 
 protected:
@@ -35,4 +35,4 @@ signals:
     void redockWidget();
 };
 
-#endif // GTDOCKABLEFRAME_H
+#endif // GTMDIWIDGET_H
