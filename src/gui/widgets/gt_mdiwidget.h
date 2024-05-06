@@ -24,7 +24,7 @@ class GtMdiWidget : public QFrame
 public:
     
     explicit GtMdiWidget(QWidget* parent = nullptr,
-                             Qt::WindowFlags f = Qt::WindowFlags());
+                         Qt::WindowFlags f = Qt::WindowFlags());
 
 protected:
 
