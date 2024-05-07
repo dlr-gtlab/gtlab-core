@@ -18,6 +18,7 @@
 
 #include "gt_logging.h"
 #include "gt_projectsettingstab.h"
+#include "gt_projectsettingsgeneraltab.h"
 #include "gt_projectsettingsexternalizationtab.h"
 #include "gt_icons.h"
 
@@ -56,6 +57,7 @@ GtProjectSettingsDialog::GtProjectSettingsDialog(GtProject* project) :
     m_layout->addWidget(m_tabWidget);
     m_layout->addLayout(buttonsLayout);
 
+    addTab(std::make_unique<GtProjectSettingsGeneralTab>(project));
     addTab(std::make_unique<GtProjectSettingsExternalizationTab>(project));
 }
 

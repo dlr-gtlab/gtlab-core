@@ -185,6 +185,7 @@ set(headers
     dialogs/project_settings/gt_projectsettingsdialog.h
     dialogs/project_settings/gt_projectsettingsexternalizationtab.h
     dialogs/project_settings/gt_projectsettingstab.h
+    dialogs/project_settings/gt_projectsettingsgeneraltab.h
     post/gt_scaleproperty.h
     gt_textfilterdelegate.h
     gt_finishedprocessloadinghelper.h
@@ -356,6 +357,7 @@ set(sources
     dialogs/project_settings/gt_projectsettingsdialog.cpp
     dialogs/project_settings/gt_projectsettingsexternalizationtab.cpp
     dialogs/project_settings/gt_projectsettingstab.cpp
+    dialogs/project_settings/gt_projectsettingsgeneraltab.cpp
     post/gt_scaleproperty.cpp
     gt_textfilterdelegate.cpp
     gt_finishedprocessloadinghelper.cpp

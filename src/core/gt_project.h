@@ -183,6 +183,20 @@ public:
     void setComment(const QString& comment);
 
     /**
+     * @brief Returns whether project irregularity warnings are ignored for this
+     * project.
+     * @return True if irregularity warning are ignored.
+     */
+    bool ignoringIrregularities() const;
+
+    /**
+     * @brief Sets whether project irregularities should be ignored for this
+     * project.
+     * @param ignore
+     */
+    void setIgnoreIrregularities(bool ignore);
+
+    /**
      * @brief sets whether externalized objects should be internalized on save
      * @param value true if data should be internalized on save
      */

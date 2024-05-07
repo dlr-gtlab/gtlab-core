@@ -16,6 +16,7 @@
 #include "gt_projectanalyzer.h"
 
 class QTabWidget;
+class QCheckBox;
 
 /**
  * @brief The GtProjectAnalyzerDialog class visualizes information provided by
@@ -32,9 +33,18 @@ public:
      */
     explicit GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer);
 
+    /**
+     * @brief Returns whether user wants to ignore irregularity warnings or not.
+     * @return True if user wants to ignore irregularity warning.
+     */
+    bool ignoreIrregularities() const;
+
 private:
     /// Tab widget pointer
     QTabWidget* m_tabWid;
+
+    /// alert mute
+    QCheckBox* m_ignoreCheck;
 
     /**
      * @brief Returns pointer to tab widget. If no tab widget exists, a new

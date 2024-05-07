@@ -48,6 +48,8 @@ GtProject::GtProject(const QString& path) :
     m_pathProp.setReadOnly(true);
 
     registerProperty(m_pathProp);
+
+    setProperty("tmp_ignoreIrregularities", false);
 }
 
 void
@@ -92,6 +94,21 @@ GtProject::setComment(const QString& comment)
 {
     m_comment = comment;
     changed();
+}
+
+bool
+GtProject::ignoringIrregularities() const
+{
+    return property("tmp_ignoreIrregularities").toBool();
+}
+
+void
+GtProject::setIgnoreIrregularities(bool ignore)
+{
+    if (ignore == ignoringIrregularities()) return;
+
+    setProperty("tmp_ignoreIrregularities", ignore);
+    gtApp->session()->save();
 }
 
 void

@@ -218,6 +218,12 @@ GtSession::isValid()
 }
 
 bool
+GtSession::save()
+{
+    return toJsonObject();
+}
+
+bool
 GtSession::setCurrentProject(const QString& id)
 {
     GtProject* project = findProject(id);
@@ -366,7 +372,7 @@ GtSession::toJsonObject()
 
     foreach (GtProject* project, projects())
     {
-        projectsJsn.insert(project->path(), project->isOpen());
+        projectsJsn.insert(project->path(), project->ignoringIrregularities());
     }
 
     jsobj.insert(QStringLiteral("projects"), projectsJsn);
@@ -404,23 +410,42 @@ GtSession::fromJsonObject(const QString& sessionPath)
 
     QJsonObject projects = json[QStringLiteral("projects")].toObject();
 
-    gt::for_each_key(projects, [&](const QString& e)
-    {
-        GtProject* project = new GtProject(e);
+    for (auto it = projects.begin(); it != projects.end(); ++it) {
+        GtProject* project = new GtProject(it.key());
+        project->setProperty("tmp_ignoreIrregularities", it.value().toBool());
 
         if (!project->isValid() || findProject(project->objectName()))
         {
             gtWarning().medium()
-                    << tr("Project '%1' already exists in session or is not valid!")
+                << tr("Project '%1' already exists in session or is not valid!")
                        .arg(project->objectName());
-            gtError() << tr("Could not load project '%1'!").arg(e);
+            gtError() << tr("Could not load project '%1'!").arg(it.key());
             delete project;
         }
         else
         {
             addProject(project);
         }
-    });
+    }
+
+
+//    gt::for_each_key(projects, [&](const QString& e)
+//    {
+//        GtProject* project = new GtProject(e);
+
+//        if (!project->isValid() || findProject(project->objectName()))
+//        {
+//            gtWarning().medium()
+//                    << tr("Project '%1' already exists in session or is not valid!")
+//                       .arg(project->objectName());
+//            gtError() << tr("Could not load project '%1'!").arg(e);
+//            delete project;
+//        }
+//        else
+//        {
+//            addProject(project);
+//        }
+//    });
 
     return true;
 }
