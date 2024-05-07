@@ -1498,7 +1498,11 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     // invlid entry in process dock widget
     if (!taskParent) return;
 
-    for (auto o : objectsToMove)
+    // to keep the order the swap is neede if the new parent is
+    //  not the current parent
+    std::reverse(objectsToMove.begin(), objectsToMove.end());
+
+    for (auto o : qAsConst(objectsToMove))
     {
         if (o == taskParent) continue;
 
@@ -1507,13 +1511,23 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         GtObject* oldParent = o->parentObject();
         o->setParent(nullptr);
 
-        QModelIndex check = gtDataModel->insertChild(o, taskParent,
-                                                     mappedTarget.row());
-
+        QModelIndex check = {};
+        if (taskParent->findChildren<GtProcessComponent*>().size() < 1)
+        {
+            check = gtDataModel->appendChild(o, taskParent);
+        }
+        else
+        {
+            check = gtDataModel->insertChild(o, taskParent,
+                                             mappedTarget.row());
+        }
         if (!check.isValid())
         {
             gtWarning() << tr("Process element '%1' could not be "
-                              "moved").arg(o->objectName());
+                              "moved to %2 in row %3").arg(
+                               o->objectName(),
+                               taskParent->objectName(),
+                               QString::number(mappedTarget.row()));
             o->setParent(oldParent);
         }
     }
