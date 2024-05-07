@@ -1498,9 +1498,15 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     // invlid entry in process dock widget
     if (!taskParent) return;
 
-    // to keep the order the swap is neede if the new parent is
-    //  not the current parent
-    std::reverse(objectsToMove.begin(), objectsToMove.end());
+    int moveIndex = mappedTarget.row();
+    // this prevents problems for the insert function if the rowIndex 1 is
+    // found (might happen for an empty task)
+    if (taskParent->findChildren<GtProcessComponent*>().size() < 1)
+    {
+        moveIndex = 0;
+    }
+
+    int insertionIndexAddOn = 0;
 
     for (auto o : qAsConst(objectsToMove))
     {
@@ -1511,16 +1517,9 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         GtObject* oldParent = o->parentObject();
         o->setParent(nullptr);
 
-        QModelIndex check = {};
-        if (taskParent->findChildren<GtProcessComponent*>().size() < 1)
-        {
-            check = gtDataModel->appendChild(o, taskParent);
-        }
-        else
-        {
-            check = gtDataModel->insertChild(o, taskParent,
-                                             mappedTarget.row());
-        }
+        QModelIndex check = gtDataModel->insertChild(o, taskParent,
+                                                     moveIndex + insertionIndexAddOn);
+
         if (!check.isValid())
         {
             gtWarning() << tr("Process element '%1' could not be "
@@ -1530,6 +1529,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
                                QString::number(mappedTarget.row()));
             o->setParent(oldParent);
         }
+        else insertionIndexAddOn++;
     }
 }
 
