@@ -16,6 +16,7 @@
 #include <QListWidget>
 #include <QTreeWidget>
 #include <QLabel>
+#include <QCheckBox>
 
 #include "gt_application.h"
 #include "gt_footprint.h"
@@ -214,6 +215,10 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
 
     QHBoxLayout* btnLay = new QHBoxLayout;
 
+    m_ignoreCheck = new QCheckBox(
+        tr("Hide irregularity alerts for this project"));
+    btnLay->addWidget(m_ignoreCheck);
+
     QSpacerItem* spacer = new QSpacerItem(10, 20, QSizePolicy::Expanding,
                                           QSizePolicy::Minimum);
 
@@ -228,6 +233,12 @@ GtProjectAnalyzerDialog::GtProjectAnalyzerDialog(GtProjectAnalyzer* analyzer) :
     mLay->addLayout(btnLay);
 
     setLayout(mLay);
+}
+
+bool
+GtProjectAnalyzerDialog::ignoreIrregularities() const
+{
+    return m_ignoreCheck->isChecked();
 }
 
 QTabWidget*

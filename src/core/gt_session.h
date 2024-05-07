@@ -68,10 +68,10 @@ public:
     bool isValid();
 
     /**
-     * @brief model
-     * @return
+     * @brief Saves session information to hard drive.
+     * @return true on success
      */
-//    GtDataModel* model();
+    bool save();
 
     /**
      * @brief readInformation

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added setting to the output dock to change logging level at runtime. - #1086
+- Added setting to ignore project irregularity alerts. - #1162
 
 ### Changed
 - Improved performance of the python syntax highlighter - #1139
