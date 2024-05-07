@@ -428,25 +428,6 @@ GtSession::fromJsonObject(const QString& sessionPath)
         }
     }
 
-
-//    gt::for_each_key(projects, [&](const QString& e)
-//    {
-//        GtProject* project = new GtProject(e);
-
-//        if (!project->isValid() || findProject(project->objectName()))
-//        {
-//            gtWarning().medium()
-//                    << tr("Project '%1' already exists in session or is not valid!")
-//                       .arg(project->objectName());
-//            gtError() << tr("Could not load project '%1'!").arg(e);
-//            delete project;
-//        }
-//        else
-//        {
-//            addProject(project);
-//        }
-//    });
-
     return true;
 }
 
