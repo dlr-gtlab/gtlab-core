@@ -531,8 +531,6 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     if (!wizard.exec()) return;
 
-    if (!parentObj) return;
-
     GtObjectMemento memento = provider.componentData();
 
     if (memento.isNull()) return;
@@ -1457,8 +1455,8 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
             }
         }
 
-        auto moveCmd = gtApp->makeCommand(m_taskGroup,
-                                          tr("move tasks element"));
+        auto _ = gtApp->makeCommand(m_taskGroup, tr("move tasks element"));
+
         for (auto o : objectsToMove)
         {
             gtDataModel->appendChild(o, m_taskGroup);
@@ -1481,8 +1479,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     assert(commonParent);
 
 
-    auto moveCmd = gtApp->makeCommand(commonParent,
-                                      tr("move process element"));
+    auto _ = gtApp->makeCommand(commonParent, tr("move process element"));
 
     if (auto taskParent = qobject_cast<GtTask*>(targetComp))
     {

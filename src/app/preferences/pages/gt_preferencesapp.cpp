@@ -46,12 +46,12 @@ namespace
 QString const& currentVerbosityName()
 {
     // not using verbosity setting here to get actual logging verbosity
-    int verbosityLevel = gt::log::Logger::instance().verbosity();
+    int verbosityLevelValue = gt::log::Logger::instance().verbosity();
 
     auto iter = std::find_if(std::begin(s_verbosityLevels),
                              std::end(s_verbosityLevels),
                              [=](auto const& entry){
-        return verbosityLevel <= entry.verbosity;
+        return verbosityLevelValue <= entry.verbosity;
     });
 
     if (iter != std::end(s_verbosityLevels))

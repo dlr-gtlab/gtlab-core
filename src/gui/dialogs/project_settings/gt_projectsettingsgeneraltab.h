@@ -30,8 +30,8 @@ public:
      * @param project pointer to valid project
      * @param parent parent widget
      */
-    GtProjectSettingsGeneralTab(GtProject* project,
-                                QWidget* parent = {});
+    explicit GtProjectSettingsGeneralTab(GtProject* project,
+                                         QWidget* parent = {});
 
     /**
      * @brief method called when dialog was accepted
