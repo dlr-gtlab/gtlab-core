@@ -141,12 +141,12 @@ static QPushButton* setupToggleButton(QLayout* layout,
 static QString const& currentLoggingLevel()
 {
     // not using logging level setting here to get actual logging level
-    gt::log::Level loggingLevel = gt::log::Logger::instance().loggingLevel();
+    gt::log::Level loggingLevelValue = gt::log::Logger::instance().loggingLevel();
 
     auto iter = std::find_if(std::begin(s_loggingLevels),
                              std::end(s_loggingLevels),
                              [=](auto const& entry){
-        return loggingLevel <= entry.level;
+        return loggingLevelValue <= entry.level;
     });
 
     if (iter != std::end(s_loggingLevels))

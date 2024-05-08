@@ -340,6 +340,7 @@ package-linux:
 cppcheck:
   stage: codequality
   extends: .cppCheckTemplate
+  allow_failure: false
   variables:
     GIT_SUBMODULE_STRATEGY: "none"
    
