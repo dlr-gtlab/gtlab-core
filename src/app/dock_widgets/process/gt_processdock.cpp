@@ -1477,6 +1477,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
 
     // commonParent is used to have a minimal overhead to define undo/redo
     QList<GtObject*> helper = objectsToMove;
+
     helper.append(targetComp);
 
     auto* commonParent = gt::find_lowest_ancestor(helper,
@@ -1499,6 +1500,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     if (!taskParent) return;
 
     int moveIndex = mappedTarget.row();
+
     // this prevents problems for the insert function if the rowIndex 1 is
     // found (might happen for an empty task)
     if (taskParent->findChildren<GtProcessComponent*>().size() < 1)
@@ -1507,6 +1509,13 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     }
 
     int insertionIndexAddOn = 0;
+
+    // find highest parent of the elements to move
+    GtTask* highestParent = gt::gui::detail::highestParentTask(
+                qobject_cast<GtProcessComponent*>(objectsToMove.first()));
+
+    // collect a list of moved elements
+    QList<GtObject*> finalyMovedObjects;
 
     for (auto o : qAsConst(objectsToMove))
     {
@@ -1517,8 +1526,8 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         GtObject* oldParent = o->parentObject();
         o->setParent(nullptr);
 
-        QModelIndex check = gtDataModel->insertChild(o, taskParent,
-                                                     moveIndex + insertionIndexAddOn);
+        QModelIndex check = gtDataModel->insertChild(
+                    o, taskParent, moveIndex + insertionIndexAddOn);
 
         if (!check.isValid())
         {
@@ -1529,7 +1538,85 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
                                QString::number(mappedTarget.row()));
             o->setParent(oldParent);
         }
-        else insertionIndexAddOn++;
+        else
+        {
+            insertionIndexAddOn++;
+            finalyMovedObjects.append(o);
+        }
+    }
+
+    // Start connection movement
+
+    // connection movment has only to be done if the new highest parent task
+    // is not the old highest parent task
+
+    // find
+    GtTask* newHighestParent = gt::gui::detail::highestParentTask(taskParent);
+
+    if (highestParent == newHighestParent)
+    {
+        gtTrace() << tr("Task internal move does not imply need of connection"
+                        "move");
+        return;
+    }
+
+    // if e.g a task is moved the connections of its children has to be
+    // analyzed, too.
+    QList<GtObject*> childrenToAppend;
+    for (auto* o : finalyMovedObjects)
+    {
+        childrenToAppend += o->findChildren<GtObject*>();
+    }
+
+    for (auto* o : qAsConst(childrenToAppend))
+    {
+        if (!finalyMovedObjects.contains(o))
+        {
+            finalyMovedObjects.append(o);
+        }
+    }
+
+    QList<GtPropertyConnection*> propCons =
+            highestParent->findDirectChildren<GtPropertyConnection*>();
+
+    QList<GtPropertyConnection*> consToMove;
+    QList<GtPropertyConnection*> consToDelete;
+
+    for (auto* propCon : qAsConst(propCons))
+    {
+        GtObject* sourceObj =
+            m_taskGroup->getObjectByUuid(propCon->sourceUuid());
+        GtObject* targetObj =
+            m_taskGroup->getObjectByUuid(propCon->targetUuid());
+
+        if (!sourceObj || !targetObj) continue;
+
+        // both connection ends are moved elements
+        if (finalyMovedObjects.contains(sourceObj) &&
+                finalyMovedObjects.contains(targetObj))
+        {
+            consToMove.append(propCon);
+        }
+        // only one end of the connection is moved to another root task
+        else if (finalyMovedObjects.contains(sourceObj) ||
+                 finalyMovedObjects.contains(targetObj))
+        {
+            consToDelete.append(propCon);
+        }
+    }
+
+    detail::setOffLostConnectionWarnings(
+                consToDelete, detail::highestParentTask(highestParent));
+
+    // conversion to call function
+    QList<GtObject*> consToDelete2;
+    for (auto i : qAsConst(consToDelete)) consToDelete2.append(i);
+    gtDataModel->deleteFromModel(consToDelete2);
+
+    for (auto* propCon : qAsConst(consToMove))
+    {
+        propCon->setParent(nullptr);
+        newHighestParent->appendChild(propCon);
     }
 }
 
