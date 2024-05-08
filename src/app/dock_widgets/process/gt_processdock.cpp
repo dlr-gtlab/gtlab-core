@@ -1456,6 +1456,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         }
 
         auto _ = gtApp->makeCommand(m_taskGroup, tr("move tasks element"));
+        Q_UNUSED(_);
 
         for (auto o : objectsToMove)
         {
@@ -1480,6 +1481,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
 
 
     auto _ = gtApp->makeCommand(commonParent, tr("move process element"));
+    Q_UNUSED(_);
 
     if (auto taskParent = qobject_cast<GtTask*>(targetComp))
     {
