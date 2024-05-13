@@ -1566,7 +1566,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     QList<GtObject*> childrenToAppend;
     for (auto* o : finalyMovedObjects)
     {
-        childrenToAppend += o->findChildren<GtObject*>();
+        childrenToAppend.append(o->findChildren<GtObject*>());
     }
 
     for (auto* o : qAsConst(childrenToAppend))
