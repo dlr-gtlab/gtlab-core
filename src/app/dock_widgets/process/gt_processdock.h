@@ -310,6 +310,19 @@ private:
      */
     void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
+    /**
+     * @brief findObjectsOfIdenticalParentByMapping
+     * @param source - indices from the view
+     * @return list of objects which corresponds to the indices including a
+     * check if all elements have the same parent
+     *
+     */
+    QList<GtObject*> findObjectsOfIdenticalParentByMapping(
+            const QList<QModelIndex>& source);
+
+    void moveConnections(GtTask* highestParent,
+                         GtTask* taskParent,
+                         QList<GtObject*> finalyMovedObjects);
 private slots:
     /**
      * @brief filterData

@@ -1398,12 +1398,10 @@ GtProcessDock::renameElement()
     }
 }
 
-void
-GtProcessDock::moveElements(const QList<QModelIndex>& source,
-                            const QModelIndex& target)
+QList<GtObject*>
+GtProcessDock::findObjectsOfIdenticalParentByMapping(
+        const QList<QModelIndex>& source)
 {
-    if (source.isEmpty()) return;
-
     // collect the objects to move
     QList<QModelIndex> mapped;
 
@@ -1412,7 +1410,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         if (i.isValid()) mapped.append(mapToSource(i));
     }
 
-    if (mapped.isEmpty()) return;
+    if (mapped.isEmpty()) return {};
 
     QList<GtObject*> objectsToMove;
 
@@ -1431,12 +1429,25 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
             {
                 gtWarning() << tr("It is only allowed to move elements of the "
                                   "same task");
-                return;
+                return {};
             }
 
             if (!objectsToMove.contains(p)) objectsToMove.append(p);
         }
     }
+
+    return objectsToMove;
+}
+
+
+void
+GtProcessDock::moveElements(const QList<QModelIndex>& source,
+                            const QModelIndex& target)
+{
+    if (source.isEmpty()) return;
+
+    QList<GtObject*> objectsToMove =
+            findObjectsOfIdenticalParentByMapping(source);
 
     // if no valid object to move could be found leave
     if (objectsToMove.isEmpty()) return;
@@ -1445,7 +1456,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     if (!target.isValid())
     {
         // check if all selected elements are tasks
-        for (auto* o : objectsToMove)
+        for (auto* o : qAsConst(objectsToMove))
         {
             if (!qobject_cast<GtTask*>(o))
             {
@@ -1458,7 +1469,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         auto _ = gtApp->makeCommand(m_taskGroup, tr("move tasks element"));
         Q_UNUSED(_);
 
-        for (auto o : objectsToMove)
+        for (auto o : qAsConst(objectsToMove))
         {
             gtDataModel->appendChild(o, m_taskGroup);
         }
@@ -1546,8 +1557,14 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         }
     }
 
-    // Start connection movement
+    moveConnections(highestParent, taskParent, finalyMovedObjects);
+}
 
+void
+GtProcessDock::moveConnections(GtTask* highestParent,
+                               GtTask* taskParent,
+                               QList<GtObject*> finalyMovedObjects)
+{
     // connection movment has only to be done if the new highest parent task
     // is not the old highest parent task
 
