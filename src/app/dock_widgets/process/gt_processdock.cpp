@@ -1410,6 +1410,12 @@ GtProcessDock::findObjectsOfIdenticalParentByMapping(
         if (i.isValid()) mapped.append(mapToSource(i));
     }
 
+    std::sort(mapped.begin(),  mapped.end(), [] (
+              const QModelIndex& i, const QModelIndex& j)
+    {
+        return i.row() < j.row();
+    });
+
     if (mapped.isEmpty()) return {};
 
     QList<GtObject*> objectsToMove;

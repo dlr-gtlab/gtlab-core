@@ -316,6 +316,7 @@ private:
      * @return list of objects which corresponds to the indices including a
      * check if all elements have the same parent
      *
+     * Teh objects are in the order of the row indices of the source elements
      */
     QList<GtObject*> findObjectsOfIdenticalParentByMapping(
             const QList<QModelIndex>& source);
@@ -443,7 +444,8 @@ private slots:
 
     void currentTaskGroupIndexChanged(int index);
 
-    void moveElements(const QList<QModelIndex>& source, const QModelIndex& target);
+    void moveElements(const QList<QModelIndex>& source,
+                      const QModelIndex& target);
 signals:
     /**
      * @brief selectedObjectChanged
