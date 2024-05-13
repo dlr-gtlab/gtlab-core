@@ -1508,6 +1508,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         moveIndex = 0;
     }
 
+    // index to help to append multiple elements in the correct order
     int insertionIndexAddOn = 0;
 
     // find highest parent of the elements to move
