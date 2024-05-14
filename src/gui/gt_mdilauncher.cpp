@@ -53,6 +53,11 @@ QWidget* makeTabButtons(QPointer<GtTabWidget> tabWidget,
     undockBtn->setIcon(gt::gui::icon::dock());
     undockBtn->setFlat(true);
 
+    if (!gtApp->devMode())
+    {
+        undockBtn->hide();
+    }
+
     auto* buttonLay = new QHBoxLayout;
     buttonLay->setContentsMargins(0, 0, 0, 0);
     buttonLay->addWidget(undockBtn);
