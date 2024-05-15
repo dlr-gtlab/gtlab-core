@@ -321,7 +321,7 @@ private:
      * @return list of objects which corresponds to the indices including a
      * check if all elements have the same parent
      */
-    QList<GtObject*> findObjectsOfIdenticalParentByMapping(
+    QList<GtObject*> findObjectsOfSameParent(
             const QList<QModelIndex>& source) const;
 
     /**

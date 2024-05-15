@@ -1399,7 +1399,7 @@ GtProcessDock::renameElement()
 }
 
 QList<GtObject*>
-GtProcessDock::findObjectsOfIdenticalParentByMapping(
+GtProcessDock::findObjectsOfSameParent(
         const QList<QModelIndex>& source) const
 {
     // collect the objects to move
@@ -1452,8 +1452,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
 {
     if (source.isEmpty()) return;
 
-    QList<GtObject*> objectsToMove =
-            findObjectsOfIdenticalParentByMapping(source);
+    QList<GtObject*> objectsToMove = findObjectsOfSameParent(source);
 
     // if no valid object to move could be found leave
     if (objectsToMove.isEmpty()) return;
