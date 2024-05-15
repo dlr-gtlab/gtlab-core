@@ -327,12 +327,23 @@ private:
 
     /**
      * @brief moveConnections
-     * After the move of the objects given by the finalyMovedObjects from
-     * highestParent to taskParent the existing connections related to
-     * these objectes are moved as well if possible or deleted if they are
-     * not valid anymore (e.g. because the connection partners are not
-     * part of one root-task anymore)
+     *
+     * Performs a move of connections related to moved calculators
+     *
+     * Properties of processelements can be conneted. These connections are
+     * children of the root task of the process elements.
+     *
+     * If process elements are moved all connections related to these elements
+     * have to be checked.
+     * If a connection is not valid anymore because the
+     * connection partners are not part of the same root task now
+     * the connection has to be deleted.
+     * If the moved elements have an identical new root task the connections
+     * have to be moved to the new root task.
+     *
      * @param highestParent - the "old" highest parent of the moved objects
+     * This element is the original parent of all connections
+     *  of the moved elements
      * @param taskParent - the "new" task parent of the moved objects
      * @param finalyMovedObjects - the list of the moved elements
      */
