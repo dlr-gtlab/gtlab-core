@@ -1400,7 +1400,7 @@ GtProcessDock::renameElement()
 
 QList<GtObject*>
 GtProcessDock::findObjectsOfIdenticalParentByMapping(
-        const QList<QModelIndex>& source)
+        const QList<QModelIndex>& source) const
 {
     // collect the objects to move
     QList<QModelIndex> mapped;
@@ -2181,6 +2181,13 @@ GtProcessDock::mapToSource(const QModelIndex& index)
 
     return m_model->mapToSource(tmp1);
 }
+
+QModelIndex
+GtProcessDock::mapToSource(const QModelIndex& index) const
+{
+    return const_cast<GtProcessDock*>(this)->mapToSource(index);
+}
+
 
 QModelIndex
 GtProcessDock::mapFromSource(const QModelIndex& index)

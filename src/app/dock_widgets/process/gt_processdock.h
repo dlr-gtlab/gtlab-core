@@ -58,6 +58,7 @@ public:
      * @return
      */
     QModelIndex mapToSource(const QModelIndex& index);
+    QModelIndex mapToSource(const QModelIndex& index) const;
 
     /**
      * @brief mapFromSource
@@ -312,15 +313,28 @@ private:
 
     /**
      * @brief findObjectsOfIdenticalParentByMapping
+     * For the indices the objects from the datamodel are searched.
+     * The indices are sorted based on their row number for this.
+     * Additionally a check is performaned if all found objects have
+     * the same parent
      * @param source - indices from the view
      * @return list of objects which corresponds to the indices including a
      * check if all elements have the same parent
-     *
-     * Teh objects are in the order of the row indices of the source elements
      */
     QList<GtObject*> findObjectsOfIdenticalParentByMapping(
-            const QList<QModelIndex>& source);
+            const QList<QModelIndex>& source) const;
 
+    /**
+     * @brief moveConnections
+     * After the move of the objects given by the finalyMovedObjects from
+     * highestParent to taskParent the existing connections related to
+     * these objectes are moved as well if possible or deleted if they are
+     * not valid anymore (e.g. because the connection partners are not
+     * part of one root-task anymore)
+     * @param highestParent - the "old" highest parent of the moved objects
+     * @param taskParent - the "new" task parent of the moved objects
+     * @param finalyMovedObjects - the list of the moved elements
+     */
     void moveConnections(GtTask* highestParent,
                          GtTask* taskParent,
                          QList<GtObject*> finalyMovedObjects);
