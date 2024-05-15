@@ -312,14 +312,15 @@ private:
     void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
     /**
-     * @brief findObjectsOfIdenticalParentByMapping
-     * For the indices the objects from the datamodel are searched.
+     * @brief Returns the objects from the model given their model index.
+     *
      * The indices are sorted based on their row number for this.
-     * Additionally a check is performaned if all found objects have
-     * the same parent
-     * @param source - indices from the view
-     * @return list of objects which corresponds to the indices including a
-     * check if all elements have the same parent
+     *
+     * *Note*: A check is performed to make sure that all objects have
+     * the same parent. If not the case, an empty list is returned.
+     *
+     * @param source - Model indices
+     * @return list of objects which corresponds to the indices
      */
     QList<GtObject*> findObjectsOfIdenticalParentByMapping(
             const QList<QModelIndex>& source) const;
