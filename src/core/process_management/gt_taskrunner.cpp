@@ -30,7 +30,7 @@ GtTaskRunner::GtTaskRunner(GtTask* task) : m_task(task), m_runnable(nullptr),
 
 GtTaskRunner::~GtTaskRunner()
 {
-    qDebug() << "task runner deleted!";
+    gtTrace() << "task runner deleted!";
 }
 
 bool
@@ -261,7 +261,7 @@ GtTaskRunner::setupElements(GtProcessComponent* orig,
 void
 GtTaskRunner::handleRunnableFinished()
 {
-    qDebug() << "GtTaskRunner::handleRunnableFinished()";
+    gtTrace() << "GtTaskRunner::handleRunnableFinished()";
 
     // check runnable
     if (!m_runnable)
@@ -279,7 +279,7 @@ GtTaskRunner::handleRunnableFinished()
 
     if (m_task)
     {
-        qDebug() << "monitoring data table size = " <<
+        gtDebug() << "monitoring data table size = " <<
                  m_task->monitoringDataSize();
     }
 

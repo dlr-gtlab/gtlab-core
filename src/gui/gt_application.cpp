@@ -623,14 +623,7 @@ GtApplication::getShortCutSequence(const QString& id,
         return {};
     }
 
-    QKeySequence retVal = s->getKey(id, category);
-
-    if (retVal.isEmpty())
-    {
-        gtWarning() << tr("No shortcut registered for") << id;
-    }
-
-    return retVal;
+    return s->getKey(id, category);
 }
 
 bool

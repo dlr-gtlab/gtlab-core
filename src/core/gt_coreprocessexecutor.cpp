@@ -469,7 +469,7 @@ GtCoreProcessExecutor::setupTaskRunner()
 void
 GtCoreProcessExecutor::onTaskRunnerFinished()
 {
-    qDebug() << __FUNCTION__;
+    gtTrace() << __FUNCTION__;
 
     // create timer
     QElapsedTimer timer;

@@ -109,7 +109,11 @@ GtProcessExecutorManager::setCurrentExecutor(std::string const& id)
         return false;
     }
 
+    // Only print this in debug builds. Note: right now, this is printed
+    // before the logging level has been set correctly, hence it would always be printed
+#ifndef NDEBUG
     gtDebugId(GT_EXEC_ID) << tr("Now using Executor '%1'").arg(id.c_str());
+#endif
 
     // switch executor
     s_currentExecutorId = id;
@@ -135,7 +139,9 @@ GtProcessExecutorManager::registerExecutor(std::string id,
         return false;
     }
 
-    qDebug().noquote() << tr("#### Registered executor '%1'").arg(id.c_str());
+#ifndef NDEBUG
+    gtDebug().noquote() << tr("#### Registered executor '%1'").arg(id.c_str());
+#endif
 
     s_executors.push_back(ExecutorEntry{std::move(exec), std::move(id)});
 
