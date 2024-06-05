@@ -113,7 +113,9 @@ GtShortCuts::getKey(const QString& id, const QString& category) const
 
     if (list.isEmpty())
     {
+#ifndef NDEBUG
         gtWarning() << tr("No shortcuts registered!");
+#endif
         return {};
     }
 
@@ -137,6 +139,9 @@ GtShortCuts::getKey(const QString& id, const QString& category) const
 
     if (iter == std::end(list))
     {
+#ifndef NDEBUG
+        gtWarning() << tr("No shortcut registered for") << id;
+#endif
         return {};
     }
 

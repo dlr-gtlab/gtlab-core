@@ -23,6 +23,7 @@
 #include "gt_consolerunprocess.h"
 
 #include "gt_application.h"
+#include "gt_coreprocessexecutor.h"
 
 //#include "gt_coreapplication.h"
 #include "gt_coredatamodel.h"
@@ -873,6 +874,12 @@ int main(int argc, char* argv[])
     }
 
     app.init();
+
+    // avoid runing tasks in threads, only the GUI can do this
+    // due to the event loop
+    gt::processExecutorManager().clearAllExecutors();
+    gt::registerExecutorType<GtCoreProcessExecutor>();
+
 
     // save to system environment (temporary)
     app.saveSystemEnvironment();
