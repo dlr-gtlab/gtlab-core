@@ -71,13 +71,11 @@ set(headers
     mdi_items/process_env/entities/gt_taskarrowentity.h
     mdi_items/process_env/entities/gt_taskentityshadow.h
     mdi_items/process_env/entities/gt_datamodelportentity.h
-    mdi_items/process_env/gt_processeditorview.h
     mdi_items/process_env/entities/gt_addtaskglobalbutton.h
     mdi_items/process_env/entities/gt_taskconnectionentity.h
     mdi_items/process_env/entities/gt_taskpipeentity.h
     mdi_items/process_env/entities/gt_tasklinkentity.h
     mdi_items/process_env/entities/gt_taskarrowlabelentity.h
-    #mdi_items/process_env/gt_processeditorscene.h
     mdi_items/process_env/gt_processconnectionmodel.h
     mdi_items/process_env/entities/gt_processconnectionview.h
     mdi_items/process_env/gt_processconnectiongraphicsview.h
@@ -164,13 +162,11 @@ set(sources
     mdi_items/process_env/entities/gt_taskarrowentity.cpp
     mdi_items/process_env/entities/gt_taskentityshadow.cpp
     mdi_items/process_env/entities/gt_datamodelportentity.cpp
-    mdi_items/process_env/gt_processeditorview.cpp
     mdi_items/process_env/entities/gt_addtaskglobalbutton.cpp
     mdi_items/process_env/entities/gt_taskconnectionentity.cpp
     mdi_items/process_env/entities/gt_taskpipeentity.cpp
     mdi_items/process_env/entities/gt_tasklinkentity.cpp
-    mdi_items/process_env/entities/gt_taskarrowlabelentity.cpp
-    #mdi_items/process_env/gt_processeditorscene.cpp
+    mdi_items/process_env/entities/gt_taskarrowlabelentity.cppp
     mdi_items/process_env/gt_processconnectionmodel.cpp
     mdi_items/process_env/entities/gt_processconnectionview.cpp
     mdi_items/process_env/gt_processconnectiongraphicsview.cpp
