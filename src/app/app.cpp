@@ -67,7 +67,6 @@ registerWidgets()
     gtMdiLauncher->registerDockWidget(GT_METADATA(GtPropertiesDock));
     gtMdiLauncher->registerDockWidget(GT_METADATA(GtLabelsDock));
     gtMdiLauncher->registerDockWidget(GT_METADATA(GtPostDock));
-    //gtMdiLauncher->registerDockWidget(GT_METADATA(GtCalculatorsDock));
 }
 
 

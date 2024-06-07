@@ -64,7 +64,6 @@ set(headers
     mdi_items/label_usages/gt_labelcontainer.h
     mdi_items/label_usages/gt_labelusagemodel.h
     mdi_items/label_usages/gt_labelusagedelegate.h
-    #mdi_items/process_env/gt_processeditor.h
     mdi_items/process_env/entities/gt_taskentity.h
     mdi_items/process_env/entities/gt_calculatorentity.h
     mdi_items/process_env/entities/gt_calculatorpropertyentity.h
@@ -78,7 +77,7 @@ set(headers
     mdi_items/process_env/entities/gt_taskpipeentity.h
     mdi_items/process_env/entities/gt_tasklinkentity.h
     mdi_items/process_env/entities/gt_taskarrowlabelentity.h
-    mdi_items/process_env/gt_processeditorscene.h
+    #mdi_items/process_env/gt_processeditorscene.h
     mdi_items/process_env/gt_processconnectionmodel.h
     mdi_items/process_env/entities/gt_processconnectionview.h
     mdi_items/process_env/gt_processconnectiongraphicsview.h
@@ -97,7 +96,6 @@ set(headers
     dock_widgets/process/gt_processview.h
     dock_widgets/process/gt_processconnectioneditor.h
     dock_widgets/process/gt_processcomponentsettingsbutton.h
-    dock_widgets/calculators/gt_calculatorsdock.h
     dock_widgets/post/gt_postdelegate.h
     dock_widgets/post/gt_postdock.h
     dock_widgets/properties/gt_propertiesdock.h
@@ -159,7 +157,6 @@ set(sources
     mdi_items/label_usages/gt_labelcontainer.cpp
     mdi_items/label_usages/gt_labelusagemodel.cpp
     mdi_items/label_usages/gt_labelusagedelegate.cpp
-    #mdi_items/process_env/gt_processeditor.cpp
     mdi_items/process_env/entities/gt_taskentity.cpp
     mdi_items/process_env/entities/gt_calculatorentity.cpp
     mdi_items/process_env/entities/gt_calculatorpropertyentity.cpp
@@ -173,7 +170,7 @@ set(sources
     mdi_items/process_env/entities/gt_taskpipeentity.cpp
     mdi_items/process_env/entities/gt_tasklinkentity.cpp
     mdi_items/process_env/entities/gt_taskarrowlabelentity.cpp
-    mdi_items/process_env/gt_processeditorscene.cpp
+    #mdi_items/process_env/gt_processeditorscene.cpp
     mdi_items/process_env/gt_processconnectionmodel.cpp
     mdi_items/process_env/entities/gt_processconnectionview.cpp
     mdi_items/process_env/gt_processconnectiongraphicsview.cpp
@@ -192,7 +189,6 @@ set(sources
     dock_widgets/process/gt_processview.cpp
     dock_widgets/process/gt_processconnectioneditor.cpp
     dock_widgets/process/gt_processcomponentsettingsbutton.cpp
-    dock_widgets/calculators/gt_calculatorsdock.cpp
     dock_widgets/post/gt_postdelegate.cpp
     dock_widgets/post/gt_postdock.cpp
     dock_widgets/properties/gt_propertiesdock.cpp
@@ -235,7 +231,6 @@ target_include_directories(GTlab PRIVATE
     dock_widgets/explorer
     dock_widgets/process
     dock_widgets/properties
-    dock_widgets/calculators
     dock_widgets/post
     dock_widgets/labels
 )
