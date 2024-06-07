@@ -64,7 +64,7 @@ set(headers
     mdi_items/label_usages/gt_labelcontainer.h
     mdi_items/label_usages/gt_labelusagemodel.h
     mdi_items/label_usages/gt_labelusagedelegate.h
-    mdi_items/process_env/gt_processeditor.h
+    #mdi_items/process_env/gt_processeditor.h
     mdi_items/process_env/entities/gt_taskentity.h
     mdi_items/process_env/entities/gt_calculatorentity.h
     mdi_items/process_env/entities/gt_calculatorpropertyentity.h
@@ -159,7 +159,7 @@ set(sources
     mdi_items/label_usages/gt_labelcontainer.cpp
     mdi_items/label_usages/gt_labelusagemodel.cpp
     mdi_items/label_usages/gt_labelusagedelegate.cpp
-    mdi_items/process_env/gt_processeditor.cpp
+    #mdi_items/process_env/gt_processeditor.cpp
     mdi_items/process_env/entities/gt_taskentity.cpp
     mdi_items/process_env/entities/gt_calculatorentity.cpp
     mdi_items/process_env/entities/gt_calculatorpropertyentity.cpp

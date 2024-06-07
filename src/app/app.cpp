@@ -28,7 +28,6 @@
 #include "gt_mdilauncher.h"
 
 #include "gt_mementoviewer.h"
-#include "gt_processeditor.h"
 #include "gt_templateviewer.h"
 #include "gt_labelusageviewer.h"
 #include "gt_sessionviewer.h"
@@ -54,7 +53,6 @@ void
 registerWidgets()
 {
     gtMdiLauncher->registerClass(GT_METADATA(GtMementoViewer));
-    gtMdiLauncher->registerClass(GT_METADATA(GtProcessEditor));
     gtMdiLauncher->registerClass(GT_METADATA(GtTemplateViewer));
     gtMdiLauncher->registerClass(GT_METADATA(GtLabelUsageViewer));
     gtMdiLauncher->registerClass(GT_METADATA(GtSessionViewer));
