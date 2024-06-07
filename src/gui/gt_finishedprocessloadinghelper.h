@@ -70,9 +70,6 @@ private:
 
     /// source object to buil diff
     QPointer<GtObject> m_source;
-
-    /// Name of the task: used to give the used command a suitable name
-    [[deprecated("unused")]] QString m_taskName;
 };
 
 #endif // GTFINISHEDPROCESSLOADINGHELPER_H

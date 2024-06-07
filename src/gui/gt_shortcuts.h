@@ -42,16 +42,6 @@ public:
                         const QString& category = "Core") const;
 
     /**
-     * @brief initialize - initialize short cuts based on the information
-     * from the map
-     * @param tab - map using the short cut ids as identifier and
-     * with a string list containing the QKeySequence and the category as the
-     * two elements of the list.
-     */
-    [[deprecated("use QList<GtShortCutSettingsData> instead")]]
-    void initialize(const QMap<QString, QStringList>& tab);
-
-    /**
      * @brief initialize - initializes the short cuts using the shortcut data
      * @param list
      */
@@ -82,9 +72,6 @@ public:
      * @return pointer to short cut or nullptr if it cannot be found
      */
     GtShortCut* findShortCut(const QString& id, const QString& category) const;
-
-    [[deprecated("use emit x->changed() instead")]]
-    void emitChange();
 
 signals:
     void changed();

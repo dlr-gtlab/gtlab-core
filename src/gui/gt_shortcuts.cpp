@@ -21,37 +21,6 @@ GtShortCuts::GtShortCuts(QObject* parent)
 }
 
 void
-GtShortCuts::initialize(const QMap<QString, QStringList>& tab)
-{
-    auto end = tab.constKeyValueEnd();
-    for (auto item = tab.constKeyValueBegin(); item != end; ++item)
-    {
-        // list of 2 or 3 elements
-        // { shortcut, category, readonly }
-        QStringList const& data = item->second;
-        assert(data.size() > 1);
-
-        // shortcut
-        QKeySequence const& k = data.at(0);
-        // category
-        QString const& cat = data.at(1);
-
-        // read only flag
-        bool readOnly = false;
-        if (data.size() > 2)
-        {
-            if (data.at(2) == "true")
-            {
-                readOnly = true;
-            }
-        }
-
-        auto c = new GtShortCut(item->first, k, cat, readOnly);
-        c->setParent(this);
-    }
-}
-
-void
 GtShortCuts::initialize(const QList<GtShortCutSettingsData>& list)
 {
     for (const auto& data : list)
@@ -98,12 +67,6 @@ GtShortCuts::findShortCut(const QString& id, const QString& category) const
     }
 
     return *iter;
-}
-
-void
-GtShortCuts::emitChange()
-{
-    emit changed();
 }
 
 QKeySequence

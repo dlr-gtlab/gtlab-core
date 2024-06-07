@@ -143,17 +143,6 @@ inline GtCoreProcessExecutor& currentProcessExecutor()
     return *p;
 }
 
-namespace deprecated
-{
-
-[[deprecated("Use gt::currentProcessExecutor() instead")]]
-inline GtCoreProcessExecutor* processExecutor()
-{
-    return &currentProcessExecutor();
-}
-
-} // namespace deprecated
-
 } // namespace gt
 
 #endif // GTPROCESSEXECUTORMANAGER_H

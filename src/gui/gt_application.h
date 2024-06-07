@@ -55,14 +55,6 @@ public:
      */
     ~GtApplication() override;
 
-    /** Creates a new icon from a resource file.
-     *  @param iconPath Relative or custom resource path to a icon file.
-     * The function is deprecated.
-     * Please use the icon function of GtGUI.
-     */
-    [[deprecated("use gt::gui::icon instead")]]
-    static QIcon icon(QString const& iconPath);
-
     /**
      * @brief initMdiLauncher
      */

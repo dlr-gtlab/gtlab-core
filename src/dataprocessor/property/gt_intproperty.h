@@ -69,62 +69,6 @@ public:
                   int value = 0);
 
     /**
-     * @brief GtIntProperty
-     * @param ident
-     * @param name
-     * @param brief
-     * @param unitCategory
-     * @param value
-     */
-    [[deprecated("Int Properties do not support units properly and "
-                 "will be removed in the future")]]
-    GtIntProperty(const QString& ident,
-                  const QString& name,
-                  const QString& brief,
-                  const GtUnit::Category& unitCategory,
-                  const int& value = 0);
-
-    /**
-     * @brief GtIntProperty
-     * @param ident
-     * @param name
-     * @param brief
-     * @param unitCategory
-     * @param lowSideBoundary
-     * @param highSideBoundary
-     * @param value
-     */
-    [[deprecated("Int Properties do not support units properly and "
-                 "will be removed in the future")]]
-    GtIntProperty(const QString& ident,
-                  const QString& name,
-                  const QString& brief,
-                  const GtUnit::Category& unitCategory,
-                  const int lowSideBoundary,
-                  const int highSideBoundary,
-                  const int& value = 0);
-
-    /**
-     * @brief GtIntProperty
-     * @param ident
-     * @param name
-     * @param brief
-     * @param unitCategory
-     * @param boundType
-     * @param boundary
-     * @param value
-     */
-    [[deprecated("Int Properties do not support units properly and "
-                 "will be removed in the future")]]
-    GtIntProperty(const QString& ident,
-                  const QString& name,
-                  const QString& brief,
-                  const GtUnit::Category& unitCategory,
-                  GtIntProperty::BoundType boundType,
-                  const int boundary,
-                  const int& value = 0.0);
-
-    /**
      * @brief valueToVariant
      * @return
      */
