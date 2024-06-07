@@ -64,18 +64,6 @@ set(headers
     mdi_items/label_usages/gt_labelcontainer.h
     mdi_items/label_usages/gt_labelusagemodel.h
     mdi_items/label_usages/gt_labelusagedelegate.h
-    mdi_items/process_env/entities/gt_taskentity.h
-    mdi_items/process_env/entities/gt_calculatorentity.h
-    mdi_items/process_env/entities/gt_calculatorpropertyentity.h
-    mdi_items/process_env/entities/gt_propertyportentity.h
-    mdi_items/process_env/entities/gt_taskarrowentity.h
-    mdi_items/process_env/entities/gt_taskentityshadow.h
-    mdi_items/process_env/entities/gt_datamodelportentity.h
-    mdi_items/process_env/entities/gt_addtaskglobalbutton.h
-    mdi_items/process_env/entities/gt_taskconnectionentity.h
-    mdi_items/process_env/entities/gt_taskpipeentity.h
-    mdi_items/process_env/entities/gt_tasklinkentity.h
-    mdi_items/process_env/entities/gt_taskarrowlabelentity.h
     mdi_items/process_env/gt_processconnectionmodel.h
     mdi_items/process_env/entities/gt_processconnectionview.h
     mdi_items/process_env/gt_processconnectiongraphicsview.h
@@ -155,18 +143,6 @@ set(sources
     mdi_items/label_usages/gt_labelcontainer.cpp
     mdi_items/label_usages/gt_labelusagemodel.cpp
     mdi_items/label_usages/gt_labelusagedelegate.cpp
-    mdi_items/process_env/entities/gt_taskentity.cpp
-    mdi_items/process_env/entities/gt_calculatorentity.cpp
-    mdi_items/process_env/entities/gt_calculatorpropertyentity.cpp
-    mdi_items/process_env/entities/gt_propertyportentity.cpp
-    mdi_items/process_env/entities/gt_taskarrowentity.cpp
-    mdi_items/process_env/entities/gt_taskentityshadow.cpp
-    mdi_items/process_env/entities/gt_datamodelportentity.cpp
-    mdi_items/process_env/entities/gt_addtaskglobalbutton.cpp
-    mdi_items/process_env/entities/gt_taskconnectionentity.cpp
-    mdi_items/process_env/entities/gt_taskpipeentity.cpp
-    mdi_items/process_env/entities/gt_tasklinkentity.cpp
-    mdi_items/process_env/entities/gt_taskarrowlabelentity.cppp
     mdi_items/process_env/gt_processconnectionmodel.cpp
     mdi_items/process_env/entities/gt_processconnectionview.cpp
     mdi_items/process_env/gt_processconnectiongraphicsview.cpp
