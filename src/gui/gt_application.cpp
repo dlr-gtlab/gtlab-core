@@ -94,12 +94,6 @@ GtApplication::~GtApplication()
     dir.removeRecursively();
 }
 
-QIcon
-GtApplication::icon(QString const& iconPath)
-{
-    return gt::gui::getIcon(iconPath);
-}
-
 void
 GtApplication::initMdiLauncher()
 {

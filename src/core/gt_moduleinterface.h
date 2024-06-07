@@ -201,18 +201,6 @@ public:
 
 };
 
-/**
- * @brief Helper function to return the path to the settings of a module
- * settings value
- * @return
- */
-[[deprecated("Use gt::makeModuleSettingsPath instead")]]
-inline QString moduleSettingPath(const QString& modID,
-                                 const QString& settingID)
-{
-    return QString("modules/%1/%2").arg(modID, settingID);
-}
-
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(GtModuleInterface,
                     "de.dlr.gtlab.GtModuleInterface/2.0")

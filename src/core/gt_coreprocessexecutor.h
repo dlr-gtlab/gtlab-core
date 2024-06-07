@@ -18,7 +18,6 @@
 #include <QPointer>
 
 #include "gt_processexecutormanager.h"
-#define gtProcessExecutor (gt::deprecated::processExecutor())
 
 class GtTask;
 class GtRunnable;

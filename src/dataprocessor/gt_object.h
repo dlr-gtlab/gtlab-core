@@ -880,18 +880,4 @@ bool isDerivedFromClass(std::nullptr_t, QString const&) = delete;
 
 } // namespace gt
 
-template <typename ListOfObjectPtrs>
-[[deprecated("Use gt::findObject() instead.")]]
-inline GtObject*
-findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
-{
-    return gt::findObject(objectUUID, list);
-}
-
-[[deprecated("Use gt::isDerivedFromClass() instead.")]]
-inline bool isDerivedFromClass(GtObject* obj, QString const& superClassName)
-{
-    return gt::isDerivedFromClass(obj, superClassName);
-}
-
 #endif // GTOBJECT_H

@@ -13,7 +13,6 @@
 #include "gt_application.h"
 #include "gt_icons.h"
 #include "gt_colors.h"
-#include "gt_svgiconengine.h"
 
 #include <QCoreApplication>
 
@@ -54,37 +53,6 @@ gt::gui::stylesheet::button()
 }
 
 QString
-gt::gui::stylesheet::buttonStyleSheet(const QColor& baseColor)
-{
-    return button(baseColor);
-}
-
-QString
-gt::gui::stylesheet::buttonStyleSheet()
-{
-    return button();
-}
-
-QString
-gt::gui::stylesheet::buttonStyleSheet2()
-{
-    return button(color::base());
-}
-
-QString
-gt::gui::stylesheet::performanceTaskElementDelBtn()
-{
-    return QStringLiteral(
-        "QPushButton { "
-        " border: 0px solid %1;"
-        " border-radius: 4px;"
-        " min-width: 20px;"
-        " min-height:20px"
-        "}"
-    ).arg(color::frame().name());
-}
-
-QString
 gt::gui::stylesheet::standardLineEdit()
 {
     return QStringLiteral(
@@ -118,23 +86,6 @@ gt::gui::stylesheet::titleLabel()
 {
     return QStringLiteral("QLabel{ background-color: %1; color: %2; }")
            .arg(color::titleLabelBackground().name(), color::text().name());
-}
-
-QString
-gt::gui::stylesheet::resultViewerTitleLabel()
-{
-    return titleLabel();
-}
-
-QString
-gt::gui::stylesheet::performanceTaskLineEdit0()
-{
-    return QStringLiteral(
-       "QLineEdit {"
-       " border: none;"
-       " border-radius: 4px;"
-       "}"
-    );
 }
 
 QString
@@ -201,16 +152,6 @@ QString
 gt::gui::stylesheet::comboBox()
 {
     return comboBoxHelper();
-}
-
-QString
-gt::gui::stylesheet::selectionComboBox(const QString& minWidth,
-                                       const QString& maxWidth)
-{
-    return comboBoxHelper(QStringLiteral(
-        "min-width: %1px;"
-        "max-width: %2px;"
-    ).arg(minWidth, maxWidth));
 }
 
 QString

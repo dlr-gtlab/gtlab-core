@@ -81,35 +81,6 @@ GtIntProperty::GtIntProperty(const QString& ident,
     m_initValue = m_value;
 }
 
-GtIntProperty::GtIntProperty(const QString& ident,
-                             const QString& name,
-                             const QString& brief,
-                             const GtUnit::Category &unitCategory,
-                             const int& value) :
-    GtIntProperty(ident, name, brief, value)
-{ }
-
-
-GtIntProperty::GtIntProperty(const QString& ident,
-                             const QString& name,
-                             const QString& brief,
-                             const GtUnit::Category &unitCategory,
-                             const int lowSideBoundary,
-                             const int highSideBoundary,
-                             const int& value) :
-    GtIntProperty(ident, name, brief, lowSideBoundary, highSideBoundary, value)
-{ }
-
-GtIntProperty::GtIntProperty(const QString& ident,
-                             const QString& name,
-                             const QString& brief,
-                             const GtUnit::Category& unitCategory,
-                             GtIntProperty::BoundType boundType,
-                             const int boundary,
-                             const int& value) :
-    GtIntProperty(ident, name, brief, boundType, boundary, value)
-{ }
-
 QVariant
 GtIntProperty::valueToVariant(const QString& unit,
                               bool* success) const

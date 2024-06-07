@@ -45,26 +45,6 @@ QString GT_GUI_EXPORT button();
 */
 QString GT_GUI_EXPORT button(const QColor& baseColor);
 
-[[deprecated("Use button instead")]]
-QString GT_GUI_EXPORT buttonStyleSheet();
-[[deprecated("Use button instead")]]
-QString GT_GUI_EXPORT buttonStyleSheet(const QColor& baseColor);
-
-/**
-* @brief buttonStyleSheet
-* @return the standard button style sheet (rounded edges,
-* white background, min-heigth 20...)
-*/
-[[deprecated("Use button instead with color::base")]]
-QString GT_GUI_EXPORT buttonStyleSheet2();
-
-/**
- * @brief performanceTaskElementDelBtn
- * @return
- */
-[[deprecated("Use button instead and use 'setFlat(true)'")]]
-QString GT_GUI_EXPORT performanceTaskElementDelBtn();
-
 /**
  * @brief processRunButton -
  *  Return the Style-Sheet for the run-process-button with a specification
@@ -75,13 +55,6 @@ QString GT_GUI_EXPORT performanceTaskElementDelBtn();
  *
  */
 QString GT_GUI_EXPORT processRunButton(RunButtonState const& state);
-
-/**
- * @brief performanceTaskLineEdit0
- * @return
- */
-[[deprecated("Use standardLineEdit instead and use 'setFrame(false)'")]]
-QString GT_GUI_EXPORT performanceTaskLineEdit0();
 
 /**
  * @brief standardLineEdit -
@@ -107,24 +80,12 @@ QString GT_GUI_EXPORT standardLabel();
  * @return
  */
 QString GT_GUI_EXPORT titleLabel();
-[[deprecated("Use titleLabel instead")]]
-QString GT_GUI_EXPORT resultViewerTitleLabel();
 
 /**
  * @brief Prefered stylesheet for comboboxes. Does not set min and max width
  * @return
  */
 QString GT_GUI_EXPORT comboBox();
-
-/**
- * @brief Prefered stylesheet for comboboxes
- * @param minWidth Min width of combobox
- * @param maxWidth Max width of combobox
- * @return
- */
-[[deprecated("Use comboBox instead and set min-max width manually on widget")]]
-QString GT_GUI_EXPORT selectionComboBox(const QString& minWidth,
-                                        const QString& maxWidth);
 
 /**
  * @brief Prefered stylesheet for spinboxes

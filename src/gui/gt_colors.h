@@ -255,20 +255,6 @@ GT_GUI_EXPORT QColor builtIn();
 GT_GUI_EXPORT QColor marker();
 } // namespace js_highlight
 
-
-/// Deprecated functions
-[[deprecated("Use gridLine instead")]]
-GT_GUI_EXPORT QColor gridLineColor();
-
-[[deprecated("Use gridPoint instead")]]
-GT_GUI_EXPORT QColor gridPointColor();
-
-[[deprecated("Use newObjectForeground instead")]]
-GT_GUI_EXPORT QColor newObjectForground();
-
-[[deprecated("Use changedObjectForeground instead")]]
-GT_GUI_EXPORT QColor changedObjectForground();
-
 } // namespace color
 
 } // namespace gui
