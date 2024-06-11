@@ -259,6 +259,14 @@ public:
      */
     bool isConnected();
     bool isConnected() const;
+
+    /**
+     * @brief isMonitoring
+     * @return true if property is initialized as monitoring
+     */
+    bool isMonitoring() const;
+
+    void setMonitoring(bool monitoring);
 protected:
     /**
      * @brief GtAbstractProperty
@@ -294,6 +302,9 @@ protected:
 
     /// Whether property is stored in memento information or not
     bool m_storeMemento{true};
+
+    /// Monitoring indicator
+    bool m_monitoring{false};
 
     /// Property category
     GtAbstractProperty::PropertyCategory m_category{GtAbstractProperty::Main};

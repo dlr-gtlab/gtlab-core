@@ -339,6 +339,18 @@ GtAbstractProperty::isConnected() const
     return const_cast<GtAbstractProperty*>(this)->isConnected();
 }
 
+bool
+GtAbstractProperty::isMonitoring() const
+{
+    return m_monitoring;
+}
+
+void
+GtAbstractProperty::setMonitoring(bool monitoring)
+{
+    m_monitoring = monitoring;
+}
+
 GtAbstractProperty::GtAbstractProperty() = default;
 
 void

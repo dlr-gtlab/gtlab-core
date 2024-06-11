@@ -19,7 +19,6 @@
 #include "gt_objectpathproperty.h"
 #include "gt_environment.h"
 #include "gt_abstractrunnable.h"
-#include "gt_monitoringproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 
@@ -78,6 +77,9 @@ GtProcessComponent::GtProcessComponent() :
 void
 GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
 {
+    property.setMonitoring(true);
+    property.setReadOnly(true);
+
     // check whether property has children
     if (!property.fullProperties().isEmpty())
     {
@@ -86,7 +88,7 @@ GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
     }
 
     // check whether property inherits from monitoring class
-    if (!dynamic_cast<GtMonitoringProperty*>(&property))
+    if (!property.isMonitoring())
     {
         gtError() << tr("could not add a non monitoring property!");
         return;
@@ -461,7 +463,9 @@ GtProcessComponent::onEntryAdded(const GtPropertyStructContainer& c, int idx)
     // of container monitoring properties
     for (auto* prop : entry.fullProperties())
     {
-        if (dynamic_cast<GtMonitoringProperty*>(prop))
+        if (!prop) continue;
+
+        if (prop->isMonitoring())
         {
             refs << GtPropertyReference{c.ident(), entry.ident(), prop->ident()};
         }

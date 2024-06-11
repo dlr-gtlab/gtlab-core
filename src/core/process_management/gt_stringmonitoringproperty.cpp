@@ -10,28 +10,19 @@
  */
 #include <QValidator>
 
-#include "gt_regexp.h"
 #include "gt_stringmonitoringproperty.h"
-
-GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
-                                                       const QString& name,
-                                                       const QString& brief) :
-    GtStringProperty(ident, name, brief)
-{
-    setReadOnly(true);
-
-    m_validator = std::make_unique<QRegExpValidator>(gt::re::woUmlauts());
-}
-
-GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
-                                                       const QString& name) :
-    GtStringMonitoringProperty(ident, name, QString())
-{
-
-}
 
 gt::PropertyFactoryFunction
 gt::makeStringMonitoringProperty(QString value)
 {
-    return makePropertyFactory<GtStringMonitoringProperty>(std::move(value));
+    auto makeString = [=](QString const& id)
+    {
+        auto* p = new GtStringProperty(id, id);      
+        p->setMonitoring(true);
+        p->setReadOnly(true);
+        p->setValueFromVariant(std::move(value), "");
+        return p;
+    };
+
+    return makeString;
 }
