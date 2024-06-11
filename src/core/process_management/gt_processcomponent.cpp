@@ -77,20 +77,10 @@ GtProcessComponent::GtProcessComponent() :
 void
 GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
 {
-    property.setMonitoring(true);
-    property.setReadOnly(true);
-
     // check whether property has children
     if (!property.fullProperties().isEmpty())
     {
         gtError() << tr("could not add property with tree structure!");
-        return;
-    }
-
-    // check whether property inherits from monitoring class
-    if (!property.isMonitoring())
-    {
-        gtError() << tr("could not add a non monitoring property!");
         return;
     }
 
@@ -100,6 +90,9 @@ GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
         gtError() << tr("register monitoring property failed!");
         return;
     }
+
+    property.setMonitoring(true);
+    property.setReadOnly(true);
 
     // append property to monitoring container
     pimpl->monitorProperties << &property;
