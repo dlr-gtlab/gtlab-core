@@ -187,8 +187,8 @@ GtProcessDock::GtProcessDock() :
             SLOT(pasteElement(QModelIndex)));
     connect(m_view, SIGNAL(runTaskElement(QModelIndex)),
             SLOT(runProcess()));
-    connect(m_view, SIGNAL(skipCalcultorElement(QModelIndex,bool)),
-            SLOT(skipComponent(QModelIndex,bool)));
+    connect(m_view, SIGNAL(skipCalcultorElement(const QList<QModelIndex>&,bool)),
+            SLOT(skipComponents(const QList<QModelIndex>&,bool)));
     connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
     connect(m_view, SIGNAL(moveProcessElements(QList<QModelIndex>, QModelIndex)),
@@ -915,8 +915,7 @@ GtProcessDock::makeAddMenu(QMenu& menu)
 
     // add empty task action
     auto addEmptyTask = std::bind(&GtProcessDock::addEmptyTaskToRoot, this);
-    auto addemptytask = gt::gui::makeAction(tr("Empty Root Task"),
-                                            addEmptyTask)
+    auto addemptytask = gt::gui::makeAction(tr("Empty Root Task"), addEmptyTask)
                             .setIcon(gt::gui::icon::processAdd());
 
     auto addCalculator = std::bind(&GtProcessDock::addCalculator, this);
@@ -1221,25 +1220,22 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
 void
 GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
 {
+//    if (indexList.isEmpty()) return;
+
     QMenu menu(this);
 
-    QAction* skipCalcs = menu.addAction(tr("Skip Selected Elements"));
-    skipCalcs->setIcon(gt::gui::icon::skip());
-
-    QAction* unskipCalcs = menu.addAction(tr("Unskip Selected Elements"));
-    unskipCalcs->setIcon(gt::gui::icon::unskip());
-
-    QAction* deleteElements = menu.addAction(tr("Delete Process Elements"));
-    deleteElements->setIcon(gt::gui::icon::delete_());
-
-    bool allSkipped = true;
-    bool allUnskipped = true;
+    bool hideSkip = true;
+    bool hideUnskipped = true;
     // counter for dummy objects
     int dummyObjects = 0;
+
+    GtProcessComponent* first = nullptr;
 
     for (const QModelIndex& index : indexList)
     {
         GtProcessComponent* pc = componentByModelIndex(index);
+
+        if (!first) first = pc;
 
         if (!pc || pc->isDummy() || pc->hasDummyParents())
         {
@@ -1251,49 +1247,54 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
 
         if (!pc->isSkipped())
         {
-            allSkipped = false;
+            hideSkip = false;
         }
         else
         {
-            allUnskipped = false;
+            hideUnskipped = false;
         }
     }
 
-    if (allUnskipped)
-    {
-        unskipCalcs->setVisible(false);
-    }
-    else if (allSkipped)
-    {
-        skipCalcs->setVisible(false);
-    }
+    if (!first) return;
 
-    // dummy objects cannot be deleted
-    if (dummyObjects > 0)
-    {
-        deleteElements->setEnabled(false);
-    }
     // dummy objects cannot be skipped
     if (dummyObjects == indexList.length())
     {
-        skipCalcs->setEnabled(false);
-        unskipCalcs->setEnabled(false);
+        hideSkip = true;
+        hideUnskipped = true;
     }
 
-    QAction* a = menu.exec(QCursor::pos());
+    auto skip = gt::gui::makeAction(tr("Skip"), [=](GtObject*){
+            skipComponents(indexList);
+        })
+        .setIcon(gt::gui::icon::skip())
+        .setShortCut(getShortCut(QStringLiteral("skipProcess")))
+        .setVisible(!hideSkip);
 
-    if (a == skipCalcs)
-    {
-        skipComponent(indexList);
-    }
-    else if (a == unskipCalcs)
-    {
-        skipComponent(indexList, false);
-    }
-    else if (a == deleteElements)
-    {
-        deleteProcessElements(indexList);
-    }
+    auto unskip = gt::gui::makeAction(tr("Unskip"), [=](GtObject*){
+            skipComponents(indexList, false);
+        })
+        .setIcon(gt::gui::icon::unskip())
+        .setShortCut(getShortCut(QStringLiteral("unskipProcess")))
+        .setVisible(!hideUnskipped);
+
+    gt::gui::addToMenu({ skip, unskip }, menu, first, this);
+
+    menu.addSeparator();
+
+    bool hideDelete = dummyObjects > 0;
+
+    auto delete_ =
+        gt::gui::makeAction(tr("Delete"), [=](GtObject*){
+            deleteProcessElements(indexList);
+        })
+        .setIcon(gt::gui::icon::delete_())
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("delete")))
+        .setEnabled(!hideDelete);
+
+    gt::gui::addToMenu(delete_, menu, first, this);
+
+    menu.exec(QCursor::pos());
 }
 
 void
@@ -2038,20 +2039,11 @@ GtProcessDock::pasteElement(const QModelIndex& parentIndex)
 void
 GtProcessDock::skipComponent(const QModelIndex& index, bool skip)
 {
-    QString msg = tr("%1 selected Process Elements")
-                  .arg(skip ? tr("Skip") : tr("Unskip"));
-
-    auto* comp = componentByModelIndex(index);
-    if (!comp) return;
-    
-    auto cmd = gtApp->makeCommand(comp, msg);
-    Q_UNUSED(cmd);
-    
-    skipComponent(comp, skip);
+    skipComponents({index}, skip);
 }
 
 void
-GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
+GtProcessDock::skipComponents(const QList<QModelIndex>& indexList, bool skip)
 {
     QList<GtProcessComponent*> pcs;
 
@@ -2063,7 +2055,10 @@ GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
 
         if (!pcs.contains(pc))
         {
-            pcs.append(pc);
+            if (pc->isSkipped() != skip)
+            {
+                pcs.append(pc);
+            }
         }
     }
 
