@@ -169,6 +169,28 @@ GtProcessPropertyConnectionEntity::connection()
 }
 
 void
+GtProcessPropertyConnectionEntity::removeConnection()
+{
+    if (m_connection)
+    {
+        if (m_startPort)
+        {
+            m_startPort->disconnectPort(this);
+        }
+
+        if (m_endPort)
+        {
+            m_endPort->disconnectPort(this);
+        }
+
+        delete m_connection;
+        m_connection = nullptr;
+
+        deleteLater();
+    }
+}
+
+void
 GtProcessPropertyConnectionEntity::hoverEnterEvent(
         QGraphicsSceneHoverEvent* event)
 {
@@ -210,23 +232,7 @@ GtProcessPropertyConnectionEntity::contextMenuEvent(
 
     if (a == actdelete)
     {
-        if (m_connection)
-        {
-            if (m_startPort)
-            {
-                m_startPort->disconnectPort(this);
-            }
-
-            if (m_endPort)
-            {
-                m_endPort->disconnectPort(this);
-            }
-
-            delete m_connection;
-            m_connection = nullptr;
-
-            deleteLater();
-        }
+        removeConnection();
     }
 
     GtGraphicsAnimatedPathItem::contextMenuEvent(event);

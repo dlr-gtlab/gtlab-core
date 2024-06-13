@@ -66,15 +66,20 @@ GtProcessConnectionEditor::GtProcessConnectionEditor(GtTask* task,
 
     lay->addLayout(mainLay);
 
-    QPushButton* saveButton = new QPushButton(tr("Ok"));
+    auto* removeAllButton =
+            new QPushButton(tr("Remove all connections"));
+    removeAllButton->setIcon(gt::gui::icon::delete_());
+    auto* saveButton = new QPushButton(tr("Ok"));
     saveButton->setIcon(gt::gui::icon::check());
-    QPushButton* closeButton = new QPushButton(tr("Cancel"));
+    auto* closeButton = new QPushButton(tr("Cancel"));
     closeButton->setIcon(gt::gui::icon::cancel());
 
     connect(closeButton, SIGNAL(clicked()), SLOT(reject()));
     connect(saveButton, SIGNAL(clicked()), SLOT(accept()));
+    connect(removeAllButton, SIGNAL(clicked()), SLOT(deleteAllConnections()));
 
     QHBoxLayout* buttonsLayout = new QHBoxLayout;
+    buttonsLayout->addWidget(removeAllButton);
     buttonsLayout->setContentsMargins(4, 4, 4, 4);
     buttonsLayout->addStretch(1);
     buttonsLayout->addWidget(saveButton);
@@ -116,6 +121,12 @@ GtProcessConnectionEditor::connectionData()
     }
 
     return GtObjectMemento();
+}
+
+void
+GtProcessConnectionEditor::deleteAllConnections()
+{
+    m_connectionView->removeAllConnections();
 }
 
 void

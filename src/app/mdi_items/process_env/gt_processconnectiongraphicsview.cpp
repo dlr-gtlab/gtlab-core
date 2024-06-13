@@ -365,7 +365,21 @@ GtProcessConnectionGraphicsView::updateConnections()
 //        }
 
 
-//    }
+    //    }
+}
+
+void
+GtProcessConnectionGraphicsView::removeAllConnections()
+{
+    QList<QGraphicsItem*> allItems = items();
+
+    for (auto i : qAsConst(allItems))
+    {
+        if (auto e = dynamic_cast<GtProcessPropertyConnectionEntity*>(i))
+        {
+            e->removeConnection();
+        }
+    }
 }
 
 void

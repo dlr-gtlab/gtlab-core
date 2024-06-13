@@ -89,6 +89,13 @@ public:
      */
     void updateConnections();
 
+    /**
+     * @brief removeAllConnections
+     * Remove all graphics entities of connections in the view and their related
+     * connection objects
+     */
+    void removeAllConnections();
+
 protected:
     /**
      * @brief resizeEvent

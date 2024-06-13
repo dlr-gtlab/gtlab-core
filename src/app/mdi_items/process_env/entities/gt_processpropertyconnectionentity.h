@@ -112,6 +112,12 @@ public:
      */
     GtPropertyConnection* connection();
 
+    /**
+     * @brief removeConnection
+     * Remove the connection and the connection entity
+     */
+    void removeConnection();
+
 protected:
     /**
      * @brief hoverEnterEvent
