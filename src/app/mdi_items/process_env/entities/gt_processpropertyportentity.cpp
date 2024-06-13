@@ -22,7 +22,6 @@
 
 #include "gt_application.h"
 #include "gt_colors.h"
-#include "gt_logging.h"
 
 GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
         double x, double y, double width, double height, PortTypes typ,
@@ -32,7 +31,7 @@ GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
     m_type(typ),
     m_item(item)
 {
-    setBrush(QBrush(Qt::darkGray));
+    setBrush(QBrush(gt::gui::color::connection_editor::portBrush()));
     setFlags(QGraphicsItem::ItemIsSelectable);
     setAcceptHoverEvents(true);
 }
@@ -257,14 +256,7 @@ GtProcessPropertyPortEntity::propertyId()
 void
 GtProcessPropertyPortEntity::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    if (!gtApp->inDarkMode())
-    {
-        setBrush(QBrush(Qt::white));
-    }
-    else
-    {
-        setBrush(QBrush(gt::gui::color::basicDark()));
-    }
+    setBrush(QBrush(gt::gui::color::connection_editor::portHoverEnter()));
 
     QApplication::restoreOverrideCursor();
     QApplication::setOverrideCursor(Qt::OpenHandCursor);
@@ -276,7 +268,7 @@ GtProcessPropertyPortEntity::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 void
 GtProcessPropertyPortEntity::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
-    setBrush(QBrush(Qt::darkGray));
+    setBrush(QBrush(gt::gui::color::connection_editor::portBrush()));
     QApplication::restoreOverrideCursor();
     runAnimation(false);
     QGraphicsEllipseItem::hoverLeaveEvent(event);

@@ -474,5 +474,52 @@ gt::gui::color::js_highlight::marker()
     return QColor(255, 255, 0);
 }
 
+QColor
+gt::gui::color::connection_editor::connection()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::lightGray;
+    }
+    return Qt::black;
+}
 
+QColor
+gt::gui::color::connection_editor::connectionDraft()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(98, 182, 230);
+    }
+    return Qt::blue;
+}
 
+QColor
+gt::gui::color::connection_editor::portBrush()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(69, 130, 162);
+    }
+    return Qt::darkGray;
+}
+
+QColor
+gt::gui::color::connection_editor::portHoverEnter()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::lightGray;
+    }
+    return Qt::white;
+}
+
+QColor
+gt::gui::color::connection_editor::connectionHighlight()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::red;
+    }
+    return Qt::red;
+}

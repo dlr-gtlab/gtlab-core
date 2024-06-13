@@ -16,6 +16,7 @@
 
 #include "gt_processpropertyportentity.h"
 #include "gt_icons.h"
+#include "gt_colors.h"
 #include "gt_propertyconnection.h"
 
 #include "gt_processpropertyconnectionentity.h"
@@ -195,7 +196,7 @@ GtProcessPropertyConnectionEntity::hoverEnterEvent(
         QGraphicsSceneHoverEvent* event)
 {
     QPen p = pen();
-    p.setColor(Qt::red);
+    p.setColor(gt::gui::color::connection_editor::connectionHighlight());
     p.setWidth(2);
     setPen(p);
 
@@ -243,7 +244,7 @@ GtProcessPropertyConnectionEntity::currentColor()
 {
     if (m_startPort && m_endPort)
     {
-        return QColor(Qt::black);
+        return gt::gui::color::connection_editor::connection();
     }
 
     return QColor(Qt::gray);
