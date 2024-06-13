@@ -18,7 +18,6 @@ gt::makeDoubleMonitoringProperty(double value)
     {
         auto* p = new GtDoubleProperty(id, id);
         p->setMonitoring(true);
-        p->setReadOnly(true);
         p->setValueFromVariant(std::move(value), "");
         return p;
     };

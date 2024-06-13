@@ -92,7 +92,6 @@ GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
     }
 
     property.setMonitoring(true);
-    property.setReadOnly(true);
 
     // append property to monitoring container
     pimpl->monitorProperties << &property;

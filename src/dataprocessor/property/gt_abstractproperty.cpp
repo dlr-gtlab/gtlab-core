@@ -348,6 +348,11 @@ GtAbstractProperty::isMonitoring() const
 void
 GtAbstractProperty::setMonitoring(bool monitoring)
 {
+    if (monitoring)
+    {
+        setReadOnly(true);
+    }
+
     m_monitoring = monitoring;
 }
 

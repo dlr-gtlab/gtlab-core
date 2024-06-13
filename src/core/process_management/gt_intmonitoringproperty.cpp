@@ -18,7 +18,6 @@ gt::makeIntMonitoringProperty(int value)
     {
         auto* p = new GtIntProperty(id, id);
         p->setMonitoring(true);
-        p->setReadOnly(true);
         p->setValueFromVariant(std::move(value), "");
         return p;
     };

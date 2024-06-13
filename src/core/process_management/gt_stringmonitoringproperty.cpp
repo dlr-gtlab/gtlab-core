@@ -19,7 +19,6 @@ gt::makeStringMonitoringProperty(QString value)
     {
         auto* p = new GtStringProperty(id, id);      
         p->setMonitoring(true);
-        p->setReadOnly(true);
         p->setValueFromVariant(std::move(value), "");
         return p;
     };
