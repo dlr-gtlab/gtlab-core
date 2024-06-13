@@ -17,6 +17,8 @@ TestDmiData::TestDmiData() :
     m_value("value", "Value", "Value to use in Example",
             GtUnit::EnergyDensity, 1.0),
     m_container("notes", "notes"),
+    m_containerRO("tasks", "tasks (ro)"),
+    m_containerHidden("hiddenNotes", "Hidden Notes"),
     m_mode("modeProp", "ModeProp", "A mode-property"),
     m_propTypeA("Type A", "Type A brief"),
     m_propTypeB("Type B", "Type B brief"),
@@ -32,10 +34,20 @@ TestDmiData::TestDmiData() :
 
     GtPropertyStructDefinition stringEntryDef("StringStruct");
     stringEntryDef.defineMember("value", gt::makeOptional(gt::makeStringProperty(""), true));
+    stringEntryDef.defineMember("name", gt::makeReadOnly(gt::makeStringProperty("")));
 
     m_container.registerAllowedType(stringEntryDef);
+    m_containerRO.registerAllowedType(stringEntryDef);
+    m_containerHidden.registerAllowedType(stringEntryDef);
+
+    m_containerRO.setFlags(GtPropertyStructContainer::IsReadOnly);
+    m_containerHidden.setFlags(GtPropertyStructContainer::IsHidden);
+
+
 
     registerPropertyStructContainer(m_container);
+    registerPropertyStructContainer(m_containerRO);
+    registerPropertyStructContainer(m_containerHidden);
 
     m_mode.registerSubProperty(m_propTypeA);
     m_mode.registerSubProperty(m_propTypeB);
@@ -49,4 +61,11 @@ TestDmiData::TestDmiData() :
     m_fruit = Fruit::Apple;
 
     registerProperty(m_fruit);
+
+    auto& e1 = m_containerRO.newEntry("StringStruct", "entry_1");
+    e1.setMemberVal("name", "Speed");
+    auto& e2 = m_containerRO.newEntry("StringStruct", "entry_2");
+    e2.setMemberVal("name", "Force");
+    auto& e3 = m_containerRO.newEntry("StringStruct", "entry_3");
+    e3.setMemberVal("name", "Power");
 }

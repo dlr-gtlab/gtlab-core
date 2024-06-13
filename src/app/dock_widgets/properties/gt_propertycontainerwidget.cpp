@@ -46,6 +46,11 @@ GtPropertyContainerWidget::GtPropertyContainerWidget(
     addBtn->setToolTip(tr("Add New Entry"));
     addBtn->setStyleSheet(gt::gui::stylesheet::button());
 
+    if (container.getFlags() & GtPropertyStructContainer::IsReadOnly)
+    {
+        addBtn->setVisible(false);
+    }
+
     lay->addWidget(addBtn);
 
     setLayout(lay);
