@@ -234,8 +234,8 @@ namespace connection_editor
 GT_GUI_EXPORT QColor connection();
 GT_GUI_EXPORT QColor connectionDraft();
 GT_GUI_EXPORT QColor connectionHighlight();
-GT_GUI_EXPORT QColor portBrush();
-GT_GUI_EXPORT QColor portHoverEnter();
+GT_GUI_EXPORT QColor portBackground();
+GT_GUI_EXPORT QColor portHover();
 } // connection_editor
 
 namespace code_editor {

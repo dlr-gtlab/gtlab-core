@@ -495,7 +495,7 @@ gt::gui::color::connection_editor::connectionDraft()
 }
 
 QColor
-gt::gui::color::connection_editor::portBrush()
+gt::gui::color::connection_editor::portBackground()
 {
     if (gtApp->inDarkMode())
     {
@@ -505,7 +505,7 @@ gt::gui::color::connection_editor::portBrush()
 }
 
 QColor
-gt::gui::color::connection_editor::portHoverEnter()
+gt::gui::color::connection_editor::portHover()
 {
     if (gtApp->inDarkMode())
     {

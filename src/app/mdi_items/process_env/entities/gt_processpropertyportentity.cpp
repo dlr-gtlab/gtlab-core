@@ -31,7 +31,7 @@ GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
     m_type(typ),
     m_item(item)
 {
-    setBrush(QBrush(gt::gui::color::connection_editor::portBrush()));
+    setBrush(QBrush(gt::gui::color::connection_editor::portBackground()));
     setFlags(QGraphicsItem::ItemIsSelectable);
     setAcceptHoverEvents(true);
 }
@@ -256,7 +256,7 @@ GtProcessPropertyPortEntity::propertyId()
 void
 GtProcessPropertyPortEntity::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    setBrush(QBrush(gt::gui::color::connection_editor::portHoverEnter()));
+    setBrush(QBrush(gt::gui::color::connection_editor::portHover()));
 
     QApplication::restoreOverrideCursor();
     QApplication::setOverrideCursor(Qt::OpenHandCursor);
@@ -268,7 +268,7 @@ GtProcessPropertyPortEntity::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 void
 GtProcessPropertyPortEntity::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
-    setBrush(QBrush(gt::gui::color::connection_editor::portBrush()));
+    setBrush(QBrush(gt::gui::color::connection_editor::portBackground()));
     QApplication::restoreOverrideCursor();
     runAnimation(false);
     QGraphicsEllipseItem::hoverLeaveEvent(event);
