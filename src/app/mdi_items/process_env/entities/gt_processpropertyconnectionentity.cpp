@@ -191,6 +191,23 @@ GtProcessPropertyConnectionEntity::removeConnection()
     }
 }
 
+bool
+GtProcessPropertyConnectionEntity::connectedToProcessComponent(
+        const QString& uuid, bool inPort)
+{
+    if (inPort && m_startPort)
+    {
+        if (m_startPort->parentComponentUuid() == uuid) return true;
+    }
+
+    if (!inPort && m_endPort)
+    {
+        if (m_endPort->parentComponentUuid() == uuid) return true;
+    }
+
+    return false;
+}
+
 void
 GtProcessPropertyConnectionEntity::hoverEnterEvent(
         QGraphicsSceneHoverEvent* event)

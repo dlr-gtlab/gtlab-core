@@ -369,15 +369,36 @@ GtProcessConnectionGraphicsView::updateConnections()
 }
 
 void
-GtProcessConnectionGraphicsView::removeAllConnections()
+GtProcessConnectionGraphicsView::removeAllConnections(
+        const QString& uuid, bool inPorts)
 {
+    QStringList allUuids = {uuid};
+
+    // get component with given uuid and all uuids of child process components
+    GtObject* deletionRoot = m_root->getObjectByUuid(uuid);
+
+    if (!deletionRoot) return;
+
+    QList<GtProcessComponent*> children
+            = deletionRoot->findChildren<GtProcessComponent*>();
+
+    for (auto c : qAsConst(children))
+    {
+        allUuids.append(c->uuid());
+    }
+
     QList<QGraphicsItem*> allItems = items();
 
     for (auto i : qAsConst(allItems))
     {
         if (auto e = dynamic_cast<GtProcessPropertyConnectionEntity*>(i))
         {
-            e->removeConnection();
+            for (auto const& u : allUuids)
+
+            if (e->connectedToProcessComponent(u, inPorts))
+            {
+                e->removeConnection();
+            }
         }
     }
 }

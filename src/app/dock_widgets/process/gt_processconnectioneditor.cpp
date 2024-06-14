@@ -126,17 +126,14 @@ GtProcessConnectionEditor::connectionData()
 void
 GtProcessConnectionEditor::deleteAllConnections()
 {
-    m_connectionView->removeAllConnections();
+    m_connectionView->removeAllConnections(m_connectionView->root()->uuid());
 }
 
 void
 GtProcessConnectionEditor::fillData()
 {
     // check task
-    if (!m_task)
-    {
-        return;
-    }
+    if (!m_task) return;
 
     // fill output model and expand view
     m_outputModel->setRoot(m_task);
