@@ -195,14 +195,16 @@ bool
 GtProcessPropertyConnectionEntity::connectedToProcessComponent(
         const QString& uuid, bool inPort)
 {
-    if (inPort && m_startPort)
+    if (!m_connection) return false;
+
+    if (inPort)
     {
-        if (m_startPort->parentComponentUuid() == uuid) return true;
+        if (m_connection->sourceUuid() == uuid) return true;
     }
 
-    if (!inPort && m_endPort)
+    if (!inPort)
     {
-        if (m_endPort->parentComponentUuid() == uuid) return true;
+        if (m_connection->targetUuid() == uuid) return true;
     }
 
     return false;

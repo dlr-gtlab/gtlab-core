@@ -387,6 +387,9 @@ GtProcessConnectionGraphicsView::removeAllConnections(
         allUuids.append(c->uuid());
     }
 
+    // make sure to avoid double checks
+    allUuids.removeDuplicates();
+
     QList<QGraphicsItem*> allItems = items();
 
     for (auto i : qAsConst(allItems))
@@ -394,10 +397,12 @@ GtProcessConnectionGraphicsView::removeAllConnections(
         if (auto e = dynamic_cast<GtProcessPropertyConnectionEntity*>(i))
         {
             for (auto const& u : allUuids)
-
-            if (e->connectedToProcessComponent(u, inPorts))
             {
-                e->removeConnection();
+                if (e->connectedToProcessComponent(u, inPorts))
+                {
+                    e->removeConnection();
+                    break;
+                }
             }
         }
     }
