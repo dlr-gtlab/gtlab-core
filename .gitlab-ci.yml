@@ -64,6 +64,7 @@ windowsBuildDebug:
     - .build-win_20
     - .debugBuildRules
   script:
+    - $env:PATH+=(";"+$env:QT_INSTALL_PATH+"\bin;")
     - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTLAB_DEVTOOLS_DIR="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2019-dbg -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON
     - cmake --build build --target install
   artifacts:
