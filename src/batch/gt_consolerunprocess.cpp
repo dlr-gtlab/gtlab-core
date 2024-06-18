@@ -23,6 +23,8 @@
 #include <iostream>
 #include <ostream>
 
+#include <QCoreApplication>
+
 QList<GtCommandLineOption>
 gt::console::options()
 {
@@ -223,6 +225,29 @@ gt::console::runProcess(const QString& projectId,
     return 0;
 }
 
+/**
+ * @brief Enters a temporary session
+ *
+ * The return value must be kept until the session is not needed anymore.
+ * It is used to switch back to the current session
+ */
+auto enterTempSession()
+{
+    auto tmpSessionID = QString("_tmp_batch_session_%1").arg(QCoreApplication::applicationPid());
+    QString currentSessionID = gtApp->session() ? gtApp->session()->objectName() : "default";
+
+    gtDebug() << QObject::tr("Creating temporary batch session '%1'").arg(tmpSessionID);
+
+    gtApp->newSession(tmpSessionID);
+    gtApp->switchSession(tmpSessionID);
+
+    // cleanup
+    return gt::finally([tmpSessionID, currentSessionID](){
+        gtApp->switchSession(currentSessionID);
+        gtApp->deleteSession(tmpSessionID);
+    });
+}
+
 int
 gt::console::runProcessByFile(const QString& projectFile,
                               const QString& processId,
@@ -256,6 +281,7 @@ gt::console::runProcessByFile(const QString& projectFile,
         return -1;
     }
 
+    auto _ = enterTempSession();
     GtProjectProvider provider(projectFile);
     GtProject* project = provider.project();
 
