@@ -282,6 +282,8 @@ gt::console::runProcessByFile(const QString& projectFile,
     }
 
     auto _ = enterTempSession();
+    Q_UNUSED(_);
+
     GtProjectProvider provider(projectFile);
     GtProject* project = provider.project();
 
