@@ -875,11 +875,6 @@ int main(int argc, char* argv[])
 
     app.init();
 
-    // avoid runing tasks in threads, only the GUI can do this
-    // due to the event loop
-    gt::processExecutorManager().clearAllExecutors();
-    gt::registerExecutorType<GtCoreProcessExecutor>();
-
 
     // save to system environment (temporary)
     app.saveSystemEnvironment();
