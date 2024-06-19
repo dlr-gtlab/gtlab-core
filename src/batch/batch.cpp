@@ -22,7 +22,7 @@
 #include "batchremote.h"
 #include "gt_consolerunprocess.h"
 
-#include "gt_application.h"
+#include "gt_coreapplication.h"
 #include "gt_coreprocessexecutor.h"
 
 //#include "gt_coreapplication.h"
@@ -863,7 +863,7 @@ int main(int argc, char* argv[])
     initSystemOptions();
 
     // application initialization
-    GtApplication app(qApp, true, GtCoreApplication::AppMode::Batch);
+    GtCoreApplication app(qApp, GtCoreApplication::AppMode::Batch);
 
     // version option
     if (parser.option("version"))
@@ -874,11 +874,6 @@ int main(int argc, char* argv[])
     }
 
     app.init();
-
-    // avoid runing tasks in threads, only the GUI can do this
-    // due to the event loop
-    gt::processExecutorManager().clearAllExecutors();
-    gt::registerExecutorType<GtCoreProcessExecutor>();
 
 
     // save to system environment (temporary)
@@ -897,7 +892,6 @@ int main(int argc, char* argv[])
     }
 
     // load GTlab modules
-    app.initMdiLauncher();
     app.loadModules();
 
     // calculator initialization

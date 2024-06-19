@@ -89,7 +89,7 @@ GtSession::saveProjectData(GtProject* project)
 
     project->acceptChangesRecursively();
 
-    gtInfo() << project->objectName() << tr("saved!");
+    gtInfo() << tr("Project '%1' saved to %2").arg(project->objectName(), project->path());
 
     return true;
 }
