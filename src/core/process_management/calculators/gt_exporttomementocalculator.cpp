@@ -55,7 +55,7 @@ GtExportToMementoCalculator::run()
 
     if (!obj)
     {
-        gtError() << "no object selected!";
+        gtError() << "GtExportToMementoCalculator: no object selected!";
         return false;
     }
 
@@ -64,7 +64,7 @@ GtExportToMementoCalculator::run()
     if (m_fileMode.get() == m_absoluteFileMode.get())
     {
         // absolute mode
-        gtInfo() << "absoulte mode";
+        gtDebug() << "absolute mode";
         path = m_absoluteFilePath.get();
     }
     else
@@ -73,13 +73,13 @@ GtExportToMementoCalculator::run()
         if (m_fileMode.get() == m_relativeFileMode.get())
         {
             // to working directory
-            gtInfo() << "relative to working directory mode";
+            gtDebug() << "relative to working directory mode";
             path = m_relativeFilePath;
         }
         else
         {
             // to project directory
-            gtInfo() << "relative to project directory mode";
+            gtDebug() << "relative to project directory mode";
             if (gtApp->currentProject())
             {
                 path = gtApp->currentProject()->path() + QDir::separator() +
@@ -90,7 +90,7 @@ GtExportToMementoCalculator::run()
 
     if (path.isEmpty())
     {
-        gtError() << "path is empty";
+        gtError() << "GtExportToMementoCalculator: Path is empty";
         return false;
     }
 
@@ -100,7 +100,8 @@ GtExportToMementoCalculator::run()
     QDir dir;
     if (!dir.mkpath(directory))
     {
-        gtError() << "Could not create directory!" << directory;
+        gtError() << "GtExportToMementoCalculator: Could not create directory!"
+                  << directory;
         return false;
     }
 
@@ -108,7 +109,8 @@ GtExportToMementoCalculator::run()
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        gtError() << tr("Could not open file!") << file.fileName();
+        gtError() << "GtExportToMementoCalculator: Could not open file!"
+                  << file.fileName();
         return false;
     }
 
@@ -123,9 +125,19 @@ GtExportToMementoCalculator::run()
 
     file.close();
 
-    gtInfo() << "object (" << obj->objectName()
-             << ") successfully exported to " << path;
+    gtDebug() << "object (" << obj->objectName()
+              << ") successfully exported to " << path;
 
     return true;
+}
+
+GtCalculatorData
+GtExportToMementoCalculator::calculatorData()
+{
+    GtCalculatorData exportMemento = GT_CALC_DATA(GtExportToMementoCalculator);
+    exportMemento->id = QStringLiteral("Export Object to Memento");
+    exportMemento->version = GtVersionNumber(1,0);
+    exportMemento->status = GtCalculatorDataImpl::RELEASE;
+    return exportMemento;
 }
 

@@ -33,6 +33,8 @@ public:
      */
     bool run() override;
 
+    static GtCalculatorData calculatorData();
+
 private:
     /// file mode
     GtModeProperty m_fileMode;

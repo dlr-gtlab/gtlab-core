@@ -23,11 +23,8 @@ GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
     registerClass(GT_METADATA(GtTaskLink));
 
     // Default calculators
-    GtCalculatorData exportMemento = GT_CALC_DATA(GtExportToMementoCalculator);
-    exportMemento->id = QStringLiteral("Export Object to Memento");
-    exportMemento->version = GtVersionNumber(1,0);
-    exportMemento->status = GtCalculatorDataImpl::RELEASE;
-    GtCalculatorFactory::registerCalculatorData(exportMemento);
+    GtCalculatorFactory::registerCalculatorData(
+        GtExportToMementoCalculator::calculatorData());
 }
 
 GtCalculatorFactory*
