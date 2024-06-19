@@ -55,7 +55,7 @@ GtExportToMementoCalculator::run()
 
     if (!obj)
     {
-        gtError() << "GtExportToMementoCalculator: no object selected!";
+        gtError() << QObject::tr("GtExportToMementoCalculator: no object selected!");
         return false;
     }
 
@@ -90,7 +90,7 @@ GtExportToMementoCalculator::run()
 
     if (path.isEmpty())
     {
-        gtError() << "GtExportToMementoCalculator: Path is empty";
+        gtError() << QObject::tr("GtExportToMementoCalculator: Path is empty");
         return false;
     }
 
@@ -100,8 +100,8 @@ GtExportToMementoCalculator::run()
     QDir dir;
     if (!dir.mkpath(directory))
     {
-        gtError() << "GtExportToMementoCalculator: Could not create directory!"
-                  << directory;
+        gtError() << QObject::tr("GtExportToMementoCalculator: Could not create directory '%1'")
+                         .arg(directory);
         return false;
     }
 
@@ -109,8 +109,8 @@ GtExportToMementoCalculator::run()
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        gtError() << "GtExportToMementoCalculator: Could not open file!"
-                  << file.fileName();
+        gtError() << QObject::tr("GtExportToMementoCalculator: Could not open file '%1'")
+                         .arg(file.fileName());
         return false;
     }
 
@@ -125,8 +125,8 @@ GtExportToMementoCalculator::run()
 
     file.close();
 
-    gtDebug() << "object (" << obj->objectName()
-              << ") successfully exported to " << path;
+    gtInfo() << QObject::tr("Object '%1' successfully exported to '%2'")
+                    .arg(obj->objectName(), path);
 
     return true;
 }
