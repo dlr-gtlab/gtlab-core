@@ -67,4 +67,4 @@ target_link_libraries(GTlabUnitTest PRIVATE
 )
 
 include(GoogleTest)
-gtest_discover_tests(GTlabUnitTest TEST_PREFIX "Core.")
+gtest_discover_tests(GTlabUnitTest TEST_PREFIX "Core." DISCOVERY_MODE PRE_TEST)
