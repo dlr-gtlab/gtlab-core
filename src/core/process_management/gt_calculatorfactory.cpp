@@ -15,9 +15,19 @@
 #include "gt_tasklink.h"
 #include "gt_calculatordata.h"
 
+#include "gt_exporttomementocalculator.h"
+
 GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
 {
+    // TODO: task link should be deleted
     registerClass(GT_METADATA(GtTaskLink));
+
+    // Default calculators
+    GtCalculatorData exportMemento = GT_CALC_DATA(GtExportToMementoCalculator);
+    exportMemento->id = QStringLiteral("Export Object to Memento");
+    exportMemento->version = GtVersionNumber(1,0);
+    exportMemento->status = GtCalculatorDataImpl::RELEASE;
+    GtCalculatorFactory::registerCalculatorData(exportMemento);
 }
 
 GtCalculatorFactory*

@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a commit in 2.0.7 that allowed to use the collections from batch mode.
   NOTE: collections will stop working in batch mode again - #1247
 
+### Added
+- Added calculator to export specific objects from the project in form of a memento to hard disk. - #1251
+
 ## [2.0.7] - 2024-06-05
 ### Fixed
 - Fixed mirco stutters when new messages are appended to the output dock. - #1165
