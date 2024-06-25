@@ -210,6 +210,11 @@ GtProjectProvider::duplicateProject(const QString& newId,
         }
     }
 
+    gt::filesystem::copyDir(
+        QDir(oldDirectory.absoluteFilePath(QStringLiteral("tasks"))),
+        QDir(newDirectory.absoluteFilePath(QStringLiteral("tasks"))),
+        gt::filesystem::Recursive,
+        QRegularExpression(R"(.*\.gttask|index.json)"));
 
     // TODO: modify uuids and copy sqlite file
 

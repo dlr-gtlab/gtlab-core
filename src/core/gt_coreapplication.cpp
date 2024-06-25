@@ -24,6 +24,7 @@
 #include "gt_coreapplication.h"
 #include "gt_externalizationmanager.h"
 #include "gt_objectfactory.h"
+#include "gt_processdata.h"
 #include "gt_processfactory.h"
 #include "gt_session.h"
 #include "gt_settings.h"
@@ -83,6 +84,7 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     gt::registerExecutorType<GtCoreProcessExecutor>();
 
     // register data classes of core lib here
+    gtObjectFactory->registerClass(GT_METADATA(GtProcessData));
     gtObjectFactory->registerClass(GT_METADATA(GtTaskGroup));
 }
 

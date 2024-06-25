@@ -69,6 +69,11 @@ GtTaskGroup::GtTaskGroup(const QString& id) :
     setFactory(gtObjectFactory);
 }
 
+GtTaskGroup::GtTaskGroup() :
+    GtTaskGroup::GtTaskGroup("default")
+{
+}
+
 GtTaskGroup::~GtTaskGroup() = default;
 
 bool
