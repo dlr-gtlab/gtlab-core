@@ -19,7 +19,7 @@ GtPackage::GtPackage()
 }
 
 bool
-GtPackage::readData(const QDomElement& root)
+GtPackage::readData(const QDir&, const QDomElement& root)
 {
     QDomElement oe = root.firstChildElement("object");
     while (!oe.isNull())
@@ -62,7 +62,7 @@ GtPackage::readData(const QDomElement& root)
 }
 
 bool
-GtPackage::saveData(QDomElement& root, QDomDocument& /*doc*/)
+GtPackage::saveData(const QDir& /*unused */, QDomElement& root, QDomDocument& /*doc*/)
 {
     foreach (GtObject* obj, findDirectChildren<GtObject*>())
     {

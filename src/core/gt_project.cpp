@@ -531,16 +531,6 @@ GtProject::readLabelData(const GtObjectList& moduleData)
 GtObjectList
 GtProject::readModuleData()
 {
-    // set current project, so that packages can load data from disk (issue #267)
-    // emitting projectChanged signal to early may cause problems, therefore
-    // blocking gtApp temporarily is a crude workaround
-    QSignalBlocker block(gtApp);
-    gtApp->setCurrentProject(this);
-
-    auto cleanup = gt::finally([](){
-        gtApp->setCurrentProject(nullptr);
-    });
-
     GtObjectList retval;
 
     foreach (const QString& mid, m_moduleIds)
@@ -628,7 +618,7 @@ GtProject::readModuleData()
 
         package->setUuid(uuid);
 
-        if (!package->readData(root))
+        if (!package->readData(QDir(m_path), root))
         {
             gtWarning() << objectName() << ": "
                         << tr("Failed to read module data!")
@@ -689,7 +679,7 @@ GtProject::saveModuleData()
 
         document.appendChild(rootElement);
 
-        if (!package->saveData(rootElement, document))
+        if (!package->saveData(QDir(m_path), rootElement, document))
         {
             gtWarning().noquote()
                     << tr("Failed to save module data!")
