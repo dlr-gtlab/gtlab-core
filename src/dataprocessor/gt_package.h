@@ -17,6 +17,7 @@
 
 class QDomElement;
 class QDomDocument;
+class QDir;
 
 /**
  * @brief The GtPackage class
@@ -28,17 +29,17 @@ class GT_DATAMODEL_EXPORT GtPackage : public GtObject
 public:
     /**
      * @brief Module specific data read method.
-     * @param Root data.
+     *
      * @return Returns true if data was successfully read.
      */
-    virtual bool readData(const QDomElement& root);
+    virtual bool readData(const QDir& projectDir, const QDomElement& root);
 
     /**
      * @brief Module specific data save method.
-     * @param Root data.
+     *
      * @return Returns true if data was successfully read.
      */
-    virtual bool saveData(QDomElement& root, QDomDocument& doc);
+    virtual bool saveData(const QDir& projectDir, QDomElement& root, QDomDocument& doc);
 
 protected:
     /**
