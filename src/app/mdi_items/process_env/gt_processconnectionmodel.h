@@ -60,6 +60,8 @@ public:
      */
     void setMode(GtProcessConnectionModel::Modes mode);
 
+    GtProcessConnectionModel::Modes mode() const;
+
     /**
      * @brief rowCount
      * @param parent
@@ -132,7 +134,6 @@ public:
      */
     GtProcessConnectionItem* itemById(const QString& uuid,
                                       const QString& propId);
-
 private:
     /// Root item
     GtProcessConnectionItem* m_root;

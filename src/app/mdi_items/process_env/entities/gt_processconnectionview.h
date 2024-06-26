@@ -100,6 +100,18 @@ private:
     /// Pointer to graphics view widget.
     QPointer<GtProcessConnectionGraphicsView> m_graphicsView;
 
+private slots:
+    void customContextMenu(const QPoint& p);
+
+signals:
+    /**
+     * @brief triggerDeleteConnections
+     * @param uuid of the processcomponent to delete all connections of
+     * @param inPorts - indicator if the trigger is set for inport (true) or
+     * outports (false)
+     */
+    void triggerDeleteConnections(QString const& uuid, bool inPorts);
+
 };
 
 #endif // GTPROCESSCONNECTIONVIEW_H

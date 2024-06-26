@@ -76,6 +76,12 @@ GtProcessConnectionModel::setMode(GtProcessConnectionModel::Modes mode)
     }
 }
 
+GtProcessConnectionModel::Modes
+GtProcessConnectionModel::mode() const
+{
+    return m_mode;
+}
+
 int
 GtProcessConnectionModel::rowCount(const QModelIndex& parent) const
 {

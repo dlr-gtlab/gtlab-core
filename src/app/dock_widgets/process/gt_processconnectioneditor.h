@@ -28,6 +28,7 @@ class GtObjectMemento;
  */
 class GtProcessConnectionEditor : public GtDialog
 {
+    Q_OBJECT
 public:
     /**
      * @brief Constructor.
@@ -46,6 +47,15 @@ public:
      * @return Connection data.
      */
     GtObjectMemento connectionData();
+
+private slots:
+
+    /**
+     * @brief deleteAllConnections
+     * function to remove all connections currently part of the editor
+    */
+    void deleteAllConnections();
+
 
 private:
     /// Root task
