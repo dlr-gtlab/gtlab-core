@@ -11,8 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased 2.1]
-### Changed
- - GtPackage and all derived classes now use an additional project directory as its first argument in `GtPackage::read` and `GtPackage::save`. This will impact module code! - #617
+### Added
+ - New interface methods `GtPackage::readMiscData` and  `GtPackage::saveMiscData` to store package data outside of the package xml structure inside the project directory.
+   Both methods have the project directory as an argument, workarounds like currentProject()->path() can be hence avoided - #617
 
 ## [2.0.8] - 2024-06-19
 ### Fixed
