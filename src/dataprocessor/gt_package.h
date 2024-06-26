@@ -30,16 +30,34 @@ public:
     /**
      * @brief Module specific data read method.
      *
+     * Reads in package data from an xml node provided by GTlab
+     *
      * @return Returns true if data was successfully read.
      */
-    virtual bool readData(const QDir& projectDir, const QDomElement& root);
+    virtual bool readData(const QDomElement& root);
+
+    /**
+     * @brief Reads additional package data that are stored in the project dir
+     * @param projectDir Directory of the project
+     *
+     * @return Returns true if data was successfully read.
+     */
+    virtual bool readMiscData(const QDir& projectDir);
 
     /**
      * @brief Module specific data save method.
      *
      * @return Returns true if data was successfully read.
      */
-    virtual bool saveData(const QDir& projectDir, QDomElement& root, QDomDocument& doc);
+    virtual bool saveData(QDomElement& root, QDomDocument& doc);
+
+    /**
+     * @brief Saves additional package data that are stored in the project dir
+     * @param projectDir Directory of the project
+     *
+     * @return Returns true if data was successfully read.
+     */
+    virtual bool saveMiscData(const QDir& projectDir);
 
 protected:
     /**

@@ -19,7 +19,7 @@ GtPackage::GtPackage()
 }
 
 bool
-GtPackage::readData(const QDir&, const QDomElement& root)
+GtPackage::readData(const QDomElement& root)
 {
     QDomElement oe = root.firstChildElement("object");
     while (!oe.isNull())
@@ -61,8 +61,13 @@ GtPackage::readData(const QDir&, const QDomElement& root)
     return true;
 }
 
+bool GtPackage::readMiscData(const QDir &projectDir)
+{
+    return true;
+}
+
 bool
-GtPackage::saveData(const QDir& /*unused */, QDomElement& root, QDomDocument& /*doc*/)
+GtPackage::saveData(QDomElement& root, QDomDocument& /*doc*/)
 {
     foreach (GtObject* obj, findDirectChildren<GtObject*>())
     {
@@ -70,5 +75,10 @@ GtPackage::saveData(const QDir& /*unused */, QDomElement& root, QDomDocument& /*
         root.appendChild(memento.documentElement());
     }
 
+    return true;
+}
+
+bool GtPackage::saveMiscData(const QDir &projectDir)
+{
     return true;
 }
