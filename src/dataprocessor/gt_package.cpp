@@ -61,6 +61,11 @@ GtPackage::readData(const QDomElement& root)
     return true;
 }
 
+bool GtPackage::readMiscData(const QDir &projectDir)
+{
+    return true;
+}
+
 bool
 GtPackage::saveData(QDomElement& root, QDomDocument& /*doc*/)
 {
@@ -70,5 +75,10 @@ GtPackage::saveData(QDomElement& root, QDomDocument& /*doc*/)
         root.appendChild(memento.documentElement());
     }
 
+    return true;
+}
+
+bool GtPackage::saveMiscData(const QDir &projectDir)
+{
     return true;
 }
