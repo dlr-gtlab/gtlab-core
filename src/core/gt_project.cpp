@@ -618,7 +618,7 @@ GtProject::readModuleData()
 
         package->setUuid(uuid);
 
-        if (!package->readData(QDir(m_path), root))
+        if (!package->readData(root) && !package->readMiscData(QDir(m_path)))
         {
             gtWarning() << objectName() << ": "
                         << tr("Failed to read module data!")
@@ -679,7 +679,7 @@ GtProject::saveModuleData()
 
         document.appendChild(rootElement);
 
-        if (!package->saveData(QDir(m_path), rootElement, document))
+        if (!package->saveData(rootElement, document) && !package->saveMiscData(QDir(m_path)))
         {
             gtWarning().noquote()
                     << tr("Failed to save module data!")
