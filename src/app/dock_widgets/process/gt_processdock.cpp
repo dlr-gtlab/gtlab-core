@@ -1220,7 +1220,6 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
 void
 GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
 {
-//    if (indexList.isEmpty()) return;
 
     QMenu menu(this);
 
