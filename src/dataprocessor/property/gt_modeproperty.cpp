@@ -124,7 +124,7 @@ GtModeProperty::typeProperty(const QString& mode)
 }
 
 bool
-GtModeProperty::isSelected(const GtModeTypeProperty& type)
+GtModeProperty::isSelected(const GtModeTypeProperty& type) const
 {
     return this->get() == type.getVal();
 }

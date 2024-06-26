@@ -98,7 +98,7 @@ public:
      * @param type
      * @return true if the given mode type is the currently selected modetype
      */
-    bool isSelected(GtModeTypeProperty const& type);
+    bool isSelected(GtModeTypeProperty const& type) const;
 
 private:
     /// temporary propertylist for selected mode type
