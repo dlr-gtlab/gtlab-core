@@ -100,7 +100,7 @@ signals:
      * @param index - modelindex for which the signal is emited
      * @param skip - bool as flag to skip or unskip
      */
-    void skipCalcultorElement(const QModelIndex& index, bool skip);
+    void skipCalcultorElement(const QList<QModelIndex>& index, bool skip);
 
     /**
      * @brief renameProcessElement

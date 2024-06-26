@@ -127,7 +127,7 @@ public slots:
      * @brief sets skip status to components at indexes
      * @param indexlist
      */
-    void skipComponent(const QList<QModelIndex>& indexList, bool skip = true);
+    void skipComponents(const QList<QModelIndex>& indexList, bool skip = true);
 
     /**
      * @brief sets skip status to component
