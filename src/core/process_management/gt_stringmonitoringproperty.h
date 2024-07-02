@@ -15,35 +15,8 @@
 #include "gt_core_exports.h"
 
 #include "gt_stringproperty.h"
-#include "gt_monitoringproperty.h"
 
-/**
- * @brief The GtStringMonitoringProperty class
- */
-class GT_CORE_EXPORT GtStringMonitoringProperty :
-        public GtStringProperty, public GtMonitoringProperty
-{
-    Q_OBJECT
-public:
-    using GtProperty<QString>::operator=;
-
-    /**
-     * @brief GtStringMonitoringProperty
-     * @param ident for the datamodel
-     * @param name shown in the GUI
-     */
-    Q_INVOKABLE GtStringMonitoringProperty(const QString& ident,
-                                           const QString& name);
-    /**
-     * @brief GtStringMonitoringProperty
-     * @param ident for the datamodel
-     * @param name shown in the GUI
-     * @param brief description text
-     */
-    Q_INVOKABLE GtStringMonitoringProperty(const QString& ident,
-                                           const QString& name,
-                                           const QString& brief);
-};
+using GtStringMonitoringProperty = GtStringProperty;
 
 namespace gt
 {

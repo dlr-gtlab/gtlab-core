@@ -20,7 +20,7 @@
 
 #include "gt_processcomponent.h"
 #include "gt_objectmemento.h"
-#include "gt_intmonitoringproperty.h"
+#include "gt_intproperty.h"
 #include "gt_monitoringdatatable.h"
 #include "gt_accessselectionproperty.h"
 
@@ -170,7 +170,7 @@ protected:
     GtIntProperty m_maxIter;
 
     /// Current iteration
-    GtIntMonitoringProperty m_currentIter;
+    GtIntProperty m_currentIter;
 
     /// Last evaluation state
     GtTask::EVALUATION m_lastEval;
