@@ -14,7 +14,6 @@
 
 #include <QKeyEvent>
 
-
 GtShortCutEdit::GtShortCutEdit(const QKeySequence& shortcut,
                                const QString& shortcutID,
                                QWidget* parent) :
@@ -52,7 +51,7 @@ void
 GtShortCutEdit::setKeySequence(const QKeySequence& seq)
 {
     m_keySequence = seq;
-    this->setText(seq.toString());
+    this->GtLineEdit::setText(seq.toString());
 }
 
 void
@@ -64,7 +63,7 @@ GtShortCutEdit::keyPressEvent(QKeyEvent* event)
     if (event->key() == Qt::Key_Escape)
     {
         // clear input if nothing was set
-        if (this->text().isEmpty())
+        if (this->GtLineEdit::text().isEmpty())
         {
             this->clear();
         }
@@ -111,7 +110,7 @@ GtShortCutEdit::keyPressEvent(QKeyEvent* event)
 
         if (!text.isEmpty())
         {
-            this->setText(text + QStringLiteral("..."));
+            this->GtLineEdit::setText(text + QStringLiteral("..."));
         }
         return;
     }
@@ -124,14 +123,14 @@ GtShortCutEdit::keyPressEvent(QKeyEvent* event)
         // dont allow simple keys (eg. chars and numbers)
         if (text.length() == 1)
         {
-            this->setText(QStringLiteral("...") + text);
+            this->GtLineEdit::setText(QStringLiteral("...") + text);
             return;
         }
     }
 
     // valid key combination
     m_lastKey = key;
-    this->setText(QKeySequence(key | modifiers).toString());
+    this->GtLineEdit::setText(QKeySequence(key | modifiers).toString());
 }
 
 void
@@ -161,14 +160,14 @@ GtShortCutEdit::onFocusOut()
     setPlaceholderText(QStringLiteral(""));
 
     // incomplete keysequence (only modifiers)
-    if (this->text().contains(QStringLiteral("...")))
+    if (this->GtLineEdit::text().contains(QStringLiteral("...")))
     {
         //restore old keysequence
         setKeySequence(m_keySequence);
         return;
     }
 
-    setKeySequence(this->text());
+    setKeySequence(this->GtLineEdit::text());
 }
 
 void

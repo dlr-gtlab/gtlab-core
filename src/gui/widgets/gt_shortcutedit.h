@@ -16,18 +16,34 @@
 
 #include "gt_lineedit.h"
 #include <QKeySequence>
+#include <QTableWidgetItem>
 
 /**
  * @brief The GtShortCutEdit class
  * Used to input a keysequence for a short cut (single key + multiple modifers).
  */
-class GT_GUI_EXPORT GtShortCutEdit : public GtLineEdit
+class GT_GUI_EXPORT GtShortCutEdit : public GtLineEdit, public QTableWidgetItem
 {
     Q_OBJECT
 
     Q_PROPERTY(QKeySequence keySequence READ keySequence WRITE setKeySequence)
 
 public:
+
+    bool operator <(const QTableWidgetItem& other) const
+    {
+        if(other.column() == 0 /* numeric cell */) {
+             return QTableWidgetItem::text().toInt() < other.text().toInt();
+        }
+        else if(other.column() == 1 /* progress bar */) {
+            const GtLineEdit *p = dynamic_cast<const GtLineEdit *>(&other);
+            if(p != 0) {
+                if(this->GtLineEdit::text() < p->text())
+                    return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * @brief GtShortCutEdit constructor
