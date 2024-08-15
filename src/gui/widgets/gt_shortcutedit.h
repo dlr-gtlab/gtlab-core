@@ -30,18 +30,23 @@ class GT_GUI_EXPORT GtShortCutEdit : public GtLineEdit, public QTableWidgetItem
 
 public:
 
+    /**
+     * @brief operator < for sorting GtLineEdits
+     * @param other
+     * @return
+     */
     bool operator <(const QTableWidgetItem& other) const
     {
-        if(other.column() == 0 /* numeric cell */) {
-             return QTableWidgetItem::text().toInt() < other.text().toInt();
-        }
-        else if(other.column() == 1 /* progress bar */) {
+        if (other.column() == 1)
+        {
             const GtLineEdit *p = dynamic_cast<const GtLineEdit *>(&other);
-            if(p != 0) {
-                if(this->GtLineEdit::text() < p->text())
-                    return true;
+
+            if (p)
+            {
+                if (this->GtLineEdit::text() < p->text()) return true;
             }
         }
+
         return false;
     }
 
