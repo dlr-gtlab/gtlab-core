@@ -85,7 +85,7 @@ gt::console::run(const QStringList &args)
         else if (p.positionalArguments().size() < 2 ||
                 p.positionalArguments().size() > 3)
         {
-            gtError() << QObject::tr("Invalid usage of file option");
+            gtError() << QObject::tr("Invalid number of arguments of file option");
             return -1;
         }
 
