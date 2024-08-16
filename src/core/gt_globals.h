@@ -14,6 +14,8 @@
 
 #include "gt_version.h"
 
+#include <QStringList>
+
 #define GT_MAINTENANCETOOL "MaintenanceTool"
 
 #ifndef GT_MODULE_ID
@@ -27,5 +29,23 @@ Please define the macro using -DGT_MODULE_ID =<module_id>
 #define deprecated_from(major, minor, message)                             \
 [[deprecated("Will be removed in GTlab " \
     #major "." #minor ". " message)]] \
+
+template <typename InterfaceType>
+inline QStringList gtGetOutdatedItfVersions()
+{
+    return {};
+}
+
+/**
+ * Defines previous interface versions for error tracking
+ *
+ * Usage:
+ *
+ * GT_OLD_INTERFACES(GtModuleInterface,
+ *                  "de.dlr.gtlab.GtModuleInterface/1.7",
+ *                  "de.dlr.gtlab.GtModuleInterface/2.0")
+ */
+#define GT_OLD_INTERFACES(TYPE, ...) template <> \
+inline QStringList gtGetOutdatedItfVersions<TYPE>() {return {__VA_ARGS__};}
 
 #endif // GT_GLOBALS_H

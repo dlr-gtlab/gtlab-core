@@ -608,6 +608,21 @@ GtModuleLoader::moduleLicence(const QString& id) const
 
     return QString();
 }
+
+QString
+GtModuleLoader::getSupportedInterfaceByModule(QObject *pluginObj,
+                                              const QStringList &listOfInterfaces)
+{
+    QStringList supportedInterfaces;
+    for (const QString& interfaceName : listOfInterfaces)
+    {
+        if (pluginObj->qt_metacast(interfaceName.toUtf8().constData()))
+            return interfaceName;
+    }
+
+    return "unknown";
+}
+
 QString
 GtModuleLoader::modulePackageId(const QString& id) const
 {
@@ -664,7 +679,8 @@ GtModuleLoader::check(GtModuleInterface* plugin) const
         return false;
     }
 
-    GtDatamodelInterface* dmp = dynamic_cast<GtDatamodelInterface*>(plugin);
+    GtDatamodelInterface* dmp = checkInterface<GtDatamodelInterface>(
+        plugin->ident(), plugin);
 
     // contains dynamic linked datamodel classes
     if (dmp)
@@ -857,8 +873,8 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
                 << QObject::tr("loading ") << moduleMeta.location() << "...";
 
         // check that plugin is a GTlab module
-        auto module =
-            gt::unique_qobject_cast<GtModuleInterface>(std::move(plugin));
+        checkInterface<GtModuleInterface>(moduleMeta.location(), plugin.get());
+        auto module = gt::unique_qobject_cast<GtModuleInterface>(std::move(plugin));
 
         if (module && moduleLoader.check(module.get()))
         {
