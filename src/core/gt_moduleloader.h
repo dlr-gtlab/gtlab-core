@@ -19,6 +19,7 @@
 #include <memory>
 
 #include <gt_logging.h>
+#include <gt_globals.h>
 
 class QStringList;
 class QJsonObject;
