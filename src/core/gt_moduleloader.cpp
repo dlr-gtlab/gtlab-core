@@ -611,16 +611,14 @@ GtModuleLoader::moduleLicence(const QString& id) const
 
 QString
 GtModuleLoader::getSupportedInterfaceByModule(QObject *pluginObj,
-                                              const QStringList &listOfInterfaces)
+                                              const QStringList &lOfItfs)
 {
-    QStringList supportedInterfaces;
-    for (const QString& interfaceName : listOfInterfaces)
-    {
-        if (pluginObj->qt_metacast(interfaceName.toUtf8().constData()))
-            return interfaceName;
-    }
+    auto found = std::find_if(std::begin(lOfItfs), std::end(lOfItfs),
+                 [&pluginObj](const QString& itfName) {
+        return pluginObj->qt_metacast(itfName.toUtf8().constData()) != nullptr;
+    });
 
-    return "unknown";
+    return found != lOfItfs.end() ? *found : "unknown";
 }
 
 QString
