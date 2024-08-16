@@ -34,16 +34,18 @@ GtProcessModuleLoader::GtProcessModuleLoader()
 bool
 GtProcessModuleLoader::check(GtModuleInterface* plugin) const
 {
-    const auto errorString = [=](){
-        return QObject::tr("Loading module '%1' failed:").arg(plugin->ident());
-    };
 
     if (!GtModuleLoader::check(plugin))
     {
         return false;
     }
 
-    GtProcessInterface* proi = dynamic_cast<GtProcessInterface*>(plugin);
+    const auto errorString = [=](){
+        return QObject::tr("Loading module '%1' failed:").arg(plugin->ident());
+    };
+
+    GtProcessInterface* proi = checkInterface<GtProcessInterface>(
+        plugin->ident(), plugin);
 
     if (proi)
     {
@@ -85,8 +87,8 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
         }
     }
 
-    GtCalculatorExecInterface* cexecp =
-            dynamic_cast<GtCalculatorExecInterface*>(plugin);
+    GtCalculatorExecInterface* cexecp = checkInterface<GtCalculatorExecInterface>(
+        plugin->ident(), plugin);
 
     // contains dynamic linked calculator execution classes
     if (cexecp)
@@ -94,7 +96,8 @@ GtProcessModuleLoader::check(GtModuleInterface* plugin) const
         // check for GtAbstractCalculatorExecutor class
     }
 
-    GtNetworkInterface* neti = dynamic_cast<GtNetworkInterface*>(plugin);
+    GtNetworkInterface* neti = checkInterface<GtNetworkInterface>(
+        plugin->ident(), plugin);
 
     if (neti)
     {

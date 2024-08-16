@@ -18,6 +18,8 @@
 
 #include <memory>
 
+#include <gt_logging.h>
+
 class QStringList;
 class QJsonObject;
 class QPluginLoader;
@@ -148,6 +150,19 @@ public:
      * @return module licence information
      */
     QString moduleLicence(const QString& id) const;
+
+    /**
+     * @brief Used to find out for which interface version a module was built against
+     *
+     * Should be called on one type of interface at a time,
+     * as it only returns one interface.
+     *
+     * @param pluginObj           The plugin object
+     * @param listOfInterfaces    A list of know interface ids
+     * @return
+     */
+    static QString getSupportedInterfaceByModule(
+        QObject* pluginObj, const QStringList& listOfInterfaces);
 protected:
     /**
      * @brief check
@@ -167,5 +182,41 @@ private:
     class Impl;
     std::unique_ptr<Impl> m_pimpl;
 };
+
+
+/**
+ * @brief Helper function to check, whether a module support a specific interface
+ * @param soName The name / filename of a module
+ * @param plugin The pointer to a module
+ * @return
+ */
+template<typename InterfaceType, typename Plugin>
+inline InterfaceType* checkInterface(const QString& soName, Plugin* plugin)
+{
+    auto obj = dynamic_cast<QObject*>(plugin);
+    if (!obj) return nullptr;
+
+    InterfaceType* itf = qobject_cast<InterfaceType*>(obj);
+
+    if (!itf && dynamic_cast<InterfaceType*>(obj))
+    {
+        // The interface ID does not match, but it is the same class.
+        // Thus, we have a version mismatch
+
+        // find out for which old version the module was compiled
+        auto oldItf = GtModuleLoader::getSupportedInterfaceByModule(
+            obj, gtGetOutdatedItfVersions<InterfaceType>());
+
+        gtError() << QObject::tr("Version mismatch of module '%1' "
+                                 "with GTlab interface '%2'. "
+                                 "It was compiled against '%3'")
+                         .arg(soName,
+                              qobject_interface_iid<InterfaceType*>(),
+                              oldItf);
+
+    }
+
+    return itf;
+}
 
 #endif // GTMODULELOADER_H

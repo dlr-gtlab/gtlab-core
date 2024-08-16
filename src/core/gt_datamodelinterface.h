@@ -13,6 +13,8 @@
 
 #include "gt_core_exports.h"
 
+#include "gt_globals.h"
+
 #include <QtPlugin>
 
 /**
@@ -51,8 +53,11 @@ public:
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(GtDatamodelInterface,
-                    "de.dlr.gtlab.GtDatamodelInterface/0.1")
+                    "de.dlr.gtlab.GtDatamodelInterface/2.1")
 QT_END_NAMESPACE
+
+GT_OLD_INTERFACES(GtDatamodelInterface,
+                  "de.dlr.gtlab.GtDatamodelInterface/0.1")
 
 #endif // GT_DATAMODELINTERFACE_H
 

@@ -218,4 +218,8 @@ Q_DECLARE_INTERFACE(GtModuleInterface,
                     "de.dlr.gtlab.GtModuleInterface/2.0")
 QT_END_NAMESPACE
 
+
+GT_OLD_INTERFACES(GtModuleInterface,
+                  "de.dlr.gtlab.GtModuleInterface/1.7")
+
 #endif // GT_MODULEINTERFACE_H
