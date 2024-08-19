@@ -430,7 +430,6 @@ private slots:
 
     void currentTaskGroupIndexChanged(int index);
 
-    void moveElements(const QList<QModelIndex>& source, const QModelIndex& target);
 signals:
     /**
      * @brief selectedObjectChanged
