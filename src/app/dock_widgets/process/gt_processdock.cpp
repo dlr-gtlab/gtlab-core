@@ -967,6 +967,7 @@ GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
     if (m_view->selectionModel()->selectedRows(0).size() > 1)
     {
         multiSelectionContextMenu(m_view->selectionModel()->selectedIndexes());
+        return;
     }
 
     // single selection
