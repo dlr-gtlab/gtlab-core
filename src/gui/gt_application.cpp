@@ -541,7 +541,7 @@ GtApplication::endCommand(const GtCommand& command)
 
     if (!command.isValid())
     {
-        gtDebug().medium() << tr("command is invalid!");
+        gtWarning().medium() << tr("command is invalid!");
         return;
     }
 

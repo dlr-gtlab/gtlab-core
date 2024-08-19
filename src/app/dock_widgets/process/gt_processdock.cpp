@@ -1398,10 +1398,12 @@ GtProcessDock::renameElement()
     }
 }
 
-QList<GtObject*>
-GtProcessDock::findObjectsOfSameParent(
-        const QList<QModelIndex>& source) const
+void
+GtProcessDock::moveElements(const QList<QModelIndex>& source,
+                            const QModelIndex& target)
 {
+    if (source.isEmpty()) return;
+
     // collect the objects to move
     QList<QModelIndex> mapped;
 
@@ -1410,13 +1412,7 @@ GtProcessDock::findObjectsOfSameParent(
         if (i.isValid()) mapped.append(mapToSource(i));
     }
 
-    std::sort(mapped.begin(),  mapped.end(), [] (
-              const QModelIndex& i, const QModelIndex& j)
-    {
-        return i.row() < j.row();
-    });
-
-    if (mapped.isEmpty()) return {};
+    if (mapped.isEmpty()) return;
 
     QList<GtObject*> objectsToMove;
 
@@ -1435,24 +1431,12 @@ GtProcessDock::findObjectsOfSameParent(
             {
                 gtWarning() << tr("It is only allowed to move elements of the "
                                   "same task");
-                return {};
+                return;
             }
 
-            if (!objectsToMove.contains(p)) objectsToMove.append(p);
+            objectsToMove.append(p);
         }
     }
-
-    return objectsToMove;
-}
-
-
-void
-GtProcessDock::moveElements(const QList<QModelIndex>& source,
-                            const QModelIndex& target)
-{
-    if (source.isEmpty()) return;
-
-    QList<GtObject*> objectsToMove = findObjectsOfSameParent(source);
 
     // if no valid object to move could be found leave
     if (objectsToMove.isEmpty()) return;
@@ -1461,7 +1445,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
     if (!target.isValid())
     {
         // check if all selected elements are tasks
-        for (auto* o : qAsConst(objectsToMove))
+        for (auto* o : objectsToMove)
         {
             if (!qobject_cast<GtTask*>(o))
             {
@@ -1474,7 +1458,7 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
         auto _ = gtApp->makeCommand(m_taskGroup, tr("move tasks element"));
         Q_UNUSED(_);
 
-        for (auto o : qAsConst(objectsToMove))
+        for (auto o : objectsToMove)
         {
             gtDataModel->appendChild(o, m_taskGroup);
         }
@@ -1488,159 +1472,57 @@ GtProcessDock::moveElements(const QList<QModelIndex>& source,
 
     auto targetComp = qobject_cast<GtProcessComponent*>(targetObject);
 
-    // check if target index is an processComponent
     if (!targetComp) return;
 
-    // commonParent is used to have a minimal overhead to define undo/redo
-    QList<GtObject*> helper = objectsToMove;
 
-    helper.append(targetComp);
-
-    auto* commonParent = gt::find_lowest_ancestor(helper,
+    auto* commonParent = gt::find_lowest_ancestor(objectsToMove << targetComp,
                                                   gt::get_parent_object);
     assert(commonParent);
+
 
     auto _ = gtApp->makeCommand(commonParent, tr("move process element"));
     Q_UNUSED(_);
 
-    auto taskParent = qobject_cast<GtTask*>(targetComp);
-
-    if (!taskParent)
+    if (auto taskParent = qobject_cast<GtTask*>(targetComp))
     {
-        GtObject* targetparent = targetComp->parentObject();
-
-        taskParent = qobject_cast<GtTask*>(targetparent);
-    }
-
-    // invlid entry in process dock widget
-    if (!taskParent) return;
-
-    int moveIndex = mappedTarget.row();
-
-    // this prevents problems for the insert function if the rowIndex 1 is
-    // found (might happen for an empty task)
-    if (taskParent->findChildren<GtProcessComponent*>().size() < 1)
-    {
-        moveIndex = 0;
-    }
-
-    // index to help to append multiple elements in the correct order
-    int insertionIndexAddOn = 0;
-
-    // find highest parent of the elements to move
-    GtTask* highestParent = gt::gui::detail::highestParentTask(
-                qobject_cast<GtProcessComponent*>(objectsToMove.first()));
-
-    // collect a list of moved elements
-    QList<GtObject*> finalyMovedObjects;
-
-    for (auto o : qAsConst(objectsToMove))
-    {
-        if (o == taskParent) continue;
-
-        // if parent is not reset before the insert function
-        // does not work. But remember old parent to use if insert failes
-        GtObject* oldParent = o->parentObject();
-        o->setParent(nullptr);
-
-        QModelIndex check = gtDataModel->insertChild(
-                    o, taskParent, moveIndex + insertionIndexAddOn);
-
-        if (!check.isValid())
+        for (auto o : objectsToMove)
         {
-            gtWarning() << tr("Process element '%1' could not be "
-                              "moved to %2 in row %3").arg(
-                               o->objectName(),
-                               taskParent->objectName(),
-                               QString::number(mappedTarget.row()));
-            o->setParent(oldParent);
+            gtDataModel->appendChild(o, taskParent);
         }
-        else
-        {
-            insertionIndexAddOn++;
-            finalyMovedObjects.append(o);
-        }
-    }
 
-    moveConnections(highestParent, taskParent, finalyMovedObjects);
-}
-
-void
-GtProcessDock::moveConnections(GtTask* highestParent,
-                               GtTask* taskParent,
-                               QList<GtObject*> finalyMovedObjects)
-{
-    // connection movment has only to be done if the new highest parent task
-    // is not the old highest parent task
-
-    // find
-    GtTask* newHighestParent = gt::gui::detail::highestParentTask(taskParent);
-
-    if (highestParent == newHighestParent)
-    {
-        gtTrace() << tr("Task internal move does not imply need of connection"
-                        "move");
         return;
     }
 
-    // if e.g a task is moved the connections of its children has to be
-    // analyzed, too.
-    QList<GtObject*> childrenToAppend;
-    for (auto* o : finalyMovedObjects)
-    {
-        childrenToAppend.append(o->findChildren<GtObject*>());
-    }
+    GtObject* targetparent = targetComp->parentObject();
 
-    for (auto* o : qAsConst(childrenToAppend))
+    if (auto tp = qobject_cast<GtTask*>(targetparent))
     {
-        if (!finalyMovedObjects.contains(o))
+        // to keep the order the swap is neede if the new parent is
+        //  not the current parent
+        if (objectsToMove.first()->parentObject() != tp)
         {
-            finalyMovedObjects.append(o);
+            std::reverse(objectsToMove.begin(), objectsToMove.end());
+        }
+
+        for (auto o: objectsToMove)
+        {
+            // if parent is not reset before the insert function
+            // does not work. But remember old parent to use if insert failes
+            GtObject* oldParent = o->parentObject();
+            o->setParent(nullptr);
+
+            QModelIndex check = gtDataModel->insertChild(o, tp,
+                                                         mappedTarget.row());
+
+            if (!check.isValid())
+            {
+                gtWarning() << tr("Process element '%1' could not be "
+                                  "moved").arg(o->objectName());
+                o->setParent(oldParent);
+            }
         }
     }
 
-    QList<GtPropertyConnection*> propCons =
-            highestParent->findDirectChildren<GtPropertyConnection*>();
-
-    QList<GtPropertyConnection*> consToMove;
-    QList<GtPropertyConnection*> consToDelete;
-
-    for (auto* propCon : qAsConst(propCons))
-    {
-        GtObject* sourceObj =
-            m_taskGroup->getObjectByUuid(propCon->sourceUuid());
-        GtObject* targetObj =
-            m_taskGroup->getObjectByUuid(propCon->targetUuid());
-
-        if (!sourceObj || !targetObj) continue;
-
-        // both connection ends are moved elements
-        if (finalyMovedObjects.contains(sourceObj) &&
-                finalyMovedObjects.contains(targetObj))
-        {
-            consToMove.append(propCon);
-        }
-        // only one end of the connection is moved to another root task
-        else if (finalyMovedObjects.contains(sourceObj) ||
-                 finalyMovedObjects.contains(targetObj))
-        {
-            consToDelete.append(propCon);
-        }
-    }
-
-    detail::setOffLostConnectionWarnings(
-                consToDelete, detail::highestParentTask(highestParent));
-
-    // conversion to call function
-    QList<GtObject*> consToDelete2;
-    for (auto i : qAsConst(consToDelete)) consToDelete2.append(i);
-    gtDataModel->deleteFromModel(consToDelete2);
-
-    for (auto* propCon : qAsConst(consToMove))
-    {
-        propCon->setParent(nullptr);
-        newHighestParent->appendChild(propCon);
-    }
 }
 
 void
@@ -2180,13 +2062,6 @@ GtProcessDock::mapToSource(const QModelIndex& index)
 
     return m_model->mapToSource(tmp1);
 }
-
-QModelIndex
-GtProcessDock::mapToSource(const QModelIndex& index) const
-{
-    return const_cast<GtProcessDock*>(this)->mapToSource(index);
-}
-
 
 QModelIndex
 GtProcessDock::mapFromSource(const QModelIndex& index)
