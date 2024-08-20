@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed "GTlabConsole run -f project.gtlab -s" not saving changes to the project - #1254
 - Fixed task group argument ignored in batch command "GTlabConsole run -f project.gtlab" - #1254
 
+### Fixed
+ - Fixed alphabetically sorting of Shortcuts in Preference View #482
+
 ## [2.0.8] - 2024-06-19
 ### Fixed
 - Fixed bug introduced in 2.0.7, that "GTlabConsole run" does not save projects anymore. This change reverts
