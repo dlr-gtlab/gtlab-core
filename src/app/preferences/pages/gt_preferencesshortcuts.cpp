@@ -94,10 +94,11 @@ GtPreferencesShortCuts::GtPreferencesShortCuts() :
         if (!editable)
         {
             edit->setEnabled(false);
-            edit->setToolTip(tr("Not editable"));
+            edit->GtLineEdit::setToolTip(tr("Not editable"));
         }
 
         m_tab->setItem(i, 0, idItem);
+        m_tab->setItem(i, 1, edit);
         m_tab->setItem(i, 2, catItem);
         ++i;
     }
