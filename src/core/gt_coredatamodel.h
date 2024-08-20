@@ -132,14 +132,6 @@ public:
     bool newProject(GtProject* project, bool doOpen);
 
     /**
-     * @brief Adds given project to current session and opens it
-     *
-     * See: newProject(project, doOpen)
-     */
-    [[deprecated("Use newProject(project, doOpen) instead")]]
-    bool newProject(GtProject* project);
-
-    /**
      * @brief Returns the number of columns for the children of the given
      * parent.
      * @param Parent model index
@@ -384,49 +376,5 @@ signals:
     void projectSaved(GtProject* project);
 
 };
-
-template<typename ObjectList, typename GetNameFunc>
-[[deprecated("Use gt::detail::makeUniqueNameImpl instead")]]
-QString _getUniqueName_impl(const QString& name,
-                            const ObjectList& objs,
-                            GetNameFunc getName,
-                            QString initName,
-                            int iteration)
-{
-    return gt::detail::makeUniqueNameImpl(
-                name, objs, std::move(getName), std::move(initName));
-}
-
-/**
- * @brief Returns a unique name given a list of objects names
- *
- * @param name The base name. If e.g. "aa" already exists, "aa[1]" is returned
- * @param objs List of objects to query from
- * @param func A function to get the name from an object
- * @return A unique name
- */
-template<typename ObjectList, typename GetNameFunc>
-[[deprecated("Use gt::makeUniqueName instead")]]
-QString getUniqueName(const QString& name,
-                      const ObjectList& objs,
-                      GetNameFunc getName)
-{
-    return gt::makeUniqueName(name, objs, getName);
-}
-
-/**
- * @brief Returns a unique name given a list of names
- *
- * @param name The base name. If e.g. "aa" already exists, "aa[1]" is returned
- * @param names List of names to query from
- * @return A unique name
- */
-template<typename StringList>
-[[deprecated("Use gt::makeUniqueName instead")]]
-QString getUniqueName(const QString& name,
-                      const StringList& names)
-{
-    return gt::makeUniqueName(name, names);
-}
 
 #endif // GTCOREDATAMODEL_H

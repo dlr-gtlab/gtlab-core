@@ -74,9 +74,6 @@ public:
         clear();
     }
 
-    [[deprecated("Use finalize instead")]]
-    void exec() { return finalize(); };
-
     /**
      * @brief Clears object
      */

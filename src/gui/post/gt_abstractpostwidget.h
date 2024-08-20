@@ -127,20 +127,6 @@ public:
     bool isPrintable();
 
     /**
-     * @brief iconString
-     * @return
-     */
-    [[deprecated("Use icon instead")]]
-    QString iconString();
-
-    /**
-     * @brief setIconString
-     * @param iconString
-     */
-    [[deprecated("Use setIcon instead")]]
-    void setIconString(const QString& iconString);
-
-    /**
      * @brief Returns the icon of the post widget
      * @return icon
      */
@@ -205,10 +191,7 @@ private:
 
     bool m_printable;
 
-    // We should use a QIcon member here instead of the QString.
-    // However this might break the ABI
-    [[deprecated("Use a QIcon member instead")]]
-    QString m_iconString;
+    QIcon m_icon;
 
     /// List of UI actions
     GtActionList m_actionList;
