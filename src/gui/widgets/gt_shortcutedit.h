@@ -41,10 +41,7 @@ public:
         {
             const GtLineEdit *p = dynamic_cast<const GtLineEdit *>(&other);
 
-            if (p)
-            {
-                if (this->GtLineEdit::text() < p->text()) return true;
-            }
+            if (p && this->GtLineEdit::text() < p->text()) return true;
         }
 
         return false;
