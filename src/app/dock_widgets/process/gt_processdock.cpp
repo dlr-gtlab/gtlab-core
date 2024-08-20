@@ -187,7 +187,7 @@ GtProcessDock::GtProcessDock() :
             SLOT(pasteElement(QModelIndex)));
     connect(m_view, SIGNAL(runTaskElement(QModelIndex)),
             SLOT(runProcess()));
-    connect(m_view, SIGNAL(skipCalcultorElement(const QList<QModelIndex>&,bool)),
+    connect(m_view, SIGNAL(skipCalculatorElements(const QList<QModelIndex>&,bool)),
             SLOT(skipComponents(const QList<QModelIndex>&,bool)));
     connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
@@ -2052,12 +2052,9 @@ GtProcessDock::skipComponents(const QList<QModelIndex>& indexList, bool skip)
 
         if (!pc) continue;
 
-        if (!pcs.contains(pc))
+        if (!pcs.contains(pc) && pc->isSkipped() != skip)
         {
-            if (pc->isSkipped() != skip)
-            {
-                pcs.append(pc);
-            }
+            pcs.append(pc);
         }
     }
 

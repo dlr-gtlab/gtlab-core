@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed crash when deleting multiple calculators or task via the context menu - #1266
 
 ### Added
-- Added option to skip/unskip multiple process elements at once - #1226
+- Added option to skip/unskip multiple process elements at once via keyboard shortcut - #1226
 
 ## [2.0.9] - 2024-06-20
 ### Fixed

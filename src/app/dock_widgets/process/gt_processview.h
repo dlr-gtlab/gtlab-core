@@ -96,11 +96,11 @@ signals:
     void runTaskElement(const QModelIndex& index);
 
     /**
-     * @brief skipCalcultorElement
+     * @brief skipCalculatorElements
      * @param index - modelindex for which the signal is emited
      * @param skip - bool as flag to skip or unskip
      */
-    void skipCalcultorElement(const QList<QModelIndex>& index, bool skip);
+    void skipCalculatorElements(const QList<QModelIndex>& index, bool skip);
 
     /**
      * @brief renameProcessElement

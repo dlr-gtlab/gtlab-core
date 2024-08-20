@@ -113,14 +113,14 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
 
         if (gtApp->compareKeyEvent(event, "skipProcess", "GtProcessDock"))
         {
-            emit skipCalcultorElement(indexes, true);
+            emit skipCalculatorElements(indexes, true);
             event->accept();
             return;
         }
 
         if (gtApp->compareKeyEvent(event, "unskipProcess", "GtProcessDock"))
         {
-            emit skipCalcultorElement(indexes, false);
+            emit skipCalculatorElements(indexes, false);
             event->accept();
             return;
         }
