@@ -75,7 +75,7 @@ GtEnvironmentModel::data(const QModelIndex& index, int role) const
     switch (role)
     {
     case Qt::EditRole:
-        break;
+        retVal = valId;
 
     case Qt::DisplayRole:
         if (col == 0)
