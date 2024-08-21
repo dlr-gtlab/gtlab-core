@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added option to skip/unskip multiple process elements at once via keyboard shortcut - #1226
 
+### Changed
+- Setting the value of a enum property via `GtEnumProperty::setValueFromVariant` does not change the value,
+  if the variant string is invalid, i.e. is not an enum value. - #609
+
 ## [2.0.9] - 2024-06-20
 ### Fixed
 - Fixed "GTlabConsole run -f project.gtlab -s" not saving changes to the project - #1254
