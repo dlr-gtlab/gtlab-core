@@ -39,9 +39,10 @@ GtPropertyIdDelegate::paint(QPainter* painter,
         QStyledItemDelegate::paint(painter, option, index);
 
         bool isContainer = index.data(GtPropertyModel::ContainerRole).toBool();
+        bool isReadonly = index.data(GtPropertyModel::ReadOnlyRole).toBool();
 
         // draw delete button
-        if (isContainer)
+        if (isContainer && !isReadonly)
         {
             painter->save();
 
@@ -72,8 +73,9 @@ GtPropertyIdDelegate::editorEvent(QEvent* event,
     }
 
     bool isContainer = index.data(GtPropertyModel::ContainerRole).toBool();
+    bool isReadonly = index.data(GtPropertyModel::ReadOnlyRole).toBool();
 
-    if (!isContainer)
+    if (!isContainer || isReadonly)
     {
         return QStyledItemDelegate::editorEvent(event, model, option, index);
     }
