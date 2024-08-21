@@ -173,17 +173,13 @@ inline void GtEnumProperty<T>::setVal(const T value, bool* success)
 template<typename T>
 inline bool GtEnumProperty<T>::setValueFromVariant(const QVariant &value, const QString &unit)
 {
-    bool succeed = false;
-    const QString tmpVal = val.toString();
     //Check if it is possible to convert value into an enum value
-    getMetaEnum().keyToValue(tmpVal.toUtf8(), &succeed);
+    bool canConvert = false;
+    getMetaEnum().keyToValue(value.toString().toUtf8(), &canConvert);
 
-    if (succeed)
-    {
-        succeed = GtModeProperty::setValueFromVariant(val, unit);
-    }
+    if (!canConvert) return false;
 
-    return succeed;
+    return GtModeProperty::setValueFromVariant(value, unit);
 }
 
 template<typename T>

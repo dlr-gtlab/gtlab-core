@@ -65,3 +65,16 @@ TEST_F(TestGtEnumProperty, implicitConversions)
     m_propScoped.setVal(EnumContainer::TestScopedEnum::Pear);
     ASSERT_EQ(m_propScoped, EnumContainer::TestScopedEnum::Pear);
 }
+
+TEST_F(TestGtEnumProperty, valueFromVariant)
+{
+    m_prop.setVal(EnumContainer::TestEnum::C);
+    EXPECT_EQ(m_prop, EnumContainer::TestEnum::C);
+
+    EXPECT_TRUE(m_prop.setValueFromVariant("B", ""));
+    EXPECT_EQ(m_prop, EnumContainer::TestEnum::B);
+
+    // the value should not change, if the string is invalid
+    EXPECT_FALSE(m_prop.setValueFromVariant("InvalidString", ""));
+    EXPECT_EQ(m_prop, EnumContainer::TestEnum::B);
+}
