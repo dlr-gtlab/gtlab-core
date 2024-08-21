@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Major performance improvement of the objectlink selection dialog - #1206
 - Fixed crash when deleting multiple calculators or task via the context menu - #1266
 
 ### Added
