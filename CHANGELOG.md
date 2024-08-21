@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fixed crash when deleting multiple calculators or task via the context menu - #1266
+- Fixed deletion of environment variable value, when trying to edit it via gtlab settings - #1268
 
 ### Added
 - Added option to skip/unskip multiple process elements at once via keyboard shortcut - #1226
