@@ -220,11 +220,9 @@ GtProcessConnectionView::customContextMenu(QPoint const& p)
 
     if (!connModel) return;
 
-    GtProcessConnectionItem* i = connModel->itemFromIndex(index);
+    GtProcessConnectionItem* item = connModel->itemFromIndex(index);
 
-    if (!i) return;
-
-    if (i->itemType() != GtProcessConnectionItem::PROCESS_COMPONENT) return;
+    if (!item || item->itemType() != GtProcessConnectionItem::PROCESS_COMPONENT) return;
 
     QMenu menu(this);
 
@@ -232,7 +230,7 @@ GtProcessConnectionView::customContextMenu(QPoint const& p)
             connModel->mode() == GtProcessConnectionModel::READ_WRITE;
 
     auto disconnection = gt::gui::makeAction(tr("Disconnect"), [=](GtObject*){
-            triggerDeleteConnections(i->componentUuid(), inPortIndicator);
+            triggerDeleteConnections(item->componentUuid(), inPortIndicator);
         })
         .setIcon(gt::gui::icon::delete_());
 

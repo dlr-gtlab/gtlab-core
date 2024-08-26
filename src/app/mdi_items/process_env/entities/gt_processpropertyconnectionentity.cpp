@@ -172,28 +172,27 @@ GtProcessPropertyConnectionEntity::connection()
 void
 GtProcessPropertyConnectionEntity::removeConnection()
 {
-    if (m_connection)
+    if (!m_connection) return;
+
+    if (m_startPort)
     {
-        if (m_startPort)
-        {
-            m_startPort->disconnectPort(this);
-        }
-
-        if (m_endPort)
-        {
-            m_endPort->disconnectPort(this);
-        }
-
-        delete m_connection;
-        m_connection = nullptr;
-
-        deleteLater();
+        m_startPort->disconnectPort(this);
     }
+
+    if (m_endPort)
+    {
+        m_endPort->disconnectPort(this);
+    }
+
+    delete m_connection;
+    m_connection = nullptr;
+
+    deleteLater();
 }
 
 bool
 GtProcessPropertyConnectionEntity::connectedToProcessComponent(
-        const QString& uuid, bool inPort)
+        const QString& uuid, bool inPort) const
 {
     if (!m_connection) return false;
 

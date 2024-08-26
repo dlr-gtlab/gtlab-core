@@ -124,7 +124,7 @@ public:
      * @return true if the connection is connected to the process component
      * given by the uuid
      */
-    bool connectedToProcessComponent(QString const& uuid, bool inPort);
+    bool connectedToProcessComponent(QString const& uuid, bool inPort) const;
 
 protected:
     /**
