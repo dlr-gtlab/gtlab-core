@@ -149,23 +149,6 @@ GtProcessView::mousePressEvent(QMouseEvent* event)
 }
 
 void
-GtProcessView::dropEvent(QDropEvent* event)
-{
-    QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
-
-    QModelIndex newIndex = indexAt(event->pos());
-
-    if (!indexes.isEmpty())
-    {
-        emit moveProcessElements(indexes, newIndex);
-        event->accept();
-        return;
-    }
-
-    GtTreeView::dropEvent(event);
-}
-
-void
 GtProcessView::resizeColumns()
 {
     setColumnWidth(1, 20);

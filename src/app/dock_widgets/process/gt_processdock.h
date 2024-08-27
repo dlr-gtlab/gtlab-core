@@ -58,7 +58,6 @@ public:
      * @return
      */
     QModelIndex mapToSource(const QModelIndex& index);
-    QModelIndex mapToSource(const QModelIndex& index) const;
 
     /**
      * @brief mapFromSource
@@ -311,45 +310,6 @@ private:
      */
     void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
-    /**
-     * @brief Returns the objects from the model given their model index.
-     *
-     * The indices are sorted based on their row number for this.
-     *
-     * *Note*: A check is performed to make sure that all objects have
-     * the same parent. If not the case, an empty list is returned.
-     *
-     * @param source - Model indices
-     * @return list of objects which corresponds to the indices
-     */
-    QList<GtObject*> findObjectsOfSameParent(
-            const QList<QModelIndex>& source) const;
-
-    /**
-     * @brief moveConnections
-     *
-     * Performs a move of connections related to moved calculators
-     *
-     * Properties of processelements can be conneted. These connections are
-     * children of the root task of the process elements.
-     *
-     * If process elements are moved all connections related to these elements
-     * have to be checked.
-     * If a connection is not valid anymore because the
-     * connection partners are not part of the same root task now
-     * the connection has to be deleted.
-     * If the moved elements have an identical new root task the connections
-     * have to be moved to the new root task.
-     *
-     * @param highestParent - the "old" highest parent of the moved objects
-     * This element is the original parent of all connections
-     *  of the moved elements
-     * @param taskParent - the "new" task parent of the moved objects
-     * @param finalyMovedObjects - the list of the moved elements
-     */
-    void moveConnections(GtTask* highestParent,
-                         GtTask* taskParent,
-                         QList<GtObject*> finalyMovedObjects);
 private slots:
     /**
      * @brief filterData
@@ -470,8 +430,6 @@ private slots:
 
     void currentTaskGroupIndexChanged(int index);
 
-    void moveElements(const QList<QModelIndex>& source,
-                      const QModelIndex& target);
 signals:
     /**
      * @brief selectedObjectChanged
