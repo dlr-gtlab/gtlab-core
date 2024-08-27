@@ -394,19 +394,20 @@ GtProcessConnectionGraphicsView::removeAllConnections(
 
     for (auto item : qAsConst(allItems))
     {
-        auto e = dynamic_cast<GtProcessPropertyConnectionEntity*>(item)
+        auto e = dynamic_cast<GtProcessPropertyConnectionEntity*>(item);
 
         if (!e) continue;
 
-            for (auto const& u : allUuids)
-            {
-                if (e->connectedToProcessComponent(u, inPorts))
-                {
-                    e->removeConnection();
-                    break;
-                }
-            }
+        auto iter = std::find_if(allUuids.begin(),
+                                 allUuids.end(),
+                                 [&](QString const& uuid){
+            return e->connectedToProcessComponent(uuid, inPorts);
+        });
 
+        if (iter != allUuids.end())
+        {
+            e->removeConnection();
+        }
     }
 }
 
