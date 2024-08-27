@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Fixed problems in the process dock. The changes from version 2.0.7 have been reverted. It is now again possible to change the order of tasks and calculators - #1270
 - Major performance improvement of the objectlink selection dialog - #1206
 - Fixed crash when deleting multiple calculators or task via the context menu - #1266
 - Fixed deletion of environment variable value, when trying to edit it via gtlab settings - #1268
