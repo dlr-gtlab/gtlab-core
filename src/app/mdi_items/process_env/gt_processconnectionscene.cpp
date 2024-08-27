@@ -22,6 +22,7 @@
 #include "gt_processconnectiongraphicsview.h"
 #include "gt_propertyconnection.h"
 #include "gt_task.h"
+#include "gt_colors.h"
 
 #include "gt_processconnectionscene.h"
 
@@ -175,7 +176,7 @@ GtProcessConnectionScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
             {
                 m_tempConnection = new GtProcessPropertyConnectionEntity();
                 QPen pen = m_tempConnection->pen();
-                pen.setColor(Qt::blue);
+                pen.setColor(gt::gui::color::connection_editor::connectionDraft());
                 m_tempConnection->setPen(pen);
                 m_tempConnection->setZValue(-0.5);
 

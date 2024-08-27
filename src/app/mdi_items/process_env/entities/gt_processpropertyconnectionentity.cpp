@@ -16,6 +16,7 @@
 
 #include "gt_processpropertyportentity.h"
 #include "gt_icons.h"
+#include "gt_colors.h"
 #include "gt_propertyconnection.h"
 
 #include "gt_processpropertyconnectionentity.h"
@@ -169,11 +170,51 @@ GtProcessPropertyConnectionEntity::connection()
 }
 
 void
+GtProcessPropertyConnectionEntity::removeConnection()
+{
+    if (!m_connection) return;
+
+    if (m_startPort)
+    {
+        m_startPort->disconnectPort(this);
+    }
+
+    if (m_endPort)
+    {
+        m_endPort->disconnectPort(this);
+    }
+
+    delete m_connection;
+    m_connection = nullptr;
+
+    deleteLater();
+}
+
+bool
+GtProcessPropertyConnectionEntity::connectedToProcessComponent(
+        const QString& uuid, bool inPort) const
+{
+    if (!m_connection) return false;
+
+    if (inPort)
+    {
+        if (m_connection->sourceUuid() == uuid) return true;
+    }
+
+    if (!inPort)
+    {
+        if (m_connection->targetUuid() == uuid) return true;
+    }
+
+    return false;
+}
+
+void
 GtProcessPropertyConnectionEntity::hoverEnterEvent(
         QGraphicsSceneHoverEvent* event)
 {
     QPen p = pen();
-    p.setColor(Qt::red);
+    p.setColor(gt::gui::color::connection_editor::connectionHighlight());
     p.setWidth(2);
     setPen(p);
 
@@ -210,23 +251,7 @@ GtProcessPropertyConnectionEntity::contextMenuEvent(
 
     if (a == actdelete)
     {
-        if (m_connection)
-        {
-            if (m_startPort)
-            {
-                m_startPort->disconnectPort(this);
-            }
-
-            if (m_endPort)
-            {
-                m_endPort->disconnectPort(this);
-            }
-
-            delete m_connection;
-            m_connection = nullptr;
-
-            deleteLater();
-        }
+        removeConnection();
     }
 
     GtGraphicsAnimatedPathItem::contextMenuEvent(event);
@@ -237,7 +262,7 @@ GtProcessPropertyConnectionEntity::currentColor()
 {
     if (m_startPort && m_endPort)
     {
-        return QColor(Qt::black);
+        return gt::gui::color::connection_editor::connection();
     }
 
     return QColor(Qt::gray);

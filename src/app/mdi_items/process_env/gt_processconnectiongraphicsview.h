@@ -89,6 +89,15 @@ public:
      */
     void updateConnections();
 
+public slots:
+    /**
+     * @brief removeAllConnections
+     * @param uuid of component to delete the connections
+     * Remove all graphics entities of connections in the view and their related
+     * connection objects
+     */
+    void removeAllConnections(QString const& uuid, bool inPorts = true);
+
 protected:
     /**
      * @brief resizeEvent
