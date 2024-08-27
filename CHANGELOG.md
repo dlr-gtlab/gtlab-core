@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added option to skip/unskip multiple process elements at once via keyboard shortcut - #1226
+- Added button and context menu entry, to disconnect all connections from a calculator or task to others - #1228
 
 ### Changed
 - Setting the value of a enum property via `GtEnumProperty::setValueFromVariant` does not change the value,
