@@ -126,6 +126,8 @@ GtProcessConnectionEditor::connectionData()
 void
 GtProcessConnectionEditor::deleteAllConnections()
 {
+    if (!m_connectionView->root()) return;
+
     m_connectionView->removeAllConnections(m_connectionView->root()->uuid());
 }
 
