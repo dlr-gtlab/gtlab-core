@@ -82,7 +82,7 @@ protected:
         // otherwise test childs
         for (int i = 0; i < sourceModel()->rowCount(source_index); ++i)
         {
-            if (filterAcceptsRow(i, source_index, pred)) return true ;
+            if (filterAcceptsRow(i, source_index, pred)) return true;
         }
 
         return false;
