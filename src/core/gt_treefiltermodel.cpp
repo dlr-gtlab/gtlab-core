@@ -27,30 +27,13 @@ bool
 GtTreeFilterModel::filterAcceptsRow(int source_row,
                                     const QModelIndex& source_parent) const
 {
-    if (!filterRegExp().isEmpty())
+    if (filterRegExp().isEmpty())
     {
-        QModelIndex source_index =
-                sourceModel()->index(source_row,
-                                     this->filterKeyColumn(),
-                                     source_parent);
-
-        if (source_index.isValid())
-        {
-            int i, nb = sourceModel()->rowCount(source_index) ;
-            for (i = 0; i < nb; ++i)
-            {
-                if (filterAcceptsRow(i, source_index))
-                {
-                    return true ;
-                }
-            }
-            QString key = sourceModel()->data(source_index,
-                                              filterRole()).toString();
-
-            return key.contains(filterRegExp()) ;
-        }
+        return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
     }
 
-    return QSortFilterProxyModel::filterAcceptsRow(source_row,
-                                                   source_parent);
+    return filterAcceptsRow(source_row, source_parent, [](const GtObject*)
+    {
+        return true;
+    });
 }

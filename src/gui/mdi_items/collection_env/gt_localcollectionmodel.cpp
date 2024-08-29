@@ -240,11 +240,6 @@ GtLocalCollectionModel::propIds() const
 void
 GtLocalCollectionModel::sort(int column, Qt::SortOrder order)
 {
-    if (m_propIds.empty())
-    {
-        return;
-    }
-
     using T = GtCollectionItem;
     std::function<bool(T const&, T const&)> function;
 
@@ -266,6 +261,8 @@ GtLocalCollectionModel::sort(int column, Qt::SortOrder order)
         };
         break;
     default:
+        if (m_propIds.empty()) return;
+
         if (column > 2 && column - 3 < m_propIds.size())
         {
             QString const& prop = m_propIds.at(column - 3);

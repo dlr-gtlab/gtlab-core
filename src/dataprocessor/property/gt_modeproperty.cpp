@@ -123,6 +123,12 @@ GtModeProperty::typeProperty(const QString& mode)
     return prop ? qobject_cast<GtModeTypeProperty*>(prop) : nullptr;
 }
 
+bool
+GtModeProperty::isSelected(const GtModeTypeProperty& type) const
+{
+    return this->get() == type.getVal();
+}
+
 
 void
 GtModeProperty::updateProperties() const

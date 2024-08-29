@@ -85,7 +85,7 @@ gt::console::run(const QStringList &args)
         else if (p.positionalArguments().size() < 2 ||
                 p.positionalArguments().size() > 3)
         {
-            gtError() << QObject::tr("Invalid usage of file option");
+            gtError() << QObject::tr("Invalid number of arguments of file option");
             return -1;
         }
 
@@ -294,53 +294,7 @@ gt::console::runProcessByFile(const QString& projectFile,
     }
 
     gtApp->session()->appendChild(project);
-
-    if (!gtDataModel->GtCoreDatamodel::openProject(project))
-    {
-        gtError() << QObject::tr("Could not open project!")
-                  << QStringLiteral(" (") << projectFile
-                  << QStringLiteral(")");
-
-        return -1;
-    }
-
-    gtDebug() << QObject::tr("project opened!");
-
-    // run process
-    GtTask* process = project->findProcess(processId);
-    if (!process)
-    {
-        gtError() << QObject::tr("Process not found!")
-                  << QStringLiteral(" (") << processId << QStringLiteral(")");
-
-        return -1;
-    }
-
-    // execute process
-    auto& executor = gt::currentProcessExecutor();
-    executor.setCoreExecutorFlags(gt::DryExecution);
-    executor.runTask(process);
-
-    if (process->currentState() != GtProcessComponent::FINISHED)
-    {
-        gtWarning() << QObject::tr("Calculator run failed!");
-        return -1;
-    }
-
-    gtDebug() << QObject::tr("process run successful!");
-
-    if (save)
-    {
-        if (!gtDataModel->saveProject(project))
-        {
-            gtError() << QObject::tr("project could not be saved!")
-                      << QStringLiteral(" (") << projectFile
-                      << QStringLiteral(")");
-            return -1;
-        }
-    }
-
-    return 0;
+    return runProcess(project->objectName(), processId, taskGroupId, save);
 }
 
 

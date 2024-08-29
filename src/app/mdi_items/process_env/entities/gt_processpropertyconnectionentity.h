@@ -112,6 +112,20 @@ public:
      */
     GtPropertyConnection* connection();
 
+    /**
+     * @brief removeConnection
+     * Remove the connection and the connection entity
+     */
+    void removeConnection();
+
+    /**
+     * @brief connectedToProcessComponent
+     * @param uuid of process component to check
+     * @return true if the connection is connected to the process component
+     * given by the uuid
+     */
+    bool connectedToProcessComponent(QString const& uuid, bool inPort) const;
+
 protected:
     /**
      * @brief hoverEnterEvent

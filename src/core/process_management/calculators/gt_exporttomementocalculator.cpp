@@ -15,7 +15,8 @@
 #include "gt_logging.h"
 #include "gt_coreapplication.h"
 #include "gt_project.h"
-#include <gt_objectmemento.h>
+#include "gt_objectmemento.h"
+#include "gt_xmlutilities.h"
 
 #include "gt_exporttomementocalculator.h"
 
@@ -105,25 +106,14 @@ GtExportToMementoCalculator::run()
         return false;
     }
 
-    QFile file(path);
-
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        gtError() << QObject::tr("GtExportToMementoCalculator: Could not open file '%1'")
-                         .arg(file.fileName());
-        return false;
-    }
-
-
-
-    QTextStream out(&file);
-
     QDomDocument doc;
     doc.setContent(obj->toMemento(false).toByteArray());
 
-    out << doc.toString();
-
-    file.close();
+    if (!gt::xml::writeDomDocumentToFile(path, doc, true))
+    {
+        gtError() << QObject::tr("GtExportToMementoCalculator: Could not save Object '%1' to '%2'").arg(obj->objectName(), path);
+        return false;
+    }
 
     gtInfo() << QObject::tr("Object '%1' successfully exported to '%2'")
                     .arg(obj->objectName(), path);
@@ -138,6 +128,7 @@ GtExportToMementoCalculator::calculatorData()
     exportMemento->id = QStringLiteral("Export Object to Memento");
     exportMemento->version = GtVersionNumber(1,0);
     exportMemento->status = GtCalculatorDataImpl::RELEASE;
+    exportMemento->category = "Core";
     return exportMemento;
 }
 

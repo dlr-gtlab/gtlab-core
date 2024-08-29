@@ -13,7 +13,6 @@
 
 #include "gt_application.h"
 #include "gt_icons.h"
-#include "gt_logging.h"
 #include "gt_processview.h"
 
 GtProcessView::GtProcessView(QWidget* parent) : GtTreeView(parent)
@@ -95,26 +94,6 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
                 }
             }
 
-            if (gtApp->compareKeyEvent(event, "skipProcess", "GtProcessDock"))
-            {
-                if (index.isValid())
-                {
-                    emit skipCalcultorElement(index, true);
-                    event->accept();
-                    return;
-                }
-            }
-
-            if (gtApp->compareKeyEvent(event, "unskipProcess", "GtProcessDock"))
-            {
-                if (index.isValid())
-                {
-                    emit skipCalcultorElement(index, false);
-                    event->accept();
-                    return;
-                }
-            }
-
             if (gtApp->compareKeyEvent(event, "rename", "Core"))
             {
                 if (index.isValid())
@@ -131,6 +110,20 @@ GtProcessView::keyPressEvent(QKeyEvent* event)
             emit deleteProcessElements(indexes);
             return;
         }
+
+        if (gtApp->compareKeyEvent(event, "skipProcess", "GtProcessDock"))
+        {
+            emit skipCalculatorElements(indexes, true);
+            event->accept();
+            return;
+        }
+
+        if (gtApp->compareKeyEvent(event, "unskipProcess", "GtProcessDock"))
+        {
+            emit skipCalculatorElements(indexes, false);
+            event->accept();
+            return;
+        }
     }
 
     GtTreeView::keyPressEvent(event);
@@ -145,10 +138,7 @@ GtProcessView::mousePressEvent(QMouseEvent* event)
 
     if (!index.isValid())
     {
-        if (!gtApp->currentProject())
-        {
-            return;
-        }
+        if (!gtApp->currentProject()) return;
 
         assert(selectionModel());
 
@@ -156,23 +146,6 @@ GtProcessView::mousePressEvent(QMouseEvent* event)
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
         emit clicked(index);
     }
-}
-
-void
-GtProcessView::dropEvent(QDropEvent* event)
-{
-    QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
-
-    QModelIndex newIndex = indexAt(event->pos());
-
-    if (!indexes.isEmpty())
-    {
-        emit moveProcessElements(indexes, newIndex);
-        event->accept();
-        return;
-    }
-
-    GtTreeView::dropEvent(event);
 }
 
 void

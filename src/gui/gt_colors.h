@@ -229,6 +229,15 @@ GT_GUI_EXPORT QColor gridPoint();
 
 GT_GUI_EXPORT QColor gridAxis();
 
+namespace connection_editor
+{
+GT_GUI_EXPORT QColor connection();
+GT_GUI_EXPORT QColor connectionDraft();
+GT_GUI_EXPORT QColor connectionHighlight();
+GT_GUI_EXPORT QColor portBackground();
+GT_GUI_EXPORT QColor portHover();
+} // connection_editor
+
 namespace code_editor {
 GT_GUI_EXPORT QColor highlightLine();
 } // namespace code_editor
@@ -254,7 +263,6 @@ GT_GUI_EXPORT QColor keyword();
 GT_GUI_EXPORT QColor builtIn();
 GT_GUI_EXPORT QColor marker();
 } // namespace js_highlight
-
 
 /// Deprecated functions
 [[deprecated("Use gridLine instead")]]

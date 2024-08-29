@@ -11,7 +11,12 @@
 
 #include <QPainter>
 #include <QApplication>
+#include <QMenu>
 
+#include <gt_logging.h>
+#include "gt_icons.h"
+#include "gt_guiutilities.h"
+#include "gt_objectuiaction.h"
 #include "gt_processconnectionmodel.h"
 #include "gt_processconnectiongraphicsview.h"
 
@@ -22,6 +27,12 @@ GtProcessConnectionView::GtProcessConnectionView(QWidget* parent) :
     m_graphicsView(nullptr)
 {
     setIconSize({16, 16});
+    setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
+            SLOT(customContextMenu(QPoint)));
+
+
 }
 
 void
@@ -29,6 +40,8 @@ GtProcessConnectionView::setGraphicsView(
         GtProcessConnectionGraphicsView* graphicsView)
 {
     m_graphicsView = graphicsView;
+    connect(this, SIGNAL(triggerDeleteConnections(QString const&, bool)),
+            m_graphicsView, SLOT(removeAllConnections(QString const&, bool)));
 }
 
 QModelIndex
@@ -160,9 +173,10 @@ GtProcessConnectionView::itemById(const QString& uuid, const QString& propId)
     return connModel->itemById(uuid, propId);
 }
 
-void GtProcessConnectionView::drawRow(QPainter* painter,
-                                      const QStyleOptionViewItem& option,
-                                      const QModelIndex& index) const
+void
+GtProcessConnectionView::drawRow(QPainter* painter,
+                                 const QStyleOptionViewItem& option,
+                                 const QModelIndex& index) const
 {
     QStyleOptionViewItem opt = option;
 
@@ -193,4 +207,34 @@ GtProcessConnectionView::paintEvent(QPaintEvent* event)
     }
 
     GtTreeView::paintEvent(event);
+}
+
+void
+GtProcessConnectionView::customContextMenu(QPoint const& p)
+{
+    QModelIndex index = indexAt(p);
+
+    if (!index.isValid()) return;
+
+    GtProcessConnectionModel* connModel = connectionModel();
+
+    if (!connModel) return;
+
+    GtProcessConnectionItem* item = connModel->itemFromIndex(index);
+
+    if (!item || item->itemType() != GtProcessConnectionItem::PROCESS_COMPONENT) return;
+
+    QMenu menu(this);
+
+    bool inPortIndicator =
+            connModel->mode() == GtProcessConnectionModel::READ_WRITE;
+
+    auto disconnection = gt::gui::makeAction(tr("Disconnect"), [=](GtObject*){
+            triggerDeleteConnections(item->componentUuid(), inPortIndicator);
+        })
+        .setIcon(gt::gui::icon::delete_());
+
+    gt::gui::addToMenu({disconnection}, menu, nullptr);
+
+    menu.exec(QCursor::pos());
 }

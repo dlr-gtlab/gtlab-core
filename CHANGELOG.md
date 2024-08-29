@@ -18,6 +18,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
 
+## [2.0.10] - 2024-08-29
+### Fixed
+- Fixed problems in the process dock. The changes from version 2.0.7 have been reverted. It is now again possible to change the order of tasks and calculators - #1270
+- Major performance improvement of the objectlink selection dialog - #1206
+- Fixed crash when deleting multiple calculators or task via the context menu - #1266
+- Fixed deletion of environment variable value, when trying to edit it via gtlab settings - #1268
+
+### Added
+- Added option to skip/unskip multiple process elements at once via keyboard shortcut - #1226
+- Added button and context menu entry, to disconnect all connections from a calculator or task to others - #1228
+
+### Changed
+- Setting the value of a enum property via `GtEnumProperty::setValueFromVariant` does not change the value,
+  if the variant string is invalid, i.e. is not an enum value. - #609
+
+## [2.0.9] - 2024-06-20
+### Fixed
+- Fixed "GTlabConsole run -f project.gtlab -s" not saving changes to the project - #1254
+- Fixed task group argument ignored in batch command "GTlabConsole run -f project.gtlab" - #1254
+
 ## [2.0.8] - 2024-06-19
 ### Fixed
 - Fixed bug introduced in 2.0.7, that "GTlabConsole run" does not save projects anymore. This change reverts
