@@ -732,7 +732,7 @@ GtModuleLoader::insert(GtModuleInterface* plugin)
         gt::commandline::registerFunction(commandLineFunction);
     }
 
-    GtDatamodelInterface* dmp = dynamic_cast<GtDatamodelInterface*>(plugin);
+    GtDatamodelInterface* dmp = checkInterface<GtDatamodelInterface>(plugin->ident(), plugin);
 
     // contains dynamic linked datamodel classes
     if (dmp)
