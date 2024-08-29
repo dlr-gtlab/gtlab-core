@@ -349,7 +349,14 @@ GtProjectUI::switchToProject(GtProject& toProject)
 void
 GtProjectUI::openProject(GtObject* obj)
 {
-    if (gt::currentProcessExecutor().taskCurrentlyRunning())
+    auto project = qobject_cast<GtProject*>(obj);
+
+    if (!project)
+    {
+        return;
+    }
+
+    if (gt::currentProcessExecutor().taskCurrentlyRunning() && !project->isOpen())
     {
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
@@ -359,13 +366,6 @@ GtProjectUI::openProject(GtObject* obj)
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);
         mb.exec();
-        return;
-    }
-
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
-    {
         return;
     }
 
