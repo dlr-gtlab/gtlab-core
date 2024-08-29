@@ -746,7 +746,7 @@ initSystemOptions()
                     false);
 
     initPosArgument("list", list,
-                    "\tShow list of modules, session, projects and tasks.",
+                    "\tShows list of modules, session, projects and tasks.",
                     {}, {}, false);
 
     initPosArgument("process_runner", processRunner, "Starts a TCP server, "
@@ -754,7 +754,7 @@ initSystemOptions()
                     {}, {}, false);
 
     initPosArgument("set_variable", set_variable,
-                    "\tSets a global variable defined in settings.",
+                    "\tSets a global variable that already exists in settings.",
                     {},
                     QList<GtCommandLineArgument>(),
                     true);
@@ -848,10 +848,10 @@ int main(int argc, char* argv[])
                      "\tDisplays the version number of GTlab");
 
     // logging options (will be handled by app-init)
-    parser.addOption("medium", {"medium"}, "Enable medium verbose output");
-    parser.addOption("verbose", {"verbose"}, "\tEnable very verbose output");
-    parser.addOption("trace", {"trace"}, "Enable trace output and higher");
-    parser.addOption("debug", {"debug"}, "Enable debug output and higher");
+    parser.addOption("medium", {"medium"}, "Enables medium verbose output");
+    parser.addOption("verbose", {"verbose"}, "\tEnables very verbose output");
+    parser.addOption("trace", {"trace"}, "Enables trace output and higher");
+    parser.addOption("debug", {"debug"}, "Enables debug output and higher");
 
     if (!parser.parse(args))
     {
