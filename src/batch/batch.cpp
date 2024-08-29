@@ -754,7 +754,7 @@ initSystemOptions()
                     {}, {}, false);
 
     initPosArgument("set_variable", set_variable,
-                    "\tSets a global variable defined in settings.",
+                    "\tSets a global variable that already exists in settings.",
                     {},
                     QList<GtCommandLineArgument>(),
                     true);
