@@ -119,7 +119,7 @@ gt::console::printRunHelp()
     std::cout << std::endl;
 
     std::cout << "There are two basic methods to start a process:" << std::endl;
-    std::cout << "\tDefine the project by name from the current session"
+    std::cout << "\tDefine the project by name from the current session "
                  "(default option or --name or -n)" << std::endl;
     std::cout << "\tGTlabConsole.exe run [-n] <projectName> <processname> [-s]  "
               << std::endl;
@@ -133,7 +133,7 @@ gt::console::printRunHelp()
     std::cout << std::endl;
 
     std::cout << "\tIf the desired task is not part of the default task-group "
-                 "define this (with a optional thir argument)"
+                 "define this (with an optional third argument)"
               << std::endl;
     std::cout << "\tGTlabConsole.exe run <projectName> <processname> <task-group-name> [-s] "
               << std::endl;
