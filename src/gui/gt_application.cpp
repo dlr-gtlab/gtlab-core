@@ -508,10 +508,6 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
 
     if (!m_d->m_commandId.isEmpty())
     {
-        gtDebug().medium() << tr("already recording command")
-                           << QStringLiteral("...");
-        gtDebug().medium() << QStringLiteral("    |-> ") << m_d->m_commandId;
-        gtDebug().medium() << QStringLiteral("    |-> vs") << commandId;
         return GtCommand();
     }
 
