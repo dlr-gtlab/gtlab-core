@@ -129,7 +129,8 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
 {
     GtModuleLoader::insert(plugin);
 
-    GtProcessInterface* proi = dynamic_cast<GtProcessInterface*>(plugin);
+    GtProcessInterface* proi = checkInterface<GtProcessInterface>(plugin->ident(),
+                                                                  plugin);
 
     if (proi)
     {
@@ -152,7 +153,7 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
     }
 
     GtCalculatorExecInterface* cexecp =
-            dynamic_cast<GtCalculatorExecInterface*>(plugin);
+            checkInterface<GtCalculatorExecInterface>(plugin->ident(), plugin);
 
     // contains dynamic linked calculator execution classes
     if (cexecp)
@@ -169,7 +170,8 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
         gtCalcExecList->addExecutor(cexecp);
     }
 
-    GtNetworkInterface* neti = dynamic_cast<GtNetworkInterface*>(plugin);
+    GtNetworkInterface* neti = checkInterface<GtNetworkInterface>(plugin->ident(),
+                                                                  plugin);
 
     if (neti)
     {
