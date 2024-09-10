@@ -120,18 +120,18 @@ GtTaskGroup::read(const QString& projectPath,
     for (const auto& e : qAsConst(activeTasks))
     {
         auto newTask = m_pimpl->createTaskFromFile(
-                    dir.absoluteFilePath(e.toString() + S_TASK_FILE_EXT));
+            dir.absoluteFilePath(e.toString() + S_TASK_FILE_EXT));
 
+        if (newTask)
+        {
+            if (newTask->isDummy())
+            {
+                gtDebug().medium().nospace() << "dummy task created ("
+                                             << newTask->uuid() << ")";
+                appendChild(newTask);
+                continue;
+            }
 
-        if (newTask->isDummy())
-        {
-            gtDebug().medium().nospace() << "new task created ("
-                                         << newTask->uuid() << ")";
-            appendChild(newTask);
-            continue;
-        }
-        else if (newTask)
-        {
             auto retval = qobject_cast<GtTask*>(newTask);
 
             if (!retval)
