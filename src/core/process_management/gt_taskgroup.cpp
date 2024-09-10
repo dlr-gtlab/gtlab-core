@@ -43,7 +43,7 @@ public:
     QString path(const QString& projectPath,
                  const GtTaskGroup::SCOPE scope) const;
 
-    std::unique_ptr<GtTask> createTaskFromFile(const QString& filePath) const;
+    GtObject *createTaskFromFile(const QString& filePath) const;
 
     bool saveTaskToFile(const GtTask* task, const QString& groupPath) const;
 
@@ -122,11 +122,27 @@ GtTaskGroup::read(const QString& projectPath,
         auto newTask = m_pimpl->createTaskFromFile(
                     dir.absoluteFilePath(e.toString() + S_TASK_FILE_EXT));
 
-        if (newTask)
+
+        if (newTask->isDummy())
         {
             gtDebug().medium().nospace() << "new task created ("
                                          << newTask->uuid() << ")";
-            appendChild(newTask.release());
+            appendChild(newTask);
+            continue;
+        }
+        else if (newTask)
+        {
+            auto retval = qobject_cast<GtTask*>(newTask);
+
+            if (!retval)
+            {
+                gtError() << QObject::tr("Invalid task file (%1)").arg(e.toString());
+                newTask->deleteLater();
+            }
+
+            gtDebug().medium().nospace() << "new task created ("
+                                         << newTask->uuid() << ")";
+            appendChild(retval);
         }
     }
 
@@ -439,11 +455,11 @@ GtTaskGroup::Impl::path(const QString& projectPath,
     return _pub.get().groupPath(projectPath, scope, _pub.get().objectName());
 }
 
-std::unique_ptr<GtTask>
+GtObject*
 GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 {
     QFile taskFile(filePath);
-    GtTask* retval = nullptr;
+    //GtTask* retval = nullptr;
 
     if (!taskFile.exists())
     {
@@ -477,17 +493,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 
     auto obj = memento.restore(gtProcessFactory);
 
-    if (obj)
-    {
-        retval = qobject_cast<GtTask*>(obj);
-        if (!retval)
-        {
-            gtError() << QObject::tr("Invalid task file (%1)").arg(filePath);
-            delete obj;
-        }
-    }
-
-    return std::unique_ptr<GtTask>(retval);
+    return obj;
 }
 
 bool
