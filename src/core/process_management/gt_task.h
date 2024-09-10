@@ -55,11 +55,6 @@ public:
     bool exec() override;
 
     /**
-     * @brief run
-     */
-    void run(GtAbstractRunnable* runnable);
-
-    /**
      * @brief calculators
      * @return
      */

@@ -186,42 +186,42 @@ GtTask::exec()
     return true;
 }
 
-void
-GtTask::run(GtAbstractRunnable* r)
-{
-    if (!r)
-    {
-        setState(GtProcessComponent::FAILED);
-        gtError() << tr("%1: Failed to run task, invalid runnable!")
-                         .arg(objectName());
-        return;
-    }
-
-    setState(GtTask::RUNNING);
-    pimpl->dataToMerge.clear();
-
-    setRunnable(r);
-
-    QThreadPool* tp = QThreadPool::globalInstance();
-
-    if (!tp)
-    {
-        return;
-    }
-
-    runnable()->setAutoDelete(false);
-
-    connect(runnable().data(), &GtAbstractRunnable::runnableFinished,
-            this, &GtTask::handleRunnableFinished);
-
-    tp->start(runnable());
-
-    qDebug() << "#### exec event loop...";
-
-    pimpl->eventLoop.exec();
-
-    qDebug() << "#### exec finished";
-}
+//void
+//GtTask::run(GtAbstractRunnable* r)
+//{
+//    if (!r)
+//    {
+//        setState(GtProcessComponent::FAILED);
+//        gtError() << tr("%1: Failed to run task, invalid runnable!")
+//                         .arg(objectName());
+//        return;
+//    }
+//
+//    setState(GtTask::RUNNING);
+//    pimpl->dataToMerge.clear();
+//
+//    setRunnable(r);
+//
+//    QThreadPool* tp = QThreadPool::globalInstance();
+//
+//    if (!tp)
+//    {
+//        return;
+//    }
+//
+//    runnable()->setAutoDelete(false);
+//
+//    connect(runnable().data(), &GtAbstractRunnable::runnableFinished,
+//            this, &GtTask::handleRunnableFinished);
+//
+//    tp->start(runnable());
+//
+//    qDebug() << "#### exec event loop...";
+//
+//    pimpl->eventLoop.exec();
+//
+//    qDebug() << "#### exec finished";
+//}
 
 QList<GtCalculator*>
 GtTask::calculators()
