@@ -523,3 +523,61 @@ gt::gui::color::connection_editor::connectionHighlight()
     }
     return Qt::red;
 }
+
+QColor
+gt::gui::color::plots::activeLine()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(Qt::blue).lighter();
+    }
+    return Qt::blue;
+}
+
+QColor
+gt::gui::color::plots::inactiveLine()
+{
+    return Qt::gray;
+}
+
+QColor
+gt::gui::color::plots::helpingLine()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(Qt::red).lighter();
+    }
+    return Qt::red;
+}
+
+QColor
+gt::gui::color::plots::marker()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(Qt::red).lighter();
+    }
+    return Qt::red;
+}
+
+QColor
+gt::gui::color::plots::selectedMarker()
+{
+    return Qt::white;
+}
+
+QColor
+gt::gui::color::plots::markerBoarder()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::gray;
+    }
+    return Qt::black;
+}
+
+QColor
+gt::gui::color::plots::inactiveMarker()
+{
+    return Qt::darkGray;
+}

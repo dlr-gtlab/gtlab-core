@@ -264,6 +264,17 @@ GT_GUI_EXPORT QColor builtIn();
 GT_GUI_EXPORT QColor marker();
 } // namespace js_highlight
 
+namespace plots {
+GT_GUI_EXPORT QColor activeLine();
+GT_GUI_EXPORT QColor inactiveLine();
+// function for e.g.control polygon
+GT_GUI_EXPORT QColor helpingLine();
+GT_GUI_EXPORT QColor marker();
+GT_GUI_EXPORT QColor markerBoarder();
+GT_GUI_EXPORT QColor selectedMarker();
+GT_GUI_EXPORT QColor inactiveMarker();
+}
+
 /// Deprecated functions
 [[deprecated("Use gridLine instead")]]
 GT_GUI_EXPORT QColor gridLineColor();
