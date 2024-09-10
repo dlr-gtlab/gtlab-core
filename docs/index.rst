@@ -21,6 +21,7 @@
    modules/about
    modules/getting_started
    modules/logging
+   modules/interfaces
    modules/shared_functions
    modules/user_interface
 
