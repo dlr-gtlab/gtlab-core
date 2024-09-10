@@ -12,7 +12,8 @@
    :caption: The Basics
 
    basics/building
-   basics/concept
+   basics/data_modelling
+   basics/process_elements
 
 .. toctree::
    :caption: Module development
@@ -20,9 +21,10 @@
 
    modules/about
    modules/getting_started
-   modules/logging
+   modules/interfaces
    modules/shared_functions
    modules/user_interface
+   modules/logging
 
 .. toctree::
    :caption: Howtos
@@ -38,7 +40,7 @@
 
 .. toctree::
    :caption: Reference
-   :maxdepth: 2
+   :maxdepth: 1
 
    api
    genindex
