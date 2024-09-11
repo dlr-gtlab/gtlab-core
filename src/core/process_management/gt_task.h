@@ -18,6 +18,7 @@
 
 #include <memory>
 
+#include <gt_globals.h>
 #include "gt_processcomponent.h"
 #include "gt_objectmemento.h"
 #include "gt_intmonitoringproperty.h"
@@ -54,11 +55,10 @@ public:
      */
     bool exec() override;
 
-    [[deprecated("This function is not part of the supported process management and therefore not 
-                          maintained and updated")]]
     /**
      * @brief run
      */
+    deprecated_from(3, 0, "This function not maintained and updated anymore.")
     void run(GtAbstractRunnable* runnable);
 
     /**
