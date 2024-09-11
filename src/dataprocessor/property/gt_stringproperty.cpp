@@ -50,6 +50,13 @@ GtStringProperty::GtStringProperty(const QString& ident,
     }
 }
 
+void
+GtStringProperty::operator+=(const QString& b)
+{
+    QString newVal = getVal() + b;
+    setVal(newVal);
+}
+
 QVariant
 GtStringProperty::valueToVariant(const QString& /*unit*/,
                                  bool* success) const

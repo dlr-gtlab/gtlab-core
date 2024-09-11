@@ -1,4 +1,4 @@
-/* GTlab - Gas Turbine laboratory
+﻿/* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
@@ -98,6 +98,13 @@ public:
                      GtDoubleProperty::BoundType boundType,
                      const double boundary,
                      const double& value = 0.0);
+
+    // operator overloads
+    inline void operator+=(GtDoubleProperty const& b);
+    inline void operator-=(GtDoubleProperty const& b);
+    inline void operator*=(GtDoubleProperty const& b);
+    inline void operator/=(GtDoubleProperty const& b);
+
 
     /**
      * @brief valueToVariant

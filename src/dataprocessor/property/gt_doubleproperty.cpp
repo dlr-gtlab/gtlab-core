@@ -137,6 +137,35 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
     }
 }
 
+void
+GtDoubleProperty::operator+=(const double& b)
+{
+    double newVal = getVal() + b;
+    setVal(newVal);
+}
+
+void
+GtDoubleProperty::operator-=(const double& b)
+{
+    double newVal = getVal() - b;
+    setVal(newVal);
+}
+
+void
+GtDoubleProperty::operator*=(const double& b)
+{
+    double newVal = getVal() * b;
+    setVal(newVal);
+}
+
+void
+GtDoubleProperty::operator/=(const double& b)
+{
+    assert(a != 0.0);
+    double newVal = getVal() / b;
+    setVal(newVal);
+}
+
 QVariant
 GtDoubleProperty::valueToVariant(const QString& unit,
                                  bool* success) const
