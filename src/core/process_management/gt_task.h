@@ -61,7 +61,7 @@ public:
      */
     void run(GtAbstractRunnable* runnable);
 
-     /**
+    /**
      * @brief calculators
      * @return
      */
