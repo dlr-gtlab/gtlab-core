@@ -54,7 +54,14 @@ public:
      */
     bool exec() override;
 
+    [[deprecated("This function is not part of the supported process management and therefore not 
+                          maintained and updated")]]
     /**
+     * @brief run
+     */
+    void run(GtAbstractRunnable* runnable);
+
+     /**
      * @brief calculators
      * @return
      */
