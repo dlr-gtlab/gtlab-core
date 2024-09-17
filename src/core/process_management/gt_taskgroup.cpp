@@ -43,7 +43,7 @@ public:
     QString path(const QString& projectPath,
                  const GtTaskGroup::SCOPE scope) const;
 
-    GtObject *createTaskFromFile(const QString& filePath) const;
+    std::unique_ptr<GtObject> createTaskFromFile(const QString& filePath) const;
 
     bool saveTaskToFile(const GtTask* task, const QString& groupPath) const;
 
@@ -124,17 +124,16 @@ GtTaskGroup::read(const QString& projectPath,
 
         if (newTask)
         {
-            if (newTask->isDummy())
+            if (newTask.get()->isDummy())
             {
                 gtDebug().medium().nospace() << "dummy task created ("
                                              << newTask->uuid() << ")";
-                appendChild(newTask);
+                appendChild(newTask.release());
                 continue;
             }
+            auto taskObject = gt::unique_object_cast<GtTask>(std::move(newTask));
 
-            auto retval = qobject_cast<GtTask*>(newTask);
-
-            if (!retval)
+            if (!taskObject)
             {
                 gtError() << QObject::tr("Invalid task file (%1)").arg(e.toString());
                 newTask->deleteLater();
@@ -142,7 +141,7 @@ GtTaskGroup::read(const QString& projectPath,
 
             gtDebug().medium().nospace() << "new task created ("
                                          << newTask->uuid() << ")";
-            appendChild(retval);
+            appendChild(taskObject);
         }
     }
 
@@ -455,7 +454,7 @@ GtTaskGroup::Impl::path(const QString& projectPath,
     return _pub.get().groupPath(projectPath, scope, _pub.get().objectName());
 }
 
-GtObject*
+std::unique_ptr<GtObject>
 GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 {
     QFile taskFile(filePath);
@@ -493,7 +492,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 
     auto obj = memento.restore(gtProcessFactory);
 
-    return obj;
+    return std::make_unique<GtObject>(obj);
 }
 
 bool
