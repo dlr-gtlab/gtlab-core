@@ -500,7 +500,7 @@ GtTaskGroup::Impl::saveTaskToFile(const GtTask* task, const QString& groupPath) 
     QDomDocument doc;
     doc.setContent(task->toMemento().toByteArray());
 
-    if (!gt::xml::writeDomDocumentToFile(taskFile, doc, false))
+    if (!gt::xml::writeDomDocumentToFile(taskFile, doc, true))
     {
         gtError() << QObject::tr("Could not open file (%1)").arg(taskFile);
         return false;
