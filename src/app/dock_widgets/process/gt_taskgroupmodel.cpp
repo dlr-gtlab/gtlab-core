@@ -8,8 +8,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include "gt_processdata.h"
-
 #include "gt_taskgroupmodel.h"
 
 GtTaskGroupModel::GtTaskGroupModel(QObject* parent) :

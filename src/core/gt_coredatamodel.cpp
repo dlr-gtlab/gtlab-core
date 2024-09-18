@@ -12,18 +12,15 @@
 #include <QMimeData>
 #include <QDir>
 
+#include <gt_logging.h>
 #include "gt_session.h"
 #include "gt_project.h"
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
 #include "gt_coreapplication.h"
-#include "gt_command.h"
-#include "gt_logging.h"
 #include "gt_state.h"
 #include "gt_statehandler.h"
 #include "gt_externalizationmanager.h"
-#include "gt_projectanalyzer.h"
-#include "gt_versionnumber.h"
 
 #include "gt_coredatamodel.h"
 
@@ -1041,7 +1038,7 @@ GtCoreDatamodel::uniqueObjectName(const QString& name,
     if (parent.model() != this) return {};
 
     // return unique object name
-    return uniqueObjectName(name, objectFromIndex(parent));
+    return gt::makeUniqueName(name, objectFromIndex(parent));
 }
 
 GtObject*

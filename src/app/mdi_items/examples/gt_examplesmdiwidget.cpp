@@ -256,7 +256,7 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
 
     QString newDirPath;
 
-    QString id = gtDataModel->uniqueObjectName(exampleName.split("#").last(),
+    QString id = gt::makeUniqueName(exampleName.split("#").last(),
                  gtApp->session());
 
     dialog.setWindowTitle(tr("Save Example Project As..."));
@@ -355,7 +355,7 @@ GtExamplesMdiWidget::onOpenProject(const QString& exampleName)
     if (gtApp->session()->findProject(project->objectName()))
     {
         gtInfo() << tr("There is already a project with name of the example.");
-        project->setObjectName(gtDataModel->uniqueObjectName(
+        project->setObjectName(gt::makeUniqueName(
                                project->objectName(), gtApp->session()));
     }
 

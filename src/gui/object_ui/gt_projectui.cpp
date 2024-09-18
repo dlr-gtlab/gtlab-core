@@ -508,8 +508,7 @@ GtProjectUI::saveProjectAs(GtObject* obj)
         return;
     }
 
-    QString id = gtDataModel->uniqueObjectName(project->objectName(),
-                 gtApp->session());
+    QString id = gt::makeUniqueName(project->objectName(), gtApp->session());
 
     GtDialog dialog;
 
