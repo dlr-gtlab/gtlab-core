@@ -98,6 +98,7 @@ set(headers
     gt_objectfiltermodel.h
     gt_projectdiffpatch.h
     gt_coredatamodel.h
+    gt_coreprocessdatamodel
     gt_loadprojecthelper.h
     gt_updatechecker.h
     gt_abstractloadinghelper.h
@@ -202,6 +203,7 @@ set(sources
     gt_objectfiltermodel.cpp
     gt_projectdiffpatch.cpp
     gt_coredatamodel.cpp
+    gt_coreprocessdatamodel.cpp
     gt_loadprojecthelper.cpp
     gt_updatechecker.cpp
     gt_abstractloadinghelper.cpp

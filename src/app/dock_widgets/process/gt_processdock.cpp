@@ -57,6 +57,7 @@
 #include "gt_guiutilities.h"
 #include "gt_taskgroup.h"
 #include "gt_taskgroupmodel.h"
+#include "gt_coreprocessdatamodel.h"
 
 #include "gt_processdock.h"
 
@@ -323,7 +324,7 @@ GtProcessDock::updateCurrentTaskGroup()
     delete m_model;
     m_model = new GtProcessComponentModel(this);
     m_filterModel = new GtProcessFilterModel(m_model);
-    m_model->setSourceModel(gtDataModel);
+    m_model->setSourceModel(gtProcessDataModel);
     m_filterModel->setSourceModel(m_model);
 
     connect(m_model,
@@ -354,7 +355,7 @@ GtProcessDock::addEmptyTask(GtObject* root)
 {
     if (!root) return;
 
-    QString taskId = gtDataModel->uniqueObjectName(tr("New Task"), root);
+    QString taskId = gt::makeUniqueName(tr("New Task"), root);
 
     if (taskId.isEmpty()) return;
 
@@ -364,7 +365,7 @@ GtProcessDock::addEmptyTask(GtObject* root)
     task->setObjectName(taskId);
     task->setFactory(gtProcessFactory);
 
-    QModelIndex srcIndex = gtDataModel->appendChild(task.get(), root);
+    QModelIndex srcIndex = gtProcessDataModel->appendChild(task.get(), root);
 
     QModelIndex index = mapFromSource(srcIndex);
 
@@ -397,13 +398,13 @@ GtProcessDock::componentByModelIndex(const QModelIndex &index)
         return nullptr;
     }
 
-    if (srcIndex.model() != gtDataModel)
+    if (srcIndex.model() != gtProcessDataModel)
     {
         return nullptr;
     }
 
     return qobject_cast<GtProcessComponent*>(
-                gtDataModel->objectFromIndex(srcIndex));
+                gtProcessDataModel->objectFromIndex(srcIndex));
 }
 
 void
@@ -416,7 +417,7 @@ GtProcessDock::addCalculator()
         return;
     }
 
-    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+    GtObject* obj = gtProcessDataModel->objectFromIndex(srcIndex);
 
     if (!obj)
     {
@@ -458,7 +459,7 @@ GtProcessDock::addCalculator()
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
-    QModelIndex newIndex = gtDataModel->appendChild(newObj, obj);
+    QModelIndex newIndex = gtProcessDataModel->appendChild(newObj, obj);
 
     QModelIndex index = mapFromSource(newIndex);
 
@@ -496,7 +497,7 @@ GtProcessDock::addTask()
 
         if (!srcIndex.isValid()) return;
 
-        parentObj = gtDataModel->objectFromIndex(srcIndex);
+        parentObj = gtProcessDataModel->objectFromIndex(srcIndex);
     }
 
     addTaskToParent(parentObj);
@@ -537,8 +538,8 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     if (!newObj) return;
 
-    QString taskId = gtDataModel->uniqueObjectName(newObj->objectName(),
-                     parentObj);
+    QString taskId = gt::makeUniqueName(newObj->objectName(), parentObj);
+
     newObj->setObjectName(taskId);
 
     gtDebug().verbose() << tr("Task appended! (%1)").arg(
@@ -546,7 +547,7 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     updateLastUsedElementList(newObj->metaObject()->className());
 
-    QModelIndex newIndex = gtDataModel->appendChild(newObj, parentObj);
+    QModelIndex newIndex = gtProcessDataModel->appendChild(newObj, parentObj);
 
     QModelIndex index = mapFromSource(newIndex);
 
@@ -624,7 +625,7 @@ GtProcessDock::filterData(const QString& val)
 
     if (m_taskGroup)
     {
-        QModelIndex srcIndex = gtDataModel->indexFromObject(m_taskGroup);
+        QModelIndex srcIndex = gtProcessDataModel->indexFromObject(m_taskGroup);
         QModelIndex index = mapFromSource(srcIndex);
 
         m_rootIndex = QPersistentModelIndex(index);
@@ -814,7 +815,7 @@ GtProcessDock::onCurrentChanged(const QModelIndex& current,
                                 const QModelIndex& /*previous*/)
 {
     QModelIndex srcIndex = mapToSource(current);
-    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+    GtObject* obj = gtProcessDataModel->objectFromIndex(srcIndex);
     updateButtons(obj);
     emit selectedObjectChanged(obj);
 }
@@ -835,7 +836,7 @@ GtProcessDock::onDoubleClicked(const QModelIndex& index)
 
     QModelIndex srcIndex = mapToSource(index);
 
-    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+    GtObject* obj = gtProcessDataModel->objectFromIndex(srcIndex);
 
     if (auto task = qobject_cast<GtTask*>(obj))
     {
@@ -865,7 +866,7 @@ GtProcessDock::runProcess()
 
     if (srcIndex.isValid())
     {
-        if (GtObject* obj = gtDataModel->objectFromIndex(srcIndex))
+        if (GtObject* obj = gtProcessDataModel->objectFromIndex(srcIndex))
         {
             if (GtTask* task = findRootTaskHelper(obj))
             {
@@ -909,7 +910,7 @@ GtProcessDock::makeAddMenu(QMenu& menu)
     QModelIndex srcIdx = mapToSource(m_view->currentIndex());
 
     GtObject* obj = srcIdx.isValid() ?
-                        gtDataModel->objectFromIndex(srcIdx) : nullptr;
+                        gtProcessDataModel->objectFromIndex(srcIdx) : nullptr;
 
     // add empty task action
     auto addEmptyTask = std::bind(&GtProcessDock::addEmptyTaskToRoot, this);
@@ -968,7 +969,7 @@ GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
     }
 
     // single selection
-    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+    GtObject* obj = gtProcessDataModel->objectFromIndex(srcIndex);
     if (!obj) return;
 
     auto* task = qobject_cast<GtTask*>(obj);
@@ -1309,12 +1310,12 @@ GtProcessDock::copyElement(const QModelIndex& index)
         return;
     }
 
-    if (srcIndex.model() != gtDataModel)
+    if (srcIndex.model() != gtProcessDataModel)
     {
         return;
     }
 
-    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+    GtObject* obj = gtProcessDataModel->objectFromIndex(srcIndex);
 
     if (!obj)
     {
@@ -1380,7 +1381,7 @@ GtProcessDock::copyElement(const QModelIndex& index)
         detail::updateRelativeObjectLinks(origTask, newTask);
     }
 
-    QMimeData* mimeData = gtDataModel->mimeDataFromObject(copy, false);
+    QMimeData* mimeData = gtProcessDataModel->mimeDataFromObject(copy, false);
     QApplication::clipboard()->setMimeData(mimeData);
 
     delete copy;
@@ -1412,12 +1413,12 @@ GtProcessDock::cloneElement(const QModelIndex& index)
         return;
     }
 
-    if (srcIndex.model() != gtDataModel)
+    if (srcIndex.model() != gtProcessDataModel)
     {
         return;
     }
 
-    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+    GtObject* obj = gtProcessDataModel->objectFromIndex(srcIndex);
 
     if (!obj)
     {
@@ -1510,9 +1511,9 @@ GtProcessDock::cutElement(const QModelIndex& index)
 
     if (!srcIndex.isValid()) return;
 
-    if (srcIndex.model() != gtDataModel) return;
+    if (srcIndex.model() != gtProcessDataModel) return;
 
-    GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+    GtObject* obj = gtProcessDataModel->objectFromIndex(srcIndex);
 
     if (!obj) return;
 
@@ -1558,7 +1559,7 @@ GtProcessDock::cutElement(const QModelIndex& index)
                            QStringLiteral(")"));
     Q_UNUSED(command)
 
-    gtDataModel->deleteFromModel(toDelete);
+    gtProcessDataModel->deleteFromModel(toDelete);
 }
 
 void
@@ -1585,12 +1586,12 @@ GtProcessDock::deleteProcessElements(const QList<QModelIndex>& indexList)
             continue;
         }
 
-        if (srcIndex.model() != gtDataModel)
+        if (srcIndex.model() != gtProcessDataModel)
         {
             continue;
         }
 
-        GtObject* obj = gtDataModel->objectFromIndex(srcIndex);
+        GtObject* obj = gtProcessDataModel->objectFromIndex(srcIndex);
 
         if (!obj)
         {
@@ -1630,7 +1631,7 @@ GtProcessDock::deleteProcessElements(const QList<QModelIndex>& indexList)
     {
         case QMessageBox::Yes:
         {
-            gtDataModel->reduceToParents(objects);
+            gtProcessDataModel->reduceToParents(objects);
 
             auto* commonParent = gt::find_lowest_ancestor(
                         objects, gt::get_parent_object);
@@ -1662,7 +1663,7 @@ GtProcessDock::pasteElement(GtObject* parent)
     QClipboard* clipboard = QApplication::clipboard();
     const QMimeData* mimeData = clipboard->mimeData();
 
-    GtObject* obj = gtDataModel->objectFromMimeData(mimeData, true,
+    GtObject* obj = gtProcessDataModel->objectFromMimeData(mimeData, true,
                     gtProcessFactory);
 
     if (!obj)
@@ -1706,8 +1707,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     }
 
     // create new unique identification string
-    QString newId = gtDataModel->uniqueObjectName(obj->objectName(),
-                    parent);
+    QString newId = gt::makeUniqueName(obj->objectName(), parent);
 
     // set new identification string
     obj->setObjectName(newId);
@@ -1724,7 +1724,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
         propCon->setParent(nullptr);
     }
 
-    QModelIndex srcIndex = gtDataModel->appendChild(obj, parent);
+    QModelIndex srcIndex = gtProcessDataModel->appendChild(obj, parent);
 
     auto task = qobject_cast<GtTask*>(obj);
 
@@ -1736,7 +1736,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
         {
             for (GtPropertyConnection* propCon : propCons)
             {
-                gtDataModel->appendChild(propCon, highestParent);
+                gtProcessDataModel->appendChild(propCon, highestParent);
             }
         }
     }
@@ -1773,12 +1773,12 @@ GtProcessDock::pasteElement(const QModelIndex& parentIndex)
         return;
     }
 
-    if (srcParentIndex.model() != gtDataModel)
+    if (srcParentIndex.model() != gtProcessDataModel)
     {
         return;
     }
 
-    GtObject* parent = gtDataModel->objectFromIndex(srcParentIndex);
+    GtObject* parent = gtProcessDataModel->objectFromIndex(srcParentIndex);
 
     if (!parent)
     {
@@ -1955,7 +1955,7 @@ GtProcessDock::openConnectionEditor(const QModelIndex& index)
     }
 
     // get object from index
-    GtObject* obj = gtDataModel->objectFromIndex(index);
+    GtObject* obj = gtProcessDataModel->objectFromIndex(index);
 
     // check object
     if (!obj)
@@ -2118,7 +2118,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         if (srcIndex.isValid())
         {
-            parentObj = gtDataModel->objectFromIndex(srcIndex);
+            parentObj = gtProcessDataModel->objectFromIndex(srcIndex);
         }
         else
         {
@@ -2133,7 +2133,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         updateLastUsedElementList(task->metaObject()->className());
 
-        QModelIndex newIndex = gtDataModel->appendChild(task, parentObj);
+        QModelIndex newIndex = gtProcessDataModel->appendChild(task, parentObj);
 
         QModelIndex index = mapFromSource(newIndex);
 
@@ -2164,7 +2164,7 @@ GtProcessDock::actionTriggered(QObject* obj)
             return;
         }
 
-        GtObject* currentObj = gtDataModel->objectFromIndex(srcIndex);
+        GtObject* currentObj = gtProcessDataModel->objectFromIndex(srcIndex);
 
         if (!currentObj)
         {
@@ -2218,7 +2218,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         updateLastUsedElementList(newObj->metaObject()->className());
 
-        QModelIndex newIndex = gtDataModel->appendChild(calc, currentObj);
+        QModelIndex newIndex = gtProcessDataModel->appendChild(calc, currentObj);
 
         QModelIndex index = mapFromSource(newIndex);
 
@@ -2505,7 +2505,7 @@ GtProcessDock::deleteProcessComponent(GtObject* obj)
 
     toDelete.append(pComp);
 
-    gtDataModel->deleteFromModel(toDelete);
+    gtProcessDataModel->deleteFromModel(toDelete);
 }
 
 void

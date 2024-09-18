@@ -443,7 +443,7 @@ GtProject::readModuleMetaData(const QDomElement& root)
 GtObject*
 GtProject::readProcessData()
 {
-    GtProcessData* data = new GtProcessData;
+    auto* data = new GtProcessData;
     data->setFactory(gtObjectFactory);
     data->setDefault(true);
     data->read(path());

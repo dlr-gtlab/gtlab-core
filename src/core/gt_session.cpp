@@ -15,6 +15,7 @@
 #include "gt_session.h"
 #include "gt_project.h"
 #include "gt_coreapplication.h"
+#include "gt_coreprocessdatamodel.h"
 #include "gt_logging.h"
 #include "gt_algorithms.h"
 
@@ -56,7 +57,9 @@ GtSession::loadProjectData(GtProject* project)
     retval.append(moduleData);
 
     // process data
-    retval.append(project->readProcessData());
+    GtProcessData* pd =
+            qobject_cast<GtProcessData*>(project->readProcessData());
+    gtProcessDataModel->setProcessData(pd);
 
     // label data
     retval.append(project->readLabelData(moduleData));
