@@ -18,6 +18,7 @@
 #include "gt_coreprocessexecutor.h"
 #include "gt_task.h"
 #include "gt_processdata.h"
+#include "gt_coreprocessdatamodel.h"
 
 #include <gt_logging.h>
 #include <iostream>
@@ -187,6 +188,8 @@ gt::console::runProcess(const QString& projectId,
 
         return -1;
     }
+
+    gtProcessDataModel->initProjectStates(project);
 
     gtDebug() << QObject::tr("project opened!");
 

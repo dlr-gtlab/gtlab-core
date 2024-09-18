@@ -18,6 +18,7 @@
 #include <QDebug>
 #include <QSettings>
 
+#include "gt_coreprocessdatamodel.h"
 #include "internal/gt_commandlinefunctionhandler.h"
 #include "batchremote.h"
 #include "gt_consolerunprocess.h"
@@ -577,6 +578,8 @@ list(const QStringList& args)
             std::cout << "Could not open the given project!" << std::endl;
             return -1;
         }
+
+        gtProcessDataModel->initProjectStates(project);
 
         QMap<QString, QStringList> const taskNamesMap = project->fullTaskIds();
 

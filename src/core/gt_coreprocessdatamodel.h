@@ -55,27 +55,6 @@ public:
     GtTaskGroup* currentTaskGroup();
 
     /**
-     * @brief Returns project corresponding to given identification string.
-     * Return NULL if no project was found.
-     * @param Identification string
-     * @return Project pointer
-     */
-    //GtTaskGroup* findTaskGroup(const QString& id);
-
-    /**
-     * @brief Returns list of all project of current session.
-     * @return List of session projects
-     */
-    //QList<GtTaskGroup*> taskGroups() const;
-
-    /**
-     * @brief Returns list of all project identification strings of current
-     * session.
-     * @return List of session project identification strings
-     */
-    //QStringList taskGroupIds() const;
-
-    /**
      * @brief Returns the number of columns for the children of the given
      * parent.
      * @param Parent model index
@@ -263,21 +242,6 @@ protected:
      * @return Item Flags
      */
     Qt::ItemFlags flags(const QModelIndex& index) const override;
-
-    /**
-     * @brief Returns the root parent index for given model index.
-     * @param Model index
-     * @return Root parent
-     */
-    QModelIndex rootParent(const QModelIndex& index) const;
-
-    /**
-     * @brief appendProjectData
-     * @param project
-     * @param projectData
-     */
-    void appendProjectData(GtProject* project,
-                           const QList<GtObject*>& projectData);
 
 private:
     /// Current session

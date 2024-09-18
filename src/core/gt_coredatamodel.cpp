@@ -145,13 +145,6 @@ GtCoreDatamodel::initProjectStates(GtProject* project)
                                     project->objectPath(),
                                     false, project);
 
-    // initialize last task group state
-    gtStateHandler->initializeState(project,
-                                    QStringLiteral("Project Settings"),
-                                    QStringLiteral("Last Task Group"),
-                                    project->objectPath() + ";lastTaskGroup",
-                                    QString(), project);
-
     // set init values
     gtExternalizationManager->enableExternalization(enableState->getValue());
 
