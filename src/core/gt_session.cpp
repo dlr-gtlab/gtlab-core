@@ -45,7 +45,6 @@ GtSession::GtSession() : m_valid(false)
 GtObjectList
 GtSession::loadProjectData(GtProject* project)
 {
-    gtFatal() << __FUNCTION__ << "Start";
     GtObjectList retval;
 
     if (!project)
@@ -63,8 +62,6 @@ GtSession::loadProjectData(GtProject* project)
 
     // label data
     retval.append(project->readLabelData(moduleData));
-
-    gtFatal() << __FUNCTION__ << "End";
 
     return retval;
 }

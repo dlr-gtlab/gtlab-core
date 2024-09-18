@@ -69,6 +69,7 @@ GtCoreProcessDatamodel::setProcessData(GtProcessData* processData)
     gtFatal() << __FUNCTION__ << "Start";
     beginResetModel();
     m_processData = processData;
+    gtFatal() << m_processData;
     endResetModel();
     gtFatal() << __FUNCTION__ << "End";
 }

@@ -288,9 +288,12 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         m_taskGroup = nullptr;
         m_taskGroupSelection->clear();
 
-        if (isProjectValid && project->processData())
+        GtProcessData* pd = gtProcessDataModel->session();
+
+
+        if (isProjectValid && pd)
         {
-            m_taskGroup = project->processData()->taskGroup();
+            m_taskGroup = pd->taskGroup();
 
             // add entries for all existing groups. avoid index change signals
             // to avoid wrong behavior
@@ -298,8 +301,8 @@ GtProcessDock::projectChangedEvent(GtProject* project)
                        this, SLOT(currentTaskGroupIndexChanged(int)));
 
             // add entries for all existing groups
-            m_taskGroupModel->init(project->processData()->userGroupIds(),
-                                   project->processData()->customGroupIds());
+            m_taskGroupModel->init(pd->userGroupIds(),
+                                   pd->customGroupIds());
 
             connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
                     SLOT(currentTaskGroupIndexChanged(int)));
@@ -2131,10 +2134,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         QModelIndex index = mapFromSource(newIndex);
 
-        if (!index.isValid())
-        {
-            return;
-        }
+        if (!index.isValid()) return;
 
         m_view->setFocus();
 
@@ -2153,17 +2153,11 @@ GtProcessDock::actionTriggered(QObject* obj)
     {
         QModelIndex srcIndex = mapToSource(m_view->currentIndex());
 
-        if (!srcIndex.isValid())
-        {
-            return;
-        }
+        if (!srcIndex.isValid()) return;
 
         GtObject* currentObj = gtProcessDataModel->objectFromIndex(srcIndex);
 
-        if (!currentObj)
-        {
-            return;
-        }
+        if (!currentObj) return;
 
         GtCalculatorData calcData =
             gtCalculatorFactory->calculatorData(className);
@@ -2175,10 +2169,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         QObject* newObj = calcData->metaData().newInstance();
 
-        if (!newObj)
-        {
-            return;
-        }
+        if (!newObj) return;
 
         auto calc = qobject_cast<GtCalculator*>(newObj);
 
@@ -2216,10 +2207,7 @@ GtProcessDock::actionTriggered(QObject* obj)
 
         QModelIndex index = mapFromSource(newIndex);
 
-        if (!index.isValid())
-        {
-            return;
-        }
+        if (!index.isValid()) return;
 
         m_view->setFocus();
 
@@ -2248,7 +2236,9 @@ GtProcessDock::onExecutorChanged(GtCoreProcessExecutor* exec)
 void
 GtProcessDock::currentTaskGroupIndexChanged(int index)
 {
-    if (!m_project || !m_project->processData())
+    GtProcessData* pd = gtProcessDataModel->session();
+
+    if (!m_project || !pd)
     {
         return;
     }
@@ -2260,13 +2250,10 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
         return;
     }
 
-    GtTaskGroup* currentGroup = m_project->processData()->taskGroup();
+    GtTaskGroup* currentGroup = pd->taskGroup();
 
     // check if selection matches current task
-    if (!currentGroup)
-    {
-        return;
-    }
+    if (!currentGroup) return;
 
     const QString groupId = m_taskGroupSelection->itemText(index);
 
@@ -2276,12 +2263,12 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
         return;
     }
 
-    m_project->processData()->switchCurrentTaskGroup(
+    pd->switchCurrentTaskGroup(
                 m_taskGroupSelection->itemText(index),
                 scope,
                 m_project->path());
 
-    m_taskGroup = m_project->processData()->taskGroup();
+    m_taskGroup = pd->taskGroup();
     updateCurrentTaskGroup();
 
 }
@@ -2307,13 +2294,13 @@ GtProcessDock::mapPropertyConnections(GtTask* orig,
 
         if (!newCon)
         {
-            gtDebug() << "Could not find copied connection...";
+            gtDebug() << tr("Could not find copied connection...");
             continue;
         }
 
         if (!detail::updateConnectionProperties(origCon, newCon, orig, copy))
         {
-            gtInfo() << "Could not update property connection!";
+            gtInfo() << tr("Could not update property connection!");
             continue;
         }
     }
@@ -2357,10 +2344,7 @@ GtProcessDock::updateLastUsedElementList(const QString& str)
 void
 GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
 {
-    if (!menu)
-    {
-        return;
-    }
+    if (!menu) return;
 
     QStringList list = gtApp->settings()->lastProcessElements();
 
@@ -2474,15 +2458,9 @@ GtProcessDock::deleteProcessComponent(GtObject* obj)
 {
     auto pComp = qobject_cast<GtProcessComponent*>(obj);
 
-    if (!pComp)
-    {
-        return;
-    }
+    if (!pComp) return;
 
-    if (!pComp->isReady())
-    {
-        return;
-    }
+    if (!pComp->isReady()) return;
 
     QList<GtObject*> toDelete;
 
@@ -2505,29 +2483,17 @@ GtProcessDock::deleteProcessComponent(GtObject* obj)
 void
 GtProcessDock::keyPressEvent(QKeyEvent* event)
 {
-    if (!m_view)
-    {
-        return;
-    }
+    if (!m_view) return;
 
-    if (!m_view->selectionModel())
-    {
-        return;
-    }
+    if (!m_view->selectionModel()) return;
 
-    if (m_view->selectionModel()->selectedIndexes().isEmpty())
-    {
-        return;
-    }
+    if (m_view->selectionModel()->selectedIndexes().isEmpty()) return;
 
     QModelIndex index = m_view->selectionModel()->selectedIndexes().first();
 
     QModelIndex srcIndex = mapToSource(index);
 
-    if (!srcIndex.isValid())
-    {
-        return;
-    }
+    if (!srcIndex.isValid()) return;
 
     if (gtApp->compareKeyEvent(event, "openContextMenu"))
     {

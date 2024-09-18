@@ -9,6 +9,7 @@
  *  Tel.: +49 2203 601 2907
  */
 
+#include "gt_coreprocessdatamodel.h"
 #include "gt_object.h"
 #include "gt_algorithms.h"
 #include "gt_application.h"
@@ -147,7 +148,7 @@ GtDataModel::openProject(GtProject* project)
     }
 
     // loading procedure
-    GtLoadProjectHelper* helper = new GtLoadProjectHelper(project);
+    auto* helper = new GtLoadProjectHelper(project);
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataLoaded()));
 
     gtApp->loadingProcedure(helper);
@@ -387,6 +388,16 @@ GtDataModel::onProjectDataLoaded()
     GtObjectList data = helper->loadedObjects();
 
     helper->deleteLater();
+
+    for (GtObject* o : data)
+    {
+        if (auto p = qobject_cast<GtProcessData*>(o))
+        {
+            data.removeOne(o);
+            // process data
+            gtProcessDataModel->setProcessData(p);
+        }
+    }
 
     appendProjectData(project, data);
 

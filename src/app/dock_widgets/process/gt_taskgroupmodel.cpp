@@ -8,8 +8,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include "gt_processdata.h"
-
 #include "gt_taskgroupmodel.h"
 
 GtTaskGroupModel::GtTaskGroupModel(QObject* parent) :
@@ -18,8 +16,9 @@ GtTaskGroupModel::GtTaskGroupModel(QObject* parent) :
 
 }
 
-void GtTaskGroupModel::init(const QStringList& userGroups,
-                            const QStringList& customGroups)
+void
+GtTaskGroupModel::init(const QStringList& userGroups,
+                       const QStringList& customGroups)
 {
     beginResetModel();
 
@@ -62,10 +61,7 @@ GtTaskGroupModel::rowCount(const QModelIndex& /*parent*/) const
 QVariant
 GtTaskGroupModel::data(const QModelIndex& index, int role) const
 {
-    if (!index.isValid() || index.model() != this)
-    {
-        return QVariant();
-    }
+    if (!index.isValid() || index.model() != this) return {};
 
     const int row = index.row();
 
@@ -77,7 +73,7 @@ GtTaskGroupModel::data(const QModelIndex& index, int role) const
         }
     }
 
-    return QVariant();
+    return {};
 }
 
 Qt::ItemFlags
@@ -99,10 +95,7 @@ QString
 GtTaskGroupModel::rowText(int row) const
 {
     // row out of bounds
-    if (row < 0 || row >= rowCount())
-    {
-        return {};
-    }
+    if (row < 0 || row >= rowCount()) return {};
 
     if (row == 0)
     {
@@ -127,15 +120,9 @@ GtTaskGroupModel::rowText(int row) const
 bool
 GtTaskGroupModel::rowIsSelectable(int row) const
 {
-    if (row < 0 || row >= rowCount())
-    {
-        return false;
-    }
+    if (row < 0 || row >= rowCount()) return false;
 
-    if ((row == 0) || (row == m_userGroups.size() + 1))
-    {
-        return false;
-    }
+    if ((row == 0) || (row == m_userGroups.size() + 1)) return false;
 
     return true;
 }

@@ -232,6 +232,7 @@ GtCoreDatamodel::openProject(const QString& id)
 bool
 GtCoreDatamodel::openProject(GtProject* project)
 {
+    gtFatal() << __FUNCTION__;
     // check project pointer
     if (!project)
     {
