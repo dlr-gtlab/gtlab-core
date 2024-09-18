@@ -354,7 +354,7 @@ GtProcessDock::addEmptyTask(GtObject* root)
 {
     if (!root) return;
 
-    QString taskId = gtDataModel->uniqueObjectName(tr("New Task"), root);
+    QString taskId = gt::makeUniqueName(tr("New Task"), root);
 
     if (taskId.isEmpty()) return;
 
@@ -537,8 +537,7 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     if (!newObj) return;
 
-    QString taskId = gtDataModel->uniqueObjectName(newObj->objectName(),
-                     parentObj);
+    QString taskId = gt::makeUniqueName(newObj->objectName(), parentObj);
     newObj->setObjectName(taskId);
 
     gtDebug().verbose() << tr("Task appended! (%1)").arg(
@@ -1706,8 +1705,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     }
 
     // create new unique identification string
-    QString newId = gtDataModel->uniqueObjectName(obj->objectName(),
-                    parent);
+    QString newId = gt::makeUniqueName(obj->objectName(), parent);
 
     // set new identification string
     obj->setObjectName(newId);
