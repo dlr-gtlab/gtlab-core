@@ -136,90 +136,75 @@ GtCoreProcessDatamodel::init()
 void
 GtCoreProcessDatamodel::initProjectStates(GtProject* project)
 {
-    // initialize externalization states
-    GtState* enableState = gtStateHandler->initializeState(project,
-                                    QStringLiteral("ExternalizationSettings"),
-                                    QStringLiteral("Enable Externalization"),
-                                    project->objectPath(),
-                                    false, project);
-
     // initialize last task group state
     gtStateHandler->initializeState(project,
                                     QStringLiteral("Project Settings"),
                                     QStringLiteral("Last Task Group"),
                                     project->objectPath() + ";lastTaskGroup",
                                     QString(), project);
-
-    // set init values
-    gtExternalizationManager->enableExternalization(enableState->getValue());
-
-    // update values if states change
-    connect(enableState, SIGNAL(valueChanged(const QVariant&)),
-            gtExternalizationManager,
-            SLOT(enableExternalization(const QVariant&)));
 }
 
-GtSession*
+GtProcessData*
 GtCoreProcessDatamodel::session()
 {
     return m_processData;
 }
 
-GtProject*
-GtCoreProcessDatamodel::currentProject()
+GtTaskGroup*
+GtCoreProcessDatamodel::currentTaskGroup()
 {
     // check session
     if (m_processData)
     {
         // return current project from session
-        return m_processData->currentProject();
+        return m_processData->taskGroup();
     }
 
     // no session -> no project
     return nullptr;
 }
 
-GtProject*
-GtCoreProcessDatamodel::findProject(const QString& id)
-{
-    // check session
-    if (m_processData)
-    {
-        // return project corresponding to given identification string
-        return m_processData->findProject(id);
-    }
+//GtTaskGroup*
+//GtCoreProcessDatamodel::findTaskGroup(const QString& id)
+//{
+//    // check session
+//    if (m_processData)
+//    {
+//        // return project corresponding to given identification string
+//        return m_processData->findProject(id);
+//    }
 
-    // no session -> no project
-    return nullptr;
-}
+//    // no session -> no project
+//    return nullptr;
+//}
 
-QList<GtProject*>
-GtCoreProcessDatamodel::projects() const
-{
-    // check session
-    if (m_processData)
-    {
-        // return project list of current session
-        return m_processData->projects();
-    }
+//QList<GtTaskGroup *>
+//GtCoreProcessDatamodel::taskGroups() const
+//{
+//    // check session
+//    if (m_processData)
+//    {
+//        // return project list of current session
+//        return m_processData->taskGroups();
+//    }
 
-    // no session -> no projects
-    return QList<GtProject*>();
-}
+//    // no session -> no projects
+//    return {};
+//}
 
-QStringList
-GtCoreProcessDatamodel::projectIds() const
-{
-    // check session
-    if (m_processData)
-    {
-        // return project identification string list of current session
-        return m_processData->projectIds();
-    }
+//QStringList
+//GtCoreProcessDatamodel::taskGroupIds() const
+//{
+//    // check session
+//    if (m_processData)
+//    {
+//        // return project identification string list of current session
+//        return m_processData->userGroupIds() + m_processData->customGroupIds();
+//    }
 
-    // no session -> no projects
-    return QStringList();
-}
+//    // no session -> no projects
+//    return {};
+//}
 
 
 int
@@ -244,7 +229,7 @@ GtCoreProcessDatamodel::rowCount(const QModelIndex& parent) const
 
     if (!parent.isValid())
     {
-        return m_processData->projects().size();
+        return m_processData->taskGroups().size();
     }
 
     // get parent item
@@ -265,44 +250,34 @@ GtCoreProcessDatamodel::index(int row, int col, const QModelIndex& parent) const
     // root
     if (!parent.isValid())
     {
-        QList<GtProject*> projects = m_processData->projects();
+        QList<const GtTaskGroup*> projects = m_processData->taskGroups();
 
         // check array size
-        if (row >= projects.size())
-        {
-            return {};
-        }
+        if (row >= projects.size()) return {};
 
         // get child object corresponding to row number
-        GtObject* childItem = projects[row];
+        const GtObject* childItem = projects[row];
 
         // check object
-        if (!childItem)
-        {
-            return {};
-        }
+        if (!childItem) return {};
+
+        GtObject* childItem2 = const_cast<GtObject*>(childItem);
 
         // create index
-        return createIndex(row, col, childItem);
+        return createIndex(row, col, childItem2);
     }
 
     // non root
     GtObject* parentItem = objectFromIndex(parent);
 
     // check parent item
-    if (!parentItem)
-    {
-        return {};
-    }
+    if (!parentItem) return {};
 
     QList<GtObject*> childItems =
             parentItem->findDirectChildren<GtObject*>();
 
     // check array size
-    if (row >= childItems.size())
-    {
-        return {};
-    }
+    if (row >= childItems.size()) return {};
 
     // get child object corresponding to row number
     GtObject* childItem = childItems[row];
@@ -553,13 +528,13 @@ GtCoreProcessDatamodel::indexFromObject(GtObject* obj, int col) const
     // initialize row
     int row = -1;
 
-    if (qobject_cast<GtProject*>(obj))
+    if (qobject_cast<GtTaskGroup*>(obj))
     {
         // handle project object
-        QList<GtProject*> projects = m_processData->projects();
+        QList<const GtTaskGroup*> projects = m_processData->taskGroups();
 
         // get index from project
-        row = projects.indexOf(qobject_cast<GtProject*>(obj));
+        row = projects.indexOf(qobject_cast<const GtTaskGroup*>(obj));
     }
     // handle object
     else if (obj->parent())

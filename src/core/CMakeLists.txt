@@ -98,7 +98,7 @@ set(headers
     gt_objectfiltermodel.h
     gt_projectdiffpatch.h
     gt_coredatamodel.h
-    gt_coreprocessdatamodel
+    gt_coreprocessdatamodel.h
     gt_loadprojecthelper.h
     gt_updatechecker.h
     gt_abstractloadinghelper.h

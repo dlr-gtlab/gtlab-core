@@ -347,6 +347,14 @@ GtProcessData::customGroupIds() const
     return m_pimpl->groupIds(GtTaskGroup::CUSTOM);
 }
 
+QList<const GtTaskGroup*>
+GtProcessData::taskGroups()
+{
+    QList<const GtTaskGroup*> retVal = m_pimpl->userGroups();
+    retVal.append(m_pimpl->customGroups());
+    return retVal;
+}
+
 bool
 GtProcessData::Impl::readTaskGroups(const QString& projectPath,
                                     GtTaskGroup::SCOPE scope)

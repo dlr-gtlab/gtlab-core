@@ -135,6 +135,7 @@ public:
      */
     QStringList customGroupIds() const;
 
+    QList<const GtTaskGroup *> taskGroups();
 private:
     /// Private implementation
     class Impl;

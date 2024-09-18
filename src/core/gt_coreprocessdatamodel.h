@@ -22,10 +22,11 @@
 
 #define gtProcessDataModel (GtCoreProcessDatamodel::instance())
 
-class GtSession;
-class GtProject;
+class GtProcessData;
+class GtTaskGroup;
 class GtObject;
 class GtAbstractObjectFactory;
+class GtProject;
 
 /**
  * @brief The GtCoreProcessDatamodel class
@@ -52,7 +53,7 @@ public:
      * be returned.
      * @return Current project pointer
      */
-    GtProject* currentProject();
+    GtTaskGroup* currentTaskGroup();
 
     /**
      * @brief Returns project corresponding to given identification string.
@@ -60,43 +61,20 @@ public:
      * @param Identification string
      * @return Project pointer
      */
-    GtProject* findProject(const QString& id);
+    //GtTaskGroup* findTaskGroup(const QString& id);
 
     /**
      * @brief Returns list of all project of current session.
      * @return List of session projects
      */
-    QList<GtProject*> projects() const;
+    //QList<GtTaskGroup*> taskGroups() const;
 
     /**
      * @brief Returns list of all project identification strings of current
      * session.
      * @return List of session project identification strings
      */
-    QStringList projectIds() const;
-
-    /**
-     * @brief Deletes given project from session.
-     * @param Project pointer
-     * @return Whether project could be deleted from session or not
-     */
-    bool deleteProject(GtProject* project);
-
-    /**
-     * @brief Adds given project to current session.
-     * @param Project pointer
-     * @param doOpen Whether to open the project after adding the project
-     * @return Whether project could be added or not
-     */
-    bool newProject(GtProject* project, bool doOpen);
-
-    /**
-     * @brief Adds given project to current session and opens it
-     *
-     * See: newProject(project, doOpen)
-     */
-    [[deprecated("Use newProject(project, doOpen) instead")]]
-    bool newProject(GtProject* project);
+    //QStringList taskGroupIds() const;
 
     /**
      * @brief Returns the number of columns for the children of the given
@@ -258,6 +236,7 @@ public:
      */
     void setProcessData(GtProcessData* processData);
 
+    GtProcessData* session();
 protected:
     /// Pointer to singleton object
     static GtCoreProcessDatamodel* m_self;
@@ -306,14 +285,6 @@ protected:
 private:
     /// Current session
     QPointer<GtProcessData> m_processData;
-
-signals:
-    /**
-     * @brief Emitted after successful project save.
-     * @param project Saved project.
-     */
-    void projectSaved(GtProject* project);
-
 };
 
 #endif // GTCOREPROCESSDATAMODEL_H
