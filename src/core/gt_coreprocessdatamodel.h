@@ -215,6 +215,13 @@ public:
     void setProcessData(GtProcessData* processData);
 
     GtProcessData* session();
+
+    /**
+     * @brief Initializes project specific states.
+     * @param project Loaded project.
+     */
+    void initProjectStates(GtProject* project);
+
 protected:
     /// Pointer to singleton object
     static GtCoreProcessDatamodel* m_self;
@@ -229,12 +236,6 @@ protected:
      * @brief Initialization
      */
     void init();
-
-    /**
-     * @brief Initializes project specific states.
-     * @param project Loaded project.
-     */
-    void initProjectStates(GtProject* project);
 
     /**
      * @brief Returns the item flags for the given index.

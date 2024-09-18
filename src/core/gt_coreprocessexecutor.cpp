@@ -15,6 +15,7 @@
 #include "gt_logging.h"
 #include "gt_runnable.h"
 #include "gt_project.h"
+#include "gt_coredatamodel.h"
 #include "gt_object.h"
 #include "gt_objectmemento.h"
 #include "gt_task.h"
@@ -114,7 +115,8 @@ GtCoreProcessExecutor::executeNextTask()
     if (!m_source)
     {
         // find project and put it into source
-        m_source = m_current->findParent<GtProject*>();
+        m_source = //m_current->findParent<GtProject*>();
+                gtDataModel->currentProject();
 
         // check whether source is still a null pointer
         if (!m_source)

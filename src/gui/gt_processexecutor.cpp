@@ -43,9 +43,8 @@ GtProcessExecutor::handleTaskFinishedHelper(QList<GtObjectMemento>& changedData,
     {
         m_task = task;
 
-        GtFinishedProcessLoadingHelper* helper =
-                new GtFinishedProcessLoadingHelper(&changedData, m_source,
-                                                   m_task->objectName());
+        auto* helper = new GtFinishedProcessLoadingHelper(
+                    &changedData, m_source, m_task->objectName());
 
         connect(helper, SIGNAL(finished()), SLOT(onHelperFinished()));
 
