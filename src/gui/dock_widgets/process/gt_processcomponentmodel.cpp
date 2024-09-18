@@ -48,16 +48,12 @@ GtProcessComponentModel::data(const QModelIndex& index, int role) const
     {
         case Qt::DisplayRole:
         {
-            if (col != 0)
-            {
-                return QVariant();
-            }
+            if (col != 0) return {};
 
             GtObject* item = static_cast<GtObject*>(
                                  index.internalPointer());
 
-            GtProcessComponent* pc =
-                qobject_cast<GtProcessComponent*>(item);
+            auto* pc = qobject_cast<GtProcessComponent*>(item);
 
             if (!pc)
             {

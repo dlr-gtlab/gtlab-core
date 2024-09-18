@@ -44,6 +44,7 @@ class GtCommand;
 class GtVersionNumber;
 class GtModuleInterface;
 class GtCoreApplication;
+class GtCoreProcessDatamodel;
 
 namespace gt
 {
@@ -509,6 +510,9 @@ protected:
 
     /// Date model pointer
     GtCoreDatamodel* m_dataModel;
+
+    /// Process data model pointer
+    GtCoreProcessDatamodel* m_processDataModel;
 
     /**
      * @brief readSessionIds

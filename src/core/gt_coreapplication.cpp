@@ -40,6 +40,7 @@
 #include "gt_algorithms.h"
 #include "gt_moduleinterface.h"
 #include "gt_taskgroup.h"
+#include "gt_coreprocessdatamodel.h"
 
 #include <gt_logdest.h>
 
@@ -65,7 +66,8 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     m_sessionIds(QStringList() << QStringLiteral("default")),
     m_devMode(false),
     m_appMode(batch),
-    m_dataModel(new GtCoreDatamodel(parent))
+    m_dataModel(new GtCoreDatamodel(parent)),
+    m_processDataModel(new GtCoreProcessDatamodel(parent))
 {
     QCoreApplication::setOrganizationDomain("www.dlr.de");
     QCoreApplication::setOrganizationName("DLR");

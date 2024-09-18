@@ -14,7 +14,6 @@
 
 #include "gt_core_exports.h"
 #include "gt_processdata.h"
-#include "gt_qtutilities.h"
 
 #include <QAbstractItemModel>
 #include <QPointer>
@@ -280,11 +279,16 @@ protected:
     void appendProjectData(GtProject* project,
                            const QList<GtObject*>& projectData);
 
-
-
 private:
     /// Current session
     QPointer<GtProcessData> m_processData;
+
+
+signals:
+    /**
+     * @brief triggerEndResetDataModelView
+     */
+    void triggerEndResetDataModelView();
 };
 
 #endif // GTCOREPROCESSDATAMODEL_H

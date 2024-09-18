@@ -45,6 +45,7 @@ GtSession::GtSession() : m_valid(false)
 GtObjectList
 GtSession::loadProjectData(GtProject* project)
 {
+    gtFatal() << __FUNCTION__ << "Start";
     GtObjectList retval;
 
     if (!project)
@@ -57,12 +58,13 @@ GtSession::loadProjectData(GtProject* project)
     retval.append(moduleData);
 
     // process data
-    GtProcessData* pd =
-            qobject_cast<GtProcessData*>(project->readProcessData());
+    auto* pd = qobject_cast<GtProcessData*>(project->readProcessData());
     gtProcessDataModel->setProcessData(pd);
 
     // label data
     retval.append(project->readLabelData(moduleData));
+
+    gtFatal() << __FUNCTION__ << "End";
 
     return retval;
 }

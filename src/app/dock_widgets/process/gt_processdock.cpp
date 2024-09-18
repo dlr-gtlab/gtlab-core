@@ -215,7 +215,7 @@ GtProcessDock::GtProcessDock() :
     connect(processRunner, &GtProcessRunner::connectionStateChanged,
             this, [this](){ updateRunButton(); });
 
-    connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
+    connect(gtProcessDataModel, SIGNAL(triggerEndResetDataModelView()),
             SLOT(resetModel()));
     connect(this, SIGNAL(selectedObjectChanged(GtObject*)),
             gtApp, SIGNAL(objectSelected(GtObject*)));
@@ -609,17 +609,11 @@ GtProcessDock::componentIsReady(GtProcessComponent* comp)
 void
 GtProcessDock::filterData(const QString& val)
 {
-    if (!m_filterModel)
-    {
-        return;
-    }
+    if (!m_filterModel) return;
 
     m_filterModel->setFilterRegExp(val);
 
-    if (m_rootIndex.isValid())
-    {
-        return;
-    }
+    if (m_rootIndex.isValid()) return;
 
     m_view->setModel(nullptr);
 

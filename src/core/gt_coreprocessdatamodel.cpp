@@ -66,9 +66,11 @@ GtCoreProcessDatamodel::flags(const QModelIndex& index) const
 void
 GtCoreProcessDatamodel::setProcessData(GtProcessData* processData)
 {
+    gtFatal() << __FUNCTION__ << "Start";
     beginResetModel();
     m_processData = processData;
     endResetModel();
+    gtFatal() << __FUNCTION__ << "End";
 }
 
 void
@@ -248,7 +250,7 @@ QModelIndex
 GtCoreProcessDatamodel::index(int row, int col, const QModelIndex& parent) const
 {
     // root
-    if (!parent.isValid())
+    if (!parent.isValid() && m_processData)
     {
         QList<const GtTaskGroup*> projects = m_processData->taskGroups();
 
@@ -404,9 +406,9 @@ GtCoreProcessDatamodel::setData(const QModelIndex& index, const QVariant& value,
     GtObject* item = objectFromIndex(index);
 
     // check object
-    if (!item)
+    if (!item) return false;
     {
-        return false;
+
     }
 
     // check renameable flag
@@ -459,10 +461,7 @@ QMimeData*
 GtCoreProcessDatamodel::mimeDataFromObject(GtObject* obj, bool newUuid) const
 {
     // check object
-    if (!obj)
-    {
-        return NULL;
-    }
+    if (!obj) return nullptr;
 
     // create memento
     GtObjectMemento memento = obj->toMemento(!newUuid);
@@ -481,10 +480,7 @@ GtCoreProcessDatamodel::objectFromMimeData(const QMimeData* mime, bool newUuid,
                                     GtAbstractObjectFactory* factory)
 {
     // check mime data
-    if (!mime)
-    {
-        return nullptr;
-    }
+    if (!mime) return nullptr;
 
     // check mime data format
     if (!mime->hasFormat(QStringLiteral("GtObject")))
@@ -496,10 +492,7 @@ GtCoreProcessDatamodel::objectFromMimeData(const QMimeData* mime, bool newUuid,
     GtObjectMemento memento(mime->data(QStringLiteral("GtObject")));
 
     // check memento
-    if (memento.isNull())
-    {
-        return nullptr;
-    }
+    if (memento.isNull()) return nullptr;
 
     // check factory. if no factory was set, use default object factory
     if (!factory)
@@ -514,10 +507,7 @@ GtCoreProcessDatamodel::objectFromMimeData(const QMimeData* mime, bool newUuid,
 GtObject*
 GtCoreProcessDatamodel::objectFromIndex(const QModelIndex& index) const
 {
-    if (!index.isValid())
-    {
-        return nullptr;
-    }
+    if (!index.isValid()) return nullptr;
 
     return static_cast<GtObject*>(index.internalPointer());
 }
@@ -528,7 +518,7 @@ GtCoreProcessDatamodel::indexFromObject(GtObject* obj, int col) const
     // initialize row
     int row = -1;
 
-    if (qobject_cast<GtTaskGroup*>(obj))
+    if (qobject_cast<GtTaskGroup*>(obj) && m_processData)
     {
         // handle project object
         QList<const GtTaskGroup*> projects = m_processData->taskGroups();
@@ -543,10 +533,7 @@ GtCoreProcessDatamodel::indexFromObject(GtObject* obj, int col) const
     }
 
     // check row
-    if (row < 0)
-    {
-        return {};
-    }
+    if (row < 0) return {};
 
     // create index
     return createIndex(row, col, obj);
