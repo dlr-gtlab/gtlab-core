@@ -20,7 +20,6 @@ set(headers
     dock_widgets/process/gt_taskgroupmodel.h
     dock_widgets/properties/gt_propertycontainerwidget.h
     gt_mainwin.h
-    models/gt_qmlobjectlistmodel.h
     preferences/gt_preferencesdialog.h
     preferences/pages/gt_preferencesapp.h
     preferences/pages/gt_preferenceslanguage.h
@@ -115,7 +114,6 @@ set(sources
     dock_widgets/process/gt_taskgroupmodel.cpp
     dock_widgets/properties/gt_propertycontainerwidget.cpp
     gt_mainwin.cpp
-    models/gt_qmlobjectlistmodel.cpp
     preferences/gt_preferencesdialog.cpp
     preferences/pages/gt_preferencesapp.cpp
     preferences/pages/gt_preferenceslanguage.cpp
