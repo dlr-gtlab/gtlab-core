@@ -50,7 +50,7 @@ public:
 
     bool append(const T& value)
     {
-        return insertItem(m_data.size(), value);
+        return insertItem(static_cast<int>(m_data.size()), value);
     }
 
     bool removeItem(int index)

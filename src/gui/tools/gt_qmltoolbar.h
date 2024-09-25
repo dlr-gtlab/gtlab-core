@@ -17,11 +17,12 @@
 #include <gt_qmlaction.h>
 #include <gt_qmltoolbargroup.h>
 
+#include <gt_gui_exports.h>
 
 /**
  * @brief Class for controlling the QML Toolbar.
  */
-class GtQmlToolbar : public QWidget
+class GT_GUI_EXPORT GtQmlToolbar : public QWidget
 {
     Q_OBJECT
 

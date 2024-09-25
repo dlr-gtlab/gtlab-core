@@ -13,6 +13,8 @@
 
 #include <gt_listmodel.h>
 
+#include <gt_gui_exports.h>
+
 using ActionModel = GtListModel<GtQmlAction*>;
 
 template <>
@@ -26,7 +28,7 @@ gt::asVariant(GtQmlAction* const& action)
  * @brief A logical group of actions that can be added
  *        and removed from the toolbar
  */
-class GtQmlToolbarGroup : public ActionModel
+class GT_GUI_EXPORT GtQmlToolbarGroup : public ActionModel
 {
 
     Q_OBJECT
