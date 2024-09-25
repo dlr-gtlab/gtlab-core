@@ -4,8 +4,10 @@
         <file>AnimatedButton.qml</file>
         <file>AnimatedButtonGitLab.qml</file>
         <file>markdown_editor.qml</file>
-        <file>toolbar.qml</file>
+        <file>Toolbar.qml</file>
         <file>dockbar.qml</file>
         <file>DockBarButton.qml</file>
+        <file>ToolbarButton.qml</file>
+        <file>ToolbarGroup.qml</file>
     </qresource>
 </RCC>

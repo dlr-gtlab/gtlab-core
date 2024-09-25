@@ -2,93 +2,58 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- *
- *  Created on: 16.09.2022
- *  Author: Stanislaus Reitenbach (AT-TWK)
- *  Tel.: +49 2203 601 2907
  */
 
-#ifndef GTTOOLBARHANDLER_H
-#define GTTOOLBARHANDLER_H
+
+#ifndef GTQMLTOOLBAR_H
+#define GTQMLTOOLBAR_H
 
 #include <QObject>
-#include <QPointer>
+#include <QWidget>
 
-#include "gt_object.h"
-#include "gt_qmlaction.h"
+#include <memory>
 
-#include <QQuickWidget>
+#include <gt_qvariantlistmodel.h>
+#include <gt_qmlaction.h>
+#include <gt_qmltoolbargroup.h>
 
-#include "gt_qmlobjectlistmodel.h"
 
 /**
  * @brief Class for controlling the QML Toolbar.
  */
-class GtQmlToolbar: public QQuickWidget
+class GtQmlToolbar : public QWidget
 {
     Q_OBJECT
 
+    Q_PROPERTY(QObject* groups READ groups NOTIFY groupsChanged FINAL)
+    Q_PROPERTY(GtQmlToolbarGroup* statusActions READ statusActions NOTIFY statusActionsChanged FINAL)
+    Q_PROPERTY(bool darkmode READ darkmode NOTIFY darkmodeChanged FINAL)
+
 public:
-    explicit GtQmlToolbar(class GtMainWin* parent = nullptr);
+    explicit GtQmlToolbar(QWidget *parent = nullptr);
+    ~GtQmlToolbar() override;
 
-public slots:
-    /**
-     * @brief Called by clicking a qml button
-     * @param btnId button identification string
-     */
-    void buttonClicked(const QString& btnId);
+    Q_INVOKABLE QVariantListModel* toolbarGroups();
 
-    /**
-     * @brief Called on object selection change
-     * @param obj selected object. nullptr if no object is selected
-     */
-    void onObjectSelected(GtObject* obj);
+    Q_INVOKABLE void addToolbarGroup(GtQmlToolbarGroup* group);
+    Q_INVOKABLE void removeToolbarGroup(const QString &groupId);
 
-    /**
-     * @brief Returns true if current project has an information
-     * file (readme.md) inside the project directory
-     * @return true if current project has an information file. otherwise
-     * false is returned
-     */
-    bool projectHasInfo();
+    Q_INVOKABLE void addStatusAction(GtQmlAction* action);
 
-    /**
-     * @brief Adds an custom button to the right side of the toolbar
-     */
-    Q_INVOKABLE class GtQmlAction *addCustomButton(const QString& text, const QUrl& iconUrl);
+    Q_INVOKABLE bool darkmode() const;
+    Q_INVOKABLE void setDarkmode(bool d);
 
-private:
-
-    /// Pointer to selected object
-    QPointer<GtObject> m_selectedObj;
-    QPointer<GtQmlObjectListModel> m_customActions;
+    QVariantListModel* groups();
+    GtQmlToolbarGroup* statusActions();
 
 signals:
-    /**
-     * @brief Emitted after new project button was clicked.
-     */
-    void newProjectButtonClicked();
+    void groupsChanged();
+    void statusActionsChanged();
+    void darkmodeChanged();
 
-    /**
-     * @brief Emitted after save project button was clicked.
-     */
-    void saveProjectButtonClicked();
-
-    /**
-     * @brief Emitted after open project button was clicked.
-     */
-    void openProjectButtonClicked();
-
-    /**
-     * @brief Emitted after undo button was clicked.
-     */
-    void undoButtonClicked();
-
-    /**
-     * @brief Emitted after redo button was clicked.
-     */
-    void redoButtonClicked();
-
+private:
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
 
-#endif // GTTOOLBARHANDLER_H
+#endif // GTQMLTOOLBAR_H
