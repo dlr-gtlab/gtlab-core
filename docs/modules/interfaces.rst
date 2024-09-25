@@ -16,5 +16,12 @@ In order for the module to be recognized by GTlab, a module main class must be d
    interfaces/datamodel
    interfaces/process
    interfaces/mdi
+   interfaces/property
+   interfaces/importer
+   interfaces/exporter
+   interfaces/InitModule
+   interfaces/collection
+   interfaces/network
+   interfaces/calculatorexec
 
 
