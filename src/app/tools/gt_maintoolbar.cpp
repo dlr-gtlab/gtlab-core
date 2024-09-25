@@ -157,9 +157,6 @@ GtMainToolbar::makeConnections(GtMainWin* mainwin)
                 redoAction->setTooltip(txt);
             });
 
-    connect(printAction, SIGNAL(triggered()),
-            mainwin, SLOT(printCurrentMdiItem()));
-
     connect(gtApp, &GtApplication::themeChanged,
             this, &GtMainToolbar::setDarkmode);
 
@@ -184,5 +181,7 @@ GtMainToolbar::makeConnections(GtMainWin* mainwin)
         connect(mainwin, &GtMainWin::currentMdiItemPrintable,
                 this->printAction, &GtQmlAction::setVisible);
 
+        connect(printAction, SIGNAL(triggered()),
+                mainwin, SLOT(printCurrentMdiItem()));
     }
 }
