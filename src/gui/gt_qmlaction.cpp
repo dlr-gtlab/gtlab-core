@@ -8,75 +8,98 @@
 
 #include "gt_qmlaction.h"
 
-GtQmlAction::GtQmlAction(QString text, QObject* parent) :
-    QObject(parent),
-    m_text(std::move(text))
+struct GtQmlAction::Impl
 {
-}
+    QUrl m_iconSource;
+    QString m_text = {"Action"};
+    QString m_tooltip;
+    bool m_enabled = {true};
+    bool m_visible = {true};
+};
 
-GtQmlAction::GtQmlAction(QObject *parent) : 
-    GtQmlAction("", parent)
-{
-}
+GtQmlAction::~GtQmlAction() = default;
 
-GtQmlAction::GtQmlAction(QString text, QUrl iconUrl, QObject *parent) :
-    QObject(parent),
-    m_text(std::move(text)),
-    m_iconUrl(std::move(iconUrl))
-{
-}
+GtQmlAction::GtQmlAction(QObject *parent) : QObject(parent)
+{}
 
-QString
-GtQmlAction::text() const
+GtQmlAction::GtQmlAction(QString text, QUrl icon, QObject *parent)
+    : QObject(parent), pimpl(std::make_unique<Impl>())
 {
-    return m_text;
-}
-
-void
-GtQmlAction::setText(const QString& text)
-{
-    if (m_text != text)
-    {
-        m_text = text;
-        emit textChanged();
-    }
+    pimpl->m_iconSource = std::move(icon);
+    pimpl->m_text = std::move(text);
 }
 
 QUrl
 GtQmlAction::iconUrl() const
 {
-    return m_iconUrl;
-
+    return pimpl->m_iconSource;
 }
 
 void
-GtQmlAction::setIconUrl(const QUrl & url)
+GtQmlAction::setIconUrl(const QUrl& url)
 {
-    if (m_iconUrl != url)
-    {
-        m_iconUrl = url;
-        emit iconUrlChanged();
-    }
+    if (pimpl->m_iconSource == url) return;
+
+    pimpl->m_iconSource = url;
+    emit iconUrlChanged();
+}
+
+QString
+GtQmlAction::text() const
+{
+    return pimpl->m_text;
+}
+
+void
+GtQmlAction::setText(const QString& text)
+{
+    if (pimpl->m_text == text) return;
+
+    pimpl->m_text = text;
+    emit textChanged();
+}
+
+QString
+GtQmlAction::tooltip() const
+{
+    return pimpl->m_tooltip;
+}
+
+void
+GtQmlAction::setTooltip(QString t)
+{
+    if (t == pimpl->m_tooltip) return;
+
+    pimpl->m_tooltip = std::move(t);
+    emit tooltipChanged();
 }
 
 bool
 GtQmlAction::enabled() const
 {
-    return m_enabled;
+    return pimpl->m_enabled;
 }
 
 void
 GtQmlAction::setEnabled(bool enabled)
 {
-    if (m_enabled != enabled)
-    {
-        m_enabled = enabled;
-        emit enabledChanged();
-    }
+    if (pimpl->m_enabled == enabled) return;
+
+    pimpl->m_enabled = enabled;
+    emit enabledChanged();
+}
+
+bool
+GtQmlAction::visible() const
+{
+    return pimpl->m_visible;
 }
 
 void
-GtQmlAction::trigger()
+GtQmlAction::setVisible(bool visible)
 {
-    emit triggered();
+    if (pimpl->m_visible == visible) return;
+
+    pimpl->m_visible = visible;
+    emit visibleChanged();
 }

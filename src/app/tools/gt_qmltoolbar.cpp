@@ -2,132 +2,107 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- *
- *  Created on: 16.09.2022
- *  Author: Stanislaus Reitenbach (AT-TWK)
- *  Tel.: +49 2203 601 2907
  */
-
-#include <QDir>
-#include <QFile>
-#include <QQmlContext>
-#include <QAction>
-
-#include "gt_logging.h"
-#include "gt_application.h"
-#include "gt_mdilauncher.h"
-#include "gt_project.h"
-#include "gt_markdowneditor.h"
 
 #include "gt_qmltoolbar.h"
 
-#include "gt_mainwin.h"
-#include "gt_icons.h"
+#include <QDebug>
+#include <QQuickItem>
 
-GtQmlToolbar::GtQmlToolbar(GtMainWin* parent)
-    : QQuickWidget(parent)
-    , m_customActions(new GtQmlObjectListModel(this))
+#include <QLayout>
+
+#include <QQuickWidget>
+#include <QQmlContext>
+
+struct GtQmlToolbar::Impl
 {
-    setObjectName("MainWindowToolbar");
+    QVariantListModel m_toolbarGroupsList;
+    GtQmlToolbarGroup m_statusActions;
+    QQuickWidget qmlToolbar;
 
-    rootContext()->setContextProperty("mainwin",
-                                      parent);
-    rootContext()->setContextProperty("gtapp",
-                                                  gtApp);
-    rootContext()->setContextProperty("undostack",
-                                                  gtApp->undoStack());
-    rootContext()->setContextProperty("toolbar", this);
+    bool m_darkMode = {false};
+};
 
-    rootContext()->setContextProperty("customActions", m_customActions);
+GtQmlToolbar::GtQmlToolbar(QWidget* parent) :
+    QWidget(parent), pimpl(std::make_unique<Impl>())
+{
+    static auto typeRegistered = []() {
+        qmlRegisterType<GtQmlAction>("de.gtlab", 2, 1, "ToolbarAction");
+        return true;
+    }();
+    Q_UNUSED(typeRegistered);
 
-    setSource(QUrl("qrc:/qml/toolbar.qml"));
+
+    pimpl->qmlToolbar.rootContext()->setContextProperty("toolbar", this);
+    pimpl->qmlToolbar.setSource(QUrl(QStringLiteral("qrc:/qml/Toolbar.qml")));
+
+    auto layout = new QVBoxLayout();
+    layout->addWidget(&pimpl->qmlToolbar);
+    layout->setContentsMargins(0, 0, 0, 0);
+    setLayout(layout);
+
+    pimpl->qmlToolbar.setResizeMode(QQuickWidget::SizeRootObjectToView);
+}
+
+GtQmlToolbar::~GtQmlToolbar() = default;
+
+QVariantListModel*
+GtQmlToolbar::toolbarGroups()
+{
+    return &pimpl->m_toolbarGroupsList;
 }
 
 void
-GtQmlToolbar::buttonClicked(const QString &btnId)
+GtQmlToolbar::addToolbarGroup(GtQmlToolbarGroup* group)
 {
-    if (btnId == "btn_save_project")
-    {
-        emit saveProjectButtonClicked();
-    }
-    else if (btnId == "btnNewProject")
-    {
-        emit newProjectButtonClicked();
-    }
-    else if (btnId == "btnOpenProject")
-    {
-        emit openProjectButtonClicked();
-    }
-    else if (btnId == "btn_undo")
-    {
-        emit undoButtonClicked();
-    }
-    else if (btnId == "btn_redo")
-    {
-        emit redoButtonClicked();
-    }
-    else if (btnId == "btn_info")
-    {
-        // check project readme and show content
-        GtProject* currentProject = gtApp->currentProject();
 
-        if (currentProject)
-        {
-            QDir projectDir(currentProject->path());
-            QFile readmeFile(projectDir.absoluteFilePath("README.md"));
-            if (readmeFile.exists() && readmeFile.open(QFile::ReadOnly))
-            {
-                QByteArray data = readmeFile.readAll();
-                QString str(data);
+    if (!group)
+        return;
 
-                GtMarkdownEditor* editor = new GtMarkdownEditor(str);
-                editor->setWindowTitle(currentProject->objectName());
-                editor->show();
-            }
-
-
-        }
-    }
-    else if (btnId == "btnHome")
-    {
-        gtMdiLauncher->open("GtStartupPage");
-    }
-    else if (btnId == "btnPrint")
-    {
-       gtMdiLauncher->printCurrentWindow();
-    }
+    pimpl->m_toolbarGroupsList.append(QVariant::fromValue(group));
+    emit groupsChanged();
 }
 
 void
-GtQmlToolbar::onObjectSelected(GtObject* obj)
+GtQmlToolbar::removeToolbarGroup(const QString& groupId)
 {
-    if (obj != m_selectedObj)
-    {
-        m_selectedObj = obj;
-    }
+    pimpl->m_toolbarGroupsList.removeItem(1);
+    emit groupsChanged();
+
+    return;
+}
+
+void
+GtQmlToolbar::addStatusAction(GtQmlAction* action)
+{
+    pimpl->m_statusActions.append(action);
+    emit statusActionsChanged();
 }
 
 bool
-GtQmlToolbar::projectHasInfo()
+GtQmlToolbar::darkmode() const
 {
-    // check project readme and show content
-    GtProject* currentProject = gtApp->currentProject();
-
-    if (!currentProject)
-    {
-        return false;
-    }
-
-    QDir projectDir(currentProject->path());
-    QFile readmeFile(projectDir.absoluteFilePath("README.md"));
-
-    return readmeFile.exists();
+    return pimpl->m_darkMode;
 }
 
-GtQmlAction*
-GtQmlToolbar::addCustomButton(const QString &text, const QUrl &iconUrl)
+void
+GtQmlToolbar::setDarkmode(bool d)
 {
-    auto action = new GtQmlAction(text, iconUrl, this);
-    m_customActions->addObject(action);
-    return action;
+    if (d == pimpl->m_darkMode)
+        return;
+
+    pimpl->m_darkMode = d;
+    emit darkmodeChanged();
+}
+
+QVariantListModel*
+GtQmlToolbar::groups()
+{
+    return &pimpl->m_toolbarGroupsList;
+}
+
+GtQmlToolbarGroup*
+GtQmlToolbar::statusActions()
+{
+    return &pimpl->m_statusActions;
 }
