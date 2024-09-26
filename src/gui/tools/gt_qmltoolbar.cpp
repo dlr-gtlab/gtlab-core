@@ -10,9 +10,10 @@
 #include <QQuickItem>
 
 #include <QLayout>
-
 #include <QQuickWidget>
 #include <QQmlContext>
+
+#include <iterator>
 
 struct GtQmlToolbar::Impl
 {
@@ -64,12 +65,23 @@ GtQmlToolbar::addToolbarGroup(GtQmlToolbarGroup* group)
 }
 
 void
-GtQmlToolbar::removeToolbarGroup(const QString& groupId)
+GtQmlToolbar::removeToolbarGroup(GtQmlToolbarGroup * group)
 {
-    pimpl->m_toolbarGroupsList.removeItem(1);
-    emit groupsChanged();
+    auto iter = std::find_if(pimpl->m_toolbarGroupsList.begin(),
+                 pimpl->m_toolbarGroupsList.end(), [group](const QVariant& v)
+    {
+        auto grp = v.value<GtQmlToolbarGroup*>();
+        if (!grp) return false;
 
-    return;
+        return grp == group;
+    });
+
+    if (iter == pimpl->m_toolbarGroupsList.end()) return; // group not found
+
+    auto idx = std::distance(pimpl->m_toolbarGroupsList.begin(), iter);
+    pimpl->m_toolbarGroupsList.removeItem(idx);
+
+    emit groupsChanged();
 }
 
 void
