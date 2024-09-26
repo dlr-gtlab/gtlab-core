@@ -15,7 +15,12 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QMenu>
+#include <QClipboard>
 
+#include <gt_logging.h>
+#include "gt_abstractpropertyitem.h"
+#include "gt_application.h"
 #include "gt_propertytreeview.h"
 #include "gt_propertymodel.h"
 #include "gt_treefiltermodel.h"
@@ -39,6 +44,7 @@ GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
     setDropIndicatorShown(true);
     setDragDropOverwriteMode(true);
 
+    setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(this, SIGNAL(collapsed(QModelIndex)),
             SLOT(onCollapsed(QModelIndex)));
@@ -67,6 +73,9 @@ GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
             SLOT(setRootsSpanned()));
     connect(idDelegate, SIGNAL(deleteRequested(QModelIndex)),
             SLOT(onDeleteRequested(QModelIndex)));
+
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(onCustomContextMenu(const QPoint &)));
 }
 
 void
@@ -306,5 +315,32 @@ GtPropertyTreeView::onDeleteRequested(const QModelIndex& idx)
     }
 
     m_model->removeStructContainerEntry(sidx);
+}
+
+void
+GtPropertyTreeView::onCustomContextMenu(const QPoint& point)
+{
+    QModelIndex index = indexAt(point);
+
+    if (!index.isValid()) return;
+
+    // value element of the propety item
+    if (index.column() == 2)
+    {
+        QMenu contextMenu;
+        QAction* copyAction = contextMenu.addAction(gt::gui::icon::copy(),
+                                                    tr("Copy"));
+        copyAction->setShortcutContext(Qt::ShortcutContext::WidgetShortcut);
+        copyAction->setShortcut(gtApp->getShortCutSequence("copy"));
+
+        QAction* a = contextMenu.exec(viewport()->mapToGlobal(point));
+
+        if (a == copyAction)
+        {
+            QVariant val = index.data();
+
+            QApplication::clipboard()->setText(val.toString());
+        }
+    }
 }
 
