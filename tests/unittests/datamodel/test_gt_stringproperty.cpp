@@ -136,7 +136,7 @@ TEST_F(TestGtStringProperty, optional)
     ASSERT_FALSE(prop.isOptional());
 }
 
-TEST_F(TestGtIntProperty, extendenOperator)
+TEST_F(TestGtStringProperty, extendenOperator)
 {
 	GtStringProperty prop("prop", "test", "test", "hello");
 	
