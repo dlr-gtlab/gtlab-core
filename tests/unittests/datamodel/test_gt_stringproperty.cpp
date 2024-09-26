@@ -145,5 +145,5 @@ TEST_F(TestGtStringProperty, extendenOperator)
     prop.setVal("GTlab");
 	
 	prop += added;
-    ASSERT_STREQ(&prop.get(), "GTlab is nice!");
+    ASSERT_STREQ(&prop.get().toStdString().c_str(), "GTlab is nice!");
 }
