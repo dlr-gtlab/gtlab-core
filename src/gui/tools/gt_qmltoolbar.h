@@ -37,7 +37,7 @@ public:
     Q_INVOKABLE QVariantListModel* toolbarGroups();
 
     Q_INVOKABLE void addToolbarGroup(GtQmlToolbarGroup* group);
-    Q_INVOKABLE void removeToolbarGroup(const QString &groupId);
+    Q_INVOKABLE void removeToolbarGroup(GtQmlToolbarGroup * group);
 
     Q_INVOKABLE void addStatusAction(GtQmlAction* action);
 

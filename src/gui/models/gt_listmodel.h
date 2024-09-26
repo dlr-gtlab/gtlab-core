@@ -23,6 +23,8 @@ template <typename T>
 class GtListModel : public QAbstractListModel
 {
 public:
+    using iterator = typename std::vector< T>::iterator;
+
     explicit GtListModel(QObject* parent = nullptr)
         : QAbstractListModel(parent)
     {
@@ -46,6 +48,16 @@ public:
         m_data.insert(m_data.begin() + index, value);
         endInsertRows();
         return true;
+    }
+
+    iterator begin()
+    {
+        return m_data.begin();
+    }
+
+    iterator end()
+    {
+        return m_data.end();
     }
 
     bool append(const T& value)
