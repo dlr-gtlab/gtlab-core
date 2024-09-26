@@ -125,10 +125,10 @@ public:
                   const int& value = 0.0);
 
     // operator overloads
-    inline void operator+=(int b);
-    inline void operator-=(int b);
-    inline void operator*=(int b);
-    inline void operator/=(int b);
+    void operator+=(int b);
+    void operator-=(int b);
+    void operator*=(int b);
+    void operator/=(int b);
 
     /**
      * @brief valueToVariant

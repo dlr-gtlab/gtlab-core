@@ -51,7 +51,7 @@ public:
                      QValidator* validator = nullptr);
 
     // operator overloads
-    inline void operator+=(const QString& b);
+    void operator+=(const QString& b);
 
     /**
      * @brief valueToVariant

@@ -100,10 +100,10 @@ public:
                      const double& value = 0.0);
 
     // operator overloads
-    inline void operator+=(double const& b);
-    inline void operator-=(double const& b);
-    inline void operator*=(double const& b);
-    inline void operator/=(double const& b);
+    void operator+=(double const& b);
+    void operator-=(double const& b);
+    void operator*=(double const& b);
+    void operator/=(double const& b);
 
 
     /**
