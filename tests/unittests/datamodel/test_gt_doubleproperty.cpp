@@ -388,31 +388,33 @@ TEST_F(TestGtDoubleProperty, optional)
 
 TEST_F(TestGtDoubleProperty, extendenOperators)
 {
+	GtDoubleProperty prop("prop", "test", "test", GtUnit::Category::None, 4.0);
+	
 	// operator+=
 	double sum = 4.4;
-    m_prop->setVal(3.3);
+    prop.setVal(3.3);
 	
-	m_prop += sum;
-    ASSERT_DOUBLE_EQ(m_prop->get(), 3.3 + sum);
+	prop += sum;
+    ASSERT_DOUBLE_EQ(prop.get(), 3.3 + sum);
 	
 	// operator-=
 	double diff = 4.4;
-    m_prop->setVal(3.3);
+    prop.setVal(3.3);
 	
-	m_prop -= diff;
-    ASSERT_DOUBLE_EQ(m_prop->get(), 3.3 - diff);
+	prop -= diff;
+    ASSERT_DOUBLE_EQ(prop.get(), 3.3 - diff);
 	
 	// operator*=
 	double factor = 4.4;
-    m_prop->setVal(3.3);
+    prop.setVal(3.3);
 	
-	m_prop *= factor;
-    ASSERT_DOUBLE_EQ(m_prop->get(), 3.3 * factor);
+	prop *= factor;
+    ASSERT_DOUBLE_EQ(prop.get(), 3.3 * factor);
 	
 	// operator/=
 	double div = 4.4;
-    m_prop->setVal(3.3);
+    prop.setVal(3.3);
 	
-	m_prop /= div;
-    ASSERT_DOUBLE_EQ(m_prop->get(), 3.3 / div);
+	prop /= div;
+    ASSERT_DOUBLE_EQ(prop.get(), 3.3 / div);
 }

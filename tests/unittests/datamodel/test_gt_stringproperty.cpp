@@ -138,10 +138,12 @@ TEST_F(TestGtStringProperty, optional)
 
 TEST_F(TestGtIntProperty, extendenOperator)
 {
+	GtStringProperty prop("prop", "test", "test", "hello");
+	
 	// operator+=
 	QString added = " is nice!";
-    m_prop->setVal("GTlab");
+    prop.setVal("GTlab");
 	
-	m_prop += added;
-    ASSERT_STREQ(m_prop->get(), "GTlab is nice!");
+	prop += added;
+    ASSERT_STREQ(&prop.get(), "GTlab is nice!");
 }

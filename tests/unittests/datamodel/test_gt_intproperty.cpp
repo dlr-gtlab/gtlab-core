@@ -310,31 +310,32 @@ TEST_F(TestGtIntProperty, optional)
 
 TEST_F(TestGtIntProperty, extendenOperators)
 {
+	GtIntProperty prop("prop", "test", "test", 4);
 	// operator+=
 	int sum = 4;
-    m_prop->setVal(13);
+    prop.setVal(13);
 	
-	m_prop += sum;
-    EXPECT_EQ(m_prop->get(), 13 + sum);
+	prop += sum;
+    EXPECT_EQ(prop.get(), 13 + sum);
 	
 	// operator-=
 	int diff = 4;
-    m_prop->setVal(13);
+    prop.setVal(13);
 	
-	m_prop -= diff;
-    EXPECT_EQ(m_prop->get(), 13 - diff);
+	prop -= diff;
+    EXPECT_EQ(prop.get(), 13 - diff);
 	
 	// operator*=
 	int factor = 4;
-    m_prop->setVal(13);
+    prop.setVal(13);
 	
-	m_prop *= factor;
-    EXPECT_EQ(m_prop->get(), 13 * factor);
+	prop *= factor;
+    EXPECT_EQ(prop.get(), 13 * factor);
 	
 	// operator/=
 	int div = 4;
-    m_prop->setVal(13);
+    prop.setVal(13);
 	
-	m_prop /= div;
-    EXPECT_EQ(m_prop->get(), 3);
+	prop /= div;
+    EXPECT_EQ(prop.get(), 3);
 }
