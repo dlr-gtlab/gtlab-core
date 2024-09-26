@@ -161,7 +161,7 @@ GtDoubleProperty::operator*=(const double& b)
 void
 GtDoubleProperty::operator/=(const double& b)
 {
-    assert(a != 0.0);
+    assert(b != 0.0);
     double newVal = getVal() / b;
     setVal(newVal);
 }
