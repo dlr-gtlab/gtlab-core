@@ -408,7 +408,7 @@ TEST_F(TestGtDoubleProperty, extendenOperators)
     double factor = 4.4;
     prop.setVal(3.3);
 	
-     prop *= factor;
+    prop *= factor;
     ASSERT_DOUBLE_EQ(prop.get(), 3.3 * factor);
 	
     // operator/=
