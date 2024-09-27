@@ -567,7 +567,7 @@ gt::gui::color::plots::selectedMarker()
 }
 
 QColor
-gt::gui::color::plots::markerBoarder()
+gt::gui::color::plots::markerBorder()
 {
     if (gtApp->inDarkMode())
     {
