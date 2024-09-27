@@ -267,10 +267,12 @@ GT_GUI_EXPORT QColor marker();
 namespace plots {
 GT_GUI_EXPORT QColor activeLine();
 GT_GUI_EXPORT QColor inactiveLine();
-// function for e.g.control polygon
+// helpingLine:
+// function for e.g.control polygon of a spline or other additional lines of the
+// main plot
 GT_GUI_EXPORT QColor helpingLine();
 GT_GUI_EXPORT QColor marker();
-GT_GUI_EXPORT QColor markerBoarder();
+GT_GUI_EXPORT QColor markerBorder();
 GT_GUI_EXPORT QColor selectedMarker();
 GT_GUI_EXPORT QColor inactiveMarker();
 }
