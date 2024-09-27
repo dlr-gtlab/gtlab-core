@@ -35,6 +35,8 @@ class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
 
+class GtProcessDataModel;
+
 /**
  * @brief The GtProcessDock class
  */
@@ -154,6 +156,9 @@ private:
 
     /// Tree view
     GtProcessView* m_view;
+
+    /// Process Model Prototype
+    GtProcessDataModel* m_processDataModel;
 
     /// model
     GtProcessComponentModel* m_model;
