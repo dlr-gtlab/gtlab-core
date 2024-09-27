@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
  - Removed a warning, when double clicking on the current project while a task is running - #1282
+### Added
+ - Basic contxt menu to copy values of properties - #1267	
 
 ## [2.0.10] - 2024-08-29
 ### Fixed
