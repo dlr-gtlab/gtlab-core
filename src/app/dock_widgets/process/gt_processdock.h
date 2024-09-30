@@ -35,8 +35,6 @@ class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
 
-class GtProcessDataModel;
-
 /**
  * @brief The GtProcessDock class
  */
@@ -157,9 +155,6 @@ private:
     /// Tree view
     GtProcessView* m_view;
 
-    /// Process Model Prototype
-    GtProcessDataModel* m_processDataModel;
-
     /// model
     GtProcessComponentModel* m_model;
 
@@ -172,8 +167,8 @@ private:
     /// Search widget
     GtSearchWidget* m_search;
 
-    /// Root index
-    QPersistentModelIndex m_rootIndex;
+//    /// Root index
+//    QPersistentModelIndex m_rootIndex;
 
     /// Pointer to selected task group of current project
     QPointer<GtTaskGroup> m_taskGroup;
@@ -189,6 +184,9 @@ private:
 
     /// mapper for action signals
     QSignalMapper* m_actionMapper;
+
+    /// Expand states
+    QStringList m_expandStates;
 
     void updateCurrentTaskGroup();
 
@@ -315,6 +313,28 @@ private:
      */
     void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
+    /**
+     * @brief saveExpandStates
+     */
+    void saveExpandStates();
+
+    /**
+     * @brief restoreExpandStates
+     * @param list
+     */
+    void restoreExpandStates(const QStringList& list);
+
+    /**
+     * @brief restoreExpandStatesHelper
+     * @param expandedItems
+     * @param model
+     * @param startIndex
+     */
+    void restoreExpandStatesHelper(const QStringList& expandedItemsUuids,
+                                   QAbstractItemModel* model,
+                                   QModelIndex startIndex);
+
+    void updateTaskGroupRootIndex();
 private slots:
     /**
      * @brief filterData
@@ -434,6 +454,16 @@ private slots:
     void onExecutorChanged(GtCoreProcessExecutor* exec);
 
     void currentTaskGroupIndexChanged(int index);
+
+
+    /**
+     * @brief endResetView
+     */
+    void endResetView();
+
+    void itemCollapsed(const QModelIndex& index);
+
+    void itemExpanded(const QModelIndex& index);
 
 signals:
     /**
