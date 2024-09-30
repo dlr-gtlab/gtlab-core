@@ -180,10 +180,6 @@ GtProcessDock::GtProcessDock() :
             SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
             Qt::UniqueConnection);
 
-
-
-
-
     connect(m_view, SIGNAL(collapsed(QModelIndex)), this,
             SLOT(itemCollapsed(QModelIndex)));
     connect(m_view, SIGNAL(expanded(QModelIndex)), this,
@@ -664,6 +660,10 @@ GtProcessDock::filterData(const QString& val)
     }
 
     m_filterModel->setFilterRegExp(val);
+    m_filterModel->invalidate();
+
+    updateTaskGroupRootIndex();
+    restoreExpandStates(m_expandStates);
 }
 
 void
