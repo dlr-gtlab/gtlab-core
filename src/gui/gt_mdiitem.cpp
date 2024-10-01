@@ -20,11 +20,46 @@
 #include "gt_statehandler.h"
 #include "gt_qmlaction.h"
 
+
+struct GtMdiItem::Impl
+{
+    Impl() :
+        m_subWin(nullptr),
+        m_queueEvents(false)
+    {}
+
+    ~Impl()
+    {
+        qDeleteAll(m_eventQueue);
+    }
+
+    QWidget* m_subWin;
+    QList<GtQueuedMdiEvent*> m_eventQueue;
+    bool m_queueEvents;
+
+    /// The list of registered toolbar actions, non-owning
+    std::vector<GtQmlAction*> m_toolbarActions;
+
+    template <class T>
+    T* takeEvent()
+    {
+        foreach (GtQueuedMdiEvent* e, m_eventQueue)
+        {
+            if (T* ce = qobject_cast<T*>(e))
+            {
+                m_eventQueue.removeOne(e);
+                return ce;
+            }
+        }
+
+        return NULL;
+    }
+};
+
 GtMdiItem::GtMdiItem() :
     m_frame(new GtMdiWidget),
     m_d(nullptr),
-    m_subWin(nullptr),
-    m_queueEvents(false)
+    pimpl(std::make_unique<Impl>())
 {
     connect(gtApp, SIGNAL(currentProjectChanged(GtProject*)),
             SLOT(onProjectChanged(GtProject*)));
@@ -61,8 +96,6 @@ GtMdiItem::~GtMdiItem()
     {
         delete m_frame;
     }
-
-    qDeleteAll(m_eventQueue);
 }
 
 GtState*
@@ -87,7 +120,7 @@ GtMdiItem::initializeState(GtProject* project, const QString& id,
 QWidget*
 GtMdiItem::subWin()
 {
-    return m_subWin;
+    return pimpl->m_subWin;
 }
 
 bool
@@ -105,7 +138,7 @@ GtMdiItem::isPrintable() const
 std::vector<GtQmlAction *>
 GtMdiItem::toolbarActions() const
 {
-    return m_toolbarActions;
+    return pimpl->m_toolbarActions;
 }
 
 void
@@ -123,7 +156,7 @@ GtMdiItem::customId(GtObject* /*obj*/)
 void
 GtMdiItem::setSubWin(QWidget* subWin)
 {
-    m_subWin = subWin;
+    pimpl->m_subWin = subWin;
 }
 
 QKeySequence
@@ -152,7 +185,7 @@ GtQmlAction*
 GtMdiItem::addToolbarAction(const QString& text, const QUrl& url)
 {
     auto action = new GtQmlAction(text, url, this);
-    m_toolbarActions.push_back(action);
+    pimpl->m_toolbarActions.push_back(action);
     return action;
 }
 
@@ -190,11 +223,11 @@ GtMdiItem::projectSavedEvent(GtProject* project)
 void
 GtMdiItem::onProjectChanged(GtProject* project)
 {
-    if (m_queueEvents)
+    if (pimpl->m_queueEvents)
     {
-        delete takeEvent<GtProjectChangedEvent>();
+        delete pimpl->takeEvent<GtProjectChangedEvent>();
 
-        m_eventQueue << new GtProjectChangedEvent(this, project);
+        pimpl->m_eventQueue << new GtProjectChangedEvent(this, project);
     }
     else
     {
@@ -211,11 +244,11 @@ GtMdiItem::onProjectSaved(GtProject* project)
 void
 GtMdiItem::onObjectChanged(GtObject* obj)
 {
-    if (m_queueEvents)
+    if (pimpl->m_queueEvents)
     {
-        delete takeEvent<GtObjectChangedEvent>();
+        delete pimpl->takeEvent<GtObjectChangedEvent>();
 
-        m_eventQueue << new GtObjectChangedEvent(this, obj);
+        pimpl->m_eventQueue << new GtObjectChangedEvent(this, obj);
     }
     else
     {
@@ -231,21 +264,21 @@ void GtMdiItem::windowStateChanged(Qt::WindowStates /*oldState*/,
         return;
     }
 
-    m_queueEvents = true;
+    pimpl->m_queueEvents = true;
 }
 
 void
 GtMdiItem::windowAboutToActive()
 {
-    foreach (GtQueuedMdiEvent* e, m_eventQueue)
+    foreach (GtQueuedMdiEvent* e, pimpl->m_eventQueue)
     {
         e->handle();
     }
 
-    qDeleteAll(m_eventQueue);
-    m_eventQueue.clear();
+    qDeleteAll(pimpl->m_eventQueue);
+    pimpl->m_eventQueue.clear();
 
-    m_queueEvents = false;
+    pimpl->m_queueEvents = false;
 }
 
 void
