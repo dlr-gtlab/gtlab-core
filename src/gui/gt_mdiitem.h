@@ -18,6 +18,8 @@
 #include "gt_object.h"
 #include "gt_shortcutsettingsdata.h"
 
+#include <memory>
+
 class QFrame;
 class QSettings;
 class QMdiSubWindow;
@@ -217,35 +219,14 @@ private:
     /// Mdi item data
     QPointer<GtObject> m_d;
 
-    ///
-    QList<GtQueuedMdiEvent*> m_eventQueue;
-
-    ///
-    QWidget* m_subWin;
 
     /// Mdi item custom identification string
     QString m_cid;
 
-    ///
-    bool m_queueEvents;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
-    /// The list of registered toolbar actions, non-owning
-    std::vector<GtQmlAction*> m_toolbarActions;
 
-    template <class T>
-    T* takeEvent()
-    {
-        foreach (GtQueuedMdiEvent* e, m_eventQueue)
-        {
-            if (T* ce = qobject_cast<T*>(e))
-            {
-                m_eventQueue.removeOne(e);
-                return ce;
-            }
-        }
-
-        return NULL;
-    }
 
 private slots:
     /** Called after current project has changed.
