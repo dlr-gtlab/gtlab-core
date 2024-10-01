@@ -23,4 +23,9 @@ Please define the macro using -DGT_MODULE_ID =<module_id>
 
 #define GT_MODULENAME() GT_MODULE_ID
 
+// Macro to mark a function as deprecated for removal in a specific version
+#define deprecated_from(major, minor, message)                             \
+[[deprecated("Will be removed in GTlab " \
+    #major "." #minor ". " message)]] \
+
 #endif // GT_GLOBALS_H
