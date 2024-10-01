@@ -179,7 +179,7 @@ GtMainToolbar::makeConnections(GtMainWin* mainwin)
         connect(openProjectAction, SIGNAL(triggered()),
                 mainwin, SLOT(importProject()));
 
-        connect(saveProjectAction, SIGNAL(triggered()),
+        connect(saveProjectAction, SIGNAL(triggered()), mainwin,
                 SLOT(saveCurrentProject()));
 
         connect(mainwin, &GtMainWin::projectOpened,

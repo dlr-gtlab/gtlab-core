@@ -52,7 +52,11 @@ GtQmlToolbarGroup::visible() const
 
     bool oneIsVisible =
         std::any_of(std::begin(m_data), std::end(m_data),
-                    [](GtQmlAction* action) { return action->visible(); });
+                    [](GtQmlAction* action)
+    {
+        if (!action) return false;
+        return action->visible();
+    });
 
     return m_visible && oneIsVisible;
 }
