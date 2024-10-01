@@ -19,6 +19,16 @@ class GtMainToolbar : public GtQmlToolbar
 public:
     explicit GtMainToolbar(GtMainWin *parent = nullptr);
 
+    /**
+     * @brief Sets these actions as the editor context actions
+     *
+     * To be backwards compatible, the print action is always
+     * placed as well into the editor group
+     *
+     * Call this, whenever you want to modify the mdi toolbar actions
+     */
+    void setEditorActions(std::vector<GtQmlAction*> actions);
+
     // System context
     GtQmlAction *homeAction, *newProjectAction, *openProjectAction;
 

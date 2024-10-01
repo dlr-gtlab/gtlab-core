@@ -101,6 +101,12 @@ GtMdiItem::isPrintable() const
     return false;
 }
 
+std::vector<GtQmlAction *>
+GtMdiItem::toolbarActions() const
+{
+    return {};
+}
+
 void
 GtMdiItem::initialized()
 {

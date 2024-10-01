@@ -50,6 +50,12 @@ public:
     // adds an action to the group
     bool append(GtQmlAction* action);
 
+    void setListData(const std::vector<GtQmlAction*>& data)
+    {
+        ActionModel::setListData(data);
+        emit visibleChanged();
+    }
+
 signals:
     void nameChanged();
     void visibleChanged();

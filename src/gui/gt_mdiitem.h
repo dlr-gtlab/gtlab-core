@@ -26,6 +26,7 @@ class GtQueuedMdiEvent;
 class GtAbstractProperty;
 class GtMdiLauncher;
 class GtState;
+class GtQmlAction;
 
 /**
  * @brief The GtMdiItem class
@@ -119,6 +120,14 @@ public:
      * @return Printable indicator.
      */
     virtual bool isPrintable() const;
+
+    /**
+     * @brief Returns actions to be installed into the toolbar
+     *
+     * When toolbarActions returns a non-empty list, these actions will be
+     * added to the main toolbar editor context, whenever the mdi window is active
+     */
+    virtual std::vector<GtQmlAction*> toolbarActions() const;
 
 public slots:
     /**

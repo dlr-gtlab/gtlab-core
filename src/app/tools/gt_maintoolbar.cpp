@@ -77,6 +77,13 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
 }
 
 void
+GtMainToolbar::setEditorActions(std::vector<GtQmlAction *> actions)
+{
+    actions.push_back(printAction);
+    editorContext->setListData(std::move(actions));
+}
+
+void
 GtMainToolbar::onProjectChanged(bool isOpen)
 {
     projectContext->setVisible(isOpen);

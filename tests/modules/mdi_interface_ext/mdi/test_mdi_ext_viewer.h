@@ -33,7 +33,10 @@ public:
      */
     bool allowsMultipleInstances() const override;
 
+    std::vector<GtQmlAction *> toolbarActions() const override;
+
 private:
+    GtQmlAction *cutAction, *copyAction, *pasteAction;
 
 };
 
