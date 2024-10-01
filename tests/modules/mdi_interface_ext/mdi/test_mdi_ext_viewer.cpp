@@ -14,11 +14,11 @@
 #include <gt_logging.h>
 
 TestMdiExtViewer::TestMdiExtViewer()
-    : cutAction(new GtQmlAction("Cut", QUrl("/icons/cut.svg"), this))
-    , copyAction(new GtQmlAction("Copy", QUrl("/icons/copy.svg"), this))
-    , pasteAction(new GtQmlAction("Paste", QUrl("/icons/paste.svg"), this))
-
 {
+    cutAction = addToolbarAction("Cut", QUrl("/icons/cut.svg"));
+    copyAction  = addToolbarAction("Copy", QUrl("/icons/copy.svg"));
+    pasteAction = addToolbarAction("Paste", QUrl("/icons/paste.svg"));
+
     pasteAction->setEnabled(false);
 
     connect(cutAction, &GtQmlAction::triggered, this, [this](){
@@ -43,10 +43,4 @@ bool
 TestMdiExtViewer::allowsMultipleInstances() const
 {
     return true;
-}
-
-std::vector<GtQmlAction *>
-TestMdiExtViewer::toolbarActions() const
-{
-    return {cutAction, copyAction, pasteAction};
 }

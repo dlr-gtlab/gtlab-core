@@ -122,12 +122,9 @@ public:
     virtual bool isPrintable() const;
 
     /**
-     * @brief Returns actions to be installed into the toolbar
-     *
-     * When toolbarActions returns a non-empty list, these actions will be
-     * added to the main toolbar editor context, whenever the mdi window is active
+     * @brief Returns actions installed into the toolbar when the item gets active
      */
-    virtual std::vector<GtQmlAction*> toolbarActions() const;
+    std::vector<GtQmlAction*> toolbarActions() const;
 
 public slots:
     /**
@@ -196,6 +193,17 @@ protected:
     void registerShortCuts(QList<GtShortCutSettingsData> const& list);
 
     /**
+     * @brief Adds a toolbar action for the mdi item
+     *
+     * The item will be the owner / parent of the created action
+     *
+     * @param text    The text of the action
+     * @param iconUrl The icon of the action
+     * @return A newly created action
+     */
+    GtQmlAction* addToolbarAction(const QString& text, const QUrl& iconUrl);
+
+    /**
      * @brief getShortCut
      * @param id - identification string of the short cut to read
      * @return short cut for this id registered in this object
@@ -220,6 +228,9 @@ private:
 
     ///
     bool m_queueEvents;
+
+    /// The list of registered toolbar actions, non-owning
+    std::vector<GtQmlAction*> m_toolbarActions;
 
     template <class T>
     T* takeEvent()
