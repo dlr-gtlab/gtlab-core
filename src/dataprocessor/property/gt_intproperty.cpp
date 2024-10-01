@@ -110,6 +110,35 @@ GtIntProperty::GtIntProperty(const QString& ident,
     GtIntProperty(ident, name, brief, boundType, boundary, value)
 { }
 
+void
+GtIntProperty::operator+=(int b)
+{
+    int newVal = getVal() + b;
+    setVal(newVal);
+}
+
+void
+GtIntProperty::operator-=(int b)
+{
+    int newVal = getVal() - b;
+    setVal(newVal);
+}
+
+void
+GtIntProperty::operator*=(int b)
+{
+    int newVal = getVal() * b;
+    setVal(newVal);
+}
+
+void
+GtIntProperty::operator/=(int b)
+{
+    assert(b != 0);
+    int newVal = getVal() / b;
+    setVal(newVal);
+}
+
 QVariant
 GtIntProperty::valueToVariant(const QString& unit,
                               bool* success) const

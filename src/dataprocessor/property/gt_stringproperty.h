@@ -50,6 +50,9 @@ public:
                      const QString& value = QString(),
                      QValidator* validator = nullptr);
 
+    // operator overloads
+    void operator+=(const QString& b);
+
     /**
      * @brief valueToVariant
      * @return
