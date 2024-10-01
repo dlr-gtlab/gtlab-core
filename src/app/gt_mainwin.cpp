@@ -1256,7 +1256,14 @@ GtMainWin::onEditorWindowActive(int editorIndex)
     assert(ui->mdiArea);
 
     auto currentWidget = ui->mdiArea->widget(editorIndex);
-    assert(currentWidget);
+
+    if (!currentWidget)
+    {
+        // all windows closed
+        m_mainWindowToolbar->setEditorActions({});
+        currentMdiItemPrintable(false);
+        return;
+    }
 
     m_mainWindowToolbar->setEditorActions(
         gtMdiLauncher->toolbarActions(currentWidget));
