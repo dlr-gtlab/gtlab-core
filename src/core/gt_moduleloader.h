@@ -208,7 +208,7 @@ inline InterfaceType* checkInterface(const QString& soName, Plugin* plugin)
         auto oldItf = GtModuleLoader::getSupportedInterfaceByModule(
             obj, gtGetOutdatedItfVersions<InterfaceType>());
 
-        gtError() << QObject::tr("Version mismatch of module '%1' "
+        gtLogOnce(Error) << QObject::tr("Version mismatch of module '%1' "
                                  "with GTlab interface '%2'. "
                                  "It was compiled against '%3'")
                          .arg(soName,
