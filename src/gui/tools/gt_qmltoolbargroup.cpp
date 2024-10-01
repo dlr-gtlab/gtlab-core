@@ -83,5 +83,8 @@ GtQmlToolbarGroup::append(GtQmlAction* action)
                 &GtQmlToolbarGroup::visibleChanged);
     }
 
+    // update visibility
+    emit visibleChanged();
+
     return success;
 }

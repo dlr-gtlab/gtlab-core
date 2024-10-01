@@ -1252,8 +1252,16 @@ GtMainWin::onWidgetStructureClicked()
 void
 GtMainWin::onEditorWindowActive(int editorIndex)
 {
-    emit currentMdiItemPrintable(
-                gtMdiLauncher->isPrintable(ui->mdiArea->widget(editorIndex)));
+    assert(gtMdiLauncher);
+    assert(ui->mdiArea);
+
+    auto currentWidget = ui->mdiArea->widget(editorIndex);
+    assert(currentWidget);
+
+    m_mainWindowToolbar->setEditorActions(
+        gtMdiLauncher->toolbarActions(currentWidget));
+
+    emit currentMdiItemPrintable(gtMdiLauncher->isPrintable(currentWidget));
 }
 
 void

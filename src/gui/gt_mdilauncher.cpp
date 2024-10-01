@@ -411,6 +411,22 @@ GtMdiLauncher::isPrintable(QWidget* subWindow) const
     return false;
 }
 
+std::vector<GtQmlAction*>
+GtMdiLauncher::toolbarActions(QWidget* subWindow) const
+{
+    if (!subWindow)
+    {
+        return {};
+    }
+
+    if (m_openItems.contains(subWindow) && m_openItems.value(subWindow))
+    {
+        return m_openItems.value(subWindow)->toolbarActions();
+    }
+
+    return {};
+}
+
 bool
 GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 {
@@ -548,12 +564,14 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 
     setupRedockAction(tabWidget, icon, mdiWidget, mdiItem);
 
+    mdiItem->initialized();
+    m_openItems.insert(mdiWidget, mdiItem);
+
     int idx = tabWidget->addTab(mdiWidget, icon, mdiItem->objectName());
     assert(idx >= 0);
     tabWidget->tabBar()->setTabButton(idx, QTabBar::RightSide,
                                       makeTabButtons(tabWidget, icon, mdiWidget, mdiItem));
 
-    mdiItem->initialized();
 
     connect(mdiWidget, &QObject::destroyed,
             this, &GtMdiLauncher::onSubWindowClose);
@@ -564,7 +582,6 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     connect(gtApp, &GtApplication::themeChanged,
             mdiItem, &GtMdiItem::onThemeChanged);
 
-    m_openItems.insert(mdiWidget, mdiItem);
 
     mdiItem->setSubWin(mdiWidget);
 
