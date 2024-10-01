@@ -294,6 +294,7 @@ public:
      * @param Parent object
      * @return Unique object name
      */
+    [[deprecated("Use gt::makeUniqueName(name, parent) instead")]]
     QString uniqueObjectName(const QString& name,
                              GtObject* parent);
 

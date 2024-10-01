@@ -13,7 +13,6 @@
 #include <QMimeData>
 #include <QFont>
 
-#include "gt_application.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_extendedcalculatordata.h"
 #include "gt_extendedtaskdata.h"

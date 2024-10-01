@@ -15,7 +15,6 @@
 #include "gt_loadprojecthelper.h"
 #include "gt_saveprojecthelper.h"
 #include "gt_project.h"
-#include "gt_command.h"
 #include "gt_settings.h"
 #include "gt_projectanalyzer.h"
 #include "gt_projectanalyzerdialog.h"
