@@ -18,6 +18,7 @@
 #include "gt_projectchangedevent.h"
 #include "gt_objectchangedevent.h"
 #include "gt_statehandler.h"
+#include "gt_qmlaction.h"
 
 GtMdiItem::GtMdiItem() :
     m_frame(new GtMdiWidget),
@@ -104,7 +105,7 @@ GtMdiItem::isPrintable() const
 std::vector<GtQmlAction *>
 GtMdiItem::toolbarActions() const
 {
-    return {};
+    return m_toolbarActions;
 }
 
 void
@@ -145,6 +146,14 @@ void
 GtMdiItem::registerShortCuts(const QList<GtShortCutSettingsData>& list)
 {
     gtApp->extendShortCuts(list);
+}
+
+GtQmlAction*
+GtMdiItem::addToolbarAction(const QString& text, const QUrl& url)
+{
+    auto action = new GtQmlAction(text, url, this);
+    m_toolbarActions.push_back(action);
+    return action;
 }
 
 QKeySequence
