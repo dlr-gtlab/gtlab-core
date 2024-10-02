@@ -91,7 +91,7 @@ GtQmlToolbarGroup::append(GtQmlAction* action)
 void
 GtQmlToolbarGroup::setListData(const std::vector<GtQmlAction *> &data)
 {
-    ActionModel::setListData(data);
+    Base::setListData(data);
 
     for (auto* action : data)
     {
