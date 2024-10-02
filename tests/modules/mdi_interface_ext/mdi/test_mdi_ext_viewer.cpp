@@ -13,11 +13,15 @@
 #include <gt_qmlaction.h>
 #include <gt_logging.h>
 
+#include <gt_icons.h>
+
 TestMdiExtViewer::TestMdiExtViewer()
 {
-    cutAction = addToolbarAction("Cut", QUrl("/icons/cut.svg"));
-    copyAction  = addToolbarAction("Copy", QUrl("/icons/copy.svg"));
-    pasteAction = addToolbarAction("Paste", QUrl("/icons/paste.svg"));
+    using namespace gt::gui;
+
+    cutAction = addToolbarAction("Cut", icon::url(icon::cut));
+    copyAction  = addToolbarAction("Copy", icon::url(icon::copy));
+    pasteAction = addToolbarAction("Paste", icon::url(icon::paste));
 
     pasteAction->setEnabled(false);
 
