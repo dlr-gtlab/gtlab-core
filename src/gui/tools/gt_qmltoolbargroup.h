@@ -32,8 +32,27 @@ class GT_GUI_EXPORT GtQmlToolbarGroup : public ActionModel
 {
 
     Q_OBJECT
+
+    /**
+     * @brief This property holds the name of the group
+     *
+     * The name is currently not rendered. It is a placeholder, if we decide
+     * to show the group name together with the icons.
+     *
+     * See also `GtQmlToolbarGroup::name` and `GtQmlToolbarGroup::setName`
+     */
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged FINAL)
-    Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged FINAL)
+
+    /**
+     * @brief This property holds whether the toolbar group can be seen
+     *
+     * Note, the group is only visible, if the user requires visibility and
+     * if there is at least one visible action.
+     *
+     * See also `GtQmlToolbarGroup::isVisible` and `GtQmlToolbarGroup::setVisible`
+     */
+    Q_PROPERTY(bool visible READ isVisible WRITE setVisible NOTIFY visibleChanged FINAL)
+
 public:
     GtQmlToolbarGroup();
 
@@ -44,17 +63,24 @@ public:
     QString name() const;
     void setName(QString name);
 
-    bool visible() const;
+    bool isVisible() const;
     void setVisible(bool visible);
 
-    // adds an action to the group
+    /**
+     * @brief Adds a action to the group
+     *
+     * Note: this will emit visibleChanged, as the visibility
+     * of the groupd needs to be evaluated again
+     *
+     * @return true on success
+     */
     bool append(GtQmlAction* action);
 
-    void setListData(const std::vector<GtQmlAction*>& data)
-    {
-        ActionModel::setListData(data);
-        emit visibleChanged();
-    }
+    /**
+     * @brief Overloaded function to set all actions at once
+     * @param data List of actions
+     */
+    void setListData(const std::vector<GtQmlAction*>& data);
 
 signals:
     void nameChanged();

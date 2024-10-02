@@ -12,19 +12,23 @@
 #include <gt_markdowneditor.h>
 #include <gt_mdilauncher.h>
 
+#include <gt_icons.h>
+
 GtMainToolbar::GtMainToolbar(GtMainWin *parent)
     : GtQmlToolbar(parent)
 {
-    auto tbSystemContext = new GtQmlToolbarGroup("System", this);
+    using namespace gt::gui;
+
+    auto tbSystemContext = new GtQmlToolbarGroup(tr("System"), this);
 
     homeAction
-        = new GtQmlAction(tr("Home"), QUrl("/icons/home.svg"), this);
+        = new GtQmlAction(tr("Home"), icon::url(icon::home), this);
 
     newProjectAction
-        = new GtQmlAction(tr("New Project"), QUrl("/icons/projectAdd.svg"),
+        = new GtQmlAction(tr("New Project"), icon::url(icon::projectAdd),
                           this);
     openProjectAction
-        = new GtQmlAction(tr("Open Project"), QUrl("/icons/folderOpen.svg"),
+        = new GtQmlAction(tr("Open Project"), icon::url(icon::folderOpen),
                           this);
 
     tbSystemContext->append(homeAction);
@@ -35,20 +39,20 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
 
     // --------------------------------------------------------------------- //
 
-    projectContext = new GtQmlToolbarGroup("Project", this);
+    projectContext = new GtQmlToolbarGroup(tr("Project"), this);
     projectContext->setVisible(false);
 
     saveProjectAction
-        = new GtQmlAction(tr("Save Project"), QUrl("/icons/save.svg"), this);
+        = new GtQmlAction(tr("Save Project"), icon::url(icon::save), this);
 
-    undoAction = new GtQmlAction(tr("Undo"), QUrl("/icons/undo.svg"), this);
+    undoAction = new GtQmlAction(tr("Undo"), icon::url(icon::undo), this);
     undoAction->setVisible(false);
 
-    redoAction = new GtQmlAction(tr("Redo"), QUrl("/icons/redo.svg"), this);
+    redoAction = new GtQmlAction(tr("Redo"), icon::url(icon::redo), this);
     redoAction->setVisible(false);
 
     infoAction
-        = new GtQmlAction(tr("Project Info"), QUrl("/icons/info2.svg"), this);
+        = new GtQmlAction(tr("Project Info"), icon::url(icon::info2), this);
 
 
     projectContext->append(saveProjectAction);
@@ -60,9 +64,9 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
 
     // --------------------------------------------------------------------- //
 
-    editorContext = new GtQmlToolbarGroup("Edit", this);
+    editorContext = new GtQmlToolbarGroup(tr("Edit"), this);
 
-    printAction = new GtQmlAction(tr("Print"), QUrl("/icons/print.svg"), this);
+    printAction = new GtQmlAction(tr("Print"), icon::url(icon::print), this);
     printAction->setVisible(false);
 
     editorContext->append(printAction);
@@ -70,7 +74,7 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
     addToolbarGroup(editorContext);
 
 
-    setDarkmode(gtApp->inDarkMode());
+    setDarkMode(gtApp->inDarkMode());
     makeConnections(parent);
 
     resize(QSize(1500, 50));
@@ -138,13 +142,13 @@ GtMainToolbar::makeConnections(GtMainWin* mainwin)
 
     connect(gtApp->undoStack(), &QUndoStack::canUndoChanged, undoAction,
             [this](bool canUndo) {
-                undoAction->setVisible(undoAction->visible() || canUndo);
+                undoAction->setVisible(undoAction->isVisible() || canUndo);
                 undoAction->setEnabled(canUndo);
             });
 
     connect(gtApp->undoStack(), &QUndoStack::undoTextChanged, undoAction,
             [this](const QString& txt) {
-                undoAction->setTooltip(txt);
+                undoAction->setToolTip(txt);
             });
 
     connect(redoAction, SIGNAL(triggered()),
@@ -155,17 +159,17 @@ GtMainToolbar::makeConnections(GtMainWin* mainwin)
 
     connect(gtApp->undoStack(), &QUndoStack::canRedoChanged, redoAction,
             [this](bool canRedo) {
-                redoAction->setVisible(redoAction->visible() || canRedo);
+                redoAction->setVisible(redoAction->isVisible() || canRedo);
                 redoAction->setEnabled(canRedo);
             });
 
     connect(gtApp->undoStack(), &QUndoStack::redoTextChanged, redoAction,
             [this](const QString& txt) {
-                redoAction->setTooltip(txt);
+                redoAction->setToolTip(txt);
             });
 
     connect(gtApp, &GtApplication::themeChanged,
-            this, &GtMainToolbar::setDarkmode);
+            this, &GtMainToolbar::setDarkMode);
 
     if (mainwin)
     {

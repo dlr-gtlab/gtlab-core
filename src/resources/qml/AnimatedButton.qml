@@ -16,7 +16,7 @@ Button {
     property string tooltipPrefix: ""
     property bool hasTooltip: false
 
-    property bool darkmode: true
+    property bool darkMode: true
 
     implicitWidth: Math.max(
                        buttonBackground ? buttonBackground.implicitWidth : 0,
@@ -31,9 +31,9 @@ Button {
     hoverEnabled: true
     flat: true
 
-    signal clicked()
-    signal pressed()
-    signal released()
+    signal clicked
+    signal pressed
+    signal released
 
     property color custom_hoverColor: "#ddeeff"
     property color custom_backgroundColor: "transparent"
@@ -166,7 +166,7 @@ Button {
                 antialiasing: true
                 layer.enabled: true
                 layer.effect: ColorOverlay {
-                    color: hovered ? (custom_Enabled ? custom_secondaryColor : (control.darkmode ? custom_secondaryColorInactiveDark : custom_secondaryColorInactive)) : control.darkmode ? (custom_Enabled ? custom_iconColorDark : custom_secondaryColorInactiveDark) : (custom_Enabled ? custom_iconColor : custom_secondaryColorInactive)
+                    color: hovered ? (custom_Enabled ? custom_secondaryColor : (control.darkMode ? custom_secondaryColorInactiveDark : custom_secondaryColorInactive)) : control.darkMode ? (custom_Enabled ? custom_iconColorDark : custom_secondaryColorInactiveDark) : (custom_Enabled ? custom_iconColor : custom_secondaryColorInactive)
                 }
             }
 
@@ -174,7 +174,7 @@ Button {
                 id: myIconText
                 text: control.text
                 font: control.font
-                color: control.darkmode ? (custom_Enabled ? custom_secondaryColor : custom_secondaryColorInactiveDark) : (custom_Enabled ? custom_secondaryColor : custom_secondaryColorInactive)
+                color: control.darkMode ? (custom_Enabled ? custom_secondaryColor : custom_secondaryColorInactiveDark) : (custom_Enabled ? custom_secondaryColor : custom_secondaryColorInactive)
                 //anchors.verticalCenter: parent.verticalCenter
                 visible: hovered ? true : false
             }
@@ -188,45 +188,40 @@ Button {
         id: mouse
         acceptedDevices: PointerDevice.Mouse
         cursorShape: Qt.PointingHandCursor
-        onHoveredChanged:
-        {
-            toolTip.visible = hasTooltip && tooltipText !== "" ? hovered : false;
+        onHoveredChanged: {
+            toolTip.visible = hasTooltip && tooltipText !== "" ? hovered : false
 
-            if(hovered)
-            {
+            if (hovered) {
                 hoverenter_animation.restart()
                 //active_animation.running = true
-            }
-            else
-            {
+            } else {
                 hoverleave_animation.restart()
                 //inactive_animation.running = true
             }
-
         }
     }
 
     MouseArea {
-            anchors.fill: parent
-            onClicked: control.clicked()
-            onPressed: control.pressed()
-            onReleased: control.released()
+        anchors.fill: parent
+        onClicked: control.clicked()
+        onPressed: control.pressed()
+        onReleased: control.released()
 
-            ToolTip {
-                id: toolTip
-                delay: 1000
-                timeout: 5000
-                text: tooltipPrefix + tooltipText
-                visible: false
-                x: parent.width * 2 / 3
-                y: parent.height / 2 + 10
+        ToolTip {
+            id: toolTip
+            delay: 1000
+            timeout: 5000
+            text: tooltipPrefix + tooltipText
+            visible: false
+            x: parent.width * 2 / 3
+            y: parent.height / 2 + 10
 
-                onTextChanged: {
-                    if (visible) {
-                        visible = (tooltipText !== "")
-                    }
+            onTextChanged: {
+                if (visible) {
+                    visible = (tooltipText !== "")
                 }
             }
+        }
     }
 
 }

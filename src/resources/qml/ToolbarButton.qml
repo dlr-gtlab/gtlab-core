@@ -12,7 +12,7 @@ Item {
 
     id: tbButton
     property ToolbarAction action: None
-    property bool dark_mode: false
+    property bool darkMode: false
 
     width: _button.width
     height: _button.height
@@ -24,8 +24,8 @@ Item {
         text: tbButton.action ? tbButton.action.text : ""
         onClicked: tbButton.action.triggered()
         icon.source: tbButton.action ? tbButton.action.iconUrl : ""
-        darkmode: dark_mode
-        tooltipText: tbButton.action ? tbButton.action.tooltip : ""
+        darkMode: tbButton.darkMode
+        tooltipText: tbButton.action ? tbButton.action.toolTip : ""
         hasTooltip: _button.tooltipText != ""
         custom_Enabled: tbButton.enabled
     }
