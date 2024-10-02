@@ -82,15 +82,19 @@ inline auto container_const_cast(Vec<T...>&& contianer)
  * @return
  */
 template <typename Base, typename TransferFunction>
-inline auto transfer_unique(std::unique_ptr<Base>&& basePtr,
-                            TransferFunction&& castFunc) noexcept
+inline auto
+transfer_unique(std::unique_ptr<Base>&& basePtr,
+                TransferFunction&& transferFunc) noexcept
+
     -> std::unique_ptr<std::remove_pointer_t<
-        typename std::result_of<decltype(castFunc)(Base*)>::type>>
+        typename std::result_of_t<decltype(transferFunc)(Base*)>>>
+
 {
     using TransferredType = std::remove_pointer_t<
-        typename std::result_of<decltype(castFunc)(Base*)>::type>;
+        typename std::result_of_t<decltype(transferFunc)(Base*)>>;
 
-    auto derivedPtr = std::unique_ptr<TransferredType>(castFunc(basePtr.get()));
+    auto derivedPtr = std::unique_ptr<TransferredType>(
+        transferFunc(basePtr.get()));
 
     if (derivedPtr)
     {
