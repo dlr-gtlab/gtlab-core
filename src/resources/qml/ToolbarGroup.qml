@@ -1,8 +1,6 @@
 // GTlab - Gas Turbine laboratory
-//
 // SPDX-License-Identifier: MPL-2.0+
 // SPDX-FileCopyrightText: 2024 German Aerospace Center (DLR)
-
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
@@ -25,6 +23,13 @@ Item {
 
         visible: toolbarGroup.visible && toolbarGroup.count > 0
         color: dark_mode ? "#0a111f" : "#ffffff"
+
+        Behavior on implicitWidth {
+            NumberAnimation {
+                duration: 100
+                easing.type: Easing.InOutQuad
+            }
+        }
 
         radius: 10
         x: 0
