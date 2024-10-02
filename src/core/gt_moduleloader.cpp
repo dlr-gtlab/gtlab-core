@@ -871,8 +871,9 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
                 << QObject::tr("loading ") << moduleMeta.location() << "...";
 
         // check that plugin is a GTlab module
-        checkInterface<GtModuleInterface>(moduleMeta.location(), plugin.get());
-        auto module = gt::unique_qobject_cast<GtModuleInterface>(std::move(plugin));
+        auto module = gt::transfer_unique(std::move(plugin),[&](QObject* o) {
+            return checkInterface<GtModuleInterface>(moduleMeta.location(), o);
+        });
 
         if (module && moduleLoader.check(module.get()))
         {

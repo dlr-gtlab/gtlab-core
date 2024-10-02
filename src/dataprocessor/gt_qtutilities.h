@@ -66,6 +66,43 @@ inline auto container_const_cast(Vec<T...>&& contianer)
 }
 
 /**
+ * @brief Performs a ownership transfer between unique pointers
+ *
+ * This transfers the ownership of the source pointer to the target
+ * pointer
+ *
+ * Usage:
+ *
+ *  std::unique_ptr<Base> basePtr = ...;
+ *  std::unique_ptr<Derived> = transfer_unique(std::move(basePtr), [](Base* base) {
+ *      return qobject_cast<Derived*>(base);
+ *  });
+ *
+ * @param src
+ * @return
+ */
+template <typename Base, typename TransferFunction>
+inline auto transfer_unique(std::unique_ptr<Base>&& basePtr,
+                            TransferFunction&& castFunc) noexcept
+    -> std::unique_ptr<std::remove_pointer_t<
+        typename std::result_of<decltype(castFunc)(Base*)>::type>>
+{
+    using TransferredType = std::remove_pointer_t<
+        typename std::result_of<decltype(castFunc)(Base*)>::type>;
+
+    auto derivedPtr = std::unique_ptr<TransferredType>(castFunc(basePtr.get()));
+
+    if (derivedPtr)
+    {
+        // transfer ownership
+        basePtr.release();
+        return derivedPtr;
+    }
+
+    return {};
+}
+
+/**
  * @brief Performs a qobject_cast for unique pointers
  *
  * This transfers the ownership of the source pointer to the target
@@ -84,17 +121,9 @@ template<typename Derived, typename Base>
 inline std::unique_ptr<Derived>
 unique_qobject_cast(std::unique_ptr<Base>&& basePtr) noexcept
 {
-    auto derivedPtr = std::unique_ptr<Derived>(
-        qobject_cast<Derived*>(basePtr.get()));
-
-    if (derivedPtr)
-    {
-        // transfer ownership
-        basePtr.release();
-        return derivedPtr;
-    }
-
-    return nullptr;
+    return transfer_unique(std::move(basePtr), [](Base* base) {
+            return qobject_cast<Derived*>(base);
+    });
 }
 
 /**
