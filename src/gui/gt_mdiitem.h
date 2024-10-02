@@ -126,7 +126,7 @@ public:
     /**
      * @brief Returns actions installed into the toolbar when the item gets active
      */
-    std::vector<GtQmlAction*> toolbarActions() const;
+    const std::vector<GtQmlAction*>& toolbarActions() const;
 
 public slots:
     /**

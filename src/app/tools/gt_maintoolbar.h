@@ -30,15 +30,16 @@ public:
     void setEditorActions(std::vector<GtQmlAction*> actions);
 
     // System context
-    GtQmlAction *homeAction, *newProjectAction, *openProjectAction;
+    GtQmlAction *homeAction = {}, *newProjectAction = {}, *openProjectAction= {};
 
     // project context
-    GtQmlAction *saveProjectAction, *undoAction, *redoAction, *infoAction;
+    GtQmlAction *saveProjectAction = {}, *undoAction= {},
+                *redoAction = {}, *infoAction = {};
 
     // edit actions
-    GtQmlAction* printAction;
+    GtQmlAction *printAction = {};
 
-    GtQmlToolbarGroup *projectContext, *editorContext;
+    GtQmlToolbarGroup *projectContext = {}, *editorContext = {};
 
 public slots:
     void onProjectChanged(bool isOpen);

@@ -37,25 +37,22 @@ GtQmlToolbarGroup::name() const
 void
 GtQmlToolbarGroup::setName(QString name)
 {
-    if (name != m_groupName)
-        return;
+    if (name != m_groupName) return;
 
     m_groupName = std::move(name);
     emit nameChanged();
 }
 
 bool
-GtQmlToolbarGroup::visible() const
+GtQmlToolbarGroup::isVisible() const
 {
     // if all items are visible, it is also not visible
-
-
     bool oneIsVisible =
         std::any_of(std::begin(m_data), std::end(m_data),
                     [](GtQmlAction* action)
     {
         if (!action) return false;
-        return action->visible();
+        return action->isVisible();
     });
 
     return m_visible && oneIsVisible;
@@ -64,8 +61,7 @@ GtQmlToolbarGroup::visible() const
 void
 GtQmlToolbarGroup::setVisible(bool visible)
 {
-    if (m_visible == visible)
-        return;
+    if (m_visible == visible) return;
 
     m_visible = visible;
     emit visibleChanged();
@@ -74,10 +70,9 @@ GtQmlToolbarGroup::setVisible(bool visible)
 bool
 GtQmlToolbarGroup::append(GtQmlAction* action)
 {
-    if (!action)
-        return false;
+    if (!action) return false;
 
-    auto success = GtListModel::append(action);
+    bool success = GtListModel::append(action);
 
     if (success)
     {
@@ -91,4 +86,19 @@ GtQmlToolbarGroup::append(GtQmlAction* action)
     emit visibleChanged();
 
     return success;
+}
+
+void
+GtQmlToolbarGroup::setListData(const std::vector<GtQmlAction *> &data)
+{
+    ActionModel::setListData(data);
+
+    for (auto* action : data)
+    {
+        if (!action) continue;
+        connect(action, &GtQmlAction::visibleChanged, this,
+                &GtQmlToolbarGroup::visibleChanged);
+    }
+
+    emit visibleChanged();
 }

@@ -8,7 +8,7 @@ Item {
     id: toolbarGroup
     property string name: "group"
     property var actions: []
-    property bool dark_mode: false
+    property bool darkMode: false
     property int count: 0
 
     width: rect.width
@@ -22,7 +22,7 @@ Item {
         implicitHeight: 40
 
         visible: toolbarGroup.visible && toolbarGroup.count > 0
-        color: dark_mode ? "#0a111f" : "#ffffff"
+        color: darkMode ? "#0a111f" : "#ffffff"
 
         Behavior on implicitWidth {
             NumberAnimation {
@@ -47,7 +47,7 @@ Item {
 
                 ToolbarButton {
                     action: modelData
-                    dark_mode: toolbarGroup.dark_mode
+                    darkMode: toolbarGroup.darkMode
                 }
 
                 onCountChanged: {

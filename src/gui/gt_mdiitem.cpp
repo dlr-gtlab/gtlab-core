@@ -43,7 +43,7 @@ struct GtMdiItem::Impl
     template <class T>
     T* takeEvent()
     {
-        foreach (GtQueuedMdiEvent* e, m_eventQueue)
+        for (GtQueuedMdiEvent* e: qAsConst(m_eventQueue))
         {
             if (T* ce = qobject_cast<T*>(e))
             {
@@ -135,7 +135,7 @@ GtMdiItem::isPrintable() const
     return false;
 }
 
-std::vector<GtQmlAction *>
+const std::vector<GtQmlAction *>&
 GtMdiItem::toolbarActions() const
 {
     return pimpl->m_toolbarActions;

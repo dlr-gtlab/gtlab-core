@@ -47,18 +47,10 @@ GtQmlToolbar::GtQmlToolbar(QWidget* parent) :
 
 GtQmlToolbar::~GtQmlToolbar() = default;
 
-QVariantListModel*
-GtQmlToolbar::toolbarGroups()
-{
-    return &pimpl->m_toolbarGroupsList;
-}
-
 void
 GtQmlToolbar::addToolbarGroup(GtQmlToolbarGroup* group)
 {
-
-    if (!group)
-        return;
+    if (!group) return;
 
     pimpl->m_toolbarGroupsList.append(QVariant::fromValue(group));
     emit groupsChanged();
@@ -92,19 +84,18 @@ GtQmlToolbar::addStatusAction(GtQmlAction* action)
 }
 
 bool
-GtQmlToolbar::darkmode() const
+GtQmlToolbar::darkMode() const
 {
     return pimpl->m_darkMode;
 }
 
 void
-GtQmlToolbar::setDarkmode(bool d)
+GtQmlToolbar::setDarkMode(bool d)
 {
-    if (d == pimpl->m_darkMode)
-        return;
+    if (d == pimpl->m_darkMode) return;
 
     pimpl->m_darkMode = d;
-    emit darkmodeChanged();
+    emit darkModeChanged();
 }
 
 QVariantListModel*

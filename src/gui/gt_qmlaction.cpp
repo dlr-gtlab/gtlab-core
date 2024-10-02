@@ -60,18 +60,18 @@ GtQmlAction::setText(const QString& text)
 }
 
 QString
-GtQmlAction::tooltip() const
+GtQmlAction::toolTip() const
 {
     return pimpl->m_tooltip;
 }
 
 void
-GtQmlAction::setTooltip(QString t)
+GtQmlAction::setToolTip(QString t)
 {
     if (t == pimpl->m_tooltip) return;
 
     pimpl->m_tooltip = std::move(t);
-    emit tooltipChanged();
+    emit toolTipChanged();
 }
 
 bool
@@ -90,7 +90,7 @@ GtQmlAction::setEnabled(bool enabled)
 }
 
 bool
-GtQmlAction::visible() const
+GtQmlAction::isVisible() const
 {
     return pimpl->m_visible;
 }
