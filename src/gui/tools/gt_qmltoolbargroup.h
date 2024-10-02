@@ -15,8 +15,6 @@
 
 #include <gt_gui_exports.h>
 
-using ActionModel = GtListModel<GtQmlAction*>;
-
 template <>
 inline QVariant
 gt::asVariant(GtQmlAction* const& action)
@@ -28,9 +26,8 @@ gt::asVariant(GtQmlAction* const& action)
  * @brief A logical group of actions that can be added
  *        and removed from the toolbar
  */
-class GT_GUI_EXPORT GtQmlToolbarGroup : public ActionModel
+class GT_GUI_EXPORT GtQmlToolbarGroup : public GtListModel<GtQmlAction*>
 {
-
     Q_OBJECT
 
     /**
@@ -87,6 +84,8 @@ signals:
     void visibleChanged();
 
 private:
+    using Base = GtListModel<GtQmlAction*>;
+
     QString m_groupName;
     bool m_visible{true};
 };
