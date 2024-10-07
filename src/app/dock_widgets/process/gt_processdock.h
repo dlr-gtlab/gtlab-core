@@ -167,9 +167,6 @@ private:
     /// Search widget
     GtSearchWidget* m_search;
 
-//    /// Root index
-//    QPersistentModelIndex m_rootIndex;
-
     /// Pointer to selected task group of current project
     QPointer<GtTaskGroup> m_taskGroup;
 
@@ -331,8 +328,7 @@ private:
      * @param startIndex
      */
     void restoreExpandStatesHelper(const QStringList& expandedItemsUuids,
-                                   QAbstractItemModel* model,
-                                   QModelIndex startIndex);
+                                   const QModelIndex& startIndex);
 
     void updateTaskGroupRootIndex();
 private slots:
