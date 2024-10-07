@@ -345,17 +345,13 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         }
 
         // update current task group
+
+        // TODO: save current expandStates to project states and load the
+        // expandStates of the new project
         m_expandStates.clear();
 
         updateCurrentTaskGroup();
-
-        if (m_view)
-        {
-            m_view->expandAll();
-        }
     }
-//    // update current task group
-//    updateCurrentTaskGroup();
 }
 
 void
@@ -366,7 +362,6 @@ GtProcessDock::updateCurrentTaskGroup()
     updateButtons(m_taskGroup);
 
     updateTaskGroupRootIndex();
-    restoreExpandStates(m_expandStates);
 
     if (m_taskGroup)
     {
@@ -376,15 +371,17 @@ GtProcessDock::updateCurrentTaskGroup()
     m_view->resizeColumns();
 }
 
-void GtProcessDock::updateTaskGroupRootIndex()
+void
+GtProcessDock::updateTaskGroupRootIndex()
 {
     if (m_taskGroup)
     {
         auto index = mapFromSource(gtDataModel->indexFromObject(m_taskGroup));
 
-        if (index.isValid())
+        if (index.isValid() && m_view->rootIndex() != index)
         {
             m_view->setRootIndex(index);
+            restoreExpandStates(m_expandStates);
         }
     }
 }
@@ -660,10 +657,8 @@ GtProcessDock::filterData(const QString& val)
     }
 
     m_filterModel->setFilterRegExp(val);
-    m_filterModel->invalidate();
 
     updateTaskGroupRootIndex();
-    restoreExpandStates(m_expandStates);
 }
 
 void
@@ -1325,8 +1320,7 @@ GtProcessDock::restoreExpandStates(const QStringList& list)
     {
         m_view->setUpdatesEnabled(false);
 
-        restoreExpandStatesHelper(list, m_filterModel,
-                                  m_filterModel->index(0, 0, rootIndex));
+        restoreExpandStatesHelper(list, m_filterModel->index(0, 0, rootIndex));
 
         m_view->setUpdatesEnabled(true);
     }
@@ -1334,22 +1328,23 @@ GtProcessDock::restoreExpandStates(const QStringList& list)
 
 void
 GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedItemsUuids,
-                                         QAbstractItemModel* model,
-                                         QModelIndex startIndex)
+                                         const QModelIndex& startIndex)
 {
+    auto model = startIndex.model();
+
     if (!model)
         return;
 
     for (const auto& uuid : expandedItemsUuids)
     {
-        auto matchedIndices = model->match(
-                    startIndex, GtCoreDatamodel::UuidRole,
-                    QVariant::fromValue(uuid));
+        auto matchedIndices = model->match(startIndex,
+                                           GtCoreDatamodel::UuidRole,
+                                           QVariant::fromValue(uuid));
 
-        for (auto index : matchedIndices)
+        for (const auto& index : qAsConst(matchedIndices))
         {
             m_view->setExpanded(index, true);
-            restoreExpandStatesHelper(expandedItemsUuids, model,
+            restoreExpandStatesHelper(expandedItemsUuids,
                                       model->index(0, 0, index));
         }
     }
@@ -2356,7 +2351,6 @@ void
 GtProcessDock::endResetView()
 {
     updateTaskGroupRootIndex();
-    restoreExpandStates(m_expandStates);
 
     connect(m_view->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
