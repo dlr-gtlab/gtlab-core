@@ -17,6 +17,7 @@
 /**
  * @brief The GtStringMapContainer class
  */
+
 class GT_GUI_EXPORT GtStringMapContainer : public GtObject
 {
     Q_OBJECT
@@ -26,6 +27,9 @@ class GT_GUI_EXPORT GtStringMapContainer : public GtObject
 
 public:
 
+    [[deprecated("This class is deprecated and will not be supported after"
+                 "GTlab 2-1. If you need a storage of flexible size for"
+                 "properties use the GtPropertyStructContainer")]]
     Q_INVOKABLE GtStringMapContainer();
 
     QStringList keys() const;
