@@ -57,6 +57,8 @@
 #include "gt_guiutilities.h"
 #include "gt_taskgroup.h"
 #include "gt_taskgroupmodel.h"
+#include "gt_statehandler.h"
+#include "gt_state.h"
 
 #include "gt_processdock.h"
 
@@ -78,7 +80,8 @@ GtProcessDock::GtProcessDock() :
     m_taskGroup(nullptr),
     m_currentProcess(nullptr),
     m_project(nullptr),
-    m_actionMapper(new QSignalMapper(this))
+    m_actionMapper(new QSignalMapper(this)),
+    m_expandedItemUuidsState(nullptr)
 {
     setObjectName(tr("Processes/Calculators"));
 
@@ -159,10 +162,6 @@ GtProcessDock::GtProcessDock() :
 
     widget->setLayout(layout);
 
-
-
-
-
     m_model = new GtProcessComponentModel(this);
     m_filterModel = new GtProcessFilterModel(m_model);
     m_model->setSourceModel(gtDataModel);
@@ -187,10 +186,6 @@ GtProcessDock::GtProcessDock() :
 
     connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
             SLOT(endResetView()), Qt::DirectConnection);
-
-
-
-
 
     connect(gtApp, &GtApplication::themeChanged, this, [&](){
         m_addElementButton->setStyleSheet(gt::gui::stylesheet::button());
@@ -337,6 +332,12 @@ GtProcessDock::projectChangedEvent(GtProject* project)
             connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
                     SLOT(currentTaskGroupIndexChanged(int)));
 
+
+            m_expandedItemUuidsState = gtStateHandler->initializeState(
+                        project, QStringLiteral("Project Settings"),
+                        QStringLiteral("Expanded Process Dock Item UUIDs"),
+                        project->objectPath() + ";expandPdItemUuids",
+                        QStringList(), project);
         }
 
         if (m_taskGroup)
@@ -345,11 +346,6 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         }
 
         // update current task group
-
-        // TODO: save current expandStates to project states and load the
-        // expandStates of the new project
-        m_expandStates.clear();
-
         updateCurrentTaskGroup();
     }
 }
@@ -381,9 +377,25 @@ GtProcessDock::updateTaskGroupRootIndex()
         if (index.isValid() && m_view->rootIndex() != index)
         {
             m_view->setRootIndex(index);
-            restoreExpandStates(m_expandStates);
+            restoreExpandStates();
         }
     }
+}
+
+QStringList
+GtProcessDock::expandedItemUuids() const
+{
+    if (!m_expandedItemUuidsState)
+        return {};
+
+    return m_expandedItemUuidsState->getValue().toStringList();
+}
+
+void
+GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
+{
+    if (m_expandedItemUuidsState)
+        m_expandedItemUuidsState->setValue(uuids);
 }
 
 void
@@ -1312,7 +1324,7 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
 }
 
 void
-GtProcessDock::restoreExpandStates(const QStringList& list)
+GtProcessDock::restoreExpandStates()
 {
     auto rootIndex = m_view->rootIndex();
 
@@ -1320,7 +1332,8 @@ GtProcessDock::restoreExpandStates(const QStringList& list)
     {
         m_view->setUpdatesEnabled(false);
 
-        restoreExpandStatesHelper(list, m_filterModel->index(0, 0, rootIndex));
+        restoreExpandStatesHelper(expandedItemUuids(),
+                                  m_filterModel->index(0, 0, rootIndex));
 
         m_view->setUpdatesEnabled(true);
     }
@@ -1330,10 +1343,10 @@ void
 GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedItemsUuids,
                                          const QModelIndex& startIndex)
 {
-    auto model = startIndex.model();
-
-    if (!model)
+    if (!startIndex.isValid())
         return;
+
+    auto model = startIndex.model();
 
     for (const auto& uuid : expandedItemsUuids)
     {
@@ -2364,7 +2377,11 @@ GtProcessDock::itemCollapsed(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    m_expandStates.removeOne(index.data(GtCoreDatamodel::UuidRole).toString());
+    auto uuids = expandedItemUuids();
+
+    uuids.removeOne(index.data(GtCoreDatamodel::UuidRole).toString());
+
+    setExpandedItemUuids(uuids);
 }
 
 void
@@ -2375,8 +2392,12 @@ GtProcessDock::itemExpanded(const QModelIndex& index)
 
     auto uuid = index.data(GtCoreDatamodel::UuidRole).toString();
 
-    if (!m_expandStates.contains(uuid))
-        m_expandStates.append(uuid);
+    auto uuids = expandedItemUuids();
+
+    if (!uuids.contains(uuid))
+        uuids.append(uuid);
+
+    setExpandedItemUuids(uuids);
 }
 
 bool
