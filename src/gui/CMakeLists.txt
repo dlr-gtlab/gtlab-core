@@ -92,7 +92,6 @@ set(headers
     dock_widgets/process/gt_processwizard.h
     dock_widgets/process/gt_processfiltermodel.h
     dock_widgets/process/gt_processcomponentmodel.h
-    dock_widgets/process/gt_processdatamodel.h
     dock_widgets/process/pages/gt_calculatoroverviewpage.h
     dock_widgets/process/pages/gt_calculatoroverviewmodel.h
     dock_widgets/process/pages/gt_abstractprocessitem.h
@@ -267,7 +266,6 @@ set(sources
     internal/gt_openwithmenu.cpp
     dock_widgets/process/gt_processwizard.cpp
     dock_widgets/process/gt_processfiltermodel.cpp
-    dock_widgets/process/gt_processdatamodel.cpp
     dock_widgets/process/pages/gt_calculatoroverviewpage.cpp
     dock_widgets/process/pages/gt_calculatoroverviewmodel.cpp
     dock_widgets/process/pages/gt_processcategoryitem.cpp
