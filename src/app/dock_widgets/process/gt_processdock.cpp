@@ -339,6 +339,10 @@ GtProcessDock::projectChangedEvent(GtProject* project)
                         project->objectPath() + ";expandPdItemUuids",
                         QStringList(), project);
         }
+        else
+        {
+            m_taskGroupModel->init({}, {});
+        }
 
         if (m_taskGroup)
         {
