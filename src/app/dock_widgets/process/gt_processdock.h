@@ -34,6 +34,7 @@ class GtProcessComponent;
 class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
+class GtState;
 
 /**
  * @brief The GtProcessDock class
@@ -182,8 +183,8 @@ private:
     /// mapper for action signals
     QSignalMapper* m_actionMapper;
 
-    /// Expand states
-    QStringList m_expandStates;
+    /// Expand state
+    GtState* m_expandedItemUuidsState;
 
     void updateCurrentTaskGroup();
 
@@ -311,15 +312,10 @@ private:
     void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
     /**
-     * @brief saveExpandStates
-     */
-    void saveExpandStates();
-
-    /**
      * @brief restoreExpandStates
      * @param list
      */
-    void restoreExpandStates(const QStringList& list);
+    void restoreExpandStates();
 
     /**
      * @brief restoreExpandStatesHelper
@@ -331,6 +327,10 @@ private:
                                    const QModelIndex& startIndex);
 
     void updateTaskGroupRootIndex();
+
+    QStringList expandedItemUuids() const;
+
+    void setExpandedItemUuids(const QStringList& uuids);
 private slots:
     /**
      * @brief filterData
