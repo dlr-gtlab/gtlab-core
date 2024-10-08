@@ -1344,7 +1344,7 @@ GtProcessDock::restoreExpandStates()
 }
 
 void
-GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedItemsUuids,
+GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedUuids,
                                          const QModelIndex& startIndex)
 {
     if (!startIndex.isValid())
@@ -1352,7 +1352,7 @@ GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedItemsUuids,
 
     auto model = startIndex.model();
 
-    for (const auto& uuid : expandedItemsUuids)
+    for (const auto& uuid : expandedUuids)
     {
         auto matchedIndices = model->match(startIndex,
                                            GtCoreDatamodel::UuidRole,
@@ -1361,7 +1361,7 @@ GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedItemsUuids,
         for (const auto& index : qAsConst(matchedIndices))
         {
             m_view->setExpanded(index, true);
-            restoreExpandStatesHelper(expandedItemsUuids,
+            restoreExpandStatesHelper(expandedUuids,
                                       model->index(0, 0, index));
         }
     }
@@ -2376,7 +2376,7 @@ GtProcessDock::endResetView()
 }
 
 void
-GtProcessDock::itemCollapsed(const QModelIndex &index)
+GtProcessDock::itemCollapsed(const QModelIndex& index)
 {
     if (!index.isValid())
         return;
