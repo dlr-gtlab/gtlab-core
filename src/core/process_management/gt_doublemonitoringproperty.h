@@ -16,7 +16,37 @@
 
 #include "gt_doubleproperty.h"
 
-using GtDoubleMonitoringProperty = GtDoubleProperty;
+/**
+ * @brief The GtDoubleMonitoringProperty class
+ */
+class GT_CORE_EXPORT GtDoubleMonitoringProperty : public GtDoubleProperty
+{
+    Q_OBJECT
+
+public:
+
+    using GtProperty<double>::operator=;
+
+    /**
+     * @brief GtDoubleMonitoringProperty
+     * @param ident
+     * @param name
+     */
+    [[deprecated ("Use GtDoubleProperty and set the monitoring flag")]]
+    Q_INVOKABLE GtDoubleMonitoringProperty(const QString& ident,
+                                           const QString& name);
+
+    /**
+     * @brief GtDoubleMonitoringProperty
+     * @param ident for the datamodel
+     * @param name shown in the GUI
+     * @param brief description text
+     */
+    [[deprecated ("Use GtDoubleProperty and set the monitoring flag")]]
+    Q_INVOKABLE GtDoubleMonitoringProperty(const QString& ident,
+                                           const QString& name,
+                                           const QString& brief);
+};
 
 namespace gt
 {
