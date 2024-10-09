@@ -20,6 +20,7 @@
 
 #include "gt_processcomponent.h"
 #include "gt_objectmemento.h"
+#include "gt_intmonitoringproperty.h"
 #include "gt_intproperty.h"
 #include "gt_monitoringdatatable.h"
 #include "gt_accessselectionproperty.h"
