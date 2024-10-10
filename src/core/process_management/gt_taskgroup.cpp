@@ -20,6 +20,7 @@
 #include "gt_logging.h"
 #include "gt_taskgroup.h"
 #include "gt_processfactory.h"
+#include "gt_qtutilities.h"
 #include "gt_task.h"
 #include "gt_objectfactory.h"
 #include "gt_xmlutilities.h"
@@ -131,17 +132,18 @@ GtTaskGroup::read(const QString& projectPath,
                 appendChild(newTask.release());
                 continue;
             }
-            auto taskObject = gt::unique_object_cast<GtTask>(std::move(newTask));
+
+            std::unique_ptr<GtTask> taskObject = gt::unique_qobject_cast<GtTask>(std::move(newTask));
 
             if (!taskObject)
             {
                 gtError() << QObject::tr("Invalid task file (%1)").arg(e.toString());
-                newTask->deleteLater();
+                delete newTask.release(); // release and delete unused object newTask
             }
 
             gtDebug().medium().nospace() << "new task created ("
                                          << newTask->uuid() << ")";
-            appendChild(taskObject);
+            appendChild(taskObject.release());
         }
     }
 
@@ -458,7 +460,6 @@ std::unique_ptr<GtObject>
 GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 {
     QFile taskFile(filePath);
-    //GtTask* retval = nullptr;
 
     if (!taskFile.exists())
     {
