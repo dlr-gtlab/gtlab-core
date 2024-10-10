@@ -219,13 +219,13 @@ GtObjectUI::validatorRegExp()
 bool
 GtObjectUI::hasValidationRegExp(GtObject* /*obj*/)
 {
-    return true;
+     return hasValidationRegExp(nullptr);
 }
 
 QRegExp
 GtObjectUI::validatorRegExp(GtObject* /*obj*/)
 {
-    return gt::re::onlyLettersAndNumbersAndSpace();
+    return validatorRegExp();
 }
 
 QIcon

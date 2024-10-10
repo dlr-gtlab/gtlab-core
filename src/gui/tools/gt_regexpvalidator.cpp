@@ -15,9 +15,10 @@ GtRegExpValidator::GtRegExpValidator(QObject* parent) :
 
 }
 
-GtRegExpValidator::GtRegExpValidator(const QRegExp& rx, QObject* parent) :
+GtRegExpValidator::GtRegExpValidator(const QRegExp& rx, bool strict, QObject* parent) :
     QValidator(parent),
-    m_regExp(rx)
+    m_regExp(rx),
+    m_strict(strict)
 {   
     // TODO: Check if there is the need to add a ^ at the start and $ at
     // the end of the regexp pattern
@@ -26,8 +27,14 @@ GtRegExpValidator::GtRegExpValidator(const QRegExp& rx, QObject* parent) :
 QValidator::State
 GtRegExpValidator::validate(QString& input, int& pos) const
 {
-
-
     if (m_regExp.exactMatch(input)) return QValidator::Acceptable;
-    else return QValidator::Intermediate;
+
+    if (m_strict)
+    {
+        return QValidator::Invalid;
+    }
+    else
+    {
+        return QValidator::Intermediate;
+    }
 }
