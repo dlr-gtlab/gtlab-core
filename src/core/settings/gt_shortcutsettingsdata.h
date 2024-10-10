@@ -36,7 +36,7 @@ struct GT_CORE_EXPORT GtShortCutSettingsData{
      * @param readOnly - is the short cut read only and is not editable
      */
     GtShortCutSettingsData(QString const& identifier, QString const& cat,
-                           QString key, bool readOnly = false);
+                           QString const& key, bool readOnly = false);
 
     /**
      * @brief dataToVariant
