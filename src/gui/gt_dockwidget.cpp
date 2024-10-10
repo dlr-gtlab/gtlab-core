@@ -73,7 +73,7 @@ GtDockWidget::registerShortCut(const QString& id,
                                bool readOnly)
 {
     const QMetaObject* m = metaObject();
-    gtApp->extendShortCuts(id, m->className(), k.toString(), readOnly);
+    gtApp->addShortCut(id, m->className(), k.toString(), readOnly);
     return getShortCut(id);
 }
 

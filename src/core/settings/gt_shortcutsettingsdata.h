@@ -11,7 +11,6 @@
 #ifndef GTSHORTCUTSETTINGSDATA_H
 #define GTSHORTCUTSETTINGSDATA_H
 
-#include <QKeySequence>
 #include <QVariant>
 #include "gt_core_exports.h"
 

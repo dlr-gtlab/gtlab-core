@@ -158,7 +158,7 @@ main(int argc, char* argv[])
     });
 
     splash.process([&app](){
-        // chort cuts initialization
+        // short cuts initialization
         app.initShortCuts();
     });
 

@@ -315,10 +315,8 @@ public:
      * @brief extendShortCuts
      * @param shortcut to add
      */
-    void extendShortCuts(const QString& id,
-                         QString const& category,
-                         const QKeySequence& k,
-                         bool readOnly = false);
+    void addShortCut(const QString& id, QString const& category,
+                     const QKeySequence& k, bool readOnly = false);
 
     /**
      * @brief moduleShortCuts
@@ -387,6 +385,8 @@ private:
      * @brief initFirstRun
      */
     bool initFirstRun() override;
+
+    QList<GtShortCutSettingsData> initCoreShortCuts() const;
 
 private slots:
     /**
