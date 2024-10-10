@@ -105,13 +105,28 @@ public:
      * renaming in models
      * @return true if Object has validator RegExp
      */
+    [[deprecated("Use hasValidationRegExp(GtObject* ) instead")]]
     virtual bool hasValidationRegExp();
 
     /**
      * @brief validatorRegExp - gives the validation RegExp
      * @return
      */
+    [[deprecated("Use validatorRegExp(GtObject* ) instead")]]
     virtual QRegExp validatorRegExp();
+
+    /**
+     * @brief hasValidationRegExp - validator for filtering names for
+     * renaming in models
+     * @return true if Object has validator RegExp
+     */
+    virtual bool hasValidationRegExp(GtObject* obj);
+
+    /**
+     * @brief validatorRegExp - gives the validation RegExp
+     * @return
+     */
+    virtual QRegExp validatorRegExp(GtObject* obj);
 
 protected:
 

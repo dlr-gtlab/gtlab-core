@@ -55,9 +55,9 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
                 GtObjectUI* oui = gtApp->defaultObjectUI(obj);
                 if (!oui) oui = &fallbackUI;
 
-                if (oui->hasValidationRegExp())
+                if (oui->hasValidationRegExp(obj))
                 {
-                    regExp = oui->validatorRegExp();
+                    regExp = oui->validatorRegExp(obj);
                 }
             }
             else if (m_validatorflag == allowSpaces)

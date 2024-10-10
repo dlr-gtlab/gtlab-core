@@ -216,6 +216,18 @@ GtObjectUI::validatorRegExp()
     return gt::re::onlyLettersAndNumbersAndSpace();
 }
 
+bool
+GtObjectUI::hasValidationRegExp(GtObject* /*obj*/)
+{
+    return true;
+}
+
+QRegExp
+GtObjectUI::validatorRegExp(GtObject* /*obj*/)
+{
+    return gt::re::onlyLettersAndNumbersAndSpace();
+}
+
 QIcon
 GtObjectUI::icon(GtObject* /*obj*/) const
 {
