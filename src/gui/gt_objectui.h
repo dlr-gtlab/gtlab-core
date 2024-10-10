@@ -130,6 +130,23 @@ public:
      */
     virtual QRegExp validatorRegExp(GtObject* obj);
 
+    /**
+     * @brief regExpHint
+     * @param obj
+     * @return a string to help the user which regular expression is used to
+     * restrict renaming and how to avoid problems
+     */
+    virtual QString regExpHint(GtObject* obj);
+
+    /**
+     * @brief regExpCheckWhileModification
+     * @param obj
+     * @return true if the regular expression should be used while
+     * the element is renamed. False means that the regular expression is only
+     * checked in the end of the modification
+     */
+    virtual bool regExpCheckWhileModification(GtObject* obj);
+
 protected:
 
     /**

@@ -9,19 +9,23 @@
  */
 #include "gt_regexpvalidator.h"
 
+#include <gt_logging.h>
+
 GtRegExpValidator::GtRegExpValidator(QObject* parent) :
-    QValidator(parent)
+    QValidator(parent),
+    m_regExp(".*")
 {
 
 }
 
-GtRegExpValidator::GtRegExpValidator(const QRegExp& rx, bool strict, QObject* parent) :
+GtRegExpValidator::GtRegExpValidator(const QRegExp& regExp,
+                                     bool strict, const QString &hint,
+                                     QObject* parent) :
     QValidator(parent),
-    m_regExp(rx),
-    m_strict(strict)
+    m_regExp(regExp),
+    m_strict(strict),
+    m_hint(hint)
 {   
-    // TODO: Check if there is the need to add a ^ at the start and $ at
-    // the end of the regexp pattern
 }
 
 QValidator::State
@@ -31,10 +35,14 @@ GtRegExpValidator::validate(QString& input, int& pos) const
 
     if (m_strict)
     {
+        gtLogOnce(Warning) << tr("Failure while renaming: %1").arg(m_hint);
         return QValidator::Invalid;
     }
     else
     {
+        if (input.isEmpty()) return QValidator::Intermediate;
+
+        gtLogOnce(Warning) << tr("Failure while renaming: %1").arg(m_hint);
         return QValidator::Intermediate;
     }
 }

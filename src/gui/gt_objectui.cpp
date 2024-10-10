@@ -228,6 +228,19 @@ GtObjectUI::validatorRegExp(GtObject* /*obj*/)
     return validatorRegExp();
 }
 
+QString
+GtObjectUI::regExpHint(GtObject* /*obj*/)
+{
+    return tr("Only letters, numbers and spaces are allowed to "
+              "be used for the renaming");
+}
+
+bool
+GtObjectUI::regExpCheckWhileModification(GtObject* /*obj*/)
+{
+    return true;
+}
+
 QIcon
 GtObjectUI::icon(GtObject* /*obj*/) const
 {

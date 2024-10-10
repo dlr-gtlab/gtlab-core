@@ -38,6 +38,10 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
     /// Standart regExp
     QRegExp regExp = gt::re::onlyLettersAndNumbers();
 
+    bool checkWhileEditing = true;
+    QString hint = tr("Only letters and numbers are "
+                      "allowed to rename the object");
+
     if (GtProject* proj = gtApp->currentProject())
     {
         QString uuid = index.data(GtCoreDatamodel::UuidRole).toString();
@@ -54,6 +58,8 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
                 if (oui->hasValidationRegExp(obj))
                 {
                     regExp = oui->validatorRegExp(obj);
+                    hint = oui->regExpHint(obj);
+                    checkWhileEditing = oui->regExpCheckWhileModification(obj);
                 }
             }
             else if (m_validatorflag == allowSpaces)
@@ -63,7 +69,8 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
         }
     }
 
-    lineEdit->setValidator(new GtRegExpValidator(regExp, this->parent()));
+    lineEdit->setValidator(new GtRegExpValidator(regExp, checkWhileEditing,
+                                                 hint, this->parent()));
 
     return lineEdit;
 }
