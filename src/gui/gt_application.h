@@ -306,6 +306,9 @@ public:
      * @brief extendShortCuts
      * @param shortcut to add
      */
+    [[deprecated("Use extendShortCuts(const QString& id, "
+                 "QString const& category, const QKeySequence k, "
+                 "bool readOnly = false) instead")]]
     void extendShortCuts(const GtShortCutSettingsData &shortcut);
 
     /**

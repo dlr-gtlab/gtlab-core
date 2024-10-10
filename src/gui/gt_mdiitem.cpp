@@ -125,7 +125,8 @@ GtMdiItem::registerShortCut(const QString& id,
                             bool readOnly)
 {
     const QMetaObject* m = metaObject();
-    return registerShortCut({id, m->className(), k.toString(), readOnly});
+    gtApp->extendShortCuts(id, m->className(), k.toString(), readOnly);
+    return getShortCut(id);
 }
 
 QKeySequence

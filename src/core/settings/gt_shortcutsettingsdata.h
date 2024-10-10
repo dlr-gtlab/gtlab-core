@@ -25,6 +25,7 @@ struct GT_CORE_EXPORT GtShortCutSettingsData{
     /**
      * @brief shortCutSettingsData - default constructor
      */
+
     GtShortCutSettingsData();
 
     /**

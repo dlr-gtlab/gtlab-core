@@ -73,7 +73,8 @@ GtDockWidget::registerShortCut(const QString& id,
                                bool readOnly)
 {
     const QMetaObject* m = metaObject();
-    return registerShortCut({id, m->className(), k.toString(), readOnly});
+    gtApp->extendShortCuts(id, m->className(), k.toString(), readOnly);
+    return getShortCut(id);
 }
 
 QKeySequence
@@ -90,7 +91,7 @@ GtDockWidget::registerShortCuts(const QList<GtShortCutSettingsData>& list)
 }
 
 QKeySequence
-GtDockWidget::getShortCut(const QString &id)
+GtDockWidget::getShortCut(const QString& id)
 {
     const QMetaObject* m = metaObject();
     return gtApp->getShortCutSequence(id, m->className());
