@@ -17,6 +17,7 @@
 #include "gt_project.h"
 #include "gt_objectui.h"
 
+#include "gt_regexpvalidator.h"
 #include "gt_textfilterdelegate.h"
 
 GtTextFilterDelegate::GtTextFilterDelegate(QObject* parent,
@@ -62,7 +63,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
         }
     }
 
-    lineEdit->setValidator(new QRegExpValidator(regExp, this->parent()));
+    lineEdit->setValidator(new GtRegExpValidator(regExp, this->parent()));
 
     return lineEdit;
 }

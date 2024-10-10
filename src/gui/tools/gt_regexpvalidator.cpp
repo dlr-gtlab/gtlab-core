@@ -17,13 +17,18 @@ GtRegExpValidator::GtRegExpValidator(QObject* parent) :
 
 GtRegExpValidator::GtRegExpValidator(const QRegExp& rx, QObject* parent) :
     QValidator(parent)
-{
+{   
+    // TODO: Check if there is the need to add a ^ at the start and $ at
+    // the end of the regexp pattern
+
     m_regExp = rx;
 }
 
 QValidator::State
 GtRegExpValidator::validate(QString& input, int& pos) const
 {
+
+
     if (m_regExp.exactMatch(input)) return QValidator::Acceptable;
     else return QValidator::Intermediate;
 }
