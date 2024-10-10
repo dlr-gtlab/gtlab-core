@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - New interface methods `GtPackage::readMiscData` and  `GtPackage::saveMiscData` to store package data outside of the package xml structure inside the project directory.
    Both methods have the project directory as an argument, hence workarounds like currentProject()->path() can be avoided - #617
 
+### Changed
+ - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts or actions. - #1298
+
 ### Fixed
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
 

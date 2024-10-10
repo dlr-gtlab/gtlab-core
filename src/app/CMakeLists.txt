@@ -20,13 +20,12 @@ set(headers
     dock_widgets/process/gt_taskgroupmodel.h
     dock_widgets/properties/gt_propertycontainerwidget.h
     gt_mainwin.h
-    models/gt_qmlobjectlistmodel.h
     preferences/gt_preferencesdialog.h
     preferences/pages/gt_preferencesapp.h
     preferences/pages/gt_preferenceslanguage.h
     preferences/pages/gt_preferencessession.h
     preferences/pages/gt_preferencesshortcuts.h
-    tools/gt_qmltoolbar.h
+    tools/gt_maintoolbar.h
     tools/gt_iconbrowser.h
     widgets/gt_sessionlistwidget.h
     preferences/pages/gt_preferencesperspective.h
@@ -99,13 +98,12 @@ set(sources
     dock_widgets/process/gt_taskgroupmodel.cpp
     dock_widgets/properties/gt_propertycontainerwidget.cpp
     gt_mainwin.cpp
-    models/gt_qmlobjectlistmodel.cpp
     preferences/gt_preferencesdialog.cpp
     preferences/pages/gt_preferencesapp.cpp
     preferences/pages/gt_preferenceslanguage.cpp
     preferences/pages/gt_preferencessession.cpp
     preferences/pages/gt_preferencesshortcuts.cpp
-    tools/gt_qmltoolbar.cpp
+    tools/gt_maintoolbar.cpp
     tools/gt_iconbrowser.cpp
     widgets/gt_sessionlistwidget.cpp
     preferences/pages/gt_preferencesperspective.cpp

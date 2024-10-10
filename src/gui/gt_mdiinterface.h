@@ -70,7 +70,11 @@ public:
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(GtMdiInterface,
-                    "de.dlr.gtlab.GtMdiInterface/0.1")
+                    "de.dlr.gtlab.GtMdiInterface/2.1")
 QT_END_NAMESPACE
+
+// @TODO: Uncomment, when GT_OLD_INTERFACES is available (currently in Review)
+//GT_OLD_INTERFACES(GtMdiInterface,
+//    "de.dlr.gtlab.GtMdiInterface/0.1")
 
 #endif // GTMDIINTERFACE_H

@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
-add_library(TestMdiInterfaceExt SHARED
+
+add_gtlab_module(TestMdiInterfaceExt MODULE_ID "Test Mdi Interface Ext"
+  SOURCES
     mdi/test_mdi_ext_externalobjectui.h
     mdi/test_mdi_ext_externalobjectviewer.h
     mdi/test_mdi_ext_packageui.h
@@ -19,11 +21,6 @@ add_library(TestMdiInterfaceExt SHARED
 )
 
 target_include_directories(TestMdiInterfaceExt PRIVATE data mdi .)
-
-target_compile_definitions(TestMdiInterfaceExt 
-    PRIVATE 
-    GT_MODULE_ID="Test Mdi Interface Ext"
-)
 
 target_link_libraries(TestMdiInterfaceExt 
     PRIVATE

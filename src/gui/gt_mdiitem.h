@@ -18,6 +18,8 @@
 #include "gt_object.h"
 #include "gt_shortcutsettingsdata.h"
 
+#include <memory>
+
 class QFrame;
 class QSettings;
 class QMdiSubWindow;
@@ -26,6 +28,7 @@ class GtQueuedMdiEvent;
 class GtAbstractProperty;
 class GtMdiLauncher;
 class GtState;
+class GtQmlAction;
 
 /**
  * @brief The GtMdiItem class
@@ -120,6 +123,11 @@ public:
      */
     virtual bool isPrintable() const;
 
+    /**
+     * @brief Returns actions installed into the toolbar when the item gets active
+     */
+    const std::vector<GtQmlAction*>& toolbarActions() const;
+
 public slots:
     /**
      * @brief print
@@ -187,6 +195,17 @@ protected:
     void registerShortCuts(QList<GtShortCutSettingsData> const& list);
 
     /**
+     * @brief Adds a toolbar action for the mdi item
+     *
+     * The item will be the owner / parent of the created action
+     *
+     * @param text    The text of the action
+     * @param iconUrl The icon of the action
+     * @return A newly created action
+     */
+    GtQmlAction* addToolbarAction(const QString& text, const QUrl& iconUrl);
+
+    /**
      * @brief getShortCut
      * @param id - identification string of the short cut to read
      * @return short cut for this id registered in this object
@@ -200,32 +219,14 @@ private:
     /// Mdi item data
     QPointer<GtObject> m_d;
 
-    ///
-    QList<GtQueuedMdiEvent*> m_eventQueue;
-
-    ///
-    QWidget* m_subWin;
 
     /// Mdi item custom identification string
     QString m_cid;
 
-    ///
-    bool m_queueEvents;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
-    template <class T>
-    T* takeEvent()
-    {
-        foreach (GtQueuedMdiEvent* e, m_eventQueue)
-        {
-            if (T* ce = qobject_cast<T*>(e))
-            {
-                m_eventQueue.removeOne(e);
-                return ce;
-            }
-        }
 
-        return NULL;
-    }
 
 private slots:
     /** Called after current project has changed.

@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
-add_library(TestProcessInterface SHARED
+add_gtlab_module(TestProcessInterface MODULE_ID "Test Process Interface"
+  SOURCES
     calculator/test_calculator.h
     calculator/test_crashonexecutecalculator.h
     calculator/test_processstatescalculator.h
@@ -19,11 +20,6 @@ add_library(TestProcessInterface SHARED
 )
 
 target_include_directories(TestProcessInterface PUBLIC calculator .)
-
-target_compile_definitions(TestProcessInterface 
-    PRIVATE 
-    GT_MODULE_ID="Test Process Interface"
-)
 
 target_link_libraries(TestProcessInterface 
     PRIVATE

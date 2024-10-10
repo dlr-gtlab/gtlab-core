@@ -79,6 +79,8 @@ set(headers
     tools/gt_deleteitemmessagebox.h
     tools/gt_downloaddialog.h
     tools/gt_environmentmodel.h
+    tools/gt_qmltoolbar.h
+    tools/gt_qmltoolbargroup.h
     gt_objectui.h
     object_ui/gt_projectui.h
     object_ui/gt_processui.h
@@ -190,6 +192,8 @@ set(headers
     gt_textfilterdelegate.h
     gt_finishedprocessloadinghelper.h
     importer/processImporter/gt_processimporter.h
+    models/gt_listmodel.h
+    models/gt_qvariantlistmodel.h
 )
 
 set(sources
@@ -254,6 +258,8 @@ set(sources
     tools/gt_deleteitemmessagebox.cpp
     tools/gt_downloaddialog.cpp
     tools/gt_environmentmodel.cpp
+    tools/gt_qmltoolbar.cpp
+    tools/gt_qmltoolbargroup.cpp
     gt_objectui.cpp
     object_ui/gt_projectui.cpp
     object_ui/gt_processui.cpp
@@ -414,6 +420,7 @@ target_include_directories(GTlabGui PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/object_ui>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/widgets>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/process_runner>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/models>
 
     # includes for consumer after install
     $<INSTALL_INTERFACE:include/core>

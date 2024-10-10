@@ -26,6 +26,7 @@ class QMdiSubWindow;
 class GtMdiItem;
 class GtCollectionInterface;
 class GtAbstractCollectionSettings;
+class GtQmlAction;
 
 /**
  * @brief The GtMdiLauncher class
@@ -107,6 +108,16 @@ public:
      * @param subWindow
      */
     bool isPrintable(QWidget* subWindow) const;
+
+    /**
+     * @brief Returns the toolbar actions of the currently opened MDI window,
+     *        which need to be placed into the editor context of the main toolbar
+     *
+     * @param subWindow The widget of the currently opened tab (from the MDIItem)
+     *
+     * @return The list of actions
+     */
+    std::vector<GtQmlAction*> toolbarActions(QWidget* subWindow) const;
 
     /**
      * @brief registerDockWidget

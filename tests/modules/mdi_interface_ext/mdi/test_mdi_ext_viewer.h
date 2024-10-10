@@ -34,6 +34,7 @@ public:
     bool allowsMultipleInstances() const override;
 
 private:
+    GtQmlAction *cutAction, *copyAction, *pasteAction;
 
 };
 
