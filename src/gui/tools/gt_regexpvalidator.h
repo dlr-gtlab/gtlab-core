@@ -54,6 +54,8 @@ private:
     bool m_strict;
 
     QString m_hint;
+
+    mutable bool m_logHint;
 };
 
 #endif // GTREGEXPVALIDATOR_H
