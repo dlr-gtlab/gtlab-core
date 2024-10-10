@@ -37,7 +37,7 @@ gt::console::options()
     runOptions.append(GtCommandLineOption{
                           {"file", "f"}, "Define project by file"});
     runOptions.append(GtCommandLineOption{
-                          {"overwrite", "o"}, "Overwrite project with command"});
+                          {"output", "o"}, "Overwrite project with command by Output Path"});
 
     return runOptions;
 }
