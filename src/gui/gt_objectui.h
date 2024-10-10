@@ -113,6 +113,40 @@ public:
      */
     virtual QRegExp validatorRegExp();
 
+    /**
+     * @brief hasValidationRegExp - validator for filtering names for
+     * renaming in models
+     * @param obj - pointer to the underlying object to get access to
+     *              be used to define behaviour
+     * @return true if Object has validator RegExp
+     */
+    virtual bool hasValidationRegExp(GtObject* obj);
+
+    /**
+     * @brief validatorRegExp - gives the validation RegExp
+     * @param obj - pointer to the underlying object to get access to
+     *              be used to define behaviour
+     * @return
+     */
+    virtual QRegExp validatorRegExp(GtObject* obj);
+
+    /**
+     * @brief regExpHint
+     * @param obj
+     * @return a string to help the user which regular expression is used to
+     * restrict renaming and how to avoid problems
+     */
+    virtual QString regExpHint(GtObject* obj);
+
+    /**
+     * @brief regExpCheckWhileModification
+     * @param obj
+     * @return true if the regular expression should be used while
+     * the element is renamed. False means that the regular expression is only
+     * checked in the end of the modification
+     */
+    virtual bool regExpCheckWhileModification(GtObject* obj);
+
 protected:
 
     /**
