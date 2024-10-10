@@ -12,7 +12,6 @@
 #include <QLineEdit>
 
 #include "gt_regexp.h"
-#include "gt_logging.h"
 #include "gt_coredatamodel.h"
 #include "gt_application.h"
 #include "gt_project.h"
@@ -33,7 +32,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
                                    const QStyleOptionViewItem& /*option*/,
                                    const QModelIndex& index) const
 {
-    QLineEdit* lineEdit = new QLineEdit(parent);
+    auto* lineEdit = new QLineEdit(parent);
 
     QString uuid = index.data(GtCoreDatamodel::UuidRole).toString();
 
@@ -44,9 +43,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
 
     if (proj)
     {
-        GtObject* obj = proj->getObjectByUuid(uuid);
-
-        if (obj)
+        if (GtObject* obj = proj->getObjectByUuid(uuid))
         {
             if (m_validatorflag == uiFilter)
             {
@@ -67,9 +64,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
         }
     }
 
-    QValidator* validator = new QRegExpValidator(regExp, this->parent());
-
-    lineEdit->setValidator(validator);
+    lineEdit->setValidator(new QRegExpValidator(regExp, this->parent()));
 
     return lineEdit;
 }
@@ -78,12 +73,9 @@ void
 GtTextFilterDelegate::setEditorData(QWidget* editor,
                                     const QModelIndex &index) const
 {
-    if (!index.isValid())
-    {
-        return;
-    }
+    if (!index.isValid()) return;
 
-    QLineEdit* lineEdit = static_cast<QLineEdit*>(editor);
+    auto* lineEdit = static_cast<QLineEdit*>(editor);
     QString val = index.data(Qt::DisplayRole).toString();
     lineEdit->setText(val);
 }
