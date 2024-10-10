@@ -15,13 +15,11 @@
 #include "gt_core_exports.h"
 
 #include "gt_doubleproperty.h"
-#include "gt_monitoringproperty.h"
 
 /**
  * @brief The GtDoubleMonitoringProperty class
  */
-class GT_CORE_EXPORT GtDoubleMonitoringProperty :
-        public GtDoubleProperty, public GtMonitoringProperty
+class GT_CORE_EXPORT GtDoubleMonitoringProperty : public GtDoubleProperty
 {
     Q_OBJECT
 
@@ -34,6 +32,7 @@ public:
      * @param ident
      * @param name
      */
+    [[deprecated ("Use GtDoubleProperty and set the monitoring flag")]]
     Q_INVOKABLE GtDoubleMonitoringProperty(const QString& ident,
                                            const QString& name);
 
@@ -43,10 +42,10 @@ public:
      * @param name shown in the GUI
      * @param brief description text
      */
+    [[deprecated ("Use GtDoubleProperty and set the monitoring flag")]]
     Q_INVOKABLE GtDoubleMonitoringProperty(const QString& ident,
                                            const QString& name,
                                            const QString& brief);
-
 };
 
 namespace gt

@@ -13,7 +13,6 @@
 #include <QIcon>
 
 #include "gt_abstractproperty.h"
-#include "gt_monitoringproperty.h"
 #include "gt_calculator.h"
 #include "gt_calculatorfactory.h"
 #include "gt_extendedcalculatordata.h"
@@ -51,7 +50,9 @@ GtProcessConnectionItem::GtProcessConnectionItem(GtProcessComponent* comp) :
 GtProcessConnectionItem::GtProcessConnectionItem(GtAbstractProperty* prop) :
     m_property(prop)
 {
-    if (dynamic_cast<GtMonitoringProperty*>(prop))
+    if (!prop) return;
+
+    if (prop->isMonitoring())
     {
         m_type = GtProcessConnectionItem::MONITORING_PROPERTY;
     }

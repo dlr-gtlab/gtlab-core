@@ -47,6 +47,11 @@ TEST_F(TestGtDoubleMonitoringProperty, initialization)
 
 TEST_F(TestGtDoubleMonitoringProperty, isReadOnly)
 {
+    // ToDo: This test is failing.
+    // We should discuss how the monitoring propeties should be defined
+    // currently properties become monitoring properties
+    // by the registration as monitoring properties
+    // and also becomes read only in this procedure
     GtDoubleMonitoringProperty prop("testIdent", "testName");
 
     ASSERT_TRUE(prop.isReadOnly());

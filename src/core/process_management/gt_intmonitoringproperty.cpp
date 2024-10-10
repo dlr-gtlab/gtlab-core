@@ -11,23 +11,31 @@
 
 #include "gt_intmonitoringproperty.h"
 
-GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
-                                                 const QString& name,
-                                                 const QString& brief) :
-    GtIntProperty(ident, name, brief)
+
+GtIntMonitoringProperty::GtIntMonitoringProperty(
+        const QString& ident, const QString& name) :
+    GtIntProperty(ident, name)
 {
-    setReadOnly(true);
+    setMonitoring(true);
 }
 
-GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
-                                                 const QString& name) :
-    GtIntMonitoringProperty(ident, name, QString())
+GtIntMonitoringProperty::GtIntMonitoringProperty(
+        const QString& ident, const QString& name, const QString& brief) :
+    GtIntProperty(ident, name, brief)
 {
-
+    setMonitoring(true);
 }
 
 gt::PropertyFactoryFunction
 gt::makeIntMonitoringProperty(int value)
 {
-    return makePropertyFactory<GtIntMonitoringProperty>(std::move(value));
+    auto makeInt = [=](QString const& id)
+    {
+        auto* p = new GtIntProperty(id, id);
+        p->setMonitoring(true);
+        p->setValueFromVariant(std::move(value), "");
+        return p;
+    };
+
+    return makeInt;
 }

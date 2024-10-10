@@ -11,23 +11,31 @@
 
 #include "gt_doublemonitoringproperty.h"
 
-GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
-                                                       const QString& name,
-                                                       const QString& brief) :
-    GtDoubleProperty(ident, name, brief)
+
+GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(
+        const QString& ident, const QString& name) :
+    GtDoubleProperty(ident, name)
 {
-    setReadOnly(true);
+    setMonitoring(true);
 }
 
-GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
-                                                       const QString& name) :
-    GtDoubleMonitoringProperty(ident, name, QString())
+GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(
+        const QString& ident, const QString& name, const QString& brief) :
+    GtDoubleProperty(ident, name, brief)
 {
-
+    setMonitoring(true);
 }
 
 gt::PropertyFactoryFunction
 gt::makeDoubleMonitoringProperty(double value)
 {
-    return makePropertyFactory<GtDoubleMonitoringProperty>(std::move(value));
+    auto makeDouble = [=](QString const& id)
+    {
+        auto* p = new GtDoubleProperty(id, id);
+        p->setMonitoring(true);
+        p->setValueFromVariant(std::move(value), "");
+        return p;
+    };
+
+    return makeDouble;
 }
