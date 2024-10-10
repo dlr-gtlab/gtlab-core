@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <gt_projectprovider.h>
 
 #include <QApplication>
 #include <QDomDocument>
@@ -706,6 +707,112 @@ switch_session(const QStringList& args)
     return 0;
 }
 
+int
+upgradeRoutine(const QString& projectFile, const QString& projectFilePath = "", QString newProjectName = "")
+{
+    GtProject* project = gtApp->findProject(projectFile);
+
+    if (!project)
+    {
+        gtError() << QObject::tr("Project not found!")
+        << QStringLiteral(" (") << projectFile << QStringLiteral(")");
+
+        return -1;
+    }
+
+    if (newProjectName.isEmpty())
+    {
+        newProjectName = projectFile + "Copy";
+    }
+
+    if (project->upgradesAvailable())
+    {
+        if (projectFilePath.isEmpty())
+        {
+            gtDebug() << "backup and overwriting project data...";
+            project->createBackup();
+            project->upgradeProjectData();
+
+            return 1;
+        }
+        else
+        {
+            gtDebug() << "upgrading data as new project...";
+            auto newProject = GtProjectProvider::duplicateExistingProject(
+                QDir(project->path()),
+                QDir(projectFilePath),
+                newProjectName
+                );
+
+            if (!newProject)
+            {
+                gtError() << "Could not save project to new directory";
+                return 0;
+            }
+
+            newProject->upgradeProjectData();
+            gtDataModel->newProject(newProject.release(), false);
+
+            return 1;
+        }
+    }
+
+    gtDebug() << "Project is up to date no further upgrades needed at the moment.";
+
+    return 0;
+}
+
+int
+upgrade_Project(const QStringList& args)
+{
+    GtCommandLineParser p;
+    p.addHelpOption();
+
+    for (const auto& o : gt::console::options())
+    {
+        p.addOption(o.names.first(), o);
+    }
+
+    if (!p.parse(args))
+    {
+        gtError() << QObject::tr("Run method without arguments is invalid");
+        return -1;
+    }
+
+    if (p.helpOption())
+    {
+        gt::console::printRunHelp();
+        return 0;
+    }
+
+    size_t posArgSize = p.positionalArguments().size();
+
+    if (p.option("overwrite"))
+    {
+        return upgradeRoutine(p.positionalArguments().at(0));
+    }
+
+    //default
+    if (posArgSize == 2)
+    {
+        gtError() << p.positionalArguments().at(0);
+        gtError() << p.positionalArguments().at(1);
+
+        return upgradeRoutine(p.positionalArguments().at(0), p.positionalArguments().at(1));
+    }
+    else if (posArgSize == 3)
+    {
+        return upgradeRoutine(p.positionalArguments().at(0), p.positionalArguments().at(1), p.positionalArguments().at(2));
+    }
+    else if (posArgSize < 2 || posArgSize > 3)
+    {
+        gtError() << QObject::tr("Invalid usage of file option");
+        return -1;
+    }
+
+    return 0;
+}
+
 void
 initPosArgument(QString const& id,
                 std::function<int(const QStringList&)> func,
@@ -777,6 +884,12 @@ initSystemOptions()
     initPosArgument("switch_session", switch_session,
                     "Switches to the given session", {},
                     {GtCommandLineArgument{"session_id", "Session ID"}});
+
+    initPosArgument("upgrade_Project", upgrade_Project,
+                    "Upgrades All Modules in the current project",
+                    gt::console::options(),
+                    QList<GtCommandLineArgument>(),
+                    false);
 }
 
 int
