@@ -212,86 +212,86 @@ GtSettings::intialShortCutsList() const
 
     /// rename object
     shortCuts.append({QStringLiteral("rename"), catCore,
-                      QKeySequence(Qt::Key_F2), true});
+                      QKeySequence(Qt::Key_F2).toString(), true});
 
     /// openContectMenu
     shortCuts.append({QStringLiteral("openContextMenu"), catCore,
-                      QKeySequence(Qt::Key_F4)});
+                      QKeySequence(Qt::Key_F4).toString()});
 
     /// ShowFootprint
     shortCuts.append({QStringLiteral("showFootprint"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_I)});
+                      QKeySequence(Qt::CTRL + Qt::Key_I).toString()});
     /// redo
     shortCuts.append({QStringLiteral("redo"), catCore,
-                      QKeySequence(QKeySequence::Redo), true});
+                      QKeySequence(QKeySequence::Redo).toString(), true});
 
     /// undo
     shortCuts.append({QStringLiteral("undo"), catCore,
-                      QKeySequence(QKeySequence::Undo), true});
+                      QKeySequence(QKeySequence::Undo).toString(), true});
 
     /// cut
     shortCuts.append({QStringLiteral("cut"), catCore,
-                      QKeySequence(QKeySequence::Cut), true});
+                      QKeySequence(QKeySequence::Cut).toString(), true});
 
     /// copy
     shortCuts.append({QStringLiteral("copy"), catCore,
-                      QKeySequence(QKeySequence::Copy), true});
+                      QKeySequence(QKeySequence::Copy).toString(), true});
 
     /// clone/duplicate
     shortCuts.append({QStringLiteral("clone"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_D), true});
+                      QKeySequence(Qt::CTRL + Qt::Key_D).toString(), true});
 
     /// paste
     shortCuts.append({QStringLiteral("paste"), catCore,
-                      QKeySequence(QKeySequence::Paste), true});
+                      QKeySequence(QKeySequence::Paste).toString(), true});
 
     /// delete
     shortCuts.append({QStringLiteral("delete"), catCore,
-                      QKeySequence(QKeySequence::Delete), true});
+                      QKeySequence(QKeySequence::Delete).toString(), true});
 
     /// search
     shortCuts.append({QStringLiteral("search"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_F)});
+                      QKeySequence(Qt::CTRL + Qt::Key_F).toString()});
 
     /// switchPerspective
     shortCuts.append({QStringLiteral("switchPerspective"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_P), true});
+                      QKeySequence(Qt::ALT + Qt::Key_P).toString(), true});
 
     /// switchPerspective
     shortCuts.append({QStringLiteral("closeTab"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_W), false});
+                      QKeySequence(Qt::CTRL + Qt::Key_W).toString(), false});
 
     /// Preferences
     shortCuts.append({QStringLiteral("openPreferences"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_Enter), true});
+                      QKeySequence(Qt::ALT + Qt::Key_Enter).toString(), true});
 
     /// Preferences
     shortCuts.append({QStringLiteral("openModulesInfo"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_M), true});
+                      QKeySequence(Qt::ALT + Qt::Key_M).toString(), true});
 
     /// save
     shortCuts.append({QStringLiteral("save"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_S), true});
+                      QKeySequence(Qt::CTRL + Qt::Key_S).toString(), true});
 
     /// new Project
     shortCuts.append({QStringLiteral("newProject"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_N), true});
+                      QKeySequence(Qt::CTRL + Qt::Key_N).toString(), true});
 
     /// open Project
     shortCuts.append({QStringLiteral("openProject"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_O), true});
+                      QKeySequence(Qt::CTRL + Qt::Key_O).toString(), true});
 
     /// close Project
     shortCuts.append({QStringLiteral("closeProject"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_W), true});
+                      QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_W).toString(), true});
 
     /// help
     shortCuts.append({QStringLiteral("help"), catCore,
-                      QKeySequence(Qt::Key_F1), true});
+                      QKeySequence(Qt::Key_F1).toString(), true});
 
     /// undo
     shortCuts.append({QStringLiteral("modulesOverview"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_M), true});
+                      QKeySequence(Qt::ALT + Qt::Key_M).toString(), true});
 
     return shortCuts;
 }

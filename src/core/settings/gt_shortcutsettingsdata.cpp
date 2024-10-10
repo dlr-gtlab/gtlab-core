@@ -15,9 +15,8 @@ GtShortCutSettingsData::GtShortCutSettingsData()
 
 }
 
-GtShortCutSettingsData::GtShortCutSettingsData(
-        QString const& identifier, QString const& cat,
-        QKeySequence key, bool readOnly) :
+GtShortCutSettingsData::GtShortCutSettingsData(QString const& identifier, QString const& cat,
+        QString key, bool readOnly) :
     id(identifier), category(cat),
     shortCut(key), isReadOnly(readOnly)
 {
@@ -33,6 +32,6 @@ GtShortCutSettingsData::dataToVariant() const
         readOnly = "true";
     }
 
-    QStringList l {shortCut.toString(), category, readOnly};
+    QStringList l {shortCut, category, readOnly};
     return QVariant(l);
 }

@@ -710,6 +710,13 @@ GtApplication::extendShortCuts(const GtShortCutSettingsData& shortcut)
     sList->initialize(shortcut);
 }
 
+void
+GtApplication::extendShortCuts(const QString& id, const QString& category,
+                               const QKeySequence k, bool readOnly)
+{
+    extendShortCuts({id, category, k.toString(), readOnly});
+}
+
 
 QList<GtShortCutSettingsData>
 GtApplication::moduleShortCuts() const

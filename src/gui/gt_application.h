@@ -309,6 +309,15 @@ public:
     void extendShortCuts(const GtShortCutSettingsData &shortcut);
 
     /**
+     * @brief extendShortCuts
+     * @param shortcut to add
+     */
+    void extendShortCuts(const QString& id,
+                         QString const& category,
+                         const QKeySequence k,
+                         bool readOnly = false);
+
+    /**
      * @brief moduleShortCuts
      * @return shortcuts registered via interface
      */
