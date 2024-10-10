@@ -34,15 +34,13 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
 {
     auto* lineEdit = new QLineEdit(parent);
 
-    QString uuid = index.data(GtCoreDatamodel::UuidRole).toString();
-
-    GtProject* proj = gtApp->currentProject();
-
     /// Standart regExp
     QRegExp regExp = gt::re::onlyLettersAndNumbers();
 
-    if (proj)
+    if (GtProject* proj = gtApp->currentProject())
     {
+        QString uuid = index.data(GtCoreDatamodel::UuidRole).toString();
+
         if (GtObject* obj = proj->getObjectByUuid(uuid))
         {
             if (m_validatorflag == uiFilter)
