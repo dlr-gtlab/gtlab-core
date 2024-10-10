@@ -16,12 +16,11 @@ GtRegExpValidator::GtRegExpValidator(QObject* parent) :
 }
 
 GtRegExpValidator::GtRegExpValidator(const QRegExp& rx, QObject* parent) :
-    QValidator(parent)
+    QValidator(parent),
+    m_regExp(rx)
 {   
     // TODO: Check if there is the need to add a ^ at the start and $ at
     // the end of the regexp pattern
-
-    m_regExp = rx;
 }
 
 QValidator::State

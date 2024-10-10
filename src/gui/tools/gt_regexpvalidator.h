@@ -15,9 +15,9 @@
 class GtRegExpValidator : public QValidator
 {
 public:
-    GtRegExpValidator(QObject *parent = nullptr);
+    explicit GtRegExpValidator(QObject* parent = nullptr);
 
-    GtRegExpValidator(const QRegExp& rx, QObject* parent = nullptr);
+    explicit GtRegExpValidator(const QRegExp& rx, QObject* parent = nullptr);
 
     QValidator::State validate(QString& input, int& pos) const override;
 
