@@ -712,7 +712,7 @@ GtApplication::extendShortCuts(const GtShortCutSettingsData& shortcut)
 
 void
 GtApplication::extendShortCuts(const QString& id, const QString& category,
-                               const QKeySequence k, bool readOnly)
+                               const QKeySequence &k, bool readOnly)
 {
     extendShortCuts({id, category, k.toString(), readOnly});
 }

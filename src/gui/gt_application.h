@@ -317,7 +317,7 @@ public:
      */
     void extendShortCuts(const QString& id,
                          QString const& category,
-                         const QKeySequence k,
+                         const QKeySequence& k,
                          bool readOnly = false);
 
     /**
