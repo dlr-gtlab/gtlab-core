@@ -30,4 +30,11 @@ Data Processor API
 .. doxygenclass:: GtObjectPathProperty
    :members:
 
-.. _operators-api:
+Module Interfaces
+=================
+
+.. doxygenclass:: GtModuleInterface
+   :members:
+
+.. doxygenclass:: GtDatamodelInterface
+   :members:
