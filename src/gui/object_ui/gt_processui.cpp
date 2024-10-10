@@ -28,7 +28,7 @@ GtProcessUI::icon(GtObject* /*obj*/) const
 QStringList
 GtProcessUI::openWith(GtObject* /*obj*/)
 {
-    return QStringList() << "GtProcessEditor";
+    return QStringList();
 }
 
 
