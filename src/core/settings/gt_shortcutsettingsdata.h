@@ -11,7 +11,6 @@
 #ifndef GTSHORTCUTSETTINGSDATA_H
 #define GTSHORTCUTSETTINGSDATA_H
 
-#include <QKeySequence>
 #include <QVariant>
 #include "gt_core_exports.h"
 
@@ -25,6 +24,7 @@ struct GT_CORE_EXPORT GtShortCutSettingsData{
     /**
      * @brief shortCutSettingsData - default constructor
      */
+
     GtShortCutSettingsData();
 
     /**
@@ -35,7 +35,7 @@ struct GT_CORE_EXPORT GtShortCutSettingsData{
      * @param readOnly - is the short cut read only and is not editable
      */
     GtShortCutSettingsData(QString const& identifier, QString const& cat,
-                           QKeySequence key, bool readOnly = false);
+                           QString const& key, bool readOnly = false);
 
     /**
      * @brief dataToVariant
@@ -50,7 +50,7 @@ struct GT_CORE_EXPORT GtShortCutSettingsData{
     QString category;
 
     /// short cut key sequence
-    QKeySequence shortCut;
+    QString shortCut;
 
     /// is the short cut read only an not editable
     bool isReadOnly;

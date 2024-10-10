@@ -141,7 +141,7 @@ GtPreferencesShortCuts::saveSettings(GtSettings& settings) const
         }
 
         current->setKey(key);
-        settingsList.append({id, cat, key, current->isReadOnly()});
+        settingsList.append({id, cat, key.toString(), current->isReadOnly()});
     }
 
     if (anyChange)
@@ -203,20 +203,20 @@ GtPreferencesShortCuts::restoreDefaults()
         }
 
         // pointer to keysequence to check if key was found
-        QKeySequence const* key{};
+        QKeySequence key{};
 
         // find default shortcut value
         for (GtShortCutSettingsData const& entry : qAsConst(initialShortcuts))
         {
             if (entry.id == id && entry.category == cat)
             { // cppcheck-suppress useStlAlgorithm
-                key = &entry.shortCut;
+                key = QKeySequence::fromString(entry.shortCut);
                 break;
             }
         }
 
         // key not found -> shortcut is a remnant
-        if (!key)
+        if (key.isEmpty())
         {
             gtWarning().medium() << tr("Removed unknown shortcut") << id;
             m_tab->removeRow(i--);
@@ -224,7 +224,7 @@ GtPreferencesShortCuts::restoreDefaults()
         }
 
         // apply shortcut
-        e->setKeySequence(*key);
+        e->setKeySequence(key);
         handledShortCuts.append(uid);
     }
 

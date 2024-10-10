@@ -15,7 +15,6 @@
 #include <QDir>
 #include <QSettings>
 #include <QMap>
-#include <QKeySequence>
 #include <QString>
 
 struct GtSettings::Impl
@@ -130,8 +129,7 @@ GtSettings::GtSettings()
                 QStringList());
 
     pimpl->shortcutsTable = registerSetting(
-                QStringLiteral("application/general/shortCuts"),
-                initialShortCuts());
+                QStringLiteral("application/general/shortCuts"));
 
     pimpl->themeSelection = registerSettingRestart(
                         QStringLiteral("application/general/themeSelection"),
@@ -193,107 +191,13 @@ GtSettings::setShortcutsTable(QList<GtShortCutSettingsData> const& list)
 QVariant
 GtSettings::initialShortCuts() const
 {
-    QMap<QString, QVariant> shortCutDataMap;
-
-    for (GtShortCutSettingsData const& s : intialShortCutsList())
-    {
-        shortCutDataMap.insert(s.id, s.dataToVariant());
-    }
-
-    return QVariant(shortCutDataMap);
+    return {};
 }
 
 QList<GtShortCutSettingsData>
 GtSettings::intialShortCutsList() const
 {
-    QString const& catCore = QStringLiteral("Core");
-
-    QList<GtShortCutSettingsData> shortCuts;
-
-    /// rename object
-    shortCuts.append({QStringLiteral("rename"), catCore,
-                      QKeySequence(Qt::Key_F2), true});
-
-    /// openContectMenu
-    shortCuts.append({QStringLiteral("openContextMenu"), catCore,
-                      QKeySequence(Qt::Key_F4)});
-
-    /// ShowFootprint
-    shortCuts.append({QStringLiteral("showFootprint"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_I)});
-    /// redo
-    shortCuts.append({QStringLiteral("redo"), catCore,
-                      QKeySequence(QKeySequence::Redo), true});
-
-    /// undo
-    shortCuts.append({QStringLiteral("undo"), catCore,
-                      QKeySequence(QKeySequence::Undo), true});
-
-    /// cut
-    shortCuts.append({QStringLiteral("cut"), catCore,
-                      QKeySequence(QKeySequence::Cut), true});
-
-    /// copy
-    shortCuts.append({QStringLiteral("copy"), catCore,
-                      QKeySequence(QKeySequence::Copy), true});
-
-    /// clone/duplicate
-    shortCuts.append({QStringLiteral("clone"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_D), true});
-
-    /// paste
-    shortCuts.append({QStringLiteral("paste"), catCore,
-                      QKeySequence(QKeySequence::Paste), true});
-
-    /// delete
-    shortCuts.append({QStringLiteral("delete"), catCore,
-                      QKeySequence(QKeySequence::Delete), true});
-
-    /// search
-    shortCuts.append({QStringLiteral("search"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_F)});
-
-    /// switchPerspective
-    shortCuts.append({QStringLiteral("switchPerspective"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_P), true});
-
-    /// switchPerspective
-    shortCuts.append({QStringLiteral("closeTab"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_W), false});
-
-    /// Preferences
-    shortCuts.append({QStringLiteral("openPreferences"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_Enter), true});
-
-    /// Preferences
-    shortCuts.append({QStringLiteral("openModulesInfo"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_M), true});
-
-    /// save
-    shortCuts.append({QStringLiteral("save"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_S), true});
-
-    /// new Project
-    shortCuts.append({QStringLiteral("newProject"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_N), true});
-
-    /// open Project
-    shortCuts.append({QStringLiteral("openProject"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_O), true});
-
-    /// close Project
-    shortCuts.append({QStringLiteral("closeProject"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_W), true});
-
-    /// help
-    shortCuts.append({QStringLiteral("help"), catCore,
-                      QKeySequence(Qt::Key_F1), true});
-
-    /// undo
-    shortCuts.append({QStringLiteral("modulesOverview"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_M), true});
-
-    return shortCuts;
+    return {};
 }
 
 

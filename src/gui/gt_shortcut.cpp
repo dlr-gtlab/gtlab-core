@@ -17,7 +17,7 @@ GtShortCut::GtShortCut(const QString& id,
 {  
     m_data.id = id;
     m_data.category = cat;
-    m_data.shortCut = key;
+    m_data.shortCut = key.toString();
     m_data.isReadOnly = isReadOnly;
 }
 
@@ -46,7 +46,7 @@ GtShortCut::key() const
 void
 GtShortCut::setKey(const QKeySequence &key)
 {
-    m_data.shortCut = key;
+    m_data.shortCut = key.toString();
 }
 
 QString
