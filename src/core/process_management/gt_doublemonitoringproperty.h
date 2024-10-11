@@ -54,6 +54,7 @@ namespace gt
 /**
  * @brief Creates a property factory for monitoring doubles with a default value
  */
+[[deprecated("Use makeMonitoring(makeDoubleProperty(value)) instead")]]
 GT_CORE_EXPORT
 gt::PropertyFactoryFunction makeDoubleMonitoringProperty(double value);
 

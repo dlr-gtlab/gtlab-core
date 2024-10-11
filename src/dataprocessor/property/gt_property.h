@@ -374,6 +374,22 @@ inline gt::PropertyFactoryFunction makeOptional(Functor propertyFactory,
     };
 };
 
+/**
+ * @brief Wraps a property factory function and returns an monitoring property
+ * @param propertyFactory Function to wrap
+ * @return Monitoring property factory function
+ */
+template <typename Functor>
+inline gt::PropertyFactoryFunction makeMonitoring(Functor propertyFactory)
+{
+    return [func = std::move(propertyFactory)](QString const& id) -> GtAbstractProperty* {
+        GtAbstractProperty* tmp = func(id);
+        if (!tmp) return nullptr;
+
+        tmp->setMonitoring(true);
+        return tmp;
+    };
+};
 } // namespace gt
 
 #endif // GTLAB_PARAMETER_H

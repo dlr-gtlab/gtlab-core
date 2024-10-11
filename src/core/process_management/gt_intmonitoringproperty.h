@@ -54,6 +54,7 @@ namespace gt
 /**
  * @brief Creates a property factory for monitoring ints with a default value
  */
+[[deprecated("Use makeMonitoring(makeIntProperty(value)) instead")]]
 GT_CORE_EXPORT
 gt::PropertyFactoryFunction makeIntMonitoringProperty(int value);
 

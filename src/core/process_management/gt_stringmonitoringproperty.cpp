@@ -12,16 +12,23 @@
 
 #include "gt_stringmonitoringproperty.h"
 
+GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
+                                                       const QString& name,
+                                                       const QString& brief) :
+    GtStringProperty(ident, name, brief)
+{
+    setMonitoring(true);
+}
+
+GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
+                                                       const QString& name) :
+    GtStringMonitoringProperty(ident, name, QString())
+{
+
+}
+
 gt::PropertyFactoryFunction
 gt::makeStringMonitoringProperty(QString value)
 {
-    auto makeString = [=](QString const& id)
-    {
-        auto* p = new GtStringProperty(id, id);      
-        p->setMonitoring(true);
-        p->setValueFromVariant(std::move(value), "");
-        return p;
-    };
-
-    return makeString;
+    return makeMonitoring(makeStringProperty(value));
 }
