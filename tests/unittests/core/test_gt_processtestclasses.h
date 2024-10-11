@@ -17,7 +17,6 @@
 #include "gt_relativeobjectlinkproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
-#include "gt_intmonitoringproperty.h"
 
 
 class TestGtCalculator : public GtCalculator
