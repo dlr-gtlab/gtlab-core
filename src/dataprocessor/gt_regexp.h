@@ -48,6 +48,7 @@ QRegExp GT_DATAMODEL_EXPORT umlautsAndSpecialChar();
  * @return
  */
 QRegExp GT_DATAMODEL_EXPORT onlyLetters();
+QString GT_DATAMODEL_EXPORT onlyLettersHint();
 
 /**
  * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
@@ -55,6 +56,7 @@ QRegExp GT_DATAMODEL_EXPORT onlyLetters();
  * @return
  */
 QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbers();
+QString GT_DATAMODEL_EXPORT onlyLettersAndNumbersHint();
 
 /**
  * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
@@ -62,6 +64,7 @@ QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbers();
  * @return
  */
 QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDot();
+QString GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDotHint();
 
 /**
  * @brief onlyLettersAndNumbersAndSpace - accepts all letter (a-z and A-Z)
@@ -69,6 +72,7 @@ QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDot();
  * @return
  */
 QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndSpace();
+QString GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndSpaceHint();
 
 /**
  * @brief forUnits - accepts all letters and numbers and some

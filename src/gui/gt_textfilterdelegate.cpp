@@ -39,8 +39,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
     QRegExp regExp = gt::re::onlyLettersAndNumbers();
 
     bool checkWhileEditing = true;
-    QString hint = tr("Only letters and numbers are "
-                      "allowed to rename the object");
+    QString hint = gt::re::onlyLettersAndNumbersHint();
 
     if (GtProject* proj = gtApp->currentProject())
     {
