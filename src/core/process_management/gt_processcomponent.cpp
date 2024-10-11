@@ -50,9 +50,6 @@ struct GtProcessComponent::Impl
     /// Current process component state
     int progress;
 
-    /// Monitoring properties
-    QList<GtAbstractProperty*> monitorProperties;
-
     /// Container monitoring property references
     QList<GtPropertyReference> containerMonitorPropertyRefs;
 
@@ -92,9 +89,6 @@ GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
     }
 
     property.setMonitoring(true);
-
-    // append property to monitoring container
-    pimpl->monitorProperties << &property;
 }
 
 bool
@@ -195,10 +189,20 @@ GtProcessComponent::setProgress(int progress)
     emit progressStateChanged(pimpl->progress);
 }
 
-const QList<GtAbstractProperty*>&
+QList<GtAbstractProperty*>
 GtProcessComponent::monitoringProperties()
 {
-    return pimpl->monitorProperties;
+    // get all properties
+    QList<GtAbstractProperty*> retval = {};
+
+    // iterate over properties and remove all monitoring properties
+    for (GtAbstractProperty* prop : fullPropertyList())
+    {
+        if (prop->isMonitoring()) retval.append(prop);
+    }
+
+    // return list
+    return retval;
 }
 
 const QList<GtPropertyReference>&
@@ -216,7 +220,7 @@ GtProcessComponent::readWriteProperties()
     // iterate over properties and remove all monitoring properties
     foreach (GtAbstractProperty* prop, retval)
     {
-        if (pimpl->monitorProperties.contains(prop))
+        if (prop->isMonitoring())
         {
             retval.removeOne(prop);
         }
