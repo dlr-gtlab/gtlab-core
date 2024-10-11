@@ -303,9 +303,6 @@ protected:
     /// Whether property is stored in memento information or not
     bool m_storeMemento{true};
 
-    /// Monitoring indicator
-    bool m_monitoring{false};
-
     /// Property category
     GtAbstractProperty::PropertyCategory m_category{GtAbstractProperty::Main};
 
@@ -316,6 +313,11 @@ protected:
      * @brief setValFromConnection
      */
     virtual void setValFromConnection();
+
+private:
+    /// Private implementation
+    class Impl;
+    std::unique_ptr<Impl> m_pimpl;
 
 private slots:
     /**
