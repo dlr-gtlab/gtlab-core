@@ -34,12 +34,6 @@ TEST_F(TestGtIntMonitoringProperty, initialization)
 
     ASSERT_STREQ(prop.ident().toStdString().c_str(), "testIdent");
 
-    // ToDo: This test is failing.
-    // The GtIntProperty does behave a bit different compared to GtIntMonitoringProperty
-    // or even GtDoubleProperty and GtStringpropety:
-    // The GtIntProperty now used does set the brief value to the same as the name value
-    // if the constructor with only two arguments is used.
-    // THis difference should be discussed
     ASSERT_STREQ(prop.brief().toStdString().c_str(), "");
 
     GtIntMonitoringProperty prop2("testIdent2", "testName2", "testBrief2");
@@ -53,11 +47,6 @@ TEST_F(TestGtIntMonitoringProperty, initialization)
 
 TEST_F(TestGtIntMonitoringProperty, isReadOnly)
 {
-    // ToDo: This test is failing.
-    // We should discuss how the monitoring propeties should be defined
-    // currently properties become monitoring properties
-    // by the registration as monitoring properties
-    // and also becomes read only in this procedure
     GtIntMonitoringProperty prop("testIdent", "testName");
 
     ASSERT_TRUE(prop.isReadOnly());
