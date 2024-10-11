@@ -348,6 +348,13 @@ public:
      */
     static const QList<PageFactory>& customPreferencePages();
 
+    /**
+     * @brief initCoreShortCuts
+     * @return The list of the initial shortcuts added by the
+     * the core system
+     */
+    QList<GtShortCutSettingsData> initCoreShortCuts() const;
+
 private:
     /// List of user specific perspective ids
     QStringList m_perspectiveIds;
@@ -385,8 +392,6 @@ private:
      * @brief initFirstRun
      */
     bool initFirstRun() override;
-
-    QList<GtShortCutSettingsData> initCoreShortCuts() const;
 
 private slots:
     /**

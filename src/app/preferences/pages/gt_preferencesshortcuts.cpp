@@ -163,8 +163,7 @@ GtPreferencesShortCuts::restoreDefaults()
 {
     assert(m_tab);
 
-    QList<GtShortCutSettingsData> initialShortcuts =
-            gtApp->settings()->intialShortCutsList();
+    QList<GtShortCutSettingsData> initialShortcuts = gtApp->initCoreShortCuts();
 
     /// add the default vales from the modules
     initialShortcuts.append(gtApp->moduleShortCuts());
