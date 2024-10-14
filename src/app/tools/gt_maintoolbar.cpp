@@ -93,6 +93,12 @@ GtMainToolbar::onProjectChanged(bool isOpen)
     projectContext->setVisible(isOpen);
     editorContext->setVisible(isOpen);
     infoAction->setVisible(projectHasInfo());
+
+    if (!isOpen)
+    {
+        undoAction->setVisible(false);
+        redoAction->setVisible(false);
+    }
 }
 
 void
