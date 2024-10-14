@@ -1,3 +1,13 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2024 German Aerospace Center (DLR)
+ *
+ *  Created on: 14.10.2024
+ *  Author: Jannis Kruse (AT-TWK)
+ *  E-Mail: jannis.kruse@dlr.de
+ */
+
 #include "gt_consoleupgradeproject.h"
 
 #include "gt_application.h"
@@ -23,36 +33,39 @@ gt::console::upgradeRoutine(const QString& projectFile,
         return -1;
     }
 
-    if (project->upgradesAvailable())
+    if (!project->upgradesAvailable())
     {
-        if (projectFilePath.isEmpty())
+        gtDebug() << "Project is up to date no further upgrades needed at the moment.";
+        return 0;
+    }
+
+    if (projectFilePath.isEmpty())
+    {
+        gtDebug() << "backup and overwriting project data...";
+        project->createBackup();
+        project->upgradeProjectData();
+
+        return 1;
+    }
+    else
+    {
+        gtDebug() << "upgrading data as new project...";
+        auto newProject = GtProjectProvider::duplicateExistingProject(
+            QDir(project->path()),
+            QDir(projectFilePath),
+            QFileInfo(projectFilePath).fileName()
+            );
+
+        if (!newProject)
         {
-            gtDebug() << "backup and overwriting project data...";
-            project->createBackup();
-            project->upgradeProjectData();
-
-            return 1;
+            gtError() << "Could not save project to new directory";
+            return 0;
         }
-        else
-        {
-            gtDebug() << "upgrading data as new project...";
-            auto newProject = GtProjectProvider::duplicateExistingProject(
-                QDir(project->path()),
-                QDir(projectFilePath),
-                QFileInfo(projectFilePath).fileName()
-                );
 
-            if (!newProject)
-            {
-                gtError() << "Could not save project to new directory";
-                return 0;
-            }
+        newProject->upgradeProjectData();
+        gtDataModel->newProject(newProject.release(), false);
 
-            newProject->upgradeProjectData();
-            gtDataModel->newProject(newProject.release(), false);
-
-            return 1;
-        }
+        return 1;
     }
 
     gtDebug() << "Project is up to date no further upgrades needed at the moment.";
@@ -61,7 +74,7 @@ gt::console::upgradeRoutine(const QString& projectFile,
 }
 
 int
-gt::console::upgrade_Project(const QStringList &args)
+gt::console::upgrade_project(const QStringList &args)
 {
     GtCommandLineParser p;
     p.addHelpOption();

@@ -780,7 +780,7 @@ initSystemOptions()
                     "Switches to the given session", {},
                     {GtCommandLineArgument{"session_id", "Session ID"}});
 
-    initPosArgument("upgrade_Project", gt::console::upgrade_Project,
+    initPosArgument("upgrade_project", gt::console::upgrade_project,
                     "Upgrades All Modules in the current project",
                     gt::console::options(),
                     QList<GtCommandLineArgument>(),

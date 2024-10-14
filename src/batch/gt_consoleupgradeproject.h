@@ -1,3 +1,13 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2024 German Aerospace Center (DLR)
+ *
+ *  Created on: 14.10.2024
+ *  Author: Jannis Kruse (AT-TWK)
+ *  E-Mail: jannis.kruse@dlr.de
+ */
+
 #ifndef GT_CONSOLEUPGRADEPROJECT_H
 #define GT_CONSOLEUPGRADEPROJECT_H
 
@@ -23,7 +33,7 @@ namespace console
  * @param args
  * @return
  */
-int upgrade_Project(const QStringList& args);
+int upgrade_project(const QStringList& args);
 
 }
 }
