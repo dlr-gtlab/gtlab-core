@@ -24,12 +24,12 @@ Item {
         visible: toolbarGroup.visible && toolbarGroup.count > 0
         color: darkMode ? "#0a111f" : "#ffffff"
 
-        Behavior on implicitWidth {
-            NumberAnimation {
-                duration: 100
-                easing.type: Easing.InOutQuad
-            }
-        }
+//        Behavior on implicitWidth {
+//            NumberAnimation {
+//                duration: 100
+//                easing.type: Easing.InOutQuad
+//            }
+//        }
 
         radius: 10
         x: 0
