@@ -121,30 +121,30 @@ GtTaskGroup::read(const QString& projectPath,
     for (const auto& e : qAsConst(activeTasks))
     {
         auto newTask = m_pimpl->createTaskFromFile(
-            dir.absoluteFilePath(e.toString() + S_TASK_FILE_EXT));
+                    dir.absoluteFilePath(e.toString() + S_TASK_FILE_EXT));
 
-        if (newTask)
+        if (!newTask)
         {
-            if (newTask.get()->isDummy())
-            {
-                gtDebug().medium().nospace() << "dummy task created ("
-                                             << newTask->uuid() << ")";
-                appendChild(newTask.release());
-                continue;
-            }
+            gtError() << QObject::tr("Invalid task file (%1)").arg(e.toString());
+            continue;
+        }
 
-            std::unique_ptr<GtTask> taskObject = gt::unique_qobject_cast<GtTask>(std::move(newTask));
+        if (newTask.get()->isDummy())
+        {
+            gtDebug().medium().nospace() << "dummy task created ("
+                                         << newTask->uuid() << ")";
+        }
+        else
+        {
+            GtTask* gtTask = dynamic_cast<GtTask*>(newTask.get());
+            assert(gtTask != nullptr && "newTask must be of type GtTask.");
 
-            if (!taskObject)
-            {
-                gtError() << QObject::tr("Invalid task file (%1)").arg(e.toString());
-                delete newTask.release(); // release and delete unused object newTask
-            }
-
+            // Safe to use gtTask here
             gtDebug().medium().nospace() << "new task created ("
                                          << newTask->uuid() << ")";
-            appendChild(taskObject.release());
         }
+
+        appendChild(newTask.release());
     }
 
     acceptChangesRecursively();
@@ -461,6 +461,8 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 {
     QFile taskFile(filePath);
 
+    GtObject* retval = nullptr;
+
     if (!taskFile.exists())
     {
         // task file not found
@@ -493,7 +495,17 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 
     auto obj = memento.restore(gtProcessFactory);
 
-    return std::make_unique<GtObject>(obj);
+    if (obj)
+    {
+        retval = qobject_cast<GtObject*>(obj);
+        if (!retval)
+        {
+            gtError() << QObject::tr("Invalid task file (%1)").arg(filePath);
+            delete obj;
+        }
+    }
+
+    return std::unique_ptr<GtObject>(retval);
 }
 
 bool
