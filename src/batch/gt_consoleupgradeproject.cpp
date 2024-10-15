@@ -17,11 +17,33 @@
 #include "gt_datamodel.h"
 
 #include <gt_commandlineparser.h>
+#include <iostream>
 
+void
+gt::console::printUpgradeProjectHelp()
+{
+    std::cout << std::endl;
+    std::cout << "This is the help for the GTlab upgrade_project function" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "There are two basic methods to upgrade a project:" << std::endl;
+    std::cout << "\tDefine the project by name from the current session and overwrite the project with the upgraded version"
+                 "(default option)" << std::endl;
+    std::cout << "A backup is still created!" << std::endl;
+
+    std::cout << "\tGTlabConsole.exe upgrade_project <projectPath>"
+              << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "\tDefine the destination of the upgraded project by output path (use the option --output or -o"
+              << std::endl;
+    std::cout << "\tGTlabConsole.exe overwrite_project -o <projectPath> <outputPath>"
+              << std::endl;
+}
 
 int
 gt::console::upgradeRoutine(const QString& projectFile,
-                            const QString& projectFilePath)
+                            const QString& newProjectFilePath)
 {
     GtProject* project = gtApp->findProject(projectFile);
 
@@ -39,7 +61,7 @@ gt::console::upgradeRoutine(const QString& projectFile,
         return 0;
     }
 
-    if (projectFilePath.isEmpty())
+    if (newProjectFilePath.isEmpty())
     {
         gtDebug() << "backup and overwriting project data...";
         project->createBackup();
@@ -52,8 +74,8 @@ gt::console::upgradeRoutine(const QString& projectFile,
         gtDebug() << "upgrading data as new project...";
         auto newProject = GtProjectProvider::duplicateExistingProject(
             QDir(project->path()),
-            QDir(projectFilePath),
-            QFileInfo(projectFilePath).fileName()
+            QDir(newProjectFilePath),
+            QFileInfo(newProjectFilePath).fileName()
             );
 
         if (!newProject)
@@ -74,54 +96,51 @@ gt::console::upgradeRoutine(const QString& projectFile,
 }
 
 int
-gt::console::upgrade_project(const QStringList &args)
+gt::console::upgrade_project(const QStringList &upgradeProjectArguments)
 {
-    GtCommandLineParser p;
-    p.addHelpOption();
+    GtCommandLineParser upgradeProjectParser;
+    upgradeProjectParser.addHelpOption();
 
-    for (const auto& o : gt::console::options())
-    {
-        p.addOption(o.names.first(), o);
-    }
+    auto outputOption = GtCommandLineOption{{"output", "o"}, "Write project to output path"};
 
-    if (!p.parse(args))
+    upgradeProjectParser.addOption(outputOption.names.first(), outputOption);
+
+    if (!upgradeProjectParser.parse(upgradeProjectArguments))
     {
-        gtError() << QObject::tr("Run method without arguments is invalid");
+        gtError() << QObject::tr("running upgrade_project without arguments is invalid");
         return -1;
     }
 
-    if (p.helpOption())
+    if (upgradeProjectParser.helpOption())
     {
         gt::console::printRunHelp();
         return 0;
     }
 
-    size_t posArgSize = p.positionalArguments().size();
+    size_t posArgSize = upgradeProjectParser.positionalArguments().size();
 
-    if (p.option("output"))
+    //positionalArgument 1 is the path to the project which is to be upgraded
+    // positionalArgument 2 is the path to the upgraded project if an output path is defined on the command line
+
+    if (upgradeProjectParser.option("output"))
     {
-        if (posArgSize == 2)
+        if (posArgSize != 2)
         {
-            gtError() << p.positionalArguments().at(0);
-            gtError() << p.positionalArguments().at(1);
-
-            return upgradeRoutine(p.positionalArguments().at(0), p.positionalArguments().at(1));
-        }
-        else
-        {
-            gtError() << QObject::tr("Invalid usage of file option");
+            gtError() << QObject::tr("Invalid usage of output option");
             return -1;
         }
+
+        return upgradeRoutine(upgradeProjectParser.positionalArguments().at(0), upgradeProjectParser.positionalArguments().at(1));
     }
 
     //default
     if (posArgSize == 1)
     {
-        return upgradeRoutine(p.positionalArguments().at(0));
+        return upgradeRoutine(upgradeProjectParser.positionalArguments().at(0));
     }
     else
     {
-        gtError() << QObject::tr("Invalid usage of file option");
+        gtError() << QObject::tr("Invalid usage of upgrade_project routine");
         return -1;
     }
 

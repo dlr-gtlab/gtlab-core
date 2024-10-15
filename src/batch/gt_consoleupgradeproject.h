@@ -19,21 +19,26 @@ namespace console
 {
 
 /**
+ * @brief printRunHelp
+ */
+void printUpgradeProjectHelp();
+
+/**
  * @brief upgradeRoutine
  * @param projectFile
- * @param projectFilePath
+ * @param newProjectFilePath
  * @param newProjectName
  * @return
  */
-    int upgradeRoutine(const QString& projectFile,
-                       const QString& projectFilePath = "");
+int upgradeRoutine(const QString& projectFile,
+                   const QString& newProjectFilePath = "");
 
 /**
  * @brief upgrade_Project
- * @param args
+ * @param upgradeProjectArguments
  * @return
  */
-int upgrade_project(const QStringList& args);
+int upgrade_project(const QStringList& upgradeProjectArguments);
 
 }
 }
