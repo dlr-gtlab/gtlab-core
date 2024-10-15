@@ -743,7 +743,7 @@ initSystemOptions()
                     "To define a project name and a process name is the "
                     "default used option to execute this command."
                     "\n\t\t\tUse --help for more details.",
-                    gt::console::options(),
+                    gt::console::runOptions(),
                     QList<GtCommandLineArgument>(),
                     false);
 
@@ -781,8 +781,7 @@ initSystemOptions()
                     {GtCommandLineArgument{"session_id", "Session ID"}});
 
     initPosArgument("upgrade_project", gt::console::upgrade_project,
-                    "Upgrades All Modules in the current project",
-                    gt::console::options(),
+                    "Upgrades All Modules in the current project", {},
                     QList<GtCommandLineArgument>(),
                     false);
 }

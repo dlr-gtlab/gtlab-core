@@ -26,7 +26,7 @@
 #include <QCoreApplication>
 
 QList<GtCommandLineOption>
-gt::console::options()
+gt::console::runOptions()
 {
     QList<GtCommandLineOption> runOptions;
     runOptions.append(GtCommandLineOption{
@@ -48,7 +48,7 @@ gt::console::run(const QStringList &args)
     GtCommandLineParser p;
     p.addHelpOption();
 
-    for (const auto& o : options())
+    for (const auto& o : runOptions())
     {
         p.addOption(o.names.first(), o);
     }
