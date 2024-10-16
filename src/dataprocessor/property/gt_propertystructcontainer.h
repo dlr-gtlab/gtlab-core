@@ -44,6 +44,27 @@ public:
 
     ~GtPropertyStructContainer() override;
 
+    enum Flags
+    {
+        Hidden   = 1,
+        ReadOnly = 2,
+
+    };
+
+    /**
+     * @brief Gets the flags of the container, possibly as a superposition
+     *        of GtPropertyStructContainer::Flags
+     * @return The flags values
+     */
+    int getFlags() const;
+
+    /**
+     * @brief Sets the flags of the container
+     *
+     * Example setFlags(Hidden | ReadOnly)
+     */
+    void setFlags(int);
+
     /**
      * @brief registerAllowedType
      * @param typeID

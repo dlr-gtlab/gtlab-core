@@ -474,5 +474,110 @@ gt::gui::color::js_highlight::marker()
     return QColor(255, 255, 0);
 }
 
+QColor
+gt::gui::color::connection_editor::connection()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::lightGray;
+    }
+    return Qt::black;
+}
 
+QColor
+gt::gui::color::connection_editor::connectionDraft()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(98, 182, 230);
+    }
+    return Qt::blue;
+}
 
+QColor
+gt::gui::color::connection_editor::portBackground()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(69, 130, 162);
+    }
+    return Qt::darkGray;
+}
+
+QColor
+gt::gui::color::connection_editor::portHover()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::lightGray;
+    }
+    return Qt::white;
+}
+
+QColor
+gt::gui::color::connection_editor::connectionHighlight()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::red;
+    }
+    return Qt::red;
+}
+
+QColor
+gt::gui::color::plots::activeLine()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(Qt::blue).lighter();
+    }
+    return Qt::blue;
+}
+
+QColor
+gt::gui::color::plots::inactiveLine()
+{
+    return Qt::gray;
+}
+
+QColor
+gt::gui::color::plots::helpingLine()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(Qt::red).lighter();
+    }
+    return Qt::red;
+}
+
+QColor
+gt::gui::color::plots::marker()
+{
+    if (gtApp->inDarkMode())
+    {
+        return QColor(Qt::red).lighter();
+    }
+    return Qt::red;
+}
+
+QColor
+gt::gui::color::plots::selectedMarker()
+{
+    return Qt::white;
+}
+
+QColor
+gt::gui::color::plots::markerBorder()
+{
+    if (gtApp->inDarkMode())
+    {
+        return Qt::gray;
+    }
+    return Qt::black;
+}
+
+QColor
+gt::gui::color::plots::inactiveMarker()
+{
+    return Qt::darkGray;
+}

@@ -70,6 +70,7 @@ set(headers
     process_management/process_runner/gt_processrunnerconnectionstrategy.h
     process_management/process_runner/gt_processrunnerglobals.h
     process_management/process_runner/gt_processrunnertcpconnection.h
+    process_management/calculators/gt_exporttomementocalculator.h
     settings/gt_shortcutsettingsdata.h
     states/gt_state.h
     states/gt_stategroup.h
@@ -174,6 +175,7 @@ set(sources
     process_management/process_runner/gt_processrunnerconnectionstrategy.cpp
     process_management/process_runner/gt_processrunnerglobals.cpp
     process_management/process_runner/gt_processrunnertcpconnection.cpp
+    process_management/calculators/gt_exporttomementocalculator.cpp
     settings/gt_shortcutsettingsdata.cpp
     states/gt_state.cpp
     states/gt_stategroup.cpp
@@ -226,6 +228,7 @@ target_include_directories(GTlabCore
     # includes during local build
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/process_management>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/process_management/calculators>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/process_management/process_runner>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/process_management/process_runner/commands>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/provider>

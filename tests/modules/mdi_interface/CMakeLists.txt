@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
-add_library(TestMdiInterface SHARED
+add_gtlab_module(TestMdiInterface MODULE_ID "Test Mdi Interface"
+  SOURCES
     data/test_mdi_data.h
     data/test_mdi_package.h
     mdi/test_mdi_dockwidget.h
@@ -22,8 +23,7 @@ add_library(TestMdiInterface SHARED
 target_include_directories(TestMdiInterface PUBLIC data mdi .)
 
 target_compile_definitions(TestMdiInterface 
-    PRIVATE 
-    GT_MODULE_ID="Test Mdi Interface"
+    PRIVATE
     TEST_MDI_INTERFACE_DLL
 )
 

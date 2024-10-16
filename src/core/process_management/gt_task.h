@@ -18,6 +18,7 @@
 
 #include <memory>
 
+#include <gt_globals.h>
 #include "gt_processcomponent.h"
 #include "gt_objectmemento.h"
 #include "gt_intmonitoringproperty.h"
@@ -58,6 +59,7 @@ public:
     /**
      * @brief run
      */
+    deprecated_from(3, 0, "This function not maintained and updated anymore.")
     void run(GtAbstractRunnable* runnable);
 
     /**

@@ -15,8 +15,8 @@
 #include "gt_project.h"
 #include "gt_projectspecwidget.h"
 #include "gt_projectupgradedialog.h"
-#include "gt_datamodel.h"
 #include "gt_application.h"
+#include "gt_qtutilities.h"
 
 #include "gt_projectupgradesettingspage.h"
 
@@ -48,7 +48,7 @@ GtProjectUpgradeSettingsPage::GtProjectUpgradeSettingsPage(GtProject* project,
 
     m_specWid->setVisible(false);
 
-    QString id = gtDataModel->uniqueObjectName(
+    QString id = gt::makeUniqueName(
                 project->objectName() + "_upgraded",
                 gtApp->session());
 

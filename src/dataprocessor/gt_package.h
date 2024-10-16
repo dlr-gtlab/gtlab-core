@@ -17,6 +17,7 @@
 
 class QDomElement;
 class QDomDocument;
+class QDir;
 
 /**
  * @brief The GtPackage class
@@ -28,17 +29,35 @@ class GT_DATAMODEL_EXPORT GtPackage : public GtObject
 public:
     /**
      * @brief Module specific data read method.
-     * @param Root data.
+     *
+     * Reads in package data from an xml node provided by GTlab
+     *
      * @return Returns true if data was successfully read.
      */
     virtual bool readData(const QDomElement& root);
 
     /**
+     * @brief Reads additional package data that are stored in the project dir
+     * @param projectDir Directory of the project
+     *
+     * @return Returns true if data was successfully read.
+     */
+    virtual bool readMiscData(const QDir& projectDir);
+
+    /**
      * @brief Module specific data save method.
-     * @param Root data.
+     *
      * @return Returns true if data was successfully read.
      */
     virtual bool saveData(QDomElement& root, QDomDocument& doc);
+
+    /**
+     * @brief Saves additional package data that are stored in the project dir
+     * @param projectDir Directory of the project
+     *
+     * @return Returns true if data was successfully read.
+     */
+    virtual bool saveMiscData(const QDir& projectDir);
 
 protected:
     /**

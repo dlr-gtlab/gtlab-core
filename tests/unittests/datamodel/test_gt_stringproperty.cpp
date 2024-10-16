@@ -135,3 +135,15 @@ TEST_F(TestGtStringProperty, optional)
     ASSERT_TRUE(prop.isActive());
     ASSERT_FALSE(prop.isOptional());
 }
+
+TEST_F(TestGtStringProperty, extendenOperator)
+{
+    GtStringProperty prop("prop", "test", "test", "hello");
+	
+    // operator+=
+    QString added = " is nice!";
+    prop.setVal("GTlab");
+	
+    prop += added;
+    ASSERT_STREQ(prop.get().toStdString().c_str(), "GTlab is nice!");
+}

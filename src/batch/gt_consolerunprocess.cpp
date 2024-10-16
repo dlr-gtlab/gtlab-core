@@ -23,6 +23,8 @@
 #include <iostream>
 #include <ostream>
 
+#include <QCoreApplication>
+
 QList<GtCommandLineOption>
 gt::console::options()
 {
@@ -83,7 +85,7 @@ gt::console::run(const QStringList &args)
         else if (p.positionalArguments().size() < 2 ||
                 p.positionalArguments().size() > 3)
         {
-            gtError() << QObject::tr("Invalid usage of file option");
+            gtError() << QObject::tr("Invalid number of arguments of file option");
             return -1;
         }
 
@@ -223,6 +225,29 @@ gt::console::runProcess(const QString& projectId,
     return 0;
 }
 
+/**
+ * @brief Enters a temporary session
+ *
+ * The return value must be kept until the session is not needed anymore.
+ * It is used to switch back to the current session
+ */
+auto enterTempSession()
+{
+    auto tmpSessionID = QString("_tmp_batch_session_%1").arg(QCoreApplication::applicationPid());
+    QString currentSessionID = gtApp->session() ? gtApp->session()->objectName() : "default";
+
+    gtDebug() << QObject::tr("Creating temporary batch session '%1'").arg(tmpSessionID);
+
+    gtApp->newSession(tmpSessionID);
+    gtApp->switchSession(tmpSessionID);
+
+    // cleanup
+    return gt::finally([tmpSessionID, currentSessionID](){
+        gtApp->switchSession(currentSessionID);
+        gtApp->deleteSession(tmpSessionID);
+    });
+}
+
 int
 gt::console::runProcessByFile(const QString& projectFile,
                               const QString& processId,
@@ -256,6 +281,9 @@ gt::console::runProcessByFile(const QString& projectFile,
         return -1;
     }
 
+    auto _ = enterTempSession();
+    Q_UNUSED(_);
+
     GtProjectProvider provider(projectFile);
     GtProject* project = provider.project();
 
@@ -266,53 +294,7 @@ gt::console::runProcessByFile(const QString& projectFile,
     }
 
     gtApp->session()->appendChild(project);
-
-    if (!gtDataModel->GtCoreDatamodel::openProject(project))
-    {
-        gtError() << QObject::tr("Could not open project!")
-                  << QStringLiteral(" (") << projectFile
-                  << QStringLiteral(")");
-
-        return -1;
-    }
-
-    gtDebug() << QObject::tr("project opened!");
-
-    // run process
-    GtTask* process = project->findProcess(processId);
-    if (!process)
-    {
-        gtError() << QObject::tr("Process not found!")
-                  << QStringLiteral(" (") << processId << QStringLiteral(")");
-
-        return -1;
-    }
-
-    // execute process
-    auto& executor = gt::currentProcessExecutor();
-    executor.setCoreExecutorFlags(gt::DryExecution);
-    executor.runTask(process);
-
-    if (process->currentState() != GtProcessComponent::FINISHED)
-    {
-        gtWarning() << QObject::tr("Calculator run failed!");
-        return -1;
-    }
-
-    gtDebug() << QObject::tr("process run successful!");
-
-    if (save)
-    {
-        if (!gtDataModel->saveProject(project))
-        {
-            gtError() << QObject::tr("project could not be saved!")
-                      << QStringLiteral(" (") << projectFile
-                      << QStringLiteral(")");
-            return -1;
-        }
-    }
-
-    return 0;
+    return runProcess(project->objectName(), processId, taskGroupId, save);
 }
 
 

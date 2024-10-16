@@ -65,3 +65,6 @@ target_link_libraries(GTlabUnitTest PRIVATE
     mpark::variant
     tl::optional
 )
+
+include(GoogleTest)
+gtest_discover_tests(GTlabUnitTest TEST_PREFIX "Core." DISCOVERY_MODE PRE_TEST)

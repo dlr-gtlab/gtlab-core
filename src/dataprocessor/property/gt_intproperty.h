@@ -124,6 +124,12 @@ public:
                   const int boundary,
                   const int& value = 0.0);
 
+    // operator overloads
+    void operator+=(int b);
+    void operator-=(int b);
+    void operator*=(int b);
+    void operator/=(int b);
+
     /**
      * @brief valueToVariant
      * @return

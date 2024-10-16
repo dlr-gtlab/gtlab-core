@@ -336,17 +336,8 @@ GtCoreApplication::initLogging()
         logger.setLoggingLevel(gt::log::levelFromInt(m_settings->loggingLevel()));
     }
 
-    // TODO: Remove this if block in GTlab 2.1 (see !294)
-    if (args.contains(QStringLiteral("-dev")))
-    {
-        static_assert(GT_VERSION < GT_VERSION_CHECK(2, 1, 0),
-                      "DEPRECATED: Remove me! (see MR !294)");
-        enableDevMode();
-        gtWarning() << tr("DEPRECATED: Enable dev-mode using '--dev' "
-                          "option instead");
-    }
     // dev mode
-    else if (args.contains(QStringLiteral("--dev")))
+    if (args.contains(QStringLiteral("--dev")))
     {
         enableDevMode();
     }

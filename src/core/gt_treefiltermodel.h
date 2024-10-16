@@ -14,6 +14,7 @@
 #include "gt_core_exports.h"
 
 #include <QSortFilterProxyModel>
+#include <gt_object.h>
 
 /**
  * @brief The GtTreeFilterModel class
@@ -43,6 +44,49 @@ protected:
      */
     bool filterAcceptsRow(int source_row,
                           const QModelIndex& source_parent) const override;
+
+    /**
+     * @brief Same as filterAcceptsRow, but also checks the predicate pred(obj)
+     *        weather to accept this object or not in addition
+     *
+     * @param source_row
+     * @param source_parent
+     * @param pred Function(GtObject* obj). Returns true,
+     *             if obj should be accepted
+     * @return
+     */
+    template <typename Func>
+    bool filterAcceptsRow(int source_row,
+                          const QModelIndex& source_parent,
+                          Func&& pred) const
+    {
+        QModelIndex source_index =
+            sourceModel()->index(source_row,
+                                 this->filterKeyColumn(),
+                                 source_parent);
+
+        if (!source_index.isValid()) return false;
+
+        GtObject* obj = static_cast<GtObject*>(source_index.internalPointer());
+        assert(obj);
+
+        QString key = sourceModel()->data(source_index,
+                                          filterRole()).toString();
+
+        // check if this object is accepted
+        if (pred(obj) && key.contains(filterRegExp()))
+        {
+            return true;
+        }
+
+        // otherwise test childs
+        for (int i = 0; i < sourceModel()->rowCount(source_index); ++i)
+        {
+            if (filterAcceptsRow(i, source_index, pred)) return true;
+        }
+
+        return false;
+    }
 
 };
 

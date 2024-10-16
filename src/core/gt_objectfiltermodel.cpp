@@ -30,41 +30,10 @@ bool
 GtObjectFilterModel::filterAcceptsRow(int source_row,
                                       const QModelIndex& source_parent) const
 {
-    if (!source_parent.isValid())
-    {
-        return true;
-    }
-
-    bool retval = GtTreeFilterModel::filterAcceptsRow(source_row,
-                  source_parent);
-
-    if (!retval)
-    {
-        return false;
-    }
-
-    QModelIndex source_index = sourceModel()->index(source_row,
-                               this->filterKeyColumn(),
-                               source_parent);
-
-    if (source_index.isValid())
-    {
-        int i, nb = sourceModel()->rowCount(source_index) ;
-
-        for (i = 0; i < nb; ++i)
-        {
-            if (filterAcceptsRow(i, source_index))
-            {
-                return true ;
-            }
-        }
-
-        GtObject* obj = static_cast<GtObject*>(source_index.internalPointer());
-
-        return acceptsRow(obj->metaObject()->className());
-    }
-
-    return false;
+    return GtTreeFilterModel::filterAcceptsRow(source_row, source_parent,
+        [this](const GtObject* obj) {
+          return acceptsRow(obj->metaObject()->className());
+    });
 }
 
 Qt::ItemFlags

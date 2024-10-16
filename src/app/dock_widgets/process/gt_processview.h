@@ -53,11 +53,6 @@ protected:
      */
     void mousePressEvent(QMouseEvent* event) override;
 
-    /**
-     * @brief dropEvent
-     * @param event
-     */
-    void dropEvent(QDropEvent* event) override;
 signals:
     /**
      * @brief pasteProcessElement
@@ -96,20 +91,17 @@ signals:
     void runTaskElement(const QModelIndex& index);
 
     /**
-     * @brief skipCalcultorElement
+     * @brief skipCalculatorElements
      * @param index - modelindex for which the signal is emited
      * @param skip - bool as flag to skip or unskip
      */
-    void skipCalcultorElement(const QModelIndex& index, bool skip);
+    void skipCalculatorElements(const QList<QModelIndex>& index, bool skip);
 
     /**
      * @brief renameProcessElement
      * @param index - modelindex for which the signal is emited
      */
     void renameProcessElement(const QModelIndex& index);
-
-    void moveProcessElements(const QList<QModelIndex>& source,
-                             const QModelIndex& target);
 };
 
 #endif // GTPROCESSVIEW_H

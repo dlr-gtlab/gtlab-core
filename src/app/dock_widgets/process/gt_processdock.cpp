@@ -187,12 +187,10 @@ GtProcessDock::GtProcessDock() :
             SLOT(pasteElement(QModelIndex)));
     connect(m_view, SIGNAL(runTaskElement(QModelIndex)),
             SLOT(runProcess()));
-    connect(m_view, SIGNAL(skipCalcultorElement(QModelIndex,bool)),
-            SLOT(skipComponent(QModelIndex,bool)));
+    connect(m_view, SIGNAL(skipCalculatorElements(const QList<QModelIndex>&,bool)),
+            SLOT(skipComponents(const QList<QModelIndex>&,bool)));
     connect(m_view, SIGNAL(renameProcessElement(QModelIndex)),
             SLOT(renameElement()));
-    connect(m_view, SIGNAL(moveProcessElements(QList<QModelIndex>, QModelIndex)),
-            SLOT(moveElements(QList<QModelIndex>, QModelIndex)));
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
@@ -356,7 +354,7 @@ GtProcessDock::addEmptyTask(GtObject* root)
 {
     if (!root) return;
 
-    QString taskId = gtDataModel->uniqueObjectName(tr("New Task"), root);
+    QString taskId = gt::makeUniqueName(tr("New Task"), root);
 
     if (taskId.isEmpty()) return;
 
@@ -539,8 +537,7 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 
     if (!newObj) return;
 
-    QString taskId = gtDataModel->uniqueObjectName(newObj->objectName(),
-                     parentObj);
+    QString taskId = gt::makeUniqueName(newObj->objectName(), parentObj);
     newObj->setObjectName(taskId);
 
     gtDebug().verbose() << tr("Task appended! (%1)").arg(
@@ -915,8 +912,7 @@ GtProcessDock::makeAddMenu(QMenu& menu)
 
     // add empty task action
     auto addEmptyTask = std::bind(&GtProcessDock::addEmptyTaskToRoot, this);
-    auto addemptytask = gt::gui::makeAction(tr("Empty Root Task"),
-                                            addEmptyTask)
+    auto addemptytask = gt::gui::makeAction(tr("Empty Root Task"), addEmptyTask)
                             .setIcon(gt::gui::icon::processAdd());
 
     auto addCalculator = std::bind(&GtProcessDock::addCalculator, this);
@@ -967,6 +963,7 @@ GtProcessDock::customContextMenu(const QModelIndex& srcIndex)
     if (m_view->selectionModel()->selectedRows(0).size() > 1)
     {
         multiSelectionContextMenu(m_view->selectionModel()->selectedIndexes());
+        return;
     }
 
     // single selection
@@ -1220,25 +1217,21 @@ GtProcessDock::processContextMenu(GtProcessComponent& obj,
 void
 GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
 {
+
     QMenu menu(this);
 
-    QAction* skipCalcs = menu.addAction(tr("Skip Selected Elements"));
-    skipCalcs->setIcon(gt::gui::icon::skip());
-
-    QAction* unskipCalcs = menu.addAction(tr("Unskip Selected Elements"));
-    unskipCalcs->setIcon(gt::gui::icon::unskip());
-
-    QAction* deleteElements = menu.addAction(tr("Delete Process Elements"));
-    deleteElements->setIcon(gt::gui::icon::delete_());
-
-    bool allSkipped = true;
-    bool allUnskipped = true;
+    bool hideSkip = true;
+    bool hideUnskipped = true;
     // counter for dummy objects
     int dummyObjects = 0;
+
+    GtProcessComponent* first = nullptr;
 
     for (const QModelIndex& index : indexList)
     {
         GtProcessComponent* pc = componentByModelIndex(index);
+
+        if (!first) first = pc;
 
         if (!pc || pc->isDummy() || pc->hasDummyParents())
         {
@@ -1250,49 +1243,54 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
 
         if (!pc->isSkipped())
         {
-            allSkipped = false;
+            hideSkip = false;
         }
         else
         {
-            allUnskipped = false;
+            hideUnskipped = false;
         }
     }
 
-    if (allUnskipped)
-    {
-        unskipCalcs->setVisible(false);
-    }
-    else if (allSkipped)
-    {
-        skipCalcs->setVisible(false);
-    }
+    if (!first) return;
 
-    // dummy objects cannot be deleted
-    if (dummyObjects > 0)
-    {
-        deleteElements->setEnabled(false);
-    }
     // dummy objects cannot be skipped
     if (dummyObjects == indexList.length())
     {
-        skipCalcs->setEnabled(false);
-        unskipCalcs->setEnabled(false);
+        hideSkip = true;
+        hideUnskipped = true;
     }
 
-    QAction* a = menu.exec(QCursor::pos());
+    auto skip = gt::gui::makeAction(tr("Skip"), [=](GtObject*){
+            skipComponents(indexList);
+        })
+        .setIcon(gt::gui::icon::skip())
+        .setShortCut(getShortCut(QStringLiteral("skipProcess")))
+        .setVisible(!hideSkip);
 
-    if (a == skipCalcs)
-    {
-        skipComponent(indexList);
-    }
-    else if (a == unskipCalcs)
-    {
-        skipComponent(indexList, false);
-    }
-    else if (a == deleteElements)
-    {
-        deleteProcessElements(indexList);
-    }
+    auto unskip = gt::gui::makeAction(tr("Unskip"), [=](GtObject*){
+            skipComponents(indexList, false);
+        })
+        .setIcon(gt::gui::icon::unskip())
+        .setShortCut(getShortCut(QStringLiteral("unskipProcess")))
+        .setVisible(!hideUnskipped);
+
+    gt::gui::addToMenu({ skip, unskip }, menu, first, this);
+
+    menu.addSeparator();
+
+    bool hideDelete = dummyObjects > 0;
+
+    auto delete_ =
+        gt::gui::makeAction(tr("Delete"), [=](GtObject*){
+            deleteProcessElements(indexList);
+        })
+        .setIcon(gt::gui::icon::delete_())
+        .setShortCut(gtApp->getShortCutSequence(QStringLiteral("delete")))
+        .setEnabled(!hideDelete);
+
+    gt::gui::addToMenu(delete_, menu, first, this);
+
+    menu.exec(QCursor::pos());
 }
 
 void
@@ -1395,251 +1393,6 @@ GtProcessDock::renameElement()
     if (srcIndex.isValid())
     {
         m_view->edit(m_view->currentIndex());
-    }
-}
-
-QList<GtObject*>
-GtProcessDock::findObjectsOfSameParent(
-        const QList<QModelIndex>& source) const
-{
-    // collect the objects to move
-    QList<QModelIndex> mapped;
-
-    for (QModelIndex i : source)
-    {
-        if (i.isValid()) mapped.append(mapToSource(i));
-    }
-
-    std::sort(mapped.begin(),  mapped.end(), [] (
-              const QModelIndex& i, const QModelIndex& j)
-    {
-        return i.row() < j.row();
-    });
-
-    if (mapped.isEmpty()) return {};
-
-    QList<GtObject*> objectsToMove;
-
-    // check if all elements to move have the same parent
-    GtObject* parent = nullptr;
-
-    for (QModelIndex j : qAsConst(mapped))
-    {
-        assert (j.model() == gtDataModel);
-
-        if (auto* p = gtDataModel->objectFromIndex(j))
-        {
-            if (!parent) parent = p->parentObject();
-
-            if (parent != p->parentObject())
-            {
-                gtWarning() << tr("It is only allowed to move elements of the "
-                                  "same task");
-                return {};
-            }
-
-            if (!objectsToMove.contains(p)) objectsToMove.append(p);
-        }
-    }
-
-    return objectsToMove;
-}
-
-
-void
-GtProcessDock::moveElements(const QList<QModelIndex>& source,
-                            const QModelIndex& target)
-{
-    if (source.isEmpty()) return;
-
-    QList<GtObject*> objectsToMove = findObjectsOfSameParent(source);
-
-    // if no valid object to move could be found leave
-    if (objectsToMove.isEmpty()) return;
-
-    // if target is not valid it is the current task group
-    if (!target.isValid())
-    {
-        // check if all selected elements are tasks
-        for (auto* o : qAsConst(objectsToMove))
-        {
-            if (!qobject_cast<GtTask*>(o))
-            {
-                gtWarning() << tr("Only tasks can be made to root elements");
-                gtWarning() << o->objectName() << tr("is not a task");
-                return;
-            }
-        }
-
-        auto _ = gtApp->makeCommand(m_taskGroup, tr("move tasks element"));
-        Q_UNUSED(_);
-
-        for (auto o : qAsConst(objectsToMove))
-        {
-            gtDataModel->appendChild(o, m_taskGroup);
-        }
-
-        return;
-    }
-
-    QModelIndex mappedTarget = mapToSource(target);
-
-    GtObject* targetObject = gtDataModel->objectFromIndex(mappedTarget);
-
-    auto targetComp = qobject_cast<GtProcessComponent*>(targetObject);
-
-    // check if target index is an processComponent
-    if (!targetComp) return;
-
-    // commonParent is used to have a minimal overhead to define undo/redo
-    QList<GtObject*> helper = objectsToMove;
-
-    helper.append(targetComp);
-
-    auto* commonParent = gt::find_lowest_ancestor(helper,
-                                                  gt::get_parent_object);
-    assert(commonParent);
-
-    auto _ = gtApp->makeCommand(commonParent, tr("move process element"));
-    Q_UNUSED(_);
-
-    auto taskParent = qobject_cast<GtTask*>(targetComp);
-
-    if (!taskParent)
-    {
-        GtObject* targetparent = targetComp->parentObject();
-
-        taskParent = qobject_cast<GtTask*>(targetparent);
-    }
-
-    // invlid entry in process dock widget
-    if (!taskParent) return;
-
-    int moveIndex = mappedTarget.row();
-
-    // this prevents problems for the insert function if the rowIndex 1 is
-    // found (might happen for an empty task)
-    if (taskParent->findChildren<GtProcessComponent*>().size() < 1)
-    {
-        moveIndex = 0;
-    }
-
-    // index to help to append multiple elements in the correct order
-    int insertionIndexAddOn = 0;
-
-    // find highest parent of the elements to move
-    GtTask* highestParent = gt::gui::detail::highestParentTask(
-                qobject_cast<GtProcessComponent*>(objectsToMove.first()));
-
-    // collect a list of moved elements
-    QList<GtObject*> finalyMovedObjects;
-
-    for (auto o : qAsConst(objectsToMove))
-    {
-        if (o == taskParent) continue;
-
-        // if parent is not reset before the insert function
-        // does not work. But remember old parent to use if insert failes
-        GtObject* oldParent = o->parentObject();
-        o->setParent(nullptr);
-
-        QModelIndex check = gtDataModel->insertChild(
-                    o, taskParent, moveIndex + insertionIndexAddOn);
-
-        if (!check.isValid())
-        {
-            gtWarning() << tr("Process element '%1' could not be "
-                              "moved to %2 in row %3").arg(
-                               o->objectName(),
-                               taskParent->objectName(),
-                               QString::number(mappedTarget.row()));
-            o->setParent(oldParent);
-        }
-        else
-        {
-            insertionIndexAddOn++;
-            finalyMovedObjects.append(o);
-        }
-    }
-
-    moveConnections(highestParent, taskParent, finalyMovedObjects);
-}
-
-void
-GtProcessDock::moveConnections(GtTask* highestParent,
-                               GtTask* taskParent,
-                               QList<GtObject*> finalyMovedObjects)
-{
-    // connection movment has only to be done if the new highest parent task
-    // is not the old highest parent task
-
-    // find
-    GtTask* newHighestParent = gt::gui::detail::highestParentTask(taskParent);
-
-    if (highestParent == newHighestParent)
-    {
-        gtTrace() << tr("Task internal move does not imply need of connection"
-                        "move");
-        return;
-    }
-
-    // if e.g a task is moved the connections of its children has to be
-    // analyzed, too.
-    QList<GtObject*> childrenToAppend;
-    for (auto* o : finalyMovedObjects)
-    {
-        childrenToAppend.append(o->findChildren<GtObject*>());
-    }
-
-    for (auto* o : qAsConst(childrenToAppend))
-    {
-        if (!finalyMovedObjects.contains(o))
-        {
-            finalyMovedObjects.append(o);
-        }
-    }
-
-    QList<GtPropertyConnection*> propCons =
-            highestParent->findDirectChildren<GtPropertyConnection*>();
-
-    QList<GtPropertyConnection*> consToMove;
-    QList<GtPropertyConnection*> consToDelete;
-
-    for (auto* propCon : qAsConst(propCons))
-    {
-        GtObject* sourceObj =
-            m_taskGroup->getObjectByUuid(propCon->sourceUuid());
-        GtObject* targetObj =
-            m_taskGroup->getObjectByUuid(propCon->targetUuid());
-
-        if (!sourceObj || !targetObj) continue;
-
-        // both connection ends are moved elements
-        if (finalyMovedObjects.contains(sourceObj) &&
-                finalyMovedObjects.contains(targetObj))
-        {
-            consToMove.append(propCon);
-        }
-        // only one end of the connection is moved to another root task
-        else if (finalyMovedObjects.contains(sourceObj) ||
-                 finalyMovedObjects.contains(targetObj))
-        {
-            consToDelete.append(propCon);
-        }
-    }
-
-    detail::setOffLostConnectionWarnings(
-                consToDelete, detail::highestParentTask(highestParent));
-
-    // conversion to call function
-    QList<GtObject*> consToDelete2;
-    for (auto i : qAsConst(consToDelete)) consToDelete2.append(i);
-    gtDataModel->deleteFromModel(consToDelete2);
-
-    for (auto* propCon : qAsConst(consToMove))
-    {
-        propCon->setParent(nullptr);
-        newHighestParent->appendChild(propCon);
     }
 }
 
@@ -1952,8 +1705,7 @@ GtProcessDock::pasteElement(GtObject* obj, GtObject* parent)
     }
 
     // create new unique identification string
-    QString newId = gtDataModel->uniqueObjectName(obj->objectName(),
-                    parent);
+    QString newId = gt::makeUniqueName(obj->objectName(), parent);
 
     // set new identification string
     obj->setObjectName(newId);
@@ -2037,20 +1789,11 @@ GtProcessDock::pasteElement(const QModelIndex& parentIndex)
 void
 GtProcessDock::skipComponent(const QModelIndex& index, bool skip)
 {
-    QString msg = tr("%1 selected Process Elements")
-                  .arg(skip ? tr("Skip") : tr("Unskip"));
-
-    auto* comp = componentByModelIndex(index);
-    if (!comp) return;
-    
-    auto cmd = gtApp->makeCommand(comp, msg);
-    Q_UNUSED(cmd);
-    
-    skipComponent(comp, skip);
+    skipComponents({index}, skip);
 }
 
 void
-GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
+GtProcessDock::skipComponents(const QList<QModelIndex>& indexList, bool skip)
 {
     QList<GtProcessComponent*> pcs;
 
@@ -2060,7 +1803,7 @@ GtProcessDock::skipComponent(const QList<QModelIndex>& indexList, bool skip)
 
         if (!pc) continue;
 
-        if (!pcs.contains(pc))
+        if (!pcs.contains(pc) && pc->isSkipped() != skip)
         {
             pcs.append(pc);
         }
@@ -2180,13 +1923,6 @@ GtProcessDock::mapToSource(const QModelIndex& index)
 
     return m_model->mapToSource(tmp1);
 }
-
-QModelIndex
-GtProcessDock::mapToSource(const QModelIndex& index) const
-{
-    return const_cast<GtProcessDock*>(this)->mapToSource(index);
-}
-
 
 QModelIndex
 GtProcessDock::mapFromSource(const QModelIndex& index)

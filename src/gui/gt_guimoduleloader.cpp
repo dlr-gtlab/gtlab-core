@@ -129,7 +129,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
         return true;
     }
 
-    GtMdiInterface* mdip = dynamic_cast<GtMdiInterface*>(plugin);
+    GtMdiInterface* mdip = checkInterface<GtMdiInterface>(
+        plugin->ident(), plugin);
 
     // contains dynamic linked mdi classes
     if (mdip)
@@ -180,7 +181,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // importer interface
-    GtImporterInterface* impp = dynamic_cast<GtImporterInterface*>(plugin);
+    GtImporterInterface* impp = checkInterface<GtImporterInterface>(
+        plugin->ident(), plugin);
 
     if (impp)
     {
@@ -200,7 +202,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // exporter interface
-    GtExporterInterface* expp = dynamic_cast<GtExporterInterface*>(plugin);
+    GtExporterInterface* expp = checkInterface<GtExporterInterface>(
+        plugin->ident(), plugin);
 
     if (expp)
     {
@@ -220,7 +223,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // property interface
-    GtPropertyInterface* prop = dynamic_cast<GtPropertyInterface*>(plugin);
+    GtPropertyInterface* prop = checkInterface<GtPropertyInterface>(
+        plugin->ident(), plugin);
 
     if (prop)
     {
@@ -242,8 +246,8 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
     }
 
     // collection interface
-    GtCollectionInterface* coll =
-            dynamic_cast<GtCollectionInterface*>(plugin);
+    GtCollectionInterface* coll = checkInterface<GtCollectionInterface>(
+        plugin->ident(), plugin);
 
     if (coll)
     {
@@ -265,10 +269,13 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
 void
 GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 {
+    if (!plugin) return;
+
     QApplication::processEvents();
     GtCoreModuleLoader::insert(plugin);
 
-    GtMdiInterface* mdip = dynamic_cast<GtMdiInterface*>(plugin);
+    GtMdiInterface* mdip = checkInterface<GtMdiInterface>(plugin->ident(),
+                                                          plugin);
 
     // contains dynamic linked mdi classes
     if (mdip && !gtApp->batchMode())
@@ -290,7 +297,8 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     }
 
     // importer interface
-    GtImporterInterface* impp = dynamic_cast<GtImporterInterface*>(plugin);
+    GtImporterInterface* impp =
+        checkInterface<GtImporterInterface>(plugin->ident(), plugin);
 
     if (impp)
     {
@@ -298,7 +306,8 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     }
 
     // exporter interface
-    GtExporterInterface* expp = dynamic_cast<GtExporterInterface*>(plugin);
+    GtExporterInterface* expp =
+        checkInterface<GtExporterInterface>(plugin->ident(), plugin);
 
     if (expp)
     {
@@ -306,7 +315,8 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
     }
 
     // property interface
-    GtPropertyInterface* prop = dynamic_cast<GtPropertyInterface*>(plugin);
+    GtPropertyInterface* prop =
+        checkInterface<GtPropertyInterface>(plugin->ident(), plugin);
 
     if (prop)
     {
@@ -315,7 +325,7 @@ GtGuiModuleLoader::insert(GtModuleInterface* plugin)
 
     // collection interface
     GtCollectionInterface* coll =
-            dynamic_cast<GtCollectionInterface*>(plugin);
+            checkInterface<GtCollectionInterface>(plugin->ident(), plugin);
 
     if (coll)
     {

@@ -307,3 +307,35 @@ TEST_F(TestGtIntProperty, optional)
     EXPECT_TRUE(prop.isActive());
     EXPECT_FALSE(prop.isOptional());
 }
+
+TEST_F(TestGtIntProperty, extendenOperators)
+{
+    GtIntProperty prop("prop", "test", "test", 4);
+    // operator+=
+    int sum = 4;
+    prop.setVal(13);
+	
+    prop += sum;
+    EXPECT_EQ(prop.get(), 13 + sum);
+
+    // operator-=
+    int diff = 4;
+    prop.setVal(13);
+	
+    prop -= diff;
+    EXPECT_EQ(prop.get(), 13 - diff);
+	
+    // operator*=
+    int factor = 4;
+    prop.setVal(13);
+	
+    prop *= factor;
+    EXPECT_EQ(prop.get(), 13 * factor);
+	
+    // operator/=
+    int div = 4;
+    prop.setVal(13);
+	
+    prop /= div;
+    EXPECT_EQ(prop.get(), 3);
+}
