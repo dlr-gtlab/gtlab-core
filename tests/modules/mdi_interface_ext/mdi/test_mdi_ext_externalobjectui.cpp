@@ -13,12 +13,13 @@
 #include "test_dmi_externalobject.h"
 
 #include "gt_icons.h"
-#include "gt_logging.h"
+#include <gt_logging.h>
 #include "gt_utilities.h"
 #include "gt_datamodel.h"
 #include "gt_application.h"
 #include "gt_command.h"
 #include "gt_objectfactory.h"
+#include "gt_regexp.h"
 
 #include <cmath>
 
@@ -38,6 +39,9 @@ TestMdiExtExternalObjectUI::TestMdiExtExternalObjectUI()
             gtInfo() << "Reference Count:" << extObj->refCount();
         }
     }).setIcon(gt::gui::icon::info2());
+
+    setRegExpHint(gt::re::onlyLettersAndNumbersAndSpaceHint());
+    setRegExpCheckWhileModification(false);
 }
 
 QIcon
@@ -58,8 +62,7 @@ TestMdiExtExternalObjectUI::createSibling(GtObject* obj)
 
     gtDebug() << sibling;
 
-    sibling->setObjectName(
-                gtDataModel->uniqueObjectName(sibling->objectName(), parent));
+    sibling->setObjectName(gt::makeUniqueName(sibling->objectName(), parent));
 
     if (!gtDataModel->appendChild(sibling.get(), parent).isValid())
     {
@@ -140,4 +143,16 @@ TestMdiExtExternalObjectUI::openWith(GtObject* obj)
     if (!extObj) return {};
 
     return { GT_CLASSNAME(TestMdiExtExternalObjectViewer) };
+}
+
+bool
+TestMdiExtExternalObjectUI::hasValidationRegExp()
+{
+    return true;
+}
+
+QRegExp
+TestMdiExtExternalObjectUI::validatorRegExp()
+{
+    return gt::re::onlyLettersAndNumbersAndSpace();
 }
