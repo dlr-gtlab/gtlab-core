@@ -306,7 +306,17 @@ public:
      * @brief extendShortCuts
      * @param shortcut to add
      */
+    [[deprecated("Use extendShortCuts(const QString& id, "
+                 "QString const& category, const QKeySequence k, "
+                 "bool readOnly = false) instead")]]
     void extendShortCuts(const GtShortCutSettingsData &shortcut);
+
+    /**
+     * @brief extendShortCuts
+     * @param shortcut to add
+     */
+    void addShortCut(const QString& id, QString const& category,
+                     const QKeySequence& k, bool readOnly = false);
 
     /**
      * @brief moduleShortCuts
@@ -337,6 +347,13 @@ public:
      * pages that have been added by modules
      */
     static const QList<PageFactory>& customPreferencePages();
+
+    /**
+     * @brief initCoreShortCuts
+     * @return The list of the initial shortcuts added by the
+     * the core system
+     */
+    QList<GtShortCutSettingsData> initCoreShortCuts() const;
 
 private:
     /// List of user specific perspective ids

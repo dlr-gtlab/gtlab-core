@@ -212,7 +212,7 @@ GtObjectUIAction::registerShortCut(const QString& id,
                                    const QKeySequence& k,
                                    bool readOnly)
 {
-    gtApp->extendShortCuts({id, cat, k, readOnly});
+    gtApp->extendShortCuts({id, cat, k.toString(), readOnly});
     m_shortCut = gtApp->getShortCutSequence(id, cat);
     return *this;
 }
