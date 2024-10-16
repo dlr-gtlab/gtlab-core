@@ -243,7 +243,7 @@ GtObjectUI::validatorRegExp()
 bool
 GtObjectUI::hasValidationRegExp(GtObject* /*obj*/)
 {
-     return hasValidationRegExp(nullptr);
+     return hasValidationRegExp();
 }
 
 QRegExp
