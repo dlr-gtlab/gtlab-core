@@ -34,6 +34,7 @@ class GtProcessComponent;
 class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
+class GtState;
 
 /**
  * @brief The GtProcessDock class
@@ -167,9 +168,6 @@ private:
     /// Search widget
     GtSearchWidget* m_search;
 
-    /// Root index
-    QPersistentModelIndex m_rootIndex;
-
     /// Pointer to selected task group of current project
     QPointer<GtTaskGroup> m_taskGroup;
 
@@ -184,6 +182,9 @@ private:
 
     /// mapper for action signals
     QSignalMapper* m_actionMapper;
+
+    /// Expanded item UUIDs
+    GtState* m_expandedItemUuidsState;
 
     void updateCurrentTaskGroup();
 
@@ -310,6 +311,42 @@ private:
      */
     void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
+    /**
+     * @brief Takes the UUIDs of the expanded items from the project states and
+     * expands the corresponding items in the process view.
+     */
+    void restoreExpandStates();
+
+    /**
+     * @brief Helper method that recursively expands the items corresponding to
+     * the given list of UUIDs, starting from the specified start index.
+     * @param expandedUuids A list of UUIDs identifying the items to be
+     * expanded.
+     * @param startIndex The index from which to start.
+     */
+    void restoreExpandStatesHelper(const QStringList& expandedUuids,
+                                   const QModelIndex& startIndex);
+
+    /**
+     * @brief Determines the model index of the currently selected task group
+     * and sets it as the root index for the process view.
+     */
+    void updateTaskGroupRootIndex();
+
+    /**
+     * @brief Retrieves the UUIDs of expanded process items from the project
+     * states and returns them as a list of strings.
+     * @return A list of UUIDs representing the expanded process items.
+     */
+    QStringList expandedItemUuids() const;
+
+    /**
+     * @brief Stores the given list of UUIDs in the project states. These UUIDs
+     * represent the process items that are currently expanded.
+     * @param uuids A list of UUIDs representing the expanded process items.
+     */
+    void setExpandedItemUuids(const QStringList& uuids);
+
 private slots:
     /**
      * @brief filterData
@@ -429,6 +466,26 @@ private slots:
     void onExecutorChanged(GtCoreProcessExecutor* exec);
 
     void currentTaskGroupIndexChanged(int index);
+
+    /**
+     * @brief Called after resetting the gtDataModel. It updates the root
+     * index of the process view.
+     */
+    void endResetView();
+
+    /**
+     * @brief Called after an item is collapsed. It removes the UUID of the
+     * collapsed item from the list of expanded process items.
+     * @param index The index of the item that was collapsed.
+     */
+    void itemCollapsed(const QModelIndex& index);
+
+    /**
+     * @brief Called after an item is expanded. It adds the UUID of the
+     * expanded item to the list of expanded process items.
+     * @param index The index of the item that was expanded.
+     */
+    void itemExpanded(const QModelIndex& index);
 
 signals:
     /**
