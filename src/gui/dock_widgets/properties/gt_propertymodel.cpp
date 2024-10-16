@@ -409,6 +409,12 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
         auto* cat = new GtPropertyCategoryItem(m_scope, container.entryPrefix(),
                                                this);
         cat->setIsContainer(true);
+
+        if (container.getFlags() & GtPropertyStructContainer::ReadOnly)
+        {
+            cat->setIsReadOnly(true);
+        }
+
         m_properties << cat;
 
         for (auto* pChild : entry.properties())

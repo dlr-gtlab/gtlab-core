@@ -46,12 +46,15 @@ public:
      * @param isContainer
      */
     void setIsContainer(bool isContainer);
+    void setIsReadOnly(bool isReadonly);
 
     /**
      * @brief If true, category item is a container entry.
      * @return
      */
     bool isContainer() const;
+
+    bool isReadOnly() const;
 
     /**
      * @brief categoryId
@@ -97,6 +100,7 @@ private:
 
     /// Container indicator
     bool m_isContainer{false};
+    bool m_isReadOnly{false};
 
 };
 
