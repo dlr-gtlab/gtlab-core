@@ -79,6 +79,7 @@ set(headers
     tools/gt_deleteitemmessagebox.h
     tools/gt_downloaddialog.h
     tools/gt_environmentmodel.h
+    tools/gt_regexpvalidator.h
     tools/gt_qmltoolbar.h
     tools/gt_qmltoolbargroup.h
     gt_objectui.h
@@ -258,6 +259,7 @@ set(sources
     tools/gt_deleteitemmessagebox.cpp
     tools/gt_downloaddialog.cpp
     tools/gt_environmentmodel.cpp
+    tools/gt_regexpvalidator.cpp
     tools/gt_qmltoolbar.cpp
     tools/gt_qmltoolbargroup.cpp
     gt_objectui.cpp

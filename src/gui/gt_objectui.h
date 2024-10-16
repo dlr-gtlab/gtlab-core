@@ -16,6 +16,8 @@
 #include <QObject>
 #include <QKeySequence>
 
+#include <memory>
+
 #include "gt_shortcutsettingsdata.h"
 #include "gt_objectuiaction.h"
 #include "gt_objectuiactiongroup.h"
@@ -37,6 +39,8 @@ public:
      * @brief GtObjectUI
      */
     Q_INVOKABLE GtObjectUI();
+
+    virtual ~GtObjectUI();
 
     /**
      * Virtual function to specify object specific icon.
@@ -112,6 +116,40 @@ public:
      * @return
      */
     virtual QRegExp validatorRegExp();
+
+    /**
+     * @brief hasValidationRegExp - validator for filtering names for
+     * renaming in models
+     * @param obj - pointer to the underlying object to get access to
+     *              be used to define behaviour
+     * @return true if Object has validator RegExp
+     */
+    virtual bool hasValidationRegExp(GtObject* obj);
+
+    /**
+     * @brief validatorRegExp - gives the validation RegExp
+     * @param obj - pointer to the underlying object to get access to
+     *              be used to define behaviour
+     * @return
+     */
+    virtual QRegExp validatorRegExp(GtObject* obj);
+
+    /**
+     * @brief regExpHint
+     * @param obj
+     * @return a string to help the user which regular expression is used to
+     * restrict renaming and how to avoid problems
+     */
+    QString regExpHint(GtObject* obj);
+
+    /**
+     * @brief regExpCheckWhileModification
+     * @param obj
+     * @return true if the regular expression should be used while
+     * the element is renamed. False means that the regular expression is only
+     * checked in the end of the modification
+     */
+    bool regExpCheckWhileModification(GtObject* obj);
 
 protected:
 
@@ -361,6 +399,22 @@ protected:
      */
     QKeySequence getShortCut(const QString& id);
 
+    /**
+     * @brief setRegExpHint
+     * @param obj
+     * @return set a string to help the user which regular expression is used to
+     * restrict renaming and how to avoid problems
+     */
+    void setRegExpHint(QString const& hint);
+
+    /**
+     * @brief setRegExpCheckWhileModification
+     * @param obj
+     * @return set true if the regular expression should be used while
+     * the element is renamed. False means that the regular expression is only
+     * checked in the end of the modification
+     */
+    void setRegExpCheckWhileModification(bool val);
 private:
 
     /// List of custom actions
@@ -368,6 +422,10 @@ private:
 
     /// List of custom menus
     QList<GtObjectUIActionGroup> m_actionGroups;
+
+    /// Private implementation
+    class Impl;
+    std::unique_ptr<Impl> m_pimpl;
 };
 
 #endif // GTOBJECTUI_H
