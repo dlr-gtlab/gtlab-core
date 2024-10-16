@@ -150,7 +150,7 @@ GtPropertiesDock::objectSelected(GtObject* obj)
         for (GtPropertyStructContainer& c : obj->propertyContainers())
         {
             // do not draw if hidden
-            if (c.getFlags() & GtPropertyStructContainer::IsHidden) continue;
+            if (c.getFlags() & GtPropertyStructContainer::Hidden) continue;
 
             GtPropertyContainerWidget* wid = new GtPropertyContainerWidget(
                         obj, c, m_tab);

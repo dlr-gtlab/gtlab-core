@@ -40,8 +40,8 @@ TestDmiData::TestDmiData() :
     m_containerRO.registerAllowedType(stringEntryDef);
     m_containerHidden.registerAllowedType(stringEntryDef);
 
-    m_containerRO.setFlags(GtPropertyStructContainer::IsReadOnly);
-    m_containerHidden.setFlags(GtPropertyStructContainer::IsHidden);
+    m_containerRO.setFlags(GtPropertyStructContainer::ReadOnly);
+    m_containerHidden.setFlags(GtPropertyStructContainer::Hidden);
 
 
 

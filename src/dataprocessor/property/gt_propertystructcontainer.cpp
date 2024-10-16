@@ -46,12 +46,14 @@ GtPropertyStructContainer::GtPropertyStructContainer(const QString& ident) :
 {
 }
 
-int GtPropertyStructContainer::getFlags() const
+int
+GtPropertyStructContainer::getFlags() const
 {
     return  pimpl->flags;
 }
 
-void GtPropertyStructContainer::setFlags(int flags)
+void
+GtPropertyStructContainer::setFlags(int flags)
 {
     pimpl->flags = flags;
 }

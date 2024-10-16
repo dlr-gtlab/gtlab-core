@@ -410,7 +410,7 @@ GtPropertyModel::setObject(GtObject* obj, GtPropertyStructContainer& container)
                                                this);
         cat->setIsContainer(true);
 
-        if (container.getFlags() & GtPropertyStructContainer::IsReadOnly)
+        if (container.getFlags() & GtPropertyStructContainer::ReadOnly)
         {
             cat->setIsReadOnly(true);
         }

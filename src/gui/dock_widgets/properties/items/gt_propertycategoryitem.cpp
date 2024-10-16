@@ -46,7 +46,8 @@ GtPropertyCategoryItem::setIsContainer(bool isContainer)
     m_isContainer = isContainer;
 }
 
-void GtPropertyCategoryItem::setIsReadOnly(bool isReadonly)
+void
+GtPropertyCategoryItem::setIsReadOnly(bool isReadonly)
 {
     m_isReadOnly = isReadonly;
 }
@@ -57,7 +58,8 @@ GtPropertyCategoryItem::isContainer() const
     return m_isContainer;
 }
 
-bool GtPropertyCategoryItem::isReadOnly() const
+bool
+GtPropertyCategoryItem::isReadOnly() const
 {
     return m_isReadOnly;
 }
