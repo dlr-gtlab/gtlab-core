@@ -46,10 +46,22 @@ GtPropertyCategoryItem::setIsContainer(bool isContainer)
     m_isContainer = isContainer;
 }
 
+void
+GtPropertyCategoryItem::setIsReadOnly(bool isReadonly)
+{
+    m_isReadOnly = isReadonly;
+}
+
 bool
 GtPropertyCategoryItem::isContainer() const
 {
     return m_isContainer;
+}
+
+bool
+GtPropertyCategoryItem::isReadOnly() const
+{
+    return m_isReadOnly;
 }
 
 const QString&
@@ -91,6 +103,11 @@ GtPropertyCategoryItem::data(int column, int role) const
         case GtPropertyModel::ContainerRole:
         {
             return m_isContainer;
+        }
+
+        case GtPropertyModel::ReadOnlyRole:
+        {
+            return isReadOnly();
         }
 
         case GtPropertyModel::MonitoringRole:

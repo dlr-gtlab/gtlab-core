@@ -117,6 +117,13 @@ GtPropertiesDock::resizeEvent(QResizeEvent* /*event*/)
 void
 GtPropertiesDock::objectSelected(GtObject* obj)
 {
+    // stop repainting until everything is ready
+    // this removes flickering of the widget
+    this->setUpdatesEnabled(false);
+    auto _ = gt::finally([this](){
+        this->setUpdatesEnabled(true);
+    });
+
     // clear tab
     while (m_tab->count() > 1)
     {
@@ -138,16 +145,19 @@ GtPropertiesDock::objectSelected(GtObject* obj)
 
         int count = activeLayout->count();
         activeLayout->insertWidget(gt::clamp(count, 0, count - 2), m_treeView);
-        m_tab->setVisible(showTabWidget);
 
         // check for property container
         for (GtPropertyStructContainer& c : obj->propertyContainers())
         {
+            // do not draw if hidden
+            if (c.getFlags() & GtPropertyStructContainer::Hidden) continue;
+
             GtPropertyContainerWidget* wid = new GtPropertyContainerWidget(
                         obj, c, m_tab);
-
             m_tab->addTab(wid, c.name());
         }
+
+        m_tab->setVisible(showTabWidget);
     }
 
     if (m_obj)
