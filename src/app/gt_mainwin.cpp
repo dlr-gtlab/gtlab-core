@@ -37,7 +37,7 @@
 #include "gt_icons.h"
 #include "gt_palette.h"
 #include "gt_algorithms.h"
-#include "gt_qmltoolbar.h"
+#include "gt_maintoolbar.h"
 #include "gt_iconbrowser.h"
 
 #include <QSignalMapper>
@@ -66,7 +66,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     m_forceQuit(false),
     m_firstTimeShowEvent(true),
     m_processQueue(nullptr),
-    m_mainWindowToolbar(new GtQmlToolbar(this))
+    m_mainWindowToolbar(new GtMainToolbar(this))
 {
     // dock widget have to be initialized before setup the ui
     setupDockWidgets();
@@ -251,26 +251,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     ui->qmlToolBar->setStyleSheet("QToolBar {border-bottom: 0px solid black; border-top: 0px solid black;}");
 
-;
     ui->qmlToolBar->addWidget(m_mainWindowToolbar);
-
-    m_mainWindowToolbar->resize(QSize(1500, 50));
-    m_mainWindowToolbar->setResizeMode(QQuickWidget::SizeRootObjectToView);
-
-    connect(m_mainWindowToolbar, SIGNAL(newProjectButtonClicked()),
-           SLOT(showProjectWizard()));
-
-    connect(m_mainWindowToolbar, SIGNAL(saveProjectButtonClicked()),
-           SLOT(saveCurrentProject()));
-    connect(m_mainWindowToolbar, SIGNAL(openProjectButtonClicked()),
-           SLOT(importProject()));
-    connect(m_mainWindowToolbar, SIGNAL(undoButtonClicked()),
-           gtApp->undoStack(), SLOT(undo()));
-    connect(m_mainWindowToolbar, SIGNAL(redoButtonClicked()),
-           gtApp->undoStack(), SLOT(redo()));
-    connect(gtApp, SIGNAL(objectSelected(GtObject*)),
-           m_mainWindowToolbar, SLOT(onObjectSelected(GtObject*)));
-
 }
 
 GtMainWin::~GtMainWin()
@@ -1271,8 +1252,23 @@ GtMainWin::onWidgetStructureClicked()
 void
 GtMainWin::onEditorWindowActive(int editorIndex)
 {
-    emit currentMdiItemPrintable(
-                gtMdiLauncher->isPrintable(ui->mdiArea->widget(editorIndex)));
+    assert(gtMdiLauncher);
+    assert(ui->mdiArea);
+
+    auto currentWidget = ui->mdiArea->widget(editorIndex);
+
+    if (!currentWidget)
+    {
+        // all windows closed
+        m_mainWindowToolbar->setEditorActions({});
+        currentMdiItemPrintable(false);
+        return;
+    }
+
+    m_mainWindowToolbar->setEditorActions(
+        gtMdiLauncher->toolbarActions(currentWidget));
+
+    emit currentMdiItemPrintable(gtMdiLauncher->isPrintable(currentWidget));
 }
 
 void

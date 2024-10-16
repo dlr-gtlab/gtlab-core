@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0+
 
-add_library(TestDatamodelInterface SHARED
+add_gtlab_module(TestDatamodelInterface MODULE_ID "Test Datamodel Interface"
+  SOURCES
     data/test_dmi_data.h
     data/test_dmi_externalobject.h
     test_datamodel_interface_exports.h 
@@ -19,7 +20,6 @@ target_include_directories(TestDatamodelInterface PUBLIC data .)
 
 target_compile_definitions(TestDatamodelInterface 
     PRIVATE 
-    GT_MODULE_ID="Test Datamodel Interface"
     TEST_DATAMODEL_INTERFACE_DLL
 )
 
