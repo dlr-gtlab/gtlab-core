@@ -8,8 +8,6 @@
  *  Author: Jens Schmeink (AT-TWK)
  *  Tel.: +49 2203 601 2191
  */
-#include <QValidator>
-
 #include "gt_stringmonitoringproperty.h"
 
 GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
