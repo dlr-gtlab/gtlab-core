@@ -16,7 +16,7 @@ GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
                                                        const QString& brief) :
     GtDoubleProperty(ident, name, brief)
 {
-    setReadOnly(true);
+    setMonitoring(true);
 }
 
 GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
@@ -29,5 +29,5 @@ GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
 gt::PropertyFactoryFunction
 gt::makeDoubleMonitoringProperty(double value)
 {
-    return makePropertyFactory<GtDoubleMonitoringProperty>(std::move(value));
+    return makeMonitoring(makeDoubleProperty(value));
 }

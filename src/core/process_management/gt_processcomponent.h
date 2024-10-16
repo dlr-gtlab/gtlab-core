@@ -99,7 +99,7 @@ public:
      * @brief Returns list of all monitoring properties.
      * @return List of monitoring properties.
      */
-    const QList<GtAbstractProperty*>& monitoringProperties();
+    QList<GtAbstractProperty *> monitoringProperties();
 
     /**
      * @brief containerMonitoringPropertyRefs

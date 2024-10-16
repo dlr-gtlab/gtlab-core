@@ -17,7 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts or actions. - #1298
-
+ - The system of monitoring properties is changed and do not use the GtMonitoring class anymore.
+   Now the base properties can be used with the flag setMonitoring. 
+   The remaining function registermonitoringProperty includes a call of this function. - #1239
+  
 ### Fixed
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
 

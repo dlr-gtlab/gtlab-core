@@ -17,7 +17,6 @@
 
 #include "gt_doubleproperty.h"
 #include "gt_intproperty.h"
-#include "gt_doublemonitoringproperty.h"
 
 /**
  * @brief The GtParameterLoop class
@@ -48,7 +47,7 @@ private:
 
     GtIntProperty m_steps;
 
-    GtDoubleMonitoringProperty m_currentVal;
+    GtDoubleProperty m_currentVal;
 
     /**
      * @brief value -  calculates the current value for the iteration step

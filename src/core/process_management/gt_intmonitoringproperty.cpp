@@ -16,7 +16,7 @@ GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
                                                  const QString& brief) :
     GtIntProperty(ident, name, brief)
 {
-    setReadOnly(true);
+    setMonitoring(true);
 }
 
 GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
@@ -29,5 +29,5 @@ GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
 gt::PropertyFactoryFunction
 gt::makeIntMonitoringProperty(int value)
 {
-    return makePropertyFactory<GtIntMonitoringProperty>(std::move(value));
+    return makeMonitoring(makeIntProperty(value));
 }
