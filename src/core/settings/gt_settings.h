@@ -327,12 +327,16 @@ public:
      * @return the default shortcuts as a variant (QMap<QString, QStringList>).
      * QStringList contains two elements (keysequence and category)
      */
+    [[deprecated("Deprecated function has no effect anymore and is only kept "
+                 "for ABI/API compatibility reasons")]]
     QVariant initialShortCuts() const;
 
     /**
      * @brief intialShortCutsList
      * @return list of default shortcuts as a list
      */
+    [[deprecated("Deprecated function has no effect anymore and is replaced"
+                 "by GtApplication::initShortCuts()")]]
     QList<GtShortCutSettingsData> intialShortCutsList() const;
 
     /**

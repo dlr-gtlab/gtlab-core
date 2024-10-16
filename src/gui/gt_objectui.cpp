@@ -181,7 +181,8 @@ GtObjectUI::registerShortCut(const QString& id,
                              bool readOnly)
 {
     const QMetaObject* m = metaObject();
-    return registerShortCut({id, m->className(), k, readOnly});
+    gtApp->addShortCut(id, m->className(), k.toString(), readOnly);
+    return getShortCut(id);
 }
 
 QKeySequence
