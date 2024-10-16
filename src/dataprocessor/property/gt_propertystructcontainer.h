@@ -61,7 +61,7 @@ public:
     /**
      * @brief Sets the flags of the container
      *
-     * Example setFlags(Hidden & ReadOnly)
+     * Example setFlags(Hidden | ReadOnly)
      */
     void setFlags(int);
 
