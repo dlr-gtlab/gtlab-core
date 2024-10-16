@@ -40,6 +40,8 @@ public:
                                const QString& hint,
                                QObject* parent = nullptr);
 
+    const QRegExp& regExp();
+
 private:
     /**
      * @brief validate - validation mlementation

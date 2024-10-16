@@ -32,6 +32,12 @@ GtRegExpValidator::GtRegExpValidator(const QRegExp& regExp,
 {   
 }
 
+const QRegExp&
+GtRegExpValidator::regExp()
+{
+    return m_regExp;
+}
+
 QValidator::State
 GtRegExpValidator::validate(QString& input, int& pos) const
 {

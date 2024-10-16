@@ -11,11 +11,13 @@
 
 #include <QLineEdit>
 
+#include "gt_palette.h"
 #include "gt_regexp.h"
 #include "gt_coredatamodel.h"
 #include "gt_application.h"
 #include "gt_project.h"
 #include "gt_objectui.h"
+#include "gt_colors.h"
 
 #include "gt_regexpvalidator.h"
 #include "gt_textfilterdelegate.h"
@@ -70,6 +72,19 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
 
     lineEdit->setValidator(new GtRegExpValidator(regExp, checkWhileEditing,
                                                  hint, this->parent()));
+
+    connect(lineEdit, &QLineEdit::textChanged, lineEdit, [lineEdit, regExp](
+            const QString& text)
+    {
+        QPalette pal = gt::gui::currentTheme();
+
+        if (!regExp.exactMatch(text))
+        {
+            pal.setColor(QPalette::Text, gt::gui::color::warningText());
+        }
+
+        lineEdit->setPalette(pal);
+    });
 
     return lineEdit;
 }
