@@ -82,7 +82,7 @@ struct VersionUpgradeRoutine
  * module identification string, the module version and the module description.
  * A main() method is not required.
  * Detailed information:
- * https://wiki.dlr.de/display/GTLAB/Structure+of+a+GTlab+module
+ * https://gtlab.readthedocs.io/en/latest/modules/interfaces.html
  */
 class GT_CORE_EXPORT GtModuleInterface
 {
