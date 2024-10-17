@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - New interface methods `GtPackage::readMiscData` and  `GtPackage::saveMiscData` to store package data outside of the package xml structure inside the project directory.
    Both methods have the project directory as an argument, hence workarounds like currentProject()->path() can be avoided - #617
+ - Unknown tasks (corrseponding module did not load) are now displayed as Dummy Objects in the `GtTaskGroup` - #612
 
 ### Fixed
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
