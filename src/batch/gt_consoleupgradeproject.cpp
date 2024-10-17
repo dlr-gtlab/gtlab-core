@@ -61,38 +61,10 @@ gt::console::upgradeRoutine(const QString& projectFile,
         return 0;
     }
 
-    if (newProjectFilePath.isEmpty())
-    {
-        gtDebug() << "backup and overwriting project data...";
-        project->createBackup();
-        project->upgradeProjectData();
+    // Return 0 if the upgrade was successfull
+    if (project->upgradeProjectRoutine(newProjectFilePath.isEmpty(), newProjectFilePath)) return 0;
 
-        return 1;
-    }
-    else
-    {
-        gtDebug() << "upgrading data as new project...";
-        auto newProject = GtProjectProvider::duplicateExistingProject(
-            QDir(project->path()),
-            QDir(newProjectFilePath),
-            QFileInfo(newProjectFilePath).fileName()
-            );
-
-        if (!newProject)
-        {
-            gtError() << "Could not save project to new directory";
-            return 0;
-        }
-
-        newProject->upgradeProjectData();
-        gtDataModel->newProject(newProject.release(), false);
-
-        return 1;
-    }
-
-    gtDebug() << "Project is up to date no further upgrades needed at the moment.";
-
-    return 0;
+    else return -1;
 }
 
 int
