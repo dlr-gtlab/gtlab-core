@@ -82,6 +82,14 @@ public:
     bool upgradesAvailable() const;
 
     /**
+     * @brief upgrades Project via upgradeProject() method. Either the project is overwritten or written to a new dir.
+     * @param overwriteExistingData
+     * @return
+     */
+    bool upgradeProjectRoutine(bool overwriteExistingData, const QString &newProjectFilePath);
+
+
+    /**
      * @brief processData
      * @return
      */
@@ -431,7 +439,6 @@ private:
      * @param modIds Module identification strings.
      */
     void updateModuleFootprint(const QStringList &modIds);
-
 };
 
 namespace gt {

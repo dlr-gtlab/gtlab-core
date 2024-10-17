@@ -1486,45 +1486,14 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
 
     if (dialog.exec())
     {
+        project->upgradeProjectRoutine(dialog.overwriteExistingDataAllowed(), dialog.newProjectPath());
+
         if (dialog.overwriteExistingDataAllowed())
         {
-            gtDebug() << "backup and overwriting project data...";
-
-            // upgrade project data in separate thread
-            gtApp->loadingProcedure(gt::makeLoadingHelper([&project]() {
-                project->createBackup();
-                project->upgradeProjectData();
-            }).get());
-
             gtDataModel->openProject(project);
             gtApp->setCurrentProject(project);
         }
-        else
-        {
-            gtDebug() << "upgrading data as new project...";
-            gtDebug() << "  |-> " << dialog.newProjectName();
-            gtDebug() << "  |-> " << dialog.newProjectPath();
 
-            auto newProject = GtProjectProvider::duplicateExistingProject(
-                QDir(project->path()),
-                QDir(dialog.newProjectPath()),
-                dialog.newProjectName()
-            );
-
-            if (!newProject)
-            {
-                gtError() << "Could not save project to new directory";
-                return;
-            }
-
-            // upgrade project data in separate thread
-            gtApp->loadingProcedure(gt::makeLoadingHelper([&newProject]() {
-                newProject->upgradeProjectData();
-            }).get());
-
-            // append to session but don't open
-            gtDataModel->newProject(newProject.release(), false);
-        }
     }
 }
 
