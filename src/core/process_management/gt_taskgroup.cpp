@@ -134,10 +134,10 @@ GtTaskGroup::read(const QString& projectPath,
             gtDebug().medium().nospace() << "dummy task created ("
                                          << newTask->uuid() << ")";
         }
+
         else
         {
-            GtTask* gtTask = dynamic_cast<GtTask*>(newTask.get());
-            assert(gtTask != nullptr && "newTask must be of type GtTask.");
+            assert(qobject_cast<GtTask*>(newTask.get()) && "newTask must be of type GtTask.");
 
             // Safe to use gtTask here
             gtDebug().medium().nospace() << "new task created ("
@@ -460,8 +460,6 @@ std::unique_ptr<GtObject>
 GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 {
     QFile taskFile(filePath);
-
-    GtObject* retval = nullptr;
 
     if (!taskFile.exists())
     {
