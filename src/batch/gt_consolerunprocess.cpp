@@ -26,7 +26,7 @@
 #include <QCoreApplication>
 
 QList<GtCommandLineOption>
-gt::console::options()
+gt::console::runOptions()
 {
     QList<GtCommandLineOption> runOptions;
     runOptions.append(GtCommandLineOption{
@@ -36,6 +36,8 @@ gt::console::options()
                           {"name", "n"}, "Define project by name"});
     runOptions.append(GtCommandLineOption{
                           {"file", "f"}, "Define project by file"});
+    runOptions.append(GtCommandLineOption{
+                          {"output", "o"}, "Write project to output path"});
 
     return runOptions;
 }
@@ -46,7 +48,7 @@ gt::console::run(const QStringList &args)
     GtCommandLineParser p;
     p.addHelpOption();
 
-    for (const auto& o : options())
+    for (const auto& o : runOptions())
     {
         p.addOption(o.names.first(), o);
     }

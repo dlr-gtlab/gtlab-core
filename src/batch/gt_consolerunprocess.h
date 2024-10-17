@@ -21,10 +21,10 @@ namespace gt
 namespace console
 {
 /**
- * @brief options
- * @return list of the command line options
+ * @brief runOptions
+ * @return list of the command line options for the run command
  */
-QList<GtCommandLineOption> options();
+QList<GtCommandLineOption> runOptions();
 
 int run(QStringList const& args);
 
