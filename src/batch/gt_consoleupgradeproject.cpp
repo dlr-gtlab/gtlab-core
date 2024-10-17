@@ -62,7 +62,7 @@ gt::console::upgradeRoutine(const QString& projectFile,
     }
 
     // Return 0 if the upgrade was successfull
-    if (project->upgradeProjectRoutine(newProjectFilePath.isEmpty(), newProjectFilePath)) return 0;
+    if (project->upgradeProjectRoutine(newProjectFilePath)) return 0;
 
     else return -1;
 }

@@ -86,7 +86,7 @@ public:
      * @param overwriteExistingData
      * @return
      */
-    bool upgradeProjectRoutine(bool overwriteExistingData, const QString &newProjectFilePath);
+    bool upgradeProjectRoutine(const QString &newProjectFilePath);
 
 
     /**
