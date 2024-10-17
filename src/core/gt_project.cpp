@@ -1132,25 +1132,17 @@ GtProject::upgradesAvailable() const
     return m_upgradesAvailable;
 }
 
-bool GtProject::upgradeProjectRoutine(bool overwriteExistingData, const QString& newProjectFilePath)
+bool GtProject::upgradeProjectRoutine(const QString& newProjectFilePath)
 {
-    if (overwriteExistingData)
+    if (newProjectFilePath.isEmpty() || path() == newProjectFilePath)
     {
         gtDebug() << "backup and overwriting project data...";
 
-        if (gtApp->batchMode())
-        {
-            createBackup();
-            upgradeProjectData();
-        }
-        else
-        {
-            // upgrade project data in separate thread
+            // upgrade project data in separate thread if possible
             gtApp->loadingProcedure(gt::makeLoadingHelper([this]() {
                                         createBackup();
                                         upgradeProjectData();
                                     }).get());
-        }
 
         return true;
     }
@@ -1174,17 +1166,9 @@ bool GtProject::upgradeProjectRoutine(bool overwriteExistingData, const QString&
 
         newProject->upgradeProjectData();
 
-        if (gtApp->batchMode())
-        {
-            newProject->upgradeProjectData();
-        }
-        else
-        {
-            // upgrade project data in separate thread
-            gtApp->loadingProcedure(gt::makeLoadingHelper([&newProject]() {
-                                        newProject->upgradeProjectData();
-                                    }).get());
-        }
+        gtApp->loadingProcedure(gt::makeLoadingHelper([&newProject]() {
+                                    newProject->upgradeProjectData();
+                                }).get());
 
         gtDataModel->newProject(newProject.release(), false);
 

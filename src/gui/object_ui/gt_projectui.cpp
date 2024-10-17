@@ -1486,7 +1486,7 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
 
     if (dialog.exec())
     {
-        project->upgradeProjectRoutine(dialog.overwriteExistingDataAllowed(), dialog.newProjectPath());
+        project->upgradeProjectRoutine(dialog.newProjectPath());
 
         if (dialog.overwriteExistingDataAllowed())
         {
