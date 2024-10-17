@@ -495,17 +495,7 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
 
     auto obj = memento.restore(gtProcessFactory);
 
-    if (obj)
-    {
-        retval = qobject_cast<GtObject*>(obj);
-        if (!retval)
-        {
-            gtError() << QObject::tr("Invalid task file (%1)").arg(filePath);
-            delete obj;
-        }
-    }
-
-    return std::unique_ptr<GtObject>(retval);
+    return std::unique_ptr<GtObject>(obj);
 }
 
 bool
