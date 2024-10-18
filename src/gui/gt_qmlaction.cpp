@@ -15,6 +15,7 @@ struct GtQmlAction::Impl
     QString m_tooltip;
     bool m_enabled = {true};
     bool m_visible = {true};
+    bool m_isSeparator = {false};
 };
 
 GtQmlAction::~GtQmlAction() = default;
@@ -27,6 +28,14 @@ GtQmlAction::GtQmlAction(QString text, QUrl icon, QObject *parent)
 {
     pimpl->m_iconSource = std::move(icon);
     pimpl->m_text = std::move(text);
+}
+
+GtQmlAction*
+GtQmlAction::makeSeparator(QObject *parent)
+{
+    auto obj = new GtQmlAction("", QUrl(), parent);
+    obj->pimpl->m_isSeparator = true;
+    return obj;
 }
 
 QUrl
@@ -103,3 +112,11 @@ GtQmlAction::setVisible(bool visible)
     pimpl->m_visible = visible;
     emit visibleChanged();
 }
+
+
+bool
+GtQmlAction::isSeparator() const
+{
+    return pimpl->m_isSeparator;
+}
+
