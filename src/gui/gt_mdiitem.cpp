@@ -190,6 +190,13 @@ GtMdiItem::addToolbarAction(const QString& text, const QUrl& url)
     return action;
 }
 
+void
+GtMdiItem::addToolbarSeparator()
+{
+    auto action = GtQmlAction::makeSeparator(this);
+    pimpl->m_toolbarActions.push_back(action);
+}
+
 QKeySequence
 GtMdiItem::getShortCut(const QString& id)
 {

@@ -21,23 +21,26 @@ TestMdiExtViewer::TestMdiExtViewer()
 
     cutAction = addToolbarAction("Cut", icon::url(icon::cut));
     copyAction  = addToolbarAction("Copy", icon::url(icon::copy));
+
+    addToolbarSeparator();
+
     pasteAction = addToolbarAction("Paste", icon::url(icon::paste));
 
-    pasteAction->setEnabled(false);
+    pasteAction->setVisible(false);
 
     connect(cutAction, &GtQmlAction::triggered, this, [this](){
         gtInfo() << "Cut";
-        pasteAction->setEnabled(true);
+        pasteAction->setEnabled(!pasteAction->enabled());
     });
 
     connect(copyAction, &GtQmlAction::triggered, this, [this](){
         gtInfo() << "Copy";
-        pasteAction->setEnabled(true);
+        pasteAction->setVisible(true);
     });
 
     connect(pasteAction, &GtQmlAction::triggered, this, [this](){
         gtInfo() << "Paste";
-        pasteAction->setEnabled(false);
+        pasteAction->setVisible(false);
     });
 
     setObjectName("Test Mdi Ext Viewer");
