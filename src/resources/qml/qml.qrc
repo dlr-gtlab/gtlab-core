@@ -9,5 +9,6 @@
         <file>DockBarButton.qml</file>
         <file>ToolbarButton.qml</file>
         <file>ToolbarGroup.qml</file>
+        <file>ToolbarSeparator.qml</file>
     </qresource>
 </RCC>

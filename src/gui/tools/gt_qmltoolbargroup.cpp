@@ -74,18 +74,24 @@ GtQmlToolbarGroup::append(GtQmlAction* action)
 
     bool success = GtListModel::append(action);
 
-    if (success)
+    // we need to exclude separators as we would trigger a recursion loop
+    // otherwise
+    if (success && !action->isSeparator())
     {
         // if all actions of a group is invisible,
         // the whole group shall be invisible
         connect(action, &GtQmlAction::visibleChanged, this,
-                &GtQmlToolbarGroup::visibleChanged);
+                &GtQmlToolbarGroup::updateVisibility);
     }
 
-    // update visibility
-    emit visibleChanged();
+    updateVisibility();
 
     return success;
+}
+
+bool GtQmlToolbarGroup::addSeparator()
+{
+    return append(GtQmlAction::makeSeparator(this));
 }
 
 void
@@ -95,10 +101,44 @@ GtQmlToolbarGroup::setListData(const std::vector<GtQmlAction *> &data)
 
     for (auto* action : data)
     {
-        if (!action) continue;
+        //append(action);
+        if (!action || action->isSeparator()) continue;
         connect(action, &GtQmlAction::visibleChanged, this,
-                &GtQmlToolbarGroup::visibleChanged);
+                &GtQmlToolbarGroup::updateVisibility);
     }
 
+    updateVisibility();
+}
+
+void
+GtQmlToolbarGroup::updateVisibility()
+{
+    auto updateSeperatorVisibility = [](auto begin, auto end, auto&& check)
+    {
+        bool allInvisible = true;
+        std::for_each(begin, end, [&allInvisible, &check](auto& action) {
+            if (!action) return;
+
+            if (action->isSeparator())
+            {
+                if (check(action)) action->setVisible(!allInvisible);
+            }
+            else
+            {
+                allInvisible = allInvisible & !action->isVisible();
+            }
+        });
+    };
+
+    // check actions before separator
+    updateSeperatorVisibility(m_data.begin(), m_data.end(),
+                              [](auto&&) {return true;});
+
+    // check actions after a separator (go from last)
+    updateSeperatorVisibility(m_data.rbegin(), m_data.rend(),
+                              [](auto&& action) {return action->isVisible();});
+
+    // in theory, all items could be invisible, so we need to emit this
+    // that qml gets the current visibility
     emit visibleChanged();
 }
