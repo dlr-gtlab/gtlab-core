@@ -83,6 +83,8 @@ public:
     explicit GtQmlAction(QObject* parent = nullptr);
     GtQmlAction(QString text, QUrl icon, QObject* parent = nullptr);
 
+    static GtQmlAction* makeSeparator(QObject* parent = nullptr);
+
     ~GtQmlAction() override;
 
     QString text() const;
@@ -100,6 +102,11 @@ public:
 
     bool isVisible() const;
     void setVisible(bool visible);
+
+    /**
+     * @brief Returns true if this action acts only as a separator
+     */
+    Q_INVOKABLE bool isSeparator() const;
 
 signals:
     /**
