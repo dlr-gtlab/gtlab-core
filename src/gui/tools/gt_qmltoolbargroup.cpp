@@ -113,30 +113,42 @@ GtQmlToolbarGroup::setListData(const std::vector<GtQmlAction *> &data)
 void
 GtQmlToolbarGroup::updateVisibility()
 {
-    auto updateSeperatorVisibility = [](auto begin, auto end, auto&& check)
+    // find first visible action
+    auto firstVisible = std::find_if(m_data.begin(), m_data.end(),
+                                     [](const GtQmlAction* action) {
+        return action && action->isVisible() && !action->isSeparator();
+    });
+
+    // find last visible action
+    auto lastVisible = std::find_if(m_data.rbegin(), m_data.rend(),
+                                    [](const GtQmlAction* action) {
+        return action && action->isVisible() && !action->isSeparator();
+    }).base();
+
+    // make all separators before the first visible action invisible
+    std::for_each(m_data.begin(), firstVisible, [](GtQmlAction* action) {
+        if (action && action->isSeparator()) action->setVisible(false);
+    });
+
+    // make all separatprs after the last visible action invisible
+    std::for_each(lastVisible, m_data.end(), [](GtQmlAction* action) {
+        if (action && action->isSeparator()) action->setVisible(false);
+    });
+
+    // make all separators visible between the first and last visible action
+    if (firstVisible < lastVisible)
     {
-        bool allInvisible = true;
-        std::for_each(begin, end, [&allInvisible, &check](auto& action) {
+        bool wasSeparator=false;
+        std::for_each(firstVisible, lastVisible,
+                      [&wasSeparator](GtQmlAction* action) {
             if (!action) return;
 
-            if (action->isSeparator())
-            {
-                if (check(action)) action->setVisible(!allInvisible);
-            }
-            else
-            {
-                allInvisible = allInvisible & !action->isVisible();
-            }
+            if (action->isSeparator()) action->setVisible(!wasSeparator);
+
+            // don't account for invisible actions between separators
+            if (action->isVisible()) wasSeparator = action->isSeparator();
         });
-    };
-
-    // check actions before separator
-    updateSeperatorVisibility(m_data.begin(), m_data.end(),
-                              [](auto&&) {return true;});
-
-    // check actions after a separator (go from last)
-    updateSeperatorVisibility(m_data.rbegin(), m_data.rend(),
-                              [](auto&& action) {return action->isVisible();});
+    }
 
     // in theory, all items could be invisible, so we need to emit this
     // that qml gets the current visibility
