@@ -19,6 +19,18 @@ TestMdiExtViewer::TestMdiExtViewer()
 {
     using namespace gt::gui;
 
+    auto toggleAction = addToolbarAction("View", icon::url(icon::eyeOff));
+    toggleAction->setCheckable(true);
+
+    connect(toggleAction, &GtQmlAction::toggled, this, [toggleAction](bool checked){
+        if (checked) {
+            toggleAction->setIconUrl(icon::url(icon::eye));
+        }
+        else {
+            toggleAction->setIconUrl(icon::url(icon::eyeOff));
+        }
+    });
+
     cutAction = addToolbarAction("Cut", icon::url(icon::cut));
     copyAction  = addToolbarAction("Copy", icon::url(icon::copy));
 
