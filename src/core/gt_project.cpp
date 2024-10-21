@@ -1164,8 +1164,6 @@ bool GtProject::upgradeProjectRoutine(const QString& newProjectFilePath)
             return false;
         }
 
-        newProject->upgradeProjectData();
-
         gtApp->loadingProcedure(gt::makeLoadingHelper([&newProject]() {
                                     newProject->upgradeProjectData();
                                 }).get());
