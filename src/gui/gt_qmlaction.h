@@ -79,9 +79,21 @@ class GT_GUI_EXPORT GtQmlAction : public QObject
      * See also `GtQmlAction::toolTip` and `GtQmlAction::setToolTip`
      */
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible NOTIFY visibleChanged)
+
+    /**
+     * @brief This property holds whether the action can toggled / checked
+     */
+    Q_PROPERTY(bool checkable READ checkable WRITE setCheckable NOTIFY checkableChanged FINAL)
+
+    /**
+     * @brief This property holds whether the action is checked or not
+     */
+    Q_PROPERTY(bool checked READ isChecked WRITE setChecked NOTIFY checkedChanged FINAL)
 public:
     explicit GtQmlAction(QObject* parent = nullptr);
     GtQmlAction(QString text, QUrl icon, QObject* parent = nullptr);
+
+    static GtQmlAction* makeSeparator(QObject* parent = nullptr);
 
     ~GtQmlAction() override;
 
@@ -101,6 +113,22 @@ public:
     bool isVisible() const;
     void setVisible(bool visible);
 
+    /**
+     * @brief If enabled, the state of the button can be toggled
+     *
+     * A signal `::toggled` will be emitted, when it checked-state changes
+     */
+    void setCheckable(bool);
+    bool checkable() const;
+
+    bool isChecked() const;
+    void setChecked(bool checked);
+
+    /**
+     * @brief Returns true if this action acts only as a separator
+     */
+    Q_INVOKABLE bool isSeparator() const;
+
 signals:
     /**
      * @brief This signal is emitted, when the user clicks
@@ -108,12 +136,20 @@ signals:
      */
     void triggered();
 
+    /**
+     * @brief This signal is emitted, when a checkable action
+     *        changes it's checked state
+     * @param checked
+     */
+    void toggled(bool checked);
 
     void iconUrlChanged();
     void textChanged();
     void enabledChanged();
     void visibleChanged();
     void toolTipChanged();
+    void checkableChanged();
+    void checkedChanged();
 
 private:
     struct Impl;

@@ -74,18 +74,24 @@ GtQmlToolbarGroup::append(GtQmlAction* action)
 
     bool success = GtListModel::append(action);
 
-    if (success)
+    // we need to exclude separators as we would trigger a recursion loop
+    // otherwise
+    if (success && !action->isSeparator())
     {
         // if all actions of a group is invisible,
         // the whole group shall be invisible
         connect(action, &GtQmlAction::visibleChanged, this,
-                &GtQmlToolbarGroup::visibleChanged);
+                &GtQmlToolbarGroup::updateVisibility);
     }
 
-    // update visibility
-    emit visibleChanged();
+    updateVisibility();
 
     return success;
+}
+
+bool GtQmlToolbarGroup::addSeparator()
+{
+    return append(GtQmlAction::makeSeparator(this));
 }
 
 void
@@ -95,10 +101,56 @@ GtQmlToolbarGroup::setListData(const std::vector<GtQmlAction *> &data)
 
     for (auto* action : data)
     {
-        if (!action) continue;
+        //append(action);
+        if (!action || action->isSeparator()) continue;
         connect(action, &GtQmlAction::visibleChanged, this,
-                &GtQmlToolbarGroup::visibleChanged);
+                &GtQmlToolbarGroup::updateVisibility);
     }
 
+    updateVisibility();
+}
+
+void
+GtQmlToolbarGroup::updateVisibility()
+{
+    // find first visible action
+    auto firstVisible = std::find_if(m_data.begin(), m_data.end(),
+                                     [](const GtQmlAction* action) {
+        return action && action->isVisible() && !action->isSeparator();
+    });
+
+    // find last visible action
+    auto lastVisible = std::find_if(m_data.rbegin(), m_data.rend(),
+                                    [](const GtQmlAction* action) {
+        return action && action->isVisible() && !action->isSeparator();
+    }).base();
+
+    // make all separators before the first visible action invisible
+    std::for_each(m_data.begin(), firstVisible, [](GtQmlAction* action) {
+        if (action && action->isSeparator()) action->setVisible(false);
+    });
+
+    // make all separatprs after the last visible action invisible
+    std::for_each(lastVisible, m_data.end(), [](GtQmlAction* action) {
+        if (action && action->isSeparator()) action->setVisible(false);
+    });
+
+    // make all separators visible between the first and last visible action
+    if (firstVisible < lastVisible)
+    {
+        bool wasSeparator=false;
+        std::for_each(firstVisible, lastVisible,
+                      [&wasSeparator](GtQmlAction* action) {
+            if (!action) return;
+
+            if (action->isSeparator()) action->setVisible(!wasSeparator);
+
+            // don't account for invisible actions between separators
+            if (action->isVisible()) wasSeparator = action->isSeparator();
+        });
+    }
+
+    // in theory, all items could be invisible, so we need to emit this
+    // that qml gets the current visibility
     emit visibleChanged();
 }
