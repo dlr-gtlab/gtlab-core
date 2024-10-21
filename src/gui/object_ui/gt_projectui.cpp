@@ -1486,9 +1486,13 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
 
     if (dialog.exec())
     {
-        project->upgradeProjectRoutine(dialog.newProjectPath());
+        bool overwrite = dialog.overwriteExistingDataAllowed();
+        QString projectPath = overwrite ? project->path()
+                                        : dialog.newProjectPath();
 
-        if (dialog.overwriteExistingDataAllowed())
+        project->upgradeProjectRoutine(projectPath);
+
+        if (overwrite)
         {
             gtDataModel->openProject(project);
             gtApp->setCurrentProject(project);
