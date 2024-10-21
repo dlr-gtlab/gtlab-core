@@ -29,6 +29,7 @@ Button {
 
     text: "My Button"
     hoverEnabled: true
+    checkable: false
     flat: true
 
     signal clicked
@@ -61,7 +62,9 @@ Button {
         opacity: enabled ? 1 : 0.3
 
         radius: 15
-        //border.color: hovered ? "#047eff" : "transparent"
+
+        border.color: checked ? (darkMode ? Qt.lighter(custom_backgroundColor)
+                                          : Qt.darker(custom_backgroundColor, 1.1)) : "transparent"
 
         //border.color: "#047eff"
         ColorAnimation on color {
@@ -203,7 +206,13 @@ Button {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: control.clicked()
+        onClicked: {
+            control.clicked()
+            if (control.checkable) {
+                control.checked = !control.checked
+            }
+        }
+
         onPressed: control.pressed()
         onReleased: control.released()
 
@@ -223,7 +232,6 @@ Button {
             }
         }
     }
-
 }
 
 /*##^##

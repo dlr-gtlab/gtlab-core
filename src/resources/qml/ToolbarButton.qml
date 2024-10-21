@@ -26,13 +26,33 @@ Item {
         id: btn
 
         AnimatedButton {
+            id: b
+
             text: tbButton.action ? tbButton.action.text : ""
             onClicked: tbButton.action.triggered()
+
+            onCheckedChanged: {
+                if (tbButton.action) {
+                    tbButton.action.checked = b.checked
+                    tbButton.action.toggled(b.checked)
+                }
+            }
+
+            function bgColor() {
+                if (!checked)
+                    return "transparent"
+                else
+                    return darkMode ? "#1e2a3a" : "#efefef"
+            }
+
+            custom_backgroundColor: bgColor()
+
             icon.source: tbButton.action ? tbButton.action.iconUrl : ""
             darkMode: tbButton.darkMode
             tooltipText: tbButton.action ? tbButton.action.toolTip : ""
             hasTooltip: tooltipText != ""
             custom_Enabled: tbButton.enabled
+            checkable: tbButton.action ? tbButton.action.checkable : false
         }
     }
 

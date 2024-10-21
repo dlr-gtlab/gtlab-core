@@ -16,6 +16,8 @@ struct GtQmlAction::Impl
     bool m_enabled = {true};
     bool m_visible = {true};
     bool m_isSeparator = {false};
+    bool m_isCheckable = {false};
+    bool m_isChecked = {false};
 };
 
 GtQmlAction::~GtQmlAction() = default;
@@ -111,6 +113,36 @@ GtQmlAction::setVisible(bool visible)
 
     pimpl->m_visible = visible;
     emit visibleChanged();
+}
+
+void
+GtQmlAction::setCheckable(bool checkable)
+{
+    if (pimpl->m_isCheckable == checkable) return;
+
+    pimpl->m_isCheckable = checkable;
+    emit checkableChanged();
+}
+
+bool
+GtQmlAction::checkable() const
+{
+    return pimpl->m_isCheckable;
+}
+
+bool
+GtQmlAction::isChecked() const
+{
+    return pimpl->m_isChecked;
+}
+
+void
+GtQmlAction::setChecked(bool checked)
+{
+    if (pimpl->m_isChecked == checked) return;
+
+    pimpl->m_isChecked = checked;
+    emit checkedChanged();
 }
 
 
