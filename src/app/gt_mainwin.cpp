@@ -1152,6 +1152,8 @@ GtMainWin::initAfterStartup()
         e->initAfterStartup();
     });
 
+    loadPerspectiveSettings();
+
     m_firstTimeShowEvent = false;
 }
 
