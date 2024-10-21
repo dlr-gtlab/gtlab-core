@@ -16,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    Both methods have the project directory as an argument, hence workarounds like currentProject()->path() can be avoided - #617
 
 ### Changed
- - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts or actions. - #1298
+ - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts, separators or actions.
+   Also, actions can now have an on / off toggle state (i.e. toggle actions) - #1298, #1310
 
 ### Fixed
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
