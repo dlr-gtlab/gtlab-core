@@ -245,8 +245,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     connect(ui->mdiArea, SIGNAL(currentChanged(int)),
             SLOT(onEditorWindowActive(int)));
 
-    ui->qmlToolBar->setStyleSheet("QToolBar {border-bottom: 0px solid black; border-top: 0px solid black;}");
-
+    ui->qmlToolBar->setStyleSheet("QToolBar { margin: 0px; padding: 0px; border: none;}");
     ui->qmlToolBar->addWidget(m_mainWindowToolbar);
 }
 
