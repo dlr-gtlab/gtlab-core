@@ -36,6 +36,10 @@ public:
     static void addData(GtObject* obj);
 
     QStringList openWith(GtObject*obj) override;
+
+    bool hasValidationRegExp() override;
+
+    QRegExp validatorRegExp() override;
 };
 
 #endif // TEST_MDI_EXT_EXTERNALOBJECTUI_H

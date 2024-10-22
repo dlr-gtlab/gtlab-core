@@ -59,6 +59,22 @@ public:
 private:
     validatorflag m_validatorflag;
 
+    /**
+     * @brief updateRegExpSetupByObject
+     * The function checks if the used objectui provides
+     * a definition for the regular expression used for the renaming
+     * and additionally if a hint for the renaming is available and
+     * if the renaming should be strict (permits invalid intermediate states)
+     * or not.
+     * These values are used to set the arguments given by reference
+     * @param index which is asked for the renaming
+     * @param regExp to overwrite if offered by the used ui element
+     * @param hint to overwrite if offered by the used ui element
+     * @param checkWhileEditing to overwrite if offered by the used ui element
+     */
+    void updateRegExpSetupByObject(const QModelIndex& index, QRegExp& regExp,
+                                   QString& hint,
+                                   bool& checkWhileEditing) const;
 };
 
 #endif // GTTEXTFILTERDELEGATE_H
