@@ -11,16 +11,6 @@
 
 #include <gt_logging.h>
 
-//GtRegExpValidator::GtRegExpValidator(QObject* parent) :
-//    QValidator(parent),
-//    m_regExp(".*"),
-//    m_strict(true),
-//    m_hint(""),
-//    m_logHint(false)
-//{
-//
-//}
-
 GtRegExpValidator::GtRegExpValidator(const QRegExp& regExp,
                                      bool strict, const QString &hint,
                                      QObject* parent) :

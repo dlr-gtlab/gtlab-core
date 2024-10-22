@@ -22,12 +22,6 @@ class GtRegExpValidator : public QValidator
 {
 public:
     /**
-     * @brief GtRegExpValidator - default constructor
-     * @param parent
-     */
-    //explicit GtRegExpValidator(QObject* parent = nullptr);
-
-    /**
      * @brief GtRegExpValidator
      * @param regExp - regular expression to use
      * @param strict - flag if the check should be as strict as in the
@@ -36,9 +30,8 @@ public:
      * is allowed an wht is not allowed
      * @param parent
      */
-    explicit GtRegExpValidator(const QRegExp& regExp, bool strict,
-                               const QString& hint,
-                               QObject* parent = nullptr);
+    GtRegExpValidator(const QRegExp& regExp, bool strict,
+                      const QString& hint, QObject* parent = nullptr);
 
     const QRegExp& regExp();
 
