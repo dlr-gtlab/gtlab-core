@@ -32,7 +32,7 @@ Item {
             onClicked: tbButton.action.triggered()
 
             onCheckedChanged: {
-                if (tbButton.action) {
+                if (tbButton.action && tbButton.action.checked !== checked) {
                     tbButton.action.checked = b.checked
                     tbButton.action.toggled(b.checked)
                 }
@@ -53,6 +53,25 @@ Item {
             hasTooltip: tooltipText != ""
             custom_Enabled: tbButton.enabled
             checkable: tbButton.action ? tbButton.action.checkable : false
+
+            function syncButtonCheckedState() {
+                if (b.checked !== tbButton.action.checked) {
+                    b.checked = tbButton.action.checked
+                }
+            }
+
+            // make the button change, if the action changes
+            Connections {
+                target: tbButton.action
+
+                function onCheckedChanged() {
+                    syncButtonCheckedState()
+                }
+            }
+
+            Component.onCompleted: {
+                syncButtonCheckedState()
+            }
         }
     }
 
