@@ -81,13 +81,6 @@ public:
      */
     bool upgradesAvailable() const;
 
-    /**
-     * @brief upgrades Project via upgradeProject() method. Either the project is overwritten or written to a new dir.
-     * @param overwriteExistingData
-     * @return
-     */
-    bool upgradeProjectRoutine(const QString &newProjectFilePath);
-
 
     /**
      * @brief processData
@@ -230,6 +223,22 @@ public:
      * @brief Triggers upgrade routine of project data.
      */
     void upgradeProjectData();
+
+    /**
+     * @brief Performs a full project upgrade including
+     *
+     *  - Backup
+     *  - Project duplication
+     *  - Data upgrade
+     *
+     *  The project is added to the current session after upgrade
+     *
+     * @param newProjectFilePath The path to store the new project. If empty,
+     *                           a backup is created and the project
+     *                           will be overwritten.
+     * @return True on success
+     */
+    bool upgradeProject(const QString &newProjectFilePath);
 
     /**
      * @brief Generates a backup of all relevant project data. the backup is

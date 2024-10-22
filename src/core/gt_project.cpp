@@ -1132,7 +1132,8 @@ GtProject::upgradesAvailable() const
     return m_upgradesAvailable;
 }
 
-bool GtProject::upgradeProjectRoutine(const QString& newProjectFilePath)
+bool
+GtProject::upgradeProject(const QString& newProjectFilePath)
 {
     if (newProjectFilePath.isEmpty() || path() == newProjectFilePath)
     {

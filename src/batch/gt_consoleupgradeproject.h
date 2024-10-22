@@ -19,26 +19,12 @@ namespace console
 {
 
 /**
- * @brief printRunHelp
+ * @brief A batch command to upgrade a gtlab project
+ * @param args Command line parameters passed from main
+ *
+ * @return 0 on success
  */
-void printUpgradeProjectHelp();
-
-/**
- * @brief upgradeRoutine
- * @param projectFile
- * @param newProjectFilePath
- * @param newProjectName
- * @return
- */
-int upgradeRoutine(const QString& projectFile,
-                   const QString& newProjectFilePath = "");
-
-/**
- * @brief upgrade_Project
- * @param upgradeProjectArguments
- * @return
- */
-int upgrade_project(const QStringList& upgradeProjectArguments);
+int upgradeProjectCommand(const QStringList& args);
 
 }
 }

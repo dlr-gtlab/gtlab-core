@@ -1490,7 +1490,7 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
         QString projectPath = overwrite ? project->path()
                                         : dialog.newProjectPath();
 
-        project->upgradeProjectRoutine(projectPath);
+        project->upgradeProject(projectPath);
 
         if (overwrite)
         {

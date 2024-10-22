@@ -10,17 +10,18 @@
 
 #include "gt_consoleupgradeproject.h"
 
-#include "gt_application.h"
 #include "gt_project.h"
 #include "gt_projectprovider.h"
 #include "gt_consolerunprocess.h"
-#include "gt_datamodel.h"
 
 #include <gt_commandlineparser.h>
 #include <iostream>
 
+namespace
+{
+
 void
-gt::console::printUpgradeProjectHelp()
+printUpgradeProjectHelp()
 {
     std::cout << std::endl;
     std::cout << "This is the help for the GTlab upgrade_project function\n\n";
@@ -39,8 +40,8 @@ gt::console::printUpgradeProjectHelp()
 }
 
 int
-gt::console::upgradeRoutine(const QString& projectPath,
-                            const QString& newProjectFilePath)
+upgradeRoutine(const QString& projectPath,
+               const QString& newProjectFilePath = "")
 {
     QFileInfo fi(projectPath);
     QString projectFile = projectPath;
@@ -59,7 +60,7 @@ gt::console::upgradeRoutine(const QString& projectPath,
     }
 
     // we need to create a temporary session in which the project is imported
-    auto tmpSession = enterTempSession();
+    auto tmpSession = gt::console::enterTempSession();
     Q_UNUSED(tmpSession);
 
     GtProjectProvider provider(projectFile);
@@ -78,8 +79,8 @@ gt::console::upgradeRoutine(const QString& projectPath,
         return 0;
     }
 
-    // Return 0 if the upgrade was successfull
-    if (project->upgradeProjectRoutine(newProjectFilePath)) {
+    // Return 0 if the upgrade was successful
+    if (project->upgradeProject(newProjectFilePath)) {
         gtInfo() << QObject::tr("Project %1 updated successfully")
                         .arg(project->objectName());
         return 0;
@@ -88,8 +89,11 @@ gt::console::upgradeRoutine(const QString& projectPath,
     else return -1;
 }
 
+} // namespace
+
+
 int
-gt::console::upgrade_project(const QStringList &upgradeProjectArguments)
+gt::console::upgradeProjectCommand(const QStringList &upgradeProjectArguments)
 {
     GtCommandLineParser upgradeProjectParser;
     upgradeProjectParser.addHelpOption();
@@ -102,13 +106,14 @@ gt::console::upgrade_project(const QStringList &upgradeProjectArguments)
     if (!upgradeProjectParser.parse(upgradeProjectArguments))
     {
         std::cerr << QObject::tr("\n\nrunning upgrade_project "
-                                 "without arguments is invalid\n\n").toStdString();
+                                 "without arguments is invalid\n\n")
+                         .toStdString();
         return -1;
     }
 
     if (upgradeProjectParser.helpOption())
     {
-        gt::console::printUpgradeProjectHelp();
+        printUpgradeProjectHelp();
         return 0;
     }
 
@@ -124,11 +129,12 @@ gt::console::upgrade_project(const QStringList &upgradeProjectArguments)
         {
             std::cerr << QObject::tr("\n\nInvalid usage "
                                      "of output argument!\n\n").toStdString();
-            gt::console::printUpgradeProjectHelp();
+            printUpgradeProjectHelp();
             return -1;
         }
 
-        return upgradeRoutine(upgradeProjectParser.positionalArguments().at(0), upgradeProjectParser.positionalArguments().at(1));
+        return upgradeRoutine(upgradeProjectParser.positionalArguments().at(0),
+                              upgradeProjectParser.positionalArguments().at(1));
     }
 
     //default
@@ -139,8 +145,9 @@ gt::console::upgrade_project(const QStringList &upgradeProjectArguments)
     else
     {
         std::cerr << QObject::tr("\n\nInvalid usage "
-                                 "of upgrade_project routine!\n\n").toStdString();
-        gt::console::printUpgradeProjectHelp();
+                                 "of upgrade_project routine!\n\n")
+                         .toStdString();
+        printUpgradeProjectHelp();
         return -1;
     }
 
