@@ -10,6 +10,7 @@
  */
 
 #include <QLineEdit>
+#include <QToolTip>
 
 #include "gt_palette.h"
 #include "gt_regexp.h"
@@ -47,7 +48,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
     lineEdit->setValidator(new GtRegExpValidator(regExp, checkWhileEditing,
                                                  hint, this->parent()));
 
-    connect(lineEdit, &QLineEdit::textChanged, lineEdit, [lineEdit, regExp](
+    connect(lineEdit, &QLineEdit::textChanged, lineEdit, [lineEdit, regExp, hint](
             const QString& text)
     {
         QPalette pal = gt::gui::currentTheme();
@@ -55,6 +56,10 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
         if (!regExp.exactMatch(text))
         {
             pal.setColor(QPalette::Text, gt::gui::color::warningText());
+            lineEdit->setToolTip(hint);
+            QRect rect(0, 0, 10, 10);
+            QToolTip::showText(lineEdit->mapToGlobal(QPoint(0, 0)), hint,
+                               lineEdit, rect);
         }
 
         lineEdit->setPalette(pal);
