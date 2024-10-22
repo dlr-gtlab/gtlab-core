@@ -242,12 +242,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     connect(modulesOverview, SIGNAL(activated()),
             SLOT(openAboutModulesDialog()));
 
-    loadPerspectiveSettings();
-
     connect(ui->mdiArea, SIGNAL(currentChanged(int)),
             SLOT(onEditorWindowActive(int)));
-
-    loadPerspectiveSettings();
 
     ui->qmlToolBar->setStyleSheet("QToolBar {border-bottom: 0px solid black; border-top: 0px solid black;}");
 
