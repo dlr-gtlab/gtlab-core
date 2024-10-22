@@ -37,38 +37,12 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
 {
     auto* lineEdit = new QLineEdit(parent);
 
-    /// Standart regExp
+    /// Standart regExp with hint and strict chcking rule set to active
     QRegExp regExp = gt::re::onlyLettersAndNumbers();
-
     bool checkWhileEditing = true;
     QString hint = gt::re::onlyLettersAndNumbersHint();
 
-    if (GtProject* proj = gtApp->currentProject())
-    {
-        QString uuid = index.data(GtCoreDatamodel::UuidRole).toString();
-
-        if (GtObject* obj = proj->getObjectByUuid(uuid))
-        {
-            if (m_validatorflag == uiFilter)
-            {
-                static GtObjectUI fallbackUI;
-
-                GtObjectUI* oui = gtApp->defaultObjectUI(obj);
-                if (!oui) oui = &fallbackUI;
-
-                if (oui->hasValidationRegExp(obj))
-                {
-                    regExp = oui->validatorRegExp(obj);
-                    hint = oui->regExpHint(obj);
-                    checkWhileEditing = oui->regExpCheckWhileModification(obj);
-                }
-            }
-            else if (m_validatorflag == allowSpaces)
-            {
-                regExp = gt::re::onlyLettersAndNumbersAndSpace();
-            }
-        }
-    }
+    updateRegExpSetupByObject(index, regExp, hint, checkWhileEditing);
 
     lineEdit->setValidator(new GtRegExpValidator(regExp, checkWhileEditing,
                                                  hint, this->parent()));
@@ -98,4 +72,38 @@ GtTextFilterDelegate::setEditorData(QWidget* editor,
     auto* lineEdit = static_cast<QLineEdit*>(editor);
     QString val = index.data(Qt::DisplayRole).toString();
     lineEdit->setText(val);
+}
+
+void
+GtTextFilterDelegate::updateRegExpSetupByObject(const QModelIndex& index,
+                                                QRegExp& regExp,
+                                                QString& hint,
+                                                bool& checkWhileEditing) const
+{
+    if (GtProject* proj = gtApp->currentProject())
+    {
+        QString uuid = index.data(GtCoreDatamodel::UuidRole).toString();
+
+        if (GtObject* obj = proj->getObjectByUuid(uuid))
+        {
+            if (m_validatorflag == uiFilter)
+            {
+                static GtObjectUI fallbackUI;
+
+                GtObjectUI* oui = gtApp->defaultObjectUI(obj);
+                if (!oui) oui = &fallbackUI;
+
+                if (oui->hasValidationRegExp(obj))
+                {
+                    regExp = oui->validatorRegExp(obj);
+                    hint = oui->regExpHint(obj);
+                    checkWhileEditing = oui->regExpCheckWhileModificationEnabled(obj);
+                }
+            }
+            else if (m_validatorflag == allowSpaces)
+            {
+                regExp = gt::re::onlyLettersAndNumbersAndSpace();
+            }
+        }
+    }
 }

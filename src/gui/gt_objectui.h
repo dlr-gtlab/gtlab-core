@@ -118,19 +118,26 @@ public:
     virtual QRegExp validatorRegExp();
 
     /**
-     * @brief hasValidationRegExp - validator for filtering names for
-     * renaming in models
-     * @param obj - pointer to the underlying object to get access to
-     *              be used to define behaviour
+     * @brief hasValidationRegExp
+     * Checks if a regular expression for validation of renaming will be used
+     * The used regular expression is the one offered by the function
+     * 'validatorRegExp(GtObject* obj)'
+     *
+     * @param obj - pointer to the datamodel object of the object UI element.
+     * Might be used to offer the regular expression
+     * based on the datamodel object
+     *
      * @return true if Object has validator RegExp
      */
     virtual bool hasValidationRegExp(GtObject* obj);
 
     /**
-     * @brief validatorRegExp - gives the validation RegExp
-     * @param obj - pointer to the underlying object to get access to
-     *              be used to define behaviour
-     * @return
+     * @brief Returns the validator RegEx for the given object
+     *
+     * Note: The default implementation returns the global validator expression
+     *       via ::validatorRegExp()
+     *
+     * @param obj - Object to return a the validator RegExp for
      */
     virtual QRegExp validatorRegExp(GtObject* obj);
 
@@ -149,7 +156,7 @@ public:
      * the element is renamed. False means that the regular expression is only
      * checked in the end of the modification
      */
-    bool regExpCheckWhileModification(GtObject* obj);
+    bool regExpCheckWhileModificationEnabled(GtObject* obj);
 
 protected:
 
@@ -410,7 +417,7 @@ protected:
      * the element is renamed. False means that the regular expression is only
      * checked in the end of the modification
      */
-    void setRegExpCheckWhileModification(bool val);
+    void setRegExpCheckWhileModificationEnabled(bool val);
 private:
 
     /// List of custom actions

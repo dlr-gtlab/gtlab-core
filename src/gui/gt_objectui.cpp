@@ -223,7 +223,7 @@ GtObjectUI::setRegExpHint(const QString& hint)
 }
 
 void
-GtObjectUI::setRegExpCheckWhileModification(bool val)
+GtObjectUI::setRegExpCheckWhileModificationEnabled(bool val)
 {
     m_pimpl->m_regExpCheckWhileModification = val;
 }
@@ -259,7 +259,7 @@ GtObjectUI::regExpHint(GtObject* /*obj*/)
 }
 
 bool
-GtObjectUI::regExpCheckWhileModification(GtObject* /*obj*/)
+GtObjectUI::regExpCheckWhileModificationEnabled(GtObject* /*obj*/)
 {
     return m_pimpl->m_regExpCheckWhileModification;
 }

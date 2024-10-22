@@ -41,7 +41,7 @@ TestMdiExtExternalObjectUI::TestMdiExtExternalObjectUI()
     }).setIcon(gt::gui::icon::info2());
 
     setRegExpHint(gt::re::onlyLettersAndNumbersAndSpaceHint());
-    setRegExpCheckWhileModification(false);
+    setRegExpCheckWhileModificationEnabled(false);
 }
 
 QIcon

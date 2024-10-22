@@ -25,7 +25,7 @@ public:
      * @brief GtRegExpValidator - default constructor
      * @param parent
      */
-    explicit GtRegExpValidator(QObject* parent = nullptr);
+    //explicit GtRegExpValidator(QObject* parent = nullptr);
 
     /**
      * @brief GtRegExpValidator

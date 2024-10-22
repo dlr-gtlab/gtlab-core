@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts or actions. - #1298
-
+ - Renaming elments in GTlab explorer and process dock widget extended to be able to give better feedback and allow sibling objects to be taken into account - #1304
+ 
 ### Fixed
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
 
