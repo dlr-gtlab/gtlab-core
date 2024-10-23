@@ -79,6 +79,7 @@ GtQmlAction::toolTip() const
 void
 GtQmlAction::setToolTip(QString t)
 {
+    t = t.trimmed();
     if (t == pimpl->m_tooltip) return;
 
     pimpl->m_tooltip = std::move(t);
