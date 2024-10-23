@@ -210,6 +210,11 @@ protected:
     GtQmlAction* addToolbarAction(const QString& text, const QUrl& iconUrl);
 
     /**
+     * @brief Adds a separator to the toolbar context
+     */
+    void addToolbarSeparator();
+
+    /**
      * @brief getShortCut
      * @param id - identification string of the short cut to read
      * @return short cut for this id registered in this object
