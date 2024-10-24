@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <gt_projectprovider.h>
 
 #include <QApplication>
 #include <QDomDocument>
@@ -21,6 +22,7 @@
 #include "internal/gt_commandlinefunctionhandler.h"
 #include "batchremote.h"
 #include "gt_consolerunprocess.h"
+#include "gt_consoleupgradeproject.h"
 
 #include "gt_coreapplication.h"
 #include "gt_coreprocessexecutor.h"
@@ -741,7 +743,7 @@ initSystemOptions()
                     "To define a project name and a process name is the "
                     "default used option to execute this command."
                     "\n\t\t\tUse --help for more details.",
-                    gt::console::options(),
+                    gt::console::runOptions(),
                     QList<GtCommandLineArgument>(),
                     false);
 
@@ -777,6 +779,11 @@ initSystemOptions()
     initPosArgument("switch_session", switch_session,
                     "Switches to the given session", {},
                     {GtCommandLineArgument{"session_id", "Session ID"}});
+
+    initPosArgument("upgrade_project", gt::console::upgradeProjectCommand,
+                    "Upgrades All Modules in the current project", {},
+                    QList<GtCommandLineArgument>(),
+                    false);
 }
 
 int

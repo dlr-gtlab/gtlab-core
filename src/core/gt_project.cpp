@@ -14,7 +14,9 @@
 #include <QDateTime>
 
 #include "gt_project.h"
+#include "gt_coredatamodel.h"
 #include "gt_processdata.h"
+#include "gt_projectprovider.h"
 #include "gt_task.h"
 #include "gt_objectfactory.h"
 #include "gt_objectmemento.h"
@@ -32,6 +34,7 @@
 #include "gt_xmlutilities.h"
 #include "gt_qtutilities.h"
 #include "gt_filesystem.h"
+#include "gt_abstractloadinghelper.h"
 
 #include "internal/gt_moduleupgrader.h"
 #include "internal/gt_moduleupgrader.h"
@@ -1127,6 +1130,49 @@ bool
 GtProject::upgradesAvailable() const
 {
     return m_upgradesAvailable;
+}
+
+bool
+GtProject::upgradeProject(const QString& newProjectFilePath)
+{
+    if (newProjectFilePath.isEmpty() || path() == newProjectFilePath)
+    {
+        gtDebug() << "backup and overwriting project data...";
+
+            // upgrade project data in separate thread if possible
+            gtApp->loadingProcedure(gt::makeLoadingHelper([this]() {
+                                        createBackup();
+                                        upgradeProjectData();
+                                    }).get());
+
+        return true;
+    }
+    else
+    {
+        gtDebug() << "upgrading data as new project...";
+        gtDebug() << "  |-> " << QFileInfo(newProjectFilePath).fileName();
+        gtDebug() << "  |-> " << newProjectFilePath;
+
+        auto newProject = GtProjectProvider::duplicateExistingProject(
+            QDir(path()),
+            QDir(newProjectFilePath),
+            QFileInfo(newProjectFilePath).fileName()
+            );
+
+        if (!newProject)
+        {
+            gtError() << "Could not save project to new directory";
+            return false;
+        }
+
+        gtApp->loadingProcedure(gt::makeLoadingHelper([&newProject]() {
+                                    newProject->upgradeProjectData();
+                                }).get());
+
+        gtDataModel->newProject(newProject.release(), false);
+
+        return true;
+    }
 }
 
 GtProcessData*
