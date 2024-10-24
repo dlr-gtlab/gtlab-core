@@ -17,6 +17,13 @@
 
 GtAbstractProperty::~GtAbstractProperty() = default;
 
+class GtAbstractProperty::Impl
+{
+public:
+    /// Monitoring indicator
+    bool m_monitoring{false};
+};
+
 QVariant
 GtAbstractProperty::valueToVariant() const
 {
@@ -339,7 +346,28 @@ GtAbstractProperty::isConnected() const
     return const_cast<GtAbstractProperty*>(this)->isConnected();
 }
 
-GtAbstractProperty::GtAbstractProperty() = default;
+bool
+GtAbstractProperty::isMonitoring() const
+{
+    return m_pimpl->m_monitoring;
+}
+
+void
+GtAbstractProperty::setMonitoring(bool monitoring)
+{
+    if (monitoring)
+    {
+        setReadOnly(true);
+    }
+
+    m_pimpl->m_monitoring = monitoring;
+}
+
+GtAbstractProperty::GtAbstractProperty() :
+    m_pimpl{std::make_unique<GtAbstractProperty::Impl>()}
+{
+
+}
 
 void
 GtAbstractProperty::setValFromConnection()

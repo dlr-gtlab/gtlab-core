@@ -15,13 +15,12 @@
 #include "gt_core_exports.h"
 
 #include "gt_stringproperty.h"
-#include "gt_monitoringproperty.h"
 
 /**
  * @brief The GtStringMonitoringProperty class
  */
 class GT_CORE_EXPORT GtStringMonitoringProperty :
-        public GtStringProperty, public GtMonitoringProperty
+        public GtStringProperty
 {
     Q_OBJECT
 public:
@@ -51,6 +50,7 @@ namespace gt
 /**
  * @brief Creates a property factory for monitoring strings with a default value
  */
+[[deprecated("Use makeMonitoring(makeStringProperty(value)) instead")]]
 GT_CORE_EXPORT
 gt::PropertyFactoryFunction makeStringMonitoringProperty(QString value = "");
 

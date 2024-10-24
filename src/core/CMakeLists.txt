@@ -52,7 +52,6 @@ set(headers
     process_management/gt_taskrunner.h
     process_management/gt_loop.h
     process_management/gt_doublemonitoringproperty.h
-    process_management/gt_monitoringproperty.h
     process_management/gt_intmonitoringproperty.h
     process_management/gt_monitoringdata.h
     process_management/gt_monitoringdatatable.h
@@ -158,7 +157,6 @@ set(sources
     process_management/gt_taskrunner.cpp
     process_management/gt_loop.cpp
     process_management/gt_doublemonitoringproperty.cpp
-    process_management/gt_monitoringproperty.cpp
     process_management/gt_intmonitoringproperty.cpp
     process_management/gt_monitoringdata.cpp
     process_management/gt_monitoringdatatable.cpp
