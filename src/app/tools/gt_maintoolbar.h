@@ -46,6 +46,8 @@ public slots:
     void showProjectInfo();
 
 private:
+    void updateTheme();
+
     void makeConnections(GtMainWin*);
     bool projectHasInfo();
 };

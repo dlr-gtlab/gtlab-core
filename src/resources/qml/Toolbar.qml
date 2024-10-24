@@ -10,11 +10,13 @@ import QtQuick.Layouts 1.0
 Rectangle {
     implicitWidth: 1500
     implicitHeight: 50
-    property bool darkMode: toolbar.darkMode
-    color: darkMode ? "#152231" : "#f0f0f0"
     id: toolBar
 
+    property var theme: toolbar.theme
+
     property int spacing: 5
+
+    color: theme.baseColor
 
     Rectangle {
         id: leftOverlay
@@ -52,8 +54,8 @@ Rectangle {
                 ToolbarGroup {
                     actions: groupActions
                     name: groupName
-                    darkMode: toolBar.darkMode
                     visible: modelData.visible
+                    theme: toolBar.theme
                 }
             }
         }
@@ -68,7 +70,7 @@ Rectangle {
         anchors.leftMargin: toolBar.spacing
         anchors.right: statusActions.count > 0 ? statusActions.left : toolBar.right
         anchors.rightMargin: toolBar.spacing
-        color: toolBar.darkMode ? "#0a111f" : "#ffffff"
+        color: toolBar.theme.backgroundColor
         implicitHeight: toolBar.implicitHeight - 2 * toolBar.spacing
         y: toolBar.spacing
     }
@@ -79,6 +81,6 @@ Rectangle {
         anchors.right: parent.right
         actions: toolbar.statusActions
         name: "status"
-        darkMode: toolBar.darkMode
+        theme: toolBar.theme
     }
 }

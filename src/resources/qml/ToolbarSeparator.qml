@@ -4,7 +4,8 @@
 import QtQuick 2.15
 
 Item {
-    property bool darkMode: false
+    property var theme: null
+
     property int margin: 4
 
     width: sep.width + 2 * margin
@@ -15,7 +16,8 @@ Item {
 
         width: 2
         height: parent.height - 6
-        color: darkMode ? "#202c3c" : "#f0f0f0"
+        color: theme.dark_mode ? Qt.lighter(theme.baseColor,
+                                            1.2) : theme.baseColor
         anchors.centerIn: parent
     }
 }

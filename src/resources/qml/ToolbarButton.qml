@@ -10,7 +10,7 @@ Item {
 
     id: tbButton
     property ToolbarAction action: None
-    property bool darkMode: false
+    property var theme: null
 
     width: l.width
     height: l.height
@@ -40,19 +40,19 @@ Item {
 
             function bgColor() {
                 if (!checked)
-                    return "transparent"
-                else
-                    return darkMode ? "#1e2a3a" : "#efefef"
+                    return theme.backgroundColor
+                return Qt.tint(theme.backgroundColor, "#30999999")
             }
 
             custom_backgroundColor: bgColor()
 
             icon.source: tbButton.action ? tbButton.action.iconUrl : ""
-            darkMode: tbButton.darkMode
+            darkMode: tbButton.theme.darkMode
             tooltipText: tbButton.action ? tbButton.action.toolTip : ""
             hasTooltip: tooltipText != ""
             custom_Enabled: tbButton.enabled
             checkable: tbButton.action ? tbButton.action.checkable : false
+            custom_hoverColor: tbButton.theme.hoverColor
 
             function syncButtonCheckedState() {
                 if (b.checked !== tbButton.action.checked) {
@@ -79,7 +79,7 @@ Item {
         id: sep
 
         ToolbarSeparator {
-            darkMode: tbButton.darkMode
+            theme: tbButton.theme
         }
     }
 }
