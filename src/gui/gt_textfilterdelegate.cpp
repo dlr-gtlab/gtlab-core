@@ -11,13 +11,15 @@
 
 #include <QLineEdit>
 
+#include "gt_palette.h"
 #include "gt_regexp.h"
-#include "gt_logging.h"
 #include "gt_coredatamodel.h"
 #include "gt_application.h"
 #include "gt_project.h"
 #include "gt_objectui.h"
+#include "gt_colors.h"
 
+#include "gt_regexpvalidator.h"
 #include "gt_textfilterdelegate.h"
 
 GtTextFilterDelegate::GtTextFilterDelegate(QObject* parent,
@@ -33,43 +35,30 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
                                    const QStyleOptionViewItem& /*option*/,
                                    const QModelIndex& index) const
 {
-    QLineEdit* lineEdit = new QLineEdit(parent);
+    auto* lineEdit = new QLineEdit(parent);
 
-    QString uuid = index.data(GtCoreDatamodel::UuidRole).toString();
-
-    GtProject* proj = gtApp->currentProject();
-
-    /// Standart regExp
+    /// Standart regExp with hint and strict chcking rule set to active
     QRegExp regExp = gt::re::onlyLettersAndNumbers();
+    bool checkWhileEditing = true;
+    QString hint = gt::re::onlyLettersAndNumbersHint();
 
-    if (proj)
+    updateRegExpSetupByObject(index, regExp, hint, checkWhileEditing);
+
+    lineEdit->setValidator(new GtRegExpValidator(regExp, checkWhileEditing,
+                                                 hint, this->parent()));
+
+    connect(lineEdit, &QLineEdit::textChanged, lineEdit, [lineEdit, regExp](
+            const QString& text)
     {
-        GtObject* obj = proj->getObjectByUuid(uuid);
+        QPalette pal = gt::gui::currentTheme();
 
-        if (obj)
+        if (!regExp.exactMatch(text))
         {
-            if (m_validatorflag == uiFilter)
-            {
-                static GtObjectUI fallbackUI;
-
-                GtObjectUI* oui = gtApp->defaultObjectUI(obj);
-                if (!oui) oui = &fallbackUI;
-
-                if (oui->hasValidationRegExp())
-                {
-                    regExp = oui->validatorRegExp();
-                }
-            }
-            else if (m_validatorflag == allowSpaces)
-            {
-                regExp = gt::re::onlyLettersAndNumbersAndSpace();
-            }
+            pal.setColor(QPalette::Text, gt::gui::color::warningText());
         }
-    }
 
-    QValidator* validator = new QRegExpValidator(regExp, this->parent());
-
-    lineEdit->setValidator(validator);
+        lineEdit->setPalette(pal);
+    });
 
     return lineEdit;
 }
@@ -78,12 +67,43 @@ void
 GtTextFilterDelegate::setEditorData(QWidget* editor,
                                     const QModelIndex &index) const
 {
-    if (!index.isValid())
-    {
-        return;
-    }
+    if (!index.isValid()) return;
 
-    QLineEdit* lineEdit = static_cast<QLineEdit*>(editor);
+    auto* lineEdit = static_cast<QLineEdit*>(editor);
     QString val = index.data(Qt::DisplayRole).toString();
     lineEdit->setText(val);
+}
+
+void
+GtTextFilterDelegate::updateRegExpSetupByObject(const QModelIndex& index,
+                                                QRegExp& regExp,
+                                                QString& hint,
+                                                bool& checkWhileEditing) const
+{
+    if (GtProject* proj = gtApp->currentProject())
+    {
+        QString uuid = index.data(GtCoreDatamodel::UuidRole).toString();
+
+        if (GtObject* obj = proj->getObjectByUuid(uuid))
+        {
+            if (m_validatorflag == uiFilter)
+            {
+                static GtObjectUI fallbackUI;
+
+                GtObjectUI* oui = gtApp->defaultObjectUI(obj);
+                if (!oui) oui = &fallbackUI;
+
+                if (oui->hasValidationRegExp(obj))
+                {
+                    regExp = oui->validatorRegExp(obj);
+                    hint = oui->regExpHint(obj);
+                    checkWhileEditing = oui->regExpCheckWhileModificationEnabled(obj);
+                }
+            }
+            else if (m_validatorflag == allowSpaces)
+            {
+                regExp = gt::re::onlyLettersAndNumbersAndSpace();
+            }
+        }
+    }
 }

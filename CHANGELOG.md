@@ -14,13 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - New interface methods `GtPackage::readMiscData` and  `GtPackage::saveMiscData` to store package data outside of the package xml structure inside the project directory.
    Both methods have the project directory as an argument, hence workarounds like currentProject()->path() can be avoided - #617
+ - Unknown tasks (corrseponding module did not load) are now displayed as Dummy Objects in the `GtTaskGroup` - #612
 
 ### Changed
- - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts or actions. - #1298
+ - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts, separators or actions.
+   Also, actions can now have an on / off toggle state (i.e. toggle actions) - #1298, #1310
  - The system of monitoring properties is changed and do not use the GtMonitoring class anymore.
    Now the base properties can be used with the flag setMonitoring. 
    The remaining function registermonitoringProperty includes a call of this function. - #1239
-  
+ - Renaming elments in GTlab explorer and process dock widget extended to be able to give better feedback and allow sibling objects to be taken into account - #1304 
+
 ### Fixed
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
 

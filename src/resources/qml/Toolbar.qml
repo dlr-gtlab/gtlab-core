@@ -16,6 +16,23 @@ Rectangle {
 
     property int spacing: 5
 
+    Rectangle {
+        id: leftOverlay
+        width: spacing + spacer.radius
+        height: toolBar.height - spacing * 2
+        color: spacer.color
+        y: spacing
+    }
+
+    Rectangle {
+        id: rightOverlay
+        width: spacing + spacer.radius
+        height: toolBar.height - spacing * 2
+        color: spacer.color
+        anchors.right: toolBar.right
+        y: spacing
+    }
+
     // the list of groups
     Row {
         id: row

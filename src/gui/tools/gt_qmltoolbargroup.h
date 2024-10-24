@@ -74,6 +74,11 @@ public:
     bool append(GtQmlAction* action);
 
     /**
+     * @brief Adds a separator into the group at the current position
+     */
+    bool addSeparator();
+
+    /**
      * @brief Overloaded function to set all actions at once
      * @param data List of actions
      */
@@ -84,6 +89,19 @@ signals:
     void visibleChanged();
 
 private:
+    /**
+     * @brief Updates the visibility of the toolbar and its separators
+     * depending on the actions visibility
+     *
+     * - If no action is visible, the whole group gets invisible
+     *   since there is nothing to show
+     *
+     * - If no action is in front of any separator, the separator gets invisible
+     * - If no action is visible after a separator, it gets invisible as well
+     */
+    void updateVisibility();
+
+
     using Base = GtListModel<GtQmlAction*>;
 
     QString m_groupName;

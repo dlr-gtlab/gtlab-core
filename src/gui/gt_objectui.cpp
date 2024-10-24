@@ -21,10 +21,22 @@
 #include "gt_colors.h"
 #include "gt_application.h"
 
-GtObjectUI::GtObjectUI()
+class GtObjectUI::Impl
+{
+public:
+    QString m_regExpHint{tr("Only letters, numbers and spaces are allowed to "
+                            "be used for the renaming")};
+
+    bool m_regExpCheckWhileModification{true};
+};
+
+GtObjectUI::GtObjectUI() :
+    m_pimpl{std::make_unique<Impl>()}
 {
 
 }
+
+GtObjectUI::~GtObjectUI() = default;
 
 QVariant
 GtObjectUI::specificData(GtObject* /*obj*/,
@@ -205,6 +217,18 @@ GtObjectUI::getShortCut(const QString &id)
     return gtApp->getShortCutSequence(id, m->className());
 }
 
+void
+GtObjectUI::setRegExpHint(const QString& hint)
+{
+    m_pimpl->m_regExpHint = hint;
+}
+
+void
+GtObjectUI::setRegExpCheckWhileModificationEnabled(bool val)
+{
+    m_pimpl->m_regExpCheckWhileModification = val;
+}
+
 bool
 GtObjectUI::hasValidationRegExp()
 {
@@ -215,6 +239,30 @@ QRegExp
 GtObjectUI::validatorRegExp()
 {
     return gt::re::onlyLettersAndNumbersAndSpace();
+}
+
+bool
+GtObjectUI::hasValidationRegExp(GtObject* /*obj*/)
+{
+     return hasValidationRegExp();
+}
+
+QRegExp
+GtObjectUI::validatorRegExp(GtObject* /*obj*/)
+{
+    return validatorRegExp();
+}
+
+QString
+GtObjectUI::regExpHint(GtObject* /*obj*/)
+{
+    return m_pimpl->m_regExpHint;
+}
+
+bool
+GtObjectUI::regExpCheckWhileModificationEnabled(GtObject* /*obj*/)
+{
+    return m_pimpl->m_regExpCheckWhileModification;
 }
 
 QIcon

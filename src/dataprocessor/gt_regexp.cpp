@@ -10,7 +10,7 @@
  */
 
 #include "gt_regexp.h"
-
+#include <QObject>
 
 QRegExp
 gt::re::woUmlauts()
@@ -37,10 +37,22 @@ gt::re::onlyLetters()
     return QRegExp(("[A-Za-z]+"));
 }
 
+QString
+gt::re::onlyLettersHint()
+{
+    return QObject::tr("Only letters are allowed");
+}
+
 QRegExp
 gt::re::onlyLettersAndNumbers()
 {
     return QRegExp(("[A-Za-z0-9\\_\\-\\[\\]]+"));
+}
+
+QString
+gt::re::onlyLettersAndNumbersHint()
+{
+    return QObject::tr("Only letters and numbers are allowed");
 }
 
 QRegExp
@@ -49,10 +61,22 @@ gt::re::onlyLettersAndNumbersAndDot()
     return QRegExp(("[A-Za-z0-9\\.\\_\\-\\[\\]]+"));
 }
 
+QString
+gt::re::onlyLettersAndNumbersAndDotHint()
+{
+    return QObject::tr("Only letters, numbers, dots, hyphen and underscore are allowed");
+}
+
 QRegExp
 gt::re::onlyLettersAndNumbersAndSpace()
 {
     return QRegExp(("[A-Za-z0-9\\_\\-\\[\\]\\s\\␣]+"));
+}
+
+QString
+gt::re::onlyLettersAndNumbersAndSpaceHint()
+{
+    return QObject::tr("Only letters, numbers, space, hyphen and underscore are allowed");
 }
 
 QRegExp
@@ -101,3 +125,4 @@ gt::re::forFileDialogFilters()
 
     return r;
 }
+
