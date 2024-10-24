@@ -19,7 +19,6 @@
 #include "gt_objectpathproperty.h"
 #include "gt_environment.h"
 #include "gt_abstractrunnable.h"
-#include "gt_monitoringproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_structproperty.h"
 
@@ -50,9 +49,6 @@ struct GtProcessComponent::Impl
 
     /// Current process component state
     int progress;
-
-    /// Monitoring properties
-    QList<GtAbstractProperty*> monitorProperties;
 
     /// Container monitoring property references
     QList<GtPropertyReference> containerMonitorPropertyRefs;
@@ -85,13 +81,6 @@ GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
         return;
     }
 
-    // check whether property inherits from monitoring class
-    if (!dynamic_cast<GtMonitoringProperty*>(&property))
-    {
-        gtError() << tr("could not add a non monitoring property!");
-        return;
-    }
-
     // register property
     if (!registerProperty(property, QStringLiteral("Monitoring")))
     {
@@ -99,8 +88,7 @@ GtProcessComponent::registerMonitoringProperty(GtAbstractProperty& property)
         return;
     }
 
-    // append property to monitoring container
-    pimpl->monitorProperties << &property;
+    property.setMonitoring(true);
 }
 
 bool
@@ -201,10 +189,20 @@ GtProcessComponent::setProgress(int progress)
     emit progressStateChanged(pimpl->progress);
 }
 
-const QList<GtAbstractProperty*>&
+QList<GtAbstractProperty*>
 GtProcessComponent::monitoringProperties()
 {
-    return pimpl->monitorProperties;
+    // get all properties
+    QList<GtAbstractProperty*> retval = {};
+
+    // iterate over properties and remove all monitoring properties
+    for (GtAbstractProperty* prop : fullPropertyList())
+    {
+        if (prop->isMonitoring()) retval.append(prop);
+    }
+
+    // return list
+    return retval;
 }
 
 const QList<GtPropertyReference>&
@@ -222,7 +220,7 @@ GtProcessComponent::readWriteProperties()
     // iterate over properties and remove all monitoring properties
     foreach (GtAbstractProperty* prop, retval)
     {
-        if (pimpl->monitorProperties.contains(prop))
+        if (prop->isMonitoring())
         {
             retval.removeOne(prop);
         }
@@ -461,7 +459,9 @@ GtProcessComponent::onEntryAdded(const GtPropertyStructContainer& c, int idx)
     // of container monitoring properties
     for (auto* prop : entry.fullProperties())
     {
-        if (dynamic_cast<GtMonitoringProperty*>(prop))
+        if (!prop) continue;
+
+        if (prop->isMonitoring())
         {
             refs << GtPropertyReference{c.ident(), entry.ident(), prop->ident()};
         }

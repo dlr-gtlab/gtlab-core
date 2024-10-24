@@ -259,6 +259,14 @@ public:
      */
     bool isConnected();
     bool isConnected() const;
+
+    /**
+     * @brief isMonitoring
+     * @return true if property is initialized as monitoring
+     */
+    bool isMonitoring() const;
+
+    void setMonitoring(bool monitoring);
 protected:
     /**
      * @brief GtAbstractProperty
@@ -305,6 +313,11 @@ protected:
      * @brief setValFromConnection
      */
     virtual void setValFromConnection();
+
+private:
+    /// Private implementation
+    class Impl;
+    std::unique_ptr<Impl> m_pimpl;
 
 private slots:
     /**
