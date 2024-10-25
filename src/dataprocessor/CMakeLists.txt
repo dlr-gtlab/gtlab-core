@@ -174,7 +174,6 @@ target_include_directories(GTlabDataProcessor
 target_link_libraries(GTlabDataProcessor
     PUBLIC
       Qt5::Core
-      Qt5::Gui # for QValidator
       Qt5::Xml
       GTlab::Logging
     PRIVATE

@@ -16,10 +16,6 @@
 
 #include "gt_property.h"
 
-#include <memory>
-
-class QValidator;
-
 class GT_DATAMODEL_EXPORT GtStringProperty : public GtProperty<QString>
 {
     Q_OBJECT
@@ -48,7 +44,8 @@ public:
                      const QString& name,
                      const QString& brief,
                      const QString& value = QString(),
-                     QValidator* validator = nullptr);
+                     const QString& validationPattern =
+            "[A-Za-z0-9\\_\\-\\+\\^\\°\\/\\*\\.\\,\\(\\)\\[\\]]*");
 
     // operator overloads
     void operator+=(const QString& b);
@@ -72,12 +69,12 @@ public:
      * @brief validator
      * @return the validator to use
      */
-    QValidator* validator();
+    QString validator();
 
     ~GtStringProperty() override;
 
 protected:
-    std::unique_ptr<QValidator> m_validator;
+    QString m_validatorPattern;
 };
 
 namespace gt
