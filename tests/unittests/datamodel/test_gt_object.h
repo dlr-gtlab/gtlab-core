@@ -66,7 +66,7 @@ public:
         m_modeTypeProp("Test Type", QString()),
         m_linkProp("linkProp", "Test Link", QString(), QString(), this, {}),
         m_strProp("strProp", "Test String",  QString(), "Test",
-                   new QRegExpValidator(gt::re::onlyLettersAndNumbers(), this)),
+                  gt::re::onlyLettersAndNumbers().pattern()),
         m_varProp("variantProp", "Test Variant", QString()),
         m_doubleListProp("dblList", "Double List Property"),
         m_exDirProp("exDir", "Existing Directory", "Existing Directory Property"),
