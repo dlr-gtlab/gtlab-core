@@ -10,7 +10,6 @@
  */
 
 #include "gt_stringproperty.h"
-#include <QValidator>
 #include "gt_regexp.h"
 
 GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
