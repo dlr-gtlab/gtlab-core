@@ -285,8 +285,8 @@ GtPropertyItem::editorWidget(QWidget* parent,
 
             if (s)
             {
-                validator = new QRegExpValidator(QRegExp(s->validator()),
-                                                 lineEdit);
+                if (!s->validator().isEmpty()) 
+                    validator = new QRegExpValidator(QRegExp(s->validator()), lineEdit);
             }
             else if (p)
             {
