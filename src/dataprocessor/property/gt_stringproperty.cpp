@@ -21,7 +21,7 @@ GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
     m_unitCategory = GtUnit::Category::None;
     m_value = QString();
     m_initValue = QString();
-    m_validatorPattern = "[A-Za-z0-9\\_\\-\\+\\^\\°\\/\\*\\.\\,\\(\\)\\[\\]]*";
+    m_validatorPattern = gt::re::forExpressions().pattern();
 }
 
 GtStringProperty::GtStringProperty(const QString& ident,
