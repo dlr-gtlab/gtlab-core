@@ -342,6 +342,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         else
         {
             m_taskGroupModel->init({}, {});
+            m_expandedItemUuidsState = nullptr;
         }
 
         if (m_taskGroup)
@@ -390,7 +391,9 @@ QStringList
 GtProcessDock::expandedItemUuids() const
 {
     if (!m_expandedItemUuidsState)
+    {
         return {};
+    }
 
     return m_expandedItemUuidsState->getValue().toStringList();
 }
@@ -399,7 +402,9 @@ void
 GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
 {
     if (m_expandedItemUuidsState)
+    {
         m_expandedItemUuidsState->setValue(uuids);
+    }
 }
 
 void
@@ -2379,7 +2384,9 @@ void
 GtProcessDock::itemCollapsed(const QModelIndex& index)
 {
     if (!index.isValid())
+    {
         return;
+    }
 
     auto uuids = expandedItemUuids();
 
@@ -2392,14 +2399,18 @@ void
 GtProcessDock::itemExpanded(const QModelIndex& index)
 {
     if (!index.isValid())
+    {
         return;
+    }
 
     auto uuid = index.data(GtCoreDatamodel::UuidRole).toString();
 
     auto uuids = expandedItemUuids();
 
     if (!uuids.contains(uuid))
+    {
         uuids.append(uuid);
+    }
 
     setExpandedItemUuids(uuids);
 }
