@@ -12,13 +12,11 @@
 #include <gt_logging.h>
 
 GtRegExpValidator::GtRegExpValidator(const QRegExp& regExp,
-                                     bool strict, const QString &hint,
+                                     bool strict,
                                      QObject* parent) :
     QValidator(parent),
     m_regExp(regExp),
-    m_strict(strict),
-    m_hint(hint),
-    m_logHint(false)
+    m_strict(strict)
 {   
 }
 
@@ -37,20 +35,8 @@ GtRegExpValidator::validate(QString& input, int& pos) const
 
     if (input.isEmpty()) return QValidator::Intermediate;
 
-    if (m_strict)
-    {
-        retVal = QValidator::Invalid;
-    }
-    else
-    {
-        retVal = QValidator::Intermediate;
-    }
-
-    if (!m_logHint)
-    {
-        gtWarning() << tr("Failure while renaming: %1").arg(m_hint);
-        m_logHint = true;
-    }
+    if (m_strict) retVal = QValidator::Invalid;
+    else retVal = QValidator::Intermediate;
 
     return retVal;
 }

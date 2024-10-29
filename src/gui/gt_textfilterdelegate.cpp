@@ -46,9 +46,10 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
     updateRegExpSetupByObject(index, regExp, hint, checkWhileEditing);
 
     lineEdit->setValidator(new GtRegExpValidator(regExp, checkWhileEditing,
-                                                 hint, this->parent()));
+                                                 this->parent()));
 
-    connect(lineEdit, &QLineEdit::textChanged, lineEdit, [lineEdit, regExp, hint](
+    connect(lineEdit, &QLineEdit::textChanged,
+            lineEdit, [lineEdit, regExp, hint](
             const QString& text)
     {
         QPalette pal = gt::gui::currentTheme();
