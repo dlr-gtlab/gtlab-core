@@ -40,13 +40,14 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
 
     /// Standart regExp with hint and strict chcking rule set to active
     QRegExp regExp = gt::re::onlyLettersAndNumbers();
-    bool checkWhileEditing = true;
     QString hint = gt::re::onlyLettersAndNumbersHint();
 
-    updateRegExpSetupByObject(index, regExp, hint, checkWhileEditing);
+    updateRegExpSetupByObject(index, regExp, hint);
 
-    lineEdit->setValidator(new GtRegExpValidator(regExp, checkWhileEditing,
+    lineEdit->setValidator(new GtRegExpValidator(regExp, /*strict*/ false,
                                                  this->parent()));
+
+    lineEdit->setToolTip(hint);
 
     connect(lineEdit, &QLineEdit::textChanged,
             lineEdit, [lineEdit, regExp, hint](
@@ -57,10 +58,12 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
         if (!regExp.exactMatch(text))
         {
             pal.setColor(QPalette::Text, gt::gui::color::warningText());
-            lineEdit->setToolTip(hint);
-            QRect rect(0, 0, 10, 10);
             QToolTip::showText(lineEdit->mapToGlobal(QPoint(0, 0)), hint,
-                               lineEdit, rect);
+                               lineEdit);
+        }
+        else
+        {
+            QToolTip::hideText();
         }
 
         lineEdit->setPalette(pal);
@@ -83,8 +86,7 @@ GtTextFilterDelegate::setEditorData(QWidget* editor,
 void
 GtTextFilterDelegate::updateRegExpSetupByObject(const QModelIndex& index,
                                                 QRegExp& regExp,
-                                                QString& hint,
-                                                bool& checkWhileEditing) const
+                                                QString& hint) const
 {
     if (GtProject* proj = gtApp->currentProject())
     {
@@ -103,7 +105,6 @@ GtTextFilterDelegate::updateRegExpSetupByObject(const QModelIndex& index,
                 {
                     regExp = oui->validatorRegExp(obj);
                     hint = oui->regExpHint(obj);
-                    checkWhileEditing = oui->regExpCheckWhileModificationEnabled(obj);
                 }
             }
             else if (m_validatorflag == allowSpaces)

@@ -17,7 +17,7 @@ GtRegExpValidator::GtRegExpValidator(const QRegExp& regExp,
     QValidator(parent),
     m_regExp(regExp),
     m_strict(strict)
-{   
+{
 }
 
 const QRegExp&
