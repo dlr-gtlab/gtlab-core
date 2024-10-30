@@ -73,8 +73,7 @@ private:
      * @param checkWhileEditing to overwrite if offered by the used ui element
      */
     void updateRegExpSetupByObject(const QModelIndex& index, QRegExp& regExp,
-                                   QString& hint,
-                                   bool& checkWhileEditing) const;
+                                   QString& hint) const;
 };
 
 #endif // GTTEXTFILTERDELEGATE_H

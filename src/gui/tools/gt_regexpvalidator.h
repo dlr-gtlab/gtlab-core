@@ -26,12 +26,10 @@ public:
      * @param regExp - regular expression to use
      * @param strict - flag if the check should be as strict as in the
      * QRegExpValidator or with the check only at the end of change
-     * @param hint is used to help the user to understand what renaming
-     * is allowed an wht is not allowed
      * @param parent
      */
     GtRegExpValidator(const QRegExp& regExp, bool strict,
-                      const QString& hint, QObject* parent = nullptr);
+                      QObject* parent = nullptr);
 
     const QRegExp& regExp();
 
@@ -47,10 +45,6 @@ private:
     QRegExp m_regExp;
 
     bool m_strict;
-
-    QString m_hint;
-
-    mutable bool m_logHint;
 };
 
 #endif // GTREGEXPVALIDATOR_H

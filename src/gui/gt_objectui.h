@@ -149,14 +149,6 @@ public:
      */
     QString regExpHint(GtObject* obj);
 
-    /**
-     * @brief regExpCheckWhileModification
-     * @param obj
-     * @return true if the regular expression should be used while
-     * the element is renamed. False means that the regular expression is only
-     * checked in the end of the modification
-     */
-    bool regExpCheckWhileModificationEnabled(GtObject* obj);
 
 protected:
 
@@ -414,14 +406,6 @@ protected:
      */
     void setRegExpHint(QString const& hint);
 
-    /**
-     * @brief setRegExpCheckWhileModification
-     * @param obj
-     * @return set true if the regular expression should be used while
-     * the element is renamed. False means that the regular expression is only
-     * checked in the end of the modification
-     */
-    void setRegExpCheckWhileModificationEnabled(bool val);
 private:
 
     /// List of custom actions

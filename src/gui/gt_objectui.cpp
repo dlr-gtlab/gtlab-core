@@ -26,8 +26,6 @@ class GtObjectUI::Impl
 public:
     QString m_regExpHint{tr("Only letters, numbers and spaces are allowed to "
                             "be used for the renaming")};
-
-    bool m_regExpCheckWhileModification{true};
 };
 
 GtObjectUI::GtObjectUI() :
@@ -223,12 +221,6 @@ GtObjectUI::setRegExpHint(const QString& hint)
     m_pimpl->m_regExpHint = hint;
 }
 
-void
-GtObjectUI::setRegExpCheckWhileModificationEnabled(bool val)
-{
-    m_pimpl->m_regExpCheckWhileModification = val;
-}
-
 bool
 GtObjectUI::hasValidationRegExp()
 {
@@ -257,12 +249,6 @@ QString
 GtObjectUI::regExpHint(GtObject* /*obj*/)
 {
     return m_pimpl->m_regExpHint;
-}
-
-bool
-GtObjectUI::regExpCheckWhileModificationEnabled(GtObject* /*obj*/)
-{
-    return m_pimpl->m_regExpCheckWhileModification;
 }
 
 QIcon
