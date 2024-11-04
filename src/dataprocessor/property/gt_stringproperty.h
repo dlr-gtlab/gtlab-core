@@ -15,10 +15,8 @@
 #include "gt_datamodel_exports.h"
 
 #include "gt_property.h"
-
-#include <memory>
-
-class QValidator;
+#include "gt_regexp.h"
+#include <QRegularExpression>
 
 class GT_DATAMODEL_EXPORT GtStringProperty : public GtProperty<QString>
 {
@@ -43,12 +41,18 @@ public:
      * @param name
      * @param brief
      * @param value
+     * @param validationPattern - this regular expression can be set to validate the
+     * manipulation of the value. The default value is the GTRegExp "forExpressions"
+     * which means allowed are letter, numbers and a list of special
+     * characters which are related to usage
+     * in mathematical descriptions: _ - + ^ ° / * . , ( ) [ ]
      */
     GtStringProperty(const QString& ident,
                      const QString& name,
                      const QString& brief,
                      const QString& value = QString(),
-                     QValidator* validator = nullptr);
+                     const QRegularExpression& validationPattern =
+                        QRegularExpression(gt::re::forExpressions().pattern()));
 
     // operator overloads
     void operator+=(const QString& b);
@@ -72,12 +76,12 @@ public:
      * @brief validator
      * @return the validator to use
      */
-    QValidator* validator();
+    const QRegularExpression& validator();
 
     ~GtStringProperty() override;
 
 protected:
-    std::unique_ptr<QValidator> m_validator;
+    QRegularExpression m_validatorPattern;
 };
 
 namespace gt

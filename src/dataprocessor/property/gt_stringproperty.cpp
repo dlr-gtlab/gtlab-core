@@ -10,11 +10,9 @@
  */
 
 #include "gt_stringproperty.h"
-#include <QValidator>
 #include "gt_regexp.h"
 
-GtStringProperty::GtStringProperty(const QString& ident, const QString& name) :
-    m_validator(std::make_unique<QRegExpValidator>(gt::re::forExpressions()))
+GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
 {
     setObjectName(name);
 
@@ -23,13 +21,14 @@ GtStringProperty::GtStringProperty(const QString& ident, const QString& name) :
     m_unitCategory = GtUnit::Category::None;
     m_value = QString();
     m_initValue = QString();
+    m_validatorPattern = QRegularExpression(gt::re::forExpressions().pattern());
 }
 
 GtStringProperty::GtStringProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief,
                                    const QString& value,
-                                   QValidator* validator)
+                                   const QRegularExpression& validationPattern)
 {
     setObjectName(name);
 
@@ -39,15 +38,7 @@ GtStringProperty::GtStringProperty(const QString& ident,
     m_value = value;
     m_initValue = value;
 
-    if (validator)
-    {
-        m_validator.reset(validator);
-    }
-    else
-    {
-        m_validator = std::make_unique<QRegExpValidator>(
-                    gt::re::forExpressions());
-    }
+    m_validatorPattern = validationPattern;
 }
 
 void
@@ -75,10 +66,10 @@ GtStringProperty::setValueFromVariant(const QVariant& val,
 }
 
 
-QValidator*
+QRegularExpression const&
 GtStringProperty::validator()
 {
-    return m_validator.get();
+    return m_validatorPattern;
 }
 
 GtStringProperty::~GtStringProperty() = default;

@@ -82,31 +82,31 @@ gt::re::onlyLettersAndNumbersAndSpaceHint()
 QRegExp
 gt::re::forUnits()
 {
-    return QRegExp(("[A-Za-z0-9\\_\\-\\+\\^\\°\\%\\/]*"));
+    return QRegExp("[A-Za-z0-9\\_\\-\\+\\^\\°\\%\\/]*");
 }
 
 QRegExp
 gt::re::forExpressions()
 {
-    return QRegExp(("[A-Za-z0-9\\_\\-\\+\\^\\°\\/\\*\\.\\,\\(\\)\\[\\]]*"));
+    return QRegExp("[A-Za-z0-9\\_\\-\\+\\^\\°\\/\\*\\.\\,\\(\\)\\[\\]]*");
 }
 
 QRegExp
 gt::re::forStations()
 {
-    return QRegExp(("S[0-9]{1,3}"));
+    return QRegExp("S[0-9]{1,3}");
 }
 
 QRegExp
 gt::re::forDoubles()
 {
-    return QRegExp(("-?[0-9]+.*[E,e]?-?[0-9]*"));
+    return QRegExp("-?[0-9]+.*[E,e]?-?[0-9]*");
 }
 
 QRegExp
 gt::re::forDoublesLists()
 {
-    return QRegExp(("[eE0-9\\-\\.\\;]+"));
+    return QRegExp("[eE0-9\\-\\.\\;]+");
 }
 
 QRegExp

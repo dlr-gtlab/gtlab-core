@@ -13,7 +13,6 @@
 #define TEST_GT_OBJECT_H
 
 #include <QPointF>
-#include <QRegExpValidator>
 
 #include "gt_objectgroup.h"
 
@@ -31,7 +30,6 @@
 #include "gt_doublelistproperty.h"
 #include "gt_existingdirectoryproperty.h"
 #include "gt_openfilenameproperty.h"
-#include "gt_regexp.h"
 #include "test_propertycontainerobject.h"
 
 class TestSpecialGtObject : public GtObjectGroup
@@ -66,7 +64,7 @@ public:
         m_modeTypeProp("Test Type", QString()),
         m_linkProp("linkProp", "Test Link", QString(), QString(), this, {}),
         m_strProp("strProp", "Test String",  QString(), "Test",
-                   new QRegExpValidator(gt::re::onlyLettersAndNumbers(), this)),
+                  QRegularExpression(gt::re::onlyLettersAndNumbers().pattern())),
         m_varProp("variantProp", "Test Variant", QString()),
         m_doubleListProp("dblList", "Double List Property"),
         m_exDirProp("exDir", "Existing Directory", "Existing Directory Property"),
