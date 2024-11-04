@@ -41,8 +41,8 @@ public:
      * @param name
      * @param brief
      * @param value
-     * @param validationPattern - this pattern can be set for validation of
-     * vale manipulation. The default value is the GTRegExp "forExpressions"
+     * @param validationPattern - this regular expression can be set to validate the
+     * manipulation of the value. The default value is the GTRegExp "forExpressions"
      * which means allowed are letter, numbers and a list of special
      * characters which are related to usage
      * in mathematical descriptions: _ - + ^ ° / * . , ( ) [ ]
