@@ -21,14 +21,14 @@ GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
     m_unitCategory = GtUnit::Category::None;
     m_value = QString();
     m_initValue = QString();
-    m_validatorPattern = gt::re::forExpressions().pattern();
+    m_validatorPattern = QRegularExpression(gt::re::forExpressions().pattern());
 }
 
 GtStringProperty::GtStringProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief,
                                    const QString& value,
-                                   const QString& validationPattern)
+                                   const QRegularExpression& validationPattern)
 {
     setObjectName(name);
 
@@ -66,7 +66,7 @@ GtStringProperty::setValueFromVariant(const QVariant& val,
 }
 
 
-QString
+QRegularExpression const&
 GtStringProperty::validator()
 {
     return m_validatorPattern;
