@@ -247,6 +247,10 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     ui->qmlToolBar->setStyleSheet("QToolBar { margin: 0px; padding: 0px; border: none;}");
     ui->qmlToolBar->addWidget(m_mainWindowToolbar);
+
+    loadPerspectiveSettings();
+    emit gtApp->themeChanged(gtApp->inDarkMode());
+
 }
 
 GtMainWin::~GtMainWin()
@@ -1146,8 +1150,6 @@ GtMainWin::initAfterStartup()
 
         e->initAfterStartup();
     });
-
-    loadPerspectiveSettings();
 
     m_firstTimeShowEvent = false;
 }
