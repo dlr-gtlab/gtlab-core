@@ -389,6 +389,7 @@ GtProcessDock::updateTaskGroupRootIndex()
         {
             m_view->setRootIndex(index);
             restoreExpandStates();
+            m_view->setCurrentIndex({});
         }
     }
 }
@@ -2390,11 +2391,6 @@ void
 GtProcessDock::endResetView()
 {
     updateTaskGroupRootIndex();
-
-    connect(m_view->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
-            Qt::UniqueConnection);
 }
 
 void
