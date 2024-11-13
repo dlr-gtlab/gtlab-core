@@ -324,6 +324,8 @@ GtProcessData::renameTaskGroup(const QString& taskGroupId,
         return false;
     }
 
+    auto currentGroup = taskGroup();
+
     if (!oldDir.rename(taskGroupId, taskGroupIdNew))
     {
         gtError() << QObject::tr("could not rename task group path!");
@@ -331,6 +333,11 @@ GtProcessData::renameTaskGroup(const QString& taskGroupId,
     }
 
     group->setObjectName(taskGroupIdNew);
+
+    if (group == currentGroup)
+    {
+        switchCurrentTaskGroup(taskGroupIdNew, scope, projectPath);
+    }
 
     return true;
 }

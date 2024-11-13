@@ -59,6 +59,7 @@
 #include "gt_taskgroupmodel.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
+#include "gt_editablecombobox.h"
 
 #include "gt_processdock.h"
 
@@ -147,7 +148,7 @@ GtProcessDock::GtProcessDock() :
     m_view->setEditTriggers(QTreeView::SelectedClicked);
 
     // task group overview and selection
-    m_taskGroupSelection = new QComboBox;
+    m_taskGroupSelection = new GtEditableComboBox;
 
     m_taskGroupModel = new GtTaskGroupModel(this);
     m_taskGroupSelection->setModel(m_taskGroupModel);
@@ -222,6 +223,11 @@ GtProcessDock::GtProcessDock() :
 
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
+
+    connect(m_taskGroupSelection, SIGNAL(editRequested(int)), this,
+            SLOT(renameTaskGroupRequested(int)));
+    connect(m_taskGroupSelection, SIGNAL(editingFinished(int, QString, QString)), this,
+            SLOT(renameTaskGroupFinished(int, QString, QString)));
 
     // open process queue via main window
     connect(m_processQueueButton, &QPushButton::clicked, this, [&](bool){
@@ -405,6 +411,17 @@ GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
     {
         m_expandedItemUuidsState->setValue(uuids);
     }
+}
+
+bool
+GtProcessDock::isTaskGroupRenameable(int index) const
+{
+    if (!m_taskGroupModel)
+    {
+        return false;
+    }
+
+    return m_taskGroupModel->rowScope(index) == GtTaskGroup::CUSTOM;
 }
 
 void
@@ -2413,6 +2430,34 @@ GtProcessDock::itemExpanded(const QModelIndex& index)
     }
 
     setExpandedItemUuids(uuids);
+}
+
+void
+GtProcessDock::renameTaskGroupRequested(int index)
+{
+    if (isTaskGroupRenameable(index))
+    {
+        m_taskGroupSelection->enableEditing();
+    }
+}
+
+void
+GtProcessDock::renameTaskGroupFinished(int index, const QString& oldName,
+                                       const QString& newName)
+{
+    if (!m_project || !m_project->processData() || !m_taskGroupModel)
+    {
+        return;
+    }
+
+    m_project->processData()->renameTaskGroup(
+                oldName, newName, m_taskGroupModel->rowScope(index),
+                m_project->path());
+
+    m_taskGroupModel->init(m_project->processData()->userGroupIds(),
+                           m_project->processData()->customGroupIds());
+
+    m_taskGroupSelection->setCurrentIndex(index);
 }
 
 bool

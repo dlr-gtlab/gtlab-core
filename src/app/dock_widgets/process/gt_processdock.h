@@ -35,6 +35,7 @@ class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
 class GtState;
+class GtEditableComboBox;
 
 /**
  * @brief The GtProcessDock class
@@ -142,7 +143,7 @@ protected:
 
 private:
     /// Combobox for task group selection
-    QComboBox* m_taskGroupSelection;
+    GtEditableComboBox* m_taskGroupSelection;
 
     /// Button to run selected process
     QPushButton* m_runButton;
@@ -347,6 +348,8 @@ private:
      */
     void setExpandedItemUuids(const QStringList& uuids);
 
+    bool isTaskGroupRenameable(int index) const;
+
 private slots:
     /**
      * @brief filterData
@@ -486,6 +489,11 @@ private slots:
      * @param index The index of the item that was expanded.
      */
     void itemExpanded(const QModelIndex& index);
+
+    void renameTaskGroupRequested(int index);
+
+    void renameTaskGroupFinished(int index, const QString& oldName,
+                                 const QString& newName);
 
 signals:
     /**
