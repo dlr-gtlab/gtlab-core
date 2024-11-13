@@ -57,6 +57,8 @@
 #include "gt_guiutilities.h"
 #include "gt_taskgroup.h"
 #include "gt_taskgroupmodel.h"
+#include "gt_statehandler.h"
+#include "gt_state.h"
 
 #include "gt_processdock.h"
 
@@ -78,7 +80,8 @@ GtProcessDock::GtProcessDock() :
     m_taskGroup(nullptr),
     m_currentProcess(nullptr),
     m_project(nullptr),
-    m_actionMapper(new QSignalMapper(this))
+    m_actionMapper(new QSignalMapper(this)),
+    m_expandedItemUuidsState(nullptr)
 {
     setObjectName(tr("Processes/Calculators"));
 
@@ -159,6 +162,31 @@ GtProcessDock::GtProcessDock() :
 
     widget->setLayout(layout);
 
+    m_model = new GtProcessComponentModel(this);
+    m_filterModel = new GtProcessFilterModel(m_model);
+    m_model->setSourceModel(gtDataModel);
+    m_filterModel->setSourceModel(m_model);
+    m_view->setModel(m_filterModel);
+
+    connect(m_model,
+            SIGNAL(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
+            SLOT(onRowsAboutToBeMoved()));
+    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
+            SLOT(onRowsMoved()));
+
+    connect(m_view->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
+            Qt::UniqueConnection);
+
+    connect(m_view, SIGNAL(collapsed(QModelIndex)), this,
+            SLOT(itemCollapsed(QModelIndex)));
+    connect(m_view, SIGNAL(expanded(QModelIndex)), this,
+            SLOT(itemExpanded(QModelIndex)));
+
+    connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
+            SLOT(endResetView()), Qt::DirectConnection);
+
     connect(gtApp, &GtApplication::themeChanged, this, [&](){
         m_addElementButton->setStyleSheet(gt::gui::stylesheet::button());
         updateRunButton();
@@ -220,6 +248,7 @@ GtProcessDock::GtProcessDock() :
             gtApp, SIGNAL(objectSelected(GtObject*)));
     connect(m_actionMapper, SIGNAL(mapped(QObject*)),
             SLOT(actionTriggered(QObject*)));
+
 
     registerShortCut("runProcess", QKeySequence(Qt::CTRL + Qt::Key_R));
     registerShortCut("unskipProcess", QKeySequence(Qt::CTRL + Qt::Key_T));
@@ -303,16 +332,27 @@ GtProcessDock::projectChangedEvent(GtProject* project)
             connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
                     SLOT(currentTaskGroupIndexChanged(int)));
 
+
+            m_expandedItemUuidsState = gtStateHandler->initializeState(
+                        project, QStringLiteral("Project Settings"),
+                        QStringLiteral("Expanded Process Dock Item UUIDs"),
+                        project->objectPath() + ";expandPdItemUuids",
+                        QStringList(), project);
+        }
+        else
+        {
+            m_taskGroupModel->init({}, {});
+            m_expandedItemUuidsState = nullptr;
         }
 
         if (m_taskGroup)
         {
             m_taskGroupSelection->setCurrentText(m_taskGroup->objectName());
         }
-    }
 
-    // update current task group
-    updateCurrentTaskGroup();
+        // update current task group
+        updateCurrentTaskGroup();
+    }
 }
 
 void
@@ -320,27 +360,51 @@ GtProcessDock::updateCurrentTaskGroup()
 {
     setCurrentProcess();
 
-    delete m_model;
-    m_model = new GtProcessComponentModel(this);
-    m_filterModel = new GtProcessFilterModel(m_model);
-    m_model->setSourceModel(gtDataModel);
-    m_filterModel->setSourceModel(m_model);
-
-    connect(m_model,
-            SIGNAL(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
-            SLOT(onRowsAboutToBeMoved()));
-    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-            SLOT(onRowsMoved()));
-
     updateButtons(m_taskGroup);
+
+    updateTaskGroupRootIndex();
 
     if (m_taskGroup)
     {
         filterData(m_search->text());
     }
 
-    m_view->expandAll();
     m_view->resizeColumns();
+}
+
+void
+GtProcessDock::updateTaskGroupRootIndex()
+{
+    if (m_taskGroup)
+    {
+        auto index = mapFromSource(gtDataModel->indexFromObject(m_taskGroup));
+
+        if (index.isValid() && m_view->rootIndex() != index)
+        {
+            m_view->setRootIndex(index);
+            restoreExpandStates();
+        }
+    }
+}
+
+QStringList
+GtProcessDock::expandedItemUuids() const
+{
+    if (!m_expandedItemUuidsState)
+    {
+        return {};
+    }
+
+    return m_expandedItemUuidsState->getValue().toStringList();
+}
+
+void
+GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
+{
+    if (m_expandedItemUuidsState)
+    {
+        m_expandedItemUuidsState->setValue(uuids);
+    }
 }
 
 void
@@ -615,33 +679,7 @@ GtProcessDock::filterData(const QString& val)
 
     m_filterModel->setFilterRegExp(val);
 
-    if (m_rootIndex.isValid())
-    {
-        return;
-    }
-
-    m_view->setModel(nullptr);
-
-    if (m_taskGroup)
-    {
-        QModelIndex srcIndex = gtDataModel->indexFromObject(m_taskGroup);
-        QModelIndex index = mapFromSource(srcIndex);
-
-        m_rootIndex = QPersistentModelIndex(index);
-
-        if (m_rootIndex.isValid())
-        {
-            m_view->setModel(m_filterModel);
-            m_view->setRootIndex(m_rootIndex);
-            connect(m_view->selectionModel(),
-                    SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                    SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
-                    Qt::UniqueConnection);
-            m_view->setCurrentIndex(QModelIndex());
-        }
-    }
-
-    m_view->resizeColumns();
+    updateTaskGroupRootIndex();
 }
 
 void
@@ -1292,6 +1330,46 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
     gt::gui::addToMenu(delete_, menu, first, this);
 
     menu.exec(QCursor::pos());
+}
+
+void
+GtProcessDock::restoreExpandStates()
+{
+    auto rootIndex = m_view->rootIndex();
+
+    if (rootIndex.isValid() && rootIndex.model() == m_filterModel)
+    {
+        m_view->setUpdatesEnabled(false);
+
+        restoreExpandStatesHelper(expandedItemUuids(),
+                                  m_filterModel->index(0, 0, rootIndex));
+
+        m_view->setUpdatesEnabled(true);
+    }
+}
+
+void
+GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedUuids,
+                                         const QModelIndex& startIndex)
+{
+    if (!startIndex.isValid())
+        return;
+
+    auto model = startIndex.model();
+
+    for (const auto& uuid : expandedUuids)
+    {
+        auto matchedIndices = model->match(startIndex,
+                                           GtCoreDatamodel::UuidRole,
+                                           QVariant::fromValue(uuid));
+
+        for (const auto& index : qAsConst(matchedIndices))
+        {
+            m_view->setExpanded(index, true);
+            restoreExpandStatesHelper(expandedUuids,
+                                      model->index(0, 0, index));
+        }
+    }
 }
 
 void
@@ -2289,7 +2367,52 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
 
     m_taskGroup = m_project->processData()->taskGroup();
     updateCurrentTaskGroup();
+}
 
+void
+GtProcessDock::endResetView()
+{
+    updateTaskGroupRootIndex();
+
+    connect(m_view->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
+            Qt::UniqueConnection);
+}
+
+void
+GtProcessDock::itemCollapsed(const QModelIndex& index)
+{
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    auto uuids = expandedItemUuids();
+
+    uuids.removeOne(index.data(GtCoreDatamodel::UuidRole).toString());
+
+    setExpandedItemUuids(uuids);
+}
+
+void
+GtProcessDock::itemExpanded(const QModelIndex& index)
+{
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    auto uuid = index.data(GtCoreDatamodel::UuidRole).toString();
+
+    auto uuids = expandedItemUuids();
+
+    if (!uuids.contains(uuid))
+    {
+        uuids.append(uuid);
+    }
+
+    setExpandedItemUuids(uuids);
 }
 
 bool
