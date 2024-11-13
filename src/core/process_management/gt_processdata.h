@@ -101,14 +101,11 @@ public:
      * @brief Creates new task group.
      * @param taskGroupId Identification string of new task group
      * @param scope Task group target scope
-     * @param projectPath
      * @return newly created task group. nullptr is returned if task group
      * creation failed.
      */
     GtTaskGroup* createNewTaskGroup(const QString& taskGroupId,
-                                    GtTaskGroup::SCOPE scope,
-                                    const QString& projectPath);
-
+                                    GtTaskGroup::SCOPE scope);
     /**
      * @brief Renames task group
      * @param taskGroupId Identification string of task group to be renamed
@@ -122,6 +119,23 @@ public:
                          const QString& taskGroupIdNew,
                          GtTaskGroup::SCOPE scope,
                          const QString& projectPath);
+
+    /**
+     * @brief Deletes the specified Task Group from the process data.
+     * @param taskGroupId The ID of the Task Group to be deleted.
+     * @param scope The scope in which the Task Group is located.
+     * @return True if the Task Group was successfully deleted; otherwise false.
+     */
+    bool deleteTaskGroup(const QString& taskGroupId,
+                         GtTaskGroup::SCOPE scope);
+
+    /**
+     * @brief Initializes all Task Groups for the given project.
+     * @param projectPath The path to the project directory.
+     * @return True if all Task Groups were successfully initialized;
+     * otherwise false.
+     */
+    bool initAllTaskGroups(const QString& projectPath);
 
     /**
      * @brief Returns list of task group identification strings in user scope.
