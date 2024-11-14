@@ -85,8 +85,6 @@ GtEditableComboBox::onEditingFinished()
     auto newText = lineEdit()->text();
 
     disableEditing();
-
     emit editingFinished(currentIndex(), m_textBeforeEditing, newText);
-
     m_textBeforeEditing = "";
 }

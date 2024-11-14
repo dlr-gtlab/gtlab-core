@@ -154,6 +154,15 @@ private:
     /// Button to open the process queue
     QPushButton* m_processQueueButton;
 
+    /// Button to add a new custom task group
+    QPushButton* m_addTaskGroupBtn;
+
+    /// Button to delete the currently selected task group
+    QPushButton* m_delTaskGroupBtn;
+
+    /// Button to delete the currently selected task group
+    QPushButton* m_renameTaskGroupBtn;
+
     /// Tree view
     GtProcessView* m_view;
 
@@ -347,6 +356,8 @@ private:
      * @param uuids A list of UUIDs representing the expanded process items.
      */
     void setExpandedItemUuids(const QStringList& uuids);
+
+    bool isTaskGroupDeletable(int index) const;
 
     bool isTaskGroupRenameable(int index) const;
 

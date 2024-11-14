@@ -149,14 +149,60 @@ GtProcessDock::GtProcessDock() :
 
     // task group overview and selection
     m_taskGroupSelection = new GtEditableComboBox;
+    m_taskGroupSelection->setEnabled(false);
 
     m_taskGroupModel = new GtTaskGroupModel(this);
     m_taskGroupSelection->setModel(m_taskGroupModel);
 
+    m_addTaskGroupBtn = new QPushButton;
+    m_addTaskGroupBtn->setIcon(gt::gui::icon::add());
+    m_addTaskGroupBtn->setToolTip(tr("Add new custom Task Group"));
+    m_addTaskGroupBtn->setEnabled(false);
+    m_addTaskGroupBtn->setStyleSheet(gt::gui::stylesheet::button() +
+                                     "QAbstractButton{"
+                                     " min-width: 25px;"
+                                     " max-width: 25px;"
+                                     "}");
+
+    m_delTaskGroupBtn = new QPushButton;
+    m_delTaskGroupBtn->setIcon(gt::gui::icon::remove());
+    m_delTaskGroupBtn->setToolTip(tr("Delete currently selected custom Task "
+                                     "Group"));
+    m_delTaskGroupBtn->setEnabled(false);
+    m_delTaskGroupBtn->setStyleSheet(gt::gui::stylesheet::button() +
+                                     "QAbstractButton{"
+                                     " min-width: 25px;"
+                                     " max-width: 25px;"
+                                     "}");
+
+    m_renameTaskGroupBtn = new QPushButton;
+    m_renameTaskGroupBtn->setIcon(gt::gui::icon::rename());
+    m_renameTaskGroupBtn->setToolTip(tr("Rename currently selected custom Task "
+                                        "Group"));
+    m_renameTaskGroupBtn->setEnabled(false);
+    m_renameTaskGroupBtn->setStyleSheet(gt::gui::stylesheet::button() +
+                                        "QAbstractButton{"
+                                        " min-width: 25px;"
+                                        " max-width: 25px;"
+                                        "}");
+
+    auto tgBtnLayout = new QHBoxLayout;
+    tgBtnLayout->setContentsMargins(0, 0, 0, 0);
+    tgBtnLayout->setSpacing(1);
+    tgBtnLayout->addWidget(m_addTaskGroupBtn);
+    tgBtnLayout->addWidget(m_delTaskGroupBtn);
+    tgBtnLayout->addWidget(m_renameTaskGroupBtn);
+
+    auto tgLayout = new QHBoxLayout;
+    tgLayout->setContentsMargins(0, 0, 0, 0);
+    tgLayout->setSpacing(1);
+    tgLayout->addWidget(m_taskGroupSelection);
+    tgLayout->addLayout(tgBtnLayout);
+
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(2);
-    layout->addWidget(m_taskGroupSelection);
+    layout->addLayout(tgLayout);
     layout->addLayout(btnLayout);
 
     layout->addWidget(frame);
@@ -329,6 +375,9 @@ GtProcessDock::projectChangedEvent(GtProject* project)
             initTaskGroupModel(project->processData()->userGroupIds(),
                                project->processData()->customGroupIds());
 
+            m_taskGroupSelection->setEnabled(true);
+            m_addTaskGroupBtn->setEnabled(true);
+
             m_expandedItemUuidsState = gtStateHandler->initializeState(
                         project, QStringLiteral("Project Settings"),
                         QStringLiteral("Expanded Process Dock Item UUIDs"),
@@ -338,6 +387,12 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         else
         {
             initTaskGroupModel({}, {});
+
+            m_taskGroupSelection->setEnabled(false);
+            m_addTaskGroupBtn->setEnabled(false);
+            m_delTaskGroupBtn->setEnabled(false);
+            m_renameTaskGroupBtn->setEnabled(false);
+
             m_expandedItemUuidsState = nullptr;
         }
 
@@ -405,7 +460,7 @@ GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
 }
 
 bool
-GtProcessDock::isTaskGroupRenameable(int index) const
+GtProcessDock::isTaskGroupDeletable(int index) const
 {
     if (!m_taskGroupModel)
     {
@@ -413,6 +468,12 @@ GtProcessDock::isTaskGroupRenameable(int index) const
     }
 
     return m_taskGroupModel->rowScope(index) == GtTaskGroup::CUSTOM;
+}
+
+bool
+GtProcessDock::isTaskGroupRenameable(int index) const
+{
+    return isTaskGroupDeletable(index);
 }
 
 void
@@ -2395,6 +2456,10 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
                 m_project->path());
 
     m_taskGroup = m_project->processData()->taskGroup();
+
+    m_delTaskGroupBtn->setEnabled(isTaskGroupDeletable(index));
+    m_renameTaskGroupBtn->setEnabled(isTaskGroupRenameable(index));
+
     updateCurrentTaskGroup();
 }
 
