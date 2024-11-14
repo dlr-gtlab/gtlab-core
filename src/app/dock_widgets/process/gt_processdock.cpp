@@ -55,7 +55,6 @@
 #include "gt_icons.h"
 #include "gt_utilities.h"
 #include "gt_guiutilities.h"
-#include "gt_taskgroup.h"
 #include "gt_taskgroupmodel.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
@@ -270,10 +269,14 @@ GtProcessDock::GtProcessDock() :
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
 
+    connect(m_renameTaskGroupBtn, SIGNAL(clicked(bool)), this,
+            SLOT(renameTaskGroupRequested()));
+
     connect(m_taskGroupSelection, SIGNAL(editRequested(int)), this,
-            SLOT(renameTaskGroupRequested(int)));
-    connect(m_taskGroupSelection, SIGNAL(editingFinished(int, QString, QString)), this,
-            SLOT(renameTaskGroupFinished(int, QString, QString)));
+            SLOT(renameTaskGroupRequested()));
+    connect(m_taskGroupSelection,
+            SIGNAL(editingFinished(int,QString,QString)), this,
+            SLOT(renameTaskGroupFinished(int,QString,QString)));
 
     // open process queue via main window
     connect(m_processQueueButton, &QPushButton::clicked, this, [&](bool){
@@ -372,8 +375,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         {
             m_taskGroup = project->processData()->taskGroup();
 
-            initTaskGroupModel(project->processData()->userGroupIds(),
-                               project->processData()->customGroupIds());
+            resetTaskGroupModel();
 
             m_taskGroupSelection->setEnabled(true);
             m_addTaskGroupBtn->setEnabled(true);
@@ -480,21 +482,34 @@ void
 GtProcessDock::initTaskGroupModel(const QStringList& userGroups,
                                   const QStringList& customGroups)
 {
-    if (!m_taskGroupSelection || !m_taskGroupModel)
-    {
-        return;
-    }
-
     // add entries for all existing groups. avoid index change signals
     // to avoid wrong behavior
     disconnect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
                this, SLOT(currentTaskGroupIndexChanged(int)));
+
 
     // add entries for all existing groups
     m_taskGroupModel->init(userGroups, customGroups);
 
     connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
             SLOT(currentTaskGroupIndexChanged(int)));
+}
+
+void
+GtProcessDock::resetTaskGroupModel()
+{
+    if (!m_project || !m_project->processData())
+    {
+        return;
+    }
+
+    auto userGroups = m_project->processData()->userGroupIds();
+    auto customGroups = m_project->processData()->customGroupIds();
+
+    userGroups.sort(Qt::CaseInsensitive);
+    customGroups.sort(Qt::CaseInsensitive);
+
+    initTaskGroupModel(userGroups, customGroups);
 }
 
 void
@@ -720,6 +735,24 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
     m_view->edit(index);
 }
 
+bool
+GtProcessDock::addTaskGroup(GtTaskGroup::SCOPE scope, const QString& name)
+{
+    if (!m_project || !m_project->processData())
+    {
+        return false;
+    }
+
+    if (!m_project->processData()->createNewTaskGroup(
+                name, scope, m_project->path()))
+    {
+        return false;
+    }
+
+    resetTaskGroupModel();
+
+    return true;
+}
 
 GtTask*
 GtProcessDock::findRootTaskHelper(GtObject* obj)
@@ -2451,9 +2484,7 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
     }
 
     m_project->processData()->switchCurrentTaskGroup(
-                m_taskGroupSelection->itemText(index),
-                scope,
-                m_project->path());
+                groupId, scope, m_project->path());
 
     m_taskGroup = m_project->processData()->taskGroup();
 
@@ -2505,9 +2536,9 @@ GtProcessDock::itemExpanded(const QModelIndex& index)
 }
 
 void
-GtProcessDock::renameTaskGroupRequested(int index)
+GtProcessDock::renameTaskGroupRequested()
 {
-    if (isTaskGroupRenameable(index))
+    if (isTaskGroupRenameable(m_taskGroupSelection->currentIndex()))
     {
         m_taskGroupSelection->enableEditing();
     }
@@ -2517,19 +2548,23 @@ void
 GtProcessDock::renameTaskGroupFinished(int index, const QString& oldName,
                                        const QString& newName)
 {
-    if (!m_project || !m_project->processData() || !m_taskGroupModel)
+    if (!m_project || !m_project->processData())
     {
         return;
     }
 
-    m_project->processData()->renameTaskGroup(
-                oldName, newName, m_taskGroupModel->rowScope(index),
-                m_project->path());
+    auto scope = m_taskGroupModel->rowScope(index);
 
-    initTaskGroupModel(m_project->processData()->userGroupIds(),
-                       m_project->processData()->customGroupIds());
+    if (!m_project->processData()->renameTaskGroup(oldName, newName, scope,
+                                                   m_project->path()))
+    {
+        return;
+    }
 
-    m_taskGroupSelection->setCurrentIndex(index);
+    resetTaskGroupModel();
+
+    m_taskGroupSelection->setCurrentIndex(
+                m_taskGroupModel->indexByGroupName(scope, newName).row());
 }
 
 bool

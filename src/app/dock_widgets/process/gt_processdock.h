@@ -13,6 +13,7 @@
 
 #include "gt_dockwidget.h"
 #include "gt_command.h"
+#include "gt_taskgroup.h"
 
 #include <QPointer>
 #include <QPersistentModelIndex>
@@ -25,7 +26,6 @@ class GtProcessView;
 class GtProcessComponentModel;
 class GtTreeFilterModel;
 class GtSearchWidget;
-class GtTaskGroup;
 class GtTaskGroupModel;
 class GtTask;
 class GtCalculator;
@@ -232,6 +232,8 @@ private:
      */
     void addTaskToParent(GtObject* parentObj);
 
+    bool addTaskGroup(const QString& name, GtTaskGroup::SCOPE scope);
+
     /**
      * @brief findRootTaskHelper
      * @param obj
@@ -363,6 +365,8 @@ private:
 
     void initTaskGroupModel(const QStringList& userGroups,
                             const QStringList& customGroups);
+
+    void resetTaskGroupModel();
 
 private slots:
     /**
@@ -504,7 +508,7 @@ private slots:
      */
     void itemExpanded(const QModelIndex& index);
 
-    void renameTaskGroupRequested(int index);
+    void renameTaskGroupRequested();
 
     void renameTaskGroupFinished(int index, const QString& oldName,
                                  const QString& newName);

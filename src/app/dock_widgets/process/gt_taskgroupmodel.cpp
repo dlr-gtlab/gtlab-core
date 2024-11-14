@@ -95,6 +95,31 @@ GtTaskGroupModel::flags(const QModelIndex& index) const
     return defaultFlags;
 }
 
+QModelIndex
+GtTaskGroupModel::indexByGroupName(GtTaskGroup::SCOPE scope,
+                                   const QString& name) const
+{
+    if (scope == GtTaskGroup::UNDEFINED)
+    {
+        return {};
+    }
+
+    int start = (scope == GtTaskGroup::USER) ? 1 : m_userGroups.size() + 2;
+    int end = (scope == GtTaskGroup::USER) ?
+                (m_userGroups.size() + 1) :
+                (m_userGroups.size() + m_customGroups.size() + 2);
+
+    for (int i = start; i <= end; ++i)
+    {
+        if (rowText(i) == name)
+        {
+            return index(i, 0);
+        }
+    }
+
+    return {};
+}
+
 QString
 GtTaskGroupModel::rowText(int row) const
 {
