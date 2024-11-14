@@ -326,18 +326,8 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         {
             m_taskGroup = project->processData()->taskGroup();
 
-            // add entries for all existing groups. avoid index change signals
-            // to avoid wrong behavior
-            disconnect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
-                       this, SLOT(currentTaskGroupIndexChanged(int)));
-
-            // add entries for all existing groups
-            m_taskGroupModel->init(project->processData()->userGroupIds(),
-                                   project->processData()->customGroupIds());
-
-            connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
-                    SLOT(currentTaskGroupIndexChanged(int)));
-
+            initTaskGroupModel(project->processData()->userGroupIds(),
+                               project->processData()->customGroupIds());
 
             m_expandedItemUuidsState = gtStateHandler->initializeState(
                         project, QStringLiteral("Project Settings"),
@@ -347,7 +337,7 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         }
         else
         {
-            m_taskGroupModel->init({}, {});
+            initTaskGroupModel({}, {});
             m_expandedItemUuidsState = nullptr;
         }
 
@@ -423,6 +413,27 @@ GtProcessDock::isTaskGroupRenameable(int index) const
     }
 
     return m_taskGroupModel->rowScope(index) == GtTaskGroup::CUSTOM;
+}
+
+void
+GtProcessDock::initTaskGroupModel(const QStringList& userGroups,
+                                  const QStringList& customGroups)
+{
+    if (!m_taskGroupSelection || !m_taskGroupModel)
+    {
+        return;
+    }
+
+    // add entries for all existing groups. avoid index change signals
+    // to avoid wrong behavior
+    disconnect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
+               this, SLOT(currentTaskGroupIndexChanged(int)));
+
+    // add entries for all existing groups
+    m_taskGroupModel->init(userGroups, customGroups);
+
+    connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
+            SLOT(currentTaskGroupIndexChanged(int)));
 }
 
 void
@@ -2450,8 +2461,8 @@ GtProcessDock::renameTaskGroupFinished(int index, const QString& oldName,
                 oldName, newName, m_taskGroupModel->rowScope(index),
                 m_project->path());
 
-    m_taskGroupModel->init(m_project->processData()->userGroupIds(),
-                           m_project->processData()->customGroupIds());
+    initTaskGroupModel(m_project->processData()->userGroupIds(),
+                       m_project->processData()->customGroupIds());
 
     m_taskGroupSelection->setCurrentIndex(index);
 }

@@ -350,6 +350,9 @@ private:
 
     bool isTaskGroupRenameable(int index) const;
 
+    void initTaskGroupModel(const QStringList& userGroups,
+                            const QStringList& customGroups);
+
 private slots:
     /**
      * @brief filterData

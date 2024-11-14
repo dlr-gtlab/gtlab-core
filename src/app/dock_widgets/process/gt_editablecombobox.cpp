@@ -82,11 +82,11 @@ GtEditableComboBox::onEditingFinished()
 {
     if (!isEditable()) return;
 
-    int index = currentIndex();
+    auto newText = lineEdit()->text();
 
-    emit editingFinished(index, m_textBeforeEditing, lineEdit()->text());
-
-    setCurrentIndex(index);
-    m_textBeforeEditing = "";
     disableEditing();
+
+    emit editingFinished(currentIndex(), m_textBeforeEditing, newText);
+
+    m_textBeforeEditing = "";
 }
