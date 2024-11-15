@@ -458,9 +458,9 @@ GtProcessDock::expandedItemUuids() const
 void
 GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
 {
-    if (m_expandedItemUuidsState && expandedItemUuids() != uuids)
+    if (m_expandedItemUuidsState)
     {
-        m_expandedItemUuidsState->setValue(uuids);
+        m_expandedItemUuidsState->setValue(uuids, false);
     }
 }
 
