@@ -27,16 +27,18 @@ public:
 protected:
     void keyPressEvent(QKeyEvent* event) override;
 
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
 private:
     QString m_textBeforeEditing{};
 
-private slots:
     void onEditingFinished();
 
 signals:
     void editRequested(int index);
 
-    void editingFinished(int index, const QString& oldText, const QString& newText);
+    void editingFinished(int index, const QString& oldText,
+                         const QString& newText);
 };
 
 #endif // GTEDITABLECOMBOBOX_H

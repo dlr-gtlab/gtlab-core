@@ -8,8 +8,6 @@
  * Author: Marvin Noethen (DLR AT-TWK)
  */
 
-#include <QDebug>
-#include <QObject>
 #include <QKeyEvent>
 #include <QLineEdit>
 
@@ -17,9 +15,11 @@
 
 #include "gt_editablecombobox.h"
 
+
 GtEditableComboBox::GtEditableComboBox(QWidget* parent) : QComboBox(parent)
 {
     setStyleSheet(gt::gui::stylesheet::comboBox());
+    installEventFilter(this);
 }
 
 void
@@ -33,9 +33,6 @@ GtEditableComboBox::enableEditing()
 
     lineEdit()->selectAll();
     lineEdit()->setFocus();
-
-    connect(lineEdit(), SIGNAL(editingFinished()), this,
-            SLOT(onEditingFinished()));
 }
 
 void
@@ -77,6 +74,17 @@ GtEditableComboBox::keyPressEvent(QKeyEvent* event)
     QComboBox::keyPressEvent(event);
 }
 
+bool
+GtEditableComboBox::eventFilter(QObject* watched, QEvent* event)
+{
+    if (event->type() == QEvent::FocusOut && isEditable())
+    {
+        onEditingFinished();
+    }
+
+    return QComboBox::eventFilter(watched, event);
+}
+
 void
 GtEditableComboBox::onEditingFinished()
 {
@@ -86,5 +94,6 @@ GtEditableComboBox::onEditingFinished()
 
     disableEditing();
     emit editingFinished(currentIndex(), m_textBeforeEditing, newText);
-    m_textBeforeEditing = "";
+
+    m_textBeforeEditing.clear();
 }

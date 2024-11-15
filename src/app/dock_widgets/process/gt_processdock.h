@@ -232,7 +232,7 @@ private:
      */
     void addTaskToParent(GtObject* parentObj);
 
-    bool addTaskGroup(const QString& name, GtTaskGroup::SCOPE scope);
+    bool addTaskGroup(GtTaskGroup::SCOPE scope, const QString& name);
 
     /**
      * @brief findRootTaskHelper
@@ -512,6 +512,8 @@ private slots:
 
     void renameTaskGroupFinished(int index, const QString& oldName,
                                  const QString& newName);
+
+    void addCustomTaskGroup();
 
 signals:
     /**

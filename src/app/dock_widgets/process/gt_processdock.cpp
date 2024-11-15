@@ -59,6 +59,7 @@
 #include "gt_statehandler.h"
 #include "gt_state.h"
 #include "gt_editablecombobox.h"
+#include "gt_qtutilities.h"
 
 #include "gt_processdock.h"
 
@@ -269,6 +270,8 @@ GtProcessDock::GtProcessDock() :
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
 
+    connect(m_addTaskGroupBtn, SIGNAL(clicked(bool)), this,
+            SLOT(addCustomTaskGroup()));
     connect(m_renameTaskGroupBtn, SIGNAL(clicked(bool)), this,
             SLOT(renameTaskGroupRequested()));
 
@@ -455,7 +458,7 @@ GtProcessDock::expandedItemUuids() const
 void
 GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
 {
-    if (m_expandedItemUuidsState)
+    if (m_expandedItemUuidsState && expandedItemUuids() != uuids)
     {
         m_expandedItemUuidsState->setValue(uuids);
     }
@@ -749,7 +752,14 @@ GtProcessDock::addTaskGroup(GtTaskGroup::SCOPE scope, const QString& name)
         return false;
     }
 
+    m_model->setSourceModel(gtDataModel);
+    m_filterModel->setSourceModel(m_model);
+    m_view->setModel(m_filterModel);
+
     resetTaskGroupModel();
+
+    m_taskGroupSelection->setCurrentIndex(
+                m_taskGroupModel->indexByGroupName(scope, name).row());
 
     return true;
 }
@@ -2553,6 +2563,11 @@ GtProcessDock::renameTaskGroupFinished(int index, const QString& oldName,
         return;
     }
 
+    if (newName.isEmpty() || oldName == newName)
+    {
+        return;
+    }
+
     auto scope = m_taskGroupModel->rowScope(index);
 
     if (!m_project->processData()->renameTaskGroup(oldName, newName, scope,
@@ -2565,6 +2580,23 @@ GtProcessDock::renameTaskGroupFinished(int index, const QString& oldName,
 
     m_taskGroupSelection->setCurrentIndex(
                 m_taskGroupModel->indexByGroupName(scope, newName).row());
+}
+
+void
+GtProcessDock::addCustomTaskGroup()
+{
+    if (!m_project || !m_project->processData())
+    {
+        return;
+    }
+
+    auto id = gt::makeUniqueName(tr("New Task Group"),
+                       m_project->processData()->customGroupIds());
+
+    if (addTaskGroup(GtTaskGroup::CUSTOM, id))
+    {
+        renameTaskGroupRequested();
+    }
 }
 
 bool
