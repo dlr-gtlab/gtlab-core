@@ -198,6 +198,11 @@ GtProcessData::switchCurrentTaskGroup(const QString& taskGroupId,
         return false;
     }
 
+    // TODISCUSS: Why do we call initTaskGroup() when switching the TaskGroup?
+    // I would expect switching to fail if the specified TaskGroup does not
+    // exist. Currently, when switching to a non existing TaskGroup, we create
+    // a new one and switch to it. Perhaps creation and switching should be
+    // more strictly separated.
     return m_pimpl->initTaskGroup(taskGroupId, projectPath, scope);
 }
 
@@ -209,6 +214,11 @@ GtProcessData::save(const QString& projectPath) const
         gtError() << tr("Cannot save an uninitialized task group!");
         return false;
     }
+
+    // TODISCUSS: When why define save as transferring the current ProcessData
+    // state to the hard drive, this method could also take care of removing
+    // deletet TaskGroups from the hard drive.
+    // My suggestion:
 
     foreach (auto* group, m_pimpl->userGroups())
     {
@@ -252,12 +262,18 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
 
     auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId);
 
+    // TODISCUSS: Why is the new task group being read here? Creating the
+    // TaskGroup was done by initializing the pointer. The read() method creates
+    // the directory structure on the hard drive. In my opinion, this is not
+    // necessary. It would be enough to create the directory when saving the
+    // task group for the first time.
     if (!newGroup->read(projectPath, scope))
     {
         gtError() << QObject::tr("Could not initialize default group!");
         return nullptr;
     }
 
+    // TODISCUSS: Currently, we cannot undo the TaskGroup creation.
     groupContainer->appendChild(newGroup.get());
 
     return newGroup.release();
@@ -384,6 +400,9 @@ GtProcessData::Impl::readTaskGroups(const QString& projectPath,
         return true;
     }
 
+    // TOASK: Why do we load TaskGroups dynamically from the tasks
+    // directory instead of saving the known TaskGroups in the project file?
+
     // scope folder found. read entries and generate uninitialized task groups
     QDirIterator directories(dir.absolutePath(),
                              QDir::Dirs |
@@ -448,6 +467,10 @@ GtProcessData::Impl::initTaskGroup(const QString& groupId,
     if (!group->isInitialized())
     {
         // if group not already initialized. do it now!!! last chance my friend
+
+        // TODISCUSS: Is it really necessary to initialize it here? The
+        // initialization only creates the index.json. It could be done
+        // when saving the TaskGroup.
         group->read(projectPath, scope);
     }
 

@@ -75,6 +75,14 @@ bool
 GtTaskGroup::read(const QString& projectPath,
                   const SCOPE scope)
 {
+    // TODISCUSS: Why does reading initialize the TaskGroup? I would expect
+    // that reading the TaskGroup would fail if it does not exist.
+    // I suggest splitting the initialization and reading of a TaskGroup into
+    // two separate methods. Alternatively, the save() method could ensure that
+    // the directory structure for the TaskGroup is created if it does not
+    // already exist. In this approach, save() would initialize the TaskGroup
+    // if necessary and save the corresponding task to file, while read() would
+    // fail if the TaskGroup is not initialized.
     if (m_pimpl-> _initialized)
     {
         gtError() << tr("Task group already initialized!");
@@ -140,6 +148,8 @@ bool
 GtTaskGroup::save(const QString& projectPath,
                   const GtTaskGroup::SCOPE scope) const
 {
+    // TODISCUSS: Why does this method not initialize the TaskGroup,
+    // if initialization only means to create the index.json file?
     if (!m_pimpl-> _initialized)
     {
         gtDebug().nospace() << "Save procedure not needed. Group not initialized! (" <<

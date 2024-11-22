@@ -179,6 +179,8 @@ private:
     GtSearchWidget* m_search;
 
     /// Pointer to selected task group of current project
+    // TODISCUSS: Should we implement a function that returns the currently
+    // selected TaskGroup from the process data?
     QPointer<GtTaskGroup> m_taskGroup;
 
     /// Pointer to current process
