@@ -365,10 +365,9 @@ private:
 
     bool isTaskGroupRenameable(int index) const;
 
-    void initTaskGroupModel(const QStringList& userGroups,
-                            const QStringList& customGroups);
-
     void resetTaskGroupModel();
+
+    bool deleteTaksGroup(GtTaskGroup* group);
 
 private slots:
     /**
@@ -516,6 +515,8 @@ private slots:
                                  const QString& newName);
 
     void addCustomTaskGroup();
+
+    bool deleteCurrentTaskGroup();
 
 signals:
     /**
