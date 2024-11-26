@@ -33,6 +33,8 @@ public:
 
     bool readTaskGroups(const QString& projectPath, GtTaskGroup::SCOPE scope);
 
+    bool saveTaskGroups(const QString& projectPath, GtTaskGroup::SCOPE scope);
+
     bool initTaskGroup(const QString& groupId,
                        const QString& projectPath,
                        GtTaskGroup::SCOPE scope);
@@ -215,10 +217,6 @@ GtProcessData::save(const QString& projectPath) const
         return false;
     }
 
-    // TODISCUSS: When we define save as transferring the current ProcessData
-    // state to the disk, this method could also take care of removing
-    // deletet TaskGroups from the disk.
-
     foreach (auto* group, m_pimpl->userGroups())
     {
         if (!group->save(projectPath, GtTaskGroup::USER))
@@ -227,15 +225,7 @@ GtProcessData::save(const QString& projectPath) const
         }
     }
 
-    foreach (auto* group, m_pimpl->customGroups())
-    {
-        if (!group->save(projectPath, GtTaskGroup::CUSTOM))
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return m_pimpl->saveTaskGroups(projectPath, GtTaskGroup::CUSTOM);
 }
 
 GtTaskGroup*
@@ -417,6 +407,47 @@ GtProcessData::Impl::readTaskGroups(const QString& projectPath,
             groupContainer->appendChild(newGroup);
         }
 
+    }
+
+    return true;
+}
+
+bool
+GtProcessData::Impl::saveTaskGroups(const QString& projectPath,
+                                    GtTaskGroup::SCOPE scope)
+{
+    QString scopePath = GtTaskGroup::scopePath(projectPath, scope);
+
+    if (scopePath.isEmpty())
+    {
+        gtError() << tr("Scope path could not be resolved");
+        return false;
+    }
+
+    // get the list of the existing task group directories
+    QStringList dirsToRemove = QDir{scopePath}.entryList(QDir::Dirs |
+                                                         QDir::NoDotAndDotDot);
+    // save task groups to hard disk
+    const auto& taskGroups = groups(scope);
+    for (const auto* group : taskGroups)
+    {
+        if (!group->save(projectPath, scope))
+        {
+            return false;
+        }
+
+        // task group is known from the project data; no need to remove it in
+        // the next step
+        dirsToRemove.removeOne(group->objectName());
+    }
+
+    // remove task group directories that are no longer known by the project
+    for (const auto& dir : qAsConst(dirsToRemove))
+    {
+        if (!dir.isEmpty())
+        {
+           QDir{scopePath + QDir::separator() + dir}.removeRecursively();
+        }
     }
 
     return true;

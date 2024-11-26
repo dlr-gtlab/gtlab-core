@@ -75,14 +75,6 @@ bool
 GtTaskGroup::read(const QString& projectPath,
                   const SCOPE scope)
 {
-    // TODISCUSS: Why does reading initialize the TaskGroup? I would expect
-    // that reading the TaskGroup would fail if it does not exist.
-    // I suggest splitting the initialization and reading of a TaskGroup into
-    // two separate methods. Alternatively, the save() method could ensure that
-    // the directory structure for the TaskGroup is created if it does not
-    // already exist. In this approach, save() would initialize the TaskGroup
-    // if necessary and save the corresponding task to file, while read() would
-    // fail if the TaskGroup is not initialized.
     if (m_pimpl-> _initialized)
     {
         gtError() << tr("Task group already initialized!");
@@ -145,8 +137,8 @@ bool
 GtTaskGroup::save(const QString& projectPath,
                   const GtTaskGroup::SCOPE scope) const
 {
-    // TODISCUSS: Why does this method not initialize the TaskGroup,
-    // if initialization only means to create the index.json file?
+    // TODISCUSS: Prevents overwriting before the tasks of the task group have
+    // been read in.
     if (!m_pimpl-> _initialized)
     {
         gtDebug().nospace() << "Save procedure not needed. Group not initialized! (" <<
@@ -210,12 +202,9 @@ GtTaskGroup::defaultUserGroupId()
 }
 
 QString
-GtTaskGroup::groupPath(const QString& projectPath,
-                       const SCOPE scope,
-                       const QString& groupId)
+GtTaskGroup::scopePath(const QString& projectPath,
+                       const SCOPE scope)
 {
-    QString retval = projectPath + QDir::separator() + "tasks";
-
     QString scopeId = GtTaskGroup::scopeId(scope);
 
     if (scopeId.isEmpty())
@@ -224,9 +213,23 @@ GtTaskGroup::groupPath(const QString& projectPath,
         return {};
     }
 
-    retval += QDir::separator() + scopeId + QDir::separator() + groupId;
+    return projectPath + QDir::separator() + "tasks" +
+            QDir::separator() + scopeId;
+}
 
-    return retval;
+QString
+GtTaskGroup::groupPath(const QString& projectPath,
+                       const SCOPE scope,
+                       const QString& groupId)
+{
+    QString scopePath = GtTaskGroup::scopePath(projectPath, scope);
+
+    if (scopePath.isEmpty())
+    {
+        return {};
+    }
+
+    return scopePath + QDir::separator() + groupId;
 }
 
 bool
