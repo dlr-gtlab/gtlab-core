@@ -244,7 +244,7 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
         return nullptr;
     }
 
-    auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId);
+    auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId, true);
 
     // TODISCUSS: Currently, we cannot undo the TaskGroup creation.
     groupContainer->appendChild(newGroup.get());
@@ -372,9 +372,6 @@ GtProcessData::Impl::readTaskGroups(const QString& projectPath,
         // no relevant directories found. not good not bad.
         return true;
     }
-
-    // TOASK: Why do we load TaskGroups dynamically from the tasks
-    // directory instead of saving the known TaskGroups in the project file?
 
     // scope folder found. read entries and generate uninitialized task groups
     QDirIterator directories(dir.absolutePath(),

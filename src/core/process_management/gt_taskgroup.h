@@ -41,6 +41,8 @@ public:
      */
     explicit GtTaskGroup(const QString& id);
 
+    GtTaskGroup(const QString& id, bool initialized);
+
     ~GtTaskGroup() override;
 
     /**

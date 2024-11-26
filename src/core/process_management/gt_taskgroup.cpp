@@ -69,6 +69,12 @@ GtTaskGroup::GtTaskGroup(const QString& id) :
     setFactory(gtObjectFactory);
 }
 
+GtTaskGroup::GtTaskGroup(const QString& id, bool initialized) :
+    GtTaskGroup(id)
+{
+    m_pimpl->_initialized = initialized;
+}
+
 GtTaskGroup::~GtTaskGroup() = default;
 
 bool
