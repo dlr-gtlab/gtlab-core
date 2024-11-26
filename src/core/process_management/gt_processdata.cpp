@@ -202,7 +202,7 @@ GtProcessData::switchCurrentTaskGroup(const QString& taskGroupId,
     // I would expect switching to fail if the specified TaskGroup does not
     // exist. Currently, when switching to a non existing TaskGroup, we create
     // a new one and switch to it. Perhaps creation and switching should be
-    // more strictly separated.
+    // strictly separated.
     return m_pimpl->initTaskGroup(taskGroupId, projectPath, scope);
 }
 
@@ -215,10 +215,9 @@ GtProcessData::save(const QString& projectPath) const
         return false;
     }
 
-    // TODISCUSS: When why define save as transferring the current ProcessData
-    // state to the hard drive, this method could also take care of removing
-    // deletet TaskGroups from the hard drive.
-    // My suggestion:
+    // TODISCUSS: When we define save as transferring the current ProcessData
+    // state to the disk, this method could also take care of removing
+    // deletet TaskGroups from the disk.
 
     foreach (auto* group, m_pimpl->userGroups())
     {
@@ -261,17 +260,6 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
     }
 
     auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId);
-
-    // TODISCUSS: Why is the new task group being read here? Creating the
-    // TaskGroup was done by initializing the pointer. The read() method creates
-    // the directory structure on the hard drive. In my opinion, this is not
-    // necessary. It would be enough to create the directory when saving the
-    // task group for the first time.
-    if (!newGroup->read(projectPath, scope))
-    {
-        gtError() << QObject::tr("Could not initialize default group!");
-        return nullptr;
-    }
 
     // TODISCUSS: Currently, we cannot undo the TaskGroup creation.
     groupContainer->appendChild(newGroup.get());
