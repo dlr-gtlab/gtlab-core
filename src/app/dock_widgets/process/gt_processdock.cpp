@@ -505,7 +505,7 @@ GtProcessDock::resetTaskGroupModel()
 bool
 GtProcessDock::deleteTaksGroup(GtTaskGroup* group)
 {
-    if (!group || !group->isInitialized())
+    if (!group)
     {
         return false;
     }

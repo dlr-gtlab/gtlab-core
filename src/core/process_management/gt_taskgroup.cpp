@@ -152,13 +152,30 @@ GtTaskGroup::save(const QString& projectPath,
         return false;
     }
 
+
+    QString groupPath = m_pimpl->path(projectPath, scope);
+    assert(!groupPath.isEmpty());
+
+    // get the list of the existing task files
+    QStringList taskFilesToRemove = QDir{groupPath}.entryList(QDir::Files);
+    taskFilesToRemove.removeOne(S_INDEX_FILE_NAME);
+
     // externalize tasks
-    for (const GtTask* task : findDirectChildren<GtTask*>())
+    const auto& tasks = findDirectChildren<GtTask*>();
+    for (const GtTask* task : tasks)
     {
         if (!m_pimpl->saveTaskToFile(task, m_pimpl->path(projectPath, scope)))
         {
             return false;
         }
+
+        taskFilesToRemove.removeOne(task->uuid() + S_TASK_FILE_EXT);
+    }
+
+    // remove task files that are no longer known by the task group
+    for (const auto& fileName : qAsConst(taskFilesToRemove))
+    {
+        QFile{groupPath + QDir::separator() + fileName}.remove();
     }
 
     // final step: update index file

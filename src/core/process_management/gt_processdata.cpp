@@ -200,11 +200,6 @@ GtProcessData::switchCurrentTaskGroup(const QString& taskGroupId,
         return false;
     }
 
-    // TODISCUSS: Why do we call initTaskGroup() when switching the TaskGroup?
-    // I would expect switching to fail if the specified TaskGroup does not
-    // exist. Currently, when switching to a non existing TaskGroup, we create
-    // a new one and switch to it. Perhaps creation and switching should be
-    // strictly separated.
     return m_pimpl->initTaskGroup(taskGroupId, projectPath, scope);
 }
 
@@ -427,7 +422,7 @@ GtProcessData::Impl::saveTaskGroups(const QString& projectPath,
     // get the list of the existing task group directories
     QStringList dirsToRemove = QDir{scopePath}.entryList(QDir::Dirs |
                                                          QDir::NoDotAndDotDot);
-    // save task groups to hard disk
+    // externalize task groups
     const auto& taskGroups = groups(scope);
     for (const auto* group : taskGroups)
     {
@@ -441,7 +436,8 @@ GtProcessData::Impl::saveTaskGroups(const QString& projectPath,
         dirsToRemove.removeOne(group->objectName());
     }
 
-    // remove task group directories that are no longer known by the project
+    // remove task group directories that are no longer known by the process
+    // data
     for (const auto& dir : qAsConst(dirsToRemove))
     {
         if (!dir.isEmpty())
@@ -486,10 +482,6 @@ GtProcessData::Impl::initTaskGroup(const QString& groupId,
     if (!group->isInitialized())
     {
         // if group not already initialized. do it now!!! last chance my friend
-
-        // TODISCUSS: Is it really necessary to initialize it here? The
-        // initialization only creates the index.json. It could be done
-        // when saving the TaskGroup.
         group->read(projectPath, scope);
     }
 
