@@ -122,6 +122,13 @@ QRegExp GT_DATAMODEL_EXPORT forSemVers();
  */
 GT_DATAMODEL_EXPORT const QRegExp& forFileDialogFilters();
 
+/**
+ * @brief Modifies a given QRegExp to restrict usage of sibling objects of the given GtObject obj
+ * The template type T has to be defined as the class of the sibling object to restrict.
+ * @param obj - The object to find the siblings and in most use cases the object which should be renamed
+ * @param defaultRegExp - the basic regular expression to be extended with the siblings names to restrict.
+ * If the object obj has no parent or siblings the RegExp is not modified
+ */
 template <typename T>
 inline void restrictRegExpWithObjectSiblingsNames(GtObject& obj,
                                                   QRegExp& defaultRegExp)
