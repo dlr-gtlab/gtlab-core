@@ -15,6 +15,8 @@
 
 #include "gt_datamodel_exports.h"
 
+#include "gt_object.h"
+
 /**
  * namespace for RegualrExpressions, used in GTlab
  */
