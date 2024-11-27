@@ -15,6 +15,7 @@
 #include "gt_objectgroup.h"
 #include "gt_taskgroup.h"
 #include "gt_qtutilities.h"
+#include "gt_coredatamodel.h"
 
 #include "gt_processdata.h"
 
@@ -246,7 +247,7 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
 
     auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId, true);
 
-    // TODISCUSS: Currently, we cannot undo the TaskGroup creation.
+//    gtDataModel->appendChild(newGroup.get(), groupContainer);
     groupContainer->appendChild(newGroup.get());
 
     return newGroup.release();

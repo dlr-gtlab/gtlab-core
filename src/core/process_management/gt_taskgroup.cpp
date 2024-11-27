@@ -143,8 +143,6 @@ bool
 GtTaskGroup::save(const QString& projectPath,
                   const GtTaskGroup::SCOPE scope) const
 {
-    // TODISCUSS: Prevents overwriting before the tasks of the task group have
-    // been read in.
     if (!m_pimpl-> _initialized)
     {
         gtDebug().nospace() << "Save procedure not needed. Group not initialized! (" <<
@@ -157,7 +155,6 @@ GtTaskGroup::save(const QString& projectPath,
     {
         return false;
     }
-
 
     QString groupPath = m_pimpl->path(projectPath, scope);
     assert(!groupPath.isEmpty());

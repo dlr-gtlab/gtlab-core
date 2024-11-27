@@ -375,13 +375,10 @@ GtProcessDock::projectChangedEvent(GtProject* project)
     if (project != m_project)
     {
         m_project = project;
-        m_taskGroup = nullptr;
         m_taskGroupSelection->clear();
 
         if (isProjectValid && project->processData())
         {
-            m_taskGroup = project->processData()->taskGroup();
-
             resetTaskGroupModel();
 
             m_taskGroupSelection->setEnabled(true);
@@ -405,29 +402,47 @@ GtProcessDock::projectChangedEvent(GtProject* project)
             m_expandedItemUuidsState = nullptr;
         }
 
+        // update current task group
+        updateCurrentTaskGroup();
+
         if (m_taskGroup)
         {
             m_taskGroupSelection->setCurrentText(m_taskGroup->objectName());
         }
-
-        // update current task group
-        updateCurrentTaskGroup();
     }
 }
 
 void
 GtProcessDock::updateCurrentTaskGroup()
 {
+    auto taskGroup = m_project && m_project->processData() ?
+                m_project->processData()->taskGroup() : nullptr;
+
+    if (m_taskGroup == taskGroup)
+    {
+        return;
+    }
+
+    if(m_taskGroup)
+    {
+        disconnect(m_taskGroup, SIGNAL(destroyed(QObject*)), this,
+                SLOT(onCurrentTaskGroupDestroyed(QObject*)));
+    }
+
+    m_taskGroup = taskGroup;
+
+    if(m_taskGroup)
+    {
+        connect(m_taskGroup, SIGNAL(destroyed(QObject*)), this,
+                SLOT(onCurrentTaskGroupDestroyed(QObject*)),
+                Qt::DirectConnection);
+    }
+
     setCurrentProcess();
 
     updateButtons(m_taskGroup);
 
-    updateTaskGroupRootIndex();
-
-    if (m_taskGroup)
-    {
-        filterData(m_search->text());
-    }
+    filterData(m_search->text());
 
     m_view->resizeColumns();
 }
@@ -510,7 +525,8 @@ GtProcessDock::deleteTaksGroup(GtTaskGroup* group)
         return false;
     }
 
-    return gtDataModel->deleteFromModel(group);
+    return false;
+//    return gtDataModel->deleteFromModel(group);
 }
 
 void
@@ -749,10 +765,6 @@ GtProcessDock::addTaskGroup(GtTaskGroup::SCOPE scope, const QString& name)
     {
         return false;
     }
-
-    m_model->setSourceModel(gtDataModel);
-    m_filterModel->setSourceModel(m_model);
-    m_view->setModel(m_filterModel);
 
     resetTaskGroupModel();
 
@@ -2487,8 +2499,6 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
     m_project->processData()->switchCurrentTaskGroup(
                 groupId, scope, m_project->path());
 
-    m_taskGroup = m_project->processData()->taskGroup();
-
     m_delTaskGroupBtn->setEnabled(isTaskGroupDeletable(index));
     m_renameTaskGroupBtn->setEnabled(isTaskGroupRenameable(index));
 
@@ -2602,6 +2612,18 @@ GtProcessDock::deleteCurrentTaskGroup()
     resetTaskGroupModel();
 
     return true;
+}
+
+void
+GtProcessDock::onCurrentTaskGroupDestroyed(QObject* taskGroup)
+{
+    resetTaskGroupModel();
+
+//    int index = m_taskGroupModel->indexByGroupName(
+//                GtTaskGroup::USER, GtTaskGroup::defaultUserGroupId()).row();
+
+////    currentTaskGroupIndexChanged(index);
+//    m_taskGroupSelection->setCurrentIndex(index);
 }
 
 bool

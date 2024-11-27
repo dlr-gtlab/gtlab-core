@@ -518,6 +518,8 @@ private slots:
 
     bool deleteCurrentTaskGroup();
 
+    void onCurrentTaskGroupDestroyed(QObject* taskGroup);
+
 signals:
     /**
      * @brief selectedObjectChanged
