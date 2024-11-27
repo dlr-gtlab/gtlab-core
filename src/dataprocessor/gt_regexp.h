@@ -15,6 +15,8 @@
 
 #include "gt_datamodel_exports.h"
 
+#include "gt_object.h"
+
 /**
  * namespace for RegualrExpressions, used in GTlab
  */
@@ -119,6 +121,41 @@ QRegExp GT_DATAMODEL_EXPORT forSemVers();
  * "Textfiles (*.txt)"
  */
 GT_DATAMODEL_EXPORT const QRegExp& forFileDialogFilters();
+
+template <typename T>
+inline void restrictRegExpWithSiblingsNames(GtObject& obj,
+                                            QRegExp& defaultRegExp)
+{
+    GtObject* parent = obj.parentObject();
+
+    if (!parent) return;
+
+    QList<T*> siblings = parent->findDirectChildren<T*>();
+
+    if (siblings.isEmpty()) return;
+
+    QStringList names;
+
+    for (auto* s : qAsConst(siblings))
+    {
+        names.append(s->objectName());
+    }
+
+    names.removeAll(obj.objectName());
+
+    QString allNames = names.join("|");
+
+    QString pattern = "^";
+
+    for (QString name : names)
+    {
+        pattern += "(?!" + name + "$)";
+    }
+
+    pattern += defaultRegExp.pattern();
+
+    defaultRegExp = QRegExp(pattern);
+}
 
 } // namespace re
 
