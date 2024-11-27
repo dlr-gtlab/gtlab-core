@@ -418,7 +418,7 @@ GtProcessDock::updateCurrentTaskGroup()
     auto taskGroup = m_project && m_project->processData() ?
                 m_project->processData()->taskGroup() : nullptr;
 
-    if (m_taskGroup == taskGroup)
+    if (taskGroup && m_taskGroup == taskGroup)
     {
         return;
     }
@@ -448,7 +448,7 @@ GtProcessDock::updateCurrentTaskGroup()
 }
 
 void
-GtProcessDock::updateTaskGroupRootIndex()
+GtProcessDock::updateProcessViewRootIndex()
 {
     if (m_taskGroup)
     {
@@ -525,8 +525,7 @@ GtProcessDock::deleteTaksGroup(GtTaskGroup* group)
         return false;
     }
 
-    return false;
-//    return gtDataModel->deleteFromModel(group);
+    return gtDataModel->deleteFromModel(group);
 }
 
 void
@@ -822,7 +821,7 @@ GtProcessDock::filterData(const QString& val)
 
     m_filterModel->setFilterRegExp(val);
 
-    updateTaskGroupRootIndex();
+    updateProcessViewRootIndex();
 }
 
 void
@@ -2508,7 +2507,7 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
 void
 GtProcessDock::endResetView()
 {
-    updateTaskGroupRootIndex();
+    updateProcessViewRootIndex();
 }
 
 void
@@ -2604,7 +2603,11 @@ GtProcessDock::deleteCurrentTaskGroup()
         return false;
     }
 
-    if (!deleteTaksGroup(m_taskGroup))
+    auto toDelete = m_taskGroup;
+
+    m_taskGroupSelection->setCurrentText(GtTaskGroup::defaultUserGroupId());
+
+    if (!deleteTaksGroup(toDelete))
     {
         return false;
     }
@@ -2618,12 +2621,6 @@ void
 GtProcessDock::onCurrentTaskGroupDestroyed(QObject* taskGroup)
 {
     resetTaskGroupModel();
-
-//    int index = m_taskGroupModel->indexByGroupName(
-//                GtTaskGroup::USER, GtTaskGroup::defaultUserGroupId()).row();
-
-////    currentTaskGroupIndexChanged(index);
-//    m_taskGroupSelection->setCurrentIndex(index);
 }
 
 bool

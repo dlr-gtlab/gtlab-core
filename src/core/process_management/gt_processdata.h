@@ -108,7 +108,6 @@ public:
     GtTaskGroup* createNewTaskGroup(const QString& taskGroupId,
                                     GtTaskGroup::SCOPE scope,
                                     const QString& projectPath);
-
     /**
      * @brief Renames task group
      * @param taskGroupId Identification string of task group to be renamed

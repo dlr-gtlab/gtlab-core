@@ -247,8 +247,7 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
 
     auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId, true);
 
-//    gtDataModel->appendChild(newGroup.get(), groupContainer);
-    groupContainer->appendChild(newGroup.get());
+    gtDataModel->appendChild(newGroup.get(), groupContainer);
 
     return newGroup.release();
 }

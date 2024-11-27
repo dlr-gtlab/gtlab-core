@@ -345,7 +345,7 @@ private:
      * @brief Determines the model index of the currently selected task group
      * and sets it as the root index for the process view.
      */
-    void updateTaskGroupRootIndex();
+    void updateProcessViewRootIndex();
 
     /**
      * @brief Retrieves the UUIDs of expanded process items from the project
