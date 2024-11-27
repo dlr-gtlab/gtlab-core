@@ -123,7 +123,7 @@ QRegExp GT_DATAMODEL_EXPORT forSemVers();
 GT_DATAMODEL_EXPORT const QRegExp& forFileDialogFilters();
 
 template <typename T>
-inline void restrictRegExpWithSiblingsNames(GtObject& obj,
+inline void restrictRegExpWithObjectSiblingsNames(GtObject& obj,
                                             QRegExp& defaultRegExp)
 {
     GtObject* parent = obj.parentObject();
@@ -143,14 +143,12 @@ inline void restrictRegExpWithSiblingsNames(GtObject& obj,
 
     names.removeAll(obj.objectName());
 
-    QString allNames = names.join("|");
-
-    QString pattern = "^";
-
-    for (QString name : names)
-    {
-        pattern += "(?!" + name + "$)";
-    }
+    QString pattern = std::accumulate(
+        std::begin(names), std::end(names), QString("^"),
+        [](QString a, QString const& name)
+        {
+            return a + "(?!" + name + "$)";
+        });
 
     pattern += defaultRegExp.pattern();
 
