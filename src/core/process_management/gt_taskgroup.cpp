@@ -61,17 +61,15 @@ public:
 
 };
 
-GtTaskGroup::GtTaskGroup(const QString& id) :
-    m_pimpl{std::make_unique<Impl>(*this)}
+GtTaskGroup::GtTaskGroup() : m_pimpl{std::make_unique<Impl>(*this)}
 {
-    setObjectName(id);
-
     setFactory(gtObjectFactory);
 }
 
 GtTaskGroup::GtTaskGroup(const QString& id, bool initialized) :
-    GtTaskGroup(id)
+    GtTaskGroup()
 {
+    setObjectName(id);
     m_pimpl->_initialized = initialized;
 }
 

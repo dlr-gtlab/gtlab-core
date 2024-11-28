@@ -37,11 +37,10 @@ public:
 
     /**
      * @brief Constructor
-     * @param id Identification string of task group
      */
-    explicit GtTaskGroup(const QString& id);
+    Q_INVOKABLE GtTaskGroup();
 
-    GtTaskGroup(const QString& id, bool initialized);
+    explicit GtTaskGroup(const QString& id, bool initialized = false);
 
     ~GtTaskGroup() override;
 

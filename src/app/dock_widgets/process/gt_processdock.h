@@ -234,7 +234,12 @@ private:
      */
     void addTaskToParent(GtObject* parentObj);
 
-    bool addTaskGroup(GtTaskGroup::SCOPE scope, const QString& name);
+    bool addTaskGroup(GtTaskGroup::SCOPE scope, const QString& groupId);
+
+    bool deleteTaksGroup(GtTaskGroup::SCOPE scope, const QString& groupId);
+
+    bool renameTaskGroup(GtTaskGroup::SCOPE scope, const QString& groupId,
+                         const QString& newGroupId);
 
     /**
      * @brief findRootTaskHelper
@@ -361,13 +366,13 @@ private:
      */
     void setExpandedItemUuids(const QStringList& uuids);
 
-    bool isTaskGroupDeletable(int index) const;
+    bool isTaskGroupDeletable(GtTaskGroup::SCOPE scope,
+                              const QString& groupId) const;
 
-    bool isTaskGroupRenameable(int index) const;
+    bool isTaskGroupRenameable(GtTaskGroup::SCOPE scope,
+                               const QString& groupId) const;
 
     void resetTaskGroupModel();
-
-    bool deleteTaksGroup(GtTaskGroup* group);
 
 private slots:
     /**

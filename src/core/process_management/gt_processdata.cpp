@@ -331,6 +331,29 @@ GtProcessData::renameTaskGroup(const QString& taskGroupId,
     return true;
 }
 
+bool
+GtProcessData::deleteTaskGroup(const QString& taskGroupId,
+                               GtTaskGroup::SCOPE scope)
+{
+    GtObjectGroup* groupContainer = m_pimpl->groupContainer(scope);
+
+    if (!groupContainer)
+    {
+        gtError().medium() << QObject::tr("task group scope invalid!");
+        return false;
+    }
+
+    auto group = groupContainer->findDirectChild<GtTaskGroup*>(taskGroupId);
+
+    if (!group)
+    {
+        gtError() << QObject::tr("task group does not exist!");
+        return false;
+    }
+
+    return gtDataModel->deleteFromModel(group);
+}
+
 QStringList
 GtProcessData::userGroupIds() const
 {
