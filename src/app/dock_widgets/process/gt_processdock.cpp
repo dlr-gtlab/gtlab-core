@@ -304,13 +304,10 @@ GtProcessDock::GtProcessDock() :
     connect(processRunner, &GtProcessRunner::connectionStateChanged,
             this, [this](){ updateRunButton(); });
 
-    connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
-            SLOT(resetModel()));
     connect(this, SIGNAL(selectedObjectChanged(GtObject*)),
             gtApp, SIGNAL(objectSelected(GtObject*)));
     connect(m_actionMapper, SIGNAL(mapped(QObject*)),
             SLOT(actionTriggered(QObject*)));
-
 
     registerShortCut("runProcess", QKeySequence(Qt::CTRL + Qt::Key_R));
     registerShortCut("unskipProcess", QKeySequence(Qt::CTRL + Qt::Key_T));
@@ -367,17 +364,15 @@ GtProcessDock::setCurrentProcess(GtTask* process)
 void
 GtProcessDock::projectChangedEvent(GtProject* project)
 {
-    bool isProjectValid = project;
-
-    m_processQueueButton->setEnabled(isProjectValid);
-    m_addElementButton->setEnabled(isProjectValid);
+    m_processQueueButton->setEnabled(project);
+    m_addElementButton->setEnabled(project);
 
     if (project != m_project)
     {
         m_project = project;
         m_taskGroupSelection->clear();
 
-        if (isProjectValid && project->processData())
+        if (m_project && m_project->processData())
         {
             resetTaskGroupModel();
 
@@ -385,10 +380,10 @@ GtProcessDock::projectChangedEvent(GtProject* project)
             m_addTaskGroupBtn->setEnabled(true);
 
             m_expandedItemUuidsState = gtStateHandler->initializeState(
-                        project, QStringLiteral("Project Settings"),
+                        m_project, QStringLiteral("Project Settings"),
                         QStringLiteral("Expanded Process Dock Item UUIDs"),
-                        project->objectPath() + ";expandPdItemUuids",
-                        QStringList(), project);
+                        m_project->objectPath() + ";expandPdItemUuids",
+                        QStringList(), m_project);
         }
         else
         {
@@ -423,20 +418,7 @@ GtProcessDock::updateCurrentTaskGroup()
         return;
     }
 
-    if(m_taskGroup)
-    {
-        disconnect(m_taskGroup, SIGNAL(destroyed(QObject*)), this,
-                SLOT(onCurrentTaskGroupDestroyed(QObject*)));
-    }
-
     m_taskGroup = taskGroup;
-
-    if(m_taskGroup)
-    {
-        connect(m_taskGroup, SIGNAL(destroyed(QObject*)), this,
-                SLOT(onCurrentTaskGroupDestroyed(QObject*)),
-                Qt::DirectConnection);
-    }
 
     setCurrentProcess();
 
@@ -2161,12 +2143,6 @@ GtProcessDock::mapFromSource(const QModelIndex& index)
 }
 
 void
-GtProcessDock::resetModel()
-{
-    projectChangedEvent(m_project);
-}
-
-void
 GtProcessDock::openConnectionEditor(const QModelIndex& index)
 {
     // check index
@@ -2509,6 +2485,7 @@ void
 GtProcessDock::endResetView()
 {
     updateProcessViewRootIndex();
+    resetTaskGroupModel();
 }
 
 void
@@ -2595,8 +2572,6 @@ GtProcessDock::addCustomTaskGroup()
 
     if (addTaskGroup(scope, id))
     {
-        resetTaskGroupModel();
-
         m_taskGroupSelection->setCurrentIndex(
                     m_taskGroupModel->indexByGroupName(scope, id).row());
 
@@ -2629,15 +2604,7 @@ GtProcessDock::deleteCurrentTaskGroup()
         return false;
     }
 
-    resetTaskGroupModel();
-
     return true;
-}
-
-void
-GtProcessDock::onCurrentTaskGroupDestroyed(QObject* taskGroup)
-{
-    resetTaskGroupModel();
 }
 
 bool

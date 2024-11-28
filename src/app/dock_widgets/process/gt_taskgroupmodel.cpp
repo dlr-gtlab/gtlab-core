@@ -21,6 +21,11 @@ GtTaskGroupModel::GtTaskGroupModel(QObject* parent) :
 void GtTaskGroupModel::init(const QStringList& userGroups,
                             const QStringList& customGroups)
 {
+    if (m_userGroups == userGroups && m_customGroups == customGroups)
+    {
+        return;
+    }
+
     beginResetModel();
 
     m_userGroups = userGroups;

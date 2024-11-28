@@ -454,11 +454,6 @@ private slots:
     void configTask(GtTask* task);
 
     /**
-     * @brief resetModel
-     */
-    void resetModel();
-
-    /**
      * @brief Opens a connection editor.
      * @param Model index.
      */
@@ -522,8 +517,6 @@ private slots:
     void addCustomTaskGroup();
 
     bool deleteCurrentTaskGroup();
-
-    void onCurrentTaskGroupDestroyed(QObject* taskGroup);
 
 signals:
     /**
