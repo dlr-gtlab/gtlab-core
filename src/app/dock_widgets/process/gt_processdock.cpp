@@ -424,9 +424,9 @@ GtProcessDock::updateCurrentTaskGroup()
 
     updateButtons(m_taskGroup);
 
-    m_filterModel->setFilterRegExp(m_search->text());
-
     updateProcessViewRootIndex();
+
+    m_filterModel->setFilterRegExp(m_search->text());
 
     m_view->resizeColumns();
 }

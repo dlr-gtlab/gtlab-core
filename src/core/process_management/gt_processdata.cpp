@@ -287,39 +287,7 @@ GtProcessData::renameTaskGroup(const QString& taskGroupId,
         return false;
     }
 
-    const QString oldPath = GtTaskGroup::groupPath(projectPath, scope,
-                                                   taskGroupId);
-    const QString newPath = GtTaskGroup::groupPath(projectPath, scope,
-                                                   taskGroupIdNew);
-
-    QDir oldDir(oldPath);
-    QDir newDir(newPath);
-
-    if (!oldDir.exists())
-    {
-        gtError() << QObject::tr("task group file path not found!");
-        return false;
-    }
-
-    if (newDir.exists())
-    {
-        gtError() << QObject::tr("new task group file path already exists!");
-        return false;
-    }
-
-    if (!oldDir.cdUp())
-    {
-        gtError() << QObject::tr("task group scope path not found!");
-        return false;
-    }
-
     auto currentGroup = taskGroup();
-
-    if (!oldDir.rename(taskGroupId, taskGroupIdNew))
-    {
-        gtError() << QObject::tr("could not rename task group path!");
-        return false;
-    }
 
     group->setObjectName(taskGroupIdNew);
 
