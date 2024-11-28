@@ -424,7 +424,9 @@ GtProcessDock::updateCurrentTaskGroup()
 
     updateButtons(m_taskGroup);
 
-    filterData(m_search->text());
+    m_filterModel->setFilterRegExp(m_search->text());
+
+    updateProcessViewRootIndex();
 
     m_view->resizeColumns();
 }
@@ -432,16 +434,18 @@ GtProcessDock::updateCurrentTaskGroup()
 void
 GtProcessDock::updateProcessViewRootIndex()
 {
-    if (m_taskGroup)
+    if (!m_taskGroup)
     {
-        auto index = mapFromSource(gtDataModel->indexFromObject(m_taskGroup));
+        return;
+    }
 
-        if (index.isValid() && m_view->rootIndex() != index)
-        {
-            m_view->setRootIndex(index);
-            restoreExpandStates();
-            m_view->setCurrentIndex({});
-        }
+    auto index = mapFromSource(gtDataModel->indexFromObject(m_taskGroup));
+
+    if (index.isValid() && m_view->rootIndex() != index)
+    {
+        m_view->setRootIndex(index);
+        restoreExpandStates();
+        m_view->setCurrentIndex({});
     }
 }
 
@@ -797,14 +801,16 @@ GtProcessDock::componentIsReady(GtProcessComponent* comp)
 void
 GtProcessDock::filterData(const QString& val)
 {
-    if (!m_filterModel)
-    {
-        return;
-    }
-
     m_filterModel->setFilterRegExp(val);
 
-    updateProcessViewRootIndex();
+    if (!m_view->rootIndex().isValid())
+    {
+        updateProcessViewRootIndex();
+    }
+    else
+    {
+        restoreExpandStates();
+    }
 }
 
 void
