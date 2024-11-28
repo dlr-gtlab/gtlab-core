@@ -731,8 +731,7 @@ GtProcessDock::addTaskGroup(GtTaskGroup::SCOPE scope, const QString& groupId)
         return false;
     }
 
-    return m_project->processData()->createNewTaskGroup(
-                groupId, scope, m_project->path());
+    return m_project->processData()->createNewTaskGroup(groupId, scope);
 }
 
 bool

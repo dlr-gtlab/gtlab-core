@@ -40,9 +40,12 @@ public:
                        const QString& projectPath,
                        GtTaskGroup::SCOPE scope);
 
-    bool initDefaultUserGroup(const QString& projectPath);
+    bool createDefaultUserGroup();
 
     GtObjectGroup* groupContainer(GtTaskGroup::SCOPE scope) const;
+
+    GtTaskGroup* taskGroup(const QString& groupId,
+                           GtTaskGroup::SCOPE scope) const;
 
     GtTaskGroup* currentTaskGroup() const;
 
@@ -173,19 +176,17 @@ GtProcessData::read(const QString& projectPath)
         return false;
     }
 
-    // init last active task group
-    if (!m_pimpl->initTaskGroup(GtTaskGroup::defaultUserGroupId(), projectPath,
-                                GtTaskGroup::USER))
+    if (!m_pimpl->createDefaultUserGroup())
     {
-        // last active task group not found. init default user group
-        if (!m_pimpl->initDefaultUserGroup(projectPath))
-        {
-            return false;
-        }
+        return false;
     }
 
     // initialization finished. Yippee-ki-yay, mot*********
     m_pimpl->_initialized = true;
+
+    // TODO: switch to last active task group
+    assert(switchCurrentTaskGroup(GtTaskGroup::defaultUserGroupId(),
+                                  GtTaskGroup::USER, projectPath));
 
     return true;
 }
@@ -197,11 +198,20 @@ GtProcessData::switchCurrentTaskGroup(const QString& taskGroupId,
 {
     if (!m_pimpl->_initialized)
     {
-        gtError() << tr("Process data is not initialized!") << tr("Call init() first!");
+        gtError() << tr("Process data is not initialized!")
+                  << tr("Call init() first!");
         return false;
     }
 
-    return m_pimpl->initTaskGroup(taskGroupId, projectPath, scope);
+    if (!m_pimpl->initTaskGroup(taskGroupId, projectPath, scope))
+    {
+        return false;
+    }
+
+    m_pimpl->_currentScope = scope;
+    m_pimpl->_currentGroupId = taskGroupId;
+
+    return true;
 }
 
 bool
@@ -226,8 +236,7 @@ GtProcessData::save(const QString& projectPath) const
 
 GtTaskGroup*
 GtProcessData::createNewTaskGroup(const QString& taskGroupId,
-                                  GtTaskGroup::SCOPE scope,
-                                  const QString& projectPath)
+                                  GtTaskGroup::SCOPE scope)
 {
     GtObjectGroup* groupContainer = m_pimpl->groupContainer(scope);
 
@@ -442,28 +451,10 @@ GtProcessData::Impl::initTaskGroup(const QString& groupId,
                                    const QString& projectPath,
                                    GtTaskGroup::SCOPE scope)
 {
-    QString scopeId = GtTaskGroup::scopeId(scope);
-
-    if (scopeId.isEmpty())
-    {
-        gtError() << QObject::tr("Invalid task group scope");
-        return false;
-    }
-
-    auto groupContainer = _pub.get().findDirectChild<GtObjectGroup*>(scopeId);
-
-    if (!groupContainer)
-    {
-        gtError() << QObject::tr("Invalid process data!") 
-                  << QObject::tr("Task group container was not found!");
-        return false;
-    }
-
-    auto group = groupContainer->findDirectChild<GtTaskGroup*>(groupId);
+    auto group = taskGroup(groupId, scope);
 
     if (!group)
     {
-        // task group not found! but its ok. we create a default one :)";
         return false;
     }
 
@@ -473,26 +464,22 @@ GtProcessData::Impl::initTaskGroup(const QString& groupId,
         group->read(projectPath, scope);
     }
 
-    _currentScope = scope;
-    _currentGroupId = groupId;
-
     return true;
 }
 
 bool
-GtProcessData::Impl::initDefaultUserGroup(const QString& projectPath)
+GtProcessData::Impl::createDefaultUserGroup()
 {
-    // init default user
     QString sysUsername = GtTaskGroup::defaultUserGroupId();
 
-    auto group = _pub.get().createNewTaskGroup(sysUsername,
-                                               GtTaskGroup::USER,
-                                               projectPath);
+    // check if the default user group already exists
+    if (taskGroup(sysUsername, GtTaskGroup::USER)) return true;
 
-    if (!group) return false;
-
-    _currentScope = GtTaskGroup::USER;
-    _currentGroupId = sysUsername;
+    // create default user
+    if (!_pub.get().createNewTaskGroup(sysUsername, GtTaskGroup::USER))
+    {
+        return false;
+    }
 
     gtInfo() << QObject::tr("Default user group successfully initialized");
 
@@ -511,6 +498,22 @@ GtProcessData::Impl::groupContainer(GtTaskGroup::SCOPE scope) const
     }
 
     return _pub.get().findDirectChild<GtObjectGroup*>(scopeId);
+}
+
+GtTaskGroup*
+GtProcessData::Impl::taskGroup(const QString& groupId,
+                               GtTaskGroup::SCOPE scope) const
+{
+    auto container = groupContainer(scope);
+
+    if (!container)
+    {
+        gtError() << QObject::tr("Invalid process data!")
+                  << QObject::tr("Task group container was not found!");
+        return nullptr;
+    }
+
+    return container->findDirectChild<GtTaskGroup*>(groupId);
 }
 
 GtTaskGroup*

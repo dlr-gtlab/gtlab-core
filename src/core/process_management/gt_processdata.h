@@ -101,13 +101,11 @@ public:
      * @brief Creates new task group.
      * @param taskGroupId Identification string of new task group
      * @param scope Task group target scope
-     * @param projectPath
      * @return newly created task group. nullptr is returned if task group
      * creation failed.
      */
     GtTaskGroup* createNewTaskGroup(const QString& taskGroupId,
-                                    GtTaskGroup::SCOPE scope,
-                                    const QString& projectPath);
+                                    GtTaskGroup::SCOPE scope);
     /**
      * @brief Renames task group
      * @param taskGroupId Identification string of task group to be renamed
