@@ -33,7 +33,8 @@ class GtTaskGroup::Impl
 public:
     std::reference_wrapper<GtTaskGroup> _pub;
 
-    int _initialized = false;
+    GtBoolProperty _initialized{"initialized", tr("initialized"),
+                tr("Task Group is initialized."), false};
 
     explicit Impl (GtTaskGroup& pub) : _pub(pub) { }
 
@@ -64,6 +65,9 @@ public:
 GtTaskGroup::GtTaskGroup() : m_pimpl{std::make_unique<Impl>(*this)}
 {
     setFactory(gtObjectFactory);
+
+    m_pimpl->_initialized.hide();
+    registerProperty(m_pimpl->_initialized);
 }
 
 GtTaskGroup::GtTaskGroup(const QString& id, bool initialized) :
