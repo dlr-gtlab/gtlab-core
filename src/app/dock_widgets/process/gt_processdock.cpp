@@ -82,7 +82,9 @@ GtProcessDock::GtProcessDock() :
     m_currentProcess(nullptr),
     m_project(nullptr),
     m_actionMapper(new QSignalMapper(this)),
-    m_expandedItemUuidsState(nullptr)
+    m_expandedItemUuidsState(nullptr),
+    m_lastTaskGroupScopeState(nullptr),
+    m_lastTaskGroupIdState(nullptr)
 {
     setObjectName(tr("Processes/Calculators"));
 
@@ -383,7 +385,23 @@ GtProcessDock::projectChangedEvent(GtProject* project)
                         m_project, QStringLiteral("Project Settings"),
                         QStringLiteral("Expanded Process Dock Item UUIDs"),
                         m_project->objectPath() + ";expandPdItemUuids",
-                        QStringList(), m_project);
+                        QStringList{}, m_project);
+
+            m_lastTaskGroupScopeState = gtStateHandler->initializeState(
+                        m_project, QStringLiteral("Project Settings"),
+                        QStringLiteral("Scope of the last selected Task Group"),
+                        m_project->objectPath() + ";lastTaskGroupScope",
+                        GtTaskGroup::UNDEFINED, m_project);
+
+            m_lastTaskGroupIdState = gtStateHandler->initializeState(
+                        m_project, QStringLiteral("Project Settings"),
+                        QStringLiteral("ID of the last selected Task Group"),
+                        m_project->objectPath() + ";lastTaskGroupId",
+                        QString{}, m_project);
+
+            m_project->processData()->switchCurrentTaskGroup(
+                        lastTaskGroupId(), lastTaskGroupScope(),
+                        m_project->path());
         }
         else
         {
@@ -395,6 +413,8 @@ GtProcessDock::projectChangedEvent(GtProject* project)
             m_renameTaskGroupBtn->setEnabled(false);
 
             m_expandedItemUuidsState = nullptr;
+            m_lastTaskGroupScopeState = nullptr;
+            m_lastTaskGroupIdState = nullptr;
         }
 
         // update current task group
@@ -466,6 +486,46 @@ GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
     if (m_expandedItemUuidsState)
     {
         m_expandedItemUuidsState->setValue(uuids, false);
+    }
+}
+
+GtTaskGroup::SCOPE
+GtProcessDock::lastTaskGroupScope() const
+{
+    if (!m_lastTaskGroupScopeState)
+    {
+        return {};
+    }
+
+    return m_lastTaskGroupScopeState->getValue().value<GtTaskGroup::SCOPE>();
+}
+
+void
+GtProcessDock::setLastTaskGroupScope(GtTaskGroup::SCOPE scope)
+{
+    if (m_lastTaskGroupScopeState)
+    {
+        m_lastTaskGroupScopeState->setValue(scope, false);
+    }
+}
+
+QString
+GtProcessDock::lastTaskGroupId() const
+{
+    if (!m_lastTaskGroupIdState)
+    {
+        return {};
+    }
+
+    return m_lastTaskGroupIdState->getValue().toString();
+}
+
+void
+GtProcessDock::setLastTaskGroupId(const QString& groupId)
+{
+    if (m_lastTaskGroupIdState)
+    {
+        m_lastTaskGroupIdState->setValue(groupId, false);
     }
 }
 
@@ -2477,8 +2537,12 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
         return;
     }
 
-    m_project->processData()->switchCurrentTaskGroup(
-                groupId, scope, m_project->path());
+    if (m_project->processData()->switchCurrentTaskGroup(
+                groupId, scope, m_project->path()))
+    {
+        setLastTaskGroupScope(scope);
+        setLastTaskGroupId(groupId);
+    }
 
     m_delTaskGroupBtn->setEnabled(isTaskGroupDeletable(scope, groupId));
     m_renameTaskGroupBtn->setEnabled(isTaskGroupRenameable(scope, groupId));

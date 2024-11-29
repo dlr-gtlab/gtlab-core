@@ -198,6 +198,10 @@ private:
     /// Expanded item UUIDs
     GtState* m_expandedItemUuidsState;
 
+    GtState* m_lastTaskGroupScopeState;
+
+    GtState* m_lastTaskGroupIdState;
+
     void updateCurrentTaskGroup();
 
     /**
@@ -365,6 +369,14 @@ private:
      * @param uuids A list of UUIDs representing the expanded process items.
      */
     void setExpandedItemUuids(const QStringList& uuids);
+
+    GtTaskGroup::SCOPE lastTaskGroupScope() const;
+
+    void setLastTaskGroupScope(GtTaskGroup::SCOPE scope);
+
+    QString lastTaskGroupId() const;
+
+    void setLastTaskGroupId(const QString& groupId);
 
     bool isTaskGroupDeletable(GtTaskGroup::SCOPE scope,
                               const QString& groupId) const;

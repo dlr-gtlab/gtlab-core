@@ -30,10 +30,11 @@ class GT_CORE_EXPORT GtTaskGroup : public GtObjectGroup
 public:
     enum SCOPE
     {
-        USER,
+        USER = 0,
         CUSTOM,
         UNDEFINED
     };
+    Q_ENUM(SCOPE)
 
     /**
      * @brief Constructor
