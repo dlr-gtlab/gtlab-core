@@ -184,7 +184,6 @@ GtProcessData::read(const QString& projectPath)
     // initialization finished. Yippee-ki-yay, mot*********
     m_pimpl->_initialized = true;
 
-    // TODO: switch to last active task group
     assert(switchCurrentTaskGroup(GtTaskGroup::defaultUserGroupId(),
                                   GtTaskGroup::USER, projectPath));
 
@@ -238,11 +237,10 @@ GtTaskGroup*
 GtProcessData::createNewTaskGroup(const QString& taskGroupId,
                                   GtTaskGroup::SCOPE scope)
 {
-    GtObjectGroup* groupContainer = m_pimpl->groupContainer(scope);
+    auto groupContainer = m_pimpl->groupContainer(scope);
 
     if (!groupContainer)
     {
-        gtError().medium() << QObject::tr("task group scope invalid!");
         return nullptr;
     }
 
@@ -274,15 +272,7 @@ GtProcessData::renameTaskGroup(const QString& taskGroupId,
         return false;
     }
 
-    GtObjectGroup* groupContainer = m_pimpl->groupContainer(scope);
-
-    if (!groupContainer)
-    {
-        gtError().medium() << QObject::tr("task group scope invalid!");
-        return false;
-    }
-
-    auto group = groupContainer->findDirectChild<GtTaskGroup*>(taskGroupId);
+    auto group = m_pimpl->taskGroup(taskGroupId, scope);
 
     if (!group)
     {
@@ -451,17 +441,25 @@ GtProcessData::Impl::initTaskGroup(const QString& groupId,
                                    const QString& projectPath,
                                    GtTaskGroup::SCOPE scope)
 {
+    auto container = groupContainer(scope);
     auto group = taskGroup(groupId, scope);
 
-    if (!group)
+    if (!container || !group)
     {
         return false;
     }
 
     if (!group->isInitialized())
     {
+        // block signals temporarily to ensure that the data model does not
+        // interpret the task group read-in as a data change
+        container->blockSignals(true);
+
         // if group not already initialized. do it now!!! last chance my friend
         group->read(projectPath, scope);
+        group->acceptChanges();
+
+        container->blockSignals(false);
     }
 
     return true;
@@ -493,7 +491,7 @@ GtProcessData::Impl::groupContainer(GtTaskGroup::SCOPE scope) const
 
     if (scopeId.isEmpty())
     {
-        gtError() << QObject::tr("Invalid task group scope");
+        gtError().medium() << QObject::tr("Task group scope invalid!");
         return nullptr;
     }
 
@@ -508,8 +506,8 @@ GtProcessData::Impl::taskGroup(const QString& groupId,
 
     if (!container)
     {
-        gtError() << QObject::tr("Invalid process data!")
-                  << QObject::tr("Task group container was not found!");
+        gtError().medium() << QObject::tr("Task group container was not "
+                                          "found!");
         return nullptr;
     }
 
