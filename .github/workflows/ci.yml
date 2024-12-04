@@ -43,8 +43,8 @@ jobs:
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
     - name: Build
       run: | 
-        cmake -S . -B build -G "Ninja"
-        cmake --build build --config Debug
+        mkdir build && cd build
+        cmake ..
 
 
   documentation:
