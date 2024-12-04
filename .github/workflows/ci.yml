@@ -22,11 +22,11 @@ jobs:
       shell: powershell
       run: |
         $ProgressPreference = 'SilentlyContinue'
-        Invoke-WebRequest -Uri  https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile  hdf5-1.12.1-win64.zip
-        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath '$env:GITHUB_WORKSPACE/build_deps'
-        echo $env:CMAKE_PREFIX_PATH
-        $env:CMAKE_PREFIX_PATH+=";$env:GITHUB_WORKSPACE/build_deps"
-        echo $env:CMAKE_PREFIX_PATH
+        Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
+        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$env:GITHUB_WORKSPACE/build_deps"
+        echo "Before updating CMAKE_PREFIX_PATH: $env:CMAKE_PREFIX_PATH"
+        $env:CMAKE_PREFIX_PATH += ";$env:GITHUB_WORKSPACE/build_deps"
+        echo "After updating CMAKE_PREFIX_PATH: $env:CMAKE_PREFIX_PATH"
     
     - name: Install dependencies (linux)
       run: sudo apt install ninja-build
