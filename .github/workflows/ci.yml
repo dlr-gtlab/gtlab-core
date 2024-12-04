@@ -33,6 +33,7 @@ jobs:
 
     - name: Setup Windows Dependencies
       if: startsWith(matrix.os, 'windows')
+      shell: powershell
       run: |
         curl -L -o hdf5-1.12.1-win64.zip "https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip"
         Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath '$env:GITHUB_WORKSPACE/build_deps'
