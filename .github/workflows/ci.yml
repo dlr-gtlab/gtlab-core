@@ -35,8 +35,11 @@ jobs:
       if: startsWith(matrix.os, 'windows')
       run: |
         curl -L -o hdf5-1.12.1-win64.zip "https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip"
-        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath '${{ env.GITHUB_WORKSPACE }}\\build_deps'
-        $env:CMAKE_PREFIX_PATH+=";${{ env.GITHUB_WORKSPACE }}\\build_deps"
+        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath '$env:GITHUB_WORKSPACE/build_deps'
+        echo $env:CMAKE_PREFIX_PATH
+        $env:CMAKE_PREFIX_PATH+=";$env:GITHUB_WORKSPACE/build_deps"
+        echo $env:CMAKE_PREFIX_PATH
+        
  
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
     - name: Build
