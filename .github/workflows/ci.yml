@@ -18,8 +18,14 @@ jobs:
     
     steps:    
     - name: Install dependencies (linux)
-      run: sudo apt install ninja-build
-      if: matrix.os == 'ubuntu-latest' # conditional, runs this step only on the Ubuntu runner
+      if: matrix.os == 'ubuntu-latest' 
+      run: |
+        sudo apt install ninja-build
+        
+        wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
+        mkdir $HOME/build_deps
+        tar xf hdf5-1.12.1-linux.tar.gz -C $HOME/build_deps
+        "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-linux\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append   
       
     - name: Install Ninja (windows)    # Ninja is not available in GitHub-provided images,
                                        # see https://github.com/actions/runner-images/issues/514
@@ -42,6 +48,7 @@ jobs:
         Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
         Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$HOME/build_deps"
         "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append   
+ 
  
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
     - name: Build
