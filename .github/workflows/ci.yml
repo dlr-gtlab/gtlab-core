@@ -16,23 +16,7 @@ jobs:
         os: [ubuntu-latest, windows-2019] # we build on GitHub-provided Windows and Linux images
     runs-on: ${{ matrix.os }} # use value from the matrix
     
-    steps:
-    - name: Install dependencies (windows)
-      if: startsWith(matrix.os, 'windows')
-      shell: powershell
-      run: |
-        $ProgressPreference = 'SilentlyContinue'
-        Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
-        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$env:GITHUB_WORKSPACE/build_deps"
-        "HDF5_DIR=$env:GITHUB_WORKSPACE\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-    - name: check (windows)
-      if: startsWith(matrix.os, 'windows')
-      shell: powershell
-      run: |
-        ls "$env:GITHUB_WORKSPACE/build_deps"
-        ls "$env:HDF5_DIR"
-    
+    steps:    
     - name: Install dependencies (linux)
       run: sudo apt install ninja-build
       if: matrix.os == 'ubuntu-latest' # conditional, runs this step only on the Ubuntu runner
@@ -47,7 +31,14 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1 # This action essentially calls vcvarsall.bat for the latest VS in the runner for x64
     - uses: actions/checkout@v3    # Actually check out the sources. GH Actions can run for events that may not require
                                    # sources (e.g. when someone comments on an issue)
-        
+    - name: Install dependencies (windows)
+      if: startsWith(matrix.os, 'windows')
+      shell: powershell
+      run: |
+        $ProgressPreference = 'SilentlyContinue'
+        Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
+        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$env:GITHUB_WORKSPACE/build_deps"
+        "HDF5_DIR=$env:GITHUB_WORKSPACE\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append      
  
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
     - name: Build
