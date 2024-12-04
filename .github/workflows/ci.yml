@@ -42,13 +42,9 @@ jobs:
  
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
     - name: Build
-      # We don't need to set up the environment variable for CMake to see Qt because the install-qt-action
-      # sets up the necessary variables automatically
       run: | 
-        dir D:\a\gtlab-core\gtlab-core\build_deps\hdf5-1.12.1-win64
-        dir D:\a\gtlab-core\gtlab-core\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5
-        dir D:\a\gtlab-core\gtlab-core\build_deps\hdf5-1.12.1-win64\lib
-        cmake -S . -B build -G "Ninja Multi-Config" -DHDF5_DIR=D:\a\gtlab-core\gtlab-core\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5 --debug-find && cmake --build build --config Debug
+        cmake -S . -B build -G "Ninja"
+        cmake --build build --config Debug
 
 
   documentation:
