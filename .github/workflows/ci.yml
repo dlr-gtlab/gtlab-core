@@ -13,17 +13,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest] # we build on GitHub-provided Windows and Linux images
+        os: [ubuntu-latest, windows-2019] # we build on GitHub-provided Windows and Linux images
     runs-on: ${{ matrix.os }} # use value from the matrix
     
     steps:    
     - name: Install dependencies (linux)
       run: sudo apt install ninja-build
       if: matrix.os == 'ubuntu-latest' # conditional, runs this step only on the Ubuntu runner
+      
     - name: Install Ninja (windows)    # Ninja is not available in GitHub-provided images,
                                        # see https://github.com/actions/runner-images/issues/514
       run: choco install ninja         # So let's install it through Chocolatey
-      if: matrix.os == 'windows-latest'
+      if: startsWith(matrix.os, 'windows')
+      
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
@@ -36,16 +38,16 @@ jobs:
       shell: powershell
       run: |
         $ProgressPreference = 'SilentlyContinue'
+        
         Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
-        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$env:GITHUB_WORKSPACE/build_deps"
-        "HDF5_DIR=$env:GITHUB_WORKSPACE\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append   
-        New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$HOME/build_deps"
+        "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append   
  
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
     - name: Build
       run: | 
         mkdir build && cd build
-        cmake -DCMAKE_BUILD_TYPE=Debug -G "Ninja Multi-Config" ..
+        cmake -G "Ninja Multi-Config" ..
         cmake --build . --config=Debug
 
 
