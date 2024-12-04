@@ -17,11 +17,12 @@ option(GTLAB_USE_BUNDLED_GENH5 "Build genh5 (hdf5 c++ wrapper) bundled with GTla
 
 include(CPM)
 
+cmake_policy(SET CMP0097 NEW) # empty submodules list -> don't download these
+
 if (BUILD_WITH_HDF5 AND GTLAB_USE_BUNDLED_GENH5)
     CPMAddPackage(
       NAME genh5
-      GIT_REPOSITORY "https://github.com/dlr-gtlab/genh5.git"
-      GIT_TAG ${GTLAB_GENH5_VERSION}
+      URL https://github.com/dlr-gtlab/genh5/archive/refs/tags/${GTLAB_GENH5_VERSION}.zip
     )
 
     set_target_properties(GenH5
@@ -35,8 +36,8 @@ endif()
 if (GTLAB_USE_BUNDLED_LOGGING)
     CPMAddPackage(
       NAME logging
-      GIT_REPOSITORY "https://github.com/dlr-gtlab/gt-logging.git"
-      GIT_TAG ${GTLAB_LOGGING_VERSION}
+      URL https://github.com/dlr-gtlab/gt-logging/archive/refs/tags/${GTLAB_LOGGING_VERSION}.zip
+      PATCHES "logging.patch" # fix missing include
     )
 
     set_target_properties(GTlabLogging

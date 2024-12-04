@@ -16,8 +16,6 @@ struct TestVariantHasher : public testing::Test
 
 Q_DECLARE_METATYPE(std::string)
 
-namespace
-{
 
 QDataStream& operator<<(QDataStream& stream, const std::string& str)
 {
@@ -32,8 +30,6 @@ QDataStream& operator>>(QDataStream& stream, std::string& )
 
     return stream;
 }
-}
-
 
 
 /**
