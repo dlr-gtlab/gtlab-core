@@ -29,6 +29,13 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1 # This action essentially calls vcvarsall.bat for the latest VS in the runner for x64
     - uses: actions/checkout@v3    # Actually check out the sources. GH Actions can run for events that may not require
                                    # sources (e.g. when someone comments on an issue)
+
+    - name: Setup Windows Dependencies
+      if: startsWith(matrix.os, 'windows')
+      run: |
+        curl -L -o hdf5-1.12.1-win64.zip "https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip"
+        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath '${{ env.GITHUB_WORKSPACE }}\\build_deps'
+        $env:CMAKE_PREFIX_PATH+=";${{ env.GITHUB_WORKSPACE }}\\build_deps"
  
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
     - name: Build
