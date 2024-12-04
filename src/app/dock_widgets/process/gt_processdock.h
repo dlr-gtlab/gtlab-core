@@ -13,6 +13,7 @@
 
 #include "gt_dockwidget.h"
 #include "gt_command.h"
+#include "gt_taskgroup.h"
 
 #include <QPointer>
 #include <QPersistentModelIndex>
@@ -25,7 +26,6 @@ class GtProcessView;
 class GtProcessComponentModel;
 class GtTreeFilterModel;
 class GtSearchWidget;
-class GtTaskGroup;
 class GtTaskGroupModel;
 class GtTask;
 class GtCalculator;
@@ -35,6 +35,7 @@ class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
 class GtState;
+class GtEditableComboBox;
 
 /**
  * @brief The GtProcessDock class
@@ -142,7 +143,7 @@ protected:
 
 private:
     /// Combobox for task group selection
-    QComboBox* m_taskGroupSelection;
+    GtEditableComboBox* m_taskGroupSelection;
 
     /// Button to run selected process
     QPushButton* m_runButton;
@@ -152,6 +153,15 @@ private:
 
     /// Button to open the process queue
     QPushButton* m_processQueueButton;
+
+    /// Button to add a new custom task group
+    QPushButton* m_addTaskGroupBtn;
+
+    /// Button to delete the currently selected task group
+    QPushButton* m_delTaskGroupBtn;
+
+    /// Button to delete the currently selected task group
+    QPushButton* m_renameTaskGroupBtn;
 
     /// Tree view
     GtProcessView* m_view;
@@ -169,6 +179,8 @@ private:
     GtSearchWidget* m_search;
 
     /// Pointer to selected task group of current project
+    // TODISCUSS: Should we implement a function that returns the currently
+    // selected TaskGroup from the process data?
     QPointer<GtTaskGroup> m_taskGroup;
 
     /// Pointer to current process
@@ -185,6 +197,10 @@ private:
 
     /// Expanded item UUIDs
     GtState* m_expandedItemUuidsState;
+
+    GtState* m_lastTaskGroupScopeState;
+
+    GtState* m_lastTaskGroupIdState;
 
     void updateCurrentTaskGroup();
 
@@ -221,6 +237,13 @@ private:
      * @param parent
      */
     void addTaskToParent(GtObject* parentObj);
+
+    bool addTaskGroup(const QString& groupId, GtTaskGroup::SCOPE scope);
+
+    bool deleteTaksGroup(const QString& groupId, GtTaskGroup::SCOPE scope);
+
+    bool renameTaskGroup(const QString& groupId, const QString& newGroupId,
+                         GtTaskGroup::SCOPE scope);
 
     /**
      * @brief findRootTaskHelper
@@ -331,7 +354,7 @@ private:
      * @brief Determines the model index of the currently selected task group
      * and sets it as the root index for the process view.
      */
-    void updateTaskGroupRootIndex();
+    void updateProcessViewRootIndex();
 
     /**
      * @brief Retrieves the UUIDs of expanded process items from the project
@@ -346,6 +369,22 @@ private:
      * @param uuids A list of UUIDs representing the expanded process items.
      */
     void setExpandedItemUuids(const QStringList& uuids);
+
+    GtTaskGroup::SCOPE lastTaskGroupScope() const;
+
+    void setLastTaskGroupScope(GtTaskGroup::SCOPE scope);
+
+    QString lastTaskGroupId() const;
+
+    void setLastTaskGroupId(const QString& groupId);
+
+    bool isTaskGroupDeletable(const QString& groupId,
+                              GtTaskGroup::SCOPE scope) const;
+
+    bool isTaskGroupRenameable(const QString& groupId,
+                               GtTaskGroup::SCOPE scope) const;
+
+    void resetTaskGroupModel();
 
 private slots:
     /**
@@ -427,11 +466,6 @@ private slots:
     void configTask(GtTask* task);
 
     /**
-     * @brief resetModel
-     */
-    void resetModel();
-
-    /**
      * @brief Opens a connection editor.
      * @param Model index.
      */
@@ -486,6 +520,15 @@ private slots:
      * @param index The index of the item that was expanded.
      */
     void itemExpanded(const QModelIndex& index);
+
+    void renameTaskGroupRequested();
+
+    void renameTaskGroupFinished(int index, const QString& oldName,
+                                 const QString& newName);
+
+    void addCustomTaskGroup();
+
+    bool deleteCurrentTaskGroup();
 
 signals:
     /**

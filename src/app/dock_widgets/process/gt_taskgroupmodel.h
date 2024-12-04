@@ -68,7 +68,8 @@ public:
      */
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-
+    QModelIndex indexByGroupName(GtTaskGroup::SCOPE scope,
+                                 const QString& name) const;
 
 private:
     /// List of task group identification strings in user scope.
