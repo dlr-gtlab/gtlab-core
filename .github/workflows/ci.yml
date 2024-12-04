@@ -45,7 +45,7 @@ jobs:
     - name: Build
       run: | 
         mkdir build && cd build
-        cmake -DCMAKE_BUILD_TYPE=Debug ..
+        cmake -DCMAKE_BUILD_TYPE=Debug -G "Ninja Multi-Config" ..
         cmake --build . --config=Debug
 
 
