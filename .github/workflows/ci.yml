@@ -38,7 +38,8 @@ jobs:
         $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
         Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$env:GITHUB_WORKSPACE/build_deps"
-        "HDF5_DIR=$env:GITHUB_WORKSPACE\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append      
+        "HDF5_DIR=$env:GITHUB_WORKSPACE\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append   
+        New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
  
     # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
     - name: Build
