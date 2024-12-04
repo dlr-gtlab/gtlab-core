@@ -52,7 +52,9 @@ if (BUILD_WITH_COVERAGE)
     append_coverage_compiler_flags()
 endif(BUILD_WITH_COVERAGE)
 
-include(GetDependencies)
+if (NOT DEFINED VCPKG_TARGET_TRIPLET)
+    include(GetDependencies)
+endif()
 
 if (NOT BUILD_SHARED_LIBS)
     message(WARNING "Static library builds of GTlab are not yet fully supported.") 
