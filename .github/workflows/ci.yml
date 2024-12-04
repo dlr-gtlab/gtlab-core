@@ -25,6 +25,13 @@ jobs:
         Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
         Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$env:GITHUB_WORKSPACE/build_deps"
         "HDF5_DIR=$env:GITHUB_WORKSPACE/build_deps/hdf5-1.12.1-win64/share/cmake/hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+    - name: check (windows)
+      if: startsWith(matrix.os, 'windows')
+      shell: powershell
+      run: |
+        ls "$env:GITHUB_WORKSPACE/build_deps"
+        ls "$env:HDF5_DIR"
     
     - name: Install dependencies (linux)
       run: sudo apt install ninja-build
