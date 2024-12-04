@@ -238,12 +238,12 @@ private:
      */
     void addTaskToParent(GtObject* parentObj);
 
-    bool addTaskGroup(GtTaskGroup::SCOPE scope, const QString& groupId);
+    bool addTaskGroup(const QString& groupId, GtTaskGroup::SCOPE scope);
 
-    bool deleteTaksGroup(GtTaskGroup::SCOPE scope, const QString& groupId);
+    bool deleteTaksGroup(const QString& groupId, GtTaskGroup::SCOPE scope);
 
-    bool renameTaskGroup(GtTaskGroup::SCOPE scope, const QString& groupId,
-                         const QString& newGroupId);
+    bool renameTaskGroup(const QString& groupId, const QString& newGroupId,
+                         GtTaskGroup::SCOPE scope);
 
     /**
      * @brief findRootTaskHelper
@@ -378,11 +378,11 @@ private:
 
     void setLastTaskGroupId(const QString& groupId);
 
-    bool isTaskGroupDeletable(GtTaskGroup::SCOPE scope,
-                              const QString& groupId) const;
+    bool isTaskGroupDeletable(const QString& groupId,
+                              GtTaskGroup::SCOPE scope) const;
 
-    bool isTaskGroupRenameable(GtTaskGroup::SCOPE scope,
-                               const QString& groupId) const;
+    bool isTaskGroupRenameable(const QString& groupId,
+                               GtTaskGroup::SCOPE scope) const;
 
     void resetTaskGroupModel();
 

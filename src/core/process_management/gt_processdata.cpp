@@ -36,6 +36,8 @@ public:
 
     bool saveTaskGroups(const QString& projectPath, GtTaskGroup::SCOPE scope);
 
+    bool initTaskGroups(const QString& projectPath, GtTaskGroup::SCOPE scope);
+
     bool initTaskGroup(const QString& groupId,
                        const QString& projectPath,
                        GtTaskGroup::SCOPE scope);
@@ -218,7 +220,7 @@ GtProcessData::save(const QString& projectPath) const
 {
     if (!m_pimpl->_initialized)
     {
-        gtError() << tr("Cannot save an uninitialized task group!");
+        gtError() << tr("Cannot save uninitialized process data!");
         return false;
     }
 
@@ -302,6 +304,13 @@ bool
 GtProcessData::deleteTaskGroup(const QString& taskGroupId,
                                GtTaskGroup::SCOPE scope)
 {
+    if (!m_pimpl->_initialized)
+    {
+        gtError().medium() << tr("Process data is not initialized!") <<
+                     tr("Call init() first!");
+        return false;
+    }
+
     GtObjectGroup* groupContainer = m_pimpl->groupContainer(scope);
 
     if (!groupContainer)
@@ -319,6 +328,32 @@ GtProcessData::deleteTaskGroup(const QString& taskGroupId,
     }
 
     return gtDataModel->deleteFromModel(group);
+}
+
+bool
+GtProcessData::initAllTaskGroups(const QString& projectPath)
+{
+    if (!m_pimpl->_initialized)
+    {
+        gtError().medium() << tr("Process data is not initialized!") <<
+                     tr("Call init() first!");
+        return false;
+    }
+
+    // initialize all task groups
+    if (!m_pimpl->initTaskGroups(projectPath, GtTaskGroup::USER))
+    {
+        gtError() << tr("Unable to initialize user task groups!");
+        return false;
+    }
+
+    if (!m_pimpl->initTaskGroups(projectPath, GtTaskGroup::CUSTOM))
+    {
+        gtError() << tr("Unable to initialize custom task groups!");
+        return false;
+    }
+
+    return true;
 }
 
 QStringList
@@ -431,6 +466,19 @@ GtProcessData::Impl::saveTaskGroups(const QString& projectPath,
         {
            QDir{scopePath + QDir::separator() + dir}.removeRecursively();
         }
+    }
+
+    return true;
+}
+
+bool
+GtProcessData::Impl::initTaskGroups(const QString& projectPath,
+                                    GtTaskGroup::SCOPE scope)
+{
+    const auto& taskGroupIds = groupIds(scope);
+    for (const auto& groupId : taskGroupIds)
+    {
+        if (!initTaskGroup(groupId, projectPath, scope)) return false;
     }
 
     return true;

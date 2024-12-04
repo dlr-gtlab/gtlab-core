@@ -382,22 +382,22 @@ GtProcessDock::projectChangedEvent(GtProject* project)
             m_addTaskGroupBtn->setEnabled(true);
 
             m_expandedItemUuidsState = gtStateHandler->initializeState(
-                        m_project, QStringLiteral("Project Settings"),
+                        m_project, QStringLiteral("ProcessDock"),
                         QStringLiteral("Expanded Process Dock Item UUIDs"),
-                        m_project->objectPath() + ";expandPdItemUuids",
+                        "default;ProcessDock;expandPdItemUuids",
                         QStringList{}, m_project);
 
             m_lastTaskGroupScopeState = gtStateHandler->initializeState(
-                        m_project, QStringLiteral("Project Settings"),
+                        m_project, QStringLiteral("ProcessDock"),
                         QStringLiteral("Scope of the last selected Task Group"),
-                        m_project->objectPath() + ";lastTaskGroupScope",
-                        GtTaskGroup::UNDEFINED, m_project);
+                        "default;ProcessDock;lastTaskGroupScope",
+                        GtTaskGroup::USER, m_project);
 
             m_lastTaskGroupIdState = gtStateHandler->initializeState(
-                        m_project, QStringLiteral("Project Settings"),
+                        m_project, QStringLiteral("ProcessDock"),
                         QStringLiteral("ID of the last selected Task Group"),
-                        m_project->objectPath() + ";lastTaskGroupId",
-                        QString{}, m_project);
+                        "default;ProcessDock;lastTaskGroupId",
+                        GtTaskGroup::defaultUserGroupId(), m_project);
 
             m_project->processData()->switchCurrentTaskGroup(
                         lastTaskGroupId(), lastTaskGroupScope(),
@@ -530,17 +530,17 @@ GtProcessDock::setLastTaskGroupId(const QString& groupId)
 }
 
 bool
-GtProcessDock::isTaskGroupDeletable(GtTaskGroup::SCOPE scope,
-                                    const QString& /*groupId*/) const
+GtProcessDock::isTaskGroupDeletable(const QString& /*groupId*/,
+                                    GtTaskGroup::SCOPE scope) const
 {
     return scope == GtTaskGroup::CUSTOM;
 }
 
 bool
-GtProcessDock::isTaskGroupRenameable(GtTaskGroup::SCOPE scope,
-                                     const QString& groupId) const
+GtProcessDock::isTaskGroupRenameable(const QString& groupId,
+                                     GtTaskGroup::SCOPE scope) const
 {
-    return isTaskGroupDeletable(scope, groupId);
+    return isTaskGroupDeletable(groupId, scope);
 }
 
 void
@@ -784,7 +784,7 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
 }
 
 bool
-GtProcessDock::addTaskGroup(GtTaskGroup::SCOPE scope, const QString& groupId)
+GtProcessDock::addTaskGroup(const QString& groupId, GtTaskGroup::SCOPE scope)
 {
     if (!m_project || !m_project->processData())
     {
@@ -795,7 +795,7 @@ GtProcessDock::addTaskGroup(GtTaskGroup::SCOPE scope, const QString& groupId)
 }
 
 bool
-GtProcessDock::deleteTaksGroup(GtTaskGroup::SCOPE scope, const QString& groupId)
+GtProcessDock::deleteTaksGroup(const QString& groupId, GtTaskGroup::SCOPE scope)
 {
     if (!m_project || !m_project->processData())
     {
@@ -806,9 +806,9 @@ GtProcessDock::deleteTaksGroup(GtTaskGroup::SCOPE scope, const QString& groupId)
 }
 
 bool
-GtProcessDock::renameTaskGroup(GtTaskGroup::SCOPE scope,
-                               const QString& groupId,
-                               const QString& newGroupId)
+GtProcessDock::renameTaskGroup(const QString& groupId,
+                               const QString& newGroupId,
+                               GtTaskGroup::SCOPE scope)
 {
     if (!m_project || !m_project->processData())
     {
@@ -2544,8 +2544,8 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
         setLastTaskGroupId(groupId);
     }
 
-    m_delTaskGroupBtn->setEnabled(isTaskGroupDeletable(scope, groupId));
-    m_renameTaskGroupBtn->setEnabled(isTaskGroupRenameable(scope, groupId));
+    m_delTaskGroupBtn->setEnabled(isTaskGroupDeletable(groupId, scope));
+    m_renameTaskGroupBtn->setEnabled(isTaskGroupRenameable(groupId, scope));
 
     updateCurrentTaskGroup();
 }
@@ -2597,8 +2597,8 @@ GtProcessDock::renameTaskGroupRequested()
 {
     int index = m_taskGroupSelection->currentIndex();
 
-    if (isTaskGroupRenameable(m_taskGroupModel->rowScope(index),
-                              m_taskGroupSelection->itemText(index)))
+    if (isTaskGroupRenameable(m_taskGroupSelection->itemText(index),
+                              m_taskGroupModel->rowScope(index)))
     {
         m_taskGroupSelection->enableEditing();
     }
@@ -2616,7 +2616,7 @@ GtProcessDock::renameTaskGroupFinished(int index, const QString& oldName,
 
     auto scope = m_taskGroupModel->rowScope(index);
 
-    if (!renameTaskGroup(scope, oldName, newName))
+    if (!renameTaskGroup(oldName, newName, scope))
     {
         return;
     }
@@ -2639,7 +2639,7 @@ GtProcessDock::addCustomTaskGroup()
     auto id = gt::makeUniqueName(tr("New Task Group"),
                        m_project->processData()->customGroupIds());
 
-    if (addTaskGroup(scope, id))
+    if (addTaskGroup(id, scope))
     {
         m_taskGroupSelection->setCurrentIndex(
                     m_taskGroupModel->indexByGroupName(scope, id).row());
@@ -2659,7 +2659,7 @@ GtProcessDock::deleteCurrentTaskGroup()
     auto scope = m_taskGroupModel->rowScope(
                 m_taskGroupSelection->currentIndex());
 
-    if (!isTaskGroupDeletable(scope, m_taskGroup->objectName()))
+    if (!isTaskGroupDeletable(m_taskGroup->objectName(), scope))
     {
         return false;
     }
@@ -2668,7 +2668,7 @@ GtProcessDock::deleteCurrentTaskGroup()
 
     m_taskGroupSelection->setCurrentText(GtTaskGroup::defaultUserGroupId());
 
-    if (!deleteTaksGroup(scope, toDelete->objectName()))
+    if (!deleteTaksGroup(toDelete->objectName(), scope))
     {
         return false;
     }

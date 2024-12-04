@@ -122,6 +122,9 @@ public:
 
     bool deleteTaskGroup(const QString& taskGroupId,
                          GtTaskGroup::SCOPE scope);
+
+    bool initAllTaskGroups(const QString& projectPath);
+
     /**
      * @brief Returns list of task group identification strings in user scope.
      * @return

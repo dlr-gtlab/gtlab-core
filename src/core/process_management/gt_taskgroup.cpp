@@ -74,7 +74,7 @@ GtTaskGroup::GtTaskGroup(const QString& id, bool initialized) :
     GtTaskGroup()
 {
     setObjectName(id);
-    m_pimpl->_initialized = initialized;
+    m_pimpl-> _initialized = initialized;
 }
 
 GtTaskGroup::~GtTaskGroup() = default;
