@@ -25,7 +25,7 @@ jobs:
         wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
         mkdir $HOME/build_deps
         tar xf hdf5-1.12.1-linux.tar.gz -C $HOME/build_deps
-        "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-linux\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append   
+        echo "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-linux\share\cmake\hdf5" >> $GITHUB_ENV:
       
     - name: Install Ninja (windows)    # Ninja is not available in GitHub-provided images,
                                        # see https://github.com/actions/runner-images/issues/514
