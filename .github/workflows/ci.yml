@@ -82,7 +82,7 @@ jobs:
       
       - name: Install dependencies (linux)
         if: startsWith(matrix.os, 'ubuntu')
-        run: sudo apt install libxi-dev libxtst-dev
+        run: sudo apt install libxtst-dev '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
       
       - name: Install cmake
         uses: lukka/get-cmake@latest
