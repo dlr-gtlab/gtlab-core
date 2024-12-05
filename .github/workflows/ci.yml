@@ -62,8 +62,18 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-2019]
+        include:
+          - vcpkg_triplet: x64-windows
+            os: windows-2019
+          - vcpkg_triplet: x64-linux-dynamic
+            os: ubuntu-latest
+         
       fail-fast: false
     runs-on: ${{ matrix.os }}
+
+    env:
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
+      VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_triplet }}
 
     steps:
       - uses: actions/checkout@v3 
