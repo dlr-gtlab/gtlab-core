@@ -58,9 +58,12 @@ jobs:
         cmake --build . --config=Debug
 
   vcpkg-test:
-    runs-on: windows-2019
+    name: "Build with vcpkg"
     strategy:
+      matrix:
+        os: [ubuntu-latest, windows-2019]
       fail-fast: false
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3 
@@ -68,11 +71,9 @@ jobs:
       - uses: lukka/get-cmake@latest
       - name: Install vcpkg
         uses: lukka/run-vcpkg@v11
-      - name: Run cmake
+      - name: Build GTlab
         run: |
-          ninja --version
-          mkdir build && cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}"\scripts\buildsystems\vcpkg.cmake -G "Ninja Multi-Config" ..
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}"/scripts/buildsystems/vcpkg.cmake -G "Ninja Multi-Config"
           cmake --build . --config=Debug
         
 
