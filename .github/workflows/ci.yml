@@ -91,7 +91,7 @@ jobs:
         uses: lukka/run-vcpkg@v11
         
       - name: Configure CMake
-        run: cmake -S . -B ${{github.workspace}}/build -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}"/scripts/buildsystems/vcpkg.cmake -G "Ninja Multi-Config"
+        run: cmake -S . -B ${{github.workspace}}/build -DVCPKG_HOST_TRIPLET=${{ matrix.vcpkg_triplet }} -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}"/scripts/buildsystems/vcpkg.cmake -G "Ninja Multi-Config"
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config Debug
