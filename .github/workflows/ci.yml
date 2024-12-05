@@ -81,10 +81,11 @@ jobs:
       - uses: lukka/get-cmake@latest
       - name: Install vcpkg
         uses: lukka/run-vcpkg@v11
-      - name: Build GTlab
-        run: |
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}"/scripts/buildsystems/vcpkg.cmake -G "Ninja Multi-Config"
-          cmake --build . --config=Debug
+      - name: Configure CMake
+        run: cmake -S . -B ${{github.workspace}}/build -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}"/scripts/buildsystems/vcpkg.cmake -G "Ninja Multi-Config"
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config Debug
         
 
   documentation:
