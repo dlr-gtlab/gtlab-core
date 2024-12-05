@@ -73,10 +73,8 @@ jobs:
           ninja --version
           mkdir build && cd build
           cmake -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT"\scripts\buildsystems\vcpkg.cmake -G "Ninja Multi-Config" ..
+          cmake --build . --config=Debug
         
-      
-        
-
 
   documentation:
     runs-on: ubuntu-latest
