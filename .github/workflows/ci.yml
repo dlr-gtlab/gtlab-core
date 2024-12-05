@@ -57,6 +57,21 @@ jobs:
         cmake -G "Ninja Multi-Config" ..
         cmake --build . --config=Debug
 
+  vcpkg-test:
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3 
+      - uses: actions/cache@v3
+      - uses: lukka/get-cmake@latest
+      - name: Install vcpkg
+        uses: lukka/run-vcpkg@v11
+        
+      
+        
+
 
   documentation:
     runs-on: ubuntu-latest
