@@ -77,10 +77,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3 
-      - uses: ilammy/msvc-dev-cmd@v1 
-      - uses: lukka/get-cmake@latest
+      
+      - uses: ilammy/msvc-dev-cmd@v1
+      
+      - name: Install dependencies (linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: sudo apt install libxi-dev libxtst-dev
+      
+      - name: Install cmake
+        uses: lukka/get-cmake@latest
+      
       - name: Install vcpkg
         uses: lukka/run-vcpkg@v11
+        
       - name: Configure CMake
         run: cmake -S . -B ${{github.workspace}}/build -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}"/scripts/buildsystems/vcpkg.cmake -G "Ninja Multi-Config"
 
