@@ -10,6 +10,7 @@
 
 #include "gt_application.h"
 
+#include "gt_colorpropertyitem.h"
 #include "gt_mdilauncher.h"
 #include "gt_guimoduleloader.h"
 #include "gt_perspective.h"
@@ -21,7 +22,7 @@
 #include "gt_mementochangecommand.h"
 #include "gt_processrunner.h"
 #include "gt_processexecutor.h"
-#include "gt_propertyfactory.h"
+#include "gt_propertyitemfactory.h"
 
 #include "gt_datamodel.h"
 #include "gt_command.h"
@@ -82,8 +83,9 @@ GtApplication::GtApplication(QCoreApplication* parent,
             this, SIGNAL(shortCutsChanged()));
 
     /// register gui related properties
-    GtPropertyFactory* fac = GtPropertyFactory::instance();
-    fac->registerQObjectClass<GtColorPropety>();
+    GtPropertyItemFactory* fac = GtPropertyItemFactory::instance();
+    fac->registerPropertyItem(GT_CLASSNAME(GtColorProperty),
+                              GtColorPropertyItem::staticMetaObject);
 
 }
 
