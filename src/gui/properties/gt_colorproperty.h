@@ -48,6 +48,7 @@ public:
     bool setValueFromVariant(QVariant const& val, QString const& unit) override;
 
     GtColorProperty& operator=(const QColor& val);
+
 };
 
 
