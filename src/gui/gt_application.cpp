@@ -21,6 +21,7 @@
 #include "gt_mementochangecommand.h"
 #include "gt_processrunner.h"
 #include "gt_processexecutor.h"
+#include "gt_propertyfactory.h"
 
 #include "gt_datamodel.h"
 #include "gt_command.h"
@@ -29,6 +30,7 @@
 #include "gt_icons.h"
 #include "gt_shortcuts.h"
 #include "gt_projectui.h"
+#include "gt_colorproperty.h"
 
 #include <QMessageBox>
 #include <QIcon>
@@ -78,6 +80,11 @@ GtApplication::GtApplication(QCoreApplication* parent,
 
     connect(sc, SIGNAL(changed()),
             this, SIGNAL(shortCutsChanged()));
+
+    /// register gui related properties
+    GtPropertyFactory* fac = GtPropertyFactory::instance();
+    fac->registerQObjectClass<GtColorPropety>();
+
 }
 
 GtApplication::~GtApplication()
