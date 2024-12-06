@@ -36,8 +36,8 @@ public:
     explicit GtColorPropertyEditor(QWidget* parent = nullptr);
 
     /**
-     * @brief Sets pointer to corresponding file chooser property.
-     * @param File chooser property.
+     * @brief Sets pointer to corresponding color property.
+     * @param Color property.
      */
     void setColorProperty(GtColorProperty* prop);
 
@@ -52,7 +52,7 @@ private:
     QPointer<GtColorProperty> m_prop;
 
     /**
-     * @brief Updates line edit text.
+     * @brief Updates line edit text and color button.
      */
     void update();
 
