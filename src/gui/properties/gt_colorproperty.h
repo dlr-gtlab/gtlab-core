@@ -11,11 +11,13 @@
 #ifndef GT_COLORPROPERTY_H
 #define GT_COLORPROPERTY_H
 
+#include "gt_gui_exports.h"
+
 #include "gt_property.h"
 #include <QColor>
 
 
-class GtColorProperty : public GtProperty<QColor>
+class GT_GUI_EXPORT GtColorProperty : public GtProperty<QColor>
 {
     Q_OBJECT
 

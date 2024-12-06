@@ -86,7 +86,6 @@ GtApplication::GtApplication(QCoreApplication* parent,
     GtPropertyItemFactory* fac = GtPropertyItemFactory::instance();
     fac->registerPropertyItem(GT_CLASSNAME(GtColorProperty),
                               GtColorPropertyItem::staticMetaObject);
-
 }
 
 GtApplication::~GtApplication()
