@@ -195,6 +195,9 @@ set(headers
     importer/processImporter/gt_processimporter.h
     models/gt_listmodel.h
     models/gt_qvariantlistmodel.h
+    properties/gt_colorproperty.h
+    properties/gt_colorpropertyitem.h
+    properties/gt_colorpropertyeditor.h
 )
 
 set(sources
@@ -370,6 +373,9 @@ set(sources
     gt_textfilterdelegate.cpp
     gt_finishedprocessloadinghelper.cpp
     importer/processImporter/gt_processimporter.cpp
+    properties/gt_colorproperty.cpp
+    properties/gt_colorpropertyitem.cpp
+    properties/gt_colorpropertyeditor.cpp
 )
 
 set(resources
@@ -423,6 +429,7 @@ target_include_directories(GTlabGui PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/widgets>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/process_runner>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/models>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/properties>
 
     # includes for consumer after install
     $<INSTALL_INTERFACE:include/core>
