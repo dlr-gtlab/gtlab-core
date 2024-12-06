@@ -197,6 +197,7 @@ set(headers
     models/gt_qvariantlistmodel.h
     properties/gt_colorproperty.h
     properties/gt_colorpropertyitem.h
+    properties/gt_colorpropertyeditor.h
 )
 
 set(sources
@@ -374,6 +375,7 @@ set(sources
     importer/processImporter/gt_processimporter.cpp
     properties/gt_colorproperty.cpp
     properties/gt_colorpropertyitem.cpp
+    properties/gt_colorpropertyeditor.cpp
 )
 
 set(resources

@@ -10,7 +10,8 @@
 #include "gt_colorpropertyitem.h"
 #include "gt_colorproperty.h"
 
-#include <QColorDialog>
+#include "gt_colorpropertyeditor.h"
+//#include <QColorDialog>
 
 GtColorPropertyItem::GtColorPropertyItem()
 {
@@ -19,9 +20,14 @@ GtColorPropertyItem::GtColorPropertyItem()
 QVariant
 GtColorPropertyItem::data(int column, int role) const
 {
+    if (!colorProperty()) return {};
+
     if (column < 0 || column >= 3) return {};
 
-    if (!m_property) return {};
+    if (column == 0)
+    {
+        return GtPropertyItem::data(column, role);
+    }
 
     switch (role)
     {
@@ -79,7 +85,7 @@ GtColorPropertyItem::editorWidget(
     QWidget* parent,
     const GtPropertyValueDelegate* /*delegate*/) const
 {
-    auto* e = new QColorDialog(parent);
+    auto* e = new GtColorPropertyEditor(parent);
 
     return e;
 }
@@ -88,10 +94,9 @@ void
 GtColorPropertyItem::setEditorData(QWidget* editor,
                                       QVariant& /*var*/) const
 {
-    auto* e = static_cast<QColorDialog*>(editor);
-    e->setCurrentColor(colorProperty()->getVal());
+    auto* e = static_cast<GtColorPropertyEditor*>(editor);
 
-    //e->setTurboMapProperty(mapProperty());
+    e->setColorProperty(colorProperty());
 }
 
 void
