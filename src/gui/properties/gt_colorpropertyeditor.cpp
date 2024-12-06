@@ -11,8 +11,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
-#include <QFile>
-#include <QDir>
 #include <QColorDialog>
 
 #include "gt_colorpropertyeditor.h"
@@ -22,7 +20,6 @@
 #include "gt_command.h"
 #include "gt_project.h"
 
-#include "gt_propertyfilechoosereditor.h"
 
 GtColorPropertyEditor::GtColorPropertyEditor(QWidget* parent) :
     QWidget(parent)
@@ -32,9 +29,6 @@ GtColorPropertyEditor::GtColorPropertyEditor(QWidget* parent) :
     lay->addWidget(m_colorLineEdit);
 
     m_selectButton = new QPushButton();
-    m_selectButton->setFlat(true);
-    m_selectButton->setMaximumWidth(16);
-    m_selectButton->setAutoDefault(false);
     m_selectButton->setToolTip(tr("Select Color"));
 
     lay->addWidget(m_selectButton);
@@ -66,17 +60,31 @@ GtColorPropertyEditor::update()
 {
     QColor c;
 
-    if (m_prop)
-    {
-        c = m_prop->getVal();
-    }
+    if (m_prop) c = m_prop->getVal();
 
     m_colorLineEdit->setText(c.name());
 
-    m_selectButton->setToolTip(tr("Select Color"));
+    m_selectButton->setAutoFillBackground(true);
 
-    QString styleSheet = QString("background-color: %1;").arg(c.name());
-    m_selectButton->setStyleSheet(styleSheet);
+    static const QString styleBase = QStringLiteral(R"(
+      QAbstractButton{
+        margin: 0px;
+        max-width: 40px;
+        border: 1px solid #777777; border-radius: 2px;
+        background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 %3, stop:1 '%1');
+      }
+      QAbstractButton:hover{ background-color: %2}
+      QAbstractButton:pressed{ background-color: %2;})");
+
+    QColor highlightColor = c.lighter();
+    QColor gradientUpColor = c.lighter(110);
+    QColor gradientLoColor = c.darker(110);
+
+    QString style = QString(styleBase).arg(QVariant(gradientLoColor).toString(),
+                                           QVariant(highlightColor).toString(),
+                                           QVariant(gradientUpColor).toString());
+
+    m_selectButton->setStyleSheet(style);
 }
 
 void
