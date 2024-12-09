@@ -90,11 +90,11 @@ public:
     static QString defaultUserGroupId();
 
     /**
-     * @brief Returns path to task group scope on filesystem.
-     * @param projectPath
-     * @param scope
-     * @param groupId
-     * @return
+     * @brief Returns the file system path for the specified Task Group scope.
+     * @param projectPath The path to the project directory.
+     * @param scope The scope of the Task Group for which the path is to be
+     * retrieved.
+     * @return The file system path to the Task Group scope directory.
      */
     static QString scopePath(const QString& projectPath,
                              const GtTaskGroup::SCOPE scope);

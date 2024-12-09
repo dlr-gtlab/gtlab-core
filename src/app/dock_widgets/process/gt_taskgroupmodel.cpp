@@ -101,8 +101,8 @@ GtTaskGroupModel::flags(const QModelIndex& index) const
 }
 
 QModelIndex
-GtTaskGroupModel::indexByGroupName(GtTaskGroup::SCOPE scope,
-                                   const QString& name) const
+GtTaskGroupModel::indexByGroupName(const QString& name,
+                                   GtTaskGroup::SCOPE scope) const
 {
     if (scope == GtTaskGroup::UNDEFINED)
     {

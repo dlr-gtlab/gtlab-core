@@ -795,7 +795,7 @@ GtProcessDock::addTaskGroup(const QString& groupId, GtTaskGroup::SCOPE scope)
 }
 
 bool
-GtProcessDock::deleteTaksGroup(const QString& groupId, GtTaskGroup::SCOPE scope)
+GtProcessDock::deleteTaskGroup(const QString& groupId, GtTaskGroup::SCOPE scope)
 {
     if (!m_project || !m_project->processData())
     {
@@ -2624,7 +2624,7 @@ GtProcessDock::renameTaskGroupFinished(int index, const QString& oldName,
     resetTaskGroupModel();
 
     m_taskGroupSelection->setCurrentIndex(
-                m_taskGroupModel->indexByGroupName(scope, newName).row());
+                m_taskGroupModel->indexByGroupName(newName, scope).row());
 }
 
 void
@@ -2642,7 +2642,7 @@ GtProcessDock::addCustomTaskGroup()
     if (addTaskGroup(id, scope))
     {
         m_taskGroupSelection->setCurrentIndex(
-                    m_taskGroupModel->indexByGroupName(scope, id).row());
+                    m_taskGroupModel->indexByGroupName(id, scope).row());
 
         renameTaskGroupRequested();
     }
@@ -2668,7 +2668,7 @@ GtProcessDock::deleteCurrentTaskGroup()
 
     m_taskGroupSelection->setCurrentText(GtTaskGroup::defaultUserGroupId());
 
-    if (!deleteTaksGroup(toDelete->objectName(), scope))
+    if (!deleteTaskGroup(toDelete->objectName(), scope))
     {
         return false;
     }
