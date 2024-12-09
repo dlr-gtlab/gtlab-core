@@ -21,6 +21,11 @@ GtTaskGroupModel::GtTaskGroupModel(QObject* parent) :
 void GtTaskGroupModel::init(const QStringList& userGroups,
                             const QStringList& customGroups)
 {
+    if (m_userGroups == userGroups && m_customGroups == customGroups)
+    {
+        return;
+    }
+
     beginResetModel();
 
     m_userGroups = userGroups;
@@ -93,6 +98,31 @@ GtTaskGroupModel::flags(const QModelIndex& index) const
     }
 
     return defaultFlags;
+}
+
+QModelIndex
+GtTaskGroupModel::indexByGroupName(const QString& name,
+                                   GtTaskGroup::SCOPE scope) const
+{
+    if (scope == GtTaskGroup::UNDEFINED)
+    {
+        return {};
+    }
+
+    int start = (scope == GtTaskGroup::USER) ? 1 : m_userGroups.size() + 2;
+    int end = (scope == GtTaskGroup::USER) ?
+                (m_userGroups.size() + 1) :
+                (m_userGroups.size() + m_customGroups.size() + 2);
+
+    for (int i = start; i <= end; ++i)
+    {
+        if (rowText(i) == name)
+        {
+            return index(i, 0);
+        }
+    }
+
+    return {};
 }
 
 QString

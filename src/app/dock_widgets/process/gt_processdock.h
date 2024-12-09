@@ -13,6 +13,7 @@
 
 #include "gt_dockwidget.h"
 #include "gt_command.h"
+#include "gt_taskgroup.h"
 
 #include <QPointer>
 #include <QPersistentModelIndex>
@@ -25,7 +26,6 @@ class GtProcessView;
 class GtProcessComponentModel;
 class GtTreeFilterModel;
 class GtSearchWidget;
-class GtTaskGroup;
 class GtTaskGroupModel;
 class GtTask;
 class GtCalculator;
@@ -35,6 +35,7 @@ class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
 class GtState;
+class GtEditableComboBox;
 
 /**
  * @brief The GtProcessDock class
@@ -142,7 +143,7 @@ protected:
 
 private:
     /// Combobox for task group selection
-    QComboBox* m_taskGroupSelection;
+    GtEditableComboBox* m_taskGroupSelection;
 
     /// Button to run selected process
     QPushButton* m_runButton;
@@ -152,6 +153,15 @@ private:
 
     /// Button to open the process queue
     QPushButton* m_processQueueButton;
+
+    /// Button to add a new custom task group
+    QPushButton* m_addTaskGroupBtn;
+
+    /// Button to delete the currently selected task group
+    QPushButton* m_delTaskGroupBtn;
+
+    /// Button to delete the currently selected task group
+    QPushButton* m_renameTaskGroupBtn;
 
     /// Tree view
     GtProcessView* m_view;
@@ -186,6 +196,16 @@ private:
     /// Expanded item UUIDs
     GtState* m_expandedItemUuidsState;
 
+    /// Scope of the last selected task group
+    GtState* m_lastTaskGroupScopeState;
+
+    /// ID of the last selected task group
+    GtState* m_lastTaskGroupIdState;
+
+    /**
+     * @brief Determines the current Task Group from the process data and
+     * updates the corresponding GUI components in the process dock.
+     */
     void updateCurrentTaskGroup();
 
     /**
@@ -221,6 +241,34 @@ private:
      * @param parent
      */
     void addTaskToParent(GtObject* parentObj);
+
+    /**
+     * @brief Adds a Task Group with the specified ID to the specified scope.
+     * @param groupId The ID for the new Task Group.
+     * @param scope The scope in which the Task Group should be created.
+     * @return True if the Task Group was successfully added; otherwise false.
+     */
+    bool addTaskGroup(const QString& groupId, GtTaskGroup::SCOPE scope);
+
+    /**
+     * @brief Deletes the Task Group with the specified ID from the specified
+     * scope.
+     * @param groupId The ID of the Task Group to be deleted.
+     * @param scope The scope from which the Task Group should be removed.
+     * @return True if the Task Group was successfully deleted; otherwise false.
+     */
+    bool deleteTaskGroup(const QString& groupId, GtTaskGroup::SCOPE scope);
+
+    /**
+     * @brief Renames the Task Group with the specified ID in the specified
+     * scope to a new ID.
+     * @param groupId The current ID of the Task Group to be renamed.
+     * @param newGroupId The new ID to assign to the Task Group.
+     * @param scope The scope in which the Task Group resides.
+     * @return True if the Task Group was successfully renamed; otherwise false.
+     */
+    bool renameTaskGroup(const QString& groupId, const QString& newGroupId,
+                         GtTaskGroup::SCOPE scope);
 
     /**
      * @brief findRootTaskHelper
@@ -331,7 +379,7 @@ private:
      * @brief Determines the model index of the currently selected task group
      * and sets it as the root index for the process view.
      */
-    void updateTaskGroupRootIndex();
+    void updateProcessViewRootIndex();
 
     /**
      * @brief Retrieves the UUIDs of expanded process items from the project
@@ -346,6 +394,60 @@ private:
      * @param uuids A list of UUIDs representing the expanded process items.
      */
     void setExpandedItemUuids(const QStringList& uuids);
+
+    /**
+     * @brief Retrieves and returns the scope of the last selected Task Group
+     * from the project states.
+     * @return The scope of the last selected Task Group.
+     */
+    GtTaskGroup::SCOPE lastTaskGroupScope() const;
+
+    /**
+     * @brief Stores the given Task Group scope in the project states. This
+     * represents the scope of the last selected Task Group.
+     * @param scope The scope of the last selected Task Group to be stored.
+     */
+    void setLastTaskGroupScope(GtTaskGroup::SCOPE scope);
+
+    /**
+    * @brief Retrieves and returns the ID of the last selected Task Group
+    * from the project states.
+    * @return The ID of the last selected Task Group.
+    */
+    QString lastTaskGroupId() const;
+
+    /**
+     * @brief Stores the given Task Group ID in the project states.
+     * This ID represents the last selected Task Group.
+     * @param groupId The ID of the last selected Task Group to be stored.
+     */
+    void setLastTaskGroupId(const QString& groupId);
+
+    /**
+     * @brief Checks if the specified Task Group can be deleted from the given
+     * scope.
+     * @param groupId The ID of the Task Group to check for deletability.
+     * @param scope The scope in which the Task Group resides.
+     * @return True if the Task Group can be deleted; otherwise false.
+     */
+    bool isTaskGroupDeletable(const QString& groupId,
+                              GtTaskGroup::SCOPE scope) const;
+
+    /**
+     * @brief Checks if the specified Task Group in the given scope can be
+     * renamed.
+     * @param groupId The ID of the Task Group to check for renaming.
+     * @param scope The scope in which the Task Group resides.
+     * @return True if the Task Group can be renamed; otherwise false.
+     */
+    bool isTaskGroupRenameable(const QString& groupId,
+                               GtTaskGroup::SCOPE scope) const;
+
+    /**
+     * @brief Resets the Task Group Model using the list of currently existing
+     * Task Groups from the process data.
+     */
+    void resetTaskGroupModel();
 
 private slots:
     /**
@@ -427,11 +529,6 @@ private slots:
     void configTask(GtTask* task);
 
     /**
-     * @brief resetModel
-     */
-    void resetModel();
-
-    /**
      * @brief Opens a connection editor.
      * @param Model index.
      */
@@ -486,6 +583,40 @@ private slots:
      * @param index The index of the item that was expanded.
      */
     void itemExpanded(const QModelIndex& index);
+
+    /**
+     * @brief Checks if the currently selected Task Group is renamable. If the
+     * Task Group is renamable, this function sets the Task Group ComboBox
+     * to be editable, allowing the user to modify the name.
+     */
+    void renameTaskGroupRequested();
+
+    /**
+     * @brief Handles the completion of a Task Group renaming operation.
+     *
+     * This function is called when the Task Group ComboBox is editable and
+     * loses focus. It renames the Task Group in the data model and then
+     * updates the Task Group model of the ComboBox to reflect the new name.
+     * @param index The index of the Task Group in the Task Group model of the
+     * ComboBox.
+     * @param oldName The previous name of the Task Group.
+     * @param newName The new name of the Task Group.
+     */
+    void renameTaskGroupFinished(int index, const QString& oldName,
+                                 const QString& newName);
+
+    /**
+     * @brief Adds a new Task Group to the custom Task Group scope and requests
+     * renaming, allowing the user to rename the newly created Task Group.
+     */
+    void addCustomTaskGroup();
+
+    /**
+     * @brief Deletes the currently selected Task Group from the data model and
+     * switches the Task Group selection to the default user Task Group.
+     * @return True if the deletion was successful; otherwise, false.
+     */
+    bool deleteCurrentTaskGroup();
 
 signals:
     /**
