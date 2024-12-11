@@ -136,7 +136,7 @@ set(SOURCES
     property/gt_variantproperty.cpp
     property/gt_structproperty.cpp
     property/gt_propertystructcontainer.cpp
-    property/gt_colorproperty.h
+    property/gt_colorproperty.cpp
     gt_label.cpp
     gt_labeldata.cpp
     property/gt_labelproperty.cpp

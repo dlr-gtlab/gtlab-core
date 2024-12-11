@@ -24,7 +24,7 @@ public:
     GtColorProperty(QString const& ident,
                     QString const& name,
                     QString const& brief,
-                    QString const& color = {});
+                    QString const& color);
 
     /**
      * @brief Overloaded function to convert internal property value to
