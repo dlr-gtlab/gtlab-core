@@ -126,3 +126,8 @@ gt::re::forFileDialogFilters()
     return r;
 }
 
+QRegExp
+gt::re::forHexColorCode()
+{
+    return QRegExp("^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$");
+}

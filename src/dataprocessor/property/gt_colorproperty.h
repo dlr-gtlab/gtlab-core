@@ -11,23 +11,20 @@
 #ifndef GT_COLORPROPERTY_H
 #define GT_COLORPROPERTY_H
 
-#include "gt_gui_exports.h"
+#include "gt_datamodel_exports.h"
 
-#include "gt_property.h"
-#include <QColor>
+#include "gt_stringproperty.h"
 
 
-class GT_GUI_EXPORT GtColorProperty : public GtProperty<QColor>
+class GT_DATAMODEL_EXPORT GtColorProperty : public GtStringProperty
 {
     Q_OBJECT
 
 public:
-    using GtProperty<QColor>::operator();
-
     GtColorProperty(QString const& ident,
                     QString const& name,
                     QString const& brief,
-                    QColor const& color = {});
+                    QString const& color = {});
 
     /**
      * @brief Overloaded function to convert internal property value to
@@ -49,7 +46,7 @@ public:
     GT_NO_DISCARD
     bool setValueFromVariant(QVariant const& val, QString const& unit) override;
 
-    GtColorProperty& operator=(const QColor& val);
+    GtColorProperty& operator=(const QString& val);
 
 };
 

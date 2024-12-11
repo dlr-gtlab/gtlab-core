@@ -80,6 +80,7 @@ set(HEADERS
     property/gt_variantproperty.h
     property/gt_structproperty.h
     property/gt_propertystructcontainer.h
+    property/gt_colorproperty.h
     gt_label.h
     gt_labeldata.h
     property/gt_labelproperty.h
@@ -135,6 +136,7 @@ set(SOURCES
     property/gt_variantproperty.cpp
     property/gt_structproperty.cpp
     property/gt_propertystructcontainer.cpp
+    property/gt_colorproperty.h
     gt_label.cpp
     gt_labeldata.cpp
     property/gt_labelproperty.cpp
