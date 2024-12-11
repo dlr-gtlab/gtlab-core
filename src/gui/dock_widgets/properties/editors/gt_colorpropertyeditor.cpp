@@ -98,7 +98,7 @@ GtColorPropertyEditor::setPropertyValue(const QColor &val)
     auto cmd = gtApp->makeCommand(gtApp->currentProject(), commandMsg);
     Q_UNUSED(cmd)
 
-    m_prop->setVal(val);
+    m_prop->setVal(val.name());
 }
 
 void

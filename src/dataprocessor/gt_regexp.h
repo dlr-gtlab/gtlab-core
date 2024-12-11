@@ -120,6 +120,12 @@ QRegExp GT_DATAMODEL_EXPORT forSemVers();
  */
 GT_DATAMODEL_EXPORT const QRegExp& forFileDialogFilters();
 
+/**
+ * @brief for semantic versioning
+ * @return regexp for semantic versioning
+ */
+QRegExp GT_DATAMODEL_EXPORT forHexColorCode();
+
 } // namespace re
 
 } // namespace gt
