@@ -23,7 +23,7 @@ namespace gt
     struct GT_DATAMODEL_EXPORT rgb
     {
         rgb(int r, int g, int b);
-        rgb(QString const& hexString);
+        explicit rgb(QString const& hexString);
 
         // red
         int m_r;
