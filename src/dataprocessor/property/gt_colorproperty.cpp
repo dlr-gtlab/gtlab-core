@@ -148,8 +148,6 @@ gt::rgb::fromString(const QString& hexCodeInput)
         return;
     }
 
-    int r, g, b;
-
     std::stringstream ss;
     ss << std::hex << hexCode.substr(0, 2); // red
     ss >> m_r;
