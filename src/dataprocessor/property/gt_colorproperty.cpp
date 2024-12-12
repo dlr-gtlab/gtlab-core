@@ -152,15 +152,15 @@ gt::rgb::fromString(const QString& hexCodeInput)
 
     std::stringstream ss;
     ss << std::hex << hexCode.substr(0, 2); // red
-    ss >> r;
+    ss >> m_r;
     ss.clear();
 
     ss << std::hex << hexCode.substr(2, 2); // green
-    ss >> g;
+    ss >> m_g;
     ss.clear();
 
     ss << std::hex << hexCode.substr(4, 2); // blue
-    ss >> b;
+    ss >> m_b;
 }
 
 QString
