@@ -51,7 +51,10 @@ TEST_F(TestGtColorProperty, isReadOnly)
 
 TEST_F(TestGtColorProperty, getter)
 {
-    ASSERT_STREQ(m_prop->get().toStdString().c_str(), "FF0000");
+    QString propString = m_prop->get();
+    std::string compare = "ff0000";
+
+    ASSERT_STREQ(m_prop->get().toStdString().c_str(), compare.c_str());
 
     QColor fromProp = QColor(m_prop->getVal());
     ASSERT_TRUE(fromProp == QColor(Qt::red));
@@ -60,7 +63,7 @@ TEST_F(TestGtColorProperty, getter)
 TEST_F(TestGtColorProperty, setter)
 {
     m_prop->setVal(QColor(Qt::blue).name());
-    ASSERT_TRUE(m_prop->get() == "#0000FF");
+    ASSERT_TRUE(m_prop->get() == "#0000ff");
 }
 
 TEST_F(TestGtColorProperty, toRGB)
@@ -81,7 +84,7 @@ TEST_F(TestGtColorProperty, toRGB)
 TEST_F(TestGtColorProperty, setFromRGB)
 {
     gt::rgb orange(255, 165, 0);
-    std::string orangeHex = "#FFA500";
+    std::string orangeHex = "#ffa500";
 
     m_prop->setFromRGB(orange);
     ASSERT_STREQ(m_prop->get().toStdString().c_str(), orangeHex.c_str());
