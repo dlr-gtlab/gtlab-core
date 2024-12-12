@@ -143,8 +143,8 @@ gt::rgb::fromString(const QString& hexCodeInput)
         gtError() << QObject::tr("Invalid hex code in "
                                  "property (%1)").arg(hexCodeInput);
         m_r = -1;
-        g = -1;
-        b = -1;
+        m_g = -1;
+        m_b = -1;
         return;
     }
 
