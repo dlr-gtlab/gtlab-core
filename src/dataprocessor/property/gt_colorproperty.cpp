@@ -16,7 +16,7 @@ GtColorProperty::GtColorProperty(const QString& ident,
                                  const QString& brief,
                                  const QString& color) :
     GtStringProperty(ident, name, brief, color,
-                     QRegularExpression(gt::re::forExpressions().pattern()))
+                     QRegularExpression(gt::re::forHexColorCode().pattern()))
 {
     m_id = ident;
     setObjectName(name);
