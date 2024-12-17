@@ -97,7 +97,7 @@ set(headers
     dock_widgets/process/gt_processview.h
     dock_widgets/process/gt_processconnectioneditor.h
     dock_widgets/process/gt_processcomponentsettingsbutton.h
-    dock_widgets/process/gt_editablecombobox.h
+
     dock_widgets/calculators/gt_calculatorsdock.h
     dock_widgets/post/gt_postdelegate.h
     dock_widgets/post/gt_postdock.h
@@ -193,7 +193,7 @@ set(sources
     dock_widgets/process/gt_processview.cpp
     dock_widgets/process/gt_processconnectioneditor.cpp
     dock_widgets/process/gt_processcomponentsettingsbutton.cpp
-    dock_widgets/process/gt_editablecombobox.cpp
+
     dock_widgets/calculators/gt_calculatorsdock.cpp
     dock_widgets/post/gt_postdelegate.cpp
     dock_widgets/post/gt_postdock.cpp
