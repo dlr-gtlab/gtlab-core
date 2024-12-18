@@ -22,7 +22,7 @@ namespace gt
     // The values have a valid range from 0 to 255
     struct GT_DATAMODEL_EXPORT rgb
     {
-        rgb(int r, int g, int b, int alpha = 0);
+        rgb(int r, int g, int b, int alpha = 255);
         explicit rgb(QString const& hexString);
 
         // red

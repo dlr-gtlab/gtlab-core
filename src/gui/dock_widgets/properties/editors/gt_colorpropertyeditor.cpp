@@ -98,8 +98,6 @@ GtColorPropertyEditor::setPropertyValue(const QColor& val)
     auto cmd = gtApp->makeCommand(gtApp->currentProject(), commandMsg);
     Q_UNUSED(cmd)
 
-    gtFatal() << "Set color to" << val.name(QColor::HexArgb);
-
     m_prop->setVal(val.name(QColor::HexArgb));
 }
 
