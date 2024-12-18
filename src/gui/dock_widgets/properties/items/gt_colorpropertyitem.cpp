@@ -43,7 +43,7 @@ GtColorPropertyItem::data(int column, int role) const
                     return QStringLiteral("-");
                 }
 
-                return c.name();
+                return c.name(QColor::HexArgb);
             }
         }
     }
@@ -61,15 +61,9 @@ GtColorPropertyItem::setData(int column, const QVariant& value,
         return true;
     }
 
-    if (column != 2)
-    {
-        return false;
-    }
+    if (column != 2) return false;
 
-    if (role != Qt::EditRole)
-    {
-        return false;
-    }
+    if (role != Qt::EditRole) return false;
 
     return GtPropertyItem::setData(column, value, obj, role);
 }
