@@ -62,7 +62,7 @@ GtColorPropertyEditor::update()
 
     if (m_prop) c = m_prop->getVal();
 
-    m_colorLineEdit->setText(c.name());
+    m_colorLineEdit->setText(c.name(QColor::HexArgb));
 
     m_selectButton->setAutoFillBackground(true);
 
@@ -88,7 +88,7 @@ GtColorPropertyEditor::update()
 }
 
 void
-GtColorPropertyEditor::setPropertyValue(const QColor &val)
+GtColorPropertyEditor::setPropertyValue(const QColor& val)
 {
     if (!m_prop) return;
 
@@ -98,7 +98,9 @@ GtColorPropertyEditor::setPropertyValue(const QColor &val)
     auto cmd = gtApp->makeCommand(gtApp->currentProject(), commandMsg);
     Q_UNUSED(cmd)
 
-    m_prop->setVal(val.name());
+    gtFatal() << "Set color to" << val.name(QColor::HexArgb);
+
+    m_prop->setVal(val.name(QColor::HexArgb));
 }
 
 void
@@ -106,9 +108,11 @@ GtColorPropertyEditor::selectColor()
 {
     if (!m_prop) return;
 
-    QColor c = QColorDialog::getColor(m_prop->getVal());
+    QColorDialog::ColorDialogOptions options = {QColorDialog::ShowAlphaChannel};
+    QColor c = QColorDialog::getColor(m_prop->getVal(), nullptr,
+                                      tr("Color selection"), options);
 
-    if (c.isValid()) setPropertyValue(c);
+    if (c.isValid()) setPropertyValue(c.name(QColor::HexArgb));
 
     update();
 

@@ -22,7 +22,7 @@ namespace gt
     // The values have a valid range from 0 to 255
     struct GT_DATAMODEL_EXPORT rgb
     {
-        rgb(int r, int g, int b);
+        rgb(int r, int g, int b, int alpha = 0);
         explicit rgb(QString const& hexString);
 
         // red
@@ -31,6 +31,8 @@ namespace gt
         int m_g;
         // blue
         int m_b;
+        // alpha
+        int m_alpha;
 
         // check validity of the values
         bool valid() const;
@@ -87,11 +89,13 @@ public:
      * @param r - red rgb value (between 0 and 255 is valid)
      * @param g - green rgb value (between 0 and 255 is valid)
      * @param b - blue rgb value (between 0 and 255 is valid)
+     * @param alpha - transparency value (between 0 and 255) where
+     * 0 is fully transparent while 255 represents a fully opaque color
      */
     GtColorProperty(QString const& ident,
                     QString const& name,
                     QString const& brief,
-                    int r, int g, int b);
+                    int r, int g, int b, int alpha = 255);
 
 
 
@@ -133,8 +137,10 @@ public:
      * @param r - red
      * @param g - green
      * @param b - blue
+     * @param alpha - transparency value (between 0 and 255) where
+     * 0 is fully transparent while 255 represents a fully opaque color
      */
-    void setFromRGB(int r, int g, int b);
+    void setFromRGB(int r, int g, int b, int alpha = 255);
     void setFromRGB(const gt::rgb& rgb);
 };
 
