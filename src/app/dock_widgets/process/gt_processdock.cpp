@@ -58,7 +58,6 @@
 #include "gt_taskgroupmodel.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
-#include "gt_qtutilities.h"
 
 #include "gt_processdock.h"
 
