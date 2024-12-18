@@ -85,7 +85,7 @@ TEST_F(TestGtColorProperty, toRGB)
 TEST_F(TestGtColorProperty, setFromRGB)
 {
     gt::rgb orange(255, 165, 0);
-    std::string orangeHex = "#ffa500";
+    std::string orangeHex = "#ffffa500";
 
     m_prop->setFromRGB(orange);
     ASSERT_STREQ(m_prop->get().toStdString().c_str(), orangeHex.c_str());

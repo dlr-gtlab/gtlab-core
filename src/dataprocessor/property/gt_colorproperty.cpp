@@ -201,10 +201,10 @@ gt::rgb::toHexString() const
 
     std::stringstream ss;
     ss << "#"
+       << std::setw(2) << std::setfill('0') << std::hex << m_alpha
        << std::setw(2) << std::setfill('0') << std::hex << m_r
        << std::setw(2) << std::setfill('0') << std::hex << m_g
-       << std::setw(2) << std::setfill('0') << std::hex << m_b
-       << std::setw(2) << std::setfill('0') << std::hex << m_alpha;
+       << std::setw(2) << std::setfill('0') << std::hex << m_b;
 
     std::string help = ss.str();
 
