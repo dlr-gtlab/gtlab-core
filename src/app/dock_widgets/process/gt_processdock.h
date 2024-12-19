@@ -13,6 +13,7 @@
 
 #include "gt_dockwidget.h"
 #include "gt_command.h"
+#include "gt_taskgroup.h"
 
 #include <QPointer>
 #include <QPersistentModelIndex>
@@ -25,7 +26,6 @@ class GtProcessView;
 class GtProcessComponentModel;
 class GtTreeFilterModel;
 class GtSearchWidget;
-class GtTaskGroup;
 class GtTaskGroupModel;
 class GtTask;
 class GtCalculator;
@@ -186,6 +186,16 @@ private:
     /// Expanded item UUIDs
     GtState* m_expandedItemUuidsState;
 
+    /// Scope of the last selected task group
+    GtState* m_lastTaskGroupScopeState;
+
+    /// ID of the last selected task group
+    GtState* m_lastTaskGroupIdState;
+
+    /**
+     * @brief Determines the current Task Group from the process data and
+     * updates the corresponding GUI components in the process dock.
+     */
     void updateCurrentTaskGroup();
 
     /**
@@ -331,7 +341,7 @@ private:
      * @brief Determines the model index of the currently selected task group
      * and sets it as the root index for the process view.
      */
-    void updateTaskGroupRootIndex();
+    void updateProcessViewRootIndex();
 
     /**
      * @brief Retrieves the UUIDs of expanded process items from the project
@@ -346,6 +356,40 @@ private:
      * @param uuids A list of UUIDs representing the expanded process items.
      */
     void setExpandedItemUuids(const QStringList& uuids);
+
+    /**
+     * @brief Retrieves and returns the scope of the last selected Task Group
+     * from the project states.
+     * @return The scope of the last selected Task Group.
+     */
+    GtTaskGroup::SCOPE lastTaskGroupScope() const;
+
+    /**
+     * @brief Stores the given Task Group scope in the project states. This
+     * represents the scope of the last selected Task Group.
+     * @param scope The scope of the last selected Task Group to be stored.
+     */
+    void setLastTaskGroupScope(GtTaskGroup::SCOPE scope);
+
+    /**
+    * @brief Retrieves and returns the ID of the last selected Task Group
+    * from the project states.
+    * @return The ID of the last selected Task Group.
+    */
+    QString lastTaskGroupId() const;
+
+    /**
+     * @brief Stores the given Task Group ID in the project states.
+     * This ID represents the last selected Task Group.
+     * @param groupId The ID of the last selected Task Group to be stored.
+     */
+    void setLastTaskGroupId(const QString& groupId);
+
+    /**
+     * @brief Resets the Task Group Model using the list of currently existing
+     * Task Groups from the process data.
+     */
+    void resetTaskGroupModel();
 
 private slots:
     /**
@@ -425,11 +469,6 @@ private slots:
      * @param task Task for configuration.
      */
     void configTask(GtTask* task);
-
-    /**
-     * @brief resetModel
-     */
-    void resetModel();
 
     /**
      * @brief Opens a connection editor.

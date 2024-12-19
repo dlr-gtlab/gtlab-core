@@ -13,11 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
  - Removed a warning, when double clicking on the current project while a task is running - #1282
+ - 'Save As...' copies process data from the existing project to the newly created project - #1321
+ - Saving the project removes *.gttask files from the project directory for tasks deleted since the last save - #1321
  
 ### Added
  - Extended the batch mode for a command to upgrade a GTlab project - #1184
  - Basic contxt menu to copy values of properties - #1267	
  - Process Dock retains the expanded/collapsed states of tasks when switching between projects or task groups - #1294
+ - Projects retain the last selected Task Group and automatically select it upon reopening - #1321
 
 ## [2.0.10] - 2024-08-29
 ### Fixed
