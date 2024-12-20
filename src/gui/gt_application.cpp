@@ -10,7 +10,6 @@
 
 #include "gt_application.h"
 
-#include "gt_colorpropertyitem.h"
 #include "gt_mdilauncher.h"
 #include "gt_guimoduleloader.h"
 #include "gt_perspective.h"
@@ -31,7 +30,6 @@
 #include "gt_icons.h"
 #include "gt_shortcuts.h"
 #include "gt_projectui.h"
-#include "gt_colorproperty.h"
 
 #include <QMessageBox>
 #include <QIcon>
@@ -81,11 +79,6 @@ GtApplication::GtApplication(QCoreApplication* parent,
 
     connect(sc, SIGNAL(changed()),
             this, SIGNAL(shortCutsChanged()));
-
-    /// register gui related properties
-    GtPropertyItemFactory* fac = GtPropertyItemFactory::instance();
-    fac->registerPropertyItem(GT_CLASSNAME(GtColorProperty),
-                              GtColorPropertyItem::staticMetaObject);
 }
 
 GtApplication::~GtApplication()
