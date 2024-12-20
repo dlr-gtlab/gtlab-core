@@ -24,7 +24,8 @@ TestDmiData::TestDmiData() :
     m_propTypeB("Type B", "Type B brief"),
     m_optionalValue("optionalValue", "Optional Value",
                     "This property is optional"),
-    m_fruit("TestEnum", "TestEnum", "")
+    m_fruit("TestEnum", "TestEnum", ""),
+    m_color("Color", "color", "My fancy color", Qt::darkYellow)
 {
     setObjectName("Internal_Data");
     setFlag(UserDeletable);
@@ -68,4 +69,6 @@ TestDmiData::TestDmiData() :
     e2.setMemberVal("name", "Force");
     auto& e3 = m_containerRO.newEntry("StringStruct", "entry_3");
     e3.setMemberVal("name", "Power");
+
+    registerProperty(m_color);
 }
