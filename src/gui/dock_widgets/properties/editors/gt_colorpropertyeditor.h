@@ -54,7 +54,7 @@ private:
     /**
      * @brief Updates line edit text and color button.
      */
-    void update();
+    void update(bool lineEditTrigger = false);
 
     /**
      * @brief Sets property value considering undo/redo functionality.
@@ -72,6 +72,11 @@ private slots:
      * @brief Called by property change signal to update editor text.
      */
     void propertyValueChanged();
+
+    /**
+     * @brief Called by line editor signal to update property.
+     */
+    void onLineEditChanged();
 
 signals:
     void colorSelected(const QColor& c);

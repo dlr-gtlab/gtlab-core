@@ -12,6 +12,7 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QColorDialog>
+#include <QRegExpValidator>
 
 #include "gt_colorpropertyeditor.h"
 #include "gt_colorproperty.h"
@@ -19,6 +20,7 @@
 #include "gt_application.h"
 #include "gt_command.h"
 #include "gt_project.h"
+#include "gt_regexp.h"
 
 
 GtColorPropertyEditor::GtColorPropertyEditor(QWidget* parent) :
@@ -36,10 +38,14 @@ GtColorPropertyEditor::GtColorPropertyEditor(QWidget* parent) :
     lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
     m_colorLineEdit->setFrame(false);
-    m_colorLineEdit->setReadOnly(true);
+    m_colorLineEdit->setValidator(new QRegExpValidator(
+        gt::re::forHexColorCode()));
 
     connect(m_selectButton, SIGNAL(clicked(bool)),
             SLOT(selectColor()));
+
+    connect(m_colorLineEdit, SIGNAL(editingFinished()),
+            SLOT(onLineEditChanged()));
 }
 
 void
@@ -56,14 +62,16 @@ GtColorPropertyEditor::setColorProperty(GtColorProperty* prop)
 }
 
 void
-GtColorPropertyEditor::update()
+GtColorPropertyEditor::update(bool lineEditTrigger)
 {
     QColor c;
 
     if (m_prop) c = m_prop->getVal();
 
-    m_colorLineEdit->setText(c.name(QColor::HexArgb));
-
+    if (!lineEditTrigger)
+    {
+        m_colorLineEdit->setText(c.name(QColor::HexArgb));
+    }
     m_selectButton->setAutoFillBackground(true);
 
     static const QString styleBase = QStringLiteral(R"(
@@ -121,4 +129,20 @@ void
 GtColorPropertyEditor::propertyValueChanged()
 {
     update();
+}
+
+void
+GtColorPropertyEditor::onLineEditChanged()
+{
+    if (!m_prop) return;
+
+    if (m_colorLineEdit->text() != m_prop->getVal())
+    {
+        disconnect(m_prop.data(), SIGNAL(changed()),
+                   this, SLOT(propertyValueChanged()));
+        m_prop->setVal(m_colorLineEdit->text());
+        connect(m_prop.data(), SIGNAL(changed()),
+                this, SLOT(propertyValueChanged()));
+        update(true);
+    }
 }

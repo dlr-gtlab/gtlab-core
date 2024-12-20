@@ -38,6 +38,13 @@ GtColorProperty::GtColorProperty(const QString& ident, const QString& name,
 {
 }
 
+GtColorProperty::GtColorProperty(const QString& ident, const QString& name,
+                                 const QString& brief,
+                                 const Qt::GlobalColor& col) :
+    GtColorProperty(ident, name, brief, gt::rgb(col).toHexString())
+{
+}
+
 
 QVariant
 GtColorProperty::valueToVariant(const QString &unit, bool *ok) const
@@ -82,6 +89,14 @@ GtColorProperty::toRGB() const
     return gt::rgb(m_value);
 }
 
+QString
+GtColorProperty::hexString() const
+{
+    gt::rgb rgb(m_value);
+
+    return rgb.toHexString();
+}
+
 void
 GtColorProperty::setFromRGB(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 {
@@ -111,6 +126,112 @@ gt::rgb::rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) :
 gt::rgb::rgb(const QString& hexString)
 {
     fromString(hexString);
+}
+
+gt::rgb::rgb(Qt::GlobalColor qCol)
+{
+    m_alpha = 255;
+    switch (qCol)
+    {
+    case Qt::white:
+        m_r = 255;
+        m_g = 255;
+        m_b = 255;
+        break;
+    case Qt::black:
+        m_r = 0;
+        m_g = 0;
+        m_b = 0;
+        break;
+    case Qt::red: // #ff0000
+        m_r = 255;
+        m_g = 0;
+        m_b = 0;
+        break;
+    case Qt::darkRed: // #800000
+        m_r = 50;
+        m_g = 0;
+        m_b = 0;
+        break;
+    case Qt::green: // #00ff00
+        m_r = 0;
+        m_g = 255;
+        m_b = 0;
+        break;
+    case Qt::darkGreen: // #008000
+        m_r = 0;
+        m_g = 50;
+        m_b = 0;
+        break;
+    case Qt::blue:  // #0000ff
+        m_r = 0;
+        m_g = 0;
+        m_b = 50;
+        break;
+    case Qt::darkBlue:  // #000080
+        m_r = 0;
+        m_g = 0;
+        m_b = 255;
+        break;
+    case Qt::cyan:  // #00ffff
+        m_r = 0;
+        m_g = 255;
+        m_b = 255;
+        break;
+    case Qt::darkCyan:  // #008080
+        m_r = 0;
+        m_g = 50;
+        m_b = 50;
+        break;
+    case Qt::magenta:  // #ff00ff
+        m_r = 255;
+        m_g = 0;
+        m_b = 255;
+        break;
+    case Qt::darkMagenta:  // #800080
+        m_r = 50;
+        m_g = 0;
+        m_b = 50;
+        break;
+    case Qt::yellow:  // #ffff00
+        m_r = 255;
+        m_g = 255;
+        m_b = 0;
+        break;
+    case Qt::darkYellow:  // #808000
+        m_r = 50;
+        m_g = 50;
+        m_b = 0;
+        break;
+    case Qt::gray:  // #a0a0a4
+        m_r = 63;
+        m_g = 63;
+        m_b = 64;
+        break;
+    case Qt::darkGray:  // #808000
+        m_r = 50;
+        m_g = 50;
+        m_b = 50;
+        break;
+    case Qt::lightGray:  // #c0c0c0
+        m_r = 75;
+        m_g = 75;
+        m_b = 75;
+        break;
+    case Qt::transparent:  // #808000
+        m_r = 0;
+        m_g = 0;
+        m_b = 0;
+        m_alpha = 0;
+        break;
+    default:
+        gtError() << QObject::tr("Invalid Qt namespace color value."
+                                 "Color is set to white as default");
+        m_r = 255;
+        m_g = 255;
+        m_b = 255;
+        break;
+    }
 }
 
 void
@@ -186,8 +307,6 @@ gt::rgb::fromString(const QString& hexCodeInput)
 QString
 gt::rgb::toHexString() const
 {
-    if (!valid()) return {};
-
     std::stringstream ss;
     ss << "#";
 

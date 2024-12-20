@@ -20,8 +20,8 @@ class TestGtColorProperty : public ::testing::Test
 protected:
     virtual void SetUp()
     {
-        m_prop = new GtColorProperty("prop", "test color", "test brief",
-                                     QColor(Qt::red).name());
+        gt::rgb rgb(255, 0, 0); // red
+        m_prop = new GtColorProperty("prop", "test color", "test brief", rgb);
     }
 
     virtual void TearDown()
@@ -36,17 +36,17 @@ protected:
 TEST_F(TestGtColorProperty, initialization)
 {
     // default constructor
-    ASSERT_EQ(m_prop->unitCategory(), GtUnit::None);
-    ASSERT_STREQ(m_prop->objectName().toStdString().c_str(),
+    EXPECT_EQ(m_prop->unitCategory(), GtUnit::None);
+    EXPECT_STREQ(m_prop->objectName().toStdString().c_str(),
                  "test color");
-    ASSERT_STREQ(m_prop->brief().toStdString().c_str(),
+    EXPECT_STREQ(m_prop->brief().toStdString().c_str(),
                  "test brief");
 }
 
 TEST_F(TestGtColorProperty, isReadOnly)
 {
     m_prop->setReadOnly(true);
-    ASSERT_TRUE(m_prop->isReadOnly());
+    EXPECT_TRUE(m_prop->isReadOnly());
 }
 
 TEST_F(TestGtColorProperty, getter)
@@ -54,40 +54,47 @@ TEST_F(TestGtColorProperty, getter)
     QString propString = m_prop->get();
     std::string compare = "#ff0000";
 
-    ASSERT_STREQ(m_prop->get().toStdString().c_str(), compare.c_str());
+    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), compare.c_str());
 
     QColor fromProp = QColor(m_prop->getVal());
-    ASSERT_TRUE(fromProp == QColor(Qt::red));
+    EXPECT_TRUE(fromProp == QColor(Qt::red));
 }
 
 TEST_F(TestGtColorProperty, setter)
 {
     m_prop->setVal(QColor(Qt::blue).name());
-    ASSERT_TRUE(m_prop->get() == "#0000ff");
+    EXPECT_TRUE(m_prop->hexString() == "#0000ff");
 }
 
 TEST_F(TestGtColorProperty, toRGB)
 {
     m_prop->setVal(QColor(Qt::blue).name());
-    ASSERT_STREQ(m_prop->getVal().toStdString().c_str(), "#0000ff");
+    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), "#0000ff");
     gt::rgb test1 = m_prop->toRGB();
-    ASSERT_EQ(test1.m_r, 0);
-    ASSERT_EQ(test1.m_g, 0);
-    ASSERT_EQ(test1.m_b, 255);
+    EXPECT_EQ(test1.m_r, 0);
+    EXPECT_EQ(test1.m_g, 0);
+    EXPECT_EQ(test1.m_b, 255);
 
     m_prop->setVal(QColor(Qt::yellow).name());
     gt::rgb test2 = m_prop->toRGB();
-    ASSERT_EQ(test2.m_r, 255);
-    ASSERT_EQ(test2.m_g, 255);
-    ASSERT_EQ(test2.m_b, 0);
+    EXPECT_EQ(test2.m_r, 255);
+    EXPECT_EQ(test2.m_g, 255);
+    EXPECT_EQ(test2.m_b, 0);
 }
 
 TEST_F(TestGtColorProperty, setFromRGB)
 {
     gt::rgb orange(255, 165, 0);
-    std::string orangeHex = "#ffffa500";
+    std::string orangeHex = "#ffa500";
 
     m_prop->setFromRGB(orange);
-    ASSERT_STREQ(m_prop->get().toStdString().c_str(), orangeHex.c_str());
+    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), orangeHex.c_str());
+
+    gt::rgb darkYellow(Qt::darkYellow);
+    darkYellow.m_alpha = 0;
+    std::string compare = "#00808000";
+
+    m_prop->setFromRGB(darkYellow);
+    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), compare.c_str());
 }
 
