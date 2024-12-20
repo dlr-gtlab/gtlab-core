@@ -22,20 +22,17 @@ namespace gt
     // The values have a valid range from 0 to 255
     struct GT_DATAMODEL_EXPORT rgb
     {
-        rgb(int r, int g, int b, int alpha = 255);
+        rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha = 255);
         explicit rgb(QString const& hexString);
 
         // red
-        int m_r;
+        uint8_t m_r;
         // green
-        int m_g;
+        uint8_t m_g;
         // blue
-        int m_b;
+        uint8_t m_b;
         // alpha
-        int m_alpha;
-
-        // check validity of the values
-        bool valid() const;
+        uint8_t m_alpha;
 
         // sets the values of the rgb struct from the information
         // of a hex string
@@ -61,25 +58,12 @@ public:
      * @param ident - identifier
      * @param name - name of the property (to show in properties dock)
      * @param brief - description to give futher information
-     * @param color to initialize. This has to be a hex string.
-     * Easiest way is to define a QColor and call the function QColor::name()
-     */
-    GtColorProperty(QString const& ident,
-                    QString const& name,
-                    QString const& brief,
-                    QString const& color);
-
-    /**
-     * @brief GtColorProperty
-     * @param ident - identifier
-     * @param name - name of the property (to show in properties dock)
-     * @param brief - description to give futher information
      * @param rgb - rgb value struct
      */
-    GtColorProperty(QString const& ident,
-                    QString const& name,
-                    QString const& brief,
-                    gt::rgb const& rgb);
+    Q_INVOKABLE GtColorProperty(QString const& ident,
+                                QString const& name,
+                                QString const& brief,
+                                gt::rgb const& rgb);
 
     /**
      * @brief GtColorProperty
@@ -92,10 +76,11 @@ public:
      * @param alpha - transparency value (between 0 and 255) where
      * 0 is fully transparent while 255 represents a fully opaque color
      */
-    GtColorProperty(QString const& ident,
-                    QString const& name,
-                    QString const& brief,
-                    int r, int g, int b, int alpha = 255);
+    Q_INVOKABLE GtColorProperty(QString const& ident,
+                                QString const& name,
+                                QString const& brief,
+                                uint8_t r, uint8_t g, uint8_t b,
+                                uint8_t alpha = 255);
 
 
 
@@ -140,8 +125,23 @@ public:
      * @param alpha - transparency value (between 0 and 255) where
      * 0 is fully transparent while 255 represents a fully opaque color
      */
-    void setFromRGB(int r, int g, int b, int alpha = 255);
+    void setFromRGB(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha = 255);
     void setFromRGB(const gt::rgb& rgb);
+
+protected:
+    /**
+     * @brief GtColorProperty
+     * @param ident - identifier
+     * @param name - name of the property (to show in properties dock)
+     * @param brief - description to give futher information
+     * @param color to initialize. This has to be a hex string.
+     * Easiest way is to define a QColor and call the function QColor::name()
+     */
+    Q_INVOKABLE GtColorProperty(QString const& ident,
+                                QString const& name,
+                                QString const& brief,
+                                QString const& color);
+
 };
 
 

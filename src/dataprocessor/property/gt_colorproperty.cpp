@@ -32,8 +32,8 @@ GtColorProperty::GtColorProperty(const QString& ident, const QString& name,
 }
 
 GtColorProperty::GtColorProperty(const QString& ident, const QString& name,
-                                 const QString& brief, int r, int g, int b,
-                                 int alpha) :
+                                 const QString& brief, uint8_t r, uint8_t g,
+                                 uint8_t b, uint8_t alpha) :
     GtColorProperty(ident, name, brief, gt::rgb(r, g, b, alpha).toHexString())
 {
 }
@@ -83,7 +83,7 @@ GtColorProperty::toRGB() const
 }
 
 void
-GtColorProperty::setFromRGB(int r, int g, int b, int alpha)
+GtColorProperty::setFromRGB(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 {
     setFromRGB({r, g, b, alpha});
 }
@@ -103,7 +103,7 @@ GtColorProperty::setFromRGB(gt::rgb const& rgb)
     setVal(val);
 }
 
-gt::rgb::rgb(int r, int g, int b, int alpha) :
+gt::rgb::rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) :
     m_r(r), m_g(g), m_b(b), m_alpha(alpha)
 {
 }
@@ -111,17 +111,6 @@ gt::rgb::rgb(int r, int g, int b, int alpha) :
 gt::rgb::rgb(const QString& hexString)
 {
     fromString(hexString);
-}
-
-bool
-gt::rgb::valid() const
-{
-    if (m_r < 0 || m_r > 255
-        || m_g < 0 || m_g > 255
-        || m_b < 0 || m_b > 255
-        || m_alpha < 0 || m_alpha > 255) return false;
-
-    return true;
 }
 
 void
@@ -200,11 +189,16 @@ gt::rgb::toHexString() const
     if (!valid()) return {};
 
     std::stringstream ss;
-    ss << "#"
-       << std::setw(2) << std::setfill('0') << std::hex << m_alpha
-       << std::setw(2) << std::setfill('0') << std::hex << m_r
-       << std::setw(2) << std::setfill('0') << std::hex << m_g
-       << std::setw(2) << std::setfill('0') << std::hex << m_b;
+    ss << "#";
+
+    if (m_alpha != 255)
+    {
+        ss   << std::setw(2) << std::setfill('0') << std::hex << m_alpha;
+    }
+
+    ss   << std::setw(2) << std::setfill('0') << std::hex << m_r
+         << std::setw(2) << std::setfill('0') << std::hex << m_g
+         << std::setw(2) << std::setfill('0') << std::hex << m_b;
 
     std::string help = ss.str();
 
