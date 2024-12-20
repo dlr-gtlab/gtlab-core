@@ -41,6 +41,9 @@ namespace gt
         // of a hex string
         bool fromString(QString const& hexCodeInput);
 
+        // sets the values of the rgb struct from the qt namespace definitions
+        void fromQtColor(Qt::GlobalColor qCol);
+
         // write a hex code color from the its values of rgb
         QString toHexString() const;
     };
