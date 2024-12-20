@@ -21,7 +21,6 @@
 #include "gt_mementochangecommand.h"
 #include "gt_processrunner.h"
 #include "gt_processexecutor.h"
-#include "gt_propertyitemfactory.h"
 
 #include "gt_datamodel.h"
 #include "gt_command.h"

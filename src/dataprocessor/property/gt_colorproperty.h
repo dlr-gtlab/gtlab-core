@@ -29,17 +29,17 @@ namespace gt
         explicit rgb(Qt::GlobalColor qCol);
 
         // red
-        uint8_t m_r;
+        uint8_t m_r{255};
         // green
-        uint8_t m_g;
+        uint8_t m_g{255};
         // blue
-        uint8_t m_b;
+        uint8_t m_b{255};
         // alpha
-        uint8_t m_alpha;
+        uint8_t m_alpha{255};
 
         // sets the values of the rgb struct from the information
         // of a hex string
-        void fromString(QString const& hexCodeInput);
+        bool fromString(QString const& hexCodeInput);
 
         // write a hex code color from the its values of rgb
         QString toHexString() const;
