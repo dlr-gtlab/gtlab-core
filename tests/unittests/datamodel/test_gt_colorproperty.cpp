@@ -51,8 +51,9 @@ TEST_F(TestGtColorProperty, isReadOnly)
 
 TEST_F(TestGtColorProperty, getter)
 {
-    QString propString = m_prop->get();
-    std::string compare = "#ff0000";
+    std::string compare = "#FF0000";
+
+    gt::rgb rgb = m_prop->toRGB();
 
     EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), compare.c_str());
 
@@ -63,13 +64,13 @@ TEST_F(TestGtColorProperty, getter)
 TEST_F(TestGtColorProperty, setter)
 {
     m_prop->setVal(QColor(Qt::blue).name());
-    EXPECT_TRUE(m_prop->hexString() == "#0000ff");
+    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), "#0000FF");
 }
 
 TEST_F(TestGtColorProperty, toRGB)
 {
     m_prop->setVal(QColor(Qt::blue).name());
-    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), "#0000ff");
+    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), "#0000FF");
     gt::rgb test1 = m_prop->toRGB();
     EXPECT_EQ(test1.m_r, 0);
     EXPECT_EQ(test1.m_g, 0);
@@ -85,7 +86,7 @@ TEST_F(TestGtColorProperty, toRGB)
 TEST_F(TestGtColorProperty, toRGBandAlpha)
 {
     m_prop->setFromRGB(gt::rgb(0, 0, 255, 255));
-    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), "#0000ff");
+    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), "#0000FF");
     gt::rgb test1 = m_prop->toRGB();
     EXPECT_EQ(test1.m_r, 0);
     EXPECT_EQ(test1.m_g, 0);
@@ -103,7 +104,7 @@ TEST_F(TestGtColorProperty, toRGBandAlpha)
 TEST_F(TestGtColorProperty, setFromRGB)
 {
     gt::rgb orange(255, 165, 0);
-    std::string orangeHex = "#ffa500";
+    std::string orangeHex = "#FFA500";
 
     m_prop->setFromRGB(orange);
     EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), orangeHex.c_str());
