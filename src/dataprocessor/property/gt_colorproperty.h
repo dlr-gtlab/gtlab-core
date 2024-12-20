@@ -23,7 +23,10 @@ namespace gt
     struct GT_DATAMODEL_EXPORT rgb
     {
         rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha = 255);
+
         explicit rgb(QString const& hexString);
+
+        explicit rgb(Qt::GlobalColor qCol);
 
         // red
         uint8_t m_r;
@@ -82,7 +85,17 @@ public:
                                 uint8_t r, uint8_t g, uint8_t b,
                                 uint8_t alpha = 255);
 
-
+    /**
+     * @brief GtColorProperty
+     * @param ident - identifier
+     * @param name - name of the property (to show in properties dock)
+     * @param brief - description to give futher information
+     * @param col - GlobalColor
+     */
+    Q_INVOKABLE GtColorProperty(QString const& ident,
+                                QString const& name,
+                                QString const& brief,
+                                Qt::GlobalColor const& col);
 
     /**
      * @brief Overloaded function to convert internal property value to
@@ -114,6 +127,15 @@ public:
      * to an invalid value (-1, -1, -1)
      */
     gt::rgb toRGB() const;
+
+    /**
+     * @brief hexString
+     * @return the color as hex string.
+     * If the transparancy value alpha is set to 255 (no transparency) it is not
+     * added to the string.
+     * The string is defined as #AARRGGBB or respectivly #RRGGBB
+     */
+    QString hexString() const;
 
     /**
      * @brief setFromRGB
