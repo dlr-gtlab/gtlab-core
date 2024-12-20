@@ -82,6 +82,24 @@ TEST_F(TestGtColorProperty, toRGB)
     EXPECT_EQ(test2.m_b, 0);
 }
 
+TEST_F(TestGtColorProperty, toRGBandAlpha)
+{
+    m_prop->setFromRGB(gt::rgb(0, 0, 255, 255));
+    EXPECT_STREQ(m_prop->hexString().toStdString().c_str(), "#0000ff");
+    gt::rgb test1 = m_prop->toRGB();
+    EXPECT_EQ(test1.m_r, 0);
+    EXPECT_EQ(test1.m_g, 0);
+    EXPECT_EQ(test1.m_b, 255);
+    EXPECT_EQ(test1.m_alpha, 255);
+
+    m_prop->setVal(gt::rgb(255, 255, 0, 0).toHexString());
+    gt::rgb test2 = m_prop->toRGB();
+    EXPECT_EQ(test2.m_r, 255);
+    EXPECT_EQ(test2.m_g, 255);
+    EXPECT_EQ(test2.m_b, 0);
+    EXPECT_EQ(test2.m_alpha, 0);
+}
+
 TEST_F(TestGtColorProperty, setFromRGB)
 {
     gt::rgb orange(255, 165, 0);

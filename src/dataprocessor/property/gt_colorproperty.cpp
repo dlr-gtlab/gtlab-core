@@ -218,7 +218,7 @@ gt::rgb::rgb(Qt::GlobalColor qCol)
         m_g = 75;
         m_b = 75;
         break;
-    case Qt::transparent:  // #808000
+    case Qt::transparent:  // #00000000
         m_r = 0;
         m_g = 0;
         m_b = 0;
@@ -234,9 +234,9 @@ gt::rgb::rgb(Qt::GlobalColor qCol)
     }
 }
 
-void
+bool
 gt::rgb::fromString(const QString& hexCodeInput)
-{
+{    
     std::string hexCode = hexCodeInput.toStdString();
     if (hexCode[0] == '#')
     {
@@ -264,11 +264,7 @@ gt::rgb::fromString(const QString& hexCodeInput)
     {
         gtError() << QObject::tr("Invalid hex code in "
                                  "property (%1)").arg(hexCodeInput);
-        m_r = -1;
-        m_g = -1;
-        m_b = -1;
-        m_alpha = -1;
-        return;
+        return false;
     }
 
     int shift = 0;
@@ -301,7 +297,7 @@ gt::rgb::fromString(const QString& hexCodeInput)
     ss >> m_b;
     ss.clear();
 
-
+    return true;
 }
 
 QString
