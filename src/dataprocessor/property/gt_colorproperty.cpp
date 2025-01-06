@@ -168,39 +168,22 @@ gt::rgb::fromString(const QString& hexCodeInput)
 
     int shift = 0;
 
-    std::stringstream ss;
-
-    int newIntA = 255;
-    int newIntR;
-    int newIntG;
-    int newIntB;
-
     // Check size of string
     if (hexCode.length() == 8)
     {
-        ss << std::hex << hexCode.substr(0, 2); // alpha
-        ss >> newIntA;
-        ss.clear();
+        m_alpha = static_cast<uint8_t>(std::stoi(hexCode.substr(0, 2),
+                                                 nullptr, 16));
         shift = 2;
     }
 
-    m_alpha = newIntA;
+    // extract color codes
+    m_r = static_cast<uint8_t>(std::stoi(hexCode.substr(0 + shift, 2),
+                                         nullptr, 16));
+    m_g = static_cast<uint8_t>(std::stoi(hexCode.substr(2 + shift, 2),
+                                         nullptr, 16));
+    m_b = static_cast<uint8_t>(std::stoi(hexCode.substr(4 + shift, 2),
+                                         nullptr, 16));
 
-    ss << std::hex << hexCode.substr(0 + shift, 2); // red
-    ss >> newIntR;
-    ss.clear();
-
-    ss << std::hex << hexCode.substr(2 + shift, 2); // green
-    ss >> newIntG;
-    ss.clear();
-
-    ss << std::hex << hexCode.substr(4 + shift, 2); // blue
-    ss >> newIntB;
-    ss.clear();
-
-    m_r = newIntR;
-    m_g = newIntG;
-    m_b = newIntB;
     return true;
 }
 
