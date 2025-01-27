@@ -12,6 +12,7 @@
 #ifndef TESTDMICLASS_H
 #define TESTDMICLASS_H
 
+#include "gt_colorproperty.h"
 #include "gt_object.h"
 #include "gt_doubleproperty.h"
 #include "gt_modeproperty.h"
@@ -46,6 +47,7 @@ private:
     GtModeTypeProperty m_propTypeA, m_propTypeB;
     GtDoubleProperty m_optionalValue;    
     GtEnumProperty<Fruit> m_fruit;
+    GtColorProperty m_color;
 };
 
 #endif // TESTDMICLASS_H

@@ -122,8 +122,10 @@ set(headers
     dock_widgets/properties/items/gt_propertydoublelistitem.h
     dock_widgets/properties/items/gt_propertylabelitem.h
     dock_widgets/properties/items/gt_propertyitem.h
+    dock_widgets/properties/items/gt_colorpropertyitem.h
     dock_widgets/properties/editors/gt_propertyfilechoosereditor.h
     dock_widgets/properties/editors/gt_propertyobjectlinkeditor.h
+    dock_widgets/properties/editors/gt_colorpropertyeditor.h
     dock_widgets/post/gt_postmodel.h
     dock_widgets/gt_customactionmenu.h
     gt_objectuiaction.h
@@ -300,8 +302,10 @@ set(sources
     dock_widgets/properties/items/gt_propertylabelitem.cpp
     dock_widgets/properties/items/gt_propertyaccessselectionitem.cpp
     dock_widgets/properties/items/gt_propertydoublelistitem.cpp
+    dock_widgets/properties/items/gt_colorpropertyitem.cpp
     dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp
     dock_widgets/properties/editors/gt_propertyfilechoosereditor.cpp
+    dock_widgets/properties/editors/gt_colorpropertyeditor.cpp
     dock_widgets/properties/gt_propertyitemfactory.cpp
     dock_widgets/post/gt_postmodel.cpp
     dock_widgets/gt_customactionmenu.cpp
