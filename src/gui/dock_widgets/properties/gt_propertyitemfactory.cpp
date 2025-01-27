@@ -36,6 +36,9 @@
 #include "gt_doublelistproperty.h"
 #include "gt_propertydoublelistitem.h"
 
+#include "gt_colorproperty.h"
+#include "gt_colorpropertyitem.h"
+
 #include "gt_propertyitemfactory.h"
 
 GtPropertyItemFactory::GtPropertyItemFactory(QObject* parent) : QObject(parent)
@@ -63,6 +66,9 @@ GtPropertyItemFactory::GtPropertyItemFactory(QObject* parent) : QObject(parent)
 
     m_knownClasses.insert(GT_CLASSNAME(GtDoubleListProperty),
                           GT_METADATA(GtPropertyDoubleListItem));
+
+    m_knownClasses.insert(GT_CLASSNAME(GtColorProperty),
+                          GT_METADATA(GtColorPropertyItem));
 }
 
 GtPropertyItemFactory*
