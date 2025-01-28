@@ -224,6 +224,18 @@ GtDoubleProperty::initialValue() const
     return m_initValue;
 }
 
+bool
+GtDoubleProperty::lowSideBoundaryActive() const
+{
+    return m_boundsCheckFlagLow;
+}
+
+bool
+GtDoubleProperty::highSideBoundaryActive() const
+{
+    return m_boundsCheckFlagHi;
+}
+
 gt::PropertyFactoryFunction
 gt::makeDoubleProperty(double value)
 {
