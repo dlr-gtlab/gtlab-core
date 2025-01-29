@@ -1,0 +1,19 @@
+{
+  "default-registry": {
+    "kind": "git",
+    "baseline": "26abb5b33f976246a5f2cdc45cdd073d51caff06",
+    "repository": "https://github.com/microsoft/vcpkg"
+  },
+  "registries": [
+    {
+      "kind": "git",
+      "baseline": "70c698a4c28d21635618ef94961a086023adb460",
+      "reference": "main",
+      "repository": "https://github.com/dlr-gtlab/vcpkg-registry.git",
+      "packages": [
+        "genh5",
+        "gt-logging"
+      ]
+    }
+  ]
+}
