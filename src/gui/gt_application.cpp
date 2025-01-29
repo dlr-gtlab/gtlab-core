@@ -971,8 +971,5 @@ void
 GtApplication::onGuiInitializationFinished()
 {
     initModules();
-
-    // update theme
-    emit themeChanged(m_darkMode);
 }
 
