@@ -42,7 +42,8 @@ public:
 
 private:
     GtDoubleProperty m_value;
-    GtPropertyStructContainer m_container, m_containerRO, m_containerHidden;
+    GtPropertyStructContainer m_container, m_containerRO,
+        m_containerHidden, m_containerMap;
     GtModeProperty m_mode;
     GtModeTypeProperty m_propTypeA, m_propTypeB;
     GtDoubleProperty m_optionalValue;    

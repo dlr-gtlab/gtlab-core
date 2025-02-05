@@ -20,6 +20,11 @@
 #include "gt_command.h"
 
 #include "gt_propertycontainerwidget.h"
+#include "gt_structproperty.h"
+#include "gt_qtutilities.h"
+
+#include <QInputDialog>
+
 
 GtPropertyContainerWidget::GtPropertyContainerWidget(
         GtObject* obj, GtPropertyStructContainer& container, QWidget* parent) :
@@ -137,10 +142,52 @@ GtPropertyContainerWidget::onRowsInserted(const QModelIndex& parent, int first,
     }
 }
 
+QString queryNewEntryId(QWidget* parent, GtPropertyStructContainer& container)
+{
+    // we need to query the id from the user
+
+    bool ok = false;
+
+    // proposal
+    QString newKey = "my_key";
+
+    QStringList keys;
+    std::transform(container.begin(), container.end(),
+                   std::back_inserter(keys), [](const auto& arg){
+                       return arg.ident();
+                   });
+
+    while(!ok)
+    {
+        newKey = QInputDialog::getText(parent, QObject::tr("Enter the key of the entry"),
+                                      QObject::tr("Entry key:"), QLineEdit::Normal, newKey, &ok);
+
+        if (!ok) return ""; // aborted
+
+        ok = !keys.contains(newKey);
+
+        if (!ok) newKey = gt::makeUniqueName(newKey, keys);
+    }
+
+    return newKey;
+}
+
 void
 GtPropertyContainerWidget::addNewEntry(GtPropertyStructContainer& container,
                                        const QString& entryType)
 {
+
+
+    QString newId;
+
+    if (container.type() == GtPropertyStructContainer::Associative)
+    {
+        newId = queryNewEntryId(this, container);
+
+        // the new id must not be empty for a map style container
+        if (newId.isEmpty()) return;
+    }
+
     const QString cmdStr = m_obj->objectName() +
             QStringLiteral(" - ") +
             container.name() +
@@ -150,5 +197,5 @@ GtPropertyContainerWidget::addNewEntry(GtPropertyStructContainer& container,
     auto cmd = gtApp->makeCommand(m_obj, cmdStr);
     Q_UNUSED(cmd)
 
-    container.newEntry(entryType);
+    container.newEntry(entryType, newId);
 }
