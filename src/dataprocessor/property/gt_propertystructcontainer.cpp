@@ -21,9 +21,10 @@
 
 struct GtPropertyStructContainer::Impl
 {
-    Impl(const QString& ident, const QString& name) :
+    Impl(const QString& ident, const QString& name, GtPropertyStructContainer::ContainerType type) :
         id(ident),
-        name(name)
+        name(name),
+        type(type)
     {
     }
 
@@ -33,16 +34,27 @@ struct GtPropertyStructContainer::Impl
     std::map<TypeIdStr, GtPropertyStructDefinition> allowedTypes;
     gt::PolyVector<GtPropertyStructInstance> entries;
     int flags = {0};
+    GtPropertyStructContainer::ContainerType type;
 };
 
 GtPropertyStructContainer::GtPropertyStructContainer(const QString& ident,
-                                                     const QString& name) :
-    pimpl(std::make_unique<GtPropertyStructContainer::Impl>(ident, name))
+                                                     const QString& name)
+    : GtPropertyStructContainer(ident, name, Sequential)
+{}
+
+GtPropertyStructContainer::GtPropertyStructContainer(const QString& ident,
+                                                     const QString& name,
+                                                    GtPropertyStructContainer::ContainerType type) :
+    pimpl(std::make_unique<GtPropertyStructContainer::Impl>(ident, name, type))
 {
 }
 
-GtPropertyStructContainer::GtPropertyStructContainer(const QString& ident) :
-    GtPropertyStructContainer(ident, ident)
+GtPropertyStructContainer::GtPropertyStructContainer(const QString& ident)
+    : GtPropertyStructContainer(ident, Sequential)
+{}
+
+GtPropertyStructContainer::GtPropertyStructContainer(const QString& ident, ContainerType type) :
+    GtPropertyStructContainer(ident, ident, type)
 {
 }
 
@@ -56,6 +68,12 @@ void
 GtPropertyStructContainer::setFlags(int flags)
 {
     pimpl->flags = flags;
+
+}
+
+GtPropertyStructContainer::ContainerType GtPropertyStructContainer::type() const
+{
+    return pimpl->type;
 }
 
 GtPropertyStructContainer::~GtPropertyStructContainer() = default;
