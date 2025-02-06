@@ -215,11 +215,12 @@ inline QString moduleSettingPath(const QString& modID,
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(GtModuleInterface,
-                    "de.dlr.gtlab.GtModuleInterface/2.0")
+                    "de.dlr.gtlab.GtModuleInterface/2.1-pre1")
 QT_END_NAMESPACE
 
 
 GT_OLD_INTERFACES(GtModuleInterface,
-                  "de.dlr.gtlab.GtModuleInterface/1.7")
+                  "de.dlr.gtlab.GtModuleInterface/1.7",
+                  "de.dlr.gtlab.GtModuleInterface/2.0")
 
 #endif // GT_MODULEINTERFACE_H

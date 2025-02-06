@@ -93,6 +93,8 @@ transfer_unique(std::unique_ptr<Base>&& basePtr,
     using TransferredType = std::remove_pointer_t<
         typename std::result_of_t<decltype(transferFunc)(Base*)>>;
 
+    if (!basePtr) return nullptr;
+
     auto derivedPtr = std::unique_ptr<TransferredType>(
         transferFunc(basePtr.get()));
 
