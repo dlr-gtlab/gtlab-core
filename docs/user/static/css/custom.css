@@ -1,0 +1,17 @@
+.hideindoc {
+    display: none;
+}
+    
+    /* Make FAQ question headings more compact */
+.faq-question > h3 {
+  font-size: var(--font-size--m);
+  line-height: 1.4;
+  margin-top: 0.8rem;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.section.faq-question + p,
+div.faq-question + p {
+  margin-top: 0.2rem;
+}
