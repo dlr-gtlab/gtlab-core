@@ -8,7 +8,13 @@ To install sphinx and its dependencies, simply run
     pip install -r requirements.txt
 
 
-To build the documentation, call
+To build the developer documentation, call
 
+    cd dev
     doxygen
+    sphinx-build . html
+
+To build the user documentation, call
+
+    cd user
     sphinx-build . html
