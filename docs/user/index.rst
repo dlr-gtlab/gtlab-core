@@ -19,5 +19,5 @@ Subcaption 2
    :caption: Reference
    :maxdepth: 2
 
-   devdoc
+   Developer Documentation <https://gtlab.readthedocs.io/en/latest/>
    faq
