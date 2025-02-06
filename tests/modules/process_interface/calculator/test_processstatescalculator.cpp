@@ -17,7 +17,7 @@ TestProcessStatesCalculator::TestProcessStatesCalculator() :
                 GtUnit::Time, 5},
     m_pIterations{"iterations", "Iterations",
                   "How many times should the state change",
-                  GtUnit::NonDimensional, 2}
+                  2}
 {
     setObjectName("Process State Changer");
 

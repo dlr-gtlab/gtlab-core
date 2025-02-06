@@ -99,7 +99,7 @@ public:
         registerProperty(*m_doubleProp3);
     }
 
-    ~TestGtLoop()
+    ~TestGtLoop() override
     {
         delete m_doubleProp1;
         delete m_doubleProp2;
@@ -141,7 +141,7 @@ public:
     {
         GtPropertyStructDefinition monVarStruct("MonitoringVarsStruct");
         monVarStruct.defineMember("name", gt::makeStringProperty());
-        monVarStruct.defineMember("value", gt::makeIntMonitoringProperty(0));
+        monVarStruct.defineMember("value", gt::makeMonitoring(gt::makeIntProperty(0)));
 
         monitoringVars.registerAllowedType(monVarStruct);
 

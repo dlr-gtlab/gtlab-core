@@ -10,7 +10,7 @@
 
 #include "gtest/gtest.h"
 
-#include "gt_doublemonitoringproperty.h"
+#include "gt_doubleproperty.h"
 
 /// This is a test fixture that does a init for each test
 class TestGtDoubleMonitoringProperty : public ::testing::Test
@@ -28,7 +28,8 @@ protected:
 
 TEST_F(TestGtDoubleMonitoringProperty, initialization)
 {
-    GtDoubleMonitoringProperty prop("testIdent", "testName");
+    GtDoubleProperty prop("testIdent", "testName");
+    prop.setMonitoring(true);
 
     ASSERT_STREQ(prop.objectName().toStdString().c_str(), "testName");
 
@@ -36,7 +37,8 @@ TEST_F(TestGtDoubleMonitoringProperty, initialization)
 
     ASSERT_STREQ(prop.brief().toStdString().c_str(), "");
 
-    GtDoubleMonitoringProperty prop2("testIdent2", "testName2", "testBrief2");
+    GtDoubleProperty prop2("testIdent2", "testName2", "testBrief2");
+    prop2.setMonitoring(true);
 
     ASSERT_STREQ(prop2.objectName().toStdString().c_str(), "testName2");
 
@@ -47,14 +49,16 @@ TEST_F(TestGtDoubleMonitoringProperty, initialization)
 
 TEST_F(TestGtDoubleMonitoringProperty, isReadOnly)
 {
-    GtDoubleMonitoringProperty prop("testIdent", "testName");
+    GtDoubleProperty prop("testIdent", "testName");
+    prop.setMonitoring(true);
 
     ASSERT_TRUE(prop.isReadOnly());
 }
 
 TEST_F(TestGtDoubleMonitoringProperty, setVal)
 {
-    GtDoubleMonitoringProperty prop("testIdent", "testName");
+    GtDoubleProperty prop("testIdent", "testName");
+    prop.setMonitoring(true);
 
     prop.setVal(11.3);
 

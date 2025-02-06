@@ -9,7 +9,6 @@
 
 #include "gt_calculator.h"
 #include "gt_doubleproperty.h"
-#include "gt_doublemonitoringproperty.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
 
@@ -24,7 +23,7 @@ public:
 
     GtDoubleProperty m_value;
 
-    GtDoubleMonitoringProperty m_result;
+    GtDoubleProperty m_result;
 
     GtObjectLinkProperty m_objectLink;
 

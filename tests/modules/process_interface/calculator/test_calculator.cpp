@@ -26,6 +26,7 @@ TestCalculator::TestCalculator() :
     registerProperty(m_objectLink, tr("Link Test"));
     registerProperty(m_objectPath, tr("Link Test"));
 
+    m_result.setMonitoring(true);
     registerMonitoringProperty(m_result);
 }
 

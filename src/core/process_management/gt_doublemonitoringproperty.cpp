@@ -21,9 +21,9 @@ GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
 
 GtDoubleMonitoringProperty::GtDoubleMonitoringProperty(const QString& ident,
                                                        const QString& name) :
-    GtDoubleMonitoringProperty(ident, name, QString())
+    GtDoubleProperty(ident, name, QString())
 {
-
+    setMonitoring(true);
 }
 
 gt::PropertyFactoryFunction

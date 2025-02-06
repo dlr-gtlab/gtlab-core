@@ -28,7 +28,8 @@ protected:
 
 TEST_F(TestGtIntMonitoringProperty, initialization)
 {
-    GtIntMonitoringProperty prop("testIdent", "testName");
+    GtIntProperty prop("testIdent", "testName");
+    prop.setMonitoring(true);
 
     ASSERT_STREQ(prop.objectName().toStdString().c_str(), "testName");
 
@@ -36,7 +37,8 @@ TEST_F(TestGtIntMonitoringProperty, initialization)
 
     ASSERT_STREQ(prop.brief().toStdString().c_str(), "");
 
-    GtIntMonitoringProperty prop2("testIdent2", "testName2", "testBrief2");
+    GtIntProperty prop2("testIdent2", "testName2", "testBrief2");
+    prop2.setMonitoring(true);
 
     ASSERT_STREQ(prop2.objectName().toStdString().c_str(), "testName2");
 
@@ -47,14 +49,16 @@ TEST_F(TestGtIntMonitoringProperty, initialization)
 
 TEST_F(TestGtIntMonitoringProperty, isReadOnly)
 {
-    GtIntMonitoringProperty prop("testIdent", "testName");
+    GtIntProperty prop("testIdent", "testName");
+    prop.setMonitoring(true);
 
     ASSERT_TRUE(prop.isReadOnly());
 }
 
 TEST_F(TestGtIntMonitoringProperty, setVal)
 {
-    GtIntMonitoringProperty prop("testIdent", "testName");
+    GtIntProperty prop("testIdent", "testName");
+    prop.setMonitoring(true);
 
     prop.setVal(11);
 

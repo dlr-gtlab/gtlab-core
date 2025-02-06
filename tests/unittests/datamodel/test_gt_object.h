@@ -58,7 +58,7 @@ public:
                                             QString(), GtUnit::Category::Angle),
         m_fileProp("fileProp", "Test File", QString(), QStringList()),
         m_groupProp("Test Group", QString()),
-        m_intProp("intProp", "Test Int", QString(), GtUnit::Category::Angle),
+        m_intProp("intProp", "Test Int", QString()),
         m_labelProp("labelProp", "Test Label", QString(), this),
         m_modeProp("modeProp", "Test Mode", QString()),
         m_modeTypeProp("Test Type", QString()),
