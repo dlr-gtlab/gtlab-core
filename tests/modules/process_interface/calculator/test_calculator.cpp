@@ -8,6 +8,8 @@
 
 #include "test_dmi_package.h"
 
+#include "gt_structproperty.h"
+
 TestCalculator::TestCalculator() :
     m_value("value", tr("Value")),
     m_result("result", tr("Result")),
@@ -16,7 +18,9 @@ TestCalculator::TestCalculator() :
                   QStringList() << GT_CLASSNAME(GtObject), true),
     m_objectPath("prePkg", "TestDmi Package Path",
                  "TestDmi Package Path", "Test DMI Package",
-                 this, QStringList() << GT_CLASSNAME(TestDmiPackage))
+                 this, QStringList() << GT_CLASSNAME(TestDmiPackage)),
+    m_inputArgs("inputArgs", "Input Args", GtPropertyStructContainer::Associative)
+
 {
     setObjectName("Test Calculator");
     hideLabelProperty(true);
@@ -27,6 +31,12 @@ TestCalculator::TestCalculator() :
     registerProperty(m_objectPath, tr("Link Test"));
 
     registerMonitoringProperty(m_result);
+
+    // Input args
+    GtPropertyStructDefinition doubleMapEntry("DoubleStruct");
+    doubleMapEntry.defineMember("value", gt::makeDoubleProperty(0.));
+    m_inputArgs.registerAllowedType(doubleMapEntry);
+    registerPropertyStructContainer(m_inputArgs);
 }
 
 bool

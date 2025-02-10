@@ -144,7 +144,17 @@ GtProcessConnectionItem::data(int column, int role)
 
                     assert(iter != m_container->end());
 
-                    return QStringLiteral("[%1]").arg(std::distance(m_container->begin(), iter));
+                    switch (m_container->type()) {
+                    case GtPropertyStructContainer::Sequential:
+                        return QStringLiteral("[%1]").arg(std::distance(m_container->begin(), iter));
+                        break;
+                    case GtPropertyStructContainer::Associative:
+                    default:
+                        return iter->ident();
+                        break;
+                    }
+
+                    return iter->ident();
                 }
 
                 if (!m_property)
