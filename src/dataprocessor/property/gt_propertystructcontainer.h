@@ -32,17 +32,28 @@ class GT_DATAMODEL_EXPORT GtPropertyStructContainer : public QObject
 {
     Q_OBJECT
 public:
+
+    enum ContainerType
+    {
+        Sequential,   /* Like a vector, ids are uuids */
+        Associative  /* Like a map with string key, ids are named keys */
+    };
+
     using iterator =
         gt::PolyVector<GtPropertyStructInstance>::iterator;
     using const_iterator =
         gt::PolyVector<GtPropertyStructInstance>::const_iterator;
 
+    // Creates a sequential container
     GtPropertyStructContainer(const QString& ident, const QString& name);
-
-
     explicit GtPropertyStructContainer(const QString& ident);
 
+    GtPropertyStructContainer(const QString& ident, const QString& name, ContainerType);
+    explicit GtPropertyStructContainer(const QString& ident, ContainerType);
+
     ~GtPropertyStructContainer() override;
+
+    ContainerType type() const;
 
     enum Flags
     {
@@ -139,6 +150,9 @@ public:
      * the prefix is "stage".
      */
     QString entryPrefix() const;
+
+    QString entryDisplayName(const_iterator position) const;
+    QString entryDisplayName(size_t index) const;
 
     /**
      * @brief Sets the entry prefix, which is used to give
