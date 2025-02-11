@@ -151,6 +151,9 @@ public:
      */
     QString entryPrefix() const;
 
+    QString entryDisplayName(const_iterator position) const;
+    QString entryDisplayName(size_t index) const;
+
     /**
      * @brief Sets the entry prefix, which is used to give
      * entries a name for display

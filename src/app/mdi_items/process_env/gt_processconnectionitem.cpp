@@ -141,20 +141,7 @@ GtProcessConnectionItem::data(int column, int role)
                     }
 
                     auto iter = m_container->findEntry(m_containerEntry->ident());
-
-                    assert(iter != m_container->end());
-
-                    switch (m_container->type()) {
-                    case GtPropertyStructContainer::Sequential:
-                        return QStringLiteral("[%1]").arg(std::distance(m_container->begin(), iter));
-                        break;
-                    case GtPropertyStructContainer::Associative:
-                    default:
-                        return iter->ident();
-                        break;
-                    }
-
-                    return iter->ident();
+                    return m_container->entryDisplayName(iter);
                 }
 
                 if (!m_property)

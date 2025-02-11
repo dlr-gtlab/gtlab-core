@@ -202,6 +202,54 @@ GtPropertyStructContainer::entryPrefix() const
     return pimpl->entryPrefix;
 }
 
+QString
+GtPropertyStructContainer::entryDisplayName(const_iterator position) const
+{
+    if  (position == this->end()) return {};
+
+
+    switch(type())
+    {
+    case Sequential:
+    {
+        auto idx = std::distance(begin(), position);
+        auto prefix = entryPrefix();
+        if (!prefix.isEmpty()) prefix = prefix + " ";
+        return QString("%1[%2]").arg(prefix).arg(idx);
+        break;
+    }
+    case Associative:
+    default:
+        return position->ident();
+        break;
+    }
+
+    return position->ident();
+}
+
+QString GtPropertyStructContainer::entryDisplayName(size_t index) const
+{
+    if  (index >= size()) return {};
+
+
+    switch(type())
+    {
+    case Sequential:
+    {
+        auto prefix = entryPrefix();
+        if (!prefix.isEmpty()) prefix = prefix + " ";
+        return QString("%1[%2]").arg(prefix).arg(index);
+        break;
+    }
+    case Associative:
+    default:
+        return at(index).ident();
+        break;
+    }
+
+    return {};
+}
+
 GtPropertyStructContainer&
 GtPropertyStructContainer::setEntryPrefix(QString prefix)
 {

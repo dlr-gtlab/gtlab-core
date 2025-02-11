@@ -89,19 +89,11 @@ GtPropertyModel::data(const QModelIndex& index, int role) const
 
             if (!container) return {};
 
-            if (container->type() == GtPropertyStructContainer::Sequential)
-            {
-                return item->data(index.column(), role).toString() +
-                       + " [" + QString::number(index.row()) + "]";
-            }
-            else if (container->type() == GtPropertyStructContainer::Associative)
-            {
-                if (index.row() >= static_cast<int>(container->size())) return {};
-                return container->at(index.row()).ident();
-            }
+            size_t idx = index.row();
 
-            return {};
+            if (idx >= container->size()) return {};
 
+            return container->entryDisplayName(idx);
         }
 
         if (role == Qt::ToolTipRole)

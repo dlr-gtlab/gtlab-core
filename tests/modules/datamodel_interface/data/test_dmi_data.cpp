@@ -36,8 +36,9 @@ TestDmiData::TestDmiData() :
 
     GtPropertyStructDefinition stringEntryDef("StringStruct");
     stringEntryDef.defineMember("value", gt::makeOptional(gt::makeStringProperty(""), true));
-    stringEntryDef.defineMember("name", gt::makeReadOnly(gt::makeStringProperty("")));
+    stringEntryDef.defineMember("name", gt::makeReadOnly(gt::makeStringProperty("YouCannotChangeIt")));
 
+    m_container.setEntryPrefix("note");
     m_container.registerAllowedType(stringEntryDef);
     m_containerRO.registerAllowedType(stringEntryDef);
     m_containerHidden.registerAllowedType(stringEntryDef);
