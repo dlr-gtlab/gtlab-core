@@ -36,7 +36,7 @@ inline bool canConvert(const QVariant& v)
 template <>
 inline bool canConvert<QByteArray>(const QVariant& v)
 {
-    return v.type() == QVariant::String && v.canConvert<QByteArray>();
+    return (v.type() == QVariant::String || v.type() == QVariant::ByteArray) && v.canConvert<QByteArray>();
 }
 
 template <>
