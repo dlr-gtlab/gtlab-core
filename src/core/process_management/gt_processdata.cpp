@@ -465,7 +465,8 @@ GtProcessData::Impl::initDefaultUserGroup(const QString& projectPath)
     _currentScope = GtTaskGroup::USER;
     _currentGroupId = sysUsername;
 
-    gtInfo() << QObject::tr("Default user group successfully initialized");
+    gtInfo() << QObject::tr("Default task user group '%1' "
+                            "successfully initialized").arg(sysUsername);
 
     return true;
 }
