@@ -61,6 +61,20 @@ gt::gui::color::base()
 }
 
 QColor
+gt::gui::color::headingBackground()
+{
+    if (gtApp && gtApp->inDarkMode())
+    {
+        // Todo: how to compute this color from base?
+        return QColor(10, 17, 31);
+    }
+    else
+    {
+        return gt::gui::color::base();
+    }
+}
+
+QColor
 gt::gui::color::text()
 {
     return currentTheme().color(QPalette::Text);
