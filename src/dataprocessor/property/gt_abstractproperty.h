@@ -259,6 +259,10 @@ public:
      */
     bool isConnected();
     bool isConnected() const;
+
+    void setCollapsedByDefault(bool collapsed);
+    bool collapsedByDefault() const;
+
 protected:
     /**
      * @brief GtAbstractProperty

@@ -30,6 +30,35 @@
 #include "gt_icons.h"
 #include "gt_propertystructcontainer.h"
 
+
+namespace
+{
+    /// make expand state as requested by the data model
+    void
+    restoreDefaultExpandStates(QTreeView* view, const QModelIndex& parent = QModelIndex())
+    {
+        QAbstractItemModel* model = view->model();
+        if (!model) return;
+
+        int rowCount = model->rowCount(parent);
+        for (int row = 0; row < rowCount; ++row) {
+            QModelIndex idx = model->index(row, 0, parent);
+
+            // Retrieve the property from the model
+            bool collapsedByDefault = idx.data(GtPropertyModel::DefaultCollapseRole).toBool();
+
+            // Collapse or expand accordingly
+            if (collapsedByDefault)
+                view->collapse(idx);
+            else
+                view->expand(idx);
+
+            // Recursively handle children
+            restoreDefaultExpandStates(view, idx);
+        }
+    }
+}
+
 GtPropertyTreeView::GtPropertyTreeView(GtObject* scope,
                                        QWidget* parent) :
     GtTreeView(parent)
@@ -145,7 +174,7 @@ GtPropertyTreeView::setObject(GtObject* obj, bool processEvents)
             QCoreApplication::processEvents();
         }
         
-        expandAll();
+        restoreDefaultExpandStates(this);
         resizeColumns();
     }
 }

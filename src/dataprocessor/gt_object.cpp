@@ -896,6 +896,17 @@ GtObject::registerProperty(GtAbstractProperty& property,
 }
 
 bool
+GtObject::registerProperty(GtAbstractProperty &property,
+                           const QString &cat, int catPriority,
+                           bool collapsedByDefault)
+{
+    QString catString = QString("%1||%2").arg(catPriority).arg(cat);
+    if (collapsedByDefault) catString += '-';
+
+    return registerProperty(property, catString);
+}
+
+bool
 GtObject::registerSilentProperty(GtAbstractProperty& property)
 {
     if (pimpl->properties.contains(&property))
