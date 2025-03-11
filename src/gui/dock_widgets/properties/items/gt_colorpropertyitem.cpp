@@ -43,7 +43,8 @@ GtColorPropertyItem::data(int column, int role) const
                     return QStringLiteral("-");
                 }
 
-                return c.name(QColor::HexArgb);
+                gt::rgb col(c.red(), c.green(), c.blue(), c.alpha());
+                return col.toHexString();
             }
         }
     }

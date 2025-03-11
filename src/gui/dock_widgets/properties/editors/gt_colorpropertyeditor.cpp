@@ -70,7 +70,8 @@ GtColorPropertyEditor::update(bool lineEditTrigger)
 
     if (!lineEditTrigger)
     {
-        m_colorLineEdit->setText(c.name(QColor::HexArgb));
+        gt::rgb tmp(c.red(), c.green(), c.blue(), c.alpha());
+        m_colorLineEdit->setText(tmp.toHexString());
     }
     m_selectButton->setAutoFillBackground(true);
 
@@ -138,11 +139,9 @@ GtColorPropertyEditor::onLineEditChanged()
 
     if (m_colorLineEdit->text() != m_prop->getVal())
     {
-        disconnect(m_prop.data(), SIGNAL(changed()),
-                   this, SLOT(propertyValueChanged()));
+        // prevent signal loops
+        QSignalBlocker blockSignal(m_colorLineEdit);
         m_prop->setVal(m_colorLineEdit->text());
-        connect(m_prop.data(), SIGNAL(changed()),
-                this, SLOT(propertyValueChanged()));
         update(true);
     }
 }
