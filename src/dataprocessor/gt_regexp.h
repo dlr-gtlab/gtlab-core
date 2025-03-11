@@ -128,6 +128,9 @@ GT_DATAMODEL_EXPORT const QRegExp& forFileDialogFilters();
  */
 QRegExp GT_DATAMODEL_EXPORT forHexColorCode();
 
+void restrictRegExpWithObjectNames(QStringList const& namesToProhibit,
+                                   QRegExp& defaultRegExp);
+
 } // namespace re
 
 } // namespace gt
