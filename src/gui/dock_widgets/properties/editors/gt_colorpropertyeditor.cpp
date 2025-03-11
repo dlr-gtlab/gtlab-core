@@ -39,7 +39,7 @@ GtColorPropertyEditor::GtColorPropertyEditor(QWidget* parent) :
     lay->setSpacing(0);
     m_colorLineEdit->setFrame(false);
     m_colorLineEdit->setValidator(new QRegExpValidator(
-        gt::re::forHexColorCode()));
+        gt::re::forHexColorCode(), this));
 
     connect(m_selectButton, SIGNAL(clicked(bool)),
             SLOT(selectColor()));
