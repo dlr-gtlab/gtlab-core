@@ -136,14 +136,20 @@ void
 gt::re::restrictRegExpWithObjectNames(const QStringList& namesToProhibit,
                                       QRegExp& defaultRegExp)
 {
-    QString pattern = std::accumulate(
-        std::begin(namesToProhibit), std::end(namesToProhibit), QString("^"),
-        [](QString const& a, QString const& name)
+    QString forbiddenPattern = "(?!";
+    for (int i = 0; i < namesToProhibit.size(); ++i)
+    {
+        forbiddenPattern += namesToProhibit[i] + "$";
+        if (i < namesToProhibit.size() - 1)
         {
-            return a + "(?!" + name + "$)";
-        });
+            forbiddenPattern += "|";
+        }
+    }
+    forbiddenPattern += ")";
 
-    pattern += defaultRegExp.pattern();
+    // Ergänze die verbotenen Wörter zur Basis-Regex
+    QString finalPattern = "^" + forbiddenPattern
+                           + defaultRegExp.pattern() + "$";
 
-    defaultRegExp = QRegExp(pattern);
+    defaultRegExp = QRegExp(finalPattern);
 }
