@@ -131,3 +131,19 @@ gt::re::forHexColorCode()
 {
     return QRegExp("^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$");
 }
+
+void
+gt::re::restrictRegExpWithObjectNames(const QStringList& namesToProhibit,
+                                      QRegExp& defaultRegExp)
+{
+    QString pattern = std::accumulate(
+        std::begin(namesToProhibit), std::end(namesToProhibit), QString("^"),
+        [](QString const& a, QString const& name)
+        {
+            return a + "(?!" + name + "$)";
+        });
+
+    pattern += defaultRegExp.pattern();
+
+    defaultRegExp = QRegExp(pattern);
+}
