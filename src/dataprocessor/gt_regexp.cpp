@@ -131,3 +131,25 @@ gt::re::forHexColorCode()
 {
     return QRegExp("^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$");
 }
+
+void
+gt::re::restrictRegExpWithObjectNames(const QStringList& namesToProhibit,
+                                      QRegExp& defaultRegExp)
+{
+    QString forbiddenPattern = "(?!";
+    for (int i = 0; i < namesToProhibit.size(); ++i)
+    {
+        forbiddenPattern += namesToProhibit[i] + "$";
+        if (i < namesToProhibit.size() - 1)
+        {
+            forbiddenPattern += "|";
+        }
+    }
+    forbiddenPattern += ")";
+
+    // Ergänze die verbotenen Wörter zur Basis-Regex
+    QString finalPattern = "^" + forbiddenPattern
+                           + defaultRegExp.pattern() + "$";
+
+    defaultRegExp = QRegExp(finalPattern);
+}

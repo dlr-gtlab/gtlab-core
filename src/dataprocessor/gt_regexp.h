@@ -15,6 +15,8 @@
 
 #include "gt_datamodel_exports.h"
 
+#include "gt_object.h"
+
 /**
  * namespace for RegualrExpressions, used in GTlab
  */
@@ -125,6 +127,49 @@ GT_DATAMODEL_EXPORT const QRegExp& forFileDialogFilters();
  * @return regexp for semantic versioning
  */
 QRegExp GT_DATAMODEL_EXPORT forHexColorCode();
+
+/**
+ * @brief restrictRegExpWithObjectNames
+ * Modifies a existing RegExp to append the given names to restrict their usage
+ * with the reg exp
+ * @param namesToProhibit - names to add to be forbidden
+ * @param defaultRegExp - exisitng reg exp to modify
+ */
+void GT_DATAMODEL_EXPORT restrictRegExpWithObjectNames(
+    QStringList const& namesToProhibit, QRegExp& defaultRegExp);
+
+/**
+ * @brief Modifies a given QRegExp to restrict usage of sibling objects of the given GtObject obj
+ * The template type T has to be defined as the class of the sibling object to restrict.
+ * Note: The template type must be const
+ * e.g. gt::re::restrictRegExpWithObjectSiblingsNames<const GtObject>(obj, defaultRegExp);
+ * @param obj - The object to find the siblings and in most use cases the object which should be renamed
+ * @param defaultRegExp - the basic regular expression to be extended with the siblings names to restrict.
+ * If the object obj has no parent or siblings the RegExp is not modified
+ */
+template <typename T>
+inline void restrictRegExpWithObjectSiblingsNames(GtObject const& obj,
+                                                  QRegExp& defaultRegExp)
+{
+    const GtObject* parent = obj.parentObject();
+
+    if (!parent) return;
+
+    QList<T> siblings = parent->findDirectChildren<T>();
+
+    if (siblings.isEmpty()) return;
+
+    QStringList names;
+
+    for (auto* s : qAsConst(siblings))
+    {
+        names.append(s->objectName());
+    }
+
+    names.removeAll(obj.objectName());
+
+    restrictRegExpWithObjectNames(names, defaultRegExp);
+}
 
 } // namespace re
 
