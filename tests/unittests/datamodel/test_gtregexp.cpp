@@ -47,6 +47,10 @@ TEST(RegExp, restrictRegExpWithObjectNames)
     EXPECT_TRUE(match(re, "NiceToSeeYou"));
     EXPECT_FALSE(match(re, "Hello"));
     EXPECT_FALSE(match(re, "World"));
+
+    /// basic failure of the original regexp
+    EXPECT_FALSE(match(re, "Numb3rs4re8ad"));
+    EXPECT_FALSE(match(re, "I don't like other symbols than letters!"));
 }
 
 TEST(RegExp, restrictRegExpWithObjectSiblingsNames)
@@ -66,7 +70,7 @@ TEST(RegExp, restrictRegExpWithObjectSiblingsNames)
     c3->setObjectName("Foo");
     parent->appendChild(c3);
 
-    gt::re::restrictRegExpWithObjectSiblingsNames<const GtObject>(*c3, re);
+    gt::re::restrictRegExpWithObjectSiblingsNames<const GtObject*>(*c3, re);
 
     auto match = [](const auto& re, const auto& string) {
         return re.indexIn(string) >= 0;
@@ -82,6 +86,10 @@ TEST(RegExp, restrictRegExpWithObjectSiblingsNames)
     /// The name of the siblings should not be allowed
     EXPECT_FALSE(match(re, "Hello"));
     EXPECT_FALSE(match(re, "World"));
+
+    /// basic failure of the original regexp
+    EXPECT_FALSE(match(re, "Numb3rs4re8ad"));
+    EXPECT_FALSE(match(re, "I don't like other symbols than letters!"));
 
     delete parent;
 }

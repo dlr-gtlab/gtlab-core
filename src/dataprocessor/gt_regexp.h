@@ -147,7 +147,7 @@ void GT_DATAMODEL_EXPORT restrictRegExpWithObjectNames(
  * @param defaultRegExp - the basic regular expression to be extended with the siblings names to restrict.
  * If the object obj has no parent or siblings the RegExp is not modified
  */
-template <typename T = const GtObject>
+template <typename T>
 inline void restrictRegExpWithObjectSiblingsNames(GtObject const& obj,
                                                   QRegExp& defaultRegExp)
 {
@@ -155,7 +155,7 @@ inline void restrictRegExpWithObjectSiblingsNames(GtObject const& obj,
 
     if (!parent) return;
 
-    QList<T*> siblings = parent->findDirectChildren<T*>();
+    QList<T> siblings = parent->findDirectChildren<T>();
 
     if (siblings.isEmpty()) return;
 
