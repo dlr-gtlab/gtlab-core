@@ -141,11 +141,13 @@ void GT_DATAMODEL_EXPORT restrictRegExpWithObjectNames(
 /**
  * @brief Modifies a given QRegExp to restrict usage of sibling objects of the given GtObject obj
  * The template type T has to be defined as the class of the sibling object to restrict.
+ * Note: The template type must be const
+ * e.g. gt::re::restrictRegExpWithObjectSiblingsNames<const GtObject>(obj, defaultRegExp);
  * @param obj - The object to find the siblings and in most use cases the object which should be renamed
  * @param defaultRegExp - the basic regular expression to be extended with the siblings names to restrict.
  * If the object obj has no parent or siblings the RegExp is not modified
  */
-template <typename T>
+template <typename T = const GtObject>
 inline void restrictRegExpWithObjectSiblingsNames(GtObject const& obj,
                                                   QRegExp& defaultRegExp)
 {

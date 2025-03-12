@@ -66,7 +66,7 @@ TEST(RegExp, restrictRegExpWithObjectSiblingsNames)
     c3->setObjectName("Foo");
     parent->appendChild(c3);
 
-    gt::re::restrictRegExpWithObjectSiblingsNames<GtObject>(*c3, re);
+    gt::re::restrictRegExpWithObjectSiblingsNames<const GtObject>(*c3, re);
 
     auto match = [](const auto& re, const auto& string) {
         return re.indexIn(string) >= 0;
