@@ -13,6 +13,7 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
 
+#include <gt_propertystructcontainer.h>
 
 class TestCalculator : public GtCalculator
 {
@@ -30,6 +31,7 @@ public:
 
     GtObjectPathProperty m_objectPath;
 
+    GtPropertyStructContainer m_inputArgs;
 };
 
 #endif // TESTCALCULATOR_H
