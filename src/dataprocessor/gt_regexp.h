@@ -129,6 +129,16 @@ GT_DATAMODEL_EXPORT const QRegExp& forFileDialogFilters();
 QRegExp GT_DATAMODEL_EXPORT forHexColorCode();
 
 /**
+ * @brief restrictRegExpWithObjectNames
+ * Modifies a existing RegExp to append the given names to restrict their usage
+ * with the reg exp
+ * @param namesToProhibit - names to add to be forbidden
+ * @param defaultRegExp - exisitng reg exp to modify
+ */
+void restrictRegExpWithObjectNames(QStringList const& namesToProhibit,
+                                   QRegExp& defaultRegExp);
+
+/**
  * @brief Modifies a given QRegExp to restrict usage of sibling objects of the given GtObject obj
  * The template type T has to be defined as the class of the sibling object to restrict.
  * @param obj - The object to find the siblings and in most use cases the object which should be renamed
@@ -159,8 +169,7 @@ inline void restrictRegExpWithObjectSiblingsNames(GtObject const& obj,
     restrictRegExpWithObjectNames(names, defaultRegExp);
 }
 
-void restrictRegExpWithObjectNames(QStringList const& namesToProhibit,
-                                   QRegExp& defaultRegExp);
+
 
 } // namespace re
 

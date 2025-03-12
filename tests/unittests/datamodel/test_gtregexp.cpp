@@ -30,3 +30,21 @@ TEST(RegExp, fileFilter)
     EXPECT_FALSE(match(re, "Document  (*.txt *.text *.md *.doc"));
 }
 
+TEST(RegExp, restrictRegExpWithObjectNames)
+{
+    auto re = gt::re::onlyLetters();
+
+    QStringList list{"Hello", "World"};
+
+    gt::re::restrictRegExpWithObjectNames(list, re);
+
+    auto match = [](const auto& re, const auto& string) {
+        return re.indexIn(string) >= 0;
+    };
+
+    EXPECT_TRUE(match(re, "Python"));
+    EXPECT_TRUE(match(re, "HiEverybody"));
+    EXPECT_TRUE(match(re, "NiceToSeeYou"));
+    EXPECT_FALSE(match(re, "Hello"));
+    EXPECT_FALSE(match(re, "World"));
+}
