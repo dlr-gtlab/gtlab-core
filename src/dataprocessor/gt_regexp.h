@@ -135,8 +135,8 @@ QRegExp GT_DATAMODEL_EXPORT forHexColorCode();
  * @param namesToProhibit - names to add to be forbidden
  * @param defaultRegExp - exisitng reg exp to modify
  */
-void restrictRegExpWithObjectNames(QStringList const& namesToProhibit,
-                                   QRegExp& defaultRegExp);
+void GT_DATAMODEL_EXPORT restrictRegExpWithObjectNames(
+    QStringList const& namesToProhibit, QRegExp& defaultRegExp);
 
 /**
  * @brief Modifies a given QRegExp to restrict usage of sibling objects of the given GtObject obj
@@ -168,8 +168,6 @@ inline void restrictRegExpWithObjectSiblingsNames(GtObject const& obj,
 
     restrictRegExpWithObjectNames(names, defaultRegExp);
 }
-
-
 
 } // namespace re
 
