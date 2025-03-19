@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - Extended the batch mode for a command to upgrade a GTlab project - #1184
  - Basic contxt menu to copy values of properties - #1267	
+ - Property groups can now be reordered and collapsed by default - #1344
  - Process Dock retains the expanded/collapsed states of tasks when switching between projects or task groups - #1294
  - Added methods `highSideBoundaryActive` and `lowSideBoundaryActive` for `GtDoubleProperty` and `GtIntProperty` to check, whether property boundaries are set - #1327
 
