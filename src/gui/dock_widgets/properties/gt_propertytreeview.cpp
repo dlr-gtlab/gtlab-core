@@ -41,7 +41,8 @@ namespace
         if (!model) return;
 
         int rowCount = model->rowCount(parent);
-        for (int row = 0; row < rowCount; ++row) {
+        for (int row = 0; row < rowCount; ++row)
+        {
             QModelIndex idx = model->index(row, 0, parent);
 
             // Retrieve the property from the model
