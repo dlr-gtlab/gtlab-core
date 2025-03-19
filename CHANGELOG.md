@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Removed a warning, when double clicking on the current project while a task is running - #1282
  - Improved logging when creating a default task group - #1341
+ - Workaround for too large widget renderings for screen scaling settings on Windows
  
 ### Added
  - Extended the batch mode for a command to upgrade a GTlab project - #1184
