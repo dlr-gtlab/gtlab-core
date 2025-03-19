@@ -339,6 +339,21 @@ GtAbstractProperty::isConnected() const
     return const_cast<GtAbstractProperty*>(this)->isConnected();
 }
 
+void
+GtAbstractProperty::setCollapsedByDefault(bool collapsed)
+{
+    setProperty("collapsed", collapsed);
+}
+
+bool
+GtAbstractProperty::collapsedByDefault() const
+{
+    auto collapsedState = property("collapsed");
+    if (!collapsedState.isValid()) return false;
+
+    return collapsedState.toBool();
+}
+
 GtAbstractProperty::GtAbstractProperty() = default;
 
 void

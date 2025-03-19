@@ -664,6 +664,52 @@ protected:
      * @param cat
      */
     bool registerProperty(GtAbstractProperty& property, const QString& cat);
+
+    /**
+     * @brief Register a property to a category using a priority
+     *
+     * The Main category has priority 0, others have by default 1.
+     * Properties larger priority will be placed below properties with low priority
+     * (i.e. Main comes before others by default)
+     * @param property
+     * @param cat
+     * @param catPriority
+     * @param collapsedByDefault If true, the category will be collapsed by default
+     */
+    bool registerProperty(GtAbstractProperty& property, const QString& cat,
+                          int catPriority, bool collapsedByDefault);
+
+
+    /**
+     * @brief Register a property to a category using a priority
+     *
+     * The Main category has priority 0, others have by default 1.
+     * Properties larger priority will be placed below properties with low priority
+     * (i.e. Main comes before others by default)
+     * @param property
+     * @param cat
+     * @param catPriority
+     * @param collapsedByDefault If true, the category will be collapsed by default
+     */
+    bool registerProperty(GtAbstractProperty& property, const QString& cat,
+                          int catPriority)
+    {
+        return registerProperty(property, cat, catPriority, false);
+    }
+
+    /**
+     * @brief Register a property
+     *
+     * @param property
+     * @param cat
+     * @param collapsedByDefault If true, the category will be collapsed by default
+     */
+    bool registerProperty(GtAbstractProperty& property, const QString& cat,
+                          bool collapsedByDefault)
+    {
+        return registerProperty(property, cat, 1, collapsedByDefault);
+    }
+
     /**
      * @brief registerProperty
      * @param property
