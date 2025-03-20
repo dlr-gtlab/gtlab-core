@@ -601,6 +601,42 @@ void GtUnitConverter<T>::initialize()
     m_factorMap.insert(GtUnit::NonDimensional,
                        nonDimensional);
 
+    /** Voltage **/
+
+    QMap<QString, double> voltFac;
+
+    voltFac["MV"] = 0.000001;
+    voltFac["kV"] = 0.001;
+    voltFac["V"] = 1.0;
+    voltFac["mm"] = 1000.0;
+    voltFac["µm"] = 1000000.0;
+
+    m_factorMap.insert(GtUnit::Voltage, voltFac);
+
+    /** Current **/
+
+    QMap<QString, double> elCurrentFac;
+
+    elCurrentFac["MA"] = 0.000001;
+    elCurrentFac["kA"] = 0.001;
+    elCurrentFac["A"] = 1.0;
+    elCurrentFac["mA"] = 1000.0;
+    elCurrentFac["µA"] = 1000000.0;
+
+    m_factorMap.insert(GtUnit::Current, elCurrentFac);
+
+    /** Resistance/Impedance **/
+
+    QMap<QString, double> elResFac;
+    QString omega = QString(QChar(0x03A9));
+    elCurrentFac["M"+omega] = 0.000001;
+    elCurrentFac["k"+omega] = 0.001;
+    elCurrentFac[omega] = 1.0;
+    elCurrentFac["m"+omega] = 1000.0;
+    elCurrentFac["µ"+omega] = 1000000.0;
+
+    m_factorMap.insert(GtUnit::Resistance, elResFac);
+    m_factorMap.insert(GtUnit::Impedance, elResFac);
 
 
     /** CUSTOM **/
