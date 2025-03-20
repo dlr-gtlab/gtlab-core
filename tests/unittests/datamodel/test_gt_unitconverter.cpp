@@ -4019,7 +4019,7 @@ TEST_F(TestGtUnitConverter, convertVoltageTo)
 
     // check
     ASSERT_TRUE(check);
-    ASSERT_DOUBLE_EQ(valMV, 0.0013);
+    ASSERT_DOUBLE_EQ(valMV, 0.0000013);
 }
 
 TEST_F(TestGtUnitConverter, convertVoltageFrom)
@@ -4035,7 +4035,7 @@ TEST_F(TestGtUnitConverter, convertVoltageFrom)
 
     // check
     ASSERT_TRUE(check);
-    ASSERT_DOUBLE_EQ(valMV, 14000);
+    ASSERT_DOUBLE_EQ(valMV, 14000000);
 }
 
 /// Current
@@ -4067,7 +4067,7 @@ TEST_F(TestGtUnitConverter, convertCurrentTo)
 
     // check
     ASSERT_TRUE(check);
-    ASSERT_DOUBLE_EQ(valMA, 0.0013);
+    ASSERT_DOUBLE_EQ(valMA, 0.0000013);
 }
 
 TEST_F(TestGtUnitConverter, convertCurrentFrom)
@@ -4083,7 +4083,7 @@ TEST_F(TestGtUnitConverter, convertCurrentFrom)
 
     // check
     ASSERT_TRUE(check);
-    ASSERT_DOUBLE_EQ(valMA, 14000);
+    ASSERT_DOUBLE_EQ(valMA, 14000000);
 }
 
 /// Resistance
@@ -4116,7 +4116,7 @@ TEST_F(TestGtUnitConverter, convertResistanceTo)
 
     // check
     ASSERT_TRUE(check);
-    ASSERT_DOUBLE_EQ(valMOmega, 0.0013);
+    ASSERT_DOUBLE_EQ(valMOmega, 0.0000013);
 }
 
 TEST_F(TestGtUnitConverter, convertResistanceFrom)
@@ -4132,7 +4132,7 @@ TEST_F(TestGtUnitConverter, convertResistanceFrom)
 
     // check
     ASSERT_TRUE(check);
-    ASSERT_DOUBLE_EQ(valMOmega, 14000);
+    ASSERT_DOUBLE_EQ(valMOmega, 14000000);
 }
 
 /// Impedance
@@ -4165,7 +4165,7 @@ TEST_F(TestGtUnitConverter, convertImpedanceTo)
 
     // check
     ASSERT_TRUE(check);
-    ASSERT_DOUBLE_EQ(valMOmega, 0.0013);
+    ASSERT_DOUBLE_EQ(valMOmega, 0.0000013);
 }
 
 TEST_F(TestGtUnitConverter, convertImpedanceFrom)
@@ -4181,6 +4181,6 @@ TEST_F(TestGtUnitConverter, convertImpedanceFrom)
 
     // check
     ASSERT_TRUE(check);
-    ASSERT_DOUBLE_EQ(valMOmega, 14000);
+    ASSERT_DOUBLE_EQ(valMOmega, 14000000);
 }
 
