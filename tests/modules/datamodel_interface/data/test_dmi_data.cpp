@@ -32,7 +32,7 @@ TestDmiData::TestDmiData() :
                          GtUnit::Resistance, 1.0),
     m_electricImpedance("Impedance", "Impedance",
                         "Impedance value to use in Example",
-                        GtUnit::Impedance, 1.0),
+                        GtUnit::Impedance, 1.0)
 {
     setObjectName("Internal_Data");
     setFlag(UserDeletable);
@@ -59,4 +59,9 @@ TestDmiData::TestDmiData() :
     m_fruit = Fruit::Apple;
 
     registerProperty(m_fruit);
+
+    registerProperty(m_electricVoltage);
+    registerProperty(m_electricCurrent);
+    registerProperty(m_electricResistance);
+    registerProperty(m_electricImpedance);
 }

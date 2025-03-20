@@ -626,18 +626,16 @@ void GtUnitConverter<T>::initialize()
     m_factorMap.insert(GtUnit::Current, elCurrentFac);
 
     /** Resistance/Impedance **/
-
     QMap<QString, double> elResFac;
     QString omega = QString(QChar(0x03A9));
-    elCurrentFac["M"+omega] = 0.000001;
-    elCurrentFac["k"+omega] = 0.001;
-    elCurrentFac[omega] = 1.0;
-    elCurrentFac["m"+omega] = 1000.0;
-    elCurrentFac["µ"+omega] = 1000000.0;
+    elResFac[QString("M")+omega] = 0.000001;
+    elResFac[QString("k")+omega] = 0.001;
+    elResFac[omega] = 1.0;
+    elResFac[QString("m")+omega] = 1000.0;
+    elResFac[QString("µ")+omega] = 1000000.0;
 
     m_factorMap.insert(GtUnit::Resistance, elResFac);
     m_factorMap.insert(GtUnit::Impedance, elResFac);
-
 
     /** CUSTOM **/
 
