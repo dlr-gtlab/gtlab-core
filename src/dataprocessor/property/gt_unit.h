@@ -48,6 +48,10 @@ public:
                    VGVGradients,
                    VGVGradientsPow2,
                    kinematicViscosity,
+                   Voltage,
+                   Current,
+                   Resistance,
+                   Impedance,
                    /// non physical units
                    NonDimensionalPercentage = 64,
                    NonDimensional,

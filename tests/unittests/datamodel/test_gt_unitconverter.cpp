@@ -3939,7 +3939,7 @@ TEST_F(TestGtUnitConverter, convertNonDimensional)
 
 
 
-/// Energy
+/// DataSize
 TEST_F(TestGtUnitConverter, convertDataSize)
 {
     GtUnit::Category cat = GtUnit::DataSize;
@@ -3987,5 +3987,200 @@ TEST_F(TestGtUnitConverter, convertDataSizeFrom)
     // check
     ASSERT_TRUE(check);
     ASSERT_DOUBLE_EQ(valFtlbf, 14000);
+}
+
+
+/// Voltage
+TEST_F(TestGtUnitConverter, convertVoltage)
+{
+    GtUnit::Category cat = GtUnit::Voltage;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(), "V");
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "Voltage");
+}
+
+TEST_F(TestGtUnitConverter, convertVoltageTo)
+{
+
+    GtUnit::Category cat = GtUnit::Voltage;
+
+    // input
+    double val = 1.3;
+    bool check = false;
+
+    // convert
+    double valMV = m_conv->To(cat, "MV", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMV, 0.0000013);
+}
+
+TEST_F(TestGtUnitConverter, convertVoltageFrom)
+{
+    GtUnit::Category cat = GtUnit::Voltage;
+
+    // input
+    double val = 14.;
+    bool check = false;
+
+    // convert
+    double valMV = m_conv->from(cat, "MV", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMV, 14000000);
+}
+
+/// Current
+TEST_F(TestGtUnitConverter, convertCurrent)
+{
+    GtUnit::Category cat = GtUnit::Current;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(), "A");
+
+    // check default stringd
+    ASSERT_STREQ(catString.toStdString().c_str(), "Current");
+}
+
+TEST_F(TestGtUnitConverter, convertCurrentTo)
+{
+
+    GtUnit::Category cat = GtUnit::Current;
+
+    // input
+    double val = 1.3;
+    bool check = false;
+
+    // convert
+    double valMA = m_conv->To(cat, "MA", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMA, 0.0000013);
+}
+
+TEST_F(TestGtUnitConverter, convertCurrentFrom)
+{
+    GtUnit::Category cat = GtUnit::Current;
+
+    // input
+    double val = 14.;
+    bool check = false;
+
+    // convert
+    double valMA = m_conv->from(cat, "MA", val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMA, 14000000);
+}
+
+/// Resistance
+TEST_F(TestGtUnitConverter, convertResistance)
+{
+    GtUnit::Category cat = GtUnit::Resistance;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(),
+                 QString(QChar(0x03A9)).toStdString().c_str());
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "Resistance");
+}
+
+TEST_F(TestGtUnitConverter, convertResistanceTo)
+{
+
+    GtUnit::Category cat = GtUnit::Resistance;
+
+    // input
+    double val = 1.3;
+    bool check = false;
+
+    // convert
+    double valMOmega = m_conv->To(cat, "M" + QString(QChar(0x03A9)), val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMOmega, 0.0000013);
+}
+
+TEST_F(TestGtUnitConverter, convertResistanceFrom)
+{
+    GtUnit::Category cat = GtUnit::Resistance;
+
+    // input
+    double val = 14.;
+    bool check = false;
+
+    // convert
+    double valMOmega = m_conv->from(cat, "M" + QString(QChar(0x03A9)), val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMOmega, 14000000);
+}
+
+/// Impedance
+TEST_F(TestGtUnitConverter, convertImpedance)
+{
+    GtUnit::Category cat = GtUnit::Impedance;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(),
+                 QString(QChar(0x03A9)).toStdString().c_str());
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "Impedance");
+}
+
+TEST_F(TestGtUnitConverter, convertImpedanceTo)
+{
+
+    GtUnit::Category cat = GtUnit::Impedance;
+
+    // input
+    double val = 1.3;
+    bool check = false;
+
+    // convert
+    double valMOmega = m_conv->To(cat, "M" + QString(QChar(0x03A9)), val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMOmega, 0.0000013);
+}
+
+TEST_F(TestGtUnitConverter, convertImpedanceFrom)
+{
+    GtUnit::Category cat = GtUnit::Impedance;
+
+    // input
+    double val = 14.;
+    bool check = false;
+
+    // convert
+    double valMOmega = m_conv->from(cat, "M" + QString(QChar(0x03A9)), val, &check);
+
+    // check
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(valMOmega, 14000000);
 }
 

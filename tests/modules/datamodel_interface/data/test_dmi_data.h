@@ -46,6 +46,11 @@ private:
     GtModeTypeProperty m_propTypeA, m_propTypeB;
     GtDoubleProperty m_optionalValue;    
     GtEnumProperty<Fruit> m_fruit;
+
+    GtDoubleProperty m_electricVoltage;
+    GtDoubleProperty m_electricCurrent;
+    GtDoubleProperty m_electricResistance;
+    GtDoubleProperty m_electricImpedance;
 };
 
 #endif // TESTDMICLASS_H
