@@ -130,7 +130,7 @@ private:
 
 // Function to check if a candidate string matches a dependency pattern.
 bool
-matchesDependency(const QString &dependency, const QString &candidate)
+matchesDependency(const QString& dependency, const QString& candidate)
 {
     const QString regexPrefix = "regex:";
 
@@ -155,7 +155,7 @@ using ModuleMetaMap = std::map<QString, ModuleMetaData>;
 ModuleMetaMap loadModuleMeta();
 
 QStringList
-getMatchedModuleIds(const QString &dependency,
+getMatchedModuleIds(const QString& dependency,
                     const ModuleMetaMap& allModules)
 {
     QStringList result;
@@ -842,7 +842,7 @@ getSortedModulesToLoad(const QStringList& modulesIdsToLoad,
     if (sortedModuleIds.size() != moduleMatrix.size())
     {
         // there is a cyclic module dependency
-        gtFatal() << "Cannot load modules, there is a dependency cycle.";
+        gtFatal() << QObject::tr("Cannot load modules, there is a dependency cycle.");
         for (auto&& m : moduleMatrix)
         {
             if (!m.second.empty()) gtInfo() <<
