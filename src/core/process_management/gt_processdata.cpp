@@ -16,6 +16,7 @@
 #include "gt_taskgroup.h"
 #include "gt_qtutilities.h"
 #include "gt_coredatamodel.h"
+#include "gt_coreapplication.h"
 
 #include "gt_processdata.h"
 
@@ -256,7 +257,18 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
 
     auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId, true);
 
-    gtDataModel->appendChild(newGroup.get(), groupContainer);
+    // If the current project is valid, append the new task group via the data
+    // model to support redo/undo of the task group creation. Otherwise, append
+    // the task group directly to the container. This case appears when a new
+    // project is created and we are about to switch to it.
+    if (gtApp->currentProject())
+    {
+        gtDataModel->appendChild(newGroup.get(), groupContainer);
+    }
+    else
+    {
+        groupContainer->appendChild(newGroup.get());
+    }
 
     return newGroup.release();
 }
