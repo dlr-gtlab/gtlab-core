@@ -256,6 +256,7 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
     }
 
     auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId, true);
+    bool appended = false;
 
     // If the current project is valid, append the new task group via the data
     // model to support redo/undo of the task group creation. Otherwise, append
@@ -263,12 +264,15 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
     // project is created and we are about to switch to it.
     if (gtApp->currentProject())
     {
-        gtDataModel->appendChild(newGroup.get(), groupContainer);
+        appended = gtDataModel->appendChild(newGroup.get(),
+                                            groupContainer).isValid();
     }
     else
     {
-        groupContainer->appendChild(newGroup.get());
+        appended = groupContainer->appendChild(newGroup.get());
     }
+
+    if (!appended) return nullptr;
 
     return newGroup.release();
 }
