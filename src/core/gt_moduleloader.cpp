@@ -128,8 +128,46 @@ private:
 };
 
 
+// Function to check if a candidate string matches a dependency pattern.
+bool
+matchesDependency(const QString& dependency, const QString& candidate)
+{
+    const QString regexPrefix = "regex:";
+
+    // If the dependency starts with the explicit "regex" prefix, use regex matching.
+    if (dependency.startsWith(regexPrefix))
+    {
+        // Remove the prefix to get the actual regex pattern.
+        QString pattern = dependency.mid(regexPrefix.length());
+        QRegularExpression rx(pattern);
+
+        // Check if the candidate matches the regex pattern.
+        return rx.match(candidate).hasMatch();
+    }
+    else
+    {
+        // Otherwise, perform an exact, literal match.
+        return dependency == candidate;
+    }
+}
+
 using ModuleMetaMap = std::map<QString, ModuleMetaData>;
 ModuleMetaMap loadModuleMeta();
+
+QStringList
+getMatchedModuleIds(const QString& dependency,
+                    const ModuleMetaMap& allModules)
+{
+    QStringList result;
+
+    for (auto&& module : allModules)
+    {
+        auto moduleId = module.second.moduleId();
+        if (matchesDependency(dependency, moduleId)) result.push_back(moduleId);
+    }
+
+    return result;
+}
 
 } // namespace
 
@@ -756,7 +794,8 @@ createAdjacencyMatrixImpl(const QStringList& modulesToLoad,
         auto& moduleDeps = insertResult.first->second;
         for (const auto& dep : moduleIt->second.directDependencies())
         {
-            moduleDeps.push_back(dep.name);
+            auto matchedModulIds = getMatchedModuleIds(dep.name, allModules);
+            moduleDeps.append(matchedModulIds);
         }
 
         // recurse into dependencies
@@ -799,6 +838,20 @@ getSortedModulesToLoad(const QStringList& modulesIdsToLoad,
 
     // sort modules in the correct order of dependencies
     auto sortedModuleIds = gt::topo_sort(moduleMatrix);
+
+    if (sortedModuleIds.size() != moduleMatrix.size())
+    {
+        // there is a cyclic module dependency
+        gtFatal() << QObject::tr("Cannot load modules, there is a dependency cycle.");
+        for (auto&& m : moduleMatrix)
+        {
+            if (!m.second.empty()) gtInfo() <<
+                    QString("'%1' needs").arg(m.first) << m.second;
+        }
+
+        sortedModuleIds.clear();
+    }
+
     std::reverse(std::begin(sortedModuleIds), std::end(sortedModuleIds));
 
     // Only include modules that are actually found in metadata
@@ -879,17 +932,35 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
     return failedModules.empty();
 }
 
+GtModuleInterface*
+getMatchingDependency(const QString& dependencyName,
+                      const QMap<QString, GtModuleInterface*>& allModules)
+{
+    auto iter = std::find_if(allModules.begin(), allModules.end(),
+                             [&](GtModuleInterface* module) {
+        return matchesDependency(dependencyName, module->ident());
+    });
+
+    if (iter == allModules.end()) return nullptr;
+
+    return iter.value();
+}
+
+
 /**
  * @brief Checks a optional dependency of a module and warns, if required
  */
-void checkOptionalDependency(const QString& moduleId,
+void
+checkOptionalDependency(const QString& moduleId,
                        const ModuleMetaData::Dependency& dependency,
                        const QMap<QString, GtModuleInterface*>& allModules)
 {
     assert(dependency.optional());
 
+    GtModuleInterface* dep = getMatchingDependency(dependency.name, allModules);
+
     // check dependency
-    if (!allModules.contains(dependency.name))
+    if (!dep)
     {
         gtWarning() << QObject::tr("Module '%1' has optional dependency '%2'"
                                    ", which could not be met! "
@@ -900,7 +971,7 @@ void checkOptionalDependency(const QString& moduleId,
 
     // dependency exists, check version
     const GtVersionNumber currentVersion =
-        allModules.value(dependency.name)->version();
+        dep->version();
 
     if (currentVersion < dependency.version)
     {
@@ -908,7 +979,7 @@ void checkOptionalDependency(const QString& moduleId,
                                    "'%2', which is outdated "
                                    "(needed >= %3, current: %4). "
                                    "This may lead to unexpected behaviour!")
-                           .arg(moduleId, dependency.name,
+                           .arg(moduleId, dep->ident(),
                                 dependency.version.toString(),
                                 currentVersion.toString());
     }
@@ -921,15 +992,18 @@ void checkOptionalDependency(const QString& moduleId,
  *  - dependency does not exists or
  *  - dependency is outdated
  */
-bool checkRequiredDependency(const QString& moduleId,
+bool
+checkRequiredDependency(const QString& moduleId,
                         const ModuleMetaData::Dependency& dependency,
                         const QMap<QString, GtModuleInterface*>& allModules)
 {
 
     assert(!dependency.optional());
 
+    GtModuleInterface* dep = getMatchingDependency(dependency.name, allModules);
+
     // check dependency
-    if (!allModules.contains(dependency.name))
+    if (!dep)
     {
         gtError() << QObject::tr("Cannot load module '%1' due to missing "
                                  "dependency '%2'")
@@ -938,7 +1012,7 @@ bool checkRequiredDependency(const QString& moduleId,
     }
 
     // check version
-    const auto currentVersion = allModules.value(dependency.name)->version();
+    const auto currentVersion = dep->version();
 
     if (currentVersion < dependency.version)
     {
@@ -956,7 +1030,7 @@ bool checkRequiredDependency(const QString& moduleId,
         gtInfo().medium()
             << QObject::tr("Dependency '%1' has a newer version than "
                            "the module '%2' requires")
-                   .arg(dependency.name, moduleId)
+                   .arg(dep->ident(), moduleId)
             << QObject::tr("(needed: >= %1, current: %2)")
                    .arg(dependency.version.toString(),
                         currentVersion.toString());
