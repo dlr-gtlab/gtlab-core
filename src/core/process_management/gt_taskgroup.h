@@ -37,16 +37,22 @@ public:
     Q_ENUM(SCOPE)
 
     /**
-     * @brief Constructor
+     * @brief Constructor.
      */
     Q_INVOKABLE GtTaskGroup();
 
     /**
-     * @brief Constructor
+     * @brief Constructs an uninitialized task group.
+     * @param id Identification string of task group
+     */
+    explicit GtTaskGroup(const QString& id);
+
+    /**
+     * @brief Constructs a task group with a specified initialization state.
      * @param id Identification string of the task group
      * @param initialized Initialization state of the task group
      */
-    explicit GtTaskGroup(const QString& id, bool initialized = false);
+    GtTaskGroup(const QString& id, bool initialized);
 
     ~GtTaskGroup() override;
 

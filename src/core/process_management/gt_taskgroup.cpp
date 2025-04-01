@@ -70,11 +70,15 @@ GtTaskGroup::GtTaskGroup() : m_pimpl{std::make_unique<Impl>(*this)}
     registerProperty(m_pimpl->_initialized);
 }
 
-GtTaskGroup::GtTaskGroup(const QString& id, bool initialized) :
-    GtTaskGroup()
+GtTaskGroup::GtTaskGroup(const QString& id) : GtTaskGroup()
 {
     setObjectName(id);
-    m_pimpl-> _initialized = initialized;
+}
+
+GtTaskGroup::GtTaskGroup(const QString& id, bool initialized) :
+    GtTaskGroup(id)
+{
+    m_pimpl->_initialized = initialized;
 }
 
 GtTaskGroup::~GtTaskGroup() = default;

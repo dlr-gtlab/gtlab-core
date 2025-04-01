@@ -238,6 +238,14 @@ GtProcessData::save(const QString& projectPath) const
 
 GtTaskGroup*
 GtProcessData::createNewTaskGroup(const QString& taskGroupId,
+                                  GtTaskGroup::SCOPE scope,
+                                  const QString& /*projectPath*/)
+{
+    return createNewTaskGroup(taskGroupId, scope);
+}
+
+GtTaskGroup*
+GtProcessData::createNewTaskGroup(const QString& taskGroupId,
                                   GtTaskGroup::SCOPE scope)
 {
     auto groupContainer = m_pimpl->groupContainer(scope);
