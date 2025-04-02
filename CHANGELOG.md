@@ -15,14 +15,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Removed a warning, when double clicking on the current project while a task is running - #1282
  - Improved logging when creating a default task group - #1341
  - Workaround for too large widget renderings for screen scaling settings on Windows
+ - 'Save As...' copies process data from the existing project to the newly created project - #1321
+ - Saving the project removes *.gttask files from the project directory for tasks deleted since the last save - #1321
  
 ### Added
  - Extended the batch mode for a command to upgrade a GTlab project - #1184
  - Basic contxt menu to copy values of properties - #1267	
  - Property groups can now be reordered and collapsed by default - #1344
  - Process Dock retains the expanded/collapsed states of tasks when switching between projects or task groups - #1294
+ - Projects retain the last selected Task Group and automatically select it upon reopening - #1321
  - Added methods `highSideBoundaryActive` and `lowSideBoundaryActive` for `GtDoubleProperty` and `GtIntProperty` to check, whether property boundaries are set - #1327
  - Added some units for electrical properties (voltage, current, resistance, impedance) - #1352
+
 
 ## [2.0.10] - 2024-08-29
 ### Fixed
