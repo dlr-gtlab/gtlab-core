@@ -70,6 +70,12 @@ namespace gt
                 return *this;
             }
 
+            iterator operator+(size_t count) const
+            {
+                auto retval = *this;
+                std::advance(retval, count);
+                return retval;
+            }
 
         private:
             explicit iterator(
