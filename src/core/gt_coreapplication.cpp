@@ -40,6 +40,7 @@
 #include "gt_algorithms.h"
 #include "gt_moduleinterface.h"
 #include "gt_taskgroup.h"
+#include "gt_processdata.h"
 
 #include <gt_logdest.h>
 
@@ -83,6 +84,7 @@ GtCoreApplication::GtCoreApplication(QCoreApplication* parent, AppMode batch) :
     gt::registerExecutorType<GtCoreProcessExecutor>();
 
     // register data classes of core lib here
+    gtObjectFactory->registerClass(GT_METADATA(GtProcessData));
     gtObjectFactory->registerClass(GT_METADATA(GtTaskGroup));
 }
 

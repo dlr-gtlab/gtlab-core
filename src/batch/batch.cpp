@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <gt_projectprovider.h>
 
 #include <QApplication>
 #include <QDomDocument>
@@ -21,6 +22,7 @@
 #include "internal/gt_commandlinefunctionhandler.h"
 #include "batchremote.h"
 #include "gt_consolerunprocess.h"
+#include "gt_consoleupgradeproject.h"
 
 #include "gt_coreapplication.h"
 #include "gt_coreprocessexecutor.h"
@@ -741,12 +743,12 @@ initSystemOptions()
                     "To define a project name and a process name is the "
                     "default used option to execute this command."
                     "\n\t\t\tUse --help for more details.",
-                    gt::console::options(),
+                    gt::console::runOptions(),
                     QList<GtCommandLineArgument>(),
                     false);
 
     initPosArgument("list", list,
-                    "\tShow list of modules, session, projects and tasks.",
+                    "\tShows list of modules, session, projects and tasks.",
                     {}, {}, false);
 
     initPosArgument("process_runner", processRunner, "Starts a TCP server, "
@@ -754,7 +756,7 @@ initSystemOptions()
                     {}, {}, false);
 
     initPosArgument("set_variable", set_variable,
-                    "\tSets a global variable defined in settings.",
+                    "\tSets a global variable that already exists in settings.",
                     {},
                     QList<GtCommandLineArgument>(),
                     true);
@@ -777,6 +779,11 @@ initSystemOptions()
     initPosArgument("switch_session", switch_session,
                     "Switches to the given session", {},
                     {GtCommandLineArgument{"session_id", "Session ID"}});
+
+    initPosArgument("upgrade_project", gt::console::upgradeProjectCommand,
+                    "Upgrades All Modules in the current project", {},
+                    QList<GtCommandLineArgument>(),
+                    false);
 }
 
 int
@@ -848,10 +855,10 @@ int main(int argc, char* argv[])
                      "\tDisplays the version number of GTlab");
 
     // logging options (will be handled by app-init)
-    parser.addOption("medium", {"medium"}, "Enable medium verbose output");
-    parser.addOption("verbose", {"verbose"}, "\tEnable very verbose output");
-    parser.addOption("trace", {"trace"}, "Enable trace output and higher");
-    parser.addOption("debug", {"debug"}, "Enable debug output and higher");
+    parser.addOption("medium", {"medium"}, "Enables medium verbose output");
+    parser.addOption("verbose", {"verbose"}, "\tEnables very verbose output");
+    parser.addOption("trace", {"trace"}, "Enables trace output and higher");
+    parser.addOption("debug", {"debug"}, "Enables debug output and higher");
 
     if (!parser.parse(args))
     {

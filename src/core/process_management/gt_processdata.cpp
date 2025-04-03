@@ -15,6 +15,8 @@
 #include "gt_objectgroup.h"
 #include "gt_taskgroup.h"
 #include "gt_qtutilities.h"
+#include "gt_coredatamodel.h"
+#include "gt_coreapplication.h"
 
 #include "gt_processdata.h"
 
@@ -33,13 +35,20 @@ public:
 
     bool readTaskGroups(const QString& projectPath, GtTaskGroup::SCOPE scope);
 
+    bool saveTaskGroups(const QString& projectPath, GtTaskGroup::SCOPE scope);
+
+    bool initTaskGroups(const QString& projectPath, GtTaskGroup::SCOPE scope);
+
     bool initTaskGroup(const QString& groupId,
                        const QString& projectPath,
                        GtTaskGroup::SCOPE scope);
 
-    bool initDefaultUserGroup(const QString& projectPath);
+    bool createDefaultUserGroup();
 
     GtObjectGroup* groupContainer(GtTaskGroup::SCOPE scope) const;
+
+    GtTaskGroup* taskGroup(const QString& groupId,
+                           GtTaskGroup::SCOPE scope) const;
 
     GtTaskGroup* currentTaskGroup() const;
 
@@ -170,19 +179,16 @@ GtProcessData::read(const QString& projectPath)
         return false;
     }
 
-    // init last active task group
-    if (!m_pimpl->initTaskGroup(GtTaskGroup::defaultUserGroupId(), projectPath,
-                                GtTaskGroup::USER))
+    if (!m_pimpl->createDefaultUserGroup())
     {
-        // last active task group not found. init default user group
-        if (!m_pimpl->initDefaultUserGroup(projectPath))
-        {
-            return false;
-        }
+        return false;
     }
 
     // initialization finished. Yippee-ki-yay, mot*********
     m_pimpl->_initialized = true;
+
+    assert(switchCurrentTaskGroup(GtTaskGroup::defaultUserGroupId(),
+                                  GtTaskGroup::USER, projectPath));
 
     return true;
 }
@@ -194,11 +200,20 @@ GtProcessData::switchCurrentTaskGroup(const QString& taskGroupId,
 {
     if (!m_pimpl->_initialized)
     {
-        gtError() << tr("Process data is not initialized!") << tr("Call init() first!");
+        gtError() << tr("Process data is not initialized!")
+                  << tr("Call init() first!");
         return false;
     }
 
-    return m_pimpl->initTaskGroup(taskGroupId, projectPath, scope);
+    if (!m_pimpl->initTaskGroup(taskGroupId, projectPath, scope))
+    {
+        return false;
+    }
+
+    m_pimpl->_currentScope = scope;
+    m_pimpl->_currentGroupId = taskGroupId;
+
+    return true;
 }
 
 bool
@@ -206,7 +221,7 @@ GtProcessData::save(const QString& projectPath) const
 {
     if (!m_pimpl->_initialized)
     {
-        gtError() << tr("Cannot save an uninitialized task group!");
+        gtError() << tr("Cannot save uninitialized process data!");
         return false;
     }
 
@@ -218,27 +233,25 @@ GtProcessData::save(const QString& projectPath) const
         }
     }
 
-    foreach (auto* group, m_pimpl->customGroups())
-    {
-        if (!group->save(projectPath, GtTaskGroup::CUSTOM))
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return m_pimpl->saveTaskGroups(projectPath, GtTaskGroup::CUSTOM);
 }
 
 GtTaskGroup*
 GtProcessData::createNewTaskGroup(const QString& taskGroupId,
                                   GtTaskGroup::SCOPE scope,
-                                  const QString& projectPath)
+                                  const QString& /*projectPath*/)
 {
-    GtObjectGroup* groupContainer = m_pimpl->groupContainer(scope);
+    return createNewTaskGroup(taskGroupId, scope);
+}
+
+GtTaskGroup*
+GtProcessData::createNewTaskGroup(const QString& taskGroupId,
+                                  GtTaskGroup::SCOPE scope)
+{
+    auto groupContainer = m_pimpl->groupContainer(scope);
 
     if (!groupContainer)
     {
-        gtError().medium() << QObject::tr("task group scope invalid!");
         return nullptr;
     }
 
@@ -250,15 +263,24 @@ GtProcessData::createNewTaskGroup(const QString& taskGroupId,
         return nullptr;
     }
 
-    auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId);
+    auto newGroup = std::make_unique<GtTaskGroup>(taskGroupId, true);
+    bool appended = false;
 
-    if (!newGroup->read(projectPath, scope))
+    // If the current project is valid, append the new task group via the data
+    // model to support redo/undo of the task group creation. Otherwise, append
+    // the task group directly to the container. This case appears when a new
+    // project is created and we are about to switch to it.
+    if (gtApp->currentProject())
     {
-        gtError() << QObject::tr("Could not initialize default group!");
-        return nullptr;
+        appended = gtDataModel->appendChild(newGroup.get(),
+                                            groupContainer).isValid();
+    }
+    else
+    {
+        appended = groupContainer->appendChild(newGroup.get());
     }
 
-    groupContainer->appendChild(newGroup.get());
+    if (!appended) return nullptr;
 
     return newGroup.release();
 }
@@ -268,6 +290,43 @@ GtProcessData::renameTaskGroup(const QString& taskGroupId,
                                const QString& taskGroupIdNew,
                                GtTaskGroup::SCOPE scope,
                                const QString& projectPath)
+{
+    if (!m_pimpl->_initialized)
+    {
+        gtError().medium() << tr("Process data is not initialized!") <<
+                     tr("Call init() first!");
+        return false;
+    }
+
+    auto group = m_pimpl->taskGroup(taskGroupId, scope);
+
+    if (!group)
+    {
+        gtError().medium() << QObject::tr("task group not found!");
+        return false;
+    }
+
+    if (m_pimpl->groupIds(scope).contains(taskGroupIdNew))
+    {
+        gtError() << QObject::tr("new task group id already used!");
+        return false;
+    }
+
+    auto currentGroup = taskGroup();
+
+    group->setObjectName(taskGroupIdNew);
+
+    if (group == currentGroup)
+    {
+        switchCurrentTaskGroup(taskGroupIdNew, scope, projectPath);
+    }
+
+    return true;
+}
+
+bool
+GtProcessData::deleteTaskGroup(const QString& taskGroupId,
+                               GtTaskGroup::SCOPE scope)
 {
     if (!m_pimpl->_initialized)
     {
@@ -288,49 +347,35 @@ GtProcessData::renameTaskGroup(const QString& taskGroupId,
 
     if (!group)
     {
-        gtError().medium() << QObject::tr("task group not found!");
+        gtError() << QObject::tr("task group does not exist!");
         return false;
     }
 
-    if (m_pimpl->groupIds(scope).contains(taskGroupIdNew))
+    return gtDataModel->deleteFromModel(group);
+}
+
+bool
+GtProcessData::initAllTaskGroups(const QString& projectPath)
+{
+    if (!m_pimpl->_initialized)
     {
-        gtError() << QObject::tr("new task group id already used!");
+        gtError().medium() << tr("Process data is not initialized!") <<
+                     tr("Call init() first!");
         return false;
     }
 
-    const QString oldPath = GtTaskGroup::groupPath(projectPath, scope,
-                                                   taskGroupId);
-    const QString newPath = GtTaskGroup::groupPath(projectPath, scope,
-                                                   taskGroupIdNew);
-
-    QDir oldDir(oldPath);
-    QDir newDir(newPath);
-
-    if (!oldDir.exists())
+    // initialize all task groups
+    if (!m_pimpl->initTaskGroups(projectPath, GtTaskGroup::USER))
     {
-        gtError() << QObject::tr("task group file path not found!");
+        gtError() << tr("Unable to initialize user task groups!");
         return false;
     }
 
-    if (newDir.exists())
+    if (!m_pimpl->initTaskGroups(projectPath, GtTaskGroup::CUSTOM))
     {
-        gtError() << QObject::tr("new task group file path already exists!");
+        gtError() << tr("Unable to initialize custom task groups!");
         return false;
     }
-
-    if (!oldDir.cdUp())
-    {
-        gtError() << QObject::tr("task group scope path not found!");
-        return false;
-    }
-
-    if (!oldDir.rename(taskGroupId, taskGroupIdNew))
-    {
-        gtError() << QObject::tr("could not rename task group path!");
-        return false;
-    }
-
-    group->setObjectName(taskGroupIdNew);
 
     return true;
 }
@@ -409,63 +454,105 @@ GtProcessData::Impl::readTaskGroups(const QString& projectPath,
 }
 
 bool
-GtProcessData::Impl::initTaskGroup(const QString& groupId,
-                                   const QString& projectPath,
-                                   GtTaskGroup::SCOPE scope)
+GtProcessData::Impl::saveTaskGroups(const QString& projectPath,
+                                    GtTaskGroup::SCOPE scope)
 {
-    QString scopeId = GtTaskGroup::scopeId(scope);
+    QString scopePath = GtTaskGroup::scopePath(projectPath, scope);
 
-    if (scopeId.isEmpty())
+    if (scopePath.isEmpty())
     {
-        gtError() << QObject::tr("Invalid task group scope");
+        gtError() << tr("Scope path could not be resolved");
         return false;
     }
 
-    auto groupContainer = _pub.get().findDirectChild<GtObjectGroup*>(scopeId);
-
-    if (!groupContainer)
+    // get the list of the existing task group directories
+    QStringList dirsToRemove = QDir{scopePath}.entryList(QDir::Dirs |
+                                                         QDir::NoDotAndDotDot);
+    // externalize task groups
+    const auto& taskGroups = groups(scope);
+    for (const auto* group : taskGroups)
     {
-        gtError() << QObject::tr("Invalid process data!") 
-                  << QObject::tr("Task group container was not found!");
-        return false;
+        if (!group->save(projectPath, scope))
+        {
+            return false;
+        }
+
+        // task group is known from the project data; no need to remove it in
+        // the next step
+        dirsToRemove.removeOne(group->objectName());
     }
 
-    auto group = groupContainer->findDirectChild<GtTaskGroup*>(groupId);
-
-    if (!group)
+    // remove task group directories that are no longer known by the process
+    // data
+    for (const auto& dir : qAsConst(dirsToRemove))
     {
-        // task group not found! but its ok. we create a default one :)";
-        return false;
+        if (!dir.isEmpty())
+        {
+           QDir{scopePath + QDir::separator() + dir}.removeRecursively();
+        }
     }
-
-    if (!group->isInitialized())
-    {
-        // if group not already initialized. do it now!!! last chance my friend
-        group->read(projectPath, scope);
-    }
-
-    _currentScope = scope;
-    _currentGroupId = groupId;
 
     return true;
 }
 
 bool
-GtProcessData::Impl::initDefaultUserGroup(const QString& projectPath)
+GtProcessData::Impl::initTaskGroups(const QString& projectPath,
+                                    GtTaskGroup::SCOPE scope)
 {
-    // init default user
+    const auto& taskGroupIds = groupIds(scope);
+    for (const auto& groupId : taskGroupIds)
+    {
+        if (!initTaskGroup(groupId, projectPath, scope)) return false;
+    }
+
+    return true;
+}
+
+bool
+GtProcessData::Impl::initTaskGroup(const QString& groupId,
+                                   const QString& projectPath,
+                                   GtTaskGroup::SCOPE scope)
+{
+    auto container = groupContainer(scope);
+    auto group = taskGroup(groupId, scope);
+
+    if (!container || !group)
+    {
+        return false;
+    }
+
+    if (!group->isInitialized())
+    {
+        // block signals temporarily to ensure that the data model does not
+        // interpret the task group read-in as a data change
+        container->blockSignals(true);
+
+        // if group not already initialized. do it now!!! last chance my friend
+        group->read(projectPath, scope);
+        group->acceptChanges();
+
+        container->blockSignals(false);
+    }
+
+    return true;
+}
+
+bool
+GtProcessData::Impl::createDefaultUserGroup()
+{
     QString sysUsername = GtTaskGroup::defaultUserGroupId();
 
-    auto group = _pub.get().createNewTaskGroup(sysUsername,
-                                               GtTaskGroup::USER,
-                                               projectPath);
+    // check if the default user group already exists
+    if (taskGroup(sysUsername, GtTaskGroup::USER)) return true;
 
-    if (!group) return false;
+    // create default user
+    if (!_pub.get().createNewTaskGroup(sysUsername, GtTaskGroup::USER))
+    {
+        return false;
+    }
 
-    _currentScope = GtTaskGroup::USER;
-    _currentGroupId = sysUsername;
-
-    gtInfo() << QObject::tr("Default user group successfully initialized");
+    gtInfo() << QObject::tr("Default task user group '%1' "
+                            "successfully initialized").arg(sysUsername);
 
     return true;
 }
@@ -477,11 +564,27 @@ GtProcessData::Impl::groupContainer(GtTaskGroup::SCOPE scope) const
 
     if (scopeId.isEmpty())
     {
-        gtError() << QObject::tr("Invalid task group scope");
+        gtError().medium() << QObject::tr("Task group scope invalid!");
         return nullptr;
     }
 
     return _pub.get().findDirectChild<GtObjectGroup*>(scopeId);
+}
+
+GtTaskGroup*
+GtProcessData::Impl::taskGroup(const QString& groupId,
+                               GtTaskGroup::SCOPE scope) const
+{
+    auto container = groupContainer(scope);
+
+    if (!container)
+    {
+        gtError().medium() << QObject::tr("Task group container was not "
+                                          "found!");
+        return nullptr;
+    }
+
+    return container->findDirectChild<GtTaskGroup*>(groupId);
 }
 
 GtTaskGroup*

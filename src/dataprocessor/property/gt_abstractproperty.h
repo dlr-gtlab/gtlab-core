@@ -265,8 +265,11 @@ public:
      * @return true if property is initialized as monitoring
      */
     bool isMonitoring() const;
-
     void setMonitoring(bool monitoring);
+    
+    void setCollapsedByDefault(bool collapsed);
+    bool collapsedByDefault() const;
+
 protected:
     /**
      * @brief GtAbstractProperty

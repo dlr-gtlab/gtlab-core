@@ -160,6 +160,18 @@ public:
      */
     int highSideBoundary() const;
 
+    /**
+     * @brief lowBoundActive
+     * @return true if low bound value for the property is active
+     */
+    bool lowSideBoundaryActive() const;
+
+    /**
+     * @brief highBoundActive
+     * @return true if high bound value for the property is active
+     */
+    bool highSideBoundaryActive() const;
+
 protected:
     /// Perform low boundary check flag (true=perform check)
     bool m_boundsCheckFlagLow;

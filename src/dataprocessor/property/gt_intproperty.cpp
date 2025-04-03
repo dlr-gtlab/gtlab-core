@@ -200,6 +200,18 @@ GtIntProperty::validateValue(const int& value)
     return true;
 }
 
+bool
+GtIntProperty::lowSideBoundaryActive() const
+{
+    return m_boundsCheckFlagLow;
+}
+
+bool
+GtIntProperty::highSideBoundaryActive() const
+{
+    return m_boundsCheckFlagHi;
+}
+
 gt::PropertyFactoryFunction
 gt::makeIntProperty(int value)
 {

@@ -19,14 +19,12 @@
 #include "gt_task.h"
 #include "gt_processdata.h"
 
-#include <gt_logging.h>
+
 #include <iostream>
 #include <ostream>
 
-#include <QCoreApplication>
-
 QList<GtCommandLineOption>
-gt::console::options()
+gt::console::runOptions()
 {
     QList<GtCommandLineOption> runOptions;
     runOptions.append(GtCommandLineOption{
@@ -36,6 +34,8 @@ gt::console::options()
                           {"name", "n"}, "Define project by name"});
     runOptions.append(GtCommandLineOption{
                           {"file", "f"}, "Define project by file"});
+    runOptions.append(GtCommandLineOption{
+                          {"output", "o"}, "Write project to output path"});
 
     return runOptions;
 }
@@ -46,7 +46,7 @@ gt::console::run(const QStringList &args)
     GtCommandLineParser p;
     p.addHelpOption();
 
-    for (const auto& o : options())
+    for (const auto& o : runOptions())
     {
         p.addOption(o.names.first(), o);
     }
@@ -119,7 +119,7 @@ gt::console::printRunHelp()
     std::cout << std::endl;
 
     std::cout << "There are two basic methods to start a process:" << std::endl;
-    std::cout << "\tDefine the project by name from the current session"
+    std::cout << "\tDefine the project by name from the current session "
                  "(default option or --name or -n)" << std::endl;
     std::cout << "\tGTlabConsole.exe run [-n] <projectName> <processname> [-s]  "
               << std::endl;
@@ -133,7 +133,7 @@ gt::console::printRunHelp()
     std::cout << std::endl;
 
     std::cout << "\tIf the desired task is not part of the default task-group "
-                 "define this (with a optional thir argument)"
+                 "define this (with an optional third argument)"
               << std::endl;
     std::cout << "\tGTlabConsole.exe run <projectName> <processname> <task-group-name> [-s] "
               << std::endl;
@@ -223,29 +223,6 @@ gt::console::runProcess(const QString& projectId,
     }
 
     return 0;
-}
-
-/**
- * @brief Enters a temporary session
- *
- * The return value must be kept until the session is not needed anymore.
- * It is used to switch back to the current session
- */
-auto enterTempSession()
-{
-    auto tmpSessionID = QString("_tmp_batch_session_%1").arg(QCoreApplication::applicationPid());
-    QString currentSessionID = gtApp->session() ? gtApp->session()->objectName() : "default";
-
-    gtDebug() << QObject::tr("Creating temporary batch session '%1'").arg(tmpSessionID);
-
-    gtApp->newSession(tmpSessionID);
-    gtApp->switchSession(tmpSessionID);
-
-    // cleanup
-    return gt::finally([tmpSessionID, currentSessionID](){
-        gtApp->switchSession(currentSessionID);
-        gtApp->deleteSession(tmpSessionID);
-    });
 }
 
 int

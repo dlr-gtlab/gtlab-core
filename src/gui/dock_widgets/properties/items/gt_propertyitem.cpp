@@ -181,6 +181,8 @@ GtPropertyItem::data(int column, int role) const
 
         case GtPropertyModel::ActiveRole:
             return m_property->isActive();
+        case GtPropertyModel::DefaultCollapseRole:
+            return m_property->collapsedByDefault();
     }
 
     return {};

@@ -19,6 +19,9 @@
 #include "gt_propertyitemfactory.h"
 #include "gt_icons.h"
 
+#include <gt_logging.h>
+
+
 GtPropertyCategoryItem::GtPropertyCategoryItem(GtObject* scope,
                                                const QString& id,
                                                GtPropertyModel* model,
@@ -29,6 +32,16 @@ GtPropertyCategoryItem::GtPropertyCategoryItem(GtObject* scope,
     setModel(model);
     setScope(scope);
     setParent(parent);
+}
+
+QString GtPropertyCategoryItem::displayName() const
+{
+    int startIndex = m_id.indexOf("||");
+    startIndex =  startIndex < 0 ? 0 : startIndex + 2;
+
+    int stopIndex = !m_id.endsWith('-') ? m_id.size() : m_id.size() - 1;
+
+    return m_id.mid(startIndex, stopIndex - startIndex);
 }
 
 void
@@ -64,6 +77,12 @@ GtPropertyCategoryItem::isReadOnly() const
     return m_isReadOnly;
 }
 
+bool
+GtPropertyCategoryItem::isCollapsed() const
+{
+    return m_id.endsWith('-');
+}
+
 const QString&
 GtPropertyCategoryItem::categoryId() const
 {
@@ -79,7 +98,7 @@ GtPropertyCategoryItem::data(int column, int role) const
         {
             if (column == 0)
             {
-                return m_id;
+                return displayName();
             }
 
             break;
@@ -112,11 +131,10 @@ GtPropertyCategoryItem::data(int column, int role) const
 
         case GtPropertyModel::MonitoringRole:
         {
-            if (m_id == QStringLiteral("Monitoring"))
-            {
-                return true;
-            }
+            return m_id == QStringLiteral("Monitoring");
         }
+        case GtPropertyModel::DefaultCollapseRole:
+            return isCollapsed();
     }
 
     return QVariant();

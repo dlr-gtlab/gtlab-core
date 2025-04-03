@@ -75,6 +75,9 @@ main(int argc, char* argv[])
 {
     constexpr int delay = 100;
 
+    // Fix issues of too large UI elements for windows scaling factor 150%
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
+        Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

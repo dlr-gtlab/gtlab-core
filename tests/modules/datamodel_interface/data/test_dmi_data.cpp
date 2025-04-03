@@ -25,7 +25,17 @@ TestDmiData::TestDmiData() :
     m_optionalValue("optionalValue", "Optional Value",
                     "This property is optional"),
     m_fruit("TestEnum", "TestEnum", ""),
-    m_color("Color", "color", "My fancy color", Qt::darkYellow)
+    m_color("Color", "color", "My fancy color", Qt::darkYellow),
+    m_electricVoltage("Voltage", "Voltage", "Voltage value to use in Example",
+                      GtUnit::Voltage, 1.0),
+    m_electricCurrent("Current", "Current", "Current value to use in Example",
+                      GtUnit::Current, 1.0),
+    m_electricResistance("Resistance", "Resistance",
+                         "Resistance value to use in Example",
+                         GtUnit::Resistance, 1.0),
+    m_electricImpedance("Impedance", "Impedance",
+                        "Impedance value to use in Example",
+                        GtUnit::Impedance, 1.0)
 {
     setObjectName("Internal_Data");
     setFlag(UserDeletable);
@@ -71,4 +81,8 @@ TestDmiData::TestDmiData() :
     e3.setMemberVal("name", "Power");
 
     registerProperty(m_color);
+    registerProperty(m_electricVoltage);
+    registerProperty(m_electricCurrent);
+    registerProperty(m_electricResistance);
+    registerProperty(m_electricImpedance);
 }

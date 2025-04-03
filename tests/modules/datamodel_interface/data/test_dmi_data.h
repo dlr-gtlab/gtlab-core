@@ -48,6 +48,10 @@ private:
     GtDoubleProperty m_optionalValue;    
     GtEnumProperty<Fruit> m_fruit;
     GtColorProperty m_color;
+    GtDoubleProperty m_electricVoltage;
+    GtDoubleProperty m_electricCurrent;
+    GtDoubleProperty m_electricResistance;
+    GtDoubleProperty m_electricImpedance;
 };
 
 #endif // TESTDMICLASS_H

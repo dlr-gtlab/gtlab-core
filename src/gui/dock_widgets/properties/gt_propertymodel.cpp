@@ -19,6 +19,37 @@
 #include "gt_structproperty.h"
 #include "gt_application.h"
 
+namespace
+{
+    constexpr const int MAIN_ORDER = 0;
+    constexpr const int DEFAULT_ORDER = 1;
+
+    int getOrder(const GtPropertyCategoryItem* item)
+    {
+        if (!item) return DEFAULT_ORDER;
+
+        QString id = item->categoryId();
+
+        // main is always first
+        if (id == "Main") return MAIN_ORDER;
+
+        // Find the index of the '|' character
+        int pipeIndex = id.indexOf("||");
+        // If there is no '|', order is 0
+        if (pipeIndex == -1) return DEFAULT_ORDER;
+
+        // Extract the part of the string before the '|'
+        QString possibleNumber = id.left(pipeIndex).trimmed();
+
+        bool ok = false;
+        int order = possibleNumber.toInt(&ok);
+
+        // If parsing failed, return 1; otherwise return the parsed integer
+        return ok ? order : DEFAULT_ORDER;
+    }
+
+}
+
 GtPropertyModel::GtPropertyModel(GtObject* scope,
                                  QObject* parent) :
     QAbstractItemModel(parent),
@@ -353,6 +384,11 @@ GtPropertyModel::setObject(GtObject* obj)
             }
         }
     }
+
+    std::stable_sort(m_properties.begin(), m_properties.end(),
+        [](GtPropertyCategoryItem* p1, GtPropertyCategoryItem* p2) {
+            return getOrder(p1) < getOrder(p2);
+    });
 
     endResetModel();
 }
