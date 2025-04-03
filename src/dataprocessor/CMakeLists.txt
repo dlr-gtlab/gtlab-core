@@ -86,9 +86,7 @@ set(HEADERS
     property/gt_labelproperty.h
     gt_objectmodel.h
     property/gt_filechooserproperty.h
-    gt_propertyfactory.h
     property/gt_propertyconnection.h
-    gt_propertyfactory.h
     property/gt_openfilenameproperty.h
     property/gt_savefilenameproperty.h
     property/gt_existingdirectoryproperty.h
@@ -142,7 +140,6 @@ set(SOURCES
     property/gt_labelproperty.cpp
     gt_objectmodel.cpp
     property/gt_filechooserproperty.cpp
-    gt_propertyfactory.cpp
     property/gt_propertyconnection.cpp
     property/gt_openfilenameproperty.cpp
     property/gt_savefilenameproperty.cpp

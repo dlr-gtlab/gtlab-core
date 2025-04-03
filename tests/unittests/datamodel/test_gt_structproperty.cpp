@@ -14,7 +14,6 @@
 #include <QVariant>
 
 #include "gt_propertystructcontainer.h"
-#include "gt_propertyfactory.h"
 #include "gt_doubleproperty.h"
 #include "gt_objectmemento.h"
 #include "gt_xmlutilities.h"
@@ -640,32 +639,6 @@ TEST_F(TestGtStructProperty, applyDiffElementRemoved)
 
     EXPECT_FALSE(obj.revertDiff(diff));
     ASSERT_EQ(2, obj.environmentVars.size());
-}
-
-TEST_F(TestGtStructProperty, createByFactory)
-{
-    TestObject obj;
-
-    auto const * prop = GtPropertyFactory::instance()
-                           ->newProperty("EnvironmentVarsStruct", "id1", "id1");
-
-    EXPECT_TRUE(prop == nullptr);
-
-    auto func = [&obj](const QString&, const QString& ){
-        return &obj.environmentVars.newEntry("EnvironmentVarsStruct");
-    };
-
-    GtPropertyFactory::instance()
-        ->registerProperty("EnvironmentVarsStruct", func);
-
-    prop = GtPropertyFactory::instance()
-               ->newProperty("EnvironmentVarsStruct", "id1", "id1");
-
-    ASSERT_TRUE(prop != nullptr);
-    EXPECT_TRUE(prop->findProperty("value") != nullptr);
-    EXPECT_TRUE(prop->findProperty("name") != nullptr);
-
-    GtPropertyFactory::instance()->unregisterProperty("EnvironmentVarsStruct");
 }
 
 /**
