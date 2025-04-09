@@ -13,6 +13,7 @@
 #include <QXmlStreamWriter>
 #include <QTextStream>
 #include <QFile>
+#include <QRegExp>
 
 #include "gt_xmlutilities.h"
 #include "gt_xmlexpr.h"

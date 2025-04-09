@@ -194,6 +194,10 @@ target_link_libraries(GTlabDataProcessor
       tl::optional
 )
 
+if (TARGET Qt6::Core5Compat)
+    target_link_libraries(GTlabDataProcessor PUBLIC Qt6::Core5Compat)
+endif()
+
 if (BUILD_WITH_HDF5)
     target_compile_definitions(GTlabDataProcessor PUBLIC GT_H5)
     target_link_libraries(GTlabDataProcessor

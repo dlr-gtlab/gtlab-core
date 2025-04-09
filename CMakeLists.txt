@@ -42,6 +42,11 @@ enable_gtlab_devtools()
 
 require_qt(COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets Test)
 
+# if we are using qt6, we need to load the compat library
+if (QT_MAJOR_VERSION EQUAL 6)
+    find_package(Qt6Core5Compat REQUIRED)
+endif()
+
 include(cmake/CheckQtFeatures.cmake)
 check_qvariant_compare()
 

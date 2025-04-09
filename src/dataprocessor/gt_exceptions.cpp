@@ -10,6 +10,7 @@
  */
 
 #include <QTextStream>
+#include <QObject>
 
 #include "gt_exceptions.h"
 

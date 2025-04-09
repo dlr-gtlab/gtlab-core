@@ -12,7 +12,7 @@
 #   gtlab_standard_setup()
 macro(gtlab_standard_setup)
     message("Setting up GTlab standards configuration")
-    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
     # store all dlls inside build directory
@@ -234,5 +234,8 @@ function(require_qt)
     else()
         message(FATAL_ERROR "require_qt(): Unsupported Qt version '${_qt_major_version}'")
     endif()
+
+    set(QT_MAJOR_VERSION ${_qt_major_version} CACHE INTERNAL
+        "Qt major version used to build")
 endfunction()
 

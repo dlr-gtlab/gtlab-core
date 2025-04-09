@@ -18,6 +18,7 @@
 #include <QtGlobal>
 #include <QDebug>
 #include <QMetaType>
+#include <QStringRef>
 
 #include <cfloat>
 #include <typeinfo>
