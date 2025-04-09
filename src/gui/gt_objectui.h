@@ -15,6 +15,7 @@
 
 #include <QObject>
 #include <QKeySequence>
+#include <QRegExp>
 
 #include <memory>
 

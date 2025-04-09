@@ -74,7 +74,13 @@ protected:
                                           filterRole()).toString();
 
         // check if this object is accepted
-        if (pred(obj) && key.contains(filterRegExp()))
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        auto regEx = filterRegExp();
+#else
+        auto regEx = filterRegularExpression();
+#endif
+
+        if (pred(obj) && key.contains(regEx))
         {
             return true;
         }
