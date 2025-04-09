@@ -182,7 +182,7 @@ endfunction()
 # - For Qt6, it sets QT_DEFAULT_MAJOR_VERSION and calls `find_package(Qt)` which provides `Qt::` targets directly.
 #
 # Parameters:
-#   VERSION     Optional Qt major version (5 or 6). If omitted, uses QT_DEFAULT_MAJOR_VERSION or defaults to 6.
+#   VERSION     Optional Qt major version (5 or 6). If omitted, uses QT_DEFAULT_MAJOR_VERSION or defaults to 5.
 #   COMPONENTS  List of required Qt modules (e.g. Core, Widgets, Gui, etc.)
 #
 # Usage:
@@ -208,7 +208,7 @@ function(require_qt)
     elseif(DEFINED QT_DEFAULT_MAJOR_VERSION)
         set(_qt_major_version ${QT_DEFAULT_MAJOR_VERSION})
     else()
-        set(_qt_major_version 6)
+        set(_qt_major_version 5)
     endif()
 
     # Ensure COMPONENTS are specified
@@ -227,7 +227,7 @@ function(require_qt)
 
     elseif(_qt_major_version STREQUAL "6")
         set(QT_DEFAULT_MAJOR_VERSION 6)  # Required before find_package(Qt)
-        find_package(Qt REQUIRED COMPONENTS ${QT_COMPONENTS})
+        find_package(Qt6 REQUIRED COMPONENTS ${QT_COMPONENTS})
         # Qt6 already provides versionless targets
     else()
         message(FATAL_ERROR "require_qt(): Unsupported Qt version '${_qt_major_version}'")
