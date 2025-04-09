@@ -120,6 +120,7 @@ set(SOURCES
     gt_package.cpp
     gt_factorygroup.cpp
     gt_xmlutilities.cpp
+    gt_qtutilities.cpp
     internal/varianthasher.cpp
     property/gt_objectlinkproperty.cpp
     gt_objectmementodiff.cpp
@@ -165,6 +166,13 @@ if (BUILD_SHARED_LIBS)
 else(BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabDataProcessor PUBLIC GT_DATAMODEL_LIB)
 endif(BUILD_SHARED_LIBS)
+
+if (HAVE_QVARIANT_COMPARE)
+    target_compile_definitions(GTlabDataProcessor PRIVATE HAVE_QVARIANT_COMPARE)
+elseif(HAVE_QVARIANT_COMPARE_MEMBER)
+    target_compile_definitions(GTlabDataProcessor PRIVATE HAVE_QVARIANT_COMPARE_MEMBER)
+endif()
+
 
 target_include_directories(GTlabDataProcessor
     PUBLIC

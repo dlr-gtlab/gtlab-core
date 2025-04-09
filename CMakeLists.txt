@@ -42,6 +42,9 @@ enable_gtlab_devtools()
 
 find_package(Qt5 COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets Test REQUIRED)
 
+include(cmake/CheckQtFeatures.cmake)
+check_qvariant_compare()
+
 if (NOT DEFINED BUILD_SHARED_LIBS)
   set(BUILD_SHARED_LIBS ON)
 endif()

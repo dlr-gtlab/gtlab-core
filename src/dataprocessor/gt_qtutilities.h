@@ -13,6 +13,8 @@
 
 #include "gt_typetraits.h"
 
+#include <gt_datamodel_exports.h>
+
 #include <QObject>
 
 #include <memory>
@@ -317,6 +319,19 @@ setUniqueName(QObject& obj, QString const& name = {})
     obj.setObjectName(makeUniqueName(obj, name));
 }
 
+/**
+ * @brief Compares two QVariants
+ *
+ * Two to API incompatibilities of Qt, we provide a wrapper here
+ * that wraps either a<b, a.compare(b), QVariant::compare(a, b)
+ * depending on what the Qt Version allows
+ *
+ * @param a Param 1
+ * @param b Param 2
+ * @return -1 if a<b, 0 if a=b, 1 if a>b
+ */
+GT_DATAMODEL_EXPORT int
+qvariantCompare(const QVariant& a, const QVariant& b);
 
 } // namespace gt
 
