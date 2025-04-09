@@ -22,13 +22,13 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
     auto tbSystemContext = new GtQmlToolbarGroup(tr("System"), this);
 
     homeAction
-        = new GtQmlAction(tr("Home"), icon::url(icon::home), this);
+        = new GtQmlAction(tr("Home"), icon::home_Url(), this);
 
     newProjectAction
-        = new GtQmlAction(tr("New Project"), icon::url(icon::projectAdd),
+        = new GtQmlAction(tr("New Project"), icon::projectAdd_Url(),
                           this);
     openProjectAction
-        = new GtQmlAction(tr("Open Project"), icon::url(icon::folderOpen),
+        = new GtQmlAction(tr("Open Project"), icon::folderOpen_Url(),
                           this);
 
     tbSystemContext->append(homeAction);
