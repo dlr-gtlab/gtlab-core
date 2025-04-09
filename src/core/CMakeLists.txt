@@ -215,7 +215,10 @@ set(resources
 add_library(GTlabCore ${headers} ${hdr_private} ${sources} ${resources})
 add_library(GTlab::Core ALIAS GTlabCore)
 
-target_compile_definitions(GTlabCore PRIVATE GT_MODULE_ID="Core" GT_EXEC_ID="Exec")
+target_compile_definitions(GTlabCore
+    PRIVATE GT_MODULE_ID="Core" GT_EXEC_ID="Exec"
+    PRIVATE QT_DEPRECATED_WARNINGS
+)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabCore PRIVATE GT_CORE_DLL)

@@ -159,7 +159,10 @@ set(SOURCES
 add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL})
 add_library(GTlab::DataProcessor ALIAS GTlabDataProcessor)
 
-target_compile_definitions(GTlabDataProcessor PUBLIC GT_LOG_USE_QT_BINDINGS)
+target_compile_definitions(GTlabDataProcessor
+    PUBLIC GT_LOG_USE_QT_BINDINGS
+    PRIVATE QT_DEPRECATED_WARNINGS
+)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabDataProcessor PRIVATE GT_DATAMODEL_DLL)

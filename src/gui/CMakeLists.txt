@@ -389,7 +389,10 @@ file (GLOB_RECURSE forms
 add_library(GTlabGui ${sources} ${headers} ${forms} ${resources})
 add_library(GTlab::Gui ALIAS GTlabGui)
 
-target_compile_definitions(GTlabGui PRIVATE GT_MODULE_ID="Gui" GT_EXEC_ID="Exec")
+target_compile_definitions(GTlabGui
+    PRIVATE GT_MODULE_ID="Gui" GT_EXEC_ID="Exec"
+    PRIVATE QT_DEPRECATED_WARNINGS
+)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabGui PRIVATE GT_GUI_DLL)
