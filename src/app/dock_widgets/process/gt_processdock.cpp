@@ -383,7 +383,11 @@ GtProcessDock::updateCurrentTaskGroup()
 
     updateProcessViewRootIndex();
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_filterModel->setFilterRegExp(m_search->text());
+#else
+    m_filterModel->setFilterRegularExpression(m_search->text());
+#endif
 
     m_view->resizeColumns();
 }
@@ -746,7 +750,11 @@ GtProcessDock::componentIsReady(GtProcessComponent* comp)
 void
 GtProcessDock::filterData(const QString& val)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_filterModel->setFilterRegExp(val);
+#else
+    m_filterModel->setFilterRegularExpression(val);
+#endif
 
     if (!m_view->rootIndex().isValid())
     {

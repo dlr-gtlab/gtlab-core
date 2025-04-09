@@ -12,7 +12,7 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QColorDialog>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 
 #include "gt_colorpropertyeditor.h"
 #include "gt_colorproperty.h"
@@ -38,8 +38,8 @@ GtColorPropertyEditor::GtColorPropertyEditor(QWidget* parent) :
     lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
     m_colorLineEdit->setFrame(false);
-    m_colorLineEdit->setValidator(new QRegExpValidator(
-        gt::re::forHexColorCode(), this));
+    m_colorLineEdit->setValidator(new QRegularExpressionValidator(
+        QRegularExpression(gt::re::forHexColorCode().pattern()), this));
 
     connect(m_selectButton, SIGNAL(clicked(bool)),
             SLOT(selectColor()));
