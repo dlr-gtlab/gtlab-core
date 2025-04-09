@@ -11,6 +11,7 @@
 
 #include "gt_regexp.h"
 #include <QObject>
+#include <QDebug>
 
 QRegExp
 gt::re::woUmlauts()
