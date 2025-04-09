@@ -27,7 +27,7 @@ function(check_qvariant_compare)
         get_target_property(QtIncludes Qt6::Core INTERFACE_INCLUDE_DIRECTORIES)
         get_target_property(QtLibs Qt6::Core INTERFACE_LINK_LIBRARIES)
     else()
-        message(WARNING "No known Qt::Core target found — cannot run QVariant::compare() check")
+        message(WARNING "No known Qt::Core target found - cannot run QVariant::compare() check")
         return()
     endif()
 
@@ -59,7 +59,7 @@ function(check_qvariant_compare)
     set(CMAKE_REQUIRED_LIBRARIES ${_old_required_libraries})
 
     if(NOT HAVE_QVARIANT_COMPARE AND NOT HAVE_QVARIANT_COMPARE_MEMBER)
-        message(WARNING "No form of QVariant::compare() available — will fall back to deprecated operator<")
+        message("No form of QVariant::compare() available — will fall back to deprecated operator<")
     endif()
 
 endfunction()

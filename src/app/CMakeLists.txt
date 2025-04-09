@@ -210,10 +210,10 @@ target_include_directories(GTlab PRIVATE
 
 target_link_libraries(GTlab
     PRIVATE
-    Qt5::Widgets
-    Qt5::Qml
-    Qt5::QuickWidgets
-    Qt5::Test
+    Qt::Widgets
+    Qt::Qml
+    Qt::QuickWidgets
+    Qt::Test
     GTlabDataProcessor
     GTlabCore
     GTlabGui

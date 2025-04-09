@@ -40,7 +40,7 @@ include(GTlab)
 gtlab_standard_setup()
 enable_gtlab_devtools()
 
-find_package(Qt5 COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets Test REQUIRED)
+require_qt(COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets Test)
 
 include(cmake/CheckQtFeatures.cmake)
 check_qvariant_compare()

@@ -438,14 +438,14 @@ target_include_directories(GTlabGui PUBLIC
 target_link_libraries(GTlabGui
     PUBLIC
         GTlab::Core
-        Qt5::Widgets
-        Qt5::Gui
-        Qt5::PrintSupport
+        Qt::Widgets
+        Qt::Gui
+        Qt::PrintSupport
 
     PRIVATE
-        Qt5::Concurrent
-        Qt5::Svg
-        Qt5::QuickWidgets
+        Qt::Concurrent
+        Qt::Svg
+        Qt::QuickWidgets
 )
 
 
