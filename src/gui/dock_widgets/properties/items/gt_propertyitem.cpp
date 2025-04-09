@@ -12,6 +12,7 @@
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QDoubleValidator>
+#include <QRegularExpressionValidator>
 
 #include "gt_propertyitem.h"
 #include "gt_abstractproperty.h"
@@ -263,8 +264,8 @@ GtPropertyItem::editorWidget(QWidget* parent,
         case QVariant::Double:
         {
             auto* lineEdit = new QLineEdit(parent);
-            lineEdit->setValidator(new QRegExpValidator(
-                                       gt::re::forDoubles(), lineEdit));
+            lineEdit->setValidator(new QRegularExpressionValidator(gt::re::toQt6(
+                                       gt::re::forDoubles()), lineEdit));
             return lineEdit;
         }
 
@@ -297,8 +298,8 @@ GtPropertyItem::editorWidget(QWidget* parent,
             }
             else
             {
-                validator = new QRegExpValidator(gt::re::forExpressions(),
-                                                 lineEdit);
+                validator = new QRegularExpressionValidator(
+                    gt::re::toQt6(gt::re::forExpressions()), lineEdit);
             }
 
             lineEdit->setValidator(validator);

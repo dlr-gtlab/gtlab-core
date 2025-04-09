@@ -17,7 +17,6 @@
 #include <QPainter>
 #include <QScreen>
 #include <QApplication>
-#include <QDesktopWidget>
 
 /// helper macro for creating an icon:
 /// Implements FUNCTION using
@@ -154,7 +153,7 @@ gt::gui::colorize(const QIcon& icon, SvgColorData colorData)
 QSize
 gt::gui::icon::standardSizeSmall()
 {
-    return QSize(16, 16) * qApp->desktop()->devicePixelRatio();
+    return QSize(16, 16) * qApp->primaryScreen()->devicePixelRatio();
 }
 
 GT_DEF_ICON(add, "add.svg")

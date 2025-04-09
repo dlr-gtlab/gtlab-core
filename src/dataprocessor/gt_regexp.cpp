@@ -153,3 +153,15 @@ gt::re::restrictRegExpWithObjectNames(const QStringList& namesToProhibit,
 
     defaultRegExp = QRegExp(finalPattern);
 }
+
+QRegularExpression
+gt::re::toQt6(const QRegExp &re)
+{
+    if (re.patternSyntax() != QRegExp::RegExp &&
+        re.patternSyntax() != QRegExp::RegExp2)
+    {
+        qWarning() << "QRegExp uses a non-ECMAScript-compatible pattern syntax. "
+                      "Conversion may be incorrect.";
+    }
+    return QRegularExpression(re.pattern());
+}

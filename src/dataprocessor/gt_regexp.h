@@ -12,6 +12,7 @@
 #define GTREGEXP_H
 
 #include <QRegExp>
+#include <QRegularExpression>
 
 #include "gt_datamodel_exports.h"
 
@@ -170,6 +171,16 @@ inline void restrictRegExpWithObjectSiblingsNames(GtObject const& obj,
 
     restrictRegExpWithObjectNames(names, defaultRegExp);
 }
+
+/**
+ * @brief Note, QRegExp has a slighly different syntax than QRegularExpression
+ * so just extracting the pattern might be wrong
+ *
+ * @param re
+ * @return
+ */
+GT_DATAMODEL_EXPORT QRegularExpression
+toQt6(const QRegExp& re);
 
 } // namespace re
 
