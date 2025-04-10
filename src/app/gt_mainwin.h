@@ -86,12 +86,6 @@ private:
     /// UI Form
     Ui::GtMainWin* ui;
 
-    /// Session mapper
-    QSignalMapper* m_switchSessionMapper;
-
-    /// Perspectrive mapper
-    QSignalMapper* m_switchPerspectiveMapper;
-
     /// Corner widget
     GtCornerWidget* m_cornerWidget;
 

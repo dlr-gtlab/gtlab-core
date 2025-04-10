@@ -180,9 +180,6 @@ private:
     /// Command
     GtCommand m_command{};
 
-    /// mapper for action signals
-    QSignalMapper* m_actionMapper;
-
     /// Expanded item UUIDs
     GtState* m_expandedItemUuidsState;
 
