@@ -9,8 +9,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QSignalMapper>
-
 #include "gt_application.h"
 #include "gt_importhandler.h"
 #include "gt_importermetadata.h"
@@ -26,14 +24,10 @@
 #include "gt_importmenu.h"
 
 GtImportMenu::GtImportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
-    m_signalMapper(new QSignalMapper(this)),
     m_obj(obj)
 {
     setTitle(tr("Import"));
     setIcon(gt::gui::icon::import());
-
-    connect(m_signalMapper, SIGNAL(mapped(QObject*)),
-            SLOT(onActionTrigger(QObject*)));
 
     QList<GtImporterMetaData> importerList =
             gtImportHandler->importerMetaData(obj->metaObject()->className());
@@ -46,9 +40,9 @@ GtImportMenu::GtImportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
 
             QAction* act = addAction(imp.icon(),
                                      imp.id() + QStringLiteral("..."));
-
-            connect(act, SIGNAL(triggered(bool)), m_signalMapper, SLOT(map()));
-            m_signalMapper->setMapping(act, act);
+            connect(act, &QAction::triggered, this, [this, act](){
+                onActionTrigger(act);
+            });
 
             m_actions.insert(act, imp.classname());
         }

@@ -22,7 +22,6 @@ namespace Ui
 class GtMainWin;
 }
 
-class QSignalMapper;
 class GtProject;
 class GtCornerWidget;
 class GtAbstractLoadingHelper;
