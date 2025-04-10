@@ -19,24 +19,24 @@ TestMdiExtViewer::TestMdiExtViewer()
 {
     using namespace gt::gui;
 
-    auto toggleAction = addToolbarAction("View", icon::url(icon::eyeOff));
+    auto toggleAction = addToolbarAction("View", icon::eyeOff_Url());
     toggleAction->setCheckable(true);
 
     connect(toggleAction, &GtQmlAction::toggled, this, [toggleAction](bool checked){
         if (checked) {
-            toggleAction->setIconUrl(icon::url(icon::eye));
+            toggleAction->setIconUrl(icon::eye_Url());
         }
         else {
-            toggleAction->setIconUrl(icon::url(icon::eyeOff));
+            toggleAction->setIconUrl(icon::eyeOff_Url());
         }
     });
 
-    cutAction = addToolbarAction("Cut", icon::url(icon::cut));
-    copyAction  = addToolbarAction("Copy", icon::url(icon::copy));
+    cutAction = addToolbarAction("Cut", icon::cut_Url());
+    copyAction  = addToolbarAction("Copy", icon::copy_Url());
 
     addToolbarSeparator();
 
-    pasteAction = addToolbarAction("Paste", icon::url(icon::paste));
+    pasteAction = addToolbarAction("Paste", icon::paste_Url());
 
     pasteAction->setVisible(false);
 
