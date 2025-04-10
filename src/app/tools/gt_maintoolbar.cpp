@@ -22,13 +22,13 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
     auto tbSystemContext = new GtQmlToolbarGroup(tr("System"), this);
 
     homeAction
-        = new GtQmlAction(tr("Home"), icon::home_Url(), this);
+        = new GtQmlAction(tr("Home"), icon::url(icon::home), this);
 
     newProjectAction
-        = new GtQmlAction(tr("New Project"), icon::projectAdd_Url(),
+        = new GtQmlAction(tr("New Project"), icon::url(icon::projectAdd),
                           this);
     openProjectAction
-        = new GtQmlAction(tr("Open Project"), icon::folderOpen_Url(),
+        = new GtQmlAction(tr("Open Project"), icon::url(icon::folderOpen),
                           this);
 
     tbSystemContext->append(homeAction);
@@ -43,16 +43,16 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
     projectContext->setVisible(false);
 
     saveProjectAction
-        = new GtQmlAction(tr("Save Project"), icon::save_Url(), this);
+        = new GtQmlAction(tr("Save Project"), icon::url(icon::save), this);
 
-    undoAction = new GtQmlAction(tr("Undo"), icon::undo_Url(), this);
+    undoAction = new GtQmlAction(tr("Undo"), icon::url(icon::undo), this);
     undoAction->setVisible(false);
 
-    redoAction = new GtQmlAction(tr("Redo"), icon::redo_Url(), this);
+    redoAction = new GtQmlAction(tr("Redo"), icon::url(icon::redo), this);
     redoAction->setVisible(false);
 
     infoAction
-        = new GtQmlAction(tr("Project Info"), icon::info2_Url(), this);
+        = new GtQmlAction(tr("Project Info"), icon::url(icon::info2), this);
 
 
     projectContext->append(saveProjectAction);
@@ -66,7 +66,7 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
 
     editorContext = new GtQmlToolbarGroup(tr("Edit"), this);
 
-    printAction = new GtQmlAction(tr("Print"), icon::print_Url(), this);
+    printAction = new GtQmlAction(tr("Print"), icon::url(icon::print), this);
     printAction->setVisible(false);
 
     editorContext->append(printAction);
