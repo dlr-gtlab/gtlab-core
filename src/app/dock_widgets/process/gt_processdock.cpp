@@ -17,7 +17,6 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMessageBox>
-#include <QSignalMapper>
 
 #include "gt_algorithms.h"
 #include "gt_mainwin.h"

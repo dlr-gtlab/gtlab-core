@@ -40,7 +40,6 @@
 #include "gt_maintoolbar.h"
 #include "gt_iconbrowser.h"
 
-#include <QSignalMapper>
 #include <QDir>
 #include <QKeyEvent>
 #include <QUndoView>

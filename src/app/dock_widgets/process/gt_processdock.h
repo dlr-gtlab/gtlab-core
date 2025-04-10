@@ -21,7 +21,6 @@
 class QPushButton;
 class QMenu;
 class QComboBox;
-class QSignalMapper;
 class GtProcessView;
 class GtProcessComponentModel;
 class GtTreeFilterModel;

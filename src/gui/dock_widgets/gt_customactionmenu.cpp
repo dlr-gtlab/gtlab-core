@@ -9,7 +9,6 @@
  */
 
 #include <QMenu>
-#include <QSignalMapper>
 
 #include "gt_customactionmenu.h"
 #include "gt_object.h"
@@ -34,13 +33,9 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
                                        QObject* parentObject,
                                        QMenu* menu) :
     QObject(menu),
-    m_signalMapper(new QSignalMapper(this)),
     m_targetObj(targetObject),
     m_parentObj(parentObject)
 {
-    connect(m_signalMapper, SIGNAL(mapped(QObject*)),
-            SLOT(onActionTrigger(QObject*)));
-
     for (const GtObjectUIAction& a : list)
     {
         assert(menu);
@@ -87,8 +82,9 @@ GtCustomActionMenu::GtCustomActionMenu(const QList<GtObjectUIAction>& list,
             }
         }
 
-        connect(act, SIGNAL(triggered(bool)), m_signalMapper, SLOT(map()));
-        m_signalMapper->setMapping(act, act);
+        connect(act, &QAction::triggered, this, [this, act](){
+            onActionTrigger(act);
+        });
 
         m_actions.insert(act, a);
     }
