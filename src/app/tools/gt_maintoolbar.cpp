@@ -43,16 +43,16 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
     projectContext->setVisible(false);
 
     saveProjectAction
-        = new GtQmlAction(tr("Save Project"), icon::url(icon::save), this);
+        = new GtQmlAction(tr("Save Project"), icon::save_Url(), this);
 
-    undoAction = new GtQmlAction(tr("Undo"), icon::url(icon::undo), this);
+    undoAction = new GtQmlAction(tr("Undo"), icon::undo_Url(), this);
     undoAction->setVisible(false);
 
-    redoAction = new GtQmlAction(tr("Redo"), icon::url(icon::redo), this);
+    redoAction = new GtQmlAction(tr("Redo"), icon::redo_Url(), this);
     redoAction->setVisible(false);
 
     infoAction
-        = new GtQmlAction(tr("Project Info"), icon::url(icon::info2), this);
+        = new GtQmlAction(tr("Project Info"), icon::info2_Url(), this);
 
 
     projectContext->append(saveProjectAction);
@@ -66,7 +66,7 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
 
     editorContext = new GtQmlToolbarGroup(tr("Edit"), this);
 
-    printAction = new GtQmlAction(tr("Print"), icon::url(icon::print), this);
+    printAction = new GtQmlAction(tr("Print"), icon::print_Url(), this);
     printAction->setVisible(false);
 
     editorContext->append(printAction);

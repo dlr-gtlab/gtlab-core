@@ -363,7 +363,8 @@ GT_DEF_ICON(history16, "history16.svg")
 GT_DEF_ICON(home, "home.svg")
 GT_DEF_ICON(homeAccount, "homeAccount.svg")
 
-GT_DEF_ICON(import, "import.svg")GT_GUI_EXPORT QUrl $1_Url();
+GT_DEF_ICON(import, "import.svg")
+GT_DEF_ICON_ALIAS(import16, import)
 
 GT_DEF_ICON_ALIAS(inconsistentProject16, objectInvalid)
 

@@ -69,22 +69,6 @@ namespace icon
 {
 
 /**
- * @brief Returns the url of an icon
- *
- * Usage:
- *
- * auto iconurl = icon::url(icon::copy);
- *
- * @return
- */
-template <typename IconGetter>
-QUrl url(IconGetter&& getIcon)
-{
-    return QString("qrc") + getIcon().name();
-}
-
-
-/**
  * @brief standardSizeSmall
  * @return the standardsize of a small icon
  */
