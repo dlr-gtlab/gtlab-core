@@ -18,6 +18,8 @@
 #include "gt_mpl.h"
 #include "gt_typetraits.h"
 
+#include <stdexcept>
+
 namespace gt
 {
 
