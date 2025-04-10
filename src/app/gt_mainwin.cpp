@@ -60,8 +60,6 @@
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
-    m_switchSessionMapper(nullptr),
-    m_switchPerspectiveMapper(nullptr),
     m_cornerWidget(new GtCornerWidget(this)),
     m_forceQuit(false),
     m_firstTimeShowEvent(true),
@@ -624,22 +622,15 @@ GtMainWin::updateSessionList()
     if (!list.isEmpty())
     {
         ui->menuSession->addSeparator();
-
-        if (!m_switchSessionMapper)
-        {
-            m_switchSessionMapper = new QSignalMapper(this);
-            connect(m_switchSessionMapper, SIGNAL(mapped(QObject*)),
-                    SLOT(onSessionAction(QObject*)));
-        }
     }
 
     foreach (const QString& str, list)
     {
         //        ui->menuSession->addAction(str);
         QAction* action = ui->menuSession->addAction(str);
-        connect(action, SIGNAL(triggered()), m_switchSessionMapper,
-                SLOT(map()));
-        m_switchSessionMapper->setMapping(action, action);
+        connect(action, &QAction::triggered, this, [action, this](){
+            onSessionAction(action);
+        });
     }
 
     updateWindowTitle();
@@ -668,22 +659,16 @@ GtMainWin::updatePerspectiveList()
     if (!list.isEmpty())
     {
         ui->menuPerspective->addSeparator();
-
-        if (!m_switchPerspectiveMapper)
-        {
-            m_switchPerspectiveMapper = new QSignalMapper(this);
-            connect(m_switchPerspectiveMapper, SIGNAL(mapped(QObject*)),
-                    SLOT(onPerspectiveAction(QObject*)));
-        }
     }
 
     foreach (const QString& str, list)
     {
         //        ui->menuSession->addAction(str);
         QAction* action = ui->menuPerspective->addAction(str);
-        connect(action, SIGNAL(triggered()), m_switchPerspectiveMapper,
-                SLOT(map()));
-        m_switchPerspectiveMapper->setMapping(action, action);
+
+        connect(action, &QAction::triggered, this, [action, this](){
+            onPerspectiveAction(action);
+        });
     }
 }
 

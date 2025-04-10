@@ -79,7 +79,6 @@ GtProcessDock::GtProcessDock() :
     m_taskGroup(nullptr),
     m_currentProcess(nullptr),
     m_project(nullptr),
-    m_actionMapper(new QSignalMapper(this)),
     m_expandedItemUuidsState(nullptr),
     m_lastTaskGroupScopeState(nullptr),
     m_lastTaskGroupIdState(nullptr)
@@ -249,12 +248,10 @@ GtProcessDock::GtProcessDock() :
 
     connect(this, SIGNAL(selectedObjectChanged(GtObject*)),
             gtApp, SIGNAL(objectSelected(GtObject*)));
-    connect(m_actionMapper, SIGNAL(mapped(QObject*)),
-            SLOT(actionTriggered(QObject*)));
 
-    registerShortCut("runProcess", QKeySequence(Qt::CTRL + Qt::Key_R));
-    registerShortCut("unskipProcess", QKeySequence(Qt::CTRL + Qt::Key_T));
-    registerShortCut("skipProcess", QKeySequence(Qt::CTRL + Qt::Key_G));
+    registerShortCut("runProcess", QKeySequence(Qt::CTRL | Qt::Key_R));
+    registerShortCut("unskipProcess", QKeySequence(Qt::CTRL | Qt::Key_T));
+    registerShortCut("skipProcess", QKeySequence(Qt::CTRL | Qt::Key_G));
 
     // udpate executor
     onExecutorChanged(&gt::currentProcessExecutor());
@@ -2583,10 +2580,10 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                     QAction* act = menu->addAction(taskData->id);
                     act->setData(entry);
 
-                    connect(act, SIGNAL(triggered(bool)),
-                            m_actionMapper, SLOT(map()),
-                            Qt::UniqueConnection);
-                    m_actionMapper->setMapping(act, act);
+                    disconnect(act, &QAction::triggered, nullptr, nullptr);
+                    connect(act, &QAction::triggered, this, [this, act](bool) {
+                        actionTriggered(act);
+                    });
 
                     count++;
 
@@ -2635,10 +2632,11 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                     QAction* act = menu->addAction(calcData->id);
                     act->setData(entry);
 
-                    connect(act, SIGNAL(triggered(bool)),
-                            m_actionMapper, SLOT(map()),
-                            Qt::UniqueConnection);
-                    m_actionMapper->setMapping(act, act);
+
+                    disconnect(act, &QAction::triggered, nullptr, nullptr);
+                    connect(act, &QAction::triggered, this, [this, act](bool) {
+                        actionTriggered(act);
+                    });
 
                     count++;
 
