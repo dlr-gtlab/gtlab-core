@@ -42,6 +42,7 @@ const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
                                             << QStringLiteral("QList<bool>")
                                             << QStringLiteral("QList<QPointF>")
                                             << QStringLiteral("QVector<double>")
+                                            << QStringLiteral("QList<double>")
                                             << QStringLiteral("QStringList");
 
 
