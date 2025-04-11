@@ -89,19 +89,18 @@ transfer_unique(std::unique_ptr<Base>&& basePtr,
                 TransferFunction&& transferFunc) noexcept
 
     -> std::unique_ptr<std::remove_pointer_t<
-        typename std::result_of_t<decltype(transferFunc)(Base*)>>>
+        decltype(std::declval<TransferFunction>()(std::declval<Base*>()))>>
 
 {
     using TransferredType = std::remove_pointer_t<
-        typename std::result_of_t<decltype(transferFunc)(Base*)>>;
+        decltype(std::declval<TransferFunction>()(std::declval<Base*>()))>;
 
     auto derivedPtr = std::unique_ptr<TransferredType>(
-        transferFunc(basePtr.get()));
+        std::forward<TransferFunction>(transferFunc)(basePtr.get()));
 
     if (derivedPtr)
     {
-        // transfer ownership
-        basePtr.release();
+        basePtr.release(); // transfer ownership
         return derivedPtr;
     }
 

@@ -956,10 +956,10 @@ propertyToVariant(const QString& value, const QString& type)
     std::string str = type.toStdString();
     const char* p = str.c_str();
 
-    QMetaType v_type = QMetaType::fromName(p);
+    auto v_type = QVariant::nameToType(p);
     QVariant retval(value);
 
-    if (v_type.isValid())
+    if (v_type != QVariant::Invalid)
     {
         retval.convert(v_type);
     }
