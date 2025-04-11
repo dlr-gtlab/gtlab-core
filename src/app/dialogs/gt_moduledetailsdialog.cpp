@@ -23,6 +23,7 @@
 #include <QTextEdit>
 #include <QTextStream>
 #include <QTabWidget>
+#include <QRegularExpression>
 
 GtModuleDetailsDialog::GtModuleDetailsDialog(QString const& moduleId,
                                              QWidget* parent) :
@@ -172,9 +173,10 @@ GtModuleDetailsDialog::fileContentWidget(const QString& fileName)
         shortTxt = QStringLiteral("No content for '%1' could "
                                   "be found").arg(fileName);
     }
-    else if (shortTxt >= cutting)
+    else if (shortTxt.length() >= cutting)
     {
-        int cut = shortTxt.indexOf(QRegExp("\\n"), cutting) + 1;
+        static QRegularExpression newline("\\n");
+        int cut = shortTxt.indexOf(newline, cutting) + 1;
 
         if (cut > -1)
         {

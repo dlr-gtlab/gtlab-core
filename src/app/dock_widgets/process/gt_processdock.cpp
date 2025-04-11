@@ -17,7 +17,6 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMessageBox>
-#include <QSignalMapper>
 
 #include "gt_algorithms.h"
 #include "gt_mainwin.h"
@@ -79,7 +78,6 @@ GtProcessDock::GtProcessDock() :
     m_taskGroup(nullptr),
     m_currentProcess(nullptr),
     m_project(nullptr),
-    m_actionMapper(new QSignalMapper(this)),
     m_expandedItemUuidsState(nullptr),
     m_lastTaskGroupScopeState(nullptr),
     m_lastTaskGroupIdState(nullptr)
@@ -249,12 +247,10 @@ GtProcessDock::GtProcessDock() :
 
     connect(this, SIGNAL(selectedObjectChanged(GtObject*)),
             gtApp, SIGNAL(objectSelected(GtObject*)));
-    connect(m_actionMapper, SIGNAL(mapped(QObject*)),
-            SLOT(actionTriggered(QObject*)));
 
-    registerShortCut("runProcess", QKeySequence(Qt::CTRL + Qt::Key_R));
-    registerShortCut("unskipProcess", QKeySequence(Qt::CTRL + Qt::Key_T));
-    registerShortCut("skipProcess", QKeySequence(Qt::CTRL + Qt::Key_G));
+    registerShortCut("runProcess", QKeySequence(Qt::CTRL | Qt::Key_R));
+    registerShortCut("unskipProcess", QKeySequence(Qt::CTRL | Qt::Key_T));
+    registerShortCut("skipProcess", QKeySequence(Qt::CTRL | Qt::Key_G));
 
     // udpate executor
     onExecutorChanged(&gt::currentProcessExecutor());
@@ -383,7 +379,11 @@ GtProcessDock::updateCurrentTaskGroup()
 
     updateProcessViewRootIndex();
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_filterModel->setFilterRegExp(m_search->text());
+#else
+    m_filterModel->setFilterRegularExpression(m_search->text());
+#endif
 
     m_view->resizeColumns();
 }
@@ -746,7 +746,11 @@ GtProcessDock::componentIsReady(GtProcessComponent* comp)
 void
 GtProcessDock::filterData(const QString& val)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_filterModel->setFilterRegExp(val);
+#else
+    m_filterModel->setFilterRegularExpression(val);
+#endif
 
     if (!m_view->rootIndex().isValid())
     {
@@ -2575,10 +2579,10 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                     QAction* act = menu->addAction(taskData->id);
                     act->setData(entry);
 
-                    connect(act, SIGNAL(triggered(bool)),
-                            m_actionMapper, SLOT(map()),
-                            Qt::UniqueConnection);
-                    m_actionMapper->setMapping(act, act);
+                    disconnect(act, &QAction::triggered, nullptr, nullptr);
+                    connect(act, &QAction::triggered, this, [this, act](bool) {
+                        actionTriggered(act);
+                    });
 
                     count++;
 
@@ -2627,10 +2631,11 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                     QAction* act = menu->addAction(calcData->id);
                     act->setData(entry);
 
-                    connect(act, SIGNAL(triggered(bool)),
-                            m_actionMapper, SLOT(map()),
-                            Qt::UniqueConnection);
-                    m_actionMapper->setMapping(act, act);
+
+                    disconnect(act, &QAction::triggered, nullptr, nullptr);
+                    connect(act, &QAction::triggered, this, [this, act](bool) {
+                        actionTriggered(act);
+                    });
 
                     count++;
 

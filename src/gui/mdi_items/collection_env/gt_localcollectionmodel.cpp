@@ -16,6 +16,7 @@
 #include "gt_collectionitem.h"
 
 #include "gt_localcollectionmodel.h"
+#include "gt_qtutilities.h"
 
 GtLocalCollectionModel::GtLocalCollectionModel(QObject* parent) :
     QAbstractListModel(parent), m_showInfoColumns(true)
@@ -267,8 +268,9 @@ GtLocalCollectionModel::sort(int column, Qt::SortOrder order)
         {
             QString const& prop = m_propIds.at(column - 3);
             function = [ascending, &prop](const T& x, const T& y){
-                // The "<" operator is deprecated, but the replacement "compare" fails under linux
-                return ascending == (x.property(prop) < y.property(prop));
+                bool isLess =
+                    gt::qvariantCompare(x.property(prop), y.property(prop)) < 0;
+                return ascending == isLess;
             };
         }
         break;

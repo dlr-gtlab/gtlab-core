@@ -15,6 +15,7 @@
 
 #include <QDomDocument>
 #include <QByteArray>
+#include <QVariant>
 
 #include "gt_object.h"
 #include "gt_logging.h"

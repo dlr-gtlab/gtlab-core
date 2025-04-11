@@ -93,7 +93,7 @@ static QPushButton* setupActionButton(QLayout* layout,
 template<typename Reciever, typename Signal>
 static QPushButton* setupToggleButton(QLayout* layout,
                                       GtObject* guardian,
-                                      QIcon const& icon,
+                                      gt::gui::Icon const& icon,
                                       QString const& type,
                                       QString const& tooltip,
                                       Reciever reciever,

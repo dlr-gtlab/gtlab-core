@@ -39,8 +39,8 @@ GtProjectSpecWidget::GtProjectSpecWidget(QWidget* parent) : QWidget(parent),
     layout->addWidget(nameLabel, 0, 0);
     m_nameLine = new QLineEdit;
 
-    QValidator* validator = new QRegExpValidator(
-                gt::re::onlyLettersAndNumbersAndSpace(), this);
+    QValidator* validator = new QRegularExpressionValidator(gt::re::toQt6(
+                gt::re::onlyLettersAndNumbersAndSpace()), this);
     m_nameLine->setValidator(validator);
 
     m_nameLine->setText(m_tmpName);

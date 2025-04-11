@@ -117,7 +117,8 @@ GtChangeLogParser::releaseNumberOccurances(const QString& fileContent)
 {
     /// finds expression for versionnumber
     /// including its formatting for maarkdown
-    QRegExp e("##\\s\\[([0-9].){1,3}");
+    /// @TODO: check valid
+    static QRegularExpression e("##\\s\\[([0-9].){1,3}");
 
     QList<int> retVal;
     int i = 0;

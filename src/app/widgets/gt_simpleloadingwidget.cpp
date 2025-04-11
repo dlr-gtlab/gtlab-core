@@ -14,7 +14,6 @@
 #include <QMovie>
 #include <QTimer>
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QKeyEvent>
 #include <QThread>
 

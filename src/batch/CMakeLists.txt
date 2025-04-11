@@ -34,15 +34,18 @@ endif(WIN32)
 
 
 add_executable(GTlabConsole  ${sources} ${headers})
-target_compile_definitions(GTlabConsole PRIVATE GT_MODULE_ID="Batch" GT_EXEC_ID="Exec")
+target_compile_definitions(GTlabConsole
+    PRIVATE GT_MODULE_ID="Batch" GT_EXEC_ID="Exec"
+    PRIVATE QT_DEPRECATED_WARNINGS
+)
 
 target_link_libraries(GTlabConsole
     PRIVATE
     GTlabCore
     GTlabDataProcessor
     GTlabGui
-    Qt5::Widgets
-    Qt5::Xml
+    Qt::Widgets
+    Qt::Xml
 )
 
 install(TARGETS GTlabConsole DESTINATION ${CMAKE_INSTALL_BINDIR})

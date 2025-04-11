@@ -176,7 +176,10 @@ endif(WIN32)
 
 add_executable(GTlab ${TYPE} ${sources} ${headers} ${forms})
 
-target_compile_definitions(GTlab PRIVATE GT_MODULE_ID="App")
+target_compile_definitions(GTlab
+    PRIVATE GT_MODULE_ID="App"
+    PRIVATE QT_DEPRECATED_WARNINGS
+)
 
 target_include_directories(GTlab PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -207,10 +210,10 @@ target_include_directories(GTlab PRIVATE
 
 target_link_libraries(GTlab
     PRIVATE
-    Qt5::Widgets
-    Qt5::Qml
-    Qt5::QuickWidgets
-    Qt5::Test
+    Qt::Widgets
+    Qt::Qml
+    Qt::QuickWidgets
+    Qt::Test
     GTlabDataProcessor
     GTlabCore
     GTlabGui

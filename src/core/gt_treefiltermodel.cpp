@@ -19,7 +19,11 @@ GtTreeFilterModel::GtTreeFilterModel(QObject* parent) :
 void
 GtTreeFilterModel::filterData(const QString& val)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     setFilterRegExp(val);
+#else
+    setFilterRegularExpression(val);
+#endif
     invalidate();
 }
 
@@ -27,7 +31,12 @@ bool
 GtTreeFilterModel::filterAcceptsRow(int source_row,
                                     const QModelIndex& source_parent) const
 {
-    if (filterRegExp().isEmpty())
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    bool hasNoRegExp = filterRegExp().isEmpty();
+#else
+    bool hasNoRegExp = filterRegularExpression().pattern().isEmpty();
+#endif
+    if (hasNoRegExp)
     {
         return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
     }

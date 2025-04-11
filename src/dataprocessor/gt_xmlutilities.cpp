@@ -13,6 +13,7 @@
 #include <QXmlStreamWriter>
 #include <QTextStream>
 #include <QFile>
+#include <QRegularExpression>
 
 #include "gt_xmlutilities.h"
 #include "gt_xmlexpr.h"
@@ -62,6 +63,8 @@ bool
 gt::xml::writeDomElementOrderedAttribute(const QDomElement& element,
                                          QXmlStreamWriter& writer)
 {
+    static QRegularExpression carriageReturns("[\\r]");
+
     writer.writeStartElement(element.tagName());
 
     // attributes
@@ -92,7 +95,7 @@ gt::xml::writeDomElementOrderedAttribute(const QDomElement& element,
             {
                 // remove carriage returns to avoid double definitions
                 writer.writeCharacters(
-                            c_node.toText().data().remove(QRegExp("[\\r]")));
+                            c_node.toText().data().remove(carriageReturns));
             }
             else if (c_node.nodeType() == QDomNode::ElementNode)
             {
@@ -127,7 +130,11 @@ gt::xml::writeDomDocumentToFile(const QString& filePath,
     if (attrOrdered)
     {
         QXmlStreamWriter str_w(&file);
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         str_w.setCodec("UTF-8");
+#endif
+
         str_w.setAutoFormatting(true);
 
         str_w.writeStartDocument(QStringLiteral("1.0"));
@@ -147,7 +154,9 @@ gt::xml::writeDomDocumentToFile(const QString& filePath,
     else
     {
         QTextStream stream(&file);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         stream.setCodec("UTF-8");
+#endif
         stream << doc.toString(4);
     }
 
