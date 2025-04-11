@@ -119,8 +119,15 @@ jobs:
  
     - name: Build
       run: | 
-        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_TESTMODULES=ON -DQT_DEFAULT_MAJOR_VERSION=6 -DCMAKE_INSTALL_PREFIX=install
+        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DQT_DEFAULT_MAJOR_VERSION=6 -DCMAKE_INSTALL_PREFIX=install
         cmake --build build --target install --config=Debug
+        
+    - name: Unit Tests - Windows
+      shell: cmd /C call {0}
+      run: |
+        set PATH=%cd%\build\install\binDebug;%HDF5_BIN_DIR%;%PATH%
+        cd build
+        .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
 
 
   documentation:
