@@ -39,6 +39,7 @@ if (GTLAB_USE_BUNDLED_LOGGING)
       NAME logging
       GIT_REPOSITORY "https://github.com/dlr-gtlab/gt-logging.git"
       GIT_TAG ${GTLAB_LOGGING_VERSION}
+      OPTIONS "BUILD_UNITTESTS OFF"
     )
 
     set_target_properties(GTlabLogging
