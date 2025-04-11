@@ -320,6 +320,12 @@ setUniqueName(QObject& obj, QString const& name = {})
 }
 
 /**
+ * @brief Returns the QMetaType id of the variant
+ */
+GT_DATAMODEL_EXPORT int
+metaTypeId(const QVariant& v);
+
+/**
  * @brief Compares two QVariants
  *
  * Two to API incompatibilities of Qt, we provide a wrapper here

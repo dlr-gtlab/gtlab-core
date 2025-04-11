@@ -24,6 +24,7 @@ if (BUILD_WITH_HDF5 AND GTLAB_USE_BUNDLED_GENH5)
       NAME genh5
       GIT_REPOSITORY "https://github.com/dlr-gtlab/genh5.git"
       GIT_TAG ${GTLAB_GENH5_VERSION}
+      OPTIONS "BUILD_UNITTESTS OFF"
     )
 
     set_target_properties(GenH5

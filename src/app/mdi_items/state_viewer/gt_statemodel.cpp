@@ -17,6 +17,7 @@
 #include "gt_state.h"
 #include "gt_icons.h"
 #include "gt_colors.h"
+#include "gt_qtutilities.h"
 
 #include "gt_statemodel.h"
 
@@ -201,9 +202,9 @@ GtStateModel::variantToString(const QVariant& variant) const
 {
     QString retval;
 
-    switch (variant.type())
+    switch (gt::metaTypeId(variant))
     {
-        case QVariant::Point:
+        case QMetaType::QPoint:
         {
             QPoint point = variant.toPoint();
             retval = QStringLiteral("[") + QString::number(point.x()) +
@@ -212,7 +213,7 @@ GtStateModel::variantToString(const QVariant& variant) const
             break;
         }
 
-        case QVariant::PointF:
+        case QMetaType::QPointF:
         {
             QPointF point = variant.toPointF();
             retval = QStringLiteral("[") + QString::number(point.x()) +
