@@ -90,6 +90,38 @@ jobs:
           build/**/*.log
           build/_deps/*-src
 
+  build_win_qt6:
+    name: "Build and test"
+    runs-on: windows-2019 
+    
+    steps:    
+    - name: Install Ninja (windows)
+      run: choco install ninja
+      
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.5.3'
+        modules: 'qt5compat'
+        
+    - uses: ilammy/msvc-dev-cmd@v1
+    - uses: actions/checkout@v3 
+    
+    - name: Install dependencies (windows)
+      shell: powershell
+      run: |
+        $ProgressPreference = 'SilentlyContinue'
+        
+        Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
+        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$HOME/build_deps"
+        "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append   
+        "HDF5_BIN_DIR=$HOME\build_deps\hdf5-1.12.1-win64\bin" | Out-File -FilePath $env:GITHUB_ENV -Append   
+ 
+    - name: Build
+      run: | 
+        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DQT_DEFAULT_MAJOR_VERSION=6 -DCMAKE_INSTALL_PREFIX=install
+        cmake --build build --target install --config=Debug
+
 
   documentation:
     runs-on: ubuntu-latest
