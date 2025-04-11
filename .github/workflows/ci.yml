@@ -102,7 +102,7 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: '6.5.3'
-        modules: 'qt5compat'
+        modules: 'qt5compat qtshadertools'
         
     - uses: ilammy/msvc-dev-cmd@v1
     - uses: actions/checkout@v3 
@@ -119,15 +119,37 @@ jobs:
  
     - name: Build
       run: | 
-        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DQT_DEFAULT_MAJOR_VERSION=6 -DCMAKE_INSTALL_PREFIX=install
-        cmake --build build --target install --config=Debug
+        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DQT_DEFAULT_MAJOR_VERSION=6 -DCMAKE_INSTALL_PREFIX=gtlab-win64-qt6
+        cmake --build build --target install --config=Release
         
     - name: Unit Tests - Windows
       shell: cmd /C call {0}
       run: |
-        set PATH=%cd%\build\install\binDebug;%HDF5_BIN_DIR%;%PATH%
+        set PATH=%cd%\build\install\bin;%HDF5_BIN_DIR%;%PATH%
         cd build
         .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
+
+    - name: Create Package (Windows)
+      run: |
+        cd gtlab-win64-qt6/bin
+        windeployqt.exe --qmldir ..\..\src\resources\qml --plugindir qtplugins --no-translations --qml-deploy-dir qml -printsupport GTlab.exe
+        cp $env:HDF5_BIN_DIR/hdf5.dll .
+
+        # Create qt.conf file
+        @"
+        [Paths]
+        Prefix = ./
+        Plugins = qtplugins
+        Imports = qml
+        Qml2Imports = qml
+        "@ | Out-File -Encoding UTF8 qt.conf
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: GTlab Windows Qt6.5
+        path: |
+          gtlab-win64-qt6
 
 
   documentation:
