@@ -25,3 +25,13 @@ gt::qvariantCompare(const QVariant &a, const QVariant &b)
     else return 0;
 #endif
 }
+
+int
+gt::metaTypeId(const QVariant &v)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return v.typeId();
+#else
+    return static_cast<int>(v.type());
+#endif
+}

@@ -26,6 +26,7 @@
 #include "gt_icons.h"
 #include "gt_command.h"
 #include "gt_colors.h"
+#include "gt_qtutilities.h"
 
 GtPropertyItem::GtPropertyItem() :
     m_currentUnit(QString())
@@ -135,7 +136,7 @@ GtPropertyItem::data(int column, int role) const
             {
                 QVariant var = m_property->valueToVariant();
 
-                if (var.type() == QVariant::Bool)
+                if (gt::metaTypeId(var) == QMetaType::Bool)
                 {
                     if (var.toBool())
                     {
@@ -237,7 +238,7 @@ GtPropertyItem::setData(int column, const QVariant& value, GtObject* obj,
             {
                 QVariant var = m_property->valueToVariant();
 
-                if (var.type() == QVariant::Bool)
+                if (gt::metaTypeId(var) == QMetaType::Bool)
                 {
                     gt::propertyItemChange(*obj, *m_property, value,
                                            m_currentUnit);
@@ -259,9 +260,9 @@ GtPropertyItem::editorWidget(QWidget* parent,
 {
     QVariant var = m_property->valueToVariant();
 
-    switch (var.type())
+    switch (gt::metaTypeId(var))
     {
-        case QVariant::Double:
+        case QMetaType::Double:
         {
             auto* lineEdit = new QLineEdit(parent);
             lineEdit->setValidator(new QRegularExpressionValidator(gt::re::toQt6(
@@ -269,7 +270,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
             return lineEdit;
         }
 
-        case QVariant::Int:
+        case QMetaType::Int:
         {
             auto* spinbox = new QSpinBox(parent);
             spinbox->setRange(std::numeric_limits<int>::min(),
@@ -279,7 +280,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
             return spinbox;
         }
 
-        case QVariant::String:
+        case QMetaType::QString:
         {
             auto* lineEdit = new QLineEdit(parent);
             QValidator* validator = nullptr;
@@ -322,9 +323,9 @@ GtPropertyItem::setEditorData(QWidget* editor, QVariant& var) const
         return;
     }
 
-    switch (var.type())
+    switch (gt::metaTypeId(var))
     {
-        case QVariant::Int:
+        case QMetaType::Int:
         {
             auto* spinbox = static_cast<QSpinBox*>(editor);
             spinbox->setValue(var.toInt());
@@ -343,9 +344,9 @@ GtPropertyItem::setModelData(QWidget* editor, QAbstractItemModel* model,
 {
     QVariant var = m_property->valueToVariant();
 
-    switch (var.type())
+    switch (gt::metaTypeId(var))
     {
-        case QVariant::Int:
+        case QMetaType::Int:
         {
             auto* spinbox = static_cast<QSpinBox*>(editor);
             model->setData(index, spinbox->value(), Qt::EditRole);

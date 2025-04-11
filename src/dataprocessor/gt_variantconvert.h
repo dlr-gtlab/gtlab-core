@@ -17,6 +17,7 @@
 
 #include "gt_mpl.h"
 #include "gt_typetraits.h"
+#include "gt_qtutilities.h"
 
 #include <stdexcept>
 
@@ -38,19 +39,21 @@ inline bool canConvert(const QVariant& v)
 template <>
 inline bool canConvert<QByteArray>(const QVariant& v)
 {
-    return (v.type() == QVariant::String || v.type() == QVariant::ByteArray) && v.canConvert<QByteArray>();
+    return (gt::metaTypeId(v) == QMetaType::QString ||
+            gt::metaTypeId(v) == QMetaType::QByteArray) &&
+           v.canConvert<QByteArray>();
 }
 
 template <>
 inline bool canConvert<QString>(const QVariant& v)
 {
-    return v.type() == QVariant::String && v.canConvert<QString>();
+    return gt::metaTypeId(v) == QMetaType::QString && v.canConvert<QString>();
 }
 
 template <>
 inline bool canConvert<bool>(const QVariant& v)
 {
-    return v.type() == QVariant::Bool;
+    return gt::metaTypeId(v) == QMetaType::Bool;
 }
 
 template <>
