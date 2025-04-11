@@ -4,8 +4,8 @@
 
 # Versions of the bundled libraries
 # If you like to upgrade, just change the number
-set(GTLAB_LOGGING_VERSION "4-4-1")
-set(GTLAB_GENH5_VERSION "3-0-3")
+set(GTLAB_LOGGING_VERSION "master")
+set(GTLAB_GENH5_VERSION "132-prepare-qt6-compatibility")
 
 if (EXISTS ${GTLAB_DEVTOOLS_DIR})
     return()
@@ -22,7 +22,8 @@ cmake_policy(SET CMP0097 NEW) # empty submodules list -> don't download these
 if (BUILD_WITH_HDF5 AND GTLAB_USE_BUNDLED_GENH5)
     CPMAddPackage(
       NAME genh5
-      URL https://github.com/dlr-gtlab/genh5/archive/refs/tags/${GTLAB_GENH5_VERSION}.zip
+      GIT_REPOSITORY "https://github.com/dlr-gtlab/genh5.git"
+      GIT_TAG ${GTLAB_GENH5_VERSION}
     )
 
     set_target_properties(GenH5
@@ -36,8 +37,8 @@ endif()
 if (GTLAB_USE_BUNDLED_LOGGING)
     CPMAddPackage(
       NAME logging
-      URL https://github.com/dlr-gtlab/gt-logging/archive/refs/tags/${GTLAB_LOGGING_VERSION}.zip
-      PATCHES "logging.patch" # fix missing include
+      GIT_REPOSITORY "https://github.com/dlr-gtlab/gt-logging.git"
+      GIT_TAG ${GTLAB_LOGGING_VERSION}
     )
 
     set_target_properties(GTlabLogging
