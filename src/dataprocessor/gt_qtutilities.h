@@ -325,18 +325,16 @@ GT_DATAMODEL_EXPORT int
 metaTypeId(const QVariant& v);
 
 /**
+ * @brief Returns the QMetaType id from the type name
+ */
+GT_DATAMODEL_EXPORT int
+metaTypeIdFromName(const char* name);
+
+/**
  * @brief Returns, whether a certain type name is known to Qt
  */
-inline bool
-metaTypeNameIsRegistered(const char* typeName)
-{
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    return QMetaType::fromName(typeName).isValid();
-#else
-    int typeId = QVariant::nameToType(typeName);
-    return typeId != QVariant::Invalid && QMetaType::isRegistered(typeId);
-#endif
-}
+GT_DATAMODEL_EXPORT bool
+metaTypeNameIsRegistered(const char* typeName);
 
 /**
  * @brief Compares two QVariants
