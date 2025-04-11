@@ -35,3 +35,24 @@ gt::metaTypeId(const QVariant &v)
     return static_cast<int>(v.type());
 #endif
 }
+
+int
+gt::metaTypeIdFromName(const char *name)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return QMetaType::fromName(name).id();
+#else
+    return QVariant::nameToType(name);
+#endif
+}
+
+bool
+gt::metaTypeNameIsRegistered(const char *typeName)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return QMetaType::fromName(typeName).isValid();
+#else
+    int typeId = QVariant::nameToType(typeName);
+    return typeId != QVariant::Invalid && QMetaType::isRegistered(typeId);
+#endif
+}
