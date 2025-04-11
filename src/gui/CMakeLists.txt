@@ -376,10 +376,24 @@ set(sources
     importer/processImporter/gt_processimporter.cpp
 )
 
+if (QT_MAJOR_VERSION VERSION_LESS 6)
+    message(STATUS "Generating qml compatibility for Qt 5")
+    configure_file(../resources/qml/ColorOverlayQt5.qml
+        ${CMAKE_CURRENT_BINARY_DIR}/ColorOverlayCompat.qml COPYONLY)
+else()
+    message(STATUS "Generating qml compatibility for Qt 6")
+    configure_file(../resources/qml/ColorOverlayQt6.qml
+        ${CMAKE_CURRENT_BINARY_DIR}/ColorOverlayCompat.qml COPYONLY)
+endif()
+
+configure_file(../resources/qml/qml_compat.qrc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/qml_compat.qrc @ONLY)
+
 set(resources
     ../resources/icons/icons.qrc
     ../resources/pixmaps/pixmaps.qrc
     ../resources/qml/qml.qrc
+    ${CMAKE_CURRENT_BINARY_DIR}/qml_compat.qrc
 )
 
 file (GLOB_RECURSE forms

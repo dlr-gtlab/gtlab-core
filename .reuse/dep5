@@ -50,7 +50,7 @@ Copyright: 2023 German Aerospace Center (DLR)
 License: CC0-1.0
 
 # test resource definitions
-Files: tests/**/*.qrc
+Files: tests/**/*.qrc*
 Copyright: 2023 German Aerospace Center (DLR)
 License: CC0-1.0
 
