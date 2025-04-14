@@ -47,9 +47,6 @@ if (QT_MAJOR_VERSION EQUAL 6)
     find_package(Qt6Core5Compat REQUIRED)
 endif()
 
-include(cmake/CheckQtFeatures.cmake)
-check_qvariant_compare()
-
 if (NOT DEFINED BUILD_SHARED_LIBS)
   set(BUILD_SHARED_LIBS ON)
 endif()

@@ -11,9 +11,7 @@
 int
 gt::qvariantCompare(const QVariant &a, const QVariant &b)
 {
-#if defined(HAVE_QVARIANT_COMPARE_MEMBER)
-    return a.compare(b);
-#elif defined(HAVE_QVARIANT_COMPARE)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     auto ordering = QVariant::compare(a, b);
 
     if (ordering < 0) return -1;
