@@ -395,12 +395,12 @@ GtOutputDock::GtOutputDock()
 
     defaultLayout->addLayout(filterLayout);
 
-    registerShortCut("toggleTraceOutput", QKeySequence(Qt::CTRL + Qt::Key_T));
-    registerShortCut("toggleDebugOutput", QKeySequence(Qt::CTRL + Qt::Key_D));
-    registerShortCut("toggleInfoOutput", QKeySequence(Qt::CTRL + Qt::Key_I));
-    registerShortCut("toggleWarningOutput", QKeySequence(Qt::CTRL + Qt::Key_W));
-    registerShortCut("toggleErrorOutput", QKeySequence(Qt::CTRL + Qt::Key_E));
-    registerShortCut("clearOutput", QKeySequence(Qt::CTRL + Qt::Key_L));
+    registerShortCut("toggleTraceOutput", QKeySequence(Qt::CTRL | Qt::Key_T));
+    registerShortCut("toggleDebugOutput", QKeySequence(Qt::CTRL | Qt::Key_D));
+    registerShortCut("toggleInfoOutput", QKeySequence(Qt::CTRL | Qt::Key_I));
+    registerShortCut("toggleWarningOutput", QKeySequence(Qt::CTRL | Qt::Key_W));
+    registerShortCut("toggleErrorOutput", QKeySequence(Qt::CTRL | Qt::Key_E));
+    registerShortCut("clearOutput", QKeySequence(Qt::CTRL | Qt::Key_L));
 
     m_logView->verticalHeader()->hide();
 
