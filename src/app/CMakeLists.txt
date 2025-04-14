@@ -178,7 +178,6 @@ add_executable(GTlab ${TYPE} ${sources} ${headers} ${forms})
 
 target_compile_definitions(GTlab
     PRIVATE GT_MODULE_ID="App"
-    PRIVATE QT_DEPRECATED_WARNINGS
 )
 
 target_include_directories(GTlab PRIVATE

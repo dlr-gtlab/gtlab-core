@@ -217,7 +217,6 @@ add_library(GTlab::Core ALIAS GTlabCore)
 
 target_compile_definitions(GTlabCore
     PRIVATE GT_MODULE_ID="Core" GT_EXEC_ID="Exec"
-    PRIVATE QT_DEPRECATED_WARNINGS
 )
 
 if (BUILD_SHARED_LIBS)
