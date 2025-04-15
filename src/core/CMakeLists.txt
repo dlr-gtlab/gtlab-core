@@ -215,7 +215,9 @@ set(resources
 add_library(GTlabCore ${headers} ${hdr_private} ${sources} ${resources})
 add_library(GTlab::Core ALIAS GTlabCore)
 
-target_compile_definitions(GTlabCore PRIVATE GT_MODULE_ID="Core" GT_EXEC_ID="Exec")
+target_compile_definitions(GTlabCore
+    PRIVATE GT_MODULE_ID="Core" GT_EXEC_ID="Exec"
+)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabCore PRIVATE GT_CORE_DLL)
@@ -248,8 +250,8 @@ set_target_properties(GTlabCore PROPERTIES
 
 target_link_libraries(GTlabCore
     PUBLIC
-    Qt5::Core
-    Qt5::Network
+    Qt::Core
+    Qt::Network
     GTlab::DataProcessor
 )
 

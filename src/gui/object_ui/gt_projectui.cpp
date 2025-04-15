@@ -1203,8 +1203,8 @@ GtProjectUI::renameProject(GtObject* obj)
                            "\n\nNew project name:"));
     dialog.setInitialTextValue(project->objectName());
 
-    QValidator* validator = new QRegExpValidator(
-                                gt::re::onlyLettersAndNumbersAndSpace(),
+    QValidator* validator = new QRegularExpressionValidator(gt::re::toQt6(
+                                gt::re::onlyLettersAndNumbersAndSpace()),
                                 &dialog);
     dialog.setTextValidator(validator);
 

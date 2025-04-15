@@ -80,8 +80,12 @@ main(int argc, char* argv[])
         Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
+    // In Qt6, these values are already set by default, here, for qt5, we need
+    // to set them manually
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
 
     QApplication a(argc, argv);
 
