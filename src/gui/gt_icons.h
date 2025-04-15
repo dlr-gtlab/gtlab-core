@@ -48,6 +48,12 @@ public:
     const QString& path() const { return m_path; }
     QUrl url() const { return QUrl(m_path); }
 
+    [[deprecated ("Use gt::gui::Icon::path instead")]]
+    const QString& name() const
+    {
+        return path();
+    }
+
     QPixmap pixmap(const QSize &size, QIcon::Mode mode = QIcon::Normal,
                    QIcon::State state = QIcon::Off) const
     {
@@ -70,6 +76,15 @@ public:
     bool operator!=(const Icon& other) const {
         return !(*this == other);
     }
+
+    void paint(QPainter *painter, const QRect &rect,
+               Qt::Alignment alignment = Qt::AlignCenter,
+               QIcon::Mode mode = QIcon::Normal,
+               QIcon::State state = QIcon::Off) const
+    {
+        m_icon.paint(painter, rect, alignment, mode, state);
+    }
+
 
 private:
     QIcon m_icon;
