@@ -212,6 +212,7 @@ target_link_libraries(GTlab
     Qt::Widgets
     Qt::Qml
     Qt::QuickWidgets
+    Qt::QuickControls2
     Qt::Test
     GTlabDataProcessor
     GTlabCore

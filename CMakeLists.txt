@@ -40,7 +40,7 @@ include(GTlab)
 gtlab_standard_setup()
 enable_gtlab_devtools()
 
-require_qt(COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets Test)
+require_qt(COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets QuickControls2 Test)
 
 # if we are using qt6, we need to load the compat library
 if (QT_MAJOR_VERSION EQUAL 6)
