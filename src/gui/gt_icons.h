@@ -119,7 +119,7 @@ GT_GUI_EXPORT Icon getIcon(const QString& iconPath);
  *  @param colorData Color data for the icon modes.
  * @return Icon
  */
-GT_GUI_EXPORT QIcon colorize(const gt::gui::Icon& icon, SvgColorData colorData);
+GT_GUI_EXPORT QIcon colorize(const Icon& icon, SvgColorData colorData);
 
 /**
  *  @brief Overload. Accepts two function pointers for the active and
@@ -130,7 +130,7 @@ GT_GUI_EXPORT QIcon colorize(const gt::gui::Icon& icon, SvgColorData colorData);
  *  @param getDisabledColor Color function pointer for a disabled icon.
  * @return Icon
  */
-GT_GUI_EXPORT QIcon colorize(const gt::gui::Icon& icon,
+GT_GUI_EXPORT QIcon colorize(const Icon& icon,
                              ColorFunctionPtr getActiveColor,
                              ColorFunctionPtr getDisabledColor = {});
 

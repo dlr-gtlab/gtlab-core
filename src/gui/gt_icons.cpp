@@ -21,8 +21,8 @@
 namespace
 {
 
-bool initialized = [](){
-    qRegisterMetaType<gt::gui::Icon>("GtIcon");
+static bool initialized = [](){
+    qRegisterMetaType<gt::gui::Icon>("gt::gui::Icon");
 
     QMetaType::registerConverter<gt::gui::Icon, QIcon>(
         [](const gt::gui::Icon& icon) { return static_cast<QIcon>(icon); });
