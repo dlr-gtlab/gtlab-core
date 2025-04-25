@@ -966,9 +966,6 @@ GtApplication::onUndoStackChange()
 void
 GtApplication::onGuiInitializationFinished()
 {
-    // update theme
-    emit themeChanged(m_darkMode);
-
     initModules();
 }
 
