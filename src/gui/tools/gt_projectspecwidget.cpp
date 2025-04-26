@@ -22,7 +22,7 @@
 #include "gt_application.h"
 #include "gt_settings.h"
 #include "gt_projectprovider.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 #include "gt_projectspecwidget.h"
 
@@ -39,8 +39,8 @@ GtProjectSpecWidget::GtProjectSpecWidget(QWidget* parent) : QWidget(parent),
     layout->addWidget(nameLabel, 0, 0);
     m_nameLine = new QLineEdit;
 
-    QValidator* validator = new QRegularExpressionValidator(gt::re::toQt6(
-                gt::re::onlyLettersAndNumbersAndSpace()), this);
+    QValidator* validator = new QRegularExpressionValidator(
+                gt::rex::onlyLettersAndNumbersAndSpace(), this);
     m_nameLine->setValidator(validator);
 
     m_nameLine->setText(m_tmpName);

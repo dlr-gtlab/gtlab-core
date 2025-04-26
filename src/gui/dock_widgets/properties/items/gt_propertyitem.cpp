@@ -22,7 +22,7 @@
 #include "gt_application.h"
 #include "gt_propertyvaluedelegate.h"
 #include "gt_session.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 #include "gt_icons.h"
 #include "gt_command.h"
 #include "gt_colors.h"
@@ -265,8 +265,8 @@ GtPropertyItem::editorWidget(QWidget* parent,
         case QMetaType::Double:
         {
             auto* lineEdit = new QLineEdit(parent);
-            lineEdit->setValidator(new QRegularExpressionValidator(gt::re::toQt6(
-                                       gt::re::forDoubles()), lineEdit));
+            lineEdit->setValidator(new QRegularExpressionValidator(
+                                       gt::rex::forDoubles(), lineEdit));
             return lineEdit;
         }
 
@@ -300,7 +300,7 @@ GtPropertyItem::editorWidget(QWidget* parent,
             else
             {
                 validator = new QRegularExpressionValidator(
-                    gt::re::toQt6(gt::re::forExpressions()), lineEdit);
+                    gt::rex::forExpressions(), lineEdit);
             }
 
             lineEdit->setValidator(validator);

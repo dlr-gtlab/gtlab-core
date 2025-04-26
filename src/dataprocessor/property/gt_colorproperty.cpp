@@ -9,14 +9,14 @@
  */
 #include "gt_colorproperty.h"
 
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 GtColorProperty::GtColorProperty(const QString& ident,
                                  const QString& name,
                                  const QString& brief,
                                  const QString& color) :
     GtStringProperty(ident, name, brief, color,
-                     QRegularExpression(gt::re::forHexColorCode().pattern()))
+                     gt::rex::forHexColorCode())
 {
     m_id = ident;
     setObjectName(name);

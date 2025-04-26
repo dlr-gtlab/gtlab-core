@@ -38,10 +38,10 @@ gt::detail::buildFileDialogFileFilter(const QStringList &filterList)
         return {};
     }
 
-    auto re = gt::re::forFileDialogFilters();
+    auto re = gt::rex::forFileDialogFilters();
     auto isQtFilter = [&re](const QString& filter)
     {
-        return re.indexIn(filter) >= 0;
+        return re.match(filter).hasMatch();
     };
 
     QString result;

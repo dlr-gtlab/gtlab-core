@@ -18,7 +18,7 @@
 #include "gt_application.h"
 #include "gt_datamodel.h"
 #include "gt_command.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 #include "gt_icons.h"
 
 #include "gt_labeldelegate.h"
@@ -37,8 +37,8 @@ GtLabelDelegate::createEditor(QWidget* parent,
 {
     QLineEdit* lineEdit = new QLineEdit(parent);
 
-    QValidator* validator = new QRegularExpressionValidator(gt::re::toQt6(
-                gt::re::onlyLettersAndNumbers()), this->parent());
+    QValidator* validator = new QRegularExpressionValidator(
+                gt::rex::onlyLettersAndNumbers(), this->parent());
 
     lineEdit->setValidator(validator);
 
@@ -57,8 +57,8 @@ GtLabelDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
     QString val = index.data(Qt::DisplayRole).toString();
     lineEdit->setText(val);
 
-    QValidator* validator = new QRegularExpressionValidator(gt::re::toQt6(
-                gt::re::onlyLettersAndNumbers()), this->parent());
+    QValidator* validator = new QRegularExpressionValidator(
+                gt::rex::onlyLettersAndNumbers(), this->parent());
     lineEdit->setValidator(validator);
 }
 
@@ -92,8 +92,8 @@ GtLabelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 
     QLineEdit* lineEdit = static_cast<QLineEdit*>(editor);
 
-    QValidator* validator = new QRegularExpressionValidator(gt::re::toQt6(
-                gt::re::onlyLettersAndNumbers()), this->parent());
+    QValidator* validator = new QRegularExpressionValidator(
+                gt::rex::onlyLettersAndNumbers(), this->parent());
     lineEdit->setValidator(validator);
 
     QString newId = lineEdit->text();

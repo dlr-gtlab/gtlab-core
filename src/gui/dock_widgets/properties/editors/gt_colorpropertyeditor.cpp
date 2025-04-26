@@ -20,7 +20,7 @@
 #include "gt_application.h"
 #include "gt_command.h"
 #include "gt_project.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 
 GtColorPropertyEditor::GtColorPropertyEditor(QWidget* parent) :
@@ -39,7 +39,7 @@ GtColorPropertyEditor::GtColorPropertyEditor(QWidget* parent) :
     lay->setSpacing(0);
     m_colorLineEdit->setFrame(false);
     m_colorLineEdit->setValidator(new QRegularExpressionValidator(
-        QRegularExpression(gt::re::forHexColorCode().pattern()), this));
+        gt::rex::forHexColorCode(), this));
 
     connect(m_selectButton, SIGNAL(clicked(bool)),
             SLOT(selectColor()));

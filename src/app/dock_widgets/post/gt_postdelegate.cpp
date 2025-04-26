@@ -11,7 +11,7 @@
 #include <QLineEdit>
 
 #include "gt_postdock.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 #include <gt_logging.h>
 
 #include "gt_postdelegate.h"
@@ -31,8 +31,8 @@ GtPostDelegate::createEditor(QWidget* parent,
     QLineEdit* lineEdit = new QLineEdit(parent);
 
 
-    QValidator* validator = new QRegularExpressionValidator(gt::re::toQt6(
-                gt::re::onlyLettersAndNumbers()), parent);
+    QValidator* validator = new QRegularExpressionValidator(
+        gt::rex::onlyLettersAndNumbers(), parent);
 
     lineEdit->setValidator(validator);
 
@@ -49,8 +49,8 @@ GtPostDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
 
     QLineEdit* lineEdit = static_cast<QLineEdit*>(editor);
 
-    QValidator* validator = new QRegularExpressionValidator(gt::re::toQt6(
-                gt::re::onlyLettersAndNumbers()), parent());
+    QValidator* validator = new QRegularExpressionValidator(
+                gt::rex::onlyLettersAndNumbers(), parent());
 
     lineEdit->setValidator(validator);
 
@@ -76,8 +76,8 @@ GtPostDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 
     QLineEdit* lineEdit = static_cast<QLineEdit*>(editor);
 
-    QValidator* validator = new QRegularExpressionValidator(gt::re::toQt6(
-                gt::re::onlyLettersAndNumbers()), parent());
+    QValidator* validator = new QRegularExpressionValidator(
+                gt::rex::onlyLettersAndNumbers(), parent());
 
     lineEdit->setValidator(validator);
 
