@@ -1,3 +1,11 @@
+/* GTlab - Gas Turbine laboratory
+ *
+ * SPDX-License-Identifier: MPL-2.0+
+ * SPDX-FileCopyrightText: 2025 German Aerospace Center (DLR)
+ *
+ * Author: Martin Siggel (AT-TWK)
+ */
+
 #ifndef GT_REGULAREXPRESSION_H
 #define GT_REGULAREXPRESSION_H
 
