@@ -16,7 +16,6 @@
 #include "gt_gui_exports.h"
 #include "gt_objectuiaction.h"
 
-class QSignalMapper;
 class QAction;
 class QMenu;
 class GtObject;
@@ -44,9 +43,6 @@ public:
                        QMenu* menu);
 
 private:
-    /// mapper for action signals
-    QSignalMapper* m_signalMapper;
-
     /// List of action associated with mdi items
     QHash<QAction*, GtObjectUIAction> m_actions;
 

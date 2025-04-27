@@ -15,6 +15,8 @@
 
 #include "gt_gui_exports.h"
 
+#include <QRegExp>
+
 /**
  * @brief The GtTextFilterDelegate class - Delegate to use for the
  * dock-widgets to use a QRegExp as a filter to exclude umlaut and ß

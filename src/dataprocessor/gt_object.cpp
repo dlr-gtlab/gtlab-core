@@ -23,7 +23,6 @@
 #include "gt_qtutilities.h"
 
 #include <QUuid>
-#include <QSignalMapper>
 #include <QThread>
 
 #include <algorithm>

@@ -8,8 +8,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QSignalMapper>
-
 #include "gt_openwithmenu.h"
 #include "gt_mdilauncher.h"
 
@@ -17,13 +15,9 @@ GtOpenWithMenu::GtOpenWithMenu(const QStringList& list,
                                GtObject* obj,
                                QWidget* parent) :
     QMenu(parent),
-    m_signalMapper(new QSignalMapper(this)),
     m_obj(obj)
 {
     setTitle(QStringLiteral("Open With"));
-
-    connect(m_signalMapper, SIGNAL(mapped(QObject*)),
-            SLOT(onActionTrigger(QObject*)));
 
     for (const QString& str : list)
     {
@@ -31,8 +25,9 @@ GtOpenWithMenu::GtOpenWithMenu(const QStringList& list,
 
         QAction* act = addAction(name);
 
-        connect(act, SIGNAL(triggered(bool)), m_signalMapper, SLOT(map()));
-        m_signalMapper->setMapping(act, act);
+        connect(act, &QAction::triggered, this, [this, act](){
+            onActionTrigger(act);
+        });
 
         m_actions.insert(act, str);
     }

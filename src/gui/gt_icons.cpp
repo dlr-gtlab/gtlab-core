@@ -17,29 +17,42 @@
 #include <QPainter>
 #include <QScreen>
 #include <QApplication>
-#include <QDesktopWidget>
+
+namespace
+{
+
+static bool initialized = [](){
+    qRegisterMetaType<gt::gui::Icon>("gt::gui::Icon");
+
+    QMetaType::registerConverter<gt::gui::Icon, QIcon>(
+        [](const gt::gui::Icon& icon) { return static_cast<QIcon>(icon); });
+
+    return true;
+}();
+
+}
 
 /// helper macro for creating an icon:
 /// Implements FUNCTION using
 /// a static getter function named NAME to reduce code duplication.
 /// Opens the resource at PATH
 #define GT_ICON_IMPL(NAME, FUNCTION, PATH) \
-    QIcon const& NAME##_impl() { \
-        static QIcon ic = gt::gui::getIcon(QStringLiteral(PATH)); \
+    gt::gui::Icon const& NAME##_impl() { \
+        static gt::gui::Icon ic = gt::gui::getIcon(QStringLiteral(PATH)); \
         return ic; \
     } \
-    QIcon gt::gui::icon::FUNCTION() { \
+    gt::gui::Icon gt::gui::icon::FUNCTION() { \
         return NAME##_impl(); \
     }
 
 /// same as above but for coloring icons
 #define GT_ICON_IMPL_COLORED(NAME, FUNCTION, PATH, ACTIVE) \
-    QIcon const& NAME##_impl() { \
-        static QIcon ic = getSvgIconHelper(QStringLiteral(PATH), \
+    gt::gui::Icon const& NAME##_impl() { \
+        static gt::gui::Icon  ic = getSvgIconHelper(QStringLiteral(PATH), \
                                            {gt::gui::ACTIVE}); \
         return ic; \
     } \
-    QIcon gt::gui::icon::FUNCTION() { \
+    gt::gui::Icon gt::gui::icon::FUNCTION() { \
         return NAME##_impl(); \
     }
 
@@ -59,13 +72,13 @@
 
 /// Defines an icon alias
 #define GT_DEF_ICON_ALIAS(FUNCTION, TARGET) \
-    QIcon gt::gui::icon::FUNCTION() { \
+    gt::gui::Icon gt::gui::icon::FUNCTION() { \
         return TARGET(); \
     }
 
 /// Defines a letter alias
 #define GT_DEF_ICON_LETTER_ALIAS(FUNCTION, TARGET) \
-    QIcon gt::gui::icon::letter::FUNCTION() { \
+    gt::gui::Icon gt::gui::icon::letter::FUNCTION() { \
         return letter::TARGET(); \
     }
 
@@ -85,12 +98,12 @@ resourcePath(QString const& iconPath)
     return iconPath;
 }
 
-QIcon
+gt::gui::Icon
 getSvgIconHelper(QString const& iconPath, gt::gui::SvgColorData colorData = {})
 {
     auto* iconEngine = new GtSvgIconEngine(resourcePath(iconPath),
                                            std::move(colorData));
-    QIcon icon(iconEngine);
+    gt::gui::Icon icon(iconEngine, iconPath);
     if (icon.isNull())
     {
         gtWarning().medium()
@@ -99,7 +112,7 @@ getSvgIconHelper(QString const& iconPath, gt::gui::SvgColorData colorData = {})
     return icon;
 }
 
-QIcon
+gt::gui::Icon
 getIconHelper(QString const& iconPath)
 {
     if (iconPath.endsWith(QStringLiteral(".svg")))
@@ -107,7 +120,7 @@ getIconHelper(QString const& iconPath)
         return getSvgIconHelper(iconPath);
     }
 
-    QIcon icon(resourcePath(iconPath));
+    gt::gui::Icon icon(resourcePath(iconPath));
     if (icon.isNull())
     {
         gtWarning().medium()
@@ -116,7 +129,7 @@ getIconHelper(QString const& iconPath)
     return icon;
 }
 
-QIcon
+gt::gui::Icon
 gt::gui::getIcon(QString const& iconPath)
 {
     if (iconPath.endsWith(QStringLiteral(".svg")))
@@ -124,7 +137,7 @@ gt::gui::getIcon(QString const& iconPath)
         return getSvgIconHelper(iconPath);
     }
 
-    QIcon ic(resourcePath(iconPath));
+    Icon ic(resourcePath(iconPath));
     if (ic.isNull())
     {
         gtWarning().medium()
@@ -134,7 +147,7 @@ gt::gui::getIcon(QString const& iconPath)
 }
 
 QIcon
-gt::gui::colorize(const QIcon& icon,
+gt::gui::colorize(const gt::gui::Icon& icon,
                   ColorFunctionPtr getActiveColor,
                   ColorFunctionPtr getDisabledColor)
 {
@@ -142,19 +155,19 @@ gt::gui::colorize(const QIcon& icon,
         getActiveColor,
         getDisabledColor
     };
-    return getSvgIconHelper(icon.name(), std::move(colorData));
+    return getSvgIconHelper(icon.path(), std::move(colorData));
 }
 
 QIcon
-gt::gui::colorize(const QIcon& icon, SvgColorData colorData)
+gt::gui::colorize(const gt::gui::Icon& icon, SvgColorData colorData)
 {
-    return getSvgIconHelper(icon.name(), std::move(colorData));
+    return getSvgIconHelper(icon.path(), std::move(colorData));
 }
 
 QSize
 gt::gui::icon::standardSizeSmall()
 {
-    return QSize(16, 16) * qApp->desktop()->devicePixelRatio();
+    return QSize(16, 16) * qApp->primaryScreen()->devicePixelRatio();
 }
 
 GT_DEF_ICON(add, "add.svg")

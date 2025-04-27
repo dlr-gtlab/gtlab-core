@@ -10,7 +10,7 @@
  */
 
 #include "gt_stringproperty.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
 {
@@ -21,7 +21,7 @@ GtStringProperty::GtStringProperty(const QString& ident, const QString& name)
     m_unitCategory = GtUnit::Category::None;
     m_value = QString();
     m_initValue = QString();
-    m_validatorPattern = QRegularExpression(gt::re::forExpressions().pattern());
+    m_validatorPattern = gt::rex::forExpressions();
 }
 
 GtStringProperty::GtStringProperty(const QString& ident,

@@ -376,10 +376,24 @@ set(sources
     importer/processImporter/gt_processimporter.cpp
 )
 
+if (QT_MAJOR_VERSION VERSION_LESS 6)
+    message(STATUS "Generating qml compatibility for Qt 5")
+    configure_file(../resources/qml/ColorOverlayQt5.qml
+        ${CMAKE_CURRENT_BINARY_DIR}/ColorOverlayCompat.qml COPYONLY)
+else()
+    message(STATUS "Generating qml compatibility for Qt 6")
+    configure_file(../resources/qml/ColorOverlayQt6.qml
+        ${CMAKE_CURRENT_BINARY_DIR}/ColorOverlayCompat.qml COPYONLY)
+endif()
+
+configure_file(../resources/qml/qml_compat.qrc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/qml_compat.qrc @ONLY)
+
 set(resources
     ../resources/icons/icons.qrc
     ../resources/pixmaps/pixmaps.qrc
     ../resources/qml/qml.qrc
+    ${CMAKE_CURRENT_BINARY_DIR}/qml_compat.qrc
 )
 
 file (GLOB_RECURSE forms
@@ -389,7 +403,9 @@ file (GLOB_RECURSE forms
 add_library(GTlabGui ${sources} ${headers} ${forms} ${resources})
 add_library(GTlab::Gui ALIAS GTlabGui)
 
-target_compile_definitions(GTlabGui PRIVATE GT_MODULE_ID="Gui" GT_EXEC_ID="Exec")
+target_compile_definitions(GTlabGui
+    PRIVATE GT_MODULE_ID="Gui" GT_EXEC_ID="Exec"
+)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabGui PRIVATE GT_GUI_DLL)
@@ -435,14 +451,14 @@ target_include_directories(GTlabGui PUBLIC
 target_link_libraries(GTlabGui
     PUBLIC
         GTlab::Core
-        Qt5::Widgets
-        Qt5::Gui
-        Qt5::PrintSupport
+        Qt::Widgets
+        Qt::Gui
+        Qt::PrintSupport
 
     PRIVATE
-        Qt5::Concurrent
-        Qt5::Svg
-        Qt5::QuickWidgets
+        Qt::Concurrent
+        Qt::Svg
+        Qt::QuickWidgets
 )
 
 

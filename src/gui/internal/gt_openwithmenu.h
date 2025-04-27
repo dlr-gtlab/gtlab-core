@@ -13,7 +13,6 @@
 
 #include <QMenu>
 
-class QSignalMapper;
 class GtObject;
 
 /**
@@ -33,9 +32,6 @@ public:
                    QWidget* parent = nullptr);
 
 private:
-    /// mapper for action signals
-    QSignalMapper* m_signalMapper;
-
     /// List of action associated with mdi items
     QHash<QAction*, QString> m_actions;
 

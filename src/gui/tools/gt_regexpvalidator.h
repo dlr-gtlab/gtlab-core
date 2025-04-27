@@ -11,6 +11,7 @@
 #define GTREGEXPVALIDATOR_H
 
 #include <QValidator>
+#include <QRegExp>
 
 /**
  * @brief The GtRegExpValidator class

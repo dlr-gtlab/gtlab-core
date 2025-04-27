@@ -15,7 +15,8 @@ project(GTlabUnittests)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-if (NOT TARGET Qt5::Core)
+if (NOT TARGET Qt::Core)
+    # Todo version agnostic qt version search
     find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 endif()
 

@@ -1203,8 +1203,8 @@ GtProjectUI::renameProject(GtObject* obj)
                            "\n\nNew project name:"));
     dialog.setInitialTextValue(project->objectName());
 
-    QValidator* validator = new QRegExpValidator(
-                                gt::re::onlyLettersAndNumbersAndSpace(),
+    QValidator* validator = new QRegularExpressionValidator(
+                                gt::rex::onlyLettersAndNumbersAndSpace(),
                                 &dialog);
     dialog.setTextValidator(validator);
 
@@ -1228,7 +1228,7 @@ GtProjectUI::renameProject(GtObject* obj)
         ok = false;
     }
 
-    if (!gt::re::onlyLettersAndNumbersAndSpace().exactMatch(text))
+    if (!gt::rex::exactMatch(gt::rex::onlyLettersAndNumbersAndSpace(), text))
     {
         ok = false;
     }

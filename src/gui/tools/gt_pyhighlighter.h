@@ -15,6 +15,7 @@
 #include "gt_gui_exports.h"
 
 #include <QSyntaxHighlighter>
+#include <QRegExp>
 
 //! Container to describe a highlighting rule. Based on a regular expression, a relevant match # and the format.
 class GtHighlightingRule

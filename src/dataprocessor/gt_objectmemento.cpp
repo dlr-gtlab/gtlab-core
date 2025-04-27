@@ -152,11 +152,21 @@ propertyHashHelper(const PD& property, QCryptographicHash& hash,
 
     // hash property
     propHash.addData(property.name.toUtf8());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     propHash.addData((const char*)&property.isActive, sizeof(property.isActive));
+#else
+    propHash.addData(QByteArrayView((const char*)&property.isActive,
+                                    sizeof(property.isActive)));
+#endif
     propHash.addData(property.dataType().toUtf8());
 
     auto propertyType = property.type();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     propHash.addData((const char*)&propertyType, sizeof(propertyType));
+#else
+    propHash.addData(QByteArrayView((const char*)&propertyType,
+                                    sizeof(propertyType)));
+#endif
     variantHasher.addToHash(propHash, property.data());
 
     // loop recursively through all child properties

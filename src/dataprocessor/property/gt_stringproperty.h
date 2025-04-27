@@ -15,7 +15,7 @@
 #include "gt_datamodel_exports.h"
 
 #include "gt_property.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 #include <QRegularExpression>
 
 class GT_DATAMODEL_EXPORT GtStringProperty : public GtProperty<QString>
@@ -52,7 +52,7 @@ public:
                      const QString& brief,
                      const QString& value = QString(),
                      const QRegularExpression& validationPattern =
-                        QRegularExpression(gt::re::forExpressions().pattern()));
+                        gt::rex::forExpressions());
 
     // operator overloads
     void operator+=(const QString& b);

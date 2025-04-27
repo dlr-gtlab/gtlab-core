@@ -14,105 +14,193 @@
 #include <QRegExp>
 
 #include "gt_datamodel_exports.h"
+#include "gt_regularexpression.h"
 
 #include "gt_object.h"
 
 /**
- * namespace for RegualrExpressions, used in GTlab
+ * namespace for RegularExpressions, used in GTlab
  */
 namespace gt
 {
-namespace re
+
+/**
+ *  THIS NAMESPACE IS DEPRECATED
+ *
+ *  DO NOT ADD NEW FUNCTIONALITY
+ *
+ *  Use QRegularExpression based functions from gt_regularexpression.h instead!
+ */
+namespace re_deprecated
 {
+
+/**
+ * @brief only use this for tested regular expressions
+ * @param re
+ * @return
+ */
+GT_DATAMODEL_EXPORT QRegExp toRegExp(const QRegularExpression& re);
 
 /**
  * @brief woUmlauts - accepts all but ä ö ü ß
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT woUmlauts();
+[[deprecated ("Use gt::rex::woUmlauts instead")]]
+inline QRegExp woUmlauts()
+{
+    return toRegExp(gt::rex::woUmlauts());
+}
 
 /**
  * @brief umlauts - accept äöüßÄÖÜ
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT umlauts();
+[[deprecated ("Use gt::rex::umlauts instead")]]
+inline QRegExp umlauts()
+{
+    return toRegExp(gt::rex::umlauts());
+}
 
 /**
  * @brief umlautsAnsSpecialChar
  * - accepts äöüßÄÖÜ .:,;#?+~* /&%$§!"{}
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT umlautsAndSpecialChar();
+ [[deprecated ("Use gt::rex::umlautsAndSpecialChar instead")]]
+inline QRegExp umlautsAndSpecialChar()
+{
+    return toRegExp(gt::rex::umlautsAndSpecialChar());
+}
 
 /**
  * @brief onlyLetters - accepts all letter (a-z and A-Z) with a
  * minimal length of 1
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT onlyLetters();
-QString GT_DATAMODEL_EXPORT onlyLettersHint();
+[[deprecated ("Use gt::rex::onlyLetters instead")]]
+inline QRegExp GT_DATAMODEL_EXPORT onlyLetters()
+{
+    return toRegExp(gt::rex::onlyLetters());
+}
+
+[[deprecated ("Use gt::rex::onlyLettersHint instead")]]
+inline QString onlyLettersHint()
+{
+    return gt::rex::onlyLettersHint();
+}
 
 /**
  * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
  * and numbers (0-9) and -  and _ with a minimal length of 1
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbers();
-QString GT_DATAMODEL_EXPORT onlyLettersAndNumbersHint();
+[[deprecated ("Use gt::rex::onlyLettersAndNumbers instead")]]
+inline QRegExp onlyLettersAndNumbers()
+{
+    return toRegExp(gt::rex::onlyLettersAndNumbers());
+}
+
+[[deprecated ("Use gt::rex::onlyLettersAndNumbersHint instead")]]
+inline QString onlyLettersAndNumbersHint()
+{
+    return gt::rex::onlyLettersAndNumbersHint();
+}
 
 /**
  * @brief onlyLettersAndNumbers - accepts all letter (a-z and A-Z)
  * and numbers (0-9) and -  and _ with a minimal length of 1 and dot
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDot();
-QString GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDotHint();
+[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndDot instead")]]
+inline QRegExp onlyLettersAndNumbersAndDot()
+{
+    return toRegExp(gt::rex::onlyLettersAndNumbersAndDot());
+}
+
+[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndDotHint instead")]]
+inline QString onlyLettersAndNumbersAndDotHint()
+{
+    return gt::rex::onlyLettersAndNumbersAndDotHint();
+}
 
 /**
  * @brief onlyLettersAndNumbersAndSpace - accepts all letter (a-z and A-Z)
  * and numbers (0-9) and -  and _ and space with a minimal length of 1
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndSpace();
-QString GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndSpaceHint();
+[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndSpace instead")]]
+inline QRegExp onlyLettersAndNumbersAndSpace()
+{
+    return toRegExp(gt::rex::onlyLettersAndNumbersAndSpace());
+}
+
+[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndSpaceHint instead")]]
+inline QString onlyLettersAndNumbersAndSpaceHint()
+{
+    return gt::rex::onlyLettersAndNumbersAndSpaceHint();
+}
 
 /**
  * @brief forUnits - accepts all letters and numbers and some
  * special symbols typical used for units
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT forUnits();
+[[deprecated ("Use gt::rex::forUnits instead")]]
+inline QRegExp forUnits()
+{
+    return toRegExp(gt::rex::forUnits());
+}
 
 /**
  * @brief forExpressions
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT forExpressions();
+[[deprecated ("Use gt::rex::forExpressions instead")]]
+inline QRegExp forExpressions()
+{
+    return toRegExp(gt::rex::forExpressions());
+}
 
 /**
  * @brief forStations - accepts a combination
  * of an S and one to three numbers
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT forStations();
+[[deprecated ("Use gt::rex::forStations instead")]]
+inline QRegExp forStations()
+{
+    return toRegExp(gt::rex::forStations());
+}
 
 /**
  * @brief forDoubles
  * @return
  */
-QRegExp GT_DATAMODEL_EXPORT forDoubles();
+[[deprecated ("Use gt::rex::forDoubles instead")]]
+inline QRegExp forDoubles()
+{
+    return toRegExp(gt::rex::forDoubles());
+}
 
 /**
  * @brief forDoublesLists
  * @return regexp for double lists
  */
-QRegExp GT_DATAMODEL_EXPORT forDoublesLists();
+[[deprecated ("Use gt::rex::forDoublesLists instead")]]
+inline QRegExp forDoublesLists()
+{
+    return toRegExp(gt::rex::forDoublesLists());
+}
 
 /**
  * @brief for semantic versioning
  * @return regexp for semantic versioning
  */
-QRegExp GT_DATAMODEL_EXPORT forSemVers();
+[[deprecated ("Use gt::rex::forSemVers instead")]]
+inline QRegExp forSemVers()
+{
+    return toRegExp(gt::rex::forSemVers());
+}
 
 /**
  * @brief Matches file filter strings, e.g.
@@ -120,13 +208,21 @@ QRegExp GT_DATAMODEL_EXPORT forSemVers();
  * "Python (python* python3)"
  * "Textfiles (*.txt)"
  */
-GT_DATAMODEL_EXPORT const QRegExp& forFileDialogFilters();
+[[deprecated ("Use gt::rex::forFileDialogFilters instead")]]
+inline QRegExp forFileDialogFilters()
+{
+    return toRegExp(gt::rex::forFileDialogFilters());
+}
 
 /**
  * @brief for semantic versioning
  * @return regexp for semantic versioning
  */
-QRegExp GT_DATAMODEL_EXPORT forHexColorCode();
+[[deprecated ("Use gt::rex::forHexColorCode instead")]]
+inline QRegExp forHexColorCode()
+{
+    return toRegExp(gt::rex::forHexColorCode());
+}
 
 /**
  * @brief restrictRegExpWithObjectNames
@@ -171,7 +267,9 @@ inline void restrictRegExpWithObjectSiblingsNames(GtObject const& obj,
     restrictRegExpWithObjectNames(names, defaultRegExp);
 }
 
-} // namespace re
+} // namespace re_deprecated
+
+namespace re = re_deprecated;
 
 } // namespace gt
 
