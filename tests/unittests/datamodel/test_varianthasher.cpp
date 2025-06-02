@@ -40,8 +40,9 @@ TEST_F(TestVariantHasher, testIssue386)
 {
     gt::detail::VariantHasher hasher;
 
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     qRegisterMetaTypeStreamOperators<std::string>("std::string");
+#endif
 
     QCryptographicHash r1(QCryptographicHash::Sha256);
     QCryptographicHash r2(QCryptographicHash::Sha256);

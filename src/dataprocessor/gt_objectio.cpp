@@ -18,6 +18,7 @@
 #include <QtGlobal>
 #include <QDebug>
 #include <QMetaType>
+#include <QStringRef>
 
 #include <cfloat>
 #include <typeinfo>
@@ -41,6 +42,7 @@ const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
                                             << QStringLiteral("QList<bool>")
                                             << QStringLiteral("QList<QPointF>")
                                             << QStringLiteral("QVector<double>")
+                                            << QStringLiteral("QList<double>")
                                             << QStringLiteral("QStringList");
 
 
@@ -843,44 +845,46 @@ void
 GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
                                    QString& typeStr)
 {
-    static QVariant::Type type_QDoubleVector = QVariant::nameToType(
+    auto varType = gt::metaTypeId(var);
+
+    static auto type_QDoubleVector = gt::metaTypeIdFromName(
                 "QVector<double>");
-    static QVariant::Type type_QIntList = QVariant::nameToType(
+    static auto type_QIntList = gt::metaTypeIdFromName(
                 "QList<int>");
-    static QVariant::Type type_QBoolList = QVariant::nameToType(
+    static auto type_QBoolList = gt::metaTypeIdFromName(
                 "QList<bool>");
-    static QVariant::Type type_QPointFList = QVariant::nameToType(
+    static auto type_QPointFList = gt::metaTypeIdFromName(
                 "QList<QPointF>");
-    static QVariant::Type type_QStringList = QVariant::nameToType(
+    static auto type_QStringList = gt::metaTypeIdFromName(
                 "QStringList");
 
-    assert(type_QDoubleVector != QVariant::Invalid);
-    assert(type_QIntList != QVariant::Invalid);
-    assert(type_QBoolList != QVariant::Invalid);
-    assert(type_QPointFList != QVariant::Invalid);
-    assert(type_QStringList == QVariant::StringList);
+    assert(QMetaType::isRegistered(type_QDoubleVector));
+    assert(QMetaType::isRegistered(type_QIntList));
+    assert(QMetaType::isRegistered(type_QBoolList));
+    assert(QMetaType::isRegistered(type_QPointFList));
+    assert(QMetaType::isRegistered(type_QStringList));
 
-    if (var.type() == type_QDoubleVector)
+    if (varType == type_QDoubleVector)
     {
         valStr = listToString(var.value<QVector<double> >());
         typeStr = QStringLiteral("double");
     }
-    else if (var.type() == type_QIntList)
+    else if (varType == type_QIntList)
     {
         valStr = listToString(var.value<QList<int> >());
         typeStr = QStringLiteral("int");
     }
-    else if (var.type() == type_QBoolList)
+    else if (varType == type_QBoolList)
     {
         valStr = listToString(var.value<QList<bool> >());
         typeStr = QStringLiteral("bool");
     }
-    else if (var.type() == type_QPointFList)
+    else if (varType == type_QPointFList)
     {
         valStr = listToString(var.value<QList<QPointF> >());
         typeStr = QStringLiteral("QPointF");
     }
-    else if (var.type() == type_QStringList)
+    else if (varType == type_QStringList)
     {
         valStr = listToString(var.value<QStringList>());
         typeStr = QStringLiteral("QString");
@@ -954,10 +958,10 @@ propertyToVariant(const QString& value, const QString& type)
     std::string str = type.toStdString();
     const char* p = str.c_str();
 
-    QVariant::Type v_type = QVariant::nameToType(p);
+    auto v_type = gt::metaTypeIdFromName(p);
     QVariant retval(value);
 
-    if (v_type != QVariant::Invalid)
+    if (QMetaType::isRegistered(v_type))
     {
         retval.convert(v_type);
     }

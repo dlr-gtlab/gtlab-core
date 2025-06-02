@@ -13,6 +13,8 @@
 
 #include "gt_typetraits.h"
 
+#include <gt_datamodel_exports.h>
+
 #include <QObject>
 
 #include <memory>
@@ -87,19 +89,18 @@ transfer_unique(std::unique_ptr<Base>&& basePtr,
                 TransferFunction&& transferFunc) noexcept
 
     -> std::unique_ptr<std::remove_pointer_t<
-        typename std::result_of_t<decltype(transferFunc)(Base*)>>>
+        decltype(std::declval<TransferFunction>()(std::declval<Base*>()))>>
 
 {
     using TransferredType = std::remove_pointer_t<
-        typename std::result_of_t<decltype(transferFunc)(Base*)>>;
+        decltype(std::declval<TransferFunction>()(std::declval<Base*>()))>;
 
     auto derivedPtr = std::unique_ptr<TransferredType>(
-        transferFunc(basePtr.get()));
+        std::forward<TransferFunction>(transferFunc)(basePtr.get()));
 
     if (derivedPtr)
     {
-        // transfer ownership
-        basePtr.release();
+        basePtr.release(); // transfer ownership
         return derivedPtr;
     }
 
@@ -317,6 +318,37 @@ setUniqueName(QObject& obj, QString const& name = {})
     obj.setObjectName(makeUniqueName(obj, name));
 }
 
+/**
+ * @brief Returns the QMetaType id of the variant
+ */
+GT_DATAMODEL_EXPORT int
+metaTypeId(const QVariant& v);
+
+/**
+ * @brief Returns the QMetaType id from the type name
+ */
+GT_DATAMODEL_EXPORT int
+metaTypeIdFromName(const char* name);
+
+/**
+ * @brief Returns, whether a certain type name is known to Qt
+ */
+GT_DATAMODEL_EXPORT bool
+metaTypeNameIsRegistered(const char* typeName);
+
+/**
+ * @brief Compares two QVariants
+ *
+ * Two to API incompatibilities of Qt, we provide a wrapper here
+ * that wraps either a<b, a.compare(b), QVariant::compare(a, b)
+ * depending on what the Qt Version allows
+ *
+ * @param a Param 1
+ * @param b Param 2
+ * @return -1 if a<b, 0 if a=b, 1 if a>b
+ */
+GT_DATAMODEL_EXPORT int
+qvariantCompare(const QVariant& a, const QVariant& b);
 
 } // namespace gt
 

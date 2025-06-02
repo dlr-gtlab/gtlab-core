@@ -15,13 +15,13 @@
 
 #include <QMap>
 #include <QVariantList>
+#include <QStringList>
 
 #include <memory>
 
 #include <gt_logging.h>
 #include <gt_globals.h>
 
-class QStringList;
 class QJsonObject;
 class QPluginLoader;
 class QDir;

@@ -159,6 +159,10 @@ GtObjectSelectionDialog::onDoubleClicked(const QModelIndex& index)
 void
 GtObjectSelectionDialog::filterData(const QString& val)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_filterModel->setFilterRegExp(val);
+#else
+    m_filterModel->setFilterRegularExpression(val);
+#endif
     m_treeView->expandAll();
 }

@@ -15,6 +15,7 @@
 #include <QStringList>
 #include <QtGlobal>
 #include <QDataStream>
+#include <QMetaType>
 
 template <typename List>
 struct StreamingFunctionBuilder
@@ -54,7 +55,9 @@ namespace
         StreamingFunctionBuilder<T> build_streaming_funcs;
         Q_UNUSED(build_streaming_funcs)
         qRegisterMetaType<T>();
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
         qRegisterMetaTypeStreamOperators<T>(typeName);
+#endif
     };
 }
 

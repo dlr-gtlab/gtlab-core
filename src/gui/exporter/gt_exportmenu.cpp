@@ -9,8 +9,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QSignalMapper>
-
 #include "gt_icons.h"
 #include "gt_exporthandler.h"
 #include "gt_exportermetadata.h"
@@ -22,14 +20,10 @@
 #include "gt_exportmenu.h"
 
 GtExportMenu::GtExportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
-    m_signalMapper(new QSignalMapper(this)),
     m_obj(obj)
 {
     setTitle(tr("Export"));
     setIcon(gt::gui::icon::export_());
-
-    connect(m_signalMapper, SIGNAL(mapped(QObject*)),
-            SLOT(onActionTrigger(QObject*)));
 
     QList<GtExporterMetaData> exporterList =
             gtExportHandler->exporterMetaData(obj->metaObject()->className());
@@ -43,8 +37,9 @@ GtExportMenu::GtExportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
             QAction* act = addAction(exp.icon(),
                                      exp.id() + QStringLiteral("..."));
 
-            connect(act, SIGNAL(triggered(bool)), m_signalMapper, SLOT(map()));
-            m_signalMapper->setMapping(act, act);
+            connect(act, &QAction::triggered, this, [this, act](){
+                onActionTrigger(act);
+            });
 
             m_actions.insert(act, exp.classname());
         }

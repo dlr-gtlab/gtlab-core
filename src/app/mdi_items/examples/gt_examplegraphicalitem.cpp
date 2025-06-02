@@ -136,7 +136,11 @@ GtExampleGraphicalItem::mousePressEvent(QMouseEvent* event)
 }
 
 void
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 GtExampleGraphicalItem::enterEvent(QEvent* event)
+#else
+GtExampleGraphicalItem::enterEvent(QEnterEvent* event)
+#endif
 {
     setAutoFillBackground(true);
 

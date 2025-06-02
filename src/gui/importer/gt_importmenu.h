@@ -16,7 +16,6 @@
 
 #include "gt_gui_exports.h"
 
-class QSignalMapper;
 class GtObject;
 
 /**
@@ -35,9 +34,6 @@ public:
     explicit GtImportMenu(GtObject *obj, QWidget *parent = nullptr);
 
 private:
-    /// mapper for action signals
-    QSignalMapper* m_signalMapper;
-
     /// List of action associated with importer
     QHash<QAction*, QString> m_actions;
 

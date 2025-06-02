@@ -97,6 +97,7 @@ set(HEADERS
     property/gt_relativeobjectlinkproperty.h
     property/gt_doublelistproperty.h
     gt_regexp.h
+    gt_regularexpression.h
     gt_algorithms.h
     gt_mpl.h
     gt_versionnumber.h
@@ -120,6 +121,7 @@ set(SOURCES
     gt_package.cpp
     gt_factorygroup.cpp
     gt_xmlutilities.cpp
+    gt_qtutilities.cpp
     internal/varianthasher.cpp
     property/gt_objectlinkproperty.cpp
     gt_objectmementodiff.cpp
@@ -153,18 +155,28 @@ set(SOURCES
     property/gt_doublelistproperty.cpp
     gt_versionnumber.cpp
     gt_regexp.cpp
+    gt_regularexpression.cpp
 )
 
 add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL})
 add_library(GTlab::DataProcessor ALIAS GTlabDataProcessor)
 
-target_compile_definitions(GTlabDataProcessor PUBLIC GT_LOG_USE_QT_BINDINGS)
+target_compile_definitions(GTlabDataProcessor
+    PUBLIC GT_LOG_USE_QT_BINDINGS
+)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabDataProcessor PRIVATE GT_DATAMODEL_DLL)
 else(BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabDataProcessor PUBLIC GT_DATAMODEL_LIB)
 endif(BUILD_SHARED_LIBS)
+
+if (HAVE_QVARIANT_COMPARE)
+    target_compile_definitions(GTlabDataProcessor PRIVATE HAVE_QVARIANT_COMPARE)
+elseif(HAVE_QVARIANT_COMPARE_MEMBER)
+    target_compile_definitions(GTlabDataProcessor PRIVATE HAVE_QVARIANT_COMPARE_MEMBER)
+endif()
+
 
 target_include_directories(GTlabDataProcessor
     PUBLIC
@@ -175,13 +187,17 @@ target_include_directories(GTlabDataProcessor
 
 target_link_libraries(GTlabDataProcessor
     PUBLIC
-      Qt5::Core
-      Qt5::Xml
+      Qt::Core
+      Qt::Xml
       GTlab::Logging
     PRIVATE
       mpark::variant
       tl::optional
 )
+
+if (TARGET Qt6::Core5Compat)
+    target_link_libraries(GTlabDataProcessor PUBLIC Qt6::Core5Compat)
+endif()
 
 if (BUILD_WITH_HDF5)
     target_compile_definitions(GTlabDataProcessor PUBLIC GT_H5)

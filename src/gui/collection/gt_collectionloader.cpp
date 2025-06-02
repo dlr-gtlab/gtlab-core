@@ -19,6 +19,7 @@
 #include "gt_collectionhelper.h"
 #include "gt_downloaddialog.h"
 #include "gt_algorithms.h"
+#include "gt_qtutilities.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -423,7 +424,7 @@ GtCollectionLoader::itemIsValid(const QJsonObject& json)
             QJsonValue val = json.value(e);
             QVariant var = val.toVariant();
 
-            if (var.type() != colStruct.value(e))
+            if (gt::metaTypeId(var) != colStruct.value(e))
             {
                 gtWarning().medium() << tr("Invalid property type!");
             }

@@ -167,7 +167,7 @@ GtPropertyModel::flags(const QModelIndex& index) const
     {
         QVariant var = index.data();
 
-        if (var.type() == QVariant::Bool)
+        if (gt::metaTypeId(var) == QMetaType::Bool)
         {
             if (!index.data(ReadOnlyRole).toBool())
             {

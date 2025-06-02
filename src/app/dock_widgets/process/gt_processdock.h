@@ -21,7 +21,6 @@
 class QPushButton;
 class QMenu;
 class QComboBox;
-class QSignalMapper;
 class GtProcessView;
 class GtProcessComponentModel;
 class GtTreeFilterModel;
@@ -179,9 +178,6 @@ private:
 
     /// Command
     GtCommand m_command{};
-
-    /// mapper for action signals
-    QSignalMapper* m_actionMapper;
 
     /// Expanded item UUIDs
     GtState* m_expandedItemUuidsState;
