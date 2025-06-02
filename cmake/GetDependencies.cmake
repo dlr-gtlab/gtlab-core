@@ -4,8 +4,8 @@
 
 # Versions of the bundled libraries
 # If you like to upgrade, just change the number
-set(GTLAB_LOGGING_VERSION "master")
-set(GTLAB_GENH5_VERSION "132-prepare-qt6-compatibility")
+set(GTLAB_LOGGING_VERSION "4-4-2")
+set(GTLAB_GENH5_VERSION "3-0-4")
 
 if (EXISTS ${GTLAB_DEVTOOLS_DIR})
     return()
