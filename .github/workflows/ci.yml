@@ -132,7 +132,7 @@ jobs:
     - name: Create Package (Windows)
       run: |
         cd gtlab-win64-qt6/bin
-        windeployqt.exe --qmldir ..\..\src\resources\qml --plugindir qtplugins --no-translations --qml-deploy-dir qml -printsupport GTlab.exe
+        windeployqt.exe --qmldir ..\..\src\resources\qml --plugindir qtplugins --no-translations --qml-deploy-dir qml -printsupport -core5compat GTlab.exe
         cp $env:HDF5_BIN_DIR/hdf5.dll .
 
         # Create qt.conf file
