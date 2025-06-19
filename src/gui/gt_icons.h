@@ -149,7 +149,7 @@ namespace icon
 template <typename IconGetter>
 QUrl url(IconGetter&& getIcon)
 {
-    return "qrc:/icons/" + getIcon().path();
+    return "qrc" + getIcon().path();
 }
 
 /**

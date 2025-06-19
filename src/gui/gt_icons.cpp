@@ -38,7 +38,7 @@ static bool initialized = [](){
 /// Opens the resource at PATH
 #define GT_ICON_IMPL(NAME, FUNCTION, PATH) \
     gt::gui::Icon const& NAME##_impl() { \
-        static gt::gui::Icon ic = gt::gui::getIcon(QStringLiteral(PATH)); \
+        static gt::gui::Icon ic = gt::gui::getIcon(resourcePath(QStringLiteral(PATH))); \
         return ic; \
     } \
     gt::gui::Icon gt::gui::icon::FUNCTION() { \
@@ -48,7 +48,7 @@ static bool initialized = [](){
 /// same as above but for coloring icons
 #define GT_ICON_IMPL_COLORED(NAME, FUNCTION, PATH, ACTIVE) \
     gt::gui::Icon const& NAME##_impl() { \
-        static gt::gui::Icon  ic = getSvgIconHelper(QStringLiteral(PATH), \
+        static gt::gui::Icon  ic = getSvgIconHelper(resourcePath(QStringLiteral(PATH)), \
                                            {gt::gui::ACTIVE}); \
         return ic; \
     } \
