@@ -205,6 +205,48 @@ namespace gt
 GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeDoubleProperty(double value);
 
+/**
+ * @brief Creates a property factory for doubles with a default value, a unit
+ * and a low and high side boundary
+ * @param value Default value
+ * @param lowSideBoundary Lower side boundary
+ * @param highSideBoundary High side boundary
+ */
+GT_DATAMODEL_EXPORT
+    gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
+                       const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       const double& value = 0.0);
+
+/**
+ * @brief Creates a property factory for doubles with a default value, a unit
+ * and a low and high side boundary
+ * @param value Default value
+ * @param lowSideBoundary Lower side boundary
+ * @param highSideBoundary High side boundary
+ */
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
+                       const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       const double lowSideBoundary,
+                       const double highSideBoundary,
+                       const double& value = 0.0);
+
+/**
+ * @brief Creates a property factory for doubles with a default value, a unit
+ * and a custom boundary
+ * @param value Default value
+ * @param boundaryType Boundary type
+ * @param boundary Boundary
+ */
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
+                                               const QString& brief,
+                                               const GtUnit::Category& unitCategory,
+                                               GtDoubleProperty::BoundType boundType,
+                                               const double boundary,
+                                               const double& value = 0.0);
 } // namespace gt
 
 #endif // GTP_DOUBLEPARAM_H

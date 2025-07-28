@@ -270,3 +270,40 @@ gt::makeDoubleProperty(double value)
 {
     return makePropertyFactory<GtDoubleProperty>(std::move(value));
 }
+
+gt::PropertyFactoryFunction
+gt::makeDoubleProperty(const QString& name, const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       const double& value)
+{
+    return [=](QString const& id){
+        return new GtDoubleProperty(id, name, brief, unitCategory, value);
+    };
+}
+
+gt::PropertyFactoryFunction
+gt::makeDoubleProperty(const QString& name, const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       const double lowSideBoundary,
+                       const double highSideBoundary,
+                       const double& value)
+{
+    return [=](QString const& id){
+        return new GtDoubleProperty(id, name, brief, unitCategory,
+                                    lowSideBoundary,
+                                    highSideBoundary, value);
+    };
+}
+
+gt::PropertyFactoryFunction
+gt::makeDoubleProperty(const QString& name, const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       GtDoubleProperty::BoundType boundType,
+                       const double boundary, const double& value)
+{
+    return [=](QString const& id){
+        return new GtDoubleProperty(id, name, brief, unitCategory,
+                                    boundType,
+                                    boundary, value);
+    };
+}
