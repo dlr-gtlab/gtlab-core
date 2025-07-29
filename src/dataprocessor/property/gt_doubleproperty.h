@@ -205,6 +205,71 @@ namespace gt
 GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeDoubleProperty(double value);
 
+/**
+ * @brief Creates a property factory for doubles with a default value and a unit
+ * @param name - name in the GUI
+ * @param brief - description for tool tip in GUI
+ * @param unitCategory - category for the GTlab unit system
+ * @param lowSideBoundary - Lower side boundary
+ * @param highSideBoundary - High side boundary
+ * @param value Default - value
+ * @return function factory for usage in container definitions
+ */
+GT_DATAMODEL_EXPORT
+    gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
+                       const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       const double& value = 0.0);
+
+/**
+ * @brief Creates a property factory for doubles with a default value, a unit
+ * and a low and high side boundary
+ * @param name - name in the GUI
+ * @param brief - description for tool tip in GUI
+ * @param unitCategory - category for the GTlab unit system
+ * @param lowSideBoundary - Lower side boundary
+ * @param highSideBoundary - High side boundary
+ * @param value Default - value
+ * @return function factory for usage in container definitions
+ */
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
+                       const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       const double lowSideBoundary,
+                       const double highSideBoundary,
+                       const double& value = 0.0);
+
+/**
+ * @brief Creates a property factory for doubles with a default value, a unit
+ * and a custom boundary
+ * @param name - name in the GUI
+ * @param brief - description for tool tip in GUI
+ * @param unitCategory - category for the GTlab unit system
+ * @param lowSideBoundary - Lower side boundary
+ * @param highSideBoundary - High side boundary
+ * @param value - Default value
+ * @return function factory for usage in container definitions
+ */
+
+/**
+ * @brief Creates a property factory for doubles with a default value, a unit
+ * and a custom boundary
+ * @param name - name in the GUI
+ * @param brief - description for tool tip in GUI
+ * @param unitCategory - category for the GTlab unit system
+ * @param boundaryType - Boundary type (low or high)
+ * @param boundary - Boundary value
+ * @param value - Default value
+ * @return
+ */
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
+                                               const QString& brief,
+                                               const GtUnit::Category& unitCategory,
+                                               GtDoubleProperty::BoundType boundType,
+                                               const double boundary,
+                                               const double& value = 0.0);
 } // namespace gt
 
 #endif // GTP_DOUBLEPARAM_H
