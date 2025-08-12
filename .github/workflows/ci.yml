@@ -92,7 +92,7 @@ jobs:
 
   build_win_qt6:
     name: "Build with qt6 on windows"
-    runs-on: windows-2019 
+    runs-on: windows-2022
     
     steps:    
     - name: Install Ninja (windows)
