@@ -11,6 +11,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased 2.1]
+
+### Highlights
+ - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts, separators or actions.
+   Also, actions can now have an on / off toggle state (i.e. toggle actions) - #1298, #1310
+ - Property Container:
+	- Container can now also be associative (key, value pairs), in addition to the list-like (sequential) behaviour before. - #1183
+    - Container can now be hidden and / or read only, like other properties. - #1180
+
 ### Added
  - New interface methods `GtPackage::readMiscData` and  `GtPackage::saveMiscData` to store package data outside of the package xml structure inside the project directory.
    Both methods have the project directory as an argument, hence workarounds like currentProject()->path() can be avoided - #617
@@ -18,8 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added color property `GtColorProperty` to store color information in data models - #1329
 
 ### Changed
- - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts, separators or actions.
-   Also, actions can now have an on / off toggle state (i.e. toggle actions) - #1298, #1310
  - The system of monitoring properties is changed and do not use the GtMonitoring class anymore.
    Now the base properties can be used with the flag setMonitoring. 
    The remaining function registermonitoringProperty includes a call of this function. - #1239

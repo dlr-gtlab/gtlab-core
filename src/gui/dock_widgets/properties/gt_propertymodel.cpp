@@ -116,8 +116,15 @@ GtPropertyModel::data(const QModelIndex& index, int role) const
     {
         if (role == Qt::DisplayRole)
         {
-            return item->data(index.column(), role).toString() +
-                    + " [" + QString::number(index.row()) + "]";
+            auto* container = m_obj->findPropertyContainer(m_containerId);
+
+            if (!container) return {};
+
+            size_t idx = index.row();
+
+            if (idx >= container->size()) return {};
+
+            return container->entryDisplayName(idx);
         }
 
         if (role == Qt::ToolTipRole)
