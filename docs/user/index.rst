@@ -14,6 +14,14 @@ Subcaption 2
 
    basics/about
 
+.. toctree::
+   :caption: Scripting
+
+   scripting/01_installation
+   scripting/02_types_of_scripting
+   scripting/03_examples
+   scripting/04_scripting-reference
+
 
 .. toctree::
    :caption: Reference
