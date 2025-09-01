@@ -4,6 +4,8 @@ Frequently Asked Questions
 General Questions
 -----------------
 
+.. _sky_blue_label:
+
 Why is the sky blue?
 ~~~~~~~~~~~~~~~~~~~~
 
