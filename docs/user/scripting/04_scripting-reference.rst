@@ -5,6 +5,9 @@ These are just some examples of how to document functions.
 
 If you like to  cross-ref a function, do it like this :py:func:`footprint` :
 
+Context XXX
+-----------
+
 .. py:function:: currentProject()
 
    Returns the current project
