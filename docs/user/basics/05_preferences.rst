@@ -78,7 +78,7 @@ Some shortcuts are limited in their effect to the windows to which they are assi
 
 Language  
 --------
-Aktuell wird neben Englisch noch keine weitere Sprache unterstützt.
+Currently, no other language is supported besides English.
 
 
 Access  
