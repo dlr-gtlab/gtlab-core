@@ -70,7 +70,7 @@ Please note that a number of the short cuts can be personalised, the greyed out 
 
 .. image:: images/Preference_Short_Cuts_dark.png
    :align: center
-   :alt: Application settings in preferences
+   :alt: Screen shot settings in preferences
    :class: only-dark
 
 The default settings can be restored using the *Restore* button.
