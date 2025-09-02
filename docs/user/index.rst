@@ -12,7 +12,13 @@ Subcaption 2
    :maxdepth: 0
    :caption: The Basics
 
-   basics/about
+   basics/01_about
+   basics/02_installation
+   basics/03_user-interface
+   basics/04_projects
+   basics/05_preferences
+   basics/06_about-page
+
 
 .. toctree::
    :caption: Scripting
@@ -22,6 +28,11 @@ Subcaption 2
    scripting/03_examples
    scripting/04_scripting-reference
 
+.. toctree::
+   :caption: Workflows
+
+   workflows/hub_spoke
+   workflows/graph-based
 
 .. toctree::
    :caption: Reference
