@@ -5,5 +5,7 @@ Graph-Based Workflows
    :maxdepth: 1
 
    graph-based/01_basics
+   graph-based/02_creating_graphs
+   graph-based/03_execution
    graph-based/04_standard_nodes
    graph-based/05_standard_data_types
