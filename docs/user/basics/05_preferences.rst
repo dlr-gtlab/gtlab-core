@@ -34,10 +34,10 @@ The welcome page is loaded when GTlab is opened.
 If Internet access is possible, the system checks whether updates are available for the framework or modules. If this is the case, this is indicated by a message in the menu bar.
 
 - *Max. logging length*  
-The logging output is limited in GTlab for reasons of efficiency. This limit can be modified here. The default value is 2000. 
+The :ref:`logging <label_section_logging>` output is limited in GTlab for reasons of efficiency. This limit can be modified here. The default value is 2000. 
 
 - *Logging verbosity*  
-There are three modes: *Silent*, *Medium* and *High*. These both define filter levels for a range of messages in logging. Details can be found here. (Link to verbosity-levels)
+There are three modes: *Silent*, *Medium* and *High*. These both define filter levels for a range of messages in logging. Details can be found :ref:`here <label_section_logging>`.
 
 - *Theme selection*	 
 There are three modes: *System selection*, *Bright* and *Dark*. GTlab is displayed in a bright or dark mode depending on the selection.
@@ -50,9 +50,7 @@ Unlike the other sessions, the currently selected session cannot be renamed or d
 
 Perspectives  
 ------------
-New perspectives can be created, renamed, duplicated or deleted in this selection window. You can also select a perspective to use it.
-A perspective in GTlab is an arrangement of windows that you want to save specifically for a use case. 
-This makes sense, for example, if a window that is otherwise rarely used has to be used frequently for a task in GTlab.
+New :ref:`perspectives <label_section_perspectives>` can be created, renamed, duplicated or deleted in this selection window. You can also select a perspective to use it.
 
 The currently selected perspective is highlighted in bold.
 Unlike the other sessions, the currently selected perspective cannot be renamed or deleted, nor can it be added to the current perspective because it already is.
@@ -115,5 +113,5 @@ The variables can be set accordingly in this menu.
 Module specific extensions  
 --------------------------
 
-Manche Module ergänzen eigene Seiten in den Preferences um spezifische Einstellungen zu ermöglichen.
-Ein Beispiel dafür ist das Python-Modul. Die Nutzung der Preferences-Einstellungen sind im Abschnitt zu Scripting weiter erläutert.
+Some modules add their own pages in the preferences to enable specific settings.
+One example of this is the Python module. The use of the preferences settings is explained further :ref:`in the section on scripting <label_chapter_scripting2>`.

@@ -23,7 +23,7 @@ where *X* refers to the supported Python version.
    If you require GTlab with a different Python version, you must **compile the module from source**.  
    See the instructions at: https://github.com/dlr-gtlab/python-module?tab=readme-ov-file#compiling-from-source
 
-
+.. _label_chapter_scripting2:
 
 Setting up a Python Environment
 -------------------------------

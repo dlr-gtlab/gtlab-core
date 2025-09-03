@@ -25,6 +25,8 @@ Viewers and Editors
 -------------------
 
 
+.. _label_section_logging:
+
 Logging
 -------
 GTlab uses a logging system which is displayed in the Output window.
@@ -133,7 +135,10 @@ Individual messages can be filtered using the search window in the lower part of
 
 Toolbars
 --------
+GTlabs toolbar uses a adaptive design to offer buttons depending on possible option based on the shown windows done actions.
 
+
+.. _label_section_perspectives:
 
 Perspectives
 ------------
