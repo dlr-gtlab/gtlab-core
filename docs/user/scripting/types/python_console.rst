@@ -1,3 +1,5 @@
+.. _label_chapter_python_console:
+
 The Python Console
 ------------------
 

@@ -4,6 +4,22 @@ User Interface
 Docks
 -----
 
+Explorer
+^^^^^^^^
+
+Properties
+^^^^^^^^^^
+
+Output
+^^^^^^
+The *Output* widget primarily holds two tabs. The *Application* tab shows the logging output in GTlab. More on this in the Logging_ section.  
+Der Tab *Python Console* emröglicht es mit der Python Instanz zu interagieren um sowohl Nachrichten aus der Python Interaktion mit GTlab zu erhalten, als auch Python Befehle in GTlab zu nutzen.
+More on this in the section :ref:`Python Console <label_chapter_python_console>`.
+
+
+Process/Calculators
+^^^^^^^^^^^^^^^^^^^
+
 
 Viewers and Editors
 -------------------
@@ -16,10 +32,10 @@ In the *Application* tab, all logging messages that are issued in the system are
 
 Each message is displayed with its category and information on the ID and time. The ID indicates which part of the programme sent the message.
 
-The messages are sorted into categories, not all of which are relevant to the user.
+The possible categories are explained below; not all of them are relevant for users of the software, but some are aimed at developers.
 
 +------------+---------------------------------+---------------------------------------------------------------------------------------------------------------------+
-| Category   | Icon                            | Description                                                                                                             |
+| Category   | Icon                            | Description                                                                                                         |
 +============+=================================+=====================================================================================================================+
 | Trace      | |trace_bright| |trace_dark|     | Only for developers: Hint for code development                                                                      |
 +------------+---------------------------------+---------------------------------------------------------------------------------------------------------------------+
