@@ -12,12 +12,12 @@ This eliminates the need for custom interfaces or converters between tools, ensu
 
 This concept can be visualized as a wheel: the hub contains the data, while the spokes represent the connected tools that interact with it.
 
-.. image:: images/Workflows_Hub_Spoke_bright.png
+.. image:: images/Workflows_Hub_Spoke_bright.svg
    :align: center
    :alt: Hub Spoke principle
    :class: only-light
    
-.. image:: images/Workflows_Hub_Spoke_dark.png
+.. image:: images/Workflows_Hub_Spoke_dark.svg
    :align: center
    :alt: Hub Spoke principle
    :class: only-dark
