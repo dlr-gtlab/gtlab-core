@@ -198,3 +198,43 @@ GTlabs toolbar uses a adaptive design to offer buttons depending on possible opt
 
 Perspectives
 ------------
+
+The dock-widget concepts allow to customize which and where the dock widgets are positioned.
+
+Depending of the current work of the user, different dock widgets are required, others aren't.
+
+Perspectives allow to save the layout of the widgets and provide an easy way to switch between different perspectives.
+
+Creating a perspective
+^^^^^^^^^^^^^^^^^^^^ 
+
+To create a new perspective in GTlab:
+
+1. Open the perspective settings via  
+   ``Window → Edit Perspectives``  
+2. Click **New** to create a perspective  
+3. (Optional) Rename the perspective  
+4. Press **Save** to confirm  
+
+.. image:: images/perspectives_bright.png
+   :align: center
+   :alt: Editing perspectives
+   :class: only-light
+
+
+.. image:: images/perspectives_bright.png
+   :align: center
+   :alt: Editing perspectives
+   :class: only-dark
+
+Toggling perspectives
+^^^^^^^^^^^^^^^^^^^^^
+
+By default, you can toggle between perspectives by pressing **ALT+P**.  
+This shortcut can be customized in the **Shortcut Settings** page.
+
+To switch directly to a specific perspective:  
+
+``Window → Show Perspective``  
+
+and choose the desired perspective from the list.  
