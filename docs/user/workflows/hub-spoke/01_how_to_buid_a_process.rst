@@ -1,17 +1,17 @@
 .. _label_section_how_to_buid_process:
 
-How to build a process
-----------------------
+How to build a workflow
+-----------------------
 
-The main window for setting up processes in the Task/Calculator structure is the :ref:`associated dock widget <label_section_processdock>`.
+The main window for setting up workflows in the Task/Calculator structure is the :ref:`associated dock widget <label_section_processdock>`.
 
-Processes that have already been created are displayed here, individual elements can be selected for editing and the processes can also be started.
+Workflows that have already been created are displayed here, individual elements can be selected for editing and the workflows can also be started.
 
 Add a new task
 ^^^^^^^^^^^^^^
 
-The *+ Add...* button can be used to add new elements for a new process or an existing process.
-If no process is selected, only the task elements can be selected as the starting point for a new process.
+The *+ Add...* button can be used to add new elements for a new workflow or an existing workflow.
+If no workflow is selected, only the task elements can be selected as the starting point for a new workflow.
 
 .. image:: ../images/workflows_how_to_task1_bright.png
    :align: center
@@ -23,9 +23,9 @@ If no process is selected, only the task elements can be selected as the startin
    :alt: Hub Spoke principle
    :class: only-dark 
 
-The option *Empty Root Task* is suggested first in the menu. This enables a new process to be started directly with a basic task element,
-which has no further coordinating function except to execute all subordinate process elements once.
-In addition, the context menu shows a series of the most recently prioritised process elements for quicker selection.
+The option *Empty Root Task* is suggested first in the menu. This enables a new workflow to be started directly with a basic task element,
+which has no further coordinating function except to execute all subordinate workflow elements once.
+In addition, the context menu shows a series of the most recently prioritised workflow elements for quicker selection.
 
 The *New Task...* button opens an editor that displays all available tasks from which you can choose.
 
@@ -46,16 +46,16 @@ The wizard is ended with *Finish* and the task appears in the overview in the wi
 Add a new calculator
 ^^^^^^^^^^^^^^^^^^^^
 
-Just like creating a new task, you can also add a calculator to a task. Calculators themselves cannot be the highest element of a process.
+Just like creating a new task, you can also add a calculator to a task. Calculators themselves cannot be the highest element of a workflow.
 If you simply want to execute a calculator, you assign it to a base task.
 Further tasks can also be arranged under tasks, e.g. to execute loops in sub-processes or similar.
 
 If a task is selected and then *+ Add* is pressed, more items now appear in the menu that appears, in particular *New Calculator...*.
 This in turn takes you to an overview of the available calculators. If an element is selected and *Next* is pressed, properties can be
-can be set and the process is ended via *Finish* and the calculator is placed under the task.
+can be set and the workflow is ended via *Finish* and the calculator is placed under the task.
 
-Start a process
-^^^^^^^^^^^^^^^
+Start a workflow
+^^^^^^^^^^^^^^^^
 
 The selected task is started via the *Run* button, the name of which is supplemented by the selected task.
 
