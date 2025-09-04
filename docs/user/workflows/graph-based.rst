@@ -37,30 +37,30 @@ Nodes
 Nodes represent a function or operation in a graph. 
 
 Each node may have multiple input and output `ports`.
-Some nodes only have outputs ports and thus act as an input to the graph.
-Wheras other nodes only have input ports and thus act as an output of the graph.
+Some nodes only have outputs ports and thus act as an input to the graph, wheras other nodes only have input ports and thus act as an output of the graph.
 
 .. image:: images/workflows_graph_nodes.png
    :align: center
    :alt: Basic Graph
    
 Each port is associated with a `datatype`. 
-Only ports with a compatible datatypes can be connected.
+Only ports with compatible datatypes can be connected.
 Some ports have a caption or a tooltip, the latter can be triggered by hovering over the port.
 
-Each datatype is associated with a color to better distiguish each type. 
+Each datatype is associated with a color to better distinguish each type. 
 Connections are colorized according to this datatype.
+
 Some datatypes -- while different -- are compatible with each other and are converted implictly by the Intelli Graph system.
-When creating a connection valid target ports are highlighted. 
+When creating a connection, only valid target nodes and their ports are highlighted. 
 Connections between different but compatible datatypes are indicated by gradient.
 
 .. image:: images/workflows_graph_datatype_conversions.png
    :align: center
    :alt: Compatible ports are highlighted when creating connections
    
-Some nodes may embed a central widget, which may either be used for the user to input values, to configure the node, or to display results and similar.
+Some nodes may embed a central widget, which may either be used for the user to input values, to configure the node, to display results, or similar.
 Besides the central widget, many nodes use the property system (``TODO: link to property system``) for configuring additional settings.
-Clicking on a node triggers the Property-Dock (``TODO: link to property dock``) to show the available properties.
+Clicking on a node triggers the Property-Dock (``TODO: link to property dock``) to show the available properties of the node.
 
 .. image:: images/workflows_graph_node_configuration.png
    :align: center
@@ -74,8 +74,9 @@ Once a node is evaluated, the data is forwarded via the output ports to the conn
 
 Following this principle, a chain of dependencies forms. Intelli Graphs use this dependency-chain to evaulate each node in the correct order.
 Hence, when evaluating a graph the nodes with no inputs are evaluated first.
+The nodes "downstream" are then evaluated as they become ready.
 
-It should be noted, that for most nodes not all input ports must be connected.
+It should be noted that for most nodes not all input ports have to be connected.
 Further, a node is still evaluated even if none of the output ports are connected.
 
 Nodes, that are not dependent on each other are evaluated in parallel by the Intelli Graph system.
