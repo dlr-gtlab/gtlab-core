@@ -1,10 +1,15 @@
 Hub-Spoke Workflows
 ===================
 
-The principle behind the hub-spoke workflow architecture is that a central instance coordinates and manages the data flow of the process chain.
-Starting from this central instance, individual sub-workflows are supplied with the latest data relevant to them and then pass their results back to the central instance.
 
-This gives rise to the image of a wheel with a hub and spokes.
+GTlab’s data processing is based on a **hub–spoke architecture**.  
+
+- The **hub** represents the central data repository, where all project data is stored and managed.  
+- The **spokes** are the individual tools that read, analyze, and process this data.  
+
+Because all tools access the same central data model, they **“speak the same language.”** This eliminates the need for custom interfaces or converters between tools, ensuring consistent, reliable, and efficient data exchange.
+
+This concept can be visualized as a wheel: the hub contains the data, while the spokes represent the connected tools that interact with it.
 
 .. image:: images/Workflows_Hub_Spoke_bright.png
    :align: center
@@ -23,14 +28,28 @@ This gives rise to the image of a wheel with a hub and spokes.
    hub-spoke/02_tasks_calculators
    hub-spoke/03_connection_editor
    hub-spoke/04_process_queu
-      
-In this architecture, the individual :ref:`workflow elements <label_chapter_workflow_elements>` are arranged hierarchically, 
-whereby the higher-level elements are called :ref:`Tasks <label_section_tasks>` and take over the process coordination and the lower-level elements 
-are :ref:`Calculators <label_section_calculators>` that take over the actual simulations, modifications, etc. 
 
-Data communication takes place throughout the workflow on a temporary copy of the data model, which acts as the central information point of the workflow and is modified by the individual process elements.
-workflow and is modified by the individual process elements.
-If individual workflow-related parameters are also to be passed on, this can be done using the :ref:`Connection Editor <label_section_connection_editor>`.
-As an example, reference can again be made here to the loop in which, for example, the respective iteration step can be communicated to the workflows via the editor.
-   
-The following is intended to illustrate :ref:`how to build a workflow <label_section_how_to_buid_process>`.
+In a hub–spoke workflow, all process elements act on the **project data**, potentially modifying it one after another.
+
+Hierarchy of Workflow Elements
+------------------------------
+
+Within this architecture, workflow elements are organized hierarchically:
+
+- :ref:`label_section_tasks`: Higher-level elements that coordinate the process flow.  
+  Typical examples include **loops**, **optimizers**, and **design of experiments (DOEs)**.  
+
+- :ref:`label_section_calculators`: Lower-level elements that perform the actual **simulations**, **data modifications**, or other **computations**.
+  
+Data Handling
+-------------
+
+During workflow execution, data communication takes place on a **temporary copy of the project data**, which acts as the central information point.  
+Each process element modifies this temporary copy as the workflow progresses.
+
+If the workflow completes successfully, the temporary modifications are then **applied back to the project data**.
+
+If additional workflow-related parameters need to be exchanged between different calculators, this can be achieved via the :ref:`Connection Editor <label_section_connection_editor>`.  
+For example, in a looped workflow, the iteration step can be passed on to subsequent elements using this editor.
+
+The following section illustrates :ref:`how to build a workflow <label_section_how_to_buid_process>`.
