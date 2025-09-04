@@ -17,6 +17,8 @@ Der Tab *Python Console* emröglicht es mit der Python Instanz zu interagieren u
 More on this in the section :ref:`Python Console <label_chapter_python_console>`.
 
 
+.. _label_section_processdock:
+
 Process/Calculators
 ^^^^^^^^^^^^^^^^^^^
 
