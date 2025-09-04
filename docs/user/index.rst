@@ -19,6 +19,17 @@ Subcaption 2
    basics/05_preferences
    basics/06_about-page
 
+.. toctree::
+   :caption: Workflows
+
+   workflows/hub_spoke
+   workflows/graph-based
+
+.. toctree::
+   :caption: Collaboration
+
+   collaboration/shared_data
+
 
 .. toctree::
    :caption: Scripting
@@ -29,10 +40,9 @@ Subcaption 2
    scripting/04_scripting-reference
 
 .. toctree::
-   :caption: Workflows
+   :caption: Headless Execution
 
-   workflows/hub_spoke
-   workflows/graph-based
+   headless/01_overview.rst
 
 .. toctree::
    :caption: Reference
