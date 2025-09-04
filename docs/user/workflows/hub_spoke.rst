@@ -7,7 +7,8 @@ GTlab’s data processing is based on a **hub–spoke architecture**.
 - The **hub** represents the central data repository, where all project data is stored and managed.  
 - The **spokes** are the individual tools that read, analyze, and process this data.  
 
-Because all tools access the same central data model, they **“speak the same language.”** This eliminates the need for custom interfaces or converters between tools, ensuring consistent, reliable, and efficient data exchange.
+Because all tools access the same project data and data models, they **“speak the same language.”** 
+This eliminates the need for custom interfaces or converters between tools, ensuring consistent, reliable, and efficient data exchange.
 
 This concept can be visualized as a wheel: the hub contains the data, while the spokes represent the connected tools that interact with it.
 
