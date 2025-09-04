@@ -1,12 +1,12 @@
 User Interface
 ==============
 
-.. image:: images/user-interface_annotated_bright.png
+.. image:: images/GTlab-User-Interface.svg
    :align: center
    :alt: The GTlab User Interface with its different components
    :class: only-light
 
-.. image:: images/user-interface_annotated_dark.png
+.. image:: images/GTlab-User-Interface_dark.svg
    :align: center
    :alt: The GTlab User Interface with its different components
    :class: only-dark
