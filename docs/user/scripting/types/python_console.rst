@@ -10,7 +10,6 @@ The main features of the Python console include:
 - Opening projects
 - Navigating project and process data
 - Modifying project data
-- Executing tasks
 
 In addition, the Python console enables direct interaction with the selected Python environment, making it possible, for example, to import Python modules or extend the ``sys.path`` list.
 
@@ -33,7 +32,7 @@ The auto-completion feature assists with writing Python code and includes all ob
 
 Console content can be cleared by clicking the |clear| button in the lower-right corner.
 
-.. image:: ../static/images/python_console.gif
+.. image:: images/python_console.gif
    :alt: Demo of the Python console
    :width: 400px
 
@@ -60,5 +59,5 @@ The project object returned by :py:func:`currentProject` provides access to the 
 Any object from the data tree can be stored in a variable, which creates a direct reference to the object.
 Accessing these objects allows reading or modifying their property values.
 
-.. image:: ../static/images/python_console_data_management.gif
+.. image:: images/python_console_data_management.gif
    :alt: Demo of managing project data via Python console
