@@ -3,15 +3,18 @@
 Workflow Elements
 =================
 
-The central building blocks of the workflows are Calculators_ and Tasks_.
+The central building blocks of GTlab workflows are **Calculators** and **Tasks**.
 
-Calculators represent individual workflow steps, while tasks are intended for workflow coordination,
-A simple example of this is a loop task, which coordinates the repeated execution of individual processes.
-Like the data model, the workflows are generally arranged hierarchically.
-This means that the process elements (calculators) are arranged below the coordinating task.
+- **Calculators** represent individual workflow steps, such as the execution of a single tool or a data transformation.  
+- **Tasks** are higher-level elements responsible for workflow coordination.  
+  A common example is a *Loop Task*, which manages the repeated execution of one or more calculators.  
 
-Calculators and tasks are provided in particular by modules.
-For this reason, only a few elements are available in GTlab without or with only the basic modules.
+Workflows are generally arranged **hierarchically**, similar to the data model.  
+In this hierarchy, calculators operate under the coordination of tasks.
+
+Both calculators and tasks are primarily provided by GTlab modules.  
+Therefore, only a limited set of elements is available in a bare GTlab installation without additional modules.
+
 
 Context menu
 ------------
@@ -19,47 +22,46 @@ Both calculators and tasks have a context menu that can be opened by right-click
 
 It is explained for all entries whether they are valid for both types or only for one.
 
-*Run Task* (tasks only)
-  Starts the selected task
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
 
-*Config*
-  Opens the configuration wizard of the workflow element. 
-  This can be an overview of the properties, but also a comprehensive user interface for complex elements
-
-*Connection Editor*
-  Opens the :ref:`connection editor <label_section_connection_editor>`.
-  
-*Add* (tasks only)
-  Menu to add a subelement to the current task.  
-  
-*Skip*
-  Sets the current element to *skip*. The element will not be executed and skipped in a workflow execution.
-
-*Import* (tasks only)
-  Import of a .xml-file of a workflow to be added as a sub-workflow. 
-
-*Export* 
-  Export of an element (and its child elements) to a .xml-file. This later can be imported to an existing task.
-
-*Rename*
-  Enables to rename the currently seleceted element
-  
-*Clone*   
-  Generates a copy of the currently selected process element.	
-
-*Cut*
-  Copy the currently seleceted element to clipboard and remove it.
-
-*Copy*
-  Copy the currently selected element to clipboard.
-
-*Delete*
-  Removes the currenlty selected element.
+   * - Action
+     - Description
+   * - **Run Task** *(tasks only)*
+     - Starts the selected task.
+   * - **Config**
+     - Opens the configuration wizard of the workflow element.  
+       Depending on the element, this may be a simple property overview or a comprehensive user interface.
+   * - **Connection Editor**
+     - Opens the :ref:`connection editor <label_section_connection_editor>`.
+   * - **Add** *(tasks only)*
+     - Adds a subelement to the current task.
+   * - **Skip**
+     - Marks the current element to be skipped during workflow execution.
+   * - **Import** *(tasks only)*
+     - Imports a ``.xml`` file as a sub-workflow into the current task.
+   * - **Export**
+     - Exports an element (and its child elements) to a ``.xml`` file, which can later be imported into another task.
+   * - **Rename**
+     - Renames the currently selected element.
+   * - **Clone**
+     - Creates a copy of the currently selected element.
+   * - **Cut**
+     - Copies the selected element to the clipboard and removes it.
+   * - **Copy**
+     - Copies the selected element to the clipboard.
+   * - **Delete**
+     - Removes the currently selected element.
 
 .. _label_section_calculators:
 
-Calculators
------------
+
+Default Calculators
+-------------------
+
+Without any additional modules installed, the GTlab core framework already provides a set of **default calculators**.  
+These serve as the foundation for building workflows and can be used directly out of the box:
 
 Export Object to Memento
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -73,8 +75,10 @@ This calculator is described in more detail in the section on python integration
 
 .. _label_section_tasks:
 
-Tasks
------
+Default Tasks
+-------------
+
+The following tasks are provided with the core installation of GTlab.
 
 Loop
 ^^^^
