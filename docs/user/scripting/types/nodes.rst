@@ -1,5 +1,5 @@
 Nodes
-~~~~~
+^^^^^
 
 .. image:: images/Nodes-Example.png
   :align: center
@@ -19,7 +19,7 @@ The script that is called when the node is executed can be edited by clicking th
   :alt: Python Node Editor
 
 Input and output variables
-"""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""
 Corresponding ports can be created to make parameters available to a Python node within the graph system or to pass them on.
 
 .. image:: images/Python_Node_Context_Menu.png
@@ -60,33 +60,3 @@ Plotting with Matplotlib
 The Python interface in the Python nodes allows direct access to a Matplotlib backend. 
 If a Matplotlib plot is defined in a Python script of a node, a call to the function *plt.show()* is sufficient to generate the plot and store it in the system. 
 If the property *Plot enabled* is true in the properties of the node, the plot is displayed directly on the node.
-
-
-FAQ
-^^^
-
-Why can I not see my plot in the node?
-""""""""""""""""""""""""""""""""""""""
-To display a plot in the node, there are a few things to consider:
- - The script in the Python node has an interface for matplotlib. Only plots created with it can be displayed. The scripts must end with the show() function of the plot object.
- - The node has a "Plot enabled" property. This must be set to true.
- - The plot can only be displayed if the node has a certain size. If in doubt, you can check this by dragging the node larger (in the bottom right-hand corner of the node).
-
-.. image:: images/PythonNodes_FAQ1.png
-  :align: center
-  :alt: Plotting with nodes
- 
-How are python objects exchanged between the nodes?
-"""""""""""""""""""""""""""""""""""""""""""""""""""
-Connections of the nodes' ports can be used for data exchange between the nodes. Only ports of the same type can be connected to each other.
-The Python node can process all available types on the input side.
-Many provided data types have a value() function or similar to make the data of the connection accessible in the Python script. This is also demonstrated in the attached examples.
-A few generic data types are enabled on the output side. 
-However, the intelli::ByteArrayData data type can be used to pass Python objects directly. 
-In this case, the Python functionality "pickl" is used. This method is therefore restricted to data that [is pickl-capable.](https://docs.python.org/3/library/pickle.html#what-can-be-pickled-and-unpickled)
-
-How to access the ports in the script?
-""""""""""""""""""""""""""""""""""""""
-The data that is transmitted via the connections or ports can be called up in the script via their "Caption". This is set as a property in the corresponding window. 
-This data object itself is not yet the value. This is usually obtained via a value() function or similar functions that can be implemented for the more specific data types.
-Output parameters can also be used directly and also have the caption set in the property system as the name in the script  

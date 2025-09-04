@@ -8,6 +8,7 @@ sfd
 .. include:: types/workflow_engine.rst
 .. include:: types/nodes.rst
 .. include:: types/batch.rst
+.. include:: types/faq.rst
 
 
 

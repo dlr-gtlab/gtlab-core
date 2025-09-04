@@ -2,7 +2,7 @@ Scripting of workflows
 ----------------------
 
 Calculators
-~~~~~~~~~~~
+^^^^^^^^^^^
 
 The Python Script Calculator can be integrated into a process chain like any other calculator. 
 Unlike other calculators with fixed, predefined behavior (e.g., specific computations or other operations), the Python Script Calculator is flexible in its behavior: it runs a user-defined Python script. 
@@ -33,6 +33,6 @@ During execution within a process chain, output messages appear in the :ref:`pyt
 
 
 Tasks
-~~~~~
+^^^^^
 
 
