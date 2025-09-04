@@ -3,7 +3,7 @@
 The Python Console
 ------------------
 
-GTlab provides an integrated Python console that allows you to control GTlab and directly manage project data using Python code.
+GTlab provides an integrated Python console that allows controlling GTlab and directly managing project data using Python code.  
 The main features of the Python console include:
 
 - Switching between sessions
@@ -18,20 +18,20 @@ The Python console is located in the Output dock widget (``Window → Dock Widge
 
 
 Usage
-~~~~~
+^^^^^
 
-The console displays the prompt ``GTlab>``, which is ready to accept Python code input.
-Pressing ``Enter`` executes the code. ``print()`` outputs, return values and error messages appear directly below the input.
-By using the shortcut ``Shift+Enter``, you can also enter multi-line Python code, for example to define functions.
+The console displays the prompt ``GTlab>``, which is ready to accept Python code input.  
+Pressing ``Enter`` executes the code. ``print()`` outputs, return values, and error messages appear directly below the input.  
+Using the shortcut ``Shift+Enter`` also allows entering multi-line Python code, for example to define functions.
 
-The auto-completion feature assists with writing Python code and includes all objects, functions, classes and modules available in the Python environment.
+The auto-completion feature assists with writing Python code and includes all objects, functions, classes, and modules available in the Python environment.
 
 .. |clear| image:: ../static/icons/clear.svg
    :alt: clear
    :height: 16px
    :width: 16px
 
-You can clear the console content by clicking the |clear| button in the lower-right corner.
+Console content can be cleared by clicking the |clear| button in the lower-right corner.
 
 .. image:: ../static/images/python_console.gif
    :alt: Demo of the Python console
@@ -39,10 +39,10 @@ You can clear the console content by clicking the |clear| button in the lower-ri
 
 
 Controlling GTlab
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
-The Python console allows you to directly call core functions of GTlab.
-This includes switching between sessions, opening projects and accessing the currently opened project.
+The Python console allows direct calling of core GTlab functions.  
+This includes switching between sessions, opening projects, and accessing the currently opened project.
 
 .. code-block:: python
 
@@ -53,3 +53,12 @@ This includes switching between sessions, opening projects and accessing the cur
     'my project'
 
 
+Managing Project Data
+^^^^^^^^^^^^^^^^^^^^^
+
+The project object returned by :py:func:`currentProject` provides access to the objects within the hierarchical data tree of the project. 
+Any object from the data tree can be stored in a variable, which creates a direct reference to the object.
+Accessing these objects allows reading or modifying their property values.
+
+.. image:: ../static/images/python_console_data_management.gif
+   :alt: Demo of managing project data via Python console
