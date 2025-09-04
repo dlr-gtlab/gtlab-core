@@ -109,6 +109,26 @@ Context XXX
         :type id: str
         :param value: The value to set.
 
+   .. py:method:: getPropertyContainerSize(id: str) -> int
+
+        Returns the size of the property container given by `id`.
+
+        :returns: The size of the container, -1 if *id* is invalid.
+
+   .. py:method:: getPropertyContainerVal (containerId: str, index: int, memberId: str)
+
+        Returns the member of the index-th entry in the container, i.e.
+        something like ``container[index].memberId`` .
+
+        :example: Accessing the *value* member in the 2. entry of the container *input_args*:
+            ``getPropertyContainerVal('input_args', 2, 'value')``
+
+        :param containerId: The identifier of the container.
+        :param index: The index of the entry in the container.
+        :param memberId: The id of the member to returns.
+        :returns: The value in the container entry. Returns None, if not found.
+
+
    .. py:method:: uuid(): str
 
         Returns the UUID of the object.
