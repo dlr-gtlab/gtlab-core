@@ -1,7 +1,7 @@
 .. _label_section_how_to_buid_process:
 
-How to build a workflow
------------------------
+Creating a workflow
+-------------------
 
 The main window for setting up workflows in the Task/Calculator structure is the :ref:`associated dock widget <label_section_processdock>`.
 

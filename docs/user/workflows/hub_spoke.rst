@@ -25,7 +25,7 @@ This concept can be visualized as a wheel: the hub contains the data, while the 
 .. toctree::
    :hidden:
 
-   hub-spoke/01_how_to_buid_a_process
+   hub-spoke/01_creating_a_workflow
    hub-spoke/02_tasks_calculators
    hub-spoke/03_connection_editor
    hub-spoke/04_process_queu
