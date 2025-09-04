@@ -14,14 +14,39 @@ User Interface
 Docks
 -----
 
-Explorer
-^^^^^^^^
+GTlab uses the **dock widgets** concept to organize its interface. Dock widgets are secondary windows that can be arranged around the central GTlab workspace.
 
-Properties
-^^^^^^^^^^
+Managing Dock Widgets
+^^^^^^^^^^^^^^^^^^^^^
 
-Output
-^^^^^^
+Dock widgets can be:
+
+- Moved within their current area  
+- Repositioned into a new dock area  
+- Detached (floating) anywhere on the screen  
+
+Each dock widget consists of:
+
+- A **title bar**  
+- A **content area**  
+
+You can reposition or undock a widget by dragging its title bar to a new location. To close a widget, click the **X** button on its title bar.
+
+Restoring Hidden Dock Widgets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If a dock widget has been hidden, you can restore it via:
+
+``Window → Dock Widgets``
+
+Project Explorer
+----------------
+
+Property Dock
+-------------
+
+Output Dock
+-----------
 The *Output* widget primarily holds two tabs. The *Application* tab shows the logging output in GTlab. More on this in the Logging_ section.  
 Der Tab *Python Console* emröglicht es mit der Python Instanz zu interagieren um sowohl Nachrichten aus der Python Interaktion mit GTlab zu erhalten, als auch Python Befehle in GTlab zu nutzen.
 More on this in the section :ref:`Python Console <label_chapter_python_console>`.
@@ -33,9 +58,28 @@ Process/Calculators
 ^^^^^^^^^^^^^^^^^^^
 
 
-Viewers and Editors
--------------------
+Editor Area
+-----------
 
+The **Editor Area** is GTlab’s main working space and displays all open editors.
+
+Managing Editors
+^^^^^^^^^^^^^^^^
+
+In the default mode, you can switch between open editors using tabs.  
+Many editors also provide a **printing function**, accessible from their toolbar.
+
+Available Editors
+^^^^^^^^^^^^^^^^
+
+Depending on the installed modules and selected objects, GTlab offers different types of editors and viewers, for example:
+
+- A graph-based workflow editor (from the **GTlab IntelliGraph Module**)  
+- An editor for modeling aircraft engine performance  
+- A 2D sketching editor  
+- A 3D geometry viewer  
+- An editor for displaying tabular data  
+- …  
 
 .. _label_section_logging:
 
