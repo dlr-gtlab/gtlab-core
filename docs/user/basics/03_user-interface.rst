@@ -1,6 +1,16 @@
 User Interface
 ==============
 
+.. image:: images/user-interface_annotated_bright.png
+   :align: center
+   :alt: The GTlab User Interface with its different components
+   :class: only-light
+
+.. image:: images/user-interface_annotated_dark.png
+   :align: center
+   :alt: The GTlab User Interface with its different components
+   :class: only-dark
+
 Docks
 -----
 
