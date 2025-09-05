@@ -6,7 +6,7 @@ The gtlab process management is based on two types of process elements: tasks an
 Calculators
 -----------
 
-Calculators are the basic process elements for teh execution of tools, data model modifications ...
+Calculators are the basic process elements for the execution of tools, data model modifications ...
 
 The main function is :cpp:func:`bool run()`. This is executed in the process evaluation and returns a bool value to indicate the success of the run.
 A definition of a calculator always needs the Q_OBJECT in the definition and constructor using the Q_INVOKABLE macro.
