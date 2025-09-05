@@ -153,6 +153,10 @@ Context XXX
         :param id: The property id to search for.
         :type id: str
 
+   .. py:method:: findGtProperties() -> list[GtAbstractProperty]
+
+        Returns all properties of the object.
+
    .. py:method:: propertyValue(id: str)
 
         Returns the value of the property with given ``id``.
@@ -192,6 +196,20 @@ Context XXX
         :returns: The value in the container entry. Returns None, if not found.
 
 
+   .. py:method:: setPropertyContainerVal (containerId: str, index: int, memberId: str, value)
+
+        Sets the member of the index-th entry in the container, i.e.
+        something like ``container[index].memberId = value`` .
+
+        :example: Set the *name* member in the 2. entry of the container *input_args* to "myname":
+            ``setPropertyContainerVal('input_args', 2, 'name', 'myname')``
+
+        :param containerId: The identifier of the container.
+        :param index: The index of the entry in the container.
+        :param memberId: The id of the member to set.
+        :param value: The value to set.
+        :returns: True on success, otherwise False.
+
    .. py:method:: uuid(): str
 
         Returns the UUID of the object.
@@ -204,8 +222,64 @@ Context XXX
 
 
 
+.. py:class:: GtAbstractProperty
+
+    Base class for all properties of GTlab objects.
+    Properties are attributes of objects havaing a value.
+    Properties can be hierarchical, i.e. they can be nested
+    and thus contain child properties.
+
+   .. py:method:: findGtProperties() - >list[GtAbstractProperty]
+
+        Returns all child / sub properties of the property.
+
+   .. py:method:: findGtProperty(id: str) -> GtAbstractProperty
+
+        Returns the child property matching id. Returns ``None``, if not found.
+
+        :note: The actual id might differ from the displayed property name!
+
+        :param id: The property id to search for.
+        :type id: str
 
 
+   .. py:method:: propertyValue(id: str)
+
+        Returns the value of the sub-property with given ``id``.
+
+        :raises: ``RuntimeError``, if the property does not exist.
+
+        :param id: The property id to search for.
+        :type id: str
+
+        :returns: The value of the property. The return type depends on the property.
+
+   .. py:method:: setPropertyValue(id: str, value)
+
+        Sets the value of the sub-property with given ``id``.
+
+        :raises: ``RuntimeError``, if the property does not exist.
+
+        :param id: The property id to search for.
+        :type id: str
+        :param value: The value to set.
+
+   .. py:method:: isActive() -> bool
+
+       Returns, whether the property is active.
+
+   .. py:method:: setActive(val: bool)
+
+       Sets the property active / inactive.
+
+   .. py:method:: isOptional() -> bool
+
+       Returns, whether the property is optional.
+
+   .. py:method:: setOptional(val: bool)
+
+       Sets the property optional / required.
+    
 
 .. py:class:: GtProject(GtObject)
 
