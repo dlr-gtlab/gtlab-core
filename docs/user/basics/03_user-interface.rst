@@ -48,14 +48,20 @@ Property Dock
 Output Dock
 -----------
 The *Output* widget primarily holds two tabs. The *Application* tab shows the logging output in GTlab. More on this in the Logging_ section.  
-Der Tab *Python Console* emröglicht es mit der Python Instanz zu interagieren um sowohl Nachrichten aus der Python Interaktion mit GTlab zu erhalten, als auch Python Befehle in GTlab zu nutzen.
+The *Python Console* tab allows you to interact with the Python instance to receive messages from the Python interaction with GTlab as well as to use Python commands in GTlab.
 More on this in the section :ref:`Python Console <label_chapter_python_console>`.
-
 
 .. _label_section_processdock:
 
 Process/Calculators
 ^^^^^^^^^^^^^^^^^^^
+The *Process/Calculators* widget is for the coordination of workflows (of the :ref:`hub-spoke architecture <label_hub_spoke>`).
+
+Instructions for creating and starting new workflows can be found :ref:`here <label_section_how_to_buid_process>`.
+
+Workflows are grouped user-specifically in GTlab.
+The workflow grouping currently displayed can be changed using the drop-down menu at the top of the window.
+
 
 
 Editor Area
