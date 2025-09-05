@@ -1,11 +1,13 @@
 Calculators
 ^^^^^^^^^^^
 
-The Python Script Calculator can be integrated into a workflow like any other calculator. 
-Unlike other calculators with fixed, predefined behavior (e.g., specific computations or other operations), the Python Script Calculator is flexible in its behavior: it runs a user-defined Python script. 
+A calculator, in general, is a workflow element that performs a specific, predefined operation, such as a mathematical computation or a transformation of data.
+The Python Script Calculator extends this concept by providing a flexible calculator whose behavior is not fixed. Instead, it executes a user-defined Python script.
 
-New calculation methods can thus be integrated into workflows during GTlab runtime.  
-This makes the Python Script Calculator particularly useful for prototyping new calculators and quickly testing alternative calculation methods.
+This makes the Python Script Calculator particularly useful for prototyping new calculation methods, experimenting with alternative approaches, or integrating custom logic directly at runtime.
+
+Within the script, all data model packages of the current project are accessible by their package name.
+This allows reading and modifying the data objects’ properties and using them directly in custom calculations.
 
 The Python Script Calculator provides a configuration dialog with an integrated script editor, where the Python script executed by the calculator can be created, edited, and tested.
 
@@ -20,11 +22,9 @@ The Python Script Calculator provides a configuration dialog with an integrated 
    :class: only-dark
 
 
-Through this editor, all data model packages of the current project can be accessed by entering their name in the script, allowing reading and modification of data object properties.
-
 To check the script for errors, it can be evaluated using ``Ctrl+E``. Evaluation also registers any newly defined variables, classes, or functions, making them available through the editor's auto-completion.  
-Output messages resulting from the evaluation are displayed directly below the editor in the output console.
+Output messages from evaluation are displayed directly below the editor in the output console
 
-Note that changes made during evaluation are not immediately applied to the data model. Modifications are only transferred when the Python Script Calculator is executed as part of a workflow.
+It is important to note that changes made during evaluation are not applied to the data model immediately. They only take effect when the Python Script Calculator is executed as part of a workflow.
 
-During execution within a workflow, output messages appear in the :ref:`Python Console <label_python_console>`.
+During execution as part of a workflow, output messages appear in the :ref:`Python Console <label_python_console>`.
