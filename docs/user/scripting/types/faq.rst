@@ -18,6 +18,17 @@ This can be done by importing the ``sys`` module and appending the desired path 
 Once the path has been added, scripts located in that directory can be imported and used as regular Python modules.
 
 
+What is the difference between the the Python Script Calculator and the Python Task?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Python Script Calculator is a single calculator element that executes a user-defined Python script.
+It is primarily used for prototyping new calculation methods or testing alternative approaches within a workflow.
+
+The Python Task, on the other hand, is a workflow element that controls the execution of child tasks and calculators.
+It allows building flexible and dynamic workflows by defining the workflow logic directly in Python, including loops,
+conditions, and calculations, which can dynamically determine the order and repetition of its child elements.
+
+
 Why can I not see my plot in the node?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

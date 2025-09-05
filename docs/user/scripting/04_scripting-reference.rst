@@ -5,8 +5,71 @@ These are just some examples of how to document functions.
 
 If you like to  cross-ref a function, do it like this :py:func:`footprint` :
 
+
+GtLogging
+---------
+
+GtLogging is a Python module that provides access to GTlab’s integrated logging system.
+It allows logging messages directly from Python scripts and displays them in the Application Console as well as in the Python Console.
+
+Compared to using plain print() statements, GtLogging messages are automatically categorized by log level and integrated into GTlab’s logging infrastructure.
+For more information on the different log levels, see the :ref:`logging <label_section_logging>` section.
+
+The module provides the following functions:
+
+.. py:function:: gtDebug(msg: str)
+
+   Logs a debug-level message.
+
+   :param msg: The message to log.
+   :type msg: str
+
+.. py:function:: gtInfo(msg: str)
+
+   Logs an info-level message.
+
+   :param msg: The message to log.
+   :type msg: str
+
+.. py:function:: gtWarning(msg: str)
+
+   Logs a warning-level message.
+
+   :param msg: The message to log.
+   :type msg: str
+
+.. py:function:: gtError(msg: str)
+
+   Logs an error-level message.
+
+   :param msg: The message to log.
+   :type msg: str
+
+.. py:function:: gtFatal(msg: str)
+
+   Logs a fatal-level message.
+
+   :param msg: The message to log.
+   :type msg: str
+
+
 Context XXX
 -----------
+
+.. py:function:: switchSession(name: str)
+
+   Switches to the session named ``name``.
+
+   :param name: The name of the session to switch to.
+   :type name: str
+
+.. py:function:: openProject(name: str) -> GtProject
+
+   Opens the project named ``name`` and returns it.
+
+   :param name: The name of the project to be opened.
+   :type name: str
+   :returns: The opened project.
 
 .. py:function:: currentProject() -> GtProject
 

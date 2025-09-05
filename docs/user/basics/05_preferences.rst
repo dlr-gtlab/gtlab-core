@@ -1,3 +1,5 @@
+.. _label_chapter_preferences:
+
 Preferences
 ===========
 
@@ -44,7 +46,7 @@ There are three modes: *System selection*, *Bright* and *Dark*. GTlab is display
 
 Session  
 -------
-New sessions can be created, renamed, duplicated or deleted in this selection window. You can also select a session to use it.
+New :ref:`sessions <label_section_sessions>` can be created, renamed, duplicated or deleted in this selection window. You can also select a session to use it.
 The currently selected session is highlighted in bold.
 Unlike the other sessions, the currently selected session cannot be renamed or deleted, nor can it be added to the current session because it already is.
 

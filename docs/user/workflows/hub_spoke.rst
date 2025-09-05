@@ -1,3 +1,5 @@
+.. _label_hub_spoke:
+
 Hub-Spoke Workflows
 ===================
 
