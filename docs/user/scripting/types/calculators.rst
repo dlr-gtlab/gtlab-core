@@ -4,10 +4,10 @@ Calculators
 A calculator, in general, is a workflow element that performs a specific, predefined operation, such as a mathematical computation or a transformation of data.
 The Python Script Calculator extends this concept by providing a flexible calculator whose behavior is not fixed. Instead, it executes a user-defined Python script.
 
-This makes the Python Script Calculator particularly useful for prototyping new calculation methods, experimenting with alternative approaches, or integrating custom logic directly at runtime.
-
 Within the script, all data model packages of the current project are accessible by their package name.
 This allows reading and modifying the data objects’ properties and using them directly in custom calculations.
+
+This makes the Python Script Calculator particularly useful for prototyping new calculation methods, experimenting with alternative approaches, or integrating custom logic directly at runtime.
 
 The Python Script Calculator provides a configuration dialog with an integrated script editor, where the Python script executed by the calculator can be created, edited, and tested.
 
