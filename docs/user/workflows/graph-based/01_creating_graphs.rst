@@ -30,7 +30,7 @@ Enter the name of the category and confirm.
    :alt: Adding a new category to the package
 
 .. note::
-   Graph objects on the same level cannot be named the same. The object names should update automatically to create unqiue names.
+   Category objects on the same level cannot be named the same. The object names should update automatically to create unqiue names.
    
 To create a new graph, right-click the desired category and select *Add Graph*.
 Enter the name of the graph and confirm.
@@ -75,14 +75,16 @@ For example, the *Project Info* node allows to access the name and directory of 
    :align: center
    :alt: Scene Menu displaying all available nodes
 
-We can use this node in combination with a *File Input* and *String Input* node to open a file relative to the current project.
+We can use this node in combination with a *File Input* and *String Input* node to open a file relative to the current project. In this example, a file was explicity added to the project directory named *readme.txt*. 
 
 .. image:: ../images/workflows_graph_how_to_add_nodes_2.png
    :align: center
    :alt: Adding a String Input and File Input node
-   
-In this example, a file was explicity added to the project directory named *readme.txt*. 
-After connecting the String Input and Project Info nodes to the File Input node, a file handle is created that can be used for further processing.
+
+To connect nodes, hover over a port, left-click, drag, and drop the connection on a target port of another node.
+Compatible/valid target ports are highlighted automatically and the cursor snaps to the nearest port to highlight, which port will be connected.
+
+After connecting the String Input and Project Info nodes to the File Input node accordingly, a file handle is created that can be used for further processing by other nodes.
 
 .. image:: ../images/workflows_graph_how_to_add_nodes_3.png
    :align: center
@@ -95,23 +97,42 @@ To display the content, the *Text Display* node may be used -- thus completing t
    :align: center
    :alt: Adding a File Reader and Text Display node, finalizing the example
 
-Organizing graphs
-"""""""""""""""""
-
-Subgraphs
-^^^^^^^^^
-
-Grouping Nodes into Subgraphs
-=============================
-
-Navigating Graph Hierarchy
-==========================
-
-Input and Output Providers
-==========================
-
-Expanding Subgraphs
-===================
-
 Comments
 ^^^^^^^^
+
+Besides nodes, comments can be added to a graph via the Scene Menu's entry *Add Comment*.
+
+Comments support markdown syntax and can be resized freely. 
+They are intended to be used soely as way to documenting a graph for yourself or other people.
+
+Comments can either be standalone "floating" in a scene or they can be connected to one or multiple nodes.
+To associate a comment to antoher node right-click the comment and select *Connect to...*. Click on the desired node.
+A dotted line indicates that the connection succeeded.
+
+Further, comments can be collapsed to take up less space.
+To collapse a comment, right-click the node and select *Collapse selected objects*.
+If a comment is linked to a single node, it will dock onto the node until its uncollapsed.
+
+Subgraphs
+"""""""""
+
+Multiple nodes can be grouped into a so-called *subgraph*, allowing the user to organize a graph and reduce its visual complexity.
+
+To group nodes, right-click on a selection of nodes and select *Group selected Nodes* in the context menu.
+Enter a name for the subgraph and confirm.
+
+The selection will be replaced by a single node, the subgraph node.
+This node is slightly tinted and contains an icon in the top-right corner of the node indicating it as a subgraph node.
+
+The subgraph can be opened by double-clicking the node or right-clicking and selecting *Open*.
+The subgraph is opened in the same Graph viewer but in a different Graph Scene on a nested level.
+
+To navigate to the parent scene, find the *Scene Hierarchy* in the menu bar in the top-left of the Graph View.
+This widget displayes the current level and allows the user to navigate to any intermediate level by click the desired (sub)graph name.
+
+After grouping the selection of nodes and opening the subgraph, one can find that the selected nodes have been moved to this level and connected as expected.
+Each subgraph has two special types of nodes, an input and output provider node.
+Using the context menu of these nodes new inputs and outputs to the graph can be added.
+
+A subgraph can also be expanded/resolved.
+Right-click the subgraph and select *Expand Subgraph*. 

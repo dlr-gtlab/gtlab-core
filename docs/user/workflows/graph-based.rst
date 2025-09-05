@@ -3,7 +3,7 @@ Graph-Based Workflows
 
 The graph-based process architecutre operates on the **functional programming** paradigm:
 
-Instead of modifying a central states, small functional blocks -- here called `nodes` -- operate on a set of inputs and yield a set of outputs. 
+Instead of modifying a central state, small functional blocks -- here called `nodes` -- operate on a set of inputs and yield a set of outputs. 
 Nodes are interconnected using `connections`, where the outputs of a node are connected to inputs of other nodes.
 
 The resulting datastructure is a so-called **directed acyclic graph**: 
@@ -74,7 +74,7 @@ Once a node is evaluated, the data is forwarded via the output ports to the conn
 
 Following this principle, a chain of dependencies forms. Intelli Graphs use this dependency-chain to evaulate each node in the correct order.
 Hence, when evaluating a graph the nodes with no inputs are evaluated first.
-The nodes "downstream" are then evaluated as they become ready.
+Only then, the nodes "downstream" are evaluated as they become ready.
 
 It should be noted that for most nodes not all input ports have to be connected.
 Further, a node is still evaluated even if none of the output ports are connected.
@@ -89,7 +89,6 @@ Further Reading
 .. toctree::
    :maxdepth: 1
 
-   graph-based/02_creating_graphs
-   graph-based/03_execution
-   graph-based/04_standard_nodes
-   graph-based/05_standard_data_types
+   graph-based/01_creating_graphs
+   graph-based/02_execution
+   graph-based/03_standard_nodes
