@@ -19,7 +19,7 @@ Once the path has been added, scripts located in that directory can be imported 
 
 
 What is the difference between the the Python Script Calculator and the Python Task?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Python Script Calculator is a single calculator element that executes a user-defined Python script.
 It is primarily used for prototyping new calculation methods or testing alternative approaches within a workflow.

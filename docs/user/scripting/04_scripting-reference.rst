@@ -6,16 +6,64 @@ These are just some examples of how to document functions.
 If you like to  cross-ref a function, do it like this :py:func:`footprint` :
 
 
-GtLogging
+.. _label_python_scope:
+Scopes
+------
+
+GTlab integrates a Python interpreter that can be accessed in different ways, 
+such as through the Python Console, Python Tasks, Python Script Calculators, or Nodes.
+Depending on how Python is accessed, different predefined functions and classes are available.
+
+GTlab organizes this concept by introducing scopes.
+A scope corresponds to a separate execution environment with its own predefined functions, classes, and variables.
+Variables or functions defined in one scope (e.g., the Console) are not accessible in another scope (e.g., a Task).
+Each instance of a Python Task, Script Calculator, or Node has its own scope, meaning that variables or functions defined in one 
+instance are isolated and cannot be accessed from another instance.
+
+GTlab defines the following scopes:
+
+.. _label-console-scope:
+``console``
+^^^^^^^^^^^
+Provides functions for interacting with and controlling the application itself
+(e.g., switching sessions, opening projects).
+
+.. _label-task-scope:
+``task``
+^^^^^^^^
+Provides functions for building and controlling workflows dynamically inside
+Python Tasks.
+
+.. _label-calculator-scope:
+``calculator``
+^^^^^^^^^^^^^^
+Provides functions for performing calculations within Python Script Calculators,
+including access to project data models.
+
+.. _label-node-scope:
+``node``
+^^^^^^^^
+Provides functions that are available when scripting inside GTlab nodes.
+
+All documented Python functions and classes indicate the scopes in which they are available.
+
+.. |ref_console_scope| replace:: ``console``
+.. |ref_calculator_scope| replace:: ``calculator``
+.. |ref_task_scope| replace:: ``task``
+.. |ref_node_scope| replace:: ``node``
+
+Logging
 ---------
 
-GtLogging is a Python module that provides access to GTlab’s integrated logging system.
+To interact with GTlab’s integrated logging system via Python, the ``GtLogging`` module is provided.
 It allows logging messages directly from Python scripts and displays them in the Application Console as well as in the Python Console.
 
 Compared to using plain print() statements, GtLogging messages are automatically categorized by log level and integrated into GTlab’s logging infrastructure.
 For more information on the different log levels, see the :ref:`logging <label_section_logging>` section.
 
-The module provides the following functions:
+The logging functions of ``GtLogging`` are import into each :ref:`scope <label_python_scope>` by default.
+
+The following logging functions are provided:
 
 .. py:function:: gtDebug(msg: str)
 
@@ -23,6 +71,10 @@ The module provides the following functions:
 
    :param msg: The message to log.
    :type msg: str
+   :scope: |ref_console_scope|, 
+           |ref_calculator_scope|, 
+           |ref_task_scope|, 
+           |ref_node_scope|
 
 .. py:function:: gtInfo(msg: str)
 
@@ -30,6 +82,10 @@ The module provides the following functions:
 
    :param msg: The message to log.
    :type msg: str
+   :scope: |ref_console_scope|, 
+           |ref_calculator_scope|, 
+           |ref_task_scope|, 
+           |ref_node_scope|
 
 .. py:function:: gtWarning(msg: str)
 
@@ -37,6 +93,10 @@ The module provides the following functions:
 
    :param msg: The message to log.
    :type msg: str
+   :scope: |ref_console_scope|, 
+           |ref_calculator_scope|, 
+           |ref_task_scope|, 
+           |ref_node_scope|
 
 .. py:function:: gtError(msg: str)
 
@@ -44,6 +104,10 @@ The module provides the following functions:
 
    :param msg: The message to log.
    :type msg: str
+   :scope: |ref_console_scope|, 
+           |ref_calculator_scope|, 
+           |ref_task_scope|, 
+           |ref_node_scope|
 
 .. py:function:: gtFatal(msg: str)
 
@@ -51,39 +115,162 @@ The module provides the following functions:
 
    :param msg: The message to log.
    :type msg: str
+   :scope: |ref_console_scope|, 
+           |ref_calculator_scope|, 
+           |ref_task_scope|, 
+           |ref_node_scope|
 
 
-Context XXX
------------
+Introspecting GTlab
+-------------------
+
+.. py:function:: projectPath() -> str
+
+   Returns the filesystem path of the currently opened project.
+
+   :returns: The path of the current project.
+   :rtype: str
+   :raises: Warning if no project is currently open.
+   :scope: |ref_console_scope|, 
+           |ref_calculator_scope|, 
+           |ref_task_scope|, 
+           |ref_node_scope|
+
+
+.. py:function:: envVars() -> dict
+
+   Returns a dictionary of GTlab environment variables.
+
+   :returns: A dictionary mapping environment variable names to their values.
+   :rtype: dict
+   :scope: |ref_console_scope|, 
+           |ref_calculator_scope|, 
+           |ref_task_scope|, 
+           |ref_node_scope|
+
+
+.. py:function:: footprint(only_active: bool = True) -> dict
+
+   Returns a dictionary of module names and their versions.
+   By default, it returns the application footprint, which includes all
+   available modules in GTlab. If `only_active` is True, only the modules
+   that are part of the data model of the current project are included.
+
+   :param only_active: If True, only the currently active modules in the project are included.
+                       Otherwise, all available modules in GTlab are returned.
+   :type only_active: bool
+   :returns: A dictionary mapping module names to their version strings.
+   :rtype: dict
+   :scope: |ref_console_scope|, 
+           |ref_calculator_scope|, 
+           |ref_task_scope|, 
+           |ref_node_scope|
+
+
+Controlling GTlab
+-----------------
 
 .. py:function:: switchSession(name: str)
 
-   Switches to the session named ``name``.
+   Switches to the session with the specified ``name``.
 
    :param name: The name of the session to switch to.
    :type name: str
+   :scope: |ref_console_scope|
 
-.. py:function:: openProject(name: str) -> GtProject
 
-   Opens the project named ``name`` and returns it.
+.. py:function:: openProject(projectIdOrPath: str) -> GtProject
 
-   :param name: The name of the project to be opened.
-   :type name: str
-   :returns: The opened project.
+   Opens a project either by its filesystem path or by its project ID. 
+   Note that opening by project ID only works if the project is already part of the current session.
+
+   :param projectIdOrPath: The filesystem path or the project ID of the project to be opened.
+   :type projectIdOrPath: str
+   :returns: The opened project, or None if the project could not be opened.
+   :rtype: GtProject
+   :scope: |ref_console_scope|
+
 
 .. py:function:: currentProject() -> GtProject
 
-   Returns the current project
+   Returns the currently opened project.
 
-   :returns: The currently opened project. None, if no project is open.
+   :returns: The currently opened project, or None if no project is open.
+   :rtype: GtProject
+   :scope: |ref_console_scope|
 
-.. py:function:: footprint(only_active=True) -> dict[str, str]
 
-   Returns the projects footprint as a dict (module, version)
+.. py:class:: GtProject(GtObject)
 
-   :param only_active: If true, only the active modules in the project are included in the dict
-   :type only_active: bool
-   :return: The dict of the modules. Key = module name, value = module version
+   Inherited from :py:class:`GtObject`.
+
+   This class represents a project. All methods are available in the |ref_console_scope| scope.
+
+
+   .. py:method:: path() -> str
+
+      Returns the path to the project directory on the hard drive.
+
+      :returns: The filesystem path of the project directory.
+      :rtype: str
+      :scope: |ref_console_scope|
+
+
+   .. py:method:: isOpen() -> bool
+
+      Returns whether the project is currently open.
+
+      :returns: True if the project is open, False otherwise.
+      :rtype: bool
+      :scope: |ref_console_scope|
+
+
+   .. py:method:: isValid() -> bool
+
+      Returns whether the project data is successfully loaded.
+
+      :returns: True if the project data is valid, False otherwise.
+      :rtype: bool
+      :scope: |ref_console_scope|
+
+
+   .. py:method:: runProcess(processId: str, save: bool = False) -> bool
+
+      Starts the process with the given ID.
+
+      :param processId: The ID of the process to start.
+      :type processId: str
+      :param save: Whether the results of the process should be saved. Default is False.
+      :type save: bool
+      :returns: True if the process executed successfully, False otherwise.
+      :rtype: bool
+      :scope: |ref_console_scope|
+
+
+   .. py:method:: findProcess(processId: str) -> GtTask
+
+      Returns the process with the specified ID.
+
+      :param processId: The ID of the process to retrieve.
+      :type processId: str
+      :returns: The process object with the given ID, or None if not found.
+      :rtype: GtProcess (or the appropriate Python-wrapped object)
+      :scope: |ref_console_scope|
+
+
+   .. py:method:: close(save: bool = False) -> bool
+
+      Closes the project.
+
+      :param save: Whether to save results before closing. Default is False.
+      :type save: bool
+      :returns: True if the project was closed successfully, False otherwise.
+      :rtype: bool
+      :scope: |ref_console_scope|
+
+
+Need to be categorized
+----------------------
 
 .. py:method:: findGtTask(name: str) -> GtTask
 
@@ -91,7 +278,6 @@ Context XXX
 
     :param name: The object name of the task to search for.
     :type name: str
-
 
 
 .. py:class:: GtObject
@@ -220,8 +406,6 @@ Context XXX
         
         :returns: The object matching the UUID. ``None``, if not found.
 
-
-
 .. py:class:: GtAbstractProperty
 
     Base class for all properties of GTlab objects.
@@ -290,7 +474,6 @@ Context XXX
     Returns the path to project directory on hard drive
 
    .. 
-
 
 .. py:class:: GtTask(GtObject)
 
