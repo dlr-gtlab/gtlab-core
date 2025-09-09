@@ -17,9 +17,6 @@ Scripting of workflows
 .. include:: types/nodes.rst
 
 
-.. include:: types/batch.rst
-
-.. include:: types/faq.rst
 
 
 
