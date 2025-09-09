@@ -11,7 +11,8 @@ Scopes
 ------
 
 GTlab integrates a Python interpreter that can be accessed in different ways, 
-such as through the Python Console, Python Tasks, Python Script Calculators, or Nodes.
+such as through the :ref:`Python Console <label_python_console>`, :ref:`Python Tasks <label_scripting_tasks>`, 
+:ref:`Python Script Calculators <label_scripting_calculators>`, or :ref:`Nodes <label_scripting_nodes>`.
 Depending on how Python is accessed, different predefined functions and classes are available.
 
 GTlab organizes this concept by introducing scopes.
@@ -45,12 +46,13 @@ including access to project data models.
 ^^^^^^^^
 Provides functions that are available when scripting inside GTlab nodes.
 
-All documented Python functions and classes indicate the scopes in which they are available.
+All documented Python functions indicate the scopes in which they are available.
 
 .. |ref_console_scope| replace:: ``console``
 .. |ref_calculator_scope| replace:: ``calculator``
 .. |ref_task_scope| replace:: ``task``
 .. |ref_node_scope| replace:: ``node``
+
 
 Logging
 ---------
@@ -200,85 +202,8 @@ Controlling GTlab
    :scope: |ref_console_scope|
 
 
-.. py:class:: GtProject(GtObject)
-
-   Inherited from :py:class:`GtObject`.
-
-   This class represents a project. All methods are available in the |ref_console_scope| scope.
-
-
-   .. py:method:: path() -> str
-
-      Returns the path to the project directory on the hard drive.
-
-      :returns: The filesystem path of the project directory.
-      :rtype: str
-      :scope: |ref_console_scope|
-
-
-   .. py:method:: isOpen() -> bool
-
-      Returns whether the project is currently open.
-
-      :returns: True if the project is open, False otherwise.
-      :rtype: bool
-      :scope: |ref_console_scope|
-
-
-   .. py:method:: isValid() -> bool
-
-      Returns whether the project data is successfully loaded.
-
-      :returns: True if the project data is valid, False otherwise.
-      :rtype: bool
-      :scope: |ref_console_scope|
-
-
-   .. py:method:: runProcess(processId: str, save: bool = False) -> bool
-
-      Starts the process with the given ID.
-
-      :param processId: The ID of the process to start.
-      :type processId: str
-      :param save: Whether the results of the process should be saved. Default is False.
-      :type save: bool
-      :returns: True if the process executed successfully, False otherwise.
-      :rtype: bool
-      :scope: |ref_console_scope|
-
-
-   .. py:method:: findProcess(processId: str) -> GtTask
-
-      Returns the process with the specified ID.
-
-      :param processId: The ID of the process to retrieve.
-      :type processId: str
-      :returns: The process object with the given ID, or None if not found.
-      :rtype: GtProcess (or the appropriate Python-wrapped object)
-      :scope: |ref_console_scope|
-
-
-   .. py:method:: close(save: bool = False) -> bool
-
-      Closes the project.
-
-      :param save: Whether to save results before closing. Default is False.
-      :type save: bool
-      :returns: True if the project was closed successfully, False otherwise.
-      :rtype: bool
-      :scope: |ref_console_scope|
-
-
-Need to be categorized
-----------------------
-
-.. py:method:: findGtTask(name: str) -> GtTask
-
-    Returns an existing GtTask by objectname
-
-    :param name: The object name of the task to search for.
-    :type name: str
-
+Managing Data
+-------------
 
 .. py:class:: GtObject
 
@@ -381,7 +306,6 @@ Need to be categorized
         :param memberId: The id of the member to returns.
         :returns: The value in the container entry. Returns None, if not found.
 
-
    .. py:method:: setPropertyContainerVal (containerId: str, index: int, memberId: str, value)
 
         Sets the member of the index-th entry in the container, i.e.
@@ -406,12 +330,13 @@ Need to be categorized
         
         :returns: The object matching the UUID. ``None``, if not found.
 
+
 .. py:class:: GtAbstractProperty
 
-    Base class for all properties of GTlab objects.
-    Properties are attributes of objects havaing a value.
-    Properties can be hierarchical, i.e. they can be nested
-    and thus contain child properties.
+   Base class for all properties of GTlab objects.
+   Properties are attributes of objects havaing a value.
+   Properties can be hierarchical, i.e. they can be nested and thus contain
+   child properties.
 
    .. py:method:: findGtProperties() - >list[GtAbstractProperty]
 
@@ -425,7 +350,6 @@ Need to be categorized
 
         :param id: The property id to search for.
         :type id: str
-
 
    .. py:method:: propertyValue(id: str)
 
@@ -463,17 +387,75 @@ Need to be categorized
    .. py:method:: setOptional(val: bool)
 
        Sets the property optional / required.
-    
+
 
 .. py:class:: GtProject(GtObject)
 
-   Inherited from :py:class:`GtObject`
+   Inherited from :py:class:`GtObject`.
+
+   This class represents a project. 
 
    .. py:method:: path() -> str
 
-    Returns the path to project directory on hard drive
+      Returns the path to the project directory on the hard drive.
 
-   .. 
+      :returns: The filesystem path of the project directory.
+      :rtype: str
+
+   .. py:method:: isOpen() -> bool
+
+      Returns whether the project is currently open.
+
+      :returns: True if the project is open, False otherwise.
+      :rtype: bool
+
+   .. py:method:: isValid() -> bool
+
+      Returns whether the project data is successfully loaded.
+
+      :returns: True if the project data is valid, False otherwise.
+      :rtype: bool
+
+   .. py:method:: runProcess(processId: str, save: bool = False) -> bool
+
+      Starts the process with the given ID.
+
+      :param processId: The ID of the process to start.
+      :type processId: str
+      :param save: Whether the results of the process should be saved. Default is False.
+      :type save: bool
+      :returns: True if the process executed successfully, False otherwise.
+      :rtype: bool
+
+   .. py:method:: findProcess(processId: str) -> GtTask
+
+      Returns the process with the specified ID.
+
+      :param processId: The ID of the process to retrieve.
+      :type processId: str
+      :returns: The process object with the given ID, or None if not found.
+      :rtype: GtProcess (or the appropriate Python-wrapped object)
+
+   .. py:method:: close(save: bool = False) -> bool
+
+      Closes the project.
+
+      :param save: Whether to save results before closing. Default is False.
+      :type save: bool
+      :returns: True if the project was closed successfully, False otherwise.
+      :rtype: bool
+
+
+Building and Controlling Workflows
+----------------------------------
+
+.. py:method:: findGtTask(name: str) -> GtTask
+
+    Returns an existing GtTask by objectname
+
+    :param name: The object name of the task to search for.
+    :type name: str
+
 
 .. py:class:: GtTask(GtObject)
 

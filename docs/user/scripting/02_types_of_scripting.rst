@@ -13,6 +13,7 @@ Scripting of workflows
 .. include:: types/calculators.rst
 .. _label_scripting_tasks:    
 .. include:: types/tasks.rst
+.. _label_scripting_nodes:
 .. include:: types/nodes.rst
 
 
