@@ -1,6 +1,8 @@
 Initial Setup
 =============
 
+.. _label_section_python_install:
+
 Enabling Python support in GTlab
 --------------------------------
 
