@@ -210,91 +210,115 @@ Managing Data
 
    .. py:method:: className() -> str
 
-        Returns the class name (type name) of the object.
+      Returns the class name (type name) of the object.
+
+      :returns: The class name of the object.
+      :rtype: str
 
    .. py:method:: calcHash() -> str
 
-        Returns the hash value of the current object.
+      Returns the hash value of the current object.
 
-        The hash value is a fingerprint of the object state,
-        including all property values and child objects.
-        Thus, if an object changes, the hash will change too.
+      The hash value is a fingerprint of the object state,
+      including all property values and child objects.
+      Thus, if an object changes, the hash will change too.
+
+      :returns: The hash value of the object.
+      :rtype: str
 
    .. py:method:: clone() -> GtObject
 
-        Creates a clone of the object. Note, that the new object
-        is a free object and thus does not belong to any parent.
+      Creates a clone of the object. Note, that the new object
+      is a free object and thus does not belong to any parent.
 
-   .. py:method:: findGtChild(childName) -> GtObject
+      :returns: A cloned instance of the object.
+      :rtype: GtObject
 
-        Returns the first child element matching the object name of childName.
-        If no element was found, it returns None. 
+   .. py:method:: findGtChild(childName: str) -> GtObject
 
-        :param childName: The object name of the the child to search for.
-        :type childrenName: str
+      Returns the first child element matching the object name of childName.
+      If no element was found, it returns None. 
 
-   .. py:method:: findGtChildren(childrenName="", objectClassName="") -> list[GtObject]
+      :param childName: The object name of the the child to search for.
+      :type childrenName: str
+      :returns: The first matching child object, or None if not found.
+      :rtype: GtObject or None
 
-        Returns the direct children matching child_name and objectClassName.
-        An empty string matches everything.
+   .. py:method:: findGtChildren(childrenName: str = "", objectClassName: str = "" ) -> list[GtObject]
 
-        :param childrenName: The object name of the the children to search for.
-        :type childrenName: str
-        :param objectClassName: If not empty, only children matching the class name are returned.
-        :type objectClassName: str
+      Returns the direct children matching ``childrenName`` and ``objectClassName``.
+      An empty string matches everything.
 
-   .. py:method:: findGtChildrenByClass(objectClassName="") -> list[GtObject]
+      :param childrenName: The object name of the the children to search for.
+      :type childrenName: str
+      :param objectClassName: If not empty, only children matching the class name are returned.
+      :type objectClassName: str
+      :returns: A list of matching child objects.
+      :rtype: list[GtObject]
 
-        Returns the direct children matching their class name defined by ``objectClassName``.
-        An empty string matches everything.
+   .. py:method:: findGtChildrenByClass(objectClassName: str = "") -> list[GtObject]
 
-        :param objectClassName: If not empty, only children matching the class name are returned.
-        :type objectClassName: str
+      Returns the direct children matching their class name defined by ``objectClassName``.
+      An empty string matches everything.
+
+      :param objectClassName: If not empty, only children matching the class name are returned.
+      :type objectClassName: str
+      :returns: A list of matching child objects.
+      :rtype: list[GtObject]
 
    .. py:method:: findGtParent() -> GtObject
 
-         Returns the parent object of the object if it exists. 
-         Otherwise, ``None`` is returned.
+      Returns the parent object of the object if it exists. 
+      Otherwise, ``None`` is returned.
+      :returns: The parent object.
+      :rtype: GtObject or None
 
    .. py:method:: findGtProperty(id: str) -> GtAbstractProperty
 
-        Returns the property matching id. Returns ``None``, if not found.
+      Returns the property matching id. Returns ``None``, if not found.
 
-        :note: The actual id might differ from the displayed property name!
+      :note: The actual id might differ from the displayed property name!
 
-        :param id: The property id to search for.
-        :type id: str
+      :param id: The property id to search for.
+      :type id: str
+      :returns: The matching property, or ``None`` if not found.
+      :rtype: GtAbstractProperty or None
 
    .. py:method:: findGtProperties() -> list[GtAbstractProperty]
 
-        Returns all properties of the object.
+      Returns all properties of the object.
+      
+      :returns: A list of all properties of the object.
+      :rtype: list[GtAbstractProperty]
 
    .. py:method:: propertyValue(id: str)
 
-        Returns the value of the property with given ``id``.
+      Returns the value of the property with given ``id``.
 
-        :raises: ``RuntimeError``, if the property does not exist.
+      :raises: ``RuntimeError``, if the property does not exist.
 
-        :param id: The property id to search for.
-        :type id: str
+      :param id: The property id to search for.
+      :type id: str
+      :returns: The value of the property. The return type depends on the property.
 
    .. py:method:: setPropertyValue(id: str, value)
 
-        Sets the value of the property with given ``id``.
+      Sets the value of the property with given ``id``.
 
-        :raises: ``RuntimeError``, if the property does not exist.
+      :raises: ``RuntimeError``, if the property does not exist.
 
-        :param id: The property id to search for.
-        :type id: str
-        :param value: The value to set.
+      :param id: The property id to search for.
+      :type id: str
+      :param value: The value to set. The value type depends on the property.
 
    .. py:method:: getPropertyContainerSize(id: str) -> int
 
-        Returns the size of the property container given by `id`.
+      Returns the size of the property container given by `id`.
 
-        :returns: The size of the container, -1 if *id* is invalid.
+      :returns: The size of the container, -1 if *id* is invalid.
+      :rtype: int
 
-   .. py:method:: getPropertyContainerVal (containerId: str, index: int, memberId: str)
+   .. py:method:: getPropertyContainerVal(containerId: str, index: int, memberId: str)
 
         Returns the member of the index-th entry in the container, i.e.
         something like ``container[index].memberId`` .
@@ -307,29 +331,34 @@ Managing Data
         :param memberId: The id of the member to returns.
         :returns: The value in the container entry. Returns None, if not found.
 
-   .. py:method:: setPropertyContainerVal (containerId: str, index: int, memberId: str, value)
+   .. py:method:: setPropertyContainerVal(containerId: str, index: int, memberId: str, value) -> bool
 
-        Sets the member of the index-th entry in the container, i.e.
-        something like ``container[index].memberId = value`` .
+      Sets the member of the index-th entry in the container, i.e.
+      something like ``container[index].memberId = value`` .
 
-        :example: Set the *name* member in the 2. entry of the container *input_args* to "myname":
-            ``setPropertyContainerVal('input_args', 2, 'name', 'myname')``
+      :example: Set the *name* member in the 2. entry of the container *input_args* to "myname":
+         ``setPropertyContainerVal('input_args', 2, 'name', 'myname')``
 
-        :param containerId: The identifier of the container.
-        :param index: The index of the entry in the container.
-        :param memberId: The id of the member to set.
-        :param value: The value to set.
-        :returns: True on success, otherwise False.
+      :param containerId: The identifier of the container.
+      :param index: The index of the entry in the container.
+      :param memberId: The id of the member to set.
+      :param value: The value to set.
+      :returns: True on success, otherwise False.
+      :rtype: bool
 
    .. py:method:: uuid(): str
 
-        Returns the UUID of the object.
+      Returns the UUID of the object.
+      
+      :returns: The UUID of the object.
+      :rtype: str
 
    .. py:method:: objectByUUID(uuid: str) -> GtObject
 
-        Searches a child object, whose UUID is ``uuid``.
+      Searches a child object, whose UUID is ``uuid``.
         
-        :returns: The object matching the UUID. ``None``, if not found.
+      :returns: The object matching the UUID. ``None``, if not found.
+      :rtype: GtObject or None
 
 
 .. py:class:: GtAbstractProperty
@@ -341,53 +370,70 @@ Managing Data
 
    .. py:method:: findGtProperties() -> list[GtAbstractProperty]
 
-        Returns all child / sub properties of the property.
+      Returns all child / sub properties of the property.
+
+      :returns: A list of all child / sub properties.
+      :rtype: list[GtAbstractProperty]
 
    .. py:method:: findGtProperty(id: str) -> GtAbstractProperty
 
-        Returns the child property matching id. Returns ``None``, if not found.
+      Returns the child property matching id. Returns ``None``, if not found.
 
-        :note: The actual id might differ from the displayed property name!
+      :note: The actual id might differ from the displayed property name!
 
-        :param id: The property id to search for.
-        :type id: str
+      :param id: The property id to search for.
+      :type id: str
+      :returns: The matching child property, or ``None`` if not found.
+      :rtype: GtAbstractProperty or None
 
    .. py:method:: propertyValue(id: str)
 
-        Returns the value of the sub-property with given ``id``.
+      Returns the value of the sub-property with given ``id``.
 
-        :raises: ``RuntimeError``, if the property does not exist.
+      :raises: ``RuntimeError``, if the property does not exist.
 
-        :param id: The property id to search for.
-        :type id: str
-
-        :returns: The value of the property. The return type depends on the property.
+      :param id: The property id to search for.
+      :type id: str
+      :returns: The value of the property. The return type depends on the property.
 
    .. py:method:: setPropertyValue(id: str, value)
 
-        Sets the value of the sub-property with given ``id``.
+      Sets the value of the sub-property with given ``id``.
 
-        :raises: ``RuntimeError``, if the property does not exist.
+      :raises: ``RuntimeError``, if the property does not exist.
 
-        :param id: The property id to search for.
-        :type id: str
-        :param value: The value to set.
+      :param id: The property id to search for.
+      :type id: str
+      :param value: The value to set.
 
    .. py:method:: isActive() -> bool
 
-       Returns, whether the property is active.
+      Returns, whether the property is active.
+
+      :returns: True if the property is active, False otherwise.
+      :rtype: bool
 
    .. py:method:: setActive(val: bool)
 
-       Sets the property active / inactive.
+      Sets the property active / inactive.
+
+      :param val: True to set the property active, False to set it inactive.
+      :type val: bool
 
    .. py:method:: isOptional() -> bool
 
-       Returns, whether the property is optional.
+      Returns, whether the property is optional.
+
+      :returns: True if the property is optional, False otherwise.
+      :rtype: bool
 
    .. py:method:: setOptional(val: bool)
 
-       Sets the property optional / required.
+      Sets the property optional / required.
+
+      :param val: True to set the property optional, False to set it required.
+      :type val: bool
+
 
 
 .. py:class:: GtProject(GtObject)
@@ -450,12 +496,17 @@ Managing Data
 Building and Controlling Workflows
 ----------------------------------
 
-.. py:method:: findGtTask(name: str) -> GtTask
+.. py:function:: findGtTask(name: str) -> GtTask
 
-    Returns an existing GtTask by objectname
+   Returns a clone of the task with the given ``name`` from the project's hub-spoke workflows.
 
-    :param name: The object name of the task to search for.
-    :type name: str
+   :raises SystemError: If no task with the given name exists.
+
+   :param name: The object name of the task to search for.
+   :type name: str
+   :returns: A cloned instance of the matching task.
+   :rtype: GtTask
+   :scope: |ref_task_scope|
 
 
 .. py:class:: GtTask(GtObject)
@@ -466,17 +517,21 @@ Building and Controlling Workflows
 
    .. py:method:: run() -> bool
 
-    Executes the task
+      Executes the task
 
-    :return: True, on success. False otherwise.
+      :return: True, on success. False otherwise.
+      :rtype: bool
 
    .. py:method:: deleteAllCalculators()
 
-    Deletes all calculator appended to the given task.
+      Deletes all calculator appended to the given task.
 
    .. py:method:: hasWarnings() -> bool
 
-    Returns state of warning flag.
+      Returns state of warning flag.
+
+      :returns: True, if the task has warnings. False otherwise.
+      :rtype: bool
 
 
 .. py:class:: GtPyTask(GtTask)
@@ -490,27 +545,42 @@ Building and Controlling Workflows
    .. py:method:: inputArgs() -> dict
 
       Returns all input arguments of the python task as a dict.
+      :returns: A dictionary mapping argument names to their values.
+      :rtype: dict
 
    .. py:method:: inputArg(argName: str)
 
       Returns the value of the input argument given by ``argName``.
 
       :raises: ``RuntimeError``, if the argument does not exist
+   
+      :param argName: The name of the input argument.
+      :type argName: str
+      :returns: The value of the input argument.
 
    .. py:method:: setInputArg(argName: str, value)
 
       Sets the value of the input argument given by ``argName``.
 
       :raises: ``RuntimeError``, if the argument does not exist
+   
+      :param argName: The name of the input argument.
+      :type argName: str
+      :param value: The value to set.
 
    .. py:method:: outputArgs() -> dict
 
       Returns all output arguments of the python task as a dict.
+
+      :returns: A dictionary mapping argument names to their values.
+      :rtype: dict
 
    .. py:method:: outputArg(argName: str)
 
       Returns the value of the output argument given by ``argName``.
 
       :raises: ``RuntimeError``, if the argument does not exist
-
-   
+      
+      :param argName: The name of the output argument.
+      :type argName: str
+      :returns: The value of the output argument.
