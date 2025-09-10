@@ -1,9 +1,10 @@
+:tocdepth: 3
+
 Function Reference
 ==================
 
-These are just some examples of how to document functions.
 
-If you like to  cross-ref a function, do it like this :py:func:`footprint` :
+.. If you like to  cross-ref a function, do it like this :py:func:`footprint` :
 
 
 .. _label_python_scope:
@@ -338,7 +339,7 @@ Managing Data
    Properties can be hierarchical, i.e. they can be nested and thus contain
    child properties.
 
-   .. py:method:: findGtProperties() - >list[GtAbstractProperty]
+   .. py:method:: findGtProperties() -> list[GtAbstractProperty]
 
         Returns all child / sub properties of the property.
 

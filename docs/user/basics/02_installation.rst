@@ -17,9 +17,8 @@ Before installing GTlab, ensure that your system meets the following minimum req
 Obtaining GTlab
 ---------------
 
-* The community version of GTlab can be obtained from https://gtlab.de .
-* For a DLR internal version with many more modules or if you like a license specific modules, please contact gtlab-support@dlr.de .
-
+* The **community version** of GTlab can be downloaded from https://gtlab.de.  
+* For the **DLR internal version**, which includes additional modules, or if you require licensed modules, please contact: gtlab-support@dlr.de.
 
 Installation Steps
 ------------------
