@@ -23,22 +23,33 @@ A wizard then guides you through all the selections that need to be made for a n
 
 Add specific package to a project
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Switch project
-^^^^^^^^^^^^^^
-
-Remove project
-^^^^^^^^^^^^^^
+When creating projects, you are already asked which packages should be part of the project data. 
+This can be changed later using the **Choose Project Modules** entry in the `Context menu`_.
 
 .. _label_section_sessions:
 
 Sessions
 ^^^^^^^^
-
+Sessions are an easy way to sort projects. Selecting the current session or creating new sessions etc. is possible in the :ref:`preferences <label_chapter_preferences_session>`.
+Any number of projects can be collected in a session, whereby only one project can be open at a time.
 
 
 Project Comments
 ^^^^^^^^^^^^^^^^
+GTlab offers the option of adding a text comment to a project.
+You can access the editor via the **Edit Comment** entry in the `Context menu`_.
+
+.. image:: images/project_comment1_bright.png
+   :align: center
+   :alt: Project comment
+   :class: only-light
+   
+.. image:: images/project_comment1_dark.png
+   :align: center
+   :alt: Project comment
+   :class: only-dark 
+
+If a comment is stored, this is indicated by a small speech bubble icon next to the project name and the comment appears as a tooltip when the mouse is held over this icon.
 
 Project Settings
 ^^^^^^^^^^^^^^^^

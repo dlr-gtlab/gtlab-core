@@ -41,9 +41,13 @@ If a dock widget has been hidden, you can restore it via:
 
 Project Explorer
 ----------------
-
+This dock widget shows the :ref:`project structure <label_chapter_projects>` of the current :ref:`session <label_section_sessions>`. There can be several projects, of which a maximum of one can be open.
+The entire hierarchical model structure of the open project is visualized in a tree structure.
+ 
 Property Dock
 -------------
+The corresponding :ref:`properties <label_section_properties>` are displayed in this dock widget for a selected object in the GTlab model (e.g. an object of the model in the `Project Explorer`_ or a work flow element).
+Depending on the object, the properties can also be displayed in several tabs in this window.
 
 Output Dock
 -----------

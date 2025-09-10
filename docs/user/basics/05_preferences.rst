@@ -44,6 +44,7 @@ There are three modes: *Silent*, *Medium* and *High*. These both define filter l
 - *Theme selection*	 
 There are three modes: *System selection*, *Bright* and *Dark*. GTlab is displayed in a bright or dark mode depending on the selection.
 
+.. _label_chapter_preferences_session:
 Session  
 -------
 New :ref:`sessions <label_section_sessions>` can be created, renamed, duplicated or deleted in this selection window. You can also select a session to use it.
