@@ -1,10 +1,12 @@
+.. _label_section_intelli_graph_install:
+
 Creating Graphs
 ---------------
 
-Requirements
-""""""""""""
+Initial Setup
+"""""""""""""
 
-The `IntelliGraph`-Module must be installed and activated for the active project.
+The **IntelliGraph-Module** must be installed and activated for the active project.
 
 To install, select the component in the Maintenance Tool:
 
@@ -18,33 +20,45 @@ Creating a Graph
 """"""""""""""""
 
 Once the module is activated for the current project, a new datatree object named ``IntelliGraphs`` appears. 
-This object is the also called package.
+This object is the also called **package**.
 All Intelli Graphs are organized in this package.
 
-First, one has to create a category object, which can be used to organize Intelli Graphs accordingly.
+First, one has to create a **category object**, which can be used to organize Intelli Graphs accordingly.
 To add a new category, right-click the package and select *Add Category*.
 Enter the name of the category and confirm.
 
-.. image:: ../images/workflows_graph_add_category.png
+.. image:: ../images/workflows_how_to_add_category_bright.png
    :align: center
    :alt: Adding a new category to the package
+   :class: only-light
+
+.. image:: ../images/workflows_how_to_add_category_dark.png
+   :align: center
+   :alt: Adding a new category to the package
+   :class: only-dark
 
 .. note::
    Category objects on the same level cannot be named the same. The object names should update automatically to create unqiue names.
    
-To create a new graph, right-click the desired category and select *Add Graph*.
+To create a **new graph**, right-click the desired category and select *Add Graph*.
 Enter the name of the graph and confirm.
 
-.. image:: ../images/workflows_graph_add_graph.png
+.. image:: ../images/workflows_how_to_add_graph_bright.png
    :align: center
    :alt: Adding a new graph to a category
+   :class: only-light
+
+.. image:: ../images/workflows_how_to_add_graph_dark.png
+   :align: center
+   :alt: Adding a new category to the package
+   :class: only-dark
 
 .. note::
    Graph objects on the same level cannot be named the same. The object names should update automatically to create unqiue names.
    
 Double click the newly created graph object or right-click and select *Open*.
-The so-called *Graph View* will open and display the selected graph in the central widget area.
-For a newly created graph the displayed *Graph Scene* is empty.
+The so-called **Graph View** will open and display the selected graph in the central widget area.
+For a newly created graph the displayed **Graph Scene** is empty.
 
 In the top-left corner of the Graph View a small menu bar is displayed.
 Here, view and scene specific actions can be performed, such as
@@ -55,9 +69,15 @@ Here, view and scene specific actions can be performed, such as
 - Toggling automatic evaluation of the graph
 - Enabling/disabling snap to grid
 
-.. image:: ../images/workflows_graph_view.png
+.. image:: ../images/workflows_graph_view_bright.png
    :align: center
    :alt: Graph View
+   :class: only-light
+   
+.. image:: ../images/workflows_graph_view_dark.png
+   :align: center
+   :alt: Graph View
+   :class: only-dark
 
 Adding Nodes and Connections
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -71,11 +91,17 @@ These allow entering values, referencing directories and files, or accessing dat
 
 For example, the *Project Info* node allows to access the name and directory of the project.
 
-.. image:: ../images/workflows_graph_how_to_add_nodes.png
+.. image:: ../images/workflows_how_to_add_nodes_bright.png
    :align: center
    :alt: Scene Menu displaying all available nodes
+   :class: only-light
+   
+.. image:: ../images/workflows_how_to_add_nodes_dark.png
+   :align: center
+   :alt: Scene Menu displaying all available nodes
+   :class: only-dark
 
-We can use this node in combination with a *File Input* and *String Input* node to open a file relative to the current project. In this example, a file was explicity added to the project directory named *readme.txt*. 
+We can use this node in combination with a *File Input* and *String Input* node to open a file relative to the current project directory. In this example, a file was explicity added to the project directory named *readme.txt*. 
 
 .. image:: ../images/workflows_graph_how_to_add_nodes_2.png
    :align: center
@@ -103,10 +129,11 @@ Comments
 Besides nodes, comments can be added to a graph via the Scene Menu's entry *Add Comment*.
 
 Comments support markdown syntax and can be resized freely. 
-They are intended to be used soely as way to documenting a graph for yourself or other people.
+They are intended to be used as way to document a graph for yourself or other people.
 
-Comments can either be standalone "floating" in a scene or they can be connected to one or multiple nodes.
-To associate a comment to antoher node right-click the comment and select *Connect to...*. Click on the desired node.
+Comments can either be standalone ("floating") in a scene or they can be connected to one or multiple nodes.
+To associate a comment to antoher node, right-click the comment and select *Connect to...*. 
+Click on the desired node.
 A dotted line indicates that the connection succeeded.
 
 Further, comments can be collapsed to take up less space.

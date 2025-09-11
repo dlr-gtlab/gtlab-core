@@ -27,23 +27,29 @@ Intelli Graphs
 
 In GTlab, the graph-based process architecutre is called **Intelli Graphs**.
 Like many features and functionalities of GTlab, this architecutre too is implemented by a module -- the **IntelliGraph-Module**.
-To use Intelli Graphs, this module must be installed and activated for the current project. 
+To use Intelli Graphs, this module must be installed and activated for the current project (see :ref:`Creating Graphs → Initial Setup <label_section_intelli_graph_install>`).
 
-``TODO: subpage for initial setup?``
- 
 Nodes
 """""
 
 Nodes represent a function or operation in a graph. 
 
-Each node may have multiple input and output `ports`.
+Each node may have multiple input and output **ports**.
 Some nodes only have outputs ports and thus act as an input to the graph, wheras other nodes only have input ports and thus act as an output of the graph.
 
-.. image:: images/workflows_graph_nodes.png
+.. image:: images/workflows_graph_node_overview_bright.png
    :align: center
-   :alt: Basic Graph
+   :alt: Node Entity Structure
+   :scale: 50%
+   :class: only-light
    
-Each port is associated with a `datatype`. 
+.. image:: images/workflows_graph_node_overview_dark.png
+   :align: center
+   :alt: Node Entity Structure
+   :scale: 50%
+   :class: only-dark
+	
+Each port is associated with a **datatype**. 
 Only ports with compatible datatypes can be connected.
 Some ports have a caption or a tooltip, the latter can be triggered by hovering over the port.
 
@@ -54,17 +60,35 @@ Some datatypes -- while different -- are compatible with each other and are conv
 When creating a connection, only valid target nodes and their ports are highlighted. 
 Connections between different but compatible datatypes are indicated by gradient.
 
-.. image:: images/workflows_graph_datatype_conversions.png
+.. image:: images/workflows_graph_datatype_overview_bright.png
    :align: center
-   :alt: Compatible ports are highlighted when creating connections
+   :alt: Overview of datatypes
+   :scale: 40%
+   :class: only-light
    
-Some nodes may embed a central widget, which may either be used for the user to input values, to configure the node, to display results, or similar.
-Besides the central widget, many nodes use the property system (``TODO: link to property system``) for configuring additional settings.
-Clicking on a node triggers the Property-Dock (``TODO: link to property dock``) to show the available properties of the node.
-
-.. image:: images/workflows_graph_node_configuration.png
+.. image:: images/workflows_graph_datatype_overview_dark.png
    :align: center
-   :alt: Configuring nodes via the Property Dock
+   :alt: Overview of datatypes
+   :scale: 40%
+   :class: only-dark
+   
+Some nodes may embed a **central widget**, which may either be used for the user to input values, to configure the node, to display results, or similar.
+Besides the central widget, many nodes use the :ref:`Property System<label_section_properties>` for configuring additional settings.
+Clicking on a node triggers the :ref:`Property Dock<label_property_dock>` to show the available properties of the node.
+ 
+Nodes_label_properties_dock
+   
+.. image:: images/workflows_graph_node_configuration_bright.png
+   :align: center
+   :alt: Configuring nodes via its properties
+   :scale: 65%
+   :class: only-light
+   
+.. image:: images/workflows_graph_node_configuration_dark.png
+   :align: center
+   :alt: Configuring nodes via its properties
+   :scale: 65%
+   :class: only-dark
 
 Data Flow
 """""""""
@@ -72,7 +96,8 @@ Data Flow
 For a node to evaluate (= perform its operation) the nodes connected to the input ports (= predecessors) must be evaulated first.
 Once a node is evaluated, the data is forwarded via the output ports to the connected successor nodes.
 
-Following this principle, a chain of dependencies forms. Intelli Graphs use this dependency-chain to evaulate each node in the correct order.
+Following this principle, a chain of dependencies forms.
+Intelli Graphs use this dependency-chain to evaulate each node in the correct order.
 Hence, when evaluating a graph the nodes with no inputs are evaluated first.
 Only then, the nodes "downstream" are evaluated as they become ready.
 
@@ -81,7 +106,7 @@ Further, a node is still evaluated even if none of the output ports are connecte
 
 Nodes, that are not dependent on each other are evaluated in parallel by the Intelli Graph system.
 
-``TODO: reference graph execution``
+See :ref:`Graph Execution <label_section_graph_execution>` for more details.
 
 Further Reading
 """""""""""""""
