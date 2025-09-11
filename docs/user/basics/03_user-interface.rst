@@ -51,11 +51,12 @@ Property Dock
 The corresponding :ref:`properties <label_section_properties>` are displayed in this dock widget for a selected object in the GTlab model (e.g. an object of the model in the `Project Explorer`_ or a work flow element).
 Depending on the object, the properties can also be displayed in several tabs in this window.
 
+.. _label_output_dock:
 Output Dock
 -----------
 The *Output* widget primarily holds two tabs. The *Application* tab shows the logging output in GTlab. More on this in the Logging_ section.  
 The *Python Console* tab allows you to interact with the Python instance to receive messages from the Python interaction with GTlab as well as to use Python commands in GTlab.
-More on this in the section :ref:`Python Console <label_chapter_python_console>`.
+More on this in the section :ref:`Python Console <label_python_console>`.
 
 .. _label_section_processdock:
 

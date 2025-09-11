@@ -1,5 +1,3 @@
-.. _label_chapter_python_console:
-
 The Python Console
 ------------------
 
@@ -16,12 +14,12 @@ In addition, the Python Console enables direct interaction with the selected
 Python environment, making it possible, for example, to import Python modules 
 or extend the ``sys.path`` list.
 
-The Python Console is located in the Output dock widget
+The Python Console is located in the :ref:`Output Dock <label_output_dock>` 
 (``Window → Dock Widgets → Output``) under the *Python Console* tab.
 
 
-Usage
-^^^^^
+Entering and Executing Code
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Python Console displays the prompt ``GTlab>``, which is ready to accept 
 Python code input. Pressing ``Enter`` executes the code. ``print()`` outputs,
@@ -49,17 +47,19 @@ lower-right corner.
 Controlling GTlab
 ^^^^^^^^^^^^^^^^^
 
-The Python Console allows direct calling of core GTlab functions.  
-This includes switching between sessions, opening projects, and accessing the 
-currently opened project.
+The Python Console allows direct execution of core GTlab functions that control 
+the application. Typical use cases include switching between sessions, opening 
+projects, and accessing the currently opened project.
 
 .. code-block:: python
 
-    GTlab> switchSession('my session')
-    GTlab> openProject('my project')
-    GTlab> project = currentProject()
-    GTlab> project.objectName
-    'my project'
+   switchSession('My Session')
+   openProject('My Project')
+   project = currentProject()
+
+These functions provide the entry point for interacting with GTlab from Python.  
+A complete list of available functions, including their parameters and return 
+types, is documented in :ref:`label_controlling_gtlab`.
 
 
 Managing Project Data
@@ -68,7 +68,7 @@ Managing Project Data
 A GTlab project organizes all project data in a hierarchical data tree, 
 which is visualized in the :ref:`Project Explorer <label_project_explorer>`. 
 The Python Console allows exploring this data tree, accessing individual objects,
-and modifying their properties via Python code.
+and modifying their properties using Python code.
 
 To do so, the :py:func:`currentProject` function must be called, which returns 
 the currently opened project as a Python object. This object corresponds to the 
@@ -96,7 +96,7 @@ Managing and Starting hub-spoke Workflows
 
 A GTlab project includes not only the project data but also the hub-spoke
 workflows defined within the project. They are visualized in the 
-:ref:`Process/Calculators widget <label_section_processdock>` of the GTlab user
+:ref:`Process/Calculators Dock <label_section_processdock>` of the GTlab user
 interface. These workflows can be accessed and modified via the Python Console. 
 In addition, it is possible to start workflows directly from the Python Console.
 
@@ -124,11 +124,12 @@ To start workflows directly from the Python Console, the project object provides
 the method :py:meth:`GtProject.runProcess`. It expects the name of a task that
 serves as a starting point of a workflow. In GTlab, each direct child of a 
 ``<workflow_group>`` represents such a workflow starting point. The names of 
-these workflows can be found in the :ref:`Process/Calculators widget <label_section_processdock>`, 
+these workflows can be found in the :ref:`Process/Calculators Dock <label_section_processdock>`, 
 where each workflow appears as a top-level item in the tree view.
 
 .. code-block:: python
 
+   proj = currentProject()
    proj.runProcess('My Workflow')
 
 .. note::

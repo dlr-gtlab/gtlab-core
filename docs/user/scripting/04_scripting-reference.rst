@@ -170,6 +170,8 @@ Introspecting GTlab
            |ref_node_scope|
 
 
+.. _label_controlling_gtlab:
+
 Controlling GTlab
 -----------------
 
