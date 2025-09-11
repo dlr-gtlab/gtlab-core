@@ -39,6 +39,8 @@ If a dock widget has been hidden, you can restore it via:
 
 ``Window → Dock Widgets``
 
+.. _label_project_explorer:
+
 Project Explorer
 ----------------
 This dock widget shows the :ref:`project structure <label_chapter_projects>` of the current :ref:`session <label_section_sessions>`. There can be several projects, of which a maximum of one can be open.

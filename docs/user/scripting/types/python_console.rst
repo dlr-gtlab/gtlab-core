@@ -65,14 +65,14 @@ currently opened project.
 Managing Project Data
 ^^^^^^^^^^^^^^^^^^^^^
 
-A GTlab project contains all project data organized in a hierarchical data tree.
-The Python Console allows exploring the data tree, accessing individual objects,
-and modifying their properties.
+A GTlab project organizes all project data in a hierarchical data tree, 
+which is visualized in the :ref:`Project Explorer <label_project_explorer>`. 
+The Python Console allows exploring this data tree, accessing individual objects,
+and modifying their properties via Python code.
 
 To do so, the :py:func:`currentProject` function must be called, which returns 
 the currently opened project as a Python object. This object corresponds to the 
-project entry shown in the Explorer Dock widget, which visualizes the hierarchical 
-structure of the project’s data tree.
+project entry shown in the :ref:`Project Explorer <label_project_explorer>`.
 
 All child data objects of the project can be accessed through the project object.
 Navigation through the data tree is done via the names of the child objects,
@@ -96,9 +96,9 @@ Managing and Starting hub-spoke Workflows
 
 A GTlab project includes not only the project data but also the hub-spoke
 workflows defined within the project. They are visualized in the 
-Process/Calculators widget of the GTlab user interface. These workflows can be 
-accessed and modified via the Python Console. In addition, it is possible to 
-start workflows directly from the Python Console.
+:ref:`Process/Calculators widget <label_section_processdock>` of the GTlab user
+interface. These workflows can be accessed and modified via the Python Console. 
+In addition, it is possible to start workflows directly from the Python Console.
 
 To access the project-specific workflows, the project object returned by 
 :py:func:`currentProject` provides the child object *Process Data*. This subtree
@@ -124,8 +124,8 @@ To start workflows directly from the Python Console, the project object provides
 the method :py:meth:`GtProject.runProcess`. It expects the name of a task that
 serves as a starting point of a workflow. In GTlab, each direct child of a 
 ``<workflow_group>`` represents such a workflow starting point. The names of 
-these workflows can be found in the Process/Calculators widget, where each 
-workflow appears as a top-level item in the tree view.
+these workflows can be found in the :ref:`Process/Calculators widget <label_section_processdock>`, 
+where each workflow appears as a top-level item in the tree view.
 
 .. code-block:: python
 
