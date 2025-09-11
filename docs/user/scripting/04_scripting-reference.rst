@@ -1,11 +1,11 @@
 :tocdepth: 3
 
+.. _label_function_reference:
+
 Function Reference
 ==================
 
-
 .. If you like to  cross-ref a function, do it like this :py:func:`footprint` :
-
 
 .. _label_python_scope:
 Scopes
@@ -192,7 +192,6 @@ Controlling GTlab
    :returns: The opened project, or None if the project could not be opened.
    :rtype: GtProject
    :scope: |ref_console_scope|
-
 
 .. py:function:: currentProject() -> GtProject
 
