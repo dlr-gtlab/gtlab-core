@@ -12,12 +12,12 @@ The resulting datastructure is a so-called **directed acyclic graph**:
 
 - `Acyclic` denotes, that a graph cannot contain loops or cycles. As such, in an acyclic graph the predecessors of a node (both indirect and direct predecessors) cannot simultaneously be successor nodes as well.
 
-.. image:: images/Workflows_Graph_Architecture_bright.png
+.. image:: images/workflows_graph_architecture_bright.png
    :align: center
    :alt: Directed Acyclic Graph
    :class: only-light
    
-.. image:: images/Workflows_Graph_Architecture_dark.png
+.. image:: images/workflows_graph_architecture_dark.png
    :align: center
    :alt: Directed Acyclic Graph
    :class: only-dark
@@ -37,13 +37,13 @@ Nodes represent a function or operation in a graph.
 Each node may have multiple input and output **ports**.
 Some nodes only have outputs ports and thus act as an input to the graph, wheras other nodes only have input ports and thus act as an output of the graph.
 
-.. image:: images/workflows_graph_node_overview_bright.png
+.. image:: images/workflows_node_overview_bright.png
    :align: center
    :alt: Node Entity Structure
    :scale: 50%
    :class: only-light
    
-.. image:: images/workflows_graph_node_overview_dark.png
+.. image:: images/workflows_node_overview_dark.png
    :align: center
    :alt: Node Entity Structure
    :scale: 50%
@@ -75,16 +75,14 @@ Connections between different but compatible datatypes are indicated by gradient
 Some nodes may embed a **central widget**, which may either be used for the user to input values, to configure the node, to display results, or similar.
 Besides the central widget, many nodes use the :ref:`Property System<label_section_properties>` for configuring additional settings.
 Clicking on a node triggers the :ref:`Property Dock<label_property_dock>` to show the available properties of the node.
- 
-Nodes_label_properties_dock
-   
-.. image:: images/workflows_graph_node_configuration_bright.png
+    
+.. image:: images/workflows_node_configuration_bright.png
    :align: center
    :alt: Configuring nodes via its properties
    :scale: 65%
    :class: only-light
    
-.. image:: images/workflows_graph_node_configuration_dark.png
+.. image:: images/workflows_node_configuration_dark.png
    :align: center
    :alt: Configuring nodes via its properties
    :scale: 65%
