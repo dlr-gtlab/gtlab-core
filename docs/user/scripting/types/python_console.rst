@@ -96,7 +96,7 @@ Managing and Starting hub-spoke Workflows
 
 A GTlab project includes not only the project data but also the hub-spoke
 workflows defined within the project. They are visualized in the 
-:ref:`Process/Calculators Dock <label_section_processdock>` of the GTlab user
+:ref:`Processes/Calculators Dock <label_section_processdock>` of the GTlab user
 interface. These workflows can be accessed and modified via the Python Console. 
 In addition, it is possible to start workflows directly from the Python Console.
 
@@ -124,7 +124,7 @@ To start workflows directly from the Python Console, the project object provides
 the method :py:meth:`GtProject.runProcess`. It expects the name of a task that
 serves as a starting point of a workflow. In GTlab, each direct child of a 
 ``<workflow_group>`` represents such a workflow starting point. The names of 
-these workflows can be found in the :ref:`Process/Calculators Dock <label_section_processdock>`, 
+these workflows can be found in the :ref:`Processes/Calculators Dock <label_section_processdock>`, 
 where each workflow appears as a top-level item in the tree view.
 
 .. code-block:: python
