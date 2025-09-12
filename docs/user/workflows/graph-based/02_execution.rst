@@ -75,11 +75,13 @@ The state of each node is indicated by a coloured dot in the top-left corner of 
    :align: center
    :alt: Automatic Execution
    :class: only-light
+   :scale: 60%
 
 .. image:: ../images/workflows_node_exec_states_dark.png
    :align: center
    :alt: Automatic Execution
    :class: only-dark
+   :scale: 60%
 
 A distinction is made between mutliple states.
 
