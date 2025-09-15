@@ -110,8 +110,10 @@ private slots:
 
     /**
      * @brief Triggered when new rows were inserted
+     * @param first Start of insertion
+     * @param last End of insertion
      */
-    void onRowsInserted();
+    void onRowsInserted(int first, int last);
 
     /**
      * @brief Triggered on model reset
