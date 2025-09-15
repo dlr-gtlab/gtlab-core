@@ -416,7 +416,9 @@ GtOutputDock::GtOutputDock()
 
     // other connections
     connect(gtLogModel, &GtLogModel::rowsInserted,
-            this, &GtOutputDock::onRowsInserted);
+            this, [this](QModelIndex const& parent, int start, int end){
+        onRowsInserted(start, end);
+    });
     connect(gtLogModel, &GtLogModel::rowsRemoved,
             this, &GtOutputDock::onRowsRemoved);
     connect(m_model, &GtFilteredLogModel::modelReset,
@@ -546,8 +548,14 @@ GtOutputDock::scrollToBottom()
 }
 
 void
-GtOutputDock::onRowsInserted()
+GtOutputDock::onRowsInserted(int start, int last)
 {
+    assert(start < (last + 1));
+    for (auto idx : gt::range(start, last + 1))
+    {
+        m_logView->resizeRowToContents(idx);
+    }
+
     scrollToBottom();
 }
 
