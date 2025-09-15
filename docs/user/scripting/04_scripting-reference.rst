@@ -499,13 +499,21 @@ Building and Controlling Workflows
 
 .. py:function:: findGtTask(name: str) -> GtTask
 
-   Returns a clone of the task with the given ``name`` from the project's hub-spoke workflows.
+   Returns a cloned instance of a workflow with the given ``name`` from the project's hub-spoke workflows.
 
-   :raises SystemError: If no task with the given name exists.
+   This function can only find workflows that are part of the same workflow
+   group as the Python Task in which it is called.
+   If multiple workflows share the same name, the first match is returned.
 
-   :param name: The object name of the task to search for.
+   The returned workflow object is a clone and exists only within the Python script's scope.  
+   To safely access its subordinate tasks or calculators, a reference to the cloned workflow must be kept; 
+   otherwise, child objects may become invalid if the workflow object is deleted.
+
+   :raises SystemError: If no workflow with the given name exists.
+
+   :param name: The object name of the workflow to search for.
    :type name: str
-   :returns: A cloned instance of the matching task.
+   :returns: A cloned instance of the matching workflow.
    :rtype: GtTask
    :scope: |ref_task_scope|
 
@@ -585,3 +593,15 @@ Building and Controlling Workflows
       :param argName: The name of the output argument.
       :type argName: str
       :returns: The value of the output argument.
+
+
+.. py:class:: GtCalculator(GtObject)
+
+   Inherited from :py:class:`GtObject`
+
+   .. py:method:: run() -> bool
+
+      Executes the Calculator
+
+      :return: True, on success. False otherwise.
+      :rtype: bool
