@@ -14,17 +14,38 @@ Project Handling
 
 Create a new project
 ^^^^^^^^^^^^^^^^^^^^
-The action to create a new project can be found in GTlab in the menu bar under File->NewProject, the short cut Ctrl+N and in the toolbar.
+To set up a new project in your current session, use the *New Project Wizard*.
 
-A wizard then guides you through all the selections that need to be made for a new project:
- - Project Specifications: Name and file path for the new project
- - Project Modules: Selection of the packages that should initially be present in the project (can also be modified later)
- - Import Data: Currently only a new empty project is possible
+.. image:: images/new_project_wizard_dark.png
+   :align: center
+   :alt: New Project Wizard
+
+Start the wizard from the menu *File → New Project* or via the toolbar. The wizard will guide you step by step through the required settings.
+
+On the *Project Specifications* page, enter a project name (*Name*) and choose a storage location (*Directory*) on your hard disk.
+
+The project name must be unique within the session. In addition, you cannot select a directory that already contains a GTlab project file.
+
+.. image:: images/new_project_wizard_specs_dark.png
+   :align: center
+   :alt: Project Specifications
+
+On the *Project Modules* page, select the modules relevant to your project. Only modules with a valid data model are available for selection.
+
+.. image:: images/new_project_wizard_modules_dark.png
+   :align: center
+   :alt: Project Modules
+
+Click *Next* to confirm your selection. To finalize the setup, choose *Finish* on the *Import Data* page.
 
 Add specific package to a project
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 When creating projects, you are already asked which packages should be part of the project data. 
 This can be changed later using the **Choose Project Modules** entry in the `Context menu`_.
+
+.. image:: images/project_select_modules_dark.png
+   :align: center
+   :alt: Choose Project Modules
 
 .. _label_section_sessions:
 
@@ -33,6 +54,49 @@ Sessions
 Sessions are an easy way to sort projects. Selecting the current session or creating new sessions etc. is possible in the :ref:`preferences <label_chapter_preferences_session>`.
 Any number of projects can be collected in a session, whereby only one project can be open at a time.
 
+Project Explorer
+----------------
+
+The *Project Explorer* displays all project data sets in a tree structure. The top level shows the projects of the active session.
+
+Closed projects are marked with a specific symbol, while open projects are marked with another symbol. Only one project can be open in a GTlab instance at a time. To work with multiple projects, you must open additional GTlab instances. Copying data between instances is supported.
+
+.. image:: images/project_explorer_overview_dark.png
+   :align: center
+   :alt: Project Explorer Overview
+
+The context menu (right‑click) adapts depending on whether a project is open or closed. For example:
+
+- *Open Project*: Opens a project. If another project is already open, it will be closed automatically.
+- *Rename Project*: Renames a closed project without changing its file path.
+- *Delete from Session*: Removes a closed project from the active session (optionally deleting it from disk).
+- *Show in Explorer*: Opens the project’s folder in the file explorer.
+
+.. image:: images/project_explorer_open_project_dark.png
+   :align: center
+   :alt: Project Context Menu
+
+Modules can be added or removed later using *Choose Project Modules* from the context menu. Projects can be saved or closed with *Save Project*, *Save Project As…*, or *Close Project*.
+
+.. image:: images/project_explorer_project_context_dark.png
+   :align: center
+   :alt: Project Context Menu
+
+The data sets of the modules linked to a project appear as sub‑entries in the tree. Their structure matches the module’s data model and may include models, geometry, or results. Use *Ctrl+F* to filter the data sets.
+
+.. image:: images/project_explorer_project_content_dark.png
+   :align: center
+   :alt: Project Content
+
+When selecting a data set object, its properties are shown in the *Properties* dock widget. Changes to objects are indicated with symbols and color coding:
+
+- Modified objects are highlighted in blue with a change symbol.
+- Newly added objects appear in green with a plus symbol.
+- Once the project is saved, symbols and colors reset.
+
+.. image:: images/project_explorer_project_change_dark.png
+   :align: center
+   :alt: Change Indicators
 
 Project Comments
 ^^^^^^^^^^^^^^^^
