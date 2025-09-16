@@ -31,9 +31,10 @@ The auto-completion feature assists with writing Python code and includes all
 objects, functions, classes, and modules available in 
 the :ref:`console scope <label_python_scope>`.
 
-.. |clear| image:: ../static/icons/clear.svg
-   :alt: clear
-   :height: 16px
+
+.. |clear| image:: images/clear.svg 
+   :alt: clear 
+   :height: 16px 
    :width: 16px
 
 Console content can be cleared by clicking the |clear| button in the 
@@ -41,6 +42,7 @@ lower-right corner.
 
 .. image:: images/python_console.gif
    :alt: Demo of the Python Console
+   :align: center
    :width: 400px
 
 
@@ -59,7 +61,7 @@ projects, and accessing the currently opened project.
 
 These functions provide the entry point for interacting with GTlab from Python.  
 A complete list of available functions, including their parameters and return 
-types, is documented in :ref:`label_controlling_gtlab`.
+types, is documented :ref:`here <label_controlling_gtlab>`.
 
 
 Managing Project Data
@@ -72,23 +74,27 @@ and modifying their properties using Python code.
 
 To do so, the :py:func:`currentProject` function must be called, which returns 
 the currently opened project as a Python object. This object corresponds to the 
-project entry shown in the :ref:`Project Explorer <label_project_explorer>`.
+highlighted project entry shown in the :ref:`Project Explorer <label_project_explorer>`.
 
-All child data objects of the project can be accessed through the project object.
-Navigation through the data tree is done via the names of the child objects,
-for example:
+Using dot notation, all child objects of the project can be accessed and their
+properties can be read or modified.
 
 .. code-block:: python
 
    proj = currentProject()
    proj.<child_object_name>.<subchild_object_name>
 
-In this way, individual data objects can be referenced and their properties can
-be read or modified. Note that :py:class:`GtObject` is the base type of every
-data object and provides read and write access to the object's properties.
+.. note::
 
-.. image:: images/python_console_data_management.gif
+   All data objects in GTlab, including tasks and calculators, are instances of :py:class:`GtObject`.
+   This base class provides methods to read and write the object's properties.
+
+The following animation demonstrates navigating the project data tree and
+accessing properties via the Python Console:
+
+.. image:: images/python_console_data_management_downscaled.gif
    :alt: Demo of managing project data via Python Console
+   :align: center
 
 
 Managing and Starting hub-spoke Workflows
@@ -105,7 +111,7 @@ To access the project-specific workflows, the project object returned by
 allows navigation through the project's workflows, which consist of tasks and
 calculators, enabling their properties to be read and modified.
 
-A specific workflow can be accessed using the following object navigation:
+A specific workflow can be accessed using dot notation:
 
 .. code-block:: python
 
@@ -115,17 +121,15 @@ A specific workflow can be accessed using the following object navigation:
 Here, ``<scope>`` refers to the sub-area under *Process Data* where the workflows
 are organized (e.g., ``_user`` or ``_custom``). ``<workflow_group>`` corresponds
 to the name of the workflow group, and ``My Workflow`` is the  name of the 
-desired workflow. Since each workflow consists of a root task, the workflow 
-itself is represented by a task that manages the subordinate tasks and calculators.
-Like all data objects in the project's data tree, tasks and calculators are based on the
-type :py:class:`GtObject`, which provides read and write access to their properties.
+desired workflow. 
 
-To start workflows directly from the Python Console, the project object provides
-the method :py:meth:`GtProject.runProcess`. It expects the name of a task that
-serves as a starting point of a workflow. In GTlab, each direct child of a 
-``<workflow_group>`` represents such a workflow starting point. The names of 
-these workflows can be found in the :ref:`Processes/Calculators Dock <label_section_processdock>`, 
-where each workflow appears as a top-level item in the tree view.
+To start a workflow directly from the Python Console, the project object provides 
+the method :py:meth:`GtProject.runProcess`. It expects the name of a task that serves 
+as the starting point of the workflow. In GTlab, each direct child of a ``<workflow_group>`` 
+represents such a starting task. The names of these workflows are listed in the 
+:ref:`Processes/Calculators Dock <label_section_processdock>`, where each workflow appears 
+as a top-level item in the tree view.
+
 
 .. code-block:: python
 
@@ -135,6 +139,5 @@ where each workflow appears as a top-level item in the tree view.
 .. note::
 
    Only workflows located in the workflow group that is currently selected
-   and displayed in the Process/Calculators Dock can be started via the 
-   Python Console. In a future release, this restriction will be removed, 
-   to allow starting workflows from any workflow group.
+   and displayed in the :ref:`Processes/Calculators Dock <label_section_processdock>`
+   can be started via the Python Console.

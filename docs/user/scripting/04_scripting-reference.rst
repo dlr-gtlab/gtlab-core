@@ -505,9 +505,12 @@ Building and Controlling Workflows
    group as the Python Task in which it is called.
    If multiple workflows share the same name, the first match is returned.
 
-   The returned workflow object is a clone and exists only within the Python script's scope.  
-   To safely access its subordinate tasks or calculators, a reference to the cloned workflow must be kept; 
-   otherwise, child objects may become invalid if the workflow object is deleted.
+   The returned workflow object is a clone and exists only within the Python task's :ref:`scope <label_python_scope>`.
+
+   .. important::
+
+      To safely access its subordinate tasks or calculators, a reference to the cloned workflow must be kept;
+      otherwise, child objects may become invalid if the workflow object is deleted.
 
    :raises SystemError: If no workflow with the given name exists.
 
