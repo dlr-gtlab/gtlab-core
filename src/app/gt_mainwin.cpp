@@ -1279,7 +1279,6 @@ void
 GtMainWin::setTheme(bool /*dark*/)
 {
     gt::gui::applyThemeToApplication();
-    gt::gui::applyThemeToWidget(this);
     gt::gui::applyThemeToWidget(ui->mdiArea);
 
     // update all standalone widgets (i.e. windows)
