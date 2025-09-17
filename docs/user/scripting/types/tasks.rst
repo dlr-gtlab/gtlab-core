@@ -20,15 +20,15 @@ The Python Task provides a configuration dialog with an integrated
 script editor, where the Python script executed by the Python Task can be
 created and edited.
 
-.. image:: images/script-task.png
+.. image:: images/python-task-light.png
    :align: center
-   :alt: Python Tasks access data model packages
+   :alt: Python Tasks configuration dialog
    :class: only-light
 
 
-.. image:: images/script-task-dark.png
+.. image:: images/python-task-dark.png
    :align: center
-   :alt: Python Tasks access data model packages
+   :alt: Python Tasks configuration dialog
    :class: only-dark
 
 The editor offers the same features as in the 
