@@ -92,7 +92,7 @@ properties can be read or modified.
 The following animation demonstrates navigating the project data tree and
 accessing properties via the Python Console:
 
-.. image:: images/python_console_data_management_downscaled.gif
+.. image:: images/python_console_data_management.gif
    :alt: Demo of managing project data via Python Console
    :align: center
 
