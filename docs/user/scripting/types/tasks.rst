@@ -37,6 +37,7 @@ auto-completion and script evaluation. In addition, the Python Task editor
 supports creating, configuring, and executing calculators, and allows
 loading existing hub-spoke workflows from the project data into the script.
 
+
 Configuring Calculators
 """""""""""""""""""""""
 
@@ -58,6 +59,16 @@ script. All calculator properties that differ from their default values are
 set accordingly. The calculator created in this way is then available
 as a Python object within the script.
 
+.. image:: images/python-task-create-calc-ui-light.gif
+   :alt: Demo of configuring a calculator using the user interface
+   :width: 100%
+   :class: only-light
+
+
+.. image:: images/python-task-create-calc-ui-dark.gif
+   :alt: Demo of configuring a calculator using the user interface
+   :width: 100%
+   :class: only-dark
 
 **Using drag and drop**
 
@@ -97,6 +108,13 @@ do not contain spaces or special characters.
 
 Once a calculator has been configured, it can be executed directly from the
 script using its :py:meth:`GtCalculator.run` method.
+
+.. note:: 
+   
+   When evaluating the script in the Python Task configuration dialog, 
+   calls to :py:meth:`GtTask.run` and :py:meth:`GtCalculator.run` 
+   do not trigger execution. They always return ``True`` as a way 
+   to validate the script without running the workflow.
 
 
 Loading Hub-Spoke Workflows into Python Tasks

@@ -529,10 +529,18 @@ Building and Controlling Workflows
 
    .. py:method:: run() -> bool
 
-      Executes the task
+      Executes the task.
 
-      :return: True, on success. False otherwise.
+      :return: ``True`` on success, ``False`` otherwise.
       :rtype: bool
+
+      .. note::
+   
+         When called while evaluating a script in the
+         :ref:`Python Task’s configuration dialog <label_scripting_tasks>`,
+         ``run()`` does not execute the task logic. In this case it always 
+         returns ``True`` to allow syntax and basic semantic checks without
+         running the actual workflow.
 
    .. py:method:: deleteAllCalculators()
 
@@ -600,11 +608,20 @@ Building and Controlling Workflows
 
 .. py:class:: GtCalculator(GtObject)
 
+   An executable calculator of the hub-spoke workflow engine.
+
    Inherited from :py:class:`GtObject`
 
    .. py:method:: run() -> bool
 
-      Executes the Calculator
+      Executes the calculator.
 
-      :return: True, on success. False otherwise.
+      :return: ``True`` on success, ``False`` otherwise.
       :rtype: bool
+
+      .. note::
+         When called while evaluating a script in the
+         :ref:`Python Task’s configuration dialog <label_scripting_tasks>`, 
+         ``run()`` does not perform the actual calculation. In this case it 
+         always returns ``True`` to enable syntax and basic semantic checks
+         without executing the calculator routine.
