@@ -23,7 +23,7 @@ variables:
 
 # inlcude some templates from this file
 include:
-  - project: 'at-twk/gitlab-templates'
+  - project: 'gtlab/public/development-tools/gitlab-templates'
     file: '/ci-templates/.ci-templates-cmake-1.0.yml'
 
    
@@ -212,11 +212,10 @@ testWin:
 
 testLinux:
   stage: test
-  tags: ["linux", "docker"]
-  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
   needs: ["linuxBuildDebug"]
   extends: 
     - .debugBuildRules
+    - .linuxdocker
   before_script:
     # update to latest dev tools
     - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
@@ -234,9 +233,8 @@ testLinux:
 
 code-coverage:
   stage: codequality
-  tags: ["linux", "docker"]
-  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
   extends: 
+    - .linuxdocker
     - .debugBuildRules
   needs: 
     - linuxBuildDebug
@@ -261,8 +259,8 @@ valgrind:
     - .debugBuildRules
   needs: ["linuxBuildDebug"]
   stage: test
-  tags: ["linux", "docker"]
-  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
+  extends:
+    - .linuxdocker
   before_script:
     - apt update -y && apt install -y xvfb
     - '"$GTLAB_UPDATE_TOOL" up --confirm-command'

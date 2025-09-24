@@ -35,6 +35,8 @@ GtImportMenu::GtImportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
     connect(m_signalMapper, SIGNAL(mapped(QObject*)),
             SLOT(onActionTrigger(QObject*)));
 
+    if (!obj) return;
+
     QList<GtImporterMetaData> importerList =
             gtImportHandler->importerMetaData(obj->metaObject()->className());
 
