@@ -246,6 +246,7 @@ GtModuleDetailsDialog::loadInfoFile(QString const& filter)
         }
 
         QTextStream in(&file);
+        in.setCodec("UTF-8");
         QString content = in.readAll();
         file.close();
 
