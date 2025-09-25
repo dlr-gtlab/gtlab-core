@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2019] # we build on GitHub-provided Windows and Linux images
+        os: [ubuntu-latest, windows-2022] # we build on GitHub-provided Windows and Linux images
     runs-on: ${{ matrix.os }} # use value from the matrix
     
     steps:    
