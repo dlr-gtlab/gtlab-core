@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Connecting GtStringMonitoringProperty to GtStringProperty in the connection editor now works as expected - #1380
  - Fixed Output Dock not resizing new rows correctly. - #1260
+ - Fixed crash in Process Explorer, when no project is currently open. - #1393
 
 ## [2.0.11] - 2025-04-03
 ### Fixed

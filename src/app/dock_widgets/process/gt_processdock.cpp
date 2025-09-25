@@ -1154,12 +1154,13 @@ GtProcessDock::defaultContextMenu()
 
     menu.addSeparator();
 
-    // import action
-    auto imenu = new GtImportMenu(m_taskGroup, &menu);
-
-    menu.addMenu(imenu);
-
-    menu.addSeparator();
+    if (m_taskGroup)
+    {
+        // import action
+        auto imenu = new GtImportMenu(m_taskGroup, &menu);
+        menu.addMenu(imenu);
+        menu.addSeparator();
+    }
 
     auto paste = makePasteAction(this, m_taskGroup);
 
