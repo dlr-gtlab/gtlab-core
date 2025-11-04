@@ -214,10 +214,10 @@ testWin:
 testLinux:
   stage: test
   tags: ["linux", "docker"]
-  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
   needs: ["linuxBuildDebug"]
   extends: 
     - .debugBuildRules
+    - .linuxdocker
   before_script:
     # update to latest dev tools
     - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
@@ -236,9 +236,9 @@ testLinux:
 code-coverage:
   stage: codequality
   tags: ["linux", "docker"]
-  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
   extends: 
     - .debugBuildRules
+    - .linuxdocker
   needs: 
     - linuxBuildDebug
   before_script:
@@ -260,10 +260,10 @@ code-coverage:
 valgrind:
   extends: 
     - .debugBuildRules
+    - .linuxdocker
   needs: ["linuxBuildDebug"]
   stage: test
   tags: ["linux", "docker"]
-  image: at-twk-hal9000.intra.dlr.de:5000/dlr-at/gtlabdev-2_0-buster
   before_script:
     - apt update -y && apt install -y xvfb
     - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
