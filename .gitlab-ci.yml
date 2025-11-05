@@ -213,7 +213,6 @@ testWin:
 
 testLinux:
   stage: test
-  tags: ["linux", "docker"]
   needs: ["linuxBuildDebug"]
   extends: 
     - .debugBuildRules
@@ -235,7 +234,6 @@ testLinux:
 
 code-coverage:
   stage: codequality
-  tags: ["linux", "docker"]
   extends: 
     - .debugBuildRules
     - .linuxdocker
@@ -263,7 +261,6 @@ valgrind:
     - .linuxdocker
   needs: ["linuxBuildDebug"]
   stage: test
-  tags: ["linux", "docker"]
   before_script:
     - apt update -y && apt install -y xvfb
     - '"$GTLAB_UPDATE_TOOL" up --confirm-command'
