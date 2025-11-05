@@ -24,23 +24,80 @@ public:
      * @brief The Bound struct
      * Can handle boundaries for numerical propeties
      */
-    struct Bound
-    {
-        enum BoundType
+    class Boundaries
+    { 
+    public :
+        enum SetMode
         {
-            BoundLow,
-            BoundHigh
+            OnlyLower,
+            OnlyUpper
         };
 
-        /**
-         * @brief type - low or high value boundary
-         */
-        BoundType type;
+        Boundaries(ParamType const& lower, ParamType const& uppper) :
+            m_lowerActive(true), m_upperActive(true),
+            m_lowerVal(lower), m_upperVal(uppper) {}
 
-        /**
-         * @brief value of the boundary
-         */
-        ParamType value;
+        Boundaries(ParamType const& boundValue, SetMode mode)
+        {
+            setLowerActive(mode == OnlyLower);
+            setUpperActive(mode == OnlyUpper);
+
+            if (mode == OnlyLower)
+            {
+                setLowerBound(boundValue);
+            }
+            else
+            {
+                setUpperBound(boundValue);
+            }
+        }
+
+        ParamType lowerBound() const
+        {
+            return m_lowerVal;
+        }
+
+        ParamType upperBound() const
+        {
+            return m_upperVal;
+        }
+
+        void setLower(ParamType const& newLowerBound)
+        {
+            m_lowerVal = newLowerBound;
+        }
+
+        void setUpper(ParamType const& newUpperBound)
+        {
+            m_upperVal = newUpperBound;
+        }
+
+        bool lowerActive() const
+        {
+            return m_lowerActive;
+        }
+
+        bool upperActive() const
+        {
+            return m_upperActive;
+        }
+
+        void setLowerActive(bool active = true)
+        {
+            m_lowerActive = active;
+        }
+
+        void setUpperActive(bool active = true)
+        {
+            m_upperActive = active;
+        }
+
+    private:
+        bool m_lowerActive;
+        bool m_upperActive;
+
+        ParamType m_lowerVal;
+        ParamType m_upperVal;
     };
 
     /**

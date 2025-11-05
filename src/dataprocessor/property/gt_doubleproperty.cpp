@@ -123,24 +123,21 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
 GtDoubleProperty::GtDoubleProperty(const QString& ident, const QString& name,
                                    const QString& brief,
                                    const GtUnit::Category& unitCategory,
-                                   Bound bound, const double& value) :
+                                   Boundaries bounds, const double& value) :
     GtDoubleProperty(ident, name, brief)
 {
     m_unitCategory = unitCategory;
 
-    if (bound.type == GtProperty<double>::Bound::BoundLow)
+    if (bounds.upperActive())
+    {
+        m_boundsCheckFlagHi = true;
+        m_boundHi = bounds.upperBound();
+    }
+
+    if (bounds.lowerActive())
     {
         m_boundsCheckFlagLow = true;
-        m_boundsCheckFlagHi = false;
-        m_boundLo = bound.value;
-        m_boundHi = 0.0;
-    }
-    else
-    {
-        m_boundsCheckFlagLow = false;
-        m_boundsCheckFlagHi = true;
-        m_boundLo = 0.0;
-        m_boundHi = bound.value;
+        m_boundLo = bounds.lowerBound();
     }
 
     bool success = false;
@@ -300,24 +297,12 @@ gt::makeDoubleProperty(const QString& name, const QString& brief,
 gt::PropertyFactoryFunction
 gt::makeDoubleProperty(const QString& name, const QString& brief,
                        const GtUnit::Category& unitCategory,
-                       GtDoubleProperty::Bound lowBound,
-                       GtDoubleProperty::Bound highBound,
+                       GtDoubleProperty::Boundaries boundaries,
                        const double& value)
 {
     return [=](QString const& id){
         return new GtDoubleProperty(id, name, brief, unitCategory,
-                                    lowBound.value, highBound.value, value);
+                                    boundaries, value);
     };
 }
 
-gt::PropertyFactoryFunction
-gt::makeDoubleProperty(const QString& name, const QString& brief,
-                       const GtUnit::Category& unitCategory,
-                       GtDoubleProperty::Bound bound,
-                       const double& value)
-{
-    return [=](QString const& id){
-        return new GtDoubleProperty(id, name, brief, unitCategory,
-                                    bound, value);
-    };
-}

@@ -73,6 +73,7 @@ public:
      * @param highSideBoundary
      * @param value
      */
+    [[deprecated("Use function with GtDoubleProperty::Boundaries definition instead")]]
     GtDoubleProperty(const QString& ident,
                      const QString& name,
                      const QString& brief,
@@ -91,8 +92,7 @@ public:
      * @param boundary
      * @param value
      */
-    [[deprecated("Use function with GtDoubleProperty::Bound bound definition"
-                 "instead")]]
+    [[deprecated("Use function with GtDoubleProperty::Boundaries definition instead")]]
     GtDoubleProperty(const QString& ident,
                      const QString& name,
                      const QString& brief,
@@ -114,7 +114,7 @@ public:
                      const QString& name,
                      const QString& brief,
                      const GtUnit::Category& unitCategory,
-                     GtDoubleProperty::Bound bound,
+                     GtDoubleProperty::Boundaries bounds,
                      const double& value = 0.0);
 
     // operator overloads
@@ -245,8 +245,7 @@ GT_DATAMODEL_EXPORT
  * @param name - name in the GUI
  * @param brief - description for tool tip in GUI
  * @param unitCategory - category for the GTlab unit system
- * @param lowSideBoundary - Lower side boundary
- * @param highSideBoundary - High side boundary
+ * @param boundaries - baoundary description
  * @param value Default - value
  * @return function factory for usage in container definitions
  */
@@ -254,26 +253,9 @@ GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
                        const QString& brief,
                        const GtUnit::Category& unitCategory,
-                       GtDoubleProperty::Bound lowBound,
-                       GtDoubleProperty::Bound highBound,
+                       GtDoubleProperty::Boundaries boundaries,
                        const double& value = 0.0);
 
-/**
- * @brief Creates a property factory for doubles with a default value, a unit
- * and a custom boundary
- * @param name - name in the GUI
- * @param brief - description for tool tip in GUI
- * @param unitCategory - category for the GTlab unit system
- * @param bound - Boundary definition (type and value)
- * @param value - Default value
- * @return
- */
-GT_DATAMODEL_EXPORT
-gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
-                                               const QString& brief,
-                                               const GtUnit::Category& unitCategory,
-                                               GtDoubleProperty::Bound bound,
-                                               const double& value = 0.0);
 } // namespace gt
 
 #endif // GTP_DOUBLEPARAM_H
