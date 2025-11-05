@@ -38,38 +38,26 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
 GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief,
-                                   const GtUnit::Category &unitCategory,
-                                   const double& value)
+                                   const GtUnit::Category& unitCategory,
+                                   const double& value) :
+    GtDoubleProperty(ident, name, brief)
 {
-    setObjectName(name);
-
-    m_id = ident;
-    m_brief = brief;
     m_unitCategory = unitCategory;
     m_value = value;
     m_initValue = value;
-    m_boundsCheckFlagHi = false;
-    m_boundsCheckFlagLow = false;
-    m_boundHi = 0.0;
-    m_boundLo = 0.0;
 }
 
 
 GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief,
-                                   const GtUnit::Category &unitCategory,
+                                   const GtUnit::Category& unitCategory,
                                    const double lowSideBoundary,
                                    const double highSideBoundary,
-                                   const double& value)
+                                   const double& value) :
+    GtDoubleProperty(ident, name, brief)
 {
-    setObjectName(name);
-
-    m_id = ident;
-    m_brief = brief;
     m_unitCategory = unitCategory;
-    m_value = 0.0;
-    m_initValue = 0.0;
 
     if (lowSideBoundary >= highSideBoundary)
     {
@@ -102,15 +90,10 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const GtUnit::Category& unitCategory,
                                    GtDoubleProperty::BoundType boundType,
                                    const double boundary,
-                                   const double& value)
+                                   const double& value) :
+    GtDoubleProperty(ident, name, brief)
 {
-    setObjectName(name);
-
-    m_id = ident;
-    m_brief = brief;
     m_unitCategory = unitCategory;
-    m_value = 0.0;
-    m_initValue = 0.0;
 
     if (boundType == GtDoubleProperty::BoundLow)
     {
@@ -125,6 +108,39 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
         m_boundsCheckFlagHi = true;
         m_boundLo = 0.0;
         m_boundHi = boundary;
+    }
+
+    bool success = false;
+
+    setVal(value, &success);
+
+    if (success)
+    {
+        m_initValue = value;
+    }
+}
+
+GtDoubleProperty::GtDoubleProperty(const QString& ident, const QString& name,
+                                   const QString& brief,
+                                   const GtUnit::Category& unitCategory,
+                                   Bound bound, const double& value) :
+    GtDoubleProperty(ident, name, brief)
+{
+    m_unitCategory = unitCategory;
+
+    if (bound.type == GtProperty<double>::Bound::BoundLow)
+    {
+        m_boundsCheckFlagLow = true;
+        m_boundsCheckFlagHi = false;
+        m_boundLo = bound.value;
+        m_boundHi = 0.0;
+    }
+    else
+    {
+        m_boundsCheckFlagLow = false;
+        m_boundsCheckFlagHi = true;
+        m_boundLo = 0.0;
+        m_boundHi = bound.value;
     }
 
     bool success = false;
@@ -284,26 +300,24 @@ gt::makeDoubleProperty(const QString& name, const QString& brief,
 gt::PropertyFactoryFunction
 gt::makeDoubleProperty(const QString& name, const QString& brief,
                        const GtUnit::Category& unitCategory,
-                       const double lowSideBoundary,
-                       const double highSideBoundary,
+                       GtDoubleProperty::Bound lowBound,
+                       GtDoubleProperty::Bound highBound,
                        const double& value)
 {
     return [=](QString const& id){
         return new GtDoubleProperty(id, name, brief, unitCategory,
-                                    lowSideBoundary,
-                                    highSideBoundary, value);
+                                    lowBound.value, highBound.value, value);
     };
 }
 
 gt::PropertyFactoryFunction
 gt::makeDoubleProperty(const QString& name, const QString& brief,
                        const GtUnit::Category& unitCategory,
-                       GtDoubleProperty::BoundType boundType,
-                       const double boundary, const double& value)
+                       GtDoubleProperty::Bound bound,
+                       const double& value)
 {
     return [=](QString const& id){
         return new GtDoubleProperty(id, name, brief, unitCategory,
-                                    boundType,
-                                    boundary, value);
+                                    bound, value);
     };
 }

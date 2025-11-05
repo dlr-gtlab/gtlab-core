@@ -68,6 +68,12 @@ public:
                   int boundary,
                   int value = 0);
 
+    GtIntProperty(const QString& ident,
+                  const QString& name,
+                  const QString& brief,
+                  GtIntProperty::Bound bound,
+                  int value = 0);
+
     /**
      * @brief GtIntProperty
      * @param ident
@@ -212,6 +218,7 @@ gt::PropertyFactoryFunction makeIntProperty(int value);
  * @param lowSideBoundary Lower side boundary
  * @param highSideBoundary High side boundary
  */
+[[deprecated("Use function with GtIntProperty::Bound bound definition instead")]]
 GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeIntProperty(int lowSideBoundary,
                                             int highSideBoundary,
@@ -224,9 +231,14 @@ gt::PropertyFactoryFunction makeIntProperty(int lowSideBoundary,
  * @param boundaryType Boundary type
  * @param boundary Boundary
  */
+[[deprecated("Use function with GtIntProperty::Bound bound definition instead")]]
 GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeIntProperty(GtIntProperty::BoundType boundaryType,
                                             int boundary,
+                                            int value = 0);
+
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeIntProperty(GtIntProperty::Bound bound,
                                             int value = 0);
 
 } // namespace gt

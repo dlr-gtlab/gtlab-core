@@ -21,6 +21,29 @@ class GtProperty : public GtAbstractProperty
 public:
 
     /**
+     * @brief The Bound struct
+     * Can handle boundaries for numerical propeties
+     */
+    struct Bound
+    {
+        enum BoundType
+        {
+            BoundLow,
+            BoundHigh
+        };
+
+        /**
+         * @brief type - low or high value boundary
+         */
+        BoundType type;
+
+        /**
+         * @brief value of the boundary
+         */
+        ParamType value;
+    };
+
+    /**
      * @brief Returns a reference to the parameter value.
      * @return
      */
