@@ -15,6 +15,7 @@
 #include "gt_datamodel_exports.h"
 
 #include "gt_property.h"
+#include "gt_boundaries.h"
 
 class GT_DATAMODEL_EXPORT GtIntProperty : public GtProperty<int>
 {
@@ -73,7 +74,7 @@ public:
     GtIntProperty(const QString& ident,
                   const QString& name,
                   const QString& brief,
-                  GtIntProperty::Boundaries bounds,
+                  gt::Boundaries<int> bounds,
                   int value = 0);
 
     /**
@@ -240,7 +241,7 @@ gt::PropertyFactoryFunction makeIntProperty(GtIntProperty::BoundType boundaryTyp
                                             int value = 0);
 
 GT_DATAMODEL_EXPORT
-gt::PropertyFactoryFunction makeIntProperty(GtIntProperty::Boundaries bounds,
+gt::PropertyFactoryFunction makeIntProperty(gt::Boundaries<int> bounds,
                                             int value = 0);
 
 } // namespace gt

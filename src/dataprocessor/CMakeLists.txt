@@ -101,6 +101,8 @@ set(HEADERS
     gt_algorithms.h
     gt_mpl.h
     gt_versionnumber.h
+    gt_optional.h
+    gt_boundaries.h
 )
 
 set(SOURCES

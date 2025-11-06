@@ -84,19 +84,20 @@ GtIntProperty::GtIntProperty(const QString& ident,
 GtIntProperty::GtIntProperty(const QString& ident,
                              const QString& name,
                              const QString& brief,
-                             Boundaries bounds,
+                             gt::Boundaries<int> bounds,
                              int value)
 {
-    if (bounds.upperActive())
+    m_boundsCheckFlagHi = bounds.high().has_value();
+    m_boundsCheckFlagLow = bounds.low().has_value();
+
+    if (bounds.high())
     {
-        m_boundsCheckFlagHi = true;
-        m_boundHi = bounds.upperBound();
+        m_boundHi = bounds.high().value();
     }
 
-    if (bounds.lowerActive())
+    if (bounds.low())
     {
-        m_boundsCheckFlagLow = true;
-        m_boundLo = bounds.lowerBound();
+        m_boundLo = bounds.low().value();
     }
 
     m_value = gt::clamp(value, m_boundLo, m_boundHi);
@@ -257,7 +258,7 @@ gt::makeIntProperty(int lowSideBoundary, int highSideBoundary, int value)
 }
 
 gt::PropertyFactoryFunction
-gt::makeIntProperty(GtIntProperty::GtProperty::Boundaries bounds, int value)
+gt::makeIntProperty(gt::Boundaries<int> bounds, int value)
 {
     return [=](QString const& id){
         return new GtIntProperty(id, id, QString{}, bounds, value);

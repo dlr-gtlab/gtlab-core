@@ -123,21 +123,22 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
 GtDoubleProperty::GtDoubleProperty(const QString& ident, const QString& name,
                                    const QString& brief,
                                    const GtUnit::Category& unitCategory,
-                                   Boundaries bounds, const double& value) :
+                                   gt::Boundaries<double> bounds,
+                                   const double& value) :
     GtDoubleProperty(ident, name, brief)
 {
     m_unitCategory = unitCategory;
+    m_boundsCheckFlagHi = bounds.high().has_value();
+    m_boundsCheckFlagLow = bounds.low().has_value();
 
-    if (bounds.upperActive())
+    if (bounds.high())
     {
-        m_boundsCheckFlagHi = true;
-        m_boundHi = bounds.upperBound();
+        m_boundHi = bounds.high().value();
     }
 
-    if (bounds.lowerActive())
+    if (bounds.low())
     {
-        m_boundsCheckFlagLow = true;
-        m_boundLo = bounds.lowerBound();
+        m_boundLo = bounds.high().value();
     }
 
     bool success = false;
@@ -297,7 +298,7 @@ gt::makeDoubleProperty(const QString& name, const QString& brief,
 gt::PropertyFactoryFunction
 gt::makeDoubleProperty(const QString& name, const QString& brief,
                        const GtUnit::Category& unitCategory,
-                       GtDoubleProperty::Boundaries boundaries,
+                       gt::Boundaries<double> boundaries,
                        const double& value)
 {
     return [=](QString const& id){

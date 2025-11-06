@@ -15,6 +15,7 @@
 #include "gt_datamodel_exports.h"
 
 #include "gt_property.h"
+#include "gt_boundaries.h"
 
 /**
  * @brief The GtDoubleProperty class
@@ -114,7 +115,7 @@ public:
                      const QString& name,
                      const QString& brief,
                      const GtUnit::Category& unitCategory,
-                     GtDoubleProperty::Boundaries bounds,
+                     gt::Boundaries<double> bounds,
                      const double& value = 0.0);
 
     // operator overloads
@@ -253,7 +254,7 @@ GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
                        const QString& brief,
                        const GtUnit::Category& unitCategory,
-                       GtDoubleProperty::Boundaries boundaries,
+                       gt::Boundaries<double> boundaries,
                        const double& value = 0.0);
 
 } // namespace gt
