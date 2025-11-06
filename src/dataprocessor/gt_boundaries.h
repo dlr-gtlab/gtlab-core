@@ -51,7 +51,7 @@ namespace gt {
         static Boundaries makeNormalized(ParamType low, ParamType high) noexcept
         {
             if (low > high) std::swap(low, high);
-
+            return Boundaries<ParamType>(std::move(low), std::move(high));
         }
 
         /**
