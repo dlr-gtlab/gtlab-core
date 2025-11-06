@@ -10,17 +10,16 @@
 #include <QMetaType>
 #include <QString>
 
-
 #include "gt_abstractproperty.h"
 #include "gt_unit.h"
 #include "gt_utilities.h"
 #include "gt_unitconverter.h"
 
-
 template<class ParamType>
 class GtProperty : public GtAbstractProperty
 {
 public:
+
     /**
      * @brief Returns a reference to the parameter value.
      * @return
