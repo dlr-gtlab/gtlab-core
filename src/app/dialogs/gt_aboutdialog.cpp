@@ -193,26 +193,30 @@ QWidget*
 GtAboutDialog::modulesWidget()
 {
     m_modulesTree = new QTreeWidget;
+    m_modulesTree->setTextElideMode(Qt::ElideMiddle);
 
     auto* w = new QWidget;
     auto* l = new QVBoxLayout;
 
     w->setLayout(l);
 
-    m_modulesTree->setColumnCount(2);
+    m_modulesTree->setColumnCount(3);
     m_modulesTree->setHeaderLabels(QStringList()
                                          << tr("Name")
-                                         << tr("Version"));
+                                         << tr("Version")
+                                         << tr("Location"));
     m_modulesTree->header()->setStretchLastSection(true);
-    m_modulesTree->setColumnWidth(0, 300);
+    m_modulesTree->setColumnWidth(0, 200);
     foreach (const QString& id, gtApp->moduleIds())
     {
         QStringList info;
         info << id;
         info << gtApp->moduleVersion(id).toString();
+        info << gtApp->moduleLocation(id);
         auto* item = new QTreeWidgetItem(info);
         item->setIcon(0, gt::gui::icon::plugin());
         item->setToolTip(0, gtApp->moduleDescription(id));
+        item->setToolTip(2, gtApp->moduleLocation(id));
         m_modulesTree->addTopLevelItem(item);
     }
 

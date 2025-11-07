@@ -148,6 +148,34 @@ public:
      * @return module licence information
      */
     QString moduleLicence(const QString& id) const;
+
+    /**
+     * @brief Returns the location of the module
+     *
+     * @param module identification string
+     * @return Location / Path
+     */
+    QString moduleLocation(const QString& id) const;
+
+    /**
+     * @brief Returns the application module directory
+     */
+    static QString applicationModuleDir();
+
+    /**
+     * @brief Returns the user module directory.
+     *
+     * Note the directory might not yet exist
+     */
+    static QString defaultUserModuleDir();
+
+    /**
+     * @brief Returns user directories
+     *
+     * Module dirs starting with '#' should be ignored
+     */
+    static QStringList customUserModuleDirs();
+
 protected:
     /**
      * @brief check
