@@ -282,11 +282,13 @@ GtModuleLoader::defaultUserModuleDir()
 QStringList
 GtModuleLoader::customUserModuleDirs()
 {
-    assert(gtApp && gtApp->settings());
+    assert(gtApp);
 
-    QStringList userModuleDirs = gtApp->settings()->userModuleDirs();
+    auto settings = gtApp->settings();
 
-    return userModuleDirs;
+    assert(settings);
+
+    return settings->userModuleDirs();
 }
 
 namespace
