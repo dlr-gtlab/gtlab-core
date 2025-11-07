@@ -28,6 +28,9 @@ GtModuleDirectoriesTab::GtModuleDirectoriesTab(QWidget* parent) :
     ui->btnAddDirectory->setIcon(gt::gui::icon::folderAdd());
     ui->btnRemoveDirectory->setIcon(gt::gui::icon::remove());
 
+    ui->btnAddDirectory->setToolTip(tr("Add directory"));
+    ui->btnRemoveDirectory->setToolTip(tr("Remove directory"));
+
     // Allow inline editing for user rows; F2, double-click, or selected-click
     ui->directoriesList->setEditTriggers(QAbstractItemView::EditKeyPressed |
                                          QAbstractItemView::SelectedClicked |
