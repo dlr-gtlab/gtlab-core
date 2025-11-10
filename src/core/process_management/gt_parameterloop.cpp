@@ -15,7 +15,7 @@
 GtParameterLoop::GtParameterLoop() :
     m_startVal("start", "start"),
     m_endVal("end", "end"),
-    m_steps("steps", "steps"),
+    m_steps("steps", "steps", "steps", gt::Boundaries<int>::makeLower(1), 1),
     m_currentVal("currentVal", "currentVal")
 {
     setObjectName("Parameter Loop");

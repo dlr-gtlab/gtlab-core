@@ -85,7 +85,8 @@ GtIntProperty::GtIntProperty(const QString& ident,
                              const QString& name,
                              const QString& brief,
                              gt::Boundaries<int> bounds,
-                             int value)
+                             int value) :
+    GtIntProperty(ident, name, brief)
 {
     m_boundsCheckFlagHi = bounds.high().has_value();
     m_boundsCheckFlagLow = bounds.low().has_value();
