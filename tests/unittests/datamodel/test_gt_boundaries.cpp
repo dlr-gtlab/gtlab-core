@@ -104,12 +104,12 @@ TEST_F(TestGtBoundaries, Contains)
 
 TEST_F(TestGtBoundaries, ValidPair)
 {
-    gt::optional<int> lo = 5;
-    gt::optional<int> hi = 10;
+    tl::optional<int> lo = 5;
+    tl::optional<int> hi = 10;
     EXPECT_TRUE(IntBound::valid_pair(lo, hi));
     EXPECT_FALSE(IntBound::valid_pair(10, 5));
 
-    gt::optional<double> nanVal = std::nan("");
+    tl::optional<double> nanVal = std::nan("");
     EXPECT_FALSE(DoubleBound::valid_pair(nanVal, 10.0));
     EXPECT_FALSE(DoubleBound::valid_pair(5.0, nanVal));
 }
