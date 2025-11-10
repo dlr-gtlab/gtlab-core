@@ -7,7 +7,7 @@
 #ifndef GT_BOUNDARIES_H
 #define GT_BOUNDARIES_H
 
-#include "tl/optional.hpp"
+#include <tl/optional.hpp>
 #include <cmath>
 
 namespace gt {
