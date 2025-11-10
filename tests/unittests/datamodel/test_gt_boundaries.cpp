@@ -23,14 +23,8 @@ protected:
     using IntBound = Boundaries<int>;
     using DoubleBound = Boundaries<double>;
 
-    virtual void SetUp()
-    {
-
-    }
-    virtual void TearDown()
-    {
-
-    }
+    virtual void SetUp() {}
+    virtual void TearDown() {}
 };
 
 TEST_F(TestGtBoundaries, MakeLower)

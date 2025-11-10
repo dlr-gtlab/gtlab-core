@@ -30,11 +30,23 @@ namespace gt {
         bool has_high() const noexcept { return static_cast<bool>(m_high); }
 
 
+        /**
+         * @brief makeUpper
+         * @param high
+         * @return a boundary with a set value for the upper bound and
+         * a non-set lower bound
+         */
         static Boundaries makeUpper(ParamType high) noexcept
         {
             return Boundaries<ParamType>(tl::nullopt, std::move(high));
         }
 
+        /**
+         * @brief makeLower
+         * @param low
+         * @return a boundary with a set value for the lower bound and
+         * a non-set upper bound
+         */
         static Boundaries makeLower(ParamType low) noexcept
         {
             return Boundaries<ParamType>(std::move(low), tl::nullopt);

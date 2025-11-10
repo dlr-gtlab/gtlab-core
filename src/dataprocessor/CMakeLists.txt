@@ -26,7 +26,6 @@ if (NOT TARGET tl::optional)
         $<INSTALL_INTERFACE:include/core/thirdparty>)
 
     install(TARGETS tloptional EXPORT GTlabTargets)
-    message(STATUS "tloptional include dir = ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty")
 endif()
 
 
