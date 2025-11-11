@@ -32,6 +32,8 @@ namespace gt
     class PolyVector
     {
     public:
+        struct const_iterator;
+
         struct iterator
         {
             using iterator_category = std::forward_iterator_tag;
@@ -39,6 +41,11 @@ namespace gt
             using value_type = BaseType;
             using pointer = BaseType*; // or also value_type*
             using reference = BaseType&;
+
+            operator const_iterator() const
+            {
+                return const_iterator(current);
+            }
 
             friend PolyVector;
 
@@ -94,12 +101,6 @@ namespace gt
             using value_type = BaseType;
             using pointer = BaseType*; // or also value_type*
             using reference = BaseType&;
-
-            // we allow an implicit convert here
-            // cppcheck-suppress noExplicitConstructor // NOLINTNEXTLINE
-            const_iterator(const iterator& it) :
-                current(it.current)
-            {}
 
             friend PolyVector;
 
