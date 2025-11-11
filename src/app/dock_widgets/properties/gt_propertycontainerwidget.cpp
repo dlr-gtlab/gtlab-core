@@ -176,8 +176,6 @@ void
 GtPropertyContainerWidget::addNewEntry(GtPropertyStructContainer& container,
                                        const QString& entryType)
 {
-
-
     QString newId;
 
     if (container.type() == GtPropertyStructContainer::Associative)

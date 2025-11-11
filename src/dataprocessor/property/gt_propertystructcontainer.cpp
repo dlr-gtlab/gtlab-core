@@ -44,7 +44,7 @@ GtPropertyStructContainer::GtPropertyStructContainer(const QString& ident,
 
 GtPropertyStructContainer::GtPropertyStructContainer(const QString& ident,
                                                      const QString& name,
-                                                    GtPropertyStructContainer::ContainerType type) :
+                                                     GtPropertyStructContainer::ContainerType type) :
     pimpl(std::make_unique<GtPropertyStructContainer::Impl>(ident, name, type))
 {
 }
