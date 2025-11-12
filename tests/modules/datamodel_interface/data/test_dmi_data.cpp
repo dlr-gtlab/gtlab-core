@@ -19,6 +19,7 @@ TestDmiData::TestDmiData() :
     m_container("notes", "notes"),
     m_containerRO("tasks", "tasks (ro)"),
     m_containerHidden("hiddenNotes", "Hidden Notes"),
+    m_containerMap("mapContainer", "Map Example", GtPropertyStructContainer::Associative),
     m_mode("modeProp", "ModeProp", "A mode-property"),
     m_propTypeA("Type A", "Type A brief"),
     m_propTypeB("Type B", "Type B brief"),
@@ -45,8 +46,9 @@ TestDmiData::TestDmiData() :
 
     GtPropertyStructDefinition stringEntryDef("StringStruct");
     stringEntryDef.defineMember("value", gt::makeOptional(gt::makeStringProperty(""), true));
-    stringEntryDef.defineMember("name", gt::makeReadOnly(gt::makeStringProperty("")));
+    stringEntryDef.defineMember("name", gt::makeReadOnly(gt::makeStringProperty("YouCannotChangeIt")));
 
+    m_container.setEntryPrefix("note");
     m_container.registerAllowedType(stringEntryDef);
     m_containerRO.registerAllowedType(stringEntryDef);
     m_containerHidden.registerAllowedType(stringEntryDef);
@@ -55,10 +57,16 @@ TestDmiData::TestDmiData() :
     m_containerHidden.setFlags(GtPropertyStructContainer::Hidden);
 
 
+    GtPropertyStructDefinition doubleMapEntry("DoubleStruct");
+    doubleMapEntry.defineMember("value", gt::makeDoubleProperty(0.));
+
+    m_containerMap.registerAllowedType(doubleMapEntry);
+
 
     registerPropertyStructContainer(m_container);
     registerPropertyStructContainer(m_containerRO);
     registerPropertyStructContainer(m_containerHidden);
+    registerPropertyStructContainer(m_containerMap);
 
     m_mode.registerSubProperty(m_propTypeA);
     m_mode.registerSubProperty(m_propTypeB);
@@ -79,6 +87,13 @@ TestDmiData::TestDmiData() :
     e2.setMemberVal("name", "Force");
     auto& e3 = m_containerRO.newEntry("StringStruct", "entry_3");
     e3.setMemberVal("name", "Power");
+
+    // add some entries to the map
+    auto& answer_entry = m_containerMap.newEntry("DoubleStruct", "answer");
+    answer_entry.setMemberVal("value", 42.0);
+
+    auto& weight_entry = m_containerMap.newEntry("DoubleStruct", "weight");
+    weight_entry.setMemberVal("value", 123.4);
 
     registerProperty(m_color);
     registerProperty(m_electricVoltage);
