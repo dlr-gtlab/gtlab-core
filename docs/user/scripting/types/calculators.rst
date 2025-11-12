@@ -17,12 +17,12 @@ The Python Script Calculator provides a configuration dialog with an integrated
 script editor, where the Python script executed by the calculator can be 
 created and edited.
 
-.. image:: images/python-calculator-example-light.png
+.. image:: /scripting/images/python-calculator-example-light.png
    :alt: Python Script Calculator configuration dialog
    :align: center
    :class: only-light
 
-.. image:: images/python-calculator-example-dark.png
+.. image:: /scripting/images/python-calculator-example-dark.png
    :alt: Python Script Calculator configuration dialog
    :align: center
    :class: only-dark

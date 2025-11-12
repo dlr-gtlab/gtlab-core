@@ -20,13 +20,13 @@ The Python Task provides a configuration dialog with an integrated
 script editor, where the Python script executed by the Python Task can be
 created and edited.
 
-.. image:: images/python-task-light.png
+.. image:: /scripting/images/python-task-light.png
    :align: center
    :alt: Python Tasks configuration dialog
    :class: only-light
 
 
-.. image:: images/python-task-dark.png
+.. image:: /scripting/images/python-task-dark.png
    :align: center
    :alt: Python Tasks configuration dialog
    :class: only-dark
@@ -59,13 +59,13 @@ script. All calculator properties that differ from their default values are
 set accordingly. The calculator created in this way is then available
 as a Python object within the script.
 
-.. image:: images/python-task-create-calc-ui-light.gif
+.. image:: /scripting/images/python-task-create-calc-ui-light.gif
    :alt: Demo of configuring a calculator using the user interface
    :width: 100%
    :class: only-light
 
 
-.. image:: images/python-task-create-calc-ui-dark.gif
+.. image:: /scripting/images/python-task-create-calc-ui-dark.gif
    :alt: Demo of configuring a calculator using the user interface
    :width: 100%
    :class: only-dark

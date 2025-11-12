@@ -32,7 +32,7 @@ objects, functions, classes, and modules available in
 the :ref:`console scope <label_python_scope>`.
 
 
-.. |clear| image:: images/clear.svg 
+.. |clear| image:: /scripting/images/clear.svg 
    :alt: clear 
    :height: 16px 
    :width: 16px
@@ -41,13 +41,13 @@ Console content can be cleared by clicking the |clear| button in the
 lower-right corner.
 
 
-.. image:: images/python-console-executing-code-light.gif
+.. image:: /scripting/images/python-console-executing-code-light.gif
    :alt: Demo of the Python Console
    :width: 100%
    :class: only-light
 
 
-.. image:: images/python-console-executing-code-dark.gif
+.. image:: /scripting/images/python-console-executing-code-dark.gif
    :alt: Demo of the Python Console
    :width: 100%
    :class: only-dark
@@ -101,13 +101,13 @@ The following animation demonstrates navigating the project data tree and
 accessing properties via the Python Console:
 
 
-.. image:: images/python-console-managing-data-light.gif
+.. image:: /scripting/images/python-console-managing-data-light.gif
    :alt: Demo of managing project data via Python Console
    :width: 100%
    :class: only-light
 
 
-.. image:: images/python-console-managing-data-dark.gif
+.. image:: /scripting/images/python-console-managing-data-dark.gif
    :alt: Demo of managing project data via Python Console
    :width: 100%
    :class: only-dark

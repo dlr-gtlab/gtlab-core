@@ -37,7 +37,7 @@ To display a plot in the node, there are a few things to consider:
  - The node has a "Plot enabled" property. This must be set to true.
  - The plot can only be displayed if the node has a certain size. If in doubt, you can check this by dragging the node larger (in the bottom right-hand corner of the node).
 
-.. image:: images/PythonNodes_FAQ1.png
+.. image:: /scripting/images/PythonNodes_FAQ1.png
   :align: center
   :alt: Plotting with nodes
 

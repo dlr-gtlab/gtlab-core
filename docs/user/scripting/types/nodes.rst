@@ -1,7 +1,7 @@
 Nodes
 ^^^^^
 
-.. image:: images/Nodes-Example.png
+.. image:: /scripting/images/Nodes-Example.png
   :align: center
   :alt: Example of the usage of a scripting node
   
@@ -14,7 +14,7 @@ They can be found in the *Scripting* category under the name *Python Scripting N
  
 The script that is called when the node is executed can be edited by clicking the Python button on the node to open the editor.
 
-.. image:: images/Python_Node_Editor.png
+.. image:: /scripting/images/Python_Node_Editor.png
   :align: center
   :alt: Python Node Editor
 
@@ -22,7 +22,7 @@ Input and output variables
 """"""""""""""""""""""""""
 Corresponding ports can be created to make parameters available to a Python node within the graph system or to pass them on.
 
-.. image:: images/Python_Node_Context_Menu.png
+.. image:: /scripting/images/Python_Node_Context_Menu.png
   :align: center
   :alt: Python Node Editor
 
@@ -30,7 +30,7 @@ Corresponding ports can be created to make parameters available to a Python node
 This can be done by opening the context menu of the node with a right-click or by adding new elements in the corresponding tabs in the properties using the plus sign.
 The properties of the ports can then be found in the corresponding tabs under properties.
 
-.. image:: images/Python_Node_Props.png
+.. image:: /scripting/images/Python_Node_Props.png
   :align: center
   :alt: Python Node Editor
 
@@ -41,7 +41,7 @@ The port is made accessible in the Python script via the name. To access the val
 Please note that error messages may occur for unconnected ports when analysing the Python script.
 
 
-.. image:: images/Python_Node_Props_Usage1.png
+.. image:: /scripting/images/Python_Node_Props_Usage1.png
   :align: center
   :alt: Python Node Editor					
 
