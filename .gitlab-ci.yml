@@ -353,10 +353,6 @@ check-license:
     - reuse lint
    variables:
      GIT_SUBMODULE_STRATEGY: "none"
-   
-pages:
-  stage: badges
-  extends: .pageTemplate
 
 # badges
 badges:
