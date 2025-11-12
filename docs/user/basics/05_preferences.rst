@@ -26,33 +26,42 @@ Here are some general properties to set for the use of GTlab.
 
 
 
-- *Open last openeed project on startup*  
-If this is not active, the current session is loaded but no project is opened yet.
+- *Open last opened project on startup*  
+
+  If this is not active, the current session is loaded but no project is opened yet.
 
 - *Show welcome page*  
-The welcome page is loaded when GTlab is opened.
+   
+  The welcome page is loaded when GTlab is opened.
 
 - *Search for Updates on startup*  
-If Internet access is possible, the system checks whether updates are available for the framework or modules. If this is the case, this is indicated by a message in the menu bar.
+   
+  If Internet access is possible, the system checks whether updates are available for the framework or modules. If this is the case, this is indicated by a message in the menu bar.
 
 - *Max. logging length*  
-The :ref:`logging <label_section_logging>` output is limited in GTlab for reasons of efficiency. This limit can be modified here. The default value is 2000. 
+
+  The :ref:`logging <label_section_logging>` output is limited in GTlab for reasons of efficiency. This limit can be modified here. The default value is 2000. 
 
 - *Logging verbosity*  
-There are three modes: *Silent*, *Medium* and *High*. These both define filter levels for a range of messages in logging. Details can be found :ref:`here <label_section_logging>`.
+   
+  There are three modes: *Silent*, *Medium* and *High*. These both define filter levels for a range of messages in logging. Details can be found :ref:`here <label_section_logging>`.
 
 - *Theme selection*	 
-There are three modes: *System selection*, *Bright* and *Dark*. GTlab is displayed in a bright or dark mode depending on the selection.
+   
+  There are three modes: *System selection*, *Bright* and *Dark*. GTlab is displayed in a bright or dark mode depending on the selection.
 
 .. _label_chapter_preferences_session:
+
 Session  
 -------
+
 New :ref:`sessions <label_section_sessions>` can be created, renamed, duplicated or deleted in this selection window. You can also select a session to use it.
 The currently selected session is highlighted in bold.
 Unlike the other sessions, the currently selected session cannot be renamed or deleted, nor can it be added to the current session because it already is.
 
 Perspectives  
 ------------
+
 New :ref:`perspectives <label_section_perspectives>` can be created, renamed, duplicated or deleted in this selection window. You can also select a perspective to use it.
 
 The currently selected perspective is highlighted in bold.
@@ -60,6 +69,7 @@ Unlike the other sessions, the currently selected perspective cannot be renamed 
 
 Short Cuts  
 ----------
+
 A number of short cuts are available for use in GTlab and are displayed on this page of the preferences.
 Please note that a number of the short cuts can be personalised, the greyed out ones cannot be modified.
 

@@ -59,7 +59,7 @@ Scripting
 .. rst-class:: faq-question
 
 Q: How to import external Python scripts into the integrated environment?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A: By default, only modules available in the current Python environment can be imported.  
 To make additional scripts accessible, the directory containing them must be added to Python's search path. 
@@ -77,7 +77,7 @@ Once the path has been added, scripts located in that directory can be imported 
 .. rst-class:: faq-question
 
 Q: What is the difference between the the Python Script Calculator and the Python Task?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A: The Python Script Calculator is a single calculator element that executes a user-defined Python script.
 It is primarily used for prototyping new calculation methods or testing alternative approaches within a workflow.
@@ -89,7 +89,7 @@ conditions, and calculations, which can dynamically determine the order and repe
 .. rst-class:: faq-question
 
 Q: Why can I not see my plot in the node?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A: To display a plot in the node, there are a few things to consider:
  - The script in the Python node has an interface for matplotlib. Only plots created with it can be displayed. The scripts must end with the show() function of the plot object.
@@ -103,7 +103,7 @@ A: To display a plot in the node, there are a few things to consider:
 .. rst-class:: faq-question
 
 Q: How are python objects exchanged between the nodes?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A: Connections of the nodes' ports can be used for data exchange between the nodes. Only ports of the same type can be connected to each other.
 The Python node can process all available types on the input side.
@@ -116,7 +116,7 @@ In this case, the Python functionality "pickl" is used. This method is therefore
 .. rst-class:: faq-question
 
 Q: How to access the ports in the script?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A: The data that is transmitted via the connections or ports can be called up in the script via their "Caption". This is set as a property in the corresponding window. 
 This data object itself is not yet the value. This is usually obtained via a value() function or similar functions that can be implemented for the more specific data types.

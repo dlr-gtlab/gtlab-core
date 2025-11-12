@@ -1,6 +1,8 @@
 Installation and Updates
 ========================
 
+.. _label_installation:
+
 This section describes how to install GTlab and its components, including the optional Python module. The installation process is supported on Windows and Linux systems.
 
 System Requirements
@@ -64,6 +66,6 @@ For automated deployments, GTlab supports silent installation using command-line
 
 To e.g. install on windows to ``c:\tools\gtlab``, type
 
-.. code-block:: cmd
+.. code-block:: bat
 
     gtlab-ce-installer-windows-x64.exe install de.dlr.gtlab.dev.stable.2.0 -t c:\tools\gtlab -c --al

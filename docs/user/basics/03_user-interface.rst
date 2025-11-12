@@ -43,6 +43,7 @@ If a dock widget has been hidden, you can restore it via:
 
 Project Explorer
 ----------------
+
 This dock widget shows the :ref:`project structure <label_chapter_projects>` of the current :ref:`session <label_section_sessions>`. There can be several projects, of which a maximum of one can be open.
 The entire hierarchical model structure of the open project is visualized in a tree structure.
  
@@ -50,12 +51,15 @@ The entire hierarchical model structure of the open project is visualized in a t
 
 Property Dock
 -------------
+
 The corresponding :ref:`properties <label_section_properties>` are displayed in this dock widget for a selected object in the GTlab model (e.g. an object of the model in the `Project Explorer`_ or a work flow element).
 Depending on the object, the properties can also be displayed in several tabs in this window.
 
 .. _label_output_dock:
+
 Output Dock
 -----------
+
 The *Output* widget primarily holds two tabs. The *Application* tab shows the logging output in GTlab. More on this in the Logging_ section.  
 The *Python Console* tab allows you to interact with the Python instance to receive messages from the Python interaction with GTlab as well as to use Python commands in GTlab.
 More on this in the section :ref:`Python Console <label_python_console>`.
@@ -64,6 +68,7 @@ More on this in the section :ref:`Python Console <label_python_console>`.
 
 Process/Calculators
 ^^^^^^^^^^^^^^^^^^^
+
 The *Process/Calculators* widget is for the coordination of workflows (of the :ref:`hub-spoke architecture <label_hub_spoke>`).
 
 Instructions for creating and starting new workflows can be found :ref:`here <label_section_how_to_buid_process>`.
@@ -85,7 +90,7 @@ In the default mode, you can switch between open editors using tabs.
 Many editors also provide a **printing function**, accessible from their toolbar.
 
 Available Editors
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
 
 Depending on the installed modules and selected objects, GTlab offers different types of editors and viewers, for example:
 
@@ -221,7 +226,7 @@ Depending of the current work of the user, different dock widgets are required, 
 Perspectives allow to save the layout of the widgets and provide an easy way to switch between different perspectives.
 
 Creating a perspective
-^^^^^^^^^^^^^^^^^^^^ 
+^^^^^^^^^^^^^^^^^^^^^^
 
 To create a new perspective in GTlab:
 

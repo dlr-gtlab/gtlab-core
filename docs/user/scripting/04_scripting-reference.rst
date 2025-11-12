@@ -8,6 +8,7 @@ Function Reference
 .. If you like to  cross-ref a function, do it like this :py:func:`footprint` :
 
 .. _label_python_scope:
+
 Scopes
 ------
 
@@ -25,26 +26,34 @@ instance are isolated and cannot be accessed from another instance.
 GTlab defines the following scopes:
 
 .. _label-console-scope:
+
 ``console``
 ^^^^^^^^^^^
+
 Provides functions for interacting with and controlling the application itself
 (e.g., switching sessions, opening projects).
 
 .. _label-task-scope:
+
 ``task``
 ^^^^^^^^
+
 Provides functions for building and controlling workflows dynamically inside
 Python Tasks.
 
 .. _label-calculator-scope:
+
 ``calculator``
 ^^^^^^^^^^^^^^
+
 Provides functions for performing calculations within Python Script Calculators,
 including access to project data models.
 
 .. _label-node-scope:
+
 ``node``
 ^^^^^^^^
+
 Provides functions that are available when scripting inside GTlab nodes.
 
 All documented Python functions indicate the scopes in which they are available.
