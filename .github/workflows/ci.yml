@@ -103,17 +103,24 @@ jobs:
         sudo apt install -y doxygen
         python -m pip install --upgrade pip
         pip install -r docs/requirements.txt
-    - name: Run doxygen
+    - name: Create developer documentation
       run: |
-        cd docs
+        cd docs/dev
         doxygen
-    - name: Create documentation
-      run: |
-        cd docs
         sphinx-build . html
-    - name: Save as artifact
+    - name: Create user documentation
+      run: |
+        cd docs/user
+        sphinx-build . html
+    - name: Save developer doc artifact
       uses: actions/upload-artifact@v4
       with:
         name: doc-devel
         path: |
-          docs/html
+          docs/dev/html
+    - name: Save user doc artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: doc-user
+        path: |
+          docs/user/html
