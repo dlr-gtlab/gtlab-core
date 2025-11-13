@@ -262,6 +262,6 @@ gt::PropertyFactoryFunction
 gt::makeIntProperty(gt::Boundaries<int> bounds, int value)
 {
     return [=](QString const& id){
-        return new GtIntProperty(id, id, QString{}, bounds, value);
+        return new GtIntProperty(id, id, QString{}, std::move(bounds), value);
     };
 }

@@ -6,7 +6,6 @@
  *
  *  Created on: 06.11.2025
  *  Author: Jens Schmeink (AT-TWK)
- *  Tel.: +49 2203 601 2191
  */
 #ifndef TEST_GT_BOUNDARIES_H
 #define TEST_GT_BOUNDARIES_H

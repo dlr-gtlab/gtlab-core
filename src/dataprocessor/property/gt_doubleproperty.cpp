@@ -303,7 +303,7 @@ gt::makeDoubleProperty(const QString& name, const QString& brief,
 {
     return [=](QString const& id){
         return new GtDoubleProperty(id, name, brief, unitCategory,
-                                    boundaries, value);
+                                    std::move(boundaries), value);
     };
 }
 
