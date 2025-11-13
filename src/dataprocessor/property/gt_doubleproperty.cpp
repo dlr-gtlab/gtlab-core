@@ -38,38 +38,26 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
 GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief,
-                                   const GtUnit::Category &unitCategory,
-                                   const double& value)
+                                   const GtUnit::Category& unitCategory,
+                                   const double& value) :
+    GtDoubleProperty(ident, name, brief)
 {
-    setObjectName(name);
-
-    m_id = ident;
-    m_brief = brief;
     m_unitCategory = unitCategory;
     m_value = value;
     m_initValue = value;
-    m_boundsCheckFlagHi = false;
-    m_boundsCheckFlagLow = false;
-    m_boundHi = 0.0;
-    m_boundLo = 0.0;
 }
 
 
 GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const QString& name,
                                    const QString& brief,
-                                   const GtUnit::Category &unitCategory,
+                                   const GtUnit::Category& unitCategory,
                                    const double lowSideBoundary,
                                    const double highSideBoundary,
-                                   const double& value)
+                                   const double& value) :
+    GtDoubleProperty(ident, name, brief)
 {
-    setObjectName(name);
-
-    m_id = ident;
-    m_brief = brief;
     m_unitCategory = unitCategory;
-    m_value = 0.0;
-    m_initValue = 0.0;
 
     if (lowSideBoundary >= highSideBoundary)
     {
@@ -102,15 +90,10 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
                                    const GtUnit::Category& unitCategory,
                                    GtDoubleProperty::BoundType boundType,
                                    const double boundary,
-                                   const double& value)
+                                   const double& value) :
+    GtDoubleProperty(ident, name, brief)
 {
-    setObjectName(name);
-
-    m_id = ident;
-    m_brief = brief;
     m_unitCategory = unitCategory;
-    m_value = 0.0;
-    m_initValue = 0.0;
 
     if (boundType == GtDoubleProperty::BoundLow)
     {
@@ -129,6 +112,36 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident,
 
     bool success = false;
 
+    setVal(value, &success);
+
+    if (success)
+    {
+        m_initValue = value;
+    }
+}
+
+GtDoubleProperty::GtDoubleProperty(const QString& ident, const QString& name,
+                                   const QString& brief,
+                                   const GtUnit::Category& unitCategory,
+                                   gt::Boundaries<double> bounds,
+                                   const double& value) :
+    GtDoubleProperty(ident, name, brief)
+{
+    m_unitCategory = unitCategory;
+    m_boundsCheckFlagHi = bounds.high().has_value();
+    m_boundsCheckFlagLow = bounds.low().has_value();
+
+    if (bounds.high())
+    {
+        m_boundHi = bounds.high().value();
+    }
+
+    if (bounds.low())
+    {
+        m_boundLo = bounds.high().value();
+    }
+
+    bool success = false;
     setVal(value, &success);
 
     if (success)
@@ -270,3 +283,26 @@ gt::makeDoubleProperty(double value)
 {
     return makePropertyFactory<GtDoubleProperty>(std::move(value));
 }
+
+gt::PropertyFactoryFunction
+gt::makeDoubleProperty(const QString& name, const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       const double& value)
+{
+    return [=](QString const& id){
+        return new GtDoubleProperty(id, name, brief, unitCategory, value);
+    };
+}
+
+gt::PropertyFactoryFunction
+gt::makeDoubleProperty(const QString& name, const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       gt::Boundaries<double> boundaries,
+                       const double& value)
+{
+    return [=](QString const& id){
+        return new GtDoubleProperty(id, name, brief, unitCategory,
+                                    std::move(boundaries), value);
+    };
+}
+

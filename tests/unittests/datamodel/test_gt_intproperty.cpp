@@ -26,12 +26,12 @@ protected:
                                          3);
 
         m_propBoundsLow = new GtIntProperty("propBoundsLow", "test int", "test brief",
-                                            GtIntProperty::BoundLow,
-                                            2, 4);
+                                            gt::Boundaries<int>::makeLower(2),
+                                            4);
 
         m_propBoundsHigh = new GtIntProperty("propBoundsHigh", "test int", "test brief",
-                                             GtIntProperty::BoundHigh,
-                                             38, 54);
+                                             gt::Boundaries<int>::makeUpper(38),
+                                             54);
     }
 
     virtual void TearDown()
@@ -82,7 +82,8 @@ TEST_F(TestGtIntProperty, initialization)
     EXPECT_FALSE(m_propBounds->isReadOnly());
 
     // check what happens if default value is outside of boundary
-    GtIntProperty propBounds2("bla", "bli", "blup", 1, 3);
+    GtIntProperty propBounds2("bla", "bli", "blup",
+                              gt::Boundaries<int>::makeNormalized(1, 3));
     EXPECT_EQ(propBounds2.get(), propBounds2.lowSideBoundary());
     EXPECT_EQ(propBounds2.lowSideBoundary(),  1);
     EXPECT_EQ(propBounds2.highSideBoundary(), 3);

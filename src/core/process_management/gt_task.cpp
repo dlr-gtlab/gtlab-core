@@ -48,7 +48,7 @@ GtTask::GtTask() :
     m_maxIter(QStringLiteral("maxIter"),
               tr("Number Of Iterations"),
               tr("Number of iteration steps"),
-              GtIntProperty::BoundLow, 1, 1),
+              gt::Boundaries<int>::makeLower(1), 1),
     m_currentIter(QStringLiteral("currentIter"), tr("Current Iteration")),
     m_lastEval(GtTask::EVAL_FINISHED),
     pimpl(std::make_unique<Impl>())

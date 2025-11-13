@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    Both methods have the project directory as an argument, hence workarounds like currentProject()->path() can be avoided - #617
  - Unknown tasks (corrseponding module did not load) are now displayed as Dummy Objects in the `GtTaskGroup` - #612
  - Added color property `GtColorProperty` to store color information in data models - #1329
+ - New implementations for boundaries based on optional values to support property definitions - #1381
 
 ### Changed
  - The system of monitoring properties is changed and do not use the GtMonitoring class anymore.

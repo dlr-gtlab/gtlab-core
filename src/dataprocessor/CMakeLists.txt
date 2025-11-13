@@ -99,6 +99,7 @@ set(HEADERS
     gt_algorithms.h
     gt_mpl.h
     gt_versionnumber.h
+    gt_boundaries.h
 )
 
 set(SOURCES
@@ -187,9 +188,9 @@ target_link_libraries(GTlabDataProcessor
       Qt::Core
       Qt::Xml
       GTlab::Logging
+      tl::optional
     PRIVATE
       mpark::variant
-      tl::optional
 )
 
 if (TARGET Qt6::Core5Compat)
