@@ -23,7 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The system of monitoring properties is changed and do not use the GtMonitoring class anymore.
    Now the base properties can be used with the flag setMonitoring. 
    The remaining function registermonitoringProperty includes a call of this function. - #1239
- - Renaming elments in GTlab explorer and process dock widget extended to be able to give better feedback and allow sibling objects to be taken into account - #1304 
+ - Renaming elments in GTlab explorer and process dock widget extended to be able to give better feedback and allow sibling objects to be taken into account - #1304
+ - The GtPropertyFactory class has been removed - #1332
 
 ### Fixed
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
