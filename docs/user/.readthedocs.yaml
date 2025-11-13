@@ -1,4 +1,4 @@
-# .readthedocs.yaml
+# .readthedocs.yaml user doc
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
@@ -16,7 +16,7 @@ build:
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
-  configuration: docs/dev/conf.py
+  configuration: docs/user/conf.py
 
 python:
     install:
