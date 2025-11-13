@@ -108,7 +108,7 @@ public:
      * @param name
      * @param brief
      * @param unitCategory
-     * @param bound
+     * @param bounds
      * @param value
      */
     GtDoubleProperty(const QString& ident,
@@ -229,8 +229,6 @@ gt::PropertyFactoryFunction makeDoubleProperty(double value);
  * @param name - name in the GUI
  * @param brief - description for tool tip in GUI
  * @param unitCategory - category for the GTlab unit system
- * @param lowSideBoundary - Lower side boundary
- * @param highSideBoundary - High side boundary
  * @param value Default - value
  * @return function factory for usage in container definitions
  */
