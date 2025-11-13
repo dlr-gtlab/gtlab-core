@@ -244,7 +244,7 @@ GT_DATAMODEL_EXPORT
  * @param name - name in the GUI
  * @param brief - description for tool tip in GUI
  * @param unitCategory - category for the GTlab unit system
- * @param boundaries - baoundary description
+ * @param boundaries - The numeric boundaries allowed for `:value`
  * @param value Default - value
  * @return function factory for usage in container definitions
  */
