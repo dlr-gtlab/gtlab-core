@@ -142,7 +142,6 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident, const QString& name,
     }
 
     bool success = false;
-
     setVal(value, &success);
 
     if (success)
