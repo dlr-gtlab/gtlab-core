@@ -121,7 +121,10 @@ GtIntProperty::GtIntProperty(const QString& ident,
                              const int lowSideBoundary,
                              const int highSideBoundary,
                              const int& value) :
-    GtIntProperty(ident, name, brief, lowSideBoundary, highSideBoundary, value)
+    GtIntProperty(ident, name, brief,
+                  gt::Boundaries<int>::makeNormalized(lowSideBoundary,
+                                                      highSideBoundary)
+                  , value)
 { }
 
 GtIntProperty::GtIntProperty(const QString& ident,
@@ -254,7 +257,10 @@ gt::PropertyFactoryFunction
 gt::makeIntProperty(int lowSideBoundary, int highSideBoundary, int value)
 {
     return [=](QString const& id){
-        return new GtIntProperty(id, id, QString{}, lowSideBoundary, highSideBoundary, value);
+        return new GtIntProperty(id, id, QString{},
+                                 gt::Boundaries<int>::makeNormalized(
+                                     lowSideBoundary, highSideBoundary),
+                                 value);
     };
 }
 
