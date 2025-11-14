@@ -11,10 +11,10 @@
 
 #include "gt_stringproperty.h"
 #include <QValidator>
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 GtStringProperty::GtStringProperty(const QString& ident, const QString& name) :
-    m_validator(std::make_unique<QRegExpValidator>(gt::re::forExpressions()))
+    m_validator(std::make_unique<QRegularExpressionValidator>(gt::rex::forExpressions()))
 {
     setObjectName(name);
 
@@ -45,8 +45,8 @@ GtStringProperty::GtStringProperty(const QString& ident,
     }
     else
     {
-        m_validator = std::make_unique<QRegExpValidator>(
-                    gt::re::forExpressions());
+        m_validator = std::make_unique<QRegularExpressionValidator>(
+                    gt::rex::forExpressions());
     }
 }
 

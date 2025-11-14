@@ -11,7 +11,7 @@
 
 #include "gt_filechooserproperty.h"
 
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 GtFileChooserProperty::GtFileChooserProperty(const QString& id,
                                              const QString& name,
@@ -38,10 +38,10 @@ gt::detail::buildFileDialogFileFilter(const QStringList &filterList)
         return {};
     }
 
-    auto re = gt::re::forFileDialogFilters();
+    auto& re = gt::rex::forFileDialogFilters();
     auto isQtFilter = [&re](const QString& filter)
     {
-        return re.indexIn(filter) >= 0;
+        return re.match(filter).hasMatch();
     };
 
     QString result;
