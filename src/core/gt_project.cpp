@@ -11,6 +11,7 @@
 #include <QDomDocument>
 #include <QXmlStreamWriter>
 #include <QDir>
+#include <QDirIterator>
 #include <QDateTime>
 
 #include "gt_project.h"
@@ -40,7 +41,6 @@
 #include "internal/gt_moduleupgrader.h"
 
 #include <cassert>
-#include <qdiriterator.h>
 
 GtProject::GtProject(const QString& path) :
     m_path(path),
@@ -189,8 +189,6 @@ GtProject::upgradeProjectData()
                     QStringList() << "*.gttask",
                     QDir::Files,
                     QDirIterator::Subdirectories);
-
-    QStringList taskFiles;
 
     while (it.hasNext())
     {
