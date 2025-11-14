@@ -27,12 +27,14 @@ namespace re
  * @brief woUmlauts - accepts all but ä ö ü ß
  * @return
  */
+[[deprecated ("Use gt::rex::woUmlauts instead")]]
 QRegExp GT_DATAMODEL_EXPORT woUmlauts();
 
 /**
  * @brief umlauts - accept äöüßÄÖÜ
  * @return
  */
+[[deprecated ("Use gt::rex::umlauts instead")]]
 QRegExp GT_DATAMODEL_EXPORT umlauts();
 
 /**
@@ -40,6 +42,7 @@ QRegExp GT_DATAMODEL_EXPORT umlauts();
  * - accepts äöüßÄÖÜ .:,;#?+~* /&%$§!"{}
  * @return
  */
+[[deprecated ("Use gt::rex::umlautsAndSpecialChar instead")]]
 QRegExp GT_DATAMODEL_EXPORT umlautsAndSpecialChar();
 
 /**
@@ -47,6 +50,7 @@ QRegExp GT_DATAMODEL_EXPORT umlautsAndSpecialChar();
  * minimal length of 1
  * @return
  */
+[[deprecated ("Use gt::rex::onlyLetters instead")]]
 QRegExp GT_DATAMODEL_EXPORT onlyLetters();
 
 /**
@@ -54,6 +58,7 @@ QRegExp GT_DATAMODEL_EXPORT onlyLetters();
  * and numbers (0-9) and -  and _ with a minimal length of 1
  * @return
  */
+[[deprecated ("Use gt::rex::onlyLettersAndNumbers instead")]]
 QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbers();
 
 /**
@@ -61,6 +66,7 @@ QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbers();
  * and numbers (0-9) and -  and _ with a minimal length of 1 and dot
  * @return
  */
+[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndDot instead")]]
 QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDot();
 
 /**
@@ -68,6 +74,7 @@ QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndDot();
  * and numbers (0-9) and -  and _ and space with a minimal length of 1
  * @return
  */
+[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndSpace instead")]]
 QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndSpace();
 
 /**
@@ -75,12 +82,14 @@ QRegExp GT_DATAMODEL_EXPORT onlyLettersAndNumbersAndSpace();
  * special symbols typical used for units
  * @return
  */
+[[deprecated ("Use gt::rex::forUnits instead")]]
 QRegExp GT_DATAMODEL_EXPORT forUnits();
 
 /**
  * @brief forExpressions
  * @return
  */
+[[deprecated ("Use gt::rex::forExpressions instead")]]
 QRegExp GT_DATAMODEL_EXPORT forExpressions();
 
 /**
@@ -88,24 +97,28 @@ QRegExp GT_DATAMODEL_EXPORT forExpressions();
  * of an S and one to three numbers
  * @return
  */
+[[deprecated ("Use gt::rex::forStations instead")]]
 QRegExp GT_DATAMODEL_EXPORT forStations();
 
 /**
  * @brief forDoubles
  * @return
  */
+[[deprecated ("Use gt::rex::forDoubles instead")]]
 QRegExp GT_DATAMODEL_EXPORT forDoubles();
 
 /**
  * @brief forDoublesLists
  * @return regexp for double lists
  */
+[[deprecated ("Use gt::rex::forDoublesLists instead")]]
 QRegExp GT_DATAMODEL_EXPORT forDoublesLists();
 
 /**
  * @brief for semantic versioning
  * @return regexp for semantic versioning
  */
+[[deprecated ("Use gt::rex::forSemVers instead")]]
 QRegExp GT_DATAMODEL_EXPORT forSemVers();
 
 /**
@@ -114,6 +127,7 @@ QRegExp GT_DATAMODEL_EXPORT forSemVers();
  * "Python (python* python3)"
  * "Textfiles (*.txt)"
  */
+[[deprecated ("Use gt::rex::forFileDialogFilters instead")]]
 GT_DATAMODEL_EXPORT const QRegExp& forFileDialogFilters();
 
 } // namespace re

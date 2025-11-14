@@ -41,7 +41,7 @@
 #include "gt_confirmdeleteprojectdialog.h"
 #include "gt_saveprojectmessagebox.h"
 #include "gt_switchprojectmessagebox.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 #include "gt_inputdialog.h"
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
@@ -1204,8 +1204,8 @@ GtProjectUI::renameProject(GtObject* obj)
                            "\n\nNew project name:"));
     dialog.setInitialTextValue(project->objectName());
 
-    QValidator* validator = new QRegExpValidator(
-                                gt::re::onlyLettersAndNumbersAndSpace(),
+    QValidator* validator = new QRegularExpressionValidator(
+                                gt::rex::onlyLettersAndNumbersAndSpace(),
                                 &dialog);
     dialog.setTextValidator(validator);
 
@@ -1229,7 +1229,7 @@ GtProjectUI::renameProject(GtObject* obj)
         ok = false;
     }
 
-    if (!gt::re::onlyLettersAndNumbersAndSpace().exactMatch(text))
+    if (!gt::rex::exactMatch(gt::rex::onlyLettersAndNumbersAndSpace(), text))
     {
         ok = false;
     }

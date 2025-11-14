@@ -11,93 +11,117 @@
 
 #include "gt_regexp.h"
 
+#include "gt_regularexpression.h"
+
+namespace
+{
+
+    QRegExp
+    toRegExp(const QRegularExpression &re)
+    {
+        QRegExp legacy(re.pattern());
+
+        if (re.patternOptions() & QRegularExpression::CaseInsensitiveOption)
+        {
+            legacy.setCaseSensitivity(Qt::CaseInsensitive);
+        }
+        else
+        {
+            legacy.setCaseSensitivity(Qt::CaseSensitive);
+        }
+
+        // Enable minimal matching if set
+        if (re.patternOptions() & QRegularExpression::InvertedGreedinessOption)
+        {
+            legacy.setMinimal(true);
+        }
+
+        return legacy;
+    }
+}
 
 QRegExp
 gt::re::woUmlauts()
 {
-    return QRegExp(("[^äöüßÄÖÜ]*"));
+    return toRegExp(gt::rex::woUmlauts());
 }
+
 
 QRegExp
 gt::re::umlauts()
 {
-    return QRegExp(("[äöüßÄÖÜ]"));
+    return toRegExp(gt::rex::umlauts());
 }
 
 QRegExp
 gt::re::umlautsAndSpecialChar()
 {
-    return QRegExp(("[äöüßÄÖÜ\\.\\:\\,\\;\\#\\?\\+\\~\\*\\/"
-                    "\\&\\%\\$\\§\\!\"\\{\\}\\=\\`\\´\\'\\°\\^]"));
+    return toRegExp(gt::rex::umlautsAndSpecialChar());
 }
 
 QRegExp
 gt::re::onlyLetters()
 {
-    return QRegExp(("[A-Za-z]+"));
+    return toRegExp(gt::rex::onlyLetters());
 }
 
 QRegExp
 gt::re::onlyLettersAndNumbers()
 {
-    return QRegExp(("[A-Za-z0-9\\_\\-\\[\\]]+"));
+    return toRegExp(gt::rex::onlyLettersAndNumbers());
 }
 
 QRegExp
 gt::re::onlyLettersAndNumbersAndDot()
 {
-    return QRegExp(("[A-Za-z0-9\\.\\_\\-\\[\\]]+"));
+    return toRegExp(gt::rex::onlyLettersAndNumbersAndDot());
 }
 
 QRegExp
 gt::re::onlyLettersAndNumbersAndSpace()
 {
-    return QRegExp(("[A-Za-z0-9\\_\\-\\[\\]\\s\\␣]+"));
+    return toRegExp(gt::rex::onlyLettersAndNumbersAndSpace());
 }
 
 QRegExp
 gt::re::forUnits()
 {
-    return QRegExp(("[A-Za-z0-9\\_\\-\\+\\^\\°\\%\\/]*"));
+    return toRegExp(gt::rex::forUnits());
 }
 
 QRegExp
 gt::re::forExpressions()
 {
-    return QRegExp(("[A-Za-z0-9\\_\\-\\+\\^\\°\\/\\*\\.\\,\\(\\)\\[\\]]*"));
+    return toRegExp(gt::rex::forExpressions());
 }
 
 QRegExp
 gt::re::forStations()
 {
-    return QRegExp(("S[0-9]{1,3}"));
+    return toRegExp(gt::rex::forStations());
 }
 
 QRegExp
 gt::re::forDoubles()
 {
-    return QRegExp(("-?[0-9]+.*[E,e]?-?[0-9]*"));
+    return toRegExp(gt::rex::forDoubles());
 }
 
 QRegExp
 gt::re::forDoublesLists()
 {
-    return QRegExp(("[eE0-9\\-\\.\\;]+"));
+    return toRegExp(gt::rex::forDoublesLists());
 }
 
 QRegExp
 gt::re::forSemVers()
 {
-    return QRegExp(R"((0|[1-9]\d*)(\.(0|[1-9]\d*)(\.(0|[1-9]\d*))?)?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))"
-                                         R"((?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)");
+    return toRegExp(gt::rex::forSemVers());
 }
 
 const QRegExp&
 gt::re::forFileDialogFilters()
 {
-    static auto r = QRegExp(R"(([a-z,A-Z,0-9,_,-]+)" // check for a string
-                            R"([\s]*[(][a-z,A-Z,0-9,_,-,*,?,.]+)" // check for space + (string string)
-                            R"(([\s]+[a-z,A-Z,0-9,_,-,*,?,.]+)*[)]))");
-
-    return r;
+    static QRegExp exp = toRegExp(gt::rex::forFileDialogFilters());
+    return exp;
 }

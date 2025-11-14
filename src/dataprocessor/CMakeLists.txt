@@ -96,6 +96,7 @@ set(HEADERS
     property/gt_relativeobjectlinkproperty.h
     property/gt_doublelistproperty.h
     gt_regexp.h
+    gt_regularexpression.h
     gt_algorithms.h
     gt_mpl.h
     gt_versionnumber.h
@@ -151,6 +152,7 @@ set(SOURCES
     property/gt_doublelistproperty.cpp
     gt_versionnumber.cpp
     gt_regexp.cpp
+    gt_regularexpression.cpp
 )
 
 add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL})

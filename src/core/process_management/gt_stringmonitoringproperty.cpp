@@ -10,7 +10,7 @@
  */
 #include <QValidator>
 
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 #include "gt_stringmonitoringproperty.h"
 
 GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
@@ -20,7 +20,7 @@ GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,
 {
     setReadOnly(true);
 
-    m_validator = std::make_unique<QRegExpValidator>(gt::re::woUmlauts());
+    m_validator = std::make_unique<QRegularExpressionValidator>(gt::rex::woUmlauts());
 }
 
 GtStringMonitoringProperty::GtStringMonitoringProperty(const QString& ident,

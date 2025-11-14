@@ -11,8 +11,7 @@
 
 #include <QLineEdit>
 
-#include "gt_regexp.h"
-#include "gt_logging.h"
+#include "gt_regularexpression.h"
 #include "gt_coredatamodel.h"
 #include "gt_application.h"
 #include "gt_project.h"
@@ -40,7 +39,7 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
     GtProject* proj = gtApp->currentProject();
 
     /// Standart regExp
-    QRegExp regExp = gt::re::onlyLettersAndNumbers();
+    auto regExp = gt::rex::onlyLettersAndNumbers();
 
     if (proj)
     {
@@ -57,17 +56,19 @@ GtTextFilterDelegate::createEditor(QWidget* parent,
 
                 if (oui->hasValidationRegExp())
                 {
-                    regExp = oui->validatorRegExp();
+                    regExp = QRegularExpression(
+                        oui->validatorRegExp().pattern());
                 }
             }
             else if (m_validatorflag == allowSpaces)
             {
-                regExp = gt::re::onlyLettersAndNumbersAndSpace();
+                regExp = gt::rex::onlyLettersAndNumbersAndSpace();
             }
         }
     }
 
-    QValidator* validator = new QRegExpValidator(regExp, this->parent());
+    QValidator* validator = new QRegularExpressionValidator(regExp,
+                                                            this->parent());
 
     lineEdit->setValidator(validator);
 
