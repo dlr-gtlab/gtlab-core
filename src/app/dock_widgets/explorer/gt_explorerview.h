@@ -13,6 +13,8 @@
 
 #include "gt_treeview.h"
 
+#include <QPropertyAnimation>
+
 /**
  * @brief The GtExplorerView class
  */
@@ -26,6 +28,13 @@ public:
      * @param parent Parent widget.
      */
     explicit GtExplorerView(QWidget* parent = nullptr);
+
+    /**
+     * @brief We override the default behavior to improve handling
+     * of deep object hierarchies
+     */
+    void scrollTo(const QModelIndex &index,
+                  ScrollHint hint = EnsureVisible) override;
 
 private:
     /**
@@ -70,6 +79,9 @@ private:
      * @return true if mime data is acceptable, otherwise false is returned.
      */
     bool checkMimeData(const QMimeData* mimeData);
+
+    // To animate the horizontal scroll bar when selecting objects
+    QPropertyAnimation* m_hScrollAnim = nullptr;
 
 signals:
     /**
