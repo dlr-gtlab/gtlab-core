@@ -40,6 +40,7 @@
 #include "internal/gt_moduleupgrader.h"
 
 #include <cassert>
+#include <qdiriterator.h>
 
 GtProject::GtProject(const QString& path) :
     m_path(path),
@@ -181,6 +182,20 @@ GtProject::upgradeProjectData()
     }
 
     entryList << pdir.absoluteFilePath(mainFilename());
+
+    //exted list with task files
+    QString tasksPath = m_path + "/tasks";
+    QDirIterator it(tasksPath,
+                    QStringList() << "*.gttask",
+                    QDir::Files,
+                    QDirIterator::Subdirectories);
+
+    QStringList taskFiles;
+
+    while (it.hasNext())
+    {
+        entryList << it.next();
+    }
 
     gtDebug() << "upgrading files: " << entryList;
 
