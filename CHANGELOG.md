@@ -11,6 +11,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+GTlab 2.0.12 is a release to prepare the migration to GTlab 2.1.
+As such, many functions needed to be deprecated and should be replaced accordingly.
+
+### Deprecated
+ - Deprecated all functions in `gt_regexp.h`. These use QRegExp which will not be available in
+   future Qt Versions and in GTlab 2.1. Replacements have been added in `gt::rex` namespace,
+   which now return `QRegularExpression` objects instead.
+   
+   Porting guide:
+
+    - Replace `#include <gt_regexp.h>` with `#include <gt_regularexpression.h>`
+    - Replace `gt::re::XXX` with `gt::rex::XXX` (just replace the namespace)
+
 ### Fixed
  - Connecting GtStringMonitoringProperty to GtStringProperty in the connection editor now works as expected - #1380
  - Fixed Output Dock not resizing new rows correctly. - #1260
