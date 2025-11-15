@@ -159,14 +159,12 @@ namespace
 
         for (int i = 0; i < metas.size(); ++i)
         {
-            auto& m = metas[i];
             auto& sf = saveFiles[i];
-
             if (!sf->commit())
             {
                 setError(lastError,
                          QStringLiteral("QSaveFile commit failed for '%1'")
-                             .arg(m.targetPath));
+                             .arg(metas[i].targetPath));
                 ok = false;
                 break;
             }
