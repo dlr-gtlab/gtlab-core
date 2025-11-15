@@ -23,7 +23,7 @@
 /**
  * @brief Helper class to perform atomic, all-or-nothing file saves with backups.
  *
- * GtFileBatchSaver lets you register multiple file write operations (XML or arbitrary
+ * GtBatchSaver lets you register multiple file write operations (XML or arbitrary
  * data) and then commit them as a single "transaction":
  *
  * - Each target file is first written to a temporary file via QSaveFile.
@@ -36,7 +36,7 @@
  *
  * Typical usage:
  * @code
- * GtFileBatchSaver batch;
+ * GtBatchSaver batch;
  *
  * // Add external object XML files
  * batch.addXml("A.xml", docA);
@@ -55,7 +55,7 @@
  * (master + externals): after commit(), either all files match the new state,
  * or none of them were changed.
  */
-class GT_CORE_EXPORT GtFileBatchSaver
+class GT_CORE_EXPORT GtBatchSaver
 {
 public:
     /**

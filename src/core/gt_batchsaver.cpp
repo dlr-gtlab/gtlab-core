@@ -44,7 +44,7 @@ namespace
         lastError = msg;
     }
 
-    bool prepareSaveFiles(const QVector<GtFileBatchSaver::Op>& ops,
+    bool prepareSaveFiles(const QVector<GtBatchSaver::Op>& ops,
                           QVector<Meta>& metas,
                           std::vector<std::unique_ptr<QSaveFile>>& saveFiles,
                           QString& lastError)
@@ -196,11 +196,11 @@ namespace
 } // unnamed namespace
 
 // -----------------------------------------------------------------------------
-// GtFileBatchSaver methods
+// GtBatchSaver methods
 // -----------------------------------------------------------------------------
 
 void
-GtFileBatchSaver::addOp(const QString& targetPath,
+GtBatchSaver::addOp(const QString& targetPath,
                         const std::function<bool(QIODevice&)>& writer)
 {
     Op op;
@@ -210,7 +210,7 @@ GtFileBatchSaver::addOp(const QString& targetPath,
 }
 
 void
-GtFileBatchSaver::addXml(const QString& targetPath, const QDomDocument& doc,
+GtBatchSaver::addXml(const QString& targetPath, const QDomDocument& doc,
                          bool ordered)
 {
     addOp(targetPath, [doc, ordered](QIODevice& dev) -> bool {
@@ -219,7 +219,7 @@ GtFileBatchSaver::addXml(const QString& targetPath, const QDomDocument& doc,
 }
 
 void
-GtFileBatchSaver::addBinary(const QString& targetPath, const QByteArray& data)
+GtBatchSaver::addBinary(const QString& targetPath, const QByteArray& data)
 {
     addOp(targetPath, [data](QIODevice& dev) -> bool {
         const qint64 written = dev.write(data);
@@ -228,7 +228,7 @@ GtFileBatchSaver::addBinary(const QString& targetPath, const QByteArray& data)
 }
 
 bool
-GtFileBatchSaver::commit()
+GtBatchSaver::commit()
 {
     m_lastError.clear();
 
@@ -248,7 +248,7 @@ GtFileBatchSaver::commit()
 }
 
 QString
-GtFileBatchSaver::errorString() const
+GtBatchSaver::errorString() const
 {
     return m_lastError;
 }

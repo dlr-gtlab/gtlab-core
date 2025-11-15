@@ -951,7 +951,7 @@ GtProject::renameOldModuleFile(const QString& path, const QString& modId)
 bool
 GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
 {
-    GtFileBatchSaver batchsaver;
+    GtBatchSaver batchsaver;
 
     batchsaver.addXml(filePath, doc, true);
 
