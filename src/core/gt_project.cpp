@@ -948,17 +948,186 @@ GtProject::renameOldModuleFile(const QString& path, const QString& modId)
                 moduleExtension());
 }
 
+
+// ----------------- small helpers -----------------
+
+static QString
+sanitizeName(const QString& name)
+{
+    if (name.isEmpty())
+        return QStringLiteral("unnamed");
+
+    QString out;
+    out.reserve(name.size());
+    for (QChar c : name)
+    {
+        if (c.isLetterOrNumber() || c == QLatin1Char('-') ||
+            c == QLatin1Char('_'))
+            out.append(c);
+        else
+            out.append(QLatin1Char('_'));
+    }
+    return out;
+}
+
+static QString
+sanitizeUuid(const QString& uuid)
+{
+    // Strip { } if present to make file names shell-friendlier
+    QString u = uuid;
+    u.remove(QLatin1Char('{'));
+    u.remove(QLatin1Char('}'));
+    return u;
+}
+
+struct ExternalObject
+{
+    QString filePath; // absolute path on disk
+    QString href;     // path to use in objectref (relative to baseDir)
+    QDomDocument doc; // GTLABOBJECTFILE wrapper
+};
+
+void
+collectExternalObjects(QDomDocument& masterDoc, QDomNode& node,
+                       const QDir& baseDir, QStringList& objectPath,
+                       QVector<ExternalObject>& outExternal)
+{
+    for (QDomNode child = node.firstChild(); !child.isNull();)
+    {
+        QDomNode next = child.nextSibling(); // in case we replace child
+
+        if (!child.isElement())
+        {
+            child = next;
+            continue;
+        }
+
+        QDomElement elem = child.toElement();
+
+        if (elem.tagName() == QLatin1String("object"))
+        {
+            const QString objName =
+                elem.attribute(QStringLiteral("name"),
+                               elem.attribute(QStringLiteral("class")));
+            const QString className = elem.attribute(QStringLiteral("class"));
+            const QString uuid = elem.attribute(QStringLiteral("uuid"));
+
+            const QString sanitizedObjName = sanitizeName(objName);
+            const QString cleanUuid = sanitizeUuid(uuid);
+
+            // track current object in hierarchy
+            objectPath.push_back(sanitizedObjName);
+
+            const QString asLink = elem.attribute(QStringLiteral("aslink"),
+                                                  QStringLiteral("false"));
+
+            const bool shouldExternalize =
+                asLink.compare(QStringLiteral("true"), Qt::CaseInsensitive) ==
+                    0 ||
+                asLink == QStringLiteral("1");
+
+            if (shouldExternalize)
+            {
+                // ---- build external document ----
+                QDomDocument extDoc(QStringLiteral("GTLABOBJECTFILE"));
+                QDomElement root =
+                    extDoc.createElement(QStringLiteral("GTLABOBJECTFILE"));
+                extDoc.appendChild(root);
+
+                QDomNode imported = extDoc.importNode(elem, /*deep=*/true);
+                root.appendChild(imported);
+
+                // remove aslink only in the external copy
+                if (imported.isElement())
+                {
+                    QDomElement importedElem = imported.toElement();
+                    importedElem.removeAttribute(QStringLiteral("aslink"));
+                }
+
+                // ---- compute directory + filename ----
+                QString relDir;
+                if (objectPath.size() > 1)
+                {
+                    QStringList dirParts = objectPath;
+                    dirParts.removeLast();
+                    relDir = dirParts.join(QLatin1Char('/'));
+                }
+
+                const QString absDir = relDir.isEmpty() ? baseDir.absolutePath()
+                                                        : baseDir.filePath(relDir);
+
+                QString fileName;
+                if (!cleanUuid.isEmpty())
+                    fileName = QStringLiteral("%1_%2.gtobj.xml")
+                                   .arg(sanitizedObjName, cleanUuid);
+                else
+                    fileName = QStringLiteral("%1.gtobj.xml").arg(sanitizedObjName);
+
+                const QString filePath = QDir(absDir).filePath(fileName);
+
+                // href stored in master is relative to baseDir
+                const QString href = baseDir.relativeFilePath(filePath);
+
+                ExternalObject ext;
+                ext.filePath = filePath;
+                ext.href = href;
+                ext.doc = extDoc;
+                outExternal.push_back(std::move(ext));
+
+                // ---- replace <object> with <objectref> in master ----
+                QDomElement refElem =
+                    masterDoc.createElement(QStringLiteral("objectref"));
+                refElem.setAttribute(QStringLiteral("class"), className);
+                refElem.setAttribute(QStringLiteral("name"), objName);
+                if (!uuid.isEmpty())
+                    refElem.setAttribute(QStringLiteral("uuid"), uuid);
+                refElem.setAttribute(QStringLiteral("href"), href);
+                refElem.setAttribute(QStringLiteral("load"),
+                                     QStringLiteral("on-demand"));
+
+                node.replaceChild(refElem, child);
+
+                // do not recurse into this object any further
+                objectPath.pop_back();
+                child = next;
+                continue;
+            }
+            else
+            {
+                // normal object: recurse into its children
+                collectExternalObjects(masterDoc, child, baseDir, objectPath,
+                                       outExternal);
+                objectPath.pop_back();
+                child = next;
+                continue;
+            }
+        }
+        else
+        {
+            // anything else: recurse into children
+            collectExternalObjects(masterDoc, child, baseDir, objectPath,
+                                   outExternal);
+            child = next;
+        }
+    }
+}
+
+
 bool
 GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
 {
-    GtBatchSaver batchsaver;
+    // base dir for master + externals
+    const QFileInfo fi(filePath);
+    const QDir   baseDir = fi.dir().absolutePath();
 
-    batchsaver.addXml(filePath, doc, true);
-
-    if (!batchsaver.commit())
+    QString error;
+    if (!gt::project::saveXmlWithLinkedObjects(objectName(),
+                                           doc,
+                                           baseDir,
+                                           filePath,
+                                           &error))
     {
-        gtError() << objectName() << QStringLiteral(": ")
-                  << batchsaver.errorString();
+        gtError() << error;
         return false;
     }
 
@@ -1443,4 +1612,48 @@ QString
 gt::project::backupDirPath(const GtProject& proj)
 {
     return {proj.path() + QDir::separator() + "backup"};
+}
+
+bool
+gt::project::saveXmlWithLinkedObjects(
+    const QString& projectName,
+    const QDomDocument &doc, const QDir &baseDir,
+    const QString &masterFilePath, QString *errorOut)
+{
+
+    // work on a copy, since doc is const
+    QDomDocument masterDoc = doc;
+
+    // 1) externalize objects in-memory
+    QVector<ExternalObject> externals;
+    QStringList objectPath;
+
+    QDomElement rootElem = masterDoc.documentElement();
+    if (!rootElem.isNull())
+    {
+        QDomNode rootNode = rootElem;
+        collectExternalObjects(masterDoc, rootNode, baseDir, objectPath, externals);
+    }
+
+    // 2) batch save: externals + master
+    GtBatchSaver batchsaver;
+
+    // external object files first
+    for (const ExternalObject& ext : qAsConst(externals))
+    {
+        // third parameter: attrOrdered=true (same as before)
+        batchsaver.addXml(ext.filePath, ext.doc, true);
+    }
+
+    // master file last
+    batchsaver.addXml(masterFilePath, masterDoc, true);
+
+    if (!batchsaver.commit())
+    {
+        gtError() << projectName << QStringLiteral(": ")
+        << batchsaver.errorString();
+        return false;
+    }
+
+    return true;
 }
