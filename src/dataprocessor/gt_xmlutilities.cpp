@@ -127,9 +127,22 @@ gt::xml::writeDomDocumentToFile(const QString& filePath,
         return false;
     }
 
+    bool success = writeDomDocumentToDevice(file, doc, attrOrdered);
+
+    file.close();
+    return success;
+}
+
+bool
+gt::xml::writeDomDocumentToDevice(QIODevice& device,
+                                const QDomDocument& doc,
+                                bool attrOrdered)
+{
+
+
     if (attrOrdered)
     {
-        QXmlStreamWriter str_w(&file);
+        QXmlStreamWriter str_w(&device);
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         str_w.setCodec("UTF-8");
@@ -153,14 +166,12 @@ gt::xml::writeDomDocumentToFile(const QString& filePath,
     }
     else
     {
-        QTextStream stream(&file);
+        QTextStream stream(&device);
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         stream.setCodec("UTF-8");
 #endif
         stream << doc.toString(4);
     }
-
-    file.close();
 
     return true;
 }

@@ -35,8 +35,8 @@
 #include "gt_qtutilities.h"
 #include "gt_filesystem.h"
 #include "gt_abstractloadinghelper.h"
+#include "gt_batchsaver.h"
 
-#include "internal/gt_moduleupgrader.h"
 #include "internal/gt_moduleupgrader.h"
 
 #include <cassert>
@@ -951,58 +951,14 @@ GtProject::renameOldModuleFile(const QString& path, const QString& modId)
 bool
 GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
 {
-    /// create file with name 'path + _new'
-    const QString tempFilePath = filePath + QStringLiteral("_new");
+    GtFileBatchSaver batchsaver;
 
-    // new ordered attribute stream writer algorithm
-    if (!gt::xml::writeDomDocumentToFile(tempFilePath, doc, true))
+    batchsaver.addXml(filePath, doc, true);
+
+    if (!batchsaver.commit())
     {
         gtError() << objectName() << QStringLiteral(": ")
-                  << tr("Failed to save project data!");
-
-        return false;
-    }
-
-    //rename files
-    /// => existing from 'path' to 'path + _backup'
-    /// => the new file from 'path + _new' to 'path'
-
-    /// rename existing file (old state)
-    QFile origFile(filePath);
-
-    if (origFile.exists())
-    {
-        /// remove old backup file
-        QFile backupFile(filePath + QStringLiteral("_backup"));
-
-        if (backupFile.exists())
-        {
-            if (!backupFile.remove())
-            {
-                gtError() << "Could not delete existing backup file ' "
-                          << backupFile.fileName() << "!";
-
-                return false;
-            }
-        }
-
-        /// rename active file to backup
-        if (!origFile.rename(filePath + QStringLiteral("_backup")))
-        {
-            gtError() << "Could not rename '" << origFile.fileName()
-                      << "' to '" << filePath + QStringLiteral("_backup")
-                      << "'!";
-
-            return false;
-        }
-    }
-
-    /// rename new file to active (new state)
-    if (!QFile(tempFilePath).rename(filePath))
-    {
-        gtError() << "Could not rename project file ('" << tempFilePath
-                  << "' to '" << filePath << "'!";
-
+                  << batchsaver.errorString();
         return false;
     }
 

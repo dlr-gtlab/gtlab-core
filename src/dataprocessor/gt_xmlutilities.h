@@ -54,6 +54,21 @@ bool GT_DATAMODEL_EXPORT writeDomDocumentToFile(const QString& filePath,
                                                 bool attrOrdered = true);
 
 /**
+ * @brief Writes given QDomDocument object to a output device. The XML
+ * attributes can be saved both unsorted and sorted. Default is sorted.
+ * @param device The device to write to
+ * @param doc Given DOM document
+ * @param attrOrdered if true, the attributes are written in case sensitive
+ * order. Otherwise, the order of the attributes is random (faster writing)
+ * @return Returns true if entire DOM document was written successfully.
+ * Otherwise, false is returned.
+ */
+bool GT_DATAMODEL_EXPORT writeDomDocumentToDevice(QIODevice& device,
+                                                  const QDomDocument& doc,
+                                                  bool attrOrdered = true);
+
+
+/**
  * @brief This function parses the XML document from given file.
  * File is opened in TextMode. (Fix for broken line endings)
  * Read Qt documentation for further information: QDomDocument::setContent
