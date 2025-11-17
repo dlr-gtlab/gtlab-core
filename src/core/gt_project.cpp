@@ -570,9 +570,13 @@ GtProject::readModuleData()
             filename, &warnings
             );
 
-        if (document.isNull() || document.documentElement().isNull())
+        if (!warnings.isEmpty())
         {
             for (auto&& warn : warnings) gtWarning() << warn;
+        }
+
+        if (document.isNull() || document.documentElement().isNull())
+        {
             continue;
         }
 
