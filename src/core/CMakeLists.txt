@@ -104,6 +104,7 @@ set(headers
     gt_moduleloader.h
     gt_datamodelinterface.h
     gt_command.h
+    gt_moduleupgradeutilities.h
 )
 
 set(hdr_private
@@ -206,6 +207,7 @@ set(sources
     gt_moduleloader.cpp
     gt_command.cpp
     internal/gt_moduleupgrader.cpp
+    gt_moduleupgradeutilities.cpp
 )
 
 set(resources
