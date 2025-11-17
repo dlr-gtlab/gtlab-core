@@ -46,11 +46,16 @@ protected:
     bool domElementsEqual(const QDomElement& a, const QDomElement& b) const
     {
         if (a.tagName() != b.tagName())
+        {
+            qWarning() << "Tag names are different:"
+                       << a.tagName() << "/" << b.tagName();
             return false;
-
+        }
         if (a.attributes().count() != b.attributes().count())
+        {
+            qWarning() << "Attribute count is different";
             return false;
-
+        }
         // Attribute vergleichen
         for (int i = 0; i < a.attributes().count(); ++i)
         {
@@ -58,27 +63,45 @@ protected:
             QString aName = attrA.name();
             QDomAttr attrB = const_cast<QDomElement*>(&b)->attributeNode(aName);
             if (attrB.isNull() || attrA.value() != attrB.value())
+            {
+                qWarning() << "Error in comparison of " << aName;
                 return false;
+            }
         }
 
         // Textinhalt vergleichen
         if (a.text().trimmed() != b.text().trimmed())
+        {
+            qWarning() << "Error in comparison of" <<  a.text().trimmed()
+                       << "and" << b.text().trimmed();
             return false;
+        }
+
 
         // Kinder vergleichen
         QDomNodeList childrenA = a.childNodes();
         QDomNodeList childrenB = b.childNodes();
         if (childrenA.count() != childrenB.count())
+        {
+            qWarning() << "Child count is different" <<  childrenA.count()
+                       << "/" << childrenB.count();
             return false;
-
+        }
         for (int i = 0; i < childrenA.count(); ++i) {
             QDomElement childA = childrenA.at(i).toElement();
             QDomElement childB = childrenB.at(i).toElement();
 
-            if (!childA.isNull() && !childB.isNull()) {
+            if (!childA.isNull() && !childB.isNull())
+            {
                 if (!domElementsEqual(childA, childB))
+                {
+                    qWarning() << "Child compared failed";
                     return false;
-            } else if (childA.isNull() != childB.isNull()) {
+                }
+            }
+            else if (childA.isNull() != childB.isNull())
+            {
+                qWarning() << "There is an invalid child to compare";
                 return false;
             }
         }
@@ -156,66 +179,62 @@ TEST_F(ModuleUpgradeUtilsTest, AddObjectList)
 
 TEST_F(ModuleUpgradeUtilsTest, PyProcessTest1)
 {
-    QString oldXML = R"(
-        <object class="GtTask" name="New Task" uuid="{e127e6ee-03c7-47e6-8e00-883a17a4f3ce}">
+    QString oldXML = R"(<?xml version="1.0" encoding="UTF-8"?>
+<object class="GtTask" name="New Task" uuid="{e127e6ee-03c7-47e6-8e00-883a17a4f3ce}">
+    <property name="skip" type="bool">false</property>
+    <property name="processRunner" type="QString"/>
+    <objectlist>
+        <object class="GtpyScriptCalculator" name="Python Script Editor" uuid="{af82fec5-76db-4a77-bf87-03b04f49de68}">
             <property name="skip" type="bool">false</property>
-            <property name="processRunner" type="QString"/>
-            <objectlist>
-                <object class="GtpyScriptCalculator" name="Python Script Editor" uuid="{af82fec5-76db-4a77-bf87-03b04f49de68}">
-                    <property name="skip" type="bool">false</property>
-                    <property name="execLabel" type="QString"/>
-                    <property name="execMode" type="QString">local</property>
-                    <property name="failOnWarn" type="bool">false</property>
-                    <property name="script" type="QString">val = input_args[&quot;A&quot;]
-                                                                                              gtDebug() &lt;&lt; val
-        output_args[&quot;B&quot;] = val</property>
-                    <property name="replaceTab" type="bool">true</property>
-                    <property name="tabSize" type="int">4</property>
-                    <property-container name="input_args">
-                        <property name="{asdf-dfht-qwer-1234}" type="float">
-                            <property name="value" type="QString">input_1</property>
-                            <property name="value" type="double">0</property>
-                        </property>
-                    </property-container>
-                    <property-container name="output_args">
-                        <property name="output_1" type="float">
-                            <property name="name" type="QString">output_1</property>
-                            <property name="value" type="double">0</property>
-                        </property>
-                    </property-container>
-                 </object>
-            </objectlist>
-        </object>;
+            <property name="execLabel" type="QString"/>
+            <property name="execMode" type="QString">local</property>
+            <property name="failOnWarn" type="bool">false</property>
+            <property name="script" type="QString"></property>
+            <property name="replaceTab" type="bool">true</property>
+            <property name="tabSize" type="int">4</property>
+            <property-container name="input_args">
+                <property name="{asdf-dfht-qwer-1234}" type="float">
+                    <property name="name" type="QString">input_1</property>
+                    <property name="value" type="double">0</property>
+                </property>
+            </property-container>
+            <property-container name="output_args">
+                <property name="output_1" type="float">
+                    <property name="name" type="QString">output_1</property>
+                    <property name="value" type="double">0</property>
+                </property>
+            </property-container>
+         </object>
+    </objectlist>
+</object>
     )";
 
-    QString newXML = R"(
-        <object class="GtTask" name="New Task" uuid="{e127e6ee-03c7-47e6-8e00-883a17a4f3ce}">
+    QString newXML = R"(<?xml version="1.0" encoding="UTF-8"?>
+<object class="GtTask" name="New Task" uuid="{e127e6ee-03c7-47e6-8e00-883a17a4f3ce}">
+    <property name="skip" type="bool">false</property>
+    <property name="processRunner" type="QString"/>
+    <objectlist>
+        <object class="GtpyScriptCalculator" name="Python Script Editor" uuid="{af82fec5-76db-4a77-bf87-03b04f49de68}">
             <property name="skip" type="bool">false</property>
-            <property name="processRunner" type="QString"/>
-            <objectlist>
-                <object class="GtpyScriptCalculator" name="Python Script Editor" uuid="{af82fec5-76db-4a77-bf87-03b04f49de68}">
-                    <property name="skip" type="bool">false</property>
-                    <property name="execLabel" type="QString"/>
-                    <property name="execMode" type="QString">local</property>
-                    <property name="failOnWarn" type="bool">false</property>
-                    <property name="script" type="QString">val = input_args[&quot;A&quot;]
-                                                                                              gtDebug() &lt;&lt; val
-        output_args[&quot;B&quot;] = val</property>
-                    <property name="replaceTab" type="bool">true</property>
-                    <property name="tabSize" type="int">4</property>
-                    <property-container name="input_args">
-                        <property name="input_1" type="float">
-                            <property name="value" type="double">0</property>
-                        </property>
-                    </property-container>
-                    <property-container name="output_args">
-                        <property name="output_1" type="float">
-                            <property name="value" type="double">0</property>
-                        </property>
-                    </property-container>
-                 </object>
-            </objectlist>
-        </object>;
+            <property name="execLabel" type="QString"/>
+            <property name="execMode" type="QString">local</property>
+            <property name="failOnWarn" type="bool">false</property>
+            <property name="script" type="QString"></property>
+            <property name="replaceTab" type="bool">true</property>
+            <property name="tabSize" type="int">4</property>
+            <property-container name="input_args">
+                <property name="input_1" type="float">
+                    <property name="value" type="double">0</property>
+                </property>
+            </property-container>
+            <property-container name="output_args">
+                <property name="output_1" type="float">
+                    <property name="value" type="double">0</property>
+                </property>
+            </property-container>
+         </object>
+    </objectlist>
+</object>
     )";
 
     // QDomDocument erzeugen
@@ -227,14 +246,30 @@ TEST_F(ModuleUpgradeUtilsTest, PyProcessTest1)
 
     bool readOldCheck = doc1.setContent(oldXML, &errorMsg, &errorLine, &errorColumn);
 
-    EXPECT_TRUE(readOldCheck);
+    if (!readOldCheck)
+    {
+        qWarning() << "Error while parsing xml:" << errorMsg
+                   << "Line:" << errorLine << "Column:" << errorColumn;
+    }
+
+    ASSERT_TRUE(readOldCheck);
+
+    bool readNewCheck = doc2.setContent(newXML, &errorMsg, &errorLine, &errorColumn);
+
+    if (!readNewCheck)
+    {
+        qWarning() << "Error while parsing xml:" << errorMsg
+                   << "Line:" << errorLine << "Column:" << errorColumn;
+    }
+
+    ASSERT_TRUE(readNewCheck);
 
     QDomElement rootOld = doc1.documentElement();
 
     QList<QDomElement> found = gt::module_upgrade_utils::findElementsByClass(
-        root, {"GtpyScriptCalculator", "GtpyTask"}, false);
+        rootOld, {"GtpyScriptCalculator", "GtpyTask"}, false);
 
-    EXPECT_EQ(found.size(), 1);
+    ASSERT_EQ(found.size(), 1);
 
     QDomElement calc = found[0];
     EXPECT_STREQ(calc.attribute("name").toStdString().c_str(), "Python Script Editor");
@@ -258,8 +293,18 @@ TEST_F(ModuleUpgradeUtilsTest, PyProcessTest1)
         }
     }
 
-    bool comparisonCheck = domElementsEqual(doc1.documentElement(),
+    bool comparisonCheck = domElementsEqual(rootOld,
                                             doc2.documentElement());
+
+    if (!comparisonCheck)
+    {
+        qWarning() << "old: " << rootOld.ownerDocument().toString(4);
+        qWarning() << "new: " << doc2.toString(4);
+    }
+    else
+    {
+        qDebug() << "Comparison was successfull";
+    }
 
     EXPECT_TRUE(comparisonCheck);
 
