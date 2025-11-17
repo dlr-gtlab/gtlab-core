@@ -408,3 +408,157 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
         }
     }
 }
+
+namespace
+{
+
+void
+expandObjectRefsInDocument(QDomDocument& doc,
+                           const QDir& baseDir,
+                           QStringList* warnings,
+                           QSet<QString>& recursionStack);
+
+QDomDocument
+loadAndExpandImpl(const QString& path,
+                  QStringList* warnings,
+                  QSet<QString>& recursionStack)
+{
+
+
+    QFileInfo fileInfo(path);
+    const QString absPath = fileInfo.absoluteFilePath();
+
+    QFile linkedFile(absPath);
+
+    // Simple cycle protection: A.xml -> B.xml -> A.xml
+    if (recursionStack.contains(absPath))
+    {
+        const QString msg =
+            QStringLiteral("Detected recursive include of '%1'; keeping objectref nodes.").arg(absPath);
+        if (warnings) warnings->push_back(msg);
+        return QDomDocument();
+    }
+
+    auto warning = [&](const QString& msg)
+    {
+        if (warnings) warnings->push_back(msg);
+        recursionStack.remove(absPath);
+        return QDomDocument();
+    };
+
+    if (!linkedFile.exists())
+    {
+        const QString msg =
+            QStringLiteral("Linked file '%1' does not exist; keeping objectref nodes.").arg(absPath);
+        return warning(msg);
+    }
+
+    recursionStack.insert(absPath);
+
+    QDomDocument doc;
+    QString errorStr;
+    int errorLine;
+    int errorColumn;
+
+    if (!gt::xml::readDomDocumentFromFile(linkedFile, doc, true, &errorStr,
+                                          &errorLine, &errorColumn))
+    {
+        const QString msg =
+            QStringLiteral("Could not read or parse '%1'; keeping objectref nodes that reference it.")
+                .arg(absPath);
+        const QString msg2 = QObject::tr("XML ERROR! line: %1 column: %2 -> %3")
+                                .arg(errorLine).arg(errorColumn).arg(errorStr);
+        return warning(msg + "\n" + msg2);
+    }
+
+    if (doc.documentElement().isNull())
+    {
+        const QString msg =
+            QStringLiteral("Could not read or parse '%1'; keeping objectref nodes that reference it.")
+                .arg(absPath);
+        return warning(msg);
+    }
+
+    const QDir baseDir = QFileInfo(absPath).dir();
+    expandObjectRefsInDocument(doc, baseDir, warnings, recursionStack);
+
+    recursionStack.remove(absPath);
+    return doc;
+}
+
+void
+expandObjectRefsInDocument(QDomDocument& doc,
+                            const QDir& baseDir,
+                            QStringList* warnings,
+                            QSet<QString>& recursionStack)
+{
+    QDomNodeList nodeList = doc.elementsByTagName(gt::xml::S_OBJECTREF_TAG);
+
+    // Snapshot to avoid weirdness while modifying the DOM
+    QList<QDomElement> refs;
+    refs.reserve(nodeList.count());
+    for (int i = 0; i < nodeList.count(); ++i)
+    {
+        QDomElement e = nodeList.at(i).toElement();
+        if (!e.isNull())
+            refs.push_back(e);
+    }
+
+    for (const QDomElement& refElem : refs)
+    {
+        const QString uuid    = refElem.attribute(gt::xml::S_UUID_TAG);
+        const QString relPath = refElem.attribute(gt::xml::S_HREF_TAG);
+
+        if (relPath.isEmpty())
+        {
+            const QString msg =
+                QStringLiteral("objectref (uuid='%1') has no href; keeping objectref.").arg(uuid);
+            if (warnings) warnings->push_back(msg);
+            continue; // keep objectref
+        }
+
+        const QString targetPath = baseDir.filePath(relPath);
+        QDomDocument linkedDoc = loadAndExpandImpl(targetPath, warnings, recursionStack);
+
+        if (linkedDoc.documentElement().isNull())
+        {
+            const QString msg =
+                QStringLiteral("Could not expand link '%1' for objectref uuid='%2'; keeping objectref.")
+                    .arg(targetPath, uuid);
+            if (warnings) warnings->push_back(msg);
+            continue; // keep objectref
+        }
+
+        QDomElement linkedRoot = linkedDoc.documentElement();
+
+        // Typical pattern: <Root> <object ...>...</object> </Root>
+        QDomElement objectElem = linkedRoot.firstChildElement("object");
+        if (objectElem.isNull())
+            objectElem = linkedRoot;
+
+        QDomNode imported = doc.importNode(objectElem, /*deep=*/true);
+        QDomNode parent   = refElem.parentNode();
+
+        if (parent.isNull() || imported.isNull())
+        {
+            const QString msg =
+                QStringLiteral("Failed to replace objectref from '%1' (uuid='%2'); keeping objectref.")
+                    .arg(targetPath, uuid);
+            if (warnings) warnings->push_back(msg);
+            continue;
+        }
+
+        parent.replaceChild(imported, refElem);
+    }
+}
+
+
+} // namespace
+
+
+QDomDocument
+gt::xml::loadAndExpandDocument(const QString &masterPath, QStringList *warnings)
+{
+    QSet<QString> recursionStack;
+    return loadAndExpandImpl(masterPath, warnings, recursionStack);
+}

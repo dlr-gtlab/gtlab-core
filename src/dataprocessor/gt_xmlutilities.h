@@ -210,6 +210,43 @@ GT_DATAMODEL_EXPORT void collectLinkedObjects(QDomDocument& masterDoc,
                                               QStringList& objectPath,
                                               QVector<LinkedObject>& outLinked);
 
+/**
+ * @brief Load an XML document and recursively expand all linked object references.
+ *
+ * This function reads the given master XML file (e.g. package.xml) into a
+ * QDomDocument and recursively replaces all <objectref> elements with the
+ * contents of their linked documents.
+ *
+ * Linking is done via an attribute (typically "href") on <objectref> elements,
+ * whose value is treated as a file path relative to the directory of the file
+ * that contains the <objectref>. Each linked file is loaded, its own
+ * <objectref> elements are expanded in the same way, and the resulting
+ * <object> element (or, if no such child exists, the linked document's root
+ * element) is imported into the master document and used to replace the
+ * original <objectref>.
+ *
+ * Error handling:
+ * - If a linked file cannot be opened or parsed, a warning message is emitted
+ *   and optionally appended to @p warnings. In this case, the corresponding
+ *   <objectref> element is left unchanged in the resulting document.
+ * - The expansion continues for all other references even if some fail.
+ * - A simple recursion guard prevents infinite loops if documents reference
+ *   each other cyclically; in such a case, the affected <objectref> is kept
+ *   and a warning is reported.
+ *
+ * @param masterPath Absolute or relative path to the master XML file
+ *                   (e.g. "package.xml").
+ * @param warnings   Optional output list that will receive human-readable
+ *                   warning messages about failed or recursive includes. May
+ *                   be nullptr if no messages are needed.
+ *
+ * @return A QDomDocument representing the expanded XML tree. If the master
+ *         document cannot be read or parsed at all, an empty QDomDocument
+ *         (with null root element) is returned.
+ */
+GT_DATAMODEL_EXPORT QDomDocument loadAndExpandDocument(
+    const QString& masterPath, QStringList* warnings = nullptr);
+
 } // namespace xml
 
 } // namespace gt

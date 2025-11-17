@@ -565,18 +565,14 @@ GtProject::readModuleData()
             continue;
         }
 
-        QDomDocument document;
+        QStringList warnings;
+        QDomDocument document = gt::xml::loadAndExpandDocument(
+            filename, &warnings
+            );
 
-        QString errorStr;
-        int errorLine;
-        int errorColumn;
-
-        if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
-                                              &errorLine, &errorColumn))
+        if (document.isNull() || document.documentElement().isNull())
         {
-            gtWarning() << tr("XML ERROR!") << " " << tr("line") << ": "
-                      << errorLine << " " << tr("column") << ": "
-                      << errorColumn << " -> " << errorStr;
+            for (auto&& warn : warnings) gtWarning() << warn;
             continue;
         }
 

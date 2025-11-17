@@ -297,7 +297,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, HierarchicalObjectPathCreation)
 
     // Expected relative path:
     // objectPath at leaf = ["Parameterization", "HPT_curvePackage", "Mean_Line"]
-    // -> relDir = "Parameterization/HPT_curvePackage"
+    // -> relDir = "master/Parameterization/HPT_curvePackage"
     // cleanUuid = "ABC-123", sanitized name = "Mean_Line"
     // -> file = "ABC-123_Mean_Line.xml"
     const QString relDir = QStringLiteral("master/Parameterization/HPT_curvePackage");
