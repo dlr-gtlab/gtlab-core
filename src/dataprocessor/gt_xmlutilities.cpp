@@ -490,6 +490,7 @@ expandObjectRefsInDocument(QDomDocument& doc,
 
 QDomDocument
 loadAndExpandImpl(const QString& path,
+                  const QDir& baseDir,
                   QStringList* warnings,
                   QSet<QString>& recursionStack)
 {
@@ -549,7 +550,6 @@ loadAndExpandImpl(const QString& path,
         return warning(msg);
     }
 
-    const QDir baseDir = QFileInfo(absPath).dir();
     expandObjectRefsInDocument(doc, baseDir, warnings, recursionStack);
 
     recursionStack.remove(absPath);
@@ -588,7 +588,7 @@ expandObjectRefsInDocument(QDomDocument& doc,
         }
 
         const QString targetPath = baseDir.filePath(relPath);
-        QDomDocument linkedDoc = loadAndExpandImpl(targetPath, warnings, recursionStack);
+        QDomDocument linkedDoc = loadAndExpandImpl(targetPath, baseDir, warnings, recursionStack);
 
         if (linkedDoc.documentElement().isNull())
         {
@@ -629,8 +629,14 @@ expandObjectRefsInDocument(QDomDocument& doc,
 QDomDocument
 gt::xml::loadProjectXmlWithLinkedObjects(const QString &masterPath, QStringList *warnings)
 {
+
+    QFileInfo fileInfo(masterPath);
+    const QString absPath = fileInfo.absoluteFilePath();
+    const QDir baseDir = QFileInfo(absPath).dir();
+
+
     QSet<QString> recursionStack;
-    return loadAndExpandImpl(masterPath, warnings, recursionStack);
+    return loadAndExpandImpl(masterPath, baseDir, warnings, recursionStack);
 }
 
 bool
