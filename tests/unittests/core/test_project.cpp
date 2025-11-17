@@ -17,21 +17,34 @@
 #include <QDomDocument>
 #include <QDir>
 
+namespace
+{
+
+static QDomDocument
+readXmlToDom(const QByteArray& data)
+{
+    QDomDocument doc;
+    QString errorMsg;
+    int errorLine = 0, errorCol = 0;
+
+    if (!doc.setContent(data, &errorMsg, &errorLine, &errorCol))
+        return QDomDocument();  // or std::move(doc), but this is fine
+
+    return doc;
+}
+
 static QDomDocument
 readFileToDom(const QString& path)
 {
-    QDomDocument doc;
     QFile f(path);
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
         return QDomDocument();
-    QString errorMsg;
-    int errorLine = 0, errorCol = 0;
-    if (!doc.setContent(&f, &errorMsg, &errorLine, &errorCol))
-    {
-        return QDomDocument();
-    }
-    return doc;
+
+    const QByteArray data = f.readAll();
+    return readXmlToDom(data);
 }
+
+} // namespace
 
 class SaveXmlWithLinkedObjectsTest : public ::testing::Test
 {
@@ -60,16 +73,13 @@ protected:
 // --------------------------------------------------------
 TEST_F(SaveXmlWithLinkedObjectsTest, MasterOnly_NoAslink)
 {
-    // Build a very simple document
-    QDomDocument doc;
-    QDomElement root = doc.createElement("Root");
-    doc.appendChild(root);
+    const char* xml = R"(
+<Root>
+  <object class="Foo" name="A" uuid="{111-222}"/>
+</Root>
+)";
 
-    QDomElement obj = doc.createElement("object");
-    obj.setAttribute("class", "Foo");
-    obj.setAttribute("name", "A");
-    obj.setAttribute("uuid", "{111-222}");
-    root.appendChild(obj);
+    QDomDocument doc = readXmlToDom(xml);
 
     const QString masterPath = makePath("master.xml");
     QString error;
@@ -104,21 +114,14 @@ TEST_F(SaveXmlWithLinkedObjectsTest, MasterOnly_NoAslink)
 // --------------------------------------------------------
 TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkTrue)
 {
-    QDomDocument doc;
-    QDomElement root = doc.createElement("Root");
-    doc.appendChild(root);
-
-    QDomElement obj = doc.createElement("object");
-    obj.setAttribute("class", "Foo");
-    obj.setAttribute("name", "A");
-    obj.setAttribute("uuid", "{111-222}");
-    obj.setAttribute("aslink", "true");
-    QDomElement prop = doc.createElement("property");
-    prop.setAttribute("name", "x");
-    prop.appendChild(doc.createTextNode("42"));
-    obj.appendChild(prop);
-
-    root.appendChild(obj);
+    const char* xml = R"(
+<Root>
+  <object class="Foo" name="A" uuid="{111-222}" aslink="true">
+    <property name="x">42</property>
+  </object>
+</Root>
+)";
+    QDomDocument doc = readXmlToDom(xml);
 
     const QString masterPath = makePath("master.xml");
     QString error;
@@ -181,25 +184,14 @@ TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkTrue)
 // --------------------------------------------------------
 TEST_F(SaveXmlWithLinkedObjectsTest, MultipleLinkedObjects)
 {
-    QDomDocument doc;
-    QDomElement root = doc.createElement("Root");
-    doc.appendChild(root);
+    const QByteArray xml = R"(
+<Root>
+  <object class="Foo" name="A" uuid="{UUID-A}" aslink="true"/>
+  <object class="Bar" name="B" uuid="{UUID-B}" aslink="true"/>
+</Root>
+)";
 
-    // First linked object
-    QDomElement obj1 = doc.createElement("object");
-    obj1.setAttribute("class", "Foo");
-    obj1.setAttribute("name", "A");
-    obj1.setAttribute("uuid", "{UUID-A}");
-    obj1.setAttribute("aslink", "true");
-    root.appendChild(obj1);
-
-    // Second linked object
-    QDomElement obj2 = doc.createElement("object");
-    obj2.setAttribute("class", "Bar");
-    obj2.setAttribute("name", "B");
-    obj2.setAttribute("uuid", "{UUID-B}");
-    obj2.setAttribute("aslink", "true");
-    root.appendChild(obj2);
+    QDomDocument doc = readXmlToDom(xml);
 
     const QString masterPath = makePath("master.xml");
     QString error;
@@ -241,16 +233,15 @@ TEST_F(SaveXmlWithLinkedObjectsTest, MultipleLinkedObjects)
 // --------------------------------------------------------
 TEST_F(SaveXmlWithLinkedObjectsTest, MissingAslinkTreatedAsFalse)
 {
-    QDomDocument doc;
-    QDomElement root = doc.createElement("Root");
-    doc.appendChild(root);
+    const QByteArray xml = R"(
+<Root>
+  <object class="Foo" name="A" uuid="{111-222}">
+    <!-- no aslink attribute -->
+  </object>
+</Root>
+)";
 
-    QDomElement obj = doc.createElement("object");
-    obj.setAttribute("class", "Foo");
-    obj.setAttribute("name", "A");
-    obj.setAttribute("uuid", "{111-222}");
-    // no aslink attribute
-    root.appendChild(obj);
+    QDomDocument doc = readXmlToDom(xml);
 
     const QString masterPath = makePath("master.xml");
     QString error;
@@ -282,45 +273,19 @@ TEST_F(SaveXmlWithLinkedObjectsTest, MissingAslinkTreatedAsFalse)
 // --------------------------------------------------------
 TEST_F(SaveXmlWithLinkedObjectsTest, HierarchicalObjectPathCreation)
 {
-    // Build a document like:
-    //
-    // <Root>
-    //   <object class="Group" name="Parameterization" uuid="{UUID-P}">
-    //     <object class="Pkg" name="HPT_curvePackage" uuid="{UUID-C}">
-    //       <object class="Leaf" name="Mean Line" uuid="{ABC-123}" aslink="true">
-    //         <property name="x">1.0</property>
-    //       </object>
-    //     </object>
-    //   </object>
-    // </Root>
+    const QByteArray xml = R"(
+<Root>
+  <object class="Group" name="Parameterization" uuid="{UUID-P}">
+    <object class="Pkg" name="HPT_curvePackage" uuid="{UUID-C}">
+      <object class="Leaf" name="Mean Line" uuid="{ABC-123}" aslink="true">
+        <property name="x">1.0</property>
+      </object>
+    </object>
+  </object>
+</Root>
+)";
 
-    QDomDocument doc;
-    QDomElement root = doc.createElement("Root");
-    doc.appendChild(root);
-
-    QDomElement objParam = doc.createElement("object");
-    objParam.setAttribute("class", "Group");
-    objParam.setAttribute("name", "Parameterization");
-    objParam.setAttribute("uuid", "{UUID-P}");
-    root.appendChild(objParam);
-
-    QDomElement objPkg = doc.createElement("object");
-    objPkg.setAttribute("class", "Pkg");
-    objPkg.setAttribute("name", "HPT_curvePackage");
-    objPkg.setAttribute("uuid", "{UUID-C}");
-    objParam.appendChild(objPkg);
-
-    QDomElement objLeaf = doc.createElement("object");
-    objLeaf.setAttribute("class", "Leaf");
-    objLeaf.setAttribute("name", "Mean Line");
-    objLeaf.setAttribute("uuid", "{ABC-123}");
-    objLeaf.setAttribute("aslink", "true");
-    QDomElement prop = doc.createElement("property");
-    prop.setAttribute("name", "x");
-    prop.appendChild(doc.createTextNode("1.0"));
-    objLeaf.appendChild(prop);
-
-    objPkg.appendChild(objLeaf);
+    QDomDocument doc = readXmlToDom(xml);
 
     const QString masterPath = makePath("master.xml");
     QString error;
