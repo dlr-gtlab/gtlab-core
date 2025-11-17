@@ -223,6 +223,25 @@ GtObjectMemento::calculateHashes() const
 }
 
 bool
+GtObjectMemento::isFlagEnabled(GtObjectMemento::Flag flag) const
+{
+    return m_flags & flag;
+}
+
+void
+GtObjectMemento::setFlagEnabled(GtObjectMemento::Flag flag, bool enable)
+{
+    if (enable)
+    {
+        m_flags = m_flags | flag;
+    }
+    else
+    {
+        m_flags = m_flags & ~flag;
+    }
+}
+
+bool
 GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory) const
 {
     if (isNull())

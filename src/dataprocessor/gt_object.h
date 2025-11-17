@@ -101,7 +101,9 @@ public:
         /// restored or otherwise is initialized again.
         DefaultComponent = 32,
         /// the object is not shown in the explorer widget in the GUI
-        UserHidden = 64
+        UserHidden = 64,
+        ///  Whether the object should be saved as a own file
+        SaveAsOwnFile = 128
     };
     Q_DECLARE_FLAGS(ObjectFlags, ObjectFlag)
 
@@ -287,6 +289,18 @@ public:
      * @return Deletable flag
      */
     bool isDeletable() const;
+
+    /**
+     * @brief Whether the object should be saved as a linked file
+     *
+     * (i.e. stored into an own file and linked in the parent doc)
+     */
+    bool saveAsOwnFile() const;
+
+    /**
+     * @brief Sets, whether the object should be saved in an own file
+     */
+    void setSaveAsOwnFile(bool);
 
     /**
      * @brief setFactory

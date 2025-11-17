@@ -253,6 +253,8 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     // object name
     memento.setIdent(o->objectName());
 
+    memento.setFlagEnabled(GtObjectMemento::SaveAsOwnFile, o->saveAsOwnFile());
+
     // child objects
     auto const directChildren = o->findDirectChildren();
     memento.childObjects.reserve(directChildren.size());
@@ -281,6 +283,12 @@ GtObjectIO::toDomElement(const GtObjectMemento& memento, QDomDocument& doc,
 
     // object name
     element.setAttribute(gt::xml::S_NAME_TAG, memento.ident());
+
+    // indikate as link flag, if object should be stored onto own file
+    if (memento.isFlagEnabled(GtObjectMemento::SaveAsOwnFile))
+    {
+        element.setAttribute(gt::xml::S_ASLINK_TAG, "true");
+    }
 
     // store property information
     writeProperties(doc, element, memento);

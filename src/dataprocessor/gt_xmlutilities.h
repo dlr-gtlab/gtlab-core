@@ -16,6 +16,7 @@
 
 #include <QList>
 #include <QDomElement>
+#include <QDir>
 
 class QDomDocument;
 class QXmlStreamWriter;
@@ -143,6 +144,70 @@ inline QDomElement createStringPropertyElement(QDomDocument& doc,
     return createPropertyElement(doc, propertyId, "QString",
                               std::move(value));
 }
+
+struct LinkedObject
+{
+    QString filePath; // absolute path on disk
+    QString href;     // path to use in objectref (relative to baseDir)
+    QDomDocument doc; // GTLABOBJECTFILE wrapper
+};
+
+/**
+ * @brief Collect objects marked for separate file storage and rewrite them as links.
+ *
+ * This helper recursively walks the DOM subtree rooted at @p node and looks for
+ * <object> elements that have @c aslink="true" (case-insensitive) or
+ * @c aslink="1". For each such object:
+ *
+ *  - A new @c QDomDocument is created with a @c <GTLABOBJECTFILE> root element.
+ *    The <object> subtree is imported into this document and stored in
+ *    @p outLinked as an @c LinkedObject entry, together with a target
+ *    @c filePath and a relative @c href.
+ *
+ *  - The original <object> node in @p masterDoc is replaced by an
+ *    @c <objectref> element that keeps the original @c class, @c name and
+ *    @c uuid attributes and adds:
+ *      - @c href : relative path of the separate object file (from @p baseDir),
+ *      - @c load : currently set to @c "on-demand" as a hint.
+ *
+ * Objects without an @c aslink attribute, or with any value other than "true"
+ * (case-insensitive) or "1", are left embedded in the master document and are
+ * not added to @p outLinked.
+ *
+ * The @p objectPath parameter is used as a stack of sanitized object names
+ * representing the current hierarchy (e.g. "Parameterization" /
+ * "HPT_curvePackage" / "Mean_Line"). This is used only to compute the directory
+ * structure and file names for the linked object files:
+ *
+ *  - The relative directory is built from all but the leaf name in
+ *    @p objectPath, joined with '/'.
+ *  - The file name is typically
+ *        <cleanUuid>_<sanitizedLeafName>.gtobj.xml
+ *    where @c cleanUuid is the @c uuid attribute stripped of braces.
+ *
+ * @param masterDoc   The master document being transformed. This function
+ *                    modifies @p masterDoc in-place, replacing selected
+ *                    <object> nodes with <objectref> nodes.
+ * @param node        Current DOM node to process (typically the root element
+ *                    when called initially). The function recurses into its
+ *                    children as needed.
+ * @param baseDir     Base directory used to compute absolute @c filePath and
+ *                    relative @c href for each linked object file. No files are
+ *                    written here; paths are just calculated.
+ * @param objectPath  Stack of sanitized object names representing the current
+ *                    path in the object hierarchy. The caller should pass an
+ *                    empty list initially; this function pushes/pops as it
+ *                    descends/ascends the tree.
+ * @param outLinked   Output list that receives one @c LinkedObject entry for
+ *                    each <object> node marked with @c aslink="true" or @c "1".
+ *                    The caller can later use these entries to write the
+ *                    separate object files to disk.
+ */
+GT_DATAMODEL_EXPORT void collectLinkedObjects(QDomDocument& masterDoc,
+                                              QDomNode& node,
+                                              const QDir& baseDir,
+                                              QStringList& objectPath,
+                                              QVector<LinkedObject>& outLinked);
 
 } // namespace xml
 

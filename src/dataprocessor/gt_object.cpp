@@ -366,6 +366,19 @@ GtObject::isDeletable() const
     return (objectFlags() & GtObject::UserDeletable);
 }
 
+bool
+GtObject::saveAsOwnFile() const
+{
+    return (objectFlags() & GtObject::SaveAsOwnFile);
+}
+
+void
+GtObject::setSaveAsOwnFile(bool val)
+{
+    setFlag(GtObject::SaveAsOwnFile, val);
+
+}
+
 void
 GtObject::setFactory(GtAbstractObjectFactory* factory)
 {

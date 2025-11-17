@@ -15,6 +15,10 @@ namespace xml
 constexpr const char * S_GTLAB_TAG = "GTLAB";
 constexpr const char * S_OBJECT_TAG = "object";
 constexpr const char * S_OBJECTLIST_TAG = "objectlist";
+constexpr const char * S_OBJECTFILE_TAG = "GTLABOBJECTFILE";
+constexpr const char * S_OBJECTREF_TAG = "objectref";
+constexpr const char * S_ASLINK_TAG = "aslink";
+constexpr const char * S_HREF_TAG = "href";
 constexpr const char * S_UUID_TAG = "uuid";
 constexpr const char * S_CLASS_TAG = "class";
 constexpr const char * S_NAME_TAG = "name";

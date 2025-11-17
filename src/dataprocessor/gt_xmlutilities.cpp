@@ -44,6 +44,37 @@ findElements(
     }
 }
 
+
+static QString
+sanitizeName(const QString& name)
+{
+    if (name.isEmpty())
+        return QStringLiteral("unnamed");
+
+    QString out;
+    out.reserve(name.size());
+    for (QChar c : name)
+    {
+        if (c.isLetterOrNumber() || c == QLatin1Char('-') ||
+            c == QLatin1Char('_'))
+            out.append(c);
+        else
+            out.append(QLatin1Char('_'));
+    }
+    return out;
+}
+
+static QString
+sanitizeUuid(const QString& uuid)
+{
+    // Strip { } if present to make file names shell-friendlier
+    QString u = uuid;
+    u.remove(QLatin1Char('{'));
+    u.remove(QLatin1Char('}'));
+    return u;
+}
+
+
 } // namespace
 
 QList<QDomElement>
@@ -252,4 +283,126 @@ gt::xml::readDomDocumentFromFile(QFile& file,
     file.close();
 
     return doc.setContent(content, true, errorMsg, errorLine, errorColumn);
+}
+
+void
+gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
+                                const QDir& baseDir, QStringList& objectPath,
+                                QVector<LinkedObject>& outExternal)
+{
+    for (QDomNode child = node.firstChild(); !child.isNull();)
+    {
+        QDomNode next = child.nextSibling(); // in case we replace child
+
+        if (!child.isElement())
+        {
+            child = next;
+            continue;
+        }
+
+        QDomElement elem = child.toElement();
+
+        if (elem.tagName() == S_OBJECT_TAG)
+        {
+            const QString objName =
+                elem.attribute(S_NAME_TAG, elem.attribute(S_CLASS_TAG));
+            const QString className = elem.attribute(S_CLASS_TAG);
+            const QString uuid = elem.attribute(S_UUID_TAG);
+
+            const QString sanitizedObjName = sanitizeName(objName);
+            const QString cleanUuid = sanitizeUuid(uuid);
+
+            // track current object in hierarchy
+            objectPath.push_back(sanitizedObjName);
+
+            const QString asLink = elem.attribute(S_ASLINK_TAG,
+                                                  QStringLiteral("false"));
+
+            const bool shouldExternalize =
+                asLink.compare(QStringLiteral("true"), Qt::CaseInsensitive) ==
+                    0 ||
+                asLink == QStringLiteral("1");
+
+            if (shouldExternalize)
+            {
+                // ---- build external document ----
+                QDomDocument extDoc(S_OBJECTFILE_TAG);
+                QDomElement root =
+                    extDoc.createElement(S_OBJECTFILE_TAG);
+                extDoc.appendChild(root);
+
+                QDomNode imported = extDoc.importNode(elem, /*deep=*/true);
+                root.appendChild(imported);
+
+                // remove aslink only in the external copy
+                if (imported.isElement())
+                {
+                    QDomElement importedElem = imported.toElement();
+                    importedElem.removeAttribute(S_ASLINK_TAG);
+                }
+
+                // ---- compute directory + filename ----
+                QString relDir;
+                if (objectPath.size() > 1)
+                {
+                    QStringList dirParts = objectPath;
+                    dirParts.removeLast();
+                    relDir = dirParts.join(QLatin1Char('/'));
+                }
+
+                const QString absDir = relDir.isEmpty() ? baseDir.absolutePath()
+                                                        : baseDir.filePath(relDir);
+
+                QString fileName;
+                if (!cleanUuid.isEmpty())
+                    fileName = QStringLiteral("%1_%2.gtobj.xml")
+                                   .arg(sanitizedObjName, cleanUuid);
+                else
+                    fileName = QStringLiteral("%1.gtobj.xml").arg(sanitizedObjName);
+
+                const QString filePath = QDir(absDir).filePath(fileName);
+
+                // href stored in master is relative to baseDir
+                const QString href = baseDir.relativeFilePath(filePath);
+
+                LinkedObject ext;
+                ext.filePath = filePath;
+                ext.href = href;
+                ext.doc = extDoc;
+                outExternal.push_back(std::move(ext));
+
+                // ---- replace <object> with <objectref> in master ----
+                QDomElement refElem =
+                    masterDoc.createElement(S_OBJECTREF_TAG);
+                refElem.setAttribute(S_CLASS_TAG, className);
+                refElem.setAttribute(S_NAME_TAG, objName);
+                if (!uuid.isEmpty())
+                    refElem.setAttribute(S_UUID_TAG, uuid);
+                refElem.setAttribute(S_HREF_TAG, href);
+
+                node.replaceChild(refElem, child);
+
+                // do not recurse into this object any further
+                objectPath.pop_back();
+                child = next;
+                continue;
+            }
+            else
+            {
+                // normal object: recurse into its children
+                collectLinkedObjects(masterDoc, child, baseDir, objectPath,
+                                     outExternal);
+                objectPath.pop_back();
+                child = next;
+                continue;
+            }
+        }
+        else
+        {
+            // anything else: recurse into children
+            collectLinkedObjects(masterDoc, child, baseDir, objectPath,
+                                 outExternal);
+            child = next;
+        }
+    }
 }
