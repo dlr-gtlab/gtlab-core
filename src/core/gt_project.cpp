@@ -1468,8 +1468,16 @@ gt::project::saveXmlWithLinkedObjects(
     if (!rootElem.isNull())
     {
         QDomNode rootNode = rootElem;
-        gt::xml::collectLinkedObjects(masterDoc, rootNode,
-                                        baseDir, objectPath, externals);
+
+        // Derive package name from master file: "MyPackage.xml" -> "MyPackage"
+        const QFileInfo masterInfo(masterFilePath);
+        const QString packageName = masterInfo.completeBaseName();
+
+        // Linked objects live under: <baseDir>/<MyPackage>
+        const QDir linksRootDir(baseDir.filePath(packageName));
+
+        gt::xml::collectLinkedObjects(masterDoc, rootNode, baseDir,
+                                      linksRootDir, objectPath, externals);
     }
 
     // 2) batch save: externals + master

@@ -133,7 +133,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkTrue)
 
     // Linked file name according to our convention:
     // cleanUuid: "111-222", sanitizedName: "A" -> "111-222_A.xml"
-    const QString linkedPath = baseDir().filePath("A_111-222.gtobj.xml");
+    const QString linkedPath = baseDir().filePath("master/A_111-222.gtobj.xml");
     EXPECT_TRUE(QFile::exists(linkedPath));
 
     // ---- Check master content: objectref instead of object ----
@@ -150,7 +150,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkTrue)
     EXPECT_EQ(child.attribute("uuid"), QStringLiteral("{111-222}"));
 
     // href should be relative, here just "111-222_A.xml"
-    EXPECT_EQ(child.attribute("href"), QStringLiteral("A_111-222.gtobj.xml"));
+    EXPECT_EQ(child.attribute("href"), QStringLiteral("master/A_111-222.gtobj.xml"));
 
     // ---- Check linked content ----
     QDomDocument extDoc = readFileToDom(linkedPath);
@@ -213,8 +213,8 @@ TEST_F(SaveXmlWithLinkedObjectsTest, MultipleLinkedObjects)
     EXPECT_TRUE(QFile::exists(masterPath));
 
     // Expected linked filenames (uuid braces stripped)
-    const QString extA = baseDir().filePath("A_UUID-A.gtobj.xml");
-    const QString extB = baseDir().filePath("B_UUID-B.gtobj.xml");
+    const QString extA = baseDir().filePath("master/A_UUID-A.gtobj.xml");
+    const QString extB = baseDir().filePath("master/B_UUID-B.gtobj.xml");
 
     EXPECT_TRUE(QFile::exists(extA));
     EXPECT_TRUE(QFile::exists(extB));
@@ -335,7 +335,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, HierarchicalObjectPathCreation)
     // -> relDir = "Parameterization/HPT_curvePackage"
     // cleanUuid = "ABC-123", sanitized name = "Mean_Line"
     // -> file = "ABC-123_Mean_Line.xml"
-    const QString relDir = QStringLiteral("Parameterization/HPT_curvePackage");
+    const QString relDir = QStringLiteral("master/Parameterization/HPT_curvePackage");
     const QString relFile = QStringLiteral("Mean_Line_ABC-123.gtobj.xml");
     const QString relHref = relDir + QLatin1Char('/') + relFile;
     const QString absPath = baseDir().filePath(relHref);

@@ -205,7 +205,8 @@ struct LinkedObject
  */
 GT_DATAMODEL_EXPORT void collectLinkedObjects(QDomDocument& masterDoc,
                                               QDomNode& node,
-                                              const QDir& baseDir,
+                                              const QDir& rootDir,
+                                              const QDir& linksRootDir,
                                               QStringList& objectPath,
                                               QVector<LinkedObject>& outLinked);
 

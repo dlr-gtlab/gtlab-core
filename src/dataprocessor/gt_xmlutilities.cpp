@@ -287,8 +287,9 @@ gt::xml::readDomDocumentFromFile(QFile& file,
 
 void
 gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
-                                const QDir& baseDir, QStringList& objectPath,
-                                QVector<LinkedObject>& outExternal)
+                              const QDir& rootDir, const QDir& linksRootDir,
+                              QStringList& objectPath,
+                              QVector<LinkedObject>& outExternal)
 {
     for (QDomNode child = node.firstChild(); !child.isNull();)
     {
@@ -350,8 +351,9 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
                     relDir = dirParts.join(QLatin1Char('/'));
                 }
 
-                const QString absDir = relDir.isEmpty() ? baseDir.absolutePath()
-                                                        : baseDir.filePath(relDir);
+                const QString absDir = relDir.isEmpty()
+                                           ? linksRootDir.absolutePath()
+                                           : linksRootDir.filePath(relDir);
 
                 QString fileName;
                 if (!cleanUuid.isEmpty())
@@ -362,8 +364,8 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
 
                 const QString filePath = QDir(absDir).filePath(fileName);
 
-                // href stored in master is relative to baseDir
-                const QString href = baseDir.relativeFilePath(filePath);
+                // href stored in master is relative to rootDir
+                const QString href = rootDir.relativeFilePath(filePath);
 
                 LinkedObject ext;
                 ext.filePath = filePath;
@@ -390,8 +392,8 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
             else
             {
                 // normal object: recurse into its children
-                collectLinkedObjects(masterDoc, child, baseDir, objectPath,
-                                     outExternal);
+                collectLinkedObjects(masterDoc, child, rootDir, linksRootDir,
+                                     objectPath, outExternal);
                 objectPath.pop_back();
                 child = next;
                 continue;
@@ -400,8 +402,8 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
         else
         {
             // anything else: recurse into children
-            collectLinkedObjects(masterDoc, child, baseDir, objectPath,
-                                 outExternal);
+            collectLinkedObjects(masterDoc, child, rootDir, linksRootDir,
+                                 objectPath, outExternal);
             child = next;
         }
     }
