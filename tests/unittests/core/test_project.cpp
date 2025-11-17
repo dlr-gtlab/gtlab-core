@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 
-#include "gt_project.h"
+#include "gt_xmlutilities.h"
 
 #include <QTemporaryDir>
 #include <QFile>
@@ -84,7 +84,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, MasterOnly_NoAslink)
     const QString masterPath = makePath("master.xml");
     QString error;
 
-    const bool ok = gt::project::saveXmlWithLinkedObjects(
+    const bool ok = gt::xml::saveProjectXmlWithLinkedObjects(
         QStringLiteral("TestProject"), doc, baseDir(), masterPath, &error);
 
     ASSERT_TRUE(ok) << error.toStdString();
@@ -126,7 +126,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkTrue)
     const QString masterPath = makePath("master.xml");
     QString error;
 
-    const bool ok = gt::project::saveXmlWithLinkedObjects(
+    const bool ok = gt::xml::saveProjectXmlWithLinkedObjects(
         QStringLiteral("TestProject"), doc, baseDir(), masterPath, &error);
 
     ASSERT_TRUE(ok) << error.toStdString();
@@ -196,7 +196,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, MultipleLinkedObjects)
     const QString masterPath = makePath("master.xml");
     QString error;
 
-    const bool ok = gt::project::saveXmlWithLinkedObjects(
+    const bool ok = gt::xml::saveProjectXmlWithLinkedObjects(
         QStringLiteral("TestProject"), doc, baseDir(), masterPath, &error);
 
     ASSERT_TRUE(ok) << error.toStdString();
@@ -246,7 +246,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, MissingAslinkTreatedAsFalse)
     const QString masterPath = makePath("master.xml");
     QString error;
 
-    const bool ok = gt::project::saveXmlWithLinkedObjects(
+    const bool ok = gt::xml::saveProjectXmlWithLinkedObjects(
         QStringLiteral("TestProject"), doc, baseDir(), masterPath, &error);
 
     ASSERT_TRUE(ok) << error.toStdString();
@@ -290,7 +290,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, HierarchicalObjectPathCreation)
     const QString masterPath = makePath("master.xml");
     QString error;
 
-    const bool ok = gt::project::saveXmlWithLinkedObjects(
+    const bool ok = gt::xml::saveProjectXmlWithLinkedObjects(
         QStringLiteral("TestProject"), doc, baseDir(), masterPath, &error);
 
     ASSERT_TRUE(ok) << error.toStdString();
@@ -370,7 +370,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkOnleRef)
     const QString masterPath = makePath("master.xml");
     QString error;
 
-    const bool ok = gt::project::saveXmlWithLinkedObjects(
+    const bool ok = gt::xml::saveProjectXmlWithLinkedObjects(
         QStringLiteral("TestProject"), doc, baseDir(), masterPath, &error);
 
     ASSERT_TRUE(ok) << error.toStdString();
@@ -427,7 +427,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, RecursiveHierarchicalObjectPathCreation)
     const QString masterPath = makePath("master_recursive.xml");
     QString error;
 
-    const bool ok = gt::project::saveXmlWithLinkedObjects(
+    const bool ok = gt::xml::saveProjectXmlWithLinkedObjects(
         QStringLiteral("TestProject"), doc, baseDir(), masterPath, &error);
 
     ASSERT_TRUE(ok) << error.toStdString();

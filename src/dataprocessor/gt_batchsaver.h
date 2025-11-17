@@ -9,7 +9,7 @@
 #ifndef GT_BATCHSAVER_H
 #define GT_BATCHSAVER_H
 
-#include <gt_core_exports.h>
+#include <gt_datamodel_exports.h>
 
 #include <QSaveFile>
 #include <QVector>
@@ -55,7 +55,7 @@
  * (master + externals): after commit(), either all files match the new state,
  * or none of them were changed.
  */
-class GT_CORE_EXPORT GtBatchSaver
+class GT_DATAMODEL_EXPORT GtBatchSaver
 {
 public:
     /**

@@ -10,7 +10,6 @@
 
 
 set(headers
-    gt_batchsaver.h
     gt_commandlinefunction.h
     gt_commandlineparser.h
     gt_filesystem.h
@@ -116,7 +115,6 @@ set(hdr_private
 )
 
 set(sources
-    gt_batchsaver.cpp
     gt_commandlinefunction.cpp
     gt_commandlineparser.cpp
     gt_filesystem.cpp

@@ -480,63 +480,6 @@ filesystem::CopyStatus copyProjectData(const QDir& srcPath,
                 int copyProjectFlags);
 
 
-/**
- * @brief Save a project XML document as a master file plus linked object files.
- *
- * This function serializes GTlab project XML files into:
- *   - a master XML file, and
- *   - zero or more separate “linked” object files,
- * and writes all of them atomically.
- *
- * Objects marked with @c aslink="true" on their <object> elements are not kept
- * fully embedded in the master file. Instead, for each such node:
- *   - The object subtree is written to a separate XML file with the extension
- *     @c .gtobj.xml and a path derived from the object hierarchy, e.g.
- *     @c Parameterization/HPT_curvePackage/ABC-123_Mean_Line.gtobj.xml.
- *   - The original <object> node in the master document is replaced by an
- *     <objectref> node that references the separate file via a relative
- *     @c href attribute (relative to @p baseDir).
- *
- * All files (the master file and all linked object files) are written using
- * a batch saver that provides all-or-nothing semantics:
- *   - If all writes succeed, the master file and all linked files are updated,
- *     and previous versions are preserved as backup files.
- *   - If any write fails, no file on disk is modified and a descriptive error
- *     message is returned via @p errorOut.
- *
- * The input document @p doc is not modified by the caller; the function works
- * on an internal copy when transforming <object> into <objectref> nodes.
- *
- * This mechanism is purely about how objects are stored on disk. It is
- * unrelated to “externalized objects” in the runtime sense (objects that are
- * not kept in memory and are loaded on demand).
- *
- * @param projectName    Logical name of the project, used only for logging and
- *                       error reporting. It does not affect file names or XML
- *                       content.
- * @param doc            Project XML document to save. Must have a valid root
- *                       element; otherwise the function fails and returns @c false.
- * @param baseDir        Base directory used as the root for all output paths.
- *                       The @p masterFilePath and all linked object files
- *                       are written inside this directory (or its subfolders).
- * @param masterFilePath Path of the master XML file to write. This may be an
- *                       absolute path or a path under @p baseDir.
- * @param errorOut       Optional pointer to a string that will receive a
- *                       human-readable error description if the function
- *                       returns @c false. If @c nullptr, the error text is
- *                       discarded.
- *
- * @return @c true if all files were written successfully and the on-disk state
- *         is consistent; @c false if an error occurred (in which case no files
- *         are updated).
- */
-GT_CORE_EXPORT
-bool saveXmlWithLinkedObjects(const QString& projectName,
-                              const QDomDocument& doc,
-                              const QDir& baseDir,
-                              const QString& masterFilePath,
-                              QString* errorOut=nullptr);
-
 } // namespace project
 
 } // namespace gt

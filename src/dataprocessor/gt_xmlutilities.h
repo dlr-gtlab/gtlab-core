@@ -145,70 +145,63 @@ inline QDomElement createStringPropertyElement(QDomDocument& doc,
                               std::move(value));
 }
 
-struct LinkedObject
-{
-    QString filePath; // absolute path on disk
-    QString href;     // path to use in objectref (relative to baseDir)
-    QDomDocument doc; // GTLABOBJECTFILE wrapper
-};
-
 /**
- * @brief Collect objects marked for separate file storage and rewrite them as links.
+ * @brief Save a project XML document as a master file plus linked object files.
  *
- * This helper recursively walks the DOM subtree rooted at @p node and looks for
- * <object> elements that have @c aslink="true" (case-insensitive) or
- * @c aslink="1". For each such object:
+ * This function serializes GTlab project XML files into:
+ *   - a master XML file, and
+ *   - zero or more separate “linked” object files,
+ * and writes all of them atomically.
  *
- *  - A new @c QDomDocument is created with a @c <GTLABOBJECTFILE> root element.
- *    The <object> subtree is imported into this document and stored in
- *    @p outLinked as an @c LinkedObject entry, together with a target
- *    @c filePath and a relative @c href.
+ * Objects marked with @c aslink="true" on their <object> elements are not kept
+ * fully embedded in the master file. Instead, for each such node:
+ *   - The object subtree is written to a separate XML file with the extension
+ *     @c .gtobj.xml and a path derived from the object hierarchy, e.g.
+ *     @c Parameterization/HPT_curvePackage/ABC-123_Mean_Line.gtobj.xml.
+ *   - The original <object> node in the master document is replaced by an
+ *     <objectref> node that references the separate file via a relative
+ *     @c href attribute (relative to @p baseDir).
  *
- *  - The original <object> node in @p masterDoc is replaced by an
- *    @c <objectref> element that keeps the original @c class, @c name and
- *    @c uuid attributes and adds:
- *      - @c href : relative path of the separate object file (from @p baseDir),
- *      - @c load : currently set to @c "on-demand" as a hint.
+ * All files (the master file and all linked object files) are written using
+ * a batch saver that provides all-or-nothing semantics:
+ *   - If all writes succeed, the master file and all linked files are updated,
+ *     and previous versions are preserved as backup files.
+ *   - If any write fails, no file on disk is modified and a descriptive error
+ *     message is returned via @p errorOut.
  *
- * Objects without an @c aslink attribute, or with any value other than "true"
- * (case-insensitive) or "1", are left embedded in the master document and are
- * not added to @p outLinked.
+ * The input document @p doc is not modified by the caller; the function works
+ * on an internal copy when transforming <object> into <objectref> nodes.
  *
- * The @p objectPath parameter is used as a stack of sanitized object names
- * representing the current hierarchy (e.g. "Parameterization" /
- * "HPT_curvePackage" / "Mean_Line"). This is used only to compute the directory
- * structure and file names for the linked object files:
+ * This mechanism is purely about how objects are stored on disk. It is
+ * unrelated to “externalized objects” in the runtime sense (objects that are
+ * not kept in memory and are loaded on demand).
  *
- *  - The relative directory is built from all but the leaf name in
- *    @p objectPath, joined with '/'.
- *  - The file name is typically
- *        <cleanUuid>_<sanitizedLeafName>.gtobj.xml
- *    where @c cleanUuid is the @c uuid attribute stripped of braces.
+ * @param projectName    Logical name of the project, used only for logging and
+ *                       error reporting. It does not affect file names or XML
+ *                       content.
+ * @param doc            Project XML document to save. Must have a valid root
+ *                       element; otherwise the function fails and returns @c false.
+ * @param baseDir        Base directory used as the root for all output paths.
+ *                       The @p masterFilePath and all linked object files
+ *                       are written inside this directory (or its subfolders).
+ * @param masterFilePath Path of the master XML file to write. This may be an
+ *                       absolute path or a path under @p baseDir.
+ * @param errorOut       Optional pointer to a string that will receive a
+ *                       human-readable error description if the function
+ *                       returns @c false. If @c nullptr, the error text is
+ *                       discarded.
  *
- * @param masterDoc   The master document being transformed. This function
- *                    modifies @p masterDoc in-place, replacing selected
- *                    <object> nodes with <objectref> nodes.
- * @param node        Current DOM node to process (typically the root element
- *                    when called initially). The function recurses into its
- *                    children as needed.
- * @param baseDir     Base directory used to compute absolute @c filePath and
- *                    relative @c href for each linked object file. No files are
- *                    written here; paths are just calculated.
- * @param objectPath  Stack of sanitized object names representing the current
- *                    path in the object hierarchy. The caller should pass an
- *                    empty list initially; this function pushes/pops as it
- *                    descends/ascends the tree.
- * @param outLinked   Output list that receives one @c LinkedObject entry for
- *                    each <object> node marked with @c aslink="true" or @c "1".
- *                    The caller can later use these entries to write the
- *                    separate object files to disk.
+ * @return @c true if all files were written successfully and the on-disk state
+ *         is consistent; @c false if an error occurred (in which case no files
+ *         are updated).
  */
-GT_DATAMODEL_EXPORT void collectLinkedObjects(QDomDocument& masterDoc,
-                                              QDomNode& node,
-                                              const QDir& rootDir,
-                                              const QDir& linksRootDir,
-                                              QStringList& objectPath,
-                                              QVector<LinkedObject>& outLinked);
+GT_DATAMODEL_EXPORT
+bool saveProjectXmlWithLinkedObjects(const QString& projectName,
+                                     const QDomDocument& doc,
+                                     const QDir& baseDir,
+                                     const QString& masterFilePath,
+                                     QString* errorOut);
+
 
 /**
  * @brief Load an XML document and recursively expand all linked object references.
@@ -244,7 +237,7 @@ GT_DATAMODEL_EXPORT void collectLinkedObjects(QDomDocument& masterDoc,
  *         document cannot be read or parsed at all, an empty QDomDocument
  *         (with null root element) is returned.
  */
-GT_DATAMODEL_EXPORT QDomDocument loadAndExpandDocument(
+GT_DATAMODEL_EXPORT QDomDocument loadProjectXmlWithLinkedObjects(
     const QString& masterPath, QStringList* warnings = nullptr);
 
 } // namespace xml

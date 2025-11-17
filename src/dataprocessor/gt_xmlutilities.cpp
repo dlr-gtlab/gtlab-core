@@ -18,6 +18,7 @@
 #include "gt_xmlutilities.h"
 #include "gt_xmlexpr.h"
 #include "gt_objectio.h"
+#include "gt_batchsaver.h"
 
 #include "gt_logging.h"
 
@@ -285,12 +286,74 @@ gt::xml::readDomDocumentFromFile(QFile& file,
     return doc.setContent(content, true, errorMsg, errorLine, errorColumn);
 }
 
-void
-gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
-                              const QDir& rootDir, const QDir& linksRootDir,
-                              QStringList& objectPath,
-                              QVector<LinkedObject>& outExternal)
+namespace
 {
+
+struct LinkedObject
+{
+    QString filePath; // absolute path on disk
+    QString href;     // path to use in objectref (relative to baseDir)
+    QDomDocument doc; // GTLABOBJECTFILE wrapper
+};
+
+/**
+ * @brief Collect objects marked for separate file storage and rewrite them as links.
+ *
+ * This helper recursively walks the DOM subtree rooted at @p node and looks for
+ * <object> elements that have @c aslink="true" (case-insensitive) or
+ * @c aslink="1". For each such object:
+ *
+ *  - A new @c QDomDocument is created with a @c <GTLABOBJECTFILE> root element.
+ *    The <object> subtree is imported into this document and stored in
+ *    @p outLinked as an @c LinkedObject entry, together with a target
+ *    @c filePath and a relative @c href.
+ *
+ *  - The original <object> node in @p masterDoc is replaced by an
+ *    @c <objectref> element that keeps the original @c class, @c name and
+ *    @c uuid attributes and adds:
+ *      - @c href : relative path of the separate object file (from @p baseDir),
+ *      - @c load : currently set to @c "on-demand" as a hint.
+ *
+ * Objects without an @c aslink attribute, or with any value other than "true"
+ * (case-insensitive) or "1", are left embedded in the master document and are
+ * not added to @p outLinked.
+ *
+ * The @p objectPath parameter is used as a stack of sanitized object names
+ * representing the current hierarchy (e.g. "Parameterization" /
+ * "HPT_curvePackage" / "Mean_Line"). This is used only to compute the directory
+ * structure and file names for the linked object files:
+ *
+ *  - The relative directory is built from all but the leaf name in
+ *    @p objectPath, joined with '/'.
+ *  - The file name is typically
+ *        <cleanUuid>_<sanitizedLeafName>.gtobj.xml
+ *    where @c cleanUuid is the @c uuid attribute stripped of braces.
+ *
+ * @param masterDoc   The master document being transformed. This function
+ *                    modifies @p masterDoc in-place, replacing selected
+ *                    <object> nodes with <objectref> nodes.
+ * @param node        Current DOM node to process (typically the root element
+ *                    when called initially). The function recurses into its
+ *                    children as needed.
+ * @param baseDir     Base directory used to compute absolute @c filePath and
+ *                    relative @c href for each linked object file. No files are
+ *                    written here; paths are just calculated.
+ * @param objectPath  Stack of sanitized object names representing the current
+ *                    path in the object hierarchy. The caller should pass an
+ *                    empty list initially; this function pushes/pops as it
+ *                    descends/ascends the tree.
+ * @param outLinked   Output list that receives one @c LinkedObject entry for
+ *                    each <object> node marked with @c aslink="true" or @c "1".
+ *                    The caller can later use these entries to write the
+ *                    separate object files to disk.
+ */
+void collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
+                          const QDir& rootDir, const QDir& linksRootDir,
+                          QStringList& objectPath,
+                          QVector<LinkedObject>& outExternal)
+{
+    using namespace gt::xml;
+
     for (QDomNode child = node.firstChild(); !child.isNull();)
     {
         QDomNode next = child.nextSibling(); // in case we replace child
@@ -316,13 +379,11 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
             // track current object in hierarchy
             objectPath.push_back(sanitizedObjName);
 
-            const QString asLink = elem.attribute(S_ASLINK_TAG,
-                                                  QStringLiteral("false"))
-                                       .toLower();
+            const QString asLink =
+                elem.attribute(S_ASLINK_TAG, QStringLiteral("false")).toLower();
 
-            const bool createObjectRef = (asLink == "true" ||
-                                          asLink == "1"||
-                                          asLink == S_REFONLY_TAG);
+            const bool createObjectRef =
+                (asLink == "true" || asLink == "1" || asLink == S_REFONLY_TAG);
 
             // in case, the link could not be resolved
             const bool writeLinkedFile = (asLink != S_REFONLY_TAG);
@@ -331,8 +392,7 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
             {
                 // ---- build external document ----
                 QDomDocument extDoc(S_OBJECTFILE_TAG);
-                QDomElement root =
-                    extDoc.createElement(S_OBJECTFILE_TAG);
+                QDomElement root = extDoc.createElement(S_OBJECTFILE_TAG);
                 extDoc.appendChild(root);
 
                 QDomNode imported = extDoc.importNode(elem, /*deep=*/true);
@@ -368,7 +428,8 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
                     fileName = QStringLiteral("%1_%2.gtobj.xml")
                                    .arg(sanitizedObjName, cleanUuid);
                 else
-                    fileName = QStringLiteral("%1.gtobj.xml").arg(sanitizedObjName);
+                    fileName =
+                        QStringLiteral("%1.gtobj.xml").arg(sanitizedObjName);
 
                 const QString filePath = QDir(absDir).filePath(fileName);
 
@@ -387,8 +448,7 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
                 }
 
                 // ---- replace <object> with <objectref> in master ----
-                QDomElement refElem =
-                    masterDoc.createElement(S_OBJECTREF_TAG);
+                QDomElement refElem = masterDoc.createElement(S_OBJECTREF_TAG);
                 refElem.setAttribute(S_CLASS_TAG, className);
                 refElem.setAttribute(S_NAME_TAG, objName);
                 if (!uuid.isEmpty())
@@ -421,9 +481,6 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
         }
     }
 }
-
-namespace
-{
 
 void
 expandObjectRefsInDocument(QDomDocument& doc,
@@ -570,8 +627,62 @@ expandObjectRefsInDocument(QDomDocument& doc,
 
 
 QDomDocument
-gt::xml::loadAndExpandDocument(const QString &masterPath, QStringList *warnings)
+gt::xml::loadProjectXmlWithLinkedObjects(const QString &masterPath, QStringList *warnings)
 {
     QSet<QString> recursionStack;
     return loadAndExpandImpl(masterPath, warnings, recursionStack);
+}
+
+bool
+gt::xml::saveProjectXmlWithLinkedObjects(const QString& projectName,
+                                         const QDomDocument& doc,
+                                         const QDir& baseDir,
+                                         const QString& masterFilePath,
+                                         QString* errorOut)
+{
+
+    // work on a copy, since doc is const
+    QDomDocument masterDoc = doc;
+
+    // 1) externalize objects in-memory
+    QVector<LinkedObject> externals;
+    QStringList objectPath;
+
+    QDomElement rootElem = masterDoc.documentElement();
+    if (!rootElem.isNull())
+    {
+        QDomNode rootNode = rootElem;
+
+        // Derive package name from master file: "MyPackage.xml" -> "MyPackage"
+        const QFileInfo masterInfo(masterFilePath);
+        const QString packageName = masterInfo.completeBaseName();
+
+        // Linked objects live under: <baseDir>/<MyPackage>
+        const QDir linksRootDir(baseDir.filePath(packageName));
+
+        collectLinkedObjects(masterDoc, rootNode, baseDir,
+                                      linksRootDir, objectPath, externals);
+    }
+
+    // 2) batch save: externals + master
+    GtBatchSaver batchsaver;
+
+    // external object files first
+    for (const LinkedObject& ext : qAsConst(externals))
+    {
+        // third parameter: attrOrdered=true (same as before)
+        batchsaver.addXml(ext.filePath, ext.doc, true);
+    }
+
+    // master file last
+    batchsaver.addXml(masterFilePath, masterDoc, true);
+
+    if (!batchsaver.commit())
+    {
+        gtError() << projectName << QStringLiteral(": ")
+                  << batchsaver.errorString();
+        return false;
+    }
+
+    return true;
 }

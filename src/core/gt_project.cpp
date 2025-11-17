@@ -566,7 +566,7 @@ GtProject::readModuleData()
         }
 
         QStringList warnings;
-        QDomDocument document = gt::xml::loadAndExpandDocument(
+        QDomDocument document = gt::xml::loadProjectXmlWithLinkedObjects(
             filename, &warnings
             );
 
@@ -957,11 +957,11 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
     const QDir   baseDir = fi.dir().absolutePath();
 
     QString error;
-    if (!gt::project::saveXmlWithLinkedObjects(objectName(),
-                                           doc,
-                                           baseDir,
-                                           filePath,
-                                           &error))
+    if (!gt::xml::saveProjectXmlWithLinkedObjects(objectName(),
+                                                  doc,
+                                                  baseDir,
+                                                  filePath,
+                                                  &error))
     {
         gtError() << error;
         return false;
@@ -1448,57 +1448,4 @@ QString
 gt::project::backupDirPath(const GtProject& proj)
 {
     return {proj.path() + QDir::separator() + "backup"};
-}
-
-bool
-gt::project::saveXmlWithLinkedObjects(
-    const QString& projectName,
-    const QDomDocument &doc, const QDir &baseDir,
-    const QString &masterFilePath, QString *errorOut)
-{
-
-    // work on a copy, since doc is const
-    QDomDocument masterDoc = doc;
-
-    // 1) externalize objects in-memory
-    QVector<gt::xml::LinkedObject> externals;
-    QStringList objectPath;
-
-    QDomElement rootElem = masterDoc.documentElement();
-    if (!rootElem.isNull())
-    {
-        QDomNode rootNode = rootElem;
-
-        // Derive package name from master file: "MyPackage.xml" -> "MyPackage"
-        const QFileInfo masterInfo(masterFilePath);
-        const QString packageName = masterInfo.completeBaseName();
-
-        // Linked objects live under: <baseDir>/<MyPackage>
-        const QDir linksRootDir(baseDir.filePath(packageName));
-
-        gt::xml::collectLinkedObjects(masterDoc, rootNode, baseDir,
-                                      linksRootDir, objectPath, externals);
-    }
-
-    // 2) batch save: externals + master
-    GtBatchSaver batchsaver;
-
-    // external object files first
-    for (const gt::xml::LinkedObject& ext : qAsConst(externals))
-    {
-        // third parameter: attrOrdered=true (same as before)
-        batchsaver.addXml(ext.filePath, ext.doc, true);
-    }
-
-    // master file last
-    batchsaver.addXml(masterFilePath, masterDoc, true);
-
-    if (!batchsaver.commit())
-    {
-        gtError() << projectName << QStringLiteral(": ")
-        << batchsaver.errorString();
-        return false;
-    }
-
-    return true;
 }
