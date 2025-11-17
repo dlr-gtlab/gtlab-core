@@ -92,6 +92,20 @@ GT_CORE_EXPORT QDomElement appendNewGtlabObject(QDomElement& parent,
  */
 GT_CORE_EXPORT QDomElement addObjectList(QDomElement& parent);
 
+/**
+ * @brief normalizePropertyContainerId
+ * For renaming in property containers:
+ * Properties in a containers with a given $formerNameKey are removed and their
+ * value is used to replace the ident of the property container entry
+ * @param container
+ * @param formerNameKey
+ * @param replaceMap - a map to collect the mapping of the former uuid based
+ * identification and the new name (for later usage)
+ */
+GT_CORE_EXPORT void normalizePropertyContainerId(
+    QDomElement container, QString const& formerNameKey,
+    QMap<QString, QString>& replaceMap);
+
 namespace properties {
 
     /**

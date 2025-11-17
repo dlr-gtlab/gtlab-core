@@ -9,6 +9,7 @@
 
 #include <QStringList>
 #include <QUuid>
+#include <QMap>
 
 #include "gt_moduleupgradeutilities.h"
 
@@ -225,4 +226,59 @@ gt::module_upgrade_utils::addObjectList(QDomElement& parent)
     parent.appendChild(childrenListElement);
 
     return childrenListElement;
+}
+
+void
+gt::module_upgrade_utils::normalizePropertyContainerId(
+    QDomElement container, const QString& formerNameKey,
+    QMap<QString, QString>& replaceMap)
+{
+    QDomNode child = container.firstChild();
+
+    while (!child.isNull())
+    {
+        if (child.isElement())
+        {
+            QDomElement prop = child.toElement();
+
+            if (prop.tagName() == PROP_STRING)
+            {
+                QString oldUUID = prop.attribute(NAME_STRING);
+
+                // Search for sub element <property name="$$formerNameKey$$">NewName</property>
+                QDomElement nameElem;
+                QDomNode sub = prop.firstChild();
+
+                while (!sub.isNull())
+                {
+                    if (sub.isElement())
+                    {
+                        QDomElement e = sub.toElement();
+                        if (e.attribute(NAME_STRING) == formerNameKey)
+                        {
+                            nameElem = e;
+                            break;
+                        }
+                    }
+                    sub = sub.nextSibling();
+                }
+
+                if (!nameElem.isNull())
+                {
+                    QString newName = nameElem.text().trimmed();
+
+                    // keep connection info
+                    replaceMap.insert(oldUUID, newName);
+
+                    // Replace UUID in name attribute
+                    prop.setAttribute("name", newName);
+
+                    // Remove subelement
+                    prop.removeChild(nameElem);
+                }
+            }
+        }
+
+        child = child.nextSibling();
+    }
 }
