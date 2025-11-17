@@ -157,6 +157,14 @@ GtObject::fromMemento(const GtObjectMemento& memento)
         return;
     }
 
+    if (memento.isFlagEnabled(GtObjectMemento::IsUnresolved))
+    {
+        gtWarning() << tr("Creating dummy object '%1' due to "
+                          "unresolved object file").arg(memento.ident());
+        makeDummy();
+        setSaveAsOwnFile(true);
+    }
+
     // merge data
     memento.mergeTo(*this, *pimpl->factory);
 }
@@ -834,6 +842,12 @@ void
 GtObject::exportDummyIntoMemento(GtObjectMemento& memento) const
 {
     pimpl->exportDummy(memento);
+
+    if (saveAsOwnFile())
+    {
+        memento.setFlagEnabled(GtObjectMemento::IsUnresolved, true);
+        memento.setFlagEnabled(GtObjectMemento::SaveAsOwnFile, true);
+    }
 }
 
 bool

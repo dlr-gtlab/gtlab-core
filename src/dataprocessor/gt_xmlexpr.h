@@ -18,6 +18,7 @@ constexpr const char * S_OBJECTLIST_TAG = "objectlist";
 constexpr const char * S_OBJECTFILE_TAG = "GTLABOBJECTFILE";
 constexpr const char * S_OBJECTREF_TAG = "objectref";
 constexpr const char * S_ASLINK_TAG = "aslink";
+constexpr const char * S_REFONLY_TAG = "refonly";
 constexpr const char * S_HREF_TAG = "href";
 constexpr const char * S_UUID_TAG = "uuid";
 constexpr const char * S_CLASS_TAG = "class";

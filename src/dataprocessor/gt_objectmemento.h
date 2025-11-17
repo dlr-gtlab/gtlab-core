@@ -255,7 +255,9 @@ public:
 
     enum Flag
     {
-        SaveAsOwnFile = 1
+        SaveAsOwnFile = 1, /// The memento should be serialized into an own file
+        IsUnresolved  = 2  /// Is enabled, if the memento data could not be fully
+                           /// restored from disk, e.g. the linked file was not found
     };
 
     /**

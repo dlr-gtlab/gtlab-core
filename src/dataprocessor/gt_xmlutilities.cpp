@@ -317,14 +317,17 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
             objectPath.push_back(sanitizedObjName);
 
             const QString asLink = elem.attribute(S_ASLINK_TAG,
-                                                  QStringLiteral("false"));
+                                                  QStringLiteral("false"))
+                                       .toLower();
 
-            const bool shouldExternalize =
-                asLink.compare(QStringLiteral("true"), Qt::CaseInsensitive) ==
-                    0 ||
-                asLink == QStringLiteral("1");
+            const bool asLinkedFile = (asLink == "true" ||
+                                       asLink == "1"||
+                                       asLink == S_REFONLY_TAG);
 
-            if (shouldExternalize)
+            // in case, the link could not be resolved
+            const bool writeLinkedFile = (asLink != S_REFONLY_TAG);
+
+            if (asLinkedFile)
             {
                 // ---- build external document ----
                 QDomDocument extDoc(S_OBJECTFILE_TAG);
@@ -367,11 +370,16 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
                 // href stored in master is relative to rootDir
                 const QString href = rootDir.relativeFilePath(filePath);
 
-                LinkedObject ext;
-                ext.filePath = filePath;
-                ext.href = href;
-                ext.doc = extDoc;
-                outExternal.push_back(std::move(ext));
+                if (writeLinkedFile)
+                {
+                    // Avoid overwriting / replacing unresolved linked files
+                    // Otherwise, we would recreate the file with default data
+                    LinkedObject ext;
+                    ext.filePath = filePath;
+                    ext.href = href;
+                    ext.doc = extDoc;
+                    outExternal.push_back(std::move(ext));
+                }
 
                 // ---- replace <object> with <objectref> in master ----
                 QDomElement refElem =
