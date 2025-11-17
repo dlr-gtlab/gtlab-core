@@ -15,12 +15,14 @@
 
 using namespace gt::module_upgrade_utils;
 
-class ModuleUpgradeUtilsTest : public ::testing::Test {
+class ModuleUpgradeUtilsTest : public ::testing::Test
+{
 protected:
     QDomDocument doc;
     QDomElement root;
 
-    void SetUp() override {
+    void SetUp() override
+    {
         root = doc.createElement("root");
         doc.appendChild(root);
 
@@ -42,7 +44,8 @@ protected:
 };
 
 // Test: findElementsByClass
-TEST_F(ModuleUpgradeUtilsTest, FindElementsByClass) {
+TEST_F(ModuleUpgradeUtilsTest, FindElementsByClass)
+{
     QStringList classes{"MyCalc"};
     auto elems = findElementsByClass(root, classes, true);
     ASSERT_EQ(elems.size(), 1);
@@ -54,7 +57,8 @@ TEST_F(ModuleUpgradeUtilsTest, FindElementsByClass) {
 }
 
 // Test: findElementsByAttribute
-TEST_F(ModuleUpgradeUtilsTest, FindElementsByAttribute) {
+TEST_F(ModuleUpgradeUtilsTest, FindElementsByAttribute)
+{
     QStringList vals{"MyTask"};
     auto elems = findElementsByAttribute(root, "class", vals, true);
     ASSERT_EQ(elems.size(), 1);
@@ -62,7 +66,8 @@ TEST_F(ModuleUpgradeUtilsTest, FindElementsByAttribute) {
 }
 
 // Test: findParentByAttribute
-TEST_F(ModuleUpgradeUtilsTest, FindParentByAttribute) {
+TEST_F(ModuleUpgradeUtilsTest, FindParentByAttribute)
+{
     auto propA = properties::propNode("propA", root.firstChildElement("object"));
     auto parent = findParentByAttribute(propA, "class", {"MyCalc"});
     ASSERT_FALSE(parent.isNull());
@@ -70,7 +75,8 @@ TEST_F(ModuleUpgradeUtilsTest, FindParentByAttribute) {
 }
 
 // Test: properties::updateTypeAndValue
-TEST_F(ModuleUpgradeUtilsTest, UpdateTypeAndValue) {
+TEST_F(ModuleUpgradeUtilsTest, UpdateTypeAndValue)
+{
     auto propA = properties::propNode("propA", root.firstChildElement("object"));
     bool ok = properties::updateTypeAndValue(propA, "double", "99.9");
     ASSERT_TRUE(ok);
@@ -79,14 +85,16 @@ TEST_F(ModuleUpgradeUtilsTest, UpdateTypeAndValue) {
 }
 
 // Test: properties::doubleValue
-TEST_F(ModuleUpgradeUtilsTest, DoubleValue) {
+TEST_F(ModuleUpgradeUtilsTest, DoubleValue)
+{
     auto obj1 = root.firstChildElement("object");
     double val = properties::doubleValue(obj1, "propB");
     EXPECT_DOUBLE_EQ(val, 3.14);
 }
 
 // Test: appendNewGtlabObject
-TEST_F(ModuleUpgradeUtilsTest, AppendNewGtlabObject) {
+TEST_F(ModuleUpgradeUtilsTest, AppendNewGtlabObject)
+{
     auto newObj = gt::module_upgrade_utils::appendNewGtlabObject(root, "MyCalc", "NewObj");
     ASSERT_FALSE(newObj.isNull());
     EXPECT_EQ(newObj.attribute("class"), "MyCalc");
@@ -95,8 +103,17 @@ TEST_F(ModuleUpgradeUtilsTest, AppendNewGtlabObject) {
 }
 
 // Test: addObjectList
-TEST_F(ModuleUpgradeUtilsTest, AddObjectList) {
+TEST_F(ModuleUpgradeUtilsTest, AddObjectList)
+{
     auto listElem = gt::module_upgrade_utils::addObjectList(root);
     ASSERT_FALSE(listElem.isNull());
     EXPECT_EQ(listElem.tagName(), "objectlist");
+}
+
+TEST_F(ModuleUpgradeUtilsTest, PyProcessTest1)
+{
+    QString oldXML;
+    QString newXML;
+
+
 }
