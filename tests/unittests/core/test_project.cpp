@@ -352,3 +352,184 @@ TEST_F(SaveXmlWithLinkedObjectsTest, HierarchicalObjectPathCreation)
     EXPECT_EQ(extProp.attribute("name"), QStringLiteral("x"));
     EXPECT_EQ(extProp.text(), QStringLiteral("1.0"));
 }
+
+// --------------------------------------------------------
+// 6) Single object with aslink="refonly" -> objectref, no linked file
+// --------------------------------------------------------
+TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkOnleRef)
+{
+    const char* xml = R"(
+<Root>
+  <object class="Foo" name="A" uuid="{111-222}" aslink="refonly">
+    <property name="x">42</property>
+  </object>
+</Root>
+)";
+    QDomDocument doc = readXmlToDom(xml);
+
+    const QString masterPath = makePath("master.xml");
+    QString error;
+
+    const bool ok = gt::project::saveXmlWithLinkedObjects(
+        QStringLiteral("TestProject"), doc, baseDir(), masterPath, &error);
+
+    ASSERT_TRUE(ok) << error.toStdString();
+
+    // Master file must exist
+    EXPECT_TRUE(QFile::exists(masterPath));
+
+    // Linked file name according to our convention:
+    // cleanUuid: "111-222", sanitizedName: "A" -> "111-222_A.xml"
+    const QString linkedPath = baseDir().filePath("master/A_111-222.gtobj.xml");
+    EXPECT_FALSE(QFile::exists(linkedPath));
+
+    // ---- Check master content: objectref instead of object ----
+    QDomDocument masterDoc = readFileToDom(masterPath);
+    ASSERT_FALSE(masterDoc.isNull());
+    QDomElement masterRoot = masterDoc.documentElement();
+    ASSERT_FALSE(masterRoot.isNull());
+
+    QDomElement child = masterRoot.firstChildElement();
+    ASSERT_FALSE(child.isNull());
+    EXPECT_EQ(child.tagName(), QStringLiteral("objectref"));
+    EXPECT_EQ(child.attribute("class"), QStringLiteral("Foo"));
+    EXPECT_EQ(child.attribute("name"), QStringLiteral("A"));
+    EXPECT_EQ(child.attribute("uuid"), QStringLiteral("{111-222}"));
+
+    // href should be relative, here just "111-222_A.xml"
+    EXPECT_EQ(child.attribute("href"), QStringLiteral("master/A_111-222.gtobj.xml"));
+}
+
+// --------------------------------------------------------
+// 7) Recursive hierarchical object path:
+//    - "HPT_curvePackage" is linked
+//    - its child "Mean Line" is also linked
+//    This should produce two linked files:
+//      * one for HPT_curvePackage
+//      * one for Mean Line inside the package file
+// --------------------------------------------------------
+TEST_F(SaveXmlWithLinkedObjectsTest, RecursiveHierarchicalObjectPathCreation)
+{
+    const QByteArray xml = R"(
+<Root>
+  <object class="Group" name="Parameterization" uuid="{UUID-P}">
+    <object class="Pkg" name="HPT_curvePackage" uuid="{UUID-C}" aslink="true">
+      <object class="Leaf" name="Mean Line" uuid="{ABC-123}" aslink="true">
+        <property name="x">1.0</property>
+      </object>
+    </object>
+  </object>
+</Root>
+)";
+
+    QDomDocument doc = readXmlToDom(xml);
+
+    const QString masterPath = makePath("master_recursive.xml");
+    QString error;
+
+    const bool ok = gt::project::saveXmlWithLinkedObjects(
+        QStringLiteral("TestProject"), doc, baseDir(), masterPath, &error);
+
+    ASSERT_TRUE(ok) << error.toStdString();
+
+    // -----------------------------
+    // Expected external file for Pkg:
+    //
+    // objectPath at Pkg = ["Parameterization", "HPT_curvePackage"]
+    // -> relDirPkg = "master/Parameterization"
+    // cleanUuidPkg = "UUID-C", sanitized name = "HPT_curvePackage"
+    // -> relFilePkg = "HPT_curvePackage_UUID-C.gtobj.xml"
+    // -----------------------------
+    const QString relDirPkg  = QStringLiteral("master_recursive/Parameterization");
+    const QString relFilePkg = QStringLiteral("HPT_curvePackage_UUID-C.gtobj.xml");
+    const QString relHrefPkg = relDirPkg + QLatin1Char('/') + relFilePkg;
+    const QString absPathPkg = baseDir().filePath(relHrefPkg);
+
+    EXPECT_TRUE(QDir(baseDir().filePath(relDirPkg)).exists())
+        << "Expected directory for Pkg: " << relDirPkg.toStdString();
+    EXPECT_TRUE(QFile::exists(absPathPkg))
+        << "Expected linked Pkg file: " << absPathPkg.toStdString();
+
+    // -----------------------------
+    // Expected external file for Leaf:
+    //
+    // Inside the Pkg external doc:
+    // objectPath at leaf = ["Parameterization", "HPT_curvePackage", "Mean_Line"]
+    // -> relDirLeaf = "master/Parameterization/HPT_curvePackage"
+    // cleanUuidLeaf = "ABC-123", sanitized name = "Mean_Line"
+    // -> relFileLeaf = "Mean_Line_ABC-123.gtobj.xml"
+    // -----------------------------
+    const QString relDirLeaf  = QStringLiteral("master_recursive/Parameterization/HPT_curvePackage");
+    const QString relFileLeaf = QStringLiteral("Mean_Line_ABC-123.gtobj.xml");
+    const QString relHrefLeaf = relDirLeaf + QLatin1Char('/') + relFileLeaf;
+    const QString absPathLeaf = baseDir().filePath(relHrefLeaf);
+
+    EXPECT_TRUE(QDir(baseDir().filePath(relDirLeaf)).exists())
+        << "Expected directory for Leaf: " << relDirLeaf.toStdString();
+    EXPECT_TRUE(QFile::exists(absPathLeaf))
+        << "Expected linked Leaf file: " << absPathLeaf.toStdString();
+
+    // ---- Check master: objectref for Pkg (top-level link) ----
+    QDomDocument masterDoc = readFileToDom(masterPath);
+    ASSERT_FALSE(masterDoc.isNull());
+    QDomElement masterRoot = masterDoc.documentElement();
+    ASSERT_FALSE(masterRoot.isNull());
+
+    QDomElement mParam = masterRoot.firstChildElement("object");
+    ASSERT_FALSE(mParam.isNull());
+    EXPECT_EQ(mParam.attribute("name"), QStringLiteral("Parameterization"));
+
+    // In the master, the Pkg itself should be an objectref now
+    QDomElement mPkgRef = mParam.firstChildElement("objectref");
+    ASSERT_FALSE(mPkgRef.isNull());
+    EXPECT_EQ(mPkgRef.attribute("class"), QStringLiteral("Pkg"));
+    EXPECT_EQ(mPkgRef.attribute("name"), QStringLiteral("HPT_curvePackage"));
+    EXPECT_EQ(mPkgRef.attribute("uuid"), QStringLiteral("{UUID-C}"));
+    EXPECT_EQ(mPkgRef.attribute("href"), relHrefPkg);
+
+    // There should be no direct Leaf object/objectref under Parameterization in the master
+    EXPECT_TRUE(mPkgRef.nextSiblingElement().isNull());
+
+    // ---- Check Pkg linked document content ----
+    QDomDocument pkgDoc = readFileToDom(absPathPkg);
+    ASSERT_FALSE(pkgDoc.isNull());
+    QDomElement pkgRoot = pkgDoc.documentElement();
+    ASSERT_FALSE(pkgRoot.isNull());
+    EXPECT_EQ(pkgRoot.tagName(), QStringLiteral("GTLABOBJECTFILE"));
+
+    QDomElement pkgObj = pkgRoot.firstChildElement("object");
+    ASSERT_FALSE(pkgObj.isNull());
+    EXPECT_EQ(pkgObj.attribute("class"), QStringLiteral("Pkg"));
+    EXPECT_EQ(pkgObj.attribute("name"), QStringLiteral("HPT_curvePackage"));
+    EXPECT_EQ(pkgObj.attribute("uuid"), QStringLiteral("{UUID-C}"));
+    EXPECT_FALSE(pkgObj.hasAttribute("aslink"));
+
+    // Inside the Pkg external doc, Leaf should now be an objectref
+    QDomElement leafRef = pkgObj.firstChildElement("objectref");
+    ASSERT_FALSE(leafRef.isNull());
+    EXPECT_EQ(leafRef.attribute("class"), QStringLiteral("Leaf"));
+    EXPECT_EQ(leafRef.attribute("name"), QStringLiteral("Mean Line"));
+    EXPECT_EQ(leafRef.attribute("uuid"), QStringLiteral("{ABC-123}"));
+    EXPECT_EQ(leafRef.attribute("href"), relHrefLeaf);
+
+    // ---- Check Leaf linked document content ----
+    QDomDocument leafDoc = readFileToDom(absPathLeaf);
+    ASSERT_FALSE(leafDoc.isNull());
+    QDomElement leafRoot = leafDoc.documentElement();
+    ASSERT_FALSE(leafRoot.isNull());
+    EXPECT_EQ(leafRoot.tagName(), QStringLiteral("GTLABOBJECTFILE"));
+
+    QDomElement leafObj = leafRoot.firstChildElement("object");
+    ASSERT_FALSE(leafObj.isNull());
+    EXPECT_EQ(leafObj.attribute("class"), QStringLiteral("Leaf"));
+    EXPECT_EQ(leafObj.attribute("name"), QStringLiteral("Mean Line"));
+    EXPECT_EQ(leafObj.attribute("uuid"), QStringLiteral("{ABC-123}"));
+    EXPECT_FALSE(leafObj.hasAttribute("aslink"));
+
+    QDomElement leafProp = leafObj.firstChildElement("property");
+    ASSERT_FALSE(leafProp.isNull());
+    EXPECT_EQ(leafProp.attribute("name"), QStringLiteral("x"));
+    EXPECT_EQ(leafProp.text(), QStringLiteral("1.0"));
+}
+
+

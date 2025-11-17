@@ -320,14 +320,14 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
                                                   QStringLiteral("false"))
                                        .toLower();
 
-            const bool asLinkedFile = (asLink == "true" ||
-                                       asLink == "1"||
-                                       asLink == S_REFONLY_TAG);
+            const bool createObjectRef = (asLink == "true" ||
+                                          asLink == "1"||
+                                          asLink == S_REFONLY_TAG);
 
             // in case, the link could not be resolved
             const bool writeLinkedFile = (asLink != S_REFONLY_TAG);
 
-            if (asLinkedFile)
+            if (createObjectRef)
             {
                 // ---- build external document ----
                 QDomDocument extDoc(S_OBJECTFILE_TAG);
@@ -344,6 +344,11 @@ gt::xml::collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
                     QDomElement importedElem = imported.toElement();
                     importedElem.removeAttribute(S_ASLINK_TAG);
                 }
+
+                // Note: we call collectLinkedObjects on `imported`, not on `root`,
+                // so objectPath is not pushed twice for the same object.
+                collectLinkedObjects(extDoc, imported, rootDir, linksRootDir,
+                                     objectPath, outExternal);
 
                 // ---- compute directory + filename ----
                 QString relDir;
