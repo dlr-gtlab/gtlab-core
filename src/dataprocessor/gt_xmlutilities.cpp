@@ -606,6 +606,11 @@ expandObjectRefsInDocument(QDomDocument& doc,
         if (objectElem.isNull())
             objectElem = linkedRoot;
 
+        // Mark imported note as aslink=true to make a potential 'writeXml'
+        // after a 'readXml' still write linked files. Otherwise, the link 
+        // information is lost
+        objectElem.setAttribute(gt::xml::S_ASLINK_TAG, "true");
+
         QDomNode imported = doc.importNode(objectElem, /*deep=*/true);
         QDomNode parent   = refElem.parentNode();
 
