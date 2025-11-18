@@ -179,6 +179,10 @@ TEST_F(ModuleUpgradeUtilsTest, AddObjectList)
 
 TEST_F(ModuleUpgradeUtilsTest, PyProcessTest1)
 {
+    /// This test calls some combined functions to check if the test to
+    /// change container property to map style is successful.
+
+
     QString oldXML = R"(<?xml version="1.0" encoding="UTF-8"?>
 <object class="GtTask" name="New Task" uuid="{e127e6ee-03c7-47e6-8e00-883a17a4f3ce}">
     <property name="skip" type="bool">false</property>
@@ -301,11 +305,6 @@ TEST_F(ModuleUpgradeUtilsTest, PyProcessTest1)
         qWarning() << "old: " << rootOld.ownerDocument().toString(4);
         qWarning() << "new: " << doc2.toString(4);
     }
-    else
-    {
-        qDebug() << "Comparison was successfull";
-    }
 
     EXPECT_TRUE(comparisonCheck);
-
 }
