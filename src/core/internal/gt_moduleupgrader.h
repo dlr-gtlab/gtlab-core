@@ -49,13 +49,15 @@ public:
 
     /**
      * @brief Performs an upgrade of the data.
+     * @param projectName The name of the project to upgrade
      * @param moduleFootprint Footprint of all modules of the current dataset
      * that need to be upgraded.
      * @param files All files that contain datasets to be upgraded.
      */
-    void upgrade(const QMap<QString,
-                GtVersionNumber>& moduleFootprint,
-                const QStringList& files) const;
+    void upgrade(const QString& projectName,
+                 const QMap<QString,
+                 GtVersionNumber>& moduleFootprint,
+                 const QStringList& files) const;
 
     /**
      * @brief Checks if upgrades are available for a given module footprint.

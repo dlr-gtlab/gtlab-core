@@ -188,7 +188,7 @@ GtProject::upgradeProjectData()
     QMap<QString, GtVersionNumber> versInfo = footprint.fullVersionInfo();
 
     gt::detail::GtModuleUpgrader::instance()
-        .upgrade(versInfo, entryList);
+        .upgrade(objectName(), versInfo, entryList);
 
     // update project footprint for updated module
     updateModuleFootprint(availUpgrades);

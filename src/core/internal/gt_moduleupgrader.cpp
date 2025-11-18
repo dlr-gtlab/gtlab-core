@@ -39,8 +39,9 @@ public:
     }
 
     // logic
-    void runUpgradeRoutines(const GtVersionNumber& footprintVersion,
-                           const QStringList& files) const
+    void runUpgradeRoutines(const QString& projectName,
+                            const GtVersionNumber& footprintVersion,
+                            const QStringList& files) const
     {
         gtDebugId("module data upgrader") << "running upgrade routines...";
 
@@ -65,21 +66,18 @@ public:
                         continue;
                     }
 
-                    QDomDocument document;
-                    QString errorStr;
-                    int errorLine;
-                    int errorColumn;
+                    QStringList warnings;
+                    QDomDocument document = gt::xml::loadProjectXmlWithLinkedObjects(
+                        file.fileName(), &warnings);
 
-                    if (!gt::xml::readDomDocumentFromFile(file, document, true,
-                                                          &errorStr,
-                                                          &errorLine,
-                                                          &errorColumn))
+                    if (!warnings.isEmpty())
                     {
-                        gtErrorId("module data upgrader")
-                                  << "XML ERROR!" << " " << "line" << ": "
-                                  << errorLine << " " << "column" << ": "
-                                  << errorColumn << " -> " << errorStr;
+                        for (auto&& warn : warnings)
+                            gtErrorId("module data upgrader") << warn;
+                    }
 
+                    if (document.isNull() || document.documentElement().isNull())
+                    {
                         continue;
                     }
 
@@ -89,13 +87,17 @@ public:
                     upgradeRoutine.f(root, modData);
 
                     // save file
-                    // new ordered attribute stream writer algorithm
-                    if (!gt::xml::writeDomDocumentToFile(modData,
-                                                         document, true))
+                    const QFileInfo fi(modData);
+                    const QDir   baseDir = fi.dir().absolutePath();
+
+                    QString error;
+                    if (!gt::xml::saveProjectXmlWithLinkedObjects(projectName,
+                                                                  document,
+                                                                  baseDir,
+                                                                  modData,
+                                                                  &error))
                     {
-                        gtErrorId("module data upgrader")
-                                  << modData << QStringLiteral(": ")
-                                  << "Failed to save project data!";
+                        gtErrorId("module data upgrader") << error;
                     }
                 }
             }
@@ -176,7 +178,8 @@ GtModuleUpgrader::debugModuleConverter()
 }
 
 void
-GtModuleUpgrader::upgrade(const QMap<QString, GtVersionNumber>& moduleFootprint,
+GtModuleUpgrader::upgrade(const QString& projectName,
+                          const QMap<QString, GtVersionNumber>& moduleFootprint,
                           const QStringList& files) const
 {
     for (auto const& upgrader : m_pimpl->m_upgrader)
@@ -190,7 +193,7 @@ GtModuleUpgrader::upgrade(const QMap<QString, GtVersionNumber>& moduleFootprint,
 
             auto& upgradeHelper = upgrader.second;
 
-            upgradeHelper.runUpgradeRoutines(
+            upgradeHelper.runUpgradeRoutines(projectName,
                         moduleFootprint.value(QString::fromStdString(moduleId)),
                         files);
         }
