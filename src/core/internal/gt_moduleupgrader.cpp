@@ -40,6 +40,7 @@ public:
 
     // logic
     void runUpgradeRoutines(const QString& projectName,
+                            bool saveWithLinkedFiles,
                             const GtVersionNumber& footprintVersion,
                             const QStringList& files) const
     {
@@ -90,11 +91,17 @@ public:
                     const QFileInfo fi(modData);
                     const QDir   baseDir = fi.dir().absolutePath();
 
+
+                    auto saveType = saveWithLinkedFiles ?
+                                gt::xml::LinkFileSaveType::WithLinkedFiles :
+                                gt::xml::LinkFileSaveType::OneFile;
+
                     QString error;
                     if (!gt::xml::saveProjectXmlWithLinkedObjects(projectName,
                                                                   document,
                                                                   baseDir,
                                                                   modData,
+                                                                  saveType,
                                                                   &error))
                     {
                         gtErrorId("module data upgrader") << error;
@@ -179,6 +186,7 @@ GtModuleUpgrader::debugModuleConverter()
 
 void
 GtModuleUpgrader::upgrade(const QString& projectName,
+                          bool saveWithLinkedFiles,
                           const QMap<QString, GtVersionNumber>& moduleFootprint,
                           const QStringList& files) const
 {
@@ -194,6 +202,7 @@ GtModuleUpgrader::upgrade(const QString& projectName,
             auto& upgradeHelper = upgrader.second;
 
             upgradeHelper.runUpgradeRoutines(projectName,
+                        saveWithLinkedFiles,
                         moduleFootprint.value(QString::fromStdString(moduleId)),
                         files);
         }

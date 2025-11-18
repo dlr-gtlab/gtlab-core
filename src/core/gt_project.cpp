@@ -190,8 +190,11 @@ GtProject::upgradeProjectData()
     // collect all version information
     QMap<QString, GtVersionNumber> versInfo = footprint.fullVersionInfo();
 
+    bool saveWithLinkFiles = getProjectSettings()
+                                 .ownObjectFileSerializationEnabled();
+
     gt::detail::GtModuleUpgrader::instance()
-        .upgrade(objectName(), versInfo, entryList);
+        .upgrade(objectName(), saveWithLinkFiles, versInfo, entryList);
 
     // update project footprint for updated module
     updateModuleFootprint(availUpgrades);
@@ -959,11 +962,16 @@ GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
     const QFileInfo fi(filePath);
     const QDir   baseDir = fi.dir().absolutePath();
 
+    auto saveType = projectSettings().ownObjectFileSerializationEnabled() ?
+                        gt::xml::LinkFileSaveType::WithLinkedFiles :
+                        gt::xml::LinkFileSaveType::OneFile;
+
     QString error;
     if (!gt::xml::saveProjectXmlWithLinkedObjects(objectName(),
                                                   doc,
                                                   baseDir,
                                                   filePath,
+                                                  saveType,
                                                   &error))
     {
         gtError() << error;

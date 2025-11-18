@@ -649,6 +649,7 @@ gt::xml::saveProjectXmlWithLinkedObjects(const QString& projectName,
                                          const QDomDocument& doc,
                                          const QDir& baseDir,
                                          const QString& masterFilePath,
+                                         LinkFileSaveType saveType,
                                          QString* errorOut)
 {
 
@@ -659,8 +660,12 @@ gt::xml::saveProjectXmlWithLinkedObjects(const QString& projectName,
     QVector<LinkedObject> externals;
     QStringList objectPath;
 
+
+    // 2) batch save: externals + master
+    GtBatchSaver batchsaver;
+
     QDomElement rootElem = masterDoc.documentElement();
-    if (!rootElem.isNull())
+    if (!rootElem.isNull() && saveType == LinkFileSaveType::WithLinkedFiles)
     {
         QDomNode rootNode = rootElem;
 
@@ -673,16 +678,13 @@ gt::xml::saveProjectXmlWithLinkedObjects(const QString& projectName,
 
         collectLinkedObjects(masterDoc, rootNode, baseDir,
                                       linksRootDir, objectPath, externals);
-    }
 
-    // 2) batch save: externals + master
-    GtBatchSaver batchsaver;
-
-    // external object files first
-    for (const LinkedObject& ext : qAsConst(externals))
-    {
-        // third parameter: attrOrdered=true (same as before)
-        batchsaver.addXml(ext.filePath, ext.doc, true);
+        // external object files first
+        for (const LinkedObject& ext : qAsConst(externals))
+        {
+            // third parameter: attrOrdered=true (same as before)
+            batchsaver.addXml(ext.filePath, ext.doc, true);
+        }
     }
 
     // master file last

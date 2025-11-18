@@ -145,6 +145,12 @@ inline QDomElement createStringPropertyElement(QDomDocument& doc,
                               std::move(value));
 }
 
+enum class LinkFileSaveType
+{
+    OneFile,
+    WithLinkedFiles
+};
+
 /**
  * @brief Save a project XML document as a master file plus linked object files.
  *
@@ -186,6 +192,7 @@ inline QDomElement createStringPropertyElement(QDomDocument& doc,
  *                       are written inside this directory (or its subfolders).
  * @param masterFilePath Path of the master XML file to write. This may be an
  *                       absolute path or a path under @p baseDir.
+ * @param saveType       Whether to store with link files or as one file.
  * @param errorOut       Optional pointer to a string that will receive a
  *                       human-readable error description if the function
  *                       returns @c false. If @c nullptr, the error text is
@@ -200,6 +207,7 @@ bool saveProjectXmlWithLinkedObjects(const QString& projectName,
                                      const QDomDocument& doc,
                                      const QDir& baseDir,
                                      const QString& masterFilePath,
+                                     LinkFileSaveType saveType,
                                      QString* errorOut);
 
 

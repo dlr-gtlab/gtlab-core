@@ -55,6 +55,7 @@ public:
      * @param files All files that contain datasets to be upgraded.
      */
     void upgrade(const QString& projectName,
+                 bool saveWithLinkedFiles,
                  const QMap<QString,
                  GtVersionNumber>& moduleFootprint,
                  const QStringList& files) const;
