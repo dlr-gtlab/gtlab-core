@@ -16,7 +16,17 @@
 
 namespace gt {
 
-namespace module_upgrade_utils {
+namespace module_upgrade {
+
+/**
+ * @brief The SearchMode enum
+ * Defines whether the search should continue into child elements
+ * that are themselves matches.
+ */
+enum class SearchMode {
+    AllowNested,
+    DisallowNested
+};
 
 /**
  * @brief findElementsByClass
@@ -25,16 +35,16 @@ namespace module_upgrade_utils {
  *
  * @param node - root node to search in
  * @param classNames - list of classnames to check for
- * @param allowNestedMatches - is it allowed to have elements as subelements of
+ * @param searchMode - is it allowed to have elements as subelements of
  * others which match the comparison. This might shorten the search
  */
-GT_CORE_EXPORT QList<QDomElement> findElementsByClass(
+GT_CORE_EXPORT QVector<QDomElement> findElementsByClass(
     const QDomNode& node, const QStringList& classNames,
-    bool allowNestedClassElements);
+    SearchMode searchMode = SearchMode::AllowNested);
 
 /**
  * @brief findElementsByAttribute
- * Based on a root node the function searches all QDomElements which matches
+ * Based on a root node the function searches all QDomElements which match
  * an attribute with one of the given entries of values list,
  * e.g. if "class"(attribute) in {"MyCalc", "MyTask"}(values) or
  * "type" in {"QString", "str"}"
@@ -42,13 +52,14 @@ GT_CORE_EXPORT QList<QDomElement> findElementsByClass(
  * @param node - root element
  * @param attribute - attribute of node element to match
  * @param values - values for comparison
- * @param allowNestedMatches - is it allowed to have elements as subelements of
+ * @param searchMode - is it allowed to have elements as subelements of
  * others which match the comparison. This might shorten the search
- * @return a list of the elements which match the atrribute search
+ * @return a list of the elements which match the attribute search
  */
-GT_CORE_EXPORT QList<QDomElement> findElementsByAttribute(
+GT_CORE_EXPORT QVector<QDomElement> findElementsByAttribute(
     const QDomNode& node, const QString& attribute,
-    const QStringList& values, bool allowNestedMatches);
+    const QStringList& values,
+    SearchMode searchMode = SearchMode::AllowNested);
 
 /**
  * @brief findParentByAttribute
@@ -59,16 +70,17 @@ GT_CORE_EXPORT QList<QDomElement> findElementsByAttribute(
  * @param attribute of the parent which is meant to be checked
  * @param values - value list of accepted values for the match
  * @return the dom element which fullfills the match check
+ * Returns null element if not found
  */
 GT_CORE_EXPORT QDomElement findParentByAttribute(const QDomElement& start,
                                                  const QString& attribute,
                                                  const QStringList& values);
 
 /**
- * @brief newUuid
- * @return a new genereated uuid
+ * @brief createUuid
+ * @return a new RFC4122-compliant uuid string (QUuid::createUuid().toString())
  */
-GT_CORE_EXPORT QString newUuid();
+GT_CORE_EXPORT QString createUuid();
 
 /**
  * @brief appendNewGtlabObject
@@ -80,12 +92,12 @@ GT_CORE_EXPORT QString newUuid();
  * @return the new element
  */
 GT_CORE_EXPORT QDomElement appendNewGtlabObject(QDomElement& parent,
-                                                QString const& className,
-                                                QString const& objectName);
+                                                const QString& className,
+                                                const QString& objectName);
 
 /**
  * @brief addObjectList
- * In cases of multiple child elements the xml sturcture uses a list container
+ * In cases of multiple child elements the xml structure uses a list container
  * object as a mid layer. Such an object can be added with this function *
  * @param parent to add the element to
  * @return the new element
@@ -95,7 +107,7 @@ GT_CORE_EXPORT QDomElement addObjectList(QDomElement& parent);
 /**
  * @brief normalizePropertyContainerId
  * For renaming in property containers:
- * Properties in a containers with a given $formerNameKey are removed and their
+ * Properties in a container with a given $formerNameKey are removed and their
  * value is used to replace the ident of the property container entry
  * @param container
  * @param formerNameKey
@@ -103,63 +115,63 @@ GT_CORE_EXPORT QDomElement addObjectList(QDomElement& parent);
  * identification and the new name (for later usage)
  */
 GT_CORE_EXPORT void normalizePropertyContainerId(
-    QDomElement container, QString const& formerNameKey,
+    QDomElement& container, const QString& formerNameKey,
     QMap<QString, QString>& replaceMap);
 
 namespace properties {
 
     /**
-     * @brief updateTypeAndValue
+     * @brief setPropertyTypeAndValue
      * @param propElement
      * @param newType
      * @param newValue
      * @return false if domelement is invalid, else true
      */
-    GT_CORE_EXPORT bool updateTypeAndValue(QDomElement& propElement,
-                                           const QString& newType,
-                                           const QString& newValue);
+    GT_CORE_EXPORT bool setPropertyTypeAndValue(QDomElement& propElement,
+                                                const QString& newType,
+                                                const QString& newValue);
 
     /**
-     * @brief updateTypeAndValue
-     * @param name - name of the property to change
+     * @brief setPropertyTypeAndValue
      * @param root - root element to find the property as a sub element
+     * @param name - name of the property to change
      * @param newType - new type to set for the property
      * @param newValue - new value to set for the property
      * @return true in case of success
      */
-    GT_CORE_EXPORT bool updateTypeAndValue(QString const& name,
-                                           const QDomElement& root,
-                                           const QString& newType,
-                                           const QString& newValue);
+    GT_CORE_EXPORT bool setPropertyTypeAndValue(const QDomElement& root,
+                                                const QString& name,
+                                                const QString& newType,
+                                                const QString& newValue);
 
     /**
      * @brief propNode
      * @param name
      * @param root
-     * @return element with given name if it exisists, else empty element
+     * @return element with given name if it exists, else empty element
      */
-    GT_CORE_EXPORT QDomElement propNode(QString const& name,
+    GT_CORE_EXPORT QDomElement propNode(const QString& name,
                                         const QDomElement& root);
 
     /**
      * @brief doubleValue
      * @param parent - element which has the property as child
-     * @param propName - name of the property to evaluete
-     * @return value of the property
+     * @param propName - name of the property to evaluate
+     * @return value of the property - 0.0 if element is not found nor a number
      */
     GT_CORE_EXPORT double doubleValue(QDomElement const& parent,
-                                      QString const& propName);
+                                      const QString& propName);
 
     /**
      * @brief appendProperty
      * @param parent to append the property to
      * @param propertyName - name of the new property
      * @param propertyType - type of the new property
-     * @param value - value of the new propety
+     * @param value - value of the new property
      */
     GT_CORE_EXPORT void appendProperty(
-        QDomElement& parent, QString const& propertyName,
-        QString const& propertyType, QString const& value);
+        QDomElement& parent, const QString& propertyName,
+        const QString& propertyType, const QString& value);
 
     /**
      * @brief appendDoubleProperty
@@ -168,7 +180,7 @@ namespace properties {
      * @param val
      */
     GT_CORE_EXPORT void appendDoubleProperty(
-        QDomElement& parent, QString const& propertyName, double val);
+        QDomElement& parent, const QString& propertyName, double val);
 
     /**
      * @brief removeProperty
@@ -176,7 +188,7 @@ namespace properties {
      * @param propertyName - name of the property to remove
      */
     GT_CORE_EXPORT void removeProperty(QDomElement& parent,
-                                       QString const& propertyName);
+                                       const QString& propertyName);
 
     /**
      * @brief renameProperty - rename a property
@@ -185,7 +197,7 @@ namespace properties {
      * @param newName - new name to use now
      */
     GT_CORE_EXPORT void renameProperty(
-        const QDomElement& parent, const QString& oldName,
+        QDomElement& parent, const QString& oldName,
         const QString& newName);
 
 } // properties

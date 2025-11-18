@@ -14,7 +14,7 @@
 #include "gt_moduleupgradeutilities.h"
 #include "gt_logging.h"
 
-using namespace gt::module_upgrade_utils;
+using namespace gt::module_upgrade;
 
 class ModuleUpgradeUtilsTest : public ::testing::Test
 {
@@ -114,12 +114,12 @@ protected:
 TEST_F(ModuleUpgradeUtilsTest, FindElementsByClass)
 {
     QStringList classes{"MyCalc"};
-    auto elems = findElementsByClass(root, classes, true);
+    auto elems = findElementsByClass(root, classes);
     ASSERT_EQ(elems.size(), 1);
     EXPECT_EQ(elems[0].attribute("name"), "Obj1");
 
     QStringList classes2 = {"MyCalc", "MyTask"};
-    elems = findElementsByClass(root, classes2, true);
+    elems = findElementsByClass(root, classes2);
     ASSERT_EQ(elems.size(), 2);
 }
 
@@ -127,7 +127,7 @@ TEST_F(ModuleUpgradeUtilsTest, FindElementsByClass)
 TEST_F(ModuleUpgradeUtilsTest, FindElementsByAttribute)
 {
     QStringList vals{"MyTask"};
-    auto elems = findElementsByAttribute(root, "class", vals, true);
+    auto elems = findElementsByAttribute(root, "class", vals);
     ASSERT_EQ(elems.size(), 1);
     EXPECT_EQ(elems[0].attribute("name"), "Obj2");
 }
@@ -145,7 +145,7 @@ TEST_F(ModuleUpgradeUtilsTest, FindParentByAttribute)
 TEST_F(ModuleUpgradeUtilsTest, UpdateTypeAndValue)
 {
     auto propA = properties::propNode("propA", root.firstChildElement("object"));
-    bool ok = properties::updateTypeAndValue(propA, "double", "99.9");
+    bool ok = properties::setPropertyTypeAndValue(propA, "double", "99.9");
     ASSERT_TRUE(ok);
     EXPECT_EQ(propA.attribute("type"), "double");
     EXPECT_EQ(propA.text(), "99.9");
@@ -162,7 +162,7 @@ TEST_F(ModuleUpgradeUtilsTest, DoubleValue)
 // Test: appendNewGtlabObject
 TEST_F(ModuleUpgradeUtilsTest, AppendNewGtlabObject)
 {
-    auto newObj = gt::module_upgrade_utils::appendNewGtlabObject(root, "MyCalc", "NewObj");
+    auto newObj = gt::module_upgrade::appendNewGtlabObject(root, "MyCalc", "NewObj");
     ASSERT_FALSE(newObj.isNull());
     EXPECT_EQ(newObj.attribute("class"), "MyCalc");
     EXPECT_EQ(newObj.attribute("name"), "NewObj");
@@ -172,7 +172,7 @@ TEST_F(ModuleUpgradeUtilsTest, AppendNewGtlabObject)
 // Test: addObjectList
 TEST_F(ModuleUpgradeUtilsTest, AddObjectList)
 {
-    auto listElem = gt::module_upgrade_utils::addObjectList(root);
+    auto listElem = gt::module_upgrade::addObjectList(root);
     ASSERT_FALSE(listElem.isNull());
     EXPECT_EQ(listElem.tagName(), "objectlist");
 }
@@ -270,8 +270,8 @@ TEST_F(ModuleUpgradeUtilsTest, PyProcessTest1)
 
     QDomElement rootOld = doc1.documentElement();
 
-    QList<QDomElement> found = gt::module_upgrade_utils::findElementsByClass(
-        rootOld, {"GtpyScriptCalculator", "GtpyTask"}, false);
+    QVector<QDomElement> found = gt::module_upgrade::findElementsByClass(
+        rootOld, {"GtpyScriptCalculator", "GtpyTask"}, SearchMode::DisallowNested);
 
     ASSERT_EQ(found.size(), 1);
 
