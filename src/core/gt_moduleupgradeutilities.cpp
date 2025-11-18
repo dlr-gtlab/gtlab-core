@@ -236,7 +236,7 @@ gt::module_upgrade::createUuid()
 
 void
 gt::module_upgrade::properties::renameProperty(
-    QDomElement& parent, const QString& oldName, const QString& newName)
+    QDomElement const& parent, const QString& oldName, const QString& newName)
 {
     QDomElement propElement = propNode(oldName, parent);
     if (!propElement.isNull())

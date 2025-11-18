@@ -197,7 +197,7 @@ namespace properties {
      * @param newName - new name to use now
      */
     GT_CORE_EXPORT void renameProperty(
-        QDomElement& parent, const QString& oldName,
+        const QDomElement& parent, const QString& oldName,
         const QString& newName);
 
 } // properties
