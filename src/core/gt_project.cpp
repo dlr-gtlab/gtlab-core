@@ -52,7 +52,13 @@ GtProject::GtProject(const QString& path) :
 
     registerProperty(m_pathProp);
 
-    setProperty("tmp_ignoreIrregularities", false);
+    if (gtApp)
+    {
+        connect(&m_projectSettings, &GtProjectSettings::changed, this, [](){
+            if (gtApp->session()) gtApp->session()->save();
+        });
+    }
+
 }
 
 void
@@ -86,6 +92,18 @@ GtProject::moduleExtension()
     return QStringLiteral("gtmod");
 }
 
+const GtProjectSettings &
+GtProject::getProjectSettings() const
+{
+    return m_projectSettings;
+}
+
+GtProjectSettings &
+GtProject::projectSettings()
+{
+    return m_projectSettings;
+}
+
 QString
 GtProject::comment() const
 {
@@ -97,21 +115,6 @@ GtProject::setComment(const QString& comment)
 {
     m_comment = comment;
     changed();
-}
-
-bool
-GtProject::ignoringIrregularities() const
-{
-    return property("tmp_ignoreIrregularities").toBool();
-}
-
-void
-GtProject::setIgnoreIrregularities(bool ignore)
-{
-    if (ignore == ignoringIrregularities()) return;
-
-    setProperty("tmp_ignoreIrregularities", ignore);
-    gtApp->session()->save();
 }
 
 void

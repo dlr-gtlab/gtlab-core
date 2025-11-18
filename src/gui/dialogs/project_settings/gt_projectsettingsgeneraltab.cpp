@@ -25,9 +25,16 @@ GtProjectSettingsGeneralTab::GtProjectSettingsGeneralTab(
     m_ignoreCheck = new QCheckBox(
         tr("Hide irregularity alerts for this project"));
 
-    if (project) m_ignoreCheck->setChecked(project->ignoringIrregularities());
+    m_saveLinkedObjects = new QCheckBox(
+        tr("Object serialization into own files."));
+    m_saveLinkedObjects->setToolTip(
+        tr("If checked, some objects are written into separate "
+           "*gtobj.xml files. Uncheck, to keep GTlab 2.0 compatibility."));
+
+    loadSettings();
 
     layout()->addWidget(m_ignoreCheck);
+    layout()->addWidget(m_saveLinkedObjects);
     layout()->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum,
                                       QSizePolicy::Expanding));
 }
@@ -37,7 +44,30 @@ GtProjectSettingsGeneralTab::saveSettings()
 {
     if (!project()) return;
 
-    project()->setIgnoreIrregularities(m_ignoreCheck->isChecked());
+    auto& settings = project()->projectSettings();
+
+    {
+        QSignalBlocker _{settings};
+        settings.setIgnoreIrregularities(m_ignoreCheck->isChecked());
+        settings.setOwnObjectFileSerializationEnabled(
+            m_saveLinkedObjects->isChecked());
+    }
+
+    emit settings.changed();
+}
+
+void
+GtProjectSettingsGeneralTab::loadSettings()
+{
+    auto proj = project();
+    if (!proj) return;
+
+    auto& settings = proj->projectSettings();
+
+    m_ignoreCheck->setChecked(settings.ignoringIrregularities());
+    m_saveLinkedObjects->setChecked(
+        settings.ownObjectFileSerializationEnabled());
+
 }
 
 QString

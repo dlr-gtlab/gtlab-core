@@ -19,6 +19,7 @@
 #include "gt_session.h"
 #include "gt_stringproperty.h"
 #include "gt_filesystem.h"
+#include <gt_projectsettings.h>
 
 class QDomDocument;
 class QXmlStreamWriter;
@@ -184,20 +185,6 @@ public:
     void setComment(const QString& comment);
 
     /**
-     * @brief Returns whether project irregularity warnings are ignored for this
-     * project.
-     * @return True if irregularity warning are ignored.
-     */
-    bool ignoringIrregularities() const;
-
-    /**
-     * @brief Sets whether project irregularities should be ignored for this
-     * project.
-     * @param ignore
-     */
-    void setIgnoreIrregularities(bool ignore);
-
-    /**
      * @brief sets whether externalized objects should be internalized on save
      * @param value true if data should be internalized on save
      */
@@ -298,6 +285,9 @@ public:
      */
     static const QString moduleExtension();
 
+    const GtProjectSettings& getProjectSettings() const;
+    GtProjectSettings& projectSettings();
+
 protected:
     /**
      * @brief Constructor
@@ -323,6 +313,8 @@ private:
 
     /// Whether to internalize all external data when saving
     bool m_internalizeOnSave{false};
+
+    GtProjectSettings m_projectSettings;
 
     /// List of all project module ids
     QStringList m_moduleIds;
