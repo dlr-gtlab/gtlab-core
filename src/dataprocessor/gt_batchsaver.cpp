@@ -114,38 +114,46 @@ namespace
         QVector<Meta>& metas,
         std::vector<std::unique_ptr<QSaveFile>>& saveFiles, QString& lastError)
     {
-        for (int i = 0; i < metas.size(); ++i)
-        {
-            auto& m = metas[i];
+        // Keep track of which files we successfully renamed so we can roll them back
+        QVector<Meta*> renamedMetas;
+        renamedMetas.reserve(metas.size());
 
-            if (QFile::exists(m.backupPath))
+        auto rollbackRenames = [&]() {
+            for (Meta* meta : renamedMetas)
             {
-                QFile::remove(m.backupPath); // best effort
-            }
-            if (QFile::exists(m.targetPath))
-            {
-                if (!QFile::rename(m.targetPath, m.backupPath))
+                // Only roll back if the backup exists and the original is gone
+                if (QFile::exists(meta->backupPath) &&
+                    !QFile::exists(meta->targetPath))
                 {
-                    setError(lastError,
-                             QStringLiteral(
-                                 "Failed to rename original to backup for '%1'")
-                                 .arg(m.targetPath));
-
-                    // rollback renames already done
-                    for (int j = 0; j < i; ++j)
-                    {
-                        auto& r = metas[j];
-                        if (QFile::exists(r.backupPath) &&
-                            !QFile::exists(r.targetPath))
-                        {
-                            QFile::rename(r.backupPath, r.targetPath);
-                        }
-                    }
-
-                    cancelAll(saveFiles);
-                    return false;
+                    QFile::rename(meta->backupPath,
+                                  meta->targetPath); // best effort
                 }
             }
+        };
+
+        for (Meta& meta : metas)
+        {
+            // Remove stale backup if it exists (best effort)
+            if (QFile::exists(meta.backupPath))
+                QFile::remove(meta.backupPath);
+
+            // If there is no original file, nothing to rename for this meta
+            if (!QFile::exists(meta.targetPath))
+                continue;
+
+            if (!QFile::rename(meta.targetPath, meta.backupPath))
+            {
+                setError(lastError,
+                         QStringLiteral(
+                             "Failed to rename original to backup for '%1'")
+                             .arg(meta.targetPath));
+
+                rollbackRenames();
+                cancelAll(saveFiles);
+                return false;
+            }
+
+            renamedMetas.push_back(&meta);
         }
 
         return true;
@@ -156,6 +164,8 @@ namespace
                          QString& lastError)
     {
         bool ok = true;
+
+        assert(metas.size() == saveFiles.size());
 
         for (int i = 0; i < metas.size(); ++i)
         {
@@ -173,9 +183,8 @@ namespace
         if (!ok)
         {
             // Best-effort rollback: remove new files and restore backups.
-            for (int i = 0; i < metas.size(); ++i)
+            for (auto& m : metas)
             {
-                auto& m = metas[i];
                 if (QFile::exists(m.targetPath))
                 {
                     QFile::remove(m.targetPath);
