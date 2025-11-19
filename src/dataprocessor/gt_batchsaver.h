@@ -90,9 +90,11 @@ public:
     /**
      * @brief Convenience method to add a QDomDocument as XML to the batch.
      *
-     * @param targetPath Target file path for the XML.
-     * @param doc        QDomDocument to be serialized.
-     * @param indent     Indentation width used by QDomDocument::save (default: 4).
+     * @param targetPath  Target file path for the XML.
+     * @param doc         QDomDocument to be serialized.
+     * @param attrOrdered Whether to use ordered attributes or not
+     *                    (if not, attribute order can be random,
+     *                    but is more efficient)
      *
      * The document is serialized as UTF-8 text during commit(). On failure,
      * commit() returns false and the target file is not changed.
@@ -139,7 +141,7 @@ public:
 
 private:
     /// List of pending operations to be executed during commit().
-    QVector<Op> m_ops;
+    std::vector<Op> m_ops;
     QString m_lastError;
 };
 

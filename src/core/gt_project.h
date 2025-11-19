@@ -285,7 +285,16 @@ public:
      */
     static const QString moduleExtension();
 
+    /**
+     * @brief Read-only getter to the project settings
+     */
     const GtProjectSettings& getProjectSettings() const;
+
+    /**
+     * @brief Returns a modifiable reference to the project settings.
+     *
+     * Use this to change the current project settings.
+     */
     GtProjectSettings& projectSettings();
 
 protected:

@@ -425,11 +425,15 @@ void collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
 
                 QString fileName;
                 if (!cleanUuid.isEmpty())
+                {
                     fileName = QStringLiteral("%1_%2.gtobj.xml")
                                    .arg(sanitizedObjName, cleanUuid);
+                }
                 else
+                {
                     fileName =
                         QStringLiteral("%1.gtobj.xml").arg(sanitizedObjName);
+                }
 
                 const QString filePath = QDir(absDir).filePath(fileName);
 
@@ -482,11 +486,14 @@ void collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
     }
 }
 
-void
-expandObjectRefsInDocument(QDomDocument& doc,
-                           const QDir& baseDir,
-                           QStringList* warnings,
-                           QSet<QString>& recursionStack);
+/**
+ *  Forward declaration to allow recursion
+ *
+ *  Implementation below
+ */
+void expandObjectRefsInDocument(QDomDocument& doc, const QDir& baseDir,
+                                QStringList* warnings,
+                                QSet<QString>& recursionStack);
 
 QDomDocument
 loadAndExpandImpl(const QString& path,

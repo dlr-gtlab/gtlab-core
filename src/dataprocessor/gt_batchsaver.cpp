@@ -24,7 +24,7 @@
 namespace
 {
 
-    struct Meta
+    struct TargetFile
     {
         QString targetPath;
         QString backupPath;
@@ -44,15 +44,15 @@ namespace
         lastError = msg;
     }
 
-    bool prepareSaveFiles(const QVector<GtBatchSaver::Op>& ops,
-                          QVector<Meta>& metas,
+    bool prepareSaveFiles(const std::vector<GtBatchSaver::Op>& ops,
+                          std::vector<TargetFile>& targets,
                           std::vector<std::unique_ptr<QSaveFile>>& saveFiles,
                           QString& lastError)
     {
-        metas.clear();
+        targets.clear();
         saveFiles.clear();
 
-        metas.reserve(ops.size());
+        targets.reserve(ops.size());
         saveFiles.reserve(ops.size());
 
         for (const auto& op : ops)
@@ -62,7 +62,7 @@ namespace
             if (!dir.exists() && !dir.mkpath(QStringLiteral(".")))
             {
                 setError(lastError,
-                         QStringLiteral("Cannot create directory for '%1'")
+                         QObject::tr("Cannot create directory for '%1'")
                              .arg(op.targetPath));
                 cancelAll(saveFiles);
                 return false;
@@ -72,7 +72,7 @@ namespace
             if (!sf->open(QIODevice::WriteOnly | QIODevice::Text))
             {
                 setError(lastError,
-                         QStringLiteral("Cannot open QSaveFile for '%1'")
+                         QObject::tr("Cannot open QSaveFile for '%1'")
                              .arg(op.targetPath));
                 cancelAll(saveFiles);
                 return false;
@@ -81,7 +81,7 @@ namespace
             if (!op.writer(*sf))
             {
                 setError(lastError,
-                         QStringLiteral("Writer callback failed for '%1'")
+                         QObject::tr("Writer callback failed for '%1'")
                              .arg(op.targetPath));
                 sf->cancelWriting();
                 cancelAll(saveFiles);
@@ -92,7 +92,7 @@ namespace
             if (sf->error() != QFile::NoError)
             {
                 setError(lastError,
-                         QStringLiteral("Error during flush for '%1' (code %2)")
+                         QObject::tr("Error during flush for '%1' (code %2)")
                              .arg(op.targetPath)
                              .arg(sf->error()));
                 sf->cancelWriting();
@@ -100,10 +100,10 @@ namespace
                 return false;
             }
 
-            Meta m;
-            m.targetPath = op.targetPath;
-            m.backupPath = op.targetPath + QStringLiteral("_backup");
-            metas.push_back(std::move(m));
+            TargetFile fileLocation;
+            fileLocation.targetPath = op.targetPath;
+            fileLocation.backupPath = op.targetPath + QStringLiteral("_backup");
+            targets.push_back(std::move(fileLocation));
             saveFiles.push_back(std::move(sf));
         }
 
@@ -111,70 +111,70 @@ namespace
     }
 
     bool renameOriginalsToBackups(
-        QVector<Meta>& metas,
+        std::vector<TargetFile>& files,
         std::vector<std::unique_ptr<QSaveFile>>& saveFiles, QString& lastError)
     {
         // Keep track of which files we successfully renamed so we can roll them back
-        QVector<Meta*> renamedMetas;
-        renamedMetas.reserve(metas.size());
+        std::vector<TargetFile*> renamedFiles;
+        renamedFiles.reserve(files.size());
 
         auto rollbackRenames = [&]() {
-            for (Meta* meta : renamedMetas)
+            for (TargetFile* file : renamedFiles)
             {
                 // Only roll back if the backup exists and the original is gone
-                if (QFile::exists(meta->backupPath) &&
-                    !QFile::exists(meta->targetPath))
+                if (QFile::exists(file->backupPath) &&
+                    !QFile::exists(file->targetPath))
                 {
-                    QFile::rename(meta->backupPath,
-                                  meta->targetPath); // best effort
+                    QFile::rename(file->backupPath,
+                                  file->targetPath); // best effort
                 }
             }
         };
 
-        for (Meta& meta : metas)
+        for (TargetFile& targetFile : files)
         {
             // Remove stale backup if it exists (best effort)
-            if (QFile::exists(meta.backupPath))
-                QFile::remove(meta.backupPath);
+            if (QFile::exists(targetFile.backupPath))
+                QFile::remove(targetFile.backupPath);
 
-            // If there is no original file, nothing to rename for this meta
-            if (!QFile::exists(meta.targetPath))
+            // If there is no original file, nothing to rename for this file
+            if (!QFile::exists(targetFile.targetPath))
                 continue;
 
-            if (!QFile::rename(meta.targetPath, meta.backupPath))
+            if (!QFile::rename(targetFile.targetPath, targetFile.backupPath))
             {
                 setError(lastError,
-                         QStringLiteral(
+                         QObject::tr(
                              "Failed to rename original to backup for '%1'")
-                             .arg(meta.targetPath));
+                             .arg(targetFile.targetPath));
 
                 rollbackRenames();
                 cancelAll(saveFiles);
                 return false;
             }
 
-            renamedMetas.push_back(&meta);
+            renamedFiles.push_back(&targetFile);
         }
 
         return true;
     }
 
-    bool commitTempFiles(QVector<Meta>& metas,
+    bool commitTempFiles(std::vector<TargetFile>& files,
                          std::vector<std::unique_ptr<QSaveFile>>& saveFiles,
                          QString& lastError)
     {
         bool ok = true;
 
-        assert(metas.size() == saveFiles.size());
+        assert(files.size() == saveFiles.size());
 
-        for (int i = 0; i < metas.size(); ++i)
+        for (int i = 0; i < files.size(); ++i)
         {
             auto& sf = saveFiles[i];
             if (!sf->commit())
             {
                 setError(lastError,
-                         QStringLiteral("QSaveFile commit failed for '%1'")
-                             .arg(metas[i].targetPath));
+                         QObject::tr("QSaveFile commit failed for '%1'")
+                             .arg(files[i].targetPath));
                 ok = false;
                 break;
             }
@@ -183,7 +183,7 @@ namespace
         if (!ok)
         {
             // Best-effort rollback: remove new files and restore backups.
-            for (auto& m : metas)
+            for (auto& m : files)
             {
                 if (QFile::exists(m.targetPath))
                 {
@@ -239,19 +239,19 @@ GtBatchSaver::commit()
 {
     m_lastError.clear();
 
-    if (m_ops.isEmpty())
+    if (m_ops.empty())
         return true;
 
-    QVector<Meta> metas;
+    std::vector<TargetFile> files;
     std::vector<std::unique_ptr<QSaveFile>> saveFiles;
 
-    if (!prepareSaveFiles(m_ops, metas, saveFiles, m_lastError))
+    if (!prepareSaveFiles(m_ops, files, saveFiles, m_lastError))
         return false;
 
-    if (!renameOriginalsToBackups(metas, saveFiles, m_lastError))
+    if (!renameOriginalsToBackups(files, saveFiles, m_lastError))
         return false;
 
-    return commitTempFiles(metas, saveFiles, m_lastError);
+    return commitTempFiles(files, saveFiles, m_lastError);
 }
 
 QString

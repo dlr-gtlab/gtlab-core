@@ -28,7 +28,7 @@ readXmlToDom(const QByteArray& data)
     int errorLine = 0, errorCol = 0;
 
     if (!doc.setContent(data, &errorMsg, &errorLine, &errorCol))
-        return QDomDocument();  // or std::move(doc), but this is fine
+        return QDomDocument();
 
     return doc;
 }

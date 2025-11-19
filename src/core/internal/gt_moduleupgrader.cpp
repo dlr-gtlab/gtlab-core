@@ -89,8 +89,7 @@ public:
 
                     // save file
                     const QFileInfo fi(modData);
-                    const QDir   baseDir = fi.dir().absolutePath();
-
+                    const QDir baseDir = fi.dir().absolutePath();
 
                     auto saveType = saveWithLinkedFiles ?
                                 gt::xml::LinkFileSaveType::WithLinkedFiles :
