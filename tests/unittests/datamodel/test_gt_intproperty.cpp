@@ -372,13 +372,13 @@ TEST_F(TestGtIntProperty, boundaries)
     EXPECT_TRUE(h.highSideBoundaryActive());
 
     // set valid value
-    l.setVal(hundred);
-    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+    h.setVal(hundred);
+    EXPECT_DOUBLE_EQ(h.getVal(), hundred);
 
     // set invalid value
-    l.setVal(fourH);
-    EXPECT_FALSE(l.getVal() == fourH);
-    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+    h.setVal(fourH);
+    EXPECT_FALSE(h.getVal() == fourH);
+    EXPECT_DOUBLE_EQ(h.getVal(), hundred);
 
     // high bound check
     GtIntProperty lh("propBoundsLowAndHigh", "test int",
@@ -386,21 +386,21 @@ TEST_F(TestGtIntProperty, boundaries)
                       gt::Boundaries<int>::makeNormalized(80, 200),
                       140);
 
-    EXPECT_TRUE(h.lowSideBoundaryActive());
-    EXPECT_TRUE(h.highSideBoundaryActive());
+    EXPECT_TRUE(lh.lowSideBoundaryActive());
+    EXPECT_TRUE(lh.highSideBoundaryActive());
 
     // set valid value
-    l.setVal(hundred);
-    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+    lh.setVal(hundred);
+    EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 
     // set invalid value
-    l.setVal(fourH);
-    EXPECT_FALSE(l.getVal() == fourH);
-    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+    lh.setVal(fourH);
+    EXPECT_FALSE(lh.getVal() == fourH);
+    EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 
     // set invalid value
-    l.setVal(40);
-    EXPECT_FALSE(l.getVal() == 40);
-    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+    lh.setVal(40);
+    EXPECT_FALSE(lh.getVal() == 40);
+    EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 }
 
