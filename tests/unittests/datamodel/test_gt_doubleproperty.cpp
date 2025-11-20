@@ -418,3 +418,60 @@ TEST_F(TestGtDoubleProperty, extendenOperators)
     prop /= div;
     ASSERT_DOUBLE_EQ(prop.get(), 3.3 / div);
 }
+
+TEST_F(TestGtDoubleProperty, boundaries)
+{
+    // low bound check
+    GtDoubleProperty l("propBoundsLow", "test double",
+                       "test brief",
+                       GtUnit::Category::Area,
+                       gt::Boundaries<double>::makeLower(200.43), 340.2);
+
+    double hundred = 100.1;
+    double fourH = 400.2;
+
+
+    // set valid value
+    l.setVal(fourH);
+    EXPECT_DOUBLE_EQ(l.getVal(), fourH);
+
+    // set invalid value
+    l.setVal(hundred);
+    EXPECT_FALSE(l.getVal() == hundred);
+    EXPECT_DOUBLE_EQ(l.getVal(), fourH);
+
+    // high bound check
+    GtDoubleProperty h("propBoundsHigh", "test double",
+                       "test brief",
+                       GtUnit::Category::Area,
+                       gt::Boundaries<double>::makeUpper(200.43), 140.2);
+    // set valid value
+    l.setVal(hundred);
+    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+
+    // set invalid value
+    l.setVal(fourH);
+    EXPECT_FALSE(l.getVal() == fourH);
+    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+
+    // high bound check
+    GtDoubleProperty lh("propBoundsLowAndHigh", "test double",
+                        "test brief",
+                        GtUnit::Category::Area,
+                        gt::Boundaries<double>::makeNormalized(80.3, 200.43),
+                        140.2);
+
+    // set valid value
+    l.setVal(hundred);
+    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+
+    // set invalid value
+    l.setVal(fourH);
+    EXPECT_FALSE(l.getVal() == fourH);
+    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+
+    // set invalid value
+    l.setVal(40.1);
+    EXPECT_FALSE(l.getVal() == 40.1);
+    EXPECT_DOUBLE_EQ(l.getVal(), hundred);
+}
