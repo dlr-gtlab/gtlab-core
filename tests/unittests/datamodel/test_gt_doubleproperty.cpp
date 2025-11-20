@@ -12,6 +12,7 @@
 #include "gtest/gtest.h"
 
 #include "gt_doubleproperty.h"
+#include "gt_logging.h"
 
 
 /// This is a test fixture that does a init for each test
@@ -432,6 +433,7 @@ TEST_F(TestGtDoubleProperty, boundaries)
 
     EXPECT_TRUE(l.lowSideBoundaryActive());
     EXPECT_FALSE(l.highSideBoundaryActive());
+    ASSERT_DOUBLE_EQ(l.getVal(), 340.2);
 
     // set valid value
     l.setVal(fourH);
@@ -450,6 +452,7 @@ TEST_F(TestGtDoubleProperty, boundaries)
 
     EXPECT_FALSE(h.lowSideBoundaryActive());
     EXPECT_TRUE(h.highSideBoundaryActive());
+    ASSERT_DOUBLE_EQ(h.getVal(), 140.2);
 
     // set valid value
     h.setVal(hundred);
@@ -469,6 +472,7 @@ TEST_F(TestGtDoubleProperty, boundaries)
 
     EXPECT_TRUE(lh.lowSideBoundaryActive());
     EXPECT_TRUE(lh.highSideBoundaryActive());
+    ASSERT_DOUBLE_EQ(lh.getVal(), 140.2);
 
     // set valid value
     lh.setVal(hundred);

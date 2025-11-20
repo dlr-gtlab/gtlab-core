@@ -353,6 +353,7 @@ TEST_F(TestGtIntProperty, boundaries)
 
     EXPECT_TRUE(l.lowSideBoundaryActive());
     EXPECT_FALSE(l.highSideBoundaryActive());
+    ASSERT_DOUBLE_EQ(l.getVal(), 340);
 
     // set valid value
     l.setVal(fourH);
@@ -370,6 +371,7 @@ TEST_F(TestGtIntProperty, boundaries)
 
     EXPECT_FALSE(h.lowSideBoundaryActive());
     EXPECT_TRUE(h.highSideBoundaryActive());
+    ASSERT_DOUBLE_EQ(h.getVal(), 140);
 
     // set valid value
     h.setVal(hundred);
@@ -388,6 +390,7 @@ TEST_F(TestGtIntProperty, boundaries)
 
     EXPECT_TRUE(lh.lowSideBoundaryActive());
     EXPECT_TRUE(lh.highSideBoundaryActive());
+    ASSERT_DOUBLE_EQ(lh.getVal(), 140);
 
     // set valid value
     lh.setVal(hundred);
