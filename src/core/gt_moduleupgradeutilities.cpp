@@ -13,6 +13,7 @@
 #include <QObject>
 
 #include <gt_logging.h>
+#include "gt_utilities.h"
 
 #include "gt_moduleupgradeutilities.h"
 
@@ -25,7 +26,8 @@ namespace {
 }
 
 
-QVector<QDomElement> gt::module_upgrade::findElementsByClass(
+QVector<QDomElement>
+gt::module_upgrade::findElementsByClass(
     const QDomNode& node,
     const QStringList& classNames,
     SearchMode searchMode)
@@ -54,7 +56,7 @@ gt::module_upgrade::findElementsByAttribute(
             results.append(rootElem);
 
             // Root matches & nested not allowed → done.
-            if (searchMode == SearchMode::DisallowNested)
+            if (searchMode == SearchMode::NonRecursive)
             {
                 return results;
             }
@@ -75,7 +77,7 @@ gt::module_upgrade::findElementsByAttribute(
                 {
                     results.append(elem);
 
-                    if (searchMode == SearchMode::DisallowNested)
+                    if (searchMode == SearchMode::NonRecursive)
                     {
                         continue;  // IMPORTANT: skip children
                     }
@@ -114,7 +116,7 @@ gt::module_upgrade::findParentByAttribute(
 }
 
 bool
-gt::module_upgrade::properties::setPropertyTypeAndValue(
+gt::module_upgrade::setPropertyTypeAndValue(
     QDomElement& propElement,
     const QString& newType,
     const QString& newValue)
@@ -147,8 +149,8 @@ gt::module_upgrade::properties::setPropertyTypeAndValue(
 }
 
 QDomElement
-gt::module_upgrade::properties::propNode(const QString& name,
-                                               const QDomElement& root)
+gt::module_upgrade::propertyElement(const QString& name,
+                                    const QDomElement& root)
 {
     QDomElement propElement = root.firstChildElement(PROP_STRING);
     while (!propElement.isNull())
@@ -165,20 +167,20 @@ gt::module_upgrade::properties::propNode(const QString& name,
 }
 
 bool
-gt::module_upgrade::properties::setPropertyTypeAndValue(
+gt::module_upgrade::setPropertyTypeAndValue(
     const QDomElement& root, const QString& name,
     const QString& newType, const QString& newValue)
 {
-    QDomElement prop = propNode(name, root);
+    QDomElement prop = propertyElement(name, root);
 
     return setPropertyTypeAndValue(prop, newType, newValue);
 }
 
 double
-gt::module_upgrade::properties::doubleValue(
+gt::module_upgrade::doubleValue(
     const QDomElement& parent, const QString& propName)
 {
-    QDomElement propElement = propNode(propName, parent);
+    QDomElement propElement = propertyElement(propName, parent);
 
     QString text = propElement.text();
 
@@ -195,8 +197,8 @@ gt::module_upgrade::properties::doubleValue(
     return val;
 }
 
-void
-gt::module_upgrade::properties::appendProperty(
+QDomElement
+gt::module_upgrade::addPropertyElement(
     QDomElement& parent, const QString& propertyName,
     const QString& propertyType, const QString& value)
 {
@@ -208,43 +210,38 @@ gt::module_upgrade::properties::appendProperty(
     propElement.setAttribute(TYPE_STRING, propertyType);
     propElement.appendChild(valElement);
     parent.appendChild(propElement);
+    return propElement;
 }
 
 void
-gt::module_upgrade::properties::appendDoubleProperty(
+gt::module_upgrade::addDoublePropertyElement(
     QDomElement& parent, const QString& propertyName, double val)
 {
-    appendProperty(parent, propertyName,
+    addPropertyElement(parent, propertyName,
                    QStringLiteral("double"), QString::number(val));
 }
 
 void
-gt::module_upgrade::properties::removeProperty(
+gt::module_upgrade::removeProperty(
     QDomElement& parent, const QString& propertyName)
 {
-    QDomElement propElement = propNode(propertyName, parent);
+    QDomElement propElement = propertyElement(propertyName, parent);
 
     if (!propElement.isNull())
         parent.removeChild(propElement);
 }
 
-QString
-gt::module_upgrade::createUuid()
-{
-    return QUuid::createUuid().toString();
-}
-
 void
-gt::module_upgrade::properties::renameProperty(
+gt::module_upgrade::renamePropertyElement(
     QDomElement const& parent, const QString& oldName, const QString& newName)
 {
-    QDomElement propElement = propNode(oldName, parent);
+    QDomElement propElement = propertyElement(oldName, parent);
     if (!propElement.isNull())
         propElement.setAttribute(NAME_STRING, newName);
 }
 
 QDomElement
-gt::module_upgrade::appendNewGtlabObject(
+gt::module_upgrade::addObjectElement(
     QDomElement& parent,
     const QString& className,
     const QString& objectName)
@@ -253,14 +250,14 @@ gt::module_upgrade::appendNewGtlabObject(
     QDomElement newObject = dom.createElement(OBJ_STRING);
     newObject.setAttribute(CLASS_STRING, className);
     newObject.setAttribute(NAME_STRING, objectName);
-    newObject.setAttribute(QStringLiteral("uuid"), createUuid());
+    newObject.setAttribute(QStringLiteral("uuid"), gt::createUuid());
     parent.appendChild(newObject);
 
     return newObject;
 }
 
 QDomElement
-gt::module_upgrade::addObjectList(QDomElement& parent)
+gt::module_upgrade::addObjectListElement(QDomElement& parent)
 {
     QDomDocument dom = parent.ownerDocument();
     QDomElement childrenListElement = dom.createElement(QStringLiteral("objectlist"));

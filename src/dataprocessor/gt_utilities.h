@@ -17,6 +17,8 @@
 #include <limits>
 #include <algorithm>
 
+#include <QUuid>
+
 namespace gt
 {
 
@@ -133,6 +135,16 @@ template<typename T>
 T const& clamp(T const& value, T const& low, T const& high)
 {
     return std::max(low, std::min(high, value));
+}
+
+
+/**
+ * @brief createUuid
+ * @return a new RFC4122-compliant uuid string (QUuid::createUuid().toString())
+ */
+QString createUuid()
+{
+    return QUuid::createUuid().toString();
 }
 
 /**

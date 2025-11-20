@@ -24,8 +24,8 @@ namespace module_upgrade {
  * that are themselves matches.
  */
 enum class SearchMode {
-    AllowNested,
-    DisallowNested
+    Recursive,   ///< Search the entire subtree and return all matching elements.
+    NonRecursive ///< Return only top-level matches; ignore matches inside other matches.
 };
 
 /**
@@ -40,14 +40,17 @@ enum class SearchMode {
  */
 GT_CORE_EXPORT QVector<QDomElement> findElementsByClass(
     const QDomNode& node, const QStringList& classNames,
-    SearchMode searchMode = SearchMode::AllowNested);
+    SearchMode searchMode = SearchMode::Recursive);
 
 /**
  * @brief findElementsByAttribute
  * Based on a root node the function searches all QDomElements which match
- * an attribute with one of the given entries of values list,
- * e.g. if "class"(attribute) in {"MyCalc", "MyTask"}(values) or
- * "type" in {"QString", "str"}"
+ * an attribute with one of the given entries of values list.
+ * Examples are:
+ * 1.) For the attribute "class" search for elements with the values {"MyCalc", "MyTask"}
+ *     to find specific objects
+ * 2.) For the attribute "type" search for elements with the values {"QString", "str"}
+ *     to find specific values/properties
  *
  * @param node - root element
  * @param attribute - attribute of node element to match
@@ -59,7 +62,7 @@ GT_CORE_EXPORT QVector<QDomElement> findElementsByClass(
 GT_CORE_EXPORT QVector<QDomElement> findElementsByAttribute(
     const QDomNode& node, const QString& attribute,
     const QStringList& values,
-    SearchMode searchMode = SearchMode::AllowNested);
+    SearchMode searchMode = SearchMode::Recursive);
 
 /**
  * @brief findParentByAttribute
@@ -76,24 +79,22 @@ GT_CORE_EXPORT QDomElement findParentByAttribute(const QDomElement& start,
                                                  const QString& attribute,
                                                  const QStringList& values);
 
-/**
- * @brief createUuid
- * @return a new RFC4122-compliant uuid string (QUuid::createUuid().toString())
- */
-GT_CORE_EXPORT QString createUuid();
+
 
 /**
- * @brief appendNewGtlabObject
- * This function appends a basic structure for a GtObject to a parent
- * as a given QDomElement
+ * @brief addObjectElement
+ * This function appends a basic structure for a object to a parent
+ * as a given QDomElement. The new object has the attributes
+ * "name" and "class" (from the arguments) and
+ * "uuid" (generated for the new object)
  * @param parent
  * @param className of the added element
  * @param objectName of the added element
  * @return the new element
  */
-GT_CORE_EXPORT QDomElement appendNewGtlabObject(QDomElement& parent,
-                                                const QString& className,
-                                                const QString& objectName);
+GT_CORE_EXPORT QDomElement addObjectElement(QDomElement& parent,
+                                            const QString& className,
+                                            const QString& objectName);
 
 /**
  * @brief addObjectList
@@ -102,7 +103,7 @@ GT_CORE_EXPORT QDomElement appendNewGtlabObject(QDomElement& parent,
  * @param parent to add the element to
  * @return the new element
  */
-GT_CORE_EXPORT QDomElement addObjectList(QDomElement& parent);
+GT_CORE_EXPORT QDomElement addObjectListElement(QDomElement& parent);
 
 /**
  * @brief normalizePropertyContainerId
@@ -118,89 +119,93 @@ GT_CORE_EXPORT void normalizePropertyContainerId(
     QDomElement& container, const QString& formerNameKey,
     QMap<QString, QString>& replaceMap);
 
-namespace properties {
+/**
+ * @brief setPropertyTypeAndValue
+ * @param propElement
+ * @param newType
+ * @param newValue
+ * @return false if domelement is invalid, else true
+ */
+GT_CORE_EXPORT bool setPropertyTypeAndValue(QDomElement& propElement,
+                                            const QString& newType,
+                                            const QString& newValue);
 
-    /**
-     * @brief setPropertyTypeAndValue
-     * @param propElement
-     * @param newType
-     * @param newValue
-     * @return false if domelement is invalid, else true
-     */
-    GT_CORE_EXPORT bool setPropertyTypeAndValue(QDomElement& propElement,
-                                                const QString& newType,
-                                                const QString& newValue);
+/**
+ * @brief setPropertyTypeAndValue
+ * @param root - root element to find the property as a sub element
+ * @param name - name of the property to change
+ * @param newType - new type to set for the property
+ * @param newValue - new value to set for the property
+ * @return true in case of success
+ */
+GT_CORE_EXPORT bool setPropertyTypeAndValue(const QDomElement& root,
+                                            const QString& name,
+                                            const QString& newType,
+                                            const QString& newValue);
 
-    /**
-     * @brief setPropertyTypeAndValue
-     * @param root - root element to find the property as a sub element
-     * @param name - name of the property to change
-     * @param newType - new type to set for the property
-     * @param newValue - new value to set for the property
-     * @return true in case of success
-     */
-    GT_CORE_EXPORT bool setPropertyTypeAndValue(const QDomElement& root,
-                                                const QString& name,
-                                                const QString& newType,
-                                                const QString& newValue);
+/**
+ * @brief propertyElement
+ * Find a property element as a sub element of the given root by the name
+ * of the property element
+ * @param name - name of the property elment to search
+ * @param root - root element to start search from
+ * @return element with given name if it exists, else empty element
+ */
+GT_CORE_EXPORT QDomElement propertyElement(const QString& name,
+                                           const QDomElement& root);
 
-    /**
-     * @brief propNode
-     * @param name
-     * @param root
-     * @return element with given name if it exists, else empty element
-     */
-    GT_CORE_EXPORT QDomElement propNode(const QString& name,
-                                        const QDomElement& root);
+/**
+ * @brief doubleValue
+ * Find a property element as a sub element of the given root by the name
+ * of the property element and return its double value
+ * @param parent - element which has the property as child
+ * @param propName - name of the property to evaluate
+ * @return value of the property - 0.0 if element is not found nor a number
+ */
+GT_CORE_EXPORT double doubleValue(QDomElement const& parent,
+                                  const QString& propName);
 
-    /**
-     * @brief doubleValue
-     * @param parent - element which has the property as child
-     * @param propName - name of the property to evaluate
-     * @return value of the property - 0.0 if element is not found nor a number
-     */
-    GT_CORE_EXPORT double doubleValue(QDomElement const& parent,
-                                      const QString& propName);
+/**
+ * @brief addPropertyElement
+ * Add a new generated property element to a given parent.
+ * @param parent to append the property to
+ * @param propertyName - name of the new property
+ * @param propertyType - type of the new property
+ * @param value - value of the new property
+ * @return the created element
+ */
+GT_CORE_EXPORT QDomElement addPropertyElement(
+    QDomElement& parent, const QString& propertyName,
+    const QString& propertyType, const QString& value);
 
-    /**
-     * @brief appendProperty
-     * @param parent to append the property to
-     * @param propertyName - name of the new property
-     * @param propertyType - type of the new property
-     * @param value - value of the new property
-     */
-    GT_CORE_EXPORT void appendProperty(
-        QDomElement& parent, const QString& propertyName,
-        const QString& propertyType, const QString& value);
+/**
+ * @brief addDoublePropertyElement
+ * Add a new generated property element of type double to a given parent.
+ * @param parent to append the property to
+ * @param propertyName - name of the new property
+ * @param val
+ */
+GT_CORE_EXPORT void addDoublePropertyElement(
+    QDomElement& parent, const QString& propertyName, double val);
 
-    /**
-     * @brief appendDoubleProperty
-     * @param parent to append the property to
-     * @param propertyName - name of the new property
-     * @param val
-     */
-    GT_CORE_EXPORT void appendDoubleProperty(
-        QDomElement& parent, const QString& propertyName, double val);
+/**
+ * @brief removeProperty
+ * Removes a child property element from a given parent element
+ * @param parent of the old property element to remove
+ * @param propertyName - name of the property to remove
+ */
+GT_CORE_EXPORT void removeProperty(QDomElement& parent,
+                                   const QString& propertyName);
 
-    /**
-     * @brief removeProperty
-     * @param parent of the old property element to remove
-     * @param propertyName - name of the property to remove
-     */
-    GT_CORE_EXPORT void removeProperty(QDomElement& parent,
-                                       const QString& propertyName);
-
-    /**
-     * @brief renameProperty - rename a property
-     * @param parent - parent object which has the GtProperty
-     * @param oldName - old name to replace
-     * @param newName - new name to use now
-     */
-    GT_CORE_EXPORT void renameProperty(
-        const QDomElement& parent, const QString& oldName,
-        const QString& newName);
-
-} // properties
+/**
+ * @brief renamePropertyElement - rename a property
+ * @param parent - parent object which has the GtProperty
+ * @param oldName - old name to replace
+ * @param newName - new name to use now
+ */
+GT_CORE_EXPORT void renamePropertyElement(
+    const QDomElement& parent, const QString& oldName,
+    const QString& newName);
 
 
 } // module_upgrade
