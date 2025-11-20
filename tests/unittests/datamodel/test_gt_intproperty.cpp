@@ -351,6 +351,9 @@ TEST_F(TestGtIntProperty, boundaries)
     double hundred = 100;
     double fourH = 400;
 
+    EXPECT_TRUE(l.lowSideBoundaryActive());
+    EXPECT_FALSE(l.highSideBoundaryActive());
+
     // set valid value
     l.setVal(fourH);
     EXPECT_DOUBLE_EQ(l.getVal(), fourH);
@@ -364,6 +367,10 @@ TEST_F(TestGtIntProperty, boundaries)
     GtIntProperty h("propBoundsHigh", "test int",
                     "test brief",
                     gt::Boundaries<int>::makeUpper(200), 140);
+
+    EXPECT_FALSE(h.lowSideBoundaryActive());
+    EXPECT_TRUE(h.highSideBoundaryActive());
+
     // set valid value
     l.setVal(hundred);
     EXPECT_DOUBLE_EQ(l.getVal(), hundred);
@@ -378,6 +385,9 @@ TEST_F(TestGtIntProperty, boundaries)
                       "test brief",
                       gt::Boundaries<int>::makeNormalized(80, 200),
                       140);
+
+    EXPECT_TRUE(h.lowSideBoundaryActive());
+    EXPECT_TRUE(h.highSideBoundaryActive());
 
     // set valid value
     l.setVal(hundred);

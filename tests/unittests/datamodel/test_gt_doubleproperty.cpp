@@ -430,6 +430,8 @@ TEST_F(TestGtDoubleProperty, boundaries)
     double hundred = 100.1;
     double fourH = 400.2;
 
+    EXPECT_TRUE(l.lowSideBoundaryActive());
+    EXPECT_FALSE(l.highSideBoundaryActive());
 
     // set valid value
     l.setVal(fourH);
@@ -445,6 +447,10 @@ TEST_F(TestGtDoubleProperty, boundaries)
                        "test brief",
                        GtUnit::Category::Area,
                        gt::Boundaries<double>::makeUpper(200.43), 140.2);
+
+    EXPECT_FALSE(h.lowSideBoundaryActive());
+    EXPECT_TRUE(h.highSideBoundaryActive());
+
     // set valid value
     l.setVal(hundred);
     EXPECT_DOUBLE_EQ(l.getVal(), hundred);
@@ -460,6 +466,9 @@ TEST_F(TestGtDoubleProperty, boundaries)
                         GtUnit::Category::Area,
                         gt::Boundaries<double>::makeNormalized(80.3, 200.43),
                         140.2);
+
+    EXPECT_TRUE(h.lowSideBoundaryActive());
+    EXPECT_TRUE(h.highSideBoundaryActive());
 
     // set valid value
     l.setVal(hundred);
