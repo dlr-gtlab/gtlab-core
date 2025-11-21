@@ -138,7 +138,7 @@ GtDoubleProperty::GtDoubleProperty(const QString& ident, const QString& name,
 
     if (bounds.low())
     {
-        m_boundLo = bounds.high().value();
+        m_boundLo = bounds.low().value();
     }
 
     bool success = false;
