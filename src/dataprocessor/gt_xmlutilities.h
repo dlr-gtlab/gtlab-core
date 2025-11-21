@@ -82,7 +82,7 @@ QList<QDomElement> GT_DATAMODEL_EXPORT findObjectElementsByClassName(
 QList<QDomElement> GT_DATAMODEL_EXPORT propertyElements(
     const QDomElement& root);
 
-QDomElement  findPropertyElement(const QDomElement& root,
+QDomElement GT_DATAMODEL_EXPORT findPropertyElement(const QDomElement& root,
                                                     const QString& propId);
 
 
@@ -183,8 +183,9 @@ inline QDomElement createStringPropertyElement(QDomDocument& doc,
  * Removes a child property element from a given parent element
  * @param parent of the old property element to remove
  * @param propertyName - name of the property to remove
+ * @return success indicator
  */
-void GT_DATAMODEL_EXPORT removePropertyElement(QDomElement& parent,
+bool GT_DATAMODEL_EXPORT removePropertyElement(QDomElement& parent,
                                                const QString& propertyName);
 
 /**
@@ -192,8 +193,9 @@ void GT_DATAMODEL_EXPORT removePropertyElement(QDomElement& parent,
  * @param parent - parent object which has the GtProperty
  * @param oldName - old name to replace
  * @param newName - new name to use now
+ * @return success indicator
  */
-void GT_DATAMODEL_EXPORT renamePropertyElement(
+bool GT_DATAMODEL_EXPORT renamePropertyElement(
     const QDomElement& parent, const QString& oldName,
     const QString& newName);
 

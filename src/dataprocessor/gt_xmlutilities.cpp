@@ -302,22 +302,29 @@ gt::xml::addObjectListElement(QDomElement& parent)
     return childrenListElement;
 }
 
-void
+bool
 gt::xml::removePropertyElement(QDomElement& parent, const QString& propertyName)
 {
     QDomElement propElement = xml::findPropertyElement(parent, propertyName);
 
-    if (!propElement.isNull())
-        parent.removeChild(propElement);
+    if (propElement.isNull()) return false;
+
+    parent.removeChild(propElement);
+
+    return true;
 }
 
-void
+bool
 gt::xml::renamePropertyElement(const QDomElement& parent,
                                const QString& oldName, const QString& newName)
 {
     QDomElement propElement = xml::findPropertyElement(parent, oldName);
-    if (!propElement.isNull())
-        propElement.setAttribute(xml::S_NAME_TAG, newName);
+
+    if (propElement.isNull()) return false;
+
+    propElement.setAttribute(xml::S_NAME_TAG, newName);
+
+    return true;
 }
 
 tl::optional<double>
