@@ -11,8 +11,10 @@
 #include <gtest/gtest.h>
 #include <QDomDocument>
 #include <QStringList>
+#include <QDebug>
 #include "gt_moduleupgradeutilities.h"
-#include "gt_logging.h"
+#include "gt_xmlutilities.h"
+
 
 using namespace gt::module_upgrade;
 
@@ -39,8 +41,8 @@ protected:
         root.appendChild(obj2);
 
         // Property unter obj1
-        addPropertyElement(obj1, "propA", "int", "42");
-        addPropertyElement(obj1, "propB", "double", "3.14");
+        gt::xml::addNewPropertyElement(obj1, "propA", "int", "42");
+        gt::xml::addNewPropertyElement(obj1, "propB", "double", "3.14");
     }
 
     bool domElementsEqual(const QDomElement& a, const QDomElement& b) const
@@ -135,8 +137,9 @@ TEST_F(ModuleUpgradeUtilsTest, FindElementsByAttribute)
 // Test: findParentByAttribute
 TEST_F(ModuleUpgradeUtilsTest, FindParentByAttribute)
 {
-    auto propA = propertyElement("propA", root.firstChildElement("object"));
-    auto parent = findParentByAttribute(propA, "class", {"MyCalc"});
+    auto propA = gt::xml::findPropertyElement(root.firstChildElement("object"),
+                                              "propA");
+    auto parent = gt::xml::findParentByAttribute(propA, "class", {"MyCalc"});
     ASSERT_FALSE(parent.isNull());
     EXPECT_EQ(parent.attribute("name"), "Obj1");
 }
@@ -144,7 +147,8 @@ TEST_F(ModuleUpgradeUtilsTest, FindParentByAttribute)
 // Test: properties::updateTypeAndValue
 TEST_F(ModuleUpgradeUtilsTest, UpdateTypeAndValue)
 {
-    auto propA = propertyElement("propA", root.firstChildElement("object"));
+    auto propA = gt::xml::findPropertyElement(root.firstChildElement("object"),
+                                              "propA");
     bool ok = setPropertyTypeAndValue(propA, "double", "99.9");
     ASSERT_TRUE(ok);
     EXPECT_EQ(propA.attribute("type"), "double");
@@ -155,14 +159,14 @@ TEST_F(ModuleUpgradeUtilsTest, UpdateTypeAndValue)
 TEST_F(ModuleUpgradeUtilsTest, DoubleValue)
 {
     auto obj1 = root.firstChildElement("object");
-    double val = doubleValue(obj1, "propB");
+    double val = *gt::xml::getDoublePropetyElementValue(obj1, "propB");
     EXPECT_DOUBLE_EQ(val, 3.14);
 }
 
 // Test: appendNewGtlabObject
 TEST_F(ModuleUpgradeUtilsTest, AppendNewGtlabObject)
 {
-    auto newObj = gt::module_upgrade::addObjectElement(root, "MyCalc", "NewObj");
+    auto newObj = gt::xml::addObjectElement(root, "MyCalc", "NewObj");
     ASSERT_FALSE(newObj.isNull());
     EXPECT_EQ(newObj.attribute("class"), "MyCalc");
     EXPECT_EQ(newObj.attribute("name"), "NewObj");
@@ -172,7 +176,7 @@ TEST_F(ModuleUpgradeUtilsTest, AppendNewGtlabObject)
 // Test: addObjectList
 TEST_F(ModuleUpgradeUtilsTest, AddObjectList)
 {
-    auto listElem = gt::module_upgrade::addObjectListElement(root);
+    auto listElem = gt::xml::addObjectListElement(root);
     ASSERT_FALSE(listElem.isNull());
     EXPECT_EQ(listElem.tagName(), "objectlist");
 }

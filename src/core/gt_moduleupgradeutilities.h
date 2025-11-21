@@ -29,6 +29,25 @@ enum class SearchMode {
 };
 
 /**
+ * @brief normalizePropertyContainerId
+ * For renaming in property containers:
+ * Properties in a container with a given $formerNameKey are removed and their
+ * value is used to replace the ident of the property container entry
+ * @param container - a QDomElement to describe a property conainter
+ * @param formerNameKey - this is the attribute name to describe the name of
+ * the container entry.
+ * Often these are values like "name", "ParamName", "ResultName",...
+ * This will be the attribute the function will look for to find the name value
+ * to set as element id.
+ * @param replaceMap - a map to collect the mapping of the former uuid based
+ * identification and the new name (for later usage)
+ */
+GT_CORE_EXPORT void normalizePropertyContainerId(
+    QDomElement& container, const QString& formerNameKey,
+    QMap<QString, QString>& replaceMap);
+
+
+/**
  * @brief findElementsByClass
  * Collects the sub elements of a given root element which have a value
  * for "class" which matches an entry in the given "classNames" list
@@ -64,66 +83,15 @@ GT_CORE_EXPORT QVector<QDomElement> findElementsByAttribute(
     const QStringList& values,
     SearchMode searchMode = SearchMode::Recursive);
 
-/**
- * @brief findParentByAttribute
- * Searches in the hierarchy of QDomElements upwards to find a parent
- * which has an attribute which matches its value to one
- * of a given list of values
- * @param start dom element to search a parent element for
- * @param attribute of the parent which is meant to be checked
- * @param values - value list of accepted values for the match
- * @return the dom element which fullfills the match check
- * Returns null element if not found
- */
-GT_CORE_EXPORT QDomElement findParentByAttribute(const QDomElement& start,
-                                                 const QString& attribute,
-                                                 const QStringList& values);
 
-
-
-/**
- * @brief addObjectElement
- * This function appends a basic structure for a object to a parent
- * as a given QDomElement. The new object has the attributes
- * "name" and "class" (from the arguments) and
- * "uuid" (generated for the new object)
- * @param parent
- * @param className of the added element
- * @param objectName of the added element
- * @return the new element
- */
-GT_CORE_EXPORT QDomElement addObjectElement(QDomElement& parent,
-                                            const QString& className,
-                                            const QString& objectName);
-
-/**
- * @brief addObjectList
- * In cases of multiple child elements the xml structure uses a list container
- * object as a mid layer. Such an object can be added with this function *
- * @param parent to add the element to
- * @return the new element
- */
-GT_CORE_EXPORT QDomElement addObjectListElement(QDomElement& parent);
-
-/**
- * @brief normalizePropertyContainerId
- * For renaming in property containers:
- * Properties in a container with a given $formerNameKey are removed and their
- * value is used to replace the ident of the property container entry
- * @param container
- * @param formerNameKey
- * @param replaceMap - a map to collect the mapping of the former uuid based
- * identification and the new name (for later usage)
- */
-GT_CORE_EXPORT void normalizePropertyContainerId(
-    QDomElement& container, const QString& formerNameKey,
-    QMap<QString, QString>& replaceMap);
 
 /**
  * @brief setPropertyTypeAndValue
- * @param propElement
- * @param newType
- * @param newValue
+ * A propety element given as QDomElement will be changed: Its values for the
+ * attributes type and value will be set to the new values given by the function
+ * @param propElement - property element
+ * @param newType - new type to set for the property
+ * @param newValue - new value to set for the property
  * @return false if domelement is invalid, else true
  */
 GT_CORE_EXPORT bool setPropertyTypeAndValue(QDomElement& propElement,
@@ -132,6 +100,10 @@ GT_CORE_EXPORT bool setPropertyTypeAndValue(QDomElement& propElement,
 
 /**
  * @brief setPropertyTypeAndValue
+ * A propety element given as QDomElement will be changed: Its values for the
+ * attributes type and value will be set to the new values given by the function.
+ * The property element is not given as an argument but will be found
+ * as a child of the given root with the given name
  * @param root - root element to find the property as a sub element
  * @param name - name of the property to change
  * @param newType - new type to set for the property
@@ -142,71 +114,6 @@ GT_CORE_EXPORT bool setPropertyTypeAndValue(const QDomElement& root,
                                             const QString& name,
                                             const QString& newType,
                                             const QString& newValue);
-
-/**
- * @brief propertyElement
- * Find a property element as a sub element of the given root by the name
- * of the property element
- * @param name - name of the property elment to search
- * @param root - root element to start search from
- * @return element with given name if it exists, else empty element
- */
-GT_CORE_EXPORT QDomElement propertyElement(const QString& name,
-                                           const QDomElement& root);
-
-/**
- * @brief doubleValue
- * Find a property element as a sub element of the given root by the name
- * of the property element and return its double value
- * @param parent - element which has the property as child
- * @param propName - name of the property to evaluate
- * @return value of the property - 0.0 if element is not found nor a number
- */
-GT_CORE_EXPORT double doubleValue(QDomElement const& parent,
-                                  const QString& propName);
-
-/**
- * @brief addPropertyElement
- * Add a new generated property element to a given parent.
- * @param parent to append the property to
- * @param propertyName - name of the new property
- * @param propertyType - type of the new property
- * @param value - value of the new property
- * @return the created element
- */
-GT_CORE_EXPORT QDomElement addPropertyElement(
-    QDomElement& parent, const QString& propertyName,
-    const QString& propertyType, const QString& value);
-
-/**
- * @brief addDoublePropertyElement
- * Add a new generated property element of type double to a given parent.
- * @param parent to append the property to
- * @param propertyName - name of the new property
- * @param val
- */
-GT_CORE_EXPORT void addDoublePropertyElement(
-    QDomElement& parent, const QString& propertyName, double val);
-
-/**
- * @brief removeProperty
- * Removes a child property element from a given parent element
- * @param parent of the old property element to remove
- * @param propertyName - name of the property to remove
- */
-GT_CORE_EXPORT void removeProperty(QDomElement& parent,
-                                   const QString& propertyName);
-
-/**
- * @brief renamePropertyElement - rename a property
- * @param parent - parent object which has the GtProperty
- * @param oldName - old name to replace
- * @param newName - new name to use now
- */
-GT_CORE_EXPORT void renamePropertyElement(
-    const QDomElement& parent, const QString& oldName,
-    const QString& newName);
-
 
 } // module_upgrade
 } // gt

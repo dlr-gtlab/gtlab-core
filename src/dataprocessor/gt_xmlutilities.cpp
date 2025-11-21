@@ -14,6 +14,7 @@
 #include <QTextStream>
 #include <QFile>
 #include <QRegularExpression>
+#include <QUuid>
 
 #include "gt_xmlutilities.h"
 #include "gt_xmlexpr.h"
@@ -170,8 +171,8 @@ gt::xml::createPropertyElement(QDomDocument &doc, const QString &propertyId,
                             const QString &propertyType, const QString &value)
 {
     auto prop = doc.createElement(gt::xml::S_PROPERTY_TAG);
-    prop.setAttribute("name", propertyId);
-    prop.setAttribute("type", propertyType);
+    prop.setAttribute(xml::S_NAME_TAG, propertyId);
+    prop.setAttribute(xml::S_TYPE_TAG, propertyType);
 
     if (!value.isEmpty())
     {
@@ -179,6 +180,17 @@ gt::xml::createPropertyElement(QDomDocument &doc, const QString &propertyId,
     }
 
     return prop;
+}
+
+QDomElement
+gt::xml::addNewPropertyElement(QDomElement& parent, const QString& propertyId,
+                               const QString& propertyType, const QString &value)
+{
+    QDomDocument doc = parent.ownerDocument();
+    QDomElement propElement = createPropertyElement(doc, propertyId,
+                                                    propertyType, value);
+    parent.appendChild(propElement);
+    return propElement;
 }
 
 QList<QDomElement> gt::xml::propertyElements(const QDomElement& root)
@@ -241,4 +253,93 @@ gt::xml::readDomDocumentFromFile(QFile& file,
     file.close();
 
     return doc.setContent(content, true, errorMsg, errorLine, errorColumn);
+}
+
+QDomElement
+gt::xml::findParentByAttribute(const QDomElement& start,
+                               const QString& attribute,
+                               const QStringList& values)
+{
+    QDomNode p = start.parentNode();
+
+    while (!p.isNull())
+    {
+        QDomElement parent = p.toElement();
+        if (!parent.isNull())
+        {
+            const QString v = parent.attribute(attribute);
+            if (values.contains(v))
+                return parent;
+        }
+
+        p = p.parentNode();
+    }
+
+    return {};
+}
+
+QDomElement
+gt::xml::addObjectElement(QDomElement& parent, const QString& className,
+                          const QString& objectName)
+{
+    QDomDocument dom = parent.ownerDocument();
+    QDomElement newObject = dom.createElement(xml::S_OBJECT_TAG);
+    newObject.setAttribute(xml::S_CLASS_TAG, className);
+    newObject.setAttribute(xml::S_NAME_TAG, objectName);
+    newObject.setAttribute(xml::S_UUID_TAG, QUuid::createUuid().toString());
+    parent.appendChild(newObject);
+
+    return newObject;
+}
+
+QDomElement
+gt::xml::addObjectListElement(QDomElement& parent)
+{
+    QDomDocument dom = parent.ownerDocument();
+    QDomElement childrenListElement = dom.createElement(xml::S_OBJECTLIST_TAG);
+    parent.appendChild(childrenListElement);
+
+    return childrenListElement;
+}
+
+void
+gt::xml::removePropertyElement(QDomElement& parent, const QString& propertyName)
+{
+    QDomElement propElement = xml::findPropertyElement(parent, propertyName);
+
+    if (!propElement.isNull())
+        parent.removeChild(propElement);
+}
+
+void
+gt::xml::renamePropertyElement(const QDomElement& parent,
+                               const QString& oldName, const QString& newName)
+{
+    QDomElement propElement = xml::findPropertyElement(parent, oldName);
+    if (!propElement.isNull())
+        propElement.setAttribute(xml::S_NAME_TAG, newName);
+}
+
+tl::optional<double>
+gt::xml::getDoublePropetyElementValue(const QDomElement& parent,
+                                      const QString& propName)
+{
+    QDomElement propElement = xml::findPropertyElement(parent, propName);
+
+    if (propElement.isNull()) return tl::nullopt;
+
+    QString text = propElement.text();
+
+    bool ok = false;
+    double val = text.toDouble(&ok);
+
+    if (text.isEmpty() || !ok)
+    {
+        gtWarningId("Module-Upgrader") <<
+            QObject::tr("Cannot read value from an empty text "
+                        "for property %1").arg(propName);
+        return tl::nullopt;
+    }
+
+    return val;
 }

@@ -137,16 +137,6 @@ T const& clamp(T const& value, T const& low, T const& high)
     return std::max(low, std::min(high, value));
 }
 
-
-/**
- * @brief createUuid
- * @return a new RFC4122-compliant uuid string (QUuid::createUuid().toString())
- */
-QString createUuid()
-{
-    return QUuid::createUuid().toString();
-}
-
 /**
  * @brief The DynamicRange class. Implements a simple way to iterator from a
  * a starting number to an end number using iterators and without the need to

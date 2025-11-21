@@ -13,18 +13,65 @@
 #include <QObject>
 
 #include <gt_logging.h>
-#include "gt_utilities.h"
+#include "gt_xmlutilities.h"
+#include "gt_xmlexpr.h"
 
 #include "gt_moduleupgradeutilities.h"
 
-namespace {
-    constexpr auto CLASS_STRING = "class";
-    constexpr auto PROP_STRING = "property";
-    constexpr auto OBJ_STRING = "object";
-    constexpr auto NAME_STRING = "name";
-    constexpr auto TYPE_STRING = "type";
-}
+void
+gt::module_upgrade::normalizePropertyContainerId(
+    QDomElement& container, const QString& formerNameKey,
+    QMap<QString, QString>& replaceMap)
+{
+    QDomNode child = container.firstChild();
 
+    while (!child.isNull())
+    {
+        if (child.isElement())
+        {
+            QDomElement prop = child.toElement();
+
+            if (prop.tagName() == xml::S_PROPERTY_TAG)
+            {
+                QString oldUUID = prop.attribute(xml::S_NAME_TAG);
+
+                // Search for sub element <property name="$$formerNameKey$$">NewName</property>
+                QDomElement nameElem;
+                QDomNode sub = prop.firstChild();
+
+                while (!sub.isNull())
+                {
+                    if (sub.isElement())
+                    {
+                        QDomElement e = sub.toElement();
+                        if (e.attribute(xml::S_NAME_TAG) == formerNameKey)
+                        {
+                            nameElem = e;
+                            break;
+                        }
+                    }
+                    sub = sub.nextSibling();
+                }
+
+                if (!nameElem.isNull())
+                {
+                    QString newName = nameElem.text().trimmed();
+
+                    // keep connection info
+                    replaceMap.insert(oldUUID, newName);
+
+                    // Replace UUID in name attribute
+                    prop.setAttribute(xml::S_NAME_TAG, newName);
+
+                    // Remove subelement
+                    prop.removeChild(nameElem);
+                }
+            }
+        }
+
+        child = child.nextSibling();
+    }
+}
 
 QVector<QDomElement>
 gt::module_upgrade::findElementsByClass(
@@ -32,7 +79,7 @@ gt::module_upgrade::findElementsByClass(
     const QStringList& classNames,
     SearchMode searchMode)
 {
-    return findElementsByAttribute(node, CLASS_STRING,
+    return findElementsByAttribute(node, xml::S_CLASS_TAG,
                                    classNames, searchMode);
 }
 
@@ -92,29 +139,6 @@ gt::module_upgrade::findElementsByAttribute(
     return results;
 }
 
-QDomElement
-gt::module_upgrade::findParentByAttribute(
-    const QDomElement& start, const QString& attribute,
-    const QStringList& values)
-{
-    QDomNode p = start.parentNode();
-
-    while (!p.isNull())
-    {
-        QDomElement parent = p.toElement();
-        if (!parent.isNull())
-        {
-            const QString v = parent.attribute(attribute);
-            if (values.contains(v))
-                return parent;
-        }
-
-        p = p.parentNode();
-    }
-
-    return {};
-}
-
 bool
 gt::module_upgrade::setPropertyTypeAndValue(
     QDomElement& propElement,
@@ -123,7 +147,7 @@ gt::module_upgrade::setPropertyTypeAndValue(
 {
     if (propElement.isNull()) return false;
 
-    propElement.setAttribute(TYPE_STRING, newType);
+    propElement.setAttribute(xml::S_TYPE_TAG, newType);
     QDomNode n = propElement.firstChild();
     if (!n.isNull() && !n.isText())
     {
@@ -148,175 +172,33 @@ gt::module_upgrade::setPropertyTypeAndValue(
     return true;
 }
 
-QDomElement
-gt::module_upgrade::propertyElement(const QString& name,
-                                    const QDomElement& root)
-{
-    QDomElement propElement = root.firstChildElement(PROP_STRING);
-    while (!propElement.isNull())
-    {
-        if (propElement.attribute(NAME_STRING) == name)
-        {
-            return propElement;
-        }
-
-        propElement = propElement.nextSiblingElement(PROP_STRING);
-    }
-
-    return {};
-}
-
 bool
 gt::module_upgrade::setPropertyTypeAndValue(
     const QDomElement& root, const QString& name,
     const QString& newType, const QString& newValue)
 {
-    QDomElement prop = propertyElement(name, root);
+    QDomElement prop = xml::findPropertyElement(root, name);
 
     return setPropertyTypeAndValue(prop, newType, newValue);
 }
 
-double
-gt::module_upgrade::doubleValue(
-    const QDomElement& parent, const QString& propName)
-{
-    QDomElement propElement = propertyElement(propName, parent);
+// double
+// gt::module_upgrade::doubleValue(
+//     const QDomElement& parent, const QString& propName)
+// {
+//     QDomElement propElement = xml::findPropertyElement(parent, propName);
 
-    QString text = propElement.text();
+//     QString text = propElement.text();
 
-    bool ok = false;
-    double val = text.toDouble(&ok); // returns 0.0 for empty text
+//     bool ok = false;
+//     double val = text.toDouble(&ok);
 
-    if (text.isEmpty() || !ok)
-    {
-        gtWarningId("Module-Upgrader")
-            << QObject::tr("Cannot read value from an empty text for property %1").arg(propName);
-        return 0.0;
-    }
+//     if (text.isEmpty() || !ok)
+//     {
+//         gtWarningId("Module-Upgrader")
+//             << QObject::tr("Cannot read value from an empty text for property %1").arg(propName);
+//         return 0.0;
+//     }
 
-    return val;
-}
-
-QDomElement
-gt::module_upgrade::addPropertyElement(
-    QDomElement& parent, const QString& propertyName,
-    const QString& propertyType, const QString& value)
-{
-    QDomDocument doc = parent.ownerDocument();
-    QDomElement propElement = doc.createElement(PROP_STRING);
-    QDomText valElement = doc.createTextNode(value);
-
-    propElement.setAttribute(NAME_STRING, propertyName);
-    propElement.setAttribute(TYPE_STRING, propertyType);
-    propElement.appendChild(valElement);
-    parent.appendChild(propElement);
-    return propElement;
-}
-
-void
-gt::module_upgrade::addDoublePropertyElement(
-    QDomElement& parent, const QString& propertyName, double val)
-{
-    addPropertyElement(parent, propertyName,
-                   QStringLiteral("double"), QString::number(val));
-}
-
-void
-gt::module_upgrade::removeProperty(
-    QDomElement& parent, const QString& propertyName)
-{
-    QDomElement propElement = propertyElement(propertyName, parent);
-
-    if (!propElement.isNull())
-        parent.removeChild(propElement);
-}
-
-void
-gt::module_upgrade::renamePropertyElement(
-    QDomElement const& parent, const QString& oldName, const QString& newName)
-{
-    QDomElement propElement = propertyElement(oldName, parent);
-    if (!propElement.isNull())
-        propElement.setAttribute(NAME_STRING, newName);
-}
-
-QDomElement
-gt::module_upgrade::addObjectElement(
-    QDomElement& parent,
-    const QString& className,
-    const QString& objectName)
-{
-    QDomDocument dom = parent.ownerDocument();
-    QDomElement newObject = dom.createElement(OBJ_STRING);
-    newObject.setAttribute(CLASS_STRING, className);
-    newObject.setAttribute(NAME_STRING, objectName);
-    newObject.setAttribute(QStringLiteral("uuid"), gt::createUuid());
-    parent.appendChild(newObject);
-
-    return newObject;
-}
-
-QDomElement
-gt::module_upgrade::addObjectListElement(QDomElement& parent)
-{
-    QDomDocument dom = parent.ownerDocument();
-    QDomElement childrenListElement = dom.createElement(QStringLiteral("objectlist"));
-    parent.appendChild(childrenListElement);
-
-    return childrenListElement;
-}
-
-void
-gt::module_upgrade::normalizePropertyContainerId(
-    QDomElement& container, const QString& formerNameKey,
-    QMap<QString, QString>& replaceMap)
-{
-    QDomNode child = container.firstChild();
-
-    while (!child.isNull())
-    {
-        if (child.isElement())
-        {
-            QDomElement prop = child.toElement();
-
-            if (prop.tagName() == PROP_STRING)
-            {
-                QString oldUUID = prop.attribute(NAME_STRING);
-
-                // Search for sub element <property name="$$formerNameKey$$">NewName</property>
-                QDomElement nameElem;
-                QDomNode sub = prop.firstChild();
-
-                while (!sub.isNull())
-                {
-                    if (sub.isElement())
-                    {
-                        QDomElement e = sub.toElement();
-                        if (e.attribute(NAME_STRING) == formerNameKey)
-                        {
-                            nameElem = e;
-                            break;
-                        }
-                    }
-                    sub = sub.nextSibling();
-                }
-
-                if (!nameElem.isNull())
-                {
-                    QString newName = nameElem.text().trimmed();
-
-                    // keep connection info
-                    replaceMap.insert(oldUUID, newName);
-
-                    // Replace UUID in name attribute
-                    prop.setAttribute(NAME_STRING, newName);
-
-                    // Remove subelement
-                    prop.removeChild(nameElem);
-                }
-            }
-        }
-
-        child = child.nextSibling();
-    }
-}
+//     return val;
+// }
