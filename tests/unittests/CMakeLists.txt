@@ -63,6 +63,7 @@ target_link_libraries(GTlabUnitTest PRIVATE
     GTlab::Gui
     GTlab::DataProcessor
     gtest
+    gmock
     mpark::variant
     tl::optional
 )
