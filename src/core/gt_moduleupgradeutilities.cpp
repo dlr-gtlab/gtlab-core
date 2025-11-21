@@ -72,27 +72,34 @@ gt::module_upgrade::setPropertyTypeAndValue(
 {
     if (propElement.isNull()) return false;
 
-    propElement.setAttribute(xml::S_TYPE_TAG, newType);
+    size_t propChildCount = propElement.childNodes().size();
+
+    if (propChildCount > 1)
+    {
+        return false;
+    }
+
     QDomNode n = propElement.firstChild();
-    if (!n.isNull() && !n.isText())
-    {
-        // Create new text node after removing old children
-        while (propElement.hasChildNodes())
-        {
-            propElement.removeChild(propElement.firstChild());
-        }
-        QDomText t = propElement.ownerDocument().createTextNode(newValue);
-        propElement.appendChild(t);
-    }
-    else if (n.isNull())
-    {
-        QDomText t = propElement.ownerDocument().createTextNode(newValue);
-        propElement.appendChild(t);
-    }
-    else
+
+    // n is the only child and it is a text element
+    if (!n.isNull() && n.isText())
     {
         n.setNodeValue(newValue);
     }
+    // n is the only child but no text element
+    // abort as undefined how to update the value
+    else if (!n.isNull())
+    {
+        return false;
+    }
+    // n is null
+    else
+    {
+        QDomText t = propElement.ownerDocument().createTextNode(newValue);
+        propElement.appendChild(t);
+    }
+
+    propElement.setAttribute(xml::S_TYPE_TAG, newType);
 
     return true;
 }

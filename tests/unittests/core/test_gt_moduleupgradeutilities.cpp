@@ -19,8 +19,6 @@
 
 namespace {
 
-
-
 QString normalizeWhitespace(const QString& s)
 {
     QString out = s.simplified();
@@ -43,7 +41,8 @@ bool DomElementsEqualDetailedWSI(const QDomElement& a,
     QString currentPath = path.isEmpty() ? a.tagName() : path + "/" + a.tagName();
 
     // Tag compare
-    if (a.tagName() != b.tagName()) {
+    if (a.tagName() != b.tagName())
+    {
         *diff = QString("Different tag at %1: '%2' vs '%3'")
         .arg(currentPath, a.tagName(), b.tagName());
         return false;
@@ -53,16 +52,19 @@ bool DomElementsEqualDetailedWSI(const QDomElement& a,
     QDomNamedNodeMap attrsA = a.attributes();
     QDomNamedNodeMap attrsB = b.attributes();
 
-    if (attrsA.count() != attrsB.count()) {
+    if (attrsA.count() != attrsB.count())
+    {
         *diff = QString("Different number of attributes at %1").arg(currentPath);
         return false;
     }
 
-    for (int i = 0; i < attrsA.count(); ++i) {
+    for (int i = 0; i < attrsA.count(); ++i)
+    {
         auto attrA = attrsA.item(i).toAttr();
         auto attrB = const_cast<QDomElement*>(&b)->attributeNode(attrA.name());
 
-        if (attrA.value() != attrB.value()) {
+        if (attrA.value() != attrB.value())
+        {
             *diff = QString("Different attribute '%1' at %2: '%3' vs '%4'")
             .arg(attrA.name(), currentPath, attrA.value(), attrB.value());
             return false;
@@ -73,15 +75,18 @@ bool DomElementsEqualDetailedWSI(const QDomElement& a,
     QString textA = normalizeWhitespace(a.text());
     QString textB = normalizeWhitespace(b.text());
 
-    if (textA != textB) {
+    if (textA != textB)
+    {
         *diff = QString("Different text at %1: '%2' vs '%3'")
         .arg(currentPath, textA, textB);
         return false;
     }
 
     // Child compare (ignore whitespace-only Childnodes)
-    auto nextRelevantChild = [](QDomNode n) {
-        while (!n.isNull()) {
+    auto nextRelevantChild = [](QDomNode n)
+    {
+        while (!n.isNull())
+        {
             if (n.isElement()) return n;
             if (n.isText() && !n.nodeValue().trimmed().isEmpty()) return n;
             n = n.nextSibling();
@@ -92,24 +97,29 @@ bool DomElementsEqualDetailedWSI(const QDomElement& a,
     QDomNode childA = nextRelevantChild(a.firstChild());
     QDomNode childB = nextRelevantChild(b.firstChild());
 
-    while (!childA.isNull() && !childB.isNull()) {
+    while (!childA.isNull() && !childB.isNull())
+    {
 
-        if (childA.nodeType() != childB.nodeType()) {
+        if (childA.nodeType() != childB.nodeType())
+        {
             *diff = QString("Different node type at %1").arg(currentPath);
             return false;
         }
 
-        if (childA.isElement()) {
+        if (childA.isElement())
+        {
             if (!DomElementsEqualDetailedWSI(childA.toElement(),
                                              childB.toElement(),
                                              diff,
                                              currentPath))
                 return false;
         }
-        else if (childA.isText()) {
+        else if (childA.isText())
+        {
             QString ca = normalizeWhitespace(childA.nodeValue());
             QString cb = normalizeWhitespace(childB.nodeValue());
-            if (ca != cb) {
+            if (ca != cb)
+            {
                 *diff = QString("Different text node at %1: '%2' vs '%3'")
                 .arg(currentPath, ca, cb);
                 return false;
@@ -120,7 +130,8 @@ bool DomElementsEqualDetailedWSI(const QDomElement& a,
         childB = nextRelevantChild(childB.nextSibling());
     }
 
-    if (!childA.isNull() || !childB.isNull()) {
+    if (!childA.isNull() || !childB.isNull())
+    {
         *diff = QString("Different number of child nodes at %1").arg(currentPath);
         return false;
     }
@@ -128,6 +139,7 @@ bool DomElementsEqualDetailedWSI(const QDomElement& a,
     return true;
 }
 }
+
 MATCHER_P(DomEqualsWSI, expected, "")
 {
     QString diff;

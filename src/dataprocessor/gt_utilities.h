@@ -17,8 +17,6 @@
 #include <limits>
 #include <algorithm>
 
-#include <QUuid>
-
 namespace gt
 {
 

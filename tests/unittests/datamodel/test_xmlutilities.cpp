@@ -5,7 +5,6 @@
  */
 
 #include "gtest/gtest.h"
-
 #include "gt_xmlutilities.h"
 
 #include <QString>
