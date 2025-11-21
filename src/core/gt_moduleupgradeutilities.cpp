@@ -64,53 +64,5 @@ gt::module_upgrade::convertPropertyContainerToMap(
     }
 }
 
-bool
-gt::module_upgrade::setPropertyTypeAndValue(
-    QDomElement& propElement,
-    const QString& newType,
-    const QString& newValue)
-{
-    if (propElement.isNull()) return false;
 
-    size_t propChildCount = propElement.childNodes().size();
-
-    if (propChildCount > 1)
-    {
-        return false;
-    }
-
-    QDomNode n = propElement.firstChild();
-
-    // n is the only child and it is a text element
-    if (!n.isNull() && n.isText())
-    {
-        n.setNodeValue(newValue);
-    }
-    // n is the only child but no text element
-    // abort as undefined how to update the value
-    else if (!n.isNull())
-    {
-        return false;
-    }
-    // n is null
-    else
-    {
-        QDomText t = propElement.ownerDocument().createTextNode(newValue);
-        propElement.appendChild(t);
-    }
-
-    propElement.setAttribute(xml::S_TYPE_TAG, newType);
-
-    return true;
-}
-
-bool
-gt::module_upgrade::setPropertyTypeAndValue(
-    const QDomElement& root, const QString& name,
-    const QString& newType, const QString& newValue)
-{
-    QDomElement prop = xml::findPropertyElement(root, name);
-
-    return setPropertyTypeAndValue(prop, newType, newValue);
-}
 

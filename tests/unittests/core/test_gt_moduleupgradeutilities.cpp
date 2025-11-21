@@ -17,6 +17,8 @@
 #include "gt_moduleupgradeutilities.h"
 #include "gt_xmlutilities.h"
 
+using namespace gt::module_upgrade;
+
 namespace {
 
 QString normalizeWhitespace(const QString& s)
@@ -99,7 +101,6 @@ bool DomElementsEqualDetailedWSI(const QDomElement& a,
 
     while (!childA.isNull() && !childB.isNull())
     {
-
         if (childA.nodeType() != childB.nodeType())
         {
             *diff = QString("Different node type at %1").arg(currentPath);
@@ -153,47 +154,15 @@ MATCHER_P(DomEqualsWSI, expected, "")
     return equal;
 }
 
-
-using namespace gt::module_upgrade;
-
 class ModuleUpgradeUtilsTest : public ::testing::Test
 {
 protected:
-    QDomDocument doc2;
-    QDomElement root;
 
     void SetUp() override
     {
-        root = doc2.createElement("root");
-        doc2.appendChild(root);
 
-        // Beispielstruktur
-        auto obj1 = doc2.createElement("object");
-        obj1.setAttribute("class", "MyCalc");
-        obj1.setAttribute("name", "Obj1");
-        root.appendChild(obj1);
-
-        auto obj2 = doc2.createElement("object");
-        obj2.setAttribute("class", "MyTask");
-        obj2.setAttribute("name", "Obj2");
-        root.appendChild(obj2);
-
-        // Property below obj1
-        gt::xml::addNewPropertyElement(obj1, "propA", "int", "42");
-        gt::xml::addNewPropertyElement(obj1, "propB", "double", "3.14");
     }
 };
-
-// Test: setPropertyTypeAndValue
-TEST_F(ModuleUpgradeUtilsTest, setPropertyTypeAndValue)
-{
-    auto propA = gt::xml::findPropertyElement(root.firstChildElement("object"),
-                                              "propA");
-    bool ok = setPropertyTypeAndValue(propA, "double", "99.9");
-    ASSERT_TRUE(ok);
-    EXPECT_EQ(propA.attribute("type"), "double");
-    EXPECT_EQ(propA.text(), "99.9");
-}
 
 TEST_F(ModuleUpgradeUtilsTest, PyProcessTest1)
 {
@@ -286,8 +255,7 @@ TEST_F(ModuleUpgradeUtilsTest, PyProcessTest1)
         {
             QString name = c.attribute("name");
 
-            if (name == "input_args" ||
-                name == "output_args")
+            if (name == "input_args" || name == "output_args")
             {
                 convertPropertyContainerToMap(c, "name", replaceMap);
             }

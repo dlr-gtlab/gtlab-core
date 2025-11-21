@@ -169,3 +169,14 @@ TEST_F(TestXmlUtilities, findObjectElementsByAttributeValue)
     ASSERT_EQ(elems.size(), 1);
     EXPECT_EQ(elems[0].attribute("name"), "Obj2");
 }
+
+// Test: setPropertyTypeAndValue
+TEST_F(TestXmlUtilities, setPropertyTypeAndValue)
+{
+    auto propA = gt::xml::findPropertyElement(root.firstChildElement("object"),
+                                              "propA");
+    bool ok = gt::xml::setPropertyElementTypeAndValue(propA, "double", "99.9");
+    ASSERT_TRUE(ok);
+    EXPECT_EQ(propA.attribute("type"), "double");
+    EXPECT_EQ(propA.text(), "99.9");
+}

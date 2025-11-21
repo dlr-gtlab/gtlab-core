@@ -258,6 +258,35 @@ QDomElement GT_DATAMODEL_EXPORT addObjectElement(QDomElement& parent,
  */
 QDomElement GT_DATAMODEL_EXPORT addObjectListElement(QDomElement& parent);
 
+/**
+ * @brief setPropertyTypeAndValue
+ * A propety element given as QDomElement will be changed: Its values for the
+ * attributes type and value will be set to the new values given by the function
+ * @param propElement - property element
+ * @param newType - new type to set for the property
+ * @param newValue - new value to set for the property
+ * @return false if domelement is invalid, else true
+ */
+bool GT_DATAMODEL_EXPORT setPropertyElementTypeAndValue(QDomElement& propElement,
+                                                 const QString& newType,
+                                                 const QString& newValue);
+
+/**
+ * @brief setPropertyTypeAndValue
+ * A propety element given as QDomElement will be changed: Its values for the
+ * attributes type and value will be set to the new values given by the function.
+ * The property element is not given as an argument but will be found
+ * as a child of the given root with the given name
+ * @param root - root element to find the property as a sub element
+ * @param name - name of the property to change
+ * @param newType - new type to set for the property
+ * @param newValue - new value to set for the property
+ * @return true in case of success
+ */
+bool GT_DATAMODEL_EXPORT setPropertyTypeAndValue(const QDomElement& root,
+                                                 const QString& name,
+                                                 const QString& newType,
+                                                 const QString& newValue);
 } // namespace xml
 
 } // namespace gt
