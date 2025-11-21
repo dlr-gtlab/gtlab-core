@@ -14,22 +14,17 @@
 #include <QDomNode>
 #include <QDomElement>
 
+/**
+ * Hint: You find several helpful functions for xml manipulation in the
+ * namespace gt::xml in the file gt_xmlutilities.h
+ */
+
 namespace gt {
 
 namespace module_upgrade {
 
 /**
- * @brief The SearchMode enum
- * Defines whether the search should continue into child elements
- * that are themselves matches.
- */
-enum class SearchMode {
-    Recursive,   ///< Search the entire subtree and return all matching elements.
-    NonRecursive ///< Return only top-level matches; ignore matches inside other matches.
-};
-
-/**
- * @brief normalizePropertyContainerId
+ * @brief convertPropertyContainerToMap
  * For renaming in property containers:
  * Properties in a container with a given $formerNameKey are removed and their
  * value is used to replace the ident of the property container entry
@@ -42,48 +37,9 @@ enum class SearchMode {
  * @param replaceMap - a map to collect the mapping of the former uuid based
  * identification and the new name (for later usage)
  */
-GT_CORE_EXPORT void normalizePropertyContainerId(
+GT_CORE_EXPORT void convertPropertyContainerToMap(
     QDomElement& container, const QString& formerNameKey,
     QMap<QString, QString>& replaceMap);
-
-
-/**
- * @brief findElementsByClass
- * Collects the sub elements of a given root element which have a value
- * for "class" which matches an entry in the given "classNames" list
- *
- * @param node - root node to search in
- * @param classNames - list of classnames to check for
- * @param searchMode - is it allowed to have elements as subelements of
- * others which match the comparison. This might shorten the search
- */
-GT_CORE_EXPORT QVector<QDomElement> findElementsByClass(
-    const QDomNode& node, const QStringList& classNames,
-    SearchMode searchMode = SearchMode::Recursive);
-
-/**
- * @brief findElementsByAttribute
- * Based on a root node the function searches all QDomElements which match
- * an attribute with one of the given entries of values list.
- * Examples are:
- * 1.) For the attribute "class" search for elements with the values {"MyCalc", "MyTask"}
- *     to find specific objects
- * 2.) For the attribute "type" search for elements with the values {"QString", "str"}
- *     to find specific values/properties
- *
- * @param node - root element
- * @param attribute - attribute of node element to match
- * @param values - values for comparison
- * @param searchMode - is it allowed to have elements as subelements of
- * others which match the comparison. This might shorten the search
- * @return a list of the elements which match the attribute search
- */
-GT_CORE_EXPORT QVector<QDomElement> findElementsByAttribute(
-    const QDomNode& node, const QString& attribute,
-    const QStringList& values,
-    SearchMode searchMode = SearchMode::Recursive);
-
-
 
 /**
  * @brief setPropertyTypeAndValue

@@ -76,12 +76,35 @@ QList<QDomElement> GT_DATAMODEL_EXPORT findObjectElementsByClassName(
     const QDomElement& root, const QString& className);
 
 /**
+ * @brief findObjectElementsByAttributeValue
+ * Finds all elements below root which have a specified value for a given
+ * attribute key.
+ * E.g all elements with value "myFancyObject" for attribute id "class"
+ *
+ * @param root              The root element
+ * @param attributeKey      Attribute key to search for (e.g. "class")
+ * @param attributeValue    Attribute value to match for (e.g. "myFancyObject")
+ * @return
+ */
+QList<QDomElement> GT_DATAMODEL_EXPORT findObjectElementsByAttributeValue(
+    const QDomElement& root,
+    const QString& attributeKey,
+    const QString& attributeValue);
+
+/**
  * @brief Returns all property elements under root
  * @return
  */
 QList<QDomElement> GT_DATAMODEL_EXPORT propertyElements(
     const QDomElement& root);
 
+/**
+ * @brief findPropertyElement
+ * Searches for a specific property below the given root
+ * @param root - root element to start the search
+ * @param propId - Id of the property to find
+ * @return the property element. Null element if the property was not found
+ */
 QDomElement GT_DATAMODEL_EXPORT findPropertyElement(const QDomElement& root,
                                                     const QString& propId);
 

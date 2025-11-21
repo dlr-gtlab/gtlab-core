@@ -51,14 +51,25 @@ QList<QDomElement>
 gt::xml::findObjectElementsByClassName(
     const QDomElement& root, const QString& className)
 {
+    return findObjectElementsByAttributeValue(root, gt::xml::S_CLASS_TAG,
+                                              className);
+}
+
+QList<QDomElement>
+gt::xml::findObjectElementsByAttributeValue(
+    const QDomElement& root,
+    const QString& attributeKey,
+    const QString& attributeValue)
+{
     QList<QDomElement> result;
     findElements(root, [&](const QDomElement& elem) {
         return elem.tagName() == gt::xml::S_OBJECT_TAG &&
-               elem.attributes().contains(gt::xml::S_CLASS_TAG) &&
-               elem.attribute(gt::xml::S_CLASS_TAG) == className;
+               elem.attributes().contains(attributeKey) &&
+               elem.attribute(attributeKey) == attributeValue;
     }, result);
     return result;
 }
+
 
 bool
 gt::xml::writeDomElementOrderedAttribute(const QDomElement& element,
@@ -193,7 +204,8 @@ gt::xml::addNewPropertyElement(QDomElement& parent, const QString& propertyId,
     return propElement;
 }
 
-QList<QDomElement> gt::xml::propertyElements(const QDomElement& root)
+QList<QDomElement>
+gt::xml::propertyElements(const QDomElement& root)
 {
     QList<QDomElement> result;
     findElements(root, [&](const QDomElement& elem) {
@@ -203,7 +215,8 @@ QList<QDomElement> gt::xml::propertyElements(const QDomElement& root)
     return result;
 }
 
-QDomElement gt::xml::findPropertyElement(const QDomElement &root,
+QDomElement
+gt::xml::findPropertyElement(const QDomElement &root,
                              const QString& id)
 {
     QList<QDomElement> result;
@@ -342,9 +355,6 @@ gt::xml::getDoublePropetyElementValue(const QDomElement& parent,
 
     if (text.isEmpty() || !ok)
     {
-        gtWarningId("Module-Upgrader") <<
-            QObject::tr("Cannot read value from an empty text "
-                        "for property %1").arg(propName);
         return tl::nullopt;
     }
 
