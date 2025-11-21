@@ -430,20 +430,20 @@ TEST_F(TestGtDoubleProperty, boundaries)
 
     double hundred = 100.1;
     double fourH = 400.2;
-    bool setError = false;
+    bool success = false;
 
     EXPECT_TRUE(l.lowSideBoundaryActive());
     EXPECT_FALSE(l.highSideBoundaryActive());
     ASSERT_DOUBLE_EQ(l.getVal(), 340.2);
 
     // set valid value
-    l.setVal(fourH, &setError);
-    EXPECT_TRUE(setError);
+    l.setVal(fourH, &success);
+    EXPECT_TRUE(success);
     EXPECT_DOUBLE_EQ(l.getVal(), fourH);
 
     // set invalid value
-    l.setVal(hundred, &setError);
-    EXPECT_FALSE(setError);
+    l.setVal(hundred, &success);
+    EXPECT_FALSE(success);
     EXPECT_FALSE(l.getVal() == hundred);
     EXPECT_DOUBLE_EQ(l.getVal(), fourH);
 
@@ -458,14 +458,14 @@ TEST_F(TestGtDoubleProperty, boundaries)
     ASSERT_DOUBLE_EQ(h.getVal(), 140.2);
 
     // set valid value
-    h.setVal(hundred, &setError);
+    h.setVal(hundred, &success);
     EXPECT_DOUBLE_EQ(h.getVal(), hundred);
-    EXPECT_TRUE(setError);
+    EXPECT_TRUE(success);
 
     // set invalid value
-    h.setVal(fourH, &setError);
+    h.setVal(fourH, &success);
     EXPECT_FALSE(h.getVal() == fourH);
-    EXPECT_FALSE(setError);
+    EXPECT_FALSE(success);
     EXPECT_DOUBLE_EQ(h.getVal(), hundred);
 
     // high bound check
@@ -480,19 +480,19 @@ TEST_F(TestGtDoubleProperty, boundaries)
     ASSERT_DOUBLE_EQ(lh.getVal(), 140.2);
 
     // set valid value
-    lh.setVal(hundred, &setError);
+    lh.setVal(hundred, &success);
     EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
-    EXPECT_TRUE(setError);
+    EXPECT_TRUE(success);
 
     // set invalid value
-    lh.setVal(fourH, &setError);
-    EXPECT_FALSE(setError);
+    lh.setVal(fourH, &success);
+    EXPECT_FALSE(success);
     EXPECT_FALSE(lh.getVal() == fourH);
     EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 
     // set invalid value
-    lh.setVal(40.1, &setError);
-    EXPECT_FALSE(setError);
+    lh.setVal(40.1, &success);
+    EXPECT_FALSE(success);
     EXPECT_FALSE(lh.getVal() == 40.1);
     EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 }

@@ -350,20 +350,20 @@ TEST_F(TestGtIntProperty, boundaries)
 
     double hundred = 100;
     double fourH = 400;
-    bool setError = false;
+    bool success = false;
 
     EXPECT_TRUE(l.lowSideBoundaryActive());
     EXPECT_FALSE(l.highSideBoundaryActive());
     ASSERT_DOUBLE_EQ(l.getVal(), 340);
 
     // set valid value
-    l.setVal(fourH, &setError);
-    EXPECT_TRUE(setError);
+    l.setVal(fourH, &success);
+    EXPECT_TRUE(success);
     EXPECT_DOUBLE_EQ(l.getVal(), fourH);
 
     // set invalid value
-    l.setVal(hundred, &setError);
-    EXPECT_FALSE(setError);
+    l.setVal(hundred, &success);
+    EXPECT_FALSE(success);
     EXPECT_FALSE(l.getVal() == hundred);
     EXPECT_DOUBLE_EQ(l.getVal(), fourH);
 
@@ -377,13 +377,13 @@ TEST_F(TestGtIntProperty, boundaries)
     ASSERT_DOUBLE_EQ(h.getVal(), 140);
 
     // set valid value
-    h.setVal(hundred, &setError);
-    EXPECT_TRUE(setError);
+    h.setVal(hundred, &success);
+    EXPECT_TRUE(success);
     EXPECT_DOUBLE_EQ(h.getVal(), hundred);
 
     // set invalid value
-    h.setVal(fourH, &setError);
-    EXPECT_FALSE(setError);
+    h.setVal(fourH, &success);
+    EXPECT_FALSE(success);
     EXPECT_FALSE(h.getVal() == fourH);
     EXPECT_DOUBLE_EQ(h.getVal(), hundred);
 
@@ -398,19 +398,19 @@ TEST_F(TestGtIntProperty, boundaries)
     ASSERT_DOUBLE_EQ(lh.getVal(), 140);
 
     // set valid value
-    lh.setVal(hundred, &setError);
-    EXPECT_TRUE(setError);
+    lh.setVal(hundred, &success);
+    EXPECT_TRUE(success);
     EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 
     // set invalid value
-    lh.setVal(fourH, &setError);
-    EXPECT_FALSE(setError);
+    lh.setVal(fourH, &success);
+    EXPECT_FALSE(success);
     EXPECT_FALSE(lh.getVal() == fourH);
     EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 
     // set invalid value
-    lh.setVal(40, &setError);
-    EXPECT_FALSE(setError);
+    lh.setVal(40, &success);
+    EXPECT_FALSE(success);
     EXPECT_FALSE(lh.getVal() == 40);
     EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 }
