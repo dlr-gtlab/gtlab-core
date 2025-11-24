@@ -18,11 +18,15 @@
 
 #include "gt_moduleupgradeutilities.h"
 
-void
+bool
 gt::module_upgrade::convertPropertyContainerToMap(
     QDomElement& container, const QString& formerNameKey,
     QMap<QString, QString>& replaceMap)
 {
+    if (container.isNull()) return false;
+
+    if (container.tagName() != xml::S_PROPERTYCONT_TAG) return false;
+
     for (auto child = container.firstChild(); !child.isNull(); child = child.nextSibling())
     {
         if (!child.isElement()) continue;
@@ -62,6 +66,8 @@ gt::module_upgrade::convertPropertyContainerToMap(
         // Remove subelement
         prop.removeChild(nameElem);
     }
+
+    return true;
 }
 
 

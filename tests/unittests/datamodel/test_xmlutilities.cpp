@@ -51,8 +51,8 @@ R"(
         root.appendChild(obj2);
 
         // Property below obj1
-        gt::xml::addNewPropertyElement(obj1, "propA", "int", "42");
-        gt::xml::addNewPropertyElement(obj1, "propB", "double", "3.14");
+        gt::xml::addPropertyElement(obj1, "propA", "int", "42");
+        gt::xml::addPropertyElement(obj1, "propB", "double", "3.14");
     }
 
     QDomDocument doc;

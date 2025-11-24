@@ -140,7 +140,7 @@ QDomElement GT_DATAMODEL_EXPORT createPropertyElement(QDomDocument& doc,
                                                    const QString& value);
 
 /**
- * @brief addNewPropertyElement
+ * @brief addPropertyElement
  * Add a new generated property element to a given parent.
  * @param parent to append the property to
  * @param propertyName - name of the new property
@@ -148,10 +148,10 @@ QDomElement GT_DATAMODEL_EXPORT createPropertyElement(QDomDocument& doc,
  * @param value - value of the new property
  * @return the created element
  */
-QDomElement GT_DATAMODEL_EXPORT addNewPropertyElement(QDomElement& parent,
-                                                      const QString& propertyId,
-                                                      const QString& propertyType,
-                                                      const QString& value);
+QDomElement GT_DATAMODEL_EXPORT addPropertyElement(QDomElement& parent,
+                                                   const QString& propertyId,
+                                                   const QString& propertyType,
+                                                   const QString& value);
 
 
 inline QDomElement createDoublePropertyElement(QDomDocument& doc,
@@ -163,18 +163,18 @@ inline QDomElement createDoublePropertyElement(QDomDocument& doc,
 }
 
 /**
- * @brief addNewDoublePropertyElement
+ * @brief addDoublePropertyElement
  * Add a new generated property element of type double to a given parent.
  * @param parent to append the property to
  * @param propertyName - name of the new property
  * @param val
  */
-inline QDomElement addNewDoublePropertyElement(QDomElement& parent,
+inline QDomElement addDoublePropertyElement(QDomElement& parent,
                                             const QString& propertyId,
                                             double val)
 {
-    return addNewPropertyElement(parent, propertyId, QStringLiteral("double"),
-                                 QString::number(val));
+    return addPropertyElement(parent, propertyId, QStringLiteral("double"),
+                              QString::number(val));
 }
 
 inline QDomElement createIntPropertyElement(QDomDocument& doc,

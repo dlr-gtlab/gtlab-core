@@ -36,8 +36,10 @@ namespace module_upgrade {
  * to set as element id.
  * @param replaceMap - a map to collect the mapping of the former uuid based
  * identification and the new name (for later usage)
+ * @return success indicator (may fail if given container element is empty
+ * or not a property-container)
  */
-GT_CORE_EXPORT void convertPropertyContainerToMap(
+    GT_CORE_EXPORT bool convertPropertyContainerToMap(
     QDomElement& container, const QString& formerNameKey,
     QMap<QString, QString>& replaceMap);
 

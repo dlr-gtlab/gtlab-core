@@ -194,8 +194,8 @@ gt::xml::createPropertyElement(QDomDocument &doc, const QString &propertyId,
 }
 
 QDomElement
-gt::xml::addNewPropertyElement(QDomElement& parent, const QString& propertyId,
-                               const QString& propertyType, const QString &value)
+gt::xml::addPropertyElement(QDomElement& parent, const QString& propertyId,
+                            const QString& propertyType, const QString& value)
 {
     QDomDocument doc = parent.ownerDocument();
     QDomElement propElement = createPropertyElement(doc, propertyId,
@@ -216,7 +216,7 @@ gt::xml::propertyElements(const QDomElement& root)
 }
 
 QDomElement
-gt::xml::findPropertyElement(const QDomElement &root,
+gt::xml::findPropertyElement(const QDomElement& root,
                              const QString& id)
 {
     QList<QDomElement> result;
