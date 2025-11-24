@@ -39,7 +39,7 @@ namespace module_upgrade {
  * @return success indicator (may fail if given container element is empty
  * or not a property-container)
  */
-    GT_CORE_EXPORT bool convertPropertyContainerToMap(
+GT_CORE_EXPORT bool convertPropertyContainerToMap(
     QDomElement& container, const QString& formerNameKey,
     QMap<QString, QString>& replaceMap);
 
