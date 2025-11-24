@@ -11,6 +11,7 @@
 #include <QDomDocument>
 #include <QXmlStreamWriter>
 #include <QDir>
+#include <QDirIterator>
 #include <QDateTime>
 
 #include "gt_project.h"
@@ -181,6 +182,18 @@ GtProject::upgradeProjectData()
     }
 
     entryList << pdir.absoluteFilePath(mainFilename());
+
+    //exted list with task files
+    QString tasksPath = m_path + "/tasks";
+    QDirIterator it(tasksPath,
+                    QStringList() << "*.gttask",
+                    QDir::Files,
+                    QDirIterator::Subdirectories);
+
+    while (it.hasNext())
+    {
+        entryList << it.next();
+    }
 
     gtDebug() << "upgrading files: " << entryList;
 
