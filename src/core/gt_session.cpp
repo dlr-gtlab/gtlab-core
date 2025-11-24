@@ -372,7 +372,8 @@ GtSession::toJsonObject()
 
     foreach (GtProject* project, projects())
     {
-        projectsJsn.insert(project->path(), project->ignoringIrregularities());
+        projectsJsn.insert(project->path(),
+                           project->getProjectSettings().toJson());
     }
 
     jsobj.insert(QStringLiteral("projects"), projectsJsn);
@@ -412,7 +413,8 @@ GtSession::fromJsonObject(const QString& sessionPath)
 
     for (auto it = projects.begin(); it != projects.end(); ++it) {
         GtProject* project = new GtProject(it.key());
-        project->setProperty("tmp_ignoreIrregularities", it.value().toBool());
+        // restore project settings
+        project->projectSettings().fromJson(it.value());
 
         if (!project->isValid() || findProject(project->objectName()))
         {

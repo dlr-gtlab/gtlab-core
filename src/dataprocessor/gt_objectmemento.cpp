@@ -223,6 +223,25 @@ GtObjectMemento::calculateHashes() const
 }
 
 bool
+GtObjectMemento::isFlagEnabled(GtObjectMemento::Flag flag) const
+{
+    return m_flags & flag;
+}
+
+void
+GtObjectMemento::setFlagEnabled(GtObjectMemento::Flag flag, bool enable)
+{
+    if (enable)
+    {
+        m_flags = m_flags | flag;
+    }
+    else
+    {
+        m_flags = m_flags & ~flag;
+    }
+}
+
+bool
 GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory) const
 {
     if (isNull())
@@ -536,18 +555,35 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory) const
 GtObject*
 GtObjectMemento::toObject(GtAbstractObjectFactory& factory, GtObject* parent) const
 {
-
-    std::unique_ptr<GtObject> obj(factory.newObject(className(), parent));
-
-    if (!obj)
+    auto makeDummy = [parent](const QString& msg) -> std::unique_ptr<GtObject>
     {
-        // no class found in factory. we need a dummy object here
-        gtWarning().nospace().noquote()
-            << "Creating dummy object for unknown class '"
-            << className() << "'.";
+        gtWarning() << msg;
+        auto newObj = std::make_unique<GtObject>(parent);
+        newObj->makeDummy();
+        return newObj;
+    };
 
-        obj.reset(new GtObject(parent));
-        obj->makeDummy();
+    auto name = this->ident();
+
+    std::unique_ptr<GtObject> obj;
+
+    if (!isFlagEnabled(IsUnresolved))
+    {
+        obj.reset(factory.newObject(className(), parent));
+
+        if (!obj)
+        {
+            // no class found in factory. we need a dummy object here
+            obj = makeDummy(QObject::tr("Creating dummy object "
+                                        "for unknown class %1.'").arg(className()));
+        }
+    }
+    else
+    {
+        // we need to make it a dummy, to avoid changing the original object
+        // and to highlight a problem
+        obj = makeDummy("Creating dummy object for unresolved object reference");
+        obj->setFlag(GtObject::SaveAsOwnFile, true);
     }
 
     mergeTo(*obj, factory);

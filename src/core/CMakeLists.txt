@@ -84,6 +84,7 @@ set(headers
     gt_saveprojecthelper.h
     gt_session.h
     gt_project.h
+    gt_projectsettings.h 
     settings/gt_settingsitem.h
     settings/gt_abstractsettings.h
     settings/gt_settings.h
@@ -115,7 +116,7 @@ set(hdr_private
 )
 
 set(sources
-   gt_commandlinefunction.cpp
+    gt_commandlinefunction.cpp
     gt_commandlineparser.cpp
     gt_filesystem.cpp
     gt_logmodel.cpp
@@ -187,6 +188,7 @@ set(sources
     gt_saveprojecthelper.cpp
     gt_session.cpp
     gt_project.cpp
+    gt_projectsettings.cpp
     settings/gt_settingsitem.cpp
     settings/gt_abstractsettings.cpp
     settings/gt_settings.cpp
