@@ -185,8 +185,8 @@ target_include_directories(GTlabDataProcessor
 
 target_link_libraries(GTlabDataProcessor
     PUBLIC
-      Qt::Core
-      Qt::Xml
+      Qt${QT_VERSION_MAJOR}::Core
+      Qt${QT_VERSION_MAJOR}::Xml
       GTlab::Logging
       tl::optional
     PRIVATE
