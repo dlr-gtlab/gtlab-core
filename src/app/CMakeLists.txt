@@ -209,11 +209,11 @@ target_include_directories(GTlab PRIVATE
 
 target_link_libraries(GTlab
     PRIVATE
-    Qt::Widgets
-    Qt::Qml
-    Qt::QuickWidgets
-    Qt::QuickControls2
-    Qt::Test
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Qml
+    Qt${QT_VERSION_MAJOR}::QuickWidgets
+    Qt${QT_VERSION_MAJOR}::QuickControls2
+    Qt${QT_VERSION_MAJOR}::Test
     GTlabDataProcessor
     GTlabCore
     GTlabGui
