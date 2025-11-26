@@ -26,6 +26,7 @@ set(headers
     preferences/pages/gt_preferenceslanguage.h
     preferences/pages/gt_preferencessession.h
     preferences/pages/gt_preferencesshortcuts.h
+    preferences/pages/gt_moduledirectoriestab.h
     tools/gt_qmltoolbar.h
     tools/gt_iconbrowser.h
     widgets/gt_sessionlistwidget.h
@@ -105,7 +106,10 @@ set(headers
     dock_widgets/labels/gt_labeldelegate.h
 )
 
-set(forms ui/gt_mainwin.ui)
+set(forms 
+    ui/gt_mainwin.ui
+    preferences/pages/gt_moduledirectoriestab.ui
+)
 
 set(sources
     app.cpp
@@ -121,6 +125,7 @@ set(sources
     preferences/pages/gt_preferenceslanguage.cpp
     preferences/pages/gt_preferencessession.cpp
     preferences/pages/gt_preferencesshortcuts.cpp
+    preferences/pages/gt_moduledirectoriestab.cpp
     tools/gt_qmltoolbar.cpp
     tools/gt_iconbrowser.cpp
     widgets/gt_sessionlistwidget.cpp
