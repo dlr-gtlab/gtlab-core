@@ -75,7 +75,6 @@ Use find_package(GTlabDevtools QUIET) instead")
       endif()
       find_package(GTlabDevtools QUIET)
     endif()
-	
 endmacro()
 
 # Function to add a gtlab module
@@ -218,7 +217,7 @@ function(require_qt)
         if (DEFINED Qt5_DIR)
             set(QT_VERSION_MAJOR 5 CACHE INTERNAL
                 "Qt major version used to build GTlab and modules (from Qt5_DIR)")
-        else if (DEFINED Qt6_DIR)
+        elseif (DEFINED Qt6_DIR)
             message(ERROR "GTlab 2.0 does not support Qt6")
         endif()
 
