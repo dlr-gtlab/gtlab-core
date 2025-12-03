@@ -595,6 +595,17 @@ GtCoreApplication::moduleDescription(const QString& id) const
 }
 
 QString
+GtCoreApplication::moduleLocation(const QString& id) const
+{
+    if (!m_moduleLoader)
+    {
+        return QString();
+    }
+
+    return m_moduleLoader->moduleLocation(id);
+}
+
+QString
 GtCoreApplication::moduleAuthor(const QString& id) const
 {
     if (!m_moduleLoader)
