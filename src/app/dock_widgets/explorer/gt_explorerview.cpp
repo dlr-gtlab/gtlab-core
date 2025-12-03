@@ -27,6 +27,7 @@
 #include "gt_explorerview.h"
 
 #include <QTimer>
+#include <QPropertyAnimation>
 
 GtExplorerView::GtExplorerView(QWidget* parent) :
     GtTreeView(parent)
@@ -223,16 +224,14 @@ GtExplorerView::scrollTo(const QModelIndex& index, ScrollHint hint)
     const int itemWidth = rect.width();
 
     // Compute a horizontal target so the item becomes fully visible if possible
-    if (itemLeft - indent < 0)
+    if (itemLeft < indent)
     {
         targetX += itemLeft - indent;
     }
     else if (itemRight > viewWidth)
     {
-        if (itemWidth + indent < viewWidth)
-            targetX += itemRight - viewWidth;
-        else
-            targetX += itemLeft - indent;
+        if (itemWidth + indent < viewWidth) targetX += itemRight - viewWidth;
+        else targetX += itemLeft - indent;
     }
 
     targetX = gt::clamp(targetX, hBar->minimum(), hBar->maximum());
@@ -245,8 +244,7 @@ GtExplorerView::scrollTo(const QModelIndex& index, ScrollHint hint)
     // Restore original horizontal value to neutralize QTreeView's adjustment
     hBar->setValue(startX);
 
-    if (targetX == hBar->value())
-        return;
+    if (targetX == hBar->value()) return;
 
     // Smoothly animate from the original to the computed horizontal position
     m_hScrollAnim->stop();
