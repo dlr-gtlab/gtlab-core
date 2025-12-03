@@ -206,8 +206,6 @@ function(require_qt)
         message(FATAL_ERROR "require_qt() called without COMPONENTS")
     endif()
 
-    message(STATUS "Find Qt Components" ${RQT_COMPONENTS})
-
     # --------------------------------------------------------
     # 1. Decide QT_VERSION_MAJOR once
     # --------------------------------------------------------
