@@ -27,7 +27,17 @@ public:
      */
     explicit GtExplorerView(QWidget* parent = nullptr);
 
+    /**
+     * @brief We override the default behavior to improve handling
+     * of deep object hierarchies
+     */
+    void scrollTo(const QModelIndex& index,
+                  ScrollHint hint = EnsureVisible) override;
+
 private:
+    // To animate the horizontal scroll bar when selecting objects
+    class QPropertyAnimation* m_hScrollAnim{nullptr};
+
     /**
      * @brief Overloaded resize event.
      * @param event Resize event.
