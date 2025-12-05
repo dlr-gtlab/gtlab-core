@@ -168,6 +168,8 @@ GtDataModel::saveProject(GtProject *project)
     GtSaveProjectHelper* helper = new GtSaveProjectHelper(project);
     connect(helper, SIGNAL(finished()), SLOT(onProjectDataSaved()));
 
+    emit projectAboutToBeSaved(project);
+
     gtApp->loadingProcedure(helper);
 
     return true;

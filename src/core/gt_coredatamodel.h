@@ -378,11 +378,16 @@ private:
 
 signals:
     /**
+     * @brief Emitted immediately before a project is saved.
+     * @param project Project that is about to be saved.
+     */
+    void projectAboutToBeSaved(GtProject* project);
+
+    /**
      * @brief Emitted after successful project save.
      * @param project Saved project.
      */
     void projectSaved(GtProject* project);
-
 };
 
 template<typename ObjectList, typename GetNameFunc>

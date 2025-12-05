@@ -295,6 +295,8 @@ GtCoreDatamodel::saveProject(GtProject* project)
     // check session
     if (m_session)
     {
+        emit projectAboutToBeSaved(project);
+
         // save project data of given project
         retval = m_session->saveProjectData(project);
 
