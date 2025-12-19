@@ -43,8 +43,8 @@ target_link_libraries(GTlabConsole
     GTlabCore
     GTlabDataProcessor
     GTlabGui
-    Qt::Widgets
-    Qt::Xml
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Xml
 )
 
 install(TARGETS GTlabConsole DESTINATION ${CMAKE_INSTALL_BINDIR})

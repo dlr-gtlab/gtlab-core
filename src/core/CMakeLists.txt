@@ -252,8 +252,8 @@ set_target_properties(GTlabCore PROPERTIES
 
 target_link_libraries(GTlabCore
     PUBLIC
-    Qt::Core
-    Qt::Network
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Network
     GTlab::DataProcessor
 )
 

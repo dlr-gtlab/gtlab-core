@@ -119,7 +119,7 @@ jobs:
  
     - name: Build
       run: | 
-        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DQT_DEFAULT_MAJOR_VERSION=6 -DCMAKE_INSTALL_PREFIX=gtlab-win64-qt6
+        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DCMAKE_INSTALL_PREFIX=gtlab-win64-qt6
         cmake --build build --target install --config=Release
         
     - name: Unit Tests - Windows
