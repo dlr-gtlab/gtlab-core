@@ -38,7 +38,8 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(GTlab)
 
 gtlab_standard_setup()
-enable_gtlab_devtools()
+
+find_package(GTlabDevtools QUIET)
 
 find_package(Qt5 COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets Test REQUIRED)
 

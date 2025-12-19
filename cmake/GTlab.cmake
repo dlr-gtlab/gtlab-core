@@ -58,33 +58,23 @@ endmacro()
 # to the cmake prefix path. It adds the GTLAB_DEVTOOLS_DIR
 # cache variable, to set the path to GTlab's devtools
 #
+# Note: this function should not be used anymore
+#
 # Usage:
 #   enable_gtlab_devtools()
 macro(enable_gtlab_devtools)
+    message(WARNING "enable_gtlab_devtools() is deprecated.
+Use find_package(GTlabDevtools QUIET) instead")
+
     # prefix 3rdparty stuff from devtools
     set(GTLAB_DEVTOOLS_DIR "" CACHE PATH "Path of gtlab devtools")
 
     if (EXISTS ${GTLAB_DEVTOOLS_DIR})
-        message("GTlab DevTools enabled at " ${GTLAB_DEVTOOLS_DIR})
-
-        set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${GTLAB_DEVTOOLS_DIR})
-
-        set(bladegen_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/BladeGenInterface)
-        set(ceres_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/ceres)
-        set(GTest_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/GoogleTest)
-        set(hdf5_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/hdf5)
-        set(LibXml2_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/LibXML)
-        set(CMinpack_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/minpack)
-        set(nlopt_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/NLopt)
-        set(optymal_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/Optymal)
-
-        set(Qwt_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/Qwt)
-        set(SplineLib_ROOT ${GTLAB_DEVTOOLS_DIR}/ThirdPartyLibraries/SplineLib)
-
-        set(GTlabCompat_ROOT ${GTLAB_DEVTOOLS_DIR}/../../tools/CompatibilityLib)
-
+      if (NOT DEFINED GTlabDevtools_ROOT)
+        set(GTlabDevtools_ROOT ${GTLAB_DEVTOOLS_DIR})
+      endif()
+      find_package(GTlabDevtools QUIET)
     endif()
-	
 endmacro()
 
 # Function to add a gtlab module
@@ -168,4 +158,75 @@ function(add_gtlab_module GTLAB_ADD_MODULE_TARGET)
             DESTINATION examples/)
   endif()
 
+endfunction()
+
+
+# ==============================================================================
+# require_qt(
+#   COMPONENTS <comp>...
+# )
+#
+# Summary:
+#   Locate and configure single Qt 5 for the entire
+#   build and ensure the requested components are available.
+#
+# Behavior:
+#   - Basically just uses
+#       find_package(Qt5 REQUIRED COMPONENTS <components>)
+#
+#   - On the first call, if QT_VERSION_MAJOR is NOT defined:
+#       * If Qt has already been found by the parent project
+#         (e.g. via find_package(QT ...) or find_package(Qt6/Qt5 ...)),
+#         QT_VERSION_MAJOR is taken from the existing Qt configuration or
+#         inferred from existing Qt5::* targets.
+#       * Otherwise, require_qt() calls:
+#             find_package(QT NAMES Qt5 REQUIRED COMPONENTS <components>)
+#         which sets QT_VERSION_MAJOR to 5 according to what CMake
+#         finds on the search path.
+#       * QT_VERSION_MAJOR is then cached so all subsequent calls reuse
+#         the same major version.
+#
+#
+# Guarantees:
+#   - If the requested Qt components for that major cannot be found,
+#     configuration fails with an error.
+#
+# User control of the chosen Qt version:
+#   - Standard CMake mechanisms apply. The user can steer which Qt is found by:
+#       * Adjusting CMAKE_PREFIX_PATH / Qt installation order (preferred), or
+#       * Setting Qt5_DIR to point at a specific Qt installation
+# ==============================================================================
+function(require_qt)
+    set(options)
+    set(oneValueArgs)
+    set(multiValueArgs COMPONENTS)
+    cmake_parse_arguments(RQT "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    if (NOT RQT_COMPONENTS)
+        message(FATAL_ERROR "require_qt() called without COMPONENTS")
+    endif()
+
+    # --------------------------------------------------------
+    # 1. Decide QT_VERSION_MAJOR once
+    # --------------------------------------------------------
+    if (NOT DEFINED QT_VERSION_MAJOR)
+
+        # 1a) If user hinted a specific major via Qt5_DIR, respect that
+        if (DEFINED Qt5_DIR)
+            set(QT_VERSION_MAJOR 5 CACHE INTERNAL
+                "Qt major version used to build GTlab and modules (from Qt5_DIR)")
+        elseif (DEFINED Qt6_DIR)
+            message(ERROR "GTlab 2.0 does not support Qt6")
+        endif()
+
+        # One-time status message
+        if (NOT DEFINED GTLAB_QT_VERSION_REPORTED AND DEFINED QT_VERSION_MAJOR)
+            message(STATUS "GTlab: using Qt${QT_VERSION_MAJOR} for this build")
+            set(GTLAB_QT_VERSION_REPORTED TRUE CACHE INTERNAL
+                "Whether the selected Qt version has been reported")
+        endif()
+    endif()
+
+    # actually find qt
+    find_package(Qt5 REQUIRED COMPONENTS ${RQT_COMPONENTS})
 endfunction()

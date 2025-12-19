@@ -64,7 +64,7 @@ windowsBuildDebug:
     - .build-win_20
     - .debugBuildRules
   script:
-    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTLAB_DEVTOOLS_DIR="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2019-dbg -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTlabDevtools_ROOT="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2019-dbg -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON
     - cmake --build build --target install
   artifacts:
     paths:
@@ -86,7 +86,7 @@ windowsBuildRelease:
     - .build-win_20
     - .releaseBuildRules
   script:
-    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGTLAB_DEVTOOLS_DIR="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2019
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGTlabDevtools_ROOT="$env:GTLAB_DEV_TOOLS" -DCMAKE_INSTALL_PREFIX=install-msvc2019
     - cmake --build build --target install
   artifacts:
     paths:
@@ -100,7 +100,7 @@ linuxBuildDebug:
     - .build-linux_20
     - .debugBuildRules
   script:
-    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTLAB_DEVTOOLS_DIR=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux-dbg -DBUILD_UNITTESTS=ON -DBUILD_WITH_COVERAGE=ON -DBUILD_TESTMODULES=ON
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTlabDevtools_ROOT=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux-dbg -DBUILD_UNITTESTS=ON -DBUILD_WITH_COVERAGE=ON -DBUILD_TESTMODULES=ON
     - cmake --build build --target install
   artifacts:
     paths:
@@ -120,7 +120,7 @@ linuxBuildRelease:
     - .build-linux_20
     - .releaseBuildRules
   script:
-    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGTLAB_DEVTOOLS_DIR=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGTlabDevtools_ROOT=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux
     - cmake --build build --target install
   artifacts:
     paths:
