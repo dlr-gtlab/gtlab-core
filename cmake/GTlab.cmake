@@ -220,9 +220,7 @@ function(require_qt)
     if (NOT RQT_COMPONENTS)
         message(FATAL_ERROR "require_qt() called without COMPONENTS")
     endif()
-
-    message(STATUS "Find Qt Components" ${RQT_COMPONENTS})
-
+    
     # --------------------------------------------------------
     # 1. Decide QT_VERSION_MAJOR once
     # --------------------------------------------------------
@@ -230,27 +228,16 @@ function(require_qt)
 
         # 1a) If user hinted a specific major via Qt6_DIR / Qt5_DIR, respect that
         if (DEFINED Qt6_DIR AND NOT DEFINED Qt5_DIR)
-            set(QT_VERSION_MAJOR 6 CACHE INTERNAL
-                "Qt major version used to build GTlab and modules (from Qt6_DIR)")
-
+            set(QT_VERSION_MAJOR 6)
         elseif (DEFINED Qt5_DIR AND NOT DEFINED Qt6_DIR)
-            set(QT_VERSION_MAJOR 5 CACHE INTERNAL
-                "Qt major version used to build GTlab and modules (from Qt5_DIR)")
+            set(QT_VERSION_MAJOR 5)
 
         elseif (DEFINED Qt5_DIR AND DEFINED Qt6_DIR)
-            # Both set: pick a policy; here we prefer Qt6 (change to 5 if you like)
-            set(QT_VERSION_MAJOR 6 CACHE INTERNAL
-                "Qt major version used to build GTlab and modules "
-                "(both Qt5_DIR and Qt6_DIR set; Qt6 preferred)")
-
+            set(QT_VERSION_MAJOR 6)
         else()
             # 1b) No specific *_DIR hints: use the standard Qt dual-version pattern
             #     This will honor QT_DIR, CMAKE_PREFIX_PATH, etc.
             find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS ${RQT_COMPONENTS})
-
-            # Qt's config sets QT_VERSION_MAJOR (5 or 6)
-            set(QT_VERSION_MAJOR "${QT_VERSION_MAJOR}" CACHE INTERNAL
-                "Qt major version used to build GTlab and modules")
         endif()
 
         # One-time status message
@@ -269,4 +256,5 @@ function(require_qt)
 
     # actually find qt
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS ${RQT_COMPONENTS})
+    set (QT_VERSION_MAJOR ${QT_VERSION_MAJOR} PARENT_SCOPE)
 endfunction()
