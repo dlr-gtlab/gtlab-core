@@ -18,8 +18,6 @@
 #include <QKeySequence>
 #include <QString>
 
-#include <gt_logging.h>
-
 struct GtSettings::Impl
 {
 
@@ -575,7 +573,7 @@ GtSettings::userModuleDirs() const
 }
 
 void
-GtSettings::setUserModuleDirs(const QStringList &dirs)
+GtSettings::setUserModuleDirs(const QStringList& dirs)
 {
     QString dirStr = dirs.join(";");
     pimpl->userModuleDirs->setValue(dirStr);
