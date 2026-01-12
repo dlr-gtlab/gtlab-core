@@ -36,8 +36,6 @@
 #include "gt_qtutilities.h"
 #include "gt_settings.h"
 
-#include <QDebug>
-
 namespace
 {
 
@@ -283,11 +281,9 @@ QStringList
 GtModuleLoader::customUserModuleDirs()
 {
     assert(gtApp);
-
     auto settings = gtApp->settings();
 
     assert(settings);
-
     return settings->userModuleDirs();
 }
 
