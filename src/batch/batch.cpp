@@ -583,7 +583,7 @@ list(const QStringList& args)
         QMap<QString, QStringList> const taskNamesMap = project->fullTaskIds();
 
         std::cout << std::endl;
-        std::cout << "Taks in the project "
+        std::cout << "Tasks in the project "
                   << gt::squoted(project->objectName().toStdString()) << ':' << std::endl;
 
         for (QString const& group : taskNamesMap.keys())
