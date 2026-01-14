@@ -212,11 +212,10 @@ function(require_qt)
     if (NOT DEFINED QT_VERSION_MAJOR)
 
         # 1a) If user hinted a specific major via Qt5_DIR, respect that
-        if (DEFINED Qt5_DIR)
-            set(QT_VERSION_MAJOR 5 CACHE INTERNAL
-                "Qt major version used to build GTlab and modules (from Qt5_DIR)")
-        elseif (DEFINED Qt6_DIR)
+        if (DEFINED Qt6_DIR)
             message(ERROR "GTlab 2.0 does not support Qt6")
+        else()
+            set(QT_VERSION_MAJOR 5)
         endif()
 
         # One-time status message
@@ -229,4 +228,5 @@ function(require_qt)
 
     # actually find qt
     find_package(Qt5 REQUIRED COMPONENTS ${RQT_COMPONENTS})
+    set (QT_VERSION_MAJOR 5 PARENT_SCOPE)
 endfunction()
