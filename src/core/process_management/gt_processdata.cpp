@@ -187,8 +187,7 @@ GtProcessData::read(const QString& projectPath)
     // initialization finished. Yippee-ki-yay, mot*********
     m_pimpl->_initialized = true;
 
-    assert(switchCurrentTaskGroup(GtTaskGroup::defaultUserGroupId(),
-                                  GtTaskGroup::USER, projectPath));
+    initAllTaskGroups(projectPath);
 
     return true;
 }
