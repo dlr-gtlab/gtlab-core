@@ -39,6 +39,8 @@
 #include "internal/gt_moduleupgrader.h"
 #include "internal/gt_moduleupgrader.h"
 
+#include <QTemporaryDir>
+
 #include <cassert>
 
 GtProject::GtProject(const QString& path) :
@@ -336,10 +338,24 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         return S::ErrorNoBackupFound;
     }
 
+    static QRegularExpression projectAndModuleRex(R"(^[\w\s\-]+.(gtlab|gtmod)$)");
+    auto projectFiles = gt::filesystem::directoryEntries(projectDir,
+                                                         false,
+                                                         projectAndModuleRex);
+
+    // move outdated files to a temp dir
+    QTemporaryDir temp;
+    for (auto&& file : projectFiles)
+        QFile::rename(projectDir.filePath(file), temp.filePath(file));
+
     if (gt::project::copyProjectData(backupDir, projectDir,
             gt::project::ForceOverwrite | gt::project::IgnoreBackupMd) !=
         gt::filesystem::CopyStatus::Success)
     {
+        // restore project files since backup restored has failed
+        for (auto&& file : projectFiles)
+            QFile::rename(temp.filePath(file), projectDir.filePath(file));
+
         return S::ErrorCopyFailed;
     }
 
