@@ -39,14 +39,21 @@ public:
     using VisibilityMethod   = std::function<bool (GtObject*)>;
 
     /**
-     * @brief GtObjectUIAction
+     * @brief Creates an action method from the method name
+     * @param methodName The name of the method
+     *
+     * Example:
+     *   GtObjectUIAction("Add point", GtObjectUIAction::fromMethodName("addPoint"))
      */
-    GtObjectUIAction();
+    static InvokableActionMethod
+    fromMethodName(const QString& methodName);
 
     /**
      * @brief GtObjectUIAction
      */
-    [[deprecated("Set action properties using dedicated setters instead")]]
+    GtObjectUIAction();
+
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Set action properties using dedicated setters instead")
     GtObjectUIAction(const QString& text,
                      const QString& method,
                      const QString& icon = {},

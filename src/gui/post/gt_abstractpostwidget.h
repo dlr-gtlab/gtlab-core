@@ -12,6 +12,8 @@
 #include "gt_object.h"
 #include "gt_objectuiaction.h"
 
+#include "gt_version.h"
+
 #include <QList>
 #include <QWidget>
 
@@ -77,37 +79,20 @@ public:
     GtObjectUIAction& addConfigAction(const QString& actionText,
                                       ActionFunction actionMethod);
 
-    /**
-     * @brief addConfigAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     * @param actionVerification
-     * @return
-     */
-    [[deprecated("Use dedicated setters instead: "
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                  "addConfigAction(<text>, <method>)"
                  "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)")]]
+                 "  .setVerificationMethod(<method>)")
     bool addConfigAction(const QString& actionText,
                          const QString& actionMethod,
                          const QString& actionIcon,
                          const QString& actionVerification);
 
-    /**
-     * @brief addConfigAction
-     * @param actionText
-     * @param actionMethod
-     * @param actionIcon
-     * @param actionVerification
-     * @param actionVisibility
-     * @return
-     */
-    [[deprecated("Use dedicated setters instead: "
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                  "addConfigAction(<text>, <method>)"
                  "  .setIcon(<icon>)"
                  "  .setVerificationMethod(<method>)"
-                 "  .setVisibilityMethod(<method>)")]]
+                 "  .setVisibilityMethod(<method>)")
     bool addConfigAction(const QString& actionText,
                          const QString& actionMethod,
                          const QString& actionIcon,
@@ -126,18 +111,10 @@ public:
      */
     bool isPrintable();
 
-    /**
-     * @brief iconString
-     * @return
-     */
-    [[deprecated("Use icon instead")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use icon instead")
     QString iconString();
 
-    /**
-     * @brief setIconString
-     * @param iconString
-     */
-    [[deprecated("Use setIcon instead")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use setIcon instead")
     void setIconString(const QString& iconString);
 
     /**
@@ -207,7 +184,7 @@ private:
 
     // We should use a QIcon member here instead of the QString.
     // However this might break the ABI
-    [[deprecated("Use a QIcon member instead")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Replace with QIcon")
     QString m_iconString;
 
     /// List of UI actions

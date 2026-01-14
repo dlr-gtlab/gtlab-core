@@ -13,6 +13,9 @@
 #define GTCOLORS_H
 
 #include "gt_gui_exports.h"
+
+#include <gt_version.h>
+
 #include <QColor>
 
 class QPainter;
@@ -265,16 +268,16 @@ GT_GUI_EXPORT QColor marker();
 } // namespace js_highlight
 
 /// Deprecated functions
-[[deprecated("Use gridLine instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 1, "Use gridLine instead")
 GT_GUI_EXPORT QColor gridLineColor();
 
-[[deprecated("Use gridPoint instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 1, "Use gridPoint instead")
 GT_GUI_EXPORT QColor gridPointColor();
 
-[[deprecated("Use newObjectForeground instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 1, "Use newObjectForeground instead")
 GT_GUI_EXPORT QColor newObjectForground();
 
-[[deprecated("Use changedObjectForeground instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 1, "Use changedObjectForeground instead")
 GT_GUI_EXPORT QColor changedObjectForground();
 
 } // namespace color

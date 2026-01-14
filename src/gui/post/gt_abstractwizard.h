@@ -12,13 +12,13 @@
 
 #include "gt_gui_exports.h"
 
+#include <gt_version.h>
+
 #include <QWizard>
 
 
-/**
- * @brief The GtAbstractWizard class
- */
-class GT_GUI_EXPORT [[deprecated("Use GtWizard instead")]] GtAbstractWizard :
+GT_REMOVAL_GUARD(2, 1, "Use GtWizard instead")
+class GT_GUI_EXPORT GT_DEPRECATED_ATTR(2, 1, "Use GtWizard instead") GtAbstractWizard :
     public QWizard
 {
 public:
