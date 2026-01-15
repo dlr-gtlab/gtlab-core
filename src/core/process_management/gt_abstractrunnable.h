@@ -146,9 +146,12 @@ public:
             return nullptr;
         }
 
+        // An STL algorithm makes no really sense here since we
+        // would need to call getObject twice
         for (GtObject* obj : qAsConst(m_linkedObjects))
         {
             if (GtObject* retval = path.getObject(obj))
+            // cppcheck-suppress useStlAlgorithm
             {
                 return qobject_cast<T>(retval);
             }

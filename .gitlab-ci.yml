@@ -100,7 +100,7 @@ linuxBuildDebug:
     - .build-linux_20
     - .debugBuildRules
   script:
-    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTlabDevtools_ROOT=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux-dbg -DBUILD_UNITTESTS=ON -DBUILD_WITH_COVERAGE=ON -DBUILD_TESTMODULES=ON
+    - cmake -B build -S . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DGTlabDevtools_ROOT=$GTLAB_DEV_TOOLS -DCMAKE_INSTALL_PREFIX=install-linux-dbg -DBUILD_UNITTESTS=ON -DBUILD_WITH_COVERAGE=ON -DBUILD_TESTMODULES=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     - cmake --build build --target install
   artifacts:
     paths:
@@ -112,7 +112,9 @@ linuxBuildDebug:
       - build/**/*.cmake
       - build/**/*.ninja
       - build/**/*.log
+      - build/**/*.cpp
       - build/_deps/*-src
+      - build/compile_commands.json
 
 linuxBuildRelease:
   stage: build
@@ -337,8 +339,17 @@ package-linux:
 
 cppcheck:
   stage: codequality
-  extends: .cppCheckTemplate
+  extends:
+    - .cppCheckTemplate
+    - .linuxdocker
   allow_failure: false
+  needs: ["linuxBuildDebug"]
+  script:
+  - cmake -S . -B build -DBUILD_UNITTESTS=OFF -DBUILD_TESTMODULES=OFF
+  - cppcheck --inline-suppr --xml --std=c++14 --suppress=unusedFunction --suppressions-list=cppcheck.suppress --library=qt.cfg  --error-exitcode=255 --enable=all -j 16 -i build --project=build/compile_commands.json 2> cppcheck_out.xml || exit_code=$?
+  - more cppcheck_out.xml
+  - cppcheck-codequality --input-file=cppcheck_out.xml --output-file=codequality.json
+  - exit $exit_code
   variables:
     GIT_SUBMODULE_STRATEGY: "none"
    

@@ -38,6 +38,7 @@ class GT_GUI_EXPORT GtProcessRunner : public GtCoreProcessExecutor
 public:
 
     /// Id of this executor
+    // cppcheck-suppress duplInheritedMember
     static const std::string S_ID;
 
     /**

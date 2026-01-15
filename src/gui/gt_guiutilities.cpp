@@ -293,7 +293,8 @@ openContextMenu(QKeyEvent& event,
 
 /// logic for renaming obj in the view
 inline bool
-renameObject(QKeyEvent& event, GtObject& obj, QModelIndex const& idx, QAbstractItemView* view)
+renameObject(QKeyEvent& event, const GtObject& obj,
+             QModelIndex const& idx, QAbstractItemView* view)
 {
     if (obj.isRenamable() && idx.isValid() && view)
     {

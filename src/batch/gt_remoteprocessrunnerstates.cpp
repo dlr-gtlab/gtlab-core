@@ -59,7 +59,7 @@ GtAbstractProcessRunnerState::GtAbstractProcessRunnerState(
 }
 
 std::unique_ptr<GtProcessRunnerResponse>
-GtAbstractProcessRunnerState::makeResponse(Command& command,
+GtAbstractProcessRunnerState::makeResponse(const Command& command,
                                            gt::process_runner::Error code,
                                            QString error)
 {
@@ -133,7 +133,7 @@ GtAbstractProcessRunnerState::handleInitSessionCommand(Command& command)
 }
 
 std::unique_ptr<GtProcessRunnerResponse>
-GtAbstractProcessRunnerState::checkSession(Command& command)
+GtAbstractProcessRunnerState::checkSession(const Command& command)
 {
     // session id should not be empty
     if (command.sessionId().isEmpty())

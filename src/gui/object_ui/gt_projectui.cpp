@@ -1192,6 +1192,7 @@ GtProjectUI::renameProject(GtObject* obj)
     auto project = qobject_cast<GtProject*>(obj);
 
     assert(project);
+    // cppcheck-suppress assertWithSideEffect
     assert(gtApp->session());
 
     GtInputDialog dialog;

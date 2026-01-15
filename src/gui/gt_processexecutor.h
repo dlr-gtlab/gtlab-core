@@ -25,6 +25,7 @@ class GtProcessExecutor : public GtCoreProcessExecutor
 public:
 
     /// Id of this executor
+    // cppcheck-suppress duplInheritedMember
     GT_GUI_EXPORT static const std::string S_ID;
 
     explicit GtProcessExecutor(QObject* parent = nullptr);
