@@ -76,6 +76,9 @@ struct GtSettings::Impl
 
     /// Whether to autostart the process runner
     GtSettingsItem* m_autostartProcessRunner;
+
+    /// User module directories
+    GtSettingsItem* userModuleDirs;
 };
 
 GtSettings::GtSettings()
@@ -93,6 +96,10 @@ GtSettings::GtSettings()
                                  true);
     pimpl->lastPath = registerSetting(QStringLiteral("application/general/lastPath"),
                                  QStringLiteral(""));
+
+    pimpl->userModuleDirs = registerSettingRestart(
+        QStringLiteral("application/general/module_dirs"),
+        QLatin1String(""));
 
     pimpl->lastPerspective =
             registerSetting(
@@ -556,4 +563,18 @@ void
 GtSettings::setAutostartProcessRunner(bool value)
 {
     return pimpl->m_autostartProcessRunner->setValue(value);
+}
+
+QStringList
+GtSettings::userModuleDirs() const
+{
+    auto dirString = pimpl->userModuleDirs->getValue().toString();
+    return dirString.split(";", Qt::SkipEmptyParts);
+}
+
+void
+GtSettings::setUserModuleDirs(const QStringList& dirs)
+{
+    QString dirStr = dirs.join(";");
+    pimpl->userModuleDirs->setValue(dirStr);
 }

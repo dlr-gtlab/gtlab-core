@@ -21,9 +21,12 @@
 #include "gt_logmodel.h"
 #include "gt_logging.h"
 #include "gt_icons.h"
+#include "gt_moduledirectoriestab.h"
 
 #include "gt_preferencesapp.h"
 #include <QStandardItemModel>
+
+#include <gt_moduleloader.h>
 
 #include <cassert>
 
@@ -146,6 +149,9 @@ GtPreferencesApp::GtPreferencesApp() :
 
     generalLayout->addStretch(1);
 
+    m_moduleDirsTab = new GtModuleDirectoriesTab;
+    tabWidget->addTab(m_moduleDirsTab, tr("Module Directories"));
+
     QWidget* processRunnerPage = new QWidget;
     auto idx = tabWidget->addTab(processRunnerPage, tr("Process Runner"));
 
@@ -235,11 +241,18 @@ GtPreferencesApp::saveSettings(GtSettings& settings) const
         settings.setThemeMode("system");
         gtApp->setDarkMode(settings.darkMode());
     }
+
+    settings.setUserModuleDirs(m_moduleDirsTab->userPaths());
 }
 
 void
-GtPreferencesApp::loadSettings(const GtSettings&)
+GtPreferencesApp::loadSettings(const GtSettings& settings)
 {
+    assert(m_moduleDirsTab);
+
+    m_moduleDirsTab->setDefaultInstallPath(GtModuleLoader::applicationModuleDir());
+    m_moduleDirsTab->setDefaultUserPath(GtModuleLoader::defaultUserModuleDir());
+    m_moduleDirsTab->setUserPaths(settings.userModuleDirs());
 }
 
 void
