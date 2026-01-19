@@ -21,7 +21,7 @@ struct GtQmlToolbar::Impl
     GtQmlToolbarGroup m_statusActions;
     QQuickWidget qmlToolbar;
 
-    bool m_darkMode = {false};
+    QVariantMap theme;
 };
 
 GtQmlToolbar::GtQmlToolbar(QWidget* parent) :
@@ -33,6 +33,7 @@ GtQmlToolbar::GtQmlToolbar(QWidget* parent) :
     }();
     Q_UNUSED(typeRegistered);
 
+    setColorTheme(Theme());
 
     pimpl->qmlToolbar.rootContext()->setContextProperty("toolbar", this);
     pimpl->qmlToolbar.setSource(QUrl(QStringLiteral("qrc:/qml/Toolbar.qml")));
@@ -83,19 +84,24 @@ GtQmlToolbar::addStatusAction(GtQmlAction* action)
     emit statusActionsChanged();
 }
 
-bool
-GtQmlToolbar::darkMode() const
+void
+GtQmlToolbar::setColorTheme(const Theme &colors)
 {
-    return pimpl->m_darkMode;
+    QVariantMap theme;
+    theme["baseColor"] = colors.base;
+    theme["backgroundColor"] = colors.background;
+    theme["hoverColor"] = colors.buttonHover;
+    theme["darkMode"] = colors.darkmode;
+
+    pimpl->theme = std::move(theme);
+
+    emit themeChanged();
 }
 
-void
-GtQmlToolbar::setDarkMode(bool d)
+QVariantMap
+GtQmlToolbar::themeMap() const
 {
-    if (d == pimpl->m_darkMode) return;
-
-    pimpl->m_darkMode = d;
-    emit darkModeChanged();
+    return pimpl->theme;
 }
 
 QVariantListModel*
@@ -109,3 +115,12 @@ GtQmlToolbar::statusActions()
 {
     return &pimpl->m_statusActions;
 }
+
+GtQmlToolbar::Theme::Theme()
+    : base(241, 241, 241)
+    , background(255, 255, 255 )
+    , buttonHover(221, 238, 255)
+    , darkmode(false)
+{
+}
+
