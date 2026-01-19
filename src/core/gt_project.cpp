@@ -39,6 +39,8 @@
 #include "internal/gt_moduleupgrader.h"
 #include "internal/gt_moduleupgrader.h"
 
+#include <QTemporaryDir>
+
 #include <cassert>
 
 GtProject::GtProject(const QString& path) :
@@ -336,10 +338,64 @@ GtProject::restoreBackupFiles(const QString& timeStamp)
         return S::ErrorNoBackupFound;
     }
 
+    static QRegularExpression projectModuleTasksRex(
+        R"(^[\w\s\-{}]+\.(gtlab|gtmod)$|^tasks\/[\w\s\-{}\/]+\.gttask$)");
+
+    const auto projectFiles = gt::filesystem::directoryEntries(projectDir,
+                                                         true,
+                                                         projectModuleTasksRex);
+
+    auto moveRelativePath = [](const QDir& srcDir,
+                               const QDir& targetDir,
+                               const QString& rel) -> bool
+    {
+        const QString dst = targetDir.filePath(rel);
+        const QString src = srcDir.filePath(rel);
+
+        QFileInfo dstInfo(dst);
+        if (!QDir().mkpath(dstInfo.dir().absolutePath())) return false;
+        if (QFile::exists(dst) && !QFile::remove(dst)) return false;
+
+        return QFile::rename(src, dst);
+    };
+
+    // move outdated files to a temp dir
+    QTemporaryDir temp;
+
+    if (!temp.isValid())
+    {
+        gtError() << "Failed to create temporary directory";
+        return S::ErrorCopyFailed;
+    }
+
+    QDir tempDir(temp.path());
+
+    auto stash = [&](const QString& rel) {
+        return moveRelativePath(projectDir, tempDir, rel);
+    };
+
+    auto restore = [&](const QString& rel) {
+        return moveRelativePath(tempDir, projectDir, rel);
+    };
+
+    // stash files, since the backup might fail
+    for (const auto& file : projectFiles)
+    {
+        if (!stash(file))
+        {
+            gtError().nospace().noquote() << "Failed to stash '" << file << "'";
+            // try to undo partial stash best-effort
+            for (const auto& f : projectFiles) restore(f);
+            return S::ErrorCopyFailed;
+        }
+    }
+
     if (gt::project::copyProjectData(backupDir, projectDir,
             gt::project::ForceOverwrite | gt::project::IgnoreBackupMd) !=
         gt::filesystem::CopyStatus::Success)
     {
+        // restore project files since backup restored has failed
+        for (const auto& f : projectFiles) restore(f);
         return S::ErrorCopyFailed;
     }
 

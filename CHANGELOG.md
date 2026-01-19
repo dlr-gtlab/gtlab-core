@@ -31,6 +31,7 @@ As such, many functions needed to be deprecated and should be replaced according
  - Fixed crash in Process Explorer, when no project is currently open. - #1393
  - Fixed active object changed, while drag and drop an object e.g. into property link properties. - #1397
  - Fixed an issue where tasks from inactive TaskGroups were not listed or accessible in batch commands and scripts. - #1380
+ - Fixed incorrect packages / modules in the project after a backup restore - #1211
  
 ### Added
  - Horizontal scrolling to the selected object in explorer view.

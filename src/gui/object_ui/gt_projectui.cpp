@@ -1772,6 +1772,9 @@ GtProjectUI::restoreBackup(GtObject *obj)
 
         if (success && initialOpenProject)
         {
+            // update module metadata since the project might contain
+            // different packages in the backup
+            project->loadMetaData();
             success = gtDataModel->openProject(project);
         }
 
