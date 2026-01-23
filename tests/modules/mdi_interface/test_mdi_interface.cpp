@@ -18,7 +18,7 @@
 #include "test_mdi_interface.h"
 
 GtVersionNumber
-TestMdiInterface::version()
+TestMdiInterface::version() const
 {
     return GtVersionNumber(1,2,3);
 }
