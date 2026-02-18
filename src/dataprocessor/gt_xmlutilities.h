@@ -16,7 +16,7 @@
 
 #include <QList>
 #include <QDomElement>
-#include <tl/optional.hpp>
+#include <optional>
 
 class QDomDocument;
 class QXmlStreamWriter;
@@ -231,7 +231,7 @@ bool GT_DATAMODEL_EXPORT renamePropertyElement(
  * @return value of the property given as optional to indicate if the value
  * is valid or not
  */
-tl::optional<double> GT_DATAMODEL_EXPORT getDoublePropetyElementValue(
+std::optional<double> GT_DATAMODEL_EXPORT getDoublePropetyElementValue(
     QDomElement const& parent, const QString& propName);
 
 /**
