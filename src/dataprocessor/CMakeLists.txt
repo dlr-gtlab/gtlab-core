@@ -189,7 +189,6 @@ target_link_libraries(GTlabDataProcessor
       Qt${QT_VERSION_MAJOR}::Core
       Qt${QT_VERSION_MAJOR}::Xml
       GTlab::Logging
-      tl::optional
     PRIVATE
       mpark::variant
 )

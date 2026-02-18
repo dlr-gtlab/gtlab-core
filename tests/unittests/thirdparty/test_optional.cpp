@@ -6,14 +6,13 @@
 
 #include "gtest/gtest.h"
 
-#include <tl/optional.hpp>
-
 #include <string>
+#include <optional>
 
 
 struct TestOptional : public testing::Test
 {
-    tl::optional<double> var;
+    std::optional<double> var;
 };
 
 TEST_F(TestOptional, has_value)

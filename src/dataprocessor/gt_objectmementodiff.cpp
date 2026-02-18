@@ -21,8 +21,8 @@
 #include <QCryptographicHash>
 #include <QHash>
 
-#include <tl/optional.hpp>
 #include <algorithm>
+#include <optional>
 
 using PD = GtObjectMemento::PropertyData;
 
@@ -175,7 +175,7 @@ struct FetchMementoResult
     // indicates if setup was sucessful
     bool success = true;
     // optional replacement for left or right memento
-    tl::optional<GtObjectMemento> left{}, right{};
+    std::optional<GtObjectMemento> left{}, right{};
 };
 
 FetchMementoResult
@@ -878,4 +878,3 @@ GtObjectMementoDiff::copyAttributes(const QDomElement& root,
         target.setAttribute(attr.name(), attr.value());
     }
 }
-
