@@ -1,3 +1,8 @@
 .hideindoc {
     display: none;
 }
+
+table.compact-table th,
+table.compact-table td {
+    font-size: 0.9em;
+}
