@@ -65,7 +65,6 @@ target_link_libraries(GTlabUnitTest PRIVATE
     gtest
     gmock
     mpark::variant
-    tl::optional
 )
 
 include(GoogleTest)

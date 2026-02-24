@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - New implementations for boundaries based on optional values to support property definitions - #1381
 
 ### Changed
+ - GTlab now requires C++17 for compilation and usage. - #1441
  - The system of monitoring properties is changed and do not use the GtMonitoring class anymore.
    Now the base properties can be used with the flag setMonitoring. 
    The remaining function registermonitoringProperty includes a call of this function. - #1239

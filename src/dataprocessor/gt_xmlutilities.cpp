@@ -340,13 +340,13 @@ gt::xml::renamePropertyElement(const QDomElement& parent,
     return true;
 }
 
-tl::optional<double>
+std::optional<double>
 gt::xml::getDoublePropetyElementValue(const QDomElement& parent,
                                       const QString& propName)
 {
     QDomElement propElement = xml::findPropertyElement(parent, propName);
 
-    if (propElement.isNull()) return tl::nullopt;
+    if (propElement.isNull()) return std::nullopt;
 
     QString text = propElement.text();
 
@@ -355,7 +355,7 @@ gt::xml::getDoublePropetyElementValue(const QDomElement& parent,
 
     if (text.isEmpty() || !ok)
     {
-        return tl::nullopt;
+        return std::nullopt;
     }
 
     return val;

@@ -7,8 +7,12 @@
 #ifndef GT_BOUNDARIES_H
 #define GT_BOUNDARIES_H
 
-#include <tl/optional.hpp>
+#include <algorithm>
+#include <cassert>
 #include <cmath>
+#include <optional>
+#include <type_traits>
+#include <utility>
 
 namespace gt {
     /**
@@ -24,8 +28,8 @@ namespace gt {
 
     public:
         // Accessors
-        const tl::optional<ParamType>& low()  const noexcept { return m_low;  }
-        const tl::optional<ParamType>& high() const noexcept { return m_high; }
+        const std::optional<ParamType>& low()  const noexcept { return m_low;  }
+        const std::optional<ParamType>& high() const noexcept { return m_high; }
         bool has_low()  const noexcept { return static_cast<bool>(m_low);  }
         bool has_high() const noexcept { return static_cast<bool>(m_high); }
 
@@ -38,7 +42,7 @@ namespace gt {
          */
         static Boundaries makeUpper(ParamType high) noexcept
         {
-            return Boundaries<ParamType>(tl::nullopt, std::move(high));
+            return Boundaries<ParamType>(std::nullopt, std::move(high));
         }
 
         /**
@@ -49,7 +53,7 @@ namespace gt {
          */
         static Boundaries makeLower(ParamType low) noexcept
         {
-            return Boundaries<ParamType>(std::move(low), tl::nullopt);
+            return Boundaries<ParamType>(std::move(low), std::nullopt);
         }
 
         /**
@@ -72,12 +76,12 @@ namespace gt {
          */
         static Boundaries makeUnbounded() noexcept
         {
-            return Boundaries(tl::nullopt, tl::nullopt);
+            return Boundaries(std::nullopt, std::nullopt);
         }
 
         // ---------- Utilities ----------
-        static bool valid_pair(const tl::optional<ParamType>& lo,
-                               const tl::optional<ParamType>& hi) noexcept
+        static bool valid_pair(const std::optional<ParamType>& lo,
+                               const std::optional<ParamType>& hi) noexcept
         {
             if constexpr (std::is_floating_point<ParamType>::value)
             {
@@ -109,15 +113,15 @@ namespace gt {
         }
 
     private:
-        Boundaries(tl::optional<ParamType> lo, tl::optional<ParamType> hi) noexcept
+        Boundaries(std::optional<ParamType> lo, std::optional<ParamType> hi) noexcept
             : m_low(std::move(lo)), m_high(std::move(hi))
         {
             // Re-check in debug builds
             assert(valid_pair(m_low, m_high) && "Boundaries invariant violated");
         }
 
-        tl::optional<ParamType> m_low;
-        tl::optional<ParamType> m_high;
+        std::optional<ParamType> m_low;
+        std::optional<ParamType> m_high;
     };
 
 } // namespace gt
