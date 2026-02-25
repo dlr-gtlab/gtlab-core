@@ -14,6 +14,9 @@
 #include "gt_gui_exports.h"
 
 #include "gt_settings.h"
+
+#include <gt_version.h>
+
 #include <QObject>
 
 class GtShortCut;
@@ -41,14 +44,7 @@ public:
     QKeySequence getKey(const QString& id,
                         const QString& category = "Core") const;
 
-    /**
-     * @brief initialize - initialize short cuts based on the information
-     * from the map
-     * @param tab - map using the short cut ids as identifier and
-     * with a string list containing the QKeySequence and the category as the
-     * two elements of the list.
-     */
-    [[deprecated("use QList<GtShortCutSettingsData> instead")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "use QList<GtShortCutSettingsData> instead")
     void initialize(const QMap<QString, QStringList>& tab);
 
     /**
@@ -83,7 +79,7 @@ public:
      */
     GtShortCut* findShortCut(const QString& id, const QString& category) const;
 
-    [[deprecated("use emit x->changed() instead")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "use emit x->changed() instead")
     void emitChange();
 
 signals:

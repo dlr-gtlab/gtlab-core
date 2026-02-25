@@ -13,6 +13,8 @@
 
 #include <utility>
 
+#include <gt_version.h>
+
 namespace gt
 {
 
@@ -74,8 +76,8 @@ public:
         clear();
     }
 
-    [[deprecated("Use finalize instead")]]
-    void exec() { return finalize(); };
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use finalize instead")
+    void exec() { return finalize(); }
 
     /**
      * @brief Clears object
