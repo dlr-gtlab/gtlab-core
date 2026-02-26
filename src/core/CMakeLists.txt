@@ -72,6 +72,7 @@ set(headers
     process_management/process_runner/gt_processrunnerglobals.h
     process_management/process_runner/gt_processrunnertcpconnection.h
     process_management/calculators/gt_exporttomementocalculator.h
+    process_management/calculators/gt_commandlinetemplaterunner.h
     settings/gt_shortcutsettingsdata.h
     states/gt_state.h
     states/gt_stategroup.h
@@ -105,6 +106,7 @@ set(headers
     gt_moduleloader.h
     gt_datamodelinterface.h
     gt_command.h
+    gt_commandlinetemplatefinder.h
 )
 
 set(hdr_private
@@ -178,6 +180,7 @@ set(sources
     process_management/process_runner/gt_processrunnerglobals.cpp
     process_management/process_runner/gt_processrunnertcpconnection.cpp
     process_management/calculators/gt_exporttomementocalculator.cpp
+    process_management/calculators/gt_commandlinetemplaterunner.cpp
     settings/gt_shortcutsettingsdata.cpp
     states/gt_state.cpp
     states/gt_stategroup.cpp
@@ -207,6 +210,7 @@ set(sources
     gt_abstractloadinghelper.cpp
     gt_moduleloader.cpp
     gt_command.cpp
+    gt_commandlinetemplatefinder.cpp
     internal/gt_moduleupgrader.cpp
 )
 

@@ -11,7 +11,7 @@
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
+set(CMAKE_AUTOUIC_SEARCH_PATHS ui preferences/pages)
 
 set(headers
     dialogs/gt_moduledetailsdialog.h
@@ -23,6 +23,7 @@ set(headers
     models/gt_qmlobjectlistmodel.h
     preferences/gt_preferencesdialog.h
     preferences/pages/gt_preferencesapp.h
+    preferences/pages/gt_preferencescommandlinetemplates.h
     preferences/pages/gt_preferenceslanguage.h
     preferences/pages/gt_preferencessession.h
     preferences/pages/gt_preferencesshortcuts.h
@@ -105,7 +106,7 @@ set(headers
     dock_widgets/labels/gt_labeldelegate.h
 )
 
-set(forms ui/gt_mainwin.ui)
+set(forms ui/gt_mainwin.ui preferences/pages/gt_preferencescommandlinetemplates.ui)
 
 set(sources
     app.cpp
@@ -118,6 +119,7 @@ set(sources
     models/gt_qmlobjectlistmodel.cpp
     preferences/gt_preferencesdialog.cpp
     preferences/pages/gt_preferencesapp.cpp
+    preferences/pages/gt_preferencescommandlinetemplates.cpp
     preferences/pages/gt_preferenceslanguage.cpp
     preferences/pages/gt_preferencessession.cpp
     preferences/pages/gt_preferencesshortcuts.cpp
