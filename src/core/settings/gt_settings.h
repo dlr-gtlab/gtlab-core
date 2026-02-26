@@ -377,6 +377,19 @@ public:
      */
     void setAutostartProcessRunner(bool value);
 
+
+    void setCommandlineTemplatesOs(const QString& path);
+    QString commandlineTemplatesOs() const;
+    void setCommandlineTemplatesPath(const QString& path);
+    QString commandlineTemplatesPath() const;
+    void setCommandlineTemplatesMachine(const QString& path);
+    QString commandlineTemplatesMachine() const;
+    void setCommandlineTemplatesDefaultShell(const QString& path);
+    QString commandlineTemplatesDefaultShell() const;
+
+    QMap<QString, QVariant> initialCommandlineTemplatesDefaults();
+
+
 private:
 
     struct Impl;
