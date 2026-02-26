@@ -1,3 +1,7 @@
+/*
+ * Author: Matthias Schuff
+ */
+
 #include "gt_commandlinetemplatefinder.h"
 
 #include "gt_coreapplication.h"

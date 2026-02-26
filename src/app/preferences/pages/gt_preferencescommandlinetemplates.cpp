@@ -1,3 +1,7 @@
+/*
+ * Author: Matthias Schuff
+ */
+
 #include "gt_preferencescommandlinetemplates.h"
 #include "ui_gt_preferencescommandlinetemplates.h"
 #include "gt_settings.h"

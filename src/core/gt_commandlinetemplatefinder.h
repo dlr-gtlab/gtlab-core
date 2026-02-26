@@ -1,3 +1,7 @@
+/*
+ * Author: Matthias Schuff
+ */
+
 #ifndef GT_COMMANDLINETEMPLATEFINDER_H
 #define GT_COMMANDLINETEMPLATEFINDER_H
 
