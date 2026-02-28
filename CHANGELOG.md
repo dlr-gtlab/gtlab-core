@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+ - Module directories can now be customized via settings and the `GTLAB_MODULE_DIRS` environment variable (first dir wins on collisions).
+
 ### Fixed
  - Connecting GtStringMonitoringProperty to GtStringProperty in the connection editor now works as expected - #1380
  - Fixed Output Dock not resizing new rows correctly. - #1260
