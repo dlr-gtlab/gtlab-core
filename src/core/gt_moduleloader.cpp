@@ -39,6 +39,27 @@
 namespace
 {
 
+QStringList moduleDirsFromEnv()
+{
+    const QByteArray raw = qgetenv("GTLAB_MODULE_DIRS");
+    if (raw.isEmpty())
+    {
+        return {};
+    }
+
+    const QChar separator = QDir::listSeparator();
+    QStringList dirs = QString::fromLocal8Bit(raw)
+                           .split(separator, Qt::SkipEmptyParts);
+
+    for (QString& dir : dirs)
+    {
+        dir = dir.trimmed();
+    }
+
+    dirs.removeAll(QString());
+    return dirs;
+}
+
 /// logs a warning once
 const auto logWarnOnce = [](QString const& msg) {
     static QVector<QString> logged;
@@ -294,6 +315,16 @@ QList<QDir> getModuleDirectories()
 {
     QList<QDir> moduleDirectories;
 
+    // additional module dirs from environment (first dir wins)
+    for (const auto& md : moduleDirsFromEnv())
+    {
+        QDir moduleDirectory(md);
+        if (moduleDirectory.exists())
+        {
+            moduleDirectories.push_back(moduleDirectory);
+        }
+    }
+
     // application module dir
     QDir applicationModules(GtModuleLoader::applicationModuleDir());
     if  (applicationModules.exists())
@@ -514,7 +545,20 @@ ModuleMetaMap loadModuleMeta()
     for (const QString& moduleFile : moduleFiles)
     {
         const auto meta = loadModuleMeta(moduleFile);
-        metaData.insert(std::make_pair(meta.moduleId(), meta));
+        if (meta.moduleId().isEmpty())
+        {
+            continue;
+        }
+
+        auto insertResult = metaData.insert(std::make_pair(meta.moduleId(), meta));
+        if (!insertResult.second)
+        {
+            logDebugOnce(QObject::tr(
+                "Duplicate module id '%1' found at '%2'. "
+                "Keeping first occurrence at '%3'.")
+                .arg(meta.moduleId(), meta.location(),
+                     insertResult.first->second.location()));
+        }
     }
 
     const auto crashed_mods = CrashedModulesLog().crashedModules();
