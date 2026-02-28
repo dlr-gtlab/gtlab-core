@@ -27,6 +27,12 @@ class GtVersionNumber;
 
 /**
  * @brief The GtModuleLoader class
+ *
+ * Module search order (first wins on collisions):
+ * - GTLAB_MODULE_DIRS (list separator by platform)
+ * - Application module dir
+ * - Default user module dir
+ * - User-defined module dirs (settings, in listed order)
  */
 class GT_CORE_EXPORT GtModuleLoader
 {
