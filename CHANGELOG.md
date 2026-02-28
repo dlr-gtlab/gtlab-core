@@ -34,6 +34,7 @@ As such, many functions needed to be deprecated and should be replaced according
  - Fixed incorrect packages / modules in the project after a backup restore - #1211
  
 ### Added
+ - Module directories can now be customized via settings and the `GTLAB_MODULE_DIRS` environment variable (first dir wins on collisions).
  - Horizontal scrolling to the selected object in explorer view.
    This also fixes jumping of the scrollbar to the left - #1235
 
