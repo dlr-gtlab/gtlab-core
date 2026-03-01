@@ -17,6 +17,8 @@
 #include <QUrl>
 #include <QDir>
 
+#include <algorithm>
+
 #include <gt_icons.h>
 #include <gt_logging.h>
 
@@ -27,9 +29,13 @@ GtModuleDirectoriesTab::GtModuleDirectoriesTab(QWidget* parent) :
 
     ui->btnAddDirectory->setIcon(gt::gui::icon::folderAdd());
     ui->btnRemoveDirectory->setIcon(gt::gui::icon::remove());
+    ui->btnMoveUp->setIcon(gt::gui::icon::arrowUp());
+    ui->btnMoveDown->setIcon(gt::gui::icon::arrowDown());
 
     ui->btnAddDirectory->setToolTip(tr("Add directory"));
     ui->btnRemoveDirectory->setToolTip(tr("Remove directory"));
+    ui->btnMoveUp->setToolTip(tr("Move up"));
+    ui->btnMoveDown->setToolTip(tr("Move down"));
 
     // Allow inline editing for user rows; F2, double-click, or selected-click
     ui->directoriesList->setEditTriggers(QAbstractItemView::EditKeyPressed |
@@ -52,6 +58,10 @@ GtModuleDirectoriesTab::GtModuleDirectoriesTab(QWidget* parent) :
             &GtModuleDirectoriesTab::onAddDirectory);
     connect(ui->btnRemoveDirectory, &QToolButton::clicked, this,
             &GtModuleDirectoriesTab::onRemoveDirectory);
+    connect(ui->btnMoveUp, &QToolButton::clicked, this,
+            &GtModuleDirectoriesTab::onMoveUp);
+    connect(ui->btnMoveDown, &QToolButton::clicked, this,
+            &GtModuleDirectoriesTab::onMoveDown);
 
     // Keep remove button state in sync
     connect(ui->directoriesList, &QListWidget::itemSelectionChanged, this,
@@ -74,28 +84,39 @@ GtModuleDirectoriesTab::ensureHeaderItems()
 {
     auto infoIcon = gt::gui::icon::info();
 
-    // Ensure the list has at least two items for defaults
-    while (ui->directoriesList->count() < 2)
-        ui->directoriesList->addItem(new QListWidgetItem);
+    // Remove any existing header rows (identified by no-item flags)
+    for (int i = ui->directoriesList->count() - 1; i >= 0; --i)
+    {
+        auto* it = ui->directoriesList->item(i);
+        if (it && it->flags() == Qt::NoItemFlags)
+        {
+            delete ui->directoriesList->takeItem(i);
+        }
+    }
 
+    // Append two header items at the bottom
     for (int row = 0; row < 2; ++row)
     {
-        auto* it = ui->directoriesList->item(row);
+        auto* it = new QListWidgetItem;
         it->setFlags(Qt::NoItemFlags); // not selectable/editable
         it->setForeground(Qt::gray);
         it->setCheckState(Qt::Checked);
         it->setIcon(infoIcon);
+        ui->directoriesList->addItem(it);
     }
 
-    setHeaderText(0,
-                  m_defaultInstallPath.isEmpty() ? tr("<install modules path>")
-                                                 : m_defaultInstallPath,
-                  tr("Application module directory - always enabled"));
-    setHeaderText(1,
+    const int userRow = ui->directoriesList->count() - 2;
+    const int installRow = ui->directoriesList->count() - 1;
+
+    setHeaderText(userRow,
                   m_defaultUserPath.isEmpty()
                       ? tr("<default user modules path>")
                       : m_defaultUserPath,
-                  tr("User module directory - always enabled"));
+                  tr("User module directory - always enabled, searched before the application directory"));
+    setHeaderText(installRow,
+                  m_defaultInstallPath.isEmpty() ? tr("<install modules path>")
+                                                 : m_defaultInstallPath,
+                  tr("Application module directory - always enabled, searched after the user directory"));
 }
 
 void
@@ -114,7 +135,10 @@ GtModuleDirectoriesTab::setHeaderText(int row, const QString& text,
 bool
 GtModuleDirectoriesTab::isHeaderRow(int row) const
 {
-    return row == 0 || row == 1;
+    const int count = ui->directoriesList->count();
+    if (count < 2)
+        return false;
+    return row >= count - 2;
 }
 
 void
@@ -135,7 +159,9 @@ QStringList
 GtModuleDirectoriesTab::userPaths() const
 {
     QStringList out;
-    for (int i = 2; i < ui->directoriesList->count(); ++i)
+    const int count = ui->directoriesList->count();
+    const int lastUserRow = count - 3;
+    for (int i = 0; i <= lastUserRow; ++i)
     {
         auto* item = ui->directoriesList->item(i);
         auto path = item->text();
@@ -153,9 +179,9 @@ GtModuleDirectoriesTab::setUserPaths(const QStringList& paths)
 
     auto usericon = gt::gui::icon::folderEye();
 
-    // Remove all existing user-defined items
-    while (ui->directoriesList->count() > 2)
-        delete ui->directoriesList->takeItem(2);
+    // Remove all existing items
+    while (ui->directoriesList->count() > 0)
+        delete ui->directoriesList->takeItem(0);
 
     // Add new ones (deduplicated, normalized)
     QSet<QString> seen;
@@ -187,6 +213,8 @@ GtModuleDirectoriesTab::setUserPaths(const QStringList& paths)
 
         ui->directoriesList->addItem(it);
     }
+
+    ensureHeaderItems();
 
     m_blockSignals = false;
     updateRemoveButton();
@@ -224,7 +252,8 @@ GtModuleDirectoriesTab::onAddDirectory()
                  Qt::ItemIsUserCheckable);
     it->setCheckState(Qt::Checked); // enabled by default
     it->setIcon(usericon);
-    ui->directoriesList->addItem(it);
+    const int insertRow = ui->directoriesList->count() - 2;
+    ui->directoriesList->insertItem(std::max(0, insertRow), it);
     ui->directoriesList->setCurrentItem(it);
 
     emit userPathsChanged(userPaths());
@@ -238,13 +267,94 @@ GtModuleDirectoriesTab::onRemoveDirectory()
     if (selected.isEmpty())
         return;
 
-    // Remove only user defined (rows >= 2)
+    // Remove only user-defined rows (headers are locked)
     for (QListWidgetItem* it : selected)
     {
         const int row = ui->directoriesList->row(it);
-        if (row >= 2)
+        if (!isHeaderRow(row))
             delete ui->directoriesList->takeItem(row);
     }
+
+    emit userPathsChanged(userPaths());
+    updateRemoveButton();
+}
+
+void
+GtModuleDirectoriesTab::onMoveUp()
+{
+    const auto selected = ui->directoriesList->selectedItems();
+    if (selected.isEmpty())
+        return;
+
+    QVector<int> rows;
+    QSet<QListWidgetItem*> selectedSet;
+    for (auto* it : selected)
+    {
+        selectedSet.insert(it);
+        const int row = ui->directoriesList->row(it);
+        if (!isHeaderRow(row))
+            rows.push_back(row);
+    }
+
+    if (rows.isEmpty())
+        return;
+
+    std::sort(rows.begin(), rows.end());
+
+    for (int row : rows)
+    {
+        if (row <= 0)
+            continue;
+        if (isHeaderRow(row))
+            continue;
+        auto* item = ui->directoriesList->takeItem(row);
+        ui->directoriesList->insertItem(row - 1, item);
+    }
+
+    ui->directoriesList->clearSelection();
+    for (auto* it : selectedSet)
+        it->setSelected(true);
+
+    emit userPathsChanged(userPaths());
+    updateRemoveButton();
+}
+
+void
+GtModuleDirectoriesTab::onMoveDown()
+{
+    const auto selected = ui->directoriesList->selectedItems();
+    if (selected.isEmpty())
+        return;
+
+    QVector<int> rows;
+    QSet<QListWidgetItem*> selectedSet;
+    for (auto* it : selected)
+    {
+        selectedSet.insert(it);
+        const int row = ui->directoriesList->row(it);
+        if (!isHeaderRow(row))
+            rows.push_back(row);
+    }
+
+    if (rows.isEmpty())
+        return;
+
+    std::sort(rows.begin(), rows.end(), std::greater<int>());
+
+    const int lastUserRow = ui->directoriesList->count() - 3;
+    for (int row : rows)
+    {
+        if (row < 0 || row >= lastUserRow)
+            continue;
+        if (isHeaderRow(row))
+            continue;
+        auto* item = ui->directoriesList->takeItem(row);
+        ui->directoriesList->insertItem(row + 1, item);
+    }
+
+    ui->directoriesList->clearSelection();
+    for (auto* it : selectedSet)
+        it->setSelected(true);
 
     emit userPathsChanged(userPaths());
     updateRemoveButton();
@@ -264,12 +374,15 @@ GtModuleDirectoriesTab::onItemChanged(QListWidgetItem* item)
     const int row = ui->directoriesList->row(item);
 
     // Protect headers
-    if (row == 0)
+    const int count = ui->directoriesList->count();
+    const int installRow = count - 2;
+    const int userRow = count - 1;
+    if (row == installRow)
     {
         item->setText(m_defaultInstallPath);
         return;
     }
-    if (row == 1)
+    if (row == userRow)
     {
         item->setText(m_defaultUserPath);
         return;
@@ -317,13 +430,38 @@ GtModuleDirectoriesTab::updateRemoveButton()
     const auto selectedItems = ui->directoriesList->selectedItems();
     for (const QListWidgetItem* it : selectedItems)
     {
-        if (ui->directoriesList->row(it) >= 2)
+        if (!isHeaderRow(ui->directoriesList->row(it)))
         {
             canRemove = true;
             break;
         }
     }
     ui->btnRemoveDirectory->setEnabled(canRemove);
+    updateMoveButtons();
+}
+
+void
+GtModuleDirectoriesTab::updateMoveButtons()
+{
+    bool canMoveUp = false;
+    bool canMoveDown = false;
+
+    const int count = ui->directoriesList->count();
+    const int lastUserRow = count - 3;
+    const auto selectedItems = ui->directoriesList->selectedItems();
+    for (const QListWidgetItem* it : selectedItems)
+    {
+        const int row = ui->directoriesList->row(it);
+        if (isHeaderRow(row))
+            continue;
+        if (row > 0)
+            canMoveUp = true;
+        if (row < lastUserRow)
+            canMoveDown = true;
+    }
+
+    ui->btnMoveUp->setEnabled(canMoveUp);
+    ui->btnMoveDown->setEnabled(canMoveDown);
 }
 
 void
@@ -342,8 +480,8 @@ GtModuleDirectoriesTab::onListContextMenu(const QPoint& pos)
     connect(showAct, &QAction::triggered, this,
             &GtModuleDirectoriesTab::onShowInExplorer);
 
-    // For user-defined rows only (>= 2)
-    const bool userRow = (item && ui->directoriesList->row(item) >= 2);
+    // For user-defined rows only (exclude headers)
+    const bool userRow = (item && !isHeaderRow(ui->directoriesList->row(item)));
 
     QAction* editInlineAct = menu.addAction(tr("Rename / Edit Path"));
     editInlineAct->setEnabled(userRow);

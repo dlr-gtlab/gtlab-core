@@ -325,16 +325,6 @@ QList<QDir> getModuleDirectories()
         }
     }
 
-    // application module dir
-    QDir applicationModules(GtModuleLoader::applicationModuleDir());
-    if  (applicationModules.exists())
-        moduleDirectories.append(applicationModules);
-
-    // user module dir
-    QDir userDir(GtModuleLoader::defaultUserModuleDir());
-    if (userDir.exists())
-        moduleDirectories.push_back(userDir);
-
     for (auto&& md : GtModuleLoader::customUserModuleDirs())
     {
         // check if module dir is disabled
@@ -344,6 +334,16 @@ QList<QDir> getModuleDirectories()
         if (moduleDirectory.exists())
             moduleDirectories.push_back(moduleDirectory);
     }
+
+    // user module dir
+    QDir userDir(GtModuleLoader::defaultUserModuleDir());
+    if (userDir.exists())
+        moduleDirectories.push_back(userDir);
+
+    // application module dir
+    QDir applicationModules(GtModuleLoader::applicationModuleDir());
+    if  (applicationModules.exists())
+        moduleDirectories.append(applicationModules);
 
     for (auto&& dir : moduleDirectories)
     {
