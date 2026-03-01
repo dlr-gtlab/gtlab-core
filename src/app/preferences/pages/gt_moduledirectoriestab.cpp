@@ -123,7 +123,7 @@ void
 GtModuleDirectoriesTab::setHeaderText(int row, const QString& text,
                                       const QString& about)
 {
-    if (row < 0 || row >= 2)
+    if (row < 0 || row >= ui->directoriesList->count())
         return;
     auto* it = ui->directoriesList->item(row);
     if (!it)
@@ -375,16 +375,20 @@ GtModuleDirectoriesTab::onItemChanged(QListWidgetItem* item)
 
     // Protect headers
     const int count = ui->directoriesList->count();
-    const int installRow = count - 2;
-    const int userRow = count - 1;
+    const int userRow = count - 2;
+    const int installRow = count - 1;
     if (row == installRow)
     {
-        item->setText(m_defaultInstallPath);
+        item->setText(m_defaultInstallPath.isEmpty()
+                          ? tr("<install modules path>")
+                          : m_defaultInstallPath);
         return;
     }
     if (row == userRow)
     {
-        item->setText(m_defaultUserPath);
+        item->setText(m_defaultUserPath.isEmpty()
+                          ? tr("<default user modules path>")
+                          : m_defaultUserPath);
         return;
     }
 
