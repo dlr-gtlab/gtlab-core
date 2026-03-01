@@ -20,11 +20,12 @@ class QListWidgetItem;
 /**
  * @brief Widget to manage module search directories for GTlab.
  *
- * The list shows two fixed, informational entries on top (default install path
- * and default user path). All subsequent entries are user-defined and can be
- * added/removed/edited. User entries are checkable to enable/disable them.
+ * The list shows two fixed, informational entries at the bottom (default
+ * install path and default user path). All preceding entries are user-defined
+ * and can be added/removed/edited. User entries are checkable to enable/disable
+ * them.
  *
- * @note The first two rows are non-interactive and never returned by userPaths().
+ * @note The last two rows are non-interactive and never returned by userPaths().
  */
 class GtModuleDirectoriesTab : public QWidget
 {
@@ -44,7 +45,7 @@ public:
     /**
      * @brief Set the default (built-in) install modules path.
      *
-     * Shown as the first fixed row, greyed out and non-interactive.
+     * Shown as a fixed row near the bottom, greyed out and non-interactive.
      * This is a visual hint only and is never included in userPaths().
      *
      * @param path Absolute or relative path; will be normalized for display.
@@ -54,7 +55,7 @@ public:
     /**
      * @brief Set the default user modules path.
      *
-     * Shown as the second fixed row, greyed out and non-interactive.
+     * Shown as a fixed row at the bottom, greyed out and non-interactive.
      * This is a visual hint only and is never included in userPaths().
      *
      * @param path Absolute or relative path; will be normalized for display.
@@ -64,7 +65,7 @@ public:
     /**
      * @brief Return only enabled, user-defined module directories.
      *
-     * The first two fixed rows are excluded. Unchecked (disabled) user entries
+     * The last two fixed rows are excluded. Unchecked (disabled) user entries
      * are also excluded.
      *
      * @return QStringList of normalized, enabled user paths.
@@ -74,8 +75,9 @@ public:
     /**
      * @brief Replace all user-defined module directories (enabled by default).
      *
-     * Clears existing user entries (rows >= 2) and appends the given paths as
-     * editable, checkable items (checked). Paths are normalized and deduplicated.
+     * Clears existing user entries (all rows except the last two) and appends
+     * the given paths as editable, checkable items (checked). Paths are
+     * normalized and deduplicated.
      *
      * @param paths List of paths to set as user entries.
      */
@@ -98,9 +100,19 @@ private slots:
     void onAddDirectory();
 
     /**
-     * @brief Remove the currently selected user entries (rows >= 2).
+     * @brief Remove the currently selected user entries (rows above headers).
      */
     void onRemoveDirectory();
+
+    /**
+     * @brief Move the selected user entries up by one row (user rows only).
+     */
+    void onMoveUp();
+
+    /**
+     * @brief Move the selected user entries down by one row (user rows only).
+     */
+    void onMoveDown();
 
     /**
      * @brief Keep UI state (e.g., remove button enabled) in sync with selection.
@@ -170,7 +182,7 @@ private:
     /**
      * @brief Set text and tooltip for one of the two header rows.
      *
-     * @param row 0 for install path, 1 for user path.
+     * @param row install path row or user path row (last two rows).
      * @param text Display text (path).
      * @param about Tooltip/help text explaining the row.
      */
@@ -185,6 +197,11 @@ private:
      * @brief Enable/disable the Remove button based on current selection.
      */
     void updateRemoveButton();
+
+    /**
+     * @brief Enable/disable move buttons based on current selection.
+     */
+    void updateMoveButtons();
 
     //! Auto-generated UI.
     Ui::GtModuleDirectoriesTab* ui;
