@@ -16,6 +16,7 @@
 class QCheckBox;
 class QSpinBox;
 class QComboBox;
+class GtModuleDirectoriesTab;
 
 /**
  * @brief The GtPreferencesApp class
@@ -64,6 +65,8 @@ private:
 
     /// Select the theme to use (by system, dark, bright)
     QComboBox* m_themeSelection;
+
+    GtModuleDirectoriesTab* m_moduleDirsTab;
 
 private slots:
     /**

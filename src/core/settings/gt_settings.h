@@ -377,6 +377,16 @@ public:
      */
     void setAutostartProcessRunner(bool value);
 
+    /**
+     * @brief Returns the module directories defined by the user
+     */
+    QStringList userModuleDirs() const;
+
+    /**
+     * @brief Sets the user module directories
+     */
+    void setUserModuleDirs(const QStringList& dirs);
+
 private:
 
     struct Impl;
