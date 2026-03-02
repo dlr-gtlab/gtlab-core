@@ -175,12 +175,6 @@ protected:
     GtObjectUIActionGroup& addActionGroup(const QString& groupName,
                                           int sizeHint = 1);
 
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
     GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                                    "addSingleAction(<text>, <method>)"
                                    "  .setIcon(<icon>)"
@@ -192,15 +186,6 @@ protected:
                          const QString& actionVerification,
                          const QString& actionVisibility);
 
-    /**
-     * @brief addSingleAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     * @param actionVerification
-     * @param actionVisibility
-     * @param shortcut
-     */
     GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                                    "addSingleAction(<text>, <method>)"
                                    "  .setIcon(<icon>)"
@@ -214,12 +199,6 @@ protected:
                          const QString& actionVisibility,
                          const QKeySequence& shortcut);
 
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
     GT_DEPRECATED_REMOVED_IN(2, 1,"Use dedicated setters instead: "
                                   "addSingleAction(<text>, <method>)"
                                   "  .setIcon(<icon>)"
@@ -229,12 +208,6 @@ protected:
                          const QString& actionMethod,
                          const QString& actionVerification);
 
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
     GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                                    "addSingleAction(<text>, <method>)"
                                    "  .setIcon(<icon>)"
@@ -246,12 +219,6 @@ protected:
                          const QString& actionVerification,
                          const QKeySequence& shortcut);
 
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
     GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                                    "addSingleAction(<text>, <method>)"
                                    "  .setIcon(<icon>)")
@@ -259,12 +226,6 @@ protected:
                          const QString& actionIcon,
                          const QString& actionMethod);
 
-    /**
-     * @brief addSingleAction
-     * @param actionText
-     * @param actionMethod
-     * @param shortcut
-     */
     GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                                    "addSingleAction(<text>, <method>)"
                                    "  .setShortCut(<key_seq>)")
@@ -272,13 +233,6 @@ protected:
                          const QString& actionMethod,
                          const QKeySequence &shortcut);
 
-    /**
-     * @brief addSingleAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     * @param shortcut
-     */
     GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                                    "addSingleAction(<text>, <method>)"
                                    "  .setIcon(<icon>)"
@@ -288,11 +242,6 @@ protected:
                          const QString& actionMethod,
                          const QKeySequence& shortcut);
 
-    /**
-     * @brief addGroupActions
-     * @param groupName
-     * @param actions
-     */
     GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                                    "addActionGroup(<text>)"
                                    "  << makeSingleAction(...)"
@@ -300,11 +249,6 @@ protected:
     void addActionGroup(const QString& groupName,
                         const QList<GtObjectUIAction>& actions);
 
-    /**
-     * @brief addActionGroup
-     * @param groupName
-     * @param actions
-     */
     GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
                                    "addActionGroup(<text>)"
                                    "  .setIcon(<icon>)"

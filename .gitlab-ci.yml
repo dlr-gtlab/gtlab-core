@@ -340,7 +340,6 @@ package-linux:
 cppcheck:
   stage: codequality
   extends:
-    - .cppCheckTemplate
     - .linuxdocker
   allow_failure: false
   needs: ["linuxBuildDebug"]
@@ -352,6 +351,12 @@ cppcheck:
   - exit $exit_code
   variables:
     GIT_SUBMODULE_STRATEGY: "none"
+  artifacts:
+    reports:
+      codequality: codequality.json
+    paths:
+      - codequality.json
+
    
 check-license:
    stage: codequality

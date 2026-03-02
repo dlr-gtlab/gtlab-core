@@ -12,7 +12,7 @@
 #include "gt_object.h"
 #include "gt_objectuiaction.h"
 
-#include "gt_version.h"
+#include <gt_version.h>
 
 #include <QList>
 #include <QWidget>
