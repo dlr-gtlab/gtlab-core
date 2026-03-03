@@ -106,7 +106,9 @@ set(headers
     gt_moduleloader.h
     gt_datamodelinterface.h
     gt_command.h
-    gt_commandlinetemplatefinder.h
+    gt_commandlinetemplatefinder.h    
+    gt_commandlinetemplaterendering.h
+    gt_commandlinescriptrunner.h
 )
 
 set(hdr_private
@@ -211,6 +213,8 @@ set(sources
     gt_moduleloader.cpp
     gt_command.cpp
     gt_commandlinetemplatefinder.cpp
+    gt_commandlinetemplaterendering.cpp
+    gt_commandlinescriptrunner.cpp
     internal/gt_moduleupgrader.cpp
 )
 

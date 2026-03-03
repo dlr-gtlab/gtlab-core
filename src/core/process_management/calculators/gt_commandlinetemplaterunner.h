@@ -6,10 +6,13 @@
 #define GT_COMMANDLINETEMPLATERUNNER_H
 
 #include "gt_calculator.h"
+#include "gt_doublemonitoringproperty.h"
 #include "gt_stringproperty.h"
 #include "gt_boolproperty.h"
 #include "gt_intproperty.h"
 #include "gt_propertystructcontainer.h"
+#include "gt_stringmonitoringproperty.h"
+#include "gt_intmonitoringproperty.h"
 
 class GtCommandlineTemplateRunner : public GtCalculator
 {
@@ -25,10 +28,7 @@ public:
 
     static GtCalculatorData calculatorData();
 
-    virtual QString cmd();
     virtual QMap<QString, QString> variables();
-    virtual QMap<QString, QString> placeholders();
-    virtual QStringList args();
 
 protected:
     GtStringProperty m_tool;
@@ -37,17 +37,25 @@ protected:
 
     GtStringProperty m_executionDir;
     GtBoolProperty m_executionDirCreate;
-    GtStringProperty m_command;
     GtStringProperty m_runscriptFilename;
 
     GtBoolProperty m_logfile;
     GtStringProperty m_logfilename;
+    GtStringProperty m_errfilename;
 
-    GtStringProperty m_shell;
     GtIntProperty m_timeout;
     GtPropertyStructContainer m_variables;
     GtBoolProperty m_acceptNonZeroReturn;
-    GtIntProperty m_scriptReturn;
+
+    GtStringMonitoringProperty m_usedWorkingDirectory;
+    GtStringMonitoringProperty m_usedShell;
+    GtStringMonitoringProperty m_executedScriptPath;
+    GtIntMonitoringProperty m_exitCode;
+
+
+
+private:
+    QMap<QString, QString> collectVariables();
 
 };
 

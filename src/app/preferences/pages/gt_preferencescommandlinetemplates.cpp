@@ -30,7 +30,6 @@ GtPreferencesCommandlineTemplates::GtPreferencesCommandlineTemplates(QWidget* pa
     os->addItem("Unix", "unix");
 
     connect(ui->buttonOpenPathInExplorer, SIGNAL(clicked()), this, SLOT(onClickOpenInExplorer()));
-    connect(ui->buttonRestoreDefaults, SIGNAL(clicked()), this, SLOT(onClickRestoreDefaults()));
     connect(ui->buttonCheckTemplateExists, SIGNAL(clicked()), this, SLOT(onClickCheckTemplateExists()));
 }
 
@@ -40,7 +39,8 @@ GtPreferencesCommandlineTemplates::~GtPreferencesCommandlineTemplates()
 }
 
 
-void GtPreferencesCommandlineTemplates::saveSettings(GtSettings &s) const
+void
+GtPreferencesCommandlineTemplates::saveSettings(GtSettings &s) const
 {
 
     auto path = ui->dir;
@@ -54,7 +54,8 @@ void GtPreferencesCommandlineTemplates::saveSettings(GtSettings &s) const
     s.setCommandlineTemplatesOs(os->currentData().toString());
 }
 
-void GtPreferencesCommandlineTemplates::loadSettings(const GtSettings &s)
+void
+GtPreferencesCommandlineTemplates::loadSettings(const GtSettings &s)
 {
 
     auto path = ui->dir;
@@ -82,7 +83,8 @@ void GtPreferencesCommandlineTemplates::loadSettings(const GtSettings &s)
 
 }
 
-void GtPreferencesCommandlineTemplates::onClickOpenInExplorer()
+void
+GtPreferencesCommandlineTemplates::onClickOpenInExplorer()
 {
     QString path = ui->dir->text();
 
@@ -126,25 +128,27 @@ void GtPreferencesCommandlineTemplates::onClickOpenInExplorer()
     QDesktopServices::openUrl(url);
 }
 
-void GtPreferencesCommandlineTemplates::onClickRestoreDefaults()
+
+void
+GtPreferencesCommandlineTemplates::onClickCheckTemplateExists()
 {
 
-    gtInfo() << "onClickRestoreDefaults: TODO";
+    GtCommandlineTemplateFinder f;
 
-}
+    auto searchpath = ui->dir->text();
+    auto machine = ui->machine->text();
+    auto shell = ui->shell->text();
 
-void GtPreferencesCommandlineTemplates::onClickCheckTemplateExists()
-{
-    gtInfo() << "onClickCheckTemplateExists";
-
-    GtCommandlineTemplateFinder f(true);
+    f.setTemplateSearchPath(searchpath);
+    f.setMachine(machine);
+    f.setDefaultShell(shell);
 
 
     auto tool = ui->testToolname->text();
     auto version = ui->testToolversion->text();
     auto exectempl = ui->testTemplatename->text();
 
-    bool hastemplate = f.hasExecutionTemplate(tool, version, exectempl);
+    bool hastemplate = f.hasTemplate(tool, version, exectempl);
 
     gtDebug() << "tool: " << tool << " version: " << version << " templatename:" << exectempl;
     if (hastemplate)
@@ -155,7 +159,7 @@ void GtPreferencesCommandlineTemplates::onClickCheckTemplateExists()
     }
     else
     {
-        gtError() << "Template was NOT found! Did you save/close/re-open the preferences?";
+        gtError() << "Template was NOT found!";
         ui->labelTemplateFound->setText("Error, NOT found!");
         ui->labelTemplateFound->setStyleSheet("color: red;");
     }

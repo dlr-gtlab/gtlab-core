@@ -12,26 +12,33 @@
 class GtCommandlineTemplateFinder
 {
 public:
-    Q_INVOKABLE GtCommandlineTemplateFinder(const bool reinitializeEverytime=true);
+    Q_INVOKABLE GtCommandlineTemplateFinder();
 
-    Q_INVOKABLE const void reinitialize();
+    Q_INVOKABLE void loadGtlabSettings();
 
-    Q_INVOKABLE bool hasToolVersion(const QString &toolname, const QString &version="");
-    Q_INVOKABLE bool hasExecutionTemplate(const QString &toolname, const QString &version, const QString &exectemplate);
 
-    Q_INVOKABLE const QString getExecTemplatePath(const QString &toolname, const QString &version, const QString &exectemplate, int* error=nullptr);
+    Q_INVOKABLE bool hasToolVersion(const QString &toolname, const QString &version);
+    Q_INVOKABLE bool hasTemplate(const QString &toolname, const QString &version, const QString &templatename);
+    Q_INVOKABLE const QString searchTemplatePath(const QString &toolname, const QString &version, const QString &templatename, int* error=nullptr);
 
-    Q_INVOKABLE const QString getDefaultShell();
-    Q_INVOKABLE const QString getOsType();
+    Q_INVOKABLE const QString osType();
+    Q_INVOKABLE const QString templateSearchPath();
+    Q_INVOKABLE const QString machine();
+    Q_INVOKABLE const QString defaultShell();
+
+    Q_INVOKABLE void setOsType(const QString &ostype);
+    Q_INVOKABLE void setTemplateSearchPath(const QString &templatepath);
+    Q_INVOKABLE void setMachine(const QString &machine);
+    Q_INVOKABLE void setDefaultShell(const QString &shell);
 
 
 private:
-    void makeMainPathAbs();
-
-    bool m_reinitializeEverytime;
-    QString m_mainpath;
+    QString m_osType;
+    QString m_templatepath;
     QString m_machine;
+    QString m_shell;
 
+    const QString resolveTemplateSearchPath();
     const QString makeExecTemplatePath(const QString &toolname, const QString &version, const QString &exectemplate);
 };
 

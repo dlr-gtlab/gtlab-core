@@ -33,7 +33,6 @@ private:
 
 private slots:
     void onClickOpenInExplorer();
-    void onClickRestoreDefaults();
     void onClickCheckTemplateExists();
 };
 

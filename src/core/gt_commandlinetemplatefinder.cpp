@@ -12,43 +12,87 @@
 #include <QFile>
 
 
-GtCommandlineTemplateFinder::GtCommandlineTemplateFinder(const bool reinitializeEverytime):
-    m_reinitializeEverytime(reinitializeEverytime)
+GtCommandlineTemplateFinder::GtCommandlineTemplateFinder()
 {
-    makeMainPathAbs();
-}
 
-const void GtCommandlineTemplateFinder::reinitialize()
-{
-    makeMainPathAbs();
-}
+    loadGtlabSettings();
 
+}
 
 void
-GtCommandlineTemplateFinder::makeMainPathAbs()
+GtCommandlineTemplateFinder::loadGtlabSettings()
 {
+    setOsType(gtApp->settings()->commandlineTemplatesOs());
+    setTemplateSearchPath(gtApp->settings()->commandlineTemplatesPath());
+    setMachine(gtApp->settings()->commandlineTemplatesMachine());
+    setDefaultShell(gtApp->settings()->commandlineTemplatesDefaultShell());
+}
+
+const QString
+GtCommandlineTemplateFinder::osType()
+{
+    return m_osType;
+}
+
+const QString
+GtCommandlineTemplateFinder::templateSearchPath()
+{
+    return m_templatepath;
+}
+
+const QString
+GtCommandlineTemplateFinder::machine()
+{
+    return m_machine;
+}
+
+const QString
+GtCommandlineTemplateFinder::defaultShell()
+{
+    return m_shell;
+}
+
+void
+GtCommandlineTemplateFinder::setOsType(const QString &ostype)
+{
+    m_osType = ostype;
+}
+
+void
+GtCommandlineTemplateFinder::setTemplateSearchPath(const QString &templatepath)
+{
+    m_templatepath = templatepath;
+}
+
+void
+GtCommandlineTemplateFinder::setMachine(const QString &machine)
+{
+    m_machine = machine;
+}
+
+void
+GtCommandlineTemplateFinder::setDefaultShell(const QString &shell)
+{
+    m_shell = shell;
+}
 
 
-    QString mainpath = gtApp->settings()->commandlineTemplatesPath();
-    QString machine = gtApp->settings()->commandlineTemplatesMachine();
+const QString
+GtCommandlineTemplateFinder::resolveTemplateSearchPath()
+{
+    QString mainpath(m_templatepath);
 
     if ((mainpath == "~") || (mainpath.startsWith("~/")))
     {
         mainpath.replace (0, 1, QDir::homePath());
     }
-    m_mainpath = mainpath;
-    m_machine = machine;
+    return mainpath;
 }
 
 const QString
 GtCommandlineTemplateFinder::makeExecTemplatePath(const QString &toolname, const QString &version, const QString &exectemplate)
 {
-    if (m_reinitializeEverytime)
-    {
-        reinitialize();
-    }
-
-    QDir pathMachine(QDir(m_mainpath).absoluteFilePath(m_machine));
+    QDir pathMachine(QDir(resolveTemplateSearchPath()).absoluteFilePath(m_machine));
     QDir pathTool(pathMachine.absoluteFilePath(toolname));
     QDir pathVersion(pathTool.absoluteFilePath(version));
     QFile pathExec(pathVersion.absoluteFilePath(exectemplate));
@@ -59,30 +103,23 @@ GtCommandlineTemplateFinder::makeExecTemplatePath(const QString &toolname, const
 bool
 GtCommandlineTemplateFinder::hasToolVersion(const QString &toolname, const QString &version)
 {
-    if (m_reinitializeEverytime)
-    {
-        reinitialize();
-    }
+    QDir searchDir(resolveTemplateSearchPath());
 
-    QDir pathXpe(m_mainpath);
-
-    gtDebug() << "mainpath:" << m_mainpath;
+    gtDebug() << "search path:" << searchDir.path();
     gtDebug() << "machine:" << m_machine;
 
-    if (!pathXpe.exists())
+    if (!searchDir.exists())
     {
-        gtInfo() << "Templates path:" << pathXpe.path();
-        gtError() << "Templates path not found";
+        gtError() << "Template search path not found:" << searchDir.path();
         return false;
     }
 
 
-    QDir pathMachine(pathXpe.absoluteFilePath(m_machine));
+    QDir pathMachine(searchDir.absoluteFilePath(m_machine));
 
     if (!pathMachine.exists())
     {
-        gtInfo() << "Templates machine name:" << pathMachine.path();
-        gtError() << "Machine name not found:" << m_machine;
+        gtError() << "Machine name not found:" << m_machine << " in:" << pathMachine.path();
         return false;
     }
 
@@ -91,8 +128,7 @@ GtCommandlineTemplateFinder::hasToolVersion(const QString &toolname, const QStri
 
     if (!pathTool.exists())
     {
-        gtInfo() << "Path to tool:" << pathTool.path();
-        gtError() << "Tool not found:" << toolname;
+        gtError() << "Tool not found:" << toolname << " in:" << pathTool.path();
         return false;
     }
 
@@ -106,8 +142,7 @@ GtCommandlineTemplateFinder::hasToolVersion(const QString &toolname, const QStri
 
     if (!pathVersion.exists())
     {
-        gtInfo() << "Path to version:" << pathVersion.path();
-        gtError() << "Tool version not found:" << version;
+        gtError() << "Tool version not found:" << version << " in:" << pathVersion.path();
         return false;
     }
 
@@ -115,12 +150,8 @@ GtCommandlineTemplateFinder::hasToolVersion(const QString &toolname, const QStri
 }
 
 bool
-GtCommandlineTemplateFinder::hasExecutionTemplate(const QString &toolname, const QString &version, const QString &exectemplate)
+GtCommandlineTemplateFinder::hasTemplate(const QString &toolname, const QString &version, const QString &templatename)
 {
-    if (m_reinitializeEverytime)
-    {
-        reinitialize();
-    }
 
     if (!hasToolVersion(toolname, version))
     {
@@ -128,18 +159,18 @@ GtCommandlineTemplateFinder::hasExecutionTemplate(const QString &toolname, const
     }
 
 
-    if (exectemplate=="")
+    if (templatename=="")
     {
-        gtError() << "execution template is empty";
+        gtError() << "template name is empty";
         return false;
     }
 
-    QFile pathExec(makeExecTemplatePath(toolname, version, exectemplate));
+    QFile pathExec(makeExecTemplatePath(toolname, version, templatename));
 
     if (!pathExec.exists())
     {
         gtInfo() << "pathExec:" << pathExec;
-        gtError() << "Template file name not found:" << toolname << "/" << version << "/" << exectemplate;
+        gtError() << "Template file name not found:" << toolname << "/" << version << "/" << templatename;
         return false;
     }
 
@@ -147,19 +178,14 @@ GtCommandlineTemplateFinder::hasExecutionTemplate(const QString &toolname, const
 }
 
 const QString
-GtCommandlineTemplateFinder::getExecTemplatePath(const QString &toolname, const QString &version, const QString &exectemplate, int *error)
+GtCommandlineTemplateFinder::searchTemplatePath(const QString &toolname, const QString &version, const QString &templatename, int *error)
 {
-    if (m_reinitializeEverytime)
-    {
-        reinitialize();
-    }
-
     if(error!=nullptr)
     {
         *error = 0;
     }
 
-    if (!hasExecutionTemplate(toolname, version, exectemplate))
+    if (!hasTemplate(toolname, version, templatename))
     {
         if(error!=nullptr)
         {
@@ -168,28 +194,6 @@ GtCommandlineTemplateFinder::getExecTemplatePath(const QString &toolname, const 
         return QString();
     }
 
-    return makeExecTemplatePath(toolname, version, exectemplate);
-}
-
-const QString
-GtCommandlineTemplateFinder::getDefaultShell()
-{
-    if (m_reinitializeEverytime)
-    {
-        reinitialize();
-    }
-    QString shell = gtApp->settings()->commandlineTemplatesDefaultShell();
-    return shell;
-}
-
-const QString
-GtCommandlineTemplateFinder::getOsType()
-{
-    if (m_reinitializeEverytime)
-    {
-        reinitialize();
-    }
-    QString ostype = gtApp->settings()->commandlineTemplatesOs();
-    return ostype;
+    return makeExecTemplatePath(toolname, version, templatename);
 }
 

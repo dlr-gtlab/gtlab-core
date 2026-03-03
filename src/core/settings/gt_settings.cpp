@@ -11,6 +11,7 @@
 #include "gt_settings.h"
 #include "gt_settingsitem.h"
 #include "gt_loglevel.h"
+#include "gt_coreapplication.h"
 
 #include <QDir>
 #include <QSettings>
@@ -644,8 +645,9 @@ GtSettings::initialCommandlineTemplatesDefaults()
      * Win and Linux should be different
      */
 
+
+    path = QDir(gtApp->roamingPath()).absoluteFilePath("CommandlineTemplates");
 #ifdef Q_OS_WIN
-    path = "~/AppData/Roaming/DLR/GTlab/CommandlineTemplates";
     os = "win";
     machine = "generic-windows";
     shell = "cmd.exe";
@@ -653,7 +655,6 @@ GtSettings::initialCommandlineTemplatesDefaults()
 ///#elif Q_OS_MAC
 ///   OS = "MAC";
 #else
-    path = "~/.config/DLR/GTlab/CommandlineTemplates";
     os = "unix";
     machine = "generic-linux";
     shell = "/bin/bash";
