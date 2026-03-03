@@ -41,8 +41,11 @@ GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionVerification,
                             const QString& actionVisibility)
 {
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        actionVerification, actionVisibility);
+    m_singleActions << GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod))
+        .setIcon(actionIcon)
+        .setVerificationMethod(actionVerification)
+        .setVisibilityMethod(actionVisibility);
 }
 
 void
@@ -53,9 +56,12 @@ GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionVisibility,
                             const QKeySequence& shortcut)
 {
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        actionVerification, actionVisibility,
-                                        shortcut);
+    m_singleActions << GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod))
+        .setIcon(actionIcon)
+        .setVerificationMethod(actionVerification)
+        .setVisibilityMethod(actionVisibility)
+        .setShortCut(shortcut);
 }
 
 void
@@ -64,8 +70,10 @@ GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionMethod,
                             const QString& actionVerification)
 {
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        actionVerification);
+    m_singleActions << GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod))
+        .setIcon(actionIcon)
+        .setVerificationMethod(actionVerification);
 }
 
 void
@@ -74,9 +82,11 @@ GtObjectUI::addSingleAction(
         const QString& actionMethod, const QString& actionVerification,
         const QKeySequence& shortcut)
 {
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        actionVerification, QString(),
-                                        shortcut);
+    m_singleActions << GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod))
+        .setIcon(actionIcon)
+        .setVerificationMethod(actionVerification)
+        .setShortCut(shortcut);
 }
 
 void
@@ -84,7 +94,9 @@ GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionIcon,
                             const QString& actionMethod)
 {
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon);
+    m_singleActions << GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod))
+            .setIcon(actionIcon);
 }
 
 void
@@ -93,8 +105,10 @@ GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionMethod,
                             const QKeySequence& shortcut)
 {
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        QString(), QString(), shortcut);
+    m_singleActions << GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod))
+       .setIcon(actionIcon)
+       .setShortCut(shortcut);
 }
 
 
@@ -102,7 +116,9 @@ GtObjectUIAction&
 GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionMethod)
 {
-    m_singleActions << makeSingleAction(actionText, actionMethod);
+    m_singleActions << GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod));
+
     return m_singleActions.last();
 }
 
@@ -119,7 +135,8 @@ GtObjectUIAction
 GtObjectUI::makeSingleAction(const QString& actionText,
                              const QString& actionMethod)
 {
-    return GtObjectUIAction(actionText, actionMethod);
+    return GtObjectUIAction(actionText,
+                GtObjectUIAction::fromMethodName(actionMethod));
 }
 
 GtObjectUIAction
@@ -135,9 +152,9 @@ GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionMethod,
                             const QKeySequence& shortcut)
 {
-    m_singleActions << GtObjectUIAction(actionText, actionMethod,
-                                        QString(), QString(), QString(),
-                                        shortcut);
+    m_singleActions << GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod))
+        .setShortCut(shortcut);
 }
 
 

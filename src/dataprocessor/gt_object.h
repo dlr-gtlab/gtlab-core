@@ -14,6 +14,8 @@
 #include "gt_datamodel_exports.h"
 #include "gt_typetraits.h"
 
+#include <gt_version.h>
+
 #include <QObject>
 
 #include <algorithm>
@@ -926,15 +928,16 @@ bool isDerivedFromClass(std::nullptr_t, QString const&) = delete;
 
 } // namespace gt
 
+GT_REMOVAL_GUARD  (2, 1, "Use gt::findObject() instead.")
 template <typename ListOfObjectPtrs>
-[[deprecated("Use gt::findObject() instead.")]]
+GT_DEPRECATED_ATTR(2, 1, "Use gt::findObject() instead.")
 inline GtObject*
 findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
 {
     return gt::findObject(objectUUID, list);
 }
 
-[[deprecated("Use gt::isDerivedFromClass() instead.")]]
+GT_DEPRECATED_REMOVED_IN(2, 1, "Use gt::isDerivedFromClass() instead.")
 inline bool isDerivedFromClass(GtObject* obj, QString const& superClassName)
 {
     return gt::isDerivedFromClass(obj, superClassName);

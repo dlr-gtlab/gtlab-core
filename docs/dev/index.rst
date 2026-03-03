@@ -31,6 +31,7 @@
    :maxdepth: 2
 
    howtos/basic_module.rst
+   howtos/migration_and_deprecation.rst
 
 .. toctree::
    :caption: Extra information

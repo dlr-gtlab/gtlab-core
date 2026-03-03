@@ -302,16 +302,7 @@ GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
     }
     else
     {
-        if (item->parent())
-        {
-            row = item->childNumber();
-        }
-        else
-        {
-            gtWarning().medium().nospace()
-                    << __FUNCTION__ << ": " << tr("Object has no parent!");
-            gtWarning().medium() << " |-> obj =" << item->objectName();
-        }
+        row = item->childNumber();
     }
 
     if (row == -1)

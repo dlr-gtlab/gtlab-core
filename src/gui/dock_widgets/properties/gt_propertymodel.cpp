@@ -642,19 +642,7 @@ GtPropertyModel::indexFromProperty(GtAbstractPropertyItem* obj) const
     }
     else
     {
-        if (obj->parent())
-        {
-            row = obj->childNumber();
-        }
-        else
-        {
-            gtWarning().verbose()
-                    << "WARNING (GtPropertyModel::indexFromObject): "
-                    << "object has no parent!";
-            gtWarning().medium().nospace()
-                    << __FUNCTION__ << ": " << tr("Object has no parent!");
-            gtWarning().medium() << " |-> obj =" << obj->objectName();
-        }
+        row = obj->childNumber();
     }
 
     if (row == -1)
@@ -835,7 +823,7 @@ GtPropertyModel::onContainerEntryAdded(int idx)
         return;
     }
 
-    auto& entry = container->at(idx);
+    const auto& entry = container->at(idx);
 
     beginInsertRows(QModelIndex(), idx, idx);
 

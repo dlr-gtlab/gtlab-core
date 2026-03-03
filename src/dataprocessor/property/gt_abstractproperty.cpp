@@ -281,6 +281,12 @@ GtAbstractProperty::storeToMemento() const
 }
 
 void
+GtAbstractProperty::setStoreToMemento(bool store)
+{
+    m_storeMemento = store;
+}
+
+void
 GtAbstractProperty::revert()
 {
     // nothing to do here

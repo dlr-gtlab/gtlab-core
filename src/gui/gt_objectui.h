@@ -32,7 +32,6 @@ class GT_GUI_EXPORT GtObjectUI : public QObject
 public:
 
     using ActionFunction = GtObjectUIAction::ActionMethod;
-
     /**
      * @brief GtObjectUI
      */
@@ -176,38 +175,23 @@ protected:
     GtObjectUIActionGroup& addActionGroup(const QString& groupName,
                                           int sizeHint = 1);
 
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)"
-                 "  .setVisibilityMethod(<method>)")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
+                                   "addSingleAction(<text>, <method>)"
+                                   "  .setIcon(<icon>)"
+                                   "  .setVerificationMethod(<method>)"
+                                   "  .setVisibilityMethod(<method>)")
     void addSingleAction(const QString& actionText,
                          const QString& actionIcon,
                          const QString& actionMethod,
                          const QString& actionVerification,
                          const QString& actionVisibility);
 
-    /**
-     * @brief addSingleAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     * @param actionVerification
-     * @param actionVisibility
-     * @param shortcut
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)"
-                 "  .setVisibilityMethod(<method>)"
-                 "  .setShortCut(<key_seq>)")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
+                                   "addSingleAction(<text>, <method>)"
+                                   "  .setIcon(<icon>)"
+                                   "  .setVerificationMethod(<method>)"
+                                   "  .setVisibilityMethod(<method>)"
+                                   "  .setShortCut(<key_seq>)")
     void addSingleAction(const QString& actionText,
                          const QString& actionIcon,
                          const QString& actionMethod,
@@ -215,102 +199,61 @@ protected:
                          const QString& actionVisibility,
                          const QKeySequence& shortcut);
 
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1,"Use dedicated setters instead: "
+                                  "addSingleAction(<text>, <method>)"
+                                  "  .setIcon(<icon>)"
+                                  "  .setVerificationMethod(<method>)")
     void addSingleAction(const QString& actionText,
                          const QString& actionIcon,
                          const QString& actionMethod,
                          const QString& actionVerification);
 
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)"
-                 "  .setShortCut(<key_seq>)")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
+                                   "addSingleAction(<text>, <method>)"
+                                   "  .setIcon(<icon>)"
+                                   "  .setVerificationMethod(<method>)"
+                                   "  .setShortCut(<key_seq>)")
     void addSingleAction(const QString& actionText,
                          const QString& actionIcon,
                          const QString& actionMethod,
                          const QString& actionVerification,
                          const QKeySequence& shortcut);
 
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
+                                   "addSingleAction(<text>, <method>)"
+                                   "  .setIcon(<icon>)")
     void addSingleAction(const QString& actionText,
                          const QString& actionIcon,
                          const QString& actionMethod);
 
-    /**
-     * @brief addSingleAction
-     * @param actionText
-     * @param actionMethod
-     * @param shortcut
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setShortCut(<key_seq>)")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
+                                   "addSingleAction(<text>, <method>)"
+                                   "  .setShortCut(<key_seq>)")
     void addSingleAction(const QString& actionText,
                          const QString& actionMethod,
                          const QKeySequence &shortcut);
 
-    /**
-     * @brief addSingleAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     * @param shortcut
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setShortCut(<key_seq>)")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
+                                   "addSingleAction(<text>, <method>)"
+                                   "  .setIcon(<icon>)"
+                                   "  .setShortCut(<key_seq>)")
     void addSingleAction(const QString& actionText,
                          const QString& actionIcon,
                          const QString& actionMethod,
                          const QKeySequence& shortcut);
 
-    /**
-     * @brief addGroupActions
-     * @param groupName
-     * @param actions
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addActionGroup(<text>)"
-                 "  << makeSingleAction(...)"
-                 "  << makeSingleAction(...)")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
+                                   "addActionGroup(<text>)"
+                                   "  << makeSingleAction(...)"
+                                   "  << makeSingleAction(...)")
     void addActionGroup(const QString& groupName,
                         const QList<GtObjectUIAction>& actions);
 
-    /**
-     * @brief addActionGroup
-     * @param groupName
-     * @param actions
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addActionGroup(<text>)"
-                 "  .setIcon(<icon>)"
-                 "  << makeSingleAction(...)"
-                 "  << makeSingleAction(...)")]]
+    GT_DEPRECATED_REMOVED_IN(2, 1, "Use dedicated setters instead: "
+                                   "addActionGroup(<text>)"
+                                   "  .setIcon(<icon>)"
+                                   "  << makeSingleAction(...)"
+                                   "  << makeSingleAction(...)")
     void addActionGroup(const QString& groupName,
                         const QString& groupIcon,
                         const QList<GtObjectUIAction>& actions);

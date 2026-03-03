@@ -241,10 +241,3 @@ void
 GtPreferencesApp::loadSettings(const GtSettings&)
 {
 }
-
-void
-GtPreferencesApp::onAutoSaveTriggered(bool /*val*/)
-{
-    // TODO: remove me
-}
-

@@ -69,7 +69,10 @@ GtObjectUIAction&
 GtAbstractPostWidget::addConfigAction(const QString& actionText,
                                       const QString& actionMethod)
 {
-    m_actionList << GtObjectUIAction(actionText, actionMethod);
+    m_actionList << GtObjectUIAction(
+        actionText,
+        GtObjectUIAction::fromMethodName(actionMethod));
+
     return m_actionList.last();
 }
 
@@ -91,8 +94,13 @@ GtAbstractPostWidget::addConfigAction(const QString& actionText,
         return false;
     }
 
-    m_actionList << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                     actionVerification);
+
+
+    m_actionList << GtObjectUIAction(
+                        actionText,
+                        GtObjectUIAction::fromMethodName(actionMethod))
+        .setIcon(actionIcon)
+        .setVerificationMethod(actionVerification);
 
     return true;
 }
@@ -109,8 +117,16 @@ GtAbstractPostWidget::addConfigAction(const QString& actionText,
         return false;
     }
 
-    m_actionList << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                     actionVerification, actionVisibility);
+    GtObjectUIAction action(
+        actionText,
+        GtObjectUIAction::fromMethodName(actionMethod));
+
+    action
+        .setIcon(actionIcon)
+        .setVerificationMethod(actionVerification)
+        .setVisibilityMethod(actionVisibility);
+
+    m_actionList << std::move(action);
 
     return true;
 }

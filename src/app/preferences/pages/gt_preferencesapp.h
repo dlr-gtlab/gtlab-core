@@ -65,13 +65,6 @@ private:
     /// Select the theme to use (by system, dark, bright)
     QComboBox* m_themeSelection;
 
-private slots:
-    /**
-     * @brief onAutoSaveTriggered
-     * @param val
-     */
-    [[deprecated]] void onAutoSaveTriggered(bool val);
-
 };
 
 #endif // GTPREFERENCESAPP_H
