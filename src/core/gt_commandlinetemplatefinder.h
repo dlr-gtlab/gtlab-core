@@ -19,7 +19,7 @@ public:
 
     Q_INVOKABLE bool hasToolVersion(const QString &toolname, const QString &version);
     Q_INVOKABLE bool hasTemplate(const QString &toolname, const QString &version, const QString &templatename);
-    Q_INVOKABLE const QString searchTemplatePath(const QString &toolname, const QString &version, const QString &templatename, int* error=nullptr);
+    Q_INVOKABLE const QString getTemplate(const QString &toolname, const QString &version, const QString &templatename, int* error=nullptr);
 
     Q_INVOKABLE const QString osType();
     Q_INVOKABLE const QString templateSearchPath();

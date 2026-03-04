@@ -22,10 +22,22 @@ GtCommandlineTemplateFinder::GtCommandlineTemplateFinder()
 void
 GtCommandlineTemplateFinder::loadGtlabSettings()
 {
-    setOsType(gtApp->settings()->commandlineTemplatesOs());
-    setTemplateSearchPath(gtApp->settings()->commandlineTemplatesPath());
-    setMachine(gtApp->settings()->commandlineTemplatesMachine());
-    setDefaultShell(gtApp->settings()->commandlineTemplatesDefaultShell());
+    if (gtApp != nullptr)
+    {
+        gtDebug() << "commandlineTemplatesOs:" << gtApp->settings()->commandlineTemplatesOs();
+        gtDebug() << "commandlineTemplatesPath:" << gtApp->settings()->commandlineTemplatesPath();
+        gtDebug() << "commandlineTemplatesMachine:" << gtApp->settings()->commandlineTemplatesMachine();
+        gtDebug() << "commandlineTemplatesDefaultShell:" << gtApp->settings()->commandlineTemplatesDefaultShell();
+
+        setOsType(gtApp->settings()->commandlineTemplatesOs());
+        setTemplateSearchPath(gtApp->settings()->commandlineTemplatesPath());
+        setMachine(gtApp->settings()->commandlineTemplatesMachine());
+        setDefaultShell(gtApp->settings()->commandlineTemplatesDefaultShell());
+    }
+    else
+    {
+        gtWarning() << "Could not load settings for Commandline Templates: gtApp was not found on startup of GtCommandlineTemplateFinder";
+    }
 }
 
 const QString
@@ -178,7 +190,7 @@ GtCommandlineTemplateFinder::hasTemplate(const QString &toolname, const QString 
 }
 
 const QString
-GtCommandlineTemplateFinder::searchTemplatePath(const QString &toolname, const QString &version, const QString &templatename, int *error)
+GtCommandlineTemplateFinder::getTemplate(const QString &toolname, const QString &version, const QString &templatename, int *error)
 {
     if(error!=nullptr)
     {

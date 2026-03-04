@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "I will intentionally crash the next line"
+kill $$

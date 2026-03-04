@@ -94,13 +94,6 @@ GtCommandlineTemplateRunner::calculatorData()
 
 bool GtCommandlineTemplateRunner::run()
 {
-    gtInfo() << gtApp->roamingPath();
-
-
-    gtDebug() << "commandlineTemplatesOs:" << gtApp->settings()->commandlineTemplatesOs();
-    gtDebug() << "commandlineTemplatesPath:" << gtApp->settings()->commandlineTemplatesPath();
-    gtDebug() << "commandlineTemplatesMachine:" << gtApp->settings()->commandlineTemplatesMachine();
-    gtDebug() << "commandlineTemplatesDefaultShell:" << gtApp->settings()->commandlineTemplatesDefaultShell();
 
 
     /**
@@ -121,6 +114,7 @@ bool GtCommandlineTemplateRunner::run()
     GtCommandlineTemplateFinder toolfinder;
 
 
+
     /**
      * Transfer to local variables
      */
@@ -135,7 +129,7 @@ bool GtCommandlineTemplateRunner::run()
      * Search the tool, version and executable template
      */
     int err=0;
-    QString templatepath = toolfinder.searchTemplatePath(m_tool, m_version, m_exec, &err);
+    QString templatepath = toolfinder.getTemplate(m_tool, m_version, m_exec, &err);
 
     if(err!=0)
     {
