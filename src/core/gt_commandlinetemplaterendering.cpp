@@ -41,6 +41,13 @@ GtCommandlineTemplateRendering::loadTemplateFromFile(const QString &templatepath
 }
 
 bool
+GtCommandlineTemplateRendering::loadTemplateFromList(const QStringList &templatelines)
+{
+    m_template = templatelines;
+    return true;
+}
+
+bool
 GtCommandlineTemplateRendering::updateVariables(const QMap<QString, QString> &variables)
 {
     QStringList keys = variables.keys();
@@ -208,4 +215,10 @@ GtCommandlineTemplateRendering::renderTemplateAndWriteScript(const QString &temp
     }
 
     return true;
+}
+
+const QStringList
+GtCommandlineTemplateRendering::scriptLines()
+{
+    return m_template;
 }

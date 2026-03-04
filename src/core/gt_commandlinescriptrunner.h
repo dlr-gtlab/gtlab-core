@@ -9,7 +9,9 @@
 class GtCommandlineScriptRunner
 {
 public:
-    Q_INVOKABLE GtCommandlineScriptRunner(const QString &shell);
+    Q_INVOKABLE GtCommandlineScriptRunner(const QString &shell="");
+
+    Q_INVOKABLE void setShell(const QString &shell);
 
     Q_INVOKABLE void setLogToFile(const QString stdoutFilename="", const QString stderrFilename="");
 

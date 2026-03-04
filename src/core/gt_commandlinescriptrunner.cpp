@@ -4,15 +4,21 @@
 
 GtCommandlineScriptRunner::GtCommandlineScriptRunner(const QString &shell)
 {
-    m_shell = shell;
+    setShell(shell);
     m_logToFile = false;
-
     m_timeout = -1;
     m_crashed = false;
 }
 
+void
+GtCommandlineScriptRunner::setShell(const QString &shell)
+{
+    m_shell = shell;
+}
 
-void GtCommandlineScriptRunner::setLogToFile(const QString stdoutFilename, const QString stderrFilename)
+
+void
+GtCommandlineScriptRunner::setLogToFile(const QString stdoutFilename, const QString stderrFilename)
 {
     m_logToFile = true;
     m_logFilenameStdout = stdoutFilename;
