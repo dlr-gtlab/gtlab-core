@@ -1,6 +1,9 @@
 #include "gt_commandlinescriptrunner.h"
 
 #include "gt_logging.h"
+#include <QDir>
+#include <QFileInfo>
+
 
 GtCommandlineScriptRunner::GtCommandlineScriptRunner(const QString &shell)
 {
@@ -8,6 +11,8 @@ GtCommandlineScriptRunner::GtCommandlineScriptRunner(const QString &shell)
     m_logToFile = false;
     m_timeout = -1;
     m_crashed = false;
+    m_logFilenameStdout = "";
+    m_logFilenameStderr = "";
 }
 
 void
@@ -24,18 +29,44 @@ GtCommandlineScriptRunner::setLogToFile(const QString stdoutFilename, const QStr
     m_logFilenameStdout = stdoutFilename;
     m_logFilenameStderr = stderrFilename;
 
-    if(m_logToFile)
+
+    QString fout(""),ferr("");
+
+
+    if (m_logFilenameStderr == "")
     {
-        if (m_logFilenameStderr == "")
+        m_proc.setProcessChannelMode(QProcess::MergedChannels);
+    }
+    else
+    {
+        if (QFileInfo(m_logFilenameStderr).isAbsolute())
         {
-            m_proc.setProcessChannelMode(QProcess::MergedChannels);
+            ferr = m_logFilenameStderr;
         }
         else
         {
-            m_proc.setStandardErrorFile(m_logFilenameStderr);
+            ferr = QDir(m_proc.workingDirectory()).absoluteFilePath(m_logFilenameStderr);
         }
-        m_proc.setStandardOutputFile(m_logFilenameStdout);
+
+        m_proc.setStandardErrorFile(ferr);
     }
+
+
+
+    if (QFileInfo(m_logFilenameStdout).isAbsolute())
+    {
+        fout = m_logFilenameStdout;
+    }
+    else
+    {
+        fout = QDir(m_proc.workingDirectory()).absoluteFilePath(m_logFilenameStdout);
+    }
+
+    m_proc.setStandardOutputFile(fout);
+
+
+    m_logFileStdoutPath = fout;
+    m_logFileStderrPath = ferr;
 
 }
 
@@ -52,6 +83,12 @@ GtCommandlineScriptRunner::run(const QString &scriptpath, int timeout)
 {
 
     gtInfo() << "Execution Directory: " << m_execDir;
+
+    if (m_logToFile)
+    {
+        gtDebug() << "Logfile stdout: " << m_logFileStdoutPath;
+        gtDebug() << "Logfile stderr: " << m_logFileStderrPath;
+    }
 
     QStringList cmdchain;
     cmdchain << scriptpath;
@@ -120,4 +157,16 @@ const int
 GtCommandlineScriptRunner::exitCode()
 {
     return m_exitCode;
+}
+
+const QString
+GtCommandlineScriptRunner::logfileStdoutPath()
+{
+    return m_logFileStdoutPath;
+}
+
+const QString
+GtCommandlineScriptRunner::logfileStderrPath()
+{
+    return m_logFileStderrPath;
 }

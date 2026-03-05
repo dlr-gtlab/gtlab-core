@@ -23,6 +23,9 @@ public:
     Q_INVOKABLE bool isCrashed();
     Q_INVOKABLE const int exitCode();
 
+    Q_INVOKABLE const QString logfileStdoutPath();
+    Q_INVOKABLE const QString logfileStderrPath();
+
 private:
     QProcess m_proc;
 
@@ -35,6 +38,8 @@ private:
     int m_timeout;
     bool m_crashed;
     int m_exitCode;
+    QString m_logFileStdoutPath;
+    QString m_logFileStderrPath;
 };
 
 #endif // GT_COMMANDLINESCRIPTRUNNER_H

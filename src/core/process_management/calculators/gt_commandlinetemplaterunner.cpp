@@ -39,7 +39,9 @@ GtCommandlineTemplateRunner::GtCommandlineTemplateRunner() :
     m_usedWorkingDirectory("usedWd", "Used Working Directory"),
     m_usedShell("usedShell", "Used shell"),
     m_executedScriptPath("executedScriptpath", "Path of executed script"),
-    m_exitCode("exitCode", "Exit code of script")
+    m_exitCode("exitCode", "Exit code of script"),
+    m_logfileStdout("logfileOut", "Path stdout"),
+    m_logfileStderr("logfileErr", "Path stderr")
 
 {
     setObjectName("Commandline Template Runner");
@@ -74,6 +76,8 @@ GtCommandlineTemplateRunner::GtCommandlineTemplateRunner() :
     registerMonitoringProperty(m_usedShell);
     registerMonitoringProperty(m_executedScriptPath);
     registerMonitoringProperty(m_exitCode);
+    registerMonitoringProperty(m_logfileStdout);
+    registerMonitoringProperty(m_logfileStderr);
 
 }
 
@@ -180,6 +184,7 @@ bool GtCommandlineTemplateRunner::run()
     scriptrunner.setExecutionDir(execDir.path());
     if (m_logfile.getVal())
     {
+        gtInfo() << "log to file";
         scriptrunner.setLogToFile(m_logfilename.getVal(), m_errfilename.getVal());
     }
 
@@ -193,6 +198,8 @@ bool GtCommandlineTemplateRunner::run()
     m_usedShell.setVal(shell);
     m_executedScriptPath.setVal(runscriptFilepath);
     m_exitCode.setVal(scriptrunner.exitCode());
+    m_logfileStdout.setVal(scriptrunner.logfileStdoutPath());
+    m_logfileStderr.setVal(scriptrunner.logfileStderrPath());
 
 
     /**

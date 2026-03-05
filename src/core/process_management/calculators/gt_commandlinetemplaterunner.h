@@ -51,6 +51,8 @@ protected:
     GtStringMonitoringProperty m_usedShell;
     GtStringMonitoringProperty m_executedScriptPath;
     GtIntMonitoringProperty m_exitCode;
+    GtStringMonitoringProperty m_logfileStdout;
+    GtStringMonitoringProperty m_logfileStderr;
 
 
 
