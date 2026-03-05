@@ -11,6 +11,7 @@
 #include "gt_settings.h"
 #include "gt_settingsitem.h"
 #include "gt_loglevel.h"
+#include "gt_coreapplication.h"
 
 #include <QDir>
 #include <QSettings>
@@ -76,6 +77,13 @@ struct GtSettings::Impl
 
     /// Whether to autostart the process runner
     GtSettingsItem* m_autostartProcessRunner;
+
+    /// Settings for the GtCommandlineTemplateRunner
+    GtSettingsItem* commandlineTemplatesOs;
+    GtSettingsItem* commandlineTemplatesPath;
+    GtSettingsItem* commandlineTemplatesMachine;
+    GtSettingsItem* commandlineTemplatesDefaultShell;
+
 };
 
 GtSettings::GtSettings()
@@ -142,6 +150,15 @@ GtSettings::GtSettings()
 
     pimpl->m_autostartProcessRunner = registerSetting(
                 QStringLiteral("application/process_runner/autostart"), false);
+
+    /**
+     * There might be a more beautiful way than this...
+     */
+    QMap<QString, QVariant> initCmdTempDefaults = initialCommandlineTemplatesDefaults();
+    pimpl->commandlineTemplatesOs = registerSetting(          QStringLiteral("application/commandlinetemplates/os"),          initCmdTempDefaults["os"]  );
+    pimpl->commandlineTemplatesPath = registerSetting(        QStringLiteral("application/commandlinetemplates/path"),        initCmdTempDefaults["path"]  );
+    pimpl->commandlineTemplatesMachine = registerSetting(     QStringLiteral("application/commandlinetemplates/machine"),     initCmdTempDefaults["machine"]  );
+    pimpl->commandlineTemplatesDefaultShell = registerSetting(QStringLiteral("application/commandlinetemplates/defaultshell"),initCmdTempDefaults["defaultshell"] );
 }
 
 QList<GtShortCutSettingsData>
@@ -556,4 +573,99 @@ void
 GtSettings::setAutostartProcessRunner(bool value)
 {
     return pimpl->m_autostartProcessRunner->setValue(value);
+}
+
+
+
+void
+GtSettings::setCommandlineTemplatesOs(const QString &os)
+{
+    pimpl->commandlineTemplatesOs->setValue(os);
+}
+
+QString
+GtSettings::commandlineTemplatesOs() const
+{
+    return pimpl->commandlineTemplatesOs->getValue().toString();
+}
+
+
+
+void
+GtSettings::setCommandlineTemplatesPath(const QString &path)
+{
+    pimpl->commandlineTemplatesPath->setValue(path);
+}
+
+QString
+GtSettings::commandlineTemplatesPath() const
+{
+    return pimpl->commandlineTemplatesPath->getValue().toString();
+}
+
+
+
+void
+GtSettings::setCommandlineTemplatesMachine(const QString &machine)
+{
+
+    pimpl->commandlineTemplatesMachine->setValue(machine);
+}
+
+QString
+GtSettings::commandlineTemplatesMachine() const
+{
+    return pimpl->commandlineTemplatesMachine->getValue().toString();
+}
+
+
+
+void
+GtSettings::setCommandlineTemplatesDefaultShell(const QString &defaultshell)
+{
+    pimpl->commandlineTemplatesDefaultShell->setValue(defaultshell);
+}
+
+QString
+GtSettings::commandlineTemplatesDefaultShell() const
+{
+    return pimpl->commandlineTemplatesDefaultShell->getValue().toString();
+}
+
+QMap<QString, QVariant>
+GtSettings::initialCommandlineTemplatesDefaults()
+{
+
+    QString path,os,machine,shell;
+
+    /**
+     * There might be a more beautiful way than this...
+     *
+     * TODO: Define default path from somewhere higher in GTlab
+     * Win and Linux should be different
+     */
+
+
+    path = QDir(gtApp->roamingPath()).absoluteFilePath("CommandlineTemplates");
+#ifdef Q_OS_WIN
+    os = "win";
+    machine = "generic-windows";
+    shell = "cmd.exe";
+
+///#elif Q_OS_MAC
+///   OS = "MAC";
+#else
+    os = "unix";
+    machine = "generic-linux";
+    shell = "/bin/bash";
+#endif
+
+
+    QMap<QString, QVariant> defaultvalues;
+    defaultvalues["os"] = os;
+    defaultvalues["path"] = path;
+    defaultvalues["machine"] = machine;
+    defaultvalues["defaultshell"] = shell;
+
+    return defaultvalues;
 }

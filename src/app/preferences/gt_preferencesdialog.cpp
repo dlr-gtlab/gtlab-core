@@ -23,6 +23,7 @@
 #include "gt_preferencesaccess.h"
 #include "gt_preferencespathsettings.h"
 #include "gt_preferencesshortcuts.h"
+#include "gt_preferencescommandlinetemplates.h"
 #include "gt_icons.h"
 #include "gt_application.h"
 #include "gt_settings.h"
@@ -50,6 +51,7 @@ GtPreferencesDialog::GtPreferencesDialog(int initItem, QWidget* parent) :
     addPage(new GtPreferencesLanguage);
     addPage(new GtPreferencesAccess);
     addPage(new GtPreferencesPathSettings);
+    addPage(new GtPreferencesCommandlineTemplates);
 
     // Add pages from modules
     for (const auto& builder : qAsConst(GtApplication::customPreferencePages()))

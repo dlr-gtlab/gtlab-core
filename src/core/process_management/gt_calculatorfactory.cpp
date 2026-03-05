@@ -16,6 +16,7 @@
 #include "gt_calculatordata.h"
 
 #include "gt_exporttomementocalculator.h"
+#include "gt_commandlinetemplaterunner.h"
 
 GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
 {
@@ -25,6 +26,10 @@ GtCalculatorFactory::GtCalculatorFactory(QObject* parent) : QObject(parent)
     // Default calculators
     GtCalculatorFactory::registerCalculatorData(
         GtExportToMementoCalculator::calculatorData());
+
+    GtCalculatorFactory::registerCalculatorData(
+        GtCommandlineTemplateRunner::calculatorData());
+
 }
 
 GtCalculatorFactory*

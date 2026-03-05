@@ -123,6 +123,55 @@ They are often used, for example, to permanently store local paths to external p
 The variables can be set accordingly in this menu.
 
 
+Commandline Templates
+---------------------
+
+Commandline templates are used to handle execution of external tools, which are started in the commandline. On each machine, the actual script to start a specific tool can look different, depending on the local system configuration.
+With commandline templates, the calculator only defines the tool and its version. This information is stored in the project and can be transferred between users and machines.
+The system-specific script is stored as a template and is independent of a GTlab project.
+
+In the preferences, the user can specify:
+- the path where the templates are stored,
+- the machine identifier,
+- and the default shell to be used to execute the scripts.
+
+In the calculator, the template is specified by:
+- *tool*: which can also be interpreted as a collection name, e.g. a solver suite,
+- *version*
+- *template identifier*: different variations or specific tools in a suite.
+
+
+.. image:: images/Preference_CommandlineTemplates_Settings.png
+   :align: center
+   :alt: Commandline templates settings in preferences
+
+The structure within the above named directory consists of a defined subfolder architecture;
+- *Level 1*: Machine identifier
+- *Level 2*: Tool identifier
+- *Level 3*: Version
+- *Level 4*: Template identifier
+
+In the given example, there are two machine definitions stored. For the workstation, two tools are defined *cfdsolver* and *mytool1*.
+Those tools have multiple versions. In each version folder, the template scripts have the same name, but their content differs.
+
+.. image:: images/Preference_CommandlineTemplates_Folder.png
+   :align: center
+   :alt: Example structure for commandline templates
+
+The templates allow multiline scripts to be defined for each system and also tool version.
+The calculator will copy the template to the specified working/execution directory.
+
+.. image:: images/Preference_CommandlineTemplates_TemplateExamples.png
+   :align: center
+   :alt: Example templates for different tool versions
+
+The calculator allows to define variables in a container property, using key/value pairs.
+These variables are added to the front of the script, when it is rendered from the template.
+
+.. image:: images/Preference_CommandlineTemplates_RenderedScript.png
+   :align: center
+   :alt: Example for a rendered script
+
 Module specific extensions  
 --------------------------
 
