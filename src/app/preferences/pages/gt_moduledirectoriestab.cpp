@@ -16,6 +16,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QDir>
+#include <QMessageBox>
 
 #include <algorithm>
 
@@ -31,6 +32,7 @@ GtModuleDirectoriesTab::GtModuleDirectoriesTab(QWidget* parent) :
     ui->btnRemoveDirectory->setIcon(gt::gui::icon::remove());
     ui->btnMoveUp->setIcon(gt::gui::icon::arrowUp());
     ui->btnMoveDown->setIcon(gt::gui::icon::arrowDown());
+    ui->btnHelpPrecedence->setIcon(gt::gui::icon::help());
 
     ui->btnAddDirectory->setToolTip(tr("Add directory"));
     ui->btnRemoveDirectory->setToolTip(tr("Remove directory"));
@@ -62,6 +64,8 @@ GtModuleDirectoriesTab::GtModuleDirectoriesTab(QWidget* parent) :
             &GtModuleDirectoriesTab::onMoveUp);
     connect(ui->btnMoveDown, &QToolButton::clicked, this,
             &GtModuleDirectoriesTab::onMoveDown);
+    connect(ui->btnHelpPrecedence, &QToolButton::clicked, this,
+            &GtModuleDirectoriesTab::onShowPrecedenceHelp);
 
     // Keep remove button state in sync
     connect(ui->directoriesList, &QListWidget::itemSelectionChanged, this,
@@ -554,6 +558,21 @@ GtModuleDirectoriesTab::onChangeToDirectory()
 
     it->setText(norm);
     emit userPathsChanged(userPaths());
+}
+
+void
+GtModuleDirectoriesTab::onShowPrecedenceHelp()
+{
+    const auto message = tr(
+        "Module loading order:\n"
+        "1. Environment variable GTLAB_MODULE_DIRS (left-to-right order)\n"
+        "2. Enabled user-defined directories in this list (top-to-bottom)\n"
+        "3. Default user module directory\n"
+        "4. Application module directory\n\n"
+        "If the same module id exists in multiple directories, the first "
+        "directory in this loading order wins and later matches are ignored.");
+
+    QMessageBox::information(this, tr("Module Loading Order"), message);
 }
 
 bool

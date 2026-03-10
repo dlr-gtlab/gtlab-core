@@ -152,6 +152,11 @@ private slots:
      */
     void onChangeToDirectory();
 
+    /**
+     * @brief Show module directory precedence information.
+     */
+    void onShowPrecedenceHelp();
+
 private:
     /**
      * @brief Apply visual appearance to a user item.
