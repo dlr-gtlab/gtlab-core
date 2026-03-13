@@ -77,3 +77,32 @@ Using the GT_METADATA macro, new class structures can be transformed into a QMet
     [...]
 
 Returns true if the module has an independent data structure or false if the module only extends certain data structures.
+
+Linked XML Serialization (SaveAsOwnFile)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The main reason to use linked object files is version control workflow.
+Instead of storing everything in one large monolithic XML file, object data is
+split across multiple files. This reduces diff size, lowers merge conflicts,
+and makes individual changes easier to track and review.
+
+Module data classes can mark objects for linked-file serialization via the
+``GtObject::SaveAsOwnFile`` flag:
+
+- Query: :cpp:func:`GtObject::saveAsOwnFile()`
+- Set: :cpp:func:`GtObject::setSaveAsOwnFile(bool)`
+
+If enabled for an object and linked XML project save is active, GTlab writes
+this object as a linked entry instead of embedding the full object XML in the
+parent document.
+In XML, this is represented via the ``aslink`` attribute and an ``<objectref>``
+to a separate ``*.gtobj.xml`` file.
+
+Unresolved linked references (for example, missing linked files during restore)
+are converted to dummy objects. This is intentional behavior to preserve object
+identity and serialized data, so unresolved content is not silently lost on
+subsequent saves.
+
+When such unresolved objects are written again, GTlab keeps them as
+reference-only links (``aslink="refonly"``) and does not overwrite/create the
+missing linked file automatically.
