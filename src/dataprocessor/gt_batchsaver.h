@@ -70,6 +70,9 @@ public:
         /// Final file path to write to (after commit).
         QString targetPath;
 
+        /// File open mode used for the QSaveFile of this operation.
+        QIODevice::OpenMode openMode{QIODevice::WriteOnly | QIODevice::Text};
+
         /// Callback that writes the file contents into the given device.
         std::function<bool(QIODevice&)> writer;
     };
@@ -85,7 +88,9 @@ public:
      * the whole commit() will fail and no files will be updated.
      */
     void addOp(const QString& targetPath,
-               const std::function<bool(QIODevice&)>& writer);
+               const std::function<bool(QIODevice&)>& writer,
+               QIODevice::OpenMode openMode = QIODevice::WriteOnly
+                                              | QIODevice::Text);
 
     /**
      * @brief Convenience method to add a QDomDocument as XML to the batch.

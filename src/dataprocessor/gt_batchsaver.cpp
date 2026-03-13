@@ -69,7 +69,7 @@ namespace
             }
 
             auto sf = std::make_unique<QSaveFile>(op.targetPath);
-            if (!sf->open(QIODevice::WriteOnly | QIODevice::Text))
+            if (!sf->open(op.openMode))
             {
                 setError(lastError,
                          QObject::tr("Cannot open QSaveFile for '%1'")
@@ -208,10 +208,12 @@ namespace
 
 void
 GtBatchSaver::addOp(const QString& targetPath,
-                        const std::function<bool(QIODevice&)>& writer)
+                    const std::function<bool(QIODevice&)>& writer,
+                    QIODevice::OpenMode openMode)
 {
     Op op;
     op.targetPath = targetPath;
+    op.openMode = openMode;
     op.writer = writer;
     m_ops.push_back(std::move(op));
 }
@@ -231,7 +233,7 @@ GtBatchSaver::addBinary(const QString& targetPath, const QByteArray& data)
     addOp(targetPath, [data](QIODevice& dev) -> bool {
         const qint64 written = dev.write(data);
         return written == data.size();
-    });
+    }, QIODevice::WriteOnly);
 }
 
 bool
