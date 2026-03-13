@@ -7,7 +7,6 @@
 #include "gtest/gtest.h"
 
 #include "gt_objectfactory.h"
-#include "gt_objectio.h"
 #include "gt_objectmemento.h"
 #include "gt_xmlutilities.h"
 #include "gt_xmlexpr.h"
@@ -71,6 +70,31 @@ namespace
         return doc;
     }
 
+    QDomDocument mementoToDomDocument(const GtObjectMemento& memento)
+    {
+        QDomDocument doc;
+        QString errorMsg;
+        int errorLine = 0;
+        int errorColumn = 0;
+
+        const bool ok = doc.setContent(memento.toByteArray(), true, &errorMsg,
+                                       &errorLine, &errorColumn);
+        EXPECT_TRUE(ok) << "Memento XML parse error at " << errorLine << ":"
+                        << errorColumn << " " << errorMsg.toStdString();
+        EXPECT_FALSE(doc.documentElement().isNull());
+        return doc;
+    }
+
+    QDomElement importMementoElement(QDomDocument& target,
+                                     const GtObjectMemento& memento)
+    {
+        QDomDocument sourceDoc = mementoToDomDocument(memento);
+        QDomNode imported =
+            target.importNode(sourceDoc.documentElement(), true);
+        EXPECT_FALSE(imported.isNull());
+        return imported.toElement();
+    }
+
     class ObjectWithDefaultChild : public GtObject
     {
     public:
@@ -85,7 +109,7 @@ namespace
 
 } // namespace
 
-class TestUnresolvedLinkedObjectRestore : public ::testing::Test
+class TestLinkedObjectRestore : public ::testing::Test
 {
 protected:
     void SetUp() override
@@ -99,15 +123,13 @@ protected:
 };
 
 /** Restoring a missing linked objectref for a known class yields a dummy object. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
-       KnownClassObjectRefMissingCreatesDummy)
+TEST_F(TestLinkedObjectRestore, KnownClassObjectRefMissingCreatesDummy)
 {
     const auto doc = parseObjectDocument(
         R"(<objectref class="TestSpecialGtObject" name="MissingChild" uuid="{U-1}" href="missing.gtobj.xml"/>)");
     const auto refElem = doc.documentElement();
 
-    GtObjectIO io;
-    GtObjectMemento memento = io.toMemento(refElem);
+    GtObjectMemento memento = GtObjectMemento(refElem);
 
     ASSERT_TRUE(memento.isFlagEnabled(GtObjectMemento::IsUnresolved));
 
@@ -121,22 +143,19 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** An unresolved dummy roundtrips back to XML with aslink="refonly". */
-TEST_F(TestUnresolvedLinkedObjectRestore,
-       UnresolvedDummyRoundtripSerializesAsRefOnly)
+TEST_F(TestLinkedObjectRestore, UnresolvedDummyRoundtripSerializesAsRefOnly)
 {
     const auto doc = parseObjectDocument(
         R"(<objectref class="TestSpecialGtObject" name="MissingChild" uuid="{U-2}" href="missing.gtobj.xml"/>)");
     const auto refElem = doc.documentElement();
 
-    GtObjectIO io;
-    auto obj = io.toMemento(refElem).toObject(*GtObjectFactory::instance());
+    auto obj = GtObjectMemento(refElem).toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(obj != nullptr);
     ASSERT_TRUE(obj->isDummy());
 
-    QDomDocument outDoc;
     auto roundtrip = obj->toMemento(false);
-    QDomElement outElem = io.toDomElement(roundtrip, outDoc);
-    outDoc.appendChild(outElem);
+    QDomDocument outDoc = mementoToDomDocument(roundtrip);
+    QDomElement outElem = outDoc.documentElement();
 
     EXPECT_EQ(outElem.tagName(), QStringLiteral("object"));
     EXPECT_EQ(outElem.attribute(gt::xml::S_CLASS_TAG),
@@ -146,7 +165,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** Merging unresolved data into an existing default child keeps the child and marks it dummy. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        MergeUnresolvedIntoDefaultChildKeepsChildAndMarksDummy)
 {
     ObjectWithDefaultChild obj;
@@ -171,8 +190,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** A missing linked child objectref is restored as a dummy child while root stays regular. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
-       MissingLinkedChildObjectRefCreatesDummyChild)
+TEST_F(TestLinkedObjectRestore, MissingLinkedChildObjectRefCreatesDummyChild)
 {
     const auto doc = parseObjectDocument(R"(
 <object class="TestSpecialGtObject" name="Root" uuid="{ROOT-1}">
@@ -181,8 +199,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
   </objectlist>
 </object>)");
 
-    GtObjectIO io;
-    GtObjectMemento memento = io.toMemento(doc.documentElement());
+    GtObjectMemento memento = GtObjectMemento(doc.documentElement());
 
     auto root = memento.toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(root != nullptr);
@@ -198,25 +215,30 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** A parsed missing child objectref merges into an existing default child and keeps that instance. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        MissingLinkedChildObjectRefKeepsExistingDefaultChildOnMerge)
 {
     ObjectWithDefaultChild obj;
+    obj.setObjectName(QStringLiteral("RootObject"));
     obj.child->setObjectName(QStringLiteral("DefaultChild"));
     obj.child->setUuid(QStringLiteral("{CHILD-XML-2}"));
     obj.child->setDouble(42.0);
 
     const auto oldChildAddr = obj.child;
 
-    const auto doc = parseObjectDocument(R"(
-<object class="GtObject" name="" uuid="">
-  <objectlist>
-    <objectref class="TestSpecialGtObject" name="DefaultChild" uuid="{CHILD-XML-2}" href="missing_default_child.gtobj.xml"/>
-  </objectlist>
-</object>)");
+    const QString xml =
+        QStringLiteral(
+            "<object class=\"GtObject\" name=\"%1\" uuid=\"%2\">"
+            "<objectlist>"
+            "<objectref class=\"TestSpecialGtObject\" name=\"DefaultChild\" "
+            "uuid=\"{CHILD-XML-2}\" href=\"missing_default_child.gtobj.xml\"/>"
+            "</objectlist>"
+            "</object>")
+            .arg(obj.objectName(), obj.uuid());
 
-    GtObjectIO io;
-    GtObjectMemento memento = io.toMemento(doc.documentElement());
+    const auto doc = parseObjectDocument(xml.toUtf8());
+
+    GtObjectMemento memento = GtObjectMemento(doc.documentElement());
     ASSERT_EQ(memento.childObjects.size(), 1);
     ASSERT_TRUE(
         memento.childObjects[0].isFlagEnabled(GtObjectMemento::IsUnresolved));
@@ -230,7 +252,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** Missing linked child with unknown class restores as dummy and preserves class metadata. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        MissingUnknownClassChildObjectRefRestoresDummyAndKeepsClass)
 {
     const auto doc = parseObjectDocument(R"(
@@ -240,8 +262,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
   </objectlist>
 </object>)");
 
-    GtObjectIO io;
-    GtObjectMemento rootMemento = io.toMemento(doc.documentElement());
+    GtObjectMemento rootMemento = GtObjectMemento(doc.documentElement());
     ASSERT_EQ(rootMemento.childObjects.size(), 1);
     auto& childMementoInTree = rootMemento.childObjects[0];
     ASSERT_TRUE(
@@ -257,8 +278,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** Mixed child list keeps valid children normal while unresolved linked child becomes dummy. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
-       MixedChildrenOnlyMissingLinkedChildBecomesDummy)
+TEST_F(TestLinkedObjectRestore, MixedChildrenOnlyMissingLinkedChildBecomesDummy)
 {
     const auto doc = parseObjectDocument(R"(
 <object class="TestSpecialGtObject" name="Root" uuid="{ROOT-3}">
@@ -268,8 +288,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
   </objectlist>
 </object>)");
 
-    GtObjectIO io;
-    auto root = io.toMemento(doc.documentElement())
+    auto root = GtObjectMemento(doc.documentElement())
                     .toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(root != nullptr);
     ASSERT_EQ(root->childCount<GtObject*>(), 2);
@@ -287,7 +306,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** Unresolved linked grandchildren are also converted to dummy objects recursively. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        MissingLinkedGrandChildObjectRefCreatesDummyGrandChild)
 {
     const auto doc = parseObjectDocument(R"(
@@ -301,8 +320,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
   </objectlist>
 </object>)");
 
-    GtObjectIO io;
-    auto root = io.toMemento(doc.documentElement())
+    auto root = GtObjectMemento(doc.documentElement())
                     .toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(root != nullptr);
 
@@ -318,8 +336,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** A default child marked unresolved is persisted as refonly to avoid overwriting missing files. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
-       UnresolvedDefaultChildSerializesAsRefOnly)
+TEST_F(TestLinkedObjectRestore, UnresolvedDefaultChildSerializesAsRefOnly)
 {
     ObjectWithDefaultChild obj;
     obj.child->setObjectName(QStringLiteral("DefaultChild"));
@@ -330,9 +347,8 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
     m.childObjects[0].setFlagEnabled(GtObjectMemento::IsUnresolved, true);
     ASSERT_TRUE(m.mergeTo(obj, *GtObjectFactory::instance()));
 
-    GtObjectIO io;
     QDomDocument doc;
-    QDomElement rootElem = io.toDomElement(obj.toMemento(false), doc);
+    QDomElement rootElem = importMementoElement(doc, obj.toMemento(false));
     doc.appendChild(rootElem);
 
     QDomElement listElem =
@@ -349,7 +365,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** End-to-end save keeps unresolved child as objectref and does not write linked data file. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        EndToEndMissingLinkedChildRoundtripKeepsObjectRefWithoutLinkedFile)
 {
     QTemporaryDir tempDir;
@@ -371,13 +387,12 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
     ASSERT_FALSE(loaded.isNull());
     EXPECT_FALSE(warnings.isEmpty());
 
-    GtObjectIO io;
-    auto root = io.toMemento(loaded.documentElement())
+    auto root = GtObjectMemento(loaded.documentElement())
                     .toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(root != nullptr);
 
     QDomDocument saveDoc;
-    saveDoc.appendChild(io.toDomElement(root->toMemento(false), saveDoc));
+    saveDoc.appendChild(importMementoElement(saveDoc, root->toMemento(false)));
 
     const QString outPath =
         QDir(tempDir.path()).filePath(QStringLiteral("roundtrip.xml"));
@@ -408,7 +423,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** Recovery works: once linked file exists, the same child objectref restores as non-dummy. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        RecoveryAfterProvidingLinkedFileRestoresRegularChild)
 {
     QTemporaryDir tempDir;
@@ -430,8 +445,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
     ASSERT_FALSE(loadedMissing.isNull());
     EXPECT_FALSE(warningsMissing.isEmpty());
 
-    GtObjectIO io;
-    auto rootMissing = io.toMemento(loadedMissing.documentElement())
+    auto rootMissing = GtObjectMemento(loadedMissing.documentElement())
                            .toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(rootMissing != nullptr);
     auto childMissing =
@@ -454,7 +468,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
     ASSERT_FALSE(loadedRecovered.isNull());
     EXPECT_TRUE(warningsRecovered.isEmpty());
 
-    auto rootRecovered = io.toMemento(loadedRecovered.documentElement())
+    auto rootRecovered = GtObjectMemento(loadedRecovered.documentElement())
                              .toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(rootRecovered != nullptr);
     auto childRecovered = rootRecovered->findDirectChild<GtObject*>(
@@ -464,8 +478,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** Objectrefs with missing attributes do not crash and still restore as unresolved dummy children. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
-       MissingObjectRefAttributesFallbackToStableDummy)
+TEST_F(TestLinkedObjectRestore, MissingObjectRefAttributesFallbackToStableDummy)
 {
     const auto doc = parseObjectDocument(R"(
 <object class="TestSpecialGtObject" name="Root" uuid="{ROOT-MISS-ATTR}">
@@ -474,8 +487,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
   </objectlist>
 </object>)");
 
-    GtObjectIO io;
-    auto rootMemento = io.toMemento(doc.documentElement());
+    auto rootMemento = GtObjectMemento(doc.documentElement());
     ASSERT_EQ(rootMemento.childObjects.size(), 1);
     auto& childMemento = rootMemento.childObjects[0];
     ASSERT_TRUE(childMemento.isFlagEnabled(GtObjectMemento::IsUnresolved));
@@ -492,7 +504,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** Two unresolved siblings with the same name but different UUIDs are both kept as separate children. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        DuplicateChildNamesDifferentUuidsRemainDistinctWhenUnresolved)
 {
     const auto doc = parseObjectDocument(R"(
@@ -503,8 +515,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
   </objectlist>
 </object>)");
 
-    GtObjectIO io;
-    auto root = io.toMemento(doc.documentElement())
+    auto root = GtObjectMemento(doc.documentElement())
                     .toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(root != nullptr);
     ASSERT_EQ(root->childCount<GtObject*>(), 2);
@@ -522,7 +533,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** A refonly object survives load-restore-save-load as objectref and still does not create linked files. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        RefOnlyObjectPreservedAcrossFullRoundtripWithoutLinkedFileCreation)
 {
     QTemporaryDir tempDir;
@@ -556,13 +567,12 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
     ASSERT_FALSE(loaded.isNull());
     EXPECT_FALSE(warnings.isEmpty());
 
-    GtObjectIO io;
-    auto root = io.toMemento(loaded.documentElement())
+    auto root = GtObjectMemento(loaded.documentElement())
                     .toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(root != nullptr);
 
     QDomDocument saveDoc;
-    saveDoc.appendChild(io.toDomElement(root->toMemento(false), saveDoc));
+    saveDoc.appendChild(importMementoElement(saveDoc, root->toMemento(false)));
 
     const QString secondPath =
         QDir(tempDir.path()).filePath(QStringLiteral("second.xml"));
@@ -589,7 +599,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** Type-restricting parents can reject unknown-class unresolved dummy children without destabilizing restore. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        RestrictiveParentRejectsUnknownClassUnresolvedChild)
 {
     const auto doc = parseObjectDocument(R"(
@@ -599,8 +609,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
   </objectlist>
 </object>)");
 
-    GtObjectIO io;
-    auto root = io.toMemento(doc.documentElement())
+    auto root = GtObjectMemento(doc.documentElement())
                     .toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(root != nullptr);
     ASSERT_FALSE(root->isDummy());
@@ -610,7 +619,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 }
 
 /** Relative href paths that traverse to parent directories are resolved against the master file directory. */
-TEST_F(TestUnresolvedLinkedObjectRestore, ParentDirectoryHrefIsResolved)
+TEST_F(TestLinkedObjectRestore, ParentDirectoryHrefIsResolved)
 {
     QTemporaryDir tempDir;
     ASSERT_TRUE(tempDir.isValid());
@@ -644,8 +653,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore, ParentDirectoryHrefIsResolved)
     ASSERT_FALSE(loaded.isNull());
     EXPECT_TRUE(warnings.isEmpty());
 
-    GtObjectIO io;
-    auto root = io.toMemento(loaded.documentElement())
+    auto root = GtObjectMemento(loaded.documentElement())
                     .toObject(*GtObjectFactory::instance());
     ASSERT_TRUE(root != nullptr);
     auto child =
@@ -655,7 +663,7 @@ TEST_F(TestUnresolvedLinkedObjectRestore, ParentDirectoryHrefIsResolved)
 }
 
 /** Switching save mode does not keep stale objectrefs in master and does not auto-delete old linked files. */
-TEST_F(TestUnresolvedLinkedObjectRestore,
+TEST_F(TestLinkedObjectRestore,
        SaveModeToggleKeepsMasterConsistentAndLeavesOldLinkedFiles)
 {
     QTemporaryDir tempDir;
@@ -717,4 +725,202 @@ TEST_F(TestUnresolvedLinkedObjectRestore,
 
     // Existing linked files are intentionally not auto-deleted when switching back to OneFile.
     EXPECT_TRUE(QFile::exists(linkedFile));
+}
+
+/** A resolved linked child objectref restores as a regular non-dummy child. */
+TEST_F(TestLinkedObjectRestore, ResolvedChildObjectRefCreatesRegularChild)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+
+    const QString masterPath =
+        QDir(tempDir.path())
+            .filePath(QStringLiteral("resolved_child_master.xml"));
+    const QByteArray masterXml = R"(
+<object class="TestSpecialGtObject" name="Root" uuid="{ROOT-RES-CHILD}">
+  <objectlist>
+    <objectref class="TestSpecialGtObject" name="ResolvedChild" uuid="{RES-CHILD}" href="linked/resolved_child.gtobj.xml"/>
+  </objectlist>
+</object>)";
+    ASSERT_TRUE(writeTextFile(masterPath, masterXml));
+
+    const QString linkedPath =
+        QDir(tempDir.path())
+            .filePath(QStringLiteral("linked/resolved_child.gtobj.xml"));
+    const QByteArray linkedXml = R"(
+<GTLABOBJECTFILE>
+  <object class="TestSpecialGtObject" name="ResolvedChild" uuid="{RES-CHILD}"/>
+</GTLABOBJECTFILE>)";
+    ASSERT_TRUE(writeTextFile(linkedPath, linkedXml));
+
+    QStringList warnings;
+    QDomDocument loaded =
+        gt::xml::loadProjectXmlWithLinkedObjects(masterPath, &warnings);
+    ASSERT_FALSE(loaded.isNull());
+    EXPECT_TRUE(warnings.isEmpty());
+
+    auto root = GtObjectMemento(loaded.documentElement())
+                    .toObject(*GtObjectFactory::instance());
+    ASSERT_TRUE(root != nullptr);
+    ASSERT_FALSE(root->isDummy());
+
+    auto child =
+        root->findDirectChild<GtObject*>(QStringLiteral("ResolvedChild"));
+    ASSERT_TRUE(child != nullptr);
+    EXPECT_FALSE(child->isDummy());
+}
+
+/** A resolved linked grandchild objectref restores recursively as a regular non-dummy object. */
+TEST_F(TestLinkedObjectRestore,
+       ResolvedGrandChildObjectRefCreatesRegularGrandChild)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+
+    const QString masterPath =
+        QDir(tempDir.path())
+            .filePath(QStringLiteral("resolved_grand_master.xml"));
+    const QByteArray masterXml = R"(
+<object class="TestSpecialGtObject" name="Root" uuid="{ROOT-RES-GRAND}">
+  <objectlist>
+    <object class="TestSpecialGtObject" name="MidChild" uuid="{MID-RES}">
+      <objectlist>
+        <objectref class="TestSpecialGtObject" name="ResolvedGrandChild" uuid="{RES-GRAND}" href="linked/grandchild.gtobj.xml"/>
+      </objectlist>
+    </object>
+  </objectlist>
+</object>)";
+    ASSERT_TRUE(writeTextFile(masterPath, masterXml));
+
+    const QString linkedPath =
+        QDir(tempDir.path())
+            .filePath(QStringLiteral("linked/grandchild.gtobj.xml"));
+    const QByteArray linkedXml = R"(
+<GTLABOBJECTFILE>
+  <object class="TestSpecialGtObject" name="ResolvedGrandChild" uuid="{RES-GRAND}"/>
+</GTLABOBJECTFILE>)";
+    ASSERT_TRUE(writeTextFile(linkedPath, linkedXml));
+
+    QStringList warnings;
+    QDomDocument loaded =
+        gt::xml::loadProjectXmlWithLinkedObjects(masterPath, &warnings);
+    ASSERT_FALSE(loaded.isNull());
+    EXPECT_TRUE(warnings.isEmpty());
+
+    auto root = GtObjectMemento(loaded.documentElement())
+                    .toObject(*GtObjectFactory::instance());
+    ASSERT_TRUE(root != nullptr);
+
+    auto mid = root->findDirectChild<GtObject*>(QStringLiteral("MidChild"));
+    ASSERT_TRUE(mid != nullptr);
+    EXPECT_FALSE(mid->isDummy());
+
+    auto grand =
+        mid->findDirectChild<GtObject*>(QStringLiteral("ResolvedGrandChild"));
+    ASSERT_TRUE(grand != nullptr);
+    EXPECT_FALSE(grand->isDummy());
+}
+
+/** Existing linked file with unknown class still yields a dummy, but not via unresolved objectref fallback. */
+TEST_F(TestLinkedObjectRestore,
+       ResolvedUnknownClassCreatesDummyWithoutUnresolvedFlag)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+
+    const QString masterPath =
+        QDir(tempDir.path())
+            .filePath(QStringLiteral("resolved_unknown_master.xml"));
+    const QByteArray masterXml = R"(
+<object class="TestSpecialGtObject" name="Root" uuid="{ROOT-RES-UNK}">
+  <objectlist>
+    <objectref class="UnknownResolvedClass" name="UnknownResolvedChild" uuid="{RES-UNK}" href="linked/unknown_resolved.gtobj.xml"/>
+  </objectlist>
+</object>)";
+    ASSERT_TRUE(writeTextFile(masterPath, masterXml));
+
+    const QString linkedPath =
+        QDir(tempDir.path())
+            .filePath(QStringLiteral("linked/unknown_resolved.gtobj.xml"));
+    const QByteArray linkedXml = R"(
+<GTLABOBJECTFILE>
+  <object class="UnknownResolvedClass" name="UnknownResolvedChild" uuid="{RES-UNK}"/>
+</GTLABOBJECTFILE>)";
+    ASSERT_TRUE(writeTextFile(linkedPath, linkedXml));
+
+    QStringList warnings;
+    QDomDocument loaded =
+        gt::xml::loadProjectXmlWithLinkedObjects(masterPath, &warnings);
+    ASSERT_FALSE(loaded.isNull());
+    EXPECT_TRUE(warnings.isEmpty());
+
+    GtObjectMemento rootMemento = GtObjectMemento(loaded.documentElement());
+    ASSERT_EQ(rootMemento.childObjects.size(), 1);
+    auto& childMemento = rootMemento.childObjects[0];
+    EXPECT_FALSE(childMemento.isFlagEnabled(GtObjectMemento::IsUnresolved));
+
+    auto child = childMemento.toObject(*GtObjectFactory::instance());
+    ASSERT_TRUE(child != nullptr);
+    EXPECT_TRUE(child->isDummy());
+}
+
+/** Resolved linked objects roundtrip with linked mode without generating refonly markers. */
+TEST_F(TestLinkedObjectRestore,
+       ResolvedRoundtripWithLinkedModeDoesNotWriteRefOnly)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+
+    const QString masterPath =
+        QDir(tempDir.path())
+            .filePath(QStringLiteral("resolved_roundtrip_master.xml"));
+    const QByteArray masterXml = R"(
+<object class="TestSpecialGtObject" name="Root" uuid="{ROOT-RES-RT}">
+  <objectlist>
+    <objectref class="TestSpecialGtObject" name="ResolvedChild" uuid="{RES-RT}" href="linked/resolved_roundtrip.gtobj.xml"/>
+  </objectlist>
+</object>)";
+    ASSERT_TRUE(writeTextFile(masterPath, masterXml));
+
+    const QString linkedPath =
+        QDir(tempDir.path())
+            .filePath(QStringLiteral("linked/resolved_roundtrip.gtobj.xml"));
+    const QByteArray linkedXml = R"(
+<GTLABOBJECTFILE>
+  <object class="TestSpecialGtObject" name="ResolvedChild" uuid="{RES-RT}"/>
+</GTLABOBJECTFILE>)";
+    ASSERT_TRUE(writeTextFile(linkedPath, linkedXml));
+
+    QStringList warnings;
+    QDomDocument loaded =
+        gt::xml::loadProjectXmlWithLinkedObjects(masterPath, &warnings);
+    ASSERT_FALSE(loaded.isNull());
+    EXPECT_TRUE(warnings.isEmpty());
+
+    auto root = GtObjectMemento(loaded.documentElement())
+                    .toObject(*GtObjectFactory::instance());
+    ASSERT_TRUE(root != nullptr);
+
+    QDomDocument saveDoc;
+    saveDoc.appendChild(importMementoElement(saveDoc, root->toMemento(false)));
+
+    QString error;
+    const QString outPath =
+        QDir(tempDir.path())
+            .filePath(QStringLiteral("resolved_roundtrip_out.xml"));
+    ASSERT_TRUE(gt::xml::saveProjectXmlWithLinkedObjects(
+        QStringLiteral("TestProject"), saveDoc, QDir(tempDir.path()), outPath,
+        gt::xml::LinkFileSaveType::WithLinkedFiles, &error))
+        << error.toStdString();
+
+    const QDomDocument outMaster = readDomFromFile(outPath);
+    ASSERT_FALSE(outMaster.isNull());
+
+    QDomNodeList objects = outMaster.elementsByTagName(gt::xml::S_OBJECT_TAG);
+    for (int i = 0; i < objects.count(); ++i)
+    {
+        const QDomElement obj = objects.at(i).toElement();
+        EXPECT_NE(obj.attribute(gt::xml::S_ASLINK_TAG),
+                  QStringLiteral("refonly"));
+    }
 }
