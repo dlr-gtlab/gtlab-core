@@ -150,6 +150,12 @@ GtProjectSettings::cbegin() const
 }
 
 GtProjectSettings::const_iterator
+GtProjectSettings::cend() const
+{
+    return m_settings.cend();
+}
+
+GtProjectSettings::const_iterator
 GtProjectSettings::end() const
 {
     return m_settings.end();

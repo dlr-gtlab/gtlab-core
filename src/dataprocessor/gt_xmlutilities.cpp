@@ -659,6 +659,7 @@ gt::xml::saveProjectXmlWithLinkedObjects(const QString& projectName,
                                          LinkFileSaveType saveType,
                                          QString* errorOut)
 {
+    if (errorOut) errorOut->clear();
 
     // work on a copy, since doc is const
     QDomDocument masterDoc = doc;
@@ -699,6 +700,7 @@ gt::xml::saveProjectXmlWithLinkedObjects(const QString& projectName,
 
     if (!batchsaver.commit())
     {
+        if (errorOut) *errorOut = batchsaver.errorString();
         gtError() << projectName << QStringLiteral(": ")
                   << batchsaver.errorString();
         return false;
