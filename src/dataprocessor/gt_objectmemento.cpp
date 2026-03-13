@@ -563,26 +563,21 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory, GtObject* parent) co
         return newObj;
     };
 
-    auto name = this->ident();
-
     std::unique_ptr<GtObject> obj;
 
-    if (!isFlagEnabled(IsUnresolved))
-    {
-        obj.reset(factory.newObject(className(), parent));
 
-        if (!obj)
-        {
-            // no class found in factory. we need a dummy object here
-            obj = makeDummy(QObject::tr("Creating dummy object "
-                                        "for unknown class %1.'").arg(className()));
-        }
-    }
-    else
+    obj.reset(factory.newObject(className(), parent));
+
+    if (!obj)
     {
-        // we need to make it a dummy, to avoid changing the original object
-        // and to highlight a problem
-        obj = makeDummy("Creating dummy object for unresolved object reference");
+        // no class found in factory. we need a dummy object here
+        obj = makeDummy(QObject::tr("Creating dummy object "
+                                    "for unknown class %1.'").arg(className()));
+    }
+
+    if (isFlagEnabled(IsUnresolved))
+    {
+        obj->makeDummy();
         obj->setFlag(GtObject::SaveAsOwnFile, true);
     }
 
@@ -603,7 +598,20 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
     obj.setUuid(uuid());
     obj.setObjectName(ident());
 
-    if (!obj.isDummy())
+    if (isFlagEnabled(IsUnresolved))
+    {
+        // we need to make it a dummy, to avoid changing the original object
+        // and to highlight a problem
+        gtWarning() << QObject::tr("Creating dummy object for unresolved object reference '%1'").arg(ident());
+        obj.makeDummy();
+        obj.importMementoIntoDummy(*this);
+        obj.setFlag(GtObject::SaveAsOwnFile, true);
+
+        // hide childs to not confuse the user
+        auto childs = obj.findDirectChildren<GtObject*>();
+        for (GtObject* c : childs) c->setUserHidden(true);
+    }
+    else if (!obj.isDummy())
     {
         ::readProperties(*this, obj);
         ::mergeAllPropertyContainers(*this, obj);

@@ -347,14 +347,20 @@ GtObjectIO::toMemento(const QDomElement& e)
     if (!children.isNull())
     {
         QDomElement compElement =
-                children.firstChildElement(gt::xml::S_OBJECT_TAG);
+            children.firstChildElement();
 
         while (!compElement.isNull())
         {
+            if (compElement.tagName() != gt::xml::S_OBJECT_TAG && compElement.tagName() != gt::xml::S_OBJECTREF_TAG)
+            {
+                compElement = compElement.nextSiblingElement();
+                continue;
+            }
+
             // recursion through GtObjectMemento constructor
             memento.childObjects.push_back(GtObjectMemento(compElement));
 
-            compElement = compElement.nextSiblingElement(gt::xml::S_OBJECT_TAG);
+            compElement = compElement.nextSiblingElement();
         }
     }
 
