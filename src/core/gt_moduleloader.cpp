@@ -34,9 +34,31 @@
 #include "gt_algorithms.h"
 #include "gt_utilities.h"
 #include "gt_qtutilities.h"
+#include "gt_settings.h"
 
 namespace
 {
+
+QStringList moduleDirsFromEnv()
+{
+    const QByteArray raw = qgetenv("GTLAB_MODULE_DIRS");
+    if (raw.isEmpty())
+    {
+        return {};
+    }
+
+    const QChar separator = QDir::listSeparator();
+    QStringList dirs = QString::fromLocal8Bit(raw)
+                           .split(separator, Qt::SkipEmptyParts);
+
+    for (QString& dir : dirs)
+    {
+        dir = dir.trimmed();
+    }
+
+    dirs.removeAll(QString());
+    return dirs;
+}
 
 /// logs a warning once
 const auto logWarnOnce = [](QString const& msg) {
@@ -254,10 +276,9 @@ GtModuleLoader::GtModuleLoader() :
 
 GtModuleLoader::~GtModuleLoader() = default;
 
-namespace
-{
 
-QDir getModuleDirectory()
+QString
+GtModuleLoader::applicationModuleDir()
 {
 #ifndef Q_OS_ANDROID
     QString path = QCoreApplication::applicationDirPath() +
@@ -266,33 +287,103 @@ QDir getModuleDirectory()
     QString path = QCoreApplication::applicationDirPath();
 #endif
 
-    QDir modulesDir(path);
-#ifdef Q_OS_WIN
-    modulesDir.setNameFilters(QStringList() << QStringLiteral("*.dll"));
-#endif
+    return path;
+}
 
-    return modulesDir;
+QString
+GtModuleLoader::defaultUserModuleDir()
+{
+    if (!gtApp) return "";
+
+    return gtApp->roamingPath() + "/modules";
+}
+
+QStringList
+GtModuleLoader::customUserModuleDirs()
+{
+    assert(gtApp);
+    auto settings = gtApp->settings();
+
+    assert(settings);
+    return settings->userModuleDirs();
+}
+
+namespace
+{
+
+QList<QDir> getModuleDirectories()
+{
+    QList<QDir> moduleDirectories;
+
+    // additional module dirs from environment (first dir wins)
+    for (const auto& md : moduleDirsFromEnv())
+    {
+        QDir moduleDirectory(md);
+        if (moduleDirectory.exists())
+        {
+            moduleDirectories.push_back(moduleDirectory);
+        }
+    }
+
+    for (auto&& md : GtModuleLoader::customUserModuleDirs())
+    {
+        // check if module dir is disabled
+        if (md.startsWith('#')) continue;
+
+        QDir moduleDirectory(md);
+        if (moduleDirectory.exists())
+            moduleDirectories.push_back(moduleDirectory);
+    }
+
+    // user module dir
+    QDir userDir(GtModuleLoader::defaultUserModuleDir());
+    if (userDir.exists())
+        moduleDirectories.push_back(userDir);
+
+    // application module dir
+    QDir applicationModules(GtModuleLoader::applicationModuleDir());
+    if  (applicationModules.exists())
+        moduleDirectories.append(applicationModules);
+
+    for (auto&& dir : moduleDirectories)
+    {
+#ifdef Q_OS_WIN
+        dir.setNameFilters(QStringList() << QStringLiteral("*.dll"));
+#endif
+    }
+
+    return moduleDirectories;
 }
 
 QStringList getModuleFilenames()
 {
-    auto modulesDir = getModuleDirectory();
+    const auto dirs = getModuleDirectories();
 
-    if (!modulesDir.exists())
+    QStringList result;
+    QSet<QString> seen; // avoid duplicates across directories
+
+    for (const QDir& dir : dirs)
     {
-        return {};
+        if (!dir.exists())
+            continue;
+
+        // File names within each dir (respects any nameFilters set on the QDir, e.g., on Windows)
+        const auto files = dir.entryList(QDir::Files);
+
+
+        // Convert to absolute paths and add (deduplicated)
+        for (const auto& localFileName : files)
+        {
+            const QString absolute = dir.absoluteFilePath(localFileName);
+            if (!seen.contains(absolute))
+            {
+                seen.insert(absolute);
+                result << absolute;
+            }
+        }
     }
 
-    // file names in dir
-    auto files = modulesDir.entryList(QDir::Files);
-
-    // convert to absolute file names
-    std::transform(files.begin(), files.end(), files.begin(),
-                   [&modulesDir](const QString& localFileName) {
-        return modulesDir.absoluteFilePath(localFileName);
-    });
-
-    return files;
+    return result;
 }
 
 QStringList getModulesToExclude()
@@ -454,7 +545,20 @@ ModuleMetaMap loadModuleMeta()
     for (const QString& moduleFile : moduleFiles)
     {
         const auto meta = loadModuleMeta(moduleFile);
-        metaData.insert(std::make_pair(meta.moduleId(), meta));
+        if (meta.moduleId().isEmpty())
+        {
+            continue;
+        }
+
+        auto insertResult = metaData.insert(std::make_pair(meta.moduleId(), meta));
+        if (!insertResult.second)
+        {
+            logDebugOnce(QObject::tr(
+                "Duplicate module id '%1' found at '%2'. "
+                "Keeping first occurrence at '%3'.")
+                .arg(meta.moduleId(), meta.location(),
+                     insertResult.first->second.location()));
+        }
     }
 
     const auto crashed_mods = CrashedModulesLog().crashedModules();
@@ -646,6 +750,20 @@ GtModuleLoader::moduleLicence(const QString& id) const
 
     return QString();
 }
+
+QString
+GtModuleLoader::moduleLocation(const QString& id) const
+{
+    auto it = m_pimpl->m_metaData.find(id);
+
+    if (it != m_pimpl->m_metaData.end())
+    {
+        return it->second.location();
+    }
+
+    return QString();
+}
+
 QString
 GtModuleLoader::modulePackageId(const QString& id) const
 {
