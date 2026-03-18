@@ -41,7 +41,7 @@
 #include "gt_confirmdeleteprojectdialog.h"
 #include "gt_saveprojectmessagebox.h"
 #include "gt_switchprojectmessagebox.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 #include "gt_inputdialog.h"
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
@@ -1191,6 +1191,7 @@ GtProjectUI::renameProject(GtObject* obj)
     auto project = qobject_cast<GtProject*>(obj);
 
     assert(project);
+    // cppcheck-suppress assertWithSideEffect
     assert(gtApp->session());
 
     GtInputDialog dialog;
@@ -1771,6 +1772,9 @@ GtProjectUI::restoreBackup(GtObject *obj)
 
         if (success && initialOpenProject)
         {
+            // update module metadata since the project might contain
+            // different packages in the backup
+            project->loadMetaData();
             success = gtDataModel->openProject(project);
         }
 

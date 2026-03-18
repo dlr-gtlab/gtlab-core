@@ -64,7 +64,7 @@ public:
     explicit GtCoreProcessExecutor(QObject* parent = {},
                                    Flags flags = {});
 
-    ~GtCoreProcessExecutor();
+    ~GtCoreProcessExecutor() override;
 
     void setCoreExecutorFlags(Flags flags);
 

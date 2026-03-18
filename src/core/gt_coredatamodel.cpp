@@ -413,12 +413,6 @@ GtCoreDatamodel::deleteProject(GtProject* project)
     return true;
 }
 
-bool GtCoreDatamodel::newProject(GtProject* project)
-{
-    return newProject(project, true);
-}
-
-
 bool
 GtCoreDatamodel::newProject(GtProject* project, bool doOpen)
 {

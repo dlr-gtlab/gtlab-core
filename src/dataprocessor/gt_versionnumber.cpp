@@ -16,7 +16,7 @@
 
 #include <QVersionNumber>
 
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 #include "gt_versionnumber.h"
 

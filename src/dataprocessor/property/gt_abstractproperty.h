@@ -232,10 +232,19 @@ public:
     const QString& ident() const;
 
     /**
-     * @brief storeToMemento
-     * @return
+     * @brief Determines, whether the property will be serialized to
+     *        project files / memento
+     *
+     * @return True, if the property should be serialized (default behaviour)
      */
     bool storeToMemento() const;
+
+    /**
+     * @brief Can be used to disable memento storage
+     *
+     * @param store If store is false, the property won't be serialized
+     */
+    void setStoreToMemento(bool store);
 
     /**
      * @brief revert

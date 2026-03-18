@@ -138,7 +138,7 @@ private:
      * @brief Helper fucntion for sending responses
      * @param response Resonse to send
      */
-    void sendResponse(GtProcessRunnerResponse& response);
+    void sendResponse(const GtProcessRunnerResponse& response);
 
     /**
      * @brief Helper function for sending notifications

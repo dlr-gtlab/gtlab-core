@@ -397,6 +397,7 @@ readProperties(const GtObjectMemento& memento,
 }
 
 void gt::importStructEntryFromMemento(const PD& propStruct,
+                                  // cppcheck-suppress constParameter
                                   GtPropertyStructInstance& structEntry)
 {
     assert(propStruct.type() == PD::STRUCT_T);
@@ -474,6 +475,7 @@ void mergePropertyContainer(const PD& prop, GtPropertyStructContainer& c)
     for (const auto& idToDelete : idsToDelete)
     {
         auto iter = c.findEntry(idToDelete);
+        // cppcheck-suppress assertWithSideEffect
         assert(iter != c.end());
         c.removeEntry(iter);
     }

@@ -15,6 +15,7 @@ find_dependency(GTlabLogging)
 find_dependency(GenH5)
 
 include("${CMAKE_CURRENT_LIST_DIR}/GTlabTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/GTlab.cmake")
 
 # create aliases.
 if (NOT TARGET GTlab::DataProcessor)

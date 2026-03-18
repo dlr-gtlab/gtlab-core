@@ -34,6 +34,7 @@
 #include <QKeyEvent>
 
 #include <algorithm>
+#include <QApplication>
 #include <memory>
 
 GtExplorerDock::GtExplorerDock() :
@@ -131,9 +132,11 @@ GtExplorerDock::GtExplorerDock() :
     m_model->setSourceModel(m_styledModel);
     m_view->setModel(m_model);
 
+    // Current changed (keyboard navigation), Mouse clicks are filtered
+    // to improve drag and drop functionality
     connect(m_view->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
+            SLOT(handleKeyboardSelectionChange(QModelIndex,QModelIndex)),
             Qt::UniqueConnection);
 
     onSessionChanged();
@@ -644,9 +647,10 @@ GtExplorerDock::endResetView()
 {
     restoreExpandStates(m_expandStates);
 
+    // TODO: why do we need to reconnect?
     connect(m_view->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
+            SLOT(handleKeyboardSelectionChange(QModelIndex,QModelIndex)),
             Qt::UniqueConnection);
 }
 
@@ -734,6 +738,17 @@ GtExplorerDock::deleteElements(const QList<QModelIndex>& indexList)
 
         default:
             break;
+    }
+}
+
+void
+GtExplorerDock::handleKeyboardSelectionChange(const QModelIndex &current,
+                                              const QModelIndex &)
+{
+    // mouse events will be handled by onClicked!
+    if (QApplication::mouseButtons() == Qt::NoButton)
+    {
+        onCurrentChanged(current);
     }
 }
 

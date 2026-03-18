@@ -32,7 +32,7 @@ GtPostDelegate::createEditor(QWidget* parent,
 
 
     QValidator* validator = new QRegularExpressionValidator(
-        gt::rex::onlyLettersAndNumbers(), parent);
+                gt::rex::onlyLettersAndNumbers(), parent);
 
     lineEdit->setValidator(validator);
 

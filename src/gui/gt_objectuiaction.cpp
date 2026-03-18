@@ -17,19 +17,24 @@
 
 GtObjectUIAction::GtObjectUIAction() = default;
 
-GtObjectUIAction::GtObjectUIAction(const QString& text,
-                                   const QString& method,
-                                   const QString& icon,
-                                   const QString& verification,
-                                   const QString& visibility,
-                                   const QKeySequence& shortcut) :
-    m_text(text),
-    m_icon(gt::gui::getIcon(icon)),
-    m_shortCut(shortcut)
+GtObjectUIAction::InvokableActionMethod
+GtObjectUIAction::fromMethodName(const QString &methodName)
 {
-    setActionMethod(method);
-    setVerificationMethod(verification);
-    setVisibilityMethod(visibility);
+    if (methodName.isEmpty())
+    {
+        return nullptr;
+    }
+
+    // wrap meta method call in lambda
+    return [=](QObject* parent, GtObject* target) {
+        if (!QMetaObject::invokeMethod(parent, methodName.toLatin1(),
+                                       Q_ARG(GtObject*, target)))
+        {
+            gtWarning().nospace()
+            << QObject::tr("Could not invoke method!")
+            << " (" << methodName << ")";
+        }
+    };
 }
 
 GtObjectUIAction::GtObjectUIAction(const QString& text,
@@ -220,21 +225,6 @@ GtObjectUIAction::registerShortCut(const QString& id,
 void
 GtObjectUIAction::setActionMethod(const QString& methodName)
 {
-    if (methodName.isEmpty())
-    {
-        m_method = nullptr;
-        return;
-    }
-
-    // wrap meta method call in lambda
-    m_method = [=](QObject* parent, GtObject* target) {
-        if (!QMetaObject::invokeMethod(parent, methodName.toLatin1(),
-                                       Q_ARG(GtObject*, target)))
-        {
-            gtWarning().nospace()
-                    << QObject::tr("Could not invoke method!")
-                    << " (" << methodName << ")";
-        }
-    };
+    m_method = fromMethodName(methodName);
 }
 

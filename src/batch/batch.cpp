@@ -38,7 +38,7 @@
 #include "gt_remoteprocessrunner.h"
 #include "settings/gt_settings.h"
 
-int list(const QStringList&);
+int displayList(const QStringList&);
 
 void
 showSplashScreen()
@@ -253,6 +253,7 @@ set_variable(const QStringList& args)
     auto name = args[0];
     auto value = args[1];
 
+    // cppcheck-suppress assertWithSideEffect
     assert(gtApp && gtApp->settings());
 
     auto settings = gtApp->settings();
@@ -274,6 +275,7 @@ set_variable(const QStringList& args)
 int
 list_variables(const QStringList&)
 {
+    // cppcheck-suppress assertWithSideEffect
     assert(gtApp && gtApp->settings());
 
     auto settings = gtApp->settings();
@@ -399,7 +401,7 @@ enableModules(const QStringList& args)
     }
 
     // delegate to list command to list all active and still disabled modules
-    return list(QStringList{"--modules"});
+    return displayList(QStringList{"--modules"});
 }
 
 int
@@ -412,7 +414,7 @@ showFootprint(const QStringList& args)
 }
 
 int
-list(const QStringList& args)
+displayList(const QStringList& args)
 {
     GtCommandLineParser p;
     p.addHelpOption();
@@ -583,7 +585,7 @@ list(const QStringList& args)
         QMap<QString, QStringList> const taskNamesMap = project->fullTaskIds();
 
         std::cout << std::endl;
-        std::cout << "Taks in the project "
+        std::cout << "Tasks in the project "
                   << gt::squoted(project->objectName().toStdString()) << ':' << std::endl;
 
         for (QString const& group : taskNamesMap.keys())
@@ -747,7 +749,7 @@ initSystemOptions()
                     QList<GtCommandLineArgument>(),
                     false);
 
-    initPosArgument("list", list,
+    initPosArgument("list", displayList,
                     "\tShows list of modules, session, projects and tasks.",
                     {}, {}, false);
 
