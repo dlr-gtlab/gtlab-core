@@ -15,6 +15,8 @@
 #include "gt_objectgroup.h"
 #include "gt_taskgroup.h"
 
+#include <gt_version.h>
+
 #include <memory>
 
 class GtTask;
@@ -96,19 +98,6 @@ public:
      * @return false if process data is already initialized or saving is failed.
      */
     bool save(const QString& projectPath) const;
-
-    /**
-     * @brief Creates new task group.
-     * @param taskGroupId Identification string of new task group
-     * @param scope Task group target scope
-     * @param projectPath
-     * @return newly created task group. nullptr is returned if task group
-     * creation failed.
-     */
-    [[deprecated("Use createNewTaskGroup(taskGroupId, scope) instead")]]
-    GtTaskGroup* createNewTaskGroup(const QString& taskGroupId,
-                                    GtTaskGroup::SCOPE scope,
-                                    const QString& projectPath);
 
     /**
      * @brief Creates new task group.

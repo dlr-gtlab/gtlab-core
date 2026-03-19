@@ -126,7 +126,7 @@ public:
      * @param error Error string if any
      * @return Reponse
      */
-    std::unique_ptr<Response> makeResponse(Command& command,
+    std::unique_ptr<Response> makeResponse(const Command& command,
                                            gt::process_runner::Error code = {},
                                            QString error = {});
 
@@ -162,7 +162,7 @@ private:
      * @param command COmmand to check
      * @return Response if error else nullptr
      */
-    std::unique_ptr<Response> checkSession(Command& command);
+    std::unique_ptr<Response> checkSession(const Command& command);
 };
 
 /**

@@ -34,11 +34,11 @@ option(BUILD_TESTMODULES "Build the test modules" OFF)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-find_package(GTlabDevtools QUIET)
-
 # generic GTlab-Ecosystem defaults
 include(GTlab)
 gtlab_standard_setup()
+
+find_package(GTlabDevtools QUIET)
 
 require_qt(COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets QuickControls2 Test)
 

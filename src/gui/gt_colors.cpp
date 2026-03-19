@@ -159,19 +159,6 @@ gt::gui::color::changedObjectForeground()
     return {Qt::blue};
 }
 
-
-QColor
-gt::gui::color::newObjectForground()
-{
-    return newObjectForeground();
-}
-
-QColor
-gt::gui::color::changedObjectForground()
-{
-    return changedObjectForeground();
-}
-
 QColor
 gt::gui::color::footprintWarning()
 {
@@ -284,23 +271,11 @@ gt::gui::color::randomColor()
 }
 
 QColor
-gt::gui::color::gridLineColor()
-{
-    return gridLine();
-}
-
-QColor
 gt::gui::color::gridLineMinor()
 {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     return QColor(150, 150, 150, 20);
-}
-
-QColor
-gt::gui::color::gridPointColor()
-{
-    return gridPoint();
 }
 
 QColor

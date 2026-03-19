@@ -38,6 +38,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
 
+## [2.0.12] - 2026-03-18
+
+GTlab 2.0.12 is a release to prepare the migration to GTlab 2.1.
+As such, many functions needed to be deprecated and should be replaced accordingly.
+
+### Deprecated
+ - Deprecated all functions in `gt_regexp.h`. These use QRegExp which will not be available in
+   future Qt Versions and in GTlab 2.1. Replacements have been added in `gt::rex` namespace,
+   which now return `QRegularExpression` objects instead.
+   
+   Porting guide:
+
+    - Replace `#include <gt_regexp.h>` with `#include <gt_regularexpression.h>`
+    - Replace `gt::re::XXX` with `gt::rex::XXX` (just replace the namespace)
+
+### Fixed
+ - Connecting GtStringMonitoringProperty to GtStringProperty in the connection editor now works as expected - #1379
+ - Fixed Output Dock not resizing new rows correctly. - #1260
+ - Fixed crash in Process Explorer, when no project is currently open. - #1393
+ - Fixed active object changed, while drag and drop an object e.g. into property link properties. - #1397
+ - Fixed an issue where tasks from inactive TaskGroups were not listed or accessible in batch commands and scripts. - #1380
+ - Fixed incorrect packages / modules in the project after a backup restore - #1211
+ 
+### Added
+ - GTlab now supports multiple module directories. These can be set via settings and the `GTLAB_MODULE_DIRS` environment variable (first dir wins on collisions).
+ - Horizontal scrolling to the selected object in explorer view.
+   This also fixes jumping of the scrollbar to the left - #1235
+
 ## [2.0.11] - 2025-04-03
 ### Fixed
  - Removed a warning, when double clicking on the current project while a task is running - #1282

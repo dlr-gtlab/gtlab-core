@@ -18,8 +18,7 @@
 GtAbstractPostWidget::GtAbstractPostWidget(QWidget* w) :
     QWidget(w),
     m_data(nullptr),
-    m_printable(true),
-    m_iconString(QString())
+    m_printable(true)
 {
     addConfigAction(tr("Configuration Menu"),
                     QStringLiteral("showConfigurationMenu"))
@@ -69,7 +68,10 @@ GtObjectUIAction&
 GtAbstractPostWidget::addConfigAction(const QString& actionText,
                                       const QString& actionMethod)
 {
-    m_actionList << GtObjectUIAction(actionText, actionMethod);
+    m_actionList << GtObjectUIAction(
+        actionText,
+        GtObjectUIAction::fromMethodName(actionMethod));
+
     return m_actionList.last();
 }
 
@@ -78,41 +80,6 @@ GtAbstractPostWidget::addConfigAction(const QString& actionText, ActionFunction 
 {
     m_actionList << GtObjectUIAction(actionText, std::move(actionMethod));
     return m_actionList.last();
-}
-
-bool
-GtAbstractPostWidget::addConfigAction(const QString& actionText,
-                                      const QString& actionMethod,
-                                      const QString& actionIcon,
-                                      const QString& actionVerification)
-{
-    if (actionText.isEmpty() || actionIcon.isEmpty() || actionMethod.isEmpty())
-    {
-        return false;
-    }
-
-    m_actionList << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                     actionVerification);
-
-    return true;
-}
-
-bool
-GtAbstractPostWidget::addConfigAction(const QString& actionText,
-                                      const QString& actionMethod,
-                                      const QString& actionIcon,
-                                      const QString& actionVerification,
-                                      const QString& actionVisibility)
-{
-    if (actionText.isEmpty() || actionIcon.isEmpty() || actionMethod.isEmpty())
-    {
-        return false;
-    }
-
-    m_actionList << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                     actionVerification, actionVisibility);
-
-    return true;
 }
 
 bool
@@ -127,28 +94,16 @@ GtAbstractPostWidget::isPrintable()
     return m_printable;
 }
 
-QString
-GtAbstractPostWidget::iconString()
-{
-    return m_iconString;
-}
-
-void
-GtAbstractPostWidget::setIconString(const QString& iconString)
-{
-    m_iconString = iconString;
-}
-
 QIcon
 GtAbstractPostWidget::icon()
 {
-    return gt::gui::getIcon(m_iconString);
+    return m_icon;
 }
 
 void
 GtAbstractPostWidget::setIcon(const QIcon& icon)
 {
-    m_iconString = icon.name();
+    m_icon = icon;
 }
 
 void

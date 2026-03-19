@@ -11,7 +11,7 @@
 
 #include "gt_filechooserproperty.h"
 
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 GtFileChooserProperty::GtFileChooserProperty(const QString& id,
                                              const QString& name,

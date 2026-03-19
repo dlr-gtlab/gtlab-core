@@ -141,7 +141,6 @@ set(headers
     post/gt_abstractchartprovider.h
     post/gt_templateviewerlistwidget.h
     post/gt_stringmapcontainer.h
-    post/gt_abstractwizard.h
     post/gt_stringcontainer.h
     post/gt_posttemplatepath.h
     process_runner/gt_processrunner.h
@@ -324,7 +323,6 @@ set(sources
     post/gt_stringmapcontainer.cpp
     post/gt_stringcontainer.cpp
     post/gt_posttemplatepath.cpp
-    post/gt_abstractwizard.cpp
     process_runner/gt_processrunner.cpp
     process_runner/gt_processrunnertransceiver.cpp
     gt_extendedcalculatordata.cpp

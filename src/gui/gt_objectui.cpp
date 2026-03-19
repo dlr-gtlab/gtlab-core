@@ -44,75 +44,13 @@ GtObjectUI::specificData(GtObject* /*obj*/,
     return QVariant();
 }
 
-void
-GtObjectUI::addSingleAction(const QString& actionText,
-                            const QString& actionIcon,
-                            const QString& actionMethod,
-                            const QString& actionVerification,
-                            const QString& actionVisibility)
-{
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        actionVerification, actionVisibility);
-}
-
-void
-GtObjectUI::addSingleAction(const QString& actionText,
-                            const QString& actionIcon,
-                            const QString& actionMethod,
-                            const QString& actionVerification,
-                            const QString& actionVisibility,
-                            const QKeySequence& shortcut)
-{
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        actionVerification, actionVisibility,
-                                        shortcut);
-}
-
-void
-GtObjectUI::addSingleAction(const QString& actionText,
-                            const QString& actionIcon,
-                            const QString& actionMethod,
-                            const QString& actionVerification)
-{
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        actionVerification);
-}
-
-void
-GtObjectUI::addSingleAction(
-        const QString& actionText,  const QString& actionIcon,
-        const QString& actionMethod, const QString& actionVerification,
-        const QKeySequence& shortcut)
-{
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        actionVerification, QString(),
-                                        shortcut);
-}
-
-void
-GtObjectUI::addSingleAction(const QString& actionText,
-                            const QString& actionIcon,
-                            const QString& actionMethod)
-{
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon);
-}
-
-void
-GtObjectUI::addSingleAction(const QString& actionText,
-                            const QString& actionIcon,
-                            const QString& actionMethod,
-                            const QKeySequence& shortcut)
-{
-    m_singleActions << GtObjectUIAction(actionText, actionMethod, actionIcon,
-                                        QString(), QString(), shortcut);
-}
-
-
 GtObjectUIAction&
 GtObjectUI::addSingleAction(const QString& actionText,
                             const QString& actionMethod)
 {
-    m_singleActions << makeSingleAction(actionText, actionMethod);
+    m_singleActions << GtObjectUIAction(actionText,
+                            GtObjectUIAction::fromMethodName(actionMethod));
+
     return m_singleActions.last();
 }
 
@@ -129,7 +67,8 @@ GtObjectUIAction
 GtObjectUI::makeSingleAction(const QString& actionText,
                              const QString& actionMethod)
 {
-    return GtObjectUIAction(actionText, actionMethod);
+    return GtObjectUIAction(actionText,
+                GtObjectUIAction::fromMethodName(actionMethod));
 }
 
 GtObjectUIAction
@@ -138,16 +77,6 @@ GtObjectUI::makeSingleAction(const QString& actionText,
 {
     // parent object not needed here
     return gt::gui::makeAction(actionText, std::move(actionMethod));
-}
-
-void
-GtObjectUI::addSingleAction(const QString& actionText,
-                            const QString& actionMethod,
-                            const QKeySequence& shortcut)
-{
-    m_singleActions << GtObjectUIAction(actionText, actionMethod,
-                                        QString(), QString(), QString(),
-                                        shortcut);
 }
 
 
@@ -162,21 +91,6 @@ void
 GtObjectUI::addActionGroup(const GtObjectUIActionGroup& actionGroup)
 {
     m_actionGroups.append(actionGroup);
-}
-
-void
-GtObjectUI::addActionGroup(const QString& groupName,
-                           const QList<GtObjectUIAction>& actions)
-{
-    m_actionGroups.append(GtObjectUIActionGroup(groupName, actions));
-}
-
-void
-GtObjectUI::addActionGroup(const QString& groupName,
-                           const QString& groupIcon,
-                           const QList<GtObjectUIAction>& actions)
-{
-    m_actionGroups.append(GtObjectUIActionGroup(groupName, actions, groupIcon));
 }
 
 void

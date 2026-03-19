@@ -10,6 +10,7 @@
  */
 
 #include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 void
 gt::re::restrictRegExpWithObjectNames(const QStringList& namesToProhibit,

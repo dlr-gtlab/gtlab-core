@@ -174,10 +174,14 @@ GtProcessDock::GtProcessDock() :
     connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
             SLOT(onRowsMoved()));
 
-    connect(m_view->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
-            Qt::UniqueConnection);
+    // Current changed (keyboard navigation), Mouse clicks are filtered
+    // to improve drag and drop functionality
+    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, [this](const QModelIndex &current, const QModelIndex &)
+    {
+        if (QApplication::mouseButtons() == Qt::NoButton)
+            onCurrentChanged(current);
+    });
 
     connect(m_view, SIGNAL(collapsed(QModelIndex)), this,
             SLOT(itemCollapsed(QModelIndex)));
@@ -940,7 +944,12 @@ GtProcessDock::onCurrentChanged(const QModelIndex& current,
 void
 GtProcessDock::onClicked(const QModelIndex& index)
 {
-    /// nothing to do here. The selection of the new object is handled by the view (see filterData)
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    onCurrentChanged(index);
 }
 
 void
@@ -1157,12 +1166,13 @@ GtProcessDock::defaultContextMenu()
 
     menu.addSeparator();
 
-    // import action
-    auto imenu = new GtImportMenu(m_taskGroup, &menu);
-
-    menu.addMenu(imenu);
-
-    menu.addSeparator();
+    if (m_taskGroup)
+    {
+        // import action
+        auto imenu = new GtImportMenu(m_taskGroup, &menu);
+        menu.addMenu(imenu);
+        menu.addSeparator();
+    }
 
     auto paste = makePasteAction(this, m_taskGroup);
 
