@@ -10,7 +10,7 @@ set(QT_VERSION_MAJOR @QT_VERSION_MAJOR@)
 set(GTLAB_QT_VERSION_MAJOR @QT_VERSION_MAJOR@)
 
 # Require the same Qt major version for consumers
-find_dependency(Qt@QT_VERSION_MAJOR@ Core Gui Xml Widgets Network PrintSupport)
+find_dependency(Qt@QT_VERSION_MAJOR@ COMPONENTS Core Gui Xml Widgets Network PrintSupport)
 find_dependency(GTlabLogging)
 find_dependency(GenH5)
 
