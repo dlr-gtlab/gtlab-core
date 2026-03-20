@@ -54,9 +54,9 @@ TEST_F(TestGtFilesystem, directoryEntriesFiltersAndRecurses)
     auto files = gt::filesystem::directoryEntries(
         QDir(sourceDir.path()), true, QRegularExpression(".*\\.txt$"));
 
-    ASSERT_EQ(files.size(), 2);
-    ASSERT_TRUE(files.contains("top.txt"));
-    ASSERT_TRUE(files.contains("sub/nested.txt"));
+    EXPECT_EQ(files.size(), 2);
+    EXPECT_TRUE(files.contains("top.txt"));
+    EXPECT_TRUE(files.contains("sub/nested.txt"));
 }
 
 TEST_F(TestGtFilesystem, directoryEntriesWithoutRecursionSkipsSubdirectories)
@@ -64,9 +64,9 @@ TEST_F(TestGtFilesystem, directoryEntriesWithoutRecursionSkipsSubdirectories)
     auto files = gt::filesystem::directoryEntries(
         QDir(sourceDir.path()), false, QRegularExpression(".*"));
 
-    ASSERT_EQ(files.size(), 2);
-    ASSERT_TRUE(files.contains("top.txt"));
-    ASSERT_TRUE(files.contains("keep.dat"));
+    EXPECT_EQ(files.size(), 2);
+    EXPECT_TRUE(files.contains("top.txt"));
+    EXPECT_TRUE(files.contains("keep.dat"));
 }
 
 TEST_F(TestGtFilesystem, copyDirReturnsSrcNotExistsForMissingSource)
@@ -74,7 +74,7 @@ TEST_F(TestGtFilesystem, copyDirReturnsSrcNotExistsForMissingSource)
     auto status = gt::filesystem::copyDir(QDir(sourceDir.filePath("missing")),
                                           QDir(targetDir.path()));
 
-    ASSERT_EQ(status, gt::filesystem::CopyStatus::SrcNotExists);
+    EXPECT_EQ(status, gt::filesystem::CopyStatus::SrcNotExists);
 }
 
 TEST_F(TestGtFilesystem, copyDirCopiesFilteredFilesRecursively)
@@ -85,10 +85,10 @@ TEST_F(TestGtFilesystem, copyDirCopiesFilteredFilesRecursively)
         gt::filesystem::OverwriteFiles | gt::filesystem::Recursive,
         QRegularExpression(".*\\.txt$"));
 
-    ASSERT_EQ(status, gt::filesystem::CopyStatus::Success);
-    ASSERT_TRUE(QFileInfo::exists(targetDir.filePath("top.txt")));
-    ASSERT_TRUE(QFileInfo::exists(targetDir.filePath("sub/nested.txt")));
-    ASSERT_FALSE(QFileInfo::exists(targetDir.filePath("keep.dat")));
+    EXPECT_EQ(status, gt::filesystem::CopyStatus::Success);
+    EXPECT_TRUE(QFileInfo::exists(targetDir.filePath("top.txt")));
+    EXPECT_TRUE(QFileInfo::exists(targetDir.filePath("sub/nested.txt")));
+    EXPECT_FALSE(QFileInfo::exists(targetDir.filePath("keep.dat")));
 }
 
 TEST_F(TestGtFilesystem, copyDirDoesNotOverwriteExistingFilesWithoutFlag)
@@ -101,8 +101,8 @@ TEST_F(TestGtFilesystem, copyDirDoesNotOverwriteExistingFilesWithoutFlag)
         gt::filesystem::Recursive,
         QRegularExpression("top\\.txt$"));
 
-    ASSERT_EQ(status, gt::filesystem::CopyStatus::Success);
-    ASSERT_EQ(readFile(targetDir.filePath("top.txt")), "old");
+    EXPECT_EQ(status, gt::filesystem::CopyStatus::Success);
+    EXPECT_EQ(readFile(targetDir.filePath("top.txt")), "old");
 }
 
 TEST_F(TestGtFilesystem, copyDirOverwritesExistingFilesWithFlag)
@@ -115,6 +115,6 @@ TEST_F(TestGtFilesystem, copyDirOverwritesExistingFilesWithFlag)
         gt::filesystem::OverwriteFiles,
         QRegularExpression("top\\.txt$"));
 
-    ASSERT_EQ(status, gt::filesystem::CopyStatus::Success);
-    ASSERT_EQ(readFile(targetDir.filePath("top.txt")), "top");
+    EXPECT_EQ(status, gt::filesystem::CopyStatus::Success);
+    EXPECT_EQ(readFile(targetDir.filePath("top.txt")), "top");
 }
