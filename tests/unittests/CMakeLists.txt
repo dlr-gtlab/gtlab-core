@@ -48,6 +48,7 @@ set(SOURCES
 
 set (SOURCES 
     ${SOURCES}
+    network/test_gt_accessgroup.cpp
     main.cpp 
     gt_testhelper.cpp 
     slotadaptor.cpp
