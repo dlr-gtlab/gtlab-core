@@ -35,6 +35,7 @@ FILE (GLOB_RECURSE TP_SRCS thirdparty/*.cpp thirdparty/*.h)
 FILE (GLOB_RECURSE EXP_SRCS exporter/*.cpp exporter/*.h)
 FILE (GLOB_RECURSE MDI_SRCS mdi/*.cpp mdi/*.h)
 FILE (GLOB_RECURSE GUI_SRCS gui/*.cpp gui/*.h)
+FILE (GLOB_RECURSE NET_SRCS network/*.cpp network/*.h)
 
 set(SOURCES
     ${DM_SRCS}
@@ -44,11 +45,11 @@ set(SOURCES
     ${EXP_SRCS}
     ${MDI_SRCS}
     ${GUI_SRCS}
+    ${NET_SRCS}
 )
 
 set (SOURCES 
     ${SOURCES}
-    network/test_gt_accessgroup.cpp
     main.cpp 
     gt_testhelper.cpp 
     slotadaptor.cpp

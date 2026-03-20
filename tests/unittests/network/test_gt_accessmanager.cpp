@@ -1,126 +1,87 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: test_gt_accessmanager
- *
- *  Created on: 18.03.2016
- *  Author: Stanislaus Reitenbach (AT-TW)
- *  Tel.: +49 2203 601 2907
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ * Source File: test_gt_accessmanager.cpp
  */
 
 #include "gtest/gtest.h"
 
-#include <QUrl>
+#include <QNetworkAccessManager>
 
+#include "gt_accessgroup.h"
 #include "gt_accessmanager.h"
 
-/// This is a test fixture that does a init for each test
 class TestGtAccessManager : public ::testing::Test
 {
 protected:
-    virtual void SetUp()
+    void SetUp() override
     {
-        manager = new GtAccessManager("Test Manager");
+        manager = GtAccessManager::instance();
+        ASSERT_NE(manager, nullptr);
 
-        host = "198.167.0.1";
-        port = 22;
-        user = "test_user";
-        pw = "my_password";
+        const int beforeCount = manager->numberOfDataGroups();
+        firstGroupId = QString("network-test-group-%1").arg(beforeCount + 1);
+        secondGroupId = QString("network-test-group-%1").arg(beforeCount + 2);
     }
 
-    virtual void TearDown()
-    {
-        delete manager;
-    }
-
-    GtAccessManager* manager;
-
-    QString host;
-    int port;
-    QString user;
-    QString pw;
-
+    GtAccessManager* manager{nullptr};
+    QString firstGroupId;
+    QString secondGroupId;
 };
 
-TEST_F(TestGtAccessManager, init)
+TEST_F(TestGtAccessManager, instanceReturnsSingleton)
 {
-    ASSERT_STREQ(manager->objectName().toStdString().c_str(),
-                 "Test Manager");
+    EXPECT_EQ(GtAccessManager::instance(), manager);
 }
 
-TEST_F(TestGtAccessManager, addData)
+TEST_F(TestGtAccessManager, defaultAccessGroupMakesManagerNonEmpty)
 {
-    GtAccessData data1(host, port, user, pw);
-
-    ASSERT_TRUE(manager->addData(data1));
-    ASSERT_FALSE(manager->addData(data1));
-
-    GtAccessData data2("");
-    ASSERT_FALSE(manager->addData(data2));
-
-    ASSERT_FALSE(manager->addData("", port, user));
-    ASSERT_FALSE(manager->addData(host, port, user));
-    ASSERT_TRUE(manager->addData(host + "2", port, user));
+    EXPECT_FALSE(manager->isEmpty());
+    EXPECT_GE(manager->numberOfDataGroups(), 1);
 }
 
-TEST_F(TestGtAccessManager, isEmpty)
+TEST_F(TestGtAccessManager, addAccessGroupRejectsInvalidAndDuplicateIds)
 {
-    ASSERT_TRUE(manager->isEmpty());
+    EXPECT_EQ(manager->addAccessGroup(QString(), QObject::staticMetaObject), nullptr);
 
-    GtAccessData data1(host, port, user, pw);
+    GtAccessGroup* group = manager->addAccessGroup(firstGroupId, QObject::staticMetaObject);
+    ASSERT_NE(group, nullptr);
 
-    manager->addData(data1);
-    ASSERT_FALSE(manager->isEmpty());
+    EXPECT_EQ(group->objectName(), firstGroupId);
+    EXPECT_EQ(manager->addAccessGroup(firstGroupId, QObject::staticMetaObject), nullptr);
 }
 
-TEST_F(TestGtAccessManager, setData)
+TEST_F(TestGtAccessManager, addingAccessGroupUpdatesLookupAndCount)
 {
-    GtAccessData data1(host, port, user, pw);
+    const int beforeCount = manager->numberOfDataGroups();
 
-    manager->addData(data1);
+    GtAccessGroup* group = manager->addAccessGroup(firstGroupId, QObject::staticMetaObject);
+    ASSERT_NE(group, nullptr);
 
-    ASSERT_FALSE(manager->setData(data1, 1));
-    ASSERT_FALSE(manager->setData(data1, -1));
-    ASSERT_TRUE(manager->setData(data1, 0));
+    EXPECT_EQ(manager->numberOfDataGroups(), beforeCount + 1);
+    EXPECT_TRUE(manager->groupExists(firstGroupId));
+    EXPECT_EQ(manager->accessGroup(firstGroupId), group);
+    EXPECT_TRUE(manager->accessGroupIds().contains(firstGroupId));
+    EXPECT_TRUE(manager->accessGroups().contains(group));
+    EXPECT_EQ(manager->accessGroup(secondGroupId), nullptr);
 }
 
-TEST_F(TestGtAccessManager, accessData)
+TEST_F(TestGtAccessManager, qnamIsCreatedLazilyAndReused)
 {
-    QList<GtAccessData> list = manager->accessData();
+    QNetworkAccessManager* first = manager->qnam();
+    ASSERT_NE(first, nullptr);
 
-    ASSERT_TRUE(list.isEmpty());
-
-    GtAccessData data1(host, port, user, pw);
-
-    manager->addData(data1);
-
-    list = manager->accessData();
-    ASSERT_FALSE(list.isEmpty());
+    EXPECT_EQ(manager->qnam(), first);
 }
 
-TEST_F(TestGtAccessManager, size)
+TEST_F(TestGtAccessManager, serializeRoundTripPreservesStringList)
 {
-    ASSERT_EQ(manager->size(), 0);
+    QStringList input;
+    input << "host" << "22" << "user" << "password";
 
-    GtAccessData data1(host, port, user, pw);
+    QString serialized = GtAccessManager::serializeStringList(input);
 
-    manager->addData(data1);
-
-    ASSERT_EQ(manager->size(), 1);
-}
-
-TEST_F(TestGtAccessManager, deleteData)
-{
-    ASSERT_FALSE(manager->deleteData(0));
-
-    GtAccessData data1(host, port, user, pw);
-
-    manager->addData(data1);
-
-    ASSERT_FALSE(manager->deleteData(1));
-    ASSERT_FALSE(manager->deleteData(-1));
-    ASSERT_TRUE(manager->deleteData(0));
-
-    ASSERT_TRUE(manager->isEmpty());
+    EXPECT_FALSE(serialized.isEmpty());
+    EXPECT_EQ(GtAccessManager::deserializeStringList(serialized), input);
 }
