@@ -10,6 +10,7 @@ SPDX-License-Identifier: MPL-2.0+
  
  <a href="https://zenodo.org/doi/10.5281/zenodo.10666586"><img src="https://zenodo.org/badge/727352741.svg" alt="DOI"></a>
  <a href='https://gtlab.readthedocs.io/en/latest/?badge=latest'><img src='https://readthedocs.org/projects/gtlab/badge/?version=latest' alt='Documentation Status' /></a>
+ <a href="https://codecov.io/github/dlr-gtlab/gtlab-core" ><img src="https://codecov.io/github/dlr-gtlab/gtlab-core/graph/badge.svg?token=05UZ6982F6"/></a>
  <!-- Add badges here-->
 </div>
 
