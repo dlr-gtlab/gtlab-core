@@ -13,6 +13,7 @@
 #include <QDataStream>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QNetworkAccessManager>
 #include <QTemporaryDir>
 #include <QUuid>
@@ -29,6 +30,11 @@ protected:
 
         previousConfigHome = qgetenv("XDG_CONFIG_HOME");
         qputenv("XDG_CONFIG_HOME", configDir->path().toUtf8());
+
+#ifdef _WIN32
+        previousAppData = qgetenv("APPDATA");
+        qputenv("APPDATA", configDir->path().toUtf8());
+#endif
     }
 
     static void TearDownTestSuite()
@@ -41,6 +47,17 @@ protected:
         {
             qputenv("XDG_CONFIG_HOME", previousConfigHome);
         }
+
+#ifdef _WIN32
+        if (previousAppData.isEmpty())
+        {
+            qunsetenv("APPDATA");
+        }
+        else
+        {
+            qputenv("APPDATA", previousAppData);
+        }
+#endif
 
         configDir.reset();
     }
@@ -60,25 +77,14 @@ protected:
             prefix, QUuid::createUuid().toString(QUuid::WithoutBraces));
     }
 
-    static QString accessFileName(QString groupId)
+    void writeAccessFile(const QString& groupId,
+                         const QStringList& entries) const
     {
-        groupId.replace(QStringLiteral(" "), QStringLiteral("_"));
-        return groupId.toLower() + QStringLiteral(".gtacc");
-    }
-
-    static QString accessDirPath()
-    {
-        return configDir->path() + QDir::separator() + QStringLiteral("access");
-    }
-
-    static void writeAccessFile(const QString& groupId,
-                                const QStringList& entries)
-    {
+        QFileInfo fileInfo(manager->accessDataFilePath(groupId));
         QDir dir;
-        ASSERT_TRUE(dir.mkpath(accessDirPath()));
+        ASSERT_TRUE(dir.mkpath(fileInfo.path()));
 
-        QFile file(accessDirPath() + QDir::separator() +
-                   accessFileName(groupId));
+        QFile file(fileInfo.filePath());
         ASSERT_TRUE(file.open(QIODevice::WriteOnly | QIODevice::Text));
 
         QDataStream out(&file);
@@ -91,10 +97,12 @@ protected:
 
     static std::unique_ptr<QTemporaryDir> configDir;
     static QByteArray previousConfigHome;
+    static QByteArray previousAppData;
 };
 
 std::unique_ptr<QTemporaryDir> TestGtAccessManager::configDir;
 QByteArray TestGtAccessManager::previousConfigHome;
+QByteArray TestGtAccessManager::previousAppData;
 
 TEST_F(TestGtAccessManager, instanceReturnsSingleton)
 {
@@ -188,8 +196,7 @@ TEST_F(TestGtAccessManager, saveAccessDataWritesGroupFiles)
 
     EXPECT_TRUE(manager->saveAccessData());
 
-    QFile file(accessDirPath() + QDir::separator() +
-               accessFileName(persistedGroupId));
+    QFile file(manager->accessDataFilePath(persistedGroupId));
     ASSERT_TRUE(file.exists());
     ASSERT_TRUE(file.open(QIODevice::ReadOnly));
 
