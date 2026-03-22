@@ -1,50 +1,156 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: test_gt_task
- *
- *  Created on: 28.01.2016
- *      Author: Carsten Klein (AT-TWK)
- *		  Tel.: +49 2203 601 2859
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ * Source File: test_gt_task.cpp
  */
 
-#include <QList>
-
 #include "gtest/gtest.h"
-#include "gt_task.h"
-#include "gt_calculator.h"
 
-class TestCalculator : public GtCalculator
+#include "core/test_gt_processtestclasses.h"
+
+#include "gt_objectfactory.h"
+#include "gt_task.h"
+
+class TestTaskProcessComponent : public GtProcessComponent
 {
 public:
-    TestCalculator()
-    {
+    bool result = true;
+    STATE resultingState = FINISHED;
+    int execCalls = 0;
 
+    bool exec() override
+    {
+        ++execCalls;
+        setState(resultingState);
+        return result;
+    }
+};
+
+class TestableGtTask : public GtTask
+{
+public:
+    using GtTask::collectMonitoringData;
+    using GtTask::runChildElements;
+
+    bool setUpResult = true;
+    EVALUATION evaluationResult = EVAL_OK;
+
+    bool setUp() override
+    {
+        return setUpResult;
+    }
+
+    EVALUATION evaluate() override
+    {
+        return evaluationResult;
     }
 };
 
 class TestGtTask : public ::testing::Test
 {
 protected:
-    virtual void SetUp()
+    void SetUp() override
     {
-//        obj.setObjectName("MyTask");
+        if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestGtCalculator)))
+        {
+            gtObjectFactory->registerClass(TestGtCalculator::staticMetaObject);
+        }
 
-//        obj.appendChild(&calc1);
-//        obj.appendChild(&calc2);
+        if (!gtObjectFactory->knownClass(GT_CLASSNAME(TestGtProcessComponent)))
+        {
+            gtObjectFactory->registerClass(
+                TestGtProcessComponent::staticMetaObject);
+        }
     }
-
-    virtual void TearDown()
-    {
-    }
-
-//    GtTask obj;
-//    TestCalculator calc1;
-//    TestCalculator calc2;
 };
 
-//TEST_F(TestGtTask, calculators)
-//{
-//    ASSERT_EQ(2, obj.calculators().size());
-//}
+TEST_F(TestGtTask, calculatorsAndProcessComponentsReturnDirectChildren)
+{
+    TestableGtTask task;
+    TestGtCalculator calculator;
+    GtTask childTask;
+
+    ASSERT_TRUE(task.appendChild(&calculator));
+    ASSERT_TRUE(task.appendChild(&childTask));
+
+    EXPECT_EQ(task.calculators().size(), 1);
+    EXPECT_EQ(task.calculators().front(), &calculator);
+    EXPECT_EQ(task.processComponents().size(), 2);
+}
+
+TEST_F(TestGtTask, requestInterruptionMarksTask)
+{
+    TestableGtTask task;
+
+    EXPECT_FALSE(task.isInterruptionRequested());
+
+    task.requestInterruption();
+
+    EXPECT_TRUE(task.isInterruptionRequested());
+    EXPECT_EQ(task.currentState(), GtProcessComponent::TERMINATION_REQUESTED);
+}
+
+TEST_F(TestGtTask, runChildElementsFailsWhenChildExecutionFails)
+{
+    TestableGtTask task;
+    TestTaskProcessComponent child;
+    child.result = false;
+    child.resultingState = GtProcessComponent::FAILED;
+
+    ASSERT_TRUE(task.appendChild(&child));
+
+    EXPECT_FALSE(task.runChildElements());
+    EXPECT_EQ(child.execCalls, 1);
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FAILED);
+    EXPECT_EQ(task.currentIterationStep(), 1);
+}
+
+TEST_F(TestGtTask, runChildElementsTerminatesWhenInterruptionWasRequested)
+{
+    TestableGtTask task;
+    TestTaskProcessComponent child;
+
+    ASSERT_TRUE(task.appendChild(&child));
+    task.requestInterruption();
+
+    EXPECT_FALSE(task.runChildElements());
+    EXPECT_EQ(child.execCalls, 1);
+    EXPECT_EQ(task.currentState(), GtProcessComponent::TERMINATED);
+}
+
+TEST_F(TestGtTask, runIterationReflectsEvaluationState)
+{
+    TestableGtTask task;
+    TestTaskProcessComponent child;
+
+    ASSERT_TRUE(task.appendChild(&child));
+
+    task.evaluationResult = GtTask::EVAL_FINISHED;
+    EXPECT_TRUE(task.runIteration());
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FINISHED);
+
+    task.setState(GtProcessComponent::NONE);
+    task.evaluationResult = GtTask::EVAL_FAILED;
+    EXPECT_FALSE(task.runIteration());
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FAILED);
+}
+
+TEST_F(TestGtTask, collectMonitoringDataIncludesChildMonitoringProperties)
+{
+    TestableGtTask task;
+    TestGtProcessComponent child;
+
+    ASSERT_TRUE(task.appendChild(&child));
+    child.addMonitoringVar("name", 42);
+
+    auto data = task.collectMonitoringData();
+
+    ASSERT_TRUE(data.contains(child.uuid()));
+    auto monData = data.getData(child.uuid());
+    const auto keys = monData.data().keys();
+    ASSERT_EQ(keys.size(), 1);
+    EXPECT_TRUE(keys.front().startsWith("monitoringVars[{"));
+    EXPECT_TRUE(keys.front().endsWith("}].value"));
+    EXPECT_EQ(monData.getData(keys.front()), QVariant(42));
+}
