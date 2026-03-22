@@ -99,6 +99,19 @@ public:
     bool saveAccessData() const;
 
     /**
+     * @brief Returns directory path used for persisted access data.
+     * @return Access data directory path.
+     */
+    QString accessDataDirPath() const;
+
+    /**
+     * @brief Returns file path used for persisted access data of a group.
+     * @param id Access group identification string.
+     * @return Access data file path.
+     */
+    QString accessDataFilePath(const QString& id) const;
+
+    /**
      * @brief Returns mac adress of current machine.
      * @return Mac adress.
      */
@@ -144,7 +157,6 @@ private:
      * @return Application roaming path.
      */
     QString roamingPath() const;
-
 };
 
 #endif // GTACCESSMANAGER_H
