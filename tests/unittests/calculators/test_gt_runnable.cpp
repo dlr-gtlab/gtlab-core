@@ -11,6 +11,9 @@
 
 #include "gt_abstractrunnable.h"
 #include "gt_calculator.h"
+#include "gt_object.h"
+#include "gt_objectlinkproperty.h"
+#include "gt_objectpathproperty.h"
 
 class TestCalculatorRunnable : public GtAbstractRunnable
 {
@@ -37,6 +40,11 @@ public:
     QString projectPath() override
     {
         return {};
+    }
+
+    void addLinkedObject(GtObject* object)
+    {
+        m_linkedObjects.append(object);
     }
 };
 
@@ -69,6 +77,32 @@ public:
     {
         m_deleteTempPath = value;
     }
+};
+
+class TestableLinkedCalculator : public TestableCalculator
+{
+public:
+    TestableLinkedCalculator() :
+        linkProp("link", "Link", "Link", this, {GT_CLASSNAME(GtObject)}),
+        pathProp("path", "Path", "Path", "", this, {GT_CLASSNAME(GtObject)})
+    {
+        registerProperty(linkProp);
+        registerProperty(pathProp);
+    }
+
+    void setLinkedUuid(const QString& uuid)
+    {
+        linkProp.setVal(uuid);
+    }
+
+    void setLinkedPath(const QString& path)
+    {
+        pathProp.setVal(path);
+    }
+
+private:
+    GtObjectLinkProperty linkProp;
+    GtObjectPathProperty pathProp;
 };
 
 class TestGtRunnable : public ::testing::Test
@@ -133,6 +167,42 @@ TEST_F(TestGtRunnable, localExecFailureMarksCalculatorFailed)
     EXPECT_FALSE(calc.exec());
     EXPECT_EQ(calc.runCalls, 1);
     EXPECT_EQ(calc.currentState(), GtProcessComponent::FAILED);
+}
+
+TEST_F(TestGtRunnable, unknownExecutionModeLeavesCalculatorInLocalMode)
+{
+    TestableCalculator calc;
+
+    EXPECT_EQ(calc.execMode(), QString("local"));
+
+    calc.setExecMode("missing-executor");
+
+    EXPECT_EQ(calc.execMode(), QString("local"));
+
+    calc.setExecModeLocal();
+    EXPECT_EQ(calc.execMode(), QString("local"));
+}
+
+TEST_F(TestGtRunnable, executionLabelRoundTrips)
+{
+    TestableCalculator calc;
+
+    calc.setExecutionLabel("worker-A");
+
+    EXPECT_EQ(calc.executionLabel(), QString("worker-A"));
+}
+
+TEST_F(TestGtRunnable, missingLinkedObjectsDoNotPreventSuccessfulRun)
+{
+    TestCalculatorRunnable runnable;
+    TestableLinkedCalculator calc;
+    calc.setParent(&runnable);
+    calc.setLinkedUuid("missing-uuid");
+    calc.setLinkedPath("missing/path");
+
+    ASSERT_TRUE(calc.exec());
+    EXPECT_TRUE(calc.linkedObjects().isEmpty());
+    EXPECT_EQ(calc.currentState(), GtProcessComponent::FINISHED);
 }
 
 TEST_F(TestGtRunnable, successfulRunClearsTempDirectoryWhenEnabled)

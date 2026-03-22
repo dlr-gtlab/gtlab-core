@@ -7,9 +7,16 @@
 
 #include "gtest/gtest.h"
 
+#include <QDir>
+#include <memory>
+
 #include "core/test_gt_processtestclasses.h"
 
+#include "gt_abstractrunnable.h"
+#include "gt_object.h"
 #include "gt_objectfactory.h"
+#include "gt_objectlinkproperty.h"
+#include "gt_objectpathproperty.h"
 #include "gt_task.h"
 
 class TestTaskProcessComponent : public GtProcessComponent
@@ -27,10 +34,39 @@ public:
     }
 };
 
+class TestTaskRunnable : public GtAbstractRunnable
+{
+public:
+    void run() override
+    {
+    }
+
+    QDir tempDir() override
+    {
+        return {};
+    }
+
+    bool clearTempDir(const QString&) override
+    {
+        return true;
+    }
+
+    QString projectPath() override
+    {
+        return {};
+    }
+
+    void addLinkedObject(GtObject* object)
+    {
+        m_linkedObjects.append(object);
+    }
+};
+
 class TestableGtTask : public GtTask
 {
 public:
     using GtTask::collectMonitoringData;
+    using GtTask::linkedObjects;
     using GtTask::runChildElements;
 
     bool setUpResult = true;
@@ -45,6 +81,37 @@ public:
     {
         return evaluationResult;
     }
+
+    void setMaxIterationSteps(int value)
+    {
+        m_maxIter.setVal(value);
+    }
+};
+
+class TestableLinkedTask : public TestableGtTask
+{
+public:
+    TestableLinkedTask() :
+        linkProp("link", "Link", "Link", this, {GT_CLASSNAME(GtObject)}),
+        pathProp("path", "Path", "Path", "", this, {GT_CLASSNAME(GtObject)})
+    {
+        registerProperty(linkProp);
+        registerProperty(pathProp);
+    }
+
+    void setLinkedUuid(const QString& uuid)
+    {
+        linkProp.setVal(uuid);
+    }
+
+    void setLinkedPath(const QString& path)
+    {
+        pathProp.setVal(path);
+    }
+
+private:
+    GtObjectLinkProperty linkProp;
+    GtObjectPathProperty pathProp;
 };
 
 class TestGtTask : public ::testing::Test
@@ -89,6 +156,39 @@ TEST_F(TestGtTask, requestInterruptionMarksTask)
 
     EXPECT_TRUE(task.isInterruptionRequested());
     EXPECT_EQ(task.currentState(), GtProcessComponent::TERMINATION_REQUESTED);
+}
+
+TEST_F(TestGtTask, execFailsWithoutRunnableParent)
+{
+    TestableGtTask task;
+
+    EXPECT_FALSE(task.exec());
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FAILED);
+}
+
+TEST_F(TestGtTask, execFailsWhenSetUpFails)
+{
+    TestTaskRunnable runnable;
+    TestableLinkedTask task;
+    task.setParent(&runnable);
+    task.setUpResult = false;
+
+    EXPECT_FALSE(task.exec());
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FAILED);
+}
+
+TEST_F(TestGtTask, execIgnoresMissingLinkedObjects)
+{
+    TestTaskRunnable runnable;
+    TestableLinkedTask task;
+    task.setParent(&runnable);
+    task.setLinkedUuid("missing-uuid");
+    task.setLinkedPath("missing/path");
+    task.evaluationResult = GtTask::EVAL_FINISHED;
+
+    ASSERT_TRUE(task.exec());
+    EXPECT_TRUE(task.linkedObjects().isEmpty());
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FINISHED);
 }
 
 TEST_F(TestGtTask, runChildElementsFailsWhenChildExecutionFails)
@@ -153,4 +253,21 @@ TEST_F(TestGtTask, collectMonitoringDataIncludesChildMonitoringProperties)
     EXPECT_TRUE(keys.front().startsWith("monitoringVars[{"));
     EXPECT_TRUE(keys.front().endsWith("}].value"));
     EXPECT_EQ(monData.getData(keys.front()), QVariant(42));
+}
+
+TEST_F(TestGtTask, monitoringDataCanBeStoredAndCleared)
+{
+    TestableGtTask task;
+    GtMonitoringDataSet data;
+    GtMonitoringData row;
+    row.addData("value", 1);
+    data.insert("uuid", row);
+
+    task.onMonitoringDataAvailable(1, data);
+
+    EXPECT_EQ(task.monitoringDataSize(), 1);
+
+    task.clearMonitoringData();
+
+    EXPECT_EQ(task.monitoringDataSize(), 0);
 }
