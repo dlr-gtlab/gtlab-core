@@ -8,9 +8,13 @@
 #include "gtest/gtest.h"
 
 #include <QDir>
+#include <QMetaObject>
+#include <memory>
 
 #include "gt_abstractrunnable.h"
+#include "gt_labeldata.h"
 #include "gt_objectfactory.h"
+#include "gt_processdata.h"
 #include "gt_task.h"
 #include "gt_taskrunner.h"
 
@@ -117,6 +121,38 @@ TEST_F(TestGtTaskRunner, setUpCopiesSourceAndQueuesClonedTask)
     auto clonedChildren = queuedTask->findDirectChildren<GtTask*>();
     ASSERT_EQ(clonedChildren.size(), 1);
     EXPECT_NE(clonedChildren.front(), &childTask);
+}
+
+TEST_F(TestGtTaskRunner, setUpSkipsProcessAndLabelDataFromSourceCopy)
+{
+    auto runnable = std::make_unique<TestTaskRunnerRunnable>();
+    GtTaskRunner runner(&task);
+    auto processData = std::make_unique<GtProcessData>();
+    auto labelData = std::make_unique<GtLabelData>();
+
+    ASSERT_TRUE(source.appendChild(processData.get()));
+    ASSERT_TRUE(source.appendChild(labelData.get()));
+    processData.release();
+    labelData.release();
+
+    ASSERT_TRUE(runner.setUp(runnable.get(), &source));
+
+    EXPECT_EQ(runnable->sourceDataCount(), 1);
+}
+
+TEST_F(TestGtTaskRunner, runReturnsWhenRunnableIsMissing)
+{
+    GtTaskRunner runner(&task);
+
+    runner.run();
+}
+
+TEST_F(TestGtTaskRunner, handleRunnableFinishedWithoutRunnableIsIgnored)
+{
+    GtTaskRunner runner(&task);
+
+    ASSERT_TRUE(QMetaObject::invokeMethod(&runner, "handleRunnableFinished"));
+    SUCCEED();
 }
 
 TEST_F(TestGtTaskRunner, handleRunnableFinishedCollectsOutputAndEmitsFinished)

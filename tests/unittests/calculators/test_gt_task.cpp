@@ -8,15 +8,18 @@
 #include "gtest/gtest.h"
 
 #include <QDir>
+#include <QMetaObject>
 #include <memory>
 
 #include "core/test_gt_processtestclasses.h"
 
 #include "gt_abstractrunnable.h"
+#include "gt_boolproperty.h"
 #include "gt_object.h"
 #include "gt_objectfactory.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
+#include "gt_propertyconnection.h"
 #include "gt_task.h"
 
 class TestTaskProcessComponent : public GtProcessComponent
@@ -31,6 +34,16 @@ public:
         ++execCalls;
         setState(resultingState);
         return result;
+    }
+};
+
+class WarningCalculator : public GtCalculator
+{
+public:
+    bool run() override
+    {
+        setState(WARN_FINISHED);
+        return true;
     }
 };
 
@@ -60,14 +73,26 @@ public:
     {
         m_linkedObjects.append(object);
     }
+
+    void setSuccessful(bool value)
+    {
+        m_successfulRun = value;
+    }
+
+    void addOutput(const GtObjectMemento& memento)
+    {
+        m_outputData.append(memento);
+    }
 };
 
 class TestableGtTask : public GtTask
 {
 public:
     using GtTask::collectMonitoringData;
+    using GtTask::collectPropertyConnections;
     using GtTask::linkedObjects;
     using GtTask::runChildElements;
+    using GtTask::setRunnable;
 
     bool setUpResult = true;
     EVALUATION evaluationResult = EVAL_OK;
@@ -128,6 +153,17 @@ protected:
         {
             gtObjectFactory->registerClass(
                 TestGtProcessComponent::staticMetaObject);
+        }
+
+        if (!gtObjectFactory->knownClass(GT_CLASSNAME(WarningCalculator)))
+        {
+            gtObjectFactory->registerClass(WarningCalculator::staticMetaObject);
+        }
+
+        if (!gtObjectFactory->knownClass(GT_CLASSNAME(GtPropertyConnection)))
+        {
+            gtObjectFactory->registerClass(
+                GtPropertyConnection::staticMetaObject);
         }
     }
 };
@@ -219,6 +255,22 @@ TEST_F(TestGtTask, runChildElementsTerminatesWhenInterruptionWasRequested)
     EXPECT_EQ(task.currentState(), GtProcessComponent::TERMINATED);
 }
 
+TEST_F(TestGtTask, runChildElementsFailsOnWarningWhenCalculatorRequestsIt)
+{
+    TestableGtTask task;
+    WarningCalculator calculator;
+    auto* failOnWarn =
+        qobject_cast<GtBoolProperty*>(calculator.findProperty("failOnWarn"));
+    ASSERT_NE(failOnWarn, nullptr);
+    failOnWarn->setVal(true);
+
+    ASSERT_TRUE(task.appendChild(&calculator));
+
+    EXPECT_FALSE(task.runChildElements());
+    EXPECT_EQ(calculator.currentState(), GtProcessComponent::FAILED);
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FAILED);
+}
+
 TEST_F(TestGtTask, runIterationReflectsEvaluationState)
 {
     TestableGtTask task;
@@ -253,6 +305,82 @@ TEST_F(TestGtTask, collectMonitoringDataIncludesChildMonitoringProperties)
     EXPECT_TRUE(keys.front().startsWith("monitoringVars[{"));
     EXPECT_TRUE(keys.front().endsWith("}].value"));
     EXPECT_EQ(monData.getData(keys.front()), QVariant(42));
+}
+
+TEST_F(TestGtTask, collectPropertyConnectionsIncludesDirectAndNestedConnections)
+{
+    TestableGtTask task;
+    GtTask childTask;
+    GtPropertyConnection direct;
+    GtPropertyConnection nested;
+
+    ASSERT_TRUE(task.appendChild(&childTask));
+    ASSERT_TRUE(task.appendChild(&direct));
+    ASSERT_TRUE(childTask.appendChild(&nested));
+
+    auto connections = task.collectPropertyConnections();
+
+    EXPECT_EQ(connections.size(), 2);
+    EXPECT_TRUE(connections.contains(&direct));
+    EXPECT_TRUE(connections.contains(&nested));
+}
+
+TEST_F(TestGtTask, handleRunnableFinishedStoresOutputAndFinishes)
+{
+    TestableGtTask task;
+    GtObject object;
+    object.setObjectName("source");
+    auto runnable = std::make_unique<TestTaskRunnable>();
+    auto* rawRunnable = runnable.get();
+    task.setRunnable(rawRunnable);
+    runnable.release();
+
+    int finishedCount = 0;
+    QObject::connect(
+        &task, &GtTask::finished, [&finishedCount]() { ++finishedCount; });
+
+    rawRunnable->setSuccessful(true);
+    rawRunnable->addOutput(object.toMemento());
+
+    ASSERT_TRUE(QMetaObject::invokeMethod(&task, "handleRunnableFinished"));
+
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FINISHED);
+    EXPECT_EQ(task.dataToMerge().size(), 1);
+    EXPECT_EQ(finishedCount, 1);
+}
+
+TEST_F(TestGtTask, handleRunnableFinishedMarksFailureOnUnsuccessfulRunnable)
+{
+    TestableGtTask task;
+    auto runnable = std::make_unique<TestTaskRunnable>();
+    auto* rawRunnable = runnable.get();
+    task.setRunnable(rawRunnable);
+    runnable.release();
+
+    rawRunnable->setSuccessful(false);
+
+    ASSERT_TRUE(QMetaObject::invokeMethod(&task, "handleRunnableFinished"));
+
+    EXPECT_EQ(task.currentState(), GtProcessComponent::FAILED);
+    EXPECT_TRUE(task.dataToMerge().isEmpty());
+}
+
+TEST_F(TestGtTask, handleRunnableFinishedMarksWarningFinishedWhenChildWarns)
+{
+    TestableGtTask task;
+    TestTaskProcessComponent child;
+    auto runnable = std::make_unique<TestTaskRunnable>();
+    auto* rawRunnable = runnable.get();
+    task.setRunnable(rawRunnable);
+    runnable.release();
+
+    ASSERT_TRUE(task.appendChild(&child));
+    child.setState(GtProcessComponent::WARN_FINISHED);
+    rawRunnable->setSuccessful(true);
+
+    ASSERT_TRUE(QMetaObject::invokeMethod(&task, "handleRunnableFinished"));
+
+    EXPECT_EQ(task.currentState(), GtProcessComponent::WARN_FINISHED);
 }
 
 TEST_F(TestGtTask, monitoringDataCanBeStoredAndCleared)

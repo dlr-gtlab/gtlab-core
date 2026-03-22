@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "gt_coreprocessexecutor.h"
+#include "gt_project.h"
 #include "gt_task.h"
 
 class TestExecutor : public GtCoreProcessExecutor
@@ -31,6 +32,11 @@ public:
         m_current = task;
     }
 
+    void appendQueuedTask(GtTask* task)
+    {
+        m_queue.append(task);
+    }
+
 protected:
     void execute() override
     {
@@ -41,6 +47,24 @@ protected:
     {
         ++terminateCalls;
         return terminateResult;
+    }
+};
+
+class PassiveExecutor : public GtCoreProcessExecutor
+{
+public:
+    void setCurrentTask(GtTask* task)
+    {
+        m_current = task;
+    }
+};
+
+class TestProject : public GtProject
+{
+public:
+    explicit TestProject(QString path) :
+        GtProject(std::move(path))
+    {
     }
 };
 
@@ -98,6 +122,41 @@ TEST_F(TestGtCoreProcessExecutor,
     EXPECT_EQ(executor.executeCalls, 0);
 }
 
+TEST_F(TestGtCoreProcessExecutor, executeNextTaskRejectsWhenTaskAlreadyRunning)
+{
+    auto runningTask = makeTask("running-task");
+    auto queuedTask = makeTask("queued-task");
+
+    ASSERT_TRUE(executor.queueTask(queuedTask.get()));
+    executor.setCurrentTask(runningTask.get());
+
+    EXPECT_FALSE(executor.executeNextTask());
+    EXPECT_EQ(executor.executeCalls, 0);
+    EXPECT_EQ(executor.currentRunningTask(), runningTask.get());
+    EXPECT_TRUE(executor.taskQueued(queuedTask.get()));
+}
+
+TEST_F(TestGtCoreProcessExecutor, executeNextTaskRejectsNullQueuedTask)
+{
+    executor.appendQueuedTask(nullptr);
+
+    EXPECT_FALSE(executor.executeNextTask());
+    EXPECT_EQ(executor.currentRunningTask(), nullptr);
+    EXPECT_TRUE(executor.queue().isEmpty());
+}
+
+TEST_F(TestGtCoreProcessExecutor, executeNextTaskRejectsTaskWithoutSource)
+{
+    auto task = makeTask("task");
+
+    ASSERT_TRUE(executor.queueTask(task.get()));
+
+    EXPECT_FALSE(executor.executeNextTask());
+    EXPECT_EQ(task->currentState(), GtProcessComponent::FAILED);
+    EXPECT_EQ(executor.currentRunningTask(), nullptr);
+    EXPECT_TRUE(executor.queue().isEmpty());
+}
+
 TEST_F(TestGtCoreProcessExecutor, runTaskQueuesTaskAndTriggersExecute)
 {
     auto task = makeTask("task");
@@ -114,6 +173,20 @@ TEST_F(TestGtCoreProcessExecutor, runTaskQueuesTaskAndTriggersExecute)
     EXPECT_EQ(executor.currentRunningTask(), task.get());
     EXPECT_TRUE(executor.taskQueued(task.get()));
     EXPECT_EQ(queueChanges, 2);
+}
+
+TEST_F(TestGtCoreProcessExecutor,
+       runTaskOnlyQueuesWhenAnotherTaskIsAlreadyRunning)
+{
+    auto runningTask = makeTask("running-task");
+    auto queuedTask = makeTask("queued-task");
+
+    executor.setCurrentTask(runningTask.get());
+
+    EXPECT_TRUE(executor.runTask(queuedTask.get()));
+    EXPECT_EQ(executor.executeCalls, 0);
+    EXPECT_TRUE(executor.taskQueued(queuedTask.get()));
+    EXPECT_EQ(executor.currentRunningTask(), runningTask.get());
 }
 
 TEST_F(TestGtCoreProcessExecutor, removeAndMoveOperationsUpdateQueue)
@@ -148,13 +221,14 @@ TEST_F(TestGtCoreProcessExecutor,
     auto task = makeTask("task");
 
     EXPECT_TRUE(executor.setSource(&source));
-    EXPECT_TRUE(executor.setCustomProjectPath("/tmp/project"));
+    EXPECT_TRUE(executor.setCustomProjectPath("project-path"));
     ASSERT_TRUE(executor.queueTask(task.get()));
     EXPECT_FALSE(executor.setSource(&source));
-    EXPECT_FALSE(executor.setCustomProjectPath("/tmp/other-project"));
+    EXPECT_FALSE(executor.setCustomProjectPath("other-project-path"));
 }
 
-TEST_F(TestGtCoreProcessExecutor, terminateUsesCurrentTaskAndClearsQueuedTasks)
+TEST_F(TestGtCoreProcessExecutor,
+       terminateUsesCurrentTaskAndClearsQueuedTasks)
 {
     auto task1 = makeTask("task-1");
     auto task2 = makeTask("task-2");
@@ -172,6 +246,17 @@ TEST_F(TestGtCoreProcessExecutor, terminateUsesCurrentTaskAndClearsQueuedTasks)
     EXPECT_TRUE(executor.terminateAllTasks());
     EXPECT_EQ(executor.terminateCalls, 2);
     EXPECT_TRUE(executor.queue().isEmpty());
+}
+
+TEST_F(TestGtCoreProcessExecutor,
+       terminateTaskReturnsFalseWhenBaseExecutorHasNoRunnable)
+{
+    PassiveExecutor passiveExecutor;
+    auto task = makeTask("task");
+
+    passiveExecutor.setCurrentTask(task.get());
+
+    EXPECT_FALSE(passiveExecutor.terminateTask(task.get()));
 }
 
 TEST_F(TestGtCoreProcessExecutor,
@@ -205,4 +290,19 @@ TEST_F(TestGtCoreProcessExecutor, clearCurrentTaskMarksNotReadyTaskAsFailed)
     EXPECT_EQ(task->currentState(), GtProcessComponent::FAILED);
     EXPECT_EQ(executor.currentRunningTask(), nullptr);
     EXPECT_TRUE(executor.queue().isEmpty());
+}
+
+TEST_F(TestGtCoreProcessExecutor,
+       executeNextTaskFindsSourceFromParentProjectWhenNotSetExplicitly)
+{
+    TestProject project(QStringLiteral("project.gtlab"));
+    project.setObjectName("project");
+    auto task = makeTask("task");
+
+    ASSERT_TRUE(project.appendChild(task.get()));
+
+    EXPECT_TRUE(executor.queueTask(task.get()));
+    EXPECT_TRUE(executor.executeNextTask());
+    EXPECT_EQ(executor.executeCalls, 1);
+    EXPECT_EQ(executor.currentRunningTask(), task.get());
 }
