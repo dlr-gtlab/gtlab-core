@@ -185,7 +185,11 @@ GtObjectSelectionDialog::onDoubleClicked(const QModelIndex& index)
 void
 GtObjectSelectionDialog::filterData(const QString& val)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     bool hadSearchText = !m_filterModel->filterRegExp().isEmpty();
+#else
+    bool hadSearchText = !m_filterModel->filterRegularExpression().pattern().isEmpty();
+#endif
 
     m_treeView->setUpdatesEnabled(false);
 
@@ -194,7 +198,11 @@ GtObjectSelectionDialog::filterData(const QString& val)
         m_treeView->collapseAll();
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_filterModel->setFilterRegExp(val);
+#else
+    m_filterModel->setFilterRegularExpression(val);
+#endif
 
     if (!val.isEmpty())
     {
