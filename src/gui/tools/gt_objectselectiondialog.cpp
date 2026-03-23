@@ -36,6 +36,7 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
 
     m_treeView = new GtTreeView(this);
     m_treeView->setFrameStyle(QTreeView::NoFrame);
+    m_treeView->setUniformRowHeights(true);
     lay->addWidget(m_treeView);
 
     auto* btnLay = new QHBoxLayout;
@@ -74,8 +75,6 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
 
     connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
             SLOT(onDoubleClicked(QModelIndex)));
-    connect(searchWidget, SIGNAL(textEdited(QString)),
-            SLOT(filterData(QString)));
     connect(searchWidget, SIGNAL(textChanged(QString)),
             SLOT(filterData(QString)));
     connect(m_treeView, SIGNAL(searchRequest()), searchWidget,
@@ -134,7 +133,7 @@ void
 GtObjectSelectionDialog::setFilterData(const QStringList& filter)
 {
     m_filterModel->setFilterData(filter);
-    m_treeView->expandAll();
+    m_treeView->expandToDepth(0);
 }
 
 GtObject*
@@ -164,5 +163,4 @@ GtObjectSelectionDialog::filterData(const QString& val)
 #else
     m_filterModel->setFilterRegularExpression(val);
 #endif
-    m_treeView->expandAll();
 }
