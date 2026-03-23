@@ -22,6 +22,28 @@
 
 #include "gt_objectselectiondialog.h"
 
+namespace
+{
+void expandVisibleBranches(QTreeView* treeView, const QAbstractItemModel* model,
+                           const QModelIndex& parent)
+{
+    int rowCount = model->rowCount(parent);
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        QModelIndex child = model->index(row, 0, parent);
+
+        if (!child.isValid() || model->rowCount(child) == 0)
+        {
+            continue;
+        }
+
+        treeView->setExpanded(child, true);
+        expandVisibleBranches(treeView, model, child);
+    }
+}
+}
+
 GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
                                                  QWidget* parent) :
     GtDialog(parent),
@@ -158,22 +180,26 @@ GtObjectSelectionDialog::onDoubleClicked(const QModelIndex& index)
 void
 GtObjectSelectionDialog::filterData(const QString& val)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     bool hadSearchText = !m_filterModel->filterRegExp().isEmpty();
-    m_filterModel->setFilterRegExp(val);
-#else
-    bool hadSearchText = !m_filterModel->filterRegularExpression().pattern().isEmpty();
-    m_filterModel->setFilterRegularExpression(val);
-#endif
 
-    bool hasSearchText = !val.isEmpty();
+    m_treeView->setUpdatesEnabled(false);
 
-    if (hasSearchText && !hadSearchText)
+    if (!val.isEmpty())
     {
-        m_treeView->expandAll();
+        m_treeView->collapseAll();
     }
-    else if (!hasSearchText && hadSearchText)
+
+    m_filterModel->setFilterRegExp(val);
+
+    if (!val.isEmpty())
+    {
+        expandVisibleBranches(m_treeView, m_filterModel, m_treeView->rootIndex());
+    }
+    else if (hadSearchText)
     {
         m_treeView->expandToDepth(0);
     }
+
+    m_treeView->setUpdatesEnabled(true);
+    m_treeView->viewport()->update();
 }
