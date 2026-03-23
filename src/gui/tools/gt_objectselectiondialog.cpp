@@ -9,8 +9,9 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QVBoxLayout>
 #include <QPushButton>
+#include <QVBoxLayout>
+
 
 #include "gt_icons.h"
 #include "gt_treeview.h"
@@ -24,9 +25,10 @@
 
 namespace
 {
-void expandVisibleBranches(QTreeView* treeView, const QAbstractItemModel* model,
-                           const QModelIndex& parent)
+int expandVisibleBranches(QTreeView* treeView, const QAbstractItemModel* model,
+                          const QModelIndex& parent)
 {
+    int expandedCount = 0;
     int rowCount = model->rowCount(parent);
 
     for (int row = 0; row < rowCount; ++row)
@@ -39,8 +41,11 @@ void expandVisibleBranches(QTreeView* treeView, const QAbstractItemModel* model,
         }
 
         treeView->setExpanded(child, true);
-        expandVisibleBranches(treeView, model, child);
+        ++expandedCount;
+        expandedCount += expandVisibleBranches(treeView, model, child);
     }
+
+    return expandedCount;
 }
 }
 
