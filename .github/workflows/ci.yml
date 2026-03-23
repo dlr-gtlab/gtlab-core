@@ -185,3 +185,59 @@ jobs:
         name: doc-user
         path: |
           docs/user/html
+
+  coverage_linux:
+    name: "Coverage (linux)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install dependencies (linux)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build lcov
+
+        wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
+        mkdir -p $HOME/build_deps
+        tar xf hdf5-1.12.1-linux.tar.gz -C $HOME/build_deps
+        echo "HDF5_DIR=$HOME/build_deps/hdf5-1.12.1-linux/share/cmake/hdf5" >> $GITHUB_ENV
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.15.2'
+
+    - name: Configure
+      run: |
+        cmake -S . -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_UNITTESTS=ON \
+          -DBUILD_TESTMODULES=ON \
+          -DBUILD_WITH_COVERAGE=ON \
+          -DGTLAB_COVERAGE_LCOV_ARGS="--ignore-errors mismatch,mismatch,unused"
+
+    - name: Build and run coverage target
+      run: |
+        cmake --build build --target test-coverage
+
+    - name: Upload coverage report artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-lcov-info
+        path: build/test-coverage.info
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        files: build/test-coverage.info
+        flags: linux
+        name: linux-lcov
+        disable_search: true
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
