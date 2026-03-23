@@ -29,6 +29,8 @@ GtImportMenu::GtImportMenu(GtObject* obj, QWidget* parent): QMenu(parent),
     setTitle(tr("Import"));
     setIcon(gt::gui::icon::import());
 
+    if (!obj) return;
+
     QList<GtImporterMetaData> importerList =
             gtImportHandler->importerMetaData(obj->metaObject()->className());
 

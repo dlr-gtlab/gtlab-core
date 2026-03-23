@@ -215,7 +215,7 @@ GtRemoteProcessRunner::onTaskStateChanged(GtProcessComponent::STATE)
 }
 
 void
-GtRemoteProcessRunner::sendResponse(GtProcessRunnerResponse& response)
+GtRemoteProcessRunner::sendResponse(const GtProcessRunnerResponse& response)
 {
     if (m_exitCode != Undefined)
     {

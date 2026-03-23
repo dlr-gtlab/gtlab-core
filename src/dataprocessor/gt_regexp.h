@@ -17,6 +17,7 @@
 #include "gt_regularexpression.h"
 
 #include "gt_object.h"
+#include "gt_version.h"
 
 /**
  * namespace for RegularExpressions, used in GTlab
@@ -45,7 +46,7 @@ GT_DATAMODEL_EXPORT QRegExp toRegExp(const QRegularExpression& re);
  * @brief woUmlauts - accepts all but ä ö ü ß
  * @return
  */
-[[deprecated ("Use gt::rex::woUmlauts instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::woUmlauts instead")
 inline QRegExp woUmlauts()
 {
     return toRegExp(gt::rex::woUmlauts());
@@ -55,7 +56,7 @@ inline QRegExp woUmlauts()
  * @brief umlauts - accept äöüßÄÖÜ
  * @return
  */
-[[deprecated ("Use gt::rex::umlauts instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::umlauts instead")
 inline QRegExp umlauts()
 {
     return toRegExp(gt::rex::umlauts());
@@ -66,7 +67,7 @@ inline QRegExp umlauts()
  * - accepts äöüßÄÖÜ .:,;#?+~* /&%$§!"{}
  * @return
  */
- [[deprecated ("Use gt::rex::umlautsAndSpecialChar instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::umlautsAndSpecialChar instead")
 inline QRegExp umlautsAndSpecialChar()
 {
     return toRegExp(gt::rex::umlautsAndSpecialChar());
@@ -77,13 +78,13 @@ inline QRegExp umlautsAndSpecialChar()
  * minimal length of 1
  * @return
  */
-[[deprecated ("Use gt::rex::onlyLetters instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::onlyLetters instead")
 inline QRegExp GT_DATAMODEL_EXPORT onlyLetters()
 {
     return toRegExp(gt::rex::onlyLetters());
 }
 
-[[deprecated ("Use gt::rex::onlyLettersHint instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::onlyLettersHint instead")
 inline QString onlyLettersHint()
 {
     return gt::rex::onlyLettersHint();
@@ -94,13 +95,13 @@ inline QString onlyLettersHint()
  * and numbers (0-9) and -  and _ with a minimal length of 1
  * @return
  */
-[[deprecated ("Use gt::rex::onlyLettersAndNumbers instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::onlyLettersAndNumbers instead")
 inline QRegExp onlyLettersAndNumbers()
 {
     return toRegExp(gt::rex::onlyLettersAndNumbers());
 }
 
-[[deprecated ("Use gt::rex::onlyLettersAndNumbersHint instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::onlyLettersAndNumbersHint instead")
 inline QString onlyLettersAndNumbersHint()
 {
     return gt::rex::onlyLettersAndNumbersHint();
@@ -111,13 +112,13 @@ inline QString onlyLettersAndNumbersHint()
  * and numbers (0-9) and -  and _ with a minimal length of 1 and dot
  * @return
  */
-[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndDot instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::onlyLettersAndNumbersAndDot instead")
 inline QRegExp onlyLettersAndNumbersAndDot()
 {
     return toRegExp(gt::rex::onlyLettersAndNumbersAndDot());
 }
 
-[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndDotHint instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::onlyLettersAndNumbersAndDotHint instead")
 inline QString onlyLettersAndNumbersAndDotHint()
 {
     return gt::rex::onlyLettersAndNumbersAndDotHint();
@@ -128,13 +129,13 @@ inline QString onlyLettersAndNumbersAndDotHint()
  * and numbers (0-9) and -  and _ and space with a minimal length of 1
  * @return
  */
-[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndSpace instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::onlyLettersAndNumbersAndSpace instead")
 inline QRegExp onlyLettersAndNumbersAndSpace()
 {
     return toRegExp(gt::rex::onlyLettersAndNumbersAndSpace());
 }
 
-[[deprecated ("Use gt::rex::onlyLettersAndNumbersAndSpaceHint instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::onlyLettersAndNumbersAndSpaceHint instead")
 inline QString onlyLettersAndNumbersAndSpaceHint()
 {
     return gt::rex::onlyLettersAndNumbersAndSpaceHint();
@@ -145,7 +146,7 @@ inline QString onlyLettersAndNumbersAndSpaceHint()
  * special symbols typical used for units
  * @return
  */
-[[deprecated ("Use gt::rex::forUnits instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::forUnits instead")
 inline QRegExp forUnits()
 {
     return toRegExp(gt::rex::forUnits());
@@ -155,7 +156,7 @@ inline QRegExp forUnits()
  * @brief forExpressions
  * @return
  */
-[[deprecated ("Use gt::rex::forExpressions instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::forExpressions instead")
 inline QRegExp forExpressions()
 {
     return toRegExp(gt::rex::forExpressions());
@@ -166,7 +167,7 @@ inline QRegExp forExpressions()
  * of an S and one to three numbers
  * @return
  */
-[[deprecated ("Use gt::rex::forStations instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::forStations instead")
 inline QRegExp forStations()
 {
     return toRegExp(gt::rex::forStations());
@@ -176,7 +177,7 @@ inline QRegExp forStations()
  * @brief forDoubles
  * @return
  */
-[[deprecated ("Use gt::rex::forDoubles instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::forDoubles instead")
 inline QRegExp forDoubles()
 {
     return toRegExp(gt::rex::forDoubles());
@@ -186,7 +187,7 @@ inline QRegExp forDoubles()
  * @brief forDoublesLists
  * @return regexp for double lists
  */
-[[deprecated ("Use gt::rex::forDoublesLists instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::forDoublesLists instead")
 inline QRegExp forDoublesLists()
 {
     return toRegExp(gt::rex::forDoublesLists());
@@ -196,7 +197,7 @@ inline QRegExp forDoublesLists()
  * @brief for semantic versioning
  * @return regexp for semantic versioning
  */
-[[deprecated ("Use gt::rex::forSemVers instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::forSemVers instead")
 inline QRegExp forSemVers()
 {
     return toRegExp(gt::rex::forSemVers());
@@ -208,7 +209,7 @@ inline QRegExp forSemVers()
  * "Python (python* python3)"
  * "Textfiles (*.txt)"
  */
-[[deprecated ("Use gt::rex::forFileDialogFilters instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::forFileDialogFilters instead")
 inline QRegExp forFileDialogFilters()
 {
     return toRegExp(gt::rex::forFileDialogFilters());
@@ -218,7 +219,7 @@ inline QRegExp forFileDialogFilters()
  * @brief for semantic versioning
  * @return regexp for semantic versioning
  */
-[[deprecated ("Use gt::rex::forHexColorCode instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use gt::rex::forHexColorCode instead")
 inline QRegExp forHexColorCode()
 {
     return toRegExp(gt::rex::forHexColorCode());

@@ -187,8 +187,7 @@ GtProcessData::read(const QString& projectPath)
     // initialization finished. Yippee-ki-yay, mot*********
     m_pimpl->_initialized = true;
 
-    assert(switchCurrentTaskGroup(GtTaskGroup::defaultUserGroupId(),
-                                  GtTaskGroup::USER, projectPath));
+    initAllTaskGroups(projectPath);
 
     return true;
 }
@@ -234,14 +233,6 @@ GtProcessData::save(const QString& projectPath) const
     }
 
     return m_pimpl->saveTaskGroups(projectPath, GtTaskGroup::CUSTOM);
-}
-
-GtTaskGroup*
-GtProcessData::createNewTaskGroup(const QString& taskGroupId,
-                                  GtTaskGroup::SCOPE scope,
-                                  const QString& /*projectPath*/)
-{
-    return createNewTaskGroup(taskGroupId, scope);
 }
 
 GtTaskGroup*
