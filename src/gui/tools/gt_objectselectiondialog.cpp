@@ -25,6 +25,8 @@
 
 namespace
 {
+constexpr int MaxAutoExpandMatches = 10;
+
 int expandVisibleBranches(QTreeView* treeView, const QAbstractItemModel* model,
                           const QModelIndex& parent)
 {
@@ -46,6 +48,41 @@ int expandVisibleBranches(QTreeView* treeView, const QAbstractItemModel* model,
     }
 
     return expandedCount;
+}
+
+int countEnabledMatches(const QAbstractItemModel* model,
+                        const QModelIndex& parent,
+                        int maxCount)
+{
+    int matches = 0;
+    int rowCount = model->rowCount(parent);
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        QModelIndex child = model->index(row, 0, parent);
+
+        if (!child.isValid())
+        {
+            continue;
+        }
+
+        if (model->flags(child) & Qt::ItemIsEnabled)
+        {
+            ++matches;
+            if (matches > maxCount)
+            {
+                return matches;
+            }
+        }
+
+        matches += countEnabledMatches(model, child, maxCount - matches);
+        if (matches > maxCount)
+        {
+            return matches;
+        }
+    }
+
+    return matches;
 }
 }
 
@@ -157,10 +194,25 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
 }
 
 void
+GtObjectSelectionDialog::applyDefaultExpansion()
+{
+    int enabledMatches = countEnabledMatches(m_filterModel,
+                                             m_treeView->rootIndex(),
+                                             MaxAutoExpandMatches);
+    if (enabledMatches <= MaxAutoExpandMatches)
+    {
+        expandVisibleBranches(m_treeView, m_filterModel, m_treeView->rootIndex());
+        return;
+    }
+
+    m_treeView->expandToDepth(0);
+}
+
+void
 GtObjectSelectionDialog::setFilterData(const QStringList& filter)
 {
     m_filterModel->setFilterData(filter);
-    m_treeView->expandToDepth(0);
+    applyDefaultExpansion();
 }
 
 GtObject*
@@ -210,7 +262,7 @@ GtObjectSelectionDialog::filterData(const QString& val)
     }
     else if (hadSearchText)
     {
-        m_treeView->expandToDepth(0);
+        applyDefaultExpansion();
     }
 
     m_treeView->setUpdatesEnabled(true);
