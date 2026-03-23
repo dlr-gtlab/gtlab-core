@@ -159,8 +159,21 @@ void
 GtObjectSelectionDialog::filterData(const QString& val)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    bool hadSearchText = !m_filterModel->filterRegExp().isEmpty();
     m_filterModel->setFilterRegExp(val);
 #else
+    bool hadSearchText = !m_filterModel->filterRegularExpression().pattern().isEmpty();
     m_filterModel->setFilterRegularExpression(val);
 #endif
+
+    bool hasSearchText = !val.isEmpty();
+
+    if (hasSearchText && !hadSearchText)
+    {
+        m_treeView->expandAll();
+    }
+    else if (!hasSearchText && hadSearchText)
+    {
+        m_treeView->expandToDepth(0);
+    }
 }
