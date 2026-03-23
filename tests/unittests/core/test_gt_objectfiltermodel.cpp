@@ -42,7 +42,11 @@ TEST(TestGtObjectFilterModel, keepsAncestorPathVisibleAndDisablesNonMatchingAnce
     EXPECT_EQ(filterModel.flags(QModelIndex()), Qt::ItemFlags{});
     filterModel.setSourceModel(&styledModel);
     filterModel.setFilterData({"TestObject"});
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     filterModel.setFilterRegExp("pr");
+#else
+    filterModel.setFilterRegularExpression("pr");
+#endif
 
     QModelIndex srcRootIndex = srcModel.indexFromObject(&root);
     QModelIndex styledRootIndex = styledModel.mapFromSource(srcRootIndex);
