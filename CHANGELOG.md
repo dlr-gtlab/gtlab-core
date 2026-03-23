@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Module updater get process model files to have the opportunity to modify process elements for new versions - #1414
 
 ### Fixed
+ - Improved performance of the object selection dialog filtering on large projects, especially during incremental search with broad type filters - #1454
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
 
 ## [2.0.11] - 2025-04-03
