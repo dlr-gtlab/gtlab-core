@@ -37,10 +37,7 @@ int expandVisibleBranches(QTreeView* treeView, const QAbstractItemModel* model,
     {
         QModelIndex child = model->index(row, 0, parent);
 
-        if (!child.isValid() || model->rowCount(child) == 0)
-        {
-            continue;
-        }
+        if (!child.isValid() || model->rowCount(child) == 0) continue;
 
         treeView->setExpanded(child, true);
         ++expandedCount;
@@ -61,25 +58,16 @@ int countEnabledMatches(const QAbstractItemModel* model,
     {
         QModelIndex child = model->index(row, 0, parent);
 
-        if (!child.isValid())
-        {
-            continue;
-        }
+        if (!child.isValid()) continue;
 
         if (model->flags(child) & Qt::ItemIsEnabled)
         {
             ++matches;
-            if (matches > maxCount)
-            {
-                return matches;
-            }
+            if (matches > maxCount) return matches;
         }
 
         matches += countEnabledMatches(model, child, maxCount - matches);
-        if (matches > maxCount)
-        {
-            return matches;
-        }
+        if (matches > maxCount) return matches;
     }
 
     return matches;
