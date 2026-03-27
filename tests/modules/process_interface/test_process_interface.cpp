@@ -17,7 +17,7 @@
 #include "test_process_interface.h"
 
 GtVersionNumber
-TestProcessInterface::version()
+TestProcessInterface::version() const
 {
     return GtVersionNumber(0, 2, 0);
 }
