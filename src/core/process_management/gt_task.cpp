@@ -520,7 +520,7 @@ GtTask::collectPropertyConnectionHelper(QList<GtPropertyConnection*>& list,
     }
 
     foreach (GtPropertyConnection* connection,
-             findDirectChildren<GtPropertyConnection*>())
+             component->findDirectChildren<GtPropertyConnection*>())
     {
         // check whether same connection already exists in list
         if (!list.contains(connection))
