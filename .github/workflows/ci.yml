@@ -8,6 +8,19 @@ on:
 
 jobs:
 
+  check_license:
+    name: "License compliance"
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install REUSE tool
+      run: python3 -m pip install reuse
+
+    - name: Run REUSE lint
+      run: reuse lint
+
   build_and_test:
     name: "Build and test"
     strategy:
