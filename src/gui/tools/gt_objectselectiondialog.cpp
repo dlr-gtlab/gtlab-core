@@ -9,8 +9,9 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QVBoxLayout>
 #include <QPushButton>
+#include <QVBoxLayout>
+
 
 #include "gt_icons.h"
 #include "gt_treeview.h"
@@ -21,6 +22,57 @@
 #include "gt_objectfiltermodel.h"
 
 #include "gt_objectselectiondialog.h"
+
+namespace
+{
+constexpr int MaxAutoExpandMatches = 10;
+
+int expandVisibleBranches(QTreeView* treeView, const QAbstractItemModel* model,
+                          const QModelIndex& parent)
+{
+    int expandedCount = 0;
+    int rowCount = model->rowCount(parent);
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        QModelIndex child = model->index(row, 0, parent);
+
+        if (!child.isValid() || model->rowCount(child) == 0) continue;
+
+        treeView->setExpanded(child, true);
+        ++expandedCount;
+        expandedCount += expandVisibleBranches(treeView, model, child);
+    }
+
+    return expandedCount;
+}
+
+int countEnabledMatches(const QAbstractItemModel* model,
+                        const QModelIndex& parent,
+                        int maxCount)
+{
+    int matches = 0;
+    int rowCount = model->rowCount(parent);
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        QModelIndex child = model->index(row, 0, parent);
+
+        if (!child.isValid()) continue;
+
+        if (model->flags(child) & Qt::ItemIsEnabled)
+        {
+            ++matches;
+            if (matches > maxCount) return matches;
+        }
+
+        matches += countEnabledMatches(model, child, maxCount - matches);
+        if (matches > maxCount) return matches;
+    }
+
+    return matches;
+}
+}
 
 GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
                                                  QWidget* parent) :
@@ -36,6 +88,7 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
 
     m_treeView = new GtTreeView(this);
     m_treeView->setFrameStyle(QTreeView::NoFrame);
+    m_treeView->setUniformRowHeights(true);
     lay->addWidget(m_treeView);
 
     auto* btnLay = new QHBoxLayout;
@@ -74,8 +127,6 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
 
     connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
             SLOT(onDoubleClicked(QModelIndex)));
-    connect(searchWidget, SIGNAL(textEdited(QString)),
-            SLOT(filterData(QString)));
     connect(searchWidget, SIGNAL(textChanged(QString)),
             SLOT(filterData(QString)));
     connect(m_treeView, SIGNAL(searchRequest()), searchWidget,
@@ -131,10 +182,25 @@ GtObjectSelectionDialog::GtObjectSelectionDialog(GtObject* root,
 }
 
 void
+GtObjectSelectionDialog::applyDefaultExpansion()
+{
+    int enabledMatches = countEnabledMatches(m_filterModel,
+                                             m_treeView->rootIndex(),
+                                             MaxAutoExpandMatches);
+    if (enabledMatches <= MaxAutoExpandMatches)
+    {
+        expandVisibleBranches(m_treeView, m_filterModel, m_treeView->rootIndex());
+        return;
+    }
+
+    m_treeView->expandToDepth(0);
+}
+
+void
 GtObjectSelectionDialog::setFilterData(const QStringList& filter)
 {
     m_filterModel->setFilterData(filter);
-    m_treeView->expandAll();
+    applyDefaultExpansion();
 }
 
 GtObject*
@@ -160,9 +226,33 @@ void
 GtObjectSelectionDialog::filterData(const QString& val)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    bool hadSearchText = !m_filterModel->filterRegExp().isEmpty();
+#else
+    bool hadSearchText = !m_filterModel->filterRegularExpression().pattern().isEmpty();
+#endif
+
+    m_treeView->setUpdatesEnabled(false);
+
+    if (!val.isEmpty())
+    {
+        m_treeView->collapseAll();
+    }
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_filterModel->setFilterRegExp(val);
 #else
     m_filterModel->setFilterRegularExpression(val);
 #endif
-    m_treeView->expandAll();
+
+    if (!val.isEmpty())
+    {
+        expandVisibleBranches(m_treeView, m_filterModel, m_treeView->rootIndex());
+    }
+    else if (hadSearchText)
+    {
+        applyDefaultExpansion();
+    }
+
+    m_treeView->setUpdatesEnabled(true);
+    m_treeView->viewport()->update();
 }
