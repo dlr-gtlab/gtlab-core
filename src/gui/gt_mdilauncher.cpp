@@ -32,6 +32,16 @@ static const QString S_WINDOW_PREFIX = QStringLiteral("GTlab - ");
 namespace
 {
 
+QString hardCodedOpenWithName(const QString& className)
+{
+    if (className == "GtdPreDesignPlot") return "Pre Design Plot";
+    else if (className == "GtdPreDesignPlot3D") return "3D Pre Design Plot";
+    else if (className == "GtdProfilePlot")  return "Profile Plot";
+    else if (className == "GtdComponentEditor") return "Component Editor";
+
+    return "";
+}
+
 /// helper function to make tab buttons
 QWidget* makeTabButtons(QPointer<GtTabWidget> tabWidget,
                         QIcon const& tabIcon,
@@ -119,12 +129,30 @@ void setupRedockAction(QPointer<GtTabWidget> tabWidget,
 
 } // namespace
 
-GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
-    m_area(nullptr)
+struct GtMdiLauncher::Impl
 {
+    /// Mdi area widget
+    QPointer<QTabWidget> area{nullptr};
 
+    /// Registered dock widget meta objects
+    QHash<QString, QMetaObject> dockWidgets;
+
+    /// List of all open mdi items
+    QMap<const QObject*, QPointer<GtMdiItem>> openItems;
+
+    /// MDI Editor name map (class, name)
+    QMap<QString, QString> mdiNames;
+
+    /// Collections
+    QHash<QString, GtCollectionInterface*> collections;
+};
+
+GtMdiLauncher::GtMdiLauncher(QObject* parent) : QObject(parent),
+    pimpl(std::make_unique<Impl>())
+{
 }
 
+GtMdiLauncher::~GtMdiLauncher() = default;
 QString
 GtMdiLauncher::generateMdiItemId(GtMdiItem* mdiItem)
 {
@@ -192,7 +220,7 @@ GtMdiLauncher::openItemIds()
 {
     QStringList retval;
 
-    const auto& openItems = m_openItems.values();
+    const auto& openItems = pimpl->openItems.values();
 
     for (GtMdiItem* openItem : openItems)
     {
@@ -210,23 +238,23 @@ GtMdiLauncher::setFocus(const QString& mdiId)
         return;
     }
 
-    if (!m_area)
+    if (!pimpl->area)
     {
         return;
     }
 
-    gt::for_each_key(m_openItems, [&](const QObject* e)
+    gt::for_each_key(pimpl->openItems, [&](const QObject* e)
     {
-        if (generateMdiItemId(m_openItems.value(e)) == mdiId)
+        if (generateMdiItemId(pimpl->openItems.value(e)) == mdiId)
         {
             // TODO: replace with `GtTabWidget->widgets()`
 
             QList<QWidget*> list;
-            for (int i = 0; i < m_area->count(); ++i)
+            for (int i = 0; i < pimpl->area->count(); ++i)
             {
-                if (m_area->widget(i))
+                if (pimpl->area->widget(i))
                 {
-                    list.append(m_area->widget(i));
+                    list.append(pimpl->area->widget(i));
                 }
             }
 
@@ -234,7 +262,7 @@ GtMdiLauncher::setFocus(const QString& mdiId)
             {
                 if (listItem == e)
                 {
-                    m_area->setCurrentWidget(listItem);
+                    pimpl->area->setCurrentWidget(listItem);
                     listItem->setFocus();
                 }
             }
@@ -247,36 +275,36 @@ void
 GtMdiLauncher::close()
 {
     // the ownership is quite a mess, deleting the widget
-    for (GtMdiItem* item : m_openItems)
+    for (GtMdiItem* item : pimpl->openItems)
     {
         assert(item);
         // cppcheck-suppress assertWithSideEffect
         assert(item->widget());
         item->widget()->deleteLater();
     }
-    m_openItems.clear();
+    pimpl->openItems.clear();
 }
 
 void
 GtMdiLauncher::onSubWindowClose(QObject* obj)
 {
-    auto iter = m_openItems.find(obj);
-    if (iter != m_openItems.end())
+    auto iter = pimpl->openItems.find(obj);
+    if (iter != pimpl->openItems.end())
     {
-        m_openItems.erase(iter);
+        pimpl->openItems.erase(iter);
     }
 }
 
 void
 GtMdiLauncher::onCloseTabRequest(int i)
 {
-    if (QWidget* w = m_area->widget(i))
+    if (QWidget* w = pimpl->area->widget(i))
     {
-        m_area->removeTab(i);
+        pimpl->area->removeTab(i);
         delete w;
 
         // focus the new current widget to recieve input etc.
-        if (QWidget* next = m_area->currentWidget())
+        if (QWidget* next = pimpl->area->currentWidget())
         {
             next->setFocus();
         }
@@ -297,44 +325,92 @@ GtMdiLauncher::instance()
 void
 GtMdiLauncher::setMdiArea(QTabWidget* area)
 {
-    if (m_area)
+    if (pimpl->area)
     {
         return;
     }
 
-    m_area = area;
+    pimpl->area = area;
 
-    connect(m_area, SIGNAL(tabCloseRequested(int)), this,
+    connect(pimpl->area, SIGNAL(tabCloseRequested(int)), this,
             SLOT(onCloseTabRequest(int)));
+}
+
+bool
+GtMdiLauncher::registerMdiWidgets(const QList<QMetaObject> &mdiItems)
+{
+    bool allInvokable = true;
+
+    for (const auto& metaObj : mdiItems)
+    {
+        std::unique_ptr<GtObject> obj(newObject(metaObj));
+        if (!obj)
+        {
+            if (!m_silent) qWarning() << "class " << metaObj.className() << " not invokable!";
+            allInvokable = false;
+        }
+        else
+        {
+            // Register openWith menu entry name
+            QString hardCodedName = hardCodedOpenWithName(metaObj.className());
+
+            if (!hardCodedName.isEmpty())
+            {
+                pimpl->mdiNames[metaObj.className()] = hardCodedName;
+            }
+            else if (!obj->objectName().isEmpty())
+            {
+                pimpl->mdiNames[metaObj.className()] = obj->objectName();
+            }
+            else
+            {
+                gtWarning() << tr("The MDI class '%1' should define an "
+                                  "objectName in its constructor")
+                                   .arg(metaObj.className());
+            }
+        }
+
+    }
+
+    return allInvokable;
+}
+
+QString GtMdiLauncher::mdiOpenWithName(const QString &className) const
+{
+    auto iter = pimpl->mdiNames.find(className);
+    if (iter != pimpl->mdiNames.end() && !iter.value().isEmpty()) return iter.value();
+
+    // Fallback, no name registered.
+    return className;
 }
 
 QStringList
 GtMdiLauncher::dockWidgetIds()
 {
-    return m_dockWidgets.keys();
+    return pimpl->dockWidgets.keys();
 }
 
 QMetaObject
 GtMdiLauncher::dockWidget(const QString& id)
 {
-    return m_dockWidgets.value(id);
+    return pimpl->dockWidgets.value(id);
 }
 
 QStringList
 GtMdiLauncher::collectionIds()
 {
-    return m_collections.keys();
+    return pimpl->collections.keys();
 }
 
 QIcon
 GtMdiLauncher::collectionIcon(const QString& id)
 {
-    if (!m_collections.contains(id))
+    if (!pimpl->collections.contains(id))
     {
         return {};
     }
 
-    GtCollectionInterface* coll = m_collections.value(id);
+    GtCollectionInterface* coll = pimpl->collections.value(id);
 
     if (!coll)
     {
@@ -347,12 +423,12 @@ GtMdiLauncher::collectionIcon(const QString& id)
 QMap<QString, QMetaType::Type>
 GtMdiLauncher::collectionStructure(const QString& id)
 {
-    if (!m_collections.contains(id))
+    if (!pimpl->collections.contains(id))
     {
         return {};
     }
 
-    GtCollectionInterface* coll = m_collections.value(id);
+    GtCollectionInterface* coll = pimpl->collections.value(id);
 
     if (!coll)
     {
@@ -365,23 +441,23 @@ GtMdiLauncher::collectionStructure(const QString& id)
 GtCollectionInterface*
 GtMdiLauncher::collection(const QString& id)
 {
-    if (!m_collections.contains(id))
+    if (!pimpl->collections.contains(id))
     {
         return nullptr;
     }
 
-    return m_collections.value(id);
+    return pimpl->collections.value(id);
 }
 
 void
 GtMdiLauncher::printCurrentWindow()
 {
-    if (!m_area)
+    if (!pimpl->area)
     {
         return;
     }
 
-    print(m_area->currentWidget());
+    print(pimpl->area->currentWidget());
 }
 
 void
@@ -389,7 +465,7 @@ GtMdiLauncher::print(QWidget* subWindow)
 {
     if (!subWindow) return;
 
-    if (auto item = m_openItems.value(subWindow, nullptr))
+    if (auto item = pimpl->openItems.value(subWindow, nullptr))
     {
         item->print();
     }
@@ -403,9 +479,9 @@ GtMdiLauncher::isPrintable(QWidget* subWindow) const
         return false;
     }
 
-    if (m_openItems.contains(subWindow) && m_openItems.value(subWindow))
+    if (pimpl->openItems.contains(subWindow) && pimpl->openItems.value(subWindow))
     {
-        return m_openItems.value(subWindow)->isPrintable();
+        return pimpl->openItems.value(subWindow)->isPrintable();
     }
 
     return false;
@@ -419,9 +495,9 @@ GtMdiLauncher::toolbarActions(QWidget* subWindow) const
         return {};
     }
 
-    if (m_openItems.contains(subWindow) && m_openItems.value(subWindow))
+    if (pimpl->openItems.contains(subWindow) && pimpl->openItems.value(subWindow))
     {
-        return m_openItems.value(subWindow)->toolbarActions();
+        return pimpl->openItems.value(subWindow)->toolbarActions();
     }
 
     return {};
@@ -430,7 +506,7 @@ GtMdiLauncher::toolbarActions(QWidget* subWindow) const
 bool
 GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
 {
-    if (m_dockWidgets.contains(metaObj.className()))
+    if (pimpl->dockWidgets.contains(metaObj.className()))
     {
         gtWarning().medium()
                 << tr("Dockwidget '%1' was already registered")
@@ -438,7 +514,7 @@ GtMdiLauncher::registerDockWidget(QMetaObject metaObj)
         return false;
     }
 
-    m_dockWidgets.insert(metaObj.className(), metaObj);
+    pimpl->dockWidgets.insert(metaObj.className(), metaObj);
 
     return true;
 }
@@ -449,7 +525,7 @@ GtMdiLauncher::dockWidgetsExist(const QList<QMetaObject>& metaData)
     for (const QMetaObject& mobj : metaData)
     {
         QString classname = mobj.className();
-        if (m_dockWidgets.contains(classname))
+        if (pimpl->dockWidgets.contains(classname))
         {
             gtWarning().medium()
                     << tr("Dockwidget '%1' was already registered")
@@ -470,7 +546,7 @@ GtMdiLauncher::registerDockWidgets(const QList<QMetaObject>& metaData)
 
     for (const QMetaObject& metaObj : metaData)
     {
-        m_dockWidgets.insert(metaObj.className(), metaObj);
+        pimpl->dockWidgets.insert(metaObj.className(), metaObj);
     }
 
     return true;
@@ -480,12 +556,12 @@ bool
 GtMdiLauncher::registerCollection(const QString& str,
                                   GtCollectionInterface* coll)
 {
-    if (m_collections.contains(str))
+    if (pimpl->collections.contains(str))
     {
         return false;
     }
 
-    m_collections.insert(str, coll);
+    pimpl->collections.insert(str, coll);
 
     return true;
 }
@@ -493,9 +569,9 @@ GtMdiLauncher::registerCollection(const QString& str,
 GtMdiItem*
 GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
 {
-    if (!m_area) return nullptr;
+    if (!pimpl->area) return nullptr;
 
-    auto* tabWidget = qobject_cast<GtTabWidget*>(m_area.data());
+    auto* tabWidget = qobject_cast<GtTabWidget*>(pimpl->area.data());
     assert(tabWidget);
 
     if (!knownClass(id))
@@ -531,7 +607,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     {
         if (data && mdiItem->objectName() == "Result Viewer")
         {
-            const auto openItems = m_openItems.values();
+            const auto openItems = pimpl->openItems.values();
 
             foreach (GtMdiItem* openItem, openItems)
             {
@@ -565,7 +641,7 @@ GtMdiLauncher::open(const QString& id, GtObject* data, const QString& customId)
     setupRedockAction(tabWidget, icon, mdiWidget, mdiItem);
 
     mdiItem->initialized();
-    m_openItems.insert(mdiWidget, mdiItem);
+    pimpl->openItems.insert(mdiWidget, mdiItem);
 
     int idx = tabWidget->addTab(mdiWidget, icon, mdiItem->objectName());
     assert(idx >= 0);
@@ -606,7 +682,7 @@ GtMdiLauncher::open(const QString& id, const QString& customId)
 void
 GtMdiLauncher::changeTabTitle(const QString& newTitle)
 {
-    assert(m_area);
+    assert(pimpl->area);
     int index = -1;
 
     /// if this function was called by a connection
@@ -614,23 +690,23 @@ GtMdiLauncher::changeTabTitle(const QString& newTitle)
     {
         if (GtMdiItem* item = qobject_cast<GtMdiItem*>(sender()))
         {
-            index = m_area->indexOf(item->widget());
+            index = pimpl->area->indexOf(item->widget());
         }
     }
     /// else use the current mdi item
     else
     {
-        index = m_area->currentIndex();
+        index = pimpl->area->currentIndex();
     }
 
     /// if index can be found:
     if (index > -1)
     {
-        if (auto* w = m_area->widget(index))
+        if (auto* w = pimpl->area->widget(index))
         {
             // undocked
             if (!w->parent()) w->setWindowTitle(S_WINDOW_PREFIX + newTitle);
         }
-        m_area->setTabText(index, newTitle);
+        pimpl->area->setTabText(index, newTitle);
     }
 }

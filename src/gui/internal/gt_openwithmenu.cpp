@@ -56,25 +56,5 @@ GtOpenWithMenu::onActionTrigger(QObject* obj)
 QString
 GtOpenWithMenu::cleanMenuName(const QString& className)
 {
-    if (className == "GtdPreDesignPlot")
-    {
-        return "Pre Design Plot";
-    }
-
-    if (className == "GtdPreDesignPlot3D")
-    {
-        return "3D Pre Design Plot";
-    }
-
-    if (className == "GtdProfilePlot")
-    {
-        return "Profile Plot";
-    }
-
-    if (className == "GtdComponentEditor")
-    {
-        return "Component Editor";
-    }
-
-    return className;
+    return gtMdiLauncher->mdiOpenWithName(className);
 }

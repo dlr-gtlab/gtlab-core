@@ -142,7 +142,7 @@ GtGuiModuleLoader::check(GtModuleInterface* plugin) const
             return false;
         }
 
-        if (!gtMdiLauncher->allInvokable(mdip->mdiItems()))
+        if (!gtMdiLauncher->registerMdiWidgets(mdip->mdiItems()))
         {
             gtWarning() << errorString()
                         << QObject::tr("Not all mdi items are invokable!");
