@@ -149,7 +149,7 @@ T GtUnitConverter<T>::To(GtUnit::Category category,
 
 template<class T>
 void GtUnitConverter<T>::initialize()
-{
+{ 
     /** LENGTH **/
 
     QMap<QString, double> lengthFac;

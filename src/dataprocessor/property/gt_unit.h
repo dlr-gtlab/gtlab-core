@@ -10,6 +10,7 @@
 #include "gt_datamodel_exports.h"
 
 #include <QString>
+#include "gt_version.h"
 
 class GT_DATAMODEL_EXPORT GtUnit
 {
@@ -43,7 +44,7 @@ public:
                    EnergyDensity,
                    PowerDensity,
                    PowerTempArea,
-                   Custom [[deprecated("Do not use Custom. It is not a valid unit category.")]],
+                   Custom GT_DEPRECATED_ATTR(2, 2, "Do not use Custom. It is not a valid unit category."),
                    MassMomentInertia,
                    VGVGradients,
                    VGVGradientsPow2,
