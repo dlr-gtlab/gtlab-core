@@ -28,6 +28,7 @@ namespace
     {
         QString targetPath;
         QString backupPath;
+        QString previousBackupPath;
     };
 
     void cancelAll(std::vector<std::unique_ptr<QSaveFile>>& saveFiles)
@@ -114,14 +115,15 @@ namespace
         std::vector<TargetFile>& files,
         std::vector<std::unique_ptr<QSaveFile>>& saveFiles, QString& lastError)
     {
-        // Keep track of which files we successfully renamed so we can roll them back
         std::vector<TargetFile*> renamedFiles;
+        std::vector<TargetFile*> movedBackups;
         renamedFiles.reserve(files.size());
+        movedBackups.reserve(files.size());
 
         auto rollbackRenames = [&]() {
-            for (TargetFile* file : renamedFiles)
+            for (auto it = renamedFiles.rbegin(); it != renamedFiles.rend(); ++it)
             {
-                // Only roll back if the backup exists and the original is gone
+                TargetFile* file = *it;
                 if (QFile::exists(file->backupPath) &&
                     !QFile::exists(file->targetPath))
                 {
@@ -129,13 +131,45 @@ namespace
                                   file->targetPath); // best effort
                 }
             }
+
+            for (auto it = movedBackups.rbegin(); it != movedBackups.rend(); ++it)
+            {
+                TargetFile* file = *it;
+                if (QFile::exists(file->previousBackupPath) &&
+                    !QFile::exists(file->backupPath))
+                {
+                    QFile::rename(file->previousBackupPath,
+                                  file->backupPath); // best effort
+                }
+            }
         };
 
         for (TargetFile& targetFile : files)
         {
-            // Remove stale backup if it exists (best effort)
             if (QFile::exists(targetFile.backupPath))
-                QFile::remove(targetFile.backupPath);
+            {
+                targetFile.previousBackupPath =
+                    targetFile.backupPath + QStringLiteral(".previous");
+
+                if (QFile::exists(targetFile.previousBackupPath))
+                {
+                    QFile::remove(targetFile.previousBackupPath);
+                }
+
+                if (!QFile::rename(targetFile.backupPath,
+                                  targetFile.previousBackupPath))
+                {
+                    setError(lastError,
+                             QObject::tr(
+                                 "Failed to move existing backup aside for '%1'")
+                                 .arg(targetFile.targetPath));
+                    rollbackRenames();
+                    cancelAll(saveFiles);
+                    return false;
+                }
+
+                movedBackups.push_back(&targetFile);
+            }
 
             // If there is no original file, nothing to rename for this file
             if (!QFile::exists(targetFile.targetPath))
@@ -193,8 +227,21 @@ namespace
                 {
                     QFile::rename(m.backupPath, m.targetPath);
                 }
+                if (QFile::exists(m.previousBackupPath) &&
+                    !QFile::exists(m.backupPath))
+                {
+                    QFile::rename(m.previousBackupPath, m.backupPath);
+                }
             }
             return false;
+        }
+
+        for (auto& m : files)
+        {
+            if (QFile::exists(m.previousBackupPath))
+            {
+                QFile::remove(m.previousBackupPath);
+            }
         }
 
         return true;
