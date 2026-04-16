@@ -43,7 +43,7 @@ public:
                    EnergyDensity,
                    PowerDensity,
                    PowerTempArea,
-                   Custom,
+                   Custom [[deprecated("Do not use Custom. It is not a valid unit category.")]],
                    MassMomentInertia,
                    VGVGradients,
                    VGVGradientsPow2,
