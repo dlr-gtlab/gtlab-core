@@ -16,6 +16,10 @@
 #include <QFileInfo>
 #include <QDir>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 void makeUTF8(QTextStream& stream)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -34,6 +38,40 @@ readFileToString(const QString& path)
     makeUTF8(ts);
     return ts.readAll();
 }
+
+#ifdef Q_OS_WIN
+namespace
+{
+    struct ExclusiveFileHandle
+    {
+        HANDLE handle{INVALID_HANDLE_VALUE};
+
+        explicit ExclusiveFileHandle(const QString& path)
+        {
+            handle = CreateFileW(reinterpret_cast<LPCWSTR>(path.utf16()),
+                                 GENERIC_READ,
+                                 FILE_SHARE_READ,
+                                 nullptr,
+                                 OPEN_EXISTING,
+                                 FILE_ATTRIBUTE_NORMAL,
+                                 nullptr);
+        }
+
+        ~ExclusiveFileHandle()
+        {
+            if (handle != INVALID_HANDLE_VALUE)
+            {
+                CloseHandle(handle);
+            }
+        }
+
+        bool isValid() const
+        {
+            return handle != INVALID_HANDLE_VALUE;
+        }
+    };
+} // namespace
+#endif
 
 // Fixture with a temporary directory per test
 class GtBatchSaverTest : public ::testing::Test
@@ -224,4 +262,46 @@ TEST_F(GtBatchSaverTest, AddXmlWritesDomDocument)
     EXPECT_NE(content.indexOf("<Root>"), -1);
     EXPECT_NE(content.indexOf("<Child"), -1);
     EXPECT_NE(content.indexOf("value=\"42\""), -1);
+}
+
+// --------------------------------------------------------
+// Existing backup must survive a failed commit.
+// --------------------------------------------------------
+TEST_F(GtBatchSaverTest, FailedCommitKeepsExistingBackup)
+{
+#ifndef Q_OS_WIN
+    GTEST_SKIP() << "This regression test relies on Windows file locking.";
+#else
+    const QString filePath = makePath("locked.txt");
+    const QString backupPath = filePath + "_backup";
+
+    {
+        QFile f(filePath);
+        ASSERT_TRUE(f.open(QIODevice::WriteOnly | QIODevice::Text));
+        QTextStream ts(&f);
+        makeUTF8(ts);
+        ts << "old";
+    }
+    {
+        QFile f(backupPath);
+        ASSERT_TRUE(f.open(QIODevice::WriteOnly | QIODevice::Text));
+        QTextStream ts(&f);
+        makeUTF8(ts);
+        ts << "backup";
+    }
+
+    ExclusiveFileHandle lockedTarget(filePath);
+    ASSERT_TRUE(lockedTarget.isValid());
+
+    GtBatchSaver batch;
+    batch.addBinary(filePath, QByteArray("new"));
+
+    EXPECT_FALSE(batch.commit());
+    EXPECT_FALSE(batch.errorString().isEmpty());
+
+    EXPECT_TRUE(QFile::exists(filePath));
+    EXPECT_TRUE(QFile::exists(backupPath));
+    EXPECT_EQ(readFileToString(filePath), QString("old"));
+    EXPECT_EQ(readFileToString(backupPath), QString("backup"));
+#endif
 }
