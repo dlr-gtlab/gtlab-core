@@ -32,16 +32,6 @@ static const QString S_WINDOW_PREFIX = QStringLiteral("GTlab - ");
 namespace
 {
 
-QString hardCodedOpenWithName(const QString& className)
-{
-    if (className == "GtdPreDesignPlot") return "Pre Design Plot";
-    else if (className == "GtdPreDesignPlot3D") return "3D Pre Design Plot";
-    else if (className == "GtdProfilePlot")  return "Profile Plot";
-    else if (className == "GtdComponentEditor") return "Component Editor";
-
-    return "";
-}
-
 /// helper function to make tab buttons
 QWidget* makeTabButtons(QPointer<GtTabWidget> tabWidget,
                         QIcon const& tabIcon,
@@ -352,13 +342,7 @@ GtMdiLauncher::registerMdiWidgets(const QList<QMetaObject> &mdiItems)
         else
         {
             // Register openWith menu entry name
-            QString hardCodedName = hardCodedOpenWithName(metaObj.className());
-
-            if (!hardCodedName.isEmpty())
-            {
-                pimpl->mdiNames[metaObj.className()] = hardCodedName;
-            }
-            else if (!obj->objectName().isEmpty())
+            if (!obj->objectName().isEmpty())
             {
                 pimpl->mdiNames[metaObj.className()] = obj->objectName();
             }
