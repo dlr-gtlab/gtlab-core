@@ -62,7 +62,7 @@ GtProjectSettingsGeneralTab::loadSettings()
     auto proj = project();
     if (!proj) return;
 
-    auto& settings = proj->projectSettings();
+    const auto& settings = proj->projectSettings();
 
     m_ignoreCheck->setChecked(settings.ignoringIrregularities());
     m_saveLinkedObjects->setChecked(
