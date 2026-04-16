@@ -124,8 +124,15 @@ GtProjectSettings::fromJson(const QJsonValue& json)
 {
     initDefaultValues();
 
+    if (json.isBool())
+    {
+        // Legacy session files stored only the irregularity flag as a boolean.
+        setIgnoreIrregularities(json.toBool());
+        return;
+    }
+
     if (!json.isObject())
-        return; // silently ignore non-object input, or you could add error handling
+        return;
 
     const QJsonObject obj = json.toObject();
     for (auto it = obj.constBegin(); it != obj.constEnd(); ++it)
