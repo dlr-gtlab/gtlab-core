@@ -9,11 +9,12 @@ SPDX-License-Identifier: MPL-2.0+
  <img src="https://raw.githubusercontent.com/dlr-gtlab/gtlab-core/master/src/resources/pixmaps/gt-logo.png" alt="gtlab logo" style="max-width: 100%;">
  
  <a href="https://zenodo.org/doi/10.5281/zenodo.10666586"><img src="https://zenodo.org/badge/727352741.svg" alt="DOI"></a>
- <a href='https://gtlab.readthedocs.io/en/latest/?badge=latest'><img src='https://readthedocs.org/projects/gtlab/badge/?version=latest' alt='Documentation Status' /></a>
+ <a href="https://www.gtlab.de/pages/documentation.html"><img src='https://readthedocs.org/projects/gtlab/badge/?version=latest' alt='Documentation' /></a>
+ <a href="https://codecov.io/github/dlr-gtlab/gtlab-core" ><img src="https://codecov.io/github/dlr-gtlab/gtlab-core/graph/badge.svg?token=05UZ6982F6"/></a>
  <!-- Add badges here-->
 </div>
 
-# About
+# GTlab
 
 This repository includes the __GTlab core framework__. GTlab (Gas Turbine Laboratory) is a versatile
 software framework designed for multidisciplinary, collaborative research in the field of aircraft propulsion.
@@ -25,9 +26,45 @@ The key strength of GTlab is its consistently implemented modularity. In additio
 
 GTlab's modularity is also a key factor in promoting teamwork and collaboration. Different teams can work together efficiently and combine their expertise on a common platform. This increases productivity while encouraging the interdisciplinary approach that is essential for solving complex engineering challenges.
 
+## Why GTlab
+
+GTlab is an open and modular research software platform for collaborative engineering workflows.
+It combines data modeling, workflow automation, scripting, and extensibility through plugins in one framework.
+Originally developed for aircraft propulsion research, GTlab is designed so that methods, modules, and
+domain-specific extensions can be reused across teams and application areas.
+
+This repository contains the GTlab core framework. For most users, the recommended way to get started is
+to install the complete GTlab distribution via the official installers rather than building the core from source.
+
+## Installation
+
+For normal use, we recommend installing GTlab via the official GTlab Community Installer.
+
+- Download GTlab for Windows or Linux from the [official download page](https://www.gtlab.de/pages/download.html).
+- The Community Installer installs GTlab together with the available modules and can also be used to update GTlab.
+- For DLR internal users, an internal installer with additional modules is also available through internal DLR distribution channels.
+- Building from source is mainly intended for developers and contributors; see [Building GTlab](#building-gtlab).
+
+GTlab is supported on Windows and Linux. macOS should theoretically work, but is currently not officially tested.
+
+## Documentation
+
+GTlab provides separate documentation for users and developers:
+
+- [User Documentation](https://gtlab.readthedocs.io/projects/user)
+- [Developer Documentation](https://gtlab.readthedocs.io/en/latest/)
+
+If you want to use GTlab, start with the user documentation.
+If you want to extend GTlab, develop modules, or build from source, use the developer documentation.
+
+## Learn More
+
+- [Feature overview](https://www.gtlab.de/pages/features.html)
+- [Screenshots](https://www.gtlab.de/pages/screenshots.html)
+
 We welcome the development of extension modules by interested parties.
 Please use our [test modules](https://github.com/dlr-gtlab/gtlab-core/tree/master/tests/modules) for a first guideline on how to implement GTlab modules.
-If you are interested in collaborating with us, please feel free to [contact us](https://www.dlr.de/at/de/desktopdefault.aspx/tabid-1500/mailcontact-29012/).
+If you need help or are interested in collaborating with us, please open an issue on GitHub or contact us at [gtlab-support@dlr.de](mailto:gtlab-support@dlr.de).
 
 ## License
 
@@ -36,11 +73,13 @@ This license allows in particular
  - The use of GTlab in closed-source environments for commercial applications.
  - Creation and distribution of commercial modules.
 
-Smaller thirdparty party code part of code base uses other permissive licenses, such as the
+Smaller third-party parts of the code base use other permissive licenses, such as the
 `BSD` and `MIT` licenses. Please review the directory [LICENSES](https://github.com/dlr-gtlab/gtlab-core/tree/master/LICENSES) and [.reuse](https://github.com/dlr-gtlab/gtlab-core/tree/master/.reuse)
-for a full overview on all licensed used.
+for a full overview of all licenses used.
 
 ## Building GTlab
+
+This section is intended for developers who want to build or modify GTlab from source.
 
 ### Prerequisites
 
@@ -75,7 +114,7 @@ cmake -S . -B build -DGTLAB_DEVTOOLS_DIR=<path/to/devtools> -DQt5_DIR=<path/to/c
 ```
 
 ## Cite us
-To scite the framework: Reitenbach S. and Vieweg  M. and Becker R. and Hollmann C. and Wolters F. and Schmeink J. and Otten T. and Siggel M.
+To cite the framework: Reitenbach S. and Vieweg M. and Becker R. and Hollmann C. and Wolters F. and Schmeink J. and Otten T. and Siggel M.
 
 [Collaborative Aircraft Engine Preliminary Design using a Virtual Engine Platform, Part A: Architecture and Methodology, AIAA Scitech 2020 Forum, 2020](https://arc.aiaa.org/doi/10.2514/6.2020-0867)
 
@@ -87,12 +126,12 @@ To scite the framework: Reitenbach S. and Vieweg  M. and Becker R. and Hollmann 
             and Wolters, Florian and Schmeink, Jens and Otten, Tom and Siggel, Martin},
   booktitle = {AIAA Scitech 2020 Forum},
   year = {2020},
-  doi = {10.2514/6.2020-0867}
+  doi = {10.2514/6.2020-0867},
   issn = {AIAA 2020-0867},
 }
 ```
 
-To scite the data model approach: Reitenbach S. and Hollmann C. and Schmeink J.
+To cite the data model approach: Reitenbach S. and Hollmann C. and Schmeink J.
 and Vieweg M. and Otten T. and Haessy J. and Siggel M.
 
 [Parametric datamodel for collaborative preliminary aircraft engine design, AIAA Scitech 2021 Forum, 2021](https://arc.aiaa.org/doi/10.2514/6.2021-1419)

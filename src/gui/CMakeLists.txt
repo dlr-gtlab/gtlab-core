@@ -141,7 +141,6 @@ set(headers
     post/gt_abstractchartprovider.h
     post/gt_templateviewerlistwidget.h
     post/gt_stringmapcontainer.h
-    post/gt_abstractwizard.h
     post/gt_stringcontainer.h
     post/gt_posttemplatepath.h
     process_runner/gt_processrunner.h
@@ -324,7 +323,6 @@ set(sources
     post/gt_stringmapcontainer.cpp
     post/gt_stringcontainer.cpp
     post/gt_posttemplatepath.cpp
-    post/gt_abstractwizard.cpp
     process_runner/gt_processrunner.cpp
     process_runner/gt_processrunnertransceiver.cpp
     gt_extendedcalculatordata.cpp
@@ -376,7 +374,7 @@ set(sources
     importer/processImporter/gt_processimporter.cpp
 )
 
-if (QT_MAJOR_VERSION VERSION_LESS 6)
+if (QT_VERSION_MAJOR VERSION_LESS 6)
     message(STATUS "Generating qml compatibility for Qt 5")
     configure_file(../resources/qml/ColorOverlayQt5.qml
         ${CMAKE_CURRENT_BINARY_DIR}/ColorOverlayCompat.qml COPYONLY)
@@ -451,14 +449,14 @@ target_include_directories(GTlabGui PUBLIC
 target_link_libraries(GTlabGui
     PUBLIC
         GTlab::Core
-        Qt::Widgets
-        Qt::Gui
-        Qt::PrintSupport
+        Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::Gui
+        Qt${QT_VERSION_MAJOR}::PrintSupport
 
     PRIVATE
-        Qt::Concurrent
-        Qt::Svg
-        Qt::QuickWidgets
+        Qt${QT_VERSION_MAJOR}::Concurrent
+        Qt${QT_VERSION_MAJOR}::Svg
+        Qt${QT_VERSION_MAJOR}::QuickWidgets
 )
 
 

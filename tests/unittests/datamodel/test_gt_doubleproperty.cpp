@@ -12,6 +12,7 @@
 #include "gtest/gtest.h"
 
 #include "gt_doubleproperty.h"
+#include "gt_logging.h"
 
 
 /// This is a test fixture that does a init for each test
@@ -417,4 +418,81 @@ TEST_F(TestGtDoubleProperty, extendenOperators)
 	
     prop /= div;
     ASSERT_DOUBLE_EQ(prop.get(), 3.3 / div);
+}
+
+TEST_F(TestGtDoubleProperty, boundaries)
+{
+    // low bound check
+    GtDoubleProperty l("propBoundsLow", "test double",
+                       "test brief",
+                       GtUnit::Category::Area,
+                       gt::Boundaries<double>::makeLower(200.43), 340.2);
+
+    double hundred = 100.1;
+    double fourH = 400.2;
+    bool success = false;
+
+    EXPECT_TRUE(l.lowSideBoundaryActive());
+    EXPECT_FALSE(l.highSideBoundaryActive());
+    ASSERT_DOUBLE_EQ(l.getVal(), 340.2);
+
+    // set valid value
+    l.setVal(fourH, &success);
+    EXPECT_TRUE(success);
+    EXPECT_DOUBLE_EQ(l.getVal(), fourH);
+
+    // set invalid value
+    l.setVal(hundred, &success);
+    EXPECT_FALSE(success);
+    EXPECT_FALSE(l.getVal() == hundred);
+    EXPECT_DOUBLE_EQ(l.getVal(), fourH);
+
+    // high bound check
+    GtDoubleProperty h("propBoundsHigh", "test double",
+                       "test brief",
+                       GtUnit::Category::Area,
+                       gt::Boundaries<double>::makeUpper(200.43), 140.2);
+
+    EXPECT_FALSE(h.lowSideBoundaryActive());
+    EXPECT_TRUE(h.highSideBoundaryActive());
+    ASSERT_DOUBLE_EQ(h.getVal(), 140.2);
+
+    // set valid value
+    h.setVal(hundred, &success);
+    EXPECT_DOUBLE_EQ(h.getVal(), hundred);
+    EXPECT_TRUE(success);
+
+    // set invalid value
+    h.setVal(fourH, &success);
+    EXPECT_FALSE(h.getVal() == fourH);
+    EXPECT_FALSE(success);
+    EXPECT_DOUBLE_EQ(h.getVal(), hundred);
+
+    // high bound check
+    GtDoubleProperty lh("propBoundsLowAndHigh", "test double",
+                        "test brief",
+                        GtUnit::Category::Area,
+                        gt::Boundaries<double>::makeNormalized(80.3, 200.43),
+                        140.2);
+
+    EXPECT_TRUE(lh.lowSideBoundaryActive());
+    EXPECT_TRUE(lh.highSideBoundaryActive());
+    ASSERT_DOUBLE_EQ(lh.getVal(), 140.2);
+
+    // set valid value
+    lh.setVal(hundred, &success);
+    EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
+    EXPECT_TRUE(success);
+
+    // set invalid value
+    lh.setVal(fourH, &success);
+    EXPECT_FALSE(success);
+    EXPECT_FALSE(lh.getVal() == fourH);
+    EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
+
+    // set invalid value
+    lh.setVal(40.1, &success);
+    EXPECT_FALSE(success);
+    EXPECT_FALSE(lh.getVal() == 40.1);
+    EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 }

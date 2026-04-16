@@ -8,6 +8,19 @@ on:
 
 jobs:
 
+  check_license:
+    name: "License compliance"
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install REUSE tool
+      run: python3 -m pip install reuse
+
+    - name: Run REUSE lint
+      run: reuse lint
+
   build_and_test:
     name: "Build and test"
     strategy:
@@ -119,7 +132,7 @@ jobs:
  
     - name: Build
       run: | 
-        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DQT_DEFAULT_MAJOR_VERSION=6 -DCMAKE_INSTALL_PREFIX=gtlab-win64-qt6
+        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DCMAKE_INSTALL_PREFIX=gtlab-win64-qt6
         cmake --build build --target install --config=Release
         
     - name: Unit Tests - Windows
@@ -164,17 +177,80 @@ jobs:
         sudo apt install -y doxygen
         python -m pip install --upgrade pip
         pip install -r docs/requirements.txt
-    - name: Run doxygen
+    - name: Create developer documentation
       run: |
-        cd docs
+        cd docs/dev
         doxygen
-    - name: Create documentation
-      run: |
-        cd docs
         sphinx-build . html
-    - name: Save as artifact
+    - name: Create user documentation
+      run: |
+        cd docs/user
+        sphinx-build . html
+    - name: Save developer doc artifact
       uses: actions/upload-artifact@v4
       with:
         name: doc-devel
         path: |
-          docs/html
+          docs/dev/html
+    - name: Save user doc artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: doc-user
+        path: |
+          docs/user/html
+
+  coverage_linux:
+    name: "Coverage (linux)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install dependencies (linux)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build lcov
+
+        wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
+        mkdir -p $HOME/build_deps
+        tar xf hdf5-1.12.1-linux.tar.gz -C $HOME/build_deps
+        echo "HDF5_DIR=$HOME/build_deps/hdf5-1.12.1-linux/share/cmake/hdf5" >> $GITHUB_ENV
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.15.2'
+
+    - name: Configure
+      run: |
+        cmake -S . -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_UNITTESTS=ON \
+          -DBUILD_TESTMODULES=ON \
+          -DBUILD_WITH_COVERAGE=ON \
+          -DGTLAB_COVERAGE_LCOV_ARGS="--ignore-errors mismatch,mismatch,unused"
+
+    - name: Build and run coverage target
+      run: |
+        cmake --build build --target test-coverage
+
+    - name: Upload coverage report artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-lcov-info
+        path: build/test-coverage.info
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        files: build/test-coverage.info
+        flags: linux
+        name: linux-lcov
+        disable_search: true
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

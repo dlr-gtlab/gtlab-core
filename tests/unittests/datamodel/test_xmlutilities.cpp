@@ -35,9 +35,30 @@ R"(
  </objectlist>
 </object>)"), &errorMsg);
         ASSERT_TRUE(errorMsg.isEmpty());
+
+        root = doc2.createElement("root");
+        doc2.appendChild(root);
+
+        // Beispielstruktur
+        auto obj1 = doc2.createElement("object");
+        obj1.setAttribute("class", "MyCalc");
+        obj1.setAttribute("name", "Obj1");
+        root.appendChild(obj1);
+
+        auto obj2 = doc2.createElement("object");
+        obj2.setAttribute("class", "MyTask");
+        obj2.setAttribute("name", "Obj2");
+        root.appendChild(obj2);
+
+        // Property below obj1
+        gt::xml::addPropertyElement(obj1, "propA", "int", "42");
+        gt::xml::addPropertyElement(obj1, "propB", "double", "3.14");
     }
 
     QDomDocument doc;
+
+    QDomDocument doc2;
+    QDomElement root;
 
 };
 
@@ -102,4 +123,60 @@ TEST_F(TestXmlUtilities, readToDomFromFile)
     EXPECT_TRUE(gt::xml::readDomDocumentFromFile(file, doc, true,
                                                  nullptr, nullptr, nullptr));
     EXPECT_FALSE(doc.toString().contains("&#xd;"));
+}
+
+// Test: addObjectElement
+TEST_F(TestXmlUtilities, addObjectElement)
+{
+    auto newObj = gt::xml::addObjectElement(root, "MyCalc", "NewObj");
+    ASSERT_FALSE(newObj.isNull());
+    EXPECT_EQ(newObj.attribute("class"), "MyCalc");
+    EXPECT_EQ(newObj.attribute("name"), "NewObj");
+    EXPECT_FALSE(newObj.attribute("uuid").isEmpty());
+}
+
+// Test: addObjectListElement
+TEST_F(TestXmlUtilities, addObjectListElement)
+{
+    auto listElem = gt::xml::addObjectListElement(root);
+    ASSERT_FALSE(listElem.isNull());
+    EXPECT_EQ(listElem.tagName(), "objectlist");
+}
+
+// Test: properties::doubleValue
+TEST_F(TestXmlUtilities, getDoublePropetyElementValue)
+{
+    auto obj1 = root.firstChildElement("object");
+    double val = *gt::xml::getDoublePropetyElementValue(obj1, "propB");
+    EXPECT_DOUBLE_EQ(val, 3.14);
+}
+
+// Test: findParentByAttribute
+TEST_F(TestXmlUtilities, FindParentByAttribute)
+{
+    auto propA = gt::xml::findPropertyElement(root.firstChildElement("object"),
+                                              "propA");
+    auto parent = gt::xml::findParentByAttribute(propA, "class", {"MyCalc"});
+    ASSERT_FALSE(parent.isNull());
+    EXPECT_EQ(parent.attribute("name"), "Obj1");
+}
+
+// Test: findObjectElementsByAttributeValue
+TEST_F(TestXmlUtilities, findObjectElementsByAttributeValue)
+{
+    QString vals{"MyTask"};
+    auto elems = gt::xml::findObjectElementsByAttributeValue(root, "class", vals);
+    ASSERT_EQ(elems.size(), 1);
+    EXPECT_EQ(elems[0].attribute("name"), "Obj2");
+}
+
+// Test: setPropertyTypeAndValue
+TEST_F(TestXmlUtilities, setPropertyTypeAndValue)
+{
+    auto propA = gt::xml::findPropertyElement(root.firstChildElement("object"),
+                                              "propA");
+    bool ok = gt::xml::setPropertyElementTypeAndValue(propA, "double", "99.9");
+    ASSERT_TRUE(ok);
+    EXPECT_EQ(propA.attribute("type"), "double");
+    EXPECT_EQ(propA.text(), "99.9");
 }

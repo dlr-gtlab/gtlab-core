@@ -105,6 +105,7 @@ set(headers
     gt_moduleloader.h
     gt_datamodelinterface.h
     gt_command.h
+    gt_moduleupgradeutilities.h
 )
 
 set(hdr_private
@@ -208,6 +209,7 @@ set(sources
     gt_moduleloader.cpp
     gt_command.cpp
     internal/gt_moduleupgrader.cpp
+    gt_moduleupgradeutilities.cpp
 )
 
 set(resources
@@ -252,8 +254,8 @@ set_target_properties(GTlabCore PROPERTIES
 
 target_link_libraries(GTlabCore
     PUBLIC
-    Qt::Core
-    Qt::Network
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Network
     GTlab::DataProcessor
 )
 

@@ -25,6 +25,7 @@ set(headers
     preferences/pages/gt_preferenceslanguage.h
     preferences/pages/gt_preferencessession.h
     preferences/pages/gt_preferencesshortcuts.h
+    preferences/pages/gt_moduledirectoriestab.h
     tools/gt_maintoolbar.h
     tools/gt_iconbrowser.h
     widgets/gt_sessionlistwidget.h
@@ -88,7 +89,10 @@ set(headers
     dock_widgets/labels/gt_labeldelegate.h
 )
 
-set(forms ui/gt_mainwin.ui)
+set(forms 
+    ui/gt_mainwin.ui
+    preferences/pages/gt_moduledirectoriestab.ui
+)
 
 set(sources
     app.cpp
@@ -103,6 +107,7 @@ set(sources
     preferences/pages/gt_preferenceslanguage.cpp
     preferences/pages/gt_preferencessession.cpp
     preferences/pages/gt_preferencesshortcuts.cpp
+    preferences/pages/gt_moduledirectoriestab.cpp
     tools/gt_maintoolbar.cpp
     tools/gt_iconbrowser.cpp
     widgets/gt_sessionlistwidget.cpp
@@ -209,11 +214,11 @@ target_include_directories(GTlab PRIVATE
 
 target_link_libraries(GTlab
     PRIVATE
-    Qt::Widgets
-    Qt::Qml
-    Qt::QuickWidgets
-    Qt::QuickControls2
-    Qt::Test
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Qml
+    Qt${QT_VERSION_MAJOR}::QuickWidgets
+    Qt${QT_VERSION_MAJOR}::QuickControls2
+    Qt${QT_VERSION_MAJOR}::Test
     GTlabDataProcessor
     GTlabCore
     GTlabGui

@@ -141,6 +141,8 @@ GtProcessConnectionItem::data(int column, int role)
                     }
 
                     auto iter = m_container->findEntry(m_containerEntry->ident());
+                    // cppcheck-suppress assertWithSideEffect
+                    assert(iter != m_container->end());
                     return m_container->entryDisplayName(iter);
                 }
 

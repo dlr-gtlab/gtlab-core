@@ -30,6 +30,7 @@
 #include "gt_doublelistproperty.h"
 #include "gt_existingdirectoryproperty.h"
 #include "gt_openfilenameproperty.h"
+#include "gt_regularexpression.h"
 #include "test_propertycontainerobject.h"
 
 class TestSpecialGtObject : public GtObjectGroup

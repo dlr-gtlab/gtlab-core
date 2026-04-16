@@ -13,6 +13,8 @@
 
 #include <utility>
 
+#include <gt_version.h>
+
 namespace gt
 {
 
@@ -73,9 +75,6 @@ public:
         invoke();
         clear();
     }
-
-    [[deprecated("Use finalize instead")]]
-    void exec() { return finalize(); };
 
     /**
      * @brief Clears object
