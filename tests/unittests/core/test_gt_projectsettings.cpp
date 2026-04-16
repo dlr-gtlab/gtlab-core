@@ -12,6 +12,7 @@
 #include <QDir>
 #include <QFile>
 #include <QJsonValue>
+#include <QJsonArray>
 #include <QIODevice>
 #include <QTemporaryDir>
 
@@ -135,4 +136,81 @@ TEST(GtProject, projectSettingsAccessorsExposeTheSameState)
 
     EXPECT_TRUE(project.getProjectSettings().ignoringIrregularities());
     EXPECT_FALSE(project.getProjectSettings().ownObjectFileSerializationEnabled());
+}
+
+TEST(GtProjectSettings, insertingNewKeyTriggersChangedSignal)
+{
+    GtProjectSettings settings;
+    ASSERT_FALSE(settings.contains(QStringLiteral("NewKey")));
+
+    int changedCount = 0;
+    QObject::connect(&settings, &GtProjectSettings::changed,
+                     [&changedCount]() { ++changedCount; });
+
+    // Inserting a completely new key hits lines 63-64
+    settings.setValue(QStringLiteral("NewKey"), QStringLiteral("value"));
+
+    EXPECT_TRUE(settings.contains(QStringLiteral("NewKey")));
+    EXPECT_EQ(settings.value(QStringLiteral("NewKey")).toString(), QStringLiteral("value"));
+    EXPECT_EQ(changedCount, 1);
+}
+
+TEST(GtProjectSettings, fromJsonWithNonObjectDoesNothing)
+{
+    GtProjectSettings settings;
+
+    // fromJson with non-object calls initDefaultValues() first (clears + sets defaults)
+    // Null value - line 135 early return
+    settings.fromJson(QJsonValue::Null);
+    EXPECT_TRUE(settings.contains(QStringLiteral("IgnoreIrregularities")));
+    EXPECT_TRUE(settings.contains(QStringLiteral("AllowOwnObjectSerialization")));
+
+    // Array value - line 135 early return
+    settings.fromJson(QJsonValue(QJsonArray{}));
+    EXPECT_TRUE(settings.contains(QStringLiteral("IgnoreIrregularities")));
+
+    // Number value - line 135 early return
+    settings.fromJson(QJsonValue(123));
+    EXPECT_TRUE(settings.contains(QStringLiteral("AllowOwnObjectSerialization")));
+}
+
+TEST(GtProjectSettings, iteratorMethods)
+{
+    GtProjectSettings settings;
+    settings.setValue(QStringLiteral("key1"), 1);
+    settings.setValue(QStringLiteral("key2"), 2);
+
+    // Default settings add 2 keys, plus our 2 = 4 total
+    int count = 0;
+    for (auto it = settings.begin(); it != settings.end(); ++it)
+    {
+        Q_UNUSED(it);
+        ++count;
+    }
+    EXPECT_EQ(count, 4);
+
+    // Test cbegin/cend iterators
+    count = 0;
+    for (auto it = settings.cbegin(); it != settings.cend(); ++it)
+    {
+        Q_UNUSED(it);
+        ++count;
+    }
+    EXPECT_EQ(count, 4);
+}
+
+TEST(GtProjectSettings, operatorBracketAccess)
+{
+    GtProjectSettings settings;
+    settings.setValue(QStringLiteral("existing"), 42);
+    ASSERT_TRUE(settings.contains(QStringLiteral("existing")));
+
+    // Update via operator[]
+    settings[QStringLiteral("existing")] = 100;
+    EXPECT_EQ(settings.value(QStringLiteral("existing")).toInt(), 100);
+
+    // Insert new via operator[]
+    settings[QStringLiteral("new")] = QStringLiteral("test");
+    EXPECT_TRUE(settings.contains(QStringLiteral("new")));
+    EXPECT_EQ(settings.value(QStringLiteral("new")).toString(), QStringLiteral("test"));
 }

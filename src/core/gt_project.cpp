@@ -28,6 +28,7 @@
 #include "gt_xmlutilities.h"
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
+#include "internal/gt_projectio.h"
 #include "gt_logging.h"
 #include "gt_externalizedobject.h"
 #include "gt_externalizationmanager.h"
@@ -933,49 +934,7 @@ GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
 QDomDocument
 GtProject::readProjectData(const QDir& projectPath)
 {
-    QString filename = projectPath.path() + QDir::separator() + mainFilename();
-
-    QFile file(filename);
-
-    if (!file.exists())
-    {
-        qWarning() << "WARNING: file does not exists!";
-        qWarning() << " |-> " << filename;
-        return QDomDocument();
-    }
-
-    QDomDocument document;
-
-    QString errorStr;
-    int errorLine;
-    int errorColumn;
-
-    if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
-                                          &errorLine, &errorColumn))
-    {
-        gtDebug() << tr("XML ERROR!") << " " << tr("line") << ": "
-                  << errorLine << " " << tr("column") << ": "
-                  << errorColumn << " -> " << errorStr;
-        return QDomDocument();
-    }
-
-//    if(!GtdUtilities::fileContentToDomDocument(file, document))
-//    {
-//        qWarning() << "WARNING: could not transfer file content to document!";
-//        return QDomElement();
-//    }
-
-    QDomElement root = document.documentElement();
-
-    if (root.isNull() || (root.tagName() != QLatin1String("GTLAB")))
-    {
-        gtDebug() << "ERROR: Invalid GTlab project file!";
-        return QDomDocument();
-    }
-
-
-
-    return document;
+    return GtProjectIO::readProjectData(projectPath);
 }
 
 QList<GtLabel*>
@@ -1027,27 +986,10 @@ GtProject::renameOldModuleFile(const QString& path, const QString& modId)
 bool
 GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
 {
-    // base dir for master + externals
-    const QFileInfo fi(filePath);
-    const QDir   baseDir = fi.dir().absolutePath();
-
-    auto saveType = projectSettings().ownObjectFileSerializationEnabled() ?
-                        gt::xml::LinkFileSaveType::WithLinkedFiles :
-                        gt::xml::LinkFileSaveType::OneFile;
-
-    QString error;
-    if (!gt::xml::saveProjectXmlWithLinkedObjects(objectName(),
-                                                  doc,
-                                                  baseDir,
-                                                  filePath,
-                                                  saveType,
-                                                  &error))
-    {
-        gtError() << error;
-        return false;
-    }
-
-    return true;
+    return GtProjectIO::saveProjectFiles(
+        filePath,
+        doc,
+        projectSettings().ownObjectFileSerializationEnabled());
 }
 
 void
