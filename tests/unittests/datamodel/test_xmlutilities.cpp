@@ -151,6 +151,16 @@ TEST_F(TestXmlUtilities, getDoublePropetyElementValue)
     EXPECT_DOUBLE_EQ(val, 3.14);
 }
 
+TEST_F(TestXmlUtilities, getDoublePropetyElementValueMissingOrInvalid)
+{
+    auto obj1 = root.firstChildElement("object");
+
+    EXPECT_FALSE(gt::xml::getDoublePropetyElementValue(obj1, "missing").has_value());
+
+    gt::xml::addPropertyElement(obj1, "invalid", "double", "not-a-number");
+    EXPECT_FALSE(gt::xml::getDoublePropetyElementValue(obj1, "invalid").has_value());
+}
+
 // Test: findParentByAttribute
 TEST_F(TestXmlUtilities, FindParentByAttribute)
 {
@@ -159,6 +169,14 @@ TEST_F(TestXmlUtilities, FindParentByAttribute)
     auto parent = gt::xml::findParentByAttribute(propA, "class", {"MyCalc"});
     ASSERT_FALSE(parent.isNull());
     EXPECT_EQ(parent.attribute("name"), "Obj1");
+}
+
+TEST_F(TestXmlUtilities, FindParentByAttributeReturnsNullWhenMissing)
+{
+    auto propA = gt::xml::findPropertyElement(root.firstChildElement("object"),
+                                              "propA");
+    auto parent = gt::xml::findParentByAttribute(propA, "class", {"DoesNotExist"});
+    EXPECT_TRUE(parent.isNull());
 }
 
 // Test: findObjectElementsByAttributeValue
@@ -179,4 +197,41 @@ TEST_F(TestXmlUtilities, setPropertyTypeAndValue)
     ASSERT_TRUE(ok);
     EXPECT_EQ(propA.attribute("type"), "double");
     EXPECT_EQ(propA.text(), "99.9");
+}
+
+TEST_F(TestXmlUtilities, setPropertyTypeAndValueWrapper)
+{
+    auto obj1 = root.firstChildElement("object");
+
+    bool ok = gt::xml::setPropertyTypeAndValue(obj1, "propA", "double", "99.9");
+    ASSERT_TRUE(ok);
+
+    auto propA = gt::xml::findPropertyElement(obj1, "propA");
+    ASSERT_FALSE(propA.isNull());
+    EXPECT_EQ(propA.attribute("type"), "double");
+    EXPECT_EQ(propA.text(), "99.9");
+}
+
+TEST_F(TestXmlUtilities, removeAndRenamePropertyElement)
+{
+    auto obj1 = root.firstChildElement("object");
+
+    EXPECT_TRUE(gt::xml::renamePropertyElement(obj1, "propA", "propRenamed"));
+    auto renamed = gt::xml::findPropertyElement(obj1, "propRenamed");
+    ASSERT_FALSE(renamed.isNull());
+    EXPECT_EQ(renamed.attribute("name"), "propRenamed");
+
+    EXPECT_TRUE(gt::xml::removePropertyElement(obj1, "propRenamed"));
+    EXPECT_TRUE(gt::xml::findPropertyElement(obj1, "propRenamed").isNull());
+
+    EXPECT_FALSE(gt::xml::removePropertyElement(obj1, "propRenamed"));
+}
+
+TEST_F(TestXmlUtilities, setPropertyElementTypeAndValueRejectsElementChildren)
+{
+    auto obj1 = root.firstChildElement("object");
+    auto prop = gt::xml::addPropertyElement(obj1, "nested", "QString", "");
+    prop.appendChild(doc2.createElement("child"));
+
+    EXPECT_FALSE(gt::xml::setPropertyElementTypeAndValue(prop, "double", "1.0"));
 }
