@@ -134,6 +134,13 @@ if (BUILD_UNITTESTS AND BUILD_WITH_COVERAGE)
             LCOV_ARGS ${GTLAB_COVERAGE_LCOV_ARGS_LIST}
             EXCLUDE "tests/*" "build*" "src/gui/*" "/usr/*" "/opt/*" ${DEVTOOLS_DIR_EXCLUDE}
             BASE_DIRECTORY "${PROJECT_SOURCE_DIR}")
+
+    setup_target_for_diff_coverage(
+            NAME diff-coverage
+            DEPENDENCIES GTlabUnitTest
+            BASE_DIRECTORY "${PROJECT_SOURCE_DIR}"
+            EXCLUDE "tests/*" "build*" "src/gui/*" "/usr/*" "/opt/*" ${DEVTOOLS_DIR_EXCLUDE}
+            FILTER ".*/src/core/" ".*/src/dataprocessor/")
 endif()
 
 if (BUILD_TESTMODULES)
