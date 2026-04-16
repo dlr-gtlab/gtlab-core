@@ -580,6 +580,51 @@ void GtUnitConverter<T>::initialize()
 
     m_factorMap.insert(GtUnit::DataSize, dataSizeFac);
 
+    /** Heat Transfer Capcability **/
+    QMap<QString, double> heatTransfCap;
+    heatTransfCap["W/K"] = powerFac["W"] / temperatureFac["K"];
+    heatTransfCap["kW/K"] = powerFac["kW"] / temperatureFac["K"];
+    heatTransfCap["MW/K"] = powerFac["MW"] / temperatureFac["K"];
+    heatTransfCap["GW/K"] = powerFac["GW"] / temperatureFac["K"];
+    m_factorMap.insert(GtUnit::HeatTransferCapability, heatTransfCap);
+
+    /** Heat Transfer Coefficient **/
+    QMap<QString, double> heatTransfCof;
+    heatTransfCof["W/(m^2*K)"] = powerFac["W"]  / (areaFac["m^2"] * temperatureFac["K"]);
+    heatTransfCof["kW/(m^2*K)"] = powerFac["kW"] / (areaFac["m^2"] * temperatureFac["K"]);
+    heatTransfCof["MW/(m^2*K)"] = powerFac["MW"] / (areaFac["m^2"] * temperatureFac["K"]);
+    heatTransfCof["GW/(m^2*K)"] = powerFac["GW"] / (areaFac["m^2"] * temperatureFac["K"]);
+
+    heatTransfCof["W/(mm^2*K)"] = powerFac["W"]  / (areaFac["mm^2"] * temperatureFac["K"]);
+    heatTransfCof["kW/(mm^2*K)"] = powerFac["kW"] / (areaFac["mm^2"] * temperatureFac["K"]);
+    heatTransfCof["MW/(mm^2*K)"] = powerFac["MW"] / (areaFac["mm^2"] * temperatureFac["K"]);
+    heatTransfCof["GW/(mm^2*K)"] = powerFac["GW"] / (areaFac["mm^2"] * temperatureFac["K"]);
+
+    heatTransfCof["W/(cm^2*K)"] = powerFac["W"]  / (areaFac["cm^2"] * temperatureFac["K"]);
+    heatTransfCof["kW/(cm^2*K)"] = powerFac["kW"] / (areaFac["cm^2"] * temperatureFac["K"]);
+    heatTransfCof["MW/(cm^2*K)"] = powerFac["MW"] / (areaFac["cm^2"] * temperatureFac["K"]);
+    heatTransfCof["GW/(cm^2*K)"] = powerFac["GW"] / (areaFac["cm^2"] * temperatureFac["K"]);
+    m_factorMap.insert(GtUnit::HeatTransferCoefficient, heatTransfCof);
+    m_factorMap.insert(GtUnit::PowerTempArea, heatTransfCof);
+
+    /** Thermal conductivity **/
+    QMap<QString, double> thermalCond;
+    thermalCond["W/(m*K)"] = powerFac["W"]  / (lengthFac["m"] * temperatureFac["K"]);
+    thermalCond["kW/(m*K)"] = powerFac["kW"] / (lengthFac["m"] * temperatureFac["K"]);
+    thermalCond["MW/(m*K)"] = powerFac["MW"] / (lengthFac["m"] * temperatureFac["K"]);
+    thermalCond["GW/(m*K)"] = powerFac["GW"] / (lengthFac["m"] * temperatureFac["K"]);
+
+    thermalCond["W/(mm*K)"] = powerFac["W"]  / (lengthFac["mm"] * temperatureFac["K"]);
+    thermalCond["kW/(mm*K)"] = powerFac["kW"] / (lengthFac["mm"] * temperatureFac["K"]);
+    thermalCond["MW/(mm*K)"] = powerFac["MW"] / (lengthFac["mm"] * temperatureFac["K"]);
+    thermalCond["GW/(mm*K)"] = powerFac["GW"] / (lengthFac["mm"] * temperatureFac["K"]);
+
+    thermalCond["W/(cm*K)"] = powerFac["W"]  / (lengthFac["cm"] * temperatureFac["K"]);
+    thermalCond["kW/(cm*K)"] = powerFac["kW"] / (lengthFac["cm"] * temperatureFac["K"]);
+    thermalCond["MW/(cm*K)"] = powerFac["MW"] / (lengthFac["cm"] * temperatureFac["K"]);
+    thermalCond["GW/(cm*K)"] = powerFac["GW"] / (lengthFac["cm"] * temperatureFac["K"]);
+    m_factorMap.insert(GtUnit::ThermalConductivity, thermalCond);
+
 
     /** Non Dimensional Percentage **/
 

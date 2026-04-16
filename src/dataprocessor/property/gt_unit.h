@@ -52,6 +52,9 @@ public:
                    Current,
                    Resistance,
                    Impedance,
+                   HeatTransferCapability,
+                   HeatTransferCoefficient,
+                   ThermalConductivity,
                    /// non physical units
                    NonDimensionalPercentage = 64,
                    NonDimensional,

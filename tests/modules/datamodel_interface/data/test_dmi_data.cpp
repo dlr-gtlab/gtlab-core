@@ -36,7 +36,16 @@ TestDmiData::TestDmiData() :
                          GtUnit::Resistance, 1.0),
     m_electricImpedance("Impedance", "Impedance",
                         "Impedance value to use in Example",
-                        GtUnit::Impedance, 1.0)
+                        GtUnit::Impedance, 1.0),
+    m_heatTransferCapability("heatTransferCapability", "heatTransferCapability",
+                             "heatTransferCapability value to use in Example",
+                      GtUnit::HeatTransferCapability, 1.0),
+    m_heatTransferCoefficient("heatTransferCoefficient", "heatTransferCoefficient",
+                         "heatTransferCoefficient value to use in Example",
+                         GtUnit::HeatTransferCoefficient, 1.0),
+    m_thermalConductivity("thermalConductivity", "thermalConductivity",
+                        "thermalConductivity to use in Example",
+                        GtUnit::ThermalConductivity, 1.0)
 {
     setObjectName("Internal_Data");
     setFlag(UserDeletable);
@@ -100,4 +109,9 @@ TestDmiData::TestDmiData() :
     registerProperty(m_electricCurrent);
     registerProperty(m_electricResistance);
     registerProperty(m_electricImpedance);
+
+    registerProperty(m_heatTransferCapability);
+    registerProperty(m_heatTransferCoefficient);
+    registerProperty(m_thermalConductivity);
+
 }

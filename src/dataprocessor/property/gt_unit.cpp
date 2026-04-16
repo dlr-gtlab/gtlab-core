@@ -70,6 +70,12 @@ GtUnit::siUnit(Category c)
         return QString(QChar(0x03A9)); // omega
     case Category::Impedance:
         return QString(QChar(0x03A9)); // omega
+    case Category::HeatTransferCapability:
+        return QStringLiteral("W/K");
+    case Category::HeatTransferCoefficient:
+        return QStringLiteral("W/(m^2*K)");
+    case Category::ThermalConductivity:
+        return QStringLiteral("W/(m*K)");
     case Category::EnergyDensity:
         return QStringLiteral("J/kg");
     case Category::PowerDensity:
