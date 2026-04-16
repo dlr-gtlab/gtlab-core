@@ -4184,3 +4184,150 @@ TEST_F(TestGtUnitConverter, convertImpedanceFrom)
     ASSERT_DOUBLE_EQ(valMOmega, 14000000);
 }
 
+/// HeatTransferCapability
+TEST_F(TestGtUnitConverter, convertHeatTransferCapability)
+{
+    GtUnit::Category cat = GtUnit::HeatTransferCapability;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(),
+                 QString("W/K").toStdString().c_str());
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "Heat Transfer Capability");
+}
+
+TEST_F(TestGtUnitConverter, convertHeatTransferCapabilityTo)
+{
+    GtUnit::Category cat = GtUnit::HeatTransferCapability;
+
+    // input
+    double val = 1.3;
+    bool check = false;
+
+    // convert
+    double value = m_conv->To(cat, "kW/K", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 0.0013);
+
+    value = m_conv->To(cat, "MW/K", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 0.0000013);
+
+    value = m_conv->To(cat, "GW/K", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 0.0000000013);
+}
+
+TEST_F(TestGtUnitConverter, convertHeatTransferCapabilityFrom)
+{
+    GtUnit::Category cat = GtUnit::HeatTransferCapability;
+
+    // input
+    double val = 14.;
+    bool check = false;
+
+    // convert
+    double value = m_conv->from(cat, "kW/K", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 14000.);
+
+    value = m_conv->from(cat, "MW/K", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 14000000.);
+
+    value = m_conv->from(cat, "GW/K", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 14000000000.);
+}
+
+/// HeatTransferCoefficient
+TEST_F(TestGtUnitConverter, convertHeatTransferCoefficient)
+{
+    GtUnit::Category cat = GtUnit::HeatTransferCoefficient;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(),
+                 QString("W/(m^2*K)").toStdString().c_str());
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "Heat Transfer Coefficient");
+}
+
+TEST_F(TestGtUnitConverter, convertHeatTransferCoefficientTo)
+{
+    GtUnit::Category cat = GtUnit::HeatTransferCoefficient;
+
+    // input
+    double val = 1.3;
+    bool check = false;
+
+    // convert
+    double value = m_conv->To(cat, "kW/(m^2*K)", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 0.0013);
+}
+
+TEST_F(TestGtUnitConverter, convertHeatTransferCoefficientFrom)
+{
+    GtUnit::Category cat = GtUnit::HeatTransferCoefficient;
+
+    // input
+    double val = 14.;
+    bool check = false;
+
+    // convert
+    double value = m_conv->from(cat, "kW/(m^2*K)", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 14000.);
+}
+
+/// HeatTransferCoefficient
+TEST_F(TestGtUnitConverter, convertThermalConductivity)
+{
+    GtUnit::Category cat = GtUnit::ThermalConductivity;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(),
+                 QString("W/(m*K)").toStdString().c_str());
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "Thermal Conductivity");
+}
+
+TEST_F(TestGtUnitConverter, convertThermalConductivityTo)
+{
+    GtUnit::Category cat = GtUnit::ThermalConductivity;
+
+    // input
+    double val = 1.3;
+    bool check = false;
+
+    // convert
+    double value = m_conv->To(cat, "kW/(m*K)", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 0.0013);
+}
+
+TEST_F(TestGtUnitConverter, convertThermalConductivityFrom)
+{
+    GtUnit::Category cat = GtUnit::ThermalConductivity;
+
+    // input
+    double val = 14.;
+    bool check = false;
+
+    // convert
+    double value = m_conv->from(cat, "kW/(m*K)", val, &check);
+    ASSERT_TRUE(check);
+    ASSERT_DOUBLE_EQ(value, 14000.);
+}
