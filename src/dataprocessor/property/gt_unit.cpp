@@ -156,6 +156,12 @@ GtUnit::categoryToString(Category c)
         return QStringLiteral("Resistance");
     case Category::Impedance:
         return QStringLiteral("Impedance");
+    case Category::HeatTransferCapability:
+        return QStringLiteral("Heat Transfer Capability");
+    case Category::HeatTransferCoefficient:
+        return QStringLiteral("Heat Transfer Coefficient");
+    case Category::ThermalConductivity:
+        return QStringLiteral("Thermal Conductivity");
     case Category::MassMomentInertia:
         return QObject::tr("Mass Moment of Inertia");
     case Category::EnergyDensity:
