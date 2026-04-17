@@ -12,6 +12,7 @@ find_program( LCOV_PATH  NAMES lcov lcov.bat lcov.exe lcov.perl)
 find_program( FASTCOV_PATH NAMES fastcov fastcov.py )
 find_program( GENHTML_PATH NAMES genhtml genhtml.perl genhtml.bat )
 find_program( GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/scripts/test)
+find_program( DIFF_COVER_PATH diff-cover )
 find_program( CPPFILT_PATH NAMES c++filt )
 
 if(NOT GCOV_PATH)
@@ -166,16 +167,20 @@ function(setup_target_for_coverage_lcov)
         ${Coverage_NAME} ${Coverage_NAME}.info
     )
     if(${Coverage_SONARQUBE})
-        # Generate SonarQube output
-        set(GCOVR_XML_CMD
-            ${GCOVR_PATH} --sonarqube ${Coverage_NAME}_sonarqube.xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
-            ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR}
-        )
-        set(GCOVR_XML_CMD_COMMAND
-            COMMAND ${GCOVR_XML_CMD}
-        )
-        set(GCOVR_XML_CMD_BYPRODUCTS ${Coverage_NAME}_sonarqube.xml)
-        set(GCOVR_XML_CMD_COMMENT COMMENT "SonarQube code coverage info report saved in ${Coverage_NAME}_sonarqube.xml.")
+        if(GCOVR_PATH)
+            # Generate SonarQube output
+            set(GCOVR_XML_CMD
+                ${GCOVR_PATH} --sonarqube ${Coverage_NAME}_sonarqube.xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
+                ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR}
+            )
+            set(GCOVR_XML_CMD_COMMAND
+                COMMAND ${GCOVR_XML_CMD}
+            )
+            set(GCOVR_XML_CMD_BYPRODUCTS ${Coverage_NAME}_sonarqube.xml)
+            set(GCOVR_XML_CMD_COMMENT COMMENT "SonarQube code coverage info report saved in ${Coverage_NAME}_sonarqube.xml.")
+        else()
+            message(STATUS "gcovr not found; skipping SonarQube output for target ${Coverage_NAME}.")
+        endif()
     endif()
 
 
@@ -209,7 +214,7 @@ function(setup_target_for_coverage_lcov)
         string(REPLACE ";" " " LCOV_GEN_HTML_CMD_SPACED "${LCOV_GEN_HTML_CMD}")
         message(STATUS "${LCOV_GEN_HTML_CMD_SPACED}")
 
-        if(${Coverage_SONARQUBE})
+        if(${Coverage_SONARQUBE} AND GCOVR_PATH)
             message(STATUS "Command to generate SonarQube XML output: ")
             string(REPLACE ";" " " GCOVR_XML_CMD_SPACED "${GCOVR_XML_CMD}")
             message(STATUS "${GCOVR_XML_CMD_SPACED}")
@@ -280,7 +285,10 @@ function(setup_target_for_diff_coverage)
         set(DiffCoverage_NAME diff-coverage)
     endif()
 
-    find_program(DIFF_COVER_PATH diff-cover)
+    if(NOT GCOVR_PATH)
+        message(STATUS "gcovr not found; skipping target ${DiffCoverage_NAME}.")
+        return()
+    endif()
 
     if(NOT DiffCoverage_EXECUTABLE)
         set(DiffCoverage_EXECUTABLE GTlabUnitTest)
@@ -364,7 +372,8 @@ function(setup_target_for_coverage_gcovr_xml)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(NOT GCOVR_PATH)
-        message(FATAL_ERROR "gcovr not found! Aborting...")
+        message(STATUS "gcovr not found; skipping target ${Coverage_NAME}.")
+        return()
     endif() # NOT GCOVR_PATH
 
     # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
@@ -456,7 +465,8 @@ function(setup_target_for_coverage_gcovr_html)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(NOT GCOVR_PATH)
-        message(FATAL_ERROR "gcovr not found! Aborting...")
+        message(STATUS "gcovr not found; skipping target ${Coverage_NAME}.")
+        return()
     endif() # NOT GCOVR_PATH
 
     # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
