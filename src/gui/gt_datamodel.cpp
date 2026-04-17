@@ -396,7 +396,8 @@ GtDataModel::onProjectDataLoaded()
     // analyse project information
     GtProjectAnalyzer analyzer(project);
 
-    if (analyzer.hasIrregularities() && !project->ignoringIrregularities())
+    if (analyzer.hasIrregularities() &&
+        !project->projectSettings().ignoringIrregularities())
     {
         GtProjectAnalyzerDialog dialog(&analyzer);
         dialog.resize(500, 400);
@@ -404,7 +405,8 @@ GtDataModel::onProjectDataLoaded()
         dialog.exec();
 
         // set ignore irregularities flag
-        project->setIgnoreIrregularities(dialog.ignoreIrregularities());
+        project->projectSettings()
+            .setIgnoreIrregularities(dialog.ignoreIrregularities());
     }
 }
 

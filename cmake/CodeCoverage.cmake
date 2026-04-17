@@ -12,6 +12,7 @@ find_program( LCOV_PATH  NAMES lcov lcov.bat lcov.exe lcov.perl)
 find_program( FASTCOV_PATH NAMES fastcov fastcov.py )
 find_program( GENHTML_PATH NAMES genhtml genhtml.perl genhtml.bat )
 find_program( GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/scripts/test)
+find_program( DIFF_COVER_PATH diff-cover )
 find_program( CPPFILT_PATH NAMES c++filt )
 
 if(NOT GCOV_PATH)
@@ -166,16 +167,20 @@ function(setup_target_for_coverage_lcov)
         ${Coverage_NAME} ${Coverage_NAME}.info
     )
     if(${Coverage_SONARQUBE})
-        # Generate SonarQube output
-        set(GCOVR_XML_CMD
-            ${GCOVR_PATH} --sonarqube ${Coverage_NAME}_sonarqube.xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
-            ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR}
-        )
-        set(GCOVR_XML_CMD_COMMAND
-            COMMAND ${GCOVR_XML_CMD}
-        )
-        set(GCOVR_XML_CMD_BYPRODUCTS ${Coverage_NAME}_sonarqube.xml)
-        set(GCOVR_XML_CMD_COMMENT COMMENT "SonarQube code coverage info report saved in ${Coverage_NAME}_sonarqube.xml.")
+        if(GCOVR_PATH)
+            # Generate SonarQube output
+            set(GCOVR_XML_CMD
+                ${GCOVR_PATH} --sonarqube ${Coverage_NAME}_sonarqube.xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
+                ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR}
+            )
+            set(GCOVR_XML_CMD_COMMAND
+                COMMAND ${GCOVR_XML_CMD}
+            )
+            set(GCOVR_XML_CMD_BYPRODUCTS ${Coverage_NAME}_sonarqube.xml)
+            set(GCOVR_XML_CMD_COMMENT COMMENT "SonarQube code coverage info report saved in ${Coverage_NAME}_sonarqube.xml.")
+        else()
+            message(STATUS "gcovr not found; skipping SonarQube output for target ${Coverage_NAME}.")
+        endif()
     endif()
 
 
@@ -209,7 +214,7 @@ function(setup_target_for_coverage_lcov)
         string(REPLACE ";" " " LCOV_GEN_HTML_CMD_SPACED "${LCOV_GEN_HTML_CMD}")
         message(STATUS "${LCOV_GEN_HTML_CMD_SPACED}")
 
-        if(${Coverage_SONARQUBE})
+        if(${Coverage_SONARQUBE} AND GCOVR_PATH)
             message(STATUS "Command to generate SonarQube XML output: ")
             string(REPLACE ";" " " GCOVR_XML_CMD_SPACED "${GCOVR_XML_CMD}")
             message(STATUS "${GCOVR_XML_CMD_SPACED}")
@@ -256,6 +261,93 @@ function(setup_target_for_coverage_lcov)
 
 endfunction() # setup_target_for_coverage_lcov
 
+# Defines a target for generating a diff coverage report.
+#
+# This wraps setup_target_for_coverage_gcovr_xml() to generate the XML report
+# first and then runs diff-cover on that result.
+#
+# setup_target_for_diff_coverage(
+#     NAME diff-coverage                  # New target name
+#     DEPENDENCIES GTlabUnitTest          # Dependencies to build first
+#     BASE_DIRECTORY ../                  # Base directory for gcovr matching
+#     EXCLUDE "tests/*" "build*"          # gcovr exclusions passed through
+#     FILTER ".*/src/core/"               # gcovr filter patterns
+#     COMPARE_BRANCH origin/master        # Branch used by diff-cover
+# )
+function(setup_target_for_diff_coverage)
+
+    set(options NONE)
+    set(oneValueArgs NAME BASE_DIRECTORY COMPARE_BRANCH)
+    set(multiValueArgs DEPENDENCIES EXCLUDE FILTER EXECUTABLE EXECUTABLE_ARGS)
+    cmake_parse_arguments(DiffCoverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    if(NOT DiffCoverage_NAME)
+        set(DiffCoverage_NAME diff-coverage)
+    endif()
+
+    if(NOT GCOVR_PATH)
+        message(STATUS "gcovr not found; skipping target ${DiffCoverage_NAME}.")
+        return()
+    endif()
+
+    if(NOT DiffCoverage_EXECUTABLE)
+        set(DiffCoverage_EXECUTABLE GTlabUnitTest)
+    endif()
+
+    if(DEFINED DiffCoverage_BASE_DIRECTORY)
+        set(GCOVR_BASE_DIRECTORY ${DiffCoverage_BASE_DIRECTORY})
+    else()
+        set(GCOVR_BASE_DIRECTORY ${PROJECT_SOURCE_DIR})
+    endif()
+
+    if(NOT DiffCoverage_COMPARE_BRANCH)
+        set(DIFF_COMPARE_BRANCH origin/master)
+    else()
+        set(DIFF_COMPARE_BRANCH ${DiffCoverage_COMPARE_BRANCH})
+    endif()
+
+    # Convert FILTER patterns to gcovr -f arguments
+    set(GCOVR_ADDITIONAL_ARGS "")
+    foreach(FILTER_PATTERN ${DiffCoverage_FILTER})
+        list(APPEND GCOVR_ADDITIONAL_ARGS "-f")
+        list(APPEND GCOVR_ADDITIONAL_ARGS "${FILTER_PATTERN}")
+    endforeach()
+
+    set(DIFF_COVERAGE_XML_TARGET coverage)
+    setup_target_for_coverage_gcovr_xml(
+        NAME ${DIFF_COVERAGE_XML_TARGET}
+        BASE_DIRECTORY ${GCOVR_BASE_DIRECTORY}
+        EXCLUDE ${DiffCoverage_EXCLUDE}
+        EXECUTABLE ${DiffCoverage_EXECUTABLE}
+        EXECUTABLE_ARGS ${DiffCoverage_EXECUTABLE_ARGS}
+        DEPENDENCIES ${DiffCoverage_DEPENDENCIES}
+    )
+
+    if(DIFF_COVER_PATH)
+        if(CODE_COVERAGE_VERBOSE)
+            message(STATUS "Executed command report")
+            message(STATUS "Command to generate diff coverage report: ")
+            string(REPLACE ";" " " DIFF_COVER_CMD_SPACED
+                   "${DIFF_COVER_PATH} ${DIFF_COVERAGE_XML_TARGET}.xml --compare-branch ${DIFF_COMPARE_BRANCH} --json-report diff-coverage.json --markdown-report diff_cover.md")
+            message(STATUS "${DIFF_COVER_CMD_SPACED}")
+        endif()
+
+        add_custom_target(${DiffCoverage_NAME}
+            COMMAND ${CMAKE_COMMAND} -E rm -f diff-coverage.json diff_cover.md
+            COMMAND ${DIFF_COVER_PATH} ${DIFF_COVERAGE_XML_TARGET}.xml
+                    --compare-branch ${DIFF_COMPARE_BRANCH}
+                    --json-report diff-coverage.json
+                    --markdown-report diff_cover.md
+            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+            DEPENDS ${DIFF_COVERAGE_XML_TARGET}
+            COMMENT "Generating diff coverage report for changed lines..."
+        )
+    else()
+        message(STATUS "diff-cover not found; skipping target ${DiffCoverage_NAME}.")
+    endif()
+
+endfunction() # setup_target_for_diff_coverage
+
 # Defines a target for running and collection code coverage information
 # Builds dependencies, runs the given executable and outputs reports.
 # NOTE! The executable should always have a ZERO as exit code otherwise
@@ -280,7 +372,8 @@ function(setup_target_for_coverage_gcovr_xml)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(NOT GCOVR_PATH)
-        message(FATAL_ERROR "gcovr not found! Aborting...")
+        message(STATUS "gcovr not found; skipping target ${Coverage_NAME}.")
+        return()
     endif() # NOT GCOVR_PATH
 
     # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
@@ -372,7 +465,8 @@ function(setup_target_for_coverage_gcovr_html)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(NOT GCOVR_PATH)
-        message(FATAL_ERROR "gcovr not found! Aborting...")
+        message(STATUS "gcovr not found; skipping target ${Coverage_NAME}.")
+        return()
     endif() # NOT GCOVR_PATH
 
     # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR

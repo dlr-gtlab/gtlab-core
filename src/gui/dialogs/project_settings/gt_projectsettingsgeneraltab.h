@@ -38,6 +38,8 @@ public:
      */
     void saveSettings() override;
 
+    void loadSettings();
+
     /**
      * @brief display name of this tab
      * @return tab name
@@ -48,6 +50,7 @@ private:
 
     /// checkbox for setup ignore of project irregularity alerts
     QCheckBox* m_ignoreCheck{};
+    QCheckBox* m_saveLinkedObjects{};
 
 };
 

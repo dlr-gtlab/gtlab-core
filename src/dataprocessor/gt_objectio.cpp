@@ -253,6 +253,8 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     // object name
     memento.setIdent(o->objectName());
 
+    memento.setFlagEnabled(GtObjectMemento::SaveAsOwnFile, o->saveAsOwnFile());
+
     // child objects
     auto const directChildren = o->findDirectChildren();
     memento.childObjects.reserve(directChildren.size());
@@ -281,6 +283,21 @@ GtObjectIO::toDomElement(const GtObjectMemento& memento, QDomDocument& doc,
 
     // object name
     element.setAttribute(gt::xml::S_NAME_TAG, memento.ident());
+
+    // indikate as link flag, if object should be stored onto own file
+    if (memento.isFlagEnabled(GtObjectMemento::SaveAsOwnFile))
+    {
+        if (!memento.isFlagEnabled(GtObjectMemento::IsUnresolved))
+        {
+            element.setAttribute(gt::xml::S_ASLINK_TAG, "true");
+        }
+        else
+        {
+            // we should only write the reference, but not the linked file
+            // to avoid overwriting an unresolved file
+            element.setAttribute(gt::xml::S_ASLINK_TAG, "refonly");
+        }
+    }
 
     // store property information
     writeProperties(doc, element, memento);
@@ -312,6 +329,14 @@ GtObjectIO::toMemento(const QDomElement& e)
         .setUuid(e.attribute(gt::xml::S_UUID_TAG))
         .setIdent(e.attribute(gt::xml::S_NAME_TAG));
 
+    if (e.tagName() == gt::xml::S_OBJECTREF_TAG)
+    {
+        // The object ref could not be resolved by the reader, so we
+        // need to make a dummy
+        memento.setFlagEnabled(GtObjectMemento::IsUnresolved, true);
+        return memento;
+    }
+
     // store property information
     memento.properties = readProperties(e);
     memento.propertyContainers = readPropertyContainers(e);
@@ -322,14 +347,20 @@ GtObjectIO::toMemento(const QDomElement& e)
     if (!children.isNull())
     {
         QDomElement compElement =
-                children.firstChildElement(gt::xml::S_OBJECT_TAG);
+            children.firstChildElement();
 
         while (!compElement.isNull())
         {
+            if (compElement.tagName() != gt::xml::S_OBJECT_TAG && compElement.tagName() != gt::xml::S_OBJECTREF_TAG)
+            {
+                compElement = compElement.nextSiblingElement();
+                continue;
+            }
+
             // recursion through GtObjectMemento constructor
             memento.childObjects.push_back(GtObjectMemento(compElement));
 
-            compElement = compElement.nextSiblingElement(gt::xml::S_OBJECT_TAG);
+            compElement = compElement.nextSiblingElement();
         }
     }
 

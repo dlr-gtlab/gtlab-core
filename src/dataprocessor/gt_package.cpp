@@ -21,9 +21,15 @@ GtPackage::GtPackage()
 bool
 GtPackage::readData(const QDomElement& root)
 {
-    QDomElement oe = root.firstChildElement("object");
+    QDomElement oe = root.firstChildElement();
     while (!oe.isNull())
     {
+        if (oe.tagName() != "object" && oe.tagName() != "objectref")
+        {
+            oe = oe.nextSiblingElement();
+            continue;
+        }
+
         GtObjectMemento memento(oe);
 
         if (!memento.isNull())
@@ -55,7 +61,7 @@ GtPackage::readData(const QDomElement& root)
             }
         }
 
-        oe = oe.nextSiblingElement("object");
+        oe = oe.nextSiblingElement();
     }
 
     return true;
