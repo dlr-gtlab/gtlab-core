@@ -276,11 +276,11 @@ function(setup_target_for_diff_coverage)
     set(multiValueArgs DEPENDENCIES EXCLUDE FILTER EXECUTABLE EXECUTABLE_ARGS)
     cmake_parse_arguments(DiffCoverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    find_program(DIFF_COVER_PATH diff-cover REQUIRED)
-
     if(NOT DiffCoverage_NAME)
         set(DiffCoverage_NAME diff-coverage)
     endif()
+
+    find_program(DIFF_COVER_PATH diff-cover)
 
     if(NOT DiffCoverage_EXECUTABLE)
         set(DiffCoverage_EXECUTABLE GTlabUnitTest)
@@ -315,24 +315,28 @@ function(setup_target_for_diff_coverage)
         DEPENDENCIES ${DiffCoverage_DEPENDENCIES}
     )
 
-    if(CODE_COVERAGE_VERBOSE)
-        message(STATUS "Executed command report")
-        message(STATUS "Command to generate diff coverage report: ")
-        string(REPLACE ";" " " DIFF_COVER_CMD_SPACED
-               "${DIFF_COVER_PATH} ${DIFF_COVERAGE_XML_TARGET}.xml --compare-branch ${DIFF_COMPARE_BRANCH} --json-report diff-coverage.json --markdown-report diff_cover.md")
-        message(STATUS "${DIFF_COVER_CMD_SPACED}")
-    endif()
+    if(DIFF_COVER_PATH)
+        if(CODE_COVERAGE_VERBOSE)
+            message(STATUS "Executed command report")
+            message(STATUS "Command to generate diff coverage report: ")
+            string(REPLACE ";" " " DIFF_COVER_CMD_SPACED
+                   "${DIFF_COVER_PATH} ${DIFF_COVERAGE_XML_TARGET}.xml --compare-branch ${DIFF_COMPARE_BRANCH} --json-report diff-coverage.json --markdown-report diff_cover.md")
+            message(STATUS "${DIFF_COVER_CMD_SPACED}")
+        endif()
 
-    add_custom_target(${DiffCoverage_NAME}
-        COMMAND ${CMAKE_COMMAND} -E rm -f diff-coverage.json diff_cover.md
-        COMMAND ${DIFF_COVER_PATH} ${DIFF_COVERAGE_XML_TARGET}.xml
-                --compare-branch ${DIFF_COMPARE_BRANCH}
-                --json-report diff-coverage.json
-                --markdown-report diff_cover.md
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        DEPENDS ${DIFF_COVERAGE_XML_TARGET}
-        COMMENT "Generating diff coverage report for changed lines..."
-    )
+        add_custom_target(${DiffCoverage_NAME}
+            COMMAND ${CMAKE_COMMAND} -E rm -f diff-coverage.json diff_cover.md
+            COMMAND ${DIFF_COVER_PATH} ${DIFF_COVERAGE_XML_TARGET}.xml
+                    --compare-branch ${DIFF_COMPARE_BRANCH}
+                    --json-report diff-coverage.json
+                    --markdown-report diff_cover.md
+            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+            DEPENDS ${DIFF_COVERAGE_XML_TARGET}
+            COMMENT "Generating diff coverage report for changed lines..."
+        )
+    else()
+        message(STATUS "diff-cover not found; skipping target ${DiffCoverage_NAME}.")
+    endif()
 
 endfunction() # setup_target_for_diff_coverage
 
