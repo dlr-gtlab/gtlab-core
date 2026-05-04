@@ -53,6 +53,23 @@ public:
     void setMdiArea(QTabWidget* area);
 
     /**
+     * @brief Checks if all mdiItems are invokable and registers their
+     * initial name
+     *
+     * @param mdiItems
+     * @return true on success
+     */
+    bool registerMdiWidgets(const QList<QMetaObject>& mdiItems);
+
+    /**
+     * @brief Returns the "open with" menu entry name for the launcher
+     * @param classname The name of the MDI class
+     *
+     * @return The name. Returns the class name, if the menu name is not known
+     */
+    QString mdiOpenWithName(const QString& classname) const;
+
+    /**
      * @brief dockWidgetIds
      * @return
      */
@@ -184,18 +201,10 @@ private:
      * @param parent
      */
     explicit GtMdiLauncher(QObject* parent = nullptr);
+    ~GtMdiLauncher();
 
-    /// Mdi area widget
-    QPointer<QTabWidget> m_area;
-
-    /// Registered dock widget meta objects
-    QHash<QString, QMetaObject> m_dockWidgets;
-
-    /// List of all open mdi items
-    QMap<const QObject*, QPointer<GtMdiItem>> m_openItems;
-
-    /// Collections
-    QHash<QString, GtCollectionInterface*> m_collections;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
     /**
      * @brief generateMdiItemId

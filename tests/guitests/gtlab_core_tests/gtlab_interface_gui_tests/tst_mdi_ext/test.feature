@@ -53,11 +53,11 @@ Feature: Test the mdi interface by extending a module
          When the mdi tab is closed
          # check the order and content of the open with actions
          When the action 'Open With' in the context menu of the entry is activated
-         Then the submenu contains the actions 'TestMdiViewer, TestMdiExtViewer' in order
-         When the action 'TestMdiViewer' is activated
+         Then the submenu contains the actions 'Test Mdi Viewer, Test Mdi Ext Viewer' in order
+         When the action 'Test Mdi Viewer' is activated
          Then the mdi tab exists
          # check that multiple instances are allowed (eg. open two times)
-         When the action 'Open With > TestMdiExtViewer' in the context menu of the entry is activated
+         When the action 'Open With > Test Mdi Ext Viewer' in the context menu of the entry is activated
           And the same action in the context menu of the entry is activated
          Then the mdi tab 'Test Mdi Ext Viewer' exists 2 times
          When the mdi tab is closed
