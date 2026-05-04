@@ -57,6 +57,8 @@
 
 #include <algorithm>
 
+// just a comment
+
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
     m_cornerWidget(new GtCornerWidget(this)),
