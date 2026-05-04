@@ -63,6 +63,7 @@ public:
                    /// no unit
                    None = 128
                   };
+    GT_REMOVAL_GUARD(2, 2, "Remove deprecated Custom category above!")
 
     GtUnit() = delete;
     ~GtUnit() = delete;

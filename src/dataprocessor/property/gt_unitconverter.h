@@ -773,7 +773,12 @@ void GtUnitConverter<T>::initialize()
 
 
 
+    // Keep the deprecated category registered for backwards compatibility
+    // until the 2.2 removal, without leaking deprecation warnings into every
+    // translation unit that includes this header.
+    GT_SUPPRESS_DEPRECATED_BEGIN;
     m_factorMap.insert(GtUnit::Custom, customFac);
+    GT_SUPPRESS_DEPRECATED_END;
 }
 
 

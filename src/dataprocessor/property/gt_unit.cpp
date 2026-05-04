@@ -7,6 +7,13 @@
 #include "gt_unit.h"
 #include <QObject>
 
+namespace
+{
+GT_SUPPRESS_DEPRECATED_BEGIN
+constexpr GtUnit::Category kDeprecatedCustomUnitCategory = GtUnit::Category::Custom;
+GT_SUPPRESS_DEPRECATED_END
+} // namespace
+
 QString
 GtUnit::siUnit(Category c)
 {
@@ -14,7 +21,7 @@ GtUnit::siUnit(Category c)
     {
     case Category::Area:
         return QStringLiteral("m^2");
-    case Category::Custom:
+    case kDeprecatedCustomUnitCategory:
         return QStringLiteral("-");
     case Category::Default:
         return QStringLiteral("-");
@@ -102,7 +109,7 @@ GtUnit::categoryToString(Category c)
     {
     case Category::Area:
         return QObject::tr("Area");
-    case Category::Custom:
+    case kDeprecatedCustomUnitCategory:
         return QObject::tr("Custom");
     case Category::Default:
         return QObject::tr("Default");
