@@ -253,6 +253,23 @@ public:
 
     ExternalizationInfo externalizationInfo(const GtAbstractObjectFactory& factory) const;
 
+    enum Flag
+    {
+        SaveAsOwnFile = 1, /// The memento should be serialized into an own file
+        IsUnresolved  = 2  /// Is enabled, if the memento data could not be fully
+                           /// restored from disk, e.g. the linked file was not found
+    };
+
+    /**
+     * @brief Checks whether the flag is enabled
+     */
+    bool isFlagEnabled(Flag) const;
+
+    /**
+     * @brief Sets or unsets the enabled state of a flag
+     */
+    void setFlagEnabled(Flag, bool enabled);
+
     QVector<PropertyData> properties;
     QVector<PropertyData> propertyContainers;
     QVector<GtObjectMemento> childObjects;
@@ -273,6 +290,11 @@ private:
      * @brief cached hashes of a GtObject (properties only) and the full GtObject (including all its children)
      */
     mutable QByteArray m_propertyHash, m_fullHash;
+
+    /**
+     * if true, the memento likes to be serialized into a separate file
+     */
+    int m_flags{0};
 
 };
 

@@ -36,6 +36,7 @@ set(HEADERS_INTERNAL
 
 set(HEADERS
     gt_abstractexternalizationinterface.h
+    gt_batchsaver.h
     gt_exceptions.h
     gt_datamodel_exports.h
     gt_eventloop.h
@@ -104,6 +105,7 @@ set(HEADERS
 
 set(SOURCES
     gt_abstractexternalizationinterface.cpp
+    gt_batchsaver.cpp
     gt_exceptions.cpp
     gt_eventloop.cpp
     gt_externalizationmanager.cpp

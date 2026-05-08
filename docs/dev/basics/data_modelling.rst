@@ -225,14 +225,200 @@ As a result, besides the actual value of the property, an additional switch (act
 See :cpp:func:`GtAbstractProperty::setOptional()`, :cpp:func:`GtAbstractProperty::isOptional()`,
 :cpp:func:`GtAbstractProperty::setActive()` and  :cpp:func:`GtAbstractProperty::isActive()`.
 
+Object Flags
+------------
+
+``GtObject`` uses flags to represent object state, GUI behavior, and
+serialization-related behavior.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Flag
+     - Purpose
+     - Typical usage
+   * - ``HasOwnChanges``
+     - Marks that the object itself has changed.
+     - Used by change tracking and save logic.
+   * - ``HasChildChanges``
+     - Marks that at least one child object changed.
+     - Used to propagate change state in object trees.
+   * - ``NewlyCreated``
+     - Marks objects that were created in the current session.
+     - Used to distinguish new vs. restored objects.
+   * - ``UserDeletable``
+     - Allows deletion in the GUI context menu.
+     - Set for optional/user-managed child objects.
+   * - ``UserRenamable``
+     - Allows rename in the GUI context menu.
+     - Set for objects where user naming is meaningful.
+   * - ``DefaultComponent``
+     - Marks mandatory child objects that should always exist.
+     - Default children are re-created if missing during restore.
+   * - ``UserHidden``
+     - Hides objects in the explorer/user-facing tree.
+     - Used for technical/internal objects and unresolved child visibility.
+   * - ``SaveAsOwnFile``
+     - Marks objects for linked XML storage in separate files.
+     - Used by linked serialization to emit references to ``*.gtobj.xml``.
+
 .. _Mementos:
 
-Serialization API / Mementos
-----------------------------
+Mementos
+--------
 
 .. image:: ../images/memento.png
   :align: center
   :alt: Serialization process using GtObjectMemento
 
-The Project
------------
+Object mementos are a core mechanism of GTlab data processing. They represent
+the state of ``GtObject`` trees in a transportable form and are used throughout
+the framework whenever object data must be compared, transferred, restored, or
+applied safely.
+
+Mementos are not only a serialization detail. They are used in many data
+modification and change-tracking workflows, including:
+
+- object restore/reconstruction
+- diff and merge workflows
+- undo/redo and incremental state updates
+- safe transport of object state independent of live object instances
+
+At a high level, a memento stores object identity (class/name/UUID), property
+data, flags, and child-object mementos.
+
+Create a Memento from an Object
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+   // Snapshot current object state
+   GtObjectMemento before = myObject->toMemento();
+
+   // ... modify the object ...
+
+   GtObjectMemento after = myObject->toMemento();
+
+Restore an Object from a Memento
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+   // Restore a new object instance from a memento
+   GtObjectMemento memento = sourceObject->toMemento();
+   auto* restored = memento.restore<GtObject*>(gtObjectFactory);
+
+   // Or merge a memento into an existing object
+   existingObject->fromMemento(memento);
+
+Diff Two Mementos
+^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+   GtObjectMemento m1 = objectBefore->toMemento();
+   GtObjectMemento m2 = objectAfter->toMemento();
+
+   // Create diff m1 -> m2
+   GtObjectMementoDiff diff(m1, m2);
+
+   // Apply diff to an existing object
+   bool ok = targetObject->applyDiff(diff);
+
+   // Or revert it again
+   bool reverted = targetObject->revertDiff(diff);
+
+Serialization
+-------------
+
+Serialization is the persistence layer of the data model. Its role is to
+convert runtime object trees into a stable on-disk representation and back
+again when projects are loaded.
+
+In GTlab, serialization is tightly coupled to the memento concept (see
+:ref:`Mementos <Mementos>` and the image above): objects are not written
+directly to XML. Instead, object state is first transformed into mementos,
+which are then converted into XML.
+
+The high-level workflow is:
+
+1. ``GtObject -> GtObjectMemento`` (snapshot of object state)
+2. ``GtObjectMemento -> XML`` (write to project/module files)
+3. ``XML -> GtObjectMemento -> GtObject`` (load and restore)
+
+GTlab supports XML-based object serialization in two save modes:
+
+- ``OneFile``: keep object XML embedded in one main file
+- ``WithLinkedFiles``: split selected object XML into linked files
+
+Read/Write XML from/to Mementos
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Write object state with ``gt::xml`` helpers:
+
+.. code-block:: cpp
+
+   // object -> memento
+   GtObjectMemento memento = obj->toMemento();
+
+   // memento -> dom document
+   GtObjectIO io(gtObjectFactory);
+   QDomDocument doc;
+   QDomElement root = io.toDomElement(memento, doc);
+   doc.appendChild(root);
+
+   // dom document -> xml file
+   gt::xml::writeDomDocumentToFile("object.xml", doc, true);
+
+Read object state with ``gt::xml`` helpers:
+
+.. code-block:: cpp
+
+   QFile inFile("object.xml");
+   QDomDocument doc;
+   QString err;
+   int line = 0;
+   int col = 0;
+
+   if (gt::xml::readDomDocumentFromFile(inFile, doc, true, &err, &line, &col))
+   {
+       // xml dom -> memento
+       GtObjectMemento memento(doc.documentElement());
+
+       // memento -> object (new instance)
+       auto* restored = memento.restore<GtObject*>(gtObjectFactory);
+   }
+
+Linked XML Serialization (SaveAsOwnFile)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The main reason to use linked object files is version control workflow.
+Instead of storing everything in one large monolithic XML file, object data is
+split across multiple files. This reduces diff size, lowers merge conflicts,
+and makes individual changes easier to track and review.
+
+Objects can be marked for linked-file serialization via:
+
+- :cpp:func:`GtObject::saveAsOwnFile()`
+- :cpp:func:`GtObject::setSaveAsOwnFile`
+
+In linked-file save mode, marked objects are serialized as references
+(``<objectref>`` with ``aslink``) to separate ``*.gtobj.xml`` files instead of
+being fully embedded in the parent XML.
+
+.. note::
+
+   Linked XML serialization describes on-disk storage structure.
+   It is different from runtime externalization/memory management concepts.
+
+Missing Linked Files and Dummy Objects
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If a linked file cannot be resolved while loading, GTlab keeps the unresolved
+reference as a dummy object instead of dropping it. This behavior is important
+for data safety: unresolved content remains part of the model and is not
+silently lost on later saves.
+
+When unresolved objects are saved again, GTlab keeps them as reference-only
+links (``aslink="refonly"``). Missing linked files are not auto-created or
+auto-deleted by this fallback behavior.

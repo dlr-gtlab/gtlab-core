@@ -9,6 +9,7 @@
 #include "test_gt_object.h"
 
 #include "gt_objectfactory.h"
+#include "gt_objectio.h"
 #include "gt_objectmemento.h"
 #include "gt_package.h"
 
@@ -163,4 +164,84 @@ TEST_F(TestGtPackage, miscDataOperationsReturnTrue)
 
     EXPECT_TRUE(package.readMiscData(projectDir));
     EXPECT_TRUE(package.saveMiscData(projectDir));
+}
+
+TEST_F(TestGtPackage, readDataSkipsNonObjectChildElements)
+{
+    TestPackage package;
+
+    QDomDocument doc;
+    auto root = rootElement(doc);
+
+    // Add some non-object elements that should be skipped (lines 29-30)
+    root.appendChild(doc.createElement("metadata"));
+    root.appendChild(doc.createElement("comment"));
+
+    // Add actual object
+    TestSpecialGtObject sourceChild;
+    sourceChild.setObjectName("realchild");
+    sourceChild.setDouble(789.);
+    appendObject(root, sourceChild);
+
+    EXPECT_TRUE(package.readData(root));
+    ASSERT_EQ(package.childCount<GtObject*>(), 1);
+
+    auto child = package.findDirectChild<TestSpecialGtObject*>();
+    ASSERT_NE(child, nullptr);
+    EXPECT_DOUBLE_EQ(child->getDouble(), 789.);
+}
+
+// Test gt_objectio.cpp line 292: aslink="true" set when SaveAsOwnFile=true and IsUnresolved=false
+TEST_F(TestGtPackage, saveDataWithSaveAsOwnFileSetsAsLinkAttribute)
+{
+    TestPackage package;
+
+    auto* child = new TestSpecialGtObject;
+    child->setObjectName("linkedchild");
+    child->setDouble(42.);
+    child->setSaveAsOwnFile(true);
+    ASSERT_TRUE(package.appendChild(child));
+
+    QDomDocument doc;
+    auto root = rootElement(doc);
+
+    EXPECT_TRUE(package.saveData(root, doc));
+
+    auto objectElement = root.firstChildElement("object");
+    ASSERT_FALSE(objectElement.isNull());
+    EXPECT_EQ(objectElement.attribute(QStringLiteral("aslink")), QStringLiteral("true"));
+}
+
+// Test gt_objectio.cpp lines 356-357: toMemento skips non-object child elements
+TEST_F(TestGtPackage, toMementoSkipsNonObjectChildElements)
+{
+    QDomDocument doc;
+    auto root = doc.createElement("object");
+    root.setAttribute("class", "TestSpecialGtObject");
+    root.setAttribute("name", "parent");
+    doc.appendChild(root);
+
+    // Add child objects list with mixed content
+    QDomElement childList = doc.createElement("objectlist");
+    root.appendChild(childList);
+
+    // Add non-object elements that should be skipped
+    childList.appendChild(doc.createElement("metadata"));
+    childList.appendChild(doc.createElement("comment"));
+
+    // Add actual object child
+    QDomElement childObj = doc.createElement("object");
+    childObj.setAttribute("class", "TestSpecialGtObject");
+    childObj.setAttribute("name", "realchild");
+    childList.appendChild(childObj);
+
+    // Add another non-object element after the real child
+    childList.appendChild(doc.createElement("annotation"));
+
+    // GtObjectMemento constructor internally calls GtObjectIO::toMemento
+    GtObjectMemento memento(root);
+
+    // Should have exactly 1 child (non-object elements skipped)
+    ASSERT_EQ(memento.childObjects.size(), 1);
+    EXPECT_EQ(memento.childObjects[0].ident(), QString("realchild"));
 }

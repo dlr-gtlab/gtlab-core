@@ -41,6 +41,7 @@ TestDmiData::TestDmiData() :
     setObjectName("Internal_Data");
     setFlag(UserDeletable);
     setFlag(UserRenamable);
+    setFlag(SaveAsOwnFile);
 
     registerProperty(m_value);
 

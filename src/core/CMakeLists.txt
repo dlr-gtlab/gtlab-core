@@ -84,6 +84,7 @@ set(headers
     gt_saveprojecthelper.h
     gt_session.h
     gt_project.h
+    gt_projectsettings.h 
     settings/gt_settingsitem.h
     settings/gt_abstractsettings.h
     settings/gt_settings.h
@@ -112,11 +113,12 @@ set(hdr_private
   internal/gt_commandlinefunctionhandler.h
   internal/gt_coreupgraderoutines.h
   internal/gt_platformspecifics.h
+  internal/gt_projectio.h
   internal/gt_sharedfunctionhandler.h
 )
 
 set(sources
-   gt_commandlinefunction.cpp
+    gt_commandlinefunction.cpp
     gt_commandlineparser.cpp
     gt_filesystem.cpp
     gt_logmodel.cpp
@@ -126,6 +128,7 @@ set(sources
     internal/gt_commandlinefunctionhandler.cpp
     internal/gt_coreupgraderoutines.cpp
     internal/gt_platformspecifics.cpp
+    internal/gt_projectio.cpp
     internal/gt_sharedfunctionhandler.cpp
     network/gt_accessdata.cpp
     network/gt_accessmanager.cpp
@@ -188,6 +191,7 @@ set(sources
     gt_saveprojecthelper.cpp
     gt_session.cpp
     gt_project.cpp
+    gt_projectsettings.cpp
     settings/gt_settingsitem.cpp
     settings/gt_abstractsettings.cpp
     settings/gt_settings.cpp

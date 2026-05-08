@@ -223,6 +223,25 @@ GtObjectMemento::calculateHashes() const
 }
 
 bool
+GtObjectMemento::isFlagEnabled(GtObjectMemento::Flag flag) const
+{
+    return m_flags & flag;
+}
+
+void
+GtObjectMemento::setFlagEnabled(GtObjectMemento::Flag flag, bool enable)
+{
+    if (enable)
+    {
+        m_flags = m_flags | flag;
+    }
+    else
+    {
+        m_flags = m_flags & ~flag;
+    }
+}
+
+bool
 GtObjectMemento::isRestorable(GtAbstractObjectFactory* factory) const
 {
     if (isNull())
@@ -538,18 +557,30 @@ GtObjectMemento::toObject(GtAbstractObjectFactory& factory) const
 GtObject*
 GtObjectMemento::toObject(GtAbstractObjectFactory& factory, GtObject* parent) const
 {
+    auto makeDummy = [parent](const QString& msg) -> std::unique_ptr<GtObject>
+    {
+        gtWarning() << msg;
+        auto newObj = std::make_unique<GtObject>(parent);
+        newObj->makeDummy();
+        return newObj;
+    };
 
-    std::unique_ptr<GtObject> obj(factory.newObject(className(), parent));
+    std::unique_ptr<GtObject> obj;
+
+
+    obj.reset(factory.newObject(className(), parent));
 
     if (!obj)
     {
         // no class found in factory. we need a dummy object here
-        gtWarning().nospace().noquote()
-            << "Creating dummy object for unknown class '"
-            << className() << "'.";
+        obj = makeDummy(QObject::tr("Creating dummy object "
+                                    "for unknown class %1.'").arg(className()));
+    }
 
-        obj.reset(new GtObject(parent));
+    if (isFlagEnabled(IsUnresolved))
+    {
         obj->makeDummy();
+        obj->setFlag(GtObject::SaveAsOwnFile, true);
     }
 
     mergeTo(*obj, factory);
@@ -569,7 +600,20 @@ GtObjectMemento::mergeTo(GtObject& obj, GtAbstractObjectFactory& factory) const
     obj.setUuid(uuid());
     obj.setObjectName(ident());
 
-    if (!obj.isDummy())
+    if (isFlagEnabled(IsUnresolved))
+    {
+        // we need to make it a dummy, to avoid changing the original object
+        // and to highlight a problem
+        gtWarning() << QObject::tr("Creating dummy object for unresolved object reference '%1'").arg(ident());
+        obj.makeDummy();
+        obj.importMementoIntoDummy(*this);
+        obj.setFlag(GtObject::SaveAsOwnFile, true);
+
+        // hide childs to not confuse the user
+        auto childs = obj.findDirectChildren<GtObject*>();
+        for (GtObject* c : childs) c->setUserHidden(true);
+    }
+    else if (!obj.isDummy())
     {
         ::readProperties(*this, obj);
         ::mergeAllPropertyContainers(*this, obj);

@@ -16,6 +16,7 @@
 
 #include "gt_testhelper.h"
 
+#include "gt_projectsettings.h"
 #include "gt_session.h"
 
 #include <memory>
@@ -87,4 +88,14 @@ TEST_F(TestGtSession, sessionFilePath)
 TEST_F(TestGtSession, fromJsonObject)
 {
     ASSERT_FALSE(m_session->_fromJsonObject());
+}
+
+TEST(GtProjectSettings, fromJsonAcceptsLegacyBoolFormat)
+{
+    GtProjectSettings settings;
+
+    settings.fromJson(QJsonValue(true));
+
+    EXPECT_TRUE(settings.ignoringIrregularities());
+    EXPECT_TRUE(settings.ownObjectFileSerializationEnabled());
 }

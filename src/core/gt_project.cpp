@@ -28,6 +28,7 @@
 #include "gt_xmlutilities.h"
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
+#include "internal/gt_projectio.h"
 #include "gt_logging.h"
 #include "gt_externalizedobject.h"
 #include "gt_externalizationmanager.h"
@@ -36,8 +37,8 @@
 #include "gt_qtutilities.h"
 #include "gt_filesystem.h"
 #include "gt_abstractloadinghelper.h"
+#include "gt_batchsaver.h"
 
-#include "internal/gt_moduleupgrader.h"
 #include "internal/gt_moduleupgrader.h"
 
 #include <QTemporaryDir>
@@ -55,7 +56,13 @@ GtProject::GtProject(const QString& path) :
 
     registerProperty(m_pathProp);
 
-    setProperty("tmp_ignoreIrregularities", false);
+    if (gtApp)
+    {
+        connect(&m_projectSettings, &GtProjectSettings::changed, this, [](){
+            if (gtApp->session()) gtApp->session()->save();
+        });
+    }
+
 }
 
 void
@@ -89,6 +96,18 @@ GtProject::moduleExtension()
     return QStringLiteral("gtmod");
 }
 
+const GtProjectSettings &
+GtProject::getProjectSettings() const
+{
+    return m_projectSettings;
+}
+
+GtProjectSettings &
+GtProject::projectSettings()
+{
+    return m_projectSettings;
+}
+
 QString
 GtProject::comment() const
 {
@@ -100,21 +119,6 @@ GtProject::setComment(const QString& comment)
 {
     m_comment = comment;
     changed();
-}
-
-bool
-GtProject::ignoringIrregularities() const
-{
-    return property("tmp_ignoreIrregularities").toBool();
-}
-
-void
-GtProject::setIgnoreIrregularities(bool ignore)
-{
-    if (ignore == ignoringIrregularities()) return;
-
-    setProperty("tmp_ignoreIrregularities", ignore);
-    gtApp->session()->save();
 }
 
 void
@@ -202,8 +206,11 @@ GtProject::upgradeProjectData()
     // collect all version information
     QMap<QString, GtVersionNumber> versInfo = footprint.fullVersionInfo();
 
+    bool saveWithLinkFiles = getProjectSettings()
+                                 .ownObjectFileSerializationEnabled();
+
     gt::detail::GtModuleUpgrader::instance()
-        .upgrade(versInfo, entryList);
+        .upgrade(objectName(), saveWithLinkFiles, versInfo, entryList);
 
     // update project footprint for updated module
     updateModuleFootprint(availUpgrades);
@@ -634,18 +641,18 @@ GtProject::readModuleData()
             continue;
         }
 
-        QDomDocument document;
+        QStringList warnings;
+        QDomDocument document = gt::xml::loadProjectXmlWithLinkedObjects(
+            filename, &warnings
+            );
 
-        QString errorStr;
-        int errorLine;
-        int errorColumn;
-
-        if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
-                                              &errorLine, &errorColumn))
+        if (!warnings.isEmpty())
         {
-            gtWarning() << tr("XML ERROR!") << " " << tr("line") << ": "
-                      << errorLine << " " << tr("column") << ": "
-                      << errorColumn << " -> " << errorStr;
+            for (auto&& warn : warnings) gtWarning() << warn;
+        }
+
+        if (document.isNull() || document.documentElement().isNull())
+        {
             continue;
         }
 
@@ -927,49 +934,7 @@ GtProject::saveLabelData(QDomElement& root, QDomDocument& doc)
 QDomDocument
 GtProject::readProjectData(const QDir& projectPath)
 {
-    QString filename = projectPath.path() + QDir::separator() + mainFilename();
-
-    QFile file(filename);
-
-    if (!file.exists())
-    {
-        qWarning() << "WARNING: file does not exists!";
-        qWarning() << " |-> " << filename;
-        return QDomDocument();
-    }
-
-    QDomDocument document;
-
-    QString errorStr;
-    int errorLine;
-    int errorColumn;
-
-    if (!gt::xml::readDomDocumentFromFile(file, document, true, &errorStr,
-                                          &errorLine, &errorColumn))
-    {
-        gtDebug() << tr("XML ERROR!") << " " << tr("line") << ": "
-                  << errorLine << " " << tr("column") << ": "
-                  << errorColumn << " -> " << errorStr;
-        return QDomDocument();
-    }
-
-//    if(!GtdUtilities::fileContentToDomDocument(file, document))
-//    {
-//        qWarning() << "WARNING: could not transfer file content to document!";
-//        return QDomElement();
-//    }
-
-    QDomElement root = document.documentElement();
-
-    if (root.isNull() || (root.tagName() != QLatin1String("GTLAB")))
-    {
-        gtDebug() << "ERROR: Invalid GTlab project file!";
-        return QDomDocument();
-    }
-
-
-
-    return document;
+    return GtProjectIO::readProjectData(projectPath);
 }
 
 QList<GtLabel*>
@@ -1017,65 +982,14 @@ GtProject::renameOldModuleFile(const QString& path, const QString& modId)
                 moduleExtension());
 }
 
+
 bool
 GtProject::saveProjectFiles(const QString& filePath, const QDomDocument& doc)
 {
-    /// create file with name 'path + _new'
-    const QString tempFilePath = filePath + QStringLiteral("_new");
-
-    // new ordered attribute stream writer algorithm
-    if (!gt::xml::writeDomDocumentToFile(tempFilePath, doc, true))
-    {
-        gtError() << objectName() << QStringLiteral(": ")
-                  << tr("Failed to save project data!");
-
-        return false;
-    }
-
-    //rename files
-    /// => existing from 'path' to 'path + _backup'
-    /// => the new file from 'path + _new' to 'path'
-
-    /// rename existing file (old state)
-    QFile origFile(filePath);
-
-    if (origFile.exists())
-    {
-        /// remove old backup file
-        QFile backupFile(filePath + QStringLiteral("_backup"));
-
-        if (backupFile.exists())
-        {
-            if (!backupFile.remove())
-            {
-                gtError() << "Could not delete existing backup file ' "
-                          << backupFile.fileName() << "!";
-
-                return false;
-            }
-        }
-
-        /// rename active file to backup
-        if (!origFile.rename(filePath + QStringLiteral("_backup")))
-        {
-            gtError() << "Could not rename '" << origFile.fileName()
-                      << "' to '" << filePath + QStringLiteral("_backup")
-                      << "'!";
-
-            return false;
-        }
-    }
-
-    /// rename new file to active (new state)
-    if (!QFile(tempFilePath).rename(filePath))
-    {
-        gtError() << "Could not rename project file ('" << tempFilePath
-                  << "' to '" << filePath << "'!";
-
-        return false;
-    }
-
-    return true;
+    return GtProjectIO::saveProjectFiles(
+        filePath,
+        doc,
+        projectSettings().ownObjectFileSerializationEnabled());
 }
 
 void
