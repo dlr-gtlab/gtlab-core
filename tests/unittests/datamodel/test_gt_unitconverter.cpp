@@ -4331,3 +4331,34 @@ TEST_F(TestGtUnitConverter, convertThermalConductivityFrom)
     ASSERT_TRUE(check);
     ASSERT_DOUBLE_EQ(value, 14000.);
 }
+
+/// Custom - this test is added for code coverage
+TEST_F(TestGtUnitConverter, convert_deprecated_custom)
+{
+    GtUnit::Category cat = GtUnit::Custom;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(), "-");
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "Custom");
+}
+
+/// Default
+TEST_F(TestGtUnitConverter, convert_default)
+{
+    GtUnit::Category cat = GtUnit::Default;
+
+    QString siUnit = GtUnit::siUnit(cat);
+    QString catString = GtUnit::categoryToString(cat);
+
+    // check default si unit
+    ASSERT_STREQ(siUnit.toStdString().c_str(), "-");
+
+    // check default string
+    ASSERT_STREQ(catString.toStdString().c_str(), "Default");
+}
+
