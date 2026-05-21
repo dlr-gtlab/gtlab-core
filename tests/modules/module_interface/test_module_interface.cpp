@@ -45,7 +45,7 @@ testConvert(QDomElement& xml, const QString& scope)
 }
 
 GtVersionNumber
-TestModuleInterface::version()
+TestModuleInterface::version() const
 {
     return GtVersionNumber(0, 1, 2, QStringLiteral("desc"));
 }
