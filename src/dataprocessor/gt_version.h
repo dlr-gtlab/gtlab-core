@@ -82,4 +82,31 @@
     GT_REMOVAL_GUARD(maj, min, msg);       \
     GT_DEPRECATED_ATTR(maj, min, msg)
 
+// Warning suppression helpers for narrow compatibility shims.
+#if defined(_MSC_VER)
+    #define _GT_WARNING_PUSH_DEPRECATED __pragma(warning(push))
+    #define _GT_WARNING_POP_DEPRECATED  __pragma(warning(pop))
+    #define _GT_WARNING_DISABLE_DEPRECATED __pragma(warning(disable : 4996))
+#elif defined(__clang__)
+    #define _GT_WARNING_PUSH_DEPRECATED _Pragma("clang diagnostic push")
+    #define _GT_WARNING_POP_DEPRECATED  _Pragma("clang diagnostic pop")
+    #define _GT_WARNING_DISABLE_DEPRECATED \
+        _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"")
+#elif defined(__GNUC__)
+    #define _GT_WARNING_PUSH_DEPRECATED _Pragma("GCC diagnostic push")
+    #define _GT_WARNING_POP_DEPRECATED  _Pragma("GCC diagnostic pop")
+    #define _GT_WARNING_DISABLE_DEPRECATED \
+        _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#else
+    #define GT_WARNING_PUSH_DEPRECATED
+    #define GT_WARNING_POP_DEPRECATED
+    #define GT_WARNING_DISABLE_DEPRECATED
+#endif
+
+#define GT_SUPPRESS_DEPRECATED_BEGIN \
+    _GT_WARNING_PUSH_DEPRECATED;        \
+    _GT_WARNING_DISABLE_DEPRECATED
+
+#define GT_SUPPRESS_DEPRECATED_END _GT_WARNING_POP_DEPRECATED
+
 #endif // GT_VERSION_H

@@ -53,6 +53,9 @@ private:
     GtDoubleProperty m_electricCurrent;
     GtDoubleProperty m_electricResistance;
     GtDoubleProperty m_electricImpedance;
+    GtDoubleProperty m_heatTransferCapability;
+    GtDoubleProperty m_heatTransferCoefficient;
+    GtDoubleProperty m_thermalConductivity;
 };
 
 #endif // TESTDMICLASS_H
