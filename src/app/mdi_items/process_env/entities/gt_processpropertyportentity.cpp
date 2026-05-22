@@ -45,10 +45,11 @@ bool areStringClassesCompatible(const QString& classA, const QString& classB)
 bool areUnitCompatible(const GtAbstractProperty* prop,
                        const GtAbstractProperty* prop2)
 {
+    if (!prop || !prop2) return false;
+
     if (prop->siUnit().isEmpty() || prop->siUnit() == "-") return true;
 
     if (prop2->siUnit().isEmpty() || prop2->siUnit() == "-") return true;
-
 
     return prop->siUnit() == prop2->siUnit();
 }
@@ -254,6 +255,8 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
     if (propertyClassName() == GT_CLASSNAME(GtObjectLinkProperty) &&
         port->propertyClassName() == GT_CLASSNAME(GtObjectLinkProperty))
     {
+        if (!m_item || port->m_item) return false;
+
         const GtAbstractProperty* prop = m_item->property();
         const GtAbstractProperty* prop2 = port->m_item->property();
 
@@ -263,6 +266,8 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
     if (propertyClassName() == GT_CLASSNAME(GtDoubleProperty) &&
         port->propertyClassName() == GT_CLASSNAME(GtDoubleProperty))
     {
+        if (!m_item || port->m_item) return false;
+
         const GtAbstractProperty* prop = m_item->property();
         const GtAbstractProperty* prop2 = port->m_item->property();
 
