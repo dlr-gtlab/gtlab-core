@@ -20,6 +20,8 @@
 #include "gt_processconnectionitem.h"
 #include "gt_processpropertyportentity.h"
 #include "gt_stringmonitoringproperty.h"
+#include "gt_objectlinkproperty.h"
+#include "gt_doubleproperty.h"
 
 #include "gt_colors.h"
 
@@ -33,6 +35,55 @@ bool areStringClassesCompatible(const QString& classA, const QString& classB)
             classB == GT_CLASSNAME(GtStringProperty)) ||
            (classA == GT_CLASSNAME(GtStringProperty) &&
             classB == GT_CLASSNAME(GtStringMonitoringProperty));
+}
+
+/**
+ * @brief checks if the units of the properties are compatible
+ * @return true in case of identical si units or if one of the properties has
+ * no or nondimension unit (to avoid problems with python defined values)
+ */
+bool areUnitCompatible(const GtAbstractProperty* prop,
+                       const GtAbstractProperty* prop2)
+{
+    if (prop->siUnit().isEmpty() || prop->siUnit() == "-") return true;
+
+    if (prop2->siUnit().isEmpty() || prop2->siUnit() == "-") return true;
+
+
+    return prop->siUnit() == prop2->siUnit();
+}
+
+/**
+ * @brief checks if the possible object link targets are matchable
+ * @return true if there is a compatibility in at least one possible class
+ * This is meant to catch early problems in completly
+ *  uncompatible link definitions
+ */
+bool areObjectLinksCompatible(const GtAbstractProperty* prop,
+                              const GtAbstractProperty* prop2)
+{
+    if (!prop || !prop2) return false;
+
+    auto* olp = qobject_cast<const GtObjectLinkProperty*>(prop);
+    auto* olp2 = qobject_cast<const GtObjectLinkProperty*>(prop2);
+
+    if (!olp || !olp2) return false;
+
+    QStringList list1 = olp->allowedClasses();
+
+    for (auto& s1 : list1)
+    {
+        if (olp2->isAllowed(s1)) return true;
+    }
+
+    QStringList list2 = olp2->allowedClasses();
+
+    for (auto& s2 : list2)
+    {
+        if (olp->isAllowed(s2)) return true;
+    }
+
+    return false;
 }
 
 }
@@ -172,35 +223,17 @@ bool
 GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
 {
     // check port
-    if (!port)
-    {
-        return false;
-    }
+    if (!port) return false;
 
-    if (port == this)
-    {
-        return false;
-    }
+    if (port == this) return false;
 
-    if (port->portType() == portType())
-    {
-        return false;
-    }
+    if (port->portType() == portType()) return false;
 
     if (m_type == GtProcessPropertyPortEntity::INPUT_PORT)
     {
-        if (isConnected())
-        {
-            return false;
-        }
+        if (isConnected()) return false;
     }
-    else
-    {
-        if (port->isConnected())
-        {
-            return false;
-        }
-    }
+    else if (port->isConnected()) return false;
 
     if (propertyValue().typeName() != port->propertyValue().typeName())
     {
@@ -216,9 +249,24 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
         }
     }
 
-    if (parentComponentUuid() == port->parentComponentUuid())
+    if (parentComponentUuid() == port->parentComponentUuid()) return false;
+
+    if (propertyClassName() == GT_CLASSNAME(GtObjectLinkProperty) &&
+        port->propertyClassName() == GT_CLASSNAME(GtObjectLinkProperty))
     {
-        return false;
+        const GtAbstractProperty* prop = m_item->property();
+        const GtAbstractProperty* prop2 = port->m_item->property();
+
+        if (!areObjectLinksCompatible(prop, prop2)) return false;
+    }
+
+    if (propertyClassName() == GT_CLASSNAME(GtDoubleProperty) &&
+        port->propertyClassName() == GT_CLASSNAME(GtDoubleProperty))
+    {
+        const GtAbstractProperty* prop = m_item->property();
+        const GtAbstractProperty* prop2 = port->m_item->property();
+
+        if (!areUnitCompatible(prop, prop2)) return false;
     }
 
     return true;
