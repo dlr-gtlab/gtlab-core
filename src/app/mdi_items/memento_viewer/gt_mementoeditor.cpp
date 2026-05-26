@@ -19,7 +19,7 @@
 
 GtMementoEditor::GtMementoEditor(QWidget* parent) : GtCodeEditor(parent)
 {
-    // No special init required
+
 }
 
 void

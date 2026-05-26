@@ -59,11 +59,12 @@ GtMementoViewer::GtMementoViewer()
             &GtSearchWidget::enableSearch);
 
     // Navigation shortcuts: F3 (next), Shift+F3 (previous)
-    m_nextShortcut = new QShortcut(QKeySequence(Qt::Key_F3), m_editor);
+    m_nextShortcut = new QShortcut(
+        gtApp->getShortCutSequence("jumpToNextElement"), m_editor);
     connect(m_nextShortcut, &QShortcut::activated, this,
             &GtMementoViewer::goToNextMatch);
-    m_prevShortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3),
-                                   m_editor);
+    m_prevShortcut = new QShortcut(
+        gtApp->getShortCutSequence("jumpToPreviousElement"), m_editor);
     connect(m_prevShortcut, &QShortcut::activated, this,
             &GtMementoViewer::goToPrevMatch);
 
