@@ -255,7 +255,7 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
     if (propertyClassName() == GT_CLASSNAME(GtObjectLinkProperty) &&
         port->propertyClassName() == GT_CLASSNAME(GtObjectLinkProperty))
     {
-        if (!m_item || port->m_item) return false;
+        if (!m_item || !port->m_item) return false;
 
         const GtAbstractProperty* prop = m_item->property();
         const GtAbstractProperty* prop2 = port->m_item->property();
@@ -266,7 +266,7 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
     if (propertyClassName() == GT_CLASSNAME(GtDoubleProperty) &&
         port->propertyClassName() == GT_CLASSNAME(GtDoubleProperty))
     {
-        if (!m_item || port->m_item) return false;
+        if (!m_item || !port->m_item) return false;
 
         const GtAbstractProperty* prop = m_item->property();
         const GtAbstractProperty* prop2 = port->m_item->property();
