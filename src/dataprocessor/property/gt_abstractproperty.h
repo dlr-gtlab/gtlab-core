@@ -121,10 +121,17 @@ public:
     void setCategory(const QString& cat);
 
     /**
+     * @brief categoryString
+     * @return category string of the property
+     */
+    QString categoryString() const;
+
+    /**
      * @brief categoryToString
      * @param cat
      * @return
      */
+    [[deprecated("Use categoryString() instead.")]]
     QString categoryToString();
 
     /**

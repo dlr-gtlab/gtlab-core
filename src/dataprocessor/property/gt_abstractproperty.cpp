@@ -90,7 +90,7 @@ GtAbstractProperty::setCategory(const QString& cat)
 }
 
 QString
-GtAbstractProperty::categoryToString()
+GtAbstractProperty::categoryString() const
 {
     switch (m_category)
     {
@@ -101,6 +101,12 @@ GtAbstractProperty::categoryToString()
     default:
         return QObject::tr("Main");
     }
+}
+
+QString
+GtAbstractProperty::categoryToString()
+{
+    return categoryString();
 }
 
 const QList<GtAbstractProperty*>&
