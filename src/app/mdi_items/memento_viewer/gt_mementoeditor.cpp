@@ -16,58 +16,11 @@
 #include "gt_objectmementodiff.h"
 
 #include "gt_mementoeditor.h"
-#include "gt_colors.h"
 
 GtMementoEditor::GtMementoEditor(QWidget* parent) : GtCodeEditor(parent)
 {
     // No special init required
 }
-
-void
-GtMementoEditor::highlightOccurrences(const QString& text)
-{
-    // Preserve existing line highlight (if any)
-    QList<QTextEdit::ExtraSelection> baseSelections = this->extraSelections();
-    QList<QTextEdit::ExtraSelection> preserved;
-    for (const auto& sel : baseSelections)
-    {
-        if (sel.format.background() == gt::gui::color::code_editor::highlightLine())
-            preserved.append(sel);
-    }
-
-    // Start fresh with preserved selections only
-    QList<QTextEdit::ExtraSelection> selections = preserved;
-
-    if (text.isEmpty())
-    {
-        // Clear search highlights, keep line highlight
-        setExtraSelections(selections);
-        return;
-    }
-
-    QTextDocument* doc = document();
-    QTextCharFormat fmt;
-    fmt.setBackground(gt::gui::color::code_editor::highlightSearch());
-
-    int startPos = 0;
-    while (true)
-    {
-        QTextCursor cursor = doc->find(text, startPos, QTextDocument::FindCaseSensitively);
-        if (cursor.isNull())
-            break;
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
-        sel.format = fmt;
-        selections.append(sel);
-        // Move start position past this match to avoid infinite loop on zero‑length search text
-        startPos = cursor.selectionEnd();
-        if (text.length() == 0)
-            ++startPos;
-    }
-
-    setExtraSelections(selections);
-}
-
 
 void
 GtMementoEditor::dropEvent(QDropEvent* event)
