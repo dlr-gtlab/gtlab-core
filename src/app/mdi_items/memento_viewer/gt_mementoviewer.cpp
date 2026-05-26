@@ -48,6 +48,7 @@ GtMementoViewer::GtMementoViewer()
     m_searchWidget = new GtSearchWidget(widget());
     searchLay->addWidget(m_searchWidget);
     searchLay->addStretch(1);
+    m_searchWidget->enableFindNextButtons();
     lay->addLayout(searchLay);
 
     // Shortcut (Ctrl+F) triggers search widget

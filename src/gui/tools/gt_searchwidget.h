@@ -14,6 +14,7 @@
 #include "gt_gui_exports.h"
 
 #include <QWidget>
+#include <memory.h>
 
 class GtLineEdit;
 class QPushButton;
@@ -33,6 +34,8 @@ public:
      */
     explicit GtSearchWidget(QWidget* parent = nullptr);
 
+    ~GtSearchWidget();
+
     /**
      * @brief text
      * @return
@@ -44,6 +47,12 @@ public:
      * @param text
      */
     void setText(const QString& text);
+
+    /**
+     * @brief enable the buttons for the jump to a next or previous element
+     * By default the buttons are hidden.
+     */
+    void enableFindNextButtons();
 
 public slots:
     /**
@@ -82,10 +91,10 @@ private:
 
     /// Clear search button
     QPushButton* m_clearButton;
-    /// Next match button
-    QPushButton* m_nextButton;
-    /// Previous match button
-    QPushButton* m_prevButton;
+
+
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
 signals:
     /**

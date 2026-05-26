@@ -20,8 +20,37 @@
 #include "gt_application.h"
 #include "gt_logging.h"
 
+struct GtSearchWidget::Impl
+{
+    /// Next match button
+    QPushButton* m_nextButton;
+    /// Previous match button
+    QPushButton* m_prevButton;
 
-GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
+    bool m_useNextButtons = false;;
+
+    void prepareNextButton()
+    {
+        m_nextButton->setText(QStringLiteral(">"));
+        m_nextButton->setMaximumSize(QSize(20, 20));
+        m_nextButton->setFlat(true);
+        m_nextButton->setToolTip(tr("Next Match"));
+        m_nextButton->setVisible(false);
+    }
+
+    void preparePrevButton()
+    {
+        m_prevButton->setText(QStringLiteral("<"));
+        m_prevButton->setMaximumSize(QSize(20, 20));
+        m_prevButton->setFlat(true);
+        m_prevButton->setToolTip(tr("Previous Match"));
+        m_prevButton->setVisible(false);
+    }
+};
+
+GtSearchWidget::GtSearchWidget(QWidget* parent) :
+    QWidget(parent),
+    pimpl(std::make_unique<Impl>())
 {
     QHBoxLayout* filterLayout = new QHBoxLayout;
     filterLayout->setContentsMargins(0, 0, 0, 0);
@@ -48,24 +77,18 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
             SLOT(disableSearch()));
 
     // Next match button
-    m_nextButton = new QPushButton;
-    m_nextButton->setText(QStringLiteral(">"));
-    m_nextButton->setMaximumSize(QSize(20, 20));
-    m_nextButton->setFlat(true);
-    m_nextButton->setToolTip(tr("Next Match"));
-    m_nextButton->setVisible(false);
-    filterLayout->addWidget(m_nextButton);
-    connect(m_nextButton, &QPushButton::clicked, this, &GtSearchWidget::nextClicked);
+    pimpl->m_nextButton = new QPushButton;
+    pimpl->prepareNextButton();
+    filterLayout->addWidget(pimpl->m_nextButton);
+    connect(pimpl->m_nextButton, &QPushButton::clicked, this,
+            &GtSearchWidget::nextClicked);
 
     // Previous match button
-    m_prevButton = new QPushButton;
-    m_prevButton->setText(QStringLiteral("<"));
-    m_prevButton->setMaximumSize(QSize(20, 20));
-    m_prevButton->setFlat(true);
-    m_prevButton->setToolTip(tr("Previous Match"));
-    m_prevButton->setVisible(false);
-    filterLayout->addWidget(m_prevButton);
-    connect(m_prevButton, &QPushButton::clicked, this, &GtSearchWidget::prevClicked);
+    pimpl->m_prevButton = new QPushButton;
+    pimpl->preparePrevButton();
+    filterLayout->addWidget(pimpl->m_prevButton);
+    connect(pimpl->m_prevButton, &QPushButton::clicked, this,
+            &GtSearchWidget::prevClicked);
 
     QKeySequence s = gtApp->getShortCutSequence("search");
     QString searchShortCut = s.toString();
@@ -102,6 +125,11 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
     setLayout(filterLayout);
 }
 
+GtSearchWidget::~GtSearchWidget()
+{
+
+}
+
 QString
 GtSearchWidget::text()
 {
@@ -115,15 +143,20 @@ GtSearchWidget::setText(const QString& text)
 }
 
 void
+GtSearchWidget::enableFindNextButtons()
+{
+    pimpl->m_useNextButtons = true;
+}
+
+void
 GtSearchWidget::enableSearch()
 {
     m_searchButton->setVisible(false);
     m_searchLabel->setVisible(false);
     m_clearButton->setVisible(true);
     m_searchLine->setVisible(true);
-    // show navigation buttons
-    m_nextButton->setVisible(true);
-    m_prevButton->setVisible(true);
+    pimpl->m_nextButton->setVisible(pimpl->m_useNextButtons);
+    pimpl->m_prevButton->setVisible(pimpl->m_useNextButtons);
     m_searchLine->selectAll();
     m_searchLine->setFocus();
 
@@ -136,9 +169,8 @@ GtSearchWidget::disableSearch()
     m_searchButton->setVisible(true);
     m_searchLabel->setVisible(true);
     m_clearButton->setVisible(false);
-    // hide navigation buttons
-    m_nextButton->setVisible(false);
-    m_prevButton->setVisible(false);
+    pimpl->m_nextButton->setVisible(false);
+    pimpl->m_prevButton->setVisible(false);
     m_searchLine->clear();
     m_searchLine->setVisible(false);
 
