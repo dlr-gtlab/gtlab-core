@@ -184,11 +184,6 @@ private slots:
     void openMementoViewer();
 
     /**
-     * @brief Just a test method
-     */
-    void openPreDesignPlot();
-
-    /**
      * @brief openSessionViewer
      */
     void openSessionViewer();
