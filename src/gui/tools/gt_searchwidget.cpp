@@ -18,20 +18,49 @@
 #include "gt_icons.h"
 #include "gt_stylesheets.h"
 #include "gt_application.h"
-#include "gt_logging.h"
 
 struct GtSearchWidget::Impl
 {
+    /// Search line
+    GtLineEdit* m_searchLine;
+
+    /// Search label
+    QLabel* m_searchLabel;
+
+    /// Search button
+    QPushButton* m_searchButton;
+
+    /// Clear search button
+    QPushButton* m_clearButton;
+
     /// Next match button
     QPushButton* m_nextButton;
+
     /// Previous match button
     QPushButton* m_prevButton;
 
     bool m_useNextButtons = false;;
 
+    void prepareSearchButton()
+    {
+        m_searchButton->setIcon(gt::gui::icon::search());
+        m_searchButton->setMaximumSize(QSize(20, 20));
+        m_searchButton->setFlat(true);
+        m_searchButton->setToolTip(tr("Search Output"));
+    }
+
+    void prepareClearButton()
+    {
+        m_clearButton->setIcon(gt::gui::icon::backspaceFlipped());
+        m_clearButton->setMaximumSize(QSize(20, 20));
+        m_clearButton->setFlat(true);
+        m_clearButton->setToolTip(tr("Clear Search"));
+        m_clearButton->setVisible(false);
+    }
+
     void prepareNextButton()
     {
-        m_nextButton->setText(QStringLiteral(">"));
+        m_nextButton->setIcon(gt::gui::icon::arrowDown());
         m_nextButton->setMaximumSize(QSize(20, 20));
         m_nextButton->setFlat(true);
         m_nextButton->setToolTip(tr("Next Match"));
@@ -40,7 +69,7 @@ struct GtSearchWidget::Impl
 
     void preparePrevButton()
     {
-        m_prevButton->setText(QStringLiteral("<"));
+        m_prevButton->setIcon(gt::gui::icon::arrowUp());
         m_prevButton->setMaximumSize(QSize(20, 20));
         m_prevButton->setFlat(true);
         m_prevButton->setToolTip(tr("Previous Match"));
@@ -52,94 +81,85 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) :
     QWidget(parent),
     pimpl(std::make_unique<Impl>())
 {
-    QHBoxLayout* filterLayout = new QHBoxLayout;
+    auto* filterLayout = new QHBoxLayout;
     filterLayout->setContentsMargins(0, 0, 0, 0);
     filterLayout->setSpacing(0);
 
     // search log button
-    m_searchButton = new QPushButton;
-    m_searchButton->setIcon(gt::gui::icon::search());
-    m_searchButton->setMaximumSize(QSize(20, 20));
-    m_searchButton->setFlat(true);
-    m_searchButton->setToolTip(tr("Search Output"));
-    filterLayout->addWidget(m_searchButton);
-    connect(m_searchButton, SIGNAL(clicked(bool)),
+    pimpl->m_searchButton = new QPushButton;
+    pimpl->prepareSearchButton();
+    filterLayout->addWidget(pimpl->m_searchButton);
+    connect(pimpl->m_searchButton, SIGNAL(clicked(bool)),
             SLOT(enableSearch()));
 
-    m_clearButton = new QPushButton;
-    m_clearButton->setIcon(gt::gui::icon::backspaceFlipped());
-    m_clearButton->setMaximumSize(QSize(20, 20));
-    m_clearButton->setFlat(true);
-    m_clearButton->setToolTip(tr("Clear Search"));
-    m_clearButton->setVisible(false);
-    filterLayout->addWidget(m_clearButton);
-    connect(m_clearButton, SIGNAL(clicked(bool)),
+    pimpl->m_clearButton = new QPushButton;
+    pimpl->prepareClearButton();
+    filterLayout->addWidget(pimpl->m_clearButton);
+    connect(pimpl->m_clearButton, SIGNAL(clicked(bool)),
             SLOT(disableSearch()));
 
     // Next match button
     pimpl->m_nextButton = new QPushButton;
     pimpl->prepareNextButton();
-    filterLayout->addWidget(pimpl->m_nextButton);
     connect(pimpl->m_nextButton, &QPushButton::clicked, this,
             &GtSearchWidget::nextClicked);
 
     // Previous match button
     pimpl->m_prevButton = new QPushButton;
     pimpl->preparePrevButton();
-    filterLayout->addWidget(pimpl->m_prevButton);
     connect(pimpl->m_prevButton, &QPushButton::clicked, this,
             &GtSearchWidget::prevClicked);
 
+    filterLayout->addWidget(pimpl->m_prevButton);
+    filterLayout->addWidget(pimpl->m_nextButton);
+
     QKeySequence s = gtApp->getShortCutSequence("search");
     QString searchShortCut = s.toString();
-    m_searchLabel = new QLabel("<font color='grey'>  (" + searchShortCut
+    pimpl->m_searchLabel = new QLabel("<font color='grey'>  (" + searchShortCut
                                + ")</font>");
-    QFont font = m_searchLabel->font();
+    QFont font = pimpl->m_searchLabel->font();
     font.setItalic(true);
     font.setPointSize(7);
-    m_searchLabel->setFont(font);
-    m_searchLabel->installEventFilter(this);
-    filterLayout->addWidget(m_searchLabel);
+    pimpl->m_searchLabel->setFont(font);
+    pimpl->m_searchLabel->installEventFilter(this);
+    filterLayout->addWidget(pimpl->m_searchLabel);
 
     connect(gtApp, SIGNAL(shortCutsChanged()), this,
             SLOT(onShortCutChanged()));
 
-    m_searchLine = new GtLineEdit;
-    m_searchLine->setMaximumHeight(17);
+    pimpl->m_searchLine = new GtLineEdit;
+    pimpl->m_searchLine->setMaximumHeight(17);
 //    m_searchLine->setFrame(false);
-    m_searchLine->setStyleSheet(gt::gui::stylesheet::standardLineEdit());
-    m_searchLine->setVisible(false);
-    filterLayout->addWidget(m_searchLine);
+    pimpl->m_searchLine->setStyleSheet(gt::gui::stylesheet::standardLineEdit());
+    pimpl->m_searchLine->setVisible(false);
+    filterLayout->addWidget(pimpl->m_searchLine);
 
     filterLayout->addStretch(1);
 
-    connect(m_searchLine, SIGNAL(textEdited(QString)), this,
+    connect(pimpl->m_searchLine, SIGNAL(textEdited(QString)), this,
             SIGNAL(textEdited(QString)));
-    connect(m_searchLine, SIGNAL(textChanged(QString)), this,
+    connect(pimpl->m_searchLine, SIGNAL(textChanged(QString)), this,
             SIGNAL(textChanged(QString)));
-    connect(m_searchLine, SIGNAL(returnPressed()), this,
+    connect(pimpl->m_searchLine, SIGNAL(returnPressed()), this,
             SIGNAL(returnPressed()));
-    connect(m_searchLine, SIGNAL(clearFocusOut()),
+    connect(pimpl->m_searchLine, SIGNAL(clearFocusOut()),
             SLOT(disableSearch()));
 
     setLayout(filterLayout);
 }
 
-GtSearchWidget::~GtSearchWidget()
-{
-
-}
+GtSearchWidget::~GtSearchWidget() = default;
 
 QString
 GtSearchWidget::text()
 {
-    return m_searchLine->text();
+    return pimpl->m_searchLine->text();
 }
 
 void
 GtSearchWidget::setText(const QString& text)
 {
-    m_searchLine->setText(text);
+    pimpl->m_searchLine->setText(text);
 }
 
 void
@@ -151,14 +171,14 @@ GtSearchWidget::enableFindNextButtons()
 void
 GtSearchWidget::enableSearch()
 {
-    m_searchButton->setVisible(false);
-    m_searchLabel->setVisible(false);
-    m_clearButton->setVisible(true);
-    m_searchLine->setVisible(true);
+    pimpl->m_searchButton->setVisible(false);
+    pimpl->m_searchLabel->setVisible(false);
+    pimpl->m_clearButton->setVisible(true);
+    pimpl->m_searchLine->setVisible(true);
     pimpl->m_nextButton->setVisible(pimpl->m_useNextButtons);
     pimpl->m_prevButton->setVisible(pimpl->m_useNextButtons);
-    m_searchLine->selectAll();
-    m_searchLine->setFocus();
+    pimpl->m_searchLine->selectAll();
+    pimpl->m_searchLine->setFocus();
 
     emit searchEnabled();
 }
@@ -166,13 +186,13 @@ GtSearchWidget::enableSearch()
 void
 GtSearchWidget::disableSearch()
 {
-    m_searchButton->setVisible(true);
-    m_searchLabel->setVisible(true);
-    m_clearButton->setVisible(false);
+    pimpl->m_searchButton->setVisible(true);
+    pimpl->m_searchLabel->setVisible(true);
+    pimpl->m_clearButton->setVisible(false);
     pimpl->m_nextButton->setVisible(false);
     pimpl->m_prevButton->setVisible(false);
-    m_searchLine->clear();
-    m_searchLine->setVisible(false);
+    pimpl->m_searchLine->clear();
+    pimpl->m_searchLine->setVisible(false);
 
     emit searchDisabled();
 }
@@ -182,20 +202,18 @@ GtSearchWidget::onShortCutChanged()
 {
     QKeySequence s = gtApp->getShortCutSequence("search");
     QString searchShortCut = s.toString();
-    m_searchLabel->setText("<font color='grey'>  (" + searchShortCut
+    pimpl->m_searchLabel->setText("<font color='grey'>  (" + searchShortCut
                            + ")</font>");
 }
 
 bool
 GtSearchWidget::eventFilter(QObject* obj, QEvent* event)
 {
-    if (obj == m_searchLabel)
+    if (obj == pimpl->m_searchLabel)
     {
         if (event->type() == QEvent::MouseButtonPress)
         {
-            QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
-
-            if (mouseEvent)
+            if (auto mouseEvent = dynamic_cast<QMouseEvent*>(event))
             {
                 if (mouseEvent->button() == Qt::LeftButton)
                 {

@@ -80,19 +80,6 @@ protected:
     bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
-    /// Search line
-    GtLineEdit* m_searchLine;
-
-    /// Search label
-    QLabel* m_searchLabel;
-
-    /// Search button
-    QPushButton* m_searchButton;
-
-    /// Clear search button
-    QPushButton* m_clearButton;
-
-
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 
