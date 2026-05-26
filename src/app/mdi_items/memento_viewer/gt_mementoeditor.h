@@ -28,6 +28,12 @@ public:
      */
     explicit GtMementoEditor(QWidget* parent = nullptr);
 
+    /**
+     * @brief Highlight all occurrences of text (case-sensitive)
+     * @param text Search text
+     */
+    void highlightOccurrences(const QString& text);
+
 protected:
     /**
      * @brief dropEvent

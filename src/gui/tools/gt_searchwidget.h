@@ -82,6 +82,10 @@ private:
 
     /// Clear search button
     QPushButton* m_clearButton;
+    /// Next match button
+    QPushButton* m_nextButton;
+    /// Previous match button
+    QPushButton* m_prevButton;
 
 signals:
     /**
@@ -107,8 +111,19 @@ signals:
     /**
      * @brief searchDisabled
      */
-    void searchDisabled();
+     void searchDisabled();
+ 
+     /**
+      * @brief nextClicked
+      */
+     void nextClicked();
+ 
+     /**
+      * @brief prevClicked
+      */
+     void prevClicked();
+ 
+ };
 
-};
 
 #endif // GTSEARCHWIDGET_H

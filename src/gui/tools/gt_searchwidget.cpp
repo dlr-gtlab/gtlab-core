@@ -47,6 +47,26 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) : QWidget(parent)
     connect(m_clearButton, SIGNAL(clicked(bool)),
             SLOT(disableSearch()));
 
+    // Next match button
+    m_nextButton = new QPushButton;
+    m_nextButton->setText(QStringLiteral(">"));
+    m_nextButton->setMaximumSize(QSize(20, 20));
+    m_nextButton->setFlat(true);
+    m_nextButton->setToolTip(tr("Next Match"));
+    m_nextButton->setVisible(false);
+    filterLayout->addWidget(m_nextButton);
+    connect(m_nextButton, &QPushButton::clicked, this, &GtSearchWidget::nextClicked);
+
+    // Previous match button
+    m_prevButton = new QPushButton;
+    m_prevButton->setText(QStringLiteral("<"));
+    m_prevButton->setMaximumSize(QSize(20, 20));
+    m_prevButton->setFlat(true);
+    m_prevButton->setToolTip(tr("Previous Match"));
+    m_prevButton->setVisible(false);
+    filterLayout->addWidget(m_prevButton);
+    connect(m_prevButton, &QPushButton::clicked, this, &GtSearchWidget::prevClicked);
+
     QKeySequence s = gtApp->getShortCutSequence("search");
     QString searchShortCut = s.toString();
     m_searchLabel = new QLabel("<font color='grey'>  (" + searchShortCut
@@ -101,6 +121,9 @@ GtSearchWidget::enableSearch()
     m_searchLabel->setVisible(false);
     m_clearButton->setVisible(true);
     m_searchLine->setVisible(true);
+    // show navigation buttons
+    m_nextButton->setVisible(true);
+    m_prevButton->setVisible(true);
     m_searchLine->selectAll();
     m_searchLine->setFocus();
 
@@ -113,6 +136,9 @@ GtSearchWidget::disableSearch()
     m_searchButton->setVisible(true);
     m_searchLabel->setVisible(true);
     m_clearButton->setVisible(false);
+    // hide navigation buttons
+    m_nextButton->setVisible(false);
+    m_prevButton->setVisible(false);
     m_searchLine->clear();
     m_searchLine->setVisible(false);
 
