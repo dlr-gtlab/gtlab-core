@@ -14,7 +14,7 @@
 #include "gt_gui_exports.h"
 
 #include <QWidget>
-#include <memory.h>
+#include <memory>
 
 class GtLineEdit;
 class QPushButton;

@@ -255,10 +255,6 @@ GtCodeEditor::highlightOccurrences(const QString& text)
         // Move start position past this match to avoid infinite
         // loop on zero‑length search text
         startPos = cursor.selectionEnd();
-        if (text.length() == 0)
-        {
-            ++startPos;
-        }
     }
 
     setExtraSelections(selections);

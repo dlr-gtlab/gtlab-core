@@ -33,7 +33,7 @@ GtMementoViewer::GtMementoViewer()
 
     m_highlighter = new GtXmlHighlighter(m_editor->document());
 
-    QVBoxLayout* lay = new QVBoxLayout;
+    auto* lay = new QVBoxLayout;
     lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
     widget()->setLayout(lay);
@@ -42,7 +42,7 @@ GtMementoViewer::GtMementoViewer()
     lay->addWidget(m_editor);
 
     // Search widget placed at bottom-left
-    QHBoxLayout* searchLay = new QHBoxLayout;
+    auto* searchLay = new QHBoxLayout;
     searchLay->setContentsMargins(0, 0, 0, 0);
     searchLay->setSpacing(0);
     m_searchWidget = new GtSearchWidget(widget());
@@ -102,6 +102,7 @@ void
 GtMementoViewer::onSearchTextChanged(const QString& text)
 {
     if (!m_editor) return;
+
     // Highlight all occurrences and store current search text
     m_editor->highlightOccurrences(text);
     m_searchText = text;
@@ -121,8 +122,6 @@ GtMementoViewer::onSearchTextChanged(const QString& text)
 
         m_matches.append(cursor);
         startPos = cursor.selectionEnd();
-
-        if (text.length() == 0) ++startPos;
     }
 }
 
@@ -139,7 +138,9 @@ GtMementoViewer::goToNextMatch()
 
     // Reapply search highlights after cursor movement (preserves line highlight)
     if (!m_searchText.isEmpty())
+    {
         m_editor->highlightOccurrences(m_searchText);
+    }
 }
 
 void
@@ -155,6 +156,8 @@ GtMementoViewer::goToPrevMatch()
 
     // Reapply search highlights after cursor movement (preserves line highlight)
     if (!m_searchText.isEmpty())
+    {
         m_editor->highlightOccurrences(m_searchText);
+    }
 }
 

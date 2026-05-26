@@ -39,7 +39,7 @@ struct GtSearchWidget::Impl
     /// Previous match button
     QPushButton* m_prevButton;
 
-    bool m_useNextButtons = false;;
+    bool m_useNextButtons = false;
 
     void prepareSearchButton()
     {
