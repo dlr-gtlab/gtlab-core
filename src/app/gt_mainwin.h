@@ -179,19 +179,9 @@ private slots:
     void updatePerspectiveList();
 
     /**
-     * @brief openMapEditor
-     */
-    void openMapEditor();
-
-    /**
      * @brief openMementoViewer
      */
     void openMementoViewer();
-
-    /**
-     * @brief Just a test method
-     */
-    void openPreDesignPlot();
 
     /**
      * @brief openSessionViewer
