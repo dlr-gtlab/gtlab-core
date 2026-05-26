@@ -52,21 +52,29 @@ GtMementoViewer::GtMementoViewer()
     lay->addLayout(searchLay);
 
     // Shortcut (Ctrl+F) triggers search widget
-    auto* shortcut = new QShortcut(gtApp->getShortCutSequence("search"), m_editor);
+    auto* shortcut = new QShortcut(gtApp->getShortCutSequence("search"),
+                                   m_editor);
     shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut, &QShortcut::activated, m_searchWidget, &GtSearchWidget::enableSearch);
+    connect(shortcut, &QShortcut::activated, m_searchWidget,
+            &GtSearchWidget::enableSearch);
 
     // Navigation shortcuts: F3 (next), Shift+F3 (previous)
     m_nextShortcut = new QShortcut(QKeySequence(Qt::Key_F3), m_editor);
-    connect(m_nextShortcut, &QShortcut::activated, this, &GtMementoViewer::goToNextMatch);
-    m_prevShortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3), m_editor);
-    connect(m_prevShortcut, &QShortcut::activated, this, &GtMementoViewer::goToPrevMatch);
+    connect(m_nextShortcut, &QShortcut::activated, this,
+            &GtMementoViewer::goToNextMatch);
+    m_prevShortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3),
+                                   m_editor);
+    connect(m_prevShortcut, &QShortcut::activated, this,
+            &GtMementoViewer::goToPrevMatch);
 
     // Connect search changes to editor highlighting
-    connect(m_searchWidget, &GtSearchWidget::textChanged, this, &GtMementoViewer::onSearchTextChanged);
+    connect(m_searchWidget, &GtSearchWidget::textChanged, this,
+            &GtMementoViewer::onSearchTextChanged);
     // Connect navigation button clicks
-    connect(m_searchWidget, &GtSearchWidget::nextClicked, this, &GtMementoViewer::goToNextMatch);
-    connect(m_searchWidget, &GtSearchWidget::prevClicked, this, &GtMementoViewer::goToPrevMatch);
+    connect(m_searchWidget, &GtSearchWidget::nextClicked, this,
+            &GtMementoViewer::goToNextMatch);
+    connect(m_searchWidget, &GtSearchWidget::prevClicked, this,
+            &GtMementoViewer::goToPrevMatch);
 }
 
 GtMementoViewer::~GtMementoViewer() = default;
@@ -89,11 +97,13 @@ GtMementoViewer::onThemeChanged()
     m_highlighter->onThemeChanged();
 }
 
-void GtMementoViewer::onSearchTextChanged(const QString& text)
+void
+GtMementoViewer::onSearchTextChanged(const QString& text)
 {
     if (!m_editor) return;
-    // Highlight all occurrences
+    // Highlight all occurrences and store current search text
     m_editor->highlightOccurrences(text);
+    m_searchText = text;
 
     // Rebuild match list
     m_matches.clear();
@@ -101,30 +111,49 @@ void GtMementoViewer::onSearchTextChanged(const QString& text)
     if (text.isEmpty()) return;
     QTextDocument* doc = m_editor->document();
     int startPos = 0;
-    while (true) {
-        QTextCursor cursor = doc->find(text, startPos, QTextDocument::FindCaseSensitively);
+
+    while (true)
+    {
+        QTextCursor cursor = doc->find(text, startPos,
+                                       QTextDocument::FindCaseSensitively);
         if (cursor.isNull()) break;
+
         m_matches.append(cursor);
         startPos = cursor.selectionEnd();
+
         if (text.length() == 0) ++startPos;
     }
 }
 
-void GtMementoViewer::goToNextMatch()
+void
+GtMementoViewer::goToNextMatch()
 {
     if (m_matches.isEmpty() || !m_editor) return;
+
+    // Move to next match
     m_currentMatch = (m_currentMatch + 1) % m_matches.size();
     QTextCursor cur = m_matches.at(m_currentMatch);
     m_editor->setTextCursor(cur);
     m_editor->ensureCursorVisible();
+
+    // Reapply search highlights after cursor movement (preserves line highlight)
+    if (!m_searchText.isEmpty())
+        m_editor->highlightOccurrences(m_searchText);
 }
 
-void GtMementoViewer::goToPrevMatch()
+void
+GtMementoViewer::goToPrevMatch()
 {
     if (m_matches.isEmpty() || !m_editor) return;
+
+    // Move to previous match
     m_currentMatch = (m_currentMatch - 1 + m_matches.size()) % m_matches.size();
     QTextCursor cur = m_matches.at(m_currentMatch);
     m_editor->setTextCursor(cur);
     m_editor->ensureCursorVisible();
+
+    // Reapply search highlights after cursor movement (preserves line highlight)
+    if (!m_searchText.isEmpty())
+        m_editor->highlightOccurrences(m_searchText);
 }
 

@@ -65,6 +65,7 @@ private:
     /// Cached match positions
     QList<QTextCursor> m_matches;
     int m_currentMatch = -1;
+    QString m_searchText;
 
     // Navigation shortcuts
     QShortcut* m_nextShortcut = nullptr;

@@ -47,7 +47,7 @@ GtMementoEditor::highlightOccurrences(const QString& text)
 
     QTextDocument* doc = document();
     QTextCharFormat fmt;
-    fmt.setBackground(gt::gui::color::code_editor::highlightLine());
+    fmt.setBackground(gt::gui::color::code_editor::highlightSearch());
 
     int startPos = 0;
     while (true)

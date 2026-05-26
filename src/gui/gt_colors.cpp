@@ -318,6 +318,14 @@ gt::gui::color::code_editor::highlightLine()
     return QColor(Qt::yellow).lighter(160);
 }
 
+// Highlight for search matches (transparent yellow)
+QColor
+gt::gui::color::code_editor::highlightSearch()
+{
+    // Transparent yellow works in both themes
+    return QColor(255, 255, 0, 100);
+}
+
 QColor
 gt::gui::color::xml_highlight::syntaxChar()
 {
