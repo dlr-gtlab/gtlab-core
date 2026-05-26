@@ -39,6 +39,11 @@
 #include "gt_algorithms.h"
 #include "gt_maintoolbar.h"
 #include "gt_iconbrowser.h"
+#include "gt_mementoviewer.h"
+#include "gt_stateviewer.h"
+#include "gt_examplesmdiwidget.h"
+#include "gt_sessionviewer.h"
+#include "gt_startuppage.h"
 
 #include <QDir>
 #include <QKeyEvent>
@@ -515,7 +520,7 @@ GtMainWin::showProjectWizard()
         if (!gtDataModel->newProject(project, true))
         {
             delete project;
-            gtError() << "Created project can not be added to session. Abort";
+            gtError() << tr("Created project can not be added to session. Abort");
             return;
         }
         else
@@ -557,7 +562,7 @@ GtMainWin::importProject()
     }
     else
     {
-        gtWarning() << "Cannot open the project";
+        gtWarning() << tr("Cannot open the project");
     }
 }
 
@@ -672,30 +677,16 @@ GtMainWin::updatePerspectiveList()
 }
 
 void
-GtMainWin::openMapEditor()
-{
-    gtMdiLauncher->open("GtMapEditor");
-}
-
-void
 GtMainWin::openMementoViewer()
 {
-    gtMdiLauncher->open("GtMementoViewer");
+    gtMdiLauncher->open(GT_CLASSNAME(GtMementoViewer));
 }
 
-void
-GtMainWin::openPreDesignPlot()
-{
-    if (!gtMdiLauncher->open("GtdPreDesignPlot"))
-    {
-        gtWarning() << tr("Could not open pre design plot!");
-    }
-}
 
 void
 GtMainWin::openSessionViewer()
 {
-    if (!gtMdiLauncher->open("GtSessionViewer"))
+    if (!gtMdiLauncher->open(GT_CLASSNAME(GtSessionViewer)))
     {
         gtWarning() << tr("Could not open session viewer!");
     }
@@ -704,7 +695,7 @@ GtMainWin::openSessionViewer()
 void
 GtMainWin::openStateViewer()
 {
-    if (!gtMdiLauncher->open("GtStateViewer"))
+    if (!gtMdiLauncher->open(GT_CLASSNAME(GtStateViewer)))
     {
         gtWarning() << tr("Could not open state viewer!");
     }
@@ -713,7 +704,7 @@ GtMainWin::openStateViewer()
 void
 GtMainWin::openExamplesWidget()
 {
-    if (!gtMdiLauncher->open("GtExamplesMdiWidget"))
+    if (!gtMdiLauncher->open(GT_CLASSNAME(GtExamplesMdiWidget)))
     {
         gtWarning() << tr("Could not open examples viewer!");
     }
@@ -840,7 +831,8 @@ GtMainWin::printCurrentMdiItem()
     }
     else
     {
-        QMessageBox::information(nullptr, "Print error", "No view open!",
+        QMessageBox::information(nullptr, tr("Print error"),
+                                 tr("No view open!"),
                                  QMessageBox::Ok);
     }
 }
@@ -1106,7 +1098,7 @@ GtMainWin::initAfterStartup()
     // open startup page
     if (gtApp->settings()->showStartupPage())
     {
-        gtMdiLauncher->open("GtStartupPage");
+        gtMdiLauncher->open(GT_CLASSNAME(GtStartupPage));
     }
 
     // search for updates
