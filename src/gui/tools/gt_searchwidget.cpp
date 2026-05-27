@@ -60,7 +60,7 @@ struct GtSearchWidget::Impl
 
     void prepareNextButton()
     {
-        m_nextButton->setIcon(gt::gui::icon::arrowDown());
+        m_nextButton->setIcon(gt::gui::icon::triangleSmallRight());
         m_nextButton->setMaximumSize(QSize(20, 20));
         m_nextButton->setFlat(true);
         m_nextButton->setToolTip(tr("Next Match"));
@@ -69,7 +69,7 @@ struct GtSearchWidget::Impl
 
     void preparePrevButton()
     {
-        m_prevButton->setIcon(gt::gui::icon::arrowUp());
+        m_prevButton->setIcon(gt::gui::icon::triangleSmallLeft());
         m_prevButton->setMaximumSize(QSize(20, 20));
         m_prevButton->setFlat(true);
         m_prevButton->setToolTip(tr("Previous Match"));
@@ -98,21 +98,6 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) :
     connect(pimpl->m_clearButton, SIGNAL(clicked(bool)),
             SLOT(disableSearch()));
 
-    // Next match button
-    pimpl->m_nextButton = new QPushButton;
-    pimpl->prepareNextButton();
-    connect(pimpl->m_nextButton, &QPushButton::clicked, this,
-            &GtSearchWidget::nextClicked);
-
-    // Previous match button
-    pimpl->m_prevButton = new QPushButton;
-    pimpl->preparePrevButton();
-    connect(pimpl->m_prevButton, &QPushButton::clicked, this,
-            &GtSearchWidget::prevClicked);
-
-    filterLayout->addWidget(pimpl->m_prevButton);
-    filterLayout->addWidget(pimpl->m_nextButton);
-
     QKeySequence s = gtApp->getShortCutSequence("search");
     QString searchShortCut = s.toString();
     pimpl->m_searchLabel = new QLabel("<font color='grey'>  (" + searchShortCut
@@ -133,6 +118,21 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) :
     pimpl->m_searchLine->setStyleSheet(gt::gui::stylesheet::standardLineEdit());
     pimpl->m_searchLine->setVisible(false);
     filterLayout->addWidget(pimpl->m_searchLine);
+
+    // Next match button
+    pimpl->m_nextButton = new QPushButton;
+    pimpl->prepareNextButton();
+    connect(pimpl->m_nextButton, &QPushButton::clicked, this,
+            &GtSearchWidget::nextClicked);
+
+    // Previous match button
+    pimpl->m_prevButton = new QPushButton;
+    pimpl->preparePrevButton();
+    connect(pimpl->m_prevButton, &QPushButton::clicked, this,
+            &GtSearchWidget::prevClicked);
+
+    filterLayout->addWidget(pimpl->m_prevButton);
+    filterLayout->addWidget(pimpl->m_nextButton);
 
     filterLayout->addStretch(1);
 
