@@ -128,7 +128,6 @@ public:
 
     /**
      * @brief categoryToString
-     * @param cat
      * @return
      */
     [[deprecated("Use categoryString() instead.")]]
