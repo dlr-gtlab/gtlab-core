@@ -103,12 +103,6 @@ GtAbstractProperty::categoryString() const
     }
 }
 
-QString
-GtAbstractProperty::categoryToString()
-{
-    return categoryString();
-}
-
 const QList<GtAbstractProperty*>&
 GtAbstractProperty::properties() const
 {

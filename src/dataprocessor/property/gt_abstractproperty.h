@@ -132,7 +132,10 @@ public:
      * @return
      */
     [[deprecated("Use categoryString() instead.")]]
-    QString categoryToString();
+    inline QString categoryToString()
+    {
+        return categoryString();
+    }
 
     /**
      * @brief properties
