@@ -41,10 +41,9 @@ class GT_GUI_EXPORT GtQmlToolbar : public QWidget
     Q_PROPERTY(GtQmlToolbarGroup* statusActions READ statusActions NOTIFY statusActionsChanged FINAL)
 
     /**
-     * @brief A property, whether to render in dark mode (or not)
+     * @brief A property, that contains the color theme of the toolbar
      */
-    Q_PROPERTY(bool darkMode READ darkMode NOTIFY darkModeChanged FINAL)
-
+    Q_PROPERTY(QVariantMap theme READ themeMap NOTIFY themeChanged FINAL)
 public:
     explicit GtQmlToolbar(QWidget *parent = nullptr);
     ~GtQmlToolbar() override;
@@ -70,21 +69,42 @@ public:
      */
     Q_INVOKABLE void addStatusAction(GtQmlAction* action);
 
-    Q_INVOKABLE bool darkMode() const;
-    Q_INVOKABLE void setDarkMode(bool d);
-
     /**
      * @brief Returns all toolbar groups
      */
     QVariantListModel* groups();
     GtQmlToolbarGroup* statusActions();
 
+    struct GT_GUI_EXPORT Theme
+    {
+        Theme();
+
+        /// Color of the text and icons
+        QColor foreground;
+
+        /// First background color
+        QColor base;
+
+        /// Second background color
+        QColor background;
+
+        /// Color of the button, when hovered
+        QColor buttonHover;
+
+        /// True, if this theme is a dark mode
+        bool darkmode;
+    };
+
+    void setColorTheme(const Theme& colors);
+
 signals:
     void groupsChanged();
     void statusActionsChanged();
-    void darkModeChanged();
+    void themeChanged();
 
 private:
+    QVariantMap themeMap() const;
+
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 };
