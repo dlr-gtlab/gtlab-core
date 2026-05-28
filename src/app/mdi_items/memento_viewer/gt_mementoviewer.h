@@ -68,8 +68,8 @@ private:
     QString m_searchText;
 
     // Navigation shortcuts
-    QShortcut* m_nextShortcut = nullptr;
-    QShortcut* m_prevShortcut = nullptr;
+    QShortcut* m_nextShortcut{nullptr};
+    QShortcut* m_prevShortcut{nullptr};
 
 private slots:
     void goToNextMatch();

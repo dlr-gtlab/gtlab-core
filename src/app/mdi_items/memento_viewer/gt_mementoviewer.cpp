@@ -54,17 +54,19 @@ GtMementoViewer::GtMementoViewer()
     // Shortcut (Ctrl+F) triggers search widget
     auto* shortcut = new QShortcut(gtApp->getShortCutSequence("search"),
                                    m_editor);
-    shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    shortcut->setContext(Qt::ApplicationShortcut);
     connect(shortcut, &QShortcut::activated, m_searchWidget,
             &GtSearchWidget::enableSearch);
 
     // Navigation shortcuts: F3 (next), Shift+F3 (previous)
     m_nextShortcut = new QShortcut(
         gtApp->getShortCutSequence("jumpToNextElement"), m_editor);
+    m_nextShortcut->setContext(Qt::ApplicationShortcut);
     connect(m_nextShortcut, &QShortcut::activated, this,
             &GtMementoViewer::goToNextMatch);
     m_prevShortcut = new QShortcut(
         gtApp->getShortCutSequence("jumpToPreviousElement"), m_editor);
+    m_prevShortcut->setContext(Qt::ApplicationShortcut);
     connect(m_prevShortcut, &QShortcut::activated, this,
             &GtMementoViewer::goToPrevMatch);
 

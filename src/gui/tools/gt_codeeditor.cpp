@@ -155,7 +155,19 @@ GtCodeEditor::wheelEvent(QWheelEvent* event)
 void
 GtCodeEditor::highlightCurrentLine()
 {
-    QList<QTextEdit::ExtraSelection> extraSelections;
+    QList<QTextEdit::ExtraSelection> baseSelections = extraSelections();
+    QList<QTextEdit::ExtraSelection> preserved;
+
+    for (const auto& sel : baseSelections)
+    {
+        if (sel.format.background() !=
+            gt::gui::color::code_editor::highlightLine())
+        {
+            preserved.append(sel);
+        }
+    }
+
+    QList<QTextEdit::ExtraSelection> extraSelections = preserved;
 
     if (!isReadOnly())
     {
