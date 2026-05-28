@@ -68,11 +68,8 @@ private:
     /// pointer to summed diff object (result)
     std::unique_ptr<GtObjectMementoDiff> m_sumDiff;
 
-    /// source object to buil diff
+    /// source object to build diff
     QPointer<GtObject> m_source;
-
-    /// Name of the task: used to give the used command a suitable name
-    [[deprecated("unused")]] QString m_taskName;
 };
 
 #endif // GTFINISHEDPROCESSLOADINGHELPER_H
