@@ -130,7 +130,7 @@ public:
      * @brief categoryToString
      * @return
      */
-    [[deprecated("Use categoryString() instead.")]]
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use categoryString() instead")
     inline QString categoryToString()
     {
         return categoryString();

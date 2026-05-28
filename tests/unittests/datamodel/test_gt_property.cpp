@@ -83,8 +83,6 @@ TEST(TestGtProperty, categoryString)
 
     /// check default category
     EXPECT_STREQ(boolProp->categoryString().toStdString().c_str(), "Main");
-    /// check identical result in deprecated function
-    EXPECT_STREQ(boolProp->categoryToString().toStdString().c_str(), "Main");
 
     EXPECT_TRUE(boolProp->category() ==
                 GtAbstractProperty::PropertyCategory::Main);
@@ -93,8 +91,6 @@ TEST(TestGtProperty, categoryString)
 
     /// check identical result in deprecated function
     EXPECT_STREQ(boolProp->categoryString().toStdString().c_str(),
-                 "MyFancyCategory");
-    EXPECT_STREQ(boolProp->categoryToString().toStdString().c_str(),
                  "MyFancyCategory");
 
     EXPECT_TRUE(boolProp->category() ==
