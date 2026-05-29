@@ -90,7 +90,7 @@ GtAbstractProperty::setCategory(const QString& cat)
 }
 
 QString
-GtAbstractProperty::categoryToString()
+GtAbstractProperty::categoryString() const
 {
     switch (m_category)
     {

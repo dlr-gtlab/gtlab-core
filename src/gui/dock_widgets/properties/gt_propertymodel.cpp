@@ -767,7 +767,7 @@ GtPropertyModel::addProperty(GtAbstractProperty* prop)
 {
     using namespace std;
 
-    QString catId = prop->categoryToString();
+    QString catId = prop->categoryString();
     GtPropertyCategoryItem* cat = nullptr;
 
     auto catIter = std::find_if(begin(m_properties), end(m_properties),
