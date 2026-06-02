@@ -14,6 +14,7 @@
 #include "gt_icons.h"
 #include "gt_logging.h"
 #include "gt_colors.h"
+#include "gt_processinfodialog.h"
 
 #include "gt_processoverviewmodel.h"
 
@@ -125,10 +126,10 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 {
                     return id(abstractItem);
                 }
-                else if (col == 1)
-                {
-                    return version(abstractItem);
-                }
+                // else if (col == 1)
+                // {
+                //     return buttonText(abstractItem);
+                // }
 
                 break;
 
@@ -148,7 +149,13 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                         return gt::gui::color::disabled();
                     }
                 }
+                break;
 
+            case ButtonRole:
+                if (col == 1)
+                {
+                    return QVariant::fromValue(abstractItem);
+                }
                 break;
 
             case Qt::ToolTipRole:
@@ -307,10 +314,36 @@ GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
 
     if (row == -1)
     {
-        gtWarning().medium().nospace()
-                << __FUNCTION__ << ": row == -1!";
+        gtWarning().medium().nospace() << __FUNCTION__ << ": row == -1!";
         return {};
     }
 
     return createIndex(row, 0, item);
+}
+
+void
+GtProcessOverviewModel::onButtonClicked(GtAbstractProcessItem* item)
+{
+    if (!item) return;
+
+    QList<QPair<QString, QString>> infos;
+    infos.append({tr("ID"), id(item)});
+    infos.append({tr("Version"), version(item)});
+    infos.append({tr("Description"), description(item)});
+
+    QString authorVal = author(item);
+    if (!authorVal.isEmpty())
+    {
+        infos.append({tr("Author"), authorVal});
+    }
+
+    QString contactVal = contact(item);
+    if (!contactVal.isEmpty())
+    {
+        infos.append({tr("Contact"), contactVal});
+    }
+
+    auto* dialog = new GtProcessInfoDialog(infos, nullptr);
+    dialog->exec();
+    delete dialog;
 }

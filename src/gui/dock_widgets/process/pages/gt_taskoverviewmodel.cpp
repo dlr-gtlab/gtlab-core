@@ -107,22 +107,15 @@ GtTaskOverviewModel::version(GtAbstractProcessItem* item) const
 QIcon
 GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QIcon();
-    }
+    if (!item) return {};
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (!taskItem)
-    {
-        return QIcon();
-    }
+    if (!taskItem) return {};
 
     GtTaskData taskData = taskItem->taskData();
 
-    GtExtendedTaskDataImpl* extendedData =
-            dynamic_cast<GtExtendedTaskDataImpl*>(taskData.get());
+    auto* extendedData = dynamic_cast<GtExtendedTaskDataImpl*>(taskData.get());
 
     if (!extendedData || extendedData->icon.isNull())
     {
@@ -147,17 +140,11 @@ GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
 QString
 GtTaskOverviewModel::description(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QString();
-    }
+    if (!item) return {};
 
-    GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
+    auto* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (!taskItem)
-    {
-        return QString();
-    }
+    if (!taskItem) return {};
 
     GtTaskData taskData = taskItem->taskData();
 
@@ -167,4 +154,36 @@ GtTaskOverviewModel::description(GtAbstractProcessItem* item) const
     }
 
     return taskData->description;
+}
+
+QString
+GtTaskOverviewModel::author(GtAbstractProcessItem *item) const
+{
+    if (!item) return {};
+
+    auto* taskItem = qobject_cast<GtProcessTaskItem*>(item);
+
+    if (!taskItem) return {};
+
+    GtTaskData taskData = taskItem->taskData();
+
+    if (taskData->author.isNull()) return {};
+
+    return taskData->author;
+}
+
+QString
+GtTaskOverviewModel::contact(GtAbstractProcessItem *item) const
+{
+    if (!item) return {};
+
+    auto* taskItem = qobject_cast<GtProcessTaskItem*>(item);
+
+    if (!taskItem) return {};
+
+    GtTaskData taskData = taskItem->taskData();
+
+    if (taskData->contact.isNull()) return {};
+
+    return taskData->contact;
 }

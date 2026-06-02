@@ -28,7 +28,8 @@ public:
     enum Roles
     {
         CategoryRole = Qt::UserRole + 1,
-        CollapseRole
+        CollapseRole,
+        ButtonRole
     };
 
     /**
@@ -136,11 +137,32 @@ protected:
     virtual QString description(GtAbstractProcessItem* item) const = 0;
 
     /**
+     * @brief Returns author of given process item.
+     * @param item Process item.
+     * @return author of process item.
+     */
+    virtual QString author(GtAbstractProcessItem* item) const = 0;
+
+    /**
+     * @brief Returns contact of given process item.
+     * @param item Process item.
+     * @return contact of process item.
+     */
+    virtual QString contact(GtAbstractProcessItem* item) const = 0;
+
+    /**
      * @brief categoryItem
      * @param id
      * @return
      */
     GtProcessCategoryItem* categoryItem(const QString& id);
+
+public slots:
+    /**
+     * @brief onButtonClicked
+     * @param item
+     */
+    virtual void onButtonClicked(GtAbstractProcessItem* item);
 
 private:
     /// Categories and calculator data

@@ -62,6 +62,19 @@ protected:
      */
     QString description(GtAbstractProcessItem* item) const override;
 
+    /**
+     * @brief Returns author of given process item.
+     * @param item Process item.
+     * @return author of process item.
+     */
+    QString author(GtAbstractProcessItem* item) const override;
+
+    /**
+     * @brief Returns contact of given process item.
+     * @param item Process item.
+     * @return contact of process item.
+     */
+    QString contact(GtAbstractProcessItem* item) const override;
 };
 
 #endif // GT_TASKOVERVIEWMODEL_H

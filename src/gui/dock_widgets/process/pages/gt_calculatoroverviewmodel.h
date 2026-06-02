@@ -64,6 +64,19 @@ protected:
      */
     QString description(GtAbstractProcessItem* item) const override;
 
+    /**
+     * @brief Returns author of given process item.
+     * @param item Process item.
+     * @return author of process item.
+     */
+    QString author(GtAbstractProcessItem* item) const override;
+
+    /**
+     * @brief Returns author of given process item.
+     * @param item Process item.
+     * @return author of process item.
+     */
+    QString contact(GtAbstractProcessItem* item) const override;
 };
 
 #endif // GTCALCULATOROVERVIEWMODEL_H

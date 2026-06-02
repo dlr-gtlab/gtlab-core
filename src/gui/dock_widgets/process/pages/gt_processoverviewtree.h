@@ -14,8 +14,34 @@
 
 #include "gt_treeview.h"
 
+#include <QStyledItemDelegate>
+
 class GtTreeFilterModel;
 class GtProcessOverviewModel;
+class GtAbstractProcessItem;
+
+/**
+ * @brief The GtProcessButtonDelegate class
+ */
+class GtProcessButtonDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    explicit GtProcessButtonDelegate(QObject* parent = nullptr);
+
+    void paint(QPainter* painter,
+               const QStyleOptionViewItem& option,
+               const QModelIndex& index) const override;
+
+    bool editorEvent(QEvent* event,
+                     QAbstractItemModel* model,
+                     const QStyleOptionViewItem& option,
+                     const QModelIndex& index) override;
+
+signals:
+    void buttonClicked(GtAbstractProcessItem* item);
+};
 
 /**
  * @brief The GtProcessOverviewTree class
@@ -29,7 +55,8 @@ public:
      * @brief GtProcessOverviewTree
      * @param parent
      */
-    explicit GtProcessOverviewTree(GtProcessOverviewModel *model, QWidget *parent = nullptr);
+    explicit GtProcessOverviewTree(GtProcessOverviewModel* model,
+                                   QWidget* parent = nullptr);
 
     /**
      * @brief resizeColumns
@@ -68,6 +95,9 @@ private:
     /// Filter model.
     GtTreeFilterModel* m_filterModel;
 
+    /// Button delegate.
+    GtProcessButtonDelegate* m_buttonDelegate;
+
     /**
      * @brief setCollapsed
      * @param val
@@ -86,6 +116,8 @@ private slots:
      * @param index
      */
     void onExpanded(const QModelIndex& index);
+
+    void onButtonClicked(GtAbstractProcessItem* item);
 
 };
 

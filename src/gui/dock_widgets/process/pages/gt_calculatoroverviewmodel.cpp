@@ -65,18 +65,11 @@ GtCalculatorOverviewModel::setUpModel()
 QString
 GtCalculatorOverviewModel::id(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QString();
-    }
+    if (!item) return {};
 
-    GtProcessCalculatorItem* calcItem =
-            qobject_cast<GtProcessCalculatorItem*>(item);
+    auto* calcItem = qobject_cast<GtProcessCalculatorItem*>(item);
 
-    if (!calcItem)
-    {
-        return QString();
-    }
+    if (!calcItem) return {};
 
     GtCalculatorData calcData = calcItem->calculatorData();
 
@@ -145,18 +138,11 @@ GtCalculatorOverviewModel::icon(GtAbstractProcessItem* item) const
 QString
 GtCalculatorOverviewModel::description(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QString();
-    }
+    if (!item) return {};
 
-    GtProcessCalculatorItem* calcItem =
-            qobject_cast<GtProcessCalculatorItem*>(item);
+    auto* calcItem = qobject_cast<GtProcessCalculatorItem*>(item);
 
-    if (!calcItem)
-    {
-        return QString();
-    }
+    if (!calcItem) return {};
 
     GtCalculatorData calcData = calcItem->calculatorData();
 
@@ -167,4 +153,36 @@ GtCalculatorOverviewModel::description(GtAbstractProcessItem* item) const
 
     return calcData->description;
 
+}
+
+QString
+GtCalculatorOverviewModel::author(GtAbstractProcessItem* item) const
+{
+    if (!item) return {};
+
+    auto* calcItem = qobject_cast<GtProcessCalculatorItem*>(item);
+
+    if (!calcItem) return {};
+
+    GtCalculatorData calcData = calcItem->calculatorData();
+
+    if (calcData->author.isNull()) return {};
+
+    return calcData->author;
+}
+
+QString
+GtCalculatorOverviewModel::contact(GtAbstractProcessItem* item) const
+{
+    if (!item) return {};
+
+    auto* calcItem = qobject_cast<GtProcessCalculatorItem*>(item);
+
+    if (!calcItem) return {};
+
+    GtCalculatorData calcData = calcItem->calculatorData();
+
+    if (calcData->contact.isNull()) return {};
+
+    return calcData->contact;
 }
