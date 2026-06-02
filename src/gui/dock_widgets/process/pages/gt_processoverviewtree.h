@@ -40,7 +40,7 @@ public:
                      const QModelIndex& index) override;
 
 signals:
-    void buttonClicked(GtAbstractProcessItem* item);
+    void buttonClicked(GtAbstractProcessItem* item, const QPoint& p);
 };
 
 /**
@@ -117,7 +117,7 @@ private slots:
      */
     void onExpanded(const QModelIndex& index);
 
-    void onButtonClicked(GtAbstractProcessItem* item);
+    void onButtonClicked(GtAbstractProcessItem* item, const QPoint &globalPos);
 
 };
 

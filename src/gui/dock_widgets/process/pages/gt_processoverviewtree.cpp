@@ -76,7 +76,7 @@ GtProcessButtonDelegate::editorEvent(QEvent* event,
 
         if (item)
         {
-            emit buttonClicked(item);
+            emit buttonClicked(item, me->globalPos());
         }
     }
 
@@ -106,8 +106,8 @@ GtProcessOverviewTree::GtProcessOverviewTree(GtProcessOverviewModel* model,
         m_buttonDelegate = new GtProcessButtonDelegate(this);
         setItemDelegateForColumn(1, m_buttonDelegate);
 
-        connect(m_buttonDelegate, SIGNAL(buttonClicked(GtAbstractProcessItem*)),
-                this, SLOT(onButtonClicked(GtAbstractProcessItem*)));
+        connect(m_buttonDelegate, SIGNAL(buttonClicked(GtAbstractProcessItem*, const QPoint&)),
+                this, SLOT(onButtonClicked(GtAbstractProcessItem*, const QPoint&)));
     }
 
     connect(this, SIGNAL(collapsed(QModelIndex)),
@@ -189,10 +189,11 @@ GtProcessOverviewTree::onExpanded(const QModelIndex& index)
 }
 
 void
-GtProcessOverviewTree::onButtonClicked(GtAbstractProcessItem* item)
+GtProcessOverviewTree::onButtonClicked(GtAbstractProcessItem* item,
+                                       const QPoint& globalPos)
 {
     if (m_model)
     {
-        m_model->onButtonClicked(item);
+        m_model->onButtonClicked(item, globalPos);
     }
 }

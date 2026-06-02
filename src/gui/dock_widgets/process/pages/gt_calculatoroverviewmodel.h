@@ -65,18 +65,13 @@ protected:
     QString description(GtAbstractProcessItem* item) const override;
 
     /**
-     * @brief Returns author of given process item.
-     * @param item Process item.
-     * @return author of process item.
+     * @brief Returns a list of key value pairs of meta information about the
+     * given process element of the item
+     * @param item
+     * @return
      */
-    QString author(GtAbstractProcessItem* item) const override;
-
-    /**
-     * @brief Returns author of given process item.
-     * @param item Process item.
-     * @return author of process item.
-     */
-    QString contact(GtAbstractProcessItem* item) const override;
+    QList<QPair<QString, QString>> processElementInformation(
+        GtAbstractProcessItem* item) const override;
 };
 
 #endif // GTCALCULATOROVERVIEWMODEL_H

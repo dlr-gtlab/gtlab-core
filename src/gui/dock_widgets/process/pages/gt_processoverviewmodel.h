@@ -137,18 +137,13 @@ protected:
     virtual QString description(GtAbstractProcessItem* item) const = 0;
 
     /**
-     * @brief Returns author of given process item.
-     * @param item Process item.
-     * @return author of process item.
+     * @brief Returns a list of key value pairs of meta information about the
+     * given process element of the item
+     * @param item
+     * @return
      */
-    virtual QString author(GtAbstractProcessItem* item) const = 0;
-
-    /**
-     * @brief Returns contact of given process item.
-     * @param item Process item.
-     * @return contact of process item.
-     */
-    virtual QString contact(GtAbstractProcessItem* item) const = 0;
+    virtual QList<QPair<QString, QString>> processElementInformation(
+        GtAbstractProcessItem* item) const = 0;
 
     /**
      * @brief categoryItem
@@ -162,7 +157,8 @@ public slots:
      * @brief onButtonClicked
      * @param item
      */
-    virtual void onButtonClicked(GtAbstractProcessItem* item);
+    void onButtonClicked(GtAbstractProcessItem* item,
+                         const QPoint& globalPos);
 
 private:
     /// Categories and calculator data

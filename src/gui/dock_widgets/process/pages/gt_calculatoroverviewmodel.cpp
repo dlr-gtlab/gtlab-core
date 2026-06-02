@@ -155,8 +155,9 @@ GtCalculatorOverviewModel::description(GtAbstractProcessItem* item) const
 
 }
 
-QString
-GtCalculatorOverviewModel::author(GtAbstractProcessItem* item) const
+QList<QPair<QString, QString>>
+GtCalculatorOverviewModel::processElementInformation(
+    GtAbstractProcessItem* item) const
 {
     if (!item) return {};
 
@@ -166,23 +167,28 @@ GtCalculatorOverviewModel::author(GtAbstractProcessItem* item) const
 
     GtCalculatorData calcData = calcItem->calculatorData();
 
-    if (calcData->author.isNull()) return {};
+    QList<QPair<QString, QString>> infos;
+    infos.append({tr("ID"), calcData->id});
+    infos.append({tr("Version"), calcData->version.toString()});
+    infos.append({tr("Description"), calcData->description});
 
-    return calcData->author;
-}
+    QString authorVal = calcData->author;
+    if (!authorVal.isEmpty())
+    {
+        infos.append({tr("Author"), authorVal});
+    }
 
-QString
-GtCalculatorOverviewModel::contact(GtAbstractProcessItem* item) const
-{
-    if (!item) return {};
+    QString contactVal = calcData->contact;
+    if (!contactVal.isEmpty())
+    {
+        infos.append({tr("Contact"), contactVal});
+    }
 
-    auto* calcItem = qobject_cast<GtProcessCalculatorItem*>(item);
+    QString companyVal = calcData->company;
+    if (!contactVal.isEmpty())
+    {
+        infos.append({tr("Company"), companyVal});
+    }
 
-    if (!calcItem) return {};
-
-    GtCalculatorData calcData = calcItem->calculatorData();
-
-    if (calcData->contact.isNull()) return {};
-
-    return calcData->contact;
+    return infos;
 }

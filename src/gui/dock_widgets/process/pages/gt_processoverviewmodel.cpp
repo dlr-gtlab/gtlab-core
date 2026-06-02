@@ -18,6 +18,8 @@
 
 #include "gt_processoverviewmodel.h"
 
+#include "gt_processoverviewtree.h"
+
 GtProcessOverviewModel::GtProcessOverviewModel(QObject* parent) :
     QAbstractItemModel(parent)
 {
@@ -126,10 +128,6 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 {
                     return id(abstractItem);
                 }
-                // else if (col == 1)
-                // {
-                //     return buttonText(abstractItem);
-                // }
 
                 break;
 
@@ -322,28 +320,15 @@ GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
 }
 
 void
-GtProcessOverviewModel::onButtonClicked(GtAbstractProcessItem* item)
+GtProcessOverviewModel::onButtonClicked(GtAbstractProcessItem* item,
+                                        QPoint const& globalPos)
 {
     if (!item) return;
 
-    QList<QPair<QString, QString>> infos;
-    infos.append({tr("ID"), id(item)});
-    infos.append({tr("Version"), version(item)});
-    infos.append({tr("Description"), description(item)});
+    auto infos = processElementInformation(item);
 
-    QString authorVal = author(item);
-    if (!authorVal.isEmpty())
-    {
-        infos.append({tr("Author"), authorVal});
-    }
+    auto* popup = new GtProcessInfoPopup(id(item), version(item), infos);
 
-    QString contactVal = contact(item);
-    if (!contactVal.isEmpty())
-    {
-        infos.append({tr("Contact"), contactVal});
-    }
-
-    auto* dialog = new GtProcessInfoDialog(infos, nullptr);
-    dialog->exec();
-    delete dialog;
+    popup->move(globalPos);
+    popup->show();
 }

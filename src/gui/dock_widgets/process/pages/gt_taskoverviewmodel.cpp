@@ -156,8 +156,8 @@ GtTaskOverviewModel::description(GtAbstractProcessItem* item) const
     return taskData->description;
 }
 
-QString
-GtTaskOverviewModel::author(GtAbstractProcessItem *item) const
+QList<QPair<QString, QString> >
+GtTaskOverviewModel::processElementInformation(GtAbstractProcessItem *item) const
 {
     if (!item) return {};
 
@@ -167,23 +167,28 @@ GtTaskOverviewModel::author(GtAbstractProcessItem *item) const
 
     GtTaskData taskData = taskItem->taskData();
 
-    if (taskData->author.isNull()) return {};
+    QList<QPair<QString, QString>> infos;
+    infos.append({tr("ID"), taskData->id});
+    infos.append({tr("Version"), taskData->version.toString()});
+    infos.append({tr("Description"), taskData->description});
 
-    return taskData->author;
-}
+    QString authorVal = taskData->author;
+    if (!authorVal.isEmpty())
+    {
+        infos.append({tr("Author"), authorVal});
+    }
 
-QString
-GtTaskOverviewModel::contact(GtAbstractProcessItem *item) const
-{
-    if (!item) return {};
+    QString contactVal = taskData->contact;
+    if (!contactVal.isEmpty())
+    {
+        infos.append({tr("Contact"), contactVal});
+    }
 
-    auto* taskItem = qobject_cast<GtProcessTaskItem*>(item);
+    QString companyVal = taskData->company;
+    if (!contactVal.isEmpty())
+    {
+        infos.append({tr("Company"), companyVal});
+    }
 
-    if (!taskItem) return {};
-
-    GtTaskData taskData = taskItem->taskData();
-
-    if (taskData->contact.isNull()) return {};
-
-    return taskData->contact;
+    return infos;
 }
