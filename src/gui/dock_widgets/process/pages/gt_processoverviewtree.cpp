@@ -70,8 +70,7 @@ GtProcessButtonDelegate::editorEvent(QEvent* event,
 
     if (option.rect.contains(p))
     {
-        GtAbstractProcessItem* item =
-            qobject_cast<GtAbstractProcessItem*>(index.data(
+        auto* item = qobject_cast<GtAbstractProcessItem*>(index.data(
                 GtProcessOverviewModel::ButtonRole).value<QObject*>());
 
         if (item)
@@ -106,8 +105,10 @@ GtProcessOverviewTree::GtProcessOverviewTree(GtProcessOverviewModel* model,
         m_buttonDelegate = new GtProcessButtonDelegate(this);
         setItemDelegateForColumn(1, m_buttonDelegate);
 
-        connect(m_buttonDelegate, SIGNAL(buttonClicked(GtAbstractProcessItem*, const QPoint&)),
-                this, SLOT(onButtonClicked(GtAbstractProcessItem*, const QPoint&)));
+        connect(m_buttonDelegate,
+                SIGNAL(buttonClicked(GtAbstractProcessItem*, const QPoint&)),
+                this,
+                SLOT(onButtonClicked(GtAbstractProcessItem*, const QPoint&)));
     }
 
     connect(this, SIGNAL(collapsed(QModelIndex)),
@@ -162,13 +163,9 @@ GtProcessOverviewTree::resizeEvent(QResizeEvent* event)
 void
 GtProcessOverviewTree::setCollapsed(const QModelIndex& index, bool val)
 {
-    if (!model())
-    {
-        return;
-    }
+    if (!model()) return;
 
-    bool isCategory =
-            index.data(GtProcessOverviewModel::CategoryRole).toBool();
+    bool isCategory = index.data(GtProcessOverviewModel::CategoryRole).toBool();
 
     if (isCategory)
     {

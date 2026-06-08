@@ -58,17 +58,11 @@ GtTaskOverviewModel::setUpModel()
 QString
 GtTaskOverviewModel::id(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QString();
-    }
+    if (!item) return {};
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (!taskItem)
-    {
-        return QString();
-    }
+    if (!taskItem) return {};
 
     GtTaskData taskData = taskItem->taskData();
 
@@ -87,17 +81,11 @@ GtTaskOverviewModel::id(GtAbstractProcessItem* item) const
 QString
 GtTaskOverviewModel::version(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QString();
-    }
+    if (!item) return {};
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (!taskItem)
-    {
-        return QString();
-    }
+    if (!taskItem) return {};
 
     GtTaskData taskData = taskItem->taskData();
 
@@ -119,9 +107,8 @@ GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
 
     if (!extendedData || extendedData->icon.isNull())
     {
-        GtObjectUI* oui = gtApp->defaultObjectUI(taskData->metaData().className());
-
-        if (oui)
+        if (GtObjectUI* oui = gtApp->defaultObjectUI(
+                taskData->metaData().className()))
         {
             QIcon icn = oui->icon(nullptr);
 

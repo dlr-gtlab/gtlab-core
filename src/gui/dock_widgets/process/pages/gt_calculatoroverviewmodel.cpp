@@ -88,18 +88,12 @@ GtCalculatorOverviewModel::id(GtAbstractProcessItem* item) const
 QString
 GtCalculatorOverviewModel::version(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QString();
-    }
+    if (!item) return {};
 
     GtProcessCalculatorItem* calcItem =
             qobject_cast<GtProcessCalculatorItem*>(item);
 
-    if (!calcItem)
-    {
-        return QString();
-    }
+    if (!calcItem) return {};
 
     GtCalculatorData calcData = calcItem->calculatorData();
 
@@ -109,18 +103,12 @@ GtCalculatorOverviewModel::version(GtAbstractProcessItem* item) const
 QIcon
 GtCalculatorOverviewModel::icon(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QIcon();
-    }
+    if (!item) return {};
 
     GtProcessCalculatorItem* calcItem =
             qobject_cast<GtProcessCalculatorItem*>(item);
 
-    if (!calcItem)
-    {
-        return QIcon();
-    }
+    if (!calcItem) return {};
 
     GtCalculatorData calcData = calcItem->calculatorData();
 
