@@ -296,15 +296,15 @@ TEST_F(TestGtTask, collectMonitoringDataIncludesChildMonitoringProperties)
     ASSERT_TRUE(task.appendChild(&child));
     child.addMonitoringVar("name", 42);
 
-    // auto data = task.collectMonitoringData();
+    auto data = task.collectMonitoringData();
 
-    // ASSERT_TRUE(data.contains(child.uuid()));
-    // auto monData = data.getData(child.uuid());
-    // const auto keys = monData.data().keys();
-    // ASSERT_EQ(keys.size(), 1);
-    // EXPECT_TRUE(keys.front().startsWith("monitoringVars[{"));
-    // EXPECT_TRUE(keys.front().endsWith("}].value"));
-    // EXPECT_EQ(monData.getData(keys.front()), QVariant(42));
+    ASSERT_TRUE(data.contains(child.uuid()));
+    auto monData = data.getData(child.uuid());
+    const auto keys = monData.data().keys();
+    ASSERT_EQ(keys.size(), 1);
+    EXPECT_TRUE(keys.front().startsWith("monitoringVars[{"));
+    EXPECT_TRUE(keys.front().endsWith("}].value"));
+    EXPECT_EQ(monData.getData(keys.front()), QVariant(42));
 }
 
 TEST_F(TestGtTask, collectPropertyConnectionsIncludesDirectAndNestedConnections)

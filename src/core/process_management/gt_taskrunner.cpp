@@ -225,23 +225,23 @@ GtTaskRunner::setupElements(GtProcessComponent* orig,
             this, &GtTaskRunner::transferMonitoringProperties);
 
     // check whether process component is a task
-    // GtTask* tmpTaskOrig = qobject_cast<GtTask*>(orig);
+    GtTask* tmpTaskOrig = qobject_cast<GtTask*>(orig);
 
-    // if (tmpTaskOrig)
-    // {
-    //     // cast cloned process component to task
-    //     GtTask* tmpTaskCloned = qobject_cast<GtTask*>(cloned);
+    if (tmpTaskOrig)
+    {
+        // cast cloned process component to task
+        GtTask* tmpTaskCloned = qobject_cast<GtTask*>(cloned);
 
-    //     // check cloned task object
-    //     if (tmpTaskCloned)
-    //     {
-    //         // connect task specific signals
-    //         connect(tmpTaskCloned, &GtTask::monitoringDataTransfer,
-    //                 tmpTaskOrig, &GtTask::onMonitoringDataAvailable);
-    //         connect(tmpTaskCloned, &GtTask::triggerClearMonitoringData,
-    //                 tmpTaskOrig, &GtTask::clearMonitoringData);
-    //     }
-    // }
+        // check cloned task object
+        if (tmpTaskCloned)
+        {
+            // connect task specific signals
+            connect(tmpTaskCloned, &GtTask::monitoringDataTransfer,
+                    tmpTaskOrig, &GtTask::onMonitoringDataAvailable);
+            connect(tmpTaskCloned, &GtTask::triggerClearMonitoringData,
+                    tmpTaskOrig, &GtTask::clearMonitoringData);
+        }
+    }
 
     // append to component mapping structure
     m_componentMap.insert(cloned, orig);
@@ -277,11 +277,11 @@ GtTaskRunner::handleRunnableFinished()
 
     delete m_runnable;
 
-    // if (m_task)
-    // {
-    //     gtDebug() << "monitoring data table size = " <<
-    //              m_task->monitoringDataSize();
-    // }
+    if (m_task)
+    {
+        gtDebug() << "monitoring data table size = " <<
+                 m_task->monitoringDataSize();
+    }
 
     emit finished();
 }
