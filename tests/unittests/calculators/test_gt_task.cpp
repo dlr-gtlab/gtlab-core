@@ -88,7 +88,7 @@ public:
 class TestableGtTask : public GtTask
 {
 public:
-    //using GtTask::collectMonitoringData;
+    using GtTask::collectMonitoringData;
     using GtTask::collectPropertyConnections;
     using GtTask::linkedObjects;
     using GtTask::runChildElements;
@@ -385,17 +385,17 @@ TEST_F(TestGtTask, handleRunnableFinishedMarksWarningFinishedWhenChildWarns)
 
 TEST_F(TestGtTask, monitoringDataCanBeStoredAndCleared)
 {
-    // TestableGtTask task;
-    // GtMonitoringDataSet data;
-    // GtMonitoringData row;
-    // row.addData("value", 1);
-    // data.insert("uuid", row);
+    TestableGtTask task;
+    GtMonitoringDataSet data;
+    GtMonitoringData row;
+    row.addData("value", 1);
+    data.insert("uuid", row);
 
-    // task.onMonitoringDataAvailable(1, data);
+    task.onMonitoringDataAvailable(1, data);
 
-    // EXPECT_EQ(task.monitoringDataSize(), 1);
+    EXPECT_EQ(task.monitoringDataSize(), 1);
 
-    // task.clearMonitoringData();
+    task.clearMonitoringData();
 
-    // EXPECT_EQ(task.monitoringDataSize(), 0);
+    EXPECT_EQ(task.monitoringDataSize(), 0);
 }

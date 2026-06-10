@@ -30,6 +30,9 @@ struct GtTask::Impl
     /// List of all data to merge
     QList<GtObjectMemento> dataToMerge;
 
+    /// Monitoring data table
+    GtMonitoringDataTable monitoringDataTable;
+
     /// Interruption flag
     QAtomicInt interrupt;
 
@@ -59,6 +62,8 @@ GtTask::GtTask() :
     setFlag(GtObject::UserRenamable, true);
 
     m_currentIter.setVal(0);
+
+    qRegisterMetaType<GtMonitoringDataSet>("GtMonitoringDataSet");
 
     registerProperty(pimpl->processRunner, tr("Execution"));
 
@@ -293,6 +298,18 @@ GtTask::runIteration()
 }
 
 int
+GtTask::monitoringDataSize() const
+{
+    return pimpl->monitoringDataTable.size();
+}
+
+const GtMonitoringDataTable&
+GtTask::monitoringDataTable()
+{
+    return pimpl->monitoringDataTable;
+}
+
+int
 GtTask::maxIterationSteps() const
 {
     return m_maxIter;
@@ -397,7 +414,27 @@ GtTask::runChildElements()
     // trigger transfer of monitoring properties after evaluation
     emit transferMonitoringProperties();
 
+    // collect monitoring data for entire task
+    GtMonitoringDataSet monData = collectMonitoringData();
+
+    // check whether monitoring data has entries
+    if (!monData.isEmpty())
+    {
+        // monitoring data available - emit signal
+        emit monitoringDataTransfer(m_currentIter, monData);
+    }
+
     return true;
+}
+
+GtMonitoringDataSet
+GtTask::collectMonitoringData()
+{
+    GtMonitoringDataSet retval;
+
+    collectMonitoringDataHelper(retval, this);
+
+    return retval;
 }
 
 QList<GtPropertyConnection*>
@@ -421,6 +458,55 @@ bool
 GtTask::isInterruptionRequested() const
 {
     return static_cast<int>(pimpl->interrupt);
+}
+
+void
+GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
+                                    GtProcessComponent* component)
+{
+    // check component
+    if (!component)
+    {
+        return;
+    }
+
+    // get monitoring properties
+    auto monProps = component->monitoringProperties();
+    auto conMonProps = component->containerMonitoringPropertyRefs();
+
+    // check whether monitoring properties exists
+    if (!monProps.isEmpty() || !conMonProps.isEmpty())
+    {
+        // create new monitoring data container
+        GtMonitoringData monData;
+
+        // iterate over monitoring properties and append them to container
+        for (const auto* prop : monProps)
+        {
+            monData.addData(prop->ident(), prop->valueToVariant());
+        }
+
+        // iterate over container monitoring property references and append
+        // them to container
+        for (const auto& propRef : conMonProps)
+        {
+            if (auto* resolved = propRef.resolve(*component))
+            {
+                monData.addData(propRef.toString(), resolved->valueToVariant());
+            }
+        }
+
+        // append monitoring data container to monitoring map
+        map.insert(component->uuid(), monData);
+    }
+
+    // iterate over children
+    foreach (GtProcessComponent* child,
+             component->findDirectChildren<GtProcessComponent*>())
+    {
+        // collect data for each child recursively
+        collectMonitoringDataHelper(map, child);
+    }
 }
 
 void
@@ -500,4 +586,23 @@ GtTask::handleRunnableFinished()
     }
 
     emit finished();
+}
+
+void
+GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
+{
+    // append data set to data table and check success
+    if (!pimpl->monitoringDataTable.append(iteration, set))
+    {
+        gtWarning().medium() << tr("Could not append data set!");
+        return;
+    }
+
+    emit monitoringDataAvailable();
+}
+
+void
+GtTask::clearMonitoringData()
+{
+    pimpl->monitoringDataTable.clear();
 }
