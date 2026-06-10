@@ -24,6 +24,7 @@
 #include "gt_intmonitoringproperty.h"
 #include "gt_intproperty.h"
 #include "gt_monitoringdatatable.h"
+#include "gt_monitoringdataset.h"
 #include "gt_accessselectionproperty.h"
 
 class GtCalculator;
@@ -105,12 +106,14 @@ public:
      * @brief Returns size of monitoring data table.
      * @return Size of monitoring data table.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     int monitoringDataSize() const;
 
     /**
      * @brief Returns reference to monitoring data table.
      * @return Reference to monitoring data table.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     const GtMonitoringDataTable& monitoringDataTable();
 
     /**
@@ -160,12 +163,14 @@ public slots:
      * @param Iteration number for monitoring data.
      * @param Monitoring data map.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     void onMonitoringDataAvailable(int iteration,
                                    const GtMonitoringDataSet& set);
 
     /**
      * @brief Clears entire monitoring data.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     void clearMonitoringData();
 
 protected: 
@@ -202,6 +207,7 @@ protected:
      * @brief Collects all monitoring data recursively.
      * @return Monitoring data map.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     GtMonitoringDataSet collectMonitoringData();
 
 private:
@@ -217,6 +223,7 @@ private:
      * @param Monitoring data map reference.
      * @param Process component pointer.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     void collectMonitoringDataHelper(GtMonitoringDataSet& map,
                                      GtProcessComponent* component);
 

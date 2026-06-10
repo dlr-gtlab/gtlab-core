@@ -16,6 +16,7 @@
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
 #include "gt_processrunnerglobals.h"
+#include "gt_monitoringdatatable.h"
 
 #include <QDebug>
 #include <QThreadPool>
@@ -414,16 +415,6 @@ GtTask::runChildElements()
     // trigger transfer of monitoring properties after evaluation
     emit transferMonitoringProperties();
 
-    // collect monitoring data for entire task
-    GtMonitoringDataSet monData = collectMonitoringData();
-
-    // check whether monitoring data has entries
-    if (!monData.isEmpty())
-    {
-        // monitoring data available - emit signal
-        emit monitoringDataTransfer(m_currentIter, monData);
-    }
-
     return true;
 }
 
@@ -597,8 +588,6 @@ GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
         gtWarning().medium() << tr("Could not append data set!");
         return;
     }
-
-    emit monitoringDataAvailable();
 }
 
 void

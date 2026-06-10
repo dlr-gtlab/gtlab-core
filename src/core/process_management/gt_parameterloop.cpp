@@ -128,15 +128,5 @@ GtParameterLoop::runChildElements()
     // trigger transfer of monitoring properties after evaluation
     emit transferMonitoringProperties();
 
-    // collect monitoring data for entire task
-    GtMonitoringDataSet monData = collectMonitoringData();
-
-    // check whether monitoring data has entries
-    if (!monData.isEmpty())
-    {
-        // monitoring data available - emit signal
-        emit monitoringDataTransfer(m_currentIter, monData);
-    }
-
     return true;
 }
