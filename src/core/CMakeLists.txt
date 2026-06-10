@@ -53,9 +53,9 @@ set(headers
     process_management/gt_loop.h
     process_management/gt_doublemonitoringproperty.h
     process_management/gt_intmonitoringproperty.h
-    process_management/gt_monitoringdata.h
-    process_management/gt_monitoringdatatable.h
-    process_management/gt_monitoringdataset.h
+    #process_management/gt_monitoringdata.h
+    #process_management/gt_monitoringdatatable.h
+    #process_management/gt_monitoringdataset.h
     process_management/gt_environment.h
     process_management/gt_taskdata.h
     process_management/gt_residualloop.h
@@ -162,9 +162,9 @@ set(sources
     process_management/gt_loop.cpp
     process_management/gt_doublemonitoringproperty.cpp
     process_management/gt_intmonitoringproperty.cpp
-    process_management/gt_monitoringdata.cpp
-    process_management/gt_monitoringdatatable.cpp
-    process_management/gt_monitoringdataset.cpp
+    #process_management/gt_monitoringdata.cpp
+    #process_management/gt_monitoringdatatable.cpp
+    #process_management/gt_monitoringdataset.cpp
     process_management/gt_environment.cpp
     process_management/gt_taskdata.cpp
     process_management/gt_residualloop.cpp

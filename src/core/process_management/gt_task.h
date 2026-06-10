@@ -23,7 +23,7 @@
 #include "gt_objectmemento.h"
 #include "gt_intmonitoringproperty.h"
 #include "gt_intproperty.h"
-#include "gt_monitoringdatatable.h"
+//#include "gt_monitoringdatatable.h"
 #include "gt_accessselectionproperty.h"
 
 class GtCalculator;
@@ -102,18 +102,6 @@ public:
     virtual bool runIteration();
 
     /**
-     * @brief Returns size of monitoring data table.
-     * @return Size of monitoring data table.
-     */
-    int monitoringDataSize() const;
-
-    /**
-     * @brief Returns reference to monitoring data table.
-     * @return Reference to monitoring data table.
-     */
-    const GtMonitoringDataTable& monitoringDataTable();
-
-    /**
      * @brief Returns number of max. iteration steps.
      * @return Max. number of iteration steps.
      */
@@ -154,20 +142,6 @@ public:
      */
     bool isInterruptionRequested() const;
 
-public slots:
-    /**
-     * @brief Called when monitoring data is available.
-     * @param Iteration number for monitoring data.
-     * @param Monitoring data map.
-     */
-    void onMonitoringDataAvailable(int iteration,
-                                   const GtMonitoringDataSet& set);
-
-    /**
-     * @brief Clears entire monitoring data.
-     */
-    void clearMonitoringData();
-
 protected: 
     /// Maximal number of iteration steps
     GtIntProperty m_maxIter;
@@ -198,27 +172,9 @@ protected:
      */
     virtual bool runChildElements();
 
-    /**
-     * @brief Collects all monitoring data recursively.
-     * @return Monitoring data map.
-     */
-    GtMonitoringDataSet collectMonitoringData();
-
 private:
     struct Impl;
     std::unique_ptr<Impl> pimpl;
-
-    /**
-     * @brief Helper for collecting all monitoring data recursively.
-     * @param Monitoring data map reference.
-     */
-    /**
-     * @brief Helper for collecting all monitoring data recursively.
-     * @param Monitoring data map reference.
-     * @param Process component pointer.
-     */
-    void collectMonitoringDataHelper(GtMonitoringDataSet& map,
-                                     GtProcessComponent* component);
 
     /**
      * @brief Helper for collecting all property connections recursively.
@@ -245,18 +201,6 @@ signals:
      * @brief finished
      */
     void finished();
-
-    /**
-     * @brief Emitted when monitoring data is available for transfer.
-     * @param Iteration number for monitoring data.
-     * @param Monitoring data map.
-     */
-    void monitoringDataTransfer(int iteration, GtMonitoringDataSet map);
-
-    /**
-     * @brief Emitted when monitoring data is available.
-     */
-    void monitoringDataAvailable();
 
     /**
      * @brief Emitted to trigger a full clear of monitoring data.
