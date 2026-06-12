@@ -53,7 +53,7 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry data,
 
     m_picFrame = new QFrame;
 
-    if (gtApp->inDarkMode())
+    if (gtApp && gtApp->inDarkMode())
     {
         m_picFrame->setStyleSheet(
                     "QWidget { border: 1px solid gray;"

@@ -161,7 +161,7 @@ GtCheckForUpdatesDialog::updateAvailable()
     m_checkButton->setEnabled(true);
 
     QString fontString = "darkgreen";
-    if (gtApp->inDarkMode())
+    if (gtApp && gtApp->inDarkMode())
     {
         fontString = "green";
     }
@@ -224,7 +224,7 @@ GtCheckForUpdatesDialog::noUpdateAvailable(int errorCode, const QString& str)
             << "Update check: " << str << " (Error code: " << errorCode << ')';
 
     QString fontString = "darkred";
-    if (gtApp->inDarkMode())
+    if (gtApp && gtApp->inDarkMode())
     {
         fontString = "red";
     }

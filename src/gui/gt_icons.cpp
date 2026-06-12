@@ -646,7 +646,7 @@ gt::gui::icon::processRunningIcon(int progress)
 QString
 gt::gui::pixmap::backgroundPath()
 {
-    if (gtApp->inDarkMode())
+    if (gtApp && gtApp->inDarkMode())
     {
         return QStringLiteral(":/pixmaps/startup-background_dark.png");
     }
@@ -657,7 +657,7 @@ gt::gui::pixmap::backgroundPath()
 QString
 gt::gui::pixmap::logoString()
 {
-    if (gtApp->inDarkMode())
+    if (gtApp && gtApp->inDarkMode())
     {
         return QStringLiteral(":/pixmaps/gt-logo-dark.png");
     }

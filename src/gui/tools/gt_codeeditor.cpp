@@ -177,7 +177,7 @@ GtCodeEditor::lineNumberAreaPaintEvent(QPaintEvent* event)
 {
     QPainter painter(m_lineNumberArea);
 
-    if (gtApp->inDarkMode())
+    if (gtApp && gtApp->inDarkMode())
     {
         painter.fillRect(event->rect(), Qt::darkGray);
     }

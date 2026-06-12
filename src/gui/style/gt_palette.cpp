@@ -23,7 +23,7 @@
 QPalette
 gt::gui::currentTheme()
 {
-    if (gtApp->inDarkMode())
+    if (gtApp && gtApp->inDarkMode())
     {
         return darkTheme();
     }

@@ -40,7 +40,7 @@ GtRuler::paintEvent(QPaintEvent* e)
 {
     Qt::GlobalColor c = Qt::black;
 
-    if (gtApp->inDarkMode())
+    if (gtApp && gtApp->inDarkMode())
     {
         c = Qt::white;
     }
