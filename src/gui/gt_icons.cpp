@@ -10,7 +10,7 @@
  */
 #include "gt_icons.h"
 #include "gt_colors.h"
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 #include "gt_logging.h"
 #include "gt_svgiconengine.h"
 
@@ -646,7 +646,7 @@ gt::gui::icon::processRunningIcon(int progress)
 QString
 gt::gui::pixmap::backgroundPath()
 {
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QStringLiteral(":/pixmaps/startup-background_dark.png");
     }
@@ -657,7 +657,7 @@ gt::gui::pixmap::backgroundPath()
 QString
 gt::gui::pixmap::logoString()
 {
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QStringLiteral(":/pixmaps/gt-logo-dark.png");
     }

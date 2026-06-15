@@ -12,8 +12,8 @@
 #include <QPainter>
 #include "gt_grid.h"
 #include "gt_graphicsview.h"
+#include "gt_guiutilities.h"
 #include "gt_ruler.h"
-#include "gt_application.h"
 #include "gt_colors.h"
 #include "gt_logging.h"
 #include <QtMath>
@@ -234,7 +234,7 @@ GtGrid::paintRuler(GtRuler* ruler)
 
     Qt::GlobalColor c = Qt::black;
 
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         c = Qt::white;
     }

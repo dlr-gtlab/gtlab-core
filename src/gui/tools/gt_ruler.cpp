@@ -12,7 +12,7 @@
 #include "gt_ruler.h"
 #include "gt_graphicsview.h"
 #include "gt_grid.h"
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 
 GtRuler::GtRuler(Qt::Orientation o) :
     m_orientation(o),
@@ -40,7 +40,7 @@ GtRuler::paintEvent(QPaintEvent* e)
 {
     Qt::GlobalColor c = Qt::black;
 
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         c = Qt::white;
     }

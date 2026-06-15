@@ -13,8 +13,8 @@
 #include <QTextBlock>
 
 #include "gt_codeeditor.h"
+#include "gt_guiutilities.h"
 #include "gt_linenumberarea.h"
-#include "gt_application.h"
 #include "gt_colors.h"
 
 GtCodeEditor::GtCodeEditor(QWidget* parent) : QPlainTextEdit(parent)
@@ -177,7 +177,7 @@ GtCodeEditor::lineNumberAreaPaintEvent(QPaintEvent* event)
 {
     QPainter painter(m_lineNumberArea);
 
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         painter.fillRect(event->rect(), Qt::darkGray);
     }

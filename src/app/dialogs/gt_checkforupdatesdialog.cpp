@@ -20,7 +20,7 @@
 #include <QHeaderView>
 #include <QFont>
 
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 #include "gt_updatechecker.h"
 #include "gt_logging.h"
 #include "gt_icons.h"
@@ -161,7 +161,7 @@ GtCheckForUpdatesDialog::updateAvailable()
     m_checkButton->setEnabled(true);
 
     QString fontString = "darkgreen";
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         fontString = "green";
     }
@@ -224,7 +224,7 @@ GtCheckForUpdatesDialog::noUpdateAvailable(int errorCode, const QString& str)
             << "Update check: " << str << " (Error code: " << errorCode << ')';
 
     QString fontString = "darkred";
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         fontString = "red";
     }

@@ -10,7 +10,7 @@
  */
 
 #include "gt_pyhighlighter.h"
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 
 GtPyHighlighter::GtPyHighlighter(QTextDocument* parent) :
     QSyntaxHighlighter(parent),
@@ -149,7 +149,7 @@ GtPyHighlighter::onThemeChanged()
 void
 GtPyHighlighter::initializeStyles()
 {
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         basicStyles.insert("keyword", getTextCharFormat("violet"));
         basicStyles.insert("operator", getTextCharFormat("white"));

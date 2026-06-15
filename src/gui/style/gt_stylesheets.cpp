@@ -10,7 +10,7 @@
  */
 
 #include "gt_stylesheets.h"
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 #include "gt_icons.h"
 #include "gt_colors.h"
 #include "gt_svgiconengine.h"
@@ -94,7 +94,7 @@ gt::gui::stylesheet::processRunButton(RunButtonState const& state)
 {
     QColor backgroundColor;
 
-    bool dark = gtApp && gtApp->inDarkMode();
+    bool dark = gt::gui::isApplicationDarkTheme();
 
     switch (state)
     {
@@ -125,7 +125,7 @@ gt::gui::stylesheet::processRunButton(RunButtonState const& state)
 QString
 comboBoxHelper(const QString& width = {})
 {
-    bool dark = gtApp && gtApp->inDarkMode();
+    bool dark = gt::gui::isApplicationDarkTheme();
 
     return QStringLiteral(
             "QComboBox {"
@@ -170,7 +170,7 @@ gt::gui::stylesheet::toolTip()
         "}"
     );
 
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return style.arg("white", gt::gui::color::highlight().name());
     }
@@ -180,7 +180,7 @@ gt::gui::stylesheet::toolTip()
 QString
 gt::gui::stylesheet::spinbox()
 {
-    bool dark = gtApp && gtApp->inDarkMode();
+    bool dark = gt::gui::isApplicationDarkTheme();
 
     return QStringLiteral(
         "QSpinBox {"
