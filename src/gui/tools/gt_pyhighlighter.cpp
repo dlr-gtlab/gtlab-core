@@ -10,7 +10,7 @@
  */
 
 #include "gt_pyhighlighter.h"
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 
 GtPyHighlighter::GtPyHighlighter(QTextDocument* parent) :
     QSyntaxHighlighter(parent),
@@ -149,19 +149,7 @@ GtPyHighlighter::onThemeChanged()
 void
 GtPyHighlighter::initializeStyles()
 {
-    if (!gtApp->inDarkMode())
-    {
-        basicStyles.insert("keyword", getTextCharFormat("blue"));
-        basicStyles.insert("operator", getTextCharFormat("red"));
-        basicStyles.insert("brace", getTextCharFormat("darkGray"));
-        basicStyles.insert("defclass", getTextCharFormat("black", "bold"));
-        basicStyles.insert("string", getTextCharFormat("magenta"));
-        basicStyles.insert("string2", getTextCharFormat("darkMagenta"));
-        basicStyles.insert("comment", getTextCharFormat("darkGreen", "italic"));
-        basicStyles.insert("self", getTextCharFormat("black", "italic"));
-        basicStyles.insert("numbers", getTextCharFormat("brown"));
-    }
-    else
+    if (gt::gui::isApplicationDarkTheme())
     {
         basicStyles.insert("keyword", getTextCharFormat("violet"));
         basicStyles.insert("operator", getTextCharFormat("white"));
@@ -172,6 +160,18 @@ GtPyHighlighter::initializeStyles()
         basicStyles.insert("comment", getTextCharFormat("gray", "italic"));
         basicStyles.insert("self", getTextCharFormat("white", "italic"));
         basicStyles.insert("numbers", getTextCharFormat("yellow"));
+    }
+    else
+    {
+        basicStyles.insert("keyword", getTextCharFormat("blue"));
+        basicStyles.insert("operator", getTextCharFormat("red"));
+        basicStyles.insert("brace", getTextCharFormat("darkGray"));
+        basicStyles.insert("defclass", getTextCharFormat("black", "bold"));
+        basicStyles.insert("string", getTextCharFormat("magenta"));
+        basicStyles.insert("string2", getTextCharFormat("darkMagenta"));
+        basicStyles.insert("comment", getTextCharFormat("darkGreen", "italic"));
+        basicStyles.insert("self", getTextCharFormat("black", "italic"));
+        basicStyles.insert("numbers", getTextCharFormat("brown"));
     }
 }
 

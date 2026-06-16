@@ -14,6 +14,7 @@
 #include <QModelIndex>
 
 #include "gt_gui_exports.h"
+#include "gt_version.h"
 
 class QMenu;
 class QKeyEvent;
@@ -27,6 +28,29 @@ namespace gt
 
 namespace gui
 {
+/**
+ * @brief The theme enum
+ */
+enum class applicationTheme {
+    bright = 0,
+    dark = 1,
+    invalid = 32
+};
+
+/**
+ * @brief return the current theme of the application
+ *
+ * @return the value of the theme enum and bright as default for
+ * invalid or undefined setups
+ */
+GT_GUI_EXPORT gt::gui::applicationTheme theme();
+
+/**
+ * @brief function to check for dark theme
+ * @return true if the current theme of the application is
+ * the basic dark theme
+ */
+GT_GUI_EXPORT bool isApplicationDarkTheme();
 
 /**
  * @brief Appends the actions to the menu.

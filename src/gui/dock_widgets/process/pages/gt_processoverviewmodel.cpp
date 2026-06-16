@@ -9,7 +9,7 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 #include "gt_processcategoryitem.h"
 #include "gt_icons.h"
 #include "gt_logging.h"
@@ -104,7 +104,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 break;
 
             case Qt::BackgroundRole:
-                if (!gtApp->inDarkMode())
+                if (!gt::gui::isApplicationDarkTheme())
                 {
                     return gt::gui::color::main();
                 }
@@ -143,7 +143,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
             case Qt::ForegroundRole:
                 if (col == 1)
                 {
-                    if (!gtApp->inDarkMode())
+                    if (!gt::gui::isApplicationDarkTheme())
                     {
                         return gt::gui::color::disabled();
                     }

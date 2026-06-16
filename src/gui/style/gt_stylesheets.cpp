@@ -10,7 +10,7 @@
  */
 
 #include "gt_stylesheets.h"
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 #include "gt_icons.h"
 #include "gt_colors.h"
 #include "gt_svgiconengine.h"
@@ -94,20 +94,22 @@ gt::gui::stylesheet::processRunButton(RunButtonState const& state)
 {
     QColor backgroundColor;
 
+    bool dark = gt::gui::isApplicationDarkTheme();
+
     switch (state)
     {
     case RunButtonState::StopProcess:
-        backgroundColor = gtApp->inDarkMode() ?
+        backgroundColor = dark ?
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
                               QColor(170, 100,  90) : QColor(255, 230, 230);
         break;
     case RunButtonState::QueueProcess:
-        backgroundColor = gtApp->inDarkMode() ?
+        backgroundColor = dark ?
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
                               QColor(190, 170,  90) : QColor(236, 219, 184);
         break;
     case RunButtonState::RunProcess:
-        backgroundColor = gtApp->inDarkMode() ?
+        backgroundColor = dark ?
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
                               QColor(180, 190, 200) : QColor(230, 255, 230);
         break;
@@ -123,6 +125,8 @@ gt::gui::stylesheet::processRunButton(RunButtonState const& state)
 QString
 comboBoxHelper(const QString& width = {})
 {
+    bool dark = gt::gui::isApplicationDarkTheme();
+
     return QStringLiteral(
             "QComboBox {"
             " border: 1px solid %1;"
@@ -146,7 +150,7 @@ comboBoxHelper(const QString& width = {})
             " height: 7px;"
             "}"
     ).arg(gt::gui::color::frame().name(),
-          width, gtApp->inDarkMode() ? "_dark" : QString{});
+          width, dark ? "_dark" : QString{});
 }
 
 QString
@@ -166,7 +170,7 @@ gt::gui::stylesheet::toolTip()
         "}"
     );
 
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return style.arg("white", gt::gui::color::highlight().name());
     }
@@ -176,6 +180,8 @@ gt::gui::stylesheet::toolTip()
 QString
 gt::gui::stylesheet::spinbox()
 {
+    bool dark = gt::gui::isApplicationDarkTheme();
+
     return QStringLiteral(
         "QSpinBox {"
         " border: 1px solid %1;"
@@ -209,7 +215,7 @@ gt::gui::stylesheet::spinbox()
         " width: 7px;"
         " height: 7px;"
         "}"
-    ).arg(color::frame().name(), gtApp->inDarkMode() ? "_dark" : QString{});
+    ).arg(color::frame().name(), dark ? "_dark" : QString{});
 }
 
 QString
