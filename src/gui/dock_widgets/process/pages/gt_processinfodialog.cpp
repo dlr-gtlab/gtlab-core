@@ -74,6 +74,12 @@ GtProcessInfoPopup::GtProcessInfoPopup(
 
     for (auto const& info : processInfos)
     {
+        // ignore version as it is handled in the header
+        if (info.first == "Version" || info.first == "version") continue;
+
+        // ignore ID as it is handled in the header
+        if (info.first == "ID" || info.first == "Id") continue;
+
         auto* key = new QLabel(info.first + ":", content);
         auto* value = new QLabel(info.second, content);
 

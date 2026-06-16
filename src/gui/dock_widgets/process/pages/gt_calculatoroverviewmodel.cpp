@@ -173,7 +173,7 @@ GtCalculatorOverviewModel::processElementInformation(
     }
 
     QString companyVal = calcData->company;
-    if (!contactVal.isEmpty())
+    if (!companyVal.isEmpty())
     {
         infos.append({tr("Company"), companyVal});
     }

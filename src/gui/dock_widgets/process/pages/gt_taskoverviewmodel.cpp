@@ -172,7 +172,7 @@ GtTaskOverviewModel::processElementInformation(GtAbstractProcessItem *item) cons
     }
 
     QString companyVal = taskData->company;
-    if (!contactVal.isEmpty())
+    if (!companyVal.isEmpty())
     {
         infos.append({tr("Company"), companyVal});
     }
