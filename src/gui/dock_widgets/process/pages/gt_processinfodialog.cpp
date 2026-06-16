@@ -81,7 +81,12 @@ GtProcessInfoPopup::GtProcessInfoPopup(
         if (info.first == "ID" || info.first == "Id") continue;
 
         auto* key = new QLabel(info.first + ":", content);
-        auto* value = new QLabel(info.second, content);
+
+        QString valueContent = info.second;
+
+        if (valueContent.isEmpty()) valueContent = "-";
+
+        auto* value = new QLabel(valueContent, content);
 
         value->setWordWrap(true);
 
