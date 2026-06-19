@@ -58,17 +58,11 @@ GtTaskOverviewModel::setUpModel()
 QString
 GtTaskOverviewModel::id(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QString();
-    }
+    if (!item) return {};
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (!taskItem)
-    {
-        return QString();
-    }
+    if (!taskItem) return {};
 
     GtTaskData taskData = taskItem->taskData();
 
@@ -87,17 +81,11 @@ GtTaskOverviewModel::id(GtAbstractProcessItem* item) const
 QString
 GtTaskOverviewModel::version(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QString();
-    }
+    if (!item) return {};
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (!taskItem)
-    {
-        return QString();
-    }
+    if (!taskItem) return {};
 
     GtTaskData taskData = taskItem->taskData();
 
@@ -107,28 +95,20 @@ GtTaskOverviewModel::version(GtAbstractProcessItem* item) const
 QIcon
 GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QIcon();
-    }
+    if (!item) return {};
 
     GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (!taskItem)
-    {
-        return QIcon();
-    }
+    if (!taskItem) return {};
 
     GtTaskData taskData = taskItem->taskData();
 
-    GtExtendedTaskDataImpl* extendedData =
-            dynamic_cast<GtExtendedTaskDataImpl*>(taskData.get());
+    auto* extendedData = dynamic_cast<GtExtendedTaskDataImpl*>(taskData.get());
 
     if (!extendedData || extendedData->icon.isNull())
     {
-        GtObjectUI* oui = gtApp->defaultObjectUI(taskData->metaData().className());
-
-        if (oui)
+        if (GtObjectUI* oui = gtApp->defaultObjectUI(
+                taskData->metaData().className()))
         {
             QIcon icn = oui->icon(nullptr);
 
@@ -147,17 +127,11 @@ GtTaskOverviewModel::icon(GtAbstractProcessItem* item) const
 QString
 GtTaskOverviewModel::description(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return QString();
-    }
+    if (!item) return {};
 
-    GtProcessTaskItem* taskItem = qobject_cast<GtProcessTaskItem*>(item);
+    auto* taskItem = qobject_cast<GtProcessTaskItem*>(item);
 
-    if (!taskItem)
-    {
-        return QString();
-    }
+    if (!taskItem) return {};
 
     GtTaskData taskData = taskItem->taskData();
 
@@ -167,4 +141,45 @@ GtTaskOverviewModel::description(GtAbstractProcessItem* item) const
     }
 
     return taskData->description;
+}
+
+processInformation GtTaskOverviewModel::processElementInformation(GtAbstractProcessItem *item) const
+{
+    if (!item) return {};
+
+    auto* taskItem = qobject_cast<GtProcessTaskItem*>(item);
+
+    if (!taskItem) return {};
+
+    GtTaskData taskData = taskItem->taskData();
+
+    processInformation info;
+    info.id = taskData->id;
+    info.version = taskData->version;
+
+    QString descriptionVal = taskData->description;
+    if (!descriptionVal.isEmpty())
+    {
+        info.description = descriptionVal;
+    }
+
+    QString authorVal = taskData->author;
+    if (!authorVal.isEmpty())
+    {
+        info.author = authorVal;
+    }
+
+    QString contactVal = taskData->contact;
+    if (!contactVal.isEmpty())
+    {
+        info.contact = contactVal;
+    }
+
+    QString companyVal = taskData->company;
+    if (!companyVal.isEmpty())
+    {
+        info.company = companyVal;
+    }
+
+    return info;
 }

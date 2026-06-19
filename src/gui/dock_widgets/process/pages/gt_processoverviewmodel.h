@@ -12,10 +12,35 @@
 #ifndef GT_PROCESSOVERVIEWMODEL_H
 #define GT_PROCESSOVERVIEWMODEL_H
 
+#include "gt_versionnumber.h"
 #include <QAbstractItemModel>
 
 class GtProcessCategoryItem;
 class GtAbstractProcessItem;
+
+struct processInformation {
+    /// Calculator identification string.
+    QString id;
+
+    /// Calculator version.
+    GtVersionNumber version;
+
+    /// Calculator description.
+    QString description{"-"};
+
+    /// Calculator author.
+    QString author{"-"};
+
+    /// Calculator author contact.
+    QString contact{"-"};
+
+    /// Calculator author company.
+    QString company{"-"};
+
+    /// Calculator category.
+    QString category{"-"};
+};
+
 
 /**
  * @brief The GtProcessOverviewModel class
@@ -28,7 +53,8 @@ public:
     enum Roles
     {
         CategoryRole = Qt::UserRole + 1,
-        CollapseRole
+        CollapseRole,
+        ButtonRole
     };
 
     /**
@@ -136,11 +162,27 @@ protected:
     virtual QString description(GtAbstractProcessItem* item) const = 0;
 
     /**
+     * @brief Returns a process information struct containing all relevant data
+     * @param item
+     * @return
+     */
+    virtual processInformation processElementInformation(
+        GtAbstractProcessItem* item) const = 0;
+
+    /**
      * @brief categoryItem
      * @param id
      * @return
      */
     GtProcessCategoryItem* categoryItem(const QString& id);
+
+public slots:
+    /**
+     * @brief onButtonClicked
+     * @param item
+     */
+    void onButtonClicked(GtAbstractProcessItem* item,
+                         const QPoint& globalPos);
 
 private:
     /// Categories and calculator data

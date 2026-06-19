@@ -107,6 +107,7 @@ set(headers
     dock_widgets/process/pages/gt_processtaskitem.h
     dock_widgets/process/pages/gt_processoverviewtree.h
     dock_widgets/process/pages/gt_taskoverviewpage.h
+    dock_widgets/process/pages/gt_processinfodialog.h
     dock_widgets/properties/gt_propertymodel.h
     dock_widgets/properties/gt_propertytreeview.h
     dock_widgets/properties/gt_abstractpropertyitem.h
@@ -286,6 +287,7 @@ set(sources
     dock_widgets/process/pages/gt_processtaskitem.cpp
     dock_widgets/process/pages/gt_processoverviewtree.cpp
     dock_widgets/process/pages/gt_taskoverviewpage.cpp
+    dock_widgets/process/pages/gt_processinfodialog.cpp
     dock_widgets/process/gt_processcomponentmodel.cpp
     dock_widgets/properties/gt_propertymodel.cpp
     dock_widgets/properties/delegates/gt_propertyiddelegate.cpp

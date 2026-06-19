@@ -62,6 +62,13 @@ protected:
      */
     QString description(GtAbstractProcessItem* item) const override;
 
+    /**
+     * @brief Returns a process information struct containing all relevant data
+     * @param item
+     * @return
+     */
+    processInformation processElementInformation(
+        GtAbstractProcessItem* item) const override;
 };
 
 #endif // GT_TASKOVERVIEWMODEL_H
