@@ -111,7 +111,7 @@ GtMementoViewer::onSearchTextChanged(const QString& text)
 
     // Rebuild match list
     m_matches.clear();
-    m_currentMatch = -1;
+    m_currentMatch = 0;
     if (text.isEmpty()) return;
     QTextDocument* doc = m_editor->document();
     int startPos = 0;
@@ -125,6 +125,8 @@ GtMementoViewer::onSearchTextChanged(const QString& text)
         m_matches.append(cursor);
         startPos = cursor.selectionEnd();
     }
+
+    emit m_editor->cursorPositionChanged();
 }
 
 void
