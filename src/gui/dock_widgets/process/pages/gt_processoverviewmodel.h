@@ -162,8 +162,7 @@ protected:
     virtual QString description(GtAbstractProcessItem* item) const = 0;
 
     /**
-     * @brief Returns a list of key value pairs of meta information about the
-     * given process element of the item
+     * @brief Returns a process information struct containing all relevant data
      * @param item
      * @return
      */
