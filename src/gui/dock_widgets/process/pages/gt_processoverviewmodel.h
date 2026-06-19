@@ -12,10 +12,35 @@
 #ifndef GT_PROCESSOVERVIEWMODEL_H
 #define GT_PROCESSOVERVIEWMODEL_H
 
+#include "gt_versionnumber.h"
 #include <QAbstractItemModel>
 
 class GtProcessCategoryItem;
 class GtAbstractProcessItem;
+
+struct processInformation {
+    /// Calculator identification string.
+    QString id;
+
+    /// Calculator version.
+    GtVersionNumber version;
+
+    /// Calculator description.
+    QString description{"-"};
+
+    /// Calculator author.
+    QString author{"-"};
+
+    /// Calculator author contact.
+    QString contact{"-"};
+
+    /// Calculator author company.
+    QString company{"-"};
+
+    /// Calculator category.
+    QString category{"-"};
+};
+
 
 /**
  * @brief The GtProcessOverviewModel class
@@ -142,7 +167,7 @@ protected:
      * @param item
      * @return
      */
-    virtual QList<QPair<QString, QString>> processElementInformation(
+    virtual processInformation processElementInformation(
         GtAbstractProcessItem* item) const = 0;
 
     /**

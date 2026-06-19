@@ -143,8 +143,7 @@ GtTaskOverviewModel::description(GtAbstractProcessItem* item) const
     return taskData->description;
 }
 
-QList<QPair<QString, QString> >
-GtTaskOverviewModel::processElementInformation(GtAbstractProcessItem *item) const
+processInformation GtTaskOverviewModel::processElementInformation(GtAbstractProcessItem *item) const
 {
     if (!item) return {};
 
@@ -154,28 +153,33 @@ GtTaskOverviewModel::processElementInformation(GtAbstractProcessItem *item) cons
 
     GtTaskData taskData = taskItem->taskData();
 
-    QList<QPair<QString, QString>> infos;
-    infos.append({tr("ID"), taskData->id});
-    infos.append({tr("Version"), taskData->version.toString()});
-    infos.append({tr("Description"), taskData->description});
+    processInformation info;
+    info.id = taskData->id;
+    info.version = taskData->version;
+
+    QString descriptionVal = taskData->description;
+    if (!descriptionVal.isEmpty())
+    {
+        info.description = descriptionVal;
+    }
 
     QString authorVal = taskData->author;
     if (!authorVal.isEmpty())
     {
-        infos.append({tr("Author"), authorVal});
+        info.author = authorVal;
     }
 
     QString contactVal = taskData->contact;
     if (!contactVal.isEmpty())
     {
-        infos.append({tr("Contact"), contactVal});
+        info.contact = contactVal;
     }
 
     QString companyVal = taskData->company;
     if (!companyVal.isEmpty())
     {
-        infos.append({tr("Company"), companyVal});
+        info.company = companyVal;
     }
 
-    return infos;
+    return info;
 }

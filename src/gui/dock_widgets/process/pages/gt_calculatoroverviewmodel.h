@@ -70,7 +70,7 @@ protected:
      * @param item
      * @return
      */
-    QList<QPair<QString, QString>> processElementInformation(
+    processInformation processElementInformation(
         GtAbstractProcessItem* item) const override;
 };
 

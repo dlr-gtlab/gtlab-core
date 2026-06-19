@@ -15,9 +15,7 @@
 #include <QGraphicsDropShadowEffect>
 
 GtProcessInfoPopup::GtProcessInfoPopup(
-    QString const& title,
-    QString const& version,
-    QList<QPair<QString, QString>> const& processInfos,
+    processInformation const& processInfos,
     QWidget* parent) :
     QFrame(parent, Qt::Popup |
                        Qt::FramelessWindowHint |
@@ -47,14 +45,14 @@ GtProcessInfoPopup::GtProcessInfoPopup(
 
     headerLayout->setContentsMargins(16, 12, 16, 12);
 
-    auto* titleLabel = new QLabel(title, header);
+    auto* titleLabel = new QLabel(processInfos.id, header);
 
     QFont titleFont = titleLabel->font();
     titleFont.setBold(true);
     titleFont.setPointSize(titleFont.pointSize() + 1);
     titleLabel->setFont(titleFont);
 
-    auto* versionLabel = new QLabel(version, header);
+    auto* versionLabel = new QLabel(processInfos.version.toString(), header);
 
     headerLayout->addWidget(titleLabel);
     headerLayout->addStretch();
@@ -72,33 +70,34 @@ GtProcessInfoPopup::GtProcessInfoPopup(
 
     int row = 0;
 
-    for (auto const& info : processInfos)
-    {
-        // ignore version as it is handled in the header
-        if (info.first == "Version" || info.first == "version") continue;
+    auto addLine = [&](QString const& key, QString const& value) {
+        auto* keyLabel = new QLabel(key + ":", content);
 
-        // ignore ID as it is handled in the header
-        if (info.first == "ID" || info.first == "Id") continue;
+        auto* valueLabel = new QLabel(value, content);
+        valueLabel->setWordWrap(true);
 
-        auto* key = new QLabel(info.first + ":", content);
-
-        QString valueContent = info.second;
-
-        if (valueContent.isEmpty()) valueContent = "-";
-
-        auto* value = new QLabel(valueContent, content);
-
-        value->setWordWrap(true);
-
-        QFont bold = key->font();
+        QFont bold = keyLabel->font();
         bold.setBold(true);
-        key->setFont(bold);
+        keyLabel->setFont(bold);
 
-        grid->addWidget(key, row, 0, Qt::AlignTop);
-        grid->addWidget(value, row, 1);
+        grid->addWidget(keyLabel, row, 0, Qt::AlignTop);
+        grid->addWidget(valueLabel, row, 1);
 
         ++row;
-    }
+    };
+
+    // optional if set
+    if (processInfos.description != "-")
+        addLine(tr("Description"), processInfos.description);
+
+    if (processInfos.author != "-")
+        addLine(tr("Author"), processInfos.author);
+
+    if (processInfos.contact != "-")
+        addLine(tr("Contact"), processInfos.contact);
+
+    if (processInfos.company != "-")
+        addLine(tr("Copany"), processInfos.company);
 
     cardLayout->addWidget(header);
     cardLayout->addWidget(content);

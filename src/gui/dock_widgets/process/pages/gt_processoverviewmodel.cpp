@@ -267,7 +267,7 @@ GtProcessOverviewModel::onButtonClicked(GtAbstractProcessItem* item,
 
     auto infos = processElementInformation(item);
 
-    auto* popup = new GtProcessInfoPopup(id(item), version(item), infos);
+    auto* popup = new GtProcessInfoPopup(infos);
 
     popup->move(globalPos);
     popup->show();

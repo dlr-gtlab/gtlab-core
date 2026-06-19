@@ -143,7 +143,7 @@ GtCalculatorOverviewModel::description(GtAbstractProcessItem* item) const
 
 }
 
-QList<QPair<QString, QString>>
+processInformation
 GtCalculatorOverviewModel::processElementInformation(
     GtAbstractProcessItem* item) const
 {
@@ -155,28 +155,33 @@ GtCalculatorOverviewModel::processElementInformation(
 
     GtCalculatorData calcData = calcItem->calculatorData();
 
-    QList<QPair<QString, QString>> infos;
-    infos.append({tr("ID"), calcData->id});
-    infos.append({tr("Version"), calcData->version.toString()});
-    infos.append({tr("Description"), calcData->description});
+    processInformation info;
+    info.id = calcData->id;
+    info.version = calcData->version;
+
+    QString descriptionVal = calcData->description;
+    if (!descriptionVal.isEmpty())
+    {
+        info.description = descriptionVal;
+    }
 
     QString authorVal = calcData->author;
     if (!authorVal.isEmpty())
     {
-        infos.append({tr("Author"), authorVal});
+        info.author = authorVal;
     }
 
     QString contactVal = calcData->contact;
     if (!contactVal.isEmpty())
     {
-        infos.append({tr("Contact"), contactVal});
+        info.contact = contactVal;
     }
 
     QString companyVal = calcData->company;
     if (!companyVal.isEmpty())
     {
-        infos.append({tr("Company"), companyVal});
+        info.company = companyVal;
     }
 
-    return infos;
+    return info;
 }

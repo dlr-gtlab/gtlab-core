@@ -11,6 +11,7 @@
 #include "gt_gui_exports.h"
 #include <QDialog>
 #include <QFrame>
+#include "gt_processoverviewmodel.h"
 
 class QLabel;
 class QPushButton;
@@ -25,9 +26,7 @@ class GT_GUI_EXPORT GtProcessInfoPopup : public QFrame
 
 public:
     explicit GtProcessInfoPopup(
-        QString const& title,
-        QString const& version,
-        QList<QPair<QString, QString>> const& processInfos,
+        processInformation const& processInfos,
         QWidget* parent = nullptr);
 };
 
