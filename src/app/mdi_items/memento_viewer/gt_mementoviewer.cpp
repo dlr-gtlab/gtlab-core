@@ -111,7 +111,7 @@ GtMementoViewer::onSearchTextChanged(const QString& text)
 
     // Rebuild match list
     m_matches.clear();
-    m_currentMatch = 0;
+    m_currentMatch = -1;
 
     QTextDocument* doc = m_editor->document();
     int startPos = 0;
@@ -126,15 +126,14 @@ GtMementoViewer::onSearchTextChanged(const QString& text)
         startPos = cursor.selectionEnd();
     }
 
-    if (!text.isEmpty())
+    if (text.isEmpty())
     {
-        QTextCursor cur = m_matches.at(m_currentMatch);
-        m_editor->setTextCursor(cur);
+        m_editor->setTextCursor(QTextCursor());
     }
-    else
+    else if (!m_matches.isEmpty())
     {
-        QTextCursor cur = {};
-        m_editor->setTextCursor(cur);
+        m_currentMatch = 0;
+        m_editor->setTextCursor(m_matches.first());
     }
 
     m_editor->ensureCursorVisible();
