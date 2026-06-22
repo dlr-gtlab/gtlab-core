@@ -126,6 +126,10 @@ GtMementoViewer::onSearchTextChanged(const QString& text)
         startPos = cursor.selectionEnd();
     }
 
+    QTextCursor cur = m_matches.at(m_currentMatch);
+    m_editor->setTextCursor(cur);
+    m_editor->ensureCursorVisible();
+
     emit m_editor->cursorPositionChanged();
 }
 
