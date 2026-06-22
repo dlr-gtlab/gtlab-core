@@ -17,6 +17,7 @@
 #include <QString>
 #include <QVariant>
 #include <QMap>
+#include "gt_version.h"
 
 /**
  * @brief The GtMonitoringData class
@@ -27,6 +28,7 @@ public:
     /**
      * @brief Constructor.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     GtMonitoringData();
 
     /**
@@ -36,12 +38,14 @@ public:
      * @return Returns true if data was successfully added, otherwise returns
      * false.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     bool addData(const QString& pId, const QVariant& pVal);
 
     /**
      * @brief Returns monitoring data map.
      * @return Monitoring data map.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     const QMap<QString, QVariant>& data();
 
     /**
@@ -50,6 +54,7 @@ public:
      * @param Property identification string.
      * @return  Whether property identification string exists or not.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     bool contains(const QString& pId);
 
     /**
@@ -57,6 +62,7 @@ public:
      * @param Property identification string.
      * @return Process monitoring data.
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Not supported anymore")
     QVariant getData(const QString& pId);
 
 private:
