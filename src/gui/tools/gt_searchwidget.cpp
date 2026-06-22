@@ -63,6 +63,7 @@ struct GtSearchWidget::Impl
         m_nextButton->setIcon(gt::gui::icon::triangleSmallRight());
         m_nextButton->setMaximumSize(QSize(20, 20));
         m_nextButton->setFlat(true);
+        m_nextButton->setFocusPolicy(Qt::NoFocus);
         m_nextButton->setToolTip(tr("Next Match"));
         m_nextButton->setVisible(false);
     }
@@ -72,6 +73,7 @@ struct GtSearchWidget::Impl
         m_prevButton->setIcon(gt::gui::icon::triangleSmallLeft());
         m_prevButton->setMaximumSize(QSize(20, 20));
         m_prevButton->setFlat(true);
+        m_prevButton->setFocusPolicy(Qt::NoFocus);
         m_prevButton->setToolTip(tr("Previous Match"));
         m_prevButton->setVisible(false);
     }
@@ -122,13 +124,13 @@ GtSearchWidget::GtSearchWidget(QWidget* parent) :
     // Next match button
     pimpl->m_nextButton = new QPushButton;
     pimpl->prepareNextButton();
-    connect(pimpl->m_nextButton, &QPushButton::clicked, this,
+    connect(pimpl->m_nextButton, &QPushButton::pressed, this,
             &GtSearchWidget::nextClicked);
 
     // Previous match button
     pimpl->m_prevButton = new QPushButton;
     pimpl->preparePrevButton();
-    connect(pimpl->m_prevButton, &QPushButton::clicked, this,
+    connect(pimpl->m_prevButton, &QPushButton::pressed, this,
             &GtSearchWidget::prevClicked);
 
     filterLayout->addWidget(pimpl->m_prevButton);
@@ -226,4 +228,3 @@ GtSearchWidget::eventFilter(QObject* obj, QEvent* event)
 
     return QWidget::eventFilter(obj, event);
 }
-

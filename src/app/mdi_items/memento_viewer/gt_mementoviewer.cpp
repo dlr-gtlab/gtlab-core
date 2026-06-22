@@ -152,12 +152,6 @@ GtMementoViewer::goToNextMatch()
     QTextCursor cur = m_matches.at(m_currentMatch);
     m_editor->setTextCursor(cur);
     m_editor->ensureCursorVisible();
-
-    // Reapply search highlights after cursor movement (preserves line highlight)
-    if (!m_searchText.isEmpty())
-    {
-        m_editor->highlightOccurrences(m_searchText);
-    }
 }
 
 void
@@ -170,11 +164,4 @@ GtMementoViewer::goToPrevMatch()
     QTextCursor cur = m_matches.at(m_currentMatch);
     m_editor->setTextCursor(cur);
     m_editor->ensureCursorVisible();
-
-    // Reapply search highlights after cursor movement (preserves line highlight)
-    if (!m_searchText.isEmpty())
-    {
-        m_editor->highlightOccurrences(m_searchText);
-    }
 }
-
