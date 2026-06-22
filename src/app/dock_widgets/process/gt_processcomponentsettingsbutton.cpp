@@ -27,20 +27,24 @@
 #include "gt_processcomponentsettingsbutton.h"
 
 namespace {
-    GtCustomProcessWizard* calcWizard(GtCalculator* calc)
+    template <class ext_pc_type>
+    GtCustomProcessWizard* pc_wizard(GtAbstractProcessData* abstractPCData)
     {
-        if (!calc) return nullptr;
-
-        GtCalculatorData calcData =
-            gtCalculatorFactory->calculatorData(
-                calc->metaObject()->className());
-
-        auto* eData = dynamic_cast<GtExtendedCalculatorDataImpl*>(
-            calcData.get());
+        auto* eData = dynamic_cast<ext_pc_type>(abstractPCData);
 
         if (!eData) return nullptr;
 
         return eData->wizard;
+    }
+
+    GtCustomProcessWizard* calcWizard(GtCalculator* calc)
+    {
+        if (!calc) return nullptr;
+
+        GtCalculatorData calcData = gtCalculatorFactory->calculatorData(
+                calc->metaObject()->className());
+
+        return pc_wizard<GtExtendedCalculatorDataImpl*>(&*calcData);
     }
 
     GtCustomProcessWizard* taskWizard(GtTask* task)
@@ -50,11 +54,35 @@ namespace {
         GtTaskData taskData = gtTaskFactory->taskData(
             task->metaObject()->className());
 
-        auto* eData = dynamic_cast<GtExtendedTaskDataImpl*>(taskData.get());
+        return pc_wizard<GtExtendedTaskDataImpl*>(&*taskData);
+    }
 
-        if (!eData) return nullptr;
+    /**
+     * @brief sets the memento of a process element by the provider
+     * with an previous check if the wizard of the process element is valid
+     * @param pc - process element
+     * @param parentW - parent widget of the current context for clean
+     * wizard generation
+     */
+    template <class pc_provider, class pc_type>
+    void setProcessComponentByProvider(pc_type* pc, QWidget* parentW)
+    {
+        if (!pc) return;
 
-        return eData->wizard;
+        pc_provider provider(pc);
+        GtProcessWizard wizard(gtApp->currentProject(), &provider, parentW);
+
+        if (!wizard.exec()) return;
+
+        GtObjectMemento memento = provider.componentData();
+
+        if (memento.isNull()) return;
+
+        auto command = gtApp->makeCommand(
+            pc, pc->objectName() + QObject::tr(" configuration changed"));
+        Q_UNUSED(command)
+
+        pc->fromMemento(memento);
     }
 }
 
@@ -102,40 +130,16 @@ GtProcessComponentSettingsButton::setProcessComponent(GtProcessComponent* pc)
 bool
 GtProcessComponentSettingsButton::hasCustomWizard()
 {
-    return processComponentWizard(m_pc) != nullptr;
-}
-
-GtCustomProcessWizard*
-GtProcessComponentSettingsButton::processComponentWizard(
-    GtProcessComponent* pc)
-{
-    if (auto* calc = qobject_cast<GtCalculator*>(pc))
+    if (auto* calc = qobject_cast<GtCalculator*>(m_pc))
     {
-        return calcWizard(calc);
+        return calcWizard(calc) != nullptr;
     }
     else if (auto* task = qobject_cast<GtTask*>(m_pc))
     {
-        return taskWizard(task);
+        return taskWizard(task)!= nullptr;
     }
 
-    return nullptr;
-}
-
-void
-GtProcessComponentSettingsButton::setProcessComponentByProvider(
-    GtProcessComponent* pc, GtAbstractProcessProvider* provider)
-{
-    if (!provider) return;
-
-    GtObjectMemento memento = provider->componentData();
-
-    if (memento.isNull()) return;
-
-    auto command = gtApp->makeCommand(pc, pc->objectName() +
-                                      tr(" configuration changed"));
-    Q_UNUSED(command)
-
-    pc->fromMemento(memento);
+    return false;
 }
 
 void
@@ -177,28 +181,18 @@ GtProcessComponentSettingsButton::openProcessComponentWizard()
 
     if (auto* calc = qobject_cast<GtCalculator*>(m_pc))
     {
-        if (GtCustomProcessWizard* pcWizard = calcWizard(calc))
+        if (calcWizard(calc) != nullptr)
         {
-            GtCalculatorProvider provider(calc);
-            GtProcessWizard wizard(gtApp->currentProject(), &provider,
-                                   parentWidget());
-
-            if (!wizard.exec()) return;
-
-            setProcessComponentByProvider(calc, &provider);
+            setProcessComponentByProvider<GtCalculatorProvider, GtCalculator> (
+                calc, parentWidget());
         }
     }
     else if (auto* task = qobject_cast<GtTask*>(m_pc))
     {
-        if (GtCustomProcessWizard* pcWizard = taskWizard(task))
+        if (taskWizard(task) != nullptr)
         {
-            GtTaskProvider provider(task);
-            GtProcessWizard wizard(gtApp->currentProject(), &provider,
-                                   parentWidget());
-
-            if (!wizard.exec()) return;
-
-            setProcessComponentByProvider(task, &provider);
+            setProcessComponentByProvider<GtTaskProvider, GtTask> (
+                task, parentWidget());
         }
     }
 }

@@ -53,23 +53,6 @@ private:
     /// Pointer to root task of process component object
     QPointer<GtTask> m_task;
 
-    /**
-     * @brief Search in the meta data of a process component for its
-     * wizard
-     * @param pc - process component
-     * @return the wizard or a nullptr if no custom wizard is defined
-     */
-    GtCustomProcessWizard* processComponentWizard(GtProcessComponent* pc);
-
-    /**
-     * @brief Sets the memento of a process component based on the
-     * provider and its information.
-     *
-     * @param pc - process component
-     * @param provider - processprovider
-     */
-    void setProcessComponentByProvider(GtProcessComponent* pc,
-                                       GtAbstractProcessProvider* provider);
 private slots:
     /**
      * @brief Updates button state based on process component information.
