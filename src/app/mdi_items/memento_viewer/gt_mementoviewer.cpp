@@ -126,11 +126,13 @@ GtMementoViewer::onSearchTextChanged(const QString& text)
         startPos = cursor.selectionEnd();
     }
 
-    if (text.isEmpty())
+    if (text.isEmpty() || m_matches.isEmpty())
     {
-        m_editor->setTextCursor(QTextCursor());
+        QTextCursor cur = m_editor->textCursor();
+        cur.clearSelection();
+        m_editor->setTextCursor(cur);
     }
-    else if (!m_matches.isEmpty())
+    else
     {
         m_currentMatch = 0;
         m_editor->setTextCursor(m_matches.first());
