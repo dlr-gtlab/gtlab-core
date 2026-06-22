@@ -242,7 +242,8 @@ GT_GUI_EXPORT QColor portHover();
 } // connection_editor
 
 namespace code_editor {
-GT_GUI_EXPORT QColor highlightLine();
+    GT_GUI_EXPORT QColor highlightLine();
+    GT_GUI_EXPORT QColor highlightSearch();
 } // namespace code_editor
 
 namespace xml_highlight {

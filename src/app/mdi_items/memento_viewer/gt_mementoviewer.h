@@ -13,7 +13,13 @@
 
 #include "gt_mdiitem.h"
 
+#include <QList>
+
 class GtXmlHighlighter;
+class GtMementoEditor;
+class GtSearchWidget;
+class QShortcut;
+class QTextCursor;
 
 /**
  * @brief The GtMementoViewer class
@@ -46,9 +52,28 @@ public:
 public slots:
     void onThemeChanged() override;
 
+private slots:
+    void onSearchTextChanged(const QString& text);
+
 private:
     /// Xml highlighter
     GtXmlHighlighter* m_highlighter;
+    /// Editor widget
+    GtMementoEditor* m_editor;
+    /// Search widget
+    GtSearchWidget* m_searchWidget;
+    /// Cached match positions
+    QList<QTextCursor> m_matches;
+    int m_currentMatch = -1;
+    QString m_searchText;
+
+    // Navigation shortcuts
+    QShortcut* m_nextShortcut{nullptr};
+    QShortcut* m_prevShortcut{nullptr};
+
+private slots:
+    void goToNextMatch();
+    void goToPrevMatch();
 
 };
 
