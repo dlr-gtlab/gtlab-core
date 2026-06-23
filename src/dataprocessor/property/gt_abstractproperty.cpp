@@ -20,12 +20,17 @@ GtAbstractProperty::~GtAbstractProperty() = default;
 QVariant
 GtAbstractProperty::valueToVariant() const
 {
+    if (m_ownerObject)
+    {
+        AccessList::instance().addAccessedProperty(m_ownerObject->uuid());
+    }
     return valueToVariant(QString());
 }
 
 bool
 GtAbstractProperty::setValueFromVariant(const QVariant& val)
 {
+    //gtError()<<"setting Variant"<<val;
     return setValueFromVariant(val, QString());
 }
 
@@ -358,6 +363,11 @@ GtAbstractProperty::collapsedByDefault() const
     if (!collapsedState.isValid()) return false;
 
     return collapsedState.toBool();
+}
+
+void GtAbstractProperty::setOwnerObject(GtObject *ownerObject)
+{
+    m_ownerObject=ownerObject;
 }
 
 GtAbstractProperty::GtAbstractProperty() = default;

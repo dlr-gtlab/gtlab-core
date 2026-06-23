@@ -14,6 +14,7 @@
 #include "gt_unit.h"
 #include "gt_utilities.h"
 #include "gt_unitconverter.h"
+#include "gt_object.h"
 
 template<class ParamType>
 class GtProperty : public GtAbstractProperty
@@ -78,11 +79,13 @@ public:
         return *this;
     }
 
+
 protected:
     /**
      * @brief Default constructor.
      */
     GtProperty(){}
+
 
     /// Value
     ParamType m_value = {};
@@ -140,12 +143,22 @@ private:
 template<class ParamType>
 inline ParamType& GtProperty<ParamType>::get()
 {
+    if (m_ownerObject)
+    {
+        AccessList::instance().addAccessedProperty(m_ownerObject->uuid());
+    }
+
     return m_value;
 }
 
 template<class ParamType>
 inline ParamType const & GtProperty<ParamType>::get() const
 {
+
+    if (m_ownerObject)
+    {
+        AccessList::instance().addAccessedProperty(m_ownerObject->uuid());
+    }
     return m_value;
 }
 
@@ -153,6 +166,10 @@ inline ParamType const & GtProperty<ParamType>::get() const
 template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal() const
 {
+    if (m_ownerObject)
+    {
+        AccessList::instance().addAccessedProperty(m_ownerObject->uuid());
+    }
     return m_value;
 }
 
@@ -160,10 +177,16 @@ template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal(const QString& unit,
                                                bool* success) const
 {
+    if (m_ownerObject)
+    {
+        AccessList::instance().addAccessedProperty(m_ownerObject->uuid());
+    }
+
     if (unit.isEmpty())
     {
         return gt::valueSuccess(getVal(), success);
     }
+
 
     bool _success = false;
 

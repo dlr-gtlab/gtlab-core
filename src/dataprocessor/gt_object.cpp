@@ -109,6 +109,7 @@ GtObject::GtObject(GtObject* parent) :
 
 GtObject::~GtObject() = default;
 
+
 GtObject::ObjectFlags
 GtObject::objectFlags() const
 {
@@ -553,12 +554,14 @@ GtObject::findProperty(const QString& id)
 GtAbstractProperty const*
 GtObject::findProperty(const QString& id) const
 {
+    gtError()<<"FindProperty: "<<id;
     return const_cast<GtObject*>(this)->findProperty(id);
 }
 
 GtAbstractProperty*
 GtObject::findPropertyByName(const QString& name)
 {
+    gtError()<<"FindProperty: "<<name;
     for (GtAbstractProperty* property : qAsConst(pimpl->properties))
     {
         if (property->objectName() == name)
@@ -578,6 +581,7 @@ GtObject::findPropertyByName(const QString& name)
 GtAbstractProperty const*
 GtObject::findPropertyByName(const QString& name) const
 {
+    gtError()<<"FindProperty: "<<name;
     return const_cast<GtObject*>(this)->findPropertyByName(name);
 }
 
@@ -837,9 +841,12 @@ GtObject::registerProperty(GtAbstractProperty& property)
         return false;
     }
 
-    connectProperty(property);
 
+
+    connectProperty(property);
+    property.setOwnerObject(this);
     pimpl->properties.append(&property);
+
 
     return true;
 }
@@ -1037,4 +1044,54 @@ gt::moveToThread(GtObject& object, QThread* thread)
     }
 
     object.QObject::moveToThread(thread);
+}
+
+QStringList AccessList::getList()
+{
+    return m_accessList;
+}
+
+void AccessList::clearList()
+{
+    m_accessList.clear();
+}
+
+void AccessList::tracking(bool state)
+{
+    gtInfo() << "activateTracking set to "<< state;
+    m_tracking = state;
+}
+
+
+void AccessList::addAccessedProperty(QString uuid)
+{
+    if (m_tracking == true)
+    {
+        gtInfo() << "Object added: "<<uuid;
+        m_accessList.append(uuid);
+    }
+}
+
+
+void GtObject::clearAccessList()
+{
+    gtInfo() << "List cleared";
+    AccessList::instance().clearList();
+}
+
+void GtObject::activatePropertyTracking()
+{
+    AccessList::instance().tracking(true);
+}
+
+void GtObject::deactivatePropertyTracking()
+{
+    AccessList::instance().tracking(false);
+}
+
+QStringList GtObject::accessedObjects()
+{
+    gtInfo() << "List retrieved";
+    gtInfo() << AccessList::instance().getList();
+    return AccessList::instance().getList();
 }
