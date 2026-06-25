@@ -12,6 +12,7 @@
 #ifndef GTMONITORINGPROPERTY_H
 #define GTMONITORINGPROPERTY_H
 
+#include "gt_abstractproperty.h"
 
 class GtMonitoringProperty
 {

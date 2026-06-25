@@ -118,7 +118,7 @@ GtCalculator::exec()
     // current execution mode identification string
     QString execModeStr = execMode();
 
-    if (execModeStr != "local")
+    if (execModeStr != "local"&&execModeStr != "parent")
     {
         // plugin execution
         // find executor
@@ -217,6 +217,7 @@ GtCalculator::GtCalculator():
     registerProperty(pimpl->failRunOnWarning, tr("Execution"));
 
     setFlag(GtObject::UserRenamable, true);
+    // parent hinzufügen in exec
 }
 
 

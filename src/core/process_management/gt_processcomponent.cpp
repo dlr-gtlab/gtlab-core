@@ -88,10 +88,15 @@ GtProcessComponent::GtProcessComponent() :
 
     registerProperty(pimpl->labelProperty, tr("Execution"));
 
+    // parent based execution mode
+    auto* parentMode = new GtModeTypeProperty("parent", tr("parent"));
+    parentMode->setParent(this);
+    pimpl->execMode.registerSubProperty(*parentMode);
     // local execution mode
     auto* localMode = new GtModeTypeProperty("local", tr("local"));
     localMode->setParent(this);
     pimpl->execMode.registerSubProperty(*localMode);
+
 
     // collect plugin execution modes
     foreach (const QString& str, gtCalcExecList->executorIds())
