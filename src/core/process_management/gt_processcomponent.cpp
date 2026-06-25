@@ -30,7 +30,7 @@
 
 struct GtProcessComponent::Impl
 {
-    Impl(GtProcessComponent& pub) :
+    explicit Impl(GtProcessComponent& pub) :
         state(GtProcessComponent::NONE),
         progress(0),
         skipped(QStringLiteral("skip"), tr("Skip"),
