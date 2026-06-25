@@ -88,39 +88,10 @@ public:
     virtual bool run() = 0;
 
     /**
-     * @brief Returns selected execution mode of the calculator.
-     * @return Execution mode identification string.
-     */
-    const QString& execMode();
-
-    /**
-     * @brief Sets the execution mode of the calculator.
-     * @param Identification string of the new execution mode.
-     */
-    void setExecMode(const QString& execMode);
-
-    /**
-     * @brief Sets the execution mode to local exectution (default)
-     */
-    void setExecModeLocal();
-
-    /**
      * @brief Returns list of all linked datamodel objects.
      * @return List of linked datamodel objects.
      */
     using GtProcessComponent::linkedObjects;
-
-    /**
-     * @brief Returns current execution identification label.
-     * @return Identification label.
-     */
-    const QString& executionLabel();
-
-    /**
-     * @brief Sets current execution identification label.
-     * @param label - New Identification label.
-     */
-    void setExecutionLabel(const QString& label);
 
     /**
      * @brief Returns true if run should be marked as failed if warning flag
@@ -143,13 +114,6 @@ protected:
 
     /// Delete temporary path indicator
     bool m_deleteTempPath;
-
-    /**
-     * @brief Hides or Shows the label property.
-     * @param val If true, the label property will be hidden, otherwise it
-     * will be displayed.
-     */
-    void hideLabelProperty(bool val = true);
 
 private:
     struct Impl;
