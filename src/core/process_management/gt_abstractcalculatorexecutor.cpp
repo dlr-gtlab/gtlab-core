@@ -11,6 +11,11 @@
 
 #include "gt_abstractcalculatorexecutor.h"
 
+bool GtAbstractCalculatorExecutor::exec(GtTask *Task)
+{
+    return false;
+}
+
 GtAbstractCalculatorExecutor::GtAbstractCalculatorExecutor()
 {
     // nothing to do here

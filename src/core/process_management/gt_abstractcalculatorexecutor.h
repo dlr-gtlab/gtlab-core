@@ -12,6 +12,7 @@
 #define GTABSTRACTCALCULATOREXECUTOR_H
 
 #include "gt_core_exports.h"
+#include "gt_task.h"
 
 #include <QObject>
 
@@ -30,6 +31,8 @@ public:
      * @return
      */
     virtual bool exec(GtCalculator* calculator) = 0;
+
+    virtual bool exec(GtTask* Task);
 
 protected:
     /**

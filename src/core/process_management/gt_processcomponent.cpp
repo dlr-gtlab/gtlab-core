@@ -11,6 +11,10 @@
 
 #include <QDir>
 
+#include "gt_calculatorexecutorlist.h"
+#include "gt_labelproperty.h"
+#include "gt_modeproperty.h"
+#include "gt_modetypeproperty.h"
 #include "gt_utilities.h"
 #include "gt_task.h"
 #include "gt_taskgroup.h"
@@ -27,13 +31,24 @@
 
 struct GtProcessComponent::Impl
 {
-    Impl() :
+    Impl(GtProcessComponent& pub) :
         state(GtProcessComponent::NONE),
         progress(0),
         skipped(QStringLiteral("skip"), tr("Skip"),
                 tr("Skip Process Element"), false),
-        warning(false)
+        warning(false),
+        execMode(QStringLiteral("execMode"), tr("Mode"), tr("Execution mode")),
+        // execution label property
+        labelProperty(QStringLiteral("execLabel"),
+                      tr("Label"), tr("Execution label"), &pub)
     {}
+
+// public members
+    /// Execution mode indicator.
+    GtModeProperty execMode;
+
+    /// Execution label property
+    GtLabelProperty labelProperty;
 
 // protected members
     /// Runnable pointer
@@ -65,11 +80,37 @@ struct GtProcessComponent::Impl
 };
 
 GtProcessComponent::GtProcessComponent() :
-    pimpl(std::make_unique<Impl>())
+    pimpl(std::make_unique<Impl>(*this))
 {
     qRegisterMetaType<GtProcessComponent::STATE>("GtProcessComponent::STATE");
 
     registerProperty(pimpl->skipped, tr("Execution"));
+
+    registerProperty(pimpl->labelProperty, tr("Execution"));
+
+    // local execution mode
+    auto* localMode = new GtModeTypeProperty("local", tr("local"));
+    localMode->setParent(this);
+    pimpl->execMode.registerSubProperty(*localMode);
+
+    // collect plugin execution modes
+    foreach (const QString& str, gtCalcExecList->executorIds())
+    {
+        auto* pluginMode = new GtModeTypeProperty(str, str);
+        pluginMode->setParent(this);
+
+
+        // collect exec mode specific settings
+        foreach (GtAbstractProperty* execSetting, gtCalcExecList->settings(str))
+        {
+            execSetting->setParent(this);
+            pluginMode->registerSubProperty(*execSetting);
+        }
+
+        pimpl->execMode.registerSubProperty(*pluginMode);
+    }
+
+    registerProperty(pimpl->execMode, tr("Execution"));
 
     connect(&pimpl->skipped, &GtAbstractProperty::changed,
             this, &GtProcessComponent::skipPropertyChanged);
@@ -520,3 +561,40 @@ GtProcessComponent::appendToLinkObjects(QPointer<GtObject> p)
 {
     linkedObjects().append(p);
 }
+
+const
+QString &GtProcessComponent::execMode()
+{
+    return pimpl->execMode.get();
+}
+
+void
+GtProcessComponent::setExecMode(const QString &execMode)
+{
+    pimpl->execMode.setVal(execMode);
+}
+
+void
+GtProcessComponent::setExecModeLocal()
+{
+    pimpl->execMode.setVal("local");
+}
+
+const
+QString &GtProcessComponent::executionLabel()
+{
+    return pimpl->labelProperty.get();
+}
+
+void
+GtProcessComponent::setExecutionLabel(const QString &label)
+{
+    pimpl->labelProperty.setVal(label);
+}
+
+void
+GtProcessComponent::hideLabelProperty(bool val)
+{
+    pimpl->labelProperty.hide(val);
+}
+

@@ -9,9 +9,11 @@
  */
 
 #include "gt_task.h"
+#include "gt_abstractcalculatorexecutor.h"
 #include "gt_accessdata.h"
 #include "gt_calculator.h"
 #include "gt_abstractrunnable.h"
+#include "gt_calculatorexecutorlist.h"
 #include "gt_coreapplication.h"
 #include "gt_objectlinkproperty.h"
 #include "gt_objectpathproperty.h"
@@ -24,6 +26,7 @@
 
 struct GtTask::Impl
 {
+
     /// Event loop
     QEventLoop eventLoop;
 
@@ -32,6 +35,7 @@ struct GtTask::Impl
 
     /// Monitoring data table
     GtMonitoringDataTable monitoringDataTable;
+
 
     /// Interruption flag
     QAtomicInt interrupt;
@@ -155,7 +159,7 @@ GtTask::exec()
         return false;
     }
 
-    // emit `finihed` signal if task was not triggered by the `run` method
+    // emit `finished` signal if task was not triggered by the `run` method
     auto finally = gt::finally([this, isStandaone = pimpl->eventLoop.isRunning()](){
         if (!isStandaone) emit finished();
     });
@@ -165,11 +169,49 @@ GtTask::exec()
     // clear existing monitoring data
     emit triggerClearMonitoringData();
 
-    // start iteration
-    if (!runIteration())
+    // current execution mode identification string
+    QString execModeStr = execMode();
+
+    if (execModeStr != "local")
     {
-        setState(GtProcessComponent::FAILED);
-        return false;
+        // plugin execution
+        // find executor
+        GtAbstractCalculatorExecutor* executor =
+            gtCalcExecList->executor(execModeStr);
+
+        QList<GtProcessComponent*> childs = processComponents();
+
+        foreach (GtProcessComponent* comp, childs)
+        {
+            comp->setExecMode(execModeStr);
+            comp->setExecutionLabel(executionLabel());
+        }
+
+        if (!executor)
+        {
+            // executor plugin not found
+            gtError() << tr("Calculator execution plugin error!");
+            setState(GtCalculator::FAILED);
+            return false;
+        }
+
+        // run execution plugin
+        if (!executor->exec(this))
+        {
+            // execution failed
+            setState(GtCalculator::FAILED);
+            return false;
+        }
+    }
+    else
+    {
+
+        // start iteration
+        if (!runIteration())
+        {
+            setState(GtProcessComponent::FAILED);
+            return false;
+        }
     }
 
     // max. number of iteration steps reached

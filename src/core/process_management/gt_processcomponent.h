@@ -268,6 +268,35 @@ public:
      */
     void appendToLinkObjects(QPointer<GtObject> p);
 
+    /**
+     * @brief Returns selected execution mode of the calculator.
+     * @return Execution mode identification string.
+     */
+    const QString& execMode();
+
+    /**
+     * @brief Sets the execution mode of the calculator.
+     * @param Identification string of the new execution mode.
+     */
+    void setExecMode(const QString& execMode);
+
+    /**
+     * @brief Sets the execution mode to local exectution (default)
+     */
+    void setExecModeLocal();
+
+    /**
+     * @brief Returns current execution identification label.
+     * @return Identification label.
+     */
+    const QString& executionLabel();
+
+    /**
+     * @brief Sets current execution identification label.
+     * @param label - New Identification label.
+     */
+    void setExecutionLabel(const QString& label);
+
 public slots:
     /**
      * @brief Handles process component state changes.
@@ -349,6 +378,13 @@ protected:
     /// List of linked datamodel objects.
     QList<GtObject const*> linkedObjects() const;
     QList<QPointer<GtObject>>& linkedObjects();
+
+    /**
+     * @brief Hides or Shows the label property.
+     * @param val If true, the label property will be hidden, otherwise it
+     * will be displayed.
+     */
+    void hideLabelProperty(bool val = true);
 
 private:
     struct Impl;
