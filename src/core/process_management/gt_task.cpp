@@ -180,7 +180,7 @@ GtTask::exec()
     // current execution mode identification string
     QString execModeStr = execMode();
 
-    if (execModeStr != "local")
+    if (execModeStr != "local"&&execModeStr != "parent")
     {
         // plugin execution
         // find executor
@@ -191,6 +191,7 @@ GtTask::exec()
 
         foreach (GtProcessComponent* comp, childs)
         {
+            if (!(comp->execMode()=="parent")) continue;// check if child is set to parent mode
             comp->setExecMode(execModeStr);
             comp->setExecutionLabel(executionLabel());
         }
@@ -213,7 +214,6 @@ GtTask::exec()
     }
     else
     {
-
         // start iteration
         if (!runIteration())
         {

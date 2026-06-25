@@ -160,8 +160,7 @@ set(SOURCES
     gt_regularexpression.cpp
 )
 
-add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL}
-    property/gt_dataaccessmonitor.h property/gt_dataaccessmonitor.cpp)
+add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL})
 add_library(GTlab::DataProcessor ALIAS GTlabDataProcessor)
 target_compile_features(GTlabDataProcessor PUBLIC cxx_std_17)
 
