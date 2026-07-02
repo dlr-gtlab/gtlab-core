@@ -156,7 +156,7 @@ private:
 
         index = model->mapFromSource(index);
 
-        return true;
+        return index.isValid();
     }
 
     /**

@@ -468,48 +468,28 @@ GtExplorerDock::listElements(QModelIndex const& parent) const
 void
 GtExplorerDock::selectObjectByUuid(const QString& uuid)
 {
-    if (uuid.isEmpty() || !gtApp->currentProject())
+    GtObject* object = gtDataModel->objectByUuid(uuid);
+    if (!object)
     {
+        gtWarningId(objectName().toStdString()).verbose()
+            << tr("Requested object uuid not found!");
         return;
     }
 
-    QModelIndexList list;
+    QModelIndex index = gtDataModel->indexFromObject(object);
 
-    for(int i = 0; i < m_model->rowCount(); i++)
+    index = mapFromSource(index);
+
+    if (!index.isValid())
     {
-        QModelIndex index = m_model->index(i, 0);
-
-        for (const QModelIndex& i2 : listElements(index))
-        {
-            if (!list.contains(i2))
-            {
-                list.append(i2);
-            }
-        }
+        gtWarningId(objectName().toStdString())
+            << tr("Cannot select object!");
+        return;
     }
 
-    auto iter = std::find_if(std::begin(list), std::end(list),
-                             [&uuid](const QModelIndex& index)
-    {
-        if (!index.isValid())
-        {
-            return false;
-        }
-
-        return index.data(GtCoreDatamodel::UuidRole).toString() == uuid;
-    });
-
-    if (iter != std::end(list))
-    {
-        if (GtObject* obj = mapToObject(*iter))
-        {
-            m_view->setCurrentIndex(*iter);
-            m_view->scrollTo(*iter);
-            return emit selectedObjectChanged(obj);
-        }
-
-        gtWarning() << tr("Cannot select the requested object");
-    }
+    m_view->setCurrentIndex(index);
+    m_view->scrollTo(index);
+    emit selectedObjectChanged(object);
 }
 
 void

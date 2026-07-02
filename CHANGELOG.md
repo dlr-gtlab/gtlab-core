@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
  - Fixed the explorer and process views not marking the next object as selected when deleting an object. - #1486
+ - Performance improvement when jumping to an object in the explorer widget (e.g. when jumping to the linked object of an object link property). - #1480
 
 ## [2.0.12] - 2026-03-18
 
