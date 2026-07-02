@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+ - Fixed the explorer and process views not marking the next object as selected when deleting an object. - #1486
+
 ## [2.0.12] - 2026-03-18
 
 GTlab 2.0.12 is a release to prepare the migration to GTlab 2.1.

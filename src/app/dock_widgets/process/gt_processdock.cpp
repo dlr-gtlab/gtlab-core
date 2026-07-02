@@ -2447,9 +2447,18 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
 void
 GtProcessDock::endResetView()
 {
-
     updateProcessViewRootIndex();
     resetTaskGroupModel();
+
+    // update selection after reset
+    if (m_view->selectionModel()->selection().size() > 0) return;
+
+    GtObject* selectedObj = gtApp->selectedObject();
+    if (!selectedObj) return;
+
+    auto index = gtDataModel->indexFromObject(selectedObj);
+
+    m_view->setCurrentIndex(mapFromSource(index));
 }
 
 void
