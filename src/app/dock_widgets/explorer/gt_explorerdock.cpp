@@ -471,8 +471,8 @@ GtExplorerDock::selectObjectByUuid(const QString& uuid)
     GtObject* object = gtDataModel->objectByUuid(uuid);
     if (!object)
     {
-        gtWarning().verbose()
-            << tr("GtExplorerDock: Requested object uuid not found!");
+        gtWarningId(objectName().toStdString()).verbose()
+            << tr("Requested object uuid not found!");
         return;
     }
 
@@ -482,8 +482,8 @@ GtExplorerDock::selectObjectByUuid(const QString& uuid)
 
     if (!index.isValid())
     {
-        gtWarning().verbose()
-            << tr("GtExplorerDock: Requested object index not found!");
+        gtWarningId(objectName().toStdString())
+            << tr("Cannot select object!");
         return;
     }
 
