@@ -29,7 +29,7 @@ public:
      * @brief Returns current version number of module
      * @return version number
      */
-    GtVersionNumber version() override;
+    GtVersionNumber version() const override;
 
     /**
      * @brief Returns module description
