@@ -271,7 +271,6 @@ GtOutputDock::GtOutputDock()
     m_logView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_logView->setSizeAdjustPolicy(GtTableView::AdjustToContents);
     m_logView->setShowGrid(false);
-    m_logView->setFrameStyle(QFrame::NoFrame);
     m_logView->setModel(m_model);
 
     // stretch the last section

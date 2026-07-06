@@ -94,9 +94,6 @@ private:
     /// First time show event indicator
     bool m_firstTimeShowEvent;
 
-    /// List of initialized dock widgets
-    QMap<GtDockWidget*, QAction*> m_dockWidgets;
-
     /// Pointer to Process Queue Widget
     QPointer<GtProcessQueueWidget> m_processQueue;
 
@@ -334,19 +331,6 @@ private slots:
      * @param obj Currently selected object.
      */
     void onObjectSelected(GtObject* obj);
-
-    /**
-     * @brief Called on dock widget visibility change to change menu action
-     * checked state.
-     * @param val New dock widget visibility.
-     */
-    void onDockVisibilityChange(bool val);
-
-    /**
-     * @brief Called after one dock widget action was clicked to show or hide
-     * the corresponding dock widget.
-     */
-    void onDockActionClicked();
 
     /**
      * @brief onWidgetStructureClicked

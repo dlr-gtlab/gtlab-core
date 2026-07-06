@@ -62,6 +62,14 @@
 
 #include <algorithm>
 
+#define USE_ALTERNATIVE_DOCKING_SYSTEM 1
+
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+#include <qtadvanceddocking-qt5/DockManager.h>
+#include <qtadvanceddocking-qt5/DockWidget.h>
+#include <qtadvanceddocking-qt5/DockAreaWidget.h>
+#endif
+
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
     m_cornerWidget(new GtCornerWidget(this)),
@@ -70,10 +78,25 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     m_processQueue(nullptr),
     m_mainWindowToolbar(new GtMainToolbar(this))
 {
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+    ui->setupUi(this);
+
+    ui->centralwidget->setParent(nullptr);
+    auto* manager = new ads::CDockManager(this);
+
+    auto* area = new ads::CDockWidget(QStringLiteral("Home"));
+    area->setWidget(ui->centralwidget);
+    manager->setCentralWidget(area);
+
+    setupDockWidgets();
+#else
     // dock widget have to be initialized before setup the ui
     setupDockWidgets();
 
     ui->setupUi(this);
+
+    setCentralWidget(ui->centralwidget);
+#endif
 
     // hide some stuff
     ui->menuUpdate_available->menuAction()->setVisible(false);
@@ -420,16 +443,59 @@ GtMainWin::setupDockWidgets()
     {
         const QMetaObject& metaObj = gtMdiLauncher->dockWidget(id);
 
-        GtDockWidget* dock = qobject_cast<GtDockWidget*>(metaObj.newInstance());
+        GtDockWidget* legacyDock = qobject_cast<GtDockWidget*>(metaObj.newInstance());
 
-        if (dock)
+        if (legacyDock)
         {
-            dock->setWindowTitle(dock->objectName());
-            dock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
-            addDockWidget(dock->getDockWidgetArea(), dock);
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+            auto* manager = (ads::CDockManager*)(this->centralWidget());
 
-            // add dockwidgets to map and initialize actions with null pointer
-            m_dockWidgets.insert(dock, nullptr);
+            auto* dock = new ads::CDockWidget(legacyDock->objectName());
+            dock->setIcon(legacyDock->getIcon());
+            dock->setWidget(legacyDock);
+            manager->addDockWidget((ads::DockWidgetArea)legacyDock->getDockWidgetArea(), dock);
+
+            legacyDock->setTitleBarWidget(new QWidget());
+            legacyDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+
+            dock->setFrameShape(QFrame::NoFrame);
+
+            for (auto* child : dock->findChildren<QFrame*>())
+            {
+                child->setFrameShape(QFrame::NoFrame);
+            }
+
+            using DockWidget = ads::CDockWidget;
+#else
+            legacyDock->setWindowTitle(dock->objectName());
+            legacyDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
+            addDockWidget(legacyDock->getDockWidgetArea(), legacyDock);
+
+            using DockWidget = GtDockWidget;
+            auto* dock = legacyDock;
+#endif
+            connect(this, &GtMainWin::guiInitialized, dock, [this, legacyDock, dock](){
+
+                // add entries to menu
+                QAction* action = ui->menuDock_Widgets->addAction(dock->windowTitle());
+                action->setIcon(dock->windowIcon());
+                action->setCheckable(true);
+                action->setChecked(dock->isVisible());
+
+                connect(dock, &DockWidget::visibilityChanged,
+                        action, [action](bool isVisible){
+                    if (action->isChecked() != isVisible)
+                    {
+                        action->setChecked(isVisible);
+                    }
+                });
+                connect(action, &QAction::triggered,
+                        dock, [action, dock](){
+                    dock->setVisible(action->isChecked());
+                });
+
+                legacyDock->initAfterStartup();
+            });
         }
     }
 }
@@ -1094,6 +1160,7 @@ GtMainWin::initAfterStartup()
     {
         return;
     }
+    m_firstTimeShowEvent = false;
 
     // open startup page
     if (gtApp->settings()->showStartupPage())
@@ -1108,26 +1175,6 @@ GtMainWin::initAfterStartup()
     }
 
     emit guiInitialized();
-
-    // initialize dock widgets
-    gt::for_each_key (m_dockWidgets, [this](GtDockWidget* e)
-    {
-        // add entries to menu
-        QAction* dockAct =
-            ui->menuDock_Widgets->addAction(e->windowTitle());
-        dockAct->setCheckable(true);
-        dockAct->setChecked(e->isVisible());
-
-        m_dockWidgets[e] = dockAct;
-
-        connect(e, SIGNAL(visibilityChanged(bool)),
-                SLOT(onDockVisibilityChange(bool)));
-        connect(dockAct, SIGNAL(triggered(bool)), SLOT(onDockActionClicked()));
-
-        e->initAfterStartup();
-    });
-
-    m_firstTimeShowEvent = false;
 }
 
 void
@@ -1156,62 +1203,6 @@ GtMainWin::onObjectSelected(GtObject* /* obj */ )
 }
 
 void
-GtMainWin::onDockVisibilityChange(bool /*val*/)
-{
-    GtDockWidget* dock = qobject_cast<GtDockWidget*>(sender());
-
-    if (!dock)
-    {
-        return;
-    }
-
-    if (!m_dockWidgets.contains(dock))
-    {
-        return;
-    }
-
-    QAction* act = m_dockWidgets.value(dock);
-
-    if (!act)
-    {
-        return;
-    }
-
-    bool isVisible = false;
-
-    if ((dock->isVisible() || !tabifiedDockWidgets(dock).isEmpty()))
-    {
-        isVisible = true;
-    }
-
-    if (act->isChecked() == isVisible)
-    {
-        return;
-    }
-
-    act->setChecked(isVisible);
-}
-
-void
-GtMainWin::onDockActionClicked()
-{
-    QAction* action = qobject_cast<QAction*>(sender());
-
-    if (!action)
-    {
-        return;
-    }
-
-    gt::for_each_key(m_dockWidgets, [this, action](GtDockWidget* e)
-    {
-        if (m_dockWidgets.value(e) == action)
-        {
-            e->setVisible(action->isChecked());
-        }
-    });
-}
-
-void
 GtMainWin::onWidgetStructureClicked()
 {
     gtDebug() << "widget structure...";
@@ -1236,7 +1227,7 @@ GtMainWin::onEditorWindowActive(int editorIndex)
     {
         // all windows closed
         m_mainWindowToolbar->setEditorActions({});
-        currentMdiItemPrintable(false);
+        emit currentMdiItemPrintable(false);
         return;
     }
 
@@ -1250,7 +1241,7 @@ void
 GtMainWin::setTheme(bool /*dark*/)
 {
     gt::gui::applyThemeToApplication();
-    gt::gui::applyThemeToWidget(ui->mdiArea);
+    gt::gui::applyThemeToWidget(centralWidget());
 
     // update all standalone widgets (i.e. windows)
     QWidgetList const& windows = QApplication::topLevelWidgets();

@@ -59,12 +59,14 @@ if (BUILD_WITH_COVERAGE)
     append_coverage_compiler_flags()
 endif(BUILD_WITH_COVERAGE)
 
+find_package(qtadvanceddocking-qt5 REQUIRED)
+
 if (NOT DEFINED VCPKG_TARGET_TRIPLET)
     include(GetDependencies)
 endif()
 
 if (NOT BUILD_SHARED_LIBS)
-    message(WARNING "Static library builds of GTlab are not yet fully supported.") 
+    message(WARNING "Static library builds of GTlab are not yet fully supported.")
 endif()
 
 if (NOT TARGET GTlab::Logging)
