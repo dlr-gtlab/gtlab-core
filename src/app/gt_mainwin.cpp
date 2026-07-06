@@ -467,7 +467,7 @@ GtMainWin::setupDockWidgets()
 
             using DockWidget = ads::CDockWidget;
 #else
-            legacyDock->setWindowTitle(dock->objectName());
+            legacyDock->setWindowTitle(legacyDock->objectName());
             legacyDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
             addDockWidget(legacyDock->getDockWidgetArea(), legacyDock);
 
