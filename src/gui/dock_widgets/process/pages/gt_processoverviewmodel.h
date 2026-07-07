@@ -18,8 +18,8 @@
 class GtProcessCategoryItem;
 class GtAbstractProcessItem;
 
-namespace gt {
-
+namespace gt 
+{
 struct ProcessInformation
 {
     /// Calculator identification string.
