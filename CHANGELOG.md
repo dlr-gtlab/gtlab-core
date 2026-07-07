@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added color property `GtColorProperty` to store color information in data models - #1329
  - New implementations for boundaries based on optional values to support property definitions - #1381
  - `GtObjects` can now be stored as separate `*.gtobj.xml` files. Use `object.setSaveAsOwnFile(true);` to mark an object for linked-file creation. - #1419
+ - Search functionality for the Memento-Viewer - #380
 
 ### Changed
  - GTlab now requires C++17 for compilation and usage. - #1441
