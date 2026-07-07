@@ -18,7 +18,10 @@
 class GtProcessCategoryItem;
 class GtAbstractProcessItem;
 
-struct processInformation {
+namespace gt {
+
+struct ProcessInformation
+{
     /// Calculator identification string.
     QString id;
 
@@ -41,6 +44,7 @@ struct processInformation {
     QString category{"-"};
 };
 
+} // namespace gt
 
 /**
  * @brief The GtProcessOverviewModel class
@@ -166,7 +170,7 @@ protected:
      * @param item
      * @return
      */
-    virtual processInformation processElementInformation(
+    virtual gt::ProcessInformation processElementInformation(
         GtAbstractProcessItem* item) const = 0;
 
     /**

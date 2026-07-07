@@ -69,7 +69,7 @@ protected:
      * @param item
      * @return
      */
-    processInformation processElementInformation(
+    gt::ProcessInformation processElementInformation(
         GtAbstractProcessItem* item) const override;
 };
 

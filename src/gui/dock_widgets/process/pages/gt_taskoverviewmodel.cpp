@@ -143,7 +143,8 @@ GtTaskOverviewModel::description(GtAbstractProcessItem* item) const
     return taskData->description;
 }
 
-processInformation GtTaskOverviewModel::processElementInformation(GtAbstractProcessItem *item) const
+gt::ProcessInformation
+GtTaskOverviewModel::processElementInformation(GtAbstractProcessItem* item) const
 {
     if (!item) return {};
 
@@ -153,7 +154,7 @@ processInformation GtTaskOverviewModel::processElementInformation(GtAbstractProc
 
     GtTaskData taskData = taskItem->taskData();
 
-    processInformation info;
+    gt::ProcessInformation info;
     info.id = taskData->id;
     info.version = taskData->version;
 

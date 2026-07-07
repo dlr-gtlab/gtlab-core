@@ -15,7 +15,7 @@
 #include <QGraphicsDropShadowEffect>
 
 GtProcessInfoPopup::GtProcessInfoPopup(
-    processInformation const& processInfos,
+    gt::ProcessInformation const& processInfos,
     QWidget* parent) :
     QFrame(parent, Qt::Popup |
                        Qt::FramelessWindowHint |

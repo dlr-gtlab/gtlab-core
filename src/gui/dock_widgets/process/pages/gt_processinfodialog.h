@@ -26,7 +26,7 @@ class GT_GUI_EXPORT GtProcessInfoPopup : public QFrame
 
 public:
     explicit GtProcessInfoPopup(
-        processInformation const& processInfos,
+        const gt::ProcessInformation &processInfos,
         QWidget* parent = nullptr);
 };
 

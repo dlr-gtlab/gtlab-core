@@ -143,7 +143,7 @@ GtCalculatorOverviewModel::description(GtAbstractProcessItem* item) const
 
 }
 
-processInformation
+gt::ProcessInformation
 GtCalculatorOverviewModel::processElementInformation(
     GtAbstractProcessItem* item) const
 {
@@ -155,7 +155,7 @@ GtCalculatorOverviewModel::processElementInformation(
 
     GtCalculatorData calcData = calcItem->calculatorData();
 
-    processInformation info;
+    gt::ProcessInformation info;
     info.id = calcData->id;
     info.version = calcData->version;
 
