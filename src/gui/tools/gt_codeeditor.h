@@ -26,6 +26,12 @@ public:
 
     int lineNumberAreaWidth();
 
+    /**
+     * @brief Highlight all occurrences of text (case-sensitive)
+     * @param text Search text
+     */
+    void highlightOccurrences(const QString& text);
+
 protected:
     void resizeEvent(QResizeEvent* event) override;
 

@@ -932,6 +932,14 @@ GtApplication::initCoreShortCuts() const
     shortCuts.append({QStringLiteral("modulesOverview"), catCore,
                       QKeySequence(Qt::ALT | Qt::Key_M).toString(), true});
 
+    /// jump to next entry
+    shortCuts.append({QStringLiteral("jumpToNextElement"), catCore,
+                      QKeySequence(Qt::Key_F3).toString()});
+
+    /// jump to previous entry
+    shortCuts.append({QStringLiteral("jumpToPreviousElement"), catCore,
+                      QKeySequence(Qt::SHIFT | Qt::Key_F3).toString()});
+
     return shortCuts;
 }
 
