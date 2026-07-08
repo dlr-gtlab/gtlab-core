@@ -534,10 +534,9 @@ private slots:
     void deleteCustomTaskGroup(const QString& groupName);
 
     /**
-     * @brief Handles delete request for custom task group.
-     * @param index Model index of the task group to delete
+     * @brief Handles delete button click for custom task group.
      */
-    void onCustomTaskGroupDeleteRequested(const QModelIndex& index);
+    void onDeleteTaskGroupButtonClicked();
 
 signals:
     /**
