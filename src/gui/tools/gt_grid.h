@@ -32,10 +32,12 @@ class GT_GUI_EXPORT GtGrid : public QObject
 
 public:
 
+    using VisibleAxis = QFlags<Qt::Orientation>;
+
     explicit GtGrid(QGraphicsView& view);
     ~GtGrid();
 
-    GT_DEPRECATED_ATTR(2, 2, "use setHSpacing instead.")
+    GT_DEPRECATED_ATTR(2, 2, "use `setHSpacing` instead.")
     void setGridWidth(int value);
     /**
      * @brief Sets the spacing between horizontal (major) grid lines
@@ -44,7 +46,7 @@ public:
     void setHSpacing(size_t value);
     size_t hSpacing() const;
 
-    GT_DEPRECATED_ATTR(2, 2, "use setVSpacing instead.")
+    GT_DEPRECATED_ATTR(2, 2, "use `setVSpacing` instead.")
     void setGridHeight(int value);
     /**
      * @brief Sets the spacing between vertical (major) grid lines
@@ -56,6 +58,7 @@ public:
     /** Sets number of grid points for one grid rect.
         @param horizontal Number of horizontal grid points
         @param vertical Number of vertical grid points */
+    GT_DEPRECATED_ATTR(2, 2, "Function has no effect. No replacement is planned.")
     void setNumberOfGridPoints(int horizontal, int vertical);
 
     /** Sets whether the grid should be scaled or not.
@@ -64,33 +67,56 @@ public:
 
     /** Sets whether grid points should be enabled or not.
         @param val Gridpoints indicator */
+    GT_DEPRECATED_ATTR(2, 2, "Function has no effect. No replacement is planned.")
     void setShowGridPoints(bool val);
 
-    /** Sets whether axis should be enabled or not.
-        @param val Axis indicator */
-    void setShowAxis(bool val);
+    /** @brief Sets whether the horizontal axis should be enabled or not.
+     *  @param show Whether to show the axis
+     */
+    GT_DEPRECATED_ATTR(2, 2, "Use `setAxisVisible` instead.")
+    void setShowAxis(bool show);
+
+    /**
+     * @brief Sets which axis should be shown
+     * @param show Whether to show the given axis
+     * @param orientation Which axis to show
+     */
+    void setAxisVisible(bool show = true, VisibleAxis axis = Qt::Horizontal | Qt::Vertical);
+
+    /**
+     * @brief Returns which axis is shown, if any.
+     * @return which axis is visible
+     */
+    VisibleAxis visibleAxis() const;
 
     /** Sets horizontal grid line color.
         @param color New horizontal grid line color */
     void setHorizontalGridLineColor(const QColor& color);
+    void setHLineColor(const QColor& color);
 
     /** Sets vertical grid line color.
         @param color New vertical grid line color */
     void setVerticalGridLineColor(const QColor& color);
+    void setVLineColor(const QColor& color);
 
     /** Sets grid point color.
         @param color New grid point color */
+    GT_DEPRECATED_ATTR(2, 2, "Function has no effect. No replacement is planned.")
     void setGridPointColor(const QColor& color);
 
+    GT_DEPRECATED_ATTR(2, 2, "use `paint` instead.")
+    void paintGrid(QPainter* painter, const QRectF& rect);
     /** @brief Paints full grid.
      *  @param painter QPainter pointer
      *  @param rect Scene rect
      */
-    void paintGrid(QPainter* painter, const QRectF& rect);
+    void paint(QPainter& painter, const QRectF& rect );
 
     /** computeTopLeftGridPoint
      * @param p
      * @return Top left grid Point*/
+    GT_DEPRECATED_ATTR(2, 2, "No replacement is planned. If this function is "
+                             "needed, contact GTlab support.")
     QPointF computeTopLeftGridPoint(const QPointF& p);
 
     /** computeNearestGridPoint
@@ -132,54 +158,33 @@ public slots:
      * @brief Hides the grid
      * @param val hide indicator
      */
-    GT_DEPRECATED_ATTR(2, 2, "use setVisible")
+    GT_DEPRECATED_ATTR(2, 2, "use `setVisible` instead.")
     void hideGrid(bool hidden = true);
 
     /**
      * @brief Shows the grid
      * @param val show indicator
      */
-    GT_DEPRECATED_ATTR(2, 2, "use setVisible")
+    GT_DEPRECATED_ATTR(2, 2, "use `setVisible` instead.")
     void showGrid(bool visible = true);
 
-protected:
-    /** Paints horizontal and vertical grid lines.
-        @param painter QPainter pointer
-        @param rect Scene rect */
-    void paintGridLines(QPainter* painter, const QRectF &rect);
+signals:
 
-    /** Paints horizontal and vertical axis.
-        @param painter QPainter pointer
-        @param rect Scene rect */
-    void paintAxis(QPainter* painter, const QRectF &rect);
+    /**
+     * @brief Emitted if the grid is updated
+     */
+    GT_DEPRECATED_ATTR(2, 2, "use visibilityChanged isntead.")
+    void update();
 
-    /** Returns scaled grid width.
-        @return Scaled grid width */
-    double getScaledGridWidth();
-
-    /** Returns scaled grid height.
-        @return Scaled grid height */
-    double getScaledGridHeight();
+    /**
+     * @brief Emitted if the grid visibility is changed
+     */
+    void visibilityChanged();
 
 private:
 
     struct Impl;
     std::unique_ptr<Impl> pimpl;
-
-    /** Returns scaled grid vor given orientation.
-        @param val Orientation*/
-    double getScaledGrid(Qt::Orientation orientation);
-
-    /** Draws rotated text for vertical axis ticks.
-        @param painter Current Painter
-        @param x Coordinate
-        @param y Coordinate
-        @param text Tick text */
-    void drawRotatedText(QPainter *painter, int x, int y, const QString &text);
-
-signals:
-
-    void update();
 };
 
 #endif // GTD_GRID_H

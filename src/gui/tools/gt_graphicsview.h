@@ -46,8 +46,9 @@ public:
 
     ~GtGraphicsView() override;
 
-    /** Returns grid.
-        @return Grid pointer */
+    /** @brief Returns the grid.
+      * @return Grid, null if no grid is set
+      */
     GtGrid* grid();
 
     /**

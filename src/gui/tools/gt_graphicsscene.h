@@ -24,11 +24,11 @@ class GT_GUI_EXPORT GtGraphicsScene : public QGraphicsScene
 
 public:
 
-    GT_DEPRECATED_ATTR(2, 2, "Use QGraphicsScene instead.")
+    GT_DEPRECATED_ATTR(2, 2, "Use `QGraphicsScene` instead.")
     explicit GtGraphicsScene(QObject *parent = 0);
 
     template <class T>
-    GT_DEPRECATED_ATTR(2, 2, "Function will be removed, no replacement is provided.")
+    GT_DEPRECATED_ATTR(2, 2, "Function will be removed, no replacement is planned.")
     QList<T> findItems()
     {
         QList<T> retval;

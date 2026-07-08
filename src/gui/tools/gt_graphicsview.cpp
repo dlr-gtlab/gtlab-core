@@ -12,7 +12,6 @@
 #include <QtWidgets>
 
 #include "gt_graphicsview.h"
-#include "gt_graphicsscene.h"
 #include "gt_grid.h"
 #include "gt_ruler.h"
 #include "gt_logging.h"
@@ -179,17 +178,9 @@ GtGraphicsView::drawBackground(QPainter* painter, const QRectF& rect)
 {
     QGraphicsView::drawBackground(painter, rect);
 
-    if (pimpl->grid)
+    if (pimpl->grid && painter)
     {
-        if (rect.isValid())
-        {
-            pimpl->grid->paintGrid(painter, rect);
-        }
-        else
-        {
-            gtWarning() << tr("Model contains invalid values "
-                              "for geometrical description");
-        }
+        pimpl->grid->paint(*painter, rect);
     }
 }
 
