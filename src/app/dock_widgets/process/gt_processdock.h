@@ -545,7 +545,7 @@ private slots:
      */
     void itemExpanded(const QModelIndex& index);
 
-    signals:
+signals:
     /**
      * @brief selectedObjectChanged
      */

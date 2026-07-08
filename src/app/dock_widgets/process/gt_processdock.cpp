@@ -10,9 +10,7 @@
 
 #include <QVBoxLayout>
 #include <QPushButton>
-#include <QFrame>
 #include <QComboBox>
-#include <QMenu>
 #include <QMimeData>
 #include <QApplication>
 #include <QClipboard>
@@ -140,7 +138,6 @@ GtProcessDock::GtProcessDock() :
 
     frame->setLayout(frameLayout);
     frame->setAutoFillBackground(true);
-
 
     auto delegate = new GtTextFilterDelegate(this,
                                              GtTextFilterDelegate::allowSpaces);

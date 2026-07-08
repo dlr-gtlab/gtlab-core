@@ -187,9 +187,3 @@ GtTaskGroupModel::groupNameExists(const QString& name,
 
     return false;
 }
-
-//bool
-
-
-
-
