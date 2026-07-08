@@ -13,14 +13,17 @@
 #define GTD_GRID_H
 
 #include "gt_gui_exports.h"
+#include "gt_version.h"
 
 #include <QObject>
 #include <QPointF>
 #include <QColor>
 #include <QRectF>
 
+#include <memory>
+
 class QPainter;
-class GtGraphicsView;
+class QGraphicsView;
 class GtRuler;
 
 class GT_GUI_EXPORT GtGrid : public QObject
@@ -28,15 +31,27 @@ class GT_GUI_EXPORT GtGrid : public QObject
     Q_OBJECT
 
 public:
-    explicit GtGrid(GtGraphicsView& view);
 
-    /** Sets grid width to given value.
-        @param val New grid width */
-    void setGridWidth(int val);
+    explicit GtGrid(QGraphicsView& view);
+    ~GtGrid();
 
-    /** Sets grid height to given value.
-        @param val New grid height */
-    void setGridHeight(int val);
+    GT_DEPRECATED_ATTR(2, 2, "use setHSpacing instead.")
+    void setGridWidth(int value);
+    /**
+     * @brief Sets the spacing between horizontal (major) grid lines
+     * @param value
+     */
+    void setHSpacing(size_t value);
+    size_t hSpacing() const;
+
+    GT_DEPRECATED_ATTR(2, 2, "use setVSpacing instead.")
+    void setGridHeight(int value);
+    /**
+     * @brief Sets the spacing between vertical (major) grid lines
+     * @param value
+     */
+    void setVSpacing(size_t value);
+    size_t vSpacing() const;
 
     /** Sets number of grid points for one grid rect.
         @param horizontal Number of horizontal grid points
@@ -67,9 +82,10 @@ public:
         @param color New grid point color */
     void setGridPointColor(const QColor& color);
 
-    /** Paints full grid.
-        @param painter QPainter pointer
-        @param rect Scene rect */
+    /** @brief Paints full grid.
+     *  @param painter QPainter pointer
+     *  @param rect Scene rect
+     */
     void paintGrid(QPainter* painter, const QRectF& rect);
 
     /** computeTopLeftGridPoint
@@ -98,18 +114,33 @@ public:
         @param ruler New vertical ruler */
     void setVerticalRuler(GtRuler* ruler);
 
+    /**
+     * @brief Returns whether the grid is visible
+     * @return Is grid visible
+     */
+    bool isVisible() const;
+
 public slots:
+
+    /**
+     * @brief Sets the visibility of the grid
+     * @param visible Whether the grid should be visible or hidden
+     */
+    void setVisible(bool visible = true);
+
     /**
      * @brief Hides the grid
      * @param val hide indicator
      */
-    void hideGrid(bool val = true);
+    GT_DEPRECATED_ATTR(2, 2, "use setVisible")
+    void hideGrid(bool hidden = true);
 
     /**
      * @brief Shows the grid
      * @param val show indicator
      */
-    void showGrid(bool val = true);
+    GT_DEPRECATED_ATTR(2, 2, "use setVisible")
+    void showGrid(bool visible = true);
 
 protected:
     /** Paints horizontal and vertical grid lines.
@@ -124,64 +155,20 @@ protected:
 
     /** Returns scaled grid width.
         @return Scaled grid width */
-    qreal getScaledGridWidth();
+    double getScaledGridWidth();
 
     /** Returns scaled grid height.
         @return Scaled grid height */
-    qreal getScaledGridHeight();
+    double getScaledGridHeight();
 
 private:
-    /// GtdGraphicsView
-    GtGraphicsView& m_view;
 
-    /// Grid width
-    int m_width;
-
-    /// Grid height
-    int m_height;
-
-    /// Number of horizontal grid points
-    int m_nohgp;
-
-    /// Number of vertical grid points
-    int m_novgp;
-
-    /// Grid scale indicator
-    bool m_scaleGrid;
-
-    /// Grid scaling factor
-    int m_gridFactor;
-
-    /// Grid points indicator
-    bool m_showGridPoints;
-
-    /// Axis indicator
-    bool m_showAxis;
-
-    /// Hide grid
-    bool m_hideGrid;
-
-    /// Horizontal grid line color
-    QColor m_hgColor;
-
-    /// Vertical grid line color
-    QColor m_vgColor;
-
-    /// Grid point color
-    QColor m_gpColor;
-
-    /// Scene rect
-    QRectF m_rect;
-
-    /// Horizontal ruler
-    GtRuler* m_hRuler;
-
-    /// Vertical ruler
-    GtRuler* m_vRuler;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
     /** Returns scaled grid vor given orientation.
         @param val Orientation*/
-    qreal getScaledGrid(Qt::Orientation val);
+    double getScaledGrid(Qt::Orientation orientation);
 
     /** Draws rotated text for vertical axis ticks.
         @param painter Current Painter
@@ -191,8 +178,8 @@ private:
     void drawRotatedText(QPainter *painter, int x, int y, const QString &text);
 
 signals:
-    void update();
 
+    void update();
 };
 
 #endif // GTD_GRID_H

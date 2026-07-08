@@ -12,11 +12,14 @@
 #ifndef GTD_GRAPHICSVIEW_H
 #define GTD_GRAPHICSVIEW_H
 
-#include <QGraphicsView>
-#include <QGestureEvent>
 #include "gt_gui_exports.h"
 
-class GtGraphicsScene;
+#include <QGraphicsView>
+#include <QGestureEvent>
+
+#include <memory>
+
+class QGraphicsScene;
 class GtGrid;
 class GtRuler;
 
@@ -25,15 +28,49 @@ class GT_GUI_EXPORT GtGraphicsView : public QGraphicsView
     Q_OBJECT
 
 public:
-    explicit GtGraphicsView(GtGraphicsScene *s, QWidget *parent = 0);
+
+    enum Option : int
+    {
+        /// Nop option
+        NoOption = 0,
+        /// Indicates that the scene, the view is currently assigned to,
+        /// is deleted, if the view is deleted.
+        /// (default for backwards compatibility,
+        ///  normally QGraphicsScene is NOT owned by QGraphicsView)
+        OwnActiveScene = 1 << 0
+    };
+    using Options = QFlags<Option>;
+
+    explicit GtGraphicsView(QGraphicsScene* s, QWidget* parent = 0);
+    GtGraphicsView(QGraphicsScene* s, Options options, QWidget* parent = 0);
+
     ~GtGraphicsView() override;
 
     /** Returns grid.
         @return Grid pointer */
     GtGrid* grid();
 
-    /** Sets new grid. Old grid is deleted.
-        @param grid New grid */
+    /**
+     * @brief Sets the options of this view.
+     * @param options Options
+     */
+    void setOptions(Options options);
+    /**
+     * @brief Overrides the given option.
+     * @param option Option
+     * @param enabled Whether the option is enabled
+     */
+    void setOption(Option option, bool enabled = true);
+    /**
+     * @brief Returns the options of this view
+     * @return Options
+     */
+    Options options() const;
+
+    /**
+     *  @brief Sets and owns the new grid. Old grid is deleted.
+     *  @param grid New grid
+     */
     void setGrid(GtGrid* grid);
 
     /** Sets new horizontal ruler.
@@ -69,10 +106,6 @@ public slots:
 
     void snapToGrid(bool val);
 
-protected:
-    /// GtdGraphicsScene
-    GtGraphicsScene* m_scene;
-
     void wheelEvent(QWheelEvent *e) override;
 
     void scrollContentsBy(int dx, int dy) override;
@@ -86,29 +119,9 @@ protected:
     void setScale(qreal val);
 
 private:
-    /// Zoom factor
-    qreal m_zoom;
 
-    /// Max zoom factor
-    qreal m_maxZoom;
-
-    /// Min zoom factor
-    qreal m_minZoom;
-
-    /// Number of scheduled scalings
-    int m_numsScalings;
-
-    /// Grid
-    GtGrid* m_grid;
-
-    /// Horizontal ruler
-    GtRuler* m_hRuler;
-
-    /// Vertical ruler
-    GtRuler* m_vRuler;
-
-    /// Switch for "Snap to Grid" Mode
-    bool m_snap;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
     /** Smooth zoom animation.
         @param delta Wheel delta */

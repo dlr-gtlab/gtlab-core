@@ -17,5 +17,6 @@
 GtGraphicsScene::GtGraphicsScene(QObject *parent) :
     QGraphicsScene(parent)
 {
+    GT_REMOVAL_GUARD(2, 2, "remove the entire class");
 }
 

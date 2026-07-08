@@ -28,7 +28,7 @@
 
 GtProcessConnectionScene::GtProcessConnectionScene(
         GtProcessConnectionGraphicsView* parent) :
-    GtGraphicsScene(parent),
+    QGraphicsScene(parent),
     m_tempConnection(nullptr),
     m_animationGroup(nullptr),
     m_view(parent)
@@ -117,8 +117,7 @@ GtProcessConnectionScene::resetPorts()
 void
 GtProcessConnectionScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
-
-    GtGraphicsScene::mousePressEvent(mouseEvent);
+    QGraphicsScene::mousePressEvent(mouseEvent);
 }
 
 void
@@ -144,9 +143,7 @@ GtProcessConnectionScene::mouseReleaseEvent(
         resetPorts();
     }
 
-//    resetPorts();
-
-    GtGraphicsScene::mouseReleaseEvent(mouseEvent);
+    QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }
 
 void
@@ -204,11 +201,9 @@ GtProcessConnectionScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
                 refreshTempConnection(event->scenePos());
             }
         }
-
-//        refreshTempConnection(event->scenePos());
     }
 
-    GtGraphicsScene::mouseMoveEvent(event);
+    QGraphicsScene::mouseMoveEvent(event);
 }
 
 void

@@ -14,6 +14,7 @@
 
 #include <QGraphicsScene>
 #include "gt_gui_exports.h"
+#include "gt_version.h"
 
 class GtGraphicsView;
 
@@ -22,11 +23,12 @@ class GT_GUI_EXPORT GtGraphicsScene : public QGraphicsScene
     Q_OBJECT
 
 public:
+
+    GT_DEPRECATED_ATTR(2, 2, "Use QGraphicsScene instead.")
     explicit GtGraphicsScene(QObject *parent = 0);
 
-//    void setPointSelectionMode(bool val);
-
     template <class T>
+    GT_DEPRECATED_ATTR(2, 2, "Function will be removed, no replacement is provided.")
     QList<T> findItems()
     {
         QList<T> retval;
