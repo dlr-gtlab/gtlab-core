@@ -17,6 +17,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMessageBox>
+#include <QLineEdit>
 #include <QInputDialog>
 
 #include "gt_algorithms.h"
@@ -60,6 +61,8 @@
 #include "gt_state.h"
 
 #include "gt_processdock.h"
+
+#include "gt_taskgrouprenamedialog.h"
 
 using namespace gt::gui;
 
@@ -2571,40 +2574,40 @@ GtProcessDock::onRenameTaskGroupButtonClicked()
 
     QString groupName = m_taskGroupSelection->itemText(currentIndex);
 
-    bool ok = false;
-    QString newName = QInputDialog::getText(this,
-        tr("Rename Task Group"),
-        tr("Enter new name for task group '%1':").arg(groupName),
-        QLineEdit::Normal,
-        groupName,
-        &ok);
-
-    if (!ok || newName.isEmpty() || newName == groupName) return;
-
     if (!m_project || !m_project->processData()) return;
 
-    if (!m_project->processData()->renameTaskGroup(groupName, newName,
-                GtTaskGroup::CUSTOM, m_project->path()))
+    QStringList customGroupIds = m_project->processData()->customGroupIds();
+    customGroupIds.sort(Qt::CaseInsensitive);
+
+    GtTaskGroupRenameDialog dialog(groupName, customGroupIds, this);
+
+    if (dialog.exec() == QDialog::Accepted)
     {
-        gtError() << tr("Failed to rename task group from '%1' to '%2'")
-                     .arg(groupName).arg(newName);
-        return;
-    }
+        QString newName = dialog.newName();
 
-    if (!m_project->processData()->save(m_project->path()))
-    {
-        gtError() << tr("Failed to save project after renaming task group");
-        return;
-    }
+        if (!m_project->processData()->renameTaskGroup(groupName, newName,
+                    GtTaskGroup::CUSTOM, m_project->path()))
+        {
+            gtError() << tr("Failed to rename task group from '%1' to '%2'")
+                         .arg(groupName).arg(newName);
+            return;
+        }
 
-    resetTaskGroupModel();
+        if (!m_project->processData()->save(m_project->path()))
+        {
+            gtError() << tr("Failed to save project after renaming task group");
+            return;
+        }
 
-    QModelIndex newIndex = m_taskGroupModel->indexByGroupName(newName,
-        GtTaskGroup::CUSTOM);
+        resetTaskGroupModel();
 
-    if (newIndex.isValid())
-    {
-        m_taskGroupSelection->setCurrentIndex(newIndex.row());
+        QModelIndex newIndex = m_taskGroupModel->indexByGroupName(newName,
+            GtTaskGroup::CUSTOM);
+
+        if (newIndex.isValid())
+        {
+            m_taskGroupSelection->setCurrentIndex(newIndex.row());
+        }
     }
 }
 
