@@ -63,7 +63,7 @@ GtTaskGroupModel::rowScope(int row) const
 int
 GtTaskGroupModel::rowCount(const QModelIndex& /*parent*/) const
 {
-    return m_userGroups.size() + m_customGroups.size() + 3;
+    return m_userGroups.size() + m_customGroups.size() + 2;
 }
 
 QVariant
@@ -146,11 +146,6 @@ GtTaskGroupModel::rowText(int row) const
         // row is custom scope title
         return tr("Custom:");
     }
-    else if (row == rowCount() - 1)
-    {
-        // row is add new custom group
-        return tr("Add new custom group");
-    }
     else if (row < m_userGroups.size() + 1)
     {
         // row is user scope entry
@@ -177,15 +172,6 @@ GtTaskGroupModel::rowIsSelectable(int row) const
     return true;
 }
 
-bool
-GtTaskGroupModel::isAddNewRow(int row) const
-{
-    if (row < 0 || row >= rowCount())
-    {
-        return false;
-    }
 
-    return (row == rowCount() - 1);
-}
 
 

@@ -153,7 +153,13 @@ GtProcessDock::GtProcessDock() :
     m_taskGroupModel = new GtTaskGroupModel(this);
     m_taskGroupSelection->setModel(m_taskGroupModel);
 
-    QPushButton* deleteTaskGroupButton = new QPushButton(tr("Delete"));
+    QPushButton* addTaskGroupButton = new QPushButton;
+    addTaskGroupButton->setIcon(gt::gui::icon::add());
+    addTaskGroupButton->setToolTip(tr("Add new custom task group"));
+    connect(addTaskGroupButton, &QPushButton::clicked,
+            this, &GtProcessDock::addNewCustomTaskGroup);
+
+    QPushButton* deleteTaskGroupButton = new QPushButton;
     deleteTaskGroupButton->setObjectName(QStringLiteral("deleteTaskGroupButton"));
     deleteTaskGroupButton->setIcon(gt::gui::icon::remove());
     deleteTaskGroupButton->setToolTip(tr("Delete selected custom task group"));
@@ -165,6 +171,7 @@ GtProcessDock::GtProcessDock() :
     taskGroupLayout->setContentsMargins(0, 0, 0, 0);
     taskGroupLayout->setSpacing(2);
     taskGroupLayout->addWidget(m_taskGroupSelection);
+    taskGroupLayout->addWidget(addTaskGroupButton);
     taskGroupLayout->addWidget(deleteTaskGroupButton);
 
     auto layout = new QVBoxLayout;
@@ -410,21 +417,6 @@ GtProcessDock::updateCurrentTaskGroup()
     setCurrentProcess();
 
     updateButtons(m_taskGroup);
-
-    QPushButton* deleteButton = findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton"));
-    if (deleteButton)
-    {
-        int currentIndex = m_taskGroupSelection->currentIndex();
-        if (currentIndex >= 0)
-        {
-            GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
-            deleteButton->setEnabled(scope == GtTaskGroup::CUSTOM);
-        }
-        else
-        {
-            deleteButton->setEnabled(false);
-        }
-    }
 
     updateProcessViewRootIndex();
 
@@ -2480,12 +2472,6 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
         return;
     }
 
-    if (m_taskGroupModel->isAddNewRow(index))
-    {
-        addNewCustomTaskGroup();
-        return;
-    }
-
     const GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(index);
 
     if (scope == GtTaskGroup::UNDEFINED)
@@ -2523,11 +2509,6 @@ GtProcessDock::onDeleteTaskGroupButtonClicked()
 {
     int currentIndex = m_taskGroupSelection->currentIndex();
     if (currentIndex < 0)
-    {
-        return;
-    }
-
-    if (m_taskGroupModel->isAddNewRow(currentIndex))
     {
         return;
     }

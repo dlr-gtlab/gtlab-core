@@ -77,15 +77,8 @@ public:
      * given scope. If no matching Task Group is found, an invalid QModelIndex
      * is returned.
      */
-    QModelIndex indexByGroupName(const QString& name,
-                                 GtTaskGroup::SCOPE scope) const;
-
-    /**
-     * @brief Returns whether row for given row number is the "add new" row.
-     * @param row
-     * @return
-     */
-    bool isAddNewRow(int row) const;
+QModelIndex indexByGroupName(const QString& name,
+                                  GtTaskGroup::SCOPE scope) const;
 
     /**
      * @brief Returns text for given row number.
