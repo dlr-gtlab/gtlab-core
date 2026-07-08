@@ -455,6 +455,27 @@ private slots:
     void customContextMenu(const QPoint& pos);
 
     /**
+     * @brief Opens dialog to create a new custom task group.
+     */
+    void addNewCustomTaskGroup();
+
+    /**
+     * @brief Deletes a custom task group after confirmation.
+     * @param groupName Name of the task group to delete
+     */
+    void deleteCustomTaskGroup(const QString& groupName);
+
+    /**
+     * @brief Handles delete button click for custom task group.
+     */
+    void onDeleteTaskGroupButtonClicked();
+
+    /**
+     * @brief Handles rename button click for custom task group.
+     */
+    void onRenameTaskGroupButtonClicked();
+
+    /**
      * @brief Opens the calcualtor configuration wizard.
      * @param calc Calculator for configuration.
      */
@@ -522,23 +543,7 @@ private slots:
      */
     void itemExpanded(const QModelIndex& index);
 
-    /**
-     * @brief Opens dialog to create a new custom task group.
-     */
-    void addNewCustomTaskGroup();
-
-    /**
-     * @brief Deletes a custom task group after confirmation.
-     * @param groupName Name of the task group to delete
-     */
-    void deleteCustomTaskGroup(const QString& groupName);
-
-    /**
-     * @brief Handles delete button click for custom task group.
-     */
-    void onDeleteTaskGroupButtonClicked();
-
-signals:
+    signals:
     /**
      * @brief selectedObjectChanged
      */

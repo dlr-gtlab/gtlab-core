@@ -169,12 +169,22 @@ GtProcessDock::GtProcessDock() :
     connect(deleteTaskGroupButton, &QPushButton::clicked,
             this, &GtProcessDock::onDeleteTaskGroupButtonClicked);
 
+    auto* renameTaskGroupButton = new QPushButton;
+    renameTaskGroupButton->setIcon(gt::gui::icon::rename());
+    renameTaskGroupButton->setToolTip(tr("Rename selected custom task group"));
+    renameTaskGroupButton->setEnabled(false);
+    renameTaskGroupButton->setMaximumWidth(40);
+    renameTaskGroupButton->setObjectName(QStringLiteral("renameTaskGroupButton"));
+    connect(renameTaskGroupButton, &QPushButton::clicked,
+            this, &GtProcessDock::onRenameTaskGroupButtonClicked);
+
     auto* taskGroupLayout = new QHBoxLayout;
     taskGroupLayout->setContentsMargins(0, 0, 0, 0);
     taskGroupLayout->setSpacing(2);
     taskGroupLayout->addWidget(m_taskGroupSelection);
     taskGroupLayout->addWidget(addTaskGroupButton);
     taskGroupLayout->addWidget(deleteTaskGroupButton);
+    taskGroupLayout->addWidget(renameTaskGroupButton);
 
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -837,6 +847,23 @@ GtProcessDock::updateButtons(GtObject* obj)
         else
         {
             deleteButton->setEnabled(false);
+        }
+    }
+
+    auto* renameButton = findChild<QPushButton*>(
+        QStringLiteral("renameTaskGroupButton"));
+
+    if (renameButton)
+    {
+        int currentIndex = m_taskGroupSelection->currentIndex();
+        if (currentIndex >= 0)
+        {
+            GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+            renameButton->setEnabled(scope == GtTaskGroup::CUSTOM);
+        }
+        else
+        {
+            renameButton->setEnabled(false);
         }
     }
 }
@@ -2502,6 +2529,8 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
         setLastTaskGroupId(groupId);
     }
 
+    updateButtons();
+
     updateCurrentTaskGroup();
 
     QPushButton* deleteButton = findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton"));
@@ -2538,6 +2567,65 @@ GtProcessDock::onDeleteTaskGroupButtonClicked()
     if (reply == QMessageBox::Yes)
     {
         deleteCustomTaskGroup(groupName);
+    }
+}
+
+void
+GtProcessDock::onRenameTaskGroupButtonClicked()
+{
+    int currentIndex = m_taskGroupSelection->currentIndex();
+    if (currentIndex < 0)
+    {
+        return;
+    }
+
+    GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+    if (scope != GtTaskGroup::CUSTOM)
+    {
+        return;
+    }
+
+    QString groupName = m_taskGroupSelection->itemText(currentIndex);
+
+    bool ok = false;
+    QString newName = QInputDialog::getText(this,
+        tr("Rename Task Group"),
+        tr("Enter new name for task group '%1':").arg(groupName),
+        QLineEdit::Normal,
+        groupName,
+        &ok);
+
+    if (!ok || newName.isEmpty() || newName == groupName)
+    {
+        return;
+    }
+
+    if (!m_project || !m_project->processData())
+    {
+        return;
+    }
+
+    if (!m_project->processData()->renameTaskGroup(groupName, newName,
+                GtTaskGroup::CUSTOM, m_project->path()))
+    {
+        gtError() << tr("Failed to rename task group from '%1' to '%2'")
+                     .arg(groupName).arg(newName);
+        return;
+    }
+
+    if (!m_project->processData()->save(m_project->path()))
+    {
+        gtError() << tr("Failed to save project after renaming task group");
+        return;
+    }
+
+    resetTaskGroupModel();
+
+    QModelIndex newIndex = m_taskGroupModel->indexByGroupName(newName,
+        GtTaskGroup::CUSTOM);
+    if (newIndex.isValid())
+    {
+        m_taskGroupSelection->setCurrentIndex(newIndex.row());
     }
 }
 
@@ -2883,6 +2971,18 @@ GtProcessDock::keyPressEvent(QKeyEvent* event)
     if (gtApp->compareKeyEvent(event, "openContextMenu"))
     {
         customContextMenu(srcIndex);
+    }
+
+    if (gtApp->compareKeyEvent(event, "rename"))
+    {
+        if (m_taskGroupSelection->hasFocus())
+        {
+            onRenameTaskGroupButtonClicked();
+        }
+        else
+        {
+            emit m_view->renameProcessElement(index);
+        }
     }
 }
 

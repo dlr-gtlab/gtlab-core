@@ -88,6 +88,15 @@ private:
     QStringList m_customGroups;
 
     /**
+     * @brief Returns whether group name exists in given scope.
+     * @param name The name to check
+     * @param scope The scope to check in
+     * @return true if name exists, false otherwise
+     */
+    bool groupNameExists(const QString& name,
+                         GtTaskGroup::SCOPE scope) const;
+
+    /**
      * @brief Returns text for given row number.
      * @param row
      * @return row text
