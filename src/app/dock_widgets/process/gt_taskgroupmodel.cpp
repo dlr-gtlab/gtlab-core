@@ -171,19 +171,3 @@ GtTaskGroupModel::rowIsSelectable(int row) const
 
     return true;
 }
-
-bool
-GtTaskGroupModel::groupNameExists(const QString& name,
-                                  GtTaskGroup::SCOPE scope) const
-{
-    if (scope == GtTaskGroup::USER)
-    {
-        return m_userGroups.contains(name);
-    }
-    else if (scope == GtTaskGroup::CUSTOM)
-    {
-        return m_customGroups.contains(name);
-    }
-
-    return false;
-}

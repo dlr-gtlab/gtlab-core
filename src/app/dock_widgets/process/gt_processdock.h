@@ -387,8 +387,6 @@ private:
      */
     void resetTaskGroupModel();
 
-    bool checkModelCurrentIndexScope(GtTaskGroup::SCOPE compare);
-
 private slots:
     /**
      * @brief filterData
@@ -544,6 +542,8 @@ private slots:
      * @param index The index of the item that was expanded.
      */
     void itemExpanded(const QModelIndex& index);
+
+    void updateCustomTaskGroupsButtons();
 
 signals:
     /**

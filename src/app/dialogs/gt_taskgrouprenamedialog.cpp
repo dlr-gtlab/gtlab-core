@@ -81,7 +81,7 @@ GtTaskGroupRenameDialog::validateName(const QString& text)
         m_warningLabel->setText(tr("New name is identical to current name."));
         setLabelColor(gt::gui::color::warningText());
         m_warningLabel->setVisible(true);
-        m_okButton->setEnabled(true);
+        m_okButton->setEnabled(false);
         return;
     }
 
