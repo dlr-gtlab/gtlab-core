@@ -80,6 +80,12 @@ public:
     QModelIndex indexByGroupName(const QString& name,
                                  GtTaskGroup::SCOPE scope) const;
 
+    /**
+     * @brief Returns whether row for given row number is the "add new" row.
+     * @param row
+     * @return
+     */
+    bool isAddNewRow(int row) const;
 private:
     /// List of task group identification strings in user scope.
     QStringList m_userGroups;
@@ -93,6 +99,8 @@ private:
      * @return row text
      */
     QString rowText(int row) const;
+
+
 
     /**
      * @brief Returns whether row for given row number is selectable. Usually

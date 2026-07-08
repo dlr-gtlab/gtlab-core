@@ -17,6 +17,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMessageBox>
+#include <QInputDialog>
 
 #include "gt_algorithms.h"
 #include "gt_mainwin.h"
@@ -2420,6 +2421,12 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
         return;
     }
 
+    if (m_taskGroupModel->isAddNewRow(index))
+    {
+        addNewCustomTaskGroup();
+        return;
+    }
+
     const GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(index);
 
     if (scope == GtTaskGroup::UNDEFINED)
@@ -2444,6 +2451,65 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
     }
 
     updateCurrentTaskGroup();
+}
+
+void
+GtProcessDock::addNewCustomTaskGroup()
+{
+    if (!m_project || !m_project->processData())
+    {
+        return;
+    }
+
+    QStringList customGroupIds = m_project->processData()->customGroupIds();
+    customGroupIds.sort(Qt::CaseInsensitive);
+
+    bool ok = false;
+    QString groupName = QInputDialog::getText(this,
+        tr("Add New Custom Task Group"),
+        tr("Enter name for new custom task group:"),
+        QLineEdit::Normal,
+        QString(),
+        &ok);
+
+    if (!ok || groupName.isEmpty())
+    {
+        return;
+    }
+
+    if (customGroupIds.contains(groupName, Qt::CaseInsensitive))
+    {
+        QMessageBox::warning(this,
+            tr("Invalid Group Name"),
+            tr("A task group with this name already exists."));
+        return;
+    }
+
+    GtTaskGroup* newGroup = m_project->processData()->createNewTaskGroup(
+        groupName, GtTaskGroup::CUSTOM);
+
+    if (!newGroup)
+    {
+        gtError() << tr("Failed to create new task group: %1").arg(groupName);
+        return;
+    }
+
+    if (!m_project->processData()->save(m_project->path()))
+    {
+        gtError() << tr("Failed to save project after creating task group: %1")
+                     .arg(groupName);
+        return;
+    }
+
+    resetTaskGroupModel();
+
+    QModelIndex newIndex = m_taskGroupModel->indexByGroupName(groupName,
+        GtTaskGroup::CUSTOM);
+
+    if (newIndex.isValid())
+    {
+        m_taskGroupSelection->setCurrentIndex(newIndex.row());
+    }
 }
 
 void

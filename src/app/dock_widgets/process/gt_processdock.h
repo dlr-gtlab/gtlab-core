@@ -522,6 +522,11 @@ private slots:
      */
     void itemExpanded(const QModelIndex& index);
 
+    /**
+     * @brief Opens dialog to create a new custom task group.
+     */
+    void addNewCustomTaskGroup();
+
 signals:
     /**
      * @brief selectedObjectChanged
