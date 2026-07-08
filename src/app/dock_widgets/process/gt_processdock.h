@@ -527,6 +527,18 @@ private slots:
      */
     void addNewCustomTaskGroup();
 
+    /**
+     * @brief Deletes a custom task group after confirmation.
+     * @param groupName Name of the task group to delete
+     */
+    void deleteCustomTaskGroup(const QString& groupName);
+
+    /**
+     * @brief Handles delete request for custom task group.
+     * @param index Model index of the task group to delete
+     */
+    void onCustomTaskGroupDeleteRequested(const QModelIndex& index);
+
 signals:
     /**
      * @brief selectedObjectChanged

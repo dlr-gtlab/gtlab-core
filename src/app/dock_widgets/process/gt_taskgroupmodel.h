@@ -86,6 +86,20 @@ public:
      * @return
      */
     bool isAddNewRow(int row) const;
+
+    /**
+     * @brief Returns whether row for given row number is a custom group row
+     * that can be deleted.b
+     * @param row
+     * @return
+     */
+    bool isDeletableCustomRow(int row) const;
+
+    enum Role
+    {
+        IsCustomGroupRole = Qt::UserRole + 1,
+        IsDeletableCustomGroupRole
+    };
 private:
     /// List of task group identification strings in user scope.
     QStringList m_userGroups;

@@ -56,6 +56,7 @@
 #include "gt_utilities.h"
 #include "gt_guiutilities.h"
 #include "gt_taskgroupmodel.h"
+#include "gt_taskgroupcomboboxdelegate.h"
 #include "gt_statehandler.h"
 #include "gt_state.h"
 
@@ -151,6 +152,10 @@ GtProcessDock::GtProcessDock() :
     m_taskGroupSelection->setEnabled(false);
 
     m_taskGroupModel = new GtTaskGroupModel(this);
+    GtTaskGroupComboBoxDelegate* delegate = new GtTaskGroupComboBoxDelegate(this);
+    connect(delegate, &GtTaskGroupComboBoxDelegate::deleteRequested,
+            this, &GtProcessDock::onCustomTaskGroupDeleteRequested);
+    m_taskGroupSelection->setItemDelegate(delegate);
     m_taskGroupSelection->setModel(m_taskGroupModel);
 
     auto layout = new QVBoxLayout;
@@ -2803,5 +2808,60 @@ GtProcessDock::keyPressEvent(QKeyEvent* event)
     {
         customContextMenu(srcIndex);
     }
+}
+
+void
+GtProcessDock::onCustomTaskGroupDeleteRequested(const QModelIndex& index)
+{
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    const GtTaskGroupModel* model = qobject_cast<const GtTaskGroupModel*>(index.model());
+    if (!model)
+    {
+        return;
+    }
+
+    QString groupName = model->rowText(index.row());
+
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this,
+        tr("Delete Task Group"),
+        tr("Are you sure you want to delete the task group '%1'?").arg(groupName),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);
+
+    if (reply == QMessageBox::Yes)
+    {
+        deleteCustomTaskGroup(groupName);
+    }
+}
+
+void
+GtProcessDock::deleteCustomTaskGroup(const QString& groupName)
+{
+    if (!m_project || !m_project->processData())
+    {
+        return;
+    }
+
+    GtTaskGroup::SCOPE scope = GtTaskGroup::CUSTOM;
+
+    if (!m_project->processData()->deleteTaskGroup(groupName, scope))
+    {
+        gtError() << tr("Failed to delete task group: %1").arg(groupName);
+        return;
+    }
+
+    if (!m_project->processData()->save(m_project->path()))
+    {
+        gtError() << tr("Failed to save project after deleting task group: %1")
+                     .arg(groupName);
+        return;
+    }
+
+    resetTaskGroupModel();
 }
 
