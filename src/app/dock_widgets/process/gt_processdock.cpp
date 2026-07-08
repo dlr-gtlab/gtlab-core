@@ -153,21 +153,23 @@ GtProcessDock::GtProcessDock() :
     m_taskGroupModel = new GtTaskGroupModel(this);
     m_taskGroupSelection->setModel(m_taskGroupModel);
 
-    QPushButton* addTaskGroupButton = new QPushButton;
+    auto* addTaskGroupButton = new QPushButton;
     addTaskGroupButton->setIcon(gt::gui::icon::add());
     addTaskGroupButton->setToolTip(tr("Add new custom task group"));
+    addTaskGroupButton->setMaximumWidth(40);
     connect(addTaskGroupButton, &QPushButton::clicked,
             this, &GtProcessDock::addNewCustomTaskGroup);
 
-    QPushButton* deleteTaskGroupButton = new QPushButton;
+    auto* deleteTaskGroupButton = new QPushButton;
     deleteTaskGroupButton->setObjectName(QStringLiteral("deleteTaskGroupButton"));
     deleteTaskGroupButton->setIcon(gt::gui::icon::remove());
     deleteTaskGroupButton->setToolTip(tr("Delete selected custom task group"));
     deleteTaskGroupButton->setEnabled(false);
+    deleteTaskGroupButton->setMaximumWidth(40);
     connect(deleteTaskGroupButton, &QPushButton::clicked,
             this, &GtProcessDock::onDeleteTaskGroupButtonClicked);
 
-    QHBoxLayout* taskGroupLayout = new QHBoxLayout;
+    auto* taskGroupLayout = new QHBoxLayout;
     taskGroupLayout->setContentsMargins(0, 0, 0, 0);
     taskGroupLayout->setSpacing(2);
     taskGroupLayout->addWidget(m_taskGroupSelection);
@@ -343,13 +345,16 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 
             m_taskGroupSelection->setEnabled(true);
 
-            QPushButton* deleteButton = findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton"));
+            auto* deleteButton =
+                findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton"));
+
             if (deleteButton)
             {
                 int currentIndex = m_taskGroupSelection->currentIndex();
                 if (currentIndex >= 0)
                 {
-                    GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+                    GtTaskGroup::SCOPE scope =
+                        m_taskGroupModel->rowScope(currentIndex);
                     deleteButton->setEnabled(scope == GtTaskGroup::CUSTOM);
                 }
                 else
@@ -818,7 +823,9 @@ GtProcessDock::updateButtons(GtObject* obj)
 
     updateRunButton();
 
-    QPushButton* deleteButton = findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton"));
+    auto* deleteButton = findChild<QPushButton*>(
+        QStringLiteral("deleteTaskGroupButton"));
+
     if (deleteButton)
     {
         int currentIndex = m_taskGroupSelection->currentIndex();
@@ -2537,10 +2544,7 @@ GtProcessDock::onDeleteTaskGroupButtonClicked()
 void
 GtProcessDock::addNewCustomTaskGroup()
 {
-    if (!m_project || !m_project->processData())
-    {
-        return;
-    }
+    if (!m_project || !m_project->processData()) return;
 
     QStringList customGroupIds = m_project->processData()->customGroupIds();
     customGroupIds.sort(Qt::CaseInsensitive);
@@ -2553,10 +2557,7 @@ GtProcessDock::addNewCustomTaskGroup()
         QString(),
         &ok);
 
-    if (!ok || groupName.isEmpty())
-    {
-        return;
-    }
+    if (!ok || groupName.isEmpty()) return;
 
     if (customGroupIds.contains(groupName, Qt::CaseInsensitive))
     {
@@ -2596,7 +2597,6 @@ GtProcessDock::addNewCustomTaskGroup()
 void
 GtProcessDock::endResetView()
 {
-
     updateProcessViewRootIndex();
     resetTaskGroupModel();
 }
@@ -2886,42 +2886,10 @@ GtProcessDock::keyPressEvent(QKeyEvent* event)
     }
 }
 
-// void
-// GtProcessDock::onCustomTaskGroupDeleteRequested(const QModelIndex& index)
-// {
-//     if (!index.isValid())
-//     {
-//         return;
-//     }
-
-//     const GtTaskGroupModel* model = qobject_cast<const GtTaskGroupModel*>(index.model());
-//     if (!model)
-//     {
-//         return;
-//     }
-
-//     QString groupName = model->rowText(index.row());
-
-//     QMessageBox::StandardButton reply = QMessageBox::question(
-//         this,
-//         tr("Delete Task Group"),
-//         tr("Are you sure you want to delete the task group '%1'?").arg(groupName),
-//         QMessageBox::Yes | QMessageBox::No,
-//         QMessageBox::No);
-
-//     if (reply == QMessageBox::Yes)
-//     {
-//         deleteCustomTaskGroup(groupName);
-//     }
-// }
-
 void
 GtProcessDock::deleteCustomTaskGroup(const QString& groupName)
 {
-    if (!m_project || !m_project->processData())
-    {
-        return;
-    }
+    if (!m_project || !m_project->processData()) return;
 
     GtTaskGroup::SCOPE scope = GtTaskGroup::CUSTOM;
 

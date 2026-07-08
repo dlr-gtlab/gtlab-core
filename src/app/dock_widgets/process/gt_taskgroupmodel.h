@@ -77,8 +77,15 @@ public:
      * given scope. If no matching Task Group is found, an invalid QModelIndex
      * is returned.
      */
-QModelIndex indexByGroupName(const QString& name,
-                                  GtTaskGroup::SCOPE scope) const;
+    QModelIndex indexByGroupName(const QString& name,
+                                 GtTaskGroup::SCOPE scope) const;
+
+private:
+    /// List of task group identification strings in user scope.
+    QStringList m_userGroups;
+
+    /// List of task group identification strings in custom scope.
+    QStringList m_customGroups;
 
     /**
      * @brief Returns text for given row number.
@@ -86,12 +93,6 @@ QModelIndex indexByGroupName(const QString& name,
      * @return row text
      */
     QString rowText(int row) const;
-private:
-    /// List of task group identification strings in user scope.
-    QStringList m_userGroups;
-
-    /// List of task group identification strings in custom scope.
-    QStringList m_customGroups;
 
     /**
      * @brief Returns whether row for given row number is selectable. Usually
