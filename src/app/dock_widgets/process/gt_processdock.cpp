@@ -355,22 +355,18 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 
             m_taskGroupSelection->setEnabled(true);
 
-            auto* deleteButton =
-                findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton"));
+            bool customScope = checkModelCurrentIndexScope(GtTaskGroup::CUSTOM);
 
-            if (deleteButton)
+            if (auto* deleteButton =
+                findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton")))
             {
-                int currentIndex = m_taskGroupSelection->currentIndex();
-                if (currentIndex >= 0)
-                {
-                    GtTaskGroup::SCOPE scope =
-                        m_taskGroupModel->rowScope(currentIndex);
-                    deleteButton->setEnabled(scope == GtTaskGroup::CUSTOM);
-                }
-                else
-                {
-                    deleteButton->setEnabled(false);
-                }
+                deleteButton->setEnabled(customScope);
+            }
+
+            if (auto* renameButton = findChild<QPushButton*>(
+                    QStringLiteral("renameTaskGroupButton")))
+            {
+                renameButton->setEnabled(customScope);
             }
 
             m_expandedItemUuidsState = gtStateHandler->initializeState(
@@ -537,6 +533,21 @@ GtProcessDock::resetTaskGroupModel()
     customGroups.sort(Qt::CaseInsensitive);
 
     m_taskGroupModel->init(userGroups, customGroups);
+}
+
+bool
+GtProcessDock::checkModelCurrentIndexScope(GtTaskGroup::SCOPE compare)
+{
+    int currentIndex = m_taskGroupSelection->currentIndex();
+    if (currentIndex >= 0)
+    {
+        GtTaskGroup::SCOPE scope =
+            m_taskGroupModel->rowScope(currentIndex);
+
+        return scope == compare;
+    }
+
+    return false;
 }
 
 void
@@ -833,38 +844,19 @@ GtProcessDock::updateButtons(GtObject* obj)
 
     updateRunButton();
 
-    auto* deleteButton = findChild<QPushButton*>(
-        QStringLiteral("deleteTaskGroupButton"));
 
-    if (deleteButton)
+    bool customScope = checkModelCurrentIndexScope(GtTaskGroup::CUSTOM);
+
+    if (auto* deleteButton =
+        findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton")))
     {
-        int currentIndex = m_taskGroupSelection->currentIndex();
-        if (currentIndex >= 0)
-        {
-            GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
-            deleteButton->setEnabled(scope == GtTaskGroup::CUSTOM);
-        }
-        else
-        {
-            deleteButton->setEnabled(false);
-        }
+        deleteButton->setEnabled(customScope);
     }
 
-    auto* renameButton = findChild<QPushButton*>(
-        QStringLiteral("renameTaskGroupButton"));
-
-    if (renameButton)
+    if (auto* renameButton = findChild<QPushButton*>(
+            QStringLiteral("renameTaskGroupButton")))
     {
-        int currentIndex = m_taskGroupSelection->currentIndex();
-        if (currentIndex >= 0)
-        {
-            GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
-            renameButton->setEnabled(scope == GtTaskGroup::CUSTOM);
-        }
-        else
-        {
-            renameButton->setEnabled(false);
-        }
+        renameButton->setEnabled(customScope);
     }
 }
 
@@ -2533,8 +2525,8 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
 
     updateCurrentTaskGroup();
 
-    QPushButton* deleteButton = findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton"));
-    if (deleteButton)
+    if (auto* deleteButton =
+        findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton")))
     {
         deleteButton->setEnabled(scope == GtTaskGroup::CUSTOM);
     }
@@ -2544,16 +2536,12 @@ void
 GtProcessDock::onDeleteTaskGroupButtonClicked()
 {
     int currentIndex = m_taskGroupSelection->currentIndex();
-    if (currentIndex < 0)
-    {
-        return;
-    }
+
+    if (currentIndex < 0) return;
 
     GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
-    if (scope != GtTaskGroup::CUSTOM)
-    {
-        return;
-    }
+
+    if (scope != GtTaskGroup::CUSTOM) return;
 
     QString groupName = m_taskGroupSelection->itemText(currentIndex);
 
@@ -2574,16 +2562,12 @@ void
 GtProcessDock::onRenameTaskGroupButtonClicked()
 {
     int currentIndex = m_taskGroupSelection->currentIndex();
-    if (currentIndex < 0)
-    {
-        return;
-    }
+
+    if (currentIndex < 0) return;
 
     GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
-    if (scope != GtTaskGroup::CUSTOM)
-    {
-        return;
-    }
+
+    if (scope != GtTaskGroup::CUSTOM) return;
 
     QString groupName = m_taskGroupSelection->itemText(currentIndex);
 
@@ -2595,15 +2579,9 @@ GtProcessDock::onRenameTaskGroupButtonClicked()
         groupName,
         &ok);
 
-    if (!ok || newName.isEmpty() || newName == groupName)
-    {
-        return;
-    }
+    if (!ok || newName.isEmpty() || newName == groupName) return;
 
-    if (!m_project || !m_project->processData())
-    {
-        return;
-    }
+    if (!m_project || !m_project->processData()) return;
 
     if (!m_project->processData()->renameTaskGroup(groupName, newName,
                 GtTaskGroup::CUSTOM, m_project->path()))
@@ -2623,6 +2601,7 @@ GtProcessDock::onRenameTaskGroupButtonClicked()
 
     QModelIndex newIndex = m_taskGroupModel->indexByGroupName(newName,
         GtTaskGroup::CUSTOM);
+
     if (newIndex.isValid())
     {
         m_taskGroupSelection->setCurrentIndex(newIndex.row());

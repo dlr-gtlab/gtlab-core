@@ -387,6 +387,8 @@ private:
      */
     void resetTaskGroupModel();
 
+    bool checkModelCurrentIndexScope(GtTaskGroup::SCOPE compare);
+
 private slots:
     /**
      * @brief filterData
