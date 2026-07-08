@@ -44,10 +44,16 @@ private slots:
 
 private:
     QLineEdit* m_lineEdit;
+
     QLabel* m_warningLabel;
+
     QPushButton* m_okButton;
+
     QStringList m_existingNames;
+
     QString m_currentName;
+
+    void setLabelColor(QColor newColor);
 };
 
 #endif // GT_TASKGROUPRENAMEDIALOG_H

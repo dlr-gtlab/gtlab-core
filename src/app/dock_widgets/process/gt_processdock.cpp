@@ -358,20 +358,6 @@ GtProcessDock::projectChangedEvent(GtProject* project)
 
             m_taskGroupSelection->setEnabled(true);
 
-            bool customScope = checkModelCurrentIndexScope(GtTaskGroup::CUSTOM);
-
-            if (auto* deleteButton =
-                findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton")))
-            {
-                deleteButton->setEnabled(customScope);
-            }
-
-            if (auto* renameButton = findChild<QPushButton*>(
-                    QStringLiteral("renameTaskGroupButton")))
-            {
-                renameButton->setEnabled(customScope);
-            }
-
             m_expandedItemUuidsState = gtStateHandler->initializeState(
                         m_project, QStringLiteral("ProcessDock"),
                         QStringLiteral("Expanded Process Dock Item UUIDs"),
@@ -411,6 +397,23 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         if (m_taskGroup)
         {
             m_taskGroupSelection->setCurrentText(m_taskGroup->objectName());
+        }
+
+        if (m_project && m_project->processData())
+        {
+            bool customScope = checkModelCurrentIndexScope(GtTaskGroup::CUSTOM);
+
+            if (auto* deleteButton =
+                findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton")))
+            {
+                deleteButton->setEnabled(customScope);
+            }
+
+            if (auto* renameButton = findChild<QPushButton*>(
+                    QStringLiteral("renameTaskGroupButton")))
+            {
+                renameButton->setEnabled(customScope);
+            }
         }
     }
 }

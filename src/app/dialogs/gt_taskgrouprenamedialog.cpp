@@ -16,33 +16,34 @@
 
 #include "gt_taskgrouprenamedialog.h"
 
-GtTaskGroupRenameDialog::GtTaskGroupRenameDialog(const QString& currentName,
-                                                   const QStringList& existingNames,
-                                                   QWidget* parent)
-    : QDialog(parent)
-    , m_lineEdit(new QLineEdit(currentName))
-    , m_warningLabel(new QLabel())
-    , m_okButton(nullptr)
-    , m_existingNames(existingNames)
-    , m_currentName(currentName)
+#include "gt_colors.h"
+
+GtTaskGroupRenameDialog::GtTaskGroupRenameDialog(
+    const QString& currentName, const QStringList& existingNames,
+    QWidget* parent) :
+    QDialog(parent),
+    m_lineEdit(new QLineEdit(currentName)),
+    m_warningLabel(new QLabel()),
+    m_okButton(nullptr),
+    m_existingNames(existingNames),
+    m_currentName(currentName)
 {
     setWindowTitle(tr("Rename Task Group"));
 
-    QVBoxLayout* layout = new QVBoxLayout(this);
+    auto* layout = new QVBoxLayout(this);
 
-    QHBoxLayout* inputLayout = new QHBoxLayout;
+    auto* inputLayout = new QHBoxLayout;
     inputLayout->addWidget(new QLabel(tr("New name:")));
     inputLayout->addWidget(m_lineEdit);
     layout->addLayout(inputLayout);
 
-    m_warningLabel->setStyleSheet("QLabel { color: red; }");
     m_warningLabel->setVisible(false);
     layout->addWidget(m_warningLabel);
 
     layout->addStretch();
 
-    QDialogButtonBox* buttonBox = new QDialogButtonBox(
-        QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+    auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
+                                               QDialogButtonBox::Cancel, this);
     layout->addWidget(buttonBox);
 
     m_okButton = buttonBox->button(QDialogButtonBox::Ok);
@@ -69,6 +70,7 @@ GtTaskGroupRenameDialog::validateName(const QString& text)
     if (text.isEmpty())
     {
         m_warningLabel->setText(tr("Name cannot be empty."));
+        setLabelColor(gt::gui::color::errorText());
         m_warningLabel->setVisible(true);
         m_okButton->setEnabled(false);
         return;
@@ -77,14 +79,16 @@ GtTaskGroupRenameDialog::validateName(const QString& text)
     if (text == m_currentName)
     {
         m_warningLabel->setText(tr("New name is identical to current name."));
+        setLabelColor(gt::gui::color::warningText());
         m_warningLabel->setVisible(true);
-        m_okButton->setEnabled(false);
+        m_okButton->setEnabled(true);
         return;
     }
 
     if (m_existingNames.contains(text, Qt::CaseInsensitive))
     {
         m_warningLabel->setText(tr("A task group with this name already exists."));
+        setLabelColor(gt::gui::color::errorText());
         m_warningLabel->setVisible(true);
         m_okButton->setEnabled(false);
         return;
@@ -92,4 +96,12 @@ GtTaskGroupRenameDialog::validateName(const QString& text)
 
     m_warningLabel->setVisible(false);
     m_okButton->setEnabled(true);
+}
+
+void
+GtTaskGroupRenameDialog::setLabelColor(QColor newColor)
+{
+    QPalette pal = m_warningLabel->palette();
+    pal.setColor(QPalette::WindowText, newColor);
+    m_warningLabel->setPalette(pal);
 }
