@@ -38,12 +38,6 @@ struct GtGraphicsView::Impl
     /// Grid
     QPointer<GtGrid> grid = nullptr;
 
-    /// Horizontal ruler
-    QPointer<GtRuler> hRuler = nullptr;
-
-    /// Vertical ruler
-    QPointer<GtRuler> vRuler = nullptr;
-
     /// Switch for "Snap to Grid" Mode
     bool snap = false;
 };
@@ -147,7 +141,6 @@ GtGraphicsView::setHorizontalRuler(GtRuler* ruler)
         return;
     }
 
-    pimpl->hRuler = ruler;
     pimpl->grid->setHorizontalRuler(ruler);
 }
 
@@ -161,7 +154,6 @@ GtGraphicsView::setVerticalRuler(GtRuler* ruler)
         return;
     }
 
-    pimpl->vRuler = ruler;
     pimpl->grid->setVerticalRuler(ruler);
 }
 
@@ -184,19 +176,9 @@ GtGraphicsView::scrollContentsBy(int dx, int dy)
 {
     if (pimpl->grid)
     {
-        if (pimpl->hRuler)
-        {
-            pimpl->hRuler->setNeedsRepaint(true);
-        }
-
-        if (pimpl->vRuler)
-        {
-            pimpl->vRuler->setNeedsRepaint(true);
-        }
+        pimpl->grid->markRulersForRepaint();
     }
-
     QGraphicsView::scrollContentsBy(dx, dy);
-
 }
 
 void
@@ -217,16 +199,6 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
 
     QPointF p = mapToScene(mouseEvent->pos());
 
-    if (pimpl->hRuler)
-    {
-        pimpl->hRuler->setCursorPosition(mouseEvent->pos());
-    }
-
-    if (pimpl->vRuler)
-    {
-        pimpl->vRuler->setCursorPosition(mouseEvent->pos());
-    }
-
     emit mousePositionChanged(p);
 
     if (pimpl->snap && (scene()->selectedItems().size() == 1) &&
@@ -234,7 +206,7 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
     {
         snapItemToGrid(scene()->mouseGrabberItem(), mouseEvent->pos());
         return;
-    }   
+    }
 }
 
 void
@@ -324,20 +296,7 @@ GtGraphicsView::getGridFactor()
 void
 GtGraphicsView::repaintRuler()
 {
-    if (pimpl->grid)
-    {
-        if (pimpl->hRuler)
-        {
-            pimpl->grid->paintRuler(pimpl->hRuler);
-            pimpl->hRuler->repaint();
-        }
-
-        if(pimpl->vRuler != nullptr)
-        {
-            pimpl->grid->paintRuler(pimpl->vRuler);
-            pimpl->vRuler->repaint();
-        }
-    }
+    viewport()->update();
 }
 
 void

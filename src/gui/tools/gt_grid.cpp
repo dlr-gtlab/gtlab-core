@@ -20,6 +20,7 @@
 
 #include <QGraphicsView>
 #include <QPointer>
+#include <QResizeEvent>
 
 #include <cmath>
 
@@ -255,33 +256,15 @@ struct GtGrid::Impl
             return;
         }
 
-        QSize vpSize(view->viewport()->width(), view->viewport()->height());
-        constexpr int rulerThickness = 30;
-
-        QSize bufferSize = (ruler.orientation() == Qt::Horizontal)
-                               ? QSize(vpSize.width(), rulerThickness)
-                               : QSize(rulerThickness, vpSize.height());
-
-        if (ruler.buffer().size() != bufferSize)
-        {
-            ruler.buffer() = ruler.buffer().scaled(bufferSize, Qt::IgnoreAspectRatio);
-        }
-
-        QRect rulerGeo = (ruler.orientation() == Qt::Horizontal)
-                             ? QRect(0, 0, vpSize.width(), rulerThickness)
-                             : QRect(0, 0, rulerThickness, vpSize.height());
-
-        if (ruler.geometry() != rulerGeo)
-        {
-            ruler.setGeometry(rulerGeo);
-        }
-
         QPainter painter(&ruler.buffer());
 
         painter.setRenderHint(QPainter::Antialiasing);
         painter.fillRect(ruler.buffer().rect(),
                          ruler.palette().color(QPalette::Window));
         painter.setPen(gt::gui::color::text());
+
+        QRect bufferRect = ruler.buffer().rect();
+        painter.setClipRect(bufferRect);
 
         auto drawHorizontalTicks = [&](int tickSpacing, int left, int right, int height)
         {
@@ -292,12 +275,14 @@ struct GtGrid::Impl
             {
                 int x = firstTickX + i * tickSpacing;
                 QPoint tmp = view->mapFromScene(QPointF(x, 0));
-                painter.drawLine(tmp.x(), height - 5, tmp.x(), height);
+                int vpX = tmp.x();
+                if (vpX < 0 || vpX > bufferRect.right()) continue;
+                painter.drawLine(vpX, height - 5, vpX, height);
 
                 QString tick = QString::number(x);
 
                 const QSize size = ruler.getFontSizeHint(tick);
-                QRect r(tmp.x() - size.width() / 2, height - 5 - size.height(),
+                QRect r(vpX - size.width() / 2, height - 5 - size.height(),
                         size.width(), size.height());
                 painter.setFont(ruler.getFont());
                 painter.drawText(r, Qt::AlignTop | Qt::AlignHCenter, tick);
@@ -313,7 +298,9 @@ struct GtGrid::Impl
             {
                 double y = firstTickY + i * tickSpacing;
                 QPoint tmp = view->mapFromScene(QPointF(0, y));
-                painter.drawLine(width - 5, tmp.y(), width, tmp.y());
+                int vpY = tmp.y();
+                if (vpY < 0 || vpY > bufferRect.bottom()) continue;
+                painter.drawLine(width - 5, vpY, width, vpY);
             }
 
             for (int i = 0; i < numTicks; ++i)
@@ -321,10 +308,13 @@ struct GtGrid::Impl
                 int y = firstTickY + i * tickSpacing;
                 QPoint tmp = view->mapFromScene(QPointF(0, y));
 
+                int vpY = tmp.y();
+                if (vpY < 0 || vpY > bufferRect.bottom()) continue;
+
                 QString tick = QString::number(-y);
 
                 const QSize size = ruler.getFontSizeHint(tick);
-                QRect r(width - 5 - size.width(), tmp.y() + size.width() / 2 + 5,
+                QRect r(width - 5 - size.width(), vpY + size.width() / 2 + 5,
                         size.width(), size.height());
                 painter.setFont(ruler.getFont());
                 painter.save();
@@ -359,6 +349,11 @@ GtGrid::GtGrid(QGraphicsView& view) :
 {
     GT_REMOVAL_GUARD(2, 2, "remove this connection");
     connect(this, &GtGrid::visibilityChanged, this, &GtGrid::update);
+
+    if (auto* vp = view.viewport())
+    {
+        vp->installEventFilter(this);
+    }
 }
 
 GtGrid::~GtGrid()
@@ -681,4 +676,42 @@ double
 GtGrid::getScaledGridHeight()
 {
     return pimpl->getScaledGrid(Qt::Vertical);
+}
+
+void
+GtGrid::resizeRulerBuffer(GtRuler& ruler, const QSize& vpSize)
+{
+    constexpr int rulerThickness = 30;
+
+    QSize bufferSize = (ruler.orientation() == Qt::Horizontal)
+                           ? QSize(vpSize.width(), rulerThickness)
+                           : QSize(rulerThickness, vpSize.height());
+
+    if (ruler.buffer().size() != bufferSize)
+    {
+        ruler.buffer() = ruler.buffer().scaled(bufferSize, Qt::IgnoreAspectRatio);
+    }
+}
+
+void
+GtGrid::markRulersForRepaint()
+{
+    if (pimpl->hRuler) pimpl->hRuler->setNeedsRepaint(true);
+    if (pimpl->vRuler) pimpl->vRuler->setNeedsRepaint(true);
+}
+
+bool
+GtGrid::eventFilter(QObject* watched, QEvent* event)
+{
+    if (event->type() == QEvent::Resize)
+    {
+        auto* vp = pimpl->view ? pimpl->view->viewport() : nullptr;
+        if (watched == vp && vp)
+        {
+            const QSize vpSize(vp->width(), vp->height());
+            if (pimpl->hRuler) resizeRulerBuffer(*pimpl->hRuler, vpSize);
+            if (pimpl->vRuler) resizeRulerBuffer(*pimpl->vRuler, vpSize);
+        }
+    }
+    return QObject::eventFilter(watched, event);
 }

@@ -318,6 +318,12 @@ public slots:
     void show();
 
 protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
+private:
+    void resizeRulerBuffer(GtRuler& ruler, const QSize& vpSize);
+    void markRulersForRepaint();
+
     /** Paints horizontal and vertical grid lines.
         @param painter QPainter pointer
         @param rect Scene rect */
