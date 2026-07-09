@@ -24,25 +24,25 @@ struct GtGraphicsView::Impl
     Options options = NoOption;
 
     /// Zoom factor
-    qreal zoom = 1.0;
+    double zoom = 1.0;
 
     /// Max zoom factor
-    qreal maxZoom = 50.0;
+    double maxZoom = 50.0;
 
     /// Min zoom factor
-    qreal minZoom = 0.05;
+    double minZoom = 0.05;
 
     /// Number of scheduled scalings
     int numsScalings = 0;
 
     /// Grid
-    GtGrid* grid = nullptr;
+    QPointer<GtGrid> grid = nullptr;
 
     /// Horizontal ruler
-    GtRuler* hRuler = nullptr;
+    QPointer<GtRuler> hRuler = nullptr;
 
     /// Vertical ruler
-    GtRuler* vRuler = nullptr;
+    QPointer<GtRuler> vRuler = nullptr;
 
     /// Switch for "Snap to Grid" Mode
     bool snap = false;
@@ -79,12 +79,6 @@ GtGraphicsView::~GtGraphicsView()
     }
 }
 
-GtGrid*
-GtGraphicsView::grid()
-{
-    return pimpl->grid;
-}
-
 void
 GtGraphicsView::setOptions(Options options)
 {
@@ -103,14 +97,44 @@ GtGraphicsView::options() const
     return pimpl->options;
 }
 
+GtGrid*
+GtGraphicsView::grid()
+{
+    return pimpl->grid;
+}
+
 void
 GtGraphicsView::setGrid(GtGrid* grid)
 {
-    delete pimpl->grid;
+    if (grid && &grid->view() != this)
+    {
+        gtWarning().verbose(gt::log::Medium)
+            << tr("Grid is not assigned to the current view!");
+    }
 
+    delete pimpl->grid;
     pimpl->grid = grid;
 
+    if (grid)
+    {
+        grid->setParent(this);
+        connect(grid, SIGNAL(update()), viewport(), SLOT(update()));
+    }
+}
+
+void
+GtGraphicsView::addGrid()
+{
+    removeGrid();
+    GtGrid* grid = new GtGrid(*this);
     connect(grid, SIGNAL(update()), viewport(), SLOT(update()));
+}
+
+void
+GtGraphicsView::removeGrid()
+{
+    delete pimpl->grid;
+    pimpl->grid = nullptr;
 }
 
 void
@@ -212,19 +236,19 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
 }
 
 void
-GtGraphicsView::setMaximumZoom(qreal val)
+GtGraphicsView::setMaximumZoom(double val)
 {
     pimpl->maxZoom = val;
 }
 
 void
-GtGraphicsView::setMinimumZoom(qreal val)
+GtGraphicsView::setMinimumZoom(double val)
 {
     pimpl->minZoom = val;
 }
 
 void
-GtGraphicsView::setScale(qreal val)
+GtGraphicsView::setScale(double val)
 {
     pimpl->zoom = pimpl->zoom * val;
 
@@ -250,9 +274,9 @@ GtGraphicsView::setScale(qreal val)
 }
 
 void
-GtGraphicsView::setScalePercentage(qreal percentage)
+GtGraphicsView::setScalePercentage(double percentage)
 {
-    qreal factor = (percentage / 100.0f) / pimpl->zoom;
+    double factor = (percentage / 100.0f) / pimpl->zoom;
     setScale(factor);
 }
 
@@ -281,7 +305,7 @@ GtGraphicsView::zoomAnimation(int delta)
 
     zoomAnimation->setUpdateInterval(20);
 
-    connect(zoomAnimation, SIGNAL(valueChanged(qreal)),
+    connect(zoomAnimation, SIGNAL(valueChanged(double)),
             SLOT(scalingTime()));
 
     connect(zoomAnimation, SIGNAL(finished()), SLOT(animFinished()));
@@ -323,7 +347,7 @@ GtGraphicsView::snapToGrid(bool val)
 void
 GtGraphicsView::scalingTime()
 {
-    qreal factor = 1.0 + qreal(pimpl->numsScalings) / 300.0;
+    double factor = 1.0 + double(pimpl->numsScalings) / 300.0;
 
     setScale(factor);
 }

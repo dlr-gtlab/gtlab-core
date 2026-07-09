@@ -12,7 +12,8 @@
 #ifndef GTD_GRAPHICSVIEW_H
 #define GTD_GRAPHICSVIEW_H
 
-#include "gt_gui_exports.h"
+#include <gt_gui_exports.h>
+#include <gt_version.h>
 
 #include <QGraphicsView>
 #include <QGestureEvent>
@@ -46,11 +47,6 @@ public:
 
     ~GtGraphicsView() override;
 
-    /** @brief Returns the grid.
-      * @return Grid, null if no grid is set
-      */
-    GtGrid* grid();
-
     /**
      * @brief Sets the options of this view.
      * @param options Options
@@ -69,24 +65,44 @@ public:
     Options options() const;
 
     /**
-     *  @brief Sets and owns the new grid. Old grid is deleted.
+     *  @brief Sets the new grid. Takes ownership of the grid.
+     *  Old grid is deleted.
      *  @param grid New grid
      */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `addGrid()` instead.")
     void setGrid(GtGrid* grid);
+
+    /**
+     * @brief Adds a grid to the view. Removes any old grid.
+     */
+    void addGrid();
+
+    /**
+     * @brief Removes the grid.
+     */
+    void removeGrid();
+
+    /** @brief Returns the grid.
+      * @return Grid, may be null if no grid is set
+      */
+    GtGrid* grid();
 
     /** Sets new horizontal ruler.
         @param ruler New horizontal ruler */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `grid()->setVRuler()` instead.")
     void setHorizontalRuler(GtRuler* ruler);
 
     /** Sets new vertical ruler.
         @param ruler New vertical ruler */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `grid()->setVRuler()` instead.")
     void setVerticalRuler(GtRuler* ruler);
 
     /** Sets view scale to given factor in percent.
         @param percentage New zoom factor*/
-    void setScalePercentage(qreal percentage);
+    void setScalePercentage(double percentage);
 
     /** Repaints ruler. */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `grid()->paint()` instead.")
     void repaintRuler();
 
     /**
@@ -97,11 +113,11 @@ public:
 
     /** Sets maximum zoom factor.
         @param val New maximum zoom factor */
-    void setMaximumZoom(qreal val);
+    void setMaximumZoom(double val);
 
     /** Sets minimum zoom factor.
         @param val New minimum zoom factor */
-    void setMinimumZoom(qreal val);
+    void setMinimumZoom(double val);
 
 public slots:
 
@@ -117,7 +133,7 @@ public slots:
 
     /** Sets view scale to given factor.
         @param val New Scale factor */
-    void setScale(qreal val);
+    void setScale(double val);
 
 private:
 
@@ -147,7 +163,7 @@ private slots:
 
 signals:
     /** Signal which is emitted when the zoom factor changed */
-    void zoomChanged(qreal);
+    void zoomChanged(double);
 
     /** Signal which is emitted when the mouse position changed */
     void mousePositionChanged(const QPointF);
