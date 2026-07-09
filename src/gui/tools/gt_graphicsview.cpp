@@ -138,7 +138,7 @@ GtGraphicsView::removeGrid()
 }
 
 void
-GtGraphicsView::setHorizontalRuler(GtRuler *ruler)
+GtGraphicsView::setHorizontalRuler(GtRuler* ruler)
 {
     if (!pimpl->grid)
     {
@@ -148,10 +148,11 @@ GtGraphicsView::setHorizontalRuler(GtRuler *ruler)
     }
 
     pimpl->hRuler = ruler;
+    pimpl->grid->setHorizontalRuler(ruler);
 }
 
 void
-GtGraphicsView::setVerticalRuler(GtRuler *ruler)
+GtGraphicsView::setVerticalRuler(GtRuler* ruler)
 {
     if (!pimpl->grid)
     {
@@ -161,6 +162,7 @@ GtGraphicsView::setVerticalRuler(GtRuler *ruler)
     }
 
     pimpl->vRuler = ruler;
+    pimpl->grid->setVerticalRuler(ruler);
 }
 
 void

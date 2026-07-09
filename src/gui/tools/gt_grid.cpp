@@ -48,6 +48,9 @@ struct GtGrid::Impl
     /// Minor grid line color
     QColor minorLineColor = gt::gui::color::gridLineMinor();
 
+    /// Axis color
+    QColor axisColor = gt::gui::color::gridAxis();
+
     /// Scene rect
     QRectF rect{};
 
@@ -97,6 +100,36 @@ struct GtGrid::Impl
         return length;
     }
 
+    /// helper class that renders multiple lines with few draw calls
+    template <int Capacity = 200>
+    class BufferedLineRender
+    {
+    public:
+        explicit BufferedLineRender(QPainter& painter) : m_painter(&painter), m_count(0) {}
+
+        void draw(const QLineF& line)
+        {
+            m_lines[m_count++] = line;
+            if (m_count == Capacity) flush();
+        }
+
+        void flush()
+        {
+            if (m_count > 0)
+            {
+                m_painter->drawLines(m_lines, m_count);
+                m_count = 0;
+            }
+        }
+
+        ~BufferedLineRender() { flush(); }
+
+    private:
+        QPainter* m_painter;
+        QLineF m_lines[Capacity];
+        int m_count = 0;
+    };
+
     template <int NLinesPrealloc>
     void paintGridLinesImpl(const QRectF& sceneRect,
                             double vLineDistance,
@@ -104,11 +137,14 @@ struct GtGrid::Impl
                             const QColor& lineColor,
                             QPainter& painter)
     {
-        // draw also minor grid lines
         assert(vLineDistance > 0);
         assert(hLineDistance > 0);
 
-        // TODO
+        QPen pen = painter.pen();
+        pen.setCosmetic(true);
+        pen.setColor(lineColor);
+        painter.setPen(pen);
+
         double firstVLineXPos = int64_t(sceneRect.left()) -
                                 (int64_t(sceneRect.left()) %
                                  static_cast<int64_t>(std::ceil(vLineDistance)));
@@ -116,85 +152,71 @@ struct GtGrid::Impl
                                 (int64_t(sceneRect.top()) %
                                  static_cast<int64_t>(std::ceil(hLineDistance)));
 
-        QVarLengthArray<QLineF, NLinesPrealloc> hLines;
-        QVarLengthArray<QLineF, NLinesPrealloc> vLines;
+        BufferedLineRender<NLinesPrealloc> hBuffer{painter};
+        BufferedLineRender<NLinesPrealloc> vBuffer{painter};
 
-        for (double y = firstHLineYPos; y < sceneRect.bottom(); y += hLineDistance)
+        int numHLines = static_cast<int>(std::ceil((sceneRect.bottom() - firstHLineYPos) / hLineDistance));
+        for (int i = 0; i < numHLines; ++i)
         {
-            hLines.push_back(QLineF(sceneRect.left(), y, sceneRect.right(), y));
+            double y = firstHLineYPos + i * hLineDistance;
+            hBuffer.draw(QLineF(sceneRect.left(), y, sceneRect.right(), y));
         }
 
-        for (double x = firstVLineXPos; x < sceneRect.right(); x += vLineDistance)
+        int numVLines = static_cast<int>(std::ceil((sceneRect.right() - firstVLineXPos) / vLineDistance));
+        for (int i = 0; i < numVLines; ++i)
         {
-            vLines.push_back(QLineF(x, sceneRect.top(), x, sceneRect.bottom()));
+            double x = firstVLineXPos + i * vLineDistance;
+            vBuffer.draw(QLineF(x, sceneRect.top(), x, sceneRect.bottom()));
         }
-
-        if (hLines.size() > NLinesPrealloc && gtApp && gtApp->devMode())
-        {
-            gtLogOnceId(Warning, "GtGrid").verbose(gt::log::Medium)
-                << "Grid for view" << view << "exceeded preallocated grid lines (horizontal)";
-        }
-        if (vLines.size() > NLinesPrealloc && gtApp && gtApp->devMode())
-        {
-            gtLogOnceId(Warning, "GtGrid").verbose(gt::log::Medium)
-                << "Grid for view" << view << "exceeded preallocated grid lines (vertical)";
-        }
-
-        QPen pen = painter.pen();
-        pen.setCosmetic(true);
-        pen.setColor(lineColor);
-        painter.setPen(pen);
-
-        painter.drawLines(hLines.data(), hLines.size());
-        painter.drawLines(vLines.data(), vLines.size());
     }
 
     void paintGridLines(QPainter& painter, const QRectF& rect)
     {
-        constexpr double stepSize = 80u;
+        constexpr double pixelDensityTooDense = 10.0;
+        constexpr double pixelDensityTooSparse = 100.0;
+        constexpr int minLod = -3;
+        constexpr int maxLod = 3;
 
+        double baseHSpacing = getScaledGrid(Qt::Horizontal);
+        double baseVSpacing = getScaledGrid(Qt::Vertical);
 
-        // ceil to prevent bad rounding and divison by zero in modulo operation
-        int64_t scaledHSpacing = ceil(getScaledGrid(Qt::Horizontal));
-        int64_t scaledVSpacing = ceil(getScaledGrid(Qt::Vertical));
+        double pixelsPerSceneUnit = std::abs(painter.worldTransform().m11());
 
-        // use number of hlines as an indicator to calculate which grid to show
-        const double leftMostLine = int64_t(rect.left()) - (int64_t(rect.left()) % scaledHSpacing);
-        const unsigned nHLines   = ceil(-(leftMostLine - rect.right()) / scaledHSpacing);
-        assert(nHLines > 0);
+        int lod = 0;
+        double majorHSpacing = baseHSpacing;
+        double majorVSpacing = baseVSpacing;
+        double majorPixelDistance = majorHSpacing * pixelsPerSceneUnit;
 
-        // compute n pixels between two vertical lines
-        const QPointF viewPixelSize = painter.worldTransform().map(QPointF(rect.right(), rect.bottom()));
-        const double  majorLineDistance = viewPixelSize.x() / nHLines;
-
-        gtDebug() << stepSize << majorLineDistance << majorLineDistance / stepSize << stepSize / majorLineDistance << getScaledGrid(Qt::Vertical);
-
-        if (majorLineDistance > 80 && showMinorGrid)
+        while (majorPixelDistance < pixelDensityTooDense && lod > minLod)
         {
-            // draw also minor grid lines
-            const double scaledHMinorSpacing = static_cast<double>(scaledHSpacing) / minorHLineCount;
-            const double scaledVMinorSpacing = static_cast<double>(scaledVSpacing) / minorVLineCount;
+            lod--;
+            majorHSpacing *= 10;
+            majorVSpacing *= 10;
+            majorPixelDistance = majorHSpacing * pixelsPerSceneUnit;
+        }
+
+        while (majorPixelDistance > pixelDensityTooSparse && lod < maxLod)
+        {
+            lod++;
+            majorHSpacing *= 0.1;
+            majorVSpacing *= 0.1;
+            majorPixelDistance = majorHSpacing * pixelsPerSceneUnit;
+        }
+
+        bool showMinor = showMinorGrid && (majorPixelDistance >= pixelDensityTooDense);
+
+        if (showMinor)
+        {
+            double minorHSpacing = majorHSpacing / minorHLineCount;
+            double minorVSpacing = majorVSpacing / minorVLineCount;
 
             paintGridLinesImpl<1000>(rect,
-                                     scaledHMinorSpacing, scaledVMinorSpacing,
+                                     minorHSpacing, minorVSpacing,
                                      minorLineColor, painter);
-        }
-        else if (majorLineDistance < 10)
-        {
-            scaledHSpacing *= 10;
-            scaledVSpacing *= 10;
-
-            if (majorLineDistance < 1)
-            {
-                scaledHSpacing *= 10;
-                scaledVSpacing *= 10;
-
-                if (majorLineDistance < 0.2) return;
-            }
         }
 
         paintGridLinesImpl<200>(rect,
-                                scaledHSpacing, scaledVSpacing,
+                                majorHSpacing, majorVSpacing,
                                 majorLineColor, painter);
     }
 
@@ -205,16 +227,16 @@ struct GtGrid::Impl
             if (!visibleAxis.testFlag(axis)) continue;
 
             QPen pen = painter.pen();
-            pen.setColor(gt::gui::color::gridAxis());
+            pen.setColor(axisColor);
             painter.setPen(pen);
 
             switch (axis)
             {
             case Qt::Vertical:
-                painter.drawLine(rect.left(), 0, rect.right(), 0);
+                painter.drawLine(rect.left(), 0.0, rect.right(), 0.0);
                 break;
             case Qt::Horizontal:
-                painter.drawLine(0, rect.top(), 0, rect.bottom());
+                painter.drawLine(0.0, rect.top(), 0.0, rect.bottom());
                 break;
             }
         }
@@ -222,6 +244,10 @@ struct GtGrid::Impl
 
     void paintRuler(GtRuler& ruler)
     {
+        assert(view);
+
+        if (!rect.isValid()) return;
+
         if (ruler.buffer().isNull())
         {
             gtWarning().verbose() << "GtGrid::paintRuler"
@@ -229,90 +255,98 @@ struct GtGrid::Impl
             return;
         }
 
-        if (!rect.isValid())
-        {
-            gtWarning().verbose() << "GtGrid::paintRuler"
-                                  << tr("WARNING: pimpl->rect not valid");
-            gtWarning().verbose() << " |-> " << rect;
+        QSize vpSize(view->viewport()->width(), view->viewport()->height());
+        constexpr int rulerThickness = 30;
 
-            rect.setBottomRight(QPointF(0.0, 0.0));
-            rect.setTopLeft(QPointF(0.0, 0.0));
+        QSize bufferSize = (ruler.orientation() == Qt::Horizontal)
+                               ? QSize(vpSize.width(), rulerThickness)
+                               : QSize(rulerThickness, vpSize.height());
+
+        if (ruler.buffer().size() != bufferSize)
+        {
+            ruler.buffer() = ruler.buffer().scaled(bufferSize, Qt::IgnoreAspectRatio);
+        }
+
+        QRect rulerGeo = (ruler.orientation() == Qt::Horizontal)
+                             ? QRect(0, 0, vpSize.width(), rulerThickness)
+                             : QRect(0, 0, rulerThickness, vpSize.height());
+
+        if (ruler.geometry() != rulerGeo)
+        {
+            ruler.setGeometry(rulerGeo);
         }
 
         QPainter painter(&ruler.buffer());
 
+        painter.setRenderHint(QPainter::Antialiasing);
         painter.fillRect(ruler.buffer().rect(),
                          ruler.palette().color(QPalette::Window));
+        painter.setPen(gt::gui::color::text());
 
-        Qt::GlobalColor c = Qt::black;
-
-        if (gt::gui::isApplicationDarkTheme())
+        auto drawHorizontalTicks = [&](int tickSpacing, int left, int right, int height)
         {
-            c = Qt::white;
-        }
-        painter.setPen(c);
+            int firstTickX = left - (left % tickSpacing);
+            int numTicks = static_cast<int>(std::ceil(static_cast<double>(right - firstTickX) / tickSpacing));
 
-        assert(view);
+            for (int i = 0; i < numTicks; ++i)
+            {
+                int x = firstTickX + i * tickSpacing;
+                QPoint tmp = view->mapFromScene(QPointF(x, 0));
+                painter.drawLine(tmp.x(), height - 5, tmp.x(), height);
+
+                QString tick = QString::number(x);
+
+                const QSize size = ruler.getFontSizeHint(tick);
+                QRect r(tmp.x() - size.width() / 2, height - 5 - size.height(),
+                        size.width(), size.height());
+                painter.setFont(ruler.getFont());
+                painter.drawText(r, Qt::AlignTop | Qt::AlignHCenter, tick);
+            }
+        };
+
+        auto drawVerticalTicks = [&](int tickSpacing, int top, int bottom, int width)
+        {
+            int firstTickY = top - (top % tickSpacing);
+            int numTicks = static_cast<int>(std::ceil(static_cast<double>(bottom - firstTickY) / tickSpacing));
+
+            for (int i = 0; i < numTicks; ++i)
+            {
+                double y = firstTickY + i * tickSpacing;
+                QPoint tmp = view->mapFromScene(QPointF(0, y));
+                painter.drawLine(width - 5, tmp.y(), width, tmp.y());
+            }
+
+            for (int i = 0; i < numTicks; ++i)
+            {
+                int y = firstTickY + i * tickSpacing;
+                QPoint tmp = view->mapFromScene(QPointF(0, y));
+
+                QString tick = QString::number(-y);
+
+                const QSize size = ruler.getFontSizeHint(tick);
+                QRect r(width - 5 - size.width(), tmp.y() + size.width() / 2 + 5,
+                        size.width(), size.height());
+                painter.setFont(ruler.getFont());
+                painter.save();
+                painter.translate(r.x(), r.y());
+                painter.rotate(-90);
+                painter.drawText(QRect(0, 0, r.height(), r.width()),
+                                 Qt::AlignTop | Qt::AlignHCenter, tick);
+                painter.restore();
+            }
+        };
+
         if (ruler.orientation() == Qt::Horizontal)
         {
-            int tmpWidth = ceil(getScaledGrid(Qt::Horizontal));
+            int tmpWidth = static_cast<int>(std::ceil(getScaledGrid(Qt::Horizontal)));
             assert(tmpWidth > 0);
-
-            double left = int(rect.left()) - (int(rect.left()) % tmpWidth);
-
-            int h = ruler.buffer().height();
-
-            for (double x = left; x < rect.right(); x += tmpWidth)
-            {
-                QPoint tmp = view->mapFromScene(QPointF(x, 0));
-                painter.drawLine(tmp.x(), h - 5, tmp.x(), h);
-
-                /* horizontal ticks */
-                QByteArray tick;
-                tick.setNum(x);
-                QString tstr(tick);
-
-                const QSize size = ruler.getFontSizeHint(tstr);
-                QRect rect(tmp.x() - size.width() / 2, h - 5 - size.height(),
-                           size.width(), size.height());
-                painter.setFont(ruler.getFont());
-
-                painter.drawText(rect, Qt::AlignTop | Qt::AlignHCenter, tstr);
-            }
+            drawHorizontalTicks(tmpWidth, static_cast<int>(rect.left()), static_cast<int>(rect.right()), ruler.buffer().height());
         }
         else
         {
-            int tmpHeight = ceil(getScaledGrid(Qt::Vertical));
+            int tmpHeight = static_cast<int>(std::ceil(getScaledGrid(Qt::Vertical)));
             assert(tmpHeight > 0);
-
-            double top = int(rect.top()) - (int(rect.top()) % tmpHeight);
-
-            int w = ruler.buffer().width();
-
-            for (double y = top; y < rect.bottom(); y += tmpHeight)
-            {
-                QPoint tmp = view->mapFromScene(QPointF(0, y));
-                painter.drawLine(w - 5, tmp.y(), w, tmp.y());
-            }
-
-            /* vertical ticks */
-            for (double y = top; y < rect.bottom(); y += tmpHeight)
-            {
-                QPoint tmp = view->mapFromScene(QPointF(0, y));
-                QByteArray tick;
-                tick.setNum(-y);
-                QString tstr(tick);
-                const QSize size = ruler.getFontSizeHint(tstr);
-                QRect rect(w - 5 - size.width(), tmp.y() + size.width() / 2 + 5,
-                           size.width(), size.height());
-                painter.setFont(ruler.getFont());
-                painter.save();
-                painter.translate(rect.x(), rect.y());
-                painter.rotate(-90);
-                painter.drawText(QRect(0, 0, rect.height(), rect.width()),
-                                 Qt::AlignTop | Qt::AlignHCenter, tstr);
-                painter.restore();
-            }
+            drawVerticalTicks(tmpHeight, static_cast<int>(rect.top()), static_cast<int>(rect.bottom()), ruler.buffer().width());
         }
 
         ruler.update();
@@ -461,6 +495,18 @@ QColor
 GtGrid::minorLineColor() const
 {
     return pimpl->minorLineColor;
+}
+
+void
+GtGrid::setAxisColor(const QColor& color)
+{
+    pimpl->axisColor = color;
+}
+
+QColor
+GtGrid::axisColor() const
+{
+    return pimpl->axisColor;
 }
 
 void

@@ -184,6 +184,18 @@ public:
      */
     QColor minorLineColor() const;
 
+    /**
+     * @brief Sets the axis color
+     * @param color Axis color
+     */
+    void setAxisColor(const QColor& color);
+
+    /**
+     * @brief Returns the axis color
+     * @return Axis color
+     */
+    QColor axisColor() const;
+
     GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
     void setGridPointColor(const QColor& color) {}
 
