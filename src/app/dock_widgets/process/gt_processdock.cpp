@@ -2530,10 +2530,11 @@ GtProcessDock::onRenameTaskGroupButtonClicked()
 
     if (!m_project || !m_project->processData()) return;
 
-    QStringList customGroupIds = m_project->processData()->customGroupIds();
-    customGroupIds.sort(Qt::CaseInsensitive);
+    QStringList groupIds = m_project->processData()->customGroupIds();
+    groupIds.append(m_project->processData()->userGroupIds());
+    groupIds.sort(Qt::CaseInsensitive);
 
-    GtTaskGroupRenameDialog dialog(groupName, customGroupIds, this);
+    GtTaskGroupRenameDialog dialog(groupName, groupIds, this);
 
     if (dialog.exec() == QDialog::Accepted)
     {
