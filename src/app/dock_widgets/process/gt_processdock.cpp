@@ -10,13 +10,13 @@
 
 #include <QVBoxLayout>
 #include <QPushButton>
-#include <QFrame>
 #include <QComboBox>
-#include <QMenu>
 #include <QMimeData>
 #include <QApplication>
 #include <QClipboard>
 #include <QMessageBox>
+#include <QLineEdit>
+#include <QInputDialog>
 
 #include "gt_algorithms.h"
 #include "gt_mainwin.h"
@@ -59,6 +59,8 @@
 #include "gt_state.h"
 
 #include "gt_processdock.h"
+
+#include "gt_taskgrouprenamedialog.h"
 
 using namespace gt::gui;
 
@@ -137,7 +139,6 @@ GtProcessDock::GtProcessDock() :
     frame->setLayout(frameLayout);
     frame->setAutoFillBackground(true);
 
-
     auto delegate = new GtTextFilterDelegate(this,
                                              GtTextFilterDelegate::allowSpaces);
 
@@ -152,10 +153,43 @@ GtProcessDock::GtProcessDock() :
     m_taskGroupModel = new GtTaskGroupModel(this);
     m_taskGroupSelection->setModel(m_taskGroupModel);
 
+    auto* addTaskGroupButton = new QPushButton;
+    addTaskGroupButton->setIcon(gt::gui::icon::add());
+    addTaskGroupButton->setToolTip(tr("Add new custom task group"));
+    addTaskGroupButton->setMaximumWidth(40);
+    connect(addTaskGroupButton, &QPushButton::clicked,
+            this, &GtProcessDock::addNewCustomTaskGroup);
+
+    auto* deleteTaskGroupButton = new QPushButton;
+    deleteTaskGroupButton->setObjectName(QStringLiteral("deleteTaskGroupButton"));
+    deleteTaskGroupButton->setIcon(gt::gui::icon::remove());
+    deleteTaskGroupButton->setToolTip(tr("Delete selected custom task group"));
+    deleteTaskGroupButton->setEnabled(false);
+    deleteTaskGroupButton->setMaximumWidth(40);
+    connect(deleteTaskGroupButton, &QPushButton::clicked,
+            this, &GtProcessDock::onDeleteTaskGroupButtonClicked);
+
+    auto* renameTaskGroupButton = new QPushButton;
+    renameTaskGroupButton->setIcon(gt::gui::icon::rename());
+    renameTaskGroupButton->setToolTip(tr("Rename selected custom task group"));
+    renameTaskGroupButton->setEnabled(false);
+    renameTaskGroupButton->setMaximumWidth(40);
+    renameTaskGroupButton->setObjectName(QStringLiteral("renameTaskGroupButton"));
+    connect(renameTaskGroupButton, &QPushButton::clicked,
+            this, &GtProcessDock::onRenameTaskGroupButtonClicked);
+
+    auto* taskGroupLayout = new QHBoxLayout;
+    taskGroupLayout->setContentsMargins(0, 0, 0, 0);
+    taskGroupLayout->setSpacing(2);
+    taskGroupLayout->addWidget(m_taskGroupSelection);
+    taskGroupLayout->addWidget(addTaskGroupButton);
+    taskGroupLayout->addWidget(deleteTaskGroupButton);
+    taskGroupLayout->addWidget(renameTaskGroupButton);
+
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(2);
-    layout->addWidget(m_taskGroupSelection);
+    layout->addLayout(taskGroupLayout);
     layout->addLayout(btnLayout);
 
     layout->addWidget(frame);
@@ -360,6 +394,11 @@ GtProcessDock::projectChangedEvent(GtProject* project)
         if (m_taskGroup)
         {
             m_taskGroupSelection->setCurrentText(m_taskGroup->objectName());
+        }
+
+        if (m_project && m_project->processData())
+        {
+            updateCustomTaskGroupsButtons();
         }
     }
 }
@@ -780,6 +819,8 @@ GtProcessDock::updateButtons(GtObject* obj)
     }
 
     updateRunButton();
+
+    updateCustomTaskGroupsButtons();
 }
 
 void
@@ -2443,13 +2484,149 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
         setLastTaskGroupId(groupId);
     }
 
+    updateButtons();
+
     updateCurrentTaskGroup();
+}
+
+void
+GtProcessDock::onDeleteTaskGroupButtonClicked()
+{
+    int currentIndex = m_taskGroupSelection->currentIndex();
+
+    if (currentIndex < 0) return;
+
+    GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+
+    if (scope != GtTaskGroup::CUSTOM) return;
+
+    QString groupName = m_taskGroupSelection->itemText(currentIndex);
+
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this,
+        tr("Delete Task Group"),
+        tr("Are you sure you want to delete the task group '%1'?").arg(groupName),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);
+
+    if (reply == QMessageBox::Yes)
+    {
+        deleteCustomTaskGroup(groupName);
+    }
+}
+
+void
+GtProcessDock::onRenameTaskGroupButtonClicked()
+{
+    int currentIndex = m_taskGroupSelection->currentIndex();
+
+    if (currentIndex < 0) return;
+
+    GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+
+    if (scope != GtTaskGroup::CUSTOM) return;
+
+    QString groupName = m_taskGroupSelection->itemText(currentIndex);
+
+    if (!m_project || !m_project->processData()) return;
+
+    QStringList groupIds = m_project->processData()->customGroupIds();
+    groupIds.append(m_project->processData()->userGroupIds());
+    groupIds.sort(Qt::CaseInsensitive);
+
+    GtTaskGroupRenameDialog dialog(groupName, groupIds, this);
+
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        QString newName = dialog.newName();
+
+        if (newName == groupName) return;
+
+        if (!m_project->processData()->renameTaskGroup(groupName, newName,
+                    GtTaskGroup::CUSTOM, m_project->path()))
+        {
+            gtError() << tr("Failed to rename task group from '%1' to '%2'")
+                         .arg(groupName).arg(newName);
+            return;
+        }
+
+        if (!m_project->processData()->save(m_project->path()))
+        {
+            gtError() << tr("Failed to save project after renaming task group");
+            return;
+        }
+
+        resetTaskGroupModel();
+
+        QModelIndex newIndex = m_taskGroupModel->indexByGroupName(newName,
+            GtTaskGroup::CUSTOM);
+
+        if (newIndex.isValid())
+        {
+            m_taskGroupSelection->setCurrentIndex(newIndex.row());
+        }
+    }
+}
+
+void
+GtProcessDock::addNewCustomTaskGroup()
+{
+    if (!m_project || !m_project->processData()) return;
+
+    QStringList customGroupIds = m_project->processData()->customGroupIds();
+    customGroupIds.sort(Qt::CaseInsensitive);
+
+    bool ok = false;
+    QString groupNameRaw  = QInputDialog::getText(this,
+        tr("Add New Custom Task Group"),
+        tr("Enter name for new custom task group:"),
+        QLineEdit::Normal,
+        QString(),
+        &ok);
+
+    if (!ok) return;
+
+    const QString groupName = groupNameRaw.trimmed();
+    if (groupName.isEmpty()) return;
+
+    if (customGroupIds.contains(groupName, Qt::CaseInsensitive))
+    {
+        QMessageBox::warning(this,
+            tr("Invalid Group Name"),
+            tr("A task group with this name already exists."));
+        return;
+    }
+
+    GtTaskGroup* newGroup = m_project->processData()->createNewTaskGroup(
+        groupName, GtTaskGroup::CUSTOM);
+
+    if (!newGroup)
+    {
+        gtError() << tr("Failed to create new task group: %1").arg(groupName);
+        return;
+    }
+
+    if (!m_project->processData()->save(m_project->path()))
+    {
+        gtError() << tr("Failed to save project after creating task group: %1")
+                     .arg(groupName);
+        return;
+    }
+
+    resetTaskGroupModel();
+
+    QModelIndex newIndex = m_taskGroupModel->indexByGroupName(groupName,
+        GtTaskGroup::CUSTOM);
+
+    if (newIndex.isValid())
+    {
+        m_taskGroupSelection->setCurrentIndex(newIndex.row());
+    }
 }
 
 void
 GtProcessDock::endResetView()
 {
-
     updateProcessViewRootIndex();
     resetTaskGroupModel();
 }
@@ -2487,6 +2664,32 @@ GtProcessDock::itemExpanded(const QModelIndex& index)
     }
 
     setExpandedItemUuids(uuids);
+}
+
+void
+GtProcessDock::updateCustomTaskGroupsButtons()
+{
+    bool customScope = false;
+
+    int currentIndex = m_taskGroupSelection->currentIndex();
+    if (currentIndex >= 0)
+    {
+        GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+
+        customScope = (scope == GtTaskGroup::CUSTOM);
+    }
+
+    if (auto* deleteButton =
+        findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton")))
+    {
+        deleteButton->setEnabled(customScope);
+    }
+
+    if (auto* renameButton = findChild<QPushButton*>(
+            QStringLiteral("renameTaskGroupButton")))
+    {
+        renameButton->setEnabled(customScope);
+    }
 }
 
 bool
@@ -2737,5 +2940,40 @@ GtProcessDock::keyPressEvent(QKeyEvent* event)
     {
         customContextMenu(srcIndex);
     }
+
+    if (gtApp->compareKeyEvent(event, "rename"))
+    {
+        if (m_taskGroupSelection->hasFocus())
+        {
+            onRenameTaskGroupButtonClicked();
+        }
+        else
+        {
+            emit m_view->renameProcessElement(index);
+        }
+    }
+}
+
+void
+GtProcessDock::deleteCustomTaskGroup(const QString& groupName)
+{
+    if (!m_project || !m_project->processData()) return;
+
+    GtTaskGroup::SCOPE scope = GtTaskGroup::CUSTOM;
+
+    if (!m_project->processData()->deleteTaskGroup(groupName, scope))
+    {
+        gtError() << tr("Failed to delete task group: %1").arg(groupName);
+        return;
+    }
+
+    if (!m_project->processData()->save(m_project->path()))
+    {
+        gtError() << tr("Failed to save project after deleting task group: %1")
+                     .arg(groupName);
+        return;
+    }
+
+    resetTaskGroupModel();
 }
 

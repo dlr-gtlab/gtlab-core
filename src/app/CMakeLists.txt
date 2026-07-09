@@ -14,6 +14,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 
 set(headers
+    dialogs/gt_taskgrouprenamedialog.h
     dialogs/gt_moduledetailsdialog.h
     dialogs/gt_markdowneditor.h
     dialogs/gt_refusedpluginsdialog.h
@@ -124,6 +125,7 @@ set(sources
     dialogs/gt_aboutdialog.cpp
     tools/gt_accessgroupmodel.cpp
     dialogs/gt_accessdatadialog.cpp
+    dialogs/gt_taskgrouprenamedialog.cpp
     widgets/gt_splashscreen.cpp
     widgets/gt_startuppage.cpp
     dialogs/gt_checkforupdatesdialog.cpp

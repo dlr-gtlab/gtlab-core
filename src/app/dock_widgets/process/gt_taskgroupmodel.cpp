@@ -48,6 +48,10 @@ GtTaskGroupModel::rowScope(int row) const
     {
         return GtTaskGroup::UNDEFINED;
     }
+    else if (row == rowCount() - 1)
+    {
+        return GtTaskGroup::CUSTOM;
+    }
     else if (row < m_userGroups.size() + 1)
     {
         return GtTaskGroup::USER;
