@@ -37,44 +37,30 @@ public:
         NoPaintOption = 0,
         PaintGrid = 1 << 0,
         PaintAxis = 1 << 1,
-        PaintHRuler = 1 << 2,
-        PaintVRuler = 1 << 3,
 
-        PaintRulers = PaintHRuler | PaintVRuler,
-        PaintAll  = PaintGrid | PaintAxis | PaintHRuler | PaintVRuler,
+        PaintAll  = PaintGrid | PaintAxis,
     };
     using PaintOptions = QFlags<PaintOption>;
 
     using VisibleAxis = QFlags<Qt::Orientation>;
 
     /// Constructor. Transfers ownership to view
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtGrid(QObject* parent)` instead.")
     explicit GtGrid(QGraphicsView& view);
+    explicit GtGrid(QObject* parent = nullptr);
     ~GtGrid();
 
-    QGraphicsView& view();
-    QGraphicsView const& view() const;
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setHSpacing` instead.")
-    void setGridWidth(int value)
-    {
-        return setHSpacing(value);
-    }
     /**
      * @brief Sets the spacing between horizontal (major) grid lines
      * @param value Spacing
      */
     void setHSpacing(unsigned value);
+
     /**
      * @brief Returns the spacing between horizontal (major) grid lines
      * @return Horizontal spacing
      */
     unsigned hSpacing() const;
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setVSpacing` instead.")
-    void setGridHeight(int value)
-    {
-        return setVSpacing(value);
-    }
     /**
      * @brief Sets the spacing between vertical (major) grid lines
      * @param value
@@ -86,26 +72,9 @@ public:
      */
     unsigned vSpacing() const;
 
-    /** Sets number of grid points for one grid rect.
-        @param horizontal Number of horizontal grid points
-        @param vertical Number of vertical grid points */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
-    void setNumberOfGridPoints(int horizontal, int vertical) { }
-
     /** Sets whether the grid should be scaled or not.
         @param val Grid scaling indicator */
     void setScaleGrid(bool val);
-
-    /** Sets whether grid points should be enabled or not.
-        @param val Gridpoints indicator */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
-    void setShowGridPoints(bool val) { }
-
-    /** @brief Sets whether the horizontal axis should be enabled or not.
-     *  @param show Whether to show the axis
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setVisibleAxis` instead.")
-    void setShowAxis(bool show);
 
     /**
      * @brief Sets which axis should be shown
@@ -154,11 +123,6 @@ public:
      */
     unsigned minorVLineCount() const;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setLineColor` instead.")
-    void setHorizontalGridLineColor(const QColor& color)
-    {
-        setLineColor(color);
-    }
     /**
      * @brief Sets the major grid line color
      * @param color Major grid line color
@@ -169,9 +133,6 @@ public:
      * @return Major grid line color
      */
     QColor lineColor() const;
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect, use `setLineColor` instead.")
-    void setVerticalGridLineColor(const QColor& color) { }
 
     /**
      * @brief Sets the vertical grid line color
@@ -196,22 +157,6 @@ public:
      */
     QColor axisColor() const;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
-    void setGridPointColor(const QColor& color) {}
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `paint` instead.")
-    void paintGrid(QPainter* painter, const QRectF& rect)
-    {
-        if (painter) paint(*painter, rect);
-    }
-
-    /**
-     *  @brief Paints grid on ruler.
-     *  @param ruler GtdRuler
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setHRuler` or `setVRuler` and `paint` instead.")
-    void paintRuler(GtRuler* ruler) const;
-
     /** @brief Paints full grid.
      *  @param painter QPainter pointer
      *  @param rect Scene rect
@@ -235,52 +180,6 @@ public:
      */
     void setGridScaleFactor(int val);
 
-    // template to avoid having to include GtRuler
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setVRuler` instead. Note: `setHRuler` takes "
-                                   "ownership of the GtRuler object while this "
-                                   "function does not.")
-    void setHorizontalRuler(GtRuler* ruler);
-
-    /**
-     * @brief Sets the vertical ruler of the grid. Takes the ownership.
-     * @param ruler Ruler
-     */
-    void setHRuler(std::unique_ptr<GtRuler> ruler);
-
-    /**
-     * @brief Returns the horizontl ruler of the grid.
-     * @return Vertical ruler
-     */
-    GtRuler* hRuler() const;
-    /**
-     * @brief Returns the ownership of the horizontal ruler to the caller.
-     * Clears the horizontal ruler.
-     * @return Horizontal ruler
-     */
-    std::unique_ptr<GtRuler> releaseHRuler();
-
-    // template to avoid having to include GtRuler
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setVRuler` instead. Note: `setHRuler` takes "
-                                   "ownership of the GtRuler object while this "
-                                   "function does not.")
-    void setVerticalRuler(GtRuler* ruler);
-    /**
-     * @brief Sets the vertical ruler of the grid. Takes the ownership.
-     * @param ruler Ruler
-     */
-    void setVRuler(std::unique_ptr<GtRuler> ruler);
-    /**
-     * @brief Returns the vertical ruler of the grid.
-     * @return Vertical ruler
-     */
-    GtRuler* vRuler() const;
-    /**
-     * @brief Returns the ownership of the vertical ruler to the caller.
-     * Clears the vertical ruler.
-     * @return Vertical ruler
-     */
-    std::unique_ptr<GtRuler> releaseVRuler();
-
     /**
      * @brief Returns whether the grid is visible
      * @return Is grid visible
@@ -299,7 +198,7 @@ public slots:
      * @brief Hides the grid
      * @param val hide indicator
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setVisible` instead.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setVisible` or `hide` instead.")
     void hideGrid(bool hidden = true)
     {
         setVisible(!hidden);
@@ -317,20 +216,32 @@ public slots:
     }
     void show();
 
-protected:
-    bool eventFilter(QObject* watched, QEvent* event) override;
+signals:
+
+    /**
+     * @brief Emitted if the grid is updated
+     */
+    GT_DEPRECATED_ATTR(2, 2, "use `visibilityChanged` instead.")
+    void update();
+
+    /**
+     * @brief Emitted if the grid visibility has changed
+     */
+    void visibilityChanged(bool visible);
 
 private:
-    void resizeRulerBuffer(GtRuler& ruler, const QSize& vpSize);
-    void markRulersForRepaint();
 
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
+
+protected:
     /** Paints horizontal and vertical grid lines.
         @param painter QPainter pointer
         @param rect Scene rect */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use `paint` instead.")
     void paintGridLines(QPainter* painter, const QRectF &rect)
     {
-        if (painter) paint(*painter, rect, { PaintGrid, PaintRulers });
+        if (painter) paint(*painter, rect, PaintGrid);
     }
 
     /** Paints horizontal and vertical axis.
@@ -352,23 +263,63 @@ private:
     GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement is planned.")
     double getScaledGridHeight();
 
-signals:
+public:
 
-    /**
-     * @brief Emitted if the grid is updated
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setHSpacing` instead.")
+    void setGridWidth(int value)
+    {
+        return setHSpacing(value);
+    }
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setVSpacing` instead.")
+    void setGridHeight(int value)
+    {
+        return setVSpacing(value);
+    }
+
+    /** Sets number of grid points for one grid rect.
+        @param horizontal Number of horizontal grid points
+        @param vertical Number of vertical grid points */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
+    void setNumberOfGridPoints(int horizontal, int vertical) { }
+
+    /** Sets whether grid points should be enabled or not.
+        @param val Gridpoints indicator */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
+    void setShowGridPoints(bool val) { }
+
+    /** @brief Sets whether the horizontal axis should be enabled or not.
+     *  @param show Whether to show the axis
      */
-    GT_DEPRECATED_ATTR(2, 2, "use `visibilityChanged` instead.")
-    void update();
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setVisibleAxis` instead.")
+    void setShowAxis(bool show);
 
-    /**
-     * @brief Emitted if the grid visibility has changed
-     */
-    void visibilityChanged(bool visible);
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setLineColor` instead.")
+    void setHorizontalGridLineColor(const QColor& color)
+    {
+        setLineColor(color);
+    }
 
-private:
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect, use `setLineColor` instead.")
+    void setVerticalGridLineColor(const QColor& color) { }
 
-    struct Impl;
-    std::unique_ptr<Impl> pimpl;
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
+    void setGridPointColor(const QColor& color) {}
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `paint` instead.")
+    void paintGrid(QPainter* painter, const QRectF& rect)
+    {
+        if (painter) paint(*painter, rect);
+    }
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "...?")
+    void paintRuler(GtRuler* ruler) const {}
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "...")
+    void setHorizontalRuler(GtRuler* ruler) {}
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "...")
+    void setVerticalRuler(GtRuler* ruler) {}
 };
 
 #endif // GTD_GRID_H

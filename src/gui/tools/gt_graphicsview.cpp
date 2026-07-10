@@ -100,12 +100,6 @@ GtGraphicsView::grid()
 void
 GtGraphicsView::setGrid(GtGrid* grid)
 {
-    if (grid && &grid->view() != this)
-    {
-        gtWarning().verbose(gt::log::Medium)
-            << tr("Grid is not assigned to the current view!");
-    }
-
     delete pimpl->grid;
     pimpl->grid = grid;
 
@@ -114,21 +108,6 @@ GtGraphicsView::setGrid(GtGrid* grid)
         grid->setParent(this);
         connect(grid, SIGNAL(update()), viewport(), SLOT(update()));
     }
-}
-
-void
-GtGraphicsView::addGrid()
-{
-    removeGrid();
-    GtGrid* grid = new GtGrid(*this);
-    connect(grid, SIGNAL(update()), viewport(), SLOT(update()));
-}
-
-void
-GtGraphicsView::removeGrid()
-{
-    delete pimpl->grid;
-    pimpl->grid = nullptr;
 }
 
 void
@@ -174,19 +153,17 @@ GtGraphicsView::wheelEvent(QWheelEvent* e)
 void
 GtGraphicsView::scrollContentsBy(int dx, int dy)
 {
-    if (pimpl->grid)
-    {
-        pimpl->grid->markRulersForRepaint();
-    }
     QGraphicsView::scrollContentsBy(dx, dy);
 }
 
 void
 GtGraphicsView::drawBackground(QPainter* painter, const QRectF& rect)
 {
+    if (!painter) return;
+
     QGraphicsView::drawBackground(painter, rect);
 
-    if (pimpl->grid && painter)
+    if (pimpl->grid)
     {
         pimpl->grid->paint(*painter, rect);
     }
@@ -291,12 +268,6 @@ int
 GtGraphicsView::getGridFactor()
 {
     return int(log(1.0 / (pimpl->zoom)) / log(2.0));
-}
-
-void
-GtGraphicsView::repaintRuler()
-{
-    viewport()->update();
 }
 
 void

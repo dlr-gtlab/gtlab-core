@@ -69,18 +69,7 @@ public:
      *  Old grid is deleted.
      *  @param grid New grid
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `addGrid()` instead.")
     void setGrid(GtGrid* grid);
-
-    /**
-     * @brief Adds a grid to the view. Removes any old grid.
-     */
-    void addGrid();
-
-    /**
-     * @brief Removes the grid.
-     */
-    void removeGrid();
 
     /** @brief Returns the grid.
       * @return Grid, may be null if no grid is set
@@ -89,12 +78,10 @@ public:
 
     /** Sets new horizontal ruler.
         @param ruler New horizontal ruler */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `grid()->setVRuler()` instead.")
     void setHorizontalRuler(GtRuler* ruler);
 
     /** Sets new vertical ruler.
         @param ruler New vertical ruler */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `grid()->setVRuler()` instead.")
     void setVerticalRuler(GtRuler* ruler);
 
     /** Sets view scale to given factor in percent.
@@ -102,8 +89,8 @@ public:
     void setScalePercentage(double percentage);
 
     /** Repaints ruler. */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `grid()->paint()` instead.")
-    void repaintRuler();
+    GT_DEPRECATED_REMOVED_IN(2, 2, "...?")
+    void repaintRuler() {}
 
     /**
      * @brief snapItemToGrid
