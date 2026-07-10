@@ -17,6 +17,7 @@
 
 class GtTableView;
 class GtFilteredLogModel;
+class LogFilterProxyModel;
 class QPushButton;
 
 /**

@@ -9,112 +9,124 @@
  */
 
 #include "gt_filteredlogmodel.h"
+#include "logfilterproxymodel.h"
 #include "gt_logmodel.h"
 
-#include <gt_loglevel.h>
+#include "gt_logging.h"
+
+GtFilteredLogModel::GtFilteredLogModel(LogFilterProxyModel* filterModel,
+                                       QObject* parent) :
+    QSortFilterProxyModel(parent),
+    m_filterModel(filterModel),
+    m_filter(0x3F)
+{
+    setFilterKeyColumn(-1);
+    m_activeLevels = {gt::log::TraceLevel, gt::log::DebugLevel, 
+                      gt::log::InfoLevel, gt::log::WarningLevel,
+                      gt::log::ErrorLevel, gt::log::FatalLevel};
+    if (m_filterModel)
+    {
+        m_filterModel->setLevelFilter(m_activeLevels);
+    }
+}
 
 void
 GtFilteredLogModel::filterTraceLevel(bool val)
 {
-    setFilter(FilterTrace, val);
+    setFilter(1 << 0, val);
 }
 
 void
 GtFilteredLogModel::filterDebugLevel(bool val)
 {
-    setFilter(FilterDebug, val);
+    setFilter(1 << 1, val);
 }
 
 void
 GtFilteredLogModel::filterInfoLevel(bool val)
 {
-    setFilter(FilterInfo, val);
+    setFilter(1 << 2, val);
 }
 
 void
 GtFilteredLogModel::filterWarningLevel(bool val)
 {
-    setFilter(FilterWarning, val);
+    setFilter(1 << 3, val);
 }
 
 void
 GtFilteredLogModel::filterErrorLevel(bool val)
 {
-    setFilter(FilterError, val);
+    setFilter(1 << 4, val);
 }
 
 void
 GtFilteredLogModel::filterFatalLevel(bool val)
 {
-    setFilter(FilterFatal, val);
+    setFilter(1 << 5, val);
 }
 
 void
 GtFilteredLogModel::filterData(const QString& val)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    setFilterRegExp(val);
-#else
-    setFilterRegularExpression(val);
-#endif
-    invalidate();
+    if (m_filterModel)
+    {
+        m_filterModel->setFilterText(val);
+    }
 }
 
 void
-GtFilteredLogModel::setFilter(FilterLevel level, bool enabled)
+GtFilteredLogModel::setFilter(int levelBit, bool enabled)
 {
-    beginResetModel();
     if (enabled)
     {
-        m_filter |= level;
+        m_filter |= levelBit;
+        int levelValue;
+        switch (levelBit)
+        {
+        case 1 << 0: levelValue = gt::log::TraceLevel; break;
+        case 1 << 1: levelValue = gt::log::DebugLevel; break;
+        case 1 << 2: levelValue = gt::log::InfoLevel; break;
+        case 1 << 3: levelValue = gt::log::WarningLevel; break;
+        case 1 << 4: levelValue = gt::log::ErrorLevel; break;
+        case 1 << 5: levelValue = gt::log::FatalLevel; break;
+        default: return;
+        }
+        m_activeLevels.insert(levelValue);
     }
     else
     {
-        m_filter &= ~level;
+        m_filter &= ~levelBit;
+        int levelValue;
+        switch (levelBit)
+        {
+        case 1 << 0: levelValue = gt::log::TraceLevel; break;
+        case 1 << 1: levelValue = gt::log::DebugLevel; break;
+        case 1 << 2: levelValue = gt::log::InfoLevel; break;
+        case 1 << 3: levelValue = gt::log::WarningLevel; break;
+        case 1 << 4: levelValue = gt::log::ErrorLevel; break;
+        case 1 << 5: levelValue = gt::log::FatalLevel; break;
+        default: return;
+        }
+        m_activeLevels.remove(levelValue);
     }
-    endResetModel();
+
+    updateFilterModel();
 }
 
-GtFilteredLogModel::GtFilteredLogModel(QObject* parent) :
-    QSortFilterProxyModel(parent)
+void
+GtFilteredLogModel::updateFilterModel()
 {
-    // filter all columns
-    setFilterKeyColumn(-1);
+    if (m_filterModel)
+    {
+        m_filterModel->setLevelFilter(m_activeLevels);
+    }
 }
 
 bool
 GtFilteredLogModel::filterAcceptsRow(int srcRow,
                                      const QModelIndex& srcParent) const
 {
-    bool doFilter = true;
-
-    const QModelIndex index = sourceModel()->index(srcRow, 0, srcParent);
-
-    const int level = gtLogModel->data(index, GtLogModel::LevelRole).toInt();
-
-    switch (level)
-    {
-    case gt::log::TraceLevel:
-        doFilter = m_filter & FilterTrace;
-        break;
-    case gt::log::DebugLevel:
-        doFilter = m_filter & FilterDebug;
-        break;
-    case gt::log::InfoLevel:
-        doFilter = m_filter & FilterInfo;
-        break;
-    case gt::log::WarningLevel:
-        doFilter = m_filter & FilterWarning;
-        break;
-    case gt::log::ErrorLevel:
-        doFilter = m_filter & FilterError;
-        break;
-    case gt::log::FatalLevel:
-        doFilter = m_filter & FilterFatal;
-        break;
-    }
-
-    return doFilter &&
-           QSortFilterProxyModel::filterAcceptsRow(srcRow, srcParent);
+    return true;
 }
 

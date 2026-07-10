@@ -12,11 +12,17 @@
 #define GTFILTEREDLOGMODEL_H
 
 #include <QSortFilterProxyModel>
+#include <QSet>
 
 class GtOutputDock;
+class LogFilterProxyModel;
+
 /**
  * @brief The GtFilteredLogModel class.
- * Filter proxy model for filtering out certain log levels
+ * 
+ * Simplified filter model that only handles level filters (trace, debug, info, etc.).
+ * Text search and category filters are now handled by LogFilterProxyModel.
+ * This class acts as a bridge between the UI toggle buttons and the filtering logic.
  */
 class GtFilteredLogModel : public QSortFilterProxyModel
 {
@@ -24,81 +30,29 @@ class GtFilteredLogModel : public QSortFilterProxyModel
 
     Q_OBJECT
 
-    enum FilterLevel
-    {
-        FilterTrace   = 1 << 0,
-        FilterDebug   = 1 << 1,
-        FilterInfo    = 1 << 2,
-        FilterWarning = 1 << 3,
-        FilterError   = 1 << 4,
-        FilterFatal   = 1 << 5,
-    };
+public:
+    explicit GtFilteredLogModel(LogFilterProxyModel* filterModel, QObject* parent = nullptr);
 
 public slots:
-    /**
-     * @brief toggleDebugLevel
-     * @param val
-     */
     void filterTraceLevel(bool val);
-
-    /**
-     * @brief toggleDebugLevel
-     * @param val
-     */
     void filterDebugLevel(bool val);
-
-    /**
-     * @brief toggleInfoLevel
-     * @param val
-     */
     void filterInfoLevel(bool val);
-
-    /**
-     * @brief toggleWarningLevel
-     * @param val
-     */
     void filterWarningLevel(bool val);
-
-    /**
-     * @brief toggleErrorLevel
-     * @param val
-     */
     void filterErrorLevel(bool val);
-
-    /**
-     * @brief toggleFatalLevel
-     * @param val
-     */
     void filterFatalLevel(bool val);
-
-    /**
-     * @brief filterData
-     * @param val
-     */
     void filterData(const QString& val);
 
 protected:
-
-    /// Filter
-    int m_filter{-1};
-
-    void setFilter(FilterLevel level, bool enabled);
-
-    /**
-     * @brief GtFilteredLogModel
-     * @param parent
-     */
-    explicit GtFilteredLogModel(QObject* parent = nullptr);
-
-    /**
-     * @brief filterAcceptsRow
-     * @param source_row
-     * @param source_parent
-     * @return
-     */
     bool filterAcceptsRow(int srcRow,
                           const QModelIndex& srcParent) const override;
 
+private:
+    LogFilterProxyModel* m_filterModel;
+    QSet<int> m_activeLevels;
+    int m_filter;
+
+    void setFilter(int levelBit, bool enabled);
+    void updateFilterModel();
 };
 
 #endif // GTFILTEREDLOGMODEL_H

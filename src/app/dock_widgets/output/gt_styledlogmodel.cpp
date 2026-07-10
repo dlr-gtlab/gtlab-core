@@ -16,7 +16,7 @@
 #include "gt_icons.h"
 #include "gt_colors.h"
 
-#include <gt_loglevel.h>
+#include "gt_logging.h"
 
 GtStyledLogModel::GtStyledLogModel(QObject* parent) :
     QIdentityProxyModel(parent)
@@ -63,6 +63,13 @@ GtStyledLogModel::data(const QModelIndex& index, int role) const
         if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
         {
             return {};
+        }
+        break;
+    case Qt::UserRole:
+        // Pass through UserRole to get raw level data
+        if (col == GtLogModel::columnFromRole(GtLogModel::LevelRole))
+        {
+            return gtLogModel->data(index, GtLogModel::LevelRole);
         }
         break;
     case Qt::ToolTipRole:

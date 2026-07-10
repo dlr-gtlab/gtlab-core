@@ -13,7 +13,10 @@
 #include "gt_logmodel.h"
 #include "gt_styledlogmodel.h"
 #include "gt_filteredlogmodel.h"
+#include "logfilterproxymodel.h"
 #include "gt_tableview.h"
+#include "filterheaderview.h"
+#include "logfilterproxymodel.h"
 #include "gt_application.h"
 #include "gt_logging.h"
 #include "gt_outputtester.h"
@@ -239,9 +242,12 @@ GtOutputDock::GtOutputDock()
 
     GtStyledLogModel* styleModel = new GtStyledLogModel(this);
     styleModel->setSourceModel(gtLogModel);
-    m_model = new GtFilteredLogModel(styleModel);
-    m_model->setSourceModel(styleModel);
-    m_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+    LogFilterProxyModel* filterModel = new LogFilterProxyModel(this);
+    filterModel->setSourceModel(styleModel);
+
+    m_model = new GtFilteredLogModel(filterModel, this);
+    m_model->setSourceModel(filterModel);
 
     QTabWidget* tab = new QTabWidget;
     tab->setObjectName("tabWidget");
@@ -261,7 +267,8 @@ GtOutputDock::GtOutputDock()
     filterLayout->setSpacing(0);
 
     GtSearchWidget* searchWidget = new GtSearchWidget;
-    filterLayout->addWidget(searchWidget);    
+    filterLayout->addWidget(searchWidget);
+
     connect(searchWidget, &GtSearchWidget::textChanged,
             m_model, &GtFilteredLogModel::filterData);
 
@@ -273,9 +280,13 @@ GtOutputDock::GtOutputDock()
     m_logView->setShowGrid(false);
     m_logView->setFrameStyle(QFrame::NoFrame);
     m_logView->setModel(m_model);
+    
+    FilterHeaderView* headerView = new FilterHeaderView(Qt::Horizontal, m_logView);
+    headerView->setFilterModel(filterModel);
+    m_logView->setHorizontalHeader(headerView);
 
     // stretch the last section
-    m_logView->horizontalHeader()->setStretchLastSection(true);
+    headerView->setStretchLastSection(true);
 
     QFontMetrics metrics{QFont()};
     m_logView->verticalHeader()->setDefaultSectionSize(metrics.height());

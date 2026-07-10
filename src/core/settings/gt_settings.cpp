@@ -10,7 +10,7 @@
 
 #include "gt_settings.h"
 #include "gt_settingsitem.h"
-#include "gt_loglevel.h"
+#include "gt_logging.h"
 
 #include <QDir>
 #include <QSettings>

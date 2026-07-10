@@ -72,10 +72,13 @@ set(headers
     mdi_items/process_env/gt_processconnectionitem.h
     mdi_items/process_env/entities/gt_processpropertyconnectionentity.h
     mdi_items/process_env/gt_processconnectionscene.h
-    dock_widgets/output/gt_outputdock.h
-    dock_widgets/output/gt_styledlogmodel.h
-    dock_widgets/output/gt_filteredlogmodel.h
-    dock_widgets/output/gt_outputtester.h
+dock_widgets/output/gt_outputdock.h
+dock_widgets/output/gt_styledlogmodel.h
+dock_widgets/output/gt_filteredlogmodel.h
+dock_widgets/output/logfilterproxymodel.h
+dock_widgets/output/filterheaderview.h
+dock_widgets/output/filterpopupwidget.h
+dock_widgets/output/gt_outputtester.h
     dock_widgets/output/gt_taskhistorymodel.h
     dock_widgets/explorer/gt_explorerdock.h
     dock_widgets/explorer/gt_explorerview.h
@@ -155,10 +158,13 @@ set(sources
     mdi_items/process_env/gt_processconnectionitem.cpp
     mdi_items/process_env/entities/gt_processpropertyconnectionentity.cpp
     mdi_items/process_env/gt_processconnectionscene.cpp
-    dock_widgets/output/gt_outputdock.cpp
-    dock_widgets/output/gt_styledlogmodel.cpp
-    dock_widgets/output/gt_filteredlogmodel.cpp
-    dock_widgets/output/gt_outputtester.cpp
+dock_widgets/output/gt_outputdock.cpp
+dock_widgets/output/gt_styledlogmodel.cpp
+dock_widgets/output/gt_filteredlogmodel.cpp
+dock_widgets/output/logfilterproxymodel.cpp
+dock_widgets/output/filterheaderview.cpp
+dock_widgets/output/filterpopupwidget.cpp
+dock_widgets/output/gt_outputtester.cpp
     dock_widgets/output/gt_taskhistorymodel.cpp
     dock_widgets/explorer/gt_explorerdock.cpp
     dock_widgets/explorer/gt_explorerview.cpp
