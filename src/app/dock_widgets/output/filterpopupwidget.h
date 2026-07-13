@@ -14,6 +14,7 @@
 
 class QCheckBox;
 class QPushButton;
+class QVBoxLayout;
 
 /**
  * @brief The FilterPopupWidget class
@@ -67,6 +68,9 @@ private:
     QList<QCheckBox*> m_checkBoxes;
     QMap<QString, int> m_itemToInt;
     bool m_updating{false};
+
+    QWidget* m_contentWidget{nullptr};
+    QVBoxLayout* m_contentLayout{nullptr};
 };
 
 #endif // FILTERPOPUPWIDGET_H

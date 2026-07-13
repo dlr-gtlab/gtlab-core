@@ -139,7 +139,7 @@ LogFilterProxyModel::matchesLevelFilter(int source_row,
                                         const QModelIndex& source_parent) const
 {
     if (m_filterState.levels.isEmpty())
-        return true;
+        return false;
 
     const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
     const int level = sourceModel()->data(index, Qt::UserRole).toInt();
@@ -155,7 +155,7 @@ LogFilterProxyModel::matchesCategoryFilter(int source_row,
         return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 2, source_parent);
-    const QString category = sourceModel()->data(index).toString();
+    const QString category = sourceModel()->data(index, Qt::DisplayRole).toString();
 
     return m_filterState.categories.contains(category);
 }

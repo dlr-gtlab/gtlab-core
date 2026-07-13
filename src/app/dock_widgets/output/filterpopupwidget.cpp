@@ -35,6 +35,9 @@ FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     scrollArea->setWidget(contentWidget);
     mainLayout->addWidget(scrollArea);
     
+    m_contentWidget = contentWidget;
+    m_contentLayout = contentLayout;
+    
     QWidget* buttonBar = new QWidget(this);
     QHBoxLayout* buttonLayout = new QHBoxLayout(buttonBar);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
@@ -120,41 +123,7 @@ void FilterPopupWidget::setItems(const QStringList& items, const QList<int>& val
 
 void FilterPopupWidget::createCheckBoxes(const QStringList& items)
 {
-    QVBoxLayout* contentLayout = nullptr;
-    QWidget* contentWidget = nullptr;
-    
-    for (int i = 0; i < this->layout()->count(); ++i)
-    {
-        if (QWidget* w = qobject_cast<QWidget*>(this->layout()->itemAt(i)->widget()))
-        {
-            if (w->layout())
-            {
-                if (w->layout()->count() > 0)
-                {
-                    if (QScrollArea* sa = qobject_cast<QScrollArea*>(w->layout()->itemAt(0)->widget()))
-                    {
-                        if (sa->widget())
-                        {
-                            contentWidget = sa->widget();
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    if (!contentWidget)
-    {
-        return;
-    }
-    
-    if (QVBoxLayout* l = qobject_cast<QVBoxLayout*>(contentWidget->layout()))
-    {
-        contentLayout = l;
-    }
-    
-    if (!contentLayout)
+    if (!m_contentWidget || !m_contentLayout)
     {
         return;
     }
@@ -164,9 +133,9 @@ void FilterPopupWidget::createCheckBoxes(const QStringList& items)
     
     for (const QString& item : items)
     {
-        QCheckBox* cb = new QCheckBox(item, contentWidget);
+        QCheckBox* cb = new QCheckBox(item, m_contentWidget);
         cb->setTristate(false);
-        contentLayout->addWidget(cb);
+        m_contentLayout->addWidget(cb);
         
         connect(cb, &QCheckBox::toggled, this, [this, cb](){
             if (!m_updating)
@@ -216,7 +185,7 @@ QSet<QString> FilterPopupWidget::selectedValues() const
     QSet<QString> selected;
     for (QCheckBox* cb : m_checkBoxes)
     {
-        if (cb->isChecked())
+        if (cb->isChecked() && !cb->text().isEmpty())
         {
             selected.insert(cb->text());
         }
