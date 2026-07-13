@@ -12,13 +12,15 @@
 #include <QMouseEvent>
 #include <QApplication>
 #include <QMetaObject>
+#include <QFile>
+#include <QTextStream>
 
 #include "gt_icons.h"
 
 namespace {
 
-const int FILTER_ICON_SIZE = 12;
-const int FILTER_BUTTON_WIDTH = 20;
+const int FILTER_ICON_SIZE = 16;
+const int FILTER_BUTTON_WIDTH = 24;
 
 }
 
@@ -29,6 +31,8 @@ FilterHeaderView::FilterHeaderView(Qt::Orientation orientation, QWidget* parent)
     setSectionResizeMode(QHeaderView::Interactive);
     
     setMouseTracking(true);
+    
+    setAttribute(Qt::WA_OpaquePaintEvent, false);
 }
 
 void FilterHeaderView::setFilterModel(LogFilterProxyModel* model)
@@ -63,7 +67,11 @@ void FilterHeaderView::setFilterModel(LogFilterProxyModel* model)
 
 void FilterHeaderView::paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const
 {
-    QHeaderView::paintSection(painter, rect, logicalIndex);
+    QFile debugFile("C:/temp/paint_debug.txt");
+    debugFile.open(QIODevice::Append | QIODevice::Text);
+    QTextStream out(&debugFile);
+    out << "paintSection called for column" << logicalIndex << ", painter active:" << painter->isActive() << "\n";
+    debugFile.close();
     
     if (!m_filterModel || logicalIndex < 0)
     {
@@ -76,39 +84,38 @@ void FilterHeaderView::paintSection(QPainter* painter, const QRect& rect, int lo
         return;
     }
     
-    bool hasFilter = false;
-    
-    if (logicalIndex == 0)
-    {
-        hasFilter = m_levelFilters.contains(logicalIndex) && 
-                   !m_levelFilters[logicalIndex].isEmpty();
-    }
-    else if (logicalIndex == 2)
-    {
-        hasFilter = m_categoryFilters.contains(logicalIndex) && 
-                   !m_categoryFilters[logicalIndex].isEmpty();
-    }
-    
-    painter->save();
-    
-    if (hasFilter)
-    {
-        QColor highlight = QApplication::palette().highlight().color();
-        highlight.setAlpha(50);
-        painter->fillRect(filterRect, highlight);
-    }
-    
+    // Draw icon FIRST (before QHeaderView::paintSection)
     gt::gui::Icon filterIcon = gt::gui::icon::search();
     QIcon icon = filterIcon;
+    int targetSize = FILTER_ICON_SIZE;
+    QPixmap pixmap = icon.pixmap(targetSize, targetSize);
     
-    QPixmap pixmap = icon.pixmap(FILTER_ICON_SIZE, FILTER_ICON_SIZE);
     QRect iconRect = filterRect;
     iconRect.setSize(QSize(FILTER_ICON_SIZE, FILTER_ICON_SIZE));
     iconRect.moveCenter(filterRect.center());
-    
     painter->drawPixmap(iconRect.topLeft(), pixmap);
     
+    // Draw a red test rectangle to verify drawing works
+    QRect testRect = filterRect;
+    testRect.setSize(QSize(10, 10));
+    testRect.moveCenter(filterRect.center());
+    painter->fillRect(testRect, Qt::red);
+    
+    painter->save();
+    painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+    QHeaderView::paintSection(painter, rect, logicalIndex);
     painter->restore();
+    
+    // Re-draw icon after header to ensure it's visible
+    gt::gui::Icon filterIcon2 = gt::gui::icon::search();
+    QIcon icon2 = filterIcon2;
+    int targetSize2 = FILTER_ICON_SIZE;
+    QPixmap pixmap2 = icon2.pixmap(targetSize2, targetSize2);
+    
+    QRect iconRect2 = filterRect;
+    iconRect2.setSize(QSize(FILTER_ICON_SIZE, FILTER_ICON_SIZE));
+    iconRect2.moveCenter(filterRect.center());
+    painter->drawPixmap(iconRect2.topLeft(), pixmap2);
 }
 
 void FilterHeaderView::mousePressEvent(QMouseEvent* event)
