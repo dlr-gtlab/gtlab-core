@@ -10,9 +10,8 @@
 
 #include "gt_filteredlogmodel.h"
 #include "logfilterproxymodel.h"
-#include "gt_logmodel.h"
 
-#include "gt_logging.h"
+#include "gt_loglevel.h"
 
 GtFilteredLogModel::GtFilteredLogModel(LogFilterProxyModel* filterModel,
                                        QObject* parent) :

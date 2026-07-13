@@ -19,8 +19,8 @@
 
 namespace {
 
-const int FILTER_ICON_SIZE = 16;
-const int FILTER_BUTTON_WIDTH = 24;
+const int FILTER_ICON_SIZE = 12;
+const int FILTER_BUTTON_WIDTH = 16;
 
 }
 
@@ -67,14 +67,15 @@ void FilterHeaderView::setFilterModel(LogFilterProxyModel* model)
 
 void FilterHeaderView::paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const
 {
-    QFile debugFile("C:/temp/paint_debug.txt");
-    debugFile.open(QIODevice::Append | QIODevice::Text);
-    QTextStream out(&debugFile);
-    out << "paintSection called for column" << logicalIndex << ", painter active:" << painter->isActive() << "\n";
-    debugFile.close();
-    
     if (!m_filterModel || logicalIndex < 0)
     {
+        return;
+    }
+    
+    // Only show filter icon for Level (column 0) and Id (column 2)
+    if (logicalIndex != 0 && logicalIndex != 2)
+    {
+        QHeaderView::paintSection(painter, rect, logicalIndex);
         return;
     }
     
@@ -84,38 +85,20 @@ void FilterHeaderView::paintSection(QPainter* painter, const QRect& rect, int lo
         return;
     }
     
-    // Draw icon FIRST (before QHeaderView::paintSection)
-    gt::gui::Icon filterIcon = gt::gui::icon::search();
-    QIcon icon = filterIcon;
-    int targetSize = FILTER_ICON_SIZE;
-    QPixmap pixmap = icon.pixmap(targetSize, targetSize);
-    
-    QRect iconRect = filterRect;
-    iconRect.setSize(QSize(FILTER_ICON_SIZE, FILTER_ICON_SIZE));
-    iconRect.moveCenter(filterRect.center());
-    painter->drawPixmap(iconRect.topLeft(), pixmap);
-    
-    // Draw a red test rectangle to verify drawing works
-    QRect testRect = filterRect;
-    testRect.setSize(QSize(10, 10));
-    testRect.moveCenter(filterRect.center());
-    painter->fillRect(testRect, Qt::red);
-    
+    // Draw header first
     painter->save();
     painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
     QHeaderView::paintSection(painter, rect, logicalIndex);
     painter->restore();
     
-    // Re-draw icon after header to ensure it's visible
-    gt::gui::Icon filterIcon2 = gt::gui::icon::search();
-    QIcon icon2 = filterIcon2;
-    int targetSize2 = FILTER_ICON_SIZE;
-    QPixmap pixmap2 = icon2.pixmap(targetSize2, targetSize2);
+    // Draw filter icon
+    int targetSize = FILTER_ICON_SIZE;
+    QPixmap pixmap = gt::gui::icon::uncollapsed().pixmap(targetSize, targetSize);
     
-    QRect iconRect2 = filterRect;
-    iconRect2.setSize(QSize(FILTER_ICON_SIZE, FILTER_ICON_SIZE));
-    iconRect2.moveCenter(filterRect.center());
-    painter->drawPixmap(iconRect2.topLeft(), pixmap2);
+    QRect iconRect = filterRect;
+    iconRect.setSize(QSize(FILTER_ICON_SIZE, FILTER_ICON_SIZE));
+    iconRect.moveCenter(filterRect.center());
+    painter->drawPixmap(iconRect.topLeft(), pixmap);
 }
 
 void FilterHeaderView::mousePressEvent(QMouseEvent* event)
