@@ -1,7 +1,7 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
  */
 
 #include "gt_filterpopupwidget.h"
@@ -18,16 +18,16 @@ gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     setFocusPolicy(Qt::StrongFocus);
     setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);// | Qt::WindowStaysInTopHint);
     
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    auto* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(5, 5, 5, 5);
     mainLayout->setSpacing(5);
     
-    QScrollArea* scrollArea = new QScrollArea(this);
+    auto* scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     
-    QWidget* contentWidget = new QWidget(this);
-    QVBoxLayout* contentLayout = new QVBoxLayout(contentWidget);
+    auto* contentWidget = new QWidget(this);
+    auto* contentLayout = new QVBoxLayout(contentWidget);
     contentLayout->setContentsMargins(0, 0, 0, 0);
     contentLayout->setSpacing(2);
     contentLayout->setAlignment(Qt::AlignTop);
@@ -43,16 +43,16 @@ gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     m_contentWidget = contentWidget;
     m_contentLayout = contentLayout;
     
-    QWidget* buttonBar = new QWidget(this);
-    QHBoxLayout* buttonLayout = new QHBoxLayout(buttonBar);
+    auto* buttonBar = new QWidget(this);
+    auto* buttonLayout = new QHBoxLayout(buttonBar);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
     buttonLayout->setSpacing(5);
     
-    QPushButton* selectAll = new QPushButton(tr("All"), buttonBar);
+    auto* selectAll = new QPushButton(tr("All"), buttonBar);
     selectAll->setMaximumWidth(50);
     selectAll->setToolTip(tr("Select all"));
     
-    QPushButton* selectNone = new QPushButton(tr("None"), buttonBar);
+    auto* selectNone = new QPushButton(tr("None"), buttonBar);
     selectNone->setMaximumWidth(50);
     selectNone->setToolTip(tr("Select none"));
     
@@ -167,10 +167,7 @@ gt::FilterPopupWidget::setItems(const QStringList& displayItems,
 void
 gt::FilterPopupWidget::createCheckBoxes(const QStringList& items)
 {
-    if (!m_contentWidget || !m_contentLayout)
-    {
-        return;
-    }
+    if (!m_contentWidget || !m_contentLayout) return;
     
     qDeleteAll(m_checkBoxes);
     m_checkBoxes.clear();
@@ -196,10 +193,7 @@ void
 gt::FilterPopupWidget::createCheckBoxesForStrings(const QStringList& displayItems,
                                                   const QStringList& storageItems)
 {
-    if (!m_contentWidget || !m_contentLayout)
-    {
-        return;
-    }
+    if (!m_contentWidget || !m_contentLayout) return;
     
     qDeleteAll(m_checkBoxes);
     m_checkBoxes.clear();

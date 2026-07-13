@@ -9,7 +9,7 @@
  */
 
 #include "gt_filteredlogmodel.h"
-#include "logfilterproxymodel.h"
+#include "gt_logfilterproxymodel.h"
 
 #include <gt_loglevel.h>
 
