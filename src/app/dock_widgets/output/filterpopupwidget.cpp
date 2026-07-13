@@ -35,6 +35,11 @@ FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     scrollArea->setWidget(contentWidget);
     mainLayout->addWidget(scrollArea);
     
+    // Set maximum height to show only 5 items
+    int itemHeight = QFontMetrics(font()).height();
+    int maxVisibleItems = 5;
+    scrollArea->setMaximumHeight(itemHeight * maxVisibleItems + 10);
+    
     m_contentWidget = contentWidget;
     m_contentLayout = contentLayout;
     

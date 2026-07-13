@@ -21,6 +21,9 @@ class FilterPopupWidget;
  * Custom header view that shows filter buttons in each column header.
  * Clicking a filter button opens a popup menu for multi-select filtering.
  */
+namespace gt
+{
+
 class FilterHeaderView : public QHeaderView
 {
     Q_OBJECT
@@ -47,8 +50,11 @@ signals:
     void filterButtonClicked(int column);
 
 private:
-    void paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const override;
+    void paintSection(QPainter* painter, const QRect& rect,
+                      int logicalIndex) const override;
+
     void mousePressEvent(QMouseEvent* event) override;
+
     void mouseReleaseEvent(QMouseEvent* event) override;
     void closePopup();
 
@@ -62,5 +68,7 @@ private:
     QMap<int, QSet<QString>> m_categoryFilters;
     bool m_filtering{false};
 };
+
+} // namespace gt
 
 #endif // FILTERHEADERVIEW_H

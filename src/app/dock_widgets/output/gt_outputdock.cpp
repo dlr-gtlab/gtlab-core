@@ -281,7 +281,7 @@ GtOutputDock::GtOutputDock()
     m_logView->setFrameStyle(QFrame::NoFrame);
     m_logView->setModel(m_model);
     
-    FilterHeaderView* headerView = new FilterHeaderView(Qt::Horizontal, m_logView);
+    auto* headerView = new gt::FilterHeaderView(Qt::Horizontal, m_logView);
     headerView->setFilterModel(filterModel);
     m_logView->setHorizontalHeader(headerView);
 
