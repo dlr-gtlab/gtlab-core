@@ -62,7 +62,7 @@ gt::FilterHeaderView::FilterHeaderView(Qt::Orientation orientation, QWidget* par
 }
 
 void
-gt::FilterHeaderView::setFilterModel(LogFilterProxyModel* model)
+gt::FilterHeaderView::setFilterModel(gt::LogFilterProxyModel* model)
 {
     if (m_filterModel)
     {
@@ -197,13 +197,13 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
         
         if (!items.isEmpty() || clickedColumn == 0 || clickedColumn == 2)
         {
-            m_popup = new FilterPopupWidget(this);
+            m_popup = new gt::FilterPopupWidget(this);
             
             if (clickedColumn == 0)
             {
                 m_popup->setItems(items, logLevelInts(), selectedLevels);
                 
-                connect(m_popup, &FilterPopupWidget::selectionChangedInt,
+                connect(m_popup, &gt::FilterPopupWidget::selectionChangedInt,
                         this, [this, clickedColumn](const QSet<int>& selected){
                             if (m_filterModel)
                             {
@@ -216,7 +216,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
             {
                 m_popup->setItems(items, storageItems, selectedCategories);
                 
-                connect(m_popup, &FilterPopupWidget::selectionChangedStorage,
+                connect(m_popup, &gt::FilterPopupWidget::selectionChangedStorage,
                         this, [this, clickedColumn](const QSet<QString>& selected){
                             if (m_filterModel)
                             {
@@ -226,7 +226,7 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
                         });
             }
             
-            connect(m_popup, &FilterPopupWidget::destroyed,
+            connect(m_popup, &gt::FilterPopupWidget::destroyed,
                     this, [this](){
                         m_popup = nullptr;
                     });

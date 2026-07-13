@@ -12,7 +12,7 @@
 #include <QScrollArea>
 #include <QApplication>
 
-FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
+gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     QWidget(parent, Qt::Popup)
 {
     setFocusPolicy(Qt::StrongFocus);
@@ -83,7 +83,9 @@ FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     });
 }
 
-void FilterPopupWidget::setItems(const QStringList& items, const QSet<QString>& selected)
+void
+gt::FilterPopupWidget::setItems(const QStringList& items,
+                                const QSet<QString>& selected)
 {
     m_itemToInt.clear();
     for (int i = 0; i < items.size(); ++i)
@@ -101,8 +103,10 @@ void FilterPopupWidget::setItems(const QStringList& items, const QSet<QString>& 
     m_updating = false;
 }
 
-void FilterPopupWidget::setItems(const QStringList& items, const QList<int>& values,
-                                  const QSet<int>& selected)
+void
+gt::FilterPopupWidget::setItems(const QStringList& items,
+                                const QList<int>& values,
+                                const QSet<int>& selected)
 {
     if (items.size() != values.size())
     {
@@ -126,9 +130,10 @@ void FilterPopupWidget::setItems(const QStringList& items, const QList<int>& val
     m_updating = false;
 }
 
-void FilterPopupWidget::setItems(const QStringList& displayItems,
-                                  const QStringList& storageItems,
-                                  const QSet<QString>& selectedStorageValues)
+void
+gt::FilterPopupWidget::setItems(const QStringList& displayItems,
+                                const QStringList& storageItems,
+                                const QSet<QString>& selectedStorageValues)
 {
     if (displayItems.size() != storageItems.size())
     {
@@ -159,7 +164,8 @@ void FilterPopupWidget::setItems(const QStringList& displayItems,
     m_updating = false;
 }
 
-void FilterPopupWidget::createCheckBoxes(const QStringList& items)
+void
+gt::FilterPopupWidget::createCheckBoxes(const QStringList& items)
 {
     if (!m_contentWidget || !m_contentLayout)
     {
@@ -186,8 +192,9 @@ void FilterPopupWidget::createCheckBoxes(const QStringList& items)
     }
 }
 
-void FilterPopupWidget::createCheckBoxesForStrings(const QStringList& displayItems,
-                                                     const QStringList& storageItems)
+void
+gt::FilterPopupWidget::createCheckBoxesForStrings(const QStringList& displayItems,
+                                                  const QStringList& storageItems)
 {
     if (!m_contentWidget || !m_contentLayout)
     {
@@ -205,7 +212,7 @@ void FilterPopupWidget::createCheckBoxesForStrings(const QStringList& displayIte
         QCheckBox* cb = new QCheckBox(display, m_contentWidget);
         cb->setTristate(false);
         
-        // EmptyID in kursiver Schrift anzeigen
+        // EmptyID in italic font
         if (display == "EmptyID")
         {
             QFont italicFont = cb->font();
@@ -226,7 +233,8 @@ void FilterPopupWidget::createCheckBoxesForStrings(const QStringList& displayIte
     }
 }
 
-void FilterPopupWidget::updateSelection()
+void
+gt::FilterPopupWidget::updateSelection()
 {
     if (m_itemToInt.isEmpty() && m_displayToStorage.isEmpty())
     {
@@ -274,19 +282,20 @@ void FilterPopupWidget::updateSelection()
     }
 }
 
-QSet<QString> FilterPopupWidget::selectedValues() const
+QSet<QString>
+gt::FilterPopupWidget::selectedValues() const
 {
     QSet<QString> selected;
     for (QCheckBox* cb : m_checkBoxes)
     {
         if (cb->isChecked())
         {
-            // Wenn Mapping existiert, return display value
+            // if mapping exists, return display value
             if (m_displayToStorage.contains(cb->text()))
             {
                 selected.insert(cb->text());
             }
-            // Sonst: direkter Text (für bestehende setItems(QStringList, QSet<QString>))
+            // Else: direct text
             else
             {
                 selected.insert(cb->text());
@@ -296,9 +305,11 @@ QSet<QString> FilterPopupWidget::selectedValues() const
     return selected;
 }
 
-QSet<int> FilterPopupWidget::selectedIntValues() const
+QSet<int>
+gt::FilterPopupWidget::selectedIntValues() const
 {
     QSet<int> selected;
+
     for (QCheckBox* cb : m_checkBoxes)
     {
         if (cb->isChecked())
@@ -310,10 +321,12 @@ QSet<int> FilterPopupWidget::selectedIntValues() const
             }
         }
     }
+
     return selected;
 }
 
-QSet<QString> FilterPopupWidget::selectedStorageValues() const
+QSet<QString>
+gt::FilterPopupWidget::selectedStorageValues() const
 {
     QSet<QString> selected;
     for (QCheckBox* cb : m_checkBoxes)
@@ -321,7 +334,7 @@ QSet<QString> FilterPopupWidget::selectedStorageValues() const
         if (cb->isChecked())
         {
             QString storageValue = m_displayToStorage.value(cb->text());
-            // Wenn Mapping existiert, use storage value (auch leere Strings)
+            // If mapping existsts, use storage value
             if (m_displayToStorage.contains(cb->text()))
             {
                 selected.insert(storageValue);

@@ -15,7 +15,11 @@
 #include <QSet>
 
 class GtOutputDock;
-class LogFilterProxyModel;
+
+namespace gt
+{
+    class LogFilterProxyModel;
+}
 
 /**
  * @brief The GtFilteredLogModel class.
@@ -31,7 +35,8 @@ class GtFilteredLogModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    explicit GtFilteredLogModel(LogFilterProxyModel* filterModel, QObject* parent = nullptr);
+    explicit GtFilteredLogModel(gt::LogFilterProxyModel* filterModel,
+                                QObject* parent = nullptr);
 
 public slots:
     void filterTraceLevel(bool val);
@@ -47,7 +52,7 @@ protected:
                           const QModelIndex& srcParent) const override;
 
 private:
-    LogFilterProxyModel* m_filterModel;
+    gt::LogFilterProxyModel* m_filterModel;
     QSet<int> m_activeLevels;
     int m_filter;
 

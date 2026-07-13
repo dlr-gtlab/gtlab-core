@@ -11,9 +11,9 @@
 #include "gt_filteredlogmodel.h"
 #include "logfilterproxymodel.h"
 
-#include "gt_loglevel.h"
+#include <gt_loglevel.h>
 
-GtFilteredLogModel::GtFilteredLogModel(LogFilterProxyModel* filterModel,
+GtFilteredLogModel::GtFilteredLogModel(gt::LogFilterProxyModel* filterModel,
                                        QObject* parent) :
     QSortFilterProxyModel(parent),
     m_filterModel(filterModel),

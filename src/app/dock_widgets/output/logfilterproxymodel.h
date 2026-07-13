@@ -12,6 +12,8 @@
 #include <QStringList>
 #include <QPair>
 
+namespace gt
+{
 /**
  * @brief The LogFilterProxyModel class
  * 
@@ -90,5 +92,5 @@ private:
     bool matchesCategoryFilter(int source_row,
                                const QModelIndex& source_parent) const;
 };
-
+} // namespace gt
 #endif // LOGFILTERPROXYMODEL_H

@@ -16,12 +16,21 @@ class QCheckBox;
 class QPushButton;
 class QVBoxLayout;
 
+namespace gt
+{
+
 /**
  * @brief The FilterPopupWidget class
  * 
- * Simple popup widget for multi-select filtering.
- * Contains checkbox list with "Select All/None" buttons.
+ * Popup widget for multi-select filtering with scrollable content.
+ * Contains a checkbox list with "Select All/None" buttons and a scrollbar
+ * that limits visible items to 5 for compact UI.
  * Changes apply immediately (no apply/cancel buttons).
+ * 
+ * The widget supports three item formats:
+ * - Simple string lists for general filtering
+ * - Integer value lists for level-based filtering
+ * - String pairs (display, storage) for ID/category filtering
  */
 class FilterPopupWidget : public QWidget
 {
@@ -31,6 +40,10 @@ public:
     /**
      * @brief Constructor
      * @param parent Parent widget
+     * 
+     * Creates a popup widget with a scrollable checkbox list area
+     * and action buttons. The scroll area is configured to display
+     * a maximum of 5 items at a time.
      */
     explicit FilterPopupWidget(QWidget* parent = nullptr);
 
@@ -38,6 +51,9 @@ public:
      * @brief Set filter items
      * @param items List of filter items to display
      * @param selected Set of currently selected items
+     * 
+     * Sets filter items as a simple string list. Used for general
+     * filtering where display and storage values are the same.
      */
     void setItems(const QStringList& items, const QSet<QString>& selected);
 
@@ -46,6 +62,9 @@ public:
      * @param items List of item names
      * @param values List of corresponding integer values
      * @param selected Set of currently selected values
+     * 
+     * Sets filter items for integer-based filtering (e.g., log levels).
+     * The items are displayed to users while values are used internally.
      */
     void setItems(const QStringList& items, const QList<int>& values,
                   const QSet<int>& selected);
@@ -59,7 +78,16 @@ public:
     /// Get currently selected storage values (for string pairs)
     QSet<QString> selectedStorageValues() const;
 
-    /// Set filter items for string pairs (display, storage)
+    /**
+     * @brief setItems
+     * @param displayItems List of display strings
+     * @param storageItems List of corresponding storage strings
+     * @param selectedStorageValues Set of currently selected storage values
+     * 
+     * Sets filter items as string pairs where display items are shown
+     * to users but storage values are used internally for filtering.
+     * This is used for filtering by log IDs and categories.
+     */
     void setItems(const QStringList& displayItems,
                   const QStringList& storageItems,
                   const QSet<QString>& selectedStorageValues);
@@ -71,8 +99,32 @@ signals:
     void selectionChangedStorage(const QSet<QString>& selectedStorageValues);
 
 private:
+    /**
+     * @brief createCheckBoxes
+     * @param items List of item names to create checkboxes for
+     * 
+     * Creates checkbox widgets for the given items and connects
+     * them to the selection update mechanism.
+     */
     void createCheckBoxes(const QStringList& items);
-    void createCheckBoxesForStrings(const QStringList& displayItems, const QStringList& storageItems);
+
+    /**
+     * @brief createCheckBoxesForStrings
+     * @param displayItems List of display strings
+     * @param storageItems List of corresponding storage strings
+     * 
+     * Creates checkbox widgets for string pairs where display items
+     * are shown to users but storage values are used for filtering.
+     */
+    void createCheckBoxesForStrings(const QStringList& displayItems,
+                                    const QStringList& storageItems);
+
+    /**
+     * @brief updateSelection
+     * 
+     * Updates the internal selection state and emits selectionChanged
+     * signals when the user modifies checkbox states.
+     */
     void updateSelection();
 
     QList<QCheckBox*> m_checkBoxes;
@@ -85,5 +137,5 @@ private:
     QMap<QString, QString> m_displayToStorage;
     QMap<QString, QString> m_storageToDisplay;
 };
-
+} // namespace gt
 #endif // FILTERPOPUPWIDGET_H

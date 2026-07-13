@@ -243,7 +243,7 @@ GtOutputDock::GtOutputDock()
     GtStyledLogModel* styleModel = new GtStyledLogModel(this);
     styleModel->setSourceModel(gtLogModel);
 
-    LogFilterProxyModel* filterModel = new LogFilterProxyModel(this);
+    auto* filterModel = new gt::LogFilterProxyModel(this);
     filterModel->setSourceModel(styleModel);
 
     m_model = new GtFilteredLogModel(filterModel, this);
@@ -286,9 +286,9 @@ GtOutputDock::GtOutputDock()
     m_logView->setHorizontalHeader(headerView);
 
     // connect filter model changes to button updates
-    connect(filterModel, &LogFilterProxyModel::levelFilterChanged,
+    connect(filterModel, &gt::LogFilterProxyModel::levelFilterChanged,
             this, &GtOutputDock::updateFilterButtons);
-    connect(filterModel, &LogFilterProxyModel::categoryFilterChanged,
+    connect(filterModel, &gt::LogFilterProxyModel::categoryFilterChanged,
             this, &GtOutputDock::updateFilterButtons);
     connect(filterModel, &QSortFilterProxyModel::modelReset,
             this, &GtOutputDock::updateFilterButtons);
@@ -480,7 +480,7 @@ GtOutputDock::updateFilterButtons()
     auto& logger = gt::log::Logger::instance();
 
     // Get current filter state from LogFilterProxyModel
-    auto filterModel = static_cast<LogFilterProxyModel*>(m_model->sourceModel());
+    auto filterModel = static_cast<gt::LogFilterProxyModel*>(m_model->sourceModel());
     auto activeLevels = filterModel ? filterModel->levelFilter() : QSet<int>();
 
     auto const updateLevel = [this, &logger, &activeLevels](QPushButton* btn, gt::log::Level level){

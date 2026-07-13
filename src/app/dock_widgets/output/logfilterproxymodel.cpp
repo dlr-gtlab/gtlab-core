@@ -10,7 +10,7 @@
 #include <algorithm>
 #include "gt_logging.h"
 
-LogFilterProxyModel::LogFilterProxyModel(QObject* parent) :
+gt::LogFilterProxyModel::LogFilterProxyModel(QObject* parent) :
     QSortFilterProxyModel(parent)
 {
     // Filter only the message column (column 3)
@@ -18,7 +18,7 @@ LogFilterProxyModel::LogFilterProxyModel(QObject* parent) :
 }
 
 void
-LogFilterProxyModel::setFilterText(const QString& text)
+gt::LogFilterProxyModel::setFilterText(const QString& text)
 {
     if (m_filterState.text == text)
         return;
@@ -28,7 +28,7 @@ LogFilterProxyModel::setFilterText(const QString& text)
 }
 
 void
-LogFilterProxyModel::setLevelFilter(const QSet<int>& levels)
+gt::LogFilterProxyModel::setLevelFilter(const QSet<int>& levels)
 {
     if (m_filterState.levels == levels)
         return;
@@ -39,7 +39,7 @@ LogFilterProxyModel::setLevelFilter(const QSet<int>& levels)
 }
 
 void
-LogFilterProxyModel::setCategoryFilter(const QSet<QString>& categories)
+gt::LogFilterProxyModel::setCategoryFilter(const QSet<QString>& categories)
 {
     if (m_filterState.categories == categories)
         return;
@@ -50,7 +50,7 @@ LogFilterProxyModel::setCategoryFilter(const QSet<QString>& categories)
 }
 
 QStringList
-LogFilterProxyModel::availableCategories() const
+gt::LogFilterProxyModel::availableCategories() const
 {
     if (!sourceModel())
         return {};
@@ -72,7 +72,7 @@ LogFilterProxyModel::availableCategories() const
 }
 
 QList<QPair<QString, QString>>
-LogFilterProxyModel::availableCategoriesWithStorage() const
+gt::LogFilterProxyModel::availableCategoriesWithStorage() const
 {
     if (!sourceModel())
         return {};
@@ -109,13 +109,14 @@ LogFilterProxyModel::availableCategoriesWithStorage() const
 }
 
 QStringList
-LogFilterProxyModel::availableLevels() const
+gt::LogFilterProxyModel::availableLevels() const
 {
-    return {tr("Trace"), tr("Debug"), tr("Info"), tr("Warning"), tr("Error"), tr("Fatal")};
+    return {tr("Trace"), tr("Debug"), tr("Info"), tr("Warning"),
+            tr("Error"), tr("Fatal")};
 }
 
 void
-LogFilterProxyModel::clearFilters()
+gt::LogFilterProxyModel::clearFilters()
 {
     bool changed = false;
 
@@ -144,8 +145,8 @@ LogFilterProxyModel::clearFilters()
 }
 
 bool
-LogFilterProxyModel::filterAcceptsRow(int source_row,
-                                      const QModelIndex& source_parent) const
+gt::LogFilterProxyModel::filterAcceptsRow(int source_row,
+                                          const QModelIndex& source_parent) const
 {
     // All filters must match (AND logic)
     return matchesTextFilter(source_row, source_parent) &&
@@ -154,8 +155,8 @@ LogFilterProxyModel::filterAcceptsRow(int source_row,
 }
 
 bool
-LogFilterProxyModel::matchesTextFilter(int source_row,
-                                       const QModelIndex& source_parent) const
+gt::LogFilterProxyModel::matchesTextFilter(int source_row,
+                                           const QModelIndex& source_parent) const
 {
     if (m_filterState.text.isEmpty())
         return true;
@@ -174,7 +175,7 @@ LogFilterProxyModel::matchesTextFilter(int source_row,
 }
 
 bool
-LogFilterProxyModel::matchesLevelFilter(int source_row,
+gt::LogFilterProxyModel::matchesLevelFilter(int source_row,
                                         const QModelIndex& source_parent) const
 {
     if (m_filterState.levels.isEmpty())
@@ -187,7 +188,7 @@ LogFilterProxyModel::matchesLevelFilter(int source_row,
 }
 
 bool
-LogFilterProxyModel::matchesCategoryFilter(int source_row,
+gt::LogFilterProxyModel::matchesCategoryFilter(int source_row,
                                            const QModelIndex& source_parent) const
 {
     if (m_filterState.categories.isEmpty())
