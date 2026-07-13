@@ -20,8 +20,7 @@ gt::LogFilterProxyModel::LogFilterProxyModel(QObject* parent) :
 void
 gt::LogFilterProxyModel::setFilterText(const QString& text)
 {
-    if (m_filterState.text == text)
-        return;
+    if (m_filterState.text == text) return;
 
     m_filterState.text = text;
     invalidateFilter();
@@ -30,8 +29,7 @@ gt::LogFilterProxyModel::setFilterText(const QString& text)
 void
 gt::LogFilterProxyModel::setLevelFilter(const QSet<int>& levels)
 {
-    if (m_filterState.levels == levels)
-        return;
+    if (m_filterState.levels == levels) return;
 
     m_filterState.levels = levels;
     emit levelFilterChanged(m_filterState.levels);
@@ -41,8 +39,7 @@ gt::LogFilterProxyModel::setLevelFilter(const QSet<int>& levels)
 void
 gt::LogFilterProxyModel::setCategoryFilter(const QSet<QString>& categories)
 {
-    if (m_filterState.categories == categories)
-        return;
+    if (m_filterState.categories == categories) return;
 
     m_filterState.categories = categories;
     emit categoryFilterChanged(m_filterState.categories);
@@ -52,8 +49,7 @@ gt::LogFilterProxyModel::setCategoryFilter(const QSet<QString>& categories)
 QStringList
 gt::LogFilterProxyModel::availableCategories() const
 {
-    if (!sourceModel())
-        return {};
+    if (!sourceModel()) return {};
 
     QSet<QString> categories;
     const int rowCount = sourceModel()->rowCount();
@@ -74,8 +70,7 @@ gt::LogFilterProxyModel::availableCategories() const
 QList<QPair<QString, QString>>
 gt::LogFilterProxyModel::availableCategoriesWithStorage() const
 {
-    if (!sourceModel())
-        return {};
+    if (!sourceModel()) return {};
 
     QList<QPair<QString, QString>> result;
     QSet<QString> seenStorage;
@@ -158,8 +153,7 @@ bool
 gt::LogFilterProxyModel::matchesTextFilter(int source_row,
                                            const QModelIndex& source_parent) const
 {
-    if (m_filterState.text.isEmpty())
-        return true;
+    if (m_filterState.text.isEmpty()) return true;
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QRegExp regexp(m_filterState.text, Qt::CaseInsensitive, QRegExp::Wildcard);
@@ -178,8 +172,7 @@ bool
 gt::LogFilterProxyModel::matchesLevelFilter(int source_row,
                                         const QModelIndex& source_parent) const
 {
-    if (m_filterState.levels.isEmpty())
-        return true;
+    if (m_filterState.levels.isEmpty()) return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
     const int level = sourceModel()->data(index, Qt::UserRole).toInt();
@@ -191,8 +184,7 @@ bool
 gt::LogFilterProxyModel::matchesCategoryFilter(int source_row,
                                            const QModelIndex& source_parent) const
 {
-    if (m_filterState.categories.isEmpty())
-        return true;
+    if (m_filterState.categories.isEmpty()) return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 2, source_parent);
     const QString category = sourceModel()->data(index, Qt::DisplayRole).toString();
