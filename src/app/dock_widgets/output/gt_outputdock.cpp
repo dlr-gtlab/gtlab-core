@@ -40,6 +40,7 @@
 #include <QMenu>
 #include <QApplication>
 #include <QClipboard>
+#include <qshortcut.h>
 
 #ifdef QT_DEBUG
 #include <QAbstractItemModelTester>
@@ -267,9 +268,28 @@ GtOutputDock::GtOutputDock()
 
     GtSearchWidget* searchWidget = new GtSearchWidget;
     filterLayout->addWidget(searchWidget);
+    searchWidget->enableFindNextButtons();
 
-    connect(searchWidget, &GtSearchWidget::textChanged,
-            m_model, &GtFilteredLogModel::filterData);
+    // Navigation shortcuts: F3 (next), Shift+F3 (previous)
+    auto* m_nextShortcut = new QShortcut(
+        gtApp->getShortCutSequence("jumpToNextElement"), this);
+    m_nextShortcut->setContext(Qt::ApplicationShortcut);
+    connect(m_nextShortcut, &QShortcut::activated, this,
+            &GtOutputDock::goToNextMatch);
+    auto* m_prevShortcut = new QShortcut(
+        gtApp->getShortCutSequence("jumpToPreviousElement"), this);
+    m_prevShortcut->setContext(Qt::ApplicationShortcut);
+    connect(m_prevShortcut, &QShortcut::activated, this,
+            &GtOutputDock::goToPrevMatch);
+
+    // Connect search changes to editor highlighting
+    connect(searchWidget, &GtSearchWidget::textChanged, this,
+            &GtOutputDock::onSearchTextChanged);
+    // Connect navigation button clicks
+    connect(searchWidget, &GtSearchWidget::nextClicked, this,
+            &GtOutputDock::goToNextMatch);
+    connect(searchWidget, &GtSearchWidget::prevClicked, this,
+            &GtOutputDock::goToPrevMatch);
 
     m_logView = new GtTableView;
     m_logView->setFrameStyle(QFrame::NoFrame);
@@ -726,6 +746,66 @@ GtOutputDock::onDeleteRequest()
     std::sort(std::begin(indexes), std::end(indexes));
 
     removeItems(indexes);
+}
+
+void
+GtOutputDock::onSearchTextChanged(const QString &text)
+{
+    if (!m_logView) return;
+
+    // Rebuild match list
+    m_matches.clear();
+    m_currentMatch = -1;
+
+    // Get all items from model and search for text
+    // For now, we'll search in the displayed rows
+    int rowCount = m_model->rowCount();
+    
+    for (int row = 0; row < rowCount; ++row)
+    {
+        QModelIndex index = m_model->index(row, 3); // Messages column
+        QString itemText = m_model->data(index, Qt::DisplayRole).toString();
+        
+        if (!text.isEmpty() && itemText.contains(text, Qt::CaseInsensitive))
+        {
+            m_matches.append(index);
+        }
+    }
+
+    if (text.isEmpty() || m_matches.isEmpty())
+    {
+        // Clear selection
+        m_logView->clearSelection();
+    }
+    else
+    {
+        m_currentMatch = 0;
+        // Select the first match
+        m_logView->selectRow(m_matches.first().row());
+        m_logView->scrollTo(m_matches.first());
+    }
+}
+
+void
+GtOutputDock::goToNextMatch()
+{
+    if (m_matches.isEmpty() || !m_logView) return;
+
+    // Move to next match
+    m_currentMatch = (m_currentMatch + 1) % m_matches.size();
+    m_logView->selectRow(m_matches.at(m_currentMatch).row());
+    m_logView->scrollTo(m_matches.at(m_currentMatch));
+}
+
+void
+GtOutputDock::goToPrevMatch()
+{
+    if (m_matches.isEmpty() || !m_logView) return;
+
+    // Move to previous match
+    m_currentMatch = (m_currentMatch - 1 + m_matches.size()) % m_matches.size();
+    m_logView->selectRow(m_matches.at(m_currentMatch).row());
+    m_logView->scrollTo(m_matches.at(m_currentMatch));
 }
 
 void

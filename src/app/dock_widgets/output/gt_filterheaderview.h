@@ -19,6 +19,7 @@ namespace gt
 class LogFilterProxyModel;
 class FilterPopupWidget;
 
+
 /**
  * @brief The FilterHeaderView class
  *
@@ -98,8 +99,8 @@ private:
      * @return true if the filter button was clicked
      * 
      * Checks if the given mouse position is within the filter button area
-     * in the specified column. Returns true only for Level (column 0) and 
-     * Id (column 2) columns where filter buttons are displayed.
+     * in the specified column. Returns true for Level (column 0), 
+     * Id (column 2), and Message (column 3) columns where filter buttons are displayed.
      */
     bool isFilterButtonClicked(const QPoint& pos, int logicalIndex) const;
 

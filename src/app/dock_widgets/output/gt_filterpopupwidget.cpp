@@ -6,11 +6,15 @@
 
 #include "gt_filterpopupwidget.h"
 
+#include "gt_searchwidget.h"
+
 #include <QCheckBox>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QApplication>
+#include <QScrollArea>
+#include <qlabel.h>
 
 gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     QWidget(parent, Qt::Popup)
@@ -21,6 +25,9 @@ gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     auto* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(5, 5, 5, 5);
     mainLayout->setSpacing(5);
+    
+    m_searchWidget = new GtSearchWidget(this);
+    m_searchWidget->hide();
     
     auto* scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
@@ -42,6 +49,9 @@ gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     
     m_contentWidget = contentWidget;
     m_contentLayout = contentLayout;
+    
+    m_mainLayout = mainLayout;
+    m_scrollArea = scrollArea;
     
     auto* buttonBar = new QWidget(this);
     auto* buttonLayout = new QHBoxLayout(buttonBar);
@@ -81,6 +91,65 @@ gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
         m_updating = false;
         updateSelection();
     });
+}
+
+void
+gt::FilterPopupWidget::setSearchMode()
+{
+    if (m_contentWidget)
+    {
+        m_contentWidget->hide();
+    }
+    
+    if (m_searchWidget)
+    {
+        m_searchWidget->show();
+        m_searchWidget->enableSearch();
+    }
+    
+    QList<QPushButton*> buttons = findChildren<QPushButton*>();
+    for (QPushButton* btn : buttons)
+    {
+        btn->hide();
+    }
+    
+    if (m_scrollArea)
+    {
+        m_scrollArea->hide();
+    }
+    
+    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint); // | Qt::WindowStaysInTopHint);
+    adjustSize();
+    show();
+}
+
+void
+gt::FilterPopupWidget::setSearchWidget(GtSearchWidget* searchWidget)
+{
+    if (m_contentWidget)
+    {
+        m_contentWidget->hide();
+    }
+
+    if (m_searchWidget && m_mainLayout)
+    {
+        m_mainLayout->removeWidget(m_searchWidget);
+        m_searchWidget->hide();
+    }
+    
+    m_searchWidget = searchWidget;
+    if (searchWidget && m_mainLayout)
+    {
+        auto* hL = new QHBoxLayout;
+        hL->addWidget(new QLabel(tr("Search:")));
+        hL->addWidget(searchWidget);
+
+        m_mainLayout->addLayout(hL);
+        searchWidget->show();
+        connect(searchWidget, &GtSearchWidget::textChanged,
+                this, &FilterPopupWidget::searchTextChanged);
+
+    }
 }
 
 void

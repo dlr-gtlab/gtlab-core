@@ -59,6 +59,15 @@ private:
     /// Filter model
     GtFilteredLogModel* m_model{};
 
+    /// Search text for jump-to functionality
+    QString m_searchText{};
+
+    /// List of match positions
+    QList<QModelIndex> m_matches{};
+
+    /// Current match index
+    int m_currentMatch{-1};
+
     /// Toggle trace button (hide/show)
     QPushButton* m_traceButton{};
 
@@ -150,6 +159,11 @@ private slots:
      * removes selected items from model by using the removeItems function
      */
     void onDeleteRequest();
+
+    void onSearchTextChanged(const QString& text);
+
+    void goToNextMatch();
+    void goToPrevMatch();
 };
 
 #endif // GTOUTPUTDOCK_H

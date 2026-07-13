@@ -15,6 +15,8 @@
 class QCheckBox;
 class QPushButton;
 class QVBoxLayout;
+class QScrollArea;
+class GtSearchWidget;
 
 namespace gt
 {
@@ -78,7 +80,7 @@ public:
     /// Get currently selected storage values (for string pairs)
     QSet<QString> selectedStorageValues() const;
 
-    /**
+/**
      * @brief setItems
      * @param displayItems List of display strings
      * @param storageItems List of corresponding storage strings
@@ -92,11 +94,32 @@ public:
                   const QStringList& storageItems,
                   const QSet<QString>& selectedStorageValues);
 
+/**
+      * @brief setSearchWidget
+      * @param searchWidget GtSearchWidget to use for text filtering
+      * 
+      * Sets the search widget to be displayed at the top of the popup.
+      * This is used for message filtering where text search is needed
+      * instead of checkbox selection.
+      */
+    void setSearchWidget(GtSearchWidget* searchWidget);
+
+    /**
+      * @brief setSearchMode
+      * 
+      * Sets the popup to search-only mode.
+      * Hides checkbox list and button bar, shows only search widget.
+      * Popup opens to the left of the trigger button.
+      */
+    void setSearchMode();
+
 signals:
     /// Emitted when selection changes (display values)
     void selectionChanged(const QSet<QString>& selected);
     void selectionChangedInt(const QSet<int>& selected);
     void selectionChangedStorage(const QSet<QString>& selectedStorageValues);
+
+    void searchTextChanged(const QString& text);
 
 private:
     /**
@@ -134,8 +157,13 @@ private:
     QWidget* m_contentWidget{nullptr};
     QVBoxLayout* m_contentLayout{nullptr};
 
+    QVBoxLayout* m_mainLayout{nullptr};
+    QScrollArea* m_scrollArea{nullptr};
+
     QMap<QString, QString> m_displayToStorage;
     QMap<QString, QString> m_storageToDisplay;
+
+    GtSearchWidget* m_searchWidget{nullptr};
 };
 } // namespace gt
 #endif // FILTERPOPUPWIDGET_H

@@ -155,15 +155,14 @@ gt::LogFilterProxyModel::matchesTextFilter(int source_row,
 {
     if (m_filterState.text.isEmpty()) return true;
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QRegExp regexp(m_filterState.text, Qt::CaseInsensitive, QRegExp::Wildcard);
     const QModelIndex index = sourceModel()->index(source_row, 3, source_parent);
     const QString message = sourceModel()->data(index).toString();
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QRegExp regexp(m_filterState.text, Qt::CaseInsensitive, QRegExp::Wildcard);
     return regexp.indexIn(message) >= 0;
 #else
     QRegularExpression regexp(m_filterState.text, QRegularExpression::CaseInsensitiveOption);
-    const QModelIndex index = sourceModel()->index(source_row, 3, source_parent);
-    const QString message = sourceModel()->data(index).toString();
     return regexp.match(message).hasMatch();
 #endif
 }

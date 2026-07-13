@@ -7,6 +7,7 @@
 #include "gt_filterheaderview.h"
 #include "gt_logfilterproxymodel.h"
 #include "gt_filterpopupwidget.h"
+#include "gt_searchwidget.h"
 
 #include <QPainter>
 #include <QMouseEvent>
@@ -95,7 +96,7 @@ gt::FilterHeaderView::setFilterModel(gt::LogFilterProxyModel* model)
     connect(this, &QHeaderView::sectionResized, this, [this](int logicalIndex,
                                                              int oldSize,
                                                              int newSize){
-        if (logicalIndex == 0 || logicalIndex == 2)
+        if (logicalIndex == 0 || logicalIndex == 2 || logicalIndex == 3)
         {
             if (newSize < 70)
             {
@@ -107,20 +108,20 @@ gt::FilterHeaderView::setFilterModel(gt::LogFilterProxyModel* model)
 
 void
 gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
-                               int logicalIndex) const
+                                int logicalIndex) const
 {
     if (!m_filterModel || logicalIndex < 0) return;
 
-    // Only show filter icon for Level (column 0) and Id (column 2)
-    if (logicalIndex != 0 && logicalIndex != 2)
+    QRect filterRect = filterButtonRect(logicalIndex);
+
+    if (filterRect.isEmpty()) return;
+    
+    // Only show filter icon for Level (column 0), Id (column 2) and Message (column 3)
+    if (logicalIndex != 0 && logicalIndex != 2 && logicalIndex != 3)
     {
         QHeaderView::paintSection(painter, rect, logicalIndex);
         return;
     }
-    
-    QRect filterRect = filterButtonRect(logicalIndex);
-
-    if (filterRect.isEmpty()) return;
     
     // Draw header first
     painter->save();
@@ -165,78 +166,117 @@ gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
         
         emit filterButtonClicked(clickedColumn);
         
-        QStringList items;
-        QSet<int> selectedLevels;
-        QSet<QString> selectedCategories;
-        QStringList displayItems;
-        QStringList storageItems;
-        
-        if (clickedColumn == 0 && m_filterModel)
-        {
-            items = logLevelStrings();
-
-            selectedLevels = m_filterModel->levelFilter();
-            m_levelFilters[clickedColumn] = selectedLevels;
-        }
-        else if (clickedColumn == 2 && m_filterModel)
-        {
-            auto itemsWithStorage = m_filterModel->availableCategoriesWithStorage();
-
-            
-            for (const auto& pair : itemsWithStorage)
-            {
-                displayItems << pair.first;
-                storageItems << pair.second;
-            }
-            
-            items = displayItems;
-            
-            selectedCategories = m_filterModel->categoryFilter();
-            m_categoryFilters[clickedColumn] = selectedCategories;
-        }
-        
-        if (!items.isEmpty() || clickedColumn == 0 || clickedColumn == 2)
+        if (clickedColumn == 3 && m_filterModel)
         {
             m_popup = new gt::FilterPopupWidget(this);
             
-            if (clickedColumn == 0)
-            {
-                m_popup->setItems(items, logLevelInts(), selectedLevels);
-                
-                connect(m_popup, &gt::FilterPopupWidget::selectionChangedInt,
-                        this, [this, clickedColumn](const QSet<int>& selected){
-                            if (m_filterModel)
-                            {
-                                m_filterModel->setLevelFilter(selected);
-                                m_levelFilters[clickedColumn] = selected;
-                            }
-                        });
-            }
-            else if (clickedColumn == 2)
-            {
-                m_popup->setItems(items, storageItems, selectedCategories);
-                
-                connect(m_popup, &gt::FilterPopupWidget::selectionChangedStorage,
-                        this, [this, clickedColumn](const QSet<QString>& selected){
-                            if (m_filterModel)
-                            {
-                                m_filterModel->setCategoryFilter(selected);
-                                m_categoryFilters[clickedColumn] = selected;
-                            }
-                        });
-            }
+            GtSearchWidget* searchWidget = new GtSearchWidget(this);
+            searchWidget->setText(m_filterModel->filterText());
             
+            m_popup->setSearchWidget(searchWidget);
+            m_popup->setSearchMode();
+
+            connect(searchWidget, &GtSearchWidget::textChanged,
+                    m_filterModel, &gt::LogFilterProxyModel::setFilterText);
+
+            connect(m_filterModel, &gt::LogFilterProxyModel::modelReset,
+                    this, [this, searchWidget](){
+                        searchWidget->setText(m_filterModel->filterText());
+                    });
+
             connect(m_popup, &gt::FilterPopupWidget::destroyed,
                     this, [this](){
                         m_popup = nullptr;
                     });
-            
+
+            m_popup->setMinimumWidth(300);
+
             QPoint popupPos =
                 mapToGlobal(filterButtonRect(logicalIndexAt(event->pos())).bottomLeft());
-            m_popup->move(popupPos);
-            m_popup->setMinimumWidth(180);
+
+            int popupWidth = m_popup->minimumWidth();
+            int buttonWidth = FILTER_BUTTON_WIDTH;
+            int newX = popupPos.x() - popupWidth + buttonWidth;
+
+            m_popup->move(QPoint(newX, popupPos.y()));
             m_popup->show();
             m_popup->activateWindow();
+        }
+        else
+        {
+            QStringList items;
+            QSet<int> selectedLevels;
+            QSet<QString> selectedCategories;
+            QStringList displayItems;
+            QStringList storageItems;
+            
+            if (clickedColumn == 0 && m_filterModel)
+            {
+                items = logLevelStrings();
+
+                selectedLevels = m_filterModel->levelFilter();
+                m_levelFilters[clickedColumn] = selectedLevels;
+            }
+            else if (clickedColumn == 2 && m_filterModel)
+            {
+                auto itemsWithStorage = m_filterModel->availableCategoriesWithStorage();
+
+                
+                for (const auto& pair : itemsWithStorage)
+                {
+                    displayItems << pair.first;
+                    storageItems << pair.second;
+                }
+                
+                items = displayItems;
+                
+                selectedCategories = m_filterModel->categoryFilter();
+                m_categoryFilters[clickedColumn] = selectedCategories;
+            }
+            
+            if (!items.isEmpty() || clickedColumn == 0 || clickedColumn == 2)
+            {
+                m_popup = new gt::FilterPopupWidget(this);
+                
+                if (clickedColumn == 0)
+                {
+                    m_popup->setItems(items, logLevelInts(), selectedLevels);
+                    
+                    connect(m_popup, &gt::FilterPopupWidget::selectionChangedInt,
+                            this, [this, clickedColumn](const QSet<int>& selected){
+                                if (m_filterModel)
+                                {
+                                    m_filterModel->setLevelFilter(selected);
+                                    m_levelFilters[clickedColumn] = selected;
+                                }
+                            });
+                }
+                else if (clickedColumn == 2)
+                {
+                    m_popup->setItems(items, storageItems, selectedCategories);
+                    
+                    connect(m_popup, &gt::FilterPopupWidget::selectionChangedStorage,
+                            this, [this, clickedColumn](const QSet<QString>& selected){
+                                if (m_filterModel)
+                                {
+                                    m_filterModel->setCategoryFilter(selected);
+                                    m_categoryFilters[clickedColumn] = selected;
+                                }
+                            });
+                }
+                
+                connect(m_popup, &gt::FilterPopupWidget::destroyed,
+                        this, [this](){
+                            m_popup = nullptr;
+                        });
+                
+                QPoint popupPos =
+                    mapToGlobal(filterButtonRect(logicalIndexAt(event->pos())).bottomLeft());
+                m_popup->move(popupPos);
+                m_popup->setMinimumWidth(180);
+                m_popup->show();
+                m_popup->activateWindow();
+            }
         }
     }
     
