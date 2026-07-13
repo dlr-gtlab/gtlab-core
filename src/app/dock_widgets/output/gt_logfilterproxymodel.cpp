@@ -4,7 +4,7 @@
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  */
 
-#include "logfilterproxymodel.h"
+#include "gt_logfilterproxymodel.h"
 
 #include <QRegExp>
 

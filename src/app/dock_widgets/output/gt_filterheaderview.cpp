@@ -4,9 +4,9 @@
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  */
 
-#include "filterheaderview.h"
-#include "logfilterproxymodel.h"
-#include "filterpopupwidget.h"
+#include "gt_filterheaderview.h"
+#include "gt_logfilterproxymodel.h"
+#include "gt_filterpopupwidget.h"
 
 #include <QPainter>
 #include <QMouseEvent>

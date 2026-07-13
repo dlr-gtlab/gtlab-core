@@ -4,7 +4,7 @@
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  */
 
-#include "filterpopupwidget.h"
+#include "gt_filterpopupwidget.h"
 
 #include <QCheckBox>
 #include <QVBoxLayout>
