@@ -7,8 +7,8 @@
 #include "logfilterproxymodel.h"
 
 #include <QRegExp>
-#include <algorithm>
-#include "gt_logging.h"
+
+#include <gt_loglevel.h>
 
 gt::LogFilterProxyModel::LogFilterProxyModel(QObject* parent) :
     QSortFilterProxyModel(parent)

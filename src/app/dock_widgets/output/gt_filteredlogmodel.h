@@ -39,12 +39,46 @@ public:
                                 QObject* parent = nullptr);
 
 public slots:
+    /**
+     * @brief filterTraceLevel
+     * @param val
+     */
     void filterTraceLevel(bool val);
+
+    /**
+     * @brief filterDebugLevel
+     * @param val
+     */
     void filterDebugLevel(bool val);
+
+    /**
+     * @brief filterInfoLevel
+     * @param val
+     */
     void filterInfoLevel(bool val);
+
+    /**
+     * @brief filterWarningLevel
+     * @param val
+     */
     void filterWarningLevel(bool val);
+
+    /**
+     * @brief filterErrorLevel
+     * @param val
+     */
     void filterErrorLevel(bool val);
+
+    /**
+     * @brief filterFatalLevel
+     * @param val
+     */
     void filterFatalLevel(bool val);
+
+    /**
+     * @brief filterData
+     * @param val
+     */
     void filterData(const QString& val);
 
 protected:

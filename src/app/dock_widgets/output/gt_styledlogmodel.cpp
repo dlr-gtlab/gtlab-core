@@ -16,7 +16,7 @@
 #include "gt_icons.h"
 #include "gt_colors.h"
 
-#include "gt_logging.h"
+#include <gt_loglevel.h>
 
 GtStyledLogModel::GtStyledLogModel(QObject* parent) :
     QIdentityProxyModel(parent)
