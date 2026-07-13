@@ -285,6 +285,14 @@ GtOutputDock::GtOutputDock()
     headerView->setFilterModel(filterModel);
     m_logView->setHorizontalHeader(headerView);
 
+    // connect filter model changes to button updates
+    connect(filterModel, &LogFilterProxyModel::levelFilterChanged,
+            this, &GtOutputDock::updateFilterButtons);
+    connect(filterModel, &LogFilterProxyModel::categoryFilterChanged,
+            this, &GtOutputDock::updateFilterButtons);
+    connect(filterModel, &QSortFilterProxyModel::modelReset,
+            this, &GtOutputDock::updateFilterButtons);
+
     // stretch the last section
     headerView->setStretchLastSection(true);
 
@@ -471,20 +479,32 @@ GtOutputDock::updateFilterButtons()
 {
     auto& logger = gt::log::Logger::instance();
 
-    auto const hideLevel = [&logger](QPushButton& btn, gt::log::Level level){
+    // Get current filter state from LogFilterProxyModel
+    auto filterModel = static_cast<LogFilterProxyModel*>(m_model->sourceModel());
+    auto activeLevels = filterModel ? filterModel->levelFilter() : QSet<int>();
+
+    auto const updateLevel = [this, &logger, &activeLevels](QPushButton* btn, gt::log::Level level){
+        if (!btn)
+            return;
+
         bool hideBtn = logger.loggingLevel() > level;
         // if btn is visible and if it should be hidden check if the model
         // contains old messages with that logging level
-        if (btn.isVisible() && hideBtn)
+        if (btn->isVisible() && hideBtn)
         {
             hideBtn = !gtLogModel->containsLogLevel(level);
         }
-        btn.setHidden(hideBtn);
+        btn->setHidden(hideBtn);
+
+        // update checked state based on current filter
+        btn->setChecked(activeLevels.contains(level));
     };
 
-    hideLevel(*m_traceButton, gt::log::TraceLevel);
-    hideLevel(*m_debugButton, gt::log::DebugLevel);
-    hideLevel(*m_infoButton, gt::log::InfoLevel);
+    updateLevel(m_traceButton, gt::log::TraceLevel);
+    updateLevel(m_debugButton, gt::log::DebugLevel);
+    updateLevel(m_infoButton, gt::log::InfoLevel);
+    updateLevel(m_warningButton, gt::log::WarningLevel);
+    updateLevel(m_errorButton, gt::log::ErrorLevel);
 }
 
 void

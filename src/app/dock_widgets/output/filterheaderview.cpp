@@ -147,25 +147,18 @@ void FilterHeaderView::mousePressEvent(QMouseEvent* event)
               return QString::fromStdString(gt::log::levelToString(level));
         };
 
-        if (clickedColumn == 0 && m_filterModel)
-        {
-            items << logToQString(gt::log::TraceLevel)
-                  << logToQString(gt::log::DebugLevel)
-                  << logToQString(gt::log::InfoLevel)
-                  << logToQString(gt::log::WarningLevel)
-                  << logToQString(gt::log::ErrorLevel)
-                  << logToQString(gt::log::FatalLevel);
-            
-            if (m_levelFilters.contains(clickedColumn))
+if (clickedColumn == 0 && m_filterModel)
             {
-                selectedLevels = m_levelFilters[clickedColumn];
-            }
-            else
-            {
+                items << logToQString(gt::log::TraceLevel)
+                      << logToQString(gt::log::DebugLevel)
+                      << logToQString(gt::log::InfoLevel)
+                      << logToQString(gt::log::WarningLevel)
+                      << logToQString(gt::log::ErrorLevel)
+                      << logToQString(gt::log::FatalLevel);
+                
                 selectedLevels = m_filterModel->levelFilter();
                 m_levelFilters[clickedColumn] = selectedLevels;
             }
-        }
         else if (clickedColumn == 2 && m_filterModel)
         {
             auto itemsWithStorage = m_filterModel->availableCategoriesWithStorage();
@@ -179,15 +172,8 @@ void FilterHeaderView::mousePressEvent(QMouseEvent* event)
             
             items = displayItems;
             
-            if (m_categoryFilters.contains(clickedColumn))
-            {
-                selectedCategories = m_categoryFilters[clickedColumn];
-            }
-            else
-            {
-                selectedCategories = m_filterModel->categoryFilter();
-                m_categoryFilters[clickedColumn] = selectedCategories;
-            }
+            selectedCategories = m_filterModel->categoryFilter();
+            m_categoryFilters[clickedColumn] = selectedCategories;
         }
         
         if (!items.isEmpty())

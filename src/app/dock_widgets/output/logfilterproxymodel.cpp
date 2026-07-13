@@ -34,6 +34,7 @@ LogFilterProxyModel::setLevelFilter(const QSet<int>& levels)
         return;
 
     m_filterState.levels = levels;
+    emit levelFilterChanged(m_filterState.levels);
     invalidateFilter();
 }
 
@@ -44,6 +45,7 @@ LogFilterProxyModel::setCategoryFilter(const QSet<QString>& categories)
         return;
 
     m_filterState.categories = categories;
+    emit categoryFilterChanged(m_filterState.categories);
     invalidateFilter();
 }
 
