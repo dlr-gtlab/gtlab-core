@@ -10,6 +10,7 @@
 #include <QSortFilterProxyModel>
 #include <QSet>
 #include <QStringList>
+#include <QPair>
 
 /**
  * @brief The LogFilterProxyModel class
@@ -40,6 +41,9 @@ public:
 
     /// Get all available categories from the source model
     QStringList availableCategories() const;
+
+    /// Get all available categories with storage mapping (display, storage)
+    QList<QPair<QString, QString>> availableCategoriesWithStorage() const;
 
     /// Get all available logging levels
     QStringList availableLevels() const;

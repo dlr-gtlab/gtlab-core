@@ -69,6 +69,43 @@ LogFilterProxyModel::availableCategories() const
     return QStringList(categories.values());
 }
 
+QList<QPair<QString, QString>>
+LogFilterProxyModel::availableCategoriesWithStorage() const
+{
+    if (!sourceModel())
+        return {};
+
+    QList<QPair<QString, QString>> result;
+    QSet<QString> seenStorage;
+
+    const int rowCount = sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = sourceModel()->index(row, 2);
+        QString storageValue = sourceModel()->data(index).toString();
+
+        if (storageValue.isEmpty())
+        {
+            if (!seenStorage.contains(""))
+            {
+                result << qMakePair(QString("EmptyID"), QString(""));
+                seenStorage.insert("");
+            }
+        }
+        else
+        {
+            if (!seenStorage.contains(storageValue))
+            {
+                result << qMakePair(storageValue, storageValue);
+                seenStorage.insert(storageValue);
+            }
+        }
+    }
+
+    return result;
+}
+
 QStringList
 LogFilterProxyModel::availableLevels() const
 {
@@ -139,7 +176,7 @@ LogFilterProxyModel::matchesLevelFilter(int source_row,
                                         const QModelIndex& source_parent) const
 {
     if (m_filterState.levels.isEmpty())
-        return false;
+        return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
     const int level = sourceModel()->data(index, Qt::UserRole).toInt();

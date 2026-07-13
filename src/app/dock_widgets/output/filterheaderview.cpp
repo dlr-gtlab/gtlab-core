@@ -140,10 +140,21 @@ void FilterHeaderView::mousePressEvent(QMouseEvent* event)
         QStringList items;
         QSet<int> selectedLevels;
         QSet<QString> selectedCategories;
+        QStringList displayItems;
+        QStringList storageItems;
         
+        auto logToQString = [](gt::log::Level level){
+              return QString::fromStdString(gt::log::levelToString(level));
+        };
+
         if (clickedColumn == 0 && m_filterModel)
         {
-            items << "Trace" << "Debug" << "Info" << "Warning" << "Error" << "Fatal";
+            items << logToQString(gt::log::TraceLevel)
+                  << logToQString(gt::log::DebugLevel)
+                  << logToQString(gt::log::InfoLevel)
+                  << logToQString(gt::log::WarningLevel)
+                  << logToQString(gt::log::ErrorLevel)
+                  << logToQString(gt::log::FatalLevel);
             
             if (m_levelFilters.contains(clickedColumn))
             {
@@ -157,7 +168,16 @@ void FilterHeaderView::mousePressEvent(QMouseEvent* event)
         }
         else if (clickedColumn == 2 && m_filterModel)
         {
-            items = m_filterModel->availableCategories();
+            auto itemsWithStorage = m_filterModel->availableCategoriesWithStorage();
+
+            
+            for (const auto& pair : itemsWithStorage)
+            {
+                displayItems << pair.first;
+                storageItems << pair.second;
+            }
+            
+            items = displayItems;
             
             if (m_categoryFilters.contains(clickedColumn))
             {
@@ -177,7 +197,12 @@ void FilterHeaderView::mousePressEvent(QMouseEvent* event)
             if (clickedColumn == 0)
             {
                 QList<int> values;
-                values << 1 << 2 << 3 << 4 << 5 << 6;
+                values << gt::log::levelToInt(gt::log::TraceLevel)
+                       << gt::log::levelToInt(gt::log::DebugLevel)
+                       << gt::log::levelToInt(gt::log::InfoLevel)
+                       << gt::log::levelToInt(gt::log::WarningLevel)
+                       << gt::log::levelToInt(gt::log::ErrorLevel)
+                       << gt::log::levelToInt(gt::log::FatalLevel);
                 m_popup->setItems(items, values, selectedLevels);
                 
                 connect(m_popup, &FilterPopupWidget::selectionChangedInt,
@@ -191,9 +216,9 @@ void FilterHeaderView::mousePressEvent(QMouseEvent* event)
             }
             else if (clickedColumn == 2)
             {
-                m_popup->setItems(items, selectedCategories);
+                m_popup->setItems(items, storageItems, selectedCategories);
                 
-                connect(m_popup, &FilterPopupWidget::selectionChanged,
+                connect(m_popup, &FilterPopupWidget::selectionChangedStorage,
                         this, [this, clickedColumn](const QSet<QString>& selected){
                     if (m_filterModel)
                     {

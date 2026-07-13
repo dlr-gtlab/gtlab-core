@@ -56,13 +56,23 @@ public:
     /// Get currently selected values (int version)
     QSet<int> selectedIntValues() const;
 
+    /// Get currently selected storage values (for string pairs)
+    QSet<QString> selectedStorageValues() const;
+
+    /// Set filter items for string pairs (display, storage)
+    void setItems(const QStringList& displayItems,
+                  const QStringList& storageItems,
+                  const QSet<QString>& selectedStorageValues);
+
 signals:
-    /// Emitted when selection changes
+    /// Emitted when selection changes (display values)
     void selectionChanged(const QSet<QString>& selected);
     void selectionChangedInt(const QSet<int>& selected);
+    void selectionChangedStorage(const QSet<QString>& selectedStorageValues);
 
 private:
     void createCheckBoxes(const QStringList& items);
+    void createCheckBoxesForStrings(const QStringList& displayItems, const QStringList& storageItems);
     void updateSelection();
 
     QList<QCheckBox*> m_checkBoxes;
@@ -71,6 +81,9 @@ private:
 
     QWidget* m_contentWidget{nullptr};
     QVBoxLayout* m_contentLayout{nullptr};
+
+    QMap<QString, QString> m_displayToStorage;
+    QMap<QString, QString> m_storageToDisplay;
 };
 
 #endif // FILTERPOPUPWIDGET_H
