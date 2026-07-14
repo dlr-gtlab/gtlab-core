@@ -10,11 +10,12 @@
 
 #include "gt_filteredlogmodel.h"
 #include "gt_logfilterproxymodel.h"
+#include "gt_styledlogmodel.h"
 
 #include <gt_loglevel.h>
 
 GtFilteredLogModel::GtFilteredLogModel(gt::LogFilterProxyModel* filterModel,
-                                       QObject* parent) :
+                                        QObject* parent) :
     QSortFilterProxyModel(parent),
     m_filterModel(filterModel),
     m_filter(0x3F)
@@ -23,10 +24,20 @@ GtFilteredLogModel::GtFilteredLogModel(gt::LogFilterProxyModel* filterModel,
     m_activeLevels = {gt::log::TraceLevel, gt::log::DebugLevel, 
                       gt::log::InfoLevel, gt::log::WarningLevel,
                       gt::log::ErrorLevel, gt::log::FatalLevel};
-    if (m_filterModel)
-    {
-        m_filterModel->setLevelFilter(m_activeLevels);
+
+    if (m_filterModel && m_filterModel->sourceModel()) {
+        updateCategoryFilter();
     }
+
+    // Initialize saved deactivated categories set
+    m_savedDeactivatedCategories.clear();
+}
+
+void
+GtFilteredLogModel::setSourceModel(QAbstractItemModel* model)
+{
+    QSortFilterProxyModel::setSourceModel(model);
+    updateCategoryFilter();
 }
 
 void
@@ -119,6 +130,176 @@ GtFilteredLogModel::updateFilterModel()
     if (m_filterModel)
     {
         m_filterModel->setLevelFilter(m_activeLevels);
+    }
+}
+
+void
+GtFilteredLogModel::updateCategoryFilter()
+{
+    if (!m_filterModel || !m_filterModel->sourceModel()) {
+        return;
+    }
+
+    QSet<QString> currentCategories = m_filterModel->categoryFilter();
+
+    QSet<QString> availableCategories;
+    const int rowCount = m_filterModel->sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = m_filterModel->sourceModel()->index(row, 2);
+        const QString category = m_filterModel->sourceModel()->data(index).toString();
+        if (!category.isEmpty())
+        {
+            availableCategories.insert(category);
+        }
+    }
+
+    if (!availableCategories.isEmpty())
+    {
+        QSet<QString> updatedCategories = currentCategories;
+        for (const QString& cat : availableCategories)
+        {
+            if (!currentCategories.contains(cat) && !m_savedDeactivatedCategories.contains(cat))
+            {
+                updatedCategories.insert(cat);
+            }
+        }
+
+        if (updatedCategories != currentCategories)
+        {
+            m_filterModel->setCategoryFilter(updatedCategories);
+        }
+    }
+}
+
+void
+GtFilteredLogModel::saveAndPreserveDeactivatedCategories(const QSet<QString>& currentActivated)
+{
+    if (!m_filterModel || !m_filterModel->sourceModel()) {
+        return;
+    }
+
+    QSet<QString> availableCategories;
+    const int rowCount = m_filterModel->sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = m_filterModel->sourceModel()->index(row, 2);
+        const QString category = m_filterModel->sourceModel()->data(index).toString();
+        if (!category.isEmpty())
+        {
+            availableCategories.insert(category);
+        }
+    }
+
+    // Use provided currentActivated or get from filter model
+    QSet<QString> activated = currentActivated.isEmpty() ? m_filterModel->categoryFilter() : currentActivated;
+
+    // Only update if we have available categories
+    if (!availableCategories.isEmpty())
+    {
+        // Save deactivated categories (available but not activated)
+        m_savedDeactivatedCategories.clear();
+        for (const QString& cat : availableCategories)
+        {
+            if (!activated.contains(cat))
+            {
+                m_savedDeactivatedCategories.insert(cat);
+            }
+        }
+
+        // Set deactivated categories in filter model
+        m_filterModel->setDeactivatedCategories(m_savedDeactivatedCategories);
+    }
+}
+
+void
+GtFilteredLogModel::setCategoryFilterWithSave(const QSet<QString>& categories)
+{
+    // Update saved deactivated categories
+    if (!m_filterModel || !m_filterModel->sourceModel()) {
+        return;
+    }
+
+    QSet<QString> availableCategories;
+    const int rowCount = m_filterModel->sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = m_filterModel->sourceModel()->index(row, 2);
+        const QString category = m_filterModel->sourceModel()->data(index).toString();
+        if (!category.isEmpty())
+        {
+            availableCategories.insert(category);
+        }
+    }
+
+    // Calculate deactivated categories (available but not in new categories)
+    m_savedDeactivatedCategories.clear();
+    for (const QString& cat : availableCategories)
+    {
+        if (!categories.contains(cat))
+        {
+            m_savedDeactivatedCategories.insert(cat);
+        }
+    }
+
+    // Set both activated and deactivated categories
+    m_filterModel->setCategoryFilter(categories);
+    m_filterModel->setDeactivatedCategories(m_savedDeactivatedCategories);
+}
+
+void
+GtFilteredLogModel::resetCategoryFilter()
+{
+    if (!m_filterModel || !m_filterModel->sourceModel()) {
+        return;
+    }
+
+    QSet<QString> currentCategories = m_filterModel->categoryFilter();
+
+    QSet<QString> availableCategories;
+    const int rowCount = m_filterModel->sourceModel()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        const QModelIndex index = m_filterModel->sourceModel()->index(row, 2);
+        const QString category = m_filterModel->sourceModel()->data(index).toString();
+        if (!category.isEmpty())
+        {
+            availableCategories.insert(category);
+        }
+    }
+
+    // If no available categories, keep current filter unchanged
+    if (availableCategories.isEmpty())
+    {
+        m_filterModel->setDeactivatedCategories(m_savedDeactivatedCategories);
+        if (!currentCategories.isEmpty())
+        {
+            m_filterModel->setCategoryFilter(currentCategories);
+        }
+        return;
+    }
+
+    // Clear activated categories and set deactivated
+    m_filterModel->setCategoryFilter(QSet<QString>());
+    m_filterModel->setDeactivatedCategories(m_savedDeactivatedCategories);
+
+    // Add available categories that are not in saved deactivated
+    QSet<QString> updatedCategories;
+    for (const QString& cat : availableCategories)
+    {
+        if (!m_savedDeactivatedCategories.contains(cat))
+        {
+            updatedCategories.insert(cat);
+        }
+    }
+
+    if (!updatedCategories.isEmpty())
+    {
+        m_filterModel->setCategoryFilter(updatedCategories);
     }
 }
 

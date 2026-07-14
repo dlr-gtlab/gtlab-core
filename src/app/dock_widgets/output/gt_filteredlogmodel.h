@@ -85,6 +85,10 @@ protected:
     bool filterAcceptsRow(int srcRow,
                           const QModelIndex& srcParent) const override;
 
+    void setSourceModel(QAbstractItemModel* model) override;
+
+    gt::LogFilterProxyModel* filterModel() const { return m_filterModel; }
+
 private:
     gt::LogFilterProxyModel* m_filterModel;
     QSet<int> m_activeLevels;
@@ -92,6 +96,15 @@ private:
 
     void setFilter(int levelBit, bool enabled);
     void updateFilterModel();
+    void updateCategoryFilter();
+    void resetCategoryFilter();
+    void saveDeactivatedCategories(const QSet<QString>& currentActivated = QSet<QString>());
+    void saveAndPreserveDeactivatedCategories(const QSet<QString>& currentActivated = QSet<QString>());
+    void setCategoryFilterWithSave(const QSet<QString>& categories);
+
+    QSet<QString> m_savedDeactivatedCategories;
+
+    QSet<QString> savedDeactivatedCategories() const { return m_savedDeactivatedCategories; }
 };
 
 #endif // GTFILTEREDLOGMODEL_H

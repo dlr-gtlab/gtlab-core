@@ -47,6 +47,15 @@ gt::LogFilterProxyModel::setCategoryFilter(const QSet<QString>& categories)
     invalidateFilter();
 }
 
+void
+gt::LogFilterProxyModel::setDeactivatedCategories(const QSet<QString>& categories)
+{
+    if (m_filterState.deactivatedCategories == categories) return;
+
+    m_filterState.deactivatedCategories = categories;
+    invalidateFilter();
+}
+
 QStringList
 gt::LogFilterProxyModel::availableCategories() const
 {
@@ -109,10 +118,18 @@ gt::LogFilterProxyModel::hasActiveFiltersForColumn(int column) const
                 return m_filterState.levels != allLevels;
             }
             return false;
-        case 1: // ID column
+        case 1: // Time stamp column
             return false;
         case 2: // Category column
-            return !m_filterState.categories.isEmpty();
+            if (!m_filterState.categories.isEmpty())
+            {
+                QStringList allCategories = availableCategories();
+                if (allCategories.isEmpty()) {
+                    return false;
+                }
+                return m_filterState.categories.size() != allCategories.size();
+            }
+            return false;
         case 3: // Message column
             return !m_filterState.text.isEmpty();
         default:
@@ -186,6 +203,12 @@ gt::LogFilterProxyModel::clearFilters()
         changed = true;
     }
 
+    if (!m_filterState.deactivatedCategories.isEmpty())
+    {
+        m_filterState.deactivatedCategories.clear();
+        changed = true;
+    }
+
     if (changed)
     {
         invalidateFilter();
@@ -236,10 +259,28 @@ bool
 gt::LogFilterProxyModel::matchesCategoryFilter(int source_row,
                                            const QModelIndex& source_parent) const
 {
-    if (m_filterState.categories.isEmpty()) return true;
+    // If no activated categories, show all rows unless deactivated
+    if (m_filterState.categories.isEmpty())
+    {
+        if (m_filterState.deactivatedCategories.isEmpty())
+        {
+            return true;
+        }
 
+        const QModelIndex index = sourceModel()->index(source_row, 2, source_parent);
+        const QString category = sourceModel()->data(index, Qt::DisplayRole).toString();
+
+        return !m_filterState.deactivatedCategories.contains(category);
+    }
+
+    // If category is deactivated, hide it
     const QModelIndex index = sourceModel()->index(source_row, 2, source_parent);
     const QString category = sourceModel()->data(index, Qt::DisplayRole).toString();
+
+    if (m_filterState.deactivatedCategories.contains(category))
+    {
+        return false;
+    }
 
     return m_filterState.categories.contains(category);
 }

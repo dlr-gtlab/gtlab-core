@@ -312,7 +312,7 @@ GtOutputDock::GtOutputDock()
     connect(filterModel, &gt::LogFilterProxyModel::levelFilterChanged,
             this, &GtOutputDock::updateFilterButtons);
     connect(filterModel, &gt::LogFilterProxyModel::categoryFilterChanged,
-            this, &GtOutputDock::updateFilterButtons);
+            this, &GtOutputDock::onCategoryFilterChanged);
     connect(filterModel, &QSortFilterProxyModel::modelReset,
             this, &GtOutputDock::updateFilterButtons);
 
@@ -463,6 +463,8 @@ GtOutputDock::GtOutputDock()
     });
     connect(gtLogModel, &GtLogModel::rowsRemoved,
             this, &GtOutputDock::onRowsRemoved);
+    connect(m_model, &GtFilteredLogModel::modelAboutToBeReset,
+            this, &GtOutputDock::onModelAboutToBeReset);
     connect(m_model, &GtFilteredLogModel::modelReset,
             this, &GtOutputDock::onModelReset);
     connect(m_logView, &QWidget::customContextMenuRequested,
@@ -611,6 +613,19 @@ GtOutputDock::onRowsInserted(int start, int last)
     }
 
     scrollToBottom();
+    m_model->updateCategoryFilter();
+}
+
+void
+GtOutputDock::onModelAboutToBeReset()
+{
+    m_model->saveAndPreserveDeactivatedCategories(m_model->filterModel()->categoryFilter());
+}
+
+void
+GtOutputDock::onCategoryFilterChanged()
+{
+    m_model->setCategoryFilterWithSave(m_model->filterModel()->categoryFilter());
 }
 
 void
@@ -618,6 +633,7 @@ GtOutputDock::onModelReset()
 {
     scrollToBottom();
     updateFilterButtons();
+    m_model->resetCategoryFilter();
 }
 
 void

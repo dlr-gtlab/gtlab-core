@@ -14,7 +14,7 @@
 #include <QScrollArea>
 #include <QApplication>
 #include <QScrollArea>
-#include <qlabel.h>
+#include <QLabel>
 
 gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     QWidget(parent, Qt::Popup)

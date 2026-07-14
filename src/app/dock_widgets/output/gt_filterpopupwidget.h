@@ -80,7 +80,7 @@ public:
     /// Get currently selected storage values (for string pairs)
     QSet<QString> selectedStorageValues() const;
 
-/**
+    /**
      * @brief setItems
      * @param displayItems List of display strings
      * @param storageItems List of corresponding storage strings
@@ -94,7 +94,7 @@ public:
                   const QStringList& storageItems,
                   const QSet<QString>& selectedStorageValues);
 
-/**
+    /**
       * @brief setSearchWidget
       * @param searchWidget GtSearchWidget to use for text filtering
       * 

@@ -105,14 +105,19 @@ private:
      */
     void updateFilterButtons();
 
-    /**
-     * @brief scrollToBottom - scroll to bottom of the view
-     */
+/**
+      * @brief scrollToBottom - scroll to bottom of the view
+      */
     void scrollToBottom();
+
+    /**
+      * @brief Triggered when category filter changed
+      */
+    void onCategoryFilterChanged();
 
 private slots:
     /**
-     * @brief Just a test output method.
+      * @brief Just a test output method.
      * @param Test cae
      */
     void testOutput(int testCase = 1);
@@ -124,14 +129,19 @@ private slots:
      */
     void onRowsInserted(int first, int last);
 
-    /**
-     * @brief Triggered on model reset
-     */
+/**
+      * @brief Triggered on model reset
+      */
     void onModelReset();
 
     /**
-     * @brief Triggered when rows were deleted
-     */
+      * @brief Triggered before model reset
+      */
+    void onModelAboutToBeReset();
+
+    /**
+      * @brief Triggered when rows were deleted
+      */
     void onRowsRemoved();
 
     /**

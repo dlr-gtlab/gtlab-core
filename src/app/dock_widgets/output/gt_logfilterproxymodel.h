@@ -11,6 +11,7 @@
 #include <QSet>
 #include <QStringList>
 #include <QPair>
+#include <QDebug>
 
 namespace gt
 {
@@ -46,6 +47,9 @@ public:
     /// Set category filter (multi-select)
     void setCategoryFilter(const QSet<QString>& categories);
 
+    /// Set deactivated categories (hidden from view)
+    void setDeactivatedCategories(const QSet<QString>& categories);
+
     /// Get all available categories from the source model
     QStringList availableCategories() const;
 
@@ -64,6 +68,9 @@ public:
     /// Get current category filter
     QSet<QString> categoryFilter() const { return m_filterState.categories; }
 
+    /// Set deactivated categories
+    //void setDeactivatedCategories(const QSet<QString>& categories) { m_filterState.deactivatedCategories = categories; }
+
     /// Get current text filter
     QString filterText() const { return m_filterState.text; }
 
@@ -74,19 +81,22 @@ public:
     /// @param column 0=ID, 1=Level, 2=Category, 3=Message
     bool hasActiveFiltersForColumn(int column) const;
 
-protected:
-    bool filterAcceptsRow(int source_row,
-                          const QModelIndex& source_parent) const override;
-
-private:
     struct FilterState
     {
         QString text;
         QSet<int> levels;
         QSet<QString> categories;
+        QSet<QString> deactivatedCategories;
     };
 
     FilterState m_filterState;
+
+protected:
+    bool filterAcceptsRow(int source_row,
+                          const QModelIndex& source_parent) const override;
+
+private:
+
 
     /// Check if row matches text filter (message column only)
     bool matchesTextFilter(int source_row,
