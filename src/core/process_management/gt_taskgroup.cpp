@@ -28,17 +28,40 @@
 
 static const char* S_INDEX_FILE_NAME = "index.json";
 static const char* S_TASK_FILE_EXT = ".gttask";
+static const char* S_CLASS_PROVIDERS_PROPERTY = "_gt_classProviders";
 
 namespace
 {
 
-void addClassProviderMetadata(QDomDocument& doc)
+QVariantMap toVariantMap(const gt::xml::ClassModuleMap& mappings)
+{
+    QVariantMap result;
+    for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
+    {
+        result.insert(it.key(), it.value());
+    }
+    return result;
+}
+
+gt::xml::ClassModuleMap fromVariantMap(const QVariantMap& mappings)
+{
+    gt::xml::ClassModuleMap result;
+    for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
+    {
+        result.insert(it.key(), it.value().toString());
+    }
+    return result;
+}
+
+void addClassProviderMetadata(
+    QDomDocument& doc, const gt::xml::ClassModuleMap& preserved = {})
 {
     QDomElement root = doc.documentElement();
     gt::xml::ClassModuleMap mappings;
     for (const QString& className : gt::xml::objectClassNames(root))
     {
-        const QString moduleId = gtProcessFactory->moduleId(className);
+        QString moduleId = gtProcessFactory->moduleId(className);
+        if (moduleId.isEmpty()) moduleId = preserved.value(className);
         if (!moduleId.isEmpty()) mappings.insert(className, moduleId);
     }
     gt::xml::writeClassModuleMap(root, doc, mappings);
@@ -213,6 +236,15 @@ GtTaskGroup::save(const QString& projectPath,
         }
 
         taskFilesToRemove.removeOne(task->uuid() + S_TASK_FILE_EXT);
+    }
+
+    const auto& objects = findDirectChildren<GtObject*>();
+    for (const GtObject* object : objects)
+    {
+        if (object->isDummy())
+        {
+            taskFilesToRemove.removeOne(object->uuid() + S_TASK_FILE_EXT);
+        }
     }
 
     // remove task files that are no longer known by the task group
@@ -487,9 +519,13 @@ GtTaskGroup::Impl::updateIndexFile(const QString &projectPath,
     QJsonArray jarray;
 
     // write tasks
-    foreach (GtTask* task, _pub.get().findDirectChildren<GtTask*>())
+    const auto& objects = _pub.get().findDirectChildren<GtObject*>();
+    for (const GtObject* object : objects)
     {
-        jarray.push_back(task->uuid());
+        if (qobject_cast<const GtTask*>(object) || object->isDummy())
+        {
+            jarray.push_back(object->uuid());
+        }
     }
 
     jroot.insert(QStringLiteral("active"), jarray);
@@ -546,6 +582,11 @@ GtTaskGroup::Impl::createTaskFromFile(const QString& filePath) const
     }
 
     auto obj = memento.restore(gtProcessFactory);
+    if (obj)
+    {
+        const auto mappings = gt::xml::readClassModuleMap(root);
+        obj->setProperty(S_CLASS_PROVIDERS_PROPERTY, toVariantMap(mappings));
+    }
 
     return std::unique_ptr<GtObject>(obj);
 }
@@ -559,7 +600,9 @@ GtTaskGroup::Impl::saveTaskToFile(const GtTask* task, const QString& groupPath) 
 
     QDomDocument doc;
     doc.setContent(task->toMemento().toByteArray());
-    addClassProviderMetadata(doc);
+    const auto preserved = fromVariantMap(
+        task->property(S_CLASS_PROVIDERS_PROPERTY).toMap());
+    addClassProviderMetadata(doc, preserved);
 
     if (!gt::xml::writeDomDocumentToFile(taskFile, doc, true))
     {

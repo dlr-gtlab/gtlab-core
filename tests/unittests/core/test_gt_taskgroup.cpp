@@ -96,4 +96,65 @@ TEST_F(GtTaskGroupMetadataTest, SavesClassProvidersAndLoadsTask)
     EXPECT_EQ(loadedGroup.findDirectChildren<MetadataTestTask*>().size(), 1);
 }
 
+TEST_F(GtTaskGroupMetadataTest, PreservesMetadataForMissingNestedClass)
+{
+    QTemporaryDir projectDir;
+    ASSERT_TRUE(projectDir.isValid());
+
+    GtTaskGroup group(QStringLiteral("group"), true);
+    auto* task = new MetadataTestTask;
+    ASSERT_TRUE(task->appendChild(new MetadataTestCalculator));
+    ASSERT_TRUE(group.appendChild(task));
+    ASSERT_TRUE(group.save(projectDir.path(), GtTaskGroup::CUSTOM));
+    const QString taskFileName =
+        GtTaskGroup::groupPath(projectDir.path(), GtTaskGroup::CUSTOM,
+                               QStringLiteral("group")) +
+        QDir::separator() + task->uuid() + QStringLiteral(".gttask");
+
+    ASSERT_TRUE(gtProcessFactory->calculatorFactory()->unregisterClass(
+        MetadataTestCalculator::staticMetaObject));
+    GtTaskGroup loadedGroup(QStringLiteral("group"));
+    ASSERT_TRUE(loadedGroup.read(projectDir.path(), GtTaskGroup::CUSTOM));
+    ASSERT_TRUE(loadedGroup.save(projectDir.path(), GtTaskGroup::CUSTOM));
+
+    QFile taskFile(taskFileName);
+    ASSERT_TRUE(taskFile.open(QIODevice::ReadOnly | QIODevice::Text));
+    QDomDocument doc;
+    ASSERT_TRUE(doc.setContent(&taskFile));
+    const auto mappings =
+        gt::xml::readClassModuleMap(doc.documentElement());
+    EXPECT_EQ(mappings.value(QStringLiteral("MetadataTestCalculator")),
+              QStringLiteral("CalculatorModule"));
+}
+
+TEST_F(GtTaskGroupMetadataTest, KeepsFileForMissingTaskClass)
+{
+    QTemporaryDir projectDir;
+    ASSERT_TRUE(projectDir.isValid());
+
+    GtTaskGroup group(QStringLiteral("group"), true);
+    auto* task = new MetadataTestTask;
+    ASSERT_TRUE(group.appendChild(task));
+    ASSERT_TRUE(group.save(projectDir.path(), GtTaskGroup::CUSTOM));
+    const QString taskFileName =
+        GtTaskGroup::groupPath(projectDir.path(), GtTaskGroup::CUSTOM,
+                               QStringLiteral("group")) +
+        QDir::separator() + task->uuid() + QStringLiteral(".gttask");
+
+    ASSERT_TRUE(gtProcessFactory->taskFactory()->unregisterClass(
+        MetadataTestTask::staticMetaObject));
+    GtTaskGroup loadedGroup(QStringLiteral("group"));
+    ASSERT_TRUE(loadedGroup.read(projectDir.path(), GtTaskGroup::CUSTOM));
+    ASSERT_TRUE(loadedGroup.save(projectDir.path(), GtTaskGroup::CUSTOM));
+
+    QFile taskFile(taskFileName);
+    ASSERT_TRUE(taskFile.open(QIODevice::ReadOnly | QIODevice::Text));
+    QDomDocument doc;
+    ASSERT_TRUE(doc.setContent(&taskFile));
+    const auto mappings =
+        gt::xml::readClassModuleMap(doc.documentElement());
+    EXPECT_EQ(mappings.value(QStringLiteral("MetadataTestTask")),
+              QStringLiteral("TaskModule"));
+}
+
 #include "test_gt_taskgroup.moc"
