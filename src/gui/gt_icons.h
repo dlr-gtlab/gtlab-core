@@ -275,6 +275,9 @@ GT_GUI_EXPORT Icon fileEdit();
 GT_GUI_EXPORT Icon fileEye();
 GT_GUI_EXPORT Icon fileImport();
 
+GT_GUI_EXPORT Icon filter();
+GT_GUI_EXPORT Icon filterActive();
+
 GT_GUI_EXPORT Icon folder();
 GT_GUI_EXPORT Icon folderAdd();
 GT_GUI_EXPORT Icon folderEdit();

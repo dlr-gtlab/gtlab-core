@@ -141,7 +141,7 @@ gt::FilterPopupWidget::setSearchWidget(GtSearchWidget* searchWidget)
     if (searchWidget && m_mainLayout)
     {
         auto* hL = new QHBoxLayout;
-        hL->addWidget(new QLabel(tr("Search:")));
+        hL->addWidget(new QLabel(tr("Filter:")));
         hL->addWidget(searchWidget);
 
         m_mainLayout->addLayout(hL);

@@ -108,7 +108,7 @@ gt::FilterHeaderView::setFilterModel(gt::LogFilterProxyModel* model)
 
 void
 gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
-                                int logicalIndex) const
+                                   int logicalIndex) const
 {
     if (!m_filterModel || logicalIndex < 0) return;
 
@@ -131,7 +131,7 @@ gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
     
     // Draw filter icon
     int targetSize = FILTER_ICON_SIZE;
-    QPixmap pixmap = gt::gui::icon::uncollapsed().pixmap(targetSize, targetSize);
+    QPixmap pixmap = gt::gui::icon::filter().pixmap(targetSize, targetSize);
     
     QRect iconRect = filterRect;
     iconRect.setSize(QSize(FILTER_ICON_SIZE, FILTER_ICON_SIZE));
