@@ -112,6 +112,13 @@ GtAbstractObjectFactory::knownClasses() const
 bool
 GtAbstractObjectFactory::registerClass(QMetaObject metaObj)
 {
+    return registerClass(metaObj, {});
+}
+
+bool
+GtAbstractObjectFactory::registerClass(QMetaObject metaObj,
+                                       const QString& moduleId)
+{
     QString classname = metaObj.className();
 
     if (knownClass(classname))
@@ -125,6 +132,10 @@ GtAbstractObjectFactory::registerClass(QMetaObject metaObj)
     }
 
     m_knownClasses.insert(classname, metaObj);
+    if (!moduleId.isEmpty())
+    {
+        m_classModuleIds.insert(classname, moduleId);
+    }
     return true;
 }
 
@@ -136,6 +147,7 @@ GtAbstractObjectFactory::unregisterClass(const QMetaObject& metaObj)
     if (knownClass(classname))
     {
         m_knownClasses.remove(classname);
+        m_classModuleIds.remove(classname);
         return true;
     }
 
@@ -145,6 +157,13 @@ GtAbstractObjectFactory::unregisterClass(const QMetaObject& metaObj)
 bool
 GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData)
 {
+    return registerClasses(metaData, {});
+}
+
+bool
+GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData,
+                                         const QString& moduleId)
+{
     if (containsDuplicates(metaData))
     {
         return false;
@@ -152,10 +171,16 @@ GtAbstractObjectFactory::registerClasses(const QList<QMetaObject>& metaData)
 
     foreach (const QMetaObject& metaObj, metaData)
     {
-        registerClass(metaObj);
+        registerClass(metaObj, moduleId);
     }
 
     return true;
+}
+
+QString
+GtAbstractObjectFactory::moduleId(const QString& className) const
+{
+    return m_classModuleIds.value(className);
 }
 
 GtObject*
@@ -238,4 +263,3 @@ GtAbstractObjectFactory::invokable(const QMetaObject& metaObj) const
 
     return true;
 }
-

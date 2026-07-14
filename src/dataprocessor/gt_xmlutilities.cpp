@@ -27,6 +27,18 @@
 namespace
 {
 
+gt::xml::ClassModuleMap filteredClassModuleMap(
+    const gt::xml::ClassModuleMap& mappings, const QDomElement& root)
+{
+    gt::xml::ClassModuleMap result;
+    for (const QString& className : gt::xml::objectClassNames(root))
+    {
+        const auto it = mappings.constFind(className);
+        if (it != mappings.cend()) result.insert(className, it.value());
+    }
+    return result;
+}
+
 template <typename Predicate>
 void
 findElements(
@@ -78,6 +90,71 @@ sanitizeUuid(const QString& uuid)
 
 
 } // namespace
+
+gt::xml::ClassModuleMap
+gt::xml::readClassModuleMap(const QDomElement& root)
+{
+    ClassModuleMap mappings;
+    const QDomElement manifest =
+        root.firstChildElement(QLatin1String(S_CLASS_MODULES_TAG));
+
+    for (QDomElement entry =
+             manifest.firstChildElement(QLatin1String(S_CLASS_MODULE_TAG));
+         !entry.isNull();
+         entry = entry.nextSiblingElement(QLatin1String(S_CLASS_MODULE_TAG)))
+    {
+        const QString className = entry.attribute(QLatin1String(S_NAME_TAG));
+        const QString moduleId = entry.attribute(QLatin1String(S_MODULE_TAG));
+        if (!className.isEmpty() && !moduleId.isEmpty())
+        {
+            mappings.insert(className, moduleId);
+        }
+    }
+    return mappings;
+}
+
+void
+gt::xml::writeClassModuleMap(QDomElement& root, QDomDocument& doc,
+                             const ClassModuleMap& mappings)
+{
+    QDomElement oldManifest =
+        root.firstChildElement(QLatin1String(S_CLASS_MODULES_TAG));
+    if (!oldManifest.isNull()) root.removeChild(oldManifest);
+    if (mappings.isEmpty()) return;
+
+    QDomElement manifest = doc.createElement(QLatin1String(S_CLASS_MODULES_TAG));
+    manifest.setAttribute(QStringLiteral("version"), QStringLiteral("1"));
+    for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
+    {
+        if (it.key().isEmpty() || it.value().isEmpty()) continue;
+        QDomElement entry = doc.createElement(QLatin1String(S_CLASS_MODULE_TAG));
+        entry.setAttribute(QLatin1String(S_NAME_TAG), it.key());
+        entry.setAttribute(QLatin1String(S_MODULE_TAG), it.value());
+        manifest.appendChild(entry);
+    }
+    if (manifest.hasChildNodes()) root.appendChild(manifest);
+}
+
+QStringList
+gt::xml::objectClassNames(const QDomElement& root)
+{
+    QStringList result;
+    QList<QDomElement> elements;
+    findElements(root, [](const QDomElement& element) {
+        return element.tagName() == QLatin1String(S_OBJECT_TAG) ||
+               element.tagName() == QLatin1String(S_OBJECTREF_TAG);
+    }, elements);
+    for (const QDomElement& element : qAsConst(elements))
+    {
+        const QString className = element.attribute(QLatin1String(S_CLASS_TAG));
+        if (!className.isEmpty() && !result.contains(className))
+        {
+            result.append(className);
+        }
+    }
+    result.sort();
+    return result;
+}
 
 QList<QDomElement>
 gt::xml::findObjectElementsByClassName(
@@ -375,7 +452,8 @@ struct LinkedObject
 void collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
                           const QDir& rootDir, const QDir& linksRootDir,
                           QStringList& objectPath,
-                          QVector<LinkedObject>& outExternal)
+                          QVector<LinkedObject>& outExternal,
+                          const gt::xml::ClassModuleMap& classModules)
 {
     using namespace gt::xml;
 
@@ -433,7 +511,11 @@ void collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
                 // Note: we call collectLinkedObjects on `imported`, not on `root`,
                 // so objectPath is not pushed twice for the same object.
                 collectLinkedObjects(extDoc, imported, rootDir, linksRootDir,
-                                     objectPath, outExternal);
+                                     objectPath, outExternal, classModules);
+
+                auto externalMappings = filteredClassModuleMap(
+                    classModules, root);
+                writeClassModuleMap(root, extDoc, externalMappings);
 
                 // ---- compute directory + filename ----
                 QString relDir;
@@ -495,7 +577,7 @@ void collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
             {
                 // normal object: recurse into its children
                 collectLinkedObjects(masterDoc, child, rootDir, linksRootDir,
-                                     objectPath, outExternal);
+                                     objectPath, outExternal, classModules);
                 objectPath.pop_back();
                 child = next;
                 continue;
@@ -505,7 +587,7 @@ void collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
         {
             // anything else: recurse into children
             collectLinkedObjects(masterDoc, child, rootDir, linksRootDir,
-                                 objectPath, outExternal);
+                                 objectPath, outExternal, classModules);
             child = next;
         }
     }
@@ -709,8 +791,9 @@ gt::xml::saveProjectXmlWithLinkedObjects(const QString& projectName,
         // Linked objects live under: <baseDir>/<MyPackage>
         const QDir linksRootDir(baseDir.filePath(packageName));
 
-        collectLinkedObjects(masterDoc, rootNode, baseDir,
-                                      linksRootDir, objectPath, externals);
+        const ClassModuleMap classModules = readClassModuleMap(rootElem);
+        collectLinkedObjects(masterDoc, rootNode, baseDir, linksRootDir,
+                             objectPath, externals, classModules);
 
         // external object files first
         for (const LinkedObject& ext : qAsConst(externals))

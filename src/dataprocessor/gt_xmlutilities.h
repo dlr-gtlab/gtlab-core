@@ -15,6 +15,7 @@
 #include "gt_datamodel_exports.h"
 
 #include <QList>
+#include <QMap>
 #include <QDomElement>
 #include <QDir>
 #include <QStringList>
@@ -30,6 +31,27 @@ namespace gt
 {
 namespace xml
 {
+
+using ClassModuleMap = QMap<QString, QString>;
+
+/**
+ * @brief Reads class-to-module mappings stored below a document root.
+ * Invalid and incomplete entries are ignored.
+ */
+ClassModuleMap GT_DATAMODEL_EXPORT readClassModuleMap(
+    const QDomElement& root);
+
+/**
+ * @brief Replaces the class-to-module manifest below a document root.
+ * Empty mappings are omitted.
+ */
+void GT_DATAMODEL_EXPORT writeClassModuleMap(
+    QDomElement& root, QDomDocument& doc, const ClassModuleMap& mappings);
+
+/**
+ * @brief Returns the distinct class names used below a document root.
+ */
+QStringList GT_DATAMODEL_EXPORT objectClassNames(const QDomElement& root);
 
 /**
  * @brief Writes given QDomElement object to given XML stream. All XML

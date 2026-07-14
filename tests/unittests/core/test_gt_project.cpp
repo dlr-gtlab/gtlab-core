@@ -7,6 +7,7 @@
 #include "gtest/gtest.h"
 
 #include "gt_project.h"
+#include "gt_xmlutilities.h"
 #include "internal/gt_projectio.h"
 
 #include <QDir>
@@ -44,6 +45,21 @@ static bool writeProjectFile(const QString& dirPath, const QString& projectName)
         .arg(projectName)
         .toUtf8();
 
+    return file.write(data) == data.size();
+}
+
+static bool writeProjectFileWithClassModules(const QString& dirPath)
+{
+    QFile file(dirPath + QDir::separator() + GtProject::mainFilename());
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+    {
+        return false;
+    }
+    const QByteArray data = R"(
+<GTLAB projectname="ClassModuleTest" version="2.1.0">
+<env-footprint><modules/></env-footprint><MODULES/>
+<CLASS-MODULES version="1"><CLASS name="UnknownClass"
+module="AQuiteLongModuleId"/></CLASS-MODULES></GTLAB>)";
     return file.write(data) == data.size();
 }
 
@@ -208,6 +224,25 @@ TEST(GtProject, moduleIdsReturnsEmptyList)
 
     TestProject project(tempDir.path());
     EXPECT_TRUE(project.moduleIds().isEmpty());
+}
+
+TEST(GtProject, LegacyProjectHasNoClassModuleMappings)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFile(tempDir.path(), QStringLiteral("LegacyTest")));
+    TestProject project(tempDir.path());
+    EXPECT_TRUE(project.classModuleId(QStringLiteral("UnknownClass")).isEmpty());
+}
+
+TEST(GtProject, ReadsClassModuleMappings)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFileWithClassModules(tempDir.path()));
+    TestProject project(tempDir.path());
+    EXPECT_EQ(project.classModuleId(QStringLiteral("UnknownClass")),
+              QStringLiteral("AQuiteLongModuleId"));
 }
 
 TEST(GtProject, copyProjectDataCopiesDirectory)

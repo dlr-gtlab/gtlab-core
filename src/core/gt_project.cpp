@@ -453,6 +453,7 @@ GtProject::loadMetaData()
 
     // module meta data
     readModuleMetaData(root);
+    m_classModuleIds = gt::xml::readClassModuleMap(root);
 
     return true;
 }
@@ -517,6 +518,29 @@ GtProject::readModuleMetaData(const QDomElement& root)
     }
 
 
+}
+
+void
+GtProject::updateClassModuleIds()
+{
+    QMap<QString, QString> updated = m_classModuleIds;
+    for (const GtObject* object : findChildren<GtObject*>())
+    {
+        const QString className = object->isDummy()
+                                      ? object->toMemento().className()
+                                      : object->metaObject()->className();
+        if (className.isEmpty()) continue;
+
+        QString moduleId;
+        if (const auto* factory = object->factory())
+        {
+            moduleId = factory->moduleId(className);
+        }
+        if (moduleId.isEmpty()) moduleId = gtObjectFactory->moduleId(className);
+        if (moduleId.isEmpty()) moduleId = m_classModuleIds.value(className);
+        if (!moduleId.isEmpty()) updated.insert(className, moduleId);
+    }
+    m_classModuleIds = std::move(updated);
 }
 
 GtObject*
@@ -763,6 +787,9 @@ GtProject::saveModuleData()
             continue;
         }
 
+        gt::xml::writeClassModuleMap(rootElement, document,
+                                     m_classModuleIds);
+
         QString filename = m_path + QDir::separator() + mid.toLower() + "." +
                            moduleExtension();
 
@@ -785,6 +812,8 @@ GtProject::saveProjectOverallData()
     }
 
     gtDebug().noquote() << tr("Saving project '%1'...").arg(objectName());
+
+    updateClassModuleIds();
 
     QDomDocument document;
     QDomProcessingInstruction header = document.createProcessingInstruction(
@@ -816,6 +845,8 @@ GtProject::saveProjectOverallData()
     {
         return false;
     }
+
+    gt::xml::writeClassModuleMap(rootElement, document, m_classModuleIds);
 
     if (!saveProcessData(rootElement, document))
     {
@@ -1242,6 +1273,12 @@ const QStringList&
 GtProject::moduleIds() const
 {
     return m_moduleIds;
+}
+
+QString
+GtProject::classModuleId(const QString& className) const
+{
+    return m_classModuleIds.value(className);
 }
 
 int

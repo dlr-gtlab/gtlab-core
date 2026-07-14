@@ -143,6 +143,50 @@ TEST_F(TestXmlUtilities, addObjectListElement)
     EXPECT_EQ(listElem.tagName(), "objectlist");
 }
 
+TEST(GtXmlUtilities, ClassModuleMapRoundTripIsSortedAndSkipsInvalidEntries)
+{
+    QDomDocument doc;
+    QDomElement root = doc.createElement(QStringLiteral("GTLAB"));
+    doc.appendChild(root);
+    gt::xml::ClassModuleMap mappings;
+    mappings.insert(QStringLiteral("ZClass"), QStringLiteral("LongModuleId"));
+    mappings.insert(QStringLiteral("AClass"), QStringLiteral("Module"));
+    mappings.insert(QStringLiteral("IgnoredClass"), QString{});
+    gt::xml::writeClassModuleMap(root, doc, mappings);
+
+    QDomElement manifest = root.firstChildElement(QStringLiteral("CLASS-MODULES"));
+    ASSERT_FALSE(manifest.isNull());
+    QDomElement first = manifest.firstChildElement(QStringLiteral("CLASS"));
+    ASSERT_FALSE(first.isNull());
+    EXPECT_EQ(first.attribute(QStringLiteral("name")), QStringLiteral("AClass"));
+    QDomElement second = first.nextSiblingElement(QStringLiteral("CLASS"));
+    ASSERT_FALSE(second.isNull());
+    EXPECT_EQ(second.attribute(QStringLiteral("name")), QStringLiteral("ZClass"));
+
+    const auto roundTrip = gt::xml::readClassModuleMap(root);
+    EXPECT_EQ(roundTrip.size(), 2);
+    EXPECT_EQ(roundTrip.value(QStringLiteral("AClass")), QStringLiteral("Module"));
+}
+
+TEST(GtXmlUtilities, MissingClassModuleMapIsValid)
+{
+    QDomDocument doc;
+    ASSERT_TRUE(doc.setContent(QStringLiteral("<GTLAB/>")));
+    EXPECT_TRUE(gt::xml::readClassModuleMap(doc.documentElement()).isEmpty());
+}
+
+TEST(GtXmlUtilities, FindsDistinctObjectAndObjectRefClasses)
+{
+    QDomDocument doc;
+    ASSERT_TRUE(doc.setContent(QStringLiteral(R"(
+        <Root><object class="B"/><object class="A"><objectlist>
+        <object class="B"/></objectlist></object><objectref class="C"/>
+        <property class="Ignored"/></Root>)")));
+    EXPECT_EQ(gt::xml::objectClassNames(doc.documentElement()),
+              QStringList({QStringLiteral("A"), QStringLiteral("B"),
+                           QStringLiteral("C")}));
+}
+
 // Test: properties::doubleValue
 TEST_F(TestXmlUtilities, getDoublePropetyElementValue)
 {

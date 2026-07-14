@@ -87,10 +87,40 @@ GtFactoryGroup::registerClass(QMetaObject /*metaObj*/)
 }
 
 bool
+GtFactoryGroup::registerClass(QMetaObject /*metaObj*/,
+                              const QString& /*moduleId*/)
+{
+    gtWarning() << QObject::tr("register class failed!");
+    return false;
+}
+
+bool
 GtFactoryGroup::registerClasses(const QList<QMetaObject>& /*metaData*/)
 {
     gtWarning() << QObject::tr("register class failed!");
     return false;
+}
+
+bool
+GtFactoryGroup::registerClasses(const QList<QMetaObject>& /*metaData*/,
+                                const QString& /*moduleId*/)
+{
+    gtWarning() << QObject::tr("register class failed!");
+    return false;
+}
+
+QString
+GtFactoryGroup::moduleId(const QString& className) const
+{
+    for (const GtAbstractObjectFactory* factory : m_factories)
+    {
+        if (factory->knownClass(className))
+        {
+            return factory->moduleId(className);
+        }
+    }
+
+    return {};
 }
 
 bool
@@ -141,4 +171,3 @@ GtFactoryGroup::addFactory(GtAbstractObjectFactory* factory)
 
     return true;
 }
-
