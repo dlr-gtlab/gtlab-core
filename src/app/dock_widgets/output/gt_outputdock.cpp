@@ -796,7 +796,7 @@ GtOutputDock::onSearchTextChanged(const QString &text)
     if (matchDelegate)
     {
         matchDelegate->setMatches(m_matches);
-        matchDelegate->setCurrentMatch(m_currentMatch);
+        //matchDelegate->setCurrentMatch(m_currentMatch);
     }
 
     if (text.isEmpty() || m_matches.isEmpty())
@@ -824,13 +824,7 @@ GtOutputDock::goToNextMatch()
     m_currentMatch = (m_currentMatch + 1) % m_matches.size();
     m_logView->selectRow(m_matches.at(m_currentMatch).row());
     m_logView->scrollTo(m_matches.at(m_currentMatch));
-    
-    auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(m_logView->itemDelegate());
-    if (matchDelegate)
-    {
-        matchDelegate->setCurrentMatch(m_currentMatch);
-    }
-    
+        
     m_logView->viewport()->update();
 }
 
@@ -843,13 +837,7 @@ GtOutputDock::goToPrevMatch()
     m_currentMatch = (m_currentMatch - 1 + m_matches.size()) % m_matches.size();
     m_logView->selectRow(m_matches.at(m_currentMatch).row());
     m_logView->scrollTo(m_matches.at(m_currentMatch));
-    
-    auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(m_logView->itemDelegate());
-    if (matchDelegate)
-    {
-        matchDelegate->setCurrentMatch(m_currentMatch);
-    }
-    
+        
     m_logView->viewport()->update();
 }
 

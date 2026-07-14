@@ -133,7 +133,11 @@ void
 gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
                                    int logicalIndex) const
 {
-    if (!m_filterModel || logicalIndex < 0) return;
+    if (!m_filterModel || logicalIndex < 0)
+    {
+        QHeaderView::paintSection(painter, rect, logicalIndex);
+        return;
+    }
 
     QRect filterRect = filterButtonRect(logicalIndex);
 

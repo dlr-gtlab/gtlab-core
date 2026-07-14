@@ -26,11 +26,9 @@ public:
                const QModelIndex& index) const override;
 
     void setMatches(const QList<QModelIndex>& matches);
-    void setCurrentMatch(int currentMatch);
 
 private:
     QList<QModelIndex> m_matches;
-    int m_currentMatch{-1};
 };
 
 } // namespace gt

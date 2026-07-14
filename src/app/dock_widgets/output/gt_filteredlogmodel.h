@@ -81,6 +81,12 @@ public slots:
      */
     void filterData(const QString& val);
 
+    void setCategoryFilterWithSave(const QSet<QString>& categories);
+
+    void resetCategoryFilter();
+
+    void updateCategoryFilter();
+
 protected:
     bool filterAcceptsRow(int srcRow,
                           const QModelIndex& srcParent) const override;
@@ -95,12 +101,10 @@ private:
     int m_filter;
 
     void setFilter(int levelBit, bool enabled);
+
     void updateFilterModel();
-    void updateCategoryFilter();
-    void resetCategoryFilter();
-    void saveDeactivatedCategories(const QSet<QString>& currentActivated = {});
+
     void saveAndPreserveDeactivatedCategories(const QSet<QString>& currentActivated = {});
-    void setCategoryFilterWithSave(const QSet<QString>& categories);
 
     QSet<QString> m_savedDeactivatedCategories;
 

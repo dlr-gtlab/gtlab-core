@@ -49,9 +49,3 @@ gt::GtMatchDelegate::setMatches(const QList<QModelIndex>& matches)
 {
     m_matches = matches;
 }
-
-void
-gt::GtMatchDelegate::setCurrentMatch(int currentMatch)
-{
-    m_currentMatch = currentMatch;
-}
