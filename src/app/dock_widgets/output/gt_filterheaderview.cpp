@@ -137,15 +137,18 @@ gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
     QHeaderView::paintSection(painter, rect, logicalIndex);
     painter->restore();
     
-    // Draw filter icon only for columns with active filters
-    bool hasActiveFilters = m_filterModel && m_filterModel->hasActiveFiltersForColumn(logicalIndex);
-    if (!hasActiveFilters)
-    {
-        return;
+    // Draw filter icon for columns with filter capability (0, 2, 3)
+    bool hasActiveFilters =
+        m_filterModel && m_filterModel->hasActiveFiltersForColumn(logicalIndex);
+
+    QPixmap pixmap;
+    if (hasActiveFilters) {
+        pixmap = gt::gui::icon::filterActive().pixmap(FILTER_ICON_SIZE,
+                                                      FILTER_ICON_SIZE);
+    } else {
+        pixmap = gt::gui::icon::filter().pixmap(FILTER_ICON_SIZE,
+                                                FILTER_ICON_SIZE);
     }
-    
-    int targetSize = FILTER_ICON_SIZE;
-    QPixmap pixmap = gt::gui::icon::filterActive().pixmap(targetSize, targetSize);
     
     QRect iconRect = filterRect;
     iconRect.setSize(QSize(FILTER_ICON_SIZE, FILTER_ICON_SIZE));
