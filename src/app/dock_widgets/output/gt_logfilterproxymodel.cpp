@@ -129,6 +129,10 @@ gt::LogFilterProxyModel::hasActiveFiltersForColumn(int column) const
                 }
                 return m_filterState.categories.size() != allCategories.size();
             }
+            if (!m_filterState.deactivatedCategories.isEmpty())
+            {
+                return true;
+            }
             return false;
         case 3: // Message column
             return !m_filterState.text.isEmpty();
@@ -257,20 +261,18 @@ gt::LogFilterProxyModel::matchesLevelFilter(int source_row,
 
 bool
 gt::LogFilterProxyModel::matchesCategoryFilter(int source_row,
-                                           const QModelIndex& source_parent) const
+                                            const QModelIndex& source_parent) const
 {
-    // If no activated categories, show all rows unless deactivated
+    // If no activated categories and deactivated categories exist, hide all
+    if (m_filterState.categories.isEmpty() && !m_filterState.deactivatedCategories.isEmpty())
+    {
+        return false;
+    }
+
+    // If no activated categories, show all rows
     if (m_filterState.categories.isEmpty())
     {
-        if (m_filterState.deactivatedCategories.isEmpty())
-        {
-            return true;
-        }
-
-        const QModelIndex index = sourceModel()->index(source_row, 2, source_parent);
-        const QString category = sourceModel()->data(index, Qt::DisplayRole).toString();
-
-        return !m_filterState.deactivatedCategories.contains(category);
+        return true;
     }
 
     // If category is deactivated, hide it
