@@ -20,7 +20,7 @@ gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     QWidget(parent, Qt::Popup)
 {
     setFocusPolicy(Qt::StrongFocus);
-    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);// | Qt::WindowStaysInTopHint);
+    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
     
     auto* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(5, 5, 5, 5);
@@ -44,7 +44,7 @@ gt::FilterPopupWidget::FilterPopupWidget(QWidget* parent) :
     
     // Set maximum height to show only 5 items
     int itemHeight = QFontMetrics(font()).height();
-    int maxVisibleItems = 5;
+    int maxVisibleItems = 7;
     scrollArea->setMaximumHeight(itemHeight * maxVisibleItems + 10);
     
     m_contentWidget = contentWidget;

@@ -15,6 +15,7 @@
 #include "gt_filteredlogmodel.h"
 #include "gt_tableview.h"
 #include "gt_filterheaderview.h"
+#include "gt_matchdelegate.h"
 #include "gt_logfilterproxymodel.h"
 #include "gt_application.h"
 #include "gt_logging.h"
@@ -299,6 +300,9 @@ GtOutputDock::GtOutputDock()
     m_logView->setShowGrid(false);
     m_logView->setFrameStyle(QFrame::NoFrame);
     m_logView->setModel(m_model);
+    
+    auto* matchDelegate = new gt::GtMatchDelegate(m_logView);
+    m_logView->setItemDelegate(matchDelegate);
     
     auto* headerView = new gt::FilterHeaderView(Qt::Horizontal, m_logView);
     headerView->setFilterModel(filterModel);
@@ -772,6 +776,13 @@ GtOutputDock::onSearchTextChanged(const QString &text)
         }
     }
 
+    auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(m_logView->itemDelegate());
+    if (matchDelegate)
+    {
+        matchDelegate->setMatches(m_matches);
+        matchDelegate->setCurrentMatch(m_currentMatch);
+    }
+
     if (text.isEmpty() || m_matches.isEmpty())
     {
         // Clear selection
@@ -784,6 +795,8 @@ GtOutputDock::onSearchTextChanged(const QString &text)
         m_logView->selectRow(m_matches.first().row());
         m_logView->scrollTo(m_matches.first());
     }
+    
+    m_logView->viewport()->update();
 }
 
 void
@@ -795,6 +808,14 @@ GtOutputDock::goToNextMatch()
     m_currentMatch = (m_currentMatch + 1) % m_matches.size();
     m_logView->selectRow(m_matches.at(m_currentMatch).row());
     m_logView->scrollTo(m_matches.at(m_currentMatch));
+    
+    auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(m_logView->itemDelegate());
+    if (matchDelegate)
+    {
+        matchDelegate->setCurrentMatch(m_currentMatch);
+    }
+    
+    m_logView->viewport()->update();
 }
 
 void
@@ -806,6 +827,14 @@ GtOutputDock::goToPrevMatch()
     m_currentMatch = (m_currentMatch - 1 + m_matches.size()) % m_matches.size();
     m_logView->selectRow(m_matches.at(m_currentMatch).row());
     m_logView->scrollTo(m_matches.at(m_currentMatch));
+    
+    auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(m_logView->itemDelegate());
+    if (matchDelegate)
+    {
+        matchDelegate->setCurrentMatch(m_currentMatch);
+    }
+    
+    m_logView->viewport()->update();
 }
 
 void
