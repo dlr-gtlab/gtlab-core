@@ -95,19 +95,29 @@ gt::xml::ClassModuleMap
 gt::xml::readClassModuleMap(const QDomElement& root)
 {
     ClassModuleMap mappings;
-    const QDomElement manifest =
-        root.firstChildElement(QLatin1String(S_CLASS_MODULES_TAG));
+    const QDomElement modules =
+        root.firstChildElement(QLatin1String(S_MODULES_TAG));
+    const QDomElement providers =
+        modules.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
 
-    for (QDomElement entry =
-             manifest.firstChildElement(QLatin1String(S_CLASS_MODULE_TAG));
-         !entry.isNull();
-         entry = entry.nextSiblingElement(QLatin1String(S_CLASS_MODULE_TAG)))
+    for (QDomElement module = providers.firstChildElement(
+             QLatin1String(S_MODULE_ELEMENT_TAG));
+         !module.isNull();
+         module = module.nextSiblingElement(
+             QLatin1String(S_MODULE_ELEMENT_TAG)))
     {
-        const QString className = entry.attribute(QLatin1String(S_NAME_TAG));
-        const QString moduleId = entry.attribute(QLatin1String(S_MODULE_TAG));
-        if (!className.isEmpty() && !moduleId.isEmpty())
+        const QString moduleId = module.attribute(QLatin1String(S_NAME_TAG));
+        if (moduleId.isEmpty()) continue;
+
+        for (QDomElement entry = module.firstChildElement(
+                 QLatin1String(S_CLASS_MODULE_TAG));
+             !entry.isNull();
+             entry = entry.nextSiblingElement(
+                 QLatin1String(S_CLASS_MODULE_TAG)))
         {
-            mappings.insert(className, moduleId);
+            const QString className =
+                entry.attribute(QLatin1String(S_NAME_TAG));
+            if (!className.isEmpty()) mappings.insert(className, moduleId);
         }
     }
     return mappings;
@@ -117,22 +127,50 @@ void
 gt::xml::writeClassModuleMap(QDomElement& root, QDomDocument& doc,
                              const ClassModuleMap& mappings)
 {
-    QDomElement oldManifest =
-        root.firstChildElement(QLatin1String(S_CLASS_MODULES_TAG));
-    if (!oldManifest.isNull()) root.removeChild(oldManifest);
+    QDomElement modules =
+        root.firstChildElement(QLatin1String(S_MODULES_TAG));
+    QDomElement oldProviders =
+        modules.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
+    if (!oldProviders.isNull()) modules.removeChild(oldProviders);
     if (mappings.isEmpty()) return;
 
-    QDomElement manifest = doc.createElement(QLatin1String(S_CLASS_MODULES_TAG));
-    manifest.setAttribute(QStringLiteral("version"), QStringLiteral("1"));
+    if (modules.isNull())
+    {
+        modules = doc.createElement(QLatin1String(S_MODULES_TAG));
+        if (root.firstChild().isNull())
+        {
+            root.appendChild(modules);
+        }
+        else
+        {
+            root.insertBefore(modules, root.firstChild());
+        }
+    }
+
+    QMap<QString, QStringList> classesByModule;
     for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
     {
         if (it.key().isEmpty() || it.value().isEmpty()) continue;
-        QDomElement entry = doc.createElement(QLatin1String(S_CLASS_MODULE_TAG));
-        entry.setAttribute(QLatin1String(S_NAME_TAG), it.key());
-        entry.setAttribute(QLatin1String(S_MODULE_TAG), it.value());
-        manifest.appendChild(entry);
+        classesByModule[it.value()].append(it.key());
     }
-    if (manifest.hasChildNodes()) root.appendChild(manifest);
+
+    QDomElement providers =
+        doc.createElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
+    for (auto it = classesByModule.cbegin(); it != classesByModule.cend(); ++it)
+    {
+        QDomElement module =
+            doc.createElement(QLatin1String(S_MODULE_ELEMENT_TAG));
+        module.setAttribute(QLatin1String(S_NAME_TAG), it.key());
+        for (const QString& className : it.value())
+        {
+            QDomElement entry =
+                doc.createElement(QLatin1String(S_CLASS_MODULE_TAG));
+            entry.setAttribute(QLatin1String(S_NAME_TAG), className);
+            module.appendChild(entry);
+        }
+        providers.appendChild(module);
+    }
+    if (providers.hasChildNodes()) modules.appendChild(providers);
 }
 
 QStringList

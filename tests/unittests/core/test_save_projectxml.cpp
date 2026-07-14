@@ -183,10 +183,10 @@ TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkTrue)
 TEST_F(SaveXmlWithLinkedObjectsTest, LinkedFileContainsFilteredClassModuleMap)
 {
     const char* xml = R"(
-<Root><CLASS-MODULES version="1">
-  <CLASS name="Bar" module="AnotherLongModuleId"/>
-  <CLASS name="Foo" module="AQuiteLongModuleId"/>
-</CLASS-MODULES>
+<Root><MODULES><CLASS-PROVIDERS>
+  <MODULE name="AnotherLongModuleId"><CLASS name="Bar"/></MODULE>
+  <MODULE name="AQuiteLongModuleId"><CLASS name="Foo"/></MODULE>
+</CLASS-PROVIDERS></MODULES>
 <object class="Foo" name="A" uuid="{111-222}" aslink="true"/></Root>)";
     QDomDocument doc = readXmlToDom(xml);
     const QString masterPath = makePath("master.xml");
@@ -199,6 +199,8 @@ TEST_F(SaveXmlWithLinkedObjectsTest, LinkedFileContainsFilteredClassModuleMap)
     QDomDocument extDoc = readFileToDom(
         baseDir().filePath("master/A_111-222.gtobj.xml"));
     ASSERT_FALSE(extDoc.isNull());
+    EXPECT_EQ(extDoc.documentElement().firstChildElement().tagName(),
+              QStringLiteral("MODULES"));
     const auto mappings = gt::xml::readClassModuleMap(extDoc.documentElement());
     ASSERT_EQ(mappings.size(), 1);
     EXPECT_EQ(mappings.value(QStringLiteral("Foo")),
@@ -563,4 +565,3 @@ TEST_F(SaveXmlWithLinkedObjectsTest, RecursiveHierarchicalObjectPathCreation)
     EXPECT_EQ(leafProp.attribute("name"), QStringLiteral("x"));
     EXPECT_EQ(leafProp.text(), QStringLiteral("1.0"));
 }
-

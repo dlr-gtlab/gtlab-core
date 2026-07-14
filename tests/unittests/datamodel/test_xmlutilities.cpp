@@ -148,23 +148,50 @@ TEST(GtXmlUtilities, ClassModuleMapRoundTripIsSortedAndSkipsInvalidEntries)
     QDomDocument doc;
     QDomElement root = doc.createElement(QStringLiteral("GTLAB"));
     doc.appendChild(root);
+    QDomElement modules = doc.createElement(QStringLiteral("MODULES"));
+    QDomElement existingModule = doc.createElement(QStringLiteral("MODULE"));
+    existingModule.setAttribute(QStringLiteral("name"),
+                                QStringLiteral("ExistingModule"));
+    modules.appendChild(existingModule);
+    root.appendChild(modules);
     gt::xml::ClassModuleMap mappings;
     mappings.insert(QStringLiteral("ZClass"), QStringLiteral("LongModuleId"));
     mappings.insert(QStringLiteral("AClass"), QStringLiteral("Module"));
+    mappings.insert(QStringLiteral("BClass"), QStringLiteral("Module"));
     mappings.insert(QStringLiteral("IgnoredClass"), QString{});
     gt::xml::writeClassModuleMap(root, doc, mappings);
 
-    QDomElement manifest = root.firstChildElement(QStringLiteral("CLASS-MODULES"));
-    ASSERT_FALSE(manifest.isNull());
-    QDomElement first = manifest.firstChildElement(QStringLiteral("CLASS"));
-    ASSERT_FALSE(first.isNull());
-    EXPECT_EQ(first.attribute(QStringLiteral("name")), QStringLiteral("AClass"));
-    QDomElement second = first.nextSiblingElement(QStringLiteral("CLASS"));
-    ASSERT_FALSE(second.isNull());
-    EXPECT_EQ(second.attribute(QStringLiteral("name")), QStringLiteral("ZClass"));
+    QDomElement writtenModules =
+        root.firstChildElement(QStringLiteral("MODULES"));
+    EXPECT_EQ(writtenModules.firstChildElement(QStringLiteral("MODULE"))
+                  .attribute(QStringLiteral("name")),
+              QStringLiteral("ExistingModule"));
+    QDomElement providers = writtenModules.firstChildElement(
+        QStringLiteral("CLASS-PROVIDERS"));
+    ASSERT_FALSE(providers.isNull());
+    QDomElement firstModule =
+        providers.firstChildElement(QStringLiteral("MODULE"));
+    ASSERT_FALSE(firstModule.isNull());
+    EXPECT_EQ(firstModule.attribute(QStringLiteral("name")),
+              QStringLiteral("LongModuleId"));
+    EXPECT_EQ(firstModule.firstChildElement(QStringLiteral("CLASS"))
+                  .attribute(QStringLiteral("name")),
+              QStringLiteral("ZClass"));
+    QDomElement secondModule =
+        firstModule.nextSiblingElement(QStringLiteral("MODULE"));
+    ASSERT_FALSE(secondModule.isNull());
+    EXPECT_EQ(secondModule.attribute(QStringLiteral("name")),
+              QStringLiteral("Module"));
+    EXPECT_EQ(secondModule.firstChildElement(QStringLiteral("CLASS"))
+                  .attribute(QStringLiteral("name")),
+              QStringLiteral("AClass"));
+    EXPECT_EQ(secondModule.firstChildElement(QStringLiteral("CLASS"))
+                  .nextSiblingElement(QStringLiteral("CLASS"))
+                  .attribute(QStringLiteral("name")),
+              QStringLiteral("BClass"));
 
     const auto roundTrip = gt::xml::readClassModuleMap(root);
-    EXPECT_EQ(roundTrip.size(), 2);
+    EXPECT_EQ(roundTrip.size(), 3);
     EXPECT_EQ(roundTrip.value(QStringLiteral("AClass")), QStringLiteral("Module"));
 }
 
