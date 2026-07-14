@@ -67,6 +67,58 @@ gt::LogFilterProxyModel::availableCategories() const
     return QStringList(categories.values());
 }
 
+bool
+gt::LogFilterProxyModel::hasActiveFilters() const
+{
+    if (!m_filterState.text.isEmpty())
+    {
+        return true;
+    }
+
+    if (!m_filterState.levels.isEmpty())
+    {
+        QSet<int> allLevels = {gt::log::TraceLevel, gt::log::DebugLevel,
+                               gt::log::InfoLevel, gt::log::WarningLevel,
+                               gt::log::ErrorLevel, gt::log::FatalLevel};
+        if (m_filterState.levels != allLevels)
+        {
+            return true;
+        }
+    }
+
+    if (!m_filterState.categories.isEmpty())
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool
+gt::LogFilterProxyModel::hasActiveFiltersForColumn(int column) const
+{
+    switch (column)
+    {
+        case 0: // ID column
+            return false;
+        case 1: // Level column
+            if (!m_filterState.levels.isEmpty())
+            {
+                QSet<int> allLevels = {gt::log::TraceLevel, gt::log::DebugLevel,
+                                       gt::log::InfoLevel, gt::log::WarningLevel,
+                                       gt::log::ErrorLevel, gt::log::FatalLevel};
+                return m_filterState.levels != allLevels;
+            }
+            return false;
+        case 2: // Category column
+            return !m_filterState.categories.isEmpty();
+        case 3: // Message column
+            return !m_filterState.text.isEmpty();
+        default:
+            return false;
+    }
+}
+
 QList<QPair<QString, QString>>
 gt::LogFilterProxyModel::availableCategoriesWithStorage() const
 {

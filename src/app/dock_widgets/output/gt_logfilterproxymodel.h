@@ -66,6 +66,13 @@ public:
     /// Get current text filter
     QString filterText() const { return m_filterState.text; }
 
+    /// Check if any filters are active
+    bool hasActiveFilters() const;
+
+    /// Check if specific column has active filters
+    /// @param column 0=ID, 1=Level, 2=Category, 3=Message
+    bool hasActiveFiltersForColumn(int column) const;
+
 protected:
     bool filterAcceptsRow(int source_row,
                           const QModelIndex& source_parent) const override;

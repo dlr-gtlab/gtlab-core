@@ -90,6 +90,14 @@ gt::FilterHeaderView::setFilterModel(gt::LogFilterProxyModel* model)
             {
                 m_categoryFilters.clear();
             }
+            update();
+        });
+        
+        connect(m_filterModel, &QSortFilterProxyModel::modelReset,
+                this, [this](){
+            m_levelFilters.clear();
+            m_categoryFilters.clear();
+            update();
         });
     }
     
@@ -129,9 +137,15 @@ gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
     QHeaderView::paintSection(painter, rect, logicalIndex);
     painter->restore();
     
-    // Draw filter icon
+    // Draw filter icon only for columns with active filters
+    bool hasActiveFilters = m_filterModel && m_filterModel->hasActiveFiltersForColumn(logicalIndex);
+    if (!hasActiveFilters)
+    {
+        return;
+    }
+    
     int targetSize = FILTER_ICON_SIZE;
-    QPixmap pixmap = gt::gui::icon::filter().pixmap(targetSize, targetSize);
+    QPixmap pixmap = gt::gui::icon::filterActive().pixmap(targetSize, targetSize);
     
     QRect iconRect = filterRect;
     iconRect.setSize(QSize(FILTER_ICON_SIZE, FILTER_ICON_SIZE));
