@@ -29,6 +29,23 @@
 static const char* S_INDEX_FILE_NAME = "index.json";
 static const char* S_TASK_FILE_EXT = ".gttask";
 
+namespace
+{
+
+void addClassProviderMetadata(QDomDocument& doc)
+{
+    QDomElement root = doc.documentElement();
+    gt::xml::ClassModuleMap mappings;
+    for (const QString& className : gt::xml::objectClassNames(root))
+    {
+        const QString moduleId = gtProcessFactory->moduleId(className);
+        if (!moduleId.isEmpty()) mappings.insert(className, moduleId);
+    }
+    gt::xml::writeClassModuleMap(root, doc, mappings);
+}
+
+} // namespace
+
 class GtTaskGroup::Impl
 {
 public:
@@ -323,6 +340,7 @@ GtTaskGroup::saveTaskElementToFile(const QString& projectPath,
     taskElement.save(stream, 2); // stored the content of QDomElement to stream
 
     doc.setContent(str.toUtf8());
+    addClassProviderMetadata(doc);
 
     gtDebug().medium() << "writing doc...";
     out << doc.toString();
@@ -541,6 +559,7 @@ GtTaskGroup::Impl::saveTaskToFile(const GtTask* task, const QString& groupPath) 
 
     QDomDocument doc;
     doc.setContent(task->toMemento().toByteArray());
+    addClassProviderMetadata(doc);
 
     if (!gt::xml::writeDomDocumentToFile(taskFile, doc, true))
     {
