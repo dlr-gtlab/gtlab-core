@@ -23,6 +23,7 @@ constexpr const char * S_HREF_TAG = "href";
 constexpr const char * S_UUID_TAG = "uuid";
 constexpr const char * S_CLASS_TAG = "class";
 constexpr const char * S_MODULES_TAG = "MODULES";
+constexpr const char * S_METADATA_TAG = "METADATA";
 constexpr const char * S_CLASS_PROVIDERS_TAG = "CLASS-PROVIDERS";
 constexpr const char * S_MODULE_ELEMENT_TAG = "MODULE";
 constexpr const char * S_CLASS_MODULE_TAG = "CLASS";

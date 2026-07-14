@@ -95,10 +95,17 @@ gt::xml::ClassModuleMap
 gt::xml::readClassModuleMap(const QDomElement& root)
 {
     ClassModuleMap mappings;
-    const QDomElement modules =
-        root.firstChildElement(QLatin1String(S_MODULES_TAG));
-    const QDomElement providers =
-        modules.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
+    QDomElement metadata =
+        root.firstChildElement(QLatin1String(S_METADATA_TAG));
+    QDomElement providers =
+        metadata.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
+    if (providers.isNull())
+    {
+        const QDomElement modules =
+            root.firstChildElement(QLatin1String(S_MODULES_TAG));
+        providers =
+            modules.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
+    }
 
     for (QDomElement module = providers.firstChildElement(
              QLatin1String(S_MODULE_ELEMENT_TAG));
@@ -127,31 +134,45 @@ void
 gt::xml::writeClassModuleMap(QDomElement& root, QDomDocument& doc,
                              const ClassModuleMap& mappings)
 {
-    QDomElement modules =
-        root.firstChildElement(QLatin1String(S_MODULES_TAG));
+    QDomElement metadata =
+        root.firstChildElement(QLatin1String(S_METADATA_TAG));
     QDomElement oldProviders =
-        modules.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
-    if (!oldProviders.isNull()) modules.removeChild(oldProviders);
-    if (mappings.isEmpty()) return;
-
-    if (modules.isNull())
-    {
-        modules = doc.createElement(QLatin1String(S_MODULES_TAG));
-        if (root.firstChild().isNull())
-        {
-            root.appendChild(modules);
-        }
-        else
-        {
-            root.insertBefore(modules, root.firstChild());
-        }
-    }
+        metadata.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
+    if (!oldProviders.isNull()) metadata.removeChild(oldProviders);
 
     QMap<QString, QStringList> classesByModule;
     for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
     {
         if (it.key().isEmpty() || it.value().isEmpty()) continue;
         classesByModule[it.value()].append(it.key());
+    }
+
+    if (classesByModule.isEmpty())
+    {
+        if (!metadata.isNull() && metadata.firstChildElement().isNull())
+        {
+            root.removeChild(metadata);
+        }
+        return;
+    }
+
+    if (metadata.isNull())
+    {
+        metadata = doc.createElement(QLatin1String(S_METADATA_TAG));
+        const QDomElement modules =
+            root.firstChildElement(QLatin1String(S_MODULES_TAG));
+        if (!modules.isNull())
+        {
+            root.insertAfter(metadata, modules);
+        }
+        else if (root.firstChild().isNull())
+        {
+            root.appendChild(metadata);
+        }
+        else
+        {
+            root.insertBefore(metadata, root.firstChild());
+        }
     }
 
     QDomElement providers =
@@ -170,7 +191,7 @@ gt::xml::writeClassModuleMap(QDomElement& root, QDomDocument& doc,
         }
         providers.appendChild(module);
     }
-    if (providers.hasChildNodes()) modules.appendChild(providers);
+    metadata.appendChild(providers);
 }
 
 QStringList

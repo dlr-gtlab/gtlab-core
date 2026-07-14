@@ -58,8 +58,8 @@ static bool writeProjectFileWithClassModules(const QString& dirPath)
     const QByteArray data = R"(
 <GTLAB projectname="ClassModuleTest" version="2.1.0">
 <env-footprint><modules/></env-footprint>
-<MODULES><CLASS-PROVIDERS><MODULE name="AQuiteLongModuleId">
-<CLASS name="UnknownClass"/></MODULE></CLASS-PROVIDERS></MODULES></GTLAB>)";
+<MODULES/><METADATA><CLASS-PROVIDERS><MODULE name="AQuiteLongModuleId">
+<CLASS name="UnknownClass"/></MODULE></CLASS-PROVIDERS></METADATA></GTLAB>)";
     return file.write(data) == data.size();
 }
 

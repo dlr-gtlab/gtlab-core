@@ -183,10 +183,10 @@ TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkTrue)
 TEST_F(SaveXmlWithLinkedObjectsTest, LinkedFileContainsFilteredClassModuleMap)
 {
     const char* xml = R"(
-<Root><MODULES><CLASS-PROVIDERS>
+<Root><METADATA><CLASS-PROVIDERS>
   <MODULE name="AnotherLongModuleId"><CLASS name="Bar"/></MODULE>
   <MODULE name="AQuiteLongModuleId"><CLASS name="Foo"/></MODULE>
-</CLASS-PROVIDERS></MODULES>
+</CLASS-PROVIDERS></METADATA>
 <object class="Foo" name="A" uuid="{111-222}" aslink="true"/></Root>)";
     QDomDocument doc = readXmlToDom(xml);
     const QString masterPath = makePath("master.xml");
@@ -200,7 +200,7 @@ TEST_F(SaveXmlWithLinkedObjectsTest, LinkedFileContainsFilteredClassModuleMap)
         baseDir().filePath("master/A_111-222.gtobj.xml"));
     ASSERT_FALSE(extDoc.isNull());
     EXPECT_EQ(extDoc.documentElement().firstChildElement().tagName(),
-              QStringLiteral("MODULES"));
+              QStringLiteral("METADATA"));
     const auto mappings = gt::xml::readClassModuleMap(extDoc.documentElement());
     ASSERT_EQ(mappings.size(), 1);
     EXPECT_EQ(mappings.value(QStringLiteral("Foo")),
