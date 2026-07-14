@@ -6,7 +6,11 @@
 
 #include "gt_logfilterproxymodel.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QRegExp>
+#else
+#include <QRegularExpression>
+#endif
 
 #include <gt_loglevel.h>
 
@@ -80,26 +84,18 @@ gt::LogFilterProxyModel::availableCategories() const
 bool
 gt::LogFilterProxyModel::hasActiveFilters() const
 {
-    if (!m_filterState.text.isEmpty())
-    {
-        return true;
-    }
+    if (!m_filterState.text.isEmpty()) return true;
 
     if (!m_filterState.levels.isEmpty())
     {
         QSet<int> allLevels = {gt::log::TraceLevel, gt::log::DebugLevel,
                                gt::log::InfoLevel, gt::log::WarningLevel,
                                gt::log::ErrorLevel, gt::log::FatalLevel};
-        if (m_filterState.levels != allLevels)
-        {
-            return true;
-        }
+
+        if (m_filterState.levels != allLevels) return true;
     }
 
-    if (!m_filterState.categories.isEmpty())
-    {
-        return true;
-    }
+    if (!m_filterState.categories.isEmpty()) return true;
 
     return false;
 }
@@ -219,6 +215,24 @@ gt::LogFilterProxyModel::clearFilters()
     }
 }
 
+QSet<int>
+gt::LogFilterProxyModel::levelFilter() const
+{
+    return m_filterState.levels;
+}
+
+QSet<QString>
+gt::LogFilterProxyModel::categoryFilter() const
+{
+    return m_filterState.categories;
+}
+
+QString
+gt::LogFilterProxyModel::filterText() const
+{
+    return m_filterState.text;
+}
+
 bool
 gt::LogFilterProxyModel::filterAcceptsRow(int source_row,
                                           const QModelIndex& source_parent) const
@@ -270,19 +284,13 @@ gt::LogFilterProxyModel::matchesCategoryFilter(int source_row,
     }
 
     // If no activated categories, show all rows
-    if (m_filterState.categories.isEmpty())
-    {
-        return true;
-    }
+    if (m_filterState.categories.isEmpty()) return true;
 
     // If category is deactivated, hide it
     const QModelIndex index = sourceModel()->index(source_row, 2, source_parent);
     const QString category = sourceModel()->data(index, Qt::DisplayRole).toString();
 
-    if (m_filterState.deactivatedCategories.contains(category))
-    {
-        return false;
-    }
+    if (m_filterState.deactivatedCategories.contains(category)) return false;
 
     return m_filterState.categories.contains(category);
 }

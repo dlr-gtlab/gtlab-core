@@ -11,7 +11,6 @@
 #include <QSet>
 #include <QStringList>
 #include <QPair>
-#include <QDebug>
 
 namespace gt
 {
@@ -63,16 +62,13 @@ public:
     void clearFilters();
 
     /// Get current level filter
-    QSet<int> levelFilter() const { return m_filterState.levels; }
+    QSet<int> levelFilter() const;
 
     /// Get current category filter
-    QSet<QString> categoryFilter() const { return m_filterState.categories; }
-
-    /// Set deactivated categories
-    //void setDeactivatedCategories(const QSet<QString>& categories) { m_filterState.deactivatedCategories = categories; }
+    QSet<QString> categoryFilter() const;
 
     /// Get current text filter
-    QString filterText() const { return m_filterState.text; }
+    QString filterText() const;
 
     /// Check if any filters are active
     bool hasActiveFilters() const;
@@ -81,6 +77,11 @@ public:
     /// @param column 0=ID, 1=Level, 2=Category, 3=Message
     bool hasActiveFiltersForColumn(int column) const;
 
+protected:
+    bool filterAcceptsRow(int source_row,
+                          const QModelIndex& source_parent) const override;
+
+private:
     struct FilterState
     {
         QString text;
@@ -90,13 +91,6 @@ public:
     };
 
     FilterState m_filterState;
-
-protected:
-    bool filterAcceptsRow(int source_row,
-                          const QModelIndex& source_parent) const override;
-
-private:
-
 
     /// Check if row matches text filter (message column only)
     bool matchesTextFilter(int source_row,

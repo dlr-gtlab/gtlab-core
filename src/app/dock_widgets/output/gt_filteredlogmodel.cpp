@@ -10,7 +10,6 @@
 
 #include "gt_filteredlogmodel.h"
 #include "gt_logfilterproxymodel.h"
-#include "gt_styledlogmodel.h"
 
 #include <gt_loglevel.h>
 
@@ -25,7 +24,8 @@ GtFilteredLogModel::GtFilteredLogModel(gt::LogFilterProxyModel* filterModel,
                       gt::log::InfoLevel, gt::log::WarningLevel,
                       gt::log::ErrorLevel, gt::log::FatalLevel};
 
-    if (m_filterModel && m_filterModel->sourceModel()) {
+    if (m_filterModel && m_filterModel->sourceModel())
+    {
         updateCategoryFilter();
     }
 
@@ -38,6 +38,12 @@ GtFilteredLogModel::setSourceModel(QAbstractItemModel* model)
 {
     QSortFilterProxyModel::setSourceModel(model);
     updateCategoryFilter();
+}
+
+gt::LogFilterProxyModel*
+GtFilteredLogModel::filterModel() const
+{
+    return m_filterModel;
 }
 
 void
@@ -149,6 +155,7 @@ GtFilteredLogModel::updateCategoryFilter()
     {
         const QModelIndex index = m_filterModel->sourceModel()->index(row, 2);
         const QString category = m_filterModel->sourceModel()->data(index).toString();
+
         if (!category.isEmpty())
         {
             availableCategories.insert(category);
@@ -174,11 +181,10 @@ GtFilteredLogModel::updateCategoryFilter()
 }
 
 void
-GtFilteredLogModel::saveAndPreserveDeactivatedCategories(const QSet<QString>& currentActivated)
+GtFilteredLogModel::saveAndPreserveDeactivatedCategories(
+    const QSet<QString>& currentActivated)
 {
-    if (!m_filterModel || !m_filterModel->sourceModel()) {
-        return;
-    }
+    if (!m_filterModel || !m_filterModel->sourceModel()) return;
 
     QSet<QString> availableCategories;
     const int rowCount = m_filterModel->sourceModel()->rowCount();
@@ -194,7 +200,9 @@ GtFilteredLogModel::saveAndPreserveDeactivatedCategories(const QSet<QString>& cu
     }
 
     // Use provided currentActivated or get from filter model
-    QSet<QString> activated = currentActivated.isEmpty() ? m_filterModel->categoryFilter() : currentActivated;
+    QSet<QString> activated = currentActivated.isEmpty()
+                                  ? m_filterModel->categoryFilter()
+                                  : currentActivated;
 
     // Only update if we have available categories
     if (!availableCategories.isEmpty())
@@ -218,9 +226,7 @@ void
 GtFilteredLogModel::setCategoryFilterWithSave(const QSet<QString>& categories)
 {
     // Update saved deactivated categories
-    if (!m_filterModel || !m_filterModel->sourceModel()) {
-        return;
-    }
+    if (!m_filterModel || !m_filterModel->sourceModel()) return;
 
     QSet<QString> availableCategories;
     const int rowCount = m_filterModel->sourceModel()->rowCount();
@@ -250,12 +256,16 @@ GtFilteredLogModel::setCategoryFilterWithSave(const QSet<QString>& categories)
     m_filterModel->setDeactivatedCategories(m_savedDeactivatedCategories);
 }
 
+QSet<QString>
+GtFilteredLogModel::savedDeactivatedCategories() const
+{
+    return m_savedDeactivatedCategories;
+}
+
 void
 GtFilteredLogModel::resetCategoryFilter()
 {
-    if (!m_filterModel || !m_filterModel->sourceModel()) {
-        return;
-    }
+    if (!m_filterModel || !m_filterModel->sourceModel()) return;
 
     QSet<QString> currentCategories = m_filterModel->categoryFilter();
 

@@ -87,7 +87,7 @@ protected:
 
     void setSourceModel(QAbstractItemModel* model) override;
 
-    gt::LogFilterProxyModel* filterModel() const { return m_filterModel; }
+    gt::LogFilterProxyModel* filterModel() const;
 
 private:
     gt::LogFilterProxyModel* m_filterModel;
@@ -98,13 +98,13 @@ private:
     void updateFilterModel();
     void updateCategoryFilter();
     void resetCategoryFilter();
-    void saveDeactivatedCategories(const QSet<QString>& currentActivated = QSet<QString>());
-    void saveAndPreserveDeactivatedCategories(const QSet<QString>& currentActivated = QSet<QString>());
+    void saveDeactivatedCategories(const QSet<QString>& currentActivated = {});
+    void saveAndPreserveDeactivatedCategories(const QSet<QString>& currentActivated = {});
     void setCategoryFilterWithSave(const QSet<QString>& categories);
 
     QSet<QString> m_savedDeactivatedCategories;
 
-    QSet<QString> savedDeactivatedCategories() const { return m_savedDeactivatedCategories; }
+    QSet<QString> savedDeactivatedCategories() const;
 };
 
 #endif // GTFILTEREDLOGMODEL_H

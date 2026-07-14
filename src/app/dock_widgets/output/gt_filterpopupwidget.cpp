@@ -118,7 +118,7 @@ gt::FilterPopupWidget::setSearchMode()
         m_scrollArea->hide();
     }
     
-    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint); // | Qt::WindowStaysInTopHint);
+    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
     adjustSize();
     show();
 }
