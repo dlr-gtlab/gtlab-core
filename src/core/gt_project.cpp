@@ -45,6 +45,33 @@
 
 #include <cassert>
 
+namespace
+{
+
+gt::xml::ClassModuleMap taskClassModuleIds(const QString& projectPath)
+{
+    gt::xml::ClassModuleMap result;
+    QDirIterator files(projectPath + QDir::separator() + QStringLiteral("tasks"),
+                       {QStringLiteral("*.gttask")}, QDir::Files,
+                       QDirIterator::Subdirectories);
+    while (files.hasNext())
+    {
+        QFile file(files.next());
+        QDomDocument document;
+        if (!gt::xml::readDomDocumentFromFile(file, document, true)) continue;
+
+        const auto mappings =
+            gt::xml::readClassModuleMap(document.documentElement());
+        for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
+        {
+            if (!result.contains(it.key())) result.insert(it.key(), it.value());
+        }
+    }
+    return result;
+}
+
+} // namespace
+
 GtProject::GtProject(const QString& path) :
     m_path(path),
     m_pathProp(QStringLiteral("path"), tr("Path"), tr("Project path"), path)
@@ -454,6 +481,14 @@ GtProject::loadMetaData()
     // module meta data
     readModuleMetaData(root);
     m_classModuleIds = gt::xml::readClassModuleMap(root);
+    const auto taskMappings = taskClassModuleIds(path());
+    for (auto it = taskMappings.cbegin(); it != taskMappings.cend(); ++it)
+    {
+        if (!m_classModuleIds.contains(it.key()))
+        {
+            m_classModuleIds.insert(it.key(), it.value());
+        }
+    }
 
     return true;
 }

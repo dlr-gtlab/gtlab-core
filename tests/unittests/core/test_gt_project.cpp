@@ -63,6 +63,20 @@ static bool writeProjectFileWithClassModules(const QString& dirPath)
     return file.write(data) == data.size();
 }
 
+static bool writeTaskFileWithClassModules(const QString& dirPath)
+{
+    QDir dir(dirPath);
+    if (!dir.mkpath(QStringLiteral("tasks/_custom/group"))) return false;
+    QFile file(dir.filePath(QStringLiteral("tasks/_custom/group/task.gttask")));
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+    const QByteArray data = R"(
+<object class="MissingTask" name="Task" uuid="task">
+<METADATA><CLASS-PROVIDERS><MODULE name="MissingTaskModule">
+<CLASS name="MissingTask"/><CLASS name="MissingCalculator"/>
+</MODULE></CLASS-PROVIDERS></METADATA></object>)";
+    return file.write(data) == data.size();
+}
+
 } // namespace
 
 TEST(GtProject, commentMethodReturnsStoredComment)
@@ -243,6 +257,20 @@ TEST(GtProject, ReadsClassModuleMappings)
     TestProject project(tempDir.path());
     EXPECT_EQ(project.classModuleId(QStringLiteral("UnknownClass")),
               QStringLiteral("AQuiteLongModuleId"));
+}
+
+TEST(GtProject, MergesClassModuleMappingsFromTaskFiles)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFile(tempDir.path(), QStringLiteral("TaskTest")));
+    ASSERT_TRUE(writeTaskFileWithClassModules(tempDir.path()));
+
+    TestProject project(tempDir.path());
+    EXPECT_EQ(project.classModuleId(QStringLiteral("MissingTask")),
+              QStringLiteral("MissingTaskModule"));
+    EXPECT_EQ(project.classModuleId(QStringLiteral("MissingCalculator")),
+              QStringLiteral("MissingTaskModule"));
 }
 
 TEST(GtProject, copyProjectDataCopiesDirectory)
