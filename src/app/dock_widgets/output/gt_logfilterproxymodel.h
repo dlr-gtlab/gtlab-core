@@ -32,6 +32,7 @@ class LogFilterProxyModel : public QSortFilterProxyModel
 signals:
     void levelFilterChanged(const QSet<int>& levels);
     void categoryFilterChanged(const QSet<QString>& categories);
+    void filterTextChanged(const QString& text);
 
 public:
     explicit LogFilterProxyModel(QObject* parent = nullptr);

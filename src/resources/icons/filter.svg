@@ -21,17 +21,16 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="17.191534"
-     inkscape:cx="8.1435434"
+     inkscape:cx="8.2017114"
      inkscape:cy="15.792657"
-     inkscape:window-width="1920"
-     inkscape:window-height="1177"
-     inkscape:window-x="4472"
+     inkscape:window-width="2560"
+     inkscape:window-height="1369"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg1" />
   <path
-     style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.980934;stroke-dasharray:none;stroke-opacity:1"
-     d="M 1.0007043,0.64761392 H 22.973634 L 15.126159,11.045519 V 23.405292 H 8.8481792 V 11.045519 Z"
-     id="path2"
-     sodipodi:nodetypes="ccccccc" />
+     style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;enable-background:accumulate;stop-color:#000000;stop-opacity:1;opacity:1"
+     d="M 0.07617187,0.3046875 8.3300781,11.240234 V 23.574219 H 15.791016 V 11.240234 L 24.042969,0.3046875 Z M 2.9648438,1.7441406 H 21.154297 L 14.351563,10.757813 V 22.134766 H 9.7675781 V 10.757813 Z"
+     id="path2" />
 </svg>

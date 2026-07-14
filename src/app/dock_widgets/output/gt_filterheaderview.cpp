@@ -78,7 +78,7 @@ gt::FilterHeaderView::setFilterModel(gt::LogFilterProxyModel* model)
                 this, [this](){
             m_levelFilters.clear();
             m_categoryFilters.clear();
-            update();
+            viewport()->update();
         });
         
         connect(m_filterModel, &QSortFilterProxyModel::dataChanged,
@@ -90,14 +90,29 @@ gt::FilterHeaderView::setFilterModel(gt::LogFilterProxyModel* model)
             {
                 m_categoryFilters.clear();
             }
-            update();
+            viewport()->update();
         });
         
         connect(m_filterModel, &QSortFilterProxyModel::modelReset,
                 this, [this](){
             m_levelFilters.clear();
             m_categoryFilters.clear();
-            update();
+            viewport()->update();
+        });
+        
+        connect(m_filterModel, &gt::LogFilterProxyModel::levelFilterChanged,
+                this, [this](){
+            viewport()->update();
+        });
+        
+        connect(m_filterModel, &gt::LogFilterProxyModel::categoryFilterChanged,
+                this, [this](){
+            viewport()->update();
+        });
+        
+        connect(m_filterModel, &gt::LogFilterProxyModel::filterTextChanged,
+                this, [this](){
+            viewport()->update();
         });
     }
     

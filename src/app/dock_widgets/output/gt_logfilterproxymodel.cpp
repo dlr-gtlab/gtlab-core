@@ -23,6 +23,7 @@ gt::LogFilterProxyModel::setFilterText(const QString& text)
     if (m_filterState.text == text) return;
 
     m_filterState.text = text;
+    emit filterTextChanged(m_filterState.text);
     invalidateFilter();
 }
 
@@ -99,9 +100,7 @@ gt::LogFilterProxyModel::hasActiveFiltersForColumn(int column) const
 {
     switch (column)
     {
-        case 0: // ID column
-            return false;
-        case 1: // Level column
+        case 0: // Level column
             if (!m_filterState.levels.isEmpty())
             {
                 QSet<int> allLevels = {gt::log::TraceLevel, gt::log::DebugLevel,
@@ -109,6 +108,8 @@ gt::LogFilterProxyModel::hasActiveFiltersForColumn(int column) const
                                        gt::log::ErrorLevel, gt::log::FatalLevel};
                 return m_filterState.levels != allLevels;
             }
+            return false;
+        case 1: // ID column
             return false;
         case 2: // Category column
             return !m_filterState.categories.isEmpty();
