@@ -112,15 +112,12 @@ GtFactoryGroup::registerClasses(const QList<QMetaObject>& /*metaData*/,
 QString
 GtFactoryGroup::moduleId(const QString& className) const
 {
-    for (const GtAbstractObjectFactory* factory : m_factories)
-    {
-        if (factory->knownClass(className))
-        {
-            return factory->moduleId(className);
-        }
-    }
-
-    return {};
+    const auto it = std::find_if(
+        std::begin(m_factories), std::end(m_factories),
+        [&className](const GtAbstractObjectFactory* factory) {
+            return factory->knownClass(className);
+        });
+    return it == std::end(m_factories) ? QString{} : (*it)->moduleId(className);
 }
 
 bool
