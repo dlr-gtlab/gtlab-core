@@ -20,6 +20,8 @@
 #include <QWheelEvent>
 #include <QPaintEvent>
 
+#include <cmath>
+
 struct GtGraphicsView::Impl
 {
     /// Options
@@ -75,7 +77,7 @@ GtGraphicsView::GtGraphicsView(Options options, QWidget* parent) :
 GtGraphicsView::~GtGraphicsView()
 {
     // delete the scene
-    if (pimpl->options.testFlag(OwnActiveScene))
+    if (pimpl->options.testFlag(DestroyActiveSceneOnDeletion))
     {
         delete scene();
     }
@@ -124,12 +126,14 @@ void
 GtGraphicsView::setHorizontalRuler(GtRuler* ruler)
 {
     pimpl->hRuler = ruler;
+    if (ruler) ruler->setDrawOffset(frameShape() == QFrame::NoFrame ? 0 : frameWidth());
 }
 
 void
 GtGraphicsView::setVerticalRuler(GtRuler* ruler)
 {
     pimpl->vRuler = ruler;
+    if (ruler) ruler->setDrawOffset(frameShape() == QFrame::NoFrame ? 0 : frameWidth());
 }
 
 void
@@ -185,13 +189,13 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
 {
     QGraphicsView::mouseMoveEvent(mouseEvent);
 
-    QPoint cursorPos = mapFromGlobal(QCursor::pos());
+    QPoint cursorPos = mouseEvent->pos();
     if (pimpl->vRuler) pimpl->vRuler->setCursorPosition(cursorPos);
     if (pimpl->hRuler) pimpl->hRuler->setCursorPosition(cursorPos);
 
     if (!scene()) return;
 
-    QPointF scenePos = mapToScene(mouseEvent->pos());
+    QPointF scenePos = mapToScene(cursorPos);
 
     emit mousePositionChanged(scenePos);
 

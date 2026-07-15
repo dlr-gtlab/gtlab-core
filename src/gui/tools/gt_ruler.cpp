@@ -40,6 +40,10 @@ struct GtRuler::Impl
     /// Orientation indicator
     Qt::Orientation orientation;
 
+    /// Offset for drawign the ruler. Needed in case the graphicsview has a
+    /// frame
+    int drawOffset = 0;
+
     /// Indicator whether the values of the axis should be flipped
     bool axisFlipped = false;
 };
@@ -92,6 +96,18 @@ bool
 GtRuler::isAxisFlipped() const
 {
     return pimpl->axisFlipped;
+}
+
+void
+GtRuler::setDrawOffset(int offset)
+{
+    pimpl->drawOffset = offset;
+}
+
+int
+GtRuler::drawOffset() const
+{
+    return pimpl->drawOffset;
 }
 
 QSize
@@ -209,7 +225,7 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
     const QString tmpTick = QString::number(-std::ceil(tmpMaxValue) + lineDistance);
     const QSizeF tmpSize = textSizeHint(tmpTick);
     const QRectF textRect{
-        -tmpSize.width() * 0.5, height - tickLength - tickPadding - tmpSize.height(),
+        -tmpSize.width() * 0.5 + tickPadding, height - tickLength - tickPadding - tmpSize.height(),
         tmpSize.width(), tmpSize.height()
     };
 
@@ -243,17 +259,17 @@ GtRuler::paintEvent(QPaintEvent* e)
     QColor c = gt::gui::color::text();
 
     QPainter painter{this};
-    painter.drawPixmap(1, 1, pimpl->cache);
+    painter.drawPixmap(pimpl->drawOffset, pimpl->drawOffset, pimpl->cache);
 
     if (pimpl->orientation == Qt::Horizontal)
     {
-        painter.translate(pimpl->cursorPos.x() + 1, height() -1 );
+        painter.translate(pimpl->cursorPos.x() + pimpl->drawOffset, height() - pimpl->drawOffset);
         painter.fillPath(pimpl->cursorArrow, c);
     }
     else
     {
         painter.rotate(-90);
-        painter.translate(-pimpl->cursorPos.y() - 1, width() - 1);
+        painter.translate(-pimpl->cursorPos.y() - pimpl->drawOffset, width() - pimpl->drawOffset);
         painter.fillPath(pimpl->cursorArrow, c);
     }
 

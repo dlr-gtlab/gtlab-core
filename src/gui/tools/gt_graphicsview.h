@@ -37,12 +37,12 @@ public:
         /// is deleted, if the view is deleted.
         /// (default for backwards compatibility,
         ///  normally QGraphicsScene is NOT owned by a QGraphicsView)
-        OwnActiveScene = 1 << 0
+        DestroyActiveSceneOnDeletion = 1 << 0
     };
     using Options = QFlags<Option>;
 
     explicit GtGraphicsView(QGraphicsScene* s, QWidget* parent = 0) :
-        GtGraphicsView(s, OwnActiveScene, parent)
+        GtGraphicsView(s, DestroyActiveSceneOnDeletion, parent)
     { }
     explicit GtGraphicsView(QGraphicsScene* s, Options options, QWidget* parent = 0);
     explicit GtGraphicsView(Options options, QWidget* parent = 0);
