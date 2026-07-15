@@ -7,6 +7,10 @@
 #include "gtest/gtest.h"
 
 #include "gt_project.h"
+#include "gt_abstractobjectfactory.h"
+#include "gt_objectgroup.h"
+#include "gt_processdata.h"
+#include "gt_taskgroup.h"
 #include "gt_xmlutilities.h"
 #include "internal/gt_projectio.h"
 
@@ -15,12 +19,39 @@
 #include <QDomDocument>
 #include <QTemporaryDir>
 
+#include <memory>
+
+class GtProjectTestAccess
+{
+public:
+    static void updateClassModuleIds(GtProject& project)
+    {
+        project.updateClassModuleIds();
+    }
+
+    static void insertClassModuleId(GtProject& project,
+                                    const QString& className,
+                                    const QString& moduleId)
+    {
+        project.m_classModuleIds.insert(className, moduleId);
+    }
+
+    static GtObject* readProcessData(GtProject& project)
+    {
+        return project.readProcessData();
+    }
+};
+
 namespace {
 
 class TestProject : public GtProject
 {
 public:
     explicit TestProject(const QString& path) : GtProject(path) {}
+};
+
+class TestProjectObjectFactory : public GtAbstractObjectFactory
+{
 };
 
 static bool writeProjectFile(const QString& dirPath, const QString& projectName)
@@ -299,6 +330,48 @@ TEST(GtProject, ProjectMappingsWinAndInvalidTaskFilesAreIgnored)
     TestProject project(tempDir.path());
     EXPECT_EQ(project.classModuleId(QStringLiteral("UnknownClass")),
               QStringLiteral("AQuiteLongModuleId"));
+}
+
+TEST(GtProject, UpdatesClassModuleMappingsFromObjectFactoriesAndKnownMappings)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFile(tempDir.path(), QStringLiteral("UpdateTest")));
+    TestProject project(tempDir.path());
+
+    TestProjectObjectFactory factory;
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject),
+                                      QStringLiteral("ObjectModule")));
+    auto* providedObject = new GtObject;
+    providedObject->setFactory(&factory);
+    project.appendChild(providedObject);
+
+    auto* knownObject = new GtObjectGroup;
+    project.appendChild(knownObject);
+    GtProjectTestAccess::insertClassModuleId(
+        project, GT_CLASSNAME(GtObjectGroup), QStringLiteral("KnownModule"));
+
+    GtProjectTestAccess::updateClassModuleIds(project);
+
+    EXPECT_EQ(project.classModuleId(GT_CLASSNAME(GtObject)),
+              QStringLiteral("ObjectModule"));
+    EXPECT_EQ(project.classModuleId(GT_CLASSNAME(GtObjectGroup)),
+              QStringLiteral("KnownModule"));
+}
+
+TEST(GtProject, LoadHelperReadsProcessData)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFile(tempDir.path(), QStringLiteral("LoadTest")));
+    ASSERT_TRUE(QDir(tempDir.path()).mkpath(
+        QStringLiteral("tasks/") + GtTaskGroup::scopeId(GtTaskGroup::USER) +
+        QDir::separator() + GtTaskGroup::defaultUserGroupId()));
+    TestProject project(tempDir.path());
+
+    std::unique_ptr<GtObject> processData(
+        GtProjectTestAccess::readProcessData(project));
+    EXPECT_NE(qobject_cast<GtProcessData*>(processData.get()), nullptr);
 }
 
 TEST(GtProject, copyProjectDataCopiesDirectory)

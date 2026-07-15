@@ -45,6 +45,7 @@ class GT_CORE_EXPORT GtProject : public GtObject
     friend class GtLoadProjectHelper;
     friend class GtSaveProjectHelper;
     friend class GtProjectUI;
+    friend class GtProjectTestAccess;
 
 public:
     /**

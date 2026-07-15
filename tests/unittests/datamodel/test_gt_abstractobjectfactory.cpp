@@ -55,6 +55,14 @@ TEST(GtAbstractObjectFactory, BulkRegistrationAssignsModuleId)
               QStringLiteral("TestModule"));
 }
 
+TEST(GtAbstractObjectFactory, LegacyBulkRegistrationHasNoModuleId)
+{
+    TestObjectFactory factory;
+
+    ASSERT_TRUE(factory.registerClasses({GT_METADATA(GtObject)}));
+    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
+}
+
 TEST(GtAbstractObjectFactory, DuplicateDoesNotReplaceModuleId)
 {
     TestObjectFactory factory;
