@@ -426,9 +426,13 @@ GtTask::runChildElements()
 GtMonitoringDataSet
 GtTask::collectMonitoringData()
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
+
     GtMonitoringDataSet retval;
 
     collectMonitoringDataHelper(retval, this);
+
+    GT_SUPPRESS_DEPRECATED_END
 
     return retval;
 }
@@ -466,6 +470,8 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
         return;
     }
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
+
     // get monitoring properties
     auto monProps = component->monitoringProperties();
     auto conMonProps = component->containerMonitoringPropertyRefs();
@@ -473,6 +479,7 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
     // check whether monitoring properties exists
     if (!monProps.isEmpty() || !conMonProps.isEmpty())
     {
+
         // create new monitoring data container
         GtMonitoringData monData;
 
@@ -503,6 +510,8 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
         // collect data for each child recursively
         collectMonitoringDataHelper(map, child);
     }
+
+    GT_SUPPRESS_DEPRECATED_BEGIN
 }
 
 void
