@@ -31,8 +31,10 @@ struct GtTask::Impl
     /// List of all data to merge
     QList<GtObjectMemento> dataToMerge;
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
     /// Monitoring data table
     GtMonitoringDataTable monitoringDataTable;
+    GT_SUPPRESS_DEPRECATED_END
 
     /// Interruption flag
     QAtomicInt interrupt;
@@ -64,7 +66,6 @@ GtTask::GtTask() :
 
     m_currentIter.setVal(0);
 
-    qRegisterMetaType<GtMonitoringDataSet>("GtMonitoringDataSet");
 
     registerProperty(pimpl->processRunner, tr("Execution"));
 
@@ -301,13 +302,17 @@ GtTask::runIteration()
 int
 GtTask::monitoringDataSize() const
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     return pimpl->monitoringDataTable.size();
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 const GtMonitoringDataTable&
 GtTask::monitoringDataTable()
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     return pimpl->monitoringDataTable;
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 int
@@ -583,15 +588,19 @@ void
 GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
 {
     // append data set to data table and check success
+    GT_SUPPRESS_DEPRECATED_BEGIN
     if (!pimpl->monitoringDataTable.append(iteration, set))
     {
         gtWarning().medium() << tr("Could not append data set!");
         return;
     }
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 void
 GtTask::clearMonitoringData()
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     pimpl->monitoringDataTable.clear();
+    GT_SUPPRESS_DEPRECATED_END
 }

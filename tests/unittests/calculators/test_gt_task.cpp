@@ -296,6 +296,8 @@ TEST_F(TestGtTask, collectMonitoringDataIncludesChildMonitoringProperties)
     ASSERT_TRUE(task.appendChild(&child));
     child.addMonitoringVar("name", 42);
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
+
     auto data = task.collectMonitoringData();
 
     ASSERT_TRUE(data.contains(child.uuid()));
@@ -305,6 +307,8 @@ TEST_F(TestGtTask, collectMonitoringDataIncludesChildMonitoringProperties)
     EXPECT_TRUE(keys.front().startsWith("monitoringVars[{"));
     EXPECT_TRUE(keys.front().endsWith("}].value"));
     EXPECT_EQ(monData.getData(keys.front()), QVariant(42));
+
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 TEST_F(TestGtTask, collectPropertyConnectionsIncludesDirectAndNestedConnections)
@@ -385,6 +389,8 @@ TEST_F(TestGtTask, handleRunnableFinishedMarksWarningFinishedWhenChildWarns)
 
 TEST_F(TestGtTask, monitoringDataCanBeStoredAndCleared)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
+
     TestableGtTask task;
     GtMonitoringDataSet data;
     GtMonitoringData row;
@@ -398,4 +404,6 @@ TEST_F(TestGtTask, monitoringDataCanBeStoredAndCleared)
     task.clearMonitoringData();
 
     EXPECT_EQ(task.monitoringDataSize(), 0);
+
+    GT_SUPPRESS_DEPRECATED_END
 }
