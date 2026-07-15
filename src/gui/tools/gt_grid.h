@@ -26,6 +26,11 @@ class QPainter;
 class QGraphicsView;
 class GtRuler;
 
+struct GtGridSpacing
+{
+    double hSpacing = 0.0, vSpacing = 0.0;
+};
+
 class GT_GUI_EXPORT GtGrid : public QObject
 {
     Q_OBJECT
@@ -50,6 +55,12 @@ public:
     explicit GtGrid(QObject* parent = nullptr);
     ~GtGrid();
 
+    void setSpacing(unsigned value)
+    {
+        setHSpacing(value);
+        setVSpacing(value);
+    }
+
     /**
      * @brief Sets the spacing between horizontal (major) grid lines
      * @param value Spacing
@@ -71,24 +82,6 @@ public:
      * @return Vertical spacing
      */
     unsigned vSpacing() const;
-
-    /** Sets whether the grid should be scaled or not.
-        @param val Grid scaling indicator */
-    void setScaleGrid(bool val);
-
-    /**
-     * @brief Sets which axis should be shown
-     * @param show Whether to show the given axis
-     * @param orientation Which axis to show
-     */
-    void setVisibleAxis(bool show = true, VisibleAxis axis = Qt::Horizontal | Qt::Vertical);
-
-    /**
-     * @brief Returns which axis is shown, if any.
-     * @return which axis is visible
-     */
-    VisibleAxis visibleAxis() const;
-
     /**
      * @brief Sets whether the minor grid should be shown.
      * @param Show show minor grid
@@ -122,6 +115,27 @@ public:
      * @return Minor vertical line count
      */
     unsigned minorVLineCount() const;
+
+    GtGridSpacing scaledMajorSpacing() const;
+
+    GtGridSpacing scaledMinorSpacing() const;
+
+    /** Sets whether the grid should be scaled or not.
+        @param val Grid scaling indicator */
+    void setScaleGrid(bool val);
+
+    /**
+     * @brief Sets which axis should be shown
+     * @param show Whether to show the given axis
+     * @param orientation Which axis to show
+     */
+    void setVisibleAxis(bool show = true, VisibleAxis axis = Qt::Horizontal | Qt::Vertical);
+
+    /**
+     * @brief Returns which axis is shown, if any.
+     * @return which axis is visible
+     */
+    VisibleAxis visibleAxis() const;
 
     /**
      * @brief Sets the major grid line color
@@ -161,7 +175,7 @@ public:
      *  @param painter QPainter pointer
      *  @param rect Scene rect
      */
-    virtual void paint(QPainter& painter, const QRectF& rect, PaintOptions options = PaintAll) const;
+    virtual void paint(QPainter& painter, const QRectF& rect, PaintOptions options = PaintAll);
 
     /** computeTopLeftGridPoint
      * @param p
@@ -292,7 +306,10 @@ public:
      *  @param show Whether to show the axis
      */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setVisibleAxis` instead.")
-    void setShowAxis(bool show);
+    void setShowAxis(bool show)
+    {
+        setVisibleAxis(show, Qt::Horizontal);
+    }
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setLineColor` instead.")
     void setHorizontalGridLineColor(const QColor& color)

@@ -12,36 +12,55 @@
 #ifndef GTD_RULER_H
 #define GTD_RULER_H
 
-#include <Qt>
-#include <QFrame>
-#include <QPainterPath>
 #include "gt_gui_exports.h"
+#include "gt_grid.h"
+#include "gt_version.h"
 
-class GtGrid;
+#include <QWidget>
+#include <QPainterPath>
 
+class QGraphicsView;
+struct GtGridSpacing;
 class GT_GUI_EXPORT GtRuler : public QWidget
 {
     Q_OBJECT
 
 public:
     explicit GtRuler(Qt::Orientation o = Qt::Horizontal);
+    ~GtRuler() override;
 
     /** Returns Buffer.
         @return Buffer */
-    QImage& buffer();
+    QPixmap& buffer();
 
     /** Returns ruler orientation.
         @return Ruler orientation */
-    Qt::Orientation orientation();
+    Qt::Orientation orientation() const;
 
     /** Returns custom ruler font.
         @return Ruler font */
-    QFont getFont() const;
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `font()` instead")
+    QFont getFont() const
+    {
+        return font();
+    }
 
     /** Returns size of given string.
         @param str String
         @return Size of string */
-    QSize getFontSizeHint(const QString& str) const;
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `textSizeHint(str)` instead")
+    QSize getFontSizeHint(const QString& str) const
+    {
+        return textSizeHint(str);
+    }
+    /**
+     * @brief Returns the size of the given string
+     * @param str String
+     * @return Size of the string
+     */
+    QSize textSizeHint(const QString& str) const;
+
+    void setGridSpacing(GtGridSpacing spacing);
 
     /** Sets cursor postion to given point.
         @param pos New cursor position */
@@ -49,11 +68,15 @@ public:
 
     /** Returns whether ruler needs a repaint or not.
         @return Repaint indicator */
-    bool needsRepaint();
+    bool needsRepaint() const { return true; }
+    bool needsRepaint(QRectF sceneRect, QTransform sceneTransform) const;
 
     /** Sets repaint indicator.
         @param val New repaint indicator */
-    void setNeedsRepaint(bool val);
+    void setNeedsRepaint(bool val) { if (val) invalidateCache(); }
+    void invalidateCache();
+
+    virtual void paint(QRectF sceneRect, QTransform sceneTransform);
 
 protected:
     /** Overloaded Paint Function
@@ -66,20 +89,9 @@ protected:
     void resizeEvent(QResizeEvent* e) override;
 
 private:
-    /// Orientation indicator
-    Qt::Orientation m_orientation;
 
-    /// Buffer
-    QImage m_buffer;
-
-    /// Cursor arrow
-    QPainterPath m_cursorArrow;
-
-    /// Cursor position
-    QPoint m_cursorPos;
-
-    /// Repaint indicator
-    bool m_needsRepaint;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
 
 #endif // GTD_RULER_H

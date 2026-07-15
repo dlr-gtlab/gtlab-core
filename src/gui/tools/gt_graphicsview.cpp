@@ -16,7 +16,7 @@
 #include "gt_ruler.h"
 #include "gt_logging.h"
 
-//#include "gtd_settings.h"
+#include <QGraphicsScene>
 
 struct GtGraphicsView::Impl
 {
@@ -32,11 +32,17 @@ struct GtGraphicsView::Impl
     /// Min zoom factor
     double minZoom = 0.05;
 
+    /// Grid
+    QPointer<GtGrid> grid;
+
+    /// Horizontal ruler
+    QPointer<GtRuler> hRuler;
+
+    /// Vertical ruler
+    QPointer<GtRuler> vRuler;
+
     /// Number of scheduled scalings
     int numsScalings = 0;
-
-    /// Grid
-    QPointer<GtGrid> grid = nullptr;
 
     /// Switch for "Snap to Grid" Mode
     bool snap = false;
@@ -106,34 +112,22 @@ GtGraphicsView::setGrid(GtGrid* grid)
     if (grid)
     {
         grid->setParent(this);
-        connect(grid, SIGNAL(update()), viewport(), SLOT(update()));
+        connect(grid, &GtGrid::visibilityChanged, this, [this](){
+            if (viewport()) viewport()->update();
+        });
     }
 }
 
 void
 GtGraphicsView::setHorizontalRuler(GtRuler* ruler)
 {
-    if (!pimpl->grid)
-    {
-        gtWarning().verbose().nospace()
-                << __FUNCTION__ << ": " << tr("Could not set Ruler. Set grid first!");
-        return;
-    }
-
-    pimpl->grid->setHorizontalRuler(ruler);
+    pimpl->hRuler = ruler;
 }
 
 void
 GtGraphicsView::setVerticalRuler(GtRuler* ruler)
 {
-    if (!pimpl->grid)
-    {
-        gtWarning().verbose().nospace()
-                << __FUNCTION__ << ": " << tr("Could not set Ruler. Set grid first!");
-        return;
-    }
-
-    pimpl->grid->setVerticalRuler(ruler);
+    pimpl->vRuler = ruler;
 }
 
 void
@@ -166,7 +160,24 @@ GtGraphicsView::drawBackground(QPainter* painter, const QRectF& rect)
     if (pimpl->grid)
     {
         pimpl->grid->paint(*painter, rect);
+        auto spacing = pimpl->grid->scaledMajorSpacing();
+        if (pimpl->vRuler)
+        {
+            pimpl->vRuler->setGridSpacing(spacing);
+            pimpl->vRuler->paint(rect, viewportTransform(), *this);
+        }
+        if (pimpl->hRuler)
+        {
+            pimpl->hRuler->setGridSpacing(spacing);
+            pimpl->hRuler->paint(rect, viewportTransform(), *this);
+        }
     }
+}
+
+void
+GtGraphicsView::paintEvent(QPaintEvent* event)
+{
+    QGraphicsView::paintEvent(event);
 }
 
 void
@@ -174,12 +185,17 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
 {
     QGraphicsView::mouseMoveEvent(mouseEvent);
 
+    if (!scene()) return;
+
     QPointF p = mapToScene(mouseEvent->pos());
 
     emit mousePositionChanged(p);
 
-    if (pimpl->snap && (scene()->selectedItems().size() == 1) &&
-            scene()->mouseGrabberItem())
+    if (pimpl->vRuler) pimpl->vRuler->setCursorPosition(mapFromGlobal(QCursor::pos()));
+    if (pimpl->hRuler) pimpl->hRuler->setCursorPosition(mapFromGlobal(QCursor::pos()));
+
+    if (pimpl->snap && (scene()->mouseGrabberItem() &&
+                        scene()->selectedItems().size() == 1))
     {
         snapItemToGrid(scene()->mouseGrabberItem(), mouseEvent->pos());
         return;

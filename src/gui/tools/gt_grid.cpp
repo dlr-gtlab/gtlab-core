@@ -9,14 +9,14 @@
  *		  Tel.: +49 2203 601 2907
  */
 
-#include <QPainter>
 #include "gt_finally.h"
 #include "gt_grid.h"
 #include "gt_colors.h"
+#include "gt_logging.h"
 
+#include <QPainter>
+GT_DEPRECATED_REMOVED_IN(2, 2, "QGraphicsView include not needed");
 #include <QGraphicsView>
-#include <QPointer>
-#include <QResizeEvent>
 
 #include <cmath>
 
@@ -43,6 +43,10 @@ struct GtGrid::Impl
     /// Axis color
     QColor axisColor = gt::gui::color::gridAxis();
 
+    QTransform m_cachedTransform{};
+
+    GtGridSpacing config{};
+
     /// Axis indicator
     VisibleAxis visibleAxis{};
 
@@ -58,11 +62,12 @@ struct GtGrid::Impl
     /// Grid scale indicator
     bool scaleGrid = true;
 
-    double getScaledGrid(Qt::Orientation orientation)
+    double getScaledGrid(Qt::Orientation orientation) const
     {
         auto pow2 = [](double x){ return x * x; };
 
         double length = orientation == Qt::Horizontal ? hspacing : vspacing;
+        return length;
 
         if (scaleGrid && gridFactor != 0)
         {
@@ -78,7 +83,7 @@ struct GtGrid::Impl
     }
 
     /// helper class that renders multiple lines with few draw calls
-    template <unsigned Capacity = 200>
+    template <unsigned Capacity>
     class BufferedLineRender
     {
     public:
@@ -105,102 +110,106 @@ struct GtGrid::Impl
 
     private:
         QPainter* m_painter{};
-        QLineF m_lines[Capacity];
         unsigned m_count{0};
+        QLineF m_lines[Capacity];
     };
 
-    template <int NLinesPrealloc>
-    void paintGridLinesImpl(const QRectF& sceneRect,
+    template <unsigned N>
+    static void paintGridLinesImpl(const QRectF& sceneRect,
                             double vLineDistance,
                             double hLineDistance,
-                            const QColor& lineColor,
-                            QPainter& painter)
+                            BufferedLineRender<N>& buffer)
     {
         assert(vLineDistance > 0);
         assert(hLineDistance > 0);
 
-        QPen pen = painter.pen();
-        pen.setCosmetic(true);
-        pen.setColor(lineColor);
-        painter.setPen(pen);
+        double bottom  = sceneRect.bottom();
+        double right = sceneRect.right();
+        double left = sceneRect.left();
+        double top = sceneRect.top();
 
-        double firstVLineXPos = int64_t(sceneRect.left()) -
-                                (int64_t(sceneRect.left()) %
-                                 static_cast<int64_t>(std::ceil(vLineDistance)));
-        double firstHLineYPos = int64_t(sceneRect.top()) -
-                                (int64_t(sceneRect.top()) %
-                                 static_cast<int64_t>(std::ceil(hLineDistance)));
+        double leftStart = std::floor(left / vLineDistance) * vLineDistance;
+        double topStart = std::floor(top / hLineDistance) * hLineDistance;
 
-        BufferedLineRender<NLinesPrealloc> hBuffer{painter};
-        BufferedLineRender<NLinesPrealloc> vBuffer{painter};
-
-        int numHLines = static_cast<int>(std::ceil((sceneRect.bottom() - firstHLineYPos) / hLineDistance));
-        for (int i = 0; i < numHLines; ++i)
+        for (double x = leftStart; x < right; x += vLineDistance)
         {
-            double y = firstHLineYPos + i * hLineDistance;
-            hBuffer.draw(QLineF(sceneRect.left(), y, sceneRect.right(), y));
+            buffer.draw(QLineF{x, top, x, bottom});
         }
-
-        int numVLines = static_cast<int>(std::ceil((sceneRect.right() - firstVLineXPos) / vLineDistance));
-        for (int i = 0; i < numVLines; ++i)
+        for (double y = topStart; y < bottom; y += hLineDistance)
         {
-            double x = firstVLineXPos + i * vLineDistance;
-            vBuffer.draw(QLineF(x, sceneRect.top(), x, sceneRect.bottom()));
+            buffer.draw(QLineF{left, y, right, y});
         }
     }
 
     void paintGridLines(QPainter& painter, const QRectF& rect)
     {
-        constexpr double pixelDensityTooDenseBase = 10.0;
-        constexpr double pixelDensityTooSparseBase = 100.0;
+        constexpr double pixelDensityTooDenseBase = 20.0;
+        constexpr double pixelDensityTooSparseMinorBase = 100.0;
+        constexpr double pixelDensityTooSparseBase = 200.0;
         constexpr int minLod = -3;
         constexpr int maxLod =  3;
 
-        double spacing = 1; //std::min(hspacing, vspacing) / 10;
-        double pixelDensityTooDense  = pixelDensityTooDenseBase  * spacing;
-        double pixelDensityTooSparse = pixelDensityTooSparseBase * spacing;
+        const double pixelsPerSceneUnit = std::abs(painter.worldTransform().m11());
 
-        double baseHSpacing = getScaledGrid(Qt::Horizontal);
-        double baseVSpacing = getScaledGrid(Qt::Vertical);
-
-        double pixelsPerSceneUnit = std::abs(painter.worldTransform().m11());
-
-        int lod = 0;
-        double majorHSpacing = baseHSpacing;
-        double majorVSpacing = baseVSpacing;
-        double majorPixelDistance = majorHSpacing * pixelsPerSceneUnit;
-
-        while (majorPixelDistance < pixelDensityTooDense && lod > minLod)
+        if (painter.worldTransform() != m_cachedTransform)
         {
-            lod--;
-            majorHSpacing *= 10;
-            majorVSpacing *= 10;
-            majorPixelDistance = majorHSpacing * pixelsPerSceneUnit;
+            m_cachedTransform = painter.worldTransform();
+
+            const double pixelDensityTooDense  = pixelDensityTooDenseBase;
+            const double pixelDensityTooSparse = pixelDensityTooSparseBase;
+
+            int lod = 0;
+            double majorHSpacing = getScaledGrid(Qt::Horizontal);
+            double majorVSpacing = getScaledGrid(Qt::Vertical);
+            double majorPixelDistance = majorHSpacing * pixelsPerSceneUnit;
+
+            while (majorPixelDistance < pixelDensityTooDense && lod > minLod)
+            {
+                lod--;
+                majorHSpacing *= 10;
+                majorVSpacing *= 10;
+                majorPixelDistance = majorHSpacing * pixelsPerSceneUnit;
+            }
+
+            while (majorPixelDistance > pixelDensityTooSparse && lod < maxLod)
+            {
+                lod++;
+                majorHSpacing /= 10;
+                majorVSpacing /= 10;
+                majorPixelDistance = majorHSpacing * pixelsPerSceneUnit;
+            }
+
+            config.hSpacing = majorHSpacing;
+            config.vSpacing = majorVSpacing;
         }
 
-        while (majorPixelDistance > pixelDensityTooSparse && lod < maxLod)
+        const double pixelDensityTooSparseMinor = pixelDensityTooSparseMinorBase;
+        const double majorPixelDistance = pixelsPerSceneUnit * config.hSpacing;
+
+//        gtDebug() << majorPixelDistance << pixelDensityTooSparseMinor << pixelsPerSceneUnit << config.hSpacing;
+
+        bool showMinor = showMinorGrid && (majorPixelDistance >= pixelDensityTooSparseMinor);
+
+        BufferedLineRender<500> buffer{painter};
+        QPen pen = painter.pen();
+        pen.setCosmetic(true);
+
+        if (showMinor)
         {
-            lod++;
-            majorHSpacing *= 0.1;
-            majorVSpacing *= 0.1;
-            majorPixelDistance = majorHSpacing * pixelsPerSceneUnit;
+            pen.setColor(minorLineColor);
+            painter.setPen(pen);
+
+            double minorHSpacing = config.hSpacing / minorHLineCount;
+            double minorVSpacing = config.vSpacing / minorVLineCount;
+
+            paintGridLinesImpl(rect, minorHSpacing, minorVSpacing, buffer);
+            buffer.flush();
         }
 
-//        bool showMinor = showMinorGrid && (majorPixelDistance >= pixelDensityTooDense);
+        pen.setColor(majorLineColor);
+        painter.setPen(pen);
 
-//        if (showMinor)
-//        {
-//            double minorHSpacing = majorHSpacing / minorHLineCount;
-//            double minorVSpacing = majorVSpacing / minorVLineCount;
-
-//            paintGridLinesImpl<1000>(rect,
-//                                     minorHSpacing, minorVSpacing,
-//                                     minorLineColor, painter);
-//        }
-
-        paintGridLinesImpl<200>(rect,
-                                majorHSpacing, majorVSpacing,
-                                majorLineColor, painter);
+        paintGridLinesImpl(rect, config.hSpacing, config.vSpacing, buffer);
     }
 
     void paintAxis(QPainter& painter, const QRectF& rect)
@@ -217,10 +226,10 @@ struct GtGrid::Impl
             switch (axis)
             {
             case Qt::Vertical:
-                painter.drawLine(rect.left(), 0.0, rect.right(), 0.0);
+                painter.drawLine(0.0, rect.top() + 1, 0.0, rect.bottom() - 1);
                 break;
             case Qt::Horizontal:
-                painter.drawLine(0.0, rect.top(), 0.0, rect.bottom());
+                painter.drawLine(rect.left() - 1, 0.0, rect.right() + 1, 0.0);
                 break;
             }
         }
@@ -237,7 +246,7 @@ GtGrid::GtGrid(QObject* parent) :
     pimpl(std::make_unique<Impl>())
 {
     GT_REMOVAL_GUARD(2, 2, "remove this connection");
-    connect(this, &GtGrid::visibilityChanged, this, &GtGrid::update);
+    connect(this, &GtGrid::visibilityChanged, this, [this](){ emit update(); });
 }
 
 GtGrid::~GtGrid() = default;
@@ -266,35 +275,25 @@ GtGrid::vSpacing() const
     return pimpl->vspacing;
 }
 
+GtGridSpacing
+GtGrid::scaledMajorSpacing() const
+{
+    return pimpl->config;
+}
+
+GtGridSpacing
+GtGrid::scaledMinorSpacing() const
+{
+    return GtGridSpacing{
+        pimpl->config.hSpacing / pimpl->minorHLineCount,
+        pimpl->config.vSpacing / pimpl->minorVLineCount
+    };
+}
+
 void
 GtGrid::setScaleGrid(bool val)
 {
     pimpl->scaleGrid = val;
-}
-
-void
-GtGrid::setShowAxis(bool show)
-{
-    setVisibleAxis(show, Qt::Horizontal);
-}
-
-void
-GtGrid::setVisibleAxis(bool show, VisibleAxis axis)
-{
-    if (axis.testFlag(Qt::Vertical))
-    {
-        pimpl->visibleAxis.setFlag(Qt::Vertical, show);
-    }
-    if (axis.testFlag(Qt::Horizontal))
-    {
-        pimpl->visibleAxis.setFlag(Qt::Horizontal, show);
-    }
-}
-
-GtGrid::VisibleAxis
-GtGrid::visibleAxis() const
-{
-    return pimpl->visibleAxis;
 }
 
 void
@@ -334,6 +333,25 @@ GtGrid::minorVLineCount() const
 }
 
 void
+GtGrid::setVisibleAxis(bool show, VisibleAxis axis)
+{
+    if (axis.testFlag(Qt::Vertical))
+    {
+        pimpl->visibleAxis.setFlag(Qt::Vertical, show);
+    }
+    if (axis.testFlag(Qt::Horizontal))
+    {
+        pimpl->visibleAxis.setFlag(Qt::Horizontal, show);
+    }
+}
+
+GtGrid::VisibleAxis
+GtGrid::visibleAxis() const
+{
+    return pimpl->visibleAxis;
+}
+
+void
 GtGrid::setLineColor(const QColor& color)
 {
     pimpl->majorLineColor = color;
@@ -370,7 +388,7 @@ GtGrid::axisColor() const
 }
 
 void
-GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options) const
+GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
 {
     if (!rect.isValid()) return;
 

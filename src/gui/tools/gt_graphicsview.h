@@ -116,6 +116,8 @@ public slots:
 
     void drawBackground(QPainter *painter, const QRectF &rect) override;
 
+    void paintEvent(QPaintEvent* event) override;
+
     void mouseMoveEvent(QMouseEvent* mouseEvent) override;
 
     /** Sets view scale to given factor.
