@@ -22,27 +22,25 @@ struct GtRuler::Impl
 {
     Impl(Qt::Orientation o) : orientation{o} {}
 
-    QFont font;
-
-    GtGridSpacing spacing;
-
-    /// Orientation indicator
-    Qt::Orientation orientation;
-
-    /// Cache for rendered ruler
+    /// Cache for rendered ruler (native format for QPainter)
     QPixmap cache{20, 20};
 
-    /// Cursor arrow
+    /// Cursor arrow path
     QPainterPath cursorArrow;
 
     /// Cursor position
     QPoint cursorPos{};
 
-    /// Repaint indicator
+    /// cached view transform
     QTransform cachedTransform;
 
+    /// cached scene rect
     QRectF cachedRect;
 
+    /// Orientation indicator
+    Qt::Orientation orientation;
+
+    /// Indicator whether the values of the axis should be flipped
     bool axisFlipped = false;
 };
 
@@ -158,93 +156,82 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
     painter.setPen(gt::gui::color::text());
     painter.setFont(font());
 
-    double bottom  = backgroundRect.bottom();
-    double right = backgroundRect.right();
-    double left = backgroundRect.left();
-    double top = backgroundRect.top();
     constexpr int tickLength = 5;
+    constexpr int tickPadding = 1;
 
-    if (orientation() == Qt::Horizontal)
+    double left{}, right{};
+    double lineDistance{};
+
+    int height{};
+
+    double mult = isAxisFlipped() ? -1 : 1;
+
+    QTransform adjustedTransform;
+
+    switch (orientation())
     {
-        double hLineDistance = spacing.hSpacing;
-        assert(hLineDistance > 0);
+    case Qt::Horizontal:
+        lineDistance = spacing.hSpacing;
+        left   = backgroundRect.left();
+        right  = backgroundRect.right();
+        height = buffer().height();
+        adjustedTransform = viewportTransform;
+        break;
 
-        double leftStart = std::floor(left / hLineDistance) * hLineDistance;
+    case Qt::Vertical:
+        painter.rotate(90); // rotating to operate on pixmap as if it is horizontal
+        painter.translate(buffer().height(), 0); // move to end of pixmap
+        painter.scale(-1, -1); // flip 180 degrees (so that the text is rotated correctly)
 
-        const int height = buffer().height();
+        lineDistance = spacing.vSpacing;
+        left   = backgroundRect.top();
+        right  = backgroundRect.bottom();
+        height = buffer().width();
 
-        // calc largest tick once
-        const double tmpMaxValue = std::max(std::abs(leftStart), std::abs(right));
-        const QString tmpTick = QString::number(-std::ceil(tmpMaxValue) + hLineDistance);
-        const QSizeF tmpSize = textSizeHint(tmpTick);
-        const QRectF textRect{
-            -tmpSize.width() * 0.5, height - tickLength - 1 - tmpSize.height(),
-            tmpSize.width(), tmpSize.height()
-        };
+        // NOTE: black magic
+        // (x,y) -> (y,x)
+        const QTransform swap{0, 1, 1, 0, 0, 0};
+        // (x,y) -> (offset-x, y)
+        const QTransform toOffsetX{-1, 0, 0, 1, static_cast<double>(buffer().height()), 0};
 
-        // skip tick labels if they overlap
-        const QPointF tmpStart = viewportTransform.map(QPointF{leftStart, 0});
-        const QPointF tmpEnd   = viewportTransform.map(QPointF{leftStart + hLineDistance, 0});
-        const double tickPosDistance = tmpEnd.x() - tmpStart.x();
-        const unsigned stepSize = std::max(1, static_cast<int>(std::ceil(textRect.width() / tickPosDistance)));
-        hLineDistance *= stepSize;
-
-        // offset start-tick to make sure 0 tick is always visbile
-        double rem = std::remainderl(leftStart, hLineDistance);
-        leftStart -= rem;
-
-        for (double x = leftStart; x < right; x += hLineDistance)
-        {
-            const QPointF point = viewportTransform.map(QPointF{x, 0});
-            painter.drawLine(point.x(), height - tickLength, point.x(), height);
-            painter.drawText(textRect.translated(point.x(), 0),
-                             Qt::AlignTop | Qt::AlignHCenter,
-                             QString::number(isAxisFlipped() ? -x : x));
-        }
+        adjustedTransform  = swap;              // (pos, 0) -> (0, pos)
+        adjustedTransform *= viewportTransform; // map in scene space
+        adjustedTransform *= swap;              // swap result back
+        adjustedTransform *= toOffsetX;         // turn resulting y into offset-relative x
+        break;
     }
-    else
+
+    assert(lineDistance > 0);
+    double leftStart = std::floor(left / lineDistance) * lineDistance;
+
+    // calc largest tick once to determine text rect
+    const double tmpMaxValue = std::max(std::abs(leftStart), std::abs(right));
+    const QString tmpTick = QString::number(-std::ceil(tmpMaxValue) + lineDistance);
+    const QSizeF tmpSize = textSizeHint(tmpTick);
+    const QRectF textRect{
+        -tmpSize.width() * 0.5, height - tickLength - tickPadding - tmpSize.height(),
+        tmpSize.width(), tmpSize.height()
+    };
+
+    // skip tick labels if they overlap
+    const QPointF tmpStart = viewportTransform.map(QPointF{leftStart, 0});
+    const QPointF tmpEnd   = viewportTransform.map(QPointF{leftStart + lineDistance, 0});
+    const double tickPosDistance = tmpEnd.x() - tmpStart.x();
+    assert(tickPosDistance > 0);
+    const unsigned stepSize = std::max(1, static_cast<int>(std::ceil(textRect.width() / tickPosDistance)));
+    lineDistance *= stepSize;
+
+    // offset start-tick to make sure 0 tick is always vissbile
+    double rem = std::remainderl(leftStart, lineDistance);
+    leftStart -= rem;
+
+    for (double pos = leftStart; pos < right; pos += lineDistance)
     {
-        painter.rotate(90);
-        painter.translate(buffer().height(), 0);
-        painter.scale(-1, -1);
-
-        double vLineDistance = spacing.vSpacing;
-        assert(vLineDistance > 0);
-
-        double topStart = std::floor(top / vLineDistance) * vLineDistance;
-
-        // view on buffer is flipped!
-        const int width  = buffer().height();
-        const int height = buffer().width();
-
-        // calc largest tick once
-        const double tmpMaxValue = std::max(std::abs(topStart), std::abs(bottom));
-        const QString tmpTick = QString::number(-std::ceil(tmpMaxValue) + vLineDistance);
-        const QSizeF tmpSize = textSizeHint(tmpTick);
-        const QRectF textRect{
-            -tmpSize.width() * 0.5, height - tickLength - 1 - tmpSize.height(),
-            tmpSize.width(), tmpSize.height()
-        };
-
-        // skip tick labels if they overlap
-        const QPointF tmpStart = viewportTransform.map(QPointF{topStart, 0});
-        const QPointF tmpEnd   = viewportTransform.map(QPointF{topStart + vLineDistance, 0});
-        const double tickPosDistance = tmpEnd.x() - tmpStart.x();
-        const unsigned stepSize = std::max(1, static_cast<int>(std::ceil(textRect.width() / tickPosDistance)));
-        vLineDistance *= stepSize;
-
-        // offset start-tick to make sure 0 tick is always visbile
-        double rem = std::remainderl(topStart, vLineDistance);
-        topStart -= rem;
-
-        for (double y = topStart; y < bottom; y += vLineDistance)
-        {
-            const QPointF point = viewportTransform.map(QPointF{0, y}).transposed();
-            painter.drawLine(width - point.x(), height - tickLength, width - point.x(), height);
-            painter.drawText(textRect.translated(width - point.x(), 0),
-                             Qt::AlignTop | Qt::AlignHCenter,
-                             QString::number(isAxisFlipped() ? -y : y));
-        }
+        const QPointF point = adjustedTransform.map(QPointF{pos, 0});
+        painter.drawLine(point.x(), height - tickLength, point.x(), height);
+        painter.drawText(textRect.translated(point.x(), 0),
+                         Qt::AlignTop | Qt::AlignHCenter,
+                         QString::number(pos * mult));
     }
 
     update();

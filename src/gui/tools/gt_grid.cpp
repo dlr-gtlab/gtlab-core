@@ -21,16 +21,16 @@ GT_DEPRECATED_REMOVED_IN(2, 2, "QGraphicsView include not needed");
 struct GtGrid::Impl
 {
     /// Grid horizontal spacing
-    unsigned hspacing = 100;
+    unsigned hSpacing = 100;
 
     /// Grid vertical spacing
-    unsigned vspacing = 100;
+    unsigned vSpacing = 100;
 
     /// Grid horizontal lines inbetween major horizontal lines
-    unsigned minorHLineCount = 10;
+    unsigned hSubdivisons = 10;
 
     /// Grid vertical lines inbetween major vertical lines
-    unsigned minorVLineCount = 10;
+    unsigned vSubdivisions = 10;
 
     /// Major grid line color
     QColor majorLineColor = gt::gui::color::gridLine();
@@ -64,7 +64,7 @@ struct GtGrid::Impl
     {
         auto pow2 = [](double x){ return x * x; };
 
-        double length = orientation == Qt::Horizontal ? hspacing : vspacing;
+        double length = orientation == Qt::Horizontal ? hSpacing : vSpacing;
         return length;
 
         if (scaleGrid && gridFactor != 0)
@@ -184,8 +184,6 @@ struct GtGrid::Impl
         const double pixelDensityTooSparseMinor = pixelDensityTooSparseMinorBase;
         const double majorPixelDistance = pixelsPerSceneUnit * config.hSpacing;
 
-//        gtDebug() << majorPixelDistance << pixelDensityTooSparseMinor << pixelsPerSceneUnit << config.hSpacing;
-
         bool showMinor = showMinorGrid && (majorPixelDistance >= pixelDensityTooSparseMinor);
 
         BufferedLineRender<500> buffer{painter};
@@ -197,8 +195,8 @@ struct GtGrid::Impl
             pen.setColor(minorLineColor);
             painter.setPen(pen);
 
-            double minorHSpacing = config.hSpacing / minorHLineCount;
-            double minorVSpacing = config.vSpacing / minorVLineCount;
+            double minorHSpacing = config.hSpacing / hSubdivisons;
+            double minorVSpacing = config.vSpacing / vSubdivisions;
 
             paintGridLinesImpl(rect, minorHSpacing, minorVSpacing, buffer);
             buffer.flush();
@@ -252,25 +250,25 @@ GtGrid::~GtGrid() = default;
 void
 GtGrid::setHSpacing(unsigned value)
 {
-    pimpl->hspacing = value;
+    pimpl->hSpacing = value;
 }
 
 unsigned
 GtGrid::hSpacing() const
 {
-    return pimpl->hspacing;
+    return pimpl->hSpacing;
 }
 
 void
 GtGrid::setVSpacing(unsigned value)
 {
-    pimpl->vspacing = value;
+    pimpl->vSpacing = value;
 }
 
 unsigned
 GtGrid::vSpacing() const
 {
-    return pimpl->vspacing;
+    return pimpl->vSpacing;
 }
 
 GtGridSpacing
@@ -283,8 +281,8 @@ GtGridSpacing
 GtGrid::scaledMinorSpacing() const
 {
     return GtGridSpacing{
-        pimpl->config.hSpacing / pimpl->minorHLineCount,
-        pimpl->config.vSpacing / pimpl->minorVLineCount
+                         pimpl->config.hSpacing / pimpl->hSubdivisons,
+        pimpl->config.vSpacing / pimpl->vSubdivisions
     };
 }
 
@@ -307,27 +305,27 @@ GtGrid::showMinorGrid() const
 }
 
 void
-GtGrid::setMinorHLineCount(unsigned count)
+GtGrid::setHSubdivions(unsigned count)
 {
-    pimpl->minorHLineCount = std::max(count, 1u);
+    pimpl->hSubdivisons = std::max(count, 1u);
 }
 
 unsigned
-GtGrid::minorHLineCount() const
+GtGrid::hSubdivions() const
 {
-    return pimpl->minorHLineCount;
+    return pimpl->hSubdivisons;
 }
 
 void
-GtGrid::setMinorVLineCount(unsigned count)
+GtGrid::setVSubdivions(unsigned count)
 {
-    pimpl->minorVLineCount = std::max(count, 1u);
+    pimpl->vSubdivisions = std::max(count, 1u);
 }
 
 unsigned
-GtGrid::minorVLineCount() const
+GtGrid::vSubdivions() const
 {
-    return pimpl->minorVLineCount;
+    return pimpl->vSubdivisions;
 }
 
 void

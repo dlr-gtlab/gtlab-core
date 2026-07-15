@@ -94,26 +94,26 @@ public:
     bool showMinorGrid() const;
 
     /**
-     * @brief Sets the minor horizontal line count
+     * @brief Sets the minor horizontal subdivions
      */
-    void setMinorHLineCount(unsigned count);
+    void setHSubdivions(unsigned count);
 
     /**
-     * @brief Sets the minor vertical line count
+     * @brief Sets the minor vertical subdivions
      */
-    void setMinorVLineCount(unsigned count);
+    void setVSubdivions(unsigned count);
 
     /**
-     * @brief Returns the horizontal line count
-     * @return Minor horizontal line count
+     * @brief Returns the horizontal subdivions
+     * @return Minor horizontal subdivions
      */
-    unsigned minorHLineCount() const;
+    unsigned hSubdivions() const;
 
     /**
-     * @brief Returns the vertical line count
-     * @return Minor vertical line count
+     * @brief Returns the vertical subdivions
+     * @return Minor vertical subdivions
      */
-    unsigned minorVLineCount() const;
+    unsigned vSubdivions() const;
 
     GtGridSpacing scaledMajorSpacing() const;
 
