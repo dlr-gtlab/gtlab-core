@@ -6,98 +6,17 @@
  *
  *  Created on: 15.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
- *		  Tel.: +49 2203 601 2907
  */
 
 #include "gt_ruler.h"
-#include "gt_finally.h"
-#include "gt_graphicsview.h"
 #include "gt_grid.h"
-#include "gt_guiutilities.h"
 #include "gt_colors.h"
 #include "gt_logging.h"
 
-
-//GtRulerBand::GtRulerBand(QGraphicsView *view, QObject *parent)
-//    : QObject(parent), pimpl->view(view) {}
-
-//void GtRulerBand::setConfig(const GridConfig& cfg)
-//{
-//    pimpl->config = cfg;
-//    invalidateCache();
-//}
-
-//void GtRulerBand::setBandThickness(int px)
-//{
-//    pimpl->thickness = px;
-//    invalidateCache();
-//}
-
-//void GtRulerBand::setFont(const QFont& font)
-//{
-//    pimpl->font = font; invalidateCache();
-//}
-
-//void GtRulerBand::invalidateCache()
-//{
-//    pimpl->cache = QPixmap();
-//}
-
-//void GtRulerBand::paint(QPainter& painter)
-//{
-//    const QSize vpSize = pimpl->view->viewport()->size();
-//    const QTransform vt = pimpl->view->viewportTransform();
-
-//    // Cache key: viewport size + full scene->viewport transform. This captures
-//    // BOTH pan and zoom in one comparison (transform() alone would miss
-//    // scroll-only pans, since scrolling doesn't change the transform itself).
-//    if (pimpl->cache.isNull() || vpSize != pimpl->cacheSize || vt != pimpl->cacheTransform)
-//    {
-//        regenerateCache(vpSize, vt);
-//    }
-//    painter.drawPixmap(0, 0, pimpl->cache);
-//}
-
-//void GtRulerBand::regenerateCache(const QSize& vpSize, const QTransform& vt)
-//{
-//    const qreal scale = viewScale(vt);
-//    const GridLevels levels = computeGridLevels(pimpl->config, scale);
-
-//    pimpl->cache = QPixmap(vpSize);
-//    pimpl->cache.fill(Qt::transparent);
-
-//    QPainter p(&pimpl->cache);
-//    p.setRenderHint(QPainter::Antialiasing);
-//    p.setFont(pimpl->font);
-
-//    const QRectF sceneRect = pimpl->view->mapToScene(pimpl->view->viewport()->rect()).boundingRect();
-//    const qreal spacing = levels.majorSpacing; // ruler labels track the major grid
-
-//    p.fillRect(QRect(0, 0, vpSize.width(), pimpl->thickness), pimpl->view->palette().window());
-//    p.fillRect(QRect(0, 0, pimpl->thickness, vpSize.height()), pimpl->view->palette().window());
-//    p.setPen(pimpl->view->palette().color(QPalette::WindowText));
-
-//    if (spacing > 0) {
-//        const qreal left = std::floor(sceneRect.left() / spacing) * spacing;
-//        for (qreal x = left; x < sceneRect.right(); x += spacing)
-//        {
-//            const int px = pimpl->view->mapFromScene(QPointF(x, 0)).x();
-//            p.drawLine(px, 0, px, pimpl->thickness);
-//            p.drawText(px + 2, pimpl->thickness - 2, QString::number(x));
-//        }
-
-//        const qreal top = std::floor(sceneRect.top() / spacing) * spacing;
-//        for (qreal y = top; y < sceneRect.bottom(); y += spacing)
-//        {
-//            const int py = pimpl->view->mapFromScene(QPointF(0, y)).y();
-//            p.drawLine(0, py, pimpl->thickness, py);
-//            p.drawText(pimpl->thickness + 2, py - 2, QString::number(y));
-//        }
-//    }
-
-//    pimpl->cacheSize = vpSize;
-//    pimpl->cacheTransform = vt;
-//}
+#include <QPainter>
+#include <QPainterPath>
+#include <QPaintEvent>
+#include <QResizeEvent>
 
 struct GtRuler::Impl
 {
@@ -122,7 +41,9 @@ struct GtRuler::Impl
     /// Repaint indicator
     QTransform cachedTransform;
 
-    QRectF cachedSceneRect;
+    QRectF cachedRect;
+
+    bool axisFlipped = false;
 };
 
 GtRuler::GtRuler(Qt::Orientation o) :
@@ -139,6 +60,7 @@ GtRuler::GtRuler(Qt::Orientation o) :
     }
     else
     {
+        flipAxis(true);
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     }
 
@@ -162,6 +84,18 @@ GtRuler::orientation() const
     return pimpl->orientation;
 }
 
+void
+GtRuler::flipAxis(bool flipped)
+{
+    pimpl->axisFlipped = flipped;
+}
+
+bool
+GtRuler::isAxisFlipped() const
+{
+    return pimpl->axisFlipped;
+}
+
 QSize
 GtRuler::textSizeHint(const QString& str) const
 {
@@ -176,12 +110,6 @@ GtRuler::textSizeHint(const QString& str) const
 }
 
 void
-GtRuler::setGridSpacing(GtGridSpacing spacing)
-{
-    pimpl->spacing = spacing;
-}
-
-void
 GtRuler::setCursorPosition(const QPoint& pos)
 {
     pimpl->cursorPos = pos;
@@ -189,62 +117,56 @@ GtRuler::setCursorPosition(const QPoint& pos)
 }
 
 bool
-GtRuler::needsRepaint(QRectF sceneRect, QTransform sceneTransform) const
+GtRuler::needsRepaint(QRectF backgroundRect, QTransform viewportTransform) const
 {
-    return pimpl->cache.isNull() ||
-           pimpl->cachedSceneRect != sceneRect ||
-           pimpl->cachedTransform == sceneTransform;
+    return pimpl->cachedRect != backgroundRect ||
+           pimpl->cachedTransform != viewportTransform;
 }
 
 void
-GtRuler::invalidateCache()
+GtRuler::invalidate()
 {
     pimpl->cachedTransform = {};
-    pimpl->cachedSceneRect = {};
+    pimpl->cachedRect = {};
 }
 
 void
-GtRuler::paint(QRectF sceneRect, QTransform sceneTransform, QGraphicsView& view)
+GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewportTransform)
 {
-//    if (!needsRepaint(sceneRect, sceneTransform))
-//    {
-//        return update();
-//    }
+    if (!needsRepaint(backgroundRect, viewportTransform))
+    {
+        return;
+    }
 
-    if (!sceneRect.isValid())
+    if (!backgroundRect.isValid())
     {
         gtWarning() << "Scene Rect Invalid!";
         return;
     }
 
-    if (pimpl->cache.isNull())
-    {
-        gtFatal() << "CACHE IS NULL!";
-        assert(false);
-        pimpl->cache = QPixmap(size());
-    }
+    assert(!pimpl->cache.isNull());
 
-    pimpl->cachedSceneRect = sceneRect;
-    pimpl->cachedTransform = sceneTransform;
+    pimpl->cachedRect = backgroundRect;
+    pimpl->cachedTransform = viewportTransform;
 
     QPainter painter{&pimpl->cache};
 
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setRenderHint(QPainter::TextAntialiasing, true);
+    painter.setRenderHint(QPainter::Antialiasing, false);
+    painter.setRenderHint(QPainter::TextAntialiasing, false);
     painter.fillRect(buffer().rect(), palette().color(QPalette::Window));
 
     painter.setPen(gt::gui::color::text());
     painter.setFont(font());
 
-    double bottom  = sceneRect.bottom();
-    double right = sceneRect.right();
-    double left = sceneRect.left();
-    double top = sceneRect.top();
+    double bottom  = backgroundRect.bottom();
+    double right = backgroundRect.right();
+    double left = backgroundRect.left();
+    double top = backgroundRect.top();
     constexpr int tickLength = 5;
 
     if (orientation() == Qt::Horizontal)
     {
-        double hLineDistance = pimpl->spacing.hSpacing;
+        double hLineDistance = spacing.hSpacing;
         assert(hLineDistance > 0);
 
         double leftStart = std::floor(left / hLineDistance) * hLineDistance;
@@ -261,10 +183,8 @@ GtRuler::paint(QRectF sceneRect, QTransform sceneTransform, QGraphicsView& view)
         };
 
         // skip tick labels if they overlap
-//        const QPointF tmpStart = view.mapFromScene(QPointF{leftStart, 0});
-//        const QPointF tmpEnd   = view.mapFromScene(QPointF{leftStart + hLineDistance, 0});
-        const QPointF tmpStart = sceneTransform.map(QPointF{leftStart, 0});
-        const QPointF tmpEnd   = sceneTransform.map(QPointF{leftStart + hLineDistance, 0});
+        const QPointF tmpStart = viewportTransform.map(QPointF{leftStart, 0});
+        const QPointF tmpEnd   = viewportTransform.map(QPointF{leftStart + hLineDistance, 0});
         const double tickPosDistance = tmpEnd.x() - tmpStart.x();
         const unsigned stepSize = std::max(1, static_cast<int>(std::ceil(textRect.width() / tickPosDistance)));
         hLineDistance *= stepSize;
@@ -275,24 +195,26 @@ GtRuler::paint(QRectF sceneRect, QTransform sceneTransform, QGraphicsView& view)
 
         for (double x = leftStart; x < right; x += hLineDistance)
         {
-//            const QPointF point = view.mapFromScene(QPointF{x, 0});
-            const QPointF point = sceneTransform.map(QPointF{x, 0});
+            const QPointF point = viewportTransform.map(QPointF{x, 0});
             painter.drawLine(point.x(), height - tickLength, point.x(), height);
             painter.drawText(textRect.translated(point.x(), 0),
                              Qt::AlignTop | Qt::AlignHCenter,
-                             QString::number(x));
+                             QString::number(isAxisFlipped() ? -x : x));
         }
     }
     else
     {
-        painter.translate(buffer().width(), 0);
         painter.rotate(90);
+        painter.translate(buffer().height(), 0);
+        painter.scale(-1, -1);
 
-        double vLineDistance = pimpl->spacing.vSpacing;
+        double vLineDistance = spacing.vSpacing;
         assert(vLineDistance > 0);
 
         double topStart = std::floor(top / vLineDistance) * vLineDistance;
 
+        // view on buffer is flipped!
+        const int width  = buffer().height();
         const int height = buffer().width();
 
         // calc largest tick once
@@ -300,15 +222,13 @@ GtRuler::paint(QRectF sceneRect, QTransform sceneTransform, QGraphicsView& view)
         const QString tmpTick = QString::number(-std::ceil(tmpMaxValue) + vLineDistance);
         const QSizeF tmpSize = textSizeHint(tmpTick);
         const QRectF textRect{
-            -tmpSize.width() * 0.5, height - tickLength + 1 - tmpSize.height(),
+            -tmpSize.width() * 0.5, height - tickLength - 1 - tmpSize.height(),
             tmpSize.width(), tmpSize.height()
         };
 
         // skip tick labels if they overlap
-//        const QPointF tmpStart = view.mapFromScene(QPointF{topStart, 0});
-//        const QPointF tmpEnd   = view.mapFromScene(QPointF{topStart + vLineDistance, 0});
-        const QPointF tmpStart = sceneTransform.map(QPointF{topStart, 0});
-        const QPointF tmpEnd   = sceneTransform.map(QPointF{topStart + vLineDistance, 0});
+        const QPointF tmpStart = viewportTransform.map(QPointF{topStart, 0});
+        const QPointF tmpEnd   = viewportTransform.map(QPointF{topStart + vLineDistance, 0});
         const double tickPosDistance = tmpEnd.x() - tmpStart.x();
         const unsigned stepSize = std::max(1, static_cast<int>(std::ceil(textRect.width() / tickPosDistance)));
         vLineDistance *= stepSize;
@@ -319,12 +239,11 @@ GtRuler::paint(QRectF sceneRect, QTransform sceneTransform, QGraphicsView& view)
 
         for (double y = topStart; y < bottom; y += vLineDistance)
         {
-//            const QPointF point = view.mapFromScene(QPointF{0, y}).transposed();
-            const QPointF point = sceneTransform.map(QPointF{0, y}).transposed();
-            painter.drawLine(point.x(), tickLength, point.x(), 0);
-            painter.drawText(textRect.translated(point.x(), 0),
+            const QPointF point = viewportTransform.map(QPointF{0, y}).transposed();
+            painter.drawLine(width - point.x(), height - tickLength, width - point.x(), height);
+            painter.drawText(textRect.translated(width - point.x(), 0),
                              Qt::AlignTop | Qt::AlignHCenter,
-                             QString::number(y));
+                             QString::number(isAxisFlipped() ? -y : y));
         }
     }
 
@@ -355,8 +274,8 @@ GtRuler::paintEvent(QPaintEvent* e)
 }
 
 void
-GtRuler::resizeEvent(QResizeEvent *e)
+GtRuler::resizeEvent(QResizeEvent* e)
 {
     pimpl->cache = pimpl->cache.scaled(e->size(), Qt::IgnoreAspectRatio);
-    invalidateCache();
+    invalidate();
 }

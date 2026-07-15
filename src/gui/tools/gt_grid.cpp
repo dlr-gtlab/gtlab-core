@@ -6,13 +6,11 @@
  *
  *  Created on: 17.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
- *		  Tel.: +49 2203 601 2907
  */
 
-#include "gt_finally.h"
 #include "gt_grid.h"
+#include "gt_finally.h"
 #include "gt_colors.h"
-#include "gt_logging.h"
 
 #include <QPainter>
 GT_DEPRECATED_REMOVED_IN(2, 2, "QGraphicsView include not needed");

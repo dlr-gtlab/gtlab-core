@@ -6,11 +6,10 @@
  *
  *  Created on: 17.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
- *		  Tel.: +49 2203 601 2907
  */
 
-#ifndef GTD_GRID_H
-#define GTD_GRID_H
+#ifndef GT_GRID_H
+#define GT_GRID_H
 
 #include "gt_gui_exports.h"
 #include "gt_version.h"
@@ -339,4 +338,4 @@ public:
     void setVerticalRuler(GtRuler* ruler) {}
 };
 
-#endif // GTD_GRID_H
+#endif // GT_GRID_H

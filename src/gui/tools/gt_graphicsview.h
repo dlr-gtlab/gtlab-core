@@ -6,11 +6,10 @@
  *
  *  Created on: 15.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
- *		  Tel.: +49 2203 601 2907
  */
 
-#ifndef GTD_GRAPHICSVIEW_H
-#define GTD_GRAPHICSVIEW_H
+#ifndef GT_GRAPHICSVIEW_H
+#define GT_GRAPHICSVIEW_H
 
 #include <gt_gui_exports.h>
 #include <gt_version.h>
@@ -37,13 +36,16 @@ public:
         /// Indicates that the scene, the view is currently assigned to,
         /// is deleted, if the view is deleted.
         /// (default for backwards compatibility,
-        ///  normally QGraphicsScene is NOT owned by QGraphicsView)
+        ///  normally QGraphicsScene is NOT owned by a QGraphicsView)
         OwnActiveScene = 1 << 0
     };
     using Options = QFlags<Option>;
 
-    explicit GtGraphicsView(QGraphicsScene* s, QWidget* parent = 0);
-    GtGraphicsView(QGraphicsScene* s, Options options, QWidget* parent = 0);
+    explicit GtGraphicsView(QGraphicsScene* s, QWidget* parent = 0) :
+        GtGraphicsView(s, OwnActiveScene, parent)
+    { }
+    explicit GtGraphicsView(QGraphicsScene* s, Options options, QWidget* parent = 0);
+    explicit GtGraphicsView(Options options, QWidget* parent = 0);
 
     ~GtGraphicsView() override;
 
@@ -89,7 +91,7 @@ public:
     void setScalePercentage(double percentage);
 
     /** Repaints ruler. */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "...?")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement planned.")
     void repaintRuler() {}
 
     /**
@@ -159,4 +161,4 @@ signals:
 
 };
 
-#endif // GTD_GRAPHICSVIEW_H
+#endif // GT_GRAPHICSVIEW_H

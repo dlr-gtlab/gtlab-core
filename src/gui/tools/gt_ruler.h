@@ -6,18 +6,18 @@
  *
  *  Created on: 15.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
- *		  Tel.: +49 2203 601 2907
  */
 
-#ifndef GTD_RULER_H
-#define GTD_RULER_H
+#ifndef GT_RULER_H
+#define GT_RULER_H
 
-#include "gt_gui_exports.h"
-#include "gt_grid.h"
-#include "gt_version.h"
+#include <gt_gui_exports.h>
+#include <gt_grid.h>
+#include <gt_version.h>
 
 #include <QWidget>
-#include <QPainterPath>
+
+#include <memory>
 
 class QGraphicsView;
 struct GtGridSpacing;
@@ -26,29 +26,59 @@ class GT_GUI_EXPORT GtRuler : public QWidget
     Q_OBJECT
 
 public:
-    explicit GtRuler(Qt::Orientation o = Qt::Horizontal);
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtRuler(Qt::Orientation)` instead.")
+    explicit GtRuler() : GtRuler(Qt::Horizontal) { }
+    explicit GtRuler(Qt::Orientation o);
     ~GtRuler() override;
 
-    /** Returns Buffer.
-        @return Buffer */
+    /**
+     * @brief Returns Buffer.
+     * @return Buffer
+     */
     QPixmap& buffer();
 
-    /** Returns ruler orientation.
-        @return Ruler orientation */
+    /**
+     * @brief Returns ruler orientation.
+     * @return Ruler orientation
+     */
     Qt::Orientation orientation() const;
 
-    /** Returns custom ruler font.
-        @return Ruler font */
+    /**
+     * @brief Sets the orientation of the ruler.
+     * @param o New orientation
+     */
+    void setOrientation(Qt::Orientation o);
+
+    /**
+     * @brief Sets whether the axis is flipped, meaing that x becomes -x.
+     * By default the axis is flipped for vertical rulers.
+     * @param flipped Whether to flip the axis.
+     */
+    void flipAxis(bool flipped = true);
+
+    /**
+     * @brief Returns whether the axis is flipped, meaing that x becomes -x.
+     * @return Is axis flipped.
+     */
+    bool isAxisFlipped() const;
+
+    /**
+     * @brief Returns custom ruler font.
+     * @return Ruler font
+     */
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `font()` instead")
     QFont getFont() const
     {
         return font();
     }
 
-    /** Returns size of given string.
-        @param str String
-        @return Size of string */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `textSizeHint(str)` instead")
+    /**
+     * @brief Returns size of given string.
+     * @param str String
+     * @return Size of string
+     */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `textSizeHint(QString)` instead")
     QSize getFontSizeHint(const QString& str) const
     {
         return textSizeHint(str);
@@ -60,30 +90,46 @@ public:
      */
     QSize textSizeHint(const QString& str) const;
 
-    void setGridSpacing(GtGridSpacing spacing);
-
-    /** Sets cursor postion to given point.
-        @param pos New cursor position */
+    /**
+     * @brief Sets cursor postion to given point.
+     * @param pos New cursor position
+     */
     void setCursorPosition(const QPoint& pos);
 
-    /** Returns whether ruler needs a repaint or not.
-        @return Repaint indicator */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `needsRepaint(QRectF, QTransform)` instead")
     bool needsRepaint() const { return true; }
-    bool needsRepaint(QRectF sceneRect, QTransform sceneTransform) const;
+    /**
+     * @brief Returns whether ruler needs a repaint or not.
+     * @return Whether to repaint the ruler.
+     */
+    bool needsRepaint(QRectF backgroundRect, QTransform viewportTransform) const;
 
-    /** Sets repaint indicator.
-        @param val New repaint indicator */
-    void setNeedsRepaint(bool val) { if (val) invalidateCache(); }
-    void invalidateCache();
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `invalidate()` instead")
+    void setNeedsRepaint(bool val) { if (val) invalidate(); }
+    /**
+     * @brief Invalidates the ruler, causing it to redraw.
+     */
+    void invalidate();
 
-    virtual void paint(QRectF sceneRect, QTransform sceneTransform);
+    /**
+     * @brief Paints the ruler.
+     * @param spacing Current (scaled) grid spacing, indicating the distance
+     * between ticks. Zero aligned.
+     * @param backgroundRect Rect of the graphicsview background
+     * @param viewportTransform Transform of the viewport
+     */
+    virtual void paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewportTransform);
 
 protected:
-    /** Overloaded Paint Function
-     * @param e paint event */
+
+    /**
+     * @brief Overloaded Paint Function. Renders the caches pixmap.
+     * @param e paint event
+     */
     void paintEvent(QPaintEvent* e) override;
 
-    /** Resize Ruler scale
+    /**
+     * @brief Resizes the ruler buffer
      * @param e resize event
      */
     void resizeEvent(QResizeEvent* e) override;
@@ -94,4 +140,4 @@ private:
     std::unique_ptr<Impl> pimpl;
 };
 
-#endif // GTD_RULER_H
+#endif // GT_RULER_H

@@ -6,17 +6,19 @@
  *
  *  Created on: 15.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
- *		  Tel.: +49 2203 601 2907
  */
-
-#include <QtWidgets>
 
 #include "gt_graphicsview.h"
 #include "gt_grid.h"
 #include "gt_ruler.h"
-#include "gt_logging.h"
 
 #include <QGraphicsScene>
+#include <QGraphicsItem>
+#include <QPointer>
+#include <QTimeLine>
+#include <QMouseEvent>
+#include <QWheelEvent>
+#include <QPaintEvent>
 
 struct GtGraphicsView::Impl
 {
@@ -66,8 +68,8 @@ GtGraphicsView::GtGraphicsView(QGraphicsScene* s, Options options, QWidget* pare
     setDragMode(QGraphicsView::ScrollHandDrag);
 }
 
-GtGraphicsView::GtGraphicsView(QGraphicsScene* s, QWidget* parent) :
-    GtGraphicsView(s, OwnActiveScene, parent)
+GtGraphicsView::GtGraphicsView(Options options, QWidget* parent) :
+    GtGraphicsView(nullptr, options, parent)
 { }
 
 GtGraphicsView::~GtGraphicsView()
@@ -163,13 +165,11 @@ GtGraphicsView::drawBackground(QPainter* painter, const QRectF& rect)
         auto spacing = pimpl->grid->scaledMajorSpacing();
         if (pimpl->vRuler)
         {
-            pimpl->vRuler->setGridSpacing(spacing);
-            pimpl->vRuler->paint(rect, viewportTransform(), *this);
+            pimpl->vRuler->paint(spacing, rect, viewportTransform());
         }
         if (pimpl->hRuler)
         {
-            pimpl->hRuler->setGridSpacing(spacing);
-            pimpl->hRuler->paint(rect, viewportTransform(), *this);
+            pimpl->hRuler->paint(spacing, rect, viewportTransform());
         }
     }
 }
@@ -185,14 +185,15 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
 {
     QGraphicsView::mouseMoveEvent(mouseEvent);
 
+    QPoint cursorPos = mapFromGlobal(QCursor::pos());
+    if (pimpl->vRuler) pimpl->vRuler->setCursorPosition(cursorPos);
+    if (pimpl->hRuler) pimpl->hRuler->setCursorPosition(cursorPos);
+
     if (!scene()) return;
 
-    QPointF p = mapToScene(mouseEvent->pos());
+    QPointF scenePos = mapToScene(mouseEvent->pos());
 
-    emit mousePositionChanged(p);
-
-    if (pimpl->vRuler) pimpl->vRuler->setCursorPosition(mapFromGlobal(QCursor::pos()));
-    if (pimpl->hRuler) pimpl->hRuler->setCursorPosition(mapFromGlobal(QCursor::pos()));
+    emit mousePositionChanged(scenePos);
 
     if (pimpl->snap && (scene()->mouseGrabberItem() &&
                         scene()->selectedItems().size() == 1))
