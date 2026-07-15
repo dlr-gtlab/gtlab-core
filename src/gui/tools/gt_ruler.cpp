@@ -166,7 +166,6 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
     pimpl->cachedTransform = viewportTransform;
 
     QPainter painter{&pimpl->cache};
-
     painter.setRenderHint(QPainter::Antialiasing, false);
     painter.setRenderHint(QPainter::TextAntialiasing, false);
     painter.fillRect(buffer().rect(), palette().color(QPalette::Window));

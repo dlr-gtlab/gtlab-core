@@ -91,21 +91,36 @@ public:
      */
     void setVerticalRuler(GtRuler* ruler);
 
-    /**
-     * @brief Sets view scale to given factor in percent.
-     * @param percentage New zoom factor
-     */
-    void setScalePercentage(double percentage);
-
     /// Repaints ruler.
     GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement planned.")
     void repaintRuler() {}
 
     /**
-     * @brief snapItemToGrid
-     * @param item
+     * @brief Sets the view zoom level to the given factor in percent.
+     * @param percentage New zoom factor
      */
-    void snapItemToGrid(QGraphicsItem* item);
+    void setScalePercentage(double percentage)
+    {
+        setZoomPercentage(percentage);
+    }
+
+    /**
+     * @brief Sets the view zoom level to the given factor in percent.
+     * @param percentage New zoom factor
+     */
+    void setZoomPercentage(double percentage);
+
+    /**
+     * @brief Returns the current zoom level in percent.
+     * @return Zoom level in percent
+     */
+    double zoomPercentage() const;
+
+    /**
+     * @brief Returns the current zoom level
+     * @return Zoom level
+     */
+    double zoom() const;
 
     /**
      * @brief Sets maximum zoom factor.
@@ -132,6 +147,12 @@ public:
      */
     bool snapToGridThreshold() const;
 
+    /**
+     * @brief snapItemToGrid
+     * @param item
+     */
+    void snapItemToGrid(QGraphicsItem* item);
+
 public slots:
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setSnapToGrid` instead.")
@@ -155,6 +176,14 @@ public slots:
      * @param val New Scale factor
      */
     void setScale(double scale);
+
+signals:
+
+    /// Signal which is emitted when the zoom factor changed
+    void zoomChanged(double);
+
+    /// Signal which is emitted when the mouse position changed
+    void mousePositionChanged(const QPointF);
 
 protected:
 
@@ -180,12 +209,6 @@ private:
     void zoomAnimation(int delta);
 
     /**
-     * @brief Returns grid factor.
-     * @return Grid factor
-     */
-    int getGridFactor();
-
-    /**
      * @brief Snaps selected item to the closest grid point.
      * @param item Selected graphics item
      * @param mousePos Mouse position from where the closest grid point is determined
@@ -199,14 +222,6 @@ private slots:
 
     /// Called at animation finish.
     void animFinished();
-
-signals:
-
-    /// Signal which is emitted when the zoom factor changed
-    void zoomChanged(double);
-
-    /// Signal which is emitted when the mouse position changed
-    void mousePositionChanged(const QPointF);
 };
 
 #endif // GT_GRAPHICSVIEW_H

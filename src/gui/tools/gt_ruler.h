@@ -64,8 +64,9 @@ public:
     bool isAxisFlipped() const;
 
     /**
-     * @brief Sets an offset, shifting the ruler in case the widget that is
-     * operated on not aligned perfectly to the ruler (e.g. due to frames)
+     * @brief Sets an offset to shift the ruler, which may be used in case the
+     * widget that is operated on is not aligned perfectly to the ruler
+     * (e.g. due to frame boundaries)
      * @param offset Offset
      */
     void setDrawOffset(int offset);

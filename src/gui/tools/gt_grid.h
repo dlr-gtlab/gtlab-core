@@ -42,6 +42,26 @@ public:
     };
     using PaintOptions = QFlags<PaintOption>;
 
+    enum ScalingStrategy : unsigned
+    {
+        /// Grid does not automatically scale to current zoom level. When
+        /// zoomed-in or -out too much, grid lines may become too sparse/dense.
+        Fixed = 0,
+        /// Grid scales in step sizes of 2. Scale changes often. Good default.
+        Base2,
+        /// TODO: does this one make sense?
+        /// Grid scales in step sizes of sqrt(2). Causes very unnatural ticks.
+        Sqrt2,
+        /// Grid scales in step sizes of 10. Natural ticks, but scale changes
+        /// least often.
+        Base10,
+        /// Grid scales in step size of 1, 2, 5, 10, 20, 50, etc. Common in
+        /// other tools. Better tick-labels when zoomed-in.
+        OneTwoFive,
+        /// Default
+        DefaultScalingStrategy = Base2
+    };
+
     using VisibleAxis = QFlags<Qt::Orientation>;
 
     /// Constructor. Transfers ownership to view
@@ -50,6 +70,22 @@ public:
     explicit GtGrid(QObject* parent = nullptr);
     ~GtGrid();
 
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setHSpacing` instead.")
+    void setGridWidth(int value)
+    {
+        return setHSpacing(value);
+    }
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setVSpacing` instead.")
+    void setGridHeight(int value)
+    {
+        return setVSpacing(value);
+    }
+
+    /**
+     * @brief Sets both the vertical and horizontal spacing
+     * @param value Spacing
+     */
     void setSpacing(unsigned value)
     {
         setHSpacing(value);
@@ -111,15 +147,62 @@ public:
      */
     unsigned vSubdivions() const;
 
-    GtGridSpacing scaledMajorSpacing() const;
-
-    GtGridSpacing scaledMinorSpacing() const;
+    /**
+     * @brief Returns the current spacing for the major grid
+     * @return Current grid scaling
+     */
+    GtGridSpacing currentGridSpacing() const;
 
     /**
-     * @brief Sets whether the grid should be scaled or not.
-     * @param val Grid scaling indicator
+     * @brief Returns the current spacing for the minor grid
+     * @return Current minor grid scaling
      */
-    void setScaleGrid(bool val);
+    GtGridSpacing currentMinorGridSpacing() const;
+
+    /**
+     * @brief Returns the grid spacing scaled for the given zoom level using
+     * the current scaling strategy
+     * @param zoom Zoom level (usually QTransfrom::m11)
+     * @return Scaled grid spacing
+     */
+    GtGridSpacing scaledGridSpacing(double zoom) const;
+
+    /**
+     * @brief Returns the minor grid spacing scaled for the given zoom level
+     * using the current scaling strategy
+     * @param zoom Zoom level (usually QTransfrom::m11)
+     * @return Scaled grid spacing
+     */
+    GtGridSpacing scaledMinorGridSpacing(double zoom) const;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setScalingStrategy` instead.")
+    void setScaleGrid(bool enable)
+    {
+        setScalingStrategy(enable ?  Base2 :  Fixed);
+    }
+
+    /**
+     * @brief Sets the scaling strategy, allowing the grid to automatically
+     * update based on the current zoom level.
+     * @param val Grid scaling strategy
+     */
+    void setScalingStrategy(ScalingStrategy strategy);
+
+    /**
+     * @brief Returns the current grid scaling strategy
+     * @return Scaling strategy
+     */
+    ScalingStrategy scalingStrategy() const;
+
+    /**
+     * @brief Sets whether the horizontal axis should be enabled or not.
+     * @param show Whether to show the axis
+     */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setVisibleAxis` instead.")
+    void setShowAxis(bool show)
+    {
+        setVisibleAxis(show, Qt::Horizontal);
+    }
 
     /**
      * @brief Sets which axis should be shown
@@ -134,39 +217,104 @@ public:
      */
     VisibleAxis visibleAxis() const;
 
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setLineColor` instead.")
+    void setHorizontalGridLineColor(const QColor& color)
+    {
+        setLineColor(color);
+    }
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setLineColor` instead.")
+    void setVerticalGridLineColor(const QColor& color)
+    {
+        setLineColor(color);
+    }
+
     /**
-     * @brief Sets the major grid line color
+     * @brief Sets the pen for the major grid lines
+     * @param pen Pen
+     */
+    void setMajorPen(QPen pen);
+
+    /**
+     * @brief Returns the pen for the major grid lines
+     * @return pen Pen
+     */
+    QPen majorPen() const;
+
+    /**
+     * @brief Sets the major grid line color. Overrides the pen color.
      * @param color Major grid line color
      */
     void setLineColor(const QColor& color);
+
     /**
      * @brief Returns the major grid line color
-     * @return Major grid line color
+     * @return Major grid line pen color
      */
     QColor lineColor() const;
 
     /**
-     * @brief Sets the vertical grid line color
+     * @brief Sets the pen for the minor grid lines
+     * @param pen Pen
+     */
+    void setMinorPen(QPen pen);
+
+    /**
+     * @brief Returns the pen for the minor grid lines
+     * @return pen Pen
+     */
+    QPen minorPen() const;
+
+    /**
+     * @brief Sets the vertical grid line color. Overrides the pen color.
      * @param color Vertical grid line color
      */
     void setMinorLineColor(const QColor& color);
+
     /**
      * @brief Returns the vertical grid line color
-     * @return Vertical grid line color
+     * @return Vertical grid line pen color
      */
     QColor minorLineColor() const;
 
     /**
-     * @brief Sets the axis color
+     * @brief Sets the pen for the axis
+     * @param pen Pen
+     */
+    void setAxisPen(QPen pen);
+
+    /**
+     * @brief Returns the pen for the axis
+     * @return pen Pen
+     */
+    QPen axisPen() const;
+
+    /**
+     * @brief Sets the axis color. Overrides the pen color.
      * @param color Axis color
      */
     void setAxisColor(const QColor& color);
 
     /**
-     * @brief Returns the axis color
+     * @brief Returns the axis pen color.
      * @return Axis color
      */
     QColor axisColor() const;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtGraphicsView::setHorizontalRuler` instead.")
+    void setHorizontalRuler(GtRuler* ruler) {}
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtGraphicsView::setVerticalRuler` instead.")
+    void setVerticalRuler(GtRuler* ruler) {}
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtRuler::paint` instead.")
+    void paintRuler(GtRuler* ruler) const {}
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `paint` instead.")
+    void paintGrid(QPainter* painter, const QRectF& rect)
+    {
+        if (painter) paint(*painter, rect);
+    }
 
     /**
      * @brief Paints full grid.
@@ -193,13 +341,32 @@ public:
      * @brief Sets current grid scale factor.
      * @param val Grid scale factor
      */
-    void setGridScaleFactor(int val);
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Determined when panting, no replacement is planned")
+    void setGridScaleFactor(int val) {}
 
     /**
      * @brief Returns whether the grid is visible
      * @return Is grid visible
      */
     bool isVisible() const;
+
+    /**
+     * @brief Sets number of grid points for one grid rect.
+     * @param horizontal Number of horizontal grid points
+     * @param vertical Number of vertical grid points
+     */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
+    void setNumberOfGridPoints(int horizontal, int vertical) { }
+
+    /**
+     * @brief Sets whether grid points should be enabled or not.
+     * @param val Gridpoints indicator
+     */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
+    void setShowGridPoints(bool val) { }
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
+    void setGridPointColor(const QColor& color) {}
 
 public slots:
 
@@ -244,12 +411,8 @@ signals:
      */
     void visibilityChanged(bool visible);
 
-private:
-
-    struct Impl;
-    std::unique_ptr<Impl> pimpl;
-
 protected:
+
     /**
      * @brief Paints horizontal and vertical grid lines.
      * @param painter QPainter pointer
@@ -273,78 +436,23 @@ protected:
     }
 
     /// Returns scaled grid width.
-    GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement is planned.")
-    double getScaledGridWidth();
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `currentGridSpacing` instead.")
+    double getScaledGridWidth() const
+    {
+        return currentGridSpacing().hSpacing;
+    }
 
     /// Returns scaled grid height.
-    GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement is planned.")
-    double getScaledGridHeight();
-
-public:
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setHSpacing` instead.")
-    void setGridWidth(int value)
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `currentGridSpacing` instead.")
+    double getScaledGridHeight() const
     {
-        return setHSpacing(value);
+        return currentGridSpacing().vSpacing;
     }
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setVSpacing` instead.")
-    void setGridHeight(int value)
-    {
-        return setVSpacing(value);
-    }
+private:
 
-    /**
-     * @brief Sets number of grid points for one grid rect.
-     * @param horizontal Number of horizontal grid points
-     * @param vertical Number of vertical grid points
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
-    void setNumberOfGridPoints(int horizontal, int vertical) { }
-
-    /**
-     * @brief Sets whether grid points should be enabled or not.
-     * @param val Gridpoints indicator
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
-    void setShowGridPoints(bool val) { }
-
-    /**
-     * @brief Sets whether the horizontal axis should be enabled or not.
-     * @param show Whether to show the axis
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setVisibleAxis` instead.")
-    void setShowAxis(bool show)
-    {
-        setVisibleAxis(show, Qt::Horizontal);
-    }
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setLineColor` instead.")
-    void setHorizontalGridLineColor(const QColor& color)
-    {
-        setLineColor(color);
-    }
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect, use `setLineColor` instead.")
-    void setVerticalGridLineColor(const QColor& color) { }
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
-    void setGridPointColor(const QColor& color) {}
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `paint` instead.")
-    void paintGrid(QPainter* painter, const QRectF& rect)
-    {
-        if (painter) paint(*painter, rect);
-    }
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "...?")
-    void paintRuler(GtRuler* ruler) const {}
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "...")
-    void setHorizontalRuler(GtRuler* ruler) {}
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "...")
-    void setVerticalRuler(GtRuler* ruler) {}
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 };
 
 #endif // GT_GRID_H

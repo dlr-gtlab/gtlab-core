@@ -10,6 +10,7 @@
 
 #include "gt_graphicsview.h"
 #include "gt_grid.h"
+#include "gt_logging.h"
 #include "gt_ruler.h"
 
 #include <QGraphicsScene>
@@ -26,9 +27,6 @@ struct GtGraphicsView::Impl
 {
     /// Options
     Options options = NoOption;
-
-    /// Zoom factor
-    double zoom = 1.0;
 
     /// Max zoom factor
     double maxZoom = 50.0;
@@ -168,7 +166,8 @@ GtGraphicsView::drawBackground(QPainter* painter, const QRectF& rect)
     if (pimpl->grid)
     {
         pimpl->grid->paint(*painter, rect);
-        auto spacing = pimpl->grid->scaledMajorSpacing();
+        auto spacing = pimpl->grid->currentGridSpacing();
+
         if (pimpl->vRuler)
         {
             pimpl->vRuler->paint(spacing, rect, viewportTransform());
@@ -210,6 +209,25 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
 }
 
 void
+GtGraphicsView::setZoomPercentage(double percentage)
+{
+    double factor = (percentage / 100.0) / zoom();
+    setScale(factor);
+}
+
+double
+GtGraphicsView::zoomPercentage() const
+{
+    return zoom() * 100.0;
+}
+
+double
+GtGraphicsView::zoom() const
+{
+    return transform().m11();
+}
+
+void
 GtGraphicsView::setMaximumZoom(double val)
 {
     pimpl->maxZoom = val;
@@ -236,34 +254,24 @@ GtGraphicsView::snapToGridThreshold() const
 void
 GtGraphicsView::setScale(double scale)
 {
-    pimpl->zoom = pimpl->zoom * scale;
+    double zoom = this->zoom() * scale;
 
-    if (pimpl->zoom > pimpl->maxZoom)
+    if (zoom > pimpl->maxZoom)
     {
-        scale = scale * (pimpl->maxZoom / pimpl->zoom);
-        pimpl->zoom = pimpl->maxZoom;
+        scale = scale * (pimpl->maxZoom / zoom);
+        zoom = pimpl->maxZoom;
     }
-    else if (pimpl->zoom < pimpl->minZoom)
+    else if (zoom < pimpl->minZoom)
     {
-        scale = scale * (pimpl->minZoom / pimpl->zoom);
-        pimpl->zoom = pimpl->minZoom;
+        scale = scale * (pimpl->minZoom / zoom);
+        zoom = pimpl->minZoom;
     }
 
     this->scale(scale, scale);
 
-    if (pimpl->grid)
-    {
-        pimpl->grid->setGridScaleFactor(getGridFactor());
-    }
+    emit zoomChanged(zoom);
 
-    emit zoomChanged(pimpl->zoom);
-}
-
-void
-GtGraphicsView::setScalePercentage(double percentage)
-{
-    double factor = (percentage / 100.0f) / pimpl->zoom;
-    setScale(factor);
+    gtDebug() << zoom << transform().m11();
 }
 
 void
@@ -297,12 +305,6 @@ GtGraphicsView::zoomAnimation(int delta)
     connect(zoomAnimation, SIGNAL(finished()), SLOT(animFinished()));
 
     zoomAnimation->start();
-}
-
-int
-GtGraphicsView::getGridFactor()
-{
-    return int(log(1.0 / (pimpl->zoom)) / log(2.0));
 }
 
 void
@@ -350,9 +352,11 @@ GtGraphicsView::snapItemToGrid(QGraphicsItem* item, QPoint mousePos)
 
     QPointF ibrc = item->boundingRect().center();
 
-    QPointF np = grid()->computeNearestGridPoint(mapToScene(mousePos));
+    QPointF scenePos = mapToScene(mousePos);
 
-    QLineF line(mousePos, mapFromScene(np));
+    QPointF np = grid()->computeNearestGridPoint(scenePos);
+
+    QLineF line{mousePos, mapFromScene(np)};
 
     double length = line.length();
 
@@ -362,7 +366,7 @@ GtGraphicsView::snapItemToGrid(QGraphicsItem* item, QPoint mousePos)
     }
     else
     {
-        item->setPos(mapToScene(mousePos) - ibrc);
+        item->setPos(scenePos - ibrc);
     }
 }
 
