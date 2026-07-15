@@ -273,6 +273,34 @@ TEST(GtProject, MergesClassModuleMappingsFromTaskFiles)
               QStringLiteral("MissingTaskModule"));
 }
 
+TEST(GtProject, ProjectMappingsWinAndInvalidTaskFilesAreIgnored)
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+    ASSERT_TRUE(writeProjectFileWithClassModules(tempDir.path()));
+    ASSERT_TRUE(writeTaskFileWithClassModules(tempDir.path()));
+
+    QDir taskDir(tempDir.path() + QStringLiteral("/tasks"));
+    ASSERT_TRUE(taskDir.mkpath(QStringLiteral("invalid")));
+    QFile invalidTask(taskDir.filePath(QStringLiteral("invalid/task.gttask")));
+    ASSERT_TRUE(invalidTask.open(QIODevice::WriteOnly | QIODevice::Text));
+    ASSERT_NE(invalidTask.write("not valid xml <"), -1);
+    invalidTask.close();
+
+    QFile duplicateTask(
+        taskDir.filePath(QStringLiteral("_custom/group/duplicate.gttask")));
+    ASSERT_TRUE(duplicateTask.open(QIODevice::WriteOnly | QIODevice::Text));
+    ASSERT_NE(duplicateTask.write(R"(
+        <object><METADATA><CLASS-PROVIDERS><MODULE name="TaskModule">
+        <CLASS name="UnknownClass"/></MODULE></CLASS-PROVIDERS></METADATA>
+        </object>)"), -1);
+    duplicateTask.close();
+
+    TestProject project(tempDir.path());
+    EXPECT_EQ(project.classModuleId(QStringLiteral("UnknownClass")),
+              QStringLiteral("AQuiteLongModuleId"));
+}
+
 TEST(GtProject, copyProjectDataCopiesDirectory)
 {
     QTemporaryDir srcDir;

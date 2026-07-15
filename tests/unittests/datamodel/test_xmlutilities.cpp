@@ -220,6 +220,40 @@ TEST(GtXmlUtilities, MissingClassModuleMapIsValid)
     EXPECT_TRUE(gt::xml::readClassModuleMap(doc.documentElement()).isEmpty());
 }
 
+TEST(GtXmlUtilities, WritesMetadataAtSupportedRootPositions)
+{
+    const gt::xml::ClassModuleMap mappings{
+        {QStringLiteral("Class"), QStringLiteral("Module")}};
+
+    QDomDocument afterModulesDoc;
+    ASSERT_TRUE(afterModulesDoc.setContent(
+        QStringLiteral("<GTLAB><MODULES/></GTLAB>")));
+    QDomElement afterModulesRoot = afterModulesDoc.documentElement();
+    gt::xml::writeClassModuleMap(afterModulesRoot, afterModulesDoc, mappings);
+    EXPECT_EQ(afterModulesRoot.firstChildElement().tagName(),
+              QStringLiteral("MODULES"));
+    EXPECT_EQ(afterModulesRoot.lastChildElement().tagName(),
+              QStringLiteral("METADATA"));
+
+    QDomDocument emptyRootDoc;
+    ASSERT_TRUE(emptyRootDoc.setContent(QStringLiteral("<GTLAB/>")));
+    QDomElement emptyRoot = emptyRootDoc.documentElement();
+    gt::xml::writeClassModuleMap(emptyRoot, emptyRootDoc, mappings);
+    EXPECT_EQ(emptyRoot.firstChildElement().tagName(),
+              QStringLiteral("METADATA"));
+}
+
+TEST(GtXmlUtilities, EmptyMapRemovesEmptyMetadata)
+{
+    QDomDocument doc;
+    ASSERT_TRUE(doc.setContent(QStringLiteral("<GTLAB><METADATA/></GTLAB>")));
+    QDomElement root = doc.documentElement();
+
+    gt::xml::writeClassModuleMap(root, doc, {});
+
+    EXPECT_TRUE(root.firstChildElement(QStringLiteral("METADATA")).isNull());
+}
+
 TEST(GtXmlUtilities, ReadsLegacyClassModuleMapFromModules)
 {
     QDomDocument doc;

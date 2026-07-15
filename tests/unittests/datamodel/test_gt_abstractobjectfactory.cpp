@@ -67,6 +67,16 @@ TEST(GtAbstractObjectFactory, DuplicateDoesNotReplaceModuleId)
               QStringLiteral("FirstModule"));
 }
 
+TEST(GtAbstractObjectFactory, BulkRegistrationRejectsDuplicates)
+{
+    TestObjectFactory factory;
+    ASSERT_TRUE(factory.registerClass(GT_METADATA(GtObject)));
+
+    EXPECT_FALSE(factory.registerClasses({GT_METADATA(GtObject)},
+                                         QStringLiteral("TestModule")));
+    EXPECT_TRUE(factory.moduleId(GT_CLASSNAME(GtObject)).isEmpty());
+}
+
 TEST(GtFactoryGroup, ReturnsModuleIdFromProvidingFactory)
 {
     TestObjectFactory first;
@@ -81,4 +91,14 @@ TEST(GtFactoryGroup, ReturnsModuleIdFromProvidingFactory)
     EXPECT_EQ(group.moduleId(GT_CLASSNAME(GtObject)),
               QStringLiteral("TestModule"));
     EXPECT_TRUE(group.moduleId(QStringLiteral("UnknownClass")).isEmpty());
+}
+
+TEST(GtFactoryGroup, RegistrationApisAreRejected)
+{
+    GtFactoryGroup group;
+
+    EXPECT_FALSE(group.registerClass(GT_METADATA(GtObject),
+                                     QStringLiteral("TestModule")));
+    EXPECT_FALSE(group.registerClasses({GT_METADATA(GtObject)},
+                                       QStringLiteral("TestModule")));
 }
