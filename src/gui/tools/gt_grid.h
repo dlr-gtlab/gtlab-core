@@ -2,7 +2,7 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: gtd_grid.h
+ * Source File: gt_grid.h
  *
  *  Created on: 17.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
@@ -11,8 +11,9 @@
 #ifndef GT_GRID_H
 #define GT_GRID_H
 
-#include "gt_gui_exports.h"
-#include "gt_version.h"
+#include <gt_gui_exports.h>
+#include <gt_gridspacing.h>
+#include <gt_version.h>
 
 #include <QObject>
 #include <QPointF>
@@ -24,11 +25,6 @@
 class QPainter;
 class QGraphicsView;
 class GtRuler;
-
-struct GtGridSpacing
-{
-    double hSpacing = 0.0, vSpacing = 0.0;
-};
 
 class GT_GUI_EXPORT GtGrid : public QObject
 {

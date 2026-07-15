@@ -2,7 +2,7 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: gtd_ruler.h
+ * Source File: gt_ruler.h
  *
  *  Created on: 15.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
@@ -12,7 +12,7 @@
 #define GT_RULER_H
 
 #include <gt_gui_exports.h>
-#include <gt_grid.h>
+#include <gt_gridspacing.h>
 #include <gt_version.h>
 
 #include <QWidget>
@@ -33,7 +33,7 @@ public:
     ~GtRuler() override;
 
     /**
-     * @brief Returns Buffer.
+     * @brief Returns the buffer used for caching the rendered ruler.
      * @return Buffer
      */
     QPixmap& buffer();
@@ -59,7 +59,7 @@ public:
 
     /**
      * @brief Returns whether the axis is flipped, meaing that x becomes -x.
-     * @return Is axis flipped.
+     * @return Whether axis is flipped.
      */
     bool isAxisFlipped() const;
 
@@ -112,7 +112,7 @@ public:
     void invalidate();
 
     /**
-     * @brief Paints the ruler.
+     * @brief Paints the ruler to the buffer. Triggers a redraw of the widget.
      * @param spacing Current (scaled) grid spacing, indicating the distance
      * between ticks. Zero aligned.
      * @param backgroundRect Rect of the graphicsview background

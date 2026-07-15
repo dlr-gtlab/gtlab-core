@@ -2,7 +2,7 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: gtd_grid.cpp
+ * Source File: gt_grid.cpp
  *
  *  Created on: 17.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
