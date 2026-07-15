@@ -42,6 +42,12 @@ ClassModuleMap GT_DATAMODEL_EXPORT readClassModuleMap(
     const QDomElement& root);
 
 /**
+ * @brief Reads and removes the class-to-module mappings below a document root.
+ * Other metadata entries are preserved.
+ */
+ClassModuleMap GT_DATAMODEL_EXPORT takeClassModuleMap(QDomElement& root);
+
+/**
  * @brief Replaces the class-to-module manifest below a document root.
  * Empty mappings are omitted.
  */
@@ -52,6 +58,12 @@ void GT_DATAMODEL_EXPORT writeClassModuleMap(
  * @brief Returns the distinct class names used below a document root.
  */
 QStringList GT_DATAMODEL_EXPORT objectClassNames(const QDomElement& root);
+
+/**
+ * @brief Returns mappings for classes used below a document root.
+ */
+ClassModuleMap GT_DATAMODEL_EXPORT classModuleMapForObjects(
+    const ClassModuleMap& mappings, const QDomElement& root);
 
 /**
  * @brief Writes given QDomElement object to given XML stream. All XML

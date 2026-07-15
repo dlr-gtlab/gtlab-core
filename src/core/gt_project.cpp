@@ -731,6 +731,16 @@ GtProject::readModuleData()
             continue;
         }
 
+        const auto moduleMappings = gt::xml::takeClassModuleMap(root);
+        for (auto it = moduleMappings.cbegin(); it != moduleMappings.cend();
+             ++it)
+        {
+            if (!m_classModuleIds.contains(it.key()))
+            {
+                m_classModuleIds.insert(it.key(), it.value());
+            }
+        }
+
         GtObject* obj = gtObjectFactory->newObject(packageId);
 
         if (!obj)
@@ -822,8 +832,9 @@ GtProject::saveModuleData()
             continue;
         }
 
-        gt::xml::writeClassModuleMap(rootElement, document,
-                                     m_classModuleIds);
+        const auto moduleMappings = gt::xml::classModuleMapForObjects(
+            m_classModuleIds, rootElement);
+        gt::xml::writeClassModuleMap(rootElement, document, moduleMappings);
 
         QString filename = m_path + QDir::separator() + mid.toLower() + "." +
                            moduleExtension();

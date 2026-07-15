@@ -27,18 +27,6 @@
 namespace
 {
 
-gt::xml::ClassModuleMap filteredClassModuleMap(
-    const gt::xml::ClassModuleMap& mappings, const QDomElement& root)
-{
-    gt::xml::ClassModuleMap result;
-    for (const QString& className : gt::xml::objectClassNames(root))
-    {
-        const auto it = mappings.constFind(className);
-        if (it != mappings.cend()) result.insert(className, it.value());
-    }
-    return result;
-}
-
 template <typename Predicate>
 void
 findElements(
@@ -130,6 +118,27 @@ gt::xml::readClassModuleMap(const QDomElement& root)
     return mappings;
 }
 
+gt::xml::ClassModuleMap
+gt::xml::takeClassModuleMap(QDomElement& root)
+{
+    const ClassModuleMap mappings = readClassModuleMap(root);
+    QDomElement metadata =
+        root.firstChildElement(QLatin1String(S_METADATA_TAG));
+    QDomElement providers =
+        metadata.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
+    if (!providers.isNull()) metadata.removeChild(providers);
+    QDomElement modules =
+        root.firstChildElement(QLatin1String(S_MODULES_TAG));
+    providers =
+        modules.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
+    if (!providers.isNull()) modules.removeChild(providers);
+    if (!metadata.isNull() && metadata.firstChildElement().isNull())
+    {
+        root.removeChild(metadata);
+    }
+    return mappings;
+}
+
 void
 gt::xml::writeClassModuleMap(QDomElement& root, QDomDocument& doc,
                              const ClassModuleMap& mappings)
@@ -212,6 +221,19 @@ gt::xml::objectClassNames(const QDomElement& root)
         }
     }
     result.sort();
+    return result;
+}
+
+gt::xml::ClassModuleMap
+gt::xml::classModuleMapForObjects(const ClassModuleMap& mappings,
+                                  const QDomElement& root)
+{
+    ClassModuleMap result;
+    for (const QString& className : objectClassNames(root))
+    {
+        const auto it = mappings.constFind(className);
+        if (it != mappings.cend()) result.insert(className, it.value());
+    }
     return result;
 }
 
@@ -572,7 +594,7 @@ void collectLinkedObjects(QDomDocument& masterDoc, QDomNode& node,
                 collectLinkedObjects(extDoc, imported, rootDir, linksRootDir,
                                      objectPath, outExternal, classModules);
 
-                auto externalMappings = filteredClassModuleMap(
+                auto externalMappings = classModuleMapForObjects(
                     classModules, root);
                 writeClassModuleMap(root, extDoc, externalMappings);
 
