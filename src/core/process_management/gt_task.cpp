@@ -23,6 +23,7 @@
 
 #include <algorithm>
 
+GT_SUPPRESS_DEPRECATED_BEGIN
 struct GtTask::Impl
 {
     /// Event loop
@@ -31,10 +32,8 @@ struct GtTask::Impl
     /// List of all data to merge
     QList<GtObjectMemento> dataToMerge;
 
-    GT_SUPPRESS_DEPRECATED_BEGIN
     /// Monitoring data table
     GtMonitoringDataTable monitoringDataTable;
-    GT_SUPPRESS_DEPRECATED_END
 
     /// Interruption flag
     QAtomicInt interrupt;
@@ -46,6 +45,7 @@ struct GtTask::Impl
         tr("Process Runner to run task with. Only relevant for the root task")
     };
 };
+GT_SUPPRESS_DEPRECATED_END
 
 GtTask::GtTask() :
     m_maxIter(QStringLiteral("maxIter"),
