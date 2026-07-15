@@ -45,6 +45,8 @@ struct GtGraphicsView::Impl
     /// Vertical ruler
     QPointer<GtRuler> vRuler;
 
+    double snapThreshold = 10.0;
+
     /// Number of scheduled scalings
     int numsScalings = 0;
 
@@ -219,23 +221,35 @@ GtGraphicsView::setMinimumZoom(double val)
     pimpl->minZoom = val;
 }
 
-void
-GtGraphicsView::setScale(double val)
+bool
+GtGraphicsView::snapToGrid() const
 {
-    pimpl->zoom = pimpl->zoom * val;
+    return pimpl->snap;
+}
+
+bool
+GtGraphicsView::snapToGridThreshold() const
+{
+    return pimpl->snapThreshold;
+}
+
+void
+GtGraphicsView::setScale(double scale)
+{
+    pimpl->zoom = pimpl->zoom * scale;
 
     if (pimpl->zoom > pimpl->maxZoom)
     {
-        val = val * (pimpl->maxZoom / pimpl->zoom);
+        scale = scale * (pimpl->maxZoom / pimpl->zoom);
         pimpl->zoom = pimpl->maxZoom;
     }
     else if (pimpl->zoom < pimpl->minZoom)
     {
-        val = val * (pimpl->minZoom / pimpl->zoom);
+        scale = scale * (pimpl->minZoom / pimpl->zoom);
         pimpl->zoom = pimpl->minZoom;
     }
 
-    scale(val, val);
+    this->scale(scale, scale);
 
     if (pimpl->grid)
     {
@@ -292,9 +306,15 @@ GtGraphicsView::getGridFactor()
 }
 
 void
-GtGraphicsView::snapToGrid(bool val)
+GtGraphicsView::setSnapToGrid(bool enable)
 {
-    pimpl->snap = val;
+    pimpl->snap = enable;
+}
+
+void
+GtGraphicsView::setSnapToGridThreshold(double threshold)
+{
+    pimpl->snapThreshold = std::max(0.0, threshold);
 }
 
 void
@@ -336,7 +356,7 @@ GtGraphicsView::snapItemToGrid(QGraphicsItem* item, QPoint mousePos)
 
     double length = line.length();
 
-    if (length < 10)
+    if (pimpl->snapThreshold <= 0 || length < pimpl->snapThreshold)
     {
         item->setPos(np - ibrc);
     }

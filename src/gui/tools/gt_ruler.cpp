@@ -18,6 +18,8 @@
 #include <QPaintEvent>
 #include <QResizeEvent>
 
+#include <cmath>
+
 struct GtRuler::Impl
 {
     Impl(Qt::Orientation o) : orientation{o} {}

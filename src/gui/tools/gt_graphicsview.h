@@ -73,24 +73,31 @@ public:
      */
     void setGrid(GtGrid* grid);
 
-    /** @brief Returns the grid.
-      * @return Grid, may be null if no grid is set
-      */
+    /**
+     * @brief Returns the grid.
+     * @return Grid, may be null if no grid is set
+     */
     GtGrid* grid();
 
-    /** Sets new horizontal ruler.
-        @param ruler New horizontal ruler */
+    /**
+     * @brief Sets new horizontal ruler.
+     * @param ruler New horizontal ruler
+     */
     void setHorizontalRuler(GtRuler* ruler);
 
-    /** Sets new vertical ruler.
-        @param ruler New vertical ruler */
+    /**
+     * @brief Sets new vertical ruler.
+     * @param ruler New vertical ruler
+     */
     void setVerticalRuler(GtRuler* ruler);
 
-    /** Sets view scale to given factor in percent.
-        @param percentage New zoom factor*/
+    /**
+     * @brief Sets view scale to given factor in percent.
+     * @param percentage New zoom factor
+     */
     void setScalePercentage(double percentage);
 
-    /** Repaints ruler. */
+    /// Repaints ruler.
     GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement planned.")
     void repaintRuler() {}
 
@@ -100,17 +107,56 @@ public:
      */
     void snapItemToGrid(QGraphicsItem* item);
 
-    /** Sets maximum zoom factor.
-        @param val New maximum zoom factor */
+    /**
+     * @brief Sets maximum zoom factor.
+     * @param val New maximum zoom factor
+     */
     void setMaximumZoom(double val);
 
-    /** Sets minimum zoom factor.
-        @param val New minimum zoom factor */
+    /**
+     * @brief Sets minimum zoom factor.
+     * @param val New minimum zoom factor
+     */
     void setMinimumZoom(double val);
+
+    /**
+     * @brief Returns whether items are snapped to the grid when moving
+     * @return Snap to grid indicator
+     */
+    bool snapToGrid() const;
+
+    /**
+     * @brief Returns the snap to grid threshold. The threshold is used when
+     * moving items by the cursor.
+     * @return Snap to grid threshold
+     */
+    bool snapToGridThreshold() const;
 
 public slots:
 
-    void snapToGrid(bool val);
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setSnapToGrid` instead.")
+    void snapToGrid(bool enable) { setSnapToGrid(enable); }
+
+    /**
+     * @brief Sets whether items are snapped to the grid when moving
+     * @param enable Snap to grid indicator
+     */
+    void setSnapToGrid(bool enable);
+
+    /**
+     * @brief Sets the snap to grid threshold. The threshold is used when moving
+     * items by the cursor.
+     * @param threshold Snap to grid threshold. Use 0 to disable the threshold.
+     */
+    void setSnapToGridThreshold(double threshold);
+
+    /**
+     * @brief Sets view scale to given factor.
+     * @param val New Scale factor
+     */
+    void setScale(double scale);
+
+protected:
 
     void wheelEvent(QWheelEvent *e) override;
 
@@ -122,43 +168,45 @@ public slots:
 
     void mouseMoveEvent(QMouseEvent* mouseEvent) override;
 
-    /** Sets view scale to given factor.
-        @param val New Scale factor */
-    void setScale(double val);
-
 private:
 
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 
-    /** Smooth zoom animation.
-        @param delta Wheel delta */
+    /**
+     * @brief Smooth zoom animation.
+     * @param delta Wheel delta
+     */
     void zoomAnimation(int delta);
 
-    /** Returns grid factor.
-        @return Grid factor */
+    /**
+     * @brief Returns grid factor.
+     * @return Grid factor
+     */
     int getGridFactor();
 
-    /** Snaps selected item to the closes grid point
-     * @param item selected graphics item
-     * @param mousePos mouse position from where the closest grid point is determined
+    /**
+     * @brief Snaps selected item to the closest grid point.
+     * @param item Selected graphics item
+     * @param mousePos Mouse position from where the closest grid point is determined
      */
     void snapItemToGrid(QGraphicsItem* item, QPoint mousePos);
 
 private slots:
-    /** Called to update view scale. */
+
+    /// Called to update view scale.
     void scalingTime();
 
-    /** Called at animation finish. */
+    /// Called at animation finish.
     void animFinished();
 
 signals:
-    /** Signal which is emitted when the zoom factor changed */
+
+    /// Signal which is emitted when the zoom factor changed
     void zoomChanged(double);
 
-    /** Signal which is emitted when the mouse position changed */
+    /// Signal which is emitted when the mouse position changed
     void mousePositionChanged(const QPointF);
-
 };
 
 #endif // GT_GRAPHICSVIEW_H

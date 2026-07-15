@@ -115,8 +115,10 @@ public:
 
     GtGridSpacing scaledMinorSpacing() const;
 
-    /** Sets whether the grid should be scaled or not.
-        @param val Grid scaling indicator */
+    /**
+     * @brief Sets whether the grid should be scaled or not.
+     * @param val Grid scaling indicator
+     */
     void setScaleGrid(bool val);
 
     /**
@@ -166,26 +168,30 @@ public:
      */
     QColor axisColor() const;
 
-    /** @brief Paints full grid.
-     *  @param painter QPainter pointer
-     *  @param rect Scene rect
+    /**
+     * @brief Paints full grid.
+     * @param painter QPainter pointer
+     * @param rect Scene rect
      */
     virtual void paint(QPainter& painter, const QRectF& rect, PaintOptions options = PaintAll);
 
-    /** computeTopLeftGridPoint
+    /**
+     * @brief computeTopLeftGridPoint
      * @param p
      * @return Top left grid Point
      */
     QPointF computeTopLeftGridPoint(const QPointF& p);
 
-    /** computeNearestGridPoint
+    /**
+     * @brief computeNearestGridPoint
      * @param p
      * @return Nearest Grid point to p
      */
     QPointF computeNearestGridPoint(const QPointF& p);
 
-    /** Sets current grid scale factor.
-     *  @param val Grid scale factor
+    /**
+     * @brief Sets current grid scale factor.
+     * @param val Grid scale factor
      */
     void setGridScaleFactor(int val);
 
@@ -244,31 +250,33 @@ private:
     std::unique_ptr<Impl> pimpl;
 
 protected:
-    /** Paints horizontal and vertical grid lines.
-        @param painter QPainter pointer
-        @param rect Scene rect */
+    /**
+     * @brief Paints horizontal and vertical grid lines.
+     * @param painter QPainter pointer
+     * @param rect Scene rect
+     */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use `paint` instead.")
     void paintGridLines(QPainter* painter, const QRectF &rect)
     {
         if (painter) paint(*painter, rect, PaintGrid);
     }
 
-    /** Paints horizontal and vertical axis.
-        @param painter QPainter pointer
-        @param rect Scene rect */
+    /**
+     * @brief Paints horizontal and vertical axis.
+     * @param painter QPainter pointer
+     * @param rect Scene rect
+     */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use `paint` instead.")
     void paintAxis(QPainter* painter, const QRectF &rect)
     {
         if (painter) paint(*painter, rect, PaintAxis);
     }
 
-    /** Returns scaled grid width.
-        @return Scaled grid width */
+    /// Returns scaled grid width.
     GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement is planned.")
     double getScaledGridWidth();
 
-    /** Returns scaled grid height.
-        @return Scaled grid height */
+    /// Returns scaled grid height.
     GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement is planned.")
     double getScaledGridHeight();
 
@@ -286,19 +294,24 @@ public:
         return setVSpacing(value);
     }
 
-    /** Sets number of grid points for one grid rect.
-        @param horizontal Number of horizontal grid points
-        @param vertical Number of vertical grid points */
+    /**
+     * @brief Sets number of grid points for one grid rect.
+     * @param horizontal Number of horizontal grid points
+     * @param vertical Number of vertical grid points
+     */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
     void setNumberOfGridPoints(int horizontal, int vertical) { }
 
-    /** Sets whether grid points should be enabled or not.
-        @param val Gridpoints indicator */
+    /**
+     * @brief Sets whether grid points should be enabled or not.
+     * @param val Gridpoints indicator
+     */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
     void setShowGridPoints(bool val) { }
 
-    /** @brief Sets whether the horizontal axis should be enabled or not.
-     *  @param show Whether to show the axis
+    /**
+     * @brief Sets whether the horizontal axis should be enabled or not.
+     * @param show Whether to show the axis
      */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setVisibleAxis` instead.")
     void setShowAxis(bool show)
