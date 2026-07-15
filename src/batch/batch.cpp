@@ -710,6 +710,64 @@ switch_session(const QStringList& args)
     return 0;
 }
 
+int
+importToSession(const QStringList& args)
+{
+    GtCommandLineParser parser;
+
+    parser.parse(args);
+    auto posArgs = parser.positionalArguments();
+
+    if (posArgs.size() != 1)
+    {
+        gtWarning() << QObject::tr("Invalid arguments for command "
+                                   "'import_to_session'");
+        return -1;
+    }
+
+    QString path = QDir(posArgs[0]).filePath("project.gtlab");
+    std::cout << QObject::tr("projectFile: %1").arg(posArgs[0]).toStdString();
+
+    QFile file(path);
+    if (!file.exists())
+    {
+        std::cout << QObject::tr("ERROR: project file %1 not "
+                                 "found!").arg(path).toStdString();
+
+        return -1;
+    }
+
+    GtProjectProvider provider(path);
+    GtProject* project = provider.project();
+
+    if (!project)
+    {
+        gtError() << QObject::tr("Cannot load project");
+        return -1;
+    }
+
+    /// MS: This is a bad hack to enable accessing the protected addProject function
+    /// There is however no other way to call addProject AFAIK
+    {
+        struct SessionWrapper : public GtSession
+        {
+            using GtSession::addProject;
+        };
+        static_assert(sizeof(GtSession) == sizeof(SessionWrapper),
+                      "Session classes have different size. Hell goes lose...");
+        reinterpret_cast<SessionWrapper*>(gtApp->session())->addProject(project);
+    }
+
+    if (!gtApp->session()->findProject(project->objectName()))
+    {
+        gtError() << QObject::tr("Project '%1' could not be imported")
+        .arg(project->objectName());
+        return -1;
+    }
+
+    return 0;
+}
+
 void
 initPosArgument(QString const& id,
                 std::function<int(const QStringList&)> func,
@@ -786,6 +844,11 @@ initSystemOptions()
                     "Upgrades All Modules in the current project", {},
                     QList<GtCommandLineArgument>(),
                     false);
+
+    initPosArgument("import_to_session", importToSession,
+                    "loads a project to the current session", {},
+                    {GtCommandLineArgument{"project_directory", "Path to project folder"}},
+                    true);
 }
 
 int
