@@ -51,6 +51,7 @@ set(headers
     process_management/gt_calculatordata.h
     process_management/gt_taskrunner.h
     process_management/gt_loop.h
+    process_management/gt_doetask.h
     process_management/gt_doublemonitoringproperty.h
     process_management/gt_intmonitoringproperty.h
     process_management/gt_monitoringdata.h
@@ -160,6 +161,7 @@ set(sources
     process_management/gt_calculatordata.cpp
     process_management/gt_taskrunner.cpp
     process_management/gt_loop.cpp
+    process_management/gt_doetask.cpp
     process_management/gt_doublemonitoringproperty.cpp
     process_management/gt_intmonitoringproperty.cpp
     process_management/gt_monitoringdata.cpp
@@ -258,6 +260,7 @@ target_link_libraries(GTlabCore
     PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::Concurrent
     GTlab::DataProcessor
 )
 
