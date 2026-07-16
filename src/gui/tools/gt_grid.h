@@ -32,6 +32,8 @@ class GT_GUI_EXPORT GtGrid : public QObject
 
 public:
 
+    /// Painting options. May be used when subclassing the grid to override
+    /// how the grid or axis is rendered
     enum PaintOption
     {
         NoPaintOption = 0,
@@ -42,6 +44,7 @@ public:
     };
     using PaintOptions = QFlags<PaintOption>;
 
+    /// Defines how the grid automatically updates when changing the zoom level
     enum ScalingStrategy : unsigned
     {
         /// Grid does not automatically scale to current zoom level. When

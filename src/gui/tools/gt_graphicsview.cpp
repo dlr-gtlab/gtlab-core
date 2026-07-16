@@ -62,6 +62,8 @@ GtGraphicsView::GtGraphicsView(QGraphicsScene* s, Options options, QWidget* pare
     setAutoFillBackground(false);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+    setCacheMode(QGraphicsView::CacheBackground);
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
     setScene(s);
@@ -116,6 +118,7 @@ GtGraphicsView::setGrid(GtGrid* grid)
     {
         grid->setParent(this);
         connect(grid, &GtGrid::updated, this, [this](){
+            resetCachedContent();
             if (viewport()) viewport()->update();
         });
     }

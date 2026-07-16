@@ -231,11 +231,11 @@ struct GtGrid::Impl
 
     void paintAxis(QPainter& painter, const QRectF& rect)
     {
+        painter.setPen(axisPen);
+
         for (Qt::Orientation axis : { Qt::Vertical, Qt::Horizontal })
         {
             if (!visibleAxis.testFlag(axis)) continue;
-
-            painter.setPen(axisPen);
 
             switch (axis)
             {
