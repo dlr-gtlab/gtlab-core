@@ -27,9 +27,9 @@ class GT_GUI_EXPORT GtRuler : public QWidget
 
 public:
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtRuler(Qt::Orientation)` instead.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `GtRuler(Qt::Orientation, QWidget*)` instead.")
     explicit GtRuler() : GtRuler(Qt::Horizontal) { }
-    explicit GtRuler(Qt::Orientation o);
+    explicit GtRuler(Qt::Orientation o, QWidget* parent = nullptr);
     ~GtRuler() override;
 
     /**

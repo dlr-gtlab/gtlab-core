@@ -343,10 +343,10 @@ public:
      */
     QColor axisColor() const;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtGraphicsView::setHorizontalRuler` instead.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtGraphicsView::connectHorizontalRuler` instead.")
     void setHorizontalRuler(GtRuler* ruler) {}
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtGraphicsView::setVerticalRuler` instead.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtGraphicsView::connectVerticalRuler` instead.")
     void setVerticalRuler(GtRuler* ruler) {}
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtRuler::paint` instead.")

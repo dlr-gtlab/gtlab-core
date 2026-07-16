@@ -79,20 +79,34 @@ public:
      */
     GtGrid* grid();
 
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `connectHorizontalRuler` instead.")
+    void setHorizontalRuler(GtRuler* ruler)
+    {
+        connectHorizontalRuler(ruler);
+    }
+
     /**
-     * @brief Sets new horizontal ruler.
+     * @brief Configures the view to use the new horizontal ruler. Does not take
+     * ownership.
      * @param ruler New horizontal ruler
      */
-    void setHorizontalRuler(GtRuler* ruler);
+    void connectHorizontalRuler(GtRuler* ruler);
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `connectVerticalRuler` instead.")
+    void setVerticalRuler(GtRuler* ruler)
+    {
+        connectVerticalRuler(ruler);
+    }
 
     /**
-     * @brief Sets new vertical ruler.
+     * @brief Configures the view to use the new vertical ruler. Does not take
+     * ownership.
      * @param ruler New vertical ruler
      */
-    void setVerticalRuler(GtRuler* ruler);
+    void connectVerticalRuler(GtRuler* ruler);
 
     /// Repaints ruler.
-    GT_DEPRECATED_REMOVED_IN(2, 2, "No replacement planned.")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtRuler::paint` instead.")
     void repaintRuler() {}
 
     /**

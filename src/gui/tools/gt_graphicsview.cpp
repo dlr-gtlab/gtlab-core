@@ -122,14 +122,14 @@ GtGraphicsView::setGrid(GtGrid* grid)
 }
 
 void
-GtGraphicsView::setHorizontalRuler(GtRuler* ruler)
+GtGraphicsView::connectHorizontalRuler(GtRuler* ruler)
 {
     pimpl->hRuler = ruler;
     if (ruler) ruler->setDrawOffset(frameShape() == QFrame::NoFrame ? 0 : frameWidth());
 }
 
 void
-GtGraphicsView::setVerticalRuler(GtRuler* ruler)
+GtGraphicsView::connectVerticalRuler(GtRuler* ruler)
 {
     pimpl->vRuler = ruler;
     if (ruler) ruler->setDrawOffset(frameShape() == QFrame::NoFrame ? 0 : frameWidth());

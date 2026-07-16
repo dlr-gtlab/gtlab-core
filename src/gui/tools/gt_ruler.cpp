@@ -48,7 +48,8 @@ struct GtRuler::Impl
     bool axisFlipped = false;
 };
 
-GtRuler::GtRuler(Qt::Orientation o) :
+GtRuler::GtRuler(Qt::Orientation o, QWidget* parent) :
+    QWidget(parent),
     pimpl(std::make_unique<Impl>(o))
 {
     pimpl->cursorArrow.moveTo(0,0);
