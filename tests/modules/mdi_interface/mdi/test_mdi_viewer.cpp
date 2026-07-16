@@ -69,6 +69,8 @@ TestMdiViewer::TestMdiViewer()
     vruler->flipAxis(true);
 
     auto* lay = new QGridLayout();
+    lay->setContentsMargins(0, 0, 0, 0);
+    lay->setSpacing(0);
     lay->addWidget(hruler, 0, 1);
     lay->addWidget(vruler, 1, 0);
     lay->addWidget(m_view, 1, 1);
