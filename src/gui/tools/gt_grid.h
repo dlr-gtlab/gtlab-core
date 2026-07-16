@@ -49,9 +49,6 @@ public:
         Fixed = 0,
         /// Grid scales in step sizes of 2. Scale changes often. Good default.
         Base2,
-        /// TODO: does this one make sense?
-        /// Grid scales in step sizes of sqrt(2). Causes very unnatural ticks.
-        Sqrt2,
         /// Grid scales in step sizes of 10. Natural ticks, but scale changes
         /// least often.
         Base10,
@@ -59,7 +56,7 @@ public:
         /// other tools. Better tick-labels when zoomed-in.
         OneTwoFive,
         /// Default
-        DefaultScalingStrategy = Base2
+        DefaultScalingStrategy = OneTwoFive
     };
 
     using VisibleAxis = QFlags<Qt::Orientation>;
@@ -195,21 +192,66 @@ public:
     ScalingStrategy scalingStrategy() const;
 
     /**
-     * @brief Sets whether the horizontal axis should be enabled or not.
+     * @brief Sets the visibility of the grid
+     * @param visible Whether the grid should be visible or hidden
+     */
+    void setVisible(bool visible = true);
+
+    /// hides the grid and axis
+    void hide();
+
+    /// shows the grid and axis
+    void show();
+
+    /**
+     * @brief Returns whether the grid is visible
+     * @return Is grid visible
+     */
+    bool isVisible() const;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setShowGrid` or `setVisible` instead.")
+    void hideGrid(bool hidden = true)
+    {
+        showGrid(!hidden);
+    }
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setShowGrid` or `setVisible` instead.")
+    void showGrid(bool visible = true)
+    {
+        setShowGrid(visible);
+    }
+    /**
+     * @brief Sets whether the grid should be enabled or not. Independent of
+     * show axis.
      * @param show Whether to show the axis
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `setVisibleAxis` instead.")
-    void setShowAxis(bool show)
-    {
-        setVisibleAxis(show, Qt::Horizontal);
-    }
+    void setShowGrid(bool show);
+
+    /**
+     * @brief Returns whether the gid is visible
+     * @return Is grid shown
+     */
+    bool showGrid() const;
+
+    /**
+     * @brief Sets whether the axis should be enabled or not. Independent of
+     * show gid.
+     * @param show Whether to show the axis
+     */
+    void setShowAxis(bool show);
+
+    /**
+     * @brief Returns whether the axis is visible
+     * @return Is axis shown
+     */
+    bool showAxis() const;
 
     /**
      * @brief Sets which axis should be shown
      * @param show Whether to show the given axis
      * @param orientation Which axis to show
      */
-    void setVisibleAxis(bool show = true, VisibleAxis axis = Qt::Horizontal | Qt::Vertical);
+    void setVisibleAxis(VisibleAxis axis = Qt::Horizontal | Qt::Vertical);
 
     /**
      * @brief Returns which axis is shown, if any.
@@ -324,18 +366,32 @@ public:
     virtual void paint(QPainter& painter, const QRectF& rect, PaintOptions options = PaintAll);
 
     /**
-     * @brief computeTopLeftGridPoint
+     * @brief Returns the top left major grid point
      * @param p
-     * @return Top left grid Point
+     * @return Top left major grid point
      */
     QPointF computeTopLeftGridPoint(const QPointF& p);
 
     /**
-     * @brief computeNearestGridPoint
-     * @param p
-     * @return Nearest Grid point to p
+     * @brief Returns the top left minor grid point
+     * @param p Point to clamp
+     * @return Top left minor grid point
+     */
+    QPointF computeTopLeftMinorGridPoint(const QPointF& p);
+
+    /**
+     * @brief Returns the nearest major grid point
+     * @param p Point to clamp
+     * @return Nearest major grid point to p
      */
     QPointF computeNearestGridPoint(const QPointF& p);
+
+    /**
+     * @brief Returns the nearest minor grid point
+     * @param p Point to clamp
+     * @return Nearest minor grid point to p
+     */
+    QPointF computeNearestMinorGridPoint(const QPointF& p);
 
     /**
      * @brief Sets current grid scale factor.
@@ -343,12 +399,6 @@ public:
      */
     GT_DEPRECATED_REMOVED_IN(2, 2, "Determined when panting, no replacement is planned")
     void setGridScaleFactor(int val) {}
-
-    /**
-     * @brief Returns whether the grid is visible
-     * @return Is grid visible
-     */
-    bool isVisible() const;
 
     /**
      * @brief Sets number of grid points for one grid rect.
@@ -368,48 +418,15 @@ public:
     GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
     void setGridPointColor(const QColor& color) {}
 
-public slots:
-
-    /**
-     * @brief Sets the visibility of the grid
-     * @param visible Whether the grid should be visible or hidden
-     */
-    void setVisible(bool visible = true);
-
-    /**
-     * @brief Hides the grid
-     * @param val hide indicator
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setVisible` or `hide` instead.")
-    void hideGrid(bool hidden = true)
-    {
-        setVisible(!hidden);
-    }
-    void hide();
-
-    /**
-     * @brief Shows the grid
-     * @param val show indicator
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setVisible` or `show` instead.")
-    void showGrid(bool visible = true)
-    {
-        setVisible(visible);
-    }
-    void show();
-
 signals:
 
-    /**
-     * @brief Emitted if the grid is updated
-     */
-    GT_DEPRECATED_ATTR(2, 2, "use `visibilityChanged` instead.")
+    GT_DEPRECATED_ATTR(2, 2, "use `updated` instead.")
     void update();
 
     /**
-     * @brief Emitted if the grid visibility has changed
+     * @brief Emitted if the visibility of the grid or axis changed
      */
-    void visibilityChanged(bool visible);
+    void updated();
 
 protected:
 

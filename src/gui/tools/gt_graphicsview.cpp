@@ -10,7 +10,6 @@
 
 #include "gt_graphicsview.h"
 #include "gt_grid.h"
-#include "gt_logging.h"
 #include "gt_ruler.h"
 
 #include <QGraphicsScene>
@@ -116,7 +115,7 @@ GtGraphicsView::setGrid(GtGrid* grid)
     if (grid)
     {
         grid->setParent(this);
-        connect(grid, &GtGrid::visibilityChanged, this, [this](){
+        connect(grid, &GtGrid::updated, this, [this](){
             if (viewport()) viewport()->update();
         });
     }
@@ -270,8 +269,6 @@ GtGraphicsView::setScale(double scale)
     this->scale(scale, scale);
 
     emit zoomChanged(zoom);
-
-    gtDebug() << zoom << transform().m11();
 }
 
 void

@@ -9,7 +9,6 @@
  */
 
 #include "gt_grid.h"
-#include "gt_finally.h"
 #include "gt_colors.h"
 
 #include <QPainter>
@@ -33,15 +32,6 @@ inline double base2(double ideal, double baseSpacing)
     const double ratio = ideal / baseSpacing;
     const double n = std::round(std::log2(ratio));
     return baseSpacing * std::exp2(n);
-}
-
-inline double sqrt2(double ideal, double baseSpacing)
-{
-    static const double logSqrt2 = std::log(std::sqrt(2.0));
-
-    double ratio = ideal / baseSpacing;
-    double n = std::round(std::log(ratio) / logSqrt2);
-    return baseSpacing * std::pow(std::sqrt(2.0), n);
 }
 
 inline double base10(double ideal, double baseSpacing)
@@ -91,7 +81,9 @@ struct GtGrid::Impl
     QPen axisPen = makePen(gt::gui::color::gridAxis());
 
     /// Current grid spacing
-    GtGridSpacing currentSpacing{1.0, 1.0};
+    GtGridSpacing cachedSpacing{1.0, 1.0};
+
+    double cachedZoom{};
 
     /// Axis indicator
     VisibleAxis visibleAxis{};
@@ -100,7 +92,13 @@ struct GtGrid::Impl
     ScalingStrategy scalingStrategy = DefaultScalingStrategy;
 
     /// Hide grid
+    bool isVisible = true;
+
+    /// Hide grid
     bool showGrid = true;
+
+    /// Hide grid
+    bool showAxis = false;
 
     /// Grid points indicator
     bool showMinorGrid = true;
@@ -143,8 +141,6 @@ struct GtGrid::Impl
         {
         case Base2:
             return strategy::base2(ideal, baseSpacing);
-        case Sqrt2:
-            return strategy::sqrt2(ideal, baseSpacing);
         case Base10:
             return strategy::base10(ideal, baseSpacing);
         case OneTwoFive:
@@ -157,6 +153,9 @@ struct GtGrid::Impl
 
     GtGridSpacing scaledGridSpacing(double zoom) const
     {
+        // cache spacing
+        if (qFuzzyCompare(zoom, cachedZoom)) return cachedSpacing;
+
         GtGridSpacing result{ static_cast<double>(hSpacing), static_cast<double>(vSpacing) };
 
         if (scalingStrategy == Fixed) return result;
@@ -200,24 +199,24 @@ struct GtGrid::Impl
     void paintGridLines(QPainter& painter, const QRectF& rect)
     {
         // minimum distance between to minor lines in device independent pixels
-        constexpr double pixelDensityTooSparseMinor = 80.0;
+        constexpr double pixelDensityTooSparseMinor = 91.0;
 
         const double pixelsPerSceneUnit = std::abs(painter.worldTransform().m11());
         assert(pixelsPerSceneUnit > 0);
 
-        currentSpacing = scaledGridSpacing(pixelsPerSceneUnit);
-        assert(currentSpacing.hSpacing > 0);
-        assert(currentSpacing.vSpacing > 0);
+        cachedSpacing = scaledGridSpacing(pixelsPerSceneUnit);
+        cachedZoom = pixelsPerSceneUnit;
+        assert(cachedSpacing.hSpacing > 0);
+        assert(cachedSpacing.vSpacing > 0);
 
-        BufferedLineRender<500> buffer{painter};
+        BufferedLineRender<1000> buffer{painter};
 
-        // TODO
-        const double majorLineDistance = currentSpacing.hSpacing * pixelsPerSceneUnit;
-        if(majorLineDistance > pixelDensityTooSparseMinor)
+        const double majorLineDistance = cachedSpacing.hSpacing * pixelsPerSceneUnit;
+        if (majorLineDistance > pixelDensityTooSparseMinor)
         {
             // draw also minor grid lines
-            const double tmpHMinorSpacing = currentSpacing.hSpacing / static_cast<double>(hSubdivisons);
-            const double tmpVMinorSpacing = currentSpacing.vSpacing / static_cast<double>(vSubdivisions);
+            const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisons);
+            const double tmpVMinorSpacing = cachedSpacing.vSpacing / static_cast<double>(vSubdivisions);
 
             painter.setPen(minorPen);
             paintGridLinesImpl(rect, tmpHMinorSpacing, tmpVMinorSpacing, buffer);
@@ -225,16 +224,16 @@ struct GtGrid::Impl
         }
 
         painter.setPen(majorPen);
-        paintGridLinesImpl(rect, currentSpacing.hSpacing, currentSpacing.vSpacing, buffer);
+        paintGridLinesImpl(rect, cachedSpacing.hSpacing, cachedSpacing.vSpacing, buffer);
     }
 
     void paintAxis(QPainter& painter, const QRectF& rect)
     {
-        painter.setPen(axisPen);
-
         for (Qt::Orientation axis : { Qt::Vertical, Qt::Horizontal })
         {
             if (!visibleAxis.testFlag(axis)) continue;
+
+            painter.setPen(axisPen);
 
             switch (axis)
             {
@@ -248,18 +247,50 @@ struct GtGrid::Impl
         }
     }
 
+    QPointF nearestTopLeftGridPoint(GtGridSpacing s, const QPointF& p)
+    {
+        double tmpWidth  = s.hSpacing;
+        double tmpHeight = s.vSpacing;
+        assert(tmpWidth  > 0);
+        assert(tmpHeight > 0);
+
+        double x = std::floor(p.x() / tmpWidth) * tmpWidth;
+        double y = std::floor(p.y() / tmpHeight) * tmpHeight;
+
+        return {x, y};
+    }
+
+    QPointF nearestGridPoint(GtGridSpacing s, const QPointF& p)
+    {
+        double tmpWidth  = s.hSpacing;
+        double tmpHeight = s.vSpacing;
+        assert(tmpWidth  > 0);
+        assert(tmpHeight > 0);
+
+        double x = std::floor(p.x() / tmpWidth) * tmpWidth;
+        double y = std::floor(p.y() / tmpHeight) * tmpHeight;
+
+        if ((p.x() - x) > (tmpWidth * 0.5)) x += tmpWidth;
+        if ((p.y() - y) > (tmpHeight * 0.5)) y += tmpHeight;
+
+        return {x, y};
+    }
 };
 
 GtGrid::GtGrid(QGraphicsView& view) :
     GtGrid(&view)
-{ }
+{
+    GT_REMOVAL_GUARD(2, 2, "for (visual) backwards compatibility");
+    setVisibleAxis(Qt::Horizontal);
+    setScalingStrategy(Base2);
+}
 
 GtGrid::GtGrid(QObject* parent) :
     QObject(parent),
     pimpl(std::make_unique<Impl>())
 {
     GT_REMOVAL_GUARD(2, 2, "remove this connection");
-    connect(this, &GtGrid::visibilityChanged, this, [this](){ emit update(); });
+    connect(this, &GtGrid::updated, this, &GtGrid::update);
 }
 
 GtGrid::~GtGrid() = default;
@@ -291,7 +322,7 @@ GtGrid::vSpacing() const
 GtGridSpacing
 GtGrid::currentGridSpacing() const
 {
-    return pimpl->currentSpacing;
+    return pimpl->cachedSpacing;
 }
 
 GtGridSpacing
@@ -327,6 +358,7 @@ void
 GtGrid::setScalingStrategy(ScalingStrategy strategy)
 {
     pimpl->scalingStrategy = strategy;
+    pimpl->cachedZoom = 0.0;
 }
 
 GtGrid::ScalingStrategy
@@ -371,17 +403,61 @@ GtGrid::vSubdivions() const
     return pimpl->vSubdivisions;
 }
 
-void
-GtGrid::setVisibleAxis(bool show, VisibleAxis axis)
+bool
+GtGrid::isVisible() const
 {
-    if (axis.testFlag(Qt::Vertical))
-    {
-        pimpl->visibleAxis.setFlag(Qt::Vertical, show);
-    }
-    if (axis.testFlag(Qt::Horizontal))
-    {
-        pimpl->visibleAxis.setFlag(Qt::Horizontal, show);
-    }
+    return pimpl->isVisible;
+}
+
+void
+GtGrid::setVisible(bool visible)
+{
+    pimpl->isVisible = visible;
+    emit updated();
+}
+
+void
+GtGrid::hide()
+{
+    setVisible(false);
+}
+
+void
+GtGrid::show()
+{
+    setVisible(true);
+}
+
+void
+GtGrid::setShowGrid(bool show)
+{
+    pimpl->showGrid = show;
+    emit updated();
+}
+
+bool
+GtGrid::showGrid() const
+{
+    return pimpl->showGrid;
+}
+
+void
+GtGrid::setShowAxis(bool show)
+{
+    pimpl->showAxis = show;
+}
+
+bool
+GtGrid::showAxis() const
+{
+    return pimpl->showAxis;
+}
+
+void
+GtGrid::setVisibleAxis(VisibleAxis axis)
+{
+    pimpl->visibleAxis = axis;
+    emit updated();
 }
 
 GtGrid::VisibleAxis
@@ -467,71 +543,48 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
 {
     if (!rect.isValid()) return;
 
-    painter.save();
-    auto finally = gt::finally([&painter]{ painter.restore(); });
-    Q_UNUSED(finally);
+    if (!pimpl->isVisible || !pimpl->showGrid)
+    {
+        // update spacing
+        pimpl->cachedSpacing = scaledGridSpacing(painter.worldTransform().m11());
 
+        if (!pimpl->isVisible) return;
+    }
+
+    auto oldRenderHints = painter.renderHints();
     painter.setRenderHint(QPainter::Antialiasing, false);
 
-    if (pimpl->showGrid)
+    if (pimpl->showGrid && options.testFlag(PaintGrid))
     {
-        if (options.testFlag(PaintGrid)) pimpl->paintGridLines(painter, rect);
-        if (options.testFlag(PaintAxis)) pimpl->paintAxis(painter, rect);
+        pimpl->paintGridLines(painter, rect);
     }
+    if (pimpl->showAxis && options.testFlag(PaintAxis))
+    {
+        pimpl->paintAxis(painter, rect);
+    }
+    painter.setRenderHints(oldRenderHints);
 }
 
 QPointF
 GtGrid::computeTopLeftGridPoint(const QPointF& p)
 {
-    double tmpWidth  = pimpl->currentSpacing.hSpacing;
-    double tmpHeight = pimpl->currentSpacing.vSpacing;
-    assert(tmpWidth  > 0);
-    assert(tmpHeight > 0);
+    return pimpl->nearestTopLeftGridPoint(currentGridSpacing(), p);
+}
 
-    double xV = floor( p.x() / tmpWidth ) * tmpWidth;
-    double yV = floor( p.y() / tmpHeight ) * tmpHeight;
-
-    return {xV, yV};
+QPointF
+GtGrid::computeTopLeftMinorGridPoint(const QPointF& p)
+{
+    return pimpl->nearestTopLeftGridPoint(currentMinorGridSpacing(), p);
 }
 
 QPointF
 GtGrid::computeNearestGridPoint(const QPointF& p)
 {
-    double tmpWidth  = pimpl->currentSpacing.hSpacing;
-    double tmpHeight = pimpl->currentSpacing.vSpacing;
-    assert(tmpWidth  > 0);
-    assert(tmpHeight > 0);
-
-    double x = std::floor(p.x() / tmpWidth) * tmpWidth;
-    double y = std::floor(p.y() / tmpHeight) * tmpHeight;
-
-    if ((p.x() - x) > (tmpWidth * 0.5)) x += tmpWidth;
-    if ((p.y() - y) > (tmpHeight * 0.5)) y += tmpHeight;
-
-    return {x, y};
+    return pimpl->nearestGridPoint(currentGridSpacing(), p);
 }
 
-bool
-GtGrid::isVisible() const
+QPointF
+GtGrid::computeNearestMinorGridPoint(const QPointF& p)
 {
-    return pimpl->showGrid;
-}
-
-void
-GtGrid::setVisible(bool visible)
-{
-    pimpl->showGrid = visible;
-    emit visibilityChanged(visible);
-}
-
-void
-GtGrid::hide()
-{
-    setVisible(false);
-}
-
-void
-GtGrid::show()
-{
-    setVisible(true);
+    return pimpl->nearestGridPoint(currentMinorGridSpacing(), p);
 }

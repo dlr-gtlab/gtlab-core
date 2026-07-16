@@ -9,9 +9,7 @@
  */
 
 #include "gt_ruler.h"
-#include "gt_grid.h"
 #include "gt_colors.h"
-#include "gt_logging.h"
 
 #include <QPainter>
 #include <QPainterPath>
@@ -156,7 +154,6 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
 
     if (!backgroundRect.isValid())
     {
-        gtWarning() << "Scene Rect Invalid!";
         return;
     }
 
@@ -206,10 +203,11 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
         height = buffer().width();
 
         // NOTE: black magic
-        // (x,y) -> (y,x)
+        const double offset = buffer().height();
+        // transform (x,y) -> (y,x)
         const QTransform swap{0, 1, 1, 0, 0, 0};
-        // (x,y) -> (offset-x, y)
-        const QTransform toOffsetX{-1, 0, 0, 1, static_cast<double>(buffer().height()), 0};
+        // transform (x,y) -> (offset-x, y)
+        const QTransform toOffsetX{-1, 0, 0, 1, offset, 0};
 
         adjustedTransform  = swap;              // (pos, 0) -> (0, pos)
         adjustedTransform *= viewportTransform; // map in scene space
