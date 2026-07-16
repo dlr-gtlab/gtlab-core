@@ -12,7 +12,7 @@ class GtObjectMementoDiff;
 class GtPropertyStructContainer;
 
 
-struct GT_CORE_EXPORT AccessList
+struct GT_DATAMODEL_EXPORT AccessList
 {
 
     static

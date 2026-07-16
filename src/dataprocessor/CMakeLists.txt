@@ -156,7 +156,8 @@ set(SOURCES
 )
 
 
-add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL})
+add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL}
+    gt_accesstracking.h)
 add_library(GTlab::DataProcessor ALIAS GTlabDataProcessor)
 
 target_compile_definitions(GTlabDataProcessor PUBLIC GT_LOG_USE_QT_BINDINGS)
