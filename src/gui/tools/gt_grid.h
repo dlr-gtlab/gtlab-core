@@ -140,12 +140,24 @@ public:
     double minorGridCutoffDensity() const;
 
     /**
+     * @brief Sets both the vertical and horizontal subdivisions
+     * @param count Divisions
+     */
+    void setSubdivisions(unsigned count)
+    {
+        setHSubdivisions(count);
+        setVSubdivisions(count);
+    }
+
+    /**
      * @brief Sets the minor horizontal subdivisions
+     * @param count Divisions
      */
     void setHSubdivisions(unsigned count);
 
     /**
      * @brief Sets the minor vertical subdivisions
+     * @param count Divisions
      */
     void setVSubdivisions(unsigned count);
 
