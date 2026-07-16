@@ -40,7 +40,7 @@ struct GtRuler::Impl
     /// Orientation indicator
     Qt::Orientation orientation;
 
-    /// Offset for drawign the ruler. Needed in case the graphicsview has a
+    /// Offset for drawing the ruler. Needed in case the graphicsview has a
     /// frame
     int drawOffset = 0;
 
@@ -244,7 +244,7 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
     const unsigned stepSize = std::max(1, static_cast<int>(std::ceil(textRect.width() / tickPosDistance)));
     lineDistance *= stepSize;
 
-    // offset start-tick to make sure 0 tick is always vissbile
+    // offset start-tick to make sure 0 tick is always visible
     double rem = std::remainderl(leftStart, lineDistance);
     leftStart -= rem;
 

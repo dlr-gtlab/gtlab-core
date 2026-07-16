@@ -67,7 +67,7 @@ struct GtGrid::Impl
     unsigned vSpacing = 100;
 
     /// Subdivisions between major horizontal lines
-    unsigned hSubdivisons = 10;
+    unsigned hSubdivisions = 10;
 
     /// Subdivisions between major vertical lines
     unsigned vSubdivisions = 10;
@@ -215,11 +215,11 @@ struct GtGrid::Impl
         BufferedLineRender<1000> buffer{painter};
 
         const double majorLineDistance = cachedSpacing.hSpacing * pixelsPerSceneUnit;
-        const double cutoffDistance    = minorGridTooDenseThreshold * hSubdivisons;
+        const double cutoffDistance    = minorGridTooDenseThreshold * hSubdivisions;
         if (showMinorGrid && majorLineDistance >= cutoffDistance)
         {
             // draw also minor grid lines
-            const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisons);
+            const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisions);
             const double tmpVMinorSpacing = cachedSpacing.vSpacing / static_cast<double>(vSubdivisions);
 
             painter.setPen(minorPen);
@@ -336,7 +336,7 @@ GtGrid::currentMinorGridSpacing() const
 {
     const auto spacing = currentGridSpacing();
     return GtGridSpacing{
-        spacing.hSpacing / pimpl->hSubdivisons,
+        spacing.hSpacing / pimpl->hSubdivisions,
         spacing.vSpacing / pimpl->vSubdivisions
     };
 }
@@ -355,7 +355,7 @@ GtGrid::scaledMinorGridSpacing(double zoom) const
 {
     const auto spacing = scaledGridSpacing(zoom);
     return GtGridSpacing{
-        spacing.hSpacing / pimpl->hSubdivisons,
+        spacing.hSpacing / pimpl->hSubdivisions,
         spacing.vSpacing / pimpl->vSubdivisions
     };
 }
@@ -403,14 +403,14 @@ GtGrid::minorGridCutoffDensity() const
 void
 GtGrid::setHSubdivisions(unsigned count)
 {
-    pimpl->hSubdivisons = std::max(count, 1u);
+    pimpl->hSubdivisions = std::max(count, 1u);
     emit updated();
 }
 
 unsigned
 GtGrid::hSubdivisions() const
 {
-    return pimpl->hSubdivisons;
+    return pimpl->hSubdivisions;
 }
 
 void

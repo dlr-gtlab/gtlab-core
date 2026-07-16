@@ -51,14 +51,14 @@ public:
     void setOrientation(Qt::Orientation o);
 
     /**
-     * @brief Sets whether the axis is flipped, meaing that x becomes -x.
+     * @brief Sets whether the axis is flipped, meaning that x becomes -x.
      * By default the axis is flipped for vertical rulers.
      * @param flipped Whether to flip the axis.
      */
     void flipAxis(bool flipped = true);
 
     /**
-     * @brief Returns whether the axis is flipped, meaing that x becomes -x.
+     * @brief Returns whether the axis is flipped, meaning that x becomes -x.
      * @return Whether axis is flipped.
      */
     bool isAxisFlipped() const;
@@ -105,7 +105,7 @@ public:
     QSize textSizeHint(const QString& str) const;
 
     /**
-     * @brief Sets cursor postion to given point.
+     * @brief Sets cursor position to given point.
      * @param pos New cursor position
      */
     void setCursorPosition(const QPoint& pos);

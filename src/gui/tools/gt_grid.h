@@ -188,7 +188,7 @@ public:
     /**
      * @brief Returns the grid spacing scaled for the given zoom level using
      * the current scaling strategy
-     * @param zoom Zoom level (usually QTransfrom::m11)
+     * @param zoom Zoom level (usually QTransform::m11)
      * @return Scaled grid spacing
      */
     GtGridSpacing scaledGridSpacing(double zoom) const;
@@ -196,7 +196,7 @@ public:
     /**
      * @brief Returns the minor grid spacing scaled for the given zoom level
      * using the current scaling strategy
-     * @param zoom Zoom level (usually QTransfrom::m11)
+     * @param zoom Zoom level (usually QTransform::m11)
      * @return Scaled grid spacing
      */
     GtGridSpacing scaledMinorGridSpacing(double zoom) const;
