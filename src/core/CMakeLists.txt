@@ -118,7 +118,11 @@ set(headers
     gt_moduleloader.h
     gt_datamodelinterface.h
     gt_command.h
+<<<<<<< HEAD
     gt_moduleupgradeutilities.h
+=======
+    gt_accesstracking.h
+>>>>>>> 690ab047 (Moved accesslist singleton from gt_object into gt_accesstracking)
 )
 
 set(hdr_private
@@ -234,7 +238,11 @@ set(sources
     gt_moduleloader.cpp
     gt_command.cpp
     internal/gt_moduleupgrader.cpp
+<<<<<<< HEAD
     gt_moduleupgradeutilities.cpp
+=======
+    gt_accesstracking.cpp
+>>>>>>> 690ab047 (Moved accesslist singleton from gt_object into gt_accesstracking)
 )
 
 set(resources

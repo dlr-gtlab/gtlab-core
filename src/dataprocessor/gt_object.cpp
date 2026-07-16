@@ -18,6 +18,7 @@
 #include "gt_structproperty.h"
 #include "gt_propertystructcontainer.h"
 #include "gt_objectfactory.h"
+#include "gt_accesstracking.h"
 
 #include "gt_object.h"
 #include "gt_qtutilities.h"

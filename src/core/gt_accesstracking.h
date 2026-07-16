@@ -1,0 +1,41 @@
+#pragma once
+#include <gt_version.h>
+
+#include <QObject>
+
+
+class GtObjectMemento;
+class GtAbstractObjectFactory;
+class GtAbstractProperty;
+class GtObjectIO;
+class GtObjectMementoDiff;
+class GtPropertyStructContainer;
+
+
+struct GT_CORE_EXPORT AccessList
+{
+
+    static
+        AccessList &
+        instance()
+    {
+        static AccessList s;
+        return s;
+    }
+
+    AccessList(const AccessList &) = delete;
+    AccessList & operator = (const AccessList &) = delete;
+
+public:
+    QStringList getList();
+    void clearList();
+    void tracking(bool state);
+    void addAccessedProperty(QString uuid);
+private:
+    QStringList m_accessList{};
+    bool m_tracking=false;
+
+    AccessList() {}
+    ~AccessList() {}
+
+};
