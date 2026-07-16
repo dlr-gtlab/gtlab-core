@@ -16,6 +16,8 @@
 #include "gt_unitconverter.h"
 #include "gt_object.h"
 
+#include "gt_accesstracking.h"
+
 template<class ParamType>
 class GtProperty : public GtAbstractProperty
 {

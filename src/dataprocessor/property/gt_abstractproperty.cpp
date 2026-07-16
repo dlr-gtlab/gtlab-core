@@ -14,6 +14,7 @@
 
 #include "gt_abstractproperty.h"
 #include "gt_propertyconnection.h"
+#include "gt_accesstracking.h"
 
 GtAbstractProperty::~GtAbstractProperty() = default;
 
