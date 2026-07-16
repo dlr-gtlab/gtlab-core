@@ -101,7 +101,11 @@ set(HEADERS
     gt_algorithms.h
     gt_mpl.h
     gt_versionnumber.h
+<<<<<<< HEAD
     gt_boundaries.h
+=======
+    gt_accesstracking.h
+>>>>>>> eccb196a (Functional gt_accesstracking migration of accesslist)
 )
 
 set(SOURCES
