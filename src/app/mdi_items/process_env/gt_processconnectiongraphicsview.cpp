@@ -17,6 +17,7 @@
 #include "gt_propertyconnection.h"
 #include "gt_task.h"
 #include "gt_algorithms.h"
+#include "gt_guiutilities.h"
 
 #include "gt_processconnectiongraphicsview.h"
 
@@ -178,29 +179,20 @@ GtProcessConnectionGraphicsView::createConnection(
         return nullptr;
     }
 
-    QList<GtProcessPropertyConnectionEntity*> list =
-            m_scene->findItems<GtProcessPropertyConnectionEntity*>();
+    auto const list = gt::gui::findGraphicItems<GtProcessPropertyConnectionEntity*>(*m_scene);
 
     // check whether connection already exists in map
-    if (std::any_of(std::begin(list), std::end(list), [&connection](GtProcessPropertyConnectionEntity* entity) {
+    if (std::any_of(std::begin(list), std::end(list),
+                    [&connection](GtProcessPropertyConnectionEntity* entity) {
             return connection == entity->connection();
         }))
     {
         return nullptr;
     }
 
-    // check whether connection already exists in map
-//    if (m_connections.contains(connection))
-//    {
-//        return nullptr;
-//    }
-
     // create new conneciton entity
     GtProcessPropertyConnectionEntity* entity =
             new GtProcessPropertyConnectionEntity(connection);
-
-    // insert connection entity to map
-//    m_connections.insert(connection, entity);
 
     // add entity to scene
     m_scene->addItem(entity);
@@ -264,8 +256,7 @@ GtProcessConnectionGraphicsView::updateConnections()
 {
     // TODO: optimize for separate update based on input or output changes
 
-    QList<GtProcessPropertyConnectionEntity*> list =
-            m_scene->findItems<GtProcessPropertyConnectionEntity*>();
+    auto const list = gt::gui::findGraphicItems<GtProcessPropertyConnectionEntity*>(*m_scene);
 
     foreach (GtProcessPropertyConnectionEntity* entity, list)
     {
@@ -351,21 +342,6 @@ GtProcessConnectionGraphicsView::updateConnections()
 
         entity->updatePath();
     }
-
-    // iterate over all connection map entries
-//    for (auto e : m_connections.keys())
-//    {
-//        // get entity from map
-//        GtProcessPropertyConnectionEntity* entity = m_connections.value(e);
-
-//        // check entity
-//        if (!entity)
-//        {
-//            continue;
-//        }
-
-
-    //    }
 }
 
 void

@@ -12,8 +12,7 @@
 #ifndef GTPROCESSCONNECTIONSCENE_H
 #define GTPROCESSCONNECTIONSCENE_H
 
-#include "gt_graphicsscene.h"
-
+#include <QGraphicsScene>
 #include <QPointer>
 
 class QParallelAnimationGroup;
@@ -35,24 +34,6 @@ public:
      * @param Parent widget.
      */
     explicit GtProcessConnectionScene(GtProcessConnectionGraphicsView* parent);
-
-    template <class T>
-    QList<T> findItems()
-    {
-        QList<T> retval;
-
-        foreach (QGraphicsItem* item, items())
-        {
-            T obj = dynamic_cast<T>(item);
-
-            if (obj)
-            {
-                retval.append(obj);
-            }
-        }
-
-        return retval;
-    }
 
 public slots:
     /**

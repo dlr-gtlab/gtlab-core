@@ -41,9 +41,11 @@ inline double base10(double ideal, double baseSpacing)
     return baseSpacing * std::pow(10.0, n);
 }
 
-inline double oneTwoFive(double ideal, double /*baseSpacing*/)
+inline double oneTwoFive(double ideal, double baseSpacing)
 {
-    const double decadeExp = std::floor(std::log10(ideal));
+    double normalised = ideal / baseSpacing; // work in units of baseSpacing
+    double decadeExp  = std::floor(std::log10(normalised));
+//    const double decadeExp = std::floor(std::log10(ideal));
     const double fraction   = ideal / std::pow(10.0, decadeExp); // in [1, 10)
     assert(fraction >= 1 && fraction <  10);
 

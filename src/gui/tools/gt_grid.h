@@ -218,7 +218,7 @@ public:
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setShowGrid` or `setVisible` instead.")
     void showGrid(bool visible = true)
     {
-        setShowGrid(visible);
+        setVisible(visible); // not using setShowGrid for backwards compatibility
     }
     /**
      * @brief Sets whether the grid should be enabled or not. Independent of

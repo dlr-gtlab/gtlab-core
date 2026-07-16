@@ -23,6 +23,7 @@
 #include "gt_propertyconnection.h"
 #include "gt_task.h"
 #include "gt_colors.h"
+#include "gt_guiutilities.h"
 
 #include "gt_processconnectionscene.h"
 
@@ -64,7 +65,7 @@ GtProcessConnectionScene::animatePorts()
 
     QList<GtProcessPropertyPortEntity*> valids = validPorts(port);
     QList<GtProcessPropertyPortEntity*> invalids =
-            findItems<GtProcessPropertyPortEntity*>();
+        gt::gui::findGraphicItems<GtProcessPropertyPortEntity*>(*this);
 
     invalids.removeOne(port);
 
@@ -94,8 +95,7 @@ GtProcessConnectionScene::animatePorts()
 void
 GtProcessConnectionScene::resetPorts()
 {
-    QList<GtProcessPropertyPortEntity*> ports =
-            findItems<GtProcessPropertyPortEntity*>();
+    auto const ports = gt::gui::findGraphicItems<GtProcessPropertyPortEntity*>(*this);
 
     if (m_animationGroup)
     {
@@ -105,8 +105,7 @@ GtProcessConnectionScene::resetPorts()
 
     m_animationGroup = new QParallelAnimationGroup(this);
 
-
-    foreach (GtProcessPropertyPortEntity* port, ports)
+    for (GtProcessPropertyPortEntity* port : ports)
     {
         m_animationGroup->addAnimation(port->resetPortAnim());
     }
@@ -229,8 +228,7 @@ GtProcessConnectionScene::validPorts(GtProcessPropertyPortEntity* activePort)
         return QList<GtProcessPropertyPortEntity*>();
     }
 
-    QList<GtProcessPropertyPortEntity*> retval =
-            findItems<GtProcessPropertyPortEntity*>();
+    auto retval = gt::gui::findGraphicItems<GtProcessPropertyPortEntity*>(*this);
 
     retval.removeOne(activePort);
 
