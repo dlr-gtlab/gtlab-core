@@ -284,6 +284,25 @@ public slots:
      */
     void setProgress(int progress);
 
+    /**
+     * @brief publicRunnable - Access to protected runnable() for subclasses
+     * @return
+     */
+    const QPointer<GtAbstractRunnable>& publicRunnable() const;
+
+    /**
+     * @brief publicSetRunnable - Access to protected setRunnable() for subclasses
+     * @param p
+     * @return
+     */
+    GtProcessComponent& publicSetRunnable(QPointer<GtAbstractRunnable> p);
+
+    /**
+     * @brief setInputDataToRunnable - Set input data to attached runnable
+     * @param data
+     */
+    void setInputDataToRunnable(const QList<GtObjectMemento>& data);
+
 protected:
     /**
      * @brief Constructor
