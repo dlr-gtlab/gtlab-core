@@ -48,7 +48,8 @@
 namespace
 {
 
-gt::xml::ClassModuleMap taskClassModuleIds(const QString& projectPath)
+gt::xml::ClassModuleMap
+taskClassModuleIds(const QString& projectPath)
 {
     gt::xml::ClassModuleMap result;
     QDirIterator files(projectPath + QDir::separator() + QStringLiteral("tasks"),

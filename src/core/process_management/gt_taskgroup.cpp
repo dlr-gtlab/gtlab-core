@@ -33,7 +33,8 @@ static const char* S_CLASS_PROVIDERS_PROPERTY = "_gt_classProviders";
 namespace
 {
 
-QVariantMap toVariantMap(const gt::xml::ClassModuleMap& mappings)
+QVariantMap
+toVariantMap(const gt::xml::ClassModuleMap& mappings)
 {
     QVariantMap result;
     for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
@@ -43,7 +44,8 @@ QVariantMap toVariantMap(const gt::xml::ClassModuleMap& mappings)
     return result;
 }
 
-gt::xml::ClassModuleMap fromVariantMap(const QVariantMap& mappings)
+gt::xml::ClassModuleMap
+fromVariantMap(const QVariantMap& mappings)
 {
     gt::xml::ClassModuleMap result;
     for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
@@ -53,8 +55,8 @@ gt::xml::ClassModuleMap fromVariantMap(const QVariantMap& mappings)
     return result;
 }
 
-void addClassProviderMetadata(
-    QDomDocument& doc, const gt::xml::ClassModuleMap& preserved = {})
+void
+addClassProviderMetadata(QDomDocument& doc, const gt::xml::ClassModuleMap& preserved = {})
 {
     QDomElement root = doc.documentElement();
     gt::xml::ClassModuleMap mappings;
