@@ -1,23 +1,16 @@
 #pragma once
+
 #include <gt_version.h>
+#include "gt_datamodel_exports.h"
 
 #include <QObject>
 
-
-class GtObjectMemento;
-class GtAbstractObjectFactory;
-class GtAbstractProperty;
-class GtObjectIO;
-class GtObjectMementoDiff;
-class GtPropertyStructContainer;
 
 
 struct GT_DATAMODEL_EXPORT AccessList
 {
 
-    static
-        AccessList &
-        instance()
+    static AccessList & instance()
     {
         static AccessList s;
         return s;
