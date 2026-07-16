@@ -84,7 +84,12 @@ struct GtGrid::Impl
     /// Current grid spacing
     GtGridSpacing cachedSpacing{1.0, 1.0};
 
+    /// Last uses zoom factor
     double cachedZoom{};
+
+    /// Device independent pixel density at which point the minor grid should
+    /// not be drawn
+    double minorGridTooDenseThreshold = 9.1;
 
     /// Axis indicator
     VisibleAxis visibleAxis{};
@@ -199,9 +204,6 @@ struct GtGrid::Impl
 
     void paintGridLines(QPainter& painter, const QRectF& rect)
     {
-        // minimum distance between to minor lines in device independent pixels
-        constexpr double pixelDensityTooSparseMinor = 9.1;
-
         const double pixelsPerSceneUnit = std::abs(painter.worldTransform().m11());
         assert(pixelsPerSceneUnit > 0);
 
@@ -213,7 +215,8 @@ struct GtGrid::Impl
         BufferedLineRender<1000> buffer{painter};
 
         const double majorLineDistance = cachedSpacing.hSpacing * pixelsPerSceneUnit;
-        if (showMinorGrid && majorLineDistance > pixelDensityTooSparseMinor * hSubdivisons)
+        const double cutoffDistance    = minorGridTooDenseThreshold * hSubdivisons;
+        if (showMinorGrid && majorLineDistance >= cutoffDistance)
         {
             // draw also minor grid lines
             const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisons);
@@ -378,6 +381,18 @@ bool
 GtGrid::showMinorGrid() const
 {
     return pimpl->showMinorGrid;
+}
+
+void
+GtGrid::setMinorGridCutoffDensity(double cutoffDensity) const
+{
+    pimpl->minorGridTooDenseThreshold = std::max(0.0, cutoffDensity);
+}
+
+double
+GtGrid::minorGridCutoffDensity() const
+{
+    return pimpl->minorGridTooDenseThreshold;
 }
 
 void

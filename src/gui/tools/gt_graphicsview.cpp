@@ -72,8 +72,6 @@ GtGraphicsView::GtGraphicsView(QGraphicsScene* s, Options options, QWidget* pare
 
     setScene(s);
 
-    setTransformationAnchor(QGraphicsView::NoAnchor);
-    setResizeAnchor(QGraphicsView::NoAnchor);
     setDragMode(QGraphicsView::ScrollHandDrag);
 
     pimpl->zoomAnimation = new QVariantAnimation(this);

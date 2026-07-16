@@ -126,6 +126,20 @@ public:
     bool showMinorGrid() const;
 
     /**
+     * @brief Sets the device independent pixel distance at wich the
+     * minor grid should not be drawn, because it is too dense.
+     * @param cutoffDensity Cutoff density
+     */
+    void setMinorGridCutoffDensity(double cutoffDensity) const;
+
+    /**
+     * @brief Returns the device independent pixel distance at wich the
+     * minor grid is no longer drawn, because it is too dense.
+     * @return Cutoff density
+     */
+    double minorGridCutoffDensity() const;
+
+    /**
      * @brief Sets the minor horizontal subdivions
      */
     void setHSubdivions(unsigned count);
