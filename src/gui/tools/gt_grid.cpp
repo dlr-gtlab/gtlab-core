@@ -303,6 +303,7 @@ void
 GtGrid::setHSpacing(unsigned value)
 {
     pimpl->hSpacing = value;
+    emit updated();
 }
 
 unsigned
@@ -315,6 +316,7 @@ void
 GtGrid::setVSpacing(unsigned value)
 {
     pimpl->vSpacing = value;
+    emit updated();
 }
 
 unsigned
@@ -363,6 +365,7 @@ GtGrid::setScalingStrategy(ScalingStrategy strategy)
 {
     pimpl->scalingStrategy = strategy;
     pimpl->cachedZoom = 0.0;
+    emit updated();
 }
 
 GtGrid::ScalingStrategy
@@ -375,6 +378,7 @@ void
 GtGrid::setShowMinorGrid(bool show)
 {
     pimpl->showMinorGrid = show;
+    emit updated();
 }
 
 bool
@@ -387,6 +391,7 @@ void
 GtGrid::setMinorGridCutoffDensity(double cutoffDensity)
 {
     pimpl->minorGridTooDenseThreshold = std::max(0.0, cutoffDensity);
+    emit updated();
 }
 
 double
@@ -396,25 +401,27 @@ GtGrid::minorGridCutoffDensity() const
 }
 
 void
-GtGrid::setHSubdivions(unsigned count)
+GtGrid::setHSubdivisions(unsigned count)
 {
     pimpl->hSubdivisons = std::max(count, 1u);
+    emit updated();
 }
 
 unsigned
-GtGrid::hSubdivions() const
+GtGrid::hSubdivisions() const
 {
     return pimpl->hSubdivisons;
 }
 
 void
-GtGrid::setVSubdivions(unsigned count)
+GtGrid::setVSubdivisions(unsigned count)
 {
     pimpl->vSubdivisions = std::max(count, 1u);
+    emit updated();
 }
 
 unsigned
-GtGrid::vSubdivions() const
+GtGrid::vSubdivisions() const
 {
     return pimpl->vSubdivisions;
 }
@@ -461,6 +468,7 @@ void
 GtGrid::setShowAxis(bool show)
 {
     pimpl->showAxis = show;
+    emit updated();
 }
 
 bool
@@ -486,6 +494,7 @@ void
 GtGrid::setMajorPen(QPen pen)
 {
     pimpl->majorPen = pen;
+    emit updated();
 }
 
 QPen
@@ -498,6 +507,7 @@ void
 GtGrid::setLineColor(const QColor& color)
 {
     pimpl->majorPen.setColor(color);
+    emit updated();
 }
 
 QColor
@@ -510,6 +520,7 @@ void
 GtGrid::setMinorPen(QPen pen)
 {
     pimpl->minorPen = pen;
+    emit updated();
 }
 
 QPen
@@ -522,6 +533,7 @@ void
 GtGrid::setMinorLineColor(const QColor& color)
 {
     pimpl->minorPen.setColor(color);
+    emit updated();
 }
 
 QColor
@@ -534,6 +546,7 @@ void
 GtGrid::setAxisPen(QPen pen)
 {
     pimpl->axisPen = pen;
+    emit updated();
 }
 
 QPen
@@ -546,6 +559,7 @@ void
 GtGrid::setAxisColor(const QColor& color)
 {
     pimpl->axisPen.setColor(color);
+    emit updated();
 }
 
 QColor

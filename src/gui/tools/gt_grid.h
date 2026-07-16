@@ -140,26 +140,26 @@ public:
     double minorGridCutoffDensity() const;
 
     /**
-     * @brief Sets the minor horizontal subdivions
+     * @brief Sets the minor horizontal subdivisions
      */
-    void setHSubdivions(unsigned count);
+    void setHSubdivisions(unsigned count);
 
     /**
-     * @brief Sets the minor vertical subdivions
+     * @brief Sets the minor vertical subdivisions
      */
-    void setVSubdivions(unsigned count);
+    void setVSubdivisions(unsigned count);
 
     /**
-     * @brief Returns the horizontal subdivions
-     * @return Minor horizontal subdivions
+     * @brief Returns the horizontal subdivisions
+     * @return Minor horizontal subdivisions
      */
-    unsigned hSubdivions() const;
+    unsigned hSubdivisions() const;
 
     /**
-     * @brief Returns the vertical subdivions
-     * @return Minor vertical subdivions
+     * @brief Returns the vertical subdivisions
+     * @return Minor vertical subdivisions
      */
-    unsigned vSubdivions() const;
+    unsigned vSubdivisions() const;
 
     /**
      * @brief Returns the current spacing for the major grid
@@ -441,7 +441,7 @@ signals:
     void update();
 
     /**
-     * @brief Emitted if the visibility of the grid or axis changed
+     * @brief Emitted if the grid settings updated
      */
     void updated();
 
