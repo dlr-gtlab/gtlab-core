@@ -53,11 +53,11 @@ GT_GUI_EXPORT gt::gui::applicationTheme theme();
 GT_GUI_EXPORT bool isApplicationDarkTheme();
 
 template <class T, class Obj>
-QList<T> findGraphicItems(Obj& obj)
+QList<T> findGraphicItems(Obj& o)
 {
     QList<T> retval;
 
-    for (auto* item : obj.items())
+    for (auto* item : o.items())
     {
         T obj = dynamic_cast<T>(item);
 

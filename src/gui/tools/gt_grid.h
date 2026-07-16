@@ -130,7 +130,7 @@ public:
      * minor grid should not be drawn, because it is too dense.
      * @param cutoffDensity Cutoff density
      */
-    void setMinorGridCutoffDensity(double cutoffDensity) const;
+    void setMinorGridCutoffDensity(double cutoffDensity);
 
     /**
      * @brief Returns the device independent pixel distance at wich the

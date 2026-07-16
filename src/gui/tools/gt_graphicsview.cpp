@@ -232,8 +232,9 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
 void
 GtGraphicsView::scale(double dx, double /*dy*/)
 {
+    // only allow zooms, that conform to the aspect ratio
     QGraphicsView::scale(dx, dx);
-    emit zoomChanged(dx);
+    emit zoomChanged(zoom());
 }
 
 void
@@ -290,7 +291,7 @@ GtGraphicsView::snapToGrid() const
     return pimpl->snapToGrid;
 }
 
-bool
+double
 GtGraphicsView::snapToGridThreshold() const
 {
     return pimpl->snapThreshold;

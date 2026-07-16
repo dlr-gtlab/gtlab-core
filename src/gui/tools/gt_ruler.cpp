@@ -20,7 +20,7 @@
 
 struct GtRuler::Impl
 {
-    Impl(Qt::Orientation o) : orientation{o} {}
+    explicit Impl(Qt::Orientation o) : orientation{o} {}
 
     /// Cache for rendered ruler (native format for QPainter)
     QPixmap cache{20, 20};
@@ -85,6 +85,13 @@ Qt::Orientation
 GtRuler::orientation() const
 {
     return pimpl->orientation;
+}
+
+void
+GtRuler::setOrientation(Qt::Orientation o)
+{
+    pimpl->orientation = o;
+    invalidate();
 }
 
 void

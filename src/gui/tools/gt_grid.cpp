@@ -45,7 +45,7 @@ inline double oneTwoFive(double ideal, double baseSpacing)
     double normalised = ideal / baseSpacing; // work in units of baseSpacing
     double decadeExp  = std::floor(std::log10(normalised));
 //    const double decadeExp = std::floor(std::log10(ideal));
-    const double fraction   = ideal / std::pow(10.0, decadeExp); // in [1, 10)
+    const double fraction   = normalised / std::pow(10.0, decadeExp); // in [1, 10)
     assert(fraction >= 1 && fraction <  10);
 
     const double multiplier =
@@ -384,7 +384,7 @@ GtGrid::showMinorGrid() const
 }
 
 void
-GtGrid::setMinorGridCutoffDensity(double cutoffDensity) const
+GtGrid::setMinorGridCutoffDensity(double cutoffDensity)
 {
     pimpl->minorGridTooDenseThreshold = std::max(0.0, cutoffDensity);
 }

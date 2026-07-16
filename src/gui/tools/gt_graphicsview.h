@@ -182,7 +182,7 @@ public:
      * moving items by the cursor.
      * @return Snap to grid threshold
      */
-    bool snapToGridThreshold() const;
+    double snapToGridThreshold() const;
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setSnapToGrid` instead.")
     Q_INVOKABLE void snapToGrid(bool enable) { setSnapToGrid(enable); }
