@@ -11,7 +11,7 @@
 #ifndef GT_GRIDSPACING_H
 #define GT_GRIDSPACING_H
 
-/// Defiens the actual spacing of a grid
+/// Defines the actual spacing of a grid
 struct GtGridSpacing
 {
     double hSpacing = 0.0, vSpacing = 0.0;

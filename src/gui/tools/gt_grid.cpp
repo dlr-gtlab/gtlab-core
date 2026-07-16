@@ -97,16 +97,16 @@ struct GtGrid::Impl
     /// Grid scaling strategy
     ScalingStrategy scalingStrategy = DefaultScalingStrategy;
 
-    /// Hide grid
+    /// Global visibility flag
     bool isVisible = true;
 
-    /// Hide grid
+    /// Grid only visibility flag
     bool showGrid = true;
 
-    /// Hide grid
+    /// Axis only visibility flag
     bool showAxis = false;
 
-    /// Grid points indicator
+    /// Minor grid only visibility flag
     bool showMinorGrid = true;
 
     /// helper class that renders multiple lines with few draw calls

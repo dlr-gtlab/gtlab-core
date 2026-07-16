@@ -237,13 +237,6 @@ GtGraphicsView::scale(double dx, double /*dy*/)
     emit zoomChanged(zoom());
 }
 
-void
-GtGraphicsView::zoomByPercentage(double percentage)
-{
-    double factor = (percentage / 100.0) / zoom();
-    zoomBy(factor);
-}
-
 double
 GtGraphicsView::zoom() const
 {
@@ -271,6 +264,14 @@ GtGraphicsView::zoomBy(double scale)
     }
 
     this->scale(scale, scale);
+}
+
+void
+GtGraphicsView::zoomByPercentage(double percentage)
+{
+    assert(zoom() > 0);
+    double factor = (percentage / 100.0) / zoom();
+    zoomBy(factor);
 }
 
 void
@@ -342,7 +343,7 @@ GtGraphicsView::setSnapToGridThreshold(double threshold)
 void
 GtGraphicsView::snapItemToGrid(QGraphicsItem& item, QPoint mousePos)
 {
-    if ( !(item.flags() & QGraphicsItem::ItemIsMovable))
+    if (!(item.flags() & QGraphicsItem::ItemIsMovable) || !grid())
     {
         return;
     }
@@ -370,6 +371,8 @@ GtGraphicsView::snapItemToGrid(QGraphicsItem& item, QPoint mousePos)
 void
 GtGraphicsView::snapItemToGrid(QGraphicsItem& item)
 {
+    if (!grid()) return;
+
     QPointF ibrc = item.boundingRect().center();
     QPointF np = grid()->computeNearestGridPoint(item.mapToScene(ibrc));
     item.setPos(np - ibrc);

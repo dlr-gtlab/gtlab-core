@@ -126,14 +126,14 @@ public:
     bool showMinorGrid() const;
 
     /**
-     * @brief Sets the device independent pixel distance at wich the
+     * @brief Sets the device independent pixel distance at which the
      * minor grid should not be drawn, because it is too dense.
      * @param cutoffDensity Cutoff density
      */
     void setMinorGridCutoffDensity(double cutoffDensity);
 
     /**
-     * @brief Returns the device independent pixel distance at wich the
+     * @brief Returns the device independent pixel distance at which the
      * minor grid is no longer drawn, because it is too dense.
      * @return Cutoff density
      */
@@ -245,14 +245,14 @@ public:
     Q_INVOKABLE void setShowGrid(bool show);
 
     /**
-     * @brief Returns whether the gid is visible
+     * @brief Returns whether the grid is visible
      * @return Is grid shown
      */
     bool showGrid() const;
 
     /**
      * @brief Sets whether the axis should be enabled or not. Independent of
-     * show gid.
+     * show grid.
      * @param show Whether to show the axis
      */
     Q_INVOKABLE void setShowAxis(bool show);
@@ -414,7 +414,7 @@ public:
      * @brief Sets current grid scale factor.
      * @param val Grid scale factor
      */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Determined when panting, no replacement is planned")
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Determined when painting, no replacement is planned")
     void setGridScaleFactor(int val) {}
 
     /**
