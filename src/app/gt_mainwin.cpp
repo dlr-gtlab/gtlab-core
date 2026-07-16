@@ -84,7 +84,7 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui->centralwidget->setParent(nullptr);
     auto* manager = new ads::CDockManager(this);
 
-    auto* area = new ads::CDockWidget(QStringLiteral("Home"));
+    auto* area = new ads::CDockWidget(manager, QStringLiteral("Home"));
     area->setWidget(ui->centralwidget);
     manager->setCentralWidget(area);
 
@@ -450,17 +450,24 @@ GtMainWin::setupDockWidgets()
 #if USE_ALTERNATIVE_DOCKING_SYSTEM
             auto* manager = (ads::CDockManager*)(this->centralWidget());
 
-            auto* dock = new ads::CDockWidget(legacyDock->objectName());
+            auto* dock = new ads::CDockWidget(manager, legacyDock->objectName());
             dock->setIcon(legacyDock->getIcon());
             dock->setWidget(legacyDock);
-            manager->addDockWidget((ads::DockWidgetArea)legacyDock->getDockWidgetArea(), dock);
+            auto* area = manager->addDockWidget(static_cast<ads::DockWidgetArea>(legacyDock->getDockWidgetArea()), dock);
 
             legacyDock->setTitleBarWidget(new QWidget());
             legacyDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
 
-            dock->setFrameShape(QFrame::NoFrame);
+            // style buttons more appropriately
+            for (auto* child : area->findChildren<QPushButton*>(QStringLiteral("tabCloseButton")))
+            {
+                child->setFlat(true);
+                child->resize(child->height(), child->height());
+            }
 
-            for (auto* child : dock->findChildren<QFrame*>())
+            // remove frames
+            dock->setFrameShape(QFrame::NoFrame);
+            for (auto* child : dock->findChildren<QFrame*>(QStringLiteral("dockWidgetScrollArea"), Qt::FindDirectChildrenOnly))
             {
                 child->setFrameShape(QFrame::NoFrame);
             }
