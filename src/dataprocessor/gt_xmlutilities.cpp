@@ -143,6 +143,12 @@ void
 gt::xml::writeClassModuleMap(QDomElement& root, QDomDocument& doc,
                              const ClassModuleMap& mappings)
 {
+    QDomElement modules =
+        root.firstChildElement(QLatin1String(S_MODULES_TAG));
+    QDomElement legacyProviders =
+        modules.firstChildElement(QLatin1String(S_CLASS_PROVIDERS_TAG));
+    if (!legacyProviders.isNull()) modules.removeChild(legacyProviders);
+
     QDomElement metadata =
         root.firstChildElement(QLatin1String(S_METADATA_TAG));
     QDomElement oldProviders =
@@ -168,8 +174,6 @@ gt::xml::writeClassModuleMap(QDomElement& root, QDomDocument& doc,
     if (metadata.isNull())
     {
         metadata = doc.createElement(QLatin1String(S_METADATA_TAG));
-        const QDomElement modules =
-            root.firstChildElement(QLatin1String(S_MODULES_TAG));
         if (!modules.isNull())
         {
             root.insertAfter(metadata, modules);

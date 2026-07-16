@@ -316,6 +316,58 @@ TEST(GtXmlUtilities, TakesLegacyClassModuleMapFromModules)
                     .isNull());
 }
 
+TEST(GtXmlUtilities, ModernClassModuleMapWinsAndBothLocationsAreRemoved)
+{
+    QDomDocument doc;
+    ASSERT_TRUE(doc.setContent(QStringLiteral(R"(
+        <GTLAB><MODULES><CLASS-PROVIDERS>
+        <MODULE name="LegacyModule"><CLASS name="LegacyClass"/>
+        <CLASS name="SharedClass"/></MODULE></CLASS-PROVIDERS></MODULES>
+        <METADATA><OTHER/><CLASS-PROVIDERS>
+        <MODULE name="ModernModule"><CLASS name="ModernClass"/>
+        <CLASS name="SharedClass"/></MODULE></CLASS-PROVIDERS>
+        </METADATA></GTLAB>)")));
+    QDomElement root = doc.documentElement();
+
+    const auto mappings = gt::xml::takeClassModuleMap(root);
+
+    EXPECT_EQ(mappings.size(), 2);
+    EXPECT_FALSE(mappings.contains(QStringLiteral("LegacyClass")));
+    EXPECT_EQ(mappings.value(QStringLiteral("ModernClass")),
+              QStringLiteral("ModernModule"));
+    EXPECT_EQ(mappings.value(QStringLiteral("SharedClass")),
+              QStringLiteral("ModernModule"));
+    EXPECT_TRUE(root.firstChildElement(QStringLiteral("MODULES"))
+                    .firstChildElement(QStringLiteral("CLASS-PROVIDERS"))
+                    .isNull());
+    const QDomElement metadata =
+        root.firstChildElement(QStringLiteral("METADATA"));
+    ASSERT_FALSE(metadata.isNull());
+    EXPECT_TRUE(metadata
+                    .firstChildElement(QStringLiteral("CLASS-PROVIDERS"))
+                    .isNull());
+    EXPECT_FALSE(metadata.firstChildElement(QStringLiteral("OTHER")).isNull());
+}
+
+TEST(GtXmlUtilities, WritingClassModuleMapRemovesLegacyLocation)
+{
+    QDomDocument doc;
+    ASSERT_TRUE(doc.setContent(QStringLiteral(R"(
+        <GTLAB><MODULES><CLASS-PROVIDERS>
+        <MODULE name="LegacyModule"><CLASS name="LegacyClass"/>
+        </MODULE></CLASS-PROVIDERS></MODULES></GTLAB>)")));
+    QDomElement root = doc.documentElement();
+    const gt::xml::ClassModuleMap mappings{
+        {QStringLiteral("ModernClass"), QStringLiteral("ModernModule")}};
+
+    gt::xml::writeClassModuleMap(root, doc, mappings);
+
+    EXPECT_TRUE(root.firstChildElement(QStringLiteral("MODULES"))
+                    .firstChildElement(QStringLiteral("CLASS-PROVIDERS"))
+                    .isNull());
+    EXPECT_EQ(gt::xml::readClassModuleMap(root), mappings);
+}
+
 TEST(GtXmlUtilities, FiltersClassModuleMapToSerializedObjects)
 {
     QDomDocument doc;

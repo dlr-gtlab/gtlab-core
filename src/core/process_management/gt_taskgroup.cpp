@@ -61,6 +61,7 @@ void addClassProviderMetadata(
     for (const QString& className : gt::xml::objectClassNames(root))
     {
         QString moduleId = gtProcessFactory->moduleId(className);
+        if (moduleId.isEmpty()) moduleId = gtObjectFactory->moduleId(className);
         if (moduleId.isEmpty()) moduleId = preserved.value(className);
         if (!moduleId.isEmpty()) mappings.insert(className, moduleId);
     }
