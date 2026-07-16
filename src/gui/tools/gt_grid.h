@@ -198,13 +198,13 @@ public:
      * @brief Sets the visibility of the grid
      * @param visible Whether the grid should be visible or hidden
      */
-    void setVisible(bool visible = true);
+    Q_INVOKABLE void setVisible(bool visible = true);
 
     /// hides the grid and axis
-    void hide();
+    Q_INVOKABLE void hide();
 
     /// shows the grid and axis
-    void show();
+    Q_INVOKABLE void show();
 
     /**
      * @brief Returns whether the grid is visible
@@ -213,13 +213,13 @@ public:
     bool isVisible() const;
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setShowGrid` or `setVisible` instead.")
-    void hideGrid(bool hidden = true)
+    Q_INVOKABLE void hideGrid(bool hidden = true)
     {
         showGrid(!hidden);
     }
 
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setShowGrid` or `setVisible` instead.")
-    void showGrid(bool visible = true)
+    Q_INVOKABLE void showGrid(bool visible = true)
     {
         setVisible(visible); // not using setShowGrid for backwards compatibility
     }
@@ -228,7 +228,7 @@ public:
      * show axis.
      * @param show Whether to show the axis
      */
-    void setShowGrid(bool show);
+    Q_INVOKABLE void setShowGrid(bool show);
 
     /**
      * @brief Returns whether the gid is visible
@@ -241,7 +241,7 @@ public:
      * show gid.
      * @param show Whether to show the axis
      */
-    void setShowAxis(bool show);
+    Q_INVOKABLE void setShowAxis(bool show);
 
     /**
      * @brief Returns whether the axis is visible

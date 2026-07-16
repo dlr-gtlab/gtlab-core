@@ -12,7 +12,6 @@
 #include "gt_colors.h"
 
 #include <QPainter>
-GT_DEPRECATED_REMOVED_IN(2, 2, "QGraphicsView include not needed");
 #include <QGraphicsView>
 
 #include <cmath>
@@ -67,10 +66,10 @@ struct GtGrid::Impl
     /// Grid vertical spacing
     unsigned vSpacing = 100;
 
-    /// Grid horizontal lines inbetween major horizontal lines
+    /// Subdivisions between major horizontal lines
     unsigned hSubdivisons = 10;
 
-    /// Grid vertical lines inbetween major vertical lines
+    /// Subdivisions between major vertical lines
     unsigned vSubdivisions = 10;
 
     /// Pen for major grid lines
@@ -201,7 +200,7 @@ struct GtGrid::Impl
     void paintGridLines(QPainter& painter, const QRectF& rect)
     {
         // minimum distance between to minor lines in device independent pixels
-        constexpr double pixelDensityTooSparseMinor = 91.0;
+        constexpr double pixelDensityTooSparseMinor = 9.1;
 
         const double pixelsPerSceneUnit = std::abs(painter.worldTransform().m11());
         assert(pixelsPerSceneUnit > 0);
@@ -214,7 +213,7 @@ struct GtGrid::Impl
         BufferedLineRender<1000> buffer{painter};
 
         const double majorLineDistance = cachedSpacing.hSpacing * pixelsPerSceneUnit;
-        if (majorLineDistance > pixelDensityTooSparseMinor)
+        if (showMinorGrid && majorLineDistance > pixelDensityTooSparseMinor * hSubdivisons)
         {
             // draw also minor grid lines
             const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisons);

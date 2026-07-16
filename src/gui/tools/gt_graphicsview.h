@@ -37,7 +37,9 @@ public:
         /// is deleted, if the view is deleted.
         /// (default for backwards compatibility,
         ///  normally QGraphicsScene is NOT owned by a QGraphicsView)
-        DestroyActiveSceneOnDeletion = 1 << 0
+        DestroyActiveSceneOnDeletion = 1 << 0,
+        /// Disables smooth zooming when using the mouse wheel
+        NoSmoothZoom = 1 << 1,
     };
     using Options = QFlags<Option>;
 
@@ -110,19 +112,32 @@ public:
     void repaintRuler() {}
 
     /**
-     * @brief Sets the view zoom level to the given factor in percent.
-     * @param percentage New zoom factor
+     * @brief Sets view scale to given factor.
+     * Same as setZoom.
+     * @param val New Scale factor
      */
-    void setScalePercentage(double percentage)
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `zoomBy` instead.")
+    Q_INVOKABLE void setScale(double scale)
     {
-        setZoomPercentage(percentage);
+        zoomBy(scale);
     }
 
     /**
      * @brief Sets the view zoom level to the given factor in percent.
+     * Same as setZoomPercentage.
      * @param percentage New zoom factor
      */
-    void setZoomPercentage(double percentage);
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use zoomByPercentage instead.")
+    Q_INVOKABLE void setScalePercentage(double percentage)
+    {
+        zoomByPercentage(percentage);
+    }
+
+    /**
+     * @brief Returns the current zoom level
+     * @return Zoom level
+     */
+    double zoom() const;
 
     /**
      * @brief Returns the current zoom level in percent.
@@ -131,10 +146,18 @@ public:
     double zoomPercentage() const;
 
     /**
-     * @brief Returns the current zoom level
-     * @return Zoom level
+     * @brief Sets the new zoom level.
+     * @param scale New zoom level
      */
-    double zoom() const;
+    Q_INVOKABLE void zoomBy(double scale);
+
+    /**
+     * @brief Sets the view zoom level to the given factor in percent.
+     * @param percentage New zoom factor
+     */
+    Q_INVOKABLE void zoomByPercentage(double percentage);
+
+    void animateZoomTowards(const QPointF& scenePos, double factor);
 
     /**
      * @brief Sets maximum zoom factor.
@@ -161,43 +184,45 @@ public:
      */
     bool snapToGridThreshold() const;
 
-    /**
-     * @brief snapItemToGrid
-     * @param item
-     */
-    void snapItemToGrid(QGraphicsItem* item);
-
-public slots:
-
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `setSnapToGrid` instead.")
-    void snapToGrid(bool enable) { setSnapToGrid(enable); }
+    Q_INVOKABLE void snapToGrid(bool enable) { setSnapToGrid(enable); }
 
     /**
      * @brief Sets whether items are snapped to the grid when moving
      * @param enable Snap to grid indicator
      */
-    void setSnapToGrid(bool enable);
+    Q_INVOKABLE void setSnapToGrid(bool enable);
 
     /**
      * @brief Sets the snap to grid threshold. The threshold is used when moving
-     * items by the cursor.
+     * items by the cursor. Threshold value is in the view's coordinate system.
      * @param threshold Snap to grid threshold. Use 0 to disable the threshold.
      */
-    void setSnapToGridThreshold(double threshold);
+    Q_INVOKABLE void setSnapToGridThreshold(double threshold);
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `snapItemToGrid(QGraphicsItem&)` instead.")
+    Q_INVOKABLE void snapItemToGrid(QGraphicsItem* item)
+    {
+        if (item) snapItemToGrid(*item);
+    }
 
     /**
-     * @brief Sets view scale to given factor.
-     * @param val New Scale factor
+     * @brief Snaps the item to the nearest grid point, regardless of the
+     * threshold snapping distance
+     * @param item
      */
-    void setScale(double scale);
+    Q_INVOKABLE void snapItemToGrid(QGraphicsItem& item);
+
+    /// "overrides" QGraphicsView::scale method to react to changes to scale
+    void scale(double dx, double dy);
 
 signals:
 
     /// Signal which is emitted when the zoom factor changed
     void zoomChanged(double);
 
-    /// Signal which is emitted when the mouse position changed
-    void mousePositionChanged(const QPointF);
+    /// Signal which is emitted when the mouse position changed (scene position)
+    void mousePositionChanged(QPointF);
 
 protected:
 
@@ -213,29 +238,24 @@ protected:
 
 private:
 
+    // hide and expose own scale function
+    using QGraphicsView::scale;
+    // not supported, may cause artifacts with grid or rulers
+    using QGraphicsView::rotate;
+    // not supported, may cause artifacts with grid or rulers
+    using QGraphicsView::shear;
+
     struct Impl;
     std::unique_ptr<Impl> pimpl;
 
-    /**
-     * @brief Smooth zoom animation.
-     * @param delta Wheel delta
-     */
-    void zoomAnimation(int delta);
+    void applyZoomAnimation(double scale);
 
     /**
      * @brief Snaps selected item to the closest grid point.
      * @param item Selected graphics item
      * @param mousePos Mouse position from where the closest grid point is determined
      */
-    void snapItemToGrid(QGraphicsItem* item, QPoint mousePos);
-
-private slots:
-
-    /// Called to update view scale.
-    void scalingTime();
-
-    /// Called at animation finish.
-    void animFinished();
+    void snapItemToGrid(QGraphicsItem& item, QPoint mousePos);
 };
 
 #endif // GT_GRAPHICSVIEW_H
