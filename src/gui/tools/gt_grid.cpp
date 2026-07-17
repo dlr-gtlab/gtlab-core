@@ -202,9 +202,9 @@ struct GtGrid::Impl
         }
     }
 
-    void paintGridLines(QPainter& painter, const QRectF& rect)
+    void paintGridLines(QPainter& painter, const QRectF& rect, double zoom)
     {
-        const double pixelsPerSceneUnit = std::abs(painter.worldTransform().m11());
+        const double pixelsPerSceneUnit = std::abs(zoom);
         assert(pixelsPerSceneUnit > 0);
 
         cachedSpacing = scaledGridSpacing(pixelsPerSceneUnit);
@@ -586,7 +586,7 @@ GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
 
     if (pimpl->showGrid && options.testFlag(PaintGrid))
     {
-        pimpl->paintGridLines(painter, rect);
+        pimpl->paintGridLines(painter, rect, painter.worldTransform().m11());
     }
     if (pimpl->showAxis && options.testFlag(PaintAxis))
     {

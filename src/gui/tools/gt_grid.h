@@ -16,7 +16,6 @@
 #include <gt_version.h>
 
 #include <QObject>
-#include <QPointF>
 #include <QColor>
 #include <QRectF>
 
@@ -388,11 +387,14 @@ public:
     }
 
     /**
-     * @brief Paints full grid.
+     * @brief Paints the full grid and axis.
      * @param painter QPainter pointer
      * @param rect Scene rect
+     * @param options Paint options
      */
-    virtual void paint(QPainter& painter, const QRectF& rect, PaintOptions options = PaintAll);
+    virtual void paint(QPainter& painter,
+                       const QRectF& rect,
+                       PaintOptions options = PaintAll);
 
     /**
      * @brief Returns the top left major grid point
