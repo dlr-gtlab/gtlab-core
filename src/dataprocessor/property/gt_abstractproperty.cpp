@@ -37,7 +37,7 @@ GtAbstractProperty::valueToVariant() const
 {
     if (m_pimpl->m_ownerObject)
     {
-        AccessList::instance().addAccessedProperty(m_pimpl->m_ownerObject->uuid());
+        GtAccessTracker::instance().addAccessedProperty(m_pimpl->m_ownerObject->uuid());
     }
     return valueToVariant(QString());
 }
