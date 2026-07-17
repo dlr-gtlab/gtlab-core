@@ -216,7 +216,7 @@ private slots:
      * @brief perspectiveChanged
      * @param id
      */
-    void loadPerspectiveSettings(const QString& id = QString());
+    void loadPerspectiveSettings(const QString& id = {});
 
     /**
      * @brief savePerspectiveSettings

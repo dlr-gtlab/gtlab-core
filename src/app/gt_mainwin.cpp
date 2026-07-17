@@ -44,6 +44,7 @@
 #include "gt_examplesmdiwidget.h"
 #include "gt_sessionviewer.h"
 #include "gt_startuppage.h"
+#include "gt_perspective.h"
 
 #include <QDir>
 #include <QKeyEvent>
@@ -83,6 +84,8 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     ui->centralwidget->setParent(nullptr);
     auto* manager = new ads::CDockManager(this);
+    manager->setObjectName(QStringLiteral("DockManager"));
+    manager->setConfigFlag(ads::CDockManager::DockAreaHasTabsMenuButton, false);
 
     auto* area = new ads::CDockWidget(manager, QStringLiteral("Home"));
     area->setWidget(ui->centralwidget);
@@ -439,6 +442,10 @@ GtMainWin::resizeEvent(QResizeEvent *event)
 void
 GtMainWin::setupDockWidgets()
 {
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+    auto* manager = (ads::CDockManager*)(this->centralWidget());
+    assert(manager);
+#endif
     foreach (const QString& id, gtMdiLauncher->dockWidgetIds())
     {
         const QMetaObject& metaObj = gtMdiLauncher->dockWidget(id);
@@ -448,13 +455,11 @@ GtMainWin::setupDockWidgets()
         if (legacyDock)
         {
 #if USE_ALTERNATIVE_DOCKING_SYSTEM
-            auto* manager = (ads::CDockManager*)(this->centralWidget());
-
             auto* dock = new ads::CDockWidget(manager, legacyDock->objectName());
             dock->setIcon(legacyDock->getIcon());
             dock->setWidget(legacyDock);
+            dock->setObjectName(legacyDock->objectName());
             auto* area = manager->addDockWidget(static_cast<ads::DockWidgetArea>(legacyDock->getDockWidgetArea()), dock);
-
             legacyDock->setTitleBarWidget(new QWidget());
             legacyDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
 
@@ -844,15 +849,33 @@ GtMainWin::onPerspectiveAction(QObject* widget)
 void
 GtMainWin::loadPerspectiveSettings(const QString& /*id*/)
 {
-    QPair<QByteArray, QByteArray> persData = gtApp->loadPerspectiveData();
-    restoreGeometry(persData.first);
-    restoreState(persData.second);
+    GtPerspective* perspective = gtApp->perspective();
+    if (!perspective) return;
+
+    restoreGeometry(perspective->loadGeometry());
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+    auto* manager = (ads::CDockManager*)(this->centralWidget());
+    assert(manager);
+    constexpr int version = 0;
+    manager->restoreState(perspective->loadDockState(), version);
+#endif
+    restoreState(perspective->loadState());
 }
 
 void
 GtMainWin::savePerspectiveSettings()
 {
-    gtApp->savePerspectiveData(saveGeometry(), saveState());
+    GtPerspective* perspective = gtApp->perspective();
+    if (!perspective) return;
+
+    perspective->saveGeometry(saveGeometry());
+#if USE_ALTERNATIVE_DOCKING_SYSTEM
+    auto* manager = (ads::CDockManager*)(this->centralWidget());
+    assert(manager);
+    constexpr int version = 0;
+    perspective->saveDockState(manager->saveState(version));
+#endif
+    perspective->saveState(saveState());
 }
 
 void
