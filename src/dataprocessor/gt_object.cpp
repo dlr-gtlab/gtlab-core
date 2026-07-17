@@ -1047,31 +1047,6 @@ gt::moveToThread(GtObject& object, QThread* thread)
     object.QObject::moveToThread(thread);
 }
 
-QStringList AccessList::getList()
-{
-    return m_accessList;
-}
-
-void AccessList::clearList()
-{
-    m_accessList.clear();
-}
-
-void AccessList::tracking(bool state)
-{
-    gtInfo() << "activateTracking set to "<< state;
-    m_tracking = state;
-}
-
-
-void AccessList::addAccessedProperty(QString uuid)
-{
-    if (m_tracking == true)
-    {
-        gtInfo() << "Object added: "<<uuid;
-        m_accessList.append(uuid);
-    }
-}
 
 
 void GtObject::clearAccessList()

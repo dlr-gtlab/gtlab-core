@@ -154,10 +154,12 @@ set(SOURCES
     gt_versionnumber.cpp
     gt_regexp.cpp
     gt_regularexpression.cpp
+    gt_accesstracking.cpp
 )
 
 
 add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL}
+
     )
 add_library(GTlab::DataProcessor ALIAS GTlabDataProcessor)
 
