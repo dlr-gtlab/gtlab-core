@@ -300,9 +300,9 @@ GtGrid::GtGrid(QObject* parent) :
 GtGrid::~GtGrid() = default;
 
 void
-GtGrid::setHSpacing(unsigned value)
+GtGrid::setHSpacing(unsigned spacing)
 {
-    pimpl->hSpacing = value;
+    pimpl->hSpacing = std::max(spacing, 1u);
     emit updated();
 }
 
@@ -313,9 +313,9 @@ GtGrid::hSpacing() const
 }
 
 void
-GtGrid::setVSpacing(unsigned value)
+GtGrid::setVSpacing(unsigned spacing)
 {
-    pimpl->vSpacing = value;
+    pimpl->vSpacing = std::max(spacing, 1u);
     emit updated();
 }
 

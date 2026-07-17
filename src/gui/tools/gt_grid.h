@@ -85,17 +85,17 @@ public:
      * @brief Sets both the vertical and horizontal spacing
      * @param value Spacing
      */
-    void setSpacing(unsigned value)
+    void setSpacing(unsigned spacing)
     {
-        setHSpacing(value);
-        setVSpacing(value);
+        setHSpacing(spacing);
+        setVSpacing(spacing);
     }
 
     /**
      * @brief Sets the spacing between horizontal (major) grid lines
      * @param value Spacing
      */
-    void setHSpacing(unsigned value);
+    void setHSpacing(unsigned spacing);
 
     /**
      * @brief Returns the spacing between horizontal (major) grid lines
@@ -106,7 +106,7 @@ public:
      * @brief Sets the spacing between vertical (major) grid lines
      * @param value
      */
-    void setVSpacing(unsigned value);
+    void setVSpacing(unsigned spacing);
     /**
      * @brief Returns the spacing between vertical (major) grid lines
      * @return Vertical spacing
