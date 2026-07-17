@@ -214,6 +214,7 @@ target_include_directories(GTlab PRIVATE
     dock_widgets/labels
 )
 
+
 target_link_libraries(GTlab
     PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
@@ -221,6 +222,7 @@ target_link_libraries(GTlab
     Qt${QT_VERSION_MAJOR}::QuickWidgets
     Qt${QT_VERSION_MAJOR}::QuickControls2
     Qt${QT_VERSION_MAJOR}::Test
+    ads::qtadvanceddocking-qt5
     GTlabDataProcessor
     GTlabCore
     GTlabGui
