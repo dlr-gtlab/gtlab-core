@@ -101,11 +101,8 @@ set(HEADERS
     gt_algorithms.h
     gt_mpl.h
     gt_versionnumber.h
-<<<<<<< HEAD
     gt_boundaries.h
-=======
     gt_accesstracking.h
->>>>>>> eccb196a (Functional gt_accesstracking migration of accesslist)
 )
 
 set(SOURCES
@@ -162,6 +159,7 @@ set(SOURCES
     gt_versionnumber.cpp
     gt_regexp.cpp
     gt_regularexpression.cpp
+    gt_accesstracking.cpp
 )
 
 add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL})
