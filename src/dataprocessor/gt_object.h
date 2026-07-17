@@ -120,19 +120,11 @@ public:
 
     ~GtObject() override;
 
-    void clearAccessList();
-
-    void activatePropertyTracking();
-
-    void deactivatePropertyTracking();
-
-    QStringList accessedObjects();
-
     /**
      * @brief objectFlags
      * @return the flags which are set for the object. These can be used to
      * describe its state (e.g. HasOwnChanges)
-     * or its options in the user interface (e.g. UserRenamable)
+     * or its options in the user interface (e.g. UserRenamable)QSet<QString>
      */
     GtObject::ObjectFlags objectFlags() const;
 

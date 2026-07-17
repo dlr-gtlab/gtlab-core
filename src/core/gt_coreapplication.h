@@ -11,6 +11,7 @@
 #ifndef GTCOREAPPLICATION_H
 #define GTCOREAPPLICATION_H
 
+#include "gt_accesstracking.h"
 #include "gt_core_exports.h"
 
 #include <QObject>
@@ -23,6 +24,7 @@
 #include "gt_platform.h"
 #include "gt_finally.h"
 #include "gt_command.h"
+#include "gt_recording.h"
 
 #define gtApp (GtCoreApplication::instance())
 
@@ -493,6 +495,18 @@ public:
      * and its modules
      */
     QString licenseFolder() const;
+    /**
+     *
+     */
+    GT_NO_DISCARD
+    GtRecording
+    startRecording(std::unique_ptr<GtAbstractRecorder> recorder, QList<QPointer<GtObject> > linkedObjects);
+    /**
+     *
+     */
+    void
+    endRecording(const GtRecording& recording);
+
 protected:
     /// Current session
     std::unique_ptr<GtSession> m_session;

@@ -1141,3 +1141,22 @@ GtCoreApplication::licenseFolder() const
 
     return {};
 }
+
+GtRecording GtCoreApplication::startRecording(std::unique_ptr<GtAbstractRecorder> recorder,QList<QPointer<GtObject> > linkedObjects)
+{
+    GtRecording Recording;
+    recorder->initLinkedObjects(linkedObjects);
+
+    QString contextUuid = QUuid::createUuid().toString();
+    GtAccessTracker::instance().startAccessTracking(contextUuid);
+
+    return Recording;
+}
+
+void GtCoreApplication::endRecording(const GtRecording &recording)
+{
+    GtAccessTracker::instance().endAccessTracking();
+
+    QSet<QString> childContextUuidsSet = GtAccessTracker::instance().getChildContextUuid(recording.id());
+
+}

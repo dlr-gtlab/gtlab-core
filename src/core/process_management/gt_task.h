@@ -150,6 +150,11 @@ public:
      * @return Whether current running task is marked for termination or not.
      */
     bool isInterruptionRequested() const;
+    /**
+     * @brief Returns list of all linked datamodel objects.
+     * @return List of linked datamodel objects.
+     */
+    using GtProcessComponent::linkedObjects;
 
 public slots:
     /**

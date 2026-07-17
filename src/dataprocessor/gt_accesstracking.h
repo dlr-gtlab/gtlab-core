@@ -6,53 +6,65 @@
 #include <QMap>
 #include <QStack>
 #include <QSet>
-#include <QObject>
 #include "gt_object.h"
-#include <qdatetime.h>
 
+class GT_DATAMODEL_EXPORT GtAbstractRecorder
+{
+public:
 
+    GtAbstractRecorder();
 
-struct GT_DATAMODEL_EXPORT AccessList
+    virtual bool
+    initLinkedObjects(QList<QPointer<GtObject> > linkedObjects)=0;
+
+    virtual bool
+    recordChanges()=0;
+
+    virtual bool
+    recordAccessObjects()=0;
+
+};
+
+struct GT_DATAMODEL_EXPORT GtAccessTracker
 {
     struct AccessContext
     {
         QString uuid;
-        QString parentUuid;
+        QSet<QString> childContextUuid;
         QSet<QString> accessedObjects;
-        QDateTime startTime;
-        QDateTime endTime;
-        bool isActive;
-
+        QString startTime;
+        QString endTime;
     };
 
 
-    static AccessList & instance()
+    static GtAccessTracker & instance()
     {
-        static AccessList s;
+        static GtAccessTracker s;
         return s;
     }
 
-    AccessList(const AccessList &) = delete;
-    AccessList & operator = (const AccessList &) = delete;
+    GtAccessTracker(const GtAccessTracker &) = delete;
+    GtAccessTracker & operator = (const GtAccessTracker &) = delete;
 
 public:
-    QStringList getList(QString & uuid);
-    void clearList();
-    void tracking(bool state);
-    void addAccessedProperty(QString uuid);
+    QSet<QString>
+    getAccessedObjects(const QString& contextUuid);
+    QSet<QString>
+    getChildContextUuid(const QString& contextUuid);
     void
-    startAccessTracking(GtObject& object);
+    addAccessedProperty(const QString& uuid);
+    bool
+    clearContext(const QString& contextUuid);
+    void
+    startAccessTracking(const QString& contextUuid);
     void
     endAccessTracking();
 private:
-    QStringList m_accessList{};
-    bool m_tracking=false;
-
-    QStack<QString> m_activeStack;                 // Current nesting path
-    QMap<QString, AccessContext> m_contexts;       // All contexts by uuid
+    QStack<QString> m_activeStack;
+    QMap<QString, AccessContext> m_contexts;
 
 
-    AccessList() {}
-    ~AccessList() {}
+    GtAccessTracker() {}
+    ~GtAccessTracker() {}
 
 };

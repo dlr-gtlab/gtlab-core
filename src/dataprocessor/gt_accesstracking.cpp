@@ -1,26 +1,30 @@
 #include "gt_accesstracking.h"
 #include "gt_logging.h"
 #include "gt_object.h"
+#include <qdatetime.h>
 
 
-QStringList AccessList::getList()
+QSet<QString> GtAccessTracker::getAccessedObjects(const QString& contextUuid)
 {
-    return m_accessList;
+    if (!m_contexts.contains(contextUuid))
+    {
+        gtError()<< "Context map does not contain a context with UUID: "<<contextUuid;
+        return{};
+    }
+    return m_contexts[contextUuid].accessedObjects;
 }
 
-void AccessList::clearList()
+QSet<QString> GtAccessTracker::getChildContextUuid(const QString &contextUuid)
 {
-    m_accessList.clear();
+    if (!m_contexts.contains(contextUuid))
+    {
+        gtError()<< "Context map does not contain a context with UUID: "<<contextUuid;
+        return{};
+    }
+    return m_contexts[contextUuid].childContextUuid;
 }
 
-void AccessList::tracking(bool state)
-{
-    gtInfo() << "activateTracking set to "<< state;
-    m_tracking = state;
-}
-
-
-void AccessList::addAccessedProperty(QString uuid)
+void GtAccessTracker::addAccessedProperty(const QString& uuid)
 {
     if (!m_activeStack.empty())
     {
@@ -31,20 +35,44 @@ void AccessList::addAccessedProperty(QString uuid)
     }
 }
 
-void AccessList::startAccessTracking(GtObject& object)
+bool GtAccessTracker::clearContext(const QString &contextUuid)
 {
-    m_activeStack.push(object.uuid());
+    if (!m_contexts.contains(contextUuid))
+    {
+        gtError()<< "Context map does not contain a context with UUID: "<<contextUuid;
+        return false;
+    }
+    m_contexts.remove(contextUuid);
+    return true;
+}
+
+void GtAccessTracker::startAccessTracking(const QString& contextUuid)
+{
+
     AccessContext context;
-    context.uuid=object.uuid();
-    context.parentUuid=object.parentObject()->uuid();
-    context.startTime={};
-    context.endTime={};
-    context.isActive=true;
+    context.uuid=contextUuid;
+    context.startTime=QDateTime::currentDateTimeUtc().toString("yyyy-MM-ddThh:mm:ssZ");
+
+    QString parentContextUuid{};
+    if (!m_activeStack.empty())
+    {
+        parentContextUuid=m_activeStack.top();
+        m_contexts[parentContextUuid].childContextUuid.insert(contextUuid);
+    }
+
+    m_activeStack.push(contextUuid);
+    m_contexts.insert(contextUuid,context);
 
 }
 
-void AccessList::endAccessTracking()
+void GtAccessTracker::endAccessTracking()
 {
-    QString uuid = m_activeStack.pop();
+    if (m_activeStack.empty()) {
+        gtError()<<"Tried to endAccessTracking with no active context!";
+        return;
+    }
+
+    QString contextUuid = m_activeStack.pop();
+    m_contexts[contextUuid].endTime=QDateTime::currentDateTimeUtc().toString("yyyy-MM-ddThh:mm:ssZ");
 
 }

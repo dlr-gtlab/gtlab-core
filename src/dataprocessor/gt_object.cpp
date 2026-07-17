@@ -1048,26 +1048,3 @@ gt::moveToThread(GtObject& object, QThread* thread)
 }
 
 
-
-void GtObject::clearAccessList()
-{
-    gtInfo() << "List cleared";
-    AccessList::instance().clearList();
-}
-
-void GtObject::activatePropertyTracking()
-{
-    AccessList::instance().tracking(true);
-}
-
-void GtObject::deactivatePropertyTracking()
-{
-    AccessList::instance().tracking(false);
-}
-
-QStringList GtObject::accessedObjects()
-{
-    gtInfo() << "List retrieved";
-    gtInfo() << AccessList::instance().getList();
-    return AccessList::instance().getList();
-}
