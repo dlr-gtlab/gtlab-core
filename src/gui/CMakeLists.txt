@@ -57,6 +57,7 @@ set(headers
     tools/gt_projectanalyzerdialog.h
     tools/gt_ruler.h
     tools/gt_grid.h
+    tools/gt_gridspacing.h
     tools/gt_graphicsscene.h
     tools/gt_graphicsview.h
     tools/gt_xmlhighlighter.h

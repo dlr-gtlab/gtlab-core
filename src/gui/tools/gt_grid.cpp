@@ -2,483 +2,619 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: gtd_grid.cpp
+ * Source File: gt_grid.cpp
  *
  *  Created on: 17.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
- *		  Tel.: +49 2203 601 2907
  */
 
-#include <QPainter>
 #include "gt_grid.h"
-#include "gt_graphicsview.h"
-#include "gt_guiutilities.h"
-#include "gt_ruler.h"
 #include "gt_colors.h"
-#include "gt_logging.h"
-#include <QtMath>
 
-GtGrid::GtGrid(GtGraphicsView& view) :
-    m_view(view),
-    m_width(100),
-    m_height(100),
-    m_nohgp(5),
-    m_novgp(5),
-    m_scaleGrid(true),
-    m_gridFactor(0),
-    m_showGridPoints(false),
-    m_showAxis(false),
-    m_hideGrid(false),
-    m_hgColor(gt::gui::color::gridLine()),
-    m_vgColor(gt::gui::color::gridLine()),
-    m_gpColor(gt::gui::color::gridPoint()),
-    m_hRuler(nullptr),
-    m_vRuler(nullptr)
+#include <QPainter>
+#include <QGraphicsView>
+
+#include <cmath>
+
+QPen makePen(QColor color)
 {
-
+    QPen pen{color};
+    pen.setCosmetic(true);
+    return pen;
 }
 
-void
-GtGrid::setGridWidth(int val)
+namespace strategy
 {
-    if (val < 10)
+
+inline double base2(double ideal, double baseSpacing)
+{
+    const double ratio = ideal / baseSpacing;
+    const double n = std::round(std::log2(ratio));
+    return baseSpacing * std::exp2(n);
+}
+
+inline double base10(double ideal, double baseSpacing)
+{
+    const double ratio = ideal / baseSpacing;
+    const double n = std::round(std::log10(ratio));
+    return baseSpacing * std::pow(10.0, n);
+}
+
+inline double oneTwoFive(double ideal, double baseSpacing)
+{
+    double normalised = ideal / baseSpacing; // work in units of baseSpacing
+    double decadeExp  = std::floor(std::log10(normalised));
+//    const double decadeExp = std::floor(std::log10(ideal));
+    const double fraction   = normalised / std::pow(10.0, decadeExp); // in [1, 10)
+    assert(fraction >= 1 && fraction <  10);
+
+    const double multiplier =
+            (fraction < 1.5) ? 1.0 :
+            (fraction < 3.5) ? 2.0 :
+            (fraction < 7.5) ? 5.0 : 10.0;
+
+    return multiplier * std::pow(10, decadeExp);
+}
+
+} // strategy namespace
+
+struct GtGrid::Impl
+{
+    /// Grid horizontal spacing
+    unsigned hSpacing = 100;
+
+    /// Grid vertical spacing
+    unsigned vSpacing = 100;
+
+    /// Subdivisions between major horizontal lines
+    unsigned hSubdivisions = 10;
+
+    /// Subdivisions between major vertical lines
+    unsigned vSubdivisions = 10;
+
+    /// Pen for major grid lines
+    QPen majorPen = makePen(gt::gui::color::gridLine());
+
+    /// Pen for minor grid lines
+    QPen minorPen = makePen(gt::gui::color::gridLineMinor());
+
+    /// Pen for grid axis
+    QPen axisPen = makePen(gt::gui::color::gridAxis());
+
+    /// Current grid spacing
+    GtGridSpacing cachedSpacing{1.0, 1.0};
+
+    /// Last uses zoom factor
+    double cachedZoom{};
+
+    /// Device independent pixel density at which point the minor grid should
+    /// not be drawn
+    double minorGridTooDenseThreshold = 9.1;
+
+    /// Axis indicator
+    VisibleAxis visibleAxis{};
+
+    /// Grid scaling strategy
+    ScalingStrategy scalingStrategy = DefaultScalingStrategy;
+
+    /// Global visibility flag
+    bool isVisible = true;
+
+    /// Grid only visibility flag
+    bool showGrid = true;
+
+    /// Axis only visibility flag
+    bool showAxis = false;
+
+    /// Minor grid only visibility flag
+    bool showMinorGrid = true;
+
+    /// helper class that renders multiple lines with few draw calls
+    template <unsigned Capacity>
+    class BufferedLineRender
     {
-        gtWarning().verbose() << tr("Grid width < 10!");
-        return;
+    public:
+        explicit BufferedLineRender(QPainter& painter) :
+            m_painter(&painter)
+        {}
+
+        void draw(const QLineF& line)
+        {
+            m_lines[m_count++] = line;
+            if (m_count == Capacity) flush();
+        }
+
+        void flush()
+        {
+            if (m_count > 0)
+            {
+                m_painter->drawLines(m_lines, m_count);
+                m_count = 0;
+            }
+        }
+
+        ~BufferedLineRender() { flush(); }
+
+    private:
+        QPainter* m_painter{};
+        unsigned m_count{0};
+        QLineF m_lines[Capacity];
+    };
+
+    double quantizedSpacing(double ideal, double baseSpacing) const
+    {
+        switch (scalingStrategy)
+        {
+        case Base2:
+            return strategy::base2(ideal, baseSpacing);
+        case Base10:
+            return strategy::base10(ideal, baseSpacing);
+        case OneTwoFive:
+            return strategy::oneTwoFive(ideal, baseSpacing);
+        case Fixed:
+        default:
+            return baseSpacing;
+        }
     }
 
-    m_width = val;
-}
-
-void
-GtGrid::setGridHeight(int val)
-{
-    if (val < 10)
+    GtGridSpacing scaledGridSpacing(double zoom) const
     {
-        gtWarning().verbose() << tr("Grid height < 10!");
-        return;
+        // cache spacing
+        if (qFuzzyCompare(zoom, cachedZoom)) return cachedSpacing;
+
+        GtGridSpacing result{ static_cast<double>(hSpacing), static_cast<double>(vSpacing) };
+
+        if (scalingStrategy == Fixed) return result;
+
+        const double idealH = hSpacing / zoom;
+        const double idealV = vSpacing / zoom;
+
+        result.hSpacing = quantizedSpacing(idealH, hSpacing);
+        result.vSpacing = quantizedSpacing(idealV, vSpacing);
+
+        return result;
     }
 
-    m_height = val;
-}
-
-void
-GtGrid::setNumberOfGridPoints(int horizontal, int vertical)
-{
-    if (horizontal < 2 || vertical < 2)
+    template <unsigned N>
+    static void paintGridLinesImpl(const QRectF& sceneRect,
+                            double vLineDistance,
+                            double hLineDistance,
+                            BufferedLineRender<N>& buffer)
     {
-        gtWarning().verbose() << tr("Number of points < 2!");
-        return;
+        assert(vLineDistance > 0);
+        assert(hLineDistance > 0);
+
+        const double bottom  = sceneRect.bottom();
+        const double right = sceneRect.right();
+        const double left = sceneRect.left();
+        const double top = sceneRect.top();
+
+        const double leftStart = std::floor(left / vLineDistance) * vLineDistance;
+        const double topStart = std::floor(top / hLineDistance) * hLineDistance;
+
+        for (double x = leftStart; x < right; x += vLineDistance)
+        {
+            buffer.draw(QLineF{x, top, x, bottom});
+        }
+        for (double y = topStart; y < bottom; y += hLineDistance)
+        {
+            buffer.draw(QLineF{left, y, right, y});
+        }
     }
 
-    m_nohgp = horizontal;
-    m_novgp = vertical;
-}
-
-void
-GtGrid::setScaleGrid(bool val)
-{
-    m_scaleGrid = val;
-}
-
-void
-GtGrid::setShowGridPoints(bool val)
-{
-    m_showGridPoints = val;
-}
-
-void
-GtGrid::setShowAxis(bool val)
-{
-    m_showAxis = val;
-}
-
-void
-GtGrid::setHorizontalGridLineColor(const QColor &color)
-{
-    m_hgColor = color;
-}
-
-void
-GtGrid::setVerticalGridLineColor(const QColor &color)
-{
-    m_vgColor = color;
-}
-
-void
-GtGrid::setGridPointColor(const QColor &color)
-{
-    m_gpColor = color;
-}
-
-void
-GtGrid::paintGrid(QPainter* painter, const QRectF &rect)
-{
-    if (!painter)
+    void paintGridLines(QPainter& painter, const QRectF& rect, double zoom)
     {
-        return;
+        const double pixelsPerSceneUnit = std::abs(zoom);
+        assert(pixelsPerSceneUnit > 0);
+
+        cachedSpacing = scaledGridSpacing(pixelsPerSceneUnit);
+        cachedZoom = pixelsPerSceneUnit;
+        assert(cachedSpacing.hSpacing > 0);
+        assert(cachedSpacing.vSpacing > 0);
+
+        BufferedLineRender<1000> buffer{painter};
+
+        const double majorLineDistance = cachedSpacing.hSpacing * pixelsPerSceneUnit;
+        const double cutoffDistance    = minorGridTooDenseThreshold * hSubdivisions;
+        if (showMinorGrid && majorLineDistance >= cutoffDistance)
+        {
+            // draw also minor grid lines
+            const double tmpHMinorSpacing = cachedSpacing.hSpacing / static_cast<double>(hSubdivisions);
+            const double tmpVMinorSpacing = cachedSpacing.vSpacing / static_cast<double>(vSubdivisions);
+
+            painter.setPen(minorPen);
+            paintGridLinesImpl(rect, tmpHMinorSpacing, tmpVMinorSpacing, buffer);
+            buffer.flush();
+        }
+
+        painter.setPen(majorPen);
+        paintGridLinesImpl(rect, cachedSpacing.hSpacing, cachedSpacing.vSpacing, buffer);
     }
 
-    painter->save();
-
-    painter->setRenderHint(QPainter::Antialiasing, false);
-
-    if (!m_hideGrid)
+    void paintAxis(QPainter& painter, const QRectF& rect)
     {
-        paintGridLines(painter, rect);
+        painter.setPen(axisPen);
 
-        paintAxis(painter, rect);
+        for (Qt::Orientation axis : { Qt::Vertical, Qt::Horizontal })
+        {
+            if (!visibleAxis.testFlag(axis)) continue;
+
+            switch (axis)
+            {
+            case Qt::Vertical:
+                painter.drawLine(0.0, rect.top() - 1.0, 0.0, rect.bottom() + 1.0);
+                break;
+            case Qt::Horizontal:
+                painter.drawLine(rect.left() - 1.0, 0.0, rect.right() + 1.0, 0.0);
+                break;
+            }
+        }
     }
 
-    if (m_hRuler && m_hRuler->needsRepaint())
+    QPointF nearestTopLeftGridPoint(GtGridSpacing s, const QPointF& p)
     {
-        m_rect = rect;
-        paintRuler(m_hRuler);
-        m_hRuler->setNeedsRepaint(false);
+        double tmpWidth  = s.hSpacing;
+        double tmpHeight = s.vSpacing;
+        assert(tmpWidth  > 0);
+        assert(tmpHeight > 0);
+
+        double x = std::floor(p.x() / tmpWidth) * tmpWidth;
+        double y = std::floor(p.y() / tmpHeight) * tmpHeight;
+
+        return {x, y};
     }
 
-    if (m_vRuler && m_vRuler->needsRepaint())
+    QPointF nearestGridPoint(GtGridSpacing s, const QPointF& p)
     {
-        m_rect = rect;
-        paintRuler(m_vRuler);
-        m_vRuler->setNeedsRepaint(false);
+        double tmpWidth  = s.hSpacing;
+        double tmpHeight = s.vSpacing;
+        assert(tmpWidth  > 0);
+        assert(tmpHeight > 0);
+
+        double x = std::floor(p.x() / tmpWidth) * tmpWidth;
+        double y = std::floor(p.y() / tmpHeight) * tmpHeight;
+
+        if ((p.x() - x) > (tmpWidth * 0.5)) x += tmpWidth;
+        if ((p.y() - y) > (tmpHeight * 0.5)) y += tmpHeight;
+
+        return {x, y};
+    }
+};
+
+GtGrid::GtGrid(QGraphicsView& view) :
+    GtGrid(&view)
+{
+    GT_REMOVAL_GUARD(2, 2, "for (visual) backwards compatibility");
+    setVisibleAxis(Qt::Horizontal);
+    setScalingStrategy(Base2);
+}
+
+GtGrid::GtGrid(QObject* parent) :
+    QObject(parent),
+    pimpl(std::make_unique<Impl>())
+{
+    GT_REMOVAL_GUARD(2, 2, "remove this connection");
+    connect(this, &GtGrid::updated, this, &GtGrid::update);
+}
+
+GtGrid::~GtGrid() = default;
+
+void
+GtGrid::setHSpacing(unsigned spacing)
+{
+    pimpl->hSpacing = std::max(spacing, 1u);
+    emit updated();
+}
+
+unsigned
+GtGrid::hSpacing() const
+{
+    return pimpl->hSpacing;
+}
+
+void
+GtGrid::setVSpacing(unsigned spacing)
+{
+    pimpl->vSpacing = std::max(spacing, 1u);
+    emit updated();
+}
+
+unsigned
+GtGrid::vSpacing() const
+{
+    return pimpl->vSpacing;
+}
+
+GtGridSpacing
+GtGrid::currentGridSpacing() const
+{
+    return pimpl->cachedSpacing;
+}
+
+GtGridSpacing
+GtGrid::currentMinorGridSpacing() const
+{
+    const auto spacing = currentGridSpacing();
+    return GtGridSpacing{
+        spacing.hSpacing / pimpl->hSubdivisions,
+        spacing.vSpacing / pimpl->vSubdivisions
+    };
+}
+
+GtGridSpacing
+GtGrid::scaledGridSpacing(double zoom) const
+{
+    zoom = std::abs(zoom);
+    assert(zoom > 0);
+
+    return pimpl->scaledGridSpacing(zoom);
+}
+
+GtGridSpacing
+GtGrid::scaledMinorGridSpacing(double zoom) const
+{
+    const auto spacing = scaledGridSpacing(zoom);
+    return GtGridSpacing{
+        spacing.hSpacing / pimpl->hSubdivisions,
+        spacing.vSpacing / pimpl->vSubdivisions
+    };
+}
+
+void
+GtGrid::setScalingStrategy(ScalingStrategy strategy)
+{
+    pimpl->scalingStrategy = strategy;
+    pimpl->cachedZoom = 0.0;
+    emit updated();
+}
+
+GtGrid::ScalingStrategy
+GtGrid::scalingStrategy() const
+{
+    return pimpl->scalingStrategy;
+}
+
+void
+GtGrid::setShowMinorGrid(bool show)
+{
+    pimpl->showMinorGrid = show;
+    emit updated();
+}
+
+bool
+GtGrid::showMinorGrid() const
+{
+    return pimpl->showMinorGrid;
+}
+
+void
+GtGrid::setMinorGridCutoffDensity(double cutoffDensity)
+{
+    pimpl->minorGridTooDenseThreshold = std::max(0.0, cutoffDensity);
+    emit updated();
+}
+
+double
+GtGrid::minorGridCutoffDensity() const
+{
+    return pimpl->minorGridTooDenseThreshold;
+}
+
+void
+GtGrid::setHSubdivisions(unsigned count)
+{
+    pimpl->hSubdivisions = std::max(count, 1u);
+    emit updated();
+}
+
+unsigned
+GtGrid::hSubdivisions() const
+{
+    return pimpl->hSubdivisions;
+}
+
+void
+GtGrid::setVSubdivisions(unsigned count)
+{
+    pimpl->vSubdivisions = std::max(count, 1u);
+    emit updated();
+}
+
+unsigned
+GtGrid::vSubdivisions() const
+{
+    return pimpl->vSubdivisions;
+}
+
+bool
+GtGrid::isVisible() const
+{
+    return pimpl->isVisible;
+}
+
+void
+GtGrid::setVisible(bool visible)
+{
+    pimpl->isVisible = visible;
+    emit updated();
+}
+
+void
+GtGrid::hide()
+{
+    setVisible(false);
+}
+
+void
+GtGrid::show()
+{
+    setVisible(true);
+}
+
+void
+GtGrid::setShowGrid(bool show)
+{
+    pimpl->showGrid = show;
+    emit updated();
+}
+
+bool
+GtGrid::showGrid() const
+{
+    return pimpl->showGrid;
+}
+
+void
+GtGrid::setShowAxis(bool show)
+{
+    pimpl->showAxis = show;
+    emit updated();
+}
+
+bool
+GtGrid::showAxis() const
+{
+    return pimpl->showAxis;
+}
+
+void
+GtGrid::setVisibleAxis(VisibleAxis axis)
+{
+    pimpl->visibleAxis = axis;
+    emit updated();
+}
+
+GtGrid::VisibleAxis
+GtGrid::visibleAxis() const
+{
+    return pimpl->visibleAxis;
+}
+
+void
+GtGrid::setMajorPen(QPen pen)
+{
+    pimpl->majorPen = pen;
+    emit updated();
+}
+
+QPen
+GtGrid::majorPen() const
+{
+    return pimpl->majorPen;
+}
+
+void
+GtGrid::setLineColor(const QColor& color)
+{
+    pimpl->majorPen.setColor(color);
+    emit updated();
+}
+
+QColor
+GtGrid::lineColor() const
+{
+    return pimpl->majorPen.color();
+}
+
+void
+GtGrid::setMinorPen(QPen pen)
+{
+    pimpl->minorPen = pen;
+    emit updated();
+}
+
+QPen
+GtGrid::minorPen() const
+{
+    return pimpl->minorPen;
+}
+
+void
+GtGrid::setMinorLineColor(const QColor& color)
+{
+    pimpl->minorPen.setColor(color);
+    emit updated();
+}
+
+QColor
+GtGrid::minorLineColor() const
+{
+    return pimpl->minorPen.color();
+}
+
+void
+GtGrid::setAxisPen(QPen pen)
+{
+    pimpl->axisPen = pen;
+    emit updated();
+}
+
+QPen
+GtGrid::axisPen() const
+{
+    return pimpl->axisPen;
+}
+
+void
+GtGrid::setAxisColor(const QColor& color)
+{
+    pimpl->axisPen.setColor(color);
+    emit updated();
+}
+
+QColor
+GtGrid::axisColor() const
+{
+    return pimpl->axisPen.color();
+}
+
+void
+GtGrid::paint(QPainter& painter, const QRectF& rect, PaintOptions options)
+{
+    if (!rect.isValid()) return;
+
+    if (!pimpl->isVisible || !pimpl->showGrid)
+    {
+        // update spacing
+        pimpl->cachedSpacing = scaledGridSpacing(painter.worldTransform().m11());
+
+        if (!pimpl->isVisible) return;
     }
 
-    painter->restore();
+    auto oldRenderHints = painter.renderHints();
+    painter.setRenderHint(QPainter::Antialiasing, false);
+
+    if (pimpl->showGrid && options.testFlag(PaintGrid))
+    {
+        pimpl->paintGridLines(painter, rect, painter.worldTransform().m11());
+    }
+    if (pimpl->showAxis && options.testFlag(PaintAxis))
+    {
+        pimpl->paintAxis(painter, rect);
+    }
+    painter.setRenderHints(oldRenderHints);
 }
 
 QPointF
 GtGrid::computeTopLeftGridPoint(const QPointF& p)
 {
-    int tmpWidth = int(getScaledGrid(Qt::Horizontal));
-    int tmpHeight = int(getScaledGrid(Qt::Vertical));
+    return pimpl->nearestTopLeftGridPoint(currentGridSpacing(), p);
+}
 
-    qreal xV = floor( p.x() / tmpWidth ) * tmpWidth;
-    qreal yV = floor( p.y() / tmpHeight ) * tmpHeight;
-
-    return {xV, yV};
+QPointF
+GtGrid::computeTopLeftMinorGridPoint(const QPointF& p)
+{
+    return pimpl->nearestTopLeftGridPoint(currentMinorGridSpacing(), p);
 }
 
 QPointF
 GtGrid::computeNearestGridPoint(const QPointF& p)
 {
-    int tmpWidth = int(getScaledGrid(Qt::Horizontal));
-    int tmpHeight = int(getScaledGrid(Qt::Vertical));
-
-    qreal x = floor( p.x() / tmpWidth ) * tmpWidth;
-    qreal y = floor( p.y() / tmpHeight ) * tmpHeight;
-
-    if ((p.x() - x) > (tmpWidth / 2))
-    {
-        x += tmpWidth;
-    }
-
-    if ((p.y() - y) > (tmpHeight / 2))
-    {
-        y += tmpHeight;
-    }
-
-    return {x, y};
+    return pimpl->nearestGridPoint(currentGridSpacing(), p);
 }
 
-void
-GtGrid::setGridScaleFactor(int val)
+QPointF
+GtGrid::computeNearestMinorGridPoint(const QPointF& p)
 {
-    m_gridFactor = val;
-
-    if (m_hRuler)
-    {
-        m_hRuler->setNeedsRepaint(true);
-    }
-
-    if ( m_vRuler)
-    {
-        m_vRuler->setNeedsRepaint(true);
-    }
-}
-
-void
-GtGrid::paintRuler(GtRuler* ruler)
-{
-    if (!ruler)
-    {
-        gtWarning().verbose().nospace() 
-                << __FUNCTION__ << ": " << tr("Ruler == NULL");
-        return;
-    }
-
-    if (ruler->buffer().isNull())
-    {
-        gtWarning().verbose() << "GtGrid::paintRuler"
-                              << tr("WARNING: buffer == NULL");
-        return;
-    }
-
-    if (!m_rect.isValid())
-    {
-        gtWarning().verbose() << "GtGrid::paintRuler"
-                              << tr("WARNING: m_rect not valid");
-        gtWarning().verbose() << " |-> " << m_rect;
-
-        m_rect.setBottomRight(QPointF(0.0, 0.0));
-        m_rect.setTopLeft(QPointF(0.0, 0.0));
-
-//        return;
-    }
-
-    QPainter painter(&ruler->buffer());
-
-    painter.fillRect(ruler->buffer().rect(),
-                     ruler->palette().color(QPalette::Window));
-
-
-    Qt::GlobalColor c = Qt::black;
-
-    if (gt::gui::isApplicationDarkTheme())
-    {
-        c = Qt::white;
-    }
-    painter.setPen(c);
-
-    if (ruler->orientation() == Qt::Horizontal)
-    {
-        int tmpWidth = qCeil(getScaledGrid(Qt::Horizontal));
-
-        Q_ASSERT(tmpWidth > 0);
-
-        qreal left = int(m_rect.left()) - (int(m_rect.left()) % tmpWidth);
-
-        int h = ruler->buffer().height();
-
-        for (qreal x = left; x < m_rect.right(); x += tmpWidth)
-        {
-            QPoint tmp = m_view.mapFromScene(QPointF(x, 0));
-            painter.drawLine(tmp.x(), h - 5, tmp.x(), h);
-
-            /* horizontal ticks */
-            QByteArray tick;
-            tick.setNum(x);
-            QString tstr(tick);
-
-            const QSize size = ruler->getFontSizeHint(tstr);
-            QRect rect(tmp.x() - size.width() / 2, h - 5 - size.height(),
-                       size.width(), size.height());
-            painter.setFont(ruler->getFont());
-
-            painter.drawText(rect, Qt::AlignTop | Qt::AlignHCenter, tstr);
-        }
-    }
-    else
-    {
-        int tmpHeight = qCeil(getScaledGrid(Qt::Vertical));
-
-        Q_ASSERT(tmpHeight > 0);
-
-        qreal top = int(m_rect.top()) - (int(m_rect.top()) % tmpHeight);
-
-        int w = ruler->buffer().width();
-
-        for (qreal y = top; y < m_rect.bottom(); y += tmpHeight)
-        {
-            QPoint tmp = m_view.mapFromScene(QPointF(0, y));
-            painter.drawLine(w - 5, tmp.y(), w, tmp.y());
-
-        }
-
-        /* vertical ticks */
-        for (qreal y = top; y < m_rect.bottom(); y += tmpHeight)
-        {
-            QPoint tmp = m_view.mapFromScene(QPointF(0, y));
-            QByteArray tick;
-            tick.setNum(-y);
-            QString tstr(tick);
-            const QSize size = ruler->getFontSizeHint(tstr);
-            QRect rect(w - 5 - size.width(), tmp.y() + size.width() / 2 + 5,
-                       size.width(), size.height());
-            painter.setFont(ruler->getFont());
-            painter.save();
-            painter.translate(rect.x(), rect.y());
-            painter.rotate(-90);
-            painter.drawText(QRect(0, 0, rect.height(), rect.width()),
-                             Qt::AlignTop | Qt::AlignHCenter, tstr);
-            painter.restore();
-        }
-    }
-
-    ruler->update();
-}
-
-void
-GtGrid::setHorizontalRuler(GtRuler* ruler)
-{
-    m_hRuler = ruler;
-}
-
-void
-GtGrid::setVerticalRuler(GtRuler* ruler)
-{
-    m_vRuler = ruler;
-}
-
-void
-GtGrid::hideGrid(bool val)
-{
-    m_hideGrid = val;
-    emit update();
-}
-
-void
-GtGrid::showGrid(bool val)
-{
-    m_hideGrid = !val;
-    emit update();
-}
-
-
-template <int NLinesPrealloc>
-void
-paintGridLinesImpl(const QRectF& sceneRect,
-                   double vLineDistance,
-                   double hLineDistance,
-                   const QColor& lineColor,
-                   QPainter* painter)
-{
-    // draw also minor grid lines
-    Q_ASSERT(vLineDistance > 0);
-    Q_ASSERT(hLineDistance > 0);
-
-    qreal firstVLineXPos = int(sceneRect.left()) - (int(sceneRect.left())
-                         % (static_cast<int>(std::ceil(vLineDistance))));
-    qreal firstHLineYPos = int(sceneRect.top()) - (int(sceneRect.top())
-                         % (static_cast<int>(std::ceil(hLineDistance))));
-
-    QVarLengthArray<QLineF, NLinesPrealloc> hLinesMinor;
-    QVarLengthArray<QLineF, NLinesPrealloc> vLinesMinor;
-
-    for (qreal y = firstHLineYPos; y < sceneRect.bottom(); y += hLineDistance)
-    {
-        hLinesMinor.append(QLineF(sceneRect.left(), y, sceneRect.right(), y));
-    }
-
-    for (qreal x = firstVLineXPos; x < sceneRect.right(); x += vLineDistance)
-    {
-        vLinesMinor.append(QLineF(x, sceneRect.top(), x, sceneRect.bottom()));
-    }
-
-    QPen pen = painter->pen();
-    pen.setCosmetic(true);
-    pen.setColor(lineColor);
-
-    painter->setPen(pen);
-
-    painter->drawLines(hLinesMinor.data(), hLinesMinor.size());
-    painter->drawLines(vLinesMinor.data(), vLinesMinor.size());
-}
-
-void
-GtGrid::paintGridLines(QPainter* painter, const QRectF& rect)
-{
-    if (!painter)
-    {
-        return;
-    }
-
-    // minimum distance between to minor linex in device independent pixels
-    constexpr const auto minimalMinorLineDistance = 9u;
-
-    // qCeil to prevent bad rounding and divison by zero in modulo operation
-    const int tmpWidth = qCeil(getScaledGrid(Qt::Horizontal));
-    const int tmpHeight = qCeil(getScaledGrid(Qt::Vertical));
-
-
-    const qreal left = int(rect.left()) - (int(rect.left()) % tmpWidth);
-    const int nVLines = std::ceil(-(left - rect.right()) / tmpWidth);
-
-
-    // compute n pixels between two vertical lines
-    const auto viewPixelSize = painter->worldTransform().map(
-        QPointF(rect.right(), rect.bottom()));
-
-    const auto majorLineDistance = viewPixelSize.x() / nVLines;
-
-    if(majorLineDistance > minimalMinorLineDistance * 10.)
-    {
-        // draw also minor grid lines
-        const double tmpWidthMinor = static_cast<double>(tmpWidth) / 10.;
-        const double tmpHeightMinor = static_cast<double>(tmpHeight) / 10.;
-
-        paintGridLinesImpl<1000>(rect, tmpWidthMinor, tmpHeightMinor,
-                                gt::gui::color::gridLineMinor(), painter);
-    }
-
-    paintGridLinesImpl<100>(rect, tmpWidth, tmpWidth, m_hgColor, painter);
-}
-
-void
-GtGrid::paintAxis(QPainter* painter, const QRectF& rect)
-{
-    if (!m_showAxis)
-    {
-        return;
-    }
-
-    QPen pen = painter->pen();
-    pen.setColor(gt::gui::color::gridAxis());
-    painter->setPen(pen);
-
-    painter->drawLine(int(rect.left()), 0, int(rect.right()), 0);
-}
-
-qreal
-GtGrid::getScaledGridWidth()
-{
-    return getScaledGrid(Qt::Horizontal);
-}
-
-qreal
-GtGrid::getScaledGridHeight()
-{
-    return getScaledGrid(Qt::Vertical);
-}
-
-qreal
-GtGrid::getScaledGrid(Qt::Orientation val)
-{
-    int length;
-
-    if (val == Qt::Horizontal)
-    {
-        length = m_width;
-    }
-    else
-    {
-        length = m_height;
-    }
-
-    if (m_scaleGrid)
-    {
-        if (m_gridFactor >= 0)
-        {
-            return (length * qPow(2, m_gridFactor + 1));
-        }
-
-        return (length * qPow(2, m_gridFactor));
-
-    }
-
-    return length;
-}
-
-void
-GtGrid::drawRotatedText(QPainter* painter, int x, int y,
-                              const QString &text)
-{
-    if (painter)
-    {
-        painter->save();
-        painter->translate(x, y);
-        painter->rotate(-90);
-        painter->drawText(0, 0, text);
-        painter->restore();
-    }
+    return pimpl->nearestGridPoint(currentMinorGridSpacing(), p);
 }

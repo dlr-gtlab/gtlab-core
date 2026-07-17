@@ -52,6 +52,24 @@ GT_GUI_EXPORT gt::gui::applicationTheme theme();
  */
 GT_GUI_EXPORT bool isApplicationDarkTheme();
 
+template <class T, class Obj>
+QList<T> findGraphicItems(Obj& o)
+{
+    QList<T> retval;
+
+    for (auto* item : o.items())
+    {
+        T obj = dynamic_cast<T>(item);
+
+        if (obj)
+        {
+            retval.append(obj);
+        }
+    }
+
+    return retval;
+}
+
 /**
  * @brief Appends the actions to the menu.
  * @param actions Actions to append

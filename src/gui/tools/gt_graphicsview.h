@@ -2,21 +2,24 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: gtd_graphicsview.h
+ * Source File: gt_graphicsview.h
  *
  *  Created on: 15.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
- *		  Tel.: +49 2203 601 2907
  */
 
-#ifndef GTD_GRAPHICSVIEW_H
-#define GTD_GRAPHICSVIEW_H
+#ifndef GT_GRAPHICSVIEW_H
+#define GT_GRAPHICSVIEW_H
+
+#include <gt_gui_exports.h>
+#include <gt_version.h>
 
 #include <QGraphicsView>
 #include <QGestureEvent>
-#include "gt_gui_exports.h"
 
-class GtGraphicsScene;
+#include <memory>
+
+class QGraphicsScene;
 class GtGrid;
 class GtRuler;
 
@@ -25,53 +28,203 @@ class GT_GUI_EXPORT GtGraphicsView : public QGraphicsView
     Q_OBJECT
 
 public:
-    explicit GtGraphicsView(GtGraphicsScene *s, QWidget *parent = 0);
+
+    enum Option : int
+    {
+        /// Nop option
+        NoOption = 0,
+        /// Indicates that the scene, the view is currently assigned to,
+        /// is deleted, if the view is deleted.
+        /// (default for backwards compatibility,
+        ///  normally QGraphicsScene is NOT owned by a QGraphicsView)
+        DestroyActiveSceneOnDeletion = 1 << 0,
+        /// Disables smooth zooming when using the mouse wheel
+        NoSmoothZoom = 1 << 1,
+    };
+    using Options = QFlags<Option>;
+
+    explicit GtGraphicsView(QGraphicsScene* s, QWidget* parent = 0) :
+        GtGraphicsView(s, DestroyActiveSceneOnDeletion, parent)
+    { }
+    explicit GtGraphicsView(QGraphicsScene* s, Options options, QWidget* parent = 0);
+    explicit GtGraphicsView(Options options, QWidget* parent = 0);
+
     ~GtGraphicsView() override;
 
-    /** Returns grid.
-        @return Grid pointer */
-    GtGrid* grid();
-
-    /** Sets new grid. Old grid is deleted.
-        @param grid New grid */
-    void setGrid(GtGrid* grid);
-
-    /** Sets new horizontal ruler.
-        @param ruler New horizontal ruler */
-    void setHorizontalRuler(GtRuler* ruler);
-
-    /** Sets new vertical ruler.
-        @param ruler New vertical ruler */
-    void setVerticalRuler(GtRuler* ruler);
-
-    /** Sets view scale to given factor in percent.
-        @param percentage New zoom factor*/
-    void setScalePercentage(qreal percentage);
-
-    /** Repaints ruler. */
-    void repaintRuler();
+    /**
+     * @brief Sets the options of this view.
+     * @param options Options
+     */
+    void setOptions(Options options);
+    /**
+     * @brief Overrides the given option.
+     * @param option Option
+     * @param enabled Whether the option is enabled
+     */
+    void setOption(Option option, bool enabled = true);
+    /**
+     * @brief Returns the options of this view
+     * @return Options
+     */
+    Options options() const;
 
     /**
-     * @brief snapItemToGrid
+     *  @brief Sets the new grid. Takes ownership of the grid.
+     *  Old grid is deleted.
+     *  @param grid New grid
+     */
+    void setGrid(GtGrid* grid);
+
+    /**
+     * @brief Returns the grid.
+     * @return Grid, may be null if no grid is set
+     */
+    GtGrid* grid();
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `connectHorizontalRuler` instead.")
+    void setHorizontalRuler(GtRuler* ruler)
+    {
+        connectHorizontalRuler(ruler);
+    }
+
+    /**
+     * @brief Configures the view to use the new horizontal ruler. Does not take
+     * ownership.
+     * @param ruler New horizontal ruler
+     */
+    void connectHorizontalRuler(GtRuler* ruler);
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `connectVerticalRuler` instead.")
+    void setVerticalRuler(GtRuler* ruler)
+    {
+        connectVerticalRuler(ruler);
+    }
+
+    /**
+     * @brief Configures the view to use the new vertical ruler. Does not take
+     * ownership.
+     * @param ruler New vertical ruler
+     */
+    void connectVerticalRuler(GtRuler* ruler);
+
+    /// Repaints ruler.
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtRuler::paint` instead.")
+    void repaintRuler() {}
+
+    /**
+     * @brief Sets view scale to given factor.
+     * Same as setZoom.
+     * @param val New Scale factor
+     */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `zoomBy` instead.")
+    Q_INVOKABLE void setScale(double scale)
+    {
+        zoomBy(scale);
+    }
+
+    /**
+     * @brief Sets the view zoom level to the given factor in percent.
+     * Same as setZoomPercentage.
+     * @param percentage New zoom factor
+     */
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use zoomByPercentage instead.")
+    Q_INVOKABLE void setScalePercentage(double percentage)
+    {
+        zoomByPercentage(percentage);
+    }
+
+    /**
+     * @brief Returns the current zoom level
+     * @return Zoom level
+     */
+    double zoom() const;
+
+    /**
+     * @brief Returns the current zoom level in percent.
+     * @return Zoom level in percent
+     */
+    double zoomPercentage() const;
+
+    /**
+     * @brief Sets the new zoom level.
+     * @param scale New zoom level
+     */
+    Q_INVOKABLE void zoomBy(double scale);
+
+    /**
+     * @brief Sets the view zoom level to the given factor in percent.
+     * @param percentage New zoom factor
+     */
+    Q_INVOKABLE void zoomByPercentage(double percentage);
+
+    void animateZoomTowards(const QPointF& scenePos, double factor);
+
+    /**
+     * @brief Sets maximum zoom factor.
+     * @param val New maximum zoom factor
+     */
+    void setMaximumZoom(double val);
+
+    /**
+     * @brief Sets minimum zoom factor.
+     * @param val New minimum zoom factor
+     */
+    void setMinimumZoom(double val);
+
+    /**
+     * @brief Returns whether items are snapped to the grid when moving
+     * @return Snap to grid indicator
+     */
+    bool snapToGrid() const;
+
+    /**
+     * @brief Returns the snap to grid threshold. The threshold is used when
+     * moving items by the cursor.
+     * @return Snap to grid threshold
+     */
+    double snapToGridThreshold() const;
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `setSnapToGrid` instead.")
+    Q_INVOKABLE void snapToGrid(bool enable) { setSnapToGrid(enable); }
+
+    /**
+     * @brief Sets whether items are snapped to the grid when moving
+     * @param enable Snap to grid indicator
+     */
+    Q_INVOKABLE void setSnapToGrid(bool enable);
+
+    /**
+     * @brief Sets the snap to grid threshold. The threshold is used when moving
+     * items by the cursor. Threshold value is in the view's coordinate system.
+     * @param threshold Snap to grid threshold. Use 0 to disable the threshold.
+     */
+    Q_INVOKABLE void setSnapToGridThreshold(double threshold);
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "use `snapItemToGrid(QGraphicsItem&)` instead.")
+    Q_INVOKABLE void snapItemToGrid(QGraphicsItem* item)
+    {
+        if (item) snapItemToGrid(*item);
+    }
+
+    /**
+     * @brief Snaps the item to the nearest grid point, regardless of the
+     * threshold snapping distance
      * @param item
      */
-    void snapItemToGrid(QGraphicsItem* item);
+    Q_INVOKABLE void snapItemToGrid(QGraphicsItem& item);
 
-    /** Sets maximum zoom factor.
-        @param val New maximum zoom factor */
-    void setMaximumZoom(qreal val);
+    /// "overrides" QGraphicsView::scale method to react to changes to scale
+    void scale(double dx, double dy);
 
-    /** Sets minimum zoom factor.
-        @param val New minimum zoom factor */
-    void setMinimumZoom(qreal val);
+signals:
 
-public slots:
+    /// Signal which is emitted when the zoom factor changed
+    void zoomChanged(double);
 
-    void snapToGrid(bool val);
+    /// Signal which is emitted when the mouse position changed (scene position)
+    void mousePositionChanged(QPointF);
 
 protected:
-    /// GtdGraphicsScene
-    GtGraphicsScene* m_scene;
 
     void wheelEvent(QWheelEvent *e) override;
 
@@ -79,65 +232,30 @@ protected:
 
     void drawBackground(QPainter *painter, const QRectF &rect) override;
 
+    void paintEvent(QPaintEvent* event) override;
+
     void mouseMoveEvent(QMouseEvent* mouseEvent) override;
 
-    /** Sets view scale to given factor.
-        @param val New Scale factor */
-    void setScale(qreal val);
-
 private:
-    /// Zoom factor
-    qreal m_zoom;
 
-    /// Max zoom factor
-    qreal m_maxZoom;
+    // hide and expose own scale function
+    using QGraphicsView::scale;
+    // not supported, may cause artifacts with grid or rulers
+    using QGraphicsView::rotate;
+    // not supported, may cause artifacts with grid or rulers
+    using QGraphicsView::shear;
 
-    /// Min zoom factor
-    qreal m_minZoom;
+    struct Impl;
+    std::unique_ptr<Impl> pimpl;
 
-    /// Number of scheduled scalings
-    int m_numsScalings;
+    void applyZoomAnimation(double scale);
 
-    /// Grid
-    GtGrid* m_grid;
-
-    /// Horizontal ruler
-    GtRuler* m_hRuler;
-
-    /// Vertical ruler
-    GtRuler* m_vRuler;
-
-    /// Switch for "Snap to Grid" Mode
-    bool m_snap;
-
-    /** Smooth zoom animation.
-        @param delta Wheel delta */
-    void zoomAnimation(int delta);
-
-    /** Returns grid factor.
-        @return Grid factor */
-    int getGridFactor();
-
-    /** Snaps selected item to the closes grid point
-     * @param item selected graphics item
-     * @param mousePos mouse position from where the closest grid point is determined
+    /**
+     * @brief Snaps selected item to the closest grid point.
+     * @param item Selected graphics item
+     * @param mousePos Mouse position from where the closest grid point is determined
      */
-    void snapItemToGrid(QGraphicsItem* item, QPoint mousePos);
-
-private slots:
-    /** Called to update view scale. */
-    void scalingTime();
-
-    /** Called at animation finish. */
-    void animFinished();
-
-signals:
-    /** Signal which is emitted when the zoom factor changed */
-    void zoomChanged(qreal);
-
-    /** Signal which is emitted when the mouse position changed */
-    void mousePositionChanged(const QPointF);
-
+    void snapItemToGrid(QGraphicsItem& item, QPoint mousePos);
 };
 
-#endif // GTD_GRAPHICSVIEW_H
+#endif // GT_GRAPHICSVIEW_H

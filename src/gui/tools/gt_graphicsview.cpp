@@ -2,155 +2,212 @@
  *
  * SPDX-License-Identifier: MPL-2.0+
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: gtd_graphicsview.cpp
+ * Source File: gt_graphicsview.cpp
  *
  *  Created on: 15.10.2013
  *      Author: Stanislaus Reitenbach (AT-TW)
- *		  Tel.: +49 2203 601 2907
  */
 
-#include <QtWidgets>
-
 #include "gt_graphicsview.h"
-#include "gt_graphicsscene.h"
 #include "gt_grid.h"
 #include "gt_ruler.h"
-#include "gt_logging.h"
+#include "gt_utilities.h"
 
-//#include "gtd_settings.h"
+#include <QGraphicsScene>
+#include <QGraphicsItem>
+#include <QPointer>
+#include <QTimeLine>
+#include <QMouseEvent>
+#include <QWheelEvent>
+#include <QPaintEvent>
+#include <QVariantAnimation>
 
-GtGraphicsView::GtGraphicsView(GtGraphicsScene *s, QWidget *parent) :
-    QGraphicsView(parent),
-    m_scene(s),
-    m_zoom(1.0),
-    m_maxZoom(50.0),
-    m_minZoom(0.05),
-    m_numsScalings(0),
-    m_grid(nullptr),
-    m_hRuler(nullptr),
-    m_vRuler(nullptr),
-    m_snap(false)
+#include <cmath>
+
+struct GtGraphicsView::Impl
 {
+    /// Options
+    Options options = NoOption;
+
+    /// Max zoom factor
+    double maxZoom = 50.0;
+
+    /// Min zoom factor
+    double minZoom = 0.05;
+
+    /// Grid
+    QPointer<GtGrid> grid;
+
+    /// Horizontal ruler
+    QPointer<GtRuler> hRuler;
+
+    /// Vertical ruler
+    QPointer<GtRuler> vRuler;
+
+    QVariantAnimation* zoomAnimation;
+
+    QPointF targetViewportPos{};
+
+    QPointF targetScenePos{};
+
+    double snapThreshold = 10.0;
+
+    /// Switch for "Snap to Grid" Mode
+    bool snapToGrid = false;
+};
+
+GtGraphicsView::GtGraphicsView(QGraphicsScene* s, Options options, QWidget* parent) :
+    QGraphicsView(parent),
+    pimpl(std::make_unique<Impl>())
+{
+    pimpl->options = options;
+
     setFocusPolicy(Qt::WheelFocus);
     setMouseTracking(true);
     setAutoFillBackground(false);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-    setScene(m_scene);
+    setScene(s);
 
     setDragMode(QGraphicsView::ScrollHandDrag);
 
-//    if(GtdAppearanceSettings().useAntiAliasing())
-//    {
-//        setRenderHints(QPainter::Antialiasing |
-//                       QPainter::SmoothPixmapTransform);
-//    }
+    pimpl->zoomAnimation = new QVariantAnimation(this);
+    pimpl->zoomAnimation->setDuration(300);
+    pimpl->zoomAnimation->setEasingCurve(QEasingCurve::OutCubic);
+
+    connect(pimpl->zoomAnimation, &QVariantAnimation::valueChanged,
+            this, [this](const QVariant &value) {
+        applyZoomAnimation(value.toDouble());
+    });
 }
+
+GtGraphicsView::GtGraphicsView(Options options, QWidget* parent) :
+    GtGraphicsView(nullptr, options, parent)
+{ }
 
 GtGraphicsView::~GtGraphicsView()
 {
     // delete the scene
-    delete m_scene;
+    if (pimpl->options.testFlag(DestroyActiveSceneOnDeletion))
+    {
+        delete scene();
+    }
+}
 
-    // delte grid
-    delete m_grid;
+void
+GtGraphicsView::setOptions(Options options)
+{
+    pimpl->options = options;
+}
+
+void
+GtGraphicsView::setOption(Option option, bool enabled)
+{
+    pimpl->options.setFlag(option, enabled);
+}
+
+GtGraphicsView::Options
+GtGraphicsView::options() const
+{
+    return pimpl->options;
 }
 
 GtGrid*
 GtGraphicsView::grid()
 {
-    return m_grid;
+    return pimpl->grid;
 }
 
 void
 GtGraphicsView::setGrid(GtGrid* grid)
 {
-    delete m_grid;
+    if (pimpl->grid && pimpl->grid->parent() == this)
+    {
+        delete pimpl->grid;
+    }
 
-    m_grid = grid;
-
-    connect(grid, SIGNAL(update()), viewport(), SLOT(update()));
+    pimpl->grid = grid;
+    if (grid)
+    {
+        grid->setParent(this);
+        connect(grid, &GtGrid::updated, this, [this](){
+            resetCachedContent();
+            if (viewport()) viewport()->update();
+        });
+    }
 }
 
 void
-GtGraphicsView::setHorizontalRuler(GtRuler *ruler)
+GtGraphicsView::connectHorizontalRuler(GtRuler* ruler)
 {
-    if (!m_grid)
-    {
-        gtWarning().verbose().nospace()
-                << __FUNCTION__ << ": " << tr("Could not set Ruler. Set grid first!");
-        return;
-    }
-
-    m_hRuler = ruler;
+    pimpl->hRuler = ruler;
+    if (ruler) ruler->setDrawOffset(frameShape() == QFrame::NoFrame ? 0 : frameWidth());
 }
 
 void
-GtGraphicsView::setVerticalRuler(GtRuler *ruler)
+GtGraphicsView::connectVerticalRuler(GtRuler* ruler)
 {
-    if (!m_grid)
-    {
-        gtWarning().verbose().nospace()
-                << __FUNCTION__ << ": " << tr("Could not set Ruler. Set grid first!");
-        return;
-    }
-
-    m_vRuler = ruler;
+    pimpl->vRuler = ruler;
+    if (ruler) ruler->setDrawOffset(frameShape() == QFrame::NoFrame ? 0 : frameWidth());
 }
 
 void
 GtGraphicsView::wheelEvent(QWheelEvent* e)
 {
-    if (e->modifiers() & Qt::ControlModifier)
+    if (!(e->modifiers() & Qt::ControlModifier) || !scene())
     {
-        zoomAnimation(e->angleDelta().y());
-        e->accept();
+        return QGraphicsView::wheelEvent(e);
     }
-    else
+
+    int angleDelta = e->angleDelta().y();
+    double factor = std::pow(1.0015, angleDelta);
+
+    if (pimpl->options.testFlag(NoSmoothZoom))
     {
-        QGraphicsView::wheelEvent(e);
+        zoomBy(factor);
+        return e->accept();
     }
+
+    animateZoomTowards(mapToScene(e->position().toPoint()), factor);
+    e->accept();
 }
 
 void
 GtGraphicsView::scrollContentsBy(int dx, int dy)
 {
-    if (m_grid)
-    {
-        if (m_hRuler)
-        {
-            m_hRuler->setNeedsRepaint(true);
-        }
-
-        if (m_vRuler)
-        {
-            m_vRuler->setNeedsRepaint(true);
-        }
-    }
-
     QGraphicsView::scrollContentsBy(dx, dy);
-
 }
 
 void
 GtGraphicsView::drawBackground(QPainter* painter, const QRectF& rect)
 {
+    if (!painter) return;
+
     QGraphicsView::drawBackground(painter, rect);
 
-    if (m_grid)
+    if (pimpl->grid)
     {
-        if (rect.isValid())
+        pimpl->grid->paint(*painter, rect);
+        auto spacing = pimpl->grid->currentGridSpacing();
+
+        if (pimpl->vRuler)
         {
-            m_grid->paintGrid(painter, rect);
+            pimpl->vRuler->paint(spacing, rect, viewportTransform());
         }
-        else
+        if (pimpl->hRuler)
         {
-            gtWarning() << tr("Model contains invalid values "
-                              "for geometrical description");
+            pimpl->hRuler->paint(spacing, rect, viewportTransform());
         }
     }
+}
+
+void
+GtGraphicsView::paintEvent(QPaintEvent* event)
+{
+    QGraphicsView::paintEvent(event);
 }
 
 void
@@ -158,190 +215,168 @@ GtGraphicsView::mouseMoveEvent(QMouseEvent* mouseEvent)
 {
     QGraphicsView::mouseMoveEvent(mouseEvent);
 
-    QPointF p = mapToScene(mouseEvent->pos());
+    QPoint cursorPos = mouseEvent->pos();
+    if (pimpl->vRuler) pimpl->vRuler->setCursorPosition(cursorPos);
+    if (pimpl->hRuler) pimpl->hRuler->setCursorPosition(cursorPos);
 
-    if (m_hRuler)
+    if (!scene()) return;
+
+    QPointF scenePos = mapToScene(cursorPos);
+    emit mousePositionChanged(scenePos);
+
+    if (pimpl->snapToGrid && (scene()->mouseGrabberItem() &&
+                        scene()->selectedItems().size() == 1))
     {
-        m_hRuler->setCursorPosition(mouseEvent->pos());
-    }
-
-    if (m_vRuler)
-    {
-        m_vRuler->setCursorPosition(mouseEvent->pos());
-    }
-
-    emit mousePositionChanged(p);
-
-    if (m_snap && (scene()->selectedItems().size() == 1) &&
-            scene()->mouseGrabberItem())
-    {
-        snapItemToGrid(scene()->mouseGrabberItem(), mouseEvent->pos());
+        snapItemToGrid(*scene()->mouseGrabberItem(), mouseEvent->pos());
         return;
-    }   
-}
-
-void
-GtGraphicsView::setMaximumZoom(qreal val)
-{
-    m_maxZoom = val;
-}
-
-void
-GtGraphicsView::setMinimumZoom(qreal val)
-{
-    m_minZoom = val;
-}
-
-void
-GtGraphicsView::setScale(qreal val)
-{
-    m_zoom = m_zoom * val;
-
-    if (m_zoom > m_maxZoom)
-    {
-        val = val * (m_maxZoom / m_zoom);
-        m_zoom = m_maxZoom;
-    }
-    else if (m_zoom < m_minZoom)
-    {
-        val = val * (m_minZoom / m_zoom);
-        m_zoom = m_minZoom;
-    }
-
-    scale(val, val);
-
-    if (m_grid)
-    {
-        m_grid->setGridScaleFactor(getGridFactor());
-    }
-
-    emit zoomChanged(m_zoom);
-}
-
-void
-GtGraphicsView::setScalePercentage(qreal percentage)
-{
-    qreal factor = (percentage / 100.0f) / m_zoom;
-    setScale(factor);
-}
-
-void
-GtGraphicsView::zoomAnimation(int delta)
-{
-    if (delta > 0)
-    {
-        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-    }
-    else
-    {
-        setTransformationAnchor(QGraphicsView::AnchorViewCenter);
-    }
-
-    int degrees = delta / 8;
-    int steps = degrees / 15;
-    m_numsScalings += steps;
-
-    if (m_numsScalings * steps < 0)
-    {
-        m_numsScalings = steps;
-    }
-
-    QTimeLine* zoomAnimation = new QTimeLine(500, this);
-
-    zoomAnimation->setUpdateInterval(20);
-
-    connect(zoomAnimation, SIGNAL(valueChanged(qreal)),
-            SLOT(scalingTime()));
-
-    connect(zoomAnimation, SIGNAL(finished()), SLOT(animFinished()));
-
-    zoomAnimation->start();
-}
-
-int
-GtGraphicsView::getGridFactor()
-{
-    return int(log(1.0 / (m_zoom)) / log(2.0));
-}
-
-void
-GtGraphicsView::repaintRuler()
-{
-    if (m_grid)
-    {
-        if (m_hRuler)
-        {
-            m_grid->paintRuler(m_hRuler);
-            m_hRuler->repaint();
-        }
-
-        if(m_vRuler != nullptr)
-        {
-            m_grid->paintRuler(m_vRuler);
-            m_vRuler->repaint();
-        }
     }
 }
 
 void
-GtGraphicsView::snapToGrid(bool val)
+GtGraphicsView::scale(double dx, double /*dy*/)
 {
-    m_snap = val;
+    // only allow zooms, that conform to the aspect ratio
+    QGraphicsView::scale(dx, dx);
+    emit zoomChanged(zoom());
+}
+
+double
+GtGraphicsView::zoom() const
+{
+    return transform().m11();
+}
+
+double
+GtGraphicsView::zoomPercentage() const
+{
+    return zoom() * 100.0;
 }
 
 void
-GtGraphicsView::scalingTime()
+GtGraphicsView::zoomBy(double scale)
 {
-    qreal factor = 1.0 + qreal(m_numsScalings) / 300.0;
+    double zoom = this->zoom() * scale;
 
-    setScale(factor);
-}
-
-void
-GtGraphicsView::animFinished()
-{
-    if (m_numsScalings > 0)
+    if (zoom > pimpl->maxZoom)
     {
-        m_numsScalings--;
+        scale = scale * (pimpl->maxZoom / zoom);
     }
-    else
+    else if (zoom < pimpl->minZoom)
     {
-        m_numsScalings++;
+        scale = scale * (pimpl->minZoom / zoom);
     }
 
-    sender()->~QObject();
+    this->scale(scale, scale);
 }
 
 void
-GtGraphicsView::snapItemToGrid(QGraphicsItem* item, QPoint mousePos)
+GtGraphicsView::zoomByPercentage(double percentage)
 {
-    if ( !(item->flags() & QGraphicsItem::ItemIsMovable))
+    assert(zoom() > 0);
+    double factor = (percentage / 100.0) / zoom();
+    zoomBy(factor);
+}
+
+void
+GtGraphicsView::setMaximumZoom(double val)
+{
+    pimpl->maxZoom = val;
+}
+
+void
+GtGraphicsView::setMinimumZoom(double val)
+{
+    pimpl->minZoom = val;
+}
+
+bool
+GtGraphicsView::snapToGrid() const
+{
+    return pimpl->snapToGrid;
+}
+
+double
+GtGraphicsView::snapToGridThreshold() const
+{
+    return pimpl->snapThreshold;
+}
+
+void
+GtGraphicsView::animateZoomTowards(const QPointF& scenePos, double factor)
+{
+    pimpl->targetViewportPos = mapFromScene(scenePos);
+    pimpl->targetScenePos    = mapToScene(pimpl->targetViewportPos.toPoint());
+
+    double startScale = zoom();
+    double endScale = gt::clamp(zoom() * factor, pimpl->minZoom, pimpl->maxZoom);
+
+    pimpl->zoomAnimation->stop();
+    pimpl->zoomAnimation->setStartValue(startScale);
+    pimpl->zoomAnimation->setEndValue(endScale);
+    pimpl->zoomAnimation->start();
+}
+
+void
+GtGraphicsView::applyZoomAnimation(double scale)
+{
+    double factor = scale / zoom();
+
+    // Zoom
+    this->scale(factor, factor);
+
+    // Keep the point under the mouse fixed
+    QPointF deltaViewportPos = pimpl->targetViewportPos -
+                               QPointF(viewport()->width() / 2.0, viewport()->height() / 2.0);
+    QPointF viewportCenter = mapFromScene(pimpl->targetScenePos) - deltaViewportPos;
+    centerOn(mapToScene(viewportCenter.toPoint()));
+}
+
+void
+GtGraphicsView::setSnapToGrid(bool enable)
+{
+    pimpl->snapToGrid = enable;
+}
+
+void
+GtGraphicsView::setSnapToGridThreshold(double threshold)
+{
+    pimpl->snapThreshold = std::max(0.0, threshold);
+}
+
+void
+GtGraphicsView::snapItemToGrid(QGraphicsItem& item, QPoint mousePos)
+{
+    if (!(item.flags() & QGraphicsItem::ItemIsMovable) || !grid())
     {
         return;
     }
 
-    QPointF ibrc = item->boundingRect().center();
+    QPointF ibrc = item.boundingRect().center();
 
-    QPointF np = grid()->computeNearestGridPoint(mapToScene(mousePos));
+    QPointF scenePos = mapToScene(mousePos);
 
-    QLineF line(mousePos, mapFromScene(np));
+    QPointF np = grid()->computeNearestGridPoint(scenePos);
+
+    QLineF line{mousePos, mapFromScene(np)};
 
     double length = line.length();
 
-    if (length < 10)
+    if (pimpl->snapThreshold <= 0 || length < pimpl->snapThreshold)
     {
-        item->setPos(np - ibrc);
+        item.setPos(np - ibrc);
     }
     else
     {
-        item->setPos(mapToScene(mousePos) - ibrc);
+        item.setPos(scenePos - ibrc);
     }
 }
 
 void
-GtGraphicsView::snapItemToGrid(QGraphicsItem* item)
+GtGraphicsView::snapItemToGrid(QGraphicsItem& item)
 {
-    QPointF ibrc = item->boundingRect().center();
-    QPointF np = grid()->computeNearestGridPoint(item->mapToScene(ibrc));
-    item->setPos(np - ibrc);
+    if (!grid()) return;
+
+    QPointF ibrc = item.boundingRect().center();
+    QPointF np = grid()->computeNearestGridPoint(item.mapToScene(ibrc));
+    item.setPos(np - ibrc);
 }

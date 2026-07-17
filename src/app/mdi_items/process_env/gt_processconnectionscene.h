@@ -12,8 +12,7 @@
 #ifndef GTPROCESSCONNECTIONSCENE_H
 #define GTPROCESSCONNECTIONSCENE_H
 
-#include "gt_graphicsscene.h"
-
+#include <QGraphicsScene>
 #include <QPointer>
 
 class QParallelAnimationGroup;
@@ -25,7 +24,7 @@ class GtProcessConnectionGraphicsView;
 /**
  * @brief The GtProcessConnectionScene class
  */
-class GtProcessConnectionScene : public GtGraphicsScene
+class GtProcessConnectionScene : public QGraphicsScene
 {
     Q_OBJECT
 
