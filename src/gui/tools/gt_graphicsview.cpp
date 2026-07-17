@@ -124,9 +124,12 @@ GtGraphicsView::grid()
 void
 GtGraphicsView::setGrid(GtGrid* grid)
 {
-    delete pimpl->grid;
-    pimpl->grid = grid;
+    if (pimpl->grid && pimpl->grid->parent() == this)
+    {
+        delete pimpl->grid;
+    }
 
+    pimpl->grid = grid;
     if (grid)
     {
         grid->setParent(this);
