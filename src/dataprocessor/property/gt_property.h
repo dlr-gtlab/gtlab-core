@@ -147,7 +147,7 @@ inline ParamType& GtProperty<ParamType>::get()
 {
     if (m_ownerObject)
     {
-        AccessList::instance().addAccessedProperty(m_ownerObject->uuid());
+        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
     }
 
     return m_value;
@@ -159,7 +159,7 @@ inline ParamType const & GtProperty<ParamType>::get() const
 
     if (m_ownerObject)
     {
-        AccessList::instance().addAccessedProperty(m_ownerObject->uuid());
+        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
     }
     return m_value;
 }
@@ -170,7 +170,7 @@ inline ParamType GtProperty<ParamType>::getVal() const
 {
     if (m_ownerObject)
     {
-        AccessList::instance().addAccessedProperty(m_ownerObject->uuid());
+        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
     }
     return m_value;
 }
@@ -181,7 +181,7 @@ inline ParamType GtProperty<ParamType>::getVal(const QString& unit,
 {
     if (m_ownerObject)
     {
-        AccessList::instance().addAccessedProperty(m_ownerObject->uuid());
+        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
     }
 
     if (unit.isEmpty())

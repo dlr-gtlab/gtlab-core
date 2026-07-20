@@ -120,6 +120,7 @@ set(headers
     gt_command.h
     gt_moduleupgradeutilities.h
     gt_accesstracking.h
+    gt_recording.h
 )
 
 set(hdr_private
@@ -237,6 +238,7 @@ set(sources
     internal/gt_moduleupgrader.cpp
     gt_moduleupgradeutilities.cpp
     gt_accesstracking.cpp
+    gt_recording.cpp
 )
 
 set(resources
@@ -244,7 +246,7 @@ set(resources
 )
 
 add_library(GTlabCore ${headers} ${hdr_private} ${sources} ${resources}
-    gt_recording.h gt_recording.cpp)
+     )
 add_library(GTlab::Core ALIAS GTlabCore)
 
 target_compile_definitions(GTlabCore
