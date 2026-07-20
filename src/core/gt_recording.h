@@ -9,15 +9,17 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#ifndef GT_RECORDING_H
-#define GT_RECORDING_H
+#pragma once
+
+#include "gt_object.h"
 
 #include <qobject.h>
-#include "gt_core_exports.h"
-
+#include <QPointer>
+#include <QSet>
 #include <QString>
 
-class GtCoreApplication;
+#include "gt_core_exports.h"
+
 
 /**
  * @brief The GtRecording class
@@ -27,33 +29,83 @@ class GT_CORE_EXPORT GtRecording
     friend class GtCoreApplication;
 
 public:
-    /**
-     * @brief GtCommand
-     */
-    GtRecording();
 
     /**
      * @brief Returns command identification string.
      * @return Command identification string
      */
-    QString id() const;
-
+    QString contextUuid() const;
     /**
-     * @brief Returns true if command id is not empty.
-     * @return Whether command is valid or not
+     * @brief Returns command identification string.
+     * @return Command identification string
      */
-    bool isValid() const;
+    QString startAtTime() const;
+    /**
+     * @brief Returns command identification string.
+     * @return Command identification string
+     */
+    QString endedAtTime() const;
+    /**
+     * @brief Returns command identification string.
+     * @return Command identification string
+     */
+    QSet<QString> childContextUuids() const;
+
+
+    QPointer<GtObject> activityObject() const;
+
+    QString State() const;
+    void setState(const QString &newState);
+
+    QString Version() const;
+    void setVersion(const QString &newVersion);
+
+    QString toolName() const;
+    void setToolName(const QString &newToolName);
 
 private:
-    /// Command identification string
-    QString m_actvityUuid;
-
     /**
      * @brief Constructor.
      * @param uuid Command identification string
      */
-    explicit GtRecording(const QString& uuid);
+    explicit GtRecording();
 
+    /// Command identification string
+    QString m_actvityUuid;
+
+    QSet<QString> m_childContextUuids;
+
+    QString m_startAtTime;
+
+    QString m_endedAtTime;
+
+    QString m_State;
+
+    QString m_Version;
+
+    QString m_toolName;
+
+    QPointer<GtObject> m_activityObject;
+
+    QList<QPointer<GtObject>> m_linkedObjects;
 };
 
-#endif // GT_RECORDING_H
+class GT_CORE_EXPORT GtAbstractRecorder
+{
+public:
+    explicit
+        GtAbstractRecorder() {};
+
+    virtual bool
+    initLinkedObjects(const QList<QPointer<GtObject>> linkedObjects)=0;
+
+    virtual bool
+    recordChanges(const QList<QPointer<GtObject>> linkedObjects)=0;
+
+    virtual bool
+    recordAccessObjects(const QSet<QString> accessedObjects, QList<QPointer<GtObject>> linkedObjects)=0;
+
+    virtual bool
+    createActivity(const GtRecording& recording)=0;
+
+};

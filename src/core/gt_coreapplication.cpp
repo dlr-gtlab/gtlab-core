@@ -41,6 +41,7 @@
 #include "gt_moduleinterface.h"
 #include "gt_taskgroup.h"
 #include "gt_processdata.h"
+#include "gt_recording.h"
 
 #include <gt_logdest.h>
 
@@ -1142,21 +1143,38 @@ GtCoreApplication::licenseFolder() const
     return {};
 }
 
-GtRecording GtCoreApplication::startRecording(std::unique_ptr<GtAbstractRecorder> recorder,QList<QPointer<GtObject> > linkedObjects)
+GtRecording GtCoreApplication::startRecording(GtAbstractRecorder* recorder,QPointer<GtObject> activityObject, QList<QPointer<GtObject>> linkedObjects)
 {
-    GtRecording Recording;
+    GtRecording recording{};
+    recording.m_activityObject=activityObject;
+    recording.m_linkedObjects = linkedObjects;
     recorder->initLinkedObjects(linkedObjects);
+    GtAccessTracker::instance().startAccessTracking(recording.contextUuid());
 
-    QString contextUuid = QUuid::createUuid().toString();
-    GtAccessTracker::instance().startAccessTracking(contextUuid);
-
-    return Recording;
+    recording.m_startAtTime=QDateTime::currentDateTimeUtc().toString("yyyy-MM-ddThh:mm:ssZ");
+    return recording;
 }
 
-void GtCoreApplication::endRecording(const GtRecording &recording)
+void GtCoreApplication::endRecording(GtAbstractRecorder* recorder,GtRecording &recording)
 {
-    GtAccessTracker::instance().endAccessTracking();
+    recording.m_endedAtTime=QDateTime::currentDateTimeUtc().toString("yyyy-MM-ddThh:mm:ssZ");
 
-    QSet<QString> childContextUuidsSet = GtAccessTracker::instance().getChildContextUuid(recording.id());
+    //Finish recording accessed objects
+    GtAccessTracker::instance().endAccessTracking();
+    QString contextUuid = recording.contextUuid();
+
+    recording.m_childContextUuids = GtAccessTracker::instance().getChildContextUuid(contextUuid);
+
+    recorder->createActivity(recording);
+
+    // copy accessed objects, clear them and record those
+    QSet<QString> accessedObjects = GtAccessTracker::instance().getAccessedObjects(contextUuid);
+    if (!GtAccessTracker::instance().clearContext(contextUuid)) gtError()<<"Context could not cleared";
+    recorder->recordAccessObjects(accessedObjects,recording.m_linkedObjects);
+
+    // execute "diff"
+    recorder->recordChanges(recording.m_linkedObjects);
+
+
 
 }

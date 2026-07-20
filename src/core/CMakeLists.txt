@@ -105,6 +105,7 @@ set(headers
     gt_moduleloader.h
     gt_datamodelinterface.h
     gt_command.h
+    gt_recording.h
 
 )
 
@@ -209,6 +210,7 @@ set(sources
     gt_moduleloader.cpp
     gt_command.cpp
     internal/gt_moduleupgrader.cpp
+    gt_recording.cpp
 
 )
 
@@ -217,7 +219,7 @@ set(resources
 )
 
 add_library(GTlabCore ${headers} ${hdr_private} ${sources} ${resources}
-    gt_recording.h gt_recording.cpp)
+     )
 add_library(GTlab::Core ALIAS GTlabCore)
 
 target_compile_definitions(GTlabCore PRIVATE GT_MODULE_ID="Core" GT_EXEC_ID="Exec")

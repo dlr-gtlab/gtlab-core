@@ -51,7 +51,6 @@ void GtAccessTracker::startAccessTracking(const QString& contextUuid)
 
     AccessContext context;
     context.uuid=contextUuid;
-    context.startTime=QDateTime::currentDateTimeUtc().toString("yyyy-MM-ddThh:mm:ssZ");
 
     QString parentContextUuid{};
     if (!m_activeStack.empty())
@@ -73,6 +72,4 @@ void GtAccessTracker::endAccessTracking()
     }
 
     QString contextUuid = m_activeStack.pop();
-    m_contexts[contextUuid].endTime=QDateTime::currentDateTimeUtc().toString("yyyy-MM-ddThh:mm:ssZ");
-
 }

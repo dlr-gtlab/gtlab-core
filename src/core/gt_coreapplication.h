@@ -500,12 +500,12 @@ public:
      */
     GT_NO_DISCARD
     GtRecording
-    startRecording(std::unique_ptr<GtAbstractRecorder> recorder, QList<QPointer<GtObject> > linkedObjects);
+    startRecording(GtAbstractRecorder* recorder,QPointer<GtObject> activityObject,  QList<QPointer<GtObject> > linkedObjects);
     /**
      *
      */
     void
-    endRecording(const GtRecording& recording);
+    endRecording(GtAbstractRecorder* recorder, GtRecording& recording);
 
 protected:
     /// Current session
