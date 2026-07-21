@@ -23,7 +23,6 @@
 
 #include <algorithm>
 
-GT_SUPPRESS_DEPRECATED_BEGIN
 struct GtTask::Impl
 {
     /// Event loop
@@ -45,7 +44,6 @@ struct GtTask::Impl
         tr("Process Runner to run task with. Only relevant for the root task")
     };
 };
-GT_SUPPRESS_DEPRECATED_END
 
 GtTask::GtTask() :
     m_maxIter(QStringLiteral("maxIter"),
@@ -420,7 +418,6 @@ GtTask::runChildElements()
     // trigger transfer of monitoring properties after evaluation
     emit transferMonitoringProperties();
 
-    GT_SUPPRESS_DEPRECATED_BEGIN
     // collect monitoring data for entire task
     GtMonitoringDataSet monData = collectMonitoringData();
 
@@ -430,7 +427,6 @@ GtTask::runChildElements()
         // monitoring data available - emit signal
         emit monitoringDataTransfer(m_currentIter, monData);
     }
-    GT_SUPPRESS_DEPRECATED_END
 
     return true;
 }

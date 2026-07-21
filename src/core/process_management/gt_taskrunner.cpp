@@ -234,13 +234,11 @@ GtTaskRunner::setupElements(GtProcessComponent* orig,
         // check cloned task object
         if (tmpTaskCloned)
         {
-            GT_SUPPRESS_DEPRECATED_BEGIN
             // connect task specific signals
             connect(tmpTaskCloned, &GtTask::monitoringDataTransfer,
                     tmpTaskOrig, &GtTask::onMonitoringDataAvailable);
             connect(tmpTaskCloned, &GtTask::triggerClearMonitoringData,
                     tmpTaskOrig, &GtTask::clearMonitoringData);
-            GT_SUPPRESS_DEPRECATED_END
         }
     }
 

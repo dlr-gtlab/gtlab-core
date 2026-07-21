@@ -290,13 +290,15 @@ TEST_F(TestGtTask, runIterationReflectsEvaluationState)
 
 TEST_F(TestGtTask, collectMonitoringDataIncludesChildMonitoringProperties)
 {
+    // the code of this test can be removed in GTlab version >= 2.2
+    // it tests functions which will not be part of the code in that version anymore
+    GT_SUPPRESS_DEPRECATED_BEGIN
+
     TestableGtTask task;
     TestGtProcessComponent child;
 
     ASSERT_TRUE(task.appendChild(&child));
     child.addMonitoringVar("name", 42);
-
-    GT_SUPPRESS_DEPRECATED_BEGIN
 
     auto data = task.collectMonitoringData();
 
@@ -389,6 +391,8 @@ TEST_F(TestGtTask, handleRunnableFinishedMarksWarningFinishedWhenChildWarns)
 
 TEST_F(TestGtTask, monitoringDataCanBeStoredAndCleared)
 {
+    // the code of this test can be removed in GTlab version >= 2.2
+    // it tests functions which will not be part of the code in that version anymore
     GT_SUPPRESS_DEPRECATED_BEGIN
 
     TestableGtTask task;
