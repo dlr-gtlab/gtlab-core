@@ -1,50 +1,75 @@
 GTlab developer documentation
 =============================
 
-GTlab is an extensible application framework for collaborative engineering
-workflows. This documentation explains how to extend an installed GTlab with
-domain objects, calculations, workflows, and user-interface components.
+.. container:: landing-hero
 
-If you want to operate GTlab rather than develop an extension, start with the
-`GTlab user documentation <https://gtlab.readthedocs.io/projects/user/>`_.
+   **Build domain-specific tools on a shared engineering platform.**
+
+   Extend an installed GTlab with persistent data models, calculations,
+   workflows, file formats, and user-interface components.
+
+.. note:: Looking for instructions on using the application?
+
+   Start with the `GTlab user documentation
+   <https://gtlab.readthedocs.io/projects/user/>`_. This site is for module
+   developers, module maintainers, and GTlab Core contributors.
 
 Choose your path
 ----------------
 
-I want to develop a module
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. list-table::
+   :class: landing-paths
+   :widths: 50 50
 
-Start with :doc:`modules/about` for the architecture, then follow
-:doc:`modules/getting_started` to create and load a first module. Use
-:doc:`modules/interfaces` to choose only the extension points your feature
-needs. The complete minimal project is available in
-:doc:`howtos/basic_module`.
+   * - **Develop a module**
 
-I need to understand GTlab concepts
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       **Recommended starting point**
 
-Read :doc:`basics/data_modelling` before designing persistent domain classes.
-Read :doc:`basics/process_elements` before implementing calculators or custom
-workflow tasks. These concepts are shared by modules and the Core framework.
+       Understand the plugin architecture, create a first module, and select
+       the extension interfaces your feature needs.
 
-I maintain an existing module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       :doc:`Start module development → <modules/about>`
+     - **Understand GTlab concepts**
 
-Use :doc:`howtos/migration_and_deprecation` when updating a module to a newer
-GTlab version. :doc:`faq` collects focused solutions to common integration
-problems.
+       Learn how persistent objects, properties, calculators, and workflow
+       tasks fit together before designing your domain model.
 
-I contribute to GTlab Core
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+       :doc:`Explore the concepts → <basics/data_modelling>`
+   * - **Maintain an existing module**
 
-Core contributors can find source-build instructions in
-:doc:`basics/building` and API declarations in :doc:`api`. Module developers
-normally use an installed GTlab development package and do not need to build
-the Core framework.
+       Update build integration and deprecated APIs, or find focused answers
+       to common module-development problems.
+
+       :doc:`Open the migration guide → <howtos/migration_and_deprecation>`
+     - **Contribute to GTlab Core**
+
+       Build the framework from source and use the generated API reference.
+       Module developers normally do not need this path.
+
+       :doc:`View Core build instructions → <basics/building>`
+
+Your first module
+-----------------
+
+.. container:: landing-workflow
+
+   **1 · Understand** — learn how modules fit into GTlab
+
+   **2 · Create** — build and load a minimal module
+
+   **3 · Extend** — add only the interfaces your feature needs
+
+.. container:: landing-actions
+
+   :doc:`About modules <modules/about>` ·
+   :doc:`Getting started <modules/getting_started>` ·
+   :doc:`Create a module from scratch <howtos/basic_module>` ·
+   :doc:`Choose interfaces <modules/interfaces>`
 
 .. toctree::
    :caption: Start here
    :maxdepth: 2
+   :hidden:
 
    modules/about
    modules/getting_started
@@ -52,6 +77,7 @@ the Core framework.
 .. toctree::
    :caption: Module development
    :maxdepth: 2
+   :hidden:
 
    howtos/basic_module
    modules/interfaces
@@ -62,6 +88,7 @@ the Core framework.
 .. toctree::
    :caption: Concepts
    :maxdepth: 2
+   :hidden:
 
    basics/data_modelling
    basics/process_elements
@@ -69,6 +96,7 @@ the Core framework.
 .. toctree::
    :caption: Maintenance and support
    :maxdepth: 2
+   :hidden:
 
    howtos/migration_and_deprecation
    faq
@@ -77,6 +105,7 @@ the Core framework.
 .. toctree::
    :caption: Core contributors
    :maxdepth: 1
+   :hidden:
 
    basics/building
    api
