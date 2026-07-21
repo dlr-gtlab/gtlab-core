@@ -32,6 +32,7 @@ namespace gt
 namespace xml
 {
 
+/// Maps class names to the IDs of their providing modules.
 using ClassModuleMap = QMap<QString, QString>;
 
 /**
