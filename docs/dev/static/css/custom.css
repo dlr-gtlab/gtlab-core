@@ -73,7 +73,7 @@ table.landing-paths td > p:last-child {
     font-weight: 600;
 }
 
-table.landing-paths td:first-child > p:nth-child(2) {
+table.landing-paths tr:first-child td:first-child > p:nth-child(2) {
     display: inline-block;
     margin: 0 0 0.65rem;
     padding: 0.08rem 0.45rem;
