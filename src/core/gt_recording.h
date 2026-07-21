@@ -49,7 +49,7 @@ public:
      * @brief Returns command identification string.
      * @return Command identification string
      */
-    QSet<QString> childContextUuids() const;
+    QSet<QUuid> childContextUuids() const;
 
 
     QPointer<GtObject> activityObject() const;
@@ -73,7 +73,7 @@ private:
     /// Command identification string
     QString m_actvityUuid;
 
-    QSet<QString> m_childContextUuids;
+    QSet<QUuid> m_childContextUuids;
 
     QString m_startAtTime;
 
@@ -103,7 +103,7 @@ public:
     recordChanges(const QList<QPointer<GtObject>> linkedObjects)=0;
 
     virtual bool
-    recordAccessObjects(const QSet<QString> accessedObjects, QList<QPointer<GtObject>> linkedObjects)=0;
+    recordAccessObjects(const QSet<QUuid> accessedObjects, QList<QPointer<GtObject>> linkedObjects)=0;
 
     virtual bool
     createActivity(const GtRecording& recording)=0;

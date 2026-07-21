@@ -145,22 +145,12 @@ private:
 template<class ParamType>
 inline ParamType& GtProperty<ParamType>::get()
 {
-    if (m_ownerObject)
-    {
-        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
-    }
-
     return m_value;
 }
 
 template<class ParamType>
 inline ParamType const & GtProperty<ParamType>::get() const
 {
-
-    if (m_ownerObject)
-    {
-        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
-    }
     return m_value;
 }
 
@@ -168,10 +158,6 @@ inline ParamType const & GtProperty<ParamType>::get() const
 template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal() const
 {
-    if (m_ownerObject)
-    {
-        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
-    }
     return m_value;
 }
 
@@ -179,11 +165,6 @@ template<class ParamType>
 inline ParamType GtProperty<ParamType>::getVal(const QString& unit,
                                                bool* success) const
 {
-    if (m_ownerObject)
-    {
-        GtAccessTracker::instance().addAccessedProperty(m_ownerObject->uuid());
-    }
-
     if (unit.isEmpty())
     {
         return gt::valueSuccess(getVal(), success);
