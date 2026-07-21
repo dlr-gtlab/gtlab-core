@@ -387,7 +387,11 @@ GtDataModel::onProjectDataLoaded()
 
     helper->deleteLater();
 
-    appendProjectData(project, data);
+    if (!appendProjectData(project, data))
+    {
+        gtError() << tr("Could not attach loaded project data!");
+        return;
+    }
 
     gtApp->settings()->setLastProject(project->objectName());
 
