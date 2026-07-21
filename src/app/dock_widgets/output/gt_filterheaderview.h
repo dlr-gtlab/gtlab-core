@@ -81,6 +81,8 @@ private:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void closePopup();
 
+    void clearFilter(int logicalIndex);
+
     /**
      * @brief filterButtonRect
      * @param logicalIndex Logical index of the column

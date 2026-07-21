@@ -14,6 +14,7 @@
 #include <QApplication>
 #include <QMetaObject>
 #include <QFile>
+#include <QMenu>
 #include <QTextStream>
 
 #include "gt_icons.h"
@@ -178,13 +179,34 @@ gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
 void
 gt::FilterHeaderView::mousePressEvent(QMouseEvent* event)
 {
+    int clickedColumn = logicalIndexAt(event->pos());
+
+    if (event->button() == Qt::RightButton &&
+        clickedColumn >= 0 &&
+        isFilterButtonClicked(event->pos(), clickedColumn) &&
+        (clickedColumn == 0 || clickedColumn == 2 || clickedColumn == 3))
+    {
+        closePopup();
+
+        QMenu menu(this);
+        QAction* clearAction = menu.addAction(tr("Clear Filter"));
+        clearAction->setEnabled(
+            m_filterModel &&
+            m_filterModel->hasActiveFiltersForColumn(clickedColumn));
+
+        if (menu.exec(event->globalPos()) == clearAction)
+        {
+            clearFilter(clickedColumn);
+        }
+        return;
+    }
+
     if (event->button() != Qt::LeftButton)
     {
         QHeaderView::mousePressEvent(event);
         return;
     }
-    
-    int clickedColumn = logicalIndexAt(event->pos());
+
     if (clickedColumn < 0)
     {
         QHeaderView::mousePressEvent(event);
@@ -339,6 +361,41 @@ gt::FilterHeaderView::closePopup()
         m_popup->deleteLater();
         m_popup = nullptr;
     }
+}
+
+void
+gt::FilterHeaderView::clearFilter(int logicalIndex)
+{
+    if (!m_filterModel) return;
+
+    if (logicalIndex == 0)
+    {
+        QSet<int> levels;
+        for (int level : logLevelInts())
+        {
+            levels.insert(level);
+        }
+        m_filterModel->setLevelFilter(levels);
+        m_levelFilters[logicalIndex] = levels;
+    }
+    else if (logicalIndex == 2)
+    {
+        QSet<QString> categories;
+        for (const auto& category :
+             m_filterModel->availableCategoriesWithStorage())
+        {
+            categories.insert(category.second);
+        }
+        m_filterModel->setDeactivatedCategories({});
+        m_filterModel->setCategoryFilter(categories);
+        m_categoryFilters[logicalIndex] = categories;
+    }
+    else if (logicalIndex == 3)
+    {
+        m_filterModel->setFilterText({});
+    }
+
+    viewport()->update();
 }
 
 QRect
