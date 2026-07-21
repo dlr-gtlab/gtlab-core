@@ -13,6 +13,7 @@
 
 #include "gt_coredatamodel.h"
 #include "gt_coreapplication.h"
+#include "gt_externalizationmanager.h"
 #include "gt_object.h"
 #include "gt_project.h"
 #include "gt_projectprovider.h"
@@ -133,6 +134,7 @@ class ProjectLifecycleTest : public ::testing::Test
 protected:
     void SetUp() override
     {
+        m_previousExternalizationDir = gtExternalizationManager->projectDir();
         m_previousConfigHome = qgetenv("XDG_CONFIG_HOME");
         qputenv("XDG_CONFIG_HOME",
                 gtTestHelper->newTempDir().absolutePath().toUtf8());
@@ -156,6 +158,8 @@ protected:
         m_app->switchSession(QStringLiteral("default"));
         m_app->deleteSession(m_sessionId);
         m_app.reset();
+        gtExternalizationManager->onProjectLoaded(
+            m_previousExternalizationDir);
 
         if (m_previousConfigHome.isNull())
         {
@@ -178,6 +182,7 @@ protected:
     std::unique_ptr<GtCoreApplication> m_app;
     QString m_sessionId;
     QByteArray m_previousConfigHome;
+    QString m_previousExternalizationDir;
 };
 
 TEST_F(ProjectLifecycleTest, opensClosesAndSwitchesProjects)
