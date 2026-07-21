@@ -1168,7 +1168,7 @@ void GtCoreApplication::endRecording(GtAbstractRecorder* recorder,GtRecording &r
     recorder->createActivity(recording);
 
     // copy accessed objects, clear them and record those
-    QSet<QString> accessedObjects = GtAccessTracker::instance().getAccessedObjects(contextUuid);
+    QSet<QUuid> accessedObjects = GtAccessTracker::instance().getAccessedObjects(contextUuid);
     if (!GtAccessTracker::instance().clearContext(contextUuid)) gtError()<<"Context could not cleared";
     recorder->recordAccessObjects(accessedObjects,recording.m_linkedObjects);
 

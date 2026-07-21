@@ -4,7 +4,7 @@
 #include <qdatetime.h>
 
 
-QSet<QString> GtAccessTracker::getAccessedObjects(const QString& contextUuid)
+QSet<QUuid> GtAccessTracker::getAccessedObjects(const QUuid& contextUuid)
 {
     if (!m_contexts.contains(contextUuid))
     {
@@ -14,7 +14,7 @@ QSet<QString> GtAccessTracker::getAccessedObjects(const QString& contextUuid)
     return m_contexts[contextUuid].accessedObjects;
 }
 
-QSet<QString> GtAccessTracker::getChildContextUuid(const QString &contextUuid)
+QSet<QUuid> GtAccessTracker::getChildContextUuid(const QUuid &contextUuid)
 {
     if (!m_contexts.contains(contextUuid))
     {
@@ -24,18 +24,18 @@ QSet<QString> GtAccessTracker::getChildContextUuid(const QString &contextUuid)
     return m_contexts[contextUuid].childContextUuid;
 }
 
-void GtAccessTracker::addAccessedProperty(const QString& uuid)
+void GtAccessTracker::addAccessedProperty(const QUuid& uuid)
 {
     if (!m_activeStack.empty())
     {
-        const QString& contextUuid = m_activeStack.top();
+        const QUuid& contextUuid = m_activeStack.top();
 
-        gtInfo() << "Object added:" << uuid;
+        //gtInfo() << "Object added:" << uuid<<" of Context:"<<contextUuid;
         m_contexts[contextUuid].accessedObjects.insert(uuid);
     }
 }
 
-bool GtAccessTracker::clearContext(const QString &contextUuid)
+bool GtAccessTracker::clearContext(const QUuid &contextUuid)
 {
     if (!m_contexts.contains(contextUuid))
     {
@@ -46,13 +46,12 @@ bool GtAccessTracker::clearContext(const QString &contextUuid)
     return true;
 }
 
-void GtAccessTracker::startAccessTracking(const QString& contextUuid)
+void GtAccessTracker::startAccessTracking(const QUuid& contextUuid)
 {
 
     AccessContext context;
-    context.uuid=contextUuid;
 
-    QString parentContextUuid{};
+    QUuid parentContextUuid{};
     if (!m_activeStack.empty())
     {
         parentContextUuid=m_activeStack.top();
@@ -71,5 +70,5 @@ void GtAccessTracker::endAccessTracking()
         return;
     }
 
-    QString contextUuid = m_activeStack.pop();
+    m_activeStack.pop();
 }

@@ -5,15 +5,15 @@
 #include <QMap>
 #include <QStack>
 #include <QSet>
+#include <quuid.h>
 
 
 struct GT_DATAMODEL_EXPORT GtAccessTracker
 {
     struct AccessContext
     {
-        QString uuid;
-        QSet<QString> childContextUuid;
-        QSet<QString> accessedObjects;
+        QSet<QUuid> childContextUuid;
+        QSet<QUuid> accessedObjects;
     };
 
 
@@ -27,24 +27,21 @@ struct GT_DATAMODEL_EXPORT GtAccessTracker
     GtAccessTracker & operator = (const GtAccessTracker &) = delete;
 
 public:
-    QSet<QString>
-    getAccessedObjects(const QString& contextUuid);
-    QSet<QString>
-    getChildContextUuid(const QString& contextUuid);
+    QSet<QUuid>
+    getAccessedObjects(const QUuid& contextUuid);
+    QSet<QUuid> getChildContextUuid(const QUuid& contextUuid);
     void
-    addAccessedProperty(const QString& uuid);
+    addAccessedProperty(const QUuid& uuid);
     bool
-    clearContext(const QString& contextUuid);
+    clearContext(const QUuid& contextUuid);
     void
-    startAccessTracking(const QString& contextUuid);
+    startAccessTracking(const QUuid& contextUuid);
     void
     endAccessTracking();
 private:
-    QStack<QString> m_activeStack;
-    QMap<QString, AccessContext> m_contexts;
-
+    QStack<QUuid> m_activeStack;
+    QMap<QUuid, AccessContext> m_contexts;
 
     GtAccessTracker() {}
     ~GtAccessTracker() {}
-
 };

@@ -56,7 +56,7 @@ QString GtRecording::endedAtTime() const
     return m_endedAtTime;
 }
 
-QSet<QString> GtRecording::childContextUuids() const
+QSet<QUuid> GtRecording::childContextUuids() const
 {
     return m_childContextUuids;
 }
