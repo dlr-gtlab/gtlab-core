@@ -8,9 +8,10 @@ GTlab developer documentation
    Extend an installed GTlab with persistent data models, calculations,
    workflows, file formats, and user-interface components.
 
-.. note:: Looking for instructions on using the application?
+.. container:: landing-audience
 
-   Start with the `GTlab user documentation
+   **Looking for instructions on using the application?** Start with the
+   `GTlab user documentation
    <https://gtlab.readthedocs.io/projects/user/>`_. This site is for module
    developers, module maintainers, and GTlab Core contributors.
 

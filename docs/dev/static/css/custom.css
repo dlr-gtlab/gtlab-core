@@ -9,118 +9,100 @@ table.compact-table td {
 
 /* Developer documentation landing page */
 .landing-hero {
-    margin: 0.5rem 0 1.5rem;
-    padding: 1.4rem 1.6rem;
-    border-left: 0.35rem solid var(--color-brand-primary);
-    border-radius: 0.35rem;
-    background:
-        linear-gradient(120deg,
-            var(--color-background-secondary),
-            var(--color-background-primary));
-    box-shadow: 0 0.15rem 0.55rem rgba(0, 0, 0, 0.06);
+    margin: 0.5rem 0 1.25rem;
+    padding: 0 0 0 1.2rem;
+    border-left: 0.22rem solid var(--color-foreground-border);
 }
 
 .landing-hero p {
     margin: 0.35rem 0;
-    font-size: 1.08rem;
+    font-size: 1.04rem;
 }
 
 .landing-hero p:first-child {
     margin-top: 0;
-    color: var(--color-brand-primary);
-    font-size: 1.3rem;
+    color: var(--color-foreground-primary);
+    font-size: 1.18rem;
 }
 
-.landing-paths {
-    display: table;
+.landing-audience {
+    margin: 1rem 0 1.6rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-foreground-border);
+    border-radius: 0.3rem;
+    background: var(--color-background-secondary);
+}
+
+.landing-audience p {
+    margin: 0;
+}
+
+div.table-wrapper.landing-paths {
     width: 100%;
+    margin: 0.75rem 0 1.75rem;
+    overflow: visible;
+}
+
+table.landing-paths {
+    width: 100%;
+    table-layout: fixed;
     border: 0;
+    border-spacing: 0.8rem;
+    border-collapse: separate;
     box-shadow: none;
 }
 
-.landing-paths tbody {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-}
-
-.landing-paths tr {
-    display: contents;
-}
-
-.landing-paths td {
-    display: flex;
-    min-width: 0;
-    min-height: 11rem;
-    padding: 1.15rem 1.25rem;
-    flex-direction: column;
+table.landing-paths td {
+    height: 10.5rem;
+    padding: 1rem 1.1rem;
+    vertical-align: top;
     border: 1px solid var(--color-foreground-border);
-    border-top: 0.25rem solid var(--color-brand-primary);
-    border-radius: 0.4rem;
+    border-radius: 0.3rem;
     background: var(--color-background-secondary);
-    box-shadow: 0 0.15rem 0.45rem rgba(0, 0, 0, 0.05);
-    transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
-.landing-paths td:hover {
-    transform: translateY(-0.12rem);
-    box-shadow: 0 0.35rem 0.8rem rgba(0, 0, 0, 0.09);
-}
-
-.landing-paths td > p:first-child {
+table.landing-paths td > p:first-child {
     margin-top: 0;
+    margin-bottom: 0.65rem;
     color: var(--color-foreground-primary);
-    font-size: 1.12rem;
+    font-size: 1.08rem;
 }
 
-.landing-paths td > p:last-child {
-    margin-top: auto;
+table.landing-paths td > p:last-child {
     margin-bottom: 0;
     font-weight: 600;
 }
 
-.landing-paths td:first-child > p:nth-child(2) {
-    align-self: flex-start;
+table.landing-paths td:first-child > p:nth-child(2) {
+    display: inline-block;
     margin: 0 0 0.65rem;
-    padding: 0.12rem 0.5rem;
+    padding: 0.08rem 0.45rem;
+    border: 1px solid var(--color-foreground-border);
     border-radius: 1rem;
-    color: var(--color-background-primary);
-    background: var(--color-brand-primary);
-    font-size: 0.78rem;
+    color: var(--color-foreground-muted);
+    background: var(--color-background-primary);
+    font-size: 0.76rem;
 }
 
 .landing-workflow {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.8rem;
-    margin: 0.8rem 0 1rem;
+    gap: 0.75rem;
+    margin: 0.75rem 0 1rem;
 }
 
 .landing-workflow p {
-    position: relative;
     margin: 0;
-    padding: 0.8rem 1rem;
-    border-radius: 0.35rem;
+    padding: 0.8rem 0.9rem;
+    border-top: 0.18rem solid var(--color-foreground-border);
     background: var(--color-background-secondary);
-}
-
-.landing-workflow p:not(:last-child)::after {
-    position: absolute;
-    z-index: 1;
-    top: 50%;
-    right: -0.72rem;
-    content: "→";
-    color: var(--color-brand-primary);
-    font-size: 1.15rem;
-    font-weight: 700;
-    transform: translateY(-50%);
 }
 
 .landing-actions {
-    padding: 0.75rem 1rem;
-    border-radius: 0.35rem;
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--color-foreground-border);
+    border-bottom: 1px solid var(--color-foreground-border);
     text-align: center;
-    background: var(--color-background-secondary);
 }
 
 .landing-actions p {
@@ -128,20 +110,24 @@ table.compact-table td {
 }
 
 @media (max-width: 760px) {
-    .landing-paths tbody,
+    table.landing-paths,
+    table.landing-paths tbody,
+    table.landing-paths tr,
+    table.landing-paths td {
+        display: block;
+        width: 100%;
+    }
+
+    table.landing-paths {
+        border-spacing: 0;
+    }
+
+    table.landing-paths td {
+        height: auto;
+        margin-bottom: 0.8rem;
+    }
+
     .landing-workflow {
         grid-template-columns: 1fr;
-    }
-
-    .landing-paths td {
-        min-height: auto;
-    }
-
-    .landing-workflow p:not(:last-child)::after {
-        top: auto;
-        right: 50%;
-        bottom: -0.85rem;
-        content: "↓";
-        transform: translateX(50%);
     }
 }
