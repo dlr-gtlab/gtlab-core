@@ -1,111 +1,103 @@
 .. _mdiinterface:
 
-MDI Interface
---------------
+User-interface contributions
+============================
 
-Multiple Document Interface (MDI) is used for implementing complex widgets into the GTlab environment. These include:
+Use :cpp:class:`GtMdiInterface` when a module contributes GUI classes. Despite
+its historical name, the interface covers several distinct extension points:
 
-* mdiItems -> widgets opened by a click on a datamodel object 
-* dockWidgets -> widgets which can be docked anywhere into the GtApplication
-* uiItems -> userInterface items e.g. data model objects which are made known to the ui of GTlab
-* postItems ...
+.. list-table:: GUI registration functions
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Function
+     - Contribution
+   * - ``mdiItems()``
+     - object-oriented viewers and editors opened in GTlab's central workspace
+   * - ``dockWidgets()``
+     - persistent tool widgets available from the window menu
+   * - ``uiItems()``
+     - mappings from data-model classes to their ``GtObjectUI`` classes
+   * - ``postItems()``
+     - post-processing template classes
+   * - ``postPlots()``
+     - plot classes available to post-processing
+
+Only override the functions the module needs; all registration functions
+default to empty collections.
+
+.. code-block:: cpp
+
+  #include "gt_mdiinterface.h"
+  #include "gt_moduleinterface.h"
+
+  class MyModule : public QObject,
+                   public GtModuleInterface,
+                   public GtMdiInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+      Q_INTERFACES(GtMdiInterface)
+
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
+
+      QList<QMetaObject> mdiItems() override;
+      QList<QMetaObject> dockWidgets() override;
+      QMap<const char*, QMetaObject> uiItems() override;
+  };
+
+Register viewers and dock widgets
+---------------------------------
+
+Return the metadata of each concrete GUI class:
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
-    #include "gt_mdiinterface.h"
-    
-    class MyModule: public QObject, public GtModuleInterface, GtMdiInterface
-    {
-        [...]
-    
-        Q_INTERFACES(GtDatamodelInterface)
-        Q_INTERFACES(GtMdiInterface)
-    
-        [...]
-    
-        /**
-        * @brief Returns static meta objects of mdi item classes.
-        * @return list including meta objects
-        */
-        QList<QMetaObject> mdiItems() override;
+  QList<QMetaObject> MyModule::mdiItems()
+  {
+      return {GT_METADATA(MyObjectViewer)};
+  }
 
-        /**
-        * @brief Returns static meta objects of dockwidget classes.
-        * @return list including meta objects
-        */
-        QList<QMetaObject> dockWidgets() override;
+  QList<QMetaObject> MyModule::dockWidgets()
+  {
+      return {GT_METADATA(MyToolDockWidget)};
+  }
 
-        /**
-        * @brief uiItems
-        * @return
-        */
-        QMap<const char*, QMetaObject> uiItems() override;
+An MDI item is associated with a compatible data-model object and opens in the
+central workspace. A dock widget provides a module-wide tool and should not be
+used as a substitute for an editor tied to one object.
 
-        /**
-        * @brief postItems
-        * @return
-        */
-        QList<QMetaObject> postItems() override;
-    }
+Map objects to UI classes
+-------------------------
 
-Documentation on Virtual Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Each GTlab module that implements the MDI interface must provide corresponding mdiItems(), dockWidgets(), uiItems(), postItems() functions. When no classes are implemented for these widgets. An empty QList, QMap can be returned.
-
-
-* :cpp:func:`QList<QMetaObject> mdiItems()`
-
-Each GTlab module that implements the MDI interface must provide a corresponding mdiItems() function. This function enables the execution of widgets in the central dock widgets of GTlab. It can be accessed with a right-click on the target datamodel object.
-The mdiItem must be derived from GtAbstractMdiItem and needs a data model object as a target. Essentially an mdiItem is also a widget.
-By using the GT_METADATA macro, the mdi class can be transformed into a QMetaObject, facilitating integration with the Qt framework. If there are no mdiItems an empty QList can be returned.
+``uiItems()`` maps the registered name of a data-model class to the metadata
+of its UI class:
 
 .. code-block:: cpp
-    
-    [...]
-    QList<QMetaObject> retval;
-    retval << GT_METADATA(YourMdiItem);
-    return retval;
-    [...]
 
-* :cpp:func:`QList<QMetaObject> dockWidgets()`
+  QMap<const char*, QMetaObject> MyModule::uiItems()
+  {
+      return {{
+          GT_CLASSNAME(MyPackage),
+          GT_METADATA(MyPackageUI)
+      }};
+  }
 
-Each GTlab module that implements the MDI interface must provide a corresponding dockWidgets() function. This function enables the docking of additional widgets in GTlab. All dockWidgets are accessible with Window -> DockWidgets in the GtApplication.
-By using the GT_METADATA macro, the mdi class can be transformed into a QMetaObject, facilitating integration with the Qt framework. If there are no dockWidgets an empty QList can be returned.
+The mapping lets GTlab present object-specific actions and appearance without
+placing widget code in the persistent data class. A module can provide UI for
+classes owned by another module, but that creates a runtime relationship: test
+behavior when the providing module is unavailable or incompatible.
 
-.. code-block:: cpp
-    
-    [...]
-    QList<QMetaObject> retval;
-    retval << GT_METADATA(YourDockWidget);
-    return retval;
-    [...]
+Post-processing classes
+-----------------------
 
-* :cpp:func:`QMap<const char*, QMetaObject> uiItems()`
+``postItems()`` registers post-processing template items, while
+``postPlots()`` registers plot implementations used by those views. Return Qt
+metadata for the concrete classes, just as for MDI items. Modules that do not
+extend post-processing should leave both functions untouched.
 
-Each GTlab module that implements the MDI interface must provide a corresponding uiItems() function. This function enables the displayal of your own data model classes into GTlab. These can now be added to the object tree in the data model via different access possibilities.
-For this each of your data model classes need their own UI class. These are almost always dependent on GtObjectUI/QObjectUI.
-By using the GT_METADATA and GT_CLASSNAME macros, the uiItem and class can be transformed, facilitating integration with the Qt framework. If there are no uiItems an empty QMap can be returned.
-
-.. code-block:: cpp
-    
-    [...]
-    QMap<const char*, QMetaObject> retval;
-       retval.insert(GT_CLASSNAME(GtdYourClass),
-                  GT_METADATA(GtdYourClass));
-    return retval;
-    [...]
-
-* :cpp:func:`QList<QMetaObject> postItems()`
-
-Each GTlab module that implements the MDI interface must provide a corresponding postItems() function. Add more information here...
-By using the GT_METADATA and GT_CLASSNAME macros, the postItems class can be transformed into a QMetaObject, facilitating integration with the Qt framework. If there are no uiItems an empty QList can be returned.
-
-.. code-block:: cpp
-    
-    [...]
-    QList<QMetaObject> postItems() retval;
-    retval << GT_METADATA(YourPostItem);
-    return retval;
-    [...]
+GUI code requires the GUI application and should link ``GTlab::Gui``. Keep
+domain state and calculations outside widgets so the same data and process
+features remain usable from the batch application.
