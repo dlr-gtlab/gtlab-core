@@ -1,222 +1,166 @@
 Process elements
 ================
 
-The gtlab process management is based on two types of process elements: tasks and calculators
+GTlab represents an executable workflow as a tree of process elements. A
+:cpp:class:`GtTask` is a container and execution boundary; its children are
+calculators or nested tasks. A :cpp:class:`GtCalculator` performs one domain
+operation. Both derive from :cpp:class:`GtProcessComponent` and therefore have
+serializable properties, execution state, progress, and monitoring data.
+
+For a first module, implement calculators and place them below GTlab's standard
+task. Implement a custom task only when the workflow needs its own iteration or
+coordination semantics.
 
 Calculators
 -----------
 
-Calculators are the basic process elements for teh execution of tools, data model modifications ...
+A calculator derives from :cpp:class:`GtCalculator` and implements ``run()``.
+Return ``true`` when the operation completed successfully and ``false`` after
+logging a useful error when it could not complete.
 
-The main function is :cpp:func:`bool run()`. This is executed in the process evaluation and returns a bool value to indicate the success of the run.
-A definition of a calculator always needs the Q_OBJECT in the definition and constructor using the Q_INVOKABLE macro.
-
-A defined caclculator needs to be registered in :cpp:func:`GtProcessInterface::calculators()`. There also meta infomration about the caclulator like version number, author, ... can be defined.
-
-An example for a calculator implementation in the test module about the process interface.
-
+The constructor must be public and ``Q_INVOKABLE`` so GTlab can create the
+calculator through its factory:
 
 .. code-block:: cpp
-    
-	#include "gt_calculator.h"
-	
-	class TestCalculator : public GtCalculator
-	{
-		Q_OBJECT
-	public:
-		Q_INVOKABLE TestCalculator();
-	
-		bool run() override;
-	
-		[. . .]
-	
-	};
+
+  #include "gt_calculator.h"
+  #include "gt_doublemonitoringproperty.h"
+  #include "gt_doubleproperty.h"
+
+  class SquareCalculator : public GtCalculator
+  {
+      Q_OBJECT
+
+  public:
+      Q_INVOKABLE SquareCalculator();
+      bool run() override;
+
+  private:
+      GtDoubleProperty m_input;
+      GtDoubleMonitoringProperty m_result;
+  };
+
+Register configurable inputs as regular properties and values produced during
+execution as monitoring properties:
+
+.. code-block:: cpp
+
+  SquareCalculator::SquareCalculator() :
+      m_input("input", tr("Input")),
+      m_result("result", tr("Result"))
+  {
+      setObjectName(tr("Square"));
+      registerProperty(m_input);
+      registerMonitoringProperty(m_result);
+  }
+
+  bool SquareCalculator::run()
+  {
+      m_result.setVal(m_input * m_input);
+      return true;
+  }
+
+GTlab calls ``exec()`` on the process component. For a local calculator,
+``exec()`` prepares its runtime context, resolves linked data objects, updates
+the process state, calls your ``run()`` implementation, transfers monitoring
+properties, and handles temporary execution data. Module code normally
+overrides ``run()``, not ``exec()``.
+
+Access data-model objects
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use :cpp:class:`GtObjectLinkProperty` for a stable UUID-based reference or
+:cpp:class:`GtObjectPathProperty` for a name-based path. Before ``run()`` is
+called, GTlab resolves these properties against the runnable project's data.
+Retrieve the typed object with ``data<T>(property)`` and handle a missing or
+incompatible target explicitly:
+
+.. code-block:: cpp
+
+  bool EvaluateCalculator::run()
+  {
+      auto* component = data<MyComponent*>(m_componentLink);
+      if (!component)
+      {
+          gtError() << tr("Selected component is unavailable");
+          return false;
+      }
+
+      // perform the calculation
+      return true;
+  }
+
+The process definition stores the reference, not ownership of the target. The
+data object remains part of the project data model.
+
+Register calculators
+~~~~~~~~~~~~~~~~~~~~
+
+A compiled calculator is not automatically visible in GTlab. Return a
+``GtCalculatorData`` descriptor from the module's
+:cpp:func:`GtProcessInterface::calculators` implementation. The descriptor
+defines the user-facing ID, version, author, category, description, and
+development status. See :ref:`processinterface` for the registration example.
+
+``RELEASE`` calculators are available in normal operation. ``PROTOTYPE`` and
+``DEPRECATED`` entries are intended for developer mode and migration work;
+do not leave a production-ready calculator at its default prototype status.
 
 Tasks
 -----
 
-Tasks are higher-level process elements in GTlab. A process chain always has a task as its top-level object. 
-Tasks have the function of organizing the process chain. In the simplest case, all subordinate calculators are simply executed. 
-However, a task can also define a loop or other iteration or control very complex coordination of calculators, such as an optimization.
+A task owns an ordered list of child process elements. The standard task
+executes those children and forms the top-level object of a process chain. A
+custom task derives from :cpp:class:`GtTask` when it needs to implement loops,
+convergence checks, optimization steps, or another execution policy.
 
-The base class GtTask offers virtual functions which might be overloaded to define specific behaviour for a new task.
+The default task lifecycle is:
 
-.. code-block:: cpp
+#. ``setUp()`` initializes task-specific iteration state;
+#. ``runIteration()`` repeatedly runs the task's direct child elements;
+#. ``evaluate()`` classifies each completed iteration; and
+#. execution finishes, fails, or stops at the configured iteration limit.
 
-	class GT_CORE_EXPORT GtTask : public GtProcessComponent
-	{
-		Q_OBJECT
-	
-	public:
-		[. . .]
-	
-		/**
-		* @brief GtTask
-		*/
-		Q_INVOKABLE GtTask();
-		~GtTask() override;
-	
-		[. . .]
-	
-		/**
-		* @brief Virtual method to implement an initial setup for the iteration
-		* process.
-		* @return Returns true if setup was successful, otherwise returns false
-		*/
-		virtual bool setUp();
-	
-		/**
-		* @brief Virtual method to implement an evaluation method for each
-		* iteration step.
-		* @return Evaluation state for current iteration step
-		*/
-		virtual GtTask::EVALUATION evaluate();
-	
-		/**
-		* @brief Virtual method to implement an iteration procedure.
-		* Default implementation iterates up to the defined maximum iteration
-		* number.
-		*/
-		virtual bool runIteration();
-	
-		[. . .]
-		
-		/**
-		* @brief Starts the execution process of all child process elements.
-		* The current iteration number is automatically increased and all
-		* monitoring properties transferred. After the successfull run of the
-		* elements the evaluation method is called.
-		*/
-		virtual bool runChildElements();
-		
-		[. . .]
-	};
+``evaluate()`` returns one of:
 
-Documentation on Virtual Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``EVAL_OK``
+  The iteration succeeded and another iteration may run.
 
-* :cpp:func:`GtTask::setup`
+``EVAL_FINISHED``
+  The task reached its goal and completes successfully.
 
-Text about setup
+``EVAL_FAILED``
+  The task cannot continue and fails.
 
-.. code-block:: cpp
-    
-    [...]
-	/// example from a loop 
-    gtDebug() << "initial run with value:" << value(m_currentIter);
-    m_currentVal.setVal(value(m_currentIter));
-    m_maxIter.setVal(m_steps + 1);
-    return true;
-    [...]
-	
-* :cpp:func:`GtTask::evaluate`
+The base implementations are sufficient for ordinary process grouping. A
+custom iterative task usually overrides ``setUp()`` and ``evaluate()`` while
+reusing ``runIteration()`` and ``runChildElements()``. Override the execution
+methods only when their ordering is genuinely unsuitable, because they also
+manage interruption requests, child states, property transfer, and monitoring
+data.
 
-Text about evaluate
+Like custom calculators, custom task classes require a public ``Q_INVOKABLE``
+constructor and registration through :cpp:func:`GtProcessInterface::tasks`.
 
-.. code-block:: cpp
-    
-    [...]
-	/// example from a loop 
-    gtDebug() << "evaluate for step:" << m_currentIter;
+Execution states and interruption
+---------------------------------
 
-    if (m_currentIter < m_maxIter)
-    {
-        gtDebug() << "current Value:" << value(m_currentIter);
-        m_currentVal.setVal(value(m_currentIter));
-    }
-    else
-    {
-        return GtTask::EVAL_FINISHED;
-    }
+GTlab updates process elements through states including ``QUEUED``,
+``RUNNING``, ``FINISHED``, ``WARN_FINISHED``, ``FAILED``, ``SKIPPED``, and
+``TERMINATED``. A calculator should communicate failure through its return
+value and diagnostics instead of assigning normal lifecycle states itself.
 
-    return GtTask::EVAL_OK;
-    [...]	
-	
-* :cpp:func:`GtTask::runIteration`
+Task interruption is cooperative: an interruption request is observed after a
+currently running child has finished. Long-running calculator implementations
+should therefore be designed with their execution environment and cancellation
+requirements in mind rather than assuming immediate task termination.
 
-Text about runIteration
+Design checklist
+----------------
 
-.. code-block:: cpp
-    
-    [...]
-	/// add a good example here
-    [...]
-		
-* :cpp:func:`GtTask::runChildElements`
-
-Text about runChildElements
-
-.. code-block:: cpp
-    
-    [...]
-	/// example from a loop 
-    QList<GtProcessComponent*> childs = processComponents();
-
-    // increment current iteration step and continue iteration
-    m_currentIter.setVal(m_currentIter.getVal() + 1);
-
-    // trigger transfer of monitoring properties before running calculators
-    emit transferMonitoringProperties();
-
-    // reset state of child prcess elements
-    foreach (GtProcessComponent* comp, childs)
-    {
-        comp->setStateRecursively(GtProcessComponent::QUEUED);
-    }
-
-    // run calculators
-    foreach (GtProcessComponent* comp, childs)
-    {
-        GtCalculator* calc = qobject_cast<GtCalculator*>(comp);
-
-        if (!comp->exec())
-        {
-            if (calc)
-            {
-            // calculator run failed
-            //setState(GtProcessComponent::FAILED);
-            //
-            //return false;
-            gtWarning() << "Current Step failed";
-            break;
-            }
-        }
-
-        if (isInterruptionRequested())
-        {
-            gtWarning() << "task terminated!";
-            setState(GtProcessComponent::TERMINATED);
-            return false;
-        }
-
-        //GtCalculator* calc = qobject_cast<GtCalculator*>(comp);
-
-        if (calc && calc->runFailsOnWarning())
-        {
-            if (calc->currentState() == GtProcessComponent::WARN_FINISHED)
-            {
-                calc->setState(FAILED);
-                setState(GtProcessComponent::FAILED);
-                return false;
-            }
-        }
-    }
-
-    // evaluate current iteration step
-    m_lastEval = evaluate();
-
-    // trigger transfer of monitoring properties after evaluation
-    emit transferMonitoringProperties();
-
-    // collect monitoring data for entire task
-    GtMonitoringDataSet monData = collectMonitoringData();
-
-    // check whether monitoring data has entries
-    if (!monData.isEmpty())
-    {
-        // monitoring data available - emit signal
-        emit monitoringDataTransfer(m_currentIter, monData);
-    }
-
-    return true;
-    [...]	
+* Give each calculator one clear operation and a stable registered identity.
+* Keep configurable inputs in properties and results in data-model or
+  monitoring properties as appropriate.
+* Validate referenced data before using it and log actionable failures.
+* Prefer the standard task until custom iteration semantics are required.
+* Test both successful execution and missing-input or failed-calculation paths.
