@@ -52,7 +52,9 @@ GtMonitoringDataTable::append(int iteration,
     // fill missing iterations using empty data sets
     for (int i = dataSize; i < (iteration - 1); i++)
     {
+        GT_SUPPRESS_DEPRECATED_BEGIN
         m_data << GtMonitoringDataSet();
+        GT_SUPPRESS_DEPRECATED_END
     }
 
     // append new data set
@@ -71,6 +73,7 @@ GtMonitoringDataTable::getData(const QString& compUuid, const QString& propId)
         return QVector<QVariant>();
     }
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
     // create and initialize return vector
     QVector<QVariant> retval(size(), QVariant());
 
@@ -88,6 +91,8 @@ GtMonitoringDataTable::getData(const QString& compUuid, const QString& propId)
             }
         }
     }
+
+    GT_SUPPRESS_DEPRECATED_END
 
     return retval;
 }
