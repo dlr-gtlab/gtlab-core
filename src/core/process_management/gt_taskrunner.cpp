@@ -223,6 +223,27 @@ GtTaskRunner::setupElements(GtProcessComponent* orig,
     connect(cloned, &GtProcessComponent::transferMonitoringProperties,
             this, &GtTaskRunner::transferMonitoringProperties);
 
+    // check whether process component is a task
+    GtTask* tmpTaskOrig = qobject_cast<GtTask*>(orig);
+
+    if (tmpTaskOrig)
+    {
+        // cast cloned process component to task
+        GtTask* tmpTaskCloned = qobject_cast<GtTask*>(cloned);
+
+        // check cloned task object
+        if (tmpTaskCloned)
+        {
+            GT_SUPPRESS_DEPRECATED_BEGIN
+            // connect task specific signals
+            connect(tmpTaskCloned, &GtTask::monitoringDataTransfer,
+                    tmpTaskOrig, &GtTask::onMonitoringDataAvailable);
+            connect(tmpTaskCloned, &GtTask::triggerClearMonitoringData,
+                    tmpTaskOrig, &GtTask::clearMonitoringData);
+            GT_SUPPRESS_DEPRECATED_END
+        }
+    }
+
     // append to component mapping structure
     m_componentMap.insert(cloned, orig);
 
