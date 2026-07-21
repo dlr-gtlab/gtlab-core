@@ -70,7 +70,7 @@ GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
 
 bool
 GtCoreProcessExecutor::runTask(GtTask* task)
-{    
+{
     return runTask(task, nullptr);
 }
 

@@ -30,7 +30,7 @@ public:
     void setStartTime(double startTime);
     void setStartTimeNow();
 
-    const double endTime();    
+    const double endTime();
     void setEndTime(double endTime);
     void setEndTimeNow();
 
