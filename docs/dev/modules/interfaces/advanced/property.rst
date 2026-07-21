@@ -1,49 +1,46 @@
 .. _propertyinterface:
 
-Property Interface
-==================
+Property editor interface
+=========================
 
-The property interface is needed if the module should offer its own property types with their own GUI items. 
-This this interface newly defined properties can be extendended to habe their own graphical representation and editors.
+Use :cpp:class:`GtPropertyInterface` only when a custom property type needs a
+specialized representation or editor in GTlab's property view. Creating a new
+property type and registering it in a data object does not by itself require
+this GUI interface.
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
-    #include "gt_propertyinterface.h"
-    
-    class MyModule: public QObject, public GtModuleInterface, GtPropertyInterface
-    {
-        [...]
-    
-        Q_INTERFACES(GtModuleInterface)
-        Q_INTERFACES(GtPropertyInterface)
-    
-        [...]
-    
-		/**
-		* @brief Returns static meta objects of property item classes.
-		* @return list of meta objects of property item classes.
-		*/
-		QMap<const char*, QMetaObject> propertyItems() override;
-    
-        [...]
-    }
-	
-Documentation on Virtual Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  class MyModule : public QObject,
+                   public GtModuleInterface,
+                   public GtPropertyInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+      Q_INTERFACES(GtPropertyInterface)
 
-* :cpp:func:`GtPropertyInterface::propertyItems`
-    Returns list of registered property items.
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
+      QMap<const char*, QMetaObject> propertyItems() override;
+  };
 
-    .. code-block:: cpp
+Map the custom property class name to the metadata of its property-item class:
 
-	QMap<const char*, QMetaObject>
-	MyModule::propertyItems()
-	{
-		QMap<const char*, QMetaObject> retval;
+.. code-block:: cpp
 
-		retval.insert(GT_CLASSNAME(GtTestProperty),
-                 GT_METADATA(GtTestPropertyItem));
+  QMap<const char*, QMetaObject> MyModule::propertyItems()
+  {
+      return {{
+          GT_CLASSNAME(MyProperty),
+          GT_METADATA(MyPropertyItem)
+      }};
+  }
 
-		return retval;
-       }
+The property item must derive from the appropriate GTlab property-item base and
+have a ``Q_INVOKABLE`` default constructor. GTlab validates and instantiates it
+through Qt metadata.
+
+Keep validation and serialization rules in the property type. The property
+item should translate between that API and the editor widget, including units,
+read-only state, and failed validation. Parent temporary widgets and properties
+according to Qt ownership rules; the factory creates UI instances as needed.
