@@ -1,40 +1,96 @@
 Interfaces
 ==========
 
-GTlab's extensibility is achieved through a set of interfaces that each module can implement.
-There are many different interfaces in GTlab, each for a different purpose. 
-As an example, the data model interface allows to define data models for the project structure.
-On the other hand, the MDI interface allows to customize the user interface for the data model objects including writing custom editors.
-
-Thus, a module typically implements a couple of different interfaces, but not necessarily all, as depicted in the following figure.
-
+GTlab discovers a module's capabilities through Qt interfaces. Every module
+implements :cpp:class:`GtModuleInterface`; additional interfaces are optional
+and should be selected from the user-facing features the module contributes.
+You do not need to implement interfaces for functionality the module does not
+provide.
 
 .. figure:: ../images/modules/interfaces/module_interface.png
   :width: 400
+  :alt: A GTlab module entry point implementing several optional interfaces
 
-The most important interface is :cpp:class:`GtModuleInterface`, as this is the main entry point of each module.
-This needs to be implemented by all modules, such that they can be recognized by GTlab.
-A module though does not need a main() function, in camparison to standalone executables.
+  One plugin entry point can implement several independent capabilities.
 
-This is the list of all interfaces, GTlab modules can implement:
+Choose interfaces by feature
+----------------------------
 
-
-.. list-table:: GTlab's basic interfaces
-   :widths: 30 70
+.. list-table:: Common module capabilities
+   :widths: 25 35 40
    :header-rows: 1
 
    * - Interface
-     - About
+     - Use it when the module provides
+     - Registration result
    * - :ref:`moduleinterface`
-     - The main entry point for a GTlab module.
+     - Any GTlab module
+     - Identity, version, description, and optional module-wide hooks
    * - :ref:`datamodelinterface`
-     - Used to define custom data objects and object hierarchies.
+     - Persistent domain objects and, optionally, its own project package
+     - Package and object-class metadata
    * - :ref:`processinterface`
-     - Used to define process elements such as calculators and tasks.
+     - Calculators or workflow tasks
+     - Calculator and task descriptors
    * - :ref:`mdiinterface`
-     - Used to customize the GTlab GUI, i.e. editors or custom actions for objects.
-   * - :ref:`importerinterface` and :ref:`exporterinterface`
-     - Used to implement importer and exporter of specific objects.
+     - Object editors, viewers, dock widgets, or post-processing views
+     - GUI class metadata and object-to-UI mappings
+   * - :ref:`importerinterface`
+     - Actions that read external files into selected objects
+     - Importer class metadata
+   * - :ref:`exporterinterface`
+     - Actions that write selected objects to external files
+     - Exporter class metadata
+
+Start with the smallest combination that represents the feature. For example,
+a headless calculation module may need only the module and process interfaces;
+a domain module with stored objects and editors commonly combines the module,
+data-model, and MDI interfaces.
+
+Implement an optional interface
+-------------------------------
+
+An optional interface follows the same pattern:
+
+.. code-block:: cpp
+
+  class MyModule : public QObject,
+                   public GtModuleInterface,
+                   public GtProcessInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+      Q_INTERFACES(GtProcessInterface)
+
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
+      QList<GtCalculatorData> calculators() override;
+  };
+
+The important pieces are:
+
+* public inheritance makes the interface API available;
+* ``Q_INTERFACES`` lets Qt and GTlab discover each optional interface;
+* the registration function returns descriptors or ``QMetaObject`` values for
+  the contributed classes; and
+* the target links the GTlab component declaring those types.
+
+``GT_MODULE()`` already registers :cpp:class:`GtModuleInterface`; do not add a
+second ``Q_INTERFACES(GtModuleInterface)`` declaration. Registration functions
+should describe available types, not create long-lived application objects.
+GTlab creates registered objects when the corresponding feature is used.
+
+Interface compatibility
+-----------------------
+
+Qt records an interface identifier and version in the plugin. GTlab rejects a
+module when an interface was compiled against an incompatible version, even if
+the C++ class has the same name. Build and test modules against the same GTlab
+major/minor line used at runtime, and rebuild after changing that dependency.
+
+The interfaces under :doc:`interfaces/advanced` integrate specialized
+subsystems. Add them only when the relevant basic feature is already working.
 
 .. toctree::
    :maxdepth: 1

@@ -1,95 +1,113 @@
 .. _moduleinterface:
 
-Module Interface
-----------------
+Module interface
+================
 
-The ``Q_OBJECT`` macro must appear in the private section of a class definition to use services provided by Qt's meta-object system and able to be identified by the GTlab Framework.
-Additionally, the GtModuleInterface must be registered using the ``Q_INTERFACES`` macro. Optionally, meta information can be defined by an external JSON file and registered via the Q_PLUGIN_METADATA macro.
-The three most important functions that are mandatory to implement are :cpp:func:`GtModuleInterface::ident`, :cpp:func:`GtModuleInterface::version`, and :cpp:func:`GtModuleInterface::description`.
-All pure virtual functions of :cpp:class:`GtModuleInterface` must be overwritten in the interface.
-
-In coded formate it looks like this. More details on the mandatory functions are listed below.
-
+:cpp:class:`GtModuleInterface` is the entry point GTlab requires from every
+module. The entry-point class is a ``QObject`` and uses ``GT_MODULE()`` to add
+the Qt plugin metadata and module identity.
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
- 
-    class MyModule: public QObject, public GtModuleInterface
-    {
-        Q_OBJECT
+  #include <QObject>
 
-        GT_MODULE("MyModule.json")
-    
-    public:
-        /**
-        * @brief Returns current version number of module
-        * @return version number
-        */
-        GtVersionNumber version() override;
-    
-        /**
-        * @brief Returns module identification string.
-        * @return identification string
-        */
-        QString ident() const override;
-    
-        /**
-        * @brief Returns module description
-        * @return description
-        */
-        QString description() const override;
-    }
+  #include "gt_moduleinterface.h"
+  #include "gt_versionnumber.h"
 
-Additional GTlab interfaces can be implemented by stacking the interface classes within the inheritance line.
-It must always be ensured that the functions required by the interface, which are always purely virtual, are also implemented.
+  class MyModule : public QObject, public GtModuleInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
+  };
+
+``GT_MODULE()`` implements :cpp:func:`GtModuleInterface::ident` using the
+``GT_MODULE_ID`` compile definition set by ``add_gtlab_module``. Module code
+therefore does not implement ``ident()`` itself. The macro can optionally name
+a Qt plugin metadata file, for example ``GT_MODULE("mymodule.json")``.
+
+Identity, version, and description
+----------------------------------
+
+The module ID is configured once in CMake:
+
+.. code-block:: cmake
+
+  add_gtlab_module(MyModule
+    MODULE_ID "My Module"
+    SOURCES src/mymodule.cpp src/mymodule.h
+  )
+
+Keep this ID stable after releasing the module. GTlab uses it for plugin
+identity, settings, logs, metadata locations, and stored module information.
+
+Return a three-part module version and a short, user-facing description:
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
-    #include "gt_datamodelinterface.h"
-    
-    class MyModule: public QObject, public GtModuleInterface, GtDatamodelInterface
-    {
-        ...
-    
-        Q_INTERFACES(GtDatamodelInterface)
-    
-        ...
-    }
+  GtVersionNumber MyModule::version()
+  {
+      return {1, 2, 0};
+  }
 
-Documentation on Virtual Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  QString MyModule::description() const
+  {
+      return QStringLiteral("Creates and evaluates example engine models.");
+  }
 
-* :cpp:func:`GtModuleInterface::description`
-    Returns description of the module.
+Increment the version whenever distributing changed module binaries. If a
+release changes persisted project data, provide explicit upgrade routines so
+older projects can be migrated.
 
-    A module description is optional and is intended only to inform the user within the GTlab framework. Even if there is no description of the module it is still mandatory to return an empty string.
+User-visible metadata
+---------------------
 
-    .. code-block:: cpp
+Override ``metaInformation()`` to show author, contact, and short license
+information in GTlab's module details. ``add_gtlab_module`` can also install a
+README and changelog into the module's metadata directory:
 
-        QString
-        GtExampleModule::description() const
-        {
-            return QString("GTlab-Example Module");
-        }
+.. code-block:: cmake
 
-* :cpp:func:`GtModuleInterface::version`
-    Returns version number of the module.
+  add_gtlab_module(MyModule
+    MODULE_ID "My Module"
+    README_FILE "${PROJECT_SOURCE_DIR}/README.md"
+    CHANGELOG_FILE "${PROJECT_SOURCE_DIR}/CHANGELOG.md"
+    SOURCES src/mymodule.cpp src/mymodule.h
+  )
 
-    The version number is relevant for identifying the module within the GTlab framework. When modifying the module source code, it is advisable to count up the version number.
-    Versions are made up of 3 digits. GTlab uses `semantic versioning <https://semver.org/>`_ to identify between major, minor and patch versions.
+These files help users identify the installed module and understand changes
+without requiring access to its source repository.
 
-        .. code-block:: cpp
+Loading hooks
+-------------
 
-            GtVersionNumber
-            GtExampleModule::version()
-            {
-                return GtVersionNumber(0, 0, 1);
-            }
+The interface provides two optional startup hooks:
 
-* :cpp:func:`GtModuleInterface::ident`
+``onLoad()``
+  Called immediately after GTlab has accepted and registered the plugin. Use
+  it only for work that must happen during module loading.
 
-Returns identification string of the module.
+``init()``
+  Called later while the application starts. Use it for module initialization
+  that depends on GTlab services, such as registering module settings.
 
-The entire footprint that the module leaves behind within the GTlab framework is assigned to this identification string. Changes to the return value at a later date can lead to undesired behavior within the framework.
+Keep both hooks lightweight and deterministic. Avoid creating feature widgets
+or opening projects during startup; registered factories and metadata allow
+GTlab to create feature objects when users request them.
+
+Module-wide optional features
+-----------------------------
+
+:cpp:class:`GtModuleInterface` also offers default-empty registration methods
+for cross-module shared functions, batch command-line functions, and project
+data upgrade routines. Override only the feature you provide:
+
+* ``sharedFunctions()`` exposes functions without a compile-time dependency
+  between modules; see :doc:`../shared_functions`;
+* ``commandLineFunctions()`` adds commands to the GTlab batch application; and
+* ``upgradeRoutines()`` migrates persisted module data to newer versions.
+
+For a complete minimal project, continue with :ref:`create-basic-module`.
