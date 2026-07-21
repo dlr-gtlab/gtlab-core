@@ -13,6 +13,7 @@
 
 #include "gt_core_exports.h"
 #include "gt_object.h"
+#include "gt_processexecutioninfo.h"
 
 #include <QObject>
 #include <QPointer>
@@ -73,6 +74,7 @@ public:
      * @param process GtdProcess
      */
     bool runTask(GtTask* task);
+    bool runTask(GtTask* task, GtProcessExecutionInfo* procExcInfo);
 
     /**
      * @brief Executes the next task in the queue. No task must be running.
@@ -125,6 +127,7 @@ public:
      * @return Success
      */
     bool queueTask(GtTask* task);
+    bool queueTask(GtTask* task, GtProcessExecutionInfo* procExcInfo);
 
     /**
      * @brief Removes the task from the queue

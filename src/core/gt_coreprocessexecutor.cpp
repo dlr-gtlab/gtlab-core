@@ -21,6 +21,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_coreapplication.h"
 #include "gt_taskrunner.h"
+#include "gt_processexecutioninfo.h"
 
 #include "gt_coreprocessexecutor.h"
 
@@ -42,6 +43,9 @@ struct GtCoreProcessExecutor::Impl
 
     /// Pointer to current runnable
     QPointer<GtRunnable> currentRunnable;
+
+    /// store proc run info per task
+    QHash<GtTask*, GtProcessExecutionInfo*> processExecInfo;
 };
 
 GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, Flags flags) :
@@ -66,10 +70,15 @@ GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
 
 bool
 GtCoreProcessExecutor::runTask(GtTask* task)
+{    
+    return runTask(task, nullptr);
+}
+
+bool GtCoreProcessExecutor::runTask(GtTask *task, GtProcessExecutionInfo *procExcInfo)
 {
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
 
-    if (!queueTask(task))
+    if (!queueTask(task, procExcInfo))
     {
         return false;
     }
@@ -179,6 +188,12 @@ GtCoreProcessExecutor::queue() const
 bool
 GtCoreProcessExecutor::queueTask(GtTask* task)
 {
+    return queueTask(task, nullptr);
+}
+
+bool
+GtCoreProcessExecutor::queueTask(GtTask* task, GtProcessExecutionInfo* procExcInfo)
+{
     if (!task)
     {
         gtErrorId(GT_EXEC_ID)
@@ -208,6 +223,15 @@ GtCoreProcessExecutor::queueTask(GtTask* task)
     task->resetMonitoringProperties();
 
     m_queue.append(task);
+
+    if (procExcInfo!=Q_NULLPTR)
+    {
+        procExcInfo->setProcessState(GtProcessComponent::QUEUED);
+        procExcInfo->setQueuedTimeNow();
+        pimpl->processExecInfo[task] = procExcInfo;
+    }
+
+
     emit queueChanged();
 
     return true;
@@ -300,6 +324,11 @@ GtCoreProcessExecutor::execute()
 
         connect(runner, &QObject::destroyed, &eventLoop, &QEventLoop::quit);
 
+        if(pimpl->processExecInfo.contains(m_current))
+        {
+            pimpl->processExecInfo[m_current]->setStartTimeNow();
+        }
+
         // run
         runner->run();
 
@@ -379,6 +408,16 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
             gtWarningId(GT_EXEC_ID) << tr("Failed to apply memento diff!");
             ok = false;
         }
+
+
+        if(pimpl->processExecInfo.contains(task))
+        {
+            auto _x = pimpl->processExecInfo[task];
+            _x->setProcessState(task->currentState());
+            _x->setDataDiffToMerge(sumDiff);
+            _x->setEndTimeNow();
+        }
+
     }
 
     if (!ok)
@@ -387,6 +426,12 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
                 << tr("Data changes from the task '%1' could not be merged "
                       "back into datamodel!").arg(task->objectName());
         task->setState(GtProcessComponent::FAILED);
+    }
+
+
+    if(pimpl->processExecInfo.contains(task))
+    {
+        pimpl->processExecInfo.remove(task);
     }
 
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "end";
