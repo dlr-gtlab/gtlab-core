@@ -11,7 +11,7 @@ table.compact-table td {
 .landing-hero {
     margin: 0.5rem 0 1.25rem;
     padding: 0 0 0 1.2rem;
-    border-left: 0.22rem solid var(--color-foreground-border);
+    border-left: 1px solid var(--color-background-border);
 }
 
 .landing-hero p {
@@ -28,9 +28,8 @@ table.compact-table td {
 .landing-audience {
     margin: 1rem 0 1.6rem;
     padding: 0.75rem 1rem;
-    border: 1px solid var(--color-foreground-border);
-    border-radius: 0.3rem;
-    background: var(--color-background-secondary);
+    border-top: 1px solid var(--color-background-border);
+    border-bottom: 1px solid var(--color-background-border);
 }
 
 .landing-audience p {
@@ -56,9 +55,8 @@ table.landing-paths td {
     height: 10.5rem;
     padding: 1rem 1.1rem;
     vertical-align: top;
-    border: 1px solid var(--color-foreground-border);
-    border-radius: 0.3rem;
-    background: var(--color-background-secondary);
+    border: 1px solid var(--color-background-border);
+    background: transparent;
 }
 
 table.landing-paths td > p:first-child {
@@ -74,14 +72,13 @@ table.landing-paths td > p:last-child {
 }
 
 table.landing-paths tr:first-child td:first-child > p:nth-child(2) {
-    display: inline-block;
-    margin: 0 0 0.65rem;
-    padding: 0.08rem 0.45rem;
-    border: 1px solid var(--color-foreground-border);
-    border-radius: 1rem;
+    margin: 0 0 0.55rem;
+    padding: 0;
     color: var(--color-foreground-muted);
-    background: var(--color-background-primary);
     font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
 }
 
 .landing-workflow {
@@ -94,14 +91,14 @@ table.landing-paths tr:first-child td:first-child > p:nth-child(2) {
 .landing-workflow p {
     margin: 0;
     padding: 0.8rem 0.9rem;
-    border-top: 0.18rem solid var(--color-foreground-border);
-    background: var(--color-background-secondary);
+    border-top: 1px solid var(--color-background-border);
+    background: transparent;
 }
 
 .landing-actions {
     padding: 0.65rem 0;
-    border-top: 1px solid var(--color-foreground-border);
-    border-bottom: 1px solid var(--color-foreground-border);
+    border-top: 1px solid var(--color-background-border);
+    border-bottom: 1px solid var(--color-background-border);
     text-align: center;
 }
 
