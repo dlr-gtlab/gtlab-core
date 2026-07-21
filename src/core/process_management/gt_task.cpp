@@ -420,6 +420,18 @@ GtTask::runChildElements()
     // trigger transfer of monitoring properties after evaluation
     emit transferMonitoringProperties();
 
+    GT_SUPPRESS_DEPRECATED_BEGIN
+    // collect monitoring data for entire task
+    GtMonitoringDataSet monData = collectMonitoringData();
+
+    // check whether monitoring data has entries
+    if (!monData.isEmpty())
+    {
+        // monitoring data available - emit signal
+        emit monitoringDataTransfer(m_currentIter, monData);
+    }
+    GT_SUPPRESS_DEPRECATED_END
+
     return true;
 }
 
@@ -511,7 +523,7 @@ GtTask::collectMonitoringDataHelper(GtMonitoringDataSet& map,
         collectMonitoringDataHelper(map, child);
     }
 
-    GT_SUPPRESS_DEPRECATED_BEGIN
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 void
@@ -603,6 +615,7 @@ GtTask::onMonitoringDataAvailable(int iteration, GtMonitoringDataSet const& set)
         gtWarning().medium() << tr("Could not append data set!");
         return;
     }
+    emit monitoringDataAvailable();
     GT_SUPPRESS_DEPRECATED_END
 }
 
