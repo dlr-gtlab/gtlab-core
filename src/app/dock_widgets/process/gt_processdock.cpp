@@ -10,14 +10,13 @@
 
 #include <QVBoxLayout>
 #include <QPushButton>
-#include <QFrame>
 #include <QComboBox>
-#include <QMenu>
 #include <QMimeData>
 #include <QApplication>
 #include <QClipboard>
 #include <QMessageBox>
-#include <QSignalMapper>
+#include <QLineEdit>
+#include <QInputDialog>
 
 #include "gt_algorithms.h"
 #include "gt_mainwin.h"
@@ -55,10 +54,13 @@
 #include "gt_icons.h"
 #include "gt_utilities.h"
 #include "gt_guiutilities.h"
-#include "gt_taskgroup.h"
 #include "gt_taskgroupmodel.h"
+#include "gt_statehandler.h"
+#include "gt_state.h"
 
 #include "gt_processdock.h"
+
+#include "gt_taskgrouprenamedialog.h"
 
 using namespace gt::gui;
 
@@ -78,7 +80,9 @@ GtProcessDock::GtProcessDock() :
     m_taskGroup(nullptr),
     m_currentProcess(nullptr),
     m_project(nullptr),
-    m_actionMapper(new QSignalMapper(this))
+    m_expandedItemUuidsState(nullptr),
+    m_lastTaskGroupScopeState(nullptr),
+    m_lastTaskGroupIdState(nullptr)
 {
     setObjectName(tr("Processes/Calculators"));
 
@@ -135,7 +139,6 @@ GtProcessDock::GtProcessDock() :
     frame->setLayout(frameLayout);
     frame->setAutoFillBackground(true);
 
-
     auto delegate = new GtTextFilterDelegate(this,
                                              GtTextFilterDelegate::allowSpaces);
 
@@ -145,19 +148,82 @@ GtProcessDock::GtProcessDock() :
 
     // task group overview and selection
     m_taskGroupSelection = new QComboBox;
+    m_taskGroupSelection->setEnabled(false);
 
     m_taskGroupModel = new GtTaskGroupModel(this);
     m_taskGroupSelection->setModel(m_taskGroupModel);
 
+    auto* addTaskGroupButton = new QPushButton;
+    addTaskGroupButton->setIcon(gt::gui::icon::add());
+    addTaskGroupButton->setToolTip(tr("Add new custom task group"));
+    addTaskGroupButton->setMaximumWidth(40);
+    connect(addTaskGroupButton, &QPushButton::clicked,
+            this, &GtProcessDock::addNewCustomTaskGroup);
+
+    auto* deleteTaskGroupButton = new QPushButton;
+    deleteTaskGroupButton->setObjectName(QStringLiteral("deleteTaskGroupButton"));
+    deleteTaskGroupButton->setIcon(gt::gui::icon::remove());
+    deleteTaskGroupButton->setToolTip(tr("Delete selected custom task group"));
+    deleteTaskGroupButton->setEnabled(false);
+    deleteTaskGroupButton->setMaximumWidth(40);
+    connect(deleteTaskGroupButton, &QPushButton::clicked,
+            this, &GtProcessDock::onDeleteTaskGroupButtonClicked);
+
+    auto* renameTaskGroupButton = new QPushButton;
+    renameTaskGroupButton->setIcon(gt::gui::icon::rename());
+    renameTaskGroupButton->setToolTip(tr("Rename selected custom task group"));
+    renameTaskGroupButton->setEnabled(false);
+    renameTaskGroupButton->setMaximumWidth(40);
+    renameTaskGroupButton->setObjectName(QStringLiteral("renameTaskGroupButton"));
+    connect(renameTaskGroupButton, &QPushButton::clicked,
+            this, &GtProcessDock::onRenameTaskGroupButtonClicked);
+
+    auto* taskGroupLayout = new QHBoxLayout;
+    taskGroupLayout->setContentsMargins(0, 0, 0, 0);
+    taskGroupLayout->setSpacing(2);
+    taskGroupLayout->addWidget(m_taskGroupSelection);
+    taskGroupLayout->addWidget(addTaskGroupButton);
+    taskGroupLayout->addWidget(deleteTaskGroupButton);
+    taskGroupLayout->addWidget(renameTaskGroupButton);
+
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(2);
-    layout->addWidget(m_taskGroupSelection);
+    layout->addLayout(taskGroupLayout);
     layout->addLayout(btnLayout);
 
     layout->addWidget(frame);
 
     widget->setLayout(layout);
+
+    m_model = new GtProcessComponentModel(this);
+    m_filterModel = new GtProcessFilterModel(m_model);
+    m_model->setSourceModel(gtDataModel);
+    m_filterModel->setSourceModel(m_model);
+    m_view->setModel(m_filterModel);
+
+    connect(m_model,
+            SIGNAL(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
+            SLOT(onRowsAboutToBeMoved()));
+    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
+            SLOT(onRowsMoved()));
+
+    // Current changed (keyboard navigation), Mouse clicks are filtered
+    // to improve drag and drop functionality
+    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, [this](const QModelIndex &current, const QModelIndex &)
+    {
+        if (QApplication::mouseButtons() == Qt::NoButton)
+            onCurrentChanged(current);
+    });
+
+    connect(m_view, SIGNAL(collapsed(QModelIndex)), this,
+            SLOT(itemCollapsed(QModelIndex)));
+    connect(m_view, SIGNAL(expanded(QModelIndex)), this,
+            SLOT(itemExpanded(QModelIndex)));
+
+    connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
+            SLOT(endResetView()), Qt::DirectConnection);
 
     connect(gtApp, &GtApplication::themeChanged, this, [&](){
         m_addElementButton->setStyleSheet(gt::gui::stylesheet::button());
@@ -195,6 +261,9 @@ GtProcessDock::GtProcessDock() :
     connect(m_runButton, SIGNAL(clicked(bool)), SLOT(runProcess()));
     connect(m_addElementButton, SIGNAL(clicked(bool)), SLOT(addElement()));
 
+    connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
+            SLOT(currentTaskGroupIndexChanged(int)));
+
     // open process queue via main window
     connect(m_processQueueButton, &QPushButton::clicked, this, [&](bool){
         // main window may not yet exist
@@ -214,16 +283,12 @@ GtProcessDock::GtProcessDock() :
     connect(processRunner, &GtProcessRunner::connectionStateChanged,
             this, [this](){ updateRunButton(); });
 
-    connect(gtDataModel, SIGNAL(triggerEndResetDataModelView()),
-            SLOT(resetModel()));
     connect(this, SIGNAL(selectedObjectChanged(GtObject*)),
             gtApp, SIGNAL(objectSelected(GtObject*)));
-    connect(m_actionMapper, SIGNAL(mapped(QObject*)),
-            SLOT(actionTriggered(QObject*)));
 
-    registerShortCut("runProcess", QKeySequence(Qt::CTRL + Qt::Key_R));
-    registerShortCut("unskipProcess", QKeySequence(Qt::CTRL + Qt::Key_T));
-    registerShortCut("skipProcess", QKeySequence(Qt::CTRL + Qt::Key_G));
+    registerShortCut("runProcess", QKeySequence(Qt::CTRL | Qt::Key_R));
+    registerShortCut("unskipProcess", QKeySequence(Qt::CTRL | Qt::Key_T));
+    registerShortCut("skipProcess", QKeySequence(Qt::CTRL | Qt::Key_G));
 
     // udpate executor
     onExecutorChanged(&gt::currentProcessExecutor());
@@ -276,71 +341,189 @@ GtProcessDock::setCurrentProcess(GtTask* process)
 void
 GtProcessDock::projectChangedEvent(GtProject* project)
 {
-    bool isProjectValid = project;
-
-    m_processQueueButton->setEnabled(isProjectValid);
-    m_addElementButton->setEnabled(isProjectValid);
+    m_processQueueButton->setEnabled(project);
+    m_addElementButton->setEnabled(project);
 
     if (project != m_project)
     {
         m_project = project;
-        m_taskGroup = nullptr;
         m_taskGroupSelection->clear();
 
-        if (isProjectValid && project->processData())
+        if (m_project && m_project->processData())
         {
-            m_taskGroup = project->processData()->taskGroup();
+            resetTaskGroupModel();
 
-            // add entries for all existing groups. avoid index change signals
-            // to avoid wrong behavior
-            disconnect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
-                       this, SLOT(currentTaskGroupIndexChanged(int)));
+            m_taskGroupSelection->setEnabled(true);
 
-            // add entries for all existing groups
-            m_taskGroupModel->init(project->processData()->userGroupIds(),
-                                   project->processData()->customGroupIds());
+            m_expandedItemUuidsState = gtStateHandler->initializeState(
+                        m_project, QStringLiteral("ProcessDock"),
+                        QStringLiteral("Expanded Process Dock Item UUIDs"),
+                        "default;ProcessDock;expandPdItemUuids",
+                        QStringList{}, m_project);
 
-            connect(m_taskGroupSelection, SIGNAL(currentIndexChanged(int)),
-                    SLOT(currentTaskGroupIndexChanged(int)));
+            m_lastTaskGroupScopeState = gtStateHandler->initializeState(
+                        m_project, QStringLiteral("ProcessDock"),
+                        QStringLiteral("Scope of the last selected Task Group"),
+                        "default;ProcessDock;lastTaskGroupScope",
+                        GtTaskGroup::USER, m_project);
 
+            m_lastTaskGroupIdState = gtStateHandler->initializeState(
+                        m_project, QStringLiteral("ProcessDock"),
+                        QStringLiteral("ID of the last selected Task Group"),
+                        "default;ProcessDock;lastTaskGroupId",
+                        GtTaskGroup::defaultUserGroupId(), m_project);
+
+            m_project->processData()->switchCurrentTaskGroup(
+                        lastTaskGroupId(), lastTaskGroupScope(),
+                        m_project->path());
         }
+        else
+        {
+            m_taskGroupModel->init({}, {});
+
+            m_taskGroupSelection->setEnabled(false);
+
+            m_expandedItemUuidsState = nullptr;
+            m_lastTaskGroupScopeState = nullptr;
+            m_lastTaskGroupIdState = nullptr;
+        }
+
+        // update current task group
+        updateCurrentTaskGroup();
 
         if (m_taskGroup)
         {
             m_taskGroupSelection->setCurrentText(m_taskGroup->objectName());
         }
-    }
 
-    // update current task group
-    updateCurrentTaskGroup();
+        if (m_project && m_project->processData())
+        {
+            updateCustomTaskGroupsButtons();
+        }
+    }
 }
 
 void
 GtProcessDock::updateCurrentTaskGroup()
 {
+    auto taskGroup = m_project && m_project->processData() ?
+                m_project->processData()->taskGroup() : nullptr;
+
+    if (taskGroup && m_taskGroup == taskGroup)
+    {
+        return;
+    }
+
+    m_taskGroup = taskGroup;
+
     setCurrentProcess();
-
-    delete m_model;
-    m_model = new GtProcessComponentModel(this);
-    m_filterModel = new GtProcessFilterModel(m_model);
-    m_model->setSourceModel(gtDataModel);
-    m_filterModel->setSourceModel(m_model);
-
-    connect(m_model,
-            SIGNAL(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
-            SLOT(onRowsAboutToBeMoved()));
-    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-            SLOT(onRowsMoved()));
 
     updateButtons(m_taskGroup);
 
-    if (m_taskGroup)
+    updateProcessViewRootIndex();
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    m_filterModel->setFilterRegExp(m_search->text());
+#else
+    m_filterModel->setFilterRegularExpression(m_search->text());
+#endif
+
+    m_view->resizeColumns();
+}
+
+void
+GtProcessDock::updateProcessViewRootIndex()
+{
+    if (!m_taskGroup)
     {
-        filterData(m_search->text());
+        return;
     }
 
-    m_view->expandAll();
-    m_view->resizeColumns();
+    auto index = mapFromSource(gtDataModel->indexFromObject(m_taskGroup));
+
+    if (index.isValid() && m_view->rootIndex() != index)
+    {
+        m_view->setRootIndex(index);
+        restoreExpandStates();
+        m_view->setCurrentIndex({});
+    }
+}
+
+QStringList
+GtProcessDock::expandedItemUuids() const
+{
+    if (!m_expandedItemUuidsState)
+    {
+        return {};
+    }
+
+    return m_expandedItemUuidsState->getValue().toStringList();
+}
+
+void
+GtProcessDock::setExpandedItemUuids(const QStringList& uuids)
+{
+    if (m_expandedItemUuidsState)
+    {
+        m_expandedItemUuidsState->setValue(uuids, false);
+    }
+}
+
+GtTaskGroup::SCOPE
+GtProcessDock::lastTaskGroupScope() const
+{
+    if (!m_lastTaskGroupScopeState)
+    {
+        return {};
+    }
+
+    return m_lastTaskGroupScopeState->getValue().value<GtTaskGroup::SCOPE>();
+}
+
+void
+GtProcessDock::setLastTaskGroupScope(GtTaskGroup::SCOPE scope)
+{
+    if (m_lastTaskGroupScopeState)
+    {
+        m_lastTaskGroupScopeState->setValue(scope, false);
+    }
+}
+
+QString
+GtProcessDock::lastTaskGroupId() const
+{
+    if (!m_lastTaskGroupIdState)
+    {
+        return {};
+    }
+
+    return m_lastTaskGroupIdState->getValue().toString();
+}
+
+void
+GtProcessDock::setLastTaskGroupId(const QString& groupId)
+{
+    if (m_lastTaskGroupIdState)
+    {
+        m_lastTaskGroupIdState->setValue(groupId, false);
+    }
+}
+
+void
+GtProcessDock::resetTaskGroupModel()
+{
+    if (!m_project || !m_project->processData())
+    {
+        return;
+    }
+
+    auto userGroups = m_project->processData()->userGroupIds();
+    auto customGroups = m_project->processData()->customGroupIds();
+
+    userGroups.sort(Qt::CaseInsensitive);
+    customGroups.sort(Qt::CaseInsensitive);
+
+    m_taskGroupModel->init(userGroups, customGroups);
 }
 
 void
@@ -565,7 +748,6 @@ GtProcessDock::addTaskToParent(GtObject* parentObj)
     m_view->edit(index);
 }
 
-
 GtTask*
 GtProcessDock::findRootTaskHelper(GtObject* obj)
 {
@@ -607,40 +789,20 @@ GtProcessDock::componentIsReady(GtProcessComponent* comp)
 void
 GtProcessDock::filterData(const QString& val)
 {
-    if (!m_filterModel)
-    {
-        return;
-    }
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_filterModel->setFilterRegExp(val);
+#else
+    m_filterModel->setFilterRegularExpression(val);
+#endif
 
-    if (m_rootIndex.isValid())
+    if (!m_view->rootIndex().isValid())
     {
-        return;
+        updateProcessViewRootIndex();
     }
-
-    m_view->setModel(nullptr);
-
-    if (m_taskGroup)
+    else
     {
-        QModelIndex srcIndex = gtDataModel->indexFromObject(m_taskGroup);
-        QModelIndex index = mapFromSource(srcIndex);
-
-        m_rootIndex = QPersistentModelIndex(index);
-
-        if (m_rootIndex.isValid())
-        {
-            m_view->setModel(m_filterModel);
-            m_view->setRootIndex(m_rootIndex);
-            connect(m_view->selectionModel(),
-                    SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                    SLOT(onCurrentChanged(QModelIndex,QModelIndex)),
-                    Qt::UniqueConnection);
-            m_view->setCurrentIndex(QModelIndex());
-        }
+        restoreExpandStates();
     }
-
-    m_view->resizeColumns();
 }
 
 void
@@ -657,6 +819,8 @@ GtProcessDock::updateButtons(GtObject* obj)
     }
 
     updateRunButton();
+
+    updateCustomTaskGroupsButtons();
 }
 
 void
@@ -821,7 +985,12 @@ GtProcessDock::onCurrentChanged(const QModelIndex& current,
 void
 GtProcessDock::onClicked(const QModelIndex& index)
 {
-    /// nothing to do here. The selection of the new object is handled by the view (see filterData)
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    onCurrentChanged(index);
 }
 
 void
@@ -940,7 +1109,7 @@ GtProcessDock::makeAddMenu(QMenu& menu)
     // only add task if obj is not a calc
     if (!obj || qobject_cast<GtTask*>(obj))
     {
-        gt::gui::addToMenu(addtask, menu, obj);  
+        gt::gui::addToMenu(addtask, menu, obj);
     }
 
     if (!gtApp->settings()->lastProcessElements().isEmpty())
@@ -1038,12 +1207,13 @@ GtProcessDock::defaultContextMenu()
 
     menu.addSeparator();
 
-    // import action
-    auto imenu = new GtImportMenu(m_taskGroup, &menu);
-
-    menu.addMenu(imenu);
-
-    menu.addSeparator();
+    if (m_taskGroup)
+    {
+        // import action
+        auto imenu = new GtImportMenu(m_taskGroup, &menu);
+        menu.addMenu(imenu);
+        menu.addSeparator();
+    }
 
     auto paste = makePasteAction(this, m_taskGroup);
 
@@ -1291,6 +1461,46 @@ GtProcessDock::multiSelectionContextMenu(QList<QModelIndex> const& indexList)
     gt::gui::addToMenu(delete_, menu, first, this);
 
     menu.exec(QCursor::pos());
+}
+
+void
+GtProcessDock::restoreExpandStates()
+{
+    auto rootIndex = m_view->rootIndex();
+
+    if (rootIndex.isValid() && rootIndex.model() == m_filterModel)
+    {
+        m_view->setUpdatesEnabled(false);
+
+        restoreExpandStatesHelper(expandedItemUuids(),
+                                  m_filterModel->index(0, 0, rootIndex));
+
+        m_view->setUpdatesEnabled(true);
+    }
+}
+
+void
+GtProcessDock::restoreExpandStatesHelper(const QStringList& expandedUuids,
+                                         const QModelIndex& startIndex)
+{
+    if (!startIndex.isValid())
+        return;
+
+    auto model = startIndex.model();
+
+    for (const auto& uuid : expandedUuids)
+    {
+        auto matchedIndices = model->match(startIndex,
+                                           GtCoreDatamodel::UuidRole,
+                                           QVariant::fromValue(uuid));
+
+        for (const auto& index : qAsConst(matchedIndices))
+        {
+            m_view->setExpanded(index, true);
+            restoreExpandStatesHelper(expandedUuids,
+                                      model->index(0, 0, index));
+        }
+    }
 }
 
 void
@@ -1938,12 +2148,6 @@ GtProcessDock::mapFromSource(const QModelIndex& index)
 }
 
 void
-GtProcessDock::resetModel()
-{
-    projectChangedEvent(m_project);
-}
-
-void
 GtProcessDock::openConnectionEditor(const QModelIndex& index)
 {
     // check index
@@ -2265,29 +2469,227 @@ GtProcessDock::currentTaskGroupIndexChanged(int index)
     }
 
     GtTaskGroup* currentGroup = m_project->processData()->taskGroup();
-
-    // check if selection matches current task
-    if (!currentGroup)
-    {
-        return;
-    }
-
     const QString groupId = m_taskGroupSelection->itemText(index);
 
-    if (currentGroup->objectName() == groupId)
+    // check if selection matches current task
+    if (currentGroup && currentGroup->objectName() == groupId)
     {
-        // nothing to do here
         return;
     }
 
-    m_project->processData()->switchCurrentTaskGroup(
-                m_taskGroupSelection->itemText(index),
-                scope,
-                m_project->path());
+    if (m_project->processData()->switchCurrentTaskGroup(
+                groupId, scope, m_project->path()))
+    {
+        setLastTaskGroupScope(scope);
+        setLastTaskGroupId(groupId);
+    }
 
-    m_taskGroup = m_project->processData()->taskGroup();
+    updateButtons();
+
     updateCurrentTaskGroup();
+}
 
+void
+GtProcessDock::onDeleteTaskGroupButtonClicked()
+{
+    int currentIndex = m_taskGroupSelection->currentIndex();
+
+    if (currentIndex < 0) return;
+
+    GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+
+    if (scope != GtTaskGroup::CUSTOM) return;
+
+    QString groupName = m_taskGroupSelection->itemText(currentIndex);
+
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this,
+        tr("Delete Task Group"),
+        tr("Are you sure you want to delete the task group '%1'?").arg(groupName),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);
+
+    if (reply == QMessageBox::Yes)
+    {
+        deleteCustomTaskGroup(groupName);
+    }
+}
+
+void
+GtProcessDock::onRenameTaskGroupButtonClicked()
+{
+    int currentIndex = m_taskGroupSelection->currentIndex();
+
+    if (currentIndex < 0) return;
+
+    GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+
+    if (scope != GtTaskGroup::CUSTOM) return;
+
+    QString groupName = m_taskGroupSelection->itemText(currentIndex);
+
+    if (!m_project || !m_project->processData()) return;
+
+    QStringList groupIds = m_project->processData()->customGroupIds();
+    groupIds.append(m_project->processData()->userGroupIds());
+    groupIds.sort(Qt::CaseInsensitive);
+
+    GtTaskGroupRenameDialog dialog(groupName, groupIds, this);
+
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        QString newName = dialog.newName();
+
+        if (newName == groupName) return;
+
+        if (!m_project->processData()->renameTaskGroup(groupName, newName,
+                    GtTaskGroup::CUSTOM, m_project->path()))
+        {
+            gtError() << tr("Failed to rename task group from '%1' to '%2'")
+                         .arg(groupName).arg(newName);
+            return;
+        }
+
+        if (!m_project->processData()->save(m_project->path()))
+        {
+            gtError() << tr("Failed to save project after renaming task group");
+            return;
+        }
+
+        resetTaskGroupModel();
+
+        QModelIndex newIndex = m_taskGroupModel->indexByGroupName(newName,
+            GtTaskGroup::CUSTOM);
+
+        if (newIndex.isValid())
+        {
+            m_taskGroupSelection->setCurrentIndex(newIndex.row());
+        }
+    }
+}
+
+void
+GtProcessDock::addNewCustomTaskGroup()
+{
+    if (!m_project || !m_project->processData()) return;
+
+    QStringList customGroupIds = m_project->processData()->customGroupIds();
+    customGroupIds.sort(Qt::CaseInsensitive);
+
+    bool ok = false;
+    QString groupNameRaw  = QInputDialog::getText(this,
+        tr("Add New Custom Task Group"),
+        tr("Enter name for new custom task group:"),
+        QLineEdit::Normal,
+        QString(),
+        &ok);
+
+    if (!ok) return;
+
+    const QString groupName = groupNameRaw.trimmed();
+    if (groupName.isEmpty()) return;
+
+    if (customGroupIds.contains(groupName, Qt::CaseInsensitive))
+    {
+        QMessageBox::warning(this,
+            tr("Invalid Group Name"),
+            tr("A task group with this name already exists."));
+        return;
+    }
+
+    GtTaskGroup* newGroup = m_project->processData()->createNewTaskGroup(
+        groupName, GtTaskGroup::CUSTOM);
+
+    if (!newGroup)
+    {
+        gtError() << tr("Failed to create new task group: %1").arg(groupName);
+        return;
+    }
+
+    if (!m_project->processData()->save(m_project->path()))
+    {
+        gtError() << tr("Failed to save project after creating task group: %1")
+                     .arg(groupName);
+        return;
+    }
+
+    resetTaskGroupModel();
+
+    QModelIndex newIndex = m_taskGroupModel->indexByGroupName(groupName,
+        GtTaskGroup::CUSTOM);
+
+    if (newIndex.isValid())
+    {
+        m_taskGroupSelection->setCurrentIndex(newIndex.row());
+    }
+}
+
+void
+GtProcessDock::endResetView()
+{
+    updateProcessViewRootIndex();
+    resetTaskGroupModel();
+}
+
+void
+GtProcessDock::itemCollapsed(const QModelIndex& index)
+{
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    auto uuids = expandedItemUuids();
+
+    uuids.removeOne(index.data(GtCoreDatamodel::UuidRole).toString());
+
+    setExpandedItemUuids(uuids);
+}
+
+void
+GtProcessDock::itemExpanded(const QModelIndex& index)
+{
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    auto uuid = index.data(GtCoreDatamodel::UuidRole).toString();
+
+    auto uuids = expandedItemUuids();
+
+    if (!uuids.contains(uuid))
+    {
+        uuids.append(uuid);
+    }
+
+    setExpandedItemUuids(uuids);
+}
+
+void
+GtProcessDock::updateCustomTaskGroupsButtons()
+{
+    bool customScope = false;
+
+    int currentIndex = m_taskGroupSelection->currentIndex();
+    if (currentIndex >= 0)
+    {
+        GtTaskGroup::SCOPE scope = m_taskGroupModel->rowScope(currentIndex);
+
+        customScope = (scope == GtTaskGroup::CUSTOM);
+    }
+
+    if (auto* deleteButton =
+        findChild<QPushButton*>(QStringLiteral("deleteTaskGroupButton")))
+    {
+        deleteButton->setEnabled(customScope);
+    }
+
+    if (auto* renameButton = findChild<QPushButton*>(
+            QStringLiteral("renameTaskGroupButton")))
+    {
+        renameButton->setEnabled(customScope);
+    }
 }
 
 bool
@@ -2390,10 +2792,10 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                     QAction* act = menu->addAction(taskData->id);
                     act->setData(entry);
 
-                    connect(act, SIGNAL(triggered(bool)),
-                            m_actionMapper, SLOT(map()),
-                            Qt::UniqueConnection);
-                    m_actionMapper->setMapping(act, act);
+                    disconnect(act, &QAction::triggered, nullptr, nullptr);
+                    connect(act, &QAction::triggered, this, [this, act](bool) {
+                        actionTriggered(act);
+                    });
 
                     count++;
 
@@ -2442,10 +2844,11 @@ GtProcessDock::generateLastUsedElementMenu(QMenu* menu, bool isRoot)
                     QAction* act = menu->addAction(calcData->id);
                     act->setData(entry);
 
-                    connect(act, SIGNAL(triggered(bool)),
-                            m_actionMapper, SLOT(map()),
-                            Qt::UniqueConnection);
-                    m_actionMapper->setMapping(act, act);
+
+                    disconnect(act, &QAction::triggered, nullptr, nullptr);
+                    connect(act, &QAction::triggered, this, [this, act](bool) {
+                        actionTriggered(act);
+                    });
 
                     count++;
 
@@ -2537,5 +2940,40 @@ GtProcessDock::keyPressEvent(QKeyEvent* event)
     {
         customContextMenu(srcIndex);
     }
+
+    if (gtApp->compareKeyEvent(event, "rename"))
+    {
+        if (m_taskGroupSelection->hasFocus())
+        {
+            onRenameTaskGroupButtonClicked();
+        }
+        else
+        {
+            emit m_view->renameProcessElement(index);
+        }
+    }
+}
+
+void
+GtProcessDock::deleteCustomTaskGroup(const QString& groupName)
+{
+    if (!m_project || !m_project->processData()) return;
+
+    GtTaskGroup::SCOPE scope = GtTaskGroup::CUSTOM;
+
+    if (!m_project->processData()->deleteTaskGroup(groupName, scope))
+    {
+        gtError() << tr("Failed to delete task group: %1").arg(groupName);
+        return;
+    }
+
+    if (!m_project->processData()->save(m_project->path()))
+    {
+        gtError() << tr("Failed to save project after deleting task group: %1")
+                     .arg(groupName);
+        return;
+    }
+
+    resetTaskGroupModel();
 }
 

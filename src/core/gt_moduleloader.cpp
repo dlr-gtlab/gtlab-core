@@ -34,9 +34,31 @@
 #include "gt_algorithms.h"
 #include "gt_utilities.h"
 #include "gt_qtutilities.h"
+#include "gt_settings.h"
 
 namespace
 {
+
+QStringList moduleDirsFromEnv()
+{
+    const QByteArray raw = qgetenv("GTLAB_MODULE_DIRS");
+    if (raw.isEmpty())
+    {
+        return {};
+    }
+
+    const QChar separator = QDir::listSeparator();
+    QStringList dirs = QString::fromLocal8Bit(raw)
+                           .split(separator, Qt::SkipEmptyParts);
+
+    for (QString& dir : dirs)
+    {
+        dir = dir.trimmed();
+    }
+
+    dirs.removeAll(QString());
+    return dirs;
+}
 
 /// logs a warning once
 const auto logWarnOnce = [](QString const& msg) {
@@ -128,8 +150,46 @@ private:
 };
 
 
+// Function to check if a candidate string matches a dependency pattern.
+bool
+matchesDependency(const QString& dependency, const QString& candidate)
+{
+    const QString regexPrefix = "regex:";
+
+    // If the dependency starts with the explicit "regex" prefix, use regex matching.
+    if (dependency.startsWith(regexPrefix))
+    {
+        // Remove the prefix to get the actual regex pattern.
+        QString pattern = dependency.mid(regexPrefix.length());
+        QRegularExpression rx(pattern);
+
+        // Check if the candidate matches the regex pattern.
+        return rx.match(candidate).hasMatch();
+    }
+    else
+    {
+        // Otherwise, perform an exact, literal match.
+        return dependency == candidate;
+    }
+}
+
 using ModuleMetaMap = std::map<QString, ModuleMetaData>;
 ModuleMetaMap loadModuleMeta();
+
+QStringList
+getMatchedModuleIds(const QString& dependency,
+                    const ModuleMetaMap& allModules)
+{
+    QStringList result;
+
+    for (auto&& module : allModules)
+    {
+        auto moduleId = module.second.moduleId();
+        if (matchesDependency(dependency, moduleId)) result.push_back(moduleId);
+    }
+
+    return result;
+}
 
 } // namespace
 
@@ -216,10 +276,9 @@ GtModuleLoader::GtModuleLoader() :
 
 GtModuleLoader::~GtModuleLoader() = default;
 
-namespace
-{
 
-QDir getModuleDirectory()
+QString
+GtModuleLoader::applicationModuleDir()
 {
 #ifndef Q_OS_ANDROID
     QString path = QCoreApplication::applicationDirPath() +
@@ -228,33 +287,103 @@ QDir getModuleDirectory()
     QString path = QCoreApplication::applicationDirPath();
 #endif
 
-    QDir modulesDir(path);
-#ifdef Q_OS_WIN
-    modulesDir.setNameFilters(QStringList() << QStringLiteral("*.dll"));
-#endif
+    return path;
+}
 
-    return modulesDir;
+QString
+GtModuleLoader::defaultUserModuleDir()
+{
+    if (!gtApp) return "";
+
+    return gtApp->roamingPath() + "/modules";
+}
+
+QStringList
+GtModuleLoader::customUserModuleDirs()
+{
+    assert(gtApp);
+    auto settings = gtApp->settings();
+
+    assert(settings);
+    return settings->userModuleDirs();
+}
+
+namespace
+{
+
+QList<QDir> getModuleDirectories()
+{
+    QList<QDir> moduleDirectories;
+
+    // additional module dirs from environment (first dir wins)
+    for (const auto& md : moduleDirsFromEnv())
+    {
+        QDir moduleDirectory(md);
+        if (moduleDirectory.exists())
+        {
+            moduleDirectories.push_back(moduleDirectory);
+        }
+    }
+
+    for (auto&& md : GtModuleLoader::customUserModuleDirs())
+    {
+        // check if module dir is disabled
+        if (md.startsWith('#')) continue;
+
+        QDir moduleDirectory(md);
+        if (moduleDirectory.exists())
+            moduleDirectories.push_back(moduleDirectory);
+    }
+
+    // user module dir
+    QDir userDir(GtModuleLoader::defaultUserModuleDir());
+    if (userDir.exists())
+        moduleDirectories.push_back(userDir);
+
+    // application module dir
+    QDir applicationModules(GtModuleLoader::applicationModuleDir());
+    if  (applicationModules.exists())
+        moduleDirectories.append(applicationModules);
+
+    for (auto&& dir : moduleDirectories)
+    {
+#ifdef Q_OS_WIN
+        dir.setNameFilters(QStringList() << QStringLiteral("*.dll"));
+#endif
+    }
+
+    return moduleDirectories;
 }
 
 QStringList getModuleFilenames()
 {
-    auto modulesDir = getModuleDirectory();
+    const auto dirs = getModuleDirectories();
 
-    if (!modulesDir.exists())
+    QStringList result;
+    QSet<QString> seen; // avoid duplicates across directories
+
+    for (const QDir& dir : dirs)
     {
-        return {};
+        if (!dir.exists())
+            continue;
+
+        // File names within each dir (respects any nameFilters set on the QDir, e.g., on Windows)
+        const auto files = dir.entryList(QDir::Files);
+
+
+        // Convert to absolute paths and add (deduplicated)
+        for (const auto& localFileName : files)
+        {
+            const QString absolute = dir.absoluteFilePath(localFileName);
+            if (!seen.contains(absolute))
+            {
+                seen.insert(absolute);
+                result << absolute;
+            }
+        }
     }
 
-    // file names in dir
-    auto files = modulesDir.entryList(QDir::Files);
-
-    // convert to absolute file names
-    std::transform(files.begin(), files.end(), files.begin(),
-                   [&modulesDir](const QString& localFileName) {
-        return modulesDir.absoluteFilePath(localFileName);
-    });
-
-    return files;
+    return result;
 }
 
 QStringList getModulesToExclude()
@@ -416,7 +545,20 @@ ModuleMetaMap loadModuleMeta()
     for (const QString& moduleFile : moduleFiles)
     {
         const auto meta = loadModuleMeta(moduleFile);
-        metaData.insert(std::make_pair(meta.moduleId(), meta));
+        if (meta.moduleId().isEmpty())
+        {
+            continue;
+        }
+
+        auto insertResult = metaData.insert(std::make_pair(meta.moduleId(), meta));
+        if (!insertResult.second)
+        {
+            logDebugOnce(QObject::tr(
+                "Duplicate module id '%1' found at '%2'. "
+                "Keeping first occurrence at '%3'.")
+                .arg(meta.moduleId(), meta.location(),
+                     insertResult.first->second.location()));
+        }
     }
 
     const auto crashed_mods = CrashedModulesLog().crashedModules();
@@ -622,6 +764,19 @@ GtModuleLoader::getSupportedInterfaceByModule(QObject *pluginObj,
 }
 
 QString
+GtModuleLoader::moduleLocation(const QString& id) const
+{
+    auto it = m_pimpl->m_metaData.find(id);
+
+    if (it != m_pimpl->m_metaData.end())
+    {
+        return it->second.location();
+    }
+
+    return QString();
+}
+
+QString
 GtModuleLoader::modulePackageId(const QString& id) const
 {
     if (m_pimpl->m_plugins.contains(id))
@@ -770,7 +925,8 @@ createAdjacencyMatrixImpl(const QStringList& modulesToLoad,
         auto& moduleDeps = insertResult.first->second;
         for (const auto& dep : moduleIt->second.directDependencies())
         {
-            moduleDeps.push_back(dep.name);
+            auto matchedModulIds = getMatchedModuleIds(dep.name, allModules);
+            moduleDeps.append(matchedModulIds);
         }
 
         // recurse into dependencies
@@ -813,6 +969,20 @@ getSortedModulesToLoad(const QStringList& modulesIdsToLoad,
 
     // sort modules in the correct order of dependencies
     auto sortedModuleIds = gt::topo_sort(moduleMatrix);
+
+    if (sortedModuleIds.size() != moduleMatrix.size())
+    {
+        // there is a cyclic module dependency
+        gtFatal() << QObject::tr("Cannot load modules, there is a dependency cycle.");
+        for (auto&& m : moduleMatrix)
+        {
+            if (!m.second.empty()) gtInfo() <<
+                    QString("'%1' needs").arg(m.first) << m.second;
+        }
+
+        sortedModuleIds.clear();
+    }
+
     std::reverse(std::begin(sortedModuleIds), std::end(sortedModuleIds));
 
     // Only include modules that are actually found in metadata
@@ -894,17 +1064,35 @@ GtModuleLoader::Impl::performLoading(GtModuleLoader& moduleLoader,
     return failedModules.empty();
 }
 
+GtModuleInterface*
+getMatchingDependency(const QString& dependencyName,
+                      const QMap<QString, GtModuleInterface*>& allModules)
+{
+    auto iter = std::find_if(allModules.begin(), allModules.end(),
+                             [&](GtModuleInterface* module) {
+        return matchesDependency(dependencyName, module->ident());
+    });
+
+    if (iter == allModules.end()) return nullptr;
+
+    return iter.value();
+}
+
+
 /**
  * @brief Checks a optional dependency of a module and warns, if required
  */
-void checkOptionalDependency(const QString& moduleId,
+void
+checkOptionalDependency(const QString& moduleId,
                        const ModuleMetaData::Dependency& dependency,
                        const QMap<QString, GtModuleInterface*>& allModules)
 {
     assert(dependency.optional());
 
+    GtModuleInterface* dep = getMatchingDependency(dependency.name, allModules);
+
     // check dependency
-    if (!allModules.contains(dependency.name))
+    if (!dep)
     {
         gtWarning() << QObject::tr("Module '%1' has optional dependency '%2'"
                                    ", which could not be met! "
@@ -915,7 +1103,7 @@ void checkOptionalDependency(const QString& moduleId,
 
     // dependency exists, check version
     const GtVersionNumber currentVersion =
-        allModules.value(dependency.name)->version();
+        dep->version();
 
     if (currentVersion < dependency.version)
     {
@@ -923,7 +1111,7 @@ void checkOptionalDependency(const QString& moduleId,
                                    "'%2', which is outdated "
                                    "(needed >= %3, current: %4). "
                                    "This may lead to unexpected behaviour!")
-                           .arg(moduleId, dependency.name,
+                           .arg(moduleId, dep->ident(),
                                 dependency.version.toString(),
                                 currentVersion.toString());
     }
@@ -936,15 +1124,18 @@ void checkOptionalDependency(const QString& moduleId,
  *  - dependency does not exists or
  *  - dependency is outdated
  */
-bool checkRequiredDependency(const QString& moduleId,
+bool
+checkRequiredDependency(const QString& moduleId,
                         const ModuleMetaData::Dependency& dependency,
                         const QMap<QString, GtModuleInterface*>& allModules)
 {
 
     assert(!dependency.optional());
 
+    GtModuleInterface* dep = getMatchingDependency(dependency.name, allModules);
+
     // check dependency
-    if (!allModules.contains(dependency.name))
+    if (!dep)
     {
         gtError() << QObject::tr("Cannot load module '%1' due to missing "
                                  "dependency '%2'")
@@ -953,7 +1144,7 @@ bool checkRequiredDependency(const QString& moduleId,
     }
 
     // check version
-    const auto currentVersion = allModules.value(dependency.name)->version();
+    const auto currentVersion = dep->version();
 
     if (currentVersion < dependency.version)
     {
@@ -971,7 +1162,7 @@ bool checkRequiredDependency(const QString& moduleId,
         gtInfo().medium()
             << QObject::tr("Dependency '%1' has a newer version than "
                            "the module '%2' requires")
-                   .arg(dependency.name, moduleId)
+                   .arg(dep->ident(), moduleId)
             << QObject::tr("(needed: >= %1, current: %2)")
                    .arg(dependency.version.toString(),
                         currentVersion.toString());

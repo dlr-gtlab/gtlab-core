@@ -25,6 +25,10 @@ class GtObject;
 class GT_DATAMODEL_EXPORT GtAbstractObjectFactory
 {
 public:
+
+    /// destructor
+    virtual ~GtAbstractObjectFactory();
+
     /**
      * @brief newObject - generates gtlab objects based on given classname
      * @param className

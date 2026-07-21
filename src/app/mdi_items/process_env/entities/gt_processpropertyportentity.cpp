@@ -19,9 +19,23 @@
 #include "gt_processconnectionscene.h"
 #include "gt_processconnectionitem.h"
 #include "gt_processpropertyportentity.h"
+#include "gt_stringmonitoringproperty.h"
 
-#include "gt_application.h"
 #include "gt_colors.h"
+
+namespace
+{
+
+bool areStringClassesCompatible(const QString& classA, const QString& classB)
+{
+    return classA == classB ||
+           (classA == GT_CLASSNAME(GtStringMonitoringProperty) &&
+            classB == GT_CLASSNAME(GtStringProperty)) ||
+           (classA == GT_CLASSNAME(GtStringProperty) &&
+            classB == GT_CLASSNAME(GtStringMonitoringProperty));
+}
+
+}
 
 GtProcessPropertyPortEntity::GtProcessPropertyPortEntity(
         double x, double y, double width, double height, PortTypes typ,
@@ -195,7 +209,8 @@ GtProcessPropertyPortEntity::canConnect(GtProcessPropertyPortEntity* port)
 
     if (propertyValue().typeName() == QStringLiteral("QString"))
     {
-        if (propertyClassName() != port->propertyClassName())
+        if (!areStringClassesCompatible(propertyClassName(),
+                                        port->propertyClassName()))
         {
             return false;
         }

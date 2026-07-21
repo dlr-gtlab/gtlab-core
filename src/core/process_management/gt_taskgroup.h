@@ -30,16 +30,29 @@ class GT_CORE_EXPORT GtTaskGroup : public GtObjectGroup
 public:
     enum SCOPE
     {
-        USER,
+        USER = 0,
         CUSTOM,
         UNDEFINED
     };
+    Q_ENUM(SCOPE)
 
     /**
-     * @brief Constructor
+     * @brief Constructor.
+     */
+    Q_INVOKABLE GtTaskGroup();
+
+    /**
+     * @brief Constructs an uninitialized task group.
      * @param id Identification string of task group
      */
     explicit GtTaskGroup(const QString& id);
+
+    /**
+     * @brief Constructs a task group with a specified initialization state.
+     * @param id Identification string of the task group
+     * @param initialized Initialization state of the task group
+     */
+    GtTaskGroup(const QString& id, bool initialized);
 
     ~GtTaskGroup() override;
 
@@ -82,6 +95,15 @@ public:
      */
     static QString defaultUserGroupId();
 
+    /**
+     * @brief Returns the file system path for the specified Task Group scope.
+     * @param projectPath The path to the project directory.
+     * @param scope The scope of the Task Group for which the path is to be
+     * retrieved.
+     * @return The file system path to the Task Group scope directory.
+     */
+    static QString scopePath(const QString& projectPath,
+                             const GtTaskGroup::SCOPE scope);
     /**
      * @brief Returns path to task group path on filesystem.
      * @param projectPath

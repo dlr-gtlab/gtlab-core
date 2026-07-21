@@ -13,8 +13,8 @@
 #include <QTextBlock>
 
 #include "gt_codeeditor.h"
+#include "gt_guiutilities.h"
 #include "gt_linenumberarea.h"
-#include "gt_application.h"
 #include "gt_colors.h"
 
 GtCodeEditor::GtCodeEditor(QWidget* parent) : QPlainTextEdit(parent)
@@ -155,7 +155,19 @@ GtCodeEditor::wheelEvent(QWheelEvent* event)
 void
 GtCodeEditor::highlightCurrentLine()
 {
-    QList<QTextEdit::ExtraSelection> extraSelections;
+    QList<QTextEdit::ExtraSelection> baseSelections = extraSelections();
+    QList<QTextEdit::ExtraSelection> preserved;
+
+    for (const auto& sel : baseSelections)
+    {
+        if (sel.format.background() !=
+            gt::gui::color::code_editor::highlightLine())
+        {
+            preserved.append(sel);
+        }
+    }
+
+    QList<QTextEdit::ExtraSelection> extraSelections = preserved;
 
     if (!isReadOnly())
     {
@@ -177,7 +189,7 @@ GtCodeEditor::lineNumberAreaPaintEvent(QPaintEvent* event)
 {
     QPainter painter(m_lineNumberArea);
 
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         painter.fillRect(event->rect(), Qt::darkGray);
     }
@@ -207,3 +219,56 @@ GtCodeEditor::lineNumberAreaPaintEvent(QPaintEvent* event)
         ++blockNumber;
     }
 }
+
+
+void
+GtCodeEditor::highlightOccurrences(const QString& text)
+{
+    // Preserve existing line highlight (if any)
+    QList<QTextEdit::ExtraSelection> baseSelections = extraSelections();
+    QList<QTextEdit::ExtraSelection> preserved;
+
+    for (const auto& sel : baseSelections)
+    {
+        if (sel.format.background() ==
+            gt::gui::color::code_editor::highlightLine())
+        {
+            preserved.append(sel);
+        }
+    }
+
+    // Start fresh with preserved selections only
+    QList<QTextEdit::ExtraSelection> selections = preserved;
+
+    if (text.isEmpty())
+    {
+        // Clear search highlights, keep line highlight
+        setExtraSelections(selections);
+        return;
+    }
+
+    QTextDocument* doc = document();
+    QTextCharFormat fmt;
+    fmt.setBackground(gt::gui::color::code_editor::highlightSearch());
+
+    int startPos = 0;
+    while (true)
+    {
+        QTextCursor cursor = doc->find(text, startPos,
+                                       QTextDocument::FindCaseSensitively);
+
+        if (cursor.isNull())
+            break;
+
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = cursor;
+        sel.format = fmt;
+        selections.append(sel);
+        // Move start position past this match to avoid infinite
+        // loop on zero‑length search text
+        startPos = cursor.selectionEnd();
+    }
+
+    setExtraSelections(selections);
+}
+

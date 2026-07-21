@@ -13,6 +13,7 @@
 #include "gt_icons.h"
 #include "gt_application.h"
 #include "gt_palette.h"
+#include "gt_guiutilities.h"
 
 #include <QStyleFactory>
 #include <QWizard>
@@ -26,7 +27,7 @@ using namespace gt::gui;
 
 GtStyle::GtStyle() :
     QProxyStyle(QStyleFactory::create(
-        gtApp->inDarkMode() ?
+        gt::gui::isApplicationDarkTheme() ?
             QStringLiteral("Fusion") :
 #ifndef Q_OS_WIN
             QStringLiteral("Default")
@@ -218,7 +219,7 @@ public:
     /// Returns the current style
     GtStyle& currentStyle() const
     {
-        const auto currentStyleMode = gtApp->inDarkMode();
+        const auto currentStyleMode = gt::gui::isApplicationDarkTheme();
         const auto styleIter = map.find(currentStyleMode);
 
         // we need to create new styles on the fly, as GtStyle cannot be set to a specific style

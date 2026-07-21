@@ -7,6 +7,13 @@
 #include "gt_unit.h"
 #include <QObject>
 
+namespace
+{
+GT_SUPPRESS_DEPRECATED_BEGIN
+constexpr GtUnit::Category kDeprecatedCustomUnitCategory = GtUnit::Category::Custom;
+GT_SUPPRESS_DEPRECATED_END
+} // namespace
+
 QString
 GtUnit::siUnit(Category c)
 {
@@ -14,7 +21,7 @@ GtUnit::siUnit(Category c)
     {
     case Category::Area:
         return QStringLiteral("m^2");
-    case Category::Custom:
+    case kDeprecatedCustomUnitCategory:
         return QStringLiteral("-");
     case Category::Default:
         return QStringLiteral("-");
@@ -62,6 +69,20 @@ GtUnit::siUnit(Category c)
         return QStringLiteral("1/deg");
     case Category::VGVGradientsPow2:
         return QStringLiteral("1/deg^2");
+    case Category::Voltage:
+        return QStringLiteral("V");
+    case Category::Current:
+        return QStringLiteral("A");
+    case Category::Resistance:
+        return QString(QChar(0x03A9)); // omega
+    case Category::Impedance:
+        return QString(QChar(0x03A9)); // omega
+    case Category::HeatTransferCapability:
+        return QStringLiteral("W/K");
+    case Category::HeatTransferCoefficient:
+        return QStringLiteral("W/(m^2*K)");
+    case Category::ThermalConductivity:
+        return QStringLiteral("W/(m*K)");
     case Category::EnergyDensity:
         return QStringLiteral("J/kg");
     case Category::PowerDensity:
@@ -88,7 +109,7 @@ GtUnit::categoryToString(Category c)
     {
     case Category::Area:
         return QObject::tr("Area");
-    case Category::Custom:
+    case kDeprecatedCustomUnitCategory:
         return QObject::tr("Custom");
     case Category::Default:
         return QObject::tr("Default");
@@ -134,6 +155,20 @@ GtUnit::categoryToString(Category c)
         return QObject::tr("VGV Gradients");
     case Category::VGVGradientsPow2:
         return QObject::tr("VGV Gradients Pow2");
+    case Category::Voltage:
+        return QStringLiteral("Voltage");
+    case Category::Current:
+        return QStringLiteral("Current");
+    case Category::Resistance:
+        return QStringLiteral("Resistance");
+    case Category::Impedance:
+        return QStringLiteral("Impedance");
+    case Category::HeatTransferCapability:
+        return QStringLiteral("Heat Transfer Capability");
+    case Category::HeatTransferCoefficient:
+        return QStringLiteral("Heat Transfer Coefficient");
+    case Category::ThermalConductivity:
+        return QStringLiteral("Thermal Conductivity");
     case Category::MassMomentInertia:
         return QObject::tr("Mass Moment of Inertia");
     case Category::EnergyDensity:

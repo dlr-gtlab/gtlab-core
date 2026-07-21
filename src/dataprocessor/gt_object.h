@@ -14,6 +14,8 @@
 #include "gt_datamodel_exports.h"
 #include "gt_typetraits.h"
 
+#include <gt_version.h>
+
 #include <QObject>
 
 #include <algorithm>
@@ -101,7 +103,9 @@ public:
         /// restored or otherwise is initialized again.
         DefaultComponent = 32,
         /// the object is not shown in the explorer widget in the GUI
-        UserHidden = 64
+        UserHidden = 64,
+        ///  Whether the object should be saved as a own file
+        SaveAsOwnFile = 128
     };
     Q_DECLARE_FLAGS(ObjectFlags, ObjectFlag)
 
@@ -287,6 +291,18 @@ public:
      * @return Deletable flag
      */
     bool isDeletable() const;
+
+    /**
+     * @brief Whether the object should be saved as a linked file
+     *
+     * (i.e. stored into an own file and linked in the parent doc)
+     */
+    bool saveAsOwnFile() const;
+
+    /**
+     * @brief Sets, whether the object should be saved in an own file
+     */
+    void setSaveAsOwnFile(bool);
 
     /**
      * @brief setFactory
@@ -664,6 +680,52 @@ protected:
      * @param cat
      */
     bool registerProperty(GtAbstractProperty& property, const QString& cat);
+
+    /**
+     * @brief Register a property to a category using a priority
+     *
+     * The Main category has priority 0, others have by default 1.
+     * Properties larger priority will be placed below properties with low priority
+     * (i.e. Main comes before others by default)
+     * @param property
+     * @param cat
+     * @param catPriority
+     * @param collapsedByDefault If true, the category will be collapsed by default
+     */
+    bool registerProperty(GtAbstractProperty& property, const QString& cat,
+                          int catPriority, bool collapsedByDefault);
+
+
+    /**
+     * @brief Register a property to a category using a priority
+     *
+     * The Main category has priority 0, others have by default 1.
+     * Properties larger priority will be placed below properties with low priority
+     * (i.e. Main comes before others by default)
+     * @param property
+     * @param cat
+     * @param catPriority
+     * @param collapsedByDefault If true, the category will be collapsed by default
+     */
+    bool registerProperty(GtAbstractProperty& property, const QString& cat,
+                          int catPriority)
+    {
+        return registerProperty(property, cat, catPriority, false);
+    }
+
+    /**
+     * @brief Register a property
+     *
+     * @param property
+     * @param cat
+     * @param collapsedByDefault If true, the category will be collapsed by default
+     */
+    bool registerProperty(GtAbstractProperty& property, const QString& cat,
+                          bool collapsedByDefault)
+    {
+        return registerProperty(property, cat, 1, collapsedByDefault);
+    }
+
     /**
      * @brief registerProperty
      * @param property
@@ -879,19 +941,5 @@ bool isDerivedFromClass(QMetaObject const* metaObject,
 bool isDerivedFromClass(std::nullptr_t, QString const&) = delete;
 
 } // namespace gt
-
-template <typename ListOfObjectPtrs>
-[[deprecated("Use gt::findObject() instead.")]]
-inline GtObject*
-findObject(const QString& objectUUID, const ListOfObjectPtrs& list)
-{
-    return gt::findObject(objectUUID, list);
-}
-
-[[deprecated("Use gt::isDerivedFromClass() instead.")]]
-inline bool isDerivedFromClass(GtObject* obj, QString const& superClassName)
-{
-    return gt::isDerivedFromClass(obj, superClassName);
-}
 
 #endif // GTOBJECT_H

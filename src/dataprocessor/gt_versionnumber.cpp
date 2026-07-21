@@ -16,7 +16,7 @@
 
 #include <QVersionNumber>
 
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 #include "gt_versionnumber.h"
 
@@ -183,7 +183,7 @@ GtVersionNumber::GtVersionNumber(int major, const QString& pre_release,
 GtVersionNumber::GtVersionNumber(const QString& versStr) :
     GtVersionNumber()
 {
-    const auto expr = std::regex(gt::re::forSemVers().pattern().toStdString());
+    const auto expr = std::regex(gt::rex::forSemVers().pattern().toStdString());
     auto results = std::match_results<std::string::const_iterator>();
 
 

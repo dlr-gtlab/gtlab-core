@@ -94,12 +94,6 @@ GtApplication::~GtApplication()
     dir.removeRecursively();
 }
 
-QIcon
-GtApplication::icon(QString const& iconPath)
-{
-    return gt::gui::getIcon(iconPath);
-}
-
 void
 GtApplication::initMdiLauncher()
 {
@@ -508,10 +502,6 @@ GtApplication::startCommand(GtObject* root, const QString& commandId)
 
     if (!m_d->m_commandId.isEmpty())
     {
-        gtDebug().medium() << tr("already recording command")
-                           << QStringLiteral("...");
-        gtDebug().medium() << QStringLiteral("    |-> ") << m_d->m_commandId;
-        gtDebug().medium() << QStringLiteral("    |-> vs") << commandId;
         return GtCommand();
     }
 
@@ -869,7 +859,7 @@ GtApplication::initCoreShortCuts() const
 
     /// ShowFootprint
     shortCuts.append({QStringLiteral("showFootprint"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_I).toString()});
+                      QKeySequence(Qt::CTRL | Qt::Key_I).toString()});
     /// redo
     shortCuts.append({QStringLiteral("redo"), catCore,
                       QKeySequence(QKeySequence::Redo).toString(), true});
@@ -888,7 +878,7 @@ GtApplication::initCoreShortCuts() const
 
     /// clone/duplicate
     shortCuts.append({QStringLiteral("clone"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_D).toString(), true});
+                      QKeySequence(Qt::CTRL | Qt::Key_D).toString(), true});
 
     /// paste
     shortCuts.append({QStringLiteral("paste"), catCore,
@@ -900,39 +890,39 @@ GtApplication::initCoreShortCuts() const
 
     /// search
     shortCuts.append({QStringLiteral("search"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_F).toString()});
+                      QKeySequence(Qt::CTRL | Qt::Key_F).toString()});
 
     /// switchPerspective
     shortCuts.append({QStringLiteral("switchPerspective"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_P).toString(), true});
+                      QKeySequence(Qt::ALT | Qt::Key_P).toString(), true});
 
     /// switchPerspective
     shortCuts.append({QStringLiteral("closeTab"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_W).toString(), false});
+                      QKeySequence(Qt::CTRL | Qt::Key_W).toString(), false});
 
     /// Preferences
     shortCuts.append({QStringLiteral("openPreferences"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_Enter).toString(), true});
+                      QKeySequence(Qt::ALT | Qt::Key_Enter).toString(), true});
 
     /// Preferences
     shortCuts.append({QStringLiteral("openModulesInfo"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_M).toString(), true});
+                      QKeySequence(Qt::ALT | Qt::Key_M).toString(), true});
 
     /// save
     shortCuts.append({QStringLiteral("save"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_S).toString(), true});
+                      QKeySequence(Qt::CTRL | Qt::Key_S).toString(), true});
 
     /// new Project
     shortCuts.append({QStringLiteral("newProject"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_N).toString(), true});
+                      QKeySequence(Qt::CTRL | Qt::Key_N).toString(), true});
 
     /// open Project
     shortCuts.append({QStringLiteral("openProject"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::Key_O).toString(), true});
+                      QKeySequence(Qt::CTRL | Qt::Key_O).toString(), true});
 
     /// close Project
     shortCuts.append({QStringLiteral("closeProject"), catCore,
-                      QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_W).toString(), true});
+                      QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_W).toString(), true});
 
     /// help
     shortCuts.append({QStringLiteral("help"), catCore,
@@ -940,7 +930,15 @@ GtApplication::initCoreShortCuts() const
 
     /// undo
     shortCuts.append({QStringLiteral("modulesOverview"), catCore,
-                      QKeySequence(Qt::ALT + Qt::Key_M).toString(), true});
+                      QKeySequence(Qt::ALT | Qt::Key_M).toString(), true});
+
+    /// jump to next entry
+    shortCuts.append({QStringLiteral("jumpToNextElement"), catCore,
+                      QKeySequence(Qt::Key_F3).toString()});
+
+    /// jump to previous entry
+    shortCuts.append({QStringLiteral("jumpToPreviousElement"), catCore,
+                      QKeySequence(Qt::SHIFT | Qt::Key_F3).toString()});
 
     return shortCuts;
 }
@@ -971,8 +969,5 @@ void
 GtApplication::onGuiInitializationFinished()
 {
     initModules();
-
-    // update theme
-    emit themeChanged(m_darkMode);
 }
 

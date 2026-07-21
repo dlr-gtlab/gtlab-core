@@ -9,8 +9,6 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include <QDebug>
-
 #include "gtest/gtest.h"
 #include "gt_checkablestringlistmodel.h"
 
@@ -18,39 +16,31 @@
 class TestGtCheckableStringListModel : public ::testing::Test
 {
 protected:
-    virtual void SetUp()
+    TestGtCheckableStringListModel() : model(strList)
     {
         strList << "A" << "B" << "C";
-        model = new GtCheckableStringListModel(strList);
+        model.setStringList(strList);
     }
-
-    virtual void TearDown()
-    {
-        delete model;
-    }
-
-    GtCheckableStringListModel* model;
 
     QStringList strList;
+    GtCheckableStringListModel model;
 };
 
 TEST_F(TestGtCheckableStringListModel, rowCount)
 {
-    // check size
-    ASSERT_EQ(model->rowCount(), strList.size());
+    EXPECT_EQ(model.rowCount(), strList.size());
+    EXPECT_EQ(model.rowCount(model.index(0)), 0);
 }
 
 TEST_F(TestGtCheckableStringListModel, stringList)
 {
-    QStringList strings = model->stringList();
+    QStringList strings = model.stringList();
 
-    // check size
     ASSERT_EQ(strings.size(), strList.size());
 
-    // check string equal
     for (int i = 0; i < strList.size(); i++)
     {
-        ASSERT_STREQ(strList[i].toStdString().c_str(),
+        EXPECT_STREQ(strList[i].toStdString().c_str(),
                      strings[i].toStdString().c_str());
     }
 }
@@ -58,63 +48,57 @@ TEST_F(TestGtCheckableStringListModel, stringList)
 TEST_F(TestGtCheckableStringListModel, setStringList)
 {
     QStringList newStrings;
-
     newStrings << "D" << "E";
 
-    model->setStringList(newStrings);
-    QStringList strings = model->stringList();
+    model.setStringList(newStrings, Qt::Unchecked);
+    QStringList strings = model.stringList();
 
-    // check new size
     ASSERT_EQ(newStrings.size(), strings.size());
+    EXPECT_NE(strList.size(), strings.size());
 
-    // check old size
-    ASSERT_NE(strList.size(), strings.size());
-
-    // check string equal
     for (int i = 0; i < newStrings.size(); i++)
     {
-        ASSERT_STREQ(newStrings[i].toStdString().c_str(),
+        EXPECT_STREQ(newStrings[i].toStdString().c_str(),
                      strings[i].toStdString().c_str());
+        EXPECT_EQ(model.data(model.index(i), Qt::CheckStateRole).toInt(),
+                  Qt::Unchecked);
     }
 }
 
 TEST_F(TestGtCheckableStringListModel, selectedStringList)
 {
-    QStringList strings = model->selectedStringList();
+    QStringList strings = model.selectedStringList();
 
-    // check size
     ASSERT_EQ(strings.size(), strList.size());
 
-    // check string equal
     for (int i = 0; i < strList.size(); i++)
     {
-        ASSERT_STREQ(strList[i].toStdString().c_str(),
+        EXPECT_STREQ(strList[i].toStdString().c_str(),
                      strings[i].toStdString().c_str());
     }
 }
 
 TEST_F(TestGtCheckableStringListModel, data)
 {
-    const int rowCount = model->rowCount();
+    const int rowCount = model.rowCount();
 
     for (int i = 0; i < rowCount; i++)
     {
-        QModelIndex index = model->index(i);
+        QModelIndex index = model.index(i);
 
-        QString str = model->data(index).toString();
-
-        // check string equal
-        ASSERT_STREQ(strList[i].toStdString().c_str(),
+        QString str = model.data(index).toString();
+        EXPECT_STREQ(strList[i].toStdString().c_str(),
                      str.toStdString().c_str());
 
-        // check selection equal
-
         bool success = false;
-        int state = model->data(index, Qt::CheckStateRole).toInt(&success);
+        int state = model.data(index, Qt::CheckStateRole).toInt(&success);
 
-        ASSERT_TRUE(success);
-        ASSERT_EQ(state, Qt::Checked);
+        EXPECT_TRUE(success);
+        EXPECT_EQ(state, Qt::Checked);
     }
+
+    EXPECT_FALSE(model.data(model.index(-1)).isValid());
+    EXPECT_FALSE(model.data(model.index(model.rowCount())).isValid());
 }
 
 TEST_F(TestGtCheckableStringListModel, setData)
@@ -127,21 +111,23 @@ TEST_F(TestGtCheckableStringListModel, setData)
 
     for (int i = 0; i < entries.size(); i++)
     {
-        QModelIndex index = model->index(i);
+        QModelIndex index = model.index(i);
 
-        // check display/edit role
-        bool success = model->setData(index, entries[i]);
+        bool success = model.setData(index, entries[i]);
         ASSERT_TRUE(success);
-        ASSERT_STREQ(model->data(index).toString().toStdString().c_str(),
+        EXPECT_STREQ(model.data(index).toString().toStdString().c_str(),
                      entries[i].toStdString().c_str());
 
-        // check checkstate role
-        success = model->setData(index, states[i], Qt::CheckStateRole);
+        success = model.setData(index, states[i], Qt::CheckStateRole);
         ASSERT_TRUE(success);
-        int state = model->data(index, Qt::CheckStateRole).toInt(&success);
-        ASSERT_TRUE(success);
-        ASSERT_EQ(states[i], state);
+        int state = model.data(index, Qt::CheckStateRole).toInt(&success);
+        EXPECT_TRUE(success);
+        EXPECT_EQ(states[i], state);
     }
+
+    EXPECT_FALSE(model.setData(model.index(-1), "X"));
+    EXPECT_FALSE(model.setData(model.index(model.rowCount()), "X"));
+    EXPECT_FALSE(model.setData(model.index(0), QVariant(1), Qt::UserRole));
 }
 
 TEST_F(TestGtCheckableStringListModel, selectItems)
@@ -149,54 +135,44 @@ TEST_F(TestGtCheckableStringListModel, selectItems)
     QStringList selStrings;
     selStrings << "A" << "C";
 
-    model->selectItems(selStrings);
+    int selectionChanged = 0;
+    QObject::connect(&model, &GtCheckableStringListModel::selectionChanged,
+                     [&selectionChanged]() { ++selectionChanged; });
 
-    QStringList strings = model->selectedStringList();
+    model.selectItems(selStrings);
 
-    // check size
+    QStringList strings = model.selectedStringList();
+
     ASSERT_EQ(strings.size(), selStrings.size());
-
-    // check string equal
     for (int i = 0; i < selStrings.size(); i++)
     {
-        ASSERT_STREQ(selStrings[i].toStdString().c_str(),
+        EXPECT_STREQ(selStrings[i].toStdString().c_str(),
                      strings[i].toStdString().c_str());
     }
+    EXPECT_EQ(selectionChanged, 1);
 }
 
 TEST_F(TestGtCheckableStringListModel, selectItem)
 {
-    QString selString("A");
+    model.setSelectionMode(GtCheckableStringListModel::SingleSelection);
+    model.selectItem("A");
 
-    // single selection test
-    model->setSelectionMode(GtCheckableStringListModel::SingleSelection);
-    model->selectItem(selString);
-
-    QStringList strings = model->selectedStringList();
-
-    // check size
+    QStringList strings = model.selectedStringList();
     ASSERT_EQ(1, strings.size());
+    EXPECT_STREQ(strings.first().toStdString().c_str(), "A");
 
-    // check string equal
-
-    ASSERT_STREQ(strings.first().toStdString().c_str(),
-                 selString.toStdString().c_str());
-
-    model->selectItem("B");
-
-    strings = model->selectedStringList();
-
+    model.selectItem("B");
+    strings = model.selectedStringList();
     ASSERT_EQ(1, strings.size());
+    EXPECT_STREQ(strings.first().toStdString().c_str(), "B");
 
-    ASSERT_STREQ(strings.first().toStdString().c_str(), "B");
+    model.setSelectionMode(GtCheckableStringListModel::MultipleSelection);
+    model.selectItem("A");
+    strings = model.selectedStringList();
+    EXPECT_EQ(2, strings.size());
 
-    // multiple selection test
-    model->setSelectionMode(GtCheckableStringListModel::MultipleSelection);
-    model->selectItem("A");
-    strings = model->selectedStringList();
-
-    // check size
-    ASSERT_EQ(2, strings.size());
+    model.selectItem(QString());
+    EXPECT_EQ(model.selectedStringList().size(), 2);
 }
 
 TEST_F(TestGtCheckableStringListModel, setSelectionMode)
@@ -204,46 +180,101 @@ TEST_F(TestGtCheckableStringListModel, setSelectionMode)
     QStringList selStrings;
     selStrings << "A" << "C";
 
-    // multiple selection
-    ASSERT_EQ(model->selectionMode(),
+    EXPECT_EQ(model.selectionMode(),
               GtCheckableStringListModel::MultipleSelection);
 
-    model->selectItems(selStrings);
+    model.selectItems(selStrings);
+    QStringList strings = model.selectedStringList();
+    EXPECT_EQ(strings.size(), selStrings.size());
 
-    QStringList strings = model->selectedStringList();
+    model.setSelectionMode(GtCheckableStringListModel::SingleSelection);
+    EXPECT_TRUE(model.selectedStringList().isEmpty());
 
-    // check size
-    ASSERT_EQ(strings.size(), selStrings.size());
-
-    // single selection
-    model->setSelectionMode(GtCheckableStringListModel::SingleSelection);
-
-    ASSERT_TRUE(model->selectedStringList().isEmpty());
-
-    model->selectItems(selStrings);
-
-    strings = model->selectedStringList();
-
-    // check size
+    model.selectItems(selStrings);
+    strings = model.selectedStringList();
     ASSERT_EQ(strings.size(), 1);
-
-    ASSERT_STREQ(selStrings.first().toStdString().c_str(),
+    EXPECT_STREQ(selStrings.first().toStdString().c_str(),
                  strings.first().toStdString().c_str());
+
+    model.setSelectionMode(GtCheckableStringListModel::SingleSelection);
+    EXPECT_EQ(model.selectedStringList().size(), 1);
 }
 
 TEST_F(TestGtCheckableStringListModel, selectionMode)
 {
-    ASSERT_EQ(model->selectionMode(),
+    EXPECT_EQ(model.selectionMode(),
               GtCheckableStringListModel::MultipleSelection);
 
-    model->setSelectionMode(GtCheckableStringListModel::SingleSelection);
-
-    ASSERT_EQ(model->selectionMode(),
+    model.setSelectionMode(GtCheckableStringListModel::SingleSelection);
+    EXPECT_EQ(model.selectionMode(),
               GtCheckableStringListModel::SingleSelection);
 
-    model->setSelectionMode(GtCheckableStringListModel::MultipleSelection);
-
-    ASSERT_EQ(model->selectionMode(),
+    model.setSelectionMode(GtCheckableStringListModel::MultipleSelection);
+    EXPECT_EQ(model.selectionMode(),
               GtCheckableStringListModel::MultipleSelection);
+}
 
+TEST_F(TestGtCheckableStringListModel, flags)
+{
+    EXPECT_TRUE(model.flags(model.index(0)) & Qt::ItemIsUserCheckable);
+    EXPECT_TRUE(model.flags(QModelIndex()) & Qt::ItemIsDropEnabled);
+    EXPECT_FALSE(model.flags(model.index(0)) & Qt::ItemIsDropEnabled);
+}
+
+TEST_F(TestGtCheckableStringListModel, clearSelectionAndSelectAllUpdateSelectionState)
+{
+    bool noItemSelected = false;
+    int emissions = 0;
+    QObject::connect(&model, &GtCheckableStringListModel::noItemSelected,
+                     [&noItemSelected, &emissions](bool value)
+                     {
+                         noItemSelected = value;
+                         ++emissions;
+                     });
+
+    model.clearSelection();
+    EXPECT_TRUE(model.selectedStringList().isEmpty());
+
+    model.setData(model.index(1), Qt::Checked, Qt::CheckStateRole);
+    EXPECT_EQ(model.selectedStringList(), QStringList({"B"}));
+
+    model.selectAll();
+    EXPECT_EQ(model.selectedStringList(), strList);
+    EXPECT_EQ(emissions, 1);
+    EXPECT_FALSE(noItemSelected);
+}
+
+TEST_F(TestGtCheckableStringListModel, singleSelectionCheckStateUnchecksOthers)
+{
+    model.setSelectionMode(GtCheckableStringListModel::SingleSelection);
+
+    EXPECT_FALSE(model.setData(model.index(0), Qt::Checked, Qt::UserRole));
+    EXPECT_FALSE(model.setData(model.index(-1), Qt::Checked, Qt::CheckStateRole));
+
+    EXPECT_FALSE(model.setData(model.index(1), Qt::Checked, Qt::CheckStateRole));
+    EXPECT_EQ(model.selectedStringList(), QStringList({"B"}));
+}
+
+TEST_F(TestGtCheckableStringListModel, insertAndRemoveRows)
+{
+    EXPECT_FALSE(model.insertRows(-1, 1));
+    EXPECT_FALSE(model.insertRows(0, 0));
+
+    EXPECT_TRUE(model.insertRows(1, 2));
+    EXPECT_EQ(model.rowCount(), 5);
+    EXPECT_EQ(model.data(model.index(1)).toString(), QString());
+    EXPECT_EQ(model.data(model.index(1), Qt::CheckStateRole).toInt(), Qt::Checked);
+
+    EXPECT_FALSE(model.removeRows(-1, 1));
+    EXPECT_FALSE(model.removeRows(4, 2));
+    EXPECT_FALSE(model.removeRows(0, 0));
+
+    EXPECT_TRUE(model.removeRows(1, 2));
+    EXPECT_EQ(model.rowCount(), 3);
+    EXPECT_EQ(model.stringList(), strList);
+}
+
+TEST_F(TestGtCheckableStringListModel, supportedDropActions)
+{
+    EXPECT_EQ(model.supportedDropActions(), Qt::MoveAction);
 }

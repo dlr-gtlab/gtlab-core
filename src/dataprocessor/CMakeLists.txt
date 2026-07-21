@@ -36,6 +36,7 @@ set(HEADERS_INTERNAL
 
 set(HEADERS
     gt_abstractexternalizationinterface.h
+    gt_batchsaver.h
     gt_exceptions.h
     gt_datamodel_exports.h
     gt_eventloop.h
@@ -80,14 +81,13 @@ set(HEADERS
     property/gt_variantproperty.h
     property/gt_structproperty.h
     property/gt_propertystructcontainer.h
+    property/gt_colorproperty.h
     gt_label.h
     gt_labeldata.h
     property/gt_labelproperty.h
     gt_objectmodel.h
     property/gt_filechooserproperty.h
-    gt_propertyfactory.h
     property/gt_propertyconnection.h
-    gt_propertyfactory.h
     property/gt_openfilenameproperty.h
     property/gt_savefilenameproperty.h
     property/gt_existingdirectoryproperty.h
@@ -96,13 +96,16 @@ set(HEADERS
     property/gt_relativeobjectlinkproperty.h
     property/gt_doublelistproperty.h
     gt_regexp.h
+    gt_regularexpression.h
     gt_algorithms.h
     gt_mpl.h
     gt_versionnumber.h
+    gt_boundaries.h
 )
 
 set(SOURCES
     gt_abstractexternalizationinterface.cpp
+    gt_batchsaver.cpp
     gt_exceptions.cpp
     gt_eventloop.cpp
     gt_externalizationmanager.cpp
@@ -119,6 +122,7 @@ set(SOURCES
     gt_package.cpp
     gt_factorygroup.cpp
     gt_xmlutilities.cpp
+    gt_qtutilities.cpp
     internal/varianthasher.cpp
     property/gt_objectlinkproperty.cpp
     gt_objectmementodiff.cpp
@@ -135,12 +139,12 @@ set(SOURCES
     property/gt_variantproperty.cpp
     property/gt_structproperty.cpp
     property/gt_propertystructcontainer.cpp
+    property/gt_colorproperty.cpp
     gt_label.cpp
     gt_labeldata.cpp
     property/gt_labelproperty.cpp
     gt_objectmodel.cpp
     property/gt_filechooserproperty.cpp
-    gt_propertyfactory.cpp
     property/gt_propertyconnection.cpp
     property/gt_openfilenameproperty.cpp
     property/gt_savefilenameproperty.cpp
@@ -151,18 +155,29 @@ set(SOURCES
     property/gt_doublelistproperty.cpp
     gt_versionnumber.cpp
     gt_regexp.cpp
+    gt_regularexpression.cpp
 )
 
 add_library(GTlabDataProcessor ${SOURCES} ${HEADERS} ${HEADERS_INTERNAL})
 add_library(GTlab::DataProcessor ALIAS GTlabDataProcessor)
+target_compile_features(GTlabDataProcessor PUBLIC cxx_std_17)
 
-target_compile_definitions(GTlabDataProcessor PUBLIC GT_LOG_USE_QT_BINDINGS)
+target_compile_definitions(GTlabDataProcessor
+    PUBLIC GT_LOG_USE_QT_BINDINGS
+)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabDataProcessor PRIVATE GT_DATAMODEL_DLL)
 else(BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabDataProcessor PUBLIC GT_DATAMODEL_LIB)
 endif(BUILD_SHARED_LIBS)
+
+if (HAVE_QVARIANT_COMPARE)
+    target_compile_definitions(GTlabDataProcessor PRIVATE HAVE_QVARIANT_COMPARE)
+elseif(HAVE_QVARIANT_COMPARE_MEMBER)
+    target_compile_definitions(GTlabDataProcessor PRIVATE HAVE_QVARIANT_COMPARE_MEMBER)
+endif()
+
 
 target_include_directories(GTlabDataProcessor
     PUBLIC
@@ -173,14 +188,16 @@ target_include_directories(GTlabDataProcessor
 
 target_link_libraries(GTlabDataProcessor
     PUBLIC
-      Qt5::Core
-      Qt5::Gui # for QValidator
-      Qt5::Xml
+      Qt${QT_VERSION_MAJOR}::Core
+      Qt${QT_VERSION_MAJOR}::Xml
       GTlab::Logging
     PRIVATE
       mpark::variant
-      tl::optional
 )
+
+if (TARGET Qt6::Core5Compat)
+    target_link_libraries(GTlabDataProcessor PUBLIC Qt6::Core5Compat)
+endif()
 
 if (BUILD_WITH_HDF5)
     target_compile_definitions(GTlabDataProcessor PUBLIC GT_H5)

@@ -16,6 +16,7 @@
 #include <QSet>
 
 #include "gt_objectmemento.h"
+#include "gt_qtutilities.h"
 
 class QDomElement;
 class QDomDocument;
@@ -95,7 +96,7 @@ public:
      */
     static inline QString variantToString(const QVariant& var)
     {
-        if (var.type() == QVariant::PointF)
+        if (gt::metaTypeId(var) == QMetaType::QPointF)
         {
             QPointF val = var.toPointF();
             return QString::number(val.x()) + QStringLiteral("_")

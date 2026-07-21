@@ -11,9 +11,9 @@
 #include "gt_palette.h"
 
 #include "gt_colors.h"
+#include "gt_guiutilities.h"
 #include "gt_style.h"
 #include "gt_stylesheets.h"
-#include "gt_application.h"
 
 #include <QSettings>
 #include <QWidget>
@@ -23,7 +23,7 @@
 QPalette
 gt::gui::currentTheme()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return darkTheme();
     }

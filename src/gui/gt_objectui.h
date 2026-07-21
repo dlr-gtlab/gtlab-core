@@ -15,6 +15,7 @@
 
 #include <QObject>
 #include <QKeySequence>
+#include <QRegExp>
 
 #include <memory>
 
@@ -34,7 +35,6 @@ class GT_GUI_EXPORT GtObjectUI : public QObject
 public:
 
     using ActionFunction = GtObjectUIAction::ActionMethod;
-
     /**
      * @brief GtObjectUI
      */
@@ -149,14 +149,6 @@ public:
      */
     QString regExpHint(GtObject* obj);
 
-    /**
-     * @brief regExpCheckWhileModification
-     * @param obj
-     * @return true if the regular expression should be used while
-     * the element is renamed. False means that the regular expression is only
-     * checked in the end of the modification
-     */
-    bool regExpCheckWhileModificationEnabled(GtObject* obj);
 
 protected:
 
@@ -222,145 +214,6 @@ protected:
                                           int sizeHint = 1);
 
     /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)"
-                 "  .setVisibilityMethod(<method>)")]]
-    void addSingleAction(const QString& actionText,
-                         const QString& actionIcon,
-                         const QString& actionMethod,
-                         const QString& actionVerification,
-                         const QString& actionVisibility);
-
-    /**
-     * @brief addSingleAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     * @param actionVerification
-     * @param actionVisibility
-     * @param shortcut
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)"
-                 "  .setVisibilityMethod(<method>)"
-                 "  .setShortCut(<key_seq>)")]]
-    void addSingleAction(const QString& actionText,
-                         const QString& actionIcon,
-                         const QString& actionMethod,
-                         const QString& actionVerification,
-                         const QString& actionVisibility,
-                         const QKeySequence& shortcut);
-
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)")]]
-    void addSingleAction(const QString& actionText,
-                         const QString& actionIcon,
-                         const QString& actionMethod,
-                         const QString& actionVerification);
-
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)"
-                 "  .setShortCut(<key_seq>)")]]
-    void addSingleAction(const QString& actionText,
-                         const QString& actionIcon,
-                         const QString& actionMethod,
-                         const QString& actionVerification,
-                         const QKeySequence& shortcut);
-
-    /**
-     * @brief addAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)")]]
-    void addSingleAction(const QString& actionText,
-                         const QString& actionIcon,
-                         const QString& actionMethod);
-
-    /**
-     * @brief addSingleAction
-     * @param actionText
-     * @param actionMethod
-     * @param shortcut
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setShortCut(<key_seq>)")]]
-    void addSingleAction(const QString& actionText,
-                         const QString& actionMethod,
-                         const QKeySequence &shortcut);
-
-    /**
-     * @brief addSingleAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     * @param shortcut
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addSingleAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setShortCut(<key_seq>)")]]
-    void addSingleAction(const QString& actionText,
-                         const QString& actionIcon,
-                         const QString& actionMethod,
-                         const QKeySequence& shortcut);
-
-    /**
-     * @brief addGroupActions
-     * @param groupName
-     * @param actions
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addActionGroup(<text>)"
-                 "  << makeSingleAction(...)"
-                 "  << makeSingleAction(...)")]]
-    void addActionGroup(const QString& groupName,
-                        const QList<GtObjectUIAction>& actions);
-
-    /**
-     * @brief addActionGroup
-     * @param groupName
-     * @param actions
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addActionGroup(<text>)"
-                 "  .setIcon(<icon>)"
-                 "  << makeSingleAction(...)"
-                 "  << makeSingleAction(...)")]]
-    void addActionGroup(const QString& groupName,
-                        const QString& groupIcon,
-                        const QList<GtObjectUIAction>& actions);
-
-    /**
      * @brief addActionGrou
      * @param actionGroup
      */
@@ -414,14 +267,6 @@ protected:
      */
     void setRegExpHint(QString const& hint);
 
-    /**
-     * @brief setRegExpCheckWhileModification
-     * @param obj
-     * @return set true if the regular expression should be used while
-     * the element is renamed. False means that the regular expression is only
-     * checked in the end of the modification
-     */
-    void setRegExpCheckWhileModificationEnabled(bool val);
 private:
 
     /// List of custom actions

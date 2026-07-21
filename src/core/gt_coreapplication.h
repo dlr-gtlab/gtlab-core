@@ -342,6 +342,14 @@ public:
     QString moduleDescription(const QString& id) const;
 
     /**
+     * @brief Returns the location of the module
+     *
+     * @param module identification string
+     * @return Location / Path
+     */
+    QString moduleLocation(const QString& id) const;
+
+    /**
      * @brief Returns name of modules author for given id. Returns empty
      * string for non existing modules.
      * @param module identification string

@@ -38,7 +38,8 @@ public:
         OptionalRole,
         ActiveRole,
         MonitoringRole,
-        ContainerRole
+        ContainerRole,
+        DefaultCollapseRole
     };
 
     /**

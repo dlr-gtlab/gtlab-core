@@ -23,6 +23,7 @@
 #include <QTextEdit>
 #include <QTextStream>
 #include <QTabWidget>
+#include <QRegularExpression>
 
 GtModuleDetailsDialog::GtModuleDetailsDialog(QString const& moduleId,
                                              QWidget* parent) :
@@ -172,9 +173,10 @@ GtModuleDetailsDialog::fileContentWidget(const QString& fileName)
         shortTxt = QStringLiteral("No content for '%1' could "
                                   "be found").arg(fileName);
     }
-    else if (shortTxt >= cutting)
+    else if (shortTxt.length() >= cutting)
     {
-        int cut = shortTxt.indexOf(QRegExp("\\n"), cutting) + 1;
+        static QRegularExpression newline("\\n");
+        int cut = shortTxt.indexOf(newline, cutting) + 1;
 
         if (cut > -1)
         {
@@ -215,13 +217,23 @@ GtModuleDetailsDialog::addLine(const QString& title, const QString& value)
 std::tuple<QString,GtTextEdit::contentType>
 GtModuleDetailsDialog::loadInfoFile(QString const& filter)
 {
-    QString path = QCoreApplication::applicationDirPath() +
-            QDir::separator() + QStringLiteral("modules") +
+    assert(gtApp);
+
+    // the directory where the current module is located
+    auto moduleDir = QFileInfo(gtApp->moduleLocation(m_moduleId)).dir();
+
+    GtTextEdit::contentType none = GtTextEdit::NONE;
+
+    if (!moduleDir.exists())
+    {
+        return {QStringLiteral("Cannot determine the module directory"), none};
+    }
+
+    QString path = moduleDir.absolutePath() +
             QDir::separator() + QStringLiteral("meta") + QDir::separator();
 
     QDir modulesDir(path + windowTitle());
 
-    GtTextEdit::contentType none = GtTextEdit::NONE;
 
     if (modulesDir.exists())
     {
@@ -246,6 +258,11 @@ GtModuleDetailsDialog::loadInfoFile(QString const& filter)
         }
 
         QTextStream in(&file);
+
+        // In Qt6, the encoding is detected automatically
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        in.setCodec("UTF-8");
+#endif
         QString content = in.readAll();
         file.close();
 

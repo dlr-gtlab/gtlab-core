@@ -90,7 +90,7 @@ struct GtProcessRunnerTransceiver::Session : public QObject
     const QString id;
 
     /// last known state of the remote process runner
-    gt::process_runner::State state;
+    gt::process_runner::State state{gt::process_runner::UninitializedState};
 };
 
 GtProcessRunnerTransceiver::GtProcessRunnerTransceiver(

@@ -1,0 +1,17 @@
+# Fix to build gt-logging on newer ubuntu etc.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2024 German Aerospace Center (DLR)
+#
+diff --git a/src/gt_logstream.h b/src/gt_logstream.h
+index 5ecbf58..5f91957 100644
+--- a/src/gt_logstream.h
++++ b/src/gt_logstream.h
+@@ -9,6 +9,7 @@
+ #include <algorithm>
+ #include <sstream>
+ #include <iomanip>
++#include <cstdint>
+ 
+ #ifdef __has_cpp_attribute 
+   #if __has_cpp_attribute(nodiscard)

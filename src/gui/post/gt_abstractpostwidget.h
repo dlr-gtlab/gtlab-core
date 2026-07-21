@@ -12,6 +12,8 @@
 #include "gt_object.h"
 #include "gt_objectuiaction.h"
 
+#include <gt_version.h>
+
 #include <QList>
 #include <QWidget>
 
@@ -78,43 +80,6 @@ public:
                                       ActionFunction actionMethod);
 
     /**
-     * @brief addConfigAction
-     * @param actionText
-     * @param actionIcon
-     * @param actionMethod
-     * @param actionVerification
-     * @return
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addConfigAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)")]]
-    bool addConfigAction(const QString& actionText,
-                         const QString& actionMethod,
-                         const QString& actionIcon,
-                         const QString& actionVerification);
-
-    /**
-     * @brief addConfigAction
-     * @param actionText
-     * @param actionMethod
-     * @param actionIcon
-     * @param actionVerification
-     * @param actionVisibility
-     * @return
-     */
-    [[deprecated("Use dedicated setters instead: "
-                 "addConfigAction(<text>, <method>)"
-                 "  .setIcon(<icon>)"
-                 "  .setVerificationMethod(<method>)"
-                 "  .setVisibilityMethod(<method>)")]]
-    bool addConfigAction(const QString& actionText,
-                         const QString& actionMethod,
-                         const QString& actionIcon,
-                         const QString& actionVerification,
-                         const QString& actionVisibility);
-
-    /**
      * @brief hasConfigMenu
      * @return
      */
@@ -125,20 +90,6 @@ public:
      * @return
      */
     bool isPrintable();
-
-    /**
-     * @brief iconString
-     * @return
-     */
-    [[deprecated("Use icon instead")]]
-    QString iconString();
-
-    /**
-     * @brief setIconString
-     * @param iconString
-     */
-    [[deprecated("Use setIcon instead")]]
-    void setIconString(const QString& iconString);
 
     /**
      * @brief Returns the icon of the post widget
@@ -205,10 +156,7 @@ private:
 
     bool m_printable;
 
-    // We should use a QIcon member here instead of the QString.
-    // However this might break the ABI
-    [[deprecated("Use a QIcon member instead")]]
-    QString m_iconString;
+    QIcon m_icon;
 
     /// List of UI actions
     GtActionList m_actionList;

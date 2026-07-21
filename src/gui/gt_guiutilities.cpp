@@ -293,7 +293,8 @@ openContextMenu(QKeyEvent& event,
 
 /// logic for renaming obj in the view
 inline bool
-renameObject(QKeyEvent& event, GtObject& obj, QModelIndex const& idx, QAbstractItemView* view)
+renameObject(QKeyEvent& event, const GtObject& obj,
+             QModelIndex const& idx, QAbstractItemView* view)
 {
     if (obj.isRenamable() && idx.isValid() && view)
     {
@@ -350,4 +351,20 @@ gt::gui::handleObjectKeyEvent(QKeyEvent& event,
     }
 
     shortcutAction(event, obj);
+}
+
+gt::gui::applicationTheme
+gt::gui::theme()
+{
+    if (!gtApp) return applicationTheme::bright;
+
+    if (gtApp->inDarkMode()) return applicationTheme::dark;
+
+    return applicationTheme::bright;
+}
+
+bool
+gt::gui::isApplicationDarkTheme()
+{
+    return theme() == applicationTheme::dark;
 }

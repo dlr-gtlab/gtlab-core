@@ -4,21 +4,25 @@
  * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
  */
 
+#include <gt_qtutilities.h>
+
 #include <gtest/gtest.h>
 
 #include <QVariant>
 
 TEST(DataProcessorInit, BasicTypesRegistered)
 {
-    EXPECT_NE(QVariant::Invalid, QVariant::nameToType("QList<double>"));
-    EXPECT_NE(QVariant::Invalid, QVariant::nameToType("QList<int>"));
-    EXPECT_NE(QVariant::Invalid, QVariant::nameToType("QList<bool>"));
-    EXPECT_NE(QVariant::Invalid, QVariant::nameToType("QList<QPointF>"));
+    EXPECT_TRUE(gt::metaTypeNameIsRegistered("QList<double>"));
+    EXPECT_TRUE(gt::metaTypeNameIsRegistered("QList<int>"));
+    EXPECT_TRUE(gt::metaTypeNameIsRegistered("QList<bool>"));
+    EXPECT_TRUE(gt::metaTypeNameIsRegistered("QList<QPointF>"));
 
-    EXPECT_NE(QVariant::Invalid, QVariant::nameToType("QVector<double>"));
-    EXPECT_NE(QVariant::Invalid, QVariant::nameToType("QVector<int>"));
-    EXPECT_NE(QVariant::Invalid, QVariant::nameToType("QVector<bool>"));
-    EXPECT_NE(QVariant::Invalid, QVariant::nameToType("QVector<QPointF>"));
+    EXPECT_TRUE(gt::metaTypeNameIsRegistered("QVector<double>"));
+    EXPECT_TRUE(gt::metaTypeNameIsRegistered("QVector<int>"));
+    EXPECT_TRUE(gt::metaTypeNameIsRegistered("QVector<bool>"));
+    EXPECT_TRUE(gt::metaTypeNameIsRegistered("QVector<QPointF>"));
 
-    EXPECT_NE(QVariant::Invalid, QVariant::nameToType("QStringList"));
+    EXPECT_TRUE(gt::metaTypeNameIsRegistered("QStringList"));
+
+    EXPECT_FALSE(gt::metaTypeNameIsRegistered("_MyReallyInvalidType_"));
 }

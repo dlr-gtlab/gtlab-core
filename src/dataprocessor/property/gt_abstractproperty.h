@@ -121,11 +121,20 @@ public:
     void setCategory(const QString& cat);
 
     /**
+     * @brief categoryString
+     * @return category string of the property
+     */
+    QString categoryString() const;
+
+    /**
      * @brief categoryToString
-     * @param cat
      * @return
      */
-    QString categoryToString();
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use categoryString() instead")
+    inline QString categoryToString()
+    {
+        return categoryString();
+    }
 
     /**
      * @brief properties
@@ -232,10 +241,19 @@ public:
     const QString& ident() const;
 
     /**
-     * @brief storeToMemento
-     * @return
+     * @brief Determines, whether the property will be serialized to
+     *        project files / memento
+     *
+     * @return True, if the property should be serialized (default behaviour)
      */
     bool storeToMemento() const;
+
+    /**
+     * @brief Can be used to disable memento storage
+     *
+     * @param store If store is false, the property won't be serialized
+     */
+    void setStoreToMemento(bool store);
 
     /**
      * @brief revert
@@ -265,8 +283,11 @@ public:
      * @return true if property is initialized as monitoring
      */
     bool isMonitoring() const;
-
     void setMonitoring(bool monitoring);
+    
+    void setCollapsedByDefault(bool collapsed);
+    bool collapsedByDefault() const;
+
 protected:
     /**
      * @brief GtAbstractProperty

@@ -31,16 +31,23 @@ option(BUILD_WITH_HDF5 "Build with hdf5 support" ON)
 option(BUILD_UNITTESTS "Build the unit tests" OFF)
 option(BUILD_WITH_COVERAGE "Build with code coverage (linux only)" OFF)
 option(BUILD_TESTMODULES "Build the test modules" OFF)
+set(GTLAB_COVERAGE_LCOV_ARGS ""
+    CACHE STRING "Additional arguments passed to lcov for the test-coverage target")
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # generic GTlab-Ecosystem defaults
 include(GTlab)
-
 gtlab_standard_setup()
-enable_gtlab_devtools()
 
-find_package(Qt5 COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets Test REQUIRED)
+find_package(GTlabDevtools QUIET)
+
+require_qt(COMPONENTS Core Xml Network Widgets PrintSupport Svg Concurrent Qml QuickWidgets QuickControls2 Test)
+
+# if we are using qt6, we need to load the compat library
+if (QT_VERSION_MAJOR EQUAL 6)
+    find_package(Qt6Core5Compat REQUIRED)
+endif()
 
 if (NOT DEFINED BUILD_SHARED_LIBS)
   set(BUILD_SHARED_LIBS ON)
@@ -52,7 +59,9 @@ if (BUILD_WITH_COVERAGE)
     append_coverage_compiler_flags()
 endif(BUILD_WITH_COVERAGE)
 
-include(GetDependencies)
+if (NOT DEFINED VCPKG_TARGET_TRIPLET)
+    include(GetDependencies)
+endif()
 
 if (NOT BUILD_SHARED_LIBS)
     message(WARNING "Static library builds of GTlab are not yet fully supported.") 
@@ -91,10 +100,18 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
 )
 
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlabConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/GTlabConfig.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/GTlab"
+    NO_SET_AND_CHECK_MACRO
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+
 # install config files
 install (FILES
-  "cmake/GTlabConfig.cmake"
-  "cmake/GTlab.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake/GTlabConfig.cmake"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GTlab.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/GTlabConfigVersion.cmake"
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GTlab)
 
@@ -108,11 +125,22 @@ if (BUILD_UNITTESTS AND BUILD_WITH_COVERAGE)
       set(DEVTOOLS_DIR_EXCLUDE "${GTLAB_DEVTOOLS_DIR}/*")
     endif()
 
+    separate_arguments(GTLAB_COVERAGE_LCOV_ARGS_LIST NATIVE_COMMAND
+                       "${GTLAB_COVERAGE_LCOV_ARGS}")
+
     setup_target_for_coverage_lcov(
             NAME test-coverage
             EXECUTABLE GTlabUnitTest
-            EXCLUDE "tests/*" "build*" "/usr/*" "/opt/*" ${DEVTOOLS_DIR_EXCLUDE}
+            LCOV_ARGS ${GTLAB_COVERAGE_LCOV_ARGS_LIST}
+            EXCLUDE "tests/*" "build*" "src/gui/*" "/usr/*" "/opt/*" ${DEVTOOLS_DIR_EXCLUDE}
             BASE_DIRECTORY "${PROJECT_SOURCE_DIR}")
+
+    setup_target_for_diff_coverage(
+            NAME diff-coverage
+            DEPENDENCIES GTlabUnitTest
+            BASE_DIRECTORY "${PROJECT_SOURCE_DIR}"
+            EXCLUDE "tests/*" "build*" "src/gui/*" "/usr/*" "/opt/*" ${DEVTOOLS_DIR_EXCLUDE}
+            FILTER ".*/src/core/" ".*/src/dataprocessor/")
 endif()
 
 if (BUILD_TESTMODULES)

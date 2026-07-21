@@ -26,6 +26,9 @@
 
 #include "gt_explorerview.h"
 
+#include <QTimer>
+#include <QPropertyAnimation>
+
 GtExplorerView::GtExplorerView(QWidget* parent) :
     GtTreeView(parent)
 {
@@ -39,6 +42,14 @@ GtExplorerView::GtExplorerView(QWidget* parent) :
 
     setDragDropMode(DragDrop);
     header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    // to allow smooth scrolling
+    QScrollBar* hBar = horizontalScrollBar();
+    assert(hBar);
+
+    m_hScrollAnim = new QPropertyAnimation(hBar, "value", this);
+    m_hScrollAnim->setDuration(200);
+    m_hScrollAnim->setEasingCurve(QEasingCurve::InOutQuad);
 }
 
 void
@@ -180,4 +191,64 @@ GtExplorerView::checkMimeData(const QMimeData* mimeData)
     }
 
     return true;
+}
+
+void
+GtExplorerView::scrollTo(const QModelIndex& index, ScrollHint hint)
+{
+    if (!index.isValid())
+    {
+        QTreeView::scrollTo(index, hint);
+        return;
+    }
+
+    QScrollBar* hBar = horizontalScrollBar();
+    assert(hBar);
+
+    const int viewWidth = viewport()->width();
+    const QRect rect = visualRect(index);
+
+    if (!rect.isValid())
+    {
+        // Fallback to default behavior if we can't determine the item rect
+        QTreeView::scrollTo(index, hint);
+        return;
+    }
+
+    const int indent = indentation();
+
+    int targetX = hBar->value();
+
+    const int itemLeft = rect.x();
+    const int itemRight = rect.right();
+    const int itemWidth = rect.width();
+
+    // Compute a horizontal target so the item becomes fully visible if possible
+    if (itemLeft < indent)
+    {
+        targetX += itemLeft - indent;
+    }
+    else if (itemRight > viewWidth)
+    {
+        if (itemWidth + indent < viewWidth) targetX += itemRight - viewWidth;
+        else targetX += itemLeft - indent;
+    }
+
+    targetX = gt::clamp(targetX, hBar->minimum(), hBar->maximum());
+
+    const auto startX = hBar->value();
+
+    // Let QTreeView handle vertical scrolling (and its own logic) first
+    QTreeView::scrollTo(index, hint);
+
+    // Restore original horizontal value to neutralize QTreeView's adjustment
+    hBar->setValue(startX);
+
+    if (targetX == hBar->value()) return;
+
+    // Smoothly animate from the original to the computed horizontal position
+    m_hScrollAnim->stop();
+    m_hScrollAnim->setStartValue(startX);
+    m_hScrollAnim->setEndValue(targetX);
+    m_hScrollAnim->start();
 }

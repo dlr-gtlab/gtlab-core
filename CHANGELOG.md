@@ -11,21 +11,81 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased 2.1]
+
+### Highlights
+ - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts, separators or actions.
+   Also, actions can now have an on / off toggle state (i.e. toggle actions) - #1298, #1310
+ - Property Container:
+	- Container can now also be associative (key, value pairs), in addition to the list-like (sequential) behaviour before. - #1183
+    - Container can now be hidden and / or read only, like other properties. - #1180
+
 ### Added
  - New interface methods `GtPackage::readMiscData` and  `GtPackage::saveMiscData` to store package data outside of the package xml structure inside the project directory.
    Both methods have the project directory as an argument, hence workarounds like currentProject()->path() can be avoided - #617
  - Unknown tasks (corrseponding module did not load) are now displayed as Dummy Objects in the `GtTaskGroup` - #612
+ - Added color property `GtColorProperty` to store color information in data models - #1329
+ - New implementations for boundaries based on optional values to support property definitions - #1381
+ - `GtObjects` can now be stored as separate `*.gtobj.xml` files. Use `object.setSaveAsOwnFile(true);` to mark an object for linked-file creation. - #1419
+ - Search functionality for the Memento-Viewer - #380
 
 ### Changed
- - The main toolbar is now modularized. It can be extended by modules, e.g. to insert own editor contexts, separators or actions.
-   Also, actions can now have an on / off toggle state (i.e. toggle actions) - #1298, #1310
+ - GTlab now requires C++17 for compilation and usage. - #1441
  - The system of monitoring properties is changed and do not use the GtMonitoring class anymore.
    Now the base properties can be used with the flag setMonitoring. 
    The remaining function registermonitoringProperty includes a call of this function. - #1239
- - Renaming elments in GTlab explorer and process dock widget extended to be able to give better feedback and allow sibling objects to be taken into account - #1304 
+ - Renaming elments in GTlab explorer and process dock widget extended to be able to give better feedback and allow sibling objects to be taken into account - #1304
+ - The GtPropertyFactory class has been removed - #1332
+ - Module updater get process model files to have the opportunity to modify process elements for new versions - #1414
+ - The "Open With" menu entry now uses the object name of the MDI item instead of class names - #1124
 
 ### Fixed
+ - Improved performance of the object selection dialog filtering on large projects, especially during incremental search with broad type filters - #1454
  - Fixed alphabetically sorting of Shortcuts in Preference View #482
+
+## [2.0.12] - 2026-03-18
+
+GTlab 2.0.12 is a release to prepare the migration to GTlab 2.1.
+As such, many functions needed to be deprecated and should be replaced accordingly.
+
+### Deprecated
+ - Deprecated all functions in `gt_regexp.h`. These use QRegExp which will not be available in
+   future Qt Versions and in GTlab 2.1. Replacements have been added in `gt::rex` namespace,
+   which now return `QRegularExpression` objects instead.
+   
+   Porting guide:
+
+    - Replace `#include <gt_regexp.h>` with `#include <gt_regularexpression.h>`
+    - Replace `gt::re::XXX` with `gt::rex::XXX` (just replace the namespace)
+
+### Fixed
+ - Connecting GtStringMonitoringProperty to GtStringProperty in the connection editor now works as expected - #1379
+ - Fixed Output Dock not resizing new rows correctly. - #1260
+ - Fixed crash in Process Explorer, when no project is currently open. - #1393
+ - Fixed active object changed, while drag and drop an object e.g. into property link properties. - #1397
+ - Fixed an issue where tasks from inactive TaskGroups were not listed or accessible in batch commands and scripts. - #1380
+ - Fixed incorrect packages / modules in the project after a backup restore - #1211
+ 
+### Added
+ - GTlab now supports multiple module directories. These can be set via settings and the `GTLAB_MODULE_DIRS` environment variable (first dir wins on collisions).
+ - Horizontal scrolling to the selected object in explorer view.
+   This also fixes jumping of the scrollbar to the left - #1235
+
+## [2.0.11] - 2025-04-03
+### Fixed
+ - Removed a warning, when double clicking on the current project while a task is running - #1282
+ - Improved logging when creating a default task group - #1341
+ - Workaround for too large widget renderings for screen scaling settings on Windows
+ - 'Save As...' copies process data from the existing project to the newly created project - #1321
+ - Saving the project removes *.gttask files from the project directory for tasks deleted since the last save - #1321
+ 
+### Added
+ - Extended the batch mode for a command to upgrade a GTlab project - #1184
+ - Basic contxt menu to copy values of properties - #1267	
+ - Property groups can now be reordered and collapsed by default - #1344
+ - Process Dock retains the expanded/collapsed states of tasks when switching between projects or task groups - #1294
+ - Projects retain the last selected Task Group and automatically select it upon reopening - #1321
+ - Added methods `highSideBoundaryActive` and `lowSideBoundaryActive` for `GtDoubleProperty` and `GtIntProperty` to check, whether property boundaries are set - #1327
+ - Added some units for electrical properties (voltage, current, resistance, impedance) - #1352
 
 ## [2.0.10] - 2024-08-29
 ### Fixed

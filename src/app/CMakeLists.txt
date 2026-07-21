@@ -14,6 +14,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 
 set(headers
+    dialogs/gt_taskgrouprenamedialog.h
     dialogs/gt_moduledetailsdialog.h
     dialogs/gt_markdowneditor.h
     dialogs/gt_refusedpluginsdialog.h
@@ -25,6 +26,7 @@ set(headers
     preferences/pages/gt_preferenceslanguage.h
     preferences/pages/gt_preferencessession.h
     preferences/pages/gt_preferencesshortcuts.h
+    preferences/pages/gt_moduledirectoriestab.h
     tools/gt_maintoolbar.h
     tools/gt_iconbrowser.h
     widgets/gt_sessionlistwidget.h
@@ -88,7 +90,10 @@ set(headers
     dock_widgets/labels/gt_labeldelegate.h
 )
 
-set(forms ui/gt_mainwin.ui)
+set(forms 
+    ui/gt_mainwin.ui
+    preferences/pages/gt_moduledirectoriestab.ui
+)
 
 set(sources
     app.cpp
@@ -103,6 +108,7 @@ set(sources
     preferences/pages/gt_preferenceslanguage.cpp
     preferences/pages/gt_preferencessession.cpp
     preferences/pages/gt_preferencesshortcuts.cpp
+    preferences/pages/gt_moduledirectoriestab.cpp
     tools/gt_maintoolbar.cpp
     tools/gt_iconbrowser.cpp
     widgets/gt_sessionlistwidget.cpp
@@ -119,6 +125,7 @@ set(sources
     dialogs/gt_aboutdialog.cpp
     tools/gt_accessgroupmodel.cpp
     dialogs/gt_accessdatadialog.cpp
+    dialogs/gt_taskgrouprenamedialog.cpp
     widgets/gt_splashscreen.cpp
     widgets/gt_startuppage.cpp
     dialogs/gt_checkforupdatesdialog.cpp
@@ -176,7 +183,9 @@ endif(WIN32)
 
 add_executable(GTlab ${TYPE} ${sources} ${headers} ${forms})
 
-target_compile_definitions(GTlab PRIVATE GT_MODULE_ID="App")
+target_compile_definitions(GTlab
+    PRIVATE GT_MODULE_ID="App"
+)
 
 target_include_directories(GTlab PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -207,10 +216,11 @@ target_include_directories(GTlab PRIVATE
 
 target_link_libraries(GTlab
     PRIVATE
-    Qt5::Widgets
-    Qt5::Qml
-    Qt5::QuickWidgets
-    Qt5::Test
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Qml
+    Qt${QT_VERSION_MAJOR}::QuickWidgets
+    Qt${QT_VERSION_MAJOR}::QuickControls2
+    Qt${QT_VERSION_MAJOR}::Test
     GTlabDataProcessor
     GTlabCore
     GTlabGui

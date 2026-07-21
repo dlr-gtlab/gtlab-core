@@ -10,7 +10,7 @@
  */
 
 #include "gt_colors.h"
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 #include "gt_palette.h"
 #include "gt_utilities.h"
 
@@ -38,7 +38,10 @@ QColor
 gt::gui::color::lighten(const QColor& color, int amount)
 {
     constexpr int limit = std::numeric_limits<uint8_t>::max();
-    int offset = (gtApp->inDarkMode() ? -1 : 1) * amount;
+
+    bool dark = gt::gui::isApplicationDarkTheme();
+
+    int offset = (dark ? -1 : 1) * amount;
 
     QColor c = color;
     c.setRed(gt::clamp(c.red() + offset, 0, limit));
@@ -101,8 +104,9 @@ gt::gui::color::textHighlight()
 QColor
 gt::gui::color::frame()
 {
+    bool dark = gt::gui::isApplicationDarkTheme();
     return lighten(currentTheme().color(QPalette::WindowText),
-                   gtApp->inDarkMode() ? 80 : 110);
+                   dark ? 80 : 110);
 }
 
 QColor
@@ -114,7 +118,7 @@ gt::gui::color::lightFrame()
 QColor
 gt::gui::color::titleLabelBackground()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return Qt::black;
     }
@@ -124,7 +128,7 @@ gt::gui::color::titleLabelBackground()
 QColor
 gt::gui::color::infoLabelBackground()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return Qt::black;
     }
@@ -141,7 +145,7 @@ gt::gui::color::basicDark()
 QColor
 gt::gui::color::dummyObjectBackground()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
         return QColor{255, 130, 25};
@@ -154,7 +158,7 @@ gt::gui::color::dummyObjectBackground()
 QColor
 gt::gui::color::newObjectForeground()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return {Qt::green};
     }
@@ -165,25 +169,12 @@ gt::gui::color::newObjectForeground()
 QColor
 gt::gui::color::changedObjectForeground()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(Qt::blue).lighter();
     }
 
     return {Qt::blue};
-}
-
-
-QColor
-gt::gui::color::newObjectForground()
-{
-    return newObjectForeground();
-}
-
-QColor
-gt::gui::color::changedObjectForground()
-{
-    return changedObjectForeground();
 }
 
 QColor
@@ -231,7 +222,7 @@ gt::gui::color::fatalTextBackground()
 QColor
 gt::gui::color::collectionAvailableItemBackground()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
         return QColor{89, 110, 93};
@@ -258,7 +249,7 @@ gt::gui::color::environmentModelBack()
 QColor
 gt::gui::color::debugText()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(Qt::gray).lighter(120);
     }
@@ -280,7 +271,7 @@ gt::gui::color::setPaintertoGray(QPainter* painter)
         painter->setPen(QPen(QColor(70, 70, 70), 1.5));
         painter->setBrush(Qt::white);
 
-        if (gtApp->inDarkMode())
+        if (gt::gui::isApplicationDarkTheme())
         {
             // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
             painter->setPen(QPen(QColor(170, 170, 170), 1.5));
@@ -298,12 +289,6 @@ gt::gui::color::randomColor()
 }
 
 QColor
-gt::gui::color::gridLineColor()
-{
-    return gridLine();
-}
-
-QColor
 gt::gui::color::gridLineMinor()
 {
 
@@ -312,15 +297,9 @@ gt::gui::color::gridLineMinor()
 }
 
 QColor
-gt::gui::color::gridPointColor()
-{
-    return gridPoint();
-}
-
-QColor
 gt::gui::color::gridLine()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
         return QColor(25, 25, 25, 255);
@@ -347,7 +326,7 @@ gt::gui::color::gridAxis()
 QColor
 gt::gui::color::code_editor::highlightLine()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
         return QColor(160, 160, 0);
@@ -357,10 +336,18 @@ gt::gui::color::code_editor::highlightLine()
     return QColor(Qt::yellow).lighter(160);
 }
 
+// Highlight for search matches (transparent yellow)
+QColor
+gt::gui::color::code_editor::highlightSearch()
+{
+    // Transparent yellow works in both themes
+    return QColor(255, 255, 0, 100);
+}
+
 QColor
 gt::gui::color::xml_highlight::syntaxChar()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(235, 160, 50);
     }
@@ -371,7 +358,7 @@ gt::gui::color::xml_highlight::syntaxChar()
 QColor
 gt::gui::color::xml_highlight::elementName()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(190, 35, 35);
     }
@@ -382,7 +369,7 @@ gt::gui::color::xml_highlight::elementName()
 QColor
 gt::gui::color::xml_highlight::comment()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return Qt::green;
     }
@@ -393,7 +380,7 @@ gt::gui::color::xml_highlight::comment()
 QColor
 gt::gui::color::xml_highlight::attributeName()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return Qt::red;
     }
@@ -404,7 +391,7 @@ gt::gui::color::xml_highlight::attributeName()
 QColor
 gt::gui::color::xml_highlight::attributeValue()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(100, 200, 255);
     }
@@ -415,7 +402,7 @@ gt::gui::color::xml_highlight::attributeValue()
 QColor
 gt::gui::color::xml_highlight::error()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return Qt::magenta;
     }
@@ -426,7 +413,7 @@ gt::gui::color::xml_highlight::error()
 QColor
 gt::gui::color::xml_highlight::other()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(200, 200, 200);
     }
@@ -491,7 +478,7 @@ gt::gui::color::js_highlight::marker()
 QColor
 gt::gui::color::connection_editor::connection()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return Qt::lightGray;
     }
@@ -501,7 +488,7 @@ gt::gui::color::connection_editor::connection()
 QColor
 gt::gui::color::connection_editor::connectionDraft()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(98, 182, 230);
     }
@@ -511,7 +498,7 @@ gt::gui::color::connection_editor::connectionDraft()
 QColor
 gt::gui::color::connection_editor::portBackground()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(69, 130, 162);
     }
@@ -521,7 +508,7 @@ gt::gui::color::connection_editor::portBackground()
 QColor
 gt::gui::color::connection_editor::portHover()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return Qt::lightGray;
     }
@@ -531,7 +518,7 @@ gt::gui::color::connection_editor::portHover()
 QColor
 gt::gui::color::connection_editor::connectionHighlight()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return Qt::red;
     }
@@ -541,7 +528,7 @@ gt::gui::color::connection_editor::connectionHighlight()
 QColor
 gt::gui::color::plots::activeLine()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(Qt::blue).lighter();
     }
@@ -557,7 +544,7 @@ gt::gui::color::plots::inactiveLine()
 QColor
 gt::gui::color::plots::helpingLine()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(Qt::red).lighter();
     }
@@ -567,7 +554,7 @@ gt::gui::color::plots::helpingLine()
 QColor
 gt::gui::color::plots::marker()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return QColor(Qt::red).lighter();
     }
@@ -583,7 +570,7 @@ gt::gui::color::plots::selectedMarker()
 QColor
 gt::gui::color::plots::markerBorder()
 {
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         return Qt::gray;
     }

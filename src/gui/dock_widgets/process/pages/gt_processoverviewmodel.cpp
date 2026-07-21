@@ -9,13 +9,16 @@
  *  Tel.: +49 2203 601 2907
  */
 
-#include "gt_application.h"
+#include "gt_guiutilities.h"
 #include "gt_processcategoryitem.h"
 #include "gt_icons.h"
 #include "gt_logging.h"
 #include "gt_colors.h"
+#include "gt_processinfodialog.h"
 
 #include "gt_processoverviewmodel.h"
+
+#include "gt_processoverviewtree.h"
 
 GtProcessOverviewModel::GtProcessOverviewModel(QObject* parent) :
     QAbstractItemModel(parent)
@@ -31,17 +34,11 @@ GtProcessOverviewModel::~GtProcessOverviewModel()
 int
 GtProcessOverviewModel::rowCount(const QModelIndex& parent) const
 {
-    if (!parent.isValid())
-    {
-        return m_categories.size();
-    }
+    if (!parent.isValid()) return m_categories.size();
 
     GtAbstractProcessItem* parentItem = itemFromIndex(parent);
 
-    if (!parentItem)
-    {
-        return 0;
-    }
+    if (!parentItem) return 0;
 
     return parentItem->findDirectChildren<GtAbstractProcessItem*>().count();
 }
@@ -55,37 +52,23 @@ GtProcessOverviewModel::columnCount(const QModelIndex& /*parent*/) const
 QVariant
 GtProcessOverviewModel::data(const QModelIndex& index, int role) const
 {
-    if (!index.isValid())
-    {
-        return QVariant();
-    }
+    if (!index.isValid()) return {};
 
     const int col = index.column();
     const int row = index.row();
 
-    if (row < 0)
-    {
-        return QVariant();
-    }
+    if (row < 0) return {};
 
     GtAbstractProcessItem* abstractItem = itemFromIndex(index);
 
-    if (!abstractItem)
-    {
-        return QVariant();
-    }
+    if (!abstractItem) return {};
 
-    if (qobject_cast<GtProcessCategoryItem*>(abstractItem))
+    if (auto* catItem = qobject_cast<GtProcessCategoryItem*>(abstractItem))
     {
-        auto* catItem = qobject_cast<GtProcessCategoryItem*>(abstractItem);
-
         switch (role)
         {
             case Qt::DisplayRole:
-                if (col == 0)
-                {
-                    return abstractItem->objectName();
-                }
+                if (col == 0) return abstractItem->objectName();
 
                 break;
 
@@ -104,7 +87,7 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
                 break;
 
             case Qt::BackgroundRole:
-                if (!gtApp->inDarkMode())
+                if (!gt::gui::isApplicationDarkTheme())
                 {
                     return gt::gui::color::main();
                 }
@@ -121,34 +104,30 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
         switch (role)
         {
             case Qt::DisplayRole:
-                if (col == 0)
-                {
-                    return id(abstractItem);
-                }
-                else if (col == 1)
-                {
-                    return version(abstractItem);
-                }
+                if (col == 0) return id(abstractItem);
 
                 break;
 
             case Qt::DecorationRole:
-                if (col == 0)
-                {
-                    return icon(abstractItem);
-                }
+                if (col == 0) return icon(abstractItem);
 
                 break;
 
             case Qt::ForegroundRole:
                 if (col == 1)
                 {
-                    if (!gtApp->inDarkMode())
+                    if (!gt::gui::isApplicationDarkTheme())
                     {
                         return gt::gui::color::disabled();
                     }
                 }
+                break;
 
+            case ButtonRole:
+                if (col == 1)
+                {
+                    return QVariant::fromValue(abstractItem);
+                }
                 break;
 
             case Qt::ToolTipRole:
@@ -157,12 +136,9 @@ GtProcessOverviewModel::data(const QModelIndex& index, int role) const
         }
     }
 
-    if (role == CategoryRole)
-    {
-        return false;
-    }
+    if (role == CategoryRole) return false;
 
-    return QVariant();
+    return {};
 }
 
 bool
@@ -173,18 +149,11 @@ GtProcessOverviewModel::setData(const QModelIndex& index,
     {
         GtAbstractProcessItem* pItem = itemFromIndex(index);
 
-        if (!pItem)
-        {
-            return false;
-        }
+        if (!pItem) return false;
 
-        GtProcessCategoryItem* catItem =
-            qobject_cast<GtProcessCategoryItem*>(pItem);
+        auto* catItem = qobject_cast<GtProcessCategoryItem*>(pItem);
 
-        if (!catItem)
-        {
-            return false;
-        }
+        if (!catItem) return false;
 
         catItem->setCollapsed(value.toBool());
         emit dataChanged(index, index);
@@ -211,18 +180,12 @@ GtProcessOverviewModel::index(int row, int col,
 
     GtAbstractProcessItem* parentItem = itemFromIndex(parent);
 
-    if (!parentItem)
-    {
-        return {};
-    }
+    if (!parentItem) return {};
 
-    GtAbstractProcessItem* childItem =
+    auto* childItem =
         parentItem->findDirectChildren<GtAbstractProcessItem*>().value(row);
 
-    if (!childItem)
-    {
-        return {};
-    }
+    if (!childItem) return {};
 
     return createIndex(row, col, childItem);
 }
@@ -230,24 +193,15 @@ GtProcessOverviewModel::index(int row, int col,
 QModelIndex
 GtProcessOverviewModel::parent(const QModelIndex& index) const
 {
-    if (!index.isValid())
-    {
-        return {};
-    }
+    if (!index.isValid()) return {};
 
     GtAbstractProcessItem* childItem = itemFromIndex(index);
 
-    if (!childItem)
-    {
-        return {};
-    }
+    if (!childItem) return {};
 
     GtObject* parentItem = childItem->parentObject();
 
-    if (!parentItem)
-    {
-        return {};
-    }
+    if (!parentItem) return {};
 
     return indexFromItem(qobject_cast<GtAbstractProcessItem*>(parentItem));
 }
@@ -255,15 +209,9 @@ GtProcessOverviewModel::parent(const QModelIndex& index) const
 GtAbstractProcessItem*
 GtProcessOverviewModel::itemFromIndex(const QModelIndex& index) const
 {
-    if (!index.isValid())
-    {
-        return nullptr;
-    }
+    if (!index.isValid()) return nullptr;
 
-    if (index.model() != this)
-    {
-        return nullptr;
-    }
+    if (index.model() != this) return nullptr;
 
     return static_cast<GtAbstractProcessItem*>(index.internalPointer());
 }
@@ -289,10 +237,7 @@ GtProcessOverviewModel::categoryItem(const QString& id)
 QModelIndex
 GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
 {
-    if (!item)
-    {
-        return {};
-    }
+    if (!item) return {};
 
     int row = -1;
 
@@ -302,24 +247,28 @@ GtProcessOverviewModel::indexFromItem(GtAbstractProcessItem* item) const
     }
     else
     {
-        if (item->parent())
-        {
-            row = item->childNumber();
-        }
-        else
-        {
-            gtWarning().medium().nospace()
-                    << __FUNCTION__ << ": " << tr("Object has no parent!");
-            gtWarning().medium() << " |-> obj =" << item->objectName();
-        }
+        row = item->childNumber();
     }
 
     if (row == -1)
     {
-        gtWarning().medium().nospace()
-                << __FUNCTION__ << ": row == -1!";
+        gtWarning().medium().nospace() << __FUNCTION__ << ": row == -1!";
         return {};
     }
 
     return createIndex(row, 0, item);
+}
+
+void
+GtProcessOverviewModel::onButtonClicked(GtAbstractProcessItem* item,
+                                        QPoint const& globalPos)
+{
+    if (!item) return;
+
+    auto infos = processElementInformation(item);
+
+    auto* popup = new GtProcessInfoPopup(infos);
+
+    popup->move(globalPos);
+    popup->show();
 }

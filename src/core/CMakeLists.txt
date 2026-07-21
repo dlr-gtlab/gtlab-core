@@ -84,6 +84,7 @@ set(headers
     gt_saveprojecthelper.h
     gt_session.h
     gt_project.h
+    gt_projectsettings.h 
     settings/gt_settingsitem.h
     settings/gt_abstractsettings.h
     settings/gt_settings.h
@@ -104,6 +105,7 @@ set(headers
     gt_moduleloader.h
     gt_datamodelinterface.h
     gt_command.h
+    gt_moduleupgradeutilities.h
 )
 
 set(hdr_private
@@ -111,11 +113,12 @@ set(hdr_private
   internal/gt_commandlinefunctionhandler.h
   internal/gt_coreupgraderoutines.h
   internal/gt_platformspecifics.h
+  internal/gt_projectio.h
   internal/gt_sharedfunctionhandler.h
 )
 
 set(sources
-   gt_commandlinefunction.cpp
+    gt_commandlinefunction.cpp
     gt_commandlineparser.cpp
     gt_filesystem.cpp
     gt_logmodel.cpp
@@ -125,6 +128,7 @@ set(sources
     internal/gt_commandlinefunctionhandler.cpp
     internal/gt_coreupgraderoutines.cpp
     internal/gt_platformspecifics.cpp
+    internal/gt_projectio.cpp
     internal/gt_sharedfunctionhandler.cpp
     network/gt_accessdata.cpp
     network/gt_accessmanager.cpp
@@ -187,6 +191,7 @@ set(sources
     gt_saveprojecthelper.cpp
     gt_session.cpp
     gt_project.cpp
+    gt_projectsettings.cpp
     settings/gt_settingsitem.cpp
     settings/gt_abstractsettings.cpp
     settings/gt_settings.cpp
@@ -206,6 +211,7 @@ set(sources
     gt_moduleloader.cpp
     gt_command.cpp
     internal/gt_moduleupgrader.cpp
+    gt_moduleupgradeutilities.cpp
 )
 
 set(resources
@@ -215,7 +221,9 @@ set(resources
 add_library(GTlabCore ${headers} ${hdr_private} ${sources} ${resources})
 add_library(GTlab::Core ALIAS GTlabCore)
 
-target_compile_definitions(GTlabCore PRIVATE GT_MODULE_ID="Core" GT_EXEC_ID="Exec")
+target_compile_definitions(GTlabCore
+    PRIVATE GT_MODULE_ID="Core" GT_EXEC_ID="Exec"
+)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabCore PRIVATE GT_CORE_DLL)
@@ -248,8 +256,8 @@ set_target_properties(GTlabCore PROPERTIES
 
 target_link_libraries(GTlabCore
     PUBLIC
-    Qt5::Core
-    Qt5::Network
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Network
     GTlab::DataProcessor
 )
 

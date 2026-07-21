@@ -13,6 +13,8 @@ ColumnLimit: 80
 PointerAlignment: Left
 MaxEmptyLinesToKeep: 2
 
+AllowShortIfStatementsOnASingleLine: WithoutElse
+
 
 # classes
 BreakConstructorInitializers: AfterColon 

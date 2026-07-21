@@ -5,6 +5,3 @@
 [submodule "tests/guitests/testing_resources"]
 	path = tests/guitests/testing_resources
 	url = https://gitlab.dlr.de/at-twk/gui-testing/testing-resources.git
-[submodule "tests/pipeline-scripts"]
-	path = tests/pipeline-scripts
-	url = https://gitlab.dlr.de/gtlab-bugtracking/gitlab-pipeline-scripts.git

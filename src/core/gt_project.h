@@ -19,6 +19,7 @@
 #include "gt_session.h"
 #include "gt_stringproperty.h"
 #include "gt_filesystem.h"
+#include <gt_projectsettings.h>
 
 class QDomDocument;
 class QXmlStreamWriter;
@@ -80,6 +81,7 @@ public:
      * @return True if upgrades are available.
      */
     bool upgradesAvailable() const;
+
 
     /**
      * @brief processData
@@ -183,20 +185,6 @@ public:
     void setComment(const QString& comment);
 
     /**
-     * @brief Returns whether project irregularity warnings are ignored for this
-     * project.
-     * @return True if irregularity warning are ignored.
-     */
-    bool ignoringIrregularities() const;
-
-    /**
-     * @brief Sets whether project irregularities should be ignored for this
-     * project.
-     * @param ignore
-     */
-    void setIgnoreIrregularities(bool ignore);
-
-    /**
      * @brief sets whether externalized objects should be internalized on save
      * @param value true if data should be internalized on save
      */
@@ -222,6 +210,22 @@ public:
      * @brief Triggers upgrade routine of project data.
      */
     void upgradeProjectData();
+
+    /**
+     * @brief Performs a full project upgrade including
+     *
+     *  - Backup
+     *  - Project duplication
+     *  - Data upgrade
+     *
+     *  The project is added to the current session after upgrade
+     *
+     * @param newProjectFilePath The path to store the new project. If empty,
+     *                           a backup is created and the project
+     *                           will be overwritten.
+     * @return True on success
+     */
+    bool upgradeProject(const QString &newProjectFilePath);
 
     /**
      * @brief Generates a backup of all relevant project data. the backup is
@@ -281,6 +285,18 @@ public:
      */
     static const QString moduleExtension();
 
+    /**
+     * @brief Read-only getter to the project settings
+     */
+    const GtProjectSettings& getProjectSettings() const;
+
+    /**
+     * @brief Returns a modifiable reference to the project settings.
+     *
+     * Use this to change the current project settings.
+     */
+    GtProjectSettings& projectSettings();
+
 protected:
     /**
      * @brief Constructor
@@ -306,6 +322,8 @@ private:
 
     /// Whether to internalize all external data when saving
     bool m_internalizeOnSave{false};
+
+    GtProjectSettings m_projectSettings;
 
     /// List of all project module ids
     QStringList m_moduleIds;
@@ -431,7 +449,6 @@ private:
      * @param modIds Module identification strings.
      */
     void updateModuleFootprint(const QStringList &modIds);
-
 };
 
 namespace gt {
@@ -462,6 +479,7 @@ GT_CORE_EXPORT
 filesystem::CopyStatus copyProjectData(const QDir& srcPath,
                 const QDir& targetPath,
                 int copyProjectFlags);
+
 
 } // namespace project
 

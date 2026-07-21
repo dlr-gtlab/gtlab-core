@@ -56,7 +56,14 @@ GtObjectPathProperty::linkedObject(GtObject* root)
 
     if (!rootObject)
     {
-        rootObject = object()->findRoot<GtObject*>(object());
+        GtObject* owningObject = object();
+
+        if (!owningObject)
+        {
+            return nullptr;
+        }
+
+        rootObject = owningObject->findRoot<GtObject*>(owningObject);
     }
 
     if (!rootObject)

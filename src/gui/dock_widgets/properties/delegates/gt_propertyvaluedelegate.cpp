@@ -14,6 +14,7 @@
 #include "gt_propertyvaluedelegate.h"
 #include "gt_propertytreeview.h"
 #include "gt_abstractpropertyitem.h"
+#include "gt_qtutilities.h"
 
 GtPropertyValueDelegate::GtPropertyValueDelegate(GtPropertyTreeView* parent) :
     QStyledItemDelegate(parent),
@@ -79,7 +80,7 @@ QString
 GtPropertyValueDelegate::displayText(const QVariant& value,
                                      const QLocale& locale) const
 {
-    if (value.type() == QVariant::Double)
+    if (gt::metaTypeId(value) == QMetaType::Double)
     {
         return value.toString();
     }

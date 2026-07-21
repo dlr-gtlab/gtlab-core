@@ -141,10 +141,9 @@ GtProcessConnectionItem::data(int column, int role)
                     }
 
                     auto iter = m_container->findEntry(m_containerEntry->ident());
-
+                    // cppcheck-suppress assertWithSideEffect
                     assert(iter != m_container->end());
-
-                    return QStringLiteral("[%1]").arg(std::distance(m_container->begin(), iter));
+                    return m_container->entryDisplayName(iter);
                 }
 
                 if (!m_property)

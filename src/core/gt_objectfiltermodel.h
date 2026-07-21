@@ -16,6 +16,8 @@
 
 #include "gt_treefiltermodel.h"
 
+#include <QSet>
+
 /**
  * @brief The GtObjectFilterModel class
  */
@@ -56,6 +58,9 @@ protected:
 private:
     /// Filter data.
     QStringList m_filterData;
+
+    /// Hashed lookup for allowed class names.
+    QSet<QString> m_filterLookup;
 
     /**
      * @brief acceptRow

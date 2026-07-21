@@ -15,7 +15,8 @@ project(GTlabUnittests)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-if (NOT TARGET Qt5::Core)
+if (NOT TARGET Qt::Core)
+    # Todo version agnostic qt version search
     find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 endif()
 
@@ -34,6 +35,7 @@ FILE (GLOB_RECURSE TP_SRCS thirdparty/*.cpp thirdparty/*.h)
 FILE (GLOB_RECURSE EXP_SRCS exporter/*.cpp exporter/*.h)
 FILE (GLOB_RECURSE MDI_SRCS mdi/*.cpp mdi/*.h)
 FILE (GLOB_RECURSE GUI_SRCS gui/*.cpp gui/*.h)
+FILE (GLOB_RECURSE NET_SRCS network/*.cpp network/*.h)
 
 set(SOURCES
     ${DM_SRCS}
@@ -43,6 +45,7 @@ set(SOURCES
     ${EXP_SRCS}
     ${MDI_SRCS}
     ${GUI_SRCS}
+    ${NET_SRCS}
 )
 
 set (SOURCES 
@@ -62,8 +65,8 @@ target_link_libraries(GTlabUnitTest PRIVATE
     GTlab::Gui
     GTlab::DataProcessor
     gtest
+    gmock
     mpark::variant
-    tl::optional
 )
 
 include(GoogleTest)

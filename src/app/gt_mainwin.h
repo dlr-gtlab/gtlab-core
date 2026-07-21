@@ -22,7 +22,6 @@ namespace Ui
 class GtMainWin;
 }
 
-class QSignalMapper;
 class GtProject;
 class GtCornerWidget;
 class GtAbstractLoadingHelper;
@@ -85,12 +84,6 @@ protected:
 private:
     /// UI Form
     Ui::GtMainWin* ui;
-
-    /// Session mapper
-    QSignalMapper* m_switchSessionMapper;
-
-    /// Perspectrive mapper
-    QSignalMapper* m_switchPerspectiveMapper;
 
     /// Corner widget
     GtCornerWidget* m_cornerWidget;
@@ -186,19 +179,9 @@ private slots:
     void updatePerspectiveList();
 
     /**
-     * @brief openMapEditor
-     */
-    void openMapEditor();
-
-    /**
      * @brief openMementoViewer
      */
     void openMementoViewer();
-
-    /**
-     * @brief Just a test method
-     */
-    void openPreDesignPlot();
 
     /**
      * @brief openSessionViewer

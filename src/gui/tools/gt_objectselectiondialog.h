@@ -52,6 +52,8 @@ public:
     GtObject* currentObject();
 
 private:
+    void applyDefaultExpansion();
+
     /// Root object.
     QPointer<GtObject> m_root;
 
@@ -66,6 +68,7 @@ private:
 
     /// Tree view.
     GtTreeView* m_treeView;
+
 
 private slots:
     /**

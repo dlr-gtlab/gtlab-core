@@ -52,7 +52,11 @@ GtFilteredLogModel::filterFatalLevel(bool val)
 void
 GtFilteredLogModel::filterData(const QString& val)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     setFilterRegExp(val);
+#else
+    setFilterRegularExpression(val);
+#endif
     invalidate();
 }
 

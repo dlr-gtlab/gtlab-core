@@ -16,10 +16,10 @@
 
 #include <QVector>
 #include <QRandomGenerator>
+#include <QStringList>
 
 class QDir;
 class QString;
-class QStringList;
 
 class GtTestHelper
 {

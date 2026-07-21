@@ -93,7 +93,7 @@ static QPushButton* setupActionButton(QLayout* layout,
 template<typename Reciever, typename Signal>
 static QPushButton* setupToggleButton(QLayout* layout,
                                       GtObject* guardian,
-                                      QIcon const& icon,
+                                      gt::gui::Icon const& icon,
                                       QString const& type,
                                       QString const& tooltip,
                                       Reciever reciever,
@@ -395,12 +395,12 @@ GtOutputDock::GtOutputDock()
 
     defaultLayout->addLayout(filterLayout);
 
-    registerShortCut("toggleTraceOutput", QKeySequence(Qt::CTRL + Qt::Key_T));
-    registerShortCut("toggleDebugOutput", QKeySequence(Qt::CTRL + Qt::Key_D));
-    registerShortCut("toggleInfoOutput", QKeySequence(Qt::CTRL + Qt::Key_I));
-    registerShortCut("toggleWarningOutput", QKeySequence(Qt::CTRL + Qt::Key_W));
-    registerShortCut("toggleErrorOutput", QKeySequence(Qt::CTRL + Qt::Key_E));
-    registerShortCut("clearOutput", QKeySequence(Qt::CTRL + Qt::Key_L));
+    registerShortCut("toggleTraceOutput", QKeySequence(Qt::CTRL | Qt::Key_T));
+    registerShortCut("toggleDebugOutput", QKeySequence(Qt::CTRL | Qt::Key_D));
+    registerShortCut("toggleInfoOutput", QKeySequence(Qt::CTRL | Qt::Key_I));
+    registerShortCut("toggleWarningOutput", QKeySequence(Qt::CTRL | Qt::Key_W));
+    registerShortCut("toggleErrorOutput", QKeySequence(Qt::CTRL | Qt::Key_E));
+    registerShortCut("clearOutput", QKeySequence(Qt::CTRL | Qt::Key_L));
 
     m_logView->verticalHeader()->hide();
 
@@ -416,7 +416,9 @@ GtOutputDock::GtOutputDock()
 
     // other connections
     connect(gtLogModel, &GtLogModel::rowsInserted,
-            this, &GtOutputDock::onRowsInserted);
+            this, [this](QModelIndex const& parent, int start, int end){
+        onRowsInserted(start, end);
+    });
     connect(gtLogModel, &GtLogModel::rowsRemoved,
             this, &GtOutputDock::onRowsRemoved);
     connect(m_model, &GtFilteredLogModel::modelReset,
@@ -546,8 +548,14 @@ GtOutputDock::scrollToBottom()
 }
 
 void
-GtOutputDock::onRowsInserted()
+GtOutputDock::onRowsInserted(int start, int last)
 {
+    assert(start < (last + 1));
+    for (auto idx : gt::range(start, last + 1))
+    {
+        m_logView->resizeRowToContents(idx);
+    }
+
     scrollToBottom();
 }
 

@@ -15,6 +15,7 @@
 #include "gt_datamodel_exports.h"
 
 #include "gt_property.h"
+#include "gt_boundaries.h"
 
 /**
  * @brief The GtDoubleProperty class
@@ -73,6 +74,7 @@ public:
      * @param highSideBoundary
      * @param value
      */
+    [[deprecated("Use function with GtDoubleProperty::Boundaries definition instead")]]
     GtDoubleProperty(const QString& ident,
                      const QString& name,
                      const QString& brief,
@@ -91,12 +93,29 @@ public:
      * @param boundary
      * @param value
      */
+    [[deprecated("Use function with GtDoubleProperty::Boundaries definition instead")]]
     GtDoubleProperty(const QString& ident,
                      const QString& name,
                      const QString& brief,
                      const GtUnit::Category& unitCategory,
                      GtDoubleProperty::BoundType boundType,
                      const double boundary,
+                     const double& value = 0.0);
+
+    /**
+     * @brief GtDoubleProperty
+     * @param ident
+     * @param name
+     * @param brief
+     * @param unitCategory
+     * @param bounds
+     * @param value
+     */
+    GtDoubleProperty(const QString& ident,
+                     const QString& name,
+                     const QString& brief,
+                     const GtUnit::Category& unitCategory,
+                     gt::Boundaries<double> bounds,
                      const double& value = 0.0);
 
     // operator overloads
@@ -141,6 +160,18 @@ public:
      * @return
      */
     double initialValue() const;
+
+    /**
+     * @brief lowBoundActive
+     * @return true if low bound value for the property is active
+     */
+    bool lowSideBoundaryActive() const;
+
+    /**
+     * @brief highBoundActive
+     * @return true if high bound value for the property is active
+     */
+    bool highSideBoundaryActive() const;
 
 protected:
     /// Perform low boundary check flag (true=perform check)
@@ -192,6 +223,37 @@ namespace gt
  */
 GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeDoubleProperty(double value);
+
+/**
+ * @brief Creates a property factory for doubles with a default value and a unit
+ * @param name - name in the GUI
+ * @param brief - description for tool tip in GUI
+ * @param unitCategory - category for the GTlab unit system
+ * @param value Default - value
+ * @return function factory for usage in container definitions
+ */
+GT_DATAMODEL_EXPORT
+    gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
+                       const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       const double& value = 0.0);
+
+/**
+ * @brief Creates a property factory for doubles with a default value, a unit
+ * and a low and high side boundary
+ * @param name - name in the GUI
+ * @param brief - description for tool tip in GUI
+ * @param unitCategory - category for the GTlab unit system
+ * @param boundaries - The numeric boundaries allowed for `:value`
+ * @param value Default - value
+ * @return function factory for usage in container definitions
+ */
+GT_DATAMODEL_EXPORT
+gt::PropertyFactoryFunction makeDoubleProperty(const QString& name,
+                       const QString& brief,
+                       const GtUnit::Category& unitCategory,
+                       gt::Boundaries<double> boundaries,
+                       const double& value = 0.0);
 
 } // namespace gt
 

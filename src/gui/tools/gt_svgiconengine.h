@@ -144,11 +144,15 @@ public:
      */
     QIconEngine* clone() const override { return new GtSvgIconEngine(*this); }
 
+    // @TODO: Do we need to return the icon path?
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     /**
      * @brief Returns the current icon name (path)
      * @return Icon path
      */
     QString iconName() const override { return m_file; }
+#endif
 
     /**
      * @brief Returns the svg data

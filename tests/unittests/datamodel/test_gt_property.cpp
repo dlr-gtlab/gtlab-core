@@ -75,3 +75,24 @@ TEST(TestGtProperty, makeComplexProperty)
     EXPECT_TRUE(hiddenProp->isHidden());
     EXPECT_TRUE(hiddenProp->isReadOnly());
 }
+
+TEST(TestGtProperty, categoryString)
+{
+    auto factory = gt::makeBoolProperty(true);
+    std::unique_ptr<GtAbstractProperty> boolProp(factory("bla"));
+
+    /// check default category
+    EXPECT_STREQ(boolProp->categoryString().toStdString().c_str(), "Main");
+
+    EXPECT_TRUE(boolProp->category() ==
+                GtAbstractProperty::PropertyCategory::Main);
+
+    boolProp->setCategory("MyFancyCategory");
+
+    /// check identical result in deprecated function
+    EXPECT_STREQ(boolProp->categoryString().toStdString().c_str(),
+                 "MyFancyCategory");
+
+    EXPECT_TRUE(boolProp->category() ==
+                GtAbstractProperty::PropertyCategory::Custom);
+}

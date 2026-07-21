@@ -11,6 +11,7 @@
 
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
+#include <QRegExp>
 
 class GT_GUI_EXPORT GtXmlHighlighter : public QSyntaxHighlighter
 {

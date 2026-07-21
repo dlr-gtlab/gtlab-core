@@ -41,7 +41,7 @@
 #include "gt_confirmdeleteprojectdialog.h"
 #include "gt_saveprojectmessagebox.h"
 #include "gt_switchprojectmessagebox.h"
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 #include "gt_inputdialog.h"
 #include "gt_footprint.h"
 #include "gt_versionnumber.h"
@@ -349,7 +349,14 @@ GtProjectUI::switchToProject(GtProject& toProject)
 void
 GtProjectUI::openProject(GtObject* obj)
 {
-    if (gt::currentProcessExecutor().taskCurrentlyRunning())
+    auto project = qobject_cast<GtProject*>(obj);
+
+    if (!project)
+    {
+        return;
+    }
+
+    if (gt::currentProcessExecutor().taskCurrentlyRunning() && !project->isOpen())
     {
         QMessageBox mb;
         mb.setIcon(QMessageBox::Information);
@@ -359,13 +366,6 @@ GtProjectUI::openProject(GtObject* obj)
         mb.setStandardButtons(QMessageBox::Ok);
         mb.setDefaultButton(QMessageBox::Ok);
         mb.exec();
-        return;
-    }
-
-    auto project = qobject_cast<GtProject*>(obj);
-
-    if (!project)
-    {
         return;
     }
 
@@ -1191,6 +1191,7 @@ GtProjectUI::renameProject(GtObject* obj)
     auto project = qobject_cast<GtProject*>(obj);
 
     assert(project);
+    // cppcheck-suppress assertWithSideEffect
     assert(gtApp->session());
 
     GtInputDialog dialog;
@@ -1203,8 +1204,8 @@ GtProjectUI::renameProject(GtObject* obj)
                            "\n\nNew project name:"));
     dialog.setInitialTextValue(project->objectName());
 
-    QValidator* validator = new QRegExpValidator(
-                                gt::re::onlyLettersAndNumbersAndSpace(),
+    QValidator* validator = new QRegularExpressionValidator(
+                                gt::rex::onlyLettersAndNumbersAndSpace(),
                                 &dialog);
     dialog.setTextValidator(validator);
 
@@ -1228,7 +1229,7 @@ GtProjectUI::renameProject(GtObject* obj)
         ok = false;
     }
 
-    if (!gt::re::onlyLettersAndNumbersAndSpace().exactMatch(text))
+    if (!gt::rex::exactMatch(gt::rex::onlyLettersAndNumbersAndSpace(), text))
     {
         ok = false;
     }
@@ -1485,45 +1486,18 @@ GtProjectUI::upgradeProjectData(GtObject* obj)
 
     if (dialog.exec())
     {
-        if (dialog.overwriteExistingDataAllowed())
+        bool overwrite = dialog.overwriteExistingDataAllowed();
+        QString projectPath = overwrite ? project->path()
+                                        : dialog.newProjectPath();
+
+        project->upgradeProject(projectPath);
+
+        if (overwrite)
         {
-            gtDebug() << "backup and overwriting project data...";
-
-            // upgrade project data in separate thread
-            gtApp->loadingProcedure(gt::makeLoadingHelper([&project]() {
-                project->createBackup();
-                project->upgradeProjectData();
-            }).get());
-
             gtDataModel->openProject(project);
             gtApp->setCurrentProject(project);
         }
-        else
-        {
-            gtDebug() << "upgrading data as new project...";
-            gtDebug() << "  |-> " << dialog.newProjectName();
-            gtDebug() << "  |-> " << dialog.newProjectPath();
 
-            auto newProject = GtProjectProvider::duplicateExistingProject(
-                QDir(project->path()),
-                QDir(dialog.newProjectPath()),
-                dialog.newProjectName()
-            );
-
-            if (!newProject)
-            {
-                gtError() << "Could not save project to new directory";
-                return;
-            }
-
-            // upgrade project data in separate thread
-            gtApp->loadingProcedure(gt::makeLoadingHelper([&newProject]() {
-                newProject->upgradeProjectData();
-            }).get());
-
-            // append to session but don't open
-            gtDataModel->newProject(newProject.release(), false);
-        }
     }
 }
 
@@ -1798,6 +1772,9 @@ GtProjectUI::restoreBackup(GtObject *obj)
 
         if (success && initialOpenProject)
         {
+            // update module metadata since the project might contain
+            // different packages in the backup
+            project->loadMetaData();
             success = gtDataModel->openProject(project);
         }
 

@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QNetworkAccessManager>
 #include <QDataStream>
+#include <QFileInfo>
 
 #include <algorithm>
 
@@ -42,10 +43,7 @@ GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
         return false;
     }
 
-    QString path = roamingPath() + QDir::separator() +
-                   QStringLiteral("access");
-
-    QDir dir(path);
+    QDir dir(accessDataDirPath());
 
     if (!dir.exists())
     {
@@ -58,12 +56,10 @@ GtAccessManager::loadAccessData(GtAccessGroup* accessGroup)
         return false;
     }
 
-    QString id = accessGroup->objectName().replace(QStringLiteral(" "),
-                                                   QStringLiteral("_"));
-    id = id.toLower();
-    QString filename = id + QStringLiteral(".gtacc");
+    QFileInfo fileInfo(accessDataFilePath(accessGroup->objectName()));
+    QString filename = fileInfo.fileName();
 
-    QFile file(dir.absoluteFilePath(filename));
+    QFile file(fileInfo.filePath());
 
     if (!file.exists())
     {
@@ -132,6 +128,23 @@ GtAccessManager::roamingPath() const
 #endif
     return QStandardPaths::writableLocation(
                QStandardPaths::GenericConfigLocation);
+}
+
+QString
+GtAccessManager::accessDataDirPath() const
+{
+    return roamingPath() + QDir::separator() + QStringLiteral("access");
+}
+
+QString
+GtAccessManager::accessDataFilePath(const QString& id) const
+{
+    QString normalizedId = id;
+    normalizedId.replace(QStringLiteral(" "), QStringLiteral("_"));
+    normalizedId = normalizedId.toLower();
+
+    return accessDataDirPath() + QDir::separator() + normalizedId +
+           QStringLiteral(".gtacc");
 }
 
 GtAccessManager*
@@ -210,8 +223,7 @@ GtAccessManager::accessGroups() const
 bool
 GtAccessManager::saveAccessData() const
 {
-    QString path = roamingPath() + QDir::separator() +
-                   QStringLiteral("access");
+    QString path = accessDataDirPath();
 
     QDir dir(path);
 
@@ -234,12 +246,10 @@ GtAccessManager::saveAccessData() const
             continue;
         }
 
-        QString id = group->objectName().replace(QStringLiteral(" "),
-                                                 QStringLiteral("_"));
-        id = id.toLower();
-        QString filename = id + QStringLiteral(".gtacc");
+        QFileInfo fileInfo(accessDataFilePath(group->objectName()));
+        QString filename = fileInfo.fileName();
 
-        QFile file(dir.absoluteFilePath(filename));
+        QFile file(fileInfo.filePath());
 
         if (file.exists())
         {

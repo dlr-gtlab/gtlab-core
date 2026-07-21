@@ -34,7 +34,8 @@ class GtTaskGroup::Impl
 public:
     std::reference_wrapper<GtTaskGroup> _pub;
 
-    int _initialized = false;
+    GtBoolProperty _initialized{"initialized", tr("initialized"),
+                tr("Task Group is initialized."), false};
 
     explicit Impl (GtTaskGroup& pub) : _pub(pub) { }
 
@@ -62,12 +63,23 @@ public:
 
 };
 
-GtTaskGroup::GtTaskGroup(const QString& id) :
-    m_pimpl{std::make_unique<Impl>(*this)}
+GtTaskGroup::GtTaskGroup() : m_pimpl{std::make_unique<Impl>(*this)}
+{
+    setFactory(gtObjectFactory);
+
+    m_pimpl->_initialized.hide();
+    registerProperty(m_pimpl->_initialized);
+}
+
+GtTaskGroup::GtTaskGroup(const QString& id) : GtTaskGroup()
 {
     setObjectName(id);
+}
 
-    setFactory(gtObjectFactory);
+GtTaskGroup::GtTaskGroup(const QString& id, bool initialized) :
+    GtTaskGroup(id)
+{
+    m_pimpl->_initialized = initialized;
 }
 
 GtTaskGroup::~GtTaskGroup() = default;
@@ -93,9 +105,6 @@ GtTaskGroup::read(const QString& projectPath,
     {
         // index file not found. empty or new task group
         m_pimpl-> _initialized = true;
-
-        // init folder structure
-        this->save(projectPath, scope);
         return true;
     }
 
@@ -170,13 +179,29 @@ GtTaskGroup::save(const QString& projectPath,
         return false;
     }
 
+    QString groupPath = m_pimpl->path(projectPath, scope);
+    assert(!groupPath.isEmpty());
+
+    // get the list of the existing task files
+    QStringList taskFilesToRemove = QDir{groupPath}.entryList(QDir::Files);
+    taskFilesToRemove.removeOne(S_INDEX_FILE_NAME);
+
     // externalize tasks
-    for (const GtTask* task : findDirectChildren<GtTask*>())
+    const auto& tasks = findDirectChildren<GtTask*>();
+    for (const GtTask* task : tasks)
     {
         if (!m_pimpl->saveTaskToFile(task, m_pimpl->path(projectPath, scope)))
         {
             return false;
         }
+
+        taskFilesToRemove.removeOne(task->uuid() + S_TASK_FILE_EXT);
+    }
+
+    // remove task files that are no longer known by the task group
+    for (const auto& fileName : qAsConst(taskFilesToRemove))
+    {
+        QFile{groupPath + QDir::separator() + fileName}.remove();
     }
 
     // final step: update index file
@@ -220,12 +245,9 @@ GtTaskGroup::defaultUserGroupId()
 }
 
 QString
-GtTaskGroup::groupPath(const QString& projectPath,
-                       const SCOPE scope,
-                       const QString& groupId)
+GtTaskGroup::scopePath(const QString& projectPath,
+                       const SCOPE scope)
 {
-    QString retval = projectPath + QDir::separator() + "tasks";
-
     QString scopeId = GtTaskGroup::scopeId(scope);
 
     if (scopeId.isEmpty())
@@ -234,9 +256,23 @@ GtTaskGroup::groupPath(const QString& projectPath,
         return {};
     }
 
-    retval += QDir::separator() + scopeId + QDir::separator() + groupId;
+    return projectPath + QDir::separator() + "tasks" +
+            QDir::separator() + scopeId;
+}
 
-    return retval;
+QString
+GtTaskGroup::groupPath(const QString& projectPath,
+                       const SCOPE scope,
+                       const QString& groupId)
+{
+    QString scopePath = GtTaskGroup::scopePath(projectPath, scope);
+
+    if (scopePath.isEmpty())
+    {
+        return {};
+    }
+
+    return scopePath + QDir::separator() + groupId;
 }
 
 bool
@@ -506,7 +542,7 @@ GtTaskGroup::Impl::saveTaskToFile(const GtTask* task, const QString& groupPath) 
     QDomDocument doc;
     doc.setContent(task->toMemento().toByteArray());
 
-    if (!gt::xml::writeDomDocumentToFile(taskFile, doc, false))
+    if (!gt::xml::writeDomDocumentToFile(taskFile, doc, true))
     {
         gtError() << QObject::tr("Could not open file (%1)").arg(taskFile);
         return false;

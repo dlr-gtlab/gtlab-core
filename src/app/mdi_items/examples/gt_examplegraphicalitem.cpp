@@ -17,9 +17,9 @@
 #include <QLabel>
 #include <QFile>
 
-#include "gt_application.h"
 #include "gt_examplesentry.h"
 #include "gt_dialog.h"
+#include "gt_guiutilities.h"
 #include "gt_logging.h"
 #include "gt_icons.h"
 
@@ -53,7 +53,7 @@ GtExampleGraphicalItem::GtExampleGraphicalItem(GtExamplesEntry data,
 
     m_picFrame = new QFrame;
 
-    if (gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
         m_picFrame->setStyleSheet(
                     "QWidget { border: 1px solid gray;"
@@ -136,7 +136,11 @@ GtExampleGraphicalItem::mousePressEvent(QMouseEvent* event)
 }
 
 void
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 GtExampleGraphicalItem::enterEvent(QEvent* event)
+#else
+GtExampleGraphicalItem::enterEvent(QEnterEvent* event)
+#endif
 {
     setAutoFillBackground(true);
 

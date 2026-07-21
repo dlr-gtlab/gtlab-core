@@ -31,9 +31,11 @@ Collections/
 modules/
 !tests/build/
 !tests/modules/
+!docs/modules
 install/
 src/gui/_resources_qml_qml_qmlcache.qrc
 
 # these will be automatically generated
 docs/doxygen
 docs/html
+docs/user/html/

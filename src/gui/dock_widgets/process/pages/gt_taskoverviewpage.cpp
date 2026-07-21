@@ -61,10 +61,17 @@ GtTaskOverviewPage::GtTaskOverviewPage(GtProcessWizard* parent) :
 
     connect(m_view, SIGNAL(searchRequest()), searchWidget,
             SLOT(enableSearch()));
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     connect(searchWidget, SIGNAL(textEdited(QString)),
             m_view->filterModel(), SLOT(setFilterRegExp(QString)));
     connect(searchWidget, SIGNAL(textChanged(QString)),
             m_view->filterModel(), SLOT(setFilterRegExp(QString)));
+#else
+    connect(searchWidget, SIGNAL(textEdited(QString)),
+            m_view->filterModel(), SLOT(setFilterRegularExpression(QString)));
+    connect(searchWidget, SIGNAL(textChanged(QString)),
+            m_view->filterModel(), SLOT(setFilterRegularExpression(QString)));
+#endif
     connect(m_view->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             SIGNAL(completeChanged()));

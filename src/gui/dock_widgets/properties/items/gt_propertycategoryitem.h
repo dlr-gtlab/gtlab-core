@@ -55,12 +55,21 @@ public:
     bool isContainer() const;
 
     bool isReadOnly() const;
+    
+    bool isCollapsed() const;
 
     /**
      * @brief categoryId
      * @return
      */
     const QString& categoryId() const;
+
+    /**
+     * @brief The text to display in the GUI
+     *        omittung collapse and priority status
+     * @return
+     */
+    QString displayName() const;
 
     /**
      * @brief data

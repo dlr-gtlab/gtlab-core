@@ -10,119 +10,49 @@
  */
 
 #include "gt_regexp.h"
-#include <QObject>
+#include "gt_regularexpression.h"
 
-QRegExp
-gt::re::woUmlauts()
+void
+gt::re::restrictRegExpWithObjectNames(const QStringList& namesToProhibit,
+                                      QRegExp& defaultRegExp)
 {
-    return QRegExp(("[^äöüßÄÖÜ]*"));
+    QString forbiddenPattern = "(?!";
+    for (int i = 0; i < namesToProhibit.size(); ++i)
+    {
+        forbiddenPattern += namesToProhibit[i] + "$";
+        if (i < namesToProhibit.size() - 1)
+        {
+            forbiddenPattern += "|";
+        }
+    }
+    forbiddenPattern += ")";
+
+    // Ergänze die verbotenen Wörter zur Basis-Regex
+    QString finalPattern = "^" + forbiddenPattern
+                           + defaultRegExp.pattern() + "$";
+
+    defaultRegExp = QRegExp(finalPattern);
 }
 
 QRegExp
-gt::re::umlauts()
+gt::re_deprecated::toRegExp(const QRegularExpression &re)
 {
-    return QRegExp(("[äöüßÄÖÜ]"));
+    QRegExp legacy(re.pattern());
+
+    if (re.patternOptions() & QRegularExpression::CaseInsensitiveOption)
+    {
+        legacy.setCaseSensitivity(Qt::CaseInsensitive);
+    }
+    else
+    {
+        legacy.setCaseSensitivity(Qt::CaseSensitive);
+    }
+
+    // Enable minimal matching if set
+    if (re.patternOptions() & QRegularExpression::InvertedGreedinessOption)
+    {
+        legacy.setMinimal(true);
+    }
+
+    return legacy;
 }
-
-QRegExp
-gt::re::umlautsAndSpecialChar()
-{
-    return QRegExp(("[äöüßÄÖÜ\\.\\:\\,\\;\\#\\?\\+\\~\\*\\/"
-                    "\\&\\%\\$\\§\\!\"\\{\\}\\=\\`\\´\\'\\°\\^]"));
-}
-
-QRegExp
-gt::re::onlyLetters()
-{
-    return QRegExp(("[A-Za-z]+"));
-}
-
-QString
-gt::re::onlyLettersHint()
-{
-    return QObject::tr("Only letters are allowed");
-}
-
-QRegExp
-gt::re::onlyLettersAndNumbers()
-{
-    return QRegExp(("[A-Za-z0-9\\_\\-\\[\\]]+"));
-}
-
-QString
-gt::re::onlyLettersAndNumbersHint()
-{
-    return QObject::tr("Only letters and numbers are allowed");
-}
-
-QRegExp
-gt::re::onlyLettersAndNumbersAndDot()
-{
-    return QRegExp(("[A-Za-z0-9\\.\\_\\-\\[\\]]+"));
-}
-
-QString
-gt::re::onlyLettersAndNumbersAndDotHint()
-{
-    return QObject::tr("Only letters, numbers, dots, hyphen and underscore are allowed");
-}
-
-QRegExp
-gt::re::onlyLettersAndNumbersAndSpace()
-{
-    return QRegExp(("[A-Za-z0-9\\_\\-\\[\\]\\s\\␣]+"));
-}
-
-QString
-gt::re::onlyLettersAndNumbersAndSpaceHint()
-{
-    return QObject::tr("Only letters, numbers, space, hyphen and underscore are allowed");
-}
-
-QRegExp
-gt::re::forUnits()
-{
-    return QRegExp(("[A-Za-z0-9\\_\\-\\+\\^\\°\\%\\/]*"));
-}
-
-QRegExp
-gt::re::forExpressions()
-{
-    return QRegExp(("[A-Za-z0-9\\_\\-\\+\\^\\°\\/\\*\\.\\,\\(\\)\\[\\]]*"));
-}
-
-QRegExp
-gt::re::forStations()
-{
-    return QRegExp(("S[0-9]{1,3}"));
-}
-
-QRegExp
-gt::re::forDoubles()
-{
-    return QRegExp(("-?[0-9]+.*[E,e]?-?[0-9]*"));
-}
-
-QRegExp
-gt::re::forDoublesLists()
-{
-    return QRegExp(("[eE0-9\\-\\.\\;]+"));
-}
-
-QRegExp
-gt::re::forSemVers()
-{
-    return QRegExp(R"((0|[1-9]\d*)(\.(0|[1-9]\d*)(\.(0|[1-9]\d*))?)?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))"
-                                         R"((?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)");
-}
-
-const QRegExp&
-gt::re::forFileDialogFilters()
-{
-    static auto r = QRegExp(R"(([a-z,A-Z,0-9,_,-]+)" // check for a string
-                            R"([\s]*[(][a-z,A-Z,0-9,_,-,*,?,.]+)" // check for space + (string string)
-                            R"(([\s]+[a-z,A-Z,0-9,_,-,*,?,.]+)*[)]))");
-
-    return r;
-}
-

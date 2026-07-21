@@ -47,6 +47,9 @@ GtExportToMementoCalculator::GtExportToMementoCalculator() :
     m_fileMode.registerSubProperty(m_relativeToProjectFileMode);
 
     registerProperty(m_fileMode);
+
+    // hide label
+    hideLabelProperty(true);
 }
 
 bool

@@ -11,6 +11,8 @@
 
 #include "gt_doublelistproperty.h"
 
+#include <QSequentialIterable>
+
 GtDoubleListProperty::GtDoubleListProperty(const QString& ident,
         const QString& name)
 {

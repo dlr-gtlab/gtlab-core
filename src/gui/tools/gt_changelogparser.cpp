@@ -13,7 +13,7 @@
 #include <QRegularExpressionMatch>
 #include <QRegularExpression>
 
-#include "gt_regexp.h"
+#include "gt_regularexpression.h"
 
 GtChangeLogParser::GtChangeLogParser(const QString& fileContent)
 {
@@ -117,7 +117,8 @@ GtChangeLogParser::releaseNumberOccurances(const QString& fileContent)
 {
     /// finds expression for versionnumber
     /// including its formatting for maarkdown
-    QRegExp e("##\\s\\[([0-9].){1,3}");
+    /// @TODO: check valid
+    static QRegularExpression e("##\\s\\[([0-9].){1,3}");
 
     QList<int> retVal;
     int i = 0;
@@ -150,7 +151,7 @@ GtChangeLogEntry::versionFromMD(const QString& content)
     /// to find the version number exactly
     /// to get the GtVersionnumber based on it.
     static QRegularExpression e(QString(R"(\[(%1)\])")
-                                    .arg(gt::re::forSemVers().pattern()));
+                                    .arg(gt::rex::forSemVers().pattern()));
 
     QRegularExpressionMatch match = e.match(content);
     if (match.hasMatch())

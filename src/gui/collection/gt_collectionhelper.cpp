@@ -13,6 +13,7 @@
 #include <QTimer>
 #include <QEventLoop>
 #include <QJsonDocument>
+#include <QRegularExpression>
 
 #include "gt_logging.h"
 
@@ -106,8 +107,10 @@ void
 GtCollectionHelper::processListData(const QByteArray& byteArray,
                                     QUrl url)
 {
+    static QRegularExpression newLinesRE(QStringLiteral("[\r\n]"));
+
     QString str = byteArray;
-    QStringList urls = str.split(QRegExp(QStringLiteral("[\r\n]")),
+    QStringList urls = str.split(newLinesRE,
                                  Qt::SkipEmptyParts);
 
     url.setUrl(url.toDisplayString().remove(QStringLiteral("index.dat")));

@@ -17,6 +17,8 @@ GtAbstractObjectFactory::GtAbstractObjectFactory(bool silent) : m_silent(silent)
 {
 }
 
+GtAbstractObjectFactory::~GtAbstractObjectFactory() = default;
+
 GtObject*
 GtAbstractObjectFactory::newObject(const QString& className, GtObject* parent)
 {

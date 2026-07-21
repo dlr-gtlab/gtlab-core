@@ -1,126 +1,241 @@
 /* GTlab - Gas Turbine laboratory
  *
  * SPDX-License-Identifier: MPL-2.0+
- * SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
- * Source File: test_gt_accessmanager
- *
- *  Created on: 18.03.2016
- *  Author: Stanislaus Reitenbach (AT-TW)
- *  Tel.: +49 2203 601 2907
+ * SPDX-FileCopyrightText: 2026 German Aerospace Center (DLR)
+ * Source File: test_gt_accessmanager.cpp
  */
 
 #include "gtest/gtest.h"
 
-#include <QUrl>
-
+#include "gt_accessgroup.h"
 #include "gt_accessmanager.h"
 
-/// This is a test fixture that does a init for each test
+#include <QDataStream>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QNetworkAccessManager>
+#include <QTemporaryDir>
+#include <QUuid>
+
+#include <memory>
+
 class TestGtAccessManager : public ::testing::Test
 {
 protected:
-    virtual void SetUp()
+    static void SetUpTestSuite()
     {
-        manager = new GtAccessManager("Test Manager");
+        configDir = std::make_unique<QTemporaryDir>();
+        ASSERT_TRUE(configDir->isValid());
 
-        host = "198.167.0.1";
-        port = 22;
-        user = "test_user";
-        pw = "my_password";
+        previousConfigHome = qgetenv("XDG_CONFIG_HOME");
+        qputenv("XDG_CONFIG_HOME", configDir->path().toUtf8());
+
+#ifdef _WIN32
+        previousAppData = qgetenv("APPDATA");
+        qputenv("APPDATA", configDir->path().toUtf8());
+#endif
     }
 
-    virtual void TearDown()
+    static void TearDownTestSuite()
     {
-        delete manager;
+        if (previousConfigHome.isEmpty())
+        {
+            qunsetenv("XDG_CONFIG_HOME");
+        }
+        else
+        {
+            qputenv("XDG_CONFIG_HOME", previousConfigHome);
+        }
+
+#ifdef _WIN32
+        if (previousAppData.isEmpty())
+        {
+            qunsetenv("APPDATA");
+        }
+        else
+        {
+            qputenv("APPDATA", previousAppData);
+        }
+#endif
+
+        configDir.reset();
     }
 
-    GtAccessManager* manager;
+    void SetUp() override
+    {
+        manager = GtAccessManager::instance();
+        ASSERT_NE(manager, nullptr);
 
-    QString host;
-    int port;
-    QString user;
-    QString pw;
+        firstGroupId = uniqueGroupId("network-test-group");
+        secondGroupId = uniqueGroupId("network-test-group");
+    }
 
+    static QString uniqueGroupId(const QString& prefix)
+    {
+        return QString("%1-%2").arg(
+            prefix, QUuid::createUuid().toString(QUuid::WithoutBraces));
+    }
+
+    void writeAccessFile(const QString& groupId,
+                         const QStringList& entries) const
+    {
+        QFileInfo fileInfo(manager->accessDataFilePath(groupId));
+        QDir dir;
+        ASSERT_TRUE(dir.mkpath(fileInfo.path()));
+
+        QFile file(fileInfo.filePath());
+        ASSERT_TRUE(file.open(QIODevice::WriteOnly | QIODevice::Text));
+
+        QDataStream out(&file);
+        out << GtAccessManager::serializeStringList(entries);
+    }
+
+    GtAccessManager* manager{nullptr};
+    QString firstGroupId;
+    QString secondGroupId;
+
+    static std::unique_ptr<QTemporaryDir> configDir;
+    static QByteArray previousConfigHome;
+    static QByteArray previousAppData;
 };
 
-TEST_F(TestGtAccessManager, init)
+std::unique_ptr<QTemporaryDir> TestGtAccessManager::configDir;
+QByteArray TestGtAccessManager::previousConfigHome;
+QByteArray TestGtAccessManager::previousAppData;
+
+TEST_F(TestGtAccessManager, instanceReturnsSingleton)
 {
-    ASSERT_STREQ(manager->objectName().toStdString().c_str(),
-                 "Test Manager");
+    EXPECT_EQ(GtAccessManager::instance(), manager);
 }
 
-TEST_F(TestGtAccessManager, addData)
+TEST_F(TestGtAccessManager, defaultAccessGroupMakesManagerNonEmpty)
 {
-    GtAccessData data1(host, port, user, pw);
-
-    ASSERT_TRUE(manager->addData(data1));
-    ASSERT_FALSE(manager->addData(data1));
-
-    GtAccessData data2("");
-    ASSERT_FALSE(manager->addData(data2));
-
-    ASSERT_FALSE(manager->addData("", port, user));
-    ASSERT_FALSE(manager->addData(host, port, user));
-    ASSERT_TRUE(manager->addData(host + "2", port, user));
+    EXPECT_FALSE(manager->isEmpty());
+    EXPECT_GE(manager->numberOfDataGroups(), 1);
 }
 
-TEST_F(TestGtAccessManager, isEmpty)
+TEST_F(TestGtAccessManager, addAccessGroupRejectsInvalidAndDuplicateIds)
 {
-    ASSERT_TRUE(manager->isEmpty());
+    EXPECT_EQ(manager->addAccessGroup(QString(), QObject::staticMetaObject),
+              nullptr);
 
-    GtAccessData data1(host, port, user, pw);
+    GtAccessGroup* group =
+        manager->addAccessGroup(firstGroupId, QObject::staticMetaObject);
+    ASSERT_NE(group, nullptr);
 
-    manager->addData(data1);
-    ASSERT_FALSE(manager->isEmpty());
+    EXPECT_EQ(group->objectName(), firstGroupId);
+    EXPECT_EQ(manager->addAccessGroup(firstGroupId, QObject::staticMetaObject),
+              nullptr);
 }
 
-TEST_F(TestGtAccessManager, setData)
+TEST_F(TestGtAccessManager, addingAccessGroupUpdatesLookupAndCount)
 {
-    GtAccessData data1(host, port, user, pw);
+    const int beforeCount = manager->numberOfDataGroups();
 
-    manager->addData(data1);
+    GtAccessGroup* group =
+        manager->addAccessGroup(firstGroupId, QObject::staticMetaObject);
+    ASSERT_NE(group, nullptr);
 
-    ASSERT_FALSE(manager->setData(data1, 1));
-    ASSERT_FALSE(manager->setData(data1, -1));
-    ASSERT_TRUE(manager->setData(data1, 0));
+    EXPECT_EQ(manager->numberOfDataGroups(), beforeCount + 1);
+    EXPECT_TRUE(manager->groupExists(firstGroupId));
+    EXPECT_EQ(manager->accessGroup(firstGroupId), group);
+    EXPECT_TRUE(manager->accessGroupIds().contains(firstGroupId));
+    EXPECT_TRUE(manager->accessGroups().contains(group));
+    EXPECT_EQ(manager->accessGroup(secondGroupId), nullptr);
 }
 
-TEST_F(TestGtAccessManager, accessData)
+TEST_F(TestGtAccessManager, addAccessGroupLoadsPersistedEntries)
 {
-    QList<GtAccessData> list = manager->accessData();
+    const QString persistedGroupId = uniqueGroupId("Network Test Group");
+    writeAccessFile(persistedGroupId,
+                    {persistedGroupId, QStringLiteral("host-a"),
+                     QStringLiteral("22"), QStringLiteral("user-a"),
+                     QStringLiteral("pw-a"), QStringLiteral("host-b"),
+                     QStringLiteral("2022"), QStringLiteral("user-b"),
+                     QStringLiteral("pw-b")});
 
-    ASSERT_TRUE(list.isEmpty());
+    GtAccessGroup* group =
+        manager->addAccessGroup(persistedGroupId, QObject::staticMetaObject);
+    ASSERT_NE(group, nullptr);
+    ASSERT_EQ(group->numberOfAccessData(), 2);
 
-    GtAccessData data1(host, port, user, pw);
-
-    manager->addData(data1);
-
-    list = manager->accessData();
-    ASSERT_FALSE(list.isEmpty());
+    const auto& data = group->accessData();
+    EXPECT_EQ(data.at(0).host(), QStringLiteral("host-a"));
+    EXPECT_EQ(data.at(0).port(), 22);
+    EXPECT_EQ(data.at(0).user(), QStringLiteral("user-a"));
+    EXPECT_EQ(data.at(0).password(), QStringLiteral("pw-a"));
+    EXPECT_EQ(data.at(1).host(), QStringLiteral("host-b"));
+    EXPECT_EQ(data.at(1).port(), 2022);
+    EXPECT_EQ(data.at(1).user(), QStringLiteral("user-b"));
+    EXPECT_EQ(data.at(1).password(), QStringLiteral("pw-b"));
 }
 
-TEST_F(TestGtAccessManager, size)
+TEST_F(TestGtAccessManager, addAccessGroupIgnoresInvalidPersistedEntries)
 {
-    ASSERT_EQ(manager->size(), 0);
+    const QString persistedGroupId = uniqueGroupId("invalid-group");
+    writeAccessFile(
+        persistedGroupId,
+        {persistedGroupId, QStringLiteral("host-only"), QStringLiteral("22")});
 
-    GtAccessData data1(host, port, user, pw);
-
-    manager->addData(data1);
-
-    ASSERT_EQ(manager->size(), 1);
+    GtAccessGroup* group =
+        manager->addAccessGroup(persistedGroupId, QObject::staticMetaObject);
+    ASSERT_NE(group, nullptr);
+    EXPECT_EQ(group->numberOfAccessData(), 0);
 }
 
-TEST_F(TestGtAccessManager, deleteData)
+TEST_F(TestGtAccessManager, saveAccessDataWritesGroupFiles)
 {
-    ASSERT_FALSE(manager->deleteData(0));
+    const QString persistedGroupId = uniqueGroupId("Save Group With Spaces");
+    GtAccessGroup* group =
+        manager->addAccessGroup(persistedGroupId, QObject::staticMetaObject);
+    ASSERT_NE(group, nullptr);
+    ASSERT_TRUE(group->addAccessData(QStringLiteral("save-host"), 4242,
+                                     QStringLiteral("save-user"),
+                                     QStringLiteral("save-pw")));
 
-    GtAccessData data1(host, port, user, pw);
+    EXPECT_TRUE(manager->saveAccessData());
 
-    manager->addData(data1);
+    QFile file(manager->accessDataFilePath(persistedGroupId));
+    ASSERT_TRUE(file.exists());
+    ASSERT_TRUE(file.open(QIODevice::ReadOnly));
 
-    ASSERT_FALSE(manager->deleteData(1));
-    ASSERT_FALSE(manager->deleteData(-1));
-    ASSERT_TRUE(manager->deleteData(0));
+    QDataStream in(&file);
+    QString serialized;
+    in >> serialized;
 
-    ASSERT_TRUE(manager->isEmpty());
+    EXPECT_EQ(GtAccessManager::deserializeStringList(serialized),
+              QStringList({persistedGroupId, QStringLiteral("save-host"),
+                           QStringLiteral("4242"), QStringLiteral("save-user"),
+                           QStringLiteral("save-pw")}));
+}
+
+TEST_F(TestGtAccessManager, qnamIsCreatedLazilyAndReused)
+{
+    QNetworkAccessManager* first = manager->qnam();
+    ASSERT_NE(first, nullptr);
+
+    EXPECT_EQ(manager->qnam(), first);
+}
+
+TEST_F(TestGtAccessManager, serializeRoundTripPreservesStringList)
+{
+    QStringList input;
+    input << "host"
+          << "22"
+          << "user"
+          << "password";
+
+    QString serialized = GtAccessManager::serializeStringList(input);
+
+    EXPECT_FALSE(serialized.isEmpty());
+    EXPECT_EQ(GtAccessManager::deserializeStringList(serialized), input);
+}
+
+TEST_F(TestGtAccessManager, macAddressReturnsAStableValueOrEmptyString)
+{
+    const QString first = manager->macAddress();
+    const QString second = manager->macAddress();
+
+    EXPECT_EQ(first, second);
 }

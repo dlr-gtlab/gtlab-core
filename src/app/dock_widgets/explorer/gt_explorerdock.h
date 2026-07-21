@@ -280,6 +280,16 @@ private slots:
      */
     void deleteElements(const QList<QModelIndex>& indexList);
 
+    /**
+     * @brief A slot than handles selection changes only by keyboard
+     * events. Mouse events are actively suppressed, to avoid
+     * drag/drop problems.
+     *
+     * Mouse events are handled by another slot
+     */
+    void handleKeyboardSelectionChange(const QModelIndex &current,
+                                       const QModelIndex &);
+
 signals:
     /**
      * @brief selectedObjectChanged

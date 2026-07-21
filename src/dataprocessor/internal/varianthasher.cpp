@@ -8,6 +8,8 @@
 
 #include "varianthasher.h"
 
+#include "gt_qtutilities.h"
+
 namespace gt
 {
     namespace detail
@@ -22,17 +24,19 @@ namespace gt
         void VariantHasher::addToHash(QCryptographicHash& hash,
                                       const QVariant& variant)
         {
-            static QVariant::Type type_QString =
-                QVariant::nameToType("QString");
-            static QVariant::Type type_QStringList =
-                QVariant::nameToType("QStringList");
-            if (variant.type() == type_QString)
+            auto varType = gt::metaTypeId(variant);
+
+            static auto type_QString =
+                gt::metaTypeIdFromName("QString");
+            static auto type_QStringList =
+                gt::metaTypeIdFromName("QStringList");
+            if (varType == type_QString)
             {
                 // special case QString: we don't distinguish between empty and null strings!
                 // (which the code below does...)
                 hash.addData(variant.toString().toUtf8());
             }
-            else if (variant.type() == type_QStringList)
+            else if (varType == type_QStringList)
             {
                 // special case QString: we don't distinguish between empty and null strings!
                 // (which the code below does...)
@@ -46,7 +50,11 @@ namespace gt
             {
                 buff.seek(0);
                 ds << variant;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
                 hash.addData(bb.constData(), buff.pos());
+#else
+                hash.addData(QByteArrayView(bb.constData(), buff.pos()));
+#endif
             }
         }
 

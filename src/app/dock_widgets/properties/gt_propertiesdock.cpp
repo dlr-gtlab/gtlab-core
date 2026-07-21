@@ -94,10 +94,18 @@ GtPropertiesDock::GtPropertiesDock() : m_obj(nullptr)
 
     connect(m_treeView, SIGNAL(searchRequest()), m_search,
             SLOT(enableSearch()));
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     connect(m_search, SIGNAL(textEdited(QString)),
             m_treeView->filterModel(), SLOT(setFilterRegExp(QString)));
     connect(m_search, SIGNAL(textChanged(QString)),
             m_treeView->filterModel(), SLOT(setFilterRegExp(QString)));
+#else
+    connect(m_search, SIGNAL(textEdited(QString)),
+            m_treeView->filterModel(), SLOT(setFilterRegularExpression(QString)));
+    connect(m_search, SIGNAL(textChanged(QString)),
+            m_treeView->filterModel(), SLOT(setFilterRegularExpression(QString)));
+#endif
     connect(gtApp, SIGNAL(objectSelected(GtObject*)),
             SLOT(objectSelected(GtObject*)));
 }

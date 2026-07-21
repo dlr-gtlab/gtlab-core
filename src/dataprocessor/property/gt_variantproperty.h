@@ -26,7 +26,8 @@ public:
     /**
      * @brief GtVariantProperty
      */
-    [[deprecated("Provide a property id in the constructor")]]
+    [[deprecated("Provide a property id in the constructor "
+                 "and disable memento storage")]]
     GtVariantProperty(const QString& name,
                       const QString& brief,
                       const GtUnit::Category &unitCategory = GtUnit::None,

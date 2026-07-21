@@ -12,6 +12,7 @@
 #ifndef TESTDMICLASS_H
 #define TESTDMICLASS_H
 
+#include "gt_colorproperty.h"
 #include "gt_object.h"
 #include "gt_doubleproperty.h"
 #include "gt_modeproperty.h"
@@ -41,11 +42,20 @@ public:
 
 private:
     GtDoubleProperty m_value;
-    GtPropertyStructContainer m_container, m_containerRO, m_containerHidden;
+    GtPropertyStructContainer m_container, m_containerRO,
+        m_containerHidden, m_containerMap;
     GtModeProperty m_mode;
     GtModeTypeProperty m_propTypeA, m_propTypeB;
     GtDoubleProperty m_optionalValue;    
     GtEnumProperty<Fruit> m_fruit;
+    GtColorProperty m_color;
+    GtDoubleProperty m_electricVoltage;
+    GtDoubleProperty m_electricCurrent;
+    GtDoubleProperty m_electricResistance;
+    GtDoubleProperty m_electricImpedance;
+    GtDoubleProperty m_heatTransferCapability;
+    GtDoubleProperty m_heatTransferCoefficient;
+    GtDoubleProperty m_thermalConductivity;
 };
 
 #endif // TESTDMICLASS_H

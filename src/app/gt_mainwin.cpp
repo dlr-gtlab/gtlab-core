@@ -39,8 +39,12 @@
 #include "gt_algorithms.h"
 #include "gt_maintoolbar.h"
 #include "gt_iconbrowser.h"
+#include "gt_mementoviewer.h"
+#include "gt_stateviewer.h"
+#include "gt_examplesmdiwidget.h"
+#include "gt_sessionviewer.h"
+#include "gt_startuppage.h"
 
-#include <QSignalMapper>
 #include <QDir>
 #include <QKeyEvent>
 #include <QUndoView>
@@ -60,8 +64,6 @@
 
 GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
     ui(new Ui::GtMainWin),
-    m_switchSessionMapper(nullptr),
-    m_switchPerspectiveMapper(nullptr),
     m_cornerWidget(new GtCornerWidget(this)),
     m_forceQuit(false),
     m_firstTimeShowEvent(true),
@@ -247,6 +249,10 @@ GtMainWin::GtMainWin(QWidget* parent) : QMainWindow(parent),
 
     ui->qmlToolBar->setStyleSheet("QToolBar { margin: 0px; padding: 0px; border: none;}");
     ui->qmlToolBar->addWidget(m_mainWindowToolbar);
+
+    loadPerspectiveSettings();
+    emit gtApp->themeChanged(gtApp->inDarkMode());
+
 }
 
 GtMainWin::~GtMainWin()
@@ -514,7 +520,7 @@ GtMainWin::showProjectWizard()
         if (!gtDataModel->newProject(project, true))
         {
             delete project;
-            gtError() << "Created project can not be added to session. Abort";
+            gtError() << tr("Created project can not be added to session. Abort");
             return;
         }
         else
@@ -556,7 +562,7 @@ GtMainWin::importProject()
     }
     else
     {
-        gtWarning() << "Cannot open the project";
+        gtWarning() << tr("Cannot open the project");
     }
 }
 
@@ -620,22 +626,15 @@ GtMainWin::updateSessionList()
     if (!list.isEmpty())
     {
         ui->menuSession->addSeparator();
-
-        if (!m_switchSessionMapper)
-        {
-            m_switchSessionMapper = new QSignalMapper(this);
-            connect(m_switchSessionMapper, SIGNAL(mapped(QObject*)),
-                    SLOT(onSessionAction(QObject*)));
-        }
     }
 
     foreach (const QString& str, list)
     {
         //        ui->menuSession->addAction(str);
         QAction* action = ui->menuSession->addAction(str);
-        connect(action, SIGNAL(triggered()), m_switchSessionMapper,
-                SLOT(map()));
-        m_switchSessionMapper->setMapping(action, action);
+        connect(action, &QAction::triggered, this, [action, this](){
+            onSessionAction(action);
+        });
     }
 
     updateWindowTitle();
@@ -664,50 +663,30 @@ GtMainWin::updatePerspectiveList()
     if (!list.isEmpty())
     {
         ui->menuPerspective->addSeparator();
-
-        if (!m_switchPerspectiveMapper)
-        {
-            m_switchPerspectiveMapper = new QSignalMapper(this);
-            connect(m_switchPerspectiveMapper, SIGNAL(mapped(QObject*)),
-                    SLOT(onPerspectiveAction(QObject*)));
-        }
     }
 
     foreach (const QString& str, list)
     {
         //        ui->menuSession->addAction(str);
         QAction* action = ui->menuPerspective->addAction(str);
-        connect(action, SIGNAL(triggered()), m_switchPerspectiveMapper,
-                SLOT(map()));
-        m_switchPerspectiveMapper->setMapping(action, action);
-    }
-}
 
-void
-GtMainWin::openMapEditor()
-{
-    gtMdiLauncher->open("GtMapEditor");
+        connect(action, &QAction::triggered, this, [action, this](){
+            onPerspectiveAction(action);
+        });
+    }
 }
 
 void
 GtMainWin::openMementoViewer()
 {
-    gtMdiLauncher->open("GtMementoViewer");
+    gtMdiLauncher->open(GT_CLASSNAME(GtMementoViewer));
 }
 
-void
-GtMainWin::openPreDesignPlot()
-{
-    if (!gtMdiLauncher->open("GtdPreDesignPlot"))
-    {
-        gtWarning() << tr("Could not open pre design plot!");
-    }
-}
 
 void
 GtMainWin::openSessionViewer()
 {
-    if (!gtMdiLauncher->open("GtSessionViewer"))
+    if (!gtMdiLauncher->open(GT_CLASSNAME(GtSessionViewer)))
     {
         gtWarning() << tr("Could not open session viewer!");
     }
@@ -716,7 +695,7 @@ GtMainWin::openSessionViewer()
 void
 GtMainWin::openStateViewer()
 {
-    if (!gtMdiLauncher->open("GtStateViewer"))
+    if (!gtMdiLauncher->open(GT_CLASSNAME(GtStateViewer)))
     {
         gtWarning() << tr("Could not open state viewer!");
     }
@@ -725,7 +704,7 @@ GtMainWin::openStateViewer()
 void
 GtMainWin::openExamplesWidget()
 {
-    if (!gtMdiLauncher->open("GtExamplesMdiWidget"))
+    if (!gtMdiLauncher->open(GT_CLASSNAME(GtExamplesMdiWidget)))
     {
         gtWarning() << tr("Could not open examples viewer!");
     }
@@ -852,7 +831,8 @@ GtMainWin::printCurrentMdiItem()
     }
     else
     {
-        QMessageBox::information(nullptr, "Print error", "No view open!",
+        QMessageBox::information(nullptr, tr("Print error"),
+                                 tr("No view open!"),
                                  QMessageBox::Ok);
     }
 }
@@ -1118,7 +1098,7 @@ GtMainWin::initAfterStartup()
     // open startup page
     if (gtApp->settings()->showStartupPage())
     {
-        gtMdiLauncher->open("GtStartupPage");
+        gtMdiLauncher->open(GT_CLASSNAME(GtStartupPage));
     }
 
     // search for updates
@@ -1146,8 +1126,6 @@ GtMainWin::initAfterStartup()
 
         e->initAfterStartup();
     });
-
-    loadPerspectiveSettings();
 
     m_firstTimeShowEvent = false;
 }
@@ -1272,6 +1250,11 @@ void
 GtMainWin::setTheme(bool /*dark*/)
 {
     gt::gui::applyThemeToApplication();
-    gt::gui::applyThemeToWidget(this);
     gt::gui::applyThemeToWidget(ui->mdiArea);
+
+    // update all standalone widgets (i.e. windows)
+    QWidgetList const& windows = QApplication::topLevelWidgets();
+    std::for_each(windows.begin(), windows.end(), [](QWidget* w){
+        gt::gui::applyThemeToWidget(w);
+    });
 }

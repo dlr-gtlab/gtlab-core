@@ -68,7 +68,17 @@ public:
      */
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-
+    /**
+     * @brief Searches for a Task Group with the given name in the specified
+     * scope and returns its corresponding QModelIndex.
+     * @param name The name of the Task Group to search for.
+     * @param scope The scope in which the Task Group should be searched.
+     * @return The QModelIndex of the Task Group with the specified name in the
+     * given scope. If no matching Task Group is found, an invalid QModelIndex
+     * is returned.
+     */
+    QModelIndex indexByGroupName(const QString& name,
+                                 GtTaskGroup::SCOPE scope) const;
 
 private:
     /// List of task group identification strings in user scope.

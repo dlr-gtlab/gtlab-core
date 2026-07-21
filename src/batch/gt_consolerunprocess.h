@@ -11,6 +11,12 @@
 #define GTCONSOLERUNPROCESS_H
 
 #include "gt_commandlineparser.h"
+
+#include <gt_logging.h>
+#include <gt_application.h>
+#include <gt_session.h>
+
+#include <QCoreApplication>
 #include <QStringList>
 
 class GtProject;
@@ -21,10 +27,10 @@ namespace gt
 namespace console
 {
 /**
- * @brief options
- * @return list of the command line options
+ * @brief runOptions
+ * @return list of the command line options for the run command
  */
-QList<GtCommandLineOption> options();
+QList<GtCommandLineOption> runOptions();
 
 int run(QStringList const& args);
 
@@ -59,6 +65,30 @@ int
 runProcessByFile(const QString& projectFile, const QString& processId,
                  const QString& taskGroupId = "",
                  bool save = false);
+
+/**
+ * @brief Enters a temporary session
+ *
+ * The return value must be kept until the session is not needed anymore.
+ * It is used to switch back to the current session
+ */
+inline auto enterTempSession()
+{
+    auto tmpSessionID = QString("_tmp_batch_session_%1").arg(QCoreApplication::applicationPid());
+    QString currentSessionID = gtApp->session() ? gtApp->session()->objectName() : "default";
+
+    gtDebug() << QObject::tr("Creating temporary batch session '%1'").arg(tmpSessionID);
+
+    gtApp->newSession(tmpSessionID);
+    gtApp->switchSession(tmpSessionID);
+
+    // cleanup
+    return gt::finally([tmpSessionID, currentSessionID](){
+        gtApp->switchSession(currentSessionID);
+        gtApp->deleteSession(tmpSessionID);
+    });
+}
+
 
 } // namespace console
 } // namespace gt

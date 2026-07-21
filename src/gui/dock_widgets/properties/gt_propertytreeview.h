@@ -141,6 +141,12 @@ private slots:
      */
     void onDeleteRequested(const QModelIndex& idx);
 
+    /**
+     * @brief Reaction on the request to open a context menu at the position
+     * given by the point
+     * @param point
+     */
+    void onCustomContextMenu(const QPoint& point);
 };
 
 #endif // GTPROPERTYTREEVIEW_H

@@ -6,8 +6,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-//import Qt5Compat.GraphicalEffects
-import QtGraphicalEffects 1.15
 
 Button {
     id: control
@@ -168,7 +166,7 @@ Button {
                 smooth: true
                 antialiasing: true
                 layer.enabled: true
-                layer.effect: ColorOverlay {
+                layer.effect: ColorOverlayCompat {
                     color: hovered ? (custom_Enabled ? custom_secondaryColor : (control.darkMode ? custom_secondaryColorInactiveDark : custom_secondaryColorInactive)) : control.darkMode ? (custom_Enabled ? custom_iconColorDark : custom_secondaryColorInactiveDark) : (custom_Enabled ? custom_iconColor : custom_secondaryColorInactive)
                 }
             }

@@ -23,6 +23,7 @@ void
 GtObjectFilterModel::setFilterData(const QStringList& val)
 {
     m_filterData = val;
+    m_filterLookup = QSet<QString>(m_filterData.begin(), m_filterData.end());
     invalidate();
 }
 
@@ -64,8 +65,5 @@ GtObjectFilterModel::flags(const QModelIndex& index) const
 bool
 GtObjectFilterModel::acceptsRow(const char* ident) const
 {
-    return std::any_of(std::cbegin(m_filterData), std::cend(m_filterData),
-                       [qident = QString{ident}](const QString& str){
-        return qident == str;
-    });
+    return m_filterLookup.contains(QString::fromLatin1(ident));
 }

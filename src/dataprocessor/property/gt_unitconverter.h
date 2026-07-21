@@ -149,7 +149,7 @@ T GtUnitConverter<T>::To(GtUnit::Category category,
 
 template<class T>
 void GtUnitConverter<T>::initialize()
-{
+{ 
     /** LENGTH **/
 
     QMap<QString, double> lengthFac;
@@ -580,6 +580,51 @@ void GtUnitConverter<T>::initialize()
 
     m_factorMap.insert(GtUnit::DataSize, dataSizeFac);
 
+    /** Heat Transfer Capcability **/
+    QMap<QString, double> heatTransfCap;
+    heatTransfCap["W/K"] = powerFac["W"] / temperatureFac["K"];
+    heatTransfCap["kW/K"] = powerFac["kW"] / temperatureFac["K"];
+    heatTransfCap["MW/K"] = powerFac["MW"] / temperatureFac["K"];
+    heatTransfCap["GW/K"] = powerFac["GW"] / temperatureFac["K"];
+    m_factorMap.insert(GtUnit::HeatTransferCapability, heatTransfCap);
+
+    /** Heat Transfer Coefficient **/
+    QMap<QString, double> heatTransfCof;
+    heatTransfCof["W/(m^2*K)"] = powerFac["W"]  / (areaFac["m^2"] * temperatureFac["K"]);
+    heatTransfCof["kW/(m^2*K)"] = powerFac["kW"] / (areaFac["m^2"] * temperatureFac["K"]);
+    heatTransfCof["MW/(m^2*K)"] = powerFac["MW"] / (areaFac["m^2"] * temperatureFac["K"]);
+    heatTransfCof["GW/(m^2*K)"] = powerFac["GW"] / (areaFac["m^2"] * temperatureFac["K"]);
+
+    heatTransfCof["W/(mm^2*K)"] = powerFac["W"]  / (areaFac["mm^2"] * temperatureFac["K"]);
+    heatTransfCof["kW/(mm^2*K)"] = powerFac["kW"] / (areaFac["mm^2"] * temperatureFac["K"]);
+    heatTransfCof["MW/(mm^2*K)"] = powerFac["MW"] / (areaFac["mm^2"] * temperatureFac["K"]);
+    heatTransfCof["GW/(mm^2*K)"] = powerFac["GW"] / (areaFac["mm^2"] * temperatureFac["K"]);
+
+    heatTransfCof["W/(cm^2*K)"] = powerFac["W"]  / (areaFac["cm^2"] * temperatureFac["K"]);
+    heatTransfCof["kW/(cm^2*K)"] = powerFac["kW"] / (areaFac["cm^2"] * temperatureFac["K"]);
+    heatTransfCof["MW/(cm^2*K)"] = powerFac["MW"] / (areaFac["cm^2"] * temperatureFac["K"]);
+    heatTransfCof["GW/(cm^2*K)"] = powerFac["GW"] / (areaFac["cm^2"] * temperatureFac["K"]);
+    m_factorMap.insert(GtUnit::HeatTransferCoefficient, heatTransfCof);
+    m_factorMap.insert(GtUnit::PowerTempArea, heatTransfCof);
+
+    /** Thermal conductivity **/
+    QMap<QString, double> thermalCond;
+    thermalCond["W/(m*K)"] = powerFac["W"]  / (lengthFac["m"] * temperatureFac["K"]);
+    thermalCond["kW/(m*K)"] = powerFac["kW"] / (lengthFac["m"] * temperatureFac["K"]);
+    thermalCond["MW/(m*K)"] = powerFac["MW"] / (lengthFac["m"] * temperatureFac["K"]);
+    thermalCond["GW/(m*K)"] = powerFac["GW"] / (lengthFac["m"] * temperatureFac["K"]);
+
+    thermalCond["W/(mm*K)"] = powerFac["W"]  / (lengthFac["mm"] * temperatureFac["K"]);
+    thermalCond["kW/(mm*K)"] = powerFac["kW"] / (lengthFac["mm"] * temperatureFac["K"]);
+    thermalCond["MW/(mm*K)"] = powerFac["MW"] / (lengthFac["mm"] * temperatureFac["K"]);
+    thermalCond["GW/(mm*K)"] = powerFac["GW"] / (lengthFac["mm"] * temperatureFac["K"]);
+
+    thermalCond["W/(cm*K)"] = powerFac["W"]  / (lengthFac["cm"] * temperatureFac["K"]);
+    thermalCond["kW/(cm*K)"] = powerFac["kW"] / (lengthFac["cm"] * temperatureFac["K"]);
+    thermalCond["MW/(cm*K)"] = powerFac["MW"] / (lengthFac["cm"] * temperatureFac["K"]);
+    thermalCond["GW/(cm*K)"] = powerFac["GW"] / (lengthFac["cm"] * temperatureFac["K"]);
+    m_factorMap.insert(GtUnit::ThermalConductivity, thermalCond);
+
 
     /** Non Dimensional Percentage **/
 
@@ -601,7 +646,41 @@ void GtUnitConverter<T>::initialize()
     m_factorMap.insert(GtUnit::NonDimensional,
                        nonDimensional);
 
+    /** Voltage **/
 
+    QMap<QString, double> voltFac;
+
+    voltFac["MV"] = 0.000001;
+    voltFac["kV"] = 0.001;
+    voltFac["V"] = 1.0;
+    voltFac["mm"] = 1000.0;
+    voltFac["µm"] = 1000000.0;
+
+    m_factorMap.insert(GtUnit::Voltage, voltFac);
+
+    /** Current **/
+
+    QMap<QString, double> elCurrentFac;
+
+    elCurrentFac["MA"] = 0.000001;
+    elCurrentFac["kA"] = 0.001;
+    elCurrentFac["A"] = 1.0;
+    elCurrentFac["mA"] = 1000.0;
+    elCurrentFac["µA"] = 1000000.0;
+
+    m_factorMap.insert(GtUnit::Current, elCurrentFac);
+
+    /** Resistance/Impedance **/
+    QMap<QString, double> elResFac;
+    QString omega = QString(QChar(0x03A9));
+    elResFac[QString("M")+omega] = 0.000001;
+    elResFac[QString("k")+omega] = 0.001;
+    elResFac[omega] = 1.0;
+    elResFac[QString("m")+omega] = 1000.0;
+    elResFac[QString("µ")+omega] = 1000000.0;
+
+    m_factorMap.insert(GtUnit::Resistance, elResFac);
+    m_factorMap.insert(GtUnit::Impedance, elResFac);
 
     /** CUSTOM **/
 
@@ -694,7 +773,12 @@ void GtUnitConverter<T>::initialize()
 
 
 
+    // Keep the deprecated category registered for backwards compatibility
+    // until the 2.2 removal, without leaking deprecation warnings into every
+    // translation unit that includes this header.
+    GT_SUPPRESS_DEPRECATED_BEGIN;
     m_factorMap.insert(GtUnit::Custom, customFac);
+    GT_SUPPRESS_DEPRECATED_END;
 }
 
 

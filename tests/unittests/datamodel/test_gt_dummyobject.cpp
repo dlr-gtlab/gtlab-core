@@ -109,10 +109,7 @@ TEST_F(TestGtDummyObject, toMemento)
     inputStream << diff3.toByteArray();
     memFile.close();
 
-    const QString type("double");
-    std::string str = type.toStdString();
-    const char* p = str.c_str();
-    static QVariant::Type v_type = QVariant::nameToType(p);
+    static auto v_type = gt::metaTypeIdFromName("double");
     QVariant variant(QString("0"));
 
     qDebug() << "#### type name before = " << variant.typeName();
@@ -123,7 +120,7 @@ TEST_F(TestGtDummyObject, toMemento)
     qDebug() << "#### type name after = " << variant.typeName();
     qDebug() << "#### value after = " << variant;
 
-    ASSERT_TRUE(variant.type() == v_type);
+    ASSERT_TRUE(gt::metaTypeId(variant) == v_type);
 
 
     ASSERT_TRUE(diff.isNull());

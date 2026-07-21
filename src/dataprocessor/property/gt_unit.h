@@ -10,6 +10,7 @@
 #include "gt_datamodel_exports.h"
 
 #include <QString>
+#include "gt_version.h"
 
 class GT_DATAMODEL_EXPORT GtUnit
 {
@@ -43,11 +44,18 @@ public:
                    EnergyDensity,
                    PowerDensity,
                    PowerTempArea,
-                   Custom,
+                   Custom GT_DEPRECATED_ATTR(2, 2, "Do not use Custom. It is not a valid unit category."),
                    MassMomentInertia,
                    VGVGradients,
                    VGVGradientsPow2,
                    kinematicViscosity,
+                   Voltage,
+                   Current,
+                   Resistance,
+                   Impedance,
+                   HeatTransferCapability,
+                   HeatTransferCoefficient,
+                   ThermalConductivity,
                    /// non physical units
                    NonDimensionalPercentage = 64,
                    NonDimensional,
@@ -55,6 +63,7 @@ public:
                    /// no unit
                    None = 128
                   };
+    GT_REMOVAL_GUARD(2, 2, "Remove deprecated Custom category above!")
 
     GtUnit() = delete;
     ~GtUnit() = delete;

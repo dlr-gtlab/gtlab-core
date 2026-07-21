@@ -18,6 +18,7 @@
 #include "gt_algorithms.h"
 #include "gt_xmlexpr.h"
 #include "gt_xmlutilities.h"
+#include "gt_processdata.h"
 
 #include <QFile>
 #include <QDir>
@@ -86,6 +87,12 @@ GtProjectProvider::duplicateProject(const QString& newId,
     m_project = nullptr;
 
     GtProject* retval = project();
+
+    // initialize task groups to replace process component UUIDs
+    if (auto pd = tmpProject->processData())
+    {
+        pd->initAllTaskGroups(tmpProject->path());
+    }
 
     // copy objects
     foreach (GtObject* obj, tmpProject->findDirectChildren<GtObject*>())
@@ -218,6 +225,13 @@ GtProjectProvider::duplicateProject(const QString& newId,
     m_pName = tmpId;
     m_pPath = tmpPath;
     m_project = tmpProject;
+
+    // save task groups of the new project to disk
+    if (auto pd = retval->processData())
+    {
+        pd->read(retval->path());
+        pd->save(retval->path());
+    }
 
     return retval;
 }

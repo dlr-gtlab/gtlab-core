@@ -172,10 +172,10 @@ GtProcessComponent::setProgress(int progress)
         return;
     }
 
-    if (gtApp->batchMode())
+    if (gtApp && gtApp->batchMode())
     {
         gtInfo() << tr("Progress of ") << objectName() << ": "
-                 << QString(progress) << " %";
+                 << QString::number(progress) << " %";
     }
 
     // set new state

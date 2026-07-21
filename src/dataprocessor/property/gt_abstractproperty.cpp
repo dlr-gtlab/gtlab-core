@@ -24,6 +24,12 @@ public:
     bool m_monitoring{false};
 };
 
+GtAbstractProperty::GtAbstractProperty() :
+    m_pimpl{std::make_unique<GtAbstractProperty::Impl>()}
+{
+
+}
+
 QVariant
 GtAbstractProperty::valueToVariant() const
 {
@@ -84,7 +90,7 @@ GtAbstractProperty::setCategory(const QString& cat)
 }
 
 QString
-GtAbstractProperty::categoryToString()
+GtAbstractProperty::categoryString() const
 {
     switch (m_category)
     {
@@ -288,6 +294,12 @@ GtAbstractProperty::storeToMemento() const
 }
 
 void
+GtAbstractProperty::setStoreToMemento(bool store)
+{
+    m_storeMemento = store;
+}
+
+void
 GtAbstractProperty::revert()
 {
     // nothing to do here
@@ -363,10 +375,19 @@ GtAbstractProperty::setMonitoring(bool monitoring)
     m_pimpl->m_monitoring = monitoring;
 }
 
-GtAbstractProperty::GtAbstractProperty() :
-    m_pimpl{std::make_unique<GtAbstractProperty::Impl>()}
+void
+GtAbstractProperty::setCollapsedByDefault(bool collapsed)
 {
+    setProperty("collapsed", collapsed);
+}
 
+bool
+GtAbstractProperty::collapsedByDefault() const
+{
+    auto collapsedState = property("collapsed");
+    if (!collapsedState.isValid()) return false;
+
+    return collapsedState.toBool();
 }
 
 void

@@ -107,6 +107,7 @@ set(headers
     dock_widgets/process/pages/gt_processtaskitem.h
     dock_widgets/process/pages/gt_processoverviewtree.h
     dock_widgets/process/pages/gt_taskoverviewpage.h
+    dock_widgets/process/pages/gt_processinfodialog.h
     dock_widgets/properties/gt_propertymodel.h
     dock_widgets/properties/gt_propertytreeview.h
     dock_widgets/properties/gt_abstractpropertyitem.h
@@ -122,8 +123,10 @@ set(headers
     dock_widgets/properties/items/gt_propertydoublelistitem.h
     dock_widgets/properties/items/gt_propertylabelitem.h
     dock_widgets/properties/items/gt_propertyitem.h
+    dock_widgets/properties/items/gt_colorpropertyitem.h
     dock_widgets/properties/editors/gt_propertyfilechoosereditor.h
     dock_widgets/properties/editors/gt_propertyobjectlinkeditor.h
+    dock_widgets/properties/editors/gt_colorpropertyeditor.h
     dock_widgets/post/gt_postmodel.h
     dock_widgets/gt_customactionmenu.h
     gt_objectuiaction.h
@@ -139,7 +142,6 @@ set(headers
     post/gt_abstractchartprovider.h
     post/gt_templateviewerlistwidget.h
     post/gt_stringmapcontainer.h
-    post/gt_abstractwizard.h
     post/gt_stringcontainer.h
     post/gt_posttemplatepath.h
     process_runner/gt_processrunner.h
@@ -285,6 +287,7 @@ set(sources
     dock_widgets/process/pages/gt_processtaskitem.cpp
     dock_widgets/process/pages/gt_processoverviewtree.cpp
     dock_widgets/process/pages/gt_taskoverviewpage.cpp
+    dock_widgets/process/pages/gt_processinfodialog.cpp
     dock_widgets/process/gt_processcomponentmodel.cpp
     dock_widgets/properties/gt_propertymodel.cpp
     dock_widgets/properties/delegates/gt_propertyiddelegate.cpp
@@ -300,8 +303,10 @@ set(sources
     dock_widgets/properties/items/gt_propertylabelitem.cpp
     dock_widgets/properties/items/gt_propertyaccessselectionitem.cpp
     dock_widgets/properties/items/gt_propertydoublelistitem.cpp
+    dock_widgets/properties/items/gt_colorpropertyitem.cpp
     dock_widgets/properties/editors/gt_propertyobjectlinkeditor.cpp
     dock_widgets/properties/editors/gt_propertyfilechoosereditor.cpp
+    dock_widgets/properties/editors/gt_colorpropertyeditor.cpp
     dock_widgets/properties/gt_propertyitemfactory.cpp
     dock_widgets/post/gt_postmodel.cpp
     dock_widgets/gt_customactionmenu.cpp
@@ -320,7 +325,6 @@ set(sources
     post/gt_stringmapcontainer.cpp
     post/gt_stringcontainer.cpp
     post/gt_posttemplatepath.cpp
-    post/gt_abstractwizard.cpp
     process_runner/gt_processrunner.cpp
     process_runner/gt_processrunnertransceiver.cpp
     gt_extendedcalculatordata.cpp
@@ -372,10 +376,24 @@ set(sources
     importer/processImporter/gt_processimporter.cpp
 )
 
+if (QT_VERSION_MAJOR VERSION_LESS 6)
+    message(STATUS "Generating qml compatibility for Qt 5")
+    configure_file(../resources/qml/ColorOverlayQt5.qml
+        ${CMAKE_CURRENT_BINARY_DIR}/ColorOverlayCompat.qml COPYONLY)
+else()
+    message(STATUS "Generating qml compatibility for Qt 6")
+    configure_file(../resources/qml/ColorOverlayQt6.qml
+        ${CMAKE_CURRENT_BINARY_DIR}/ColorOverlayCompat.qml COPYONLY)
+endif()
+
+configure_file(../resources/qml/qml_compat.qrc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/qml_compat.qrc @ONLY)
+
 set(resources
     ../resources/icons/icons.qrc
     ../resources/pixmaps/pixmaps.qrc
     ../resources/qml/qml.qrc
+    ${CMAKE_CURRENT_BINARY_DIR}/qml_compat.qrc
 )
 
 file (GLOB_RECURSE forms
@@ -385,7 +403,9 @@ file (GLOB_RECURSE forms
 add_library(GTlabGui ${sources} ${headers} ${forms} ${resources})
 add_library(GTlab::Gui ALIAS GTlabGui)
 
-target_compile_definitions(GTlabGui PRIVATE GT_MODULE_ID="Gui" GT_EXEC_ID="Exec")
+target_compile_definitions(GTlabGui
+    PRIVATE GT_MODULE_ID="Gui" GT_EXEC_ID="Exec"
+)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(GTlabGui PRIVATE GT_GUI_DLL)
@@ -431,14 +451,14 @@ target_include_directories(GTlabGui PUBLIC
 target_link_libraries(GTlabGui
     PUBLIC
         GTlab::Core
-        Qt5::Widgets
-        Qt5::Gui
-        Qt5::PrintSupport
+        Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::Gui
+        Qt${QT_VERSION_MAJOR}::PrintSupport
 
     PRIVATE
-        Qt5::Concurrent
-        Qt5::Svg
-        Qt5::QuickWidgets
+        Qt${QT_VERSION_MAJOR}::Concurrent
+        Qt${QT_VERSION_MAJOR}::Svg
+        Qt${QT_VERSION_MAJOR}::QuickWidgets
 )
 
 

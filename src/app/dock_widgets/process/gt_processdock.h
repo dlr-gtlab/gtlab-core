@@ -13,6 +13,7 @@
 
 #include "gt_dockwidget.h"
 #include "gt_command.h"
+#include "gt_taskgroup.h"
 
 #include <QPointer>
 #include <QPersistentModelIndex>
@@ -20,12 +21,10 @@
 class QPushButton;
 class QMenu;
 class QComboBox;
-class QSignalMapper;
 class GtProcessView;
 class GtProcessComponentModel;
 class GtTreeFilterModel;
 class GtSearchWidget;
-class GtTaskGroup;
 class GtTaskGroupModel;
 class GtTask;
 class GtCalculator;
@@ -34,6 +33,7 @@ class GtProcessComponent;
 class GtPropertyConnection;
 class GtRelativeObjectLinkProperty;
 class GtCoreProcessExecutor;
+class GtState;
 
 /**
  * @brief The GtProcessDock class
@@ -167,9 +167,6 @@ private:
     /// Search widget
     GtSearchWidget* m_search;
 
-    /// Root index
-    QPersistentModelIndex m_rootIndex;
-
     /// Pointer to selected task group of current project
     QPointer<GtTaskGroup> m_taskGroup;
 
@@ -182,9 +179,19 @@ private:
     /// Command
     GtCommand m_command{};
 
-    /// mapper for action signals
-    QSignalMapper* m_actionMapper;
+    /// Expanded item UUIDs
+    GtState* m_expandedItemUuidsState;
 
+    /// Scope of the last selected task group
+    GtState* m_lastTaskGroupScopeState;
+
+    /// ID of the last selected task group
+    GtState* m_lastTaskGroupIdState;
+
+    /**
+     * @brief Determines the current Task Group from the process data and
+     * updates the corresponding GUI components in the process dock.
+     */
     void updateCurrentTaskGroup();
 
     /**
@@ -310,6 +317,76 @@ private:
      */
     void multiSelectionContextMenu(const QList<QModelIndex>& indexList);
 
+    /**
+     * @brief Takes the UUIDs of the expanded items from the project states and
+     * expands the corresponding items in the process view.
+     */
+    void restoreExpandStates();
+
+    /**
+     * @brief Helper method that recursively expands the items corresponding to
+     * the given list of UUIDs, starting from the specified start index.
+     * @param expandedUuids A list of UUIDs identifying the items to be
+     * expanded.
+     * @param startIndex The index from which to start.
+     */
+    void restoreExpandStatesHelper(const QStringList& expandedUuids,
+                                   const QModelIndex& startIndex);
+
+    /**
+     * @brief Determines the model index of the currently selected task group
+     * and sets it as the root index for the process view.
+     */
+    void updateProcessViewRootIndex();
+
+    /**
+     * @brief Retrieves the UUIDs of expanded process items from the project
+     * states and returns them as a list of strings.
+     * @return A list of UUIDs representing the expanded process items.
+     */
+    QStringList expandedItemUuids() const;
+
+    /**
+     * @brief Stores the given list of UUIDs in the project states. These UUIDs
+     * represent the process items that are currently expanded.
+     * @param uuids A list of UUIDs representing the expanded process items.
+     */
+    void setExpandedItemUuids(const QStringList& uuids);
+
+    /**
+     * @brief Retrieves and returns the scope of the last selected Task Group
+     * from the project states.
+     * @return The scope of the last selected Task Group.
+     */
+    GtTaskGroup::SCOPE lastTaskGroupScope() const;
+
+    /**
+     * @brief Stores the given Task Group scope in the project states. This
+     * represents the scope of the last selected Task Group.
+     * @param scope The scope of the last selected Task Group to be stored.
+     */
+    void setLastTaskGroupScope(GtTaskGroup::SCOPE scope);
+
+    /**
+    * @brief Retrieves and returns the ID of the last selected Task Group
+    * from the project states.
+    * @return The ID of the last selected Task Group.
+    */
+    QString lastTaskGroupId() const;
+
+    /**
+     * @brief Stores the given Task Group ID in the project states.
+     * This ID represents the last selected Task Group.
+     * @param groupId The ID of the last selected Task Group to be stored.
+     */
+    void setLastTaskGroupId(const QString& groupId);
+
+    /**
+     * @brief Resets the Task Group Model using the list of currently existing
+     * Task Groups from the process data.
+     */
+    void resetTaskGroupModel();
+
 private slots:
     /**
      * @brief filterData
@@ -378,6 +455,27 @@ private slots:
     void customContextMenu(const QPoint& pos);
 
     /**
+     * @brief Opens dialog to create a new custom task group.
+     */
+    void addNewCustomTaskGroup();
+
+    /**
+     * @brief Deletes a custom task group after confirmation.
+     * @param groupName Name of the task group to delete
+     */
+    void deleteCustomTaskGroup(const QString& groupName);
+
+    /**
+     * @brief Handles delete button click for custom task group.
+     */
+    void onDeleteTaskGroupButtonClicked();
+
+    /**
+     * @brief Handles rename button click for custom task group.
+     */
+    void onRenameTaskGroupButtonClicked();
+
+    /**
      * @brief Opens the calcualtor configuration wizard.
      * @param calc Calculator for configuration.
      */
@@ -388,11 +486,6 @@ private slots:
      * @param task Task for configuration.
      */
     void configTask(GtTask* task);
-
-    /**
-     * @brief resetModel
-     */
-    void resetModel();
 
     /**
      * @brief Opens a connection editor.
@@ -429,6 +522,28 @@ private slots:
     void onExecutorChanged(GtCoreProcessExecutor* exec);
 
     void currentTaskGroupIndexChanged(int index);
+
+    /**
+     * @brief Called after resetting the gtDataModel. It updates the root
+     * index of the process view.
+     */
+    void endResetView();
+
+    /**
+     * @brief Called after an item is collapsed. It removes the UUID of the
+     * collapsed item from the list of expanded process items.
+     * @param index The index of the item that was collapsed.
+     */
+    void itemCollapsed(const QModelIndex& index);
+
+    /**
+     * @brief Called after an item is expanded. It adds the UUID of the
+     * expanded item to the list of expanded process items.
+     * @param index The index of the item that was expanded.
+     */
+    void itemExpanded(const QModelIndex& index);
+
+    void updateCustomTaskGroupsButtons();
 
 signals:
     /**

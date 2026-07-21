@@ -18,6 +18,7 @@
 #include <QtGlobal>
 #include <QDebug>
 #include <QMetaType>
+#include <QStringRef>
 
 #include <cfloat>
 #include <typeinfo>
@@ -41,6 +42,7 @@ const QSet<QString> GtObjectIO::S_LISTTYPES = QSet<QString>()
                                             << QStringLiteral("QList<bool>")
                                             << QStringLiteral("QList<QPointF>")
                                             << QStringLiteral("QVector<double>")
+                                            << QStringLiteral("QList<double>")
                                             << QStringLiteral("QStringList");
 
 
@@ -251,6 +253,8 @@ GtObjectIO::toMemento(const GtObject* o, bool clone)
     // object name
     memento.setIdent(o->objectName());
 
+    memento.setFlagEnabled(GtObjectMemento::SaveAsOwnFile, o->saveAsOwnFile());
+
     // child objects
     auto const directChildren = o->findDirectChildren();
     memento.childObjects.reserve(directChildren.size());
@@ -279,6 +283,21 @@ GtObjectIO::toDomElement(const GtObjectMemento& memento, QDomDocument& doc,
 
     // object name
     element.setAttribute(gt::xml::S_NAME_TAG, memento.ident());
+
+    // indikate as link flag, if object should be stored onto own file
+    if (memento.isFlagEnabled(GtObjectMemento::SaveAsOwnFile))
+    {
+        if (!memento.isFlagEnabled(GtObjectMemento::IsUnresolved))
+        {
+            element.setAttribute(gt::xml::S_ASLINK_TAG, "true");
+        }
+        else
+        {
+            // we should only write the reference, but not the linked file
+            // to avoid overwriting an unresolved file
+            element.setAttribute(gt::xml::S_ASLINK_TAG, "refonly");
+        }
+    }
 
     // store property information
     writeProperties(doc, element, memento);
@@ -310,6 +329,14 @@ GtObjectIO::toMemento(const QDomElement& e)
         .setUuid(e.attribute(gt::xml::S_UUID_TAG))
         .setIdent(e.attribute(gt::xml::S_NAME_TAG));
 
+    if (e.tagName() == gt::xml::S_OBJECTREF_TAG)
+    {
+        // The object ref could not be resolved by the reader, so we
+        // need to make a dummy
+        memento.setFlagEnabled(GtObjectMemento::IsUnresolved, true);
+        return memento;
+    }
+
     // store property information
     memento.properties = readProperties(e);
     memento.propertyContainers = readPropertyContainers(e);
@@ -320,14 +347,20 @@ GtObjectIO::toMemento(const QDomElement& e)
     if (!children.isNull())
     {
         QDomElement compElement =
-                children.firstChildElement(gt::xml::S_OBJECT_TAG);
+            children.firstChildElement();
 
         while (!compElement.isNull())
         {
+            if (compElement.tagName() != gt::xml::S_OBJECT_TAG && compElement.tagName() != gt::xml::S_OBJECTREF_TAG)
+            {
+                compElement = compElement.nextSiblingElement();
+                continue;
+            }
+
             // recursion through GtObjectMemento constructor
             memento.childObjects.push_back(GtObjectMemento(compElement));
 
-            compElement = compElement.nextSiblingElement(gt::xml::S_OBJECT_TAG);
+            compElement = compElement.nextSiblingElement();
         }
     }
 
@@ -843,44 +876,46 @@ void
 GtObjectIO::propertyListStringType(const QVariant& var, QString& valStr,
                                    QString& typeStr)
 {
-    static QVariant::Type type_QDoubleVector = QVariant::nameToType(
+    auto varType = gt::metaTypeId(var);
+
+    static auto type_QDoubleVector = gt::metaTypeIdFromName(
                 "QVector<double>");
-    static QVariant::Type type_QIntList = QVariant::nameToType(
+    static auto type_QIntList = gt::metaTypeIdFromName(
                 "QList<int>");
-    static QVariant::Type type_QBoolList = QVariant::nameToType(
+    static auto type_QBoolList = gt::metaTypeIdFromName(
                 "QList<bool>");
-    static QVariant::Type type_QPointFList = QVariant::nameToType(
+    static auto type_QPointFList = gt::metaTypeIdFromName(
                 "QList<QPointF>");
-    static QVariant::Type type_QStringList = QVariant::nameToType(
+    static auto type_QStringList = gt::metaTypeIdFromName(
                 "QStringList");
 
-    assert(type_QDoubleVector != QVariant::Invalid);
-    assert(type_QIntList != QVariant::Invalid);
-    assert(type_QBoolList != QVariant::Invalid);
-    assert(type_QPointFList != QVariant::Invalid);
-    assert(type_QStringList == QVariant::StringList);
+    assert(QMetaType::isRegistered(type_QDoubleVector));
+    assert(QMetaType::isRegistered(type_QIntList));
+    assert(QMetaType::isRegistered(type_QBoolList));
+    assert(QMetaType::isRegistered(type_QPointFList));
+    assert(QMetaType::isRegistered(type_QStringList));
 
-    if (var.type() == type_QDoubleVector)
+    if (varType == type_QDoubleVector)
     {
         valStr = listToString(var.value<QVector<double> >());
         typeStr = QStringLiteral("double");
     }
-    else if (var.type() == type_QIntList)
+    else if (varType == type_QIntList)
     {
         valStr = listToString(var.value<QList<int> >());
         typeStr = QStringLiteral("int");
     }
-    else if (var.type() == type_QBoolList)
+    else if (varType == type_QBoolList)
     {
         valStr = listToString(var.value<QList<bool> >());
         typeStr = QStringLiteral("bool");
     }
-    else if (var.type() == type_QPointFList)
+    else if (varType == type_QPointFList)
     {
         valStr = listToString(var.value<QList<QPointF> >());
         typeStr = QStringLiteral("QPointF");
     }
-    else if (var.type() == type_QStringList)
+    else if (varType == type_QStringList)
     {
         valStr = listToString(var.value<QStringList>());
         typeStr = QStringLiteral("QString");
@@ -954,10 +989,10 @@ propertyToVariant(const QString& value, const QString& type)
     std::string str = type.toStdString();
     const char* p = str.c_str();
 
-    QVariant::Type v_type = QVariant::nameToType(p);
+    auto v_type = gt::metaTypeIdFromName(p);
     QVariant retval(value);
 
-    if (v_type != QVariant::Invalid)
+    if (QMetaType::isRegistered(v_type))
     {
         retval.convert(v_type);
     }

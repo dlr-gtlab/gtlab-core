@@ -2,11 +2,169 @@ name: CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "2.0.X" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "2.0.X" ]
 
 jobs:
+
+  check_license:
+    name: "License compliance"
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install REUSE tool
+      run: python3 -m pip install reuse
+
+    - name: Run REUSE lint
+      run: reuse lint
+
+  build_and_test:
+    name: "Build and test"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-2022] # we build on GitHub-provided Windows and Linux images
+    runs-on: ${{ matrix.os }} # use value from the matrix
+    
+    steps:    
+    - name: Install dependencies (linux)
+      if: matrix.os == 'ubuntu-latest' 
+      run: |
+        sudo apt install ninja-build
+        
+        wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
+        mkdir $HOME/build_deps
+        tar xf hdf5-1.12.1-linux.tar.gz -C $HOME/build_deps
+        echo "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-linux\share\cmake\hdf5" >> $GITHUB_ENV
+      
+    - name: Install Ninja (windows)    # Ninja is not available in GitHub-provided images,
+                                       # see https://github.com/actions/runner-images/issues/514
+      run: choco install ninja         # So let's install it through Chocolatey
+      if: startsWith(matrix.os, 'windows')
+      
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.15.2'
+    - uses: ilammy/msvc-dev-cmd@v1 # This action essentially calls vcvarsall.bat for the latest VS in the runner for x64
+    - uses: actions/checkout@v3    # Actually check out the sources. GH Actions can run for events that may not require
+                                   # sources (e.g. when someone comments on an issue)
+    - name: Install dependencies (windows)
+      if: startsWith(matrix.os, 'windows')
+      shell: powershell
+      run: |
+        $ProgressPreference = 'SilentlyContinue'
+        
+        Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
+        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$HOME/build_deps"
+        "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append   
+        "HDF5_BIN_DIR=$HOME\build_deps\hdf5-1.12.1-win64\bin" | Out-File -FilePath $env:GITHUB_ENV -Append   
+ 
+ 
+    # Here we call CMake manually, there are solutions for that in the Marketplace: https://github.com/marketplace/actions/run-cmake
+    - name: Build
+      run: | 
+        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DCMAKE_INSTALL_PREFIX=install
+        cmake --build build --target install --config=Debug
+
+    - name: Unit Tests - Windows
+      if: startsWith(matrix.os, 'windows')
+      shell: cmd /C call {0}
+      run: |
+        set PATH=%cd%\build\install\binDebug;%HDF5_BIN_DIR%;%PATH%
+        cd build
+        .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
+
+    - name: Unit Tests - Linux
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        cd build
+        ./GTlabUnitTest --gtest_output=xml:unittests.xml
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Binaries - ${{ matrix.os }}
+        path: |
+          install
+          build/*.so*
+          build/**/*.dll
+          build/**/*.exe
+          build/**/*.lib
+          build/**/*.pdb
+          build/GTlab*
+          build/modules
+          build/**/*.txt
+          build/**/*.cmake
+          build/**/*.ninja
+          build/**/*.log
+          build/_deps/*-src
+
+  build_win_qt6:
+    name: "Build with qt6 on windows"
+    runs-on: windows-2022
+    
+    steps:    
+    - name: Install Ninja (windows)
+      run: choco install ninja
+      
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.5.3'
+        modules: 'qt5compat qtshadertools'
+        
+    - uses: ilammy/msvc-dev-cmd@v1
+    - uses: actions/checkout@v3 
+    
+    - name: Install dependencies (windows)
+      shell: powershell
+      run: |
+        $ProgressPreference = 'SilentlyContinue'
+        
+        Invoke-WebRequest -Uri https://gtlab.de/builddeps/hdf5-1.12.1-win64.zip -OutFile hdf5-1.12.1-win64.zip
+        Expand-Archive -Path 'hdf5-1.12.1-win64.zip' -DestinationPath "$HOME/build_deps"
+        "HDF5_DIR=$HOME\build_deps\hdf5-1.12.1-win64\share\cmake\hdf5" | Out-File -FilePath $env:GITHUB_ENV -Append   
+        "HDF5_BIN_DIR=$HOME\build_deps\hdf5-1.12.1-win64\bin" | Out-File -FilePath $env:GITHUB_ENV -Append   
+ 
+    - name: Build
+      run: | 
+        cmake -S . -B build -G "Ninja Multi-Config" -DBUILD_UNITTESTS=ON -DBUILD_TESTMODULES=ON -DCMAKE_INSTALL_PREFIX=gtlab-win64-qt6
+        cmake --build build --target install --config=Release
+        
+    - name: Unit Tests - Windows
+      shell: cmd /C call {0}
+      run: |
+        set PATH=%cd%\build\install\bin;%HDF5_BIN_DIR%;%PATH%
+        cd build
+        .\GTlabUnitTest.exe --gtest_output=xml:unittests.xml
+
+    - name: Create Package (Windows)
+      run: |
+        cd gtlab-win64-qt6/bin
+        windeployqt.exe --qmldir ..\..\src\resources\qml --plugindir qtplugins --no-translations --qml-deploy-dir qml -printsupport -core5compat GTlab.exe
+        cp $env:HDF5_BIN_DIR/hdf5.dll .
+
+        # Create qt.conf file
+        @"
+        [Paths]
+        Prefix = ./
+        Plugins = qtplugins
+        Imports = qml
+        Qml2Imports = qml
+        "@ | Out-File -Encoding UTF8 qt.conf
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: GTlab Windows Qt6.5
+        path: |
+          gtlab-win64-qt6
+
+
   documentation:
     runs-on: ubuntu-latest
     strategy:
@@ -19,17 +177,80 @@ jobs:
         sudo apt install -y doxygen
         python -m pip install --upgrade pip
         pip install -r docs/requirements.txt
-    - name: Run doxygen
+    - name: Create developer documentation
       run: |
-        cd docs
+        cd docs/dev
         doxygen
-    - name: Create documentation
-      run: |
-        cd docs
         sphinx-build . html
-    - name: Save as artifact
+    - name: Create user documentation
+      run: |
+        cd docs/user
+        sphinx-build . html
+    - name: Save developer doc artifact
       uses: actions/upload-artifact@v4
       with:
         name: doc-devel
         path: |
-          docs/html
+          docs/dev/html
+    - name: Save user doc artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: doc-user
+        path: |
+          docs/user/html
+
+  coverage_linux:
+    name: "Coverage (linux)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install dependencies (linux)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build lcov
+
+        wget https://gtlab.de/builddeps/hdf5-1.12.1-linux.tar.gz
+        mkdir -p $HOME/build_deps
+        tar xf hdf5-1.12.1-linux.tar.gz -C $HOME/build_deps
+        echo "HDF5_DIR=$HOME/build_deps/hdf5-1.12.1-linux/share/cmake/hdf5" >> $GITHUB_ENV
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.15.2'
+
+    - name: Configure
+      run: |
+        cmake -S . -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_UNITTESTS=ON \
+          -DBUILD_TESTMODULES=ON \
+          -DBUILD_WITH_COVERAGE=ON \
+          -DGTLAB_COVERAGE_LCOV_ARGS="--ignore-errors mismatch,mismatch,unused"
+
+    - name: Build and run coverage target
+      run: |
+        cmake --build build --target test-coverage
+
+    - name: Upload coverage report artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-lcov-info
+        path: build/test-coverage.info
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        files: build/test-coverage.info
+        flags: linux
+        name: linux-lcov
+        disable_search: true
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
