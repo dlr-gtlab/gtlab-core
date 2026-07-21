@@ -220,12 +220,14 @@ TEST_F(ProjectLifecycleTest, newProjectRollsBackWhenOpeningFails)
     GtProject* rejected = createProject(QStringLiteral("Rejected Project"));
     ASSERT_NE(rejected, nullptr);
     EXPECT_FALSE(gtDataModel->newProject(rejected, true));
+    EXPECT_TRUE(current->isOpen());
+    EXPECT_EQ(gtDataModel->currentProject(), current);
     EXPECT_EQ(gtDataModel->findProject(rejected->objectName()), nullptr);
     EXPECT_EQ(rejected->parent(), nullptr);
     delete rejected;
 }
 
-TEST_F(ProjectLifecycleTest, openProjectRollsBackProjectOutsideSession)
+TEST_F(ProjectLifecycleTest, openProjectRejectsProjectOutsideSession)
 {
     std::unique_ptr<GtProject> detached(
         createProject(QStringLiteral("Detached Project")));

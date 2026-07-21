@@ -236,10 +236,10 @@ GtProjectProvider::duplicateProject(const QString& newId,
     // A duplicate is prepared in memory, but it must be returned as a closed
     // project so it can follow the regular data-model open path. Persist the
     // prepared data first, then release it from the project object.
-    retval->m_isOpen = true;
+    retval->markOpen();
     const bool saved = retval->saveProjectOverallData() &&
                        retval->saveModuleData();
-    retval->m_isOpen = false;
+    retval->markClosed();
 
     if (!saved)
     {

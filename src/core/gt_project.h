@@ -312,6 +312,16 @@ protected:
     void setModuleIds(const QStringList& list);
 
 private:
+    void markOpen()
+    {
+        m_isOpen = true;
+    }
+
+    void markClosed()
+    {
+        m_isOpen = false;
+    }
+
     /// Path to project directory on hard drive
     QString m_path;
 
