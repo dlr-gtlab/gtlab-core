@@ -45,7 +45,7 @@ struct GtCoreProcessExecutor::Impl
     QPointer<GtRunnable> currentRunnable;
 
     /// store proc run info per task
-    QHash<GtTask*, GtProcessExecutionInfo*> processExecInfo;
+    QHash<GtTask*, QPointer<GtProcessExecutionInfo>> processExecInfo;
 };
 
 GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, Flags flags) :
@@ -157,6 +157,7 @@ bool
 GtCoreProcessExecutor::terminateAllTasks()
 {
     m_queue.clear();
+    pimpl->processExecInfo.clear();
 
     return !taskCurrentlyRunning() || terminateTask(m_current);
 }
@@ -224,6 +225,7 @@ GtCoreProcessExecutor::queueTask(GtTask* task, GtProcessExecutionInfo* procExcIn
 
     m_queue.append(task);
 
+    cleanupProcessExecutionMapping();
     if (procExcInfo!=Q_NULLPTR)
     {
         procExcInfo->setProcessState(GtProcessComponent::QUEUED);
@@ -244,7 +246,15 @@ GtCoreProcessExecutor::removeFromQueue(GtTask *task)
     {
         m_queue.removeAll(task);
 
-        if (task) task->setStateRecursively(GtTask::NONE);
+        if (task)
+        {
+            task->setStateRecursively(GtTask::NONE);
+        }
+
+        if(processExecutionInfo(task))
+        {
+            pimpl->processExecInfo.remove(task);
+        }
 
         emit queueChanged();
     }
@@ -324,9 +334,10 @@ GtCoreProcessExecutor::execute()
 
         connect(runner, &QObject::destroyed, &eventLoop, &QEventLoop::quit);
 
-        if(pimpl->processExecInfo.contains(m_current))
+        auto procExecInfo = processExecutionInfo(m_current);
+        if(procExecInfo)
         {
-            pimpl->processExecInfo[m_current]->setStartTimeNow();
+            procExecInfo->setStartTimeNow();
         }
 
         // run
@@ -410,12 +421,10 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
         }
 
 
-        if(pimpl->processExecInfo.contains(task))
+        auto procExecInfo = processExecutionInfo(task);
+        if(procExecInfo)
         {
-            auto _x = pimpl->processExecInfo[task];
-            _x->setProcessState(task->currentState());
-            _x->setDataDiffToMerge(sumDiff);
-            _x->setEndTimeNow();
+            procExecInfo->setDataDiffToMerge(sumDiff);
         }
 
     }
@@ -429,10 +438,6 @@ GtCoreProcessExecutor::handleTaskFinishedHelper(
     }
 
 
-    if(pimpl->processExecInfo.contains(task))
-    {
-        pimpl->processExecInfo.remove(task);
-    }
 
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__ << "end";
 }
@@ -511,6 +516,31 @@ GtCoreProcessExecutor::setupTaskRunner()
     return runner;
 }
 
+GtProcessExecutionInfo*
+GtCoreProcessExecutor::processExecutionInfo(GtTask *task)
+{
+    if (task && pimpl->processExecInfo.contains(task))
+    {
+        return pimpl->processExecInfo[task];
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+void GtCoreProcessExecutor::cleanupProcessExecutionMapping()
+{
+    for(auto key : pimpl->processExecInfo.keys())
+    {
+        if (pimpl->processExecInfo[key].isNull())
+        {
+            pimpl->processExecInfo.remove(key);
+        }
+    }
+}
+
+
 void
 GtCoreProcessExecutor::onTaskRunnerFinished()
 {
@@ -563,6 +593,17 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
     gtInfoId(GT_EXEC_ID).medium()
         << tr("----> Task finished (took %1 ms to merge) <----")
                .arg(timer.elapsed());
+
+
+
+    auto procExecInfo = processExecutionInfo(finishedTask);
+    if (procExecInfo)
+    {
+        procExecInfo->setProcessState(finishedTask->currentState());
+        procExecInfo->setEndTimeNow();
+        pimpl->processExecInfo.remove(finishedTask);
+    }
+    cleanupProcessExecutionMapping();
 
     // reset source
     m_source.clear();

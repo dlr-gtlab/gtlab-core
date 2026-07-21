@@ -74,6 +74,7 @@ public:
      * @param process GtdProcess
      */
     bool runTask(GtTask* task);
+
     bool runTask(GtTask* task, GtProcessExecutionInfo* procExcInfo);
 
     /**
@@ -217,6 +218,18 @@ protected:
      * @return Task runner pointer (null if setup failed)
      */
     GtTaskRunner* setupTaskRunner();
+
+    /**
+     * @brief Return the GtProcessExecutionInfo for a task is available
+     * @return the GtProcessExecutionInfo (null is not available)
+     */
+    GtProcessExecutionInfo* processExecutionInfo(GtTask* task);
+
+    /**
+     * @brief Removes mappings to objects which are no longer available
+     */
+    void cleanupProcessExecutionMapping();
+
 
 private:
 
