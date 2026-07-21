@@ -10,7 +10,7 @@ import QtQuick.Layouts 1.0
 Rectangle {
     implicitWidth: 1500
     implicitHeight: 50
-    id: toolBar
+    id: toolbarRoot
 
     property var theme: toolbar.theme
 
@@ -21,7 +21,7 @@ Rectangle {
     Rectangle {
         id: leftOverlay
         width: spacing + spacer.radius
-        height: toolBar.height - spacing * 2
+        height: toolbarRoot.height - spacing * 2
         color: spacer.color
         y: spacing
     }
@@ -29,9 +29,9 @@ Rectangle {
     Rectangle {
         id: rightOverlay
         width: spacing + spacer.radius
-        height: toolBar.height - spacing * 2
+        height: toolbarRoot.height - spacing * 2
         color: spacer.color
-        anchors.right: toolBar.right
+        anchors.right: toolbarRoot.right
         y: spacing
     }
 
@@ -39,7 +39,7 @@ Rectangle {
     Row {
         id: row
 
-        spacing: toolBar.spacing
+        spacing: toolbarRoot.spacing
 
         Repeater {
             id: toolbarRepeater
@@ -55,7 +55,7 @@ Rectangle {
                     actions: groupActions
                     name: groupName
                     visible: modelData.visible
-                    theme: toolBar.theme
+                    theme: toolbarRoot.theme
                 }
             }
         }
@@ -67,12 +67,12 @@ Rectangle {
 
         radius: 10
         anchors.left: row.right
-        anchors.leftMargin: toolBar.spacing
-        anchors.right: statusActions.count > 0 ? statusActions.left : toolBar.right
-        anchors.rightMargin: toolBar.spacing
-        color: toolBar.theme.backgroundColor
-        implicitHeight: toolBar.implicitHeight - 2 * toolBar.spacing
-        y: toolBar.spacing
+        anchors.leftMargin: toolbarRoot.spacing
+        anchors.right: statusActions.count > 0 ? statusActions.left : toolbarRoot.right
+        anchors.rightMargin: toolbarRoot.spacing
+        color: toolbarRoot.theme.backgroundColor
+        implicitHeight: toolbarRoot.implicitHeight - 2 * toolbarRoot.spacing
+        y: toolbarRoot.spacing
     }
 
     // the list of status actions on the right
@@ -81,6 +81,6 @@ Rectangle {
         anchors.right: parent.right
         actions: toolbar.statusActions
         name: "status"
-        theme: toolBar.theme
+        theme: toolbarRoot.theme
     }
 }

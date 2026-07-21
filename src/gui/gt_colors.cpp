@@ -64,17 +64,14 @@ gt::gui::color::base()
 }
 
 QColor
-gt::gui::color::headingBackground()
+gt::gui::color::toolbarBackground()
 {
-    if (gtApp && gtApp->inDarkMode())
+    if (gt::gui::isApplicationDarkTheme())
     {
-        // Todo: how to compute this color from base?
         return QColor(10, 17, 31);
     }
-    else
-    {
-        return gt::gui::color::base();
-    }
+
+    return gt::gui::color::base();
 }
 
 QColor

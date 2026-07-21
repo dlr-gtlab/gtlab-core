@@ -9,6 +9,8 @@
 #define GTQMLTOOLBAR_H
 
 #include <QObject>
+#include <QColor>
+#include <QVariantMap>
 #include <QWidget>
 
 #include <memory>
@@ -44,6 +46,13 @@ class GT_GUI_EXPORT GtQmlToolbar : public QWidget
      * @brief A property, that contains the color theme of the toolbar
      */
     Q_PROPERTY(QVariantMap theme READ themeMap NOTIFY themeChanged FINAL)
+
+    /**
+     * @brief Whether the toolbar uses its dark default theme.
+     *
+     * Kept for compatibility. Use setColorTheme() to customize colors.
+     */
+    Q_PROPERTY(bool darkMode READ darkMode NOTIFY darkModeChanged FINAL)
 public:
     explicit GtQmlToolbar(QWidget *parent = nullptr);
     ~GtQmlToolbar() override;
@@ -69,6 +78,9 @@ public:
      */
     Q_INVOKABLE void addStatusAction(GtQmlAction* action);
 
+    Q_INVOKABLE bool darkMode() const;
+    Q_INVOKABLE void setDarkMode(bool dark);
+
     /**
      * @brief Returns all toolbar groups
      */
@@ -92,7 +104,7 @@ public:
         QColor buttonHover;
 
         /// True, if this theme is a dark mode
-        bool darkmode;
+        bool darkMode;
     };
 
     void setColorTheme(const Theme& colors);
@@ -101,6 +113,7 @@ signals:
     void groupsChanged();
     void statusActionsChanged();
     void themeChanged();
+    void darkModeChanged();
 
 private:
     QVariantMap themeMap() const;

@@ -77,10 +77,10 @@ GT_GUI_EXPORT QColor main();
 GT_GUI_EXPORT QColor base();
 
 /**
- * @brief A background color that is used for certaing headings
- * like the toolbar or dockbars#
+ * @brief Background color for the main toolbar.
+ * @return Toolbar background color for the current theme.
  */
-GT_GUI_EXPORT QColor headingBackground();
+GT_GUI_EXPORT QColor toolbarBackground();
 
 /**
  * @brief Palette text color

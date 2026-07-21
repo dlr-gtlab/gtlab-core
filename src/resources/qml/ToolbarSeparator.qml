@@ -16,8 +16,7 @@ Item {
 
         width: 2
         height: parent.height - 6
-        color: theme.dark_mode ? Qt.lighter(theme.baseColor,
-                                            1.2) : theme.baseColor
+        color: theme.baseColor
         anchors.centerIn: parent
     }
 }

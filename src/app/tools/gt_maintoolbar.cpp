@@ -127,10 +127,11 @@ void
 GtMainToolbar::updateTheme()
 {
     Theme theme;
-    theme.darkmode = gtApp->inDarkMode();
+    theme.darkMode = gtApp->inDarkMode();
     theme.base = gt::gui::color::main();
-    theme.background = gt::gui::color::headingBackground();
+    theme.background = gt::gui::color::toolbarBackground();
     theme.foreground = gt::gui::color::text();
+    theme.buttonHover = gt::gui::color::highlight();
 
     setColorTheme(theme);
 }

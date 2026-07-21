@@ -23,7 +23,7 @@ Item {
         implicitHeight: 40
 
         visible: toolbarGroup.visible && toolbarGroup.count > 0
-        color: toolbarGroup.theme.backgroundColor
+        color: theme.backgroundColor
 
 //        Behavior on implicitWidth {
 //            NumberAnimation {

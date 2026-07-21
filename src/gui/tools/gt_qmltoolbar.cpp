@@ -87,15 +87,44 @@ GtQmlToolbar::addStatusAction(GtQmlAction* action)
 void
 GtQmlToolbar::setColorTheme(const Theme &colors)
 {
+    bool const darkModeChanged = colors.darkMode != darkMode();
+
     QVariantMap theme;
     theme["baseColor"] = colors.base;
     theme["backgroundColor"] = colors.background;
     theme["hoverColor"] = colors.buttonHover;
-    theme["darkMode"] = colors.darkmode;
+    theme["darkMode"] = colors.darkMode;
 
     pimpl->theme = std::move(theme);
 
     emit themeChanged();
+    if (darkModeChanged)
+    {
+        emit this->darkModeChanged();
+    }
+}
+
+bool
+GtQmlToolbar::darkMode() const
+{
+    return pimpl->theme.value("darkMode").toBool();
+}
+
+void
+GtQmlToolbar::setDarkMode(bool dark)
+{
+    if (dark == darkMode()) return;
+
+    Theme theme;
+    theme.darkMode = dark;
+    if (dark)
+    {
+        theme.base = QColor(21, 34, 49);
+        theme.background = QColor(10, 17, 31);
+        theme.buttonHover = QColor(30, 42, 58);
+    }
+
+    setColorTheme(theme);
 }
 
 QVariantMap
@@ -118,9 +147,8 @@ GtQmlToolbar::statusActions()
 
 GtQmlToolbar::Theme::Theme()
     : base(241, 241, 241)
-    , background(255, 255, 255 )
+    , background(255, 255, 255)
     , buttonHover(221, 238, 255)
-    , darkmode(false)
+    , darkMode(false)
 {
 }
-
