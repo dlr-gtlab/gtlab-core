@@ -178,6 +178,14 @@ If the module does not load, check the GTlab output and then verify:
 * ``MODULE_ID`` matches the identity expected by the module; and
 * every inherited Qt interface is listed in ``Q_INTERFACES(...)``.
 
+The module list should show the module name, version, and location:
+
+.. figure:: ../images/Modules-List.png
+   :align: center
+   :alt: GTlab module overview in the About GTlab dialog
+
+   Example module overview used to verify that a module was loaded.
+
 An interface-version mismatch means that the module was compiled against an
 incompatible GTlab interface. Reconfigure and rebuild it against the GTlab
 installation that will load it.
