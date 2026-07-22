@@ -180,6 +180,33 @@ TEST_F(SaveXmlWithLinkedObjectsTest, SingleLinkedObject_AslinkTrue)
     EXPECT_EQ(extProp.text(), QStringLiteral("42"));
 }
 
+TEST_F(SaveXmlWithLinkedObjectsTest, LinkedFileContainsFilteredClassModuleMap)
+{
+    const char* xml = R"(
+<Root><METADATA><CLASS-PROVIDERS>
+  <MODULE name="AnotherLongModuleId"><CLASS name="Bar"/></MODULE>
+  <MODULE name="AQuiteLongModuleId"><CLASS name="Foo"/></MODULE>
+</CLASS-PROVIDERS></METADATA>
+<object class="Foo" name="A" uuid="{111-222}" aslink="true"/></Root>)";
+    QDomDocument doc = readXmlToDom(xml);
+    const QString masterPath = makePath("master.xml");
+    QString error;
+    ASSERT_TRUE(gt::xml::saveProjectXmlWithLinkedObjects(
+        QStringLiteral("TestProject"), doc, baseDir(), masterPath,
+        gt::xml::LinkFileSaveType::WithLinkedFiles, &error))
+        << error.toStdString();
+
+    QDomDocument extDoc = readFileToDom(
+        baseDir().filePath("master/A_111-222.gtobj.xml"));
+    ASSERT_FALSE(extDoc.isNull());
+    EXPECT_EQ(extDoc.documentElement().firstChildElement().tagName(),
+              QStringLiteral("METADATA"));
+    const auto mappings = gt::xml::readClassModuleMap(extDoc.documentElement());
+    ASSERT_EQ(mappings.size(), 1);
+    EXPECT_EQ(mappings.value(QStringLiteral("Foo")),
+              QStringLiteral("AQuiteLongModuleId"));
+}
+
 // --------------------------------------------------------
 // 3) Multiple linked objects: both linked files exist,
 //    master contains multiple objectref nodes.
@@ -538,5 +565,3 @@ TEST_F(SaveXmlWithLinkedObjectsTest, RecursiveHierarchicalObjectPathCreation)
     EXPECT_EQ(leafProp.attribute("name"), QStringLiteral("x"));
     EXPECT_EQ(leafProp.text(), QStringLiteral("1.0"));
 }
-
-

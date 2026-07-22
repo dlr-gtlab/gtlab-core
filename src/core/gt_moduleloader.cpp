@@ -892,8 +892,8 @@ GtModuleLoader::insert(GtModuleInterface* plugin)
     // contains dynamic linked datamodel classes
     if (dmp)
     {
-        gtObjectFactory->registerClasses(dmp->data());
-        gtObjectFactory->registerClass(dmp->package());
+        gtObjectFactory->registerClasses(dmp->data(), plugin->ident());
+        gtObjectFactory->registerClass(dmp->package(), plugin->ident());
     }
 }
 

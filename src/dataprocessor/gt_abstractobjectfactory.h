@@ -74,6 +74,14 @@ public:
     virtual bool registerClass(QMetaObject metaObj);
 
     /**
+     * @brief Registers a class and its providing module.
+     * @param metaObj Meta object to register.
+     * @param moduleId Identification of the providing module.
+     * @return Whether the class was registered successfully.
+     */
+    virtual bool registerClass(QMetaObject metaObj, const QString& moduleId);
+
+    /**
      * @brief Removes a class from the factory
      * @param metaObj The meta object of the class to remove
      * @return
@@ -86,6 +94,22 @@ public:
      * @return
      */
     virtual bool registerClasses(const QList<QMetaObject>& metaData);
+
+    /**
+     * @brief Registers classes and their providing module.
+     * @param metaData Meta objects to register.
+     * @param moduleId Identification of the providing module.
+     * @return Whether all classes were registered successfully.
+     */
+    virtual bool registerClasses(const QList<QMetaObject>& metaData,
+                                 const QString& moduleId);
+
+    /**
+     * @brief Returns the module providing a registered class.
+     * @param className Registered class name.
+     * @return Module identification or an empty string if none is known.
+     */
+    virtual QString moduleId(const QString& className) const;
 
     /**
      * @brief containsDuplicates
@@ -122,6 +146,9 @@ protected:
 
     /// registered meta objects
     QHash<QString, QMetaObject> m_knownClasses;
+
+    /// module ids associated with registered classes
+    QHash<QString, QString> m_classModuleIds;
 
     /// debug output indicator
     bool m_silent;

@@ -139,8 +139,10 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
 
         for (GtCalculatorData const& calcData : calcDataList)
         {
-            gtCalculatorFactory->registerCalculatorData(calcData);
-            gtObjectFactory->registerClass(calcData->metaData());
+            gtCalculatorFactory->registerCalculatorData(calcData,
+                                                        plugin->ident());
+            gtObjectFactory->registerClass(calcData->metaData(),
+                                           plugin->ident());
             gtEnvironment->addEnvironmentVariables(
                         calcData->environmentVariables());
         }
@@ -148,7 +150,7 @@ GtProcessModuleLoader::insert(GtModuleInterface* plugin)
         for (GtTaskData const& taskData : taskDataList)
         {
             // includes registration in objectFactory
-            gtTaskFactory->registerTaskData(taskData);
+            gtTaskFactory->registerTaskData(taskData, plugin->ident());
         }
     }
 

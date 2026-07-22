@@ -45,6 +45,34 @@
 
 #include <cassert>
 
+namespace
+{
+
+gt::xml::ClassModuleMap
+taskClassModuleIds(const QString& projectPath)
+{
+    gt::xml::ClassModuleMap result;
+    QDirIterator files(projectPath + QDir::separator() + QStringLiteral("tasks"),
+                       {QStringLiteral("*.gttask")}, QDir::Files,
+                       QDirIterator::Subdirectories);
+    while (files.hasNext())
+    {
+        QFile file(files.next());
+        QDomDocument document;
+        if (!gt::xml::readDomDocumentFromFile(file, document, true)) continue;
+
+        const auto mappings =
+            gt::xml::readClassModuleMap(document.documentElement());
+        for (auto it = mappings.cbegin(); it != mappings.cend(); ++it)
+        {
+            if (!result.contains(it.key())) result.insert(it.key(), it.value());
+        }
+    }
+    return result;
+}
+
+} // namespace
+
 GtProject::GtProject(const QString& path) :
     m_path(path),
     m_pathProp(QStringLiteral("path"), tr("Path"), tr("Project path"), path)
@@ -453,6 +481,15 @@ GtProject::loadMetaData()
 
     // module meta data
     readModuleMetaData(root);
+    m_classModuleIds = gt::xml::readClassModuleMap(root);
+    const auto taskMappings = taskClassModuleIds(path());
+    for (auto it = taskMappings.cbegin(); it != taskMappings.cend(); ++it)
+    {
+        if (!m_classModuleIds.contains(it.key()))
+        {
+            m_classModuleIds.insert(it.key(), it.value());
+        }
+    }
 
     return true;
 }
@@ -517,6 +554,29 @@ GtProject::readModuleMetaData(const QDomElement& root)
     }
 
 
+}
+
+void
+GtProject::updateClassModuleIds()
+{
+    QMap<QString, QString> updated = m_classModuleIds;
+    for (const GtObject* object : findChildren<GtObject*>())
+    {
+        const QString className = object->isDummy()
+                                      ? object->toMemento().className()
+                                      : object->metaObject()->className();
+        if (className.isEmpty()) continue;
+
+        QString moduleId;
+        if (const auto* factory = object->factory())
+        {
+            moduleId = factory->moduleId(className);
+        }
+        if (moduleId.isEmpty()) moduleId = gtObjectFactory->moduleId(className);
+        if (moduleId.isEmpty()) moduleId = m_classModuleIds.value(className);
+        if (!moduleId.isEmpty()) updated.insert(className, moduleId);
+    }
+    m_classModuleIds = std::move(updated);
 }
 
 GtObject*
@@ -672,6 +732,16 @@ GtProject::readModuleData()
             continue;
         }
 
+        const auto moduleMappings = gt::xml::takeClassModuleMap(root);
+        for (auto it = moduleMappings.cbegin(); it != moduleMappings.cend();
+             ++it)
+        {
+            if (!m_classModuleIds.contains(it.key()))
+            {
+                m_classModuleIds.insert(it.key(), it.value());
+            }
+        }
+
         GtObject* obj = gtObjectFactory->newObject(packageId);
 
         if (!obj)
@@ -763,6 +833,10 @@ GtProject::saveModuleData()
             continue;
         }
 
+        const auto moduleMappings = gt::xml::classModuleMapForObjects(
+            m_classModuleIds, rootElement);
+        gt::xml::writeClassModuleMap(rootElement, document, moduleMappings);
+
         QString filename = m_path + QDir::separator() + mid.toLower() + "." +
                            moduleExtension();
 
@@ -785,6 +859,8 @@ GtProject::saveProjectOverallData()
     }
 
     gtDebug().noquote() << tr("Saving project '%1'...").arg(objectName());
+
+    updateClassModuleIds();
 
     QDomDocument document;
     QDomProcessingInstruction header = document.createProcessingInstruction(
@@ -816,6 +892,8 @@ GtProject::saveProjectOverallData()
     {
         return false;
     }
+
+    gt::xml::writeClassModuleMap(rootElement, document, m_classModuleIds);
 
     if (!saveProcessData(rootElement, document))
     {
@@ -1242,6 +1320,12 @@ const QStringList&
 GtProject::moduleIds() const
 {
     return m_moduleIds;
+}
+
+QString
+GtProject::classModuleId(const QString& className) const
+{
+    return m_classModuleIds.value(className);
 }
 
 int
