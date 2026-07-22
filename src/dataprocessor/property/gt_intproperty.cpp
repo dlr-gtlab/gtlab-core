@@ -121,7 +121,9 @@ GtIntProperty::GtIntProperty(const QString& ident,
                              const int lowSideBoundary,
                              const int highSideBoundary,
                              const int& value) :
-    GtIntProperty(ident, name, brief, lowSideBoundary, highSideBoundary, value)
+    GtIntProperty(ident, name, brief,
+                  gt::Boundaries<int>::makeNormalized(lowSideBoundary, highSideBoundary), 
+                  value)
 { }
 
 GtIntProperty::GtIntProperty(const QString& ident,
@@ -131,8 +133,23 @@ GtIntProperty::GtIntProperty(const QString& ident,
                              GtIntProperty::BoundType boundType,
                              const int boundary,
                              const int& value) :
-    GtIntProperty(ident, name, brief, boundType, boundary, value)
-{ }
+    GtIntProperty(ident, name, brief, value)
+{ 
+    switch(boundType)
+    {
+    case BoundLow:
+        m_boundsCheckFlagLow = true;
+        m_boundLo = boundary;
+        break;
+    case BoundHigh:
+        m_boundsCheckFlagHi = true;
+        m_boundHi = boundary;
+        break;
+    }
+
+    m_value = gt::clamp(value, m_boundLo, m_boundHi);
+    m_initValue = m_value;
+}
 
 void
 GtIntProperty::operator+=(int b)
