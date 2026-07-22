@@ -64,6 +64,7 @@ GtTask::GtTask() :
 
     m_currentIter.setVal(0);
 
+    qRegisterMetaType<GtMonitoringDataSet>("GtMonitoringDataSet");
 
     registerProperty(pimpl->processRunner, tr("Execution"));
 
