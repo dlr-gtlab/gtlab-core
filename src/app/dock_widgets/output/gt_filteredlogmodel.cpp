@@ -156,10 +156,7 @@ GtFilteredLogModel::updateCategoryFilter()
         const QModelIndex index = m_filterModel->sourceModel()->index(row, 2);
         const QString category = m_filterModel->sourceModel()->data(index).toString();
 
-        if (!category.isEmpty())
-        {
-            availableCategories.insert(category);
-        }
+        availableCategories.insert(category);
     }
 
     if (!availableCategories.isEmpty())
@@ -193,10 +190,8 @@ GtFilteredLogModel::saveAndPreserveDeactivatedCategories(
     {
         const QModelIndex index = m_filterModel->sourceModel()->index(row, 2);
         const QString category = m_filterModel->sourceModel()->data(index).toString();
-        if (!category.isEmpty())
-        {
-            availableCategories.insert(category);
-        }
+
+        availableCategories.insert(category);
     }
 
     // Use provided currentActivated or get from filter model
@@ -235,10 +230,8 @@ GtFilteredLogModel::setCategoryFilterWithSave(const QSet<QString>& categories)
     {
         const QModelIndex index = m_filterModel->sourceModel()->index(row, 2);
         const QString category = m_filterModel->sourceModel()->data(index).toString();
-        if (!category.isEmpty())
-        {
-            availableCategories.insert(category);
-        }
+
+        availableCategories.insert(category);
     }
 
     // Calculate deactivated categories (available but not in new categories)
@@ -276,10 +269,8 @@ GtFilteredLogModel::resetCategoryFilter()
     {
         const QModelIndex index = m_filterModel->sourceModel()->index(row, 2);
         const QString category = m_filterModel->sourceModel()->data(index).toString();
-        if (!category.isEmpty())
-        {
-            availableCategories.insert(category);
-        }
+
+        availableCategories.insert(category);
     }
 
     // If no available categories, keep current filter unchanged

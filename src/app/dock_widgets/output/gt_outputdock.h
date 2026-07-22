@@ -18,6 +18,7 @@
 class GtTableView;
 class GtFilteredLogModel;
 class QPushButton;
+class GtSearchWidget;
 
 /**
  * @brief The GtOutputDock class
@@ -59,9 +60,6 @@ private:
     /// Filter model
     GtFilteredLogModel* m_model{};
 
-    /// Search text for jump-to functionality
-    QString m_searchText{};
-
     /// List of match positions
     QList<QModelIndex> m_matches{};
 
@@ -82,6 +80,9 @@ private:
 
     /// Toggle error button (hide/show)
     QPushButton* m_errorButton{};
+
+    /// Search widget
+    GtSearchWidget* m_searchWidget;
 
     /// Flag, whether the log should be automatically scrolled to the bottom or not
     bool m_autoScrollToBottom{true};

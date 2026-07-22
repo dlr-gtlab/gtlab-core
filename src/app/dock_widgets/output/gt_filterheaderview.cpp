@@ -162,10 +162,13 @@ gt::FilterHeaderView::paintSection(QPainter* painter, const QRect& rect,
         m_filterModel && m_filterModel->hasActiveFiltersForColumn(logicalIndex);
 
     QPixmap pixmap;
-    if (hasActiveFilters) {
+    if (hasActiveFilters)
+    {
         pixmap = gt::gui::icon::filterActive().pixmap(FILTER_ICON_SIZE,
                                                       FILTER_ICON_SIZE);
-    } else {
+    }
+    else
+    {
         pixmap = gt::gui::icon::filter().pixmap(FILTER_ICON_SIZE,
                                                 FILTER_ICON_SIZE);
     }

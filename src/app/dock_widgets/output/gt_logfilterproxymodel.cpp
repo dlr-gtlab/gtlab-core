@@ -5,6 +5,8 @@
  */
 
 #include "gt_logfilterproxymodel.h"
+#include <iostream>
+#include <ostream>
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QRegExp>
@@ -72,10 +74,8 @@ gt::LogFilterProxyModel::availableCategories() const
     {
         const QModelIndex index = sourceModel()->index(row, 2);
         const QString category = sourceModel()->data(index).toString();
-        if (!category.isEmpty())
-        {
-            categories.insert(category);
-        }
+
+        categories.insert(category);
     }
 
     return QStringList(categories.values());
@@ -120,15 +120,18 @@ gt::LogFilterProxyModel::hasActiveFiltersForColumn(int column) const
             if (!m_filterState.categories.isEmpty())
             {
                 QStringList allCategories = availableCategories();
-                if (allCategories.isEmpty()) {
-                    return false;
-                }
-                return m_filterState.categories.size() != allCategories.size();
+
+                if (allCategories.isEmpty()) return false;
+
+                return std::any_of(allCategories.begin(), allCategories.end(),
+                                   [this](const auto& category)
+                                   {
+                                       return !m_filterState.categories.contains(category);
+                                   });
             }
-            if (!m_filterState.deactivatedCategories.isEmpty())
-            {
-                return true;
-            }
+
+            if (!m_filterState.deactivatedCategories.isEmpty()) return true;
+
             return false;
         case 3: // Message column
             return !m_filterState.text.isEmpty();

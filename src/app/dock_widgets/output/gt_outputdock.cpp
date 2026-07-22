@@ -267,9 +267,9 @@ GtOutputDock::GtOutputDock()
     filterLayout->setContentsMargins(0, 0, 0, 0);
     filterLayout->setSpacing(0);
 
-    GtSearchWidget* searchWidget = new GtSearchWidget;
-    filterLayout->addWidget(searchWidget);
-    searchWidget->enableFindNextButtons();
+    m_searchWidget = new GtSearchWidget;
+    filterLayout->addWidget(m_searchWidget);
+    m_searchWidget->enableFindNextButtons();
 
     // Navigation shortcuts: F3 (next), Shift+F3 (previous)
     auto* m_nextShortcut = new QShortcut(
@@ -284,12 +284,12 @@ GtOutputDock::GtOutputDock()
             &GtOutputDock::goToPrevMatch);
 
     // Connect search changes to editor highlighting
-    connect(searchWidget, &GtSearchWidget::textChanged, this,
+    connect(m_searchWidget, &GtSearchWidget::textChanged, this,
             &GtOutputDock::onSearchTextChanged);
     // Connect navigation button clicks
-    connect(searchWidget, &GtSearchWidget::nextClicked, this,
+    connect(m_searchWidget, &GtSearchWidget::nextClicked, this,
             &GtOutputDock::goToNextMatch);
-    connect(searchWidget, &GtSearchWidget::prevClicked, this,
+    connect(m_searchWidget, &GtSearchWidget::prevClicked, this,
             &GtOutputDock::goToPrevMatch);
 
     m_logView = new GtTableView;
@@ -474,7 +474,7 @@ GtOutputDock::GtOutputDock()
     connect(m_logView, &GtTableView::deleteRequest,
             this, &GtOutputDock::onDeleteRequest);
     connect(m_logView, &GtTableView::searchRequest,
-            searchWidget, &GtSearchWidget::enableSearch);
+            m_searchWidget, &GtSearchWidget::enableSearch);
 }
 
 Qt::DockWidgetArea
@@ -614,6 +614,11 @@ GtOutputDock::onRowsInserted(int start, int last)
 
     scrollToBottom();
     m_model->updateCategoryFilter();
+
+    if (m_searchWidget)
+    {
+        onSearchTextChanged(m_searchWidget->text());
+    }
 }
 
 void
@@ -626,6 +631,11 @@ void
 GtOutputDock::onCategoryFilterChanged()
 {
     m_model->setCategoryFilterWithSave(m_model->filterModel()->categoryFilter());
+
+    if (m_searchWidget)
+    {
+        onSearchTextChanged(m_searchWidget->text());
+    }
 }
 
 void
@@ -634,12 +644,22 @@ GtOutputDock::onModelReset()
     scrollToBottom();
     updateFilterButtons();
     m_model->resetCategoryFilter();
+
+    if (m_searchWidget)
+    {
+        onSearchTextChanged(m_searchWidget->text());
+    }
 }
 
 void
 GtOutputDock::onRowsRemoved()
 {
     updateFilterButtons();
+
+    if (m_searchWidget)
+    {
+        onSearchTextChanged(m_searchWidget->text());
+    }
 }
 
 void
@@ -781,7 +801,7 @@ GtOutputDock::onDeleteRequest()
 }
 
 void
-GtOutputDock::onSearchTextChanged(const QString &text)
+GtOutputDock::onSearchTextChanged(const QString& text)
 {
     if (!m_logView) return;
 
