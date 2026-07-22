@@ -40,6 +40,25 @@ For users, the important result is simple:
 
 In practice, this means that a single web server can host a whole resource library as long as it follows the required folder structure.
 
+Example: a map collection
+-------------------------
+
+The screenshots below show the typical user view for a collection server that publishes several engine maps.
+In GTlab, the available resources appear in the collection browser on the left.
+When a resource is selected, its metadata and files are shown on the right.
+
+.. figure:: images/Map-Collection.png
+   :align: center
+   :alt: GTlab collection browser showing shared engine maps in the light theme
+
+   Example collection browser in the light theme.
+
+.. figure:: images/Map-Collection-Dark.png
+   :align: center
+   :alt: GTlab collection browser showing shared engine maps in the dark theme
+
+   Example collection browser in the dark theme.
+
 Server layout
 -------------
 
