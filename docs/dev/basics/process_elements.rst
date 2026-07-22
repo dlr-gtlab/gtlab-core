@@ -24,7 +24,6 @@ calculator through its factory:
 .. code-block:: cpp
 
   #include "gt_calculator.h"
-  #include "gt_doublemonitoringproperty.h"
   #include "gt_doubleproperty.h"
 
   class SquareCalculator : public GtCalculator
