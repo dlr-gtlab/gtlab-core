@@ -1,61 +1,54 @@
-
 .. _networkinterface:
 
-Network Interface
-=================
+Network access interface
+========================
 
-The network interface enables the module to define a module related network connection.
+Use :cpp:class:`GtNetworkInterface` when a module needs a named set of network
+credentials and a connection test integrated with GTlab's access manager. This
+interface defines access configuration; it is not a general HTTP or socket
+abstraction.
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
-    #include "gt_networkinterface.h"
-    
-    class MyModule: public QObject, public GtModuleInterface, GtNetworkInterface
-    {
-        [...]
-    
-        Q_INTERFACES(GtModuleInterface)
-        Q_INTERFACES(GtNetworkInterface)
-    
-        [...]
-    
-		/**
-		* @brief Returns identification string of access point.
-		* @return Identification string of access point.
-		*/
-		QString accessId() override;
+  class MyModule : public QObject,
+                   public GtModuleInterface,
+                   public GtNetworkInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+      Q_INTERFACES(GtNetworkInterface)
 
-		/**
-		* @brief Returns meta object of GtAbstractAccessDataConnection class.
-		* @return Meta object of GtAbstractAccessDataConnection class.
-		*/
-		QMetaObject accessConnection() override;
-    
-        [...]
-    }
-	
-Documentation on Virtual Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
 
-* :cpp:func:`GtNetworkInterface::accessId`
-    Defines the access id of the module. It is recommended to use the module :cpp:func:`GtModuleInterface::ident()`.
+      QString accessId() override;
+      QMetaObject accessConnection() override;
+  };
 
-    .. code-block:: cpp
+``accessId()`` identifies the credential group. It must be unique among loaded
+modules and stable after release. Using the module ID is appropriate when the
+module needs exactly one access group:
 
-	QMap<const char*, QMetaObject>
-	MyModule::accessId()
-	{
-		return ident();
-	}
-		
-* :cpp:func:`GtNetworkInterface::accessConnection`
-    Defines the access connection object. For basic applications it is recommended to use GtAccessDataConnection.
+.. code-block:: cpp
 
-    .. code-block:: cpp
+  QString MyModule::accessId()
+  {
+      return ident();
+  }
 
-	QMap<const char*, QMetaObject>
-	MyModule::accessId()
-	{
-		return GT_METADATA(GtAccessDataConnection);
-	}
+``accessConnection()`` returns metadata for a concrete
+``GtAbstractAccessDataConnection`` class. GTlab creates it through Qt metadata,
+so the class needs an invokable default constructor. Override its connection
+test and, where required, default host, port, or port-request behavior.
+
+.. code-block:: cpp
+
+  QMetaObject MyModule::accessConnection()
+  {
+      return GT_METADATA(MyAccessConnection);
+  }
+
+Do not log passwords, tokens, or full credential objects. Connection failures
+should distinguish invalid configuration from unavailable infrastructure so
+users know what they can correct.

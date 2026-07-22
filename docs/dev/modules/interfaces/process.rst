@@ -1,84 +1,71 @@
 .. _processinterface:
 
-Process Interface
+Process interface
 =================
 
-The process interface is needed if the module should offer process elements as tasks or calculators.
+Use :cpp:class:`GtProcessInterface` when a module provides executable workflow
+elements. Calculators perform individual operations; tasks group process
+elements into a workflow hierarchy.
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
-    #include "gt_processinterface.h"
-    
-    class MyModule: public QObject, public GtModuleInterface, GtProcessInterface
-    {
-        [...]
-    
-        Q_INTERFACES(GtModuleInterface)
-        Q_INTERFACES(GtProcessInterface)
-    
-        [...]
-    
-		/**
-		* @brief Returns static meta objects of calculator classes.
-		* @return list including meta objects
-		*/
-		QList<GtCalculatorData> calculators() override;
+  #include "gt_moduleinterface.h"
+  #include "gt_processinterface.h"
 
-		/**
-		* @brief Returns static meta objects of task classes.
-		* @return list including meta objects
-		*/
-		QList<GtTaskData> tasks() override;
-    
-        [...]
-    }
-	
-Documentation on Virtual Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  class MyModule : public QObject,
+                   public GtModuleInterface,
+                   public GtProcessInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+      Q_INTERFACES(GtProcessInterface)
 
-* :cpp:func:`GtProcessInterface::calculators`
-    Returns list of registered calculators.
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
 
-    To use a calculator in GTlab it has to be registered in its module by adding it to the list returned by :cpp:func:`GtProcessInterface::calculators()`.
-	The calculator is added as GtCalculatorData or GtExtendedCalculatorData with several meta information as the author, a category or its version.
-	
-    .. code-block:: cpp
+      QList<GtCalculatorData> calculators() override;
+      QList<GtTaskData> tasks() override;
+  };
 
-	QList<GtCalculatorData>
-	MyModule::calculators()
-	{
-		QList<GtCalculatorData> metaData;
+Register calculators
+--------------------
 
-		//// simple example calculator
-		GtCalculatorData exampleCalc = GT_CALC_DATA(GtExampleCalc)
-		exampleCalc->id = QStringLiteral("Example Calculator");
-		exampleCalc->version = calculatorVersion(1, 0);
-		exampleCalc->author = QStringLiteral("John Doe");
-		exampleCalc->category = QStringLiteral("Examples");
-		metaData << exampleCalc;
-		return metaData;
-       }
+Return a descriptor for every calculator users can add to a process. Besides
+the C++ type, the descriptor supplies the name and metadata shown in GTlab:
 
-* :cpp:func:`GtProcessInterface::tasks`
-    Returns list of registered tasks.
+.. code-block:: cpp
 
-    To use a tasks in GTlab it has to be registered in its module by adding it to the list returned by :cpp:func:`GtProcessInterface::tasks()`.
-	The task is added as GtTaskData or GtExtendedTaskData with several meta information as the author, a category or its version.
-	
-    .. code-block:: cpp
+  QList<GtCalculatorData> MyModule::calculators()
+  {
+      auto data = GT_CALC_DATA(MyCalculator);
+      data->id = QStringLiteral("Evaluate operating point");
+      data->version = GtVersionNumber(1, 0, 0);
+      data->status = GtAbstractProcessData::RELEASE;
+      data->author = QStringLiteral("My Team");
+      data->category = QStringLiteral("Performance");
+      data->description = QStringLiteral("Evaluates one configured point.");
 
-	QList<GtCalculatorData>
-	MyModule::tasks()
-	{
-		QList<GtCalculatorData> metaData;
+      return {data};
+  }
 
-		//// simple example task
-		GtTaskData exampleTask = GT_TASK_DATA(Task)
-		exampleTask->id = QStringLiteral("Example Task");
-		exampleTask->version = calculatorVersion(1, 0);
-		exampleTask->author = QStringLiteral("John Doe");
-		exampleTask->category = QStringLiteral("Examples");
-		metaData << exampleTask;
-		return metaData;
-       }
+Use stable, meaningful IDs and categories: users encounter them in process
+editing, and saved workflows depend on the registered calculator type.
+
+Set ``status`` to ``GtAbstractProcessData::RELEASE`` for calculators that
+should appear in normal GTlab installations. GTlab shows non-release entries
+only in Dev Mode (for example when GTlab is started with ``--dev``), so
+leaving a calculator in ``PROTOTYPE`` or ``DEPRECATED`` mode keeps it out of
+the regular user-facing lists.
+
+Register tasks
+--------------
+
+Override ``tasks()`` only when the module defines custom task classes. Create
+each entry with ``GT_TASK_DATA`` and return ``GtTaskData`` descriptors using
+the same metadata principles as calculators. The default implementation
+returns an empty list, so calculator-only modules do not need to override it.
+
+Registration does not execute a calculator or create a workflow. It makes the
+types available to GTlab; users and project loading create instances later.
+See :doc:`../../basics/process_elements` for execution and state concepts.

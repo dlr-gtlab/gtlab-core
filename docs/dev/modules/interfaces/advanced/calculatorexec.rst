@@ -1,74 +1,55 @@
 .. _calcexecinterface:
 
-CalculatorExec Interface
-========================
+Calculator execution interface
+==============================
 
-The CalculatorExec interface enables the module to define separate options to execute calculators not in the basic execution system.
+Use :cpp:class:`GtCalculatorExecInterface` to provide an execution mode other
+than the built-in local calculator execution. Typical examples are a remote
+service, scheduler, or isolated runtime. It does not register calculators;
+combine it with :ref:`processinterface` only if the same module also provides
+calculator classes.
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
-    #include "gt_calculatorexecinterface.h"
-    
-    class MyModule: public QObject, public GtModuleInterface, GtCalculatorExecInterface
-    {
-        [...]
-    
-        Q_INTERFACES(GtModuleInterface)
-        Q_INTERFACES(GtCalculatorExecInterface)
-    
-        [...]
-    
-		/**
-		* @brief Returns executor identification string .
-		* @return Executor identification string.
-		*/
-		virtual QString executorId() = 0;
+  class MyModule : public QObject,
+                   public GtModuleInterface,
+                   public GtCalculatorExecInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+      Q_INTERFACES(GtCalculatorExecInterface)
 
-		/**
-		* @brief Returns executor description.
-		* @return Executor description.
-		*/
-		virtual QString executorDescription() = 0;
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
 
-		/**
-		* @brief Returns meta object of executor.
-		* @return Meta object of executor.
-		*/
-		virtual QMetaObject executor() = 0;
+      QString executorId() override;
+      QString executorDescription() override;
+      QMetaObject executor() override;
+      QList<GtAbstractProperty*> executorSettings() override;
+  };
 
-		/**
-		* @brief Returns list of executor settings.
-		* @return Executor settings.
-		*/
-		virtual QList<GtAbstractProperty*> executorSettings() {
-			return {};
-		};
-    
-        [...]
-    }
-	
-Documentation on Virtual Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``executorId()`` is the stable value stored as a calculator's execution mode.
+Keep it unchanged after release and make it unique across installed modules.
+``executorDescription()`` is the user-facing explanation of that mode.
 
-* :cpp:func:`GtNetworkInterface::accessId`
-    Defines the access id of the module. It is recommended to use the module :cpp:func:`GtModuleInterface::ident()`.
+``executor()`` returns metadata for a concrete
+``GtAbstractCalculatorExecutor`` implementation. Its constructor must be
+``Q_INVOKABLE`` because GTlab creates a fresh executor through Qt metadata when
+the mode is used:
 
-    .. code-block:: cpp
+.. code-block:: cpp
 
-	QMap<const char*, QMetaObject>
-	MyModule::accessId()
-	{
-		return ident();
-	}
-		
-* :cpp:func:`GtNetworkInterface::accessConnection`
-    Defines the access connection object. For basic applications it is recommended to use GtAccessDataConnection.
+  QMetaObject MyModule::executor()
+  {
+      return GT_METADATA(MyRemoteExecutor);
+  }
 
-    .. code-block:: cpp
+The executor's ``exec(GtCalculator*)`` implementation is responsible for the
+complete alternative execution and returns whether it succeeded.
+``executorSettings()`` may expose properties needed to configure the execution
+environment; leave the default empty list when no global settings are needed.
 
-	QMap<const char*, QMetaObject>
-	MyModule::accessId()
-	{
-		return GT_METADATA(GtAccessDataConnection);
-	}
+Test missing credentials, unavailable infrastructure, cancellation, and
+transfer failures as well as successful execution. The executor must leave the
+calculator in a state that lets GTlab report a clear result.

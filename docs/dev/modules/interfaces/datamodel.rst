@@ -1,79 +1,80 @@
 .. _datamodelinterface:
 
-Datamodel Interface
--------------------
-The datamodel interface is one of the most important interfaces of the GTlab framework. It provides classes and functions for general data management (serialization, diff, etc.).
+Data-model interface
+====================
+
+Use :cpp:class:`GtDatamodelInterface` when a module contributes persistent
+domain objects to GTlab projects. It registers one package class and any number
+of :cpp:class:`GtObject`-derived data classes. GTlab then uses its object
+factories and serialization system to create, copy, save, and restore them.
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
-    #include "gt_datamodelinterface.h"
-    
-    class MyModule: public QObject, public GtModuleInterface, GtDatamodelInterface
-    {
-        [...]
-    
-        Q_INTERFACES(GtModuleInterface)
-        Q_INTERFACES(GtDatamodelInterface)
-    
-        [...]
-    
-        /**
-        * @brief Returns static meta objects of datamodel package.
-        * @return package meta object
-        */
-        QMetaObject package();
-    
-        /**
-        * @brief Returns static meta objects of datamodel classes.
-        * @return list including meta objects
-        */
-        QList<QMetaObject> data();
-    
-        /**
-        * @brief Returns true if module is a stand alone module with own
-        * data model structure. Otherwise module only extends the overall
-        * application with additional functionalities like classes, calculators
-        * or graphical user interfaces.
-        * @return Stand alone indicator.
-        */
-        bool standAlone();
-    
-        [...]
-    }
+  #include "gt_datamodelinterface.h"
+  #include "gt_moduleinterface.h"
 
-Documentation on Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  class MyModule : public QObject,
+                   public GtModuleInterface,
+                   public GtDatamodelInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+      Q_INTERFACES(GtDatamodelInterface)
 
-* :cpp:func:`QMetaObject GtDatamodelInterface::package()`
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
 
-Each GTlab module that implements the DataModel interface must provide a corresponding data package class. This data package enables the creation of a custom data tree within the GTlab project (see :cpp:func:`GtModuleInterface::standAlone()`). Additionally, it offers functions to modify the serialization and deserialization behavior of module-specific data during project save and open procedures.
+      QMetaObject package() override;
+      QList<QMetaObject> data() override;
+      bool standAlone() override;
+  };
 
-By using the GT_METADATA macro, the data package class can be transformed into a QMetaObject, facilitating integration with the Qt framework.
+Register the package and objects
+--------------------------------
+
+``package()`` returns the metadata of the module's package class. ``data()``
+returns the metadata of every other persistent class provided by the module:
 
 .. code-block:: cpp
 
-    [...]
-    return GT_METADATA(MyModulePackage);;
-    [...]
+  QMetaObject MyModule::package()
+  {
+      return GT_METADATA(MyPackage);
+  }
 
-* :cpp:func:`QList<QMetaObject> GtModuleInterface::data()`
+  QList<QMetaObject> MyModule::data()
+  {
+      return {
+          GT_METADATA(MyComponent),
+          GT_METADATA(MyOperatingPoint)
+      };
+  }
 
-Returns list of meta objects corresponding to data model classes provided by the module.
+Register every concrete class that can appear in a saved project. Otherwise,
+GTlab cannot reconstruct that class when opening the project. The registered
+class name is therefore part of the persisted data format; renaming classes
+requires a deliberate migration strategy.
 
-Using the GT_METADATA macro, new class structures can be transformed into a QMetaObject.
+Choose standalone behavior
+--------------------------
 
-* :cpp:func:`bool GtModuleInterface::standAlone()`
+``standAlone()`` tells GTlab whether the module owns an independent package in
+the project structure:
 
-.. code-block:: cpp
-    
-    [...]
-    QList<QMetaObject> metaData;
- 
-    metaData << GT_METADATA(MyClassA);
-    metaData << GT_METADATA(MyClassB);
- 
-    return metaData;
-    [...]
+* return ``true`` for a domain module with its own package and data tree;
+* return ``false`` when the module only contributes types or functionality to
+  data structures owned elsewhere.
 
-Returns true if the module has an independent data structure or false if the module only extends certain data structures.
+This choice affects how users encounter module data in a project. Decide it
+from the module's domain model, not from whether the module can be distributed
+independently.
+
+Even when a module is not stand-alone, it may still need to implement
+``package()`` and ``data()`` if it contributes shared types to another module's
+data tree. In that case the module supplies the type metadata, but GTlab does
+not create a separate top-level package for it.
+
+Data-model classes should keep domain state in GTlab properties and follow the
+normal ``GtObject`` parent-child ownership model. See
+:doc:`../../basics/data_modelling` before defining a large class hierarchy.

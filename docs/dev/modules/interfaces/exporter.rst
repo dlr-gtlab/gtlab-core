@@ -1,46 +1,39 @@
 .. _exporterinterface:
 
-Exporter Interface
-------------------
+Exporter interface
+==================
 
-The exporter interface is used for including exporters derived of GtAbstractExporter. With these external data can be written into the GTlab datamodel.
+Use :cpp:class:`GtExporterInterface` to expose actions that write GTlab data to
+external file formats. An exporter derives from ``GtAbstractExporter`` and
+reads from an appropriate target object without changing its domain state.
+
+.. code-block:: cpp
+
+  class MyModule : public QObject,
+                   public GtModuleInterface,
+                   public GtExporterInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+      Q_INTERFACES(GtExporterInterface)
+
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
+      QList<QMetaObject> exporter() const override;
+  };
+
+Register exporter classes with Qt metadata:
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
-    #include "gt_exporterinterface.h"
-    
-    class MyModule: public QObject, public GtModuleInterface, GtExporterInterface
-    {
-        [...]
-    
-        Q_INTERFACES(GtDatamodelInterface)
-        Q_INTERFACES(GtExporterInterface)
-    
-        [...]
-    
-        /**
-        * @brief Returns identification string of exporter.
-        * @return Identification string of exporter.
-        */
-        QList<QMetaObject> exporter() const override;
-    
-        [...]
-    }
+  QList<QMetaObject> MyModule::exporter() const
+  {
+      return {GT_METADATA(MyExporter)};
+  }
 
-Documentation on Virtual Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* :cpp:func:`QList<QMetaObject> exporter()`
-
-Each GTlab module that implements the Exporter interface must provide a corresponding exporter() function. This function enables the execution of the exporter with a right-click on the target datamodel object.
-
-By using the GT_METADATA macro, the exporter class can be transformed into a QMetaObject, facilitating integration with the Qt framework. If there are no exporters an empty QList can be returned.
-
-.. code-block:: cpp
-    
-    [...]
-    QList<QMetaObject> retval;
-    retval << GT_METADATA(YourExporter);
-    return retval;
-    [...]
+GTlab uses the exporter's supported target type to offer the action in the
+relevant object context. The exporter implementation is responsible for file
+selection, overwrite handling, validation, and clear error reporting. Do not
+register the data-model interface solely to provide an exporter for object
+types owned by another module.

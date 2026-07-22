@@ -1,105 +1,65 @@
 .. _collectioninterface:
 
-Collection Interface
+Collection interface
 ====================
 
-The process interface is needed if the module should offer a collection structure.
+Use :cpp:class:`GtCollectionInterface` to integrate a browsable collection of
+installable module content with GTlab's collection editor. A collection can
+load items from the local installation and, together with network access, show
+available remote items. It is not the interface for ordinary project object
+groups.
 
 .. code-block:: cpp
 
-    #include "gt_moduleinterface.h"
-    #include "gt_collectioninterface.h"
-    
-    class MyModule: public QObject, public GtModuleInterface, GtCollectionInterface
-    {
-        [...]
-    
-        Q_INTERFACES(GtModuleInterface)
-        Q_INTERFACES(GtCollectionInterface)
-    
-        [...]
-    
-		/**
-		* @brief Returns collection specific icon.
-		* @return Collection spezific icon.
-		*/
-		QIcon collectionIcon() const override;
+  class MyModule : public QObject,
+                   public GtModuleInterface,
+                   public GtCollectionInterface
+  {
+      Q_OBJECT
+      GT_MODULE()
+      Q_INTERFACES(GtCollectionInterface)
 
-		/**
-		* @brief Returns identification string of collection. Same id
-		* is used to generate access point data within the netowrk interface.
-		* @return Identification string of collection.
-		*/
-		QString collectionId() const override;
+  public:
+      GtVersionNumber version() override;
+      QString description() const override;
 
-		/**
-		* @brief Returns meta object of GtAbstractCollectionSettings class.
-		* @return Meta object of GtAbstractCollectionSettings class.
-		*/
-		QMetaObject collectionSettings() const override;
+      QIcon collectionIcon() const override;
+      QString collectionId() const override;
+      QMetaObject collectionSettings() const override;
+      QMap<QString, QMetaType::Type> collectionStructure() const override;
+  };
 
-		/**
-		* @brief Returns structure of collection items.
-		* @return Sturcture of collection items.
-		*/
-		QMap<QString, QMetaType::Type> collectionStructure() const override;
-    
-        [...]
-    }
-	
-Documentation on Virtual Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``collectionId()`` is the stable identifier used to register and open the
+collection. It also connects collection and access-point data, so it should
+match the corresponding network access ID when the collection has a remote
+source. ``collectionIcon()`` provides the icon shown in the GUI.
 
-* :cpp:func:`GtCollectionInterface::collectionIcon`
-    Defines the icon of the collection widget
-	
-    .. code-block:: cpp
+``collectionSettings()`` returns metadata for a concrete
+``GtCollectionSettings`` implementation. GTlab creates it through Qt metadata;
+the class therefore needs an invokable default constructor. It supplies the
+local collection widget, remote browser, and the data displayed by both.
 
-		QIcon
-		MyModule::collectionIcon() const
-		{
-			return gt::gui::icon::server();
-		}
+.. code-block:: cpp
 
+  QMetaObject MyModule::collectionSettings() const
+  {
+      return GT_METADATA(MyCollectionSettings);
+  }
 
-* :cpp:func:`GtCollectionInterface::collectionId`
-    Defines the id of the collection. It is recommended to use the module :cpp:func:`GtModuleInterface::ident()`.
+``collectionStructure()`` optionally declares additional fields stored for
+each item as a map from field name to Qt metatype:
 
-	.. code-block:: cpp
+.. code-block:: cpp
 
-		QString
-		MyModule::collectionId() const
-		{
-			return ident();
-		}
+  QMap<QString, QMetaType::Type> MyModule::collectionStructure() const
+  {
+      return {
+          {QStringLiteral("component"), QMetaType::QString},
+          {QStringLiteral("fidelity"), QMetaType::QString}
+      };
+  }
 
-
-* :cpp:func:`GtCollectionInterface::collectionSettings`
-    Defines the icon of the collection widget
-	
-    .. code-block:: cpp
-
-		QIcon
-		MyModule::collectionSettings() const
-		{
-			return GtExampleCollectionSettings::staticMetaObject;
-		}	
-
-
-* :cpp:func:`GtCollectionInterface::collectionStructure`
-    Defines the structure of the collection based on categories to sort the entries. 
-	
-    .. code-block:: cpp
-
-		QIcon
-		MyModule::collectionStructure() const
-		{
-			QMap<QString, QMetaType::Type> retval;
-
-			retval.insert(QStringLiteral("source"), QMetaType::QString);
-			retval.insert(QStringLiteral("type"), QMetaType::QString);
-			retval.insert(QStringLiteral("component"), QMetaType::QString);
-
-			return retval;
-		}
-
+Keep field names and types stable once collection metadata has been published.
+If remote browsing is required, implement :ref:`networkinterface` with the
+same access identity and handle unavailable servers without breaking access to
+already installed local items.
