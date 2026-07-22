@@ -75,8 +75,12 @@ set(headers
     dock_widgets/output/gt_outputdock.h
     dock_widgets/output/gt_styledlogmodel.h
     dock_widgets/output/gt_filteredlogmodel.h
+    dock_widgets/output/gt_logfilterproxymodel.h
+    dock_widgets/output/gt_filterheaderview.h
+    dock_widgets/output/gt_filterpopupwidget.h
     dock_widgets/output/gt_outputtester.h
     dock_widgets/output/gt_taskhistorymodel.h
+    dock_widgets/output/gt_matchdelegate.h
     dock_widgets/explorer/gt_explorerdock.h
     dock_widgets/explorer/gt_explorerview.h
     dock_widgets/process/gt_processdock.h
@@ -158,8 +162,12 @@ set(sources
     dock_widgets/output/gt_outputdock.cpp
     dock_widgets/output/gt_styledlogmodel.cpp
     dock_widgets/output/gt_filteredlogmodel.cpp
+    dock_widgets/output/gt_logfilterproxymodel.cpp
+    dock_widgets/output/gt_filterheaderview.cpp
+    dock_widgets/output/gt_filterpopupwidget.cpp
     dock_widgets/output/gt_outputtester.cpp
     dock_widgets/output/gt_taskhistorymodel.cpp
+    dock_widgets/output/gt_matchdelegate.cpp
     dock_widgets/explorer/gt_explorerdock.cpp
     dock_widgets/explorer/gt_explorerview.cpp
     dock_widgets/process/gt_processdock.cpp

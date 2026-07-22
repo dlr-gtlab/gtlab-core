@@ -292,6 +292,10 @@ GT_DEF_ICON(fileDoc, "fileDoc.svg")
 GT_DEF_ICON(fileEdit, "fileEdit.svg")
 GT_DEF_ICON(fileEye, "fileEye.svg")
 GT_DEF_ICON(fileImport, "fileImport_custom.svg")
+GT_DEF_ICON(filter, "filter.svg")
+GT_DEF_ICON(filterActive, "filterActive.svg")
+
+
 GT_DEF_ICON(folder, "folder.svg")
 GT_DEF_ICON(folderAdd, "folderAdd.svg")
 GT_DEF_ICON(folderEdit, "folderEdit.svg")
