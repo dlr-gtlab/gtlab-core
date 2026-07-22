@@ -1,30 +1,32 @@
 GTlab User Documentation
 ========================
 
-Welcome to the GTlab docs. This site covers installation, everyday workflows, scripting, and headless operation.  
-If you’re new, follow the quick setup below; otherwise jump straight to a section via the sidebar.
+Welcome to the GTlab user documentation. This site is written for people who want to use GTlab to work with projects, data models, and workflows, not for core developers.
+
+If you are new, follow the short path below in order: install GTlab, learn the interface, create a project, and then read the workflow and scripting sections only when you need them.
 
 Get started
 -----------
 
-1. **Install GTlab** on your machine.
-2. **Open the app** and take a short **UI tour**.
-3. Create your first **project** and run a **basic workflow**.
-4. Check **Preferences** to tailor GTlab to your environment.
+1. **Install GTlab** and, if needed, the Python module.
+2. **Open the app** and skim the **UI tour** so the main docks make sense.
+3. Create your first **project** and read the **Projects** page before changing anything else.
+4. Run a **workflow** only after you know where project data lives and how modules are selected.
+5. Use **Preferences** to tailor GTlab to your environment once the basics are clear.
 
 Core concepts
 -------------
 
 GTlab is built on three key ideas:
 
-- **Modules** - GTlab is designed to be extensible. Modules allow you to add new tools, editors, or data formats without altering the core application. They transform GTlab from a general framework into a domain-specific solution — for example, a dedicated environment for designing aircraft engines.
-- **Project Data** - At the heart of GTlab are your project data, which are defined and structured through data models. The platform enables you to create, edit, and process this data consistently.
-- **Workflows** - Complex processes can be expressed as workflows: pipelines where processing steps are connected into repeatable, shareable sequences.
+- **Modules** - Modules add the domain-specific tools, editors, and data types that turn GTlab into a usable application for a given team or discipline.
+- **Project Data** - Projects hold the data model objects you work on. They are the central unit for editing, exchanging, and processing data.
+- **Workflows** - Workflows connect processing steps into repeatable sequences. They are the way GTlab automates work on project data.
 
-Together these concepts make GTlab flexible for research, automation, and team collaboration.
+Together these concepts make GTlab useful for daily engineering work, automation, and team collaboration.
 
 .. note::
-   If you’re new, continue with :doc:`The Basics <basics/02_installation>` after reading this overview.
+   If you are unsure where to continue, start with :doc:`Installation and Updates <basics/02_installation>` and then read :doc:`Projects <basics/04_projects>`.
 
 
 Quick links
@@ -34,6 +36,7 @@ Quick links
 - :doc:`User Interface tour <basics/03_user-interface>`
 - :doc:`Projects <basics/04_projects>`
 - :doc:`Preferences <basics/05_preferences>`
+- :doc:`Shared Resources <collaboration/shared_data>`
 - :doc:`Hub–Spoke workflow <workflows/hub_spoke>`
 - :doc:`Graph-based workflow <workflows/graph-based>`
 - :doc:`Scripting <scripting/02_types_of_scripting>`
@@ -46,7 +49,7 @@ Common tasks
 
 - **Run a workflow:** start with :doc:`Hub–Spoke <workflows/hub_spoke>`  
 - **Automate with scripts:** see :doc:`Scripting examples <scripting/03_examples>` and the :doc:`reference <scripting/04_scripting-reference>`  
-- **Share data with teammates:** :doc:`Collaboration basics <collaboration/shared_data>`  
+- **Publish shared resources:** :doc:`Shared Resources <collaboration/shared_data>`  
 - **Non-interactive runs (CI/servers):** :doc:`Headless execution <headless/01_overview>`
 
 
