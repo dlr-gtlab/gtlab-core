@@ -52,6 +52,12 @@ the C++ type, the descriptor supplies the name and metadata shown in GTlab:
 Use stable, meaningful IDs and categories: users encounter them in process
 editing, and saved workflows depend on the registered calculator type.
 
+Set ``status`` to ``GtAbstractProcessData::RELEASE`` for calculators that
+should appear in normal GTlab installations. GTlab shows non-release entries
+only in Dev Mode (for example when GTlab is started with ``--dev``), so
+leaving a calculator in ``PROTOTYPE`` or ``DEPRECATED`` mode keeps it out of
+the regular user-facing lists.
+
 Register tasks
 --------------
 

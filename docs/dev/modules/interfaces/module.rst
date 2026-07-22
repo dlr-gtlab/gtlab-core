@@ -69,8 +69,23 @@ User-visible metadata
 ---------------------
 
 Override ``metaInformation()`` to show author, contact, and short license
-information in GTlab's module details. ``add_gtlab_module`` can also install a
-README and changelog into the module's metadata directory:
+information in GTlab's module details. ``add_gtlab_module`` can also install
+optional files that make the module easier to understand for users:
+
+.. list-table:: Optional module metadata
+   :header-rows: 1
+
+   * - Argument
+     - Purpose
+   * - ``README_FILE``
+     - Copies a README into ``<module-dir>/meta/<MODULE_ID>/`` so users can
+       read a short module overview inside GTlab.
+   * - ``CHANGELOG_FILE``
+     - Copies a changelog into ``<module-dir>/meta/<MODULE_ID>/`` so users can
+       see what changed between releases.
+   * - ``EXAMPLES_DIR``
+     - Installs bundled example content under ``<install-prefix>/examples/``
+       so GTlab can show example projects together with the module.
 
 .. code-block:: cmake
 
@@ -78,13 +93,31 @@ README and changelog into the module's metadata directory:
     MODULE_ID "My Module"
     README_FILE "${PROJECT_SOURCE_DIR}/README.md"
     CHANGELOG_FILE "${PROJECT_SOURCE_DIR}/CHANGELOG.md"
+    EXAMPLES_DIR "${PROJECT_SOURCE_DIR}/examples/"
     SOURCES src/mymodule.cpp src/mymodule.h
   )
 
 These files help users identify the installed module and understand changes
-without requiring access to its source repository.
-The same metadata mechanism can also be used to install bundled examples, so a
-module can ship tutorial content alongside its runtime plugin.
+without requiring access to its source repository. ``EXAMPLES_DIR`` is useful
+when the module should ship tutorial material or starter projects alongside
+the runtime plugin.
+
+If you do not use CMake installation, copy the files to the same locations
+manually:
+
+* README and changelog into ``<module-dir>/meta/<MODULE_ID>/``
+* example folders into ``<install-prefix>/examples/``
+
+Example folders under ``EXAMPLES_DIR`` should follow the structure expected by
+GTlab:
+
+.. code-block:: text
+
+  EXAMPLE_DIR/
+    ├── project/
+    │   └── <GTlab project content>
+    ├── index.json
+    └── picture.png
 
 Loading hooks
 -------------

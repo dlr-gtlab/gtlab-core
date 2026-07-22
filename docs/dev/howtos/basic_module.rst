@@ -185,7 +185,3 @@ The module list should show the module name, version, and location:
    :alt: GTlab module overview in the About GTlab dialog
 
    Example module overview used to verify that a module was loaded.
-
-An interface-version mismatch means that the module was compiled against an
-incompatible GTlab interface. Reconfigure and rebuild it against the GTlab
-installation that will load it.
