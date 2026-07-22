@@ -13,6 +13,7 @@
 
 #include "gt_core_exports.h"
 #include "gt_object.h"
+#include "gt_processexecutioninfo.h"
 
 #include <QObject>
 #include <QPointer>
@@ -74,6 +75,8 @@ public:
      */
     bool runTask(GtTask* task);
 
+    bool runTask(GtTask* task, GtProcessExecutionInfo* procExcInfo);
+
     /**
      * @brief Executes the next task in the queue. No task must be running.
      * @return Whether task execution was successfully triggered
@@ -125,6 +128,7 @@ public:
      * @return Success
      */
     bool queueTask(GtTask* task);
+    bool queueTask(GtTask* task, GtProcessExecutionInfo* procExcInfo);
 
     /**
      * @brief Removes the task from the queue
@@ -214,6 +218,18 @@ protected:
      * @return Task runner pointer (null if setup failed)
      */
     GtTaskRunner* setupTaskRunner();
+
+    /**
+     * @brief Return the GtProcessExecutionInfo for a task is available
+     * @return the GtProcessExecutionInfo (null is not available)
+     */
+    GtProcessExecutionInfo* processExecutionInfo(GtTask* task);
+
+    /**
+     * @brief Removes mappings to objects which are no longer available
+     */
+    void cleanupProcessExecutionMapping();
+
 
 private:
 

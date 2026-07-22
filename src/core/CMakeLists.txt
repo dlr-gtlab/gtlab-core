@@ -62,6 +62,7 @@ set(headers
     process_management/gt_parameterloop.h
     process_management/gt_calculatorhelperfactory.h
     process_management/gt_stringmonitoringproperty.h
+    process_management/gt_processexecutioninfo.h
     process_management/process_runner/commands/gt_processrunnercommand.h
     process_management/process_runner/commands/gt_processrunnernotification.h
     process_management/process_runner/commands/gt_processrunnerresponse.h
@@ -171,6 +172,7 @@ set(sources
     process_management/gt_parameterloop.cpp
     process_management/gt_calculatorhelperfactory.cpp
     process_management/gt_stringmonitoringproperty.cpp
+    process_management/gt_processexecutioninfo.cpp
     process_management/process_runner/commands/gt_processrunnercommand.cpp
     process_management/process_runner/commands/gt_processrunnernotification.cpp
     process_management/process_runner/commands/gt_processrunnerresponse.cpp
