@@ -115,6 +115,14 @@ private:
       */
     void onCategoryFilterChanged();
 
+    /**
+     * @brief Maps an index of the view to the base model
+     * @param model is the highest level model
+     * @param index to map
+     * @return the mapped index of the base model
+     */
+    QModelIndex mapToRootSource(QAbstractItemModel* model,
+                                QModelIndex index);
 private slots:
     /**
       * @brief Just a test output method.

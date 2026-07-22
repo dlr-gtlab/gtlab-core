@@ -670,7 +670,7 @@ GtOutputDock::openContextMenu()
 
     for (const QModelIndex& index : rawIndexes)
     {
-        indexes << m_model->mapToSource(index);
+        indexes << mapToRootSource(m_model, index);
     }
 
     std::sort(std::begin(indexes), std::end(indexes));
@@ -737,12 +737,24 @@ GtOutputDock::onCopyRequest()
 
     for (const QModelIndex& index : rawIndexes)
     {
-        indexes << m_model->mapToSource(index);
+        indexes << mapToRootSource(m_model, index);
     }
 
     std::sort(std::begin(indexes), std::end(indexes));
 
     copyToClipboard(indexes);
+}
+
+QModelIndex
+GtOutputDock::mapToRootSource(QAbstractItemModel* model, QModelIndex index)
+{
+    while (auto* proxy = qobject_cast<QAbstractProxyModel*>(model))
+    {
+        index = proxy->mapToSource(index);
+        model = proxy->sourceModel();
+    }
+
+    return index;
 }
 
 void
@@ -760,7 +772,7 @@ GtOutputDock::onDeleteRequest()
 
     for (const QModelIndex& index : rawIndexes)
     {
-        indexes << m_model->mapToSource(index);
+        indexes << mapToRootSource(m_model, index);
     }
 
     std::sort(std::begin(indexes), std::end(indexes));
