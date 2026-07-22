@@ -1,7 +1,7 @@
 Frequently Asked Questions
 ==========================
 
-This page collects short answers to the questions that usually come up first when people start using GTlab.
+This page collects the questions that come up most often when people start using GTlab.
 
 General
 -------
@@ -14,9 +14,15 @@ A: GTlab is a modular framework for project-based engineering work. It combines 
 
 .. rst-class:: faq-question
 
-Q: On which operating systems does GTlab run?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-A: The user installation is available for Windows and Linux. For the current installation details, see :ref:`installation section <label_installation>`.
+Q: What is the difference between a project and a session?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A: A session is a collection of projects for one GTlab user setup. A project is the actual working container for your data. You can keep several projects in one session, but only one project can be open in one GTlab instance at a time.
+
+.. rst-class:: faq-question
+
+Q: Why can I only open one project at a time?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A: GTlab works with one active project per instance so the project data, workflows, and docks stay synchronized. If you need to compare two projects, open a second GTlab instance.
 
 Installation & Setup
 --------------------
@@ -32,6 +38,39 @@ A: Use the installer or the maintenance tool described in :ref:`installation sec
 Q: Which Python versions are supported?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 A: The bundled Python module currently targets Python 3.9. If you need another version, build the Python module from source and make sure the selected Python environment matches the installed module version.
+
+.. rst-class:: faq-question
+
+Q: How do I choose the right Python environment?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A: Select an environment that uses the same Python version as the installed GTlab Python module. A valid conda, virtualenv, or embedded environment can be used.
+
+Projects
+--------
+
+.. rst-class:: faq-question
+
+Q: How do I create a project?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A: Open the New Project Wizard from ``File → New Project`` and set a project name, storage directory, and the modules you need.
+
+.. rst-class:: faq-question
+
+Q: How do I add or remove modules for a project?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A: Use ``Choose Project Modules`` from the project context menu in the Project Explorer.
+
+.. rst-class:: faq-question
+
+Q: Why does a project name need to be unique?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A: The project name is used as the project identifier inside the current session, so GTlab needs it to be unique there.
+
+.. rst-class:: faq-question
+
+Q: How do I know whether a project has changed?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A: The Project Explorer marks modified objects and newly added objects with different colors and symbols. Saving the project resets those indicators.
 
 Workflows
 ---------
@@ -53,6 +92,12 @@ A: A calculator is a workflow element that performs one concrete operation on pr
 Q: Can I reuse workflows between projects?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 A: Yes. You can export a task or calculator as ``.xml`` and import it into another workflow. If you only need a copy within the same workflow tree, use Clone or Copy from the context menu.
+
+.. rst-class:: faq-question
+
+Q: Why is my workflow not executing as expected?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A: Check the task state in the Process/Calculator dock, the active project, and whether the required child elements are configured and connected. For graph-based workflows, also check the execution state of the nodes.
 
 Scripting
 ---------
