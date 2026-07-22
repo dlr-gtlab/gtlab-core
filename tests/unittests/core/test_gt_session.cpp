@@ -17,6 +17,7 @@
 #include "gt_testhelper.h"
 
 #include "gt_projectsettings.h"
+#include "gt_project.h"
 #include "gt_session.h"
 
 #include <memory>
@@ -45,9 +46,26 @@ public:
         return fromJsonObject(sessionFilePath());
     }
 
+    void addProjectForTest(GtProject* project)
+    {
+        addProject(project);
+    }
+
+    bool setCurrentProjectForTest(GtProject* project)
+    {
+        return setCurrentProject(project);
+    }
+
 private:
     QString m_sessionPath;
 
+};
+
+class TestSessionProject : public GtProject
+{
+public:
+    explicit TestSessionProject(const QString& path) : GtProject(path)
+    {}
 };
 
 /// This is a test fixture that does a init for each test
@@ -88,6 +106,17 @@ TEST_F(TestGtSession, sessionFilePath)
 TEST_F(TestGtSession, fromJsonObject)
 {
     ASSERT_FALSE(m_session->_fromJsonObject());
+}
+
+TEST_F(TestGtSession, closedProjectCannotBecomeCurrent)
+{
+    auto* project = new TestSessionProject(gtTestHelper->newTempDir().path());
+    project->setObjectName(QStringLiteral("Closed Project"));
+    m_session->addProjectForTest(project);
+
+    EXPECT_FALSE(project->isOpen());
+    EXPECT_FALSE(m_session->setCurrentProjectForTest(project));
+    EXPECT_EQ(m_session->currentProject(), nullptr);
 }
 
 TEST(GtProjectSettings, fromJsonAcceptsLegacyBoolFormat)

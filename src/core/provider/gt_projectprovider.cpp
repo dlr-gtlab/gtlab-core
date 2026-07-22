@@ -233,6 +233,23 @@ GtProjectProvider::duplicateProject(const QString& newId,
         pd->save(retval->path());
     }
 
+    // A duplicate is prepared in memory, but it must be returned as a closed
+    // project so it can follow the regular data-model open path. Persist the
+    // prepared data first, then release it from the project object.
+    retval->markOpen();
+    const bool saved = retval->saveProjectOverallData() &&
+                       retval->saveModuleData();
+    retval->markClosed();
+
+    if (!saved)
+    {
+        delete retval;
+        return nullptr;
+    }
+
+    qDeleteAll(retval->findDirectChildren<GtObject*>());
+    retval->acceptChangesRecursively();
+
     return retval;
 }
 
@@ -798,4 +815,3 @@ GtProjectProvider::moduleFilename(const QString& id)
     return m_pPath + QDir::separator() + id.toLower() + "." +
            GtProject::moduleExtension();
 }
-

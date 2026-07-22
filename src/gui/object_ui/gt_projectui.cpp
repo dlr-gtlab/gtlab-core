@@ -338,12 +338,32 @@ GtProjectUI::switchToProject(GtProject& toProject)
         }
     }
 
-    if (!saveAndCloseCurrentProject())
+    if (gtApp->hasProjectChanges())
     {
-        return;
+        QString text = tr("Found changes in current project.\n"
+                          "Do you want to save all your changes "
+                          "before opening new project?");
+
+        GtSaveProjectMessageBox mb(text);
+        const int ret = mb.exec();
+
+        if (ret == QMessageBox::Yes)
+        {
+            if (!gtDataModel->saveProject(gtApp->currentProject()))
+            {
+                return;
+            }
+        }
+        else if (ret == QMessageBox::Cancel)
+        {
+            return;
+        }
     }
 
-    gtDataModel->openProject(&toProject);
+    if (!gtDataModel->switchProject(&toProject))
+    {
+        gtError() << tr("Could not switch project!");
+    }
 }
 
 void
@@ -582,12 +602,14 @@ GtProjectUI::saveProjectAs(GtObject* obj)
             return;
         }
 
-        gtDataModel->newProject(newProject, true);
-        gtDataModel->saveProject(newProject);
-        gtDataModel->closeProject(newProject);
-        gtDataModel->closeProject(project);
-        gtDataModel->openProject(newProject);
-        gtApp->setCurrentProject(newProject);
+        if (!gtDataModel->newProject(newProject, false))
+        {
+            delete newProject;
+            gtError() << tr("Could not add duplicated project to session!");
+            return;
+        }
+
+        switchToProject(*newProject);
     }
 
     //    gtDataModel->saveProject(project);

@@ -41,6 +41,7 @@ class GT_CORE_EXPORT GtProject : public GtObject
 
     friend class GtSession;
     friend class GtProjectProvider;
+    friend class GtCoreDatamodel;
     friend class GtLoadProjectHelper;
     friend class GtSaveProjectHelper;
     friend class GtProjectUI;
@@ -311,11 +312,24 @@ protected:
     void setModuleIds(const QStringList& list);
 
 private:
+    void markOpen()
+    {
+        m_isOpen = true;
+    }
+
+    void markClosed()
+    {
+        m_isOpen = false;
+    }
+
     /// Path to project directory on hard drive
     QString m_path;
 
     /// True if project data was successfully loaded
     bool m_valid;
+
+    /// True if project data is currently loaded into the data model
+    bool m_isOpen{false};
 
     /// True if project data upgrades are available
     bool m_upgradesAvailable{false};
