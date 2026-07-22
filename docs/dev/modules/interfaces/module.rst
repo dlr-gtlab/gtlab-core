@@ -43,6 +43,9 @@ The module ID is configured once in CMake:
 
 Keep this ID stable after releasing the module. GTlab uses it for plugin
 identity, settings, logs, metadata locations, and stored module information.
+Use semantic versioning for the module version so users can see at a glance
+whether a release is backward compatible or requires attention during an
+update.
 
 Return a three-part module version and a short, user-facing description:
 
@@ -80,6 +83,8 @@ README and changelog into the module's metadata directory:
 
 These files help users identify the installed module and understand changes
 without requiring access to its source repository.
+The same metadata mechanism can also be used to install bundled examples, so a
+module can ship tutorial content alongside its runtime plugin.
 
 Loading hooks
 -------------

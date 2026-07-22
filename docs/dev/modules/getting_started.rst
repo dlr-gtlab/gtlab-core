@@ -16,6 +16,10 @@ A practical first milestone is a module that:
 #. appears in GTlab's module overview; and
 #. registers one domain object, calculator, or user-interface contribution.
 
+By default, GTlab looks for modules in its ``modules`` folder. If you install a
+module somewhere else during development, add the extra search path in the
+module-directory settings so GTlab can load it.
+
 How modules fit into GTlab
 --------------------------
 

@@ -119,7 +119,7 @@ Configure against the GTlab installation and select a writable install prefix:
   cmake --build build
   cmake --install build
 
-If you should not install into the GTlab installation, choose a separate
+If you cannot install the module into the GTlab installation, choose a separate
 prefix and add its module directory under :menuselection:`Edit --> Preferences
 --> Module Directories`. For temporary development runs, the
 ``GTLAB_MODULE_DIRS`` environment variable can contain additional module
@@ -127,7 +127,9 @@ directories. Use the platform path-list separator (``:`` on Linux and macOS,
 ``;`` on Windows).
 
 Restart GTlab after installing a rebuilt module. Confirm that it appears in
-the module overview and that its version and description are correct.
+the module overview and that its version and description are correct. A quick
+check is :menuselection:`Help --> About GTlab --> Modules` or the
+``Alt+M`` shortcut, which opens the module overview directly.
 
 Add one capability at a time
 ----------------------------

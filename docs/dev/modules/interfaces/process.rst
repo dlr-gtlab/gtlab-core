@@ -41,6 +41,7 @@ the C++ type, the descriptor supplies the name and metadata shown in GTlab:
       auto data = GT_CALC_DATA(MyCalculator);
       data->id = QStringLiteral("Evaluate operating point");
       data->version = GtVersionNumber(1, 0, 0);
+      data->status = GtAbstractProcessData::RELEASE;
       data->author = QStringLiteral("My Team");
       data->category = QStringLiteral("Performance");
       data->description = QStringLiteral("Evaluates one configured point.");

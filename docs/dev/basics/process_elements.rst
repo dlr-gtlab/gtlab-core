@@ -37,7 +37,7 @@ calculator through its factory:
 
   private:
       GtDoubleProperty m_input;
-      GtDoubleMonitoringProperty m_result;
+      GtDoubleProperty m_result;
   };
 
 Register configurable inputs as regular properties and values produced during

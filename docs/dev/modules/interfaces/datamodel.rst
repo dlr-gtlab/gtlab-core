@@ -70,6 +70,11 @@ This choice affects how users encounter module data in a project. Decide it
 from the module's domain model, not from whether the module can be distributed
 independently.
 
+Even when a module is not stand-alone, it may still need to implement
+``package()`` and ``data()`` if it contributes shared types to another module's
+data tree. In that case the module supplies the type metadata, but GTlab does
+not create a separate top-level package for it.
+
 Data-model classes should keep domain state in GTlab properties and follow the
 normal ``GtObject`` parent-child ownership model. See
 :doc:`../../basics/data_modelling` before defining a large class hierarchy.
