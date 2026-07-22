@@ -173,6 +173,8 @@ If the module does not load, check the GTlab output and then verify:
 * the module was built against a binary-compatible GTlab and Qt installation;
 * all runtime libraries required by the module can be found;
 * the plugin is located in an enabled module directory;
+* the module appears in :menuselection:`Help --> About GTlab --> Modules`
+  or via the ``Alt+M`` shortcut; and
 * ``MODULE_ID`` matches the identity expected by the module; and
 * every inherited Qt interface is listed in ``Q_INTERFACES(...)``.
 
