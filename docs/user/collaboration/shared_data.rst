@@ -1,55 +1,171 @@
-Team Data
-=========
+Shared Resources
+================
 
-GTlab is built around a shared project data model. That makes collaboration practical, but it also means a team needs a few rules of the road:
+GTlab can connect to simple web servers that publish reusable resources in a fixed folder layout.
+This is the page to read if you want to make your own server available to GTlab users.
 
-- A project is the main unit of exchange.
-- Only one project can be open in one GTlab instance at a time.
-- Team members should use the same GTlab version and the same relevant modules whenever possible.
+The resources are not project data. They are shared, domain-specific assets such as:
 
-If you want to understand the project side first, read :doc:`Projects <../basics/04_projects>` before using this page.
+- engine maps
+- scripts
+- blade profiles
+- other reusable reference data
 
-What to share
+If you only want to exchange projects between users, start with :doc:`Projects <../basics/04_projects>`.
+
+What this page explains
+-----------------------
+
+This page focuses on the user-facing setup:
+
+- what GTlab expects on the server
+- how a server is discovered
+- which files belong to one resource
+- where GTlab stores downloaded copies locally
+
+It does not describe module implementation details. Those belong to the module developer documentation.
+
+How GTlab sees a shared-resource server
+---------------------------------------
+
+GTlab works with a collection interface that exposes a collection ID, an optional settings dialog, and the structure of the resource metadata.
+
+For users, the important result is simple:
+
+1. A module defines a collection ID for a resource family.
+2. GTlab looks for access data with the same ID.
+3. The configured server is queried for an ``index.dat`` file.
+4. That file lists the available resources.
+5. Each resource is described by its own ``index.json`` file.
+
+In practice, this means that a single web server can host a whole resource library as long as it follows the required folder structure.
+
+Server layout
 -------------
 
-The simplest way to share work with another user is to hand over the project directory or a copied project. Use the project handling options in the :doc:`Projects <../basics/04_projects>` page when you want to duplicate, rename, or move a project.
+At the top level, the server must provide an ``index.dat`` file.
+The file contains one entry per line.
+Each entry points to one resource folder.
 
-For workflow logic, you do not need to share the whole project every time. Individual tasks and calculators can be exported as ``.xml`` files and imported into another workflow. See :doc:`Workflow Elements <../workflows/hub-spoke/02_tasks_calculators>` for the available actions.
+Each resource folder must contain an ``index.json`` file.
+That JSON file describes the resource and lists the files that belong to it.
 
-For context and traceability, use:
+The layout therefore looks like this:
 
-- project comments
-- project footprint information
-- a consistent module selection for the project
+.. code-block:: text
 
-How teams usually work
-----------------------
+   https://your-server.example/
+   ├── index.dat
+   ├── engine_map_001/
+   │   ├── index.json
+   │   ├── map.dat
+   │   └── map_meta.xml
+   ├── blade_profile_a/
+   │   ├── index.json
+   │   └── profile.xml
+   └── script_pack_2026/
+       ├── index.json
+       ├── prepare_case.py
+       └── helper_functions.py
 
-A practical GTlab team setup usually looks like this:
+The paths in ``index.dat`` are read as server-relative entries.
+GTlab then appends ``index.json`` to each listed resource path.
 
-1. One person creates or updates the project structure.
-2. Other team members open the project in their own GTlab instance.
-3. Workflows or workflow parts are exchanged as exported ``.xml`` files when needed.
-4. Comments and footprint information are used to document what changed and which modules were involved.
+Required resource metadata
+--------------------------
 
-Because only one project can be open per instance, side-by-side comparisons should be done with separate GTlab windows or separate instances.
+The resource descriptor in ``index.json`` must contain these fields:
 
-What to keep aligned
---------------------
+.. list-table:: Required fields
+   :header-rows: 1
 
-To avoid confusion when a project moves between users, keep these points aligned:
+   * - Field
+     - Meaning
+   * - ``ident``
+     - Human-readable name shown in GTlab
+   * - ``description``
+     - Short description of the resource
+   * - ``uuid``
+     - Stable identifier used to match local and remote copies
+   * - ``version``
+     - Numeric version used to detect updates
+   * - ``files``
+     - List of files that belong to the resource
 
-- GTlab version
-- installed modules
-- selected project packages
-- Python environment, if scripting is involved
+A minimal example looks like this:
 
-If those do not match, a colleague may open the project but still miss data types, workflow elements, or scripts that your setup depends on.
+.. code-block:: json
+
+   {
+     "ident": "Engine map for test rig A",
+     "description": "Baseline map for the 2026 calibration setup",
+     "uuid": "f4a4f2b4-5f0b-4f2d-bf25-2f76dce9c5f4",
+     "version": 1.0,
+     "files": [
+       "map.dat",
+       "map_meta.xml"
+     ]
+   }
+
+If a module defines additional resource properties, they are also read from ``index.json``.
+Those extra fields come from the module's collection structure and are shown in GTlab where applicable.
+
+How GTlab uses the data
+-----------------------
+
+When GTlab reads the server, it compares the remote resources with what is already installed locally:
+
+- same ``uuid`` and same or lower ``version`` → installed
+- same ``uuid`` and higher ``version`` → update available
+- unknown ``uuid`` → available for installation
+
+Downloaded resources are stored locally under the application collection cache.
+The cache path follows this pattern:
+
+.. code-block:: text
+
+   <GTlab application directory>/Collections/<collection-id>/<resource-uuid>/
+
+GTlab downloads every file listed in ``files`` and also stores the corresponding ``index.json`` locally.
+
+Setting up access in GTlab
+--------------------------
+
+To connect a server, open the access settings in GTlab and add a host for the relevant collection.
+The collection ID must match the resource family provided by the module.
+
+In the current setup, the access entry is just the server location GTlab should query.
+If your server is behind a reverse proxy or a custom path, make sure the configured host points to the directory that exposes ``index.dat`` at its root.
+
+Recommended setup checklist
+---------------------------
+
+- Host the resources on a plain HTTP or HTTPS server.
+- Put one ``index.dat`` file at the server root.
+- List one resource folder per line in ``index.dat``.
+- Put an ``index.json`` file into every resource folder.
+- Make sure the file names in ``files`` really exist on the server.
+- Keep ``uuid`` stable across updates.
+- Increase ``version`` whenever you publish a newer resource.
+
+Typical mistakes
+----------------
+
+- ``index.dat`` points to a folder, but the folder has no ``index.json``.
+- ``index.json`` misses one of the required fields.
+- A file listed in ``files`` is not actually present on the server.
+- The same resource gets a new ``uuid`` after an update, so GTlab treats it as a new item instead of an update.
+- The server path is configured incorrectly, so GTlab cannot reach ``index.dat`` at the expected location.
+
+If you need module-specific details
+-----------------------------------
+
+The exact metadata fields and the way GTlab displays them are defined by the module that owns the collection.
+If you need help for a specific resource family, ask the module maintainers for the matching collection structure.
 
 Related pages
 -------------
 
-- :doc:`Project handling <../basics/04_projects>`
-- :doc:`Project settings and footprint <../basics/04_projects>`
-- :doc:`Workflow creation <../workflows/hub_spoke>`
-- :doc:`Scripting overview <../scripting/02_types_of_scripting>`
+- :doc:`Projects <../basics/04_projects>`
+- :doc:`Preferences <../basics/05_preferences>`
+- :doc:`FAQ <../faq>`

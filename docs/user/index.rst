@@ -36,7 +36,7 @@ Quick links
 - :doc:`User Interface tour <basics/03_user-interface>`
 - :doc:`Projects <basics/04_projects>`
 - :doc:`Preferences <basics/05_preferences>`
-- :doc:`Team Data <collaboration/shared_data>`
+- :doc:`Shared Resources <collaboration/shared_data>`
 - :doc:`Hub–Spoke workflow <workflows/hub_spoke>`
 - :doc:`Graph-based workflow <workflows/graph-based>`
 - :doc:`Scripting <scripting/02_types_of_scripting>`
@@ -49,7 +49,7 @@ Common tasks
 
 - **Run a workflow:** start with :doc:`Hub–Spoke <workflows/hub_spoke>`  
 - **Automate with scripts:** see :doc:`Scripting examples <scripting/03_examples>` and the :doc:`reference <scripting/04_scripting-reference>`  
-- **Share data with teammates:** :doc:`Collaboration basics <collaboration/shared_data>`  
+- **Publish shared resources:** :doc:`Shared Resources <collaboration/shared_data>`  
 - **Non-interactive runs (CI/servers):** :doc:`Headless execution <headless/01_overview>`
 
 
