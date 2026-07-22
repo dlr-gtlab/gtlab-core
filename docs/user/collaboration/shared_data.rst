@@ -49,12 +49,14 @@ When a resource is selected, its metadata and files are shown on the right.
 
 .. figure:: images/Map-Collection.png
    :align: center
+   :class: only-light
    :alt: GTlab collection browser showing shared engine maps in the light theme
 
    Example collection browser in the light theme.
 
 .. figure:: images/Map-Collection-Dark.png
    :align: center
+   :class: only-dark
    :alt: GTlab collection browser showing shared engine maps in the dark theme
 
    Example collection browser in the dark theme.
