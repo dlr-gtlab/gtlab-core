@@ -66,6 +66,16 @@ TEST_F(TestGtIntProperty, initialization_deprecated)
     EXPECT_STREQ(prop.brief().toStdString().c_str(), "test brief");
     EXPECT_FALSE(prop.isReadOnly());
 
+    GtIntProperty prop2("propBounds", "test int", "test brief",
+                       GtUnit::Category::NonDimensional, -2, 4);
+    EXPECT_EQ(prop2.get(), 0);
+    EXPECT_EQ(prop2.lowSideBoundary(), -2);
+    EXPECT_EQ(prop2.highSideBoundary(), 4);
+    EXPECT_EQ(prop2.unitCategory(), GtUnit::Category::NonDimensional);
+    EXPECT_STREQ(prop2.objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(prop2.brief().toStdString().c_str(), "test brief");
+    EXPECT_FALSE(prop2.isReadOnly());
+
     // bounds low
     GtIntProperty propLow("propBounds", "test int", "test brief", GtIntProperty::BoundLow, 2, 4);
     EXPECT_EQ(propLow.get(), 4);
@@ -85,6 +95,26 @@ TEST_F(TestGtIntProperty, initialization_deprecated)
     EXPECT_STREQ(propHigh.objectName().toStdString().c_str(), "test int");
     EXPECT_STREQ(propHigh.brief().toStdString().c_str(), "test brief");
     EXPECT_FALSE(propHigh.isReadOnly());
+
+    // bounds low
+    GtIntProperty propLow2("propBounds", "test int", "test brief", GtUnit::NonDimensional, GtIntProperty::BoundLow, 1, 3);
+    EXPECT_EQ(propLow2.get(), 3);
+    EXPECT_EQ(propLow2.lowSideBoundary(), 1);
+    EXPECT_EQ(propLow2.highSideBoundary(), std::numeric_limits<int>::max());
+    EXPECT_EQ(propLow2.unitCategory(), GtUnit::Category::NonDimensional);
+    EXPECT_STREQ(propLow2.objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(propLow2.brief().toStdString().c_str(), "test brief");
+    EXPECT_FALSE(propLow2.isReadOnly());
+
+    // bounds high
+    GtIntProperty propHigh2("propBounds", "test int", "test brief", GtUnit::NonDimensional, GtIntProperty::BoundHigh, 39, 5);
+    EXPECT_EQ(propHigh2.get(), 5);
+    EXPECT_EQ(propHigh2.lowSideBoundary(),  std::numeric_limits<int>::min());
+    EXPECT_EQ(propHigh2.highSideBoundary(), 39);
+    EXPECT_EQ(propHigh2.unitCategory(), GtUnit::Category::NonDimensional);
+    EXPECT_STREQ(propHigh2.objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(propHigh2.brief().toStdString().c_str(), "test brief");
+    EXPECT_FALSE(propHigh2.isReadOnly());
 }
 
 TEST_F(TestGtIntProperty, bounds_deprecated)
