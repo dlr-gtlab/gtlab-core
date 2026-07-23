@@ -262,12 +262,20 @@ gt::makeIntProperty(int value)
 gt::PropertyFactoryFunction
 gt::makeIntProperty(GtIntProperty::BoundType boundaryType, int boundary, int value)
 {
-    // suppress warning inside a deprecated function
-    GT_SUPPRESS_DEPRECATED_BEGIN
     return [=](QString const& id){
-        return new GtIntProperty(id, id, QString{}, boundaryType, boundary, value);
+
+        switch(boundaryType)
+        {
+        case GtIntProperty::BoundLow:
+            return new GtIntProperty(id, id, QString{},
+                                     gt::Boundaries<int>::makeLower(boundary),
+                                     value);
+        case GtIntProperty::BoundHigh:
+            return new GtIntProperty(id, id, QString{},
+                                     gt::Boundaries<int>::makeUpper(boundary),
+                                     value);
+        }
     };
-    GT_SUPPRESS_DEPRECATED_END
 }
 
 gt::PropertyFactoryFunction
