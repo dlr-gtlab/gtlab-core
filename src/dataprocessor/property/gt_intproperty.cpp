@@ -263,14 +263,14 @@ gt::PropertyFactoryFunction
 gt::makeIntProperty(GtIntProperty::BoundType boundaryType, int boundary, int value)
 {
     return [=](QString const& id){
-
-        switch(boundaryType)
+        if (boundaryType == GtIntProperty::BoundLow)
         {
-        case GtIntProperty::BoundLow:
             return new GtIntProperty(id, id, QString{},
                                      gt::Boundaries<int>::makeLower(boundary),
                                      value);
-        case GtIntProperty::BoundHigh:
+        }
+        else // GtIntProperty::BoundHigh
+        {
             return new GtIntProperty(id, id, QString{},
                                      gt::Boundaries<int>::makeUpper(boundary),
                                      value);
