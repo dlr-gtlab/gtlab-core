@@ -21,7 +21,7 @@ struct GtQmlToolbar::Impl
     GtQmlToolbarGroup m_statusActions;
     QQuickWidget qmlToolbar;
 
-    bool m_darkMode = {false};
+    QVariantMap theme;
 };
 
 GtQmlToolbar::GtQmlToolbar(QWidget* parent) :
@@ -33,6 +33,7 @@ GtQmlToolbar::GtQmlToolbar(QWidget* parent) :
     }();
     Q_UNUSED(typeRegistered);
 
+    setColorTheme(Theme());
 
     pimpl->qmlToolbar.rootContext()->setContextProperty("toolbar", this);
     pimpl->qmlToolbar.setSource(QUrl(QStringLiteral("qrc:/qml/Toolbar.qml")));
@@ -83,19 +84,53 @@ GtQmlToolbar::addStatusAction(GtQmlAction* action)
     emit statusActionsChanged();
 }
 
+void
+GtQmlToolbar::setColorTheme(const Theme &colors)
+{
+    bool const darkModeChanged = colors.darkMode != darkMode();
+
+    QVariantMap theme;
+    theme["baseColor"] = colors.base;
+    theme["backgroundColor"] = colors.background;
+    theme["hoverColor"] = colors.buttonHover;
+    theme["darkMode"] = colors.darkMode;
+
+    pimpl->theme = std::move(theme);
+
+    emit themeChanged();
+    if (darkModeChanged)
+    {
+        emit this->darkModeChanged();
+    }
+}
+
 bool
 GtQmlToolbar::darkMode() const
 {
-    return pimpl->m_darkMode;
+    return pimpl->theme.value("darkMode").toBool();
 }
 
 void
-GtQmlToolbar::setDarkMode(bool d)
+GtQmlToolbar::setDarkMode(bool dark)
 {
-    if (d == pimpl->m_darkMode) return;
+    if (dark == darkMode()) return;
 
-    pimpl->m_darkMode = d;
-    emit darkModeChanged();
+    Theme theme;
+    theme.darkMode = dark;
+    if (dark)
+    {
+        theme.base = QColor(21, 34, 49);
+        theme.background = QColor(10, 17, 31);
+        theme.buttonHover = QColor(30, 42, 58);
+    }
+
+    setColorTheme(theme);
+}
+
+QVariantMap
+GtQmlToolbar::themeMap() const
+{
+    return pimpl->theme;
 }
 
 QVariantListModel*
@@ -108,4 +143,12 @@ GtQmlToolbarGroup*
 GtQmlToolbar::statusActions()
 {
     return &pimpl->m_statusActions;
+}
+
+GtQmlToolbar::Theme::Theme()
+    : base(241, 241, 241)
+    , background(255, 255, 255)
+    , buttonHover(221, 238, 255)
+    , darkMode(false)
+{
 }

@@ -64,6 +64,17 @@ gt::gui::color::base()
 }
 
 QColor
+gt::gui::color::toolbarBackground()
+{
+    if (gt::gui::isApplicationDarkTheme())
+    {
+        return QColor(10, 17, 31);
+    }
+
+    return gt::gui::color::base();
+}
+
+QColor
 gt::gui::color::text()
 {
     return currentTheme().color(QPalette::Text);

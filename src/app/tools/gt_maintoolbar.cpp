@@ -13,6 +13,7 @@
 #include <gt_mdilauncher.h>
 
 #include <gt_icons.h>
+#include <gt_colors.h>
 
 GtMainToolbar::GtMainToolbar(GtMainWin *parent)
     : GtQmlToolbar(parent)
@@ -74,7 +75,7 @@ GtMainToolbar::GtMainToolbar(GtMainWin *parent)
     addToolbarGroup(editorContext);
 
 
-    setDarkMode(gtApp->inDarkMode());
+    updateTheme();
     makeConnections(parent);
 
     resize(QSize(1500, 50));
@@ -120,6 +121,19 @@ GtMainToolbar::showProjectInfo()
         editor->setWindowTitle(currentProject->objectName());
         editor->show();
     }
+}
+
+void
+GtMainToolbar::updateTheme()
+{
+    Theme theme;
+    theme.darkMode = gtApp->inDarkMode();
+    theme.base = gt::gui::color::main();
+    theme.background = gt::gui::color::toolbarBackground();
+    theme.foreground = gt::gui::color::text();
+    theme.buttonHover = gt::gui::color::highlight();
+
+    setColorTheme(theme);
 }
 
 bool
@@ -175,7 +189,7 @@ GtMainToolbar::makeConnections(GtMainWin* mainwin)
             });
 
     connect(gtApp, &GtApplication::themeChanged,
-            this, &GtMainToolbar::setDarkMode);
+            this, &GtMainToolbar::updateTheme);
 
     if (mainwin)
     {
