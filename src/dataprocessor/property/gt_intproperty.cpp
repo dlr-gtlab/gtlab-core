@@ -133,10 +133,7 @@ GtIntProperty::GtIntProperty(const QString& ident,
                              GtIntProperty::BoundType boundType,
                              const int boundary,
                              const int& value) :
-    GtIntProperty(
-        ident,
-        name,
-        brief,
+    GtIntProperty(ident, name, brief,
         gt::Boundaries<int>::makeNormalized(
             boundType == BoundLow ? boundary : std::numeric_limits<int>::min(),
             boundType == BoundHigh ? boundary : std::numeric_limits<int>::max()),
@@ -257,18 +254,11 @@ gt::PropertyFactoryFunction
 gt::makeIntProperty(GtIntProperty::BoundType boundaryType, int boundary, int value)
 {
     return [=](QString const& id){
-        if (boundaryType == GtIntProperty::BoundLow)
-        {
-            return new GtIntProperty(id, id, QString{},
-                                     gt::Boundaries<int>::makeLower(boundary),
-                                     value);
-        }
-        else // GtIntProperty::BoundHigh
-        {
-            return new GtIntProperty(id, id, QString{},
-                                     gt::Boundaries<int>::makeUpper(boundary),
-                                     value);
-        }
+        return new GtIntProperty(id, id, QString{},
+                      gt::Boundaries<int>::makeNormalized(
+                          boundaryType == GtIntProperty::BoundLow ? boundary : std::numeric_limits<int>::min(),
+                          boundaryType == GtIntProperty::BoundHigh ? boundary : std::numeric_limits<int>::max()),
+                          value);
     };
 }
 
