@@ -133,22 +133,16 @@ GtIntProperty::GtIntProperty(const QString& ident,
                              GtIntProperty::BoundType boundType,
                              const int boundary,
                              const int& value) :
-    GtIntProperty(ident, name, brief, value)
+    GtIntProperty(
+        ident,
+        name,
+        brief,
+        gt::Boundaries<int>::makeNormalized(
+            boundType == BoundLow ? boundary : std::numeric_limits<int>::min(),
+            boundType == BoundHigh ? boundary : std::numeric_limits<int>::max()),
+        value)
 { 
-    switch(boundType)
-    {
-    case BoundLow:
-        m_boundsCheckFlagLow = true;
-        m_boundLo = boundary;
-        break;
-    case BoundHigh:
-        m_boundsCheckFlagHi = true;
-        m_boundHi = boundary;
-        break;
-    }
 
-    m_value = gt::clamp(value, m_boundLo, m_boundHi);
-    m_initValue = m_value;
 }
 
 void

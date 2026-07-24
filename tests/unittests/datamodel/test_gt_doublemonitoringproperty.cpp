@@ -28,6 +28,7 @@ protected:
 
 TEST_F(TestGtDoubleMonitoringProperty, initialization)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     GtDoubleMonitoringProperty prop("testIdent", "testName");
 
     ASSERT_STREQ(prop.objectName().toStdString().c_str(), "testName");
@@ -43,17 +44,21 @@ TEST_F(TestGtDoubleMonitoringProperty, initialization)
     ASSERT_STREQ(prop2.ident().toStdString().c_str(), "testIdent2");
 
     ASSERT_STREQ(prop2.brief().toStdString().c_str(), "testBrief2");
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 TEST_F(TestGtDoubleMonitoringProperty, isReadOnly)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     GtDoubleMonitoringProperty prop("testIdent", "testName");
 
     ASSERT_TRUE(prop.isReadOnly());
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 TEST_F(TestGtDoubleMonitoringProperty, setVal)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     GtDoubleMonitoringProperty prop("testIdent", "testName");
 
     prop.setVal(11.3);
@@ -63,4 +68,5 @@ TEST_F(TestGtDoubleMonitoringProperty, setVal)
     prop = 0.75;
 
     ASSERT_DOUBLE_EQ(prop.getVal(), 0.75);
+    GT_SUPPRESS_DEPRECATED_END
 }

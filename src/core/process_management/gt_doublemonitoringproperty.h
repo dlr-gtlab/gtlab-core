@@ -32,7 +32,7 @@ public:
      * @param ident
      * @param name
      */
-    [[deprecated ("Use GtDoubleProperty and set the monitoring flag")]]
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use GtDoubleProperty and set the monitoring flag")
     Q_INVOKABLE GtDoubleMonitoringProperty(const QString& ident,
                                            const QString& name);
 
@@ -42,7 +42,7 @@ public:
      * @param name shown in the GUI
      * @param brief description text
      */
-    [[deprecated ("Use GtDoubleProperty and set the monitoring flag")]]
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use GtDoubleProperty and set the monitoring flag")
     Q_INVOKABLE GtDoubleMonitoringProperty(const QString& ident,
                                            const QString& name,
                                            const QString& brief);
@@ -54,7 +54,7 @@ namespace gt
 /**
  * @brief Creates a property factory for monitoring doubles with a default value
  */
-[[deprecated("Use makeMonitoring(makeDoubleProperty(value)) instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use makeMonitoring(makeDoubleProperty(value)) instead")
 GT_CORE_EXPORT
 gt::PropertyFactoryFunction makeDoubleMonitoringProperty(double value);
 

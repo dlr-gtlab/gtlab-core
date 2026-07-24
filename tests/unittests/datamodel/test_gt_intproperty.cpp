@@ -56,6 +56,7 @@ protected:
 
 TEST_F(TestGtIntProperty, initialization_deprecated)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     // bounded property
     GtIntProperty prop("propBounds", "test int", "test brief", -1, 3);
     EXPECT_EQ(prop.get(), 0);
@@ -115,10 +116,12 @@ TEST_F(TestGtIntProperty, initialization_deprecated)
     EXPECT_STREQ(propHigh2.objectName().toStdString().c_str(), "test int");
     EXPECT_STREQ(propHigh2.brief().toStdString().c_str(), "test brief");
     EXPECT_FALSE(propHigh2.isReadOnly());
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 TEST_F(TestGtIntProperty, bounds_deprecated)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     GtIntProperty prop("propBounds", "test int", "test brief", -1, 3);
     bool success = false;
 
@@ -149,10 +152,12 @@ TEST_F(TestGtIntProperty, bounds_deprecated)
     EXPECT_EQ(propWrong.get(), 4);
     EXPECT_EQ(propWrong.lowSideBoundary(),  std::numeric_limits<int>::min());
     EXPECT_EQ(propWrong.highSideBoundary(), std::numeric_limits<int>::max());
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 TEST_F(TestGtIntProperty, MakeIntPropertyCreatesCorrectProperty_deprecated)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     auto factory1 = gt::makeIntProperty(0, 100, 42);
 
     std::unique_ptr<GtIntProperty> property1(
@@ -176,7 +181,6 @@ TEST_F(TestGtIntProperty, MakeIntPropertyCreatesCorrectProperty_deprecated)
     EXPECT_EQ(property2->lowSideBoundary(),  std::numeric_limits<int>::min());
 
     auto factory3 = gt::makeIntProperty(GtIntProperty::BoundLow, 15, 35);
-
     std::unique_ptr<GtIntProperty> property3(
         dynamic_cast<GtIntProperty*>(factory3("testId3")));
 
@@ -185,6 +189,31 @@ TEST_F(TestGtIntProperty, MakeIntPropertyCreatesCorrectProperty_deprecated)
     EXPECT_EQ(property3->get(), 35);
     EXPECT_EQ(property3->highSideBoundary(), std::numeric_limits<int>::max());
     EXPECT_EQ(property3->lowSideBoundary(),  15);
+
+    /// lower than low
+    auto factory4 = gt::makeIntProperty(GtIntProperty::BoundLow, 15, 10);
+    std::unique_ptr<GtIntProperty> propertyLowerThanLow(
+        dynamic_cast<GtIntProperty*>(factory4("testId3")));
+
+    ASSERT_NE(propertyLowerThanLow, nullptr);
+    EXPECT_EQ(propertyLowerThanLow->ident(), "testId3");
+    EXPECT_EQ(propertyLowerThanLow->get(), 15);
+    EXPECT_EQ(propertyLowerThanLow->highSideBoundary(), std::numeric_limits<int>::max());
+    EXPECT_EQ(propertyLowerThanLow->lowSideBoundary(),  15);
+
+    /// higher than high
+    auto factory5 = gt::makeIntProperty(GtIntProperty::BoundHigh, 90, 110);
+
+    std::unique_ptr<GtIntProperty> propertyHigherThanHigh(
+        dynamic_cast<GtIntProperty*>(factory5("testId2")));
+
+    ASSERT_NE(propertyHigherThanHigh, nullptr);
+    EXPECT_EQ(propertyHigherThanHigh->ident(), "testId2");
+    EXPECT_EQ(propertyHigherThanHigh->get(), 90);
+    EXPECT_EQ(propertyHigherThanHigh->highSideBoundary(), 90);
+    EXPECT_EQ(propertyHigherThanHigh->lowSideBoundary(),  std::numeric_limits<int>::min());
+
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 TEST_F(TestGtIntProperty, initialization)
