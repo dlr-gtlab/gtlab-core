@@ -12,8 +12,6 @@
 #include "gtest/gtest.h"
 
 #include "gt_doubleproperty.h"
-#include "gt_logging.h"
-
 
 /// This is a test fixture that does a init for each test
 class TestGtDoubleProperty : public ::testing::Test
@@ -21,6 +19,7 @@ class TestGtDoubleProperty : public ::testing::Test
 protected:
     virtual void SetUp()
     {
+        GT_SUPPRESS_DEPRECATED_BEGIN
         m_prop = new GtDoubleProperty("prop", "test double", "test brief",
                                       GtUnit::Category::Area);
 
@@ -40,6 +39,7 @@ protected:
                                                 GtUnit::Category::Area,
                                                 GtDoubleProperty::BoundHigh,
                                                 200.43, 340.2);
+        GT_SUPPRESS_DEPRECATED_END
     }
 
     virtual void TearDown()
@@ -336,12 +336,14 @@ TEST_F(TestGtDoubleProperty, boundsHighOnly)
 
 TEST_F(TestGtDoubleProperty, wrongBounds)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     GtDoubleProperty prop("prop", "test", "test", GtUnit::Category::None,
                           4.0, 3.0, 4.0);
 
     ASSERT_DOUBLE_EQ(prop.get(), 4.0);
     ASSERT_DOUBLE_EQ(prop.lowSideBoundary(), 0.0);
     ASSERT_DOUBLE_EQ(prop.highSideBoundary(), 0.0);
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 TEST_F(TestGtDoubleProperty, revert)

@@ -21,9 +21,9 @@ GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
 
 GtIntMonitoringProperty::GtIntMonitoringProperty(const QString& ident,
                                                  const QString& name) :
-    GtIntMonitoringProperty(ident, name, QString())
+    GtIntProperty(ident, name, QString())
 {
-
+    setMonitoring(true);
 }
 
 gt::PropertyFactoryFunction

@@ -21,10 +21,6 @@ protected:
     {
         m_prop = new GtIntProperty("prop", "test int", "test brief");
 
-        m_propBounds = new GtIntProperty("propBounds", "test int", "test brief",
-                                         -1,
-                                         3);
-
         m_propBoundsLow = new GtIntProperty("propBoundsLow", "test int", "test brief",
                                             gt::Boundaries<int>::makeLower(2),
                                             4);
@@ -32,30 +28,193 @@ protected:
         m_propBoundsHigh = new GtIntProperty("propBoundsHigh", "test int", "test brief",
                                              gt::Boundaries<int>::makeUpper(38),
                                              54);
+
+        m_propBounds = new GtIntProperty("propBounds", "test int", "test brief",
+                                         gt::Boundaries<int>::makeNormalized(-1, 3));
     }
 
     virtual void TearDown()
     {
         delete m_prop;
 
-        delete m_propBounds;
-
         delete m_propBoundsLow;
 
         delete m_propBoundsHigh;
+
+        delete m_propBounds;
     }
 
     GtIntProperty* m_prop{};
-
-    GtIntProperty* m_propBounds{};
-
-    GtIntProperty* m_propBounds2{};
 
     GtIntProperty* m_propBoundsLow{};
 
     GtIntProperty* m_propBoundsHigh{};
 
+    GtIntProperty* m_propBounds{};
+
 };
+
+TEST_F(TestGtIntProperty, initialization_deprecated)
+{
+    GT_SUPPRESS_DEPRECATED_BEGIN
+    // bounded property
+    GtIntProperty prop("propBounds", "test int", "test brief", -1, 3);
+    EXPECT_EQ(prop.get(), 0);
+    EXPECT_EQ(prop.lowSideBoundary(), -1);
+    EXPECT_EQ(prop.highSideBoundary(), 3);
+    EXPECT_EQ(prop.unitCategory(), GtUnit::Category::NonDimensional);
+    EXPECT_STREQ(prop.objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(prop.brief().toStdString().c_str(), "test brief");
+    EXPECT_FALSE(prop.isReadOnly());
+
+    GtIntProperty prop2("propBounds", "test int", "test brief",
+                       GtUnit::Category::NonDimensional, -2, 4);
+    EXPECT_EQ(prop2.get(), 0);
+    EXPECT_EQ(prop2.lowSideBoundary(), -2);
+    EXPECT_EQ(prop2.highSideBoundary(), 4);
+    EXPECT_EQ(prop2.unitCategory(), GtUnit::Category::NonDimensional);
+    EXPECT_STREQ(prop2.objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(prop2.brief().toStdString().c_str(), "test brief");
+    EXPECT_FALSE(prop2.isReadOnly());
+
+    // bounds low
+    GtIntProperty propLow("propBounds", "test int", "test brief", GtIntProperty::BoundLow, 2, 4);
+    EXPECT_EQ(propLow.get(), 4);
+    EXPECT_EQ(propLow.lowSideBoundary(), 2);
+    EXPECT_EQ(propLow.highSideBoundary(), std::numeric_limits<int>::max());
+    EXPECT_EQ(propLow.unitCategory(), GtUnit::Category::NonDimensional);
+    EXPECT_STREQ(propLow.objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(propLow.brief().toStdString().c_str(), "test brief");
+    EXPECT_FALSE(propLow.isReadOnly());
+
+    // bounds high
+    GtIntProperty propHigh("propBounds", "test int", "test brief", GtIntProperty::BoundHigh, 38, 4);
+    EXPECT_EQ(propHigh.get(), 4);
+    EXPECT_EQ(propHigh.lowSideBoundary(),  std::numeric_limits<int>::min());
+    EXPECT_EQ(propHigh.highSideBoundary(), 38);
+    EXPECT_EQ(propHigh.unitCategory(), GtUnit::Category::NonDimensional);
+    EXPECT_STREQ(propHigh.objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(propHigh.brief().toStdString().c_str(), "test brief");
+    EXPECT_FALSE(propHigh.isReadOnly());
+
+    // bounds low
+    GtIntProperty propLow2("propBounds", "test int", "test brief", GtUnit::NonDimensional, GtIntProperty::BoundLow, 1, 3);
+    EXPECT_EQ(propLow2.get(), 3);
+    EXPECT_EQ(propLow2.lowSideBoundary(), 1);
+    EXPECT_EQ(propLow2.highSideBoundary(), std::numeric_limits<int>::max());
+    EXPECT_EQ(propLow2.unitCategory(), GtUnit::Category::NonDimensional);
+    EXPECT_STREQ(propLow2.objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(propLow2.brief().toStdString().c_str(), "test brief");
+    EXPECT_FALSE(propLow2.isReadOnly());
+
+    // bounds high
+    GtIntProperty propHigh2("propBounds", "test int", "test brief", GtUnit::NonDimensional, GtIntProperty::BoundHigh, 39, 5);
+    EXPECT_EQ(propHigh2.get(), 5);
+    EXPECT_EQ(propHigh2.lowSideBoundary(),  std::numeric_limits<int>::min());
+    EXPECT_EQ(propHigh2.highSideBoundary(), 39);
+    EXPECT_EQ(propHigh2.unitCategory(), GtUnit::Category::NonDimensional);
+    EXPECT_STREQ(propHigh2.objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(propHigh2.brief().toStdString().c_str(), "test brief");
+    EXPECT_FALSE(propHigh2.isReadOnly());
+    GT_SUPPRESS_DEPRECATED_END
+}
+
+TEST_F(TestGtIntProperty, bounds_deprecated)
+{
+    GT_SUPPRESS_DEPRECATED_BEGIN
+    GtIntProperty prop("propBounds", "test int", "test brief", -1, 3);
+    bool success = false;
+
+    prop.setVal(-1, &success);
+    EXPECT_EQ(prop.get(), -1);
+    EXPECT_TRUE(success);
+
+    success = false;
+
+    prop.setVal(-2, &success);
+    EXPECT_EQ(prop.get(), -1);
+    EXPECT_FALSE(success);
+
+    success = false;
+
+    prop.setVal(3, &success);
+    EXPECT_EQ(prop.get(), 3);
+    EXPECT_TRUE(success);
+
+    success = false;
+
+    prop.setVal(4, &success);
+    EXPECT_EQ(prop.get(), 3);
+    EXPECT_FALSE(success);
+
+    GtIntProperty propWrong("prop", "test", "test", 4, 3, 4);
+
+    EXPECT_EQ(propWrong.get(), 4);
+    EXPECT_EQ(propWrong.lowSideBoundary(),  std::numeric_limits<int>::min());
+    EXPECT_EQ(propWrong.highSideBoundary(), std::numeric_limits<int>::max());
+    GT_SUPPRESS_DEPRECATED_END
+}
+
+TEST_F(TestGtIntProperty, MakeIntPropertyCreatesCorrectProperty_deprecated)
+{
+    GT_SUPPRESS_DEPRECATED_BEGIN
+    auto factory1 = gt::makeIntProperty(0, 100, 42);
+
+    std::unique_ptr<GtIntProperty> property1(
+        dynamic_cast<GtIntProperty*>(factory1("testId")));
+
+    ASSERT_NE(property1, nullptr);
+    EXPECT_EQ(property1->ident(), "testId");
+    EXPECT_EQ(property1->get(), 42);
+    EXPECT_EQ(property1->lowSideBoundary(), 0);
+    EXPECT_EQ(property1->highSideBoundary(), 100);
+
+    auto factory2 = gt::makeIntProperty(GtIntProperty::BoundHigh, 90, 36);
+
+    std::unique_ptr<GtIntProperty> property2(
+        dynamic_cast<GtIntProperty*>(factory2("testId2")));
+
+    ASSERT_NE(property2, nullptr);
+    EXPECT_EQ(property2->ident(), "testId2");
+    EXPECT_EQ(property2->get(), 36);
+    EXPECT_EQ(property2->highSideBoundary(), 90);
+    EXPECT_EQ(property2->lowSideBoundary(),  std::numeric_limits<int>::min());
+
+    auto factory3 = gt::makeIntProperty(GtIntProperty::BoundLow, 15, 35);
+    std::unique_ptr<GtIntProperty> property3(
+        dynamic_cast<GtIntProperty*>(factory3("testId3")));
+
+    ASSERT_NE(property3, nullptr);
+    EXPECT_EQ(property3->ident(), "testId3");
+    EXPECT_EQ(property3->get(), 35);
+    EXPECT_EQ(property3->highSideBoundary(), std::numeric_limits<int>::max());
+    EXPECT_EQ(property3->lowSideBoundary(),  15);
+
+    /// lower than low
+    auto factory4 = gt::makeIntProperty(GtIntProperty::BoundLow, 15, 10);
+    std::unique_ptr<GtIntProperty> propertyLowerThanLow(
+        dynamic_cast<GtIntProperty*>(factory4("testId3")));
+
+    ASSERT_NE(propertyLowerThanLow, nullptr);
+    EXPECT_EQ(propertyLowerThanLow->ident(), "testId3");
+    EXPECT_EQ(propertyLowerThanLow->get(), 15);
+    EXPECT_EQ(propertyLowerThanLow->highSideBoundary(), std::numeric_limits<int>::max());
+    EXPECT_EQ(propertyLowerThanLow->lowSideBoundary(),  15);
+
+    /// higher than high
+    auto factory5 = gt::makeIntProperty(GtIntProperty::BoundHigh, 90, 110);
+
+    std::unique_ptr<GtIntProperty> propertyHigherThanHigh(
+        dynamic_cast<GtIntProperty*>(factory5("testId2")));
+
+    ASSERT_NE(propertyHigherThanHigh, nullptr);
+    EXPECT_EQ(propertyHigherThanHigh->ident(), "testId2");
+    EXPECT_EQ(propertyHigherThanHigh->get(), 90);
+    EXPECT_EQ(propertyHigherThanHigh->highSideBoundary(), 90);
+    EXPECT_EQ(propertyHigherThanHigh->lowSideBoundary(),  std::numeric_limits<int>::min());
+
+    GT_SUPPRESS_DEPRECATED_END
+}
 
 TEST_F(TestGtIntProperty, initialization)
 {
@@ -75,10 +234,8 @@ TEST_F(TestGtIntProperty, initialization)
     EXPECT_EQ(m_propBounds->lowSideBoundary(), -1);
     EXPECT_EQ(m_propBounds->highSideBoundary(), 3);
     EXPECT_EQ(m_propBounds->unitCategory(), GtUnit::Category::NonDimensional);
-    EXPECT_STREQ(m_propBounds->objectName().toStdString().c_str(),
-                 "test int");
-    EXPECT_STREQ(m_propBounds->brief().toStdString().c_str(),
-                 "test brief");
+    EXPECT_STREQ(m_propBounds->objectName().toStdString().c_str(), "test int");
+    EXPECT_STREQ(m_propBounds->brief().toStdString().c_str(), "test brief");
     EXPECT_FALSE(m_propBounds->isReadOnly());
 
     // check what happens if default value is outside of boundary
@@ -108,9 +265,26 @@ TEST_F(TestGtIntProperty, initialization)
               GtUnit::Category::NonDimensional);
     EXPECT_STREQ(m_propBoundsHigh->objectName().toStdString().c_str(),
                  "test int");
-    EXPECT_STREQ(m_propBoundsHigh->brief().toStdString().c_str(),
-                 "test brief");
+    EXPECT_STREQ(m_propBoundsHigh->brief().toStdString().c_str(), "test brief");
     EXPECT_FALSE(m_propBoundsHigh->isReadOnly());
+
+    GtIntProperty propBoundsStart("propBounds", "test int", "test brief",
+                                  gt::Boundaries<int>::makeNormalized(-2, 4), 2);
+    EXPECT_EQ(propBoundsStart.get(), 2);
+    EXPECT_EQ(propBoundsStart.lowSideBoundary(), -2);
+    EXPECT_EQ(propBoundsStart.highSideBoundary(), 4);
+
+    GtIntProperty propBoundsStart2("propBounds", "test int", "test brief",
+                                  gt::Boundaries<int>::makeNormalized(-2, 4), 6);
+    EXPECT_EQ(propBoundsStart2.get(), 4);
+    EXPECT_EQ(propBoundsStart2.lowSideBoundary(), -2);
+    EXPECT_EQ(propBoundsStart2.highSideBoundary(), 4);
+
+    GtIntProperty propBoundsStart3("propBounds", "test int", "test brief",
+                                   gt::Boundaries<int>::makeNormalized(-3, 5), -6);
+    EXPECT_EQ(propBoundsStart3.lowSideBoundary(), -3);
+    EXPECT_EQ(propBoundsStart3.highSideBoundary(), 5);
+    EXPECT_EQ(propBoundsStart3.get(), -3);
 }
 
 TEST_F(TestGtIntProperty, isReadOnly)
@@ -259,11 +433,12 @@ TEST_F(TestGtIntProperty, boundsHighOnly)
 
 TEST_F(TestGtIntProperty, wrongBounds)
 {
-    GtIntProperty prop("prop", "test", "test", 4, 3, 4);
+    GtIntProperty prop2("prop", "test", "test",
+                        gt::Boundaries<int>::makeNormalized(4, 3), 4);
 
-    EXPECT_EQ(prop.get(), 4);
-    EXPECT_EQ(prop.lowSideBoundary(),  std::numeric_limits<int>::min());
-    EXPECT_EQ(prop.highSideBoundary(), std::numeric_limits<int>::max());
+    EXPECT_EQ(prop2.get(), 4);
+    EXPECT_EQ(prop2.lowSideBoundary(),  3);
+    EXPECT_EQ(prop2.highSideBoundary(), 4);
 }
 
 TEST_F(TestGtIntProperty, revert)
@@ -415,3 +590,19 @@ TEST_F(TestGtIntProperty, boundaries)
     EXPECT_DOUBLE_EQ(lh.getVal(), hundred);
 }
 
+TEST_F(TestGtIntProperty, MakeIntPropertyCreatesCorrectProperty)
+{
+    auto bounds = gt::Boundaries<int>::makeNormalized(0, 100);
+
+    auto factory = gt::makeIntProperty(bounds, 42);
+
+    std::unique_ptr<GtIntProperty> property(
+        dynamic_cast<GtIntProperty*>(factory("testId")));
+
+    ASSERT_NE(property, nullptr);
+
+    EXPECT_EQ(property->ident(), "testId");
+    EXPECT_EQ(property->get(), 42);
+    EXPECT_EQ(property->lowSideBoundary(), 0);
+    EXPECT_EQ(property->highSideBoundary(), 100);
+}

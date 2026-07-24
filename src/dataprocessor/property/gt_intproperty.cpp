@@ -121,7 +121,9 @@ GtIntProperty::GtIntProperty(const QString& ident,
                              const int lowSideBoundary,
                              const int highSideBoundary,
                              const int& value) :
-    GtIntProperty(ident, name, brief, lowSideBoundary, highSideBoundary, value)
+    GtIntProperty(ident, name, brief,
+                  gt::Boundaries<int>::makeNormalized(lowSideBoundary, highSideBoundary), 
+                  value)
 { }
 
 GtIntProperty::GtIntProperty(const QString& ident,
@@ -131,8 +133,17 @@ GtIntProperty::GtIntProperty(const QString& ident,
                              GtIntProperty::BoundType boundType,
                              const int boundary,
                              const int& value) :
-    GtIntProperty(ident, name, brief, boundType, boundary, value)
-{ }
+    GtIntProperty(
+        ident,
+        name,
+        brief,
+        gt::Boundaries<int>::makeNormalized(
+            boundType == BoundLow ? boundary : std::numeric_limits<int>::min(),
+            boundType == BoundHigh ? boundary : std::numeric_limits<int>::max()),
+        value)
+{ 
+
+}
 
 void
 GtIntProperty::operator+=(int b)
@@ -246,7 +257,18 @@ gt::PropertyFactoryFunction
 gt::makeIntProperty(GtIntProperty::BoundType boundaryType, int boundary, int value)
 {
     return [=](QString const& id){
-        return new GtIntProperty(id, id, QString{}, boundaryType, boundary, value);
+        if (boundaryType == GtIntProperty::BoundLow)
+        {
+            return new GtIntProperty(id, id, QString{},
+                                     gt::Boundaries<int>::makeLower(boundary),
+                                     value);
+        }
+        else // GtIntProperty::BoundHigh
+        {
+            return new GtIntProperty(id, id, QString{},
+                                     gt::Boundaries<int>::makeUpper(boundary),
+                                     value);
+        }
     };
 }
 

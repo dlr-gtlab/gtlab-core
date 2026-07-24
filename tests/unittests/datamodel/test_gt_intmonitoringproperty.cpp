@@ -28,6 +28,7 @@ protected:
 
 TEST_F(TestGtIntMonitoringProperty, initialization)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     GtIntMonitoringProperty prop("testIdent", "testName");
 
     ASSERT_STREQ(prop.objectName().toStdString().c_str(), "testName");
@@ -43,17 +44,21 @@ TEST_F(TestGtIntMonitoringProperty, initialization)
     ASSERT_STREQ(prop2.ident().toStdString().c_str(), "testIdent2");
 
     ASSERT_STREQ(prop2.brief().toStdString().c_str(), "testBrief2");
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 TEST_F(TestGtIntMonitoringProperty, isReadOnly)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     GtIntMonitoringProperty prop("testIdent", "testName");
 
     ASSERT_TRUE(prop.isReadOnly());
+    GT_SUPPRESS_DEPRECATED_END
 }
 
 TEST_F(TestGtIntMonitoringProperty, setVal)
 {
+    GT_SUPPRESS_DEPRECATED_BEGIN
     GtIntMonitoringProperty prop("testIdent", "testName");
 
     prop.setVal(11);
@@ -63,4 +68,5 @@ TEST_F(TestGtIntMonitoringProperty, setVal)
     prop = -7;
 
     ASSERT_DOUBLE_EQ(prop.getVal(), -7);
+    GT_SUPPRESS_DEPRECATED_END
 }
