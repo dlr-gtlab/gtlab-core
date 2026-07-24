@@ -179,10 +179,26 @@ private slots:
      */
     void onDeleteRequest();
 
+    /**
+     * @brief onSearchTextChanged
+     * @param text - new text of the search widget
+     */
     void onSearchTextChanged(const QString& text);
 
+    /**
+     * @brief Reaction to go to next found entry
+     */
     void goToNextMatch();
+
+    /**
+     * @brief Reaction to go to previous found entry
+     */
     void goToPrevMatch();
+
+    /**
+     * @brief update the results of the search for the current state
+     */
+    void updateSearchResults();
 };
 
 #endif // GTOUTPUTDOCK_H

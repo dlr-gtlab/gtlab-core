@@ -41,7 +41,8 @@
 #include <QMenu>
 #include <QApplication>
 #include <QClipboard>
-#include <qshortcut.h>
+#include <QTimer>
+#include <QShortcut>
 
 #ifdef QT_DEBUG
 #include <QAbstractItemModelTester>
@@ -475,6 +476,10 @@ GtOutputDock::GtOutputDock()
             this, &GtOutputDock::onDeleteRequest);
     connect(m_logView, &GtTableView::searchRequest,
             m_searchWidget, &GtSearchWidget::enableSearch);
+    connect(filterModel, &gt::LogFilterProxyModel::levelFilterChanged,
+            this, &GtOutputDock::updateSearchResults);
+    connect(filterModel, &gt::LogFilterProxyModel::filterTextChanged,
+            this, &GtOutputDock::updateSearchResults);
 }
 
 Qt::DockWidgetArea
@@ -615,10 +620,7 @@ GtOutputDock::onRowsInserted(int start, int last)
     scrollToBottom();
     m_model->updateCategoryFilter();
 
-    if (m_searchWidget)
-    {
-        onSearchTextChanged(m_searchWidget->text());
-    }
+    updateSearchResults();
 }
 
 void
@@ -632,10 +634,7 @@ GtOutputDock::onCategoryFilterChanged()
 {
     m_model->setCategoryFilterWithSave(m_model->filterModel()->categoryFilter());
 
-    if (m_searchWidget)
-    {
-        onSearchTextChanged(m_searchWidget->text());
-    }
+    updateSearchResults();
 }
 
 void
@@ -645,10 +644,7 @@ GtOutputDock::onModelReset()
     updateFilterButtons();
     m_model->resetCategoryFilter();
 
-    if (m_searchWidget)
-    {
-        onSearchTextChanged(m_searchWidget->text());
-    }
+    updateSearchResults();
 }
 
 void
@@ -656,11 +652,18 @@ GtOutputDock::onRowsRemoved()
 {
     updateFilterButtons();
 
+    updateSearchResults();
+}
+
+void
+GtOutputDock::updateSearchResults()
+{
     if (m_searchWidget)
     {
         onSearchTextChanged(m_searchWidget->text());
     }
 }
+
 
 void
 GtOutputDock::exportLog()
@@ -809,42 +812,48 @@ GtOutputDock::onSearchTextChanged(const QString& text)
     m_matches.clear();
     m_currentMatch = -1;
 
-    // Get all items from model and search for text
-    // For now, we'll search in the displayed rows
-    int rowCount = m_model->rowCount();
-    
-    for (int row = 0; row < rowCount; ++row)
-    {
-        QModelIndex index = m_model->index(row, 3); // Messages column
-        QString itemText = m_model->data(index, Qt::DisplayRole).toString();
-        
-        if (!text.isEmpty() && itemText.contains(text, Qt::CaseInsensitive))
+    // Defer search until after model updates complete
+    QTimer::singleShot(0, this, [this, text]() {
+        auto* filterModel = m_model->filterModel();
+        if (!filterModel) return;
+
+        int rowCount = m_model->rowCount();
+
+        for (int row = 0; row < rowCount; ++row)
         {
-            m_matches.append(index);
+            QModelIndex proxyIndex = m_model->index(row, 3);
+            
+            QString itemText = m_model->data(proxyIndex, Qt::DisplayRole).toString();
+
+            if (!text.isEmpty() && itemText.contains(text, Qt::CaseInsensitive))
+            {
+                m_matches.append(proxyIndex);
+            }
         }
-    }
 
-    auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(m_logView->itemDelegate());
-    if (matchDelegate)
-    {
-        matchDelegate->setMatches(m_matches);
-        //matchDelegate->setCurrentMatch(m_currentMatch);
-    }
+        auto* matchDelegate = qobject_cast<gt::GtMatchDelegate*>(
+            m_logView->itemDelegate());
 
-    if (text.isEmpty() || m_matches.isEmpty())
-    {
-        // Clear selection
-        m_logView->clearSelection();
-    }
-    else
-    {
-        m_currentMatch = 0;
-        // Select the first match
-        m_logView->selectRow(m_matches.first().row());
-        m_logView->scrollTo(m_matches.first());
-    }
-    
-    m_logView->viewport()->update();
+        if (matchDelegate)
+        {
+            matchDelegate->setMatches(m_matches);
+        }
+
+        if (text.isEmpty() || m_matches.isEmpty())
+        {
+            // Clear selection
+            m_logView->clearSelection();
+        }
+        else
+        {
+            m_currentMatch = 0;
+            // Select the first match
+            m_logView->selectRow(m_matches.first().row());
+            m_logView->scrollTo(m_matches.first());
+        }
+        
+        m_logView->viewport()->update();
+    });
 }
 
 void
