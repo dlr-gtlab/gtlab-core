@@ -55,7 +55,9 @@ public:
                   const QString& brief,
                   int value);
 
-    [[deprecated("Use function with GtIntProperty::Boundaries definition instead")]]
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use function with GtIntProperty::Boundaries"
+                                   " definition instead")
     GtIntProperty(const QString& ident,
                   const QString& name,
                   const QString& brief,
@@ -63,7 +65,8 @@ public:
                   int highSideBoundary,
                   int value = 0);
 
-    [[deprecated("Use function with GtIntProperty::Boundaries definition instead")]]
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use function with GtIntProperty::Boundaries"
+                                   " definition instead")
     GtIntProperty(const QString& ident,
                   const QString& name,
                   const QString& brief,
@@ -85,8 +88,9 @@ public:
      * @param unitCategory
      * @param value
      */
-    [[deprecated("Int Properties do not support units properly and "
-                 "will be removed in the future")]]
+
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Int Properties do not support units properly"
+                                   " and will be removed in the future")
     GtIntProperty(const QString& ident,
                   const QString& name,
                   const QString& brief,
@@ -103,8 +107,8 @@ public:
      * @param highSideBoundary
      * @param value
      */
-    [[deprecated("Int Properties do not support units properly and "
-                 "will be removed in the future")]]
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Int Properties do not support units properly"
+                                   " and will be removed in the future")
     GtIntProperty(const QString& ident,
                   const QString& name,
                   const QString& brief,
@@ -123,8 +127,8 @@ public:
      * @param boundary
      * @param value
      */
-    [[deprecated("Int Properties do not support units properly and "
-                 "will be removed in the future")]]
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Int Properties do not support units properly"
+                                   " and will be removed in the future")
     GtIntProperty(const QString& ident,
                   const QString& name,
                   const QString& brief,
@@ -221,7 +225,9 @@ gt::PropertyFactoryFunction makeIntProperty(int value);
  * @param lowSideBoundary Lower side boundary
  * @param highSideBoundary High side boundary
  */
-[[deprecated("Use function with GtIntProperty::Bound bound definition instead")]]
+
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use function with GtIntProperty::Bound bound "
+                               "definition instead")
 GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeIntProperty(int lowSideBoundary,
                                             int highSideBoundary,
@@ -234,7 +240,8 @@ gt::PropertyFactoryFunction makeIntProperty(int lowSideBoundary,
  * @param boundaryType Boundary type
  * @param boundary Boundary
  */
-[[deprecated("Use function with GtIntProperty::Boundaries definition instead")]]
+GT_DEPRECATED_REMOVED_IN(2, 2, "Use function with GtIntProperty::Boundaries "
+                               "definition instead")
 GT_DATAMODEL_EXPORT
 gt::PropertyFactoryFunction makeIntProperty(GtIntProperty::BoundType boundaryType,
                                             int boundary,

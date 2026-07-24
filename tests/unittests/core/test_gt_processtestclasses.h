@@ -141,7 +141,7 @@ public:
     {
         GtPropertyStructDefinition monVarStruct("MonitoringVarsStruct");
         monVarStruct.defineMember("name", gt::makeStringProperty());
-        monVarStruct.defineMember("value", gt::makeIntMonitoringProperty(0));
+        monVarStruct.defineMember("value", gt::makeMonitoring(gt::makeIntProperty(0)));
 
         monitoringVars.registerAllowedType(monVarStruct);
 

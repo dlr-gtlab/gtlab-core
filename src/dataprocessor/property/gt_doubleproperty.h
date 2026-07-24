@@ -74,7 +74,8 @@ public:
      * @param highSideBoundary
      * @param value
      */
-    [[deprecated("Use function with GtDoubleProperty::Boundaries definition instead")]]
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use function with GtDoubleProperty::Boundaries"
+                                   " definition instead")
     GtDoubleProperty(const QString& ident,
                      const QString& name,
                      const QString& brief,
@@ -93,7 +94,8 @@ public:
      * @param boundary
      * @param value
      */
-    [[deprecated("Use function with GtDoubleProperty::Boundaries definition instead")]]
+    GT_DEPRECATED_REMOVED_IN(2, 2, "Use function with GtDoubleProperty::Boundaries"
+                                   " definition instead")
     GtDoubleProperty(const QString& ident,
                      const QString& name,
                      const QString& brief,

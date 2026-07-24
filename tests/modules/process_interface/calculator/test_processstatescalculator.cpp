@@ -16,8 +16,7 @@ TestProcessStatesCalculator::TestProcessStatesCalculator() :
     m_pInterval{"interval", "Interval", "Time until next state change",
                 GtUnit::Time, 5},
     m_pIterations{"iterations", "Iterations",
-                  "How many times should the state change",
-                  GtUnit::NonDimensional, 2}
+                  "How many times should the state change", 2}
 {
     setObjectName("Process State Changer");
 
