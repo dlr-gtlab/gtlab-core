@@ -77,6 +77,7 @@ set(headers
     states/gt_statehandler.h
     states/gt_statecontainer.h
     gt_coreapplication.h
+    gt_executioncontext.h
     gt_core_exports.h
     gt_footprint.h
     gt_globals.h
@@ -186,6 +187,7 @@ set(sources
     states/gt_statehandler.cpp
     states/gt_statecontainer.cpp
     gt_coreapplication.cpp
+    gt_executioncontext.cpp
     gt_footprint.cpp
     gt_projectanalyzer.cpp
     gt_saveprojecthelper.cpp

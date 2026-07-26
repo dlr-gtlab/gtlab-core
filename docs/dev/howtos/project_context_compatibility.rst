@@ -67,3 +67,19 @@ Known limitations
   application.
 * No production behavior is changed by this baseline. The later execution
   context work must preserve the GUI/main-thread fallback documented here.
+
+Execution context API
+---------------------
+
+The next migration step provides ``GtExecutionContext`` for new execution
+code. It carries a borrowed project pointer, the execution data root, a source
+identifier, the project path, and an optional job identifier. The context does
+not own the project and does not extend its lifetime; the project must remain
+alive for as long as the context may be used.
+
+``GtExecutionContextScope`` installs a context only on the current thread.
+Scopes can be nested and their destructors restore the previous context, also
+when control leaves the scope early or through an exception. The current
+context is available through ``GtExecutionContext::current()``. Contexts are
+not automatically propagated to child threads, and installing a scope does
+not change ``GtCoreApplication::currentProject()``.
