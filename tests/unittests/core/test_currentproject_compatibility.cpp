@@ -14,6 +14,7 @@
 #include "gt_abstractrunnable.h"
 #include "gt_calculator.h"
 #include "gt_coreapplication.h"
+#include "gt_externalizationmanager.h"
 #include "gt_project.h"
 #include "gt_session.h"
 
@@ -47,6 +48,11 @@ public:
     TestApplication() : GtCoreApplication(qApp, AppMode::Batch)
     {
         init();
+    }
+
+    ~TestApplication() override
+    {
+        gtExternalizationManager->onProjectLoaded(QDir::tempPath());
     }
 
     void installSession(std::unique_ptr<TestSession> session)
@@ -93,8 +99,14 @@ std::unique_ptr<TestSession> sessionWithProjects(TestProject*& first,
                                                  TestProject*& second)
 {
     auto session = std::make_unique<TestSession>();
-    first = new TestProject(QStringLiteral("/test/project-a"));
-    second = new TestProject(QStringLiteral("/test/project-b"));
+    const QString firstPath = QDir::tempPath() +
+                              QStringLiteral("/gtlab-project-a-1508");
+    const QString secondPath = QDir::tempPath() +
+                               QStringLiteral("/gtlab-project-b-1508");
+    QDir().mkpath(firstPath);
+    QDir().mkpath(secondPath);
+    first = new TestProject(firstPath);
+    second = new TestProject(secondPath);
     session->addProjectForTest(first);
     session->addProjectForTest(second);
     return session;
