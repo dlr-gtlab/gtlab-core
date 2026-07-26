@@ -100,6 +100,7 @@ Your first module
    :hidden:
 
    howtos/migration_and_deprecation
+   howtos/project_context_compatibility
    faq
    changelog
 
