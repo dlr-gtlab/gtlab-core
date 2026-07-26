@@ -20,6 +20,7 @@
 #include "gt_externalizationmanager.h"
 #include "gt_executioncontext.h"
 #include "gt_project.h"
+#include "gt_projectexecutionguard.h"
 #include "gt_session.h"
 
 namespace {
@@ -217,6 +218,23 @@ TEST(CurrentProjectCompatibility, leavingExecutionContextRestoresGuiFallback)
     }
 
     EXPECT_EQ(gtApp->currentProject(), first);
+}
+
+TEST(CurrentProjectCompatibility, saveAndCloseRejectBusyProject)
+{
+    TestApplication application;
+    TestProject* first = nullptr;
+    TestProject* second = nullptr;
+    auto session = sessionWithProjects(first, second);
+    application.installSession(std::move(session));
+    ASSERT_TRUE(gtDataModel->openProject(first));
+
+    GtProjectExecutionGuard guard;
+    ASSERT_EQ(guard.tryAcquire(first),
+              GtProjectExecutionGuard::Result::Acquired);
+
+    EXPECT_FALSE(gtDataModel->saveProject(first));
+    EXPECT_FALSE(gtDataModel->closeProject(first));
 }
 
 TEST(CurrentProjectCompatibility, nestedExecutionContextsRestorePreviousProject)

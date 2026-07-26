@@ -22,6 +22,7 @@
 #include "gt_statehandler.h"
 #include "gt_externalizationmanager.h"
 #include "gt_executioncontext.h"
+#include "gt_projectexecutionguard.h"
 
 #include "gt_coredatamodel.h"
 
@@ -322,6 +323,12 @@ GtCoreDatamodel::saveProject(GtProject* project)
         return retval;
     }
 
+    if (GtProjectExecutionGuard::isBusy(project))
+    {
+        gtWarning() << tr("Cannot save project while it is being executed.");
+        return false;
+    }
+
     // check session
     if (m_session)
     {
@@ -344,6 +351,12 @@ GtCoreDatamodel::closeProject(GtProject* project)
     // check project
     if (!project)
     {
+        return false;
+    }
+
+    if (GtProjectExecutionGuard::isBusy(project))
+    {
+        gtWarning() << tr("Cannot close project while it is being executed.");
         return false;
     }
 

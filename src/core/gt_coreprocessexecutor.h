@@ -24,6 +24,7 @@ class GtTask;
 class GtRunnable;
 class GtCalculator;
 class GtTaskRunner;
+class GtProjectExecutionGuard;
 
 class GtObjectLinkProperty;
 
@@ -50,6 +51,14 @@ class GT_CORE_EXPORT GtCoreProcessExecutor : public QObject
 
 public:
 
+    enum class RunTaskResult
+    {
+        Started,
+        Queued,
+        Busy,
+        Invalid
+    };
+
     /// Id of this executor
     static const std::string S_ID;
 
@@ -73,6 +82,11 @@ public:
      * @param process GtdProcess
      */
     bool runTask(GtTask* task);
+
+    /**
+     * @brief Runs a task and reports whether it started, was queued, or was rejected.
+     */
+    RunTaskResult runTaskWithResult(GtTask* task);
 
     /**
      * @brief Executes the next task in the queue. No task must be running.
@@ -216,6 +230,8 @@ protected:
     GtTaskRunner* setupTaskRunner();
 
 private:
+
+    RunTaskResult executeNextTaskWithResult();
 
     ///pimpl
     struct Impl;

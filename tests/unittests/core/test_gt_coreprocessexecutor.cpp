@@ -11,6 +11,7 @@
 
 #include "gt_coreprocessexecutor.h"
 #include "gt_project.h"
+#include "gt_projectexecutionguard.h"
 #include "gt_task.h"
 
 class TestExecutor : public GtCoreProcessExecutor
@@ -305,4 +306,41 @@ TEST_F(TestGtCoreProcessExecutor,
     EXPECT_TRUE(executor.executeNextTask());
     EXPECT_EQ(executor.executeCalls, 1);
     EXPECT_EQ(executor.currentRunningTask(), task.get());
+}
+
+TEST(GtCoreProcessExecutor, RejectsMutatingExecutionForBusyProject)
+{
+    TestProject project(QStringLiteral("/tmp/gtlab-executor-project.gtlab"));
+    auto firstTask = std::make_unique<GtTask>();
+    auto secondTask = std::make_unique<GtTask>();
+    ASSERT_TRUE(project.appendChild(firstTask.get()));
+    ASSERT_TRUE(project.appendChild(secondTask.get()));
+
+    TestExecutor first;
+    TestExecutor second;
+
+    EXPECT_EQ(first.runTaskWithResult(firstTask.get()),
+              GtCoreProcessExecutor::RunTaskResult::Started);
+    EXPECT_EQ(second.runTaskWithResult(secondTask.get()),
+              GtCoreProcessExecutor::RunTaskResult::Busy);
+    EXPECT_EQ(secondTask->currentState(), GtProcessComponent::NONE);
+    EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&project));
+}
+
+TEST(GtCoreProcessExecutor, AllowsConcurrentExecutionsForDifferentProjects)
+{
+    TestProject firstProject(QStringLiteral("/tmp/gtlab-executor-a.gtlab"));
+    TestProject secondProject(QStringLiteral("/tmp/gtlab-executor-b.gtlab"));
+    auto firstTask = std::make_unique<GtTask>();
+    auto secondTask = std::make_unique<GtTask>();
+    ASSERT_TRUE(firstProject.appendChild(firstTask.get()));
+    ASSERT_TRUE(secondProject.appendChild(secondTask.get()));
+
+    TestExecutor first;
+    TestExecutor second;
+
+    EXPECT_EQ(first.runTaskWithResult(firstTask.get()),
+              GtCoreProcessExecutor::RunTaskResult::Started);
+    EXPECT_EQ(second.runTaskWithResult(secondTask.get()),
+              GtCoreProcessExecutor::RunTaskResult::Started);
 }

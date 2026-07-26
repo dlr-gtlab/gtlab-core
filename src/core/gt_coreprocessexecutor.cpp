@@ -21,6 +21,7 @@
 #include "gt_objectmementodiff.h"
 #include "gt_coreapplication.h"
 #include "gt_executioncontext.h"
+#include "gt_projectexecutionguard.h"
 #include "gt_taskrunner.h"
 
 #include "gt_coreprocessexecutor.h"
@@ -43,7 +44,26 @@ struct GtCoreProcessExecutor::Impl
 
     /// Pointer to current runnable
     QPointer<GtRunnable> currentRunnable;
+
+    std::unique_ptr<GtProjectExecutionGuard> projectGuard;
 };
+
+namespace
+{
+GtProject* projectForTask(GtTask* task, GtObject* source)
+{
+    auto* project = qobject_cast<GtProject*>(source);
+    if (!project && source)
+    {
+        project = source->findParent<GtProject*>();
+    }
+    if (!project && task)
+    {
+        project = task->findParent<GtProject*>();
+    }
+    return project;
+}
+}
 
 GtCoreProcessExecutor::GtCoreProcessExecutor(QObject* parent, Flags flags) :
     QObject(parent),
@@ -68,36 +88,49 @@ GtCoreProcessExecutor::setCoreExecutorFlags(Flags flags)
 bool
 GtCoreProcessExecutor::runTask(GtTask* task)
 {
+    const auto result = runTaskWithResult(task);
+    return result == RunTaskResult::Started || result == RunTaskResult::Queued;
+}
+
+GtCoreProcessExecutor::RunTaskResult
+GtCoreProcessExecutor::runTaskWithResult(GtTask* task)
+{
     gtDebugId(GT_EXEC_ID).medium() << __FUNCTION__;
 
     if (!queueTask(task))
     {
-        return false;
+        return RunTaskResult::Invalid;
     }
 
     if (taskCurrentlyRunning())
     {
-        return true;
+        return RunTaskResult::Queued;
     }
 
-    return executeNextTask();
+    return executeNextTaskWithResult();
 }
 
 bool
 GtCoreProcessExecutor::executeNextTask()
 {
+    return executeNextTaskWithResult() == RunTaskResult::Started;
+}
+
+GtCoreProcessExecutor::RunTaskResult
+GtCoreProcessExecutor::executeNextTaskWithResult()
+{
     // check whether a task is already running
     if (taskCurrentlyRunning())
     {
         gtErrorId(GT_EXEC_ID) << tr("A Task is already running!");
-        return false;
+        return RunTaskResult::Busy;
     }
 
     // check whether queue is empty
     if (m_queue.isEmpty())
     {
         emit allTasksCompleted();
-        return false;
+        return RunTaskResult::Invalid;
     }
 
     // checkout next task in queue
@@ -108,7 +141,7 @@ GtCoreProcessExecutor::executeNextTask()
     {
         gtErrorId(GT_EXEC_ID) << tr("Cannot execute an invalid Task!");
         clearCurrentTask();
-        return false;
+        return RunTaskResult::Invalid;
     }
 
     // setup source
@@ -122,7 +155,26 @@ GtCoreProcessExecutor::executeNextTask()
         {
             gtErrorId(GT_EXEC_ID) << tr("Source corrupted!");
             clearCurrentTask();
-            return false;
+            return RunTaskResult::Invalid;
+        }
+    }
+
+    if (auto* project = projectForTask(m_current, m_source))
+    {
+        pimpl->projectGuard = std::make_unique<GtProjectExecutionGuard>();
+        const auto result = pimpl->projectGuard->tryAcquire(project);
+        if (result == GtProjectExecutionGuard::Result::Busy)
+        {
+            pimpl->projectGuard.reset();
+            m_queue.removeAll(m_current);
+            m_current->setState(GtProcessComponent::NONE);
+            m_current = nullptr;
+            emit queueChanged();
+            return RunTaskResult::Busy;
+        }
+        if (result == GtProjectExecutionGuard::Result::InvalidProject)
+        {
+            pimpl->projectGuard.reset();
         }
     }
 
@@ -130,7 +182,7 @@ GtCoreProcessExecutor::executeNextTask()
 
     execute();
 
-    return true;
+    return RunTaskResult::Started;
 }
 
 bool
@@ -474,6 +526,7 @@ GtCoreProcessExecutor::setupTaskRunner()
     // setup task runner
     if (!runner->setUp(pimpl->currentRunnable, m_source))
     {
+        pimpl->projectGuard.reset();
         delete pimpl->currentRunnable;
         delete runner;
         clearCurrentTask();
@@ -536,6 +589,8 @@ GtCoreProcessExecutor::onTaskRunnerFinished()
             handleTaskFinishedHelper(changedData, finishedTask);
         }
     }
+
+    pimpl->projectGuard.reset();
 
     gtInfoId(GT_EXEC_ID).medium()
         << tr("----> Task finished (took %1 ms to merge) <----")

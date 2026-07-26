@@ -107,3 +107,19 @@ context on its worker thread for the complete read, calculator, and write
 boundary. Its project path therefore comes from execution-specific context
 data instead of the GUI-selected project. The scope is removed when the run
 finishes, including failed and interrupted runs.
+
+Project-scoped mutation policy
+------------------------------
+
+Mutating process executions are serialized per project. The core derives a
+stable execution key from the canonical project path and holds a scoped guard
+from task setup through result merging. A second executor targeting the same
+project receives a structured ``Busy`` result and is rejected; it is not
+silently queued behind an unrelated executor. Executions for different
+projects use different keys and can proceed concurrently.
+
+Project save and close operations check the same guard and fail deterministically
+while an execution is active. The guard is released on normal completion,
+failure, interruption, setup failure, and executor destruction. This is an
+in-process coordination mechanism only; it does not provide distributed
+locking or transactional conflict resolution.
