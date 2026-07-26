@@ -81,5 +81,19 @@ alive for as long as the context may be used.
 Scopes can be nested and their destructors restore the previous context, also
 when control leaves the scope early or through an exception. The current
 context is available through ``GtExecutionContext::current()``. Contexts are
-not automatically propagated to child threads, and installing a scope does
-not change ``GtCoreApplication::currentProject()``.
+not automatically propagated to child threads.
+
+``currentProject()`` resolution
+-------------------------------
+
+``GtCoreApplication::currentProject()`` and
+``GtCoreDatamodel::currentProject()`` use the same resolution policy:
+
+1. the project from the active, thread-local ``GtExecutionContext``;
+2. otherwise the currently selected project of the active session;
+3. ``nullptr`` when neither is available.
+
+This keeps existing calls such as ``gtApp->currentProject()`` source-compatible
+while allowing legacy calculator code to observe its execution project. The
+context is only available on the thread where its scope was installed; callers
+must still use an explicit context for worker-thread execution.

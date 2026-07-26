@@ -56,8 +56,11 @@ public:
     GtSession* session();
 
     /**
-     * @brief Returns current project. If no current project exists NULL will
-     * be returned.
+     * @brief Returns the execution-context project or the session project.
+     *
+     * If a GtExecutionContext is active on the current thread, its project is
+     * returned. Otherwise the currently selected session project is returned;
+     * if neither exists, NULL is returned.
      * @return Current project pointer
      */
     GtProject* currentProject();

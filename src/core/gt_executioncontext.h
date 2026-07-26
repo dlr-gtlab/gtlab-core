@@ -31,14 +31,14 @@ public:
      * @param jobId Optional job or execution identifier.
      */
     explicit GtExecutionContext(
-        GtProject const* project = nullptr,
+        GtProject* project = nullptr,
         QString executionDataRoot = {},
         QString source = {},
         QString projectPath = {},
         QString jobId = {});
 
     /// Returns the borrowed project associated with this execution.
-    GtProject const* project() const noexcept;
+    GtProject* project() const noexcept;
 
     /// Returns the root directory for execution data.
     QString const& executionDataRoot() const noexcept;
@@ -65,7 +65,7 @@ public:
     static GtExecutionContext const* currentContext() noexcept;
 
 private:
-    GtProject const* m_project;
+    GtProject* m_project;
     QString m_executionDataRoot;
     QString m_source;
     QString m_projectPath;

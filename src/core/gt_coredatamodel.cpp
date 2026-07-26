@@ -21,6 +21,7 @@
 #include "gt_state.h"
 #include "gt_statehandler.h"
 #include "gt_externalizationmanager.h"
+#include "gt_executioncontext.h"
 
 #include "gt_coredatamodel.h"
 
@@ -186,6 +187,11 @@ GtCoreDatamodel::session()
 GtProject*
 GtCoreDatamodel::currentProject()
 {
+    if (auto const* context = GtExecutionContext::current())
+    {
+        return context->project();
+    }
+
     // check session
     if (m_session)
     {

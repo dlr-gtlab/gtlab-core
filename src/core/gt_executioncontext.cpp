@@ -16,7 +16,7 @@ thread_local GtExecutionContext const* currentExecutionContext = nullptr;
 
 } // namespace
 
-GtExecutionContext::GtExecutionContext(GtProject const* project,
+GtExecutionContext::GtExecutionContext(GtProject* project,
                                        QString executionDataRoot,
                                        QString source,
                                        QString projectPath,
@@ -33,7 +33,7 @@ GtExecutionContext::GtExecutionContext(GtProject const* project,
     }
 }
 
-GtProject const*
+GtProject*
 GtExecutionContext::project() const noexcept
 {
     return m_project;
