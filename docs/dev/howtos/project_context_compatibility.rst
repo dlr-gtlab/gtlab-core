@@ -97,3 +97,13 @@ This keeps existing calls such as ``gtApp->currentProject()`` source-compatible
 while allowing legacy calculator code to observe its execution project. The
 context is only available on the thread where its scope was installed; callers
 must still use an explicit context for worker-thread execution.
+
+Core process execution
+----------------------
+
+The Core process executor determines the project from the task/source and
+passes an execution context into ``GtRunnable``. The runnable installs that
+context on its worker thread for the complete read, calculator, and write
+boundary. Its project path therefore comes from execution-specific context
+data instead of the GUI-selected project. The scope is removed when the run
+finishes, including failed and interrupted runs.

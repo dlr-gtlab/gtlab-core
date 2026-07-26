@@ -20,6 +20,7 @@
 #include "gt_task.h"
 #include "gt_objectmementodiff.h"
 #include "gt_coreapplication.h"
+#include "gt_executioncontext.h"
 #include "gt_taskrunner.h"
 
 #include "gt_coreprocessexecutor.h"
@@ -446,8 +447,29 @@ GtCoreProcessExecutor::setupTaskRunner()
     // create new task runner
     auto* runner = new GtTaskRunner{m_current};
 
+    GtProject* project = qobject_cast<GtProject*>(m_source.data());
+    if (!project)
+    {
+        project = m_source->findParent<GtProject*>();
+    }
+    if (!project)
+    {
+        project = m_current->findParent<GtProject*>();
+    }
+
+    const QString projectPath = pimpl->customProjectPath.isEmpty() && project ?
+                                     project->path() :
+                                     pimpl->customProjectPath;
+    GtExecutionContext executionContext(
+        project,
+        {},
+        m_source->objectName(),
+        projectPath,
+        m_current->objectName());
+
     // create new runnable
-    pimpl->currentRunnable = new GtRunnable{pimpl->customProjectPath};
+    pimpl->currentRunnable = new GtRunnable{
+        pimpl->customProjectPath, std::move(executionContext)};
 
     // setup task runner
     if (!runner->setUp(pimpl->currentRunnable, m_source))

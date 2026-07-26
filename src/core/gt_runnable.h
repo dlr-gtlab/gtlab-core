@@ -12,6 +12,7 @@
 #define GTRUNNABLE_H
 
 #include "gt_abstractrunnable.h"
+#include "gt_executioncontext.h"
 
 #include "gt_processcomponent.h"
 
@@ -28,6 +29,13 @@ public:
      * @param projectPath Project path
      */
     explicit GtRunnable(QString projectPath = {});
+
+    /**
+     * @brief Constructs a runnable with execution-specific context data.
+     * @param projectPath Legacy custom project path
+     * @param executionContext Context to install while running
+     */
+    GtRunnable(QString projectPath, GtExecutionContext executionContext);
 
     /**
      * @brief run
@@ -62,6 +70,9 @@ private:
 
     /// custom project path (by default empty)
     QString m_projectPath;
+
+    /// Context associated with this execution.
+    GtExecutionContext m_executionContext;
 
     /**
      * @brief transferObjects
