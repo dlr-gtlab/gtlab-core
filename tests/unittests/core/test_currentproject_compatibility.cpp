@@ -68,6 +68,8 @@ public:
     void installSession(std::unique_ptr<TestSession> session)
     {
         constexpr auto sessionId = "currentproject-compatibility";
+        ASSERT_FALSE(gtApp->roamingPath().isEmpty());
+        ASSERT_TRUE(QDir().mkpath(gtApp->roamingPath()));
         ASSERT_TRUE(TestSession::createEmptySessionForTest(
             QString::fromLatin1(sessionId)));
         m_session.reset();
