@@ -262,6 +262,21 @@ TEST_F(TestGtRunnable, executionContextIsInstalledForRunAndRestoredAfterwards)
     EXPECT_EQ(GtExecutionContext::current(), nullptr);
 }
 
+TEST_F(TestGtRunnable, runWithoutContextPreservesAnExistingContext)
+{
+    GtExecutionContext outerContext(nullptr,
+                                     {},
+                                     QStringLiteral("outer-source"),
+                                     QStringLiteral("outer-project"),
+                                     QStringLiteral("outer-job"));
+    GtExecutionContextScope outerScope(outerContext);
+    GtRunnable runnable;
+
+    runnable.run();
+
+    EXPECT_EQ(GtExecutionContext::current(), &outerContext);
+}
+
 TEST_F(TestGtRunnable, sequentialRunsUseDifferentExecutionContexts)
 {
     class TestProject : public GtProject

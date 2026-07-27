@@ -27,6 +27,45 @@ TEST(GtProjectExecutionGuard, UsesCanonicalProjectIdentity)
               GtProjectExecutionGuard::projectKey(&second));
 }
 
+TEST(GtProjectExecutionGuard, RejectsInvalidProjects)
+{
+    TestProject project(QString{});
+    GtProjectExecutionGuard guard;
+
+    EXPECT_TRUE(GtProjectExecutionGuard::projectKey(nullptr).isEmpty());
+    EXPECT_TRUE(GtProjectExecutionGuard::projectKey(&project).isEmpty());
+    EXPECT_EQ(guard.tryAcquire(nullptr),
+              GtProjectExecutionGuard::Result::InvalidProject);
+    EXPECT_EQ(guard.tryAcquire(&project),
+              GtProjectExecutionGuard::Result::InvalidProject);
+    EXPECT_FALSE(guard.isHeld());
+    EXPECT_TRUE(guard.key().isEmpty());
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(nullptr));
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
+}
+
+TEST(GtProjectExecutionGuard, ReacquiringReleasesPreviousProject)
+{
+    TestProject first(QStringLiteral("/tmp/gtlab-project-reacquire-a.gtlab"));
+    TestProject second(QStringLiteral("/tmp/gtlab-project-reacquire-b.gtlab"));
+    GtProjectExecutionGuard guard;
+
+    ASSERT_EQ(guard.tryAcquire(&first),
+              GtProjectExecutionGuard::Result::Acquired);
+    ASSERT_TRUE(guard.isHeld());
+    ASSERT_EQ(guard.tryAcquire(&second),
+              GtProjectExecutionGuard::Result::Acquired);
+
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&first));
+    EXPECT_TRUE(GtProjectExecutionGuard::isBusy(&second));
+    EXPECT_EQ(guard.key(),
+              GtProjectExecutionGuard::projectKey(&second));
+
+    guard.release();
+    guard.release();
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&second));
+}
+
 TEST(GtProjectExecutionGuard, SerializesSameProjectAndReleases)
 {
     TestProject project(QStringLiteral("/tmp/gtlab-project.gtlab"));

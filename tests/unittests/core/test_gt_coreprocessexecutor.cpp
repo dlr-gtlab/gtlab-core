@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "gt_coreprocessexecutor.h"
+#include "gt_objectfactory.h"
 #include "gt_project.h"
 #include "gt_projectexecutionguard.h"
 #include "gt_task.h"
@@ -27,6 +28,7 @@ public:
     int executeCalls = 0;
     int terminateCalls = 0;
     bool terminateResult = true;
+    bool useRealExecution = false;
 
     void setCurrentTask(GtTask* task)
     {
@@ -41,6 +43,12 @@ public:
 protected:
     void execute() override
     {
+        if (useRealExecution)
+        {
+            GtCoreProcessExecutor::execute();
+            return;
+        }
+
         ++executeCalls;
     }
 
@@ -109,6 +117,13 @@ TEST_F(TestGtCoreProcessExecutor, queueTaskRejectsNullAndDuplicateTasks)
     EXPECT_TRUE(executor.taskQueued(task.get()));
     EXPECT_FALSE(executor.queueTask(task.get()));
     EXPECT_EQ(queueChanges, 1);
+}
+
+TEST_F(TestGtCoreProcessExecutor, runTaskReturnsInvalidForRejectedTask)
+{
+    EXPECT_FALSE(executor.runTask(nullptr));
+    EXPECT_EQ(executor.runTaskWithResult(nullptr),
+              GtCoreProcessExecutor::RunTaskResult::Invalid);
 }
 
 TEST_F(TestGtCoreProcessExecutor,
@@ -306,6 +321,41 @@ TEST_F(TestGtCoreProcessExecutor,
     EXPECT_TRUE(executor.executeNextTask());
     EXPECT_EQ(executor.executeCalls, 1);
     EXPECT_EQ(executor.currentRunningTask(), task.get());
+}
+
+TEST(GtCoreProcessExecutor, ReleasesProjectGuardAfterRealExecution)
+{
+    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+
+    TestProject project(QStringLiteral("/tmp/gtlab-executor-real.gtlab"));
+    project.setObjectName("project");
+    auto task = std::make_unique<GtTask>();
+    task->setFactory(gtObjectFactory);
+    ASSERT_TRUE(project.appendChild(task.get()));
+
+    TestExecutor executor;
+    executor.useRealExecution = true;
+    ASSERT_TRUE(executor.setSource(&project));
+
+    EXPECT_EQ(executor.runTaskWithResult(task.get()),
+              GtCoreProcessExecutor::RunTaskResult::Started);
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
+    EXPECT_FALSE(executor.taskCurrentlyRunning());
+}
+
+TEST(GtCoreProcessExecutor, AllowsExecutionForProjectWithoutPath)
+{
+    TestProject project(QString{});
+    auto task = std::make_unique<GtTask>();
+    ASSERT_TRUE(project.appendChild(task.get()));
+
+    TestExecutor executor;
+    ASSERT_TRUE(executor.setSource(&project));
+
+    EXPECT_EQ(executor.runTaskWithResult(task.get()),
+              GtCoreProcessExecutor::RunTaskResult::Started);
+    EXPECT_EQ(executor.executeCalls, 1);
+    EXPECT_FALSE(GtProjectExecutionGuard::isBusy(&project));
 }
 
 TEST(GtCoreProcessExecutor, RejectsMutatingExecutionForBusyProject)
