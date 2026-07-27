@@ -19,9 +19,13 @@
 #include "gt_coredatamodel.h"
 #include "gt_externalizationmanager.h"
 #include "gt_executioncontext.h"
+#include "gt_objectfactory.h"
 #include "gt_project.h"
 #include "gt_projectexecutionguard.h"
+#include "gt_runnable.h"
 #include "gt_session.h"
+#include "gt_task.h"
+#include "gt_taskrunner.h"
 
 namespace {
 
@@ -115,6 +119,31 @@ public:
         return observedProject != nullptr;
     }
 };
+
+class EndToEndLegacyCalculator : public GtCalculator
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE EndToEndLegacyCalculator() = default;
+
+    static GtProject* projectToSelect;
+    static GtProject* observedProject;
+
+    bool run() override
+    {
+        if (projectToSelect)
+        {
+            gtApp->setCurrentProject(projectToSelect);
+        }
+
+        observedProject = gtApp->currentProject();
+        return observedProject != nullptr;
+    }
+};
+
+GtProject* EndToEndLegacyCalculator::projectToSelect = nullptr;
+GtProject* EndToEndLegacyCalculator::observedProject = nullptr;
 
 std::unique_ptr<TestSession> sessionWithProjects(TestProject*& first,
                                                  TestProject*& second)
@@ -258,3 +287,45 @@ TEST(CurrentProjectCompatibility, nestedExecutionContextsRestorePreviousProject)
     }
     EXPECT_EQ(gtApp->currentProject(), second);
 }
+
+TEST(CurrentProjectCompatibility,
+     endToEndLegacyExecutionKeepsProjectContextWhenGuiSelectionChanges)
+{
+    TestApplication application;
+    TestProject* first = nullptr;
+    TestProject* second = nullptr;
+    auto session = sessionWithProjects(first, second);
+    application.installSession(std::move(session));
+    ASSERT_TRUE(gtDataModel->openProject(first));
+
+    gtObjectFactory->registerClass(
+        EndToEndLegacyCalculator::staticMetaObject);
+    gtObjectFactory->registerClass(GtTask::staticMetaObject);
+
+    auto task = std::make_unique<GtTask>();
+    task->setFactory(gtObjectFactory);
+    auto calculator = std::make_unique<EndToEndLegacyCalculator>();
+    calculator->setFactory(gtObjectFactory);
+    ASSERT_TRUE(task->appendChild(calculator.get()));
+    calculator.release();
+    ASSERT_TRUE(second->appendChild(task.get()));
+    task.release();
+
+    EndToEndLegacyCalculator::projectToSelect = first;
+    EndToEndLegacyCalculator::observedProject = nullptr;
+
+    auto* runnable = new GtRunnable(
+        {}, GtExecutionContext(second, {}, {}, second->path(), "job-b"));
+    GtTaskRunner runner(second->findDirectChildren<GtTask*>().front());
+    ASSERT_TRUE(runner.setUp(runnable, second));
+
+    runnable->run();
+
+    EXPECT_EQ(EndToEndLegacyCalculator::observedProject, second);
+    EXPECT_EQ(gtApp->currentProject(), first);
+
+    EndToEndLegacyCalculator::projectToSelect = nullptr;
+    EndToEndLegacyCalculator::observedProject = nullptr;
+}
+
+#include "test_currentproject_compatibility.moc"

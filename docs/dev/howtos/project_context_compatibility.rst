@@ -98,6 +98,22 @@ while allowing legacy calculator code to observe its execution project. The
 context is only available on the thread where its scope was installed; callers
 must still use an explicit context for worker-thread execution.
 
+Recommended calculator API
+--------------------------
+
+New calculators should accept a ``GtExecutionContext`` (or the project accessor
+derived from it) from their execution boundary and use that explicit value for
+project data. This makes the project dependency visible and avoids coupling new
+code to the compatibility singleton. Existing calculators may continue to use
+``gtApp->currentProject()``; while they run through the Core process executor,
+that call resolves to the execution project without source changes.
+
+The context is thread-local and is not copied to threads created by a module.
+Worker code must therefore receive the project or context explicitly. A worker
+must not retain a borrowed project pointer beyond the execution lifetime, and
+queued callbacks must not infer a project later through an unscoped global
+lookup.
+
 Core process execution
 ----------------------
 
@@ -123,3 +139,22 @@ while an execution is active. The guard is released on normal completion,
 failure, interruption, setup failure, and executor destruction. This is an
 in-process coordination mechanism only; it does not provide distributed
 locking or transactional conflict resolution.
+
+End-to-end validation and deferred work
+---------------------------------------
+
+The compatibility test suite executes a legacy calculator through the same
+``GtTaskRunner``/``GtRunnable`` boundary used by Core execution. It uses two
+projects, changes the GUI-selected project while the calculator is running, and
+verifies that the execution still observes its own project. Batch-mode tests
+continue to verify the headless compatibility path, while project guards cover
+same-project write serialization and preserve concurrent execution for distinct
+projects.
+
+The following architectural work remains deliberately deferred:
+
+* execution-project snapshots;
+* context-aware asynchronous helpers;
+* per-context externalization and state services;
+* a fully multi-project in-process datamodel; and
+* web API and worker orchestration.
