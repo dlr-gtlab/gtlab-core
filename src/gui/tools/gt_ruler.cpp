@@ -76,7 +76,7 @@ GtRuler::~GtRuler() = default;
 
 
 QPixmap&
-GtRuler::buffer()
+GtRuler::cache()
 {
     return pimpl->cache;
 }
@@ -98,6 +98,7 @@ void
 GtRuler::flipAxis(bool flipped)
 {
     pimpl->axisFlipped = flipped;
+    invalidate();
 }
 
 bool
@@ -173,7 +174,7 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
     QPainter painter{&pimpl->cache};
     painter.setRenderHint(QPainter::Antialiasing, false);
     painter.setRenderHint(QPainter::TextAntialiasing, false);
-    painter.fillRect(buffer().rect(), palette().color(QPalette::Window));
+    painter.fillRect(cache().rect(), palette().color(QPalette::Window));
 
     painter.setPen(gt::gui::color::text());
     painter.setFont(font());
@@ -196,22 +197,22 @@ GtRuler::paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewport
         lineDistance = spacing.hSpacing;
         left   = backgroundRect.left();
         right  = backgroundRect.right();
-        height = buffer().height();
+        height = cache().height();
         adjustedTransform = viewportTransform;
         break;
 
     case Qt::Vertical:
         painter.rotate(90); // rotating to operate on pixmap as if it is horizontal
-        painter.translate(buffer().height(), 0); // move to end of pixmap
+        painter.translate(cache().height(), 0); // move to end of pixmap
         painter.scale(-1, -1); // flip 180 degrees (so that the text is rotated correctly)
 
         lineDistance = spacing.vSpacing;
         left   = backgroundRect.top();
         right  = backgroundRect.bottom();
-        height = buffer().width();
+        height = cache().width();
 
         // NOTE: black magic
-        const double offset = buffer().height();
+        const double offset = cache().height();
         // transform (x,y) -> (y,x)
         const QTransform swap{0, 1, 1, 0, 0, 0};
         // transform (x,y) -> (offset-x, y)

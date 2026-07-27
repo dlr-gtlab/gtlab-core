@@ -33,12 +33,6 @@ public:
     ~GtRuler() override;
 
     /**
-     * @brief Returns the buffer used for caching the rendered ruler.
-     * @return Buffer
-     */
-    QPixmap& buffer();
-
-    /**
      * @brief Returns ruler orientation.
      * @return Ruler orientation
      */
@@ -97,6 +91,7 @@ public:
     {
         return textSizeHint(str);
     }
+
     /**
      * @brief Returns the size of the given string
      * @param str String
@@ -110,16 +105,12 @@ public:
      */
     void setCursorPosition(const QPoint& pos);
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `needsRepaint(QRectF, QTransform)` instead")
-    bool needsRepaint() const { return true; }
     /**
      * @brief Returns whether ruler needs a repaint or not.
      * @return Whether to repaint the ruler.
      */
     bool needsRepaint(QRectF backgroundRect, QTransform viewportTransform) const;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "use `invalidate()` instead")
-    void setNeedsRepaint(bool val) { if (val) invalidate(); }
     /**
      * @brief Invalidates the ruler, causing it to redraw.
      */
@@ -135,6 +126,12 @@ public:
     virtual void paint(GtGridSpacing spacing, QRectF backgroundRect, QTransform viewportTransform);
 
 protected:
+
+    /**
+     * @brief Returns the buffer used for caching the rendered ruler.
+     * @return Buffer
+     */
+    QPixmap& cache();
 
     /**
      * @brief Overloaded Paint Function. Renders the caches pixmap.

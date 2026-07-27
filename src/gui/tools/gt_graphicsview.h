@@ -107,10 +107,6 @@ public:
      */
     void connectVerticalRuler(GtRuler* ruler);
 
-    /// Repaints ruler.
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtRuler::paint` instead.")
-    void repaintRuler() {}
-
     /**
      * @brief Sets view scale to given factor.
      * Same as setZoom.

@@ -371,15 +371,6 @@ public:
      */
     QColor axisColor() const;
 
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtGraphicsView::connectHorizontalRuler` instead.")
-    void setHorizontalRuler(GtRuler* ruler) {}
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtGraphicsView::connectVerticalRuler` instead.")
-    void setVerticalRuler(GtRuler* ruler) {}
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Use `GtRuler::paint` instead.")
-    void paintRuler(GtRuler* ruler) const {}
-
     GT_DEPRECATED_REMOVED_IN(2, 2, "use `paint` instead.")
     void paintGrid(QPainter* painter, const QRectF& rect)
     {
@@ -423,31 +414,6 @@ public:
      * @return Nearest minor grid point to p
      */
     QPointF computeNearestMinorGridPoint(const QPointF& p);
-
-    /**
-     * @brief Sets current grid scale factor.
-     * @param val Grid scale factor
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Determined when painting, no replacement is planned")
-    void setGridScaleFactor(int val) {}
-
-    /**
-     * @brief Sets number of grid points for one grid rect.
-     * @param horizontal Number of horizontal grid points
-     * @param vertical Number of vertical grid points
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
-    void setNumberOfGridPoints(int horizontal, int vertical) { }
-
-    /**
-     * @brief Sets whether grid points should be enabled or not.
-     * @param val Gridpoints indicator
-     */
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
-    void setShowGridPoints(bool val) { }
-
-    GT_DEPRECATED_REMOVED_IN(2, 2, "Function has no effect. No replacement is planned.")
-    void setGridPointColor(const QColor& color) {}
 
 signals:
 

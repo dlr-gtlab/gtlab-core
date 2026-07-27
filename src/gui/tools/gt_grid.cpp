@@ -141,6 +141,11 @@ struct GtGrid::Impl
         QLineF m_lines[Capacity];
     };
 
+    void invalidateChachedSpacing()
+    {
+        cachedZoom = 0.0;
+    }
+
     double quantizedSpacing(double ideal, double baseSpacing) const
     {
         switch (scalingStrategy)
@@ -303,6 +308,7 @@ void
 GtGrid::setHSpacing(unsigned spacing)
 {
     pimpl->hSpacing = std::max(spacing, 1u);
+    pimpl->invalidateChachedSpacing();
     emit updated();
 }
 
@@ -316,6 +322,7 @@ void
 GtGrid::setVSpacing(unsigned spacing)
 {
     pimpl->vSpacing = std::max(spacing, 1u);
+    pimpl->invalidateChachedSpacing();
     emit updated();
 }
 
@@ -364,7 +371,7 @@ void
 GtGrid::setScalingStrategy(ScalingStrategy strategy)
 {
     pimpl->scalingStrategy = strategy;
-    pimpl->cachedZoom = 0.0;
+    pimpl->invalidateChachedSpacing();
     emit updated();
 }
 
